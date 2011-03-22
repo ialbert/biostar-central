@@ -2,19 +2,22 @@
 Introduction
 -------------
 
-The codebase requires python 2.6 or higher and Django version 1.2 or higher.
-Using the Blueprint CSS framework for styling. 
+The codebase requires Python_ (version 2.6 or higher) and Django_ (version 1.2 or higher).
+Currently using the `Blueprint CSS`_ framework for layout and JQuery_ for javascript. 
 
-If using the testdata unpack the import data located in the home/import
+Installation
+------------
 
-	$ cd home/import
-	$ unzip -d output biostar-20100415142324.zip
+First unpack the import data located in `home/import`::
 
-There is a main run manager in the root directory:
+    $ cd home/import
+    $ unzip -d output biostar-20100415142324.zip
+
+There is a main run manager in the root directory::
 
     $ biostar.sh 
 
-execute it with no parameters for information on usage. A typical initial run would be:
+execute it with no parameters for information on usage. A typical initial run would be::
 
     $ biostar.sh init populate run
 
@@ -38,3 +41,8 @@ Colorscheme
 
 Purple: #8F2C47
 Green: #75845C
+
+.. _Blueprint CSS: http://www.blueprintcss.org/
+.. _Django: http://www.djangoproject.com/
+.. _Python: http://www.python.org/
+.. _JQuery: http://jquery.com/
