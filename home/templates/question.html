@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block subheader %}
+  <h2>{{params.question.title }}</h2>
+{% endblock %}
+
+{% block mainbody %}
+    <div class="content"">
+      {{params.question.post.body|safe }}
+    </div>
+{% endblock %}

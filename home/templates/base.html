@@ -1,0 +1,102 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+
+<html>
+<head>
+  <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+
+  <title>{% block title %}BioStar{% endblock %}</title>
+
+    {% block framework %}
+        <!-- Framework CSS Frameworks -->
+        <link rel="stylesheet" href="/static/blueprint/screen.css" type="text/css" media="screen, projection" />
+        <link rel="stylesheet" href="/static/blueprint/print.css" type="text/css" media="print" />
+        <!--[if IE]><link rel="stylesheet" href="/static/blueprint/ie.css" type="text/css" media="screen, projection"/><![endif]-->
+        <link rel="stylesheet" href="/static/blueprint/plugins/fancy-type/screen.css" type="text/css" media="screen, projection" />
+
+        <link rel="stylesheet" href="/static/biostar.css" type="text/css" media="screen, projection" />
+        
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
+    {% endblock %}
+
+    {% block custom-headers %}
+        <!-- placeholder for custom header-->
+    {% endblock %}
+
+</head>
+
+<body>
+  <div class="container">
+
+  <div class="span-4">&nbsp;</div> 
+
+  <div class="span-20 last topbar">
+
+          <div style="float:right">
+            
+            <form id="search2" action="/search" method="get">
+                Username: <b>{{user}} 819 points</b> 
+                | tools | faq 
+                <input name="q" class="textbox" tabindex="1" onfocus="if (this.value=='search') this.value = ''" maxlength="80" size="28" value="search" type="text">
+            </form>
+          </div>
+
+    </div>
+
+    <div id="header" class="span-24 last">
+        
+
+        <div id="logo"><a href="/"><img src="/static/biostar.logo.png" /></a></div>
+        <div id="menus">
+            <div class="nav">
+                <ul>
+                    <li><a href="#">Questions</a></li>
+                    <li><a href="#">Tags</a></li>
+                    <li><a href="#">Users</a></li>
+                    <li><a href="#">Badges</a></li>
+                    <li><a href="#">Unanswered</a></li>
+                </ul>
+            </div>
+            <div style="float: right;" class="nav">
+                <ul>
+                    <li style="margin-right: 0px;">
+                        <a href="/questions/ask" id="nav-ask">Ask Question</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    
+    {% block message %}
+        {% if messages %}
+            <div class="span-24 last" id="messages">
+                <div class="ui-state-highlight ui-corner-all" style="margin-bottom: 10px; padding: 1em;">
+                    {% for message in messages %}
+                        <div><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>{{ message|safe }}</div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+    {% endblock %}
+
+    <div id="mainbody" class="span-24 last">
+        <div id="subheader">
+            {% block subheader %}
+                <h2>Recent Questions</h2>
+            {% endblock %}
+        </div>
+
+        {% block mainbody %}
+            Main body
+        {% endblock %}
+    </div>
+
+    <div id="basefooter" class="span-24 last" align="center">
+      Powered by <a href="."><img src="/static/biostar.antipixel.png" /></a> 
+      &bull; Copyright 2011 by <a href=".">BioStar team</a>
+    </div>
+
+</div>
+</body>
+
+</html>
