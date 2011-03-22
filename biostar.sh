@@ -64,7 +64,7 @@ while (( "$#" )); do
 
 	if [ "$1" = "populate" ]; then
 		echo "*** Populating server on $BIOSTAR_HOSTNAME"
-		$PYTHON_EXE home/import/migrate.py home/import/biostar-20110216151152
+		$PYTHON_EXE home/import/migrate.py home/import/output
 	fi
 
 	if [ "$1" = "run" ]; then

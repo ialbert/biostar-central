@@ -5,6 +5,11 @@ Introduction
 The codebase requires python 2.6 or higher and Django version 1.2 or higher.
 Using the Blueprint CSS framework for styling. 
 
+If using the testdata unpack the import data located in the home/import
+
+	$ cd home/import
+	$ unzip -d output biostar-20100415142324.zip
+
 There is a main run manager in the root directory:
 
     $ biostar.sh 
@@ -14,7 +19,7 @@ execute it with no parameters for information on usage. A typical initial run wo
     $ biostar.sh init populate run
 
 Layout
--------
+------
 
 The Python code is found in the biostar folder. Templates, static content 
 (css, images, javascript) and data are found in the home directory. 
