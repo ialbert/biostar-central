@@ -2,8 +2,8 @@
 Introduction
 -------------
 
-The codebase requires Python_ (version 2.6 or higher) and Django_ (version 1.2 or higher).
-Currently using the `Blueprint CSS`_ framework for layout and JQuery_ for javascript. 
+The codebase requires Python_ (version 2.6 or higher) and Django_ (version 1.3 or higher).
+Currently using the `Blueprint CSS`_ framework for layout and JQuery_ for javascript.
 
 Installation
 ------------
@@ -33,7 +33,7 @@ The populate command will load this data into the current database.
 Notes
 -----
 
-Upon the first run a secret-key.txt file is created in the home directory. 
+Upon the first run a `secret-key.txt` file is created in the home directory. 
 The content of this file will serve as default administrative password.
 
 Colorscheme

@@ -6,64 +6,74 @@
 
   <title>{% block title %}BioStar{% endblock %}</title>
 
-    {% block framework %}
-        <!-- Framework CSS Frameworks -->
+    {% block  common-frameworks %}
+        <!-- CSS Framework loading -->
         <link rel="stylesheet" href="/static/blueprint/screen.css" type="text/css" media="screen, projection" />
         <link rel="stylesheet" href="/static/blueprint/print.css" type="text/css" media="print" />
         <!--[if IE]><link rel="stylesheet" href="/static/blueprint/ie.css" type="text/css" media="screen, projection"/><![endif]-->
         <link rel="stylesheet" href="/static/blueprint/plugins/fancy-type/screen.css" type="text/css" media="screen, projection" />
 
-        <link rel="stylesheet" href="/static/biostar.css" type="text/css" media="screen, projection" />
-        
+        <!-- JQuery Library  -->
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
+
+
+        <!-- Biostar specific style sheet and javascript-->
+        <link rel="stylesheet" href="/static/biostar.css" type="text/css" media="screen, projection" />
+        <script src="/static/biostar.js"></script>
     {% endblock %}
 
-    {% block custom-headers %}
-        <!-- placeholder for custom header-->
+    {% block custom-frameworks %}
+        <!-- placeholder block for custom header information-->
     {% endblock %}
 
 </head>
 
 <body>
+  
   <div class="container">
 
-  <div class="span-4">&nbsp;</div> 
+    <div class="span-4">&nbsp;</div> 
 
-  <div class="span-20 last topbar">
+    <!-- this is the top bar with the user specific information -->
+    <div class="span-20 last topbar">
 
-          <div style="float:right">
-            
-            <form id="search2" action="/search" method="get">
-                Username: <b>{{user}} 819 points</b> 
-                | tools | faq 
-                <input name="q" class="textbox" tabindex="1" onfocus="if (this.value=='search') this.value = ''" maxlength="80" size="28" value="search" type="text">
-            </form>
-          </div>
+          {% block topbar %}
+            <div style="float:right">
+              <form id="search2" action="/search" method="get">
+                  Username: <b>{{user}} 819 points</b> 
+                  | tools | faq 
+                  <input name="q" class="textbox" tabindex="1" onfocus="if (this.value=='search') this.value = ''" maxlength="80" size="28" value="search" type="text">
+              </form>
+            </div>
+          {% endblock %}
 
     </div>
 
+    <!-- Logo and navigation bar -->
     <div id="header" class="span-24 last">
         
+        {% block pagehead %}
+          <div id="logo"><a href="/"><img src="/static/biostar.logo.png" /></a></div>
+          <div id="menus">
+              <div class="nav">
+                  <ul>
+                      <li><a href="#">Questions</a></li>
+                      <li><a href="#">Tags</a></li>
+                      <li><a href="#">Users</a></li>
+                      <li><a href="#">Badges</a></li>
+                      <li><a href="#">Unanswered</a></li>
+                  </ul>
+              </div>
+              <div style="float: right;" class="nav">
+                  <ul>
+                      <li style="margin-right: 0px;">
+                          <a href="/questions/ask" id="nav-ask">Ask Question</a>
+                      </li>
+                  </ul>
+              </div>
+          </div>
+        {% endblock %}
 
-        <div id="logo"><a href="/"><img src="/static/biostar.logo.png" /></a></div>
-        <div id="menus">
-            <div class="nav">
-                <ul>
-                    <li><a href="#">Questions</a></li>
-                    <li><a href="#">Tags</a></li>
-                    <li><a href="#">Users</a></li>
-                    <li><a href="#">Badges</a></li>
-                    <li><a href="#">Unanswered</a></li>
-                </ul>
-            </div>
-            <div style="float: right;" class="nav">
-                <ul>
-                    <li style="margin-right: 0px;">
-                        <a href="/questions/ask" id="nav-ask">Ask Question</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
     </div>
 
     
