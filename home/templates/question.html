@@ -6,7 +6,7 @@
 
 {% block custom-frameworks %}
     <!-- Tiny MCE editor -->
-    <script type="text/javascript" src="http://biostar.bx.psu.edu/tinymce/tiny_mce.js" ></script >
+    <script type="text/javascript" src="http://helios.bx.psu.edu/static/tinymce/tiny_mce.js" ></script >
     <script type="text/javascript" >
         tinyMCE.init({
             theme : "advanced",
@@ -18,7 +18,7 @@
             theme_advanced_toolbar_location : "bottom",
             theme_advanced_toolbar_align : "center",
             theme_advanced_styles : "Code=codeStyle;Quote=quoteStyle",
-            content_css : "css/bbcode.css",
+            content_css : "/static/biostar.css",
             entity_encoding : "raw",
             add_unload_trigger : false,
             remove_linebreaks : false,
@@ -42,7 +42,9 @@
                     <div class="mini-counts">0</div>
                 </td>
                 <td>
-                    {{params.question.post.html|safe }}
+                    <div>
+                        {{params.question.post.html|safe }}
+                    </div>
                     <div class="left">
                         mod | edit | flag
                     </div>

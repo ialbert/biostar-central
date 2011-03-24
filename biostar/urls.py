@@ -12,6 +12,7 @@ urlpatterns = patterns('',
     (r'^$', 'biostar.server.views.index'),
 
     ('^about/$', direct_to_template, {'template': 'about.html'}),
+    ('^newquestion/$', direct_to_template, {'template': 'new.question.html'}),
 
 
     (r'^question/(?P<pid>\d+)/$', 'biostar.server.views.question'),

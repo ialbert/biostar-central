@@ -50,11 +50,9 @@ h1, h2, h3, h4 {
 
 table {
     margin-bottom: 0px;
-    vertical-align: top;
 }
 
 table tr td{
-    vertical-align: top;
     padding: 10px;
 }
 

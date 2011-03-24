@@ -24,6 +24,7 @@ def question(request, pid):
 
 class PostForm(forms.Form):
     content = forms.CharField(max_length=1000)
+    title   = forms.CharField(max_length=250, required=False)
     parent  = forms.IntegerField(required=False, initial=0)
 
 def newpost(request):
@@ -33,6 +34,7 @@ def newpost(request):
         
         if form.is_valid(): # All validation rules pass
             parent  = form.cleaned_data['parent']
+            title   = form.cleaned_data['title']
             content = form.cleaned_data['content']
 
             # create the HTML from the bbcode
@@ -46,8 +48,8 @@ def newpost(request):
             post.save()
             
             if not parent:
-                # no parent means new question
-                question = models.Answer(post=post)
+                # no parent means it is a new question
+                question = models.Question(post=post, title=title)
                 question.save()
             else:
                 # an answer to a question
