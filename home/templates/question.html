@@ -6,6 +6,47 @@
 
 {% block mainbody %}
     <div class="content"">
-      {{params.question.post.body|safe }}
+        
+        <table>
+            <tr>
+                <td valign="top"> 
+                    <div class="mini-counts">0</div>
+                </td>
+                <td>
+                    {{params.question.post.body|safe }}
+                    <div class="left">
+                        mod | edit | flag
+                    </div>
+                    <div class="right">
+                        Author: {{ params.question.post.author.username }}
+                    </div>
+                </td>
+            </tr>
+            
+        </table>
+
+        <table id="answer-table">
+            
+            <tr>
+                <td colspan="2"> <h2> {{params.answers|length}} Answers</h2> </td>
+            </tr>
+
+            {% for answer in params.answers %}
+            <tr>
+                <td> <div class="mini-counts">0</div> </td>
+                <td>
+                    {{ answer.post.body|safe }}
+                    <div class="left">
+                        mod | edit | flag
+                    </div>
+                    <div class="right">
+                        Author: {{ answer.post.author.username }}
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        
+        </table>
+
     </div>
 {% endblock %}

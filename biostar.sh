@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ -z "$BIOSTAR_SRC" ]; then
-	# BIOSTAR_SRC not found, set relative to the current directory
+	# BIOSTAR_SRC not found, will be set relative to the current directory
 	export BIOSTAR_SRC=`dirname $0`
 	export BIOSTAR_HOME="$BIOSTAR_SRC/home"
 fi
@@ -64,7 +64,7 @@ while (( "$#" )); do
 
 	if [ "$1" = "populate" ]; then
 		echo "*** Populating server on $BIOSTAR_HOSTNAME"
-		$PYTHON_EXE home/import/migrate.py home/import/output
+		$PYTHON_EXE home/import/migrate.py home/import/datadump
 	fi
 
 	if [ "$1" = "run" ]; then

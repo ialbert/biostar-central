@@ -15,8 +15,10 @@ def index(request):
 def question(request, pid):
     "Returns a question with all answers"
     question = models.Question.objects.get(id=pid)
-    answers  = []
+    answers  = models.Answer.objects.filter(question=question).select_related()
     
+    print answers
+
     params = html.Params(question=question, answers=answers )
 
     return html.template( request, name='question.html', params=params )

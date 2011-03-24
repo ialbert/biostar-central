@@ -1,12 +1,128 @@
-
-
 body {
-    font-size: 100%;
+    font-family: Arial,Helvetica,sans-serif;
+    font-size: 80%;
+    color: #333333;
 }
 
 h1, h2, h3, h4 {
     font-family: Trebuchet MS,Helvetica,sans-serif;
-    font-size: 110%;
+    font-size: 150%;
     font-weight: bold;
     margin-bottom: 5px;
+    color: #333333;
+}
+
+.mini-counts
+{
+    font-size: 190%;
+    font-weight: bold;
+    height: 25px;
+    vertical-align: middle;
+    text-align: center;
+}
+
+.left
+{
+    float: left;
+}
+
+.right
+{
+    float: right;
+}
+
+#subheader {
+    border-bottom: 1px solid #6D6D6D;
+}
+
+#topbar {
+    background-color: #DEDEDE;
+    float: right;
+    padding: 5px;
+}
+
+.shaded {
+    background-color: #5B8C3C;
+    color:white;
+    padding:5px;
+    margin-top:3px;
+}
+
+table {
+    margin-bottom: 0px;
+    vertical-align: top;
+}
+
+table tr td{
+    vertical-align: top;
+    padding: 10px;
+}
+
+
+#question-table tr td{
+    vertical-align: top;
+    padding: 10px;
+    border-bottom:1px dotted #6D6D6D;
+}
+
+#answer-table tr td{
+    vertical-align: top;
+    padding: 10px;
+    border-bottom:1px solid #6D6D6D;
+}
+
+a:hover, a.question-title {
+    cursor: pointer;
+    text-decoration: underline;
+    color:#585858;
+}
+
+.box {
+    margin:2px;
+    background-color: white;
+}
+
+.answered {
+    background-color: #75845C;
+    color: #FFFFFF;
+    padding:2px 5px 2px 5px;
+}
+
+.views {
+    color: #666666;
+}
+
+.nav td {
+    vertical-align: bottom;
+}
+
+.nav a {
+    padding: 6px 12px 6px 12px;
+    text-decoration: none;
+    color: #FFFFFF;
+    font-weight: bold;
+    font-size: 125%;
+    background: none repeat scroll 0 0 #8F2C47;
+}
+
+.nav a:hover {
+    background-color: #FF7700;
+}
+
+.post-tag {
+    margin: 2px 2px 2px 0;
+    padding: 3px 4px 3px 4px;
+    text-decoration: none;
+    background-color: #ECECEC;
+    border-bottom: 1px solid #BBBBBB;
+    border-right: 1px solid #BBBBBB;
+    color: #6B3E4A;
+    font-weight: bold;
+}
+
+.post-tag:hover
+{
+	border: none;
+	margin: 0;
+	text-decoration: underline;
 }
