@@ -15,7 +15,7 @@ urlpatterns = patterns('',
 
 
     (r'^question/(?P<pid>\d+)/$', 'biostar.server.views.question'),
-
+    (r'^newpost/$', 'biostar.server.views.newpost'),
 
     # Example:
     # (r'^biostar/', include('biostar.foo.urls')),

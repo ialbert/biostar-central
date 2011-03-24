@@ -5,6 +5,9 @@ import string, mimetypes, os
 from django.template import Context, loader
 from django.core.servers.basehttp import FileWrapper
 from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import render_to_response
+from django.core.context_processors import csrf
+
 
 class Params(object):
     """
@@ -28,12 +31,6 @@ class Params(object):
     def __repr__(self):
         return 'Params: %s' % self.__dict__
 
-def render(name, **kwd):
-    """Fills a template"""
-    c = Context(kwd)
-    t = loader.get_template(name)
-    return t.render(c)
-
 def response(data, **kwd):
     """Returns a http response"""
     return HttpResponse(data, **kwd)
@@ -45,10 +42,18 @@ def redirect(url):
 def template(request, name, mimetype=None, **kwd):
     """Renders a template and returns it as an http response"""
     user = request.user        
-    user.is_private = (user.username!='public')
     messages = user.get_and_delete_messages()
-    page = render(name, messages=messages, user=user, **kwd)
-    return response(page, mimetype=mimetype)
+    
+    # this collects the dictionary from which the context will be built
+    cx = dict(messages=messages, user=user)
+    cx.update(kwd)
+    cx.update(csrf(request))
+    
+    context  = Context(cx)
+    template = loader.get_template(name)
+    page = template.render(context)
+
+    return render_to_response(name, context)
 
 def test():
     import doctest
