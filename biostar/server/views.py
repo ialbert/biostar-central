@@ -31,11 +31,10 @@ def newpost(request):
     if request.method == 'POST':
         form = PostForm(request.POST)
         
-        print request.POST
-
         if form.is_valid(): # All validation rules pass
             parent  = form.cleaned_data['parent']
             content = form.cleaned_data['content']
+
             # create the HTML from the bbcode
             parse = postmarkup.create()
             body  = parse(content)
