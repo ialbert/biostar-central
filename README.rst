@@ -2,8 +2,10 @@
 Introduction
 -------------
 
-The codebase requires Python_ (version 2.6 or higher) and Django_ (version 1.3 or higher).
-Currently using the `Blueprint CSS`_ framework for layout and JQuery_ for javascript and `Tiny MCE`_ for rich text javascript editor.
+The codebase requires Python_ (version 2.6 or higher) and Django_ (version 1.3 or higher) to run.
+
+We also use using the `Blueprint CSS`_ framework for layout, JQuery_ for javascript and `Tiny MCE`_ for 
+rich text javascript editor. These do not need to be installed and will be loaded over the internet.
 
 Installation
 ------------

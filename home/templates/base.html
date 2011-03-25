@@ -37,12 +37,17 @@
     <!-- This is the top bar with the user specific information -->
     <div class="span-20 last" id="topbar">
           {% block topbar %}
+            <form id="search2" action="/search" method="get">
             <div style="float:right">
-              <form id="search2" action="/search" method="get">
-                  Username: <b>{{user}}</b> with <b>819</b> points | tools | faq |
-                  Search: <input name="q" class="textbox" tabindex="1" onfocus="if (this.value=='search') this.value = ''" maxlength="80" size="28" value="search" type="text">
-              </form>
+            {%if user.is_authenticated %}
+                  <b>{{user.get_full_name}}</b> <b>100</b> &bull; <a href="/logout/?next_page=/">logout</a> &bull; tools
+            {% else %}
+                <span class="note">First time here? Check out the FAQ.</a> &bull; <a href="/openid/login/">login</a>
+            {% endif %}
+                &bull; faq &bull; Search: <input name="q" class="textbox" tabindex="1" onfocus="if (this.value=='search') this.value = ''" maxlength="80" size="28" value="search" type="text">
+                          
             </div>
+            </form>
           {% endblock %}
     </div>
 

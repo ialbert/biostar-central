@@ -12,6 +12,12 @@ def path_join(*args):
 # the directory that this file is located in
 __CURR_DIR = path_join(os.path.dirname(__file__))
 
+# some dependecies may be distributed as zipfiles
+__ZIP_LIBS =  [
+    path_join(__CURR_DIR, '..', 'biostar', 'libs', 'openid-libraries.zip'),
+]
+sys.path.extend(__ZIP_LIBS)
+
 # set paths to various file locations
 HOME_DIR = path_join(__CURR_DIR )
 DATABASE_DIR = path_join(HOME_DIR, 'db')
@@ -99,6 +105,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    
 )
 
 AUTH_PROFILE_MODULE = "server.userprofile"
@@ -108,6 +115,17 @@ ROOT_URLCONF = 'biostar.urls'
 TEMPLATE_DIRS = (
     TEMPLATE_DIR,
 )
+
+AUTHENTICATION_BACKENDS = (
+    'django_openid_auth.auth.OpenIDBackend',
+    'django.contrib.auth.backends.ModelBackend',
+)
+
+OPENID_CREATE_USERS = True
+OPENID_UPDATE_DETAILS_FROM_SREG = True
+
+LOGIN_URL = '/openid/login/'
+LOGIN_REDIRECT_URL = '/'
 
 INSTALLED_APPS = (
     'django.contrib.auth',
@@ -120,6 +138,7 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
     'biostar.server',
+    'django_openid_auth',
 )
 
 # version check

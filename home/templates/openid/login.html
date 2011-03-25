@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block custom-frameworks %}
+    <style type="text/css">
+    input.openid {
+        background: url({% url openid-logo %}) no-repeat;
+        background-position: 0 50%;
+        padding-left: 16px;
+    }
+    .border {
+        padding:2px;
+        border: 1px solid #CECECE;
+        margin: 5px;
+    }
+    </style>
+    <script type="text/javascript">
+    $(document).ready(function() {
+       $("#google_openid").click(function() {
+         $("#id_openid_identifier").val('https://www.google.com/accounts/o8/id')
+         $("form#fopenid").submit()
+       });
+       $("#yahoo_openid").click(function() {
+         $("#id_openid_identifier").val('https://www.google.com/accounts/o8/id')
+         $("#bsignin").submit()
+       });
+    });
+    </script>
+{% endblock %}
+
+{% block title %}
+    Sign in with your OpenID
+{% endblock %}
+
+{% block subheader %}
+   <h2>Login in with OpenID</h2>
+{% endblock %}
+
+{% block mainbody %}
+
+<div>
+    Click your provider or enter your OpenID URL into the form.
+</div>
+<div>
+    <img id="google_openid" class="border" src="/static/img/google-openid.png"></li>
+</div>
+
+<b></b>
+
+{% if form.errors %}
+<p class="errors">{% trans "Please correct errors below:" %}<br />
+    {% if form.openid_identifier.errors %}
+    <span class="error">{{ form.openid_identifier.errors|join:", " }}</span>
+    {% endif %}
+    {% if form.next.errors %}
+    <span class="error">{{ form.next.errors|join:", " }}</span>
+    {% endif %}
+</p>
+{% endif %}
+<form id="fopenid" name="fopenid" action="/openid/login/" method="post">
+    {% csrf_token %}
+    <fieldset>
+        <legend>{% trans "Sign In Using Your OpenID Provider" %}</legend>
+        <div class="form-row">
+            <label for="id_openid_identifier">{% trans "OpenID:" %}</label><br />
+            {{ form.openid_identifier }}
+        </div>
+        <div class="submit-row ">
+            <input id="bsignin" name="bsignin" type="submit" value="{% trans "Sign in" %}">
+        </div>
+ {% if next %}
+        <input type="hidden" name="next" value="{{ next }}" />
+ {% endif %}
+    </fieldset>
+</form>
+
+{% endblock %}

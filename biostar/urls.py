@@ -18,6 +18,10 @@ urlpatterns = patterns('',
     (r'^question/(?P<pid>\d+)/$', 'biostar.server.views.question'),
     (r'^newpost/$', 'biostar.server.views.newpost'),
 
+    # openid authentication
+    (r'^openid/', include('django_openid_auth.urls')),
+    (r'^logout/$', 'django.contrib.auth.views.logout',  {'next_page':'/'}),
+
     # Example:
     # (r'^biostar/', include('biostar.foo.urls')),
 
