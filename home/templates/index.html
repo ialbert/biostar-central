@@ -7,19 +7,19 @@
     {% for q in params.questions %}
         <tr>
             <td class="votes">
-                <div class="mini-counts">0</div>
+                <div class="mini-counts">{{q.post.votes}}</div>
                 <div>votes</div>
             </td>
           
             <td class="box">
                 <div class="status answered">
-                    <div class="mini-counts">2</div>
+                    <div class="mini-counts">{{q.answer_count}}</div>
                     <div>answers</div>
                 <div>
             </td>
 
             <td class="views">
-                <div class="mini-counts">12</div>
+                <div class="mini-counts">{{q.post.views}}</div>
                 <div>views</div>
             </td>
 
@@ -35,8 +35,8 @@
             
                 <div class="started right">
                     <span class="relativetime">1h ago</span>
-                    by <a class="user-link">author</a>
-                    <span class="reputation-score">11</span>
+                    by <a class="user-link">{{q.post.author.username}}</a>
+                    <span class="reputation-score">0</span>
                 </div>
             </td>
         </tr>

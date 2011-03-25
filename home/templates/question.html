@@ -39,7 +39,7 @@
         <table>
             <tr>
                 <td valign="top"> 
-                    <div class="mini-counts">0</div>
+                    <div class="mini-counts">{{params.question.post.score}}</div>
                 </td>
                 <td>
                     <div>
@@ -64,7 +64,7 @@
 
             {% for answer in params.answers %}
             <tr>
-                <td> <div class="mini-counts">0</div> </td>
+                <td> <div class="mini-counts">{{ answer.post.score }}</div> </td>
                 <td>
                     <div>{{ answer.post.html|safe }}</div>
                     <div class="left">

@@ -26,9 +26,12 @@ Alternatively one may run all these commands all at once::
 
     $ biostar.sh init populate run
 
+**Note**: If the models change you must reset and reinitialize your database::
+
+    $biostar.sh delete init populate
+
 The default server will bind the all IP adapters (0.0.0.0) and port 8080. Visit http://localhost:8080 to see
 interact with your version of the test server. Edit the `biostar.sh` script to override the various settings.
-
 
 Layout
 ------
