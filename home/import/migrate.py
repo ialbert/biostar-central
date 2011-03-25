@@ -38,12 +38,13 @@ def execute(path, limit=50):
     """
 
     # users
-    users = xml_reader(join(path, 'Users.xml'), limit=limit)
+    users = xml_reader(join(path, 'AnonUsers.xml'), limit=limit)
     user_map = {}
-    for row in users:
+    for (index, row) in enumerate(users):
         #print row
         userid = row['Id'] 
         username = row.get('Email', userid) or userid
+        username = '%s%s' % (username, index)
         name = row.get('DisplayName', 'User %s' % userid)
         first_name = name
         try:
