@@ -38,7 +38,7 @@ def newpost(request):
             content = form.cleaned_data['content']
 
             # create the HTML from the bbcode
-            parse = postmarkup.create()
+            parse = postmarkup.create(use_pygments=False)
             body  = parse(content)
          
             # in this demo all new posts go under user number 1
