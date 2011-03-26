@@ -74,6 +74,7 @@ while (( "$#" )); do
 
 	if [ "$1" = "test" ]; then
 		echo "*** Running the tests"
+		$PYTHON_EXE $DJANGO_ADMIN test server --settings=$DJANGO_SETTINGS_MODULE
 	fi
 
 shift

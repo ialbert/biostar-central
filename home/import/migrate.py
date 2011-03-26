@@ -4,6 +4,7 @@ Imports content from a directory that contains a SE biostar datadump
 import sys, os, random
 from itertools import *
 from xml.etree import ElementTree
+from django.db.models import signals
 
 join = os.path.join
 curr_dir = os.path.dirname(__file__)
@@ -32,7 +33,7 @@ def xml_reader(fname, limit=None):
 
     return rows
 
-def execute(path, limit=100):
+def execute(path, limit=50):
     """
     Imports data into the database
     """
@@ -41,7 +42,6 @@ def execute(path, limit=100):
     users = xml_reader(join(path, 'AnonUsers.xml'), limit=limit)
     user_map = {}
     for (index, row) in enumerate(users):
-        #print row
         userid = row['Id'] 
         username = row.get('Email', userid) or userid
         username = '%s%s' % (username, index)
@@ -61,7 +61,7 @@ def execute(path, limit=100):
     #
     posts = xml_reader(join(path, 'Posts.xml'), limit=limit)
     posts_map = {}
-    
+
     for row in posts:
         post_type = row['PostTypeId']
         assert post_type in ('1', '2')
@@ -73,17 +73,25 @@ def execute(path, limit=100):
         author = user_map[userid]
 
 
-        # this will need to be transformed to BBcode but for now transform to HTML
+        # this will need to be transformed to BBcode 
+        before = str(body)
+
         body = body.replace("&lt;", "<")
         body = body.replace("&gt;", ">")
 
-        #print body 
+        pairs = [
+            ("<b>", "[b]"), ("</b>", "[/b]"),
+            ("<i>", "[i]"), ("</i>", "[/i]"),
+            ("<pre>", "[code]"), ("</pre>", "[/code]"),
+            ("<ul>", "[ul]"), ("</ul>", "[/ul]"),
+            ("<ol>", "[ol]"), ("</ol>", "[/ol]"),
+            ("<li>", "[*]"), ("</li>", ""),
+        ]
+        for a, b in pairs:
+            body = body.replace(a, b)
 
-        
         # create the post
-        p, flag = models.Post.objects.get_or_create(html=body, author=author, lastedit_user=author)
-        
-        #print p, flag
+        p, flag = models.Post.objects.get_or_create(bbcode=body, author=author)
 
         # create secondary entry
         if post_type == '1':

@@ -108,7 +108,7 @@ MIDDLEWARE_CLASSES = (
     
 )
 
-AUTH_PROFILE_MODULE = "server.userprofile"
+AUTH_PROFILE_MODULE = "server.UserProfile"
 
 ROOT_URLCONF = 'biostar.urls'
 

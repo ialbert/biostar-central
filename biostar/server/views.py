@@ -37,14 +37,10 @@ def newpost(request):
             title   = form.cleaned_data['title']
             content = form.cleaned_data['content']
 
-            # create the HTML from the bbcode
-            parse = postmarkup.create(use_pygments=False)
-            body  = parse(content)
-         
             # in this demo all new posts go under user number 1
             author = models.User.objects.get(id=1)
             
-            post = models.Post(bbcode=content, html=body, author=author, lastedit_user=author)
+            post = models.Post(bbcode=content, author=author)
             post.save()
             
             if not parent:

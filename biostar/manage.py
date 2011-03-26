@@ -1,5 +1,13 @@
 #!/usr/bin/env python
+import django
+
+if django.VERSION < (1, 3):
+    print '*** Django version 1.3 or higher required.'
+    print '*** Your version is %s' % str(django.VERSION)
+    sys.exit()
+
 from django.core.management import execute_manager
+
 try:
     import settings # Assumed to be in the same directory.
 except ImportError:
