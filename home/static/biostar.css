@@ -129,3 +129,31 @@ a:hover, a.question-title {
     position:absolute;
 }
 
+.vote-count {
+    font-size: 240%;
+    font-weight: bold;
+    vertical-align: middle;
+    text-align: center;
+    margin:0;
+    padding:0;
+}
+
+.vote{
+    text-align:center;
+}
+
+.vote-up-on, .vote-up-off, .vote-down-on, .vote-down-off {
+    display: block;
+    width: 30px;
+    height: 14px;
+    background-repeat: no-repeat;    
+}
+
+.vote-up-off {
+    background-image: url("/static/img/vote/vote-up-off.png");
+}
+
+.vote-down-off {
+    background-image: url("/static/img/vote/vote-down-off.png");
+}
+
