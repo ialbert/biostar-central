@@ -17,6 +17,8 @@ urlpatterns = patterns('',
 
     (r'^question/(?P<pid>\d+)/$', 'biostar.server.views.question'),
     (r'^newpost/$', 'biostar.server.views.newpost'),
+    
+    (r'^vote/$', 'biostar.server.views.vote'),
 
     # openid authentication
     (r'^openid/', include('django_openid_auth.urls')),

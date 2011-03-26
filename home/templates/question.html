@@ -5,6 +5,9 @@
 {% endblock %}
 
 {% block custom-frameworks %}
+    <!-- Voting AJAX -->
+    <script src="/static/js/vote.js"></script>
+    
     <!-- Tiny MCE editor -->
     <script type="text/javascript" src="http://helios.bx.psu.edu/static/tinymce/tiny_mce.js" ></script >
     <script type="text/javascript" >
@@ -39,7 +42,12 @@
         <table>
             <tr>
                 <td valign="top"> 
-                    <div class="mini-counts">{{params.question.post.score}}</div>
+                    <div class="vote">
+                        <input type="hidden" value="{{params.question.post.id}}">
+                        <a class="vote-up">up</a>
+                        <div class="mini-counts">{{params.question.post.score}}</div>
+                        <a class="vote-down">down</a>
+                    </div>
                 </td>
                 <td>
                     <div>

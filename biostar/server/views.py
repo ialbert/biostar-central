@@ -12,7 +12,7 @@ def index(request):
     
     params = html.Params(questions=questions )
 
-    return html.template( request, name='index.html', params=params )
+    return html.template( request, name='index.html', questions=questions)
 
 def question(request, pid):
     "Returns a question with all answers"
@@ -59,3 +59,23 @@ def newpost(request):
             return html.redirect('/question/%s/' % question.id) 
     else:
         return html.redirect('/about/') 
+
+def vote(request):
+    "Handles all voting on posts"
+    if request.method == 'POST':
+        
+                
+        # in this demo all votes go under user number 1
+        author = models.User.objects.get(id=1)
+        
+        post_id = int(request.POST.get('post'))
+        post = models.Post.objects.get(id=post_id)
+        
+        type = int(request.POST.get('type'))
+        
+        return html.json_response({'status':'ok'})
+        
+        #vote = models.Vote(author=author, post=post, type=type)
+        #vote.save()
+    return html.json_response({'status':'error', 'msg':'POST method must be used'})
+        

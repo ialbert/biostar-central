@@ -1,7 +1,7 @@
 """
 Html utility functions.
 """
-import string, mimetypes, os
+import string, mimetypes, os, json
 from django.template import Context, loader
 from django.core.servers.basehttp import FileWrapper
 from django.http import HttpResponse, HttpResponseRedirect
@@ -34,6 +34,10 @@ class Params(object):
 def response(data, **kwd):
     """Returns a http response"""
     return HttpResponse(data, **kwd)
+    
+def json_response(adict, **kwd):
+    """Returns a http response in JSON format from a dictionary"""
+    return HttpResponse(json.dumps(adict), **kwd)
 
 def redirect(url):
     "Redirects to a url"

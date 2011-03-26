@@ -54,8 +54,21 @@ class Comment(models.Model):
     parent = models.ForeignKey(Post, related_name='comments')
     post = models.ForeignKey(Post, related_name='content')
 
+VOTE_UP = 0
+VOTE_DOWN = 1
+
+VOTE_TYPES = ((VOTE_UP, 'Up'), (VOTE_DOWN, 'Down'))
+
 class Vote(models.Model):
     author = models.ForeignKey(User)
     post = models.ForeignKey(Post)
-    vote = models.IntegerField()
-
+    type = models.IntegerField(choices=VOTE_TYPES)
+    
+    def score_value(self):
+        if self.type == VOTE_UP:
+            return 1
+        elif self.type == VOTE_DOWN:
+            return -1
+        else:
+            return 0
+        
