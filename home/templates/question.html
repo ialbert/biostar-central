@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load voting %}
 
 {% block subheader %}
   <h2>{{params.question.title }}</h2>
@@ -42,12 +43,8 @@
         <table>
             <tr>
                 <td valign="top"> 
-                    <div class="vote">
-                        <input type="hidden" value="{{params.question.post.id}}">
-                        <a class="vote-up">up</a>
-                        <div class="mini-counts">{{params.question.post.score}}</div>
-                        <a class="vote-down">down</a>
-                    </div>
+                    {% votebox params.question.post %}
+                    
                 </td>
                 <td>
                     <div>
