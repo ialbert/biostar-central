@@ -69,7 +69,7 @@ def vote(request):
         
         type = int(request.POST.get('type'))
         
-        return html.json_response({'status':'ok'})
+        return html.json_response({'status':'success', 'msg':'Vote registered'})
         
         #vote = models.Vote(author=author, post=post, type=type)
         #vote.save()

@@ -124,3 +124,8 @@ a:hover, a.question-title {
 	margin: 0;
 	text-decoration: underline;
 }
+
+.popover {
+    position:absolute;
+}
+

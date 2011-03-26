@@ -44,7 +44,6 @@
             <tr>
                 <td valign="top"> 
                     {% votebox params.question.post %}
-                    
                 </td>
                 <td>
                     <div>
@@ -69,7 +68,9 @@
 
             {% for answer in params.answers %}
             <tr>
-                <td> <div class="mini-counts">{{ answer.post.score }}</div> </td>
+                <td>
+                    {% votebox answer.post %}
+                </td>
                 <td>
                     <div>{{ answer.post.html|safe }}</div>
                     <div class="left">
