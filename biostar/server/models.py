@@ -7,6 +7,7 @@ the queries necessary to fetch a certain entry.
 """
 from django.db import models
 from django.contrib.auth.models import User
+from taggit.managers import TaggableManager
 
 class UserProfile( models.Model ):
     """
@@ -44,9 +45,18 @@ class Post(models.Model):
     lastedit_user = models.ForeignKey(User, related_name='editor')
 
 class Question(models.Model):
+    """
+    A Question is Post with title and tags
+    
+    >>> user, flag = User.objects.get_or_create(first_name='Jane', last_name='Doe', username='jane', email='jane')
+    >>> post, flag = Post.objects.get_or_create(author=user, bbcode='[i]A[i]')
+    >>> question, flag = Question.objects.get_or_create(post=post, title='Test questions')
+    >>> question.tags.add("snp", "codon", "microarray")
+    """
     title   = models.TextField()
     answer_count = models.IntegerField(default=0, blank=True)
     post = models.ForeignKey(Post)
+    tags = TaggableManager()
 
 class Answer(models.Model):
     question = models.ForeignKey(Question, related_name='answers')

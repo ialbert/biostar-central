@@ -139,6 +139,7 @@ INSTALLED_APPS = (
     # 'django.contrib.admindocs',
     'biostar.server',
     'django_openid_auth',
+    'taggit',
 )
 
 # version check
