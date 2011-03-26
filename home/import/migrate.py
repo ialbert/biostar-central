@@ -118,12 +118,13 @@ def execute(path, limit=100):
         if post and user and VoteType in valid:
             #print 'Creating %s' % row
             if VoteType == '2':
-                vote = +10
+                vote_type = models.VOTE_UP
             else:
-                vote = -1
-            user_rep.setdefault(user.id, []).append( vote )
-            post_rep.setdefault(post.id, []).append( vote )
-            v = models.Vote.objects.get_or_create(post=post.post, author=user, vote=vote)
+                vote_type = models.VOTE_DOWN
+            
+            v, flag = models.Vote.objects.get_or_create(post=post.post, author=user, type=vote_type)
+            post_rep.setdefault(post.id, []).append( v.score() )
+            user_rep.setdefault(user.id, []).append( v.reputation()  )
 
     print "*** Inserted %s votes" % models.Vote.objects.all().count()
     

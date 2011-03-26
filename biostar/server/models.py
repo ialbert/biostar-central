@@ -58,17 +58,17 @@ VOTE_UP = 0
 VOTE_DOWN = 1
 
 VOTE_TYPES = ((VOTE_UP, 'Up'), (VOTE_DOWN, 'Down'))
+POST_SCORE = { VOTE_UP:1, VOTE_DOWN:-1 }
+USER_REP = { VOTE_UP:10, VOTE_DOWN:-2 }
 
 class Vote(models.Model):
     author = models.ForeignKey(User)
     post = models.ForeignKey(Post)
     type = models.IntegerField(choices=VOTE_TYPES)
     
-    def score_value(self):
-        if self.type == VOTE_UP:
-            return 1
-        elif self.type == VOTE_DOWN:
-            return -1
-        else:
-            return 0
-        
+    def score(self):
+        return POST_SCORE.get(self.type, 0)
+    
+    def reputation(self):
+        return USER_REP.get(self.type, 0)
+       
