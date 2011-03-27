@@ -44,6 +44,7 @@ class Post(models.Model):
     lastedit_date = models.DateTimeField(auto_now=True)
     lastedit_user = models.ForeignKey(User, related_name='editor')
     
+            
     def get_vote(self, user, vote_type):
         if user.is_anonymous():
             return None
@@ -51,6 +52,21 @@ class Post(models.Model):
             return self.votes.get(author=user, type=vote_type)
         except Vote.DoesNotExist:
             return None
+        
+    def add_vote(self, user, vote_type):
+        vote = Vote(author=user, type=vote_type, post=self)
+        vote.save()
+        return vote
+        
+    def remove_vote(self, user, vote_type):
+        ''' Removes a vote from a user of a certain type if it exists
+        Returns True if removed, False if it didn't exist'''
+        vote = self.get_vote(user, vote_type)
+        if vote:
+            vote.delete()
+            return True
+        return False
+        
 
 class Question(models.Model):
     """
@@ -77,6 +93,8 @@ class Comment(models.Model):
 VOTE_UP, VOTE_DOWN = 0, 1
 
 VOTE_TYPES = ((VOTE_UP, 'Upvote'), (VOTE_DOWN, 'Downvote'))
+
+OPPOSING_VOTES = {VOTE_UP:VOTE_DOWN, VOTE_DOWN:VOTE_UP}
 
 # post score changes
 POST_SCORE = { VOTE_UP:1, VOTE_DOWN:-1 }

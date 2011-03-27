@@ -13,6 +13,12 @@ $(document).ready(function(){
     });
 });
 
+function mod_votecount(button, k){
+    count = parseInt(button.siblings('.vote-count').text())
+    count += k
+    button.siblings('.vote-count').text(count)
+}
+
 function toggle_button(button){
     // Toggles the on/off status of a voting button
     if(button.hasClass('vote-on')){
@@ -22,7 +28,21 @@ function toggle_button(button){
         button.removeClass('vote-off');
         button.addClass('vote-on');
     }
+    // Turn off opposite buttons if they're on
+    if(button.hasClass('vote-on')){ 
+        if(button.hasClass('vote-up')) 
+            toggle_button(button.siblings('.vote-down.vote-on'))
+        if(button.hasClass('vote-down'))
+            toggle_button(button.siblings('.vote-up.vote-on'))       
+    }
+    // Update the vote counts immediately
+    if(button.is('.vote-up.vote-on, .vote-down.vote-off'))
+        mod_votecount(button, +1)
+    if(button.is('.vote-up.vote-off, .vote-down.vote-on'))
+        mod_votecount(button, -1)
+    
 }
+
 
 function popover(parent, msg, cls){
     parent.append('<div></div>')
@@ -41,8 +61,6 @@ function do_vote(button, post, type){
         popover(button.parent(), data.msg, data.status)
         if(data.status == 'error'){
             toggle_button(button) // Untoggle the button if there was an error
-        } else {
-            button.parent().children('.vote-count').text(data.new_score)
         }
     }, 'json');
 }
