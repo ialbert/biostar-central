@@ -1,20 +1,28 @@
 $(document).ready(function(){
     $('.vote').each(function(){
         elem = $(this)
-        
-        post_id = elem.children('input').val()
-
-        
+                
         up_button = elem.children('.vote-up')
         down_button = elem.children('.vote-down')
         up_button.click(function(){
-            do_vote($(this), post_id, 0); 
+            do_vote($(this), $(this).parent().children('input').val(), 0); 
         });
         down_button.click(function(){
-            do_vote($(this), post_id, 1); 
+            do_vote($(this), $(this).parent().children('input').val(), 1); 
         });
     });
 });
+
+function toggle_button(button){
+    // Toggles the on/off status of a voting button
+    if(button.hasClass('vote-on')){
+        button.removeClass('vote-on');
+        button.addClass('vote-off');
+    }else if(button.hasClass('vote-off')){
+        button.removeClass('vote-off');
+        button.addClass('vote-on');
+    }
+}
 
 function popover(parent, msg, cls){
     parent.append('<div></div>')
@@ -27,8 +35,12 @@ function popover(parent, msg, cls){
 }
 
 function do_vote(button, post, type){
+    toggle_button(button) // Pre-emptitively toggle the button to provide feedback
     $.post('/vote/' , {post:post, type:type},
     function(data){
-        popover(button, data.msg, data.status)  
+        popover(button.parent(), data.msg, data.status)
+        if(data.status == 'error'){
+            toggle_button(button) // Untoggle the button
+        }
     }, 'json');
 }

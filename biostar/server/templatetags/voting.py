@@ -1,10 +1,14 @@
 from django import template
 import urllib, hashlib
+from biostar.server import models
 
 register = template.Library()
 
-def votebox(post):
-    return { 'post':post }
+def votebox(context, post):
+    print post.get_vote(context['user'], models.VOTE_UP)
+    return { 'post':post,
+            'upvoted': post.get_vote(context['user'], models.VOTE_UP) is not None,
+            'downvoted':post.get_vote(context['user'], models.VOTE_DOWN) is not None}
 
 def gravatar(user, size=80):
     gravatar_url = "http://www.gravatar.com/avatar.php?"
@@ -14,5 +18,5 @@ def gravatar(user, size=80):
     return """<img src="%s" alt="gravatar for %s" />""" % (gravatar_url, user.username)
 
 register.simple_tag(gravatar)
-register.inclusion_tag('widgets/votebox.html')(votebox)
+register.inclusion_tag('widgets/votebox.html', takes_context=True)(votebox)
 

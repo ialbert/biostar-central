@@ -147,7 +147,6 @@ def execute(path, limit=50):
     for postid, repdata in post_rep.items():
         post = models.Post.objects.get(id=postid)
         post.views = random.randint(1, 100)
-        post.votes = len(repdata)
         post.score = sum(repdata)
         post.save()
     

@@ -37,12 +37,19 @@ class Post(models.Model):
     
     bbcode = models.TextField() # all user input is in bbcode
     html  = models.TextField() # this is generated from the bbcode when saving the model
-    votes = models.IntegerField(default=0, blank=True)
     views = models.IntegerField(default=0, blank=True)
     score = models.IntegerField(default=0, blank=True)
     creation_date = models.DateTimeField(auto_now_add=True)
     lastedit_date = models.DateTimeField(auto_now=True)
     lastedit_user = models.ForeignKey(User, related_name='editor')
+    
+    def get_vote(self, user, vote_type):
+        if user.is_anonymous():
+            return None
+        try:
+            return self.votes.get(author=user, type=vote_type)
+        except Vote.DoesNotExist:
+            return None
 
 class Question(models.Model):
     """
@@ -69,7 +76,7 @@ class Comment(models.Model):
 VOTE_UP = 0
 VOTE_DOWN = 1
 
-VOTE_TYPES = ((VOTE_UP, 'Up'), (VOTE_DOWN, 'Down'))
+VOTE_TYPES = ((VOTE_UP, 'Upvote'), (VOTE_DOWN, 'Downvote'))
 POST_SCORE = { VOTE_UP:1, VOTE_DOWN:-1 }
 USER_REP = { VOTE_UP:10, VOTE_DOWN:-2 }
 
@@ -82,7 +89,7 @@ class Vote(models.Model):
     1
     """
     author = models.ForeignKey(User)
-    post = models.ForeignKey(Post)
+    post = models.ForeignKey(Post, related_name='votes')
     type = models.IntegerField(choices=VOTE_TYPES)
     
     def score(self):

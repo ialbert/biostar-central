@@ -62,16 +62,27 @@ def vote(request):
         
                 
         # in this demo all votes go under user number 1
-        author = models.User.objects.get(id=1)
+        #author = models.User.objects.get(id=1)
+        
+        author = request.user
+        
+        if not author.is_authenticated():
+            return html.json_response({'status':'error', 'msg':'You must be logged in to vote'})
         
         post_id = int(request.POST.get('post'))
         post = models.Post.objects.get(id=post_id)
         
         type = int(request.POST.get('type'))
         
-        return html.json_response({'status':'success', 'msg':'Vote registered'})
-        
-        #vote = models.Vote(author=author, post=post, type=type)
-        #vote.save()
+        old_vote = post.get_vote(author, type)
+        if old_vote:
+            old_vote.delete()
+            return html.json_response({'status':'success', 'msg':'%s removed' % old_vote.get_type_display()})
+        else:
+            vote = models.Vote(post=post, author=author, type=type)
+            vote.save()
+            return html.json_response({'status':'success', 'msg':'%s added' % vote.get_type_display()})
+                    
+
     return html.json_response({'status':'error', 'msg':'POST method must be used'})
         

@@ -127,6 +127,7 @@ a:hover, a.question-title {
 
 .popover {
     position:absolute;
+    margin-top:10px;
 }
 
 .vote-count {
@@ -142,18 +143,26 @@ a:hover, a.question-title {
     text-align:center;
 }
 
-.vote-up-on, .vote-up-off, .vote-down-on, .vote-down-off {
+.vote-up, .vote-down {
     display: block;
     width: 30px;
     height: 14px;
     background-repeat: no-repeat;    
 }
 
-.vote-up-off {
+.vote-up.vote-off {
     background-image: url("/static/img/vote/vote-up-off.png");
 }
 
-.vote-down-off {
+.vote-down.vote-off{
     background-image: url("/static/img/vote/vote-down-off.png");
+}
+
+.vote-up.vote-on {
+    background-image: url("/static/img/vote/vote-up-on.png");
+}
+
+.vote-down.vote-on{
+    background-image: url("/static/img/vote/vote-down-on.png");
 }
 
