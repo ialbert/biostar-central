@@ -1,0 +1,32 @@
+To run biostar-central you would need Django 1.3
+
+To check if you have the necessary Django version, run:
+  ./biostar.sh init
+
+To install Django 1.3 without affecting your hosts system-wide settings,
+you can use python-virtualenv so you will not need to use root.
+
+1. This is the only time root access is needed. Install Virtualenv:
+     sudo apt-get install python-virtualenv
+
+2. Create a python environment folder where Django will be installed:
+     virtualenv -p python2.6 --no-site-packages env1
+
+3. Activate the environment:
+     cd env1
+     source bin/activate 
+     unset PYTHONPATH
+
+     # (env1) will appear in command prompt
+     # The evironment is lost every time you logout
+
+4. Install Django 1.3 without becoming root:
+    wget -O Django-1.3.tar.gz \
+      http://www.djangoproject.com/download/1.3/tarball/
+    tar zxvf Django-1.3.tar.gz
+    cd Django-1.3
+    python setup.py install
+
+5. Now you should be able to run biostar-central
+  cd ../biostar-central
+  ./biostar.sh init
