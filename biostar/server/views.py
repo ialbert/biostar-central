@@ -77,11 +77,18 @@ def vote(request):
         old_vote = post.get_vote(author, type)
         if old_vote:
             old_vote.delete()
-            return html.json_response({'status':'success', 'msg':'%s removed' % old_vote.get_type_display()})
+            post = models.Post.objects.get(id=post_id)
+            return html.json_response({
+                'status':'success',
+                'msg':'%s removed' % old_vote.get_type_display(),
+                'new_score':post.score})
         else:
             vote = models.Vote(post=post, author=author, type=type)
             vote.save()
-            return html.json_response({'status':'success', 'msg':'%s added' % vote.get_type_display()})
+            return html.json_response({
+                'status':'success',
+                'msg':'%s added' % vote.get_type_display(),
+                'new_score':post.score})
                     
 
     return html.json_response({'status':'error', 'msg':'POST method must be used'})

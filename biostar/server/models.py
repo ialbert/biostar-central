@@ -118,10 +118,27 @@ def create_post(sender, instance, *args, **kwargs):
     if not hasattr(instance, 'lastedit_user'):
         instance.lastedit_user = instance.author
 
-def update_reputation(sender, instance, created, *args, **kwargs):
-    "Updates reputation on vote creation"
-    pass
+def vote_created(sender, instance, created, *args, **kwargs):
+    "Updates score and reputation on vote creation "
+    if created:
+        post = instance.post
+        prof = instance.post.author.get_profile()
+        post.score += instance.score()
+        prof.score += instance.reputation()
+        post.save()
+        prof.save()
+
+def vote_deleted(sender, instance,  *args, **kwargs):
+    "Updates score and reputation on vote deletion"
+    post = instance.post
+    prof = instance.post.author.get_profile()
+    post.score -= instance.score()
+    prof.score -= instance.reputation()
+    post.save()
+    prof.save()
 
 signals.post_save.connect( create_profile, sender=User )
 signals.pre_save.connect( create_post, sender=Post )
-#signals.post_save.connect( update_reputation, sender=Vote )
+
+signals.post_save.connect( vote_created, sender=Vote )
+signals.post_delete.connect( vote_deleted, sender=Vote )

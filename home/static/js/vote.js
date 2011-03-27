@@ -40,7 +40,9 @@ function do_vote(button, post, type){
     function(data){
         popover(button.parent(), data.msg, data.status)
         if(data.status == 'error'){
-            toggle_button(button) // Untoggle the button
+            toggle_button(button) // Untoggle the button if there was an error
+        } else {
+            button.parent().children('.vote-count').text(data.new_score)
         }
     }, 'json');
 }
