@@ -102,12 +102,13 @@ class Vote(models.Model):
     def reputation(self):
         return USER_REP.get(self.type, 0)
     
-    def repchange(self):
-        "Applies the score and reputation changes"
-        self.author.score += self.reputation()
-        self.author.save()
+    def apply(self, dir=1):
+        "Applies the score and reputation changes. Direction can be set to -1 to undo (ie delete vote)"
+        prof = self.post.author.get_profile()
+        prof.score += dir * self.reputation()
+        prof.save()
 
-        self.post.score += self.score()
+        self.post.score += dir * self.score()
         self.post.save()
 
 #
@@ -133,25 +134,29 @@ def create_post(sender, instance, *args, **kwargs):
 def vote_created(sender, instance, created, *args, **kwargs):
     "Updates score and reputation on vote creation "
     if created:
-        post = instance.post
-        prof = instance.post.author.get_profile()
-        post.score += instance.score()
-        prof.score += instance.reputation()
-        post.save()
-        prof.save()
+        instance.apply()
 
 def vote_deleted(sender, instance,  *args, **kwargs):
     "Updates score and reputation on vote deletion"
-    post = instance.post
-    prof = instance.post.author.get_profile()
-    post.score -= instance.score()
-    prof.score -= instance.reputation()
-    post.save()
-    prof.save()
+    instance.apply(-1)
+    
+def answer_created(sender, instance, created, *args, **kwargs):
+    "Updates answer count on answer creation"
+    if created:
+        instance.question.answer_count += 1
+        instance.question.save()
 
+def answer_deleted(sender, instance,  *args, **kwargs):
+    "Updates answer count on answer deletion"
+    instance.question.answer_count -= 1
+    instance.question.save()
+    
 signals.post_save.connect( create_profile, sender=User )
 signals.pre_save.connect( create_post, sender=Post )
 
 signals.post_save.connect( vote_created, sender=Vote )
 signals.post_delete.connect( vote_deleted, sender=Vote )
+
+signals.post_save.connect( answer_created, sender=Answer )
+signals.post_delete.connect( answer_deleted, sender=Answer )
 

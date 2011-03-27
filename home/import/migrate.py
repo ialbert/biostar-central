@@ -66,10 +66,11 @@ def insert_posts(fname, user_map, limit):
         Id = row['Id']
         body   = row['Body']
         userid = row['OwnerUserId']
+        views = row['ViewCount']
         author = user_map[userid]
         body = body.replace("<", "[")
         body = body.replace(">", "]")
-        p, flag = models.Post.objects.get_or_create(bbcode=body, author=author)
+        p, flag = models.Post.objects.get_or_create(bbcode=body, author=author, views=views)
         store[Id] = p
     transaction.commit()
     print "*** Inserted %s posts" % len(store)
