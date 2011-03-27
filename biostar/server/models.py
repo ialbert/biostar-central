@@ -9,6 +9,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from taggit.managers import TaggableManager
 
+
 class UserProfile( models.Model ):
     """
     Stores user options
@@ -73,12 +74,15 @@ class Comment(models.Model):
     parent = models.ForeignKey(Post, related_name='comments')
     post = models.ForeignKey(Post, related_name='content')
 
-VOTE_UP = 0
-VOTE_DOWN = 1
+VOTE_UP, VOTE_DOWN = 0, 1
 
 VOTE_TYPES = ((VOTE_UP, 'Upvote'), (VOTE_DOWN, 'Downvote'))
+
+# post score changes
 POST_SCORE = { VOTE_UP:1, VOTE_DOWN:-1 }
-USER_REP = { VOTE_UP:10, VOTE_DOWN:-2 }
+
+# user reputation changes
+USER_REP   = { VOTE_UP:10, VOTE_DOWN:-2 }
 
 class Vote(models.Model):
     """
@@ -97,7 +101,14 @@ class Vote(models.Model):
     
     def reputation(self):
         return USER_REP.get(self.type, 0)
-       
+    
+    def repchange(self):
+        "Applies the score and reputation changes"
+        self.author.score += self.reputation()
+        self.author.save()
+
+        self.post.score += self.score()
+        self.post.save()
 
 #
 # Adding data model related signals
@@ -117,6 +128,7 @@ def create_post(sender, instance, *args, **kwargs):
     instance.html = parse(instance.bbcode)
     if not hasattr(instance, 'lastedit_user'):
         instance.lastedit_user = instance.author
+
 
 def vote_created(sender, instance, created, *args, **kwargs):
     "Updates score and reputation on vote creation "
@@ -142,3 +154,4 @@ signals.pre_save.connect( create_post, sender=Post )
 
 signals.post_save.connect( vote_created, sender=Vote )
 signals.post_delete.connect( vote_deleted, sender=Vote )
+

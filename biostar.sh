@@ -16,6 +16,9 @@ if [ -z "$DJANGO_SETTINGS_MODULE" ]; then
 	export DJANGO_SETTINGS_MODULE=biostar_settings
 fi
 
+# the fixture to dump/load data from
+export FIXTURE=home/import/datadump.json
+
 # the DJANGO_SETTINGS_MODULE needs to be in the python import path
 export PYTHONPATH=$PYTHONPATH:$BIOSTAR_HOME
 
@@ -63,8 +66,9 @@ while (( "$#" )); do
 	fi
 
 	if [ "$1" = "populate" ]; then
-		echo "*** Populating server on $BIOSTAR_HOSTNAME"
-		$PYTHON_EXE home/import/migrate.py home/import/datadump
+		echo "*** Populating server with: $FIXTURE"
+		#$PYTHON_EXE -u home/import/migrate.py home/import/datadump
+		$PYTHON_EXE $DJANGO_ADMIN loaddata $FIXTURE --settings=$DJANGO_SETTINGS_MODULE
 	fi
 
 	if [ "$1" = "run" ]; then
@@ -75,6 +79,17 @@ while (( "$#" )); do
 	if [ "$1" = "test" ]; then
 		echo "*** Running the tests"
 		$PYTHON_EXE $DJANGO_ADMIN test server --settings=$DJANGO_SETTINGS_MODULE
+	fi
+
+	if [ "$1" = "flush" ]; then
+		echo "*** Flushing data"
+		$PYTHON_EXE $DJANGO_ADMIN flush --settings=$DJANGO_SETTINGS_MODULE > $FIXTURE
+	fi
+
+	if [ "$1" = "dump" ]; then
+		
+		echo "*** Dumping data to $FIXTURE"
+		$PYTHON_EXE $DJANGO_ADMIN dumpdata auth.User server --settings=$DJANGO_SETTINGS_MODULE > $FIXTURE
 	fi
 
 shift
