@@ -1,23 +1,24 @@
 """
-Imports content from a directory that contains a SE biostar datadump
+Parses SE biostar xml archive, and populates a database with its
+content then saves a loadable data fixture from this data.
 """
-import sys, os, random
+import sys, os, random, re
 from itertools import *
 from xml.etree import ElementTree
-from django.db.models import signals
 
+# fixup path so we can access the Django settings module
 join = os.path.join
-curr_dir = os.path.dirname(__file__)
-# fixup path so we can import directly
-sys.path.append( join(curr_dir, '..', '..'))
-sys.path.append( join(curr_dir, '..', '..', 'home'))
+file_dir = os.path.dirname(__file__)
+sys.path.append( join(file_dir, '..' ))
+sys.path.append( join(file_dir, '..', '..'))
 
 # overide the default settings
 os.environ['DJANGO_SETTINGS_MODULE'] = 'biostar_settings'
 
-import biostar
+# test that the paths work
 from django.conf import settings
 from biostar.server import models
+from django.db import transaction
 
 def xml_reader(fname, limit=None):
     "XML dumps all use similar format, no attributes are used"
@@ -33,134 +34,123 @@ def xml_reader(fname, limit=None):
 
     return rows
 
-def execute(path, limit=50):
-    """
-    Imports data into the database
-    """
-
-    # users
-    users = xml_reader(join(path, 'AnonUsers.xml'), limit=limit)
-    user_map = {}
-    for (index, row) in enumerate(users):
-        userid = row['Id'] 
+@transaction.commit_manually
+def insert_users(fname, limit):
+    "Inserts the users"
+    store = {}
+    rows = xml_reader(fname, limit=limit)
+    for (index, row) in enumerate(rows):
+        userid   = row['Id'] 
         username = row.get('Email', userid) or userid
         username = '%s%s' % (username, index)
         name = row.get('DisplayName', 'User %s' % userid)
         first_name = name
         try:
-            u, flag = models.User.objects.get_or_create(username=username, first_name=first_name)
+            u, f = models.User.objects.get_or_create(username=username, first_name=first_name)
         except Exception, e:
             print 'Failed inserting row %s' % row
             print userid, name, username
             raise(e)
+        store[ userid ] = u
+    transaction.commit()
+    print "*** Inserted %s users" % len(store)
+    return store
 
-        user_map[ userid ] = u
-        
-    print "*** Inserted %s users" % len(user_map)
-    # migrate posts
-    #
-    posts = xml_reader(join(path, 'Posts.xml'), limit=limit)
-    posts_map = {}
-
-    for row in posts:
-        post_type = row['PostTypeId']
-        assert post_type in ('1', '2')
-        # check for spa,
-        if 'DeletionDate' in row:
-            continue
-        body = row['Body']
+@transaction.commit_manually
+def insert_posts(fname, user_map, limit):
+    "Inserts the posts"
+    store = {}
+    rows = xml_reader(fname, limit=limit)
+    for (index, row) in enumerate(rows):
+        PostTypeId = row['PostTypeId']
+        Id = row['Id']
+        body   = row['Body']
         userid = row['OwnerUserId']
         author = user_map[userid]
-
-
-        # this will need to be transformed to BBcode 
-        before = str(body)
-
-        body = body.replace("&lt;", "<")
-        body = body.replace("&gt;", ">")
-
-        pairs = [
-            ("<b>", "[b]"), ("</b>", "[/b]"),
-            ("<i>", "[i]"), ("</i>", "[/i]"),
-            ("<pre>", "[code]"), ("</pre>", "[/code]"),
-            ("<ul>", "[ul]"), ("</ul>", "[/ul]"),
-            ("<ol>", "[ol]"), ("</ol>", "[/ol]"),
-            ("<li>", "[*]"), ("</li>", ""),
-        ]
-        for a, b in pairs:
-            body = body.replace(a, b)
-
-        # create the post
+        body = body.replace("<", "[")
+        body = body.replace(">", "]")
         p, flag = models.Post.objects.get_or_create(bbcode=body, author=author)
+        store[Id] = p
+    transaction.commit()
+    print "*** Inserted %s posts" % len(store)
+    return store
 
-        # create secondary entry
-        if post_type == '1':
+@transaction.commit_manually
+def insert_questions(fname, post_map, limit):
+    "Inserts questions and answers"
+    quest_map, answ_map = {}, {}
+    rows = xml_reader(fname, limit=limit)
+    
+    # broken up into separate steps to allow manual transactions
+    for (index, row) in enumerate(rows):
+        PostTypeId = row['PostTypeId']
+        Id = row['Id']
+        post = post_map[ Id ] 
+        if PostTypeId == '1':
             # question
             title = row["Title"]
-            q, flag = models.Question.objects.get_or_create(title=title, post=p)
-            posts_map[row['Id']] = q
+            quest, flag = models.Question.objects.get_or_create(title=title, post=post)
+            quest_map[Id] = quest
+    
+    transaction.commit()
 
-        elif post_type == '2':
+    for (index, row) in enumerate(rows):
+        PostTypeId = row['PostTypeId']
+        Id = row['Id']
+        post = post_map[ Id ] 
+        if PostTypeId == '2':
             # answer
-            q = posts_map[row['ParentId']]
-            a, flag = models.Answer.objects.get_or_create(question=q, post=p)
-            posts_map[row['Id']] = a
-        else:
-            # comment goes here
-            pass
-
-    print "*** Inserted %s posts" % len(posts_map)
-
-    # add votes
-    votes = xml_reader(join(path, 'Posts2Votes.xml'))
-    user_rep = {}
-    post_rep = {}
-
+            quest = quest_map[row['ParentId']]
+            answ, flag = models.Answer.objects.get_or_create(question=quest, post=post)
+            answ_map[Id] = answ
+    transaction.commit()
+    
+    print "*** Inserted %s questions" % len(quest_map)
+    print "*** Inserted %s answers" % len(answ_map)
+    
+@transaction.commit_manually
+def insert_votes(fname, user_map, post_map, limit):
+    store = {}
+    votes = xml_reader(fname)
     for row in votes:
-        post = posts_map.get(row['PostId'])
+        post = post_map.get(row['PostId'])
         user = user_map.get(row['UserId'])
+        addr = user_map.get(row['IPAddress'])
         VoteType = row['VoteTypeId']
         # upmod=2, downmod=3
         valid = ('2', '3')
         
         if post and user and VoteType in valid:
-            #print 'Creating %s' % row
             if VoteType == '2':
                 vote_type = models.VOTE_UP
             else:
                 vote_type = models.VOTE_DOWN
             
-            v, flag = models.Vote.objects.get_or_create(post=post.post, author=user, type=vote_type)
-            post_rep.setdefault(post.id, []).append( v.score() )
-            user_rep.setdefault(user.id, []).append( v.reputation()  )
+            v, flag = models.Vote.objects.get_or_create(post=post, author=user, type=vote_type)
+            store[row['Id']] = v
 
-    print "*** Inserted %s votes" % models.Vote.objects.all().count()
-    
-    # update the user and post reputations
-    for userid, repdata in user_rep.items():
-        user = models.User.objects.get(id=userid)
-        user.score=sum(repdata)
-        user.save()
+    transaction.commit()
+    print "*** Inserted %s votes" % len(store)
 
-    print "*** Updated %s user scores" % len(user_rep)
-    
-    for postid, repdata in post_rep.items():
-        post = models.Post.objects.get(id=postid)
-        post.views = random.randint(1, 100)
-        post.votes = len(repdata)
-        post.score = sum(repdata)
-        post.save()
-    
-    print "*** Updated %s post scores" % len(user_rep)
-    
-    for question in models.Question.objects.all():
-        question.answer_count = len(question.answers.all())
-        question.save()
-        
-    print "*** Updated %s answer counts" % models.Question.objects.all().count()
+def execute(path, limit=300):
+    """
+    Executes the imports
+    """
+    fname = join(path, 'AnonUsers.xml')
+    user_map = insert_users(fname=fname, limit=limit)
+
+    fname = join(path, 'Posts.xml')
+    post_map = insert_posts(fname=fname, limit=limit, user_map=user_map)
+
+    fname = join(path, 'Posts.xml')
+    insert_questions(fname=fname, limit=limit, post_map=post_map)
+
+    fname = join(path, 'Posts2Votes.xml')
+    insert_votes(fname=fname, limit=limit, post_map=post_map, user_map=user_map)
 
 if __name__ =='__main__':
     # requires a directory name as input
-    dirname = sys.argv[1]
-    #dirname = 'biostar-20110216151152'
+    #dirname = sys.argv[1]
+    dirname = 'datadump'
     execute(dirname)
+    

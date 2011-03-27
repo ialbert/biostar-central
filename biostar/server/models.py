@@ -6,8 +6,11 @@ the queries necessary to fetch a certain entry.
 
 """
 from django.db import models
-from django.contrib.auth.models import User
+import django.contrib.auth.models 
 from taggit.managers import TaggableManager
+
+class User(django.contrib.auth.models.User):
+    score = models.IntegerField(default=0, blank=True)
 
 class UserProfile( models.Model ):
     """
@@ -66,12 +69,15 @@ class Comment(models.Model):
     parent = models.ForeignKey(Post, related_name='comments')
     post = models.ForeignKey(Post, related_name='content')
 
-VOTE_UP = 0
-VOTE_DOWN = 1
+VOTE_UP, VOTE_DOWN = 0, 1
 
-VOTE_TYPES = ((VOTE_UP, 'Up'), (VOTE_DOWN, 'Down'))
+VOTE_TYPES = ( (VOTE_UP, 'Up'), (VOTE_DOWN, 'Down') )
+
+# post score changes
 POST_SCORE = { VOTE_UP:1, VOTE_DOWN:-1 }
-USER_REP = { VOTE_UP:10, VOTE_DOWN:-2 }
+
+# user reputation changes
+USER_REP   = { VOTE_UP:10, VOTE_DOWN:-2 }
 
 class Vote(models.Model):
     """
@@ -90,7 +96,14 @@ class Vote(models.Model):
     
     def reputation(self):
         return USER_REP.get(self.type, 0)
-       
+    
+    def repchange(self):
+        "Applies the score and reputation changes"
+        self.author.score += self.reputation()
+        self.author.save()
+
+        self.post.score += self.score()
+        self.post.save()
 
 #
 # Adding data model related signals
@@ -113,8 +126,8 @@ def create_post(sender, instance, *args, **kwargs):
 
 def update_reputation(sender, instance, created, *args, **kwargs):
     "Updates reputation on vote creation"
-    pass
+    instance.repchange()
 
 signals.post_save.connect( create_profile, sender=User )
 signals.pre_save.connect( create_post, sender=Post )
-#signals.post_save.connect( update_reputation, sender=Vote )
+signals.post_save.connect( update_reputation, sender=Vote )
