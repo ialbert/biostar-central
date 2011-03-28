@@ -54,8 +54,7 @@
                     </div>
                     <div class="right">
                         Author: 
-                         <a class="user-link" 
-                         href="/users/{{params.question.post.author.id}}">
+                         <a class="user-link" href="/member/{{params.question.post.author.id}}">
                           {{params.question.post.author.first_name}}
                           {{params.question.post.author.last_name}}
                          </a>
@@ -82,8 +81,7 @@
                         mod | edit | flag
                     </div>
                     <div class="right">
-                        Author: <a class="user-link" 
-                         href="/users/{{answer.post.author.id}}">
+                        Author: <a class="user-link" href="/member/{{answer.post.author.id}}">
                           {{answer.post.author.first_name}}
                           {{answer.post.author.last_name}}
                          </a>

@@ -1,9 +1,0 @@
-{% extends "base.html" %}
-
-{% block subheader %}
-  <h2>{{target.first_name }} {{target.last_name }}</h2>
-{% endblock %}
-
-{% block mainbody %}
-<div>Joined {{ target.date_joined|timesince }} ago</div>
-{% endblock %}

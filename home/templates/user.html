@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+
+{% block subheader %}
+  <h2>{{ selected_user.first_name }} {{ selected_user.last_name }}</h2>
+{% endblock %}
+
+{% block mainbody %}
+<div>Joined {{ selected_user.date_joined|timesince }} ago</div>
+{% endblock %}

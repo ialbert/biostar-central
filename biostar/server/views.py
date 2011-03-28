@@ -14,11 +14,10 @@ def index(request):
 
     return html.template( request, name='index.html', questions=questions)
 
-def users(request, uid):
-    "User profile page"
+def user(request, uid):
+    "User's profile page"
     user = models.User.objects.get(id=uid)
-    # the current user is always added to the template context
-    return html.template(request, name='userprofile.html', target=user)
+    return html.template(request, name='user.html', selected_user=user)
 
 def question(request, pid):
     "Returns a question with all answers"
