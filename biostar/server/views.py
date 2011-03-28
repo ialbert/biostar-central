@@ -25,14 +25,28 @@ def question(request, pid):
     params = html.Params(question=question, answers=answers )
     return html.template( request, name='question.html', params=params )
 
+_Q_TITLE, _Q_CONTENT, _Q_TAG = 'Question title', 'question content', 'tag1'
 class QuestionForm(forms.Form):
-    "Form containin a new post that can be a question, answer or comment"
-    title   = forms.CharField(max_length=250, initial='Question title')
-    content = forms.CharField(max_length=5000, initial='add question text')
-    tags    = forms.CharField(max_length=250,  initial='tag1 tag2')
+    "A form representing a new question"
+    title   = forms.CharField(max_length=250,  initial=_Q_TITLE)
+    content = forms.CharField(max_length=5000, initial=_Q_CONTENT)
+    tags    = forms.CharField(max_length=250,  initial=_Q_TAG)
+    
+    def clean(self):
+        "Custom validator for the form"
+        if self.cleaned_data['tags'] == _Q_TAG:
+            raise forms.ValidationError("Please change the tag from default value")
+    
+        if self.cleaned_data['content'] == _Q_CONTENT:
+            raise forms.ValidationError("Please change content from default value")
+        
+        if self.cleaned_data['title'] == _Q_TITLE:
+            raise forms.ValidationError("Please change title from default value")
+
+        return self.cleaned_data
 
 class AnswerForm(forms.Form):
-    "Form containin a new post that can be a question, answer or comment"
+    "A form representing an answer or comment"
     parent  = forms.IntegerField(0)
     content = forms.CharField(max_length=5000)
 
