@@ -92,5 +92,10 @@ while (( "$#" )); do
 		$PYTHON_EXE $DJANGO_ADMIN dumpdata auth.User server --settings=$DJANGO_SETTINGS_MODULE > $FIXTURE
 	fi
 
+	if [ "$1" = "migrate" ]; then
+		echo "*** Migrating the data into the main database"
+		$PYTHON_EXE home/import/migrate.py home/import/datadump
+	fi
+
 shift
 done

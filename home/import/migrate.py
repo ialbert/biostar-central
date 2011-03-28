@@ -151,7 +151,13 @@ def execute(path, limit=300):
     insert_votes(fname=fname, limit=limit, post_map=post_map, user_map=user_map)
 
 if __name__ =='__main__':
+
     # requires a directory name as input
-    dirname = 'datadump'
+    # also runs from an editor (lot easier to work with initially)
+    if len(sys.argv) == 1:
+        dirname = 'datadump'
+    else:
+        dirname = sys.argv[1]
+
     execute(dirname)
     
