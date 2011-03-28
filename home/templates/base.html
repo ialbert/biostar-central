@@ -45,7 +45,7 @@
             <form id="search2" action="/search" method="get">
             <div style="float:right">
             {%if user.is_authenticated %}
-                <b><a href="/member/{{user.id}}">{{user.get_full_name}}</a
+                <b><a href="/users/{{user.id}}/">{{user.get_full_name}}</a
                 ></b> <b>100</b
                 > &bull; <a href="/logout/?next_page=/">logout</a
                 > &bull; <a>tools</a>
@@ -71,7 +71,7 @@
                 </td>
                 <td class="nav" valign="bottom">
                     <a href="/">Questions</a> <a href="#">Tags</a>
-                    <a href="/">Members</a> 
+                    <a href="/">Users</a> 
                     <a href="/">Badges</a> 
                     <a href="/">Unanswered</a></li>
                 </td>
