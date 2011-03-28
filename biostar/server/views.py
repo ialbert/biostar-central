@@ -4,6 +4,7 @@ Biostar views
 import html
 from biostar.server import models
 from django import forms
+from django.contrib.auth.decorators import login_required
 from biostar.libs import postmarkup
 
 def index(request):
@@ -32,6 +33,11 @@ class PostForm(forms.Form):
     title   = forms.CharField(max_length=250, required=False)
     parent  = forms.IntegerField(required=False, initial=0)
 
+@login_required(redirect_field_name='/openid/login/')
+def newquestion(request):
+    return html.template( request, name='new.question.html')
+
+@login_required(redirect_field_name='/openid/login/')
 def newpost(request):
     "Handles all new posts: questions, answers and comments"
     if request.method == 'POST':
@@ -42,10 +48,7 @@ def newpost(request):
             title   = form.cleaned_data['title']
             content = form.cleaned_data['content']
 
-            # in this demo all new posts go under user number 1
-            author = models.User.objects.get(id=1)
-            
-            post = models.Post(bbcode=content, author=author)
+            post = models.Post(bbcode=content, author=request.user)
             post.save()
             
             if not parent:

@@ -90,9 +90,13 @@
             </tr>
             {% endfor %}
         
+           
             <tr>
                 <td colspan="2"> 
                     <h2>Your Answer</h2>
+
+                     {% if user.is_authenticated %}
+
                     <form action="/newpost/" method="post">
                         {% csrf_token %}
                         <input type="hidden" value="{{params.question.id}}" name="parent" />
@@ -103,9 +107,13 @@
                             <input style="margin:10px;" type="submit" name="submit" value="Post Your Answer">
                         </div>
                     </form>
+                    {% else %}
+                        <div>
+                            Please <a href="/openid/login/">log in</a> to post an answer.
+                        </div>
+                    {% endif %}
                 </td>
             </tr>
-
         </table>
 
         

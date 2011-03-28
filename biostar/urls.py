@@ -12,7 +12,7 @@ urlpatterns = patterns('',
     (r'^$', 'biostar.server.views.index'),
 
     ('^about/$', direct_to_template, {'template': 'about.html'}),
-    ('^newquestion/$', direct_to_template, {'template': 'new.question.html'}),
+    ('^newquestion/$','biostar.server.views.newquestion'),
 
 
     (r'^member/(?P<uid>\d+)/$', 'biostar.server.views.user'),
