@@ -15,6 +15,7 @@ urlpatterns = patterns('',
     ('^newquestion/$', direct_to_template, {'template': 'new.question.html'}),
 
 
+    (r'^member/(?P<uid>\d+)/$', 'biostar.server.views.member'),
     (r'^question/(?P<pid>\d+)/$', 'biostar.server.views.question'),
     (r'^newpost/$', 'biostar.server.views.newpost'),
     

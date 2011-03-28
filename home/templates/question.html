@@ -53,7 +53,12 @@
                         mod | edit | flag
                     </div>
                     <div class="right">
-                        Author: {{ params.question.post.author.username }}
+                        Author: 
+                         <a class="user-link" 
+                         href="/member/{{params.question.post.author.id}}">
+                          {{params.question.post.author.first_name}}
+                          {{params.question.post.author.last_name}}
+                         </a>
                     </div>
                 </td>
             </tr>
@@ -77,7 +82,11 @@
                         mod | edit | flag
                     </div>
                     <div class="right">
-                        Author: {{ answer.post.author.username }}
+                        Author: <a class="user-link" 
+                         href="/member/{{answer.post.author.id}}">
+                          {{answer.post.author.first_name}}
+                          {{answer.post.author.last_name}}
+                         </a>
                     </div>
                 </td>
             </tr>

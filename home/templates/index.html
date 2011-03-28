@@ -32,10 +32,14 @@
                     <a class="post-tag">tag</a>
                     <a class="post-tag">another</a>
                 </div>
-            
+
                 <div class="started right">
                     <span class="relativetime">1h ago</span>
-                    by <a class="user-link">{{q.post.author.username}}</a>
+                    by 
+                    <a class="user-link" href="/member/{{q.post.author.id}}">
+                      <span>{{q.post.author.first_name}}</span>
+                      <span>{{q.post.author.last_name}}</span>
+                    </a>
                     <span class="reputation-score">0</span>
                 </div>
             </td>

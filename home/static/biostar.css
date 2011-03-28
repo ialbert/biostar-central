@@ -166,3 +166,9 @@ a:hover, a.question-title {
     background-image: url("/static/img/vote/vote-down-on.png");
 }
 
+.user-link {
+  color: #8F2C47;
+  font-weight: bold;
+  font-size: 115%;
+  text-decoration: none;
+}
