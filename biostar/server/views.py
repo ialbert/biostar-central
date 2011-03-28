@@ -10,9 +10,6 @@ from biostar.libs import postmarkup
 def index(request):
     "Main page"
     questions = models.Question.objects.all()[:10]
-    
-    params = html.Params(questions=questions )
-
     return html.template( request, name='index.html', questions=questions)
 
 def user(request, uid):
@@ -28,28 +25,61 @@ def question(request, pid):
     params = html.Params(question=question, answers=answers )
     return html.template( request, name='question.html', params=params )
 
-class PostForm(forms.Form):
-    content = forms.CharField(max_length=1000)
-    title   = forms.CharField(max_length=250, required=False)
-    parent  = forms.IntegerField(required=False, initial=0)
+class QuestionForm(forms.Form):
+    "Form containin a new post that can be a question, answer or comment"
+    title   = forms.CharField(max_length=250, initial='Question title')
+    content = forms.CharField(max_length=5000, initial='add question text')
+    tags    = forms.CharField(max_length=250,  initial='tag1 tag2')
+
+class AnswerForm(forms.Form):
+    "Form containin a new post that can be a question, answer or comment"
+    parent  = forms.IntegerField(0)
+    content = forms.CharField(max_length=5000)
 
 @login_required(redirect_field_name='/openid/login/')
 def newquestion(request):
-    return html.template( request, name='new.question.html')
+    "Handles new questions"
 
+    if request.method == 'POST':
+        # incoming data posted
+        form = QuestionForm(request.POST)
+    
+        if form.is_valid():
+            # generate the new question
+            title   = form.cleaned_data['title']
+            content = form.cleaned_data['content']
+            tags    = form.cleaned_data['tags']
+            post = models.Post(bbcode=content, author=request.user)
+            post.save()
+            question = models.Question(post=post, title=title)
+            question.save()
+            # redirect to the question
+            return html.redirect('/question/%s/' % question.id) 
+        else:
+            # return form with error message
+            return html.template( request, name='new.question.html', form=form)
+
+    else:
+        # a GET request, generate empty form for it
+        form = QuestionForm()
+        return html.template( request, name='new.question.html', form=form)
+
+
+'''
 @login_required(redirect_field_name='/openid/login/')
 def newpost(request):
     "Handles all new posts: questions, answers and comments"
     if request.method == 'POST':
         form = PostForm(request.POST)
-        
-        if form.is_valid(): # All validation rules pass
-            parent  = form.cleaned_data['parent']
-            title   = form.cleaned_data['title']
-            content = form.cleaned_data['content']
-
-            post = models.Post(bbcode=content, author=request.user)
-            post.save()
+    else:
+        raise HttpError("/")
+    if form.is_valid(): # All validation rules pass
+        parent  = form.cleaned_data['parent']
+        title   = form.cleaned_data['title']
+        content = form.cleaned_data['content']
+    
+        post = models.Post(bbcode=content, author=request.user)
+        post.save()
             
             if not parent:
                 # no parent means it is a new question
@@ -63,6 +93,8 @@ def newpost(request):
             return html.redirect('/question/%s/' % question.id) 
     else:
         return html.redirect('/about/') 
+
+'''
 
 def vote(request):
     "Handles all voting on posts"

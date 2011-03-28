@@ -33,21 +33,26 @@
 
 {% block mainbody %}
     <div class="content"">
+        
+        {{ form.errors }}
 
         <table id="answer-table">
             <tr>
                 <td colspan="2" bgcolor="#CECECE"> 
-                    <form action="/newpost/" method="post">
+                    <form action="/newquestion/" method="post">
                         {% csrf_token %}
                         
-                        <input type="hidden" value="0" name="parent" />
-                        
                         <div>
-                        Title: <input type="text" value="Your title" name="title" size="80" style="margin:5px"/>
-
-                        <textarea name="content" cols="50" rows="15" > 
                         
-                        </textarea>
+                            Title: <input type="text" value="{{ form.title.value }}" name="title" size="80" style="margin:5px"/>
+                            {{ form.title.errors }}
+
+                            <textarea name="content" cols="50" rows="15" >{{ form.content.value }}</textarea>
+                            {{ form.content.errors }}
+
+                            Tags:  <input type="text" value="{{ form.tags.value }}" name="tags" size="80" style="margin:5px"/>
+                            {{ form.tags.errors }}
+
                         </div>
                         <div align="center">
                             <input style="margin:10px;" type="submit" name="submit" value="Ask your question">
