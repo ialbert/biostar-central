@@ -2,4 +2,4 @@
 home/secret-key.txt
 home/db/*.db
 home/import/*
-
+*~

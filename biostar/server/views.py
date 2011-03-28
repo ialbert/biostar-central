@@ -14,6 +14,11 @@ def index(request):
 
     return html.template( request, name='index.html', questions=questions)
 
+def user(request, uid):
+    "User's profile page"
+    user = models.User.objects.get(id=uid)
+    return html.template(request, name='user.html', selected_user=user)
+
 def question(request, pid):
     "Returns a question with all answers"
     question = models.Question.objects.get(id=pid)
