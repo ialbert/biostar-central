@@ -86,9 +86,13 @@
                     {% votebox answer.post %}
                 </td>
                 <td>
-                    <div>{{ answer.post.html|safe }}</div>
+                    <div><a name="{{answer.id}}"></a> {{ answer.post.html|safe }}</div>
                     <div class="left">
+                        
+                        <a href="{{request.path}}#{{answer.id}}">link</a> | 
+
                         mod | edit | flag
+
                     </div>
                     <div class="right">
                         Author: <a class="user-link" href="/member/{{answer.post.author.id}}">
