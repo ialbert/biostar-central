@@ -17,7 +17,7 @@ urlpatterns = patterns('',
 
     (r'^member/(?P<uid>\d+)/$', 'biostar.server.views.user'),
     (r'^question/(?P<pid>\d+)/$', 'biostar.server.views.question'),
-    (r'^newpost/$', 'biostar.server.views.newpost'),
+    #(r'^newpost/$', 'biostar.server.views.newpost'),
     
     (r'^vote/$', 'biostar.server.views.vote'),
 
