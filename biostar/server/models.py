@@ -85,6 +85,9 @@ class Answer(models.Model):
     question = models.ForeignKey(Question, related_name='answers')
     post = models.ForeignKey(Post)
     lastedit_date = models.DateTimeField(auto_now=True)
+    
+    def author(self):
+        return self.post.author
 
 class Comment(models.Model):
     parent = models.ForeignKey(Post, related_name='comments')

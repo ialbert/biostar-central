@@ -26,6 +26,17 @@ def users(request):
     users = models.User.objects.all()
     return html.template(request, name='users.html', users=users)
 
+def question_show(request, pid):
+    "Returns a question with all answers"
+    question = models.Question.objects.get(id=pid)
+    if request.user.is_authenticated():
+        question.post.views += 1
+        question.post.save()
+    answers  = models.Answer.objects.filter(question=question).select_related()
+
+    return html.template( request, name='question.html', question=question, answers=answers )
+
+# question form and its default values
 _Q_TITLE, _Q_CONTENT, _Q_TAG = 'Question title', 'question content', 'tag1'
 class QuestionForm(forms.Form):
     "A form representing a new question"
@@ -34,7 +45,7 @@ class QuestionForm(forms.Form):
     tags    = forms.CharField(max_length=250,  initial=_Q_TAG)
     
     def clean(self):
-        "Custom validator for the form"
+        "Custom validator for the question"
         if self.cleaned_data['tags'] == _Q_TAG:
             raise forms.ValidationError("Please change the tag from default value")
     
@@ -46,27 +57,12 @@ class QuestionForm(forms.Form):
 
         return self.cleaned_data
 
-class AnswerForm(forms.Form):
-    "A form representing an answer or comment"
-    parent  = forms.IntegerField(0)
-    content = forms.CharField(max_length=5000)
-
 # editing questions/answers and comments can be merged into a single post handler
 # for now these are separete to allow us to identify what each step needs
 
-def question_show(request, pid):
-    "Returns a question with all answers"
-    question = models.Question.objects.get(id=pid)
-    if request.user.is_authenticated():
-        question.post.views += 1
-        question.post.save()
-    answers  = models.Answer.objects.filter(question=question).select_related()
-
-    return html.template( request, name='question.html', question=question, answers=answers )
-
 @login_required(redirect_field_name='/openid/login/')
 def question_edit(request, pid=0):
-    "Handles new questions"
+    "Handles questions"
     
     if pid==0:
         # looks like a new question
@@ -118,48 +114,30 @@ def question_edit(request, pid=0):
         else:
             # return form with error message
             return html.template( request, name='edit.question.html', form=form, params=params)
-    
-'''
-@login_required(redirect_field_name='/openid/login/')
-def newpost(request):
-    "Handles all new posts: questions, answers and comments"
-    if request.method == 'POST':
-        form = PostForm(request.POST)
-    else:
-        raise HttpError("/")
-    if form.is_valid(): # All validation rules pass
-        parent  = form.cleaned_data['parent']
-        title   = form.cleaned_data['title']
-        content = form.cleaned_data['content']
-    
-        post = models.Post(bbcode=content, author=request.user)
-        post.save()
-            
-            if not parent:
-                # no parent means it is a new question
-                question = models.Question(post=post, title=title)
-                question.save()
-            else:
-                # an answer to a question
-                question = models.Question.objects.get(id=parent)
-                answer = models.Answer(question=question, post=post)
-                answer.save()
-            return html.redirect('/question/%s/' % question.id) 
-    else:
-        return html.redirect('/about/') 
 
-'''
+# answer/comment form and its default values
+class AnswerForm(forms.Form):
+    "A form representing an answer or comment"
+    parent  = forms.IntegerField(0)
+    content = forms.CharField(max_length=5000)
+
+@login_required(redirect_field_name='/openid/login/')
+def answer_edit(request, pid=0):
+    "Handles answers"
+    if pid==0:
+        # looks like a new answer
+        form = AnswerForm(initial=dict(content='', parent=answer.post.id))
+    else:
+        # we will need to validate edit access to the answer by the author
+        # no authorization check for now
+        answer = models.Answer.objects.get(pk=pid)
+        form = AnswerForm(initial=dict(content=answer.post.bbcode, parent=answer.post.id))
 
 def vote(request):
     "Handles all voting on posts"
     if request.method == 'POST':
         
-                
-        # in this demo all votes go under user number 1
-        #author = models.User.objects.get(id=1)
-        
         author = request.user
-        
         if not author.is_authenticated():
             return html.json_response({'status':'error', 'msg':'You must be logged in to vote'})
         
@@ -176,7 +154,8 @@ def vote(request):
                 'msg':'%s removed' % old_vote.get_type_display()})
         else:
             vote = post.add_vote(author, type)
-            if type in models.OPPOSING_VOTES: # Remove an opposing vote if it exists
+            if type in models.OPPOSING_VOTES: 
+                # Remove an opposing vote if it exists
                 post.remove_vote(author, models.OPPOSING_VOTES[type])
             return html.json_response({
                 'status':'success',

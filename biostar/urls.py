@@ -18,10 +18,15 @@ urlpatterns = patterns('',
     (r'^members/$', 'biostar.server.views.users'),
     (r'^member/(?P<uid>\d+)/$', 'biostar.server.views.user'),
     
+    # question handlers
     (r'^question/(?P<pid>\d+)/show/$', 'biostar.server.views.question_show'),
     (r'^question/(?P<pid>\d+)/edit/$', 'biostar.server.views.question_edit'),
     (r'^question/new/$','biostar.server.views.question_edit'),
-      
+    
+    # answer handlers
+    (r'^answer/(?P<pid>\d+)/edit/$', 'biostar.server.views.answer_edit'),
+    (r'^answer/new/$','biostar.server.views.answer_edit'),
+
     (r'^vote/$', 'biostar.server.views.vote'),
 
     # openid authentication
