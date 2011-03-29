@@ -78,6 +78,14 @@
                     </div>
                 </td>
             </tr>
+            <tr>
+                <td>
+                    &nbsp;
+                </td>
+                <td>
+                    {% comments question.post.comments %}
+                </td>
+            </tr>
             
         </table>
 
@@ -115,6 +123,8 @@
                          
                          </a>
                     </div>
+                    {% comments answer.post.comments %}
+
                 </td>
             </tr>
             {% endfor %}

@@ -34,6 +34,11 @@ def xml_reader(fname, limit=None):
 
     return rows
 
+def html_to_bbcode(body):
+    body = body.replace("<", "[")
+    body = body.replace(">", "]")
+    return body
+
 @transaction.commit_manually
 def insert_users(fname, limit):
     "Inserts the users"
@@ -68,8 +73,7 @@ def insert_posts(fname, user_map, limit):
         userid = row['OwnerUserId']
         views = row['ViewCount']
         author = user_map[userid]
-        body = body.replace("<", "[")
-        body = body.replace(">", "]")
+        body = html_to_bbcode(body)
         p, flag = models.Post.objects.get_or_create(bbcode=body, author=author, views=views)
         store[Id] = p
     transaction.commit()
@@ -132,7 +136,32 @@ def insert_votes(fname, user_map, post_map, limit):
 
     transaction.commit()
     print "*** Inserted %s votes" % len(store)
-
+ 
+    
+    
+@transaction.commit_manually
+def insert_comments(fname, post_map, user_map, limit):
+    comment_map = {}
+    rows = xml_reader(fname, limit=limit)
+    
+    for (index, row) in enumerate(rows):
+        Id = row['Id']
+        try:
+            parent = post_map[ row['PostId'] ]
+        except KeyError:
+            continue # We haven't inserted this post
+        text   = row['Text']
+        userid = row['UserId']
+        author = user_map[userid]        
+        #post = comment_post_map[Id]
+        post, flag = models.Post.objects.get_or_create(bbcode=text, author=author)
+        comment, flag = models.Comment.objects.get_or_create(parent=parent, post=post)
+        comment_map[Id] = comment
+    transaction.commit()
+    
+    print "*** Inserted %s comments" % len(comment_map)
+    
+    
 
 def execute(path, limit=300):
     """
@@ -149,6 +178,9 @@ def execute(path, limit=300):
 
     fname = join(path, 'Posts2Votes.xml')
     insert_votes(fname=fname, limit=limit, post_map=post_map, user_map=user_map)
+    
+    fname = join(path, 'PostComments.xml')
+    insert_comments(fname=fname, post_map=post_map, user_map=user_map, limit=limit)
 
 if __name__ =='__main__':
 
