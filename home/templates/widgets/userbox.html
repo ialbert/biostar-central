@@ -1,4 +1,4 @@
-{% load voting %}
+{% load basic %}
 
 <div class="user-info">
     <div class="user-action-time">
@@ -10,6 +10,6 @@
     <div class="user-details left">
         {% userlink post.author %}
         <br>
-        <span class="reputation-score">{{ post.author.get_profile.score }}</span>
+        {% userrep post.author %}
     </div>
 </div>
