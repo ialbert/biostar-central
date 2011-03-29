@@ -1,10 +1,16 @@
+{% load voting %}
+
 {% if comments %}
 <div class="comments">
     <table>
         {% for comment in comments.all %}
             <tr class="comment">
                 <td class="comment-actions">&nbsp;</td>
-                <td class="comment-text">{{comment.post.html|safe}}</td>
+                <td class="comment-text">
+                    {{comment.post.html|safe}}
+                    &mdash;
+                    {% userlink comment.post.author %}
+                </td>
             </tr>
         {% endfor %}
     </table>

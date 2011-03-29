@@ -78,7 +78,7 @@ table tr td{
 }
 
 
-.answer tr td{
+#question tr td, .answer tr td{
     vertical-align: top;
 }
 
@@ -95,6 +95,10 @@ tr.comment td{
     border-bottom: 1px dotted #BBBBBB;
     padding-bottom: 5px;
     padding-top: 5px;
+}
+
+.comment a{
+    color: #6D6D6D;
 }
 
 

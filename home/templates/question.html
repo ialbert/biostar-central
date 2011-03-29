@@ -40,53 +40,58 @@
 {% block mainbody %}
     <div class="content"">
         
-        <table>
-            <tr>
-                <td valign="top"> 
-                    {% votebox question.post %}
-                </td>
-                <td>
-                    <div>
-                        {{question.post.html|safe }}
-                    </div>
-
-                    <div class="tags">
-                        {% for tag in question.tags.all %}
-                           <a class="post-tag">{{ tag }}</a>
-                        {% endfor %}
-                    </div>
-                   
-                    <div>
-                        mod | 
-                        <a href="/question/edit/{{question.id}}/">edit</a> | 
-                        flag
-                    </div>
-
-                    <div class="right">
-                          <table>
-                            <tr>
-                                <td colspan="2">asked ? hours ago </td>
-                            </tr>
-                            <tr>
-                                <td width="32">{% gravatar question.post.author 32 %}</td>
-                                <td align="right">
-                                    <b><a class="user-link" href="/member/{{question.post.author.id}}">{{question.post.author.get_full_name}}</a></b><br>
-                                </td>
-                            </tr>
-                          </table>
-                    </div>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    &nbsp;
-                </td>
-                <td>
-                    {% comments question.post.comments %}
-                </td>
-            </tr>
-            
-        </table>
+        
+        <div id="question">
+        
+            <table>
+                <tr>
+                    <td valign="top"> 
+                        {% votebox question.post %}
+                    </td>
+                    <td>
+                        <div>
+                            {{question.post.html|safe }}
+                        </div>
+    
+                        <div class="tags">
+                            {% for tag in question.tags.all %}
+                               <a class="post-tag">{{ tag }}</a>
+                            {% endfor %}
+                        </div>
+                       
+                        <div class="left">
+                            mod | 
+                            <a href="/question/edit/{{question.id}}/">edit</a> | 
+                            flag
+                        </div>
+    
+                        <div class="right">
+                              <table>
+                                <tr>
+                                    <td colspan="2">asked ? hours ago </td>
+                                </tr>
+                                <tr>
+                                    <td width="32">{% gravatar question.post.author 32 %}</td>
+                                    <td align="right">
+                                        <b>{% userlink question.post.author %}</b>
+                                    </td>
+                                </tr>
+                              </table>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        &nbsp;
+                    </td>
+                    <td>
+                        {% comments question.post.comments %}
+                    </td>
+                </tr>
+                
+            </table>
+        
+        </div>
 
         <div id="answers">
             

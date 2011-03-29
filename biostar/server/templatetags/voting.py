@@ -18,9 +18,15 @@ def gravatar(user, size=80):
     
 def comments(comments):
     return {'comments':comments}
+    
+def userlink(user):
+    return {'user':user}
+
 
 register.simple_tag(gravatar)
 register.inclusion_tag('widgets/votebox.html', takes_context=True)(votebox)
 register.inclusion_tag('widgets/comments.html')(comments)
+register.inclusion_tag('widgets/userlink.html')(userlink)
+
 
 
