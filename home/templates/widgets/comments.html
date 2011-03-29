@@ -4,7 +4,7 @@
         {% for comment in comments.all %}
             <tr class="comment">
                 <td class="comment-actions">&nbsp;</td>
-                <td class="comment-text">Comment: {{comment.post.html|safe}}</td>
+                <td class="comment-text">{{comment.post.html|safe}}</td>
             </tr>
         {% endfor %}
     </table>

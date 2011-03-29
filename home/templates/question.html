@@ -70,11 +70,10 @@
                             <tr>
                                 <td width="32">{% gravatar question.post.author 32 %}</td>
                                 <td align="right">
-                                    <a class="user-link" href="/member/{{question.post.author.id}}">{{question.post.author.get_full_name}}</a></b><br>
+                                    <b><a class="user-link" href="/member/{{question.post.author.id}}">{{question.post.author.get_full_name}}</a></b><br>
                                 </td>
                             </tr>
                           </table>
-                         </a>
                     </div>
                 </td>
             </tr>
@@ -89,72 +88,78 @@
             
         </table>
 
-        <table id="answer-table">
+        <div id="answers">
             
-            <tr>
-                <td colspan="2"> <h2> {{answers|length}} Answers</h2> </td>
-            </tr>
+            <div id="answers-header">
+                <h2> {{answers|length}} Answers</h2>
+            </div>
 
             {% for answer in answers %}
-            <tr>
-                <td>
-                    {% votebox answer.post %}
-                </td>
-                <td>
-                    <div><a name="{{answer.id}}"></a> {{ answer.post.html|safe }}</div>
-                    <div class="left">
-                        
-                        <a href="{{request.path}}#{{answer.id}}">link</a> | 
-
-                        
-                        mod | 
-                        <a href="/answer/edit/{{question.id}}/{{answer.id}}/">edit</a> | flag
-                        
-                    </div>
-
-                    </div>
-                    <div class="right">
-                        
-                        
-
-                        Author: <a class="user-link" href="/member/{{answer.post.author.id}}">
-                          {{answer.post.author.first_name}}
-                          {{answer.post.author.last_name}}
-                         
-                         </a>
-                    </div>
-                    {% comments answer.post.comments %}
-
-                </td>
-            </tr>
+            <div class="answer">
+                <table>
+                    <tr>
+                        <td>
+                            {% votebox answer.post %}
+                        </td>
+                        <td>
+                            <div><a name="{{answer.id}}"></a> {{ answer.post.html|safe }}</div>
+                            <div class="left">
+                                
+                                <a href="{{request.path}}#{{answer.id}}">link</a> | 
+        
+                                
+                                mod | 
+                                <a href="/answer/edit/{{question.id}}/{{answer.id}}/">edit</a> | flag
+                                
+                            </div>
+        
+                            <div class="right">
+                                
+                                
+        
+                                Author: <a class="user-link" href="/member/{{answer.post.author.id}}">
+                                  {{answer.post.author.first_name}}
+                                  {{answer.post.author.last_name}}
+                                 
+                                 </a>
+                            </div>
+        
+                        </td>
+                    </tr>
+                    <tr class="comment-row">
+                        <td></td>
+                        <td>
+                            {% comments answer.post.comments %}
+                        </td>
+                    </tr>
+                </table>
+            </div>
             {% endfor %}
         
            
-            <tr>
-                <td colspan="2"> 
-                    <h2>Your Answer</h2>
+            <div id="post-answer">
+                <h2>Your Answer</h2>
 
-                     {% if user.is_authenticated %}
-                    
-                    <form action="/answer/new/{{question.id}}/" method="post">
-                        {% csrf_token %}
-                        <textarea name="content" cols="50" rows="15" ></textarea>
-                        <div align="center">
-                            <input style="margin:10px;" type="submit" name="submit" value="Post Your Answer">
-                        </div>
-                    </form>
-                    
-                    {% else %}
-                        <div>
-                            Please <a href="/openid/login/">log in</a> to post an answer.
-                        </div>
-                    {% endif %}
-                </td>
-            </tr>
-        </table>
-
-        
+                 {% if user.is_authenticated %}
+                
+                <form action="/answer/new/{{question.id}}/" method="post">
+                    {% csrf_token %}
+                    <textarea name="content" cols="50" rows="15" ></textarea>
+                    <div align="center">
+                        <input style="margin:10px;" type="submit" name="submit" value="Post Your Answer">
+                    </div>
+                </form>
+                
+                {% else %}
+                    <div>
+                        Please <a href="/openid/login/">log in</a> to post an answer.
+                    </div>
+                {% endif %}
+                
+            </div>
 
 
+
+        </div>
     </div>
 {% endblock %}

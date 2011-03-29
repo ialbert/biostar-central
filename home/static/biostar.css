@@ -63,11 +63,41 @@ table tr td{
     border-bottom:1px dotted #6D6D6D;
 }
 
-#answer-table tr td{
-    vertical-align: top;
-    padding: 10px;
-    border-bottom:1px solid #6D6D6D;
+#answers-header {
+    border-bottom: 1px solid #6D6D6D;
+    margin-bottom: 10px;
+    margin-top: 10px;
+    width: 730px;
 }
+
+.answer{
+    border-bottom: 1px solid #AAAAAA;
+    padding-bottom: 20px;
+    padding-top: 20px;
+    width: 730px;
+}
+
+
+.answer tr td{
+    vertical-align: top;
+}
+
+.comment-row td{
+    padding: 0;
+}
+
+.comments {
+    color: #858585;
+    border-top: 1px dotted #E4E4E4;
+}
+
+tr.comment td{
+    border-bottom: 1px dotted #BBBBBB;
+    padding-bottom: 5px;
+    padding-top: 5px;
+}
+
+
 
 a:hover, a.question-title {
     cursor: pointer;
@@ -141,13 +171,16 @@ a:hover, a.question-title {
 
 .vote{
     text-align:center;
+    width: 60px;
 }
 
 .vote-up, .vote-down {
     display: block;
     width: 30px;
     height: 14px;
-    background-repeat: no-repeat;    
+    background-repeat: no-repeat;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .vote-up.vote-off {
