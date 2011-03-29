@@ -22,6 +22,9 @@ def user(request, uid):
     user = models.User.objects.get(id=uid)
     return html.template(request, name='user.html', selected_user=user)
 
+def users(request):
+    users = models.User.objects.all()
+    return html.template(request, name='users.html', users=users)
 
 _Q_TITLE, _Q_CONTENT, _Q_TAG = 'Question title', 'question content', 'tag1'
 class QuestionForm(forms.Form):
@@ -92,9 +95,6 @@ def question_edit(request, pid=0):
             content = form.cleaned_data['content']
             tags    = form.cleaned_data['tags'].split()
             
-            print '*' * 50
-            print pid
-
             if pid == 0:
                 # new question
                 post = models.Post(bbcode=content, author=request.user)
