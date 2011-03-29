@@ -110,7 +110,7 @@ def question_edit(request, pid=0):
                 question.save(), post.save()
 
             # redirect to the question
-            return html.redirect('/question/%s/show/' % question.id) 
+            return html.redirect('/question/show/%s/' % question.id) 
         else:
             # return form with error message
             return html.template( request, name='edit.question.html', form=form, params=params)
@@ -118,20 +118,46 @@ def question_edit(request, pid=0):
 # answer/comment form and its default values
 class AnswerForm(forms.Form):
     "A form representing an answer or comment"
-    parent  = forms.IntegerField(0)
     content = forms.CharField(max_length=5000)
 
 @login_required(redirect_field_name='/openid/login/')
-def answer_edit(request, pid=0):
-    "Handles answers"
-    if pid==0:
-        # looks like a new answer
-        form = AnswerForm(initial=dict(content='', parent=answer.post.id))
-    else:
-        # we will need to validate edit access to the answer by the author
-        # no authorization check for now
-        answer = models.Answer.objects.get(pk=pid)
-        form = AnswerForm(initial=dict(content=answer.post.bbcode, parent=answer.post.id))
+def answer_edit(request, qid, aid=0):
+    "Handles answers, question id and answer id"
+    
+    # get the question that is to be accessed
+    question = models.Question.objects.get(pk=qid)
+    
+    if aid != 0:
+        # need to authenticate user access to this answer
+        # no authentication for now
+        answer = models.Answer.objects.get(pk=aid)
+       
+    if request.method == 'GET':
+        # editing an existing answer
+        form = AnswerForm( initial=dict(content=answer.post.bbcode) )
+        return html.template( request, name='edit.answer.html', form=form)
+
+    elif request.method == 'POST':
+        # incoming form data
+        form = AnswerForm(request.POST)
+
+        if form.is_valid():
+            content = form.cleaned_data['content']
+            if aid==0:
+                # new answer for the question
+                post = models.Post(bbcode=content, author=request.user)
+                post.save()
+                answer = models.Answer(post=post, question=question)
+                answer.save()
+            else:
+                # the answer is already generated in this view
+                answer.post.bbcode = content
+                answer.post.save()
+            # go to the question
+            return html.redirect('/question/show/%s/' % qid)
+        else:
+            # invalid form submission, render the errors
+            return html.template( request, name='edit.answer.html', form=form)
 
 def vote(request):
     "Handles all voting on posts"

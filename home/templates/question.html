@@ -58,7 +58,7 @@
                    
                     <div>
                         mod | 
-                        <a href="/question/{{question.id}}/edit">edit</a> | 
+                        <a href="/question/edit/{{question.id}}/">edit</a> | 
                         flag
                     </div>
 
@@ -98,7 +98,11 @@
                         
                         <a href="{{request.path}}#{{answer.id}}">link</a> | 
 
-                        mod | edit | flag
+                        
+                        mod | 
+                        <a href="/answer/edit/{{question.id}}/{{answer.id}}/">edit</a> | flag
+                        
+                    </div>
 
                     </div>
                     <div class="right">
@@ -121,19 +125,15 @@
                     <h2>Your Answer</h2>
 
                      {% if user.is_authenticated %}
-                    <!-- disable for now 
-                    <form action="/newpost/" method="post">
+                    
+                    <form action="/answer/new/{{question.id}}/" method="post">
                         {% csrf_token %}
-                        <input type="hidden" value="{{question.id}}" name="parent" />
-                        <textarea name="content" cols="50" rows="15" > 
-                        
-                        </textarea>
+                        <textarea name="content" cols="50" rows="15" ></textarea>
                         <div align="center">
                             <input style="margin:10px;" type="submit" name="submit" value="Post Your Answer">
                         </div>
                     </form>
-                    -->
-                    Disabled for now.
+                    
                     {% else %}
                         <div>
                             Please <a href="/openid/login/">log in</a> to post an answer.
