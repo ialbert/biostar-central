@@ -64,56 +64,59 @@ class QuestionForm(forms.Form):
 def question_edit(request, pid=0):
     "Handles questions"
     
-    if pid==0:
-        # looks like a new question
+    # pid == 0 means a new question
+    asknew = pid == 0
+    edit = not asknew
+
+    # rather than nesting ifs lets deal with each case separately 
+    # then exit as soon as we got enough information
+    if asknew:
         params = html.Params(subheader='Ask a question', button='Ask your question')
-        form = QuestionForm()
     else:
-        # looks like editing an existing question
         params = html.Params(subheader='Edit question', button='Submit changes')
-        
-        # we will need to validate edit access to the question by the author
-        # no authorization check for now
+
+    # looks like a new question
+    if asknew and request.method == 'GET':
+        form = QuestionForm()
+        return html.template( request, name='edit.question.html', form=form, params=params)
+    
+    # looks like starting an edit request for an existing question
+    if edit and request.method == 'GET':
         question = models.Question.objects.get(pk=pid)
+        question.authorize(request)
         tags = " ".join([ tag.name for tag in question.tags.all() ])
         form = QuestionForm(initial=dict(title=question.title, content=question.post.bbcode, tags=tags))
+        return html.template( request, name='edit.question.html', form=form, params=params)
+  
+    # we can only deal with POST after this point
+    assert  request.method == 'POST'
     
-    if request.method == 'GET':
+    # check the form for validity
+    form = QuestionForm(request.POST)
+    if not form.is_valid():
         return html.template( request, name='edit.question.html', form=form, params=params)
 
-    elif request.method == 'POST':
-        # incoming data posted
-        form = QuestionForm(request.POST)
-    
-        if form.is_valid():
-            # generate the new question
-            title   = form.cleaned_data['title']
-            content = form.cleaned_data['content']
-            tags    = form.cleaned_data['tags'].split()
+    # at this point the form is valid
+    title   = form.cleaned_data['title']
+    content = form.cleaned_data['content']
+    tags    = form.cleaned_data['tags'].split()
             
-            if pid == 0:
-                # new question
-                post = models.Post(bbcode=content, author=request.user)
-                post.save()
-                question = models.Question(post=post, title=title)
-                question.save()
-                question.tags.add(*tags)
-            else:
-                # editing existing question
+    if asknew:
+        # generate the new question
+        post = models.Post.objects.create(bbcode=content, author=request.user)
+        question = models.Question.objects.create(post=post, title=title)
+        question.tags.add(*tags)
+    else:
+        # editing existing question
+        question = models.Question.objects.get(pk=pid)
+        post = question.post
+        question.title, post.bbcode, post.lastedit_user = title, content, request.user
+        question.tags.add(*tags)
+        question.save(), post.save()
 
-                # first it needs to validate access to the question then update
-                question = models.Question.objects.get(pk=pid)
-                # no authorization check for now
-                post = question.post
-                question.title, post.bbcode, post.lastedit_user = title, content, request.user
-                question.tags.add(*tags)
-                question.save(), post.save()
-
-            # redirect to the question
-            return html.redirect('/question/show/%s/' % question.id) 
-        else:
-            # return form with error message
-            return html.template( request, name='edit.question.html', form=form, params=params)
+    # show the question
+    return html.redirect('/question/show/%s/' % question.id) 
+            
 
 # answer/comment form and its default values
 class AnswerForm(forms.Form):

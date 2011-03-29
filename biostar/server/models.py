@@ -43,7 +43,16 @@ class Post(models.Model):
     creation_date = models.DateTimeField(auto_now_add=True)
     lastedit_date = models.DateTimeField(auto_now=True)
     lastedit_user = models.ForeignKey(User, related_name='editor')
-            
+
+    def authorize(self, request, strict=False):
+        "Verfifies access by a request object. Strict mode fails immediately."
+        cond1 = request.user == self.author
+        cond2 = request.user.is_staff
+        valid = cond1 or cond2
+        if strict and not valid:
+            raise Exception("Access Denied!")
+        return valid
+
     def get_vote(self, user, vote_type):
         if user.is_anonymous():
             return None
@@ -81,6 +90,9 @@ class Question(models.Model):
     tags = TaggableManager()
     lastedit_date = models.DateTimeField(auto_now=True)
 
+    def authorize(self, request, strict=False):
+        return self.post.authorize(request, strict=strict)
+
 class Answer(models.Model):
     question = models.ForeignKey(Question, related_name='answers')
     post = models.ForeignKey(Post)
@@ -88,6 +100,9 @@ class Answer(models.Model):
     
     def author(self):
         return self.post.author
+
+    def authorize(self, request, strict=False):
+        return self.post.authorize(request, strict=strict)
 
 class Comment(models.Model):
     parent = models.ForeignKey(Post, related_name='comments')
