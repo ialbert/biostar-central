@@ -21,12 +21,17 @@ def comments(comments):
     
 def userlink(user):
     return {'user':user}
+    
+def userbox(post, action='asked'):
+    return {'post':post, 'action':action}
 
 
 register.simple_tag(gravatar)
 register.inclusion_tag('widgets/votebox.html', takes_context=True)(votebox)
 register.inclusion_tag('widgets/comments.html')(comments)
 register.inclusion_tag('widgets/userlink.html')(userlink)
+register.inclusion_tag('widgets/userbox.html')(userbox)
+
 
 
 

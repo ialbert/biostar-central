@@ -65,18 +65,8 @@
                             flag
                         </div>
     
-                        <div class="right">
-                              <table>
-                                <tr>
-                                    <td colspan="2">asked ? hours ago </td>
-                                </tr>
-                                <tr>
-                                    <td width="32">{% gravatar question.post.author 32 %}</td>
-                                    <td align="right">
-                                        <b>{% userlink question.post.author %}</b>
-                                    </td>
-                                </tr>
-                              </table>
+                        <div class="right  question-user-info">
+                            {% userbox question.post %}
                         </div>
                     </td>
                 </tr>
@@ -118,16 +108,9 @@
                                 
                             </div>
         
-                            <div class="right">
-                                
-                                
-        
-                                Author: <a class="user-link" href="/member/{{answer.post.author.id}}">
-                                  {{answer.post.author.first_name}}
-                                  {{answer.post.author.last_name}}
-                                 
-                                 </a>
-                            </div>
+                        <div class="right">
+                            {% userbox answer.post 'answered' %}
+                        </div>
         
                         </td>
                     </tr>

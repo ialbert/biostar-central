@@ -1,0 +1,15 @@
+{% load voting %}
+
+<div class="user-info">
+    <div class="user-action-time">
+        {{ action }} ? hours ago
+    </div>
+    <div class="user-gravatar left">
+        {% gravatar post.author 32 %}
+    </div>
+    <div class="user-details left">
+        {% userlink post.author %}
+        <br>
+        <span class="reputation-score">{{ post.author.get_profile.score }}</span>
+    </div>
+</div>

@@ -101,6 +101,24 @@ tr.comment td{
     color: #6D6D6D;
 }
 
+.question-user-info{
+    background-color: #E4E4E4;
+    padding: 5px;
+}
+
+.user-details {
+    padding: 2px 5px 0px 5px;
+    width: 145px;
+    line-height: 17px;
+}
+
+.reputation-score {
+    color: #444444;
+    font-size: 120%;
+    font-weight: bold;
+    margin-right: 2px;
+}
+
 
 
 a:hover, a.question-title {
