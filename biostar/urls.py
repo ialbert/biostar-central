@@ -12,13 +12,15 @@ urlpatterns = patterns('',
     (r'^$', 'biostar.server.views.index'),
 
     ('^about/$', direct_to_template, {'template': 'about.html'}),
-    ('^newquestion/$','biostar.server.views.newquestion'),
-
+    
+    
 
     (r'^member/(?P<uid>\d+)/$', 'biostar.server.views.user'),
-    (r'^question/(?P<pid>\d+)/$', 'biostar.server.views.question'),
-    #(r'^newpost/$', 'biostar.server.views.newpost'),
     
+    (r'^question/(?P<pid>\d+)/show/$', 'biostar.server.views.question_show'),
+    (r'^question/(?P<pid>\d+)/edit/$', 'biostar.server.views.question_edit'),
+    (r'^question/new/$','biostar.server.views.question_edit'),
+      
     (r'^vote/$', 'biostar.server.views.vote'),
 
     # openid authentication

@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block subheader %}
-  <h2>Ask a question</h2>
+  <h2>{{params.subheader}}</h2>
 {% endblock %}
 
 {% block custom-frameworks %}
@@ -39,7 +39,7 @@
         <table id="answer-table">
             <tr>
                 <td colspan="2" bgcolor="#CECECE"> 
-                    <form action="/newquestion/" method="post">
+                    <form action="{{request.path}}" method="post">
                         {% csrf_token %}
                         
                         <div>
@@ -55,7 +55,7 @@
 
                         </div>
                         <div align="center">
-                            <input style="margin:10px;" type="submit" name="submit" value="Ask your question">
+                            <input style="margin:10px;" type="submit" name="submit" value="{{params.button}}">
                         </div>
                     </form>
                 </td>

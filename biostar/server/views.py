@@ -9,7 +9,12 @@ from biostar.libs import postmarkup
 
 def index(request):
     "Main page"
-    questions = models.Question.objects.all()[:10]
+    
+    # shows both the 5 freshest and 5 oldest questions 
+    # (this is for debugging)
+    top = models.Question.objects.all().order_by('-lastedit_date')[:5]
+    bot = models.Question.objects.all().order_by('lastedit_date')[:5]
+    questions = list(top) + list(bot)
     return html.template( request, name='index.html', questions=questions)
 
 def user(request, uid):
@@ -17,13 +22,6 @@ def user(request, uid):
     user = models.User.objects.get(id=uid)
     return html.template(request, name='user.html', selected_user=user)
 
-def question(request, pid):
-    "Returns a question with all answers"
-    question = models.Question.objects.get(id=pid)
-    answers  = models.Answer.objects.filter(question=question).select_related()
-
-    params = html.Params(question=question, answers=answers )
-    return html.template( request, name='question.html', params=params )
 
 _Q_TITLE, _Q_CONTENT, _Q_TAG = 'Question title', 'question content', 'tag1'
 class QuestionForm(forms.Form):
@@ -50,11 +48,41 @@ class AnswerForm(forms.Form):
     parent  = forms.IntegerField(0)
     content = forms.CharField(max_length=5000)
 
-@login_required(redirect_field_name='/openid/login/')
-def newquestion(request):
-    "Handles new questions"
+# editing questions/answers and comments can be merged into a single post handler
+# for now these are separete to allow us to identify what each step needs
 
-    if request.method == 'POST':
+def question_show(request, pid):
+    "Returns a question with all answers"
+    question = models.Question.objects.get(id=pid)
+    if request.user.is_authenticated():
+        question.post.views += 1
+        question.post.save()
+    answers  = models.Answer.objects.filter(question=question).select_related()
+
+    return html.template( request, name='question.html', question=question, answers=answers )
+
+@login_required(redirect_field_name='/openid/login/')
+def question_edit(request, pid=0):
+    "Handles new questions"
+    
+    if pid==0:
+        # looks like a new question
+        params = html.Params(subheader='Ask a question', button='Ask your question')
+        form = QuestionForm()
+    else:
+        # looks like editing an existing question
+        params = html.Params(subheader='Edit question', button='Submit changes')
+        
+        # we will need to validate edit access to the question by the author
+        # no authorization check for now
+        question = models.Question.objects.get(pk=pid)
+        tags = " ".join([ tag.name for tag in question.tags.all() ])
+        form = QuestionForm(initial=dict(title=question.title, content=question.post.bbcode, tags=tags))
+    
+    if request.method == 'GET':
+        return html.template( request, name='edit.question.html', form=form, params=params)
+
+    elif request.method == 'POST':
         # incoming data posted
         form = QuestionForm(request.POST)
     
@@ -62,23 +90,35 @@ def newquestion(request):
             # generate the new question
             title   = form.cleaned_data['title']
             content = form.cleaned_data['content']
-            tags    = form.cleaned_data['tags']
-            post = models.Post(bbcode=content, author=request.user)
-            post.save()
-            question = models.Question(post=post, title=title)
-            question.save()
+            tags    = form.cleaned_data['tags'].split()
+            
+            print '*' * 50
+            print pid
+
+            if pid == 0:
+                # new question
+                post = models.Post(bbcode=content, author=request.user)
+                post.save()
+                question = models.Question(post=post, title=title)
+                question.save()
+                question.tags.add(*tags)
+            else:
+                # editing existing question
+
+                # first it needs to validate access to the question then update
+                question = models.Question.objects.get(pk=pid)
+                # no authorization check for now
+                post = question.post
+                question.title, post.bbcode, post.lastedit_user = title, content, request.user
+                question.tags.add(*tags)
+                question.save(), post.save()
+
             # redirect to the question
-            return html.redirect('/question/%s/' % question.id) 
+            return html.redirect('/question/%s/show/' % question.id) 
         else:
             # return form with error message
-            return html.template( request, name='new.question.html', form=form)
-
-    else:
-        # a GET request, generate empty form for it
-        form = QuestionForm()
-        return html.template( request, name='new.question.html', form=form)
-
-
+            return html.template( request, name='edit.question.html', form=form, params=params)
+    
 '''
 @login_required(redirect_field_name='/openid/login/')
 def newpost(request):

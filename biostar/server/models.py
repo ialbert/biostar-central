@@ -43,7 +43,6 @@ class Post(models.Model):
     creation_date = models.DateTimeField(auto_now_add=True)
     lastedit_date = models.DateTimeField(auto_now=True)
     lastedit_user = models.ForeignKey(User, related_name='editor')
-    
             
     def get_vote(self, user, vote_type):
         if user.is_anonymous():
@@ -66,7 +65,6 @@ class Post(models.Model):
             vote.delete()
             return True
         return False
-        
 
 class Question(models.Model):
     """
@@ -81,14 +79,17 @@ class Question(models.Model):
     answer_count = models.IntegerField(default=0, blank=True)
     post = models.ForeignKey(Post)
     tags = TaggableManager()
+    lastedit_date = models.DateTimeField(auto_now=True)
 
 class Answer(models.Model):
     question = models.ForeignKey(Question, related_name='answers')
     post = models.ForeignKey(Post)
+    lastedit_date = models.DateTimeField(auto_now=True)
 
 class Comment(models.Model):
     parent = models.ForeignKey(Post, related_name='comments')
     post = models.ForeignKey(Post, related_name='content')
+    lastedit_date = models.DateTimeField(auto_now=True)
 
 VOTE_UP, VOTE_DOWN = 0, 1
 

@@ -50,7 +50,7 @@ def template(request, name, mimetype=None, **kwd):
     messages = user.get_and_delete_messages()
     
     # this collects the dictionary from which the context will be built
-    cx = dict(messages=messages, user=user)
+    cx = dict(messages=messages, user=user, request=request)
     cx.update(kwd)
     cx.update(csrf(request))
     

@@ -2,7 +2,7 @@
 {% load voting %}
 
 {% block subheader %}
-  <h2>{{params.question.title }}</h2>
+  <h2>{{question.title }}</h2>
 {% endblock %}
 
 {% block custom-frameworks %}
@@ -43,20 +43,30 @@
         <table>
             <tr>
                 <td valign="top"> 
-                    {% votebox params.question.post %}
+                    {% votebox question.post %}
                 </td>
                 <td>
                     <div>
-                        {{params.question.post.html|safe }}
+                        {{question.post.html|safe }}
                     </div>
-                    <div class="left">
-                        mod | edit | flag
+
+                    <div class="tags">
+                        {% for tag in question.tags.all %}
+                           <a class="post-tag">{{ tag }}</a>
+                        {% endfor %}
                     </div>
+                   
+                    <div>
+                        mod | 
+                        <a href="/question/{{question.id}}/edit">edit</a> | 
+                        flag
+                    </div>
+
                     <div class="right">
                         Author: 
-                         <a class="user-link" href="/member/{{params.question.post.author.id}}">
-                          {{params.question.post.author.first_name}}
-                          {{params.question.post.author.last_name}}
+                         <a class="user-link" href="/member/{{question.post.author.id}}">
+                          {{question.post.author.first_name}}
+                          {{question.post.author.last_name}}
                          </a>
                     </div>
                 </td>
@@ -67,10 +77,10 @@
         <table id="answer-table">
             
             <tr>
-                <td colspan="2"> <h2> {{params.answers|length}} Answers</h2> </td>
+                <td colspan="2"> <h2> {{answers|length}} Answers</h2> </td>
             </tr>
 
-            {% for answer in params.answers %}
+            {% for answer in answers %}
             <tr>
                 <td>
                     {% votebox answer.post %}
@@ -96,10 +106,10 @@
                     <h2>Your Answer</h2>
 
                      {% if user.is_authenticated %}
-
+                    <!-- disable for now 
                     <form action="/newpost/" method="post">
                         {% csrf_token %}
-                        <input type="hidden" value="{{params.question.id}}" name="parent" />
+                        <input type="hidden" value="{{question.id}}" name="parent" />
                         <textarea name="content" cols="50" rows="15" > 
                         
                         </textarea>
@@ -107,6 +117,8 @@
                             <input style="margin:10px;" type="submit" name="submit" value="Post Your Answer">
                         </div>
                     </form>
+                    -->
+                    Disabled for now.
                     {% else %}
                         <div>
                             Please <a href="/openid/login/">log in</a> to post an answer.
