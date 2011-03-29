@@ -17,6 +17,10 @@ def user(request, uid):
     user = models.User.objects.get(id=uid)
     return html.template(request, name='user.html', selected_user=user)
 
+def users(request):
+    users = models.User.objects.all()
+    return html.template(request, name='users.html', users=users)
+
 def question(request, pid):
     "Returns a question with all answers"
     question = models.Question.objects.get(id=pid)
