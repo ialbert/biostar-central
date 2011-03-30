@@ -20,11 +20,11 @@ def index(request):
 def user(request, uid):
     "User's profile page"
     user = models.User.objects.get(id=uid)
-    return html.template(request, name='user.html', selected_user=user)
+    return html.template(request, name='userprofile.html', selected_user=user)
 
 def users(request):
     users = models.User.objects.all()
-    return html.template(request, name='users.html', users=users)
+    return html.template(request, name='userlist.html', users=users)
 
 def question_show(request, pid):
     "Returns a question with all answers"
