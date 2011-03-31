@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base-nosidebar.html" %}
 
 {% block subheader %}
   <h2>{{params.subheader}}</h2>
@@ -26,10 +26,8 @@
 
 {% endblock %}
 
-{% block sidebar %}
-{% endblock %}
 
-{% block mainbody %}
+{% block mainbar %}
     <div class="content"">
         
         {{ form.errors }}

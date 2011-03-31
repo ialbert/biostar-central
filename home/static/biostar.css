@@ -97,6 +97,10 @@ a:hover, a.question-title {
     width: 735px;
 }
 
+#mainbar-full{
+    width: 960px;
+}
+
 /* Sidebar */
 
 #sidebar {
@@ -152,25 +156,39 @@ a:hover, a.question-title {
 |-------------------------*/
 
 /* Alignment tables */
-#question-table tr td{
-    vertical-align: top;
-    padding: 10px;
-    border-bottom:1px dotted #6D6D6D;
+.question-summary {
+    width: 730px;
+    border-bottom: 1px dotted #6D6D6D;
+    padding-top: 11px;
+    padding-bottom: 11px;
+    float: left;
 }
 
 
 /* Votes/answers/views boxes */
 
-.box {
-    margin:2px;
-    background-color: white;
+.status, .votes, .views {
+    float: left;
+    width: 38px;
+    height: 38px;
+    margin: 0 3px 0 0;
+    padding: 5px;
+    text-align: center;
+}
+
+.status{
+    width: 48px;
 }
 
 .answered {
     background-color: #75845C;
     color: #FFFFFF;
-    padding:2px 5px 2px 5px;
 }
+
+.votes {
+    background: none repeat scroll 0 0 #EEEEEE;
+}
+
 
 .views {
     color: #666666;
@@ -184,6 +202,19 @@ a:hover, a.question-title {
     vertical-align: middle;
     text-align: center;
 }
+
+/* Summary */
+
+.summary {
+    float: left;
+    width: 550px;
+}
+
+.summary h3{
+    font-size: 130%;
+    margin-top: 0;
+}
+
 
 /*
 |-------------------------

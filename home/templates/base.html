@@ -1,3 +1,5 @@
+{% load basic %}
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 
 <html>
@@ -40,8 +42,8 @@
           <form id="search2" action="/search" method="get">
           <div style="float:right">
           {%if user.is_authenticated %}
-              <b><a href="/member/{{user.id}}">{{user.get_full_name}}</a></b> 
-              <b>100</b> 
+              {% userlink user %}
+              {% userrep user %}
               &bull; <a href="/logout/?next_page=/">logout</a> 
               &bull; <a>tools</a>
           {% else %}
@@ -93,44 +95,9 @@
 
   <div id="content">
     
-    <div id="mainbar">
-      
-      <div id="subheader">
-        {% block subheader %}
-            <h1>Recent Questions</h1>
-        {% endblock %}          
-      </div>
-      
       {% block mainbody %}
         Main body
       {% endblock %}
-      
-    </div>
-    
-    <div id="sidebar">
-      {% block sidebar %}
-        <div class="shaded">
-            <p align="center">Spread the word! </p>
-            <p align="center">Tell a colleague about <b>BioStar</b>!</p>
-  
-            <p align="center">
-                <b><a  style="color:white" href="http://www.biostars.org">http://www.biostars.org</a></b>
-            </p>
-  
-            <p align="center">
-                Subscribe: <a style="color:white" href="http://biostar.stackexchange.com/feeds"><b>RSS feed</b></a>
-            </p>
-  
-            <p align="center">
-                Admin group: <a style="color:white" href="http://groups.google.com/group/biostar-central">Biostar Central</a>
-            </p>
-  
-            <div align="center">
-                <a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/"><img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by-sa/3.0/88x31.png" /></a><br /><span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">BioStar content is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/">Creative Commons Attribution-ShareAlike 3.0 Unported License</a>.
-            </div> 
-        </div>
-      {% endblock %}
-    </div>
         
     <br class="clear">
     
