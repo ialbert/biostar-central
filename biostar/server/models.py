@@ -11,6 +11,7 @@ from taggit.managers import TaggableManager
 
 from datetime import datetime
 from biostar.server import html
+import markdown
 
 class UserProfile( models.Model ):
     """
@@ -55,7 +56,8 @@ class Post(models.Model):
         content = "\n".join( content.splitlines() )
         
         self.content = content
-        self.html = html.sanitize(content)
+        self.html = markdown.markdown(self.content)
+        #self.html = html.sanitize(content)
         self.save()
 
         # this is for debugging

@@ -5,9 +5,25 @@
 {% endblock %}
 
 {% block custom-frameworks %}
-    <!-- Tiny MCE editor -->
-    <script type="text/javascript" src="/static/lib/tinymce/tiny_mce.js" ></script>
-    <script type="text/javascript" src="/static/js/editor.js"></script>
+    <!-- markitUp editor -->
+    
+
+    <script type="text/javascript" src="/static/markitup/jquery.markitup.js"></script>
+    
+    <link rel="stylesheet" type="text/css" href="/static/markitup/skins/markitup/style.css" />
+
+    <link rel="stylesheet" href="/static/markitup/sets/markdown/style.css" type="text/css"/>
+    
+    <script type="text/javascript" src="/static/markitup/sets/markdown/set.js"></script>
+       
+    <script type="text/javascript" >
+        $(document).ready(function() {
+            $("#editor").markItUp(mySettings);
+        });
+    </script>
+
+
+
 {% endblock %}
 
 {% block sidebar %}
@@ -33,7 +49,7 @@
                 <td>Content</td>
                 <td>
                     {{ form.content.errors }}
-                    <textarea name="content" cols="50" rows="15" >{{ form.content.value }}</textarea>
+                    <textarea id="editor" name="content" cols="80" rows="15" >{{ form.content.value }}</textarea>
                 </td>
             </tr>
 
