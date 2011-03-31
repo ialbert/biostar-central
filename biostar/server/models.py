@@ -45,6 +45,20 @@ class Post(models.Model):
     lastedit_date = models.DateTimeField(auto_now=True)
     lastedit_user = models.ForeignKey(User, related_name='editor')
 
+    def set(self, content):
+        "Sets the html field"
+        
+        # transform the content to UNIX style line endings
+        content = "\n".join( content.splitlines() )
+        parse = postmarkup.create(use_pygments=False)
+        self.bbcode = content
+        self.html = parse(content)
+        self.save()
+        print '**** bbcode ****' 
+        print repr(self.bbcode)
+        print '---- html ----'
+        print repr(self.html)
+
     def authorize(self, request, strict=False):
         "Verfifies access by a request object. Strict mode fails immediately."
         cond1 = request.user == self.author
@@ -162,14 +176,10 @@ def create_profile(sender, instance, created, *args, **kwargs):
 
 def create_post(sender, instance, *args, **kwargs):
     "Pre save post information"
-    # this converts the bbcode into HTML
-    parse = postmarkup.create(use_pygments=False)
-    instance.html = parse(instance.bbcode)
     if not hasattr(instance, 'lastedit_user'):
         instance.lastedit_user = instance.author
     if not instance.creation_date:
         instance.creation_date = datetime.now()
-
 
 def vote_created(sender, instance, created, *args, **kwargs):
     "Updates score and reputation on vote creation "

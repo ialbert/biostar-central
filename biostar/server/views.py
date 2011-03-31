@@ -103,14 +103,16 @@ def question_edit(request, pid=0):
             
     if asknew:
         # generate the new question
-        post = models.Post.objects.create(bbcode=content, author=request.user)
+        post = models.Post.objects.create(author=request.user)
+        post.set(content)
         question = models.Question.objects.create(post=post, title=title)
         question.tags.add(*tags)
     else:
         # editing existing question
         question = models.Question.objects.get(pk=pid)
         post = question.post
-        question.title, post.bbcode, post.lastedit_user = title, content, request.user
+        question.title, post.lastedit_user = title, request.user
+        post.set(content)
         question.tags.add(*tags)
         question.save(), post.save()
 
@@ -154,14 +156,14 @@ def answer_edit(request, qid, aid=0):
 
     if newans:
         # new answer for the question
-        post = models.Post.objects.create(bbcode=content, author=request.user)
+        post = models.Post.objects.create(author=request.user)
+        post.set(content)
         answer = models.Answer.objects.create(post=post, question=question)
     else:
         # update the answer
         answer = models.Answer.objects.get(pk=aid)
         answer.authorize(request)
-        answer.post.bbcode = content
-        answer.post.save()
+        answer.set(content)
 
     return html.redirect('/question/show/%s/' % qid)
    

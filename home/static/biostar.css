@@ -318,3 +318,8 @@ tr.comment td{
 }
 
 
+/* Rich editor */
+
+.codeStyle {
+    color:red;
+}
