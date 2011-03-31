@@ -94,6 +94,8 @@ def insert_questions(fname, post_map, limit):
     quest_map, answ_map = {}, {}
     rows = xml_reader(fname, limit=limit)
     
+    tag_finder = re.compile('[^a-z]([a-z]+)[^a-z]')
+    
     # broken up into separate steps to allow manual transactions
     for (index, row) in enumerate(rows):
         PostTypeId = row['PostTypeId']
@@ -102,8 +104,14 @@ def insert_questions(fname, post_map, limit):
         if PostTypeId == '1':
             # question
             title = row["Title"]
+            tags = row['Tags']
             quest, flag = models.Question.objects.get_or_create(title=title, post=post)
             quest_map[Id] = quest
+            if flag: # Only if newly created, add tags
+                for tag in tag_finder.findall(tags):
+                    tag = tag.strip()
+                    if tag:
+                        quest.tags.add(tag)
     
     transaction.commit()
 
