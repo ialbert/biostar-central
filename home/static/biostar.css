@@ -1,3 +1,8 @@
+/*
+|-------------------------
+|  Global Styles         |
+|-------------------------*/
+
 body {
     font-family: Arial,Helvetica,sans-serif;
     font-size: 80%;
@@ -10,35 +15,6 @@ h1, h2, h3, h4 {
     font-weight: bold;
     margin-bottom: 5px;
     color: #333333;
-}
-
-.mini-counts
-{
-    font-size: 190%;
-    font-weight: bold;
-    height: 25px;
-    vertical-align: middle;
-    text-align: center;
-}
-
-.left
-{
-    float: left;
-}
-
-.right
-{
-    float: right;
-}
-
-#subheader {
-    border-bottom: 1px solid #6D6D6D;
-}
-
-#topbar {
-    background-color: #DEDEDE;
-    float: right;
-    padding: 5px;
 }
 
 .shaded {
@@ -56,122 +32,34 @@ table tr td{
     padding: 10px;
 }
 
-#question tr td, .answer tr td{
-    vertical-align: top;
-    padding: 0;
-}
-
-
-#question-table tr td{
-    vertical-align: top;
-    padding: 10px;
-    border-bottom:1px dotted #6D6D6D;
-}
-
-#answers-header {
-    border-bottom: 1px solid #6D6D6D;
-    margin-bottom: 10px;
-    margin-top: 10px;
-    width: 730px;
-}
-
-.answer{
-    border-bottom: 1px solid #AAAAAA;
-    padding-bottom: 20px;
-    padding-top: 20px;
-    width: 730px;
-}
-
-#question {
-    margin-top: 20px;
-}
-
-
-
-.post-text {
-    margin-bottom: 5px;
-}
-
-.comment-row td{
-    padding: 0;
-}
-
-.comments {
-    margin-top: 10px;
-    color: #858585;
-    border-top: 1px dotted #E4E4E4;
-}
-
-
-.post-menu {
-    color: #858585;
-}
-
-.post-menu a{
-    color: #858585;
-    text-decoration: none; 
-}
-
-.post-menu a:hover {
-    color: #FFFFFF;
-    background-color: #858585;
-    text-decoration: none;
-}
-
-tr.comment td{
-    border-bottom: 1px dotted #BBBBBB;
-    padding-bottom: 5px;
-    padding-top: 5px;
-}
-
-.comment a{
-    color: #6D6D6D;
-}
-
-.tags {
-    margin-bottom: 10px;
-}
-
-.question-user-info{
-    background-color: #E4E4E4;
-    padding: 2px 5px 2px 5px;
-}
-
-.user-details {
-    padding: 2px 5px 0px 5px;
-    width: 145px;
-    line-height: 17px;
-}
-
-.reputation-score {
-    color: #444444;
-    font-size: 120%;
-    font-weight: bold;
-    margin-right: 2px;
-}
-
-
-
 a:hover, a.question-title {
     cursor: pointer;
     text-decoration: underline;
     color:#585858;
 }
 
-.box {
-    margin:2px;
-    background-color: white;
+
+
+
+/*
+|-------------------------
+|  Layout                 |
+|-------------------------*/
+
+/* Headers */
+
+#subheader {
+    border-bottom: 1px solid #6D6D6D;
 }
 
-.answered {
-    background-color: #75845C;
-    color: #FFFFFF;
-    padding:2px 5px 2px 5px;
+#topbar {
+    background-color: #DEDEDE;
+    float: right;
+    padding: 5px;
 }
 
-.views {
-    color: #666666;
-}
+
+/* Navigation */
 
 .nav td {
     vertical-align: bottom;
@@ -188,6 +76,121 @@ a:hover, a.question-title {
 
 .nav a:hover {
     background-color: #FF7700;
+}
+
+/* Utility */
+
+.left
+{
+    float: left;
+}
+
+.right
+{
+    float: right;
+}
+
+
+/*
+|-------------------------
+|  Common Elements        |
+|-------------------------*/
+
+.reputation-score {
+    color: #444444;
+    font-size: 120%;
+    font-weight: bold;
+    margin-right: 2px;
+}
+
+.user-link {
+  color: #8F2C47;
+  font-weight: bold;
+  font-size: 115%;
+  text-decoration: none;
+}
+
+
+/*
+|-------------------------
+|  Question List          |
+|-------------------------*/
+
+/* Alignment tables */
+#question-table tr td{
+    vertical-align: top;
+    padding: 10px;
+    border-bottom:1px dotted #6D6D6D;
+}
+
+
+/* Votes/answers/views boxes */
+
+.box {
+    margin:2px;
+    background-color: white;
+}
+
+.answered {
+    background-color: #75845C;
+    color: #FFFFFF;
+    padding:2px 5px 2px 5px;
+}
+
+.views {
+    color: #666666;
+}
+
+.mini-counts
+{
+    font-size: 190%;
+    font-weight: bold;
+    height: 25px;
+    vertical-align: middle;
+    text-align: center;
+}
+
+/*
+|-------------------------
+|  Question Detail Page  |
+|-------------------------*/
+
+/* Headers */
+
+#answers-header {
+    border-bottom: 1px solid #6D6D6D;
+    margin-bottom: 10px;
+    margin-top: 10px;
+    width: 730px;
+}
+
+/* Alignment tables / general formatting */
+
+
+#question tr td, .answer tr td{
+    vertical-align: top;
+    padding: 0;
+}
+
+.answer{
+    border-bottom: 1px solid #AAAAAA;
+    padding-bottom: 20px;
+    padding-top: 20px;
+    width: 730px;
+}
+
+#question {
+    margin-top: 20px;
+}
+
+.post-text {
+    margin-bottom: 5px;
+}
+
+/* Tags */
+
+.tags {
+    margin-bottom: 10px;
 }
 
 .post-tag {
@@ -208,10 +211,61 @@ a:hover, a.question-title {
 	text-decoration: underline;
 }
 
-.popover {
-    position:absolute;
-    margin-top:10px;
+
+/* Menu Links (edit, delete, flag)*/
+
+.post-menu {
+    color: #858585;
 }
+
+.post-menu a{
+    color: #858585;
+    text-decoration: none; 
+}
+
+.post-menu a:hover {
+    color: #FFFFFF;
+    background-color: #858585;
+    text-decoration: none;
+}
+
+/* Author Box */
+
+.question-user-info{
+    background-color: #E4E4E4;
+    padding: 2px 5px 2px 5px;
+}
+
+.user-details {
+    padding: 2px 5px 0px 5px;
+    width: 145px;
+    line-height: 17px;
+}
+
+/* Comments */
+
+.comment-row td{
+    padding: 0;
+}
+
+.comments {
+    margin-top: 10px;
+    color: #858585;
+    border-top: 1px dotted #E4E4E4;
+}
+
+tr.comment td{
+    border-bottom: 1px dotted #BBBBBB;
+    padding-bottom: 5px;
+    padding-top: 5px;
+}
+
+.comment a{
+    color: #6D6D6D;
+}
+
+
+/* Voting */
 
 .votecell {
     vertical-align: top;
@@ -258,9 +312,9 @@ a:hover, a.question-title {
     background-image: url("/static/img/vote/vote-down-on.png");
 }
 
-.user-link {
-  color: #8F2C47;
-  font-weight: bold;
-  font-size: 115%;
-  text-decoration: none;
+.popover {
+    position:absolute;
+    margin-top:10px;
 }
+
+
