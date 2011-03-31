@@ -43,7 +43,17 @@ a:hover, a.question-title {
 |  Layout                 |
 |-------------------------*/
 
+#main {
+    width: 960px;
+    margin: 0 auto;
+}
+
 /* Headers */
+
+#header{
+    height: 105px;
+    width: 100%;
+}
 
 #subheader {
     border-bottom: 1px solid #6D6D6D;
@@ -55,11 +65,16 @@ a:hover, a.question-title {
     padding: 5px;
 }
 
+#logo {
+    float: left; 
+}
 
 /* Navigation */
 
-.nav td {
-    vertical-align: bottom;
+#hmenus {
+    float: left;
+    padding: 34px 0 20px 5px;
+    width: 705px;
 }
 
 .nav a {
@@ -75,16 +90,39 @@ a:hover, a.question-title {
     background-color: #FF7700;
 }
 
+/* Mainbar */
+
+#mainbar {
+    float: left;
+    width: 735px;
+}
+
+/* Sidebar */
+
+#sidebar {
+    float: right;
+    width: 220px;
+}
+
+/* Footer */
+
+#footer {
+    margin: 0 auto;
+    text-align: center;
+}
+
 /* Utility */
 
-.left
-{
+.left{
     float: left;
 }
 
-.right
-{
+.right{
     float: right;
+}
+
+.clear{
+    clear: both;
 }
 
 

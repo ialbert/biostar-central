@@ -31,116 +31,118 @@
 
 <body>
   
-  <table id="main-table" width="80%" align="center" border="0">
+<div id="main">
 
-    <tr>
-        <td align="right" colspan="2">
-        <table bgcolor="#CECECE">
-            <tr><td>
-            {% block topbar %}
-                <form id="search2" action="/search" method="get">
-                <div style="float:right">
-                {%if user.is_authenticated %}
-                    <b><a href="/member/{{user.id}}">{{user.get_full_name}}</a></b> 
-                    <b>100</b> 
-                    &bull; <a href="/logout/?next_page=/">logout</a> 
-                    &bull; <a>tools</a>
-                {% else %}
-                    <span class="note">First time here? Check out the FAQ.</a> &bull; <a href="/openid/login/">login</a>
-                {% endif %}
-                    &bull; faq &bull; Search: <input name="q" class="textbox" tabindex="1" onfocus="if (this.value=='search') this.value = ''" maxlength="80" size="28" value="search" type="text">
-                              
-                </div>
-                </form>
-              {% endblock %}
-            </td></tr>
-          </table>
-        </td>
-    </tr>
-   
-    <tr>
-        <td class="nav" valign="bottom" colspan="2">
-            
-            <a href="/"><img src="/static/biostar.logo.png" border="0"/>
-            <a href="/">Questions</a> 
-            <a href="#">Tags</a>
-            <a href="/members/">Members</a> 
-            <a href="/">Badges</a> 
-            <a href="/">Unanswered</a></li>
-            <a href="/question/new/">Ask&nbsp;Question</a>
-            
-        </td>
-    </tr>
-    <!-- this is where messages pop up -->
-    {% block message %}
-        {% if messages %}
-            <tr><td colspan="2">
-            <div class="span-24 last" id="messages">
-                <div class="ui-state-highlight ui-corner-all" style="margin-bottom: 10px; padding: 1em;">
-                    {% for message in messages %}
-                        <div><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>{{ message|safe }}</div>
-                    {% endfor %}
-                </div>
-            </div>
-            </td></tr>
-        {% endif %}
-    {% endblock %}
-
-    <tr>
-        <td colspan="2">
-            <div id="subheader" >
-                {% block subheader %}
-                    <h1>Recent Questions</h1>
-                {% endblock %}
-            </div>
-        </td>
-    </tr>
+  <div id="header">
     
-    <tr>
-        <td>
-            <div id="mainbody">
-                {% block mainbody %}
-                    Main body
-                {% endblock %}
-            </div>
-        </td>
-        <td valign="top" width="150px">
-            <div id="sidebar">
-                {% block sidebar %}
-                <div class="shaded">
-                    <p align="center">Spread the word! </p>
-                    <p align="center">Tell a colleague about <b>BioStar</b>!</p>
+    <div id="topbar">
+      {% block topbar %}
+          <form id="search2" action="/search" method="get">
+          <div style="float:right">
+          {%if user.is_authenticated %}
+              <b><a href="/member/{{user.id}}">{{user.get_full_name}}</a></b> 
+              <b>100</b> 
+              &bull; <a href="/logout/?next_page=/">logout</a> 
+              &bull; <a>tools</a>
+          {% else %}
+              <span class="note">First time here? Check out the FAQ.</a> &bull; <a href="/openid/login/">login</a>
+          {% endif %}
+              &bull; faq &bull; Search: <input name="q" class="textbox" tabindex="1" onfocus="if (this.value=='search') this.value = ''" maxlength="80" size="28" value="search" type="text">
+                        
+          </div>
+          </form>
+        {% endblock %}
+      </td></tr>
+    </div>
+    
+    <br class="clear">
+    
+    <div id="logo">
+      <a href="/"><img src="/static/biostar.logo.png" border="0"/></a>
+    </div>
+    
+    <div id="hmenus">
+      
+      <div class="nav left">
+        <a href="/">Questions</a> 
+        <a href="#">Tags</a>
+        <a href="/members/">Members</a> 
+        <a href="/">Badges</a> 
+        <a href="/">Unanswered</a></li>
+      </div>
+      <div class="nav right">
+        <a href="/question/new/">Ask&nbsp;Question</a>
+      </div>
+          
+    </div>
+    
+  </div>
+ 
+  <!-- this is where messages pop up -->
+  {% block message %}
+      {% if messages %}
+          <div class="span-24 last" id="messages">
+              <div class="ui-state-highlight ui-corner-all" style="margin-bottom: 10px; padding: 1em;">
+                  {% for message in messages %}
+                      <div><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>{{ message|safe }}</div>
+                  {% endfor %}
+              </div>
+          </div>
+      {% endif %}
+  {% endblock %}
 
-                    <p align="center">
-                        <b><a  style="color:white" href="http://www.biostars.org">http://www.biostars.org</a></b>
-                    </p>
-
-                    <p align="center">
-                        Subscribe: <a style="color:white" href="http://biostar.stackexchange.com/feeds"><b>RSS feed</b></a>
-                    </p>
-
-                    <p align="center">
-                        Admin group: <a style="color:white" href="http://groups.google.com/group/biostar-central">Biostar Central</a>
-                    </p>
-
-                    <div align="center">
-                        <a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/"><img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by-sa/3.0/88x31.png" /></a><br /><span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">BioStar content is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/">Creative Commons Attribution-ShareAlike 3.0 Unported License</a>.
-                    </div> 
-                </div>
-                {% endblock %}
-            </div>
-        </td>
-    </tr>
+  <div id="content">
+    
+    <div id="mainbar">
+      
+      <div id="subheader">
+        {% block subheader %}
+            <h1>Recent Questions</h1>
+        {% endblock %}          
+      </div>
+      
+      {% block mainbody %}
+        Main body
+      {% endblock %}
+      
+    </div>
+    
+    <div id="sidebar">
+      {% block sidebar %}
+        <div class="shaded">
+            <p align="center">Spread the word! </p>
+            <p align="center">Tell a colleague about <b>BioStar</b>!</p>
   
-    <tr>
-        <td colspan="2">
-            <div id="footer" class="span-24 last" align="center">
+            <p align="center">
+                <b><a  style="color:white" href="http://www.biostars.org">http://www.biostars.org</a></b>
+            </p>
+  
+            <p align="center">
+                Subscribe: <a style="color:white" href="http://biostar.stackexchange.com/feeds"><b>RSS feed</b></a>
+            </p>
+  
+            <p align="center">
+                Admin group: <a style="color:white" href="http://groups.google.com/group/biostar-central">Biostar Central</a>
+            </p>
+  
+            <div align="center">
+                <a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/"><img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by-sa/3.0/88x31.png" /></a><br /><span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">BioStar content is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/">Creative Commons Attribution-ShareAlike 3.0 Unported License</a>.
+            </div> 
+        </div>
+      {% endblock %}
+    </div>
+        
+    <br class="clear">
+    
+  </div>
+
+</div>
+  
+<div id="footer">
               Powered by <a href="."><img src="/static/biostar.antipixel.png" /></a> 
               &bull; Copyright 2011 by <a href=".">BioStar team</a>
-            </div>
-        </td>
-    </tr>
-</table>
+</div>
+
 
 </body>
 
