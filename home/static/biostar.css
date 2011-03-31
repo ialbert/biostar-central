@@ -17,6 +17,8 @@ h1, h2, h3, h4 {
     color: #333333;
 }
 
+
+
 .shaded {
     background-color: #5B8C3C;
     color:white;
@@ -24,10 +26,9 @@ h1, h2, h3, h4 {
     margin-top:3px;
 }
 
-table#main-table {
-    padding: 0px;
+a, a:visited {
+    color: #555555;
 }
-
 
 a:hover, a.question-title {
     cursor: pointer;
@@ -162,6 +163,7 @@ a:hover, a.question-title {
     padding-top: 11px;
     padding-bottom: 11px;
     float: left;
+    line-height: 1;
 }
 
 
@@ -210,9 +212,26 @@ a:hover, a.question-title {
     width: 550px;
 }
 
+.summary a {
+    text-decoration: none;
+}
+
 .summary h3{
     font-size: 130%;
     margin-top: 0;
+
+}
+
+.started {
+    color: #858585;
+}
+
+.relativetime {
+    font-weight: bold;
+}
+
+.started a{
+    font-weight: bold;
 }
 
 
@@ -258,6 +277,7 @@ a:hover, a.question-title {
 
 .tags {
     margin-bottom: 10px;
+    line-height: 18px;
 }
 
 .post-tag {
