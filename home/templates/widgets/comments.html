@@ -1,9 +1,9 @@
 {% load basic %}
 
-{% if comments %}
+{% if post.comments.count %}
 <div class="comments">
     <table>
-        {% for comment in comments.all %}
+        {% for comment in post.comments.all %}
             <tr class="comment">
                 <td class="comment-actions">&nbsp;</td>
                 <td class="comment-text">
@@ -16,3 +16,8 @@
     </table>
 </div>
 {% endif %}
+<div class="post-comment post-menu">
+    {% csrf_token %}
+    <input type="hidden" value="{{post.id}}">
+    <a class="add-comment">add comment</a>
+</div>

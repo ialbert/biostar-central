@@ -26,7 +26,12 @@ urlpatterns = patterns('',
     # answer handlers, questionid, andswerid
     (r'^answer/edit/(?P<qid>\d+)/(?P<aid>\d+)/$', 'biostar.server.views.answer_edit'),
     (r'^answer/new/(?P<qid>\d+)/$', 'biostar.server.views.answer_edit'),
+    
+    # comment handlers
+    (r'^comment/new/(?P<pid>\d+)/$', 'biostar.server.views.comment_add'),
 
+
+    # voting handler
     (r'^vote/$', 'biostar.server.views.vote'),
 
     # openid authentication

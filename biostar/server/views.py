@@ -164,6 +164,22 @@ def answer_edit(request, qid, aid=0):
         answer.post.save()
 
     return html.redirect('/question/show/%s/' % qid)
+   
+@login_required(redirect_field_name='/openid/login/')
+def comment_add(request, pid):
+    
+    parent = models.Post.objects.get(pk=pid)
+    
+    post = models.Post(author=request.user, bbcode=request.POST['text'])
+    post.save()
+    comment = models.Comment(parent=parent, post=post)
+    comment.save()
+    
+    if parent.question_set.count(): # Post is a question
+        return html.redirect('/question/show/%s/' % (parent.question_set.all()[0].id))
+    else:
+        return html.redirect('/question/show/%s/' % (parent.answer_set.all()[0].question.id))
+    
     
 def vote(request):
     "Handles all voting on posts"

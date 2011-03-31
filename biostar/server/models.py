@@ -107,7 +107,7 @@ class Answer(models.Model):
 
 class Comment(models.Model):
     parent = models.ForeignKey(Post, related_name='comments')
-    post = models.ForeignKey(Post, related_name='content')
+    post = models.ForeignKey(Post)
     lastedit_date = models.DateTimeField(auto_now=True)
 
 VOTE_UP, VOTE_DOWN = 0, 1

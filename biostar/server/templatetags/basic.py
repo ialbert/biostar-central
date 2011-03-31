@@ -5,8 +5,8 @@ from datetime import datetime, timedelta
 
 register = template.Library()
 
-def comments(comments):
-    return {'comments':comments}
+def comments(post):
+    return {'post':post}
     
 def userlink(user):
     return {'user':user}
