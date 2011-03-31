@@ -35,11 +35,6 @@ def xml_reader(fname, limit=None):
 
     return rows
 
-def html_to_bbcode(body):
-    body = body.replace("<", "[")
-    body = body.replace(">", "]")
-    return body
-
 def parse_time(timestr):
     try:
         return datetime.strptime(timestr, '%Y-%m-%dT%H:%M:%S.%f')
@@ -81,7 +76,6 @@ def insert_posts(fname, user_map, limit):
         views = row['ViewCount']
         creation_date = parse_time(row['CreationDate'])
         author = user_map[userid]
-        body = html_to_bbcode(body)
         p = models.Post.objects.create(author=author, views=views, creation_date=creation_date)
         p.set(body)
         store[Id] = p

@@ -10,6 +10,7 @@ from django.contrib.auth.models import User
 from taggit.managers import TaggableManager
 
 from datetime import datetime
+from biostar.server import html
 
 class UserProfile( models.Model ):
     """
@@ -39,8 +40,8 @@ class Post(models.Model):
     """
     author = models.ForeignKey(User)
     
-    bbcode = models.TextField() # all user input is in bbcode
-    html  = models.TextField() # this is generated from the bbcode when saving the model
+    content = models.TextField() # this is the user inpu
+    html    = models.TextField() # this is the sanitized HTML for display
     views = models.IntegerField(default=0, blank=True)
     score = models.IntegerField(default=0, blank=True)
     creation_date = models.DateTimeField()
@@ -48,16 +49,18 @@ class Post(models.Model):
     lastedit_user = models.ForeignKey(User, related_name='editor')
 
     def set(self, content):
-        "Sets the html field"
+        "Sets the html field by sanitizing the content"
         
         # transform the content to UNIX style line endings
         content = "\n".join( content.splitlines() )
-        parse = postmarkup.create(use_pygments=False)
-        self.bbcode = content
-        self.html = parse(content)
+        
+        self.content = content
+        self.html = html.sanitize(content)
         self.save()
-        print '**** bbcode ****' 
-        print repr(self.bbcode)
+
+        # this is for debugging
+        print '**** content ****' 
+        print repr(self.content)
         print '---- html ----'
         print repr(self.html)
 

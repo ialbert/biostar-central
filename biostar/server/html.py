@@ -1,13 +1,39 @@
 """
 Html utility functions.
 """
-import string, mimetypes, os, json
+import re, string, mimetypes, os, json
 from django.template import Context, loader
 from django.core.servers.basehttp import FileWrapper
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.core.context_processors import csrf
 
+from BeautifulSoup import BeautifulSoup, Comment
+
+ALLOWED_TAGS = "strong span:class br ol ul li a:href img:src pre code blockquote p em"
+def sanitize(value, allowed_tags=ALLOWED_TAGS):
+    """
+    From http://djangosnippets.org/snippets/1655/
+
+    Argument should be in form 'tag2:attr1:attr2 tag2:attr1 tag3', where tags
+    are allowed HTML tags, and attrs are the allowed attributes for that tag.
+    """
+    js_regex = re.compile(r'[\s]*(&#x.{1,7})?'.join(list('javascript')))
+    allowed_tags = [tag.split(':') for tag in allowed_tags.split()]
+    allowed_tags = dict((tag[0], tag[1:]) for tag in allowed_tags)
+
+    soup = BeautifulSoup(value)
+    for comment in soup.findAll(text=lambda text: isinstance(text, Comment)):
+        comment.extract()
+
+    for tag in soup.findAll(True):
+        if tag.name not in allowed_tags:
+            tag.hidden = True
+        else:
+            tag.attrs = [(attr, js_regex.sub('', val)) for attr, val in tag.attrs
+                         if attr in allowed_tags[tag.name]]
+
+    return soup.renderContents().decode('utf8')
 
 class Params(object):
     """

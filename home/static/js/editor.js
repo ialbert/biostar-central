@@ -1,7 +1,7 @@
 tinyMCE.init({
     theme : "advanced",
     mode : "textareas",
-    plugins : "bbcode",
+	
 	width: "700",
 	height: "500",
 
@@ -12,6 +12,7 @@ tinyMCE.init({
     theme_advanced_toolbar_location : "top",
     theme_advanced_toolbar_align : "center",
     theme_advanced_styles : "Code=codeStyle",
+	
 	content_css : "/static/biostar.css",
 	force_br_newlines : true,
 	force_p_newlines : false,

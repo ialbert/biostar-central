@@ -85,7 +85,7 @@ def question_edit(request, pid=0):
         question = models.Question.objects.get(pk=pid)
         question.authorize(request)
         tags = " ".join([ tag.name for tag in question.tags.all() ])
-        form = QuestionForm(initial=dict(title=question.title, content=question.post.bbcode, tags=tags))
+        form = QuestionForm(initial=dict(title=question.title, content=question.post.content, tags=tags))
         return html.template( request, name='edit.question.html', form=form, params=params)
   
     # we can only deal with POST after this point
@@ -139,7 +139,7 @@ def answer_edit(request, qid, aid=0):
         # editing an existing answer
         answer = models.Answer.objects.get(pk=aid)
         answer.authorize(request)
-        form = AnswerForm( initial=dict(content=answer.post.bbcode) )
+        form = AnswerForm( initial=dict(content=answer.post.content) )
         return html.template( request, name='edit.answer.html', form=form)
 
     # only POST remains at this point
@@ -171,9 +171,9 @@ def answer_edit(request, qid, aid=0):
 def comment_add(request, pid):
     
     parent = models.Post.objects.get(pk=pid)
-    
-    post = models.Post(author=request.user, bbcode=request.POST['text'])
-    post.save()
+    content = request.POST['text']
+    post = models.Post(author=request.user)
+    post.set(content)
     comment = models.Comment(parent=parent, post=post)
     comment.save()
     
