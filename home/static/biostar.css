@@ -56,6 +56,11 @@ table tr td{
     padding: 10px;
 }
 
+#question tr td, .answer tr td{
+    vertical-align: top;
+    padding: 0;
+}
+
 
 #question-table tr td{
     vertical-align: top;
@@ -77,9 +82,14 @@ table tr td{
     width: 730px;
 }
 
+#question {
+    margin-top: 20px;
+}
 
-#question tr td, .answer tr td{
-    vertical-align: top;
+
+
+.post-text {
+    margin-bottom: 5px;
 }
 
 .comment-row td{
@@ -87,8 +97,25 @@ table tr td{
 }
 
 .comments {
+    margin-top: 10px;
     color: #858585;
     border-top: 1px dotted #E4E4E4;
+}
+
+
+.post-menu {
+    color: #858585;
+}
+
+.post-menu a{
+    color: #858585;
+    text-decoration: none; 
+}
+
+.post-menu a:hover {
+    color: #FFFFFF;
+    background-color: #858585;
+    text-decoration: none;
 }
 
 tr.comment td{
@@ -99,6 +126,10 @@ tr.comment td{
 
 .comment a{
     color: #6D6D6D;
+}
+
+.tags {
+    margin-bottom: 10px;
 }
 
 .question-user-info{
@@ -180,6 +211,12 @@ a:hover, a.question-title {
 .popover {
     position:absolute;
     margin-top:10px;
+}
+
+.votecell {
+    vertical-align: top;
+    width: 60px;
+    padding: 0px;
 }
 
 .vote-count {

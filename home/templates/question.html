@@ -47,11 +47,11 @@
         
             <table>
                 <tr>
-                    <td valign="top"> 
+                    <td valign="top" class="votecell"> 
                         {% votebox question.post %}
                     </td>
                     <td>
-                        <div>
+                        <div class="post-text">
                             {{question.post.html|safe }}
                         </div>
     
@@ -61,7 +61,7 @@
                             {% endfor %}
                         </div>
                        
-                        <div class="left">
+                        <div class="left post-menu">
                             mod | 
                             <a href="/question/edit/{{question.id}}/">edit</a> | 
                             flag
@@ -100,7 +100,7 @@
                         </td>
                         <td>
                             <div><a name="{{answer.id}}"></a> {{ answer.post.html|safe }}</div>
-                            <div class="left">
+                            <div class="left post-menu">
                                 
                                 <a href="{{request.path}}#{{answer.id}}">link</a> | 
         
