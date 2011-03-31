@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block mainbody %}
+    <div id="mainbar">
+        <div id="subheader">
+            {% block subheader %}
+                <h1>Recent Questions</h1>
+            {% endblock %}          
+        </div>
+        
+        {% block mainbar %}
+            Main content
+        {% endblock %}
+    </div>
+    
+    <div id="sidebar">
+        {% block sidebar %}
+            {% include "sidebar/biostar-info.html" %}
+        {% endblock %}
+    </div>
+
+{% endblock %}
