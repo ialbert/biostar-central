@@ -173,7 +173,8 @@ def comment_add(request, pid):
     parent = models.Post.objects.get(pk=pid)
     content = request.POST['text']
     post = models.Post(author=request.user)
-    post.set(content)
+    post.html = post.content = html.sanitize(content, allowed_tags='')
+    post.save()
     comment = models.Comment(parent=parent, post=post)
     comment.save()
     
