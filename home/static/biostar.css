@@ -321,5 +321,8 @@ tr.comment td{
 /* Rich editor */
 
 .codeStyle {
-    color:red;
+    font-weight:bold;
+    background-color: #E4E4E4;
+    font-family: Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New;
 }
+
