@@ -175,6 +175,7 @@ def comment_add(request, pid):
     comment = models.Comment(parent=parent, post=post)
     comment.save()
     
+
     if parent.question_set.count(): # Post is a question
         return html.redirect('/question/show/%s/' % (parent.question_set.all()[0].id))
     else:
@@ -191,6 +192,9 @@ def vote(request):
         
         post_id = int(request.POST.get('post'))
         post = models.Post.objects.get(id=post_id)
+        
+        if post.author == author:
+            return html.json_response({'status':'error', 'msg':'You cannot vote on your own post'})
         
         type = int(request.POST.get('type'))
         
