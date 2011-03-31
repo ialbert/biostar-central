@@ -24,13 +24,10 @@ h1, h2, h3, h4 {
     margin-top:3px;
 }
 
-table {
-    margin-bottom: 0px;
+table#main-table {
+    padding: 0px;
 }
 
-table tr td{
-    padding: 10px;
-}
 
 a:hover, a.question-title {
     cursor: pointer;
