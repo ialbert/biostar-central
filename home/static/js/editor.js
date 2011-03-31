@@ -12,13 +12,6 @@ tinyMCE.init({
     theme_advanced_toolbar_location : "top",
     theme_advanced_toolbar_align : "center",
     theme_advanced_styles : "Code=codeStyle",
-    
-	formats : {
-		bold : {block: 'span', 'classes' : 'bold'},
-	},
-
-	
-	
 	content_css : "/static/biostar.css",
 	force_br_newlines : true,
 	force_p_newlines : false,

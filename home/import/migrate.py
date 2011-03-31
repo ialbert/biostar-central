@@ -82,7 +82,8 @@ def insert_posts(fname, user_map, limit):
         creation_date = parse_time(row['CreationDate'])
         author = user_map[userid]
         body = html_to_bbcode(body)
-        p, flag = models.Post.objects.get_or_create(bbcode=body, author=author, views=views, creation_date=creation_date)
+        p = models.Post.objects.create(author=author, views=views, creation_date=creation_date)
+        p.set(body)
         store[Id] = p
     transaction.commit()
     print "*** Inserted %s posts" % len(store)
@@ -171,7 +172,8 @@ def insert_comments(fname, post_map, user_map, limit):
         author = user_map[userid]
         creation_date = parse_time(row['CreationDate'])
         #post = comment_post_map[Id]
-        post, flag = models.Post.objects.get_or_create(bbcode=text, author=author, creation_date=creation_date)
+        post = models.Post.objects.create(author=author, creation_date=creation_date)
+        post.set(text)
         comment, flag = models.Comment.objects.get_or_create(parent=parent, post=post)
         comment_map[Id] = comment
     transaction.commit()
