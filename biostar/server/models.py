@@ -34,10 +34,10 @@ class Post(models.Model):
     
     >>> user, flag = User.objects.get_or_create(first_name='Jane', last_name='Doe', username='jane', email='jane')
     >>> post = Post.objects.create(author=user)
-    >>> content ='[i]A[i]'
+    >>> content ='*A*'
     >>> post.set(content)
     >>> post.html
-    u'<em>A</em>'
+    u'<p><em>A</em></p>'
     """
     author = models.ForeignKey(User)
     
@@ -61,10 +61,11 @@ class Post(models.Model):
         self.save()
 
         # this is for debugging
-        print '**** content ****' 
-        print repr(self.content)
-        print '---- html ----'
-        print repr(self.html)
+        if 0:
+            print '**** content ****' 
+            print repr(self.content)
+            print '---- html ----'
+            print repr(self.html)
 
     def authorize(self, request, strict=False):
         "Verfifies access by a request object. Strict mode fails immediately."
@@ -102,7 +103,8 @@ class Question(models.Model):
     A Question is Post with title and tags
     
     >>> user, flag = User.objects.get_or_create(first_name='Jane', last_name='Doe', username='jane', email='jane')
-    >>> post, flag = Post.objects.get_or_create(author=user, bbcode='[i]A[i]')
+    >>> post = Post.objects.create(author=user)
+    >>> post.set('ABC')
     >>> question, flag = Question.objects.get_or_create(post=post, title='Test questions')
     >>> question.tags.add("snp", "codon", "microarray")
     """
@@ -146,7 +148,8 @@ USER_REP   = { VOTE_UP:10, VOTE_DOWN:-2 }
 class Vote(models.Model):
     """
     >>> user, flag = User.objects.get_or_create(first_name='Jane', last_name='Doe', username='jane', email='jane')
-    >>> post, flag = Post.objects.get_or_create(author=user, bbcode='[i]A[i]')
+    >>> post = Post.objects.create(author=user)
+    >>> post.set('ABC')
     >>> vote = Vote(author=user, post=post, type=VOTE_UP)
     >>> vote.score()
     1

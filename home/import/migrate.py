@@ -167,7 +167,9 @@ def insert_comments(fname, post_map, user_map, limit):
         creation_date = parse_time(row['CreationDate'])
         #post = comment_post_map[Id]
         post = models.Post.objects.create(author=author, creation_date=creation_date)
-        post.set(text)
+        post.content = 'Original body not yet available!'
+        post.html = text
+        post.save()
         comment, flag = models.Comment.objects.get_or_create(parent=parent, post=post)
         comment_map[Id] = comment
     transaction.commit()
