@@ -235,7 +235,6 @@ a:hover, a.question-title {
 
 #question tr td, .answer tr td{
     vertical-align: top;
-    padding: 0;
 }
 
 .answer{
@@ -247,10 +246,12 @@ a:hover, a.question-title {
 
 #question {
     margin-top: 20px;
+    width: 730px;
 }
 
 .post-text {
     margin-bottom: 5px;
+    width: 660px;
 }
 
 /* Tags */
