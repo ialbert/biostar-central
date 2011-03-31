@@ -2,7 +2,7 @@
 
 <div class="user-info">
     <div class="user-action-time">
-        {{ action }} ? hours ago
+        {{ action }} <b>{% time_ago post.creation_date %}</b>
     </div>
     <div class="user-gravatar left">
         {% gravatar post.author 32 %}

@@ -9,6 +9,8 @@ from django.db import models
 from django.contrib.auth.models import User
 from taggit.managers import TaggableManager
 
+from datetime import datetime
+
 class UserProfile( models.Model ):
     """
     Stores user options
@@ -39,7 +41,7 @@ class Post(models.Model):
     html  = models.TextField() # this is generated from the bbcode when saving the model
     views = models.IntegerField(default=0, blank=True)
     score = models.IntegerField(default=0, blank=True)
-    creation_date = models.DateTimeField(auto_now_add=True)
+    creation_date = models.DateTimeField()
     lastedit_date = models.DateTimeField(auto_now=True)
     lastedit_user = models.ForeignKey(User, related_name='editor')
 
@@ -165,6 +167,8 @@ def create_post(sender, instance, *args, **kwargs):
     instance.html = parse(instance.bbcode)
     if not hasattr(instance, 'lastedit_user'):
         instance.lastedit_user = instance.author
+    if not instance.creation_date:
+        instance.creation_date = datetime.now()
 
 
 def vote_created(sender, instance, created, *args, **kwargs):
@@ -186,6 +190,7 @@ def answer_deleted(sender, instance,  *args, **kwargs):
     "Updates answer count on answer deletion"
     instance.question.answer_count -= 1
     instance.question.save()
+    
     
 signals.post_save.connect( create_profile, sender=User )
 signals.pre_save.connect( create_post, sender=Post )

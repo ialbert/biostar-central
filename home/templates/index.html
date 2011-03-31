@@ -37,7 +37,7 @@
                 </div>
 
                 <div class="started right">
-                    <span class="relativetime">1h ago</span>
+                    <span class="relativetime">{% time_ago q.post.creation_date %}</span>
                     by 
                     {% userlink q.post.author %}
                     {% userrep q.post.author %}

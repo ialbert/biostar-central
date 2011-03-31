@@ -3,6 +3,7 @@ Parses SE biostar xml archive, and populates a database with its
 content then saves a loadable data fixture from this data.
 """
 import sys, os, random, re
+from datetime import datetime
 from itertools import *
 from xml.etree import ElementTree
 
@@ -39,6 +40,12 @@ def html_to_bbcode(body):
     body = body.replace(">", "]")
     return body
 
+def parse_time(timestr):
+    try:
+        return datetime.strptime(timestr, '%Y-%m-%dT%H:%M:%S.%f')
+    except ValueError:
+        return datetime.strptime(timestr, '%Y-%m-%dT%H:%M:%S')
+
 @transaction.commit_manually
 def insert_users(fname, limit):
     "Inserts the users"
@@ -72,9 +79,10 @@ def insert_posts(fname, user_map, limit):
         body   = row['Body']
         userid = row['OwnerUserId']
         views = row['ViewCount']
+        creation_date = parse_time(row['CreationDate'])
         author = user_map[userid]
         body = html_to_bbcode(body)
-        p, flag = models.Post.objects.get_or_create(bbcode=body, author=author, views=views)
+        p, flag = models.Post.objects.get_or_create(bbcode=body, author=author, views=views, creation_date=creation_date)
         store[Id] = p
     transaction.commit()
     print "*** Inserted %s posts" % len(store)
@@ -152,9 +160,10 @@ def insert_comments(fname, post_map, user_map, limit):
             continue # We haven't inserted this post
         text   = row['Text']
         userid = row['UserId']
-        author = user_map[userid]        
+        author = user_map[userid]
+        creation_date = parse_time(row['CreationDate'])
         #post = comment_post_map[Id]
-        post, flag = models.Post.objects.get_or_create(bbcode=text, author=author)
+        post, flag = models.Post.objects.get_or_create(bbcode=text, author=author, creation_date=creation_date)
         comment, flag = models.Comment.objects.get_or_create(parent=parent, post=post)
         comment_map[Id] = comment
     transaction.commit()
