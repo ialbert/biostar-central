@@ -2,9 +2,12 @@
 
 {% load basic %}
 
-{% block mainbar %}
+{% block subheader %}
+    {% pagebar %}
+{% endblock %}
 
-    {% for q in questions %}
+{% block mainbar %}
+    {% for q in page.object_list %}
         <div class="question-summary">
             <div>
                 <div class="votes">

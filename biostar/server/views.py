@@ -6,7 +6,7 @@ from biostar.server import models
 from django import forms
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
-from django.core.paginator import Paginator
+from django.core.paginator import Paginator, InvalidPage, EmptyPage
 
 def index(request):
     "Main page"
@@ -40,27 +40,38 @@ def merge_accounts(request):
         # disable the old user
         source.set_unusable_password()
 
-def userprofile(request, uid):
+def user_profile(request, uid):
     "User's profile page"
     user = models.User.objects.get(id=uid)
     questions = models.Question.objects.filter(post__author=user)
 
-    return html.template(request, name='userprofile.html', selected_user=user, questions=questions)
+    return html.template(request, name='user.profile.html', selected_user=user, questions=questions)
 
-def userlist(request):
+def user_list(request):
     users = models.User.objects.all()
-    return html.template(request, name='userlist.html', users=users)
+    return html.template(request, name='user.list.html', users=users)
 
-def question_list(request, pid=1):
-    "Lists all the questions"
-    all = models.Question.objects.all()
-    paginator = Paginator(all, 25) 
+def get_page(request, obj_list, per_page=25):
+    "A generic paginator"
+
+    paginator = Paginator(obj_list, per_page) 
+    try:
+        pid = int(request.GET.get('page', '1'))
+    except ValueError:
+        pid = 1
+
     try:
         page = paginator.page(pid)
     except (EmptyPage, InvalidPage):
         page = paginator.page(paginator.num_pages)
+    
+    return page
 
-    return html.template(request, name='question_list.html', page=page)
+def question_list(request):
+    "Lists all the questions"
+    all  = models.Question.objects.all()
+    page = get_page(request, all) 
+    return html.template(request, name='question.list.html', page=page)
 
 def question_show(request, pid):
     "Returns a question with all answers"
@@ -70,7 +81,7 @@ def question_show(request, pid):
         question.post.save()
     answers  = models.Answer.objects.filter(question=question).select_related()
 
-    return html.template( request, name='question.html', question=question, answers=answers )
+    return html.template( request, name='question.show.html', question=question, answers=answers )
 
 # question form and its default values
 _Q_TITLE, _Q_CONTENT, _Q_TAG = 'Question title', 'question content', 'tag1'

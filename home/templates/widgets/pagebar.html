@@ -1,0 +1,18 @@
+<h3 align="center">
+    
+    {% if page.has_previous %}
+        <a href="{{request.path}}?page={{page.previous_page_number}}">&lt;previous</a>
+    {% else %}
+        &lt;previous
+    {% endif %}
+
+    &nbsp;|&nbsp;page {{ page.number }} of {{ page.paginator.num_pages }}&nbsp;|&nbsp;
+
+    {% if page.has_next %}
+        <a href="{{request.path}}?page={{page.next_page_number}}">next&gt;</a>
+    {% else %}
+        next&gt;
+    {% endif %}
+
+</h3>
+
