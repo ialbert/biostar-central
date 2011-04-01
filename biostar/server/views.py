@@ -7,6 +7,8 @@ from django import forms
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
+from django.contrib.auth import authenticate, login
+from django.conf import settings
 
 def index(request):
     "Main page"
@@ -20,6 +22,14 @@ def index(request):
     bot = models.Question.objects.all().order_by('lastedit_date')[:5]
     questions = list(top) + list(bot)
     return html.template( request, name='index.html', questions=questions)
+
+def test_login(request):
+    "Allows for an automatic login used during testing"
+    if settings.DEBUG:
+        user = authenticate(username='testuser', password='test$123')
+        login(request, user)
+    else:
+        raise Exception('Invalid login')
 
 @transaction.commit_on_success
 def merge_accounts(request):
@@ -210,7 +220,7 @@ def answer_edit(request, qid, aid=0):
         # update the answer
         answer = models.Answer.objects.get(pk=aid)
         answer.authorize(request)
-        answer.set(content)
+        answer.post.set(content)
 
     return html.redirect('/question/show/%s/' % qid)
    

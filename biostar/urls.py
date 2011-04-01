@@ -12,7 +12,8 @@ urlpatterns = patterns('',
     (r'^$', 'biostar.server.views.index'),
 
     ('^about/$', direct_to_template, {'template': 'about.html'}),
-    
+    (r'^test/login/$', 'biostar.server.views.test_login'),
+
     (r'^members/$', 'biostar.server.views.user_list'),
     (r'^members/show/(?P<uid>\d+)/$', 'biostar.server.views.user_profile'),
     
@@ -29,7 +30,6 @@ urlpatterns = patterns('',
     # comment handlers
     (r'^comment/new/(?P<pid>\d+)/$', 'biostar.server.views.comment_add'),
 
-
     # voting handler
     (r'^vote/$', 'biostar.server.views.vote'),
 
@@ -43,8 +43,9 @@ urlpatterns = patterns('',
     # Uncomment the admin/doc line below to enable admin documentation:
     # (r'^admin/doc/', include('django.contrib.admindocs.urls')),
 
-    # Uncomment the next line to enable the admin:
-    # (r'^admin/', include(admin.site.urls)),
+    # Enable the admin:
+    (r'^admin/', include(admin.site.urls)),
 
+    # static content used only during testing
     (r'^static/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.STATIC_DIR }),
 )

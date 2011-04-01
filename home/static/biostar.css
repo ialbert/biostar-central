@@ -307,7 +307,6 @@ a:hover, a.question-title {
 
 .post-menu a{
     color: #858585;
-    text-decoration: none; 
 }
 
 .post-menu a:hover {
@@ -320,6 +319,10 @@ a:hover, a.question-title {
 
 .question-user-info{
     background-color: #E4E4E4;
+    padding: 2px 5px 2px 5px;
+}
+
+.user-info{
     padding: 2px 5px 2px 5px;
 }
 
