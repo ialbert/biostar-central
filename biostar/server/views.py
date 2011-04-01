@@ -9,6 +9,7 @@ from django.db import transaction
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.contrib.auth import authenticate, login
 from django.conf import settings
+from taggit.models import Tag
 
 def index(request):
     "Main page"
@@ -57,10 +58,6 @@ def user_profile(request, uid):
 
     return html.template(request, name='user.profile.html', selected_user=user, questions=questions)
 
-def user_list(request):
-    users = models.User.objects.all()
-    return html.template(request, name='user.list.html', users=users)
-
 def get_page(request, obj_list, per_page=25):
     "A generic paginator"
 
@@ -76,6 +73,25 @@ def get_page(request, obj_list, per_page=25):
         page = paginator.page(paginator.num_pages)
     
     return page
+
+def user_list(request):
+    users = models.User.objects.all()
+    page  = get_page(request, users)
+    return html.template(request, name='user.list.html', page=page)
+
+def tag_list(request):
+    tags = Tag.objects.all()
+    page = get_page(request, tags)
+    return html.template(request, name='tag.list.html', page=page)
+
+def badge_list(request):
+    return html.template(request, name='todo.html')
+
+def question_unanswered(request):
+    return html.template(request, name='todo.html')
+
+def search(request):
+    return html.template(request, name='todo.html')
 
 def question_list(request):
     "Lists all the questions"
@@ -168,8 +184,8 @@ def question_edit(request, pid=0):
         # editing existing question
         question = models.Question.objects.get(pk=pid)
         post = question.post
-        question.title, post.lastedit_user = title, request.user
         post.set(content)
+        question.title, post.lastedit_user = title, request.user
         question.tags.add(*tags)
         question.save(), post.save()
 
@@ -234,7 +250,6 @@ def comment_add(request, pid):
     post.save()
     comment = models.Comment(parent=parent, post=post)
     comment.save()
-    
 
     if parent.question_set.count(): # Post is a question
         return html.redirect('/question/show/%s/' % (parent.question_set.all()[0].id))

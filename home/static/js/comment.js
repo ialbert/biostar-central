@@ -14,8 +14,8 @@ function show_add_comment(parent, post_id){
     parent.html('\
     <form action="/comment/new/' + post_id + '/" method="post">            \
         ' + csrf_html + ' \
-        <textarea name="text"></textarea>            \
-        <input type="submit" value="Add Comment">        \
+        <div><textarea name="text" rows="2" cols="50"></textarea></div>            \
+        <div><input type="submit" value="Add Comment"></div>        \
     </form>            \
     '    
     )

@@ -17,8 +17,6 @@ h1, h2, h3, h4 {
     color: #333333;
 }
 
-
-
 .shaded {
     background-color: #5B8C3C;
     color:white;
@@ -111,9 +109,17 @@ a:hover, a.question-title {
 
 /* Footer */
 
+
 #footer {
     margin: 0 auto;
     text-align: center;
+    padding:5px;
+}
+
+#footer img {
+    vertical-align: middle;
+    border:0;
+
 }
 
 /* Utility */
@@ -407,12 +413,16 @@ tr.comment td{
     margin-top:10px;
 }
 
-
-/* Rich editor */
-
-.codeStyle {
-    font-weight:bold;
-    background-color: #E4E4E4;
-    font-family: Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New;
+.success {
+    background-color:#B6C2A1;
+    padding:10px;
+    border: 1px solid #41561E;
+    opacity:0.9;
 }
 
+.error {
+    background-color:#BA9BAB;
+    padding:10px;
+    border: 1px solid #4C1B34;
+    opacity:0.9;
+}

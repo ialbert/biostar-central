@@ -1,14 +1,17 @@
 {% extends "base.nosidebar.html" %}
 
+{% load basic %}
+
 {% block subheader %}
-  <h2>Members</h2>
+    {% pagebar %}
 {% endblock %}
 
 {% block mainbar %}
     <ul>
-    {% for i in users %} <li><a class="user-link" title="" alt=""
-      href="/members/show/{{i.id}}"
-      >{{i.first_name}} {{i.last_name}}</a> </li>
+    {% for user in page.object_list %} 
+        <li>
+            <a class="user-link" title="" alt="" href="/member/show/{{user.id}}">{{user.get_full_name}}</a>
+        </li>
     {% endfor %}
     </ul>
 {% endblock %}

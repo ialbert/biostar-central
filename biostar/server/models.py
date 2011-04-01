@@ -56,7 +56,7 @@ class Post(models.Model):
         content = "\n".join( content.splitlines() )
         
         self.content = content
-        self.html = markdown.markdown(self.content)
+        self.html = markdown.markdown(self.content, safe_mode='remove')
         #self.html = html.sanitize(content)
         self.save()
 

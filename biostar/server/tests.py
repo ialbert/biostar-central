@@ -15,7 +15,7 @@ from django.test.client import Client
 class UrlTest(TestCase):
     def test_access(self):
         "Testing that basic URLs function correctly"
-        urls = "/ /about/ /members/".split()
+        urls = "/ /about/ /member/list/".split()
         c = Client()
         for url in urls:
             resp = c.get(url)

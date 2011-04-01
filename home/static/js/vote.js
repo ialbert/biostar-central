@@ -49,7 +49,7 @@ function popover(parent, msg, cls){
     elem = parent.children('div')
     elem.addClass('popover ' + cls)
     elem.text(msg)
-    elem.delay(2000).fadeOut(500, function(){
+    elem.delay(1000).fadeOut(1000, function(){
         $(this).remove() 
     });
 }

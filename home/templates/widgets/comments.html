@@ -1,21 +1,22 @@
 {% load basic %}
 
 {% if post.comments.count %}
-<div class="comments">
-    <table>
-        {% for comment in post.comments.all %}
-            <tr class="comment">
-                <td class="comment-actions">&nbsp;</td>
-                <td class="comment-text">
-                    {{comment.post.html|safe}}
-                    &mdash;
-                    {% userlink comment.post.author %}
-                </td>
-            </tr>
-        {% endfor %}
-    </table>
-</div>
+    <div class="comments">
+        <table>
+            {% for comment in post.comments.all %}
+                <tr class="comment">
+                    <td class="comment-actions">&nbsp;</td>
+                    <td class="comment-text">
+                        {{comment.post.html|safe}}
+                        &mdash;
+                        {% userlink comment.post.author %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
 {% endif %}
+
 <div class="post-comment post-menu">
     {% csrf_token %}
     <input type="hidden" value="{{post.id}}">
