@@ -17,6 +17,7 @@ urlpatterns = patterns('',
     (r'^members/show/(?P<uid>\d+)/$', 'biostar.server.views.userprofile'),
     
     # question handlers
+    (r'^question/list/(?P<pid>\d+)/$', 'biostar.server.views.question_list'),
     (r'^question/show/(?P<pid>\d+)/$', 'biostar.server.views.question_show'),
     (r'^question/edit/(?P<pid>\d+)/$', 'biostar.server.views.question_edit'),
     (r'^question/new/$','biostar.server.views.question_edit'),

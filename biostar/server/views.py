@@ -6,6 +6,7 @@ from biostar.server import models
 from django import forms
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
+from django.core.paginator import Paginator
 
 def index(request):
     "Main page"
@@ -49,6 +50,17 @@ def userprofile(request, uid):
 def userlist(request):
     users = models.User.objects.all()
     return html.template(request, name='userlist.html', users=users)
+
+def question_list(request, pid=1):
+    "Lists all the questions"
+    all = models.Question.objects.all()
+    paginator = Paginator(all, 25) 
+    try:
+        page = paginator.page(pid)
+    except (EmptyPage, InvalidPage):
+        page = paginator.page(paginator.num_pages)
+
+    return html.template(request, name='question_list.html', page=page)
 
 def question_show(request, pid):
     "Returns a question with all answers"
