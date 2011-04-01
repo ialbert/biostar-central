@@ -42,12 +42,6 @@ There is partial datadump of the existing BioStar content in the
 `home/import/datadump`. The `populate` command will load 
 this data into the current database.
 
-Notes
------
-
-Upon the first run a `secret-key.txt` file is created in the home directory. 
-The content of this file will serve as default administrative password.
-
 Colorscheme
 -----------
 
