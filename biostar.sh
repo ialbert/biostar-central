@@ -89,7 +89,7 @@ while (( "$#" )); do
 	if [ "$1" = "dump" ]; then
 		
 		echo "*** Dumping data to $FIXTURE"
-		$PYTHON_EXE $DJANGO_ADMIN dumpdata auth.User server --settings=$DJANGO_SETTINGS_MODULE > $FIXTURE
+		$PYTHON_EXE $DJANGO_ADMIN dumpdata auth.User server taggit --settings=$DJANGO_SETTINGS_MODULE > $FIXTURE
 	fi
 
 	if [ "$1" = "migrate" ]; then
