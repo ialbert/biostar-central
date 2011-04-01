@@ -49,14 +49,14 @@ class Post(models.Model):
     lastedit_date = models.DateTimeField(auto_now=True)
     lastedit_user = models.ForeignKey(User, related_name='editor')
 
-    def set(self, content):
+    def set(self, content, safe_mode='remove'):
         "Sets the html field by sanitizing the content"
         
         # transform the content to UNIX style line endings
         content = "\n".join( content.splitlines() )
         
         self.content = content
-        self.html = markdown.markdown(self.content, safe_mode='remove')
+        self.html = markdown.markdown(self.content, safe_mode=safe_mode)
         #self.html = html.sanitize(content)
         self.save()
 

@@ -94,7 +94,7 @@ def insert_posts(fname, user_map, limit):
         creation_date = parse_time(row['CreationDate'])
         author = user_map[userid]
         p = models.Post.objects.create(author=author, views=views, creation_date=creation_date)
-        p.set(body)
+        p.set(body, safe_mode=False)
         store[Id] = p
     transaction.commit()
     print "*** Inserted %s posts" % len(store)
