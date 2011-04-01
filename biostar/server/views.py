@@ -5,11 +5,14 @@ import html
 from biostar.server import models
 from django import forms
 from django.contrib.auth.decorators import login_required
-from biostar.libs import postmarkup
+from django.db import transaction
 
 def index(request):
     "Main page"
     
+    if request.user.is_authenticated():
+        merge_accounts(request)
+
     # shows both the 5 freshest and 5 oldest questions 
     # (this is for debugging)
     top = models.Question.objects.all().order_by('-lastedit_date')[:5]
@@ -17,12 +20,33 @@ def index(request):
     questions = list(top) + list(bot)
     return html.template( request, name='index.html', questions=questions)
 
-def user(request, uid):
+@transaction.commit_on_success
+def merge_accounts(request):
+    "Attempts to merge user accounts if emails match"
+    users = list(models.User.objects.filter(email=request.user.email))
+    if len(users)>1:
+        source, target = users[0], users[-1]
+        
+        models.Post.objects.filter(author=source).update(author=target)
+        models.Vote.objects.filter(author=source).update(author=target)
+        
+        # needs a one step transfer of all attributes
+        p1 = models.UserProfile.objects.get(user=source)
+        p2 = models.UserProfile.objects.get(user=target)
+        p2.score = p1.score
+        p2.save()
+        
+        # disable the old user
+        source.set_unusable_password()
+
+def userprofile(request, uid):
     "User's profile page"
     user = models.User.objects.get(id=uid)
-    return html.template(request, name='userprofile.html', selected_user=user)
+    questions = models.Question.objects.filter(post__author=user)
 
-def users(request):
+    return html.template(request, name='userprofile.html', selected_user=user, questions=questions)
+
+def userlist(request):
     users = models.User.objects.all()
     return html.template(request, name='userlist.html', users=users)
 

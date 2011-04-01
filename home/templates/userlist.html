@@ -7,7 +7,7 @@
 {% block mainbar %}
     <ul>
     {% for i in users %} <li><a class="user-link" title="" alt=""
-      href="/member/{{i.id}}"
+      href="/members/show/{{i.id}}"
       >{{i.first_name}} {{i.last_name}}</a> </li>
     {% endfor %}
     </ul>
