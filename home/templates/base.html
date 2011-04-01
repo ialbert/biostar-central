@@ -1,3 +1,5 @@
+{% load basic %}
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 
 <html>
@@ -8,11 +10,7 @@
 
     {% block  common-frameworks %}
         <!-- CSS Framework loading -->
-        <link rel="stylesheet" href="/static/blueprint/screen.css" type="text/css" media="screen, projection" />
-        <link rel="stylesheet" href="/static/blueprint/print.css" type="text/css" media="print" />
-        <!--[if IE]><link rel="stylesheet" href="/static/blueprint/ie.css" type="text/css" media="screen, projection"/><![endif]-->
-        <link rel="stylesheet" href="/static/blueprint/plugins/fancy-type/screen.css" type="text/css" media="screen, projection" />
-
+       
         <!-- JQuery Library  -->
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
 
@@ -35,119 +33,84 @@
 
 <body>
   
-  <div class="container">
+<div id="main">
 
-    <div class="span-2">&nbsp;</div> 
-
-    <!-- This is the top bar with the user specific information -->
-    <div class="span-20 last" id="topbar">
-          {% block topbar %}
-            <form id="search2" action="/search" method="get">
-            <div style="float:right">
-            {%if user.is_authenticated %}
-                <b><a href="/member/{{user.id}}">{{user.get_full_name}}</a></b> 
-                <b>100</b> 
-                &bull; <a href="/logout/?next_page=/">logout</a> 
-                &bull; <a>tools</a>
-            {% else %}
-                <span class="note">First time here? Check out the FAQ.</a> &bull; <a href="/openid/login/">login</a>
-            {% endif %}
-                &bull; faq &bull; Search: <input name="q" class="textbox" tabindex="1" onfocus="if (this.value=='search') this.value = ''" maxlength="80" size="28" value="search" type="text">
-                          
-            </div>
-            </form>
-          {% endblock %}
-    </div>
-
-    <!-- Logo and navigation bar -->
-    <div id="header" class="span-24 last">
-        
-        {% block pagehead %}
-          <!-- this is so much easier to position with tables -->
-          <table>
-            <tr>
-                <td width="1%">
-                    <a href="/"><img src="/static/biostar.logo.png" />
-                </td>
-                <td class="nav" valign="bottom">
-                    <a href="/">Questions</a> 
-                    <a href="#">Tags</a>
-                    <a href="/members/">Members</a> 
-                    <a href="/">Badges</a> 
-                    <a href="/">Unanswered</a></li>
-                    <a href="/question/new/">Ask&nbsp;Question</a>
-                </td>
-            </tr>
-          </table>
+  <div id="header">
+    
+    <div id="topbar">
+      {% block topbar %}
+          <form id="search2" action="/search" method="get">
+          <div style="float:right">
+          {%if user.is_authenticated %}
+              {% userlink user %}
+              {% userrep user %}
+              &bull; <a href="/logout/?next_page=/">logout</a> 
+              &bull; <a>tools</a>
+          {% else %}
+              <span class="note">First time here? Check out the FAQ.</a> &bull; <a href="/openid/login/">login</a>
+          {% endif %}
+              &bull; faq &bull; Search: <input name="q" class="textbox" tabindex="1" onfocus="if (this.value=='search') this.value = ''" maxlength="80" size="28" value="search" type="text">
+                        
+          </div>
+          </form>
         {% endblock %}
+      </td></tr>
     </div>
-
-    <!-- this is where messages pop up -->
-    {% block message %}
-        {% if messages %}
-            <div class="span-24 last" id="messages">
-                <div class="ui-state-highlight ui-corner-all" style="margin-bottom: 10px; padding: 1em;">
-                    {% for message in messages %}
-                        <div><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>{{ message|safe }}</div>
-                    {% endfor %}
-                </div>
-            </div>
-        {% endif %}
-    {% endblock %}
-
-    <!-- subheader of each page -->
-    <div class="span-24 last">
-        <div id="subheader">
-            {% block subheader %}
-                <h1>Recent Questions</h1>
-            {% endblock %}
-        </div>
+    
+    <br class="clear">
+    
+    <div id="logo">
+      <a href="/"><img src="/static/biostar.logo.png" border="0"/></a>
     </div>
-
-    <!-- the main content of each page -->
-    <div class="span-18">
-        <div id="mainbody">
-            {% block mainbody %}
-                Main body
-            {% endblock %}
-        </div>
+    
+    <div id="hmenus">
+      
+      <div class="nav left">
+        <a href="/">Questions</a> 
+        <a href="#">Tags</a>
+        <a href="/members/">Members</a> 
+        <a href="/">Badges</a> 
+        <a href="/">Unanswered</a></li>
+      </div>
+      <div class="nav right">
+        <a href="/question/new/">Ask&nbsp;Question</a>
+      </div>
+          
     </div>
+    
+  </div>
+ 
+  <!-- this is where messages pop up -->
+  {% block message %}
+      {% if messages %}
+          <div class="span-24 last" id="messages">
+              <div class="ui-state-highlight ui-corner-all" style="margin-bottom: 10px; padding: 1em;">
+                  {% for message in messages %}
+                      <div><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>{{ message|safe }}</div>
+                  {% endfor %}
+              </div>
+          </div>
+      {% endif %}
+  {% endblock %}
 
-    <!-- the sidebar of each page -->
-    <div class="span-6 last">
-        <div id="sidebar">
-            {% block sidebar %}
-                <div class="shaded">
-                    <p align="center">Spread the word! </p>
-                    <p align="center">Tell a colleague about <b>BioStar</b>!</p>
-
-                    <p align="center">
-                        <b><a  style="color:white" href="http://www.biostars.org">http://www.biostars.org</a></b>
-                    </p>
-
-                    <p align="center">
-                        Subscribe: <a style="color:white" href="http://biostar.stackexchange.com/feeds"><b>RSS feed</b></a>
-                    </p>
-
-                    <p align="center">
-                        Admin group: <a style="color:white" href="http://groups.google.com/group/biostar-central">Biostar Central</a>
-                    </p>
-
-                    <div align="center">
-                        <a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/"><img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by-sa/3.0/88x31.png" /></a><br /><span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">BioStar content is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/">Creative Commons Attribution-ShareAlike 3.0 Unported License</a>.
-                    </div> 
-                </div>
-            {% endblock %}
-        </div>
-    </div>
-
-    <!-- the page footer -->
-    <div id="footer" class="span-24 last" align="center">
-      Powered by <a href="."><img src="/static/biostar.antipixel.png" /></a> 
-      &bull; Copyright 2011 by <a href=".">BioStar team</a>
-    </div>
+  <div id="content">
+    
+      {% block mainbody %}
+        Main body
+      {% endblock %}
+        
+    <br class="clear">
+    
+  </div>
 
 </div>
+  
+<div id="footer">
+              Powered by <a href="."><img src="/static/biostar.antipixel.png" /></a> 
+              &bull; Copyright 2011 by <a href=".">BioStar team</a>
+</div>
+
+
 </body>
 
 </html>

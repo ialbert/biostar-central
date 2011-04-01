@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block mainbody %}
+    <div id="mainbar-full">
+        <div id="subheader">
+            {% block subheader %}
+                <h1>Recent Questions</h1>
+            {% endblock %}          
+        </div>
+        
+        {% block mainbar %}
+            Main content
+        {% endblock %}
+    </div>
+
+{% endblock %}

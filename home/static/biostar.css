@@ -17,6 +17,8 @@ h1, h2, h3, h4 {
     color: #333333;
 }
 
+
+
 .shaded {
     background-color: #5B8C3C;
     color:white;
@@ -24,12 +26,8 @@ h1, h2, h3, h4 {
     margin-top:3px;
 }
 
-table {
-    margin-bottom: 0px;
-}
-
-table tr td{
-    padding: 10px;
+a, a:visited {
+    color: #555555;
 }
 
 a:hover, a.question-title {
@@ -46,7 +44,17 @@ a:hover, a.question-title {
 |  Layout                 |
 |-------------------------*/
 
+#main {
+    width: 960px;
+    margin: 0 auto;
+}
+
 /* Headers */
+
+#header{
+    height: 105px;
+    width: 100%;
+}
 
 #subheader {
     border-bottom: 1px solid #6D6D6D;
@@ -58,11 +66,16 @@ a:hover, a.question-title {
     padding: 5px;
 }
 
+#logo {
+    float: left; 
+}
 
 /* Navigation */
 
-.nav td {
-    vertical-align: bottom;
+#hmenus {
+    float: left;
+    padding: 34px 0 20px 5px;
+    width: 705px;
 }
 
 .nav a {
@@ -78,16 +91,43 @@ a:hover, a.question-title {
     background-color: #FF7700;
 }
 
+/* Mainbar */
+
+#mainbar {
+    float: left;
+    width: 735px;
+}
+
+#mainbar-full{
+    width: 960px;
+}
+
+/* Sidebar */
+
+#sidebar {
+    float: right;
+    width: 220px;
+}
+
+/* Footer */
+
+#footer {
+    margin: 0 auto;
+    text-align: center;
+}
+
 /* Utility */
 
-.left
-{
+.left{
     float: left;
 }
 
-.right
-{
+.right{
     float: right;
+}
+
+.clear{
+    clear: both;
 }
 
 
@@ -117,25 +157,40 @@ a:hover, a.question-title {
 |-------------------------*/
 
 /* Alignment tables */
-#question-table tr td{
-    vertical-align: top;
-    padding: 10px;
-    border-bottom:1px dotted #6D6D6D;
+.question-summary {
+    width: 730px;
+    border-bottom: 1px dotted #6D6D6D;
+    padding-top: 11px;
+    padding-bottom: 11px;
+    float: left;
+    line-height: 1;
 }
 
 
 /* Votes/answers/views boxes */
 
-.box {
-    margin:2px;
-    background-color: white;
+.status, .votes, .views {
+    float: left;
+    width: 38px;
+    height: 38px;
+    margin: 0 3px 0 0;
+    padding: 5px;
+    text-align: center;
+}
+
+.status{
+    width: 48px;
 }
 
 .answered {
     background-color: #75845C;
     color: #FFFFFF;
-    padding:2px 5px 2px 5px;
 }
+
+.votes {
+    background: none repeat scroll 0 0 #EEEEEE;
+}
+
 
 .views {
     color: #666666;
@@ -149,6 +204,36 @@ a:hover, a.question-title {
     vertical-align: middle;
     text-align: center;
 }
+
+/* Summary */
+
+.summary {
+    float: left;
+    width: 550px;
+}
+
+.summary a {
+    text-decoration: none;
+}
+
+.summary h3{
+    font-size: 130%;
+    margin-top: 0;
+
+}
+
+.started {
+    color: #858585;
+}
+
+.relativetime {
+    font-weight: bold;
+}
+
+.started a{
+    font-weight: bold;
+}
+
 
 /*
 |-------------------------
@@ -169,7 +254,6 @@ a:hover, a.question-title {
 
 #question tr td, .answer tr td{
     vertical-align: top;
-    padding: 0;
 }
 
 .answer{
@@ -181,16 +265,19 @@ a:hover, a.question-title {
 
 #question {
     margin-top: 20px;
+    width: 730px;
 }
 
 .post-text {
     margin-bottom: 5px;
+    width: 660px;
 }
 
 /* Tags */
 
 .tags {
     margin-bottom: 10px;
+    line-height: 18px;
 }
 
 .post-tag {
@@ -317,4 +404,12 @@ tr.comment td{
     margin-top:10px;
 }
 
+
+/* Rich editor */
+
+.codeStyle {
+    font-weight:bold;
+    background-color: #E4E4E4;
+    font-family: Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New;
+}
 

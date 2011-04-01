@@ -1,31 +1,29 @@
-{% extends "base.html" %}
+{% extends "base-sidebar.html" %}
 
 {% load basic %}
 
-{% block mainbody %}
+{% block mainbar %}
 
-<div>
-    <table id="question-table">
     {% for q in questions %}
-        <tr>
-            <td class="votes">
-                <div class="mini-counts">{{q.post.score}}</div>
-                <div>votes</div>
-            </td>
-          
-            <td class="box">
+        <div class="question-summary">
+            <div>
+                <div class="votes">
+                    <div class="mini-counts">{{q.post.score}}</div>
+                    <div>votes</div>
+                </div>
+              
                 <div class="status answered">
                     <div class="mini-counts">{{q.answer_count}}</div>
                     <div>answers</div>
-                <div>
-            </td>
+                </div>
+    
+                <div class="views">
+                    <div class="mini-counts">{{q.post.views}}</div>
+                    <div>views</div>
+                </div>
+            </div>
 
-            <td class="views">
-                <div class="mini-counts">{{q.post.views}}</div>
-                <div>views</div>
-            </td>
-
-            <td class="summary">
+            <div class="summary">
                 <h3>
                     <a class="question-title" href="/question/show/{{q.id}}/">{{q.title}}</a>
                 </h3>
@@ -38,14 +36,11 @@
 
                 <div class="started right">
                     <span class="relativetime">{% time_ago q.post.creation_date %}</span>
-                    by 
                     {% userlink q.post.author %}
                     {% userrep q.post.author %}
                 </div>
-            </td>
-        </tr>
-        
+            </div>
+        </div>
     {%  endfor %}
-    </table>
-</div>
+
 {% endblock %}

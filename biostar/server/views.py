@@ -5,11 +5,14 @@ import html
 from biostar.server import models
 from django import forms
 from django.contrib.auth.decorators import login_required
-from biostar.libs import postmarkup
+from django.db import transaction
 
 def index(request):
     "Main page"
     
+    if request.user.is_authenticated():
+        merge_accounts(request)
+
     # shows both the 5 freshest and 5 oldest questions 
     # (this is for debugging)
     top = models.Question.objects.all().order_by('-lastedit_date')[:5]
@@ -17,12 +20,33 @@ def index(request):
     questions = list(top) + list(bot)
     return html.template( request, name='index.html', questions=questions)
 
-def user(request, uid):
+@transaction.commit_on_success
+def merge_accounts(request):
+    "Attempts to merge user accounts if emails match"
+    users = list(models.User.objects.filter(email=request.user.email))
+    if len(users)>1:
+        source, target = users[0], users[-1]
+        
+        models.Post.objects.filter(author=source).update(author=target)
+        models.Vote.objects.filter(author=source).update(author=target)
+        
+        # needs a one step transfer of all attributes
+        p1 = models.UserProfile.objects.get(user=source)
+        p2 = models.UserProfile.objects.get(user=target)
+        p2.score = p1.score
+        p2.save()
+        
+        # disable the old user
+        source.set_unusable_password()
+
+def userprofile(request, uid):
     "User's profile page"
     user = models.User.objects.get(id=uid)
-    return html.template(request, name='userprofile.html', selected_user=user)
+    questions = models.Question.objects.filter(post__author=user)
 
-def users(request):
+    return html.template(request, name='userprofile.html', selected_user=user, questions=questions)
+
+def userlist(request):
     users = models.User.objects.all()
     return html.template(request, name='userlist.html', users=users)
 
@@ -85,7 +109,7 @@ def question_edit(request, pid=0):
         question = models.Question.objects.get(pk=pid)
         question.authorize(request)
         tags = " ".join([ tag.name for tag in question.tags.all() ])
-        form = QuestionForm(initial=dict(title=question.title, content=question.post.bbcode, tags=tags))
+        form = QuestionForm(initial=dict(title=question.title, content=question.post.content, tags=tags))
         return html.template( request, name='edit.question.html', form=form, params=params)
   
     # we can only deal with POST after this point
@@ -103,14 +127,16 @@ def question_edit(request, pid=0):
             
     if asknew:
         # generate the new question
-        post = models.Post.objects.create(bbcode=content, author=request.user)
+        post = models.Post.objects.create(author=request.user)
+        post.set(content)
         question = models.Question.objects.create(post=post, title=title)
         question.tags.add(*tags)
     else:
         # editing existing question
         question = models.Question.objects.get(pk=pid)
         post = question.post
-        question.title, post.bbcode, post.lastedit_user = title, content, request.user
+        question.title, post.lastedit_user = title, request.user
+        post.set(content)
         question.tags.add(*tags)
         question.save(), post.save()
 
@@ -137,7 +163,7 @@ def answer_edit(request, qid, aid=0):
         # editing an existing answer
         answer = models.Answer.objects.get(pk=aid)
         answer.authorize(request)
-        form = AnswerForm( initial=dict(content=answer.post.bbcode) )
+        form = AnswerForm( initial=dict(content=answer.post.content) )
         return html.template( request, name='edit.answer.html', form=form)
 
     # only POST remains at this point
@@ -154,14 +180,14 @@ def answer_edit(request, qid, aid=0):
 
     if newans:
         # new answer for the question
-        post = models.Post.objects.create(bbcode=content, author=request.user)
+        post = models.Post.objects.create(author=request.user)
+        post.set(content)
         answer = models.Answer.objects.create(post=post, question=question)
     else:
         # update the answer
         answer = models.Answer.objects.get(pk=aid)
         answer.authorize(request)
-        answer.post.bbcode = content
-        answer.post.save()
+        answer.set(content)
 
     return html.redirect('/question/show/%s/' % qid)
    
@@ -169,8 +195,9 @@ def answer_edit(request, qid, aid=0):
 def comment_add(request, pid):
     
     parent = models.Post.objects.get(pk=pid)
-    
-    post = models.Post(author=request.user, bbcode=request.POST['text'])
+    content = request.POST['text']
+    post = models.Post(author=request.user)
+    post.html = post.content = html.sanitize(content, allowed_tags='')
     post.save()
     comment = models.Comment(parent=parent, post=post)
     comment.save()

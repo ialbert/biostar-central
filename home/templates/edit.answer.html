@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base-nosidebar.html" %}
 
 {% block subheader %}
   <h2>Edit the answer</h2>
@@ -28,10 +28,8 @@
     </script>
 {% endblock %}
 
-{% block sidebar %}
-{% endblock %}
 
-{% block mainbody %}
+{% block mainbar %}
     <div class="content"">
         
         {{ form.errors }}

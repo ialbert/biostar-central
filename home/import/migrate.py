@@ -35,11 +35,6 @@ def xml_reader(fname, limit=None):
 
     return rows
 
-def html_to_bbcode(body):
-    body = body.replace("<", "[")
-    body = body.replace(">", "]")
-    return body
-
 def parse_time(timestr):
     try:
         return datetime.strptime(timestr, '%Y-%m-%dT%H:%M:%S.%f')
@@ -50,22 +45,39 @@ def parse_time(timestr):
 def insert_users(fname, limit):
     "Inserts the users"
     store = {}
+    profs = {}
     rows = xml_reader(fname, limit=limit)
     for (index, row) in enumerate(rows):
-        userid   = row['Id'] 
-        username = row.get('Email', userid) or userid
-        username = '%s%s' % (username, index)
+
+        userid   = row['Id']
+        username = 'user%s' % userid
+        email    = row.get('Email', username)
+        email = email or username
+
         name = row.get('DisplayName', 'User %s' % userid)
         first_name = name
         try:
-            u, f = models.User.objects.get_or_create(username=username, first_name=first_name)
+            u, f = models.User.objects.get_or_create(username=username, email=email, first_name=first_name)
         except Exception, e:
             print 'Failed inserting row %s' % row
             print userid, name, username
             raise(e)
         store[ userid ] = u
+        profs[userid] = (u, row)
+
     transaction.commit()
     print "*** Inserted %s users" % len(store)
+    
+    # update all profiles in a separate transaction
+    for u, row in profs.values():
+        p = u.get_profile()
+        p.score = int(row['Reputation'])
+        p.save()
+
+    print "*** Update %s profiles" % len(profs)
+
+    transaction.commit()
+    
     return store
 
 @transaction.commit_manually
@@ -81,8 +93,8 @@ def insert_posts(fname, user_map, limit):
         views = row['ViewCount']
         creation_date = parse_time(row['CreationDate'])
         author = user_map[userid]
-        body = html_to_bbcode(body)
-        p, flag = models.Post.objects.get_or_create(bbcode=body, author=author, views=views, creation_date=creation_date)
+        p = models.Post.objects.create(author=author, views=views, creation_date=creation_date)
+        p.set(body)
         store[Id] = p
     transaction.commit()
     print "*** Inserted %s posts" % len(store)
@@ -171,7 +183,10 @@ def insert_comments(fname, post_map, user_map, limit):
         author = user_map[userid]
         creation_date = parse_time(row['CreationDate'])
         #post = comment_post_map[Id]
-        post, flag = models.Post.objects.get_or_create(bbcode=text, author=author, creation_date=creation_date)
+        post = models.Post.objects.create(author=author, creation_date=creation_date)
+        post.content = 'Original body not yet available!'
+        post.html = text
+        post.save()
         comment, flag = models.Comment.objects.get_or_create(parent=parent, post=post)
         comment_map[Id] = comment
     transaction.commit()
@@ -184,7 +199,13 @@ def execute(path, limit=300):
     """
     Executes the imports
     """
-    fname = join(path, 'AnonUsers.xml')
+    fname = join(path, 'Users.xml')
+    if os.path.isfile(fname):
+        print '*** Found REAL userdata %s' % fname
+    else:
+        fname = join(path, 'AnonUsers.xml')
+        print '*** Using Anonymized users'
+
     user_map = insert_users(fname=fname, limit=limit)
 
     fname = join(path, 'Posts.xml')

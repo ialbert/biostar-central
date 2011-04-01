@@ -1,65 +1,71 @@
-{% extends "base.html" %}
+{% extends "base-nosidebar.html" %}
 
 {% block subheader %}
   <h2>{{params.subheader}}</h2>
 {% endblock %}
 
 {% block custom-frameworks %}
-    <!-- Tiny MCE editor -->
-    <script type="text/javascript" src="http://helios.bx.psu.edu/static/tinymce/tiny_mce.js" ></script >
+    <!-- markitUp editor -->
+    
+
+    <script type="text/javascript" src="/static/markitup/jquery.markitup.js"></script>
+    
+    <link rel="stylesheet" type="text/css" href="/static/markitup/skins/markitup/style.css" />
+
+    <link rel="stylesheet" href="/static/markitup/sets/markdown/style.css" type="text/css"/>
+    
+    <script type="text/javascript" src="/static/markitup/sets/markdown/set.js"></script>
+       
     <script type="text/javascript" >
-        tinyMCE.init({
-            theme : "advanced",
-            mode : "textareas",
-            plugins : "bbcode",
-            theme_advanced_buttons1 : "bold,italic,underline,undo,redo,link,unlink,image,forecolor,styleselect,removeformat,cleanup,code",
-            theme_advanced_buttons2 : "",
-            theme_advanced_buttons3 : "",
-            theme_advanced_toolbar_location : "bottom",
-            theme_advanced_toolbar_align : "center",
-            theme_advanced_styles : "Code=codeStyle;Quote=quoteStyle",
-            content_css : "/static/biostar.css",
-            entity_encoding : "raw",
-            add_unload_trigger : false,
-            remove_linebreaks : false,
-            inline_styles : false,
-            convert_fonts_to_spans : false
+        $(document).ready(function() {
+            $("#editor").markItUp(mySettings);
         });
     </script>
+
+
+
 {% endblock %}
 
-{% block sidebar %}
-{% endblock %}
 
-{% block mainbody %}
+{% block mainbar %}
     <div class="content"">
         
         {{ form.errors }}
-
-        <table id="answer-table">
+        <form action="{{request.path}}" method="post">
+        {% csrf_token %}
+        
+        <table bgcolor="#CECECE" width="100%">
             <tr>
-                <td colspan="2" bgcolor="#CECECE"> 
-                    <form action="{{request.path}}" method="post">
-                        {% csrf_token %}
-                        
-                        <div>
-                        
-                            Title: <input type="text" value="{{ form.title.value }}" name="title" size="80" style="margin:5px"/>
-                            {{ form.title.errors }}
+                <td>Title</td>
+                <td>
+                    {{ form.title.errors }}
+                    <input type="text" value="{{ form.title.value }}" name="title" size="80" style="margin:5px"/>
+                </td>
+            </tr>
 
-                            <textarea name="content" cols="50" rows="15" >{{ form.content.value }}</textarea>
-                            {{ form.content.errors }}
+            <tr>
+                <td>Content</td>
+                <td>
+                    {{ form.content.errors }}
+                    <textarea id="editor" name="content" cols="80" rows="15" >{{ form.content.value }}</textarea>
+                </td>
+            </tr>
 
-                            Tags:  <input type="text" value="{{ form.tags.value }}" name="tags" size="80" style="margin:5px"/>
-                            {{ form.tags.errors }}
+            <tr>
+                <td>Tags</td>
+                <td>
+                    {{ form.tags.errors }}
+                    <input type="text" value="{{ form.tags.value }}" name="tags" size="80" style="margin:5px"/>
+                </td>
+            </tr>
 
-                        </div>
-                        <div align="center">
-                            <input style="margin:10px;" type="submit" name="submit" value="{{params.button}}">
-                        </div>
-                    </form>
+            <tr>
+                <td>&nbsp;</td>
+                <td>
+                    <input style="margin:10px;" type="submit" name="submit" value="{{params.button}}">
                 </td>
             </tr>
         </table>
+        </form>
     </div>
 {% endblock %}

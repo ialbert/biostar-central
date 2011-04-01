@@ -13,10 +13,8 @@ urlpatterns = patterns('',
 
     ('^about/$', direct_to_template, {'template': 'about.html'}),
     
-    
-
-    (r'^members/$', 'biostar.server.views.users'),
-    (r'^member/(?P<uid>\d+)/$', 'biostar.server.views.user'),
+    (r'^members/$', 'biostar.server.views.userlist'),
+    (r'^members/show/(?P<uid>\d+)/$', 'biostar.server.views.userprofile'),
     
     # question handlers
     (r'^question/show/(?P<pid>\d+)/$', 'biostar.server.views.question_show'),

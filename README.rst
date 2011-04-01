@@ -4,7 +4,7 @@ Introduction
 
 The codebase requires Python_ (version 2.6 or higher) and Django_ (version 1.3 or higher) to run.
 
-We also use using the `Blueprint CSS`_ framework for layout, JQuery_ for javascript and `Tiny MCE`_ for 
+We also use JQuery_ for javascript and `markitup`_ for 
 rich text javascript editor. These do not need to be installed and will be loaded over the internet.
 
 Installation
@@ -54,8 +54,7 @@ Colorscheme
   * Purple: `#8F2C47`
   * Green: `#75845C`
 
-.. _Blueprint CSS: http://www.blueprintcss.org/
 .. _Django: http://www.djangoproject.com/
 .. _Python: http://www.python.org/
 .. _JQuery: http://jquery.com/
-.. _Tiny MCE: http://tinymce.moxiecode.com/index.php
+.. _markitup: http://markitup.jaysalvat.com/home/
