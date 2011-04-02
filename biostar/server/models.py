@@ -22,7 +22,7 @@ class UserProfile( models.Model ):
     >>> prof.json = dict( message='Hello world' )
     >>> prof.save()
     """
-    user  = models.ForeignKey(User, unique=True)
+    user  = models.OneToOneField(User, unique=True, related_name='profile')
     score = models.IntegerField(default=0, blank=True)
     json  = models.TextField(default="", null=True)
     last_visited = models.DateTimeField(auto_now=True)

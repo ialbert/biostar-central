@@ -19,8 +19,12 @@ def index(request):
 
     # shows both the 5 freshest and 5 oldest questions 
     # (this is for debugging)
-    top = models.Question.objects.all().order_by('-lastedit_date')[:5]
-    bot = models.Question.objects.all().order_by('lastedit_date')[:5]
+    
+    qs = models.Question.objects.select_related('post', 'post__author','post__author__profile').all()
+    #qs = models.Question.objects.all()
+    
+    top = qs.order_by('-lastedit_date')[:5]
+    bot = qs.order_by('lastedit_date')[:5]
     questions = list(top) + list(bot)
     return html.template( request, name='index.html', questions=questions)
 
@@ -95,8 +99,8 @@ def search(request):
 
 def question_list(request):
     "Lists all the questions"
-    all  = models.Question.objects.all()
-    page = get_page(request, all) 
+    qs = models.Question.objects.select_related('post', 'post__author','post__author__profile').all()
+    page = get_page(request, qs) 
     return html.template(request, name='question.list.html', page=page)
 
 def question_show(request, pid):
