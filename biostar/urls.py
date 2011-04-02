@@ -29,6 +29,9 @@ urlpatterns = patterns('',
     # members
     (r'^member/list/$', 'biostar.server.views.user_list'),
     (r'^member/show/(?P<uid>\d+)/$', 'biostar.server.views.user_profile'),
+
+    # editor
+    (r'^markdown_preview/$', 'biostar.server.views.markdown_preview'),
     
     # questions
     (r'^question/unanswered/$', 'biostar.server.views.question_unanswered'),

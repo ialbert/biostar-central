@@ -11,6 +11,11 @@ from django.contrib.auth import authenticate, login
 from django.conf import settings
 from taggit.models import Tag
 
+from django.http import HttpResponse
+import markdown
+from django.views.decorators.csrf import csrf_exempt
+
+
 def index(request):
     "Main page"
     
@@ -290,4 +295,10 @@ def vote(request):
                     
 
     return html.json_response({'status':'error', 'msg':'POST method must be used'})
-        
+
+@csrf_exempt
+def markdown_preview(request):
+    source_text = request.REQUEST['source_text'] # May need to be sanitized here
+    html = markdown.markdown(source_text, safe_mode='remove')
+    return HttpResponse(html, mimetype='text/plain')
+

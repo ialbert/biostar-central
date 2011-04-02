@@ -10,8 +10,10 @@
 // -------------------------------------------------------------------
 // Feel free to add more tags
 // -------------------------------------------------------------------
+
 mySettings = {
-	previewParserPath:	'',
+	previewParserPath:	'/markdown_preview/',
+    previewParserVar:   'source_text',
 	onShiftEnter:		{keepDefault:false, openWith:'\n\n'},
 	markupSet: [
 		{name:'First Level Heading', key:'1', placeHolder:'Your title here...', closeWith:function(markItUp) { return miu.markdownTitle(markItUp, '=') } },
