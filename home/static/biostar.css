@@ -347,6 +347,13 @@ a:hover, a.question-title {
     line-height: 17px;
 }
 
+.autobiography {
+  width: 30em; height: 15em; padding: 0.3em 0.5em 0.3em 0.5em;
+  overflow: auto; text-align: left; border: 2px solid gray;
+}
+
+
+
 /* Comments */
 
 .comment-row td{

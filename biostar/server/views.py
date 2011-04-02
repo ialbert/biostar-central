@@ -63,8 +63,10 @@ def user_profile(request, uid):
     "User's profile page"
     user = models.User.objects.get(id=uid)
     questions = models.Question.objects.filter(post__author=user)
+    answers = models.Answer.objects.filter(post__author=user)
 
-    return html.template(request, name='user.profile.html', selected_user=user, questions=questions)
+    return html.template(request, name='user.profile.html', selected_user=user,
+      questions=questions, answers=answers)
 
 def get_page(request, obj_list, per_page=25):
     "A generic paginator"
