@@ -2,7 +2,7 @@
 Html utility functions.
 """
 import re, string, mimetypes, os, json
-from django.template import Context, loader
+from django.template import RequestContext, loader
 from django.core.servers.basehttp import FileWrapper
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response
@@ -71,20 +71,11 @@ def redirect(url):
 
 def template(request, name, mimetype=None, **kwd):
     """Renders a template and returns it as an http response"""
-    user = request.user
     
-    messages = user.get_and_delete_messages()
+    kwd['request'] = request
     
-    # this collects the dictionary from which the context will be built
-    cx = dict(messages=messages, user=user, request=request)
-    cx.update(kwd)
-    cx.update(csrf(request))
+    return render_to_response(name, kwd, context_instance=RequestContext(request))
     
-    context  = Context(cx)
-    template = loader.get_template(name)
-    page = template.render(context)
-
-    return render_to_response(name, context)
 
 def test():
     import doctest

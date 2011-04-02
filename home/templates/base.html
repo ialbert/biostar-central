@@ -108,6 +108,16 @@
 <div id="footer">
     Powered by <a href="/"><img src="/static/biostar.antipixel.png" /></a> 
     &bull; Copyright 2011 by <a href=".">BioStar team</a>
+    {% if debug %}
+      <br><a id="toggle-queries">{{sql_queries|length}} SQL queries</a>
+      <div id="queries" style="text-align: left;">
+        <ul id="query-list">
+          {% for query in sql_queries %}
+            <li>{{ query.sql}}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
 </div>
 
 

@@ -19,3 +19,12 @@ $('html').ajaxError(function(event, xhr, settings, error){
     //alert(xhr.responseText);
     //newwindow=window.open(url,'name','height=400,width=200');
 });
+
+// Also controls the SQL queries item in the footer in debug mode
+
+$(document).ready(function(){
+    $('#queries').hide()
+    $('#toggle-queries').click(function(){
+       $('#queries').toggle() 
+    });
+});

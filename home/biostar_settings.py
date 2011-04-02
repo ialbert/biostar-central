@@ -5,6 +5,8 @@ import os, sys, random, hashlib
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
+INTERNAL_IPS = ('127.0.0.1', )
+
 def path_join(*args):
     "Generates absolute paths"
     return os.path.abspath(os.path.join(*args))
