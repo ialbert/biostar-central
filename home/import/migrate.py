@@ -151,13 +151,17 @@ def insert_votes(fname, user_map, post_map, limit):
         addr = user_map.get(row['IPAddress'])
         VoteType = row['VoteTypeId']
         # upmod=2, downmod=3
-        valid = ('2', '3')
+        #valid = ('1','2', '3')
         
-        if post and user and VoteType in valid:
-            if VoteType == '2':
+        if post and user:
+            if VoteType == '1':
+                vote_type = models.VOTE_ACCEPT
+            elif VoteType == '2':
                 vote_type = models.VOTE_UP
-            else:
+            elif VoteType == '3':
                 vote_type = models.VOTE_DOWN
+            else:
+                continue
             
             v, flag = models.Vote.objects.get_or_create(post=post, author=user, type=vote_type)
             store[row['Id']] = v

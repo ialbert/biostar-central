@@ -193,6 +193,11 @@ a:hover, a.question-title {
     color: #FFFFFF;
 }
 
+.unanswered {
+    background-color: #8F2C47;
+    color: #FFFFFF;
+}
+
 .votes {
     background: none repeat scroll 0 0 #EEEEEE;
 }
@@ -383,13 +388,17 @@ tr.comment td{
     width: 60px;
 }
 
-.vote-up, .vote-down {
+.vote-up, .vote-down, .vote-accepted{
     display: block;
     width: 30px;
     height: 14px;
     background-repeat: no-repeat;
     margin-left: auto;
     margin-right: auto;
+}
+
+.vote-accepted {
+    height: 31px;   
 }
 
 .vote-up.vote-off {
@@ -406,6 +415,10 @@ tr.comment td{
 
 .vote-down.vote-on{
     background-image: url("/static/img/vote/vote-down-on.png");
+}
+
+.vote-accepted {
+    background-image: url("/static/img/vote/accepted.png")
 }
 
 .popover {

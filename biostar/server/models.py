@@ -127,23 +127,29 @@ class Answer(models.Model):
 
     def authorize(self, request, strict=False):
         return self.post.authorize(request, strict=strict)
+        
+    def accepted(self):
+        ''' Returns whether the answer is the accepted answer. Could use optimization,
+        for instance storing in a field on the model instead '''
+        return Vote.objects.filter(post=self.post, type=VOTE_ACCEPT).count() != 0
 
 class Comment(models.Model):
     parent = models.ForeignKey(Post, related_name='comments')
     post = models.ForeignKey(Post)
     lastedit_date = models.DateTimeField(auto_now=True)
 
-VOTE_UP, VOTE_DOWN = 0, 1
+VOTE_UP, VOTE_DOWN, VOTE_ACCEPT = 0, 1, 2
 
-VOTE_TYPES = ((VOTE_UP, 'Upvote'), (VOTE_DOWN, 'Downvote'))
+VOTE_TYPES = ((VOTE_UP, 'Upvote'), (VOTE_DOWN, 'Downvote'), (VOTE_ACCEPT, 'Accept'))
 
-OPPOSING_VOTES = {VOTE_UP:VOTE_DOWN, VOTE_DOWN:VOTE_UP}
+OPPOSING_VOTES = {VOTE_UP:VOTE_DOWN, VOTE_DOWN:VOTE_UP} # Mappings of mutually exclusive votes
 
 # post score changes
 POST_SCORE = { VOTE_UP:1, VOTE_DOWN:-1 }
 
 # user reputation changes
-USER_REP   = { VOTE_UP:10, VOTE_DOWN:-2 }
+USER_REP   = { VOTE_UP:10, VOTE_DOWN:-2, VOTE_ACCEPT:15 }
+VOTER_REP = { VOTE_DOWN: -1, VOTE_ACCEPT:2 }
 
 class Vote(models.Model):
     """
@@ -163,15 +169,25 @@ class Vote(models.Model):
     
     def reputation(self):
         return USER_REP.get(self.type, 0)
+        
+    def voter_reputation(self):
+        return VOTER_REP.get(self.type, 0)
     
     def apply(self, dir=1):
         "Applies the score and reputation changes. Direction can be set to -1 to undo (ie delete vote)"
-        prof = self.post.author.get_profile()
-        prof.score += dir * self.reputation()
-        prof.save()
+        if self.reputation():
+            prof = self.post.author.get_profile()
+            prof.score += dir * self.reputation()
+            prof.save()
+        
+        if self.voter_reputation():
+            prof = self.author.get_profile()
+            prof.score += dir * self.voter_reputation()
+            prof.save()
 
-        self.post.score += dir * self.score()
-        self.post.save()
+        if self.score():
+            self.post.score += dir * self.score()
+            self.post.save()
 
 #
 # Adding data model related signals

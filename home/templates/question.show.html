@@ -81,6 +81,10 @@
                     <tr>
                         <td>
                             {% votebox answer.post %}
+                            {% if answer.accepted %}
+                                <br>
+                                <div class="vote-accepted"></div>
+                            {% endif %}
                         </td>
                         
                         <td width="100%">
