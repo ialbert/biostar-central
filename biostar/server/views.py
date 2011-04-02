@@ -59,10 +59,12 @@ def merge_accounts(request):
 def user_profile(request, uid):
     "User's profile page"
     user = models.User.objects.get(id=uid)
+    profile = models.UserProfile.objects.get(user=user)
     questions = models.Question.objects.filter(post__author=user)
     answers = models.Answer.objects.filter(post__author=user)
 
-    return html.template(request, name='user.profile.html', selected_user=user,
+    return html.template(request, name='user.profile.html',
+      selected_user=user, selected_profile=profile,
       questions=questions, answers=answers)
 
 def get_page(request, obj_list, per_page=25):
