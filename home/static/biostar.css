@@ -466,3 +466,26 @@ tr.comment td{
     border: 1px solid #4C1B34;
     opacity:0.9;
 }
+
+/*
+|-------------------------
+|  Tag List               |
+|-------------------------*/
+
+#tag-list{
+    padding-top: 10px;
+    width: 920px;
+}
+
+.tag-entry{
+    width: 170px;
+    height: 27px;
+    float: left;
+}
+
+.multiplier{
+    color: #555555;
+    font-size: 120%;
+    font-weight: bold;
+    margin-right: 4px;
+}

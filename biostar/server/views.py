@@ -92,7 +92,7 @@ def user_list(request):
 
 def tag_list(request):
     tags = models.Tag.objects.all().order_by('-count')
-    page = get_page(request, tags)
+    page = get_page(request, tags, per_page=50)
     return html.template(request, name='tag.list.html', page=page)
 
 def badge_list(request):

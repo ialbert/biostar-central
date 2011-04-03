@@ -46,8 +46,8 @@ class Post(models.Model):
     
     content = models.TextField() # this is the user inpu
     html    = models.TextField() # this is the sanitized HTML for display
-    tag_string = models.CharField(max_length=200)
-    tag_set = models.ManyToManyField(Tag)
+    tag_string = models.CharField(max_length=200) # The tag string is the canonical form of the post's tags
+    tag_set = models.ManyToManyField(Tag) # The tag set is built from the tag string and used only for fast filtering
     views = models.IntegerField(default=0, blank=True)
     score = models.IntegerField(default=0, blank=True)
     creation_date = models.DateTimeField()
@@ -266,6 +266,23 @@ def answer_deleted(sender, instance,  *args, **kwargs):
     instance.question.answer_count -= 1
     instance.question.save()
     
+def tags_changed(sender, instance, action, pk_set, *args, **kwargs):
+    if action == 'post_add':
+        for pk in pk_set:
+            tag = Tag.objects.get(pk=pk)
+            tag.count += 1
+            tag.save()
+    if action == 'post_delete':
+        for pk in pk_set:
+            tag = Tag.objects.get(pk=pk)
+            tag.count -= 1
+            tag.save()
+    if action == 'pre_clear': # Must be pre so we know what was cleared
+        for tag in instance.tag_set.all():
+            tag.count -= 1
+            tag.save()
+        
+    
     
 signals.post_save.connect( create_profile, sender=User )
 signals.pre_save.connect( create_post, sender=Post )
@@ -275,4 +292,6 @@ signals.post_delete.connect( vote_deleted, sender=Vote )
 
 signals.post_save.connect( answer_created, sender=Answer )
 signals.post_delete.connect( answer_deleted, sender=Answer )
+
+signals.m2m_changed.connect( tags_changed, sender=Post.tag_set.through)
 
