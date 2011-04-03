@@ -181,7 +181,7 @@ def question_edit(request, pid=0):
     if edit and request.method == 'GET':
         question = models.Question.objects.get(pk=pid)
         question.authorize(request)
-        tags = " ".join([ tag.name for tag in question.tags.all() ])
+        tags = question.post.tag_string
         form = QuestionForm(initial=dict(title=question.title, content=question.post.content, tags=tags))
         return html.template( request, name='edit.question.html', form=form, params=params)
   
@@ -203,14 +203,14 @@ def question_edit(request, pid=0):
         post = models.Post.objects.create(author=request.user)
         post.set(content)
         question = models.Question.objects.create(post=post, title=title)
-        question.tags.add(*tags)
+        question.post.set_tags(' '.join(tags))
     else:
         # editing existing question
         question = models.Question.objects.get(pk=pid)
         post = question.post
         post.set(content)
         question.title, post.lastedit_user = title, request.user
-        question.tags.add(*tags)
+        question.post.set_tags(' '.join(tags))
         question.save(), post.save()
 
     # show the question
