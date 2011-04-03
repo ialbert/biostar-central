@@ -98,17 +98,29 @@ def tag_list(request):
 def badge_list(request):
     return html.template(request, name='todo.html')
 
-def question_unanswered(request):
-    return html.template(request, name='todo.html')
-
 def search(request):
     return html.template(request, name='todo.html')
 
+def questions():
+    " Returns a common queryset that can be used to select questions"
+    return models.Question.objects.select_related('post', 'post__author','post__author__profile')
+
 def question_list(request):
     "Lists all the questions"
-    qs = models.Question.objects.select_related('post', 'post__author','post__author__profile').all()
+    qs = questions().all()
     page = get_page(request, qs) 
     return html.template(request, name='question.list.html', page=page)
+
+def question_tagged(request, tag_name):
+    qs = questions().filter(post__tag_set__name=tag_name)
+    page = get_page(request, qs) 
+    return html.template(request, name='question.list.html', page=page)
+
+def question_unanswered(request):
+    qs = questions().filter(answer_count=0)
+    page = get_page(request, qs) 
+    return html.template(request, name='question.list.html', page=page)
+    
 
 def question_show(request, pid):
     "Returns a question with all answers"

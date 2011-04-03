@@ -41,7 +41,7 @@
     
                         <div class="tags">
                             {% for tag in question.post.get_tags %}
-                               <a class="post-tag">{{ tag }}</a>
+                               {% taglink tag %}
                             {% endfor %}
                         </div>
                        

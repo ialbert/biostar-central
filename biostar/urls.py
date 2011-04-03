@@ -36,6 +36,7 @@ urlpatterns = patterns('',
     # questions
     (r'^question/unanswered/$', 'biostar.server.views.question_unanswered'),
     (r'^question/list/$', 'biostar.server.views.question_list'),
+    (r'^question/tagged/(?P<tag_name>[a-z\-]+)/$', 'biostar.server.views.question_tagged'),
     (r'^question/show/(?P<pid>\d+)/$', 'biostar.server.views.question_show'),
     (r'^question/edit/(?P<pid>\d+)/$', 'biostar.server.views.question_edit'),
     (r'^question/new/$','biostar.server.views.question_edit'),

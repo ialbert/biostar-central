@@ -11,6 +11,10 @@ def comments(post):
 @register.inclusion_tag('widgets/userlink.html')
 def userlink(user):
     return {'user':user}
+    
+@register.inclusion_tag('widgets/taglink.html')
+def taglink(tag_name):
+    return {'tag_name':tag_name}
 
 @register.inclusion_tag('widgets/userrep.html')
 def userrep(user):
@@ -47,3 +51,7 @@ def pagebar(context):
         'page': context['page'],
         'request': context['request'],
     }
+    
+@register.inclusion_tag('widgets/question-list-narrow.html')
+def question_list_narrow(questions):
+    return {'questions':questions}
