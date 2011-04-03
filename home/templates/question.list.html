@@ -32,7 +32,7 @@
                 </h3>
       
                 <div class="tags left">
-                        {% for tag in q.tags.all %}
+                        {% for tag in q.post.get_tags %}
                            <a class="post-tag">{{ tag }}</a>
                         {% endfor %}
                 </div>

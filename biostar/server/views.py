@@ -9,7 +9,6 @@ from django.db import transaction
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.contrib.auth import authenticate, login
 from django.conf import settings
-from taggit.models import Tag
 
 from django.http import HttpResponse
 import markdown
@@ -92,7 +91,7 @@ def user_list(request):
     return html.template(request, name='user.list.html', page=page)
 
 def tag_list(request):
-    tags = Tag.objects.all()
+    tags = models.Tag.objects.all().order_by('-count')
     page = get_page(request, tags)
     return html.template(request, name='tag.list.html', page=page)
 

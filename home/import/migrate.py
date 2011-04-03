@@ -120,10 +120,8 @@ def insert_questions(fname, post_map, limit):
             quest, flag = models.Question.objects.get_or_create(title=title, post=post)
             quest_map[Id] = quest
             if flag: # Only if newly created, add tags
-                for tag in tag_finder.findall(tags):
-                    tag = tag.strip()
-                    if tag:
-                        quest.tags.add(tag)
+                tag_string = ' '.join([tag.strip() for tag in tag_finder.findall(tags) if tag.strip()])
+                post.set_tags(tag_string)
     
     transaction.commit()
 
