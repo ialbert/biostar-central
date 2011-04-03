@@ -23,6 +23,9 @@ class UserProfile( models.Model ):
     """
     user  = models.OneToOneField(User, unique=True, related_name='profile')
     score = models.IntegerField(default=0, blank=True)
+    bronze_badges = models.IntegerField(default=0)
+    silver_badges = models.IntegerField(default=0)
+    gold_badges = models.IntegerField(default=0)
     json  = models.TextField(default="", null=True)
     last_visited = models.DateTimeField(auto_now=True)
     creation_date = models.DateTimeField(auto_now_add=True)
@@ -226,6 +229,38 @@ class Vote(models.Model):
                 question.answer_accepted = False
             answer.save()
             question.save()
+            
+BADGE_BRONZE = 0
+BADGE_SILVER = 1
+BADGE_GOLD = 2
+
+BADGE_TYPES = ((BADGE_BRONZE, 'bronze'), (BADGE_SILVER, 'silver'), (BADGE_GOLD, 'gold'))
+            
+class Badge(models.Model):
+    name = models.CharField(max_length=50)
+    description = models.CharField(max_length=200)
+    type = models.IntegerField(choices=BADGE_TYPES)
+    unique = models.BooleanField() # Unique badges may be earned only once
+    secret = models.BooleanField() # Secret badges are not listed on the badge list
+    
+class Award(models.Model):
+    ''' A badge being awarded to a user.Cannot be ManyToManyField
+    because some may be earned multiple times'''
+    badge = models.ForeignKey(Badge)
+    user = models.ForeignKey(User)
+    date = models.DateTimeField()
+    
+    def apply(self, dir=1):
+        type = self.badge.type
+        prof = self.user.get_profile()
+        if type == BADGE_BRONZE:
+            prof.bronze_badges += dir
+        if type == BADGE_SILVER:
+            prof.silver_badges += dir
+        if type == BADGE_GOLD:
+            prof.gold_badges += dir
+        prof.save()
+    
 
 
 #
@@ -266,6 +301,11 @@ def answer_deleted(sender, instance,  *args, **kwargs):
     instance.question.answer_count -= 1
     instance.question.save()
     
+def create_award(sender, instance, *args, **kwargs):
+    if not instance.date:
+        instance.date = datetime.now()
+        
+             
 def tags_changed(sender, instance, action, pk_set, *args, **kwargs):
     if action == 'post_add':
         for pk in pk_set:
@@ -287,11 +327,21 @@ def tags_changed(sender, instance, action, pk_set, *args, **kwargs):
 signals.post_save.connect( create_profile, sender=User )
 signals.pre_save.connect( create_post, sender=Post )
 
+# Update post scores and user reputation
 signals.post_save.connect( vote_created, sender=Vote )
 signals.post_delete.connect( vote_deleted, sender=Vote )
 
+# We can reuse the Vote signals for Awards because the apply() API is the same
+signals.post_save.connect( vote_created, sender=Award ) 
+signals.post_delete.connect( vote_deleted, sender=Award )
+
+# But we need a signal to pre fill Award dates
+signals.pre_save.connect(create_award, sender=Award)
+
+# Update answer counts
 signals.post_save.connect( answer_created, sender=Answer )
 signals.post_delete.connect( answer_deleted, sender=Answer )
 
+# Update tag counts
 signals.m2m_changed.connect( tags_changed, sender=Post.tag_set.through)
 

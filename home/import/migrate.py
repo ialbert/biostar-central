@@ -195,6 +195,44 @@ def insert_comments(fname, post_map, user_map, limit):
     
     print "*** Inserted %s comments" % len(comment_map)
     
+@transaction.commit_manually
+def insert_badges(fname, limit):
+    "Inserts the badges"
+    store = {}
+    rows = xml_reader(fname, limit=limit)
+    for (index, row) in enumerate(rows):
+        Id = row['Id']
+        type = row['Class']
+        name   = row['Name']
+        desc = row['Description']
+        unique = row['Single'] == 'true'
+        secret = row['Secret'] == 'true'
+        type = {'3':models.BADGE_BRONZE, '2':models.BADGE_SILVER, '1':models.BADGE_GOLD}[type]
+        badge = models.Badge.objects.create(name=name, type=type, description=desc, unique=unique, secret=secret)
+        badge.save()
+        store[Id] = badge
+    transaction.commit()
+    print "*** Inserted %s badges" % len(store)
+    return store
+
+@transaction.commit_manually
+def insert_awards(fname, user_map, badge_map, limit):
+    "Inserts the badge awards"
+    store = {}
+    rows = xml_reader(fname, limit=limit)
+    for (index, row) in enumerate(rows):
+        Id = row['Id']
+        try:
+            user = user_map[row['UserId']]
+            badge = badge_map[row['BadgeId']]
+        except KeyError:
+            continue
+        date = parse_time(row['Date'])
+        a = models.Award.objects.create(user=user, badge=badge, date=date)
+        a.save()
+        store[Id] = a
+    transaction.commit()
+    print "*** Inserted %s badge awards" % len(store)
     
 
 def execute(path, limit=300):
@@ -221,6 +259,12 @@ def execute(path, limit=300):
     
     fname = join(path, 'PostComments.xml')
     insert_comments(fname=fname, post_map=post_map, user_map=user_map, limit=limit)
+    
+    fname = join(path, 'Badges.xml')
+    badge_map = insert_badges(fname=fname, limit=limit)
+    
+    fname = join(path, 'Users2Badges.xml')
+    insert_awards(fname=fname, user_map=user_map, badge_map=badge_map, limit=limit)
 
 if __name__ =='__main__':
 
