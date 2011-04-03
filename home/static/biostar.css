@@ -354,8 +354,9 @@ a:hover, a.question-title {
 
 .post-tag:hover
 {
-	border: none;
-	margin: 0;
+	margin: 2px 2px 2px 0;
+	border-bottom: 1px solid white;
+    border-right: 1px solid white;
 	text-decoration: underline;
 }
 
