@@ -1,5 +1,6 @@
 *.pyc
+*~
 home/secret-key.txt
 home/db/*.db
 home/import/*
-*~
+home/templates/website.revision.html

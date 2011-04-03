@@ -73,6 +73,9 @@ while (( "$#" )); do
 
 	if [ "$1" = "run" ]; then
 		echo "*** Running the webserver on $BIOSTAR_HOSTNAME"
+        tail -n 1 .git/logs/HEAD  | \
+          awk '{print "<a href=\"https://github.com/ialbert/biostar-central/commit/" $2 "\">" substr($2,1,5) "</a>"}' > \
+          $BIOSTAR_HOME/templates/website.revision.html
 		$PYTHON_EXE $DJANGO_ADMIN runserver $BIOSTAR_HOSTNAME --settings=$DJANGO_SETTINGS_MODULE
 	fi
 
