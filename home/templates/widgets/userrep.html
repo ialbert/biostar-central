@@ -1,15 +1,17 @@
+{% load basic %}
+
 {% spaceless %}
     <span class="reputation-score">{{ user.profile.score }}</span>
     {% if user.profile.gold_badges %}
-        <span class="gold-badge">●</span>
+        {% badgeicon 'gold' %}
         <span class="badge-count">{{user.profile.gold_badges}}</span>
     {% endif %}
     {% if user.profile.silver_badges %}
-        <span class="silver-badge">●</span>
+        {% badgeicon 'silver' %}
         <span class="badge-count">{{user.profile.silver_badges}}</span>
     {% endif %}
     {% if user.profile.bronze_badges %}
-        <span class="bronze-badge">●</span>
+        {% badgeicon 'bronze' %}
         <span class="badge-count">{{user.profile.bronze_badges}}</span>
     {% endif %}
 {% endspaceless %}

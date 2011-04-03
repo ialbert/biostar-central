@@ -14,6 +14,7 @@ h1, h2, h3, h4 {
     font-size: 140%;
     font-weight: bold;
     margin-bottom: 5px;
+    margin-top: 0px;
     color: #333333;
 }
 
@@ -121,6 +122,13 @@ a:hover, a.question-title {
 #sidebar {
     float: right;
     width: 220px;
+}
+
+.module {
+    background-color: #E4E4E4;
+    color: #555555;
+    margin-bottom: 10px;
+    padding: 8px 8px 2px;
 }
 
 /* Footer */
@@ -510,4 +518,20 @@ tr.comment td{
     font-size: 120%;
     font-weight: bold;
     margin-right: 4px;
+}
+
+/*
+|-------------------------
+|  Badge List            |
+|-------------------------*/
+
+.badge {
+    background-color: #333333;
+    border: 1px solid #333333;
+    border-radius: 6px 6px 6px 6px;
+    color: #FFFFFF !important;
+    line-height: 1.9;
+    margin: 0 3px 3px 0;
+    padding: 4px 8px 4px 3px;
+    text-decoration: none;
 }

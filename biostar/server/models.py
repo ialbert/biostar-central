@@ -242,6 +242,7 @@ class Badge(models.Model):
     type = models.IntegerField(choices=BADGE_TYPES)
     unique = models.BooleanField() # Unique badges may be earned only once
     secret = models.BooleanField() # Secret badges are not listed on the badge list
+    count = models.IntegerField(default=0) # Total number of times awarded
     
 class Award(models.Model):
     ''' A badge being awarded to a user.Cannot be ManyToManyField
@@ -260,6 +261,8 @@ class Award(models.Model):
         if type == BADGE_GOLD:
             prof.gold_badges += dir
         prof.save()
+        self.badge.count += dir
+        self.badge.save()
     
 
 

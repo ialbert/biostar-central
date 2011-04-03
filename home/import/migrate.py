@@ -219,7 +219,7 @@ def insert_badges(fname, limit):
 def insert_awards(fname, user_map, badge_map, limit):
     "Inserts the badge awards"
     store = {}
-    rows = xml_reader(fname, limit=limit)
+    rows = xml_reader(fname)
     for (index, row) in enumerate(rows):
         Id = row['Id']
         try:

@@ -19,6 +19,10 @@ def taglink(tag_name):
 @register.inclusion_tag('widgets/userrep.html')
 def userrep(user):
     return {'user':user}
+    
+@register.inclusion_tag('widgets/badgeicon.html')
+def badgeicon(type):
+    return {'type':type}
 
 @register.inclusion_tag('widgets/userbox.html')
 def userbox(post, action='asked'):
