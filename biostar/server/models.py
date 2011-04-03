@@ -221,18 +221,18 @@ def create_post(sender, instance, *args, **kwargs):
     if not instance.creation_date:
         instance.creation_date = datetime.now()
 
-def vote_created(sender, instance, created, *args, **kwargs):
+def vote_created(sender, instance, created, raw, *args, **kwargs):
     "Updates score and reputation on vote creation "
-    if created:
+    if created and not raw: # Raw is true when importing from fixtures, in which case votes are already applied
         instance.apply()
 
 def vote_deleted(sender, instance,  *args, **kwargs):
     "Updates score and reputation on vote deletion"
     instance.apply(-1)
     
-def answer_created(sender, instance, created, *args, **kwargs):
+def answer_created(sender, instance, created, raw, *args, **kwargs):
     "Updates answer count on answer creation"
-    if created:
+    if created and not raw:
         instance.question.answer_count += 1
         instance.question.save()
 
