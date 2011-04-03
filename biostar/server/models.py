@@ -7,7 +7,6 @@ the queries necessary to fetch a certain entry.
 """
 from django.db import models
 from django.contrib.auth.models import User
-from taggit.managers import TaggableManager
 
 from datetime import datetime
 from biostar.server import html
