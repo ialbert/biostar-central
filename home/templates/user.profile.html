@@ -7,7 +7,6 @@
 {% endblock %}
 
 {% block mainbar %}
-<div>
 
 <table border="0" width="950px">
 <tr>
@@ -53,18 +52,10 @@ Autobiography
 
 
 <h2>Asked</h2>
-{%for q in questions %}
-<div>
-  <a href="/question/show/{{q.id}}/">{{ q.title }}</a>
-</div>
-{% endfor %}
+{% question_list_narrow questions %}
 
+
+<div style="clear: both; height: 2em"></div>
 <h2>Answered</h2>
-{%for a in answers %}
-<div>
-  <a href="/question/show/{{a.question.id}}/#{{a.id}}">{{ a.question.title }}</a>
-</div>
-{% endfor %}
-
-</div>
+{% answer_list_narrow answers %}
 {% endblock %}

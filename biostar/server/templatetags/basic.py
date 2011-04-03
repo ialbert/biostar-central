@@ -57,5 +57,9 @@ def pagebar(context):
     }
     
 @register.inclusion_tag('widgets/question-list-narrow.html')
-def question_list_narrow(questions):
-    return {'questions':questions}
+def question_list_narrow(x):
+    return {'questions':x}
+
+@register.inclusion_tag('widgets/answer-list-narrow.html')
+def answer_list_narrow(x):
+    return {'answers':x}

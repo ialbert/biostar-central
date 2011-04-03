@@ -1,0 +1,33 @@
+{% load basic %}
+
+{% for a in answers %}
+    <div class="question-summary">
+        <div>
+            <div class="votes">
+                <div class="mini-counts">{{a.post.score}}</div>
+                <div>votes</div>
+            </div>
+        </div>
+
+        <div class="summary">
+            <h3>
+<div>
+  <a href="/question/show/{{a.question.id}}/#{{a.id}}">{{ a.question.title }}</a>
+</div>
+
+            </h3>
+  
+            <div class="tags left">
+                    {% for tag in a.question.post.get_tags %}
+                       {% taglink tag %}
+                    {% endfor %}
+            </div>
+
+            <div class="started right">
+                <span class="relativetime">{% time_ago a.question.post.creation_date %}</span>
+                {% userlink a.question.post.author %}
+                {% userrep a.question.post.author %}
+            </div>
+        </div>
+    </div>
+{%  endfor %}
