@@ -67,7 +67,8 @@ def user_profile(request, uid):
 
     return html.template(request, name='user.profile.html',
       selected_user=user, selected_profile=profile,
-      questions=questions, answers=answers)
+      questions=questions.order_by('-post__score'),
+      answers=answers.order_by('-post__score'))
 
 def get_page(request, obj_list, per_page=25):
     "A generic paginator"
