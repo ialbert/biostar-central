@@ -96,7 +96,7 @@ def tag_list(request):
     return html.template(request, name='tag.list.html', page=page)
 
 def badge_list(request):
-    badges = models.Badge.objects.all().order_by('name')
+    badges = models.Badge.objects.filter(secret=False).order_by('name')
     return html.template(request, name='badge.list.html', badges=badges)
 
 def search(request):
