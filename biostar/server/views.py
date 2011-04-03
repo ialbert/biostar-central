@@ -110,7 +110,7 @@ def question_show(request, pid):
         question.post.views += 1
         question.post.save()
     answers  = models.Answer.objects.filter(question=question).select_related('post','post__author','post__author__profile')
-
+    answers = answers.order_by('-accepted','-post__score')
     return html.template( request, name='question.show.html', question=question, answers=answers )
 
 # question form and its default values
