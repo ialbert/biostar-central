@@ -7,43 +7,64 @@
 {% endblock %}
 
 {% block mainbar %}
-    <div>
-    
-        <div style="float:left; text-align: center; margin: 1em">
-            <div>{% gravatar selected_user 128 %}</div>
-            <div style="font-size: 200%">{% userrep selected_user %}</div>
-            <div>Reputation</div>
-        </div>
-        
-        <div style="float:left; margin: 2em">
-            <div style="float:left; width: 5em;">Name</div>
-            <div style="float:left">
-                <b>{{ selected_user.first_name }} {{ selected_user.last_name }}</b>
-            </div>
-            <div style="clear: left"></div>
-        
-            <div style="float:left; width: 5em;">Joined</div>
-            <div style="float:left">{{ selected_user.date_joined|timesince }} ago</div>
-            <div style="clear: left"></div>
-        
-            <div style="float:left; width: 5em;">Seen</div>
-            <div style="float:left">?</div>
-            <div style="clear: left"></div>
-        
-            <div style="float:left; width: 5em;">Visited </div>
-            <div style="float:left">(What is this?) {{ selected_user.get_profile.last_visited|timesince }} ago</div>
-            <div style="clear: left"></div>
-        
-            <div style="float:left; width: 5em;">Login</div>
-            <div style="float:left">{{ selected_user.last_login|timesince }} ago</div>
-            <div style="clear: left"></div>
+<div>
 
-        </div>
+<table border="0" width="950px">
+<tr>
+<td valign="top" align="center">
+  <div style="margin: 1em">
+    <div>{% gravatar selected_user 128 %}</div>
+    <div style="font-size: 200%">{% userrep selected_user %}</div>
+    <div>Reputation</div>
+  </div>
+</td>
+<td valign="top" align="left">
+  <div style="margin: 2em">
+    <div style="float:left; width: 7em;">Name</div>
+    <div style="float:left"><b>{{ selected_user.first_name }}
+                               {{ selected_user.last_name }}</b></div>
+    <div style="clear: left"></div>
 
-        {%for q in questions %}
-        <div>
-          <a href="/question/show/{{q.id}}/">{{ q.title }}</a>
-        </div>
-        {% endfor %}
-    </div>
+    <div style="float:left; width: 7em;">Member for</div>
+    <div style="float:left">{{ selected_user.date_joined|timesince }}</div>
+    <div style="clear: left"></div>
+
+    <div style="float:left; width: 7em;">Seen</div>
+    <div style="float:left">{{ selected_profile.last_visited|timesince }} ago </div>
+    <div style="clear: left"></div>
+
+    <div style="float:left; width: 7em;">Website</div>
+    <div style="float:left"></div>
+    <div style="clear: left"></div>
+
+    <div style="float:left; width: 5em;">Location</div>
+    <div style="float:left"></div>
+    <div style="clear: left"></div>
+  </div>
+</td>
+
+<td valign="top" align="center">
+<div class="autobiography" style="margin: 1em">
+Autobiography
+</div>
+</td>
+</tr>
+</table>
+
+
+<h2>Asked</h2>
+{%for q in questions %}
+<div>
+  <a href="/question/show/{{q.id}}/">{{ q.title }}</a>
+</div>
+{% endfor %}
+
+<h2>Answered</h2>
+{%for a in answers %}
+<div>
+  <a href="/question/show/{{a.question.id}}/#{{a.id}}">{{ a.question.title }}</a>
+</div>
+{% endfor %}
+
+</div>
 {% endblock %}

@@ -467,7 +467,29 @@
 						data: options.previewParserVar+'='+encodeURIComponent($$.val()),
 						success: function(data) {
 							writeInPreview( localize(data, 1) ); 
-						}
+						},
+						beforeSend: function(xhr, settings) {
+							function getCookie(name) {
+							    var cookieValue = null;
+							    if (document.cookie && document.cookie != '') {
+							        var cookies = document.cookie.split(';');
+							        for (var i = 0; i < cookies.length; i++) {
+							            var cookie = jQuery.trim(cookies[i]);
+							            // Does this cookie string begin with the name we want?
+							            if (cookie.substring(0, name.length + 1) == (name + '=')) {
+							                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+							                break;
+							            }
+							        }
+							    }
+							    return cookieValue;
+							}
+							if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
+							    // Only send the token to relative URLs i.e. locally.
+							    xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+							}
+						},
+
 					});
 				} else {
 					if (!template) {
@@ -546,10 +568,67 @@
 					}
 				}
 			}
-
 			init();
-		});
+
+
+			//
+			// <BiostarSpecific>
+			//
+			preview();
+			function getCookie(name) {
+			    var cookieValue = null;
+			    if (document.cookie && document.cookie != '') {
+			        var cookies = document.cookie.split(';');
+			        for (var i = 0; i < cookies.length; i++) {
+			            var cookie = jQuery.trim(cookies[i]);
+			            // Does this cookie string begin with the name we want?
+			            if (cookie.substring(0, name.length + 1) == (name + '=')) {
+			                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+			                break;
+			            }
+			        }
+			    }
+			    return cookieValue;
+			}
+			$.ajax({
+				type: 'POST',
+				dataType: 'text',
+				global: false,
+				url: options.previewParserPath,
+				data: options.previewParserVar+'='+encodeURIComponent($$.val()),
+				success: function(data) {
+					writeInPreview( localize(data, 1) ); 
+				},
+				beforeSend: function(xhr, settings) {
+					function getCookie(name) {
+					    var cookieValue = null;
+					    if (document.cookie && document.cookie != '') {
+					        var cookies = document.cookie.split(';');
+					        for (var i = 0; i < cookies.length; i++) {
+					            var cookie = jQuery.trim(cookies[i]);
+					            // Does this cookie string begin with the name we want?
+					            if (cookie.substring(0, name.length + 1) == (name + '=')) {
+					                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+					                break;
+					            }
+					        }
+					    }
+					    return cookieValue;
+					}
+					if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
+					    // Only send the token to relative URLs i.e. locally.
+					    xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+					}
+				},
+			});
+			//
+			// </BiostarSpecific>
+			//
+    	});
 	};
+
+
+
 
 	$.fn.markItUpRemove = function() {
 		return this.each(function() {

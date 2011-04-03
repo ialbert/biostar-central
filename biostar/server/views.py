@@ -11,6 +11,10 @@ from django.contrib.auth import authenticate, login
 from django.conf import settings
 from taggit.models import Tag
 
+from django.http import HttpResponse
+import markdown
+
+
 def index(request):
     "Main page"
     
@@ -58,9 +62,13 @@ def merge_accounts(request):
 def user_profile(request, uid):
     "User's profile page"
     user = models.User.objects.get(id=uid)
+    profile = models.UserProfile.objects.get(user=user)
     questions = models.Question.objects.filter(post__author=user)
+    answers = models.Answer.objects.filter(post__author=user)
 
-    return html.template(request, name='user.profile.html', selected_user=user, questions=questions)
+    return html.template(request, name='user.profile.html',
+      selected_user=user, selected_profile=profile,
+      questions=questions, answers=answers)
 
 def get_page(request, obj_list, per_page=25):
     "A generic paginator"
@@ -294,4 +302,10 @@ def vote(request):
                     
 
     return html.json_response({'status':'error', 'msg':'POST method must be used'})
-        
+
+
+def markdown_preview(request):
+    source_text = request.REQUEST['source_text'] # May need to be sanitized here
+    html = markdown.markdown(source_text, safe_mode='remove')
+    return HttpResponse(html, mimetype='text/plain')
+
