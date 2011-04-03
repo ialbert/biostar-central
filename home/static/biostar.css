@@ -165,6 +165,28 @@ a:hover, a.question-title {
     margin-right: 2px;
 }
 
+.bronze-badge, .silver-badge, .gold-badge {
+    font-size: 120%;
+    margin-left: 3px;    
+}
+
+.bronze-badge {
+    color: #CC9966;
+}
+
+.silver-badge {
+    color: #C0C0C0;    
+}
+
+.gold-badge {
+    color: #FFCC00;    
+}
+
+.badge-count{
+    color: #6D6D6D;
+    padding-left: 1px;
+}
+
 .user-link {
   color: #8F2C47;
   font-weight: bold;
