@@ -4,27 +4,8 @@
     <div class="question-summary">
         <div>
             <div class="votes">
-                <div class="mini-counts">{{a.question.post.score}}</div>
+                <div class="mini-counts">{{a.post.score}}</div>
                 <div>votes</div>
-            </div>
-          
-          
-            {% if a.question.answer_accepted %}
-                <div class="status answered-accepted">
-            {% else %}
-                {% if a.question.answer_count %}
-                    <div class="status answered">
-                {% else %}
-                    <div class="status unanswered">
-                {% endif %}
-            {% endif %}
-                <div class="mini-counts">{{a.question.answer_count}}</div>
-                <div>answers</div>
-            </div>
-
-            <div class="views">
-                <div class="mini-counts">{{a.question.post.views}}</div>
-                <div>views</div>
             </div>
         </div>
 
