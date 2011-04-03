@@ -10,7 +10,7 @@
     <div id="tag-list">
     {% for tag in page.object_list %} 
         <div class="tag-entry">
-            {% taglink tag %} <span class="multiplier">x{{tag.count}}</span>
+            {% taglink tag.name %} <span class="multiplier">x{{tag.count}}</span>
         </div>
     {% endfor %}
     </div>
