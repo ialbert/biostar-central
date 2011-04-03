@@ -12,10 +12,15 @@
                     <div>votes</div>
                 </div>
               
-                {% if q.answer_count %}
-                <div class="status answered">
+              
+                {% if q.answer_accepted %}
+                    <div class="status answered-accepted">
                 {% else %}
-                <div class="status unanswered">
+                    {% if q.answer_count %}
+                        <div class="status answered">
+                    {% else %}
+                        <div class="status unanswered">
+                    {% endif %}
                 {% endif %}
                     <div class="mini-counts">{{q.answer_count}}</div>
                     <div>answers</div>

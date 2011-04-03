@@ -109,7 +109,7 @@ def question_show(request, pid):
     if request.user.is_authenticated():
         question.post.views += 1
         question.post.save()
-    answers  = models.Answer.objects.filter(question=question).select_related()
+    answers  = models.Answer.objects.filter(question=question).select_related('post','post__author','post__author__profile')
 
     return html.template( request, name='question.show.html', question=question, answers=answers )
 
@@ -255,10 +255,10 @@ def comment_add(request, pid):
     comment = models.Comment(parent=parent, post=post)
     comment.save()
 
-    if parent.question_set.count(): # Post is a question
-        return html.redirect('/question/show/%s/' % (parent.question_set.all()[0].id))
+    if parent.question: # Post is a question
+        return html.redirect('/question/show/%s/' % (parent.question.id))
     else:
-        return html.redirect('/question/show/%s/' % (parent.answer_set.all()[0].question.id))
+        return html.redirect('/question/show/%s/' % (parent.answer.question.id))
     
     
 def vote(request):

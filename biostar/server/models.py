@@ -97,6 +97,10 @@ class Post(models.Model):
             vote.delete()
             return True
         return False
+    
+    def get_comments(self):
+        return self.comments.select_related('post','post__author').all()
+        
 
 class Question(models.Model):
     """
@@ -110,17 +114,19 @@ class Question(models.Model):
     """
     title   = models.TextField()
     answer_count = models.IntegerField(default=0, blank=True)
-    post = models.ForeignKey(Post)
+    post = models.OneToOneField(Post, related_name='question')
     tags = TaggableManager()
     lastedit_date = models.DateTimeField(auto_now=True)
+    answer_accepted = models.BooleanField(default=False)
 
     def authorize(self, request, strict=False):
         return self.post.authorize(request, strict=strict)
 
 class Answer(models.Model):
     question = models.ForeignKey(Question, related_name='answers')
-    post = models.ForeignKey(Post)
+    post = models.OneToOneField(Post, related_name='answer')
     lastedit_date = models.DateTimeField(auto_now=True)
+    accepted = models.BooleanField(default=False)
     
     def author(self):
         return self.post.author
@@ -128,10 +134,6 @@ class Answer(models.Model):
     def authorize(self, request, strict=False):
         return self.post.authorize(request, strict=strict)
         
-    def accepted(self):
-        ''' Returns whether the answer is the accepted answer. Could use optimization,
-        for instance storing in a field on the model instead '''
-        return Vote.objects.filter(post=self.post, type=VOTE_ACCEPT).count() != 0
 
 class Comment(models.Model):
     parent = models.ForeignKey(Post, related_name='comments')
@@ -188,6 +190,18 @@ class Vote(models.Model):
         if self.score():
             self.post.score += dir * self.score()
             self.post.save()
+            
+        if self.type == VOTE_ACCEPT:
+            answer = self.post.answer
+            question = answer.question
+            if dir == 1:
+                answer.accepted = True
+                question.answer_accepted = True
+            else:
+                answer.accepted = False
+                question.answer_accepted = False
+            answer.save()
+            question.save()
 
 #
 # Adding data model related signals

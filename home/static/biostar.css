@@ -197,6 +197,10 @@ a:hover, a.question-title {
     background-color: #8F2C47;
     color: #FFFFFF;
 }
+.answered-accepted {
+    background-color: #75845C;
+    color: #E1E818;
+}
 
 .votes {
     background: none repeat scroll 0 0 #EEEEEE;

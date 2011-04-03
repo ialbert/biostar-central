@@ -3,7 +3,7 @@
 {% if post.comments.count %}
     <div class="comments">
         <table>
-            {% for comment in post.comments.all %}
+            {% for comment in post.get_comments %}
                 <tr class="comment">
                     <td class="comment-actions">&nbsp;</td>
                     <td class="comment-text">
