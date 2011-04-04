@@ -27,7 +27,7 @@ export PYTHON_EXE=python
 export DJANGO_ADMIN=biostar/manage.py
 
 # Show current commit SHA1 in the template
-export BIOSTAR_VERSION=`tail -n 1 $BIOSTAR_SRC/.git/logs/HEAD  | awk '{print substr($2,1,5)}'`
+export BIOSTAR_VERSION=`git log --pretty=format:%h -1`
 
 echo "*** BIOSTAR_HOME=$BIOSTAR_HOME"
 echo "*** BIOSTAR_HOSTNAME=$BIOSTAR_HOSTNAME"
