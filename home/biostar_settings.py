@@ -14,6 +14,8 @@ def path_join(*args):
 # the directory that this file is located in
 __CURR_DIR = path_join(os.path.dirname(__file__))
 
+BIOSTAR_VERSION = os.getenv("BIOSTAR_VERSION", 'unknown')
+
 # some dependecies may be distributed as zipfiles
 __ZIP_LIBS =  [
     path_join(__CURR_DIR, '..', 'biostar', 'libs', 'openid-libraries.zip'),
@@ -109,6 +111,11 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     
     'biostar.middleware.LastVisitTimestampUpdaterMiddleware',
+)
+
+TEMPLATE_CONTEXT_PROCESSORS = (
+    "django.contrib.auth.context_processors.auth",
+    "biostar.context.extras",
 )
 
 AUTH_PROFILE_MODULE = "server.UserProfile"

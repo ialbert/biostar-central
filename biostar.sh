@@ -26,22 +26,14 @@ export PYTHONPATH=$PYTHONPATH:$BIOSTAR_HOME
 export PYTHON_EXE=python
 export DJANGO_ADMIN=biostar/manage.py
 
+# Show current commit SHA1 in the template
+export BIOSTAR_VERSION=`tail -n 1 $BIOSTAR_SRC/.git/logs/HEAD  | awk '{print substr($2,1,5)}'`
+
 echo "*** BIOSTAR_HOME=$BIOSTAR_HOME"
 echo "*** BIOSTAR_HOSTNAME=$BIOSTAR_HOSTNAME"
+echo "*** BIOSTAR_VERSION=$BIOSTAR_VERSION"
+
 echo "*** DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE"
-
-# Import current commit SHA1 into a template to display on all web pages
-target_rev_file="$BIOSTAR_HOME/templates/website.revision.html"
-
-tail -n 1 $BIOSTAR_SRC/.git/logs/HEAD  | \
-  awk '{print $2}' | \
-  awk '/^[0-9a-f]+$/ \
-      {print "<a href=\"https://github.com/ialbert/biostar-central/commit/" \
-      $1 "\">" substr($1,1,5) "</a>"}' > $target_rev_file
-
-if [ ${PIPESTATUS[0]} -ne "0"  -o  ! -s $target_rev_file ]; then
-  echo -e "***\n*** WARNING: Failed to import revision info from .git\n***\n\n"
-fi
 
 if [ $# == 0 ]; then
 	echo ''
