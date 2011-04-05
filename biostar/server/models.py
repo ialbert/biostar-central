@@ -159,7 +159,7 @@ class PostRevision(models.Model):
     title = models.TextField(blank=True)
     
     author = models.ForeignKey(User)
-    date = models.DateTimeField(auto_now=True)
+    date = models.DateTimeField()
     
     def apply(self, dir=1):
         self.post.revision_count += dir
