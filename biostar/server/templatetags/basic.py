@@ -24,9 +24,17 @@ def userrep(user):
 def badgeicon(type):
     return {'type':type}
 
-@register.inclusion_tag('widgets/userbox.html')
-def userbox(post, action='asked'):
+@register.inclusion_tag('widgets/actionbox.html')
+def actionbox(post, action='asked'):
     return {'post':post, 'action':action}
+    
+@register.inclusion_tag('widgets/userbox.html')
+def userbox(user):
+    return {'user':user}
+    
+@register.inclusion_tag('widgets/revisionbox.html')
+def revisionbox(post):
+    return {'post':post}
 
 @register.simple_tag
 def time_ago(time):

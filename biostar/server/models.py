@@ -57,7 +57,7 @@ class Post(models.Model):
     comment_count = models.IntegerField(default=0)
     revision_count = models.IntegerField(default=0)
     creation_date = models.DateTimeField()
-    lastedit_date = models.DateTimeField(auto_now=True)
+    lastedit_date = models.DateTimeField()
     lastedit_user = models.ForeignKey(User, related_name='editor')
 
     def create_revision(self, content=None, title=None, tag_string=None, author=None, date=None):
@@ -77,6 +77,11 @@ class Post(models.Model):
         
         # transform the content to UNIX style line endings
         content = "\n".join( content.splitlines() )
+        
+        # Update our metadata
+        
+        self.lastedit_date = date
+        self.lastedit_user = author
         
         # convert the markdown to HTML
         self.html = markdown.markdown(content)
@@ -347,6 +352,8 @@ def create_post(sender, instance, *args, **kwargs):
         instance.lastedit_user = instance.author
     if not instance.creation_date:
         instance.creation_date = datetime.now()
+    if not instance.lastedit_date:
+        instance.lastedit_date = datetime.now()
 
     
 def create_award(sender, instance, *args, **kwargs):

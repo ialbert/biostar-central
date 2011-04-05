@@ -209,8 +209,6 @@ def question_edit(request, pid=0):
         question = models.Question.objects.get(pk=pid)
         post = question.post
         post.create_revision(content=content, title=title, tag_string=' '.join(tags), author=request.user)
-        post.lastedit_user = request.user
-        post.save()
 
     # show the question
     return html.redirect('/question/show/%s/' % question.id) 

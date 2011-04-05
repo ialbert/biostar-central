@@ -50,10 +50,13 @@
                             <a href="/question/edit/{{question.id}}/">edit</a> | 
                             flag
                         </div>
-    
+                        
                         <div class="right question-user-info">
-                            {% userbox question.post %}
+                            {% actionbox question.post %}
                         </div>
+                        
+                        {% revisionbox question.post %}
+                        
                     </td>
                 </tr>
                 <tr>
@@ -100,8 +103,11 @@
                             </div>
         
                             <div class="right">
-                                {% userbox answer.post 'answered' %}
+                                {% actionbox answer.post 'answered' %}
                             </div>
+                            
+                            {% revisionbox answer.post %}
+                            
                         </td>
                     </tr>
 

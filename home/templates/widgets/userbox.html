@@ -1,15 +1,10 @@
 {% load basic %}
 
-<div class="user-info">
-    <div class="user-action-time">
-        {{ action }} <b>{% time_ago post.creation_date %}</b>
-    </div>
-    <div class="user-gravatar left">
-        {% gravatar post.author 32 %}
-    </div>
-    <div class="user-details left">
-        {% userlink post.author %}
-        <br>
-        {% userrep post.author %}
-    </div>
+<div class="user-gravatar left">
+    {% gravatar user 32 %}
+</div>
+<div class="user-details left">
+    {% userlink user %}
+    <br>
+    {% userrep user %}
 </div>
