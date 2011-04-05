@@ -49,6 +49,7 @@ class Post(models.Model):
     
     content = models.TextField() # this is the user inpu
     html    = models.TextField() # this is the sanitized HTML for display
+    title   = models.TextField(blank=True)
     tag_string = models.CharField(max_length=200) # The tag string is the canonical form of the post's tags
     tag_set = models.ManyToManyField(Tag) # The tag set is built from the tag string and used only for fast filtering
     views = models.IntegerField(default=0, blank=True)
@@ -133,15 +134,14 @@ class Post(models.Model):
 
 class Question(models.Model):
     """
-    A Question is Post with title and tags
+    A Question is Post with answers
     
     >>> user, flag = User.objects.get_or_create(first_name='Jane', last_name='Doe', username='jane', email='jane')
     >>> post = Post.objects.create(author=user)
     >>> post.set('ABC')
-    >>> question, flag = Question.objects.get_or_create(post=post, title='Test questions')
+    >>> question, flag = Question.objects.get_or_create(post=post)
     >>> question.post.set_tags("snp codon microarray")
     """
-    title   = models.TextField()
     answer_count = models.IntegerField(default=0, blank=True)
     post = models.OneToOneField(Post, related_name='question')
     lastedit_date = models.DateTimeField(auto_now=True)

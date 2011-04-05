@@ -117,7 +117,9 @@ def insert_questions(fname, post_map, limit):
             # question
             title = row["Title"]
             tags = row['Tags']
-            quest, flag = models.Question.objects.get_or_create(title=title, post=post)
+            post.title = title
+            post.save()
+            quest, flag = models.Question.objects.get_or_create(post=post)
             quest_map[Id] = quest
             if flag: # Only if newly created, add tags
                 tag_string = ' '.join([tag.strip() for tag in tag_finder.findall(tags) if tag.strip()])

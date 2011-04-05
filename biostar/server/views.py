@@ -183,7 +183,7 @@ def question_edit(request, pid=0):
         question = models.Question.objects.get(pk=pid)
         question.authorize(request)
         tags = question.post.tag_string
-        form = QuestionForm(initial=dict(title=question.title, content=question.post.content, tags=tags))
+        form = QuestionForm(initial=dict(title=question.post.title, content=question.post.content, tags=tags))
         return html.template( request, name='edit.question.html', form=form, params=params)
   
     # we can only deal with POST after this point
@@ -201,16 +201,17 @@ def question_edit(request, pid=0):
             
     if asknew:
         # generate the new question
-        post = models.Post.objects.create(author=request.user)
+        post = models.Post.objects.create(author=request.user, title=title)
         post.set(content)
-        question = models.Question.objects.create(post=post, title=title)
+        question = models.Question.objects.create(post=post)
         question.post.set_tags(' '.join(tags))
     else:
         # editing existing question
         question = models.Question.objects.get(pk=pid)
         post = question.post
         post.set(content)
-        question.title, post.lastedit_user = title, request.user
+        post.title = title
+        post.lastedit_user = request.user
         question.post.set_tags(' '.join(tags))
         question.save(), post.save()
 
