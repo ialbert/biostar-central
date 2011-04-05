@@ -11,11 +11,12 @@ if django.VERSION < (1, 3):
 from django.test import TestCase
 from django.utils import unittest
 from django.test.client import Client
+from django.conf import settings
 
 class EnvironmentTest(unittest.TestCase):
-    def test_biostar_version_to_be_in_sha1_format(self):
-        self.assertRegexpMatches(os.getenv("BIOSTAR_VERSION"), '^[0-9a-f]+$',
-        "'%s' is not a in sha1/hex format" % os.getenv("BIOSTAR_VERSION"))
+    # we just need the version to exists
+    def test_biostar_version(self):
+        self.assertTrue(settings.BIOSTAR_VERSION)
 
 class UrlTest(TestCase):
     def test_access(self):
