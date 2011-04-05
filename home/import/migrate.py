@@ -40,6 +40,12 @@ def parse_time(timestr):
         return datetime.strptime(timestr, '%Y-%m-%dT%H:%M:%S.%f')
     except ValueError:
         return datetime.strptime(timestr, '%Y-%m-%dT%H:%M:%S')
+    
+tag_finder = re.compile('[^a-z]([a-z]+)[^a-z]')
+        
+def parse_tag_string(rawtagstr):
+    return ' '.join([tag.strip() for tag in tag_finder.findall(rawtagstr) if tag.strip()])
+
 
 @transaction.commit_manually
 def insert_users(fname, limit):
@@ -93,12 +99,57 @@ def insert_posts(fname, user_map, limit):
         views = row['ViewCount']
         creation_date = parse_time(row['CreationDate'])
         author = user_map[userid]
-        p = models.Post.objects.create(author=author, views=views, creation_date=creation_date)
-        p.set(body, safe_mode=False)
+        p, flag = models.Post.objects.get_or_create(author=author, views=views, creation_date=creation_date)
+        p.save()
         store[Id] = p
     transaction.commit()
     print "*** Inserted %s posts" % len(store)
     return store
+
+@transaction.commit_manually
+def insert_post_revisions(fname, post_map, user_map, limit):
+    "Inserts the posts"
+    i = 0
+    rows = xml_reader(fname)
+    # Stack overflow decided to split up modifications to title, tags, and content
+    # in the post history XML. We need to first go through and collect them together
+    # based on the GUID they set on them.
+    revision_map = {} # Dictionary for fast GUID lookup
+    guid_list = [] # Ensures order doesn't get mixed up
+    for (index, row) in enumerate(rows):
+        try:
+            post = post_map[row['PostId']]
+            author = user_map[row['UserId']]
+        except KeyError:
+            continue
+        guid = row['RevisionGUID']
+        datestr = row['CreationDate']
+        if guid not in revision_map:
+            guid_list.append(guid)
+        rev = revision_map.get(guid,
+                               {'post':post, 'author':author, 'date':parse_time(datestr)})
+        type = row['PostHistoryTypeId']
+        if type in ['1', '4']: # Title
+            rev['title'] = row['Text']
+        if type in ['2', '5']: # Body
+            rev['content'] = row['Text']
+        if type in ['3', '6']: # Tags
+            rev['tag_string'] = parse_tag_string(row['Text'])
+            
+        revision_map[guid] = rev
+
+    # Now we can actually insert the revisions
+    for guid in guid_list:
+        data = revision_map[guid]
+        
+        post = data['post']
+        del data['post']
+        post.create_revision(**data)
+        i += 1
+        
+
+    transaction.commit()
+    print "*** Inserted %s post revisions" % i 
 
 @transaction.commit_manually
 def insert_questions(fname, post_map, limit):
@@ -106,7 +157,6 @@ def insert_questions(fname, post_map, limit):
     quest_map, answ_map = {}, {}
     rows = xml_reader(fname, limit=limit)
     
-    tag_finder = re.compile('[^a-z]([a-z]+)[^a-z]')
     
     # broken up into separate steps to allow manual transactions
     for (index, row) in enumerate(rows):
@@ -122,7 +172,7 @@ def insert_questions(fname, post_map, limit):
             quest, flag = models.Question.objects.get_or_create(post=post)
             quest_map[Id] = quest
             if flag: # Only if newly created, add tags
-                tag_string = ' '.join([tag.strip() for tag in tag_finder.findall(tags) if tag.strip()])
+                tag_string = parse_tag_string(tags)
                 post.set_tags(tag_string)
     
     transaction.commit()
@@ -252,6 +302,9 @@ def execute(path, limit=300):
 
     fname = join(path, 'Posts.xml')
     post_map = insert_posts(fname=fname, limit=limit, user_map=user_map)
+    
+    fname = join(path, 'PostHistory.xml')
+    insert_post_revisions(fname=fname, post_map=post_map, user_map=user_map, limit=limit)
 
     fname = join(path, 'Posts.xml')
     insert_questions(fname=fname, limit=limit, post_map=post_map)
