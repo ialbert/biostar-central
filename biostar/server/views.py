@@ -62,8 +62,8 @@ def user_profile(request, uid):
     "User's profile page"
     user = models.User.objects.get(id=uid)
     profile = models.UserProfile.objects.get(user=user)
-    questions = models.Question.objects.filter(post__author=user)
-    answers = models.Answer.objects.filter(post__author=user)
+    questions = models.Question.objects.filter(post__author=user).select_related('post','post__author','post__author__profile')
+    answers = models.Answer.objects.filter(post__author=user).select_related('post','question','question__post','question__post__author','question__post__author__profile')
 
     return html.template(request, name='user.profile.html',
       selected_user=user, selected_profile=profile,
