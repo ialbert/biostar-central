@@ -1,0 +1,18 @@
+{% load basic %}
+
+{% ifnotequal post.revision_count 1 %}
+<div class="user-info right">
+    <div class="user-info">
+        <div class="user-action-time">
+            edited <b>{% time_ago post.lastedit_date %}</b>
+        </div>
+        {% ifequal post.lastedit_user post.author %}
+            <div>
+                by author
+            </div>
+        {% else %}
+            {% userbox post.lastedit_user %}
+        {% endifequal %}
+    </div>
+</div>
+{% endifnotequal %}

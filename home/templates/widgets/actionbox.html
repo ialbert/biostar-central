@@ -1,0 +1,8 @@
+{% load basic %}
+
+<div class="user-info">
+    <div class="user-action-time">
+        {{ action }} <b>{% time_ago post.creation_date %}</b>
+    </div>
+    {% userbox post.author %}
+</div>
