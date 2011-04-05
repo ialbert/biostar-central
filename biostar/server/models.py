@@ -270,7 +270,6 @@ class Award(models.Model):
 # Adding data model related signals
 #
 from django.db.models import signals
-from biostar.libs import postmarkup
 
 def create_profile(sender, instance, created, *args, **kwargs):
     "Post save hook for creating user profiles"
