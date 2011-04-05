@@ -53,6 +53,7 @@ class Post(models.Model):
     tag_set = models.ManyToManyField(Tag) # The tag set is built from the tag string and used only for fast filtering
     views = models.IntegerField(default=0, blank=True)
     score = models.IntegerField(default=0, blank=True)
+    comment_count = models.IntegerField(default=0)
     creation_date = models.DateTimeField()
     lastedit_date = models.DateTimeField(auto_now=True)
     lastedit_user = models.ForeignKey(User, related_name='editor')
@@ -161,11 +162,20 @@ class Answer(models.Model):
     def authorize(self, request, strict=False):
         return self.post.authorize(request, strict=strict)
         
+    def apply(self, dir=1):
+        self.question.answer_count += dir
+        self.question.save()
+        
 
 class Comment(models.Model):
     parent = models.ForeignKey(Post, related_name='comments')
     post = models.ForeignKey(Post)
     lastedit_date = models.DateTimeField(auto_now=True)
+    
+    def apply(self, dir=1):
+        ''' Updates the parent post's comment count '''
+        self.parent.comment_count += dir
+        self.parent.save()
 
 VOTE_UP, VOTE_DOWN, VOTE_ACCEPT = 0, 1, 2
 
@@ -271,6 +281,27 @@ class Award(models.Model):
 #
 from django.db.models import signals
 
+
+# Many models have apply() methods that need to be called when they are created
+# and called with dir=-1 when deleted to update something.
+    
+MODELS_WITH_APPLY = [Vote, Award, Comment, Answer]
+    
+def apply_instance(sender, instance, created, raw, *args, **kwargs):
+    "Applies changes from an instance with an apply() method"
+    if created and not raw: # Raw is true when importing from fixtures, in which case votes are already applied
+        instance.apply()
+
+def unapply_instance(sender, instance,  *args, **kwargs):
+    "Unapplies an instance when it is deleted"
+    instance.apply(-1)
+    
+for model in MODELS_WITH_APPLY:
+    signals.post_save.connect(apply_instance, sender=model)
+    signals.post_delete.connect(apply_instance, sender=model)
+    
+# Other objects have more unique signals
+
 def create_profile(sender, instance, created, *args, **kwargs):
     "Post save hook for creating user profiles"
     if created:
@@ -283,25 +314,6 @@ def create_post(sender, instance, *args, **kwargs):
     if not instance.creation_date:
         instance.creation_date = datetime.now()
 
-def vote_created(sender, instance, created, raw, *args, **kwargs):
-    "Updates score and reputation on vote creation "
-    if created and not raw: # Raw is true when importing from fixtures, in which case votes are already applied
-        instance.apply()
-
-def vote_deleted(sender, instance,  *args, **kwargs):
-    "Updates score and reputation on vote deletion"
-    instance.apply(-1)
-    
-def answer_created(sender, instance, created, raw, *args, **kwargs):
-    "Updates answer count on answer creation"
-    if created and not raw:
-        instance.question.answer_count += 1
-        instance.question.save()
-
-def answer_deleted(sender, instance,  *args, **kwargs):
-    "Updates answer count on answer deletion"
-    instance.question.answer_count -= 1
-    instance.question.save()
     
 def create_award(sender, instance, *args, **kwargs):
     if not instance.date:
@@ -325,25 +337,13 @@ def tags_changed(sender, instance, action, pk_set, *args, **kwargs):
             tag.save()
         
     
-    
+
 signals.post_save.connect( create_profile, sender=User )
 signals.pre_save.connect( create_post, sender=Post )
-
-# Update post scores and user reputation
-signals.post_save.connect( vote_created, sender=Vote )
-signals.post_delete.connect( vote_deleted, sender=Vote )
-
-# We can reuse the Vote signals for Awards because the apply() API is the same
-signals.post_save.connect( vote_created, sender=Award ) 
-signals.post_delete.connect( vote_deleted, sender=Award )
-
-# But we need a signal to pre fill Award dates
 signals.pre_save.connect(create_award, sender=Award)
 
-# Update answer counts
-signals.post_save.connect( answer_created, sender=Answer )
-signals.post_delete.connect( answer_deleted, sender=Answer )
-
-# Update tag counts
 signals.m2m_changed.connect( tags_changed, sender=Post.tag_set.through)
+
+
+
 

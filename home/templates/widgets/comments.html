@@ -1,6 +1,6 @@
 {% load basic %}
 
-{% if post.comments.count %}
+{% if post.comment_count %}
     <div class="comments">
         <table>
             {% for comment in post.get_comments %}
