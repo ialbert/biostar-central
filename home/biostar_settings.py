@@ -19,9 +19,11 @@ def path_join(*args):
 __CURR_DIR = path_join(os.path.dirname(__file__))
 
 BIOSTAR_VERSION = os.popen("git log --pretty=format:%h -1").read()
+# Sanitize input from external process
 if not re.match(r'^[a-z,0-9]+$', BIOSTAR_VERSION):
-    # Sanitize input from external process
-    raise BaseException("Unsanitary BIOSTAR_VERSION %s" % repr(BIOSTAR_VERSION))
+    print "WARNING: Unsanitary BIOSTAR_VERSION %s" % repr(BIOSTAR_VERSION)
+    print "WARNING: Stting BIOSTAR_VERSION to 'Unknown'"
+    BIOSTAR_VERSION = 'Unknown'
 
 # some dependecies may be distributed as zipfiles
 __ZIP_LIBS =  [
