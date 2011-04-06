@@ -71,8 +71,11 @@ while (( "$#" )); do
 	fi
 
 	if [ "$1" = "populate" ]; then
+		if test "$2" 
+		then
+			export FIXTURE=$2
+		fi
 		echo "*** Populating server with: $FIXTURE"
-		#$PYTHON_EXE -u home/import/migrate.py home/import/datadump
 		$PYTHON_EXE $DJANGO_ADMIN loaddata $FIXTURE --settings=$DJANGO_SETTINGS_MODULE
 	fi
 

@@ -5,6 +5,10 @@ import os, sys, random, hashlib
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
+# turn this also off in production
+# turns off the test URLS
+TEST_MODE = True
+
 INTERNAL_IPS = ('127.0.0.1', )
 
 def path_join(*args):

@@ -297,7 +297,7 @@ def execute(path, limit=300):
     else:
         fname = join(path, 'AnonUsers.xml')
         print '*** Using Anonymized users'
-
+    
     user_map = insert_users(fname=fname, limit=limit)
 
     fname = join(path, 'Posts.xml')
@@ -330,5 +330,5 @@ if __name__ =='__main__':
     else:
         dirname = sys.argv[1]
 
-    execute(dirname)
+    execute(dirname, limit=300)
     

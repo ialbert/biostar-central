@@ -24,20 +24,28 @@ def index(request):
     # (this is for debugging)
     
     qs = models.Question.objects.select_related('post', 'post__author','post__author__profile').all()
-    #qs = models.Question.objects.all()
     
     top = qs.order_by('-lastedit_date')[:5]
     bot = qs.order_by('lastedit_date')[:5]
     questions = list(top) + list(bot)
     return html.template( request, name='index.html', questions=questions)
 
-def test_login(request):
-    "Allows for an automatic login used during testing"
-    if settings.DEBUG:
-        user = authenticate(username='testuser', password='test$123')
+def test_login(request, uid):
+    "This allows for automatic login by userid. Used during testing"
+
+    # sanity check to disable this test login on non-test fixtures
+    ucount = models.User.objects.all().count()
+    valid  =  ucount <= 15
+    assert valid, 'This works only for a demo site with less than 15 users --> you have %s users' % ucount
+
+    if settings.TEST_MODE and valid:
+        # this exists only for test data
+        user = models.User.objects.get(pk=uid)
+        user.backend = 'django.contrib.auth.backends.ModelBackend'
         login(request, user)
-    else:
-        raise Exception('Invalid login')
+        return html.redirect('/') 
+
+    raise Exception('Invalid login')
 
 @transaction.commit_on_success
 def merge_accounts(request):

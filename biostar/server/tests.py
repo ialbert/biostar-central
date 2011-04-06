@@ -8,6 +8,12 @@ if django.VERSION < (1, 3):
     print '*** Your version is %s' % '.'.join( map(str, django.VERSION))
     sys.exit()
 
+def path(*args):
+    "Generates absolute paths"
+    return os.path.abspath(os.path.join(*args))
+
+fixture = path(os.path.dirname(__file__), '..', '..', 'home', 'import', 'test-fixture.json' )
+
 from django.test import TestCase
 from django.utils import unittest
 from django.test.client import Client
@@ -19,6 +25,9 @@ class EnvironmentTest(unittest.TestCase):
         self.assertTrue(settings.BIOSTAR_VERSION)
 
 class UrlTest(TestCase):
+
+    fixtures = [ fixture ]
+
     def test_access(self):
         "Testing that basic URLs function correctly"
         urls = "/ /about/ /member/list/".split()
@@ -35,10 +44,13 @@ class UrlTest(TestCase):
             resp = c.get(url)
             self.assertEqual(resp.status_code, 302)
 
+    def test_login(self):
+        "Testing login"
+        c = Client()
+        r = c.get('/test/login/2/', follow=True)
+        self.assertTrue('logout' in r.content)
+    
 __test__ = { "doctest": """
-Another way to test that 1 + 1 is equal to 2.
-
->>> 1 + 1 == 2
-True
+>>> c = Client()
 """}
 

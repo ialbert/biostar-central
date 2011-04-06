@@ -14,9 +14,7 @@ urlpatterns = patterns('',
     # static pages
     ('^about/$', direct_to_template, {'template': 'about.html'}),
 
-    # testing
-    (r'^test/login/$', 'biostar.server.views.test_login'),
-    
+   
     # tags
     (r'^tag/list/$', 'biostar.server.views.tag_list'),
 
@@ -59,6 +57,17 @@ urlpatterns = patterns('',
     (r'^admin/', include(admin.site.urls)),
     (r'^admin/doc/', include('django.contrib.admindocs.urls')),
 
-    # static content used only during testing
-    (r'^static/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.STATIC_DIR }),
+   
 )
+
+if settings.TEST_MODE:
+
+    urlpatterns += patterns('', 
+      
+        # test login
+        (r'^test/login/(?P<uid>\d+)/$', 'biostar.server.views.test_login'),
+
+        # static content
+        (r'^static/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.STATIC_DIR }),
+    )
+ 
