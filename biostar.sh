@@ -26,12 +26,8 @@ export PYTHONPATH=$PYTHONPATH:$BIOSTAR_HOME
 export PYTHON_EXE=python
 export DJANGO_ADMIN=biostar/manage.py
 
-# Show current commit SHA1 in the template
-export BIOSTAR_VERSION=`git log --pretty=format:%h -1`
-
 echo "*** BIOSTAR_HOME=$BIOSTAR_HOME"
 echo "*** BIOSTAR_HOSTNAME=$BIOSTAR_HOSTNAME"
-echo "*** BIOSTAR_VERSION=$BIOSTAR_VERSION"
 
 echo "*** DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE"
 
