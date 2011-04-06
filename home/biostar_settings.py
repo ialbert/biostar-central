@@ -1,5 +1,5 @@
 # Django settings for biostar project.
-import os, sys, random, hashlib
+import os, sys, random, hashlib, re
 
 # turn this off in production
 DEBUG = True
@@ -14,7 +14,10 @@ def path_join(*args):
 # the directory that this file is located in
 __CURR_DIR = path_join(os.path.dirname(__file__))
 
-BIOSTAR_VERSION = os.getenv("BIOSTAR_VERSION", 'unknown')
+BIOSTAR_VERSION = os.popen("git log --pretty=format:%h -1").read()
+if not re.match(r'^[a-z,0-9]+$', BIOSTAR_VERSION):
+    # Sanitize input from external process
+    raise BaseException("Unsanitary BIOSTAR_VERSION %s" % repr(BIOSTAR_VERSION))
 
 # some dependecies may be distributed as zipfiles
 __ZIP_LIBS =  [
