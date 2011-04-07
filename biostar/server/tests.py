@@ -49,7 +49,62 @@ class UrlTest(TestCase):
         c = Client()
         r = c.get('/test/login/2/', follow=True)
         self.assertTrue('logout' in r.content)
+
+
+# Twill based functional tests
+import warnings
+with warnings.catch_warnings():
+    warnings.filterwarnings("ignore",category=DeprecationWarning)
+    import md5, sha
+
+import twill
+from twill import commands as tc
+from django.core.servers.basehttp import AdminMediaHandler
+from django.core.handlers.wsgi import WSGIHandler
+from StringIO import StringIO
+
+def twill_setup():
+    app = AdminMediaHandler(WSGIHandler())
+    twill.add_wsgi_intercept(DOMAIN, PORT, lambda: app)
+
+def twill_teardown():
+    twill.remove_wsgi_intercept(DOMAIN, PORT)
+
+# where to run the test server
+DOMAIN, PORT = '127.0.0.1', 8080
+HOME_PAGE = "http://%s:%s" % (DOMAIN, PORT)
+
+class FunctionalTest(TestCase):
     
+    fixtures = [ fixture ]
+
+    def setUp(self):
+        twill_setup()
+        
+    def tearDown(self):
+        twill_teardown()
+    
+    def test_home(self):
+
+        # go to the home page
+        tc.go(HOME_PAGE)
+
+        # check that the link works
+        tc.follow('login')
+
+        # auto login for user no 3 
+        tc.go('/test/login/3/')
+        tc.code(200)
+
+        # user 3 is Fabio
+        tc.find('Fabio')
+        
+        # there is a logout link
+        tc.find('logout')
+
+        # check his user profile
+        tc.follow ('Fabio')
+
 __test__ = { "doctest": """
 >>> c = Client()
 """}
