@@ -329,6 +329,7 @@ def vote(request):
 
 def markdown_preview(request):
     source_text = request.REQUEST['source_text'] # May need to be sanitized here
+    css = '<link rel="stylesheet" href="/static/biostar.css" type="text/css" media="screen, projection" />'
     html = markdown.markdown(source_text, safe_mode='remove')
-    return HttpResponse(html, mimetype='text/plain')
+    return HttpResponse(css + html, mimetype='text/plain')
 

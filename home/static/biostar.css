@@ -536,3 +536,13 @@ tr.comment td{
     padding: 4px 8px 4px 3px;
     text-decoration: none;
 }
+
+/*
+|-------------------------
+|  Content                |
+|-------------------------*/
+
+code {
+    background-color: #DDD;
+    font-size: 120%;
+}
