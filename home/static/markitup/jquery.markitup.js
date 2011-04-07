@@ -237,20 +237,35 @@
 				var placeHolder = prepare(clicked.placeHolder);
 				var replaceWith = prepare(clicked.replaceWith);
 				var closeWith 	= prepare(clicked.closeWith);
+				var insertNewLineOnTop 	= prepare(clicked.insertNewLineOnTop);
+
 				if (replaceWith !== "") {
 					block = openWith + replaceWith + closeWith;
 				} else if (selection === '' && placeHolder !== '') {
 					block = openWith + placeHolder + closeWith;
 				} else {
-					string = string || selection;						
-					if (string.match(/ +$/)) {
-                        // TODO: This needs to be extanded the longer runs of spaces
-                        // TODO: This needs to be extanded the leading spaces
-						block = openWith + string.replace(/ $/, '') + closeWith + ' ';
-					} else {
-						block = openWith + string + closeWith;
-					}
+				    string = string || selection;
+				
+				    // Do it for every line
+				    var lines = string.replace(/\n+$/, '').split("\n");
+				    var blocks = [];
+				    for (var l=0; l < lines.length; l++) {
+				      line = lines[l];
+				      if (line.match(/ +$/)) {
+				        // TODO: This needs to be extended to longer runs of spaces
+				        // TODO: This needs to be extended to leading spaces
+				        blocks.push(openWith + line.replace(/ $/, '') + closeWith + ' ');
+				      } else {
+				        blocks.push(openWith + line + closeWith);
+				      }
+				    }
 				}
+				
+				block = blocks.join("\n");
+				
+				// TODO: Descide betweend "\n\n" and "\n" if there is already
+				//       a "\n" in front of the selected text
+				if (insertNewLineOnTop == 'true') { block = "\n\n" + block };
 				return {	block:block, 
 							openWith:openWith, 
 							replaceWith:replaceWith, 
@@ -503,7 +518,7 @@
 				altKey = e.altKey;
 				ctrlKey = (!(e.altKey && e.ctrlKey)) ? e.ctrlKey : false;
 
-				if (e.type === 'keydown') {
+				if (e.type === 'keyup') {
 					if (ctrlKey === true) {
 						li = $("a[accesskey="+String.fromCharCode(e.keyCode)+"]", header).parent('li');
 						if (li.length !== 0) {

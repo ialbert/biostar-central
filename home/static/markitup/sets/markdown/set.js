@@ -26,14 +26,14 @@ mySettings = {
 		{name:'Bold', key:'B', openWith:'**', closeWith:'**'},
 		{name:'Italic', key:'I', openWith:'_', closeWith:'_'},
 		{separator:'---------------' },
-		{name:'Bulleted List', openWith:'- '},
-		{name:'Numeric List', openWith:'1. '},
+		{name:'Bulleted List', openWith:'- ', insertNewLineOnTop:true},
+		{name:'Numeric List', openWith:'1. ', insertNewLineOnTop:true},
 		{separator:'---------------' },
 		{name:'Picture', key:'P', replaceWith:'![[![Alternative text]!]]([![Url:!:http://]!] "[![Title]!]")'},
 		{name:'Link', key:'L', openWith:'[', closeWith:']([![Url:!:http://]!] "[![Title]!]")', placeHolder:'Your text to link here...' },
 		{separator:'---------------'},	
-		{name:'Quotes', openWith:'> '},
-		{name:'Code Block / Code', openWith:'\t'},
+		{name:'Quotes', openWith:'> ', insertNewLineOnTop:true},
+		{name:'Code Block / Code', openWith:'\t', insertNewLineOnTop:true},
 		{separator:'---------------'},
 		{name:'Preview', call:'preview', className:"preview"}
 	]
