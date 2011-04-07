@@ -243,7 +243,9 @@
 					block = openWith + placeHolder + closeWith;
 				} else {
 					string = string || selection;						
-					if (string.match(/ $/)) {
+					if (string.match(/ +$/)) {
+                        // TODO: This needs to be extanded the longer runs of spaces
+                        // TODO: This needs to be extanded the leading spaces
 						block = openWith + string.replace(/ $/, '') + closeWith + ' ';
 					} else {
 						block = openWith + string + closeWith;
@@ -281,36 +283,11 @@
 				}			
 				$.extend(hash, { line:1 });
 				
-				if (ctrlKey === true && shiftKey === true) {
-					lines = selection.split(/\r?\n/);
-					for (j = 0, n = lines.length, i = 0; i < n; i++) {
-						if ($.trim(lines[i]) !== '') {
-							$.extend(hash, { line:++j, selection:lines[i] } );
-							lines[i] = build(lines[i]).block;
-						} else {
-							lines[i] = "";
-						}
-					}
-					string = { block:lines.join('\n')};
-					start = caretPosition;
-					len = string.block.length + (($.browser.opera) ? n-1 : 0);
-				} else if (ctrlKey === true) {
-					string = build(selection);
-					start = caretPosition + string.openWith.length;
-					len = string.block.length - string.openWith.length - string.closeWith.length;
-					len = len - (string.block.match(/ $/) ? 1 : 0);
-					len -= fixIeBug(string.block);
-				} else if (shiftKey === true) {
-					string = build(selection);
-					start = caretPosition;
-					len = string.block.length;
-					len -= fixIeBug(string.block);
-				} else {
-					string = build(selection);
-					start = caretPosition + string.block.length ;
-					len = 0;
-					start -= fixIeBug(string.block);
-				}
+				string = build(selection);
+				start = caretPosition + string.block.length ;
+				len = 0;
+				start -= fixIeBug(string.block);
+
 				if ((selection === '' && string.replaceWith === '')) {
 					caretOffset += fixOperaBug(string.block);
 					
