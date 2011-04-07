@@ -17,6 +17,9 @@ h1, h2, h3, h4 {
     margin-top: 0px;
     color: #333333;
 }
+h1 {
+    font-size: 200%;
+}
 
 .shaded {
     background-color: #5B8C3C;
