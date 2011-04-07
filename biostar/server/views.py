@@ -9,9 +9,68 @@ from django.db import transaction
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.contrib.auth import authenticate, login
 from django.conf import settings
-
 from django.http import HttpResponse
+
 import markdown
+from pygments import highlight
+from pygments.lexers import *
+from pygments.formatters import HtmlFormatter
+
+import random
+from string import ascii_uppercase, digits
+
+def markdown_and_hightlght (source_text):
+
+    # The Markdown and Highlight algorithm
+    #  * Split source_text into blocks = [code, not-code, code, ...].
+    #  * Generate a separator string with a random seed.
+    #  * Concatenate non-code blocks (with separator between the blocks).
+    #  * Run Markdown parser on the concatenated text. Get HTML.
+    #  * Replace all the separators with highlighted code blocks
+
+    # Split source_text into blocks = [code, not-code, code, ...]
+    blocks = []
+    which_blocks_are_code = []
+    was_code = False
+    for line in source_text.split("\n"):
+        is_code = bool(line.startswith(' ' * 4) or line.startswith("\t"))
+
+        # Remove leading spaces from the code blocks
+        if is_code:
+            line = line[4:] if line.startswith(' ' * 4) else line
+            line = line[1:] if line.startswith("\t") else line
+
+        if is_code and not was_code:
+            blocks.append(line + "\n") # new block - code
+            which_blocks_are_code.append(len(blocks) - 1)
+        elif not is_code and was_code or len(blocks) == 0:
+            blocks.append(line + "\n") # new block - not code
+        elif (is_code and was_code) or (not is_code and not was_code):
+            blocks[-1] += (line + "\n")
+
+        was_code = is_code
+
+
+    # Generate a separator string with a random seed
+    r = ''.join(random.choice(ascii_uppercase + digits) for x in range(10))
+    separator = "separator%s" % r
+
+    # Concatenate non-code blocks (with separator between the blocks)
+    notcode = ''
+    for (index, block) in enumerate(blocks):
+        notcode += separator if (index in which_blocks_are_code) else block
+
+    # Run Markdown parser on the concatenated text. Get HTML
+    html = markdown.markdown(notcode, safe_mode=True)
+
+    # In the HTML replace all the separators with the highlighted code blocks
+    for (index, block) in enumerate(blocks):
+        if index in which_blocks_are_code:
+            pygments_lexer = guess_lexer(block)
+            hicode = highlight(block, pygments_lexer, HtmlFormatter())
+            html = html.replace(separator, hicode, 1) # first occurrence only
+
+    return html
 
 def index(request):
     "Main page"
@@ -329,8 +388,10 @@ def vote(request):
 
 
 def markdown_preview(request):
-    source_text = request.REQUEST['source_text'] # May need to be sanitized here
-    css = '<link rel="stylesheet" href="/static/biostar.css" type="text/css" media="screen, projection" />'
-    html = markdown.markdown(source_text, safe_mode='remove')
-    return HttpResponse(css + html, mimetype='text/plain')
+    source_text = request.REQUEST['source_text']
 
+    html = markdown_and_hightlght(source_text)
+
+    css_1 = '<link rel="stylesheet" href="/static/pygments.css" type="text/css" media="screen, projection" />'
+    css_2 = '<link rel="stylesheet" href="/static/biostar.css" type="text/css" media="screen, projection" />'
+    return HttpResponse(css_1 + css_2 + html, mimetype='text/plain')

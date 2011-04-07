@@ -546,6 +546,20 @@ tr.comment td{
 |-------------------------*/
 
 code {
-    background-color: #DDD;
+    background-color: #CCC;
     font-size: 120%;
+}
+
+.highlight {
+    background-color: #CCC;
+    font-size: 120%;
+
+    display: block;
+    margin-left: 1em;
+    margin-bottom: 1em;
+    padding: 5px;
+}
+
+.highlight pre {
+    margin-top: 0; margin-bottom: 0;
 }
