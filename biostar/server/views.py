@@ -9,9 +9,12 @@ from django.db import transaction
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.contrib.auth import authenticate, login
 from django.conf import settings
-
 from django.http import HttpResponse
+
 import markdown
+from pygments import highlight
+from pygments.lexers import *
+from pygments.formatters import HtmlFormatter
 
 
 def index(request):
@@ -329,7 +332,34 @@ def vote(request):
 
 def markdown_preview(request):
     source_text = request.REQUEST['source_text'] # May need to be sanitized here
-    css = '<link rel="stylesheet" href="/static/biostar.css" type="text/css" media="screen, projection" />'
-    html = markdown.markdown(source_text, safe_mode='remove')
-    return HttpResponse(css + html, mimetype='text/plain')
+
+    # Parser (TODO: Put into a separate module)
+    blocks = []
+    which_blocks_are_code = []
+    was_code = False
+    for line in source_text.split("\n"):
+        is_code = bool(line.startswith("    ") or line.startswith("\t"))
+        if is_code and not was_code:
+            blocks.append(line + "\n") # new block
+            which_blocks_are_code.append(len(blocks) - 1)
+        elif not is_code and was_code or len(blocks) == 0:
+            blocks.append(line + "\n") # new block
+        elif (is_code and was_code) or (not is_code and not was_code):
+            blocks[-1] += (line + "\n")
+        was_code = is_code
+
+    highlighted = ''
+    for (index, block) in enumerate(blocks):
+        if index in which_blocks_are_code:
+            pygments_lexer = guess_lexer(block)
+            highlighted += '<code>' + \
+              highlight(block, pygments_lexer, HtmlFormatter()) + '</code>'
+        else:
+            highlighted += block
+
+    html = markdown.markdown(highlighted)
+
+    css_1 = '<link rel="stylesheet" href="/static/pygments.css" type="text/css" media="screen, projection" />'
+    css_2 = '<link rel="stylesheet" href="/static/biostar.css" type="text/css" media="screen, projection" />'
+    return HttpResponse(css_1 + css_2 + html, mimetype='text/plain')
 
