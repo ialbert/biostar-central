@@ -31,6 +31,11 @@ urlpatterns = patterns('',
     # editor
     (r'^markdown_preview/$', 'biostar.server.views.markdown_preview'),
     
+    # revisions
+    
+    (r'^revisions/(?P<pid>\d+)/list/$', 'biostar.server.views.revision_list'),
+
+    
     # questions
     (r'^question/unanswered/$', 'biostar.server.views.question_unanswered'),
     (r'^question/list/$', 'biostar.server.views.question_list'),

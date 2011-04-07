@@ -1,0 +1,38 @@
+{% extends "base.sidebar.html" %}
+
+{% load basic %}
+
+{% block subheader %}
+    <h3>Revisions of "{{post.title}}"</h3>
+{% endblock %}
+
+{% block mainbar %}
+    
+    {% for revision in revisions %}
+            <div class="revision">
+            <h2>{{forloop.revcounter}}</h2>
+            
+            {% if revision.title %}
+                <h4>{{revision.title}}</h4>
+            {% endif %}
+            
+            {% if revision.content %}
+                {{revision.to_html|safe}}
+            {% endif %}
+            
+            {% if revision.tag_string %}
+                <div class="tags">
+                    {% for tag in revision.get_tags %}
+                       {% taglink tag %}
+                    {% endfor %}
+                </div>
+            {% endif %}
+            
+            <div class="right">
+                {% userbox revision.author %}
+            </div>
+            <br class="clear">
+        </div>
+    {% endfor %}
+
+{% endblock %}

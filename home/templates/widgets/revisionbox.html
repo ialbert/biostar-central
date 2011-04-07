@@ -4,7 +4,7 @@
 <div class="user-info right">
     <div class="user-info">
         <div class="user-action-time">
-            edited <b>{% time_ago post.lastedit_date %}</b>
+            edited <a href="/revisions/{{post.id}}/list/"><b>{% time_ago post.lastedit_date %}</b></a>
         </div>
         {% ifequal post.lastedit_user post.author %}
             <div>

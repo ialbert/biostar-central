@@ -166,6 +166,14 @@ class PostRevision(models.Model):
     author = models.ForeignKey(User)
     date = models.DateTimeField()
     
+    def to_html(self):
+        ''' We won't cache the HTML in the DB because revisions are viewed fairly infrequently '''
+        return markdown.markdown(self.content)
+        
+    def get_tags(self):
+        ''' Returns the revision's tags as a list of strings '''
+        return self.tag_string.split(' ')
+    
     def apply(self, dir=1):
         self.post.revision_count += dir
         self.post.save()

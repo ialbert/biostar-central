@@ -268,6 +268,12 @@ def answer_edit(request, qid, aid=0):
         answer.post.create_revision(content=content, author=request.user)
 
     return html.redirect('/question/show/%s/' % qid)
+    
+    
+def revision_list(request, pid):
+    post = models.Post.objects.get(pk=pid)
+    revisions = post.revisions.order_by('-date') # Reverse order
+    return html.template(request, name='revision.list.html', revisions=revisions, post=post)
    
 @login_required(redirect_field_name='/openid/login/')
 def comment_add(request, pid):
