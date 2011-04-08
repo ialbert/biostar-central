@@ -4,60 +4,28 @@ Main test script is executed when running::
     biostar.sh test"
 
 """
-import sys, os, django
 
-if django.VERSION < (1, 3):
-    print '*** Django version 1.3 or higher required.'
-    print '*** Your version is %s' % '.'.join( map(str, django.VERSION))
-    sys.exit()
+# disable some spurious warnings
+import warnings
+with warnings.catch_warnings():
+    warnings.filterwarnings("ignore",category=DeprecationWarning)
+    import md5, sha
+
+import sys, os, django
+from django.test import TestCase
+from django.utils import unittest
+from django.conf import settings
+
+import twill
+from twill import commands as tc
+from django.core.servers.basehttp import AdminMediaHandler
+from django.core.handlers.wsgi import WSGIHandler
 
 def path(*args):
     "Generates absolute paths"
     return os.path.abspath(os.path.join(*args))
 
 fixture = path(os.path.dirname(__file__), '..', '..', 'home', 'import', 'test-fixture.json' )
-
-from django.test import TestCase
-from django.utils import unittest
-from django.test.client import Client
-from django.conf import settings
-
-class EnvironmentTest(unittest.TestCase):
-    # we just need the version to exists
-    def test_biostar_version(self):
-        self.assertTrue(settings.BIOSTAR_VERSION)
-
-class UrlTest(TestCase):
-
-    fixtures = [ fixture ]
-
-    def test_access(self):
-        "Testing that basic URLs function correctly"
-        urls = "/ /about/ /member/list/".split()
-        c = Client()
-        for url in urls:
-            resp = c.get(url)
-            self.assertEqual(resp.status_code, 200)
-    
-    def test_redirect(self):
-        "Testins redirecting urls"
-        urls = "/question/new/".split()
-        c = Client()
-        for url in urls:
-            resp = c.get(url)
-            self.assertEqual(resp.status_code, 302)
-
-# Twill based functional tests
-import warnings
-with warnings.catch_warnings():
-    warnings.filterwarnings("ignore",category=DeprecationWarning)
-    import md5, sha
-
-import twill
-from twill import commands as tc
-from django.core.servers.basehttp import AdminMediaHandler
-from django.core.handlers.wsgi import WSGIHandler
-from StringIO import StringIO
 
 def twill_setup():
     app = AdminMediaHandler(WSGIHandler())
@@ -151,7 +119,6 @@ class FunctionalTest(TestCase):
         tc.find(title)
         tc.follow(title)
 
-__test__ = { "doctest": """
->>> c = Client()
-"""}
-
+def suite():
+    s = unittest.TestLoader().loadTestsFromTestCase(FunctionalTest)
+    return s

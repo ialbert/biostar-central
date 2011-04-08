@@ -116,6 +116,9 @@ TEMPLATE_LOADERS = (
 #     'django.template.loaders.eggs.Loader',
 )
 
+# added a custom test runner
+TEST_RUNNER='biostar.tests.main.BiostarTest'
+
 
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
