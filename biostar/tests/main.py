@@ -13,14 +13,13 @@ if django.VERSION < (1, 3):
 
 from django.test.simple import DjangoTestSuiteRunner
 
+try:
+    from coverage import coverage
+except ImportError:
+    coverage = None
+
 # add our own testing suites
 from biostar.tests import functional, access
-
-COMPUTE_COVERAGE = False
-if COMPUTE_COVERAGE:
-    from coverage import coverage
-    cov = coverage()
-    cov.start()
 
 class BiostarTest(DjangoTestSuiteRunner):
 
@@ -30,8 +29,16 @@ class BiostarTest(DjangoTestSuiteRunner):
     def run_tests(self, test_labels, extra_tests=None, **kwargs):
         # add new tests then delegate to supercalss
         extra_tests = [  access.suite(), functional.suite() ]
-        super( BiostarTest, self ).run_tests(test_labels, extra_tests, **kwargs)
 
-
+        if coverage:
+            cov = coverage(include = ['biostar/server/*'] )
+            cov.start()
+            super( BiostarTest, self ).run_tests(test_labels, extra_tests, **kwargs)
+            cov.stop()
+            cov.report()
+            cov.html_report()
+            cov.xml_report()
+        else:
+            super( BiostarTest, self ).run_tests(test_labels, extra_tests, **kwargs)
 
 
