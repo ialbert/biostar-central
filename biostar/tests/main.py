@@ -31,7 +31,7 @@ class BiostarTest(DjangoTestSuiteRunner):
         extra_tests = [  access.suite(), functional.suite() ]
 
         if coverage:
-            cov = coverage(include = ['biostar/server/*'] )
+            cov = coverage(include = ['biostar/*'], omit=['biostar/libs/*', 'biostar/tests/*'] )
             cov.start()
             super( BiostarTest, self ).run_tests(test_labels, extra_tests, **kwargs)
             cov.stop()
