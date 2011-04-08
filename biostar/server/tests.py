@@ -1,5 +1,8 @@
 """
-Main test script executed when we run "manage.py test".
+Main test script is executed when running::
+
+    biostar.sh test"
+
 """
 import sys, os, django
 
@@ -44,13 +47,6 @@ class UrlTest(TestCase):
             resp = c.get(url)
             self.assertEqual(resp.status_code, 302)
 
-    def test_login(self):
-        "Testing login"
-        c = Client()
-        r = c.get('/test/login/2/', follow=True)
-        self.assertTrue('logout' in r.content)
-
-
 # Twill based functional tests
 import warnings
 with warnings.catch_warnings():
@@ -84,16 +80,34 @@ class FunctionalTest(TestCase):
     def tearDown(self):
         twill_teardown()
     
-    def test_home(self):
-
+    def test_homepage(self):
+        "Tests the homepage access"
         # go to the home page
         tc.go(HOME_PAGE)
+        tc.code(200)
 
         # check that the link works
+        tc.follow('Questions')
+        tc.follow('Tags')
+        tc.follow('Members')
+        tc.follow('Badges')
         tc.follow('login')
 
-        # auto login for user no 3 
-        tc.go('/test/login/3/')
+    def test_user(self):
+        "Tests a user interaction with a site"
+
+        # this page is active during testing can be turned
+        # off for deplyed sites
+        tc.go('/admin/password/override/')
+        tc.code(200)
+        
+        # this is how to show what forms are on a pge
+        #tc.showforms()
+
+        # submit the override login
+        tc.fv(2, 'uid', '3')
+        tc.fv(2, 'password', settings.SECRET_KEY)
+        tc.submit('submit')
         tc.code(200)
 
         # user 3 is Fabio
@@ -104,6 +118,38 @@ class FunctionalTest(TestCase):
 
         # check his user profile
         tc.follow ('Fabio')
+
+        # this is how you can save a page for inspection
+        #tc.save_html('fabio.html')
+        
+        # in the test dataset he has a reputation of 41
+        tc.find('41')
+
+        # on his profile find the title of his question
+        tc.find('Finding common motifs')
+
+        # let's ask a question
+        tc.go('/question/new/')
+
+        #tc.showforms()
+        
+        title, content, tags = "Fabios World!", "What is it?", "fabio word"
+        tc.fv(2, 'title', title)
+        tc.fv(2, 'content', content)
+        tc.fv(2, 'tags', tags)
+        tc.submit('submit')
+        tc.code(200)
+
+        #tc.save_html('test.html')
+
+        # the resulting page will have the question
+        tc.find(title)
+        tc.find(content)
+
+        # check that it appeared in the questions list
+        tc.follow('Questions')
+        tc.find(title)
+        tc.follow(title)
 
 __test__ = { "doctest": """
 >>> c = Client()

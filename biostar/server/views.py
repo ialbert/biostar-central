@@ -13,7 +13,6 @@ from django.conf import settings
 from django.http import HttpResponse
 import markdown
 
-
 def index(request):
     "Main page"
     
@@ -30,21 +29,23 @@ def index(request):
     questions = list(top) + list(bot)
     return html.template( request, name='index.html', questions=questions)
 
-def test_login(request, uid):
-    "This allows for automatic login by userid. Used during testing"
-
-    # sanity check to disable this test login on non-test fixtures
-    ucount = models.User.objects.all().count()
-    valid  =  ucount <= 15
-    assert valid, 'This works only for a demo site with less than 15 users --> you have %s users' % ucount
-
-    if settings.TEST_MODE and valid:
-        # this exists only for test data
-        user = models.User.objects.get(pk=uid)
-        user.backend = 'django.contrib.auth.backends.ModelBackend'
-        login(request, user)
-        return html.redirect('/') 
-
+def admin_password_override(request):
+    """
+    This view is active only if the ALLOW_ADMIN_OVERRIDE setting is True.
+    Allows anyone to log in and personify any other user as long as they enter
+    the content of SECRET_KEY as password. This needs to be True during testing.
+    """
+    if request.method=='GET':
+        return html.template( request, name='admin.password.override.html')
+    else:
+        uid = request.POST.get('uid', '')
+        passwd = request.POST.get('password', '')
+        if passwd == settings.SECRET_KEY:
+            user = models.User.objects.get(pk=uid)
+            user.backend = 'django.contrib.auth.backends.ModelBackend'
+            login(request, user)
+            return html.redirect('/') 
+        
     raise Exception('Invalid login')
 
 @transaction.commit_on_success

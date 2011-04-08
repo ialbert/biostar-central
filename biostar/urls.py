@@ -65,13 +65,14 @@ urlpatterns = patterns('',
    
 )
 
-if settings.TEST_MODE:
-
+if settings.ADMIN_PASSWORD_OVERRIDE:
     urlpatterns += patterns('', 
-      
-        # test login
-        (r'^test/login/(?P<uid>\d+)/$', 'biostar.server.views.test_login'),
+        # admin login override
+        (r'^admin/password/override/$', 'biostar.server.views.admin_password_override'),
+    )
 
+if settings.DEBUG:
+    urlpatterns += patterns('', 
         # static content
         (r'^static/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.STATIC_DIR }),
     )

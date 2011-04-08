@@ -3,37 +3,44 @@ import os, sys, random, hashlib, re
 
 # turn this off in production
 DEBUG = True
+
+# template errors
 TEMPLATE_DEBUG = DEBUG
 
-# turn this also off in production
-# turns off the test URLS
-TEST_MODE = True
+# ADMIN_PASSWORD_OVERRIDE allows one to log in as any user by using the SECRET_KEY
+# this is needed during testing, possbily for troubleshooting problems for deployment
+ADMIN_PASSWORD_OVERRIDE = True
 
+# comment this out in production, admin site may need silent fallbacks
+TEMPLATE_STRING_IF_INVALID = "*** MISSING ***"
+
+# displays debug comments when the server is run from this IP
 INTERNAL_IPS = ('127.0.0.1', )
 
-def path_join(*args):
+def path(*args):
     "Generates absolute paths"
     return os.path.abspath(os.path.join(*args))
 
 # the directory that this file is located in
-__CURR_DIR = path_join(os.path.dirname(__file__))
+__CURR_DIR = path(os.path.dirname(__file__))
 
+# get the version from the repository
 BIOSTAR_VERSION = os.popen("git log --pretty=format:%h -1").read()
 if not re.match(r'^[a-z,0-9]+$', BIOSTAR_VERSION):
     BIOSTAR_VERSION = 'unknown'
 
 # some dependecies may be distributed as zipfiles
 __ZIP_LIBS =  [
-    path_join(__CURR_DIR, '..', 'biostar', 'libs', 'openid-libraries.zip'),
+    path(__CURR_DIR, '..', 'biostar', 'libs', 'external-libraries.zip'),
 ]
 sys.path.extend(__ZIP_LIBS)
 
 # set paths to various file locations
-HOME_DIR = path_join(__CURR_DIR )
-DATABASE_DIR = path_join(HOME_DIR, 'db')
-DATABASE_NAME = path_join(DATABASE_DIR, 'biostar.db')
-TEMPLATE_DIR = path_join(HOME_DIR, 'templates')
-STATIC_DIR = path_join(HOME_DIR, 'static')
+HOME_DIR      = path(__CURR_DIR )
+DATABASE_DIR  = path(HOME_DIR, 'db')
+DATABASE_NAME = path(DATABASE_DIR, 'biostar.db')
+TEMPLATE_DIR  = path(HOME_DIR, 'templates')
+STATIC_DIR    = path(HOME_DIR, 'static')
 
 ADMINS = (
     ('Istvan Albert', 'istvan.albert@gmail.com'),
@@ -44,7 +51,7 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': DATABASE_NAME,                      # Or path to database file if using sqlite3.
+        'NAME': DATABASE_NAME,                  # Or path to database file if using sqlite3.
         'USER': '',                      # Not used with sqlite3.
         'PASSWORD': '',                  # Not used with sqlite3.
         'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
@@ -89,8 +96,9 @@ MEDIA_URL = ''
 # Examples: "http://foo.com/media/", "/media/".
 ADMIN_MEDIA_PREFIX = '/media/'
 
-# On first run generates a unique secret key that also serves as the administrative password
-SECRET_FILE = path_join(HOME_DIR, 'secret-key.txt')
+# On first run generates a unique secret key that 
+# can also serve as an defaul admin password
+SECRET_FILE = path(HOME_DIR, 'secret-key.txt')
 if not os.path.isfile(SECRET_FILE):
     fp = file(SECRET_FILE, 'wt')
     val = str(random.getrandbits(128))
@@ -98,6 +106,7 @@ if not os.path.isfile(SECRET_FILE):
     fp.write(val)
     fp.close()
 
+# populate the secret key
 SECRET_KEY = file(SECRET_FILE).read().strip()
 
 # List of callables that know how to import templates from various sources.
@@ -107,7 +116,6 @@ TEMPLATE_LOADERS = (
 #     'django.template.loaders.eggs.Loader',
 )
 
-TEMPLATE_STRING_IF_INVALID = "*** MISSING ***"
 
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
@@ -115,8 +123,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    
-    'biostar.middleware.LastVisitTimestampUpdaterMiddleware',
+    'biostar.middleware.LastVisit',
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
