@@ -392,6 +392,4 @@ def markdown_preview(request):
 
     html = markdown_and_hightlght(source_text)
 
-    css_1 = '<link rel="stylesheet" href="/static/pygments.css" type="text/css" media="screen, projection" />'
-    css_2 = '<link rel="stylesheet" href="/static/biostar.css" type="text/css" media="screen, projection" />'
-    return HttpResponse(css_1 + css_2 + html, mimetype='text/plain')
+    return HttpResponse(html, mimetype='text/plain')

@@ -130,6 +130,11 @@
                 <form action="/answer/new/{{question.id}}/" method="post">
                     {% csrf_token %}
                     <textarea id="editor" name="content" cols="50" rows="15" ></textarea>
+                    <div>
+                        <div id="markItUpPreview" class="markItUpPreview"
+                        style="padding-top: 5px"></div>
+                    </div>
+
                     <div align="center">
                         <input style="margin:10px;" type="submit" name="submit" value="Post Your Answer">
                     </div>
