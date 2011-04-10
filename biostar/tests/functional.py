@@ -119,6 +119,11 @@ class FunctionalTest(TestCase):
         tc.find(title)
         tc.follow(title)
 
+        # check markdown preview page
+        tc.go("%s/preview/" % HOME_PAGE)
+        tc.code(200)
+        tc.find("no input")
+
 def suite():
     s = unittest.TestLoader().loadTestsFromTestCase(FunctionalTest)
     return s

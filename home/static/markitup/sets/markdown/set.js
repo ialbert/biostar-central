@@ -12,8 +12,8 @@
 // -------------------------------------------------------------------
 
 mySettings = {
-	previewParserPath:	'/markdown_preview/',
-	previewParserVar:	'source_text',
+	previewParserPath:	'/preview/',
+	previewParserVar:	'content',
 	onShiftEnter:		{keepDefault:false, openWith:'\n\n'},
 	markupSet: [
 		{name:'First Level Heading', key:'1', placeHolder:'Your title here...', closeWith:function(markItUp) { return miu.markdownTitle(markItUp, '=') } },

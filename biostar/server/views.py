@@ -1,8 +1,7 @@
 """
 Biostar views
 """
-import html
-from biostar.server import models
+from biostar.server import html, models
 from django import forms
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
@@ -10,17 +9,6 @@ from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.contrib.auth import authenticate, login
 from django.conf import settings
 from django.http import HttpResponse
-
-import markdown, pygments
-from pygments import highlight, lexers, formatters
-from pygments.formatters import HtmlFormatter
-
-#from pygments import highlight
-#from pygments.lexers import *
-
-from itertools import groupby
-
-
 
 def index(request):
     "Main page"
@@ -279,7 +267,6 @@ def answer_edit(request, qid, aid=0):
 
     return html.redirect('/question/show/%s/' % qid)
     
-    
 def revision_list(request, pid):
     post = models.Post.objects.get(pk=pid)
     revisions = post.revisions.order_by('-date') # Reverse order
@@ -300,8 +287,7 @@ def comment_add(request, pid):
         return html.redirect('/question/show/%s/' % (parent.question.id))
     else:
         return html.redirect('/question/show/%s/' % (parent.answer.question.id))
-    
-    
+
 def vote(request):
     "Handles all voting on posts"
     if request.method == 'POST':
@@ -336,54 +322,15 @@ def vote(request):
 
     return html.json_response({'status':'error', 'msg':'POST method must be used'})
 
-def generate_html (text):
-    "Generates the html from a markdown text"
-
-    # split the text into lines
-    lines = text.splitlines()
-    
-    # function to detect code starts
-    func  = lambda line: line.startswith(' ' * 4) or line.startswith("\t")
-    pairs = zip(map(func, lines), lines) 
-
-    # grouping function, group by the codeblock condition
-    func   = lambda pair: pair[0]
-    blocks = groupby(pairs, func)
-
-    # tranform to continus text within each block
-    groups = []
-    for flag, group in blocks:
-        block = '\n'.join( g[1] for g in group)
-        groups.append( (flag, block) )
-
-    # markup each block as needed
-    out = []
-    for flag, block in groups:
-        if flag:
-            # this is codeblock
-            try:
-                # guess syntax highlighting
-                lexer = lexers.guess_lexer(block)
-            except pygments.util.ClassNotFound, exc:
-                # unable to detect language fall back to Python
-                lexer = lexers.PythonLexer()
-            body  = pygments.highlight(block, lexer, formatters.HtmlFormatter())
-        else:
-            # regular markdown
-            body = markdown.markdown(block, safe_mode=True)
-        out.append( body )
-
-    html = '\n'.join(out)
-    return html
-
-def markdown_preview(request):
+@login_required(redirect_field_name='/openid/login/')
+def preview(request):
     "This runs the markdown preview functionality"
-    source_text = request.POST.get('source_text','no input')
+    content = request.POST.get('content','no input')
 
     try:
-        html = generate_html(source_text)
+        output = html.generate(content)
     except Exception, exc:
         # return more userfriendly errors, used for debugging
-        html = str(exc)
+        output = str(exc)
 
-    return HttpResponse(html, mimetype='text/plain')
+    return HttpResponse(output, mimetype='text/plain')
