@@ -11,66 +11,16 @@ from django.contrib.auth import authenticate, login
 from django.conf import settings
 from django.http import HttpResponse
 
-import markdown
-from pygments import highlight
-from pygments.lexers import *
+import markdown, pygments
+from pygments import highlight, lexers, formatters
 from pygments.formatters import HtmlFormatter
 
-import random
-from string import ascii_uppercase, digits
+#from pygments import highlight
+#from pygments.lexers import *
 
-def markdown_and_hightlght (source_text):
-
-    # The Markdown and Highlight algorithm
-    #  * Split source_text into blocks = [code, not-code, code, ...].
-    #  * Generate a separator string with a random seed.
-    #  * Concatenate non-code blocks (with separator between the blocks).
-    #  * Run Markdown parser on the concatenated text. Get HTML.
-    #  * Replace all the separators with highlighted code blocks
-
-    # Split source_text into blocks = [code, not-code, code, ...]
-    blocks = []
-    which_blocks_are_code = []
-    was_code = False
-    for line in source_text.split("\n"):
-        is_code = bool(line.startswith(' ' * 4) or line.startswith("\t"))
-
-        # Remove leading spaces from the code blocks
-        if is_code:
-            line = line[4:] if line.startswith(' ' * 4) else line
-            line = line[1:] if line.startswith("\t") else line
-
-        if is_code and not was_code:
-            blocks.append(line + "\n") # new block - code
-            which_blocks_are_code.append(len(blocks) - 1)
-        elif not is_code and was_code or len(blocks) == 0:
-            blocks.append(line + "\n") # new block - not code
-        elif (is_code and was_code) or (not is_code and not was_code):
-            blocks[-1] += (line + "\n")
-
-        was_code = is_code
+from itertools import groupby
 
 
-    # Generate a separator string with a random seed
-    r = ''.join(random.choice(ascii_uppercase + digits) for x in range(10))
-    separator = "separator%s" % r
-
-    # Concatenate non-code blocks (with separator between the blocks)
-    notcode = ''
-    for (index, block) in enumerate(blocks):
-        notcode += separator if (index in which_blocks_are_code) else block
-
-    # Run Markdown parser on the concatenated text. Get HTML
-    html = markdown.markdown(notcode, safe_mode=True)
-
-    # In the HTML replace all the separators with the highlighted code blocks
-    for (index, block) in enumerate(blocks):
-        if index in which_blocks_are_code:
-            pygments_lexer = guess_lexer(block)
-            hicode = highlight(block, pygments_lexer, HtmlFormatter())
-            html = html.replace(separator, hicode, 1) # first occurrence only
-
-    return html
 
 def index(request):
     "Main page"
@@ -386,10 +336,54 @@ def vote(request):
 
     return html.json_response({'status':'error', 'msg':'POST method must be used'})
 
+def generate_html (text):
+    "Generates the html from a markdown text"
+
+    # split the text into lines
+    lines = text.splitlines()
+    
+    # function to detect code starts
+    func  = lambda line: line.startswith(' ' * 4) or line.startswith("\t")
+    pairs = zip(map(func, lines), lines) 
+
+    # grouping function, group by the codeblock condition
+    func   = lambda pair: pair[0]
+    blocks = groupby(pairs, func)
+
+    # tranform to continus text within each block
+    groups = []
+    for flag, group in blocks:
+        block = '\n'.join( g[1] for g in group)
+        groups.append( (flag, block) )
+
+    # markup each block as needed
+    out = []
+    for flag, block in groups:
+        if flag:
+            # this is codeblock
+            try:
+                # guess syntax highlighting
+                lexer = lexers.guess_lexer(block)
+            except pygments.util.ClassNotFound, exc:
+                # unable to detect language fall back to Python
+                lexer = lexers.PythonLexer()
+            body  = pygments.highlight(block, lexer, formatters.HtmlFormatter())
+        else:
+            # regular markdown
+            body = markdown.markdown(block, safe_mode=True)
+        out.append( body )
+
+    html = '\n'.join(out)
+    return html
 
 def markdown_preview(request):
-    source_text = request.REQUEST['source_text']
+    "This runs the markdown preview functionality"
+    source_text = request.POST.get('source_text','no input')
 
-    html = markdown_and_hightlght(source_text)
+    try:
+        html = generate_html(source_text)
+    except Exception, exc:
+        # return more userfriendly errors, used for debugging
+        html = str(exc)
 
     return HttpResponse(html, mimetype='text/plain')
