@@ -563,3 +563,11 @@ code {
 .highlight pre {
     margin-top: 0; margin-bottom: 0;
 }
+
+/* A nice style for Quotations borrowed from GitHub */
+blockquote {
+    border-left: 5px solid #DDDDDD !important;
+    color: #555555 !important;
+    margin: 1em 0 !important;
+    padding-left: 0.6em !important;
+}
