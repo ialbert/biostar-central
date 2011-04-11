@@ -35,7 +35,12 @@ def generate(text):
     # tranform to continus text within each block
     groups = []
     for flag, group in blocks:
-        block = '\n'.join( g[1] for g in group)
+        lines = [g[1] for g in group]
+        if flag:
+            # Remove leading spaces (Markdown syntax) from the code blocks
+            lines = [(l[4:] if l.startswith(' ' * 4) else l) for l in lines]
+            lines = [(l[1:] if l.startswith("\t") else l) for l in lines]
+        block = '\n'.join(lines)
         groups.append( (flag, block) )
 
     # markup each block as needed
