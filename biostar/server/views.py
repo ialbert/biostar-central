@@ -329,8 +329,8 @@ def preview(request):
 
     try:
         output = html.generate(content)
-    except Exception, exc:
+    except KeyError, exc:
         # return more userfriendly errors, used for debugging
-        output = str(exc)
+        output = 'Error: %s' % str(exc)
 
     return HttpResponse(output, mimetype='text/plain')

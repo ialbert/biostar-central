@@ -1,7 +1,7 @@
 """
 Html utility functions.
 """
-import re, string, mimetypes, os, json
+import re, string, mimetypes, os, json, random, hashlib
 from django.template import RequestContext, loader
 from django.core.servers.basehttp import FileWrapper
 from django.http import HttpResponse, HttpResponseRedirect
@@ -39,7 +39,7 @@ def generate(text):
         groups.append( (flag, block) )
 
     # markup each block as needed
-    out = []
+    out, code = [], {}
     for flag, block in groups:
         if flag:
             # this is codeblock
@@ -49,13 +49,22 @@ def generate(text):
             except pygments.util.ClassNotFound, exc:
                 # unable to detect language fall back to Python
                 lexer = lexers.PythonLexer()
-            body  = pygments.highlight(block, lexer, formatters.HtmlFormatter())
+            body = pygments.highlight(block, lexer, formatters.HtmlFormatter())
+            uuid = hashlib.md5( str(random.getrandbits(256))).hexdigest()
+            code[uuid] = body
+            out.append(uuid)
         else:
             # regular markdown
-            body = markdown.markdown(block, safe_mode=True)
-        out.append( body )
+            out.append( block )
 
+    # markdown needs to run on the entire body to handle references
     html = '\n'.join(out)
+    html = markdown.markdown(html, safe_mode=True)
+    
+    # this is required to put the codes back into the markdown
+    for uuid, value in code.items():
+        html = html.replace(uuid, value)
+
     return html
 
 ALLOWED_TAGS = "strong span:class br ol ul li a:href img:src pre code blockquote p em"
