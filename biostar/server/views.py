@@ -283,10 +283,10 @@ def comment_add(request, pid):
     comment = models.Comment(parent=parent, post=post)
     comment.save()
 
-    if parent.question: # Post is a question
+    try:
         return html.redirect('/question/show/%s/' % (parent.question.id))
-    else:
-        return html.redirect('/question/show/%s/' % (parent.answer.question.id))
+    except models.Question.DoesNotExist:
+        return html.redirect('/question/show/%s/#%s' % (parent.answer.question.id, parent.answer.id))
 
 def vote(request):
     "Handles all voting on posts"
