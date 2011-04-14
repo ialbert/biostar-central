@@ -1,7 +1,7 @@
 """
 Html utility functions.
 """
-import re, string, mimetypes, os, json
+import re, string, mimetypes, os, json, unittest
 from django.template import RequestContext, loader
 from django.core.servers.basehttp import FileWrapper
 from django.http import HttpResponse, HttpResponseRedirect
@@ -76,10 +76,15 @@ def template(request, name, mimetype=None, **kwd):
     
     return render_to_response(name, kwd, context_instance=RequestContext(request))
     
+class HtmlTest(unittest.TestCase):
+    def test_sanitize(self):
+        "Testing HTML sanitization"
+        text = sanitize('<a href=javascrip:something">A</a>')
+        self.assertEqual( text, 'ABC' )
 
-def test():
-    import doctest
-    doctest.testmod()
+        p = Params(a=1, b=2, c=3, incoming=dict(c=4))
+        self.assertEqual( (p.a, p.b, p.c), (1, 2, 4))
 
-if __name__ == '__main__':
-    test()
+def suite():
+    s = unittest.TestLoader().loadTestsFromTestCase(HtmlTest)
+    return s

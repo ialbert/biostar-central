@@ -19,6 +19,7 @@ except ImportError:
     coverage = None
 
 # add our own testing suites
+from biostar.server import html
 from biostar.tests import functional, access
 
 class BiostarTest(DjangoTestSuiteRunner):
@@ -28,7 +29,9 @@ class BiostarTest(DjangoTestSuiteRunner):
 
     def run_tests(self, test_labels, extra_tests=None, **kwargs):
         # add new tests then delegate to supercalss
-        extra_tests = [  access.suite(), functional.suite() ]
+        extra_tests = [  
+            access.suite(), functional.suite(), html.suite(),
+        ]
 
         if coverage:
             cov = coverage(include = ['biostar/*'], omit=['biostar/libs/*', 'biostar/tests/*'] )
