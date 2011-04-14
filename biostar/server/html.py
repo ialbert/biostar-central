@@ -1,14 +1,71 @@
 """
 Html utility functions.
 """
-import re, string, mimetypes, os, json, unittest
+import re, string, mimetypes, os, json, random, hashlib,  unittest
 from django.template import RequestContext, loader
 from django.core.servers.basehttp import FileWrapper
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.core.context_processors import csrf
-
 from BeautifulSoup import BeautifulSoup, Comment
+
+import markdown, pygments
+from pygments import highlight, lexers, formatters
+from pygments.formatters import HtmlFormatter
+from itertools import groupby
+
+def generate(text):
+    """
+    Generates html from a markdown text
+    
+    >>> generate("ABCD")
+    """
+
+    # split the text into lines
+    lines = text.splitlines()
+    
+    # function to detect code starts
+    func  = lambda line: line.startswith(' ' * 4) or line.startswith("\t")
+    pairs = zip(map(func, lines), lines) 
+
+    # grouping function, group by the codeblock condition
+    func   = lambda pair: pair[0]
+    blocks = groupby(pairs, func)
+
+    # tranform to continus text within each block
+    groups = []
+    for flag, group in blocks:
+        block = '\n'.join( g[1] for g in group)
+        groups.append( (flag, block) )
+
+    # markup each block as needed
+    out, code = [], {}
+    for flag, block in groups:
+        if flag:
+            # this is codeblock
+            try:
+                # guess syntax highlighting
+                lexer = lexers.guess_lexer(block)
+            except pygments.util.ClassNotFound, exc:
+                # unable to detect language fall back to Python
+                lexer = lexers.PythonLexer()
+            body = pygments.highlight(block, lexer, formatters.HtmlFormatter())
+            uuid = hashlib.md5( str(random.getrandbits(256))).hexdigest()
+            code[uuid] = body
+            out.append(uuid)
+        else:
+            # regular markdown
+            out.append( block )
+
+    # markdown needs to run on the entire body to handle references
+    html = '\n'.join(out)
+    html = markdown.markdown(html, safe_mode=True)
+    
+    # this is required to put the codes back into the markdown
+    for uuid, value in code.items():
+        html = html.replace(uuid, value)
+
+    return html
 
 ALLOWED_TAGS = "strong span:class br ol ul li a:href img:src pre code blockquote p em"
 def sanitize(value, allowed_tags=ALLOWED_TAGS):
@@ -79,8 +136,12 @@ def template(request, name, mimetype=None, **kwd):
 class HtmlTest(unittest.TestCase):
     def test_sanitize(self):
         "Testing HTML sanitization"
-        text = sanitize('<a href=javascrip:something">A</a>')
-        self.assertEqual( text, 'ABC' )
+        text = sanitize('<a href="javascrip:something">A</a>', allowed_tags="b")
+        self.assertEqual( text, u'A' )
+
+        markup = generate("ABCD\n    CDE\n*A*")
+        expect = '<p>ABCD\n<div class="highlight"><pre>    <span class="n">CDE</span>\n</pre></div>\n\n<em>A</em></p>'
+        self.assertEqual( markup, expect )
 
         p = Params(a=1, b=2, c=3, incoming=dict(c=4))
         self.assertEqual( (p.a, p.b, p.c), (1, 2, 4))

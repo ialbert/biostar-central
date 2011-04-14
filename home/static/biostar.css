@@ -17,6 +17,9 @@ h1, h2, h3, h4 {
     margin-top: 0px;
     color: #333333;
 }
+h1 {
+    font-size: 200%;
+}
 
 .shaded {
     background-color: #5B8C3C;
@@ -543,6 +546,28 @@ tr.comment td{
 |-------------------------*/
 
 code {
-    background-color: #DDD;
+    background-color: #CCC;
     font-size: 120%;
+}
+
+.highlight {
+    background-color: #CCC;
+    font-size: 120%;
+
+    display: block;
+    margin-left: 1em;
+    margin-bottom: 1em;
+    padding: 5px;
+}
+
+.highlight pre {
+    margin-top: 0; margin-bottom: 0;
+}
+
+/* A nice style for Quotations borrowed from GitHub */
+blockquote {
+    border-left: 5px solid #DDDDDD !important;
+    color: #555555 !important;
+    margin: 1em 0 !important;
+    padding-left: 0.6em !important;
 }

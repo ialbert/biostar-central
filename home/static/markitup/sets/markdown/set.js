@@ -12,8 +12,8 @@
 // -------------------------------------------------------------------
 
 mySettings = {
-	previewParserPath:	'/markdown_preview/',
-	previewParserVar:	'source_text',
+	previewParserPath:	'/preview/',
+	previewParserVar:	'content',
 	onShiftEnter:		{keepDefault:false, openWith:'\n\n'},
 	markupSet: [
 		{name:'First Level Heading', key:'1', placeHolder:'Your title here...', closeWith:function(markItUp) { return miu.markdownTitle(markItUp, '=') } },
@@ -33,7 +33,7 @@ mySettings = {
 		{name:'Link', key:'L', openWith:'[', closeWith:']([![Url:!:http://]!] "[![Title]!]")', placeHolder:'Your text to link here...' },
 		{separator:'---------------'},	
 		{name:'Quotes', openWith:'> ', insertNewLineOnTop:true},
-		{name:'Code Block / Code', openWith:'\t', insertNewLineOnTop:true},
+		{name:'Code Block / Code', openWith:'    ', insertNewLineOnTop:true},
 		{separator:'---------------'},
 		{name:'Preview', call:'preview', className:"preview"}
 	]

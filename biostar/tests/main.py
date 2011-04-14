@@ -29,18 +29,21 @@ class BiostarTest(DjangoTestSuiteRunner):
 
     def run_tests(self, test_labels, extra_tests=None, **kwargs):
         # add new tests then delegate to supercalss
+        
         extra_tests = [  
-            access.suite(), functional.suite(), html.suite(),
+            html.suite(), access.suite(), functional.suite(), 
         ]
 
         if coverage:
             cov = coverage(include = ['biostar/*'], omit=['biostar/libs/*', 'biostar/tests/*'] )
             cov.start()
-            super( BiostarTest, self ).run_tests(test_labels, extra_tests, **kwargs)
+            code = super( BiostarTest, self ).run_tests(test_labels, extra_tests, **kwargs)
             cov.stop()
-            cov.report()
-            cov.html_report()
-            cov.xml_report()
+            if code == 0:
+                # reporting if there are not errors
+                cov.report()
+                cov.html_report()
+                cov.xml_report()
         else:
             super( BiostarTest, self ).run_tests(test_labels, extra_tests, **kwargs)
 

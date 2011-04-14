@@ -56,10 +56,19 @@ class FunctionalTest(TestCase):
 
         # check that the link works
         tc.follow('Questions')
+        tc.follow('Unanswered')
         tc.follow('Tags')
         tc.follow('Members')
         tc.follow('Badges')
+
         tc.follow('login')
+
+        tc.go(HOME_PAGE)
+        # follow the tag guidelines
+        tc.go('/question/tagged/guidelines/')
+
+       
+
 
     def test_user(self):
         "Tests a user interaction with a site"
@@ -90,6 +99,7 @@ class FunctionalTest(TestCase):
         # this is how you can save a page for inspection
         #tc.save_html('fabio.html')
         
+       
         # in the test dataset he has a reputation of 41
         tc.find('41')
 
@@ -99,8 +109,6 @@ class FunctionalTest(TestCase):
         # let's ask a question
         tc.go('/question/new/')
 
-        #tc.showforms()
-        
         title, content, tags = "Fabios World!", "What is it?", "fabio word"
         tc.fv(2, 'title', title)
         tc.fv(2, 'content', content)
@@ -118,6 +126,56 @@ class FunctionalTest(TestCase):
         tc.follow('Questions')
         tc.find(title)
         tc.follow(title)
+
+        # user edits their question
+        tc.follow('edit')
+        # edit the question
+        title, content, tags = "Fabios WorldXYZ!", "What is itXYZ?", "fabioX wordY"
+        tc.fv(2, 'title', title)
+        tc.fv(2, 'content', content)
+        tc.fv(2, 'tags', tags)
+        tc.submit('submit')
+        tc.find(title)
+        tc.find(content)
+
+        #tc.save_html('test.html')
+        #tc.showforms()
+        # let's add an answer
+       
+        # now a second user logs in
+        tc.go('/admin/password/override/')
+        tc.code(200)
+        tc.fv(2, 'uid', '2')
+        tc.fv(2, 'password', settings.SECRET_KEY)
+        tc.submit('submit')
+        tc.code(200)
+
+        # finds Faboios question
+        tc.follow('Questions')
+        tc.find(title)
+        tc.follow(title)
+
+        tc.showforms()
+
+        # answers Fabios quesion
+        content = 'Read the manual FABIO!!!!'
+        # why is this in twill form no 3
+        tc.fv(3, 'content', content)
+        tc.submit('submit')
+        tc.code(200)
+        tc.find(content)
+
+        # also upvotes the question since he answered it ;-)
+        tc.go("/vote/%s/preview/" % HOME_PAGE)
+
+        # check that markdown preview page works
+        tc.go("%s/preview/" % HOME_PAGE)
+        tc.code(200)
+        tc.find("no input")
+
+ 
+        
+
 
 def suite():
     s = unittest.TestLoader().loadTestsFromTestCase(FunctionalTest)

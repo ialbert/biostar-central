@@ -29,12 +29,13 @@
         <form action="{{request.path}}" method="post">
         {% csrf_token %}
         
-        <table bgcolor="#CECECE" width="100%">
+        <table bgcolor="#CECECE" style="width: 960px">
             <tr>
                 <td>Title</td>
                 <td>
                     {{ form.title.errors }}
-                    <input type="text" value="{{ form.title.value }}" name="title" size="80" style="margin:5px"/>
+                    <input type="text" value="{{ form.title.value }}" name="title" size="80"i
+                    style="margin:5px; width: 700px" />
                 </td>
             </tr>
 
@@ -47,10 +48,21 @@
             </tr>
 
             <tr>
+                <td>Preview</td>
+                <td>
+
+                    <div>
+                        <div id="markItUpPreview" class="markItUpPreview"></div>
+                    </div>
+                </td>
+            </tr>
+
+            <tr>
                 <td>Tags</td>
                 <td>
                     {{ form.tags.errors }}
-                    <input type="text" value="{{ form.tags.value }}" name="tags" size="80" style="margin:5px"/>
+                    <input type="text" value="{{ form.tags.value }}" name="tags" size="80"
+                    style="margin:5px; width: 700px"/>
                 </td>
             </tr>
 

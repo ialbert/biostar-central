@@ -14,7 +14,6 @@ urlpatterns = patterns('',
     # static pages
     ('^about/$', direct_to_template, {'template': 'about.html'}),
 
-   
     # tags
     (r'^tag/list/$', 'biostar.server.views.tag_list'),
 
@@ -28,8 +27,8 @@ urlpatterns = patterns('',
     (r'^member/list/$', 'biostar.server.views.user_list'),
     (r'^member/show/(?P<uid>\d+)/$', 'biostar.server.views.user_profile'),
 
-    # editor
-    (r'^markdown_preview/$', 'biostar.server.views.markdown_preview'),
+    # returns a preview page
+    (r'^preview/$', 'biostar.server.views.preview'),
     
     # revisions
     

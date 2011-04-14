@@ -1,17 +1,14 @@
 """
 Biostar views
 """
-import html
-from biostar.server import models
+from biostar.server import html, models
 from django import forms
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.contrib.auth import authenticate, login
 from django.conf import settings
-
 from django.http import HttpResponse
-import markdown
 
 def index(request):
     "Main page"
@@ -270,7 +267,6 @@ def answer_edit(request, qid, aid=0):
 
     return html.redirect('/question/show/%s/' % qid)
     
-    
 def revision_list(request, pid):
     post = models.Post.objects.get(pk=pid)
     revisions = post.revisions.order_by('-date') # Reverse order
@@ -287,12 +283,11 @@ def comment_add(request, pid):
     comment = models.Comment(parent=parent, post=post)
     comment.save()
 
-    if parent.question: # Post is a question
+    try:
         return html.redirect('/question/show/%s/' % (parent.question.id))
-    else:
-        return html.redirect('/question/show/%s/' % (parent.answer.question.id))
-    
-    
+    except models.Question.DoesNotExist:
+        return html.redirect('/question/show/%s/#%s' % (parent.answer.question.id, parent.answer.id))
+
 def vote(request):
     "Handles all voting on posts"
     if request.method == 'POST':
@@ -327,10 +322,15 @@ def vote(request):
 
     return html.json_response({'status':'error', 'msg':'POST method must be used'})
 
+@login_required(redirect_field_name='/openid/login/')
+def preview(request):
+    "This runs the markdown preview functionality"
+    content = request.POST.get('content','no input')
 
-def markdown_preview(request):
-    source_text = request.REQUEST['source_text'] # May need to be sanitized here
-    css = '<link rel="stylesheet" href="/static/biostar.css" type="text/css" media="screen, projection" />'
-    html = markdown.markdown(source_text, safe_mode='remove')
-    return HttpResponse(css + html, mimetype='text/plain')
+    try:
+        output = html.generate(content)
+    except KeyError, exc:
+        # return more userfriendly errors, used for debugging
+        output = 'Error: %s' % str(exc)
 
+    return HttpResponse(output, mimetype='text/plain')

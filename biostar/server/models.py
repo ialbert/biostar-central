@@ -79,12 +79,11 @@ class Post(models.Model):
         content = "\n".join( content.splitlines() )
         
         # Update our metadata
-        
         self.lastedit_date = date
         self.lastedit_user = author
         
         # convert the markdown to HTML
-        self.html = markdown.markdown(content)
+        self.html = html.generate(content)
         self.content = content
         self.title = title
         self.set_tags(tag_string)
@@ -157,8 +156,10 @@ class Post(models.Model):
         return self.tag_string.split(' ')
         
 class PostRevision(models.Model):
-    post = models.ForeignKey(Post, related_name='revisions')
-    
+    """
+    Represents various revisions of a single post
+    """
+    post    = models.ForeignKey(Post, related_name='revisions')
     content = models.TextField()
     tag_string = models.CharField(max_length=200)
     title = models.TextField(blank=True)
@@ -167,8 +168,8 @@ class PostRevision(models.Model):
     date = models.DateTimeField()
     
     def to_html(self):
-        ''' We won't cache the HTML in the DB because revisions are viewed fairly infrequently '''
-        return markdown.markdown(self.content)
+        '''We won't cache the HTML in the DB because revisions are viewed fairly infrequently '''
+        return html.generate(self.content)
         
     def get_tags(self):
         ''' Returns the revision's tags as a list of strings '''
@@ -178,7 +179,6 @@ class PostRevision(models.Model):
         self.post.revision_count += dir
         self.post.save()
         
-
 class Question(models.Model):
     """
     A Question is Post with answers
@@ -198,6 +198,9 @@ class Question(models.Model):
         return self.post.authorize(request, strict=strict)
 
 class Answer(models.Model):
+    """
+    Represents and answer to a question
+    """
     question = models.ForeignKey(Question, related_name='answers')
     post = models.OneToOneField(Post, related_name='answer')
     lastedit_date = models.DateTimeField(auto_now=True)
@@ -215,6 +218,9 @@ class Answer(models.Model):
         
 
 class Comment(models.Model):
+    """
+    Represents a comment to any post (question, answer)
+    """
     parent = models.ForeignKey(Post, related_name='comments')
     post = models.ForeignKey(Post)
     lastedit_date = models.DateTimeField(auto_now=True)
@@ -287,10 +293,7 @@ class Vote(models.Model):
             answer.save()
             question.save()
             
-BADGE_BRONZE = 0
-BADGE_SILVER = 1
-BADGE_GOLD = 2
-
+BADGE_BRONZE, BADGE_SILVER, BADGE_GOLD = 0, 1, 2
 BADGE_TYPES = ((BADGE_BRONZE, 'bronze'), (BADGE_SILVER, 'silver'), (BADGE_GOLD, 'gold'))
             
 class Badge(models.Model):
@@ -363,12 +366,10 @@ def create_post(sender, instance, *args, **kwargs):
     if not instance.lastedit_date:
         instance.lastedit_date = datetime.now()
 
-    
 def create_award(sender, instance, *args, **kwargs):
     if not instance.date:
         instance.date = datetime.now()
         
-             
 def tags_changed(sender, instance, action, pk_set, *args, **kwargs):
     if action == 'post_add':
         for pk in pk_set:
@@ -384,8 +385,6 @@ def tags_changed(sender, instance, action, pk_set, *args, **kwargs):
         for tag in instance.tag_set.all():
             tag.count -= 1
             tag.save()
-        
-    
 
 signals.post_save.connect( create_profile, sender=User )
 signals.pre_save.connect( create_post, sender=Post )

@@ -10,6 +10,9 @@
 
     {% block  common-frameworks %}
         <!-- CSS Framework loading -->
+
+        <!-- Syntax Highlighter  -->
+        <link rel="stylesheet" href="/static/pygments.css" type="text/css" media="screen, projection" />
        
         <!-- JQuery Library  -->
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
@@ -48,6 +51,7 @@
     <div id="topbar">
       {% block topbar %}
           <form id="search2" action="/search" method="get">
+          {% csrf_token %}
           <div style="float:right">
           {%if user.is_authenticated %}
               {% userlink user %}

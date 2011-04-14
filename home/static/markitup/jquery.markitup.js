@@ -412,35 +412,7 @@
 
 			// open preview window
 			function preview() {
-				if (!previewWindow || previewWindow.closed) {
-					if (options.previewInWindow) {
-						previewWindow = window.open('', 'preview', options.previewInWindow);
-						$(window).unload(function() {
-							previewWindow.close();
-						});
-					} else {
-						iFrame = $('<iframe class="markItUpPreviewFrame"></iframe>');
-						if (options.previewPosition == 'after') {
-							iFrame.insertAfter(footer);
-						} else {
-							iFrame.insertBefore(header);
-						}	
-						previewWindow = iFrame[iFrame.length - 1].contentWindow || frame[iFrame.length - 1];
-					}
-				} else if (altKey === true) {
-					if (iFrame) {
-						iFrame.remove();
-					} else {
-						previewWindow.close();
-					}
-					previewWindow = iFrame = false;
-				}
-				if (!options.previewAutoRefresh) {
-					refreshPreview(); 
-				}
-				if (options.previewInWindow) {
-					previewWindow.focus();
-				}
+				previewWindow = $('#markItUpPreview');
 			}
 
 			// refresh Preview window
@@ -499,17 +471,7 @@
 			}
 			
 			function writeInPreview(data) {
-				if (previewWindow.document) {			
-					try {
-						sp = previewWindow.document.documentElement.scrollTop
-					} catch(e) {
-						sp = 0;
-					}	
-					previewWindow.document.open();
-					previewWindow.document.write(data);
-					previewWindow.document.close();
-					previewWindow.document.documentElement.scrollTop = sp;
-				}
+				previewWindow.html(data);
 			}
 			
 			// set keys pressed

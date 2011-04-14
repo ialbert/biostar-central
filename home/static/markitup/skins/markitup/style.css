@@ -33,13 +33,15 @@
 	line-height:18px;
 	overflow:auto;
 }
-.markItUpPreviewFrame	{
+.markItUpPreview {
+	clear:both;
+	line-height:18px;
 	overflow:auto;
-	background-color:#FFFFFF;
-	border:1px solid #3C769D;
-	width:99.9%;
-	height:300px;
-	margin:5px 0;
+    background-color: #FFF;
+	margin: 0px;
+    padding: 50px;
+	width: 610px;
+    
 }
 .markItUpFooter {
 	width:100%;
