@@ -8,6 +8,8 @@ you can use python-virtualenv so you will not need to use root.
 
 1. This is the only time root access is needed. Install Virtualenv:
      sudo apt-get install python-virtualenv
+     # or
+     sudo easy_install virtualenv
 
 2. Create a python environment folder where Django will be installed:
      virtualenv -p python2.6 --no-site-packages env1
