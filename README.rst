@@ -10,6 +10,8 @@ rich text javascript editor. These do not need to be installed and will be loade
 Installation
 ------------
 
+To install Django 1.3 please see the INSTALL file.
+
 There is a main run manager in the root directory::
 
     $ biostar.sh 
