@@ -260,9 +260,10 @@
 				        blocks.push(openWith + line + closeWith);
 				      }
 				    }
+
+				    block = blocks.join("\n");
 				}
 				
-				block = blocks.join("\n");
 				
 				// Multiline sections usually need an extra newline on top
 				if (multilineSupport == 'true') { block = "\n\n" + block };
