@@ -237,7 +237,7 @@
 				var placeHolder = prepare(clicked.placeHolder);
 				var replaceWith = prepare(clicked.replaceWith);
 				var closeWith 	= prepare(clicked.closeWith);
-				var insertNewLineOnTop 	= prepare(clicked.insertNewLineOnTop);
+				var multilineSupport = prepare(clicked.multilineSupport);
 
 				if (replaceWith !== "") {
 					block = openWith + replaceWith + closeWith;
@@ -245,15 +245,16 @@
 					block = openWith + placeHolder + closeWith;
 				} else {
 				    string = string || selection;
-				
-				    // Do it for every line
-				    var lines = string.replace(/\n+$/, '').split("\n");
+			
+                    var lines = [string]
+				    // Apply action to every line or on the whole block?
+                    if (multilineSupport == 'true')
+				        lines = string.replace(/\n+$/, '').split("\n")
+                    
 				    var blocks = [];
 				    for (var l=0; l < lines.length; l++) {
 				      line = lines[l];
 				      if (line.match(/ +$/)) {
-				        // TODO: This needs to be extended to longer runs of spaces
-				        // TODO: This needs to be extended to leading spaces
 				        blocks.push(openWith + line.replace(/ $/, '') + closeWith + ' ');
 				      } else {
 				        blocks.push(openWith + line + closeWith);
@@ -263,9 +264,8 @@
 				
 				block = blocks.join("\n");
 				
-				// TODO: Descide betweend "\n\n" and "\n" if there is already
-				//       a "\n" in front of the selected text
-				if (insertNewLineOnTop == 'true') { block = "\n\n" + block };
+				// Multiline sections usually need an extra newline on top
+				if (multilineSupport == 'true') { block = "\n\n" + block };
 				return {	block:block, 
 							openWith:openWith, 
 							replaceWith:replaceWith, 
