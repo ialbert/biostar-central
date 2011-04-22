@@ -71,3 +71,13 @@ def question_list_narrow(x):
 @register.inclusion_tag('widgets/answer-list-narrow.html')
 def answer_list_narrow(x):
     return {'answers':x}
+    
+@register.simple_tag(takes_context=True)
+def navclass(context, include_path, exclude_paths=''):
+    path = context['request'].get_full_path()
+    if include_path in path:
+        if not exclude_paths or (True not in [pat in path for pat in exclude_paths.split(' ')]):
+            return 'class="youarehere"'
+    return ''
+    
+

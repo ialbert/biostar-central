@@ -109,6 +109,10 @@ a:hover, a.question-title {
     background-color: #FF7700;
 }
 
+.nav .youarehere {
+    background: none repeat scroll 0 0 #FF7700;
+}
+
 /* Mainbar */
 
 #mainbar {
