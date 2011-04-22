@@ -108,7 +108,8 @@ def insert_posts(fname, user_map, limit):
 
 @transaction.commit_manually
 def insert_post_revisions(fname, post_map, user_map, limit):
-    "Inserts the posts"
+    """Inserts post revisions. Also responsible for parsing out closed/deleted states from
+    the post history log"""
     i = 0
     rows = xml_reader(fname)
     # Stack overflow decided to split up modifications to title, tags, and content
@@ -135,6 +136,19 @@ def insert_post_revisions(fname, post_map, user_map, limit):
             rev['content'] = row['Text']
         if type in ['3', '6']: # Tags
             rev['tag_string'] = parse_tag_string(row['Text'])
+        if type in ['10','11','12','13']: # Moderator actions
+            if type == '10': # Closed
+                post.closed = True
+                post.save()
+            elif type == '11': # Reopened
+                post.closed = False
+                post.save()
+            elif type == '12': # Deleted
+                post.deleted = True
+                post.save()
+            else: # Undeleted
+                post.deleted = False
+                post.save()
             
         revision_map[guid] = rev
 

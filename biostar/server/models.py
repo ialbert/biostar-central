@@ -59,6 +59,8 @@ class Post(models.Model):
     creation_date = models.DateTimeField()
     lastedit_date = models.DateTimeField()
     lastedit_user = models.ForeignKey(User, related_name='editor')
+    deleted = models.BooleanField()
+    closed = models.BooleanField()
 
     def create_revision(self, content=None, title=None, tag_string=None, author=None, date=None):
         """Creates a new revision of the post with the given data.
