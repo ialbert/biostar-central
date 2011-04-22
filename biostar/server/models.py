@@ -204,6 +204,11 @@ class PostRevision(models.Model):
         self.post.revision_count += dir
         self.post.save()
         
+class PostManager(models.Manager):
+    ''' Used for all posts (question, answer, comment); returns only non-deleted posts '''
+    def get_query_set(self):
+        return super(PostManager, self).get_query_set().select_related('post').filter(post__deleted=False)
+        
 class Question(models.Model):
     """
     A Question is Post with answers
@@ -218,6 +223,8 @@ class Question(models.Model):
     post = models.OneToOneField(Post, related_name='question')
     lastedit_date = models.DateTimeField(auto_now=True)
     answer_accepted = models.BooleanField(default=False)
+    
+    objects = PostManager()
 
     def authorize(self, request, strict=False):
         return self.post.authorize(request, strict=strict)
@@ -230,6 +237,8 @@ class Answer(models.Model):
     post = models.OneToOneField(Post, related_name='answer')
     lastedit_date = models.DateTimeField(auto_now=True)
     accepted = models.BooleanField(default=False)
+    
+    objects = PostManager()
     
     def author(self):
         return self.post.author
@@ -247,8 +256,10 @@ class Comment(models.Model):
     Represents a comment to any post (question, answer)
     """
     parent = models.ForeignKey(Post, related_name='comments')
-    post = models.ForeignKey(Post)
+    post = models.OneToOneField(Post, related_name='comment')
     lastedit_date = models.DateTimeField(auto_now=True)
+    
+    objects = PostManager()
     
     def apply(self, dir=1):
         ''' Updates the parent post's comment count '''
