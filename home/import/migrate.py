@@ -125,10 +125,11 @@ def insert_post_revisions(fname, post_map, user_map, limit):
             continue
         guid = row['RevisionGUID']
         datestr = row['CreationDate']
+        date = parse_time(datestr)
         if guid not in revision_map:
             guid_list.append(guid)
         rev = revision_map.get(guid,
-                               {'post':post, 'author':author, 'date':parse_time(datestr)})
+                               {'post':post, 'author':author, 'date':date})
         type = row['PostHistoryTypeId']
         if type in ['1', '4']: # Title
             rev['title'] = row['Text']
@@ -137,18 +138,9 @@ def insert_post_revisions(fname, post_map, user_map, limit):
         if type in ['3', '6']: # Tags
             rev['tag_string'] = parse_tag_string(row['Text'])
         if type in ['10','11','12','13']: # Moderator actions
-            if type == '10': # Closed
-                post.closed = True
-                post.save()
-            elif type == '11': # Reopened
-                post.closed = False
-                post.save()
-            elif type == '12': # Deleted
-                post.deleted = True
-                post.save()
-            else: # Undeleted
-                post.deleted = False
-                post.save()
+            action_map = {'10':models.REV_CLOSE, '11':models.REV_REOPEN,
+                          '12':models.REV_DELETE, '13':models.REV_UNDELETE}
+            post.moderator_action(action_map[type], author, date)
             
         revision_map[guid] = rev
 

@@ -90,18 +90,32 @@ class Post(models.Model):
         self.title = title
         self.set_tags(tag_string)
         self.save()
-
-        # this is for debugging
-        if 0:
-            print '**** content ****' 
-            print repr(self.content)
-            print '---- html ----'
-            print repr(self.html)
             
     def current_revision(self):
         """ Returns the most recent revision of the post. Primarily useful for getting the
         current raw text of the post """
         return self.revisions.order_by('date')[0]
+        
+    def moderator_action(self, action, author, date=None):
+        """ Performs a moderator action on the post. Takes an action (one of REV_ACTIONS)
+        and a user. Date is assumed to be now if not provided """
+        date = date or datetime.now()
+        
+        revision = PostRevision(post=self, content='', title='', tag_string='',
+                                author=author, date=date, action=action)
+        revision.save()
+        
+        if action == REV_CLOSE:
+            self.closed = True
+        elif action == REV_REOPEN:
+            self.closed = False
+        elif action == REV_DELETE:
+            self.deleted = True
+        elif action == REV_UNDELETE:
+            self.deleted = False
+        else:
+            pass
+        self.save()
 
     def authorize(self, request, strict=False):
         "Verfifies access by a request object. Strict mode fails immediately."
@@ -157,14 +171,23 @@ class Post(models.Model):
         ''' Returns the post's tags as a list of strings '''
         return self.tag_string.split(' ')
         
+        
+REV_NONE, REV_CLOSE, REV_REOPEN, REV_DELETE, REV_UNDELETE = 0, 1, 2, 3, 4
+REV_ACTIONS = ((REV_NONE, ''), (REV_CLOSE, 'Close'), (REV_REOPEN, 'Reopen'), (REV_DELETE, 'Delete'), (REV_UNDELETE, 'Undelete'))
+
+        
 class PostRevision(models.Model):
     """
     Represents various revisions of a single post
     """
     post    = models.ForeignKey(Post, related_name='revisions')
+    
     content = models.TextField()
     tag_string = models.CharField(max_length=200)
     title = models.TextField(blank=True)
+    
+    # Moderator action performed in this revision, if applicable
+    action = models.IntegerField(choices=REV_ACTIONS, default=REV_NONE)
     
     author = models.ForeignKey(User)
     date = models.DateTimeField()
