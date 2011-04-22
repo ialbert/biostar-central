@@ -52,6 +52,8 @@ urlpatterns = patterns('',
 
     # voting handler
     (r'^vote/$', 'biostar.server.views.vote'),
+    (r'^moderate/$', 'biostar.server.views.moderate'),
+    
 
     # openid authentication
     (r'^openid/', include('django_openid_auth.urls')),

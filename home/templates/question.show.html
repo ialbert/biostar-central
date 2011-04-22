@@ -10,6 +10,7 @@
 {% block custom-frameworks %}
     <!-- AJAX -->
     <script src="/static/js/vote.js"></script>
+    <script src="/static/js/mod.js"></script>
     <script src="/static/js/comment.js"></script>
 
     <!-- markitUp editor -->
@@ -46,7 +47,18 @@
                         </div>
                        
                         <div class="left post-menu">
-                            mod | 
+                            <span class="mod-menu">
+                                {% if question.post.closed %}
+                                    <a class="mod-link">reopen</a> |
+                                {% else %}
+                                    <a class="mod-link">close</a> |
+                                {% endif %}
+                                {% if question.post.deleted %}
+                                    <a class="mod-link">undelete</a> |
+                                {% else %}
+                                    <a class="mod-link">delete</a> |
+                                {% endif %}
+                            </span> 
                             <a href="/question/edit/{{question.id}}/">edit</a> | 
                             flag
                         </div>
@@ -97,8 +109,12 @@
                             </div>
                             
                             <div class="left post-menu">
+                                {% if answer.post.deleted %}
+                                    <a class="mod-link">undelete</a> |
+                                {% else %}
+                                    <a class="mod-link">delete</a> |
+                                {% endif %}
                                 <a href="{{request.path}}#{{answer.id}}">link</a> | 
-                                mod | 
                                 <a href="/answer/edit/{{question.id}}/{{answer.id}}/">edit</a> | flag
                             </div>
         

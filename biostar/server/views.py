@@ -322,6 +322,26 @@ def vote(request):
 
     return html.json_response({'status':'error', 'msg':'POST method must be used'})
 
+def moderate(request):
+    if request.method == 'POST':
+        author = request.user
+        if not author.is_authenticated(): # Need to also check for actual mod permissions
+            return html.json_response({'status':'error', 'msg':'You must be logged in to moderate'})        
+
+        post_id = int(request.POST.get('post'))
+        post = models.Post.objects.get(id=post_id)
+        
+        action = request.POST.get('action')
+        action_map = {'close':models.REV_CLOSE, 'reopen':models.REV_REOPEN,
+                      'delete':models.REV_DELETE, 'undelete':models.REV_UNDELETE}
+        post.moderator_action(action_map[action], author)
+        
+        return html.json_response({'status':'success', 'msg':'%s performed' % action})
+        
+    return html.json_response({'status':'error', 'msg':'POST method must be used'})
+        
+
+
 @login_required(redirect_field_name='/openid/login/')
 def preview(request):
     "This runs the markdown preview functionality"

@@ -489,6 +489,7 @@ tr.comment td{
 .popover {
     position:absolute;
     margin-top:10px;
+    color: black;
 }
 
 .success {
