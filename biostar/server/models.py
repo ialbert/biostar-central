@@ -48,12 +48,12 @@ class UserProfile( models.Model ):
     
     @property
     def permissions(self):
-        perms = EVERYONE_PERM
+        perms = EVERYONE_PERM[:]
         if self.type == USER_ADMIN:
             perms.extend(ADMIN_PERM)
         if self.type == USER_MODERATOR or self.type == USER_ADMIN:
             perms.extend(MODERATOR_PERM)
-        for rep, perm in REPUTATION_PERM.items():
+        for perm, rep in REPUTATION_PERM.items():
             if self.score >= rep or self.type == USER_ADMIN or self.type == USER_MODERATOR:
                 perms.append(perm)
         return perms
@@ -420,7 +420,7 @@ def unapply_instance(sender, instance,  *args, **kwargs):
     
 for model in MODELS_WITH_APPLY:
     signals.post_save.connect(apply_instance, sender=model)
-    signals.post_delete.connect(apply_instance, sender=model)
+    signals.post_delete.connect(unapply_instance, sender=model)
     
 # Other objects have more unique signals
 

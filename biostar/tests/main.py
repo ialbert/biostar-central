@@ -20,7 +20,7 @@ except ImportError:
 
 # add our own testing suites
 from biostar.server import html
-from biostar.tests import functional, access
+from biostar.tests import functional, access, voting
 
 class BiostarTest(DjangoTestSuiteRunner):
 
@@ -30,8 +30,8 @@ class BiostarTest(DjangoTestSuiteRunner):
     def run_tests(self, test_labels, extra_tests=None, **kwargs):
         # add new tests then delegate to supercalss
         
-        extra_tests = [  
-            html.suite(), access.suite(), functional.suite(), 
+        extra_tests = [
+            voting.suite(), html.suite(), access.suite(), functional.suite(), 
         ]
 
         if coverage:

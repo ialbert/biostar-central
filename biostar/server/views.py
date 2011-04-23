@@ -44,6 +44,9 @@ def admin_password_override(request):
         passwd = request.POST.get('password', '')
         if passwd == settings.SECRET_KEY:
             user = models.User.objects.get(pk=uid)
+            if 'set_type' in request.POST: # Allow setting of user type for testing
+                user.profile.type = int(request.POST.get('set_type'))
+                user.profile.save()
             user.backend = 'django.contrib.auth.backends.ModelBackend'
             login(request, user)
             return html.redirect('/') 
