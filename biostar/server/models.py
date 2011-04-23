@@ -21,9 +21,9 @@ REPUTATION_PERM = {
     'vote_down':100,
     'edit_post':500,
 }
-# Permissions granted only to admins and moderators
+# Permissions granted only to admins and moderators. Admins have mod permissions.
 MODERATOR_PERM = ['moderate_post']
-ADMIN_PERM = MODERATOR_PERM + []
+ADMIN_PERM = []
 
 USER_NORMAL, USER_MODERATOR, USER_ADMIN = 0, 1, 2
 USER_TYPES = ((USER_NORMAL, 'Member'), (USER_MODERATOR, 'Moderator'), (USER_ADMIN, 'Administrator'))
@@ -47,17 +47,17 @@ class UserProfile( models.Model ):
     creation_date = models.DateTimeField(auto_now_add=True)
     type = models.IntegerField(choices=USER_TYPES, default=USER_NORMAL)
     
-    def has_perm(self, perm):
-        ''' Does the user have a specified permission? '''
-        if perm in EVERYONE_PERM:
-            return True
-        if self.type == USER_ADMIN and perm in ADMIN_PERM:
-            return True
-        if self.type == USER_MODERATOR and perm in MODERATOR_PERM:
-            return True
-        if perm in REPUTATION_PERM and self.score >= REPUTATION_PERM[perm]:
-            return True
-        return False
+    @property
+    def permissions(self):
+        perms = EVERYONE_PERM
+        if self.type == USER_ADMIN:
+            perms.extend(ADMIN_PERM)
+        if self.type == USER_MODERATOR or self.type == USER_ADMIN:
+            perms.extend(MODERATOR_PERM)
+        for rep, perm in REPUTATION_PERM.items():
+            if self.score >= rep or self.type == USER_ADMIN or self.type == USER_MODERATOR:
+                perms.append(perm)
+        return perms
     
     @property
     def is_moderator(self):

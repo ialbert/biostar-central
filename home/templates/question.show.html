@@ -47,19 +47,23 @@
                         </div>
                        
                         <div class="left post-menu">
-                            <span class="mod-menu">
-                                {% if question.post.closed %}
-                                    <a class="mod-link">reopen</a> |
-                                {% else %}
-                                    <a class="mod-link">close</a> |
-                                {% endif %}
-                                {% if question.post.deleted %}
-                                    <a class="mod-link">undelete</a> |
-                                {% else %}
-                                    <a class="mod-link">delete</a> |
-                                {% endif %}
-                            </span> 
-                            <a href="/question/edit/{{question.id}}/">edit</a> | 
+                            {% if 'moderate_post' in permissions %}
+                                <span class="mod-menu">
+                                    {% if question.post.closed %}
+                                        <a class="mod-link">reopen</a> |
+                                    {% else %}
+                                        <a class="mod-link">close</a> |
+                                    {% endif %}
+                                    {% if question.post.deleted %}
+                                        <a class="mod-link">undelete</a> |
+                                    {% else %}
+                                        <a class="mod-link">delete</a> |
+                                    {% endif %}
+                                </span>
+                            {% endif %}
+                            {% if 'edit_post' in permissions %}
+                                <a href="/question/edit/{{question.id}}/">edit</a> |
+                            {% endif %}
                             flag
                         </div>
                         
@@ -109,13 +113,20 @@
                             </div>
                             
                             <div class="left post-menu">
-                                {% if answer.post.deleted %}
-                                    <a class="mod-link">undelete</a> |
-                                {% else %}
-                                    <a class="mod-link">delete</a> |
+                                {% if 'moderate_post' in permissions %}
+                                    <span class="mod-menu">
+                                        {% if answer.post.deleted %}
+                                            <a class="mod-link">undelete</a> |
+                                        {% else %}
+                                            <a class="mod-link">delete</a> |
+                                        {% endif %}
+                                    </span>
                                 {% endif %}
-                                <a href="{{request.path}}#{{answer.id}}">link</a> | 
-                                <a href="/answer/edit/{{question.id}}/{{answer.id}}/">edit</a> | flag
+                                <a href="{{request.path}}#{{answer.id}}">link</a> |
+                                {% if 'edit_post' in permissions %}
+                                    <a href="/answer/edit/{{question.id}}/{{answer.id}}/">edit</a> |
+                                {% endif %}
+                                flag
                             </div>
         
                             <div class="right">

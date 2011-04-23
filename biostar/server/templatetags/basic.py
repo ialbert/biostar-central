@@ -4,9 +4,9 @@ from datetime import datetime, timedelta
 
 register = template.Library()
 
-@register.inclusion_tag('widgets/comments.html')
-def comments(post):
-    return {'post':post}
+@register.inclusion_tag('widgets/comments.html', takes_context=True)
+def comments(context, post):
+    return {'post':post, 'permissions':context['permissions']}
 
 @register.inclusion_tag('widgets/userlink.html')
 def userlink(user):

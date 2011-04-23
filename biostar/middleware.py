@@ -19,3 +19,12 @@ class LastVisit(object):
                 profile.save()
     
         return None
+
+
+class PermissionsMiddleware(object):
+    ''' Calculates the logged-in user's permissions and adds it to the request object. '''
+    def process_request(self, request):
+        if request.user.is_authenticated():
+            request.permissions = request.user.profile.permissions
+        else:
+            request.permissions = []

@@ -382,6 +382,7 @@ a:hover, a.question-title {
 
 .post-menu a{
     color: #858585;
+    text-decoration: none;
 }
 
 .post-menu a:hover {

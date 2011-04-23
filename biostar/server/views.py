@@ -325,8 +325,8 @@ def vote(request):
 def moderate(request):
     if request.method == 'POST':
         author = request.user
-        if not author.is_authenticated(): # Need to also check for actual mod permissions
-            return html.json_response({'status':'error', 'msg':'You must be logged in to moderate'})        
+        if 'moderate_post' not in request.permissions: # Need to also check for actual mod permissions
+            return html.json_response({'status':'error', 'msg':'You do not have permission to moderate posts.'})        
 
         post_id = int(request.POST.get('post'))
         post = models.Post.objects.get(id=post_id)

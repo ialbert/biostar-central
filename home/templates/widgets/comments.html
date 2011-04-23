@@ -16,9 +16,10 @@
         </table>
     </div>
 {% endif %}
-
-<div class="post-comment post-menu">
-    {% csrf_token %}
-    <input type="hidden" value="{{post.id}}">
-    <a class="add-comment">add comment</a>
-</div>
+{% if 'add_comment' in permissions %}
+    <div class="post-comment post-menu">
+        {% csrf_token %}
+        <input type="hidden" value="{{post.id}}">
+        <a class="add-comment">add comment</a>
+    </div>
+{% endif %}
