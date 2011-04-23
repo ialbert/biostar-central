@@ -17,7 +17,7 @@ def index(request):
         merge_accounts(request)
         
     if settings.DEBUG:
-        if not request.user.profile.is_admin:
+        if request.user.is_authenticated() and not request.user.profile.is_admin:
             request.user.profile.type = models.USER_ADMIN
             request.user.profile.save()
 
