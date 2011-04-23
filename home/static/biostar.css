@@ -413,6 +413,20 @@ a:hover, a.question-title {
   overflow: auto; text-align: left; border: 2px solid gray;
 }
 
+/* Question status */
+
+.question-status {
+    background-color: #EEEEEE;
+    clear: both;
+    margin-top: 15px;
+    padding: 8px 8px 1px 60px;
+}
+
+.question-status h2{
+    font-size: 150%;
+    line-height: 125%;
+    margin-bottom: 4px;
+}
 
 
 /* Comments */

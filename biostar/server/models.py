@@ -21,7 +21,7 @@ REPUTATION_PERM = {
     'vote_down':100,
 }
 # Permissions granted only to admins and moderators. Admins have mod permissions.
-MODERATOR_PERM = ['moderate_post']
+MODERATOR_PERM = ['moderate_post', 'view_deleted']
 ADMIN_PERM = []
 
 USER_NORMAL, USER_MODERATOR, USER_ADMIN = 0, 1, 2
@@ -260,6 +260,7 @@ class Question(models.Model):
     lastedit_date = models.DateTimeField(auto_now=True)
     answer_accepted = models.BooleanField(default=False)
     
+    all_objects = models.Manager()
     objects = PostManager()
 
     def authorize(self, request, strict=False):
@@ -274,6 +275,7 @@ class Answer(models.Model):
     lastedit_date = models.DateTimeField(auto_now=True)
     accepted = models.BooleanField(default=False)
     
+    all_objects = models.Manager()
     objects = PostManager()
     
     def author(self):
@@ -295,6 +297,7 @@ class Comment(models.Model):
     post = models.OneToOneField(Post, related_name='comment')
     lastedit_date = models.DateTimeField(auto_now=True)
     
+    all_objects = models.Manager()
     objects = PostManager()
     
     def apply(self, dir=1):

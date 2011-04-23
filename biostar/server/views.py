@@ -140,11 +140,13 @@ def question_unanswered(request):
 
 def question_show(request, pid):
     "Returns a question with all answers"
-    question = models.Question.objects.get(id=pid)
+    qs = models.Question.all_objects if 'view_deleted' in request.permissions else models.Question.objects
+    question = qs.get(id=pid)
     if request.user.is_authenticated():
         question.post.views += 1
         question.post.save()
-    answers  = models.Answer.objects.filter(question=question).select_related('post','post__author','post__author__profile')
+    qs = models.Answer.all_objects if 'view_deleted' in request.permissions else models.Answer.objects
+    answers  = qs.filter(question=question).select_related('post','post__author','post__author__profile')
     answers = answers.order_by('-accepted','-post__score')
     return html.template( request, name='question.show.html', question=question, answers=answers )
 

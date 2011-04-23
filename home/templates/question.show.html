@@ -87,6 +87,18 @@
             </table>
         
         </div>
+        
+        {% if question.post.closed %}
+        <div class="question-status">
+            <h2>This question has been closed by a moderator</h2>
+        </div>
+        {% endif %}
+    
+        {% if question.post.deleted %}
+        <div class="question-status">
+            <h2>This question has been deleted by a moderator</h2>
+        </div>
+        {% endif %}
 
         <div id="answers">
             
