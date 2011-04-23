@@ -13,13 +13,12 @@ from biostar.server import html
 import markdown
 
 # Permissions granted to everybody
-EVERYONE_PERM = ['add_comment','add_post']
+EVERYONE_PERM = ['add_comment','add_post','edit_post']
 # Permissions that can be gained with enough reputation.
 # Mods and admins automatically have all of these
 REPUTATION_PERM = {
     'vote_up':15,
     'vote_down':100,
-    'edit_post':500,
 }
 # Permissions granted only to admins and moderators. Admins have mod permissions.
 MODERATOR_PERM = ['moderate_post']
