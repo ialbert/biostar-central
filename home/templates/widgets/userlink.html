@@ -1,1 +1,9 @@
-<a href="/member/show/{{user.id}}">{{user.get_full_name}}</a>
+{% spaceless %}
+    <a href="/member/show/{{user.id}}">{{user.get_full_name}}</a>
+    {% if user.profile.is_moderator %}
+        <span class="mod-flair" title="moderator">♦</span>
+    {% endif %}
+    {% if user.profile.is_admin %}
+        <span class="mod-flair" title="administrator">♦♦</span>
+    {% endif %}
+{% endspaceless %}

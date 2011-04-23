@@ -209,6 +209,12 @@ a:hover, a.question-title {
   text-decoration: none;
 }
 
+.mod-flair {
+    font-size: 140%;
+    color: #555555;
+    font-weight: bold;
+    margin-left: 3px;
+}
 
 /*
 |-------------------------

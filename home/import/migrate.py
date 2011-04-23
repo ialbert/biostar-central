@@ -78,6 +78,11 @@ def insert_users(fname, limit):
     for u, row in profs.values():
         p = u.get_profile()
         p.score = int(row['Reputation'])
+        type = row['UserTypeId']
+        if type == '4':
+            p.type = models.USER_MODERATOR
+        if type == '5':
+            p.type = models.USER_ADMIN
         p.save()
 
     print "*** Update %s profiles" % len(profs)

@@ -12,6 +12,22 @@ from datetime import datetime
 from biostar.server import html
 import markdown
 
+# Permissions granted to everybody
+EVERYONE_PERM = ['add_comment','add_post']
+# Permissions that can be gained with enough reputation.
+# Mods and admins automatically have all of these
+REPUTATION_PERM = {
+    'vote_up':15,
+    'vote_down':100,
+    'edit_post':500,
+}
+# Permissions granted only to admins and moderators
+MODERATOR_PERM = ['moderate_post']
+ADMIN_PERM = MODERATOR_PERM + []
+
+USER_NORMAL, USER_MODERATOR, USER_ADMIN = 0, 1, 2
+USER_TYPES = ((USER_NORMAL, 'Member'), (USER_MODERATOR, 'Moderator'), (USER_ADMIN, 'Administrator'))
+
 class UserProfile( models.Model ):
     """
     Stores user options
@@ -29,6 +45,27 @@ class UserProfile( models.Model ):
     json  = models.TextField(default="", null=True)
     last_visited = models.DateTimeField(auto_now=True)
     creation_date = models.DateTimeField(auto_now_add=True)
+    type = models.IntegerField(choices=USER_TYPES, default=USER_NORMAL)
+    
+    def has_perm(self, perm):
+        ''' Does the user have a specified permission? '''
+        if perm in EVERYONE_PERM:
+            return True
+        if self.type == USER_ADMIN and perm in ADMIN_PERM:
+            return True
+        if self.type == USER_MODERATOR and perm in MODERATOR_PERM:
+            return True
+        if perm in REPUTATION_PERM and self.score >= REPUTATION_PERM[perm]:
+            return True
+        return False
+    
+    @property
+    def is_moderator(self):
+        return self.type == USER_MODERATOR
+    
+    @property
+    def is_admin(self):
+        return self.type == USER_ADMIN
 
 class Tag(models.Model):
     name = models.TextField(max_length=50)
