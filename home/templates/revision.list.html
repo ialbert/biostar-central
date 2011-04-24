@@ -19,21 +19,21 @@
                         {% endif %}
                     </td>
                     <td class="revauthor">
-                        {% actionbox revision.author revision.date 'edited' %}
+                        {% actionbox revision.author revision.date revision.verb %}
                     </td>
                 </tr>
                 <tr>
-                    <td colspan="4">
+                    <td colspan="4" class="revdata">
                         
-                        {% if revision.title %}
+                        {% if revision.modified.0 %}
                             <h4>{{revision.title}}</h4>
                         {% endif %}
                         
-                        {% if revision.content %}
+                        {% if revision.modified.1 %}
                             {{revision.to_html|safe}}
                         {% endif %}
                         
-                        {% if revision.tag_string %}
+                        {% if revision.modified.2 %}
                             <div class="tags">
                                 {% for tag in revision.get_tags %}
                                    {% taglink tag %}

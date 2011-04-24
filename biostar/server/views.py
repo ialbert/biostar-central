@@ -279,7 +279,26 @@ def answer_edit(request, qid, aid=0):
     
 def revision_list(request, pid):
     post = models.Post.objects.get(pk=pid)
-    revisions = post.revisions.order_by('-date') # Reverse order
+    revisions = list(post.revisions.order_by('date')) # Oldest first, will need to be reversed later
+    
+    # We need to annotate the revisions with exactly what was changed
+    # 'verb' is a word for the action box to describe the revision
+    # 'modified' is a list (title, content, tag_string) of boolean values for if it was changed
+    def revision_data(rev):
+        return rev.title, rev.content, rev.tag_string
+    last_data = revision_data(revisions[0])
+    revisions[0].verb = 'created'
+    revisions[0].modified = [True, True, True] # Always display the first revision
+    for revision in revisions[1:]:
+        if revision.action:
+            revision.verb = 'performed'
+        else:
+            revision.verb = 'edited'
+            data = revision_data(revision)
+            revision.modified = [current != last for current, last in zip(data, last_data)]
+            last_data = data
+    revisions.reverse()
+    
     return html.template(request, name='revision.list.html', revisions=revisions, post=post)
    
 @login_required(redirect_field_name='/openid/login/')

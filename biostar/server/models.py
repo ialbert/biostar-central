@@ -110,12 +110,12 @@ class Post(models.Model):
         author = author or self.author
         date = date or datetime.now()
         
-        revision = PostRevision(post=self, content=content, tag_string=tag_string, title=title, author=author, date=date)
-        revision.save()
-        
         # transform the content to UNIX style line endings
         content = "\n".join( content.splitlines() )
         
+        revision = PostRevision(post=self, content=content, tag_string=tag_string, title=title, author=author, date=date)
+        revision.save()
+                
         # Update our metadata
         self.lastedit_date = date
         self.lastedit_user = author
