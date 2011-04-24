@@ -192,6 +192,8 @@ class Post(models.Model):
         self.tag_string = tag_string
         self.save()
         self.tag_set.clear()
+        if not tag_string:
+            return
         tags = []
         for tag_name in tag_string.split(' '):
             try:
