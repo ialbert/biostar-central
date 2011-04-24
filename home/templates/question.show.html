@@ -68,7 +68,7 @@
                         </div>
                         
                         <div class="right question-user-info">
-                            {% actionbox question.post %}
+                            {% actionbox question.post.author question.post.creation_date %}
                         </div>
                         
                         {% revisionbox question.post %}
@@ -142,7 +142,7 @@
                             </div>
         
                             <div class="right">
-                                {% actionbox answer.post 'answered' %}
+                                {% actionbox answer.post.author answer.post.creation_date 'answered' %}
                             </div>
                             
                             {% revisionbox answer.post %}

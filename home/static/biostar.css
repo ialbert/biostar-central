@@ -529,6 +529,41 @@ tr.comment td{
 
 /*
 |-------------------------
+|  Post Revisio           |
+|-------------------------*/
+
+#revisions{
+    margin-left: 20px;
+    margin-top: 20px;
+}
+
+#revisions table{
+    border-spacing: 0px;
+}
+
+.revision td{
+    background-color: #EEEEEE;
+    vertical-align: middle;
+}
+
+.revarrow{
+    width: 25px;
+}
+
+.revcount {
+    width: 50px;
+    font-size: 250%;
+    color: #777777;
+    font-weight: bold;
+}
+
+.revsummary {
+    width: 620px;
+}
+
+
+/*
+|-------------------------
 |  Tag List               |
 |-------------------------*/
 

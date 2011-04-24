@@ -2,7 +2,7 @@
 
 <div class="user-info">
     <div class="user-action-time">
-        {{ action }} <b>{% time_ago post.creation_date %}</b>
+        {{ action }} <b>{% time_ago date %}</b>
     </div>
-    {% userbox post.author %}
+    {% userbox user %}
 </div>

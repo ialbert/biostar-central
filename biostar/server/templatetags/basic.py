@@ -25,8 +25,8 @@ def badgeicon(type):
     return {'type':type}
 
 @register.inclusion_tag('widgets/actionbox.html')
-def actionbox(post, action='asked'):
-    return {'post':post, 'action':action}
+def actionbox(user, date, action='asked'):
+    return {'user':user, 'date':date, 'action':action}
     
 @register.inclusion_tag('widgets/userbox.html')
 def userbox(user):

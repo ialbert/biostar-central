@@ -1,38 +1,52 @@
-{% extends "base.sidebar.html" %}
+{% extends "base.nosidebar.html" %}
 
 {% load basic %}
 
 {% block subheader %}
-    <h3>Revisions of "{{post.title}}"</h3>
+    <h2>Revisions of "{{post.title}}"</h2>
 {% endblock %}
 
 {% block mainbar %}
-    
-    {% for revision in revisions %}
-            <div class="revision">
-            <h2>{{forloop.revcounter}}</h2>
-            
-            {% if revision.title %}
-                <h4>{{revision.title}}</h4>
-            {% endif %}
-            
-            {% if revision.content %}
-                {{revision.to_html|safe}}
-            {% endif %}
-            
-            {% if revision.tag_string %}
-                <div class="tags">
-                    {% for tag in revision.get_tags %}
-                       {% taglink tag %}
-                    {% endfor %}
-                </div>
-            {% endif %}
-            
-            <div class="right">
-                {% userbox revision.author %}
-            </div>
-            <br class="clear">
-        </div>
-    {% endfor %}
+    <div id="revisions">
+        <table>
+            {% for revision in revisions %}
+                <tr class="revision">
+                    <td class="revarrow">&nbsp;</td>
+                    <td class="revcount">{{forloop.revcounter}}</td>
+                    <td class="revsummary">
+                        {% if revision.action %}
+                            Moderator action: {{ revision.get_action_display }}
+                        {% endif %}
+                    </td>
+                    <td class="revauthor">
+                        {% actionbox revision.author revision.date 'edited' %}
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="4">
+                        
+                        {% if revision.title %}
+                            <h4>{{revision.title}}</h4>
+                        {% endif %}
+                        
+                        {% if revision.content %}
+                            {{revision.to_html|safe}}
+                        {% endif %}
+                        
+                        {% if revision.tag_string %}
+                            <div class="tags">
+                                {% for tag in revision.get_tags %}
+                                   {% taglink tag %}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr class="spacer">
+                    <td height="5">&nbsp;</td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
 
 {% endblock %}
