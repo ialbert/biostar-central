@@ -20,7 +20,12 @@ fi
 export FIXTURE=home/import/datadump.json
 
 # the DJANGO_SETTINGS_MODULE needs to be in the python import path
-export PYTHONPATH=$PYTHONPATH:$BIOSTAR_HOME
+if [ -z "$PYTHONPATH" ]; then
+	# If there is no pythonpath yet, don't add the initial :
+	export PYTHONPATH=$BIOSTAR_HOME
+else
+        export PYTHONPATH=$PYTHONPATH:$BIOSTAR_HOME   
+fi
 
 # setting up the python
 export PYTHON_EXE=python
