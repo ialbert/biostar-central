@@ -462,12 +462,22 @@ def tags_changed(sender, instance, action, pk_set, *args, **kwargs):
         for tag in instance.tag_set.all():
             tag.count -= 1
             tag.save()
+            
+def tag_created(sender, instance, created, *args, **kwargs):
+    "Zero out the count of a newly created Tag instance to avoid double counting in import"
+    if created and instance.count != 0:
+        # To avoid infinite recursion, we must disconnect the signal temporarily
+        signals.post_save.disconnect(tag_created, sender=Tag)
+        instance.count = 0
+        instance.save()
+        signals.post_save.connect(tag_created, sender=Tag)
 
 signals.post_save.connect( create_profile, sender=User )
 signals.pre_save.connect( create_post, sender=Post )
 signals.pre_save.connect(create_award, sender=Award)
 
 signals.m2m_changed.connect( tags_changed, sender=Post.tag_set.through)
+signals.post_save.connect(tag_created, sender=Tag)
 
 
 
