@@ -28,9 +28,19 @@ def generate(text):
     func  = lambda line: line.startswith(' ' * 4) or line.startswith("\t")
     pairs = zip(map(func, lines), lines) 
 
+    # mark single-newlines surrounded by code as code
+    pairs2 = []
+    for i, p in enumerate(pairs):
+        flag, line = p
+        if i != 0 and i < len(pairs) - 1  and \
+          line == '' and pairs[i - 1][0] and pairs[i + 1][0]:
+            pairs2.append( (True, '') )
+        else:
+            pairs2.append( (flag, line) )
+
     # grouping function, group by the codeblock condition
     func   = lambda pair: pair[0]
-    blocks = groupby(pairs, func)
+    blocks = groupby(pairs2, func)
 
     # tranform to continus text within each block
     groups = []
