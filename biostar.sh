@@ -11,21 +11,14 @@ if [ -z "$BIOSTAR_HOSTNAME" ]; then
 	export BIOSTAR_HOSTNAME="0.0.0.0:8080"
 fi
 
-if [ -z "$DJANGO_SETTINGS_MODULE" ]; then
-	# DJANGO_SETTINGS_MODULE not found setting it automatically
-	export DJANGO_SETTINGS_MODULE=biostar_settings
-fi
+${DJANGO_SETTINGS_MODULE:?"biostar_settings"}
+
 
 # the fixture to dump/load data from
 export FIXTURE=home/import/datadump.json
 
 # the DJANGO_SETTINGS_MODULE needs to be in the python import path
-if [ -z "$PYTHONPATH" ]; then
-	# If there is no pythonpath yet, don't add the initial :
-	export PYTHONPATH=$BIOSTAR_HOME
-else
-        export PYTHONPATH=$PYTHONPATH:$BIOSTAR_HOME   
-fi
+export PYTHONPATH=$PYTHONPATH:$BIOSTAR_HOME   
 
 # setting up the python
 export PYTHON_EXE=python
