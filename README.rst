@@ -38,10 +38,10 @@ interact with your version of the test server. Edit the `run.sh` script to overr
 Layout
 ------
 
-The Python code is found in the biostar folder. Templates, static content 
-(css, images, javascript) and data are found in the home directory. 
+The Python code, templates, static content (css, images, javascript) and default 
+database are found in the `main` directory. 
 There is partial datadump of the existing BioStar content in the 
-`home/import/datadump`. The `populate` command will load 
+`import/datadump` location. The `populate` command will load 
 this data into the current database.
 
 Colorscheme
