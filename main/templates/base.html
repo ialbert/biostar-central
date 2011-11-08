@@ -24,8 +24,8 @@
         <script src="/static/js/debug.js"></script>
 
         <!-- Biostar specific style sheet and javascript-->
-        <link rel="stylesheet" href="/static/biostar.css" type="text/css" media="screen, projection" />
-        <script src="/static/biostar.js"></script>
+        <link rel="stylesheet" href="{{ STATIC_URL }}/biostar.css" type="text/css" media="screen, projection" />
+        <script src="{{ STATIC_URL }}/biostar.js"></script>
     {% endblock %}
 
     {% block custom-frameworks %}
@@ -109,7 +109,7 @@
 </div>
   
 <div id="footer">
-    Powered by <a href="/"><img src="/static/biostar.antipixel.png" /></a> 
+    Powered by <a href="/"><img src="{{ STATIC_URL }}/biostar.antipixel.png" /></a> 
     &bull; Revision <a href="https://github.com/ialbert/biostar-central/commit/{{BIOSTAR_VERSION}}">{{ BIOSTAR_VERSION }}</a>
     &bull; Copyright 2011 by <a href="https://github.com/ialbert/biostar-central/contributors">BioStar team</a>
     {% if debug %}

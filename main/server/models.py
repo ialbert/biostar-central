@@ -6,7 +6,8 @@ the queries necessary to fetch a certain entry.
 
 """
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
+from django.contrib import admin
 
 from datetime import datetime
 from main.server import html
@@ -70,6 +71,11 @@ class UserProfile( models.Model ):
 class Tag(models.Model):
     name = models.TextField(max_length=50)
     count = models.IntegerField(default=0)
+    
+class TagAdmin(admin.ModelAdmin):
+    list_display = ('name', 'count')
+
+admin.site.register(Tag, TagAdmin)
 
 class Post(models.Model):
     """
@@ -83,7 +89,6 @@ class Post(models.Model):
     u'<p><em>A</em></p>'
     """
     author = models.ForeignKey(User)
-    
     content = models.TextField(blank=True) # The underlying Markdown
     html    = models.TextField(blank=True) # this is the sanitized HTML for display
     title   = models.TextField(blank=True)
@@ -209,8 +214,17 @@ class Post(models.Model):
     def get_tags(self):
         ''' Returns the post's tags as a list of strings '''
         return self.tag_string.split(' ')
-        
-        
+    
+    def details(self):
+        return
+    
+class PostAdmin(admin.ModelAdmin):
+    list_display = ('id', 'title', )
+
+admin.site.register(Post, PostAdmin)
+
+
+
 REV_NONE, REV_CLOSE, REV_REOPEN, REV_DELETE, REV_UNDELETE = 0, 1, 2, 3, 4
 REV_ACTIONS = ((REV_NONE, ''), (REV_CLOSE, 'Close'), (REV_REOPEN, 'Reopen'), (REV_DELETE, 'Delete'), (REV_UNDELETE, 'Undelete'))
 
@@ -242,7 +256,7 @@ class PostRevision(models.Model):
     def apply(self, dir=1):
         self.post.revision_count += dir
         self.post.save()
-        
+
 class PostManager(models.Manager):
     ''' Used for all posts (question, answer, comment); returns only non-deleted posts '''
     def get_query_set(self):
@@ -265,13 +279,13 @@ class Question(models.Model):
     
     all_objects = models.Manager()
     objects = PostManager()
-
+    
     def authorize(self, request, strict=False):
         return self.post.authorize(request, strict=strict)
 
 class Answer(models.Model):
     """
-    Represents and answer to a question
+    An answer is a post that connects to a question
     """
     question = models.ForeignKey(Question, related_name='answers')
     post = models.OneToOneField(Post, related_name='answer')

@@ -1,10 +1,19 @@
-# Django settings for main project.
+#
+# default setting for the development server
+# modify these settings for any publicly facing website
+#
 import os, sys, re
 
+# on deployed servers make this unique, and don't share it with anybody.
+SECRET_KEY = '007'
+
+# turn off debug mode on deployed servers
 DEBUG = True
+
+# template debug mode
 TEMPLATE_DEBUG = DEBUG
 
-# comment this out in production or if you need the admin site
+# admin site may fail if this setting is active
 TEMPLATE_STRING_IF_INVALID = "*** MISSING ***"
 
 ADMINS = (
@@ -23,11 +32,13 @@ INTERNAL_IPS = ('127.0.0.1', )
 # the directory that this file is located in
 __CURR_DIR = path(os.path.dirname(__file__))
 
+# set location relative to the current file directory
 HOME_DIR      = path(__CURR_DIR )
 DATABASE_DIR  = path(HOME_DIR, 'db')
 DATABASE_NAME = path(DATABASE_DIR, 'biostar.db')
 TEMPLATE_DIR  = path(HOME_DIR, 'templates')
 STATIC_DIR    = path(HOME_DIR, 'static')
+EXPORT_DIR    = path(HOME_DIR, '..', 'export')
 
 DATABASES = {
     'default': {
@@ -74,22 +85,22 @@ USE_L10N = True
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
-MEDIA_ROOT = '/home/ialbert/biostar/media/'
+MEDIA_ROOT = '/media/'
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
 # Examples: "http://media.lawrence.com/media/", "http://example.com/media/"
-MEDIA_URL = 'http://www.biostars.org/media/'
+MEDIA_URL = EXPORT_DIR
 
 # Absolute path to the directory static files should be collected to.
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
-STATIC_ROOT = '/home/ialbert/biostar/static/'
+STATIC_ROOT = EXPORT_DIR
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
-STATIC_URL = 'http://www.biostars.org/static/'
+STATIC_URL = '/static/'
 
 # URL prefix for admin static files -- CSS, JavaScript and images.
 # Make sure to use a trailing slash.
@@ -101,6 +112,7 @@ STATICFILES_DIRS = (
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
+    STATIC_DIR, 
 )
 
 # List of finder classes that know how to find static files in
@@ -111,11 +123,6 @@ STATICFILES_FINDERS = (
 #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
-#
-# make this unique, and don't share it with anybody.
-# change this on deployed sites, it will serve as owner password
-#
-SECRET_KEY = '007'
 
 # ADMIN_PASSWORD_OVERRIDE allows one to log in as any user by using the SECRET_KEY
 # this is needed during testing, possbily for troubleshooting problems for deployment
@@ -156,20 +163,8 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.contrib.auth.context_processors.auth",
     "django.core.context_processors.debug",
     'django.core.context_processors.request',
+    'django.core.context_processors.static',
     "main.context.extras",
-)
-
-INSTALLED_APPS = (
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.sites',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    # Uncomment the next line to enable the admin:
-    'django.contrib.admin',
-    # Uncomment the next line to enable admin documentation:
-    'django.contrib.admindocs',
 )
 
 AUTH_PROFILE_MODULE = "server.UserProfile"
@@ -194,6 +189,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.messages',
+    'django.contrib.staticfiles',
     # Uncomment the next line to enable the admin:
     'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:

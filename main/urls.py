@@ -1,6 +1,8 @@
 from django.conf.urls.defaults import *
 from django.views.generic.simple import direct_to_template
 from django.conf import settings
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+
 
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
@@ -72,7 +74,10 @@ if settings.ADMIN_PASSWORD_OVERRIDE:
         (r'^admin/password/override/$', 'main.server.views.admin_password_override'),
     )
 
-if settings.DEBUG:
+
+urlpatterns += staticfiles_urlpatterns()
+
+if 0:
     urlpatterns += patterns('', 
         # static content
         (r'^static/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.STATIC_DIR }),

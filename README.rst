@@ -32,8 +32,11 @@ Alternatively one may run all these commands all at once::
 
     $ run.sh delete init populate
 
-The default server will bind the all IP adapters (0.0.0.0) and port 8080. Visit http://localhost:8080 to see
+   The default server will bind the all IP adapters (0.0.0.0) and port 8080. Visit http://localhost:8080 to see
 interact with your version of the test server. Edit the `run.sh` script to override the various settings.
+
+.. warning: The default settings will create an application with a default admin user and password!
+   Modify the `main/settings.py` file to contain a different password!
 
 Layout
 ------

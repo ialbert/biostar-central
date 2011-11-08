@@ -10,6 +10,9 @@ from django.contrib.auth import authenticate, login
 from django.conf import settings
 from django.http import HttpResponse
 
+# run the site inutialization
+from main.server import siteinit
+
 def index(request):
     "Main page"
     
