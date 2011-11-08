@@ -43,7 +43,7 @@ if [ $# == 0 ]; then
 	echo '  test - runs all tests'
 	echo '  populate -populates the system with test data'
 	echo '  delete - removes everything from BioStar'
-	echo '  run - runs server'
+	echo '  server - runs server'
 fi
 
 while (( "$#" )); do
@@ -70,7 +70,7 @@ while (( "$#" )); do
 		$PYTHON_EXE $DJANGO_ADMIN loaddata $FIXTURE --settings=$DJANGO_SETTINGS_MODULE
 	fi
 
-	if [ "$1" = "run" ]; then
+	if [ "$1" = "server" ]; then
 		echo "*** Running the webserver on $BIOSTAR_HOSTNAME"
 		$PYTHON_EXE $DJANGO_ADMIN runserver $BIOSTAR_HOSTNAME --settings=$DJANGO_SETTINGS_MODULE
 	fi
