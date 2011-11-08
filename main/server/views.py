@@ -16,6 +16,7 @@ from main.server import siteinit
 def index(request):
     "Main page"
     
+    # attempts to migrate the user
     if request.user.is_authenticated():
         merge_accounts(request)
         

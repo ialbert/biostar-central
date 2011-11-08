@@ -98,15 +98,14 @@ while (( "$#" )); do
 		$PYTHON_EXE $DJANGO_ADMIN flush --settings=$DJANGO_SETTINGS_MODULE > $FIXTURE
 	fi
 
-	if [ "$1" = "dump" ]; then
-		
+	if [ "$1" = "dump" ]; then		
 		echo "*** dumping data to $FIXTURE"
 		$PYTHON_EXE $DJANGO_ADMIN dumpdata auth.User server --settings=$DJANGO_SETTINGS_MODULE > $FIXTURE
 	fi
 
 	if [ "$1" = "migrate" ]; then
 		echo "*** migrating the data into the main database"
-		$PYTHON_EXE home/import/migrate.py home/import/datadump
+		$PYTHON_EXE import/migrate.py home/import/datadump
 	fi
 
 shift

@@ -1,28 +1,38 @@
 """
 Parses SE biostar xml archive, and populates a database with its
-content then saves a loadable data fixture from this data.
+content then exports a loadable data fixture from this data.
 """
 import sys, os, random, re
 from datetime import datetime
 from itertools import *
 from xml.etree import ElementTree
 
-# fixup path so we can access the Django settings module
+#  we will need to fixup path so we can access the Django settings module
 join = os.path.join
 file_dir = os.path.dirname(__file__)
+
+# include both the parent so that the codebase can be imported
 sys.path.append( join(file_dir, '..' ))
-sys.path.append( join(file_dir, '..', '..'))
 
-# overide the default settings
-os.environ['DJANGO_SETTINGS_MODULE'] = 'biostar_settings'
+# add default settings module if nothing was set at the command line
+if not os.environ.get('DJANGO_SETTINGS_MODULE'):
+    sys.path.append( join(file_dir, '..', 'main'))
+    os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
 
-# test that the paths work
+# load up the django framework
 from django.conf import settings
-from biostar.server import models
+from main.server import models
 from django.db import transaction
 
 def xml_reader(fname, limit=None):
-    "XML dumps all use similar format, no attributes are used"
+    """
+    SE XML dumps use similar format, everything is in tags, no attributes used anywhere
+    This iterator will parse the XML and return a list of dictionaries keyed by tag name and
+    having the node value as the value of the key.
+    
+    Example: row><a>1</a><b>2</b></row> --> [ { 'a':'1', 'b':'2' } ]
+    
+    """
     elems = ElementTree.parse(fname)
     elems = islice(elems.findall('row'), limit)
     
@@ -36,14 +46,20 @@ def xml_reader(fname, limit=None):
     return rows
 
 def parse_time(timestr):
+    "Attempts to convert a timestring to a datetime object"
     try:
         return datetime.strptime(timestr, '%Y-%m-%dT%H:%M:%S.%f')
     except ValueError:
         return datetime.strptime(timestr, '%Y-%m-%dT%H:%M:%S')
     
+# matches tags in a tag string
 tag_finder = re.compile('[^a-z]([a-z]+)[^a-z]')
         
+# returns a list of tags from a tagstring
 def parse_tag_string(rawtagstr):
+    """
+    >>> parse_tag_string("AAAA, B")
+    """
     return ' '.join([tag.strip() for tag in tag_finder.findall(rawtagstr) if tag.strip()])
 
 
@@ -333,13 +349,17 @@ def execute(path, limit=300):
     insert_awards(fname=fname, user_map=user_map, badge_map=badge_map, limit=limit)
 
 if __name__ =='__main__':
-
+    import doctest
+    
     # requires a directory name as input
     # also runs from an editor (lot easier to work with initially)
     if len(sys.argv) == 1:
         dirname = 'datadump'
     else:
         dirname = sys.argv[1]
-
-    execute(dirname, limit=300)
+    print 123
+    
+    doctest.testmod()
+    
+    #execute(dirname, limit=300)
     

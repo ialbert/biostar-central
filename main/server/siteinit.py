@@ -16,7 +16,7 @@ admin = models.User.objects.get(username='admin')
 # and a sanity check
 assert admin.is_staff and admin.is_superuser
 
-editors, created = models.Group.objects.get_or_create(name=const.EDITOR_GROUP)
+editors, created = models.Group.objects.get_or_create(name=const.MODERATOR_GROUP)
 if created:
     print '*** created group %s' % editors.name
 
