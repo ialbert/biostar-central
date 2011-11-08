@@ -22,11 +22,11 @@ one would invoke it as follows::
 
     $ run.sh init 
     $ run.sh populate
-    $ run.sh run
+    $ run.sh server
 
 Alternatively one may run all these commands all at once::
 
-    $ run.sh init populate run
+    $ run.sh init populate server
 
 **Note**: If the models change you must reset and reinitialize your database::
 
