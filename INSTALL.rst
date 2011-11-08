@@ -1,13 +1,13 @@
-To run the biostar Q&A site you will need to have Python and Django 1.3 installed.
+Installation
+============
 
-To check for python type::
+To run the biostar Q&A site you will need to have Python and Django 1.3 installed. To check for the version of python type::
 
 	python --version
 
-It needs to be Python 2.6 or higher.
+It needs to show Python 2.6 or higher. To check if you have the necessary Django version, run::
 
-To check if you have the necessary Django version, run:
-  ./run.sh init
+	./run.sh init
 
 To install Django 1.3 without affecting your hosts system-wide settings,
 you can use python-virtualenv so you will not need to use root.
@@ -16,7 +16,7 @@ you can use python-virtualenv so you will not need to use root.
 
 	sudo apt-get install python-virtualenv
 	# or
-    sudo easy_install virtualenv
+	sudo easy_install virtualenv
 
 2. Create a python environment folder where Django will be installed::
 
@@ -31,5 +31,5 @@ you can use python-virtualenv so you will not need to use root.
 	pip install django
 
 5. Now you should be able to run biostar-central
-   cd ../biostar-central
-  ./run.sh init
+   
+	./run.sh init
