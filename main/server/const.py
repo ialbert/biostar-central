@@ -30,3 +30,16 @@ REV_ACTIONS = (
     (REV_DELETE, 'Delete'), (REV_UNDELETE, 'Undelete')
 )
 
+VOTE_UP, VOTE_DOWN, VOTE_ACCEPT = 0, 1, 2
+
+VOTE_TYPES = ((VOTE_UP, 'Upvote'), (VOTE_DOWN, 'Downvote'), (VOTE_ACCEPT, 'Accept'))
+
+OPPOSING_VOTES = {VOTE_UP:VOTE_DOWN, VOTE_DOWN:VOTE_UP} # Mappings of mutually exclusive votes
+
+# post score changes
+POST_SCORE = { VOTE_UP:1, VOTE_DOWN:-1 }
+
+# user reputation changes
+USER_REP   = { VOTE_UP:10, VOTE_DOWN:-2, VOTE_ACCEPT:15 }
+VOTER_REP = { VOTE_DOWN: -1, VOTE_ACCEPT:2 }
+

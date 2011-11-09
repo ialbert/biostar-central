@@ -267,52 +267,46 @@ def insert_questions(fname, limit, posts):
     print "*** inserting %s answers" % len(answ_map)        
     transaction.commit()
     
-    
-    
 @transaction.commit_manually
-def insert_votes(fname, user_map, post_map, limit):
+def insert_votes(fname, limit, users, posts):
     store = {}
     votes = xml_reader(fname)
     for row in votes:
-        post = post_map.get(row['PostId'])
-        user = user_map.get(row['UserId'])
-        addr = user_map.get(row['IPAddress'])
+        post = posts.get(row['PostId'])
+        user = users.get(row['UserId'])
+        addr = users.get(row['IPAddress'])
         VoteType = row['VoteTypeId']
-        # upmod=2, downmod=3
-        #valid = ('1','2', '3')
         
         if post and user:
             if VoteType == '1':
-                vote_type = models.VOTE_ACCEPT
+                vote_type = const.VOTE_ACCEPT
             elif VoteType == '2':
-                vote_type = models.VOTE_UP
+                vote_type = const.VOTE_UP
             elif VoteType == '3':
-                vote_type = models.VOTE_DOWN
+                vote_type = const.VOTE_DOWN
             else:
                 continue
             
-            v, flag = models.Vote.objects.get_or_create(post=post, author=user, type=vote_type)
-            store[row['Id']] = v
+            vote, flag = models.Vote.objects.get_or_create(post=post, author=user, type=vote_type)
+            store[row['Id']] = vote
 
     transaction.commit()
-    print "*** Inserted %s votes" % len(store)
+    print "*** inserted %s votes" % len(store)
  
-    
-    
 @transaction.commit_manually
-def insert_comments(fname, post_map, user_map, limit):
+def insert_comments(fname, posts, users, limit):
     comment_map = {}
     rows = xml_reader(fname, limit=limit)
     
     for (index, row) in enumerate(rows):
         Id = row['Id']
         try:
-            parent = post_map[ row['PostId'] ]
+            parent = posts[ row['PostId'] ]
         except KeyError:
             continue # We haven't inserted this post
         text   = row['Text']
         userid = row['UserId']
-        author = user_map[userid]
+        author = users[userid]
         creation_date = parse_time(row['CreationDate'])
         #post = comment_post_map[Id]
         post = models.Post.objects.create(author=author, creation_date=creation_date)
@@ -323,7 +317,7 @@ def insert_comments(fname, post_map, user_map, limit):
         comment_map[Id] = comment
     transaction.commit()
     
-    print "*** Inserted %s comments" % len(comment_map)
+    print "*** inserted %s comments" % len(comment_map)
     
 @transaction.commit_manually
 def insert_badges(fname, limit):
@@ -342,19 +336,19 @@ def insert_badges(fname, limit):
         badge.save()
         store[Id] = badge
     transaction.commit()
-    print "*** Inserted %s badges" % len(store)
+    print "*** inserted %s badges" % len(store)
     return store
 
 @transaction.commit_manually
-def insert_awards(fname, user_map, badge_map, limit):
+def insert_awards(fname, users, badges, limit):
     "Inserts the badge awards"
     store = {}
     rows = xml_reader(fname)
     for (index, row) in enumerate(rows):
         Id = row['Id']
         try:
-            user = user_map[row['UserId']]
-            badge = badge_map[row['BadgeId']]
+            user = users[row['UserId']]
+            badge = badges[row['BadgeId']]
         except KeyError:
             continue
         date = parse_time(row['Date'])
@@ -362,7 +356,7 @@ def insert_awards(fname, user_map, badge_map, limit):
         a.save()
         store[Id] = a
     transaction.commit()
-    print "*** Inserted %s badge awards" % len(store)
+    print "*** inserted %s badge awards" % len(store)
     
 
 def execute(path, limit=None):
@@ -378,35 +372,33 @@ def execute(path, limit=None):
     posts = insert_posts(fname=fname, limit=limit, users=users)
     
     fname = join(path, 'PostHistory.xml')
-    #revisions = insert_post_revisions(fname=fname, limit=limit, posts=posts, users=users)
+    revisions = insert_post_revisions(fname=fname, limit=limit, posts=posts, users=users)
     
     fname = join(path, 'Posts.xml')
     insert_questions(fname=fname, limit=limit, posts=posts)
 
-    '''
     fname = join(path, 'Posts2Votes.xml')
-    insert_votes(fname=fname, limit=limit, post_map=post_map, user_map=user_map)
+    insert_votes(fname=fname, limit=limit, posts=posts, users=users)
     
     fname = join(path, 'PostComments.xml')
-    insert_comments(fname=fname, post_map=post_map, user_map=user_map, limit=limit)
+    insert_comments(fname=fname, posts=posts, users=users, limit=limit)
     
     fname = join(path, 'Badges.xml')
-    badge_map = insert_badges(fname=fname, limit=limit)
+    badges = insert_badges(fname=fname, limit=limit)
     
     fname = join(path, 'Users2Badges.xml')
-    insert_awards(fname=fname, user_map=user_map, badge_map=badge_map, limit=limit)
-    '''
+    insert_awards(fname=fname, users=users, badges=badges, limit=limit)
     
 if __name__ =='__main__':
     import doctest, optparse
     
     # for debugging
-    sys.argv.extend( ["-p", "se0"] )
+    #sys.argv.extend( ["-p", "se0"] )
     
     # options for the program
     parser = optparse.OptionParser()
     parser.add_option("-p", "--path", dest="path", help="directory or zip archive containing a full biostar SE1 datadump")
-    parser.add_option("-L", "--limit", dest="limit", help="limit to these many rows per file")
+    parser.add_option("-L", "--limit", dest="limit", help="limit to these many rows per file", default=None)
     (opts, args) = parser.parse_args()
     
     # stop execution if no parameters were specified
