@@ -1,0 +1,68 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VoteTypes>
+  <row>
+    <Id>1</Id>
+    <Name>AcceptedByOriginator</Name>
+    <Description>Marks an answer as the most helpful to the original questioner.</Description>
+  </row>
+  <row>
+    <Id>2</Id>
+    <Name>UpMod</Name>
+    <Description>Marks a question or answer to be worthy.</Description>
+  </row>
+  <row>
+    <Id>3</Id>
+    <Name>DownMod</Name>
+    <Description>Marks a question or answer to be worthless or unsuitable.</Description>
+  </row>
+  <row>
+    <Id>4</Id>
+    <Name>Offensive</Name>
+    <Description>Marks a question or answer as rude or aggressive.</Description>
+  </row>
+  <row>
+    <Id>5</Id>
+    <Name>Favorite</Name>
+    <Description>Marks a question as favorite</Description>
+  </row>
+  <row>
+    <Id>6</Id>
+    <Name>Close</Name>
+    <Description>Nominate a question for closing, and eventual deletion.</Description>
+  </row>
+  <row>
+    <Id>7</Id>
+    <Name>Reopen</Name>
+    <Description>Nominate a closed question to be reopened for further answers.</Description>
+  </row>
+  <row>
+    <Id>8</Id>
+    <Name>BountyStart</Name>
+    <Description>Question owner places a bounty on her/his question.</Description>
+  </row>
+  <row>
+    <Id>9</Id>
+    <Name>BountyClose</Name>
+    <Description>An open bounty is completed, either by the owner or system selecting an accepted answer.</Description>
+  </row>
+  <row>
+    <Id>10</Id>
+    <Name>Deletion</Name>
+    <Description>Nominate a post to be deleted.</Description>
+  </row>
+  <row>
+    <Id>11</Id>
+    <Name>Undeletion</Name>
+    <Description>Nominate a post to be undeleted.</Description>
+  </row>
+  <row>
+    <Id>12</Id>
+    <Name>Spam</Name>
+    <Description>Flags a post as advertising spam.</Description>
+  </row>
+  <row>
+    <Id>13</Id>
+    <Name>InformModerator</Name>
+    <Description>Flags a post for moderators to review.</Description>
+  </row>
+</VoteTypes>

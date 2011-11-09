@@ -1,0 +1,148 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<UserHistoryTypes>
+  <row>
+    <Id>1</Id>
+    <Name>Action</Name>
+    <Description>Generic catch-all category</Description>
+  </row>
+  <row>
+    <Id>2</Id>
+    <Name>Login</Name>
+    <Description>User logs in with openid</Description>
+  </row>
+  <row>
+    <Id>3</Id>
+    <Name>Logout</Name>
+    <Description>User logs out</Description>
+  </row>
+  <row>
+    <Id>4</Id>
+    <Name>Add OpenId</Name>
+    <Description>User adds new openid</Description>
+  </row>
+  <row>
+    <Id>5</Id>
+    <Name>Edit DisplayName</Name>
+    <Description>User edits her/his DisplayName</Description>
+  </row>
+  <row>
+    <Id>6</Id>
+    <Name>Edit Email</Name>
+    <Description>User edits her/his Email</Description>
+  </row>
+  <row>
+    <Id>7</Id>
+    <Name>Migrated</Name>
+    <Description>User copied account from one site to another</Description>
+  </row>
+  <row>
+    <Id>8</Id>
+    <Name>Daily Site Access</Name>
+    <Description>Each day a user accesses the site, the user will get one of these!</Description>
+  </row>
+  <row>
+    <Id>9</Id>
+    <Name>User Emailed</Name>
+    <Description>An email is sent</Description>
+  </row>
+  <row>
+    <Id>10</Id>
+    <Name>Annotation</Name>
+    <Description>A moderator has given feedback on this user</Description>
+  </row>
+  <row>
+    <Id>11</Id>
+    <Name>Suspend</Name>
+    <Description>A moderator has suspended this user for a given time period</Description>
+  </row>
+  <row>
+    <Id>12</Id>
+    <Name>Unsuspend</Name>
+    <Description>A moderator has unsuspended this user for good behavior (or bribe)</Description>
+  </row>
+  <row>
+    <Id>13</Id>
+    <Name>OptInEmailToggle</Name>
+    <Description>A user has turned on or off their preference for receiving emails from the site</Description>
+  </row>
+  <row>
+    <Id>14</Id>
+    <Name>AssociateAccount</Name>
+    <Description>A user has associated one account with another from a different site</Description>
+  </row>
+  <row>
+    <Id>15</Id>
+    <Name>CopyProfile</Name>
+    <Description>A user has copied her/his profile from another site to this one</Description>
+  </row>
+  <row>
+    <Id>16</Id>
+    <Name>DisassociateAccount</Name>
+    <Description>A user has removed an association to another site</Description>
+  </row>
+  <row>
+    <Id>21</Id>
+    <Name>Moderator Deletes User</Name>
+    <Description>Site mod soft-deletes a user account</Description>
+  </row>
+  <row>
+    <Id>22</Id>
+    <Name>Moderator Merge Users</Name>
+    <Description>Site mod merges two user accounts</Description>
+  </row>
+  <row>
+    <Id>23</Id>
+    <Name>Moderator Merge Questions</Name>
+    <Description>Site mod merges two questions</Description>
+  </row>
+  <row>
+    <Id>24</Id>
+    <Name>Moderator Recalc Rep</Name>
+    <Description>Site mod recalcs rep for a single user</Description>
+  </row>
+  <row>
+    <Id>25</Id>
+    <Name>Moderator Recalc All Rep</Name>
+    <Description>Site mod recalcs rep for all users</Description>
+  </row>
+  <row>
+    <Id>26</Id>
+    <Name>Moderator Destroyed User</Name>
+    <Description>Site mod hard-deletes (destroys) a user and all posts</Description>
+  </row>
+  <row>
+    <Id>27</Id>
+    <Name>Moderator Edits User</Name>
+    <Description>Site mod edits a user profile</Description>
+  </row>
+  <row>
+    <Id>28</Id>
+    <Name>Moderator Deletes Flag Votes</Name>
+    <Description>Mod soft-deletes Spam and Offensive votes from a post</Description>
+  </row>
+  <row>
+    <Id>29</Id>
+    <Name>Moderator Arbitrary Rep Change</Name>
+    <Description>Site mod adds or subtracts reputation for a user</Description>
+  </row>
+  <row>
+    <Id>30</Id>
+    <Name>Moderator Merge Tags</Name>
+    <Description>Site mod merged two tags together</Description>
+  </row>
+  <row>
+    <Id>31</Id>
+    <Name>Moderator Removes Bounty</Name>
+    <Description>Mod removes an open bounty from a question</Description>
+  </row>
+  <row>
+    <Id>60</Id>
+    <Name>User Recovers Account</Name>
+    <Description>User logged in using the token sent in an account recovery email</Description>
+  </row>
+  <row>
+    <Id>61</Id>
+    <Name>Sent Account Recovery Email</Name>
+    <Description>User requests an account recovery email be sent</Description>
+  </row>
+</UserHistoryTypes>

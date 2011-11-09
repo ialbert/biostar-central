@@ -1,0 +1,85 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="PostHistory" xmlns="" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+  <xs:element name="PostHistory" msdata:IsDataSet="true" msdata:UseCurrentLocale="true">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="Table">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="Id" msdata:ReadOnly="true" msdata:AutoIncrement="true" type="xs:int" />
+              <xs:element name="PostHistoryTypeId" type="xs:unsignedByte" />
+              <xs:element name="PostId" type="xs:int" />
+              <xs:element name="RevisionGUID" msdata:DataType="System.Guid, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" type="xs:string" />
+              <xs:element name="CreationDate" msdata:DateTimeMode="Unspecified" type="xs:dateTime" />
+              <xs:element name="IPAddress">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="40" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="UserId" type="xs:int" minOccurs="0" />
+              <xs:element name="Comment" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="400" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="Text" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="2147483647" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="UserDisplayName" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="40" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="UserEmail" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="100" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="UserWebsiteUrl" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="200" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="row">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="Id" type="xs:int" minOccurs="0" />
+              <xs:element name="PostHistoryTypeId" type="xs:unsignedByte" minOccurs="0" />
+              <xs:element name="PostId" type="xs:int" minOccurs="0" />
+              <xs:element name="RevisionGUID" msdata:DataType="System.Guid, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" type="xs:string" minOccurs="0" />
+              <xs:element name="CreationDate" msdata:DateTimeMode="Unspecified" type="xs:dateTime" minOccurs="0" />
+              <xs:element name="IPAddress" type="xs:string" minOccurs="0" />
+              <xs:element name="UserId" type="xs:int" minOccurs="0" />
+              <xs:element name="Comment" type="xs:string" minOccurs="0" />
+              <xs:element name="Text" type="xs:string" minOccurs="0" />
+              <xs:element name="UserDisplayName" type="xs:string" minOccurs="0" />
+              <xs:element name="UserEmail" type="xs:string" minOccurs="0" />
+              <xs:element name="UserWebsiteUrl" type="xs:string" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:choice>
+    </xs:complexType>
+    <xs:unique name="Constraint1" msdata:PrimaryKey="true">
+      <xs:selector xpath=".//Table" />
+      <xs:field xpath="Id" />
+    </xs:unique>
+  </xs:element>
+</xs:schema>
