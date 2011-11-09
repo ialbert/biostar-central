@@ -10,21 +10,26 @@ from django.contrib.auth import authenticate, login
 from django.conf import settings
 from django.http import HttpResponse
 
-# run the site inutialization
-from main.server import siteinit
+# the openid association model
+from django_openid_auth.models import UserOpenID
 
 def index(request):
     "Main page"
     
+    
     # attempts to migrate the user
     if request.user.is_authenticated():
-        merge_accounts(request)
-        
+        users = detect_duplicates(request)
+        if users:
+            return merge_accounts(request, users)
+    
+    '''    
     if settings.DEBUG:
         if request.user.is_authenticated() and not request.user.profile.is_admin:
             request.user.profile.type = models.USER_ADMIN
             request.user.profile.save()
-
+    '''
+    
     # shows both the 5 freshest and 5 oldest questions 
     # (this is for debugging)
     
@@ -57,15 +62,28 @@ def admin_password_override(request):
         
     raise Exception('Invalid login')
 
+
+def detect_duplicates(request):
+    "Detects duplicate users"
+    users = models.User.objects.filter(email=request.user.email).order_by('date_joined')
+    users = list(users)
+    if len(users)==2:
+        return users[0], users[1]
+    else:
+        return None
+    
 @transaction.commit_on_success
-def merge_accounts(request):
+def merge_accounts(request, users):
     "Attempts to merge user accounts if emails match"
-    users = list(models.User.objects.filter(email=request.user.email))
-    if len(users)>1:
-        source, target = users[0], users[-1]
-        
-        models.Post.objects.filter(author=source).update(author=target)
-        models.Vote.objects.filter(author=source).update(author=target)
+    
+    openid = UserOpenID.objects.get(user=request.user)
+    #openid.user = users[0]
+    #openid.save()
+    #models.User.objects.get(user=request.user).delete()
+    return html.template(request, name='account.merge.html')
+    
+    '''
+    def replace(olduser, newuser):
         
         # needs a one step transfer of all attributes
         p1 = models.UserProfile.objects.get(user=source)
@@ -75,7 +93,8 @@ def merge_accounts(request):
         
         # disable the old user
         source.set_unusable_password()
-
+    '''
+    
 def user_profile(request, uid):
     "User's profile page"
     user = models.User.objects.get(id=uid)

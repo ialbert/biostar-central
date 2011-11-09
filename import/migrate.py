@@ -20,7 +20,7 @@ if not os.environ.get('DJANGO_SETTINGS_MODULE'):
 
 # load up the django framework with settings
 from django.conf import settings
-from main.server import models, const, siteinit
+from main.server import models, const
 from django.db import transaction
 
 def xml_reader(fname, limit=None):
@@ -358,12 +358,35 @@ def insert_awards(fname, users, badges, limit):
     transaction.commit()
     print "*** inserted %s badge awards" % len(store)
     
+def admin_init():
+    
+    # create the admin users for a given settings file
+    for index, (name, email) in enumerate(settings.ADMINS):
+        
+        admins = models.User.objects.filter(email=email).all()
+            
+        if not admins:
+            # create this adminsitrative user
+            admin  = models.User(email=email, first_name=name, username='a%i' % index)
+            admins = [ admin ]
+            print '*** created admin user %s (%s)' % (admin.username, admin.email)
 
+        for admin in admins:
+            # add admin rights to each user
+            admin.set_password(settings.SECRET_KEY)
+            admin.is_staff = admin.is_superuser = True
+            admin.save()
+            print '*** added staff access to admin user %s (%s)' % (admin.username, admin.email)
+    
+    editors, flag = models.Group.objects.get_or_create(name=const.MODERATOR_GROUP)
+    if flag:
+        print '*** created group %s' % editors.name
+        
 def execute(path, limit=None):
     """
     Executes the imports
     """
-    
+
     # insert users into the database
     fname = join(path, 'Users.xml')
     users = insert_users(fname=fname, limit=limit)
@@ -388,6 +411,10 @@ def execute(path, limit=None):
     
     fname = join(path, 'Users2Badges.xml')
     insert_awards(fname=fname, users=users, badges=badges, limit=limit)
+
+    # add the administration rights to users
+    # listed in the DJAGNO settings file
+    admin_init()
     
 if __name__ =='__main__':
     import doctest, optparse
