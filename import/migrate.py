@@ -18,9 +18,9 @@ if not os.environ.get('DJANGO_SETTINGS_MODULE'):
     sys.path.append( join(FILE_DIR, '..', 'main'))
     os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
 
-# load up the django framework
+# load up the django framework with settings
 from django.conf import settings
-from main.server import models
+from main.server import models, const, siteinit
 from django.db import transaction
 
 def xml_reader(fname, limit=None):
@@ -34,7 +34,7 @@ def xml_reader(fname, limit=None):
     """
     elems = ElementTree.parse(fname)
     elems = islice(elems.findall('row'), limit)
-    
+
     rows = []
     for elem in elems:
         # transforms children nodes to a dictionary keyed by tag with the node text as value"
@@ -42,6 +42,7 @@ def xml_reader(fname, limit=None):
         data  = dict(pairs)
         rows.append( data )
 
+    print '*** parsed %d records from %s' % (len(rows), fname)
     return rows
 
 def parse_time(timestr):
@@ -57,171 +58,216 @@ tag_finder = re.compile('[^a-z]([a-z]+)[^a-z]')
 # returns a list of tags from a tagstring
 def parse_tag_string(rawtagstr):
     """
-    >>> parse_tag_string(" a b c d e ")
+    # parse_tag_string(" xtagx ybagy zmagz ")
+    # 'tag1 tag2 tag3
     """
     tags = [ t.strip() for t in tag_finder.findall(rawtagstr) ]
     tags = filter(None, tags)
     return ' '.join(tags)
 
-
 @transaction.commit_manually
 def insert_users(fname, limit):
     "Inserts the users"
+    
     store = {}
-    profs = {}
     rows = xml_reader(fname, limit=limit)
+    
+    # two step process generate the users then update the profiles
     for (index, row) in enumerate(rows):
-
+        
         userid   = row['Id']
-        username = 'user%s' % userid
-        email    = row.get('Email', username)
-        email = email or username
-
-        name = row.get('DisplayName', 'User %s' % userid)
-        first_name = name
+        username = 'u%s' % userid
+        email    = row.get('Email') or username
+        name     = row.get('DisplayName', username)
         try:
-            u, f = models.User.objects.get_or_create(username=username, email=email, first_name=first_name)
+            user, flag = models.User.objects.get_or_create(username=username, email=email, first_name=name)
         except Exception, e:
             print 'Failed inserting row %s' % row
             print userid, name, username
             raise(e)
-        store[ userid ] = u
-        profs[userid] = (u, row)
-
-    transaction.commit()
-    print "*** Inserted %s users" % len(store)
+        
+        # original ids will connect users to posts
+        store[ userid ] = (flag, user, row)
     
-    # update all profiles in a separate transaction
-    for u, row in profs.values():
-        p = u.get_profile()
-        p.score = int(row['Reputation'])
+    # these are the new users
+    newusers = filter(lambda row: row[0], store.values())
+    
+    # this commit the user inserts
+    print "*** inserting %s users (%s new)" % (len(store), len(newusers))
+    transaction.commit()
+    
+    # update profiles for new users as a separate transaction
+    for flag, user, row in newusers:
+        prof = user.get_profile()
+        prof.score = int(row['Reputation'])
         type = row['UserTypeId']
         if type == '4':
-            p.type = models.USER_MODERATOR
+            prof.type = const.USER_MODERATOR
         if type == '5':
-            p.type = models.USER_ADMIN
-        p.save()
-
-    print "*** Update %s profiles" % len(profs)
-
+            prof.type = const.USER_ADMIN
+        prof.save()
+        
+    print "*** updating %s user profiles" % len(newusers)
     transaction.commit()
     
-    return store
+    # remap to users
+    users = dict( (key, value[1]) for key, value in store.items() )
+    return users
 
-@transaction.commit_manually
-def insert_posts(fname, user_map, limit):
+#@transaction.commit_manually
+def insert_posts(fname, limit, users):
     "Inserts the posts"
+
     store = {}
+
     rows = xml_reader(fname, limit=limit)
+    
     for (index, row) in enumerate(rows):
+        userid  = row.get('OwnerUserId')
+        if not userid: # user has been destroyed
+            continue
         PostTypeId = row['PostTypeId']
-        Id = row['Id']
-        body   = row['Body']
-        userid = row['OwnerUserId']
-        views = row['ViewCount']
+        id      = row['Id']
+        body    = row['Body']
+        views   = row['ViewCount']
         creation_date = parse_time(row['CreationDate'])
-        author = user_map[userid]
-        p, flag = models.Post.objects.get_or_create(author=author, views=views, creation_date=creation_date)
-        p.save()
-        store[Id] = p
+        author  = users[userid] # this is the user field
+        post, flag = models.Post.objects.get_or_create(author=author, views=views, creation_date=creation_date)
+        post.save()
+        store[id] = (flag, post)
+    
+    newposts = filter(lambda x: x[0], store.values() )
+    print "*** inserting %s posts (%s new)" % (len(store), len(newposts))
     transaction.commit()
-    print "*** Inserted %s posts" % len(store)
-    return store
+    
+    # remap to contain only posts
+    posts = dict( (key, value[1]) for key, value in store.items() )
+    return posts
 
 @transaction.commit_manually
-def insert_post_revisions(fname, post_map, user_map, limit):
+def insert_post_revisions(fname, limit, users, posts):
     """
     Inserts post revisions. Also responsible for parsing out closed/deleted 
     states from the post history log
     """
-    
+        
     rows = xml_reader(fname)
     
-    # Stack overflow decided to split up modifications to title, tags, and content
-    # in the post history XML. We need to first go through and collect them together
+    # Stack overflow splits up modifications to title, tags, and content
+    # as separate rows in the post history XML distinguished by type
+    # We need to first go through and collect them together
     # based on the GUID they set on them.
-    revision_map = {} # Dictionary for fast GUID lookup
+    revisions = {} # Dictionary for fast GUID lookup
     guid_list = [] # Ensures order doesn't get mixed up
     for (index, row) in enumerate(rows):
         try:
-            post   = post_map[ row['PostId'] ]
-            author = user_map[ row['UserId'] ]
+            post   = posts[ row['PostId'] ]
+            author = users[ row['UserId'] ]
         except KeyError:
             # post or author missing 
             continue
-        guid = row['RevisionGUID']
+        
+        guid    = row['RevisionGUID']
         datestr = row['CreationDate']
-        date = parse_time(datestr)
-        if guid not in revision_map:
+        date    = parse_time(datestr)
+        
+        if guid not in revisions:
             guid_list.append(guid)
-        rev = revision_map.get(guid,
-                               {'post':post, 'author':author, 'date':date})
+        
+        # this is the new revision we need to create
+        # in our model a single revision contains all changes that were applied
+        rev = revisions.get(guid, {'post':post, 'author':author, 'date':date})
+        
         type = row['PostHistoryTypeId']
+        
         if type in ['1', '4']: # Title
             rev['title'] = row['Text']
+        
         if type in ['2', '5']: # Body
             rev['content'] = row['Text']
+        
+        # adds the tag
         if type in ['3', '6']: # Tags
             rev['tag_string'] = parse_tag_string(row['Text'])
-        if type in ['10','11','12','13']: # Moderator actions
-            action_map = {'10':models.REV_CLOSE, '11':models.REV_REOPEN,
-                          '12':models.REV_DELETE, '13':models.REV_UNDELETE}
-            post.moderator_action(action_map[type], author, date)
             
-        revision_map[guid] = rev
-
+        # applies each action to every post
+        if type in ['10','11','12','13']: # Moderator actions
+            actions = {'10':const.REV_CLOSE, '11':const.REV_REOPEN,
+                       '12':const.REV_DELETE, '13':const.REV_UNDELETE}
+            # this is defined in the models
+            post.moderator_action(actions[type], author, date)
+            
+        revisions[guid] = rev
+    
+    transaction.commit()
+    
     # Now we can actually insert the revisions
     for guid in guid_list:
-        data = revision_map[guid]
-        
+        data = revisions[guid]
         post = data['post']
         del data['post']
         post.create_revision(**data)
-        i += 1
         
-
     transaction.commit()
-    print "*** Inserted %s post revisions" % i 
+    print "*** inserted %s post revisions" % len(guid_list) 
 
 @transaction.commit_manually
-def insert_questions(fname, post_map, limit):
+def insert_questions(fname, limit, posts):
     "Inserts questions and answers"
+    
     quest_map, answ_map = {}, {}
     rows = xml_reader(fname, limit=limit)
     
-    
-    # broken up into separate steps to allow manual transactions
-    for (index, row) in enumerate(rows):
-        PostTypeId = row['PostTypeId']
-        Id = row['Id']
-        post = post_map[ Id ] 
-        if PostTypeId == '1':
-            # question
-            title = row["Title"]
-            tags = row['Tags']
-            post.title = title
-            post.save()
-            quest, flag = models.Question.objects.get_or_create(post=post)
-            quest_map[Id] = quest
-            if flag: # Only if newly created, add tags
-                tag_string = parse_tag_string(tags)
-                post.set_tags(tag_string)
-    
-    transaction.commit()
+    # filter out posts that have been removed before
+    rows = filter(lambda x: x['Id'] in posts, rows)
 
-    for (index, row) in enumerate(rows):
-        PostTypeId = row['PostTypeId']
+    # broken up into separate steps to allow manual transactions
+    
+    # subselect the questions
+    questions = filter(lambda x: x['PostTypeId'] == '1', rows)
+    
+    for row in questions:
         Id = row['Id']
-        post = post_map[ Id ] 
-        if PostTypeId == '2':
-            # answer
-            quest = quest_map[row['ParentId']]
-            answ, flag = models.Answer.objects.get_or_create(question=quest, post=post)
-            answ_map[Id] = answ
+        post = posts[ Id ]
+        
+        # update question with the title of the post
+        title = row["Title"]
+        tags  = row['Tags']
+        post.title = title
+        post.save()
+        
+        quest, flag = models.Question.objects.get_or_create(post=post)
+        quest_map[Id] = quest
+        
+        # add tags if it is a newly created question
+        if flag: 
+            tag_string = parse_tag_string(tags)
+            post.set_tags(tag_string)
+        
+        
+    print "*** inserting %s questions" % len(quest_map)
     transaction.commit()
     
-    print "*** Inserted %s questions" % len(quest_map)
-    print "*** Inserted %s answers" % len(answ_map)
+    # subselect the answers
+    answers = filter(lambda x: x['PostTypeId'] == '2', rows)
+    for row in answers:
+        Id   = row['Id']
+        post = posts[ Id ] 
+           
+        quest = quest_map[row['ParentId']]
+        answ, flag = models.Answer.objects.get_or_create(question=quest, post=post)
+        # add title if it is a newly created answer
+        if flag:
+            # will set a title to be easier to find in admin
+            post.title = "A: %s" % quest.post.title
+            answ.save()
+            post.save()
+        answ_map[Id] = answ
+    
+    print "*** inserting %s answers" % len(answ_map)        
+    transaction.commit()
+    
+    
     
 @transaction.commit_manually
 def insert_votes(fname, user_map, post_map, limit):
@@ -319,28 +365,25 @@ def insert_awards(fname, user_map, badge_map, limit):
     print "*** Inserted %s badge awards" % len(store)
     
 
-def execute(path, limit=300):
+def execute(path, limit=None):
     """
     Executes the imports
     """
-    fname = join(path, 'Users.xml')
-    if os.path.isfile(fname):
-        print '*** Found REAL userdata %s' % fname
-    else:
-        fname = join(path, 'AnonUsers.xml')
-        print '*** Using Anonymized users'
     
-    user_map = insert_users(fname=fname, limit=limit)
-
+    # insert users into the database
+    fname = join(path, 'Users.xml')
+    users = insert_users(fname=fname, limit=limit)
+    
     fname = join(path, 'Posts.xml')
-    post_map = insert_posts(fname=fname, limit=limit, user_map=user_map)
+    posts = insert_posts(fname=fname, limit=limit, users=users)
     
     fname = join(path, 'PostHistory.xml')
-    insert_post_revisions(fname=fname, post_map=post_map, user_map=user_map, limit=limit)
-
+    #revisions = insert_post_revisions(fname=fname, limit=limit, posts=posts, users=users)
+    
     fname = join(path, 'Posts.xml')
-    insert_questions(fname=fname, limit=limit, post_map=post_map)
+    insert_questions(fname=fname, limit=limit, posts=posts)
 
+    '''
     fname = join(path, 'Posts2Votes.xml')
     insert_votes(fname=fname, limit=limit, post_map=post_map, user_map=user_map)
     
@@ -352,18 +395,28 @@ def execute(path, limit=300):
     
     fname = join(path, 'Users2Badges.xml')
     insert_awards(fname=fname, user_map=user_map, badge_map=badge_map, limit=limit)
-
+    '''
+    
 if __name__ =='__main__':
-    import doctest
+    import doctest, optparse
     
-    # requires a directory name as input
-    # also runs from an editor (lot easier to work with initially)
-    if len(sys.argv) == 1:
-        dirname = 'datadump'
-    else:
-        dirname = sys.argv[1]
+    # for debugging
+    sys.argv.extend( ["-p", "se0"] )
     
+    # options for the program
+    parser = optparse.OptionParser()
+    parser.add_option("-p", "--path", dest="path", help="directory or zip archive containing a full biostar SE1 datadump")
+    parser.add_option("-L", "--limit", dest="limit", help="limit to these many rows per file")
+    (opts, args) = parser.parse_args()
+    
+    # stop execution if no parameters were specified
+    if not opts.path:
+        parser.print_help()
+        sys.exit()
+        
+    # also run the doctests
     doctest.testmod()
     
-    #execute(dirname, limit=300)
+    # call into the main program
+    execute(path=opts.path, limit=opts.limit)
     

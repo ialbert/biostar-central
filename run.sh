@@ -105,7 +105,7 @@ while (( "$#" )); do
 
 	if [ "$1" = "migrate" ]; then
 		echo "*** migrating the data into the main database"
-		$PYTHON_EXE import/migrate.py home/import/datadump
+		$PYTHON_EXE import/migrate.py -path import/se0
 	fi
 
 shift

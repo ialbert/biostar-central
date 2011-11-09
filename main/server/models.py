@@ -28,13 +28,17 @@ class UserProfile( models.Model ):
     """
     user  = models.OneToOneField(User, unique=True, related_name='profile')
     score = models.IntegerField(default=0, blank=True)
+    views = models.IntegerField(default=0, blank=True)
     bronze_badges = models.IntegerField(default=0)
     silver_badges = models.IntegerField(default=0)
-    gold_badges = models.IntegerField(default=0)
+    gold_badges   = models.IntegerField(default=0)
     json  = models.TextField(default="", null=True)
     last_visited = models.DateTimeField(auto_now=True)
     creation_date = models.DateTimeField(auto_now_add=True)
-    type = models.IntegerField(choices=USER_TYPES, default=USER_NORMAL)
+    type  = models.IntegerField(choices=USER_TYPES, default=USER_NORMAL)
+    about_me = models.TextField(default="", null=True)
+    location = models.TextField(default="", null=True)
+    website  = models.URLField(default="", null=True)
     
     @property
     def permissions(self):
@@ -93,11 +97,12 @@ class Post(models.Model):
     closed = models.BooleanField()
 
     def create_revision(self, content=None, title=None, tag_string=None, author=None, date=None):
-        """Creates a new revision of the post with the given data.
+        """
+        Creates a new revision of the post with the given data.
         Content, title and tags are assumed to be unmodified if not given.
         Author is assumed to be same as original author if not given.
-        Date is assumed to be now if not given."""
-        
+        Date is assumed to be now if not given.
+        """
         content = content or self.content
         title = title or self.title
         tag_string = tag_string or self.tag_string
@@ -122,19 +127,23 @@ class Post(models.Model):
         self.save()
             
     def current_revision(self):
-        """ Returns the most recent revision of the post. Primarily useful for getting the
-        current raw text of the post """
+        """
+        Returns the most recent revision of the post. Primarily useful for getting the
+        current raw text of the post
+        """
         return self.revisions.order_by('date')[0]
         
     def moderator_action(self, action, author, date=None):
-        """ Performs a moderator action on the post. Takes an action (one of REV_ACTIONS)
-        and a user. Date is assumed to be now if not provided """
+        """
+        Performs a moderator action on the post. Takes an action (one of REV_ACTIONS)
+        and a user. Date is assumed to be now if not provided
+        """
         date = date or datetime.now()
         
         revision = PostRevision(post=self, content='', title='', tag_string='',
                                 author=author, date=date, action=action)
         revision.save()
-        
+         
         if action == REV_CLOSE:
             self.closed = True
         elif action == REV_REOPEN:
