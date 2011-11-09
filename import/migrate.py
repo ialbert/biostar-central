@@ -1,6 +1,7 @@
 """
-Parses SE biostar xml archive, and populates a database with its
-content then exports a loadable data fixture from this data.
+Parses a SE biostar xml datadump, and populates the 
+database with the content. Finally exports a loadable 
+data fixture from this database.
 """
 import sys, os, random, re
 from datetime import datetime
@@ -9,14 +10,12 @@ from xml.etree import ElementTree
 
 #  we will need to fixup path so we can access the Django settings module
 join = os.path.join
-file_dir = os.path.dirname(__file__)
+FILE_DIR = os.path.dirname(__file__)
 
-# include both the parent so that the codebase can be imported
-sys.path.append( join(file_dir, '..' ))
-
-# add default settings module if nothing was set at the command line
+# add paths and default settings module if nothing was set
 if not os.environ.get('DJANGO_SETTINGS_MODULE'):
-    sys.path.append( join(file_dir, '..', 'main'))
+    sys.path.append( join(FILE_DIR, '..' ))
+    sys.path.append( join(FILE_DIR, '..', 'main'))
     os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
 
 # load up the django framework
@@ -58,9 +57,11 @@ tag_finder = re.compile('[^a-z]([a-z]+)[^a-z]')
 # returns a list of tags from a tagstring
 def parse_tag_string(rawtagstr):
     """
-    >>> parse_tag_string("AAAA, B")
+    >>> parse_tag_string(" a b c d e ")
     """
-    return ' '.join([tag.strip() for tag in tag_finder.findall(rawtagstr) if tag.strip()])
+    tags = [ t.strip() for t in tag_finder.findall(rawtagstr) ]
+    tags = filter(None, tags)
+    return ' '.join(tags)
 
 
 @transaction.commit_manually
@@ -129,10 +130,13 @@ def insert_posts(fname, user_map, limit):
 
 @transaction.commit_manually
 def insert_post_revisions(fname, post_map, user_map, limit):
-    """Inserts post revisions. Also responsible for parsing out closed/deleted states from
-    the post history log"""
-    i = 0
+    """
+    Inserts post revisions. Also responsible for parsing out closed/deleted 
+    states from the post history log
+    """
+    
     rows = xml_reader(fname)
+    
     # Stack overflow decided to split up modifications to title, tags, and content
     # in the post history XML. We need to first go through and collect them together
     # based on the GUID they set on them.
@@ -140,9 +144,10 @@ def insert_post_revisions(fname, post_map, user_map, limit):
     guid_list = [] # Ensures order doesn't get mixed up
     for (index, row) in enumerate(rows):
         try:
-            post = post_map[row['PostId']]
-            author = user_map[row['UserId']]
+            post   = post_map[ row['PostId'] ]
+            author = user_map[ row['UserId'] ]
         except KeyError:
+            # post or author missing 
             continue
         guid = row['RevisionGUID']
         datestr = row['CreationDate']
@@ -357,7 +362,6 @@ if __name__ =='__main__':
         dirname = 'datadump'
     else:
         dirname = sys.argv[1]
-    print 123
     
     doctest.testmod()
     
