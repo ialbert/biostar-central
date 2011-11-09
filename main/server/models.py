@@ -34,11 +34,13 @@ class UserProfile( models.Model ):
     gold_badges   = models.IntegerField(default=0)
     json  = models.TextField(default="", null=True)
     last_visited = models.DateTimeField(auto_now=True)
-    creation_date = models.DateTimeField(auto_now_add=True)
     type  = models.IntegerField(choices=USER_TYPES, default=USER_NORMAL)
     about_me = models.TextField(default="", null=True)
     location = models.TextField(default="", null=True)
     website  = models.URLField(default="", null=True)
+    openid   = models.TextField(default="", null=True)
+    display_name  = models.TextField(default="", null=True)
+    last_login_ip = models.IPAddressField(default="0.0.0.0", null=True)
     
     @property
     def permissions(self):

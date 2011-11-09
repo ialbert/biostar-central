@@ -6,7 +6,7 @@ from django import forms
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.conf import settings
 from django.http import HttpResponse
 
@@ -62,7 +62,6 @@ def admin_password_override(request):
         
     raise Exception('Invalid login')
 
-
 def detect_duplicates(request):
     "Detects duplicate users"
     users = models.User.objects.filter(email=request.user.email).order_by('date_joined')
@@ -77,24 +76,18 @@ def merge_accounts(request, users):
     "Attempts to merge user accounts if emails match"
     
     openid = UserOpenID.objects.get(user=request.user)
-    #openid.user = users[0]
-    #openid.save()
-    #models.User.objects.get(user=request.user).delete()
+    openid.user = users[0]
+    openid.save()
+    
+    # log out the current user
+    logout(request)
+    
+    # delete the user just created via OpenID
+    target = models.User.objects.get(id=users[1].id)
+    target.delete()
+    
     return html.template(request, name='account.merge.html')
-    
-    '''
-    def replace(olduser, newuser):
         
-        # needs a one step transfer of all attributes
-        p1 = models.UserProfile.objects.get(user=source)
-        p2 = models.UserProfile.objects.get(user=target)
-        p2.score = p1.score
-        p2.save()
-        
-        # disable the old user
-        source.set_unusable_password()
-    '''
-    
 def user_profile(request, uid):
     "User's profile page"
     user = models.User.objects.get(id=uid)
@@ -103,7 +96,7 @@ def user_profile(request, uid):
     answers = models.Answer.objects.filter(post__author=user).select_related('post','question','question__post','question__post__author','question__post__author__profile')
 
     return html.template(request, name='user.profile.html',
-      selected_user=user, selected_profile=profile,
+      user=user, profile=profile,
       questions=questions.order_by('-post__score'),
       answers=answers.order_by('-post__score'))
 

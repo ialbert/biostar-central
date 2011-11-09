@@ -3,7 +3,7 @@
 {% load basic %}
 
 {% block subheader %}
-  <h2>{{ selected_user.first_name }} {{ selected_user.last_name }}</h2>
+  <h2>{{ user.first_name }} {{ user.last_name }}</h2>
 {% endblock %}
 
 {% block mainbar %}
@@ -12,39 +12,43 @@
 <tr>
 <td valign="top" align="center">
   <div style="margin: 1em">
-    <div>{% gravatar selected_user 128 %}</div>
-    <div style="font-size: 200%">{% userrep selected_user %}</div>
-    <div>Reputation {{ selected_user.email }}</div>
+    <div>{% gravatar user 128 %}</div>
+    <div style="font-size: 200%">{% userrep user %}</div>
+    
   </div>
 </td>
 <td valign="top" align="left">
   <div style="margin: 2em">
     <div style="float:left; width: 7em;">Name</div>
-    <div style="float:left"><b>{{ selected_user.first_name }}
-                               {{ selected_user.last_name }}</b></div>
+    <div style="float:left"><b>{{ user.first_name }}
+                               {{ user.last_name }}</b></div>
     <div style="clear: left"></div>
 
+    <div style="float:left; width: 7em;">Userid</div>
+    <div style="float:left">{{ user.id }}</div>
+    <div style="clear: left"></div>
+    
     <div style="float:left; width: 7em;">Member for</div>
-    <div style="float:left">{{ selected_user.date_joined|timesince }}</div>
+    <div style="float:left">{{ user.date_joined|timesince }}</div>
     <div style="clear: left"></div>
 
     <div style="float:left; width: 7em;">Seen</div>
-    <div style="float:left">{{ selected_profile.last_visited|timesince }} ago </div>
+    <div style="float:left">{{ profile.last_visited|timesince }} ago </div>
     <div style="clear: left"></div>
 
     <div style="float:left; width: 7em;">Website</div>
-    <div style="float:left"></div>
+    <div style="float:left"> {{ profile.website }}</div>
     <div style="clear: left"></div>
 
     <div style="float:left; width: 5em;">Location</div>
-    <div style="float:left"></div>
+    <div style="float:left">{{ profile.location }}</div>
     <div style="clear: left"></div>
   </div>
 </td>
 
 <td valign="top" align="center">
 <div class="autobiography" style="margin: 1em">
-Autobiography
+{{ profile.about_me }}
 </div>
 </td>
 </tr>

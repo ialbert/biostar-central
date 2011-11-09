@@ -79,6 +79,8 @@ def insert_users(fname, limit):
         username = 'u%s' % userid
         email    = row.get('Email') or username
         name     = row.get('DisplayName', username)
+        last_login  = parse_time(row['LastAccessDate'])
+        date_joined = parse_time(row['CreationDate'])
         try:
             user, flag = models.User.objects.get_or_create(username=username, email=email, first_name=name)
         except Exception, e:
@@ -101,6 +103,12 @@ def insert_users(fname, limit):
         prof = user.get_profile()
         prof.score = int(row['Reputation'])
         type = row['UserTypeId']
+        prof.display_name = row.get('DisplayNameCleaned', '').title()
+        prof.website  = row.get('WebsiteUrl', '')
+        prof.about_me = row.get('AboutMe', '')
+        prof.location = row.get('Location', '')
+        prof.last_login_ip = row.get('LastLoginIP', '0.0.0.0')
+        
         if type == '4':
             prof.type = const.USER_MODERATOR
         if type == '5':
@@ -435,6 +443,8 @@ if __name__ =='__main__':
         
     # also run the doctests
     doctest.testmod()
+    
+    print '*** migration path %s' % opts.path
     
     # call into the main program
     execute(path=opts.path, limit=opts.limit)
