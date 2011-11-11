@@ -4,7 +4,7 @@ BioStar Codebase
 Introduction
 -------------
 
-BioStar codebase is a Python and Django_ based Q&A web software modeled after
+BioStar codebase is a Python_ and Django_ based Q&A web software modeled after
 the StackOverflow Q&A engine.
 
 Our primary goal is to create a simple, generic, flexible and extendeable 
@@ -21,7 +21,8 @@ Installation
 ------------
 
 Unpack the source code archive. If you don't have django installed 
-then switch to the `libs` directory and unpack the `django.zip` archive::
+then switch to the *libs* directory and unpack the *django.zip* archive (included
+for convenience)::
 
 	$ cd libs
 	$ unzip django.zip
@@ -40,7 +41,7 @@ Visit the http://localhost:8080 to view the site. Enjoy.
 .. note The Windows version of the biostar.sh manager has not yet
    been written. The site will work just fine on Windows
    but for now users will need to manually invoke the commands
-   present in the `biostar.sh` run manager (TODO).
+   present in the *biostar.sh* run manager (TODO).
 
 Detailed Usage
 --------------
@@ -65,22 +66,22 @@ Alternatively one may run all these commands all at once::
 
     $ biostar.sh delete init populate
 
-The `biostar.sh` run manager to pulls in environment variables to allow you to 
+The *biostar.sh* run manager to pulls in environment variables to allow you to 
 customize locations/test fixtures, etc. View the source for well documented examples.
 
 The default server will bind the all IP adapters (0.0.0.0) and port 8080. Visit http://localhost:8080 to see
-interact with your version of the test server. Edit the `biostar.sh` script to override the various settings.
+interact with your version of the test server. Edit the *biostar.sh* script to override the various settings.
 
 .. warning: The default settings will create an application with a default admin user and password!
-   Modify the `main/settings.py` file to contain a different password!
+   Modify the *main/settings.py* file to contain a different password!
 
 Migration
 ---------
 
-To migrate content from a StackExchange 1 XML datadump one needs to `import` the data. This process
-may take a while. To speed up the re-import the best practice is to to `dump` the 
+To migrate content from a StackExchange 1 XML datadump one needs to *import* the data. This process
+may take a while. To speed up the re-import the best practice is to to *dump* the 
 contents of the database it into a fixture that can be reused by 
-the `populate` command. To create a new migration one would do a::
+the *populate* command. To create a new migration one would do a::
 
 	$ biostar.sh delete init 
 	$ biostar.sh import
@@ -91,9 +92,9 @@ Layout
 ------
 
 The Python code, templates, static content (css, images, javascript) and default 
-database are found in the `main` directory. 
+database are found in the *main* directory. 
 There is partial datadump of the existing BioStar content in the 
-`import` folder. The `populate` command will load 
+*import* folder. The *populate* command will load 
 this data into the current database.
 
 Other Libraries
