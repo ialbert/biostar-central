@@ -223,57 +223,62 @@ def insert_post_revisions(fname, limit, users, posts):
 def insert_questions(fname, limit, posts):
     "Inserts questions and answers"
     
-    quest_map, answ_map = {}, {}
-    rows = xml_reader(fname, limit=limit)
+    try:
+        quest_map, answ_map = {}, {}
+        rows = xml_reader(fname, limit=limit)
+        
+        # filter out posts that have been removed before
+        rows = filter(lambda x: x['Id'] in posts, rows)
     
-    # filter out posts that have been removed before
-    rows = filter(lambda x: x['Id'] in posts, rows)
-
-    # broken up into separate steps to allow manual transactions
-    
-    # subselect the questions
-    questions = filter(lambda x: x['PostTypeId'] == '1', rows)
-    
-    for row in questions:
-        Id = row['Id']
-        post = posts[ Id ]
+        # broken up into separate steps to allow manual transactions
         
-        # update question with the title of the post
-        title = row["Title"]
-        tags  = row['Tags']
-        post.title = title
-        post.save()
+        # subselect the questions
+        questions = filter(lambda x: x['PostTypeId'] == '1', rows)
         
-        quest, flag = models.Question.objects.get_or_create(post=post)
-        quest_map[Id] = quest
-        
-        # add tags if it is a newly created question
-        if flag: 
-            tag_string = parse_tag_string(tags)
-            post.set_tags(tag_string)
-        
-        
-    print "*** inserting %s questions" % len(quest_map)
-    transaction.commit()
-    
-    # subselect the answers
-    answers = filter(lambda x: x['PostTypeId'] == '2', rows)
-    for row in answers:
-        Id   = row['Id']
-        post = posts[ Id ] 
-           
-        quest = quest_map[row['ParentId']]
-        answ, flag = models.Answer.objects.get_or_create(question=quest, post=post)
-        # add title if it is a newly created answer
-        if flag:
-            # will set a title to be easier to find in admin
-            post.title = "A: %s" % quest.post.title
-            answ.save()
+        for row in questions:
+            Id = row['Id']
+            post = posts[ Id ]
+            
+            # update question with the title of the post
+            title = row["Title"]
+            tags  = row['Tags']
+            post.title = title
             post.save()
-        answ_map[Id] = answ
+            
+            quest, flag = models.Question.objects.get_or_create(post=post)
+            quest_map[Id] = quest
+            
+            # add tags if it is a newly created question
+            if flag: 
+                tag_string = parse_tag_string(tags)
+                post.set_tags(tag_string)
+            
+        print "*** inserting %s questions" % len(quest_map)
+        transaction.commit()
+        
+        # subselect the answers
+        answers = filter(lambda x: x['PostTypeId'] == '2', rows)
+        for row in answers:
+            Id   = row['Id']
+            post = posts[ Id ] 
+               
+            quest = quest_map.get(row['ParentId'])
+            if not quest:
+                continue
+            answ, flag = models.Answer.objects.get_or_create(question=quest, post=post)
+            # add title if it is a newly created answer
+            if flag:
+                # will set a title to be easier to find in admin
+                post.title = "A: %s" % quest.post.title
+                post.save()
+            answ_map[Id] = answ
+        
+        print "*** inserting %s answers" % len(answ_map)        
+        transaction.commit()
     
-    print "*** inserting %s answers" % len(answ_map)        
-    transaction.commit()
+    except Exception, e:
+        transaction.rollback()
+        raise e
     
 @transaction.commit_manually
 def insert_votes(fname, limit, users, posts):
@@ -402,12 +407,12 @@ def execute(path, limit=None):
     fname = join(path, 'Posts.xml')
     posts = insert_posts(fname=fname, limit=limit, users=users)
     
-    fname = join(path, 'PostHistory.xml')
-    revisions = insert_post_revisions(fname=fname, limit=limit, posts=posts, users=users)
-    
     fname = join(path, 'Posts.xml')
     insert_questions(fname=fname, limit=limit, posts=posts)
 
+    fname = join(path, 'PostHistory.xml')
+    revisions = insert_post_revisions(fname=fname, limit=limit, posts=posts, users=users)
+    
     fname = join(path, 'Posts2Votes.xml')
     insert_votes(fname=fname, limit=limit, posts=posts, users=users)
     
