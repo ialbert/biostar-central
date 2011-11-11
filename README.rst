@@ -104,11 +104,11 @@ The following software packages are being included into or being used in BioStar
 
 * JQuery_ for javascript and 
 * `markitup`_ for rich text javascript editor. 
-* `django_openid_auth`_ `python_openid`_ for openid authentication
+* `django_openid_auth`_ and `python_openid`_ for openid authentication
 * `pygments`_ for source code highlighting
 
 .. _django_openid_auth: https://launchpad.net/django-openid-auth
-.. _python openid: http://pypi.python.org/pypi/python-openid/
+.. _python_openid: http://pypi.python.org/pypi/python-openid/
 .. _pygments: http://pygments.org/
 
 Colorscheme
