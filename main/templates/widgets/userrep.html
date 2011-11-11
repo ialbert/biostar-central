@@ -1,7 +1,7 @@
 {% load basic %}
-
+{% load humanize %}
 {% spaceless %}
-    <span class="reputation-score">{{ user.profile.score }}</span>
+    <span class="reputation-score">{% bignum user.profile.score %}</span>
     {% if user.profile.gold_badges %}
         {% badgeicon 'gold' %}
         <span class="badge-count">{{user.profile.gold_badges}}</span>

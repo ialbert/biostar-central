@@ -38,9 +38,10 @@ class UserProfile( models.Model ):
     about_me = models.TextField(default="", null=True)
     location = models.TextField(default="", null=True)
     website  = models.URLField(default="", null=True)
-    openid   = models.TextField(default="", null=True)
+    openid   = models.URLField(default="http://www.biostars.org", null=True)
     display_name  = models.TextField(default="", null=True)
     last_login_ip = models.IPAddressField(default="0.0.0.0", null=True)
+    openid_merge  = models.NullBooleanField(default=False, null=True)
     
     @property
     def permissions(self):

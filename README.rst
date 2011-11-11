@@ -4,18 +4,18 @@ BioStar Codebase
 Introduction
 -------------
 
-BioStar codebase is a python and django based Q&A web software modeled after
+BioStar codebase is a Python and Django_ based Q&A web software modeled after
 the StackOverflow Q&A engine.
 
-Our primary goal is to create a simple, flexible and extendeable 
-framework.
+Our primary goal is to create a simple, generic, flexible and extendeable 
+Q&A framework.
 
 Requirements
 ------------
 
 The software requires only Python_ (2.6 or higher) to run. All other 
-libraries are included in the distribution. The code will run with no
-changes any operating system that supports Python.
+libraries are included in the distribution. The code will run with 
+no changes on all operating system that support Python. 
 
 Installation
 ------------
@@ -36,6 +36,11 @@ From the command line execute::
     $ biostar.sh init populate run
 
 Visit the http://localhost:8080 to view the site. Enjoy.
+
+.. note The Windows version of the biostar.sh manager has not yet
+   been written. The site will work just fine on Windows
+   but for now users will need to manually invoke the commands
+   present in the `biostar.sh` run manager (TODO).
 
 Detailed Usage
 --------------
@@ -59,6 +64,9 @@ Alternatively one may run all these commands all at once::
 **Note**: If the database models change you must reset and reinitialize your database::
 
     $ biostar.sh delete init populate
+
+The `biostar.sh` run manager to pulls in environment variables to allow you to 
+customize locations/test fixtures, etc. View the source for well documented examples.
 
 The default server will bind the all IP adapters (0.0.0.0) and port 8080. Visit http://localhost:8080 to see
 interact with your version of the test server. Edit the `biostar.sh` script to override the various settings.

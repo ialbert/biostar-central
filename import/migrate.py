@@ -78,7 +78,7 @@ def insert_users(fname, limit):
         userid   = row['Id']
         username = 'u%s' % userid
         email    = row.get('Email') or username
-        name     = row.get('DisplayName', username)
+        name     = row.get('DisplayName', 'Biostar User %s' % userid)
         last_login  = parse_time(row['LastAccessDate'])
         date_joined = parse_time(row['CreationDate'])
         try:
@@ -107,6 +107,7 @@ def insert_users(fname, limit):
         prof.website  = row.get('WebsiteUrl', '')
         prof.about_me = row.get('AboutMe', '')
         prof.location = row.get('Location', '')
+        prof.openid   = row.get('OpenId', 'http://www.biostars.org')
         prof.last_login_ip = row.get('LastLoginIP', '0.0.0.0')
         
         if type == '4':
