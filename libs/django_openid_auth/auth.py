@@ -194,12 +194,16 @@ class OpenIDBackend:
                 print '*** openid url %s' % openid_response.identity_url
                 # delete the old user
                 user.delete()
+                
                 #  replace with the new user and update the profile accordingly
                 user = others[0]
+                user.save()
+                
+                # update the profile with the new information
                 user.profile.openid_merge = True
                 user.profile.openid = openid_response.identity_url
                 user.profile.save()
-                user.save()
+                
 
             user_openid = UserOpenID(
                 user=user,
