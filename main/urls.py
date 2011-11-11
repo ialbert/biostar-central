@@ -28,16 +28,14 @@ urlpatterns = patterns('',
     # members
     (r'^user/list/$', 'main.server.views.user_list'),
     (r'^user/show/(?P<uid>\d+)/$', 'main.server.views.user_profile'),
-    (r'^user/edit/(?P<uid>\d+)/$', 'main.server.views.user_edit'),
+    (r'^user/edit/(?P<uid>\d+)/$', 'main.server.action.user_edit'),
 
     # returns a preview page
     (r'^preview/$', 'main.server.views.preview'),
     
-    # revisions
-    
+    # revisions    
     (r'^revisions/(?P<pid>\d+)/list/$', 'main.server.views.revision_list'),
 
-    
     # questions
     (r'^question/unanswered/$', 'main.server.views.question_unanswered'),
     (r'^question/list/$', 'main.server.views.question_list'),

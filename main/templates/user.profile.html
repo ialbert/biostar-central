@@ -3,7 +3,7 @@
 {% load basic %}
 
 {% block subheader %}
-  <h2>{{ user.first_name }} {{ user.last_name }}</h2>
+  <h2>{{ selected.first_name }} {{ selected.last_name }}</h2>
 {% endblock %}
 
 {% block mainbar %}
@@ -12,29 +12,29 @@
 <tr>
 <td valign="top" align="center">
   <div style="margin: 1em">
-    <div>{% gravatar user 128 %}</div>
-    <div style="font-size: 200%">{% userrep user %}</div>
+    <div>{% gravatar selected 128 %}</div>
+    <div style="font-size: 200%">{% userrep selected %}</div>
   </div>
 </td>
 <td valign="top" align="left">
   <div style="margin: 2em">
     
     <div style="float:left; width: 7em;">Name</div>
-    <div style="float:left"><b>{{ user.first_name }}
-                               {{ user.last_name }}</b> | <a href="/user/edit/{{user.id}}/">edit</a></div>
+    <div style="float:left"><b>{{ selected.first_name }}
+                               {{ selected.last_name }}</b> | <a href="/user/edit/{{selected.id}}/">edit</a></div>
     <div style="clear: left"></div>
 
     <div style="float:left; width: 7em;">Userid</div>
-    <div style="float:left">{{ user.id }}</div>
+    <div style="float:left">{{ selected.id }}</div>
     <div style="clear: left"></div>
     
     <div style="float:left; width: 7em;">Email</div>
-    <div style="float:left">{{ user.email }}</div>
+    <div style="float:left">{{ selected.email }}</div>
     <div style="clear: left"></div>
    
 
     <div style="float:left; width: 7em;">Member for</div>
-    <div style="float:left">{{ user.date_joined|timesince }}</div>
+    <div style="float:left">{{ selected.date_joined|timesince }}</div>
     <div style="clear: left"></div>
 
     <div style="float:left; width: 7em;">Seen</div>

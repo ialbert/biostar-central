@@ -59,7 +59,7 @@ def user_profile(request, uid):
     answers = models.Answer.objects.filter(post__author=user).select_related('post','question','question__post','question__post__author','question__post__author__profile')
 
     return html.template(request, name='user.profile.html',
-      user=user, profile=profile,
+      user=request.user, profile=profile, selected=user,
       questions=questions.order_by('-post__score'),
       answers=answers.order_by('-post__score'))
 
@@ -222,17 +222,21 @@ class AnswerForm(forms.Form):
 
 @login_required(redirect_field_name='/openid/login/')
 def answer_edit(request, qid, aid=0):
-    "Handles answers, question id and answer id"
+    "Handles answers, requires a question id and answer id"
     
     # get the question that is to be accessed
     question = models.Question.objects.get(pk=qid)
 
-    newans = aid == 0
+    # decide whether this is new answer 
+    newans = (aid == 0)
+    
+    # it appears to be an edited answer
     edit = not newans
 
     if edit and request.method == 'GET':
         # editing an existing answer
         answer = models.Answer.objects.get(pk=aid)
+        # answer edits require an authorization (original author or moderator)
         answer.authorize(request)
         form = AnswerForm( initial=dict(content=answer.post.content) )
         return html.template( request, name='edit.answer.html', form=form)

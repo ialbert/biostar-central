@@ -1,0 +1,15 @@
+{% extends "base.nosidebar.html" %}
+
+{% load basic %}
+
+{% block subheader %}
+  <h2>{{ user.first_name }} {{ user.last_name }}</h2>
+{% endblock %}
+
+{% block mainbar %}
+
+Update user information
+
+{{form.as_p}}
+
+{% endblock %}
