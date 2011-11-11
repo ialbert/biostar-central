@@ -1,8 +1,10 @@
-The MIT License
+The BioStar code base is released with the MIT License
 
 Copyright (c) <2011> Biostar-Central Contributors
 
-See the homepage for a full list of contributors: https://github.com/ialbert/biostar-central
+- Istvan Albert
+- Pindi Albert
+- Aleksandr Levchuck
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
