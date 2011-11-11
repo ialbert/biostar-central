@@ -2,8 +2,12 @@
 
 {% load basic %}
 
+{% block subheader %}
+    {% pagebar %}
+{% endblock %}
+
 {% block mainbar %}
 
-    {% question_list_narrow questions %}
+    {% question_list_narrow page.object_list %}
 
 {% endblock %}

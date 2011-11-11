@@ -24,15 +24,12 @@ def index(request):
             request.user.profile.save()
     '''
     
-    # shows both the 5 freshest and 5 oldest questions 
-    # (this is for debugging)
+    # eventually we will need to order by relevance
+    questions = models.Question.objects.select_related('post', 'post__author','post__author__profile').order_by('-lastedit_date')
     
-    qs = models.Question.objects.select_related('post', 'post__author','post__author__profile').all()
     
-    top = qs.order_by('-lastedit_date')[:5]
-    bot = qs.order_by('lastedit_date')[:5]
-    questions = list(top) + list(bot)
-    return html.template( request, name='index.html', questions=questions)
+    page = get_page(request, questions, per_page=20)
+    return html.template( request, name='index.html', page=page)
 
 def admin_password_override(request):
     """
@@ -112,7 +109,9 @@ def questions():
 
 def question_list(request):
     "Lists all the questions"
-    qs = questions().all()
+    #q.answer_count
+    
+    qs = questions().filter(answer_count=0)
     page = get_page(request, qs) 
     return html.template(request, name='question.list.html', page=page)
 
