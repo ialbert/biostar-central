@@ -79,9 +79,11 @@ Migration
 ---------
 
 To migrate content from a StackExchange 1 XML datadump one needs to *import* the data. This process
-may take a while. To speed up the re-import the best practice is to to *dump* the 
-contents of the database it into a fixture that can be reused by 
-the *populate* command. To create a new migration one would do a::
+may take a while (TODO: speeding up import via bulk loading).
+To facilitate the re-import the best practice is that after an *imported* admins should
+*dump* the contents of the database it into a fixture that can be reused by 
+the *populate* command. The data fixture loading is substantially faster. Therefore
+to create a new migration one would do the following::
 
 	$ biostar.sh delete init 
 	$ biostar.sh import
