@@ -53,6 +53,7 @@ DATABASES = {
 
 # add external dependecies
 __ZIP_LIBS =  [
+    path(__CURR_DIR, '..', 'libs'),
     path(__CURR_DIR, '..', 'libs', 'libraries.zip'),
 ]
 sys.path.extend(__ZIP_LIBS)

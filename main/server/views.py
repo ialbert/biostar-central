@@ -16,13 +16,6 @@ from django_openid_auth.models import UserOpenID
 def index(request):
     "Main page"
     
-    
-    # attempts to migrate the user
-    if request.user.is_authenticated():
-        users = detect_duplicates(request)
-        if users:
-            return merge_accounts(request, users)
-    
     '''    
     if settings.DEBUG:
         if request.user.is_authenticated() and not request.user.profile.is_admin:
@@ -61,32 +54,6 @@ def admin_password_override(request):
             return html.redirect('/') 
         
     raise Exception('Invalid login')
-
-def detect_duplicates(request):
-    "Detects duplicate users"
-    users = models.User.objects.filter(email=request.user.email).order_by('date_joined')
-    users = list(users)
-    if len(users)==2:
-        return users[0], users[1]
-    else:
-        return None
-    
-@transaction.commit_on_success
-def merge_accounts(request, users):
-    "Attempts to merge user accounts if emails match"
-    
-    openid = UserOpenID.objects.get(user=request.user)
-    openid.user = users[0]
-    openid.save()
-    
-    # log out the current user
-    logout(request)
-    
-    # delete the user just created via OpenID
-    target = models.User.objects.get(id=users[1].id)
-    target.delete()
-    
-    return html.template(request, name='account.merge.html')
         
 def user_profile(request, uid):
     "User's profile page"
