@@ -2,16 +2,47 @@
 
 {% load basic %}
 
+{% block custom-frameworks %}
+    <style type="text/css">
+      .field {
+        padding: 5px;
+      }
+      .gravimg {
+        float: left;
+        width:36px;
+        padding-right:5px;
+      }
+      
+      .field {
+        
+      }
+      
+    </style>
+{% endblock %}
+
 {% block subheader %}
     {% pagebar %}
 {% endblock %}
 
 {% block mainbar %}
-    <ul>
-    {% for user in page.object_list %} 
-        <li>
-            <a class="user-link" title="" alt="" href="/member/show/{{user.id}}">{{user.get_full_name}}</a>
-        </li>
+
+
+    {% for user in page.object_list %}
+        
+        {% if forloop.first %}<div style="float:left; width:20%">{% endif %}
+        
+        <div class="field">
+            <div class="gravimg">{% gravatar user 36 %}</div>
+            <div><a class="user-link" title="" alt="" href="/member/show/{{user.id}}">{{user.get_full_name}}</a></div>
+            <div>{% userrep user %}</div>
+        </div>
+        
+        {% if forloop.counter|divisibleby:rows %}
+            </div><div style="float:left; width:20%">
+        {% endif %}
+        
+        {% if forloop.last %}</div>{% endif %}  
+    
     {% endfor %}
-    </ul>
+
 {% endblock %}

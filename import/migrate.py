@@ -403,6 +403,12 @@ def execute(path, limit=None):
 
     # insert users into the database
     fname = join(path, 'Users.xml')
+    
+    # no real user file, use anonymized users
+    if not os.path.isfile(fname):
+        print '*** using the anonymized user file'
+        fname = join(path, 'AnonUsers.xml')
+        
     users = insert_users(fname=fname, limit=limit)
     
     fname = join(path, 'Posts.xml')

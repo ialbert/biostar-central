@@ -82,11 +82,12 @@ def get_page(request, obj_list, per_page=25):
         page = paginator.page(paginator.num_pages)
     
     return page
-
+    
 def user_list(request):
-    users = models.User.objects.all()
-    page  = get_page(request, users)
-    return html.template(request, name='user.list.html', page=page)
+    users = models.User.objects.select_related('profile').order_by("-profile__score")
+    #order_by="profile__score").all()
+    page  = get_page(request, users, per_page=35)
+    return html.template(request, name='user.list.html', page=page, rows=7)
 
 def tag_list(request):
     tags = models.Tag.objects.all().order_by('-count')
