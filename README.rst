@@ -88,6 +88,12 @@ the *populate* command. To create a new migration one would do a::
 	$ biostar.sh dump
 	$ biostar.sh delete init populate
 
+The *ALLOW_MIGRATION* setting will enable a single automatic account migration
+based on the email provided by the OpenID provider. Only the information
+from a subset of well known OpenID providers are trusted enough
+to automatically merge accounts. For other users manual migration of accounts
+will be required.
+
 Layout
 ------
 

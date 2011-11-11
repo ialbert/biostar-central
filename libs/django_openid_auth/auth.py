@@ -184,9 +184,11 @@ class OpenIDBackend:
                             'livejournal.com', 'blogspot.com', 'openid.aol.com',
                             'wordpress.com'):
                 trusted = trusted or url.netloc.endswith(provider)
-                                        
             
-            # more OpenID checks could go here, perhaps adding trusted sources
+            # you can override migration from the settings
+            trusted = trusted and settings.ALLOW_MIGRATION                       
+            
+            # this merges the authenticated user with an existing user
             if others and trusted:
                 print '*** merging an existing user into this openid'
                 print '*** openid url %s' % openid_response.identity_url
