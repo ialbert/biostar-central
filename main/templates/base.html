@@ -61,7 +61,8 @@
           {% else %}
               <span class="note">First time here? Check out the FAQ.</a> &bull; <a href="/openid/login/">login</a>
           {% endif %}
-              &bull; faq &bull; Search: <input name="q" class="textbox" tabindex="1" onfocus="if (this.value=='search') this.value = ''" maxlength="80" size="28" value="search" type="text">
+              
+              &bull; faq &bull; Search: <input name="q" class="textbox" tabindex="1" onfocus="if (this.value=='search') this.value = ''" maxlength="80" size="28" value="search-not-yet-working" type="text" disabled="True">
                         
           </div>
           </form>
@@ -76,9 +77,7 @@
     </div>
     
     <div id="hmenus">
-      
       {% include "nav/main.nav.html" %}
-          
     </div>
     
   </div>

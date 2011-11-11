@@ -13,8 +13,8 @@
         padding-right:5px;
       }
       
-      .field {
-        
+      .searchbox {
+        padding:10px;
       }
       
     </style>
@@ -26,7 +26,13 @@
 
 {% block mainbar %}
 
-
+    <div class="searchbox">
+        <form action="/member/list/" method="get">
+            Search users: <input name="search" type="text" size=20 value="{{search}}">
+            <input type="submit" value="Search" />
+        </form>
+    </div>
+    
     {% for user in page.object_list %}
         
         {% if forloop.first %}<div style="float:left; width:20%">{% endif %}

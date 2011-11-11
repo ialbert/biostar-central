@@ -1,3 +1,4 @@
+<div>
 <h3 align="center">
     
     {% if page.has_previous %}
@@ -6,7 +7,14 @@
         &lt;previous
     {% endif %}
 
-    &nbsp;|&nbsp;page {{ page.number }} of {{ page.paginator.num_pages }}&nbsp;|&nbsp;
+    &nbsp;&bull;&nbsp;
+    
+    <a href="{{request.path}}?page=1">first</a> &bull;  
+    
+    page {{ page.number }} of {{ page.paginator.num_pages }}&nbsp;&bull;&nbsp;
+
+    
+    <a href="{{request.path}}?page={{page.paginator.num_pages}}">last</a>  &bull; 
 
     {% if page.has_next %}
         <a href="{{request.path}}?page={{page.next_page_number}}">next&gt;</a>
@@ -15,4 +23,4 @@
     {% endif %}
 
 </h3>
-
+</div>

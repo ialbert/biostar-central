@@ -9,6 +9,7 @@ from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.contrib.auth import authenticate, login, logout
 from django.conf import settings
 from django.http import HttpResponse
+from django.db.models import Q
 
 # the openid association model
 from django_openid_auth.models import UserOpenID
@@ -84,9 +85,14 @@ def get_page(request, obj_list, per_page=25):
     return page
     
 def user_list(request):
-    users = models.User.objects.select_related('profile').order_by("-profile__score")
+    search  = request.GET.get('search','')
+    if search:
+        query = Q(first_name__icontains=search) | Q(last_name__icontains=search)
+        users = models.User.objects.filter(query).select_related('profile').order_by("-profile__score")
+    else:
+        users = models.User.objects.select_related('profile').order_by("-profile__score")
     page  = get_page(request, users, per_page=35)
-    return html.template(request, name='user.list.html', page=page, rows=7)
+    return html.template(request, name='user.list.html', page=page, rows=7, search=search)
 
 def tag_list(request):
     tags = models.Tag.objects.all().order_by('-count')
@@ -120,7 +126,6 @@ def question_unanswered(request):
     page = get_page(request, qs) 
     return html.template(request, name='question.list.html', page=page)
     
-
 def question_show(request, pid):
     "Returns a question with all answers"
     qs = models.Question.all_objects if 'view_deleted' in request.permissions else models.Question.objects
