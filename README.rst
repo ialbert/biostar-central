@@ -10,8 +10,10 @@ the StackOverflow Q&A engine.
 Our primary goal is to create a simple, generic, flexible and extendeable 
 Q&A framework.
 
-.. note Please note that software is not yet robust enough for public
-   deployment! 
+A demo version of this site can be seen at: http://www.biostars.org
+
+**Note**: Please note that software is not yet robust enough for public
+deployment! 
 
 Requirements
 ------------
@@ -75,8 +77,8 @@ customize locations/test fixtures, etc. View the source for well documented exam
 The default server will bind the all IP adapters (0.0.0.0) and port 8080. Visit http://localhost:8080 to see
 interact with your version of the test server. Edit the *biostar.sh* script to override the various settings.
 
-.. warning: The default settings will create an application with a default admin user and password!
-   Modify the *main/settings.py* file to contain a different password!
+**Warning**: The default settings will create an application with a default admin user and password!
+Modify the *main/settings.py* file to contain a different password!
 
 Migration
 ---------

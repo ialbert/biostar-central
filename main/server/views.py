@@ -26,8 +26,6 @@ def index(request):
     
     # eventually we will need to order by relevance
     questions = models.Question.objects.select_related('post', 'post__author','post__author__profile').order_by('-lastedit_date')
-    
-    
     page = get_page(request, questions, per_page=20)
     return html.template( request, name='index.html', page=page)
 

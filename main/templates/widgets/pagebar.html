@@ -2,24 +2,20 @@
 <h3 align="center">
     
     {% if page.has_previous %}
-        <a href="{{request.path}}?page={{page.previous_page_number}}">&lt;previous</a>
+        &lt;<a href="{{request.path}}?page={{page.previous_page_number}}">previous</a>
+        &bull; <a href="{{request.path}}?page=1">first</a>
     {% else %}
-        &lt;previous
+        <span style="color:#555555;">&lt;previous &bull; first</span>
     {% endif %}
 
-    &nbsp;&bull;&nbsp;
-    
-    <a href="{{request.path}}?page=1">first</a> &bull;  
-    
-    page {{ page.number }} of {{ page.paginator.num_pages }}&nbsp;&bull;&nbsp;
+    &bull; page {{ page.number }} of {{ page.paginator.num_pages }}
 
     
-    <a href="{{request.path}}?page={{page.paginator.num_pages}}">last</a>  &bull; 
-
     {% if page.has_next %}
-        <a href="{{request.path}}?page={{page.next_page_number}}">next&gt;</a>
+        &bull; <a href="{{request.path}}?page={{page.paginator.num_pages}}">last</a>
+        &bull; <a href="{{request.path}}?page={{page.next_page_number}}">next</a>&gt;
     {% else %}
-        next&gt;
+        <span style="color:#555555;">&bull; last &bull; next&gt;</span>
     {% endif %}
 
 </h3>
