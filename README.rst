@@ -10,6 +10,9 @@ the StackOverflow Q&A engine.
 Our primary goal is to create a simple, generic, flexible and extendeable 
 Q&A framework.
 
+.. note Please note that software is not yet robust enough for public
+   deployment! 
+
 Requirements
 ------------
 
