@@ -43,10 +43,10 @@ From the command line execute::
 
 Visit the http://localhost:8080 to view the site. Enjoy.
 
-.. note The Windows version of the biostar.sh manager has not yet
-   been written. The site will work just fine on Windows
-   but for now users will need to manually invoke the commands
-   present in the *biostar.sh* run manager (TODO).
+**Note** The Windows version of the biostar.sh manager has not yet
+been written. The site will work just fine on Windows
+but for now users will need to manually invoke the commands
+present in the *biostar.sh* run manager (TODO).
 
 Detailed Usage
 --------------
