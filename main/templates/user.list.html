@@ -27,7 +27,7 @@
 {% block mainbar %}
 
     <div class="searchbox">
-        <form action="/member/list/" method="get">
+        <form action="/user/list/" method="get">
             Search users: <input name="search" type="text" size=20 value="{{search}}">
             <input type="submit" value="Search" />
         </form>
@@ -39,7 +39,7 @@
         
         <div class="field">
             <div class="gravimg">{% gravatar user 36 %}</div>
-            <div><a class="user-link" title="" alt="" href="/member/show/{{user.id}}">{{user.get_full_name}}</a></div>
+            <div><a class="user-link" title="" alt="" href="/user/show/{{user.id}}">{{user.get_full_name}}</a></div>
             <div>{% userrep user %}</div>
         </div>
         

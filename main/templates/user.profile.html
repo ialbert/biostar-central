@@ -14,14 +14,14 @@
   <div style="margin: 1em">
     <div>{% gravatar user 128 %}</div>
     <div style="font-size: 200%">{% userrep user %}</div>
-    
   </div>
 </td>
 <td valign="top" align="left">
   <div style="margin: 2em">
+    
     <div style="float:left; width: 7em;">Name</div>
     <div style="float:left"><b>{{ user.first_name }}
-                               {{ user.last_name }}</b></div>
+                               {{ user.last_name }}</b> | <a href="/user/edit/{{user.id}}/">edit</a></div>
     <div style="clear: left"></div>
 
     <div style="float:left; width: 7em;">Userid</div>

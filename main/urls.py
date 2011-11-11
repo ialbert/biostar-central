@@ -26,8 +26,9 @@ urlpatterns = patterns('',
     (r'^search/$', 'main.server.views.search'),
 
     # members
-    (r'^member/list/$', 'main.server.views.user_list'),
-    (r'^member/show/(?P<uid>\d+)/$', 'main.server.views.user_profile'),
+    (r'^user/list/$', 'main.server.views.user_list'),
+    (r'^user/show/(?P<uid>\d+)/$', 'main.server.views.user_profile'),
+    (r'^user/edit/(?P<uid>\d+)/$', 'main.server.views.user_edit'),
 
     # returns a preview page
     (r'^preview/$', 'main.server.views.preview'),

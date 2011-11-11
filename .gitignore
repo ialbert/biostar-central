@@ -1,5 +1,8 @@
 *.pyc
 *~
+.DS_Store
+biostar.db
+import/*
 home/secret-key.txt
 home/db/*.db
 home/import/*

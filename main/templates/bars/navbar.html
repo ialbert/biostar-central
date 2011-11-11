@@ -1,0 +1,17 @@
+{% load basic %}
+
+<div>
+
+<div class="nav left">
+  <a href="/question/tagged/galaxy" {% navclass '/galaxy/' %}>Galaxy</a> 
+  <a href="/question/list/" {% navclass '/question/' '/unanswered/ /galaxy/'%}>Unanswered</a> 
+  <a href="/tag/list/" {% navclass '/tag/' %}>Tags</a>
+  <a href="/user/list/" {% navclass '/user/' %}>Users</a> 
+  <a href="/badge/list/" {% navclass '/badge/' %}>Badges</a>
+</div>
+
+<div class="nav right">
+  <a href="/question/new/" {% navclass '/question/new/' %}>Ask&nbsp;Question</a>
+</div>
+
+</div>
