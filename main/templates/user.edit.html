@@ -2,14 +2,33 @@
 
 {% load basic %}
 
+{% block custom-frameworks %}
+    <style type="text/css">
+      
+      label {
+        width: 10em;
+        float: left;
+        text-align: right;
+        margin-right: 0.5em;
+        display: block
+      }
+      .errorlist {
+        background:#F4A83D;
+      }
+    </style>
+{% endblock %}
+
 {% block subheader %}
-  <h2>{{ user.first_name }} {{ user.last_name }}</h2>
+  <h2>Updating: {{ user.profile.display_name }}</h2>
 {% endblock %}
 
 {% block mainbar %}
 
-Update user information
-
+<form action="/user/edit/{{user.id}}/" method="post">
+{% csrf_token %}
 {{form.as_p}}
+<p><label for="input">&nbsp;</label><input id="input" type="submit" value="submit" name="submit" />
+</p>
+</form>
 
 {% endblock %}

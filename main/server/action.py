@@ -16,9 +16,12 @@ from django.db.models import Q
 
 class UserForm(forms.Form):
     "A form representing a new question"
-    first_name = forms.CharField(max_length=50,  initial="A")
-    last_name  = forms.CharField(max_length=50,  initial="B")
-    about_me   = forms.CharField(max_length=50,  initial="B", widget=forms.Textarea)
+    display_name = forms.CharField(max_length=30,  initial="B", widget=forms.TextInput(attrs={'size':'30'}))     
+    first_name   = forms.CharField(max_length=30,  initial="A", widget=forms.TextInput(attrs={'size':'30'}))
+    last_name    = forms.CharField(max_length=30,  initial="B", widget=forms.TextInput(attrs={'size':'30'}))
+    location     = forms.CharField(max_length=50,  initial="B", widget=forms.TextInput(attrs={'size':'50'}))
+    website      = forms.CharField(max_length=50,  initial="B", widget=forms.TextInput(attrs={'size':'50'}))
+    about_me     = forms.CharField(max_length=500, initial="C", widget=forms.Textarea (attrs=dict(cols='50', rows=6)))
     
 def user_edit(request, uid):
     "User's profile page"
@@ -28,9 +31,25 @@ def user_edit(request, uid):
         initial = dict(
             first_name = user.first_name,
             last_name  = user.last_name,
+            display_name = user.profile.display_name,
+            location   = user.profile.location or 'not specified',
+            website    = user.profile.website or 'http://www.biostars.org',
             about_me   = user.profile.about_me
         )
         form = UserForm(initial)
-    
         return html.template(request, name='user.edit.html', user=user, form=form)
-      
+    elif request.method == 'POST':
+        form = UserForm(request.POST)
+        if not form.is_valid():
+            return html.template(request, name='user.edit.html', user=user, form=form)
+        else:
+            print 'HERE'
+            for field in "first_name last_name".split():
+                setattr(user, field, form.cleaned_data[field])
+            for field in "display_name about_me website location".split():
+                setattr(user.profile, field, form.cleaned_data[field])
+            user.profile.save()
+            user.save()
+            return html.redirect("/user/show/%s/" % user.id)
+        
+    

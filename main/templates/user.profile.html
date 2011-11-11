@@ -2,8 +2,16 @@
 
 {% load basic %}
 
+{% block custom-frameworks %}
+    <style type="text/css">
+      .L  { float:left; padding-bottom:5px; }
+      .W  { width: 7em; }
+      .C  { clear: left }
+    </style>
+{% endblock %}
+
 {% block subheader %}
-  <h2>{{ selected.first_name }} {{ selected.last_name }}</h2>
+  <h2>{{ selected.profile.display_name }}</h2>
 {% endblock %}
 
 {% block mainbar %}
@@ -19,35 +27,35 @@
 <td valign="top" align="left">
   <div style="margin: 2em">
     
-    <div style="float:left; width: 7em;">Name</div>
-    <div style="float:left"><b>{{ selected.first_name }}
-                               {{ selected.last_name }}</b> | <a href="/user/edit/{{selected.id}}/">edit</a></div>
-    <div style="clear: left"></div>
-
-    <div style="float:left; width: 7em;">Userid</div>
-    <div style="float:left">{{ selected.id }}</div>
-    <div style="clear: left"></div>
+    <div class="L W">Display Name</div>
+    <div class="L"><b>{{ selected.profile.display_name }}</b> | <a href="/user/edit/{{selected.id}}/">edit</a></div>
+    <div class="C"></div>
     
-    <div style="float:left; width: 7em;">Email</div>
-    <div style="float:left">{{ selected.email }}</div>
-    <div style="clear: left"></div>
-   
+    <div class="L W">Userid</div>
+    <div class="L">{{ selected.id }}</div>
+    <div class="C"></div>
+    
+    {% if user.is_moderator %}
+      <div class="L W">Email</div>
+      <div class="L">{{ selected.email }}</div>
+      <div class="C"></div>
+    {% endif %}
 
-    <div style="float:left; width: 7em;">Member for</div>
-    <div style="float:left">{{ selected.date_joined|timesince }}</div>
-    <div style="clear: left"></div>
+    <div class="L W">Member for</div>
+    <div class="L">{{ selected.date_joined|timesince }}</div>
+    <div class="C"></div>
 
-    <div style="float:left; width: 7em;">Seen</div>
-    <div style="float:left">{{ profile.last_visited|timesince }} ago </div>
-    <div style="clear: left"></div>
+    <div class="L W">Seen</div>
+    <div class="L">{{ profile.last_visited|timesince }} ago </div>
+    <div class="C"></div>
 
-    <div style="float:left; width: 7em;">Website</div>
-    <div style="float:left"> {{ profile.website }}</div>
-    <div style="clear: left"></div>
+    <div class="L W">Website</div>
+    <div class="L"><a href="{{profile.website}}">{{profile.website}}</a></div>
+    <div class="C"></div>
 
-    <div style="float:left; width: 5em;">Location</div>
-    <div style="float:left">{{ profile.location }}</div>
-    <div style="clear: left"></div>
+    <div class="L W">Location</div>
+    <div class="L">{{ profile.location }}</div>
+    <div class="C"></div>
   </div>
 </td>
 

@@ -39,7 +39,7 @@
         
         <div class="field">
             <div class="gravimg">{% gravatar user 36 %}</div>
-            <div><a class="user-link" title="" alt="" href="/user/show/{{user.id}}">{{user.get_full_name}}</a></div>
+            <div><a class="user-link" title="" alt="" href="/user/show/{{user.id}}">{{user.profile.display_name}}</a></div>
             <div>{% userrep user %}</div>
         </div>
         
