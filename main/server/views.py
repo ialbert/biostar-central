@@ -80,7 +80,7 @@ def get_page(request, obj_list, per_page=25):
     return page
     
 def user_list(request):
-    search  = request.GET.get('search','')
+    search  = request.GET.get('search','')[:80] # trim for sanity
     if search:
         query = Q(first_name__icontains=search) | Q(last_name__icontains=search)
         users = models.User.objects.filter(query).select_related('profile').order_by("-profile__score")

@@ -61,6 +61,7 @@ def gravatar(user, size=80):
 def pagebar(context):
     return {
         'page': context['page'],
+        'search': context.get('search',''),
         'request': context['request'],
     }
     

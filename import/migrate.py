@@ -117,11 +117,13 @@ def insert_users(fname, limit):
     with transaction.commit_on_success():
         for (userid, u), (userid2, p) in zip(ulist, plist):
             assert userid == userid2, 'Sanity check'
-            user = models.User.objects.create(**u)
-            prof = user.get_profile()
-            for attr, value in p.items():
-                setattr(prof, attr, value)
-            prof.save()
+            user = models.User(**u) 
+            if USE_DB:
+                user.save()
+                prof = user.get_profile()
+                for attr, value in p.items():
+                    setattr(prof, attr, value)
+                prof.save()
             users[userid] = user
 
     return users
@@ -131,8 +133,25 @@ def checkfunc(key, data):
     Returns a filtering fuction that safely checks 
     that the keys of their parameters are in an data structure 
     """
+    global LOGSTREAM
+
     def func(row):
-        return (key in row) and (row[key] in data)
+        cond1 = (key in row)
+        if not cond1:
+            if LOGSTREAM:
+                out = [ '* record fail', key, row ]
+                print '\t'.join(map(str, out))
+            return False
+
+        cond2 = (row[key] in data)
+        if not cond2:
+            if LOGSTREAM:
+                out = [ '*value fail', key, row[key], row ]
+                print '\t'.join(map(str, out))
+
+            return False
+        return True
+
     return func
 
 def insert_posts(fname, limit, users):
@@ -158,7 +177,9 @@ def insert_posts(fname, limit, users):
     print "*** inserting %s posts" % len(plist)
     with transaction.commit_on_success():
         for postid, p in plist:
-            post = models.Post.objects.create(**p)
+            post = models.Post(**p) 
+            if USE_DB:
+                post.save()
             posts[postid] = post 
     
     # prepare questions
@@ -177,9 +198,13 @@ def insert_posts(fname, limit, users):
             post = posts[postid]
             post.title = q['title']
             tag_string = parse_tag_string(q['tags'])
-            post.set_tags(tag_string)
-            post.save()
-            quest = models.Question.objects.create(post=post)
+            quest = models.Question(post=post)
+
+            if USE_DB:
+                post.set_tags(tag_string)
+                post.save()
+                quest.save()
+                
             qmap[postid]= quest
    
     # filter for anwers
@@ -200,8 +225,11 @@ def insert_posts(fname, limit, users):
             post  = posts[postid]
             quest = qmap[questid]
             post.title = "A: %s" % quest.post.title
-            post.save()
-            answ = models.Answer.objects.create(question=quest, post=post)
+            answ = models.Answer(question=quest, post=post)
+            if USE_DB:
+                post.save()
+                answ.save()
+            
 
     return posts
     
@@ -222,9 +250,9 @@ def insert_post_revisions(fname, limit, users, posts):
     # based on the GUID they set on them.
        
     # keep revisions to valid posts/users
-    rows = filter(checkfunc('PostId', posts), rows)
     rows = filter(checkfunc('UserId', users), rows)
-
+    rows = filter(checkfunc('PostId', posts), rows)
+    
     revs  = {}
     glist = [] # maintains order between revisions
     alist = [] # action list
@@ -262,20 +290,23 @@ def insert_post_revisions(fname, limit, users, posts):
             data = revs[guid]
             post = data['post']
             del data['post']
-            post.create_revision(**data)
-            post.save() 
+            if USE_DB:
+                post.create_revision(**data)
+                post.save() 
 
     print "*** inserting %s moderator actions" % len(alist)
     with transaction.commit_on_success():
         for atype, author, date in alist:
-            post.moderator_action(atype, author, date)
+            if USE_DB:
+                post.moderator_action(atype, author, date)
     
 def insert_votes(fname, limit, users, posts):
 
     rows = xml_reader(fname)
-    rows = filter(checkfunc('PostId', posts), rows)
-    rows = filter(checkfunc('UserId', users), rows)
 
+    rows = filter(checkfunc('UserId', users), rows)
+    rows = filter(checkfunc('PostId', posts), rows)
+    
     vlist = []
     for row in rows:
         post = posts[row['PostId']]
@@ -297,16 +328,18 @@ def insert_votes(fname, limit, users, posts):
     print "*** inserting %s votes" % len(vlist)
     with transaction.commit_on_success():
         for param in vlist:
-            vote = models.Vote.objects.create(**param)
+            vote = models.Vote(**param)
+            if USE_DB:
+                vote.save()
         
 def insert_comments(fname, posts, users, limit):
     
     rows = xml_reader(fname, limit=limit)
 
     # keep the valid rows only
-    rows = filter(checkfunc('PostId', posts), rows)
     rows = filter(checkfunc('UserId', users), rows)
-
+    rows = filter(checkfunc('PostId', posts), rows)
+    
     clist = []
     for row in rows:
         cid  = row['Id']
@@ -322,8 +355,9 @@ def insert_comments(fname, posts, users, limit):
             postid = param['postid']
             parent = posts[postid]
             del param['postid']
-            post = models.Post.objects.create(**param)
-            comment = models.Comment.objects.create(parent=parent, post=post)
+            if USE_DB:
+                post = models.Post.objects.create(**param)
+                comment = models.Comment.objects.create(parent=parent, post=post)
 
 def insert_badges(fname, limit):
     "Inserts the badges"
@@ -331,7 +365,7 @@ def insert_badges(fname, limit):
     blist = []
     rows = xml_reader(fname, limit=limit)
     bmap = {}
-    BCONST = {'3':models.BADGE_BRONZE, '2':models.BADGE_SILVER, '1':models.BADGE_GOLD}
+    BCONST = { '3':models.BADGE_BRONZE, '2':models.BADGE_SILVER, '1':models.BADGE_GOLD }
 
     for row in rows:
         bid    = row['Id']
@@ -342,14 +376,16 @@ def insert_badges(fname, limit):
         secret = row['Secret'] == 'true'
         btype  = BCONST[bclass]
         param = dict(name=name, type=btype, description=desc, unique=unique, secret=secret)
-        blist.append(param)
+        blist.append((bid, param))
             
     print "*** inserting %s badges" % len(blist)
     with transaction.commit_on_success():   
-        for param in blist:
-            badge = models.Badge.objects.create(**param)
-            bmap[bid] = badge
-    
+        for (bid, param) in blist:
+            badge = models.Badge(**param)
+            if USE_DB:
+                badge.save()
+
+            bmap[bid] = badge    
     return bmap
 
 def insert_awards(fname, users, badges, limit):
@@ -371,7 +407,9 @@ def insert_awards(fname, users, badges, limit):
     print "*** inserting %s awards" % len(alist)
     with transaction.commit_on_success(): 
         for param in alist:
-            models.Award.objects.create(**param)
+            award = models.Award(**param)
+            if USE_DB:
+                award.save()
         
 def admin_init():
     
@@ -390,7 +428,8 @@ def admin_init():
             # add admin rights to each user
             admin.set_password(settings.SECRET_KEY)
             admin.is_staff = admin.is_superuser = True
-            admin.save()
+            if USE_DB:
+                admin.save()
             print '*** added staff access to admin user %s (%s)' % (admin.username, admin.email)
     
     editors, flag = models.Group.objects.get_or_create(name=const.MODERATOR_GROUP)
@@ -414,7 +453,7 @@ def execute(path, limit=None):
   
     fname = join(path, 'Posts.xml')
     posts = insert_posts(fname=fname, limit=limit, users=users)
-      
+
     fname = join(path, 'PostHistory.xml')
     revisions = insert_post_revisions(fname=fname, limit=limit, posts=posts, users=users)
     
@@ -436,14 +475,18 @@ def execute(path, limit=None):
     
 if __name__ =='__main__':
     import doctest, optparse
-    
+    global LOGSTREAM, USE_DB
+
     # for debugging
     #sys.argv.extend( ["-p", "se0"] )
     
     # options for the program
     parser = optparse.OptionParser()
-    parser.add_option("-p", "--path", dest="path", help="directory or zip archive containing a full biostar SE1 datadump")
-    parser.add_option("-L", "--limit", dest="limit", help="limit to these many rows per file", type=int, default=None)
+    parser.add_option("--path", dest="path", help="directory or zip archive containing a full biostar SE1 datadump")
+    parser.add_option("--limit", dest="limit", help="limit to these many rows per file", type=int, default=None)
+    parser.add_option("--log", dest="log", help="print information on entries that the migration skips", action="store_true", default=False)
+    parser.add_option("--dry", dest="dry", help="dry run, no database action, checks the formats", action="store_true", default=False)
+   
     (opts, args) = parser.parse_args()
     
     # stop execution if no parameters were specified
@@ -455,7 +498,14 @@ if __name__ =='__main__':
     doctest.testmod()
     
     print '*** migration path %s' % opts.path
+    if opts.log:
+        LOGSTREAM = sys.stdout 
+    else:
+        LOGSTREAM = None
     
+    # wether to use the database
+    USE_DB = not opts.dry
+
     # call into the main program
     execute(path=opts.path, limit=opts.limit)
     

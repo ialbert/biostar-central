@@ -109,9 +109,9 @@ while (( "$#" )); do
 
 	if [ "$1" = "import" ]; then
 		echo "*** importing the data into the main database"
-		rm $BIOSTAR_HOME/db/biostar.db
+		rm -f $BIOSTAR_HOME/db/biostar.db
 		cp $BIOSTAR_HOME/db/test.db $BIOSTAR_HOME/db/biostar.db
-		$PYTHON_EXE import/migrate.py --path import/se0 
+		$PYTHON_EXE import/migrate.py --path import/se1 --dry --log
 	fi
 
 shift
