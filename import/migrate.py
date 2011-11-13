@@ -68,6 +68,25 @@ def parse_tag_string(rawtagstr):
     tags = filter(None, tags)
     return ' '.join(tags)
 
+def checkuser(row, key='Id'):
+    """
+    Checks a user for validity
+    """
+    userid = row.get(key)
+    if not userid:
+        if LOGSTREAM:
+            out = [ '* attribute missing', key, row ]
+            print '\t'.join(map(str, out))
+        return False
+    
+    if userid == '-1':
+        if LOGSTREAM:
+            out = [ '* invalid user', key, row ]
+            print '\t'.join(map(str, out))
+        return False
+
+    return True
+
 @transaction.commit_manually
 def insert_users(fname, limit):
     "Inserts the users"
@@ -75,6 +94,8 @@ def insert_users(fname, limit):
     # reads the whole file
     rows = xml_reader(fname, limit=limit)
     
+    rows = filter(checkuser, rows)
+
     # StackExchange to BioStar mappings
     typemap = { '4':const.USER_MODERATOR, '5':const.USER_ADMIN }
 
@@ -86,6 +107,10 @@ def insert_users(fname, limit):
     
         # these are user related attributes
         userid   = row['Id']
+        
+        # de
+        if userid == '-1':
+            continue
         username = 'u%s' % userid
         email    = row.get('Email') or username
         name     = row.get('DisplayName', 'User %s' % userid)
@@ -139,14 +164,14 @@ def checkfunc(key, data):
         cond1 = (key in row)
         if not cond1:
             if LOGSTREAM:
-                out = [ '* record fail', key, row ]
+                out = [ '* attribute error', key, row ]
                 print '\t'.join(map(str, out))
             return False
 
         cond2 = (row[key] in data)
         if not cond2:
             if LOGSTREAM:
-                out = [ '*value fail', key, row[key], row ]
+                out = [ '* lookup error', key, row[key], row ]
                 print '\t'.join(map(str, out))
 
             return False
@@ -210,7 +235,7 @@ def insert_posts(fname, limit, users):
     # filter for anwers
     arows = filter(lambda x: x['PostTypeId'] == '2', rows)
     arows = filter(checkfunc('ParentId', qmap), arows)
-    arows = filter(checkfunc('OwnerUserId', users), arows)
+    #arows = filter(checkfunc('OwnerUserId', users), arows)
 
     alist = []
     # prepare answers
@@ -230,7 +255,6 @@ def insert_posts(fname, limit, users):
                 post.save()
                 answ.save()
             
-
     return posts
     
 def insert_post_revisions(fname, limit, users, posts):
@@ -340,25 +364,64 @@ def insert_comments(fname, posts, users, limit):
     rows = filter(checkfunc('UserId', users), rows)
     rows = filter(checkfunc('PostId', posts), rows)
     
-    clist = []
+    comms, clist = {}, []
     for row in rows:
         cid  = row['Id']
         text = row['Text']
         postid = row['PostId'] 
         author = users[row['UserId']]
         creation_date = parse_time(row['CreationDate'])
-        clist.append(dict(author=author, creation_date=creation_date, content=text, html=text, postid=postid) )
+        trips = postid, cid, dict(author=author, creation_date=creation_date, content=text, html=text)
+        clist.append( trips )
 
     print "*** inserting %s comments" % len(clist)
     with transaction.commit_on_success():   
-        for param in clist:
-            postid = param['postid']
-            parent = posts[postid]
-            del param['postid']
+        for postid, cid, param in clist:
+            parent = posts[postid]         
+            post = models.Post(**param)
+            
+            #comment = models.Comment(parent=parent, post=post)            
+            comms[cid] = post
+            
             if USE_DB:
-                post = models.Post.objects.create(**param)
-                comment = models.Comment.objects.create(parent=parent, post=post)
+                post.save() 
+                comment = models.Comment(parent=parent, post=post)
+                comment.save()
 
+    return comms
+
+def insert_comment_votes(fname, limit, comms, users):
+    "Inserts vote on comments"
+
+    rows = xml_reader(fname)
+    rows = filter(checkfunc('UserId', users), rows)
+    rows = filter(checkfunc('PostCommentId', comms), rows)
+    
+    vlist = []
+    for row in rows:
+        post = comms[row['PostCommentId']]
+        user = users[row['UserId']]
+        addr = users.get(row['IPAddress'])
+        VoteType = row['VoteTypeId']
+            
+        if VoteType == '1':
+            vote_type = const.VOTE_ACCEPT
+        elif VoteType == '2':
+            vote_type = const.VOTE_UP
+        elif VoteType == '3':
+            vote_type = const.VOTE_DOWN
+        else:
+            continue
+        param = dict(post=post, author=user, type=vote_type)
+        vlist.append(param)
+
+    print "*** inserting %s comment votes" % len(vlist)
+    with transaction.commit_on_success():
+        for param in vlist:
+            vote = models.Vote(**param)
+            if USE_DB:
+                vote.save()
+ 
 def insert_badges(fname, limit):
     "Inserts the badges"
 
@@ -457,11 +520,14 @@ def execute(path, limit=None):
     fname = join(path, 'PostHistory.xml')
     revisions = insert_post_revisions(fname=fname, limit=limit, posts=posts, users=users)
     
-    fname = join(path, 'PostComments.xml')
-    insert_comments(fname=fname, posts=posts, users=users, limit=limit)
-    
     fname = join(path, 'Posts2Votes.xml')
     insert_votes(fname=fname, limit=limit, posts=posts, users=users)
+    
+    fname = join(path, 'PostComments.xml')
+    comms = insert_comments(fname=fname, posts=posts, users=users, limit=limit)
+    
+    fname = join(path, 'Comments2Votes.xml')
+    insert_comment_votes(fname=fname, limit=limit, comms=comms, users=users)
     
     fname = join(path, 'Badges.xml')
     badges = insert_badges(fname=fname, limit=limit)

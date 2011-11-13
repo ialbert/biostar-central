@@ -111,7 +111,8 @@ while (( "$#" )); do
 		echo "*** importing the data into the main database"
 		rm -f $BIOSTAR_HOME/db/biostar.db
 		cp $BIOSTAR_HOME/db/test.db $BIOSTAR_HOME/db/biostar.db
-		$PYTHON_EXE import/migrate.py --path import/se1 --dry --log
+		#$PYTHON_EXE import/migrate.py --path import/se0 --limit 300 --dry
+		$PYTHON_EXE import/migrate.py --path import/se1 > se1-logfile.txt
 	fi
 
 shift
