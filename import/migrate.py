@@ -141,9 +141,9 @@ def insert_posts(fname, limit, users):
         views   = row['ViewCount']
         creation_date = parse_time(row['CreationDate'])
         author  = users[userid] # this is the user field
-        post, flag = models.Post.objects.get_or_create(author=author, views=views, creation_date=creation_date)
-        post.save()
-        store[id] = (flag, post)
+        post = models.Post.objects.create(author=author, views=views, creation_date=creation_date)
+        #post.save()
+        store[id] = (1, post)
     
     newposts = filter(lambda x: x[0], store.values() )
     print "*** inserting %s posts (%s new)" % (len(store), len(newposts))
@@ -420,6 +420,9 @@ def execute(path, limit=None):
     fname = join(path, 'PostHistory.xml')
     revisions = insert_post_revisions(fname=fname, limit=limit, posts=posts, users=users)
     
+    return
+
+    
     fname = join(path, 'Posts2Votes.xml')
     insert_votes(fname=fname, limit=limit, posts=posts, users=users)
     
@@ -445,7 +448,7 @@ if __name__ =='__main__':
     # options for the program
     parser = optparse.OptionParser()
     parser.add_option("-p", "--path", dest="path", help="directory or zip archive containing a full biostar SE1 datadump")
-    parser.add_option("-L", "--limit", dest="limit", help="limit to these many rows per file", default=None)
+    parser.add_option("-L", "--limit", dest="limit", help="limit to these many rows per file", type=int, default=None)
     (opts, args) = parser.parse_args()
     
     # stop execution if no parameters were specified

@@ -35,7 +35,7 @@
     <div class="L">{{ selected.id }}</div>
     <div class="C"></div>
     
-    {% if user.is_moderator %}
+    {% if user.is_staff %}
       <div class="L W">Email</div>
       <div class="L">{{ selected.email }}</div>
       <div class="C"></div>

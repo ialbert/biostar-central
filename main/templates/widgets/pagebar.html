@@ -1,5 +1,4 @@
-<div>
-<h3 align="center">
+<div align="center" style="padding:5px;font-size:larger;">
     
     {% if page.has_previous %}
         &lt;<a href="{{request.path}}?page={{page.previous_page_number}}">previous</a>
@@ -17,6 +16,4 @@
     {% else %}
         <span style="color:#555555;">&bull; last &bull; next&gt;</span>
     {% endif %}
-
-</h3>
 </div>

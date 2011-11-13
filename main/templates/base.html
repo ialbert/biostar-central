@@ -5,7 +5,7 @@
 <html>
 <head>
   <meta http-equiv="Content-type" content="text/html; charset=utf-8" />  
-
+  <link href='{{ STATIC_URL }}favicon.ico' rel='shortcut icon'/>
   <title>{% block title %}BioStar{% endblock %}</title>
 
     {% block  common-frameworks %}
@@ -24,8 +24,8 @@
         <script src="/static/js/debug.js"></script>
 
         <!-- Biostar specific style sheet and javascript-->
-        <link rel="stylesheet" href="{{ STATIC_URL }}/biostar.css" type="text/css" media="screen, projection" />
-        <script src="{{ STATIC_URL }}/biostar.js"></script>
+        <link rel="stylesheet" href="{{ STATIC_URL }}biostar.css" type="text/css" media="screen, projection" />
+        <script src="{{ STATIC_URL }}biostar.js"></script>
     {% endblock %}
 
     {% block custom-frameworks %}
@@ -70,9 +70,8 @@
       </td></tr>
     </div>
     
-    <br class="clear">
     
-    <div id="logo">
+    <div id="logo" class="clear">
       <a href="/"><img src="/static/biostar.logo.png" border="0"/></a>
     </div>
     

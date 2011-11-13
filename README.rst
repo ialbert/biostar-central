@@ -91,9 +91,7 @@ that can be reused by the *populate* command. The data fixture loading is
 substantially faster. Therefore to create a new migration one would do the
 following::
 
-	$ biostar.sh delete init 
 	$ biostar.sh import
-	$ biostar.sh dump
 	$ biostar.sh delete init populate
 
 The *ALLOW_MIGRATION* setting will enable a single automatic account migration

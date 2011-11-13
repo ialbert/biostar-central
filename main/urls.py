@@ -63,8 +63,6 @@ urlpatterns = patterns('',
     # Enable the admin:
     (r'^admin/', include(admin.site.urls)),
     (r'^admin/doc/', include('django.contrib.admindocs.urls')),
-
-   
 )
 
 if settings.ADMIN_PASSWORD_OVERRIDE:
@@ -76,9 +74,4 @@ if settings.ADMIN_PASSWORD_OVERRIDE:
 
 urlpatterns += staticfiles_urlpatterns()
 
-if 0:
-    urlpatterns += patterns('', 
-        # static content
-        (r'^static/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.STATIC_DIR }),
-    )
  
