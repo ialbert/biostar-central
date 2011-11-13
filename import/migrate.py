@@ -22,6 +22,7 @@ if not os.environ.get('DJANGO_SETTINGS_MODULE'):
 from django.conf import settings
 from main.server import models, const
 from django.db import transaction
+from django.utils.datastructures import SortedDict
 
 def xml_reader(fname, limit=None):
     """
@@ -35,13 +36,15 @@ def xml_reader(fname, limit=None):
     elems = ElementTree.parse(fname)
     elems = islice(elems.findall('row'), limit)
 
-    rows = []
-    for elem in elems:
-        # transforms children nodes to a dictionary keyed by tag with the node text as value"
-        pairs = map( lambda x: (x.tag, x.text), elem)
-        data  = dict(pairs)
-        rows.append( data )
+    def keyfunc(x):
+        return x.tag, x.text
 
+    rows = []
+    # each element is an iterable containing tags
+    for elem in elems:
+        tagmap = dict(map(keyfunc, elem))
+        rows.append(tagmap)
+    
     print '*** parsed %d records from %s' % (len(rows), fname)
     return rows
 
@@ -69,309 +72,307 @@ def parse_tag_string(rawtagstr):
 def insert_users(fname, limit):
     "Inserts the users"
     
-    store = {}
+    # reads the whole file
     rows = xml_reader(fname, limit=limit)
     
-    # two step process generate the users then update the profiles
-    for (index, row) in enumerate(rows):
-        
+    # StackExchange to BioStar mappings
+    typemap = { '4':const.USER_MODERATOR, '5':const.USER_ADMIN }
+
+    # stores users and profiles
+    ulist, plist = [], []
+
+    # attribute collector
+    for row in rows:
+    
+        # these are user related attributes
         userid   = row['Id']
         username = 'u%s' % userid
         email    = row.get('Email') or username
-        name     = row.get('DisplayName', 'Biostar User %s' % userid)
+        name     = row.get('DisplayName', 'User %s' % userid)
         last_login  = parse_time(row['LastAccessDate'])
         date_joined = parse_time(row['CreationDate'])
-        try:
-            user, flag = models.User.objects.get_or_create(username=username, email=email, first_name=name)
-        except Exception, e:
-            print 'Failed inserting row %s' % row
-            print userid, name, username
-            raise(e)
-        
-        # original ids will connect users to posts
-        store[ userid ] = (flag, user, row)
-    
-    # these are the new users
-    newusers = filter(lambda row: row[0], store.values())
-    
-    # this commit the user inserts
-    print "*** inserting %s users (%s new)" % (len(store), len(newusers))
-    transaction.commit()
-    
-    # update profiles for new users as a separate transaction
-    for flag, user, row in newusers:
-        prof = user.get_profile()
-        prof.score = int(row['Reputation'])
-        type = row['UserTypeId']
-        prof.display_name = row.get('DisplayNameCleaned', '').title()
-        prof.website  = row.get('WebsiteUrl', '')
-        prof.about_me = row.get('AboutMe', '')
-        prof.location = row.get('Location', '')
-        prof.openid   = row.get('OpenId', 'http://www.biostars.org')
-        prof.last_login_ip = row.get('LastLoginIP', '0.0.0.0')
-        
-        if type == '4':
-            prof.type = const.USER_MODERATOR
-        if type == '5':
-            prof.type = const.USER_ADMIN
-        prof.save()
-        
-    print "*** updating %s user profiles" % len(newusers)
-    transaction.commit()
-    
-    # remap to users
-    users = dict( (key, value[1]) for key, value in store.items() )
+
+        # stores the users
+        upair = (userid, dict( username=username, first_name=name, 
+                last_name="", email=email, last_login=last_login, date_joined=date_joined))
+        ulist.append( upair ) 
+
+        # these will be profile related attributes
+        score = int(row.get('Reputation', 0))
+        utype = typemap.get( row['UserTypeId'], const.USER_NORMAL)
+        display_name = row.get('DisplayNameCleaned', 'Biostar User %s' % userid).title()
+        website  = row.get('WebsiteUrl', '')
+        about_me = row.get('AboutMe', '')
+        location = row.get('Location', '')
+        openid   = row.get('OpenId', 'http://www.biostars.org')
+        last_login_ip = row.get('LastLoginIP', '0.0.0.0')
+
+        # store profiles
+        ppair = (userid, dict( display_name=display_name, website=website, location=location, 
+                last_login_ip=last_login_ip, about_me=about_me ))        
+        plist.append(ppair)
+
+    users = {}
+    print "*** inserting %s users" % len(ulist)
+    with transaction.commit_on_success():
+        for (userid, u), (userid2, p) in zip(ulist, plist):
+            assert userid == userid2, 'Sanity check'
+            user = models.User.objects.create(**u)
+            prof = user.get_profile()
+            for attr, value in p.items():
+                setattr(prof, attr, value)
+            prof.save()
+            users[userid] = user
+
     return users
 
-#@transaction.commit_manually
+def checkfunc(key, data):
+    """
+    Returns a filtering fuction that safely checks 
+    that the keys of their parameters are in an data structure 
+    """
+    def func(row):
+        return (key in row) and (row[key] in data)
+    return func
+
 def insert_posts(fname, limit, users):
     "Inserts the posts"
-
-    store = {}
-
+    
+    # read all the posts
     rows = xml_reader(fname, limit=limit)
-    
-    for (index, row) in enumerate(rows):
-        userid  = row.get('OwnerUserId')
-        if not userid: # user has been destroyed
-            continue
-        PostTypeId = row['PostTypeId']
-        id      = row['Id']
-        body    = row['Body']
-        views   = row['ViewCount']
-        creation_date = parse_time(row['CreationDate'])
-        author  = users[userid] # this is the user field
-        post = models.Post.objects.create(author=author, views=views, creation_date=creation_date)
-        #post.save()
-        store[id] = (1, post)
-    
-    newposts = filter(lambda x: x[0], store.values() )
-    print "*** inserting %s posts (%s new)" % (len(store), len(newposts))
-    transaction.commit()
-    
-    # remap to contain only posts
-    posts = dict( (key, value[1]) for key, value in store.items() )
-    return posts
 
-@transaction.commit_manually
+    # keep only posts with a valid user
+    rows = filter(checkfunc('OwnerUserId', users), rows)
+
+    plist = []
+    # first insert all posts
+    for row in rows:
+        postid = row['Id']
+        views  = row['ViewCount']
+        creation_date = parse_time(row['CreationDate'])
+        author = users[row['OwnerUserId']]
+        ppair = (postid, dict(author=author, views=views, creation_date=creation_date))
+        plist.append (ppair)
+        
+    posts = {}
+    print "*** inserting %s posts" % len(plist)
+    with transaction.commit_on_success():
+        for postid, p in plist:
+            post = models.Post.objects.create(**p)
+            posts[postid] = post 
+    
+    # prepare questions
+    qrows = filter(lambda x: x['PostTypeId'] == '1', rows)
+    qlist, qmap = [], {}
+    for row in qrows:
+        postid = row['Id']
+        title  = row['Title']
+        tags   = row['Tags']
+        qpair  = (postid, dict(title=title, tags=tags))
+        qlist.append (qpair)
+   
+    print "*** inserting %s questions" % len(qlist)
+    with transaction.commit_on_success():
+        for postid, q in qlist:
+            post = posts[postid]
+            post.title = q['title']
+            tag_string = parse_tag_string(q['tags'])
+            post.set_tags(tag_string)
+            post.save()
+            quest = models.Question.objects.create(post=post)
+            qmap[postid]= quest
+   
+    # filter for anwers
+    arows = filter(lambda x: x['PostTypeId'] == '2', rows)
+    arows = filter(checkfunc('ParentId', qmap), arows)
+    arows = filter(checkfunc('OwnerUserId', users), arows)
+
+    alist = []
+    # prepare answers
+    for row in arows:
+        postid  = row['Id']
+        questid = row['ParentId']
+        alist.append((postid, questid))
+
+    print "*** inserting %s answers" % len(alist)
+    with transaction.commit_on_success():
+        for postid, questid in alist:
+            post  = posts[postid]
+            quest = qmap[questid]
+            post.title = "A: %s" % quest.post.title
+            post.save()
+            answ = models.Answer.objects.create(question=quest, post=post)
+
+    return posts
+    
 def insert_post_revisions(fname, limit, users, posts):
     """
     Inserts post revisions. Also responsible for parsing out closed/deleted 
     states from the post history log
     """
-        
-    rows = xml_reader(fname)
+
+    # no limits are necessary since it is limited by posts and users already
+    rows = xml_reader(fname, limit=None)
+    revs = {} # Dictionary for fast GUID lookup
+    ords = [] # Ensures order doesn't get mixed up
     
     # Stack overflow splits up modifications to title, tags, and content
     # as separate rows in the post history XML distinguished by type
     # We need to first go through and collect them together
     # based on the GUID they set on them.
-    revisions = {} # Dictionary for fast GUID lookup
-    guid_list = [] # Ensures order doesn't get mixed up
-    for (index, row) in enumerate(rows):
-        try:
-            post   = posts[ row['PostId'] ]
-            author = users[ row['UserId'] ]
-        except KeyError:
-            # post or author missing 
-            continue
-        
-        guid    = row['RevisionGUID']
-        datestr = row['CreationDate']
-        date    = parse_time(datestr)
-        
-        if guid not in revisions:
-            guid_list.append(guid)
-        
-        # this is the new revision we need to create
-        # in our model a single revision contains all changes that were applied
-        rev = revisions.get(guid, {'post':post, 'author':author, 'date':date})
-        
-        type = row['PostHistoryTypeId']
-        
-        if type in ['1', '4']: # Title
+       
+    # keep revisions to valid posts/users
+    rows = filter(checkfunc('PostId', posts), rows)
+    rows = filter(checkfunc('UserId', users), rows)
+
+    revs  = {}
+    glist = [] # maintains order between revisions
+    alist = [] # action list
+
+    for row in rows:
+        guid = row['RevisionGUID']
+        date = parse_time(row['CreationDate'])
+        post = posts[ row['PostId'] ]
+        author = users[ row['UserId'] ]
+        rtype  = row['PostHistoryTypeId']
+        if guid not in revs:
+            glist.append(guid)
+
+        # we will update a revision to contain all changes
+        rev = revs.get(guid, {'post':post, 'author':author, 'date':date})
+
+        if rtype in ['1', '4']: # Title modification
             rev['title'] = row['Text']
-        
-        if type in ['2', '5']: # Body
-            rev['content'] = row['Text']
-        
-        # adds the tag
-        if type in ['3', '6']: # Tags
+        if rtype in ['2', '5']: # Body modification
+            rev['content'] = row['Text']                     
+        if rtype in ['3', '6']: # Tag modification
             rev['tag_string'] = parse_tag_string(row['Text'])
-            
-        # applies each action to every post
-        if type in ['10','11','12','13']: # Moderator actions
+
+        if rtype in ['10','11','12','13']: # Moderator actions
             actions = {'10':const.REV_CLOSE, '11':const.REV_REOPEN,
                        '12':const.REV_DELETE, '13':const.REV_UNDELETE}
             # this is defined in the models
-            post.moderator_action(actions[type], author, date)
-            
-        revisions[guid] = rev
-    
-    transaction.commit()
-    
-    # Now we can actually insert the revisions
-    for guid in guid_list:
-        data = revisions[guid]
-        post = data['post']
-        del data['post']
-        post.create_revision(**data)
-        
-    transaction.commit()
-    print "*** inserted %s post revisions" % len(guid_list) 
+            alist.append( (actions[rtype], author, date) )
 
-@transaction.commit_manually
-def insert_questions(fname, limit, posts):
-    "Inserts questions and answers"
+        revs[guid] = rev
+
+    print "*** inserting %s revisions" % len(glist)
+    with transaction.commit_on_success():
+        for guid in glist:
+            data = revs[guid]
+            post = data['post']
+            del data['post']
+            post.create_revision(**data)
+            post.save() 
+
+    print "*** inserting %s moderator actions" % len(alist)
+    with transaction.commit_on_success():
+        for atype, author, date in alist:
+            post.moderator_action(atype, author, date)
     
-    try:
-        quest_map, answ_map = {}, {}
-        rows = xml_reader(fname, limit=limit)
-        
-        # filter out posts that have been removed before
-        rows = filter(lambda x: x['Id'] in posts, rows)
-    
-        # broken up into separate steps to allow manual transactions
-        
-        # subselect the questions
-        questions = filter(lambda x: x['PostTypeId'] == '1', rows)
-        
-        for row in questions:
-            Id = row['Id']
-            post = posts[ Id ]
-            
-            # update question with the title of the post
-            title = row["Title"]
-            tags  = row['Tags']
-            post.title = title
-            post.save()
-            
-            quest, flag = models.Question.objects.get_or_create(post=post)
-            quest_map[Id] = quest
-            
-            # add tags if it is a newly created question
-            if flag: 
-                tag_string = parse_tag_string(tags)
-                post.set_tags(tag_string)
-            
-        print "*** inserting %s questions" % len(quest_map)
-        transaction.commit()
-        
-        # subselect the answers
-        answers = filter(lambda x: x['PostTypeId'] == '2', rows)
-        for row in answers:
-            Id   = row['Id']
-            post = posts[ Id ] 
-               
-            quest = quest_map.get(row['ParentId'])
-            if not quest:
-                continue
-            answ, flag = models.Answer.objects.get_or_create(question=quest, post=post)
-            # add title if it is a newly created answer
-            if flag:
-                # will set a title to be easier to find in admin
-                post.title = "A: %s" % quest.post.title
-                post.save()
-            answ_map[Id] = answ
-        
-        print "*** inserting %s answers" % len(answ_map)        
-        transaction.commit()
-    
-    except Exception, e:
-        transaction.rollback()
-        raise e
-    
-@transaction.commit_manually
 def insert_votes(fname, limit, users, posts):
-    store = {}
-    votes = xml_reader(fname)
-    for row in votes:
-        post = posts.get(row['PostId'])
-        user = users.get(row['UserId'])
+
+    rows = xml_reader(fname)
+    rows = filter(checkfunc('PostId', posts), rows)
+    rows = filter(checkfunc('UserId', users), rows)
+
+    vlist = []
+    for row in rows:
+        post = posts[row['PostId']]
+        user = users[row['UserId']]
         addr = users.get(row['IPAddress'])
         VoteType = row['VoteTypeId']
-        
-        if post and user:
-            if VoteType == '1':
-                vote_type = const.VOTE_ACCEPT
-            elif VoteType == '2':
-                vote_type = const.VOTE_UP
-            elif VoteType == '3':
-                vote_type = const.VOTE_DOWN
-            else:
-                continue
             
-            vote, flag = models.Vote.objects.get_or_create(post=post, author=user, type=vote_type)
-            store[row['Id']] = vote
+        if VoteType == '1':
+            vote_type = const.VOTE_ACCEPT
+        elif VoteType == '2':
+            vote_type = const.VOTE_UP
+        elif VoteType == '3':
+            vote_type = const.VOTE_DOWN
+        else:
+            continue
+        param = dict(post=post, author=user, type=vote_type)
+        vlist.append(param)
 
-    transaction.commit()
-    print "*** inserted %s votes" % len(store)
- 
-@transaction.commit_manually
+    print "*** inserting %s votes" % len(vlist)
+    with transaction.commit_on_success():
+        for param in vlist:
+            vote = models.Vote.objects.create(**param)
+        
 def insert_comments(fname, posts, users, limit):
-    comment_map = {}
+    
     rows = xml_reader(fname, limit=limit)
-    
-    for (index, row) in enumerate(rows):
-        Id = row['Id']
-        try:
-            parent = posts[ row['PostId'] ]
-        except KeyError:
-            continue # We haven't inserted this post
-        text   = row['Text']
-        userid = row['UserId']
-        author = users[userid]
+
+    # keep the valid rows only
+    rows = filter(checkfunc('PostId', posts), rows)
+    rows = filter(checkfunc('UserId', users), rows)
+
+    clist = []
+    for row in rows:
+        cid  = row['Id']
+        text = row['Text']
+        postid = row['PostId'] 
+        author = users[row['UserId']]
         creation_date = parse_time(row['CreationDate'])
-        #post = comment_post_map[Id]
-        post = models.Post.objects.create(author=author, creation_date=creation_date)
-        post.content = 'Original body not yet available!'
-        post.html = text
-        post.save()
-        comment, flag = models.Comment.objects.get_or_create(parent=parent, post=post)
-        comment_map[Id] = comment
-    transaction.commit()
-    
-    print "*** inserted %s comments" % len(comment_map)
-    
-@transaction.commit_manually
+        clist.append(dict(author=author, creation_date=creation_date, content=text, html=text, postid=postid) )
+
+    print "*** inserting %s comments" % len(clist)
+    with transaction.commit_on_success():   
+        for param in clist:
+            postid = param['postid']
+            parent = posts[postid]
+            del param['postid']
+            post = models.Post.objects.create(**param)
+            comment = models.Comment.objects.create(parent=parent, post=post)
+
 def insert_badges(fname, limit):
     "Inserts the badges"
-    store = {}
+
+    blist = []
     rows = xml_reader(fname, limit=limit)
-    for (index, row) in enumerate(rows):
-        Id = row['Id']
-        type = row['Class']
+    bmap = {}
+    BCONST = {'3':models.BADGE_BRONZE, '2':models.BADGE_SILVER, '1':models.BADGE_GOLD}
+
+    for row in rows:
+        bid    = row['Id']
+        bclass = row['Class']
         name   = row['Name']
-        desc = row['Description']
+        desc   = row['Description']
         unique = row['Single'] == 'true'
         secret = row['Secret'] == 'true'
-        type = {'3':models.BADGE_BRONZE, '2':models.BADGE_SILVER, '1':models.BADGE_GOLD}[type]
-        badge = models.Badge.objects.create(name=name, type=type, description=desc, unique=unique, secret=secret)
-        badge.save()
-        store[Id] = badge
-    transaction.commit()
-    print "*** inserted %s badges" % len(store)
-    return store
+        btype  = BCONST[bclass]
+        param = dict(name=name, type=btype, description=desc, unique=unique, secret=secret)
+        blist.append(param)
+            
+    print "*** inserting %s badges" % len(blist)
+    with transaction.commit_on_success():   
+        for param in blist:
+            badge = models.Badge.objects.create(**param)
+            bmap[bid] = badge
+    
+    return bmap
 
-@transaction.commit_manually
 def insert_awards(fname, users, badges, limit):
     "Inserts the badge awards"
-    store = {}
-    rows = xml_reader(fname)
-    for (index, row) in enumerate(rows):
-        Id = row['Id']
-        try:
-            user = users[row['UserId']]
-            badge = badges[row['BadgeId']]
-        except KeyError:
-            continue
-        date = parse_time(row['Date'])
-        a = models.Award.objects.create(user=user, badge=badge, date=date)
-        a.save()
-        store[Id] = a
-    transaction.commit()
-    print "*** inserted %s badge awards" % len(store)
     
+    rows = xml_reader(fname)
+    rows = filter(checkfunc('UserId', users), rows)
+    rows = filter(checkfunc('BadgeId', badges), rows)
+
+    alist = []
+    for row in rows:
+        Id = row['Id']
+        date = parse_time(row['Date'])
+        user = users[row['UserId']]
+        badge = badges[row['BadgeId']]
+        param = dict(user=user, badge=badge, date=date)
+        alist.append(param)
+    
+    print "*** inserting %s awards" % len(alist)
+    with transaction.commit_on_success(): 
+        for param in alist:
+            models.Award.objects.create(**param)
+        
 def admin_init():
     
     # create the admin users for a given settings file
@@ -410,32 +411,26 @@ def execute(path, limit=None):
         fname = join(path, 'AnonUsers.xml')
         
     users = insert_users(fname=fname, limit=limit)
-    
+  
     fname = join(path, 'Posts.xml')
     posts = insert_posts(fname=fname, limit=limit, users=users)
-    
-    fname = join(path, 'Posts.xml')
-    insert_questions(fname=fname, limit=limit, posts=posts)
-
+      
     fname = join(path, 'PostHistory.xml')
     revisions = insert_post_revisions(fname=fname, limit=limit, posts=posts, users=users)
     
-    return
-
+    fname = join(path, 'PostComments.xml')
+    insert_comments(fname=fname, posts=posts, users=users, limit=limit)
     
     fname = join(path, 'Posts2Votes.xml')
     insert_votes(fname=fname, limit=limit, posts=posts, users=users)
-    
-    fname = join(path, 'PostComments.xml')
-    insert_comments(fname=fname, posts=posts, users=users, limit=limit)
     
     fname = join(path, 'Badges.xml')
     badges = insert_badges(fname=fname, limit=limit)
     
     fname = join(path, 'Users2Badges.xml')
     insert_awards(fname=fname, users=users, badges=badges, limit=limit)
-
-    # add the administration rights to users
+    
+    # adds administration rights to users
     # listed in the DJAGNO settings file
     admin_init()
     

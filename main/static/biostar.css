@@ -17,8 +17,21 @@ h1, h2, h3, h4 {
     padding-top: 0px;
     color: #333333;
 }
+
 h1 {
     font-size: 200%;
+}
+
+p {
+    clear: both;
+    margin-bottom: 1em;
+}
+
+.post-text {
+    font-size: 107%;
+    line-height: 130%;
+    margin-bottom: 5px;
+    margin-right: 5px;
 }
 
 .shaded {
