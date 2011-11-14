@@ -432,13 +432,12 @@ a:hover, a.question-title {
     background-color: #EEEEEE;
     clear: both;
     margin-top: 15px;
-    padding: 8px 8px 1px 60px;
+    padding: 8px 8px 1px 10px;
 }
 
 .question-status h2{
     font-size: 150%;
     line-height: 125%;
-    margin-bottom: 4px;
 }
 
 
