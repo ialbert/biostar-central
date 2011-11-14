@@ -37,7 +37,7 @@ class UserProfile( models.Model ):
     type  = models.IntegerField(choices=USER_TYPES, default=USER_NORMAL)
     about_me = models.TextField(default="", null=True)
     location = models.TextField(default="", null=True)
-    website  = models.URLField(default="", null=True)
+    website  = models.URLField(default="", null=True, max_length=100)
     openid   = models.URLField(default="http://www.biostars.org", null=True)
     display_name  = models.CharField(max_length=35, default='User', null=False)
     last_login_ip = models.IPAddressField(default="0.0.0.0", null=True)

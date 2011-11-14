@@ -326,8 +326,6 @@ def insert_post_revisions(fname, limit, users, posts):
             if USE_DB:
                 post.moderator_action(atype, author, date)
     
-    sys.exit()
-    
 def insert_votes(fname, limit, users, posts):
 
     rows = xml_reader(fname)

@@ -20,7 +20,7 @@ class UserForm(forms.Form):
     "A form representing a new question"
     display_name = forms.CharField(max_length=30,  initial="B", widget=forms.TextInput(attrs={'size':'30'}))     
     location     = forms.CharField(max_length=50,  initial="B", widget=forms.TextInput(attrs={'size':'50'}))
-    website      = forms.CharField(max_length=50,  initial="B", widget=forms.TextInput(attrs={'size':'50'}))
+    website      = forms.CharField(max_length=80,  initial="B", widget=forms.TextInput(attrs={'size':'50'}))
     about_me     = forms.CharField(max_length=500, initial="C", widget=forms.Textarea (attrs=dict(cols='50', rows=6)))
     
 def user_edit(request, uid):
@@ -32,7 +32,7 @@ def user_edit(request, uid):
             display_name = user.profile.display_name,
             location   = user.profile.location or 'not specified',
             website    = user.profile.website or 'http://www.biostars.org',
-            about_me   = user.profile.about_me
+            about_me   = user.profile.about_me or 'not specified'
         )
         form = UserForm(initial)
         return html.template(request, name='user.edit.html', user=user, form=form)
