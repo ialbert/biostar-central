@@ -5,6 +5,8 @@ Started refactoring some here, this will eventually store all form based
 actions whereas the main views.py will contain url based actions.
 """
 from main.server import html, models
+from main.server.html import get_page
+
 from django import forms
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
@@ -35,6 +37,7 @@ def user_edit(request, uid):
         form = UserForm(initial)
         return html.template(request, name='user.edit.html', user=user, form=form)
     elif request.method == 'POST':
+        
         form = UserForm(request.POST)
         if not form.is_valid():
             return html.template(request, name='user.edit.html', user=user, form=form)
@@ -44,5 +47,11 @@ def user_edit(request, uid):
             user.profile.save()
             user.save()
             return html.redirect("/user/show/%s/" % user.id)
-        
+         
+def modlog_list(request):
+    "Lists moderator actions"
+    mods = models.ModLog.objects.filter()
+    page = get_page(request, mods)
+    return html.template(request, name='modlog.list.html', page=page)
     
+        

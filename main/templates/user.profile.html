@@ -11,7 +11,7 @@
 {% endblock %}
 
 {% block subheader %}
-  <h2>{{ selected.profile.display_name }}</h2>
+  <h2>{% designation selected %}: {{ selected.profile.display_name }} {% flair selected %}</h2>
 {% endblock %}
 
 {% block mainbar %}

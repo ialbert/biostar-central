@@ -15,6 +15,7 @@ urlpatterns = patterns('',
 
     # static pages
     ('^about/$', direct_to_template, {'template': 'about.html'}),
+    ('^tools/$', direct_to_template, {'template': 'tools.html'}),
 
     # tags
     (r'^tag/list/$', 'main.server.views.tag_list'),
@@ -54,7 +55,8 @@ urlpatterns = patterns('',
     # voting handler
     (r'^vote/$', 'main.server.views.vote'),
     (r'^moderate/$', 'main.server.views.moderate'),
-    
+    (r'^modlog/list/$', 'main.server.action.modlog_list'),
+   
 
     # openid authentication
     (r'^openid/', include('django_openid_auth.urls')),

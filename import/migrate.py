@@ -134,7 +134,7 @@ def insert_users(fname, limit):
 
         # store profiles
         ppair = (userid, dict( display_name=display_name, website=website, location=location, 
-                last_login_ip=last_login_ip, about_me=about_me ))        
+                last_login_ip=last_login_ip, about_me=about_me, type=utype ))        
         plist.append(ppair)
 
     users = {}
@@ -144,6 +144,8 @@ def insert_users(fname, limit):
             assert userid == userid2, 'Sanity check'
             user = models.User(**u) 
             if USE_DB:
+                user.is_staff = p['type'] == const.USER_ADMIN
+                user.is_superuser = p['type'] == const.USER_ADMIN                
                 user.save()
                 prof = user.get_profile()
                 for attr, value in p.items():
@@ -304,7 +306,7 @@ def insert_post_revisions(fname, limit, users, posts):
             actions = {'10':const.REV_CLOSE, '11':const.REV_REOPEN,
                        '12':const.REV_DELETE, '13':const.REV_UNDELETE}
             # this is defined in the models
-            alist.append( (actions[rtype], author, date) )
+            alist.append( (post, actions[rtype], author, date) )
 
         revs[guid] = rev
 
@@ -320,9 +322,11 @@ def insert_post_revisions(fname, limit, users, posts):
 
     print "*** inserting %s moderator actions" % len(alist)
     with transaction.commit_on_success():
-        for atype, author, date in alist:
+        for post, atype, author, date in alist:
             if USE_DB:
                 post.moderator_action(atype, author, date)
+    
+    sys.exit()
     
 def insert_votes(fname, limit, users, posts):
 

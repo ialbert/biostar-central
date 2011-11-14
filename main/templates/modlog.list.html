@@ -1,0 +1,18 @@
+{% extends "base.sidebar.html" %}
+
+{% load basic %}
+
+{% block subheader %}
+    {% pagebar %}
+{% endblock %}
+
+{% block mainbar %}
+    
+    {% for m in page.object_list %}
+        <div class="question-summary">
+            {{m.text}} on <i>{{m.date}}</i>
+        </div>
+        
+    {% endfor %}
+     
+{% endblock %}

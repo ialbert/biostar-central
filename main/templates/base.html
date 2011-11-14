@@ -53,17 +53,20 @@
           <form id="search2" action="/search" method="get">
           {% csrf_token %}
           <div style="float:right">
+          
           {%if user.is_authenticated %}
               {% userlink user %}
               {% userrep user %}
               &bull; <a href="/logout/?next_page=/">logout</a> 
-              &bull; <a>tools</a>
+               <a>tools</a>
+              &bull; <a href="/about/#faq">faq.</a> 
           {% else %}
-              <span class="note">First time here? Check out the FAQ.</a> &bull; <a href="/openid/login/">login</a>
+              <span class="note">First time here? Learn more <a href="/about/">about Biostar</a>. &bull; <a href="/openid/login/">login</a> 
           {% endif %}
+              &bull; <a href="/tools/">tools</a>            
+              &bull; Search: <input name="q" class="textbox" tabindex="1" onfocus="if (this.value=='search') this.value = ''" maxlength="80" size="28" value="search-not-yet-working" type="text" disabled="True">
               
-              &bull; faq &bull; Search: <input name="q" class="textbox" tabindex="1" onfocus="if (this.value=='search') this.value = ''" maxlength="80" size="28" value="search-not-yet-working" type="text" disabled="True">
-                        
+              
           </div>
           </form>
         {% endblock %}

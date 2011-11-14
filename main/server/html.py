@@ -7,12 +7,30 @@ from django.core.servers.basehttp import FileWrapper
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.core.context_processors import csrf
+from django.core.paginator import Paginator, InvalidPage, EmptyPage
+
 from BeautifulSoup import BeautifulSoup, Comment
 
 import markdown, pygments
 from pygments import highlight, lexers, formatters
 from pygments.formatters import HtmlFormatter
 from itertools import groupby
+
+def get_page(request, obj_list, per_page=25):
+    "A generic paginator"
+
+    paginator = Paginator(obj_list, per_page) 
+    try:
+        pid = int(request.GET.get('page', '1'))
+    except ValueError:
+        pid = 1
+
+    try:
+        page = paginator.page(pid)
+    except (EmptyPage, InvalidPage):
+        page = paginator.page(paginator.num_pages)
+    
+    return page
 
 def generate(text):
     """

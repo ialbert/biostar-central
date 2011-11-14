@@ -2,6 +2,8 @@
 Biostar views
 """
 from main.server import html, models
+from main.server.html import get_page
+
 from django import forms
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
@@ -14,19 +16,17 @@ from django.db.models import Q
 # the openid association model
 from django_openid_auth.models import UserOpenID
 
+def get_questions():
+    "Returns a common queryset that can be used to select questions"
+    return models.Question.objects.select_related('post', 'post__author','post__author__profile')
+
 def index(request):
     "Main page"
     
-    '''    
-    if settings.DEBUG:
-        if request.user.is_authenticated() and not request.user.profile.is_admin:
-            request.user.profile.type = models.USER_ADMIN
-            request.user.profile.save()
-    '''
-    
     # eventually we will need to order by relevance
-    questions = models.Question.objects.select_related('post', 'post__author','post__author__profile').order_by('-lastedit_date')
-    page = get_page(request, questions, per_page=20)
+    qs = get_questions()
+    qs = qs.order_by('-post__touch_date')
+    page  = get_page(request, qs, per_page=20)
     return html.template( request, name='index.html', page=page)
 
 def admin_password_override(request):
@@ -63,22 +63,6 @@ def user_profile(request, uid):
       questions=questions.order_by('-post__score'),
       answers=answers.order_by('-post__score'))
 
-def get_page(request, obj_list, per_page=25):
-    "A generic paginator"
-
-    paginator = Paginator(obj_list, per_page) 
-    try:
-        pid = int(request.GET.get('page', '1'))
-    except ValueError:
-        pid = 1
-
-    try:
-        page = paginator.page(pid)
-    except (EmptyPage, InvalidPage):
-        page = paginator.page(paginator.num_pages)
-    
-    return page
-    
 def user_list(request):
     search  = request.GET.get('search','')[:80] # trim for sanity
     if search:
@@ -101,25 +85,22 @@ def badge_list(request):
 def search(request):
     return html.template(request, name='todo.html')
 
-def questions():
-    " Returns a common queryset that can be used to select questions"
-    return models.Question.objects.select_related('post', 'post__author','post__author__profile')
 
 def question_list(request):
     "Lists all the questions"
     #q.answer_count
     
-    qs = questions().filter(answer_count=0)
+    qs = get_questions().filter(answer_count=0)
     page = get_page(request, qs) 
     return html.template(request, name='question.list.html', page=page)
 
 def question_tagged(request, tag_name):
-    qs = questions().filter(post__tag_set__name=tag_name)
+    qs = get_questions().filter(post__tag_set__name=tag_name)
     page = get_page(request, qs) 
     return html.template(request, name='question.list.html', page=page)
 
 def question_unanswered(request):
-    qs = questions().filter(answer_count=0)
+    qs = get_questions().filter(answer_count=0)
     page = get_page(request, qs) 
     return html.template(request, name='question.list.html', page=page)
     

@@ -39,7 +39,7 @@ class UserProfile( models.Model ):
     location = models.TextField(default="", null=True)
     website  = models.URLField(default="", null=True)
     openid   = models.URLField(default="http://www.biostars.org", null=True)
-    display_name  = models.TextField(default="", null=True)
+    display_name  = models.CharField(max_length=35, default='User', null=False)
     last_login_ip = models.IPAddressField(default="0.0.0.0", null=True)
     openid_merge  = models.NullBooleanField(default=False, null=True)
     
@@ -57,7 +57,7 @@ class UserProfile( models.Model ):
     
     @property
     def is_moderator(self):
-        return self.type == USER_MODERATOR
+        return (self.type == USER_MODERATOR) or (self.type == USER_ADMIN)
     
     @property
     def is_admin(self):
@@ -79,7 +79,8 @@ class ModLog(models.Model):
     target = models.ForeignKey(User)
     action = models.CharField(max_length=100, default='')
     text   = models.CharField(max_length=1000, default='')
-    date   = models.DateTimeField(auto_now_add=True)
+    other  = models.CharField(max_length=1000, default='') # for know we'll keep this generic
+    date   = models.DateTimeField()
 
 class Post(models.Model):
     """
@@ -103,11 +104,14 @@ class Post(models.Model):
     comment_count = models.IntegerField(default=0)
     revision_count = models.IntegerField(default=0)
     creation_date = models.DateTimeField()
-    lastedit_date = models.DateTimeField(auto_now=True)
+    lastedit_date = models.DateTimeField()
     lastedit_user = models.ForeignKey(User, related_name='editor')
     deleted = models.BooleanField()
     closed = models.BooleanField()
 
+    # this field will be used to allow questions to float back into relevance
+    touch_date = models.DateTimeField() 
+    
     def create_revision(self, content=None, title=None, tag_string=None, author=None, date=None):
         """
         Creates a new revision of the post with the given data.
@@ -152,9 +156,11 @@ class Post(models.Model):
         """
         Performs a moderator action on the post. Takes an action (one of REV_ACTIONS)
         and a user. Date is assumed to be now if not provided
-        """ 
-        text = "%s (%s) applied %s to post %s" % (author.profile.display_name, author.id, action, self.id)
-        log  = ModLog(target=author, text=text, action=action)
+        """
+        
+        text_action = REV_ACTION_MAP.get(action, '')
+        text = "%s (id=%s) applied %s (%s) to post id=%s" % (author.profile.display_name, author.id, text_action, action, self.id)
+        log  = ModLog(target=author, text=text, action=action, date=date, other=self.id)
         log.save()
 
         if action == REV_CLOSE:
@@ -455,7 +461,10 @@ def create_post(sender, instance, *args, **kwargs):
         instance.creation_date = datetime.now()
     if not instance.lastedit_date:
         instance.lastedit_date = datetime.now()
-
+    
+    # automatically make it float to relevance upon editing
+    instance.touch_date = instance.lastedit_date
+    
 def create_award(sender, instance, *args, **kwargs):
     "Pre save award function"
     if not instance.date:

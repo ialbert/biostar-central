@@ -1,6 +1,7 @@
 from django import template
 import urllib, hashlib
 from datetime import datetime, timedelta
+from main.server import const
 
 register = template.Library()
 
@@ -92,4 +93,20 @@ def bignum(number):
         pass
     return str(number)
     
-
+@register.simple_tag
+def designation(user):
+    "Renders a designation for the user"
+    if user.profile.is_admin:
+        return 'Administrator'
+    elif user.profile.is_moderator:
+        return 'Moderator'
+    return "Registered user"
+    
+@register.simple_tag
+def flair(user):
+    "Renders a designation for the user"
+    if user.profile.is_admin:
+        return '&diams;&diams;'
+    elif user.profile.is_moderator:
+        return '&diams;'
+    return ""
