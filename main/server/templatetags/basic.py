@@ -87,7 +87,7 @@ def bignum(number):
     try:
         value = float(number)/1000.0        
         if value > 1:
-            return "%4.1fk" % value
+            return "%0.1fk" % value
     except ValueError, exc:
         pass
     return str(number)
