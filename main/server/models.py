@@ -145,6 +145,14 @@ class Post(models.Model):
         self.set_tags(tag_string)
         self.save()
 
+    def get_title(self):
+        title = self.title
+        if self.closed:
+            title = "%s [closed]" % self.title
+        elif self.deleted:
+            title = "%s [deleted ]" % self.title
+        return title
+            
     def current_revision(self):
         """
         Returns the most recent revision of the post. Primarily useful for getting the
@@ -158,8 +166,9 @@ class Post(models.Model):
         and a user. Date is assumed to be now if not provided
         """
         
+        date = date or datetime.now()
         text_action = REV_ACTION_MAP.get(action, '')
-        text = "%s (id=%s) applied %s (%s) to post id=%s" % (author.profile.display_name, author.id, text_action, action, self.id)
+        text = "%s (%s) applied %s (%s) to '%s' (%s)" % (author.profile.display_name, author.id, text_action, action, self.title, self.id)
         log  = ModLog(target=author, text=text, action=action, date=date, other=self.id)
         log.save()
 

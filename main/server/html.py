@@ -34,7 +34,9 @@ def get_page(request, obj_list, per_page=25):
 
 def generate(text):
     """
-    Generates html from a markdown text
+    Generates html from a markdown text.
+    
+    Also custom renders codeblocks via pygments
     
     >>> generate("ABCD")
     """

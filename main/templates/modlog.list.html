@@ -10,7 +10,7 @@
     
     {% for m in page.object_list %}
         <div class="question-summary">
-            {{m.text}} on <i>{{m.date}}</i>
+            {{m.date}} &bull; {{m.text}}
         </div>
         
     {% endfor %}
