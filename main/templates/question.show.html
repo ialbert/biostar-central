@@ -4,7 +4,7 @@
 {% load voting %}
 
 {% block subheader %}
-  <h2>{{question.post.get_title }}</h2>
+  <h2>{{question.get_title }}</h2>
 {% endblock %}
 
 {% block custom-frameworks %}
@@ -33,15 +33,15 @@
             <table>
                 <tr>
                     <td valign="top" class="votecell"> 
-                        {% votebox question.post %}
+                        {% votebox question %}
                     </td>
                     <td>
                         <div class="post-text">
-                            {{question.post.html|safe }}
+                            {{question.html|safe }}
                         </div>
     
                         <div class="tags">
-                            {% for tag in question.post.get_tags %}
+                            {% for tag in question.get_tags %}
                                {% taglink tag %}
                             {% endfor %}
                         </div>
@@ -68,10 +68,10 @@
                         </div>
                         
                         <div class="right question-user-info">
-                            {% actionbox question.post.author question.post.creation_date %}
+                            {% actionbox question.author question.creation_date %}
                         </div>
                         
-                        {% revisionbox question.post %}
+                        {% revisionbox question %}
                         
                     </td>
                 </tr>
@@ -80,7 +80,7 @@
                         &nbsp;
                     </td>
                     <td>
-                        {% comments question.post %}
+                        {% comments question %}
                     </td>
                 </tr>
                 
@@ -88,13 +88,13 @@
         
         </div>
         
-        {% if question.post.closed %}
+        {% if question.closed %}
         <div class="question-status">
             <h2>This question has been closed by a moderator</h2>
         </div>
         {% endif %}
     
-        {% if question.post.deleted %}
+        {% if question.deleted %}
         <div class="question-status">
             <h2>This question has been deleted by a moderator</h2>
         </div>
@@ -111,8 +111,8 @@
                 <table border="0">
                     <tr>
                         <td>
-                            {% votebox answer.post %}
-                            {% if answer.accepted %}
+                            {% votebox answer %}
+                            {% if answer.answer_accepted %}
                                 <br>
                                 <div class="vote-accepted"></div>
                             {% endif %}
@@ -121,13 +121,13 @@
                         <td width="100%">
                             
                             <div class="post-text">
-                                <a name="{{answer.id}}"></a> {{ answer.post.html|safe }}
+                                <a name="{{answer.id}}"></a> {{ answer.html|safe }}
                             </div>
                             
                             <div class="left post-menu">
                                 {% if 'moderate_post' in permissions %}
                                     <span class="mod-menu">
-                                        {% if answer.post.deleted %}
+                                        {% if answer.deleted %}
                                             <a class="mod-link">undelete</a> |
                                         {% else %}
                                             <a class="mod-link">delete</a> |
@@ -142,10 +142,10 @@
                             </div>
         
                             <div class="right">
-                                {% actionbox answer.post.author answer.post.creation_date 'answered' %}
+                                {% actionbox answer.author answer.creation_date 'answered' %}
                             </div>
                             
-                            {% revisionbox answer.post %}
+                            {% revisionbox answer %}
                             
                         </td>
                     </tr>
@@ -153,7 +153,7 @@
                     <tr class="comment-row">
                         <td></td>
                         <td>
-                            {% comments answer.post %}
+                            {% comments answer %}
                         </td>
                     </tr>
                 </table>

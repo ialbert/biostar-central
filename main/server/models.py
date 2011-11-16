@@ -28,6 +28,7 @@ class UserProfile( models.Model ):
     """
     user  = models.OneToOneField(User, unique=True, related_name='profile')
     score = models.IntegerField(default=0, blank=True)
+    reputation = models.IntegerField(default=0, blank=True)
     views = models.IntegerField(default=0, blank=True)
     bronze_badges = models.IntegerField(default=0)
     silver_badges = models.IntegerField(default=0)
@@ -101,15 +102,28 @@ class Post(models.Model):
     tag_set = models.ManyToManyField(Tag) # The tag set is built from the tag string and used only for fast filtering
     views = models.IntegerField(default=0, blank=True)
     score = models.IntegerField(default=0, blank=True)
-    comment_count = models.IntegerField(default=0)
+    comment_count  = models.IntegerField(default=0)
     revision_count = models.IntegerField(default=0)
     creation_date = models.DateTimeField()
     lastedit_date = models.DateTimeField()
     lastedit_user = models.ForeignKey(User, related_name='editor')
     deleted = models.BooleanField()
     closed = models.BooleanField()
-
-    # this field will be used to allow questions to float back into relevance
+    
+    post_type = models.IntegerField(choices=POST_CHOICES, db_index=True)
+    
+    # this will maintain parent-child replationships between poss
+    parent = models.ForeignKey('self', related_name="children", null=True, blank=True)
+    
+    # denormalized fields only that only apply to specific cases
+    #
+    child_count = models.IntegerField(default=0, blank=True) # number of children (other posts associated with the post)
+    post_accepted   = models.BooleanField(default=False) # the post has been accepted
+    answer_accepted = models.BooleanField() # if this was 
+    unanswered = models.BooleanField() # this is a question with no answers
+    answer_count = models.IntegerField(default=0, blank=True)
+   
+    # this field will be used to allow posts to float back into relevance
     touch_date = models.DateTimeField() 
     
     def create_revision(self, content=None, title=None, tag_string=None, author=None, date=None):
@@ -242,7 +256,7 @@ class Post(models.Model):
     
     def details(self):
         return
-    
+         
 class PostAdmin(admin.ModelAdmin):
     list_display = ('id', 'title', )
 
@@ -281,7 +295,8 @@ class PostManager(models.Manager):
     ''' Used for all posts (question, answer, comment); returns only non-deleted posts '''
     def get_query_set(self):
         return super(PostManager, self).get_query_set().select_related('post').filter(post__deleted=False)
-        
+
+    
 class Question(models.Model):
     """
     A Question is Post with answers
@@ -381,16 +396,16 @@ class Vote(models.Model):
             self.post.save()
             
         if self.type == VOTE_ACCEPT:
-            answer = self.post.answer
-            question = answer.question
+            answer   = self.post
+            question = self.post.parent
             if dir == 1:
-                answer.accepted = True
+                answer.post_accepted = True
                 question.answer_accepted = True
             else:
-                answer.accepted = False
+                answer.post_accepted = False
                 question.answer_accepted = False
             answer.save()
-            question.save()
+            #question.save()
             
 BADGE_BRONZE, BADGE_SILVER, BADGE_GOLD = 0, 1, 2
 BADGE_TYPES = ((BADGE_BRONZE, 'bronze'), (BADGE_SILVER, 'silver'), (BADGE_GOLD, 'gold'))

@@ -1,48 +1,48 @@
 {% load basic %}
 
-{% for q in questions %}
+{% for p in posts %}
     <div class="question-summary">
         <div>
             <div class="votes">
-                <div class="mini-counts">{{q.post.score}}</div>
+                <div class="mini-counts">{{p.score}}</div>
                 <div>votes</div>
             </div>
           
           
-            {% if q.answer_accepted %}
+            {% if p.accepted %}
                 <div class="status answered-accepted">
             {% else %}
-                {% if q.answer_count %}
+                {% if p.answer_count %}
                     <div class="status answered">
                 {% else %}
                     <div class="status unanswered">
                 {% endif %}
             {% endif %}
-                <div class="mini-counts">{{q.answer_count}}</div>
+                <div class="mini-counts">{{p.answer_count}}</div>
                 <div>answers</div>
             </div>
 
             <div class="views">
-                <div class="mini-counts">{% bignum q.post.views %}</div>
+                <div class="mini-counts">{% bignum p.views %}</div>
                 <div>views</div>
             </div>
         </div>
 
         <div class="summary">
             <h3>
-                <a class="question-title" href="/question/show/{{q.id}}/">{{q.post.get_title}}</a>
+                <a class="question-title" href="/question/show/{{p.id}}/">{{p.get_title}}</a>
             </h3>
   
             <div class="tags left">
-                    {% for tag in q.post.get_tags %}
+                    {% for tag in p.get_tags %}
                        {% taglink tag %}
                     {% endfor %}
             </div>
 
             <div class="started right">
-                <span class="relativetime">{% time_ago q.post.creation_date %}</span>
-                {% userlink q.post.author %}
-                {% userrep q.post.author %}
+                <span class="relativetime">{% time_ago p.creation_date %}</span>
+                {% userlink p.author %}
+                {% userrep p.author %}
             </div>
         </div>
     </div>

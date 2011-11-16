@@ -19,6 +19,15 @@ REPUTATION_PERM = {
 MODERATOR_PERM = ['moderate_post', 'view_deleted']
 ADMIN_PERM = []
 
+# I added here anything that I could think of for the future rather than
+# all post types that are to be implemented. This could make life a lot easier in the future
+POST_VALS =  "Post Question Answer Comment Guide Blog News Opinion Announcement Article Other".split()
+POST_NUMS = range(len(POST_VALS))
+POST_CHOICES = zip( POST_NUMS, POST_VALS )
+POST_MAP = dict(zip( POST_VALS, POST_NUMS ))
+POST_QUESTION = POST_MAP['Question']
+POST_ANSWER   = POST_MAP['Answer']
+
 # User types
 USER_NORMAL, USER_MODERATOR, USER_ADMIN = 0, 1, 2
 USER_TYPES = ((USER_NORMAL, 'Member'), (USER_MODERATOR, 'Moderator'), (USER_ADMIN, 'Administrator'))

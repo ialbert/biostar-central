@@ -7,6 +7,7 @@ import sys, os, random, re
 from datetime import datetime
 from itertools import *
 from xml.etree import ElementTree
+from collections import defaultdict
 
 #  we will need to fixup path so we can access the Django settings module
 join = os.path.join
@@ -23,6 +24,9 @@ from django.conf import settings
 from main.server import models, const
 from django.db import transaction
 from django.utils.datastructures import SortedDict
+
+# import all constants
+from main.server.const import *
 
 def xml_reader(fname, limit=None):
     """
@@ -190,24 +194,53 @@ def insert_posts(fname, limit, users):
     # keep only posts with a valid user
     rows = filter(checkfunc('OwnerUserId', users), rows)
 
-    plist = []
+    plist   = [] # collect post attributes
+    acount  = defaultdict(int) # maintains answer counts
+    parents = dict() # maps questions to answers
     # first insert all posts
+    
+    # connects the post type in the SE dump to the models in BioStar
+    PMAP = { '1': const.POST_MAP['Question'], '2': const.POST_MAP['Answer'] }
+    
     for row in rows:
         postid = row['Id']
         views  = row['ViewCount']
         creation_date = parse_time(row['CreationDate'])
-        author = users[row['OwnerUserId']]
-        ppair = (postid, dict(author=author, views=views, creation_date=creation_date))
+        author   = users[row['OwnerUserId']]
+        parentid = row.get('ParentId')
+        title  = row.get('Title','No title')
+        tag_string = row.get('Tags', '')
+        if tag_string:
+            tag_string = parse_tag_string(tag_string)
+
+        ptypeid   = row['PostTypeId']
+        post_type = PMAP.get(ptypeid, const.POST_MAP['Post'])
+        
+        # collect answercounts
+        if post_type == POST_ANSWER and parentid:
+            acount [parentid] += 1
+            parents[postid] = parentid
+    
+        ppair = (postid, dict(author=author, views=views, creation_date=creation_date, post_type=post_type, title=title, tag_string=tag_string))
         plist.append (ppair)
         
     posts = {}
     print "*** inserting %s posts" % len(plist)
+   
     with transaction.commit_on_success():
         for postid, p in plist:
-            post = models.Post(**p) 
+            post = models.Post(**p)
+            parentid = parents.get(postid)
             if USE_DB:
+                # TODO in a better way
+                if post.tag_string:
+                    post.set_tags(post.tag_string)
+                post.answer_count = acount.get(postid, 0)
+                if parentid:
+                    post.parent = posts[ parents[postid] ]
                 post.save()
-            posts[postid] = post 
+                
+            posts[postid] = post
     
     # prepare questions
     qrows = filter(lambda x: x['PostTypeId'] == '1', rows)
@@ -253,9 +286,11 @@ def insert_posts(fname, limit, users):
             quest = qmap[questid]
             post.title = "A: %s" % quest.post.title
             answ = models.Answer(question=quest, post=post)
+            #child = models.Child(parent=quest.post, child=post)
             if USE_DB:
                 post.save()
                 answ.save()
+                #child.save()
             
     return posts
     
@@ -373,7 +408,8 @@ def insert_comments(fname, posts, users, limit):
         postid = row['PostId'] 
         author = users[row['UserId']]
         creation_date = parse_time(row['CreationDate'])
-        trips = postid, cid, dict(author=author, creation_date=creation_date, content=text, html=text)
+        post_type = const.POST_MAP['Comment']
+        trips = postid, cid, dict(author=author, creation_date=creation_date, content=text, html=text, post_type=post_type)
         clist.append( trips )
 
     print "*** inserting %s comments" % len(clist)

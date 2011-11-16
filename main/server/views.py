@@ -1,7 +1,7 @@
 """
 Biostar views
 """
-from main.server import html, models
+from main.server import html, models, const
 from main.server.html import get_page
 
 from django import forms
@@ -16,16 +16,20 @@ from django.db.models import Q
 # the openid association model
 from django_openid_auth.models import UserOpenID
 
+# import all constants
+from main.server.const import *
+
 def get_questions():
     "Returns a common queryset that can be used to select questions"
-    return models.Question.objects.select_related('post', 'post__author','post__author__profile')
+    #return models.Question.objects.select_related('post', 'post__author','post__author__profile')
+    return models.Post.objects.filter(post_type=POST_QUESTION).select_related('author','author__profile')
 
 def index(request):
     "Main page"
     
     # eventually we will need to order by relevance
     qs = get_questions()
-    qs = qs.order_by('-post__touch_date')
+    qs = qs.order_by('-touch_date')
     page  = get_page(request, qs, per_page=20)
     return html.template( request, name='index.html', page=page)
 
@@ -106,14 +110,17 @@ def question_unanswered(request):
     
 def question_show(request, pid):
     "Returns a question with all answers"
-    qs = models.Question.all_objects if 'view_deleted' in request.permissions else models.Question.objects
-    question = qs.get(id=pid)
+    
+    qs = models.Post.objects
+    question = qs.filter(post_type=POST_QUESTION).select_related('children').get(id=pid)
     if request.user.is_authenticated():
-        question.post.views += 1
-        question.post.save()
-    qs = models.Answer.all_objects if 'view_deleted' in request.permissions else models.Answer.objects
-    answers  = qs.filter(question=question).select_related('post','post__author','post__author__profile')
-    answers = answers.order_by('-accepted','-post__score')
+        question.views += 1
+        question.save()
+        
+    #qs = models.Post.all_objects if 'view_deleted' in request.permissions else models.Post.objects
+    qs = models.Post.objects
+    answers = qs.filter(parent=question).select_related('author','author__profile','children')
+    answers = answers.order_by('-answer_accepted','-score')
     return html.template( request, name='question.show.html', question=question, answers=answers )
 
 # question form and its default values
