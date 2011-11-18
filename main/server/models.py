@@ -155,8 +155,6 @@ class Post(models.Model):
         # Update our metadata
         self.lastedit_user = author
         
-        # convert the markdown to HTML
-        self.html = html.generate(content)
         self.content = content
         self.title = title
         self.set_tags(tag_string)
@@ -441,7 +439,10 @@ def create_post(sender, instance, *args, **kwargs):
     if not instance.lastedit_date:
         instance.lastedit_date = datetime.now()
     
-    # automatically make it float to relevance upon editing
+    # generate the HTML from the content    
+    instance.html = html.generate(instance.content)
+    
+    # set the touch date
     instance.touch_date = instance.lastedit_date
     
 def create_award(sender, instance, *args, **kwargs):

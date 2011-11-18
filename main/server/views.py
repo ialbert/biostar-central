@@ -148,6 +148,17 @@ class QuestionForm(forms.Form):
 # for now these are separete to allow us to identify what each step needs
 
 @login_required(redirect_field_name='/openid/login/')
+def post_edit(request, pid=0, refid=0):
+    "Handles editing a post"
+    
+    # this is a new post
+    newpost = (pid == 0)
+    
+    # belongs to another post (answer, comment)
+    hasparent = (refid != 0 )
+    
+    #no
+@login_required(redirect_field_name='/openid/login/')
 def question_edit(request, pid=0):
     "Handles questions"
     
@@ -190,17 +201,15 @@ def question_edit(request, pid=0):
             
     if asknew:
         # generate the new question
-        post = models.Post.objects.create(author=request.user)
+        post = models.Post.objects.create(author=request.user, post_type=POST_QUESTION)
         post.create_revision(content=content, tag_string=' '.join(tags), title=title)
-        question = models.Question.objects.create(post=post)
     else:
         # editing existing question
-        question = models.Question.objects.get(pk=pid)
-        post = question.post
+        post = models.Post.objects.get(pk=pid)
         post.create_revision(content=content, title=title, tag_string=' '.join(tags), author=request.user)
 
     # show the question
-    return html.redirect('/question/show/%s/' % question.id) 
+    return html.redirect('/question/show/%s/' % post.id) 
             
 
 # answer/comment form and its default values
@@ -213,7 +222,7 @@ def answer_edit(request, qid, aid=0):
     "Handles answers, requires a question id and answer id"
     
     # get the question that is to be accessed
-    question = models.Question.objects.get(pk=qid)
+    post = models.Post.objects.get(pk=qid)
 
     # decide whether this is new answer 
     newans = (aid == 0)
@@ -223,10 +232,10 @@ def answer_edit(request, qid, aid=0):
 
     if edit and request.method == 'GET':
         # editing an existing answer
-        answer = models.Answer.objects.get(pk=aid)
+        answer = models.Post.objects.get(pk=aid)
         # answer edits require an authorization (original author or moderator)
         answer.authorize(request)
-        form = AnswerForm( initial=dict(content=answer.post.content) )
+        form = AnswerForm( initial=dict(content=answer.content) )
         return html.template( request, name='edit.answer.html', form=form)
 
     # only POST remains at this point
