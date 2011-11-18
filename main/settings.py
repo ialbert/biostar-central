@@ -74,7 +74,7 @@ LANGUAGE_CODE = 'en-us'
 SITE_ID = 1
 
 # added a custom test runner
-TEST_RUNNER='biostar.tests.main.BiostarTest'
+TEST_RUNNER='server.tests.runner.BiostarTest'
 
 # If you set this to False, Django will make some optimizations so as not
 # to load the internationalization machinery.

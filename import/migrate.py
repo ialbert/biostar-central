@@ -241,56 +241,6 @@ def insert_posts(fname, limit, users):
                 post.save()
                 
             posts[postid] = post
-    
-    # prepare questions
-    qrows = filter(lambda x: x['PostTypeId'] == '1', rows)
-    qlist, qmap = [], {}
-    for row in qrows:
-        postid = row['Id']
-        title  = row['Title']
-        tags   = row['Tags']
-        qpair  = (postid, dict(title=title, tags=tags))
-        qlist.append (qpair)
-   
-    print "*** inserting %s questions" % len(qlist)
-    with transaction.commit_on_success():
-        for postid, q in qlist:
-            post = posts[postid]
-            post.title = q['title']
-            tag_string = parse_tag_string(q['tags'])
-            quest = models.Question(post=post)
-
-            if USE_DB:
-                post.set_tags(tag_string)
-                post.save()
-                quest.save()
-                
-            qmap[postid]= quest
-   
-    # filter for anwers
-    arows = filter(lambda x: x['PostTypeId'] == '2', rows)
-    arows = filter(checkfunc('ParentId', qmap), arows)
-    #arows = filter(checkfunc('OwnerUserId', users), arows)
-
-    alist = []
-    # prepare answers
-    for row in arows:
-        postid  = row['Id']
-        questid = row['ParentId']
-        alist.append((postid, questid))
-
-    print "*** inserting %s answers" % len(alist)
-    with transaction.commit_on_success():
-        for postid, questid in alist:
-            post  = posts[postid]
-            quest = qmap[questid]
-            post.title = "A: %s" % quest.post.title
-            answ = models.Answer(question=quest, post=post)
-            #child = models.Child(parent=quest.post, child=post)
-            if USE_DB:
-                post.save()
-                answ.save()
-                #child.save()
             
     return posts
     

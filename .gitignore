@@ -3,8 +3,6 @@
 .DS_Store
 biostar.db
 import/*
-home/secret-key.txt
-home/db/*.db
-home/import/*
+main/db/*.db
 coverage.xml
-htmlcov/*
+report/*
