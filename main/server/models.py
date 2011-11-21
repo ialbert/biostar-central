@@ -9,7 +9,7 @@ from django.db import models
 from django.contrib.auth.models import User, Group
 from django.contrib import admin
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from main.server import html
 
 # import all constants
@@ -27,6 +27,10 @@ class UserProfile( models.Model ):
     >>> prof.save()
     """
     user  = models.OneToOneField(User, unique=True, related_name='profile')
+    
+    # this designates a user as moderator
+    type  = models.IntegerField(choices=USER_TYPES, default=USER_NORMAL)
+    
     score = models.IntegerField(default=0, blank=True)
     reputation = models.IntegerField(default=0, blank=True)
     views = models.IntegerField(default=0, blank=True)
@@ -35,7 +39,8 @@ class UserProfile( models.Model ):
     gold_badges   = models.IntegerField(default=0)
     json  = models.TextField(default="", null=True)
     last_visited = models.DateTimeField(auto_now=True)
-    type  = models.IntegerField(choices=USER_TYPES, default=USER_NORMAL)
+    suspended    = models.BooleanField(default=False, null=False)
+    
     about_me = models.TextField(default="", null=True)
     location = models.TextField(default="", null=True)
     website  = models.URLField(default="", null=True, max_length=100)
@@ -43,19 +48,7 @@ class UserProfile( models.Model ):
     display_name  = models.CharField(max_length=35, default='User', null=False)
     last_login_ip = models.IPAddressField(default="0.0.0.0", null=True)
     openid_merge  = models.NullBooleanField(default=False, null=True)
-    
-    @property
-    def permissions(self):
-        perms = EVERYONE_PERM[:]
-        if self.type == USER_ADMIN:
-            perms.extend(ADMIN_PERM)
-        if self.type == USER_MODERATOR or self.type == USER_ADMIN:
-            perms.extend(MODERATOR_PERM)
-        for perm, rep in REPUTATION_PERM.items():
-            if self.score >= rep or self.type == USER_ADMIN or self.type == USER_MODERATOR:
-                perms.append(perm)
-        return perms
-    
+        
     @property
     def is_moderator(self):
         return (self.type == USER_MODERATOR) or (self.type == USER_ADMIN)
@@ -63,6 +56,18 @@ class UserProfile( models.Model ):
     @property
     def is_admin(self):
         return self.type == USER_ADMIN
+    
+    @property
+    def is_active(self):
+        
+        if self.suspended:
+            return False
+        
+        if self.is_moderator or self.score > 1:
+            return True
+        
+        # needs more throttles may go here here
+        return True
 
 class Tag(models.Model):
     name = models.TextField(max_length=50)
@@ -200,13 +205,11 @@ class Post(models.Model):
         
         self.save()
 
-    def authorize(self, request, strict=False):
+    def authorize(self, user, strict=True):
         "Verfifies access by a request object. Strict mode fails immediately."
-        cond1 = request.user == self.author
-        cond2 = request.user.is_staff
-        valid = cond1 or cond2
+        valid = user.is_authenticated() and (user.profile.is_moderator or (user == self.author))
         if strict and not valid:
-            raise Exception("Access Denied!")
+            raise Exception("authorization denied")
         return valid
 
     def get_vote(self, user, vote_type):

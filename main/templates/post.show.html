@@ -47,24 +47,9 @@
                         </div>
                        
                         <div class="left post-menu">
-                            {% if 'moderate_post' in permissions %}
-                                <span class="mod-menu">
-                                    {% if question.post.closed %}
-                                        <a class="mod-link">reopen</a> |
-                                    {% else %}
-                                        <a class="mod-link">close</a> |
-                                    {% endif %}
-                                    {% if question.post.deleted %}
-                                        <a class="mod-link">undelete</a> |
-                                    {% else %}
-                                        <a class="mod-link">delete</a> |
-                                    {% endif %}
-                                </span>
-                            {% endif %}
-                            {% if 'edit_post' in permissions %}
-                                <a href="/post/edit/{{question.id}}">edit</a> |
-                            {% endif %}
-                            flag
+                            
+                            {% editbox user question %}
+                                                        
                         </div>
                         
                         <div class="right question-user-info">
@@ -124,21 +109,8 @@
                                 <a name="{{answer.id}}"></a> {{ answer.html|safe }}
                             </div>
                             
-                            <div class="left post-menu">
-                                {% if 'moderate_post' in permissions %}
-                                    <span class="mod-menu">
-                                        {% if answer.deleted %}
-                                            <a class="mod-link">undelete</a> |
-                                        {% else %}
-                                            <a class="mod-link">delete</a> |
-                                        {% endif %}
-                                    </span>
-                                {% endif %}
-                                <a href="{{request.path}}#{{answer.id}}">link</a> |
-                                {% if 'edit_post' in permissions %}
-                                    <a href="/answer/edit/{{answer.id}}/">edit</a> |
-                                {% endif %}
-                                flag
+                            <div class="left post-menu">                                
+                                {% editbox user answer %}
                             </div>
         
                             <div class="right">

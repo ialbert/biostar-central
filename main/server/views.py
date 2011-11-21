@@ -133,6 +133,11 @@ def post_edit(request, pid=0, ptype=POST_QUESTION):
     # get post_type 
     assert ptype in POST_REV_MAP, 'Invalid post_type %s' % ptype
     
+    # when editing a question or comment this will override the post type
+    if pid:
+        post  = models.Post.objects.get(pk=pid)
+        ptype = post.post_type
+        
     # select the right type of form
     if ptype == POST_QUESTION:
         factory = formdef.PostForm
@@ -150,7 +155,7 @@ def post_edit(request, pid=0, ptype=POST_QUESTION):
                 form_revision(post=post, form=form)
         else:
             post = models.Post.objects.get(pk=pid)
-            post.authorize(request)
+            post.authorize(user=request.user)
             form_revision(post=post, form=form)
         
         # redirect to parent if exists
@@ -165,7 +170,7 @@ def post_edit(request, pid=0, ptype=POST_QUESTION):
             form = factory()
         else:
             post = models.Post.objects.get(pk=pid)
-            post.authorize(request)            
+            post.authorize(user=request.user)            
             form = factory(initial=dict(title=post.title, content=post.content, tags=post.tag_string))
         return html.template( request, name='edit.post.html', form=form, params=params)
         
@@ -270,17 +275,16 @@ def vote(request):
 
 def moderate(request):
     if request.method == 'POST':
-        author = request.user
-        if 'moderate_post' not in request.permissions: # Need to also check for actual mod permissions
-            return html.json_response({'status':'error', 'msg':'You do not have permission to moderate posts.'})        
-
+        user = request.user
         post_id = int(request.POST.get('post'))
         post = models.Post.objects.get(id=post_id)
-        
+        if not post.authorize(user=user, strict=False):
+            return html.json_response({'status':'error', 'msg':'You do not have permission to moderate posts.'})        
+            
         action = request.POST.get('action')
         action_map = {'close':models.REV_CLOSE, 'reopen':models.REV_REOPEN,
                       'delete':models.REV_DELETE, 'undelete':models.REV_UNDELETE}
-        post.moderator_action(action_map[action], author)
+        post.moderator_action(action_map[action], user)
         
         return html.json_response({'status':'success', 'msg':'%s performed' % action})
         

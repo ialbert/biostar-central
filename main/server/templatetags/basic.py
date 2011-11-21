@@ -7,7 +7,7 @@ register = template.Library()
 
 @register.inclusion_tag('widgets/comments.html', takes_context=True)
 def comments(context, post):
-    return {'post':post, 'permissions':context['permissions']}
+    return { 'post':post }
 
 @register.inclusion_tag('widgets/userlink.html')
 def userlink(user):
@@ -20,6 +20,11 @@ def taglink(tag_name):
 @register.inclusion_tag('widgets/userrep.html')
 def userrep(user):
     return {'user':user}
+
+@register.inclusion_tag('widgets/editbox.html', takes_context=True)
+def editbox(context, user, post):
+    editable = post.authorize(user, strict=False)
+    return { 'user':user, 'post':post, 'editable':editable, 'request':context['request']}
     
 @register.inclusion_tag('widgets/badgeicon.html')
 def badgeicon(type):
@@ -110,3 +115,6 @@ def flair(user):
     elif user.profile.is_moderator:
         return '&diams;'
     return ""
+
+
+    

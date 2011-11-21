@@ -7,6 +7,12 @@ import os, sys, re
 # on deployed servers make this unique, and don't share it with anybody.
 SECRET_KEY = '007'
 
+# the minimal reputation needed for a user to ask new questions
+MINIMUM_REPUTATION = 0
+
+# the number of posts a new user may make in a single day
+NEWBIE_MAX_POSTS_PER_DAY = 3
+
 # turn off debug mode on deployed servers
 DEBUG = True
 
