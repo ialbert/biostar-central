@@ -1,10 +1,9 @@
 """
 Biostar views
 """
-from main.server import html, models, const
+from main.server import html, models, const, formdef
 from main.server.html import get_page
 
-from django import forms
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
@@ -89,7 +88,6 @@ def badge_list(request):
 def search(request):
     return html.template(request, name='todo.html')
 
-
 def question_list(request):
     "Lists all the questions"
     #q.answer_count
@@ -108,7 +106,7 @@ def question_unanswered(request):
     page = get_page(request, qs) 
     return html.template(request, name='question.list.html', page=page)
     
-def question_show(request, pid):
+def post_show(request, pid):
     "Returns a question with all answers"
     
     qs = models.Post.objects
@@ -121,102 +119,70 @@ def question_show(request, pid):
     qs = models.Post.objects
     answers = qs.filter(parent=question).select_related('author','author__profile','children')
     answers = answers.order_by('-answer_accepted','-score')
-    return html.template( request, name='question.show.html', question=question, answers=answers )
+    return html.template( request, name='post.show.html', question=question, answers=answers )
 
-# question form and its default values
-_Q_TITLE, _Q_CONTENT, _Q_TAG = 'Question title', 'question content', 'tag1'
-class QuestionForm(forms.Form):
-    "A form representing a new question"
-    title   = forms.CharField(max_length=250,  initial=_Q_TITLE)
-    content = forms.CharField(max_length=5000, initial=_Q_CONTENT)
-    tags    = forms.CharField(max_length=250,  initial=_Q_TAG)
-    
-    def clean(self):
-        "Custom validator for the question"
-        if self.cleaned_data['tags'] == _Q_TAG:
-            raise forms.ValidationError("Please change the tag from default value")
-    
-        if self.cleaned_data['content'] == _Q_CONTENT:
-            raise forms.ValidationError("Please change content from default value")
-        
-        if self.cleaned_data['title'] == _Q_TITLE:
-            raise forms.ValidationError("Please change title from default value")
-
-        return self.cleaned_data
-
-# editing questions/answers and comments can be merged into a single post handler
-# for now these are separete to allow us to identify what each step needs
-
-@login_required(redirect_field_name='/openid/login/')
-def post_edit(request, pid=0, refid=0):
-    "Handles editing a post"
-    
-    # this is a new post
-    newpost = (pid == 0)
-    
-    # belongs to another post (answer, comment)
-    hasparent = (refid != 0 )
-    
-    #no
-@login_required(redirect_field_name='/openid/login/')
-def question_edit(request, pid=0):
-    "Handles questions"
-    
-    # pid == 0 means a new question
-    asknew = pid == 0
-    edit = not asknew
-
-    # rather than nesting ifs lets deal with each case separately 
-    # then exit as soon as we got enough information
-    if asknew:
-        params = html.Params(subheader='Ask a question', button='Ask your question')
-    else:
-        params = html.Params(subheader='Edit question', button='Submit changes')
-
-    # looks like a new question
-    if asknew and request.method == 'GET':
-        form = QuestionForm()
-        return html.template( request, name='edit.question.html', form=form, params=params)
-    
-    # looks like starting an edit request for an existing question
-    if edit and request.method == 'GET':
-        question = models.Question.objects.get(pk=pid)
-        question.authorize(request)
-        tags = question.post.tag_string
-        form = QuestionForm(initial=dict(title=question.post.title, content=question.post.content, tags=tags))
-        return html.template( request, name='edit.question.html', form=form, params=params)
-  
-    # we can only deal with POST after this point
-    assert  request.method == 'POST'
-    
-    # check the form for validity
-    form = QuestionForm(request.POST)
-    if not form.is_valid():
-        return html.template( request, name='edit.question.html', form=form, params=params)
-
-    # at this point the form is valid
+def form_revision(post, form):
+    "Creates a revision from a form post"
+    # sanity check
+    assert form.is_valid(), 'form is not valid'
     title   = form.cleaned_data['title']
     content = form.cleaned_data['content']
-    tags    = form.cleaned_data['tags'].split()
-            
-    if asknew:
-        # generate the new question
-        post = models.Post.objects.create(author=request.user, post_type=POST_QUESTION)
-        post.create_revision(content=content, tag_string=' '.join(tags), title=title)
+    tag_string = html.tag_strip(form.cleaned_data['tags'])    
+    post.create_revision(content=content, tag_string=tag_string, title=title)
+    
+@login_required(redirect_field_name='/openid/login/')
+def post_parent(request, pid=0):
+    """
+    Handles parent post related tasks
+    """
+    
+    newpost   = (pid == 0)
+    form_data = (request.method == 'POST')
+    
+    # get post_type 
+    post_type = int(request.REQUEST.get('post_type', POST_QUESTION))
+    assert post_type in POST_REV_MAP, 'Invalid post_type %s' % post_type
+    
+    # we have incoming form data for posts with no parents
+    if form_data:
+        form = formdef.PostForm(request.POST)
+        if not form.is_valid():
+            return html.template( request, name='edit.post.html', form=form)
+        if newpost:
+            with transaction.commit_on_success():
+                post = models.Post.objects.create(author=request.user, post_type=post_type)
+                form_revision(post=post, form=form)
+        else:
+            post = models.Post.objects.get(pk=pid)
+            post.authorize(request)
+            form_revision(post=post, form=form)
+        return html.redirect('/post/show/%s/%s/' % (post.id, post.slug))
     else:
-        # editing existing question
-        post = models.Post.objects.get(pk=pid)
-        post.create_revision(content=content, title=title, tag_string=' '.join(tags), author=request.user)
+        if newpost:
+            form = formdef.PostForm()
+        else:
+            post = models.Post.objects.get(pk=pid)
+            post.authorize(request)            
+            form = formdef.PostForm(initial=dict(title=post.title, content=post.content, tags=post.tag_string))
+        return html.template( request, name='edit.post.html', form=form)
 
-    # show the question
-    return html.redirect('/question/show/%s/' % post.id) 
+@login_required(redirect_field_name='/openid/login/')
+def post_child(request, parentid=0, pid=0):
+    "Handles actions for posts with parents"
+
+    newpost   = (pid == 0)
+    form_data = (request.method == 'POST')
+    
+    # get post_type 
+    post_type = int(request.REQUEST.get('post_type', POST_ANSWER))
+    assert post_type in POST_REV_MAP, 'Invalid post_type %s' % post_type
+    
+    if form_data:
+        form = formdef.SimpleForm(request.POST)
+        if not form.is_valid():
+            return html.template( request, name='edit.post.html', form=form)
             
-
-# answer/comment form and its default values
-class AnswerForm(forms.Form):
-    "A form representing an answer or comment"
-    content = forms.CharField(max_length=5000)
-
+    
 @login_required(redirect_field_name='/openid/login/')
 def answer_edit(request, qid, aid=0):
     "Handles answers, requires a question id and answer id"

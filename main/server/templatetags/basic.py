@@ -66,8 +66,8 @@ def pagebar(context):
         'request': context['request'],
     }
     
-@register.inclusion_tag('widgets/question-list-narrow.html')
-def question_list_narrow(x):
+@register.inclusion_tag('widgets/post-list-narrow.html')
+def post_list_narrow(x):
     return {'posts':x}
 
 @register.inclusion_tag('widgets/answer-list-narrow.html')

@@ -430,6 +430,8 @@ def create_profile(sender, instance, created, *args, **kwargs):
     if created:
         UserProfile.objects.create( user=instance )
 
+from django.template.defaultfilters import slugify
+
 def create_post(sender, instance, *args, **kwargs):
     "Pre save post information that needs to be applied"
     if not hasattr(instance, 'lastedit_user'):
@@ -439,6 +441,10 @@ def create_post(sender, instance, *args, **kwargs):
     if not instance.lastedit_date:
         instance.lastedit_date = datetime.now()
     
+    # auto generate the slug from the title
+    if instance.title:
+        instance.slug = slugify(instance.title)
+        
     # generate the HTML from the content    
     instance.html = html.generate(instance.content)
     

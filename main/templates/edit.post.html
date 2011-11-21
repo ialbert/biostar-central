@@ -1,7 +1,7 @@
 {% extends "base.nosidebar.html" %}
 
 {% block subheader %}
-  <h2>{{params.subheader}}</h2>
+  <h2>Post</h2>
 {% endblock %}
 
 {% block custom-frameworks %}
@@ -27,6 +27,7 @@
         
         {{ form.errors }}
         <form action="{{request.path}}" method="post">
+            
         {% csrf_token %}
         
         <table bgcolor="#CECECE" style="width: 960px">
@@ -35,7 +36,7 @@
                 <td>
                     {{ form.title.errors }}
                     <input type="text" value="{{ form.title.value }}" name="title" size="80"i
-                    style="margin:5px; width: 700px" />
+                    style="width: 700px" />
                 </td>
             </tr>
 
@@ -62,14 +63,14 @@
                 <td>
                     {{ form.tags.errors }}
                     <input type="text" value="{{ form.tags.value }}" name="tags" size="80"
-                    style="margin:5px; width: 700px"/>
+                    style="width: 700px"/>
                 </td>
             </tr>
 
             <tr>
                 <td>&nbsp;</td>
                 <td>
-                    <input style="margin:10px;" type="submit" name="submit" value="{{params.button}}">
+                    <input style="margin-top:10px;" type="submit" name="submit" value="Submit">
                 </td>
             </tr>
         </table>

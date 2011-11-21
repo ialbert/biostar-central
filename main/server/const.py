@@ -23,33 +23,50 @@ ADMIN_PERM = []
 # all post types that are to be implemented. This could make life a lot easier in the future
 POST_VALS =  "Post Question Answer Comment Guide Blog News Opinion Announcement Article Other".split()
 POST_NUMS = range(len(POST_VALS))
-POST_CHOICES = zip( POST_NUMS, POST_VALS )
-POST_MAP = dict(zip( POST_VALS, POST_NUMS ))
+
+# this can go into the models
+POST_CHOICES  = zip( POST_NUMS, POST_VALS )
+
+# allows quick check for valid post values
+POST_MAP      = dict(zip( POST_VALS, POST_NUMS ))
+POST_REV_MAP  = dict( [ (v, k) for k,v in POST_MAP.items() ] )
+
+# convenience constants
 POST_QUESTION = POST_MAP['Question']
 POST_ANSWER   = POST_MAP['Answer']
 
-# User types
-USER_NORMAL, USER_MODERATOR, USER_ADMIN = 0, 1, 2
+# user types
+USER_NORMAL, USER_MODERATOR, USER_ADMIN = range(0, 3)
 USER_TYPES = ((USER_NORMAL, 'Member'), (USER_MODERATOR, 'Moderator'), (USER_ADMIN, 'Administrator'))
 
-# Revision constants
-REV_NONE, REV_CLOSE, REV_REOPEN, REV_DELETE, REV_UNDELETE = 0, 1, 2, 3, 4
+# revision constants
+REV_NONE, REV_CLOSE, REV_REOPEN, REV_DELETE, REV_UNDELETE = range(0, 5)
 REV_ACTIONS = (
     (REV_NONE, ''), (REV_CLOSE, 'Close'), (REV_REOPEN, 'Reopen'),
     (REV_DELETE, 'Delete'), (REV_UNDELETE, 'Undelete')
 )
 REV_ACTION_MAP = dict(REV_ACTIONS)
 
-VOTE_UP, VOTE_DOWN, VOTE_ACCEPT = 0, 1, 2
-
+# voting related constants
+VOTE_UP, VOTE_DOWN, VOTE_ACCEPT = range(0, 3)
 VOTE_TYPES = ((VOTE_UP, 'Upvote'), (VOTE_DOWN, 'Downvote'), (VOTE_ACCEPT, 'Accept'))
 
-OPPOSING_VOTES = { VOTE_UP:VOTE_DOWN, VOTE_DOWN:VOTE_UP } # Mappings of mutually exclusive votes
+# mappings of mutually exclusive votes
+OPPOSING_VOTES = { VOTE_UP:VOTE_DOWN, VOTE_DOWN:VOTE_UP } 
 
 # post score changes
 POST_SCORE = { VOTE_UP:1, VOTE_DOWN:-1 }
 
 # user reputation changes
-USER_REP  = { VOTE_UP:10, VOTE_DOWN:-2, VOTE_ACCEPT:15 }
-VOTER_REP = { VOTE_DOWN: -1, VOTE_ACCEPT:2 }
+USER_REP  = {
+    VOTE_UP:10,
+    VOTE_DOWN:-2,
+    VOTE_ACCEPT:15
+}
+
+# voter reputation changes
+VOTER_REP = {
+    VOTE_DOWN: -1,
+    VOTE_ACCEPT:2
+}
 

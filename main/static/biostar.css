@@ -549,6 +549,17 @@ tr.comment td{
     margin-top: 20px;
 }
 
+.errorlist {
+    background-color: #F70;
+    font-size: 120%;
+}
+
+# editor {
+    font-family: Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New;
+    border: 1px solid #999;
+    font-size: 90%;
+}
+
 #revisions table{
     border-spacing: 0px;
 }
@@ -628,7 +639,7 @@ code {
 }
 
 .highlight {
-    background-color: #CCC;
+    background-color: #EEEEEE;
     font-size: 120%;
 
     display: block;

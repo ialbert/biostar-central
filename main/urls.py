@@ -41,16 +41,25 @@ urlpatterns = patterns('',
     (r'^question/unanswered/$', 'main.server.views.question_unanswered'),
     (r'^question/list/$', 'main.server.views.question_list'),
     (r'^question/tagged/(?P<tag_name>[a-z\-]+)/$', 'main.server.views.question_tagged'),
-    (r'^question/show/(?P<pid>\d+)/$', 'main.server.views.question_show'),
-    (r'^question/edit/(?P<pid>\d+)/$', 'main.server.views.question_edit'),
-    (r'^question/new/$','main.server.views.question_edit'),
     
+    # post handlers with or withouth a slug
+    (r'^post/show/(?P<pid>\d+)/$', 'main.server.views.post_show'),
+    (r'^post/show/(?P<pid>\d+)/([-\w]+)/$', 'main.server.views.post_show'),
+    
+    #(r'^post/edit/(?P<pid>\d+)/$', 'main.server.views.question_edit'),
+    
+    # handles new posts
+    (r'^post/new/$','main.server.views.post_parent'),
+    (r'^post/edit/(?P<pid>\d+)/$','main.server.views.post_parent'),
+    
+    '''
     # answers
     (r'^answer/edit/(?P<qid>\d+)/(?P<aid>\d+)/$', 'main.server.views.answer_edit'),
     (r'^answer/new/(?P<qid>\d+)/$', 'main.server.views.answer_edit'),
     
     # comment handlers
     (r'^comment/new/(?P<pid>\d+)/$', 'main.server.views.comment_add'),
+    '''
 
     # voting handler
     (r'^vote/$', 'main.server.views.vote'),
