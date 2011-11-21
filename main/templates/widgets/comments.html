@@ -3,13 +3,13 @@
 {% if post.comment_count %}
     <div class="comments">
         <table>
-            {% for comment in post.get_comments %}
-                <tr class="comment">
+            {% for comment in post.comments %}
+                <tr class="comment" id="{{comment.id}}">
                     <td class="comment-actions">&nbsp;</td>
                     <td class="comment-text">
-                        {{comment.post.html|safe}}
+                        {{comment.html|safe}}
                         &mdash;
-                        {% userlink comment.post.author %}
+                        {% userlink comment.author %}
                     </td>
                 </tr>
             {% endfor %}

@@ -366,16 +366,11 @@ def insert_comments(fname, posts, users, limit):
     with transaction.commit_on_success():   
         for postid, cid, param in clist:
             parent = posts[postid]         
-            post = models.Post(**param)
-            
-            #comment = models.Comment(parent=parent, post=post)            
+            post = models.Post(**param)            
             comms[cid] = post
-            
             if USE_DB:
                 post.save() 
-                comment = models.Comment(parent=parent, post=post)
-                comment.save()
-
+                
     return comms
 
 def insert_comment_votes(fname, limit, comms, users):

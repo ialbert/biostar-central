@@ -36,13 +36,13 @@ def user_profile(request, uid):
     "User's profile page"
     user = models.User.objects.get(id=uid)
     profile = models.UserProfile.objects.get(user=user)
-    questions = models.Question.objects.filter(post__author=user).select_related('post','post__author','post__author__profile')
-    answers = models.Answer.objects.filter(post__author=user).select_related('post','question','question__post','question__post__author','question__post__author__profile')
+    questions = models.Post.objects.filter(author=user, post_type=POST_QUESTION).select_related('author','author__profile')
+    answers   = models.Post.objects.filter(author=user, post_type=POST_ANSWER).select_related('author', 'author_profile', 'parent__author','parent__author__profile')
 
     return html.template(request, name='user.profile.html',
-      user=request.user, profile=profile, selected=user,
-      questions=questions.order_by('-post__score'),
-      answers=answers.order_by('-post__score'))
+        user=request.user, profile=profile, selected=user,
+        questions=questions.order_by('-score'),
+        answers=answers.order_by('-score'))
 
 def user_list(request):
     search  = request.GET.get('search','')[:80] # trim for sanity
@@ -67,9 +67,7 @@ def search(request):
     return html.template(request, name='todo.html')
 
 def question_list(request):
-    "Lists all the questions"
-    #q.answer_count
-    
+    "Lists all the questions" 
     qs = get_questions().filter(answer_count=0)
     page = get_page(request, qs) 
     return html.template(request, name='question.list.html', page=page)
@@ -88,15 +86,16 @@ def post_show(request, pid):
     "Returns a question with all answers"
     
     qs = models.Post.objects
-    question = qs.filter(post_type=POST_QUESTION).select_related('children').get(id=pid)
+    question = qs.filter(post_type=POST_QUESTION).select_related('children', 'votes').get(id=pid)
+    
     if request.user.is_authenticated():
         question.views += 1
         question.save()
         
     #qs = models.Post.all_objects if 'view_deleted' in request.permissions else models.Post.objects
-    qs = models.Post.objects
-    answers = qs.filter(parent=question).select_related('author','author__profile','children')
+    answers = models.Post.answers.filter(parent=question)
     answers = answers.order_by('-answer_accepted','-score')
+    
     return html.template( request, name='post.show.html', question=question, answers=answers )
 
 def form_revision(post, form):
@@ -109,6 +108,14 @@ def form_revision(post, form):
     tag_string = html.tag_strip(tags)    
     post.create_revision(content=content, tag_string=tag_string, title=title)
 
+def show_post(pid, slug='title', anchor=None):
+    if anchor:
+        url = '/post/show/%s/%s/#%s' % (pid, slug, anchor)
+    else:
+        url = '/post/show/%s/%s/' % (pid, slug)
+    
+    return html.redirect(url)
+    
 @login_required(redirect_field_name='/openid/login/')
 def answer_edit(request, pid=0):
     return post_edit(request=request, pid=pid, ptype=POST_ANSWER)
@@ -148,10 +155,11 @@ def post_edit(request, pid=0, ptype=POST_QUESTION):
         
         # redirect to parent if exists
         if post.parent:
-            return html.redirect('/post/show/%s/%s/#%s' % (post.parent.id, post.parent.slug, post.id))
+            return show_post(post.parent.id, post.parent.slug, post.id)
         else:
-            return html.redirect('/post/show/%s/%s/' % (post.id, post.slug))
+            return show_post(post.id, post.slug)
     
+    # there is no incomig data render the forms
     else:
         if newpost:
             form = factory()
@@ -180,15 +188,15 @@ def post_content(request, pid=0):
     if form_data:
         form = formdef.ContentForm(request.POST)
         if not form.is_valid():
-            return html.redirect('/post/show/%s/%s/#post-answer' % (post.id, post.slug))
+            return show_post(post.id, post.slug, 'post-answer')
         
         with transaction.commit_on_success():
             content = models.Post.objects.create(author=request.user, post_type=post_type, parent=post)
             form_revision(post=content, form=form) 
         
-        return html.redirect('/post/show/%s/%s/#%s' % (post.id, post.slug, content.id))
+        return show_post(post.id, post.slug, content.id)
         
-    return html.redirect('/post/show/%s/%s/' % (post.id, post.slug))
+    return show_post(post.id, post.slug)
     
         
 def revision_list(request, pid):
@@ -218,19 +226,14 @@ def revision_list(request, pid):
 @login_required(redirect_field_name='/openid/login/')
 def comment_add(request, pid):
     
-    parent = models.Post.objects.get(pk=pid)
+    parent  = models.Post.objects.get(pk=pid)
     content = request.POST['text']
-    post = models.Post(author=request.user)
-    post.html = post.content = html.sanitize(content, allowed_tags='')
-    post.save()
-    comment = models.Comment(parent=parent, post=post)
+    comment = models.Post(author=request.user, content=content, parent=parent, post_type=POST_COMMENT)
     comment.save()
-
-    try:
-        return html.redirect('/question/show/%s/' % (parent.question.id))
-    except models.Question.DoesNotExist:
-        return html.redirect('/question/show/%s/#%s' % (parent.answer.question.id, parent.answer.id))
-
+    if parent.post_type == POST_ANSWER:
+        parent = parent.parent
+    return show_post(pid=parent.id, slug=parent.slug, anchor=comment.id)
+    
 def vote(request):
     "Handles all voting on posts"
     if request.method == 'POST':

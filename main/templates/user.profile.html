@@ -69,11 +69,12 @@
 </table>
 
 
-<h2>Asked</h2>
-{% question_list_narrow questions %}
-
-
-<div style="clear: both; height: 2em"></div>
-<h2>Answered</h2>
-{% answer_list_narrow answers %}
+  <h2>Asked</h2>  
+  {% post_list_narrow questions %}
+  
+  <div style="clear: both; height: 2em"></div>
+  
+  <h2>Answered</h2>
+  {% answer_list_narrow answers %}
+  
 {% endblock %}
