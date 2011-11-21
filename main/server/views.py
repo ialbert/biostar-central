@@ -70,12 +70,12 @@ def question_list(request):
     "Lists all the questions" 
     qs = get_questions().filter(answer_count=0)
     page = get_page(request, qs) 
-    return html.template(request, name='question.list.html', page=page)
+    return html.template(request, name='post.list.html', page=page)
 
 def question_tagged(request, tag_name):
-    qs = get_questions().filter(post__tag_set__name=tag_name)
+    qs = get_questions().filter(tag_set__name=tag_name)
     page = get_page(request, qs) 
-    return html.template(request, name='question.list.html', page=page)
+    return html.template(request, name='post.list.html', page=page)
 
 def question_unanswered(request):
     qs = get_questions().filter(answer_count=0)
