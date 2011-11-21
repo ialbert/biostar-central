@@ -27,6 +27,11 @@ def user_edit(request, uid):
     "User's profile page"
     user = models.User.objects.select_related('profile').get(id=uid)
     
+    valid = (user==request.user) or request.user.profile.is_moderator
+    
+    if not valid:
+        return html.redirect("/")
+        
     if request.method == 'GET':
         initial = dict(
             display_name = user.profile.display_name,
