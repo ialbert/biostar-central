@@ -14,7 +14,7 @@
         <div class="summary">
             <h3>    
                 <div>
-                  <a href="/question/show/{{a.parent.id}}/{{a.slug}}/#{{a.id}}">{{ a.parent.title }}</a>
+                  <a href="/post/show/{{a.parent.id}}/{{a.slug}}/#{{a.id}}">{{ a.parent.title }}</a>
                 </div>
             </h3>
   
@@ -26,8 +26,8 @@
 
             <div class="started right">
                 <span class="relativetime">{% time_ago a.parent.creation_date %}</span>
-                {% userlink a.author %}
-                {% userrep  a.author %}
+                {% userlink a.parent.author %}
+                {% userrep  a.parent.author %}
             </div>
         </div>
     </div>

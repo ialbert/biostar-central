@@ -28,7 +28,7 @@
 {% block mainbar %}
     <div class="content"">
         
-        <div id="question">
+        <div id="question {{question.css}}">
         
             <table>
                 <tr>
@@ -107,7 +107,7 @@
             </div>
 
             {% for answer in answers %}
-            <div class="answer">
+            <div class="answer {{answer.css}}">
                 <table border="0">
                     <tr>
                         <td>

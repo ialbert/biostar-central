@@ -73,16 +73,6 @@ class TagAdmin(admin.ModelAdmin):
 
 admin.site.register(Tag, TagAdmin)
 
-class ModLog(models.Model):
-    """
-    Logs moderator actions
-    """
-    target = models.ForeignKey(User)
-    action = models.CharField(max_length=100, default='')
-    text   = models.CharField(max_length=1000, default='')
-    other  = models.CharField(max_length=1000, default='') # for know we'll keep this generic
-    date   = models.DateTimeField()
-
 
 class PostManager(models.Manager):
     ''' Used for all posts (question, answer, comment); returns only non-deleted posts '''
@@ -193,9 +183,8 @@ class Post(models.Model):
         """
         
         date = date or datetime.now()
-        text_action = REV_ACTION_MAP.get(action, '')
-        text = "%s (%s) applied %s (%s) to '%s' (%s)" % (author.profile.display_name, author.id, text_action, action, self.title, self.id)
-        log  = ModLog(target=author, text=text, action=action, date=date, other=self.id)
+        text = REV_ACTION_MAP.get(action, 'undefined action?')
+        log  = ModLog(author=author, text=text, action=action, date=date,  post=self, mod_type=POST_MODERATION)
         log.save()
 
         if action == REV_CLOSE:
@@ -207,7 +196,8 @@ class Post(models.Model):
         elif action == REV_UNDELETE:
             self.deleted = False
         else:
-            pass
+            raise Exception('Invalid moderator action %s' % action)
+        
         self.save()
 
     def authorize(self, request, strict=False):
@@ -240,9 +230,6 @@ class Post(models.Model):
             vote.delete()
             return True
         return False
-    
-    def get_comments(self):
-        return Post.objects.all()
         
     def set_tags(self, tag_string):
         ''' Sets the post's tags to a space-separated string of tags '''
@@ -260,7 +247,6 @@ class Post(models.Model):
                 tag.save()
                 tags.append(tag)
         self.tag_set.add(*tags)
-        
         
     def get_tags(self):
         ''' Returns the post's tags as a list of strings '''
@@ -283,6 +269,15 @@ class Post(models.Model):
         objs = Post.objects.filter(parent=self, post_type=POST_COMMENT).select_related('author','author__profile')
         return objs
     
+    def css(self):
+        "Used during rendering"
+        if self.deleted:
+            return "post-deleted"
+        elif self.closed:
+            return "post-closed"
+        else:
+            return "post-active"
+        
     objects  = models.Manager()    
     answers  = AnswerManager()
 
@@ -292,6 +287,18 @@ class PostAdmin(admin.ModelAdmin):
 
 admin.site.register(Post, PostAdmin)
 
+class ModLog(models.Model):
+    """
+    Logs moderator actions
+    """
+    mod_type  = models.IntegerField(choices=USER_MOD_CHOICES, db_index=True)
+    action    = models.IntegerField(default=0)
+    text      = models.CharField(max_length=1000, default='')
+    other     = models.CharField(max_length=1000, default='') # for the future
+    date      = models.DateTimeField()
+    author    = models.ForeignKey(User, related_name="moderated_by")
+    user      = models.ForeignKey(User, null=True, blank=True)
+    post      = models.ForeignKey(Post, null=True, blank=True)
         
 class PostRevision(models.Model):
     """

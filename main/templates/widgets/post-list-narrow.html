@@ -1,7 +1,8 @@
 {% load basic %}
 
 {% for p in posts %}
-    <div class="question-summary">
+    
+    <div class="question-summary {{p.css}}">
         <div>
             <div class="votes">
                 <div class="mini-counts">{{p.score}}</div>

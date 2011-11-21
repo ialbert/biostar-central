@@ -9,8 +9,8 @@
                     <td class="comment-text">
                         {{comment.html|safe}}
                         &mdash;
-                        {% userlink comment.author %}
-                    </td>
+                        {% time_ago comment.creation_date %} by
+                        {% userlink comment.author %} 
                 </tr>
             {% endfor %}
         </table>

@@ -612,6 +612,9 @@ tr.comment td{
     margin-right: 4px;
 }
 
+.post-deleted {
+    background-color:#F6B2B2;
+}
 /*
 |-------------------------
 |  Badge List            |

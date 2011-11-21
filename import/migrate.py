@@ -309,7 +309,7 @@ def insert_post_revisions(fname, limit, users, posts):
     with transaction.commit_on_success():
         for post, atype, author, date in alist:
             if USE_DB:
-                post.moderator_action(atype, author, date)
+                post.moderator_action(atype, author=author, date=date)
     
 def insert_votes(fname, limit, users, posts):
 

@@ -50,7 +50,7 @@ def user_edit(request, uid):
          
 def modlog_list(request):
     "Lists moderator actions"
-    mods = models.ModLog.objects.order_by('-date')
+    mods = models.ModLog.objects.select_related('author', 'user', 'post', 'author_profile').order_by('-date')
     page = get_page(request, mods)
     return html.template(request, name='modlog.list.html', page=page)
     
