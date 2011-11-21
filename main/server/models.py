@@ -257,7 +257,12 @@ class Post(models.Model):
     
     def details(self):
         return
-         
+    
+    def apply(self, dir):        
+        if self.parent:
+            self.parent.answer_count += dir
+            self.parent.save()
+        
 class PostAdmin(admin.ModelAdmin):
     list_display = ('id', 'title', )
 
@@ -407,14 +412,12 @@ from django.db.models import signals
 
 # Many models have apply() methods that need to be called when they are created
 # and called with dir=-1 when deleted to update something.
-#
-
-MODELS_WITH_APPLY = [ Vote, Award, Comment, PostRevision ]
+MODELS_WITH_APPLY = [ Post, Vote, Award, Comment, PostRevision ]
     
 def apply_instance(sender, instance, created, raw, *args, **kwargs):
     "Applies changes from an instance with an apply() method"
     if created and not raw: # Raw is true when importing from fixtures, in which case votes are already applied
-        instance.apply()
+        instance.apply(+1)
 
 def unapply_instance(sender, instance,  *args, **kwargs):
     "Unapplies an instance when it is deleted"

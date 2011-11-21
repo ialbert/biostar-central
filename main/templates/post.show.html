@@ -62,7 +62,7 @@
                                 </span>
                             {% endif %}
                             {% if 'edit_post' in permissions %}
-                                <a href="/post/edit/{{question.id}}/">edit</a> |
+                                <a href="/post/edit/{{question.id}}">edit</a> |
                             {% endif %}
                             flag
                         </div>
@@ -136,7 +136,7 @@
                                 {% endif %}
                                 <a href="{{request.path}}#{{answer.id}}">link</a> |
                                 {% if 'edit_post' in permissions %}
-                                    <a href="/answer/edit/{{question.id}}/{{answer.id}}/">edit</a> |
+                                    <a href="/answer/edit/{{answer.id}}/">edit</a> |
                                 {% endif %}
                                 flag
                             </div>
@@ -166,7 +166,7 @@
 
                  {% if user.is_authenticated %}
                 
-                <form action="/answer/new/{{question.id}}/" method="post">
+                <form action="/post/content/{{question.id}}/" method="post">
                     {% csrf_token %}
                     <textarea id="editor" name="content" cols="50" rows="15" ></textarea>
                     <div>

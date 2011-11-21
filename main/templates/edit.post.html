@@ -30,7 +30,11 @@
             
         {% csrf_token %}
         
+        <input type="hidden" value={{post_type}} name="post_type">
+        
         <table bgcolor="#CECECE" style="width: 960px">
+            
+            {% if form.title.value %}
             <tr>
                 <td>Title</td>
                 <td>
@@ -39,7 +43,8 @@
                     style="width: 700px" />
                 </td>
             </tr>
-
+            {% endif %}
+            
             <tr>
                 <td>Content</td>
                 <td>
@@ -58,6 +63,7 @@
                 </td>
             </tr>
 
+            {% if form.tags.value %}
             <tr>
                 <td>Tags</td>
                 <td>
@@ -66,7 +72,7 @@
                     style="width: 700px"/>
                 </td>
             </tr>
-
+            {% endif %}
             <tr>
                 <td>&nbsp;</td>
                 <td>

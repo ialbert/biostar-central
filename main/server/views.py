@@ -32,28 +32,6 @@ def index(request):
     page  = get_page(request, qs, per_page=20)
     return html.template( request, name='index.html', page=page)
 
-def admin_password_override(request):
-    """
-    This view is active only if the ALLOW_ADMIN_OVERRIDE setting is True.
-    Allows anyone to log in and personify any other user as long as they enter
-    the content of SECRET_KEY as password. This needs to be True during testing.
-    """
-    if request.method=='GET':
-        return html.template( request, name='admin.password.override.html')
-    else:
-        uid = request.POST.get('uid', '')
-        passwd = request.POST.get('password', '')
-        if passwd == settings.SECRET_KEY:
-            user = models.User.objects.get(pk=uid)
-            if 'set_type' in request.POST: # Allow setting of user type for testing
-                user.profile.type = int(request.POST.get('set_type'))
-                user.profile.save()
-            user.backend = 'django.contrib.auth.backends.ModelBackend'
-            login(request, user)
-            return html.redirect('/') 
-        
-    raise Exception('Invalid login')
-        
 def user_profile(request, uid):
     "User's profile page"
     user = models.User.objects.get(id=uid)
@@ -125,50 +103,68 @@ def form_revision(post, form):
     "Creates a revision from a form post"
     # sanity check
     assert form.is_valid(), 'form is not valid'
-    title   = form.cleaned_data['title']
-    content = form.cleaned_data['content']
-    tag_string = html.tag_strip(form.cleaned_data['tags'])    
+    title   = form.cleaned_data.get('title','')
+    content = form.cleaned_data.get('content', '')
+    tags    = form.cleaned_data.get('tags', '')
+    tag_string = html.tag_strip(tags)    
     post.create_revision(content=content, tag_string=tag_string, title=title)
+
+@login_required(redirect_field_name='/openid/login/')
+def answer_edit(request, pid=0):
+    return post_edit(request=request, pid=pid, ptype=POST_ANSWER)
     
 @login_required(redirect_field_name='/openid/login/')
-def post_parent(request, pid=0):
+def post_edit(request, pid=0, ptype=POST_QUESTION):
     """
     Handles parent post related tasks
     """
     
     newpost   = (pid == 0)
     form_data = (request.method == 'POST')
+    params    = html.Params()
     
     # get post_type 
-    post_type = int(request.REQUEST.get('post_type', POST_QUESTION))
-    assert post_type in POST_REV_MAP, 'Invalid post_type %s' % post_type
+    assert ptype in POST_REV_MAP, 'Invalid post_type %s' % ptype
+    
+    # select the right type of form
+    if ptype == POST_QUESTION:
+        factory = formdef.PostForm
+    else:
+        factory = formdef.ContentForm
     
     # we have incoming form data for posts with no parents
     if form_data:
-        form = formdef.PostForm(request.POST)
+        form = factory(request.POST)
         if not form.is_valid():
-            return html.template( request, name='edit.post.html', form=form)
+            return html.template( request, name='edit.post.html', form=form, params=params)
         if newpost:
             with transaction.commit_on_success():
-                post = models.Post.objects.create(author=request.user, post_type=post_type)
+                post = models.Post.objects.create(author=request.user, post_type=ptype)
                 form_revision(post=post, form=form)
         else:
             post = models.Post.objects.get(pk=pid)
             post.authorize(request)
             form_revision(post=post, form=form)
-        return html.redirect('/post/show/%s/%s/' % (post.id, post.slug))
+        
+        # redirect to parent if exists
+        if post.parent:
+            return html.redirect('/post/show/%s/%s/#%s' % (post.parent.id, post.parent.slug, post.id))
+        else:
+            return html.redirect('/post/show/%s/%s/' % (post.id, post.slug))
+    
     else:
         if newpost:
-            form = formdef.PostForm()
+            form = factory()
         else:
             post = models.Post.objects.get(pk=pid)
             post.authorize(request)            
-            form = formdef.PostForm(initial=dict(title=post.title, content=post.content, tags=post.tag_string))
-        return html.template( request, name='edit.post.html', form=form)
+            form = factory(initial=dict(title=post.title, content=post.content, tags=post.tag_string))
+        return html.template( request, name='edit.post.html', form=form, params=params)
+        
 
 @login_required(redirect_field_name='/openid/login/')
-def post_child(request, parentid=0, pid=0):
-    "Handles actions for posts with parents"
+def post_content(request, pid=0):
+    "Handles actions for posts that only contain content (answers/comments)"
 
     newpost   = (pid == 0)
     form_data = (request.method == 'POST')
@@ -177,58 +173,24 @@ def post_child(request, parentid=0, pid=0):
     post_type = int(request.REQUEST.get('post_type', POST_ANSWER))
     assert post_type in POST_REV_MAP, 'Invalid post_type %s' % post_type
     
+    # get the parent post
+    post = models.Post.objects.get(pk=pid)
+    
+    # we have incoming form data for posts with no parents
     if form_data:
-        form = formdef.SimpleForm(request.POST)
+        form = formdef.ContentForm(request.POST)
         if not form.is_valid():
-            return html.template( request, name='edit.post.html', form=form)
-            
+            return html.redirect('/post/show/%s/%s/#post-answer' % (post.id, post.slug))
+        
+        with transaction.commit_on_success():
+            content = models.Post.objects.create(author=request.user, post_type=post_type, parent=post)
+            form_revision(post=content, form=form) 
+        
+        return html.redirect('/post/show/%s/%s/#%s' % (post.id, post.slug, content.id))
+        
+    return html.redirect('/post/show/%s/%s/' % (post.id, post.slug))
     
-@login_required(redirect_field_name='/openid/login/')
-def answer_edit(request, qid, aid=0):
-    "Handles answers, requires a question id and answer id"
-    
-    # get the question that is to be accessed
-    post = models.Post.objects.get(pk=qid)
-
-    # decide whether this is new answer 
-    newans = (aid == 0)
-    
-    # it appears to be an edited answer
-    edit = not newans
-
-    if edit and request.method == 'GET':
-        # editing an existing answer
-        answer = models.Post.objects.get(pk=aid)
-        # answer edits require an authorization (original author or moderator)
-        answer.authorize(request)
-        form = AnswerForm( initial=dict(content=answer.content) )
-        return html.template( request, name='edit.answer.html', form=form)
-
-    # only POST remains at this point
-    assert request.method == 'POST'
-    
-    # incoming  data
-    form = AnswerForm(request.POST)
-    if not form.is_valid():
-        # invalid form render the errors
-        return html.template( request, name='edit.answer.html', form=form)
-
-    # at this point the data is valid
-    content = form.cleaned_data['content']
-
-    if newans:
-        # new answer for the question
-        post = models.Post.objects.create(author=request.user)
-        post.create_revision(content=content)
-        answer = models.Answer.objects.create(post=post, question=question)
-    else:
-        # update the answer
-        answer = models.Answer.objects.get(pk=aid)
-        answer.authorize(request)
-        answer.post.create_revision(content=content, author=request.user)
-
-    return html.redirect('/question/show/%s/' % qid)
-    
+        
 def revision_list(request, pid):
     post = models.Post.objects.get(pk=pid)
     revisions = list(post.revisions.order_by('date')) # Oldest first, will need to be reversed later

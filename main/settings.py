@@ -124,11 +124,6 @@ STATICFILES_FINDERS = (
 #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
-
-# ADMIN_PASSWORD_OVERRIDE allows one to log in as any user by using the SECRET_KEY
-# this is needed during testing, possbily for troubleshooting problems for deployment
-ADMIN_PASSWORD_OVERRIDE = True
-
 # attempt to get the version number from the repository
 BIOSTAR_VERSION = os.popen("git log --pretty=format:%h -1").read()
 if not re.match(r'^[a-z,0-9]+$', BIOSTAR_VERSION):

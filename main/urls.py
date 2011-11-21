@@ -49,24 +49,25 @@ urlpatterns = patterns('',
     #(r'^post/edit/(?P<pid>\d+)/$', 'main.server.views.question_edit'),
     
     # handles new posts
-    (r'^post/new/$','main.server.views.post_parent'),
-    (r'^post/edit/(?P<pid>\d+)/$','main.server.views.post_parent'),
+    (r'^post/new/$','main.server.views.post_edit'),
     
-    '''
-    # answers
-    (r'^answer/edit/(?P<qid>\d+)/(?P<aid>\d+)/$', 'main.server.views.answer_edit'),
-    (r'^answer/new/(?P<qid>\d+)/$', 'main.server.views.answer_edit'),
+    # editing an existing post/answer/comment
+    (r'^post/edit/(?P<pid>\d+)/$','main.server.views.post_edit'),
     
-    # comment handlers
+    # posting content only items (answers, comments)
+    (r'^post/content/(?P<pid>\d+)/$','main.server.views.post_content'),
+    
+    # editing an answers 
+    (r'^answer/edit/(?P<pid>\d+)/$','main.server.views.answer_edit'),
+   
+    # editing a comment
     (r'^comment/new/(?P<pid>\d+)/$', 'main.server.views.comment_add'),
-    '''
-
+    
     # voting handler
     (r'^vote/$', 'main.server.views.vote'),
     (r'^moderate/$', 'main.server.views.moderate'),
     (r'^modlog/list/$', 'main.server.action.modlog_list'),
    
-
     # openid authentication
     (r'^openid/', include('django_openid_auth.urls')),
     (r'^logout/$', 'django.contrib.auth.views.logout',  {'next_page':'/'}),
@@ -75,13 +76,6 @@ urlpatterns = patterns('',
     (r'^admin/', include(admin.site.urls)),
     (r'^admin/doc/', include('django.contrib.admindocs.urls')),
 )
-
-if settings.ADMIN_PASSWORD_OVERRIDE:
-    urlpatterns += patterns('', 
-        # admin login override
-        (r'^admin/password/override/$', 'main.server.views.admin_password_override'),
-    )
-
 
 urlpatterns += staticfiles_urlpatterns()
 
