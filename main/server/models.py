@@ -157,7 +157,7 @@ class Post(MPTTModel):
         return (self.author == user)
     
     @transaction.commit_on_success
-    def create_revision(self, content=None, title=None, tag_string=None, author=None, date=None):
+    def create_revision(self, content=None, title=None, tag_string=None, author=None, date=None, action=REV_NONE):
         """
         Creates a new revision of the post with the given data.
         Content, title and tags are assumed to be unmodified if not given.
@@ -170,13 +170,17 @@ class Post(MPTTModel):
         author = author or self.author
         date = date or datetime.now()
         
+        # Bail out if nothing changed
+        if content == self.content and tag_string == self.tag_string and title == self.title and action == REV_NONE:
+            return
+
         # transform the content to UNIX style line endings
         content = content.replace('\r\n', '\n')
         content = content.replace('\r', '\n')
         #content = "\n".join( content.splitlines() )
         
         # creates a new revision for the post
-        revision = PostRevision.objects.create(post=self, content=content, tag_string=tag_string, title=title, author=author, date=date)
+        revision = PostRevision.objects.create(post=self, content=content, tag_string=tag_string, title=title, author=author, date=date, action=action)
                 
         # create a notification for the post that includes all authors of every child
         root = self.get_root()
@@ -225,6 +229,8 @@ class Post(MPTTModel):
         log  = ModLog(author=author, text=text, action=action, date=date,  post=self, mod_type=POST_MODERATION)
         log.save()
 
+        self.create_revision(action=action)
+
         if action == REV_CLOSE:
             self.closed = True
         elif action == REV_REOPEN:
@@ -238,7 +244,7 @@ class Post(MPTTModel):
         
         self.save()
 
-    def authorize(self, user, strict=False):
+    def authorize(self, user, strict=True):
         "Verfifies access by a request object. Strict mode fails immediately."
         valid = user.is_authenticated() and (user.profile.is_moderator or (user == self.author))
         if strict and not valid:

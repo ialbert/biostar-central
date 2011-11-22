@@ -48,20 +48,27 @@ urlpatterns = patterns('',
     
     #(r'^post/edit/(?P<pid>\d+)/$', 'main.server.views.question_edit'),
     
-    # handles new posts
+    # handles a generic new posts
     (r'^post/new/$','main.server.views.post_edit'),
     
     # editing an existing post/answer/comment
     (r'^post/edit/(?P<pid>\d+)/$','main.server.views.post_edit'),
     
-    # posting content only items (answers, comments)
-    (r'^post/content/(?P<pid>\d+)/$','main.server.views.post_content'),
+    # handles new questions
+    (r'^new/question/$','main.server.views.new_question'),
     
-    # editing an answers 
-    (r'^answer/edit/(?P<pid>\d+)/$','main.server.views.answer_edit'),
+    # handles new answers
+    (r'^new/answer/(?P<parentid>\d+)/$','main.server.views.new_answer'),
    
+    # submits a new comment
+    (r'^new/comment/(?P<parentid>\d+)/$','main.server.views.new_comment'),
+    
+    # editing an existing post/answer/comment
+    (r'^post/edit/(?P<pid>\d+)/(?P<parent>\d+)/$','main.server.views.post_edit'),
+   
+
     # editing a comment
-    (r'^comment/new/(?P<pid>\d+)/$', 'main.server.views.comment_add'),
+    #(r'^comment/new/(?P<pid>\d+)/$', 'main.server.views.comment_add'),
     
     # voting handler
     (r'^vote/$', 'main.server.views.vote'),

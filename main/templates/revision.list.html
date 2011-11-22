@@ -12,7 +12,7 @@
             {% for revision in revisions %}
                 <tr class="revision">
                     <td class="revarrow">&nbsp;</td>
-                    <td class="revcount">{{forloop.revcounter}}</td>
+                    <td class="revcount">r{{forloop.revcounter}}</td>
                     <td class="revsummary">
                         {% if revision.action %}
                             Moderator action: {{ revision.get_action_display }}
@@ -30,7 +30,7 @@
                         {% endif %}
                         
                         {% if revision.modified.1 %}
-                            {{revision.to_html|safe}}
+                            {{revision.html|safe}}
                         {% endif %}
                         
                         {% if revision.modified.2 %}

@@ -139,7 +139,7 @@
 
                  {% if user.is_authenticated %}
                 
-                <form action="/post/content/{{question.id}}/" method="post">
+                <form action="/new/answer/{{question.id}}/" method="post">
                     {% csrf_token %}
                     <textarea id="editor" name="content" cols="50" rows="15" ></textarea>
                     <div>

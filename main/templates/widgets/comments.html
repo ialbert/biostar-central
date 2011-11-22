@@ -7,10 +7,9 @@
                 <tr class="comment" id="{{comment.id}}">
                     <td class="comment-actions">&nbsp;</td>
                     <td class="comment-text">
-                        {{comment.html|safe}}
-                        &mdash;
+                        {{ comment.html|safe}}
                         {% time_ago comment.creation_date %} by
-                        {% userlink comment.author %} 
+                        {% userlink comment.author %} &bull; <a href="/post/edit/{{comment.id}}">edit</a>
                 </tr>
             {% endfor %}
         </table>

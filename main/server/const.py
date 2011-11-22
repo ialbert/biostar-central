@@ -8,15 +8,20 @@ MODERATOR_GROUP = 'mod_group'
 # the minimal reputation needed to 
 MIN_REP = 1
 
-
 # Permissions granted only to admins and moderators. Admins have mod permissions.
 MODERATOR_PERM = ['moderate_post', 'view_deleted']
 ADMIN_PERM = []
 
 # I added here anything that I could think of for the future rather than
 # all post types that are to be implemented. This could make life a lot easier in the future
-POST_NAMES =  "Post Question Answer Comment Guide Blog News Opinion Announcement Article Pony Other".split()
-POST_VALS  = range(len(POST_NAMES))
+# 
+POST_NAMES = "Question Post Guide News Article Answer Comment".split()
+
+# this keeps mappings even when adding more categories
+POST_VALS  = [ abs(hash(word.lower()))/10000 for word in POST_NAMES ]
+
+# posts that require full form
+POST_FULL_FORM = set(POST_NAMES[:-2])
 
 # this can go into the models
 POST_CHOICES  = zip( POST_VALS, POST_NAMES )
