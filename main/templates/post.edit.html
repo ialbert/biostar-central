@@ -1,0 +1,96 @@
+{% extends "base.nosidebar.html" %}
+
+{% block subheader %}
+  <h2>{{params.title}}</h2>
+{% endblock %}
+
+{% block custom-frameworks %}
+    <!-- markitUp editor -->
+    <script type="text/javascript" src="/static/markitup/jquery.markitup.js"></script>
+    <link rel="stylesheet" type="text/css" href="/static/markitup/skins/markitup/style.css" />
+    <link rel="stylesheet" href="/static/markitup/sets/markdown/style.css" type="text/css"/>
+    <script type="text/javascript" src="/static/markitup/sets/markdown/set.js"></script>
+       
+    <script type="text/javascript" >
+        $(document).ready(function() {
+            $("#editor").markItUp(mySettings);
+        });
+    </script>
+
+
+
+{% endblock %}
+
+
+{% block mainbar %}
+    <div class="content">
+        
+        {{ form.errors }}
+        <form action="{{request.path}}" method="post">
+            
+        {% csrf_token %}
+        
+        <input type="hidden" value={{post_type}} name="post_type">
+        
+        <table bgcolor="#CECECE" style="width: 960px">
+            
+            {% if form.title.value %}
+            <tr>
+                <td>Title</td>
+                <td>
+                    {{ form.title.errors }}
+                    <input type="text" value="{{ form.title.value }}" name="title" size="80"i
+                    style="width: 700px" />
+                </td>
+            </tr>
+            {% endif %}
+            
+            <tr>
+                <td>Content</td>
+                <td>
+                    {{ form.content.errors }}
+                    <textarea id="editor" name="content" cols="80" rows="15" >{{ form.content.value }}</textarea>
+                </td>
+            </tr>
+
+            <tr>
+                <td>Preview</td>
+                <td>
+
+                    <div>
+                        <div id="markItUpPreview" class="markItUpPreview"></div>
+                    </div>
+                </td>
+            </tr>
+
+            {% if form.tags.value %}
+            <tr>
+                <td>Tags</td>
+                <td>
+                    {{ form.tags.errors }}
+                    <input type="text" value="{{ form.tags.value }}" name="tags" size="80"
+                    style="width: 700px"/>
+                </td>
+            </tr>
+            {% endif %}
+
+
+            {% if params.show_type %}
+            <tr>
+                <td>Post type</td>
+                <td>
+                    {{ form.post_type   }}
+                </td>
+            </tr>
+            {% endif %}
+
+            <tr>
+                <td>&nbsp;</td>
+                <td>
+                    <input style="margin-top:10px;" type="submit" name="submit" value="Submit">
+                </td>
+            </tr>
+        </table>
+        </form>
+    </div>
+{% endblock %}
