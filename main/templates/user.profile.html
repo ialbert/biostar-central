@@ -62,7 +62,7 @@
 
 <td valign="top" align="center">
 <div class="autobiography" style="margin: 1em">
-{{ profile.about_me|markdown }}
+{{ profile.about_me|force_escape|markdown }}
 </div>
 </td>
 </tr>

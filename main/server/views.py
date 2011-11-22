@@ -93,10 +93,17 @@ def post_show(request, pid):
         question.save()
         
     #qs = models.Post.all_objects if 'view_deleted' in request.permissions else models.Post.objects
-    answers = models.Post.answers.filter(parent=question)
+    answers = models.Post.objects.filter(parent=question).select_related('author', 'author__profile') 
     answers = answers.order_by('-answer_accepted','-score')
-    
-    return html.template( request, name='post.show.html', question=question, answers=answers )
+
+    if request.user.is_authenticated():
+        votes = models.Vote.objects.filter(author=request.user, post__id__in=[question.id] + [a.id for a in answers]) 
+    else:
+        votes = []
+    up_votes = set(vote.post.id for vote in votes if vote.type == const.VOTE_UP)
+    down_votes = set(vote.post.id for vote in votes if vote.type == const.VOTE_DOWN)
+     
+    return html.template( request, name='post.show.html', question=question, answers=answers, up_votes=up_votes, down_votes=down_votes )
 
 def form_revision(post, form):
     "Creates a revision from a form post"

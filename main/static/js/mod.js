@@ -13,7 +13,8 @@ function mod_link_clicked(link){
     if(confirm('Are you sure you want to ' + action + ' the post?')){
         $.post('/moderate/' , {post:post, action:action},
         function(data){
-            popover(link.parent(), data.msg, data.status)
+            popover(link.parent(), data.msg, data.status);
+			window.location.reload()
         }, 'json');
     }
 }

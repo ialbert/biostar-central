@@ -33,7 +33,7 @@
             <table>
                 <tr>
                     <td valign="top" class="votecell"> 
-                        {% votebox question %}
+                        {% votebox question up_votes down_votes %}
                     </td>
                     <td>
                         <div class="post-text">
@@ -96,7 +96,7 @@
                 <table border="0">
                     <tr>
                         <td>
-                            {% votebox answer %}
+                            {% votebox answer up_votes down_votes %}
                             {% if answer.answer_accepted %}
                                 <br>
                                 <div class="vote-accepted"></div>

@@ -65,8 +65,8 @@ tag_finder = re.compile('[^a-z]([a-z]+)[^a-z]')
 # returns a list of tags from a tagstring
 def parse_tag_string(rawtagstr):
     """
-    # parse_tag_string(" xtagx ybagy zmagz ")
-    # 'tag1 tag2 tag3
+    >>> parse_tag_string(" tag bag mag ")
+    'tag bag mag'
     """
     tags = [ t.strip() for t in tag_finder.findall(rawtagstr) ]
     tags = filter(None, tags)
