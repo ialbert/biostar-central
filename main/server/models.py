@@ -6,6 +6,7 @@ the queries necessary to fetch a certain entry.
 
 """
 from django.db import models
+from django.db import transaction
 from django.contrib.auth.models import User, Group
 from django.contrib import admin
 from mptt.models import MPTTModel, TreeForeignKey
@@ -155,6 +156,7 @@ class Post(MPTTModel):
     def is_owner(self, user):
         return (self.author == user)
     
+    @transaction.commit_on_success
     def create_revision(self, content=None, title=None, tag_string=None, author=None, date=None):
         """
         Creates a new revision of the post with the given data.
@@ -174,25 +176,20 @@ class Post(MPTTModel):
         #content = "\n".join( content.splitlines() )
         
         # creates a new revision for the post
-        revision = PostRevision(post=self, content=content, tag_string=tag_string, title=title, author=author, date=date)
-        revision.save()
+        revision = PostRevision.objects.create(post=self, content=content, tag_string=tag_string, title=title, author=author, date=date)
                 
         # create a notification for the post that includes all authors of every child
-        authors = set( [ self.author ] )
-        
         root = self.get_root()
-        print "root=%s, author=%s" % (root.id, root.author.id)
-        
-        for child in self.get_root().get_descendants():
+        authors = set( [ root.author ] )
+        for child in root.get_descendants():
             authors.add( child.author )
+            authors.add( child.lastedit_user )
          
         # removes the current author
-        #authors.discard(author)
+        authors.discard(author)
         
-        print authors
-        
-        for author in authors:
-           note = Note.objects.create(target=self.author, author=author, root=self.get_root(), anchor=self)
+        for target in authors:
+           note = Note.objects.create(target=target, author=author, root=root, anchor=self)
            
         # Update our metadata
         self.lastedit_user = author

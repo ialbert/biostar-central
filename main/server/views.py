@@ -41,9 +41,8 @@ def user_profile(request, uid):
     profile.writeable = profile.authorize(request.user)
     questions = models.Post.objects.filter(author=user, post_type=POST_QUESTION).select_related('author','author__profile')
     answers   = models.Post.objects.filter(author=user, post_type=POST_ANSWER).select_related('author', 'author_profile', 'parent__author','parent__author__profile')
+    notes     = models.Note.objects.filter(target=user).select_related('author', 'author__profile', 'root').order_by('-date')[:15]
     
-    notes     = models.Note.objects.filter(target=user).select_related('author', 'author__profile', 'root').order_by('-date')[:10]
-    #notes = []
     return html.template(request, name='user.profile.html',
         user=request.user, profile=profile, selected=user,
         questions=questions.order_by('-score'),
@@ -98,7 +97,7 @@ def post_show(request, pid):
     answers = answers.order_by('-answer_accepted','-score')
 
     if request.user.is_authenticated():
-        #notes = models.Note.objects.filter(target=request.user, root=question).all().delete()
+        notes = models.Note.objects.filter(target=request.user, root=question).all().delete()
         votes = models.Vote.objects.filter(author=request.user, post__id__in=[question.id] + [a.id for a in answers]) 
         question.views += 1
         question.save()
