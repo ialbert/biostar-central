@@ -29,7 +29,12 @@
   <div style="margin: 2em">
     
     <div class="L W">Display Name</div>
-    <div class="L"><b>{{ selected.profile.display_name }}</b> | <a href="/user/edit/{{selected.id}}/">edit</a></div>
+    <div class="L"><b>{{ selected.profile.display_name }}</b>  
+        {% if profile.writeable %} 
+            | <a href="/user/edit/{{selected.id}}/">edit</a>
+        {% endif %}
+    </div>
+
     <div class="C"></div>
     
     <div class="L W">Userid</div>
@@ -67,6 +72,14 @@
 </td>
 </tr>
 </table>
+
+
+    {% if profile.writeable %} 
+    <h2>Notes</h2>
+        {% for note in notes %}
+            <div>{% time_ago note.date %} {{note.post.title}} by {{ note.author.profile.display_name }}</div>
+        {% endfor %}
+    {% endif %}
 
 
   <h2>Asked</h2>  

@@ -7,38 +7,44 @@ register = template.Library()
 
 @register.inclusion_tag('widgets/comments.html', takes_context=True)
 def comments(context, post):
-    return { 'post':post }
+    user = context['request'].user
+    return { 'post':post, 'user':user }
 
-@register.inclusion_tag('widgets/userlink.html')
+@register.inclusion_tag('widgets/user.link.html')
 def userlink(user):
     return {'user':user}
     
-@register.inclusion_tag('widgets/taglink.html')
+@register.inclusion_tag('widgets/tag.link.html')
 def taglink(tag_name):
     return {'tag_name':tag_name}
 
-@register.inclusion_tag('widgets/userrep.html')
+@register.inclusion_tag('widgets/user.rep.html')
 def userrep(user):
     return {'user':user}
 
-@register.inclusion_tag('widgets/editbox.html', takes_context=True)
+@register.inclusion_tag('widgets/user.notes.html')
+def usernotes(user):
+    note_count = user.profile.note_count
+    return {'user':user, 'note_count':note_count}
+
+@register.inclusion_tag('widgets/edit.box.html', takes_context=True)
 def editbox(context, user, post):
     editable = post.authorize(user, strict=False)
     return { 'user':user, 'post':post, 'editable':editable, 'request':context['request']}
     
-@register.inclusion_tag('widgets/badgeicon.html')
+@register.inclusion_tag('widgets/badge.icon.html')
 def badgeicon(type):
     return {'type':type}
 
-@register.inclusion_tag('widgets/actionbox.html')
+@register.inclusion_tag('widgets/action.box.html')
 def actionbox(user, date, action='asked'):
     return {'user':user, 'date':date, 'action':action}
     
-@register.inclusion_tag('widgets/userbox.html')
+@register.inclusion_tag('widgets/user.box.html')
 def userbox(user):
     return {'user':user}
     
-@register.inclusion_tag('widgets/revisionbox.html')
+@register.inclusion_tag('widgets/revision.box.html')
 def revisionbox(post):
     return {'post':post}
 
@@ -63,7 +69,7 @@ def gravatar(user, size=80):
         'size':str(size)})
     return """<img src="%s" alt="gravatar for %s"/>""" % (gravatar_url, user.username)
 
-@register.inclusion_tag('widgets/pagebar.html', takes_context=True)
+@register.inclusion_tag('widgets/page.bar.html', takes_context=True)
 def pagebar(context):
     return {
         'page': context['page'],

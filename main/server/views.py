@@ -8,6 +8,7 @@ from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.contrib.auth import authenticate, login, logout
+from django.contrib import messages
 from django.conf import settings
 from django.http import HttpResponse
 from django.db.models import Q
@@ -25,7 +26,7 @@ def get_questions():
 
 def index(request):
     "Main page"
-    
+
     # eventually we will need to order by relevance
     qs = get_questions()
     qs = qs.order_by('-touch_date')
@@ -36,13 +37,14 @@ def user_profile(request, uid):
     "User's profile page"
     user = models.User.objects.get(id=uid)
     profile = models.UserProfile.objects.get(user=user)
+    profile.writeable = profile.authorize(request.user)
     questions = models.Post.objects.filter(author=user, post_type=POST_QUESTION).select_related('author','author__profile')
     answers   = models.Post.objects.filter(author=user, post_type=POST_ANSWER).select_related('author', 'author_profile', 'parent__author','parent__author__profile')
-
+    notes     = models.Note.objects.filter(user=user).select_related('author', 'author_profile').order_by('-date')[:10]
     return html.template(request, name='user.profile.html',
         user=request.user, profile=profile, selected=user,
         questions=questions.order_by('-score'),
-        answers=answers.order_by('-score'))
+        answers=answers.order_by('-score'), notes=notes)
 
 def user_list(request):
     search  = request.GET.get('search','')[:80] # trim for sanity
@@ -93,7 +95,7 @@ def post_show(request, pid):
         question.save()
         
     #qs = models.Post.all_objects if 'view_deleted' in request.permissions else models.Post.objects
-    answers = models.Post.objects.filter(parent=question).select_related('author', 'author__profile') 
+    answers = models.Post.objects.filter(parent=question, post_type=POST_ANSWER).select_related('author', 'author__profile') 
     answers = answers.order_by('-answer_accepted','-score')
 
     if request.user.is_authenticated():
@@ -237,11 +239,16 @@ def revision_list(request, pid):
    
 @login_required(redirect_field_name='/openid/login/')
 def comment_add(request, pid):
-    
+    "Adds a comment"
     parent  = models.Post.objects.get(pk=pid)
-    content = request.POST['text']
+    content = request.POST['text'].strip()
+    if len(content)<15:
+        messages.warning(request, 'Comment too short!')
+        return show_post(pid=parent.id, slug=parent.slug, anchor=parent.id)
     comment = models.Post(author=request.user, content=content, parent=parent, post_type=POST_COMMENT)
     comment.save()
+    
+    # load the original question if this is an answer
     if parent.post_type == POST_ANSWER:
         parent = parent.parent
     return show_post(pid=parent.id, slug=parent.slug, anchor=comment.id)

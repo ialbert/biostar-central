@@ -37,7 +37,6 @@ from openid.extensions import ax, sreg
 
 from django_openid_auth import teams
 from django_openid_auth.models import UserOpenID
-from django.contrib import messages
 from urlparse import urlparse
 
 class IdentityAlreadyClaimed(Exception):
@@ -47,6 +46,9 @@ class IdentityAlreadyClaimed(Exception):
 class OpenIDBackend:
     """A django.contrib.auth backend that authenticates the user based on
     an OpenID response."""
+
+    supports_anonymous_user = False
+    supports_object_permissions = False
 
     def get_user(self, user_id):
         try:
@@ -170,12 +172,10 @@ class OpenIDBackend:
                 claimed_id__exact=openid_response.identity_url)
         except UserOpenID.DoesNotExist:
             
-            # we need to merge by the email here,
-            # only allow a single merge per user
+            # find other users with the same email, only allow a single merge per user
             others = User.objects.filter(email=user.email, profile__openid_merge=False)
             
             # will only trust certain OpenID providers to do the right thing
-            # otherwise one can hijack accounts via phony OpenID providers
             url = urlparse(openid_response.identity_url)
             
             # let us know if you need more providers
@@ -201,9 +201,9 @@ class OpenIDBackend:
                 
                 # update the profile with the new information
                 user.profile.openid_merge = True
+                user.profile.just_merged  = True
                 user.profile.openid = openid_response.identity_url
-                user.profile.save()
-                
+                user.profile.save()                
 
             user_openid = UserOpenID(
                 user=user,

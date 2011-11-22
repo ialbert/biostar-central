@@ -15,6 +15,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.conf import settings
 from django.http import HttpResponse
 from django.db.models import Q
+from django.contrib import messages
 
 class UserForm(forms.Form):
     "A form representing a new question"
@@ -27,10 +28,9 @@ def user_edit(request, uid):
     "User's profile page"
     user = models.User.objects.select_related('profile').get(id=uid)
     
-    valid = (user==request.user) or request.user.profile.is_moderator
-    
-    if not valid:
-        return html.redirect("/")
+    if not user.profile.authorize(request.user):
+        messages.error(request, "unable to edit this user")
+        return html.redirect("/user/show/%s/" % uid)
         
     if request.method == 'GET':
         initial = dict(

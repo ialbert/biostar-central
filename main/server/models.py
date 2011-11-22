@@ -48,7 +48,7 @@ class UserProfile( models.Model ):
     display_name  = models.CharField(max_length=35, default='User', null=False)
     last_login_ip = models.IPAddressField(default="0.0.0.0", null=True)
     openid_merge  = models.NullBooleanField(default=False, null=True)
-        
+      
     @property
     def is_moderator(self):
         return (self.type == USER_MODERATOR) or (self.type == USER_ADMIN)
@@ -63,11 +63,18 @@ class UserProfile( models.Model ):
         if self.suspended:
             return False
         
-        if self.is_moderator or self.score > 1:
+        if self.is_moderator or self.score >= settings.MINIMUM_REPUTATION:
             return True
         
         # needs more throttles may go here here
         return True
+    
+    def authorize(self, user):
+        return user.is_authenticated() and ((user == self.user) or (user.profile.is_moderator))
+    
+    @property
+    def note_count(self):
+        return Note.objects.filter(user=self.user).count()
 
 class Tag(models.Model):
     name = models.TextField(max_length=50)
@@ -154,10 +161,13 @@ class Post(models.Model):
         #content = "\n".join( content.splitlines() )
         
         # creates a new revision for the post
-
         revision = PostRevision(post=self, content=content, tag_string=tag_string, title=title, author=author, date=date)
         revision.save()
                 
+        # create a notification for the post
+        note = Note(post=self, user=self.author, author=author)
+        note.save()
+
         # Update our metadata
         self.lastedit_user = author
         
@@ -205,9 +215,8 @@ class Post(models.Model):
         
         self.save()
 
-    def authorize(self, user, strict=True):
+    def authorize(self, user, strict=False):
         "Verfifies access by a request object. Strict mode fails immediately."
-        return 1
         valid = user.is_authenticated() and (user.profile.is_moderator or (user == self.author))
         if strict and not valid:
             raise Exception("authorization denied")
@@ -303,7 +312,17 @@ class ModLog(models.Model):
     author    = models.ForeignKey(User, related_name="moderated_by")
     user      = models.ForeignKey(User, null=True, blank=True)
     post      = models.ForeignKey(Post, null=True, blank=True)
-        
+
+class Note(models.Model):
+    """
+    Creates simple notifications that are active until the user deletes them
+    """
+    author    = models.ForeignKey(User, related_name="note_author")
+    user      = models.ForeignKey(User, related_name="note_target")
+    post      = models.ForeignKey(Post, null=True, blank=True)
+    text      = models.CharField(max_length=1000, default='')
+    date      = models.DateTimeField(auto_now_add=True)
+    
 class PostRevision(models.Model):
     """
     Represents various revisions of a single post
@@ -331,7 +350,6 @@ class PostRevision(models.Model):
     def apply(self, dir=1):
         self.post.revision_count += dir
         self.post.save()
-
 
 class Vote(models.Model):
     """
@@ -503,6 +521,5 @@ def tag_created(sender, instance, created, *args, **kwargs):
 signals.post_save.connect( create_profile, sender=User )
 signals.pre_save.connect( create_post, sender=Post )
 signals.pre_save.connect( create_award, sender=Award )
-
 signals.m2m_changed.connect( tags_changed, sender=Post.tag_set.through )
 signals.post_save.connect( tag_created, sender=Tag )

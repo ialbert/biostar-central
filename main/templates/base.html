@@ -26,6 +26,15 @@
         <!-- Biostar specific style sheet and javascript-->
         <link rel="stylesheet" href="{{ STATIC_URL }}biostar.css" type="text/css" media="screen, projection" />
         <script src="{{ STATIC_URL }}biostar.js"></script>
+
+        <script>
+        $(document).ready(function(){
+            $('.close-button').click(function(){
+                $(this).parent().slideUp()
+            });
+        });
+
+        </script>
     {% endblock %}
 
     {% block custom-frameworks %}
@@ -35,17 +44,31 @@
 </head>
 
 <body>
-  
+
+<div>
+    <div id="notify">
+    This is a <b>demo</b> of the new BioStar system. The live site is at <a href="http://www.biostars.org">http://www.biostars.org</a>.  
+    </div>
+</div>
+
+{% block message %}
+    <!-- this is where messages pop up --> 
+     {% if messages %}
+        <div id="messages">
+            {% for message in messages %}
+                <div class="message {{ message.tags }}" id="message{{forloop.counter}}">{{ message }} 
+                [<a class="close-button">x</a>] </div>
+            {% endfor %}                  
+         </div>
+      {% endif %}
+  {% endblock %}
+
+
 <div id="main">
   
-  {% if 1 %}
-  <div id="notify-container">
-    <div id="notify">
-      This is a <b>demo</b> of the new BioStar system. The live site is at <a href="http://www.biostars.org">http://www.biostars.org</a>.  
-    </div>
-  </div>
-  {% endif %}
+  
 
+ 
   <div id="header">
     
     <div id="topbar">
@@ -56,6 +79,7 @@
           
           {%if user.is_authenticated %}
               {% userlink user %}
+              {% usernotes user %}
               {% userrep user %}
               &bull; <a href="/logout/?next_page=/">logout</a> 
               &bull; <a href="/about/">about</a> 
@@ -83,18 +107,7 @@
     
   </div>
  
-  <!-- this is where messages pop up -->
-  {% block message %}
-      {% if messages %}
-          <div class="span-24 last" id="messages">
-              <div class="ui-state-highlight ui-corner-all" style="margin-bottom: 10px; padding: 1em;">
-                  {% for message in messages %}
-                      <div><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>{{ message|safe }}</div>
-                  {% endfor %}
-              </div>
-          </div>
-      {% endif %}
-  {% endblock %}
+  
 
   <div id="content">
     
