@@ -2,7 +2,7 @@
 set -ue
 
 # verbosity level for commands 0=minimal, 2=maximal
-VERBOSITY=0
+VERBOSITY=1
 
 # set a few default environment variables
 BIOSTAR_SRC=`dirname $0`

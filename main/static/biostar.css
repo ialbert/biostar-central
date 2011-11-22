@@ -565,6 +565,10 @@ tr.comment td{
     font-size: 120%;
 }
 
+.note {
+    padding-bottom:4px; 
+}
+
 # editor {
     font-family: Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New;
     border: 1px solid #999;

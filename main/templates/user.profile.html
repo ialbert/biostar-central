@@ -74,10 +74,15 @@
 </table>
 
 
-    {% if profile.writeable %} 
-    <h2>Notes</h2>
+    {% if 1 or profile.writeable and notes%} 
+    <h2>Messages</h2>
+        <div style="padding-bottom:10px;">  First 15 shown. Visiting a page will clear the notifications related to that page</div>
         {% for note in notes %}
-            <div>{% time_ago note.date %} {{note.post.title}} by {{ note.author.profile.display_name }}</div>
+            <div class="note">
+            {% time_ago note.date %}
+            <a href="/user/show/{{note.author.id}}/">{{ note.author.profile.display_name }}</a> commented on 
+            <a href="/post/show/{{note.root.id}}/{{note.root.slug}}/#{{note.anchor.id}}">{{note.root.title}}</a>
+            </div>
         {% endfor %}
     {% endif %}
 

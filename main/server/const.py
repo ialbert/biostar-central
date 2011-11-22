@@ -15,14 +15,14 @@ ADMIN_PERM = []
 
 # I added here anything that I could think of for the future rather than
 # all post types that are to be implemented. This could make life a lot easier in the future
-POST_VALS =  "Post Question Answer Comment Guide Blog News Opinion Announcement Article Other".split()
-POST_NUMS = range(len(POST_VALS))
+POST_NAMES =  "Post Question Answer Comment Guide Blog News Opinion Announcement Article Pony Other".split()
+POST_VALS  = range(len(POST_NAMES))
 
 # this can go into the models
-POST_CHOICES  = zip( POST_NUMS, POST_VALS )
+POST_CHOICES  = zip( POST_VALS, POST_NAMES )
 
-# allows quick check for valid post values
-POST_MAP      = dict(zip( POST_VALS, POST_NUMS ))
+# allows quick check for valid post names or values
+POST_MAP      = dict(zip( POST_NAMES, POST_VALS ))
 POST_REV_MAP  = dict( [ (v, k) for k,v in POST_MAP.items() ] )
 
 # convenience constants

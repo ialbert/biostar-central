@@ -3,6 +3,7 @@ Biostar views
 """
 from main.server import html, models, const, formdef
 from main.server.html import get_page
+from datetime import datetime
 
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
@@ -40,7 +41,9 @@ def user_profile(request, uid):
     profile.writeable = profile.authorize(request.user)
     questions = models.Post.objects.filter(author=user, post_type=POST_QUESTION).select_related('author','author__profile')
     answers   = models.Post.objects.filter(author=user, post_type=POST_ANSWER).select_related('author', 'author_profile', 'parent__author','parent__author__profile')
-    notes     = models.Note.objects.filter(user=user).select_related('author', 'author_profile').order_by('-date')[:10]
+    
+    notes     = models.Note.objects.filter(target=user).select_related('author', 'author__profile', 'root').order_by('-date')[:10]
+    #notes = []
     return html.template(request, name='user.profile.html',
         user=request.user, profile=profile, selected=user,
         questions=questions.order_by('-score'),
@@ -88,20 +91,21 @@ def post_show(request, pid):
     "Returns a question with all answers"
     
     qs = models.Post.objects
-    question = qs.filter(post_type=POST_QUESTION).select_related('children', 'votes').get(id=pid)
-    
-    if request.user.is_authenticated():
-        question.views += 1
-        question.save()
+    question = qs.select_related('children', 'votes').get(id=pid)
         
     #qs = models.Post.all_objects if 'view_deleted' in request.permissions else models.Post.objects
     answers = models.Post.objects.filter(parent=question, post_type=POST_ANSWER).select_related('author', 'author__profile') 
     answers = answers.order_by('-answer_accepted','-score')
 
     if request.user.is_authenticated():
+        #notes = models.Note.objects.filter(target=request.user, root=question).all().delete()
         votes = models.Vote.objects.filter(author=request.user, post__id__in=[question.id] + [a.id for a in answers]) 
+        question.views += 1
+        question.save()
     else:
-        votes = []
+        notes, votes = [], []
+        
+        
     up_votes = set(vote.post.id for vote in votes if vote.type == const.VOTE_UP)
     down_votes = set(vote.post.id for vote in votes if vote.type == const.VOTE_DOWN)
      
@@ -117,12 +121,15 @@ def form_revision(post, form):
     tag_string = html.tag_strip(tags)    
     post.create_revision(content=content, tag_string=tag_string, title=title)
 
-def show_post(pid, slug='title', anchor=None):
-    if anchor:
-        url = '/post/show/%s/%s/#%s' % (pid, slug, anchor)
-    else:
-        url = '/post/show/%s/%s/' % (pid, slug)
-    
+def show_post(post, anchor=None):
+    """
+    Shows a post in full context
+    """
+    # get the root of a post
+    root = post.get_root()
+    pid, slug = root.id, root.slug
+    anchor = anchor or post.id
+    url = '/post/show/%s/%s/#%s' % (pid, slug, anchor)
     return html.redirect(url)
     
 @login_required(redirect_field_name='/openid/login/')
@@ -160,19 +167,15 @@ def post_edit(request, pid=0, ptype=POST_QUESTION):
             return html.template( request, name='edit.post.html', form=form, params=params)
         if newpost:
             with transaction.commit_on_success():
-                post = models.Post.objects.create(author=request.user, post_type=ptype)
+                post = models.Post.objects.create(author=request.user, post_type=ptype, creation_date=datetime.now() )
                 form_revision(post=post, form=form)
         else:
             post = models.Post.objects.get(pk=pid)
             post.authorize(user=request.user)
             form_revision(post=post, form=form)
         
-        # redirect to parent if exists
-        if post.parent:
-            return show_post(post.parent.id, post.parent.slug, post.id)
-        else:
-            return show_post(post.id, post.slug)
-    
+        return show_post(post)
+        
     # there is no incomig data render the forms
     else:
         if newpost:
@@ -202,15 +205,15 @@ def post_content(request, pid=0):
     if form_data:
         form = formdef.ContentForm(request.POST)
         if not form.is_valid():
-            return show_post(post.id, post.slug, 'post-answer')
+            return show_post(post, anchor='post-answer')
         
         with transaction.commit_on_success():
-            content = models.Post.objects.create(author=request.user, post_type=post_type, parent=post)
+            content = models.Post.objects.create(author=request.user, post_type=post_type, parent=post, creation_date=datetime.now())
             form_revision(post=content, form=form) 
         
-        return show_post(post.id, post.slug, content.id)
+        return show_post(content)
         
-    return show_post(post.id, post.slug)
+    return show_post(post)
     
         
 def revision_list(request, pid):
@@ -242,16 +245,15 @@ def comment_add(request, pid):
     "Adds a comment"
     parent  = models.Post.objects.get(pk=pid)
     content = request.POST['text'].strip()
-    if len(content)<15:
+    if len(content)<1:
         messages.warning(request, 'Comment too short!')
-        return show_post(pid=parent.id, slug=parent.slug, anchor=parent.id)
-    comment = models.Post(author=request.user, content=content, parent=parent, post_type=POST_COMMENT)
+        return show_post(parent)
+        
+    comment = models.Post(author=request.user, parent=parent, post_type=POST_COMMENT, creation_date=datetime.now())
     comment.save()
+    comment.create_revision(content=content)
     
-    # load the original question if this is an answer
-    if parent.post_type == POST_ANSWER:
-        parent = parent.parent
-    return show_post(pid=parent.id, slug=parent.slug, anchor=comment.id)
+    return show_post(comment)
     
 def vote(request):
     "Handles all voting on posts"
