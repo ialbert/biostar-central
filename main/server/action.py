@@ -4,7 +4,7 @@ Too many viewa in the main views.py
 Started refactoring some here, this will eventually store all form based
 actions whereas the main views.py will contain url based actions.
 """
-from main.server import html, models
+from main.server import html, models, const
 from main.server.html import get_page
 
 from django import forms
@@ -52,7 +52,22 @@ def user_edit(request, uid):
             user.profile.save()
             user.save()
             return html.redirect("/user/show/%s/" % user.id)
-         
+
+def about(request):
+    "Renders the about page"
+
+    post_count     = models.Post.objects.filter(deleted=False).count()
+    question_count = models.Post.objects.filter(deleted=False, post_type=const.POST_QUESTION).count()
+    answer_count   = models.Post.objects.filter(deleted=False, post_type=const.POST_ANSWER).count()
+    comment_count  = models.Post.objects.filter(deleted=False, post_type=const.POST_COMMENT).count()
+    user_count = models.User.objects.filter(profile__suspended=False).count()
+
+    params = html.Params(post_count=post_count, user_count=user_count, question_count=question_count, 
+        answer_count=answer_count, comment_count=comment_count)
+
+    return html.template(request, name='about.html', params=params)
+   
+
 def modlog_list(request):
     "Lists moderator actions"
     mods = models.ModLog.objects.select_related('author', 'user', 'post', 'author_profile').order_by('-date')

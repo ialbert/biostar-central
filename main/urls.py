@@ -14,8 +14,8 @@ urlpatterns = patterns('',
     (r'^$', 'main.server.views.index'),
 
     # static pages
-    ('^about/$', direct_to_template, {'template': 'about.html'}),
-    ('^tools/$', direct_to_template, {'template': 'tools.html'}),
+    (r'^about/$','main.server.action.about'),
+    (r'^tools/$', direct_to_template, {'template': 'tools.html'}),
 
     # tags
     (r'^tag/list/$', 'main.server.views.tag_list'),
