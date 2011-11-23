@@ -154,6 +154,9 @@ def post_edit(request, pid=0, parentid=0, post_type=POST_QUESTION):
     Handles post related edits for all posts
     """
     
+    # a shortcut
+    user = request.user
+
     # new post creation
     newpost = (pid == 0)
 
@@ -168,7 +171,9 @@ def post_edit(request, pid=0, parentid=0, post_type=POST_QUESTION):
     post_type_name = POST_REV_MAP.get(post_type,'')
 
     # select the form factory from the post types
-    if post_type_name in POST_FULL_FORM:
+    use_post_form = (post_type_name in POST_FULL_FORM)
+
+    if use_post_form:
         factory = formdef.PostForm
     else:
         factory = formdef.ContentForm
@@ -182,14 +187,15 @@ def post_edit(request, pid=0, parentid=0, post_type=POST_QUESTION):
     # deal with new post creation first
     if newpost:
         # this here is to customize the output
-
-        params = html.Params(title="New %s" % post_type_name ) 
+        params = html.Params(title="New %s" % post_type_name, use_post_form=use_post_form ) 
 
         if form_data:
             form = factory(request.POST)
             if not form.is_valid():
                 return html.template(request, name='post.edit.html', form=form, params=params)
-            post = models.Post.objects.create(author=request.user, post_type=post_type, parent=parent, creation_date=datetime.now() )
+            post = models.Post.objects.create(author=user, post_type=post_type, parent=parent, creation_date=datetime.now() )
+            text = CREATE_NOTICE.get(post_type, "?")
+            post.notify(user=user, text=text)
             process_form(post, form, user=request.user)
             return show_post(post)
 
@@ -206,10 +212,10 @@ def post_edit(request, pid=0, parentid=0, post_type=POST_QUESTION):
     post_type = post.post_type
     
     post_type_name = POST_REV_MAP.get(post_type,'')
-    params = html.Params(title="Edit %s" % post_type_name) 
-
+   
     # select the form factory from the post types
-    if post_type_name in POST_FULL_FORM:
+    use_post_form = (post_type_name in POST_FULL_FORM)
+    if use_post_form:
         factory = formdef.PostForm
     else:
         factory = formdef.ContentForm
@@ -217,6 +223,8 @@ def post_edit(request, pid=0, parentid=0, post_type=POST_QUESTION):
     # verify that this user may indeed modify the post
     post.authorize(user=request.user, strict=True)
     
+    params = html.Params(title="Edit %s" % post_type_name, use_post_form=use_post_form) 
+
     # no form data coming, return the editing form
     if not form_data:
         form = factory(initial=dict(title=post.title, content=post.content, tags=post.tag_string))
@@ -226,6 +234,7 @@ def post_edit(request, pid=0, parentid=0, post_type=POST_QUESTION):
         form = factory(request.POST)
         if not form.is_valid():
             return html.template(request, name='post.edit.html', form=form, params=params)
+        text = EDIT_NOTICE.get(post_type, "?")
         process_form(post=post, form=form, user=request.user)        
         return show_post(post)    
 

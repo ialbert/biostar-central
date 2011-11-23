@@ -27,9 +27,10 @@
 <form action="/user/edit/{{user.id}}/" method="post">
 {% csrf_token %}
 {{form.as_p}}
-<p><label for="input">&nbsp;</label><input id="input" type="submit" value="submit" name="submit" />
+<p><label for="input">&nbsp;</label><input id="input" type="submit" value="submit" name="submit" /> 
+&nbsp;(<a href="http://en.wikipedia.org/wiki/Markdown">markdown<a> ok)
 </p>
-<div style="font-size:smaller;"> Note: you may use <a href="http://en.wikipedia.org/wiki/Markdown">markdown syntax<a> in the About Me box.</div>
+
 </form>
 
 {% endblock %}

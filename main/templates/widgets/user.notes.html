@@ -1,5 +1,9 @@
 {% load basic %}
 
 {% spaceless %}
-    ({{note_count}} message{{ note_count|pluralize }})
+    {% if note_count %}
+        (<a href="/user/show/{{user.id}}/#messages">{{note_count}} message{{note_count|pluralize}}</a>) &bull;
+    {% else %}
+        (no messages)
+    {% endif %}
 {% endspaceless %}

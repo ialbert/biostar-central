@@ -73,21 +73,22 @@
 </tr>
 </table>
 
-
-    {% if 1 or profile.writeable and notes%} 
-    <h2>Messages</h2>
-        <div style="padding-bottom:10px;">
-          <div>This page shows activity on posts you have interacted with (only the first 15 notifications are shown).</div>
+    <h2 id="messages">Messages</h2>
+        <div class="note">
+          <div>This page shows activity on posts you have interacted with (only the first 25 may be shown).</div>
           <div>Visiting a page will clear the notifications related to that page.
-          You may also <a href="/note/clear/">clear all</a> of your notifications</div>
+          You may also <a href="/note/clear/{{selected.id}}/">clear all</a> of your notifications</div>
         </div>
+   {% if notes %} 
         {% for note in notes %}
             <div class="note">
             &bull; {% time_ago note.date %}
-            <a href="/user/show/{{note.author.id}}/">{{ note.author.profile.display_name }}</a> commented on 
+            <a href="/user/show/{{note.author.id}}/">{{ note.author.profile.display_name }}</a> {{ note.text }} to 
             <a href="/post/show/{{note.root.id}}/{{note.root.slug}}/#{{note.anchor.id}}">{{note.root.title}}</a>
             </div>
         {% endfor %}
+    {% else %}
+        <div class="note">no messages</div>
     {% endif %}
 
 

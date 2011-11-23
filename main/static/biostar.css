@@ -42,7 +42,16 @@ p {
 }
 
 .warning {
-    background-color: #F4A83D;
+    background-color: #D7615F;
+	font-weight: bold;
+	text-align: center;
+	margin-bottom:4px;
+    padding:5px;
+    margin: 0px 0px 3 3;
+}
+
+.info {
+    background-color: #B4D75F;
 	font-weight: bold;
 	text-align: center;
 	margin-bottom:4px;
@@ -51,7 +60,7 @@ p {
 }
 
 .warning a {
-    background-color: #F4A83D;
+    background-color: #D7615F;
 	text-decoration: underline;
 }
 
@@ -446,8 +455,11 @@ a:hover, a.question-title {
 }
 
 .autobiography {
-  width: 30em; height: 15em; padding: 0.3em 0.5em 0.3em 0.5em;
-  overflow: auto; text-align: left; border: 2px solid gray;
+  width: 35em; height: 15em; 
+  padding: 0.1em 0.3em 0.1em 0.3em;
+  overflow: auto; text-align: left; 
+  border: 1px solid gray;
+  background-color: #EEEEEE;
 }
 
 /* Question status */
@@ -566,7 +578,8 @@ tr.comment td{
 }
 
 .note {
-    padding-bottom:4px; 
+    padding: 6px 0 6px 0; 
+	border-bottom: 1px dotted #CECECE;
 }
 
 # editor {

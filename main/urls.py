@@ -46,11 +46,7 @@ urlpatterns = patterns('',
     (r'^post/show/(?P<pid>\d+)/$', 'main.server.views.post_show'),
     (r'^post/show/(?P<pid>\d+)/([-\w]+)/$', 'main.server.views.post_show'),
     
-    #(r'^post/edit/(?P<pid>\d+)/$', 'main.server.views.question_edit'),
-    
-    # handles a generic new posts
-    (r'^post/new/$','main.server.views.post_edit'),
-    
+   
     # editing an existing post/answer/comment
     (r'^post/edit/(?P<pid>\d+)/$','main.server.views.post_edit'),
     
@@ -66,15 +62,13 @@ urlpatterns = patterns('',
     # editing an existing post/answer/comment
     (r'^post/edit/(?P<pid>\d+)/(?P<parent>\d+)/$','main.server.views.post_edit'),
    
-
-    # editing a comment
-    #(r'^comment/new/(?P<pid>\d+)/$', 'main.server.views.comment_add'),
-    
     # voting handler
     (r'^vote/$', 'main.server.views.vote'),
     (r'^moderate/$', 'main.server.views.moderate'),
     (r'^modlog/list/$', 'main.server.action.modlog_list'),
-   
+    (r'^note/clear/(?P<uid>\d+)/$','main.server.action.note_clear'),
+    
+
     # openid authentication
     (r'^openid/', include('django_openid_auth.urls')),
     (r'^logout/$', 'django.contrib.auth.views.logout',  {'next_page':'/'}),

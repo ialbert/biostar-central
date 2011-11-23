@@ -59,4 +59,14 @@ def modlog_list(request):
     page = get_page(request, mods)
     return html.template(request, name='modlog.list.html', page=page)
     
-        
+def note_clear(request, uid):
+    "Clears all notifications of a user"
+    user = models.User.objects.get(pk=uid)
+    # you may only delete your own messages
+    if user == request.user:
+        messages.info(request, "All messages have been deleted")
+        models.Note.objects.filter(target=user).all().delete()
+    else:
+        messages.warning(request, "You may only delete your own messages")
+    return html.redirect("/user/show/%s/" % user.id)
+       

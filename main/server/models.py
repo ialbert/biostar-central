@@ -157,6 +157,21 @@ class Post(MPTTModel):
         return (self.author == user)
     
     @transaction.commit_on_success
+    def notify(self, user, text='no text'):
+        "Generates notifications to all users related with this post"
+        # create a notification for the post that includes all authors of every child
+        root = self.get_root()
+        authors = set( [ root.author ] )
+        for child in root.get_descendants():
+            authors.add( child.author )
+            authors.add( child.lastedit_user )
+         
+        # removes the user that generated the message
+        authors.discard(user)
+
+        for target in authors:
+           note = Note.objects.create(target=target, author=user, root=root, anchor=self, text=text)
+
     def create_revision(self, content=None, title=None, tag_string=None, author=None, date=None, action=REV_NONE):
         """
         Creates a new revision of the post with the given data.
@@ -177,27 +192,12 @@ class Post(MPTTModel):
         # transform the content to UNIX style line endings
         content = content.replace('\r\n', '\n')
         content = content.replace('\r', '\n')
-        #content = "\n".join( content.splitlines() )
         
         # creates a new revision for the post
         revision = PostRevision.objects.create(post=self, content=content, tag_string=tag_string, title=title, author=author, date=date, action=action)
-                
-        # create a notification for the post that includes all authors of every child
-        root = self.get_root()
-        authors = set( [ root.author ] )
-        for child in root.get_descendants():
-            authors.add( child.author )
-            authors.add( child.lastedit_user )
-         
-        # removes the current author
-        authors.discard(author)
-        
-        for target in authors:
-           note = Note.objects.create(target=target, author=author, root=root, anchor=self)
-           
+                  
         # Update our metadata
         self.lastedit_user = author
-        
         self.content = content
         self.title = title
         self.set_tags(tag_string)
@@ -499,10 +499,13 @@ from django.template.defaultfilters import slugify
 
 def create_post(sender, instance, *args, **kwargs):
     "Pre save post information that needs to be applied"
+    
     if not hasattr(instance, 'lastedit_user'):
         instance.lastedit_user = instance.author
+    
     if not instance.creation_date:
         instance.creation_date = datetime.now()
+    
     if not instance.lastedit_date:
         instance.lastedit_date = datetime.now()
     

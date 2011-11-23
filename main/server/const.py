@@ -35,6 +35,16 @@ POST_QUESTION = POST_MAP['Question']
 POST_ANSWER   = POST_MAP['Answer']
 POST_COMMENT  = POST_MAP['Comment']
 
+CREATE_NOTICE = {
+    POST_ANSWER  : "added an answer",
+    POST_COMMENT : "added a comment",
+}
+
+EDIT_NOTICE = {
+    POST_ANSWER  : "modified an answer",
+    POST_COMMENT : "modified a comment",
+}
+
 # user types
 USER_NORMAL, USER_MODERATOR, USER_ADMIN = range(0, 3)
 USER_TYPES = ((USER_NORMAL, 'Member'), (USER_MODERATOR, 'Moderator'), (USER_ADMIN, 'Administrator'))

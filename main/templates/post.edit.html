@@ -34,7 +34,7 @@
         
         <table bgcolor="#CECECE" style="width: 960px">
             
-            {% if form.title.value %}
+            {% if params.use_post_form %}
             <tr>
                 <td>Title</td>
                 <td>
@@ -75,7 +75,7 @@
             {% endif %}
 
 
-            {% if params.show_type %}
+            {% if params.use_post_form %}
             <tr>
                 <td>Post type</td>
                 <td>
