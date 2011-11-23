@@ -59,6 +59,11 @@ def time_ago(time):
         return '%d hrs ago' % (delta.seconds // 3600 )
     if delta < timedelta(days=30):
         return '%d days ago' % delta.days
+    
+    # not quite exact
+    diff = delta.days/365.0
+    return '%0.1f years ago' % diff
+    
     return time.strftime('%b %d at %H:%M')
 
 @register.simple_tag

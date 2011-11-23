@@ -236,13 +236,17 @@ def insert_posts(fname, limit, users):
                     post.set_tags(post.tag_string)
                 post.answer_count = acount.get(postid, 0)
                 if parentid:
-                    post.parent = posts[ parents[postid] ]
+                    parent = posts.get(parents[postid])
+                    post.parent = parent
+                    if not parent:
+                        continue
                 post.save()
                 
             posts[postid] = post
             
     return posts
-    
+
+@transaction.commit_manually
 def insert_post_revisions(fname, limit, users, posts):
     """
     Inserts post revisions. Also responsible for parsing out closed/deleted 
@@ -296,19 +300,21 @@ def insert_post_revisions(fname, limit, users, posts):
 
     print "*** inserting %s revisions" % len(glist)
     with transaction.commit_on_success():
-        for guid in glist:
+        for (i, guid) in enumerate(glist):
             data = revs[guid]
             post = data['post']
             del data['post']
             if USE_DB:
+                if (i % 1000 == 0):
+                    print "*** commit at %s" % i
+                    transaction.commit()
                 post.create_revision(**data)
-                post.save() 
 
     print "*** inserting %s moderator actions" % len(alist)
     with transaction.commit_on_success():
         for post, atype, author, date in alist:
             if USE_DB:
-                post.moderator_action(atype, author=author, date=date)
+                post.moderator_action(atype, author=author, date=date)                
     
 def insert_votes(fname, limit, users, posts):
 
@@ -358,16 +364,19 @@ def insert_comments(fname, posts, users, limit):
         author = users[row['UserId']]
         creation_date = parse_time(row['CreationDate'])
         post_type = const.POST_MAP['Comment']
-        trips = postid, cid, dict(author=author, creation_date=creation_date, content=text, html=text, post_type=post_type)
-        clist.append( trips )
+        row = postid, cid, dict(author=author, creation_date=creation_date, content=text, post_type=post_type)
+        clist.append( row )
 
     print "*** inserting %s comments" % len(clist)
     with transaction.commit_on_success():   
-        for postid, cid, param in clist:
-            parent = posts[postid]         
+        for i, (postid, cid, param) in enumerate(clist):            
+            param['parent'] = posts[postid]
             post = models.Post(**param)            
             comms[cid] = post
             if USE_DB:
+                if (i % 1000 == 0):
+                    print "*** commit at %s" % i
+                    transaction.commit()
                 post.save() 
                 
     return comms
@@ -502,12 +511,12 @@ def execute(path, limit=None):
     fname = join(path, 'PostHistory.xml')
     revisions = insert_post_revisions(fname=fname, limit=limit, posts=posts, users=users)
     
-    fname = join(path, 'Posts2Votes.xml')
-    insert_votes(fname=fname, limit=limit, posts=posts, users=users)
-    
     fname = join(path, 'PostComments.xml')
     comms = insert_comments(fname=fname, posts=posts, users=users, limit=limit)
-    
+   
+    fname = join(path, 'Posts2Votes.xml')
+    insert_votes(fname=fname, limit=limit, posts=posts, users=users)
+     
     fname = join(path, 'Comments2Votes.xml')
     insert_comment_votes(fname=fname, limit=limit, comms=comms, users=users)
     

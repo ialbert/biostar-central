@@ -62,8 +62,13 @@ def about(request):
     comment_count  = models.Post.objects.filter(deleted=False, post_type=const.POST_COMMENT).count()
     user_count = models.User.objects.filter(profile__suspended=False).count()
 
+    mods = models.User.objects.filter(profile__type=const.USER_MODERATOR).select_related("profile").all()[:100]
+    admins = models.User.objects.filter(profile__type=const.USER_ADMIN).select_related("profile").all()[:100]
+
+    print list(mods)
+
     params = html.Params(post_count=post_count, user_count=user_count, question_count=question_count, 
-        answer_count=answer_count, comment_count=comment_count)
+        answer_count=answer_count, comment_count=comment_count, admins=admins, mods=mods)
 
     return html.template(request, name='about.html', params=params)
    

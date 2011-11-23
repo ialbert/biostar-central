@@ -22,7 +22,32 @@
     
     <h4>
         Current stats: {{params.user_count|intcomma}} users, {{params.post_count|intcomma}} posts distributed as {{params.question_count|intcomma}} questions, {{params.answer_count|intcomma}} answers and {{params.comment_count|intcomma}} comments.
-    
     </h4>
+
+    <h3>Administrators</h3>
+    {% for user in params.admins %} 
+        <div style="float:left; width:20%">
+            <div class="field">
+                <div class="gravimg">{% gravatar user 36 %}</div>
+                <div><a class="user-link" title="" alt="" href="/user/show/{{user.id}}">{{user.profile.display_name}}</a>&nbsp;{% flair user %}</div>
+                <div>{% userrep user %}</div>
+                <div>{% time_ago user.date_joined %}</div>
+                
+            </div>
+        </div>
+    {% endfor %}
     
+    <div style="clear:both;">&nbsp;</div>
+
+     <h3>Moderators</h3>
+    {% for user in params.mods %}
+        <div style="float:left; width:20%">
+            <div class="field">
+                <div class="gravimg">{% gravatar user 36 %}</div>
+                <div><a class="user-link" title="" alt="" href="/user/show/{{user.id}}">{{user.profile.display_name}}</a>&nbsp;{% flair user %}</div>
+                <div>{% userrep user %}</div>
+                <div>{% time_ago user.date_joined %}</div>
+            </div>
+        </div>
+    {% endfor %}
 {% endblock %}

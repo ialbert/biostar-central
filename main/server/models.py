@@ -117,7 +117,7 @@ class Post(MPTTModel):
     views = models.IntegerField(default=0, blank=True)
     score = models.IntegerField(default=0, blank=True)
 
-    creation_date = models.DateTimeField()
+    creation_date = models.DateTimeField(db_index=True)
     lastedit_date = models.DateTimeField()
     lastedit_user = models.ForeignKey(User, related_name='editor')
     deleted = models.BooleanField()
@@ -142,7 +142,7 @@ class Post(MPTTModel):
     answer_count = models.IntegerField(default=0, blank=True)
    
     # this field will be used to allow posts to float back into relevance
-    touch_date = models.DateTimeField() 
+    touch_date = models.DateTimeField(db_index=True) 
     
     class MPTTMeta:
         order_insertion_by = ['creation_date']
@@ -194,8 +194,9 @@ class Post(MPTTModel):
         content = content.replace('\r', '\n')
         
         # creates a new revision for the post
-        revision = PostRevision.objects.create(post=self, content=content, tag_string=tag_string, title=title, author=author, date=date, action=action)
-                  
+        revision = PostRevision(post=self, content=content, tag_string=tag_string, title=title, author=author, date=date, action=action)
+        revision.save()
+        
         # Update our metadata
         self.lastedit_user = author
         self.content = content
