@@ -128,7 +128,7 @@ def insert_users(fname, limit):
         # these will be profile related attributes
         score = int(row.get('Reputation', 0))
         utype = typemap.get( row['UserTypeId'], const.USER_NORMAL)
-        display_name = row.get('DisplayNameCleaned', 'Biostar User %s' % userid).title()
+        display_name = row.get('DisplayNameCleaned', 'User %s' % userid)
         website  = row.get('WebsiteUrl', '')
         about_me = row.get('AboutMe', '')
         location = row.get('Location', '')

@@ -65,8 +65,6 @@ def about(request):
     mods = models.User.objects.filter(profile__type=const.USER_MODERATOR).select_related("profile").all()[:100]
     admins = models.User.objects.filter(profile__type=const.USER_ADMIN).select_related("profile").all()[:100]
 
-    print list(mods)
-
     params = html.Params(post_count=post_count, user_count=user_count, question_count=question_count, 
         answer_count=answer_count, comment_count=comment_count, admins=admins, mods=mods)
 

@@ -71,7 +71,10 @@ def gravatar(user, size=80):
     gravatar_url = "http://www.gravatar.com/avatar.php?"
     gravatar_url += urllib.urlencode({
         'gravatar_id':hashlib.md5(user.email).hexdigest(),
-        'size':str(size)})
+        'size':str(size),
+        'd':'mm',
+        }
+    )
     return """<img src="%s" alt="gravatar for %s"/>""" % (gravatar_url, user.username)
 
 @register.inclusion_tag('widgets/page.bar.html', takes_context=True)

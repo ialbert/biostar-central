@@ -518,7 +518,7 @@ def create_post(sender, instance, *args, **kwargs):
     instance.html = html.generate(instance.content)
     
     # set the touch date
-    instance.touch_date = instance.lastedit_date
+    instance.touch_date = datetime.now()
     
 def create_award(sender, instance, *args, **kwargs):
     "Pre save award function"

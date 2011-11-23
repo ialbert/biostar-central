@@ -40,18 +40,25 @@ def user_profile(request, uid):
     profile = models.UserProfile.objects.get(user=user)
     profile.writeable = profile.authorize(request.user)
     questions = models.Post.objects.filter(author=user, post_type=POST_QUESTION).select_related('author','author__profile')
+    questions = questions.order_by('-score')[:15]
     answers   = models.Post.objects.filter(author=user, post_type=POST_ANSWER).select_related('author', 'author_profile', 'parent__author','parent__author__profile')
+    answers   = answers.order_by('-score')[:15]
     notes     = models.Note.objects.filter(target=user).select_related('author', 'author__profile', 'root').order_by('-date')[:15]
     
+    answer_count = models.Post.objects.filter(author=user, post_type=POST_ANSWER).count()
+    question_count = models.Post.objects.filter(author=user, post_type=POST_QUESTION).count()
+    comment_count = models.Post.objects.filter(author=user, post_type=POST_COMMENT).count()
+
+    params = html.Params(question_count=question_count, answer_count=answer_count, comment_count=comment_count)
     return html.template(request, name='user.profile.html',
         user=request.user, profile=profile, selected=user,
-        questions=questions.order_by('-score'),
-        answers=answers.order_by('-score'), notes=notes)
+        questions=questions,
+        answers=answers, notes=notes, params=params)
 
 def user_list(request):
     search  = request.GET.get('search','')[:80] # trim for sanity
     if search:
-        query = Q(first_name__icontains=search) | Q(last_name__icontains=search)
+        query = Q(profile__display_name__icontains=search)
         users = models.User.objects.filter(query).select_related('profile').order_by("-profile__score")
     else:
         users = models.User.objects.select_related('profile').order_by("-profile__score")
@@ -109,8 +116,6 @@ def post_show(request, pid):
     down_votes = set(vote.post.id for vote in votes if vote.type == const.VOTE_DOWN)
      
     return html.template( request, name='post.show.html', question=question, answers=answers, up_votes=up_votes, down_votes=down_votes )
-
-
 
 def show_post(post, anchor=None):
     """

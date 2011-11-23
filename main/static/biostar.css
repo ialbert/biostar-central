@@ -4,8 +4,8 @@
 |-------------------------*/
 
 body {
-    font-family: Arial,Helvetica,sans-serif;
-    font-size: 80%;
+    font-family: verdana,arial,helvetica,sans-serif;
+    font-size: small;
     color: #333333;
 }
 
@@ -84,7 +84,7 @@ a, a:visited {
     color: #555555;
 }
 
-a:hover, a.question-title {
+a:hover, a.post-title {
     cursor: pointer;
     text-decoration: underline;
     color:#585858;
@@ -213,6 +213,10 @@ a:hover, a.question-title {
     clear: both;
 }
 
+.searchbox {
+    background-color:#DEDEDE;
+    border-bottom: 1px solid #FEFEFE;
+}
 
 /*
 |-------------------------
@@ -277,20 +281,33 @@ a:hover, a.question-title {
     line-height: 1;
 }
 
+.post-table {
+    vertical-align:top;
+    padding:0px;
+}
+
+.post-table td {
+    border-bottom: 1px dotted #6D6D6D;
+    padding-top: 11px;
+    padding-bottom: 11px;
+}
+
+.pad5 {
+    padding:5px;
+}
+
+.pad10 {
+    padding:10px;
+}
 
 /* Votes/answers/views boxes */
 
 .status, .votes, .views {
-    float: left;
-    width: 38px;
-    height: 38px;
     margin: 0 3px 0 0;
     padding: 5px;
+    height:3.2em;
+    width:4em;
     text-align: center;
-}
-
-.status{
-    width: 48px;
 }
 
 .answered {
@@ -311,16 +328,15 @@ a:hover, a.question-title {
     background: none repeat scroll 0 0 #EEEEEE;
 }
 
-
 .views {
     color: #666666;
 }
 
 .mini-counts
 {
-    font-size: 190%;
+    font-size: 2em;
     font-weight: bold;
-    height: 25px;
+    height: 2ex;
     vertical-align: middle;
     text-align: center;
 }
@@ -328,8 +344,9 @@ a:hover, a.question-title {
 /* Summary */
 
 .summary {
-    float: left;
-    width: 550px;
+    /* float: left;*/
+    /* width: 100%; */
+    /* clear:both; */
 }
 
 .summary a {
@@ -481,6 +498,11 @@ a:hover, a.question-title {
 
 .comment-row td{
     padding: 0;
+}
+
+.comment-text{
+    padding: 0;
+    color: #333333;
 }
 
 .comments {
