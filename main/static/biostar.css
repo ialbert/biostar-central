@@ -119,6 +119,7 @@ a:hover, a.post-title {
     background-color: #EEEEEE;
     padding: 5px;
     width:100%;
+    margin-bottom:3px;
 }
 
 #logo {
@@ -345,6 +346,7 @@ a:hover, a.post-title {
 
 .views {
     color: #666666;
+    width:4.5em;
 }
 
 .mini-counts

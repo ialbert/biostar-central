@@ -122,8 +122,10 @@ def navclass(context, include_path, exclude_paths=''):
 def bignum(number):
     "Reformats numbers with qualifiers as K, M, G"
     try:
-        value = float(number)/1000.0        
-        if value > 1:
+        value = float(number)/1000.0  
+        if value > 10:
+            return "%0.fk" % value
+        elif value > 1:
             return "%0.1fk" % value
     except ValueError, exc:
         pass
