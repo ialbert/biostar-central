@@ -10,17 +10,14 @@ the StackOverflow Q&A engine.
 Our primary goal is to create a simple, generic, flexible and extendeable 
 Q&A framework.
 
-A demo version of this site can be seen at: http://www.biostars.org
-
-**Note**: Please note that software is not yet robust enough for public
-deployment! 
-
 Requirements
 ------------
 
 The software requires only Python_ (2.6 or higher) to run. All other 
 libraries are included in the distribution. The code will run with 
-no changes on all operating system that support Python. 
+no changes on any operating system that supports Python. 
+
+The development version of this site can be seen at: http://devel.biostars.org
 
 Installation
 ------------
@@ -41,12 +38,12 @@ From the command line execute::
 
     $ biostar.sh init populate run
 
-Visit the http://localhost:8080 to view the site. Enjoy.
+Visit the http://localhost:8080 to view your site. Enjoy!
 
 **Note** The Windows version of the biostar.sh manager has not yet
 been written. The site will work just fine on Windows
 but for now users will need to manually invoke the commands
-present in the *biostar.sh* run manager (TODO).
+present in the *biostar.sh* run manager.
 
 Detailed Usage
 --------------
@@ -67,31 +64,40 @@ Alternatively one may run all these commands all at once::
 
     $ biostar.sh init populate server
 
-**Note**: If the database models change you must reset and reinitialize your database::
+**Note**: If database models change you must reset and reinitialize the database::
 
     $ biostar.sh delete init populate
 
 The *biostar.sh* run manager to pulls in environment variables to allow you to 
-customize locations/test fixtures, etc. View the source for well documented examples.
+customize locations/test fixtures, etc. Edit the *biostar.sh* script 
+to override the various settings.
 
 The default server will bind the all IP adapters (0.0.0.0) and port 8080. Visit http://localhost:8080 to see
-interact with your version of the test server. Edit the *biostar.sh* script to override the various settings.
+interact with your version of the test server. 
 
-**Warning**: The default settings will create an application with a default admin user and password!
-Modify the *main/settings.py* file to contain a different password!
+**Warning**: The default settings will create an application with a default admin user and password! 
+Make sure to change the passwords in the django settings file! 
 
 Migration
 ---------
 
-To migrate content from a StackExchange 1 XML datadump one needs to *import* the data. This process
-may take a while (TODO: speeding up import via bulk loading).
-To facilitate the re-import the best practice is that after an *import* takes
-place site admins should *dump* the contents of the database it into a fixture
-that can be reused by the *populate* command. The data fixture loading is
-substantially faster. Therefore to create a new migration one would do the
-following::
+To migrate content from a StackExchange 1 XML datadump one needs to *import* the data via
+the `import/migrate.py` script. This script will need to be able to
+import the django settings module as well. 
+Run this script with the -h flag to see the flags it can take::
 
-	$ biostar.sh import
+	$ python import/migrate.py -h
+
+To facilitate the re-import the best practice is to *dump* the data into a data fixture
+after an *import* takes place. A data fixture may be reused via the *populate* command.
+Thus to create a new migration one would do the following::
+
+	$ biostar delete init import
+
+This may be followed by a `run` command or deployment. Alternatively one may 
+dump the data for easier reuse:
+
+	$ biostar.sh dump
 	$ biostar.sh delete init populate
 
 The *ALLOW_MIGRATION* setting will enable a single automatic account migration
@@ -107,24 +113,31 @@ Layout
 ------
 
 The Python code, templates, static content (css, images, javascript) and default 
-database are found in the *main* directory. 
-There is partial datadump of the existing BioStar content in the 
+database are found in the *main* directory. There is partial datadump of the existing BioStar content in the 
 *import* folder. The *populate* command will load 
 this data into the current database.
 
 Other Libraries
 ---------------
 
-The following software packages are being included into or being used in BioStar:
+Biostar is built with open source libraries. The following software packages are included with BioStar:
 
 * JQuery_ for javascript and 
-* `markitup`_ for rich text javascript editor. 
+* `markitup`_ as rich text javascript editor. 
+* `markdown`_ python library to parse the content
 * `django_openid_auth`_ and `python_openid`_ for openid authentication
 * `pygments`_ for source code highlighting
+* `django_mptt`_ to provides the hierachical data model to keep track of
+* `whoosh`_ provides fast full text searching
+
 
 .. _django_openid_auth: https://launchpad.net/django-openid-auth
 .. _python_openid: http://pypi.python.org/pypi/python-openid/
 .. _pygments: http://pygments.org/
+.. _django_mptt: https://github.com/django-mptt/django-mptt/
+.. _whoosh: https://bitbucket.org/mchaput/whoosh/wiki/Home
+.. _markdow: http://www.freewisdom.org/projects/python-markdown/
+.. `Python`_: http://python.org/
 
 Colorscheme
 -----------
