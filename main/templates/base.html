@@ -47,7 +47,7 @@
 
 <div>
     <div id="notify">
-    This is a <b>demo</b> of the new BioStar system. The live site is at <a href="http://www.biostars.org">http://www.biostars.org</a>.  
+    This is a <b>development version</b> of BioStar. The live site is at <a href="http://www.biostars.org">http://www.biostars.org</a>.  
     </div>
 </div>
 
@@ -70,12 +70,13 @@
 
  
   <div id="header">
-    
+   
     <div id="topbar">
+      
       {% block topbar %}
-          <form id="search2" action="/search" method="get">
-          {% csrf_token %}
-          <div style="float:right">
+          <form id="search" action="/" method="get">
+         
+          <div align="right">
           
           {%if user.is_authenticated %}               
                 {% designation user %}
@@ -90,16 +91,16 @@
                 &bull; <a href="/logout/?next_page=/">logout</a> 
                 
           {% else %}
-              <span class="note">First time here? Learn more <a href="/about/">about Biostar</a>. &bull; <a href="/openid/login/">login</a> 
+              <span>First time here? Learn more <a href="/about/">about Biostar</a>. &bull; <a href="/openid/login/">login</a> </span>
           {% endif %}
                      
-              &bull; Search: <input name="q" class="textbox" tabindex="1" onfocus="if (this.value=='search') this.value = ''" maxlength="80" size="28" value="search-not-yet-working" type="text" disabled="True">
+              &bull; Search: <input name="q" class="textbox" tabindex="1" onfocus="if (this.value=='search') this.value = ''" maxlength="80" size="25" value="{{q}}" type="text"> <input type="submit" value="Go!">
               
               
           </div>
           </form>
         {% endblock %}
-      </td></tr>
+     
     </div>
     
     
@@ -108,7 +109,7 @@
     </div>
     
     <div id="hmenus">
-      {% include "bars/navbar.html" %}
+      {% include "bars/nav.bar.html" %}
     </div>
     
   </div>

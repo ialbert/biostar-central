@@ -11,7 +11,12 @@ from django.template.defaultfilters import stringfilter
 
 @register.filter(name='chunk')
 @stringfilter
-def chunk(text):
+def quick_chunk(text):
+    "Slices off text"
+    return text[:250]
+
+def smart_chunk(text):
+    "Chunks by words"
     size, coll = 0, []
     for word in text.split():
         size += len(word)
@@ -92,11 +97,12 @@ def gravatar(user, size=80):
     )
     return """<img src="%s" alt="gravatar for %s"/>""" % (gravatar_url, user.username)
 
-@register.inclusion_tag('widgets/page.bar.html', takes_context=True)
+@register.inclusion_tag('bars/page.bar.html', takes_context=True)
 def pagebar(context):
     return {
         'page': context['page'],
-        'search': context.get('search',''),
+        'm': context.get('m',''),
+        'q': context.get('q',''),
         'request': context['request'],
     }
     

@@ -39,13 +39,17 @@ def get_posts(request, post_type=POST_QUESTION, user=None):
 def index(request):
     "Main page"
 
-    # these are the posts that match the query words
-    pids = action.search(request)
+    # this will contain the query if it was sent 
+    query = request.REQUEST.get('q','')
+    pids  = action.search(query)
 
-    # eventually we will need to order by relevance
-    qs = get_posts(request)
-    #qs = qs.filter(id__in=pids)
-    qs = qs.order_by('-touch_date')
+    if query:
+        qs = get_posts(request, post_type=None)
+        qs = qs.filter(id__in=pids)
+    else:
+        qs = get_posts(request)
+        
+    qs  = qs.order_by('-touch_date')
     page  = get_page(request, qs, per_page=20)
     return html.template( request, name='index.html', page=page)
 
@@ -71,14 +75,14 @@ def user_profile(request, uid):
         answers=answers, notes=notes, params=params)
 
 def user_list(request):
-    search  = request.GET.get('search','')[:80] # trim for sanity
+    search  = request.GET.get('m','')[:80] # trim for sanity
     if search:
         query = Q(profile__display_name__icontains=search)
         users = models.User.objects.filter(query).select_related('profile').order_by("-profile__score")
     else:
         users = models.User.objects.select_related('profile').order_by("-profile__score")
     page  = get_page(request, users, per_page=20)
-    return html.template(request, name='user.list.html', page=page, rows=7, search=search)
+    return html.template(request, name='user.list.html', page=page)
 
 def tag_list(request):
     tags = models.Tag.objects.all().order_by('-count')

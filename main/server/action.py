@@ -72,14 +72,16 @@ def about(request):
 
     return html.template(request, name='about.html', params=params)
    
-def search(request):
-    text = u"motifs"
+def search(text):
+    text = text.strip()[:200]
+    if not text:
+        return
     ix   = index.open_dir(settings.WHOOSH_INDEX)
     searcher = ix.searcher()
     parser   = QueryParser("content", ix.schema)
     query    = parser.parse(text)
-    results  = searcher.search(query)
-    return [ r['pid'] for r in results ]  
+    results  = searcher.search(query, limit=200)
+    return [ hit['pid'] for hit in results ] 
 
 def modlog_list(request):
     "Lists moderator actions"

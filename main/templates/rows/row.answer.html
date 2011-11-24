@@ -10,17 +10,16 @@
     </td>
 
     <td colspan="2">
-        <div class="votes">
+        <div class="views">
             <div class="mini-counts">A</div>
             <div>answer</div>
-        </div> 
+        </div>
     </td>
 
     <td class="summary">
                    
-         {{post.html|chunk|safe}} ...
-         &bull; <a href="/post/show/{{root.id}}/{{root.slug}}/#{{post.id}}">go to answer</a>
-        
+         <a href="/post/show/{{root.id}}/{{root.slug}}/#{{post.id}}" class="under">Answer {{post.id}}</a>
+         <div class="peek">{{post.html|chunk|safe}}</div>
         <div class="started right">
             <span class="relativetime">{% time_ago post.creation_date %}</span>
             {% userlink post.author %}

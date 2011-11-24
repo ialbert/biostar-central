@@ -18,9 +18,9 @@
 
     <td class="summary">
                    
-         {{post.html|chunk|safe}} ...
-         &bull; <a href="/post/show/{{root.id}}/{{root.slug}}/#{{post.id}}">go to comment</a>
-        
+         <a href="/post/show/{{root.id}}/{{root.slug}}/#{{post.id}}" class="under">Comment {{post.id}}</a>
+         <div class="peek">{{post.html|chunk|safe}}</div>
+         
         <div class="started right">
             <span class="relativetime">{% time_ago post.creation_date %}</span>
             {% userlink post.author %}

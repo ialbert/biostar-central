@@ -1,0 +1,23 @@
+<div id="page-bar">
+    <div style="width:13em; float:left;">view: narrow | expanded</div>
+
+    <div align="center">
+    {% if page.has_previous %}
+        &lt;<a href="{{request.path}}?page={{page.previous_page_number}}&m={{m}}&q={{q}}">previous</a>
+        &bull; <a href="{{request.path}}?page=1&m={{m}}&q={{q}}">first</a>
+    {% else %}
+        <span style="color:#555555;">&lt;previous &bull; first</span>
+    {% endif %}
+
+    &bull; page {{ page.number }} of {{ page.paginator.num_pages }} {{q}}
+
+    
+    {% if page.has_next %}
+        &bull; <a href="{{request.path}}?page={{page.paginator.num_pages}}&m={{m}}&q={{q}}">last</a>
+        &bull; <a href="{{request.path}}?page={{page.next_page_number}}&m={{m}}&q={{q}}">next</a>&gt;
+    {% else %}
+        <span style="color:#555555;">&bull; last &bull; next&gt;</span>
+    {% endif %}
+    </div>
+
+</div>
