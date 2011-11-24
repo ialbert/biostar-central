@@ -43,8 +43,8 @@ def index(request):
     pids = action.search(request)
 
     # eventually we will need to order by relevance
-    qs = get_posts(request, post_type=None)
-    qs = qs.filter(id__in=pids)
+    qs = get_posts(request)
+    #qs = qs.filter(id__in=pids)
     qs = qs.order_by('-touch_date')
     page  = get_page(request, qs, per_page=20)
     return html.template( request, name='index.html', page=page)
@@ -149,8 +149,9 @@ def process_form(post, form, user):
     assert form.is_valid(), 'form is not valid'
     title   = form.cleaned_data.get('title','')
     content = form.cleaned_data.get('content', '')
-    tags    = form.cleaned_data.get('tags', '')
-    tag_string = html.tag_strip(tags)    
+    tag_string = form.cleaned_data.get('tags_string', '')
+    tag_string = html.tag_strip(tag_string)   
+    1/0
     post.create_revision(content=content, tag_string=tag_string, title=title, author=user)
     
 @login_required(redirect_field_name='/openid/login/')
@@ -213,7 +214,9 @@ def post_edit(request, pid=0, parentid=0, post_type=POST_QUESTION):
             form = factory(request.POST)
             if not form.is_valid():
                 return html.template(request, name='post.edit.html', form=form, params=params)
-            post = models.Post.objects.create(author=user, post_type=post_type, parent=parent, creation_date=datetime.now() )
+            params = dict(author=user, post_type=post_type, parent=parent, creation_date=datetime.now())
+            params.update(form.cleaned_data)            
+            post = models.Post.objects.create(**params)
             text = CREATE_NOTICE.get(post_type, "?")
             post.notify(user=user, text=text)
             process_form(post, form, user=request.user)
@@ -247,7 +250,7 @@ def post_edit(request, pid=0, parentid=0, post_type=POST_QUESTION):
 
     # no form data coming, return the editing form
     if not form_data:
-        form = factory(initial=dict(title=post.title, content=post.content, tags=post.tag_string))
+        form = factory(initial=dict(title=post.title, content=post.content, tag_string=post.tag_string))
         return html.template(request, name='post.edit.html', form=form, params=params)
     else:
         # we have incoming form data for posts

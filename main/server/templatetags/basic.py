@@ -7,6 +7,19 @@ from django.template import Context, Template
 
 register = template.Library()
 
+from django.template.defaultfilters import stringfilter
+
+@register.filter(name='chunk')
+@stringfilter
+def chunk(text):
+    size, coll = 0, []
+    for word in text.split():
+        size += len(word)
+        coll.append(word)
+        if size > 180:
+            break
+    return ' '.join(coll)
+
 @register.inclusion_tag('widgets/comments.html', takes_context=True)
 def comments(context, post):
     user = context['request'].user
@@ -144,7 +157,6 @@ def table_row(post):
         row_comment  = template.loader.get_template('rows/row.comment.html')
 
    
-    
     if post.post_type == const.POST_QUESTION:
         c = Context( {"post": post} )
         row = row_question

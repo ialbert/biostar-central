@@ -63,13 +63,12 @@
                 </td>
             </tr>
 
-            {% if form.tags.value %}
+            {% if 1 or form.tag_string.value %}
             <tr>
                 <td>Tags</td>
                 <td>
-                    {{ form.tags.errors }}
-                    <input type="text" value="{{ form.tags.value }}" name="tags" size="80"
-                    style="width: 700px"/>
+                    {{ form.tag_string.errors }}
+                    {{ form.tag_string }}                   
                 </td>
             </tr>
             {% endif %}

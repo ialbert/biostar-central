@@ -6,17 +6,17 @@ class PostForm(forms.Form):
     """
     A form representing a new question
     """
-    title   = forms.CharField(max_length=250,  initial=P_TITLE)
-    content = forms.CharField(max_length=5000, initial=P_CONTENT)
-    tags    = forms.CharField(max_length=250,  initial=P_TAG)
-    post_type = forms.ChoiceField(choices=const.POST_CHOICES[:-2])
+    title      = forms.CharField(max_length=250,  initial=P_TITLE)
+    content    = forms.CharField(max_length=5000, initial=P_CONTENT)
+    tag_string = forms.CharField(max_length=250,  initial=P_TAG, widget=forms.TextInput(attrs={'style':'width:700px;'}))
+    post_type  = forms.ChoiceField(choices=const.POST_CHOICES[:-2])
 
     def clean(self):
         "Custom validator for the question"
         if not super(PostForm, self).is_valid():
             raise forms.ValidationError("Invalid form")
         
-        if self.cleaned_data['tags'] == P_TAG:
+        if self.cleaned_data['tag_string'] == P_TAG:
             raise forms.ValidationError("Please create a different tag")
     
         if self.cleaned_data['content'] == P_CONTENT:

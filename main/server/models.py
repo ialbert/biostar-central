@@ -591,12 +591,16 @@ def update_index(sender, instance, created, **kwargs):
     ix = index.open_dir(settings.WHOOSH_INDEX)
     writer = ix.writer()
 
-    content = instance.title + instance.content  
+    if instance.post_type in POST_FULL_FORM:
+        text = instance.title + instance.content  
+    else:
+        text = instance.content
+
     if created:                     
-        writer.add_document(content=content, pid=instance.id)
+        writer.add_document(content=text, pid=instance.id)
         writer.commit()
     else:
-        writer.update_document(content=content, pid=instance.id)        
+        writer.update_document(content=text, pid=instance.id)        
         writer.commit()
 
 def set_text_indexing(switch):

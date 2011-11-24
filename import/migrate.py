@@ -504,7 +504,10 @@ def index_post_content():
 
     print "*** whoosh indexing %s posts" % models.Post.objects.all().count()
     for post in models.Post.objects.all():
-        text = post.title + post.content
+        if post.post_type in POST_FULL_FORM:
+            text = post.title + post.content
+        else:
+            text = post.content
         wr.add_document(content=text, pid=post.id)
     wr.commit()
 

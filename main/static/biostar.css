@@ -272,13 +272,16 @@ a:hover, a.post-title {
 |-------------------------*/
 
 /* Alignment tables */
-.question-summary {
-    width: 730px;
-    border-bottom: 1px dotted #6D6D6D;
-    padding-top: 11px;
-    padding-bottom: 11px;
-    float: left;
-    line-height: 1;
+.question-title {
+   font-size: 1.2em;
+   font-weight: bold;
+}
+
+.peek {
+   font-size: 1em;
+   height:6.1em;
+   overflow:hidden;
+   line-height:1em;
 }
 
 .post-table {
