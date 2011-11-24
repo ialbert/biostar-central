@@ -16,6 +16,8 @@ from django.conf import settings
 from django.http import HttpResponse
 from django.db.models import Q
 from django.contrib import messages
+from whoosh import index
+from whoosh.qparser import QueryParser
 
 class UserForm(forms.Form):
     "A form representing a new question"
@@ -70,6 +72,14 @@ def about(request):
 
     return html.template(request, name='about.html', params=params)
    
+def search(request):
+    text = u"motifs"
+    ix   = index.open_dir(settings.WHOOSH_INDEX)
+    searcher = ix.searcher()
+    parser   = QueryParser("content", ix.schema)
+    query    = parser.parse(text)
+    results  = searcher.search(query)
+    return [ r['pid'] for r in results ]  
 
 def modlog_list(request):
     "Lists moderator actions"

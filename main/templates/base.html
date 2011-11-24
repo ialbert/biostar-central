@@ -77,16 +77,22 @@
           {% csrf_token %}
           <div style="float:right">
           
-          {%if user.is_authenticated %}
-              {% userlink user %}
-              {% usernotes user %}
-              {% userrep user %}
-              &bull; <a href="/logout/?next_page=/">logout</a> 
-              &bull; <a href="/about/">about</a> 
+          {%if user.is_authenticated %}               
+                {% designation user %}
+                {% userlink user %}
+                {% usernotes user %}
+                {% userrep user %}
+                {% if user.profile.is_admin %}
+                    &bull; <a href="/admin/">admin</a> 
+                {% endif %}
+                &bull; <a href="/about/">about</a> 
+                &bull; <a href="/tools/">tools</a>   
+                &bull; <a href="/logout/?next_page=/">logout</a> 
+                
           {% else %}
               <span class="note">First time here? Learn more <a href="/about/">about Biostar</a>. &bull; <a href="/openid/login/">login</a> 
           {% endif %}
-              &bull; <a href="/tools/">tools</a>            
+                     
               &bull; Search: <input name="q" class="textbox" tabindex="1" onfocus="if (this.value=='search') this.value = ''" maxlength="80" size="28" value="search-not-yet-working" type="text" disabled="True">
               
               

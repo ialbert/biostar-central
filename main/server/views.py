@@ -1,7 +1,7 @@
 """
 Biostar views
 """
-from main.server import html, models, const, formdef
+from main.server import html, models, const, formdef, action
 from main.server.html import get_page
 from datetime import datetime
 
@@ -20,16 +20,31 @@ from django_openid_auth.models import UserOpenID
 # import all constants
 from main.server.const import *
 
-def get_questions():
+
+def get_posts(request, post_type=POST_QUESTION, user=None):
     "Returns a common queryset that can be used to select questions"
-    #return models.Question.objects.select_related('post', 'post__author','post__author__profile')
-    return models.Post.objects.filter(post_type=POST_QUESTION).select_related('author','author__profile')
+    
+    query = models.Post.objects
+    
+    if post_type:
+        query = query.filter(post_type=POST_QUESTION)    
+    if user:
+        query = query.filter(author=user)
+
+    query = query.select_related('author','author__profile')
+
+    return query
+
 
 def index(request):
     "Main page"
 
+    # these are the posts that match the query words
+    pids = action.search(request)
+
     # eventually we will need to order by relevance
-    qs = get_questions()
+    qs = get_posts(request, post_type=None)
+    qs = qs.filter(id__in=pids)
     qs = qs.order_by('-touch_date')
     page  = get_page(request, qs, per_page=20)
     return html.template( request, name='index.html', page=page)

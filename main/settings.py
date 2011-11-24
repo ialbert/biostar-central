@@ -45,6 +45,7 @@ DATABASE_NAME = path(DATABASE_DIR, 'biostar.db')
 TEMPLATE_DIR  = path(HOME_DIR, 'templates')
 STATIC_DIR    = path(HOME_DIR, 'static')
 EXPORT_DIR    = path(HOME_DIR, '..', 'export')
+WHOOSH_INDEX  = path(HOME_DIR, 'db', 'index')
 
 DATABASES = {
     'default': {

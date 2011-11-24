@@ -3,7 +3,7 @@ Parses a SE biostar xml datadump, and populates the
 database with the content. Finally exports a loadable 
 data fixture from this database.
 """
-import sys, os, random, re
+import sys, os, random, re, shutil
 from datetime import datetime
 from itertools import *
 from xml.etree import ElementTree
@@ -128,7 +128,7 @@ def insert_users(fname, limit):
         # these will be profile related attributes
         score = int(row.get('Reputation', 0))
         utype = typemap.get( row['UserTypeId'], const.USER_NORMAL)
-        display_name = row.get('DisplayNameCleaned', 'User %s' % userid)
+        display_name = row.get('DisplayNameCleaned', 'User %s' % userid).title()
         website  = row.get('WebsiteUrl', '')
         about_me = row.get('AboutMe', '')
         location = row.get('Location', '')
@@ -237,9 +237,11 @@ def insert_posts(fname, limit, users):
                 post.answer_count = acount.get(postid, 0)
                 if parentid:
                     parent = posts.get(parents[postid])
-                    post.parent = parent
                     if not parent:
                         continue
+                    post.parent = parent
+                    post.title  = "A: %s" % parent.title
+                    
                 post.save()
                 
             posts[postid] = post
@@ -369,8 +371,10 @@ def insert_comments(fname, posts, users, limit):
 
     print "*** inserting %s comments" % len(clist)
     with transaction.commit_on_success():   
-        for i, (postid, cid, param) in enumerate(clist):            
-            param['parent'] = posts[postid]
+        for i, (postid, cid, param) in enumerate(clist):   
+            parent = posts[postid]
+            param['parent'] = parent
+            param['title']  = 'C: %s' % parent.title
             post = models.Post(**param)            
             comms[cid] = post
             if USE_DB:
@@ -489,11 +493,28 @@ def admin_init():
     editors, flag = models.Group.objects.get_or_create(name=const.MODERATOR_GROUP)
     if flag:
         print '*** created group %s' % editors.name
-        
+
+def index_post_content():
+    "Indexes post content"
+    from whoosh import index
+    shutil.rmtree(settings.WHOOSH_INDEX)
+    models.create_index()
+    ix = index.create_in(settings.WHOOSH_INDEX, models.WhooshSchema)
+    wr = ix.writer()
+
+    print "*** whoosh indexing %s posts" % models.Post.objects.all().count()
+    for post in models.Post.objects.all():
+        text = post.title + post.content
+        wr.add_document(content=text, pid=post.id)
+    wr.commit()
+
 def execute(path, limit=None):
     """
     Executes the imports
     """
+
+    # turn off automatic text indexing
+    models.set_text_indexing(False)
 
     # insert users into the database
     fname = join(path, 'Users.xml')
@@ -526,10 +547,14 @@ def execute(path, limit=None):
     fname = join(path, 'Users2Badges.xml')
     insert_awards(fname=fname, users=users, badges=badges, limit=limit)
     
+    # indexes all post content
+    index_post_content()
+    
     # adds administration rights to users
     # listed in the DJAGNO settings file
     admin_init()
     
+
 if __name__ =='__main__':
     import doctest, optparse
     global LOGSTREAM, USE_DB

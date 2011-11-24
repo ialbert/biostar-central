@@ -5,10 +5,13 @@ Note: some models are denormalized by design, this greatly simplifies (and speed
 the queries necessary to fetch a certain entry.
 
 """
+import os
 from django.db import models
 from django.db import transaction
 from django.contrib.auth.models import User, Group
 from django.contrib import admin
+from django.conf import settings
+
 from mptt.models import MPTTModel, TreeForeignKey
 from datetime import datetime, timedelta
 from main.server import html
@@ -33,7 +36,7 @@ class UserProfile( models.Model ):
     type  = models.IntegerField(choices=USER_TYPES, default=USER_NORMAL)
     
     score = models.IntegerField(default=0, blank=True)
-    reputation = models.IntegerField(default=0, blank=True)
+    reputation = models.IntegerField(default=0, blank=True, db_index=True)
     views = models.IntegerField(default=0, blank=True)
     bronze_badges = models.IntegerField(default=0)
     silver_badges = models.IntegerField(default=0)
@@ -46,7 +49,7 @@ class UserProfile( models.Model ):
     location = models.TextField(default="", null=True)
     website  = models.URLField(default="", null=True, max_length=100)
     openid   = models.URLField(default="http://www.biostars.org", null=True)
-    display_name  = models.CharField(max_length=35, default='User', null=False)
+    display_name  = models.CharField(max_length=35, default='User', null=False,  db_index=True)
     last_login_ip = models.IPAddressField(default="0.0.0.0", null=True)
     openid_merge  = models.NullBooleanField(default=False, null=True)
       
@@ -108,9 +111,9 @@ class Post(MPTTModel):
     u'<p><em>A</em></p>'
     """
     author = models.ForeignKey(User)
-    content = models.TextField(blank=True) # The underlying Markdown
+    content = models.TextField(blank=True, db_index=True) # The underlying Markdown
     html    = models.TextField(blank=True) # this is the sanitized HTML for display
-    title   = models.TextField(blank=True)
+    title   = models.TextField(blank=True,  db_index=True)
     slug    = models.SlugField(blank=True, max_length=50)
     tag_string = models.CharField(max_length=200) # The tag string is the canonical form of the post's tags
     tag_set = models.ManyToManyField(Tag) # The tag set is built from the tag string and used only for fast filtering
@@ -138,7 +141,7 @@ class Post(MPTTModel):
     child_count = models.IntegerField(default=0, blank=True) # number of children (other posts associated with the post)
     post_accepted = models.BooleanField(default=False) # the post has been accepted
     answer_accepted = models.BooleanField() # if this was 
-    unanswered = models.BooleanField() # this is a question with no answers
+    unanswered = models.BooleanField(db_index=True) # this is a question with no answers
     answer_count = models.IntegerField(default=0, blank=True)
    
     # this field will be used to allow posts to float back into relevance
@@ -147,6 +150,16 @@ class Post(MPTTModel):
     class MPTTMeta:
         order_insertion_by = ['creation_date']
     
+    @property
+    def status(self):
+        # some say this is ugly but simplifies greatly the templates
+        if self.post_accepted:
+            return 'answer-accepted'
+        elif self.answer_count:
+            return 'answered'
+        else:
+            return 'unanswered'
+
     @property    
     def post_type_name(self):
         "Returns a user friendly name for the post type"
@@ -557,3 +570,39 @@ signals.pre_save.connect( create_post, sender=Post )
 signals.pre_save.connect( create_award, sender=Award )
 signals.m2m_changed.connect( tags_changed, sender=Post.tag_set.through )
 signals.post_save.connect( tag_created, sender=Tag )
+
+# adding full text search capabilities
+import os
+
+from whoosh import store, fields, index
+
+WhooshSchema = fields.Schema(content=fields.TEXT(), pid=fields.NUMERIC(stored=True))
+
+def create_index(sender=None, **kwargs):
+    if not os.path.exists(settings.WHOOSH_INDEX):
+        os.mkdir(settings.WHOOSH_INDEX)
+        ix = index.create_in(settings.WHOOSH_INDEX, WhooshSchema)
+        writer = ix.writer()
+
+signals.post_syncdb.connect(create_index)
+
+def update_index(sender, instance, created, **kwargs):
+    
+    ix = index.open_dir(settings.WHOOSH_INDEX)
+    writer = ix.writer()
+
+    content = instance.title + instance.content  
+    if created:                     
+        writer.add_document(content=content, pid=instance.id)
+        writer.commit()
+    else:
+        writer.update_document(content=content, pid=instance.id)        
+        writer.commit()
+
+def set_text_indexing(switch):
+    if switch:
+        signals.post_save.connect(update_index, sender=Post)
+    else:
+        signals.post_save.disconnect(update_index, sender=Post)
+
+set_text_indexing(True)

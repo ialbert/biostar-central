@@ -1,7 +1,9 @@
 from django import template
+from django.conf import settings
 import urllib, hashlib
 from datetime import datetime, timedelta
-from main.server import const
+from main.server import const, html
+from django.template import Context, Template
 
 register = template.Library()
 
@@ -85,10 +87,6 @@ def pagebar(context):
         'request': context['request'],
     }
     
-@register.inclusion_tag('widgets/post-list-narrow.html')
-def post_list_narrow(x):
-    return { 'posts':x }
-
 @register.inclusion_tag('widgets/answer-list-narrow.html')
 def answer_list_narrow(x):
     return {'answers':x}
@@ -130,5 +128,34 @@ def flair(user):
         return '&diams;'
     return ""
 
+# preload the templates 
+row_question = template.loader.get_template('rows/row.question.html')
+row_answer   = template.loader.get_template('rows/row.answer.html')
+row_comment  = template.loader.get_template('rows/row.comment.html')
 
+@register.simple_tag
+def table_row(post):
+    "Renders an html row for a post "
     
+    if settings.DEBUG:
+        # this is necessary to force the reload during development
+        row_question = template.loader.get_template('rows/row.question.html')
+        row_answer   = template.loader.get_template('rows/row.answer.html')
+        row_comment  = template.loader.get_template('rows/row.comment.html')
+
+   
+    
+    if post.post_type == const.POST_QUESTION:
+        c = Context( {"post": post} )
+        row = row_question
+    elif post.post_type == const.POST_ANSWER:
+        root = post.get_root()
+        c = Context( {"post": post, 'root':root})
+        row = row_answer
+    else:
+        root = post.get_root()
+        c = Context( {"post": post, 'root':root})
+        row = row_comment 
+    
+    text = row.render(c)
+    return text

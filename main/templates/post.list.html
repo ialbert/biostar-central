@@ -8,6 +8,10 @@
 
 {% block mainbar %}
     
-    {% post_list_narrow page.object_list %}
+    {% for post in page.object_list %}
+    
+        {% table_row post %}
+
+    {%  endfor %}
 
 {% endblock %}
