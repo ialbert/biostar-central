@@ -26,7 +26,7 @@
         <div class="question-title">            
             <a  href="/post/show/{{post.id}}/{{post.slug}}/">{{post.get_title}}</a>
         </div>
-        <div class="peek">{{post.html|chunk|safe}} ... </div>
+        {# <div class="peek">{{post.html|chunk|safe}} ... </div> #}
         <div class="tags left">
                 {% for tag in post.get_tags %}
                    {% taglink tag %}

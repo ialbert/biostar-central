@@ -275,6 +275,7 @@ a:hover, a.post-title {
 .question-title {
    font-size: 1.2em;
    font-weight: bold;
+   padding-bottom:0.5em;
 }
 
 .peek {
