@@ -72,9 +72,34 @@ class UserProfile( models.Model ):
         # needs more throttles may go here here
         return True
     
-    def authorize(self, user):
-        return user.is_authenticated() and ((user == self.user) or (user.profile.is_moderator))
-    
+    def status(self):
+        if self.suspended:
+            return 'suspended'
+        else:
+            return 'active'
+
+    def authorize(self, moderator):
+        "Authorizes access to a user by a moderator"
+        
+        # we will cascade through options here
+
+        # admins may only be changed via direct database access
+        if self.is_admin:
+            return False
+        
+        # moderator that is also an admin may access everyone else
+        if moderator.profile.is_admin:
+            return True
+
+        # a moderator's private info may not be accessed past this point
+        if self.is_moderator:
+            return False
+
+        # a user may moderate and suspend themselves if they wish so
+        cond = user.is_authenticated() and ((user == self.user) or (user.profile.is_moderator))
+     
+        return cond
+
     @property
     def note_count(self):
         return Note.objects.filter(target=self.user).count()
@@ -219,10 +244,10 @@ class Post(MPTTModel):
 
     def get_title(self):
         title = self.title
-        if self.closed:
-            title = "%s [closed]" % self.title
-        elif self.deleted:
+        if self.deleted:
             title = "%s [deleted ]" % self.title
+        elif self.closed:
+            title = "%s [closed]" % self.title
         return title
             
     def current_revision(self):

@@ -45,7 +45,6 @@ urlpatterns = patterns('',
     (r'^post/show/(?P<pid>\d+)/$', 'main.server.views.post_show'),
     (r'^post/show/(?P<pid>\d+)/([-\w]+)/$', 'main.server.views.post_show'),
     
-   
     # editing an existing post/answer/comment
     (r'^post/edit/(?P<pid>\d+)/$','main.server.views.post_edit'),
     
@@ -63,11 +62,17 @@ urlpatterns = patterns('',
    
     # voting handler
     (r'^vote/$', 'main.server.views.vote'),
-    (r'^moderate/$', 'main.server.views.moderate'),
+    
+    # moderation handlers
+    (r'^moderate/post/(?P<pid>\d+)/(?P<action>[a-z\-]+)/$', 'main.server.views.moderate_post'),
+    (r'^moderate/user/(?P<uid>\d+)/(?P<action>[a-z\-]+)/$', 'main.server.views.moderate_user'),
+
+    # lists all moderator actions
     (r'^modlog/list/$', 'main.server.action.modlog_list'),
+    
+    # clear all notifications
     (r'^note/clear/(?P<uid>\d+)/$','main.server.action.note_clear'),
     
-
     # openid authentication
     (r'^openid/', include('django_openid_auth.urls')),
     (r'^logout/$', 'django.contrib.auth.views.logout',  {'next_page':'/'}),

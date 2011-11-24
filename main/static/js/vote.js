@@ -43,7 +43,6 @@ function toggle_button(button){
     
 }
 
-
 function popover(parent, msg, cls){
     parent.append('<div></div>')
     elem = parent.children('div')

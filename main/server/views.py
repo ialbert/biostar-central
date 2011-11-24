@@ -77,7 +77,7 @@ def user_list(request):
         users = models.User.objects.filter(query).select_related('profile').order_by("-profile__score")
     else:
         users = models.User.objects.select_related('profile').order_by("-profile__score")
-    page  = get_page(request, users, per_page=35)
+    page  = get_page(request, users, per_page=20)
     return html.template(request, name='user.list.html', page=page, rows=7, search=search)
 
 def tag_list(request):
@@ -328,24 +328,53 @@ def vote(request):
 
     return html.json_response({'status':'error', 'msg':'POST method must be used'})
 
-def moderate(request):
-    if request.method == 'POST':
-        user = request.user
-        post_id = int(request.POST.get('post'))
-        post = models.Post.objects.get(id=post_id)
-        if not post.authorize(user=user, strict=False):
-            return html.json_response({'status':'error', 'msg':'You do not have permission to moderate posts.'})        
-            
-        action = request.POST.get('action')
-        action_map = {'close':models.REV_CLOSE, 'reopen':models.REV_REOPEN,
-                      'delete':models.REV_DELETE, 'undelete':models.REV_UNDELETE}
-        post.moderator_action(action_map[action], user)
+def moderate_post(request, pid, action):
+    
+    if request.method != 'POST':
+        return html.json_response({'status':'error', 'msg':'Only POST requests are allowed'})        
+   
+    moderator = request.user
+    post = models.Post.objects.get(id=pid)
+    if not post.authorize(user=moderator, strict=False):
+        return html.json_response({'status':'error', 'msg':'You do not have permission to moderate this post.'})        
         
-        return html.json_response({'status':'success', 'msg':'%s performed' % action})
+    action_map = {'close':models.REV_CLOSE, 'reopen':models.REV_REOPEN,
+                  'delete':models.REV_DELETE, 'undelete':models.REV_UNDELETE}
+    
+    post.moderator_action(action_map[action], moderator)
+    return html.json_response({'status':'success', 'msg':'%s performed' % action})
         
-    return html.json_response({'status':'error', 'msg':'POST method must be used'})
         
+def moderate_user(request, uid, action):
 
+    if request.method != 'POST':
+        return html.json_response({'status':'error', 'msg':'Only POST requests are allowed'})        
+    
+    moderator = request.user
+    target = models.User.objects.get(id=uid)
+
+    if not target.profile.authorize(moderator=moderator):
+        return html.json_response({'status':'error', 'msg':'You do not have permission to moderate this user.'})        
+    
+    if action == 'suspend':
+        target.profile.suspended = True
+        target.profile.save()
+        return html.json_response({'status':'success', 'msg':'user suspended'})
+    
+    elif action == 'reinstate':
+        
+        # sanity check, the middleware should disable suspended users loggin in again
+        assert moderator != target, 'You may reinstate yourself'
+
+        target.profile.suspended = False
+        target.profile.save()
+        return html.json_response({'status':'success', 'msg':'user reinstated'})
+    
+    return html.json_response({'status':'error', 'msg':'Invalid action %s' % action})
+    
+
+        
+        
 
 @login_required(redirect_field_name='/openid/login/')
 def preview(request):

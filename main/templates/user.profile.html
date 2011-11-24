@@ -9,6 +9,9 @@
       .W  { width: 7em; }
       .C  { clear: left }
     </style>
+    <script src="/static/js/vote.js"></script>
+    <script src="/static/js/mod.js"></script>
+    
 {% endblock %}
 
 {% block subheader %}
@@ -23,22 +26,35 @@
   <div style="margin: 1em">
     <div>{% gravatar selected 150 %}</div>
     <div>{% userrep selected %}</div>
+    
+    {% if user.profile.is_moderator %}
+        <div style="padding:10px;" align="center" >        
+            {% if selected.profile.suspended %}
+                <a class="usermod-link">reinstate</a>
+            {% else %}
+                <a class="usermod-link">suspend</a>
+            {% endif %}            
+         </div>
+    {% endif %}
+   
+
   </div>
 </td>
 <td valign="top" align="left">
   <div style="margin: 2em">
     
-    <div class="L W">Display Name</div>
-    <div class="L"><b>{{ selected.profile.display_name }}</b>  
+    <div class="L W">Name</div>
+    <div class="L"><b id="username">{{ selected.profile.display_name }}</b>  
         {% if profile.writeable %} 
             | <a href="/user/edit/{{selected.id}}/">edit</a>
         {% endif %}
     </div>
+    <div class="L">Status: {{selected.profile.status}}</div>
 
     <div class="C"></div>
     
     <div class="L W">Userid</div>
-    <div class="L">{{ selected.id }}</div>
+    <div class="L" id="userid">{{selected.id}}</div>
     <div class="C"></div>
     
     {% if user.is_staff %}
@@ -62,6 +78,7 @@
     <div class="L W">Location</div>
     <div class="L">{{ profile.location }}</div>
     <div class="C"></div>
+    
   </div>
 </td>
 
