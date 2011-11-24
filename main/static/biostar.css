@@ -303,6 +303,10 @@ a:hover, a.post-title {
     padding:10px;
 }
 
+.grey {
+    background-color:#EDEDED;
+}
+
 /* Votes/answers/views boxes */
 
 .status, .votes, .views {

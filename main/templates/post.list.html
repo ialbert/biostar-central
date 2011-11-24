@@ -8,10 +8,14 @@
 
 {% block mainbar %}
     
+<table border="0" class="post-table" cellspacing="0" >
+
     {% for post in page.object_list %}
     
         {% table_row post %}
 
     {%  endfor %}
+
+</table>
 
 {% endblock %}

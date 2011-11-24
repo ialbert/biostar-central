@@ -25,27 +25,46 @@
         {{params.question_count|intcomma}} questions, {{params.answer_count|intcomma}} answers and {{params.comment_count|intcomma}} comments.</div>
     </h4>
 
-    <h3>Administrators</h3>
-    {% for user in params.admins %} 
-        <div style="float:left; width:20%">
-            <div class="pad5">
-                <div class="gravimg">{% gravatar user 64 %}</div>
-                <div><a class="user-link" title="" alt="" href="/user/show/{{user.id}}">{{user.profile.display_name}}</a>&nbsp;{% flair user %}</div>
-                <div>{% userrep user %}</div>           
-            </div>
-        </div>
-    {% endfor %}
+    <h3>Source code</h3>
+    Biostar source code at <a href="https://github.com/ialbert/biostar-central">biostar-central repository</a>;  
+    current revision <a href="https://github.com/ialbert/biostar-central/commit/{{BIOSTAR_VERSION}}">{{ BIOSTAR_VERSION }}</a>;  
+    copyright 2011 by the <a href="https://github.com/ialbert/biostar-central/contributors">BioStar team</a>.
+
+    <h3>Contact Information</h3>
     
+    Questions related to the functioning of the site may be asked in the newsgroups and/or may be sent directly to
+    the administrators or moderators listed below:
+    <ul>
+        <li>Google user group <a href="http://groups.google.com/group/biostar-central">Biostar Central</a></li>
+        <li>Google developer group <a href="http://groups.google.com/group/biostar-dev">Biostar Dev</a></li>
+    </ul>
+
+    <h3>Biostar Administrators</h3>
+    
+    <div class="pad15 grey">
+        {% for user in params.admins %} 
+            <div style="float:left; width:20%">
+                <div class="pad5">
+                    <div class="gravimg">{% gravatar user 64 %}</div>
+                    <div><a class="user-link" title="" alt="" href="/user/show/{{user.id}}">{{user.profile.display_name}}</a>&nbsp;{% flair user %}</div>
+                    <div>{% userrep user %}</div>           
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
     <div style="clear:both;">&nbsp;</div>
 
-     <h3>Moderators</h3>
-    {% for user in params.mods %}
-        <div style="float:left; width:20%">
-            <div class="pad5">
-                <div class="gravimg">{% gravatar user 64 %}</div>
-                <div><a class="user-link" title="" alt="" href="/user/show/{{user.id}}">{{user.profile.display_name}}</a>&nbsp;{% flair user %}</div>
-                <div>{% userrep user %}</div>
+     <h3>Biostar Moderators</h3>
+     <div class="pad15 grey">
+        {% for user in params.mods %}
+            <div style="float:left; width:20%">
+                <div class="pad5">
+                    <div class="gravimg">{% gravatar user 64 %}</div>
+                    <div><a class="user-link" title="" alt="" href="/user/show/{{user.id}}">{{user.profile.display_name}}</a>&nbsp;{% flair user %}</div>
+                    <div>{% userrep user %}</div>
+                </div>
             </div>
-        </div>
-    {% endfor %}
+        {% endfor %}
+    </div>
 {% endblock %}

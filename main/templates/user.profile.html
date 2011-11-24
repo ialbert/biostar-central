@@ -79,9 +79,9 @@
     </ul>
     <h2 id="messages">Messages</h2>
         <div class="note">
-          <div>This page shows activity on posts you have interacted with (only the first 25 may be shown).</div>
-          <div>Visiting a page will clear the notifications related to that page.
-          You may also <a href="/note/clear/{{selected.id}}/">clear all</a> of your notifications</div>
+          <div>This section shows activity on posts that you have interacted with (only the first 25 notifications may be shown).</div>
+          <div>Visiting any page will clear the notifications related to that page.</div>
+          <div>You may also <a href="/note/clear/{{selected.id}}/">clear all</a> of your notifications</div>
         </div>
    {% if notes %} 
         {% for note in notes %}
@@ -94,14 +94,5 @@
     {% else %}
         <div class="note">no messages</div>
     {% endif %}
-
-
-  <h2>Asked {{params.question_count}} questions </h2>  
-  {% post_list_narrow questions %}
-  
-  <div style="clear: both; height: 2em"></div>
-  
-  <h2>Answered {{params.answer_count}} </h2>
-  {% answer_list_narrow answers %}
   
 {% endblock %}

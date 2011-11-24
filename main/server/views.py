@@ -92,22 +92,17 @@ def badge_list(request):
 def search(request):
     return html.template(request, name='todo.html')
 
-def question_list(request):
+def question_unanswered(request, uid=0, post_type=None):
     "Lists all the questions" 
-    qs = get_questions().filter(answer_count=0)
+    qs = get_posts(request).filter(answer_count=0)
     page = get_page(request, qs) 
     return html.template(request, name='post.list.html', page=page)
 
 def question_tagged(request, tag_name):
-    qs = get_questions().filter(tag_set__name=tag_name)
+    qs = get_posts(request).filter(tag_set__name=tag_name)
     page = get_page(request, qs) 
     return html.template(request, name='post.list.html', page=page)
-
-def question_unanswered(request):
-    qs = get_questions().filter(answer_count=0)
-    page = get_page(request, qs) 
-    return html.template(request, name='question.list.html', page=page)
-    
+  
 def post_show(request, pid):
     "Returns a question with all answers"
     
@@ -151,7 +146,6 @@ def process_form(post, form, user):
     content = form.cleaned_data.get('content', '')
     tag_string = form.cleaned_data.get('tags_string', '')
     tag_string = html.tag_strip(tag_string)   
-    1/0
     post.create_revision(content=content, tag_string=tag_string, title=title, author=user)
     
 @login_required(redirect_field_name='/openid/login/')

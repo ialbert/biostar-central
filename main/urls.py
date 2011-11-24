@@ -39,7 +39,6 @@ urlpatterns = patterns('',
 
     # questions
     (r'^question/unanswered/$', 'main.server.views.question_unanswered'),
-    (r'^question/list/$', 'main.server.views.question_list'),
     (r'^question/tagged/(?P<tag_name>[a-z\-]+)/$', 'main.server.views.question_tagged'),
     
     # post handlers with or withouth a slug
