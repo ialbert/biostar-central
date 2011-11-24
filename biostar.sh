@@ -23,7 +23,7 @@ DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE:-"settings"}
 PYTHONPATH=${PYTHONPATH:-""}
 
 # the fixture to dump/load data from
-export FIXTURE=import/datadump.json
+export FIXTURE=import/datadump.json.gz
 
 # the DJANGO_SETTINGS_MODULE needs to be in the python import path
 export PYTHONPATH=$PYTHONPATH:$BIOSTAR_HOME   
@@ -104,7 +104,7 @@ while (( "$#" )); do
 
 	if [ "$1" = "dump" ]; then		
 		echo "*** dumping data to $FIXTURE"
-		$PYTHON_EXE $DJANGO_ADMIN dumpdata auth.User server --settings=$DJANGO_SETTINGS_MODULE > $FIXTURE
+		$PYTHON_EXE $DJANGO_ADMIN dumpdata auth.User server --settings=$DJANGO_SETTINGS_MODULE | gzip > $FIXTURE
 	fi
 
 	if [ "$1" = "import" ]; then
@@ -117,3 +117,4 @@ while (( "$#" )); do
 
 shift
 done
+
