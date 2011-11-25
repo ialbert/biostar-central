@@ -62,14 +62,14 @@ USER_MODERATION, POST_MODERATION = 0, 1
 USER_MOD_CHOICES = [ (USER_MODERATION, 'Usermod'), (POST_MODERATION, 'Postmod') ]
     
 # voting related constants
-VOTE_UP, VOTE_DOWN, VOTE_ACCEPT = range(0, 3)
-VOTE_TYPES = ((VOTE_UP, 'Upvote'), (VOTE_DOWN, 'Downvote'), (VOTE_ACCEPT, 'Accept'))
+VOTE_UP, VOTE_DOWN, VOTE_ACCEPT, VOTE_FAVORITE = range(0, 4)
+VOTE_TYPES = ((VOTE_UP, 'Upvote'), (VOTE_DOWN, 'Downvote'), (VOTE_ACCEPT, 'Accept'), (VOTE_FAVORITE, 'Favorite'))
 
 # mappings of mutually exclusive votes
 OPPOSING_VOTES = { VOTE_UP:VOTE_DOWN, VOTE_DOWN:VOTE_UP } 
 
 # post score changes
-POST_SCORE = { VOTE_UP:1, VOTE_DOWN:-1 }
+POST_SCORE = { VOTE_UP:1, VOTE_DOWN:-1, VOTE_FAVORITE:2 }
 
 # user reputation changes
 USER_REP  = {

@@ -1,17 +1,31 @@
 {% load basic %}
+{% load cache %}
 
 <div style=border:black,1px>
 
-  <div class="nav left">
-    <a href="/question/tagged/galaxy" {% navclass '/galaxy/' %}>Galaxy</a> 
-    <a href="/question/unanswered/" {% navclass '/question/' '/unanswered/ /galaxy/'%}>Unanswered</a> 
-    <a href="/tag/list/" {% navclass '/tag/' %}>Tags</a>
-    <a href="/user/list/" {% navclass '/user/' %}>Users</a> 
-    <a href="/badge/list/" {% navclass '/badge/' %}>Badges</a>
-  </div>
+  <div>
+      <div class="nav left">
+        <a href="/" {% navclass '/post/' %}>Questions</a> 
+        <a href="/question/unanswered/" {% navclass '/unanswered/'%}>Unanswered</a> 
+        <a href="/tag/list/" {% navclass '/tag(ged)?/' %}>Tags</a>
+        <a href="/user/list/" {% navclass '/user/' %}>Users</a> 
+        <a href="/badge/list/" {% navclass '/badge/' %}>Badges</a>
+      </div>
 
-  <div class="nav right">
-    <a href="/new/question/" {% navclass '/post/new/' %}>Ask&nbsp;Question</a>
-  </div>
+      <div class="nav right">
+        <a href="/new/question/" {% navclass '/post/new/' %}>Ask&nbsp;Question</a>
+      </div>
+    </div>
+    <div style="clear:both;"></div>
+    
+    {% cache 500 navtagbar %}
+        <div id="nav-tag-bar">
+                Popular tags:
+                {% for tag in popular_tags %}
+                    <a class="nav-tag" href="{% url main.server.views.question_tagged tag.name %}">{{ tag.name }}</a>
+                {% endfor %}
+        </div>
+    {% endcache %}
 
 </div>
+

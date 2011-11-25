@@ -153,6 +153,13 @@ MIDDLEWARE_CLASSES = (
     'main.middleware.PermissionsMiddleware'
 )
 
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.dummy.DummyCache' if DEBUG else 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake'
+    }
+}
+
 ROOT_URLCONF = 'main.urls'
 
 TEMPLATE_DIRS = (
@@ -169,6 +176,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.static',
     'django.contrib.messages.context_processors.messages',
     "main.context.extras",
+    "main.context.popular_tags"
 )
 
 AUTH_PROFILE_MODULE = "server.UserProfile"

@@ -36,9 +36,9 @@
     {% for user in page.object_list %}
          
         <div class="user-box"  style="float:left;" align="center">
-            <div >{% gravatar user 64 %}</div>
+            <div ><a class="user-link" title="" alt="" href="/user/show/{{user.id}}">{% gravatar user 64 %}</a></div>
             <div>
-                <a class="user-link" title="" alt="" href="/user/show/{{user.id}}">{{user.profile.display_name}}</a>&nbsp;{% flair user %}
+                <a class="user-link" title="" alt="" href="{% url main.server.views.user_profile user.id %}">{{user.profile.display_name}}</a>&nbsp;{% flair user %}
             </div>
             <div>{% userrep user %}</div>
         </div>

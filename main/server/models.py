@@ -210,7 +210,8 @@ class Post(MPTTModel):
             authors.add( child.lastedit_user )
          
         # removes the user that generated the message
-        authors.discard(user)
+        if not settings.DEBUG:
+            authors.discard(user)
 
         for target in authors:
            note = Note.objects.create(target=target, author=user, root=root, anchor=self, text=text)

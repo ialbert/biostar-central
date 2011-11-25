@@ -1,6 +1,6 @@
 from django import template
 from django.conf import settings
-import urllib, hashlib
+import urllib, hashlib, re
 from datetime import datetime, timedelta
 from main.server import const, html
 from django.template import Context, Template
@@ -118,7 +118,7 @@ def answer_list_narrow(x):
 @register.simple_tag(takes_context=True)
 def navclass(context, include_path, exclude_paths=''):
     path = context['request'].get_full_path()
-    if include_path in path:
+    if re.search(include_path, path):
         if not exclude_paths or (True not in [pat in path for pat in exclude_paths.split(' ')]):
             return 'class="youarehere"'
     return ''

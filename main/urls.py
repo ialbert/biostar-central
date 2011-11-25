@@ -8,75 +8,81 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.contrib import admin
 admin.autodiscover()
 
-urlpatterns = patterns('',
+urlpatterns = patterns('main.server',
 
     # index page
-    (r'^$', 'main.server.views.index'),
+    (r'^$', 'views.index'),
 
     # static pages
-    (r'^about/$','main.server.action.about'),
+    (r'^about/$','action.about'),
     (r'^tools/$', direct_to_template, {'template': 'tools.html'}),
+    
+    (r'^todo/$', direct_to_template, {'template': 'todo.html'}),
 
     # tags
-    (r'^tag/list/$', 'main.server.views.tag_list'),
+    (r'^tag/list/$', 'views.tag_list'),
 
     # badges
-    (r'^badge/list/$', 'main.server.views.badge_list'),
+    (r'^badge/list/$', 'views.badge_list'),
     
     # search page
-    (r'^search/$', 'main.server.views.search'),
+    (r'^search/$', 'views.search'),
 
     # members
-    (r'^user/list/$', 'main.server.views.user_list'),
-    (r'^user/show/(?P<uid>\d+)/$', 'main.server.views.user_profile'),
-    (r'^user/edit/(?P<uid>\d+)/$', 'main.server.action.user_edit'),
+    (r'^user/list/$', 'views.user_list'),
+    (r'^user/show/(?P<uid>\d+)/$', 'views.user_profile'),
+    (r'^user/edit/(?P<uid>\d+)/$', 'action.user_edit'),
 
     # returns a preview page
-    (r'^preview/$', 'main.server.views.preview'),
+    (r'^preview/$', 'views.preview'),
     
     # revisions    
-    (r'^revisions/(?P<pid>\d+)/list/$', 'main.server.views.revision_list'),
+    (r'^revisions/(?P<pid>\d+)/list/$', 'views.revision_list'),
 
     # questions
-    (r'^question/unanswered/$', 'main.server.views.question_unanswered'),
-    (r'^question/tagged/(?P<tag_name>[a-z\-]+)/$', 'main.server.views.question_tagged'),
+    (r'^question/unanswered/$', 'views.question_unanswered'),
+    (r'^question/tagged/(?P<tag_name>[a-z\-]+)/$', 'views.question_tagged'),
     
     # post handlers with or withouth a slug
-    (r'^post/show/(?P<pid>\d+)/$', 'main.server.views.post_show'),
-    (r'^post/show/(?P<pid>\d+)/([-\w]+)/$', 'main.server.views.post_show'),
+    (r'^post/show/(?P<pid>\d+)/$', 'views.post_show'),
+    (r'^post/show/(?P<pid>\d+)/([-\w]+)/$', 'views.post_show'),
     
     # editing an existing post/answer/comment
-    (r'^post/edit/(?P<pid>\d+)/$','main.server.views.post_edit'),
+    (r'^post/edit/(?P<pid>\d+)/$','views.post_edit'),
     
     # handles new questions
-    (r'^new/question/$','main.server.views.new_question'),
+    (r'^new/question/$','views.new_question'),
     
     # handles new answers
-    (r'^new/answer/(?P<parentid>\d+)/$','main.server.views.new_answer'),
+    (r'^new/answer/(?P<parentid>\d+)/$','views.new_answer'),
    
     # submits a new comment
-    (r'^new/comment/(?P<parentid>\d+)/$','main.server.views.new_comment'),
+    (r'^new/comment/(?P<parentid>\d+)/$','views.new_comment'),
     
     # editing an existing post/answer/comment
-    (r'^post/edit/(?P<pid>\d+)/(?P<parent>\d+)/$','main.server.views.post_edit'),
+    (r'^post/edit/(?P<pid>\d+)/(?P<parent>\d+)/$','views.post_edit'),
    
     # voting handler
-    (r'^vote/$', 'main.server.views.vote'),
+    (r'^vote/$', 'views.vote'),
     
     # moderation handlers
-    (r'^moderate/post/(?P<pid>\d+)/(?P<action>[a-z\-]+)/$', 'main.server.views.moderate_post'),
-    (r'^moderate/user/(?P<uid>\d+)/(?P<action>[a-z\-]+)/$', 'main.server.views.moderate_user'),
+    (r'^moderate/post/(?P<pid>\d+)/(?P<action>[a-z\-]+)/$', 'views.moderate_post'),
+    (r'^moderate/user/(?P<uid>\d+)/(?P<action>[a-z\-]+)/$', 'views.moderate_user'),
 
     # destroys a post
-    (r'^destroy/post/(?P<pid>\d+)/$', 'main.server.action.destroy_post'),
+    (r'^destroy/post/(?P<pid>\d+)/$', 'action.destroy_post'),
     
 
     # lists all moderator actions
-    (r'^modlog/list/$', 'main.server.action.modlog_list'),
+    (r'^modlog/list/$', 'action.modlog_list'),
     
     # clear all notifications
-    (r'^note/clear/(?P<uid>\d+)/$','main.server.action.note_clear'),
+    (r'^note/clear/(?P<uid>\d+)/$','action.note_clear'),
     
+)
+
+urlpatterns += patterns('',
+
     # openid authentication
     (r'^openid/', include('django_openid_auth.urls')),
     (r'^logout/$', 'django.contrib.auth.views.logout',  {'next_page':'/'}),

@@ -9,7 +9,7 @@
 {% block mainbar %}
     
     {% for m in page.object_list %}
-        <div class="question-summary"> 
+        <div class="mod-summary"> 
             {% time_ago m.date %} &bull; <a href="/user/show/{{m.author.id}}/">{{m.author.profile.display_name}}</a> &bull; {{m.text}} &bull;
             <a href="/post/show/{{m.post.id}}/">{{m.post.title}}</a>
         </div>
