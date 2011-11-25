@@ -84,7 +84,10 @@ def time_ago(time):
         return '%d hrs ago' % (delta.seconds // 3600 )
     if delta < timedelta(days=30):
         return '%d days ago' % delta.days
-    
+    if delta < timedelta(days=90):
+        return '%d weeks ago' % int(delta.days/7)
+    if delta < timedelta(days=730):
+        return '%d months ago' % int(delta.days/30)
     # not quite exact
     diff = delta.days/365.0
     return '%0.1f years ago' % diff

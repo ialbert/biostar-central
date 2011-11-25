@@ -493,11 +493,13 @@ class Badge(models.Model):
     type = models.IntegerField(choices=BADGE_TYPES)
     unique = models.BooleanField() # Unique badges may be earned only once
     secret = models.BooleanField() # Secret badges are not listed on the badge list
-    count = models.IntegerField(default=0) # Total number of times awarded
+    count  = models.IntegerField(default=0) # Total number of times awarded
     
 class Award(models.Model):
-    ''' A badge being awarded to a user.Cannot be ManyToManyField
-    because some may be earned multiple times'''
+    '''
+    A badge being awarded to a user.Cannot be ManyToManyField
+    because some may be earned multiple times
+    '''
     badge = models.ForeignKey(Badge)
     user = models.ForeignKey(User)
     date = models.DateTimeField()

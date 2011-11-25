@@ -1,5 +1,7 @@
 """
 Various constants used throught the site
+
+WARNING: DO NOT CHANGE ON PRODUCTION SEVERS! 
 """
 
 # The name of the editor group
@@ -12,13 +14,12 @@ MIN_REP = 1
 MODERATOR_PERM = ['moderate_post', 'view_deleted']
 ADMIN_PERM = []
 
-# I added here anything that I could think of for the future rather than
-# all post types that are to be implemented. This could make life a lot easier in the future
-# 
+# Add at the end
 POST_NAMES = "Question Post Guide News Article Answer Comment".split()
 
-# this keeps mappings even when adding more categories
-POST_VALS  = [ abs(hash(word.lower()))/10000 for word in POST_NAMES ]
+# name to value mapping
+# don't use 0 for post_type as it evaluates to false 
+POST_VALS  = [ (i + 1) for i in range(len(POST_NAMES)) ]
 
 # posts that require full form
 POST_FULL_FORM = set(POST_NAMES[:-2])

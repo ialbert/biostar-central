@@ -177,11 +177,11 @@ a:hover, a.post-title {
 /* Tagbar */
 
 #nav-tag-bar {
-    margin-top:10px;
+    margin-top:15px;
 }
 
 .nav-tag {
-    padding: 1px 2px 1px 2px;
+    padding: 1px 4px 1px 4px;
     text-decoration: none;
     background-color: #ECECEC;
     border-bottom: 1px solid #BBBBBB;

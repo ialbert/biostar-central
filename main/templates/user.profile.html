@@ -114,7 +114,34 @@
     <div class="question-title">Activity</div>
     
     <div>
-        Asked {{params.question_count}} questions, answered {{params.answer_count}} times, commented {{params.comment_count}} times</li>
+        Created <a href="/post/list/{{selected.id}}/">{{params.post_count}}  posts</a> distributed as
+        <ul>
+            <li><a href="/post/list/{{selected.id}}/questions/">{{params.question_count}} questions</a></li>
+            <li><a href="/post/list/{{selected.id}}/answers/">{{params.answer_count}} answers</a></li>
+            <li><a href="/post/list/{{selected.id}}/comments/">{{params.comment_count}} comments</a></li>
+        <ul>
+    </div>
+
+    <div class="question-title">Badges</div>
+    
+
+
+    <div>
+        {% for award in awards %}
+            <div style="width:175px; height:50px; float:left;">
+                <div>
+                    <a class="badge">
+                        {% badgeicon award.badge.get_type_display %}
+                        {{award.badge.name}}
+                    </a>
+                </div>
+                <div>
+                    {% time_ago award.date %}
+                </div>
+            </div>
+        {% empty %}
+            <div class="note">&bull; no badges earned</div>
+        {% endfor %} 
     </div>
 
 {% endblock %}

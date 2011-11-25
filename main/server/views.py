@@ -27,7 +27,8 @@ def get_posts(request, post_type=POST_QUESTION, user=None):
     query = models.Post.objects
     
     if post_type:
-        query = query.filter(post_type=POST_QUESTION)    
+        query = query.filter(post_type=post_type)  
+
     if user:
         query = query.filter(author=user)
 
@@ -53,6 +54,19 @@ def index(request):
     page  = get_page(request, qs, per_page=20)
     return html.template( request, name='index.html', page=page)
 
+def post_list_filter(request, uid=0, word=None):
+    post_type = {  'questions': POST_QUESTION, 'answers':POST_ANSWER, 'comments': POST_COMMENT }.get(word)
+    return post_list(request, uid=uid, post_type=post_type)
+
+def post_list(request, uid=0, post_type=None):
+    posts = get_posts(request, post_type=post_type)
+    if uid:
+        user = models.User.objects.get(id=uid)
+        posts = posts.filter(author=user)
+    posts = posts.order_by('-lastedit_date')
+    page  = get_page(request, posts, per_page=20)
+    return html.template( request, name='post.list.html', page=page)
+
 def user_profile(request, uid):
     "User's profile page"
     user = models.User.objects.get(id=uid)
@@ -64,15 +78,19 @@ def user_profile(request, uid):
     answers   = answers.order_by('-score')[:15]
     notes     = models.Note.objects.filter(target=user).select_related('author', 'author__profile', 'root').order_by('-date')[:15]
     
+    # we need to collate and count the awards
+    awards = models.Award.objects.filter(user=user).select_related('badge').order_by('-date')
+    
     answer_count = models.Post.objects.filter(author=user, post_type=POST_ANSWER).count()
     question_count = models.Post.objects.filter(author=user, post_type=POST_QUESTION).count()
     comment_count = models.Post.objects.filter(author=user, post_type=POST_COMMENT).count()
+    post_count = models.Post.objects.filter(author=user).count()
 
-    params = html.Params(question_count=question_count, answer_count=answer_count, comment_count=comment_count)
+    params = html.Params(question_count=question_count, answer_count=answer_count, comment_count=comment_count, post_count=post_count)
     return html.template(request, name='user.profile.html',
         user=request.user, profile=profile, selected=user,
         questions=questions,
-        answers=answers, notes=notes, params=params)
+        answers=answers, notes=notes, awards=awards, params=params)
 
 def user_list(request):
     search  = request.GET.get('m','')[:80] # trim for sanity

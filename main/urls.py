@@ -43,6 +43,13 @@ urlpatterns = patterns('main.server',
     (r'^question/unanswered/$', 'views.question_unanswered'),
     (r'^question/tagged/(?P<tag_name>[a-z\-]+)/$', 'views.question_tagged'),
     
+    # shows all the posts
+    (r'^post/list/$', 'views.post_list'),
+    (r'^post/list/(?P<word>[a-z\-]+)/$', 'views.post_list_filter'),
+
+    (r'^post/list/(?P<uid>\d+)/$', 'views.post_list'),
+    (r'^post/list/(?P<uid>\d+)/(?P<word>[a-z\-]+)/$', 'views.post_list_filter'),
+  
     # post handlers with or withouth a slug
     (r'^post/show/(?P<pid>\d+)/$', 'views.post_show'),
     (r'^post/show/(?P<pid>\d+)/([-\w]+)/$', 'views.post_show'),
