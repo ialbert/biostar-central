@@ -1,27 +1,25 @@
 {% load basic %}
 
+<a href="{{request.path}}#{{post.id}}">link</a>
+
 {% if editable %}
     
+    &bull; <a href="/post/edit/{{post.id}}/">edit</a>
+
     <span class="mod-menu">
     
         {% if post.closed %}
-            <a class="mod-link">reopen</a> &bull;
+            &bull; <a class="mod-link">reopen</a> 
         {% else %}
-            <a class="mod-link">close</a> &bull;
+            &bull; <a class="mod-link">close</a> 
         {% endif %}
     
         {% if post.deleted %}
-            <a class="mod-link">undelete</a> &bull;
+            &bull; <a class="mod-link">undelete</a> 
         {% else %}
-            <a class="mod-link">delete</a> &bull;                                    
+            &bull; <a class="mod-link">delete</a>                                   
         {% endif %}                            
     
     </span>    
 
 {% endif %}
-
-{% if editable %}
-    <a href="/post/edit/{{post.id}}/">edit</a> &bull;
-{% endif %}
-
-<a href="{{request.path}}#{{post.id}}">link</a>

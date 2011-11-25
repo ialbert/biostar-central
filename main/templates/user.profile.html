@@ -90,16 +90,13 @@
 </tr>
 </table>
 
-    <h2>Activity</h2>
-    <ul>
-        <li> Asked {{params.question_count}} questions, answered {{params.answer_count}} times, commented on {{params.comment_count}} posts</li>
-    </ul>
-    <h2 id="messages">Messages</h2>
-        <div class="note">
-          <div>This section shows activity on posts that you have interacted with (only the first 25 notifications may be shown).</div>
-          <div>Visiting any page will clear the notifications related to that page. 
+   
+    <div class="question-title" id="messages">Messages</div>
+    <div class="small" style="margin-bottom:5px;">
+       <div>This section shows activity on posts that you have interacted with (only the first 25 notifications may be shown).</div>
+       <div>Visiting any page will clear the notifications related to that page. 
           You may also <a href="/note/clear/{{selected.id}}/">clear all</a> of your notifications</div>
-        </div>
+   </div>
    {% if notes %} 
         {% for note in notes %}
             <div class="note">
@@ -109,7 +106,15 @@
             </div>
         {% endfor %}
     {% else %}
-        <div class="note">no messages</div>
+        <div class="note">&bull; no messages</div>
     {% endif %}
   
+    <div style="clear:both">&nbsp;</div>
+
+    <div class="question-title">Activity</div>
+    
+    <div>
+        Asked {{params.question_count}} questions, answered {{params.answer_count}} times, commented on {{params.comment_count}} posts</li>
+    </div>
+
 {% endblock %}

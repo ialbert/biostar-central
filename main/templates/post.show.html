@@ -37,7 +37,6 @@
                     </td>
                     <td>
                         <div class="post-text">
-                            
                             {{question.html|safe }}
                         </div>
     
@@ -66,7 +65,7 @@
                         &nbsp;
                     </td>
                     <td>
-                        {% comments question %}
+                        {% comments user question %}
                     </td>
                 </tr>
                 
@@ -123,10 +122,12 @@
                         </td>
                     </tr>
 
-                    <tr class="comment-row">
-                        <td></td>
+                     <tr>
                         <td>
-                            {% comments answer %}
+                            &nbsp;
+                        </td>
+                        <td>
+                            {% comments user answer %}
                         </td>
                     </tr>
                 </table>

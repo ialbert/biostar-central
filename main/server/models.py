@@ -83,7 +83,15 @@ class UserProfile( models.Model ):
         
         # we will cascade through options here
 
-        # admins may only be changed via direct database access
+        # no access to anonymous users
+        if  moderator.is_anonymous():
+            return False
+
+        # everyone can access themselves
+        if self.user == moderator:
+            return True
+        
+        # other admins may only be changed via direct database access
         if self.is_admin:
             return False
         
@@ -95,10 +103,7 @@ class UserProfile( models.Model ):
         if self.is_moderator:
             return False
 
-        # a user may moderate and suspend themselves if they wish so
-        cond = user.is_authenticated() and ((user == self.user) or (user.profile.is_moderator))
-     
-        return cond
+        return moderator.profile.is_moderator
 
     @property
     def note_count(self):
@@ -285,10 +290,18 @@ class Post(MPTTModel):
 
     def authorize(self, user, strict=True):
         "Verfifies access by a request object. Strict mode fails immediately."
-        valid = user.is_authenticated() and (user.profile.is_moderator or (user == self.author))
-        if strict and not valid:
-            raise Exception("authorization denied")
-        return valid
+
+        print user.id, self.author.id
+
+        # no access to anonymous users
+        if user.is_anonymous():
+            return False
+        
+        # everyone may access posts they have authored
+        if user == self.author:
+            return True
+
+        return user.profile.is_moderator
 
     def get_vote(self, user, vote_type):
         if user.is_anonymous():

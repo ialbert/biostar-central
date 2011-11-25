@@ -81,7 +81,7 @@ def user_list(request):
         users = models.User.objects.filter(query).select_related('profile').order_by("-profile__score")
     else:
         users = models.User.objects.select_related('profile').order_by("-profile__score")
-    page  = get_page(request, users, per_page=20)
+    page  = get_page(request, users, per_page=24)
     return html.template(request, name='user.list.html', page=page)
 
 def tag_list(request):

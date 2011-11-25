@@ -524,10 +524,6 @@ a:hover, a.post-title {
     padding: 0;
 }
 
-p {
-    display:inline
-}
-
 .comment{
     width:80%;
 }
@@ -539,6 +535,26 @@ p {
 
 .comment-actions{ 
     width:3em;
+}
+
+.gotmail  {
+    font-weight:bold;
+    color: #8F2C47;
+}
+
+.user-box {
+    width:15%;
+    height:130px;
+    padding-top:5px;
+}
+
+.small {
+    font-size:smaller;    
+}
+
+.gotmail a {
+    font-weight:bold;
+    color: #8F2C47;
 }
 
 .comment-delete{ 
@@ -657,7 +673,7 @@ tr.comment td{
 
 .note {
     padding: 6px 0 6px 0; 
-	border-bottom: 1px dotted #CECECE;
+    border-top: 1px dotted #CECECE;
 }
 
 # editor {

@@ -26,9 +26,14 @@ def smart_chunk(text):
     return ' '.join(coll)
 
 @register.inclusion_tag('widgets/comments.html', takes_context=True)
-def comments(context, post):
-    user = context['request'].user
-    return { 'post':post, 'user':user }
+def comments(context, user, post):
+    
+    coll = []
+    for c in post.comments():
+        c.editable = c.authorize(user, strict=False)    
+        coll.append(c)
+
+    return { 'post':post, 'user':user, 'comments':coll }
 
 @register.inclusion_tag('widgets/user.link.html')
 def userlink(user):

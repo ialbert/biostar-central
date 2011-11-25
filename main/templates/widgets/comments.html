@@ -3,15 +3,22 @@
 {% if post.comment_count %}
     <div>
         <table cellspacing="0" class="comment-table" align="right">
-            {% for comment in post.comments %}
+            {% for comment in comments %}
                 <tr class="comment" id="{{comment.id}}">
                     <td class="pad10">&nbsp;</td>
                     <td class="comment-actions">&nbsp;</td>
                     <td class="comment-text">
-                        <a class="comment-delete" name="{{comment.id}}">x</a>
+                        
+                        {% if comment.editable %}
+                            <a class="comment-delete" name="{{comment.id}}">x</a>
+                        {% endif %}
+                        
                         {{ comment.html|safe}}
                         &bull; {% userlink comment.author %} {% time_ago comment.creation_date %}
-                        &bull; <a href="/post/edit/{{comment.id}}">edit</a> &bull; 
+                        
+                        {% if comment.editable %}
+                            &bull; <a href="/post/edit/{{comment.id}}">edit</a>
+                        {% endif %}
                         
                 </tr>
             {% endfor %}
