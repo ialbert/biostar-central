@@ -115,6 +115,10 @@ a:hover, a.post-title {
     border-bottom: 1px solid #6D6D6D;
 }
 
+#nav-tag-bar {
+    margin-top:15px;
+}
+
 #topbar {
     background-color: #EEEEEE;
     padding: 5px;
@@ -124,6 +128,7 @@ a:hover, a.post-title {
 
 #logo {
     float: left; 
+    padding:0px 5px 0px 5px;
 }
 
 #page-bar {
@@ -141,12 +146,6 @@ a:hover, a.post-title {
 
 /* Navigation */
 
-#hmenus {
-    float: left;
-    padding: 10px 0 20px 5px;
-    width: 735px;
-}
-
 .nav a {
     padding: 6px 12px 6px 12px;
     text-decoration: none;
@@ -161,33 +160,6 @@ a:hover, a.post-title {
 
 .nav .youarehere {
     background: none repeat scroll 0 0 #FF7700;
-}
-
-/* Mainbar */
-
-#mainbar {
-    float: left;
-    width: 735px;
-}
-
-#mainbar-full{
-    width: 960px;
-}
-
-/* Tagbar */
-
-#nav-tag-bar {
-    margin-top:15px;
-}
-
-.nav-tag {
-    padding: 1px 4px 1px 4px;
-    text-decoration: none;
-    background-color: #ECECEC;
-    border-bottom: 1px solid #BBBBBB;
-    border-right: 1px solid #BBBBBB;
-    color: #6B3E4A;
-    font-weight: bold;
 }
 
 /* Sidebar */

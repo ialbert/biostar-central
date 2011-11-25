@@ -51,6 +51,9 @@
     </div>
 </div>
 
+<!-- main content wrapper -->
+<div id="main">
+
 {% block message %}
     <!-- this is where messages pop up --> 
      {% if messages %}
@@ -61,70 +64,56 @@
             {% endfor %}                  
          </div>
       {% endif %}
-  {% endblock %}
-
-
-<div id="main">
-  
-  
+{% endblock %}
 
  
-  <div id="header">
-   
-    <div id="topbar">
-      
-      {% block topbar %}
-          <form id="search" action="/" method="get">
-         
-          <div align="right">
+{% block header %}
+    <form id="search" action="/" method="get">     
+    <table width="100%"  border="0" id="header-table">
+        <tr>
+          <td align="right" colspan="2" bgcolor="#EEEEEE" style="padding:3px">
           
-          {%if user.is_authenticated %}               
-                {% designation user %}
-                {% userlink user %}
-                {% usernotes user %}
-                {% userrep user %}
-                {% if user.profile.is_admin %}
-                    &bull; <a href="/admin/">admin</a> 
-                {% endif %}
-                &bull; <a href="/about/">about</a> 
-                &bull; <a href="/tools/">tools</a>   
-                &bull; <a href="/logout/?next_page=/">logout</a> 
-                
-          {% else %}
-              <span>First time here? Learn more <a href="/about/">about Biostar</a> &bull; <a href="/openid/login/">login</a> </span>
-          {% endif %}
-                     
-              &bull; Search: <input name="q" class="textbox" tabindex="1" onfocus="if (this.value=='search') this.value = ''" maxlength="80" size="25" value="{{q}}" type="text"> <input type="submit" value="Go!">
-              
-              
-          </div>
-          </form>
-        {% endblock %}
-     
-    </div>
-    
-    
-    <div id="logo" class="clear">
-      <a href="/"><img src="/static/biostar.logo.png" border="0"/></a>
-    </div>
-    
-    <div id="hmenus">
-      {% include "bars/nav.bar.html" %}
-    </div>
-    
-  </div>
- 
-  
-
-  <div id="content">
-      {% block mainbody %}
-        Main body
-      {% endblock %}
+              {%if user.is_authenticated %}               
+                    {% designation user %}
+                    {% userlink user %}
+                    {% usernotes user %}
+                    {% userrep user %}
+                    {% if user.profile.is_admin %}
+                        &bull; <a href="/admin/">admin</a> 
+                    {% endif %}
+                    &bull; <a href="/about/">about</a> 
+                    &bull; <a href="/tools/">tools</a>   
+                    &bull; <a href="/logout/?next_page=/">logout</a> 
+                    
+              {% else %}
+                  <span>First time here? Learn more <a href="/about/">about Biostar</a> &bull; <a href="/openid/login/">login</a> </span>
+              {% endif %}
+                         
+              &bull; Search: <input name="q" class="textbox" tabindex="1" onfocus="if (this.value=='search') this.value = ''" maxlength="80" size="25" value="{{q}}" type="text"> <input type="submit" value="Go!">              
+          </td>
+        </tr>
         
-    <br class="clear">
-    
-  </div>
+        <tr>
+            <td style="padding:3px">
+                <a href="/"><img src="/static/biostar.logo.png" border="0"/></a>
+            </td>
+        
+            <td style="padding:3px">
+                {% include "bars/nav.bar.html" %}
+            </td>
+        
+        </tr>
 
+    </table>
+
+    </form>
+{% endblock %}
+     
+<div id="content">
+    {% block mainbody %}
+        Main body
+    {% endblock %}     
+    <div class="clear">&nbsp;</div>
 </div>
   
 <div id="footer">
@@ -143,6 +132,8 @@
     {% endif %}
 </div>
 
+<!-- end of main content wrapper -->
+</div>
 
 </body>
 
