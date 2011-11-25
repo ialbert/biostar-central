@@ -67,6 +67,10 @@ urlpatterns = patterns('',
     (r'^moderate/post/(?P<pid>\d+)/(?P<action>[a-z\-]+)/$', 'main.server.views.moderate_post'),
     (r'^moderate/user/(?P<uid>\d+)/(?P<action>[a-z\-]+)/$', 'main.server.views.moderate_user'),
 
+    # destroys a post
+    (r'^destroy/post/(?P<pid>\d+)/$', 'main.server.action.destroy_post'),
+    
+
     # lists all moderator actions
     (r'^modlog/list/$', 'main.server.action.modlog_list'),
     

@@ -332,6 +332,7 @@ def vote(request):
 
     return html.json_response({'status':'error', 'msg':'POST method must be used'})
 
+@login_required(redirect_field_name='/openid/login/')
 def moderate_post(request, pid, action):
     
     if request.method != 'POST':
@@ -348,7 +349,7 @@ def moderate_post(request, pid, action):
     post.moderator_action(action_map[action], moderator)
     return html.json_response({'status':'success', 'msg':'%s performed' % action})
         
-        
+@login_required(redirect_field_name='/openid/login/')
 def moderate_user(request, uid, action):
 
     if request.method != 'POST':
@@ -376,14 +377,10 @@ def moderate_user(request, uid, action):
     
     return html.json_response({'status':'error', 'msg':'Invalid action %s' % action})
     
-
-        
-        
-
 @login_required(redirect_field_name='/openid/login/')
 def preview(request):
     "This runs the markdown preview functionality"
-    content = request.POST.get('content','no input')
+    content = request.POST.get('content','no input')[:5000]
 
     try:
         output = html.generate(content)

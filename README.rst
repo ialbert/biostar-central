@@ -62,7 +62,7 @@ the test data and to run the server one would invoke it in the following way::
 
 Alternatively one may run all these commands all at once::
 
-    $ biostar.sh init populate server
+    $ biostar.sh init populate run
 
 **Note**: If database models change you must reset and reinitialize the database::
 

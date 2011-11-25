@@ -7,6 +7,9 @@ $(document).ready(function(){
     $('.usermod-link').click(function(){
         usermod_link_clicked($(this))
     });
+    $('.comment-delete').click(function(){
+        comment_delete($(this))
+    });
 });
 
 function mod_link_clicked(link){
@@ -28,6 +31,17 @@ function usermod_link_clicked(link){
     username = $('#username').text()
     if(confirm('Are you sure you want to ' + action +' user ' + username + ' ?')){
          $.post('/moderate/user/' + userid +'/' + action + '/',
+        function(data){
+            popover(link.parent(), data.msg, data.status);
+            window.location.reload()
+        }, 'json');
+    }
+}
+
+function comment_delete(link){
+   pid  = link.attr('name')
+   if(confirm('Are you sure you want to delete the comment ' + pid + ' ?')){
+        $.post('/destroy/post/' + pid +'/',
         function(data){
             popover(link.parent(), data.msg, data.status);
             window.location.reload()

@@ -99,4 +99,19 @@ def note_clear(request, uid):
     else:
         messages.warning(request, "You may only delete your own messages")
     return html.redirect("/user/show/%s/" % user.id)
-       
+
+@login_required(redirect_field_name='/openid/login/')
+def destroy_post(request, pid):
+    "Destroys a post"
+    if request.method != 'POST':
+        return html.json_response({'status':'error', 'msg':'Only POST requests are allowed'})        
+   
+    moderator = request.user
+    post = models.Post.objects.get(id=pid)
+
+    # for now only comments may be destroyed
+    assert post.post_type == const.POST_COMMENT
+    if not post.authorize(user=moderator, strict=False):
+        return html.json_response({'status':'error', 'msg':'You do not have permission to delete this post.'})        
+    post.delete()
+    return html.json_response({'status':'success', 'msg':'post deleted'})

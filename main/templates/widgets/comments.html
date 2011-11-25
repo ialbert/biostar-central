@@ -1,15 +1,18 @@
 {% load basic %}
 
 {% if post.comment_count %}
-    <div class="comments">
-        <table>
+    <div>
+        <table cellspacing="0" class="comment-table" align="right">
             {% for comment in post.comments %}
                 <tr class="comment" id="{{comment.id}}">
+                    <td class="pad10">&nbsp;</td>
                     <td class="comment-actions">&nbsp;</td>
                     <td class="comment-text">
+                        <a class="comment-delete" name="{{comment.id}}">x</a>
                         {{ comment.html|safe}}
-                        {% time_ago comment.creation_date %} by
-                        {% userlink comment.author %} &bull; <a href="/post/edit/{{comment.id}}">edit</a>
+                        &bull; {% userlink comment.author %} {% time_ago comment.creation_date %}
+                        &bull; <a href="/post/edit/{{comment.id}}">edit</a> &bull; 
+                        
                 </tr>
             {% endfor %}
         </table>
