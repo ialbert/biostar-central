@@ -6,21 +6,27 @@
             {% block subheader %}
                 <h1>Recent Questions</h1>
             {% endblock %}          
-        </div>
-        
-        
+        </div>        
     </div>
     
-    <div id="mainbar">
-    {% block mainbar %}
-            Main content
-    {% endblock %}
-    </div>
-    
-    <div id="sidebar">
-        {% block sidebar %}
-            {% include "bars/info.box.html" %}
-        {% endblock %}
-    </div>
-
+    <table>
+        <tr valign="top">
+            <td>
+                <div id="mainbar">
+                {% block mainbar %}
+                        Main content
+                {% endblock %}
+                </div>
+            </td>
+            <td>
+                <div id="sidebar">
+                    {% block sidebar %}
+                        {% include "bars/info.box.html" %}
+                    {% endblock %}
+                </div>
+            </td>
+        </tr>
+    </table>
+        
+          
 {% endblock %}

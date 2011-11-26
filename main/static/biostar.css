@@ -167,6 +167,7 @@ a:hover, a.post-title {
 #sidebar {
     float: right;
     width: 220px;
+    margin-left:10px;
 }
 
 .module {
@@ -276,7 +277,7 @@ a:hover, a.post-title {
 
 .peek {
    font-size: 1em;
-   height:6.1em;
+   height:4.1em;
    overflow:hidden;
    line-height:1em;
 }
@@ -284,6 +285,7 @@ a:hover, a.post-title {
 .post-table {
     vertical-align:top;
     padding:0px;
+    width:100%;
 }
 
 .post-table td {

@@ -18,7 +18,9 @@ urlpatterns = patterns('main.server',
     (r'^tools/$', direct_to_template, {'template': 'tools.html'}),
     
     (r'^todo/$', direct_to_template, {'template': 'todo.html'}),
+    (r'^feeds/$', direct_to_template, {'template': 'feeds.html'}),
 
+  
     # tags
     (r'^tag/list/$', 'views.tag_list'),
 
@@ -88,7 +90,13 @@ urlpatterns = patterns('main.server',
     
 )
 
+from server.feeds import LatestEntriesFeed, LatestNewsFeed
+
 urlpatterns += patterns('',
+    
+    # RSS feeds
+    (r'^feeds/latest/$', LatestEntriesFeed() ),
+    (r'^feeds/messages/(?P<pin>\d+)/$', LatestNewsFeed() ),
 
     # openid authentication
     (r'^openid/', include('django_openid_auth.urls')),

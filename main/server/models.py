@@ -180,6 +180,9 @@ class Post(MPTTModel):
     class MPTTMeta:
         order_insertion_by = ['creation_date']
     
+    def get_absolute_url(self):
+        return "/post/show/%i/" % self.id
+
     @property
     def status(self):
         # some say this is ugly but simplifies greatly the templates
