@@ -26,6 +26,7 @@ urlpatterns = patterns('main.server',
 
     # badges
     (r'^badge/list/$', 'views.badge_list'),
+    (r'^badge/show/(?P<bid>\d+)/$', 'action.badge_show'),
     
     # search page
     (r'^search/$', 'views.search'),
