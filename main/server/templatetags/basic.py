@@ -111,6 +111,7 @@ def pagebar(context):
         'page': context['page'],
         'm': context.get('m',''),
         'q': context.get('q',''),
+        'params': context.get('params', ''),
         'request': context['request'],
     }
     

@@ -35,13 +35,12 @@
     
     <h3>Current stats</h3>
         <div>
-            Biostar has <a href="/user/list/">{{params.user_count|intcomma}}</a> users, 
-            {{params.post_count|intcomma}} posts distributed as 
-            {{params.question_count|intcomma}} questions, 
-            {{params.answer_count|intcomma}} answers and 
-            {{params.comment_count|intcomma}} comments.</div>
-    </h4>
-
+            <a href="/user/list/">{{params.user_count|intcomma}} users</a> have contributed 
+            <a href="/post/list/">{{params.post_count|intcomma}} posts</a> distributed as 
+            <a href="/post/list/questions/">{{params.question_count|intcomma}} questions</a>, 
+            <a href="/post/list/answers/">{{params.answer_count|intcomma}} answers</a> and  
+            <a href="/post/list/comments/"> {{params.comment_count|intcomma}} comments</a> .</div>
+    
     <h3>Source code</h3>
     Biostar source code at <a href="https://github.com/ialbert/biostar-central">biostar-central repository</a>; 
     report bugs or feature requests in the <a href="https://github.com/ialbert/biostar-central/issues"> issue tracker</a>;   

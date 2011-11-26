@@ -1,23 +1,35 @@
-<div id="page-bar">
-    <!-- <div style="width:13em; float:left;">view: narrow | expanded</div> -->
+<div>
+    <table width="100%" cellpadding="3">
+        <tr>
+            <td width="20%">
+                {# this contains various reminders #}
+                {% if params.remind %}
+                     <b>{{params.remind}}</b>
+                {% endif %}            
+            </td>
 
-    <div align="center">
-    {% if page.has_previous %}
-        &lt;<a href="{{request.path}}?page={{page.previous_page_number}}&m={{m}}&q={{q}}">previous</a>
-        &bull; <a href="{{request.path}}?page=1&m={{m}}&q={{q}}">first</a>
-    {% else %}
-        <span style="color:#555555;">&lt;previous &bull; first</span>
-    {% endif %}
+            <td align="center">
+        
+                {% if page.has_previous %}
+                    &lt;<a href="{{request.path}}?page={{page.previous_page_number}}&m={{m}}&q={{q}}">previous</a>
+                    &bull; <a href="{{request.path}}?page=1&m={{m}}&q={{q}}">first</a>
+                {% else %}
+                    <span style="color:#555555;">&lt;previous &bull; first</span>
+                {% endif %}
 
-    &bull; page {{ page.number }} of {{ page.paginator.num_pages }} {{q}}
-
+                &bull; page {{ page.number }} of {{ page.paginator.num_pages }} {{q}}
     
-    {% if page.has_next %}
-        &bull; <a href="{{request.path}}?page={{page.paginator.num_pages}}&m={{m}}&q={{q}}">last</a>
-        &bull; <a href="{{request.path}}?page={{page.next_page_number}}&m={{m}}&q={{q}}">next</a>&gt;
-    {% else %}
-        <span style="color:#555555;">&bull; last &bull; next&gt;</span>
-    {% endif %}
-    </div>
+                {% if page.has_next %}
+                    &bull; <a href="{{request.path}}?page={{page.paginator.num_pages}}&m={{m}}&q={{q}}">last</a>
+                    &bull; <a href="{{request.path}}?page={{page.next_page_number}}&m={{m}}&q={{q}}">next</a>&gt;
+                {% else %}
+                    <span style="color:#555555;">&bull; last &bull; next&gt;</span>
+                {% endif %}
+            </td>
 
+            <td width="20%">
+                <!-- <div style="width:13em; float:left;">view: narrow | expanded</div> -->
+            </td>
+        </tr>
+    </table>
 </div>

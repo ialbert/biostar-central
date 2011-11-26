@@ -36,15 +36,15 @@ def get_posts(request, post_type=POST_QUESTION, user=None):
 
     return query
 
-
 def index(request):
     "Main page"
 
     # this will contain the query if it was sent 
     query = request.REQUEST.get('q','')
     pids  = action.search(query)
-
+    params = html.Params()
     if query:
+        params.remind = 'Searching for: %s' % query
         qs = get_posts(request, post_type=None)
         qs = qs.filter(id__in=pids)
     else:
@@ -52,20 +52,23 @@ def index(request):
         
     qs  = qs.order_by('-touch_date')
     page  = get_page(request, qs, per_page=20)
-    return html.template( request, name='index.html', page=page)
+    return html.template( request, name='index.html', page=page, params=params)
 
 def post_list_filter(request, uid=0, word=None):
     post_type = {  'questions': POST_QUESTION, 'answers':POST_ANSWER, 'comments': POST_COMMENT }.get(word)
     return post_list(request, uid=uid, post_type=post_type)
 
 def post_list(request, uid=0, post_type=None):
+    params = html.Params()
+
     posts = get_posts(request, post_type=post_type)
     if uid:
-        user = models.User.objects.get(id=uid)
+        user = models.User.objects.filter(id=uid).select_related('profile').all()[0]
         posts = posts.filter(author=user)
+        params.setr('Filter: %s' % user.profile.display_name)
     posts = posts.order_by('-lastedit_date')
     page  = get_page(request, posts, per_page=20)
-    return html.template( request, name='post.list.html', page=page)
+    return html.template( request, name='post.list.html', page=page, params=params)
 
 def user_profile(request, uid):
     "User's profile page"

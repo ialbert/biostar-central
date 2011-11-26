@@ -148,6 +148,12 @@ class Params(object):
 
     def __repr__(self):
         return 'Params: %s' % self.__dict__
+    
+    def setr(self, text):
+        setattr(self, 'remind', text)
+
+    def getr(self,text):
+        return getattr(self, 'remind')
 
 def response(data, **kwd):
     """Returns a http response"""

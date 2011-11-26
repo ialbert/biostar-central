@@ -18,7 +18,6 @@ def extras(request):
     # match - this is the secondary query value for matching other content
     m = request.REQUEST.get('m', '')
     
-
     return { 'BIOSTAR_VERSION': settings.BIOSTAR_VERSION, 'user':user, 'q':q, 'm':m }
 
 def popular_tags(request):

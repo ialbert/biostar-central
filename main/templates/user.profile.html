@@ -91,41 +91,36 @@
 </table>
 
    
-    <div class="question-title" id="messages">Messages</div>
+    <h4 id="messages">Messages</h4>
+
     <div class="small" style="margin-bottom:5px;">
        <div>This section shows activity on posts that you have interacted with (only the first 25 notifications may be shown).</div>
        <div>Visiting any page will clear the notifications related to that page. 
           You may also <a href="/note/clear/{{selected.id}}/">clear all</a> of your notifications</div>
    </div>
-   {% if notes %} 
-        {% for note in notes %}
-            <div class="note">
-            &bull; {% time_ago note.date %}
-            <a href="/user/show/{{note.author.id}}/">{{ note.author.profile.display_name }}</a> {{ note.text }} to 
-            <a href="/post/show/{{note.root.id}}/{{note.root.slug}}/#{{note.anchor.id}}">{{note.root.title}}</a>
-            </div>
-        {% endfor %}
-    {% else %}
+    {% for note in notes %}
+        <div class="note">
+        &bull; {% time_ago note.date %}
+        <a href="/user/show/{{note.author.id}}/">{{ note.author.profile.display_name }}</a> {{ note.text }} to 
+        <a href="/post/show/{{note.root.id}}/{{note.root.slug}}/#{{note.anchor.id}}">{{note.root.title}}</a>
+        </div>
+    {% empty %}
         <div class="note">&bull; no messages</div>
-    {% endif %}
+    {% endfor %}
   
     <div style="clear:both">&nbsp;</div>
 
-    <div class="question-title">Activity</div>
+    <h4>Activity</h4>
     
     <div>
-        Created <a href="/post/list/{{selected.id}}/">{{params.post_count}}  posts</a> distributed as
-        <ul>
-            <li><a href="/post/list/{{selected.id}}/questions/">{{params.question_count}} questions</a></li>
-            <li><a href="/post/list/{{selected.id}}/answers/">{{params.answer_count}} answers</a></li>
-            <li><a href="/post/list/{{selected.id}}/comments/">{{params.comment_count}} comments</a></li>
-        <ul>
+        {{ selected.profile.display_name }} has created <a href="/post/list/{{selected.id}}/">{{params.post_count}}  posts</a> distributed as
+         <a href="/post/list/{{selected.id}}/questions/">{{params.question_count}} questions</a>, 
+         <a href="/post/list/{{selected.id}}/answers/">{{params.answer_count}} answers</a> and 
+         <a href="/post/list/{{selected.id}}/comments/">{{params.comment_count}} comments</a>        
     </div>
 
-    <div class="question-title">Badges</div>
+    <h4>Badges</h4>
     
-
-
     <div>
         {% for award in awards %}
             <div style="width:175px; height:50px; float:left;">
