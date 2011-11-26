@@ -77,7 +77,7 @@ class UserProfile( models.Model ):
         return True
     
     def get_absolute_url(self):
-        return "user/show/%i/" % self.user.id
+        return "/user/show/%i/" % self.user.id
 
 
     def status(self):
