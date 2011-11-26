@@ -1,5 +1,5 @@
-<div>
-    <table width="100%" cellpadding="3">
+
+    <table width="100%" cellpadding="0" cellspacing="0">
         <tr>
             <td width="30%">
                 {# this contains various reminders #}
@@ -11,8 +11,8 @@
             <td align="center">
         
                 {% if page.has_previous %}
-                    &lt;<a href="{{request.path}}?page={{page.previous_page_number}}&m={{m}}&q={{q}}">previous</a>
-                    &bull; <a href="{{request.path}}?page=1&m={{m}}&q={{q}}">first</a>
+                    &lt;<a href="{{path}}?page={{page.previous_page_number}}&m={{m}}&q={{q}}{{anchor}}">previous</a>
+                    &bull; <a href="{{path}}?page=1&m={{m}}&q={{q}}{{anchor}}">first</a>
                 {% else %}
                     <span style="color:#555555;">&lt;previous &bull; first</span>
                 {% endif %}
@@ -20,8 +20,8 @@
                 &bull; page {{ page.number }} of {{ page.paginator.num_pages }} {{q}}
     
                 {% if page.has_next %}
-                    &bull; <a href="{{request.path}}?page={{page.paginator.num_pages}}&m={{m}}&q={{q}}">last</a>
-                    &bull; <a href="{{request.path}}?page={{page.next_page_number}}&m={{m}}&q={{q}}">next</a>&gt;
+                    &bull; <a href="{{path}}?page={{page.paginator.num_pages}}&m={{m}}&q={{q}}{{anchor}}">last</a>
+                    &bull; <a href="{{path}}?page={{page.next_page_number}}&m={{m}}&q={{q}}{{anchor}}">next</a>&gt;
                 {% else %}
                     <span style="color:#555555;">&bull; last &bull; next&gt;</span>
                 {% endif %}
@@ -32,4 +32,4 @@
             </td>
         </tr>
     </table>
-</div>
+

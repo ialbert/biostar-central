@@ -79,8 +79,19 @@ def user_profile(request, uid):
     questions = questions.order_by('-score')[:15]
     answers   = models.Post.objects.filter(author=user, post_type=POST_ANSWER).select_related('author', 'author_profile', 'parent__author','parent__author__profile')
     answers   = answers.order_by('-score')[:15]
-    notes     = models.Note.objects.filter(target=user).select_related('author', 'author__profile', 'root').order_by('-date')[:15]
-    
+
+    if user == request.user:
+        notes = models.Note.objects.filter(target=user).select_related('author', 'author__profile', 'root').order_by('-date')
+        page  = get_page(request, notes, per_page=2)
+        
+        # we evalute it here so that subsequent status updates won't interfere
+        page.object_list = list(page.object_list)
+
+        # now update all messages to read
+        models.Note.objects.filter(target=user, unread=True).update(unread=False)
+    else:
+        page = None
+
     # we need to collate and count the awards
     awards = models.Award.objects.filter(user=user).select_related('badge').order_by('-date')
     
@@ -96,7 +107,7 @@ def user_profile(request, uid):
     return html.template(request, name='user.profile.html',
         user=request.user, profile=profile, selected=user,
         questions=questions,
-        answers=answers, notes=notes, awards=awards, params=params)
+        answers=answers, awards=awards, params=params, page=page)
 
 def user_list(request):
     search  = request.GET.get('m','')[:80] # trim for sanity
@@ -238,7 +249,6 @@ def post_edit(request, pid=0, parentid=0, post_type=POST_QUESTION):
             params = dict(author=user, post_type=post_type, parent=parent, creation_date=datetime.now())
             params.update(form.cleaned_data)            
             post = models.Post.objects.create(**params)
-            post.notify(user=user)
             process_form(post, form, user=request.user)
             return show_post(post)
 

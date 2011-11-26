@@ -29,10 +29,10 @@ class LatestNewsFeed(Feed):
         return obj
         
     def items(self, obj):
-        return models.Post.objects.filter(post_type=const.POST_QUESTION, author=obj).order_by('-creation_date')[:25]
+        return models.Note.objects.filter(target=obj).select_related('sender', 'sender__profile').order_by('-date')[:25]
 
     def item_title(self, item):
-        return item.title
+        return "From %s" % item.sender.profile.display_name
 
     def item_description(self, item):
         return item.html[:1000]

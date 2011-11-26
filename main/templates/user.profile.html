@@ -15,7 +15,7 @@
 {% endblock %}
 
 {% block subheader %}
-  <h2>{% designation selected %}: {{ selected.profile.display_name }} {% flair selected %}</h2>
+  <h2>{{ selected.profile.display_name }} {% flair selected %}</h2>
 {% endblock %}
 
 {% block mainbar %}
@@ -92,22 +92,17 @@
 
     {% if selected == user %}
         <div class="title" id="messages">Messages </div>
-        <table class="pad10">
-            <tr><td>                
-                <div class="small" style="margin-bottom:5px;">
-                <div>This section shows activity on posts that you have interacted with (only the first 25 notifications may be shown).</div>
-                <div>Visiting any page will clear the notifications related to that page. 
-                You may also <a href="/note/clear/{{selected.id}}/">clear all</a> of your notifications</div>
-                </div>
-            </td></tr>
+        <table class="pad10" border="0" width="100%" id="message-table"> 
             
-            <tr><td>
-                Get a private <a href="/feeds/messages/{{selected.profile.uuid}}/">RSS feed</a> <img src="/static/img/feed-icon-small.png" style="vertical-align: middle;"> to your messages.
-            </td></tr>
-                    
-        
-            {% for note in notes %}
-                <tr><td>
+            {% if page.object_list and page.paginator.num_pages > 1 %}
+                <tr><td bgcolor="#EEEEEE" style="border-bottom:1px dotted #999999;">
+                    {% pagebar '#messages' %}
+                </td></tr>
+            
+            {% endif %}
+
+            {% for note in page.object_list %}
+                <tr><td class="msg-{{note.status}}">
                     &bull; {% time_ago note.date %} {{ note.html|safe }} 
                 </tr></tr>
             {% empty %}
@@ -115,6 +110,18 @@
                     &bull; no messages
                 <tr><td>
             {% endfor %}
+            <tr><td bgcolor="#EEEEEE" style="border-top:1px dotted #999999;">
+                Get a private <a href="/feeds/messages/{{selected.profile.uuid}}/">RSS feed<img src="/static/img/feed-icon-small.png" style="vertical-align: middle; padding-left:3px;"></a> 
+                 to your messages.
+            </td></tr>
+
+             <tr><td>                
+                <div class="small" style="margin-bottom:5px;">
+                <div>This section shows activity on posts that you have interacted with.
+                    You may also <a href="/note/clear/{{selected.id}}/">clear all<img src="/static/img/trash.jpg" style="vertical-align: middle; padding-left:3px;"></a>  of your messages.
+                </div>
+            </td></tr>
+
         </table>
     {% endif %}
  

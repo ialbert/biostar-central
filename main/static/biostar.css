@@ -102,7 +102,17 @@ a:hover, a.post-title {
 |  Layout                 |
 |-------------------------*/
 
+.msg-new {
+    font-weight: bold;
+}
 
+#message-table {
+    
+}
+
+#message-table td {
+   padding:5px 5px 5px 5px;
+}
 
 #main {
     width: 960px;

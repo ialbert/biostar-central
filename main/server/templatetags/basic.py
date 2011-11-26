@@ -107,13 +107,16 @@ def gravatar(user, size=80):
     return """<img src="%s" alt="gravatar for %s"/>""" % (gravatar_url, user.username)
 
 @register.inclusion_tag('bars/page.bar.html', takes_context=True)
-def pagebar(context):
+def pagebar(context, anchor=''):
+    path = context['request'].path
     return {
         'page': context['page'],
         'm': context.get('m',''),
         'q': context.get('q',''),
         'params': context.get('params', ''),
         'request': context['request'],
+        'anchor':anchor,
+        'path':path,
     }
     
 @register.inclusion_tag('widgets/answer-list-narrow.html')

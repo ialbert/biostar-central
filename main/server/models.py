@@ -118,7 +118,8 @@ class UserProfile( models.Model ):
         note_count = Note.objects.filter(target=self.user).count()
         new_count  = Note.objects.filter(target=self.user, unread=True).count()
         return (note_count, new_count)
-
+    
+ 
 class Tag(models.Model):
     name = models.TextField(max_length=50)
     count = models.IntegerField(default=0)
@@ -213,22 +214,31 @@ class Post(MPTTModel):
         return (self.author == user)
     
     @transaction.commit_on_success
-    def notify(self, user):
-        "Generates notifications to all users related with this post"
+    def notify(self):
+        "Generates notifications to all users related with this post. Invoked only on the creation of the post"
         # create a notification for the post that includes all authors of every child
         root = self.get_root()
-        authors = set( [ root.author ] )
+
+        authors = set( [ root.author] )
         for child in root.get_descendants():
             authors.add( child.author )
-            authors.add( child.lastedit_user )
-         
-        # removes the user that generated the message
-        if not settings.DEBUG:
-            authors.discard(user)
+        text = notegen.post_action(user=self.author, post=self)
+        
+        print authors
 
-        text = notegen.post_action(user=user, post=self)
+        # the current author will get a message that is not new
+        authors.remove(self.author)
+        
+        
+        for a in authors:
+            print '>>>>', a.profile.display_name
+
         for target in authors:
-            Note.send(sender=user, target=target, content=text, type=NOTE_USER)
+            Note.send(sender=self.author, target=target, content=text, type=NOTE_USER, unread=True)
+
+        # for the current post author  this is not a new message
+        Note.send(sender=self.author, target=self.author, content=text, type=NOTE_USER, unread=False)
+
 
     def create_revision(self, content=None, title=None, tag_string=None, author=None, date=None, action=REV_NONE):
         """
@@ -411,10 +421,15 @@ class Note(models.Model):
     @classmethod
     def send(self, **params):
         note = Note.objects.create(**params)
-        if settings.DEBUG:
-            params['target'] = params['sender']
-            #note = Note.objects.create(**params)
         
+    def get_absolute_url(self):
+        return "/user/show/%s/" % self.target.id         
+
+    @property
+    def status(self):
+        return 'new' if self.unread else 'old'
+
+
 class PostRevision(models.Model):
     """
     Represents various revisions of a single post
@@ -589,7 +604,13 @@ def create_post(sender, instance, *args, **kwargs):
     
     # set the touch date
     instance.touch_date = datetime.now()
-    
+
+def create_post_note(sender, instance, created, *args, **kwargs):
+    "Post save notice on a post"
+    if created:
+        # when a new post is created all descendants are notified
+        instance.notify()
+
 def create_award(sender, instance, *args, **kwargs):
     "Pre save award function"
     if not instance.date:
@@ -630,6 +651,8 @@ def tag_created(sender, instance, created, *args, **kwargs):
 # now connect all the signals
 signals.post_save.connect( create_profile, sender=User )
 signals.pre_save.connect( create_post, sender=Post )
+signals.post_save.connect( create_post_note, sender=Post )
+
 signals.pre_save.connect( create_note, sender=Note )
 signals.pre_save.connect( create_award, sender=Award )
 signals.m2m_changed.connect( tags_changed, sender=Post.tag_set.through )
