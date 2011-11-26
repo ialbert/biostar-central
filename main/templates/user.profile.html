@@ -90,38 +90,48 @@
 </tr>
 </table>
 
-   
-    <h4 id="messages">Messages</h4>
-
-    <div class="small" style="margin-bottom:5px;">
-       <div>This section shows activity on posts that you have interacted with (only the first 25 notifications may be shown).</div>
-       <div>Visiting any page will clear the notifications related to that page. 
-          You may also <a href="/note/clear/{{selected.id}}/">clear all</a> of your notifications</div>
-   </div>
-    {% for note in notes %}
-        <div class="note">
-        &bull; {% time_ago note.date %}
-        <a href="/user/show/{{note.author.id}}/">{{ note.author.profile.display_name }}</a> {{ note.text }} to 
-        <a href="/post/show/{{note.root.id}}/{{note.root.slug}}/#{{note.anchor.id}}">{{note.root.title}}</a>
-        </div>
-    {% empty %}
-        <div class="note">&bull; no messages</div>
-    {% endfor %}
-  
-    <div style="clear:both">&nbsp;</div>
-
-    <h4>Activity</h4>
+    {% if selected == user %}
+        <div class="title" id="messages">Messages </div>
+        <table class="pad10">
+            <tr><td>                
+                <div class="small" style="margin-bottom:5px;">
+                <div>This section shows activity on posts that you have interacted with (only the first 25 notifications may be shown).</div>
+                <div>Visiting any page will clear the notifications related to that page. 
+                You may also <a href="/note/clear/{{selected.id}}/">clear all</a> of your notifications</div>
+                </div>
+            </td></tr>
+            
+            <tr><td>
+                Get a private <a href="/feeds/messages/{{selected.profile.uuid}}/">RSS feed</a> <img src="/static/img/feed-icon-small.png" style="vertical-align: middle;"> to your messages.
+            </td></tr>
+                    
+        
+            {% for note in notes %}
+                <tr><td>
+                    &bull; {% time_ago note.date %}
+                    <a href="/user/show/{{note.author.id}}/">{{ note.author.profile.display_name }}</a> {{ note.text }} to 
+                <a href="/post/show/{{note.root.id}}/{{note.root.slug}}/#{{note.anchor.id}}">{{note.root.title}}</a>
+                </tr></tr>
+            {% empty %}
+                <tr><td>
+                    &bull; no messages
+                <tr><td>
+            {% endfor %}
+        </table>
+    {% endif %}
+ 
+    <div class="title" id="activity">Activity</div>
     
-    <div>
+    <div class="pad10">
         {{ selected.profile.display_name }} has created <a href="/post/list/{{selected.id}}/">{{params.post_count}}  posts</a> distributed as
          <a href="/post/list/{{selected.id}}/questions/">{{params.question_count}} questions</a>, 
          <a href="/post/list/{{selected.id}}/answers/">{{params.answer_count}} answers</a> and 
          <a href="/post/list/{{selected.id}}/comments/">{{params.comment_count}} comments</a>        
     </div>
 
-    <h4>Badges</h4>
+    <div class="title" id="badges">Badges</div>
     
-    <div>
+    <div class="pad10">
         {% for award in awards %}
             <div style="width:175px; height:50px; float:left;">
                 <div>

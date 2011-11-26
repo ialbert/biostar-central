@@ -5,7 +5,8 @@ Note: some models are denormalized by design, this greatly simplifies (and speed
 the queries necessary to fetch a certain entry.
 
 """
-import os
+import os, random, hashlib
+
 from django.db import models
 from django.db import transaction
 from django.contrib.auth.models import User, Group
@@ -35,6 +36,9 @@ class UserProfile( models.Model ):
     # this designates a user as moderator
     type  = models.IntegerField(choices=USER_TYPES, default=USER_NORMAL)
     
+    # globally unique id
+    uuid = models.TextField(null=False,  db_index=True, unique=True)
+
     score = models.IntegerField(default=0, blank=True)
     reputation = models.IntegerField(default=0, blank=True, db_index=True)
     views = models.IntegerField(default=0, blank=True)
@@ -546,13 +550,20 @@ def unapply_instance(sender, instance,  *args, **kwargs):
 for model in MODELS_WITH_APPLY:
     signals.post_save.connect(apply_instance, sender=model)
     signals.post_delete.connect(unapply_instance, sender=model)
-    
-# Other objects have more unique signals
+
+def make_uuid():
+    "Returns a unique id"
+    x = random.getrandbits(256)
+    u = hashlib.md5(str(x)).hexdigest()
+    return u
+
 def create_profile(sender, instance, created, *args, **kwargs):
     "Post save hook for creating user profiles on user save"
     if created:
-        UserProfile.objects.create( user=instance )
-
+        uuid = make_uuid() 
+        display_name = instance.get_full_name()
+        UserProfile.objects.create(user=instance, uuid=uuid, display_name=display_name)
+              
 from django.template.defaultfilters import slugify
 
 def create_post(sender, instance, *args, **kwargs):
@@ -607,6 +618,8 @@ def tag_created(sender, instance, created, *args, **kwargs):
         instance.count = 0
         instance.save()
         signals.post_save.connect(tag_created, sender=Tag)
+
+
 
 # now connect all the signals
 signals.post_save.connect( create_profile, sender=User )

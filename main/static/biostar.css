@@ -264,12 +264,18 @@ a:hover, a.post-title {
 |  Question List          |
 |-------------------------*/
 
+.title {
+   font-size: 1.1em;
+   font-weight: bold;
+}
+
 /* Alignment tables */
 .question-title {
    font-size: 1.1em;
    font-weight: bold;
    padding-bottom:0.5em;
 }
+
 
 .question-title a {
    text-decoration: none;
@@ -488,7 +494,7 @@ a:hover, a.post-title {
 }
 
 .autobiography {
-  width: 35em; height: 15em; 
+  width: 30em; height: 15em; 
   padding: 0.1em 0.3em 0.1em 0.3em;
   overflow: auto; text-align: left; 
   border: 1px solid gray;

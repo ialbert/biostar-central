@@ -96,7 +96,7 @@ urlpatterns += patterns('',
     
     # RSS feeds
     (r'^feeds/latest/$', LatestEntriesFeed() ),
-    (r'^feeds/messages/(?P<pin>\d+)/$', LatestNewsFeed() ),
+    (r'^feeds/messages/(?P<uuid>[a-z0-9]+)/$', LatestNewsFeed() ),
 
     # openid authentication
     (r'^openid/', include('django_openid_auth.urls')),

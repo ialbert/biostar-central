@@ -24,8 +24,8 @@ class LatestNewsFeed(Feed):
     def title(self, obj):
         return "Entries for user %s" % obj.profile.display_name
 
-    def get_object(self, request, pin):
-        obj = get_object_or_404(models.User, pk=pin)
+    def get_object(self, request, uuid):
+        obj = get_object_or_404(models.User, profile__uuid=uuid)
         return obj
         
     def items(self, obj):
