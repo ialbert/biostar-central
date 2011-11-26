@@ -147,7 +147,6 @@ def insert_users(fname, limit):
 
     users = {}
     print "*** inserting %s users" % len(ulist)
-    community = models.User.objects.get(username='community')
     with transaction.commit_on_success():
         for (userid, u), (userid2, p) in zip(ulist, plist):
             assert userid == userid2, 'Sanity check'
@@ -161,9 +160,7 @@ def insert_users(fname, limit):
                     setattr(prof, attr, value)
                 prof.save()
 
-                # create a welcome message
-                models.Note.objects.create(sender=community, target=user, content='Welcome to **Biostar*!', type=const.NOTE_USER)
-
+              
             users[userid] = user
 
     return users
@@ -456,6 +453,16 @@ def insert_badges(fname, limit):
             bmap[bid] = badge    
     return bmap
 
+def finalize():
+    print "*** finalizing"
+    users = models.User.objects.filter().all()
+    community = models.User.objects.get(username='community')
+    with transaction.commit_on_success():   
+        # create a welcome message
+        for user in users:
+            models.Note.objects.create(sender=community, target=user, content='Welcome to **Biostar!**', type=const.NOTE_USER)
+
+
 def insert_awards(fname, users, badges, limit):
     "Inserts the badge awards"
     
@@ -563,6 +570,9 @@ def execute(path, limit=None):
     # indexes all post content
     index_post_content()
     
+
+    finalize()
+
     # adds administration rights to users
     # listed in the DJAGNO settings file
     admin_init()
