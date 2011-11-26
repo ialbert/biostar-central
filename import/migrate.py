@@ -147,6 +147,7 @@ def insert_users(fname, limit):
 
     users = {}
     print "*** inserting %s users" % len(ulist)
+    community = models.User.objects.get(username='community')
     with transaction.commit_on_success():
         for (userid, u), (userid2, p) in zip(ulist, plist):
             assert userid == userid2, 'Sanity check'
@@ -159,6 +160,10 @@ def insert_users(fname, limit):
                 for attr, value in p.items():
                     setattr(prof, attr, value)
                 prof.save()
+
+                # create a welcome message
+                models.Note.objects.create(sender=community, target=user, content='Welcome to **Biostar*!', type=const.NOTE_USER)
+
             users[userid] = user
 
     return users

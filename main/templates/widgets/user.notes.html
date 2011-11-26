@@ -2,7 +2,7 @@
 
 {% spaceless %}
     {% if new_count %}
-        <span class="gotmail">(<a href="/user/show/{{user.id}}/#messages">{{new_count}} new message{{new_count|pluralize}}</a>)</span> &bull;
+        <span class="gotmail">(<a href="/user/show/{{user.id}}/#messages">{{note_count}} message{{new_count|pluralize}} &bull; {{new_count}} new</a>)</span> &bull;
     {% else%}
         {% if note_count %}
             <span>(<a href="/user/show/{{user.id}}/#messages">{{note_count}} message{{note_count|pluralize}}</a>)</span> &bull;

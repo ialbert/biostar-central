@@ -8,7 +8,12 @@ def userlink(user):
 
 def postlink(post):
     root = post.get_root()
-    return '[%s](%s%s/#%s/)' % (root.title, root.get_absolute_url(), root.slug, post.id)
+    size = 30
+    if len(root.title)<=size:
+        title = root.title
+    else:
+        title = '%s...' %  root.title[:size] 
+    return '[%s](%s%s/#%s/)' % (title, root.get_absolute_url(), root.slug, post.id)
 
 def post_moderator_action(user, post, action):
     action = REV_ACTION_MAP.get(action, '???')
@@ -23,6 +28,10 @@ def post_action(user, post):
         action = 'commented on'
     else:
         action = "did something to"
-    text   = '%s %s %s with *%s...*' % (userlink(user), action, postlink(post), post.content[:150])
-    print text
+    size = 150
+    if len(post.content)<size:
+        content = post.content
+    else:
+        content = '%s...' % post.content[:size]
+    text   = '%s %s %s with *%s*' % (userlink(user), action, postlink(post), content)
     return text

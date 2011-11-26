@@ -223,16 +223,10 @@ class Post(MPTTModel):
         for child in root.get_descendants():
             authors.add( child.author )
         text = notegen.post_action(user=self.author, post=self)
-        
-        print authors
-
+       
         # the current author will get a message that is not new
         authors.remove(self.author)
-        
-        
-        for a in authors:
-            print '>>>>', a.profile.display_name
-
+       
         for target in authors:
             Note.send(sender=self.author, target=target, content=text, type=NOTE_USER, unread=True)
 
@@ -314,8 +308,6 @@ class Post(MPTTModel):
 
     def authorize(self, user, strict=True):
         "Verfifies access by a request object. Strict mode fails immediately."
-
-        print user.id, self.author.id
 
         # no access to anonymous users
         if user.is_anonymous():

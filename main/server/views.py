@@ -82,7 +82,7 @@ def user_profile(request, uid):
 
     if user == request.user:
         notes = models.Note.objects.filter(target=user).select_related('author', 'author__profile', 'root').order_by('-date')
-        page  = get_page(request, notes, per_page=2)
+        page  = get_page(request, notes, per_page=10)
         
         # we evalute it here so that subsequent status updates won't interfere
         page.object_list = list(page.object_list)
