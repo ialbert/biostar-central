@@ -85,7 +85,7 @@ def search(text):
 
 def modlog_list(request):
     "Lists moderator actions"
-    mods = models.ModLog.objects.select_related('author', 'user', 'post', 'author_profile').order_by('-date')
+    mods = models.Note.objects.filter(type=const.NOTE_MODERATOR).select_related('sender', 'target', 'post', 'sender_profile').order_by('-date')
     page = get_page(request, mods)
     return html.template(request, name='modlog.list.html', page=page)
     

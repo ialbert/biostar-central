@@ -94,6 +94,11 @@ def checkuser(row, key='Id'):
 def insert_users(fname, limit):
     "Inserts the users"
     
+    # needs to create community user
+    user, flag = models.User.objects.get_or_create(username='community')
+    user.profile.display_name = 'Biostar'
+    user.profile.save()
+    
     # reads the whole file
     rows = xml_reader(fname, limit=limit)
     
@@ -314,9 +319,9 @@ def insert_post_revisions(fname, limit, users, posts):
 
     print "*** inserting %s moderator actions" % len(alist)
     with transaction.commit_on_success():
-        for post, atype, author, date in alist:
+        for post, atype, user, date in alist:
             if USE_DB:
-                post.moderator_action(atype, author=author, date=date)                
+                post.moderator_action(atype, moderator=user, date=date)                
     
 def insert_votes(fname, limit, users, posts):
 

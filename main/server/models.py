@@ -15,7 +15,7 @@ from django.conf import settings
 
 from mptt.models import MPTTModel, TreeForeignKey
 from datetime import datetime, timedelta
-from main.server import html
+from main.server import html, notegen
 
 # import all constants
 from main.server.const import *
@@ -76,6 +76,10 @@ class UserProfile( models.Model ):
         # needs more throttles may go here here
         return True
     
+    def get_absolute_url(self):
+        return "user/show/%i/" % self.user.id
+
+
     def status(self):
         if self.suspended:
             return 'suspended'
@@ -220,8 +224,8 @@ class Post(MPTTModel):
         if not settings.DEBUG:
             authors.discard(user)
 
-        for target in authors:
-           note = Note.objects.create(target=target, author=user, root=root, anchor=self, text=text)
+        #for target in authors:
+        #   note = Note.objects.create(target=target, author=user, root=root, anchor=self, text=text)
 
     def create_revision(self, content=None, title=None, tag_string=None, author=None, date=None, action=REV_NONE):
         """
@@ -270,16 +274,14 @@ class Post(MPTTModel):
         """
         return self.revisions.order_by('date')[0]
         
-    def moderator_action(self, action, author, date=None):
+    def moderator_action(self, action, moderator, date=None):
         """
         Performs a moderator action on the post. Takes an action (one of REV_ACTIONS)
         and a user. Date is assumed to be now if not provided
         """
         
-        date = date or datetime.now()
-        text = REV_ACTION_MAP.get(action, 'undefined action?')
-        log  = ModLog(author=author, text=text, action=action, date=date,  post=self, mod_type=POST_MODERATION)
-        log.save()
+        text = notegen.moderator_action(user=moderator, post=self, action=action)
+        note = Note.objects.create(target=self.author, sender=moderator, post=self, text=text,  type=NOTE_MODERATOR)
 
         self.create_revision(action=action)
 
@@ -389,30 +391,18 @@ class PostAdmin(admin.ModelAdmin):
 
 admin.site.register(Post, PostAdmin)
 
-class ModLog(models.Model):
-    """
-    Logs moderator actions
-    """
-    mod_type  = models.IntegerField(choices=USER_MOD_CHOICES, db_index=True)
-    action    = models.IntegerField(default=0)
-    text      = models.CharField(max_length=1000, default='')
-    other     = models.CharField(max_length=1000, default='') # for the future
-    date      = models.DateTimeField()
-    author    = models.ForeignKey(User, related_name="moderated_by")
-    user      = models.ForeignKey(User, null=True, blank=True)
-    post      = models.ForeignKey(Post, null=True, blank=True)
-
 class Note(models.Model):
     """
     Creates simple notifications that are active until the user deletes them
     """
-    author    = models.ForeignKey(User, related_name="note_author") # the creator of the notification
-    target    = models.ForeignKey(User, related_name="note_target") # the user that will get the note
-    root      = models.ForeignKey(Post, null=True, blank=True, related_name="note_root")   # this is the root of the posts we want to anchor against
-    anchor    = models.ForeignKey(Post, null=True, blank=True, related_name="note_anchor") # this is the post that the note actually refers to
-    text      = models.CharField(max_length=1000, default='')
-    date      = models.DateTimeField(auto_now_add=True)
-    
+    sender  = models.ForeignKey(User, related_name="note_sender") # the creator of the notification
+    target  = models.ForeignKey(User, related_name="note_target", db_index=True) # the user that will get the note
+    post    = models.ForeignKey(Post, related_name="note_post",null=True, blank=True) # the user that will get the note
+    text    = models.CharField(max_length=1000, default='')
+    date    = models.DateTimeField(auto_now_add=True)
+    unread  = models.BooleanField(default=True)
+    type    = models.IntegerField(choices=NOTE_TYPES, default=NOTE_USER)
+
 class PostRevision(models.Model):
     """
     Represents various revisions of a single post

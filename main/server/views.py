@@ -139,8 +139,8 @@ def post_show(request, pid):
     answers = answers.order_by('-answer_accepted','-score')
 
     if request.user.is_authenticated():
-        notes = models.Note.objects.filter(target=request.user, root=question).all().delete()
-        votes = models.Vote.objects.filter(author=request.user, post__id__in=[question.id] + [a.id for a in answers]) 
+        notes = models.Note.objects.filter(target=request.user, post=question).all().delete()
+        votes = models.Vote.objects.filter(author=request.user, post__id__in=[ question.id ] + [a.id for a in answers] ) 
         question.views += 1
         question.save()
     else:
@@ -385,6 +385,9 @@ def moderate_user(request, uid, action):
     if action == 'suspend':
         target.profile.suspended = True
         target.profile.save()
+        text = 'suspended %s' % target.profile.display_name
+
+        models.Note.objects.create(target=moderator, text=text, sender=moderator)
         return html.json_response({'status':'success', 'msg':'user suspended'})
     
     elif action == 'reinstate':

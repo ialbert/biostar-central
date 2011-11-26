@@ -109,6 +109,11 @@ will be required.
 Users in *ADMINS* settings will automatically obtain full administration privileges and
 may log into the *admin* site using the *SECRET_KEY* as their password.
 
+Other information
+-----------------
+
+All messages are private, only users can see them. 
+
 Layout
 ------
 

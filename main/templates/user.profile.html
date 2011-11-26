@@ -109,8 +109,7 @@
             {% for note in notes %}
                 <tr><td>
                     &bull; {% time_ago note.date %}
-                    <a href="/user/show/{{note.author.id}}/">{{ note.author.profile.display_name }}</a> {{ note.text }} to 
-                <a href="/post/show/{{note.root.id}}/{{note.root.slug}}/#{{note.anchor.id}}">{{note.root.title}}</a>
+                    <a href="/user/show/{{note.author.id}}/">{{ note.sender.profile.display_name }}</a> {{ note.text|safe }} 
                 </tr></tr>
             {% empty %}
                 <tr><td>
