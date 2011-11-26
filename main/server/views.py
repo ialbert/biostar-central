@@ -88,8 +88,11 @@ def user_profile(request, uid):
     question_count = models.Post.objects.filter(author=user, post_type=POST_QUESTION).count()
     comment_count = models.Post.objects.filter(author=user, post_type=POST_COMMENT).count()
     post_count = models.Post.objects.filter(author=user).count()
-
-    params = html.Params(question_count=question_count, answer_count=answer_count, comment_count=comment_count, post_count=post_count)
+    vote_count = models.Vote.objects.filter(author=user).count()
+    award_count = models.Award.objects.filter(user=user).count()
+    
+    params = html.Params(question_count=question_count, answer_count=answer_count, 
+        comment_count=comment_count, post_count=post_count, vote_count=vote_count, award_count=award_count)
     return html.template(request, name='user.profile.html',
         user=request.user, profile=profile, selected=user,
         questions=questions,

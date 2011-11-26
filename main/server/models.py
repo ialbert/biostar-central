@@ -115,7 +115,9 @@ class UserProfile( models.Model ):
 
     @property
     def note_count(self):
-        return Note.objects.filter(target=self.user).count()
+        note_count = Note.objects.filter(target=self.user).count()
+        new_count  = Note.objects.filter(target=self.user, unread=True).count()
+        return (note_count, new_count)
 
 class Tag(models.Model):
     name = models.TextField(max_length=50)
@@ -282,10 +284,9 @@ class Post(MPTTModel):
         and a user. Date is assumed to be now if not provided
         """
         
-        text = notegen.moderator_action(user=moderator, post=self, action=action)
+        text = notegen.post_moderator_action(user=moderator, post=self, action=action)
         Note.send(target=self.author, sender=moderator, post=self, content=text,  type=NOTE_MODERATOR)
         
-
         self.create_revision(action=action)
 
         if action == REV_CLOSE:
@@ -412,7 +413,7 @@ class Note(models.Model):
         note = Note.objects.create(**params)
         if settings.DEBUG:
             params['target'] = params['sender']
-            note = Note.objects.create(**params)
+            #note = Note.objects.create(**params)
         
 class PostRevision(models.Model):
     """

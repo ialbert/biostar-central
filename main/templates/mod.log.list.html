@@ -10,7 +10,7 @@
     
     {% for m in page.object_list %}
         <div class="mod-summary"> 
-            {% time_ago m.date %} &bull; {{m.text|safe}}           
+            {% time_ago m.date %} &bull; {{m.html|safe}}           
         </div>
         
     {% endfor %}

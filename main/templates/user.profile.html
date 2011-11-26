@@ -108,8 +108,7 @@
         
             {% for note in notes %}
                 <tr><td>
-                    &bull; {% time_ago note.date %}
-                    <a href="/user/show/{{note.sender.id}}/">{{ note.sender.profile.display_name }}</a> {{ note.html|safe }} 
+                    &bull; {% time_ago note.date %} {{ note.html|safe }} 
                 </tr></tr>
             {% empty %}
                 <tr><td>
@@ -125,7 +124,10 @@
         {{ selected.profile.display_name }} has created <a href="/post/list/{{selected.id}}/">{{params.post_count}}  posts</a> distributed as
          <a href="/post/list/{{selected.id}}/questions/">{{params.question_count}} questions</a>, 
          <a href="/post/list/{{selected.id}}/answers/">{{params.answer_count}} answers</a> and 
-         <a href="/post/list/{{selected.id}}/comments/">{{params.comment_count}} comments</a>        
+         <a href="/post/list/{{selected.id}}/comments/">{{params.comment_count}} comments</a>  
+         <div>
+            This user  has voted {{params.vote_count}} times  and has earned {{params.award_count}} badges
+         </div>
     </div>
 
     <div class="title" id="badges">Badges</div>

@@ -3,17 +3,26 @@ This module can generate messages
 """
 from main.server.const import *
 
-def moderator_action(user, post, action):
-    action = REV_ACTION_MAP.get(action, 'undefined action?')
-    name  = '[%s](%s)' % (user.profile.display_name, user.profile.get_absolute_url() )
-    title = '[%s](%s)' % (post.title, post.get_absolute_url())
-    text  = '%s used %s on %s' % (name, action, title)
+def userlink(user):
+    return '[%s](%s)' % (user.profile.display_name, user.profile.get_absolute_url() )
+
+def postlink(post):
+    root = post.get_root()
+    return '[%s](%s%s/#%s/)' % (root.title, root.get_absolute_url(), root.slug, post.id)
+
+def post_moderator_action(user, post, action):
+    action = REV_ACTION_MAP.get(action, '???')
+    text  = '%s used %s on %s' % (userlink(user), action, postlink(post))
     return text
 
 def post_action(user, post):
-    return 'POSTED'
-    action = REV_ACTION_MAP.get(action, 'undefined action?')
-    name  = '<a href="%s">%s</a>' % (user.profile.get_absolute_url(), user.profile.display_name)
-    title = '<a href="%s">%s</a>' % (post.get_absolute_url(), post.title)
-    text  = '%s used %s on %s' % (name, action, title)
+    
+    if post.post_type == POST_ANSWER:
+        action = 'answered'
+    elif post.post_type == POST_COMMENT:
+        action = 'commented on'
+    else:
+        action = "did something to"
+    text   = '%s %s %s with *%s...*' % (userlink(user), action, postlink(post), post.content[:150])
+    print text
     return text
