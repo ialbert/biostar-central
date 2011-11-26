@@ -9,7 +9,7 @@ class PostForm(forms.Form):
     title      = forms.CharField(max_length=250,  initial=P_TITLE)
     content    = forms.CharField(max_length=5000, initial=P_CONTENT)
     tag_string = forms.CharField(max_length=250,  initial=P_TAG, widget=forms.TextInput(attrs={'style':'width:700px;'}))
-    post_type  = forms.ChoiceField(choices=const.POST_CHOICES[:-2])
+    post_type  = forms.ChoiceField(choices=const.POST_TYPES[:1])
 
     def clean(self):
         "Custom validator for the question"

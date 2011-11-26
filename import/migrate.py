@@ -204,7 +204,7 @@ def insert_posts(fname, limit, users):
     # first insert all posts
     
     # connects the post type in the SE dump to the models in BioStar
-    PMAP = { '1': const.POST_MAP['Question'], '2': const.POST_MAP['Answer'] }
+    PMAP = { '1': const.POST_QUESTION, '2': const.POST_ANSWER }
     
     for row in rows:
         postid = row['Id']
@@ -218,7 +218,7 @@ def insert_posts(fname, limit, users):
             tag_string = parse_tag_string(tag_string)
 
         ptypeid   = row['PostTypeId']
-        post_type = PMAP.get(ptypeid, const.POST_MAP['Post'])
+        post_type = PMAP.get(ptypeid, const.POST_OTHER)
         
         # collect answercounts
         if post_type == POST_ANSWER and parentid:
@@ -370,7 +370,7 @@ def insert_comments(fname, posts, users, limit):
         postid = row['PostId'] 
         author = users[row['UserId']]
         creation_date = parse_time(row['CreationDate'])
-        post_type = const.POST_MAP['Comment']
+        post_type = const.POST_COMMENT
         row = postid, cid, dict(author=author, creation_date=creation_date, content=text, post_type=post_type)
         clist.append( row )
 

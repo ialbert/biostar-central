@@ -109,7 +109,7 @@
             {% for note in notes %}
                 <tr><td>
                     &bull; {% time_ago note.date %}
-                    <a href="/user/show/{{note.author.id}}/">{{ note.sender.profile.display_name }}</a> {{ note.text|safe }} 
+                    <a href="/user/show/{{note.sender.id}}/">{{ note.sender.profile.display_name }}</a> {{ note.html|safe }} 
                 </tr></tr>
             {% empty %}
                 <tr><td>

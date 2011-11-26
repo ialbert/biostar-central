@@ -164,7 +164,7 @@ class Post(MPTTModel):
     deleted = models.BooleanField()
     closed  = models.BooleanField()
     
-    post_type = models.IntegerField(choices=POST_CHOICES, db_index=True)
+    post_type = models.IntegerField(choices=POST_TYPES, db_index=True)
     
     # this will maintain parent-child replationships between poss
     #parent = models.ForeignKey('self', related_name="children", null=True, blank=True)
@@ -211,7 +211,7 @@ class Post(MPTTModel):
         return (self.author == user)
     
     @transaction.commit_on_success
-    def notify(self, user, text='no text'):
+    def notify(self, user):
         "Generates notifications to all users related with this post"
         # create a notification for the post that includes all authors of every child
         root = self.get_root()
@@ -224,8 +224,9 @@ class Post(MPTTModel):
         if not settings.DEBUG:
             authors.discard(user)
 
-        #for target in authors:
-        #   note = Note.objects.create(target=target, author=user, root=root, anchor=self, text=text)
+        text = notegen.post_action(user=user, post=self)
+        for target in authors:
+            Note.send(sender=user, target=target, content=text, type=NOTE_USER)
 
     def create_revision(self, content=None, title=None, tag_string=None, author=None, date=None, action=REV_NONE):
         """
@@ -252,6 +253,7 @@ class Post(MPTTModel):
         revision = PostRevision(post=self, content=content, tag_string=tag_string, title=title, author=author, date=date, action=action)
         revision.save()
         
+       
         # Update our metadata
         self.lastedit_user = author
         self.content = content
@@ -281,7 +283,8 @@ class Post(MPTTModel):
         """
         
         text = notegen.moderator_action(user=moderator, post=self, action=action)
-        note = Note.objects.create(target=self.author, sender=moderator, post=self, text=text,  type=NOTE_MODERATOR)
+        Note.send(target=self.author, sender=moderator, post=self, content=text,  type=NOTE_MODERATOR)
+        
 
         self.create_revision(action=action)
 
@@ -398,11 +401,19 @@ class Note(models.Model):
     sender  = models.ForeignKey(User, related_name="note_sender") # the creator of the notification
     target  = models.ForeignKey(User, related_name="note_target", db_index=True) # the user that will get the note
     post    = models.ForeignKey(Post, related_name="note_post",null=True, blank=True) # the user that will get the note
-    text    = models.CharField(max_length=1000, default='')
+    content = models.CharField(max_length=1000, default='') # this contains the raw message
+    html    = models.CharField(max_length=1000, default='') # this contains the santizied content
     date    = models.DateTimeField(auto_now_add=True)
     unread  = models.BooleanField(default=True)
     type    = models.IntegerField(choices=NOTE_TYPES, default=NOTE_USER)
 
+    @classmethod
+    def send(self, **params):
+        note = Note.objects.create(**params)
+        if settings.DEBUG:
+            params['target'] = params['sender']
+            note = Note.objects.create(**params)
+        
 class PostRevision(models.Model):
     """
     Represents various revisions of a single post
@@ -551,7 +562,7 @@ def create_profile(sender, instance, created, *args, **kwargs):
     "Post save hook for creating user profiles on user save"
     if created:
         uuid = make_uuid() 
-        display_name = instance.get_full_name()
+        display_name = html.generate(instance.get_full_name())
         UserProfile.objects.create(user=instance, uuid=uuid, display_name=display_name)
               
 from django.template.defaultfilters import slugify
@@ -582,7 +593,11 @@ def create_award(sender, instance, *args, **kwargs):
     "Pre save award function"
     if not instance.date:
         instance.date = datetime.now()
-        
+
+def create_note(sender, instance, *args, **kwargs):
+    "Pre save notice function"
+    instance.html = html.generate(instance.content)
+  
 def tags_changed(sender, instance, action, pk_set, *args, **kwargs):
     "Applies tag count updates upon post changes"
     if action == 'post_add':
@@ -614,6 +629,7 @@ def tag_created(sender, instance, created, *args, **kwargs):
 # now connect all the signals
 signals.post_save.connect( create_profile, sender=User )
 signals.pre_save.connect( create_post, sender=Post )
+signals.pre_save.connect( create_note, sender=Note )
 signals.pre_save.connect( create_award, sender=Award )
 signals.m2m_changed.connect( tags_changed, sender=Post.tag_set.through )
 signals.post_save.connect( tag_created, sender=Tag )

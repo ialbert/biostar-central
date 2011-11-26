@@ -37,6 +37,7 @@ def get_page(request, obj_list, per_page=25):
     
     return page
 
+
 def generate(text):
     """
     Generates html from a markdown text.
@@ -45,10 +46,21 @@ def generate(text):
     
     >>> generate("ABCD")
     """
+    
+    md = markdown.Markdown(
+        safe_mode=True,
+    )
+    md.html_replacement_text = "[?]"
 
+  
     # split the text into lines
     lines = text.splitlines()
     
+    # this is to save some effort on single line content
+    if len(lines) == 1:
+        html = md.convert(lines[0])
+        return html
+
     # function to detect code starts
     func  = lambda line: line.startswith(' ' * 4) or line.startswith("\t")
     pairs = zip(map(func, lines), lines) 
@@ -93,8 +105,8 @@ def generate(text):
             out.append( block )
 
     # markdown needs to run on the entire body to handle references
-    html = '\n'.join(out)
-    html = markdown.markdown(html, safe_mode=True)
+    text = '\n'.join(out)
+    html = md.convert(text)
     
     # this is required to put the codes back into the markdown
     for uuid, value in code.items():

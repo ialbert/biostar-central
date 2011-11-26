@@ -23,8 +23,12 @@ h1 {
 }
 
 p {
+    display: inline;
+}
+
+.par {
     clear: both;
-    margin-bottom: 1em;
+    margin-top: 1em;
 }
 
 .post-text {

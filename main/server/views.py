@@ -204,14 +204,13 @@ def post_edit(request, pid=0, parentid=0, post_type=POST_QUESTION):
     form_data = (request.method == 'POST')
     
     # sanity check
-    assert post_type in POST_REV_MAP, 'Invalid post_type %s' % post_type
+    assert post_type in POST_MAP, 'Invalid post_type %s' % post_type
   
-   
     # this is a readable form of the post type
-    post_type_name = POST_REV_MAP.get(post_type,'')
+    post_type_name = POST_MAP.get(post_type,'')
 
     # select the form factory from the post types
-    use_post_form = (post_type_name in POST_FULL_FORM)
+    use_post_form = (post_type in POST_FULL_FORM)
 
     if use_post_form:
         factory = formdef.PostForm
@@ -236,8 +235,7 @@ def post_edit(request, pid=0, parentid=0, post_type=POST_QUESTION):
             params = dict(author=user, post_type=post_type, parent=parent, creation_date=datetime.now())
             params.update(form.cleaned_data)            
             post = models.Post.objects.create(**params)
-            text = CREATE_NOTICE.get(post_type, "?")
-            post.notify(user=user, text=text)
+            post.notify(user=user)
             process_form(post, form, user=request.user)
             return show_post(post)
 
@@ -253,10 +251,10 @@ def post_edit(request, pid=0, parentid=0, post_type=POST_QUESTION):
     parent = post.parent
     post_type = post.post_type
     
-    post_type_name = POST_REV_MAP.get(post_type,'')
+    post_type_name = POST_MAP.get(post_type,'')
    
     # select the form factory from the post types
-    use_post_form = (post_type_name in POST_FULL_FORM)
+    use_post_form = (post_type in POST_FULL_FORM)
     if use_post_form:
         factory = formdef.PostForm
     else:
@@ -276,7 +274,6 @@ def post_edit(request, pid=0, parentid=0, post_type=POST_QUESTION):
         form = factory(request.POST)
         if not form.is_valid():
             return html.template(request, name='post.edit.html', form=form, params=params)
-        text = EDIT_NOTICE.get(post_type, "?")
         process_form(post=post, form=form, user=request.user)        
         return show_post(post)    
 
@@ -386,8 +383,7 @@ def moderate_user(request, uid, action):
         target.profile.suspended = True
         target.profile.save()
         text = 'suspended %s' % target.profile.display_name
-
-        models.Note.objects.create(target=moderator, text=text, sender=moderator)
+        models.Note.send(target=target, content=text, sender=moderator)
         return html.json_response({'status':'success', 'msg':'user suspended'})
     
     elif action == 'reinstate':
