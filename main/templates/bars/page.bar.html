@@ -9,21 +9,22 @@
             </td>
 
             <td align="center">
-        
-                {% if page.has_previous %}
-                    &lt;<a href="{{path}}?page={{page.previous_page_number}}&m={{m}}&q={{q}}{{anchor}}">previous</a>
-                    &bull; <a href="{{path}}?page=1&m={{m}}&q={{q}}{{anchor}}">first</a>
-                {% else %}
-                    <span style="color:#555555;">&lt;previous &bull; first</span>
-                {% endif %}
+                {% if page.paginator.num_pages > 1 %}
+                    {% if page.has_previous %}
+                        &lt;<a href="{{path}}?page={{page.previous_page_number}}&m={{m}}&q={{q}}{{anchor}}">previous</a>
+                        &bull; <a href="{{path}}?page=1&m={{m}}&q={{q}}{{anchor}}">first</a>
+                    {% else %}
+                        <span style="color:#555555;">&lt;previous &bull; first</span>
+                    {% endif %}
 
-                &bull; page {{ page.number }} of {{ page.paginator.num_pages }}
-    
-                {% if page.has_next %}
-                    &bull; <a href="{{path}}?page={{page.paginator.num_pages}}&m={{m}}&q={{q}}{{anchor}}">last</a>
-                    &bull; <a href="{{path}}?page={{page.next_page_number}}&m={{m}}&q={{q}}{{anchor}}">next</a>&gt;
-                {% else %}
-                    <span style="color:#555555;">&bull; last &bull; next&gt;</span>
+                    &bull; page {{ page.number }} of {{ page.paginator.num_pages }}
+        
+                    {% if page.has_next %}
+                        &bull; <a href="{{path}}?page={{page.paginator.num_pages}}&m={{m}}&q={{q}}{{anchor}}">last</a>
+                        &bull; <a href="{{path}}?page={{page.next_page_number}}&m={{m}}&q={{q}}{{anchor}}">next</a>&gt;
+                    {% else %}
+                        <span style="color:#555555;">&bull; last &bull; next&gt;</span>
+                    {% endif %}
                 {% endif %}
             </td>
 

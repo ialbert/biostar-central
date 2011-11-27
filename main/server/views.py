@@ -127,10 +127,12 @@ def search(request):
     return html.template(request, name='todo.html')
 
 def question_unanswered(request, uid=0, post_type=None):
-    "Lists all the questions" 
+    "Lists all the questions"
+    params = html.Params()
+    params.setr('Filter: unanswered')
     qs = get_posts(request).filter(answer_count=0)
     page = get_page(request, qs) 
-    return html.template(request, name='post.list.html', page=page)
+    return html.template(request, name='post.list.html', page=page, params=params)
 
 def question_tagged(request, tag_name):
     params = html.Params()
