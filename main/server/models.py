@@ -347,22 +347,21 @@ class Post(MPTTModel):
         return False
         
     def set_tags(self, tag_string):
-        '''
-        Sets the post's tags to a space-separated string of tags 
-        '''
-        
+        ''' Sets the post's tags to a space-separated string of tags '''
         self.tag_string = tag_string
-        
-        tags = self.tag_string.split(' ')
-        tags = map(string.strip, tags)
-        
-        def tagger(name):
-            return Tag.objects.get_or_create(name=name)[0]
-        
-        tags = map(tagger, tags)
-        self.tag_set.clear()
-        self.tag_set.add(*tags)
         self.save()
+        self.tag_set.clear()
+        if not tag_string:
+            return
+        tags = []
+        for tag_name in tag_string.split(' '):
+            try:
+                tags.append(Tag.objects.get(name=tag_name))
+            except Tag.DoesNotExist:
+                tag = Tag(name=tag_name)
+                tag.save()
+                tags.append(tag)
+        self.tag_set.add(*tags)
         
     def get_tags(self):
         ''' Returns the post's tags as a list of strings '''
