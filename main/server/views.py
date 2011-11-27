@@ -72,42 +72,37 @@ def post_list(request, uid=0, post_type=None):
 
 def user_profile(request, uid):
     "User's profile page"
-    user = models.User.objects.get(id=uid)
-    profile = models.UserProfile.objects.get(user=user)
-    profile.writeable = profile.authorize(request.user)
-    questions = models.Post.objects.filter(author=user, post_type=POST_QUESTION).select_related('author','author__profile')
-    questions = questions.order_by('-score')[:15]
-    answers   = models.Post.objects.filter(author=user, post_type=POST_ANSWER).select_related('author', 'author_profile', 'parent__author','parent__author__profile')
-    answers   = answers.order_by('-score')[:15]
 
-    if user == request.user:
-        notes = models.Note.objects.filter(target=user).select_related('author', 'author__profile', 'root').order_by('-date')
+    user = request.user
+    target  = models.User.objects.get(id=uid)
+    
+    if target == user:
+        notes = models.Note.objects.filter(target=target).select_related('author', 'author__profile', 'root').order_by('-date')
         page  = get_page(request, notes, per_page=10)
-        
         # we evalute it here so that subsequent status updates won't interfere
         page.object_list = list(page.object_list)
-
-        # now update all messages to read
-        models.Note.objects.filter(target=user, unread=True).update(unread=False)
+        models.Note.objects.filter(target=target).update(unread=False)
     else:
         page = None
 
     # we need to collate and count the awards
-    awards = models.Award.objects.filter(user=user).select_related('badge').order_by('-date')
+    awards = models.Award.objects.filter(user=target).select_related('badge').order_by('-date')
     
-    answer_count = models.Post.objects.filter(author=user, post_type=POST_ANSWER).count()
-    question_count = models.Post.objects.filter(author=user, post_type=POST_QUESTION).count()
-    comment_count = models.Post.objects.filter(author=user, post_type=POST_COMMENT).count()
-    post_count = models.Post.objects.filter(author=user).count()
-    vote_count = models.Vote.objects.filter(author=user).count()
-    award_count = models.Award.objects.filter(user=user).count()
+    answer_count = models.Post.objects.filter(author=target, post_type=POST_ANSWER).count()
+    question_count = models.Post.objects.filter(author=target, post_type=POST_QUESTION).count()
+    comment_count = models.Post.objects.filter(author=target, post_type=POST_COMMENT).count()
+    post_count = models.Post.objects.filter(author=target).count()
+    vote_count = models.Vote.objects.filter(author=target).count()
+    award_count = models.Award.objects.filter(user=target).count()
     
     params = html.Params(question_count=question_count, answer_count=answer_count, 
         comment_count=comment_count, post_count=post_count, vote_count=vote_count, award_count=award_count)
+    
+    # it the target personal information writable
+    target.editable   = target.profile.editable(user)
+    target.authorized = target.profile.authorize(user)
     return html.template(request, name='user.profile.html',
-        user=request.user, profile=profile, selected=user,
-        questions=questions,
-        answers=answers, awards=awards, params=params, page=page)
+        user=request.user,target=target, params=params, page=page)
 
 def user_list(request):
     search  = request.GET.get('m','')[:80] # trim for sanity
@@ -125,7 +120,7 @@ def tag_list(request):
     return html.template(request, name='tag.list.html', page=page)
 
 def badge_list(request):
-    badges = models.Badge.objects.filter(secret=False).order_by('name')
+    badges = models.Badge.objects.filter(secret=False).order_by('-count', '-type')
     return html.template(request, name='badge.list.html', badges=badges)
 
 def search(request):
@@ -138,9 +133,11 @@ def question_unanswered(request, uid=0, post_type=None):
     return html.template(request, name='post.list.html', page=page)
 
 def question_tagged(request, tag_name):
+    params = html.Params()
+    params.setr('Tag: %s' % tag_name)
     qs = get_posts(request).filter(tag_set__name=tag_name)
     page = get_page(request, qs) 
-    return html.template(request, name='post.list.html', page=page)
+    return html.template(request, name='post.list.html', page=page, params=params)
   
 def post_show(request, pid):
     "Returns a question with all answers"

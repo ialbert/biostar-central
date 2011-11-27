@@ -13,7 +13,7 @@ def postlink(post):
         title = root.title
     else:
         title = '%s...' %  root.title[:size] 
-    return '[%s](%s%s/#%s/)' % (title, root.get_absolute_url(), root.slug, post.id)
+    return '[%s](%s%s/#%s)' % (title, root.get_absolute_url(), root.slug, post.id)
 
 def post_moderator_action(user, post, action):
     action = REV_ACTION_MAP.get(action, '???')

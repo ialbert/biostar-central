@@ -47,12 +47,14 @@ def generate(text):
     >>> generate("ABCD")
     """
     
+    if not text:
+        return ""
+
     md = markdown.Markdown(
         safe_mode=True,
     )
     md.html_replacement_text = "[?]"
 
-  
     # split the text into lines
     lines = text.splitlines()
     

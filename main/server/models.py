@@ -49,7 +49,8 @@ class UserProfile( models.Model ):
     last_visited = models.DateTimeField(auto_now=True)
     suspended    = models.BooleanField(default=False, null=False)
     
-    about_me = models.TextField(default="", null=True)
+    about_me = models.TextField(default="(about me)", null=True)
+    html     = models.TextField(default="", null=True)
     location = models.TextField(default="", null=True)
     website  = models.URLField(default="", null=True, max_length=100)
     openid   = models.URLField(default="http://www.biostars.org", null=True)
@@ -87,7 +88,7 @@ class UserProfile( models.Model ):
             return 'active'
 
     def authorize(self, moderator):
-        "Authorizes access to a user by a moderator"
+        "Authorizes access to a user data moderator"
         
         # we will cascade through options here
 
@@ -95,10 +96,6 @@ class UserProfile( models.Model ):
         if  moderator.is_anonymous():
             return False
 
-        # everyone can access themselves
-        if self.user == moderator:
-            return True
-        
         # other admins may only be changed via direct database access
         if self.is_admin:
             return False
@@ -112,6 +109,16 @@ class UserProfile( models.Model ):
             return False
 
         return moderator.profile.is_moderator
+    
+    def editable(self, moderator):
+        "Is this users content editable by a moderator"
+       
+        # everyone can access themselves
+        if self.user == moderator:
+            return True
+        
+        return self.authorize(moderator)
+
 
     @property
     def note_count(self):
@@ -228,10 +235,10 @@ class Post(MPTTModel):
         authors.remove(self.author)
        
         for target in authors:
-            Note.send(sender=self.author, target=target, content=text, type=NOTE_USER, unread=True)
+            Note.send(sender=self.author, target=target, content=text, type=NOTE_USER, unread=True, date=self.creation_date)
 
         # for the current post author  this is not a new message
-        Note.send(sender=self.author, target=self.author, content=text, type=NOTE_USER, unread=False)
+        Note.send(sender=self.author, target=self.author, content=text, type=NOTE_USER, unread=False, date=self.creation_date)
 
 
     def create_revision(self, content=None, title=None, tag_string=None, author=None, date=None, action=REV_NONE):
@@ -406,7 +413,7 @@ class Note(models.Model):
     post    = models.ForeignKey(Post, related_name="note_post",null=True, blank=True) # the user that will get the note
     content = models.CharField(max_length=1000, default='') # this contains the raw message
     html    = models.CharField(max_length=1000, default='') # this contains the santizied content
-    date    = models.DateTimeField(auto_now_add=True)
+    date    = models.DateTimeField(null=False)
     unread  = models.BooleanField(default=True)
     type    = models.IntegerField(choices=NOTE_TYPES, default=NOTE_USER)
 
@@ -572,7 +579,11 @@ def create_profile(sender, instance, created, *args, **kwargs):
         uuid = make_uuid() 
         display_name = html.generate(instance.get_full_name())
         UserProfile.objects.create(user=instance, uuid=uuid, display_name=display_name)
-              
+
+def update_profile(sender, instance, *args, **kwargs):
+    "Pre save hook for profiles"
+    instance.html = html.generate(instance.about_me)
+    
 from django.template.defaultfilters import slugify
 
 def create_post(sender, instance, *args, **kwargs):
@@ -610,6 +621,8 @@ def create_award(sender, instance, *args, **kwargs):
 
 def create_note(sender, instance, *args, **kwargs):
     "Pre save notice function"
+    if not instance.date:
+        instance.date = datetime.now()
     instance.html = html.generate(instance.content)
   
 def tags_changed(sender, instance, action, pk_set, *args, **kwargs):
@@ -642,6 +655,8 @@ def tag_created(sender, instance, created, *args, **kwargs):
 
 # now connect all the signals
 signals.post_save.connect( create_profile, sender=User )
+signals.pre_save.connect( update_profile, sender=UserProfile )
+
 signals.pre_save.connect( create_post, sender=Post )
 signals.post_save.connect( create_post_note, sender=Post )
 

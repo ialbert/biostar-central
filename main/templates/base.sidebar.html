@@ -9,7 +9,7 @@
         </div>        
     </div>
     
-    <table>
+    <table width="100%">
         <tr valign="top">
             <td>
                 <div id="mainbar">
@@ -18,8 +18,8 @@
                 {% endblock %}
                 </div>
             </td>
-            <td>
-                <div id="sidebar">
+            <td id="sidebar">
+                <div>
                     {% block sidebar %}
                         {% include "bars/info.box.html" %}
                     {% endblock %}

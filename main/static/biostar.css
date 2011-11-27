@@ -103,7 +103,17 @@ a:hover, a.post-title {
 |-------------------------*/
 
 .msg-new {
-    font-weight: bold;
+    padding-left: 20px;
+    background-image: url("/static/img/new-message.png");
+    background-repeat: no-repeat;
+    background-position:0px 0.3ex; 
+}
+
+.msg-old {
+    padding-left: 20px;
+    background-image: url("/static/img/old-message.png");
+    background-repeat: no-repeat;
+    background-position:0px 5px; 
 }
 
 #message-table {
@@ -111,7 +121,8 @@ a:hover, a.post-title {
 }
 
 #message-table td {
-   padding:2px 2px 2px 2px;
+    padding-top:3px;
+    padding-bottom:3px;
 }
 
 #main {
@@ -508,11 +519,9 @@ a:hover, a.post-title {
 }
 
 .autobiography {
-  width: 30em; height: 15em; 
-  padding: 0.1em 0.3em 0.1em 0.3em;
-  overflow: auto; text-align: left; 
-  border: 1px solid gray;
+  border-bottom: 1px dotted #999999;
   background-color: #EEEEEE;
+  padding:10px;
 }
 
 /* Question status */

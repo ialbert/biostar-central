@@ -15,82 +15,64 @@
 {% endblock %}
 
 {% block subheader %}
-  <h2>{{ selected.profile.display_name }} {% flair selected %}</h2>
+  <h2>{% designation target %} {{ target.profile.display_name }} {% flair target %}</h2>
 {% endblock %}
 
 {% block mainbar %}
 
-<table border="0" width="950px">
+<table border="0" width="100%" class="autobiography">
 <tr>
-<td valign="top" align="center">
-  <div style="margin: 1em">
-    <div>{% gravatar selected 150 %}</div>
-    <div>{% userrep selected %}</div>
-    
-    {% if user.profile.is_moderator %}
-        <div style="padding:10px;" align="center" >        
-            {% if selected.profile.suspended %}
-                <a class="usermod-link">reinstate</a>
-            {% else %}
-                <a class="usermod-link">suspend</a>
-            {% endif %}            
-         </div>
-    {% endif %}
-   
-
-  </div>
-</td>
-<td valign="top" align="left">
-  <div style="margin: 2em">
-    
-    <div class="L W">Name</div>
-    <div class="L"><b id="username">{{ selected.profile.display_name }}</b>  
-        {% if profile.writeable %} 
-            | <a href="/user/edit/{{selected.id}}/">edit</a>
+    <td valign="top" align="center">
+      <div style="margin: 1em">
+        <div>{% gravatar target 150 %}</div>
+        <div>{% userrep target %}</div>
+        
+        {% if target.authorized %}
+            <div style="padding:10px;" align="center" >        
+                {% if target.profile.suspended %}
+                    <a class="usermod-link">reinstate</a>
+                {% else %}
+                    <a class="usermod-link">suspend</a>
+                {% endif %}            
+             </div>
         {% endif %}
-    </div>
-    <div class="L">Status: {{selected.profile.status}}</div>
+       
 
-    <div class="C"></div>
-    
-    <div class="L W">Userid</div>
-    <div class="L" id="userid">{{selected.id}}</div>
-    <div class="C"></div>
-    
-    {% if user.is_staff %}
-      <div class="L W">Email</div>
-      <div class="L">{{ selected.email }}</div>
-      <div class="C"></div>
-    {% endif %}
+      </div>
+    </td>
+    <td valign="top" width="30%" >
+        <div class="pad10">
+            
+            <div style="font-size:larger;">
+                {% if target.profile.website %}
+                    <a href="{{target.profile.website}}"><b id="username">{{ target.profile.display_name }}</b></a>
+                {% else %}
+                    <span id="username"><b>{{ target.profile.display_name }}</b></span>
+                {% endif %}
+                {% if target.editable %} 
+                    | <a href="/user/edit/{{target.id}}/">edit</a>
+                {% endif %}
+            </div>
 
-    <div class="L W">Member for</div>
-    <div class="L">{{ selected.date_joined|timesince }}</div>
-    <div class="C"></div>
+            {% if target.editable %}
+              <div>Email: {{ target.email }}</div>
+            {% endif %}
+            
+            <div>Location: {{ target.profile.location }}</div>
+            <div>Status: {{target.profile.status}}</div>
+            <div>Userid: <span id="userid">{{target.id}}</span></div>
+            <div>Member for: {{ target.date_joined|timesince }}</div>
+            <div>Last seen: {{ target.profile.last_visited|timesince }} ago </div>
+        </div>
+    </td>
 
-    <div class="L W">Seen</div>
-    <div class="L">{{ profile.last_visited|timesince }} ago </div>
-    <div class="C"></div>
-
-    <div class="L W">Website</div>
-    <div class="L"><a href="{{profile.website}}">{{profile.website}}</a></div>
-    <div class="C"></div>
-
-    <div class="L W">Location</div>
-    <div class="L">{{ profile.location }}</div>
-    <div class="C"></div>
-    
-  </div>
-</td>
-
-<td valign="top" align="center">
-<div class="autobiography" style="margin: 1em">
-{{ profile.about_me|force_escape|markdown }}
-</div>
-</td>
+    <td valign="top" width="100%">
+        {{target.profile.html|safe }}
+    </td>
 </tr>
 </table>
 
-    {% if selected == user %}
+    {% if target == user %}
         <div class="title" id="messages">Messages </div>
         <table class="pad10" border="0" width="100%" id="message-table"> 
             
@@ -103,7 +85,7 @@
 
             {% for note in page.object_list %}
                 <tr><td class="msg-{{note.status}}">
-                    &bull; {% time_ago note.date %} {{ note.html|safe }} 
+                    {% time_ago note.date %} {{ note.html|safe }} 
                 </tr></tr>
             {% empty %}
                 <tr><td>
@@ -111,14 +93,14 @@
                 <tr><td>
             {% endfor %}
             <tr><td bgcolor="#EEEEEE" style="border-top:1px dotted #999999;">
-                Get a private <a href="/feeds/messages/{{selected.profile.uuid}}/">RSS feed<img src="/static/img/feed-icon-small.png" style="vertical-align: middle; padding-left:3px;"></a> 
+                Get a private <a href="/feeds/messages/{{target.profile.uuid}}/">RSS feed<img src="/static/img/feed-icon-small.png" style="vertical-align: middle; padding-left:3px;"></a> 
                  to your messages.
             </td></tr>
 
              <tr><td>                
                 <div class="small" style="margin-bottom:5px;">
                 <div>This section shows activity on posts that you have interacted with.
-                    You may also <a href="/note/clear/{{selected.id}}/">clear all<img src="/static/img/trash.jpg" style="vertical-align: middle; padding-left:3px;"></a>  of your messages.
+                    You may also <a href="/note/clear/{{target.id}}/" onclick="return confirm('Are you sure you want to clear all of your messages?')">clear all<img src="/static/img/trash.jpg" style="vertical-align: middle; padding-left:3px;"></a>  of your messages.
                 </div>
             </td></tr>
 
@@ -128,10 +110,10 @@
     <div class="title" id="activity">Activity</div>
     
     <div class="pad10">
-        {{ selected.profile.display_name }} has created <a href="/post/list/{{selected.id}}/">{{params.post_count}}  posts</a> distributed as
-         <a href="/post/list/{{selected.id}}/questions/">{{params.question_count}} questions</a>, 
-         <a href="/post/list/{{selected.id}}/answers/">{{params.answer_count}} answers</a> and 
-         <a href="/post/list/{{selected.id}}/comments/">{{params.comment_count}} comments</a>  
+        {{ target.profile.display_name }} has created <a href="/post/list/{{target.id}}/">{{params.post_count}}  posts</a> distributed as
+         <a href="/post/list/{{target.id}}/questions/">{{params.question_count}} questions</a>, 
+         <a href="/post/list/{{target.id}}/answers/">{{params.answer_count}} answers</a> and 
+         <a href="/post/list/{{target.id}}/comments/">{{params.comment_count}} comments</a>  
          <div>
             This user  has voted {{params.vote_count}} times  and has earned {{params.award_count}} badges
          </div>
@@ -143,7 +125,7 @@
         {% for award in awards %}
             <div style="width:175px; height:50px; float:left;">
                 <div>
-                    <a class="badge">
+                    <a class="badge" href="/badge/show/{{award.badge.id}}/">                    
                         {% badgeicon award.badge.get_type_display %}
                         {{award.badge.name}}
                     </a>

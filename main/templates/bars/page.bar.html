@@ -17,7 +17,7 @@
                     <span style="color:#555555;">&lt;previous &bull; first</span>
                 {% endif %}
 
-                &bull; page {{ page.number }} of {{ page.paginator.num_pages }} {{q}}
+                &bull; page {{ page.number }} of {{ page.paginator.num_pages }}
     
                 {% if page.has_next %}
                     &bull; <a href="{{path}}?page={{page.paginator.num_pages}}&m={{m}}&q={{q}}{{anchor}}">last</a>
