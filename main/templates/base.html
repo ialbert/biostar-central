@@ -12,16 +12,16 @@
         <!-- CSS Framework loading -->
 
         <!-- Syntax Highlighter  -->
-        <link rel="stylesheet" href="/static/pygments.css" type="text/css" media="screen, projection" />
+        <link rel="stylesheet" href="{{ STATIC_URL }}pygments.css" type="text/css" media="screen, projection" />
        
         <!-- JQuery Library  -->
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
 
         <!-- Django CSRF setup for AJAX -->
-        <script src="/static/js/csrf.js"></script>
+        <script src="{{ STATIC_URL }}js/csrf.js"></script>
         
         <!-- Debug Javascript -->
-        <script src="/static/js/debug.js"></script>
+        <script src="{{ STATIC_URL }}js/debug.js"></script>
 
         <!-- Biostar specific style sheet and javascript-->
         <link rel="stylesheet" href="{{ STATIC_URL }}biostar.css" type="text/css" media="screen, projection" />
@@ -94,7 +94,7 @@
         
         <tr>
             <td style="padding:3px">
-                <a href="/"><img src="/static/biostar.logo.png" border="0"/></a>
+                <a href="/"><img src="{{ STATIC_URL }}biostar.logo.png" border="0"/></a>
             </td>
         
             <td style="padding:3px">

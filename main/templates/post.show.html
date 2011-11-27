@@ -9,15 +9,15 @@
 
 {% block custom-frameworks %}
     <!-- AJAX -->
-    <script src="/static/js/vote.js"></script>
-    <script src="/static/js/mod.js"></script>
-    <script src="/static/js/comment.js"></script>
+    <script src="{{ STATIC_URL }}js/vote.js"></script>
+    <script src="{{ STATIC_URL }}js/mod.js"></script>
+    <script src="{{ STATIC_URL }}js/comment.js"></script>
 
     <!-- markitUp editor -->
-    <script type="text/javascript" src="/static/markitup/jquery.markitup.js"></script>
-    <link rel="stylesheet" type="text/css" href="/static/markitup/skins/markitup/style.css" />
-    <link rel="stylesheet" href="/static/markitup/sets/markdown/style.css" type="text/css"/>
-    <script type="text/javascript" src="/static/markitup/sets/markdown/set.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}markitup/jquery.markitup.js"></script>
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}markitup/skins/markitup/style.css" />
+    <link rel="stylesheet" href="{{ STATIC_URL }}markitup/sets/markdown/style.css" type="text/css"/>
+    <script type="text/javascript" src="{{ STATIC_URL }}markitup/sets/markdown/set.js"></script>
     <script type="text/javascript" >
         $(document).ready(function() {
             $("#editor").markItUp(mySettings);

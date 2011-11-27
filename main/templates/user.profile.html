@@ -9,8 +9,8 @@
       .W  { width: 7em; }
       .C  { clear: left }
     </style>
-    <script src="/static/js/vote.js"></script>
-    <script src="/static/js/mod.js"></script>
+    <script src="{{ STATIC_URL }}js/vote.js"></script>
+    <script src="{{ STATIC_URL }}js/mod.js"></script>
     
 {% endblock %}
 
@@ -105,14 +105,14 @@
                 <tr><td>
             {% endfor %}
             <tr><td bgcolor="#EEEEEE" style="border-top:1px dotted #999999;">
-                Get a private <a href="/feeds/messages/{{target.profile.uuid}}/">RSS feed<img src="/static/img/feed-icon-small.png" style="vertical-align: middle; padding-left:3px;"></a> 
+                Get a private <a href="/feeds/messages/{{target.profile.uuid}}/">RSS feed<img src="{{ STATIC_URL }}img/feed-icon-small.png" style="vertical-align: middle; padding-left:3px;"></a> 
                  to your messages.
             </td></tr>
 
              <tr><td>                
                 <div class="small" style="margin-bottom:5px;">
                 <div>This section shows activity on posts that you have interacted with.
-                    You may also <a href="/note/clear/{{target.id}}/" onclick="return confirm('Are you sure you want to clear all of your messages?')">clear all<img src="/static/img/trash.jpg" style="vertical-align: middle; padding-left:3px;"></a>  of your messages.
+                    You may also <a href="/note/clear/{{target.id}}/" onclick="return confirm('Are you sure you want to clear all of your messages?')">clear all<img src="{{ STATIC_URL }}img/trash.jpg" style="vertical-align: middle; padding-left:3px;"></a>  of your messages.
                 </div>
             </td></tr>
 
