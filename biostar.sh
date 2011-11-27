@@ -113,6 +113,7 @@ while (( "$#" )); do
 		#cp $BIOSTAR_HOME/db/test.db $BIOSTAR_HOME/db/biostar.db
 		$PYTHON_EXE import/migrate.py --path import/se0 --limit 100
 		#$PYTHON_EXE import/migrate.py --path import/se2 --limit 500
+		#$PYTHON_EXE import/migrate.py --path import/se2
 	fi
 
 shift

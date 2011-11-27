@@ -106,7 +106,7 @@ a:hover, a.post-title {
     padding-left: 20px;
     background-image: url("/static/img/new-message.png");
     background-repeat: no-repeat;
-    background-position:0px 0.3ex; 
+    background-position:0px 5px; 
 }
 
 .msg-old {

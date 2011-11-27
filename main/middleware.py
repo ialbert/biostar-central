@@ -1,6 +1,7 @@
 import datetime
 from django.contrib.auth import logout
 from django.contrib import messages
+from main.server import models, const, notegen
 
 class LastVisit(object):
     """
@@ -12,7 +13,8 @@ class LastVisit(object):
     def process_request(self, request):
         
         if request.user.is_authenticated():
-            profile = request.user.get_profile()
+            user = request.user
+            profile = user.get_profile()
             
             if profile.suspended:
                 logout(request)
@@ -26,7 +28,10 @@ class LastVisit(object):
             if diff > self.MINIMUM_TIME:
                 profile.last_visited = now
                 profile.save()
-    
+            
+                # award the beta tester badge
+                models.apply_award(request=request, user=user, badge_name=const.BETA_TESTER_BADGE, messages=messages)
+                    
         return None
 
 

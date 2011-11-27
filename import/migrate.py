@@ -485,7 +485,10 @@ def insert_awards(fname, users, badges, limit):
             award = models.Award(**param)
             if USE_DB:
                 award.save()
-        
+    if USE_DB:
+        models.Badge.objects.create(name=const.BETA_TESTER_BADGE , 
+            description="Participated in the BioStar public beta test. Thank you!", type=const.BADGE_GOLD, unique=True)
+
 def admin_init():
     
     # create the admin users for a given settings file

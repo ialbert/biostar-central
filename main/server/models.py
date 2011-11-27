@@ -420,6 +420,7 @@ class Note(models.Model):
     @classmethod
     def send(self, **params):
         note = Note.objects.create(**params)
+        return note
         
     def get_absolute_url(self):
         return "/user/show/%s/" % self.target.id         
@@ -507,17 +508,18 @@ class Vote(models.Model):
             answer.save()
             #question.save()
             
-BADGE_BRONZE, BADGE_SILVER, BADGE_GOLD = 0, 1, 2
-BADGE_TYPES = ((BADGE_BRONZE, 'bronze'), (BADGE_SILVER, 'silver'), (BADGE_GOLD, 'gold'))
-            
+           
 class Badge(models.Model):
     name = models.CharField(max_length=50)
     description = models.CharField(max_length=200)
     type = models.IntegerField(choices=BADGE_TYPES)
-    unique = models.BooleanField() # Unique badges may be earned only once
-    secret = models.BooleanField() # Secret badges are not listed on the badge list
+    unique = models.BooleanField(default=False) # Unique badges may be earned only once
+    secret = models.BooleanField(default=False) # Secret badges are not listed on the badge list
     count  = models.IntegerField(default=0) # Total number of times awarded
     
+    def get_absolute_url(self):
+        return "/badge/show/%s/" % self.id
+
 class Award(models.Model):
     '''
     A badge being awarded to a user.Cannot be ManyToManyField
@@ -540,6 +542,22 @@ class Award(models.Model):
         self.badge.count += dir
         self.badge.save()
     
+  
+def apply_award(request, user, badge_name, messages=None):
+
+    badge = Badge.objects.get(name=badge_name)
+    award = Award.objects.filter(badge=badge, user=user)
+    
+    if award and badge.unique:
+        # this badge has already been awarded
+        return
+
+    community = User.objects.get(username='community')
+    award = Award.objects.create(badge=badge, user=user)
+    text = notegen.badgenote(award.badge)
+    note = Note.send(sender=community, target=user, content=text)
+    if messages:
+        messages.info(request, note.html)
 
 # most of the site functionality, reputation change
 # and voting is auto applied via database signals

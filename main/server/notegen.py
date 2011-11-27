@@ -15,6 +15,8 @@ def postlink(post):
         title = '%s...' %  root.title[:size] 
     return '[%s](%s%s/#%s)' % (title, root.get_absolute_url(), root.slug, post.id)
 
+def badgelink(badge):
+    return '[%s](%s)' % (badge.name, badge.get_absolute_url() )
 
 def post_moderator_action(user, post, action):
     action = REV_ACTION_MAP.get(action, '???')
@@ -48,4 +50,8 @@ def suspend(user):
 
 def reinstate(user):
     text = "reinstated %s" % userlink(user)
+    return text
+
+def badgenote(badge):
+    text = "Congratulations! You've just earned the **%s** badge!" % badgelink(badge)
     return text
