@@ -29,7 +29,9 @@ export FIXTURE=import/datadump.json.gz
 export PYTHONPATH=$PYTHONPATH:$BIOSTAR_HOME   
 
 # add the library files to the pythonpath
-export PYTHONPATH=$PYTHONPATH:libs/
+export PYTHONPATH=$PYTHONPATH:libs/:libs/libraries.zip
+
+echo $PYTHONPATH
 
 # setting up the python
 export PYTHON_EXE=python
