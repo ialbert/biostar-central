@@ -343,6 +343,7 @@ def vote(request):
         type = int(request.POST.get('type'))
         
         old_vote = post.get_vote(author, type)
+        
         if old_vote:
             old_vote.delete()
             return html.json_response({

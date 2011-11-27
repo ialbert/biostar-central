@@ -4,11 +4,13 @@ $(document).ready(function(){
                 
         up_button = elem.children('.vote-up')
         down_button = elem.children('.vote-down')
+
+        //HARDCODED VALUES!!!
         up_button.click(function(){
-            do_vote($(this), $(this).parent().children('input').val(), 0); 
+            do_vote($(this), $(this).parent().children('input').val(), 1); 
         });
         down_button.click(function(){
-            do_vote($(this), $(this).parent().children('input').val(), 1); 
+            do_vote($(this), $(this).parent().children('input').val(), 2); 
         });
     });
 });
