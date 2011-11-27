@@ -3,7 +3,7 @@ Parses a SE biostar xml datadump, and populates the
 database with the content. Finally exports a loadable 
 data fixture from this database.
 """
-import sys, os, random, re, shutil
+import sys, os, random, re, shutil, gc
 from datetime import datetime
 from itertools import *
 from xml.etree import ElementTree
@@ -23,6 +23,7 @@ if not os.environ.get('DJANGO_SETTINGS_MODULE'):
 from django.conf import settings
 from main.server import models, const
 from django.db import transaction
+from django.db.models import signals
 from django.utils.datastructures import SortedDict
 
 # import all constants
@@ -234,10 +235,14 @@ def insert_posts(fname, limit, users):
     print "*** inserting %s posts" % len(plist)
    
     with transaction.commit_on_success():
-        for postid, p in plist:
+        for i, (postid, p) in enumerate(plist):
             post = models.Post(**p)
             parentid = parents.get(postid)
             if USE_DB:
+                if (i % 1000 == 0):
+                    print "*** commit at %s" % i
+                    transaction.commit()
+                
                 # TODO in a better way
                 if post.tag_string:
                     post.set_tags(post.tag_string)
@@ -417,9 +422,12 @@ def insert_comment_votes(fname, limit, comms, users):
 
     print "*** inserting %s comment votes" % len(vlist)
     with transaction.commit_on_success():
-        for param in vlist:
+        for (i, param) in enumerate(vlist):
             vote = models.Vote(**param)
             if USE_DB:
+                if (i % 1000 == 0):
+                    print "*** commit at %s" % i
+                    transaction.commit()
                 vote.save()
  
 def insert_badges(fname, limit):
@@ -533,7 +541,7 @@ def execute(path, limit=None):
     """
     Executes the imports
     """
-
+    
     # turn off automatic text indexing
     models.set_text_indexing(False)
 
@@ -549,16 +557,20 @@ def execute(path, limit=None):
   
     fname = join(path, 'Posts.xml')
     posts = insert_posts(fname=fname, limit=limit, users=users)
+    
 
     fname = join(path, 'PostHistory.xml')
     revisions = insert_post_revisions(fname=fname, limit=limit, posts=posts, users=users)
     
+    # this creates way too many notices, so disconnect it during imports
+    signals.post_save.disconnect( models.create_post_note, sender=models.Post )
+
     fname = join(path, 'PostComments.xml')
     comms = insert_comments(fname=fname, posts=posts, users=users, limit=limit)
-   
+    
     fname = join(path, 'Posts2Votes.xml')
     insert_votes(fname=fname, limit=limit, posts=posts, users=users)
-     
+    
     fname = join(path, 'Comments2Votes.xml')
     insert_comment_votes(fname=fname, limit=limit, comms=comms, users=users)
     
