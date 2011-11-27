@@ -21,7 +21,8 @@ from whoosh.qparser import QueryParser
 
 class UserForm(forms.Form):
     "A form representing a new question"
-    display_name = forms.CharField(max_length=30,  initial="", widget=forms.TextInput(attrs={'size':'30'}))     
+    display_name = forms.CharField(max_length=30,  initial="", widget=forms.TextInput(attrs={'size':'30'}))   
+    email        = forms.CharField(max_length=50,  initial="", widget=forms.TextInput(attrs={'size':'50'}))
     location     = forms.CharField(max_length=50,  required=False, initial="", widget=forms.TextInput(attrs={'size':'50'}))
     website      = forms.CharField(max_length=80,  required=False, initial="", widget=forms.TextInput(attrs={'size':'50'}))
     about_me     = forms.CharField(max_length=500, required=False, initial="", widget=forms.Textarea (attrs=dict(cols='50', rows=6)))
@@ -37,6 +38,7 @@ def user_edit(request, uid):
     if request.method == 'GET':
         initial = dict(
             display_name = user.profile.display_name,
+            email      = user.email or '',
             location   = user.profile.location or '',
             website    = user.profile.website or '',
             about_me   = user.profile.about_me or ''
@@ -51,6 +53,7 @@ def user_edit(request, uid):
         else:
             for field in "display_name about_me website location".split():
                 setattr(user.profile, field, form.cleaned_data[field])
+            user.email = form.cleaned_data['email']
             user.profile.save()
             user.save()
             return html.redirect("/user/show/%s/" % user.id)
