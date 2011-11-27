@@ -136,7 +136,6 @@ class TagAdmin(admin.ModelAdmin):
 
 admin.site.register(Tag, TagAdmin)
 
-
 class PostManager(models.Manager):
     ''' Used for all posts (question, answer, comment); returns only non-deleted posts '''
     def get_query_set(self):
@@ -162,7 +161,7 @@ class Post(MPTTModel):
     content = models.TextField(blank=True) # The underlying Markdown
     html    = models.TextField(blank=True) # this is the sanitized HTML for display
     title   = models.TextField(blank=True)
-    slug    = models.SlugField(blank=True, max_length=50)
+    slug    = models.SlugField(blank=True, max_length=200)
     tag_string = models.CharField(max_length=200) # The tag string is the canonical form of the post's tags
     tag_set = models.ManyToManyField(Tag) # The tag set is built from the tag string and used only for fast filtering
     views = models.IntegerField(default=0, blank=True)

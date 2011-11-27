@@ -71,11 +71,11 @@ while (( "$#" )); do
 				echo "*** executing: $cmd"
 				`$cmd`
 			done
-		#$PYTHON_EXE $DJANGO_ADMIN flush -v $VERBOSITY --noinput --settings=$DJANGO_SETTINGS_MODULE
 	fi
 
 	if [ "$1" = "flush" ]; then
-		$PYTHON_EXE $DJANGO_ADMIN flush -v $VERBOSITY --noinput --settings=$DJANGO_SETTINGS_MODULE
+		echo "$PYTHON_EXE $DJANGO_ADMIN flush --noinput --settings=$DJANGO_SETTINGS_MODULE"
+		$PYTHON_EXE $DJANGO_ADMIN flush --noinput --settings=$DJANGO_SETTINGS_MODULE
 	fi
 
 	if [ "$1" = "init" ]; then
