@@ -17,7 +17,7 @@ BIOSTAR_EXPORT=${BIOSTAR_EXPORT:-"$BIOSTAR_SRC/export"}
 BIOSTAR_HOSTNAME=${BIOSTAR_HOSTNAME:-"0.0.0.0:8080"}
 
 # django settings module
-DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE:-"settings"}
+export DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE:-"settings"}
 
 # add to the python path
 PYTHONPATH=${PYTHONPATH:-""}
@@ -89,6 +89,8 @@ while (( "$#" )); do
 	if [ "$1" = "populate" ]; then
 		echo "*** populating server with: $FIXTURE"
 		$PYTHON_EXE $DJANGO_ADMIN loaddata $FIXTURE --settings=$DJANGO_SETTINGS_MODULE
+		echo "*** indexing post content"
+		$PYTHON_EXE -m main.server.index  --settings=$DJANGO_SETTINGS_MODULE
 	fi
 
 	if [ "$1" = "run" ]; then
@@ -124,8 +126,7 @@ while (( "$#" )); do
 
 	if [ "$1" = "index" ]; then		
 		echo "*** indexing all post content"
-		export DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE
-		$PYTHON_EXE -m main.server.index  --settings=$DJANGO_SETTINGS_MODULE
+		$PYTHON_EXE -m main.server.index  
 	fi
 
 shift

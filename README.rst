@@ -17,7 +17,7 @@ The software requires only Python_ (2.6 or higher) to run. All other
 libraries are included in the distribution. The code will run with 
 no changes on any operating system that supports Python. 
 
-The development version of this site can be seen at: http://devel.biostars.org
+The test version of this site can be seen at: http://test.biostars.org
 
 Installation
 ------------
