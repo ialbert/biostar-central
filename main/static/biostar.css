@@ -104,14 +104,14 @@ a:hover, a.post-title {
 
 .msg-new {
     padding-left: 20px;
-    background-image: url("/static/img/new-message.png");
+    background-image: url("http://static.biostars.org/test/img/new-message.png");
     background-repeat: no-repeat;
     background-position:0px 5px; 
 }
 
 .msg-old {
     padding-left: 20px;
-    background-image: url("/static/img/old-message.png");
+    background-image: url("http://static.biostars.org/test/img/old-message.png");
     background-repeat: no-repeat;
     background-position:0px 5px; 
 }
@@ -655,23 +655,23 @@ tr.comment td{
 }
 
 .vote-up.vote-off {
-    background-image: url("/static/img/vote/vote-up-off.png");
+    background-image: url("http://static.biostars.org/test/img/vote/vote-up-off.png");
 }
 
 .vote-down.vote-off{
-    background-image: url("/static/img/vote/vote-down-off.png");
+    background-image: url("http://static.biostars.org/test//img/vote/vote-down-off.png");
 }
 
 .vote-up.vote-on {
-    background-image: url("/static/img/vote/vote-up-on.png");
+    background-image: url("http://static.biostars.org/test/img/vote/vote-up-on.png");
 }
 
 .vote-down.vote-on{
-    background-image: url("/static/img/vote/vote-down-on.png");
+    background-image: url("http://static.biostars.org/test/img/vote/vote-down-on.png");
 }
 
 .vote-accepted {
-    background-image: url("/static/img/vote/accepted.png")
+    background-image: url("http://static.biostars.org/test/img/vote/accepted.png")
 }
 
 .popover {

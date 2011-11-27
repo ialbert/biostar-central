@@ -4,6 +4,6 @@
     {% if new_count %}
         <span class="gotmail">(<a href="/user/show/{{user.id}}/#messages">{{new_count}} message{{new_count|pluralize}}</a>)</span> &bull;
     {% else%}
-        (0 messages)       
+        (<a href="/user/show/{{user.id}}/#messages">{{new_count}} message{{new_count|pluralize}}</a>)</span> &bull;      
    {% endif %}
 {% endspaceless %}
