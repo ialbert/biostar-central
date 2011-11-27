@@ -3,47 +3,26 @@
 {% load basic %}
 
 {% block subheader %}
-    <h2>Revisions of "{{post.title}}"</h2>
+    <h2>Revision list</h2>
 {% endblock %}
 
 {% block mainbar %}
-    <div id="revisions">
-        <table>
+    <div>
+        <div style="padding:10px 0px 10px 0px;">
+
+            <div class="title">
+                Back to <a href="/post/show/{{root.id}}/{{root.slug}}/#{{post.id}}">{{root.title}}</a>
+            </div>
+        </div>
+        <table width="100%">
             {% for revision in revisions %}
-                <tr class="revision">
-                    <td class="revarrow">&nbsp;</td>
-                    <td class="revcount">r{{forloop.revcounter}}</td>
-                    <td class="revsummary">
-                        {% if revision.action %}
-                            Moderator action: {{ revision.get_action_display }}
-                        {% endif %}
-                    </td>
-                    <td class="revauthor">
-                        {% actionbox revision.author revision.date revision.verb %}
-                    </td>
+                <tr valign="top">
+                    <td class="title">Revision: r{{forloop.revcounter}}</td>
                 </tr>
-                <tr>
-                    <td colspan="4" class="revdata">
-                        
-                        {% if revision.modified.0 %}
-                            <h4>{{revision.title}}</h4>
-                        {% endif %}
-                        
-                        {% if revision.modified.1 %}
-                            {{revision.html|safe}}
-                        {% endif %}
-                        
-                        {% if revision.modified.2 %}
-                            <div class="tags">
-                                {% for tag in revision.get_tags %}
-                                   {% taglink tag %}
-                                {% endfor %}
-                            </div>
-                        {% endif %}
+                <tr >
+                    <td style="border-bottom:1px dotted #666666">
+                        <pre>{{revision}}</pre>   
                     </td>
-                </tr>
-                <tr class="spacer">
-                    <td height="5">&nbsp;</td>
                 </tr>
             {% endfor %}
         </table>

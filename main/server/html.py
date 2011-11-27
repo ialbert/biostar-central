@@ -37,6 +37,12 @@ def get_page(request, obj_list, per_page=25):
     
     return page
 
+def nuke(text):
+    text = text.replace("<","&lt;")
+    text = text.replace(">","&gt;")
+    text = text.replace("\"","&quot;")
+    text = text.replace("&","&amp;")
+    return text
 
 def generate(text):
     """

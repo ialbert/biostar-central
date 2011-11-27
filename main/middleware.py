@@ -8,7 +8,7 @@ class LastVisit(object):
     Updates the last visit stamp at MINIMUM_TIME intervals
     """
     # minimum elapsed time
-    MINIMUM_TIME = 60 * 3 # every 3 minutes
+    MINIMUM_TIME = 60 * 1 # every 3 minutes
 
     def process_request(self, request):
         

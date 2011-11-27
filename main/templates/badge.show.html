@@ -22,7 +22,7 @@
     {% for award in page.object_list %}
          
         <div class="user-box"  style="float:left;" align="center">
-            <div ><a class="user-link" title="" alt="" href="/user/show/{{user.id}}">{% gravatar award.user 64 %}</a></div>
+            <div ><a class="user-link" title="" alt="" href="/user/show/{{award.user.id}}">{% gravatar award.user 64 %}</a></div>
             <div>
                 <a class="user-link" title="" alt="" href="{% url main.server.views.user_profile award.user.id %}">{{award.user.profile.display_name}}</a>&nbsp;{% flair award.user %}
             </div>

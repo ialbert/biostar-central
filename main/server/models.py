@@ -240,7 +240,10 @@ class Post(MPTTModel):
         # for the current post author  this is not a new message
         Note.send(sender=self.author, target=self.author, content=text, type=NOTE_USER, unread=False, date=self.creation_date)
 
-
+    def changed(self, content=None, title=None, tag_string=None):
+        "Tests post parameters"
+        return (content == self.content and tag_string == self.tag_string and title == self.title)
+            
     def create_revision(self, content=None, title=None, tag_string=None, author=None, date=None, action=REV_NONE):
         """
         Creates a new revision of the post with the given data.
@@ -254,10 +257,6 @@ class Post(MPTTModel):
         author = author or self.author
         date = date or datetime.now()
         
-        # Bail out if nothing changed
-        if content == self.content and tag_string == self.tag_string and title == self.title and action == REV_NONE:
-            return
-
         # transform the content to UNIX style line endings
         content = content.replace('\r\n', '\n')
         content = content.replace('\r', '\n')
@@ -266,7 +265,6 @@ class Post(MPTTModel):
         revision = PostRevision(post=self, content=content, tag_string=tag_string, title=title, author=author, date=date, action=action)
         revision.save()
         
-       
         # Update our metadata
         self.lastedit_user = author
         self.content = content
@@ -398,38 +396,6 @@ class Post(MPTTModel):
     objects  = models.Manager()    
     answers  = AnswerManager()
 
-    
-class PostAdmin(admin.ModelAdmin):
-    list_display = ('id', 'title', )
-
-admin.site.register(Post, PostAdmin)
-
-class Note(models.Model):
-    """
-    Creates simple notifications that are active until the user deletes them
-    """
-    sender  = models.ForeignKey(User, related_name="note_sender") # the creator of the notification
-    target  = models.ForeignKey(User, related_name="note_target", db_index=True) # the user that will get the note
-    post    = models.ForeignKey(Post, related_name="note_post",null=True, blank=True) # the user that will get the note
-    content = models.CharField(max_length=1000, default='') # this contains the raw message
-    html    = models.CharField(max_length=1000, default='') # this contains the santizied content
-    date    = models.DateTimeField(null=False)
-    unread  = models.BooleanField(default=True)
-    type    = models.IntegerField(choices=NOTE_TYPES, default=NOTE_USER)
-
-    @classmethod
-    def send(self, **params):
-        note = Note.objects.create(**params)
-        return note
-        
-    def get_absolute_url(self):
-        return "/user/show/%s/" % self.target.id         
-
-    @property
-    def status(self):
-        return 'new' if self.unread else 'old'
-
-
 class PostRevision(models.Model):
     """
     Represents various revisions of a single post
@@ -457,6 +423,43 @@ class PostRevision(models.Model):
     def apply(self, dir=1):
         self.post.revision_count += dir
         self.post.save()
+ 
+class PostAdmin(admin.ModelAdmin):
+    list_display = ('id', 'title', )
+
+admin.site.register(Post, PostAdmin)
+
+class PostRevisionAdmin(admin.ModelAdmin):
+    list_display = ('id', 'title', )
+
+admin.site.register(PostRevision, PostRevisionAdmin)
+
+class Note(models.Model):
+    """
+    Creates simple notifications that are active until the user deletes them
+    """
+    sender  = models.ForeignKey(User, related_name="note_sender") # the creator of the notification
+    target  = models.ForeignKey(User, related_name="note_target", db_index=True) # the user that will get the note
+    post    = models.ForeignKey(Post, related_name="note_post",null=True, blank=True) # the user that will get the note
+    content = models.CharField(max_length=1000, default='') # this contains the raw message
+    html    = models.CharField(max_length=1000, default='') # this contains the santizied content
+    date    = models.DateTimeField(null=False)
+    unread  = models.BooleanField(default=True)
+    type    = models.IntegerField(choices=NOTE_TYPES, default=NOTE_USER)
+
+    @classmethod
+    def send(self, **params):
+        note = Note.objects.create(**params)
+        return note
+        
+    def get_absolute_url(self):
+        return "/user/show/%s/" % self.target.id         
+
+    @property
+    def status(self):
+        return 'new' if self.unread else 'old'
+
+
 
 class Vote(models.Model):
     """
@@ -595,7 +598,7 @@ def create_profile(sender, instance, created, *args, **kwargs):
     "Post save hook for creating user profiles on user save"
     if created:
         uuid = make_uuid() 
-        display_name = html.generate(instance.get_full_name())
+        display_name = html.nuke(instance.get_full_name())
         UserProfile.objects.create(user=instance, uuid=uuid, display_name=display_name)
 
 def update_profile(sender, instance, *args, **kwargs):
@@ -616,9 +619,10 @@ def create_post(sender, instance, *args, **kwargs):
     if not instance.lastedit_date:
         instance.lastedit_date = datetime.now()
     
-    # auto generate the slug from the title
-    if instance.title:
-        instance.slug = slugify(instance.title)
+    if not instance.title:
+        instance.title = "%s: %s" %(POST_MAP[instance.post_type], instance.get_root().title)
+
+    instance.slug = slugify(instance.title)
         
     # generate the HTML from the content    
     instance.html = html.generate(instance.content)
@@ -668,8 +672,6 @@ def tag_created(sender, instance, created, *args, **kwargs):
         instance.count = 0
         instance.save()
         signals.post_save.connect(tag_created, sender=Tag)
-
-
 
 # now connect all the signals
 signals.post_save.connect( create_profile, sender=User )

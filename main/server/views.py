@@ -1,6 +1,7 @@
 """
 Biostar views
 """
+import difflib
 from main.server import html, models, const, formdef, action, notegen
 from main.server.html import get_page
 from datetime import datetime
@@ -101,7 +102,7 @@ def user_profile(request, uid):
     # it the target personal information writable
     target.editable   = target.profile.editable(user)
     target.authorized = target.profile.authorize(user)
-    return html.template(request, name='user.profile.html',
+    return html.template(request, name='user.profile.html', awards=awards,
         user=request.user,target=target, params=params, page=page)
 
 def user_list(request):
@@ -180,9 +181,12 @@ def process_form(post, form, user):
     "Creates a revision from a form post"
     # sanity check
     assert form.is_valid(), 'form is not valid'
-    title   = form.cleaned_data.get('title','')
+    title = form.cleaned_data.get('title','')
+    title = html.nuke(title)
     content = form.cleaned_data.get('content', '')
+    content = html.nuke(content)
     tag_string = form.cleaned_data.get('tags_string', '')
+    tag_string = html.nuke(tag_string)
     tag_string = html.tag_strip(tag_string)   
     post.create_revision(content=content, tag_string=tag_string, title=title, author=user)
     
@@ -255,7 +259,9 @@ def post_edit(request, pid=0, parentid=0, post_type=POST_QUESTION):
             form = factory()
             return html.template( request, name='post.edit.html', form=form, params=params)
 
-    # at this point we are dealing with a post editing aciont
+    #
+    # at this point we are dealing with a post editing action
+    #
     assert pid, 'Only post modification should follow after this point'
     
     # when we edit a post we keep the original post type (for now)
@@ -291,27 +297,19 @@ def post_edit(request, pid=0, parentid=0, post_type=POST_QUESTION):
 
 def revision_list(request, pid):
     post = models.Post.objects.get(pk=pid)
-    revisions = list(post.revisions.order_by('date')) # Oldest first, will need to be reversed later
-    
-    # We need to annotate the revisions with exactly what was changed
-    # 'verb' is a word for the action box to describe the revision
-    # 'modified' is a list (title, content, tag_string) of boolean values for if it was changed
-    def revision_data(rev):
-        return rev.title, rev.content, rev.tag_string
-    last_data = revision_data(revisions[0])
-    revisions[0].verb = 'created'
-    revisions[0].modified = [True, True, True] # Always display the first revision
-    for revision in revisions[1:]:
-        if revision.action:
-            revision.verb = 'performed'
-        else:
-            revision.verb = 'edited'
-            data = revision_data(revision)
-            revision.modified = [current != last for current, last in zip(data, last_data)]
-            last_data = data
+    root = post.get_root()
+        
+    def full_view(rev):
+        line    = '-' * 10
+        title   = "Title: %s" % rev.title 
+        content = "%s" % rev.content
+        tag_string = "Tags: %s" % rev.tag_string
+        text = "\n".join( (title, line, content, line, tag_string) )
+        return text
+
+    revisions = map(full_view, post.revisions.order_by('date'))
     revisions.reverse()
-    
-    return html.template(request, name='revision.list.html', revisions=revisions, post=post)
+    return html.template(request, name='revision.list.html', revisions=revisions, post=post, root=root)
    
 @login_required(redirect_field_name='/openid/login/')
 def add_comment(request, pid):

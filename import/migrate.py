@@ -214,7 +214,7 @@ def insert_posts(fname, limit, users):
         creation_date = parse_time(row['CreationDate'])
         author   = users[row['OwnerUserId']]
         parentid = row.get('ParentId')
-        title  = row.get('Title','No title')
+        title  = row.get('Title','')
         tag_string = row.get('Tags', '')
         if tag_string:
             tag_string = parse_tag_string(tag_string)
@@ -247,7 +247,6 @@ def insert_posts(fname, limit, users):
                     if not parent:
                         continue
                     post.parent = parent
-                    post.title  = "A: %s" % parent.title
                     
                 post.save()
                 
@@ -381,7 +380,6 @@ def insert_comments(fname, posts, users, limit):
         for i, (postid, cid, param) in enumerate(clist):   
             parent = posts[postid]
             param['parent'] = parent
-            param['title']  = 'C: %s' % parent.title
             post = models.Post(**param)            
             comms[cid] = post
             if USE_DB:
