@@ -122,6 +122,12 @@ while (( "$#" )); do
 		#$PYTHON_EXE import/migrate.py --path import/se2
 	fi
 
+	if [ "$1" = "index" ]; then		
+		echo "*** indexing all post content"
+		export DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE
+		$PYTHON_EXE -m main.server.index  --settings=$DJANGO_SETTINGS_MODULE
+	fi
+
 shift
 done
 
