@@ -1,7 +1,7 @@
 """
 Biostar views
 """
-from main.server import html, models, const, formdef, action
+from main.server import html, models, const, formdef, action, notegen
 from main.server.html import get_page
 from datetime import datetime
 
@@ -394,8 +394,8 @@ def moderate_user(request, uid, action):
     if action == 'suspend':
         target.profile.suspended = True
         target.profile.save()
-        text = 'suspended %s' % target.profile.display_name
-        models.Note.send(target=target, content=text, sender=moderator)
+        text = notegen.suspend(target)
+        models.Note.send(target=moderator, content=text, sender=moderator)
         return html.json_response({'status':'success', 'msg':'user suspended'})
     
     elif action == 'reinstate':
@@ -405,6 +405,8 @@ def moderate_user(request, uid, action):
 
         target.profile.suspended = False
         target.profile.save()
+        text = notegen.reinstate(target)
+        models.Note.send(target=moderator, content=text, sender=moderator)
         return html.json_response({'status':'success', 'msg':'user reinstated'})
     
     return html.json_response({'status':'error', 'msg':'Invalid action %s' % action})
