@@ -18,7 +18,7 @@
 
     <td class="summary">
                    
-         <a href="/post/show/{{root.id}}/{{root.slug}}/#{{post.id}}" class="under">Answer {{post.id}}</a>
+         <a href="/post/show/{{root.id}}/{{root.slug}}/#{{post.id}}" class="under">{{post.title}}</a>
          <div class="peek">{{post.html|chunk|safe}}</div>
         <div class="started right">
             <span class="relativetime">{% time_ago post.creation_date %}</span>

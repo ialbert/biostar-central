@@ -311,6 +311,7 @@ a:hover, a.post-title {
    height:4.1em;
    overflow:hidden;
    line-height:1em;
+   margin-top:5px;
 }
 
 .post-table {

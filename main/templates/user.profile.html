@@ -72,6 +72,18 @@
 </tr>
 </table>
 
+    <div class="title" id="activity">Activity</div>
+    
+    <div class="pad10">
+        {{ target.profile.display_name }} has created <a href="/post/list/{{target.id}}/">{{params.post_count}}  posts</a> distributed as
+         <a href="/post/list/{{target.id}}/questions/">{{params.question_count}} questions</a>, 
+         <a href="/post/list/{{target.id}}/answers/">{{params.answer_count}} answers</a> and 
+         <a href="/post/list/{{target.id}}/comments/">{{params.comment_count}} comments</a>  
+         <div>
+            This user  has voted {{params.vote_count}} times  and has earned {{params.award_count}} badges
+         </div>
+    </div>
+
     {% if target == user %}
         <div class="title" id="messages">Messages </div>
         <table class="pad10" border="0" width="100%" id="message-table"> 
@@ -107,18 +119,7 @@
         </table>
     {% endif %}
  
-    <div class="title" id="activity">Activity</div>
-    
-    <div class="pad10">
-        {{ target.profile.display_name }} has created <a href="/post/list/{{target.id}}/">{{params.post_count}}  posts</a> distributed as
-         <a href="/post/list/{{target.id}}/questions/">{{params.question_count}} questions</a>, 
-         <a href="/post/list/{{target.id}}/answers/">{{params.answer_count}} answers</a> and 
-         <a href="/post/list/{{target.id}}/comments/">{{params.comment_count}} comments</a>  
-         <div>
-            This user  has voted {{params.vote_count}} times  and has earned {{params.award_count}} badges
-         </div>
-    </div>
-
+   
     <div class="title" id="badges">Badges</div>
     
     <div class="pad10">
