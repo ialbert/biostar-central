@@ -185,7 +185,7 @@ def process_form(post, form, user):
     title = html.nuke(title)
     content = form.cleaned_data.get('content', '')
     content = html.nuke(content)
-    tag_string = form.cleaned_data.get('tags_string', '')
+    tag_string = form.cleaned_data.get('tag_string', '')
     tag_string = html.nuke(tag_string)
     tag_string = html.tag_strip(tag_string)   
     post.create_revision(content=content, tag_string=tag_string, title=title, author=user)

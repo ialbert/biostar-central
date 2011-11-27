@@ -5,7 +5,7 @@ Note: some models are denormalized by design, this greatly simplifies (and speed
 the queries necessary to fetch a certain entry.
 
 """
-import os, random, hashlib
+import os, random, hashlib, string
 
 from django.db import models
 from django.db import transaction
@@ -347,21 +347,22 @@ class Post(MPTTModel):
         return False
         
     def set_tags(self, tag_string):
-        ''' Sets the post's tags to a space-separated string of tags '''
+        '''
+        Sets the post's tags to a space-separated string of tags 
+        '''
+        
         self.tag_string = tag_string
-        self.save()
+        
+        tags = self.tag_string.split(' ')
+        tags = map(string.strip, tags)
+        
+        def tagger(name):
+            return Tag.objects.get_or_create(name=name)[0]
+        
+        tags = map(tagger, tags)
         self.tag_set.clear()
-        if not tag_string:
-            return
-        tags = []
-        for tag_name in tag_string.split(' '):
-            try:
-                tags.append(Tag.objects.get(name=tag_name))
-            except Tag.DoesNotExist:
-                tag = Tag(name=tag_name)
-                tag.save()
-                tags.append(tag)
         self.tag_set.add(*tags)
+        self.save()
         
     def get_tags(self):
         ''' Returns the post's tags as a list of strings '''
@@ -686,7 +687,6 @@ signals.m2m_changed.connect( tags_changed, sender=Post.tag_set.through )
 signals.post_save.connect( tag_created, sender=Tag )
 
 # adding full text search capabilities
-import os
 
 from whoosh import store, fields, index
 

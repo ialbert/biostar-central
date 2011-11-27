@@ -1,5 +1,6 @@
 from django import forms
 from main.server import const
+import string
 
 P_TITLE, P_CONTENT, P_TAG = 'Post title', 'Post content', 'tag1'
 class PostForm(forms.Form):
@@ -18,7 +19,13 @@ class PostForm(forms.Form):
         
         if self.cleaned_data['tag_string'] == P_TAG:
             raise forms.ValidationError("Please create a different tag")
-    
+
+        tags = self.cleaned_data['tag_string'].split(' ')
+        tags = map(string.strip, tags)
+        shorts = map(lambda x:len(x)<3, tags)
+        if any(shorts):
+            raise forms.ValidationError("No tag may be shorter than 3 characters")
+
         if self.cleaned_data['content'] == P_CONTENT:
             raise forms.ValidationError("Please change the content")
         
