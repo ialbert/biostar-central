@@ -44,6 +44,7 @@ def nuke(text):
     delete markup from markdown content.
     """
     text = text.replace("<","&lt;")
+    text = text.replace(">","&gt;")
     text = text.replace("\"","&quot;")
     text = text.replace("&","&amp;")
     return text
