@@ -38,8 +38,12 @@ def get_page(request, obj_list, per_page=25):
     return page
 
 def nuke(text):
+    """
+    This function is not the main sanitizer,
+    is used mainly as an extra precaution to preemtively
+    delete markup from markdown content.
+    """
     text = text.replace("<","&lt;")
-    text = text.replace(">","&gt;")
     text = text.replace("\"","&quot;")
     text = text.replace("&","&amp;")
     return text
