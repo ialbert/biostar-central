@@ -23,7 +23,7 @@ h1 {
 }
 
 p {
-    display: inline;
+    /* display: inline; */
 }
 
 .par {
@@ -791,7 +791,7 @@ code {
 .highlight {
     background-color: #EEEEEE;
     font-size: 120%;
-
+    overflow:scroll;
     display: block;
     margin-left: 1em;
     margin-bottom: 1em;

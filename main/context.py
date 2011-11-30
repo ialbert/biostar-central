@@ -5,6 +5,7 @@ import itertools
 
 from django.conf import settings
 
+from main import server
 from main.server import models
 
 def extras(request):
@@ -18,7 +19,12 @@ def extras(request):
     # match - this is the secondary query value for matching other content
     m = request.REQUEST.get('m', '')
     
-    return { 'BIOSTAR_VERSION': settings.BIOSTAR_VERSION, 'user':user, 'q':q, 'm':m }
+    return { 'BIOSTAR_VERSION': server.VERSION, 
+             'BIOSTAR_GIT_REVISION': settings.GIT_REVISION,
+             'user':user, 
+             'q':q, 
+             'm':m 
+    }
 
 def popular_tags(request):
     tags1 = models.Tag.objects.filter(name='galaxy') # Special treatment for Galaxy folks

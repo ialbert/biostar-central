@@ -155,8 +155,14 @@ def post_show(request, pid):
     if request.user.is_authenticated():
         notes = models.Note.objects.filter(target=request.user, post=question).all().delete()
         votes = models.Vote.objects.filter(author=request.user, post__id__in=[ question.id ] + [a.id for a in answers] ) 
-        question.views += 1
-        question.save()
+        
+        # updates the viewcounter once within a session, Alex says to move to IP based counting TODO
+        viewed = request.session.get(VIEWED_KEY, set())
+        if question.id not in viewed:
+            viewed.add(question.id)
+            question.views += 1
+            question.save()
+            request.session[VIEWED_KEY] = viewed
     else:
         notes, votes = [], []
         

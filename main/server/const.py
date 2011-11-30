@@ -73,3 +73,7 @@ BADGE_BRONZE, BADGE_SILVER, BADGE_GOLD = 0, 1, 2
 BADGE_TYPES = ((BADGE_BRONZE, 'bronze'), (BADGE_SILVER, 'silver'), (BADGE_GOLD, 'gold'))
 
 BETA_TESTER_BADGE = "Beta Tester"
+
+# this keeps track of what posts have
+# been viewd in a given session
+VIEWED_KEY = 'viewed'

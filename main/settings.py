@@ -132,9 +132,9 @@ STATICFILES_FINDERS = (
 )
 
 # attempt to get the version number from the repository
-BIOSTAR_VERSION = os.popen("git log --pretty=format:%h -1").read()
-if not re.match(r'^[a-z,0-9]+$', BIOSTAR_VERSION):
-    BIOSTAR_VERSION = 'unknown'
+GIT_REVISION = os.popen("git log --pretty=format:%h -1").read()
+if not re.match(r'^[a-z,0-9]+$', GIT_REVISION):
+    GIT_REVISION = 'unknown'
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (

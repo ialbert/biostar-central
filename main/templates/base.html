@@ -117,7 +117,9 @@
   
 <div id="footer">
     Powered by <a href="https://github.com/ialbert/biostar-central"><img src="{{ STATIC_URL }}/biostar.antipixel.png" /></a> 
-    &bull; Revision <a href="https://github.com/ialbert/biostar-central/commit/{{BIOSTAR_VERSION}}">{{ BIOSTAR_VERSION }}</a>
+    &bull; Version: <b>{{BIOSTAR_VERSION}}</b></a>
+
+    (revision <a href="https://github.com/ialbert/biostar-central/commit/{{BIOSTAR_GIT_REVISION}}">{{ BIOSTAR_GIT_REVISION }}</a>)
     &bull; Copyright 2011 by the <a href="https://github.com/ialbert/biostar-central/contributors">BioStar team</a>
     {% if debug %}
       <br><a id="toggle-queries">{{sql_queries|length}} SQL queries</a>
