@@ -41,13 +41,13 @@
       </div>
     </td>
     <td valign="top" width="30%" >
-        <div class="pad10">
+        <div class="pad10" about="{{target.profile.website}}" typeof="foaf:Person" xmlns:foaf="http://xmlns.com/foaf/0.1/"> <!-- the @aboutshould be a full URI -->
             
             <div style="font-size:larger;">
                 {% if target.profile.website %}
                     <a href="{{target.profile.website}}"><b id="username">{{ target.profile.display_name }}</b></a>
                 {% else %}
-                    <span id="username"><b>{{ target.profile.display_name }}</b></span>
+                    <span id="username" property="foaf:username"><b>{{ target.profile.display_name }}</b></span>
                 {% endif %}
                 {% if target.editable %} 
                     | <a href="/user/edit/{{target.id}}/">edit</a>
@@ -55,7 +55,7 @@
             </div>
 
             {% if target.editable %}
-              <div>Email: {{ target.email }}</div>
+              <div property="foaf:mbox">Email: {{ target.email }}</div>
             {% endif %}
             
             <div>Location: {{ target.profile.location }}</div>
