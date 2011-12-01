@@ -26,17 +26,17 @@ Unpack the source code archive. If you don't have django installed
 then switch to the *libs* directory and unpack the *django.zip* archive (included
 for convenience)::
 
-	$ cd libs
-	$ unzip django.zip
-	$ # switch back to the source directory
-	$ cd ..
+    $ cd libs
+    $ unzip django.zip
+    $ # switch back to the source directory
+    $ cd ..
 
 Quickstart
 ----------
 
 From the command line execute::
 
-    $ biostar.sh init populate run
+    $ ./biostar.sh init populate run
 
 Visit the http://localhost:8080 to view your site. Enjoy!
 
@@ -50,23 +50,23 @@ Detailed Usage
 
 There is a main run manager in the root directory::
 
-    $ biostar.sh 
+    $ ./biostar.sh 
 
 Execute it with no parameters for information on usage. This run manager 
 can take one or more commands. For example to initialize the database then populate it with
 the test data and to run the server one would invoke it in the following way::
 
-    $ biostar.sh init 
-    $ biostar.sh populate
-    $ biostar.sh run
+    $ ./biostar.sh init 
+    $ ./biostar.sh populate
+    $ ./biostar.sh run
 
 Alternatively one may run all these commands all at once::
 
-    $ biostar.sh init populate run
+    $ ./biostar.sh init populate run
 
 **Note**: If database models change you must reset and reinitialize the database::
 
-    $ biostar.sh delete init populate
+    $ ./biostar.sh delete init populate
 
 The *biostar.sh* run manager to pulls in environment variables to allow you to 
 customize locations/test fixtures, etc. Edit the *biostar.sh* script 
@@ -86,19 +86,19 @@ the `import/migrate.py` script. This script will need to be able to
 import the django settings module as well. 
 Run this script with the -h flag to see the flags it can take::
 
-	$ python import/migrate.py -h
+    $ python import/migrate.py -h
 
 To facilitate the re-import the best practice is to *dump* the data into a data fixture
 after an *import* takes place. A data fixture may be reused via the *populate* command.
 Thus to create a new migration one would do the following::
 
-	$ biostar delete init import
+    $ ./biostar.sh delete init import
 
 This may be followed by a `run` command or deployment. Alternatively one may 
-dump the data for easier reuse:
+dump the data for easier reuse::
 
-	$ biostar.sh dump
-	$ biostar.sh delete init populate
+    $ ./biostar.sh dump
+    $ ./biostar.sh delete init populate
 
 The *ALLOW_MIGRATION* setting will enable a single automatic account migration
 based on the email provided by the OpenID provider. Only the information
