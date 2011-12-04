@@ -6,3 +6,6 @@ import/*
 main/db/*.db
 coverage.xml
 report/*
+export/*
+libs/*
+main/db/index

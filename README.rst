@@ -128,12 +128,14 @@ Other Libraries
 Biostar is built with open source libraries. The following software packages are included with BioStar:
 
 * JQuery_ for javascript and 
-* `markitup`_ as rich text javascript editor. 
-* `markdown`_ python library to parse the content
-* `django_openid_auth`_ and `python_openid`_ for openid authentication
-* `pygments`_ for source code highlighting
-* `django_mptt`_ to provides the hierachical data model to keep track of
-* `whoosh`_ provides fast full text searching
+* Sass_ for syntactically awesome css
+* Coffescript_ for making javascript fun again
+* markitup_ as rich text javascript editor. 
+* markdown_ python library to parse the content
+* django_openid_auth_ and python_openid_ for openid authentication
+* pygments_ for source code highlighting
+* django_mptt_ to provides the hierachical data model to keep track of
+* whoosh_ provides fast full text searching
 
 
 .. _django_openid_auth: https://launchpad.net/django-openid-auth
@@ -141,8 +143,14 @@ Biostar is built with open source libraries. The following software packages are
 .. _pygments: http://pygments.org/
 .. _django_mptt: https://github.com/django-mptt/django-mptt/
 .. _whoosh: https://bitbucket.org/mchaput/whoosh/wiki/Home
-.. _markdow: http://www.freewisdom.org/projects/python-markdown/
+.. _markdown: http://www.freewisdom.org/projects/python-markdown/
 .. `Python`_: http://python.org/
+.. _Django: http://www.djangoproject.com/
+.. _Python: http://www.python.org/
+.. _JQuery: http://jquery.com/
+.. _markitup: http://markitup.jaysalvat.com/home/
+.. _Sass: http://sass-lang.com/
+.. _Coffescript: http://jashkenas.github.com/coffee-script/
 
 Colorscheme
 -----------
@@ -150,7 +158,3 @@ Colorscheme
   * Purple: `#8F2C47`
   * Green: `#75845C`
 
-.. _Django: http://www.djangoproject.com/
-.. _Python: http://www.python.org/
-.. _JQuery: http://jquery.com/
-.. _markitup: http://markitup.jaysalvat.com/home/
