@@ -125,16 +125,17 @@ this data into the current database.
 Other Libraries
 ---------------
 
-Biostar is built with open source libraries. The following software packages are included with BioStar:
+Biostar is built with open source libraries. The following software packages are used and if necessary
+included with BioStar:
 
-* JQuery_ for javascript and 
+* JQuery_ for javascript programming
 * Sass_ for syntactically awesome css
 * Coffescript_ for making javascript fun again
 * markitup_ as rich text javascript editor. 
 * markdown_ python library to parse the content
 * django_openid_auth_ and python_openid_ for openid authentication
 * pygments_ for source code highlighting
-* django_mptt_ to provides the hierachical data model to keep track of
+* django_mptt_ to provides the hierachical data model that relates the various objects
 * whoosh_ provides fast full text searching
 
 

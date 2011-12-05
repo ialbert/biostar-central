@@ -25,7 +25,6 @@
 {% block mainbar %}
     <div class="content">
         
-        {{ form.errors }}
         <form action="{{request.path}}" method="post">
             
         {% csrf_token %}
@@ -39,8 +38,7 @@
                 <td>Title</td>
                 <td>
                     {{ form.title.errors }}
-                    <input type="text" value="{{ form.title.value }}" name="title" size="80"i
-                    style="width: 700px" />
+                    {{ form.title }}
                 </td>
             </tr>
             {% endif %}
@@ -49,7 +47,7 @@
                 <td>Content</td>
                 <td>
                     {{ form.content.errors }}
-                    <textarea id="editor" name="content" cols="80" rows="15" >{{ form.content.value }}</textarea>
+                    {{ form.content }}
                 </td>
             </tr>
 
@@ -63,7 +61,7 @@
                 </td>
             </tr>
 
-            {% if form.tag_string.value %}
+            {% if params.use_post_form  %}
             <tr>
                 <td>Tags</td>
                 <td>
@@ -78,6 +76,7 @@
             <tr>
                 <td>Post type</td>
                 <td>
+                    {{ form.post_type.errors }}
                     {{ form.post_type   }}
                 </td>
             </tr>
