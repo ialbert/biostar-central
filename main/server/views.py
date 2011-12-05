@@ -169,7 +169,9 @@ def post_show(request, pid):
         
     up_votes = set(vote.post.id for vote in votes if vote.type == const.VOTE_UP)
     down_votes = set(vote.post.id for vote in votes if vote.type == const.VOTE_DOWN)
-     
+    
+    #return html.template( request, name='post.html', question=question, answers=answers, up_votes=up_votes, down_votes=down_votes )
+ 
     return html.template( request, name='post.show.html', question=question, answers=answers, up_votes=up_votes, down_votes=down_votes )
 
 def show_post(post, anchor=None):

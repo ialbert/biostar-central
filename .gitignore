@@ -3,6 +3,8 @@
 .DS_Store
 biostar.db
 import/*
-main/db/*.db
+main/db/*
 coverage.xml
 report/*
+conf/*
+export/*

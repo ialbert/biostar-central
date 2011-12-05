@@ -31,8 +31,6 @@ export PYTHONPATH=$PYTHONPATH:$BIOSTAR_HOME
 # add the library files to the pythonpath
 export PYTHONPATH=$PYTHONPATH:libs/:libs/libraries.zip
 
-echo $PYTHONPATH
-
 # setting up the python
 export PYTHON_EXE=python
 export DJANGO_ADMIN=main/manage.py
@@ -43,6 +41,7 @@ echo "*** BIOSTAR_HOME=$BIOSTAR_HOME"
 echo "*** BIOSTAR_EXPORT=$BIOSTAR_EXPORT"
 echo "*** BIOSTAR_HOSTNAME=$BIOSTAR_HOSTNAME"
 echo "*** DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE"
+#echo "*** PYTHONPATH=$PYTHONPATH"
 
 if [ $# == 0 ]; then
 	echo ''
@@ -107,7 +106,7 @@ while (( "$#" )); do
 
 	if [ "$1" = "flush" ]; then
 		echo "*** flushing data"
-		$PYTHON_EXE $DJANGO_ADMIN flush --settings=$DJANGO_SETTINGS_MODULE > $FIXTURE
+		$PYTHON_EXE $DJANGO_ADMIN flush --noinput --settings=$DJANGO_SETTINGS_MODULE
 	fi
 
 	if [ "$1" = "dump" ]; then		
