@@ -8,3 +8,4 @@ coverage.xml
 report/*
 conf/*
 export/*
+libs/*
