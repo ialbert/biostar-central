@@ -10,10 +10,6 @@ MODERATOR_GROUP = 'mod_group'
 # the minimal reputation needed to 
 MIN_REP = 1
 
-# Permissions granted only to admins and moderators. Admins have mod permissions.
-MODERATOR_PERM = ['moderate_post', 'view_deleted']
-ADMIN_PERM = []
-
 # Add at the end
 POST_QUESTION, POST_ANSWER, POST_COMMENT, POST_GUIDE, POST_BLOG, POST_NEWS, POST_OTHER = range(1, 8)
 POST_TYPES  = ( (POST_QUESTION, 'Question'), (POST_GUIDE, 'Guide'), (POST_BLOG, 'Blog'), 
@@ -22,8 +18,8 @@ POST_TYPES  = ( (POST_QUESTION, 'Question'), (POST_GUIDE, 'Guide'), (POST_BLOG, 
 # for quick lookups
 POST_MAP  = dict( POST_TYPES )
 
-# posts that require full form
-POST_FULL_FORM = set( (POST_QUESTION, POST_GUIDE, POST_BLOG) )
+# posts that only have content, no title or tags
+POST_CONTENT_ONLY = set( [POST_ANSWER, POST_COMMENT ])
 
 # the type of messages that the system maintains
 NOTE_USER, NOTE_MODERATOR, NOTE_ADMIN, NOTE_AWARD, NOTE_SITE = range(1, 6)
@@ -34,8 +30,17 @@ USER_NORMAL,  USER_MODERATOR, USER_ADMIN, USER_SPECIAL, = range(1, 5)
 USER_TYPES = ( (USER_NORMAL, 'Member'),  (USER_MODERATOR, 'Moderator'), 
     (USER_ADMIN, 'Administrator'), (USER_SPECIAL, 'Special'),)
 
+# user status types
+USER_ACTIVE, USER_SUSPENDED = 10, 20
+USER_STATUS_TYPES = ( (USER_ACTIVE, 'Active'), (USER_SUSPENDED, 'Suspended') )
+
+# post status types        
+POST_OPEN, POST_CLOSED, POST_DELETED, POST_UNANSWERED, POST_ACCEPTED = 100, 200, 300, 400, 500
+POST_STATUS_TYPES = ( (POST_OPEN, 'Open'), (POST_CLOSED, 'Closed'), (POST_DELETED, 'Deleted'),
+    (POST_UNANSWERED, 'Unanswered'), (POST_ACCEPTED, 'Accepted') )
+
 # revision constants
-REV_NONE, REV_CLOSE, REV_REOPEN, REV_DELETE, REV_UNDELETE = range(1, 6)
+REV_NONE, REV_CLOSE, REV_REOPEN, REV_DELETE, REV_UNDELETE = range(1000, 1005)
 REV_ACTIONS = (
     (REV_NONE, ''), (REV_CLOSE, 'Close'), (REV_REOPEN, 'Reopen'),
     (REV_DELETE, 'Delete'), (REV_UNDELETE, 'Undelete')
@@ -44,7 +49,7 @@ REV_ACTION_MAP = dict(REV_ACTIONS)
 
 # moderation actions
 USER_MODERATION, POST_MODERATION = 0, 1
-USER_MOD_CHOICES = [ (USER_MODERATION, 'Usermod'), (POST_MODERATION, 'Postmod') ]
+USER_MOD_TYPES = [ (USER_MODERATION, 'Usermod'), (POST_MODERATION, 'Postmod') ]
     
 # voting related constants
 VOTE_UP, VOTE_DOWN, VOTE_ACCEPT, VOTE_FAVORITE = range(1, 5)

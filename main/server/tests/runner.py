@@ -16,8 +16,15 @@ from django.test.simple import DjangoTestSuiteRunner
 from coverage import coverage
 
 # add our own testing suites
-#from biostar.server import html
-#from biostar.tests import functional, access, voting
+from main.server.tests import test_models
+
+def path(*args):
+    "Generates absolute paths"
+    return os.path.abspath(os.path.join(*args))
+
+# the directory that this file is located in
+__CURR_DIR  = path(os.path.dirname(__file__))
+REPORT_PATH = path(__CURR_DIR, '..', '..', '..', 'report')
 
 class BiostarTest(DjangoTestSuiteRunner):
 
@@ -28,7 +35,8 @@ class BiostarTest(DjangoTestSuiteRunner):
         # add new tests then delegate to supercalss
         
         extra_tests = [
-            #voting.suite(), html.suite(), access.suite(), functional.suite(), 
+            test_models.suite(), 
+            #html.suite(), access.suite(), functional.suite(), 
         ]
 
         if coverage:
@@ -39,8 +47,8 @@ class BiostarTest(DjangoTestSuiteRunner):
             if code == 0:
                 # reporting if there are not errors
                 cov.report()
-                cov.html_report(directory="report")
-                cov.xml_report()
+                cov.html_report(directory=REPORT_PATH)
+                #cov.xml_report()
         else:
             super( BiostarTest, self ).run_tests(test_labels, extra_tests, **kwargs)
 

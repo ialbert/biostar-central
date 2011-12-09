@@ -121,8 +121,8 @@ while (( "$#" )); do
 		
 		#$PYTHON_EXE import/migrate.py --path import/se0 --limit 100
 		
-		$PYTHON_EXE import/migrate.py --path import/se2 --limit 300
-		#$PYTHON_EXE import/migrate.py --path import/se2
+		#$PYTHON_EXE -m main.migrate --path import/se2 --limit 300
+		$PYTHON_EXE -m main.migrate --path import/se0 --limit 100
 	fi
 
 	if [ "$1" = "index" ]; then		

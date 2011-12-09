@@ -228,7 +228,7 @@ def insert_posts(fname, limit, users):
             acount [parentid] += 1
             parents[postid] = parentid
     
-        ppair = (postid, dict(author=author, views=views, creation_date=creation_date, post_type=post_type, title=title, tag_string=tag_string))
+        ppair = (postid, dict(author=author, views=views, creation_date=creation_date, type=post_type, title=title, tag_val=tag_string))
         plist.append (ppair)
         
     posts = {}
@@ -242,10 +242,6 @@ def insert_posts(fname, limit, users):
                 if (i % 1000 == 0):
                     print "*** commit at %s" % i
                     transaction.commit()
-                
-                # TODO in a better way
-                if post.tag_string:
-                    post.set_tags(post.tag_string)
                 post.answer_count = acount.get(postid, 0)
                 if parentid:
                     parent = posts.get(parents[postid])
@@ -254,6 +250,7 @@ def insert_posts(fname, limit, users):
                     post.parent = parent
                     
                 post.save()
+                post.set_tags()
                 
             posts[postid] = post
             
@@ -321,13 +318,15 @@ def insert_post_revisions(fname, limit, users, posts):
                 if (i % 1000 == 0):
                     print "*** commit at %s" % i
                     transaction.commit()
-                post.create_revision(**data)
-
+                for key, value in data.items():
+                    setattr(post, key, value)
+                post.save()
+                
     print "*** inserting %s moderator actions" % len(alist)
     with transaction.commit_on_success():
         for post, atype, user, date in alist:
             if USE_DB:
-                post.moderator_action(atype, moderator=user, date=date)                
+                models.moderator_action(post=post, action=atype, user=user, date=date)                
     
 def insert_votes(fname, limit, users, posts):
 
@@ -377,7 +376,7 @@ def insert_comments(fname, posts, users, limit):
         author = users[row['UserId']]
         creation_date = parse_time(row['CreationDate'])
         post_type = const.POST_COMMENT
-        row = postid, cid, dict(author=author, creation_date=creation_date, content=text, post_type=post_type)
+        row = postid, cid, dict(author=author, creation_date=creation_date, content=text, type=post_type)
         clist.append( row )
 
     print "*** inserting %s comments" % len(clist)
@@ -385,6 +384,7 @@ def insert_comments(fname, posts, users, limit):
         for i, (postid, cid, param) in enumerate(clist):   
             parent = posts[postid]
             param['parent'] = parent
+            param['root']   = parent.root
             post = models.Post(**param)            
             comms[cid] = post
             if USE_DB:
@@ -526,15 +526,21 @@ def index_post_content():
     shutil.rmtree(settings.WHOOSH_INDEX)
     models.create_index()
     ix = index.create_in(settings.WHOOSH_INDEX, models.WhooshSchema)
-    wr = ix.writer()
 
     print "*** whoosh indexing %s posts" % models.Post.objects.all().count()
-    for post in models.Post.objects.all():
-        if post.post_type in POST_FULL_FORM:
-            text = post.title + post.content
-        else:
+
+    wr = ix.writer()    
+    for index, post in enumerate(models.Post.objects.all()):
+        if post.type in POST_CONTENT_ONLY:
             text = post.content
+        else:
+            text = post.title + post.content
+        text = unicode(text)
         wr.add_document(content=text, pid=post.id)
+        if index % 1000 == 0:
+            print '*** commit at %s' % index
+            wr.commit()
+            wr = ix.writer()
     wr.commit()
 
 def execute(path, limit=None):
@@ -563,7 +569,7 @@ def execute(path, limit=None):
     revisions = insert_post_revisions(fname=fname, limit=limit, posts=posts, users=users)
     
     # this creates way too many notices, so disconnect it during imports
-    signals.post_save.disconnect( models.create_post_note, sender=models.Post )
+    signals.post_save.disconnect( models.post_create_notification, sender=models.Post )
 
     fname = join(path, 'PostComments.xml')
     comms = insert_comments(fname=fname, posts=posts, users=users, limit=limit)

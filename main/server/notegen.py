@@ -7,7 +7,7 @@ def userlink(user):
     return '[%s](%s)' % (user.profile.display_name, user.profile.get_absolute_url() )
 
 def postlink(post):
-    root = post.get_root()
+    root = post.root
     size = 30
     if len(root.title)<=size:
         title = root.title
@@ -25,7 +25,7 @@ def post_moderator_action(user, post, action):
 
 def post_action(user, post):
    
-    post_type = int(post.post_type)
+    post_type = int(post.type)
 
     if post_type == POST_QUESTION:
         action = 'asked'
