@@ -28,7 +28,7 @@ def get_posts(request, post_type=POST_QUESTION, user=None):
     query = models.Post.objects
     
     if post_type:
-        query = query.filter(post_type=post_type)  
+        query = query.filter(type=post_type)  
 
     if user:
         query = query.filter(author=user)

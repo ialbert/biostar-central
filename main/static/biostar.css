@@ -294,18 +294,6 @@ a:hover, a.post-title {
    font-weight: bold;
 }
 
-/* Alignment tables */
-.question-title {
-   font-size: 1.1em;
-   font-weight: bold;
-   padding-bottom:0.5em;
-}
-
-
-.question-title a {
-   text-decoration: none;
-}
-
 .peek {
    font-size: 1em;
    height:4.1em;
@@ -340,20 +328,12 @@ a:hover, a.post-title {
 
 /* Votes/answers/views boxes */
 
-.status, .votes, .views {
-    margin: 0 3px 0 0;
-    padding: 5px;
-    height:3.2em;
-    width:4em;
-    text-align: center;
-}
-
 .answered {
     background-color: #75845C;
     color: #FFFFFF;
 }
 
-.unanswered {
+.unanswereds{
     background-color: #8F2C47;
     color: #FFFFFF;
 }
@@ -369,23 +349,8 @@ a:hover, a.post-title {
     text-align:center;
 }
 
-.votes {
-    background: none repeat scroll 0 0 #EEEEEE;
-}
 
-.views {
-    color: #666666;
-    width:4.5em;
-}
 
-.mini-counts
-{
-    font-size: 2em;
-    font-weight: bold;
-    height: 2ex;
-    vertical-align: middle;
-    text-align: center;
-}
 
 /* Summary */
 

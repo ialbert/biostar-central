@@ -177,17 +177,14 @@ def table_row(post):
         row_answer   = template.loader.get_template('rows/row.answer.html')
         row_comment  = template.loader.get_template('rows/row.comment.html')
 
-   
-    if post.post_type == const.POST_QUESTION:
+    if post.type == const.POST_QUESTION:
         c = Context( {"post": post} )
         row = row_question
-    elif post.post_type == const.POST_ANSWER:
-        root = post.get_root()
-        c = Context( {"post": post, 'root':root})
+    elif post.type == const.POST_ANSWER:
+        c = Context( {"post": post, 'root':post.root})
         row = row_answer
     else:
-        root = post.get_root()
-        c = Context( {"post": post, 'root':root})
+        c = Context( {"post": post, 'root':post.root})
         row = row_comment 
     
     text = row.render(c)

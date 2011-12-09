@@ -1,0 +1,31 @@
+.mini-counts {
+  font-size: 2em;
+  font-weight: bold;
+  height: 2ex;
+  vertical-align: middle;
+  text-align: center; }
+
+.question-title {
+  font-size: 1.2em;
+  font-weight: bold;
+  padding-bottom: 0.5em; }
+  .question-title a {
+    text-decoration: none; }
+
+.status {
+  margin: 0 3px 0 0;
+  padding: 5px;
+  height: 3.2em;
+  width: 4em;
+  text-align: center; }
+
+.unanswered {
+  background-color: #8f2c47;
+  color: white; }
+
+.votes {
+  background-color: #eeeeee; }
+
+.views {
+  color: #666666;
+  width: 4.5em; }
