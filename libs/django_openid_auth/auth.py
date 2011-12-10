@@ -37,7 +37,6 @@ from openid.extensions import ax, sreg
 
 from django_openid_auth import teams
 from django_openid_auth.models import UserOpenID
-from urlparse import urlparse
 
 class IdentityAlreadyClaimed(Exception):
     pass
@@ -46,9 +45,6 @@ class IdentityAlreadyClaimed(Exception):
 class OpenIDBackend:
     """A django.contrib.auth backend that authenticates the user based on
     an OpenID response."""
-
-    supports_anonymous_user = False
-    supports_object_permissions = False
 
     def get_user(self, user_id):
         try:
@@ -172,38 +168,17 @@ class OpenIDBackend:
                 claimed_id__exact=openid_response.identity_url)
         except UserOpenID.DoesNotExist:
             
-            # find other users with the same email, only allow a single merge per user
-            others = User.objects.filter(email=user.email, profile__openid_merge=False)
+            #
+            # we need to merge by the email here
+            #
+            exists = User.objects.filter(email=user.email)
             
-            # will only trust certain OpenID providers to do the right thing
-            url = urlparse(openid_response.identity_url)
-            
-            # let us know if you need more providers
-            trusted = False
-            for provider in ( 'www.google.com',  'me.yahoo.com', 'myopenid.com',
-                            'livejournal.com', 'blogspot.com', 'openid.aol.com',
-                            'wordpress.com'):
-                trusted = trusted or url.netloc.endswith(provider)
-            
-            # you can override migration from the settings
-            trusted = trusted and settings.ALLOW_MIGRATION                       
-            
-            # this merges the authenticated user with an existing user
-            if others and trusted:
+            if exists:
                 print '*** merging an existing user into this openid'
-                print '*** openid url %s' % openid_response.identity_url
                 # delete the old user
                 user.delete()
-                
-                #  replace with the new user and update the profile accordingly
-                user = others[0]
-                user.save()
-                
-                # update the profile with the new information
-                user.profile.openid_merge = True
-                user.profile.just_merged  = True
-                user.profile.openid = openid_response.identity_url
-                user.profile.save()                
+                # create the new user
+                user = exists[0]
 
             user_openid = UserOpenID(
                 user=user,

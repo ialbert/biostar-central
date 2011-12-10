@@ -147,11 +147,16 @@ def post_show(request, pid):
     
     qs = models.Post.objects
     question = qs.select_related('children', 'votes').get(id=pid)
-        
+            
     #qs = models.Post.all_objects if 'view_deleted' in request.permissions else models.Post.objects
-    answers = models.Post.objects.filter(parent=question, post_type=POST_ANSWER).select_related('author', 'author__profile') 
-    answers = answers.order_by('-answer_accepted','-score')
-
+    answers = models.Post.objects.filter(parent=question, type=POST_ANSWER).select_related('author', 'author__profile') 
+    answers = list(answers.order_by('-accepted','-score'))
+    
+    # add the writeable attribute to each post
+    all = [ question ] + answers
+    for post in all:
+        models.post_write_auth(post=post, user=request.user)
+    
     if request.user.is_authenticated():
         notes = models.Note.objects.filter(target=request.user, post=question).all().delete()
         votes = models.Vote.objects.filter(author=request.user, post__id__in=[ question.id ] + [a.id for a in answers] ) 
@@ -174,28 +179,15 @@ def post_show(request, pid):
  
     return html.template( request, name='post.show.html', question=question, answers=answers, up_votes=up_votes, down_votes=down_votes )
 
-def show_post(post, anchor=None):
+def post_redirect(post, anchor=None):
     """
     Shows a post in full context
     """
     # get the root of a post
-    root = post.get_root()
-    pid, slug = root.id, root.slug
+    pid, slug = post.root.id, post.root.slug
     anchor = anchor or post.id
     url = '/post/show/%s/%s/#%s' % (pid, slug, anchor)
     return html.redirect(url)
-
-def process_form(post, form, user):
-    "Creates a revision from a form post"
-    # sanity check
-    assert form.is_valid(), 'form is not valid'
-    title = form.cleaned_data.get('title','')
-    title = html.nuke(title)
-    content = form.cleaned_data.get('content', '')
-    tag_string = form.cleaned_data.get('tag_string', '')
-    tag_string = html.nuke(tag_string)
-    tag_string = html.tag_strip(tag_string)   
-    post.create_revision(content=content, tag_string=tag_string, title=title, author=user)
     
 @login_required(redirect_field_name='/openid/login/')
 def new_comment(request, parentid=0):
@@ -230,11 +222,8 @@ def post_edit(request, pid=0, parentid=0, post_type=POST_QUESTION):
     # sanity check
     assert post_type in POST_MAP, 'Invalid post_type %s' % post_type
   
-    # this is a readable form of the post type
-    post_type_name = POST_MAP.get(post_type,'')
-
     # select the form factory from the post types
-    use_post_form = (post_type in POST_FULL_FORM)
+    use_post_form = (post_type not in POST_CONTENT_ONLY)
 
     if use_post_form:
         factory = formdef.PostForm
@@ -250,18 +239,19 @@ def post_edit(request, pid=0, parentid=0, post_type=POST_QUESTION):
     # deal with new post creation first
     if newpost:
         # this here is to customize the output
-        params = html.Params(title="New %s" % post_type_name, use_post_form=use_post_form ) 
+        params = html.Params(title="New post", use_post_form=use_post_form ) 
 
         if form_data:
             form = factory(request.POST)
             if not form.is_valid():
                 return html.template(request, name='post.edit.html', form=form, params=params)
-            params = dict(author=user, post_type=post_type, parent=parent, creation_date=datetime.now())
+            params = dict(author=user, type=post_type, parent=parent, root=parent, creation_date=datetime.now())
             params.update(form.cleaned_data)            
-            post = models.Post.objects.create(**params)
-            process_form(post, form, user=request.user)
-            return show_post(post)
-
+            with transaction.commit_on_success():
+                post = models.Post.objects.create(**params)
+                post.set_tags()
+                models.create_revision(post)
+            return post_redirect(post)
         else:
             form = factory()
             return html.template( request, name='post.edit.html', form=form, params=params)
@@ -274,33 +264,37 @@ def post_edit(request, pid=0, parentid=0, post_type=POST_QUESTION):
     # when we edit a post we keep the original post type (for now)
     post = models.Post.objects.get(pk=pid)
     parent = post.parent
-    post_type = post.post_type
-    
-    post_type_name = POST_MAP.get(post_type,'')
+    post_type = post.type
    
     # select the form factory from the post types
-    use_post_form = (post_type in POST_FULL_FORM)
+    use_post_form = (post_type not in POST_CONTENT_ONLY)
     if use_post_form:
         factory = formdef.PostForm
     else:
         factory = formdef.ContentForm
 
     # verify that this user may indeed modify the post
-    post.authorize(user=request.user, strict=True)
+    models.post_write_auth(post=post, user=request.user, strict=True)
     
-    params = html.Params(title="Edit %s" % post_type_name, use_post_form=use_post_form) 
+    params = html.Params(title="Edit %s" % post.get_type_display(), use_post_form=use_post_form) 
 
     # no form data coming, return the editing form
     if not form_data:
-        form = factory(initial=dict(title=post.title, content=post.content, tag_string=post.tag_string))
+        form = factory(initial=dict(title=post.title, content=post.content, tag_val=post.tag_val))
         return html.template(request, name='post.edit.html', form=form, params=params)
     else:
         # we have incoming form data for posts
         form = factory(request.POST)
         if not form.is_valid():
             return html.template(request, name='post.edit.html', form=form, params=params)
-        process_form(post=post, form=form, user=request.user)        
-        return show_post(post)    
+         
+        with transaction.commit_on_success():
+            for key, value in form.cleaned_data.items():
+                setattr(post, key, value)
+            post.set_tags()
+            models.create_revision(post)
+
+        return post_redirect(post)    
 
 def revision_list(request, pid):
     post = models.Post.objects.get(pk=pid)
@@ -325,13 +319,13 @@ def add_comment(request, pid):
     content = request.POST['text'].strip()
     if len(content)<1:
         messages.warning(request, 'Comment too short!')
-        return show_post(parent)
+        return post_redirect(parent)
         
     comment = models.Post(author=request.user, parent=parent, post_type=POST_COMMENT, creation_date=datetime.now())
     comment.save()
     comment.create_revision(content=content)
     
-    return show_post(comment)
+    return post_redirect(comment)
     
 def vote(request):
     "Handles all voting on posts"

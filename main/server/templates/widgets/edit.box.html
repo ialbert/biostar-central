@@ -2,7 +2,7 @@
 
 <a href="{{request.path}}#{{post.id}}">link</a>
 
-{% if editable %}
+{% if post.writeable %}
     
     &bull; <a href="/post/edit/{{post.id}}/">edit</a>
 

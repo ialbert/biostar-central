@@ -21,6 +21,7 @@ def valid_tag(text):
         raise ValidationError('Please change the default tag')
     
     words = text.split()
+    
     if len(words) > 5:
         raise ValidationError('You have too many tags, please use at most five tags')
     
@@ -63,10 +64,10 @@ class PostForm(forms.Form):
     content = forms.CharField(max_length=5000, initial=P_CONTENT, validators=[ valid_content ], 
         widget=forms.Textarea(attrs={'cols':'80', 'rows':'15', 'id':'editor'}))
 
-    tag_string = forms.CharField(max_length=250,  initial=P_TAG, validators=[ valid_tag ], 
+    tag_val = forms.CharField(max_length=250,  initial=P_TAG, validators=[ valid_tag ], 
         widget=forms.TextInput(attrs={'style':'width:700px;'}))
     
-    post_type = forms.ChoiceField(choices=const.POST_TYPES[:1])
+    type = forms.ChoiceField(choices=const.POST_TYPES[:1])
 
 class ContentForm(forms.Form):
     """

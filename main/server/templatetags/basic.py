@@ -55,8 +55,7 @@ def usernotes(user):
 
 @register.inclusion_tag('widgets/edit.box.html', takes_context=True)
 def editbox(context, user, post):
-    editable = post.authorize(user, strict=False)
-    return { 'user':user, 'post':post, 'editable':editable, 'request':context['request']}
+    return { 'user':user, 'post':post, 'request':context['request']}
     
 @register.inclusion_tag('widgets/badge.icon.html')
 def badgeicon(type):
@@ -170,6 +169,7 @@ row_comment  = template.loader.get_template('rows/row.comment.html')
 @register.simple_tag
 def table_row(post):
     "Renders an html row for a post "
+    global row_question, row_answer, row_comment
     
     if settings.DEBUG:
         # this is necessary to force the reload during development

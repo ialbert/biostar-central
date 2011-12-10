@@ -16,7 +16,7 @@ from django.test.simple import DjangoTestSuiteRunner
 from coverage import coverage
 
 # add our own testing suites
-from main.server.tests import test_models
+from main.server.tests import test_models, test_site
 
 def path(*args):
     "Generates absolute paths"
@@ -36,6 +36,7 @@ class BiostarTest(DjangoTestSuiteRunner):
         
         extra_tests = [
             test_models.suite(), 
+            test_site.suite(),            
             #html.suite(), access.suite(), functional.suite(), 
         ]
 

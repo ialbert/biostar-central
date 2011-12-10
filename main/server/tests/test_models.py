@@ -4,59 +4,8 @@ Model testing
 import sys, os, django
 
 from django.utils import unittest
-
-"""
-  >>> post.set_tags()
-    
-    >>> user2, flag = User.objects.get_or_create(first_name='Jane', last_name='Doe', username='jane', email='jane')
-    >>>
-    >>> title, content, tag_val = 'My title', 'My content', 'One tWo threE'
-    >>> (post1.title, post1.content, post1.tag_val) == (title, content, tag_val)
-    True
-    >>> [ tag.name for tag in Tag.objects.all() ]
-    []
-    >>> post1.set_tags()
-    >>> names = post1.get_tag_names()
-    >>> names == [ tag.name for tag in Tag.objects.all() ]
-    True
-    >>> Post.objects.filter(tag_set__name=names[0]).count()
-    1
-    >>> post1.revisions.count()
-    1
-    >>> post2 = Post.objects.create(author=user, type=POST_QUESTION, title=title, content=content, tag_val=tag_val)
-    >>> post2.set_tags()
-    >>> Post.objects.filter(tag_set__name=names[0]).count()
-    2
-    >>> post2.title = post2.title + '?'
-    >>> post2.lastedit_user = user2
-    >>> post2.save()
-    >>> post2.revisions.count()
-    2
-    
-    
-    
-   
-    True
-    
-    >>> post1.set_tags()
-    >>> names = post1.get_tag_names()
-    >>> names == [ tag.name for tag in Tag.objects.all() ]
-    True
-    
-    
-    >>> post2 = Post.objects.create(author=user, type=POST_QUESTION, title=title, content=content, tag_val=tag_val)
-    >>> post2.set_tags()
-    >>> Post.objects.filter(tag_set__name=names[0]).count()
-    2
-    
-    >>> post2.title = post2.title + '?'
-    >>> post2.lastedit_user = user2
-    >>> post2.save()
-    >>> post2.revisions.count()
-    2
-"""
-
 from main.server.const import *
+from main.server import models
 from main.server.models import User, Post, Tag
 
 class BiostarModelTest(unittest.TestCase):
@@ -85,14 +34,22 @@ class BiostarModelTest(unittest.TestCase):
         # one post with these tags
         eq(1, Post.objects.filter(tag_set__name=names[0]).count() )
     
-        # one revision so far
+        # create a revision
+        models.create_revision(post1)
         true(1 == post1.revisions.count())
+
+        # no revision generated for identical save
+        models.create_revision(post1)
+        true(1 == post1.revisions.count())
+
         post1.title = post1.title + '?'
         post1.lastedit_user = user2
         post1.save()
         
         # two edits so far
+        models.create_revision(post1)
         eq(2, post1.revisions.count())
+        
         post2 = Post.objects.create(author=user2, type=POST_QUESTION, title=title, content=content, tag_val=tag_val)
         post2.set_tags()
         

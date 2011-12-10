@@ -9,7 +9,7 @@
     </td>
 
     <td>        
-        <div class="status {{post.get_status}}">
+        <div class="status {{post.get_label}}">
             <div class="mini-counts">{{post.answer_count}}</div>
             <div>answers</div>
         </div>
@@ -22,7 +22,7 @@
         </div>
     </td>
 
-    <td class="summary">
+    <td class="summary" width="100%">
         <div class="question-title">            
             <a  href="/post/show/{{post.id}}/{{post.slug}}/">{{post.get_title}}</a>
         </div>

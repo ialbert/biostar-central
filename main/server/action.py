@@ -4,8 +4,9 @@ Too many viewa in the main views.py
 Started refactoring some here, this will eventually store all form based
 actions whereas the main views.py will contain url based actions.
 """
-from main.server import html, models, const
+from main.server import html, models
 from main.server.html import get_page
+from main.server.const import *
 
 from django import forms
 from django.contrib.auth.decorators import login_required
@@ -61,14 +62,14 @@ def user_edit(request, uid):
 def about(request):
     "Renders the about page"
 
-    post_count     = models.Post.objects.filter(deleted=False).count()
-    question_count = models.Post.objects.filter(deleted=False, post_type=const.POST_QUESTION).count()
-    answer_count   = models.Post.objects.filter(deleted=False, post_type=const.POST_ANSWER).count()
-    comment_count  = models.Post.objects.filter(deleted=False, post_type=const.POST_COMMENT).count()
-    user_count = models.User.objects.filter(profile__suspended=False).count()
+    post_count     = models.Post.objects.filter(status=POST_OPEN).count()
+    question_count = models.Post.objects.filter(status=POST_OPEN, type=POST_QUESTION).count()
+    answer_count   = models.Post.objects.filter(status=POST_OPEN, type=POST_ANSWER).count()
+    comment_count  = models.Post.objects.filter(status=POST_OPEN, type=POST_COMMENT).count()
+    user_count = models.User.objects.filter(profile__status=USER_ACTIVE).count()
 
-    mods = models.User.objects.filter(profile__type=const.USER_MODERATOR).select_related("profile").all()[:100]
-    admins = models.User.objects.filter(profile__type=const.USER_ADMIN).select_related("profile").all()[:100]
+    mods = models.User.objects.filter(profile__type=USER_MODERATOR).select_related("profile").all()[:100]
+    admins = models.User.objects.filter(profile__type=USER_ADMIN).select_related("profile").all()[:100]
 
     params = html.Params(post_count=post_count, user_count=user_count, question_count=question_count, 
         answer_count=answer_count, comment_count=comment_count, admins=admins, mods=mods)
@@ -88,7 +89,7 @@ def search(text):
 
 def modlog_list(request):
     "Lists moderator actions"
-    mods = models.Note.objects.filter(type=const.NOTE_MODERATOR).select_related('sender', 'target', 'post', 'sender_profile').order_by('-date')
+    mods = models.Note.objects.filter(type=NOTE_MODERATOR).select_related('sender', 'target', 'post', 'sender_profile').order_by('-date')
     page = get_page(request, mods)
     return html.template(request, name='mod.log.list.html', page=page)
 
@@ -121,7 +122,7 @@ def destroy_post(request, pid):
     post = models.Post.objects.get(id=pid)
 
     # for now only comments may be destroyed
-    assert post.post_type == const.POST_COMMENT
+    assert post.type == POST_COMMENT
     if not post.authorize(user=moderator, strict=False):
         return html.json_response({'status':'error', 'msg':'You do not have permission to delete this post.'})        
     

@@ -41,7 +41,7 @@
                         </div>
     
                         <div class="tags">
-                            {% for tag in question.get_tags %}
+                            {% for tag in question.get_tag_names %}
                                {% taglink tag %}
                             {% endfor %}
                         </div>

@@ -1,8 +1,8 @@
 import datetime
 from django.contrib.auth import logout
 from django.contrib import messages
-from main.server import models, const, notegen
-
+from main.server import models, notegen
+from main.server.const import *
 class LastVisit(object):
     """
     Updates the last visit stamp at MINIMUM_TIME intervals
@@ -16,7 +16,7 @@ class LastVisit(object):
             user = request.user
             profile = user.get_profile()
             
-            if profile.suspended:
+            if profile.status == USER_SUSPENDED:
                 logout(request)
                 messages.error(request, 'Sorry, this account has been suspended. Please contact the administrators.')
                 return None
@@ -30,7 +30,7 @@ class LastVisit(object):
                 profile.save()
             
                 # award the beta tester badge
-                models.apply_award(request=request, user=user, badge_name=const.BETA_TESTER_BADGE, messages=messages)
+                #models.apply_award(request=request, user=user, badge_name=BETA_TESTER_BADGE, messages=messages)
                     
         return None
 
