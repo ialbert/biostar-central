@@ -11,6 +11,34 @@ from django.test.client import Client
 
 class BiostarSiteTest(unittest.TestCase):
    
+   def test_anav(self):
+        "Navigation by unregistered user"
+        true, eq = self.assertTrue, self.assertEqual
+
+        c = Client()
+        locs = "/ /about/ /user/list/ /tag/list/ /badge/list/ /question/unanswered/".split()
+        for loc in locs:
+            r = c.get(loc)
+            eq(r.status_code, 200)
+        
+        r = c.get("/new/question/")
+        eq(r.status_code, 302)
+
+   def test_user(self):
+        "Visiting a user page by a logged in user"
+        true, eq = self.assertTrue, self.assertEqual
+
+        
+        user1, flag1 = User.objects.get_or_create(first_name='John', last_name='Doe', username='john', email='john')
+        user1.set_password('test')
+        user1.save()
+        
+        c = Client()
+        c.login(username='john', password='test')
+        r = c.get("/user/show/%s/" % user1.id)
+        eq(r.status_code, 200)
+       
+
    def test_site(self):
         true, eq = self.assertTrue, self.assertEqual
         c = Client()
@@ -19,18 +47,10 @@ class BiostarSiteTest(unittest.TestCase):
         user1, flag1 = User.objects.get_or_create(first_name='John', last_name='Doe', username='john', email='john')
         user1.set_password('test')
         user1.save()
-
-        locs = "/ /about/ /user/list/ /tag/list/ /badge/list/ /question/unanswered/".split()
-        for loc in locs:
-            r = c.get(loc)
-            eq(r.status_code, 200)
-        
+  
         r = c.get("/user/list/")
         eq(r.status_code, 200)
         true('Doe' in r.content)
-
-        r = c.get("/new/question/")
-        eq(r.status_code, 302)
 
         c.login(username='john', password='test')
         r = c.get("/new/question/")

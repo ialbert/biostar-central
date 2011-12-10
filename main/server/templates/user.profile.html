@@ -41,7 +41,9 @@
       </div>
     </td>
     <td valign="top" width="30%" >
-        <div class="pad10" about="{{target.profile.website}}" typeof="foaf:Person" xmlns:foaf="http://xmlns.com/foaf/0.1/"> <!-- the @aboutshould be a full URI -->
+        
+            <div class="pad10" about="{{target.profile.website}}" typeof="foaf:Person" xmlns:foaf="http://xmlns.com/foaf/0.1/"> 
+            <!-- the @aboutshould be a full URI -->
             
             <div style="font-size:larger;">
                 {% if target.profile.website %}
@@ -49,12 +51,12 @@
                 {% else %}
                     <span id="username" property="foaf:username"><b>{{ target.profile.display_name }}</b></span>
                 {% endif %}
-                {% if target.editable %} 
+                {% if target.writeable %} 
                     | <a href="/user/edit/{{target.id}}/">edit</a>
                 {% endif %}
             </div>
 
-            {% if target.editable %}
+            {% if target.writeable %}
               <div property="foaf:mbox">Email: {{ target.email }}</div>
             {% endif %}
             
@@ -67,7 +69,7 @@
     </td>
 
     <td valign="top" width="100%">
-        {{target.profile.html|safe }}
+        {{target.profile.about_me_html|safe }}
     </td>
 </tr>
 </table>
@@ -84,7 +86,7 @@
          </div>
     </div>
 
-    {% if target == user %}
+    {% if target.showall %}
         <div class="title" id="messages">Messages </div>
         <table class="pad10" border="0" width="100%" id="message-table"> 
             

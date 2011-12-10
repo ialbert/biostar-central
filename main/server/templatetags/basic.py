@@ -2,7 +2,7 @@ from django import template
 from django.conf import settings
 import urllib, hashlib, re
 from datetime import datetime, timedelta
-from main.server import const, html
+from main.server import const, html, models, auth
 from django.template import Context, Template
 
 register = template.Library()
@@ -28,12 +28,10 @@ def smart_chunk(text):
 @register.inclusion_tag('widgets/comments.html', takes_context=True)
 def comments(context, user, post):
     
-    coll = []
-    for c in post.comments():
-        c.editable = c.authorize(user, strict=False)    
-        coll.append(c)
+    for comment in post.comments():
+        comment.writeable = auth.authorize_post_edit(user=user, post=comment, strict=False)
 
-    return { 'post':post, 'user':user, 'comments':coll }
+    return { 'post':post, 'user':user, 'comments':post.comments }
 
 @register.inclusion_tag('widgets/user.link.html')
 def userlink(user):

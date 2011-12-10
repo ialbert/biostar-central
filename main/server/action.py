@@ -4,7 +4,8 @@ Too many viewa in the main views.py
 Started refactoring some here, this will eventually store all form based
 actions whereas the main views.py will contain url based actions.
 """
-from main.server import html, models
+from datetime import datetime, timedelta
+from main.server import html, models, auth
 from main.server.html import get_page
 from main.server.const import *
 
@@ -27,22 +28,37 @@ class UserForm(forms.Form):
     location     = forms.CharField(max_length=50,  required=False, initial="", widget=forms.TextInput(attrs={'size':'50'}))
     website      = forms.CharField(max_length=80,  required=False, initial="", widget=forms.TextInput(attrs={'size':'50'}))
     about_me     = forms.CharField(max_length=500, required=False, initial="", widget=forms.Textarea (attrs=dict(cols='50', rows=6)))
-    
+
+LAST_CLEANUP = datetime.now()
+def cleanup(request):
+    "A call to this handler will attempt a database cleanup"
+    global LAST_CLEANUP
+    now  = datetime.now()
+    diff = (now - LAST_CLEANUP).seconds
+    if diff > 300: # five minutes        
+        LAST_CLEANUP = now
+        # get rid of unused tags
+        models.Tag.objects.filter(count=0).delete()
+        
+
 def user_edit(request, uid):
     "User's profile page"
-    user = models.User.objects.select_related('profile').get(id=uid)
     
-    if not user.profile.editable(request.user):
+    user   = request.user
+    target = models.User.objects.select_related('profile').get(id=uid)
+    
+    allow = auth.authorize_user_edit(target=target, user=request.user, strict=False)
+    if not allow:
         messages.error(request, "unable to edit this user")
         return html.redirect("/user/show/%s/" % uid)
         
     if request.method == 'GET':
         initial = dict(
-            display_name = user.profile.display_name,
-            email      = user.email or '',
-            location   = user.profile.location or '',
-            website    = user.profile.website or '',
-            about_me   = user.profile.about_me or ''
+            display_name = target.profile.display_name,
+            email      = target.email or '',
+            location   = target.profile.location or '',
+            website    =    target.profile.website or '',
+            about_me   = target.profile.about_me or ''
         )
         form = UserForm(initial)
         return html.template(request, name='user.edit.html', user=user, form=form)
@@ -53,10 +69,10 @@ def user_edit(request, uid):
             return html.template(request, name='user.edit.html', user=user, form=form)
         else:
             for field in "display_name about_me website location".split():
-                setattr(user.profile, field, form.cleaned_data[field])
-            user.email = form.cleaned_data['email']
-            user.profile.save()
-            user.save()
+                setattr(target.profile, field, form.cleaned_data[field])
+            target.email = form.cleaned_data['email']
+            target.profile.save()
+            target.save()
             return html.redirect("/user/show/%s/" % user.id)
 
 def about(request):

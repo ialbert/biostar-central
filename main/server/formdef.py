@@ -42,14 +42,16 @@ def valid_title(text):
 
 def valid_content(text):
     "Validates form input for content"
+    # text size, min size, max size
+    ts, mi, mx = len(text), 15, 2500
     if not(text.strip()):
         raise ValidationError('Content appears to be whitespace')
     if text == P_CONTENT:
         raise ValidationError('Please change the default content')
     if len(text) < 15 :
-        raise ValidationError('Your content appears to be shorter than the minimum of fifteen characters.')
+        raise ValidationError('Your content is only %d charactes long. The minimum is %d.' %(ts, mi))
     if len(text) > 5000 :
-        raise ValidationError('Your content  appears to be longer than the maximum of five thousand characters.')
+        raise ValidationError('Your content  is too long %d characters. The maximum is %d .' % (ts, mx))
   
 class PostForm(forms.Form):
     """

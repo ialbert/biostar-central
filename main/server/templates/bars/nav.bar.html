@@ -24,7 +24,7 @@
         <div id="nav-tag-bar">
                 Popular tags:
                 {% for tag in popular_tags %}
-                    <a class="post-tag" href="{% url main.server.views.question_tagged tag.name %}">{{ tag.name }}</a>
+                    <a class="post-tag" href="/questions/tagged/{{tag.name}}/">{{ tag.name }}</a>
                 {% endfor %}
         </div>
     {% endcache %}

@@ -2,7 +2,7 @@
 Biostar views
 """
 import difflib
-from main.server import html, models, const, formdef, action, notegen
+from main.server import html, models, const, formdef, action, notegen, auth
 from main.server.html import get_page
 from datetime import datetime
 
@@ -89,9 +89,9 @@ def user_profile(request, uid):
     # we need to collate and count the awards
     awards = models.Award.objects.filter(user=target).select_related('badge').order_by('-date')
     
-    answer_count = models.Post.objects.filter(author=target, post_type=POST_ANSWER).count()
-    question_count = models.Post.objects.filter(author=target, post_type=POST_QUESTION).count()
-    comment_count = models.Post.objects.filter(author=target, post_type=POST_COMMENT).count()
+    answer_count = models.Post.objects.filter(author=target, type=POST_ANSWER).count()
+    question_count = models.Post.objects.filter(author=target, type=POST_QUESTION).count()
+    comment_count = models.Post.objects.filter(author=target, type=POST_COMMENT).count()
     post_count = models.Post.objects.filter(author=target).count()
     vote_count = models.Vote.objects.filter(author=target).count()
     award_count = models.Award.objects.filter(user=target).count()
@@ -99,9 +99,10 @@ def user_profile(request, uid):
     params = html.Params(question_count=question_count, answer_count=answer_count, 
         comment_count=comment_count, post_count=post_count, vote_count=vote_count, award_count=award_count)
     
-    # it the target personal information writable
-    target.editable   = target.profile.editable(user)
-    target.authorized = target.profile.authorize(user)
+    # some information is only visible to the user
+    target.writeable = auth.authorize_user_edit(target=target, user=user, strict=False)
+    target.showall  = (target == user)
+    
     return html.template(request, name='user.profile.html', awards=awards,
         user=request.user,target=target, params=params, page=page)
 
@@ -155,7 +156,7 @@ def post_show(request, pid):
     # add the writeable attribute to each post
     all = [ question ] + answers
     for post in all:
-        models.post_write_auth(post=post, user=request.user, strict=False)
+        post.writable = auth.authorize_post_edit(post=post, user=request.user, strict=False)
     
     if request.user.is_authenticated():
         notes = models.Note.objects.filter(target=request.user, post=question).all().delete()
@@ -274,7 +275,7 @@ def post_edit(request, pid=0, parentid=0, post_type=POST_QUESTION):
         factory = formdef.ContentForm
 
     # verify that this user may indeed modify the post
-    models.post_write_auth(post=post, user=request.user, strict=True)
+    auth.authorize_post_edit(post=post, user=request.user, strict=True)
     
     params = html.Params(title="Edit %s" % post.get_type_display(), use_post_form=use_post_form) 
 
@@ -354,18 +355,19 @@ def vote(request):
 @login_required(redirect_field_name='/openid/login/')
 def moderate_post(request, pid, action):
     
+    user = request.user
     if request.method != 'POST':
         return html.json_response({'status':'error', 'msg':'Only POST requests are allowed'})        
    
-    moderator = request.user
     post = models.Post.objects.get(id=pid)
-    if not post.authorize(user=moderator, strict=False):
+    status = auth.authorize_post_edit(user=user, post=post, strict=False)
+    if not status:
         return html.json_response({'status':'error', 'msg':'You do not have permission to moderate this post.'})        
         
-    action_map = {'close':models.REV_CLOSE, 'reopen':models.REV_REOPEN,
-                  'delete':models.REV_DELETE, 'undelete':models.REV_UNDELETE}
+    action_map = { 'close':models.REV_CLOSE, 'reopen':models.REV_REOPEN,
+                  'delete':models.REV_DELETE, 'undelete':models.REV_UNDELETE }
     
-    post.moderator_action(action_map[action], moderator)
+    models.moderator_action(post=post, action=action_map[action], user=user)
     return html.json_response({'status':'success', 'msg':'%s performed' % action})
         
 @login_required(redirect_field_name='/openid/login/')
