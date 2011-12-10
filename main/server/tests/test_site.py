@@ -37,7 +37,27 @@ class BiostarSiteTest(unittest.TestCase):
         c.login(username='john', password='test')
         r = c.get("/user/show/%s/" % user1.id)
         eq(r.status_code, 200)
-       
+        r = c.get("/user/edit/%s/" % user1.id)
+        eq(r.status_code, 200)
+
+        r = c.post("/user/edit/%s/" % user1.id, { 'display_name':'John', 'email':'abc', 'about_me':'ok', 'location':'xyz', 'website':'xyz'} )
+        eq(r.status_code, 302)
+        user = User.objects.get(username='john')
+        eq(user.email, 'abc')
+        eq(user.profile.location, 'xyz')
+        eq(user.profile.about_me, 'ok')
+      
+        r = c.get("/post/list/%s/" % user1.id)
+        eq(r.status_code, 200)
+
+        r = c.get("/post/list/%s/questions/" % user1.id)
+        eq(r.status_code, 200)
+
+        r = c.get("/post/list/%s/answers/" % user1.id)
+        eq(r.status_code, 200)
+
+        r = c.get("/post/list/%s/comments/" % user1.id)
+        eq(r.status_code, 200)
 
    def test_site(self):
         true, eq = self.assertTrue, self.assertEqual

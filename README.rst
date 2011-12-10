@@ -109,13 +109,58 @@ will be required.
 Users in *ADMINS* settings will automatically obtain full administration privileges and
 may log into the *admin* site using the *SECRET_KEY* as their password.
 
-Other information
------------------
 
-All messages are private, only users can see them. 
+Testing
+-------
 
-Layout
-------
+Testing also measures code coverage and therefore 
+requires the coverage_ module. For your convenience this module
+is included in the `libs/libraries.zip` archive. 
+Install coverage_ or unzip the archive.
+
+Testing can be initiated via the `biostar.sh` run manager:
+
+    ./biostar.sh test
+
+A `reports` directory will be created in the root directory
+that contains html reports on the code coverage by the tests. View the `report/index.html` file.
+
+.. _coverage: http://pypi.python.org/pypi/coverage
+
+How the site works
+-------------------
+
+In Biostar there are four types of users: anonymous users, registered users, moderators and administrators.
+
+Anonymous Users
+^^^^^^^^^^^^^^^
+
+May browse all content of a site.
+
+Registered Users
+^^^^^^^^^^^^^^^^
+
+All acces that anonymous users. In addiont they may post questions if their reputation exceeeds 
+a limit (the default is zero), may post answers and comments. 
+Notifications, email and messages are private and are only visible to the user. 
+
+Moderator Role
+^^^^^^^^^^^^^^
+
+All acces that users have. In addition moderators may edit, close and delete posts, edit user information (other than email) 
+and may also suspend and reinstate users. All the actions of the moderators 
+may be followed via the Moderator Log page (see About BioStar page for a link)
+
+Administrator Role
+^^^^^^^^^^^^^^^^^^
+
+Administrators have all the privileges that moderators have and, in addition 
+may promote/demote users from having moderator roles. Administrators also have 
+access to the django admin interface where they may perform more database actions
+than those offered via the BioStar interface..
+
+Code Layout
+-----------
 
 The Python code, templates, static content (css, images, javascript) and default 
 database are found in the *main* directory. There is partial datadump of the existing BioStar content in the 
