@@ -9,14 +9,14 @@
                     <td class="comment-actions">&nbsp;</td>
                     <td class="comment-text">
                         
-                        {% if comment.editable %}
+                        {% if comment.writeable %}
                             <a class="comment-delete" name="{{comment.id}}">x</a>
                         {% endif %}
                         
                         {{ comment.html|safe}}
                         &bull; {% userlink comment.author %} {% time_ago comment.creation_date %}
                         
-                        {% if comment.editable %}
+                        {% if comment.writeable %} 
                             &bull; <a href="/post/edit/{{comment.id}}">edit</a>
                         {% endif %}
                         
