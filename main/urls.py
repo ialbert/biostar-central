@@ -40,11 +40,11 @@ urlpatterns = patterns('main.server',
     (r'^preview/$', 'views.preview'),
     
     # revisions    
-    (r'^revisions/(?P<pid>\d+)/list/$', 'views.revision_list'),
+    (r'^revisions/list/(?P<pid>\d+)/$', 'views.revision_list'),
 
     # questions
     (r'^question/unanswered/$', 'views.question_unanswered'),
-    (r'^question/tagged/(?P<tag_name>[a-z\-]+)/$', 'views.question_tagged'),
+    (r'^question/tagged/(?P<tag_name>[\w]+)/$', 'views.question_tagged'),
     
     # shows all the posts
     (r'^post/list/$', 'views.post_list'),

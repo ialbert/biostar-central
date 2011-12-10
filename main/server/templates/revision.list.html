@@ -11,17 +11,18 @@
         <div style="padding:10px 0px 10px 0px;">
 
             <div class="title">
-                Back to <a href="/post/show/{{root.id}}/{{root.slug}}/#{{post.id}}">{{root.title}}</a>
+                Back to <a href="/post/show/{{post.root.id}}/{{post.root.slug}}/#{{post.id}}">{{post.root.title}}</a>
             </div>
         </div>
         <table width="100%">
-            {% for revision in revisions %}
+            {% for rev in revs %}
                 <tr valign="top">
                     <td class="title">Revision: r{{forloop.revcounter}}</td>
                 </tr>
                 <tr >
                     <td style="border-bottom:1px dotted #666666">
-                        <pre>{{revision}}</pre>   
+                        <pre>{{rev.diff}}</pre> 
+                        <div>{% userbox rev.author %}</div>
                     </td>
                 </tr>
             {% endfor %}

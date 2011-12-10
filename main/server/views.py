@@ -155,7 +155,7 @@ def post_show(request, pid):
     # add the writeable attribute to each post
     all = [ question ] + answers
     for post in all:
-        models.post_write_auth(post=post, user=request.user)
+        models.post_write_auth(post=post, user=request.user, strict=False)
     
     if request.user.is_authenticated():
         notes = models.Note.objects.filter(target=request.user, post=question).all().delete()
@@ -298,19 +298,8 @@ def post_edit(request, pid=0, parentid=0, post_type=POST_QUESTION):
 
 def revision_list(request, pid):
     post = models.Post.objects.get(pk=pid)
-    root = post.get_root()
-        
-    def full_view(rev):
-        line    = '-' * 10
-        title   = "Title: %s" % rev.title 
-        content = "%s" % rev.content
-        tag_string = "Tags: %s" % rev.tag_string
-        text = "\n".join( (title, line, content, line, tag_string) )
-        return text
-
-    revisions = map(full_view, post.revisions.order_by('date'))
-    revisions.reverse()
-    return html.template(request, name='revision.list.html', revisions=revisions, post=post, root=root)
+    revs = post.revisions.order_by('-date').select_related('author')
+    return html.template(request, name='revision.list.html', revs=revs, post=post)
    
 @login_required(redirect_field_name='/openid/login/')
 def add_comment(request, pid):
