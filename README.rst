@@ -118,7 +118,7 @@ requires the coverage_ module. For your convenience this module
 is included in the `libs/libraries.zip` archive. 
 Install coverage_ or unzip the archive.
 
-Testing can be initiated via the `biostar.sh` run manager:
+Testing can be initiated via the `biostar.sh` run manager::
 
     ./biostar.sh test
 
@@ -140,21 +140,21 @@ May browse all content of a site.
 Registered Users
 ^^^^^^^^^^^^^^^^
 
-All acces that anonymous users. In addiont they may post questions if their reputation exceeeds 
+All privileges that anonymous users have. In addiont they may post questions if their reputation exceeeds 
 a limit (the default is zero), may post answers and comments. 
 Notifications, email and messages are private and are only visible to the user. 
 
 Moderator Role
 ^^^^^^^^^^^^^^
 
-All acces that users have. In addition moderators may edit, close and delete posts, edit user information (other than email) 
+All privileges that registered users have. In addition moderators may edit, close and delete posts, edit user information (other than email) 
 and may also suspend and reinstate users. All the actions of the moderators 
 may be followed via the Moderator Log page (see About BioStar page for a link)
 
 Administrator Role
 ^^^^^^^^^^^^^^^^^^
 
-Administrators have all the privileges that moderators have and, in addition 
+All the privileges that moderators have. In addition they 
 may promote/demote users from having moderator roles. Administrators also have 
 access to the django admin interface where they may perform more database actions
 than those offered via the BioStar interface..
