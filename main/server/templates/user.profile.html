@@ -98,8 +98,8 @@
             {% endif %}
 
             {% for note in page.object_list %}
-                <tr><td class="msg-{{note.status}}">
-                    {% time_ago note.date %} &ndash; {{ note.html|safe }} 
+                <tr><td class="msg {{note.status}}">
+                    &bull; {% time_ago note.date %} &bull; {{ note.html|safe }}
                 </tr></tr>
             {% empty %}
                 <tr><td>

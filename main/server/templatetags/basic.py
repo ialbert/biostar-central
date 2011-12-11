@@ -49,9 +49,7 @@ def userrep(user):
 
 @register.inclusion_tag('widgets/user.notes.html')
 def usernotes(user):
-    note_count, new_count = user.profile.note_count
-
-    return {'user':user, 'note_count':note_count, 'new_count':new_count}
+    return { 'user':user }
 
 @register.inclusion_tag('widgets/edit.box.html', takes_context=True)
 def editbox(context, user, post):

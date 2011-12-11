@@ -15,7 +15,7 @@ from django.conf import settings
 
 from mptt.models import MPTTModel, TreeForeignKey
 from datetime import datetime, timedelta
-from main.server import html, notegen
+from main.server import html, notegen, auth
 
 # import all constants
 from main.server.const import *
@@ -48,7 +48,8 @@ class UserProfile( models.Model ):
     bronze_badges = models.IntegerField(default=0)
     silver_badges = models.IntegerField(default=0)
     gold_badges   = models.IntegerField(default=0)
-    
+    new_messages  = models.IntegerField(default=0)
+   
     # the last visit by the user
     last_visited = models.DateTimeField(auto_now=True)
     
@@ -320,13 +321,14 @@ def post_create_notification(post):
     
     if post.root:
         authors = set()
-        for child in Post.objects.filter(root=post):
+        for child in Post.objects.filter(root=post.root):
             authors.add(child.author)
+
         text = notegen.post_action(user=post.author, post=post)
         
         for target in authors:
             unread = (target != post.author) # the undread flag will be off for the post author
-            send_note(sender=self.author, target=target, content=text, type=NOTE_USER, unread=unread, date=self.creation_date)
+            send_note(sender=post.author, target=target, content=text, type=NOTE_USER, unread=unread, date=post.creation_date)
         
 class Note(models.Model):
     """
@@ -343,6 +345,10 @@ class Note(models.Model):
 
     def get_absolute_url(self):
         return "/user/show/%s/" % self.target.id         
+
+    @property
+    def status(self):
+        return 'unread' if self.unread else "old"
 
 class Vote(models.Model):
     """
@@ -507,7 +513,7 @@ def verify_post(sender, instance, *args, **kwargs):
 
     # set the title based on the parent    
     if not instance.title and instance.parent:
-        instance.title = "%s: %s" % (instance.get_type_display, instance.parent.title)
+        instance.title = "%s: %s" % (instance.get_type_display(), instance.parent.title)
 
     # generate a slug for the instance        
     instance.slug = slugify(instance.title)
@@ -529,12 +535,18 @@ def create_award(sender, instance, *args, **kwargs):
     if not instance.date:
         instance.date = datetime.now()
 
-def create_note(sender, instance, *args, **kwargs):
+def verify_note(sender, instance, *args, **kwargs):
     "Pre save notice function"
     if not instance.date:
         instance.date = datetime.now()
     instance.html = html.generate(instance.content)
-  
+
+def finalize_note(sender, instance,created,  *args, **kwargs):
+    "Post save notice function"
+    if created and instance.unread:
+        instance.target.profile.new_messages += 1
+        instance.target.profile.save()
+
 def tags_changed(sender, instance, action, pk_set, *args, **kwargs):
     "Applies tag count updates upon post changes"
     if action == 'post_add':
@@ -565,10 +577,14 @@ def tag_created(sender, instance, created, *args, **kwargs):
 signals.post_save.connect( create_profile, sender=User )
 signals.pre_save.connect( update_profile, sender=UserProfile )
 
+# post signals
 signals.pre_save.connect( verify_post, sender=Post )
 signals.post_save.connect( finalize_post, sender=Post )
 
-signals.pre_save.connect( create_note, sender=Note )
+# note signals
+signals.pre_save.connect( verify_note, sender=Note )
+signals.post_save.connect( finalize_note, sender=Note )
+
 signals.pre_save.connect( create_award, sender=Award )
 signals.m2m_changed.connect( tags_changed, sender=Post.tag_set.through )
 signals.post_save.connect( tag_created, sender=Tag )

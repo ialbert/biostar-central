@@ -1,9 +1,9 @@
 {% load basic %}
 
 {% spaceless %}
-    {% if new_count %}
-        <span class="gotmail">(<a href="/user/show/{{user.id}}/#messages">{{new_count}} message{{new_count|pluralize}}</a>)</span> &bull;
+    {% if user.profile.new_messages %}
+        <span class="gotmail">(<a href="/user/show/{{user.id}}/#messages">{{user.profile.new_messages}} message{{user.profile.new_messages|pluralize}}</a>)</span> &bull;
     {% else%}
-        (<a href="/user/show/{{user.id}}/#messages">{{new_count}} message{{new_count|pluralize}}</a>)</span> &bull;      
+        (<a href="/user/show/{{user.id}}/#messages">no new messages</a>)</span> &bull;      
    {% endif %}
 {% endspaceless %}

@@ -53,7 +53,7 @@ def index(request):
         
     qs  = qs.order_by('-touch_date')
     page  = get_page(request, qs, per_page=20)
-    return html.template( request, name='index.html', page=page, params=params)
+    return html.template(request, name='index.html', page=page, params=params)
 
 def post_list_filter(request, uid=0, word=None):
     post_type = {  'questions': POST_QUESTION, 'answers':POST_ANSWER, 'comments': POST_COMMENT }.get(word)
@@ -79,10 +79,11 @@ def user_profile(request, uid):
     
     if target == user:
         notes = models.Note.objects.filter(target=target).select_related('author', 'author__profile', 'root').order_by('-date')
-        page  = get_page(request, notes, per_page=10)
+        page  = get_page(request, notes, per_page=20)
         # we evalute it here so that subsequent status updates won't interfere
         page.object_list = list(page.object_list)
         models.Note.objects.filter(target=target).update(unread=False)
+        models.UserProfile.objects.filter(user=target).update(new_messages=0)
     else:
         page = None
 
@@ -156,7 +157,7 @@ def post_show(request, pid):
     # add the writeable attribute to each post
     all = [ question ] + answers
     for post in all:
-        post.writable = auth.authorize_post_edit(post=post, user=request.user, strict=False)
+        auth.authorize_post_edit(post=post, user=request.user, strict=False)
     
     if request.user.is_authenticated():
         notes = models.Note.objects.filter(target=request.user, post=question).all().delete()

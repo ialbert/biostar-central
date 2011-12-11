@@ -140,7 +140,7 @@ May browse all content of a site.
 Registered Users
 ^^^^^^^^^^^^^^^^
 
-All privileges that anonymous users have. In addiont they may post questions if their reputation exceeeds 
+All privileges that anonymous users have. In addition they may post questions if their reputation exceeeds 
 a limit (the default is zero), may post answers and comments. 
 Notifications, email and messages are private and are only visible to the user. 
 
@@ -182,7 +182,7 @@ included with BioStar:
 * pygments_ for source code highlighting
 * django_mptt_ to provides the hierachical data model that relates the various objects
 * whoosh_ provides fast full text searching
-
+* coverage_ is used to measure code coverage during testing
 
 .. _django_openid_auth: https://launchpad.net/django-openid-auth
 .. _python_openid: http://pypi.python.org/pypi/python-openid/

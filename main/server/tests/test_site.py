@@ -78,9 +78,33 @@ class BiostarSiteTest(unittest.TestCase):
         
         # post a question
         title   = 'My new question about XYZBC123'
-        content = 'This is the content of my question!'
+        content = '''
+        This is the content of my question!
+        
+            print 123
+            print 123
+
+        some other *markup in it*
+
+            for x in range(10):
+                print x
+        '''
+
+        # missing tag will make it stay on the same page with an error message
+        r = c.post("/new/question/", {'title':title , 'content':content , 'tag_val':'', 'type':POST_QUESTION})
+        eq(r.status_code, 200)
+
+
         r = c.post("/new/question/", {'title':title , 'content':content , 'tag_val':'aaa bbb ccc', 'type':POST_QUESTION})
         eq(r.status_code, 302)
+
+        r = c.post("/new/question/", {'title':title , 'content':content , 'tag_val':'aaa bbb ccc', 'type':POST_QUESTION}, follow=True)
+        eq(r.status_code, 200)
+
+        r = c.post("/preview/", {'content':content})
+        eq(r.status_code, 200)
+
+
 
         r = c.get("/")
         eq(r.status_code, 200)

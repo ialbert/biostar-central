@@ -16,11 +16,6 @@ from pygments import highlight, lexers, formatters
 from pygments.formatters import HtmlFormatter
 from itertools import groupby
 
-def tag_strip(text):
-    text  = text.lower()
-    words = map(string.strip, text.split())
-    return ' '.join(words)
-
 def get_page(request, obj_list, per_page=25):
     "A generic paginator"
 

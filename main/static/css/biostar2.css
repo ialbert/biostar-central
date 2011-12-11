@@ -12,6 +12,17 @@
   .question-title a {
     text-decoration: none; }
 
+/* User notification listing */
+.msg {
+  padding-top: 5px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #EEEEEE; }
+  .msg p {
+    display: inline; }
+
+.unread {
+  background-color: #c0ff97; }
+
 .status {
   margin: 0 3px 0 0;
   padding: 5px;

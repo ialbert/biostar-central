@@ -5,6 +5,8 @@ $warn-color:#FF7700;
 $vote-color:#EEEEEE;
 $title-size:1.2em;
 
+$pastel-green:#C0FF97;
+
 .mini-counts {
     font-size: 2em;
     font-weight: bold;
@@ -22,7 +24,19 @@ $title-size:1.2em;
   }
 }
 
+/* User notification listing */
+.msg {
+    padding-top:5px;
+    padding-bottom:5px;
+    border-bottom:1px solid #EEEEEE;
+    p {
+            display: inline;
+        }
+}
 
+.unread {
+    background-color:$pastel-green;
+}
 
 .status {  
   margin: 0 3px 0 0;

@@ -102,28 +102,6 @@ a:hover, a.post-title {
 |  Layout                 |
 |-------------------------*/
 
-.msg-new {
-    padding-left: 20px;
-    background-image: url("http://static.biostars.org/test/img/new-message.png");
-    background-repeat: no-repeat;
-    background-position:0px 5px; 
-}
-
-.msg-old {
-    padding-left: 20px;
-    background-image: url("http://static.biostars.org/test/img/old-message.png");
-    background-repeat: no-repeat;
-    background-position:0px 5px; 
-}
-
-#message-table {
-    
-}
-
-#message-table td {
-    padding-top:3px;
-    padding-bottom:3px;
-}
 
 #main {
     width: 960px;
