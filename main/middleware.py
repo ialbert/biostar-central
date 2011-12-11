@@ -31,7 +31,12 @@ class LastVisit(object):
             
                 # award the beta tester badge
                 #models.apply_award(request=request, user=user, badge_name=BETA_TESTER_BADGE, messages=messages)
-                    
+            
+            # a handy shortcut
+            request.user.can_moderate = profile.can_moderate
+        else:
+            request.user.can_moderate = False
+
         return None
 
 

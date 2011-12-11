@@ -22,37 +22,28 @@ from django_openid_auth.models import UserOpenID
 from main.server.const import *
 
 
-def get_posts(request, post_type=POST_QUESTION, user=None):
+def get_posts(request):
     "Returns a common queryset that can be used to select questions"
-    
-    query = models.Post.objects
-    
-    if post_type:
-        query = query.filter(type=post_type)  
-
-    if user:
-        query = query.filter(author=user)
-
-    query = query.select_related('author','author__profile')
-
+    if request.user.can_moderate:
+        query = models.Post.all_posts
+    else:
+        query = models.Post.open_posts
     return query
 
 def index(request):
     "Main page"
-
-    # this will contain the query if it was sent 
-    query = request.REQUEST.get('q','')
-    pids  = action.search(query)
+    
     params = html.Params()
-    if query:
-        params.remind = 'Searching for: %s' % query
-        qs = get_posts(request, post_type=None)
-        qs = qs.filter(id__in=pids)
-    else:
-        qs = get_posts(request)
+    params.parse(request)
+
+    if params.q:
+        pids  = action.search(params.q)
+        posts = get_posts(request).filter(id__in=pids).order_by('-touch_date')
+    else:        
+        # no search was performed, get the latest questions
+        posts = get_posts(request).filter(type=POST_QUESTION).order_by('-touch_date')
         
-    qs  = qs.order_by('-touch_date')
-    page  = get_page(request, qs, per_page=20)
+    page  = get_page(request, posts, per_page=20)
     return html.template(request, name='index.html', page=page, params=params)
 
 def post_list_filter(request, uid=0, word=None):
@@ -62,7 +53,7 @@ def post_list_filter(request, uid=0, word=None):
 def post_list(request, uid=0, post_type=None):
     params = html.Params()
 
-    posts = get_posts(request, post_type=post_type)
+    posts = get_posts(request).filter(type=post_type)
     if uid:
         user = models.User.objects.filter(id=uid).select_related('profile').all()[0]
         posts = posts.filter(author=user)
@@ -125,9 +116,6 @@ def tag_list(request):
 def badge_list(request):
     badges = models.Badge.objects.filter(secret=False).order_by('-count', '-type')
     return html.template(request, name='badge.list.html', badges=badges)
-
-def search(request):
-    return html.template(request, name='todo.html')
 
 def question_unanswered(request, uid=0, post_type=None):
     "Lists all the questions"

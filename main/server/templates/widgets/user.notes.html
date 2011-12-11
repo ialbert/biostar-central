@@ -2,8 +2,8 @@
 
 {% spaceless %}
     {% if user.profile.new_messages %}
-        <span class="gotmail">(<a href="/user/show/{{user.id}}/#messages">{{user.profile.new_messages}} message{{user.profile.new_messages|pluralize}}</a>)</span> &bull;
+        <span class="gotmail">(<a href="/user/show/{{user.id}}/#messages">{{user.profile.new_messages}} unread</a>)</span> &bull;
     {% else%}
-        (<a href="/user/show/{{user.id}}/#messages">no new messages</a>)</span> &bull;      
+        (<a href="/user/show/{{user.id}}/#messages">0 unread</a>)</span> &bull;      
    {% endif %}
 {% endspaceless %}

@@ -30,9 +30,6 @@ urlpatterns = patterns('main.server',
     (r'^badge/list/$', 'views.badge_list'),
     (r'^badge/show/(?P<bid>\d+)/$', 'action.badge_show'),
     
-    # search page
-    (r'^search/$', 'views.search'),
-
     # members
     (r'^user/list/$', 'views.user_list'),
     (r'^user/show/(?P<uid>\d+)/$', 'views.user_profile'),

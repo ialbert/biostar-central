@@ -149,16 +149,24 @@ def sanitize(value, allowed_tags=ALLOWED_TAGS):
 
 class Params(object):
     """
-    Represents incoming parameters. Keyword arguments
+    Represents incoming parameters. 
+    Parameters with special meaning: q - search query, m - matching
+    Keyword arguments
     will be defaults.
 
     >>> p = Params(a=1, b=2, c=3, incoming=dict(c=4))
     >>> p.a, p.b, p.c
     (1, 2, 4)
     """
-    def __init__(self, incoming={}, **kwds):
+    def __init__(self, **kwds):
         self.__dict__.update(kwds)
-        self.__dict__.update(incoming)
+        
+    def parse(self, request):
+        if 'q' in request:
+            self.q = request['q']
+            self.setr('Searching for %s' % self.q)
+        else:
+            self.q = None
 
     def update(self, data):
         self.__dict__.update(data)
@@ -204,8 +212,8 @@ class HtmlTest(unittest.TestCase):
         expect = '<p>ABCD\n<div class="highlight"><pre>    <span class="n">CDE</span>\n</pre></div>\n\n<em>A</em></p>'
         self.assertEqual( markup, expect )
 
-        p = Params(a=1, b=2, c=3, incoming=dict(c=4))
-        self.assertEqual( (p.a, p.b, p.c), (1, 2, 4))
+        p = Params(a=1, b=2, c=3)
+        self.assertEqual( (p.a, p.b, p.c), (1, 2, 3))
 
 def suite():
     s = unittest.TestLoader().loadTestsFromTestCase(HtmlTest)
