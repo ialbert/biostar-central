@@ -14,13 +14,15 @@ from django.contrib import messages
 from django.conf import settings
 from django.http import HttpResponse
 from django.db.models import Q
-
 # the openid association model
 from django_openid_auth.models import UserOpenID
 
 # import all constants
 from main.server.const import *
 
+# activate logging
+import logging
+logger = logging.getLogger(__name__)
 
 def get_posts(request):
     "Returns a common queryset that can be used to select questions"
@@ -35,6 +37,8 @@ def index(request):
     
     params = html.Params()
     params.parse(request)
+    
+    logger.info('testing the logger')
 
     if params.q:
         pids  = action.search(params.q)
