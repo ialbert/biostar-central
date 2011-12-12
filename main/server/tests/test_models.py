@@ -14,14 +14,17 @@ class BiostarModelTest(unittest.TestCase):
         true, eq = self.assertTrue, self.assertEqual
         
         # two users
-        user1, flag1 = User.objects.get_or_create(first_name='John', last_name='Doe', username='john', email='john')
-        user2, flag2 = User.objects.get_or_create(first_name='Jane', last_name='Doe', username='jane', email='jane')
+        user1, flag1 = User.objects.get_or_create( username='john')
+        user2, flag2 = User.objects.get_or_create( username='jane')
         
         # save a question to the database
         title, content, tag_val = 'My title', 'My content', 'One tWo threE'
         post1 = Post.objects.create(author=user1, type=POST_QUESTION, title=title, content=content, tag_val=tag_val)
         true( (post1.title, post1.content, post1.tag_val) == (title, content, tag_val) )
     
+        # get rid of all tags
+        Tag.objects.all().delete()
+        
         # no tags yet in the database    
         tags = [ tag.name for tag in Tag.objects.all() ]        
         eq(0, len(tags))

@@ -38,14 +38,12 @@ def index(request):
     params = html.Params()
     params.parse(request)
     
-    logger.info('testing the logger')
-
     if params.q:
         pids  = action.search(params.q)
-        posts = get_posts(request).filter(id__in=pids).order_by('-touch_date')
+        posts = get_posts(request).filter(id__in=pids).order_by('-magic')
     else:        
         # no search was performed, get the latest questions
-        posts = get_posts(request).filter(type=POST_QUESTION).order_by('-touch_date')
+        posts = get_posts(request).filter(type=POST_QUESTION).order_by('-magic')
         
     page  = get_page(request, posts, per_page=20)
     return html.template(request, name='index.html', page=page, params=params)
@@ -125,7 +123,7 @@ def question_unanswered(request, uid=0, post_type=None):
     "Lists all the questions"
     params = html.Params()
     params.setr('Filter: unanswered')
-    qs = get_posts(request).filter(answer_count=0)
+    qs = get_posts(request).filter(answer_count=0, type=POST_QUESTION)
     page = get_page(request, qs) 
     return html.template(request, name='post.list.html', page=page, params=params)
 
