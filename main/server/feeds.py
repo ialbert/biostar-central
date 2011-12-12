@@ -8,7 +8,7 @@ class LatestEntriesFeed(Feed):
     description = "Latest 25 posts from the Biostar server"
 
     def items(self):
-        return models.Post.objects.filter(post_type=const.POST_QUESTION).order_by('-creation_date')[:25]
+        return models.Post.objects.filter(type=const.POST_QUESTION).order_by('-creation_date')[:25]
 
     def item_title(self, item):
         return item.title

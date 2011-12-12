@@ -137,7 +137,7 @@ class BiostarSite(unittest.TestCase):
 
         c = Client()
         
-        locs = "/ /about/ /user/list/ /tag/list/ /badge/list/ /question/unanswered/ ".split()
+        locs = "/ /about/ /user/list/ /tag/list/ /badge/list/ /question/unanswered/ /feeds/latest/".split()
         for loc in locs:
             r = c.get(loc)
             eq(r.status_code, 200)
