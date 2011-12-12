@@ -42,7 +42,6 @@ class BiostarTest(DjangoTestSuiteRunner):
             html.suite(),
             test_models.suite(), 
             test_site.suite(),            
-            #html.suite(), access.suite(), functional.suite(), 
         ]
 
         code = super( BiostarTest, self ).run_tests(test_labels, extra_tests, **kwargs)

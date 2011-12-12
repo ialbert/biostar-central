@@ -162,7 +162,7 @@ class Params(object):
         self.__dict__.update(kwds)
         
     def parse(self, request):
-        if 'q' in request:
+        if 'q' in request.GET:
             self.q = request['q']
             self.setr('Searching for %s' % self.q)
         else:

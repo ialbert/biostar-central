@@ -15,14 +15,13 @@ import settings
 # new versions of Django will be multithreaded by default
 import SocketServer
 import django.core.servers.basehttp
-"""
+
 django.core.servers.basehttp.WSGIServer = \
     type('WSGIServer',
          (SocketServer.ThreadingMixIn,
           django.core.servers.basehttp.WSGIServer,
           object),
          {})
-"""
 
 if __name__ == "__main__":
     execute_manager(settings)
