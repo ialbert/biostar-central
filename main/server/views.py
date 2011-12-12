@@ -45,8 +45,9 @@ def index(request):
         # no search was performed, get the latest questions
         posts = get_posts(request).filter(type=POST_QUESTION).order_by('-magic')
         
-    page  = get_page(request, posts, per_page=20)
-    return html.template(request, name='index.html', page=page, params=params)
+    page = get_page(request, posts, per_page=20)
+    tags = models.Tag.objects.all().order_by('-count')[:50]
+    return html.template(request, name='index.html', page=page, params=params, tags=tags)
 
 def post_list_filter(request, uid=0, word=None):
     post_type = {  'questions': POST_QUESTION, 'answers':POST_ANSWER, 'comments': POST_COMMENT }.get(word)

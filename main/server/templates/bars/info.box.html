@@ -1,5 +1,17 @@
-<div class="shaded">
-    <div align="center" class="par">Spread the word! </div>
+{% load cache %}
+
+<div class="welcome shaded">
+    
+{% if user.is_anonymous %}
+    <h1 align="center">Welcome to BioStar!</h1>
+    <p align="center">
+        <a href="http://www.biostars.org">http://www.biostars.org</a>
+    </p>
+    <p align="center">Questions and answers on bioinformatics, computational genomics and systems biology.</p>
+
+{% else %}
+
+   <h3 align="center">Spread the word! </h3>
     <div class="par" align="center">Tell a colleague about <b>BioStar</b>!</div>
 
     <div class="par" align="center">
@@ -28,5 +40,19 @@
             </a>
             </div>
         </div>
-    </div> 
+    </div>
+
+{% endif %}
+
+</div>
+
+<div class="tagcloud">
+    <h3 align="center"> Tag Cloud </h3>
+    {% cache 1500 navtagbar %}
+        
+            {% for tag in tags %}
+                <div class="post-tag" style="float:left; font-size:larger;"> <a href="/question/tagged/{{tag.name}}/">{{ tag.name }}</a></div>
+            {% endfor %}
+        
+    {% endcache %}
 </div>

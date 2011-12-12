@@ -146,25 +146,6 @@ a:hover, a.post-title {
     background-color: #F4A83D;
 }
 
-
-/* Navigation */
-
-.nav a {
-    padding: 6px 12px 6px 12px;
-    text-decoration: none;
-    color: #FFFFFF;
-    font-weight: bold;
-    background: none repeat scroll 0 0 #8F2C47;
-}
-
-.nav a:hover {
-    background-color: #FF7700;
-}
-
-.nav .youarehere {
-    background: none repeat scroll 0 0 #FF7700;
-}
-
 /* Sidebar */
 
 #sidebar {
@@ -274,7 +255,7 @@ a:hover, a.post-title {
 
 .peek {
    font-size: 1em;
-   height:4.1em;
+   height:3.2em;
    overflow:hidden;
    line-height:1em;
    margin-top:5px;
