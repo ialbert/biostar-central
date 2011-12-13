@@ -74,7 +74,7 @@
  
 {% block header %}
     <form id="search" action="/" method="get">     
-    <table width="100%"  border="0" id="header-table">
+    <table width="100%"  border="0" id="header-table" cellpadding="0" cellspacing="0">
         <tr>
           <td align="right" colspan="2" bgcolor="#EEEEEE" style="padding:3px; border-top:1px solid #DDDDDD;">
           
@@ -102,7 +102,7 @@
                 <a href="/"><img src="{{ STATIC_URL }}biostar.logo.png" border="0"/></a>
             </td>
         
-            <td style="padding:3px">
+            <td style="padding:3px" valign="middle">
                 {% include "bars/nav.bar.html" %}
             </td>
         

@@ -37,8 +37,9 @@ div.welcome {
   font-size: 1.1em;
   border-radius: 5px;
   -moz-border-radius: 5px; }
-  div.welcome h1, div.welcome h3 {
-    color: white; }
+  div.welcome h1, div.welcome h2, div.welcome h3 {
+    color: white;
+    text-shadow: 2px 4px 3px rgba(0, 0, 0, 0.3); }
   div.welcome a {
     color: white; }
 
