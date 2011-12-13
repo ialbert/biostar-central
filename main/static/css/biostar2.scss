@@ -123,3 +123,24 @@ div.tagcloud {
     width:4.5em;
 }
 
+
+$yellow:#ffcc00;
+$green:#a7dd32;
+$button-color:$green;
+
+/* from http://www.leemunroe.com/css-button/ */
+.button {
+    color:#08233e;
+    font:2.4em Futura, ‘Century Gothic’, AppleGothic, sans-serif;
+    padding:14px;
+	background:url(/static/img/overlay.png) repeat-x center $button-color;
+    border:1px solid $button-color;
+
+    -moz-border-radius:10px;-webkit-border-radius:10px;border-radius:10px;
+    cursor:pointer;
+    border-bottom:1px solid #9f9f9f;
+    -moz-box-shadow:inset 0 1px 0 rgba(255,255,255,0.5);-webkit-box-shadow:inset 0 1px 0 rgba(255,255,255,0.5);box-shadow:inset 0 1px 0 rgba(255,255,255,0.5);
+
+    &:hover {background-color:lighten($button-color, 10%);}
+    &:active{position:relative;top:2px;}
+}
