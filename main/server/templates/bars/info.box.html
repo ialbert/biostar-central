@@ -9,9 +9,14 @@
     </p>
     <p align="center">Questions and answers on bioinformatics, computational genomics and systems biology.</p>
 
+    <div class="par" align="center">
+        Subscribe:     
+        <a style="color:white" href="/feeds/"><b>RSS feed</b></a> <img src="/static/img/feed-icon.png">
+    </div>
+
 {% else %}
 
-   <h3 align="center">Spread the word! </h3>
+    <h2 align="center">Spread the word! </h2>
     <div class="par" align="center">Tell a colleague about <b>BioStar</b>!</div>
 
     <div class="par" align="center">
@@ -19,40 +24,29 @@
     </div>
 
     <div class="par" align="center">
-        Subscribe: <a style="color:white" href="/feeds/"><b>RSS feed</b></a>
+        Subscribe: 
+        
+        <a style="color:white" href="/feeds/"><b>RSS feed</b></a> <img src="/static/img/feed-icon.png">
     </div>
 
     <div class="par" align="center">
         Google group: <a style="color:white" href="http://groups.google.com/group/biostar-central">Biostar Central</a>
     </div>
 
-    <div align="center">
-        <div>
-            <a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/">
-                <img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by-sa/3.0/88x31.png" />
-            </a>
-        </div>
-        <div>
-            BioStar content is licensed under
-            <div>
-                <a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/" style="color:white;">
-                Creative Commons Attribution-ShareAlike 3.0 License
-            </a>
-            </div>
-        </div>
-    </div>
-
+    <div>&nbsp;</div>
 {% endif %}
 
 </div>
 
-<div class="tagcloud">
-    <h3 align="center"> Tag Cloud </h3>
-    {% cache 1500 navtagbar %}
+<div class="tagcloud" >
+    <h2 align="center"> Tag Cloud </h2>
+    
+        {% cache 1500 tagcloudbar %}
         
             {% for tag in tags %}
-                <div class="post-tag" style="float:left; font-size:larger;"> <a href="/question/tagged/{{tag.name}}/">{{ tag.name }}</a></div>
+                <div class="tag"><a href="/question/tagged/{{tag.name}}/">{{ tag.name }}</a></div> 
             {% endfor %}
         
     {% endcache %}
+    <div style="clear:both"></div>
 </div>
