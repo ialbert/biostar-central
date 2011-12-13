@@ -57,7 +57,9 @@ def post_list_filter(request, uid=0, word=None):
 def post_list(request, uid=0, post_type=None):
     params = html.Params()
 
-    posts = get_posts(request).filter(type=post_type)
+    
+    posts = get_posts(request).filter(type=post_type) if post_type else get_posts(request)
+        
     if uid:
         user = models.User.objects.filter(id=uid).select_related('profile').all()[0]
         posts = posts.filter(author=user)
