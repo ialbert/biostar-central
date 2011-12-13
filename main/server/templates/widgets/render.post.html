@@ -1,0 +1,35 @@
+{% load basic %}
+
+<table class="post">
+    <tr>
+        <td valign="top" class="votecell"> 
+                        {% vote_box post %}
+                    </td>
+                    <td valign="top">
+                        
+                        <div class="post-text">                            
+                            {{post.html|safe }}                            
+                        </div>
+    
+                        <div>
+                            
+                            <div class="right question-user-info">
+                                {% actionbox post.author post.creation_date %}
+                            </div>
+                            
+                            {% if post.tag_val %}                            
+                                <div class="tagline">
+                                    {% for tag in post.get_tag_names %}
+                                       {% taglink tag %}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            
+                            <div class="editbox">                            
+                                {% editbox post %}
+                            </div>
+                        
+                        </div>
+        </td>
+    </tr>
+</table>  

@@ -51,9 +51,9 @@ def userrep(user):
 def usernotes(user):
     return { 'user':user }
 
-@register.inclusion_tag('widgets/edit.box.html', takes_context=True)
-def editbox(context, user, post):
-    return { 'user':user, 'post':post, 'request':context['request']}
+@register.inclusion_tag('widgets/edit.box.html')
+def editbox(post):
+    return { 'post':post }
     
 @register.inclusion_tag('widgets/badge.icon.html')
 def badgeicon(type):
@@ -62,7 +62,11 @@ def badgeicon(type):
 @register.inclusion_tag('widgets/action.box.html')
 def actionbox(user, date, action='asked'):
     return {'user':user, 'date':date, 'action':action}
-    
+
+@register.inclusion_tag('widgets/render.post.html', takes_context=True)
+def render_post(context, post):
+    return { 'post':post, 'const':const }
+   
 @register.inclusion_tag('widgets/user.box.html')
 def userbox(user):
     return {'user':user}
@@ -119,6 +123,10 @@ def pagebar(context, anchor=''):
 @register.inclusion_tag('widgets/answer-list-narrow.html')
 def answer_list_narrow(x):
     return {'answers':x}
+
+@register.inclusion_tag('widgets/vote.box.html', takes_context=True)
+def vote_box(context, post):
+    return {'post':post}
     
 @register.simple_tag(takes_context=True)
 def navclass(context, include_path, exclude_paths=''):

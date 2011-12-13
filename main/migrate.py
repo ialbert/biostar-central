@@ -247,8 +247,7 @@ def insert_posts(fname, limit, users):
                     parent = posts.get(parents[postid])
                     if not parent:
                         continue
-                    post.parent = parent
-                    
+                    post.parent = post.root = parent
                 post.save()
                 post.set_tags()
                 

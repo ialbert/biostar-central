@@ -39,14 +39,6 @@ p {
 }
 
 
-.warning {
-    background-color: #D7615F;
-	font-weight: bold;
-	text-align: center;
-	margin-bottom:4px;
-    padding:5px;
-    margin: 0px 0px 3 3;
-}
 
 .info {
     background-color: #B4D75F;
@@ -378,8 +370,7 @@ a:hover, a.post-title {
 /* Tags */
 
 .tags {
-    margin-bottom: 10px;
-    line-height: 18px;
+    
 }
 
 
@@ -405,10 +396,6 @@ a:hover, a.post-title {
 
 
 /* Menu Links (edit, delete, flag)*/
-
-.post-menu {
-    color: #858585;
-}
 
 .post-menu a{
     color: #858585;

@@ -8,7 +8,7 @@ class LastVisit(object):
     Updates the last visit stamp at MINIMUM_TIME intervals
     """
     # minimum elapsed time
-    MINIMUM_TIME = 60 * 1 # every 3 minutes
+    MINIMUM_TIME = 60 * 5 # every 5 minutes
 
     def process_request(self, request):
         
@@ -26,9 +26,7 @@ class LastVisit(object):
             
             # Prevent writing to the database too often
             if diff > self.MINIMUM_TIME:
-                profile.last_visited = now
-                profile.save()
-            
+                models.UserProfile.objects.filter(user=user).update(last_visited = now)
                 # award the beta tester badge
                 #models.apply_award(request=request, user=user, badge_name=BETA_TESTER_BADGE, messages=messages)
             

@@ -12,8 +12,8 @@ from django.db import transaction
 from django.contrib.auth.models import User, Group
 from django.contrib import admin
 from django.conf import settings
+from django.db.models import F
 
-from mptt.models import MPTTModel, TreeForeignKey
 from datetime import datetime, timedelta
 from main.server import html, notegen, auth
 
@@ -72,6 +72,7 @@ class UserProfile( models.Model ):
     # turned on only for the users that are migrated via the StackExchange import
     openid_merge  = models.BooleanField(default=True)
     
+   
     @property
     def can_moderate(self):
         return (self.is_moderator or self.is_admin)
@@ -194,8 +195,19 @@ class Post(models.Model):
             title = "%s [deleted ]" % self.title
         elif self.closed:
             title = "%s [closed]" % self.title
-        return title
-     
+        return "%s (%s, %s)" % (title, self.answer_count, self.comment_count)
+    
+    def update_views(self, request):
+        if request.user.is_anonymous():
+            return
+        VIEW_KEY = 'viewed'
+        viewed = request.session.get(VIEW_KEY, set())
+        if self.id not in viewed:
+            # updates bypass signals
+            Post.objects.filter(id=self.id).update(views = F('views') + 1 ) 
+            viewed.add(self.id)
+            request.session[VIEW_KEY] = viewed
+        
     @property
     def closed(self):
         return self.status == POST_CLOSED
@@ -296,6 +308,14 @@ def moderator_action(post, user, action, date=None):
     if action == REV_CLOSE:
         post.status = POST_CLOSED       
     elif action == REV_DELETE:
+        
+        # destroys a posts by user if there are no children
+        cnum = Post.objects.filter(root=post).count()
+        
+        if (user == post.author) and (cnum == 0) :
+            Post.objects.filter(id=post.id).delete()
+            return
+        
         post.status = POST_DELETED
     else:
         post.status = POST_OPEN
@@ -521,6 +541,10 @@ def verify_post(sender, instance, *args, **kwargs):
     if not instance.root:
         instance.root = instance
 
+    # set the parent automatically to itself if not specified
+    if not instance.parent:
+        instance.parent = instance
+        
     # set the title based on the parent    
     if not instance.title and instance.parent:
         instance.title = "%s: %s" % (instance.get_type_display(), instance.parent.title)

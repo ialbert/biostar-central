@@ -2,6 +2,7 @@
 Biostar views
 """
 import difflib
+from collections import defaultdict
 from main.server import html, models, const, formdef, action, notegen, auth
 from main.server.html import get_page
 from datetime import datetime
@@ -71,7 +72,6 @@ def user_profile(request, uid):
     user = request.user
     target  = models.User.objects.get(id=uid)
     
-    
     notes = models.Note.objects.filter(target=target).select_related('author', 'author__profile', 'root').order_by('-date')
     page  = get_page(request, notes, per_page=20)
     # we evalute it here so that subsequent status updates won't interfere
@@ -137,39 +137,61 @@ def question_tagged(request, tag_name):
 def post_show(request, pid):
     "Returns a question with all answers"
     
-    qs = models.Post.objects
-    question = qs.select_related('children', 'votes').get(id=pid)
-            
-    #qs = models.Post.all_objects if 'view_deleted' in request.permissions else models.Post.objects
-    answers = models.Post.objects.filter(parent=question, type=POST_ANSWER).select_related('author', 'author__profile') 
-    answers = list(answers.order_by('-accepted','-score'))
+    query = models.Post.objects
+    try:
+        root = query.get(id=pid)
+        # update the views for the question
+        root.update_views(request)
+        auth.authorize_post_edit(post=root, user=request.user, strict=False)
+    except models.Post.DoesNotExist, exc:
+        messages.warning(request, 'The post that you are looking for does not exists. Perhaps it was deleted!')
+        return html.redirect("/")
+       
+    # all descendants, order by id is the same as ordering by d
+    rows = list(models.Post.objects.filter(root=root).select_related('author', 'author__profile').order_by('id'))
     
-    # add the writeable attribute to each post
-    all = [ question ] + answers
-    for post in all:
-        auth.authorize_post_edit(post=post, user=request.user, strict=False)
-    
+    # get all the votes for these objects
     if request.user.is_authenticated():
-        notes = models.Note.objects.filter(target=request.user, post=question).all().delete()
-        votes = models.Vote.objects.filter(author=request.user, post__id__in=[ question.id ] + [a.id for a in answers] ) 
-        
-        # updates the viewcounter once within a session, Alex says to move to IP based counting TODO
-        viewed = request.session.get(VIEWED_KEY, set())
-        if question.id not in viewed:
-            viewed.add(question.id)
-            question.views += 1
-            question.save()
-            request.session[VIEWED_KEY] = viewed
+        votes = models.Vote.objects.filter(author=request.user, post__id__in = [ p.id for p in rows ] ) 
+        up_votes   = set(vote.post.id for vote in votes if vote.type == const.VOTE_UP)
+        down_votes = set(vote.post.id for vote in votes if vote.type == const.VOTE_DOWN)
     else:
-        notes, votes = [], []
+        up_votes = down_votes = set()
         
-        
-    up_votes = set(vote.post.id for vote in votes if vote.type == const.VOTE_UP)
-    down_votes = set(vote.post.id for vote in votes if vote.type == const.VOTE_DOWN)
+    # now the ordering takes place
+    answers = []
+    tree = defaultdict(list)
     
-    #return html.template( request, name='post.html', question=question, answers=answers, up_votes=up_votes, down_votes=down_votes )
+    for post in rows:
+        # add more attributes to each post
+        post.writeable = auth.authorize_post_edit(post=post, user=request.user, strict=False)
+        post.upvoted   = post.id in up_votes
+        post.downvoted = post.id in down_votes
+            
+        # every post here must have a parent
+        assert post.parent, 'post %s does not have a parent' % post.id
+        tree[post.parent].append(post)
+        
+        if post.type == POST_ANSWER:
+            first  = int(post.accepted)
+            second = post.score
+            answers.append( (first, second, post) )
+        
+    # this should be sorted by question, comments on questions then answers by score        
+    answers.sort(reverse=True)
+    
+    for d in answers:
+        print d
+        
+    # undecorate
+    answers = [ a[-1] for a in answers ]
+    
+    # generate the tag cloud
+    tags = models.Tag.objects.all().order_by('-count')[:50]
+    
+    return html.template( request, name='post.show2.html', root=root, answers=answers, tree=tree, tags=tags )
  
-    return html.template( request, name='post.show.html', question=question, answers=answers, up_votes=up_votes, down_votes=down_votes )
+    #return html.template( request, name='post.show.html', question=question, answers=answers, up_votes=up_votes, down_votes=down_votes )
 
 def post_redirect(post, anchor=None):
     """

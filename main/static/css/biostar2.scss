@@ -150,14 +150,48 @@ div.tagcloud {
     background-color: $vote-color;
 }
 
+div.answercount {
+  font-size:1.8em;
+  font-weight:bold;
+  padding: 10px 0px 10px 0px;
+  margin: 10px 0px 10px 0px;
+  
+  border-bottom:1px solid #999999;
+}
+
+$low-tone: #858585;
+div.editbox {
+  color: $low-tone;
+  float:left;
+  clear:left;
+}
+
+div.tagline {
+  margin-bottom: 10px;
+  line-height: 18px;
+  float: left;
+}
+
 .views {
     color: #666666;
     width:4.5em;
 }
 
+div.warning {
+    background-color: $highlight-color;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom:4px;
+    padding:15px;
+    border-left:5px solid darken($highlight-color, 10%);
+    border-right:5px solid darken($highlight-color, 10%);
+    margin: 0px 0px 3 3;
+}
+
 
 div.feeds {
   background-color: lighten($shade-color, 50%);
+  border:1px solid lighten($shade-color, 20%);
   padding:20px;
   -moz-border-radius:10px;-webkit-border-radius:10px;border-radius:10px;
   margin-top:2em;
