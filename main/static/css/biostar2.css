@@ -51,8 +51,14 @@ div.welcome {
     vertical-align: middle;
     border: 0; }
 
+div.section {
+  font-size: large;
+  font-weight: bold;
+  padding: 10px 0px 10px 0px; }
+
 table.pagebar {
-  padding-bottom: 5px; }
+  padding-bottom: 5px;
+  padding-top: 5px; }
 
 div.remind {
   background-color: #ff7700;
@@ -101,6 +107,17 @@ div.tagcloud {
 .views {
   color: #666666;
   width: 4.5em; }
+
+div.feeds {
+  background-color: #e1efd9;
+  padding: 20px;
+  -moz-border-radius: 10px;
+  -webkit-border-radius: 10px;
+  border-radius: 10px;
+  margin-top: 2em;
+  font-size: larger; }
+  div.feeds li {
+    padding: 5px; }
 
 /* from http://www.leemunroe.com/css-button/ */
 .button {

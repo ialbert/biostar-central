@@ -71,16 +71,15 @@ def user_profile(request, uid):
     user = request.user
     target  = models.User.objects.get(id=uid)
     
-    if target == user:
-        notes = models.Note.objects.filter(target=target).select_related('author', 'author__profile', 'root').order_by('-date')
-        page  = get_page(request, notes, per_page=20)
-        # we evalute it here so that subsequent status updates won't interfere
-        page.object_list = list(page.object_list)
+    
+    notes = models.Note.objects.filter(target=target).select_related('author', 'author__profile', 'root').order_by('-date')
+    page  = get_page(request, notes, per_page=20)
+    # we evalute it here so that subsequent status updates won't interfere
+    page.object_list = list(page.object_list)
+    if user==target:
         models.Note.objects.filter(target=target).update(unread=False)
         models.UserProfile.objects.filter(user=target).update(new_messages=0)
-    else:
-        page = None
-
+    
     # we need to collate and count the awards
     awards = models.Award.objects.filter(user=target).select_related('badge').order_by('-date')
     

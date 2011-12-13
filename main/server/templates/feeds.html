@@ -3,24 +3,29 @@
 {% load basic %}
 
 {% block subheader %}
-  <h2>RSS Feeds</h2>
+  <h2 class="subheader">RSS Feeds</h2>
 {% endblock %}
 
 {% block mainbar %}
     
-    <p>
-        We offer the followinng RSS feeds:
-    </p>
-
-    <ul>
-        
-        <li><a href="/feeds/latest/">Latest Questions</a> - 25 latest questions from Biostar</li>
-        <!-- <li><a href="/feeds/latest/">Favorites Questions</a> - 25 most often bookmarked question on Biostar</li> -->
-    </ul>
-
-    <p>
-        Users may subscribe to their own messages as an RSS feed, see  your user profile for the link information. 
-        Note that this feed is only visible to the authenticated user and contains a unique identifier.
-    </p>
-
+    <div class="feeds">
+        <p>
+            We plan to offer the following RSS feeds (some feeds are not yet implemented):
+        </p>
+    
+        <ul>
+            
+            <li><a href="/feeds/latest/">New Questions</a> &mdash; latest questions from Biostar</li>
+            <li>New Users</a> &mdash; latest posts from the most recent users</li>
+            <li>Favorite Questions</a> &mdash; the most often bookmarked questions on Biostar</li>
+            <li>Moderator Actions</a> &mdash; latest moderator actions/li>
+        </ul>
+    
+        <p>
+            <b>Note:</b> Users may subscribe to their own activity information as an RSS feed. This information appears on the user profile page for each
+            authenticated user. This feed is only accesible to the authenticated user and contains a unique identifier.
+        </p>
+    
+    </div>
+    
 {% endblock %}

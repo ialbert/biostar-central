@@ -110,6 +110,7 @@ a:hover, a.post-title {
 
 #subheader {
     border-bottom: 1px solid #6D6D6D;
+    text-shadow: 1px 2px 2px rgba(0,0,0,0.1);
 }
 
 #nav-tag-bar {

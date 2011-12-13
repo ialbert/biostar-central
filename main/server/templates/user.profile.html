@@ -74,7 +74,7 @@
 </tr>
 </table>
 
-    <div class="title" id="activity">Activity</div>
+    <div class="section" id="status">Status</div>
     
     <div class="pad10">
         {{ target.profile.display_name }} has created <a href="/post/list/{{target.id}}/">{{params.post_count}}  posts</a> distributed as
@@ -86,13 +86,12 @@
          </div>
     </div>
 
-    {% if target.showall %}
-        <div class="title" id="messages">Messages </div>
+        <div class="section" id="activity">Activity</div>
         <table class="pad10" border="0" width="100%" id="message-table"> 
             
             {% if page.object_list and page.paginator.num_pages > 1 %}
                 <tr><td bgcolor="#EEEEEE" style="border-bottom:1px dotted #999999;">
-                    {% pagebar '#messages' %}
+                    {% pagebar '#activity' %}
                 </td></tr>
             
             {% endif %}
@@ -106,23 +105,24 @@
                     &bull; no messages
                 <tr><td>
             {% endfor %}
+            
+            {% if target.showall %}
             <tr><td bgcolor="#EEEEEE" style="border-top:1px dotted #999999;">
                 Get a private <a href="/feeds/messages/{{target.profile.uuid}}/">RSS feed<img src="{{ STATIC_URL }}img/feed-icon-small.png" style="vertical-align: middle; padding-left:3px;"></a> 
                  to your messages.
-            </td></tr>
-
+            </td></tr>            
              <tr><td>                
                 <div class="small" style="margin-bottom:5px;">
                 <div>This section shows activity on posts that you have interacted with.
                     You may also <a href="/note/clear/{{target.id}}/" onclick="return confirm('Are you sure you want to clear all of your messages?')">clear all<img src="{{ STATIC_URL }}img/trash.jpg" style="vertical-align: middle; padding-left:3px;"></a>  of your messages.
                 </div>
             </td></tr>
-
+            {% endif %}
+ 
         </table>
-    {% endif %}
  
    
-    <div class="title" id="badges">Badges</div>
+    <div class="section" id="badges">Badges</div>
     
     <div class="pad10">
         {% for award in awards %}

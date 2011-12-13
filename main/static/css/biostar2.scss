@@ -84,8 +84,15 @@ div.welcome {
   }
 }
 
+div.section {
+  font-size:large;
+  font-weight:bold;
+  padding: 10px 0px 10px 0px;
+}
+
 table.pagebar {
   padding-bottom:5px;
+  padding-top:5px;
   .paginator {
     
   }
@@ -148,6 +155,18 @@ div.tagcloud {
     width:4.5em;
 }
 
+
+div.feeds {
+  background-color: lighten($shade-color, 50%);
+  padding:20px;
+  -moz-border-radius:10px;-webkit-border-radius:10px;border-radius:10px;
+  margin-top:2em;
+  font-size:larger;
+  li {
+    padding:5px;
+  }
+  
+}
 
 $yellow:#ffcc00;
 $green:#a7dd32;
