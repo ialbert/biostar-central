@@ -32,18 +32,19 @@
             {% render_post root %}              
         <div>
         
-        <div class="answercount"> 
-        {% if root.answer_count %}
-             {{root.answer_count}} answers
-        {% else %}
-            No answers. Add one!
-        {% endif %}
+        <div class="answers">
+            <div class="count">
+                {% if root.answer_count %}
+                     {{root.answer_count}} answers
+                {% else %}
+                    No answers. Add one!
+                {% endif %}
+            </div>
+            
+            {% for answer in answers %}
+                {% render_post answer %}
+                <div class="separator"></div>
+            {% endfor %}
         </div>
-        
-        {% for post in answers %}
-            {% render_post post %}
-            <div class="answercount"></div>
-        {% endfor %}
-    
     </div>
 {% endblock %}

@@ -104,12 +104,15 @@ div.tagcloud {
 .votes {
   background-color: #eeeeee; }
 
-div.answercount {
+div.answers .count {
   font-size: 1.8em;
   font-weight: bold;
   padding: 10px 0px 10px 0px;
   margin: 10px 0px 10px 0px;
   border-bottom: 1px solid #999999; }
+div.answers .separator {
+  border-bottom: 1px solid #bfbfbf;
+  margin: 10px 0px 10px 0px; }
 
 div.editbox {
   color: #858585;

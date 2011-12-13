@@ -150,13 +150,20 @@ div.tagcloud {
     background-color: $vote-color;
 }
 
-div.answercount {
-  font-size:1.8em;
-  font-weight:bold;
-  padding: 10px 0px 10px 0px;
-  margin: 10px 0px 10px 0px;
-  
-  border-bottom:1px solid #999999;
+$dark:#999999;
+
+div.answers {
+  .count {
+    font-size:1.8em;
+    font-weight:bold;
+    padding: 10px 0px 10px 0px;
+    margin: 10px 0px 10px 0px;
+    border-bottom:1px solid $dark;
+  }
+  .separator {
+    border-bottom:1px solid lighten($dark, 15%);
+    margin: 10px 0px 10px 0px;
+  }
 }
 
 $low-tone: #858585;
