@@ -140,24 +140,31 @@ May browse all content of a site.
 Registered Users
 ^^^^^^^^^^^^^^^^
 
-All privileges that anonymous users have. In addition they may post questions if their reputation exceeeds 
+In addition to the privileges that anymous users have registered users  may post questions if their reputation exceeeds 
 a limit (the default is zero), may post answers and comments. 
-Notifications, email and messages are private and are only visible to the user. 
 
 Moderator Role
 ^^^^^^^^^^^^^^
 
-All privileges that registered users have. In addition moderators may edit, close and delete posts, edit user information (other than email) 
+In addition to the privileges that registered users have moderators may edit, close and delete posts, edit user information (other than email) 
 and may also suspend and reinstate users. All the actions of the moderators 
 may be followed via the Moderator Log page (see About BioStar page for a link)
 
 Administrator Role
 ^^^^^^^^^^^^^^^^^^
 
-All the privileges that moderators have. In addition they 
+In addition to the privileges that moderators have administrators 
 may promote/demote users from having moderator roles. Administrators also have 
 access to the django admin interface where they may perform more database actions
 than those offered via the BioStar interface..
+
+Content Persistence
+^^^^^^^^^^^^^^^^^^^
+
+Content may be deleted (marked invisible to users) or destroyed (removed from the database).
+A post submitted for deletion will be destroyed only if the author requests the deletion of
+the post and the post has not collected any answers or comments. In all other cases
+the post will be marked invisible to regular users.
 
 Code Layout
 -----------

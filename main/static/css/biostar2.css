@@ -22,7 +22,7 @@
   border-radius: 5px;
   -moz-border-radius: 5px; }
 .nav a:hover {
-  background-color: #FF7700; }
+  background-color: #ff7700; }
 .nav .youarehere {
   background: none repeat scroll 0 0 #FF7700; }
 
@@ -37,7 +37,11 @@
 div.welcome {
   font-size: 1.1em;
   border-radius: 5px;
-  -moz-border-radius: 5px; }
+  -moz-border-radius: 5px;
+  background-color: #5b8c3c;
+  color: white;
+  padding: 5px;
+  margin-top: 3px; }
   div.welcome h1, div.welcome h2, div.welcome h3 {
     color: white;
     text-shadow: 2px 4px 3px rgba(0, 0, 0, 0.3); }
@@ -47,18 +51,30 @@ div.welcome {
     vertical-align: middle;
     border: 0; }
 
+table.pagebar {
+  padding-bottom: 5px; }
+
+div.remind {
+  background-color: #ff7700;
+  border-left: 5px solid #cc5f00;
+  color: white;
+  font-weight: bold;
+  float: left;
+  padding: 5px; }
+
 div.tagcloud {
   margin-top: 10px;
   border: 1px solid #BBBBBB;
   padding: 10px;
   border-radius: 5px;
-  -moz-border-radius: 5px; }
+  -moz-border-radius: 5px;
+  background-image: url("/static/img/stripe.gif"); }
   div.tagcloud h1, div.tagcloud h2, div.tagcloud h3 {
     text-shadow: 1px 2px 1px rgba(0, 0, 0, 0.1); }
   div.tagcloud .tag {
     float: left;
-    margin: 2px 2px 2px 0;
-    padding: 3px 4px 3px 4px;
+    margin: 5px 5px 5px 0;
+    padding: 3px 10px 3px 10px;
     text-decoration: none;
     background-color: #ECECEC;
     border-bottom: 1px solid #BBBBBB;
@@ -89,7 +105,7 @@ div.tagcloud {
 /* from http://www.leemunroe.com/css-button/ */
 .button {
   color: #08233e;
-  font: 2.4em Futura, ‘Century Gothic’, AppleGothic, sans-serif;
+  font: 2.4em Futura, Century Gothic, AppleGothic, sans-serif;
   padding: 14px;
   background: url(/static/img/overlay.png) repeat-x center #a7dd32;
   border: 1px solid #a7dd32;
