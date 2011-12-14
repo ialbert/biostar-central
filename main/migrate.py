@@ -383,8 +383,8 @@ def insert_comments(fname, posts, users, limit):
         for i, (postid, cid, param) in enumerate(clist):   
             parent = posts[postid]
             param['parent'] = parent
-            param['root']   = parent.root
-            post = models.Post(**param)            
+            param['root']   = parent.root or parent
+            post = models.Post(**param)
             comms[cid] = post
             if USE_DB:
                 if (i % 1000 == 0):

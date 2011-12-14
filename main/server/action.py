@@ -44,7 +44,6 @@ def cleanup(request):
 def user_edit(request, uid):
     "User's profile page"
     
-    user   = request.user
     target = models.User.objects.select_related('profile').get(id=uid)
     
     allow = auth.authorize_user_edit(target=target, user=request.user, strict=False)
@@ -57,23 +56,23 @@ def user_edit(request, uid):
             display_name = target.profile.display_name,
             email      = target.email or '',
             location   = target.profile.location or '',
-            website    =    target.profile.website or '',
+            website    = target.profile.website or '',
             about_me   = target.profile.about_me or ''
         )
         form = UserForm(initial)
-        return html.template(request, name='user.edit.html', user=user, form=form)
+        return html.template(request, name='user.edit.html', user=target, form=form)
     elif request.method == 'POST':
         
         form = UserForm(request.POST)
         if not form.is_valid():
-            return html.template(request, name='user.edit.html', user=user, form=form)
+            return html.template(request, name='user.edit.html', user=target, form=form)
         else:
             for field in "display_name about_me website location".split():
                 setattr(target.profile, field, form.cleaned_data[field])
             target.email = form.cleaned_data['email']
             target.profile.save()
             target.save()
-            return html.redirect("/user/show/%s/" % user.id)
+            return html.redirect("/user/show/%s/" % target.id)
 
 def about(request):
     "Renders the about page"

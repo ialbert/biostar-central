@@ -7,12 +7,9 @@ def userlink(user):
     return '[%s](%s)' % (user.profile.display_name, user.profile.get_absolute_url() )
 
 def postlink(post):
-    root = post.root
-    size = 30
-    if len(root.title)<=size:
-        title = root.title
-    else:
-        title = '%s...' %  root.title[:size] 
+    size  = 35
+    root  = post.root or post
+    title = root.title if len(root.title) < size else '%s...' %  root.title[:size] 
     return '[%s](%s%s/#%s)' % (title, root.get_absolute_url(), root.slug, post.id)
 
 def badgelink(badge):
@@ -36,11 +33,12 @@ def post_action(user, post):
     else:
         action = "did something to"
     
-    size = 150
+    size = 250
     if len(post.content)<size:
         content = post.content
     else:
         content = '%s...' % post.content[:size]
+    
     text   = '%s %s %s with *%s*' % (userlink(user), action, postlink(post), content)
     return text
 

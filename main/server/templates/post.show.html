@@ -1,10 +1,10 @@
-{% extends "base.sidebar.html" %}
+{% extends "base.nosidebar.html" %}
 
 {% load basic %}
-{% load voting %}
+{% load humanize %}
 
 {% block subheader %}
-  <h2>{{question.get_title }}</h2>
+  <h2>{{root.get_title }}</h2>
 {% endblock %}
 
 {% block custom-frameworks %}
@@ -28,119 +28,43 @@
 {% block mainbar %}
     <div class="content"">
         
-        <div id="question {{question.css}}">
+        <div>
+            {% render_post request root tree %}              
+        <div>
         
-            <table>
-                <tr>
-                    <td valign="top" class="votecell"> 
-                        {% votebox question up_votes down_votes %}
-                    </td>
-                    <td>
-                        <div class="post-text">
-                            {{question.html|safe }}
-                        </div>
-    
-                        <div class="tags">
-                            {% for tag in question.get_tag_names %}
-                               {% taglink tag %}
-                            {% endfor %}
-                        </div>
-                       
-                        <div class="left post-menu">
-                            
-                            {% editbox user question %}
-                                                        
-                        </div>
-                        
-                        <div class="right question-user-info">
-                            {% actionbox question.author question.creation_date %}
-                        </div>
-                        
-                        {% revisionbox question %}
-                        
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        &nbsp;
-                    </td>
-                    <td>
-                        {% comments user question %}
-                    </td>
-                </tr>
-                
-            </table>
-        
-        </div>
-        
-        {% if question.closed %}
-        <div class="question-status">
-            <h2>This question has been closed by a moderator</h2>
+        {% if root.closed %}
+        <div class="moderated">
+            This question has been closed by a moderator
         </div>
         {% endif %}
     
-        {% if question.deleted %}
-        <div class="question-status">
-            <h2>This question has been deleted by a moderator</h2>
+        {% if root.deleted %}
+        <div class="moderated">
+            This question has been deleted by a moderator
         </div>
         {% endif %}
-
-        <div id="answers">
+    
+        <div class="answers">
+            <div class="count">
+                {% if root.answer_count %}
+                     {{root.answer_count}} answers
+                {% else %}
+                    No answers. Add one!
+                {% endif %}
+            </div>
             
-            <div id="answers-header">
-                <h2> {{answers|length}} Answers</h2>
-            </div>
-
             {% for answer in answers %}
-            <div class="answer {{answer.css}}">
-                <table border="0">
-                    <tr>
-                        <td>
-                            {% votebox answer up_votes down_votes %}
-                            {% if answer.answer_accepted %}
-                                <br>
-                                <div class="vote-accepted"></div>
-                            {% endif %}
-                        </td>
-                        
-                        <td width="100%">
-                            
-                            <div class="post-text">
-                                <a name="{{answer.id}}"></a> {{ answer.html|safe }}
-                            </div>
-                            
-                            <div class="left post-menu">                                
-                                {% editbox user answer %}
-                            </div>
-        
-                            <div class="right">
-                                {% actionbox answer.author answer.creation_date 'answered' %}
-                            </div>
-                            
-                            {% revisionbox answer %}
-                            
-                        </td>
-                    </tr>
-
-                     <tr>
-                        <td>
-                            &nbsp;
-                        </td>
-                        <td>
-                            {% comments user answer %}
-                        </td>
-                    </tr>
-                </table>
-            </div>
+                {% render_post request answer tree %}
+                <div class="separator"></div>
             {% endfor %}
+        </div>
         
-           
-            <div id="post-answer">
+           <div id="post-answer">
                 <h2>Your Answer</h2>
 
-                 {% if user.is_authenticated %}
+                {% if user.is_authenticated %}
                 
-                <form action="/new/answer/{{question.id}}/" method="post">
+                <form action="/new/answer/{{root.id}}/" method="post">
                     {% csrf_token %}
                     <textarea id="editor" name="content" cols="50" rows="15" ></textarea>
                     <div>
@@ -160,9 +84,5 @@
                 {% endif %}
                 
             </div>
-
-
-
-        </div>
     </div>
 {% endblock %}

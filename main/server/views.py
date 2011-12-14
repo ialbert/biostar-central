@@ -177,16 +177,15 @@ def post_show(request, pid):
     # generate the tag cloud
     tags = models.Tag.objects.all().order_by('-count')[:50]
     
-    return html.template( request, name='post.show2.html', root=root, answers=answers, tree=tree, tags=tags )
+    return html.template( request, name='post.show.html', root=root, answers=answers, tree=tree, tags=tags )
  
-    #return html.template( request, name='post.show.html', question=question, answers=answers, up_votes=up_votes, down_votes=down_votes )
-
 def post_redirect(post, anchor=None):
     """
     Shows a post in full context
     """
     # get the root of a post
-    pid, slug = post.root.id, post.root.slug
+    root = post.root or post
+    pid, slug = root.id, root.slug
     anchor = anchor or post.id
     url = '/post/show/%s/%s/#%s' % (pid, slug, anchor)
     return html.redirect(url)
@@ -235,7 +234,7 @@ def post_edit(request, pid=0, parentid=0, post_type=POST_QUESTION):
     # find the parent if it exists
     if parentid:
         parent = models.Post.objects.get(pk=parentid)
-        root = parent.root
+        root   = parent.root or parent
     else:
         parent = root = None
 

@@ -2,6 +2,9 @@
 User access authorization
 """ 
 
+import logging
+logger = logging.getLogger(__name__)
+
 def authorize_user_edit(target, user, strict=True):
     """
     Authorizes writing a target user by another user.  
@@ -9,7 +12,9 @@ def authorize_user_edit(target, user, strict=True):
     Moderators may edit regular users, administrators may edit moderators and regular users.
     Strict mode raises an immediate exception.
     """
-    if target == user:
+    if user.is_anonymous():
+        writeable = False
+    elif target == user:
         writeable = True
     elif target.profile.is_admin:
         # admins may not be moderated directly
@@ -28,7 +33,9 @@ def authorize_user_edit(target, user, strict=True):
         writeable = False
     
     if strict and not writeable:
-        raise Exception('user write access denied')
+        msg = 'user %s write access to user %s denied' % (user.id, target.id)
+        logger.error(msg)
+        raise Exception(msg)
     
     target.writeable = writeable
     return target.writeable
@@ -46,7 +53,9 @@ def authorize_post_edit(user, post, strict=True):
         writeable = user.profile.can_moderate or (post.author == user)
     
     if strict and not writeable:
-        raise Exception('post write access denied')
+        msg = 'user %s edit access to post %s denied' % (user.id, post.id)
+        logger.error(msg)
+        raise Exception(msg)
 
     post.writeable = writeable
     return post.writeable
