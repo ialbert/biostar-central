@@ -239,11 +239,6 @@ def post_edit(request, pid=0, parentid=0, post_type=POST_QUESTION):
     else:
         parent = root = None
 
-    print parent.id
-    print root.id
-
-    print '---------'
-
     # deal with new post creation first
     if newpost:
         # this here is to customize the output

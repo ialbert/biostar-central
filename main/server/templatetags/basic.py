@@ -53,8 +53,8 @@ def usernotes(user):
     return { 'user':user }
 
 @register.inclusion_tag('widgets/edit.box.html')
-def editbox(post):
-    return { 'post':post }
+def editbox(request, post):
+    return { 'post':post, 'request':request }
     
 @register.inclusion_tag('widgets/badge.icon.html')
 def badgeicon(type):
@@ -170,27 +170,31 @@ def flair(user):
 def render_post(context, request, post, tree):
     return { 'post':post, 'tree':tree, 'request':request }
  
-comment_body = template.loader.get_template('widgets/comment.html')
+comment_body  = template.loader.get_template('widgets/comment.html')
 
 def render_comments(request, post, tree):
     global comment_body
+            
     def traverse(node):
-        if node.id not in tree:       
-            node.html = node.html[:-4]
-            c = Context( {"post": node, 'user':request.user} )
-            c.update(csrf(request))
-            return comment_body.render(c)
-        ret = [ '<div class="indent">' ]
+        out = [ '<div class="indent">' ]
+        con = Context( {"post": node, 'user':request.user} )
+        con.update(csrf(request))
+        res = comment_body.render(con)
+        out.append( res )
         for child in tree[node.id]:
-            ret.append( traverse(child) )        
-        ret.append( "</div>" )
-        return '\n'.join(ret)
-    return traverse(post)
+            out.append( traverse(child) )        
+        out.append( "</div>" )
+        return '\n'.join(out)
+    
+    # this collects only the comments
+    coll = []
+    for node in tree[post.id]:
+        coll.append( traverse(node) )
+    return '\n'.join(coll)
 
 @register.simple_tag
 def comments(request, post, tree):
     global comment_body    
-
     if settings.DEBUG:
         comment_body = template.loader.get_template('widgets/comment.html')
     if post.id in tree:

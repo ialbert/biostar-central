@@ -195,7 +195,7 @@ class Post(models.Model):
             title = "%s [deleted ]" % self.title
         elif self.closed:
             title = "%s [closed]" % self.title
-        return "%s (%s, %s)" % (title, self.answer_count, self.comment_count)
+        return "%s" % title
     
     def update_views(self, request):
         if request.user.is_anonymous():

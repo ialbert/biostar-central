@@ -1,12 +1,34 @@
 div.indent {
-  margin-left: 25px; }
+  margin-left: 3em; }
+
+table.post {
+  width: 100%; }
+
+div.question {
+  width: 100%; }
+
+a {
+  text-decoration: underline; }
 
 div.comment {
+  border-radius: 10px;
+  -moz-border-radius: 10px;
   color: #333333;
-  border-bottom: 1px solid #cccccc; }
+  background-color: #ecf4e6;
+  border-left: 10px solid #d0e5c2;
+  border-right: 10px solid #d0e5c2;
+  border-bottom: 1px solid #d0e5c2;
+  border-top: 1px solid #d0e5c2;
+  padding: 5px;
+  margin-top: 4px;
+  margin-bottom: 4px; }
+  div.comment:hover {
+    background-color: #deedd4; }
   div.comment .actions {
     width: 3em; }
   div.comment .userinfo {
+    float: right; }
+  div.comment .reply {
     float: right; }
   div.comment .comment-delete {
     width: 1em;
@@ -44,6 +66,13 @@ div.comment {
   background-color: #ff7700; }
 .nav .youarehere {
   background: none repeat scroll 0 0 #FF7700; }
+
+.mod-flair {
+  font-size: 140%;
+  color: #555555;
+  font-weight: bold;
+  margin-left: 3px;
+  text-shadow: 1px 2px 1px rgba(0, 0, 0, 0.1); }
 
 /* User notification listing */
 .msg {

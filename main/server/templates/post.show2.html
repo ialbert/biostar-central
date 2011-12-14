@@ -1,4 +1,4 @@
-{% extends "base.sidebar.html" %}
+{% extends "base.nosidebar.html" %}
 
 {% load basic %}
 {% load humanize %}
@@ -28,7 +28,7 @@
 {% block mainbar %}
     <div class="content"">
         
-        <div id="question">
+        <div>
             {% render_post request root tree %}              
         <div>
         

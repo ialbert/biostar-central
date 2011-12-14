@@ -9,23 +9,66 @@ $title-size:1.2em;
 
 $dark:#999999;
 $medium: #cccccc;
+$light:#ececec;
+$content-width:960px;
 
 $pastel-green:#D0E5C2;
 
 div.indent {
-    margin-left:25px;
+    margin-left:3em;
+    
 }
 
+table.post {
+  width:100%;
+}
+
+div.question{
+  width:100%;
+}
+
+a {
+  text-decoration: underline;  
+}
+
+$comment-bg:lighten($pastel-green, 10%);
+$comment-bd:$pastel-green;
+
 div.comment {
+        
+    border-radius: 10px; -moz-border-radius: 10px;
     
-    color: #333333;    
-    border-bottom:1px solid #cccccc;
+    color: #333333;
+    background-color:$comment-bg;
+    
+    &:hover {
+      background-color:darken($comment-bg, 5%);
+    }
+    
+    border: {
+      left:10px solid $comment-bd;
+      right:10px solid $comment-bd;
+      bottom:1px solid $comment-bd;
+      top:1px solid $comment-bd;      
+    }
+    
+    padding: 5px;
+    
+    margin :{
+      top:4px;
+      bottom: 4px;
+    }
+    
     .actions{ 
         width:3em;
     }
     
     .userinfo {
         float:right;
+    }
+    
+    .reply {
+      float:right;
     }
     
     .comment-delete{ 
@@ -81,6 +124,13 @@ div.comment {
   
 }
 
+.mod-flair {
+    font-size: 140%;
+    color: #555555;
+    font-weight: bold;
+    margin-left: 3px;
+    text-shadow: 1px 2px 1px rgba(0,0,0,0.1);
+}
 
 /* User notification listing */
 .msg {

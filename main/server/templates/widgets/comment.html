@@ -5,20 +5,26 @@
         <a class="comment-delete" name="{{post.id}}">x</a>
     {% endif %}
 
-    {{ post.id }} {{ post.html|safe }} 
+    {{ post.html|safe }} 
+    
+    
+    <div class="reply">
     
     {% if post.writeable %}
         &bull; <a href="/post/edit/{{post.id}}">edit</a>
     {% endif %}
-
-    &mdash; {% userlink post.author %} {% time_ago post.creation_date %}      
-
+    
+    &bull; by {% userlink post.author %} {% time_ago post.creation_date %}
+    
     {% if user.is_authenticated %}
-        <div class="post-comment post-menu">
-            {% csrf_token %}
-            <input type="hidden" value="{{post.id}}">
-            <a class="add-comment">reply</a>
-        </div>
+        &bull;
+        {% csrf_token %}
+        <input type="hidden" value="{{post.id}}">
+        <a class="add-comment">reply</a>
     {% endif %}
+    
+    </div>
+    
+    <div style="clear:both;"></div>
 
 </div>
