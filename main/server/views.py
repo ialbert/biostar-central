@@ -138,7 +138,8 @@ def question_tagged(request, tag_name):
   
 def post_show(request, pid):
     "Returns a question with all answers"
-    
+    user = request.user
+
     query = models.Post.objects
     try:
         root = query.get(id=pid)
@@ -148,46 +149,31 @@ def post_show(request, pid):
     except models.Post.DoesNotExist, exc:
         messages.warning(request, 'The post that you are looking for does not exists. Perhaps it was deleted!')
         return html.redirect("/")
-       
-    # all descendants, order by id is the same as ordering by d
-    rows = list(models.Post.objects.filter(root=root).select_related('author', 'author__profile').order_by('id'))
     
-    # get all the votes for these objects
+    # get all answers to the root 
+    answers =  models.Post.objects.filter(parent=root, type=POST_ANSWER).select_related('author', 'author__profile').order_by('-accepted', '-score')
+    
+    # get all the votes for the answers
     if request.user.is_authenticated():
-        votes = models.Vote.objects.filter(author=request.user, post__id__in = [ p.id for p in rows ] ) 
+        votes = models.Vote.objects.filter(author=request.user, post__id__in = [ p.id for p in answers ] ) 
         up_votes   = set(vote.post.id for vote in votes if vote.type == const.VOTE_UP)
         down_votes = set(vote.post.id for vote in votes if vote.type == const.VOTE_DOWN)
     else:
         up_votes = down_votes = set()
-        
-    # now the ordering takes place
-    answers = []
-    tree = defaultdict(list)
-    
-    for post in rows:
-        # add more attributes to each post
+
+    # decorate the posts with extra attributes for easier rendering
+    for post in list(answers) + [ root ] :
         post.writeable = auth.authorize_post_edit(post=post, user=request.user, strict=False)
         post.upvoted   = post.id in up_votes
         post.downvoted = post.id in down_votes
-            
-        # every post here must have a parent
-        assert post.parent, 'post %s does not have a parent' % post.id
-        tree[post.parent].append(post)
-        
-        if post.type == POST_ANSWER:
-            first  = int(post.accepted)
-            second = post.score
-            answers.append( (first, second, post) )
-        
-    # this should be sorted by question, comments on questions then answers by score        
-    answers.sort(reverse=True)
     
-    for d in answers:
-        print d
-        
-    # undecorate
-    answers = [ a[-1] for a in answers ]
-    
+    # get all the comments
+    tree = defaultdict(list)
+    comments = models.Post.objects.filter(root=root, type=POST_COMMENT).select_related('author', 'author__profile').order_by('creation_date')
+    for comment in comments:
+        comment.writeable = auth.authorize_post_edit(post=comment, user=request.user, strict=False)
+        tree[comment.parent_id].append(comment)
+   
     # generate the tag cloud
     tags = models.Tag.objects.all().order_by('-count')[:50]
     

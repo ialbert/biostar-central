@@ -29,7 +29,7 @@
     <div class="content"">
         
         <div id="question">
-            {% render_post root %}              
+            {% render_post request root tree %}              
         <div>
         
         <div class="answers">
@@ -42,7 +42,7 @@
             </div>
             
             {% for answer in answers %}
-                {% render_post answer %}
+                {% render_post request answer tree %}
                 <div class="separator"></div>
             {% endfor %}
         </div>

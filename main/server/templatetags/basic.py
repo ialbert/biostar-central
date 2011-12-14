@@ -4,6 +4,7 @@ import urllib, hashlib, re
 from datetime import datetime, timedelta
 from main.server import const, html, models, auth
 from django.template import Context, Template
+from django.core.context_processors import csrf
 
 register = template.Library()
 
@@ -26,7 +27,7 @@ def smart_chunk(text):
     return ' '.join(coll)
 
 @register.inclusion_tag('widgets/comments.html', takes_context=True)
-def comments(context, user, post):
+def comments2(context, user, post):
     
     coll = []
     for comment in post.comments():
@@ -63,10 +64,8 @@ def badgeicon(type):
 def actionbox(user, date, action='asked'):
     return {'user':user, 'date':date, 'action':action}
 
-@register.inclusion_tag('widgets/render.post.html', takes_context=True)
-def render_post(context, post):
-    return { 'post':post, 'const':const }
-   
+
+  
 @register.inclusion_tag('widgets/user.box.html')
 def userbox(user):
     return {'user':user}
@@ -166,6 +165,41 @@ def flair(user):
     elif user.profile.is_moderator:
         return '&diams;'
     return ""
+
+@register.inclusion_tag('widgets/render.post.html', takes_context=True)
+def render_post(context, request, post, tree):
+    return { 'post':post, 'tree':tree, 'request':request }
+ 
+comment_body = template.loader.get_template('widgets/comment.html')
+
+def render_comments(request, post, tree):
+    global comment_body
+    def traverse(node):
+        if node.id not in tree:       
+            node.html = node.html[:-4]
+            c = Context( {"post": node, 'user':request.user} )
+            c.update(csrf(request))
+            return comment_body.render(c)
+        ret = [ '<div class="indent">' ]
+        for child in tree[node.id]:
+            ret.append( traverse(child) )        
+        ret.append( "</div>" )
+        return '\n'.join(ret)
+    return traverse(post)
+
+@register.simple_tag
+def comments(request, post, tree):
+    global comment_body    
+
+    if settings.DEBUG:
+        comment_body = template.loader.get_template('widgets/comment.html')
+    if post.id in tree:
+        text = render_comments(request=request, post=post, tree=tree)
+    else:
+        text = ''
+    return text
+    
+
 
 # preload the templates 
 row_question = template.loader.get_template('rows/row.question.html')

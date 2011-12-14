@@ -451,22 +451,7 @@ a:hover, a.post-title {
 
 /* Comments */
 
-.comment-row td{
-    padding: 0;
-}
 
-.comment{
-    width:80%;
-}
-
-.comment-text{
-    color: #333333;    
-    background-color: #EEEEEE;
-}
-
-.comment-actions{ 
-    width:3em;
-}
 
 .gotmail  {
     font-weight:bold;
@@ -488,20 +473,6 @@ a:hover, a.post-title {
     color: #8F2C47;
 }
 
-.comment-delete{ 
-    width:1em;
-    float:right;
-    font-weight:bold;
-    text-align:center;
-}
-
-.comment-delete:hover{ 
-    width:1em;
-    float:right;
-    font-weight:bold;
-    background-color: #666666;
-    color:red;
-}
 
 .comment-row {
     background-color: #EEEEEE;

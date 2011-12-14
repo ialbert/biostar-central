@@ -1,0 +1,24 @@
+{% load basic %}
+
+<div class="comment" id="{{post.id}}">
+    {% if post.writeable %}
+        <a class="comment-delete" name="{{post.id}}">x</a>
+    {% endif %}
+
+    {{ post.html|safe }} 
+    
+    {% if post.writeable %}
+        &bull; <a href="/post/edit/{{post.id}}">edit</a>
+    {% endif %}
+
+    &mdash; {% userlink post.author %} {% time_ago post.creation_date %}      
+
+    {% if user.is_authenticated %}
+        <div class="post-comment post-menu">
+            {% csrf_token %}
+            <input type="hidden" value="{{post.id}}">
+            <a class="add-comment">reply</a>
+        </div>
+    {% endif %}
+
+</div>

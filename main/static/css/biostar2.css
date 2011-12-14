@@ -1,3 +1,22 @@
+div.indent {
+  margin-left: 25px; }
+
+div.comment {
+  color: #333333;
+  border-bottom: 1px solid #cccccc; }
+  div.comment .actions {
+    width: 3em; }
+  div.comment .userinfo {
+    float: right; }
+  div.comment .comment-delete {
+    width: 1em;
+    float: right;
+    font-weight: bold;
+    text-align: center; }
+    div.comment .comment-delete:hover {
+      background-color: #666666;
+      color: red; }
+
 .mini-counts {
   font-size: 2em;
   font-weight: bold;
@@ -111,7 +130,7 @@ div.answers .count {
   margin: 10px 0px 10px 0px;
   border-bottom: 1px solid #999999; }
 div.answers .separator {
-  border-bottom: 1px solid #bfbfbf;
+  border-bottom: 1px solid #cccccc;
   margin: 10px 0px 10px 0px; }
 
 div.editbox {

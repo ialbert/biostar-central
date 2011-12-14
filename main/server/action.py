@@ -139,10 +139,8 @@ def destroy_post(request, pid):
 
     # for now only comments may be destroyed
     assert post.type == POST_COMMENT
-    if not post.authorize(user=moderator, strict=False):
+    if not auth.authorize_post_edit(user=moderator, post=post, strict=False):
         return html.json_response({'status':'error', 'msg':'You do not have permission to delete this post.'})        
     
-    # TODO why won't this cascade when deleting a post?
-    models.PostRevision.objects.filter(post=post).all().delete()
     post.delete()
     return html.json_response({'status':'success', 'msg':'post deleted'})

@@ -557,7 +557,7 @@ def verify_post(sender, instance, *args, **kwargs):
     instance.slug = slugify(instance.title)
         
     # generate the HTML from the content
-    instance.html = html.generate(instance.content)
+    instance.html = html.generate(instance.content.strip())
             
 def finalize_post(sender, instance, created, *args, **kwargs):
     "Post save notice on a post, creates the revisions if necessary"
