@@ -244,6 +244,17 @@ div.tagcloud {
     background-color: $navbar-color;
     color: white;
 }
+
+.answered {
+    background-color: #75845C;
+    color: #FFFFFF;
+}
+
+.accepted {
+    background-color: #75845C;
+    color: #E1E818;
+}
+
   
 .votes {
     background-color: $vote-color;

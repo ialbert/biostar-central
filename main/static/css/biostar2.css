@@ -159,6 +159,14 @@ div.tagcloud {
   background-color: #8f2c47;
   color: white; }
 
+.answered {
+  background-color: #75845C;
+  color: #FFFFFF; }
+
+.accepted {
+  background-color: #75845C;
+  color: #E1E818; }
+
 .votes {
   background-color: #eeeeee; }
 
