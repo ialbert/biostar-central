@@ -32,6 +32,18 @@
             {% render_post request root tree %}              
         <div>
         
+        {% if root.closed %}
+        <div class="moderated">
+            This question has been closed by a moderator
+        </div>
+        {% endif %}
+    
+        {% if root.deleted %}
+        <div class="moderated">
+            This question has been deleted by a moderator
+        </div>
+        {% endif %}
+    
         <div class="answers">
             <div class="count">
                 {% if root.answer_count %}
@@ -46,5 +58,31 @@
                 <div class="separator"></div>
             {% endfor %}
         </div>
+        
+           <div id="post-answer">
+                <h2>Your Answer</h2>
+
+                {% if user.is_authenticated %}
+                
+                <form action="/new/answer/{{root.id}}/" method="post">
+                    {% csrf_token %}
+                    <textarea id="editor" name="content" cols="50" rows="15" ></textarea>
+                    <div>
+                        <div id="markItUpPreview" class="markItUpPreview"
+                        style="padding-top: 5px"></div>
+                    </div>
+
+                    <div align="center">
+                        <input style="margin:10px;" type="submit" name="submit" value="Post Your Answer">
+                    </div>
+                </form>
+                
+                {% else %}
+                    <div>
+                        Please <a href="/openid/login/">log in</a> to post an answer.
+                    </div>
+                {% endif %}
+                
+            </div>
     </div>
 {% endblock %}
