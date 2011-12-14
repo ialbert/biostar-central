@@ -235,8 +235,14 @@ def post_edit(request, pid=0, parentid=0, post_type=POST_QUESTION):
     # find the parent if it exists
     if parentid:
         parent = models.Post.objects.get(pk=parentid)
+        root = parent.root
     else:
-        parent = None
+        parent = root = None
+
+    print parent.id
+    print root.id
+
+    print '---------'
 
     # deal with new post creation first
     if newpost:
@@ -247,7 +253,7 @@ def post_edit(request, pid=0, parentid=0, post_type=POST_QUESTION):
             form = factory(request.POST)
             if not form.is_valid():
                 return html.template(request, name='post.edit.html', form=form, params=params)
-            params = dict(author=user, type=post_type, parent=parent, root=parent, creation_date=datetime.now())
+            params = dict(author=user, type=post_type, parent=parent, root=root, creation_date=datetime.now())
             params.update(form.cleaned_data)            
             with transaction.commit_on_success():
                 post = models.Post.objects.create(**params)

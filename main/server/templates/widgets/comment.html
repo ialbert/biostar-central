@@ -5,7 +5,7 @@
         <a class="comment-delete" name="{{post.id}}">x</a>
     {% endif %}
 
-    {{ post.html|safe }} 
+    {{ post.id }} {{ post.html|safe }} 
     
     {% if post.writeable %}
         &bull; <a href="/post/edit/{{post.id}}">edit</a>
