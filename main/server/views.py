@@ -153,16 +153,17 @@ def post_show(request, pid):
     # get all answers to the root 
     answers =  models.Post.objects.filter(parent=root, type=POST_ANSWER).select_related('author', 'author__profile').order_by('-accepted', '-score')
     
-    # get all the votes for the answers
+    # all objects with votes
+    all = list(answers) + [ root ]
     if request.user.is_authenticated():
-        votes = models.Vote.objects.filter(author=request.user, post__id__in = [ p.id for p in answers ] ) 
+        votes = models.Vote.objects.filter(author=request.user, post__id__in = [ p.id for p in all ] ) 
         up_votes   = set(vote.post.id for vote in votes if vote.type == const.VOTE_UP)
         down_votes = set(vote.post.id for vote in votes if vote.type == const.VOTE_DOWN)
     else:
         up_votes = down_votes = set()
 
     # decorate the posts with extra attributes for easier rendering
-    for post in list(answers) + [ root ] :
+    for post in all :
         post.writeable = auth.authorize_post_edit(post=post, user=request.user, strict=False)
         post.upvoted   = post.id in up_votes
         post.downvoted = post.id in down_votes

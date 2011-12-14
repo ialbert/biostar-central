@@ -122,7 +122,7 @@ while (( "$#" )); do
 		
 		#$PYTHON_EXE import/migrate.py --path import/se0 --limit 100
 		
-		$PYTHON_EXE -m main.migrate --path import/se2 --limit 100
+		$PYTHON_EXE -m main.migrate --path import/se2 --limit 1000
 		#$PYTHON_EXE -m main.migrate --path import/se0 --limit 500
 	fi
 

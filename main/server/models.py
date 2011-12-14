@@ -542,11 +542,7 @@ def verify_post(sender, instance, *args, **kwargs):
     
     if instance.type in ( POST_COMMENT, POST_ANSWER):
         assert instance.root and instance.parent
-        
-    # set the parent automatically to itself if not specified
-    if not instance.parent:
-        instance.parent = instance
-    
+         
     # for post with no title set it title based
     if not instance.title and instance.parent:
         instance.title = "%s: %s" % (instance.get_type_display(), instance.parent.title)

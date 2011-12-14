@@ -14,6 +14,18 @@ $content-width:960px;
 
 $pastel-green:#D0E5C2;
 
+#aboutpage {
+  .title {
+    
+    border-bottom:1px dotted $dark;
+    padding:{
+      bottom:10px;
+      top:10px;
+      left:5px;
+    }
+  }
+}
+
 div.indent {
     margin-left:3em;
     

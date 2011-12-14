@@ -10,18 +10,18 @@
     
     <div class="reply">
     
-    {% if post.writeable %}
-        &bull; <a href="/post/edit/{{post.id}}">edit</a>
-    {% endif %}
-    
-    &bull; by {% userlink post.author %} {% time_ago post.creation_date %}
-    
     {% if user.is_authenticated %}
         &bull;
         {% csrf_token %}
         <input type="hidden" value="{{post.id}}">
         <a class="add-comment">reply</a>
     {% endif %}
+    
+    {% if post.writeable %}
+        &bull; <a href="/post/edit/{{post.id}}">edit</a>
+    {% endif %}
+    
+    &bull; by {% userlink post.author %} {% time_ago post.creation_date %}
     
     </div>
     
