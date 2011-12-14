@@ -354,9 +354,12 @@ def insert_votes(fname, limit, users, posts):
 
     print "*** inserting %s votes" % len(vlist)
     with transaction.commit_on_success():
-        for param in vlist:
+        for i, param in enumerate(vlist):
             vote = models.Vote(**param)
             if USE_DB:
+                if (i % 1000 == 0):
+                    print "*** commit at %s" % i
+                    transaction.commit()
                 vote.save()
         
 def insert_comments(fname, posts, users, limit):
