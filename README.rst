@@ -205,6 +205,15 @@ included with BioStar:
 .. _Sass: http://sass-lang.com/
 .. _Coffescript: http://jashkenas.github.com/coffee-script/
 
+Development notes
+-----------------
+
+Various notes on development:
+
+* `A successful Git branching model`_
+
+ .. _A successful Git branching model: http://nvie.com/posts/a-successful-git-branching-model/
+
 Colorscheme
 -----------
 
