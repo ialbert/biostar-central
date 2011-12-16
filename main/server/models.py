@@ -19,8 +19,10 @@ from main.server import html, notegen, auth
 
 # import all constants
 from main.server.const import *
-
 import markdown
+
+import logging
+logger = logging.getLogger(__name__)
 
 class UserProfile( models.Model ):
     """
@@ -142,7 +144,7 @@ class Post(models.Model):
     author  = models.ForeignKey(User)
     content = models.TextField(null=False, blank=False) # the underlying Markdown
     html    = models.TextField(blank=True) # this is the sanitized HTML for display
-    title   = models.TextField(blank=True, max_length=200)
+    title   = models.TextField(max_length=200)
     slug    = models.SlugField(blank=True, max_length=200)
     tag_val = models.CharField(max_length=200) # The tag value is the canonical form of the post's tags
     tag_set = models.ManyToManyField(Tag) # The tag set is built from the tag string and used only for fast filtering
@@ -195,7 +197,7 @@ class Post(models.Model):
             title = "%s [deleted ]" % self.title
         elif self.closed:
             title = "%s [closed]" % self.title
-        return "%s (%s, %s)" % (title, self.answer_count, self.comment_count)
+        return "%s" % title
     
     def update_views(self, request):
         if request.user.is_anonymous():
@@ -302,8 +304,11 @@ def moderator_action(post, user, action, date=None):
     Performs a moderator action on the post. Takes an action (one of REV_ACTIONS)
     and a user. Date is assumed to be now if not provided
     """
-    # this will operate in strict mode an raise an exception
-    auth.authorize_post_edit(user=user, post=post, strict=True)  
+    # user may not apply moderation
+    if not auth.authorize_post_edit(user=user, post=post, strict=False):
+        msg = 'denied user %s moderation of post %s' %(user.id, post.id)
+        logger.error(msg)
+        return False
 
     if action == REV_CLOSE:
         post.status = POST_CLOSED       
@@ -349,17 +354,18 @@ def create_revision(post, author=None):
 def post_create_notification(post):
     "Generates notifications to all users related with this post. Invoked only on the creation of the post"
     
-    if post.root:
-        authors = set()
-        for child in Post.objects.filter(root=post.root):
-            authors.add(child.author)
-
-        text = notegen.post_action(user=post.author, post=post)
-        
-        for target in authors:
-            unread = (target != post.author) # the undread flag will be off for the post author
-            send_note(sender=post.author, target=target, content=text, type=NOTE_USER, unread=unread, date=post.creation_date)
-        
+    root = post.root or post
+    authors = set( [ root.author ] )
+    for child in Post.objects.filter(root=root):
+        authors.add(child.author)
+    
+    text = notegen.post_action(user=post.author, post=post)
+    
+    for target in authors:
+        unread = (target != post.author) # the unread flag will be off for the post author        
+        send_note(sender=post.author, target=target, content=text, type=NOTE_USER, unread=unread, date=post.creation_date)
+    
+    
 class Note(models.Model):
     """
     Creates simple notifications that are active until the user deletes them
@@ -418,18 +424,15 @@ class Vote(models.Model):
             self.post.save()
             
         if self.type == VOTE_ACCEPT:
-            answer   = self.post
-            question = self.post.parent
+            post   = self.post
+            parent = self.post.parent
             if dir == 1:
-                answer.post_accepted = True
-                question.answer_accepted = True
+                post.accepted = parent.accepted = True
             else:
-                answer.post_accepted = False
-                question.answer_accepted = False
-            answer.save()
-            #question.save()
-            
-           
+                post.accepted = parent.accepted = False
+            post.save()
+            parent.save()
+              
 class Badge(models.Model):
     name = models.CharField(max_length=50)
     description = models.CharField(max_length=200)
@@ -537,15 +540,10 @@ def verify_post(sender, instance, *args, **kwargs):
     if not instance.lastedit_date:
         instance.lastedit_date = datetime.now()
     
-    # set the root automatically to itself if not specified
-    if not instance.root:
-        instance.root = instance
-
-    # set the parent automatically to itself if not specified
-    if not instance.parent:
-        instance.parent = instance
-        
-    # set the title based on the parent    
+    if instance.type in ( POST_COMMENT, POST_ANSWER):
+        assert instance.root and instance.parent
+         
+    # for post with no title set it title based
     if not instance.title and instance.parent:
         instance.title = "%s: %s" % (instance.get_type_display(), instance.parent.title)
 
@@ -560,7 +558,7 @@ def verify_post(sender, instance, *args, **kwargs):
     instance.html = html.generate(instance.content.strip())
             
 def finalize_post(sender, instance, created, *args, **kwargs):
-    "Post save notice on a post, creates the revisions if necessary"
+    "Post save notice on a post"
     if created:
         # when a new post is created all descendants will be notified
         post_create_notification(instance)

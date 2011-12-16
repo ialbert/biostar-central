@@ -153,16 +153,17 @@ def post_show(request, pid):
     # get all answers to the root 
     answers =  models.Post.objects.filter(parent=root, type=POST_ANSWER).select_related('author', 'author__profile').order_by('-accepted', '-score')
     
-    # get all the votes for the answers
+    # all objects with votes
+    all = list(answers) + [ root ]
     if request.user.is_authenticated():
-        votes = models.Vote.objects.filter(author=request.user, post__id__in = [ p.id for p in answers ] ) 
+        votes = models.Vote.objects.filter(author=request.user, post__id__in = [ p.id for p in all ] ) 
         up_votes   = set(vote.post.id for vote in votes if vote.type == const.VOTE_UP)
         down_votes = set(vote.post.id for vote in votes if vote.type == const.VOTE_DOWN)
     else:
         up_votes = down_votes = set()
 
     # decorate the posts with extra attributes for easier rendering
-    for post in list(answers) + [ root ] :
+    for post in all :
         post.writeable = auth.authorize_post_edit(post=post, user=request.user, strict=False)
         post.upvoted   = post.id in up_votes
         post.downvoted = post.id in down_votes
@@ -177,16 +178,15 @@ def post_show(request, pid):
     # generate the tag cloud
     tags = models.Tag.objects.all().order_by('-count')[:50]
     
-    return html.template( request, name='post.show2.html', root=root, answers=answers, tree=tree, tags=tags )
+    return html.template( request, name='post.show.html', root=root, answers=answers, tree=tree, tags=tags )
  
-    #return html.template( request, name='post.show.html', question=question, answers=answers, up_votes=up_votes, down_votes=down_votes )
-
 def post_redirect(post, anchor=None):
     """
     Shows a post in full context
     """
     # get the root of a post
-    pid, slug = post.root.id, post.root.slug
+    root = post.root or post
+    pid, slug = root.id, root.slug
     anchor = anchor or post.id
     url = '/post/show/%s/%s/#%s' % (pid, slug, anchor)
     return html.redirect(url)
@@ -235,14 +235,9 @@ def post_edit(request, pid=0, parentid=0, post_type=POST_QUESTION):
     # find the parent if it exists
     if parentid:
         parent = models.Post.objects.get(pk=parentid)
-        root = parent.root
+        root   = parent.root or parent
     else:
         parent = root = None
-
-    print parent.id
-    print root.id
-
-    print '---------'
 
     # deal with new post creation first
     if newpost:

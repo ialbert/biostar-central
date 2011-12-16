@@ -1,6 +1,6 @@
 {% load basic %}
 
-<table class="post">
+<table class="post" id="{{post.id}}">
     <tr>
         <td valign="top" class="votecell"> 
             {% vote_box post %}
@@ -8,8 +8,8 @@
         
         <td valign="top">
             
-            <div class="post-text">                            
-                 {{post.html|safe }}                            
+            <div class="question">                            
+                {{post.html|safe }}                            
             </div>
 
             <div>
@@ -26,21 +26,13 @@
                 {% endif %}
          
                 <div class="editbox">                            
-                    {% editbox post %}
+                    {% editbox request post %}
                 </div>
             </div>
 
             <div style="clear:both;"></div>
 
             {% comments request post tree %}
-
-            {% if request.user.is_authenticated %}
-                <div class="post-comment post-menu">
-                    {% csrf_token %}
-                    <input type="hidden" value="{{post.id}}">
-                    <a class="add-comment">add comment</a>
-                </div>
-            {% endif %}
 
         </td>
     </tr>

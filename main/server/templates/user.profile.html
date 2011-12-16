@@ -1,18 +1,6 @@
 {% extends "base.nosidebar.html" %}
 
 {% load basic %}
-{% load markup %}
-
-{% block custom-frameworks %}
-    <style type="text/css">
-      .L  { float:left; padding-bottom:5px; }
-      .W  { width: 7em; }
-      .C  { clear: left }
-    </style>
-    <script src="{{ STATIC_URL }}js/vote.js"></script>
-    <script src="{{ STATIC_URL }}js/mod.js"></script>
-    
-{% endblock %}
 
 {% block subheader %}
   <h2>{% designation target %} {{ target.profile.display_name }} {% flair target %}</h2>
@@ -55,7 +43,7 @@
                     | <a href="/user/edit/{{target.id}}/">edit</a>
                 {% endif %}
             </div>
-
+         
             {% if target.writeable %}
               <div property="foaf:mbox">Email: {{ target.email }}</div>
             {% endif %}
@@ -76,17 +64,18 @@
 
     <div class="section" id="status">Status</div>
     
-    <div class="pad10">
+    <div>
         {{ target.profile.display_name }} has created <a href="/post/list/{{target.id}}/">{{params.post_count}}  posts</a> distributed as
          <a href="/post/list/{{target.id}}/questions/">{{params.question_count}} questions</a>, 
          <a href="/post/list/{{target.id}}/answers/">{{params.answer_count}} answers</a> and 
-         <a href="/post/list/{{target.id}}/comments/">{{params.comment_count}} comments</a>  
-         <div>
-            This user  has voted {{params.vote_count}} times  and has earned {{params.award_count}} badges
-         </div>
+         <a href="/post/list/{{target.id}}/comments/">{{params.comment_count}} comments</a> . 
+        User  has voted {{params.vote_count}} times  and has earned {{params.award_count}} badges. 
     </div>
 
         <div class="section" id="activity">Activity</div>
+        <div>
+          This table shows activity on posts that this user has answered or commented on.
+        </div>
         <table class="pad10" border="0" width="100%" id="message-table"> 
             
             {% if page.object_list and page.paginator.num_pages > 1 %}

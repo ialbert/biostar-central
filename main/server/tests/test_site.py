@@ -94,6 +94,8 @@ class BiostarUser(unittest.TestCase):
       true, eq = self.assertTrue, self.assertEqual
       q  = create_new_question(self.c1)
       
+      models.Note.objects.all().delete()
+      
       n1 = note_count(q.author, unread=True)
       a1 = create_new_answer(self.c2, q=q)      
       n2 = note_count(q.author, unread=True)
@@ -102,6 +104,7 @@ class BiostarUser(unittest.TestCase):
       n1 = note_count(a1.author, unread=False)
       a2 = create_new_answer(self.c2, q=q)
       n2 = note_count(a1.author, unread=False)
+
       eq(n1+1, n2)  # the answer author gets a note
       
       a3 = create_new_answer(self.c2, q=q)
@@ -149,7 +152,6 @@ class BiostarSite(unittest.TestCase):
         "Visiting a user page by a logged in user"
         true, eq = self.assertTrue, self.assertEqual
 
-        
         user1, flag1 = User.objects.get_or_create(username='john')
         user1.set_password('test')
         user1.save()

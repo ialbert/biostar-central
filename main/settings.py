@@ -245,6 +245,14 @@ LOGGING = {
         'main.server.views': {
             'handlers': [ 'console' ],
             'level': 'INFO',
+        },
+        'main.server.auth': {
+            'handlers': [ 'console' ],
+            'level': 'INFO',
+        },
+        'main.server.models': {
+            'handlers': [ 'console' ],
+            'level': 'INFO',
         }
     }
 }

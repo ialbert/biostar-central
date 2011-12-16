@@ -1,6 +1,16 @@
 {% load basic %}
 
-<a href="{{request.path}}#{{post.id}}">link</a>
+{% if request.user.is_authenticated %}
+    <span class="addcomment">
+        {% csrf_token %}
+        <input type="hidden" value="{{post.id}}">
+        <a class="add-comment">add comment</a>
+    </span>
+{% else %}
+    <span> log in to comment </span>
+{% endif %}
+            
+&bull; <a href="{{request.path}}#{{post.id}}">link</a>
 
 {% if post.writeable %}
     
@@ -23,3 +33,5 @@
     </span>    
 
 {% endif %}
+
+

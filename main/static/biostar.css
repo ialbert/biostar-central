@@ -223,12 +223,7 @@ a:hover, a.post-title {
   text-decoration: none;
 }
 
-.mod-flair {
-    font-size: 140%;
-    color: #555555;
-    font-weight: bold;
-    margin-left: 3px;
-}
+
 
 /*
 |-------------------------
@@ -274,19 +269,6 @@ a:hover, a.post-title {
 
 /* Votes/answers/views boxes */
 
-.answered {
-    background-color: #75845C;
-    color: #FFFFFF;
-}
-
-.unanswereds{
-    background-color: #8F2C47;
-    color: #FFFFFF;
-}
-.answered-accepted {
-    background-color: #75845C;
-    color: #E1E818;
-}
 
 .delete_symbol {
     background-color: #75845C;
