@@ -10,9 +10,6 @@ BIOSTAR_SRC=`dirname $0`
 # source directory to be added to import path
 BIOSTAR_HOME=${BIOSTAR_HOME:-"$BIOSTAR_SRC/main"}
 
-# this will contain the collected static files
-BIOSTAR_EXPORT=${BIOSTAR_EXPORT:-"$BIOSTAR_SRC/export"}
-
 # set the hostname
 BIOSTAR_HOSTNAME=${BIOSTAR_HOSTNAME:-"0.0.0.0:8080"}
 
@@ -38,7 +35,6 @@ export DJANGO_ADMIN=main/manage.py
 echo ""
 echo "Settings:"
 echo "*** BIOSTAR_HOME=$BIOSTAR_HOME"
-echo "*** BIOSTAR_EXPORT=$BIOSTAR_EXPORT"
 echo "*** BIOSTAR_HOSTNAME=$BIOSTAR_HOSTNAME"
 echo "*** DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE"
 #echo "*** PYTHONPATH=$PYTHONPATH"
@@ -82,8 +78,7 @@ while (( "$#" )); do
 	if [ "$1" = "init" ]; then
 		echo "*** initializing server on $BIOSTAR_HOSTNAME"
 		$PYTHON_EXE $DJANGO_ADMIN syncdb -v $VERBOSITY --noinput --settings=$DJANGO_SETTINGS_MODULE
-                echo "*** collecting static files to $BIOSTAR_EXPORT"
-                mkdir -p $BIOSTAR_EXPORT
+                echo "*** collecting static files"
                 $PYTHON_EXE $DJANGO_ADMIN collectstatic -v $VERBOSITY --noinput --settings=$DJANGO_SETTINGS_MODULE
 	fi
 
