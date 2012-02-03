@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+{% load basic %}
+{% load humanize %}
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>{% block title %}Biostar{% endblock %}</title>
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="/static/lib/bootstrap/css/bootstrap.css" rel="stylesheet">
+    <link href="/static/lib/bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
+    
+    <!-- less -->
+    <link rel="stylesheet/less" type="text/css" href="/static/new/biostar.less.css">
+    <script src="/static/lib/less-1.2.1.min.js" type="text/javascript"></script>
+
+  </head>
+
+  <body>
+    
+    <formss id="search" action="/" method="get"> 
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="i-bar"></span>
+            <span class="i-bar"></span>
+            <span class="i-bar"></span>
+          </a>
+          
+          <a class="brand" href="#">BioStar</a>
+          
+          <div class="nav-collapse">
+            
+            <ul class="nav">
+              <li {% navclass '/questions/' %}><a href="#">Questions</a></li>
+              <li {% navclass '/discuss/' %}><a href="#discuss">Discussions</a></li>
+              <li {% navclass '/planet/' %}><a href="#planet">Planet</a></li>
+              <li {% navclass '/tag(ged)?/' %}><a href="#Tags">Tags</a></li>
+              <li {% navclass '/users/' %}><a href="#Users">Users</a></li>
+              <li {% navclass '/badges/' %}><a href="#Badges">Badges</a></li>
+              <li {% navclass '/about/' %}><a href="/about/">About</a></li>
+            </ul>
+            
+            <form class="navbar-search pull-left" action="/" method="get">
+              
+              <input type="text" name='q' class="search-query" placeholder="Search">
+            </form>
+            
+            {%if user.is_authenticated %}
+              <p class="navbar-text pull-right">
+                 {% userlink user %}
+              </p>
+            {% else %}
+              <p class="navbar-text pull-right"><a href="/openid/login/">Sign in</a> </p>
+            {% endif %}
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+    </form>
+  
+    <div class="container">
+
+      <div class="panel">
+      {% block body %}
+        
+      
+      <ul class="nav nav-tabs">
+        <li>
+          <a href="#">New Questions</a>
+        </li>
+        <li class="active">
+            <a href="#">Unanswered</a>
+        </li>
+        <li><a href="#">Popular</a></li>
+      </ul>
+          
+        <h1>Template Body</h1>
+          <p>Use this document as a way to quick start any new project.<br> All you get is this message and a barebones HTML document.</p>
+        
+        <a class="btn btn-large" href="#"><i class="icon-comment"></i> Comment</a>
+        
+      {% endblock %}
+      </div>
+      
+    </div> <!-- /container -->
+
+  
+  </body>
+</html>

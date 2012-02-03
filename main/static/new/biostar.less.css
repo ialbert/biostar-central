@@ -1,0 +1,62 @@
+@default-font-size:1em;
+
+@navbar-color:#8F2C47;
+@navbar-color-darker: darken(@navbar-color, 15%);
+
+body {
+    background-color: white;
+    font-size: @default-font-size;
+    padding-top: 60px;
+    padding-bottom: 40px;
+}
+
+@title-size: @default-font-size + @default-font-size/2;
+@title-color: red;
+@bit: 18px;
+
+.navbar .brand {
+    text-indent:8px;
+    margin-left:0px;
+    background-image: url(../img/g/glyphicons_049_star.png);
+    background-repeat: no-repeat;
+    background-position: 0px 6px;
+}
+
+.title {
+    padding: @bit 0px @bit 0px;
+    font-size: @title-size;
+}
+
+div .par {
+    margin: 0px 0px @bit 0px;
+}
+
+.panel {
+    padding: 10px;
+    margin-bottom: 30px;
+    background-color: whiteSmoke;
+    -webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
+    border-radius: 6px;
+}
+
+.navbar-inner {
+  padding-left: 20px;
+  padding-right: 20px;
+  background-color: red;
+  background-image: -moz-linear-gradient(top, @navbar-color, @navbar-color-darker);
+  background-image: -ms-linear-gradient(top, @navbar-color, @navbar-color-darker);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(@navbar-color), to(@navbar-color-darker));
+  background-image: -webkit-linear-gradient(top, @navbar-color, @navbar-color-darker);
+  background-image: -o-linear-gradient(top, @navbar-color, @navbar-color-darker);
+  background-image: linear-gradient(top, @navbar-color, @navbar-color-darker);
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#333333', endColorstr='#222222', GradientType=0);
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+  -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+  -moz-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+}
+

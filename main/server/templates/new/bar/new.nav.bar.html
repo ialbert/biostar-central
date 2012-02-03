@@ -1,0 +1,33 @@
+{% load basic %}
+{% load cache %}
+
+<div>
+
+  <div>
+      <div class="nav left">
+        <a href="/" {% navclass '/post/' %}>Questions</a> 
+        <a href="/question/unanswered/" {% navclass '/unanswered/'%}>Unanswered</a> 
+        <a href="/tag/list/" {% navclass '/tag(ged)?/' %}>Tags</a>
+        <a href="/user/list/" {% navclass '/user/' %}>Users</a> 
+        <a href="/badge/list/" {% navclass '/badge/' %}>Badges</a>
+      </div>
+
+      <div class="nav right">
+        <a href="/new/question/" {% navclass '/post/new/' %}>Ask&nbsp;Question</a>
+      </div>
+
+    </div>
+
+    <div style="clear:both;"></div>
+    
+    {% cache 500 navtagbar %}
+        <div id="nav-tag-bar">
+                Popular tags:
+                {% for tag in popular_tags %}
+                    <a class="post-tag" href="/question/tagged/{{tag.name}}/">{{ tag.name }}</a>
+                {% endfor %}
+        </div>
+    {% endcache %}
+
+</div>
+

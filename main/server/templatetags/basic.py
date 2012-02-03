@@ -132,7 +132,7 @@ def navclass(context, include_path, exclude_paths=''):
     path = context['request'].get_full_path()
     if re.search(include_path, path):
         if not exclude_paths or (True not in [pat in path for pat in exclude_paths.split(' ')]):
-            return 'class="youarehere"'
+            return 'class="active"'
     return ''
     
 @register.simple_tag
