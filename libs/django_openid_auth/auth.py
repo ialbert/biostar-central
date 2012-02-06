@@ -37,6 +37,7 @@ from openid.extensions import ax, sreg
 
 from django_openid_auth import teams
 from django_openid_auth.models import UserOpenID
+from urlparse import urlparse
 
 class IdentityAlreadyClaimed(Exception):
     pass
@@ -157,8 +158,15 @@ class OpenIDBackend:
                 break
             i += 1
 
-        user = User.objects.create_user(username, email, password=None)
-        self.update_user_details(user, details)
+        # see if this user already exists in the database with the same email
+        try:
+            user = User.objects.get(email=email)
+            print "*** merging user %s:%s" % (user.id, email)
+        except User.DoesNotExist:
+            # user does not exists
+            user = User.objects.create_user(username, email, password=None)
+            self.update_user_details(user, details)
+            print "*** created user %s:%s:%s" % (user.id, user.email, user.get_full_name() )
 
         user = self.associate_openid(user, openid_response)
         return user
@@ -170,19 +178,6 @@ class OpenIDBackend:
             user_openid = UserOpenID.objects.get(
                 claimed_id__exact=openid_response.identity_url)
         except UserOpenID.DoesNotExist:
-            
-            #
-            # we need to merge by the email here
-            #
-            exists = User.objects.filter(email=user.email)
-            
-            if exists:
-                print '*** merging an existing user into this openid'
-                # delete the old user
-                user.delete()
-                # create the new user
-                user = exists[0]
-
             user_openid = UserOpenID(
                 user=user,
                 claimed_id=openid_response.identity_url,
@@ -197,26 +192,10 @@ class OpenIDBackend:
         return user
 
     def update_user_details(self, user, details):
-        
-        updated = False
-        if details['first_name']:
-            user.first_name = details['first_name']
-            updated = True
-
-        if details['last_name']:
-            user.last_name = details['last_name']
-            updated = True
-
-        if details['email']:
-            user.email = details['email']
-            updated = True
-
-        if not user.get_full_name():
-            user.first_name = 'Openid'
+        if not user.get_full_name().strip():
+            user.first_name = 'Biostar'
             user.last_name  = 'User'
-            updated = True
-
-        if updated:
+            print 'update'
             user.save()
 
     def update_groups_from_teams(self, user, teams_response):
