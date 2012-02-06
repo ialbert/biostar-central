@@ -72,12 +72,16 @@ while (( "$#" )); do
 
 	if [ "$1" = "flush" ]; then
 		echo "$PYTHON_EXE $DJANGO_ADMIN flush --noinput --settings=$DJANGO_SETTINGS_MODULE"
-		$PYTHON_EXE $DJANGO_ADMIN flush --noinput --settings=$DJANGO_SETTINGS_MODULE
+		
 	fi
 
 	if [ "$1" = "init" ]; then
 		echo "*** initializing server on $BIOSTAR_HOSTNAME"
 		$PYTHON_EXE $DJANGO_ADMIN syncdb -v $VERBOSITY --noinput --settings=$DJANGO_SETTINGS_MODULE
+                
+                echo "*** flushing all data"
+                $PYTHON_EXE $DJANGO_ADMIN flush --noinput --settings=$DJANGO_SETTINGS_MODULE
+                
                 echo "*** collecting static files"
                 $PYTHON_EXE $DJANGO_ADMIN collectstatic -v $VERBOSITY --noinput --settings=$DJANGO_SETTINGS_MODULE
 	fi
@@ -117,7 +121,7 @@ while (( "$#" )); do
 		
 		#$PYTHON_EXE import/migrate.py --path import/se0 --limit 100
 		
-		$PYTHON_EXE -m main.migrate --path import/se2 --limit 300
+		$PYTHON_EXE -m main.migrate --path import/se2 --limit 100
 		#$PYTHON_EXE -m main.migrate --path import/se0 --limit 500
 	fi
 
