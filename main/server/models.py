@@ -519,7 +519,7 @@ def create_profile(sender, instance, created, *args, **kwargs):
     "Post save hook for creating user profiles on user save"
     if created:
         uuid = make_uuid() 
-        display_name = html.nuke(instance.get_full_name())
+        display_name = html.nuke(instance.get_full_name()) or 'Biostar User'
         UserProfile.objects.create(user=instance, uuid=uuid, display_name=display_name)
 
 def update_profile(sender, instance, *args, **kwargs):

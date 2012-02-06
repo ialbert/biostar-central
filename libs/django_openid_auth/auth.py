@@ -195,7 +195,6 @@ class OpenIDBackend:
         if not user.get_full_name().strip():
             user.first_name = 'Biostar'
             user.last_name  = 'User'
-            print 'update'
             user.save()
 
     def update_groups_from_teams(self, user, teams_response):
