@@ -64,9 +64,10 @@ Alternatively one may run all these commands all at once::
 
     $ ./biostar.sh init populate run
 
-**Note**: If database models change you must reset and reinitialize the database::
+**Note**: If database models change you must reset and reinitialize the database,
+note that this will remove all existing content!::
 
-    $ ./biostar.sh delete init populate
+    $ ./biostar.sh init populate
 
 The *biostar.sh* run manager to pulls in environment variables to allow you to 
 customize locations/test fixtures, etc. Edit the *biostar.sh* script 
@@ -74,9 +75,6 @@ to override the various settings.
 
 The default server will bind the all IP adapters (0.0.0.0) and port 8080. Visit http://localhost:8080 to see
 interact with your version of the test server. 
-
-**Warning**: The default settings will create an application with a default admin user and password! 
-Make sure to change the passwords in the django settings file! 
 
 Migration
 ---------
@@ -92,23 +90,27 @@ To facilitate the re-import the best practice is to *dump* the data into a data 
 after an *import* takes place. A data fixture may be reused via the *populate* command.
 Thus to create a new migration one would do the following::
 
-    $ ./biostar.sh delete init import
+    $ ./biostar.sh init import
 
 This may be followed by a `run` command or deployment. Alternatively one may 
 dump the data for easier reuse::
 
     $ ./biostar.sh dump
-    $ ./biostar.sh delete init populate
+    $ ./biostar.sh init populate
 
-The *ALLOW_MIGRATION* setting will enable a single automatic account migration
-based on the email provided by the OpenID provider. Only the information
-from a subset of well known OpenID providers are trusted enough
-to automatically merge accounts. For other users manual migration of accounts
-will be required.
+There is an automatic account migration based on the email provided by the
+OpenID provider. Only the information from a subset of well known OpenID
+providers are trusted enough to allow automatic account merging. Accepted
+providers are: Google, Yahoo, Myopenid, LiveJournal, Blogspot, AOL, and
+Wordpress.
+    
+For other users manual migration of accounts will be required.
 
-Users in *ADMINS* settings will automatically obtain full administration privileges and
-may log into the *admin* site using the *SECRET_KEY* as their password.
+Users listed in the Django *ADMINS* settings will have
+full administration privileges.
 
+When table schemas change you will need to use the `delete` command.
+This will attempt to reset both an sqlite and a default postgres database.
 
 Testing
 -------

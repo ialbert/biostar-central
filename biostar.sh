@@ -60,17 +60,20 @@ fi
 while (( "$#" )); do
 
 	if [ "$1" = "delete" ]; then
-		echo '*** deleting all data'
-		# list all commands that need to be run
-		cmds[0]="rm -f $BIOSTAR_HOME/db/biostar.db"
-		for cmd in "${cmds[@]}"
-			do
-				echo "*** executing: $cmd"
-				`$cmd`
-			done
+                # hardcore reset that is needed if tables need to reinitialized
+		echo "*** deleting sqlite"
+		rm -f $BIOSTAR_HOME/db/biostar.db
 	fi
 
+        if [ "$1" = "drop" ]; then
+		echo '*** dropping postgresql'
+		dropdb biostar-test-database
+                echo '*** creating postgresql'
+                createdb biostar-test-database
+	fi
+        
 	if [ "$1" = "flush" ]; then
+                echo "*** flushing the database"
 		echo "$PYTHON_EXE $DJANGO_ADMIN flush --noinput --settings=$DJANGO_SETTINGS_MODULE"
 		
 	fi
@@ -102,11 +105,6 @@ while (( "$#" )); do
 		echo "*** running the tests"
 		#$PYTHON_EXE $DJANGO_ADMIN test server --settings=$DJANGO_SETTINGS_MODULE --failfast
 		$PYTHON_EXE $DJANGO_ADMIN test server --settings=$DJANGO_SETTINGS_MODULE
-	fi
-
-	if [ "$1" = "flush" ]; then
-		echo "*** flushing data"
-		$PYTHON_EXE $DJANGO_ADMIN flush --noinput --settings=$DJANGO_SETTINGS_MODULE
 	fi
 
 	if [ "$1" = "dump" ]; then		

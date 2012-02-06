@@ -70,11 +70,6 @@ class UserProfile( models.Model ):
     # website may be used as a blog
     website  = models.URLField(default="", null=True, max_length=100)
     
-    # this keeps track of whether we have already merged this user already
-    # turned on only for the users that are migrated via the StackExchange import
-    openid_merge  = models.BooleanField(default=True)
-    
-   
     @property
     def can_moderate(self):
         return (self.is_moderator or self.is_admin)

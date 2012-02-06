@@ -38,6 +38,7 @@ from openid.extensions import ax, sreg
 from django_openid_auth import teams
 from django_openid_auth.models import UserOpenID
 from urlparse import urlparse
+from main.server import html
 
 class IdentityAlreadyClaimed(Exception):
     pass
@@ -158,16 +159,27 @@ class OpenIDBackend:
                 break
             i += 1
 
-        # see if this user already exists in the database with the same email
+        # parse the identity of the provider
+        url = urlparse(openid_response.identity_url)
+        
+        # create a list of trusted providers
+        trusted = False
+        for provider in ( 'google.com',  'yahoo.com', 'myopenid.com',
+            'livejournal.com', 'blogspot.com', 'aol.com', 'wordpress.com'):
+            trusted = trusted or url.netloc.endswith(provider)
+            
         try:
+            # see if this user already exists in the database with the same email
             user = User.objects.get(email=email)
             print "*** merging user %s:%s" % (user.id, email)
         except User.DoesNotExist:
-            # user does not exists
+            user = None
+        
+        if not user or not trusted:
             user = User.objects.create_user(username, email, password=None)
             self.update_user_details(user, details)
             print "*** created user %s:%s:%s" % (user.id, user.email, user.get_full_name() )
-
+            
         user = self.associate_openid(user, openid_response)
         return user
 
@@ -192,10 +204,21 @@ class OpenIDBackend:
         return user
 
     def update_user_details(self, user, details):
+        "Adds first and last names to a user, sets the display name as well"
+        
+        # attempt to update the names, need to cut down on field lenght!
+        # limits set by the Django User model
+        user.first_name = details.get('first_name', '')[:30]
+        user.last_name  = details.get('last_name', '')[:30]
+        
+        # no details passed in the OpenID   
         if not user.get_full_name().strip():
             user.first_name = 'Biostar'
             user.last_name  = 'User'
-            user.save()
+            
+        # set the profile display name
+        user.profile.display_name = html.nuke(user.get_full_name())
+        user.save()
 
     def update_groups_from_teams(self, user, teams_response):
         teams_mapping_auto = getattr(settings, 'OPENID_LAUNCHPAD_TEAMS_MAPPING_AUTO', False)
