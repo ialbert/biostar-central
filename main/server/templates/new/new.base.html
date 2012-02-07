@@ -47,14 +47,11 @@
             <span class="i-bar"></span>
           </a>
           
-          <a class="brand" href="#">BioStar</a>
+          <a class="brand" href="/">BioStar</a>
           
           <div class="nav-collapse">
             
             <ul class="nav">
-              <li {% navclass '/questions/' %}><a href="#">Questions</a></li>
-              <li {% navclass '/discuss/' %}><a href="#discuss">Discussions</a></li>
-              <li {% navclass '/planet/' %}><a href="#planet">Planet</a></li>
               <li {% navclass '/tag(ged)?/' %}><a href="#Tags">Tags</a></li>
               <li {% navclass '/users/' %}><a href="#Users">Users</a></li>
               <li {% navclass '/badges/' %}><a href="#Badges">Badges</a></li>
@@ -62,27 +59,31 @@
             </ul>
             
             <form class="navbar-search pull-left" action="/" method="get">
-              
               <input type="text" name='q' class="search-query" placeholder="Search">
             </form>
             
             {%if user.is_authenticated %}
-              
-              <ul class="nav pills pull-right">
-                <li class="dropdown" id="menu1">
+                
+              <ul class="nav pull-right">
+                {% if user.profile.new_messages %}
+                <li>
+                  <a href="#"><span class="message remind"></i>5 messages</span></a>
+                </li>
+                {% endif %}
+                <li class="dropdown" id="menu1"> 
                   <a class="dropdown-toggle" data-toggle="dropdown" href="#menu1">
-                    {% userrep user %} {{ user.profile.display_name }} {% flair user %}
+                       
+                       {{ user.profile.display_name }} {% flair user %} {{ user.profile.score }}  
                     <b class="caret"></b>
                   </a>
                   <ul class="dropdown-menu">
-                    <li><a href="/user/show/{{user.id}}/">Your info</a></li>
+                    <li><a href="/user/show/{{user.id}}/">Your page</a></li>
                     <li class="divider"></li>
                     <li><a href="/logout/?next_page=/">Log out</a></li>
                   </ul>
                 </li>
               </ul>
 
-              
             {% else %}
               <p class="navbar-text pull-right"><a href="/openid/login/">Sign in</a> </p>
             {% endif %}
@@ -95,23 +96,10 @@
     <div class="container">
 
       <div class="panel">
+      
       {% block body %}
         
-      
-      <ul class="nav nav-tabs">
-        <li>
-          <a href="#">New Questions</a>
-        </li>
-        <li class="active">
-            <a href="#">Unanswered</a>
-        </li>
-        <li><a href="#">Popular</a></li>
-      </ul>
-          
-        <h1>Template Body</h1>
-          <p>Use this document as a way to quick start any new project.<br> All you get is this message and a barebones HTML document.</p>
-        
-        <a class="btn btn-large" href="#"><i class="icon-comment"></i> Comment</a>
+        Test Body
         
       {% endblock %}
       </div>

@@ -27,8 +27,72 @@
     <a href="http://creativecommons.org/licenses/by-sa/3.0/"> Creative Commons Attribution-ShareAlike 3.0 License</a>
   </div>
   
- 
-  ...
-</ul>
-          
+   <div class="title">Citing Biostar</div>
+
+    <div class="par"> 
+        Parnell LD, Lindenbaum P, Shameer K, Dall'Olio GM, Swan DC, et al. 2011 
+        <i>BioStar: An Online Question & Answer Resource for the Bioinformatics Community.</i>
+        PLoS Comput Biol 7(10): <a href="http://www.ploscompbiol.org/article/info%3Adoi%2F10.1371%2Fjournal.pcbi.1002216">e1002216. doi:10.1371/journal.pcbi.1002216</a>
+    </div>
+    
+    <div class="title">Current stats</div>
+    
+    <div class="par"> 
+            <a href="/user/list/">{{params.user_count|intcomma}} users</a> have contributed 
+            <a href="/post/list/">{{params.post_count|intcomma}} posts</a> distributed as 
+            <a href="/post/list/questions/">{{params.question_count|intcomma}} questions</a>, 
+            <a href="/post/list/answers/">{{params.answer_count|intcomma}} answers</a> and  
+            <a href="/post/list/comments/"> {{params.comment_count|intcomma}} comments</a> 
+    </div>
+    
+    <div class="title">Source code</div>
+    
+    <div class="par">
+        Biostar source code at <a href="https://github.com/ialbert/biostar-central">biostar-central repository</a>. 
+        Report bugs or feature requests in the <a href="https://github.com/ialbert/biostar-central/issues"> issue tracker</a>.   
+        Copyright by the <a href="https://github.com/ialbert/biostar-central/contributors">BioStar team</a>.
+    </div>
+
+    <div class="title">Contact</div>
+    
+    <div class="par">
+        Questions related to the functioning of the site may be asked in the newsgroups and/or may be sent directly to
+        the administrators or moderators listed below:
+        <ul>
+            <li>Google user group <a href="http://groups.google.com/group/biostar-central">Biostar Central</a></li>
+            <li>Google developer group <a href="http://groups.google.com/group/biostar-dev">Biostar Dev</a></li>
+        </ul>
+    </div>
+    
+    <div class="title">Biostar Administrators</div>
+    
+    <div class="par">
+        {% for user in params.admins %} 
+            <div style="float:left; width:20%">
+                <div class="par">
+                    <div class="gravimg">{% gravatar user 64 %}</div>
+                    <div><a class="user-link" title="" alt="" href="/user/show/{{user.id}}">{{user.profile.display_name}}</a>&nbsp;{% flair user %}</div>
+                    <div>{% userrep user %}</div>           
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+  <div style="clear:both;">&nbsp;</div>
+
+  <div class="title">Biostar Moderators</div>
+     <div class="par">
+        {% for user in params.mods %}
+            <div style="float:left; width:20%">
+                <div class="par">
+                    <div class="gravimg">{% gravatar user 64 %}</div>
+                    <div><a class="user-link" title="" alt="" href="/user/show/{{user.id}}">{{user.profile.display_name}}</a>&nbsp;{% flair user %}</div>
+                    <div>{% userrep user %}</div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    
+    <div style="clear:both;">&nbsp;</div>
+    
 {% endblock %}

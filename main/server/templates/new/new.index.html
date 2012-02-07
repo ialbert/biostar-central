@@ -1,0 +1,30 @@
+{% extends "new/new.base.html" %}
+{% load basic %}
+{% load humanize %}
+
+{% block body %}
+
+<div>{% pagebar %}</div>
+
+<ul class="nav nav-tabs">
+    <li class="active"><a href="/">Recent</a></li>
+    <li><a href="/show/questions/">Questions</a></li>
+    <li><a href="/show/unanswered/">Unanswered</a></li>
+    <li><a href="/show/popular/">Popular</a></li>
+    <li><a href="/show/planet/">Planet</a></li>
+    <li><a href="/show/discussions/">Discussions</a></li>
+    <li><a href="/ask/new/">Create New!</a></li>
+</ul>
+
+<table border="0" class="post-table" cellspacing="0" width="100%">
+
+
+    {% for post in page.object_list %}
+    
+        {% table_row post %}
+
+    {%  endfor %}
+
+</table>
+  
+{% endblock %}

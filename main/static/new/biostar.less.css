@@ -8,11 +8,17 @@ body {
     font-size: @default-font-size;
     padding-top: 60px;
     padding-bottom: 40px;
+    
 }
 
 @title-size: @default-font-size + @default-font-size/2;
 @title-color: red;
 @bit: 18px;
+
+.message {
+    color:white;
+    &:hover { text-decoration: underline; }
+}
 
 .navbar .brand {
     text-indent:8px;
@@ -38,6 +44,84 @@ div .par {
     -webkit-border-radius: 6px;
     -moz-border-radius: 6px;
     border-radius: 6px;
+}
+
+.mini-counts {
+    font-size: 1.6em;
+    font-weight: bold;
+    height: 1.2ex;
+    vertical-align: middle;
+    text-align: center;
+}
+
+.status {  
+  margin: 0 3px 0 0;
+  padding: 5px;
+  
+  width: 4em;
+  text-align: center;
+}
+
+.post-table {
+    vertical-align:top;
+    padding:0px;
+    width:100%;
+    
+    td {
+        border-bottom: 1px dotted #6D6D6D;
+        padding-top: 11px;
+        padding-bottom: 11px;
+    }
+}
+
+@navbar-color:#8F2C47;
+
+.unanswered {
+    background-color: @navbar-color;
+    color: white;
+}
+
+.answered {
+    background-color: #75845C;
+    color: #FFFFFF;
+}
+
+.accepted {
+    background-color: #75845C;
+    color: #E1E818;
+}
+
+@vote-color:#EEEEEE;
+
+.votes {
+    background-color: @vote-color;
+}
+
+@title-size:1.2em;
+
+.question-title {
+  font-size: @title-size;
+  font-weight: bold;
+  padding-bottom:0.5em;
+  a {
+    text-decoration: none;
+  }
+}
+
+.badge {
+    margin-left: 3px;
+    .bronze { color: #CC9966; }
+    .silver { color: #C0C0C0; }
+    .gold   { color: #FFCC00; }
+    .count  {
+        color: #6D6D6D;
+        padding-left: 1px;
+    }
+    .score {
+        color: #444444;
+        font-weight: bold;
+        margin-right: 2px;
+    }
 }
 
 .navbar-inner {

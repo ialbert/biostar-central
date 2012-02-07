@@ -1,4 +1,3 @@
-
     <table width="100%" cellpadding="0" cellspacing="0" class="pagebar">
         <tr>
             <td width="30%">
@@ -12,7 +11,7 @@
                 <div class="paginator">
                 {% if page.paginator.num_pages > 1 %}
                     {% if page.has_previous %}
-                        &lt;<a href="{{path}}?page={{page.previous_page_number}}&m={{m}}&q={{q}}{{anchor}}">previous</a>
+                        <a href="{{path}}?page={{page.previous_page_number}}&m={{m}}&q={{q}}{{anchor}}">&lt;previous</a>
                         &bull; <a href="{{path}}?page=1&m={{m}}&q={{q}}{{anchor}}">first</a>
                     {% else %}
                         <span style="color:#555555;">&lt;previous &bull; first</span>
@@ -22,7 +21,7 @@
         
                     {% if page.has_next %}
                         &bull; <a href="{{path}}?page={{page.paginator.num_pages}}&m={{m}}&q={{q}}{{anchor}}">last</a>
-                        &bull; <a href="{{path}}?page={{page.next_page_number}}&m={{m}}&q={{q}}{{anchor}}">next</a>&gt;
+                        &bull; <a href="{{path}}?page={{page.next_page_number}}&m={{m}}&q={{q}}{{anchor}}">next&gt;</a>
                     {% else %}
                         <span style="color:#555555;">&bull; last &bull; next&gt;</span>
                     {% endif %}
