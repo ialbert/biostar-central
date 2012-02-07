@@ -12,6 +12,9 @@ urlpatterns = patterns('main.server',
 
     # index page
     (r'^$', 'views.index'),
+    
+    # show
+    (r'^show/(?P<target>\w+)/$', 'views.index'),
 
     # static pages
     (r'^about/$','action.about'),
@@ -41,6 +44,7 @@ urlpatterns = patterns('main.server',
     # revisions    
     (r'^revisions/list/(?P<pid>\d+)/$', 'views.revision_list'),
 
+    
     # questions
     (r'^question/unanswered/$', 'views.question_unanswered'),
     (r'^question/tagged/(?P<tag_name>[\w]+)/$', 'views.question_tagged'),

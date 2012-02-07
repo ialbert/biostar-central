@@ -4,15 +4,17 @@
 
 {% block body %}
 
-<div>{% pagebar %}</div>
+<div id="pagebar">{% pagebar %}</div>
 
 <ul class="nav nav-tabs">
-    <li class="active"><a href="/">Recent</a></li>
-    <li><a href="/show/questions/">Questions</a></li>
+    <li {% navclass '/' %}><a href="/">Recent</a></li>
+    <li {% navclass '/show/popular/' %}><a href="/show/popular/">Popular</a></li>
+    <li {% navclass '/show/questions/' %}><a href="/show/questions/">Questions</a></li>
     <li><a href="/show/unanswered/">Unanswered</a></li>
-    <li><a href="/show/popular/">Popular</a></li>
     <li><a href="/show/planet/">Planet</a></li>
     <li><a href="/show/discussions/">Discussions</a></li>
+    <li><a href="/show/guides/">Guides</a></li>
+    
     <li><a href="/ask/new/">Create New!</a></li>
 </ul>
 

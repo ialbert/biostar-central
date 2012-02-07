@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 from main.server import const, html, models, auth
 from django.template import Context, Template
 from django.core.context_processors import csrf
+from urlparse import urlparse
 
 register = template.Library()
 
@@ -126,14 +127,16 @@ def answer_list_narrow(x):
 @register.inclusion_tag('widgets/vote.box.html', takes_context=True)
 def vote_box(context, post):
     return {'post':post}
-    
+
+
 @register.simple_tag(takes_context=True)
-def navclass(context, include_path, exclude_paths=''):
-    path = context['request'].get_full_path()
-    if re.search(include_path, path):
-        if not exclude_paths or (True not in [pat in path for pat in exclude_paths.split(' ')]):
-            return 'class="active"'
-    return ''
+def navclass(context, ending):
+    url = context['request'].get_full_path()
+    
+    if urlparse(url).path == ending:
+        return 'class="active"' 
+    else:
+        return ''
     
 @register.simple_tag
 def bignum(number):

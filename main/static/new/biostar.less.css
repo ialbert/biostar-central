@@ -37,6 +37,10 @@ div .par {
     margin: 0px 0px @bit 0px;
 }
 
+#pagebar {
+    padding-bottom:5px;
+}
+
 .panel {
     padding: 10px;
     margin-bottom: 30px;
@@ -49,7 +53,7 @@ div .par {
 .mini-counts {
     font-size: 1.6em;
     font-weight: bold;
-    height: 1.2ex;
+    height: 1.4ex;
     vertical-align: middle;
     text-align: center;
 }

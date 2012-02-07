@@ -33,7 +33,8 @@ def get_posts(request):
         query = models.Post.open_posts
     return query
 
-def index(request):
+
+def index(request, target=""):
     "Main page"
     
     params = html.Params()
@@ -44,8 +45,18 @@ def index(request):
         posts = get_posts(request).filter(id__in=pids).order_by('-magic')
     else:        
         # no search was performed, get the latest questions
-        posts = get_posts(request).filter(type=POST_QUESTION).order_by('-magic')
-        
+        pass
+    
+    posts = get_posts(request)
+    # apply the target filter if applicable
+    
+    if target == "popular":
+        posts = posts.filter(type=POST_QUESTION).order_by('-score')
+    elif target == "questions":
+        posts = posts.filter(type=POST_QUESTION).order_by('-magic')
+    else:
+        posts = posts.order_by('-magic')
+    
     page = get_page(request, posts, per_page=20)
     tags = models.Tag.objects.all().order_by('-count')[:50]
     return html.template(request, name='new/new.index.html', page=page, params=params, tags=tags)
