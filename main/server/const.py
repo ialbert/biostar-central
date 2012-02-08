@@ -11,9 +11,9 @@ MODERATOR_GROUP = 'mod_group'
 MIN_REP = 1
 
 # Add at the end
-POST_QUESTION, POST_ANSWER, POST_COMMENT, POST_GUIDE, POST_BLOG, POST_NEWS, POST_OTHER = range(1, 8)
+POST_QUESTION, POST_ANSWER, POST_COMMENT, POST_GUIDE, POST_BLOG, POST_NEWS, POST_DISCUSS = range(1, 8)
 POST_TYPES  = ( (POST_QUESTION, 'Question'), (POST_GUIDE, 'Guide'), (POST_BLOG, 'Blog'), 
-    (POST_NEWS, 'News'), (POST_OTHER, 'Post'), (POST_ANSWER, 'Answer') , (POST_COMMENT, 'Comment'),  )
+    (POST_NEWS, 'News'), (POST_DISCUSS, 'Discussion'), (POST_ANSWER, 'Answer') , (POST_COMMENT, 'Comment'))
 
 # for quick lookups
 POST_MAP  = dict( POST_TYPES )

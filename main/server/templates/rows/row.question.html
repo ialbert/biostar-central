@@ -1,4 +1,5 @@
 {% load basic %}
+{% load widgets %}
 
 <tr valign="top">
     <td>
@@ -23,22 +24,20 @@
     </td>
 
     <td class="summary" width="100%">
+        
         <div class="question-title">            
-            <a  href="/post/show/{{post.id}}/{{post.slug}}/">{{post.get_title}}</a>
+            Q: <a  href="/post/show/{{post.id}}/{{post.slug}}/">{{post.get_title}}</a>
         </div>
-        <div class="peek">{{post.content|chunk|safe}} ... </div> 
-        <div class="tags left">
-                {% for tag in post.get_tags %}
-                   {% taglink tag %}
-                {% endfor %}
-        </div>
-
-        <div class="started right">
-            asked <span class="relativetime"> {% time_ago post.creation_date %}</span> by
-            {% userlink post.author %}
-            {% userrep post.author %}
-        </div>
-
+        
+        {# generates the small peek into the post #}
+        <div class="peek">{{post.content|chunk|safe}} ... </div>
+        
+        {# this shows the tags on the post #}
+        {% show_tags post %}
+        
+        {# shows post creation time and author #}
+        {% post_info_small 'asked' post %}
+        
     </td>
 
 <tr>

@@ -1,4 +1,5 @@
 {% load basic %}
+{% load widgets %}
 
 <table class="post" id="{{post.id}}">
     <tr>
@@ -8,7 +9,7 @@
         
         <td valign="top">
             
-            <div class="question">                            
+            <div class="post">                            
                 {{post.html|safe }}                            
             </div>
 
@@ -17,13 +18,7 @@
                     {% actionbox post.author post.creation_date %}
                 </div>
          
-                {% if post.tag_val %}                            
-                <div class="tagline">
-                    {% for tag in post.get_tag_names %}
-                        {% taglink tag %}
-                    {% endfor %}
-                </div>
-                {% endif %}
+               {% showtags post %}
          
                 <div class="editbox">                            
                     {% editbox request post %}

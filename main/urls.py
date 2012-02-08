@@ -60,8 +60,13 @@ urlpatterns = patterns('main.server',
     (r'^post/show/(?P<pid>\d+)/$', 'views.post_show'),
     (r'^post/show/(?P<pid>\d+)/([-\w]+)/$', 'views.post_show'),
     
+    
     # editing an existing post/answer/comment
     (r'^post/edit/(?P<pid>\d+)/$','views.post_edit'),
+    
+    # handles new post
+    (r'^new/post/$','views.new_question'),
+    
     
     # handles new questions
     (r'^new/question/$','views.new_question'),

@@ -37,23 +37,46 @@ div .par {
     margin: 0px 0px @bit 0px;
 }
 
-#pagebar {
+.pagebar {
     padding-bottom:5px;
 }
 
-.panel {
-    padding: 10px;
-    margin-bottom: 30px;
-    background-color: whiteSmoke;
-    -webkit-border-radius: 6px;
-    -moz-border-radius: 6px;
-    border-radius: 6px;
+
+.postinfo {
+      color: #858585;
+      float: right;
+}
+
+.peek {
+    font-size: 1em;
+    height: 2.3em;
+    overflow: hidden;
+    line-height: 1em;
+    margin-top: 5px;
+    margin-bottom:5px;
+}
+
+.tag-line {
+    margin-bottom: 10px;
+    line-height: 18px;
+    float: left;
+
+    .tag {
+        margin: 2px 2px 2px 0;
+        padding: 3px 4px 3px 4px;
+        text-decoration: none;
+        background-color: #ECECEC;
+        border-bottom: 1px solid #BBB;
+        border-right: 1px solid #BBB;
+        color: #6B3E4A;
+        
+    }
 }
 
 .mini-counts {
     font-size: 1.6em;
     font-weight: bold;
-    height: 1.4ex;
+    height: 1.6ex;
     vertical-align: middle;
     text-align: center;
 }
@@ -61,18 +84,27 @@ div .par {
 .status {  
   margin: 0 3px 0 0;
   padding: 5px;
-  
   width: 4em;
   text-align: center;
 }
 
+#footer {
+    margin: 0 auto;
+    text-align: center;
+    padding: 5px;
+    img {
+        vertical-align: middle;
+        border: 0;
+        border-image: initial;
+    }
+}
 .post-table {
     vertical-align:top;
     padding:0px;
     width:100%;
     
     td {
-        border-bottom: 1px dotted #6D6D6D;
+        border-bottom: 1px solid #DDD;
         padding-top: 11px;
         padding-bottom: 11px;
     }

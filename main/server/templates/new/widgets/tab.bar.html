@@ -1,0 +1,15 @@
+{% load basic %}
+
+{# this the tabs that get selected for different pages #}
+<ul class="nav nav-tabs">
+    <li {% navclass '/' %}><a href="/">Recent</a></li>
+    <li {% navclass '/show/popular/' %}><a href="/show/popular/">Popular</a></li>
+    <li {% navclass '/show/questions/' %}><a href="/show/questions/">Questions</a></li>
+    
+    <li {% navclass '/show/unanswered/' %}><a href="/show/unanswered/">Unanswered</a></li>
+    <li {% navclass '/show/planet/' %}><a href="/show/planet/">Planet</a></li>
+    <li {% navclass '/show/forum/' %}><a href="/show/forum/">Forum</a></li>
+    <li {% navclass '/show/guides/' %}><a href="/show/guides/">Guides</a></li>
+    
+    <li><a href="/new/post/">Create New!</a></li>
+</ul>

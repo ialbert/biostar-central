@@ -1,0 +1,39 @@
+<div class="pagebar">
+    <table width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+            <td width="30%">
+                {# this contains various reminders #}
+                {% if params.remind %}
+                     <div class="remind">{{params.remind}}</div>
+                {% endif %}            
+            </td>
+
+            <td align="center">
+                <div class="paginator">
+                {% if page.paginator.num_pages > 1 %}
+                    {% if page.has_previous %}
+                        <a href="{{path}}?page={{page.previous_page_number}}&match={{match}}&query={{query}}{{anchor}}">&lt;previous</a>
+                        &bull; <a href="{{path}}?page=1&match={{match}}&query={{query}}{{anchor}}">first</a>
+                    {% else %}
+                        <span style="color:#555555;">&lt;previous &bull; first</span>
+                    {% endif %}
+
+                    &bull; page {{ page.number }} of {{ page.paginator.num_pages }}
+        
+                    {% if page.has_next %}
+                        &bull; <a href="{{path}}?page={{page.paginator.num_pages}}&match={{match}}&query={{query}}{{anchor}}">last</a>
+                        &bull; <a href="{{path}}?page={{page.next_page_number}}&match={{match}}&query={{query}}{{anchor}}">next&gt;</a>
+                    {% else %}
+                        <span style="color:#555555;">&bull; last &bull; next&gt;</span>
+                    {% endif %}
+                {% endif %}
+                </div>
+            </td>
+
+            <td width="30%">
+                <!-- <div style="width:13em; float:left;">view: narrow | expanded</div> -->
+            </td>
+        </tr>
+    </table>
+</div>
+

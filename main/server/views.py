@@ -67,8 +67,6 @@ def post_list_filter(request, uid=0, word=None):
 
 def post_list(request, uid=0, post_type=None):
     params = html.Params()
-
-    
     posts = get_posts(request).filter(type=post_type) if post_type else get_posts(request)
         
     if uid:
@@ -250,6 +248,9 @@ def post_edit(request, pid=0, parentid=0, post_type=POST_QUESTION):
     else:
         parent = root = None
 
+    # this is the template name
+    tmpl_name = "new/new.post.edit.html"
+    
     # deal with new post creation first
     if newpost:
         # this here is to customize the output
@@ -258,7 +259,7 @@ def post_edit(request, pid=0, parentid=0, post_type=POST_QUESTION):
         if form_data:
             form = factory(request.POST)
             if not form.is_valid():
-                return html.template(request, name='post.edit.html', form=form, params=params)
+                return html.template(request, name=tmpl_name, form=form, params=params)
             params = dict(author=user, type=post_type, parent=parent, root=root, creation_date=datetime.now())
             params.update(form.cleaned_data)            
             with transaction.commit_on_success():
@@ -268,7 +269,7 @@ def post_edit(request, pid=0, parentid=0, post_type=POST_QUESTION):
             return post_redirect(post)
         else:
             form = factory()
-            return html.template( request, name='post.edit.html', form=form, params=params)
+            return html.template( request, name=tmpl_name, form=form, params=params)
 
     #
     # at this point we are dealing with a post editing action
@@ -295,12 +296,12 @@ def post_edit(request, pid=0, parentid=0, post_type=POST_QUESTION):
     # no form data coming, return the editing form
     if not form_data:
         form = factory(initial=dict(title=post.title, content=post.content, tag_val=post.tag_val))
-        return html.template(request, name='post.edit.html', form=form, params=params)
+        return html.template(request, name=tmpl_name, form=form, params=params)
     else:
         # we have incoming form data for posts
         form = factory(request.POST)
         if not form.is_valid():
-            return html.template(request, name='post.edit.html', form=form, params=params)
+            return html.template(request, name=tmpl_name, form=form, params=params)
          
         with transaction.commit_on_success():
             for key, value in form.cleaned_data.items():
