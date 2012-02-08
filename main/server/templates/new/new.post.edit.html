@@ -1,0 +1,108 @@
+{% extends "new/new.base.html" %}
+
+{% load basic %}
+{% load widgets %}
+
+{% block head %}
+    <!-- markitUp editor -->
+    <script type="text/javascript" src="{{ STATIC_URL }}markitup/jquery.markitup.js"></script>
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}markitup/skins/markitup/style.css" />
+    <link rel="stylesheet" href="{{ STATIC_URL }}markitup/sets/markdown/style.css" type="text/css"/>
+    <script type="text/javascript" src="{{ STATIC_URL }}markitup/sets/markdown/set.js"></script>
+{% endblock %}
+
+{% block document_ready %}
+    $("#editor").markItUp(mySettings);
+{% endblock %}
+
+
+{% block body %}
+    
+    <div class="pagebar">
+        <div align="center">Post Editor</div>
+    </div>
+    
+    {% tab_bar request %}
+    
+    <div id="post-edit">
+        
+        <form action="{{request.path}}" method="post" id="mainform" class="form-horizontal">
+            
+        {% csrf_token %}
+        
+        <input type="hidden" value={{post_type}} name="post_type">
+        
+        {% if form.title.errors %}
+        <div class="control-group error">
+        {% else %}
+        <div class="control-group">
+        {% endif %}
+        <label class="control-label" for="title">Title</label>
+            <div class="controls">
+                {{form.title}}
+                <span class="help-inline">{{form.title.errors}}</span>
+            </div>
+        </div>
+    
+     {% if params.use_post_form  %}
+
+            {% if form.tag_val.errors %}
+            <div class="control-group error">
+            {% else %}
+            <div class="control-group">
+            {% endif %}
+                <label class="control-label" for="tag_val">Tags</label>
+                <div class="controls">
+                    {{form.tag_val}}
+                    <span class="help-inline">{{form.tag_val.errors}}</span>
+                </div>
+            </div>
+            
+            {% if form.type.errors %}
+            <div class="control-group error">
+            {% else %}
+            <div class="control-group">
+            {% endif %} 
+                <label class="control-label" for="type">Post Type</label>
+                <div class="controls">
+                    {{form.type}}
+                    <span class="help-inline">{{form.type.errors}}</span>
+                </div>    
+            </div>
+            
+               
+        {% endif %}
+        
+        {% if form.content.errors %}
+        <div class="control-group error">
+        {% else %}
+        <div class="control-group">
+        {% endif %}
+        <label class="control-label" for="editor">Content</label>
+            <div class="controls">
+                <textarea type="text" name="content" id="editor" style="width:98%; height:20em;">{{form.content.value}}</textarea>
+                <span class="help-inline error">{{form.content.errors}}</span>
+            </div>
+        </div>
+        
+        <div class="control-group">
+        <label class="control-label" for="markItUpPreview">Preview</label>
+            <div class="controls">
+                <div id="markItUpPreview" class="markItUpPreview" style="display:inline-block; width:98%"></div>
+            </div>
+        </div>
+        
+        <div class="control-group">
+        <label class="control-label" for="button"></label>
+            <div class="controls">
+                 <a class="btn btn-success" href='javascript: document.forms["mainform"].submit()'><i class="icon-ok icon-white"></i> Submit Post</a> or 
+                 <a class="btn btn-danger" href='javascript: history.back()'><i class="icon-arrow-left icon-white"></i> Go back</a>
+            </div>
+        </div>
+       
+        
+       
+        
+        </form>
+    </div>
+{% endblock %}

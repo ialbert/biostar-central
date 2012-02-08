@@ -88,6 +88,25 @@ div .par {
   text-align: center;
 }
 
+#post-show {
+    font-size:@default-font-size;
+    .title {
+        border-bottom: 1px solid #6D6D6D;
+        text-shadow: 1px 2px 2px rgba(0, 0, 0, 0.1);
+        font-family: Trebuchet MS,Helvetica,sans-serif;
+        font-size: 140%;
+        font-weight: bold;
+        padding-bottom: 2px;
+        margin-bottom:10px;
+        
+        padding-top: 0px;
+        color: #333;
+    }
+    p {
+        font-size:@default-font-size;    
+    }
+}
+
 #post-edit {
     background-color:#DDDDDD;
     padding:15px;

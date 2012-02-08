@@ -187,7 +187,7 @@ def post_show(request, pid):
     # generate the tag cloud
     tags = models.Tag.objects.all().order_by('-count')[:50]
     
-    return html.template( request, name='post.show.html', root=root, answers=answers, tree=tree, tags=tags )
+    return html.template( request, name='new/new.post.show.html', root=root, answers=answers, tree=tree, tags=tags )
  
 def post_redirect(post, anchor=None):
     """

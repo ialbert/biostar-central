@@ -1,10 +1,13 @@
 {% load basic %}
 {% load widgets %}
 
+<!--
+-->
+
 <table class="post" id="{{post.id}}">
     <tr>
         <td valign="top" class="votecell"> 
-            {% vote_box post %}
+            {% vote_box post %} {{ post.title }}
         </td>
         
         <td valign="top">
@@ -18,7 +21,7 @@
                     {% actionbox post.author post.creation_date %}
                 </div>
          
-               {% showtags post %}
+               {% show_tags post %}
          
                 <div class="editbox">                            
                     {% editbox request post %}

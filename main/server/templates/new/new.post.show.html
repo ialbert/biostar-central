@@ -1,0 +1,23 @@
+{% extends "new/new.base.html" %}
+
+{% load basic %}
+{% load humanize %}
+{% load widgets %}
+
+
+{% block body %}
+    
+    <div class="pagebar">
+        <div align="center">&nbsp;</div>
+    </div>
+    
+    {% tab_bar request %}
+    
+    <div id="post-show">
+        <div class="title">{{root.title}}</div>
+        <div>{{ root.html|safe }}</div>
+    </div>
+    
+    
+    
+{% endblock %}
