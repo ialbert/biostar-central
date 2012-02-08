@@ -61,15 +61,16 @@ class PostForm(forms.Form):
     required_css_class = 'required'
 
     title = forms.CharField(max_length=250,  initial=P_TITLE, validators=[ valid_title ],
-        widget=forms.TextInput(attrs={'style':'width:700px;'}))
+        widget=forms.TextInput(attrs={'class':'span8'}))
     
     content = forms.CharField(max_length=5000, initial=P_CONTENT, validators=[ valid_content ], 
         widget=forms.Textarea(attrs={'cols':'80', 'rows':'15', 'id':'editor'}))
 
     tag_val = forms.CharField(max_length=250,  initial=P_TAG, validators=[ valid_tag ], 
-        widget=forms.TextInput(attrs={'style':'width:700px;'}))
+        widget=forms.TextInput(attrs={'class':'span4'}))
     
-    type = forms.ChoiceField(choices=const.POST_TYPES[:1])
+    # the first two post types are not creatable here
+    type = forms.ChoiceField(choices=const.POST_TYPES[2:])
 
 class ContentForm(forms.Form):
     """

@@ -21,7 +21,7 @@ def tab_bar(request):
     return { 'request': request }
     
 @register.inclusion_tag('new/widgets/page.bar.html', takes_context=True)
-def pagebar(context, anchor=''):
+def page_bar(context, anchor=''):
     path = context['request'].path
     return {
         'page'   : context['page'],

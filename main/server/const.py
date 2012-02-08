@@ -11,15 +11,16 @@ MODERATOR_GROUP = 'mod_group'
 MIN_REP = 1
 
 # Add at the end
-POST_QUESTION, POST_ANSWER, POST_COMMENT, POST_GUIDE, POST_BLOG, POST_NEWS, POST_DISCUSS = range(1, 8)
-POST_TYPES  = ( (POST_QUESTION, 'Question'), (POST_GUIDE, 'Guide'), (POST_BLOG, 'Blog'), 
-    (POST_NEWS, 'News'), (POST_DISCUSS, 'Discussion'), (POST_ANSWER, 'Answer') , (POST_COMMENT, 'Comment'))
+POST_QUESTION, POST_ANSWER, POST_COMMENT, POST_GUIDE, POST_BLOG, POST_NEWS, POST_FORUM, POST_RANT = range(1, 9)
+POST_TYPES  = ( (POST_ANSWER, 'Answer') , (POST_COMMENT, 'Comment'), (POST_QUESTION, 'Question'), (POST_GUIDE, 'Guide'), 
+    (POST_NEWS, 'News'), (POST_BLOG, 'Blog/Opinion'), (POST_FORUM, 'Forum post'), (POST_RANT, 'Rant/Troll'))
 
 # for quick lookups
 POST_MAP  = dict( POST_TYPES )
 
 # posts that only have content, no title or tags
 POST_CONTENT_ONLY = set( [POST_ANSWER, POST_COMMENT ])
+
 
 # the type of messages that the system maintains
 NOTE_USER, NOTE_MODERATOR, NOTE_ADMIN, NOTE_AWARD, NOTE_SITE = range(1, 6)

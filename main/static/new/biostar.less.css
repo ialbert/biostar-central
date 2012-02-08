@@ -88,6 +88,10 @@ div .par {
   text-align: center;
 }
 
+#post-edit {
+    background-color:#DDDDDD;
+    padding:15px;
+}
 #footer {
     margin: 0 auto;
     text-align: center;

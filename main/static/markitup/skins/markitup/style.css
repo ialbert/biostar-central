@@ -12,7 +12,7 @@
 	text-decoration:none;
 }
 .markItUp  {
-	width:700px;
+	
 	margin:5px 0 5px 0;
 	border:5px solid #F5F5F5;	
 }
@@ -28,8 +28,6 @@
        font-size: 130%;
 	padding:5px 5px 5px 5px;
 	/* border:3px solid #3C769D; */
-	width:645px; 
-	height:320px;
 	/*background:#FFF url(images/bg-editor.png) no-repeat;*/
 	clear:both;
 	line-height:18px;
