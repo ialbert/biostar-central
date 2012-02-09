@@ -3,22 +3,25 @@
 {% load widgets %}
 {% load humanize %}
 
+{% block subheader %}
+    {% page_bar %}
+{% endblock %}
+
 {% block body %}
 
-{% page_bar %}
+<div class="row">{% tab_bar request %}</div>
 
-{% tab_bar request %}
-
-<table border="0" class="post-table" cellspacing="0" width="100%">
-
-
-    {% for post in page.object_list %}
+<div class="row">
+    <table border="0" class="post-table" cellspacing="0" width="100%">
     
-        {% table_row post %}
-
-    {%  endfor %}
-
-</table>
+        {% for post in page.object_list %}
+        
+            {% table_row post %}
+    
+        {%  endfor %}
+    
+    </table>
+</div>
 
 {% page_bar %}
 

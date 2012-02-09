@@ -16,15 +16,15 @@
 {% endblock %}
 
 
+{% block subheader %}<div align="center">Post Editor</div>{% endblock %}
+
 {% block body %}
     
-    <div class="pagebar">
-        <div align="center">Post Editor</div>
-    </div>
     
-    {% tab_bar request %}
     
-    <div id="post-edit">
+    <div class="row">{% tab_bar request %}</div>
+    
+    <div id="post-edit" class="row">
         
         <form action="{{request.path}}" method="post" id="mainform" class="form-horizontal">
             

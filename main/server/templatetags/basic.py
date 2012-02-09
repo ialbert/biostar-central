@@ -158,7 +158,7 @@ def flair(user):
     return ""
 
 @register.inclusion_tag('widgets/render.post.html', takes_context=True)
-def render_post(context, request, post, tree):
+def XXXrender_post(context, request, post, tree):
     "Renders a post"
     return { 'post':post, 'tree':tree, 'request':request }
  

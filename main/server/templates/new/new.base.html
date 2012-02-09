@@ -90,13 +90,12 @@
     
   
     <div class="container">
-        <div class="row">      
-            {% block body %}
         
-            Test Body
-        
-            {% endblock %}
+        <div class="row">
+            <div class="subheader">{% block subheader %}&nbsp;{% endblock %}</div>
         </div>
+        
+        {% block body %}Test Body{% endblock %}
         
         <div class="row">  
             <div id="footer">

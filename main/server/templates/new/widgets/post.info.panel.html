@@ -1,6 +1,7 @@
 {% load basic %}
 
-<div class="postinfo">
+<div class="post-info-panel">
+    <div>{% gravatar post.author 82 %}</div>
     {{ action }} <span class="relativetime"> {% time_ago post.creation_date %} </span> by
     {% userlink post.author %}
     {% userrep post.author %}

@@ -1,23 +1,20 @@
 {% extends "new/new.base.html" %}
-
-{% load basic %}
-{% load humanize %}
 {% load widgets %}
 
 
 {% block body %}
     
-    <div class="pagebar">
-        <div align="center">&nbsp;</div>
-    </div>
+    {# display the tabs #}    
+    <div class="row">{% tab_bar request %}</div>
     
-    {% tab_bar request %}
+    {# renders the main post #}
+    <div class="row">{% render_post root tree %}</div>
+ 
+    <div class="row separator">&nbsp;</div>
     
-    <div id="post-show">
-        <div class="title">{{root.title}}</div>
-        <div>{{ root.html|safe }}</div>
-    </div>
-    
-    
-    
+    {% for answer in answers %}
+        <div class="row">{% render_child answer tree %}</div>
+        <div class="row separator">&nbsp;</div>
+    {% endfor %}
+            
 {% endblock %}

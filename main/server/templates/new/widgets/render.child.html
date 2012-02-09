@@ -1,0 +1,11 @@
+{% load basic %}
+{% load humanize %}
+{% load widgets %}
+
+{# renders a single post #}
+<div class="post-show">
+    <div class="post-body">
+        {{ post.html|safe }}
+    </div>
+    <div class="pull-left">{% editbox request post %} </div> <div class="pull-right">{% post_info_line 'by' post %}</div>
+</div>

@@ -1,0 +1,13 @@
+{% load basic %}
+{% load humanize %}
+{% load widgets %}
+
+{# renders a single post #}
+<div class="post-show">
+    <div class="post-title">{{post.get_title}}</div>
+    <div class="post-body">
+        {% post_info_panel 'created' post %}
+        {{ post.html|safe }}
+    </div>
+    <div>{% show_tags post %} </div><div>{% editbox request post %} </div>
+</div>
