@@ -3,6 +3,6 @@
 <div class="post-info-panel">
     <div>{% gravatar post.author 82 %}</div>
     {{ action }} <span class="relativetime"> {% time_ago post.creation_date %} </span> by
-    {% userlink post.author %}
+    <div>{% userlink post.author %}</div>
     {% userrep post.author %}
 </div>

@@ -1,0 +1,22 @@
+{% if request.user.is_authenticated %}
+    <span class="addcomment">
+        {% csrf_token %}
+        <input type="hidden" value="{{post.id}}">
+        <a class="btn" href="#"><i class="icon-comment "></i> Reply to this</a>
+    </span>
+{% else %}
+    <a class="btn disabled" href="#"><i class="icon-comment btn-disabled"></i>Log in to reply</a>
+{% endif %}
+
+{% if post.writeable %}
+    &bull;
+    <a class="btn" href="/post/edit/{{post.id}}/"><i class="icon-edit "></i> Edit</a>
+    &bull;
+    <span class="mod-menu">
+        {% if post.deleted %}
+            <a class="mod-link">undelete</a> 
+        {% else %}
+            <a class="btn mod-link"><i class="icon-trash"></i> Delete</a>                                   
+        {% endif %}                            
+    </span>    
+{% endif %}

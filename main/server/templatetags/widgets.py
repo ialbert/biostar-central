@@ -2,6 +2,7 @@ from django import template
 from django.conf import settings
 from django.template import Context, Template
 from django.template.defaultfilters import stringfilter
+from django.core.context_processors import csrf
 
 register = template.Library()
 
@@ -30,11 +31,15 @@ def render_child(context, post, tree):
     "Renders a post"
     return { 'post':post, 'tree':tree, 'request':context['request'] }
    
-    
 @register.inclusion_tag('new/widgets/tab.bar.html')
 def tab_bar(request):
     "Renders post information"
     return { 'request': request }
+    
+@register.inclusion_tag('new/widgets/comment.actions.html', takes_context=True)
+def comment_actions(context, post):
+    "Renders the comment actions"
+    return { 'post': post, 'request':context['request'] }
     
 @register.inclusion_tag('new/widgets/page.bar.html', takes_context=True)
 def page_bar(context, anchor=''):
@@ -48,3 +53,39 @@ def page_bar(context, anchor=''):
         'anchor' : anchor,
         'path'   : path,
     }
+    
+# this contains the body of each comment
+comment_body  = template.loader.get_template('new/widgets/render.comment.html')
+
+@register.simple_tag
+def comments(request, post, tree):
+    global comment_body    
+    if settings.DEBUG:
+        # reload the template to get changes
+        comment_body = template.loader.get_template('new/widgets/render.comment.html')
+    if post.id in tree:
+        text = render_comments(request=request, post=post, tree=tree)
+    else:
+        text = ''
+    return text
+
+def render_comments(request, post, tree):
+    "Traverses the tree"
+    global comment_body
+            
+    def traverse(node):
+        out = [ '<div class="indent">' ]
+        con = Context( {"post": node, 'user':request.user, 'request':request} )
+        con.update(csrf(request))
+        res = comment_body.render(con)
+        out.append( res )
+        for child in tree[node.id]:
+            out.append( traverse(child) )        
+        out.append( "</div>" )
+        return '\n'.join(out)
+    
+    # this collects the comments for the post
+    coll = []
+    for node in tree[post.id]:
+        coll.append( traverse(node) )
+    return '\n'.join(coll)

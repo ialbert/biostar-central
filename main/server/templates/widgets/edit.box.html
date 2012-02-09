@@ -1,34 +1,36 @@
 {% load basic %}
 
-&bull;
 {% if request.user.is_authenticated %}
     <span class="addcomment">
         {% csrf_token %}
         <input type="hidden" value="{{post.id}}">
-        <a class="add-comment">add comment</a>
+        <a class="btn" href="#"><i class="icon-comment "></i> Comment</a>
     </span>
 {% else %}
-    <span> log in to comment </span>
+    <a class="btn disabled" href="#"><i class="icon-comment btn-disabled"></i>Log in to comment</a>
 {% endif %}
             
-&bull; <a href="{{request.path}}#{{post.id}}">link</a>
+&bull;
+
+<a class="btn" href="{{request.path}}#{{post.id}}"><i class="icon-share-alt "></i> Permalink</a>
 
 {% if post.writeable %}
     
-    &bull; <a href="/post/edit/{{post.id}}/">edit</a>
-
+    &bull;
+    <a class="btn" href="/post/edit/{{post.id}}/"><i class="icon-edit "></i> Edit</a>
+    
     <span class="mod-menu">
     
         {% if post.closed %}
             &bull; <a class="mod-link">reopen</a> 
         {% else %}
-            &bull; <a class="mod-link">close</a> 
+            &bull; <a class="btn mod-link"><i class="icon-remove"></i> Close</a>
         {% endif %}
     
         {% if post.deleted %}
             &bull; <a class="mod-link">undelete</a> 
         {% else %}
-            &bull; <a class="mod-link">delete</a>                                   
+            &bull; <a class="btn mod-link"><i class="icon-trash"></i> Delete</a>                                   
         {% endif %}                            
     
     </span>    

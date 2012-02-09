@@ -1,0 +1,11 @@
+{% load basic %}
+{% load humanize %}
+{% load widgets %}
+
+{# renders a single comment #}
+<div class="comment-body" name="{{post.id}}" id="{{post.id}}">
+    {{ post.html|safe }}
+    <div>{% comment_actions post %}
+        written <span class="relativetime"> {% time_ago post.creation_date %} </span> by {% userlink post.author %} {% userrep post.author %}
+    </div>
+</div>

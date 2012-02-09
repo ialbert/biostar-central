@@ -1,6 +1,6 @@
 {% load basic %}
 {# generates the small post information bar #}
-<div class="postinfo">
+<div class="post-info-line">
     {{ action }} <span class="relativetime"> {% time_ago post.creation_date %} </span> by
     {% userlink post.author %}
     {% userrep post.author %}

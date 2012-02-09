@@ -93,16 +93,36 @@ div .par {
 .separator {
     border-bottom: 1px solid #DDD;
 }
+
+.comment-block{
+    clear:left;
+    .comment-body {
+        padding:10px;
+        margin-top:0.5em;
+        color:#666666;
+        
+    }
+    .post-info-line{
+        float: left;
+        margin-right:10px;
+        color:#666666;
+    }
+    .indent {
+        margin-left:3em;
+       
+    }
+}
+
 .post-show {
     font-size:@default-font-size;
     margin-bottom:1em;
      
-    .post-body{
+    .body{
          margin-bottom:1em;
          margin-top:1em;
     }
     
-    .post-title {
+    .title {
         text-shadow: 1px 2px 2px rgba(0, 0, 0, 0.1);
         font-size: 140%;
         font-weight: bold;
@@ -111,6 +131,7 @@ div .par {
         padding-top: 0px;
         color: #333;
     }
+    
     .post-info-panel {
         float:right;
         width:15%;

@@ -162,41 +162,6 @@ def XXXrender_post(context, request, post, tree):
     "Renders a post"
     return { 'post':post, 'tree':tree, 'request':request }
  
-comment_body  = template.loader.get_template('widgets/comment.html')
-
-def render_comments(request, post, tree):
-    global comment_body
-            
-    def traverse(node):
-        out = [ '<div class="indent">' ]
-        con = Context( {"post": node, 'user':request.user} )
-        con.update(csrf(request))
-        res = comment_body.render(con)
-        out.append( res )
-        for child in tree[node.id]:
-            out.append( traverse(child) )        
-        out.append( "</div>" )
-        return '\n'.join(out)
-    
-    # this collects only the comments
-    coll = []
-    for node in tree[post.id]:
-        coll.append( traverse(node) )
-    return '\n'.join(coll)
-
-@register.simple_tag
-def comments(request, post, tree):
-    global comment_body    
-    if settings.DEBUG:
-        comment_body = template.loader.get_template('widgets/comment.html')
-    if post.id in tree:
-        text = render_comments(request=request, post=post, tree=tree)
-    else:
-        text = ''
-    return text
-    
-
-
 # preload the templates 
 row_question = template.loader.get_template('rows/row.question.html')
 row_answer   = template.loader.get_template('rows/row.answer.html')
