@@ -4,11 +4,21 @@
 
 {# renders a post with title #}
 <div class="post-show">
-    <div class="title">{{post.get_title}}</div>
+    {% if full %}
+        <div class="title">{{post.get_title}}</div>
+    {% endif %}
     <div class="body">
         {% post_info_panel '' post %}
         {{ post.html|safe }}
-        {% show_tags post %}
+        {% if full %}
+            {% show_tags post %}
+        {% endif %}
     </div>
-    <div style="clear:left;">{% editbox request post %}</div>
+    <div style="clear:left;">
+        <input name="post_id" type="hidden" value="{{post.id}}">
+        {% editbox request post %}
+    </div>
+    <div class="comment-block">
+        {% comments request post tree %}
+    </div>
 </div>

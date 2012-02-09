@@ -8,7 +8,6 @@ body {
     font-size: @default-font-size;
     padding-top: 60px;
     padding-bottom: 40px;
-    
 }
 
 @title-size: @default-font-size + @default-font-size/2;
@@ -100,7 +99,8 @@ div .par {
         padding:10px;
         margin-top:0.5em;
         color:#666666;
-        
+        background-color:#efefef;
+        border-bottom: 1px solid #eeeeee;
     }
     .post-info-line{
         float: left;

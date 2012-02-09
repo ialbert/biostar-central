@@ -24,22 +24,17 @@ def post_info_panel(action, post):
 @register.inclusion_tag('new/widgets/new.render.post.html', takes_context=True)
 def render_post(context, post, tree):
     "Renders a post"
-    return { 'post':post, 'tree':tree, 'request':context['request'] }
+    return { 'post':post, 'tree':tree, 'request':context['request'], 'full':True }
 
-@register.inclusion_tag('new/widgets/render.child.html', takes_context=True)
-def render_child(context, post, tree):
+@register.inclusion_tag('new/widgets/new.render.post.html', takes_context=True)
+def render_answer(context, post, tree):
     "Renders a post"
-    return { 'post':post, 'tree':tree, 'request':context['request'] }
-   
+    return { 'post':post, 'tree':tree, 'request':context['request'], 'full':False }
+
 @register.inclusion_tag('new/widgets/tab.bar.html')
 def tab_bar(request):
     "Renders post information"
     return { 'request': request }
-    
-@register.inclusion_tag('new/widgets/comment.actions.html', takes_context=True)
-def comment_actions(context, post):
-    "Renders the comment actions"
-    return { 'post': post, 'request':context['request'] }
     
 @register.inclusion_tag('new/widgets/page.bar.html', takes_context=True)
 def page_bar(context, anchor=''):

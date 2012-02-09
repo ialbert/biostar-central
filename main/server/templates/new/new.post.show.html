@@ -1,6 +1,20 @@
 {% extends "new/new.base.html" %}
 {% load widgets %}
 
+{% block head %}
+    <script src="{{ STATIC_URL }}js/widgets.js"></script>
+{% endblock %}
+
+{% block document_ready %}
+    // register the add comment function
+    $('.add-comment').each(function(){
+        elem = $(this)
+        console.log(elem)
+        elem.click(function(){
+            show_add_comment($(this).parent(), $(this).parent().children('input').val()); 
+        });
+    });
+{% endblock %}
 
 {% block body %}
     
@@ -13,7 +27,7 @@
     <div class="row separator">&nbsp;</div>
     
     {% for answer in answers %}
-        <div class="row">{% render_child answer tree %}</div>
+        <div class="row">{% render_answer answer tree %}</div>
         <div class="row separator">&nbsp;</div>
     {% endfor %}
             

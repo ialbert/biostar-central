@@ -1,13 +1,13 @@
 {% load basic %}
 
 {% if request.user.is_authenticated %}
-    <span class="addcomment">
+    <span>
         {% csrf_token %}
         <input type="hidden" value="{{post.id}}">
-        <a class="btn" href="#"><i class="icon-comment "></i> Comment</a>
+        <a class="btn add-comment"><i class="icon-comment"></i> Comment</a>
     </span>
 {% else %}
-    <a class="btn disabled" href="#"><i class="icon-comment btn-disabled"></i>Log in to comment</a>
+    <a class="btn disabled" href="#"><i class="icon-comment btn-disabled"></i> Log in to comment</a>
 {% endif %}
             
 &bull;
