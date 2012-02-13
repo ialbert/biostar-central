@@ -53,9 +53,6 @@ def userrep(user):
 def usernotes(user):
     return { 'user':user }
 
-@register.inclusion_tag('widgets/edit.box.html')
-def editbox(request, post):
-    return { 'post':post, 'request':request }
     
 @register.inclusion_tag('widgets/badge.icon.html')
 def badgeicon(type):
@@ -112,9 +109,6 @@ def gravatar(user, size=80):
 def answer_list_narrow(x):
     return {'answers':x}
 
-@register.inclusion_tag('widgets/vote.box.html', takes_context=True)
-def vote_box(context, post):
-    return {'post':post}
 
 
 @register.simple_tag(takes_context=True)

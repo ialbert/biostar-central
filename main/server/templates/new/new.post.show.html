@@ -3,17 +3,40 @@
 
 {% block head %}
     <script src="{{ STATIC_URL }}js/widgets.js"></script>
+    <script src="{{ STATIC_URL }}js/csrf.js"></script>
+    <script src="{{ STATIC_URL }}js/vote.js"></script>
 {% endblock %}
 
 {% block document_ready %}
+    
     // register the add comment function
     $('.add-comment').each(function(){
         elem = $(this)
-        console.log(elem)
+        //console.log(elem)
+        //callback function defined in /static/js/widgets.js
         elem.click(function(){
             show_add_comment($(this).parent(), $(this).parent().children('input').val()); 
         });
     });
+    
+    // register the voting function
+    $('.vote').each(function(){
+        elem = $(this)
+        
+        // register a handler for each votable element 
+        up_button   = elem.children('.vote-up')
+        down_button = elem.children('.vote-down')
+
+        //HARDCODED VALUES!!!
+        //callback functions defined in /static/js/vote.js
+        up_button.click(function(){
+            do_vote($(this), $(this).parent().children('input').val(), 1); 
+        });
+        down_button.click(function(){
+            do_vote($(this), $(this).parent().children('input').val(), 2); 
+        });
+    });
+    
 {% endblock %}
 
 {% block body %}

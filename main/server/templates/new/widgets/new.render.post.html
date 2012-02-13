@@ -3,22 +3,42 @@
 {% load widgets %}
 
 {# renders a post with title #}
-<div class="post-show">
+<a name="{{post.id}}"></a>
+
+<table border="0" width="100%" class="post-show">
+
     {% if full %}
-        <div class="title">{{post.get_title}}</div>
+    <tr>
+        <td colspan="3"><div class="title">{{post.get_title}}</div></td>
+    </tr>
     {% endif %}
-    <div class="body">
-        {% post_info_panel '' post %}
-        {{ post.html|safe }}
-        {% if full %}
-            {% show_tags post %}
-        {% endif %}
-    </div>
-    <div style="clear:left;">
-        <input name="post_id" type="hidden" value="{{post.id}}">
-        {% editbox request post %}
-    </div>
+    <tr>
+        <td>{% vote_box post %}</td>
+    <td width="100%"> 
+        <div class="body">
+            {{ post.html|safe }}
+            {% if full %}
+                {% show_tags post %}
+            {% endif %}
+        </div>
+    </td>
+        <td>
+            <div class="post-info">{% post_info_panel '' post %}</div>
+        </td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td colspan="2">
+            <input name="post_id" type="hidden" value="{{post.id}}">
+            {% post_edit_actions request post %}
+        </td>
+    </tr>
+    
+    <tr>
+    <td>&nbsp;</td>
+    <td colspan="2">
     <div class="comment-block">
         {% comments request post tree %}
     </div>
-</div>
+    </td></tr>
+</table>

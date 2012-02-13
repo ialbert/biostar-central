@@ -6,13 +6,15 @@
 body {
     background-color: white;
     font-size: @default-font-size;
-    padding-top: 60px;
-    padding-bottom: 40px;
 }
 
 @title-size: @default-font-size + @default-font-size/2;
 @title-color: red;
 @bit: 18px;
+
+.add-comment {
+    cursor: pointer;
+}
 
 .message {
     color:white;
@@ -101,6 +103,7 @@ div .par {
         color:#666666;
         background-color:#efefef;
         border-bottom: 1px solid #eeeeee;
+        
     }
     .post-info-line{
         float: left;
@@ -113,15 +116,8 @@ div .par {
     }
 }
 
-.post-show {
-    font-size:@default-font-size;
-    margin-bottom:1em;
-     
-    .body{
-         margin-bottom:1em;
-         margin-top:1em;
-    }
-    
+td {
+    vertical-align:top;
     .title {
         text-shadow: 1px 2px 2px rgba(0, 0, 0, 0.1);
         font-size: 140%;
@@ -133,14 +129,14 @@ div .par {
     }
     
     .post-info-panel {
-        float:right;
-        width:15%;
+        width:10em;
         background-color:#EEEEEE;
-        margin-left:0.5em;
         border: 1px solid #DDD;
         padding:1em;
+        margin-left:0.5em;
         text-align:center;
     }
+    
     p {
         font-size:@default-font-size;    
     }
@@ -241,4 +237,69 @@ div .par {
   -moz-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), inset 0 -1px 0 rgba(0, 0, 0, 0.1);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), inset 0 -1px 0 rgba(0, 0, 0, 0.1);
 }
+
+.vote-box{
+    vertical-align: top;
+    padding: 0px;
+}
+
+.vote{
+    
+    text-align:center;
+    width: 60px;
+    float:left;
+    margin:10px;
+    .vote-count {
+        font-size: 240%;
+        font-weight: bold;
+        vertical-align: middle;
+        text-align: center;
+        width: 60px;
+        margin: 10px 0 10px 0;
+        padding: 0px;
+        display:block;
+    }
+    
+    .vote-popover {
+        position:absolute;
+        margin-top:10px;
+        color: black;
+    }
+
+    .error {
+        background-color:#D7615F;
+        padding:10px;
+        border: 1px solid #41561E;
+        opacity:0.9;
+    }
+
+    .success {
+        background-color:#B6C2A1;
+        padding:10px;
+        border: 1px solid #41561E;
+        opacity:0.9;
+    }
+
+    .vote-up, .vote-down, .vote-accepted{
+        display: block;
+        width: 30px;
+        height: 14px;
+        background-repeat: no-repeat;
+        margin-left: auto;
+        margin-right: auto;
+        cursor:pointer;
+    }
+    
+    .vote-accepted {
+        height: 31px;
+    }
+    
+    .vote-up.vote-off { background-image: url("/static/img/vote/vote-up-off.png"); }
+    .vote-down.vote-off { background-image: url("/static//img/vote/vote-down-off.png"); }
+    .vote-up.vote-on { background-image: url("/static/img/vote/vote-up-on.png"); }
+    .vote-down.vote-on{ background-image: url("/static/img/vote/vote-down-on.png"); }
+    .vote-accepted { background-image: url("/static/img/vote/accepted.png") }
+}
+
+
 

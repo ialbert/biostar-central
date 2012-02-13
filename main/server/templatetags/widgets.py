@@ -6,6 +6,14 @@ from django.core.context_processors import csrf
 
 register = template.Library()
 
+@register.inclusion_tag('new/widgets/vote.box.html', takes_context=True)
+def vote_box(context, post):
+    return {'post':post}
+
+@register.inclusion_tag('new/widgets/post.edit.actions.html')
+def post_edit_actions(request, post):
+    return { 'post':post, 'request':request }
+    
 @register.inclusion_tag('new/widgets/show.tags.html')
 def show_tags(post):
     "Renders tags for a post"

@@ -1,20 +1,4 @@
-$(document).ready(function(){
-    $('.vote').each(function(){
-        elem = $(this)
-                
-        up_button = elem.children('.vote-up')
-        down_button = elem.children('.vote-down')
-
-        //HARDCODED VALUES!!!
-        up_button.click(function(){
-            do_vote($(this), $(this).parent().children('input').val(), 1); 
-        });
-        down_button.click(function(){
-            do_vote($(this), $(this).parent().children('input').val(), 2); 
-        });
-    });
-});
-
+// modifies the votecount value
 function mod_votecount(button, k){
     count = parseInt(button.siblings('.vote-count').text())
     count += k
@@ -47,8 +31,8 @@ function toggle_button(button){
 
 function popover(parent, msg, cls){
     parent.append('<div></div>')
-    elem = parent.children('div')
-    elem.addClass('popover ' + cls)
+    elem = parent.children('div').last()
+    elem.addClass('vote-popover ' + cls)
     elem.text(msg)
     elem.delay(1000).fadeOut(1000, function(){
         $(this).remove() 
@@ -64,4 +48,5 @@ function do_vote(button, post, type){
             toggle_button(button) // Untoggle the button if there was an error
         }
     }, 'json');
+    
 }

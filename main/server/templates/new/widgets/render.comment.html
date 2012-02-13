@@ -4,38 +4,37 @@
 
 {# renders a single comment #}
 
-<section id="{{post.id}}">
 <div class="comment-body" name="{{post.id}}"">
+    <a name="{{post.id}}"></a>
     {{ post.html|safe }}
     
     {# these are the actions to take on comments #}
     <div>
         <input name="post_id" type="hidden" value="{{post.id}}">
+       {# edit actions #}
         {% if request.user.is_authenticated %}
         <span class="addcomment">
             {% csrf_token %}
             <input type="hidden" value="{{post.id}}">
-            <a class="btn add-comment" href="#"><i class="icon-comment "></i> Reply to this</a>
+            <a class="add-comment">reply</a>
         </span>
         {% else %}
-            <a class="btn disabled" href="#"><i class="icon-comment btn-disabled"></i> Log in to reply</a>
+            <a href="/openid/login/?next={{request.path}}">log in to reply</a>
         {% endif %}
 
+        {# owners and moderators may edit the post #}
         {% if post.writeable %}
             &bull;
-            <a class="btn" href="/post/edit/{{post.id}}/"><i class="icon-edit "></i> Edit</a>
+            <a href="/post/edit/{{post.id}}/">edit</a>
             &bull;
             <span class="mod-menu">
                 {% if post.deleted %}
                     <a class="mod-link">undelete</a> 
                 {% else %}
-                    <a class="btn mod-link"><i class="icon-trash"></i> Delete</a>                                   
+                    <a href="#">delete</a>                                   
                 {% endif %}                            
             </span>    
         {% endif %}
-
-        {# final line on the comment #}        
-        written <span class="relativetime"> {% time_ago post.creation_date %} </span> by {% userlink post.author %} {% userrep post.author %}
+        &bull; written <span class="relativetime"> {% time_ago post.creation_date %} </span> by {% userlink post.author %} {% userrep post.author %}
     </div>
 </div>
-</section>

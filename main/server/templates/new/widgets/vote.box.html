@@ -1,0 +1,16 @@
+<div class="vote-box">
+    <div class="vote">
+        <input type="hidden" value="{{post.id}}">
+        {% if post.upvoted %}
+        <div class="vote-up vote-on"></div>
+        {% else %}
+        <div class="vote-up vote-off"></div>
+        {% endif %}
+        <div class="vote-count">{{post.score}}</div>
+        {% if post.downvoted %}
+        <div class="vote-down vote-on"></div>
+        {% else %}
+        <div class="vote-down vote-off"></div>
+        {% endif %}
+    </div>
+</div>

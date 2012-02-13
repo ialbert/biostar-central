@@ -4,33 +4,33 @@
     <span>
         {% csrf_token %}
         <input type="hidden" value="{{post.id}}">
-        <a class="btn add-comment"><i class="icon-comment"></i> Comment</a>
+        <a class="add-comment">comment</a>
     </span>
 {% else %}
-    <a class="btn disabled" href="#"><i class="icon-comment btn-disabled"></i> Log in to comment</a>
+    <a href="/openid/login/?next={{request.path}}">log in to comment</a>
 {% endif %}
             
 &bull;
 
-<a class="btn" href="{{request.path}}#{{post.id}}"><i class="icon-share-alt "></i> Permalink</a>
+<a href="{{request.path}}#{{post.id}}">permalink</a>
 
 {% if post.writeable %}
     
     &bull;
-    <a class="btn" href="/post/edit/{{post.id}}/"><i class="icon-edit "></i> Edit</a>
+    <a href="/post/edit/{{post.id}}/">edit</a>
     
     <span class="mod-menu">
     
         {% if post.closed %}
             &bull; <a class="mod-link">reopen</a> 
         {% else %}
-            &bull; <a class="btn mod-link"><i class="icon-remove"></i> Close</a>
+            &bull; <a class="mod-link">close</a>
         {% endif %}
     
         {% if post.deleted %}
             &bull; <a class="mod-link">undelete</a> 
         {% else %}
-            &bull; <a class="btn mod-link"><i class="icon-trash"></i> Delete</a>                                   
+            &bull; <a class="mod-link">delete</a>                                   
         {% endif %}                            
     
     </span>    
