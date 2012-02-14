@@ -160,11 +160,15 @@ def post_show(request, pid):
         messages.warning(request, 'The post that you are looking for does not exists. Perhaps it was deleted!')
         return html.redirect("/")
     
-    # get all answers to the root 
-    answers =  models.Post.objects.filter(parent=root, type=POST_ANSWER).select_related('author', 'author__profile').order_by('-accepted', '-score')
-    
+    # get all answers to the root
+    children = models.Post.objects.filter(root=root).select_related('author', 'author__profile').order_by('-accepted', '-score')
+   
+    # these are all the answers
+    answers = [ o for o in children if o.type == POST_ANSWER ]
+   
     # all objects with votes
-    all = list(answers) + [ root ]
+    all = list(children) + [ root ]
+        
     if request.user.is_authenticated():
         votes = models.Vote.objects.filter(author=request.user, post__id__in = [ p.id for p in all ] ) 
         up_votes  = set(vote.post.id for vote in votes if vote.type == const.VOTE_UP)
@@ -183,6 +187,7 @@ def post_show(request, pid):
     comments = models.Post.objects.filter(root=root, type=POST_COMMENT).select_related('author', 'author__profile').order_by('creation_date')
     for comment in comments:
         comment.writeable = auth.authorize_post_edit(post=comment, user=request.user, strict=False)
+        comment.upvoted   = comment.id in up_votes
         tree[comment.parent_id].append(comment)
    
     # generate the tag cloud
@@ -332,14 +337,16 @@ def add_comment(request, pid):
     
     return post_redirect(comment)
 
-# a few helper methods
-def json_msg(msg, status):
+#
+# helper methods for json returns 
+#
+def ajax_msg(msg, status):
     return html.json_response(dict(status=status, msg=msg))
     
-json_success = partial(json_msg, status='success')
-json_error   = partial(json_msg, status='error')
+ajax_success = partial(ajax_msg, status='success')
+ajax_error   = partial(ajax_msg, status='error')
 
-class json_error_wrapper(object):
+class ajax_error_wrapper(object):
     "used as decorator to trap/display  errors in the ajax calls"
     def __init__(self, f):
         self.f = f
@@ -349,18 +356,18 @@ class json_error_wrapper(object):
             value = self.f(*args, **kwds)
             return value
         except Exception,exc:
-            return json_error('Error: %s' % exc)
+            return ajax_error('Error: %s' % exc)
 
-@json_error_wrapper           
+@ajax_error_wrapper           
 def vote(request):
     "Handles all voting on posts"
     
     if request.method != 'POST':
-        return json_error('POST method must be used')
+        return ajax_error('POST method must be used')
         
     author = request.user
     if not author.is_authenticated():
-        return json_error('You must be logged in to vote')
+        return ajax_error('You must be logged in to vote')
             
     # attempt to find the post and vote
     post_id = int(request.POST.get('post'))
@@ -371,21 +378,24 @@ def vote(request):
     type = dict(upvote=VOTE_UP, accept=VOTE_ACCEPT, bookmark=VOTE_BOOKMARK).get(type)
         
     if not type:
-        return json_error('invalid vote type')
+        return ajax_error('invalid vote type')
             
     if type == VOTE_UP and post.author == author:
-        return json_error('You may not vote on your own post')
+        return ajax_error('You may not vote on your own post')
+    
+    if type == VOTE_ACCEPT and post.root.author != author:
+        return ajax_error('Only the original poster may accept an answer')
         
     # see if there is an existing vote of this type
     old_vote = post.get_vote(author, type)
 
     if old_vote:
         old_vote.delete()
-        return json_success('%s removed' % old_vote.get_type_display() )
+        return ajax_success('%s removed' % old_vote.get_type_display() )
     
     # only adding new votes remains at this point
     vote = post.add_vote(author, type)
-    return json_success('%s added' % vote.get_type_display())
+    return ajax_success('%s added' % vote.get_type_display())
 
 @login_required(redirect_field_name='/openid/login/')
 def moderate_post(request, pid, action):

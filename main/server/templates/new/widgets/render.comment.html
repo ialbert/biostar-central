@@ -5,6 +5,23 @@
 {# renders a single comment #}
 
 <div class="comment-body" name="{{post.id}}"">
+    
+    <div class="mini-vote-box">
+        <div class="vote">
+            <input type="hidden" value="{{post.id}}">
+            {% if post.upvoted %}
+            <div class="vote-up vote-on">&nbsp;</div>
+            {% else %}
+            <div class="vote-up vote-off">&nbsp;</div>
+        {% endif %}
+            <div class="vote-count">
+            {% if post.score %}
+                {{post.score}}
+            {% endif %}
+            </div>
+        </div>
+    </div>
+    
     <a name="{{post.id}}"></a>
     {{ post.html|safe }}
     

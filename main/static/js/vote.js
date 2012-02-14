@@ -1,6 +1,6 @@
 // modifies the votecount value
 function mod_votecount(button, k){
-    count = parseInt(button.siblings('.vote-count').text())
+    count = parseInt(button.siblings('.vote-count').text()) || 0
     count += k
     button.siblings('.vote-count').text(count)
 }

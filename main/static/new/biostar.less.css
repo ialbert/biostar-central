@@ -238,79 +238,107 @@ td {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), inset 0 -1px 0 rgba(0, 0, 0, 0.1);
 }
 
-.vote-box{
-    vertical-align: top;
-    padding: 0px;
-}
+/* popup message rendering */
 
-.vote{
-    
-    text-align:center;
-    width: 60px;
-    float:left;
-    margin:10px;
-    .vote-count {
-        font-size: 240%;
-        font-weight: bold;
-        vertical-align: middle;
-        text-align: center;
-        width: 60px;
-        margin: 10px 0 10px 0;
-        padding: 0px;
-        display:block;
-    }
+.ajax-messages {
     
     .vote-popover {
         position:absolute;
         margin-top:10px;
         color: black;
     }
-
+        
     .error {
         background-color:#D7615F;
         padding:10px;
         border: 1px solid darken(#D7615F, 20%);
         opacity:0.9;
     }
-
+        
     .success {
         background-color:#B6C2A1;
         padding:10px;
         border: 1px solid darken(#B6C2A1, 20%);
         opacity:0.9;
     }
+}
 
-    .vote-up, .vote-down, .vote-accepted, .vote-bookmark {
-        display: block;
-        width: 30px;
-        height: 14px;
+.mini-vote-box {
+    .ajax-messages;
+    
+    padding:5px;
+    margin-right:5px;
+    width: 40px;
+    height: 20px;
+    float:left;
+    
+    .vote-up {
+        width:20px;
+        float:left;
         background-repeat: no-repeat;
-        margin-left: auto;
-        margin-right: auto;
         cursor:pointer;
     }
-    
-    .vote-bookmark {
-        height:30px;
-        background-position: center;
+    .vote-count {
+        width:15px;
+        text-align:center;
+        float:left;
     }
+    .vote-up.vote-off { background-image: url("/static/img/g/glyphicons_213_up_arrow.png"); opacity:0.3; }
+    .vote-up.vote-on  { background-image: url("/static/img/g/glyphicons_213_up_arrow.png"); }
+}
+        
+.vote-box{
+    .ajax-messages;
     
-    .vote-accepted {
-        height: 30px;
-        background-position: center;
+    vertical-align: top;
+    padding: 0px;
+
+    .vote{
+        
+        text-align:center;
+        width: 60px;
+        float:left;
+        margin:10px;
+        
+        .vote-count {
+            font-size: 240%;
+            font-weight: bold;
+            vertical-align: middle;
+            text-align: center;
+            width: 60px;
+            margin: 10px 0 10px 0;
+            padding: 0px;
+            display:block;
+        }
+        
+        .vote-up, .vote-accepted, .vote-bookmark {
+            display: block;
+            width: 30px;
+            height: 14px;
+            background-repeat: no-repeat;
+            margin-left: auto;
+            margin-right: auto;
+            cursor:pointer;
+        }
+        
+        .vote-bookmark {
+            height:30px;
+            background-position: center;
+        }
+        
+        .vote-accepted {
+            height: 30px;
+            background-position: center;
+        }
+        
+        .vote-up.vote-off { background-image: url("/static/img/vote/vote-up-off.png"); }
+        .vote-up.vote-on { background-image: url("/static/img/vote/vote-up-on.png"); }
+        .vote-bookmark.vote-on  { background-image: url("/static/img/g/glyphicons_072_bookmark.png"); }
+        .vote-bookmark.vote-off { background-image: url("/static/img/g/glyphicons_072_bookmark.png"); opacity:0.3; &:hover { opacity:0.9; } }
+        .vote-accepted.vote-on  { background-image: url("/static/img/g/glyphicons_206_ok_2.png") }
+        .vote-accepted.vote-off { background-image: url("/static/img/g/glyphicons_206_ok_2.png"); opacity:0.3; &:hover { opacity:0.9; }}
     }
-    
-    .vote-up.vote-off { background-image: url("/static/img/vote/vote-up-off.png"); }
-    .vote-down.vote-off { background-image: url("/static//img/vote/vote-down-off.png"); }
-    .vote-up.vote-on { background-image: url("/static/img/vote/vote-up-on.png"); }
-    .vote-bookmark.vote-on  {
-        background-image: url("/static/img/g/glyphicons_072_bookmark.png");
-    }
-    .vote-bookmark.vote-off {
-        background-image: url("/static/img/g/glyphicons_072_bookmark.png"); opacity:0.3; &:hover { opacity:0.9; } }
-    .vote-accepted.vote-on  { background-image: url("/static/img/g/glyphicons_206_ok_2.png") }
-    .vote-accepted.vote-off { background-image: url("/static/img/g/glyphicons_206_ok_2.png"); opacity:0.3; &:hover { opacity:0.9; }}
-    
+
 }
 
 
