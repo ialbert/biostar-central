@@ -342,28 +342,39 @@ def vote(request):
         post_id = int(request.POST.get('post'))
         post = models.Post.objects.get(id=post_id)
         
-        if post.author == author:
-            return html.json_response({'status':'error', 'msg':'You cannot vote on your own post'})
+         
+        type = request.POST.get('type')
         
-        type = int(request.POST.get('type'))
-        
-        old_vote = post.get_vote(author, type)
-        
-        if old_vote:
-            old_vote.delete()
-            return html.json_response({
-                'status':'success',
-                'msg':'%s removed' % old_vote.get_type_display()})
-        else:
-            vote = post.add_vote(author, type)
-            if type in models.OPPOSING_VOTES: 
-                # Remove an opposing vote if it exists
-                post.remove_vote(author, models.OPPOSING_VOTES[type])
-            return html.json_response({
-                'status':'success',
-                'msg':'%s added' % vote.get_type_display()})
+        try:
+            # upvoting
+            if type == 'upvote':
+                if post.author == author:
+                    return html.json_response({'status':'error', 'msg':'You cannot vote on your own post'})
                     
-
+                old_vote = post.get_vote(author, VOTE_UP)
+                
+                if old_vote:
+                    old_vote.delete()
+                    return html.json_response({
+                        'status':'success',
+                        'msg':'%s removed' % old_vote.get_type_display()})
+                else:
+                    vote = post.add_vote(author, VOTE_UP)
+                    return html.json_response({
+                        'status':'success',
+                        'msg':'%s added' % vote.get_type_display()})
+                            
+            elif type == 'bookmark':
+                return html.json_response(dict(status='success', msg='bookmark added'))
+            
+            elif type == 'accept':
+                return html.json_response(dict(status='success', msg='answer accepted'))
+            else:
+                return html.json_response({'status':'error', 'msg':'invalid action requested'})
+        except Exception, exc:
+            print "%s" % exc
+            return html.json_response({'status':'error', 'msg':'internal error'})
+            
     return html.json_response({'status':'error', 'msg':'POST method must be used'})
 
 @login_required(redirect_field_name='/openid/login/')

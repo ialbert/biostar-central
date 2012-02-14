@@ -186,7 +186,8 @@ class Post(models.Model):
             self.tag_set.add( *tags )
             self.save()
   
-    def get_title(self):        
+    def get_title(self):
+        "Returns the title and a qualifier"
         title = self.title
         if self.deleted:
             title = "%s [deleted ]" % self.title
@@ -195,6 +196,7 @@ class Post(models.Model):
         return "%s" % title
     
     def update_views(self, request):
+        "Views are updated per user session"
         if request.user.is_anonymous():
             return
         VIEW_KEY = 'viewed'
@@ -204,6 +206,9 @@ class Post(models.Model):
             Post.objects.filter(id=self.id).update(views = F('views') + 1 ) 
             viewed.add(self.id)
             request.session[VIEW_KEY] = viewed
+    
+    def has_title(self):
+        return self.type not in (POST_ANSWER, POST_COMMENT)
         
     @property
     def closed(self):

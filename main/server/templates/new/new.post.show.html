@@ -24,17 +24,23 @@
         elem = $(this)
         
         // register a handler for each votable element 
-        up_button   = elem.children('.vote-up')
-        down_button = elem.children('.vote-down')
+        up_button  = elem.children('.vote-up')
+        bookmark_button = elem.children('.vote-bookmark')
+        accept_button = elem.children('.vote-accepted')
 
-        //HARDCODED VALUES!!!
         //callback functions defined in /static/js/vote.js
         up_button.click(function(){
-            do_vote($(this), $(this).parent().children('input').val(), 1); 
+            do_vote($(this), $(this).parent().children('input').val(), 'upvote'); 
         });
-        down_button.click(function(){
-            do_vote($(this), $(this).parent().children('input').val(), 2); 
+        
+        bookmark_button.click(function(){
+            do_vote($(this), $(this).parent().children('input').val(), 'bookmark'); 
         });
+        
+        accept_button.click(function(){
+            do_vote($(this), $(this).parent().children('input').val(), 'accept'); 
+        });
+        
     });
     
 {% endblock %}
