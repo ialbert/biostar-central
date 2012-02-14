@@ -1,22 +1,28 @@
-{% extends "base.sidebar.html" %}
-
+{% extends "base.html" %}
 {% load basic %}
+{% load widgets %}
+{% load humanize %}
 
 {% block subheader %}
-     <div>{% pagebar %}</div>
+    {% page_bar %}
 {% endblock %}
 
-{% block mainbar %}
+{% block body %}
 
-<!-- after a lot of fighting with floating CSS elements I went back to tables, so incredibly simpler -->
-<table border="0" class="post-table" cellspacing="0" width="100%">
+<div class="row">{% tab_bar request %}</div>
 
-    {% for post in page.object_list %}
+<div class="row">
+    <table border="0" class="post-table" cellspacing="0" width="100%">
     
-        {% table_row post %}
+        {% for post in page.object_list %}
+        
+            {% table_row post %}
+    
+        {%  endfor %}
+    
+    </table>
+</div>
 
-    {%  endfor %}
-
-</table>
+{% page_bar %}
 
 {% endblock %}

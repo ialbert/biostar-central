@@ -1,146 +1,122 @@
+<!DOCTYPE html>
 {% load basic %}
 {% load humanize %}
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>{% block title %}Biostar{% endblock %}</title>
+    <meta name="description" content="">
+    <meta name="author" content="">
 
-<html>
-<head>
-  <meta http-equiv="Content-type" content="text/html; charset=utf-8" />  
-  <link href='{{ STATIC_URL }}favicon.ico' rel='shortcut icon'/>
-  <title>{% block title %}BioStar{% endblock %}</title>
+    <!-- JQuery Library  -->
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
 
-    {% block  common-frameworks %}
-        <!-- CSS Framework loading -->
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
 
-        <!-- Syntax Highlighter  -->
-        <link rel="stylesheet" href="{{ STATIC_URL }}pygments.css" type="text/css" media="screen, projection" />
-       
-        <!-- JQuery Library  -->
-        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
+    <!-- bootstrap -->
+    <link href="{{ STATIC_URL }}lib/bootstrap/css/bootstrap.css" rel="stylesheet">
+    <link href="{{ STATIC_URL }}lib/bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
+    <script src="{{ STATIC_URL }}lib/bootstrap/js/bootstrap.js"></script>
 
-        <!-- Django CSRF setup for AJAX -->
-        <script src="{{ STATIC_URL }}js/csrf.js"></script>
+    <!-- less -->
+    <link rel="stylesheet/less" type="text/css" href="/static/new/biostar.less.css">
+    <script src="{{ STATIC_URL }}lib/less-1.2.1.min.js" type="text/javascript"></script>
+
+    {% block head %}
         
-        <!-- Debug Javascript -->
-        <script src="{{ STATIC_URL }}js/debug.js"></script>
-
-        <!-- Biostar specific style sheet and javascript-->
-        
-         
-        <link rel="stylesheet" href="{{ STATIC_URL }}biostar.css" type="text/css" media="screen, projection" />
-       
-        <link rel="stylesheet" href="{{ STATIC_URL }}css/biostar2.css" type="text/css" media="screen, projection" />
-       
-        <script src="{{ STATIC_URL }}biostar.js"></script>
-
-        <script>
-        $(document).ready(function(){
-            $('.close-button').click(function(){
-                $(this).parent().slideUp()
-            });
+    {% endblock %}
+    <script>
+      $(document).ready(function(){
+        $('#queries').hide()
+        $('#toggle-queries').click(function(){
+            $('#queries').toggle() 
         });
+        {% block document_ready %}
+         
+        {% endblock %}
+      });
+    </script>
 
-        </script>
-    {% endblock %}
+  </head>
 
-    {% block custom-frameworks %}
-        <!-- placeholder block for custom header information-->
-    {% endblock %}
-
-</head>
-
-<body>
-
-<div>
-    <div id="notify">
-    This is a <b>development version</b> of BioStar. The live site is at <a href="http://www.biostars.org">http://www.biostars.org</a>.  
-    </div>
-</div>
-
-<!-- main content wrapper -->
-<div id="main">
-
-{% block message %}
-    <!-- this is where messages pop up --> 
-     {% if messages %}
-        <div id="messages">
-            {% for message in messages %}
-                <div class="message {{ message.tags }}" id="message{{forloop.counter}}">{{ message|safe }} 
-                [<a class="close-button">x</a>] </div>
-            {% endfor %}                  
-         </div>
-      {% endif %}
-{% endblock %}
-
- 
-{% block header %}
-    <form id="search" action="/" method="get">     
-    <table width="100%"  border="0" id="header-table" cellpadding="0" cellspacing="0">
-        <tr>
-          <td align="right" colspan="2" bgcolor="#EEEEEE" style="padding:3px; border-top:1px solid #DDDDDD;">
+  <body>
+    
+    <div class="navbar">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="i-bar"></span>
+            <span class="i-bar"></span>
+            <span class="i-bar"></span>
+          </a>
           
-              {%if user.is_authenticated %}                                  
-                    {% userlink user %}
-                    {% usernotes user %}
-                    {% userrep user %}
-                    {% if user.profile.is_admin %}
-                        &bull; <a href="/admin/">admin</a> 
-                    {% endif %}
-                    &bull; <a href="/about/">about</a> 
-                    &bull; <a href="/tools/">tools</a>   
-                    &bull; <a href="/logout/?next_page=/">logout</a> 
-                    
-              {% else %}
-                  <span>First time here? Learn more <a href="/about/">about Biostar</a> &bull; <a href="/openid/login/">login</a> </span>
-              {% endif %}
-                         
-              &bull; Search: <input name="q" class="textbox" tabindex="1" onfocus="if (this.value=='search') this.value = ''" maxlength="80" size="25" value="{{q}}" type="text"> <input type="submit" value="Go!">              
-          </td>
-        </tr>
-        
-        <tr>
-            <td width="107px">
-                <a href="/"><img src="{{ STATIC_URL }}biostar.logo.png" border="0"/></a>
-            </td>
-        
-            <td valign="bottom">
-                <div style="padding-left:15px; margin-bottom:11px;"> {% include "bars/nav.bar.html" %}</div>
-            </td>
-        
-        </tr>
+          <a class="brand" href="/">BioStar</a>
+          
+          <div class="nav-collapse">
+            
+            <ul class="nav">
+              <li {% navclass '/tag(ged)?/' %}><a href="/tag/list/">Tags</a></li>
+              <li {% navclass '/users/' %}><a href="/user/list/">Users</a></li>
+              <li {% navclass '/badges/' %}><a href="/badge/list/">Badges</a></li>
+              <li {% navclass '/about/' %}><a href="/about/">About</a></li>
+            </ul>
+            
+            <form class="navbar-search pull-left" action="/" method="get">
+              <input type="text" name='q' class="search-query" placeholder="Search">
+            </form>
+            
+            {%if user.is_authenticated %}
+                
+              <ul class="nav pull-right">
+                {% if user.profile.new_messages %}
+                <li>
+                  <a href="#"><span class="message remind"></i>5 messages</span></a>
+                </li>
+                {% endif %}
+                <li><a href="/user/show/{{user.id}}/">{{ user.profile.display_name }} {% flair user %} {{ user.profile.score }}</a></li>  
+                <li><a href="/logout/?next_page=/">Log out</a></li>
+              </ul>
 
-    </table>
-
-    </form>
-{% endblock %}
-     
-<div id="content">
-    {% block mainbody %}
-        Main body
-    {% endblock %}     
-    <div class="clear">&nbsp;</div>
-</div>
-  
-<div id="footer">
-    Powered by <a href="https://github.com/ialbert/biostar-central"><img src="{{ STATIC_URL }}/biostar.antipixel.png" /></a> 
-    &bull; Version: <b>{{BIOSTAR_VERSION}}</b></a>
-
-    (revision <a href="https://github.com/ialbert/biostar-central/commit/{{BIOSTAR_GIT_REVISION}}">{{ BIOSTAR_GIT_REVISION }}</a>)
-    &bull; Copyright 2011 by the <a href="https://github.com/ialbert/biostar-central/contributors">BioStar team</a>
-    {% if debug %}
-      <br><a id="toggle-queries">{{sql_queries|length}} SQL queries</a>
-      <div id="queries" style="text-align: left;">
-        <ul id="query-list">
-          {% for query in sql_queries %}
-            <li>{{ query.sql}} [in {{query.time}}s]</li>
-          {% endfor %}
-        </ul>
+            {% else %}
+              <p class="navbar-text pull-right"><a href="/openid/login/">Sign in</a> </p>
+            {% endif %}
+          </div><!--/.nav-collapse -->
+        </div>
       </div>
-    {% endif %}
-</div>
+    </div>
+    
+  
+    <div class="container">
+        
+        <div class="row">
+            <div class="subheader">{% block subheader %}&nbsp;{% endblock %}</div>
+        </div>
+        
+        {% block body %}Test Body{% endblock %}
+        
+        <div class="row">  
+            <div id="footer">
+            Powered by <a href="https://github.com/ialbert/biostar-central"><img src="{{ STATIC_URL }}/biostar.antipixel.png" /></a> 
+            &bull; Version: <b>{{BIOSTAR_VERSION}}</b></a>
+        
+            (revision <a href="https://github.com/ialbert/biostar-central/commit/{{BIOSTAR_GIT_REVISION}}">{{ BIOSTAR_GIT_REVISION }}</a>)
+            &bull; Copyright 2011 by the <a href="https://github.com/ialbert/biostar-central/contributors">BioStar team</a>
+            {% if debug %}
+              &bull; <a id="toggle-queries">{{sql_queries|length}} SQL queries</a>
+              <div id="queries" style="text-align: left;">
+                <ul id="query-list">
+                  {% for query in sql_queries %}
+                    <li>{{ query.sql}} [in {{query.time}}s]</li>
+                  {% endfor %}
+                </ul>
+              </div>
+            {% endif %}
+            </div>
+        </div>
+    </div> <!-- /container -->
 
-<!-- end of main content wrapper -->
-</div>
-
-</body>
-
+  </body>
 </html>

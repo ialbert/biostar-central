@@ -60,7 +60,7 @@ def index(request, target=""):
     
     page = get_page(request, posts, per_page=20)
     tags = models.Tag.objects.all().order_by('-count')[:50]
-    return html.template(request, name='new/new.index.html', page=page, params=params, tags=tags)
+    return html.template(request, name='index.html', page=page, params=params, tags=tags)
 
 def post_list_filter(request, uid=0, word=None):
     post_type = {  'questions': POST_QUESTION, 'answers':POST_ANSWER, 'comments': POST_COMMENT }.get(word)
@@ -193,7 +193,7 @@ def post_show(request, pid):
     # generate the tag cloud
     tags = models.Tag.objects.all().order_by('-count')[:50]
     
-    return html.template( request, name='new/new.post.show.html', root=root, answers=answers, tree=tree, tags=tags )
+    return html.template( request, name='post.show.html', root=root, answers=answers, tree=tree, tags=tags )
  
 def post_redirect(post, anchor=None):
     """
@@ -255,7 +255,7 @@ def post_edit(request, pid=0, parentid=0, post_type=POST_QUESTION):
         parent = root = None
 
     # this is the template name
-    tmpl_name = "new/new.post.edit.html"
+    tmpl_name = "post.edit.html"
     
     # deal with new post creation first
     if newpost:
