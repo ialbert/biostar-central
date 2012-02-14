@@ -401,37 +401,25 @@ class Vote(models.Model):
     def score(self):
         return POST_SCORE.get(self.type, 0)
     
-    def reputation(self):
-        return USER_REP.get(self.type, 0)
-        
-    def voter_reputation(self):
-        return VOTER_REP.get(self.type, 0)
-    
     def apply(self, dir=1):
         "Applies the score and reputation changes. Direction can be set to -1 to undo (ie delete vote)"
-        if self.reputation():
-            prof = self.post.author.get_profile()
-            prof.score += dir * self.reputation()
-            prof.save()
         
-        if self.voter_reputation():
-            prof = self.author.get_profile()
-            prof.score += dir * self.voter_reputation()
+        if self.type == VOTE_UP:
+            prof = self.post.author.get_profile()
+            prof.score += dir
             prof.save()
-
-        if self.score():
-            self.post.score += dir * self.score()
+            self.post.score += dir
             self.post.save()
             
-        if self.type == VOTE_ACCEPT:
-            post   = self.post
-            parent = self.post.parent
+        elif self.type == VOTE_ACCEPT:
+            post = self.post
+            root = self.post.root
             if dir == 1:
-                post.accepted = parent.accepted = True
+                post.accepted = root.accepted = True
             else:
-                post.accepted = parent.accepted = False
+                post.accepted = root.accepted = False
             post.save()
-            parent.save()
+            root.save()
               
 class Badge(models.Model):
     name = models.CharField(max_length=50)
@@ -545,7 +533,7 @@ def verify_post(sender, instance, *args, **kwargs):
          
     # for post with no title set it title based
     if not instance.title and instance.parent:
-        instance.title = "%s: %s" % (instance.get_type_display(), instance.parent.title)
+        instance.title = "%s: %s" % (instance.get_type_display()[0], instance.parent.title)
 
     # set the magic number if missing
     if not instance.magic:

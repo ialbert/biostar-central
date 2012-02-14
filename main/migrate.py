@@ -417,6 +417,8 @@ def insert_comment_votes(fname, limit, comms, users):
             vote_type = const.VOTE_UP
         elif VoteType == '3':
             vote_type = const.VOTE_DOWN
+            # we will not migrate over downvotes
+            continue
         else:
             continue
         param = dict(post=post, author=user, type=vote_type)

@@ -2,6 +2,7 @@
 Biostar views
 """
 import difflib
+from functools import partial
 from collections import defaultdict
 from main.server import html, models, const, formdef, action, notegen, auth
 from main.server.html import get_page
@@ -166,16 +167,16 @@ def post_show(request, pid):
     all = list(answers) + [ root ]
     if request.user.is_authenticated():
         votes = models.Vote.objects.filter(author=request.user, post__id__in = [ p.id for p in all ] ) 
-        up_votes   = set(vote.post.id for vote in votes if vote.type == const.VOTE_UP)
-        down_votes = set(vote.post.id for vote in votes if vote.type == const.VOTE_DOWN)
+        up_votes  = set(vote.post.id for vote in votes if vote.type == const.VOTE_UP)
+        bookmarks = set(vote.post.id for vote in votes if vote.type == const.VOTE_BOOKMARK)
     else:
-        up_votes = down_votes = set()
+        up_votes = down_votes = bookmarks = set()
 
     # decorate the posts with extra attributes for easier rendering
     for post in all :
         post.writeable = auth.authorize_post_edit(post=post, user=request.user, strict=False)
         post.upvoted   = post.id in up_votes
-        post.downvoted = post.id in down_votes
+        post.bookmarked = post.id in bookmarks
     
     # get all the comments
     tree = defaultdict(list)
@@ -330,52 +331,61 @@ def add_comment(request, pid):
     comment.create_revision(content=content)
     
     return post_redirect(comment)
+
+# a few helper methods
+def json_msg(msg, status):
+    return html.json_response(dict(status=status, msg=msg))
     
+json_success = partial(json_msg, status='success')
+json_error   = partial(json_msg, status='error')
+
+class json_error_wrapper(object):
+    "used as decorator to trap/display  errors in the ajax calls"
+    def __init__(self, f):
+        self.f = f
+        
+    def __call__(self, *args, **kwds):
+        try:
+            value = self.f(*args, **kwds)
+            return value
+        except Exception,exc:
+            return json_error('Error: %s' % exc)
+
+@json_error_wrapper           
 def vote(request):
     "Handles all voting on posts"
-    if request.method == 'POST':
+    
+    if request.method != 'POST':
+        return json_error('POST method must be used')
         
-        author = request.user
-        if not author.is_authenticated():
-            return html.json_response({'status':'error', 'msg':'You must be logged in to vote'})
-        
-        post_id = int(request.POST.get('post'))
-        post = models.Post.objects.get(id=post_id)
-        
-         
-        type = request.POST.get('type')
-        
-        try:
-            # upvoting
-            if type == 'upvote':
-                if post.author == author:
-                    return html.json_response({'status':'error', 'msg':'You cannot vote on your own post'})
-                    
-                old_vote = post.get_vote(author, VOTE_UP)
-                
-                if old_vote:
-                    old_vote.delete()
-                    return html.json_response({
-                        'status':'success',
-                        'msg':'%s removed' % old_vote.get_type_display()})
-                else:
-                    vote = post.add_vote(author, VOTE_UP)
-                    return html.json_response({
-                        'status':'success',
-                        'msg':'%s added' % vote.get_type_display()})
-                            
-            elif type == 'bookmark':
-                return html.json_response(dict(status='success', msg='bookmark added'))
+    author = request.user
+    if not author.is_authenticated():
+        return json_error('You must be logged in to vote')
             
-            elif type == 'accept':
-                return html.json_response(dict(status='success', msg='answer accepted'))
-            else:
-                return html.json_response({'status':'error', 'msg':'invalid action requested'})
-        except Exception, exc:
-            print "%s" % exc
-            return html.json_response({'status':'error', 'msg':'internal error'})
+    # attempt to find the post and vote
+    post_id = int(request.POST.get('post'))
+    post = models.Post.objects.get(id=post_id)
+        
+    # map to actual type
+    type = request.POST.get('type')
+    type = dict(upvote=VOTE_UP, accept=VOTE_ACCEPT, bookmark=VOTE_BOOKMARK).get(type)
+        
+    if not type:
+        return json_error('invalid vote type')
             
-    return html.json_response({'status':'error', 'msg':'POST method must be used'})
+    if type == VOTE_UP and post.author == author:
+        return json_error('You may not vote on your own post')
+        
+    # see if there is an existing vote of this type
+    old_vote = post.get_vote(author, type)
+
+    if old_vote:
+        old_vote.delete()
+        return json_success('%s removed' % old_vote.get_type_display() )
+    
+    # only adding new votes remains at this point
+    vote = post.add_vote(author, type)
+    return json_success('%s added' % vote.get_type_display())
 
 @login_required(redirect_field_name='/openid/login/')
 def moderate_post(request, pid, action):
