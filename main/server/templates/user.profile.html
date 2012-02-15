@@ -19,7 +19,7 @@
     {% endif %}
     
     {# moderator access #}
-    {% if target.authorized %}
+    {% if target.writeable and user != target%}
         &bull;
         {% if target.profile.suspended %}
             <a class="usermod-link">reinstate</a>

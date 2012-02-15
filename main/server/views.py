@@ -88,7 +88,7 @@ def user_profile(request, uid, tab='activity'):
     
     # some information is only visible to the user
     target.writeable = auth.authorize_user_edit(target=target, user=user, strict=False)
-    target.showall  = (target == user)
+    target.showall = (target == user)
 
     params = html.Params(tab=tab)
 
