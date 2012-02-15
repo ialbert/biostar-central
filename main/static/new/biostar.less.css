@@ -3,14 +3,18 @@
 @navbar-color:#8F2C47;
 @navbar-color-darker: darken(@navbar-color, 15%);
 
-body {
-    background-color: white;
-    font-size: @default-font-size;
-}
-
 @title-size: @default-font-size + @default-font-size/2;
 @title-color: red;
 @bit: 18px;
+
+.default-style {
+    font-size: @default-font-size;
+}
+
+body {
+   .default-style;
+   background-color: white;
+}
 
 .badge-colors {
     .bronze { color: #CC9966; }
@@ -144,7 +148,7 @@ td {
     }
     
     p {
-        font-size:@default-font-size;    
+        .default-style;    
     }
 }
 
@@ -260,6 +264,20 @@ td {
     }
 }
 
+.autobiography {
+    h2 { padding-bottom:5px; }
+    .info-panel{ float:left; text-align:center;
+    }
+    .data-panel{ float:left;
+        div { margin-bottom:5px; }
+    }
+    .bio-panel {
+        p {
+            .default-style;
+            margin:0;
+        }
+    }
+}
 .badge-name {
     .badge-colors;
     background-color: #333;

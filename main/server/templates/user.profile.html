@@ -6,61 +6,56 @@
 
 {% block body %}
 
-<h2>{% designation target %} {{ target.profile.display_name }} {% flair target %}</h2>
+<div class="row">
+<div class="autobiography">
+    
+    <h2>
+        
+    {% designation target %} {{ target.profile.display_name }} {% flair target %}
+    
+    {# editable #}    
+    {% if target.writeable %}            
+        &bull; <a href="/user/edit/{{target.id}}/">edit</a>
+    {% endif %}
+    
+    {# moderator access #}
+    {% if target.authorized %}
+        &bull;
+        {% if target.profile.suspended %}
+            <a class="usermod-link">reinstate</a>
+        {% else %}
+            <a class="usermod-link">suspend</a>
+        {% endif %}            
+    {% endif %}
+           
+    </h2>
 
-<table border="0" width="100%" class="autobiography">
-<tr>
-    <td valign="top" align="center">
-      <div style="margin: 1em">
+
+    <div class="info-panel span2">
         <div>{% gravatar target 150 %}</div>
         <div>{% userrep target %}</div>
-        
-        {% if target.authorized %}
-            <div style="padding:10px;" align="center" >        
-                {% if target.profile.suspended %}
-                    <a class="usermod-link">reinstate</a>
-                {% else %}
-                    <a class="usermod-link">suspend</a>
-                {% endif %}            
-             </div>
-        {% endif %}
-       
-
-      </div>
-    </td>
-    <td valign="top" width="30%" >
-        
-            <div class="pad10" about="{{target.profile.website}}" typeof="foaf:Person" xmlns:foaf="http://xmlns.com/foaf/0.1/"> 
-            <!-- the @aboutshould be a full URI -->
-            
-            <div style="font-size:larger;">
-                {% if target.profile.website %}
-                    <a href="{{target.profile.website}}"><b id="username">{{ target.profile.display_name }}</b></a>
-                {% else %}
-                    <span id="username" property="foaf:username"><b>{{ target.profile.display_name }}</b></span>
-                {% endif %}
-                {% if target.writeable %} 
-                    | <a href="/user/edit/{{target.id}}/">edit</a>
-                {% endif %}
-            </div>
-         
-            {% if target.writeable %}
-              <div property="foaf:mbox">Email: {{ target.email }}</div>
-            {% endif %}
-            
-            <div>Location: {{ target.profile.location }}</div>
-            <div>Status: {{target.profile.status}}</div>
-            <div>Userid: <span id="userid">{{target.id}}</span></div>
-            <div>Member for: {{ target.date_joined|timesince }}</div>
-            <div>Last seen: {{ target.profile.last_visited|timesince }} ago </div>
+    </div>
+    <div class="data-panel span4">
+        <div>Userid: <span id="userid">{{target.id}}</span></div>
+        <div about="{{target.profile.website}}" typeof="foaf:Person" xmlns:foaf="http://xmlns.com/foaf/0.1/">
+            Website: <a href="{{ target.profile.website }}">{{ target.profile.website }}</a>
         </div>
-    </td>
-
-    <td valign="top" width="100%">
+        {% if target.writeable %}
+        <div property="foaf:mbox">Email: <a href="mailto:{{target.email}}">{{ target.email }}</a></div>
+        {% endif %}
+    
+        <div>Location: {{ target.profile.location }}</div>
+        
+        <div>Member for: {{ target.date_joined|timesince }}</div>
+        <div>Last seen: {{ target.profile.last_visited|timesince }} ago </div>
+    </div>
+    <div class="span6 bio-panel">
         {{target.profile.about_me_html|safe }}
-    </td>
-</tr>
-</table>
+    </div>
+</div>
+</div>
+
+<div style="clear:both;">&nbsp;</div>
 
 {# this the tabs that get selected for different pages #}
 <ul class="nav nav-tabs">

@@ -115,9 +115,8 @@ def user_profile(request, uid, tab='activity'):
         # we evalute it here so that subsequent status updates won't interfere
         page.object_list = list(page.object_list)
         if user==target:
-            pass
-            #models.Note.objects.filter(target=target).update(unread=False)
-            #models.UserProfile.objects.filter(user=target).update(new_messages=0)
+            models.Note.objects.filter(target=target).update(unread=False)
+            models.UserProfile.objects.filter(user=target).update(new_messages=0)
         
     elif tab == 'bookmarks':
         bookmarks = models.Vote.objects.filter(author=target, type=VOTE_BOOKMARK).select_related('post', 'post__author__profile').order_by('id')
