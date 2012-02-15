@@ -27,6 +27,9 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import unittest
+from test_views import *
+from test_store import *
+from test_auth import *
 
 
 def suite():

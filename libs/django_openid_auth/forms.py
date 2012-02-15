@@ -73,7 +73,7 @@ UserAdmin.form = UserChangeFormWithTeamRestriction
 class OpenIDLoginForm(forms.Form):
     openid_identifier = forms.CharField(
         max_length=255,
-        widget=forms.TextInput(attrs={ 'size':'80', 'class': 'required openid'}))
+        widget=forms.TextInput(attrs={'class': 'required openid'}))
 
     def clean_openid_identifier(self):
         if 'openid_identifier' in self.cleaned_data:

@@ -28,6 +28,7 @@
 
 import unittest
 
+from django.contrib.auth.models import User
 from django.test import TestCase
 
 from django_openid_auth.auth import OpenIDBackend
@@ -60,74 +61,95 @@ class OpenIDBackendTests(TestCase):
                                 "last_name": "User",
                                 "email": "foo@example.com"})
 
-    def test_extract_user_details_ax(self):
+    def make_response_ax(self, schema="http://axschema.org/",
+        fullname="Some User", nickname="someuser", email="foo@example.com",
+        first=None, last=None):
         endpoint = OpenIDServiceEndpoint()
         message = Message(OPENID2_NS)
         attributes = [
-            ("nickname", "http://axschema.org/namePerson/friendly", "someuser"),
-            ("fullname", "http://axschema.org/namePerson", "Some User"),
-            ("email", "http://axschema.org/contact/email", "foo@example.com"),
+            ("nickname", schema + "namePerson/friendly", nickname),
+            ("fullname", schema + "namePerson", fullname),
+            ("email", schema + "contact/email", email),
             ]
+        if first:
+            attributes.append(
+                ("first", "http://axschema.org/namePerson/first", first))
+        if last:
+            attributes.append(
+                ("last", "http://axschema.org/namePerson/last", last))
+
         message.setArg(AX_NS, "mode", "fetch_response")
         for (alias, uri, value) in attributes:
             message.setArg(AX_NS, "type.%s" % alias, uri)
             message.setArg(AX_NS, "value.%s" % alias, value)
-        response = SuccessResponse(
+        return SuccessResponse(
             endpoint, message, signed_fields=message.toPostArgs().keys())
 
+    def test_extract_user_details_ax(self):
+        response = self.make_response_ax(fullname="Some User",
+            nickname="someuser", email="foo@example.com")
+
         data = self.backend._extract_user_details(response)
+
         self.assertEqual(data, {"nickname": "someuser",
                                 "first_name": "Some",
                                 "last_name": "User",
                                 "email": "foo@example.com"})
 
     def test_extract_user_details_ax_split_name(self):
-        endpoint = OpenIDServiceEndpoint()
-        message = Message(OPENID2_NS)
-        attributes = [
-            ("nickname", "http://axschema.org/namePerson/friendly", "someuser"),
-            # Include this key too to show that the split data takes
-            # precedence.
-            ("fullname", "http://axschema.org/namePerson", "Bad Data"),
-            ("first", "http://axschema.org/namePerson/first", "Some"),
-            ("last", "http://axschema.org/namePerson/last", "User"),
-            ("email", "http://axschema.org/contact/email", "foo@example.com"),
-            ]
-        message.setArg(AX_NS, "mode", "fetch_response")
-        for (alias, uri, value) in attributes:
-            message.setArg(AX_NS, "type.%s" % alias, uri)
-            message.setArg(AX_NS, "value.%s" % alias, value)
-        response = SuccessResponse(
-            endpoint, message, signed_fields=message.toPostArgs().keys())
+        # Include fullname too to show that the split data takes
+        # precedence.
+        response = self.make_response_ax(
+            fullname="Bad Data", first="Some", last="User")
 
         data = self.backend._extract_user_details(response)
+
         self.assertEqual(data, {"nickname": "someuser",
                                 "first_name": "Some",
                                 "last_name": "User",
                                 "email": "foo@example.com"})
 
     def test_extract_user_details_ax_broken_myopenid(self):
-        endpoint = OpenIDServiceEndpoint()
-        message = Message(OPENID2_NS)
-        attributes = [
-            ("nickname", "http://schema.openid.net/namePerson/friendly",
-             "someuser"),
-            ("fullname", "http://schema.openid.net/namePerson", "Some User"),
-            ("email", "http://schema.openid.net/contact/email",
-             "foo@example.com"),
-            ]
-        message.setArg(AX_NS, "mode", "fetch_response")
-        for (alias, uri, value) in attributes:
-            message.setArg(AX_NS, "type.%s" % alias, uri)
-            message.setArg(AX_NS, "value.%s" % alias, value)
-        response = SuccessResponse(
-            endpoint, message, signed_fields=message.toPostArgs().keys())
+        response = self.make_response_ax(
+            schema="http://schema.openid.net/", fullname="Some User",
+            nickname="someuser", email="foo@example.com")
 
         data = self.backend._extract_user_details(response)
+
         self.assertEqual(data, {"nickname": "someuser",
                                 "first_name": "Some",
                                 "last_name": "User",
                                 "email": "foo@example.com"})
+
+    def test_update_user_details_long_names(self):
+        response = self.make_response_ax()
+        user = User.objects.create_user('someuser', 'someuser@example.com',
+            password=None)
+        data = dict(first_name=u"Some56789012345678901234567890123",
+            last_name=u"User56789012345678901234567890123",
+            email=u"someotheruser@example.com")
+
+        self.backend.update_user_details(user, data, response)
+
+        self.assertEqual("Some56789012345678901234567890",  user.first_name)
+        self.assertEqual("User56789012345678901234567890",  user.last_name)
+
+    def test_extract_user_details_name_with_trailing_space(self):
+        response = self.make_response_ax(fullname="SomeUser ")
+
+        data = self.backend._extract_user_details(response)
+
+        self.assertEqual("", data['first_name'])
+        self.assertEqual("SomeUser", data['last_name'])
+
+    def test_extract_user_details_name_with_thin_space(self):
+        response = self.make_response_ax(fullname=u"Some\u2009User")
+
+        data = self.backend._extract_user_details(response)
+
+        self.assertEqual("Some", data['first_name'])
+        self.assertEqual("User", data['last_name'])
+
 
 def suite():
     return unittest.TestLoader().loadTestsFromName(__name__)

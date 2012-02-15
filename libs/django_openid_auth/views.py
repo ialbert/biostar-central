@@ -48,13 +48,17 @@ except ImportError:
 from openid.consumer.consumer import (
     Consumer, SUCCESS, CANCEL, FAILURE)
 from openid.consumer.discover import DiscoveryFailure
-from openid.extensions import sreg, ax
+from openid.extensions import sreg, ax, pape
 
 from django_openid_auth import teams
 from django_openid_auth.forms import OpenIDLoginForm
 from django_openid_auth.models import UserOpenID
 from django_openid_auth.signals import openid_login_complete
 from django_openid_auth.store import DjangoOpenIDStore
+from django_openid_auth.exceptions import (
+    RequiredAttributeNotReturned,
+    DjangoOpenIDException,
+)
 
 
 next_url_re = re.compile('^/[-\w/]+$')
@@ -118,10 +122,11 @@ def render_openid_request(request, openid_request, return_to, trust_root=None):
 
 
 def default_render_failure(request, message, status=403,
-                           template_name='openid/failure.html'):
+                           template_name='openid/failure.html',
+                           exception=None):
     """Render an error page to the user."""
     data = render_to_string(
-        template_name, dict(message=message),
+        template_name, dict(message=message, exception=exception),
         context_instance=RequestContext(request))
     return HttpResponse(data, status=status)
 
@@ -171,7 +176,8 @@ def login_begin(request, template_name='openid/login.html',
         openid_request = consumer.begin(openid_url)
     except DiscoveryFailure, exc:
         return render_failure(
-            request, "OpenID discovery error: %s" % (str(exc),), status=500)
+            request, "OpenID discovery error: %s" % (str(exc),), status=500,
+            exception=exc)
 
     # Request some user details.  If the provider advertises support
     # for attribute exchange, use that.
@@ -196,11 +202,25 @@ def login_begin(request, template_name='openid/login.html',
             fetch_request.add(ax.AttrInfo(attr, alias=alias, required=True))
         openid_request.addExtension(fetch_request)
     else:
+        sreg_required_fields = []
+        sreg_required_fields.extend(
+            getattr(settings, 'OPENID_SREG_REQUIRED_FIELDS', []))
         sreg_optional_fields = ['email', 'fullname', 'nickname']
-        extra_fields = getattr(settings, 'OPENID_SREG_EXTRA_FIELDS', [])
-        sreg_optional_fields.extend(extra_fields)
+        sreg_optional_fields.extend(
+            getattr(settings, 'OPENID_SREG_EXTRA_FIELDS', []))
+        sreg_optional_fields = [
+            field for field in sreg_optional_fields if (
+                not field in sreg_required_fields)]
         openid_request.addExtension(
-            sreg.SRegRequest(optional=sreg_optional_fields))
+            sreg.SRegRequest(optional=sreg_optional_fields,
+                required=sreg_required_fields))
+            
+    if getattr(settings, 'OPENID_PHYSICAL_MULTIFACTOR_REQUIRED', False):
+        preferred_auth = [
+            pape.AUTH_MULTI_FACTOR_PHYSICAL,
+        ]
+        pape_request = pape.Request(preferred_auth_policies=preferred_auth)
+        openid_request.addExtension(pape_request)
 
     # Request team info
     teams_mapping_auto = getattr(settings, 'OPENID_LAUNCHPAD_TEAMS_MAPPING_AUTO', False)
@@ -231,8 +251,11 @@ def login_begin(request, template_name='openid/login.html',
 
 @csrf_exempt
 def login_complete(request, redirect_field_name=REDIRECT_FIELD_NAME,
-                   render_failure=default_render_failure):
+                   render_failure=None):
     redirect_to = request.REQUEST.get(redirect_field_name, '')
+    render_failure = render_failure or \
+                     getattr(settings, 'OPENID_RENDER_FAILURE', None) or \
+                     default_render_failure
 
     openid_response = parse_openid_response(request)
     if not openid_response:
@@ -240,7 +263,11 @@ def login_complete(request, redirect_field_name=REDIRECT_FIELD_NAME,
             request, 'This is an OpenID relying party endpoint.')
 
     if openid_response.status == SUCCESS:
-        user = authenticate(openid_response=openid_response)
+        try:
+            user = authenticate(openid_response=openid_response)
+        except DjangoOpenIDException, e:
+            return render_failure(request, e.message, exception=e)
+            
         if user is not None:
             if user.is_active:
                 auth_login(request, user)

@@ -33,23 +33,22 @@ __metaclass__ = type
 from django.conf import settings
 from django.contrib.auth.models import User, Group
 from openid.consumer.consumer import SUCCESS
-from openid.extensions import ax, sreg
+from openid.extensions import ax, sreg, pape
+from urlparse import urlparse
 
 from django_openid_auth import teams
 from django_openid_auth.models import UserOpenID
-from urlparse import urlparse
-from main.server import html
-
-class IdentityAlreadyClaimed(Exception):
-    pass
-
+from django_openid_auth.exceptions import (
+    IdentityAlreadyClaimed,
+    DuplicateUsernameViolation,
+    MissingUsernameViolation,
+    MissingPhysicalMultiFactor,
+    RequiredAttributeNotReturned,
+)
 
 class OpenIDBackend:
     """A django.contrib.auth backend that authenticates the user based on
     an OpenID response."""
-
-    supports_anonymous_user = False
-    supports_object_permissions = False
 
     def get_user(self, user_id):
         try:
@@ -85,7 +84,13 @@ class OpenIDBackend:
 
         if getattr(settings, 'OPENID_UPDATE_DETAILS_FROM_SREG', False):
             details = self._extract_user_details(openid_response)
-            self.update_user_details(user, details)
+            self.update_user_details(user, details, openid_response)
+
+        if getattr(settings, 'OPENID_PHYSICAL_MULTIFACTOR_REQUIRED', False):
+            pape_response = pape.Response.fromSuccessResponse(openid_response)
+            if pape_response is None or \
+               pape.AUTH_MULTI_FACTOR_PHYSICAL not in pape_response.auth_policies:
+                raise MissingPhysicalMultiFactor()
 
         teams_response = teams.TeamsResponse.fromSuccessResponse(
             openid_response)
@@ -102,7 +107,6 @@ class OpenIDBackend:
             email = sreg_response.get('email')
             fullname = sreg_response.get('fullname')
             nickname = sreg_response.get('nickname')
-
         # If any attributes are provided via Attribute Exchange, use
         # them in preference.
         fetch_response = ax.FetchResponse.fromSuccessResponse(openid_response)
@@ -132,8 +136,10 @@ class OpenIDBackend:
         if fullname and not (first_name or last_name):
             # Django wants to store first and last names separately,
             # so we do our best to split the full name.
-            if ' ' in fullname:
-                first_name, last_name = fullname.rsplit(None, 1)
+            fullname = fullname.strip()
+            split_names = fullname.rsplit(None, 1)
+            if len(split_names) == 2:
+                first_name, last_name = split_names
             else:
                 first_name = u''
                 last_name = fullname
@@ -141,10 +147,56 @@ class OpenIDBackend:
         return dict(email=email, nickname=nickname,
                     first_name=first_name, last_name=last_name)
 
-    def create_user_from_openid(self, openid_response):
-        details = self._extract_user_details(openid_response)
-        nickname = details['nickname'] or 'openiduser'
-        email = details['email'] or ''
+    def _get_available_username(self, nickname, identity_url):
+        # If we're being strict about usernames, throw an error if we didn't
+        # get one back from the provider
+        if getattr(settings, 'OPENID_STRICT_USERNAMES', False):
+            if nickname is None or nickname == '':
+                raise MissingUsernameViolation()
+                
+        # If we don't have a nickname, and we're not being strict, use a default
+        nickname = nickname or 'openiduser'
+
+        # See if we already have this nickname assigned to a username
+        try:
+            user = User.objects.get(username__exact=nickname)
+        except User.DoesNotExist:
+            # No conflict, we can use this nickname
+            return nickname
+
+        # Check if we already have nickname+i for this identity_url
+        try:
+            user_openid = UserOpenID.objects.get(
+                claimed_id__exact=identity_url,
+                user__username__startswith=nickname)
+            # No exception means we have an existing user for this identity
+            # that starts with this nickname.
+            
+            # If they are an exact match, the user already exists and hasn't
+            # changed their username, so continue to use it
+            if nickname == user_openid.user.username:
+                return nickname
+            
+            # It is possible we've had to assign them to nickname+i already.
+            oid_username = user_openid.user.username
+            if len(oid_username) > len(nickname):
+                try:
+                    # check that it ends with a number
+                    int(oid_username[len(nickname):])
+                    return oid_username
+                except ValueError:
+                    # username starts with nickname, but isn't nickname+#
+                    pass
+        except UserOpenID.DoesNotExist:
+            # No user associated with this identity_url
+            pass
+
+
+        if getattr(settings, 'OPENID_STRICT_USERNAMES', False):
+            if User.objects.filter(username__exact=nickname).count() > 0:
+                raise DuplicateUsernameViolation(
+                    "The username (%s) with which you tried to log in is "
+                    "already in use for a different account." % nickname)
 
         # Pick a username for the user based on their nickname,
         # checking for conflicts.
@@ -154,10 +206,26 @@ class OpenIDBackend:
             if i > 1:
                 username += str(i)
             try:
-                User.objects.get(username__exact=username)
+                user = User.objects.get(username__exact=username)
             except User.DoesNotExist:
                 break
             i += 1
+        return username
+
+    def create_user_from_openid(self, openid_response):
+        details = self._extract_user_details(openid_response)
+        required_attrs = getattr(settings, 'OPENID_SREG_REQUIRED_FIELDS', [])
+        if getattr(settings, 'OPENID_STRICT_USERNAMES', False):
+            required_attrs.append('nickname')
+
+        for required_attr in required_attrs:
+            if required_attr not in details or not details[required_attr]:
+                raise RequiredAttributeNotReturned(
+                    "An attribute required for logging in was not "
+                    "returned ({0}).".format(required_attr))
+
+        nickname = details['nickname'] or 'openiduser'
+        email = details['email'] or ''
 
         # parse the identity of the provider
         url = urlparse(openid_response.identity_url)
@@ -167,20 +235,25 @@ class OpenIDBackend:
         for provider in ( 'google.com',  'yahoo.com', 'myopenid.com',
             'livejournal.com', 'blogspot.com', 'aol.com', 'wordpress.com'):
             trusted = trusted or url.netloc.endswith(provider)
-            
+        
         try:
             # see if this user already exists in the database with the same email
             user = User.objects.get(email=email)
-            print "*** merging user %s:%s" % (user.id, email)
+            print "*** found user %s:%s" % (user.id, email)
         except User.DoesNotExist:
             user = None
-        
-        if not user or not trusted:
-            user = User.objects.create_user(username, email, password=None)
-            self.update_user_details(user, details)
-            print "*** created user %s:%s:%s" % (user.id, user.email, user.get_full_name() )
             
-        user = self.associate_openid(user, openid_response)
+        # users with trusted email accounts will be merged
+        if not user or not trusted:
+            username = self._get_available_username(details['nickname'], openid_response.identity_url)
+            user = User.objects.create_user(username, email, password=None)
+            print "*** creating user %s:%s" % (user.id, email)
+        else:
+            print "*** merging user %s:%s" % (user.id, email)
+            
+        self.associate_openid(user, openid_response)
+        self.update_user_details(user, details, openid_response)
+
         return user
 
     def associate_openid(self, user, openid_response):
@@ -201,24 +274,25 @@ class OpenIDBackend:
                     "The identity %s has already been claimed"
                     % openid_response.identity_url)
 
-        return user
+        return user_openid
 
-    def update_user_details(self, user, details):
-        "Adds first and last names to a user, sets the display name as well"
-        
-        # attempt to update the names, need to cut down on field lenght!
-        # limits set by the Django User model
-        user.first_name = details.get('first_name', '')[:30]
-        user.last_name  = details.get('last_name', '')[:30]
-        
-        # no details passed in the OpenID   
-        if not user.get_full_name().strip():
-            user.first_name = 'Biostar'
-            user.last_name  = 'User'
-            
-        # set the profile display name
-        user.profile.display_name = html.nuke(user.get_full_name())
-        user.save()
+    def update_user_details(self, user, details, openid_response):
+        updated = False
+        if details['first_name']:
+            user.first_name = details['first_name'][:30]
+            updated = True
+        if details['last_name']:
+            user.last_name = details['last_name'][:30]
+            updated = True
+        if details['email']:
+            user.email = details['email']
+            updated = True
+        if getattr(settings, 'OPENID_FOLLOW_RENAMES', False):
+            user.username = self._get_available_username(details['nickname'], openid_response.identity_url)
+            updated = True
+
+        if updated:
+            user.save()
 
     def update_groups_from_teams(self, user, teams_response):
         teams_mapping_auto = getattr(settings, 'OPENID_LAUNCHPAD_TEAMS_MAPPING_AUTO', False)
