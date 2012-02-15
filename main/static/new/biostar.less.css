@@ -12,6 +12,12 @@ body {
 @title-color: red;
 @bit: 18px;
 
+.badge-colors {
+    .bronze { color: #CC9966; }
+    .silver { color: #C0C0C0; }
+    .gold   { color: #FFCC00; }
+}    
+    
 .add-comment {
     cursor: pointer;
 }
@@ -148,6 +154,8 @@ td {
 }
 #footer {
     margin: 0 auto;
+    margin-top:5px;
+    border-top:1px solid #ddd;
     text-align: center;
     padding: 5px;
     img {
@@ -202,11 +210,10 @@ td {
   }
 }
 
+
 .badge {
+    .badge-colors;
     margin-left: 3px;
-    .bronze { color: #CC9966; }
-    .silver { color: #C0C0C0; }
-    .gold   { color: #FFCC00; }
     .count  {
         color: #6D6D6D;
         padding-left: 1px;
@@ -238,6 +245,56 @@ td {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), inset 0 -1px 0 rgba(0, 0, 0, 0.1);
 }
 
+.bookmark-list {
+    .pagebar {
+        background-color: #eeeeee;
+        border-bottom:1px solid #ddd;
+    }
+    .bookmark {
+        padding:5px;
+        margin-bottom:2px;
+        p {
+            display:inline;
+            font-size: @default-font-size;
+        }
+    }
+}
+
+.badge-name {
+    .badge-colors;
+    background-color: #333;
+    border: 1px solid #333;
+    border-radius: 6px 6px 6px 6px;
+    color: white !important;
+    line-height: 1.9;
+    margin: 0 3px 3px 0;
+    padding: 4px 8px 4px 3px;
+    text-decoration: none;
+    border-image: initial;
+}
+
+.note-list {
+    .pagebar {
+        background-color: #eeeeee;
+        border-bottom:1px solid #ddd;
+    }
+    .msg {
+        padding:5px;
+        margin-bottom:2px;
+        p {
+            display:inline;
+            font-size: @default-font-size;
+        }
+    }
+    .unread {
+        background-color: #D0E5C2;
+    }
+}
+
+.pagebar {
+    padding:10px;
+    margin-bottom: 2px;
+}
 /* popup message rendering */
 
 .ajax-messages {

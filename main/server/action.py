@@ -90,7 +90,7 @@ def about(request):
     params = html.Params(post_count=post_count, user_count=user_count, question_count=question_count, 
         answer_count=answer_count, comment_count=comment_count, admins=admins, mods=mods, navloc=navloc)
     
-    return html.template(request, name='new/new.about.html', params=params)
+    return html.template(request, name='about.html', params=params)
    
 def search(text):
     text = text.strip()[:200]

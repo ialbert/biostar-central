@@ -113,9 +113,16 @@ def answer_list_narrow(x):
 
 @register.simple_tag(takes_context=True)
 def navclass(context, ending):
-    url = context['request'].get_full_path()
-    
-    if urlparse(url).path == ending:
+    url  = context['request'].get_full_path()
+    path = urlparse(url).path
+    if  path == ending:
+        return 'class="active"' 
+    else:
+        return ''
+
+@register.simple_tag
+def active(word, target):
+    if word == target:
         return 'class="active"' 
     else:
         return ''

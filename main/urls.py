@@ -13,8 +13,16 @@ urlpatterns = patterns('main.server',
     # index page
     (r'^$', 'views.index'),
     
-    # show
+    # index page 
     (r'^show/(?P<target>\w+)/$', 'views.index'),
+
+    # show user profile
+    (r'^user/show/(?P<uid>\d+)/$', 'views.user_profile'),
+    (r'^user/show/(?P<uid>\d+)/(?P<tab>\w+)/$', 'views.user_profile'),
+    
+    # user edit page
+    (r'^user/edit/(?P<uid>\d+)/$', 'action.user_edit'),
+
 
     # static pages
     (r'^about/$','action.about'),
@@ -35,9 +43,8 @@ urlpatterns = patterns('main.server',
     
     # members
     (r'^user/list/$', 'views.user_list'),
-    (r'^user/show/(?P<uid>\d+)/$', 'views.user_profile'),
-    (r'^user/edit/(?P<uid>\d+)/$', 'action.user_edit'),
-
+   
+   
     # returns a preview page
     (r'^preview/$', 'views.preview'),
     

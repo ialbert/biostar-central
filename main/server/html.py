@@ -119,7 +119,7 @@ def generate(text):
     # this is required to put the codes back into the markdown
     for uuid, value in code.items():
         html = html.replace(uuid, value)
-
+    
     return html
 
 ALLOWED_TAGS = "strong span:class br ol ul li a:href img:src pre code blockquote p em"

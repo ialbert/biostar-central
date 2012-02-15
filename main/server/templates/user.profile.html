@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% load basic %}
+{% load widgets %}
+
+
+{% block body %}
+
+<h2>{% designation target %} {{ target.profile.display_name }} {% flair target %}</h2>
+
+<table border="0" width="100%" class="autobiography">
+<tr>
+    <td valign="top" align="center">
+      <div style="margin: 1em">
+        <div>{% gravatar target 150 %}</div>
+        <div>{% userrep target %}</div>
+        
+        {% if target.authorized %}
+            <div style="padding:10px;" align="center" >        
+                {% if target.profile.suspended %}
+                    <a class="usermod-link">reinstate</a>
+                {% else %}
+                    <a class="usermod-link">suspend</a>
+                {% endif %}            
+             </div>
+        {% endif %}
+       
+
+      </div>
+    </td>
+    <td valign="top" width="30%" >
+        
+            <div class="pad10" about="{{target.profile.website}}" typeof="foaf:Person" xmlns:foaf="http://xmlns.com/foaf/0.1/"> 
+            <!-- the @aboutshould be a full URI -->
+            
+            <div style="font-size:larger;">
+                {% if target.profile.website %}
+                    <a href="{{target.profile.website}}"><b id="username">{{ target.profile.display_name }}</b></a>
+                {% else %}
+                    <span id="username" property="foaf:username"><b>{{ target.profile.display_name }}</b></span>
+                {% endif %}
+                {% if target.writeable %} 
+                    | <a href="/user/edit/{{target.id}}/">edit</a>
+                {% endif %}
+            </div>
+         
+            {% if target.writeable %}
+              <div property="foaf:mbox">Email: {{ target.email }}</div>
+            {% endif %}
+            
+            <div>Location: {{ target.profile.location }}</div>
+            <div>Status: {{target.profile.status}}</div>
+            <div>Userid: <span id="userid">{{target.id}}</span></div>
+            <div>Member for: {{ target.date_joined|timesince }}</div>
+            <div>Last seen: {{ target.profile.last_visited|timesince }} ago </div>
+        </div>
+    </td>
+
+    <td valign="top" width="100%">
+        {{target.profile.about_me_html|safe }}
+    </td>
+</tr>
+</table>
+
+{# this the tabs that get selected for different pages #}
+<ul class="nav nav-tabs">
+    <li {% active 'activity' params.tab %}><a href="/user/show/{{target.id}}/">Activity{% show_value params.note_count %}</a></li>
+    <li {% active 'bookmarks' params.tab %}><a href="/user/show/{{target.id}}/bookmarks/">Bookmarks{% show_value params.bookmarks_count %}</a></li>
+    <li {% active 'badges' params.tab %}><a href="/user/show/{{target.id}}/badges/">Badges{% show_value params.award_count %}</a></li>
+</ul>
+
+{% if params.tab == 'activity' %}
+    <div class="title" id="status">Status</div>
+    
+    <div class="par">
+        {{ target.profile.display_name }} has contributed <a href="/post/list/{{target.id}}/">{{params.post_count}} entires</a> distributed as
+         <a href="/post/list/{{target.id}}/questions/">{{params.question_count}} posts</a>, 
+         <a href="/post/list/{{target.id}}/answers/">{{params.answer_count}} answers</a> and 
+         <a href="/post/list/{{target.id}}/comments/">{{params.comment_count}} comments</a> . 
+        User  has voted {{params.vote_count}} times  and has earned {{params.award_count}} badges. 
+    </div>
+    
+    <div class="title" id="status">Activity</div>
+    <div class="par">
+        Below we show activity on posts that this user has interacted with.
+    </div>
+    <div class="note-list">
+        {% if page.object_list and page.paginator.num_pages > 1 %}
+            {% page_bar %}        
+        {% endif %}
+    
+        {% for note in page.object_list %}
+            <div class="msg {{note.status}}"> {% time_ago note.date %} &bull; {{ note.html|safe }}</div>
+        {% empty %}
+            <div class="empty">&bull; no messages</div>
+        {% endfor %}
+                
+        
+    </div>
+    
+    {% if target.showall %}
+    <div class="par">
+        Get a private <a href="/feeds/messages/{{target.profile.uuid}}/">RSS feed<img src="{{ STATIC_URL }}img/feed-icon-small.png" style="vertical-align: middle; padding-left:3px;"></a> 
+        to your messages.
+    </div>
+    {% endif %}
+
+{% endif %}
+
+{% if params.tab == 'bookmarks' %}
+<div class="bookmark-list">
+    {% if page.object_list and page.paginator.num_pages > 1 %}    
+        {% page_bar %}
+    {% endif %}
+
+    {% for vote in page.object_list %}
+    <div class="bookmark">
+        &bull; <a href="{{vote.post.get_absolute_url}}">{{vote.post.get_title}}</a> by <a href="{{vote.post.author.profile.get_absolute_url}}">{{vote.post.author.profile.display_name}}</a>
+    </div>               
+    {% empty %}
+    <div class="empty">&bull; no bookmarks - click on the <i class="icon-bookmark"></i> symbol of a post to bookmark it</div>            
+    {% endfor %}
+
+</div>
+
+{% endif %}
+            
+{% if params.tab == 'badges' %}
+    <div class="title" id="badges">Badges</div>
+    
+    <div class="pad10">
+        {% for award in awards %}
+            <div style="width:175px; height:50px; float:left; margin-bottom:10px;">
+                <div>
+                    <a class="badge-name" href="/badge/show/{{award.badge.id}}/">
+                        {% spaceless %}<span class="{{award.badge.get_type_display}}">&#8226;</span>{% endspaceless %}
+                        {{award.badge.name}}
+                    </a>
+                </div>
+                <div>
+                    {% time_ago award.date %}
+                </div>
+            </div>
+        {% empty %}
+            <div class="note">&bull; no badges earned</div>
+        {% endfor %} 
+    </div>
+    
+    <div style="clear:both;">&nbsp;</div>
+{% endif %}
+
+{% endblock %}

@@ -6,6 +6,13 @@ from django.core.context_processors import csrf
 
 register = template.Library()
 
+@register.simple_tag
+def show_value(value):
+    if value:
+        return " (%s) " % value
+    else:
+        return ""
+
 @register.inclusion_tag('widgets/vote.box.html', takes_context=True)
 def vote_box(context, post):
     return {'post':post}

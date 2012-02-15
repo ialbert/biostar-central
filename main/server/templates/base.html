@@ -73,7 +73,7 @@
               <ul class="nav pull-right">
                 {% if user.profile.new_messages %}
                 <li>
-                  <a href="#"><span class="message remind"></i>5 messages</span></a>
+                  <a href="/user/show/{{user.id}}/"><span class="message remind"></i>{{user.profile.new_messages}} messages</span></a>
                 </li>
                 {% endif %}
                 <li><a href="/user/show/{{user.id}}/">{{ user.profile.display_name }} {% flair user %} {{ user.profile.score }}</a></li>  

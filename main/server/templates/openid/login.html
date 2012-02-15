@@ -3,9 +3,9 @@
 {% block head %}
     <style type="text/css">
     .openid-providers div {
-        padding:10 10 10 0px;
+        padding:10 0 10 0px;
         border: 1px solid #DDDDDD;
-        margin-left: 5px;
+        margin-right: 5px;
         float:left;
         line-height:50px; text-align: center; width: 150px;
     }
@@ -52,7 +52,8 @@
     <legend>Sign In to BioStar Using Your OpenID Provider</legend>
     
     <div class="control-group">
-        <div class="openid-providers">
+        <label class="control-label" for="id_openid_identifier">&nbsp;</label>
+        <div class="controls openid-providers">
               <div><img id="google_openid" src="{{ STATIC_URL }}/img/google-openid.png"></div>
               <div><img id="yahoo_openid"  src="{{ STATIC_URL }}/img/yahoo-openid.png"></div>
               <div><img id="myopenid"  src="{{ STATIC_URL }}/img/myopenid.png"></div>

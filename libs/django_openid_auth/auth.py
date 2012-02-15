@@ -224,7 +224,7 @@ class OpenIDBackend:
                     "An attribute required for logging in was not "
                     "returned ({0}).".format(required_attr))
 
-        nickname = details['nickname'] or 'openiduser'
+        nickname = details['nickname'] or 'Biostar User'
         email = details['email'] or ''
 
         # parse the identity of the provider
@@ -247,9 +247,11 @@ class OpenIDBackend:
         if not user or not trusted:
             username = self._get_available_username(details['nickname'], openid_response.identity_url)
             user = User.objects.create_user(username, email, password=None)
+            user.profile.display_name = nickname
+            user.profile.save()
             print "*** creating user %s:%s" % (user.id, email)
         else:
-            print "*** merging user %s:%s" % (user.id, email)
+            print "*** merging user %s:%s %s" % (user.id, email, user.get_full_name() )
             
         self.associate_openid(user, openid_response)
         self.update_user_details(user, details, openid_response)

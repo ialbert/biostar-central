@@ -78,37 +78,51 @@ def post_list(request, uid=0, post_type=None):
     page  = get_page(request, posts, per_page=20)
     return html.template( request, name='post.list.html', page=page, params=params)
 
-def user_profile(request, uid):
+def user_profile(request, uid, tab='activity'):
     "User's profile page"
 
     user = request.user
-    target  = models.User.objects.get(id=uid)
+    target = models.User.objects.get(id=uid)
+    awards = []
+    page   = None
     
-    notes = models.Note.objects.filter(target=target).select_related('author', 'author__profile', 'root').order_by('-date')
-    page  = get_page(request, notes, per_page=20)
-    # we evalute it here so that subsequent status updates won't interfere
-    page.object_list = list(page.object_list)
-    if user==target:
-        models.Note.objects.filter(target=target).update(unread=False)
-        models.UserProfile.objects.filter(user=target).update(new_messages=0)
-    
-    # we need to collate and count the awards
+    # some information is only visible to the user
+    target.writeable = auth.authorize_user_edit(target=target, user=user, strict=False)
+    target.showall  = (target == user)
+
+    params = html.Params(tab=tab)
+
+    # these do not actually get executed unless explicitly rendered in the page
+    bookmarks = models.Vote.objects.filter(author=target, type=VOTE_BOOKMARK).select_related('post', 'post__author__profile').order_by('id')
     awards = models.Award.objects.filter(user=target).select_related('badge').order_by('-date')
-    
+
+ # we need to collate and count the awards
     answer_count = models.Post.objects.filter(author=target, type=POST_ANSWER).count()
     question_count = models.Post.objects.filter(author=target, type=POST_QUESTION).count()
     comment_count = models.Post.objects.filter(author=target, type=POST_COMMENT).count()
     post_count = models.Post.objects.filter(author=target).count()
     vote_count = models.Vote.objects.filter(author=target).count()
     award_count = models.Award.objects.filter(user=target).count()
+    note_count  = models.Note.objects.filter(target=target, unread=True).count()
+    bookmarks_count  = models.Vote.objects.filter(author=target, type=VOTE_BOOKMARK).count()
     
-    params = html.Params(question_count=question_count, answer_count=answer_count, 
-        comment_count=comment_count, post_count=post_count, vote_count=vote_count, award_count=award_count)
+    params.update(dict(question_count=question_count, answer_count=answer_count, note_count=note_count, bookmarks_count=bookmarks_count,
+            comment_count=comment_count, post_count=post_count, vote_count=vote_count, award_count=award_count))
     
-    # some information is only visible to the user
-    target.writeable = auth.authorize_user_edit(target=target, user=user, strict=False)
-    target.showall  = (target == user)
-    
+    if tab == 'activity':
+        notes = models.Note.objects.filter(target=target).select_related('author', 'author__profile', 'root').order_by('-date')
+        page  = get_page(request, notes, per_page=15)
+        # we evalute it here so that subsequent status updates won't interfere
+        page.object_list = list(page.object_list)
+        if user==target:
+            pass
+            #models.Note.objects.filter(target=target).update(unread=False)
+            #models.UserProfile.objects.filter(user=target).update(new_messages=0)
+        
+    elif tab == 'bookmarks':
+        bookmarks = models.Vote.objects.filter(author=target, type=VOTE_BOOKMARK).select_related('post', 'post__author__profile').order_by('id')
+        page  = get_page(request, bookmarks, per_page=5)
+        
     return html.template(request, name='user.profile.html', awards=awards,
         user=request.user,target=target, params=params, page=page)
 

@@ -94,7 +94,7 @@ class UserProfile( models.Model ):
         return True
     
     def get_absolute_url(self):
-        return "/user/show/%i/" % self.user.id
+        return "/user/show/%d/" % self.user.id
 
     @property
     def note_count(self):
@@ -171,12 +171,12 @@ class Post(models.Model):
     # relevance measure, initially by timestamp, other rankings measures
     magic = models.FloatField(default=0, blank=True)
     
-    def set_magic(self):
+    def compute_magic(self):
         "Sets the magic number by the timestamp"
-        self.magic = time.time()
+        return time.time()
         
     def get_absolute_url(self):
-        return "/post/show/%i/" % self.id
+        return "/post/show/%d/#%d" % (self.root.id, self.id)
           
     def set_tags(self):
         if self.type not in POST_CONTENT_ONLY:
@@ -522,22 +522,14 @@ def verify_post(sender, instance, *args, **kwargs):
     if not hasattr(instance, 'lastedit_user'):
         instance.lastedit_user = instance.author
     
-    if not instance.creation_date:
-        instance.creation_date = datetime.now()
-    
-    if not instance.lastedit_date:
-        instance.lastedit_date = datetime.now()
-    
-    if instance.type in ( POST_COMMENT, POST_ANSWER):
+    # these types must have valid parents
+    if instance.type in (POST_COMMENT, POST_ANSWER):
         assert instance.root and instance.parent
          
-    # for post with no title set it title based
-    if not instance.title and instance.parent:
-        instance.title = "%s: %s" % (instance.get_type_display()[0], instance.parent.title)
-
-    # set the magic number if missing
-    if not instance.magic:
-        instance.set_magic()
+    # some fields may not be null
+    instance.magic = instance.magic or instance.compute_magic()
+    instance.creation_date = instance.creation_date or datetime.now()
+    instance.lastedit_date = instance.lastedit_date or datetime.now()
     
     # generate a slug for the instance        
     instance.slug = slugify(instance.title)
@@ -546,11 +538,21 @@ def verify_post(sender, instance, *args, **kwargs):
     instance.html = html.generate(instance.content.strip())
             
 def finalize_post(sender, instance, created, *args, **kwargs):
-    "Post save notice on a post"
+    "Post save actions for a post"
+    
     if created:
+        # ensure that all posts actually have roots/parent
+        if not instance.root or not instance.parent:
+            instance.root = instance.root or instance
+            instance.parent = instance.parent or instance
+            instance.save()
+        
+        if not instance.title:
+             instance.title = "%s: %s" % (instance.get_type_display()[0], instance.parent.title)
+        
         # when a new post is created all descendants will be notified
         post_create_notification(instance)
-    
+     
 def create_award(sender, instance, *args, **kwargs):
     "Pre save award function"
     if not instance.date:
