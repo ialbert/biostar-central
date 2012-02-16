@@ -120,14 +120,13 @@ div .par {
     }
 }
 
-#user-list{
-    .user-box{
-        width:150px;
-        float:left;
-        margin-bottom:10px;
-    }
+.user-box{
+    width:150px;
+    float:left;
+    margin-bottom:10px;
+    text-align:center;
 }
-
+    
 .separator {
     border-bottom: 1px solid #DDD;
 }

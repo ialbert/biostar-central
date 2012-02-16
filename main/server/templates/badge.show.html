@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% load basic %}
+{% load widgets %}
+
+{% block subheader %}
+ {% page_bar %}
+{% endblock %}
+
+{% block body %}
+
+<div class="row">{% tab_bar request %}</div>
+    
+<div class="row">
+    
+    <div class="title">Badge: {{badge.name}}</div>
+    
+    <div class="par">{{badge.description}}. Awarded recently to:</div>
+    
+    <div>
+    {% for award in page.object_list %}
+        {% user_box award.user %}
+    {% endfor %}
+    </div>
+</div>
+{% endblock %}

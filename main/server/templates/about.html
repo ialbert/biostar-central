@@ -9,9 +9,10 @@
 
 {% block body %}
 
-  <div class="row">{% tab_bar request %}</div>
+<div class="row">{% tab_bar request %}</div>
 
-   
+<div class="row">
+    
    <div class="par">
             This site's focus is <b>bioinformatics</b>, <b>computational genomics</b> and <b>biological data analysis</b>. We welcome questions that are:
   </div>
@@ -75,35 +76,25 @@
         </ul>
     </div>
     
+</div>
+    
+<div class="row">
     <div class="title">Biostar Administrators</div>
-    
+        
     <div style="margin-top:5px">
-        {% for user in params.admins %} 
-            <div style="float:left; width:150px">
-                <div class="par">
-                    <div class="gravimg">{% gravatar user 82 %}</div>
-                    <div><a class="user-link" title="" alt="" href="/user/show/{{user.id}}">{{user.profile.display_name}}</a>&nbsp;{% flair user %}</div>
-                    <div>{% userrep user %}</div>           
-                </div>
-            </div>
+        {% for admin in params.admins %} 
+            {% user_box admin %}
         {% endfor %}
     </div>
+</div>
 
-  <div style="clear:both;">&nbsp;</div>
-
-  <div class="title">Biostar Moderators</div>
-     <div style="margin-top:5px">
+<div class="row">
+    <div class="title">Biostar Moderators</div>
+    <div style="margin-top:5px">
         {% for user in params.mods %}
-            <div style="float:left; width:150px">
-                <div class="par">
-                    <div class="gravimg">{% gravatar user 82 %}</div>
-                    <div><a class="user-link" title="" alt="" href="/user/show/{{user.id}}">{{user.profile.display_name}}</a>&nbsp;{% flair user %}</div>
-                    <div>{% userrep user %}</div>
-                </div>
-            </div>
+            {% user_box user %}
         {% endfor %}
     </div>
-    
-    <div style="clear:both;">&nbsp;</div>
+</div>        
     
 {% endblock %}
