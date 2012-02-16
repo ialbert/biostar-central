@@ -541,14 +541,12 @@ def finalize_post(sender, instance, created, *args, **kwargs):
     
     if created:
         # ensure that all posts actually have roots/parent
-        if not instance.root or not instance.parent:
-            instance.root = instance.root or instance
+        if not instance.root or not instance.parent or not instance.title:
+            instance.root   = instance.root or instance
             instance.parent = instance.parent or instance
+            instance.title  = instance.title or ("%s: %s" % (instance.get_type_display()[0], instance.parent.title))
+            instance.slug = slugify(instance.title)
             instance.save()
-        
-        if not instance.title:
-             instance.title = "%s: %s" % (instance.get_type_display()[0], instance.parent.title)
-        
         # when a new post is created all descendants will be notified
         post_create_notification(instance)
      
