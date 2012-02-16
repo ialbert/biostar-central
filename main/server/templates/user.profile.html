@@ -4,7 +4,7 @@
 {% load widgets %}
 
 {% block subheader %}
-   <div class="pagebar title" align="center">User Profile</div>
+   <div class="title">User Profile</div>
 {% endblock %}
 
 {% block body %}
@@ -16,24 +16,7 @@
 
 
     <h2>
-        
-    {% designation target %} {{ target.profile.display_name }} {% flair target %}
-    
-    {# editable #}    
-    {% if target.writeable %}            
-        &bull; <a href="/user/edit/{{target.id}}/">edit</a>
-    {% endif %}
-    
-    {# moderator access #}
-    {% if target.writeable and user != target%}
-        &bull;
-        {% if target.profile.suspended %}
-            <a class="usermod-link">reinstate</a>
-        {% else %}
-            <a class="usermod-link">suspend</a>
-        {% endif %}            
-    {% endif %}
-           
+    {% designation target %} {{ target.profile.display_name }} {% flair target %}           
     </h2>
 
 
@@ -54,6 +37,23 @@
         
         <div>Member for: {{ target.date_joined|timesince }}</div>
         <div>Last seen: {{ target.profile.last_visited|timesince }} ago </div>
+        
+        {# editable #}    
+        {% if target.writeable %}
+            <a class="btn" href="/user/edit/{{target.id}}/"><i class="icon-edit"></i> Edit info</a>
+        {% endif %}
+    
+        {# moderator access #}
+        {% if target.writeable and user != target%}
+            &nbsp;&bull;&nbsp;
+            {% if target.profile.suspended %}
+                <a class="btn usermod-link"><i class="icon-edit"></i> Reinstate</a>
+            {% else %}
+                <a class="btn usermod-link "><i class="icon-remove-sign"></i> Suspend</a>
+            {% endif %}
+            
+        {% endif %}
+    
     </div>
     <div class="span6 bio-panel">
         {{target.profile.about_me_html|safe }}
@@ -61,15 +61,16 @@
 </div>
 </div>
 
-<div style="clear:both;">&nbsp;</div>
+<div class="row">
+    {# this the tabs that get selected for different pages #}
+    <ul class="nav nav-tabs">
+        <li {% active 'activity' params.tab %}><a href="/user/show/{{target.id}}/">Activity{% show_value params.note_count %}</a></li>
+        <li {% active 'bookmarks' params.tab %}><a href="/user/show/{{target.id}}/bookmarks/">Bookmarks{% show_value params.bookmarks_count %}</a></li>
+        <li {% active 'badges' params.tab %}><a href="/user/show/{{target.id}}/badges/">Badges{% show_value params.award_count %}</a></li>
+    </ul>
+</div>
 
-{# this the tabs that get selected for different pages #}
-<ul class="nav nav-tabs">
-    <li {% active 'activity' params.tab %}><a href="/user/show/{{target.id}}/">Activity{% show_value params.note_count %}</a></li>
-    <li {% active 'bookmarks' params.tab %}><a href="/user/show/{{target.id}}/bookmarks/">Bookmarks{% show_value params.bookmarks_count %}</a></li>
-    <li {% active 'badges' params.tab %}><a href="/user/show/{{target.id}}/badges/">Badges{% show_value params.award_count %}</a></li>
-</ul>
-
+<div class="row">
 {% if params.tab == 'activity' %}
     <div class="title" id="status">Status</div>
     
@@ -109,27 +110,24 @@
 {% endif %}
 
 {% if params.tab == 'bookmarks' %}
-<div class="bookmark-list">
-    {% if page.object_list and page.paginator.num_pages > 1 %}    
-        {% page_bar %}
-    {% endif %}
-
-    {% for vote in page.object_list %}
-    <div class="bookmark">
-        &bull; <a href="{{vote.post.get_absolute_url}}">{{vote.post.get_title}}</a> by <a href="{{vote.post.author.profile.get_absolute_url}}">{{vote.post.author.profile.display_name}}</a>
-    </div>               
-    {% empty %}
-    <div class="empty">&bull; no bookmarks - click on the <i class="icon-bookmark"></i> symbol of a post to bookmark it</div>            
-    {% endfor %}
-
-</div>
-
+    <div class="bookmark-list">
+        {% if page.object_list and page.paginator.num_pages > 1 %}    
+            {% page_bar %}
+        {% endif %}
+    
+        {% for vote in page.object_list %}
+        <div class="bookmark">
+            &bull; <a href="{{vote.post.get_absolute_url}}">{{vote.post.get_title}}</a> by <a href="{{vote.post.author.profile.get_absolute_url}}">{{vote.post.author.profile.display_name}}</a>
+        </div>               
+        {% empty %}
+        <div class="empty">&bull; no bookmarks - click on the <i class="icon-bookmark"></i> symbol of a post to bookmark it</div>            
+        {% endfor %}
+    
+    </div>
 {% endif %}
             
-{% if params.tab == 'badges' %}
-    <div class="title" id="badges">Badges</div>
-    
-    <div class="pad10">
+{% if params.tab == 'badges' %}  
+    <div>
         {% for award in awards %}
             <div style="width:175px; height:50px; float:left; margin-bottom:10px;">
                 <div>
@@ -146,8 +144,7 @@
             <div class="note">&bull; no badges earned</div>
         {% endfor %} 
     </div>
-    
-    <div style="clear:both;">&nbsp;</div>
 {% endif %}
 
+</div>
 {% endblock %}

@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% load basic %}
+{% load widgets %}
+
+
+{% block subheader %}
+    {% page_bar %}
+{% endblock %}
+
+{% block body %}
+
+<div class="row">{% tab_bar request %}</div>
+    
+<div class="row">
+<form action="/user/list/" method="get" class="form-horizontal">
+    <fieldset>
+        <div class="control-group">
+            <label class="control-label" for="title">User search</label>
+            <div class="controls">
+                <input name="m" type="text" size=20 value="{{m}}">
+                <button type="submit" id="bsignin" name="bsignin" class="btn btn-primary">Search!</button>    
+            </div>            
+        </div>
+    </fieldset>
+</form>
+</div>
+    
+<div class="row" id="user-list">
+    {% for target in page.object_list %}
+        <div class="user-box" align="center">
+            <div>
+                <a class="user-link" title="" alt="" href="{% url main.server.views.user_profile target.id %}">{% gravatar target 64 %}</a>
+            </div>
+            <div>
+                <a class="user-link" title="" alt="" href="{% url main.server.views.user_profile target.id %}">{{target.profile.display_name}}</a>&nbsp;{% flair target %}
+            </div>
+            <div>{% userrep target %}</div>
+        </div>       
+    {% endfor %}
+</div>
+
+{% endblock %}

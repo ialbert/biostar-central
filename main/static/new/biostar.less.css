@@ -21,7 +21,9 @@ body {
     .silver { color: #C0C0C0; }
     .gold   { color: #FFCC00; }
 }    
-    
+
+
+
 .add-comment {
     cursor: pointer;
 }
@@ -40,7 +42,6 @@ body {
 }
 
 .title {
-    padding: 1em 0 0 0;
     font-size: larger;
 }
 
@@ -58,24 +59,40 @@ div .par {
     margin-bottom:5px;
 }
 
+
+.tag {
+    margin: 2px 2px 2px 0;
+    padding: 3px 4px 3px 4px;
+    text-decoration: none;
+    background-color: #ECECEC;
+    border-bottom: 1px solid #BBB;
+    border-right: 1px solid #BBB;
+    color: #6B3E4A;
+    &:hover{
+        color:white;
+        background-color:#6B3E4A;
+    }  
+}
+
+.tag-panel {
+    .tag;
+    float:left;
+    padding:10px;
+    margin:0px 10px 10px 10px;
+    text-align:center;
+    &:hover{
+        a {
+            color:white;
+        }
+        color:white;
+        background-color:#6B3E4A;
+    }  
+}
+
 .tag-line {
     margin-bottom: 10px;
     line-height: 18px;
     float: left;
-
-    .tag {
-        margin: 2px 2px 2px 0;
-        padding: 3px 4px 3px 4px;
-        text-decoration: none;
-        background-color: #ECECEC;
-        border-bottom: 1px solid #BBB;
-        border-right: 1px solid #BBB;
-        color: #6B3E4A;
-        &:hover{
-            color:white;
-            background-color:#6B3E4A;
-        }
-    }
 }
 
 .mini-counts {
@@ -94,9 +111,23 @@ div .par {
 }
 
 #subheader {
-    padding-bottom:0.5em;
-    
+    padding:0px;
+    margin-bottom:5px;
+    .title {
+        font-size: larger;
+        text-align:center;
+        padding:0px;
+    }
 }
+
+#user-list{
+    .user-box{
+        width:150px;
+        float:left;
+        margin-bottom:10px;
+    }
+}
+
 .separator {
     border-bottom: 1px solid #DDD;
 }
@@ -303,10 +334,6 @@ td {
     }
 }
 
-.pagebar {
-    padding:10px;
-    margin-bottom: 2px;
-}
 /* popup message rendering */
 
 .ajax-messages {

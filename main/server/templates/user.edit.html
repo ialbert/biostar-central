@@ -24,24 +24,27 @@
 {% endblock %}
 
 {% block subheader %}
-    <div class="pagebar title">Updating user: {{ user.profile.display_name }}</div>
+    <div class="pagebar title"></div>
 {% endblock %}
 
 {% block body %}
 
 <form id="useredit" name="useredit" action="/user/edit/{{user.id}}/" method="post" class="form-horizontal">
-
+    <legend>Updating user: {{ user.profile.display_name }}</legend>
+    <fieldset>
     {% csrf_token %}
     {% form_field  form.display_name 'Display Name' %}
     {% form_field  form.email 'Email' %}
     {% form_field  form.location 'Location' %}
-    {% form_field  form.email 'Website' %}
-    {% form_field  form.about_me 'About me' '(markdown ok)' %}
+    {% form_field  form.website 'Website' %}
+    {% form_field  form.about_me 'About me' '<a href="http://en.wikipedia.org/wiki/Markdown">Markdown</a> allowed '%}
 
     <div class="form-actions">
         <button type="submit" id="bsignin" name="bsignin" class="btn btn-primary">Submit</button>
         <button type="reset" class="btn">Reset</button>
     </div>
+    
+    </fieldset>
 
 </form>
 </div>

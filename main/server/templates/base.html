@@ -92,7 +92,7 @@
     <div class="container">
         
         <div class="row">
-            <div class="subheader">{% block subheader %}&nbsp;{% endblock %}</div>
+            <div class="subheader" id="subheader">{% block subheader %}&nbsp;{% endblock %}</div>
         </div>
         
         {% block body %}Test Body{% endblock %}
@@ -103,7 +103,7 @@
             &bull; Version: <b>{{BIOSTAR_VERSION}}</b></a>
         
             (revision <a href="https://github.com/ialbert/biostar-central/commit/{{BIOSTAR_GIT_REVISION}}">{{ BIOSTAR_GIT_REVISION }}</a>)
-            &bull; Copyright 2011 by the <a href="https://github.com/ialbert/biostar-central/contributors">BioStar team</a>
+            &bull; Copyright by the <a href="https://github.com/ialbert/biostar-central/contributors">BioStar team</a>
             {% if debug %}
               &bull; <a id="toggle-queries">{{sql_queries|length}} SQL queries</a>
               <div id="queries" style="text-align: left;">

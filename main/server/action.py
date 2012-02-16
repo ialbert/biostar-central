@@ -27,7 +27,7 @@ class UserForm(forms.Form):
     email        = forms.CharField(max_length=50,  initial="", widget=forms.TextInput(attrs={'size':'50'}))
     location     = forms.CharField(max_length=50,  required=False, initial="", widget=forms.TextInput(attrs={'size':'50'}))
     website      = forms.CharField(max_length=80,  required=False, initial="", widget=forms.TextInput(attrs={'size':'50'}))
-    about_me     = forms.CharField(max_length=500, required=False, initial="", widget=forms.Textarea (attrs=dict(cols='50', rows=6)))
+    about_me     = forms.CharField(max_length=500, required=False, initial="", widget=forms.Textarea (attrs={'class':'span6'}))
 
 LAST_CLEANUP = datetime.now()
 def cleanup(request):
