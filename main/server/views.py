@@ -34,33 +34,43 @@ def get_posts(request):
         query = models.Post.open_posts
     return query
 
-
 def index(request, tab="questions"):
     "Main page"
     
     params = html.Params(tab=tab)
+    
+    # this will fill in the query (q) and the match (m)parameters
     params.parse(request)
     
+    # returns the object manager that contains all or only visible posts
+    posts = get_posts(request)
+    
+    # apply search
     if params.q:
         pids  = action.search(params.q)
-        posts = get_posts(request).filter(id__in=pids).order_by('-magic')
-    else:        
-        # no search was performed, get the latest questions
-        pass
+        posts = posts.filter(id__in=pids)
+        tab   = '' # apply search sitewide rather than the selected tab
     
-    posts = get_posts(request)
-    # apply the target filter if applicable
-    
+    # filter the posts by the tab that the user has selected
     if tab == "popular":
         posts = posts.filter(type=POST_QUESTION).order_by('-score')
     elif tab == "questions":
         posts = posts.filter(type=POST_QUESTION).order_by('-magic')
+    elif tab == "unanswered":
+        posts = posts.filter(type=POST_QUESTION, answer_count=0).order_by('-magic')
+    elif tab == "recent":
+        posts = posts.order_by('-creation_date')
+    elif tab == 'planet':
+        posts = posts.filter(type=POST_BLOG).order_by('-magic')
+    elif tab == 'forum':
+        posts = posts.filter(type=POST_FORUM).order_by('-magic')
+    elif tab == 'guides':
+        posts = posts.filter(type=POST_GUIDE).order_by('-magic')
     else:
         posts = posts.order_by('-magic')
     
     page = get_page(request, posts, per_page=20)
-    tags = models.Tag.objects.all().order_by('-count')[:50]
-    return html.template(request, name='index.html', page=page, params=params, tags=tags)
+    return html.template(request, name='index.html', page=page, params=params)
 
 def post_list_filter(request, uid=0, word=None):
     post_type = {  'questions': POST_QUESTION, 'answers':POST_ANSWER, 'comments': POST_COMMENT }.get(word)

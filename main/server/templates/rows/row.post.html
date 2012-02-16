@@ -25,8 +25,8 @@
 
     <td class="summary" width="100%">
         
-        <div class="question-title">            
-            Q: <a  href="/post/show/{{post.id}}/{{post.slug}}/">{{post.get_title}}</a>
+        <div class="post-title {{post.get_type_display}}">            
+            <a href="{{post.get_absolute_url}}/">{{post.get_title}}</a>
         </div>
         
         {# generates the small peek into the post #}

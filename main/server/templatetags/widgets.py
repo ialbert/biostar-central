@@ -59,10 +59,10 @@ def tab_bar(tab=''):
     "Renders the switchable tab on most pages"
     return { 'tab': tab }
 
-@register.inclusion_tag('widgets/nav.bar.html')
-def nav_bar(user, params=None):
+@register.inclusion_tag('widgets/nav.bar.html', takes_context=True)
+def nav_bar(context, user, params={}):
     "Renders top navigation bar"
-    return { 'user':user, 'nav': params.get('nav') }
+    return { 'user':user, 'nav': params.get('nav'), 'q':params.get('q',''), 'request':context['request'] }
     
 @register.inclusion_tag('widgets/page.bar.html', takes_context=True)
 def page_bar(context, anchor=''):

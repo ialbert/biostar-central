@@ -224,7 +224,7 @@ td {
     background-color: @vote-color;
 }
 
-.question-title {
+.post-title {
   font-size: larger;
   font-weight: bold;
   padding-bottom:0.1em;
@@ -268,6 +268,9 @@ td {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), inset 0 -1px 0 rgba(0, 0, 0, 0.1);
 }
 
+.remind {
+    
+}
 .bookmark-list {
     .pagebar {
         background-color: #eeeeee;

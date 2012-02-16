@@ -21,10 +21,10 @@
               <li {% active 'about'  nav %}><a href="/about/">About</a></li>
             </ul>
             
-            <form class="navbar-search pull-left" action="/" method="get">
-              <input type="text" name='q' class="search-query" placeholder="Search">
+            <form class="navbar-search pull-left" action="{{request.path}}" method="get">
+              <input type="text" name='q' class="search-query" value="{{q}}" placeholder="Search">
             </form>
-            
+             
             {%if user.is_authenticated %}
                 
               <ul class="nav pull-right">

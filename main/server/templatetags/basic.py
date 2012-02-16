@@ -164,7 +164,7 @@ def XXXrender_post(context, request, post, tree):
     return { 'post':post, 'tree':tree, 'request':request }
  
 # preload the templates 
-row_question = template.loader.get_template('rows/row.question.html')
+row_question = template.loader.get_template('rows/row.post.html')
 row_answer   = template.loader.get_template('rows/row.answer.html')
 row_comment  = template.loader.get_template('rows/row.comment.html')
 
@@ -175,11 +175,11 @@ def table_row(post):
     
     if settings.DEBUG:
         # this is necessary to force the reload during development
-        row_question = template.loader.get_template('rows/row.question.html')
+        row_question = template.loader.get_template('rows/row.post.html')
         row_answer   = template.loader.get_template('rows/row.answer.html')
         row_comment  = template.loader.get_template('rows/row.comment.html')
 
-    if post.type == const.POST_QUESTION:
+    if post.has_title():
         c = Context( {"post": post} )
         row = row_question
     elif post.type == const.POST_ANSWER:
