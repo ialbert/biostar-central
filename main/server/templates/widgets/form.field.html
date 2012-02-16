@@ -1,0 +1,11 @@
+{% if errors %}
+<div class="control-group error">
+{% else %}
+<div class="control-group">
+{% endif %}
+    <label class="control-label" for="title">{{label}}</label>
+    <div class="controls">
+        {{field}}
+        <span class="help-inline">{{ help }} {{errors}}</span>
+    </div>
+</div>

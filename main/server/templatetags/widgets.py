@@ -12,6 +12,10 @@ def show_value(value):
         return " (%s) " % value
     else:
         return ""
+@register.inclusion_tag('widgets/form.field.html',)
+def form_field(field, label, help=''):
+    errors = ", ".join(field.errors)
+    return {'label':label, 'field':field, 'errors':errors, 'help':help}
 
 @register.inclusion_tag('widgets/vote.box.html', takes_context=True)
 def vote_box(context, post):
