@@ -3,12 +3,12 @@
 @navbar-color:#8F2C47;
 @navbar-color-darker: darken(@navbar-color, 15%);
 
-@title-size: @default-font-size + @default-font-size/2;
+@title-size: large;
 @title-color: red;
 @bit: 18px;
 
 .default-style {
-    font-size: @default-font-size;
+   
 }
 
 body {
@@ -40,12 +40,12 @@ body {
 }
 
 .title {
-    padding: @bit 0px @bit 0px;
-    font-size: @title-size;
+    padding: 1em 0 0 0;
+    font-size: larger;
 }
 
 div .par {
-    margin: 0px 0px @bit 0px;
+    margin: 0px 0px 0.5em 0px;
 }
 
 .postinfo {
@@ -58,7 +58,6 @@ div .par {
     height: 2.1em;
     overflow: hidden;
     line-height: 1em;
-    margin-top: 5px;
     margin-bottom:5px;
 }
 
@@ -203,12 +202,10 @@ td {
     background-color: @vote-color;
 }
 
-@title-size:1.2em;
-
 .question-title {
-  font-size: @title-size;
+  font-size: larger;
   font-weight: bold;
-  padding-bottom:0.5em;
+  padding-bottom:0.1em;
   a {
     text-decoration: none;
   }

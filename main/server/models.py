@@ -347,7 +347,6 @@ def create_revision(post, author=None):
         diff = ''.join(difflib.unified_diff(prev.splitlines(1), content.splitlines(1)))
         rev  = PostRevision.objects.create(diff=diff, content=content, author=author, post=post, date=date)    
         post.revision_count += 1
-        post.set_magic()
         post.save()
 
 @transaction.commit_on_success

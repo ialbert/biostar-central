@@ -1,11 +1,17 @@
 {% extends "base.html" %}
 {% load basic %}
+{% load widgets %}
 {% load humanize %}
+
+{% block subheader %}
+   <div class="pagebar title" align="center">About Biostar</div>
+{% endblock %}
 
 {% block body %}
 
-  <div class="title">Welcome to Biostar</div>
-  
+  <div class="row">{% tab_bar request %}</div>
+
+   
    <div class="par">
             This site's focus is bioinformatics, computational genomics and biological data analysis. As long as your question is:
   </div>

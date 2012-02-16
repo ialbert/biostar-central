@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% load basic %}
+
+{% block custom-frameworks %}
+    <style type="text/css">
+      
+      label {
+        width: 10em;
+        float: left;
+        text-align: right;
+        margin-right: 0.5em;
+        display: block
+      }
+      .errorlist {
+        background:#F4A83D;
+      }
+
+      p {
+        display:block;
+      }
+    </style>
+{% endblock %}
+
+{% block subheader %}
+    <div class="pagebar title">Updating user: {{ user.profile.display_name }}</div>
+{% endblock %}
+
+{% block body %}
+
+<form action="/user/edit/{{user.id}}/" method="post">
+{% csrf_token %}
+{{form.as_p}}
+<p><label for="input">&nbsp;</label><input id="input" type="submit" value="submit" name="submit" /> 
+&nbsp;(<a href="http://en.wikipedia.org/wiki/Markdown">markdown<a> ok)
+</p>
+
+</form>
+</div>
+
+{% endblock %}
