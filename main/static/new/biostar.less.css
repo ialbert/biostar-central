@@ -112,12 +112,7 @@ div .par {
 
 #subheader {
     padding:0px;
-    margin-bottom:5px;
-    .title {
-        font-size: larger;
-        text-align:center;
-        padding:0px;
-    }
+    margin-bottom:0px;
 }
 
 .user-box{

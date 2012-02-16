@@ -10,13 +10,13 @@ admin.autodiscover()
 
 urlpatterns = patterns('main.server',
 
-    # index page
+    # main index page
     (r'^$', 'views.index'),
     
     # index page 
-    (r'^show/(?P<target>\w+)/$', 'views.index'),
+    (r'^show/(?P<tab>\w+)/$', 'views.index'),
 
-    # show user profile
+    # show user profile 
     (r'^user/show/(?P<uid>\d+)/$', 'views.user_profile'),
     (r'^user/show/(?P<uid>\d+)/(?P<tab>\w+)/$', 'views.user_profile'),
     
@@ -26,6 +26,11 @@ urlpatterns = patterns('main.server',
 
     # static pages
     (r'^about/$','action.about'),
+    
+    
+    #
+    # old handlers
+    #
     (r'^tools/$', direct_to_template, {'template': 'tools.html'}),
     
     (r'^todo/$', direct_to_template, {'template': 'todo.html'}),

@@ -15,14 +15,11 @@
     $("#editor").markItUp(mySettings);
 {% endblock %}
 
-
-{% block subheader %}<div class="title">Post Editor</div>{% endblock %}
-
 {% block body %}
     
     
     
-    <div class="row">{% tab_bar request %}</div>
+    <div class="row">{% tab_bar params.tab %}</div>
     
     <div id="post-edit" class="row">
         

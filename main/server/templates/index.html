@@ -3,13 +3,11 @@
 {% load widgets %}
 {% load humanize %}
 
-{% block subheader %}
-    {% page_bar %}
-{% endblock %}
-
 {% block body %}
 
-<div class="row">{% tab_bar request %}</div>
+<div class="row">{% tab_bar params.tab %}</div>
+
+<div class="row">{% page_bar %}</div>
 
 <div class="row">
     <table border="0" class="post-table" cellspacing="0" width="100%">
@@ -23,6 +21,6 @@
     </table>
 </div>
 
-{% page_bar %}
+<div class="row">{% page_bar params.tab %}</div>
 
 {% endblock %}

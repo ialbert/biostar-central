@@ -55,9 +55,14 @@ def render_answer(context, post, tree):
     return { 'post':post, 'tree':tree, 'request':context['request'], 'full':False }
 
 @register.inclusion_tag('widgets/tab.bar.html')
-def tab_bar(request):
-    "Renders post information"
-    return { 'request': request }
+def tab_bar(tab=''):
+    "Renders the switchable tab on most pages"
+    return { 'tab': tab }
+
+@register.inclusion_tag('widgets/nav.bar.html')
+def nav_bar(user, params=None):
+    "Renders top navigation bar"
+    return { 'user':user, 'nav': params.get('nav') }
     
 @register.inclusion_tag('widgets/page.bar.html', takes_context=True)
 def page_bar(context, anchor=''):

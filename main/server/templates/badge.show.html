@@ -3,14 +3,12 @@
 {% load basic %}
 {% load widgets %}
 
-{% block subheader %}
- {% page_bar %}
-{% endblock %}
-
 {% block body %}
 
 <div class="row">{% tab_bar request %}</div>
-    
+
+<div class="row">{% page_bar %}</div>
+
 <div class="row">
     
     <div class="title">Badge: {{badge.name}}</div>
@@ -23,4 +21,6 @@
     {% endfor %}
     </div>
 </div>
+
+<div class="row">{% page_bar %}</div>
 {% endblock %}

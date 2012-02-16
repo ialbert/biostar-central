@@ -165,6 +165,9 @@ class Params(object):
         self.q = request.GET.get('q')
         if self.q:
             self.setr('Searching for %s' % self.q)
+    
+    def get(self, key, default=None):
+        return self.__dict__.get(key, default)
         
     def update(self, data):
         self.__dict__.update(data)
@@ -196,8 +199,8 @@ def redirect(url):
 def template(request, name, mimetype=None, **kwd):
     """Renders a template and returns it as an http response"""
     
+    # parameters that will always be available for the template
     kwd['request'] = request
-    
     return render_to_response(name, kwd, context_instance=RequestContext(request))
     
 class HtmlTest(unittest.TestCase):

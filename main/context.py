@@ -18,12 +18,13 @@ def extras(request):
     
     # match - this is the secondary query value for matching other content
     m = request.REQUEST.get('m', '')
-    
+        
     return { 'BIOSTAR_VERSION': server.VERSION, 
              'BIOSTAR_GIT_REVISION': settings.GIT_REVISION,
              'user':user, 
              'q':q, 
-             'm':m 
+             'm':m,
+             'params':{}, # this is needed because of the navbar
     }
 
 def popular_tags(request):

@@ -23,10 +23,6 @@
     </style>
 {% endblock %}
 
-{% block subheader %}
-    <div class="pagebar title"></div>
-{% endblock %}
-
 {% block body %}
 
 <form id="useredit" name="useredit" action="/user/edit/{{user.id}}/" method="post" class="form-horizontal">
@@ -40,8 +36,8 @@
     {% form_field  form.about_me 'About me' '<a href="http://en.wikipedia.org/wiki/Markdown">Markdown</a> allowed '%}
 
     <div class="form-actions">
-        <button type="submit" id="bsignin" name="bsignin" class="btn btn-primary">Submit</button>
-        <button type="reset" class="btn">Reset</button>
+        <button type="submit" id="submit" name="submit" class="btn btn-success">Submit</button>
+        or <a class="btn btn-danger" href='javascript: history.back()'><i class="icon-arrow-left icon-white"></i> Go back</a>
     </div>
     
     </fieldset>

@@ -87,7 +87,7 @@ def about(request):
     admins = models.User.objects.filter(profile__type=USER_ADMIN).select_related("profile").all()[:100]
 
     navloc = dict(about="active")
-    params = html.Params(post_count=post_count, user_count=user_count, question_count=question_count, 
+    params = html.Params(nav='about', post_count=post_count, user_count=user_count, question_count=question_count, 
         answer_count=answer_count, comment_count=comment_count, admins=admins, mods=mods, navloc=navloc)
     
     return html.template(request, name='about.html', params=params)
@@ -114,7 +114,7 @@ def badge_show(request, bid):
     page = None
     badge  = models.Badge.objects.get(id=bid)
     awards = models.Award.objects.filter(badge=badge).select_related('user', 'user_profile')
-    page  = get_page(request, awards, per_page=18)
+    page  = get_page(request, awards, per_page=24)
     return html.template(request, name='badge.show.html', page=page, badge=badge)
  
 def note_clear(request, uid):

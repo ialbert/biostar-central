@@ -35,10 +35,10 @@ def get_posts(request):
     return query
 
 
-def index(request, target=""):
+def index(request, tab="questions"):
     "Main page"
     
-    params = html.Params()
+    params = html.Params(tab=tab)
     params.parse(request)
     
     if params.q:
@@ -51,9 +51,9 @@ def index(request, target=""):
     posts = get_posts(request)
     # apply the target filter if applicable
     
-    if target == "popular":
+    if tab == "popular":
         posts = posts.filter(type=POST_QUESTION).order_by('-score')
-    elif target == "questions":
+    elif tab == "questions":
         posts = posts.filter(type=POST_QUESTION).order_by('-magic')
     else:
         posts = posts.order_by('-magic')
@@ -127,22 +127,25 @@ def user_profile(request, uid, tab='activity'):
 
 def user_list(request):
     search  = request.GET.get('m','')[:80] # trim for sanity
+    params = html.Params(nav='users')
     if search:
         query = Q(profile__display_name__icontains=search)
         users = models.User.objects.filter(query).select_related('profile').order_by("-profile__score")
     else:
         users = models.User.objects.select_related('profile').order_by("-profile__score")
     page  = get_page(request, users, per_page=24)
-    return html.template(request, name='user.list.html', page=page)
+    return html.template(request, name='user.list.html', page=page, params=params)
 
 def tag_list(request):
     tags = models.Tag.objects.all().order_by('-count')
     page = get_page(request, tags, per_page=50)
-    return html.template(request, name='tag.list.html', page=page)
+    params = html.Params(nav='tags')
+    return html.template(request, name='tag.list.html', page=page, params=params)
 
 def badge_list(request):
     badges = models.Badge.objects.filter(secret=False).order_by('-count', '-type')
-    return html.template(request, name='badge.list.html', badges=badges)
+    params = html.Params(nav='badges')
+    return html.template(request, name='badge.list.html', badges=badges, params=params)
 
 def question_unanswered(request, uid=0, post_type=None):
     "Lists all the questions"
@@ -273,7 +276,7 @@ def post_edit(request, pid=0, parentid=0, post_type=POST_QUESTION):
     # deal with new post creation first
     if newpost:
         # this here is to customize the output
-        params = html.Params(title="New post", use_post_form=use_post_form ) 
+        params = html.Params(tab='new', title="New post", use_post_form=use_post_form ) 
 
         if form_data:
             form = factory(request.POST)
@@ -310,7 +313,7 @@ def post_edit(request, pid=0, parentid=0, post_type=POST_QUESTION):
     # verify that this user may indeed modify the post
     auth.authorize_post_edit(post=post, user=request.user, strict=True)
     
-    params = html.Params(title="Edit %s" % post.get_type_display(), use_post_form=use_post_form) 
+    params = html.Params(title="Edit %s" % post.get_type_display(), use_post_form=use_post_form, tab=None) 
 
     # no form data coming, return the editing form
     if not form_data:
