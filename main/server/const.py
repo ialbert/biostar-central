@@ -15,12 +15,20 @@ POST_QUESTION, POST_ANSWER, POST_COMMENT, POST_GUIDE, POST_BLOG, POST_NEWS, POST
 POST_TYPES  = ( (POST_ANSWER, 'Answer') , (POST_COMMENT, 'Comment'), (POST_QUESTION, 'Question'), (POST_GUIDE, 'Guide'), 
     (POST_NEWS, 'News'), (POST_BLOG, 'Blog'), (POST_FORUM, 'Forum'), (POST_REVIEW, 'Review'), (POST_RANT, 'Rant'))
 
-# for quick lookups
+# direct mapping for quick lookups
 POST_MAP  = dict( POST_TYPES )
+
+# reverse mapping for quick lookups
+POST_REV_MAP = dict( (y.lower(),x) for (x,y) in POST_MAP.items() )
 
 # posts that only have content, no title or tags
 POST_CONTENT_ONLY = set( [POST_ANSWER, POST_COMMENT ])
 
+# these posts must have parent
+POST_SUBLEVEL = set( [POST_ANSWER, POST_COMMENT ])
+
+# toplevel posts may stand alone and must have title and tags
+POST_TOPLEVEL = set( POST_MAP.keys() ) - POST_SUBLEVEL
 
 # the type of messages that the system maintains
 NOTE_USER, NOTE_MODERATOR, NOTE_ADMIN, NOTE_AWARD, NOTE_SITE = range(1, 6)

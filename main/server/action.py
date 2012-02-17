@@ -18,6 +18,8 @@ from django.conf import settings
 from django.http import HttpResponse
 from django.db.models import Q
 from django.contrib import messages
+from django.core.urlresolvers import reverse
+
 from whoosh import index
 from whoosh.qparser import QueryParser
 
@@ -72,7 +74,9 @@ def user_edit(request, uid):
             target.email = form.cleaned_data['email']
             target.profile.save()
             target.save()
-            return html.redirect("/user/show/%s/" % target.id)
+            
+            url = reverse('main.server.views.user_profile', kwargs={'uid':target.id})
+            return html.redirect(url)
 
 def about(request):
     "Renders the about page"

@@ -15,12 +15,12 @@
           <div class="nav-collapse">
             
             <ul class="nav">
-              <li {% active 'tags'   nav %}><a href="/tag/list/">Tags</a></li>
-              <li {% active 'users'  nav %}><a href="/user/list/">Users</a></li>
-              <li {% active 'badges' nav %}><a href="/badge/list/">Badges</a></li>
-              <li {% active 'about'  nav %}><a href="/about/">About</a></li>
-              <li {% active 'rss'  nav %}><a href="/rss/">Feeds</a></li>
-              <li {% active 'faq'  nav %}><a href="/faq/">Faq</a></li>
+              <li {% active 'tags'   nav %}><a href="{% url main.server.views.tag_list %}">Tags</a></li>
+              <li {% active 'users'  nav %}><a href="{% url main.server.views.user_list %}">Users</a></li>
+              <li {% active 'badges' nav %}><a href="{% url main.server.views.badge_list %}">Badges</a></li>
+              <li {% active 'about'  nav %}><a href="{% url main.server.action.about %}">About</a></li>
+              <li {% active 'rss'    nav %}><a href="{% url main.server.action.rss %}">Feeds</a></li>
+              <li {% active 'faq'    nav %}><a href="{% url main.server.action.faq %}">Faq</a></li>
             </ul>
             
             <form class="navbar-search pull-left" action="/" method="get">
@@ -28,22 +28,19 @@
             </form>
              
             {%if user.is_authenticated %}
-                
-              <ul class="nav pull-right">
+            <p class="nav navbar-text pull-right">
                 {% if user.profile.new_messages %}
-                <li>
-                  <a href="/user/show/{{user.id}}/"><span class="message remind"></i>{{user.profile.new_messages}} messages</span></a>
-                </li>
+                <a class="btn btn-success" href='/user/show/{{user.id}}/'><i class="icon-envelope icon-white"></i> {{user.profile.new_messages}} messages</a>
                 {% endif %}
-                <li><a href="/user/show/{{user.id}}/">{{ user.profile.display_name }} {% flair user %} {{ user.profile.score }}</a></li>  
-                <li><a href="/logout/?next_page=/">Log out</a></li>
-              </ul>
-
+                &nbsp;<a href="{% url main.server.views.user_profile user.id %}">{{ user.profile.display_name }} {% flair user %} {{ user.profile.score }}</a>
+                 | <a href="/logout/?next_page=/">Sign Out</a>
+            </p>
             {% else %}
               <p class="navbar-text pull-right login">
                 <a class="btn btn-success" href='/openid/login/'><i class="icon-user icon-white"></i> Sign In</a>
               </p>
             {% endif %}
+            
           </div><!--/.nav-collapse -->
         </div>
       </div>

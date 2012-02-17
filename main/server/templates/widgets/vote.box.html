@@ -14,7 +14,7 @@
         <div class="vote-bookmark vote-off">&nbsp;</div>
         {% endif %}
     
-        {% if not post.has_title  %}
+        {% if not post.top_level  %}
             {% if post.accepted %}
             <div class="vote-accepted vote-on">&nbsp;</div>
             {% else %}

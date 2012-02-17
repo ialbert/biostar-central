@@ -179,7 +179,7 @@ def table_row(post):
         row_answer   = template.loader.get_template('rows/row.answer.html')
         row_comment  = template.loader.get_template('rows/row.comment.html')
 
-    if post.has_title():
+    if post.top_level:
         c = Context( {"post": post} )
         row = row_question
     elif post.type == const.POST_ANSWER:

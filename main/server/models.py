@@ -169,10 +169,10 @@ class Post(models.Model):
     accepted        = models.BooleanField(default=False, blank=True)
    
     # relevance measure, initially by timestamp, other rankings measures
-    magic = models.FloatField(default=0, blank=True)
+    rank = models.FloatField(default=0, blank=True)
     
-    def compute_magic(self):
-        "Sets the magic number by the timestamp"
+    def compute_rank(self):
+        "Sets the rank number by the timestamp"
         return time.time()
         
     def get_absolute_url(self):
@@ -206,9 +206,10 @@ class Post(models.Model):
             Post.objects.filter(id=self.id).update(views = F('views') + 1 ) 
             viewed.add(self.id)
             request.session[VIEW_KEY] = viewed
-    
-    def has_title(self):
-        return self.type not in (POST_ANSWER, POST_COMMENT)
+            
+    @property
+    def top_level(self):
+        return self.type in POST_TOPLEVEL
         
     @property
     def closed(self):
@@ -526,7 +527,7 @@ def verify_post(sender, instance, *args, **kwargs):
         assert instance.root and instance.parent
          
     # some fields may not be null
-    instance.magic = instance.magic or instance.compute_magic()
+    instance.rank = instance.rank or instance.compute_rank()
     instance.creation_date = instance.creation_date or datetime.now()
     instance.lastedit_date = instance.lastedit_date or datetime.now()
     

@@ -25,7 +25,7 @@
 
 {% block body %}
 
-<form id="useredit" name="useredit" action="/user/edit/{{user.id}}/" method="post" class="form-horizontal">
+<form id="useredit" name="useredit" action="{% url main.server.action.user_edit user.id %}" method="post" class="form-horizontal">
     <legend>Updating user: {{ user.profile.display_name }}</legend>
     <fieldset>
     {% csrf_token %}

@@ -13,21 +13,31 @@ urlpatterns = patterns('main.server',
     # main index page
     (r'^$', 'views.index'),
     
-    # index page 
+    # show by content type
     (r'^show/(?P<tab>\w+)/$', 'views.index'),
-
-    # show user profile 
-    (r'^user/show/(?P<uid>\d+)/$', 'views.user_profile'),
-    (r'^user/show/(?P<uid>\d+)/(?P<tab>\w+)/$', 'views.user_profile'),
     
-    # user edit page
-    (r'^user/edit/(?P<uid>\d+)/$', 'action.user_edit'),
-
-
-    # other pages
+    # show tagged posts
+    (r'^show/tag/(?P<tag_name>[\w]+)/$', 'views.show_tag'),
+    
+    # show posts by user
+    (r'^show/user/(?P<uid>\d+)/$', 'views.show_user'),
+    (r'^show/user/(?P<uid>\d+)/(?P<post_type>\w+)/$', 'views.show_user'),
+    
+    
+    # urls for the navigation bar
+    (r'^tag/list/$', 'views.tag_list'),
+    (r'^user/list/$', 'views.user_list'),
+    (r'^badge/list/$', 'views.badge_list'),
     (r'^about/$','action.about'),
     (r'^rss/$','action.rss'),
     (r'^faq/$','action.faq'),
+    # user edit page
+    (r'^edit/user/(?P<uid>\d+)/$', 'action.user_edit'),
+    
+    
+    # show user profile 
+    (r'^show/profile/(?P<uid>\d+)/$', 'views.user_profile'),
+    (r'^show/profile/(?P<uid>\d+)/(?P<tab>\w+)/$', 'views.user_profile'),
     
     #
     # old handlers
@@ -39,16 +49,14 @@ urlpatterns = patterns('main.server',
     # moderation handlers
     (r'^cleanup/$', 'action.cleanup'),
 
-    # tags
-    (r'^tag/list/$', 'views.tag_list'),
+    
 
     # badges
-    (r'^badge/list/$', 'views.badge_list'),
+   
     (r'^badge/show/(?P<bid>\d+)/$', 'action.badge_show'),
     
     # members
-    (r'^user/list/$', 'views.user_list'),
-   
+    
    
     # returns a preview page
     (r'^preview/$', 'views.preview'),
@@ -57,17 +65,6 @@ urlpatterns = patterns('main.server',
     (r'^revisions/list/(?P<pid>\d+)/$', 'views.revision_list'),
 
     
-    # questions
-    (r'^question/unanswered/$', 'views.question_unanswered'),
-    (r'^question/tagged/(?P<tag_name>[\w]+)/$', 'views.question_tagged'),
-    
-    # shows all the posts
-    (r'^post/list/$', 'views.post_list'),
-    (r'^post/list/(?P<word>[a-z\-]+)/$', 'views.post_list_filter'),
-
-    (r'^post/list/(?P<uid>\d+)/$', 'views.post_list'),
-    (r'^post/list/(?P<uid>\d+)/(?P<word>[a-z\-]+)/$', 'views.post_list_filter'),
-  
     # post handlers with or withouth a slug
     (r'^post/show/(?P<pid>\d+)/$', 'views.post_show'),
     (r'^post/show/(?P<pid>\d+)/([-\w]+)/$', 'views.post_show'),

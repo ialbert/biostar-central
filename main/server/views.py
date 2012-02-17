@@ -18,6 +18,7 @@ from django.http import HttpResponse
 from django.db.models import Q
 # the openid association model
 from django_openid_auth.models import UserOpenID
+from django.core.urlresolvers import reverse
 
 # import all constants
 from main.server.const import *
@@ -55,29 +56,26 @@ def index(request, tab="questions"):
     if tab == "popular":
         posts = posts.filter(type=POST_QUESTION).order_by('-score')
     elif tab == "questions":
-        posts = posts.filter(type=POST_QUESTION).order_by('-magic')
+        posts = posts.filter(type=POST_QUESTION).order_by('-rank')
     elif tab == "unanswered":
-        posts = posts.filter(type=POST_QUESTION, answer_count=0).order_by('-magic')
+        posts = posts.filter(type=POST_QUESTION, answer_count=0).order_by('-rank')
     elif tab == "recent":
         posts = posts.order_by('-creation_date')
     elif tab == 'planet':
-        posts = posts.filter(type=POST_BLOG).order_by('-magic')
+        posts = posts.filter(type=POST_BLOG).order_by('-rank')
     elif tab == 'forum':
-        posts = posts.filter(type=POST_FORUM).order_by('-magic')
+        posts = posts.filter(type=POST_FORUM).order_by('-rank')
     elif tab == 'guides':
-        posts = posts.filter(type=POST_GUIDE).order_by('-magic')
+        posts = posts.filter(type=POST_GUIDE).order_by('-rank')
     else:
-        posts = posts.order_by('-magic')
+        posts = posts.order_by('-rank')
     
     page = get_page(request, posts, per_page=20)
     return html.template(request, name='index.html', page=page, params=params)
 
-def post_list_filter(request, uid=0, word=None):
-    post_type = {  'questions': POST_QUESTION, 'answers':POST_ANSWER, 'comments': POST_COMMENT }.get(word)
-    return post_list(request, uid=uid, post_type=post_type)
-
-def post_list(request, uid=0, post_type=None):
-    params = html.Params()
+def show_tag(request, tag=None):
+    
+    params = html.Params(nav='', tab='')
     posts = get_posts(request).filter(type=post_type) if post_type else get_posts(request)
         
     if uid:
@@ -87,6 +85,21 @@ def post_list(request, uid=0, post_type=None):
     posts = posts.order_by('-lastedit_date')
     page  = get_page(request, posts, per_page=20)
     return html.template( request, name='post.list.html', page=page, params=params)
+
+def show_user(request, uid, post_type=''):
+    
+    user  = models.User.objects.filter(id=uid).select_related('profile').all()[0]
+    
+    params = html.Params(nav='', tab='')
+    params.setr('Filtering by user: %s' % user.profile.display_name)
+    post_type = POST_REV_MAP.get(post_type.lower())
+    if post_type:
+        posts = get_posts(request).filter(type=post_type, author=user).order_by('-creation_date')
+    else:
+        posts = get_posts(request).filter(type__in=POST_TOPLEVEL, author=user).order_by('-creation_date')
+    page  = get_page(request, posts, per_page=20)
+    return html.template( request, name='index.html', page=page, params=params)
+
 
 def user_profile(request, uid, tab='activity'):
     "User's profile page"
@@ -116,8 +129,6 @@ def user_profile(request, uid, tab='activity'):
     note_count  = models.Note.objects.filter(target=target, unread=True).count()
     bookmarks_count  = models.Vote.objects.filter(author=target, type=VOTE_BOOKMARK).count()
     
-    params.update(dict(question_count=question_count, answer_count=answer_count, note_count=note_count, bookmarks_count=bookmarks_count,
-            comment_count=comment_count, post_count=post_count, vote_count=vote_count, award_count=award_count))
     
     if tab == 'activity':
         notes = models.Note.objects.filter(target=target).select_related('author', 'author__profile', 'root').order_by('-date')
@@ -127,11 +138,14 @@ def user_profile(request, uid, tab='activity'):
         if user==target:
             models.Note.objects.filter(target=target).update(unread=False)
             models.UserProfile.objects.filter(user=target).update(new_messages=0)
+            note_count = 0
         
     elif tab == 'bookmarks':
         bookmarks = models.Vote.objects.filter(author=target, type=VOTE_BOOKMARK).select_related('post', 'post__author__profile').order_by('id')
         page  = get_page(request, bookmarks, per_page=5)
-        
+    
+    params.update(dict(question_count=question_count, answer_count=answer_count, note_count=note_count, bookmarks_count=bookmarks_count,
+            comment_count=comment_count, post_count=post_count, vote_count=vote_count, award_count=award_count))
     return html.template(request, name='user.profile.html', awards=awards,
         user=request.user,target=target, params=params, page=page)
 
