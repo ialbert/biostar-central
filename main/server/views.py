@@ -73,23 +73,18 @@ def index(request, tab="questions"):
     page = get_page(request, posts, per_page=20)
     return html.template(request, name='index.html', page=page, params=params)
 
-def show_tag(request, tag=None):
-    
+def show_tag(request, tag_name=None):
+    "Display posts by a certain tag"
     params = html.Params(nav='', tab='')
-    posts = get_posts(request).filter(type=post_type) if post_type else get_posts(request)
-        
-    if uid:
-        user = models.User.objects.filter(id=uid).select_related('profile').all()[0]
-        posts = posts.filter(author=user)
-        params.setr('Filter: %s' % user.profile.display_name)
-    posts = posts.order_by('-lastedit_date')
+    params.setr('Filtering by tag: %s' % tag_name)
+    posts = get_posts(request).filter(tag_set__name=tag_name)
+    posts = posts.order_by('-creation_date')
     page  = get_page(request, posts, per_page=20)
-    return html.template( request, name='post.list.html', page=page, params=params)
+    return html.template( request, name='index.html', page=page, params=params)
 
 def show_user(request, uid, post_type=''):
-    
-    user  = models.User.objects.filter(id=uid).select_related('profile').all()[0]
-    
+    "Displays posts by a user"
+    user = models.User.objects.filter(id=uid).select_related('profile').all()[0]
     params = html.Params(nav='', tab='')
     params.setr('Filtering by user: %s' % user.profile.display_name)
     post_type = POST_REV_MAP.get(post_type.lower())
