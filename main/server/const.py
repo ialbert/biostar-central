@@ -3,12 +3,18 @@ Various constants used throught the site
 
 WARNING: DO NOT CHANGE ON PRODUCTION SEVERS! 
 """
-
 # The name of the editor group
 MODERATOR_GROUP = 'mod_group'
 
 # the minimal reputation needed to 
 MIN_REP = 1
+
+# post/user score change during an upvote
+POST_SCORE_CHANGE = 1
+USER_SCORE_CHANGE = 1
+
+VOTE_SESSION_LENGTH   = 60  # in seconds
+MAX_VOTES_PER_SESSION = 3   # this is how many votes can be cast per session
 
 # Add at the end
 POST_QUESTION, POST_ANSWER, POST_COMMENT, POST_GUIDE, POST_BLOG, POST_NEWS, POST_FORUM, POST_RANT, POST_REVIEW, POST_OTHER = range(1, 11)

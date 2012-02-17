@@ -386,6 +386,14 @@ class Note(models.Model):
     def status(self):
         return 'unread' if self.unread else "old"
 
+def upvote_rank_change(rank):
+    "How post ranks change upon uvotes"
+    day  = 3600 * 24
+    now  = time.time() + day/2
+    rank = rank + day # an upvote adds one day of rank
+    rank = min( (rank, now) ) # no pushing too far in the future
+    return rank
+    
 class Vote(models.Model):
     """
     >>> user, flag = User.objects.get_or_create(first_name='Jane', last_name='Doe', username='jane', email='jane')
@@ -397,29 +405,35 @@ class Vote(models.Model):
     author = models.ForeignKey(User)
     post = models.ForeignKey(Post, related_name='votes')
     type = models.IntegerField(choices=VOTE_TYPES, db_index=True)
+    date = models.DateTimeField(db_index=True, auto_now=True)
     
     def score(self):
         return POST_SCORE.get(self.type, 0)
     
     def apply(self, dir=1):
         "Applies the score and reputation changes. Direction can be set to -1 to undo (ie delete vote)"
-        
+        post, root = self.post, self.post.root
         if self.type == VOTE_UP:
-            prof = self.post.author.get_profile()
+            prof = post.author.get_profile()
             prof.score += dir
             prof.save()
-            self.post.score += dir
-            self.post.save()
+            post.score += dir * POST_SCORE_CHANGE
+            if dir > 0:
+                root.rank = post.rank = upvote_rank_change(post.rank)
             
         elif self.type == VOTE_ACCEPT:
-            post = self.post
-            root = self.post.root
             if dir == 1:
+                root.rank = post.rank = upvote_rank_change(self.post.rank)
                 post.accepted = root.accepted = True
             else:
                 post.accepted = root.accepted = False
-            post.save()
-            root.save()
+        
+        elif self.type == VOTE_BOOKMARK:
+            if dir == 1:
+                root.rank = post.rank = upvote_rank_change(post.rank)
+        
+        post.save()
+        root.save()
               
 class Badge(models.Model):
     name = models.CharField(max_length=50)

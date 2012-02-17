@@ -1,7 +1,9 @@
 """
 Biostar views
 """
-import difflib
+import difflib, time
+from datetime import datetime, timedelta
+
 from functools import partial
 from collections import defaultdict
 from main.server import html, models, const, formdef, action, notegen, auth
@@ -407,9 +409,11 @@ def vote(request):
     # attempt to find the post and vote
     post_id = int(request.POST.get('post'))
     post = models.Post.objects.get(id=post_id)
-        
-    # map to actual type
+
+    # get vote type
     type = request.POST.get('type')
+    
+    # remap to actual type
     type = dict(upvote=VOTE_UP, accept=VOTE_ACCEPT, bookmark=VOTE_BOOKMARK).get(type)
         
     if not type:
@@ -425,12 +429,31 @@ def vote(request):
     old_vote = post.get_vote(author, type)
 
     if old_vote:
+        msg = '%s removed' % old_vote.get_type_display()
         old_vote.delete()
-        return ajax_success('%s removed' % old_vote.get_type_display() )
+        logger.info('%s\t%s\t%s' % (author.id, post.id, msg) )
+        return ajax_success(msg)
     
-    # only adding new votes remains at this point
-    vote = post.add_vote(author, type)
-    return ajax_success('%s added' % vote.get_type_display())
+    if type == VOTE_BOOKMARK:
+        vote = post.add_vote(author, type)
+        return ajax_success('%s added' % vote.get_type_display())
+    
+    today = datetime.now()
+    shift = timedelta(seconds=VOTE_SESSION_LENGTH)
+    past  = today - shift
+    count = models.Vote.objects.filter(author=author, date__gt=past).count()
+    avail  = MAX_VOTES_PER_SESSION - count
+    
+    if avail <= 0:
+        msg = "You ran out of votes ;-) there will more in a little while"
+        logger.info('%s\t%s\t%s' % (author.id, post.id, "out of votes") )
+        return ajax_error(msg)
+    else:
+        # log all voting into the server log
+        vote = post.add_vote(author, type)
+        msg  = '%s added. %d votes left' % (vote.get_type_display(), avail-1)
+        logger.info('%s\t%s\t%s' % (author.id, post.id, msg) )
+        return ajax_success(msg)
 
 @login_required(redirect_field_name='/openid/login/')
 def moderate_post(request, pid, action):
