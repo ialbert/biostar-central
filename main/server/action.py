@@ -91,7 +91,18 @@ def about(request):
         answer_count=answer_count, comment_count=comment_count, admins=admins, mods=mods, navloc=navloc)
     
     return html.template(request, name='about.html', params=params)
-   
+  
+def rss(request):
+    "Renders the rss feed page"
+    params = html.Params(nav='rss')
+    return html.template(request, name='rss.html', params=params)
+
+def faq(request):
+    "Renders the faq page"
+    params = html.Params(nav='faq')
+    return html.template(request, name='faq.html', params=params)
+ 
+  
 def search(text):
     text = text.strip()[:200]
     if not text:

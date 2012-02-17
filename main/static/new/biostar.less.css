@@ -42,7 +42,9 @@ body {
 }
 
 .title {
-    font-size: larger;
+    font-size:larger;
+    margin-bottom:5px;
+    color:#333333;
 }
 
 div .par {
@@ -52,6 +54,13 @@ div .par {
 .postinfo {
       color: #858585;
       float: right;
+}
+
+#subheader{
+    .title {
+        text-align: center;
+        font-size:larger;
+    }
 }
 
 .peek {

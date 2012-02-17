@@ -10,6 +10,7 @@
 <div class="row">{% page_bar %}</div>
 
 <div class="row">
+<div style="margin-top:5px">
 <form action="/user/list/" method="get" class="form-horizontal">
     <fieldset>
         <div class="control-group">
@@ -22,7 +23,8 @@
     </fieldset>
 </form>
 </div>
-    
+</div>
+
 <div class="row" id="user-list">
     {% for target in page.object_list %}
         {% user_box target %}     

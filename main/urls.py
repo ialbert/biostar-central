@@ -24,9 +24,10 @@ urlpatterns = patterns('main.server',
     (r'^user/edit/(?P<uid>\d+)/$', 'action.user_edit'),
 
 
-    # static pages
+    # other pages
     (r'^about/$','action.about'),
-    
+    (r'^rss/$','action.rss'),
+    (r'^faq/$','action.faq'),
     
     #
     # old handlers
@@ -34,8 +35,7 @@ urlpatterns = patterns('main.server',
     (r'^tools/$', direct_to_template, {'template': 'tools.html'}),
     
     (r'^todo/$', direct_to_template, {'template': 'todo.html'}),
-    (r'^feeds/$', direct_to_template, {'template': 'feeds.html'}),
-
+   
     # moderation handlers
     (r'^cleanup/$', 'action.cleanup'),
 
