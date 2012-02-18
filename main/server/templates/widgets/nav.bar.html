@@ -30,7 +30,7 @@
             {%if user.is_authenticated %}
             <p class="nav navbar-text pull-right">
                 {% if user.profile.new_messages %}
-                <a class="btn btn-success" href='{% url main.server.views.user_profile user.id %}'><i class="icon-envelope icon-white"></i> {{user.profile.new_messages}} messages</a>
+                <a class="btn btn-success" href='{% url main.server.views.user_profile user.id %}'><i class="icon-envelope icon-white"></i> {{user.profile.new_messages}}</a>
                 {% endif %}
                 &nbsp;<a href="{% url main.server.views.user_profile user.id %}">{{ user.profile.display_name }} {% flair user %} {{ user.profile.score }}</a>
                  | <a href="/logout/?next_page=/">Sign Out</a>

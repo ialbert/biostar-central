@@ -9,13 +9,7 @@
         </div>
     </td>
 
-    <td>        
-        <div class="status {{post.get_label}}">
-            <div class="mini-counts">{{post.answer_count}}</div>
-            <div>answers</div>
-        </div>
-    </td>
-
+   
     <td>
         <div class="status views">
             <div class="mini-counts">{% bignum post.views %}</div>
@@ -23,10 +17,23 @@
         </div>
     </td>
 
+     <td>        
+        <div class="status views">
+            <div class="mini-counts">&nbsp;</div>
+            <div>&nbsp;</div>
+        </div>
+    </td>
+
+
     <td class="summary" width="100%">
         
         <div class="post-title {{post.get_type_display}}">            
-            Blog: <a href="{{post.url}}">{{post.get_title}} </a>
+            Blog: 
+            {% if post.url %}
+                <a href="{{post.url}}">{{post.get_title}} <i class="icon-share-alt"></i></a>
+            {% else %}
+                <a href="{{post.get_absolute_url}}">{{post.get_title}} </a>
+            {% endif %}
         </div>
         
         {# generates the small peek into the post #}
