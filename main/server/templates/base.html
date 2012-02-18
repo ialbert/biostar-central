@@ -45,7 +45,7 @@
 
   <body>
     
-    {% nav_bar user params%}
+    {% nav_bar user params %}
     
     <div class="container">
         
@@ -53,6 +53,10 @@
             <div class="subheader" id="subheader">{% block subheader %}&nbsp;{% endblock %}</div>
         </div>
         
+        <div class="row">
+            {% tab_bar params counts %}
+        </div>
+
         {% block body %}Test Body{% endblock %}
         
         <div class="row">  

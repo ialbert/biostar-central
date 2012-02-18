@@ -7,6 +7,7 @@ from django.conf import settings
 
 from main import server
 from main.server import models
+from main.server.const import *
 
 def extras(request):
     "Adds more data to each RequestContext"
@@ -18,12 +19,16 @@ def extras(request):
     
     # match - this is the secondary query value for matching other content
     m = request.REQUEST.get('m', '')
-        
+    
+    # update with counts
+    counts = request.session.get(SESSION_POST_COUNT, {})
+
     return { 'BIOSTAR_VERSION': server.VERSION, 
              'BIOSTAR_GIT_REVISION': settings.GIT_REVISION,
              'user':user, 
              'q':q, 
              'm':m,
+             'counts':counts,
              'params':{}, # this is needed because of the navbar
     }
 

@@ -98,6 +98,7 @@ def show_tag(request, tag_name=None):
 
 def show_user(request, uid, post_type=''):
     "Displays posts by a user"
+
     user = models.User.objects.filter(id=uid).select_related('profile').all()[0]
     params = html.Params(nav='', tab='')
     params.setr('Filtering by user: %s' % user.profile.display_name)
