@@ -1,0 +1,43 @@
+{% load basic %}
+{% load widgets %}
+
+<tr valign="top">
+    <td>
+        <div class="status votes">
+            <div class="mini-counts">{{post.score}}</div>
+            <div>votes</div>
+        </div>
+    </td>
+
+    <td>        
+        <div class="status {{post.get_label}}">
+            <div class="mini-counts">{{post.answer_count}}</div>
+            <div>answers</div>
+        </div>
+    </td>
+
+    <td>
+        <div class="status views">
+            <div class="mini-counts">{% bignum post.views %}</div>
+            <div>views</div>
+        </div>
+    </td>
+
+    <td class="summary" width="100%">
+        
+        <div class="post-title {{post.get_type_display}}">            
+            Blog: <a href="{{post.url}}">{{post.get_title}} </a>
+        </div>
+        
+        {# generates the small peek into the post #}
+        <div class="peek">{{post.content|chunk|safe}} ... </div>
+        
+        {# this shows the tags on the post #}
+        {% show_tags post %}
+        
+        {# shows post creation time and author #}
+        {% post_info_line 'posted' post %}
+        
+    </td>
+
+<tr>

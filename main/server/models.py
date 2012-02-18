@@ -145,7 +145,8 @@ class Post(models.Model):
     tag_set = models.ManyToManyField(Tag) # The tag set is built from the tag string and used only for fast filtering
     views = models.IntegerField(default=0, blank=True, db_index=True)
     score = models.IntegerField(default=0, blank=True, db_index=True)
-
+    
+ 
     creation_date = models.DateTimeField(db_index=True)
     lastedit_date = models.DateTimeField()
     lastedit_user = models.ForeignKey(User, related_name='editor')
@@ -168,6 +169,9 @@ class Post(models.Model):
     answer_count    = models.IntegerField(default=0, blank=True)
     accepted        = models.BooleanField(default=False, blank=True)
    
+     # this is used only for blog posts
+    url = models.URLField(default='', blank=True)
+
     # relevance measure, initially by timestamp, other rankings measures
     rank = models.FloatField(default=0, blank=True)
     
@@ -258,12 +262,10 @@ class Post(models.Model):
         return map(unicode, names)
     
     def apply(self, dir):
-        is_answer  = self.parent and self.type == POST_ANSWER
-        is_comment = self.parent and self.type == POST_COMMENT
-        if is_answer:
+        if self.type == POST_ANSWER:
             self.parent.answer_count += dir
             self.parent.save()
-        if is_comment:
+        if self.type == POST_COMMENT:
             self.parent.comment_count += dir
             self.parent.save()
     

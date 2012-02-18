@@ -104,13 +104,6 @@ def gravatar(user, size=80):
     )
     return """<img src="%s" alt="gravatar for %s"/>""" % (gravatar_url, user.username)
 
-    
-@register.inclusion_tag('widgets/answer-list-narrow.html')
-def answer_list_narrow(x):
-    return {'answers':x}
-
-
-
 @register.simple_tag(takes_context=True)
 def navclass(context, ending):
     url  = context['request'].get_full_path()
@@ -158,15 +151,11 @@ def flair(user):
         return '&diams;'
     return ""
 
-@register.inclusion_tag('widgets/render.post.html', takes_context=True)
-def XXXrender_post(context, request, post, tree):
-    "Renders a post"
-    return { 'post':post, 'tree':tree, 'request':request }
- 
 # preload the templates 
 row_question = template.loader.get_template('rows/row.post.html')
 row_answer   = template.loader.get_template('rows/row.answer.html')
 row_comment  = template.loader.get_template('rows/row.comment.html')
+row_blog     = template.loader.get_template('rows/row.blog.html')
 
 @register.simple_tag
 def table_row(post):
@@ -178,15 +167,16 @@ def table_row(post):
         row_question = template.loader.get_template('rows/row.post.html')
         row_answer   = template.loader.get_template('rows/row.answer.html')
         row_comment  = template.loader.get_template('rows/row.comment.html')
+        row_blog     = template.loader.get_template('rows/row.blog.html')
 
-    if post.top_level:
-        c = Context( {"post": post} )
+    c = Context( {"post": post, 'root':post.root})
+    if post.type == const.POST_BLOG:
+        row = row_blog
+    elif post.top_level:
         row = row_question
     elif post.type == const.POST_ANSWER:
-        c = Context( {"post": post, 'root':post.root})
         row = row_answer
     else:
-        c = Context( {"post": post, 'root':post.root})
         row = row_comment 
     
     text = row.render(c)
