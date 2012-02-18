@@ -37,6 +37,11 @@ def get_posts(request):
         query = models.Post.open_posts
     return query
 
+def update_counts(request, key, value):
+    counts = request.session.get(SESSION_POST_COUNT,{})
+    counts[key] = value
+    request.session[SESSION_POST_COUNT] = counts
+
 def index(request, tab="questions"):
     "Main page"
     
@@ -45,6 +50,9 @@ def index(request, tab="questions"):
     # this will fill in the query (q) and the match (m)parameters
     params.parse(request)
     
+    # update with counts
+    counts = request.session.get(SESSION_POST_COUNT, {})
+
     # returns the object manager that contains all or only visible posts
     posts = get_posts(request)
     
@@ -72,8 +80,12 @@ def index(request, tab="questions"):
     else:
         posts = posts.order_by('-rank')
     
+    # reset the counts
+    update_counts(request, tab, 0)
+
     page = get_page(request, posts, per_page=20)
-    return html.template(request, name='index.html', page=page, params=params)
+    
+    return html.template(request, name='index.html', page=page, params=params, counts=counts)
 
 def show_tag(request, tag_name=None):
     "Display posts by a certain tag"

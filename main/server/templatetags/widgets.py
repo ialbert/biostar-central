@@ -8,10 +8,13 @@ register = template.Library()
 
 @register.simple_tag
 def show_value(value):
-    if value:
-        return " (%s) " % value
-    else:
-        return ""
+   return " (%s) " % value if value else ""
+   
+@register.simple_tag
+def show_count(key, store):
+   count = store.get(key)
+   return " (%s) " % count if count else ""
+   
 @register.inclusion_tag('widgets/form.field.html',)
 def form_field(field, label, help=''):
     errors = ", ".join(field.errors)
@@ -55,9 +58,9 @@ def render_answer(context, post, tree):
     return { 'post':post, 'tree':tree, 'request':context['request'], 'full':False }
 
 @register.inclusion_tag('widgets/tab.bar.html')
-def tab_bar(tab=''):
+def tab_bar(tab='', counts={}):
     "Renders the switchable tab on most pages"
-    return { 'tab': tab }
+    return { 'tab': tab, 'counts':counts }
 
 @register.inclusion_tag('widgets/nav.bar.html', takes_context=True)
 def nav_bar(context, user, params={}):

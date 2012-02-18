@@ -53,7 +53,7 @@ class UserProfile( models.Model ):
     new_messages  = models.IntegerField(default=0)
    
     # the last visit by the user
-    last_visited = models.DateTimeField(auto_now=True)
+    last_visited = models.DateTimeField()
     
     # user status: active, suspended
     status = models.IntegerField(choices=USER_STATUS_TYPES, default=USER_ACTIVE)
@@ -524,7 +524,7 @@ def create_profile(sender, instance, created, *args, **kwargs):
     if created:
         uuid = make_uuid() 
         display_name = html.nuke(instance.get_full_name()) or 'Biostar User'
-        UserProfile.objects.create(user=instance, uuid=uuid, display_name=display_name)
+        UserProfile.objects.create(user=instance, uuid=uuid, display_name=display_name, last_visited=datetime.now())
 
 def update_profile(sender, instance, *args, **kwargs):
     "Pre save hook for profiles"

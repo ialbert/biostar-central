@@ -1,14 +1,15 @@
 import datetime
 from django.contrib.auth import logout
 from django.contrib import messages
-from main.server import models, notegen
+from main.server import models, notegen, html
 from main.server.const import *
+
 class LastVisit(object):
     """
     Updates the last visit stamp at MINIMUM_TIME intervals
     """
     # minimum elapsed time
-    MINIMUM_TIME = 60 * 5 # every 5 minutes
+    MINIMUM_TIME = 60 * 10 # every 5 minutes
 
     def process_request(self, request):
         
@@ -26,10 +27,24 @@ class LastVisit(object):
             
             # Prevent writing to the database too often
             if diff > self.MINIMUM_TIME:
-                models.UserProfile.objects.filter(user=user).update(last_visited = now)
+               
+                last = user.profile.last_visited
+               
+                questions = models.Post.objects.filter(type=POST_QUESTION, creation_date__gt=last).count()
+                unanswered = models.Post.objects.filter(type=POST_QUESTION, answer_count=0,  creation_date__gt=last).count()
+                guides = models.Post.objects.filter(type=POST_GUIDE, answer_count=0, creation_date__gt=last).count()
+                planet = models.Post.objects.filter(type=POST_BLOG,  creation_date__gt=last).count()
+                
+                counts = dict(planet=planet,  unanswered=unanswered, questions=questions, guides=guides)
+                request.session[SESSION_POST_COUNT] = counts
+                
+                models.UserProfile.objects.filter(user=user).update(last_visited=now)
+               
                 # award the beta tester badge
                 #models.apply_award(request=request, user=user, badge_name=BETA_TESTER_BADGE, messages=messages)
-            
+                
+                # recompute the posts
+                
             # a handy shortcut
             request.user.can_moderate = profile.can_moderate
         else:

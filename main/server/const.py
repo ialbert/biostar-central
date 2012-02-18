@@ -36,6 +36,9 @@ POST_SUBLEVEL = set( [POST_ANSWER, POST_COMMENT ])
 # toplevel posts may stand alone and must have title and tags
 POST_TOPLEVEL = set( POST_MAP.keys() ) - POST_SUBLEVEL
 
+# the session key that stores new post counts
+SESSION_POST_COUNT = 'session-post-count'
+
 # the type of messages that the system maintains
 NOTE_USER, NOTE_MODERATOR, NOTE_ADMIN, NOTE_AWARD, NOTE_SITE = range(1, 6)
 NOTE_TYPES = ((NOTE_USER,'User'), (NOTE_MODERATOR,'Moderator'), (NOTE_ADMIN,'Admin'), (NOTE_AWARD, 'Award'), (NOTE_SITE, "Site"))

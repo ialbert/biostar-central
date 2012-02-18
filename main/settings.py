@@ -156,9 +156,12 @@ MIDDLEWARE_CLASSES = (
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.dummy.DummyCache' if DEBUG else 'django.core.cache.backends.locmem.LocMemCache',
+        #'BACKEND':  'django.core.cache.backends.locmem.LocMemCache',
         'LOCATION': 'unique-snowflake'
     }
 }
+
+#SESSION_ENGINE = "django.contrib.sessions.backends.cache" 
 
 ROOT_URLCONF = 'main.urls'
 
