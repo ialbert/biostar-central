@@ -535,10 +535,11 @@ def index_post_content():
 
     wr = ix.writer()    
     for index, post in enumerate(models.Post.objects.all()):
-        if post.type in POST_CONTENT_ONLY:
-            text = post.content
-        else:
+        
+        if post.type in POST_TOPLEVEL:
             text = post.title + post.content
+        else:
+            text = post.content
         text = unicode(text)
         wr.add_document(content=text, pid=post.id)
         if index % 1000 == 0:
