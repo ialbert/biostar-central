@@ -44,11 +44,10 @@
     <div class="title">Current stats</div>
     
     <div class="par"> 
-            <a href="/user/list/">{{params.user_count|intcomma}} users</a> have contributed 
-            <a href="/post/list/">{{params.post_count|intcomma}} posts</a> distributed as 
-            <a href="/post/list/questions/">{{params.question_count|intcomma}} questions</a>, 
-            <a href="/post/list/answers/">{{params.answer_count|intcomma}} answers</a> and  
-            <a href="/post/list/comments/"> {{params.comment_count|intcomma}} comments</a> 
+            <a href="{% url main.server.views.user_list %}">{{params.user_count|intcomma}} users</a> have contributed 
+            <a href="{% url main.server.views.index tab='recent' %}">{{params.post_count|intcomma}} posts</a> distributed as 
+            {{params.question_count|intcomma}} questions, {{params.answer_count|intcomma}} answers and  
+            {{params.comment_count|intcomma}} comments
     </div>
     
     <div class="title">Source code</div>

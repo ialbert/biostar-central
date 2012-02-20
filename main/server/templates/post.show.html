@@ -5,10 +5,18 @@
     <script src="{{ STATIC_URL }}js/widgets.js"></script>
     <script src="{{ STATIC_URL }}js/csrf.js"></script>
     <script src="{{ STATIC_URL }}js/vote.js"></script>
+
+    <!-- prettify -->
+    <link href="{{ STATIC_URL }}lib/prettify.css" rel="stylesheet"> 
+    <script src="{{ STATIC_URL }}lib/prettify.js"></script>
+
 {% endblock %}
 
 {% block document_ready %}
     
+    $('pre').addClass('prettyprint')
+    prettyPrint()
+
     // register the add comment function
     $('.add-comment').each(function(){
         elem = $(this)

@@ -22,7 +22,10 @@ body {
     .gold   { color: #FFCC00; }
 }    
 
+code {
+    border:0px solid white;
 
+}
 
 .add-comment {
     cursor: pointer;
