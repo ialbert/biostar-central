@@ -290,7 +290,7 @@ def post_edit(request, pid=0, parentid=0, post_type=POST_QUESTION):
     assert post_type in POST_MAP, 'Invalid post_type %s' % post_type
   
     # select the form factory from the post types
-    use_post_form = (post_type not in POST_CONTENT_ONLY)
+    use_post_form = (post_type in POST_TOPLEVEL)
 
     if use_post_form:
         factory = formdef.PostForm
@@ -338,7 +338,7 @@ def post_edit(request, pid=0, parentid=0, post_type=POST_QUESTION):
     post_type = post.type
    
     # select the form factory from the post types
-    use_post_form = (post_type not in POST_CONTENT_ONLY)
+    use_post_form = (post_type in POST_TOPLEVEL)
     if use_post_form:
         factory = formdef.PostForm
     else:

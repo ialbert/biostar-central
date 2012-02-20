@@ -25,20 +25,19 @@
         
         <input type="hidden" value={{post_type}} name="post_type">
         
-        {% if form.title.errors %}
-        <div class="control-group error">
-        {% else %}
-        <div class="control-group">
-        {% endif %}
-        <label class="control-label" for="title">Title</label>
-            <div class="controls">
-                {{form.title}}
-                <span class="help-inline">{{form.title.errors}}</span>
+     {% if params.use_post_form %}
+            {% if form.title.errors %}
+            <div class="control-group error">
+            {% else %}
+            <div class="control-group">
+            {% endif %}
+            <label class="control-label" for="title">Title</label>
+                <div class="controls">
+                    {{form.title}}
+                    <span class="help-inline">{{form.title.errors}}</span>
+                </div>
             </div>
-        </div>
-    
-     {% if params.use_post_form  %}
-
+     
             {% if form.tag_val.errors %}
             <div class="control-group error">
             {% else %}

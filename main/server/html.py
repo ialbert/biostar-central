@@ -11,9 +11,8 @@ from django.core.paginator import Paginator, InvalidPage, EmptyPage
 
 from BeautifulSoup import BeautifulSoup, Comment
 
-import markdown, pygments
-from pygments import highlight, lexers, formatters
-from pygments.formatters import HtmlFormatter
+import markdown
+
 from itertools import groupby
 
 def get_page(request, obj_list, per_page=25):
