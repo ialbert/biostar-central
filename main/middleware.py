@@ -32,10 +32,11 @@ class LastVisit(object):
                
                 questions = models.Post.objects.filter(type=POST_QUESTION, creation_date__gt=last).count()
                 unanswered = models.Post.objects.filter(type=POST_QUESTION, answer_count=0,  creation_date__gt=last).count()
+                forum  = models.Post.objects.filter(type=POST_FORUM, answer_count=0, creation_date__gt=last).count()
                 guides = models.Post.objects.filter(type=POST_GUIDE, answer_count=0, creation_date__gt=last).count()
                 planet = models.Post.objects.filter(type=POST_BLOG,  creation_date__gt=last).count()
                 
-                counts = dict(planet=planet,  unanswered=unanswered, questions=questions, guides=guides)
+                counts = dict(planet=planet,  unanswered=unanswered, questions=questions, guides=guides, forum=forum)
                 request.session[SESSION_POST_COUNT] = counts
                 
                 models.UserProfile.objects.filter(user=user).update(last_visited=now)

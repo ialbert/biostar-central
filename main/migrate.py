@@ -518,12 +518,74 @@ def admin_init():
             admin.is_staff = admin.is_superuser = True
             if USE_DB:
                 admin.save()
+                admin.profile.type = const.USER_ADMIN
+                admin.profile.save()
             print '*** added staff access to admin user %s (%s)' % (admin.username, admin.email)
     
     editors, flag = models.Group.objects.get_or_create(name=const.MODERATOR_GROUP)
     if flag:
         print '*** created group %s' % editors.name
 
+def blogs_init():
+    "Initialize blogs to a few known blogs"
+    
+    import feedparser, urllib, datetime
+    
+    urls =[
+        'http://plindenbaum.blogspot.com/feeds/posts/default',
+        'http://nsaunders.wordpress.com/feed/',
+        'http://feeds2.feedburner.com/bcbio',
+        'http://ivory.idyll.org/blog/tags/bioinformatics?flav=atom'
+    ]
+    
+    DUMP = False
+    for index, url in enumerate(urls):
+        try:
+            #p = feedparser.parse(url)
+            fname = 'import/blog-%s.xml' % index
+            if DUMP:
+                text = urllib.urlopen(url).read()
+                fp = file( fname, 'wt')
+                fp.write(text)
+                fp.close()
+            else:
+                # parse
+                p = feedparser.parse(fname)
+                title = p.feed.title
+                desc  = p.feed.description
+                user, created = models.User.objects.get_or_create(username="blog%s" % index)
+                if created:
+                    user.profile.display_name = title
+                    user.profile.type = USER_BLOG
+                    user.profile.website = url
+                    user.profile.about_me = desc
+                    user.profile.save()
+                    blog = models.Blog(author=user, url=url)
+                    blog.save()
+                # add up to three posts
+                for r in list(p.entries)[:3]:
+                    date = r.date_parsed
+                    date = datetime.datetime(date[0], date[1], date[2])
+                    post = models.Post(title=r.title, url=r.link, author=user,  type=POST_BLOG, content=r.description, creation_date=date)
+                    post.save()
+            print "*** blog import %s" % url
+        except Exception,exc:
+            print "*** blog import error %s -> %s " % (url, exc)
+    
+    # find the first admin user
+    admin = models.User.objects.filter(email=settings.ADMINS[0][1])
+    
+    # create the first forum post
+    content = file('import/first-forum.txt').read()
+    post  = models.Post(title="Biostar forum posting guidelines", author=admin,  type=POST_FORUM, tag_val="forum guidelines", content=content)
+    post.save()
+    
+    # create the first guide post
+    content = file('import/first-guide.txt').read()
+    post  = models.Post(title="Converting SOLID colorspace fasta files", author=admin,  type=POST_GUIDE, tag_val="solid csfasta csfastq", content=content)
+    post.save()
+    
+                    
 def index_post_content():
     "Indexes post content"
     from whoosh import index
@@ -594,12 +656,13 @@ def execute(path, limit=None):
     # indexes all post content
     index_post_content()
     
-
+    
     finalize()
 
     # adds administration rights to users
     # listed in the DJAGNO settings file
     admin_init()
+    blogs_init()
     
 
 if __name__ =='__main__':

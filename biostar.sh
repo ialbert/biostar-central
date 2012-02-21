@@ -37,7 +37,7 @@ echo "Settings:"
 echo "*** BIOSTAR_HOME=$BIOSTAR_HOME"
 echo "*** BIOSTAR_HOSTNAME=$BIOSTAR_HOSTNAME"
 echo "*** DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE"
-#echo "*** PYTHONPATH=$PYTHONPATH"
+echo "*** PYTHONPATH=$PYTHONPATH"
 
 if [ $# == 0 ]; then
 	echo ''

@@ -1,0 +1,14 @@
+Biostar is divided into several sections:
+
+The **Questions** tab is meant to help users find answers to well defined and specific bioinformatics questions. Most importantly the tile must be formulated as a question.
+
+The **Forum** tab displays all other generic posts that do not have a designated location. Note that while the **Forum** post requirements are more relaxed the topic of the posts must still be _bioinformatics_ or _biological data analysis_
+
+The **Planet** tab contains blog posts by existing users as well as short summaries and links to external blog sites. For external blog posts only a short description is shown, to read the full post follow the link. 
+
+The **Guide** tab contains guides and tutorial posts that describe a particular technique or methodology. 
+
+Moderators may reclassify posts if they believe to be better suited to a different section. To reach the moderators you may use the comments below each post or  see the [About](/about/ "About page") page for contact information.
+
+Logged in users get small notification in the tab displaying the number of new posts in a tab since their last visited.
+

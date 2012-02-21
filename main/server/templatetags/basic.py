@@ -137,10 +137,12 @@ def bignum(number):
 def designation(user):
     "Renders a designation for the user"
     if user.profile.is_admin:
-        return 'Administrator'
+        return 'Administrator: '
     elif user.profile.is_moderator:
-        return 'Moderator'
-    return "Registered user"
+        return 'Moderator: '
+    elif user.profile.type == const.USER_BLOG:
+        return 'Blog: '
+    return "User"
     
 @register.simple_tag
 def flair(user):

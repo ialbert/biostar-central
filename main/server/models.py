@@ -35,7 +35,7 @@ class UserProfile( models.Model ):
     user  = models.OneToOneField(User, unique=True, related_name='profile')
     
     # user chosen display nam
-    display_name  = models.CharField(max_length=35, default='User', null=False,  db_index=True)
+    display_name  = models.CharField(max_length=100, default='User', null=False,  db_index=True)
     
     # this designates a user as moderator
     type = models.IntegerField(choices=USER_TYPES, default=USER_NEW)
@@ -69,9 +69,6 @@ class UserProfile( models.Model ):
     
     # website may be used as a blog
     website  = models.URLField(default="", null=True, max_length=100)
-    
-    # XML blog feed
-    blog = models.URLField(default="", null=True, max_length=100)
     
     @property
     def can_moderate(self):
@@ -178,12 +175,12 @@ class Post(models.Model):
     # relevance measure, initially by timestamp, other rankings measures
     rank = models.FloatField(default=0, blank=True)
     
-    def compute_rank(self):
-        "Sets the rank number by the timestamp"
-        return time.time()
+    def compute_rank(self, spread=100):
+        "Sets the rank number by the timestamp. Perturb slightly to avoid ranking strictly by insert time"
+        return time.time() + random.randint(-spread, spread)
         
     def get_absolute_url(self):
-        return "/post/show/%d/#%d" % (self.root.id, self.id)
+        return "/post/show/%d/%s#%d" % (self.root.id, self.root.slug, self.id)
           
     def set_tags(self):
         if self.type not in POST_CONTENT_ONLY:
@@ -283,7 +280,16 @@ class Post(models.Model):
         else:
             return "TITLE:%s\n%s\nTAGS:%s" % (self.title, self.content, self.tag_val)
         
+
+class Blog(models.Model):
+    """
+    Sources for Planet feeds
+    """
     
+    # the user that blog will belong to
+    author  = models.ForeignKey(User)
+    url     = models.URLField(max_length=500)
+   
 class PostAdmin(admin.ModelAdmin):
     list_display = ('id', 'title', )
 

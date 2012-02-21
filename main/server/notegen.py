@@ -6,11 +6,10 @@ from main.server.const import *
 def userlink(user):
     return '[%s](%s)' % (user.profile.display_name, user.profile.get_absolute_url() )
 
-def postlink(post):
-    size  = 35
+def postlink(post, size=35):
     root  = post.root or post
     title = root.title if len(root.title) < size else '%s...' %  root.title[:size] 
-    return '[%s](%s%s/#%s)' % (title, root.get_absolute_url(), root.slug, post.id)
+    return '[%s](%s)' % (title, root.get_absolute_url())
 
 def badgelink(badge):
     return '[%s](%s)' % (badge.name, badge.get_absolute_url() )
@@ -31,7 +30,7 @@ def post_action(user, post):
     elif post_type == POST_COMMENT:
         action = 'commented on'
     else:
-        action = "did something to"
+        action = "posted"
     
     size = 250
     if len(post.content)<size:
@@ -39,7 +38,7 @@ def post_action(user, post):
     else:
         content = '%s...' % post.content[:size]
     
-    text   = '%s %s %s with *%s*' % (userlink(user), action, postlink(post), content)
+    text   = '%s %s %s %s' % (userlink(user), action, postlink(post), content)
     return text
 
 def suspend(user):
