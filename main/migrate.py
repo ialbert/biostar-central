@@ -573,7 +573,7 @@ def blogs_init():
             print "*** blog import error %s -> %s " % (url, exc)
     
     # find the first admin user
-    admin = models.User.objects.filter(email=settings.ADMINS[0][1])
+    admin = models.User.objects.get(email=settings.ADMINS[0][1])
     
     # create the first forum post
     content = file('import/first-forum.txt').read()
