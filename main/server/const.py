@@ -44,8 +44,8 @@ NOTE_USER, NOTE_MODERATOR, NOTE_ADMIN, NOTE_AWARD, NOTE_SITE = range(1, 6)
 NOTE_TYPES = ((NOTE_USER,'User'), (NOTE_MODERATOR,'Moderator'), (NOTE_ADMIN,'Admin'), (NOTE_AWARD, 'Award'), (NOTE_SITE, "Site"))
 
 # user types
-USER_NORMAL,  USER_MODERATOR, USER_ADMIN, USER_SPECIAL, = range(1, 5)
-USER_TYPES = ( (USER_NORMAL, 'Member'),  (USER_MODERATOR, 'Moderator'), 
+USER_NEW, USER_MEMBER,  USER_MODERATOR, USER_ADMIN, USER_SPECIAL, = range(1, 6)
+USER_TYPES = ( (USER_NEW, 'New'), (USER_MEMBER, 'Member'),  (USER_MODERATOR, 'Moderator'), 
     (USER_ADMIN, 'Administrator'), (USER_SPECIAL, 'Special'),)
 
 # user status types

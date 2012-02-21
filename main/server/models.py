@@ -38,7 +38,7 @@ class UserProfile( models.Model ):
     display_name  = models.CharField(max_length=35, default='User', null=False,  db_index=True)
     
     # this designates a user as moderator
-    type  = models.IntegerField(choices=USER_TYPES, default=USER_NORMAL)
+    type = models.IntegerField(choices=USER_TYPES, default=USER_NEW)
     
     # globally unique id used to identify the user in a private feeds
     uuid = models.TextField(null=False,  db_index=True, unique=True)
@@ -69,6 +69,9 @@ class UserProfile( models.Model ):
     
     # website may be used as a blog
     website  = models.URLField(default="", null=True, max_length=100)
+    
+    # XML blog feed
+    blog = models.URLField(default="", null=True, max_length=100)
     
     @property
     def can_moderate(self):
