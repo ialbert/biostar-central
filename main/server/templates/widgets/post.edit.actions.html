@@ -1,5 +1,11 @@
 {% load basic %}
 
+<div class="edit-action">
+    
+<a href="{{request.path}}#{{post.id}}">permalink</a>
+
+&bull;
+
 {% if request.user.is_authenticated %}
     <span>
         {% csrf_token %}
@@ -10,9 +16,6 @@
     <a href="/openid/login/?next={{request.path}}">log in to comment</a>
 {% endif %}
             
-&bull;
-
-<a href="{{request.path}}#{{post.id}}">permalink</a>
 
 {% if post.writeable %}
     
@@ -20,21 +23,25 @@
     <a href="/post/edit/{{post.id}}/">edit</a>
     
     <span class="mod-menu">
-    
+    {% if post.top_level %}
+        &bull;
         {% if post.closed %}
-            &bull; <a class="mod-link">reopen</a> 
+             <a class="mod-link">reopen</a> 
         {% else %}
-            &bull; <a class="mod-link">close</a>
+            <a class="mod-link">close</a>
         {% endif %}
-    
-        {% if post.deleted %}
-            &bull; <a class="mod-link">undelete</a> 
-        {% else %}
-            &bull; <a class="mod-link">delete</a>                                   
-        {% endif %}                            
-    
-    </span>    
+    {% endif %}
 
+    &bull;
+    
+    {% if post.deleted %}
+        <a class="mod-link">undelete</a> 
+    {% else %}
+        <a class="mod-link">delete</a>                                   
+    {% endif %}   
+    </span>
+    
 {% endif %}
+</div>
 
 

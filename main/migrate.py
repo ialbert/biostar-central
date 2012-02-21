@@ -535,7 +535,7 @@ def blogs_init():
         'http://plindenbaum.blogspot.com/feeds/posts/default',
         'http://nsaunders.wordpress.com/feed/',
         'http://feeds2.feedburner.com/bcbio',
-        'http://ivory.idyll.org/blog/tags/bioinformatics?flav=atom'
+        'http://ivory.idyll.org/blog/tags/bioinformatics?flav=atom',
     ]
     
     DUMP = False

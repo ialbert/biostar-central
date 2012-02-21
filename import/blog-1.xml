@@ -14,7 +14,7 @@
 	<atom:link href="http://nsaunders.wordpress.com/feed/" rel="self" type="application/rss+xml" />
 	<link>http://nsaunders.wordpress.com</link>
 	<description>Notes from the life of a bioinformatics researcher</description>
-	<lastBuildDate>Tue, 21 Feb 2012 01:12:29 +0000</lastBuildDate>
+	<lastBuildDate>Tue, 21 Feb 2012 18:07:42 +0000</lastBuildDate>
 	<language>en</language>
 	<sy:updatePeriod>hourly</sy:updatePeriod>
 	<sy:updateFrequency>1</sy:updateFrequency>
@@ -60,7 +60,7 @@ Academic Press
 <p>So apparently, my chapter has been &#8220;repurposed&#8221; for a completely different publication. Perhaps this transpired in consultation with the research group after I left. Perhaps there&#8217;s a long-forgotten email trail in which I agreed to this. Or perhaps we have so little control over our own work that strange things like this can just happen.</p>
 <br />Filed under: <a href='http://nsaunders.wordpress.com/category/career/'>career</a>, <a href='http://nsaunders.wordpress.com/category/publications/'>publications</a> Tagged: <a href='http://nsaunders.wordpress.com/tag/book/'>book</a>, <a href='http://nsaunders.wordpress.com/tag/confusion/'>confusion</a>, <a href='http://nsaunders.wordpress.com/tag/protein-kinases/'>protein kinases</a>, <a href='http://nsaunders.wordpress.com/tag/writing/'>writing</a> <a rel="nofollow" href="http://feeds.wordpress.com/1.0/gocomments/nsaunders.wordpress.com/3023/"><img alt="" border="0" src="http://feeds.wordpress.com/1.0/comments/nsaunders.wordpress.com/3023/" /></a> <a rel="nofollow" href="http://feeds.wordpress.com/1.0/godelicious/nsaunders.wordpress.com/3023/"><img alt="" border="0" src="http://feeds.wordpress.com/1.0/delicious/nsaunders.wordpress.com/3023/" /></a> <a rel="nofollow" href="http://feeds.wordpress.com/1.0/gofacebook/nsaunders.wordpress.com/3023/"><img alt="" border="0" src="http://feeds.wordpress.com/1.0/facebook/nsaunders.wordpress.com/3023/" /></a> <a rel="nofollow" href="http://feeds.wordpress.com/1.0/gotwitter/nsaunders.wordpress.com/3023/"><img alt="" border="0" src="http://feeds.wordpress.com/1.0/twitter/nsaunders.wordpress.com/3023/" /></a> <a rel="nofollow" href="http://feeds.wordpress.com/1.0/gostumble/nsaunders.wordpress.com/3023/"><img alt="" border="0" src="http://feeds.wordpress.com/1.0/stumble/nsaunders.wordpress.com/3023/" /></a> <a rel="nofollow" href="http://feeds.wordpress.com/1.0/godigg/nsaunders.wordpress.com/3023/"><img alt="" border="0" src="http://feeds.wordpress.com/1.0/digg/nsaunders.wordpress.com/3023/" /></a> <a rel="nofollow" href="http://feeds.wordpress.com/1.0/goreddit/nsaunders.wordpress.com/3023/"><img alt="" border="0" src="http://feeds.wordpress.com/1.0/reddit/nsaunders.wordpress.com/3023/" /></a> <img alt="" border="0" src="http://stats.wordpress.com/b.gif?host=nsaunders.wordpress.com&amp;blog=334198&amp;post=3023&amp;subd=nsaunders&amp;ref=&amp;feed=1" width="1" height="1" />]]></content:encoded>
 			<wfw:commentRss>http://nsaunders.wordpress.com/2012/02/21/when-even-your-own-publication-list-makes-no-sense/feed/</wfw:commentRss>
-		<slash:comments>2</slash:comments>
+		<slash:comments>3</slash:comments>
 	
 		<media:content url="http://0.gravatar.com/avatar/e41743fa8aee7f5c7d1cd7ebfa77da85?s=96&#38;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D96" medium="image">
 			<media:title type="html">nsaunders</media:title>
@@ -104,12 +104,12 @@ But two other skills are increasingly necessary: expertise in computer-programmi
 		<pubDate>Thu, 02 Feb 2012 12:43:30 +0000</pubDate>
 		<dc:creator>nsaunders</dc:creator>
 				<category><![CDATA[bioinformatics]]></category>
-		<category><![CDATA[perl]]></category>
 		<category><![CDATA[programming]]></category>
-		<category><![CDATA[biostar]]></category>
-		<category><![CDATA[how to]]></category>
+		<category><![CDATA[perl]]></category>
 		<category><![CDATA[pdb]]></category>
+		<category><![CDATA[how to]]></category>
 		<category><![CDATA[protein structure]]></category>
+		<category><![CDATA[biostar]]></category>
 
 		<guid isPermaLink="false">http://nsaunders.wordpress.com/?p=3000</guid>
 		<description><![CDATA[A question at BioStar: how to &#8220;return all pdb ids to a given one that differ only by one amino acid&#8221;? My answer began: &#8220;I think it is not too much work to craft a solution using a few tools&#8221;, followed by some incomplete ideas. Let&#8217;s see if I was right. I&#8217;m not sure that [...]<img alt="" border="0" src="http://stats.wordpress.com/b.gif?host=nsaunders.wordpress.com&amp;blog=334198&amp;post=3000&amp;subd=nsaunders&amp;ref=&amp;feed=1" width="1" height="1" />]]></description>
@@ -342,8 +342,8 @@ The kind people at WordPress.com have prepared a 2011 annual report for this blo
 		<comments>http://nsaunders.wordpress.com/2011/12/22/sequencing-for-relics-from-the-sanger-era-part-1-getting-the-raw-data/#comments</comments>
 		<pubDate>Thu, 22 Dec 2011 04:28:44 +0000</pubDate>
 		<dc:creator>nsaunders</dc:creator>
-				<category><![CDATA[bioinformatics]]></category>
-		<category><![CDATA[research diary]]></category>
+				<category><![CDATA[research diary]]></category>
+		<category><![CDATA[bioinformatics]]></category>
 		<category><![CDATA[how to]]></category>
 		<category><![CDATA[next-generation]]></category>
 		<category><![CDATA[ngs]]></category>
@@ -495,10 +495,10 @@ ls -l SRR385952.fastq
 		<dc:creator>nsaunders</dc:creator>
 				<category><![CDATA[bioinformatics]]></category>
 		<category><![CDATA[genomics]]></category>
-		<category><![CDATA[arseniclife]]></category>
-		<category><![CDATA[extremophiles]]></category>
-		<category><![CDATA[halomonas]]></category>
 		<category><![CDATA[microbiology]]></category>
+		<category><![CDATA[halomonas]]></category>
+		<category><![CDATA[extremophiles]]></category>
+		<category><![CDATA[arseniclife]]></category>
 
 		<guid isPermaLink="false">http://nsaunders.wordpress.com/?p=2899</guid>
 		<description><![CDATA[It&#8217;s about one year since the science story dubbed #arseniclife hit the headlines. November 30th saw the release of a draft genome sequence for Halomonas sp. GFAJ-1, the bacterium behind the furore. As Iddo pointed out on Twitter, sequencing the DNA from GFAJ-1 is itself strong evidence against arsenate in the DNA backbone, since the [...]<img alt="" border="0" src="http://stats.wordpress.com/b.gif?host=nsaunders.wordpress.com&amp;blog=334198&amp;post=2899&amp;subd=nsaunders&amp;ref=&amp;feed=1" width="1" height="1" />]]></description>
@@ -687,11 +687,11 @@ sed -i -e 's/^@SRR385952\.[0-9]*/&amp;\/2/' SRR385952_2.fastq
 		<comments>http://nsaunders.wordpress.com/2011/12/02/a-friday-round-up/#comments</comments>
 		<pubDate>Thu, 01 Dec 2011 23:36:06 +0000</pubDate>
 		<dc:creator>nsaunders</dc:creator>
-				<category><![CDATA[research diary]]></category>
-		<category><![CDATA[web resources]]></category>
-		<category><![CDATA[bioinformatics]]></category>
-		<category><![CDATA[statistics]]></category>
+				<category><![CDATA[bioinformatics]]></category>
 		<category><![CDATA[R]]></category>
+		<category><![CDATA[research diary]]></category>
+		<category><![CDATA[statistics]]></category>
+		<category><![CDATA[web resources]]></category>
 
 		<guid isPermaLink="false">http://nsaunders.wordpress.com/?p=2891</guid>
 		<description><![CDATA[Just a brief selection of items that caught my eye this week. Note that this is a Friday as opposed to Friday, lest you mistake this for a new, regular feature. 1. R/statistics ggbio A new Bioconductor package which builds on the excellent ggplot graphics library, for the visualization of biological data. R development master [...]<img alt="" border="0" src="http://stats.wordpress.com/b.gif?host=nsaunders.wordpress.com&amp;blog=334198&amp;post=2891&amp;subd=nsaunders&amp;ref=&amp;feed=1" width="1" height="1" />]]></description>

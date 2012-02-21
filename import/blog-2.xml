@@ -6,7 +6,7 @@
 	
 	<link>http://bcbio.wordpress.com</link>
 	<description />
-	<lastBuildDate>Sun, 19 Feb 2012 02:35:02 +0000</lastBuildDate>
+	<lastBuildDate>Tue, 21 Feb 2012 18:06:47 +0000</lastBuildDate>
 	<language>en</language>
 	<sy:updatePeriod>hourly</sy:updatePeriod>
 	<sy:updateFrequency>1</sy:updateFrequency>
@@ -48,7 +48,7 @@
 <h2 id="biocloudcentral----starting-a-cloudbiolinux-instance">BioCloudCentral &#8212; starting a CloudBioLinux instance</h2>
 <p>To get started, sign up for an <a href="http://aws.amazon.com/">Amazon Web services account</a>. This gives you access to on demand computing where you pay per hour of usage. Once signed up, you will need your Access Key ID and Secret Access Key from the <a href="https://aws-portal.amazon.com/gp/aws/developer/account/index.html?action=access-key">Amazon security credentials page</a>.</p>
 <p>With these, navigate to <a href="http://biocloudcentral.org">BioCloudCentral</a> and fill out the simple entry form. In addition to your access credentials, enter your choice of a name used to identify the cluster, and your choice of password to access the CloudMan web interface and the cluster itself via ssh or NX.</p>
-<p><span class='embed-youtube' style='text-align:center; display: block;'><iframe class='youtube-player' type='text/html' width='640' height='390' src='http://www.youtube.com/embed/9ZqvxhwcPaw?version=3&amp;rel=1&amp;fs=1&amp;showsearch=0&amp;showinfo=1&amp;iv_load_policy=1&amp;wmode=transparent' frameborder='0'></iframe></span><br />
+<p><span style="text-align:center; display: block;"><a href="http://bcbio.wordpress.com/2011/11/29/making-next-generation-sequencing-analysis-pipelines-easier-with-biocloudcentral-and-galaxy-integration/"><img src="http://img.youtube.com/vi/9ZqvxhwcPaw/2.jpg" alt="" /></a></span><br />
 </p>
 <p>Clicking submit launches a CloudBioLinux server on Amazon. Be careful, since you are now paying per hour for your machine; remember to shut it down when finished.</p>
 <p>Before leaving the monitoring page, you want to download a pre-formatted user-data file; this allows you to later start the same CloudMan instance directly from the <a href="https://console.aws.amazon.com/ec2/home">Amazon web services console</a>.</p>
@@ -58,16 +58,16 @@
 </code></pre>
 <p></p>
 <p>This shared instance contains the custom Galaxy interface we will use, along with FASTQ sequence files for demonstration purposes. CloudMan will start up the filesystem, SGE, PostgreSQL and Galaxy. Once launched, you can use the CloudMan interface to add additional machines to your cluster for processing.</p>
-<p><span class='embed-youtube' style='text-align:center; display: block;'><iframe class='youtube-player' type='text/html' width='640' height='390' src='http://www.youtube.com/embed/NkayXBBAr8I?version=3&amp;rel=1&amp;fs=1&amp;showsearch=0&amp;showinfo=1&amp;iv_load_policy=1&amp;wmode=transparent' frameborder='0'></iframe></span><br />
+<p><span style="text-align:center; display: block;"><a href="http://bcbio.wordpress.com/2011/11/29/making-next-generation-sequencing-analysis-pipelines-easier-with-biocloudcentral-and-galaxy-integration/"><img src="http://img.youtube.com/vi/NkayXBBAr8I/2.jpg" alt="" /></a></span><br />
 </p>
 <h2 id="galaxy-pipeline-interface----running-the-analysis">Galaxy pipeline interface &#8212; running the analysis</h2>
 <p>This Galaxy instance is a <a href="https://bitbucket.org/hbc/galaxy-central-hbc/overview">fork of the main codebase</a> containing a custom pipeline interface in addition to all of the standard Galaxy tools. It provides an intuitive way to select FASTQ files for processing. Login with the demonstration account (user: example@example.com; password: example) and load FASTQ files along with target and bait BED files into your active history. Then work through the pipeline wizard step by step to start an analysis:</p>
-<p><span class='embed-youtube' style='text-align:center; display: block;'><iframe class='youtube-player' type='text/html' width='640' height='390' src='http://www.youtube.com/embed/dIeQCIi3EXw?version=3&amp;rel=1&amp;fs=1&amp;showsearch=0&amp;showinfo=1&amp;iv_load_policy=1&amp;wmode=transparent' frameborder='0'></iframe></span><br />
+<p><span style="text-align:center; display: block;"><a href="http://bcbio.wordpress.com/2011/11/29/making-next-generation-sequencing-analysis-pipelines-easier-with-biocloudcentral-and-galaxy-integration/"><img src="http://img.youtube.com/vi/dIeQCIi3EXw/2.jpg" alt="" /></a></span><br />
 </p>
 <p>The Galaxy interface builds a configuration file describing the parameters and inputs, and submits this to the backend analysis server. This server kicks off processing, distributing the analysis across the SGE cluster. For the test data, processing will take approximately 4 hours on a cluster with a single additional work node (Large instance type).</p>
 <h2 id="galaxy----retrieving-and-displaying-results">Galaxy &#8212; retrieving and displaying results</h2>
 <p>The analysis pipeline uploads the finalized results into Galaxy data libraries. For this demonstration, the example user has results from a previous run in the data library so you don&#8217;t need to wait for the analysis to finish. This folder contains alignment data in BAM format, coverage information in BigWig format, a VCF file of variant calls, a tab separate file with predicted variant effects, and a PDF file of summary information. After importing these into your active Galaxy history, you can perform additional analysis on the data, including visualization in the UCSC genome browser:</p>
-<p><span class='embed-youtube' style='text-align:center; display: block;'><iframe class='youtube-player' type='text/html' width='640' height='390' src='http://www.youtube.com/embed/LtOK3U8990w?version=3&amp;rel=1&amp;fs=1&amp;showsearch=0&amp;showinfo=1&amp;iv_load_policy=1&amp;wmode=transparent' frameborder='0'></iframe></span><br />
+<p><span style="text-align:center; display: block;"><a href="http://bcbio.wordpress.com/2011/11/29/making-next-generation-sequencing-analysis-pipelines-easier-with-biocloudcentral-and-galaxy-integration/"><img src="http://img.youtube.com/vi/LtOK3U8990w/2.jpg" alt="" /></a></span><br />
 </p>
 <p>As a reminder, don&#8217;t forget to terminate your cluster when finished. You can do this either from the CloudMan web interface or the <a href="https://console.aws.amazon.com/ec2/home">Amazon console</a>.</p>
 <h2 id="analysis-pipeline-details-and-extending-this-work">Analysis pipeline details and extending this work</h2>
@@ -190,14 +190,14 @@
 <div id="start-cluster-with-cloudbiolinux-and-cloudman">
 <h2>Start cluster with CloudBioLinux and CloudMan</h2>
 <p>Start in the <a href="https://console.aws.amazon.com/ec2/">Amazon web console</a>, a convenient front end for managing EC2 servers. The first step is to follow the <a href="http://wiki.g2.bx.psu.edu/Admin/Cloud">CloudMan setup instructions</a> to create an Amazon account and set up appropriate security groups and user data. The <a href="http://wiki.g2.bx.psu.edu/Admin/Cloud">wiki page</a> contains detailed screencasts. Below is a short screencast showing how to boot your CloudBioLinux specific CloudMan server:</p>
-<span class='embed-youtube' style='text-align:center; display: block;'><iframe class='youtube-player' type='text/html' width='640' height='390' src='http://www.youtube.com/embed/eS8vmKIXIB4?version=3&amp;rel=1&amp;fs=1&amp;showsearch=0&amp;showinfo=1&amp;iv_load_policy=1&amp;wmode=transparent' frameborder='0'></iframe></span>
+<span style="text-align:center; display: block;"><a href="http://bcbio.wordpress.com/2011/08/19/distributed-exome-analysis-pipeline-with-cloudbiolinux-and-cloudman/"><img src="http://img.youtube.com/vi/eS8vmKIXIB4/2.jpg" alt="" /></a></span>
 <p></p>
 <p>Once this is booted, proceed to the CloudMan web interface on the server and startup an instance from this shared identifier:</p>
 <pre><code>cm-b53c6f1223f966914df347687f6fc818/shared/2011-10-07--14-00
 </code></pre>
 <p></p>
 <p>This screencast shows all of the details, including starting an additional node on the SGE cluster:</p>
-<p><span class='embed-youtube' style='text-align:center; display: block;'><iframe class='youtube-player' type='text/html' width='640' height='390' src='http://www.youtube.com/embed/4kIRI1m0g7Y?version=3&amp;rel=1&amp;fs=1&amp;showsearch=0&amp;showinfo=1&amp;iv_load_policy=1&amp;wmode=transparent' frameborder='0'></iframe></span><br />
+<p><span style="text-align:center; display: block;"><a href="http://bcbio.wordpress.com/2011/08/19/distributed-exome-analysis-pipeline-with-cloudbiolinux-and-cloudman/"><img src="http://img.youtube.com/vi/4kIRI1m0g7Y/2.jpg" alt="" /></a></span><br />
 </p>
 </div>
 <div id="configure-amqp-messaging">
@@ -591,20 +591,20 @@ def transfer_part(mp_id, mp_keyname, mp_bucketname, i, part):
 <h3>Researcher sample entry</h3>
 <p>Biologists use a local Galaxy server as an entry point to submit samples for sequencing. This provides a familiar interface and central location for both entering sample information and retrieving and analyzing the sequencing data.</p>
 <p>Practically, a user begins by browsing to the sample submission page. There they are presented with a wizard interface which guides them through entry of sample details. Multiplexed samples are supported through a drag and drop interface.</p>
-<span class='embed-youtube' style='text-align:center; display: block;'><iframe class='youtube-player' type='text/html' width='640' height='390' src='http://www.youtube.com/embed/HGhNMeEAFV0?version=3&amp;rel=1&amp;fs=1&amp;showsearch=0&amp;showinfo=1&amp;iv_load_policy=1&amp;wmode=transparent' frameborder='0'></iframe></span>
+<span style="text-align:center; display: block;"><a href="http://bcbio.wordpress.com/2011/01/11/next-generation-sequencing-information-management-and-analysis-system-for-galaxy/"><img src="http://img.youtube.com/vi/HGhNMeEAFV0/2.jpg" alt="" /></a></span>
 <p>When all samples are entered, the user submits them as a sequencing project. This includes billing information and a project name to facilitate communication between the researcher and the core group about submissions. Users are able to view their submissions grouped as projects and track the state of constructs. Since we support a number of services in addition to sequencing &#8212; like library construction, quantitation and validation &#8212; this is a valuable way for users to track and organize their requests.</p>
-<span class='embed-youtube' style='text-align:center; display: block;'><iframe class='youtube-player' type='text/html' width='640' height='390' src='http://www.youtube.com/embed/DtQG9IzpoCU?version=3&amp;rel=1&amp;fs=1&amp;showsearch=0&amp;showinfo=1&amp;iv_load_policy=1&amp;wmode=transparent' frameborder='0'></iframe></span>
+<span style="text-align:center; display: block;"><a href="http://bcbio.wordpress.com/2011/01/11/next-generation-sequencing-information-management-and-analysis-system-for-galaxy/"><img src="http://img.youtube.com/vi/DtQG9IzpoCU/2.jpg" alt="" /></a></span>
 </div>
 <div id="sequencing-tracking-and-management">
 <h3>Sequencing tracking and management</h3>
 <p>Administrators and sequencing technicians have access to additional functionality to help manage the internal sample preparation and sequencing workflow. The main sample tracking interface centers around a set of queues; each queue represents a state that a sample can be in. Samples move through the queues as they are processed, with additional information being added to the sample at each step. For instance, a sample in the &#8216;Pre-sequencing quantitation&#8217; queue moves to the &#8216;Sequencing&#8217; queue once it has been fully quantitated, with that quantitation information entered by the sequencing technician during the transition.</p>
 <p>Assigning samples to flow cells occurs using a drag and drop <a href="http://jqueryui.com/">jQueryUI</a> interface. The design is flexible to allow for placing samples across multiple lanes or multiplexing multiple barcoded samples into a single lane.</p>
-<span class='embed-youtube' style='text-align:center; display: block;'><iframe class='youtube-player' type='text/html' width='640' height='390' src='http://www.youtube.com/embed/Sjt6y1lbzVI?version=3&amp;rel=1&amp;fs=1&amp;showsearch=0&amp;showinfo=1&amp;iv_load_policy=1&amp;wmode=transparent' frameborder='0'></iframe></span>
+<span style="text-align:center; display: block;"><a href="http://bcbio.wordpress.com/2011/01/11/next-generation-sequencing-information-management-and-analysis-system-for-galaxy/"><img src="http://img.youtube.com/vi/Sjt6y1lbzVI/2.jpg" alt="" /></a></span>
 </div>
 <div id="viewing-sequencing-results">
 <h3>Viewing sequencing results</h3>
 <p>Running a sequencing machine requires careful monitoring of results and our interface provides several ways to view this data. Raw cluster and read counts are linked to a list of runs. For higher level analyses, interactive plots are available for viewing reads over time and pass rates compared to read density. These allow adjustment of experimental procedures to maximize useful reads based on current machine chemistry.</p>
-<span class='embed-youtube' style='text-align:center; display: block;'><iframe class='youtube-player' type='text/html' width='640' height='390' src='http://www.youtube.com/embed/4xrtPXE7Oe8?version=3&amp;rel=1&amp;fs=1&amp;showsearch=0&amp;showinfo=1&amp;iv_load_policy=1&amp;wmode=transparent' frameborder='0'></iframe></span>
+<span style="text-align:center; display: block;"><a href="http://bcbio.wordpress.com/2011/01/11/next-generation-sequencing-information-management-and-analysis-system-for-galaxy/"><img src="http://img.youtube.com/vi/4xrtPXE7Oe8/2.jpg" alt="" /></a></span>
 </div>
 </div>
 <div id="analysis-pipeline">
@@ -641,7 +641,7 @@ def transfer_part(mp_id, mp_keyname, mp_bucketname, i, part):
 <a href="http://feeds.feedburner.com/~ff/bcbio?a=cmVgnycrmic:nZpcl3dpm74:F7zBnMyn0Lo"><img src="http://feeds.feedburner.com/~ff/bcbio?i=cmVgnycrmic:nZpcl3dpm74:F7zBnMyn0Lo" border="0"></img></a> <a href="http://feeds.feedburner.com/~ff/bcbio?a=cmVgnycrmic:nZpcl3dpm74:V_sGLiPBpWU"><img src="http://feeds.feedburner.com/~ff/bcbio?i=cmVgnycrmic:nZpcl3dpm74:V_sGLiPBpWU" border="0"></img></a> <a href="http://feeds.feedburner.com/~ff/bcbio?a=cmVgnycrmic:nZpcl3dpm74:clraHZBW0_I"><img src="http://feeds.feedburner.com/~ff/bcbio?d=clraHZBW0_I" border="0"></img></a>
 </div><img src="http://feeds.feedburner.com/~r/bcbio/~4/cmVgnycrmic" height="1" width="1"/>]]></content:encoded>
 			<wfw:commentRss>http://bcbio.wordpress.com/2011/01/11/next-generation-sequencing-information-management-and-analysis-system-for-galaxy/feed/</wfw:commentRss>
-		<slash:comments>31</slash:comments>
+		<slash:comments>32</slash:comments>
 	
 		<media:content url="" medium="image">
 			<media:title type="html">Brad Chapman</media:title>
