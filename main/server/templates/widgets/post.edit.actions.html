@@ -27,17 +27,17 @@
         {% if post.top_level %}
             &bull;
             {% if post.closed %}
-                <a class="mod-link">reopen</a>
+                <a class="mod-link" action="reopen">reopen</a>
             {% else %}
-                <a class="mod-link">close</a>
+                <a class="mod-link" action="close">close</a>
             {% endif %}
         {% endif %}
     
         &bull;
         {% if post.deleted %}        
-            <a class="mod-link">undelete</a>
+            <a class="mod-link" action="undelete">undelete</a>
         {% else %}
-            <a class="mod-link">delete</a>                                   
+            <a class="mod-link" action="delete">delete</a>                                   
         {% endif %}
     
     </span>    

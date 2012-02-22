@@ -19,34 +19,24 @@ def post_moderator_action(user, post, action):
     text  = '%s used %s on %s' % (userlink(user), action, postlink(post))
     return text
 
-def post_action(user, post):
-   
+def post_action(user, post, size=250):
     post_type = int(post.type)
-
-    if post_type == POST_QUESTION:
-        action = 'asked'
-    elif post_type == POST_ANSWER:
-        action = 'answered'
-    elif post_type == POST_COMMENT:
-        action = 'commented on'
-    else:
-        action = "posted"
-    
-    size = 250
-    if len(post.content)<size:
+    post_map  = {POST_QUESTION:'asked', POST_ANSWER:'answered',
+        POST_COMMENT:'commented on'}
+    action = post_map.get(post_type, 'posted')
+    if len(post.content) < size:
         content = post.content
     else:
         content = '%s...' % post.content[:size]
-    
     text   = '%s %s %s %s' % (userlink(user), action, postlink(post), content)
     return text
 
-def suspend(user):
-    text = "suspended %s" % userlink(user)
+def suspend(moderator, target):
+    text = "%s suspended %s" % (userlink(moderator), userlink(target))
     return text
 
-def reinstate(user):
-    text = "reinstated %s" % userlink(user)
+def reinstate(moderator, target):
+    text = "%s reinstated %s" % (userlink(moderator), userlink(target))
     return text
 
 def badgenote(badge):

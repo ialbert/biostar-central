@@ -15,32 +15,44 @@ function show_add_comment(parent, post_id){
 
 // moderation handler
 function mod_link_clicked(link){
-    action = link.text()
+    action = link.attr("action")
     table  = link.parents('table') // Find the table holding the entire post to be moderated
     postid = table.find('input[type="hidden"]').val() // Now find the post id from its votebox
     $.post('/moderate/post/' + postid +'/' + action + '/',    
         function(data){
             popover(link.parent(), data.msg, data.status);
-            if (action=='delete')  { table.addClass('deleted'); link.text('undelete'); }
-            if (action=='undelete'){ table.removeClass('deleted'); link.text('delete'); }
-            if (action=='close')   { table.addClass('closed'); link.text('reopen'); }
-            if (action=='reopen')  { table.removeClass('closed'); link.text('close'); }
+            
+            function set(value){
+                link.text(value); link.attr("action", value)   
+            }
+            
+            if (data.status == 'success') {
+                if (action=='delete')  { table.addClass('deleted'); set('undelete') }
+                if (action=='undelete'){ table.removeClass('deleted'); set('delete') }
+                if (action=='close')   { table.addClass('closed'); set('reopen')  }
+                if (action=='reopen')  { table.removeClass('closed'); set('close')  }
+            }
         }, 'json');
     
 }
 
 //user moderation
 function usermod_link_clicked(link){
-    action = link.text()
+    info   = $('.user-info')
+    action = link.attr("action")
+    
     userid = $('#userid').text() // find the userid
-    username = $('#username').text()
-    if(confirm('Are you sure you want to ' + action +' user ' + username + ' ?')){
-         $.post('/moderate/user/' + userid +'/' + action + '/',
+    $.post('/moderate/user/' + userid +'/' + action + '/',
         function(data){
             popover(link.parent(), data.msg, data.status);
-            window.location.reload()
+            if (data.status == 'success') {
+                if (action=='suspend')  { info.addClass('suspended'); }
+                if (action=='reinstate')  { info.removeClass('suspended');}
+                link.delay(1000).fadeOut(1000, function(){
+                    link.remove() 
+                });
+            }
         }, 'json');
-    }
 }
 
 //comment deletion

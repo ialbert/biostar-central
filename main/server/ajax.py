@@ -107,46 +107,38 @@ def moderate_post(request, pid, action):
     
     post = models.Post.objects.get(id=pid)
     if user.can_moderate:
-        models.moderator_action(post=post, action=action_val, user=user)
+        models.moderate_post(post=post, action=action_val, user=user)
         msg = '%s performed' % action
         return ajax_success(msg)
     
     elif user == post.author and action_val in (REV_CLOSE, REV_DELETE):
         # authors may close or delete their own posts but may not reopen/undelete
-        models.moderator_action(post=post, action=action_val, user=user)
+        models.moderate_post(post=post, action=action_val, user=user)
         msg = '%s performed' % action
         return ajax_success(msg)
     
-    return ajax_error('unable to override - please ask a moderator')
+    return ajax_error('permission denied - please ask a moderator')
         
 @ajax_error_wrapper 
 def moderate_user(request, uid, action):
  
-    moderator = request.user
+    user = request.user
     target = models.User.objects.get(id=uid)
 
-    if not target.profile.authorize(moderator=moderator):
-        return html.json_response({'status':'error', 'msg':'You do not have permission to moderate this user.'})        
+    if not auth.authorize_user_edit(target=target, user=user):
+        return ajax_error('Permission denied')
     
-    if action == 'suspend':
-        target.profile.suspended = True
-        target.profile.save()
-        text = notegen.suspend(target)
-        models.Note.send(target=moderator, content=text, sender=moderator)
-        return html.json_response({'status':'success', 'msg':'user suspended'})
-    
-    elif action == 'reinstate':
+    if (target == user):
+        return ajax_error('Users may not moderate themselves')
         
-        # sanity check, the middleware should disable suspended users loggin in again
-        assert moderator != target, 'You may reinstate yourself'
-
-        target.profile.suspended = False
-        target.profile.save()
-        text = notegen.reinstate(target)
-        models.Note.send(target=moderator, content=text, sender=moderator)
-        return html.json_response({'status':'success', 'msg':'user reinstated'})
+    action_map = { 'suspend':USER_SUSPENDED, 'reinstate':USER_ACTIVE }
+    action_val = action_map.get(action)
+    if not action_val:
+        return ajax_error('Unrecognized action')
     
-    return html.json_response({'status':'error', 'msg':'Invalid action %s' % action})
+    msg = models.moderate_user(user=user, target=target, action=action_val)
+    msg = "%s" % action.title()
+    return ajax_success(msg)
     
 @ajax_error_wrapper
 def preview(request):

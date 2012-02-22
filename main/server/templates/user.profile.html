@@ -3,15 +3,27 @@
 {% load basic %}
 {% load widgets %}
 
+{% block head %}
+    <script src="{{ STATIC_URL }}js/handlers.js"></script>
+    <script src="{{ STATIC_URL }}js/csrf.js"></script>
+    <script src="{{ STATIC_URL }}js/vote.js"></script>
+{% endblock %}
+
+{% block document_ready %}
+    // user moderation handlers defined in /static/js/mod.js
+    $('.usermod-link').click(function(){
+        usermod_link_clicked($(this))
+    });
+{% endblock %}
+
 {% block body %}
 
 <div class="row">
-<div class="autobiography">
+<div class="user-info {{target.profile.get_status}}">
     
     <h2>
-    {% designation target %} {{ target.profile.display_name }} {% flair target %}           
+    {% designation target %} {{ target.profile.display_name }} {% flair target %}
     </h2>
-
 
     <div class="info-panel span2">
         <div>{% gravatar target 150 %}</div>
@@ -33,18 +45,17 @@
         
         {# editable #}    
         {% if target.writeable %}
-            <a class="btn" href="{% url main.server.action.user_edit target.id %}"><i class="icon-edit"></i> Edit info</a>
+            <a class="btn btn-primary" href="{% url main.server.action.user_edit target.id %}"><i class="icon-edit icon-white"></i> Edit info</a>
         {% endif %}
     
         {# moderator access #}
         {% if target.writeable and user != target%}
             &nbsp;&bull;&nbsp;
-            {% if target.profile.suspended %}
-                <a class="btn usermod-link"><i class="icon-edit"></i> Reinstate</a>
+            {% if target.profile.get_status %}
+                <a class="btn usermod-link btn-success" action="reinstate"><i class="icon-edit icon-white"></i> Reinstate</a>
             {% else %}
-                <a class="btn usermod-link "><i class="icon-remove-sign"></i> Suspend</a>
+                <a class="btn usermod-link btn-warning" action="suspend"><i class="icon-remove-sign icon-white"></i> Suspend</a>
             {% endif %}
-            
         {% endif %}
     
     </div>

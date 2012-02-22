@@ -195,12 +195,20 @@ def question_tagged(request, tag_name):
     qs = get_posts(request).filter(tag_set__name=tag_name)
     page = get_page(request, qs) 
     return html.template(request, name='post.list.html', page=page, params=params)
-  
+
+def get_post_manager(request):
+    user = request.user
+    if user.is_authenticated() and user.profile.can_moderate:
+        return models.Post.objects
+    else:
+        return models.Post.open_posts
+    
 def post_show(request, pid):
     "Returns a question with all answers"
     user = request.user
 
-    query = models.Post.objects
+    query = get_post_manager(request)
+
     try:
         root = query.get(id=pid)
         # update the views for the question

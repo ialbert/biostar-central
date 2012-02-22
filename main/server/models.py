@@ -12,7 +12,7 @@ from django.db import transaction
 from django.contrib.auth.models import User, Group
 from django.contrib import admin
 from django.conf import settings
-from django.db.models import F
+from django.db.models import F, Q
 from django.core.urlresolvers import reverse
 
 from datetime import datetime, timedelta
@@ -83,17 +83,9 @@ class UserProfile( models.Model ):
     def is_admin(self):
         return self.type == USER_ADMIN
     
-    @property
-    def is_active(self):
-        if self.suspended:
-            return False
-        if self.is_moderator or self.score >= settings.MINIMUM_REPUTATION:
-            return True
+    def get_status(self):
+        return 'suspended' if self.status == USER_SUSPENDED else ''
         
-        # right not we let it fall through to True
-        # needs more throttles may go here here
-        return True
-    
     def get_absolute_url(self):
         return reverse("main.server.views.user_profile", kwargs=dict(uid=self.user.id))
 
@@ -125,7 +117,7 @@ class AllManager(models.Manager):
 class OpenManager(models.Manager):
     "Returns all open posts"
     def get_query_set(self):
-        return super(OpenManager, self).get_query_set().filter(status=POST_OPEN).select_related('author','author__profile')
+        return super(OpenManager, self).get_query_set().filter( Q(status=POST_OPEN) | Q(status=POST_CLOSED) ).select_related('author','author__profile')
 
 class Post(models.Model):
     """
@@ -321,9 +313,18 @@ class PostRevision(models.Model):
         '''We won't cache the HTML in the DB because revisions are viewed fairly infrequently '''
         return html.generate(self.content)
 
-
 @transaction.commit_on_success
-def moderator_action(post, user, action, date=None):
+def moderate_user(user, target, action, date=None):
+    target.profile.status = action
+    if action == USER_SUSPENDED:
+        text = notegen.suspend(user, target=target)
+    elif action == USER_ACTIVE:
+        text = notegen.reinstate(user, target=target)
+    send_note(target=target, content=text, sender=user, both=True)
+    target.profile.save()
+    
+@transaction.commit_on_success
+def moderate_post(post, user, action, date=None):
     """
     Performs a moderator action on the post. Takes an action (one of REV_ACTIONS)
     and a user. Date is assumed to be now if not provided
@@ -353,10 +354,13 @@ def moderator_action(post, user, action, date=None):
     text = notegen.post_moderator_action(user=user, post=post, action=action)
     send_note(target=post.author, sender=user, content=text,  type=NOTE_MODERATOR)
         
-def send_note(sender, target, content, type, unread=True, date=None):
+def send_note(sender, target, content, type=NOTE_USER, unread=True, date=None, both=False):
     "Sends a note to target"
     date = date or datetime.now()
     Note.objects.create(sender=sender, target=target, content=content, type=type, unread=unread, date=date)
+    if both:
+        #send a note to the sender as well
+        Note.objects.create(sender=sender, target=sender, content=content, type=type, unread=False, date=date)
 
 @transaction.commit_on_success
 def create_revision(post, author=None):

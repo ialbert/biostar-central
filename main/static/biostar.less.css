@@ -39,7 +39,7 @@ code {
 .navbar .brand {
     text-indent:8px;
     margin-left:0px;
-    background-image: url(../img/g/glyphicons_049_star.png);
+    background-image: url(/static/img/g/glyphicons_049_star.png);
     background-repeat: no-repeat;
     background-position: 0px 6px;
 }
@@ -306,7 +306,9 @@ td {
     }
 }
 
-.autobiography {
+.user-info {
+    .ajax-messages;
+    
     h2 { padding-bottom:5px; }
     .info-panel{ float:left; text-align:center;
     }
@@ -353,6 +355,7 @@ td {
 
 .closed  { background-color: #FCF8E3; border-left: 5px solid #FBEED5; }
 .deleted { background-color: #FCF8E3; border-left: 5px solid #B94A48; }
+.suspended { background-color: #FCF8E3; border-left: 5px solid #B94A48; }
 
 /* popup message rendering */
 
@@ -379,6 +382,10 @@ td {
     }
 }
 
+.user-action {
+    .ajax-messages;
+    cursor:pointer;
+}
 .edit-action {
     .ajax-messages;
     cursor:pointer;

@@ -325,7 +325,7 @@ def insert_post_revisions(fname, limit, users, posts):
     with transaction.commit_on_success():
         for post, atype, user, date in alist:
             if USE_DB:
-                models.moderator_action(post=post, action=atype, user=user, date=date)                
+                models.moderate_post(post=post, action=atype, user=user, date=date)                
     
 def insert_votes(fname, limit, users, posts):
 
