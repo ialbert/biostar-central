@@ -23,6 +23,9 @@
     
     <h2>
     {% designation target %} {{ target.profile.display_name }} {% flair target %}
+    {% if target.profile.suspended %}
+        (suspended)
+    {% endif %}
     </h2>
 
     <div class="info-panel span2">

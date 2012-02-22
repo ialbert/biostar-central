@@ -84,8 +84,12 @@ class UserProfile( models.Model ):
         return self.type == USER_ADMIN
     
     def get_status(self):
-        return 'suspended' if self.status == USER_SUSPENDED else ''
-        
+        return 'suspended' if self.suspended else ''
+    
+    @property
+    def suspended(self):
+        return self.status == USER_SUSPENDED
+    
     def get_absolute_url(self):
         return reverse("main.server.views.user_profile", kwargs=dict(uid=self.user.id))
 
