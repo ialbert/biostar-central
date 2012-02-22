@@ -351,6 +351,9 @@ td {
     }
 }
 
+.closed  { background-color: #FCF8E3; border-left: 5px solid #FBEED5; }
+.deleted { background-color: #FCF8E3; border-left: 5px solid #B94A48; }
+
 /* popup message rendering */
 
 .ajax-messages {
@@ -374,6 +377,11 @@ td {
         border: 1px solid darken(#B6C2A1, 20%);
         opacity:0.9;
     }
+}
+
+.edit-action {
+    .ajax-messages;
+    cursor:pointer;
 }
 
 .mini-vote-box {

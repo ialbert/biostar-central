@@ -30,7 +30,9 @@ def vote_box(context, post):
 
 @register.inclusion_tag('widgets/post.edit.actions.html')
 def post_edit_actions(request, post):
-    return { 'post':post, 'request':request }
+    user = request.user
+    user.can_moderate = user.is_authenticated() and user.profile.can_moderate
+    return { 'post':post, 'request':request, 'user':user }
     
 @register.inclusion_tag('widgets/show.tags.html')
 def show_tags(post):
@@ -50,12 +52,7 @@ def post_info_panel(action, post):
 @register.inclusion_tag('widgets/render.post.html', takes_context=True)
 def render_post(context, post, tree):
     "Renders a post"
-    return { 'post':post, 'tree':tree, 'request':context['request'], 'full':True }
-
-@register.inclusion_tag('widgets/render.post.html', takes_context=True)
-def render_answer(context, post, tree):
-    "Renders a post"
-    return { 'post':post, 'tree':tree, 'request':context['request'], 'full':False }
+    return { 'post':post, 'tree':tree, 'request':context['request'] }
 
 @register.inclusion_tag('widgets/tab.bar.html')
 def tab_bar(params={}, counts={}):

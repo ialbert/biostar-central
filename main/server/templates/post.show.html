@@ -2,7 +2,7 @@
 {% load widgets %}
 
 {% block head %}
-    <script src="{{ STATIC_URL }}js/widgets.js"></script>
+    <script src="{{ STATIC_URL }}js/handlers.js"></script>
     <script src="{{ STATIC_URL }}js/csrf.js"></script>
     <script src="{{ STATIC_URL }}js/vote.js"></script>
 
@@ -14,9 +14,22 @@
 
 {% block document_ready %}
     
+    $(".alert").alert()
+    
+    // google prettify library
     $('pre').addClass('prettyprint')
     prettyPrint()
 
+    // moderation handlers defined in /static/js/mod.js
+    // close/reopen delete/destroy handler
+    $('.mod-link').click(function(){
+        mod_link_clicked($(this))
+    });
+    
+    $('.comment-delete').click(function(){
+        comment_delete($(this))
+    });
+    
     // register the add comment function
     $('.add-comment').each(function(){
         elem = $(this)
@@ -31,24 +44,23 @@
     $('.vote').each(function(){
         elem = $(this)
         
-        // register a handler for each votable element 
-        up_button  = elem.children('.vote-up')
-        bookmark_button = elem.children('.vote-bookmark')
-        accept_button = elem.children('.vote-accepted')
-
+        // register a handler for each votable element
         //callback functions defined in /static/js/vote.js
+        up_button  = elem.children('.vote-up')
+        
         up_button.click(function(){
             do_vote($(this), $(this).parent().children('input').val(), 'upvote'); 
         });
         
+        bookmark_button = elem.children('.vote-bookmark')
         bookmark_button.click(function(){
             do_vote($(this), $(this).parent().children('input').val(), 'bookmark'); 
         });
         
+        accept_button = elem.children('.vote-accepted')
         accept_button.click(function(){
             do_vote($(this), $(this).parent().children('input').val(), 'accept'); 
         });
-        
     });
     
 {% endblock %}
@@ -60,8 +72,9 @@
  
     <div class="row separator">&nbsp;</div>
     
+    {# renders all the followups post #}
     {% for answer in answers %}
-        <div class="row">{% render_answer answer tree %}</div>
+        <div class="row">{% render_post answer tree %}</div>
         <div class="row separator">&nbsp;</div>
     {% endfor %}
             

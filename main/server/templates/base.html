@@ -18,8 +18,7 @@
     <![endif]-->
 
     <!-- bootstrap -->
-    <link href="{{ STATIC_URL }}lib/bootstrap/css/bootstrap.css" rel="stylesheet">
-    
+    <link href="{{ STATIC_URL }}lib/bootstrap/css/bootstrap.css" rel="stylesheet">  
     <script src="{{ STATIC_URL }}lib/bootstrap/js/bootstrap.js"></script>
 
     <!-- less -->
@@ -36,7 +35,7 @@
             $('#queries').toggle() 
         });
         {% block document_ready %}
-         
+            // other javascript to be executed on document ready
         {% endblock %}
       });
     </script>
@@ -45,22 +44,33 @@
 
   <body>
     
-    {% nav_bar user params %}
+    {% block nav_bar %}
+        {% nav_bar user params %}
+    {% endblock %}
     
     <div class="container">
         
-        <div class="row">
-            <div class="subheader" id="subheader">{% block subheader %}&nbsp;{% endblock %}</div>
+        <div class="row" id="subheader">
+            {% block subheader %}
+                &nbsp;
+            {% endblock %}
         </div>
         
         <div class="row">
-            {% tab_bar params counts %}
+            {% block tab_bar %}
+                {% tab_bar params counts %}
+            {% endblock %}
         </div>
-
-        {% block body %}Test Body{% endblock %}
         
-        <div class="row">  
-            <div id="footer">
+        <div class="row">
+            {% block body %}
+                Test Body
+            {% endblock %}
+        </div>
+        
+        <div class="row" id="footer">
+            {% block footer %}
+           
             Powered by <a href="https://github.com/ialbert/biostar-central"><img src="{{ STATIC_URL }}/biostar.antipixel.png" /></a> 
             &bull; Version: <b>{{BIOSTAR_VERSION}}</b></a>
         
@@ -76,7 +86,7 @@
                 </ul>
               </div>
             {% endif %}
-            </div>
+            {% endblock %}
         </div>
     </div> <!-- /container -->
 

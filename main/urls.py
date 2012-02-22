@@ -31,14 +31,14 @@ urlpatterns = patterns('main.server',
     (r'^about/$','action.about'),
     (r'^rss/$','action.rss'),
     (r'^faq/$','action.faq'),
+    
+    
     # user edit page
-    (r'^edit/user/(?P<uid>\d+)/$', 'action.user_edit'),
+    (r'^user/edit/(?P<uid>\d+)/$', 'action.user_edit'),
     
-    
-    # show user profile 
-    (r'^show/profile/(?P<uid>\d+)/$', 'views.user_profile'),
-    (r'^show/profile/(?P<uid>\d+)/(?P<tab>\w+)/$', 'views.user_profile'),
-    
+    # show user profile
+    (r'^user/profile/(?P<uid>\d+)/$', 'views.user_profile'),
+    (r'^user/profile/(?P<uid>\d+)/(?P<tab>\w+)/$', 'views.user_profile'),
     #
     # old handlers
     #
@@ -58,8 +58,6 @@ urlpatterns = patterns('main.server',
     # members
     
    
-    # returns a preview page
-    (r'^preview/$', 'views.preview'),
     
     # revisions    
     (r'^revisions/list/(?P<pid>\d+)/$', 'views.revision_list'),
@@ -89,12 +87,17 @@ urlpatterns = patterns('main.server',
     # editing an existing post/answer/comment
     (r'^post/edit/(?P<pid>\d+)/(?P<parent>\d+)/$','views.post_edit'),
    
+    # ajax handlers
+    
+    # returns a preview page
+    (r'^preview/$', 'ajax.preview'),
+    
     # voting handler
-    (r'^vote/$', 'views.vote'),
+    (r'^vote/$', 'ajax.vote'),
     
     # moderation handlers
-    (r'^moderate/post/(?P<pid>\d+)/(?P<action>[a-z\-]+)/$', 'views.moderate_post'),
-    (r'^moderate/user/(?P<uid>\d+)/(?P<action>[a-z\-]+)/$', 'views.moderate_user'),
+    (r'^moderate/post/(?P<pid>\d+)/(?P<action>[a-z\-]+)/$', 'ajax.moderate_post'),
+    (r'^moderate/user/(?P<uid>\d+)/(?P<action>[a-z\-]+)/$', 'ajax.moderate_user'),
 
     # destroys a post
     (r'^destroy/post/(?P<pid>\d+)/$', 'action.destroy_post'),

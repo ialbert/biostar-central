@@ -5,9 +5,9 @@
 {# renders a post with title #}
 <a name="{{post.id}}"></a>
 
-<table border="0" width="100%" class="post-show">
+<table border="0" width="100%" class="post-show {{post.get_status}}">
 
-    {% if full %}
+    {% if post.top_level %}
     <tr>
         <td colspan="3"><div class="title">{{post.get_title}}</div></td>
     </tr>
@@ -17,7 +17,7 @@
     <td width="100%"> 
         <div class="body">
             {{ post.html|safe }}
-            {% if full %}
+            {% if post.top_level %}
                 {% show_tags post %}
             {% endif %}
         </div>
@@ -37,8 +37,8 @@
     <tr>
     <td>&nbsp;</td>
     <td colspan="2">
-    <div class="comment-block">
-        {% comments request post tree %}
-    </div>
+        <div class="comment-block">
+            {% comments request post tree %}
+        </div>
     </td></tr>
 </table>

@@ -51,7 +51,7 @@ def user_edit(request, uid):
     allow = auth.authorize_user_edit(target=target, user=request.user, strict=False)
     if not allow:
         messages.error(request, "unable to edit this user")
-        return html.redirect("/user/show/%s/" % uid)
+        return html.redirect(target.profile.get_absolute_url() )
         
     if request.method == 'GET':
         initial = dict(
@@ -75,7 +75,7 @@ def user_edit(request, uid):
             target.profile.save()
             target.save()
             
-            url = reverse('main.server.views.user_profile', kwargs={'uid':target.id})
+            url = reverse('main.server.views.user_profile', kwargs=dict(uid=target.id))
             return html.redirect(url)
 
 def about(request):

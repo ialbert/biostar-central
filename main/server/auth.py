@@ -13,14 +13,16 @@ def authorize_user_edit(target, user, strict=True):
     Strict mode raises an immediate exception.
     """
     if user.is_anonymous():
+        # anonymous users may not edit anything
         writeable = False
     elif target == user:
+        # everyone can edit their own information
         writeable = True
     elif target.profile.is_admin:
-        # admins may not be moderated directly
+        # admins may not be moderated via the site
         writeable = False  
     elif user.profile.is_admin:
-        # admins may moderate everyone else
+        # admins may moderate everyone else as long as the target is not admin
         writeable = True  
     elif target.profile.is_moderator:
         # at this point only moderators are left

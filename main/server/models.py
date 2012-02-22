@@ -13,6 +13,7 @@ from django.contrib.auth.models import User, Group
 from django.contrib import admin
 from django.conf import settings
 from django.db.models import F
+from django.core.urlresolvers import reverse
 
 from datetime import datetime, timedelta
 from main.server import html, notegen, auth
@@ -94,7 +95,7 @@ class UserProfile( models.Model ):
         return True
     
     def get_absolute_url(self):
-        return "/user/show/%d/" % self.user.id
+        return reverse("main.server.views.user_profile", kwargs=dict(uid=self.user.id))
 
     @property
     def note_count(self):
@@ -224,7 +225,18 @@ class Post(models.Model):
         return self.status == POST_DELETED
 
     @property
+    def get_status(self):
+        "Main status of a post"
+        if self.deleted:
+            return 'deleted'
+        elif self.closed:
+            return 'closed'
+        else:
+            return ''
+        
+    @property
     def get_label(self):
+        "Secondary status of open posts"
         if self.answer_count == 0:
             return 'unanswered'
         elif self.accepted:

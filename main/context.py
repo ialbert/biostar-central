@@ -13,16 +13,16 @@ def extras(request):
     "Adds more data to each RequestContext"
 
     user = request.user
-    
+        
     # query- this is the primary query that goes into the search box
     q = request.REQUEST.get('q', '')
     
     # match - this is the secondary query value for matching other content
     m = request.REQUEST.get('m', '')
     
-    # update with counts
+    # the tab bar counts
     counts = request.session.get(SESSION_POST_COUNT, {})
-
+ 
     return { 'BIOSTAR_VERSION': server.VERSION, 
              'BIOSTAR_GIT_REVISION': settings.GIT_REVISION,
              'user':user, 

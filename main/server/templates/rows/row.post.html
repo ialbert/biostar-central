@@ -1,7 +1,7 @@
 {% load basic %}
 {% load widgets %}
 
-<tr valign="top">
+<tr valign="top" class="{{post.get_status}}">
     <td>
         <div class="status votes">
             <div class="mini-counts">{{post.score}}</div>
