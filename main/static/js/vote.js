@@ -1,3 +1,8 @@
+
+function toggle_css(elem, start, end){
+    if(e.hasClass(start)){ e.removeClass(start); e.addClass(end); }
+}
+
 // modifies the votecount value
 function mod_votecount(button, k){
     count = parseInt(button.siblings('.vote-count').text()) || 0
@@ -50,3 +55,4 @@ function do_vote(button, post, type){
     }, 'json');
     
 }
+

@@ -91,7 +91,7 @@ def show_tag(request, tag_name=None):
     "Display posts by a certain tag"
     params = html.Params(nav='', tab='')
     params.setr('Filtering by tag: %s' % tag_name)
-    posts = get_posts(request).filter(tag_set__name=tag_name)
+    posts = get_post_manager(request).filter(tag_set__name=tag_name)
     posts = posts.order_by('-creation_date')
     page  = get_page(request, posts, per_page=20)
     return html.template( request, name='index.html', page=page, params=params)
@@ -104,9 +104,9 @@ def show_user(request, uid, post_type=''):
     params.setr('Filtering by user: %s' % user.profile.display_name)
     post_type = POST_REV_MAP.get(post_type.lower())
     if post_type:
-        posts = get_posts(request).filter(type=post_type, author=user).order_by('-creation_date')
+        posts = get_post_manager(request).filter(type=post_type, author=user).order_by('-creation_date')
     else:
-        posts = get_posts(request).filter(type__in=POST_TOPLEVEL, author=user).order_by('-creation_date')
+        posts = get_post_manager(request).filter(type__in=POST_TOPLEVEL, author=user).order_by('-creation_date')
     page  = get_page(request, posts, per_page=20)
     return html.template( request, name='index.html', page=page, params=params)
 
@@ -180,22 +180,7 @@ def badge_list(request):
     badges = models.Badge.objects.filter(secret=False).order_by('-count', '-type')
     params = html.Params(nav='badges')
     return html.template(request, name='badge.list.html', badges=badges, params=params)
-
-def question_unanswered(request, uid=0, post_type=None):
-    "Lists all the questions"
-    params = html.Params()
-    params.setr('Filter: unanswered')
-    qs = get_posts(request).filter(answer_count=0, type=POST_QUESTION)
-    page = get_page(request, qs) 
-    return html.template(request, name='post.list.html', page=page, params=params)
-
-def question_tagged(request, tag_name):
-    params = html.Params()
-    params.setr('Tag: %s' % tag_name)
-    qs = get_posts(request).filter(tag_set__name=tag_name)
-    page = get_page(request, qs) 
-    return html.template(request, name='post.list.html', page=page, params=params)
-    
+ 
 def post_show(request, pid):
     "Returns a question with all answers"
     user = request.user

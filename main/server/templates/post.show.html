@@ -3,8 +3,7 @@
 
 {% block head %}
     <script src="{{ STATIC_URL }}js/handlers.js"></script>
-    <script src="{{ STATIC_URL }}js/csrf.js"></script>
-    <script src="{{ STATIC_URL }}js/vote.js"></script>
+   
 
     <!-- prettify -->
     <link href="{{ STATIC_URL }}lib/prettify.css" rel="stylesheet"> 
@@ -38,28 +37,6 @@
         });
     });
     
-    // register the voting function
-    $('.vote').each(function(){
-        elem = $(this)
-        
-        // register a handler for each votable element
-        //callback functions defined in /static/js/vote.js
-        up_button  = elem.children('.vote-up')
-        
-        up_button.click(function(){
-            do_vote($(this), $(this).parent().children('input').val(), 'upvote'); 
-        });
-        
-        bookmark_button = elem.children('.vote-bookmark')
-        bookmark_button.click(function(){
-            do_vote($(this), $(this).parent().children('input').val(), 'bookmark'); 
-        });
-        
-        accept_button = elem.children('.vote-accepted')
-        accept_button.click(function(){
-            do_vote($(this), $(this).parent().children('input').val(), 'accept'); 
-        });
-    });
     
 {% endblock %}
 

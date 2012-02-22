@@ -2,25 +2,23 @@
 {% load widgets %}
 
 <tr valign="top" class={{post.get_status}}>
-    <td>
-        <div class="status votes">
-            <div class="mini-counts">{{post.score}}</div>
-            <div>votes</div>
+    
+     <td colspan="3" align="right">
+        <div class="vote-box">
+        <div class="vote">
+            <input type="hidden" value="{{post.id}}">
+            {% if post.upvoted %}
+            <div class="vote-up vote-on">&nbsp;</div>
+            {% else %}
+            <div class="vote-up vote-off">&nbsp;</div>
+            {% endif %}
+            <div class="vote-count">{{post.score}}</div>
+            {% if post.bookmarked %}
+        <div class="vote-bookmark vote-on">&nbsp;</div>
+        {% else %}
+        <div class="vote-bookmark vote-off">&nbsp;</div>
+        {% endif %}
         </div>
-    </td>
-
-   
-    <td>
-        <div class="status views">
-            <div class="mini-counts">{% bignum post.views %}</div>
-            <div>views</div>
-        </div>
-    </td>
-
-     <td>        
-        <div class="status views">
-            <div class="mini-counts">&nbsp;</div>
-            <div>&nbsp;</div>
         </div>
     </td>
 
