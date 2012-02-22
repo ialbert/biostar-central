@@ -143,6 +143,14 @@ def designation(user):
     elif user.profile.type == const.USER_BLOG:
         return 'Blog: '
     return "User"
+
+@register.simple_tag
+def change_css(tag):
+    "Changes django builtins to bootstrap classes"
+    if tag == 'info' : return "alert-success"
+    if tag == 'warning' : return "alert-info"
+    if tag == 'error' : return "alert-error"
+    return tag
     
 @register.simple_tag
 def flair(user):

@@ -34,6 +34,7 @@
         $('#toggle-queries').click(function(){
             $('#queries').toggle() 
         });
+        $(".alert").alert()
         {% block document_ready %}
             // other javascript to be executed on document ready
         {% endblock %}
@@ -52,7 +53,12 @@
         
         <div class="row" id="subheader">
             {% block subheader %}
-                &nbsp;
+                {% for message in messages %}
+                    <div class="alert {% change_css message.tags %}" >
+                        <a class="close" data-dismiss="alert" href="#">&times;</a>
+                        <div>{{ message }}</div>
+                    </div>
+                {% endfor %}
             {% endblock %}
         </div>
         

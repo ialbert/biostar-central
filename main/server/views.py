@@ -29,19 +29,19 @@ from main.server.const import *
 import logging
 logger = logging.getLogger(__name__)
 
-def get_posts(request):
-    "Returns a common queryset that can be used to select questions"
-    if request.user.can_moderate:
-        query = models.Post.all_posts
-    else:
-        query = models.Post.open_posts
-    return query
 
 def update_counts(request, key, value):
     counts = request.session.get(SESSION_POST_COUNT,{})
     counts[key] = value
     request.session[SESSION_POST_COUNT] = counts
 
+def get_post_manager(request):
+    user = request.user
+    if user.is_authenticated() and user.profile.can_moderate:
+        return models.Post.objects
+    else:
+        return models.Post.open_posts
+    
 def index(request, tab="questions"):
     "Main page"
     
@@ -54,7 +54,7 @@ def index(request, tab="questions"):
     counts = request.session.get(SESSION_POST_COUNT, {})
 
     # returns the object manager that contains all or only visible posts
-    posts = get_posts(request)
+    posts = get_post_manager(request)
     
     # apply search
     if params.q:
@@ -195,13 +195,6 @@ def question_tagged(request, tag_name):
     qs = get_posts(request).filter(tag_set__name=tag_name)
     page = get_page(request, qs) 
     return html.template(request, name='post.list.html', page=page, params=params)
-
-def get_post_manager(request):
-    user = request.user
-    if user.is_authenticated() and user.profile.can_moderate:
-        return models.Post.objects
-    else:
-        return models.Post.open_posts
     
 def post_show(request, pid):
     "Returns a question with all answers"
