@@ -191,45 +191,32 @@ def post_show(request, pid):
         root = query.get(id=pid)
         # update the views for the question
         root.update_views(request)
-        auth.authorize_post_edit(post=root, user=request.user, strict=False)
     except models.Post.DoesNotExist, exc:
         messages.warning(request, 'The post that you are looking for does not exists. Perhaps it was deleted!')
         return html.redirect("/")
     
     # get all answers to the root
-    children = models.Post.objects.filter(root=root).select_related('author', 'author__profile').order_by('-accepted', '-score')
-   
+    children = models.Post.objects.filter(root=root).exclude(type=POST_COMMENT).select_related('author', 'author__profile').order_by('-accepted', '-score')
+    
+    # comments need to be displayed by creation date
+    comments = models.Post.objects.filter(root=root, type=POST_COMMENT).select_related('author', 'author__profile').order_by('creation_date')
+
+    all = [ root ] + list(children) + list(comments)
+    # add the various decorators
+    models.decorate_posts(all, user)
+    
     # these are all the answers
     answers = [ o for o in children if o.type == POST_ANSWER ]
-   
-    # all objects with votes
-    all = list(children) + [ root ]
-        
-    if request.user.is_authenticated():
-        votes = models.Vote.objects.filter(author=request.user, post__id__in = [ p.id for p in all ] ) 
-        up_votes  = set(vote.post.id for vote in votes if vote.type == const.VOTE_UP)
-        bookmarks = set(vote.post.id for vote in votes if vote.type == const.VOTE_BOOKMARK)
-    else:
-        up_votes = down_votes = bookmarks = set()
-
-    # decorate the posts with extra attributes for easier rendering
-    for post in all :
-        post.writeable = auth.authorize_post_edit(post=post, user=request.user, strict=False)
-        post.upvoted   = post.id in up_votes
-        post.bookmarked = post.id in bookmarks
     
     # get all the comments
     tree = defaultdict(list)
-    comments = models.Post.objects.filter(root=root, type=POST_COMMENT).select_related('author', 'author__profile').order_by('creation_date')
-    for comment in comments:
-        comment.writeable = auth.authorize_post_edit(post=comment, user=request.user, strict=False)
-        comment.upvoted   = comment.id in up_votes
+    for comment in comments:  
         tree[comment.parent_id].append(comment)
    
     # generate the tag cloud
-    tags = models.Tag.objects.all().order_by('-count')[:50]
+    #tags = models.Tag.objects.all().order_by('-count')[:50]
     
-    return html.template( request, name='post.show.html', root=root, answers=answers, tree=tree, tags=tags )
+    return html.template( request, name='post.show.html', root=root, answers=answers, tree=tree )
  
 def post_redirect(post, anchor=None):
     """

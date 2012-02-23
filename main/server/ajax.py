@@ -67,8 +67,8 @@ def vote(request):
     old_vote = post.get_vote(author, type)
 
     if old_vote:
-        msg = '%s removed' % old_vote.get_type_display()
-        old_vote.delete()
+        msg = '%s removed' % old_vote[0].get_type_display()
+        post.remove_vote(author, type)
         logger.info('%s\t%s\t%s' % (author.id, post.id, msg) )
         return ajax_success(msg)
     

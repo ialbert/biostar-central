@@ -71,6 +71,11 @@ class UserProfile( models.Model ):
     # website may be used as a blog
     website  = models.URLField(default="", null=True, max_length=100)
     
+    def change_score(self, amount):
+        "A shortcut to reputation change"
+        self.score += amount
+        self.save()
+
     @property
     def can_moderate(self):
         return (self.is_moderator or self.is_admin)
@@ -243,26 +248,22 @@ class Post(models.Model):
             return 'open'
         
     def get_vote(self, user, vote_type):
-        if user.is_anonymous():
-            return None
-        try:
-            return self.votes.get(author=user, type=vote_type)
-        except Vote.DoesNotExist:
-            return None
+        # due to race conditions (use spamming vote button) multiple votes may register
+        votes = self.votes.filter(author=user, type=vote_type)
+        return votes
         
     def add_vote(self, user, vote_type):
+        "Adds a vote"
         vote = Vote(author=user, type=vote_type, post=self)
         vote.save()
         return vote
         
     def remove_vote(self, user, vote_type):
-        ''' Removes a vote from a user of a certain type if it exists
-        Returns True if removed, False if it didn't exist'''
-        vote = self.get_vote(user, vote_type)
-        if vote:
+        "Removes a vote from a user of a certain type if it exists"
+        votes = self.get_vote(user, vote_type)
+        for vote in votes:
             vote.delete()
-            return True
-        return False
+        return votes
         
     def get_tag_names(self):
         "Returns the post's tag values as a list of tag names"
@@ -342,14 +343,11 @@ def moderate_post(post, user, action, date=None):
     if action == REV_CLOSE:
         post.status = POST_CLOSED       
     elif action == REV_DELETE:
-        
         # destroys a posts by user if there are no children
         cnum = Post.objects.filter(root=post).count()
-        
         if (user == post.author) and (cnum == 0) :
-            Post.objects.filter(id=post.id).delete()
+            Post.objects.get(id=post.id).delete()
             return
-        
         post.status = POST_DELETED
     else:
         post.status = POST_OPEN
@@ -365,6 +363,25 @@ def send_note(sender, target, content, type=NOTE_USER, unread=True, date=None, b
     if both:
         #send a note to the sender as well
         Note.objects.create(sender=sender, target=sender, content=content, type=type, unread=False, date=date)
+
+def decorate_posts(posts, user):
+    """
+    Decorates a queryset so that each returned object has extra attributes.
+    For efficiency it mutates the original query. Works well for dozens of objects but
+    would need to be reworked for use cases involving more than that.
+    """
+    if not user.is_authenticated():
+        return posts
+
+    pids  = [ post.id for post in posts ]
+    votes = Vote.objects.filter(author=user, post__id__in=pids)
+    up_votes  = set(vote.post.id for vote in votes if vote.type == VOTE_UP)
+    bookmarks = set(vote.post.id for vote in votes if vote.type == VOTE_BOOKMARK)
+    for post in posts :
+        post.writeable  = auth.authorize_post_edit(post=post, user=user, strict=False)
+        post.upvoted    = post.id in up_votes
+        post.bookmarked = post.id in bookmarks
+    return posts
 
 @transaction.commit_on_success
 def create_revision(post, author=None):
@@ -445,26 +462,28 @@ class Vote(models.Model):
         "Applies the score and reputation changes. Direction can be set to -1 to undo (ie delete vote)"
         post, root = self.post, self.post.root
         if self.type == VOTE_UP:
-            prof = post.author.get_profile()
-            prof.score += dir
-            prof.save()
+            # update author profile and post score
+            post.author.get_profile().change_score(dir)
             post.score += dir * POST_SCORE_CHANGE
-            if dir > 0:
-                root.rank = post.rank = upvote_rank_change(post.rank)
-            
+            root.rank = post.rank = upvote_rank_change(post.rank)
+             
         elif self.type == VOTE_ACCEPT:
             if dir == 1:
-                root.rank = post.rank = upvote_rank_change(self.post.rank)
+                root.rank = post.rank = upvote_rank_change(post.rank)
                 post.accepted = root.accepted = True
             else:
                 post.accepted = root.accepted = False
         
         elif self.type == VOTE_BOOKMARK:
-            if dir == 1:
+            post.author.get_profile().change_score(dir)
+            if dir == 1:   
                 root.rank = post.rank = upvote_rank_change(post.rank)
         
         post.save()
-        root.save()
+        if post != root:
+            root.save()
+        
+       
               
 class Badge(models.Model):
     name = models.CharField(max_length=50)
