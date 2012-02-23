@@ -21,8 +21,7 @@ def post_moderator_action(user, post, action):
 
 def post_action(user, post, size=250):
     post_type = int(post.type)
-    post_map  = {POST_QUESTION:'asked', POST_ANSWER:'answered',
-        POST_COMMENT:'commented on'}
+    post_map  = {POST_QUESTION:'asked', POST_ANSWER:'answered', POST_COMMENT:'commented on'}
     action = post_map.get(post_type, 'posted')
     if len(post.content) < size:
         content = post.content

@@ -182,7 +182,9 @@ class Post(models.Model):
         return time.time() + random.randint(-spread, spread)
         
     def get_absolute_url(self):
-        return "/post/show/%d/%s/#%d" % (self.root.id, self.root.slug, self.id)
+        full = "/post/show/%d/%s/#%d" % (self.root.id, self.root.slug, self.id)
+        url  = self.url or full
+        return url
           
     def set_tags(self):
         if self.type not in POST_CONTENT_ONLY:

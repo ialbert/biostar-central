@@ -7,11 +7,11 @@
     &bull;
 
     {% if request.user.is_authenticated %}
-    <span>
+    
         {% csrf_token %}
-        <input type="hidden" value="{{post.id}}">
-        <a class="add-comment">comment</a>
-    </span>
+    <input type="hidden" value="{{post.id}}">
+    <a class="add-comment">comment</a>
+    
     {% else %}
         <a href="/openid/login/?next={{request.path}}">log in to comment</a>
     {% endif %}
