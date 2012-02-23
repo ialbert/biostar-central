@@ -45,6 +45,8 @@ def get_post_manager(request):
 def index(request, tab="questions"):
     "Main page"
     
+    user = request.user
+
     params = html.Params(tab=tab)
     
     # this will fill in the query (q) and the match (m)parameters
@@ -73,6 +75,7 @@ def index(request, tab="questions"):
         posts = posts.order_by('-creation_date')
     elif tab == 'planet':
         posts = posts.filter(type=POST_BLOG).order_by('-rank')
+        models.decorate_posts(posts, user)
     elif tab == 'forum':
         posts = posts.filter(type=POST_FORUM).order_by('-rank')
     elif tab == 'guides':
