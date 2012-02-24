@@ -281,8 +281,7 @@ def post_edit(request, pid=0):
     
     toplevel = post.top_level
     factory  = formdef.TopLevelContent if toplevel else formdef.ChildContent
-    
-    
+
     params = html.Params(tab='new', title="New post", toplevel=toplevel)
     if request.method == 'GET':
         # no incoming data, render prefilled form

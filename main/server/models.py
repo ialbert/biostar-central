@@ -364,7 +364,7 @@ def destroy_post(post, user):
     if not children:
         Vote.objects.filter(post=post).delete() # trigger vote deletes, reputation change
         post.delete() # this will cascade over votes
-        print Vote.objects.filter(post=post)
+        logger.info( 'destroyed post %s' % post.id )
     else:
         post.content = "[removed by %s]" % user.profile.display_name
         post.status  = POST_DELETED

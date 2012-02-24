@@ -290,7 +290,7 @@ def insert_post_revisions(fname, limit, users, posts):
             glist.append(guid)
 
         # we will update a revision to contain all changes
-        rev = revs.get(guid, {'post':post, 'author':author, 'date':date})
+        rev = revs.get(guid, {'post':post, 'lastedit_user':author, 'lastedit_date':date})
 
         if rtype in ['1', '4']: # Title modification
             rev['title'] = row['Text']

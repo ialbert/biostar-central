@@ -115,9 +115,10 @@ while (( "$#" )); do
 
 	if [ "$1" = "import" ]; then
 		echo "*** importing the data into the main database"
-		#$PYTHON_EXE import/migrate.py --path import/se0 --limit 100
-		#$PYTHON_EXE -m main.migrate --path import/se0 --limit 500
-		$PYTHON_EXE -m main.migrate -o $FIXTURE --path import/se2 --limit 1000
+		#$PYTHON_EXE -m main.migrate -o $FIXTURE --path import/se2 --limit 1000
+		$PYTHON_EXE -m main.migrate -o $FIXTURE --path import/se2 --limit 100
+        #$PYTHON_EXE -m main.migrate -o $FIXTURE --path ~/.backup/se3 --limit 100000
+        
         gzip -f $FIXTURE
         echo "*** dumped data to $FIXTURE_GZ"
 		
