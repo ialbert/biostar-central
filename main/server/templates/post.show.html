@@ -4,11 +4,15 @@
 {% block head %}
     <script src="{{ STATIC_URL }}js/handlers.js"></script>
    
-
     <!-- prettify -->
     <link href="{{ STATIC_URL }}lib/prettify.css" rel="stylesheet"> 
     <script src="{{ STATIC_URL }}lib/prettify.js"></script>
 
+    <script type="text/javascript" src="{{ STATIC_URL }}markitup/jquery.markitup.js"></script>
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}markitup/skins/markitup/style.css" />
+    <link rel="stylesheet" href="{{ STATIC_URL }}markitup/sets/markdown/style.css" type="text/css"/>
+    <script type="text/javascript" src="{{ STATIC_URL }}markitup/sets/markdown/set.js"></script>
+    
 {% endblock %}
 
 {% block document_ready %}
@@ -37,6 +41,7 @@
         });
     });
     
+    $("#editor").markItUp(mySettings);
     
 {% endblock %}
 
@@ -53,4 +58,35 @@
         <div class="row separator">&nbsp;</div>
     {% endfor %}
             
+
+    <div class="row">
+        
+    <form action="/new/answer/{{root.id}}/" method="post" id="mainform" class="form-vertical">
+        
+        {% csrf_token %}
+        <legend>Add your answer</legend>
+        <fieldset>        
+        <div class="control-group">
+            <div class="controls">
+                <textarea type="text" name="content" id="editor" style="width:98%; height:20em;"></textarea>
+            </div>
+        </div>
+        
+        <div class="control-group">
+        <label class="control-label" for="markItUpPreview">Preview</label>
+            <div class="controls">                
+                <div id="markItUpPreview" class="markItUpPreview" style="display:inline-block; width:98%"></div>
+                <div style="font-size:smaller">(preview updates on pressing ENTER in the content box or when pressing the checkmark button above)</div>
+            </div>
+        </div>
+        
+        <div class="form-actions">
+            <a class="btn btn-primary" href='javascript: document.forms["mainform"].submit()'><i class="icon-ok icon-white"></i> Submit</a>
+        </div>
+        
+        </fieldset>
+        
+    </form>
+    </div>
+    
 {% endblock %}
