@@ -221,132 +221,92 @@ def post_show(request, pid):
     
     return html.template( request, name='post.show.html', root=root, answers=answers, tree=tree )
  
-def post_redirect(post, anchor=None):
-    """
-    Shows a post in full context
-    """
-    # get the root of a post
-    root = post.root or post
-    pid, slug = root.id, root.slug
-    anchor = anchor or post.id
-    url = '/post/show/%s/%s/#%s' % (pid, slug, anchor)
-    return html.redirect(url)
+def post_redirect(post):
+    return html.redirect( post.get_absolute_url() )
     
 @login_required(redirect_field_name='/openid/login/')
-def new_comment(request, parentid=0):
+def new_comment(request, pid=0):
     "Shortcut to new comments"
-    return post_edit(request=request, pid=0, parentid=parentid, post_type=POST_COMMENT)
+    return new_post(request=request, pid=pid, post_type=POST_COMMENT)
 
 @login_required(redirect_field_name='/openid/login/')
-def new_answer(request,  parentid=0):
-    "Shortcut to new answers"
-    return post_edit(request=request, pid=0, parentid=parentid, post_type=POST_ANSWER)
-
-@login_required(redirect_field_name='/openid/login/')
-def new_question(request, pid=0):
-    "Shortcut to new questions"
-    return post_edit(request=request, pid=0, parentid=0, post_type=POST_QUESTION)
-
-@login_required(redirect_field_name='/openid/login/')
-def post_edit(request, pid=0, parentid=0, post_type=POST_QUESTION):
-    """
-    Handles post related edits for all posts
-    """
+def new_answer(request, pid):
+    return new_post(request=request, pid=pid, post_type=POST_ANSWER)
     
-    # a shortcut
+@login_required(redirect_field_name='/openid/login/')
+def new_post(request, pid=0, post_type=POST_QUESTION):
+    "Handles the creation of a new post"
+    
+    user   = request.user
+    name   = "post.edit.html"
+    parent = models.Post.objects.get(pk=pid) if pid else None
+    root   = parent.root if parent else None
+    toplevel = (pid == 0)
+    factory  = formdef.ChildContent if pid else formdef.TopLevelContent
+    
+    params = html.Params(tab='new', title="New post", toplevel=toplevel)
+    
+    if request.method == 'GET':
+        # no incoming data, render form
+        form = factory()
+        return html.template(request, name=name, form=form, params=params)
+    
+    # process the incoming data
+    assert request.method == 'POST', "Method=%s" % request.method
+    
+    form = factory(request.POST)
+    if not form.is_valid():
+        # returns with an error message
+        return html.template(request, name=name, form=form, params=params)
+
+    # form is valid at this point, create the post
+    params = dict(author=user, type=post_type, parent=parent, root=root)
+    params.update(form.cleaned_data)
+    
+    with transaction.commit_on_success():
+        post = models.Post.objects.create(**params)
+        post.set_tags()
+        post.save()
+    return post_redirect(post)
+
+@login_required(redirect_field_name='/openid/login/')
+def post_edit(request, pid=0):
+    "Handles the editing of an existing post"
+    
     user = request.user
-
-    # new post creation
-    newpost = (pid == 0)
-
-    # incoming data in the request 
-    form_data = (request.method == 'POST')
-    
-    # sanity check
-    assert post_type in POST_MAP, 'Invalid post_type %s' % post_type
-  
-    # select the form factory from the post types
-    use_post_form = (post_type in POST_TOPLEVEL)
-
-    if use_post_form:
-        factory = formdef.PostForm
-    else:
-        factory = formdef.ContentForm
-    
-    # find the parent if it exists
-    if parentid:
-        parent = models.Post.objects.get(pk=parentid)
-        root   = parent.root or parent
-    else:
-        parent = root = None
-
-    # this is the template name
-    tmpl_name = "post.edit.html"
-    
-    # deal with new post creation first
-    if newpost:
-        # this here is to customize the output
-        params = html.Params(tab='new', title="New post", use_post_form=use_post_form ) 
-
-        if form_data:
-            form = factory(request.POST)
-            if not form.is_valid():
-                return html.template(request, name=tmpl_name, form=form, params=params)
-            params = dict(author=user, type=post_type, parent=parent, root=root, creation_date=datetime.now())
-            params.update(form.cleaned_data)            
-            with transaction.commit_on_success():
-                post = models.Post.objects.create(**params)
-                post.set_tags()
-                models.create_revision(post)
-            return post_redirect(post)
-        else:
-            form = factory()
-            return html.template( request, name=tmpl_name, form=form, params=params)
-
-    #
-    # at this point we are dealing with a post editing action
-    #
-    assert pid, 'Only post modification should follow after this point'
-    
-    # when we edit a post we keep the original post type (for now)
+    name   = "post.edit.html"
     post = models.Post.objects.get(pk=pid)
-    parent = post.parent
-    post_type = post.type
-    
-    # select the form factory from the post types
-    use_post_form = (post_type in POST_TOPLEVEL)
-    if use_post_form:
-        factory = formdef.PostForm
-    else:
-        factory = formdef.ContentForm
-
     # verify that this user may indeed modify the post
     auth.authorize_post_edit(post=post, user=request.user, strict=True)
     
-    params = html.Params(title="Edit %s" % post.get_type_display(), use_post_form=use_post_form, tab=None) 
-
-    # no form data coming, return the editing form
-    if not form_data:
+    toplevel = post.top_level
+    factory  = formdef.TopLevelContent if toplevel else formdef.ChildContent
+    
+    
+    params = html.Params(tab='new', title="New post", toplevel=toplevel)
+    if request.method == 'GET':
+        # no incoming data, render prefilled form
         form = factory(initial=dict(title=post.title, content=post.content, tag_val=post.tag_val))
-        return html.template(request, name=tmpl_name, form=form, params=params)
-    else:
-        # we have incoming form data for posts
-        form = factory(request.POST)
-        if not form.is_valid():
-            return html.template(request, name=tmpl_name, form=form, params=params)
-         
-        with transaction.commit_on_success():
-            for key, value in form.cleaned_data.items():
-                setattr(post, key, value)
-            post.set_tags()
-            models.create_revision(post)
+        return html.template(request, name=name, form=form, params=params)
 
-        return post_redirect(post)    
+    # process the incoming data
+    assert request.method == 'POST', "Method=%s" % request.method
+    form = factory(request.POST)
+    if not form.is_valid():
+        # returns with an error message
+        return html.template(request, name=name, form=form, params=params)
 
-def revision_list(request, pid):
+    # form is valid now set the attributes
+    for key, value in form.cleaned_data.items():
+        setattr(post, key, value)
+        post.set_tags()
+    models.create_revision(post)
+    return post_redirect(post)
+    
+def revision_show(request, pid):
     post = models.Post.objects.get(pk=pid)
     revs = post.revisions.order_by('-date').select_related('author')
-    return html.template(request, name='revision.list.html', revs=revs, post=post)
+    return html.template(request, name='revision.show.html', revs=revs, post=post)
    
 @login_required(redirect_field_name='/openid/login/')
 def add_comment(request, pid):

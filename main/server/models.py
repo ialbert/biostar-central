@@ -273,7 +273,7 @@ class Post(models.Model):
         
     def get_tag_names(self):
         "Returns the post's tag values as a list of tag names"
-        names = [ n.lower() for n in self.tag_val.split(' ') ]
+        names = [ n.lower() for n in self.tag_val.split(' ') if n]
         return map(unicode, names)
     
     def apply(self, dir):
@@ -630,6 +630,8 @@ def finalize_post(sender, instance, created, *args, **kwargs):
             instance.save()
         # when a new post is created all descendants will be notified
         post_create_notification(instance)
+        if instance.type != POST_COMMENT:
+            create_revision(instance)
      
 def create_award(sender, instance, *args, **kwargs):
     "Pre save award function"

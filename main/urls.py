@@ -60,33 +60,23 @@ urlpatterns = patterns('main.server',
    
     
     # revisions    
-    (r'^revisions/list/(?P<pid>\d+)/$', 'views.revision_list'),
+    (r'^revision/show/(?P<pid>\d+)/$', 'views.revision_show'),
 
     
     # post handlers with or withouth a slug
     (r'^post/show/(?P<pid>\d+)/$', 'views.post_show'),
     (r'^post/show/(?P<pid>\d+)/([-\w]+)/$', 'views.post_show'),
     
-    
     # editing an existing post/answer/comment
     (r'^post/edit/(?P<pid>\d+)/$','views.post_edit'),
     
     # handles new post
-    (r'^new/post/$','views.new_question'),
-        
-    # handles new questions
-    (r'^new/question/$','views.new_question'),
+    (r'^new/post/$','views.new_post'),
+    (r'^new/answer/(?P<pid>\d+)/$','views.new_answer'),
+    (r'^new/comment/(?P<pid>\d+)/$','views.new_comment'),
     
-    # handles new answers
-    (r'^new/answer/(?P<parentid>\d+)/$','views.new_answer'),
-   
-    # submits a new comment
-    (r'^new/comment/(?P<parentid>\d+)/$','views.new_comment'),
-    
-    # editing an existing post/answer/comment
-    (r'^post/edit/(?P<pid>\d+)/(?P<parent>\d+)/$','views.post_edit'),
-   
-   # destroys a post
+
+    # destroys a post
     (r'^post/destroy/(?P<pid>\d+)/$', 'ajax.post_destroy'),
     
     # ajax handlers
@@ -101,7 +91,6 @@ urlpatterns = patterns('main.server',
     (r'^moderate/post/(?P<pid>\d+)/(?P<action>[a-z\-]+)/$', 'ajax.moderate_post'),
     (r'^moderate/user/(?P<uid>\d+)/(?P<action>[a-z\-]+)/$', 'ajax.moderate_user'),
 
-    
     
 
     # lists all moderator actions

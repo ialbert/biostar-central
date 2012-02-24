@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% load basic %}
+
+
+{% block body %}
+    <div>
+        <div style="padding:10px 0px 10px 0px;">
+
+            <div class="title">
+                Back to <a href="/post/show/{{post.root.id}}/{{post.root.slug}}/#{{post.id}}">{{post.root.title}}</a>
+            </div>
+        </div>
+        <table width="100%">
+            {% for rev in revs %}
+                <tr valign="top">
+                    <td class="title">Revision: r{{forloop.revcounter}} by {% userlink post.author %} {% userrep post.author %}</td>
+                </tr>
+                <tr >
+                    <td style="border-bottom:1px dotted #666666">
+                        <pre>{{rev.diff}}</pre> 
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+{% endblock %}

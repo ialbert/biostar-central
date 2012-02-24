@@ -11,9 +11,11 @@
         &bull; <a href="/openid/login/?next={{request.path}}">log in to comment</a>
     {% endif %}
             
+        &bull; <a href="/revision/show/{{post.id}}/">revisions</a>
+        
     {% if post.writeable %}
     
-    &bull; <a href="/post/edit/{{post.id}}/">edit</a>
+        &bull; <a href="/post/edit/{{post.id}}/">edit</a>
     
     <span class="mod-menu">
         {% if post.top_level %}

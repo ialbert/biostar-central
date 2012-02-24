@@ -53,7 +53,7 @@ def valid_content(text):
     if len(text) > 5000 :
         raise ValidationError('Your content  is too long %d characters. The maximum is %d .' % (ts, mx))
   
-class PostForm(forms.Form):
+class TopLevelContent(forms.Form):
     """
     A form representing a new question
     """
@@ -72,7 +72,7 @@ class PostForm(forms.Form):
     # the first two post types are not creatable here
     type = forms.ChoiceField(choices=const.POST_TYPES[2:])
 
-class ContentForm(forms.Form):
+class ChildContent(forms.Form):
     """
     A form representing the body of simpler content answer/comment
     """

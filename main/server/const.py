@@ -13,13 +13,13 @@ MIN_REP = 1
 POST_SCORE_CHANGE = 1
 USER_SCORE_CHANGE = 1
 
-VOTE_SESSION_LENGTH   = 60  # in seconds
+VOTE_SESSION_LENGTH   = 60  # in seconds, the time intervals to reset vote limit
 MAX_VOTES_PER_SESSION = 3   # this is how many votes can be cast per session
 
 # Add at the end
-POST_QUESTION, POST_ANSWER, POST_COMMENT, POST_GUIDE, POST_BLOG, POST_NEWS, POST_FORUM, POST_RANT, POST_REVIEW, POST_OTHER = range(1, 11)
+POST_QUESTION, POST_ANSWER, POST_COMMENT, POST_GUIDE, POST_BLOG, POST_FORUM, POST_OTHER = range(1, 8)
 POST_TYPES  = ( (POST_ANSWER, 'Answer') , (POST_COMMENT, 'Comment'), (POST_QUESTION, 'Question'), (POST_GUIDE, 'Guide'), 
-    (POST_NEWS, 'News'), (POST_BLOG, 'Blog'), (POST_FORUM, 'Forum'), (POST_REVIEW, 'Review'), (POST_RANT, 'Rant'))
+    (POST_BLOG, 'Blog'), (POST_FORUM, 'Forum'), )
 
 # direct mapping for quick lookups
 POST_MAP  = dict( POST_TYPES )

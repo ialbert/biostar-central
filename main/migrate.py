@@ -674,6 +674,7 @@ if __name__ =='__main__':
     
     # options for the program
     parser = optparse.OptionParser()
+    parser.add_option("-o", dest="output", help="outputfile", default="import/datadump.json")
     parser.add_option("--path", dest="path", help="directory or zip archive containing a full biostar SE1 datadump")
     parser.add_option("--limit", dest="limit", help="limit to these many rows per file", type=int, default=None)
     parser.add_option("--log", dest="log", help="print information on entries that the migration skips", action="store_true", default=False)
@@ -699,5 +700,11 @@ if __name__ =='__main__':
     USE_DB = not opts.dry
 
     # call into the main program
+    from django.core import management
+    management.call_command('syncdb', verbosity=1, interactive=False)
     execute(path=opts.path, limit=opts.limit)
+    
+    fp = file(opts.output, 'wt')
+    sys.stdout = fp
+    management.call_command('dumpdata', 'auth.User', 'server', verbosity=1, interactive=False)
     
