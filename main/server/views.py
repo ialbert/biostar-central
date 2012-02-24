@@ -312,7 +312,7 @@ def post_edit(request, pid=0, parentid=0, post_type=POST_QUESTION):
     post = models.Post.objects.get(pk=pid)
     parent = post.parent
     post_type = post.type
-   
+    
     # select the form factory from the post types
     use_post_form = (post_type in POST_TOPLEVEL)
     if use_post_form:

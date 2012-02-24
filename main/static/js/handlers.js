@@ -62,6 +62,7 @@ function comment_delete(link){
     body = par.children('div[name="content"]')
     $.post('/post/destroy/' + pid +'/',
         function(data){
+            popover(link.parent(), data.msg, data.status);
             if (data.msg == 'destroyed') {
                 par.hide('fast')
             } else {

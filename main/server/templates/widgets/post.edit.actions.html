@@ -5,10 +5,10 @@
     <a href="{{request.path}}#{{post.id}}">permalink</a> 
     {% if request.user.is_authenticated %}
         {% csrf_token %}
-        &bull;<input type="hidden" value="{{post.id}}">
+        &bull; <input type="hidden" value="{{post.id}}">
         <a class="add-comment">comment</a>
     {% else %}
-        &bull;<a href="/openid/login/?next={{request.path}}">log in to comment</a>
+        &bull; <a href="/openid/login/?next={{request.path}}">log in to comment</a>
     {% endif %}
             
     {% if post.writeable %}
@@ -18,16 +18,14 @@
     <span class="mod-menu">
         {% if post.top_level %}
             {% if post.closed %}
-                &bull;<a class="mod-link" action="reopen">reopen</a>
+                &bull; <a class="mod-link" action="reopen">reopen</a>
             {% else %}
-                &bull;<a class="mod-link" action="close">close</a>
+                &bull; <a class="mod-link" action="close">close</a>
             {% endif %}
         {% endif %}
         
-        {% if post.deleted %}        
-            &bull;<a class="mod-link" action="undelete">undelete</a>
-        {% else %}
-            &bull;<a class="mod-link" action="delete">delete</a>                                   
+        {% if not post.deleted %}        
+            &bull; <a class="mod-link" action="delete">delete</a>                                   
         {% endif %}
     </span>    
     {% endif %}

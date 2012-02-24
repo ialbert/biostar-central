@@ -47,11 +47,26 @@
 
 {% block body %}
     
+    {% if root.closed %}
+        <div class="row"><div class="alert alert-warning">This post has been closed. No more answers may be added.</div></div>
+    {% endif %}
+
+    {% if root.deleted %}
+        <div class="row"><div class="alert alert-error">This post has been deleted. No more answers may be added.</div></div>
+    {% endif %}
+
+
     {# renders the main post #}
     <div class="row">{% render_post root tree %}</div>
  
-    <div class="row separator">&nbsp;</div>
-    
+    <div class="row separator"><h3>
+    {% if root.answer_count %}
+        {{root.answer_count}} answer{{root.answer_count|pluralize}}
+    {% else %}
+        No answers. Add your own.
+    {% endif %}
+    </h3>
+    </div>
     {# renders all the followups post #}
     {% for answer in answers %}
         <div class="row">{% render_post answer tree %}</div>
@@ -59,6 +74,8 @@
     {% endfor %}
             
 
+{% if user.is_authenticated %}
+{% if root.open %}
     <div class="row">
         
     <form action="/new/answer/{{root.id}}/" method="post" id="mainform" class="form-vertical">
@@ -88,5 +105,9 @@
         
     </form>
     </div>
-    
+{% endif %}
+{% else %}
+    <div class="row"><div class="alert alert-info">Log in to add a post</div></div>
+{% endif %}
+
 {% endblock %}

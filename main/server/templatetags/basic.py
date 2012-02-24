@@ -178,7 +178,7 @@ def table_row(post):
         row_answer   = template.loader.get_template('rows/row.answer.html')
         row_comment  = template.loader.get_template('rows/row.comment.html')
         row_blog     = template.loader.get_template('rows/row.blog.html')
-
+   
     c = Context( {"post": post, 'root':post.root})
     if post.type == const.POST_BLOG:
         row = row_blog

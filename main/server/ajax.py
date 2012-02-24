@@ -144,6 +144,7 @@ def moderate_user(request, uid, action):
 @ajax_error_wrapper           
 def post_destroy(request, pid):
     
+    
     user = request.user
     post = models.Post.objects.get(id=pid)
     

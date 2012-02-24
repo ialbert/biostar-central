@@ -224,6 +224,10 @@ class Post(models.Model):
         return self.status == POST_CLOSED
     
     @property
+    def open(self):
+        return self.status == POST_OPEN
+    
+    @property
     def deleted(self):
         return self.status == POST_DELETED
 
@@ -345,12 +349,7 @@ def moderate_post(post, user, action, date=None):
     if action == REV_CLOSE:
         post.status = POST_CLOSED       
     elif action == REV_DELETE:
-        # destroys a posts by user if there are no children
-        cnum = Post.objects.filter(root=post).count()
-        if (user == post.author) and (cnum == 0) :
-            Post.objects.get(id=post.id).delete()
-            return
-        post.status = POST_DELETED
+        destroy_post(post=post, user=user)
     else:
         post.status = POST_OPEN
     post.save()
@@ -361,9 +360,11 @@ def moderate_post(post, user, action, date=None):
 @transaction.commit_on_success
 def destroy_post(post, user):
     # a post will be removed if it has not children, otherwise its content will be set to [removed]
-    children = Post.objects.filter(parent=post)
+    children = Post.objects.filter(parent=post)    
     if not children:
+        Vote.objects.filter(post=post).delete() # trigger vote deletes, reputation change
         post.delete() # this will cascade over votes
+        print Vote.objects.filter(post=post)
     else:
         post.content = "[removed by %s]" % user.profile.display_name
         post.status  = POST_DELETED
