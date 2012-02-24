@@ -138,9 +138,11 @@ div .par {
     border-bottom: 1px solid #DDD;
 }
 
-.comment-block{
+.comment {
     clear:left;
-    .comment-body {
+    .ajax-messages;
+    
+    .entry {
         padding:10px;
         margin-top:0.5em;
         color:#666666;
@@ -154,8 +156,7 @@ div .par {
         color:#666666;
     }
     .indent {
-        margin-left:3em;
-       
+        margin-left:3em;  
     }
 }
 
@@ -353,6 +354,15 @@ td {
     }
 }
 
+.comment-delete {
+    float:right;
+    font-weight:bold;
+    font-size:larger;
+    &:hover {
+        text-decoration: underline;
+        cursor:pointer;
+    }
+}
 .closed  { background-color: #FCF8E3; border-left: 5px solid #FBEED5; }
 .deleted { background-color: #FCF8E3; border-left: 5px solid #B94A48; }
 .suspended { background-color: #FCF8E3; border-left: 5px solid #B94A48; }
@@ -459,7 +469,7 @@ td {
             background-position: center;
         }
         
-        .vote-up.vote-off { background-image: url("/static/img/vote/vote-up-off.png"); }
+        .vote-up.vote-off { background-image: url("/static/img/vote/vote-up-off.png"); opacity:0.3; &:hover { opacity:0.9; } }
         .vote-up.vote-on { background-image: url("/static/img/vote/vote-up-on.png"); }
         .vote-bookmark.vote-on  { background-image: url("/static/img/g/glyphicons_072_bookmark.png"); }
         .vote-bookmark.vote-off { background-image: url("/static/img/g/glyphicons_072_bookmark.png"); opacity:0.3; &:hover { opacity:0.9; } }

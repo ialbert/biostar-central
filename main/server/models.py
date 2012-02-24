@@ -357,7 +357,19 @@ def moderate_post(post, user, action, date=None):
       
     text = notegen.post_moderator_action(user=user, post=post, action=action)
     send_note(target=post.author, sender=user, content=text,  type=NOTE_MODERATOR)
-        
+
+@transaction.commit_on_success
+def destroy_post(post, user):
+    # a post will be removed if it has not children, otherwise its content will be set to [removed]
+    children = Post.objects.filter(parent=post)
+    if not children:
+        post.delete() # this will cascade over votes
+    else:
+        post.content = "[removed by %s]" % user.profile.display_name
+        post.status  = POST_DELETED
+        post.save()
+    return children
+    
 def send_note(sender, target, content, type=NOTE_USER, unread=True, date=None, both=False):
     "Sends a note to target"
     date = date or datetime.now()

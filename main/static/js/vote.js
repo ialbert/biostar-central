@@ -41,7 +41,7 @@ function popover(parent, msg, cls){
     elem.text(msg)
     elem.delay(1000).fadeOut(1000, function(){
         $(this).remove() 
-    });
+    }); 
 }
 
 function do_vote(button, post, type){

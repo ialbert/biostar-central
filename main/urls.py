@@ -73,8 +73,7 @@ urlpatterns = patterns('main.server',
     
     # handles new post
     (r'^new/post/$','views.new_question'),
-    
-    
+        
     # handles new questions
     (r'^new/question/$','views.new_question'),
     
@@ -87,6 +86,9 @@ urlpatterns = patterns('main.server',
     # editing an existing post/answer/comment
     (r'^post/edit/(?P<pid>\d+)/(?P<parent>\d+)/$','views.post_edit'),
    
+   # destroys a post
+    (r'^post/destroy/(?P<pid>\d+)/$', 'ajax.post_destroy'),
+    
     # ajax handlers
     
     # returns a preview page
@@ -99,8 +101,7 @@ urlpatterns = patterns('main.server',
     (r'^moderate/post/(?P<pid>\d+)/(?P<action>[a-z\-]+)/$', 'ajax.moderate_post'),
     (r'^moderate/user/(?P<uid>\d+)/(?P<action>[a-z\-]+)/$', 'ajax.moderate_user'),
 
-    # destroys a post
-    (r'^destroy/post/(?P<pid>\d+)/$', 'action.destroy_post'),
+    
     
 
     # lists all moderator actions

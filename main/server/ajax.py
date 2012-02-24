@@ -8,6 +8,7 @@ from main.server.html import get_page
 from main.server.const import *
 from django.contrib.auth.decorators import login_required
 from datetime import datetime, timedelta
+from django.http import HttpResponse
 
 # activate logging
 import logging
@@ -106,13 +107,13 @@ def moderate_post(request, pid, action):
         return ajax_error('Unrecognized action')
     
     post = models.Post.objects.get(id=pid)
-    if user.can_moderate:
-        models.moderate_post(post=post, action=action_val, user=user)
-        msg = '%s performed' % action
-        return ajax_success(msg)
     
-    elif user == post.author and action_val in (REV_CLOSE, REV_DELETE):
-        # authors may close or delete their own posts but may not reopen/undelete
+    # two conditions where a post moderation may occur
+    cond1  = user.can_moderate
+    cond2  = (user == post.author) and action_val in (REV_CLOSE, REV_DELETE)
+    permit = cond1 or cond2
+    
+    if permit :
         models.moderate_post(post=post, action=action_val, user=user)
         msg = '%s performed' % action
         return ajax_success(msg)
@@ -139,6 +140,24 @@ def moderate_user(request, uid, action):
     msg = models.moderate_user(user=user, target=target, action=action_val)
     msg = "%s" % action.title()
     return ajax_success(msg)
+
+@ajax_error_wrapper           
+def post_destroy(request, pid):
+    
+    user = request.user
+    post = models.Post.objects.get(id=pid)
+    
+    # two conditions where a comment destruction may occur
+    permit  = user.can_moderate or (user == post.author )
+    if not permit:
+        return ajax_error('Permission denied')
+        
+    status = models.destroy_post(post=post, user=user)
+    if status:
+        return ajax_success('deleted')
+    else:
+        return ajax_success('destroyed')
+    
     
 @ajax_error_wrapper
 def preview(request):

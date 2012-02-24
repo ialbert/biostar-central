@@ -62,3 +62,4 @@ def authorize_post_edit(user, post, strict=True):
     post.writeable = writeable
     return post.writeable
 
+

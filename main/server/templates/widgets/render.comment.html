@@ -4,8 +4,12 @@
 
 {# renders a single comment #}
 
-<div class="comment-body" name="{{post.id}}"">
-    
+<a name="{{post.id}}"></a>
+
+<div class="entry" id="{{post.id}}">
+    {% if post.writeable %}
+        <div class="comment-delete" target="{{post.id}}">&times;</div>                                               
+    {% endif %}
     <div class="mini-vote-box">
         <div class="vote">
             <input type="hidden" value="{{post.id}}">
@@ -22,35 +26,26 @@
         </div>
     </div>
     
-    <a name="{{post.id}}"></a>
-    {{ post.html|safe }}
+
+    <div name="content">{{ post.html|safe }}</div>
     
     {# these are the actions to take on comments #}
     <div>
         <input name="post_id" type="hidden" value="{{post.id}}">
        {# edit actions #}
         {% if request.user.is_authenticated %}
-        <span class="addcomment">
+        
             {% csrf_token %}
             <input type="hidden" value="{{post.id}}">
             <a class="add-comment">reply</a>
-        </span>
+            
         {% else %}
             <a href="/openid/login/?next={{request.path}}">log in to reply</a>
         {% endif %}
 
         {# owners and moderators may edit the post #}
         {% if post.writeable %}
-            &bull;
-            <a href="/post/edit/{{post.id}}/">edit</a>
-            &bull;
-            <span class="mod-menu">
-                {% if post.deleted %}
-                    <a class="mod-link">undelete</a> 
-                {% else %}
-                    <a href="#">delete</a>                                   
-                {% endif %}                            
-            </span>    
+            &bull; <a href="/post/edit/{{post.id}}/">edit</a>
         {% endif %}
         &bull; written <span class="relativetime"> {% time_ago post.creation_date %} </span> by {% userlink post.author %} {% userrep post.author %}
     </div>

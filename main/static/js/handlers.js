@@ -4,7 +4,7 @@ function show_add_comment(parent, post_id){
     csrf_html = parent.find("input[name='csrfmiddlewaretoken']").parent().html()
     $(".comment-form").remove();
     parent.append('\
-    <form action="/new/comment/' + post_id + '/" method="post" class="comment-form">            \
+    <form action="/new/comment/' + post_id + '/" method="post" class="comment-form" id="comment-form">            \
         ' + csrf_html + ' \
         <div class="controls"><textarea class="input-xlarge span8" id="textarea" name="content" rows="3"></textarea></div> \
         <div><a class="btn btn-success" href=\'javascript:document.forms["comment-form"].submit()\'><i class="icon-comment"></i> Add comment</a>          \
@@ -12,10 +12,6 @@ function show_add_comment(parent, post_id){
     </form>            \
     '
     )
-}
-
-function cancel_comment(){
-    
 }
 
 // moderation handler
@@ -45,7 +41,6 @@ function mod_link_clicked(link){
 function usermod_link_clicked(link){
     info   = $('.user-info')
     action = link.attr("action")
-    
     userid = $('#userid').text() // find the userid
     $.post('/moderate/user/' + userid +'/' + action + '/',
         function(data){
@@ -62,12 +57,15 @@ function usermod_link_clicked(link){
 
 //comment deletion
 function comment_delete(link){
-   pid  = link.attr('name')
-   if(confirm('Are you sure you want to delete the comment ' + pid + ' ?')){
-        $.post('/destroy/post/' + pid +'/',
+    pid  = link.attr('target') // post id encoded in link
+    par  = $('#'+pid)         // parent div
+    body = par.children('div[name="content"]')
+    $.post('/post/destroy/' + pid +'/',
         function(data){
-            popover(link.parent(), data.msg, data.status);
-            window.location.reload()
+            if (data.msg == 'destroyed') {
+                par.hide('fast')
+            } else {
+                body.html('[ content removed ]')
+            }
         }, 'json');
-    }
 }

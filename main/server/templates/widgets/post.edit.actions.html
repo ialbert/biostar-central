@@ -2,47 +2,35 @@
 
 <div class="edit-action">
     
-    <a href="{{request.path}}#{{post.id}}">permalink</a>
-    
-    &bull;
-
+    <a href="{{request.path}}#{{post.id}}">permalink</a> 
     {% if request.user.is_authenticated %}
-    
         {% csrf_token %}
-    <input type="hidden" value="{{post.id}}">
-    <a class="add-comment">comment</a>
-    
+        &bull;<input type="hidden" value="{{post.id}}">
+        <a class="add-comment">comment</a>
     {% else %}
-        <a href="/openid/login/?next={{request.path}}">log in to comment</a>
+        &bull;<a href="/openid/login/?next={{request.path}}">log in to comment</a>
     {% endif %}
             
-
     {% if post.writeable %}
     
-    &bull; 
-    <a href="/post/edit/{{post.id}}/">edit</a>
+    &bull; <a href="/post/edit/{{post.id}}/">edit</a>
     
     <span class="mod-menu">
-    
         {% if post.top_level %}
-            &bull;
             {% if post.closed %}
-                <a class="mod-link" action="reopen">reopen</a>
+                &bull;<a class="mod-link" action="reopen">reopen</a>
             {% else %}
-                <a class="mod-link" action="close">close</a>
+                &bull;<a class="mod-link" action="close">close</a>
             {% endif %}
         {% endif %}
-    
-        &bull;
+        
         {% if post.deleted %}        
-            <a class="mod-link" action="undelete">undelete</a>
+            &bull;<a class="mod-link" action="undelete">undelete</a>
         {% else %}
-            <a class="mod-link" action="delete">delete</a>                                   
+            &bull;<a class="mod-link" action="delete">delete</a>                                   
         {% endif %}
-    
     </span>    
     {% endif %}
 
 </div>
-
 

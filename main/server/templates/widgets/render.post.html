@@ -22,13 +22,13 @@
             {% endif %}
         </div>
     </td>
-        <td>
+        <td align="right">
             <div class="post-info">{% post_info_panel '' post %}</div>
         </td>
     </tr>
     <tr>
         <td>&nbsp;</td>
-        <td colspan="2">
+        <td colspan="2" width="100%">
             <input name="post_id" type="hidden" value="{{post.id}}">
             {% post_edit_actions request post %}
         </td>
@@ -37,7 +37,7 @@
     <tr>
     <td>&nbsp;</td>
     <td colspan="2">
-        <div class="comment-block">
+        <div class="comment">
             {% comments request post tree %}
         </div>
     </td></tr>
