@@ -93,7 +93,7 @@ def index(request, tab="questions"):
 def show_tag(request, tag_name=None):
     "Display posts by a certain tag"
     params = html.Params(nav='', tab='')
-    params.setr('Filtering by tag: %s' % tag_name)
+    messages.warning(request, 'Filtering by tag: %s' % tag_name)
     posts = get_post_manager(request).filter(tag_set__name=tag_name)
     posts = posts.order_by('-creation_date')
     page  = get_page(request, posts, per_page=20)
@@ -104,7 +104,10 @@ def show_user(request, uid, post_type=''):
 
     user = models.User.objects.filter(id=uid).select_related('profile').all()[0]
     params = html.Params(nav='', tab='')
-    params.setr('Filtering by user: %s' % user.profile.display_name)
+
+    # notification
+    messages.info(request, 'Filtering by user: %s' % user.profile.display_name)
+   
     post_type = POST_REV_MAP.get(post_type.lower())
     if post_type:
         posts = get_post_manager(request).filter(type=post_type, author=user).order_by('-creation_date')

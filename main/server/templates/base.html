@@ -89,17 +89,13 @@
             {% endblock %}
         </div>
         
-        <div class="row">
-            {% block tab_bar %}
-                {% tab_bar params counts %}
-            {% endblock %}
-        </div>
+        {% block tab_bar %}
+            {% tab_bar params counts %}
+        {% endblock %}
         
-        <div class="row">
-            {% block body %}
-                Test Body
-            {% endblock %}
-        </div>
+        {% block body %}
+           Test Body
+        {% endblock %}
         
         <div class="row" id="footer">
             {% block footer %}

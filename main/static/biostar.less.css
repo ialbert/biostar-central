@@ -284,12 +284,10 @@ td {
   }
 }
 
-.remind {
-    
-}
-
-.pagebar {
-    margin:5px 0 5px 0;
+.page_bar {
+    margin:0px auto 0px auto;
+    margin-bottom:10px;
+    text-align:center;
 }
 
 .bookmark-list {
