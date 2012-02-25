@@ -8,7 +8,7 @@ function show_add_comment(parent, post_id){
         ' + csrf_html + ' \
         <div class="controls"><textarea class="input-xlarge span8" id="textarea" name="content" rows="3"></textarea></div> \
         <div><a class="btn btn-success" href=\'javascript:document.forms["comment-form"].submit()\'><i class="icon-comment"></i> Add comment</a>          \
-        (<span> markdown ok</span>) <a class="btn btn-warning" href=\'javascript:obj=$(".comment-form").remove();\'><i class="icon-remove"></i> Cancel</a>   </div>       \
+        (<span> markdown ok</span>) <a class="btn btn-warning" onclick="javascript:obj=$(\'.comment-form\').remove();"><i class="icon-remove"></i> Cancel</a>   </div>       \
     </form>            \
     '
     )

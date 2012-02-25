@@ -276,6 +276,11 @@ def post_edit(request, pid=0):
     user = request.user
     name   = "post.edit.html"
     post = models.Post.objects.get(pk=pid)
+
+    if not post.open:
+        messages.error(request, 'Post is closed. It may not be edited.')
+        return post_redirect(post)
+    
     # verify that this user may indeed modify the post
     auth.authorize_post_edit(post=post, user=request.user, strict=True)
     

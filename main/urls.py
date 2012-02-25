@@ -32,7 +32,6 @@ urlpatterns = patterns('main.server',
     (r'^rss/$','action.rss'),
     (r'^faq/$','action.faq'),
     
-    
     # user edit page
     (r'^user/edit/(?P<uid>\d+)/$', 'action.user_edit'),
     
@@ -43,21 +42,14 @@ urlpatterns = patterns('main.server',
     # old handlers
     #
     (r'^tools/$', direct_to_template, {'template': 'tools.html'}),
-    
     (r'^todo/$', direct_to_template, {'template': 'todo.html'}),
    
     # moderation handlers
     (r'^cleanup/$', 'action.cleanup'),
 
-    
-
+   
     # badges
-   
     (r'^badge/show/(?P<bid>\d+)/$', 'action.badge_show'),
-    
-    # members
-    
-   
     
     # revisions    
     (r'^revision/show/(?P<pid>\d+)/$', 'views.revision_show'),

@@ -63,7 +63,7 @@
     {% if root.answer_count %}
         {{root.answer_count}} answer{{root.answer_count|pluralize}}
     {% else %}
-        No answers. Add your own.
+        {% if root.open %} No answers. Add your own. {% endif %}
     {% endif %}
     </h3>
     </div>
@@ -75,6 +75,7 @@
             
 
 {% if user.is_authenticated %}
+
 {% if root.open %}
     <div class="row">
         
