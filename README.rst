@@ -36,7 +36,7 @@ Quickstart
 
 From the command line execute::
 
-    $ ./biostar.sh init populate run
+    $ ./biostar.sh init import run
 
 Visit the http://localhost:8080 to view your site. Enjoy!
 
@@ -57,17 +57,18 @@ can take one or more commands. For example to initialize the database then popul
 the test data and to run the server one would invoke it in the following way::
 
     $ ./biostar.sh init 
-    $ ./biostar.sh populate
+    $ ./biostar.sh import
     $ ./biostar.sh run
 
 Alternatively one may run all these commands all at once::
 
-    $ ./biostar.sh init populate run
+    $ ./biostar.sh init import run
 
 **Note**: If database models change you must reset and reinitialize the database,
-note that this will remove all existing content!::
+note that this will remove all existing content! The database re-initialization is
+database specific, for the default sqlite deployment you can use::
 
-    $ ./biostar.sh init populate
+    $ ./biostar.sh delete init import
 
 The *biostar.sh* run manager to pulls in environment variables to allow you to 
 customize locations/test fixtures, etc. Edit the *biostar.sh* script 
@@ -79,38 +80,25 @@ interact with your version of the test server.
 Migration
 ---------
 
-To migrate content from a StackExchange 1 XML datadump one needs to *import* the data via
-the `import/migrate.py` script. This script will need to be able to
-import the django settings module as well. 
-Run this script with the -h flag to see the flags it can take::
+To load content from a StackExchange 1 XML datadump one needs to *migrate* the data 
+into the new schema. This is accomplished via the `main/migrate.py` script. 
+This script will make use of django settings module as well. The biostar run manager's migrate 
+command invokes this script. Run this script with the -h flag to see the flags it can take::
 
-    $ python import/migrate.py -h
+    $ python main/migrate.py -h
 
-To facilitate the re-import the best practice is to *dump* the data into a data fixture
-after an *import* takes place. A data fixture may be reused via the *populate* command.
-Thus to create a new migration one would do the following::
+The result of a data migration is a json data fixture file that can be used via the *import* 
+command::
 
     $ ./biostar.sh init import
-
-This may be followed by a `run` command or deployment. Alternatively one may 
-dump the data for easier reuse::
-
-    $ ./biostar.sh dump
-    $ ./biostar.sh init populate
 
 There is an automatic account migration based on the email provided by the
 OpenID provider. Only the information from a subset of well known OpenID
 providers are trusted enough to allow automatic account merging. Accepted
 providers are: Google, Yahoo, Myopenid, LiveJournal, Blogspot, AOL, and
-Wordpress.
-    
-For other users manual migration of accounts will be required.
+Wordpress. For other users manual migration of accounts will be required.
 
-Users listed in the Django *ADMINS* settings will have
-full administration privileges.
-
-When table schemas change you will need to use the `delete` command.
-This will attempt to reset both an sqlite and a default postgres database.
+Users listed in the Django *ADMINS* settings will have full administration privileges.
 
 Testing
 -------
@@ -182,21 +170,19 @@ Other Libraries
 Biostar is built with open source libraries. The following software packages are used and if necessary
 included with BioStar:
 
+* Bootstrap_ as a CSS framework
 * JQuery_ for javascript programming
-* Sass_ for syntactically awesome css
+* Less_ used for syntactically awesome css
 * Coffescript_ for making javascript fun again
 * markitup_ as rich text javascript editor. 
-* markdown_ python library to parse the content
+* markdown_ python library to generate HTML
 * django_openid_auth_ and python_openid_ for openid authentication
-* pygments_ for source code highlighting
-* django_mptt_ to provides the hierachical data model that relates the various objects
 * whoosh_ provides fast full text searching
 * coverage_ is used to measure code coverage during testing
+* prettify_ is used for syntax highlighting
 
 .. _django_openid_auth: https://launchpad.net/django-openid-auth
 .. _python_openid: http://pypi.python.org/pypi/python-openid/
-.. _pygments: http://pygments.org/
-.. _django_mptt: https://github.com/django-mptt/django-mptt/
 .. _whoosh: https://bitbucket.org/mchaput/whoosh/wiki/Home
 .. _markdown: http://www.freewisdom.org/projects/python-markdown/
 .. `Python`_: http://python.org/
@@ -204,21 +190,6 @@ included with BioStar:
 .. _Python: http://www.python.org/
 .. _JQuery: http://jquery.com/
 .. _markitup: http://markitup.jaysalvat.com/home/
-.. _Sass: http://sass-lang.com/
-.. _Coffescript: http://jashkenas.github.com/coffee-script/
-
-Development notes
------------------
-
-Various notes on development:
-
-* `A successful Git branching model`_
-
- .. _A successful Git branching model: http://nvie.com/posts/a-successful-git-branching-model/
-
-Colorscheme
------------
-
-  * Purple: `#8F2C47`
-  * Green: `#75845C`
-
+.. _Less: http://lesscss.org/
+.. _prettify: http://code.google.com/p/google-code-prettify/
+.. _Bootstrap: http://twitter.github.com/bootstrap/

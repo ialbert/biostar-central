@@ -20,7 +20,7 @@
               <li {% active 'badges' nav %}><a href="{% url main.server.views.badge_list %}">Badges</a></li>
               <li {% active 'about'  nav %}><a href="{% url main.server.action.about %}">About</a></li>
               <li {% active 'rss'    nav %}><a href="{% url main.server.action.rss %}">Feeds</a></li>
-              <li {% active 'faq'    nav %}><a href="{% url main.server.action.faq %}">Faq</a></li>
+              <li {% active 'faq'    nav %}><a href="{% url main.server.action.faq %}">FAQ</a></li>
             </ul>
             
             <form class="navbar-search pull-left" action="/" method="get">
@@ -32,7 +32,9 @@
                 {% if user.profile.new_messages %}
                 <a class="btn btn-success" href='{% url main.server.views.user_profile user.id %}'><i class="icon-envelope icon-white"></i> {{user.profile.new_messages}}</a>
                 {% endif %}
-                &nbsp;<a href="{% url main.server.views.user_profile user.id %}">{{ user.profile.display_name }} {% flair user %} {{ user.profile.score }}</a>
+                &nbsp;
+                 <i class="icon-user icon-white"></i>
+                 <a href="{% url main.server.views.user_profile user.id %}">{{ user.profile.display_name }} {% flair user %} {{ user.profile.score }}</a>
                  | <a href="/logout/?next_page=/">Sign Out</a>
             </p>
             {% else %}

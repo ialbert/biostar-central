@@ -50,6 +50,10 @@ class LastVisit(object):
             request.user.can_moderate = profile.can_moderate
         else:
             request.user.can_moderate = False
+            has_session = request.session.get(FIRST_SESSION)
+            if not has_session:
+                request.session[FIRST_SESSION] = True
+                messages.info(request, 'Welcome to BioStar! Questions and answers on bioinformatics, computational genomics and systems biology.')
 
         return None
 

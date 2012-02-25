@@ -82,19 +82,16 @@ while (( "$#" )); do
 	if [ "$1" = "init" ]; then
 		echo "*** initializing server on $BIOSTAR_HOSTNAME"
 		$PYTHON_EXE $DJANGO_ADMIN syncdb -v $VERBOSITY --noinput --settings=$DJANGO_SETTINGS_MODULE
-                
-                echo "*** flushing all data"
-                $PYTHON_EXE $DJANGO_ADMIN flush --noinput --settings=$DJANGO_SETTINGS_MODULE
-                
+
                 echo "*** collecting static files"
                 $PYTHON_EXE $DJANGO_ADMIN collectstatic -v $VERBOSITY --noinput --settings=$DJANGO_SETTINGS_MODULE
 	fi
 
-	if [ "$1" = "populate" ]; then
-		echo "*** populating server with: $FIXTURE_GZ"
+	if [ "$1" = "import" ]; then
+		echo "*** imports data from $FIXTURE_GZ"
 		$PYTHON_EXE $DJANGO_ADMIN loaddata $FIXTURE_GZ --settings=$DJANGO_SETTINGS_MODULE
 		echo "*** indexing post content"
-		$PYTHON_EXE -m main.server.index  --settings=$DJANGO_SETTINGS_MODULE
+		$PYTHON_EXE -m main.server.search  --settings=$DJANGO_SETTINGS_MODULE
 	fi
 
 	if [ "$1" = "run" ]; then
@@ -110,23 +107,19 @@ while (( "$#" )); do
 
 	if [ "$1" = "dump" ]; then		
 		echo "*** dumping data to $FIXTURE"
-		$PYTHON_EXE $DJANGO_ADMIN dumpdata auth.User server --settings=$DJANGO_SETTINGS_MODULE | gzip > $FIXTURE
+		$PYTHON_EXE $DJANGO_ADMIN dumpdata auth.User server --settings=$DJANGO_SETTINGS_MODULE | gzip > $FIXTURE_GZ
 	fi
 
-	if [ "$1" = "import" ]; then
-		echo "*** importing the data into the main database"
-		#$PYTHON_EXE -m main.migrate -o $FIXTURE --path import/se2 --limit 1000
+	if [ "$1" = "migrate" ]; then
+		echo "*** migrating data to a new datadump"
 		$PYTHON_EXE -m main.migrate -o $FIXTURE --path import/se2 --limit 100
-        #$PYTHON_EXE -m main.migrate -o $FIXTURE --path ~/.backup/se3 --limit 100000
-        
-        gzip -f $FIXTURE
-        echo "*** dumped data to $FIXTURE_GZ"
-		
+		gzip -f $FIXTURE
+		echo "*** dumped data to $FIXTURE_GZ"
 	fi
 
 	if [ "$1" = "index" ]; then		
 		echo "*** indexing all post content"
-		$PYTHON_EXE -m main.server.index  
+		$PYTHON_EXE -m main.server.search
 	fi
 
 shift
