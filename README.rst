@@ -31,6 +31,9 @@ for convenience)::
     $ # switch back to the source directory
     $ cd ..
 
+For faster loading performance also want to unzip the entire `libraries.zip` file located in
+the libs folder. 
+
 Quickstart
 ----------
 
@@ -83,9 +86,13 @@ Migration
 To load content from a StackExchange 1 XML datadump one needs to *migrate* the data 
 into the new schema. This is accomplished via the `main/migrate.py` script. 
 This script will make use of django settings module as well. The biostar run manager's migrate 
-command invokes this script. Run this script with the -h flag to see the flags it can take::
+command invokes this script. Run this script (note that the Django settings need to be properly set beforehand) 
+with the -h flag to see the flags it can take. W::
 
-    $ python main/migrate.py -h
+    $ python -m main.migrate.py -h
+
+The `migrate` command used via the `biostar.sh` run manager makes use of an in memory 
+database as specified in the `conf/memory.env` and `conf/memory.py` files.
 
 The result of a data migration is a json data fixture file that can be used via the *import* 
 command::
@@ -120,71 +127,67 @@ that contains html reports on the code coverage by the tests. View the `report/i
 How the site works
 -------------------
 
+Posts may be formatted in Markdown_ (default) or ReST_ markup standards. The second format, ReST_, will be 
+triggered by starting the post with the `.. rest::` directive.
+
 In Biostar there are four types of users: anonymous users, registered users, moderators and administrators.
 
-Anonymous Users
-^^^^^^^^^^^^^^^
+anonymous users
+	May browse all content of a site.
 
-May browse all content of a site.
+registered users
+	In addition to the privileges that anymous users have registered users may create new posts if their reputation 
+	exceeeds a limit (the default is zero), may vote and post answers and comments. 
 
-Registered Users
-^^^^^^^^^^^^^^^^
+moderators
+	In addition to the privileges that registered users have moderators may edit, close and delete posts, edit user information (other than email) 
+	and may also suspend and reinstate users. All the actions of the moderators 
+	may be followed via the Moderator Log page (see About BioStar page for a link)
 
-In addition to the privileges that anymous users have registered users  may post questions if their reputation exceeeds 
-a limit (the default is zero), may post answers and comments. 
-
-Moderator Role
-^^^^^^^^^^^^^^
-
-In addition to the privileges that registered users have moderators may edit, close and delete posts, edit user information (other than email) 
-and may also suspend and reinstate users. All the actions of the moderators 
-may be followed via the Moderator Log page (see About BioStar page for a link)
-
-Administrator Role
-^^^^^^^^^^^^^^^^^^
-
-In addition to the privileges that moderators have administrators 
-may promote/demote users from having moderator roles. Administrators also have 
-access to the django admin interface where they may perform more database actions
-than those offered via the BioStar interface..
+administrators
+	In addition to the privileges that moderators have administrators 
+	may promote/demote users from having moderator roles. Administrators also have 
+	access to the django admin interface where they may perform more database actions
+	than those offered via the BioStar interface..
 
 Content Persistence
 ^^^^^^^^^^^^^^^^^^^
 
 Content may be deleted (marked invisible to users) or destroyed (removed from the database).
-A post submitted for deletion will be destroyed only if the author requests the deletion of
-the post and the post has not collected any answers or comments. In all other cases
-the post will be marked invisible to regular users.
+
+A post submitted for deletion will be destroyed only if the author requests the deletion 
+and the post does not have any followups (answers/comments) associated with it. Deleted top level posts 
+are marked invisible to regular users.
 
 Code Layout
 -----------
 
 The Python code, templates, static content (css, images, javascript) and default 
 database are found in the *main* directory. There is partial datadump of the existing BioStar content in the 
-*import* folder. The *populate* command will load 
-this data into the current database.
+*import* folder. The *import* command will load this data into the current database.
 
 Other Libraries
 ---------------
 
-Biostar is built with open source libraries. The following software packages are used and if necessary
-included with BioStar:
+Biostar is built with open source libraries. The following software packages are used and 
+if necessary included and distributed with BioStar:
 
 * Bootstrap_ as a CSS framework
 * JQuery_ for javascript programming
 * Less_ used for syntactically awesome css
-* Coffescript_ for making javascript fun again
 * markitup_ as rich text javascript editor. 
-* markdown_ python library to generate HTML
+* python-markdown_ python library to convert Markdown_ to  HTML
+* docutils_ is used to convert ReST_ to HTML
 * django_openid_auth_ and python_openid_ for openid authentication
 * whoosh_ provides fast full text searching
 * coverage_ is used to measure code coverage during testing
 * prettify_ is used for syntax highlighting
 
+
 .. _django_openid_auth: https://launchpad.net/django-openid-auth
 .. _python_openid: http://pypi.python.org/pypi/python-openid/
 .. _whoosh: https://bitbucket.org/mchaput/whoosh/wiki/Home
-.. _markdown: http://www.freewisdom.org/projects/python-markdown/
+.. _python-markdown: http://www.freewisdom.org/projects/python-markdown/
 .. `Python`_: http://python.org/
 .. _Django: http://www.djangoproject.com/
 .. _Python: http://www.python.org/
@@ -193,3 +196,6 @@ included with BioStar:
 .. _Less: http://lesscss.org/
 .. _prettify: http://code.google.com/p/google-code-prettify/
 .. _Bootstrap: http://twitter.github.com/bootstrap/
+.. _docutils: http://docutils.sourceforge.net/docs/user/rst/quickstart.html
+.. _ReST: http://docutils.sourceforge.net/docs/user/rst/quickstart.html
+.. _Markdown: http://en.wikipedia.org/wiki/Markdown

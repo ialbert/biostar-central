@@ -12,6 +12,7 @@ from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from BeautifulSoup import BeautifulSoup, Comment
 
 import markdown
+from docutils import core
 
 from itertools import groupby
 
@@ -46,9 +47,15 @@ def nuke(text):
 def generate(text):
     if not text:
         return ""
-    md = markdown.Markdown( safe_mode=True )
-    md.html_replacement_text = "[?]"
-    html = md.convert(text)
+    text = text.strip()
+    if text.startswith('.. rest::'):
+        text = text[9:]
+        rest = core.publish_parts(text ,writer_name='html')
+        html = rest.get('html_body','[rest error]')
+    else:
+        md = markdown.Markdown( safe_mode=True )
+        md.html_replacement_text = "[?]"
+        html = md.convert(text)
     return html
 
 ALLOWED_TAGS = "strong span:class br ol ul li a:href img:src pre code blockquote p em"

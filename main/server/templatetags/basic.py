@@ -13,9 +13,9 @@ from django.template.defaultfilters import stringfilter
 
 @register.filter(name='chunk')
 @stringfilter
-def quick_chunk(text):
+def quick_chunk(text, size=250):
     "Slices off text"
-    return text[:250]
+    return text[:size]
 
 def smart_chunk(text):
     "Chunks by words"

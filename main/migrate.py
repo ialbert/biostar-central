@@ -707,4 +707,3 @@ if __name__ =='__main__':
     fp = file(opts.output, 'wt')
     sys.stdout = fp
     management.call_command('dumpdata', 'auth.User', 'server', verbosity=1, interactive=False)
-    

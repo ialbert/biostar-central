@@ -112,6 +112,8 @@ while (( "$#" )); do
 
 	if [ "$1" = "migrate" ]; then
 		echo "*** migrating data to a new datadump"
+		source conf/memory.sh
+		echo "*** DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE"
 		$PYTHON_EXE -m main.migrate -o $FIXTURE --path import/se2 --limit 100
 		gzip -f $FIXTURE
 		echo "*** dumped data to $FIXTURE_GZ"
