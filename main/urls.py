@@ -61,6 +61,7 @@ urlpatterns = patterns('main.server',
     
     # editing an existing post/answer/comment
     (r'^post/edit/(?P<pid>\d+)/$','views.post_edit'),
+    (r'^post/moderate/(?P<pid>\d+)/(?P<status>\w+)/$','action.moderate'),
     
     # handles new post
     (r'^new/post/$','views.new_post'),

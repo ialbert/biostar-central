@@ -80,24 +80,30 @@ to override the various settings.
 The default server will bind the all IP adapters (0.0.0.0) and port 8080. Visit http://localhost:8080 to see
 interact with your version of the test server. 
 
-Migration
----------
+Data Migration
+---------------
 
 To load content from a StackExchange 1 XML datadump one needs to *migrate* the data 
-into the new schema. This is accomplished via the `main/migrate.py` script. 
-This script will make use of django settings module as well. The biostar run manager's migrate 
-command invokes this script. Run this script (note that the Django settings need to be properly set beforehand) 
-with the -h flag to see the flags it can take. W::
+into the new schema. This is accomplished via the `migrate` command::
+
+	$ ./biostar.sh migrate
+
+This command in turn invokes the `main/migrate.py` script. Run this script 
+(note that the Django settings need to be properly set beforehand) 
+with the -h flag to see the flags it can take.::
 
     $ python -m main.migrate.py -h
 
-The `migrate` command used via the `biostar.sh` run manager makes use of an in memory 
-database as specified in the `conf/memory.env` and `conf/memory.py` files.
+.. note:: The `migrate` command used via the `biostar.sh` run manager makes use 
+   of an in memory database as specified in the `conf/memory.env` and `conf/memory.py` files.
 
-The result of a data migration is a json data fixture file that can be used via the *import* 
-command::
+The result of a data migration is a compressed json data fixture file that, in turn, 
+may be used via the *import* command::
 
     $ ./biostar.sh init import
+
+Account migration
+-----------------
 
 There is an automatic account migration based on the email provided by the
 OpenID provider. Only the information from a subset of well known OpenID
@@ -129,6 +135,10 @@ How the site works
 
 Posts may be formatted in Markdown_ (default) or ReST_ markup standards. The second format, ReST_, will be 
 triggered by starting the post with the `.. rest::` directive.
+
+User reputation is a sum of all upvotes and accepted answers that a user accumulates. Note that multiple answers
+may be accepted on a question, in effect this provides the author of a question to reward twice the 
+excellent answers.
 
 In Biostar there are four types of users: anonymous users, registered users, moderators and administrators.
 

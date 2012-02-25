@@ -5,7 +5,7 @@ Started refactoring some here, this will eventually store all form based
 actions whereas the main views.py will contain url based actions.
 """
 from datetime import datetime, timedelta
-from main.server import html, models, auth
+from main.server import html, models, auth, notegen
 from main.server.html import get_page
 from main.server.const import *
 
@@ -41,8 +41,26 @@ def cleanup(request):
         LAST_CLEANUP = now
         # get rid of unused tags
         models.Tag.objects.filter(count=0).delete()
-        
 
+@login_required(redirect_field_name='/openid/login/')
+def moderate(request, pid, status):
+    "General moderation function"
+    user = request.user
+    post = models.Post.objects.get(id=pid)
+    url  = post.get_absolute_url() # needed since the post may be destroyed
+    
+    # remap the status to valid
+    status = dict(close=POST_CLOSED, open=POST_OPEN, delete=POST_DELETED).get(status)
+    if not status:
+        messages.error('Invalid moderator action')
+        return html.redirect( post.get_absolute_url() )    
+    
+    flag, msg = models.moderate_post(user=user, post=post, status=status)
+    func = messages.info if flag else messages.error
+    func(request, msg)
+    return html.redirect( url )    
+    
+@login_required(redirect_field_name='/openid/login/')
 def user_edit(request, uid):
     "User's profile page"
     

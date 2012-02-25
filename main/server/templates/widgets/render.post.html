@@ -16,14 +16,18 @@
         <td>{% vote_box post %}</td>
     <td width="100%"> 
         <div class="body">
-            {{ post.html|safe }}
-            {% if post.top_level %}
-                {% show_tags post %}
+            {% if post.deleted %}
+                [ content deleted, see revisions ]
+            {% else %}
+                {{ post.html|safe }}
+                {% if post.top_level %}
+                    {% show_tags post %}
+                {% endif %}
             {% endif %}
         </div>
     </td>
         <td align="right">
-            <div class="post-info">{% post_info_panel '' post %}</div>
+           <div class="post-info">{% post_info_panel '' post %}</div>
         </td>
     </tr>
     <tr>

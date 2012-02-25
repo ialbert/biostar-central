@@ -182,8 +182,11 @@ class Post(models.Model):
         return time.time() + random.randint(-spread, spread)
         
     def get_absolute_url(self):
-        full = "/post/show/%d/%s/#%d" % (self.root.id, self.root.slug, self.id)
-        url  = self.url or full
+        if self.top_level:
+            url = "/post/show/%d/%s/" % (self.root.id, self.root.slug)
+        else:
+            url = "/post/show/%d/%s/#%d" % (self.root.id, self.root.slug, self.id)
+        url  = self.url or url
         return url
           
     def set_tags(self):
@@ -335,42 +338,42 @@ def moderate_user(user, target, action, date=None):
     target.profile.save()
     
 @transaction.commit_on_success
-def moderate_post(post, user, action, date=None):
+def moderate_post(post, user, status, date=None):
     """
     Performs a moderator action on the post. Takes an action (one of REV_ACTIONS)
     and a user. Date is assumed to be now if not provided
     """
-    # user may not apply moderation
-    if not auth.authorize_post_edit(user=user, post=post, strict=False):
-        msg = 'denied user %s moderation of post %s' %(user.id, post.id)
+
+    # setting posts to open require more than one permission
+    if status == POST_OPEN and not user.profile.can_moderate:
+        msg = 'User %s not a moderator' %user.id
         logger.error(msg)
-        return False
+        return False, msg
+        
+    # check that user may write the post
+    if not auth.authorize_post_edit(user=user, post=post, strict=False):
+        msg = 'User %s my not modfify post %s' %(user.id, post.id)
+        logger.error(msg)
+        return False, msg
+   
+    # special treatment for deletion
+    orphan = (post.children.count() == 1)  # self included
 
-    if action == REV_CLOSE:
-        post.status = POST_CLOSED       
-    elif action == REV_DELETE:
-        destroy_post(post=post, user=user)
-    else:
-        post.status = POST_OPEN
-    post.save()
-      
-    text = notegen.post_moderator_action(user=user, post=post, action=action)
-    send_note(target=post.author, sender=user, content=text,  type=NOTE_MODERATOR)
-
-@transaction.commit_on_success
-def destroy_post(post, user):
-    # a post will be removed if it has not children, otherwise its content will be set to [removed]
-    children = Post.objects.filter(parent=post)    
-    if not children:
-        Vote.objects.filter(post=post).delete() # trigger vote deletes, reputation change
-        post.delete() # this will cascade over votes
-        logger.info( 'destroyed post %s' % post.id )
-    else:
-        post.content = "[removed by %s]" % user.profile.display_name
-        post.status  = POST_DELETED
-        post.save()
-    return children
+    if status == POST_DELETED and orphan:
+        # destroy the post with no trace
+        Vote.objects.filter(post=post).delete()
+        post.delete()
+        return True, 'Post destroyed'
     
+    post.status = status
+    post.save()
+   
+    text = notegen.post_moderator_action(user=user, post=post)
+    send_note(target=post.author, sender=user, content=text,  type=NOTE_MODERATOR, both=True)
+    
+    return True, 'Post status set to %s' % post.get_status_display()
+     
+@transaction.commit_on_success        
 def send_note(sender, target, content, type=NOTE_USER, unread=True, date=None, both=False):
     "Sends a note to target"
     date = date or datetime.now()

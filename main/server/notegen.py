@@ -14,9 +14,9 @@ def postlink(post, size=35):
 def badgelink(badge):
     return '[%s](%s)' % (badge.name, badge.get_absolute_url() )
 
-def post_moderator_action(user, post, action):
-    action = REV_ACTION_MAP.get(action, '???')
-    text  = '%s used %s on %s' % (userlink(user), action, postlink(post))
+def post_moderator_action(user, post):
+    action = post.get_status_display()
+    text   = '%s set status to %s on %s' % (userlink(user), action, postlink(post))
     return text
 
 def post_action(user, post, size=250):

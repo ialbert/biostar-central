@@ -300,8 +300,8 @@ def insert_post_revisions(fname, limit, users, posts):
             rev['tag_string'] = parse_tag_string(row['Text'])
 
         if rtype in ['10','11','12','13']: # Moderator actions
-            actions = {'10':const.REV_CLOSE, '11':const.REV_REOPEN,
-                       '12':const.REV_DELETE, '13':const.REV_UNDELETE}
+            actions = {'10':const.POST_CLOSED, '11':const.POST_OPEN,
+                       '12':const.POST_DELETED, '13':const.POST_OPEN}
             # this is defined in the models
             alist.append( (post, actions[rtype], author, date) )
 
@@ -323,9 +323,9 @@ def insert_post_revisions(fname, limit, users, posts):
                 
     print "*** inserting %s moderator actions" % len(alist)
     with transaction.commit_on_success():
-        for post, atype, user, date in alist:
+        for post, status, user, date in alist:
             if USE_DB:
-                models.moderate_post(post=post, action=atype, user=user, date=date)                
+                models.moderate_post(post=post, status=status, user=user, date=date)                
     
 def insert_votes(fname, limit, users, posts):
 

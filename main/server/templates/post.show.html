@@ -21,12 +21,6 @@
     $('pre').addClass('prettyprint')
     prettyPrint()
 
-    // moderation handlers defined in /static/js/mod.js
-    // close/reopen delete/destroy handler
-    $('.mod-link').click(function(){
-        mod_link_clicked($(this))
-    });
-    
     $('.comment-delete').click(function(){
         comment_delete($(this))
     });
@@ -62,8 +56,6 @@
     <div class="row separator"><h3>
     {% if root.answer_count %}
         {{root.answer_count}} answer{{root.answer_count|pluralize}}
-    {% else %}
-        {% if root.open %} No answers. Add your own. {% endif %}
     {% endif %}
     </h3>
     </div>

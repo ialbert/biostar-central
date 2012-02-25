@@ -15,20 +15,23 @@
         
     {% if post.writeable %}
     
-        &bull; <a href="/post/edit/{{post.id}}/">edit</a>
+        &bull; <a href="{% url main.server.views.post_edit post.id  %}">edit</a>
     
     <span class="mod-menu">
         {% if post.top_level %}
             {% if post.closed %}
-                &bull; <a class="mod-link" action="reopen">reopen</a>
+                &bull; <a href="{% url main.server.action.moderate post.id 'open' %}">reopen</a>     
             {% else %}
-                &bull; <a class="mod-link" action="close">close</a>
+                &bull; <a href="{% url main.server.action.moderate post.id 'close' %}">close</a>     
             {% endif %}
         {% endif %}
-        
-        {% if not post.deleted %}        
-            &bull; <a class="mod-link" action="delete">delete</a>                                   
+
+        {% if post.deleted %}        
+            &bull; <a href="{% url main.server.action.moderate post.id  'open' %}">undelete</a>                                  
+        {% else %}
+            &bull; <a href="{% url main.server.action.moderate post.id 'delete' %}">delete</a>                                  
         {% endif %}
+
     </span>    
     {% endif %}
 

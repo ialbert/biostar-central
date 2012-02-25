@@ -58,8 +58,11 @@ def vote(request):
     if not type:
         return ajax_error('invalid vote type')
             
-    if type == VOTE_UP and post.author == author:
-        return ajax_error('You may not vote on your own post')
+    if type  == VOTE_UP and post.author == author:
+        return ajax_error('You may not vote up on your own post')
+    
+    if type == VOTE_ACCEPT and post.author == author:
+        return ajax_error('You may not accept your own post')
     
     if type == VOTE_ACCEPT and post.root.author != author:
         return ajax_error('Only the original poster may accept an answer')
