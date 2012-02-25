@@ -9,7 +9,7 @@
 
     {% if post.top_level %}
     <tr>
-        <td colspan="3"><div class="title">{{post.get_title}}</div></td>
+        <td colspan="3"><div class="title">{{post.get_type_display}}: {{post.get_title}}</div></td>
     </tr>
     {% endif %}
     <tr>
