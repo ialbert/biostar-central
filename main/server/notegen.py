@@ -9,7 +9,7 @@ def userlink(user):
 def postlink(post, size=35):
     root  = post.root or post
     title = root.title if len(root.title) < size else '%s...' %  root.title[:size] 
-    return '[%s](%s)' % (title, post.get_absolute_url())
+    return '%s:[%s]( %s)' % (post.get_type_display(), title, post.get_absolute_url())
 
 def badgelink(badge):
     return '[%s](%s)' % (badge.name, badge.get_absolute_url() )
@@ -21,13 +21,12 @@ def post_moderator_action(user, post):
 
 def post_action(user, post, size=250):
     post_type = int(post.type)
-    post_map  = {POST_QUESTION:'asked', POST_ANSWER:'answered', POST_COMMENT:'commented on'}
-    action = post_map.get(post_type, 'posted')
+    action = 'posted'
     if len(post.content) < size:
         content = post.content
     else:
         content = '%s...' % post.content[:size]
-    text   = '%s %s %s %s' % (userlink(user), action, postlink(post), content)
+    text   = '%s %s %s: %s' % (userlink(user), action, postlink(post), content)
     return text
 
 def suspend(moderator, target):

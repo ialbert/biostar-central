@@ -28,9 +28,7 @@ urlpatterns = patterns('main.server',
     (r'^tag/list/$', 'views.tag_list'),
     (r'^user/list/$', 'views.user_list'),
     (r'^badge/list/$', 'views.badge_list'),
-    (r'^about/$','action.about'),
-    (r'^rss/$','action.rss'),
-    (r'^faq/$','action.faq'),
+    
     
     # user edit page
     (r'^user/edit/(?P<uid>\d+)/$', 'action.user_edit'),
@@ -69,6 +67,12 @@ urlpatterns = patterns('main.server',
     (r'^new/comment/(?P<pid>\d+)/$','views.new_comment'),
     
 
+    # static pages
+    (r'^about/$','pages.about'),
+    (r'^rss/$','pages.rss'),
+    (r'^faq/$','pages.faq'),
+    (r'^beta/$','pages.beta'),
+    
     # destroys a post
     (r'^post/destroy/(?P<pid>\d+)/$', 'ajax.post_destroy'),
     
