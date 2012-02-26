@@ -19,8 +19,8 @@ MAX_VOTES_PER_SESSION = 3   # this is how many votes can be cast per session
 FIRST_SESSION = 'first-session'
 
 # Add at the end
-POST_QUESTION, POST_ANSWER, POST_COMMENT, POST_GUIDE, POST_BLOG, POST_FORUM, POST_OTHER = range(1, 8)
-POST_TYPES  = ( (POST_ANSWER, 'Answer') , (POST_COMMENT, 'Comment'), (POST_QUESTION, 'Question'), (POST_GUIDE, 'Guide'), 
+POST_QUESTION, POST_ANSWER, POST_COMMENT, POST_TUTORIAL, POST_BLOG, POST_FORUM, POST_OTHER = range(1, 8)
+POST_TYPES  = ( (POST_ANSWER, 'Answer') , (POST_COMMENT, 'Comment'), (POST_QUESTION, 'Question'), (POST_TUTORIAL, 'Tutorial'), 
     (POST_BLOG, 'Blog'), (POST_FORUM, 'Forum'), )
 
 # direct mapping for quick lookups

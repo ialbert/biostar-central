@@ -581,8 +581,11 @@ def blogs_init():
     post.save()
     
     # create the first guide post
-    content = file('import/first-guide.txt').read()
-    post  = models.Post(title="Converting SOLID colorspace fasta files", author=admin,  type=POST_GUIDE, tag_val="solid csfasta csfastq", content=content)
+    content = file('import/first-tutorial.txt').read()
+    angus, flag = models.User.objects.get_or_create(username='angus')
+    angus.profile.display_name = "MSU course 2011"
+    angus.profile.save()
+    post  = models.Post(title="Installing and Running NCBI BLAST", author=angus,  type=POST_TUTORIAL, tag_val="blast tutorial MSU-NGS-2011", content=content)
     post.save()
     
                     

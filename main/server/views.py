@@ -78,8 +78,8 @@ def index(request, tab="questions"):
         models.decorate_posts(posts, user)
     elif tab == 'forum':
         posts = posts.filter(type=POST_FORUM).order_by('-rank')
-    elif tab == 'guides':
-        posts = posts.filter(type=POST_GUIDE).order_by('-rank')
+    elif tab == 'tutorials':
+        posts = posts.filter(type=POST_TUTORIAL).order_by('-rank')
     else:
         posts = posts.order_by('-rank')
     
