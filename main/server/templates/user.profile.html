@@ -76,6 +76,10 @@
         <li {% active 'activity' params.tab %}><a href="{% url main.server.views.user_profile target.id %}">Activity{% show_value params.note_count %}</a></li>
         <li {% active 'bookmarks' params.tab %}><a href="{% url main.server.views.user_profile target.id 'bookmarks' %}">Bookmarks{% show_value params.bookmarks_count %}</a></li>
         <li {% active 'badges' params.tab %}><a href="{% url main.server.views.user_profile target.id 'badges' %}">Badges{% show_value params.award_count %}</a></li>
+        {% if target.profile.can_moderate %}
+            <li {% active 'moderator' params.tab %}><a href="{% url main.server.views.user_profile target.id 'moderator' %}">Moderator</a></li>
+        {% endif %}
+    
     </ul>
 </div>
 
@@ -152,6 +156,25 @@
         {% empty %}
             <div class="note">&bull; no badges earned</div>
         {% endfor %} 
+    </div>
+{% endif %}
+
+{% if params.tab == 'moderator' %}  
+    <div class="note-list">
+       <div class="par">
+            Moderator actions by this user. To view all moderator actions see the <a href="/modlog/list">moderator log list</a>
+       </div>
+        {% if page.object_list and page.paginator.num_pages > 1 %}
+            {% page_bar %}        
+        {% endif %}
+    
+        <table class="table table-striped">
+        {% for note in page.object_list %}
+            <tr><td class="msg {{note.status}}"> {% time_ago note.date %} &bull; {{ note.html|safe }}</td></tr>
+        {% empty %}
+            <tr><td><div class="empty">&bull; no messages</div><td></tr>
+        {% endfor %}
+        </table>   
     </div>
 {% endif %}
 

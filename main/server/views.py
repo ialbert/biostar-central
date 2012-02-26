@@ -160,8 +160,15 @@ def user_profile(request, uid, tab='activity'):
         bookmarks = models.Vote.objects.filter(author=target, type=VOTE_BOOKMARK).select_related('post', 'post__author__profile').order_by('id')
         page  = get_page(request, bookmarks, per_page=5)
     
+    elif tab =="moderator":
+       
+        notes = models.Note.objects.filter(target=target, type=NOTE_MODERATOR).select_related('author', 'author__profile', 'root').order_by('-date')
+        page  = get_page(request, notes, per_page=15)
+        print 'HERE'
+
     params.update(dict(question_count=question_count, answer_count=answer_count, note_count=note_count, bookmarks_count=bookmarks_count,
             comment_count=comment_count, post_count=post_count, vote_count=vote_count, award_count=award_count))
+    
     return html.template(request, name='user.profile.html', awards=awards,
         user=request.user,target=target, params=params, page=page)
 
@@ -291,10 +298,10 @@ def post_edit(request, pid=0):
     toplevel = post.top_level
     factory  = formdef.TopLevelContent if toplevel else formdef.ChildContent
 
-    params = html.Params(tab='new', title="New post", toplevel=toplevel)
+    params = html.Params(tab='edit', title="Edit post", toplevel=toplevel)
     if request.method == 'GET':
         # no incoming data, render prefilled form
-        form = factory(initial=dict(title=post.title, content=post.content, tag_val=post.tag_val))
+        form = factory(initial=dict(title=post.title, content=post.content, tag_val=post.tag_val, type=post.type))
         return html.template(request, name=name, form=form, params=params)
 
     # process the incoming data
