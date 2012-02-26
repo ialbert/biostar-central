@@ -80,10 +80,11 @@ def vote(request):
         vote = post.add_vote(author, type)
         return ajax_success('%s added' % vote.get_type_display())
     
-    today = datetime.now()
-    shift = timedelta(seconds=VOTE_SESSION_LENGTH)
-    past  = today - shift
-    count = models.Vote.objects.filter(author=author, date__gt=past).count()
+    # throttle
+    today  = datetime.now()
+    shift  = timedelta(seconds=VOTE_SESSION_LENGTH)
+    past   = today - shift
+    count  = models.Vote.objects.filter(author=author, date__gt=past).count()
     avail  = MAX_VOTES_PER_SESSION - count
     
     if avail <= 0:

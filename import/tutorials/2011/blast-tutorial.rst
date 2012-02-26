@@ -2,6 +2,8 @@ Title: Installing and Running NCBI BLAST
 Tags: blast tutorial MSU-NGS-2011
 ##rest
 
+"Installing and Running NCBI BLAST" tutorial imported from the MSU course **Analyzing Next Generation Sequencing Data** (http://bioinformatics.msu.edu/ngs-summer-course-2011)
+
 You should start this tutorial at a prompt that looks something like this::
 
    root@ip-10-82-233-6:~#

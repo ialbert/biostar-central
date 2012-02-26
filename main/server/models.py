@@ -215,9 +215,19 @@ class Post(models.Model):
         if self.id not in viewed:
             # updates bypass signals
             Post.objects.filter(id=self.id).update(views = F('views') + 1 ) 
+            self.views += 1
             viewed.add(self.id)
             request.session[VIEW_KEY] = viewed
-            
+            return True
+        return False
+    
+    def rank_increase(self, hours=24):
+        "How post ranks change upon uvoone daytes"
+        add  = 3600 * hours # gain one day by default
+        future = time.time() + add/2
+        rank = self.rank + add # an upvote adds one day of rank
+        self.rank = min( (rank, future) ) # no pushing into the future
+    
     @property
     def top_level(self):
         return self.type in POST_TOPLEVEL
@@ -471,7 +481,7 @@ def upvote_rank_change(rank):
     day  = 3600 * 24
     now  = time.time() + day/2
     rank = rank + day # an upvote adds one day of rank
-    rank = min( (rank, now) ) # no pushing too far in the future
+    rank = min( (rank, now) ) # no pushing into the future
     return rank
     
 class Vote(models.Model):

@@ -20,7 +20,7 @@ export DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE:-"settings"}
 PYTHONPATH=${PYTHONPATH:-""}
 
 # the fixture to dump/load data from
-export FIXTURE=import/datadump.json
+export FIXTURE=${FIXTURE:-"import/datadump.json"}
 export FIXTURE_GZ=$FIXTURE.gz
 
 # the DJANGO_SETTINGS_MODULE needs to be in the python import path

@@ -577,7 +577,7 @@ def parse_post(fname):
     lines = file(fname).readlines()
     title = lines[0].split(':')[-1]
     tags  = lines[1].split(':')[-1]
-    body  = '\n'.join(lines[2:])
+    body  = ''.join(lines[2:])
     return map(string.strip, (title, tags, body))
 
 def tutorial_init():
@@ -651,8 +651,8 @@ def execute(path, limit=None):
         
     users = insert_users(fname=fname, limit=limit)
   
-    tutorial_init()
-    return
+    #tutorial_init()
+    #return
 
     fname = join(path, 'Posts.xml')
     posts = insert_posts(fname=fname, limit=limit, users=users)

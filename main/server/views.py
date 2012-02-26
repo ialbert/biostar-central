@@ -337,6 +337,14 @@ def add_comment(request, pid):
     
     return post_redirect(comment)
 
+def blog_redirect(request, pid):
+    "Used to be able to count the views for a blog"
+    blog = models.Post.objects.get(id=pid, type=POST_BLOG)
+    if blog.update_views(request):
+        blog.rank_increase(hours=24)   
+        blog.save()
+    return html.redirect( blog.get_absolute_url() )
+
 def modlog_list(request):
     "Lists of all moderator actions"
     mods = models.Note.objects.filter(type=NOTE_MODERATOR).select_related('sender', 'target', 'post', 'sender_profile').order_by('-date')

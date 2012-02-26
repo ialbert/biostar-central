@@ -5,21 +5,22 @@
     
      <td colspan="3" align="right">
         <div class="vote-box">
-        <div class="vote">
-            <input type="hidden" value="{{post.id}}">
-            {% if post.upvoted %}
-            <div class="vote-up vote-on">&nbsp;</div>
-            {% else %}
-            <div class="vote-up vote-off">&nbsp;</div>
-            {% endif %}
-            <div class="vote-count">{{post.score}}</div>
-            {% if post.bookmarked %}
-        <div class="vote-bookmark vote-on">&nbsp;</div>
-        {% else %}
-        <div class="vote-bookmark vote-off">&nbsp;</div>
-        {% endif %}
+            <div class="vote">
+                <input type="hidden" value="{{post.id}}">
+                {% if post.upvoted %}
+                    <div class="vote-up vote-on">&nbsp;</div>
+                {% else %}
+                    <div class="vote-up vote-off">&nbsp;</div>
+                {% endif %}
+                    <div class="vote-count">{{post.score}}</div>
+                {% if post.bookmarked %}
+                    <div class="vote-bookmark vote-on">&nbsp;</div>
+                {% else %}
+                    <div class="vote-bookmark vote-off">&nbsp;</div>
+                {% endif %}
+            </div>
         </div>
-        </div>
+        <div align="center">{{ post.views }} view{{post.views|pluralize}}</div>
     </td>
 
 
@@ -28,7 +29,7 @@
         <div class="post-title {{post.get_type_display}}">            
             Blog: 
             {% if post.url %}
-                <a href="{{post.url}}">{{post.get_title}} <i class="icon-share-alt"></i></a>
+                <a href="{% url main.server.views.blog_redirect post.id %}">{{post.get_title}} <i class="icon-share-alt"></i></a>
             {% else %}
                 <a href="{{post.get_absolute_url}}">{{post.get_title}} </a>
             {% endif %}

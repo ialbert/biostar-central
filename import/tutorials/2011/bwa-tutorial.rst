@@ -2,6 +2,8 @@ Title: Mapping reads with bwa and bowtie
 Tags: bowtie bwa tutorial MSU-NGS-2011
 ##rest
 
+"Mapping reads with bwa and bowtie tutorial" imported from the MSU course **Analyzing Next Generation Sequencing Data** (http://bioinformatics.msu.edu/ngs-summer-course-2011)
+
 In this tutorial, we're going to take a set of Illumina reads from an inbred Drosophila melanogaster line, 
 and map them back to the reference genome. (After these steps, we could do things like generate a list of SNPs 
 at which this line differs from the reference strain, or generate a genome sequence for this fly strain, 
