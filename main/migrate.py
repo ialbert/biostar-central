@@ -353,6 +353,9 @@ def insert_votes(fname, limit, users, posts):
             vote_type = const.VOTE_DOWN
         else:
             continue
+        if not post.id:
+            continue
+
         param = dict(post=post, author=user, type=vote_type)
         vlist.append(param)
 
@@ -401,7 +404,7 @@ def insert_comments(fname, posts, users, limit):
                     transaction.commit()
                     gc.collect()
                 post.save() 
-                
+
     return comms
 
 def insert_comment_votes(fname, limit, comms, users):
