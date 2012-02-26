@@ -19,6 +19,10 @@ export DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE:-"settings"}
 # add to the python path
 PYTHONPATH=${PYTHONPATH:-""}
 
+# the migration path and limit
+export MIGRATE_PATH=${MIGRATE_PATH:-"import/se0"}
+export MIGRATE_LIMIT=${MIGRATE_LIMIT:-"100"}
+
 # the fixture to dump/load data from
 export FIXTURE=${FIXTURE:-"import/datadump.json"}
 export FIXTURE_GZ=$FIXTURE.gz
@@ -114,7 +118,9 @@ while (( "$#" )); do
 		echo "*** migrating data to a new datadump"
 		source conf/memory.sh
 		echo "*** DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE"
-		$PYTHON_EXE -m main.migrate -o $FIXTURE --path import/se2 --limit 100
+		echo "*** MIGRATE_PATH=$MIGRATE_PATH, $MIGRATE_LIMIT"
+		echo "*** FIXTURE=$FIXTURE_GZ"
+		$PYTHON_EXE -m main.migrate -o $FIXTURE --path $MIGRATE_PATH --limit $MIGRATE_LIMIT
 		gzip -f $FIXTURE
 		echo "*** dumped data to $FIXTURE_GZ"
 	fi

@@ -94,7 +94,8 @@ def checkuser(row, key='Id'):
 @transaction.commit_manually
 def insert_users(fname, limit):
     "Inserts the users"
-    
+    gc.collect()
+
     # needs to create community user
     user, flag = models.User.objects.get_or_create(username='community')
     user.profile.display_name = 'Biostar'
@@ -194,7 +195,8 @@ def checkfunc(key, data):
 
 def insert_posts(fname, limit, users):
     "Inserts the posts"
-    
+    gc.collect()
+
     # read all the posts
     rows = xml_reader(fname, limit=limit)
 
@@ -261,6 +263,7 @@ def insert_post_revisions(fname, limit, users, posts):
     Inserts post revisions. Also responsible for parsing out closed/deleted 
     states from the post history log
     """
+    gc.collect()
 
     # no limits are necessary since it is limited by posts and users already
     rows = xml_reader(fname, limit=None)
@@ -324,11 +327,12 @@ def insert_post_revisions(fname, limit, users, posts):
     print "*** inserting %s moderator actions" % len(alist)
     with transaction.commit_on_success():
         for post, status, user, date in alist:
-            if USE_DB:
+            if USE_DB and post.id:
                 models.post_moderate(post=post, status=status, user=user, date=date)                
     
 def insert_votes(fname, limit, users, posts):
 
+    gc.collect()
     rows = xml_reader(fname)
 
     rows = filter(checkfunc('UserId', users), rows)
@@ -364,6 +368,8 @@ def insert_votes(fname, limit, users, posts):
         
 def insert_comments(fname, posts, users, limit):
     
+    gc.collect()
+
     rows = xml_reader(fname, limit=limit)
 
     # keep the valid rows only
@@ -393,12 +399,15 @@ def insert_comments(fname, posts, users, limit):
                 if (i % 1000 == 0):
                     print "*** commit at %s" % i
                     transaction.commit()
+                    gc.collect()
                 post.save() 
                 
     return comms
 
 def insert_comment_votes(fname, limit, comms, users):
     "Inserts vote on comments"
+    
+    gc.collect()
 
     rows = xml_reader(fname)
     rows = filter(checkfunc('UserId', users), rows)
@@ -421,6 +430,8 @@ def insert_comment_votes(fname, limit, comms, users):
             continue
         else:
             continue
+        if not post.id:
+            continue
         param = dict(post=post, author=user, type=vote_type)
         vlist.append(param)
 
@@ -436,6 +447,8 @@ def insert_comment_votes(fname, limit, comms, users):
  
 def insert_badges(fname, limit):
     "Inserts the badges"
+
+    gc.collect()
 
     blist = []
     rows = xml_reader(fname, limit=limit)
@@ -471,7 +484,6 @@ def finalize():
         # create a welcome message
         for user in users:
             models.Note.objects.create(sender=community, target=user, content='Welcome to **Biostar!**', type=const.NOTE_USER)
-
 
 def insert_awards(fname, users, badges, limit):
     "Inserts the badge awards"
@@ -639,8 +651,6 @@ def execute(path, limit=None):
     # turn off automatic text indexing
     models.set_text_indexing(False)
 
-    
-
     # insert users into the database
     fname = join(path, 'Users.xml')
     
@@ -656,13 +666,13 @@ def execute(path, limit=None):
 
     fname = join(path, 'Posts.xml')
     posts = insert_posts(fname=fname, limit=limit, users=users)
-    
-    fname = join(path, 'PostHistory.xml')
-    revisions = insert_post_revisions(fname=fname, limit=limit, posts=posts, users=users)
-    
+   
     # this creates way too many notices, so disconnect it during imports
     signals.post_save.disconnect( models.post_create_notification, sender=models.Post )
 
+    fname = join(path, 'PostHistory.xml')
+    revisions = insert_post_revisions(fname=fname, limit=limit, posts=posts, users=users)
+       
     fname = join(path, 'PostComments.xml')
     comms = insert_comments(fname=fname, posts=posts, users=users, limit=limit)
     
@@ -724,7 +734,7 @@ if __name__ =='__main__':
 
     # call into the main program
     from django.core import management
-    management.call_command('syncdb', verbosity=1, interactive=False)
+    management.call_command('syncdb', verbosity=0, interactive=False)
     execute(path=opts.path, limit=opts.limit)
     
     fp = file(opts.output, 'wt')
