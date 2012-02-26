@@ -139,7 +139,7 @@ class Post(models.Model):
     
     # the user that created the post
     author  = models.ForeignKey(User)
-    content = models.TextField(null=False, blank=False) # the underlying Markdown
+    content = models.TextField(null=False, blank=False, max_length=10000) # the underlying Markdown
     html    = models.TextField(blank=True) # this is the sanitized HTML for display
     title   = models.TextField(max_length=200)
     slug    = models.SlugField(blank=True, max_length=200)

@@ -43,14 +43,14 @@ def valid_title(text):
 def valid_content(text):
     "Validates form input for content"
     # text size, min size, max size
-    ts, mi, mx = len(text), 15, 2500
+    ts, mi, mx = len(text), 15, 10000
     if not(text.strip()):
         raise ValidationError('Content appears to be whitespace')
     if text == P_CONTENT:
         raise ValidationError('Please change the default content')
-    if len(text) < 15 :
+    if ts < mi :
         raise ValidationError('Your content is only %d charactes long. The minimum is %d.' %(ts, mi))
-    if len(text) > 5000 :
+    if ts > mx :
         raise ValidationError('Your content  is too long %d characters. The maximum is %d .' % (ts, mx))
   
 class TopLevelContent(forms.Form):
@@ -63,7 +63,7 @@ class TopLevelContent(forms.Form):
     title = forms.CharField(max_length=250,  initial=P_TITLE, validators=[ valid_title ],
         widget=forms.TextInput(attrs={'class':'span8'}))
     
-    content = forms.CharField(max_length=5000, initial=P_CONTENT, validators=[ valid_content ], 
+    content = forms.CharField(max_length=10000, initial=P_CONTENT, validators=[ valid_content ], 
         widget=forms.Textarea(attrs={'cols':'80', 'rows':'15', 'id':'editor'}))
 
     tag_val = forms.CharField(max_length=250,  initial=P_TAG, validators=[ valid_tag ], 
