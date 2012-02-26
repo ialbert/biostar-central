@@ -16,7 +16,12 @@ def badgelink(badge):
 
 def post_moderator_action(user, post):
     action = post.get_status_display()
-    text   = '%s set status to %s on %s' % (userlink(user), action, postlink(post))
+    text   = 'Moderator %s set status to %s on %s' % (userlink(user), action, postlink(post))
+    return text
+
+def user_moderator_action(user, target):
+    action = target.profile.get_status_display()
+    text   = 'Moderator %s set status %s on %s' % (userlink(user), action, userlink(target))
     return text
 
 def post_action(user, post, size=250):
@@ -27,14 +32,6 @@ def post_action(user, post, size=250):
     else:
         content = '%s...' % post.content[:size]
     text   = '%s %s %s: %s' % (userlink(user), action, postlink(post), content)
-    return text
-
-def suspend(moderator, target):
-    text = "%s suspended %s" % (userlink(moderator), userlink(target))
-    return text
-
-def reinstate(moderator, target):
-    text = "%s reinstated %s" % (userlink(moderator), userlink(target))
     return text
 
 def badgenote(badge):

@@ -46,6 +46,7 @@
         <div>Member for: {{ target.date_joined|timesince }}</div>
         <div>Last seen: {{ target.profile.last_visited|timesince }} ago </div>
         
+        <div>
         {# editable #}    
         {% if target.writeable %}
             <a class="btn btn-primary" href="{% url main.server.action.user_edit target.id %}"><i class="icon-edit icon-white"></i> Edit info</a>
@@ -55,11 +56,12 @@
         {% if target.writeable and user != target%}
             &nbsp;&bull;&nbsp;
             {% if target.profile.get_status %}
-                <a class="btn usermod-link btn-success" action="reinstate"><i class="icon-edit icon-white"></i> Reinstate</a>
+                <a class="btn btn-success" href="{% url main.server.action.user_moderate target.id 'reinstate' %}"><i class="icon-edit icon-white"></i> Reinstate</a>
             {% else %}
-                <a class="btn usermod-link btn-warning" action="suspend"><i class="icon-remove-sign icon-white"></i> Suspend</a>
+                <a class="btn btn-warning" href="{% url main.server.action.user_moderate target.id 'suspend' %}"><i class="icon-remove-sign icon-white"></i> Suspend</a>
             {% endif %}
         {% endif %}
+        </div>
     
     </div>
     <div class="span6 bio-panel">

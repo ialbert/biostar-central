@@ -43,7 +43,7 @@ def cleanup(request):
         models.Tag.objects.filter(count=0).delete()
 
 @login_required(redirect_field_name='/openid/login/')
-def moderate(request, pid, status):
+def post_moderate(request, pid, status):
     "General moderation function"
     user = request.user
     post = models.Post.objects.get(id=pid)
@@ -52,14 +52,33 @@ def moderate(request, pid, status):
     # remap the status to valid
     status = dict(close=POST_CLOSED, open=POST_OPEN, delete=POST_DELETED).get(status)
     if not status:
-        messages.error('Invalid moderator action')
+        messages.error('Invalid post moderation action')
         return html.redirect( post.get_absolute_url() )    
     
-    flag, msg = models.moderate_post(user=user, post=post, status=status)
+    flag, msg = models.post_moderate(user=user, post=post, status=status)
+    func = messages.info if flag else messages.error
+    func(request, msg)
+    return html.redirect( url )    
+
+@login_required(redirect_field_name='/openid/login/')
+def user_moderate(request, uid, status):
+    "General moderation function"
+    user   = request.user
+    target = models.User.objects.get(id=uid)
+    url    = target.profile.get_absolute_url()
+
+    # remap the status to valid
+    status = dict(suspend=USER_SUSPENDED, reinstate=USER_ACTIVE).get(status)
+    if not status:
+        messages.error('Invalid user moderation action')
+        return html.redirect( url )    
+    
+    flag, msg = models.user_moderate(user=user, target=target, status=status)
     func = messages.info if flag else messages.error
     func(request, msg)
     return html.redirect( url )    
     
+
 @login_required(redirect_field_name='/openid/login/')
 def user_edit(request, uid):
     "User's profile page"
@@ -107,11 +126,6 @@ def search(text):
     results  = searcher.search(query, limit=200)
     return [ hit['pid'] for hit in results ] 
 
-def modlog_list(request):
-    "Lists moderator actions"
-    mods = models.Note.objects.filter(type=NOTE_MODERATOR).select_related('sender', 'target', 'post', 'sender_profile').order_by('-date')
-    page = get_page(request, mods)
-    return html.template(request, name='mod.log.list.html', page=page)
 
 def badge_show(request, bid):
     "Shows users that have earned a certain badge"

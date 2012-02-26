@@ -363,7 +363,7 @@ td {
 }
 .closed  { background-color: #FCF8E3; border-left: 5px solid #FBEED5; }
 .deleted { background-color: #FCF8E3; border-left: 5px solid #B94A48; }
-.suspended { background-color: #FCF8E3; border-left: 5px solid #B94A48; }
+.suspended { h2 { color:red; }}
 
 /* popup message rendering */
 

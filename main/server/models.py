@@ -328,20 +328,33 @@ class PostRevision(models.Model):
         return html.generate(self.content)
 
 @transaction.commit_on_success
-def moderate_user(user, target, action, date=None):
-    target.profile.status = action
-    if action == USER_SUSPENDED:
-        text = notegen.suspend(user, target=target)
-    elif action == USER_ACTIVE:
-        text = notegen.reinstate(user, target=target)
-    send_note(target=target, content=text, sender=user, both=True)
-    target.profile.save()
-    
-@transaction.commit_on_success
-def moderate_post(post, user, status, date=None):
+def user_moderate(user, target, status): 
     """
-    Performs a moderator action on the post. Takes an action (one of REV_ACTIONS)
-    and a user. Date is assumed to be now if not provided
+    Performs a moderator action on a user. 
+    """
+    if not user.can_moderate:
+        msg = 'User %s not a moderator' %user.id
+        logger.error(msg)
+        return False, msg
+    
+    if not auth.authorize_user_edit(user=user, target=target, strict=False):
+        msg = 'User %s not authorized to moderate %s' % (user.id, target.id)
+        logger.error(msg)
+        return False, msg
+
+    target.profile.status = status
+    target.profile.save()
+    text = notegen.user_moderator_action(user=user, target=target)
+    send_note(target=target, content=text, sender=user, both=True, type=NOTE_MODERATOR,)
+
+    msg = 'User status set to %s' % target.profile.get_status_display()
+    return True, msg
+     
+
+@transaction.commit_on_success
+def post_moderate(post, user, status, date=None):
+    """
+    Performs a moderator action on the post. 
     """
 
     # setting posts to open require more than one permission
@@ -357,9 +370,9 @@ def moderate_post(post, user, status, date=None):
         return False, msg
    
     # special treatment for deletion
-    orphan = (post.children.count() == 1)  # self included
+    orphan = (Post.objects.filter(parent=post).exclude(id=post.id).count() == 0)
 
-    if status == POST_DELETED and orphan:
+    if status == POST_DELETED and orphan and (user==post.author):
         # destroy the post with no trace
         Vote.objects.filter(post=post).delete()
         post.delete()
@@ -371,13 +384,14 @@ def moderate_post(post, user, status, date=None):
     text = notegen.post_moderator_action(user=user, post=post)
     send_note(target=post.author, sender=user, content=text,  type=NOTE_MODERATOR, both=True)
     
-    return True, 'Post status set to %s' % post.get_status_display()
+    msg = 'Post status set to %s' % post.get_status_display()
+    return True, msg
      
 @transaction.commit_on_success        
 def send_note(sender, target, content, type=NOTE_USER, unread=True, date=None, both=False):
     "Sends a note to target"
     date = date or datetime.now()
-    Note.objects.create(sender=sender, target=target, content=content, type=type, unread=unread, date=date)
+    Note.objects.create(sender=sender, target=target, content=content, type=NOTE_USER, unread=unread, date=date)
     if both:
         #send a note to the sender as well
         Note.objects.create(sender=sender, target=sender, content=content, type=type, unread=False, date=date)

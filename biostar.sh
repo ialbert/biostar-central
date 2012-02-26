@@ -75,7 +75,7 @@ while (( "$#" )); do
         
 	if [ "$1" = "flush" ]; then
                 echo "*** flushing the database"
-		echo "$PYTHON_EXE $DJANGO_ADMIN flush --noinput --settings=$DJANGO_SETTINGS_MODULE"
+		$PYTHON_EXE $DJANGO_ADMIN flush --noinput --settings=$DJANGO_SETTINGS_MODULE
 		
 	fi
 

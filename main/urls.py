@@ -36,6 +36,8 @@ urlpatterns = patterns('main.server',
     # show user profile
     (r'^user/profile/(?P<uid>\d+)/$', 'views.user_profile'),
     (r'^user/profile/(?P<uid>\d+)/(?P<tab>\w+)/$', 'views.user_profile'),
+    (r'^user/moderate/(?P<uid>\d+)/(?P<status>\w+)/$','action.user_moderate'),
+    
     #
     # old handlers
     #
@@ -59,7 +61,7 @@ urlpatterns = patterns('main.server',
     
     # editing an existing post/answer/comment
     (r'^post/edit/(?P<pid>\d+)/$','views.post_edit'),
-    (r'^post/moderate/(?P<pid>\d+)/(?P<status>\w+)/$','action.moderate'),
+    (r'^post/moderate/(?P<pid>\d+)/(?P<status>\w+)/$','action.post_moderate'),
     
     # handles new post
     (r'^new/post/$','views.new_post'),
@@ -73,6 +75,12 @@ urlpatterns = patterns('main.server',
     (r'^faq/$','pages.faq'),
     (r'^beta/$','pages.beta'),
     
+    # lists all moderator actions
+    (r'^modlog/list/$', 'views.modlog_list'),
+  
+
+    # ----------------
+
     # destroys a post
     (r'^post/destroy/(?P<pid>\d+)/$', 'ajax.post_destroy'),
     
@@ -84,15 +92,11 @@ urlpatterns = patterns('main.server',
     # voting handler
     (r'^vote/$', 'ajax.vote'),
     
-    # moderation handlers
-    (r'^moderate/post/(?P<pid>\d+)/(?P<action>[a-z\-]+)/$', 'ajax.moderate_post'),
-    (r'^moderate/user/(?P<uid>\d+)/(?P<action>[a-z\-]+)/$', 'ajax.moderate_user'),
+     (r'^moderate/user/(?P<uid>\d+)/(?P<action>[a-z\-]+)/$', 'ajax.moderate_user'),
 
     
 
-    # lists all moderator actions
-    (r'^modlog/list/$', 'action.modlog_list'),
-    
+   
     # clear all notifications
     (r'^note/clear/(?P<uid>\d+)/$','action.note_clear'),
     

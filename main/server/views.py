@@ -331,4 +331,9 @@ def add_comment(request, pid):
     
     return post_redirect(comment)
 
+def modlog_list(request):
+    "Lists of all moderator actions"
+    mods = models.Note.objects.filter(type=NOTE_MODERATOR).select_related('sender', 'target', 'post', 'sender_profile').order_by('-date')
+    page = get_page(request, mods)
+    return html.template(request, name='modlog.list.html', page=page)
 

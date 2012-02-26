@@ -20,16 +20,16 @@
     <span class="mod-menu">
         {% if post.top_level %}
             {% if post.closed %}
-                &bull; <a href="{% url main.server.action.moderate post.id 'open' %}">reopen</a>     
+                &bull; <a href="{% url main.server.action.post_moderate post.id 'open' %}">reopen</a>     
             {% else %}
-                &bull; <a href="{% url main.server.action.moderate post.id 'close' %}">close</a>     
+                &bull; <a href="{% url main.server.action.post_moderate post.id 'close' %}">close</a>     
             {% endif %}
         {% endif %}
 
         {% if post.deleted %}        
-            &bull; <a href="{% url main.server.action.moderate post.id  'open' %}">undelete</a>                                  
+            &bull; <a href="{% url main.server.action.post_moderate post.id  'open' %}">undelete</a>                                  
         {% else %}
-            &bull; <a href="{% url main.server.action.moderate post.id 'delete' %}">delete</a>                                  
+            &bull; <a href="{% url main.server.action.post_moderate post.id 'delete' %}">delete</a>                                  
         {% endif %}
 
     </span>    
