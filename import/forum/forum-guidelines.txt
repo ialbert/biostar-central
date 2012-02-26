@@ -1,3 +1,6 @@
+Title: Biostar forum posting guidelines
+Tags: forum guidelines
+
 Biostar is divided into several sections:
 
 The **Questions** tab is meant to help users find answers to well defined and specific bioinformatics questions. Most importantly the tile must be formulated as a question.

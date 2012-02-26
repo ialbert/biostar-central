@@ -17,12 +17,11 @@ urlpatterns = patterns('main.server',
     (r'^show/(?P<tab>\w+)/$', 'views.index'),
     
     # show tagged posts
-    (r'^show/tag/(?P<tag_name>[\w]+)/$', 'views.show_tag'),
+    (r'^show/tag/(?P<tag_name>[\w\-_]+)/$', 'views.show_tag'),
     
     # show posts by user
     (r'^show/user/(?P<uid>\d+)/$', 'views.show_user'),
     (r'^show/user/(?P<uid>\d+)/(?P<post_type>\w+)/$', 'views.show_user'),
-    
     
     # urls for the navigation bar
     (r'^tag/list/$', 'views.tag_list'),

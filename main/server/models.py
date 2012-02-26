@@ -514,9 +514,7 @@ class Vote(models.Model):
         post.save()
         if post != root:
             root.save()
-        
-       
-              
+                      
 class Badge(models.Model):
     name = models.CharField(max_length=50)
     description = models.CharField(max_length=200)

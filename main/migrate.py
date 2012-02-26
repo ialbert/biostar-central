@@ -3,7 +3,7 @@ Parses a SE biostar xml datadump, and populates the
 database with the content. Finally exports a loadable 
 data fixture from this database.
 """
-import sys, os, random, re, shutil, gc
+import sys, os, random, re, shutil, gc, string
 from datetime import datetime
 from itertools import *
 from xml.etree import ElementTree
@@ -571,23 +571,41 @@ def blogs_init():
             print "*** blog import %s" % url
         except Exception,exc:
             print "*** blog import error %s -> %s " % (url, exc)
-    
+
+def parse_post(fname):
+    "An importable post is self contained with title and tags in it"
+    lines = file(fname).readlines()
+    title = lines[0].split(':')[-1]
+    tags  = lines[1].split(':')[-1]
+    body  = '\n'.join(lines[2:])
+    return map(string.strip, (title, tags, body))
+
+def tutorial_init():
+    from glob import glob
+
     # find the first admin user
     admin = models.User.objects.get(email=settings.ADMINS[0][1])
     
-    # create the first forum post
-    content = file('import/first-forum.txt').read()
-    post  = models.Post(title="Biostar forum posting guidelines", author=admin,  type=POST_FORUM, tag_val="forum guidelines", content=content)
-    post.save()
+
+    for fname in glob('import/forum/*.txt'):
+        print "*** importing forum post %s" % fname
+        title, tag_val, body = parse_post(fname)
+        post = models.Post(title=title, author=admin,  type=POST_FORUM, tag_val=tag_val, content=body)
+        post.save()
+        post.set_tags()
     
-    # create the first guide post
-    content = file('import/first-tutorial.txt').read()
-    angus, flag = models.User.objects.get_or_create(username='angus')
-    angus.profile.display_name = "MSU course 2011"
-    angus.profile.save()
-    post  = models.Post(title="Installing and Running NCBI BLAST", author=angus,  type=POST_TUTORIAL, tag_val="blast tutorial MSU-NGS-2011", content=content)
-    post.save()
-    
+    user, flag = models.User.objects.get_or_create(username='angus')
+    user.profile.display_name = "MSU course 2011"
+    user.profile.website  = "http://ged.msu.edu/angus/tutorials-2011/"
+    user.profile.about_me = 'ANGUS is a site built around the `2010 course on [Analyzing Next-Generation Sequencing Data](http://bioinformatics.msu.edu/ngs-summer-course-2010 "Angus Website")'
+    user.profile.save()
+    for fname in glob('import/tutorials/2011/*.rst'):
+        print "*** importing tutorial post %s" % fname
+        title, tag_val, body = parse_post(fname)
+        post = models.Post(title=title, author=user,  type=POST_TUTORIAL, tag_val=tag_val, content=body)
+        post.save()
+        post.set_tags()
+        
                     
 def index_post_content():
     "Indexes post content"
@@ -621,6 +639,8 @@ def execute(path, limit=None):
     # turn off automatic text indexing
     models.set_text_indexing(False)
 
+    
+
     # insert users into the database
     fname = join(path, 'Users.xml')
     
@@ -631,10 +651,12 @@ def execute(path, limit=None):
         
     users = insert_users(fname=fname, limit=limit)
   
+    tutorial_init()
+    return
+
     fname = join(path, 'Posts.xml')
     posts = insert_posts(fname=fname, limit=limit, users=users)
     
-
     fname = join(path, 'PostHistory.xml')
     revisions = insert_post_revisions(fname=fname, limit=limit, posts=posts, users=users)
     
@@ -658,15 +680,13 @@ def execute(path, limit=None):
     
     # indexes all post content
     index_post_content()
-    
-    
-    finalize()
 
     # adds administration rights to users
     # listed in the DJAGNO settings file
     admin_init()
     blogs_init()
-    
+    tutorial_init()
+    finalize()
 
 if __name__ =='__main__':
     import doctest, optparse

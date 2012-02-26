@@ -48,8 +48,8 @@ def generate(text):
     if not text:
         return ""
     text = text.strip()
-    if text.startswith('.. rest::'):
-        text = text[9:]
+    if text.startswith('##rest'):
+        text = text[6:].strip()
         rest = core.publish_parts(text ,writer_name='html')
         html = rest.get('html_body','[rest error]')
     else:

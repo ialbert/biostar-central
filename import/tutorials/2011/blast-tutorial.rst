@@ -1,8 +1,6 @@
-.. rest::
-
-=================================
-Installing and Running NCBI BLAST
-=================================
+Title: Installing and Running NCBI BLAST
+Tags: blast tutorial MSU-NGS-2011
+##rest
 
 You should start this tutorial at a prompt that looks something like this::
 

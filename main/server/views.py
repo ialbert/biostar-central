@@ -287,7 +287,6 @@ def post_edit(request, pid=0):
     name   = "post.edit.html"
     post = models.Post.objects.get(pk=pid)
 
-    
     if not post.open and not user.can_moderate:
         messages.error(request, 'Post is closed. It may not be edited.')
         return post_redirect(post)
