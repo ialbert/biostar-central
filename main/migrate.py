@@ -323,12 +323,17 @@ def insert_post_revisions(fname, limit, users, posts):
                 for key, value in data.items():
                     setattr(post, key, value)
                 post.save()
-                
+
     print "*** inserting %s moderator actions" % len(alist)
     with transaction.commit_on_success():
         for post, status, user, date in alist:
             if USE_DB and post.id:
-                models.post_moderate(post=post, status=status, user=user, date=date)                
+                models.post_moderate(post=post, status=status, user=user, date=date)
+                
+    # some posts may have been removed
+    for (key, post) in posts.items():
+        if not post.id:
+            del posts[key]
     
 def insert_votes(fname, limit, users, posts):
 
@@ -353,9 +358,6 @@ def insert_votes(fname, limit, users, posts):
             vote_type = const.VOTE_DOWN
         else:
             continue
-        if not post.id:
-            continue
-
         param = dict(post=post, author=user, type=vote_type)
         vlist.append(param)
 
@@ -373,7 +375,7 @@ def insert_comments(fname, posts, users, limit):
     
     gc.collect()
 
-    rows = xml_reader(fname, limit=limit)
+    rows = xml_reader(fname)
 
     # keep the valid rows only
     rows = filter(checkfunc('UserId', users), rows)

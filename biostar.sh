@@ -20,7 +20,7 @@ export DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE:-"settings"}
 PYTHONPATH=${PYTHONPATH:-""}
 
 # the migration path and limit
-export MIGRATE_PATH=${MIGRATE_PATH:-"import/se0"}
+export MIGRATE_PATH=${MIGRATE_PATH:-"import/se2"}
 export MIGRATE_LIMIT=${MIGRATE_LIMIT:-"100"}
 
 # the fixture to dump/load data from
