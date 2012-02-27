@@ -22,17 +22,19 @@ The test version of this site can be seen at: http://test.biostars.org
 Installation
 ------------
 
-Unpack the source code archive. If you don't have django installed 
-then switch to the *libs* directory and unpack the *django.zip* archive (included
-for convenience)::
+Unpack the source code archive. There are a few dependencies that
+are also included with Biostar. These only need to be installed
+if you don't already have them on your system.
+Switch to the *libs* directory and unpack the *docutils.zip* and the *django.zip* archives::
 
     $ cd libs
+    $ unzip docutils.zip
     $ unzip django.zip
     $ # switch back to the source directory
     $ cd ..
 
-For faster loading performance also want to unzip the entire `libraries.zip` file located in
-the libs folder. 
+For faster loading performance may also want to unzip the entire `libraries.zip`
+file located in the libs folder. 
 
 Quickstart
 ----------

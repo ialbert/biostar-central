@@ -36,7 +36,7 @@ class UserProfile( models.Model ):
     user  = models.OneToOneField(User, unique=True, related_name='profile')
     
     # user chosen display nam
-    display_name  = models.CharField(max_length=100, default='User', null=False,  db_index=True)
+    display_name  = models.CharField(max_length=250, default='User', null=False,  db_index=True)
     
     # this designates a user as moderator
     type = models.IntegerField(choices=USER_TYPES, default=USER_NEW)
@@ -69,7 +69,7 @@ class UserProfile( models.Model ):
     location = models.TextField(default="", null=True)
     
     # website may be used as a blog
-    website  = models.URLField(default="", null=True, max_length=100)
+    website  = models.URLField(default="", null=True, max_length=250)
     
     def change_score(self, amount):
         "A shortcut to reputation change"

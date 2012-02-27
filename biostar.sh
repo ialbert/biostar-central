@@ -106,7 +106,7 @@ while (( "$#" )); do
 	if [ "$1" = "test" ]; then
 		echo "*** running the tests"
 		#$PYTHON_EXE $DJANGO_ADMIN test server --settings=$DJANGO_SETTINGS_MODULE --failfast
-		$PYTHON_EXE $DJANGO_ADMIN test server --settings=$DJANGO_SETTINGS_MODULE
+		$PYTHON_EXE $DJANGO_ADMIN test server --settings=$DJANGO_SETTINGS_MODULE --failfast
 	fi
 
 	if [ "$1" = "dump" ]; then		
