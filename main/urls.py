@@ -82,7 +82,7 @@ urlpatterns = patterns('main.server',
     # ----------------
 
     # destroys a post
-    (r'^post/destroy/(?P<pid>\d+)/$', 'ajax.post_destroy'),
+    (r'^comment/delete/(?P<pid>\d+)/$', 'ajax.comment_delete'),
     
     # ajax handlers
     

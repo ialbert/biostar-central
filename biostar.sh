@@ -70,25 +70,24 @@ while (( "$#" )); do
 		rm -f $BIOSTAR_HOME/db/biostar.db
 	fi
 
-        if [ "$1" = "drop" ]; then
-		echo '*** dropping postgresql'
-		dropdb biostar-test-database
-                echo '*** creating postgresql'
-                createdb biostar-test-database
-	fi
+    if [ "$1" = "drop" ]; then
+        echo '*** dropping postgresql'
+        dropdb biostar-test-database
+        echo '*** creating postgresql'
+        createdb biostar-test-database
+    fi
         
 	if [ "$1" = "flush" ]; then
-                echo "*** flushing the database"
+        echo "*** flushing the database"
 		$PYTHON_EXE $DJANGO_ADMIN flush --noinput --settings=$DJANGO_SETTINGS_MODULE
-		
 	fi
 
 	if [ "$1" = "init" ]; then
 		echo "*** initializing server on $BIOSTAR_HOSTNAME"
 		$PYTHON_EXE $DJANGO_ADMIN syncdb -v $VERBOSITY --noinput --settings=$DJANGO_SETTINGS_MODULE
 
-                echo "*** collecting static files"
-                $PYTHON_EXE $DJANGO_ADMIN collectstatic -v $VERBOSITY --noinput --settings=$DJANGO_SETTINGS_MODULE
+        echo "*** collecting static files"
+        $PYTHON_EXE $DJANGO_ADMIN collectstatic -v $VERBOSITY --noinput --settings=$DJANGO_SETTINGS_MODULE
 	fi
 
 	if [ "$1" = "import" ]; then

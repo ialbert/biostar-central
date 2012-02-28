@@ -26,8 +26,13 @@
         </div>
     </div>
     
-
-    <div name="content">{{ post.html|safe }}</div>
+    <div name="content">
+        {% if post.open %}
+            {{ post.html|safe }}
+        {% else %}
+            [ content deleted ]
+        {% endif %}
+    </div>
     
     {# these are the actions to take on comments #}
     <div>

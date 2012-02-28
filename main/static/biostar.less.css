@@ -134,12 +134,15 @@ div .par {
 }
 
 .user-box{
-    width:150px;
+    width:160px;
     float:left;
     margin-bottom:10px;
     text-align:center;
 }
     
+input.search-query{
+    width:auto;
+}
 .separator {
     border-bottom: 1px solid #DDD;
 }

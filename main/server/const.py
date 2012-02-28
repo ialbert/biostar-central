@@ -13,8 +13,8 @@ MIN_REP = 1
 POST_SCORE_CHANGE = 1
 USER_SCORE_CHANGE = 1
 
-VOTE_SESSION_LENGTH   = 60  # in seconds, the time intervals to reset vote limit
-MAX_VOTES_PER_SESSION = 5    # this is how many votes can be cast per session
+VOTE_SESSION_LENGTH   = 60   # in seconds, the time intervals to reset vote limit
+MAX_VOTES_PER_SESSION = 10    # this is how many votes can be cast per session
 
 FIRST_SESSION = 'first-session'
 

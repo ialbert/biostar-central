@@ -146,8 +146,7 @@ def moderate_user(request, uid, action):
     return ajax_success(msg)
 
 @ajax_error_wrapper           
-def post_destroy(request, pid):
-    
+def comment_delete(request, pid):
     
     user = request.user
     post = models.Post.objects.get(id=pid)
@@ -157,11 +156,11 @@ def post_destroy(request, pid):
     if not permit:
         return ajax_error('Permission denied')
         
-    status = models.destroy_post(post=post, user=user)
+    status, msg = models.post_moderate(post=post, user=user, status=POST_DELETED)
     if status:
-        return ajax_success('deleted')
+        return ajax_success(msg)
     else:
-        return ajax_success('destroyed')
+        return ajax_success(msg)
     
     
 @ajax_error_wrapper

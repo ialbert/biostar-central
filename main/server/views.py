@@ -289,7 +289,7 @@ def post_edit(request, pid=0):
 
     if not post.open and not user.can_moderate:
         messages.error(request, 'Post is closed. It may not be edited.')
-        return post_redirect(post)
+        return post_redirect(post.root)
     
     # verify that this user may indeed modify the post
     auth.authorize_post_edit(post=post, user=request.user, strict=True)
@@ -341,7 +341,7 @@ def blog_redirect(request, pid):
     "Used to be able to count the views for a blog"
     blog = models.Post.objects.get(id=pid, type=POST_BLOG)
     if blog.update_views(request):
-        blog.rank_increase(hours=24)   
+        blog.rank_change(sign=1, hours=6) 
         blog.save()
     return html.redirect( blog.get_absolute_url() )
 

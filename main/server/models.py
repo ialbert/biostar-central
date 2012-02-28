@@ -176,11 +176,7 @@ class Post(models.Model):
 
     # relevance measure, initially by timestamp, other rankings measures
     rank = models.FloatField(default=0, blank=True)
-    
-    def compute_rank(self, spread=100):
-        "Sets the rank number by the timestamp. Perturb slightly to avoid ranking strictly by insert time"
-        return time.time() + random.randint(-spread, spread)
-        
+           
     def get_absolute_url(self):
         if self.top_level:
             url = "/post/show/%d/%s/" % (self.root.id, self.root.slug)
@@ -221,13 +217,15 @@ class Post(models.Model):
             return True
         return False
     
-    def rank_increase(self, hours=24):
-        "How post ranks change upon uvoone daytes"
-        add  = 3600 * hours # gain one day by default
-        future = time.time() + add/2
-        rank = self.rank + add # an upvote adds one day of rank
-        self.rank = min( (rank, future) ) # no pushing into the future
-    
+    def rank_change(self, sign, hours=1):
+        "How post ranks change upon upvotes"
+        gain = 3600 * hours # the rank increase
+        self.rank = self.rank + sign * gain
+        
+    def score_change(self, sign, hours=1):
+        "How post score changes with votes"
+        self.score += sign
+        
     @property
     def top_level(self):
         return self.type in POST_TOPLEVEL
@@ -475,14 +473,6 @@ class Note(models.Model):
     @property
     def status(self):
         return 'unread' if self.unread else "old"
-
-def upvote_rank_change(rank):
-    "How post ranks change upon uvotes"
-    day  = 3600 * 24
-    now  = time.time() + day/2
-    rank = rank + day # an upvote adds one day of rank
-    rank = min( (rank, now) ) # no pushing into the future
-    return rank
     
 class Vote(models.Model):
     """
@@ -501,28 +491,23 @@ class Vote(models.Model):
         return POST_SCORE.get(self.type, 0)
     
     def apply(self, dir=1):
-        "Applies the score and reputation changes. Direction can be set to -1 to undo (ie delete vote)"
+        "Applies a score and reputation changes upon a vote. Direction can be set to -1 to undo (ie delete vote)"
         post, root = self.post, self.post.root
-        if self.type == VOTE_UP:
-            # update author profile and post score
-            post.author.get_profile().change_score(dir)
-            post.score += dir * POST_SCORE_CHANGE
-            root.rank = post.rank = upvote_rank_change(post.rank)
-             
-        elif self.type == VOTE_ACCEPT:
-            if dir == 1:
-                root.rank = post.rank = upvote_rank_change(post.rank)
-                post.accepted = root.accepted = True
-            else:
-                post.accepted = root.accepted = False
         
-        elif self.type == VOTE_BOOKMARK:
+        post.rank_change(dir)
+        
+        if self.type == VOTE_UP:
+            post.score_change(dir)
             post.author.get_profile().change_score(dir)
-            if dir == 1:   
-                root.rank = post.rank = upvote_rank_change(post.rank)
+       
+        if self.type == VOTE_ACCEPT:
+            post.accepted = root.accepted = (dir == 1)
         
         post.save()
-        if post != root:
+        
+        # highly ranked answers raise the root's rank
+        if post != root and post.rank > root.rank:
+            root.rank = post.rank
             root.save()
                       
 class Badge(models.Model):
@@ -631,10 +616,12 @@ def verify_post(sender, instance, *args, **kwargs):
     if instance.type in (POST_COMMENT, POST_ANSWER):
         assert instance.root and instance.parent
          
-    # some fields may not be null
-    instance.rank = instance.rank or instance.compute_rank()
     instance.creation_date = instance.creation_date or datetime.now()
     instance.lastedit_date = instance.lastedit_date or datetime.now()
+    
+    # some fields may not be null
+
+    instance.rank = instance.rank or time.mktime(instance.creation_date.timetuple())
     
     # generate a slug for the instance        
     instance.slug = slugify(instance.title)
@@ -651,7 +638,7 @@ def finalize_post(sender, instance, created, *args, **kwargs):
             instance.root   = instance.root or instance
             instance.parent = instance.parent or instance
             instance.title  = instance.title or ("%s: %s" % (instance.get_type_display()[0], instance.parent.title))
-            instance.slug = slugify(instance.title)
+            instance.slug   = slugify(instance.title)
             instance.save()
         # when a new post is created all descendants will be notified
         post_create_notification(instance)

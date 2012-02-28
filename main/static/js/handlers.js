@@ -60,13 +60,13 @@ function comment_delete(link){
     pid  = link.attr('target') // post id encoded in link
     par  = $('#'+pid)         // parent div
     body = par.children('div[name="content"]')
-    $.post('/post/destroy/' + pid +'/',
+    $.post('/comment/delete/' + pid +'/',
         function(data){
             popover(link.parent(), data.msg, data.status);
-            if (data.msg == 'destroyed') {
+            if (data.msg == 'Post destroyed') {
                 par.hide('fast')
             } else {
-                body.html('[ content removed ]')
+                body.html('[ content deleted ]')
             }
         }, 'json');
 }
