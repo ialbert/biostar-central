@@ -62,13 +62,13 @@ class TopLevelContent(forms.Form):
     required_css_class = 'required'
 
     title = forms.CharField(max_length=250,  initial=P_TITLE, validators=[ valid_title ],
-        widget=forms.TextInput(attrs={'class':'span8'}))
+        widget=forms.TextInput(attrs={'class':'span8', 'onfocus':"remove(this, '%s')" % P_TITLE }))
     
     content = forms.CharField(max_length=10000, initial=P_CONTENT, validators=[ valid_content ], 
-        widget=forms.Textarea(attrs={'cols':'80', 'rows':'15', 'id':'editor'}))
+        widget=forms.Textarea(attrs={'cols':'80', 'rows':'15', 'id':'editor', 'onfocus':"remove(this, '%s')" % P_CONTENT}))
 
     tag_val = forms.CharField(max_length=250,  initial=P_TAG, validators=[ valid_tag ], 
-        widget=forms.TextInput(attrs={'class':'span4'}))
+        widget=forms.TextInput(attrs={'class':'span4', 'onfocus':"remove(this, '%s')" % P_TAG}))
     
     # the first two post types are not creatable here
     type = forms.ChoiceField(choices=const.POST_TYPES[2:])

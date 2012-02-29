@@ -70,3 +70,10 @@ function comment_delete(link){
             }
         }, 'json');
 }
+
+function remove(elem, value){
+    if (elem.value == value) {
+        elem.value = ''
+    }
+    console.log(elem)
+}
