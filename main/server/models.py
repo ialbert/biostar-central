@@ -640,6 +640,10 @@ def finalize_post(sender, instance, created, *args, **kwargs):
             instance.title  = instance.title or ("%s: %s" % (instance.get_type_display()[0], instance.parent.title))
             instance.slug   = slugify(instance.title)
             instance.save()
+        
+        if settings.CONTENT_INDEXING:
+            search.update(post=instance, created=created)
+        
         # when a new post is created all descendants will be notified
         post_create_notification(instance)
         if instance.type != POST_COMMENT:
@@ -707,13 +711,3 @@ signals.post_save.connect( tag_created, sender=Tag )
 # initializes the search index
 from main.server import search
 signals.post_syncdb.connect(search.initialize)
-
-def toggle_indexing(switch):
-    if switch:
-        signals.post_save.connect(search.update, sender=Post)
-    else:
-        signals.post_save.disconnect(search.update, sender=Post)
-
-# disconnet the indexing by default
-# turn it on only when the main server runs
-toggle_indexing(False)

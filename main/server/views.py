@@ -29,6 +29,8 @@ from main.server.const import *
 import logging
 logger = logging.getLogger(__name__)
 
+#models.toggle_indexing(True)
+INDEXING = False
 
 def update_counts(request, key, value):
     counts = request.session.get(SESSION_POST_COUNT,{})
@@ -225,7 +227,7 @@ def post_show(request, pid):
     
     return html.template( request, name='post.show.html', root=root, answers=answers, tree=tree )
  
-def post_redirect(post):
+def redirect(post):
     return html.redirect( post.get_absolute_url() )
     
 @login_required(redirect_field_name='/openid/login/')
@@ -271,7 +273,7 @@ def new_post(request, pid=0, post_type=POST_QUESTION):
         post = models.Post.objects.create(**params)
         post.set_tags()
         post.save()
-    return post_redirect(post)
+    return redirect(post)
 
 @login_required(redirect_field_name='/openid/login/')
 def post_edit(request, pid=0):
@@ -283,7 +285,7 @@ def post_edit(request, pid=0):
 
     if not post.open and not user.can_moderate:
         messages.error(request, 'Post is closed. It may not be edited.')
-        return post_redirect(post.root)
+        return redirect(post.root)
     
     # verify that this user may indeed modify the post
     auth.authorize_post_edit(post=post, user=request.user, strict=True)
@@ -309,7 +311,7 @@ def post_edit(request, pid=0):
         setattr(post, key, value)
         post.set_tags()
     models.create_revision(post)
-    return post_redirect(post)
+    return redirect(post)
     
 def revision_show(request, pid):
     post = models.Post.objects.get(pk=pid)
@@ -323,19 +325,18 @@ def add_comment(request, pid):
     content = request.POST['text'].strip()
     if len(content)<1:
         messages.warning(request, 'Comment too short!')
-        return post_redirect(parent)
+        return redirect(parent)
         
     comment = models.Post(author=request.user, parent=parent, post_type=POST_COMMENT, creation_date=datetime.now())
     comment.save()
     comment.create_revision(content=content)
     
-    return post_redirect(comment)
+    return redirect(comment)
 
 def post_redirect(request, pid):
-    "Used to be able to count the views for a blog"
+    "Redirect to a post"
     post = models.Post.objects.get(id=pid)
     return html.redirect( post.get_absolute_url() )
-
 
 def blog_redirect(request, pid):
     "Used to be able to count the views for a blog"

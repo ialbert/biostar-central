@@ -259,6 +259,9 @@ LOGGING = {
     }
 }
 
+# needs to be turned on explicitly
+CONTENT_INDEXING = False
+
 # version check, we can do it at the end since
 # the version is only required in subsequent modules
 if sys.version_info < (2, 6):

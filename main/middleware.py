@@ -1,8 +1,11 @@
 import datetime
 from django.contrib.auth import logout
 from django.contrib import messages
+from django.conf import settings
 from main.server import models, notegen, html
 from main.server.const import *
+
+settings.CONTENT_INDEXING = True
 
 class LastVisit(object):
     """

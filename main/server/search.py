@@ -47,9 +47,11 @@ def search_query(text):
     parser   = QueryParser("content", ix.schema)
     query    = parser.parse(text)
     results  = searcher.search(query, limit=200)
+    results.formatter.maxchars = 350
     return results
 
 def decorate(res):
+    
     content = res.highlights('content')
     return html.Params(title=res['title'], uid=res['uid'],
                        pid=res['pid'], content=content, type=res['type'])
@@ -93,9 +95,11 @@ def update(post, created, handler=None):
     title   = unicode(title)
     type    = unicode(post.get_type_display())
     
+    
     if created:                     
         writer.add_document(content=content, pid=post.id, author=author, title=title, uid=uid, type=type)
     else:
+        # updating
         writer.update_document(content=content, pid=post.id, author=author, title=title, uid=uid, type=type)
     
     # only commit if this was opened here

@@ -623,38 +623,13 @@ def tutorial_init():
         post.save()
         post.set_tags()
         
-                    
-def index_post_content():
-    "Indexes post content"
-    from whoosh import index
-    shutil.rmtree(settings.WHOOSH_INDEX)
-    models.create_index()
-    ix = index.create_in(settings.WHOOSH_INDEX, models.WhooshSchema)
-
-    print "*** whoosh indexing %s posts" % models.Post.objects.all().count()
-
-    wr = ix.writer()    
-    for index, post in enumerate(models.Post.objects.all()):
-        
-        if post.type in POST_TOPLEVEL:
-            text = post.title + post.content
-        else:
-            text = post.content
-        text = unicode(text)
-        wr.add_document(content=text, pid=post.id)
-        if index % 1000 == 0:
-            print '*** commit at %s' % index
-            wr.commit()
-            wr = ix.writer()
-    wr.commit()
-
 def execute(path, limit=None):
     """
     Executes the imports
     """
     
     # turn off automatic text indexing
-    models.set_text_indexing(False)
+    models.toggle_indexing(False)
 
     # insert users into the database
     fname = join(path, 'Users.xml')
@@ -693,9 +668,6 @@ def execute(path, limit=None):
     fname = join(path, 'Users2Badges.xml')
     insert_awards(fname=fname, users=users, badges=badges, limit=limit)
     
-    # indexes all post content
-    index_post_content()
-
     # adds administration rights to users
     # listed in the DJAGNO settings file
     admin_init()
@@ -704,6 +676,7 @@ def execute(path, limit=None):
     finalize()
 
 if __name__ =='__main__':
+    
     import doctest, optparse
     global LOGSTREAM, USE_DB
 
@@ -726,7 +699,7 @@ if __name__ =='__main__':
         sys.exit()
         
     # also run the doctests
-    doctest.testmod()
+    #doctest.testmod()
     
     print '*** migration path %s' % opts.path
     if opts.log:
@@ -740,6 +713,7 @@ if __name__ =='__main__':
     # call into the main program
     from django.core import management
     management.call_command('syncdb', verbosity=0, interactive=False)
+
     execute(path=opts.path, limit=opts.limit)
     
     fp = file(opts.output, 'wt')

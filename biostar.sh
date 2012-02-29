@@ -119,7 +119,8 @@ while (( "$#" )); do
 		echo "*** MIGRATE_PATH=$MIGRATE_PATH"
 		echo "*** MIGRATE_LIMIT=$MIGRATE_LIMIT"
 		echo "*** FIXTURE=$FIXTURE"
-		$PYTHON_EXE -m main.migrate --path $MIGRATE_PATH --limit $MIGRATE_LIMIT | gzip > $FIXTURE
+		$PYTHON_EXE -m main.migrate --path $MIGRATE_PATH --limit $MIGRATE_LIMIT -o $FIXTURE.temp
+        cat $FIXTURE.temp | gzip > $FIXTURE
 	fi
 
 	if [ "$1" = "index" ]; then		
