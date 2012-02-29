@@ -43,8 +43,9 @@ def valid_title(text):
 def valid_content(text):
     "Validates form input for content"
     # text size, min size, max size
+    text = text.strip()
     ts, mi, mx = len(text), 15, 10000
-    if not(text.strip()):
+    if not(text):
         raise ValidationError('Content appears to be whitespace')
     if text == P_CONTENT:
         raise ValidationError('Please change the default content')

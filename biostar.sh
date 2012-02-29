@@ -24,8 +24,7 @@ export MIGRATE_PATH=${MIGRATE_PATH:-"import/se2"}
 export MIGRATE_LIMIT=${MIGRATE_LIMIT:-"100"}
 
 # the fixture to dump/load data from
-export FIXTURE=${FIXTURE:-"import/datadump.json"}
-export FIXTURE_GZ=$FIXTURE.gz
+export FIXTURE=${FIXTURE:-"import/datadump.json.gz"}
 
 # the DJANGO_SETTINGS_MODULE needs to be in the python import path
 export PYTHONPATH=$PYTHONPATH:$BIOSTAR_HOME   
@@ -91,8 +90,8 @@ while (( "$#" )); do
 	fi
 
 	if [ "$1" = "import" ]; then
-		echo "*** imports data from $FIXTURE_GZ"
-		$PYTHON_EXE $DJANGO_ADMIN loaddata $FIXTURE_GZ --settings=$DJANGO_SETTINGS_MODULE
+		echo "*** imports data from $FIXTURE"
+		$PYTHON_EXE $DJANGO_ADMIN loaddata $FIXTURE --settings=$DJANGO_SETTINGS_MODULE
 		echo "*** indexing post content"
 		$PYTHON_EXE -m main.server.search  --settings=$DJANGO_SETTINGS_MODULE
 	fi
@@ -117,11 +116,10 @@ while (( "$#" )); do
 		echo "*** migrating data to a new datadump"
 		source conf/memory.sh
 		echo "*** DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE"
-		echo "*** MIGRATE_PATH=$MIGRATE_PATH, $MIGRATE_LIMIT"
-		echo "*** FIXTURE=$FIXTURE_GZ"
-		$PYTHON_EXE -m main.migrate -o $FIXTURE --path $MIGRATE_PATH --limit $MIGRATE_LIMIT
-		gzip -f $FIXTURE
-		echo "*** dumped data to $FIXTURE_GZ"
+		echo "*** MIGRATE_PATH=$MIGRATE_PATH"
+		echo "*** MIGRATE_LIMIT=$MIGRATE_LIMIT"
+		echo "*** FIXTURE=$FIXTURE"
+		$PYTHON_EXE -m main.migrate --path $MIGRATE_PATH --limit $MIGRATE_LIMIT | gzip > $FIXTURE
 	fi
 
 	if [ "$1" = "index" ]; then		

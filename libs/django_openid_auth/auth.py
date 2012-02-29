@@ -231,27 +231,29 @@ class OpenIDBackend:
         url = urlparse(openid_response.identity_url)
         
         # create a list of trusted providers
-        trusted = False
+        trusted = False 
+
         for provider in ( 'google.com',  'yahoo.com', 'myopenid.com',
             'livejournal.com', 'blogspot.com', 'aol.com', 'wordpress.com'):
             trusted = trusted or url.netloc.endswith(provider)
         
-        try:
-            # see if this user already exists in the database with the same email
-            user = User.objects.get(email=email)
+        # this should be turned off after most users migrate
+        trusted = trusted and settings.ALLOW_OPENID_MIGRATION
+        
+        # find users with the the claimed email, 
+        # there could be more than one, merging will be necessary
+        users = User.objects.filter(email=email)
+
+        if trusted and users:
+            user = users[0]
             print "*** found user %s:%s" % (user.id, email)
-        except User.DoesNotExist:
-            user = None
-            
-        # users with trusted email accounts will be merged
-        if not user or not trusted:
+            print "*** merging user %s:%s %s" % (user.id, email, user.get_full_name() )
+        else:
             username = self._get_available_username(details['nickname'], openid_response.identity_url)
             user = User.objects.create_user(username, email, password=None)
             user.profile.display_name = nickname
             user.profile.save()
             print "*** creating user %s:%s" % (user.id, email)
-        else:
-            print "*** merging user %s:%s %s" % (user.id, email, user.get_full_name() )
             
         self.associate_openid(user, openid_response)
         self.update_user_details(user, details, openid_response)
