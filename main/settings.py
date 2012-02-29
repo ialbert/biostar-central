@@ -196,7 +196,7 @@ OPENID_UPDATE_DETAILS_FROM_SREG = True
 OPENID_USE_AS_ADMIN_LOGIN = True
 
 # allow migration based on user email
-ALLOW_MIGRATION = True
+ALLOW_OPENID_MIGRATION = True
 
 LOGIN_URL = '/openid/login/'
 LOGIN_REDIRECT_URL = '/'
