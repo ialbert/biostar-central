@@ -115,16 +115,6 @@ def user_edit(request, uid):
             url = reverse('main.server.views.user_profile', kwargs=dict(uid=target.id))
             return html.redirect(url)
 
-def search(text):
-    text = text.strip()[:200]
-    if not text:
-        return
-    ix   = index.open_dir(settings.WHOOSH_INDEX)
-    searcher = ix.searcher()
-    parser   = QueryParser("content", ix.schema)
-    query    = parser.parse(text)
-    results  = searcher.search(query, limit=200)
-    return [ hit['pid'] for hit in results ] 
 
 
 def badge_show(request, bid):

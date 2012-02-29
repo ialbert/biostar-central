@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% load basic %}
+{% load widgets %}
+
+{% block body %}
+
+<div class="row">{% page_bar %}</div>
+
+{% if params.q %}
+<div class="row" id="user-list">
+    
+    <table class="table table-striped">
+        <tr>
+            <th class="span1"> Type</th>
+            <th class="span4"> Title</th>
+            <th>Match</th>
+        </tr>
+        
+        {% for r in page.object_list %}
+            <tr>
+                <td class="span1"> {{ r.type }}</td>
+                <td class="span4"> {{ r.title }}</td>
+                <td> {{ r.content|safe }}</td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="3" class="alert"> No results found when searching for <b>{{params.q}}</b></td>
+            </tr>
+        {% endfor %}
+        </table>
+</div>
+{% endif %}
+<div class="row">
+        
+<form id="useredit" name="useredit" action="{% url main.server.search.main %}" method="get" class="form-horizontal">
+    <legend>Search the content</legend>
+    <fieldset>
+    {% form_field  form.q 'Terms' %}
+    {% form_field  form.type 'Type' %}
+    <div class="form-actions">
+        <button type="submit" id="submit" name="submit" class="btn btn-success">Submit</button>
+    </div>
+    </fieldset>
+</form>
+</div>
+
+<div class="row">
+    <div class="par">
+        Search tips. Default search puts an AND between the words: blast tutorial = blast AND tutorial
+        <ul>
+            <li>logical operators: {% search_url 'blast OR tutorial' %}</li>
+            <li>find a phrase: {% search_url '"blast tutorial"' %}</li>
+            <li>find words in the title: {% search_url 'title:tutorial' %}</li>
+        </ul>
+    </div>
+</div>
+    
+{% endblock %}

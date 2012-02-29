@@ -3,7 +3,7 @@ from django.conf import settings
 from django.template import Context, Template
 from django.template.defaultfilters import stringfilter
 from django.core.context_processors import csrf
-
+import urllib
 register = template.Library()
 
 @register.simple_tag
@@ -33,6 +33,13 @@ def post_edit_actions(request, post):
     user = request.user
     user.can_moderate = user.is_authenticated() and user.profile.can_moderate
     return { 'post':post, 'request':request, 'user':user }
+    
+@register.simple_tag
+def search_url(term1):
+    patt  = '<a href="/search/?q=%s">%s</a>'
+    term2 = urllib.quote(term1)
+    url = patt % (term2, term1)
+    return url
     
 @register.inclusion_tag('widgets/show.tags.html')
 def show_tags(post):

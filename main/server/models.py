@@ -704,43 +704,16 @@ signals.pre_save.connect( create_award, sender=Award )
 signals.m2m_changed.connect( tags_changed, sender=Post.tag_set.through )
 signals.post_save.connect( tag_created, sender=Tag )
 
-# adding full text search capabilities
+# initializes the search index
+from main.server import search
+signals.post_syncdb.connect(search.initialize)
 
-from whoosh import store, fields, index
-
-WhooshSchema = fields.Schema(content=fields.TEXT(), pid=fields.NUMERIC(stored=True))
-
-def create_index(sender=None, **kwargs):
-    if not os.path.exists(settings.WHOOSH_INDEX):
-        os.mkdir(settings.WHOOSH_INDEX)
-        ix = index.create_in(settings.WHOOSH_INDEX, WhooshSchema)
-        writer = ix.writer()
-
-signals.post_syncdb.connect(create_index)
-
-def update_index(sender, instance, created, **kwargs):
-    
-    ix = index.open_dir(settings.WHOOSH_INDEX)
-    writer = ix.writer()
-
-    if instance.type in POST_CONTENT_ONLY:
-        text = instance.content
-    else:
-        text = instance.title + instance.content
-
-    text = unicode(text)
-    
-    if created:                     
-        writer.add_document(content=text, pid=instance.id)
-        writer.commit()
-    else:
-        writer.update_document(content=text, pid=instance.id)        
-        writer.commit()
-
-def set_text_indexing(switch):
+def toggle_indexing(switch):
     if switch:
-        signals.post_save.connect(update_index, sender=Post)
+        signals.post_save.connect(search.update, sender=Post)
     else:
-        signals.post_save.disconnect(update_index, sender=Post)
+        signals.post_save.disconnect(search.update, sender=Post)
 
-set_text_indexing(True)
+# disconnet the indexing by default
+# turn it on only when the main server runs
+toggle_indexing(False)

@@ -12,6 +12,7 @@ urlpatterns = patterns('main.server',
 
     # main index page
     (r'^$', 'views.index'),
+    (r'^search/$', 'search.main'),
     
     # show by content type
     (r'^show/(?P<tab>\w+)/$', 'views.index'),

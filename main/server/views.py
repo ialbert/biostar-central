@@ -58,12 +58,6 @@ def index(request, tab="questions"):
     # returns the object manager that contains all or only visible posts
     posts = get_post_manager(request)
     
-    # apply search
-    if params.q:
-        pids  = action.search(params.q)
-        posts = posts.filter(id__in=pids)
-        tab   = '' # apply search sitewide rather than the selected tab
-    
     # filter the posts by the tab that the user has selected
     if tab == "popular":
         posts = posts.filter(type=POST_QUESTION).order_by('-score')

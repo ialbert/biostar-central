@@ -95,6 +95,7 @@ class Params(object):
     (1, 2, 4)
     """
     def __init__(self, **kwds):
+        self.q = ''
         self.__dict__.update(kwds)
         
     def parse(self, request):

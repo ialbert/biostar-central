@@ -22,7 +22,7 @@
               <li {% active 'faq'    nav %}><a href="{% url main.server.pages.faq %}">FAQ</a></li>
             </ul>
             
-            <form class="navbar-search pull-left" action="/" method="get">
+            <form class="navbar-search pull-left" action="{% url main.server.search.main %}" method="get">
               <input type="text" name='q' class="search-query" value="{{q}}" placeholder="Search">
             </form>
              
