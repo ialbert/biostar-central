@@ -331,6 +331,12 @@ def add_comment(request, pid):
     
     return post_redirect(comment)
 
+def post_redirect(request, pid):
+    "Used to be able to count the views for a blog"
+    post = models.Post.objects.get(id=pid)
+    return html.redirect( post.get_absolute_url() )
+
+
 def blog_redirect(request, pid):
     "Used to be able to count the views for a blog"
     blog = models.Post.objects.get(id=pid, type=POST_BLOG)

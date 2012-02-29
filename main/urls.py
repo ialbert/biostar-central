@@ -59,6 +59,7 @@ urlpatterns = patterns('main.server',
     # post handlers with or withouth a slug
     (r'^post/show/(?P<pid>\d+)/$', 'views.post_show'),
     (r'^post/show/(?P<pid>\d+)/([-\w]+)/$', 'views.post_show'),
+    (r'^post/redirect/(?P<pid>\d+)/$', 'views.post_redirect'),
     
     # editing an existing post/answer/comment
     (r'^post/edit/(?P<pid>\d+)/$','views.post_edit'),
