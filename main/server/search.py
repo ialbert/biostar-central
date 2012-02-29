@@ -36,10 +36,17 @@ def initialize(sender=None, **kwargs):
 class SearchForm(forms.Form):
     "A form representing a new question"
     q = forms.CharField(max_length=30,  initial="", widget=forms.TextInput(attrs={'size':'50'}))   
-    type = forms.ChoiceField(choices= [ ("all", "All types") ] + list(POST_TYPES) , required=False)
+    t = forms.ChoiceField(choices= [ ("all", "All types") ] + list(POST_TYPES) , required=False)
 
-def search_query(text):
+def safe_int(val):
+    try:
+        return int(val)
+    except ValueError, exc:
+        return None
+    
+def search_query(text, type=None):
     text = text.strip()[:200]
+    
     if not text:
         return []
     ix = index.open_dir(settings.WHOOSH_INDEX)
@@ -48,10 +55,15 @@ def search_query(text):
     query    = parser.parse(text)
     results  = searcher.search(query, limit=200)
     results.formatter.maxchars = 350
+    results = map(decorate, results)
+    
+    if type:
+        type = POST_MAP.get(safe_int(type))
+        results = filter(lambda r:r['type']==type, results)
+    
     return results
 
 def decorate(res):
-    
     content = res.highlights('content')
     return html.Params(title=res['title'], uid=res['uid'],
                        pid=res['pid'], content=content, type=res['type'])
@@ -60,16 +72,16 @@ def main(request):
     
     counts = request.session.get(SESSION_POST_COUNT, {})
     
-    q = request.GET.get('q','')
+    q = request.GET.get('q','') # query
+    t = request.GET.get('t','')  # type
+    t = '' if t == 'all' else t
     params = html.Params(tab='search', q=q)
 
     if params.q:
         form = SearchForm(request.GET)
-        res  = search_query(params.q)
-        res  = map(decorate, res)
+        res  = search_query(params.q, t)
         size = len(res)
         messages.info(request, 'Searched results for: %s found %d results' % (params.q, size))
-        
     else:
         form = SearchForm()
         res  = []
@@ -94,7 +106,6 @@ def update(post, created, handler=None):
     content = unicode(content)
     title   = unicode(title)
     type    = unicode(post.get_type_display())
-    
     
     if created:                     
         writer.add_document(content=content, pid=post.id, author=author, title=title, uid=uid, type=type)
