@@ -112,8 +112,30 @@ OpenID provider. Only the information from a subset of well known OpenID
 providers are trusted enough to allow automatic account merging. Accepted
 providers are: Google, Yahoo, Myopenid, LiveJournal, Blogspot, AOL, and
 Wordpress. For other users manual migration of accounts will be required.
-
 Users listed in the Django *ADMINS* settings will have full administration privileges.
+
+There is a postgresql database management script in `conf/pg-manager.sh` that is
+used to facilitate data dumps and restoration.
+
+Environment variables may be used to customize the behavior:
+
+- `DJANGO_SETTINGS_MODULE`: the configuration module for Django
+- `PYTHON`: the python executable that is to be invoked
+- `FIXTURE`: output path to the (gzipped) file that will contain the data fixture
+- `MIGRATE_PATH`: path to the directory that stores the StackExchange XML dump
+- `MIGRATE_LIMIT`: the number of records to load from the XML dump
+
+For a current Biostar run with about 4K users, 20K posts and 50K votes the
+data migration takes about 1 hour and 10Gb of RAM. This is an area that we
+could do a lot better job (possibly orders of magnitude better).
+
+The resulting data fixture is database independent and can now be loaded
+into type database: sqlite, mysql, postgresql supported by Djano. For example
+when loading into postgresql it takes about 1 hour and 1Gb of RAM.
+
+Note that the databases can be dumped and restored with far fewer resources.
+Exporting directly into/from postgresql for example takes less than a few
+minutes.
 
 Testing
 -------

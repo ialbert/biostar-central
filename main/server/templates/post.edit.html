@@ -6,14 +6,17 @@
 {% block head %}
     <!-- markitUp editor -->
     <script src="{{ STATIC_URL }}js/handlers.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}markitup/jquery.markitup.js"></script>
-    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}markitup/skins/markitup/style.css" />
-    <link rel="stylesheet" href="{{ STATIC_URL }}markitup/sets/markdown/style.css" type="text/css"/>
-    <script type="text/javascript" src="{{ STATIC_URL }}markitup/sets/markdown/set.js"></script>
+    <link rel="stylesheet" href="{{ STATIC_URL }}lib/pagedown/Markdown.css" type="text/css"/>
+    <script type="text/javascript" src="{{ STATIC_URL }}lib/pagedown/Markdown.Converter.js"></script>    
+    <script type="text/javascript" src="{{ STATIC_URL }}lib/pagedown/Markdown.Sanitizer.js"></script>    
+    <script type="text/javascript" src="{{ STATIC_URL }}lib/pagedown/Markdown.Editor.js"></script>
+
 {% endblock %}
 
 {% block document_ready %}
-    $("#editor").markItUp(mySettings);
+    var converter1 = Markdown.getSanitizingConverter();
+    var editor1 = new Markdown.Editor(converter1);
+    editor1.run();
 {% endblock %}
 
 {% block body %}
@@ -72,18 +75,16 @@
         <div class="control-group">
         {% endif %}
         <label class="control-label" for="editor">Content</label>
+            
             <div class="controls">
-                <textarea type="text" name="content" id="editor" style="width:98%; height:20em;" onfocus="remove(this, 'Post content')">{{form.content.value}}</textarea>
+                
+                <div class="wmd-panel">
+                    <div id="wmd-button-bar"></div>
+                    <textarea class="wmd-input" id="wmd-input" name="content" onfocus="remove(this, 'Post content')">{{form.content.value}}</textarea>
+                </div>    
+                
                 <span class="help-inline error">{{form.content.errors}}</span>
-            </div>
-        </div>
-        
-        <div class="control-group">
-        <label class="control-label" for="markItUpPreview">Preview</label>
-        
-            <div class="controls">                
-                <div id="markItUpPreview" class="markItUpPreview" style="display:inline-block; width:98%"></div>
-                <div style="font-size:smaller">(preview updates on pressing ENTER in the content box or when pressing the checkmark button above)</div>
+                <div id="wmd-preview" class="wmd-panel wmd-preview"></div>  
             </div>
         </div>
         

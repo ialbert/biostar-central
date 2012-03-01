@@ -47,7 +47,7 @@ def nuke(text):
 def generate(text):
     if not text:
         return ""
-    text = text.strip()
+    text = text.rstrip()
     if text.startswith('##rest'):
         text = text[6:].strip()
         rest = core.publish_parts(text ,writer_name='html')

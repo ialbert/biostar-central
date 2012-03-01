@@ -31,14 +31,14 @@ while (( "$#" )); do
 
     if [ "$1" = "dump" ]; then
         # dumps the database to a file
-		echo "*** dumping database $DB_NAME to $SQL_DUMP"
+        echo "*** dumping database $DB_NAME to $SQL_DUMP"
         pg_dump $DB_NAME > $SQL_DUMP
         wc -l $SQL_DUMP
 	fi
     
      if [ "$1" = "restore" ]; then
         # restores data from a file
-		echo "*** restoring database $DB_NAME from $SQL_DUMP"
+        echo "*** restoring database $DB_NAME from $SQL_DUMP"
         echo '*** dropping postgresql'
         dropdb $DB_NAME
         echo '*** creating postgresql'

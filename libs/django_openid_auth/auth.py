@@ -29,7 +29,7 @@
 """Glue between OpenID and django.contrib.auth."""
 
 __metaclass__ = type
-
+import random
 from django.conf import settings
 from django.contrib.auth.models import User, Group
 from openid.consumer.consumer import SUCCESS
@@ -224,11 +224,19 @@ class OpenIDBackend:
                     "An attribute required for logging in was not "
                     "returned ({0}).".format(required_attr))
 
-        nickname = details['nickname'] or 'Biostar User'
-        email = details['email'] or ''
-
         # parse the identity of the provider
         url = urlparse(openid_response.identity_url)
+
+        def guess_nickname(url):
+            loc = url.netloc
+            for provider in ('myopenid.com', 'aol.com'):
+                if loc.endswith(provider):
+                    nickname = loc.split('.')[0]
+                    return nickname
+            return 'Biostar User'
+                    
+        nickname = details.get('nickname','') or guess_nickname(url)
+        email    = details['email']
         
         # create a list of trusted providers
         trusted = False 
@@ -249,7 +257,7 @@ class OpenIDBackend:
             print "*** found user %s:%s" % (user.id, email)
             print "*** merging user %s:%s %s" % (user.id, email, user.get_full_name() )
         else:
-            username = self._get_available_username(details['nickname'], openid_response.identity_url)
+            username = self._get_available_username(nickname, openid_response.identity_url)
             user = User.objects.create_user(username, email, password=None)
             user.profile.display_name = nickname
             user.profile.save()
