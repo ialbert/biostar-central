@@ -10,33 +10,43 @@ from itertools import *
 from main.server import html, const, formdef
 from main.server.html import get_page
 from whoosh import store, fields, index, highlight
-from whoosh.qparser import QueryParser
+from whoosh.qparser import QueryParser,  MultifieldParser, WildcardPlugin
+from whoosh.analysis import StemmingAnalyzer
 from django.contrib import messages
 
 # activate logging
 import logging
 logger = logging.getLogger(__name__)
 
+stem = StemmingAnalyzer()
 SCHEMA = fields.Schema(
-    content=fields.TEXT(stored=True), type=fields.TEXT(stored=True),
-    pid=fields.NUMERIC(stored=True), uid=fields.NUMERIC(stored=True),
-    title=fields.TEXT(stored=True), author=fields.TEXT(stored=True) )
+    title   = fields.TEXT(analyzer=stem, stored=True),
+    content = fields.TEXT(analyzer=stem, stored=True), 
+    type    = fields.TEXT(stored=True),
+    pid     = fields.NUMERIC(stored=True), uid=fields.NUMERIC(stored=True),
+    author  = fields.TEXT(stored=True) 
+)
 
 def initialize(sender=None, **kwargs):
     "Initializes the index. Called from a signal"
     if sender.__name__ != 'main.server.models':
         return
     path = settings.WHOOSH_INDEX
+    
     if not os.path.exists(path):
         print('*** creating %s' % path)
         os.mkdir(path)
     print ('*** initializing search index %s' % path)
     ix = index.create_in(path, SCHEMA)
-    
+   
+choices = [
+    ("all", "All types"), ("top", "Top level"),  ("Question", "Questions"), ("Tutorial", "Tutorials"), ("Forum", "Forum"),
+]
+
 class SearchForm(forms.Form):
     "A form representing a new question"
     q = forms.CharField(max_length=30,  initial="", widget=forms.TextInput(attrs={'size':'50'}))   
-    t = forms.ChoiceField(choices= [ ("all", "All types") ] + list(POST_TYPES) , required=False)
+    t = forms.ChoiceField(choices=choices, required=False)
 
 def safe_int(val):
     try:
@@ -44,22 +54,22 @@ def safe_int(val):
     except ValueError, exc:
         return None
     
-def search_query(text, type=None):
+def search_query(text, subset=None):
     text = text.strip()[:200]
     
     if not text:
         return []
     ix = index.open_dir(settings.WHOOSH_INDEX)
     searcher = ix.searcher()
-    parser   = QueryParser("content", ix.schema)
+    parser   = MultifieldParser(["title", "content"], schema=ix.schema)
+    #parser.remove_plugin_class(WildcardPlugin)
     query    = parser.parse(text)
     results  = searcher.search(query, limit=200)
     results.formatter.maxchars = 350
     results = map(decorate, results)
     
-    if type:
-        type = POST_MAP.get(safe_int(type))
-        results = filter(lambda r:r['type']==type, results)
+    if subset:
+        results = filter(lambda r:r['type']in subset, results)
     
     return results
 
@@ -73,13 +83,20 @@ def main(request):
     counts = request.session.get(SESSION_POST_COUNT, {})
     
     q = request.GET.get('q','') # query
-    t = request.GET.get('t','')  # type
-    t = '' if t == 'all' else t
+    t = request.GET.get('t','all')  # type
+    
     params = html.Params(tab='search', q=q)
+
+    if t == 'all':
+        subset = None
+    elif t == 'top':
+        subset = set( (POST_MAP[key] for key in POST_TOPLEVEL) )
+    else:
+        subset = [ t ]
 
     if params.q:
         form = SearchForm(request.GET)
-        res  = search_query(params.q, t)
+        res  = search_query(params.q, subset)
         size = len(res)
         messages.info(request, 'Searched results for: %s found %d results' % (params.q, size))
     else:

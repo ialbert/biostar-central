@@ -14,7 +14,7 @@
         <tr>
             <th class="span1"> Type</th>
             <th class="span4"> Title</th>
-            <th>Match</th>
+            <th>Context</th>
         </tr>
         
         {% for r in page.object_list %}
@@ -33,8 +33,8 @@
 {% endif %}
 <div class="row">
         
+<hr>
 <form id="useredit" name="useredit" action="{% url main.server.search.main %}" method="get" class="form-horizontal">
-    <legend>Search the content</legend>
     <fieldset>
     {% form_field  form.q 'Terms' %}
     {% form_field  form.t 'Type' %}
@@ -47,11 +47,13 @@
 
 <div class="row">
     <div class="par">
-        Search tips. Default search puts an AND between the words: blast tutorial = blast AND tutorial
+        Default search uses the <b>AND</b> operator between the words:<code>blast tutorial</code> = <code>blast AND tutorial</code>
+    </div>        
+    <div class="par">
         <ul>
-            <li>logical operators: {% search_url 'blast OR tutorial' %}</li>
-            <li>find a phrase: {% search_url '"blast tutorial"' %}</li>
-            <li>find words in the title: {% search_url 'title:tutorial' %}</li>
+            <li>Logical operators: {% search_url 'blast OR tutorial' %}</li>
+            <li>Find a phrase: {% search_url '"blast tutorial"' %}</li>
+            <li>Find words in the title: {% search_url 'title:pipeline' %}</li>
         </ul>
     </div>
 </div>
