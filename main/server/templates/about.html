@@ -69,12 +69,29 @@
         </ul>
     </div>
     
+    <div class="title">Site manager</div>
+    
+    <div class="par">
+        The current version of BioStar is being managed by
+    </div>
+    
+    <div style="margin-top:5px">
+        {% for manager in params.managers %} 
+            {% user_box manager %}
+        {% endfor %}
+    </div>
+    
+    
 </div>
     
 <div class="row">
 
     <div class="title">Biostar Administrators</div>
-        
+    
+    <div class="par">
+        Administrators may moderate posts and may promote users to moderator status.
+    </div>
+    
     <div style="margin-top:5px">
         {% for admin in params.admins %} 
             {% user_box admin %}
@@ -84,6 +101,12 @@
 
 <div class="row">
     <div class="title">Biostar Moderators</div>
+    
+    <div class="par">
+        Moderators may edit, delete and reclassify all posts.
+        Every few months we promote moderators based on activity and reputation.
+    </div>
+    
     <div style="margin-top:5px">
         {% for user in params.mods %}
             {% user_box user %}

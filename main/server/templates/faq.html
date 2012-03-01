@@ -23,9 +23,17 @@
             See the <a href="{% url main.server.pages.rss %}">Feeds page</a>
         </div>
             
-
+        <div class="title">Removing content</div>
+        <div class="par">
+            Posts may be removed or may be set deleted (invisible) status. Only the author of a post may remove it 
+            withouth a trace. Moreover this action is only available as long as the post does not have other posts attached to it as 
+            answers or comments. In all other cases the post can only be deleted (set to be invisible), and the delete action
+            is reversible. Please contact the site managers/administrators if you feel strongly that certain content
+            needs to be removed.
+        </div>
+        
         <div class="title">Voting</div>
-        <div class="par">Only upvotes exist on biostar, each user has access to up to <b>10</b> votes every six hours. Users
+        <div class="par">Only upvotes exist on BioStar, each user has access to up to <b>10</b> votes every six hours. Users
         asking questions are encouraged to click accept (<i class="icon-ok"></i>) to indicate contributions that fully
         answer the question. Note that multiple answers
         may be accepted on a question, thus the author of a question can reward  
@@ -33,8 +41,16 @@
         </div>
 
         <div class="title">User reputation</div>
-        <div class="par">The number next to a user's name is the sum of upvotes and accepted answers that user has collected.</div>
+        <div class="par">The number next to a user's name is the sum of upvotes and accepted answers that user has collected.
+        Hails to three highest ranked users:
+            <div align="center">
+                <div style="width:75%;">
+                    {% for u in params.best %} <div class="hail">{% userlink u %}  {% userrep u %}</div>{% endfor %}
+                </div>
+            </div>
+        </div>
 
+        <div style="clear:both;"></div>
         <div class="title">Post Ranking</div>
         <div class="par">On most pages  posts are ordered by their rank. This rank is a combination of the creation date (more recent 
         dates have higher rank) and the number of votes and pageviews that the post has accumulated.</div>
@@ -61,7 +77,8 @@
 
          <div class="title">Becoming a moderator</div>
         <div class="par">Active users above a certain reputation treshold are periodically promoted to moderators. 
-        You may also explicitly ask for moderation rights on the newsgroup.</div> 
+        You may also explicitly ask for moderation rights or suggest good candidates on the newsgroup. Inactive users that do not visit the site
+        for extended periods of time may lose their moderation rights.</div> 
         
         <div class="title">Markup</div>
         <div class="par">Post may be formatted either with <a href="http://en.wikipedia.org/wiki/Markdown">Markdown</a> (default) or in 
