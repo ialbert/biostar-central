@@ -35,10 +35,10 @@ def post_edit_actions(request, post):
     return { 'post':post, 'request':request, 'user':user }
     
 @register.simple_tag
-def search_url(term1):
-    patt  = '<a href="/search/?q=%s">%s</a>'
+def search_url(term1, type='all'):
+    patt  = '<a href="/search/?q=%s&t=%s">%s</a>'
     term2 = urllib.quote(term1)
-    url = patt % (term2, term1)
+    url = patt % (term2, type, term1)
     return url
     
 @register.inclusion_tag('widgets/show.tags.html')

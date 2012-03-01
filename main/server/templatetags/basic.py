@@ -27,16 +27,6 @@ def smart_chunk(text):
             break
     return ' '.join(coll)
 
-@register.inclusion_tag('widgets/comments.html', takes_context=True)
-def comments2(context, user, post):
-    
-    coll = []
-    for comment in post.comments():
-        comment.writeable = auth.authorize_post_edit(user=user, post=comment, strict=False)
-        coll.append( comment )
-       
-    return { 'post':post, 'user':user, 'comments':coll}
-
 @register.inclusion_tag('widgets/user.link.html')
 def userlink(user):
     return {'user':user}
@@ -53,7 +43,6 @@ def userrep(user):
 def usernotes(user):
     return { 'user':user }
 
-    
 @register.inclusion_tag('widgets/badge.icon.html')
 def badgeicon(type):
     return {'type':type}
@@ -62,8 +51,6 @@ def badgeicon(type):
 def actionbox(user, date, action='asked'):
     return {'user':user, 'date':date, 'action':action}
 
-
-  
 @register.inclusion_tag('widgets/user.box.html')
 def userbox(user):
     return {'user':user}
