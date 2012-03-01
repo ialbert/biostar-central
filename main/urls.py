@@ -13,6 +13,7 @@ urlpatterns = patterns('main.server',
     # main index page
     (r'^$', 'views.index'),
     (r'^search/$', 'search.main'),
+    (r'^more/like/(?P<pid>\d+)/$', 'search.more'),
     
     # show by content type
     (r'^show/(?P<tab>\w+)/$', 'views.index'),

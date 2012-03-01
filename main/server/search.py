@@ -13,6 +13,7 @@ from whoosh import store, fields, index, highlight
 from whoosh.qparser import QueryParser,  MultifieldParser, WildcardPlugin
 from whoosh.analysis import StemmingAnalyzer
 from django.contrib import messages
+from itertools import *
 
 # activate logging
 import logging
@@ -77,7 +78,7 @@ def decorate(res):
     content = res.highlights('content')
     return html.Params(title=res['title'], uid=res['uid'],
                        pid=res['pid'], content=content, type=res['type'])
-       
+
 def main(request):
     
     counts = request.session.get(SESSION_POST_COUNT, {})
@@ -103,8 +104,33 @@ def main(request):
         form = SearchForm()
         res  = []
     
-    page = get_page(request, res, per_page=5)
+    page = get_page(request, res, per_page=10)
     return html.template(request, name='search.html', page=page, params=params, counts=counts, form=form)
+
+def more(request, pid):
+    counts = request.session.get(SESSION_POST_COUNT, {})
+    form = SearchForm()
+    
+    params = html.Params(tab='search', q=pid)
+
+    ix = index.open_dir(settings.WHOOSH_INDEX)
+    searcher = ix.searcher()
+    qp = QueryParser("pid", schema=ix.schema)
+    qq = qp.parse(pid)
+    rr = searcher.search(qq)
+    first = rr[0]
+    
+    messages.info(request, 'Searching for posts similar to: %s' % first['title'])
+
+    subset = set( (POST_MAP[key] for key in POST_TOPLEVEL) )
+    
+    res = first.more_like_this("content")
+    res = filter(lambda x: x['type'] in subset, res)
+    res = map(decorate, res)
+    
+    page = get_page(request, res, per_page=10)
+    return html.template(request, name='search.html', page=page, params=params, counts=counts, form=form)
+
 
 def update(post, created, handler=None):
     "Adds/updates a post to the index"
