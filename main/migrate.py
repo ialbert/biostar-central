@@ -628,9 +628,6 @@ def execute(path, limit=None):
     Executes the imports
     """
     
-    # turn off automatic text indexing
-    models.toggle_indexing(False)
-
     # insert users into the database
     fname = join(path, 'Users.xml')
     

@@ -115,6 +115,17 @@ Wordpress. For other users manual migration of accounts will be required.
 
 Users listed in the Django *ADMINS* settings will have full administration privileges.
 
+There is a postrgesql database management script in `conf/pg-manager.sh` that is
+used to facilitate data dumps and restoration.
+
+Environment variables may be used to customize the behavior:
+
+- `DJANGO_SETTINGS_MODULE`: the configuration module for Django
+- `PYTHON`: the python executable that is to be invoked
+- `FIXTURE`: output path to the (gzipped) file that will contain the data fixture
+- `MIGRATE_PATH`: path to the directory that stores the StackExchange XML dump
+- `MIGRATE_LIMIT`: the number of records to load from the XML dump
+
 Testing
 -------
 

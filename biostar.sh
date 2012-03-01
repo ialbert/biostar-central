@@ -20,7 +20,7 @@ export DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE:-"settings"}
 PYTHONPATH=${PYTHONPATH:-""}
 
 # the migration path and limit
-export MIGRATE_PATH=${MIGRATE_PATH:-"import/se2"}
+export MIGRATE_PATH=${MIGRATE_PATH:-"import/se0"}
 export MIGRATE_LIMIT=${MIGRATE_LIMIT:-"100"}
 
 # the fixture to dump/load data from
@@ -41,11 +41,11 @@ echo "Settings:"
 echo "*** BIOSTAR_HOME=$BIOSTAR_HOME"
 echo "*** BIOSTAR_HOSTNAME=$BIOSTAR_HOSTNAME"
 echo "*** DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE"
-echo "*** PYTHONPATH=$PYTHONPATH"
+#echo "*** PYTHONPATH=$PYTHONPATH"
 
 if [ $# == 0 ]; then
 	echo ''
-	echo Usage:
+	echo 'Usage:'
 	echo '  $ run.sh <command>'
 	echo ''
 	echo 'Multiple commands may be used in the same line:'
@@ -53,12 +53,14 @@ if [ $# == 0 ]; then
 	echo ''
 	echo 'Commands:'
 	echo '  init     - initializes the database'
-	echo '  populate - populates the system with test data'
-	echo '  delete   - removes everything from BioStar'
+	echo '  import   - imports a data fixture'
+    echo '  dump     - dumps the current database as a data fixture'
+	echo '  delete   - removes the sqlite database (sqlite specific)'
 	echo '  run      - runs server'
-	echo '  import   - imports from a StackExchange data export'
+	echo '  migrate  - parses a StackExchange XML dump to a data fixture'
 	echo '  test     - runs all tests'
-
+    echo ''
+    echo 'Use environment variables to customize the behavior. See docs.'
 fi
 
 while (( "$#" )); do
@@ -90,7 +92,7 @@ while (( "$#" )); do
 	fi
 
 	if [ "$1" = "import" ]; then
-		echo "*** imports data from $FIXTURE"
+		echo "*** importing data from $FIXTURE"
 		$PYTHON_EXE $DJANGO_ADMIN loaddata $FIXTURE --settings=$DJANGO_SETTINGS_MODULE
 		echo "*** indexing post content"
 		$PYTHON_EXE -m main.server.search  --settings=$DJANGO_SETTINGS_MODULE
@@ -109,11 +111,11 @@ while (( "$#" )); do
 
 	if [ "$1" = "dump" ]; then		
 		echo "*** dumping data to $FIXTURE"
-		$PYTHON_EXE $DJANGO_ADMIN dumpdata auth.User server --settings=$DJANGO_SETTINGS_MODULE | gzip > $FIXTURE_GZ
+		$PYTHON_EXE $DJANGO_ADMIN dumpdata auth.User server --settings=$DJANGO_SETTINGS_MODULE | gzip > $FIXTURE
 	fi
 
 	if [ "$1" = "migrate" ]; then
-		echo "*** migrating data to a new datadump"
+		echo "*** migrating data to a $FIXTURE"
 		source conf/memory.sh
 		echo "*** DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE"
 		echo "*** MIGRATE_PATH=$MIGRATE_PATH"
@@ -121,6 +123,8 @@ while (( "$#" )); do
 		echo "*** FIXTURE=$FIXTURE"
 		$PYTHON_EXE -m main.migrate --path $MIGRATE_PATH --limit $MIGRATE_LIMIT -o $FIXTURE.temp
         cat $FIXTURE.temp | gzip > $FIXTURE
+        rm $FIXTURE.temp
+        echo "*** migrated data to a $FIXTURE"
 	fi
 
 	if [ "$1" = "index" ]; then		
