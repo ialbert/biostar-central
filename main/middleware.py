@@ -34,7 +34,7 @@ class LastVisit(object):
                 last = user.profile.last_visited
                
                 questions = models.Post.objects.filter(type=POST_QUESTION, creation_date__gt=last).count()
-                unanswered = models.Post.objects.filter(type=POST_QUESTION, answer_count=0,  creation_date__gt=last).count()
+                unanswered = models.Post.objects.filter(type=POST_QUESTION, status=POST_OPEN, answer_count=0,  creation_date__gt=last).count()
                 forum  = models.Post.objects.filter(type=POST_FORUM, answer_count=0, creation_date__gt=last).count()
                 tutorials = models.Post.objects.filter(type=POST_TUTORIAL, answer_count=0, creation_date__gt=last).count()
                 planet = models.Post.objects.filter(type=POST_BLOG,  creation_date__gt=last).count()

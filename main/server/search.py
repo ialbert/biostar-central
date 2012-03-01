@@ -171,6 +171,7 @@ def full_index():
     for step, post in izip(count(1), models.Post.objects.all()):
         update(post, created=True, handler=wr)
         if step % 1000 == 0:
+            print "*** whoosh indexing step %s " % step
             wr.commit()
             wr = ix.writer()
     # final commit

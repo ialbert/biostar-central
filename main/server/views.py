@@ -141,9 +141,8 @@ def user_profile(request, uid, tab='activity'):
     note_count  = models.Note.objects.filter(target=target, unread=True).count()
     bookmarks_count  = models.Vote.objects.filter(author=target, type=VOTE_BOOKMARK).count()
     
-    
     if tab == 'activity':
-        notes = models.Note.objects.filter(target=target).select_related('author', 'author__profile', 'root').order_by('-date')
+        notes = models.Note.objects.filter(target=target, type=NOTE_USER).select_related('author', 'author__profile', 'root').order_by('-date')
         page  = get_page(request, notes, per_page=15)
         # we evalute it here so that subsequent status updates won't interfere
         page.object_list = list(page.object_list)
@@ -157,10 +156,8 @@ def user_profile(request, uid, tab='activity'):
         page  = get_page(request, bookmarks, per_page=5)
     
     elif tab =="moderator":
-       
         notes = models.Note.objects.filter(target=target, type=NOTE_MODERATOR).select_related('author', 'author__profile', 'root').order_by('-date')
         page  = get_page(request, notes, per_page=15)
-        print 'HERE'
 
     params.update(dict(question_count=question_count, answer_count=answer_count, note_count=note_count, bookmarks_count=bookmarks_count,
             comment_count=comment_count, post_count=post_count, vote_count=vote_count, award_count=award_count))

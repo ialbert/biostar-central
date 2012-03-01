@@ -125,13 +125,14 @@ Environment variables may be used to customize the behavior:
 - `MIGRATE_PATH`: path to the directory that stores the StackExchange XML dump
 - `MIGRATE_LIMIT`: the number of records to load from the XML dump
 
-For a current Biostar run with about 4K users, 20K posts and 50K votes the
-data migration takes about 1 hour and 10Gb of RAM. This is an area that we
+For a current Biostar run with about 4K users, 30K posts, 40K edits, 60K votes
+generates about 300K database entries of various kinds. Data migration into a fixture
+takes about 1 hour and 10Gb of RAM. This is an area that we
 could do a lot better job (possibly orders of magnitude better).
 
 The resulting data fixture is database independent and can now be loaded
 into type database: sqlite, mysql, postgresql supported by Djano. For example
-when loading into postgresql it takes about 1 hour and 1Gb of RAM.
+when loading into postgresql it takes about 2 hours and 2Gb of RAM.
 
 Note that the databases can be dumped and restored with far fewer resources.
 Exporting directly into/from postgresql for example takes less than a few
