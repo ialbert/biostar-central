@@ -14,9 +14,9 @@ def about(request):
     comment_count  = models.Post.objects.filter(status=POST_OPEN, type=POST_COMMENT).count()
     user_count = models.User.objects.filter(profile__status=USER_ACTIVE).count()
 
-    mods = models.User.objects.filter(profile__type=USER_MODERATOR).select_related("profile").all()[:100]
-    admins = models.User.objects.filter(profile__type=USER_ADMIN).select_related("profile").all()[:100]
-    managers = models.User.objects.filter(email=settings.ADMINS[0][1]).select_related("profile")
+    mods = models.User.objects.filter(profile__type=USER_MODERATOR).select_related("profile").order_by('-profile__score').all()
+    admins = models.User.objects.filter(profile__type=USER_ADMIN).select_related("profile").order_by('-profile__score').all()
+    managers = models.User.objects.filter(email=settings.ADMINS[0][1]).select_related("profile").order_by('-profile__score').all()
     navloc = dict(about="active")
     params = html.Params(nav='about', post_count=post_count, user_count=user_count, question_count=question_count, 
         answer_count=answer_count, comment_count=comment_count, admins=admins, mods=mods, navloc=navloc, managers=managers)
