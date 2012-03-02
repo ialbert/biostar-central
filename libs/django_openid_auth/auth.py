@@ -264,14 +264,14 @@ class OpenIDBackend:
 
         if trusted and users:
             user = users[0]
-            print "*** found user %s:%s" % (user.id, email)
-            print "*** merging user %s:%s %s" % (user.id, email, user.get_full_name() )
+            print "*** found user %s:%s" % (user.id, user.email)
+            print "*** merging user %s:%s" % (user.id, user.email )
         else:
             username = self._get_available_username(nickname, openid_response.identity_url)
             user = User.objects.create_user(username, email, password=None)
             user.profile.display_name = nickname
             user.profile.save()
-            print "*** creating user %s:%s" % (user.id, email)
+            print "*** creating user %s:%s" % (user.id, user.email)
             
         self.associate_openid(user, openid_response)
         self.update_user_details(user, details, openid_response)
