@@ -29,6 +29,7 @@ class UserForm(forms.Form):
     email        = forms.CharField(max_length=50,  initial="", widget=forms.TextInput(attrs={'size':'50'}))
     location     = forms.CharField(max_length=50,  required=False, initial="", widget=forms.TextInput(attrs={'size':'50'}))
     website      = forms.CharField(max_length=80,  required=False, initial="", widget=forms.TextInput(attrs={'size':'50'}))
+    my_tags      = forms.CharField(max_length=80,  required=False, initial="", widget=forms.TextInput(attrs={'size':'50'}))
     about_me     = forms.CharField(max_length=500, required=False, initial="", widget=forms.Textarea (attrs={'class':'span6'}))
 
 LAST_CLEANUP = datetime.now()
@@ -89,15 +90,14 @@ def user_edit(request, uid):
     if not allow:
         messages.error(request, "unable to edit this user")
         return html.redirect(target.profile.get_absolute_url() )
+    
+    # valid incoming fields
+    fields = "display_name about_me website location my_tags".split()
         
     if request.method == 'GET':
-        initial = dict(
-            display_name = target.profile.display_name,
-            email      = target.email or '',
-            location   = target.profile.location or '',
-            website    = target.profile.website or '',
-            about_me   = target.profile.about_me or ''
-        )
+        initial = dict(email=target.email)
+        for field in fields:
+            initial[field] = getattr(target.profile, field) or ''                
         form = UserForm(initial)
         return html.template(request, name='user.edit.html', user=target, form=form)
     elif request.method == 'POST':
@@ -106,7 +106,7 @@ def user_edit(request, uid):
         if not form.is_valid():
             return html.template(request, name='user.edit.html', user=target, form=form)
         else:
-            for field in "display_name about_me website location".split():
+            for field in fields:
                 setattr(target.profile, field, form.cleaned_data[field])
             target.email = form.cleaned_data['email']
             target.profile.save()
@@ -114,8 +114,6 @@ def user_edit(request, uid):
             
             url = reverse('main.server.views.user_profile', kwargs=dict(uid=target.id))
             return html.redirect(url)
-
-
 
 def badge_show(request, bid):
     "Shows users that have earned a certain badge"

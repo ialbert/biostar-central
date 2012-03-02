@@ -49,6 +49,7 @@
         <div>
         {# editable #}    
         {% if target.writeable %}
+            <div>My tags: <code>{{ target.profile.my_tags }}</code></div>
             <a class="btn btn-primary" href="{% url main.server.action.user_edit target.id %}"><i class="icon-edit icon-white"></i> Edit info</a>
         {% endif %}
     

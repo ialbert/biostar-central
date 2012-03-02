@@ -71,6 +71,9 @@ class UserProfile( models.Model ):
     # website may be used as a blog
     website  = models.URLField(default="", null=True, max_length=250)
     
+    # description provided by the user as html
+    my_tags = models.TextField(default="", null=True, max_length=250)
+    
     def change_score(self, amount):
         "A shortcut to reputation change"
         self.score += amount

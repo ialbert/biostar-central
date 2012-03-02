@@ -44,11 +44,17 @@ def get_post_manager(request):
     else:
         return models.Post.open_posts
     
-def index(request, tab="questions"):
+def index(request, tab=""):
     "Main page"
     
     user = request.user
-
+    
+    # if the user has a mytags then switch to that
+    if user.is_authenticated() and not tab and user.profile.my_tags:
+        tab = 'mytags'
+    else:
+        tab = 'questions'
+        
     params = html.Params(tab=tab)
     
     # this will fill in the query (q) and the match (m)parameters
@@ -60,6 +66,8 @@ def index(request, tab="questions"):
     # returns the object manager that contains all or only visible posts
     posts = get_post_manager(request)
     
+    
+        
     # filter the posts by the tab that the user has selected
     if tab == "popular":
         posts = posts.filter(type=POST_QUESTION).order_by('-score')
@@ -76,6 +84,15 @@ def index(request, tab="questions"):
         posts = posts.filter(type=POST_FORUM).order_by('-rank')
     elif tab == 'tutorials':
         posts = posts.filter(type=POST_TUTORIAL).order_by('-rank')
+    elif tab == 'mytags':
+        if user.is_authenticated():
+            tags  = user.profile.my_tags.split()
+            if not tags:
+                messages.warning(request, "This Tab will show posts matching the My Tags fields in your user profile.")
+            posts = posts.filter(type__in=POST_TOPLEVEL,tag_set__name__in=tags).order_by('-rank')
+        else:
+            messages.warning(request, "This Tab is populated only for registered users based on the My Tags field in their user profile")
+            posts = []
     else:
         posts = posts.order_by('-rank')
     
