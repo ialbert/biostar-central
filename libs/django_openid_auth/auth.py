@@ -100,13 +100,18 @@ class OpenIDBackend:
 
         return user
 
+    def random_email(self):
+        return "random%s@biostars.org" % random.randint(1, 10**7)
+        
     def _extract_user_details(self, openid_response):
-        email = fullname = first_name = last_name = nickname = None
+        email = fullname = first_name = last_name = nickname = ''
+        
         sreg_response = sreg.SRegResponse.fromSuccessResponse(openid_response)
         if sreg_response:
-            email = sreg_response.get('email')
-            fullname = sreg_response.get('fullname')
-            nickname = sreg_response.get('nickname')
+            email    = sreg_response.get('email', '')
+            fullname = sreg_response.get('fullname', '')
+            nickname = sreg_response.get('nickname', '')
+        
         # If any attributes are provided via Attribute Exchange, use
         # them in preference.
         fetch_response = ax.FetchResponse.fromSuccessResponse(openid_response)
@@ -143,7 +148,12 @@ class OpenIDBackend:
             else:
                 first_name = u''
                 last_name = fullname
-
+                
+        # fill in with default values
+        email      = email or self.random_email()
+        fullname   = fullname   or 'Biostar User'
+        first_name = first_name or 'Jane'
+        last_name  = last_name  or 'Doe'
         return dict(email=email, nickname=nickname,
                     first_name=first_name, last_name=last_name)
 
