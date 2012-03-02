@@ -32,7 +32,7 @@ class ajax_error_wrapper(object):
                 return ajax_error('POST method must be used.')
                
             if not args[0].user.is_authenticated():
-                return ajax_error('User must be logged in.')
+                return ajax_error('You must be logged in to do that')
                 
             value = self.f(*args, **kwds)
             return value
