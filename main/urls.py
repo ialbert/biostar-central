@@ -3,7 +3,6 @@ from django.views.generic.simple import direct_to_template
 from django.conf import settings
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
-
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
 admin.autodiscover()
@@ -38,7 +37,6 @@ urlpatterns = patterns('main.server',
     # show user profile
     (r'^user/profile/(?P<uid>\d+)/$', 'views.user_profile'),
     (r'^user/profile/(?P<uid>\d+)/(?P<tab>\w+)/$', 'views.user_profile'),
-    (r'^user/moderate/(?P<uid>\d+)/(?P<status>\w+)/$','action.user_moderate'),
     
     #
     # old handlers
@@ -64,6 +62,9 @@ urlpatterns = patterns('main.server',
     
     # editing an existing post/answer/comment
     (r'^post/edit/(?P<pid>\d+)/$','views.post_edit'),
+    
+    # moderation views
+    (r'^user/moderate/(?P<uid>\d+)/(?P<status>\w+)/$','action.user_moderate'),    
     (r'^post/moderate/(?P<pid>\d+)/(?P<status>\w+)/$','action.post_moderate'),
     
     # handles new post
@@ -83,28 +84,39 @@ urlpatterns = patterns('main.server',
   
 
     # ----------------
-
+    
     # destroys a post
     (r'^comment/delete/(?P<pid>\d+)/$', 'ajax.comment_delete'),
     
     # ajax handlers
     
-    # returns a preview page
-    (r'^preview/$', 'ajax.preview'),
-    
     # voting handler
     (r'^vote/$', 'ajax.vote'),
     
-     (r'^moderate/user/(?P<uid>\d+)/(?P<action>[a-z\-]+)/$', 'ajax.moderate_user'),
-
-    
-
-   
+       
     # clear all notifications
     (r'^note/clear/(?P<uid>\d+)/$','action.note_clear'),
     
 )
 
+#
+# Generic views
+#
+from django.views.generic import list_detail
+from main.server import models
+
+blog_list = {
+    'queryset': models.Blog.objects.all().select_related('author__profile'),
+    'template_name': 'generic/blog.list.html',
+}
+
+urlpatterns += patterns('',
+    (r'^blog/list/$', list_detail.object_list, blog_list),    
+)
+
+#
+# RSS Feeds 
+#
 from server.feeds import LatestEntriesFeed, LatestNewsFeed
 
 urlpatterns += patterns('',

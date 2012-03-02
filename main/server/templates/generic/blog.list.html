@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% load basic %}
+{% load widgets %}
+{% block body %}
+    <div class="title">Active blogs</div>
+    <ul>
+        {% for blog in object_list %}
+            <li> {% userlink blog.author %} blog feed <a href="{{blog.url}}">{{blog.url}}</a></li>
+        {% endfor %}
+    </ul>
+{% endblock %}
