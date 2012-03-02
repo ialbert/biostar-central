@@ -284,7 +284,8 @@ class Post(models.Model):
         
     def get_tag_names(self):
         "Returns the post's tag values as a list of tag names"
-        names = [ n.lower() for n in self.tag_val.split(' ') if n]
+        tag_val = html.ascii(self.tag_val)
+        names = [ n.lower() for n in tag_val.split(' ') if n]
         return map(unicode, names)
     
     def apply(self, dir):
