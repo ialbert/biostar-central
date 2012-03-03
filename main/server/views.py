@@ -49,11 +49,12 @@ def index(request, tab=""):
     
     user = request.user
     
-    # if the user has a mytags then switch to that
-    if user.is_authenticated() and not tab and user.profile.my_tags:
-        tab = 'mytags'
-    else:
-        tab = 'questions'
+    if not tab:
+        # if the user has a mytags then switch to that
+        if user.is_authenticated() and user.profile.my_tags:
+            tab = 'mytags'
+        else:
+            tab = 'questions'
         
     params = html.Params(tab=tab)
     
