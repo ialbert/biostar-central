@@ -7,30 +7,28 @@
 
 <div class="row">
 
-    <div class="title">Main feeds</div>
-    
+    <div class="title">Public feeds</div>
     
     <div>
-        We offer the followinng RSS feeds:
         <ul>    
             <li><a href="/feeds/latest/">Latest Questions</a> - 25 latest questions from Biostar</li>
             <!-- <li><a href="/feeds/latest/">Favorites Questions</a> - 25 most often bookmarked question on Biostar</li> -->
         </ul>
     </div>
 
-    <div class="title">Subscribing to posts</div>
 
-    <div>
-        <ul>
-            <li>to subscribe to activity on a post look for the RSS icon on the post page (TODO)</li>
-            <li>list of posts tagged a certain way</li>
+    <div class="title">Private feeds</div>
+    <div class="par">
+        {% if user.is_authenticated %}
+        <ul>    
+            <li><a href="/feeds/messages/{{user.profile.uuid}}/">Activity Feed</a> - the latest activity on your posts</li>
+            <li><a href="/feeds/mytags/{{user.profile.uuid}}/">My Tags Feed</a> - posts that match the tags listed in My Tags</li>
+            
         </ul>
+        {% else %}
+            This section shows the private feeds for a logged in user.
+        {% endif %}
     </div>
-
-   
-
-    
-    
 
 </div>
 

@@ -97,7 +97,8 @@
     
     <div class="title" id="status">Activity</div>
     <div class="par">
-        Below we show activity on posts that this user has interacted with.
+        Below we show activity on posts that this user has interacted with. See the  <a href="{% url main.server.pages.rss %}">RSS</a> page on how to set up feeds.
+
     </div>
     <div class="note-list">
         {% if page.object_list and page.paginator.num_pages > 1 %}

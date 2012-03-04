@@ -58,6 +58,10 @@ code {
 
 div .par {
     margin: 0px 0px 0.8em 0px;
+    img {
+        vertical-align: middle;
+        border: 0;
+    }
 }
 
 .postinfo {

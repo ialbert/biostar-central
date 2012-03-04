@@ -106,10 +106,11 @@ def index(request, tab=""):
 
 def show_tag(request, tag_name=None):
     "Display posts by a certain tag"
+    user = request.user
     params = html.Params(nav='', tab='')
     messages.warning(request, 'Filtering by tag: %s' % tag_name)
-    posts = get_post_manager(request).filter(tag_set__name=tag_name)
-    posts = posts.order_by('-creation_date')
+    tags  = tag_name.split('+')
+    posts = models.query_by_tags(user=user, tags=tags).order_by('-rank')
     page  = get_page(request, posts, per_page=20)
     return html.template( request, name='index.html', page=page, params=params)
 

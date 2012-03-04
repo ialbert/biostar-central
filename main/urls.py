@@ -18,7 +18,7 @@ urlpatterns = patterns('main.server',
     (r'^show/(?P<tab>\w+)/$', 'views.index'),
     
     # show tagged posts
-    (r'^show/tag/(?P<tag_name>[\w\-_]+)/$', 'views.show_tag'),
+    (r'^show/tag/(?P<tag_name>[\w\-_\+]+)/$', 'views.show_tag'),
     
     # show posts by user
     (r'^show/user/(?P<uid>\d+)/$', 'views.show_user'),
@@ -54,7 +54,6 @@ urlpatterns = patterns('main.server',
     # revisions    
     (r'^revision/show/(?P<pid>\d+)/$', 'views.revision_show'),
 
-    
     # post handlers with or withouth a slug
     (r'^post/show/(?P<pid>\d+)/$', 'views.post_show'),
     (r'^post/show/(?P<pid>\d+)/([-\w]+)/$', 'views.post_show'),
@@ -72,7 +71,6 @@ urlpatterns = patterns('main.server',
     (r'^new/answer/(?P<pid>\d+)/$','views.new_answer'),
     (r'^new/comment/(?P<pid>\d+)/$','views.new_comment'),
     
-
     # static pages
     (r'^about/$','pages.about'),
     (r'^rss/$','pages.rss'),
@@ -117,13 +115,14 @@ urlpatterns += patterns('',
 #
 # RSS Feeds 
 #
-from server.feeds import LatestEntriesFeed, LatestNewsFeed
+from server.feeds import LatestEntriesFeed, NotificationFeed, MyTagsFeed
 
 urlpatterns += patterns('',
     
     # RSS feeds
     (r'^feeds/latest/$', LatestEntriesFeed() ),
-    (r'^feeds/messages/(?P<uuid>[a-z0-9]+)/$', LatestNewsFeed() ),
+    (r'^feeds/messages/(?P<uuid>[a-z0-9]+)/$', NotificationFeed() ),
+    (r'^feeds/mytags/(?P<uuid>[a-z0-9]+)/$', MyTagsFeed() ),
 
     # openid authentication
     (r'^openid/', include('django_openid_auth.urls')),

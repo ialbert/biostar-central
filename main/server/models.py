@@ -309,7 +309,24 @@ class Post(models.Model):
             return self.content
         else:
             return "TITLE:%s\n%s\nTAGS:%s" % (self.title, self.content, self.tag_val)
-        
+
+def get_post_manager(user):
+    "Returns the right post manager"
+    if user.is_authenticated() and user.profile.can_moderate:
+        return Post.objects
+    else:
+        return Post.open_posts
+
+def query_by_tags(user, tags=[]):
+    "Returns a query by tags"
+    posts = get_post_manager(user)
+    res =  posts.filter(type__in=POST_TOPLEVEL,tag_set__name__in=tags).order_by('-rank')
+    return res
+
+def query_by_mytags(user):
+    "Returns a query by the My Tags fields"
+    tags  = user.profile.my_tags.split()
+    return query_by_tags(user=user, tags=tags)
 
 class Blog(models.Model):
     """

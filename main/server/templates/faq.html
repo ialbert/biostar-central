@@ -8,7 +8,19 @@
 <div class="row">
 
     <div class="faq">
+
+        <div class="title">RSS Feeds</div>
+        <div class="par">
+            See the <a href="{% url main.server.pages.rss %}">Feeds page</a> <img src="{{STATIC_URL}}img/feed.png">
+        </div>
         
+        <div class="title">Searching by tags</div>
+        <div class="par">
+            To build URL that returns hits to one or more tags 
+            included them like this example that returns posts that matches tags of either <code>galaxy</code>, <code>bwa</code> or <code>tutorial</code>: <a href="/show/tag/galaxy+bwa+tutorial/">/show/tag/galaxy+bwa+tutorial/</a>
+        </div>
+
+
         <div class="title">Content</div>
         <div class="par">
             This site's focus is bioinformatics, computational genomics and biological data analysis.
@@ -18,10 +30,9 @@
             will reclassify posts that do not belong to the correct category.
         </div>
 
-        <div class="title">RSS Feeds</div>
-        <div class="par">
-            See the <a href="{% url main.server.pages.rss %}">Feeds page</a>
-        </div>
+
+
+
             
         <div class="title">Removing content</div>
         <div class="par">

@@ -25,8 +25,9 @@ def about(request):
   
 def rss(request):
     "Renders the rss feed page"
+    user = request.user
     params = html.Params(nav='rss')
-    return html.template(request, name='rss.html', params=params)
+    return html.template(request, name='rss.html', params=params, user=user)
 
 def faq(request):
     "Renders the faq page"
