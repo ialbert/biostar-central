@@ -312,7 +312,7 @@ class Post(models.Model):
 
 def get_post_manager(user):
     "Returns the right post manager"
-    if user.is_authenticated() and user.profile.can_moderate:
+    if user and user.is_authenticated() and user.profile.can_moderate:
         return Post.objects
     else:
         return Post.open_posts

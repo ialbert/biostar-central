@@ -16,6 +16,7 @@ class LatestEntriesFeed(Feed):
     def item_description(self, item):
         return item.html[:1000]
 
+
 class NotificationFeed(Feed):
     title = "Biostar notifications"
     link = "/"
@@ -37,7 +38,53 @@ class NotificationFeed(Feed):
     def item_description(self, item):
         return item.html[:1000]
 
-class MyTagsFeed(Feed):
+class PostBase(Feed):
+    title = "Biostar Post Base"
+    link = "/"
+    description = "Biostar Post Base Class"
+
+    def get_object(self, request, text):
+        return text.split('+')[:10]
+        
+    def item_title(self, item):
+        return item.title
+
+    def item_description(self, item):
+        return item.content[:1000]
+        
+class TagsFeed(PostBase):
+    title = "Biostar Tags"
+    link = "/"
+    description = "Latest posts matching tags"
+
+    def title(self, obj):
+        return "Post matching tags for %s" % "+".join(obj)
+ 
+    def items(self, obj):
+        posts = models.query_by_tags(user=None, tags=obj).order_by('-creation_date')
+        return posts[:25]
+
+class PostFeed(PostBase):
+    title = "Biostar Post"
+    link = "/"
+    description = "Activity on the latest posts"
+
+    def title(self, obj):
+        return "Activity matching posts %s" % "+".join(obj)
+
+    def items(self, obj):
+        posts = models.Post.objects.filter(root__id__in=obj).order_by('-creation_date')
+        return posts[:25]
+
+class UserFeed(PostBase):
+    def title(self, obj):
+        return "Activity matching users %s" % "+".join(obj)
+
+    def items(self, obj):
+        posts = models.Post.objects.filter(author__id__in=obj).order_by('-creation_date')
+        return posts[:25]
+
+class MyTagsFeed(PostBase):
     title = "Biostar MyTags"
     link = "/"
     description = "Latest posts matching your tags"
@@ -50,12 +97,6 @@ class MyTagsFeed(Feed):
         return obj
         
     def items(self, obj):
-        tags  = obj.profile.my_tags.split(' ')
+        tags  = obj.profile.my_tags.split(' ')[:10]
         posts = models.query_by_tags(user=obj, tags=tags).order_by('-creation_date')
         return posts[:15]
-
-    def item_title(self, item):
-        return item.title
-
-    def item_description(self, item):
-        return item.content[:1000]
