@@ -94,7 +94,7 @@ def vote(request):
     else:
         # log all voting into the server log
         vote = post.add_vote(author, type)
-        msg  = '%s added. %d votes left' % (vote.get_type_display(), avail-1)
+        msg  = '%s added' % (vote.get_type_display())
         logger.info('%s\t%s\t%s' % (author.id, post.id, msg) )
         return ajax_success(msg)
 

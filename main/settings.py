@@ -132,7 +132,7 @@ STATICFILES_FINDERS = (
 )
 
 # attempt to get the version number from the repository
-GIT_REVISION = os.popen("git log --pretty=format:%h -1").read()
+GIT_REVISION = os.popen("git --work-tree %s log --pretty=format:%%h -1" % __CURR_DIR).read()
 if not re.match(r'^[a-z,0-9]+$', GIT_REVISION):
     GIT_REVISION = 'unknown'
 

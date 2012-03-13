@@ -228,11 +228,17 @@ def post_show(request, pid):
 
     all = [ root ] + list(children) + list(comments)
     # add the various decorators
+    
     models.decorate_posts(all, user)
+    
+    # may this user accept answers on this root
+    accept_flag = (user == root.author)
     
     # these are all the answers
     answers = [ o for o in children if o.type == POST_ANSWER ]
-    
+    for a in answers:
+        a.accept_flag = accept_flag
+        
     # get all the comments
     tree = defaultdict(list)
     for comment in comments:  
@@ -241,7 +247,7 @@ def post_show(request, pid):
     # generate the tag cloud
     #tags = models.Tag.objects.all().order_by('-count')[:50]
     
-    return html.template( request, name='post.show.html', root=root, answers=answers, tree=tree )
+    return html.template( request, name='post.show.html', root=root, answers=answers, tree=tree)
  
 def redirect(post):
     return html.redirect( post.get_absolute_url() )

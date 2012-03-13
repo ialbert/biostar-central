@@ -18,7 +18,9 @@
             {% if post.accepted %}
             <div class="vote-accepted vote-on">&nbsp;</div>
             {% else %}
-            <div class="vote-accepted vote-off">&nbsp;</div>
+                {% if post.accept_flag %}
+                    <div class="vote-accepted vote-off">&nbsp;</div>
+                {% endif %}
             {% endif %}
         {% endif %}
     </div>
