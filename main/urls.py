@@ -1,5 +1,5 @@
 from django.conf.urls.defaults import *
-from django.views.generic.simple import direct_to_template
+from django.views.generic.simple import direct_to_template, redirect_to
 from django.conf import settings
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
@@ -11,6 +11,7 @@ urlpatterns = patterns('main.server',
 
     # main index page
     (r'^$', 'views.index'),
+    
     (r'^search/$', 'search.main'),
     (r'^more/like/(?P<pid>\d+)/$', 'search.more'),
     
@@ -94,7 +95,7 @@ urlpatterns = patterns('main.server',
        
     # clear all notifications
     (r'^note/clear/(?P<uid>\d+)/$','action.note_clear'),
-    
+   
 )
 
 #
