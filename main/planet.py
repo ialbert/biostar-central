@@ -53,7 +53,6 @@ def add(url):
         title = doc.feed.title
         desc  = doc.feed.description
         users = models.User.objects.filter(profile__display_name = title)
-        users.delete()
         
         if users:
             print '(!) blog name name %s exists' % title
@@ -81,6 +80,8 @@ def update(limit):
         fname = get_datapath(blog)
         try:
             print '*** reading %s, %s' % (blog.id, blog.url)
+            now = datetime.datetime.now()
+            models.UserProfile.objects.filter(user=blog.author).update(last_visited=now)
             doc = feedparser.parse(fname)
             ent = [ e for e in doc.entries if e.title not in seen ]
             ent = ent[:limit]
@@ -99,7 +100,7 @@ def download():
     for blog in blogs:
         fname  = get_datapath(blog)
         try:
-            print '*** creating %s, %s' % (blog.id, blog.url)
+            print '*** downloading blog %s at %s' % (blog.id, blog.url)
             stream = open(fname, 'wt')
             data  = urllib.urlopen(blog.url).read()
             stream.write(data)
