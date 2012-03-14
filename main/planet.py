@@ -38,12 +38,6 @@ def init():
     
     for url in urls:
         add(url)
-    
-    # download the latest feeds
-    download()
-    
-    # insert the first two
-    update(2)
         
 def add(url):
     
@@ -57,14 +51,16 @@ def add(url):
         doc   = feedparser.parse(fname)
         title = doc.feed.title
         desc  = doc.feed.description
-        users = models.User.objects.filter(profile__display_name = title)
+        
+        username = title[:30]
+        
+        users = models.User.objects.filter(username=username)
         
         if users:
-            print '(!) blog name name %s exists' % title
+            print '(!) blog name name %s exists' % username
             return
         
-        print '*** adding user %s' % title
-        username = title[:30]
+        print '*** adding user %s' % username
         user = models.User.objects.create_user(username=username, email=username)
         user.profile.display_name = title
         user.profile.type = USER_BLOG
@@ -97,7 +93,7 @@ def update(limit):
                 post = models.Post(title=r.title, url=r.link, author=blog.author,  type=POST_BLOG, content=content, creation_date=date)
                 post.save()
                 print '*** added post %s' % post.title
-        except Exception, exc:
+        except KeyError, exc:
             print '(!) error %s' % exc
     
 def download():
