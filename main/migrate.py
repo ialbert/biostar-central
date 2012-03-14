@@ -144,7 +144,7 @@ def insert_users(fname, limit):
 
         # store profiles
         ppair = (userid, dict( display_name=display_name, website=website, location=location, 
-                last_login_ip=last_login_ip, about_me=about_me, type=utype ))        
+                last_login_ip=last_login_ip, about_me=about_me, type=utype, last_visited=last_login ))        
         plist.append(ppair)
 
     users = {}
