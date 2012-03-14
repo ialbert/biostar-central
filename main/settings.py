@@ -46,6 +46,7 @@ TEMPLATE_DIR  = path(HOME_DIR, 'main', 'templates')
 STATIC_DIR    = path(HOME_DIR, 'static')
 EXPORT_DIR    = path(HOME_DIR, '..', 'export')
 WHOOSH_INDEX  = path(HOME_DIR, 'db', 'index')
+PLANET_DIR    = path(HOME_DIR, 'db', 'planet')
 
 DATABASES = {
     'default': {
@@ -131,8 +132,11 @@ STATICFILES_FINDERS = (
 #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
-# attempt to get the version number from the repository
-GIT_REVISION = os.popen("git --work-tree %s log --pretty=format:%%h -1" % __CURR_DIR).read()
+# attempt to get the version number from the repository directory
+from subprocess import Popen, PIPE
+cmd = "git --work-tree %s log --pretty=format:%%h -1" % __CURR_DIR
+pop = Popen("cmd", shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE, close_fds=True)
+GIT_REVISION = pop.stdout.read()
 if not re.match(r'^[a-z,0-9]+$', GIT_REVISION):
     GIT_REVISION = 'unknown'
 
@@ -224,9 +228,6 @@ INSTALLED_APPS = (
 # the site admins on every HTTP 500 error.
 # See http://docs.djangoproject.com/en/dev/topics/logging for
 # more details on how to customize your logging configuration.
-
-class A:
-    pass
 
 LOGGING = {
     'version': 1,
