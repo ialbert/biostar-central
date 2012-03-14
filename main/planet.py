@@ -29,6 +29,11 @@ def init():
         'http://feeds.feedburner.com/GenomesUnzipped?format=xml',
         'http://feeds.feedburner.com/Massgenomics?format=xml',
         'http://feeds.feedburner.com/MyWeblogOnBioinformaticsGenomeScienceNextGenerationSequencing',
+        'http://feeds.feedburner.com/OmicsOmics',
+        'http://feeds.feedburner.com/JermdemoRaisedToTheLaw?format=xml',
+        'http://hackmap.blogspot.com/feeds/posts/default',
+        'http://feeds.feedburner.com/GettingGeneticsDone?format=xml',
+        'http://genomeinformatician.blogspot.com/feeds/posts/default',
     ]
     
     for url in urls:

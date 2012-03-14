@@ -135,7 +135,7 @@ STATICFILES_FINDERS = (
 # attempt to get the version number from the repository directory
 from subprocess import Popen, PIPE
 cmd = "git --work-tree %s log --pretty=format:%%h -1" % __CURR_DIR
-pop = Popen("cmd", shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE, close_fds=True)
+pop = Popen(cmd, shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE, close_fds=True)
 GIT_REVISION = pop.stdout.read()
 if not re.match(r'^[a-z,0-9]+$', GIT_REVISION):
     GIT_REVISION = 'unknown'
