@@ -244,7 +244,9 @@ def insert_posts(fname, limit, users):
                 if (i % 1000 == 0):
                     print "*** commit at %s" % i
                     transaction.commit()
-                post.answer_count = acount.get(postid, 0)
+                # gets triggered as a signal
+                #post.answer_count = acount.get(postid, 0)
+                post.answer_count = 0
                 if parentid:
                     parent = posts.get(parents[postid])
                     if not parent:

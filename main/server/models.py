@@ -634,14 +634,13 @@ def verify_post(sender, instance, *args, **kwargs):
         instance.lastedit_user = instance.author
     
     # these types must have valid parents
-    if instance.type in (POST_COMMENT, POST_ANSWER):
-        assert instance.root and instance.parent
+    if instance.type not in POST_TOPLEVEL:
+        assert instance.root and instance.parent, "Instance must have parent/root"
          
     instance.creation_date = instance.creation_date or datetime.now()
     instance.lastedit_date = instance.lastedit_date or datetime.now()
     
     # some fields may not be null
-
     instance.rank = instance.rank or time.mktime(instance.creation_date.timetuple())
     
     # generate a slug for the instance        
@@ -662,6 +661,7 @@ def finalize_post(sender, instance, created, *args, **kwargs):
             instance.slug   = slugify(instance.title)
             instance.save()
         
+        # you can turn off indexing
         if settings.CONTENT_INDEXING:
             search.update(post=instance, created=created)
         
@@ -672,13 +672,11 @@ def finalize_post(sender, instance, created, *args, **kwargs):
      
 def create_award(sender, instance, *args, **kwargs):
     "Pre save award function"
-    if not instance.date:
-        instance.date = datetime.now()
+    instance.date = instance.date or datetime.now()
 
 def verify_note(sender, instance, *args, **kwargs):
     "Pre save notice function"
-    if not instance.date:
-        instance.date = datetime.now()
+    instance.date = instance.date or datetime.now()
     instance.html = html.generate(instance.content)
 
 def finalize_note(sender, instance,created,  *args, **kwargs):
