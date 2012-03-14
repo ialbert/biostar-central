@@ -147,6 +147,26 @@ def template(request, name, mimetype=None, **kwd):
     # parameters that will always be available for the template
     kwd['request'] = request
     return render_to_response(name, kwd, context_instance=RequestContext(request))
+
+# stripping html tags from: http://stackoverflow.com/questions/753052/strip-html-from-strings-in-python
+from HTMLParser import HTMLParser
+
+class MLStripper(HTMLParser):
+    def __init__(self):
+        self.reset()
+        self.fed = []
+    def handle_data(self, d):
+        self.fed.append(d)
+    def get_data(self):
+        return ''.join(self.fed)
+
+def strip_tags(text):
+    try:
+        s = MLStripper()
+        s.feed(text)
+        return s.get_data()    
+    except Exception, exc:
+        return "unable to strip tags %s" % exc
     
 class HtmlTest(unittest.TestCase):
     def test_sanitize(self):

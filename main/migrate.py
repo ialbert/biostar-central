@@ -545,51 +545,6 @@ def admin_init():
     if flag:
         print '*** created group %s' % editors.name
 
-def blogs_init():
-    "Initialize blogs to a few known blogs"
-    
-    import feedparser, urllib, datetime
-    
-    urls =[
-        'http://plindenbaum.blogspot.com/feeds/posts/default',
-        'http://nsaunders.wordpress.com/feed/',
-        'http://feeds2.feedburner.com/bcbio',
-        'http://ivory.idyll.org/blog/tags/bioinformatics?flav=atom',
-    ]
-    
-    DUMP = False
-    for index, url in enumerate(urls):
-        try:
-            #p = feedparser.parse(url)
-            fname = 'import/blog-%s.xml' % index
-            if DUMP:
-                text = urllib.urlopen(url).read()
-                fp = file( fname, 'wt')
-                fp.write(text)
-                fp.close()
-            else:
-                # parse
-                p = feedparser.parse(fname)
-                title = p.feed.title
-                desc  = p.feed.description
-                user, created = models.User.objects.get_or_create(username="blog%s" % index)
-                if created:
-                    user.profile.display_name = title
-                    user.profile.type = USER_BLOG
-                    user.profile.website = url
-                    user.profile.about_me = desc
-                    user.profile.save()
-                    blog = models.Blog(author=user, url=url)
-                    blog.save()
-                # add up to three posts
-                for r in list(p.entries)[:3]:
-                    date = r.date_parsed
-                    date = datetime.datetime(date[0], date[1], date[2])
-                    post = models.Post(title=r.title, url=r.link, author=user,  type=POST_BLOG, content=r.description, creation_date=date)
-                    post.save()
-            print "*** blog import %s" % url
-        except Exception,exc:
-            print "*** blog import error %s -> %s " % (url, exc)
 
 def parse_post(fname):
     "An importable post is self contained with title and tags in it"
@@ -670,7 +625,6 @@ def execute(path, limit=None):
     # adds administration rights to users
     # listed in the DJAGNO settings file
     admin_init()
-    blogs_init()
     tutorial_init()
     finalize()
 
