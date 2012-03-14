@@ -103,8 +103,6 @@
            
              <a href="{% url main.server.pages.rss %}">RSS</a> <img src="{{STATIC_URL}}img/feed.png"> &bull; Powered by <a href="https://github.com/ialbert/biostar-central"><img src="{{ STATIC_URL }}/biostar.antipixel.png" /></a> 
             &bull; Version: <b>{{BIOSTAR_VERSION}}</b></a>
-        
-            (revision <a href="https://github.com/ialbert/biostar-central/commit/{{BIOSTAR_GIT_REVISION}}">{{ BIOSTAR_GIT_REVISION }}</a>)
             &bull; Copyright by the <a href="https://github.com/ialbert/biostar-central/contributors">BioStar team</a>
             {% if debug %}
               &bull; <a id="toggle-queries">{{sql_queries|length}} SQL queries</a>

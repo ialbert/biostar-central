@@ -24,7 +24,6 @@ def extras(request):
     counts = request.session.get(SESSION_POST_COUNT, {})
  
     return { 'BIOSTAR_VERSION': server.VERSION, 
-             'BIOSTAR_GIT_REVISION': settings.GIT_REVISION,
              'user':user, 
              'q':q, 
              'm':m,
