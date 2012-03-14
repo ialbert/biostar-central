@@ -1,17 +1,19 @@
 <div class="vote-box">
     <div class="vote">
         <input type="hidden" value="{{post.id}}">
+    
         {% if post.upvoted %}
-        <div class="vote-up vote-on">&nbsp;</div>
+            <div class="vote-up vote-on" title="Click to remove">&nbsp;</div>
         {% else %}
-        <div class="vote-up vote-off">&nbsp;</div>
+            <div class="vote-up vote-off" title="Click to upvote">&nbsp;</div>
         {% endif %}
+    
         <div class="vote-count">{{post.score}}</div>
         
         {% if post.bookmarked %}
-        <div class="vote-bookmark vote-on">&nbsp;</div>
+        <div class="vote-bookmark vote-on" title="Click to remove bookmark">&nbsp;</div>
         {% else %}
-        <div class="vote-bookmark vote-off">&nbsp;</div>
+        <div class="vote-bookmark vote-off" title="Click to add bookmark">&nbsp;</div>
         {% endif %}
     
         {% if not post.top_level  %}

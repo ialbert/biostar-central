@@ -15,10 +15,27 @@ function toggle_button(button){
     if(button.hasClass('vote-on')){
         button.removeClass('vote-on');
         button.addClass('vote-off');
-    }else if(button.hasClass('vote-off')){
+    } else if(button.hasClass('vote-off')){
         button.removeClass('vote-off');
         button.addClass('vote-on');
     }
+    
+    if (button.hasClass('vote-up') && button.hasClass('vote-on')){
+        button.attr('data-original-title', 'Click to remove');
+    }
+    
+    if (button.hasClass('vote-up') && button.hasClass('vote-off')){
+        button.attr('data-original-title', 'Click to upvote');
+    }
+    
+     if (button.hasClass('vote-bookmark') && button.hasClass('vote-on')){
+        button.attr('data-original-title', 'Click to remove bookmark');
+    }
+    
+    if (button.hasClass('vote-bookmark') && button.hasClass('vote-off')){
+        button.attr('data-original-title', 'Click to add bookmark');
+    }
+    
     // Turn off opposite buttons if they're on
     if(button.hasClass('vote-on')){ 
         if(button.hasClass('vote-up')) 
