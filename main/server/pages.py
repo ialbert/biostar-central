@@ -29,6 +29,12 @@ def rss(request):
     params = html.Params(nav='rss')
     return html.template(request, name='rss.html', params=params, user=user)
 
+def google(request):
+    "Renders the rss feed page"
+    user = request.user
+    params = html.Params(nav='google')
+    return html.template(request, name='google.html', params=params, user=user)
+    
 def faq(request):
     "Renders the faq page"
     best = models.User.objects.all().select_related("profile").order_by('-profile__score')[:3]
