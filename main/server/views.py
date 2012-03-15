@@ -75,7 +75,7 @@ def index(request, tab=""):
     elif tab == "questions":
         posts = posts.filter(type=POST_QUESTION).order_by('-rank')
     elif tab == "unanswered":
-        posts = posts.filter(type=POST_QUESTION, answer_count=0).order_by('-rank')
+        posts = posts.filter(type=POST_QUESTION, answer_count=0).order_by('-creation_date')
     elif tab == "recent":
         posts = posts.order_by('-creation_date')
     elif tab == 'planet':
