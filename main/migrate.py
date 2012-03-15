@@ -669,6 +669,8 @@ if __name__ =='__main__':
 
     execute(path=opts.path, limit=opts.limit)
     
+    print '*** creating the data fixture'
+    
     fp = file(opts.output, 'wt')
     sys.stdout = fp
     management.call_command('dumpdata', 'auth.User', 'server', verbosity=1, interactive=False)

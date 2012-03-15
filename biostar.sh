@@ -116,7 +116,6 @@ while (( "$#" )); do
 
 	if [ "$1" = "migrate" ]; then
 		echo "*** migrating data to a $FIXTURE"
-		source conf/memory.sh
 		echo "*** DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE"
 		echo "*** MIGRATE_PATH=$MIGRATE_PATH"
 		echo "*** MIGRATE_LIMIT=$MIGRATE_LIMIT"

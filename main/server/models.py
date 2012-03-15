@@ -634,7 +634,7 @@ def verify_post(sender, instance, *args, **kwargs):
         instance.lastedit_user = instance.author
     
     # these types must have valid parents
-    if instance.type not in POST_TOPLEVEL:
+    if int(instance.type) not in POST_TOPLEVEL:
         assert instance.root and instance.parent, "Instance must have parent/root"
          
     instance.creation_date = instance.creation_date or datetime.now()
