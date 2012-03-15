@@ -32,6 +32,12 @@ logger = logging.getLogger(__name__)
 #models.toggle_indexing(True)
 INDEXING = False
 
+# quick fix for the beta, rework later
+from django.contrib.sites.models import Site
+site = Site.objects.get(id=settings.SITE_ID)
+site.domain = "test.biostars.org"
+site.save()
+
 def update_counts(request, key, value):
     counts = request.session.get(SESSION_POST_COUNT,{})
     counts[key] = value
