@@ -99,12 +99,12 @@ def user_edit(request, uid):
         for field in fields:
             initial[field] = getattr(target.profile, field) or ''                
         form = UserForm(initial)
-        return html.template(request, name='user.edit.html', user=target, form=form)
+        return html.template(request, name='user.edit.html', target=target, form=form)
     elif request.method == 'POST':
         
         form = UserForm(request.POST)
         if not form.is_valid():
-            return html.template(request, name='user.edit.html', user=target, form=form)
+            return html.template(request, name='user.edit.html', target=target, form=form)
         else:
             for field in fields:
                 setattr(target.profile, field, form.cleaned_data[field])

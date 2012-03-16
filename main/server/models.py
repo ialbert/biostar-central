@@ -185,6 +185,7 @@ class Post(models.Model):
             url = "/post/show/%d/%s/" % (self.root.id, self.root.slug)
         else:
             url = "/post/show/%d/%s/#%d" % (self.root.id, self.root.slug, self.id)
+        # some objects have external links
         url  = self.url or url
         return url
           
@@ -336,7 +337,14 @@ class Blog(models.Model):
     # the user that blog will belong to
     author  = models.ForeignKey(User)
     url     = models.URLField(max_length=500)
-   
+
+class Related(models.Model):
+    """
+    Maintains a relationship between related posts
+    """
+    source  = models.ForeignKey(Post, related_name="source")
+    target  = models.ForeignKey(Post, related_name="target")
+    
 class PostAdmin(admin.ModelAdmin):
     list_display = ('id', 'title', )
 
