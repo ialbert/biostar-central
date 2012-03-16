@@ -8,7 +8,7 @@ BioStar codebase is a Python_ and Django_ based Q&A web software modeled after
 the StackOverflow Q&A engine.
 
 Our primary goal is to create a simple, generic, flexible and extendeable 
-Q&A framework.
+Q&A framework. 
 
 Requirements
 ------------
@@ -217,7 +217,6 @@ if necessary included and distributed with BioStar:
 * whoosh_ provides fast full text searching
 * coverage_ is used to measure code coverage during testing
 * prettify_ is used for syntax highlighting
-
 
 .. _django_openid_auth: https://launchpad.net/django-openid-auth
 .. _python_openid: http://pypi.python.org/pypi/python-openid/

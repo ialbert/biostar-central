@@ -19,9 +19,9 @@ MAX_VOTES_PER_SESSION = 10    # this is how many votes can be cast per session
 FIRST_SESSION = 'first-session'
 
 # Add at the end
-POST_QUESTION, POST_ANSWER, POST_COMMENT, POST_TUTORIAL, POST_BLOG, POST_FORUM, POST_OTHER = range(1, 8)
+POST_QUESTION, POST_ANSWER, POST_COMMENT, POST_TUTORIAL, POST_BLOG, POST_FORUM, POST_NEWS, POST_REVIEW, POST_OTHER = range(1, 10)
 POST_TYPES  = ( (POST_ANSWER, 'Answer') , (POST_COMMENT, 'Comment'), (POST_QUESTION, 'Question'), (POST_TUTORIAL, 'Tutorial'), 
-    (POST_BLOG, 'Blog'), (POST_FORUM, 'Forum'), )
+    (POST_BLOG, 'Blog'), (POST_FORUM, 'Forum'), (POST_NEWS, 'News'), (POST_REVIEW, 'Review') )
 
 # direct mapping for quick lookups
 POST_MAP  = dict( POST_TYPES )
@@ -37,6 +37,9 @@ POST_SUBLEVEL = set( [POST_ANSWER, POST_COMMENT ])
 
 # toplevel posts may stand alone and must have title and tags
 POST_TOPLEVEL = set( POST_MAP.keys() ) - POST_SUBLEVEL
+
+# posts the will go under forum
+POST_FORUMLEVEL = set( (POST_FORUM, POST_NEWS, POST_REVIEW) )
 
 # the session key that stores new post counts
 SESSION_POST_COUNT = 'session-post-count'

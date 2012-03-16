@@ -149,10 +149,11 @@ def flair(user):
     return ""
 
 # preload the templates 
-row_question = template.loader.get_template('rows/row.post.html')
+row_post     = template.loader.get_template('rows/row.post.html')
 row_answer   = template.loader.get_template('rows/row.answer.html')
 row_comment  = template.loader.get_template('rows/row.comment.html')
 row_blog     = template.loader.get_template('rows/row.blog.html')
+row_question = template.loader.get_template('rows/row.question.html')
 
 @register.simple_tag
 def table_row(post):
@@ -161,20 +162,23 @@ def table_row(post):
     
     if settings.DEBUG:
         # this is necessary to force the reload during development
-        row_question = template.loader.get_template('rows/row.post.html')
+        row_post     = template.loader.get_template('rows/row.post.html')
         row_answer   = template.loader.get_template('rows/row.answer.html')
         row_comment  = template.loader.get_template('rows/row.comment.html')
         row_blog     = template.loader.get_template('rows/row.blog.html')
+        row_question = template.loader.get_template('rows/row.question.html')
    
     c = Context( {"post": post, 'root':post.root})
     if post.type == const.POST_BLOG:
         row = row_blog
-    elif post.top_level:
-        row = row_question
+    elif post.type == const.POST_QUESTION:
+        row = row_question    
     elif post.type == const.POST_ANSWER:
         row = row_answer
+    elif post.type == const.POST_COMMENT:
+        row = row_comment
     else:
-        row = row_comment 
+        row = row_post 
     
     text = row.render(c)
     return text

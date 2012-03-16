@@ -82,7 +82,7 @@ def index(request, tab=""):
         posts = posts.filter(type=POST_BLOG).order_by('-rank')
         models.decorate_posts(posts, user)
     elif tab == 'forum':
-        posts = posts.filter(type=POST_FORUM).order_by('-rank')
+        posts = posts.filter(type__in=POST_FORUMLEVEL).order_by('-rank')
     elif tab == 'tutorials':
         posts = posts.filter(type=POST_TUTORIAL).order_by('-rank')
     elif tab == 'mytags':
