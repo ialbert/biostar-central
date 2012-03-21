@@ -23,7 +23,7 @@ TEMPLATE_DEBUG = DEBUG
 TEMPLATE_STRING_IF_INVALID = "*** MISSING ***"
 
 ADMINS = (
-    ('Istvan Albert', 'istvan.albert@gmail.com'),
+    ('John Doe', 'your-mail-here@your-server-here.com'),
 )
 
 MANAGERS = ADMINS
@@ -58,6 +58,13 @@ DATABASES = {
         'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
     }
 }
+
+# email specific settings
+EMAIL_HOST = 'smtp.yourserver.com'
+EMAIL_HOST_USER = 'user'
+EMAIL_HOST_PASSWORD = 'password'
+DEFAULT_FROM_EMAIL = 'default'
+SERVER_EMAIL = 'default'
 
 # add external dependecies
 __ZIP_LIBS =  [
@@ -241,6 +248,10 @@ LOGGING = {
     },
     'loggers': {
         'main.server.views': {
+            'handlers': [ 'console' ],
+            'level': 'INFO',
+        },
+        'main.server.action': {
             'handlers': [ 'console' ],
             'level': 'INFO',
         },

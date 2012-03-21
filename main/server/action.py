@@ -24,6 +24,10 @@ from django.core.mail import send_mail
 from whoosh import index
 from whoosh.qparser import QueryParser
 
+# activate logging
+import logging
+logger = logging.getLogger(__name__)
+
 class UserForm(forms.Form):
     "A form representing a new question"
     display_name = forms.CharField(max_length=30,  initial="", widget=forms.TextInput(attrs={'size':'30'}))   
@@ -135,7 +139,7 @@ def note_clear(request, uid):
         messages.warning(request, "You may only delete your own messages")
     return html.redirect("/user/show/%s/" % user.id)
 
-MERGE_EMAIL = """
+ACCOUNT_MERGE_EMAIL = """
 
 Account merge request by http://%(domain)s/user/profile/%(request_id)s/
 
@@ -167,9 +171,10 @@ def request_merge(request):
             try:
                 fill = dict(form.cleaned_data)
                 fill.update( dict(domain=settings.SITE_DOMAIN, request_id=request.user.id))
-                body = MERGE_EMAIL % fill
-                print body
-                send_mail('account merge', body, 'admin@biostars.com', ['admin@biostars.com'], fail_silently=False)
+                body = ACCOUNT_MERGE_EMAIL % fill
+                #admin_emails = [ elem[1] for elem in settings.ADMINS ]
+                logger.info('sending email to %s' % settings.SERVER_EMAIL)
+                send_mail('Account merge request', body, settings.DEFAULT_FROM_EMAIL, [ settings.SERVER_EMAIL ], fail_silently=False)
                 messages.info(request, "Your request for account merge has been sent.")
             except Exception, exc:
                 messages.error(request, 'Submission error %s' % exc)
