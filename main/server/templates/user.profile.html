@@ -71,6 +71,12 @@
 </div>
 </div>
 
+{% if user == target %}
+<div class="row">
+    <div class="alert info">We have migrated the accounts from old version of BioStar. See the <a href="/merge">account merge</a> page for more information</div>
+</div>
+{% endif %}
+
 <div class="row">
     {# this the tabs that get selected for different pages #}
     <ul class="nav nav-tabs">

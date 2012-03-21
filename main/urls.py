@@ -66,11 +66,15 @@ urlpatterns = patterns('main.server',
     # moderation views
     (r'^user/moderate/(?P<uid>\d+)/(?P<status>\w+)/$','action.user_moderate'),    
     (r'^post/moderate/(?P<pid>\d+)/(?P<status>\w+)/$','action.post_moderate'),
+    (r'^merge/$','action.request_merge'),
+    (r'^approve_merge/(?P<master_id>\d+)/(?P<remove_id>\d+)/$','action.approve_merge'),
     
     # handles new post
     (r'^new/post/$','views.new_post'),
     (r'^new/answer/(?P<pid>\d+)/$','views.new_answer'),
     (r'^new/comment/(?P<pid>\d+)/$','views.new_comment'),
+    
+    
     
     # static pages
     (r'^about/$','pages.about'),

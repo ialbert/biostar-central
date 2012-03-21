@@ -521,6 +521,7 @@ class Vote(models.Model):
     
     def apply(self, dir=1):
         "Applies a score and reputation changes upon a vote. Direction can be set to -1 to undo (ie delete vote)"
+        
         post, root = self.post, self.post.root
         
         post.rank_change(dir)

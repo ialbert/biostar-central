@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% load basic %}
+{% load widgets %}
+
+{% block body %}
+
+<div class="row">
+
+   
+   <div class="par">
+    <h3>Account Merging</h3>
+    We are migrating over accounts from the old BioStar server. The process should
+    be automatic and you should retain all posts and votes. Your reputation is now
+    computed differently instead of a formula it is the sum of all upvotes and accepts
+    that your posts have received.
+   </div>
+
+
+   <div class="par">
+    <h3>Did we make a mistake?</h3>
+    The automated merge may fail to recognize previous users.
+    To request an account merge, please find the user ids for both accounts (top of the profile page) and enter them
+    into the fields below then press the submit button. The <b>Master ID</b> is the account you wish to keep. The
+    <b>Remove ID</b> is the user id for the
+    account you wish to merge into the master. An adminstrator will review the request
+    and if approved will make the change. For speedy approval make sure that your
+    emails on both accounts match.
+   </div>
+   
+   <div class="par">
+        If this does not solve your problem please email us at <a href="mailto: admin@biostars.org">admin@biostars.org</a>
+    </div>
+    
+    {%if user.is_authenticated %}
+    <div class="par">
+        Your current user id is: <b>{{user.id}}</b>
+    </div>    
+    {% endif %}
+    
+    <div class="par">
+    <form id="merge" name="merge" action="{% url main.server.action.request_merge%}" method="post" class="form-horizontal">
+        <legend>Account Merge Request</legend>
+        <fieldset>
+        {% csrf_token %}
+        {% form_field  form.master_id 'Master ID' %}
+        {% form_field  form.remove_id 'Remove ID' %}
+        </fieldset>
+        <div class="form-actions">
+            <button type="submit" id="submit" name="submit" class="btn btn-success">Submit</button>
+        </div>
+    </form> 
+   </div>
+
+
+</div>
+
+{% endblock %}

@@ -21,29 +21,27 @@ def about(request):
     params = html.Params(nav='about', post_count=post_count, user_count=user_count, question_count=question_count, 
         answer_count=answer_count, comment_count=comment_count, admins=admins, mods=mods, navloc=navloc, managers=managers)
     
-    return html.template(request, name='about.html', params=params)
+    return html.template(request, name='pages/about.html', params=params)
   
 def rss(request):
     "Renders the rss feed page"
     user = request.user
     params = html.Params(nav='rss')
-    return html.template(request, name='rss.html', params=params, user=user)
+    return html.template(request, name='pages/s.html', params=params, user=user)
 
 def google(request):
     "Renders the rss feed page"
     user = request.user
     params = html.Params(nav='google')
-    return html.template(request, name='google.html', params=params, user=user)
+    return html.template(request, name='pages/google.html', params=params, user=user)
     
 def faq(request):
     "Renders the faq page"
     best = models.User.objects.all().select_related("profile").order_by('-profile__score')[:3]
     params = html.Params(nav='faq', best=best)
-    return html.template(request, name='faq.html', params=params)
+    return html.template(request, name='pages/faq.html', params=params)
 
 def beta(request):
     "Renders the beta test information page"
     params = html.Params(nav='')
-    return html.template(request, name='beta.html', params=params)
-
-  
+    return html.template(request, name='pages/beta.html', params=params)

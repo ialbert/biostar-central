@@ -81,6 +81,9 @@ LANGUAGE_CODE = 'en-us'
 
 SITE_ID = 1
 
+# the dommain for this site
+SITE_DOMAIN = 'localhost:8080'
+
 # added a custom test runner
 TEST_RUNNER='server.tests.runner.BiostarTest'
 

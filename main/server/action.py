@@ -19,6 +19,7 @@ from django.http import HttpResponse
 from django.db.models import Q
 from django.contrib import messages
 from django.core.urlresolvers import reverse
+from django.core.mail import send_mail
 
 from whoosh import index
 from whoosh.qparser import QueryParser
@@ -134,3 +135,81 @@ def note_clear(request, uid):
         messages.warning(request, "You may only delete your own messages")
     return html.redirect("/user/show/%s/" % user.id)
 
+MERGE_EMAIL = """
+
+Account merge request by http://%(domain)s/user/profile/%(request_id)s/
+
+Master User: http://%(domain)s/user/profile/%(master_id)s/
+Remove User: http://%(domain)s/user/profile/%(remove_id)s/
+
+Look at both user accounts to verify request.
+
+To apply the merge click here:
+
+http://%(domain)s/approve_merge/%(master_id)s/%(remove_id)s/
+
+To ignore the request simply ignore this email.
+
+"""
+
+@login_required(redirect_field_name='/openid/login/')
+def request_merge(request):
+    "Generates an account merge request"
+    
+    class MergeForm(forms.Form):
+        "A form representing a new question"
+        master_id = forms.CharField(max_length=5,  initial="", widget=forms.TextInput(attrs={'size':'5'}))   
+        remove_id = forms.CharField(max_length=5,  initial="", widget=forms.TextInput(attrs={'size':'5'}))
+   
+    if request.method == 'POST':   
+        form = MergeForm(request.POST)
+        if form.is_valid():
+            try:
+                fill = dict(form.cleaned_data)
+                fill.update( dict(domain=settings.SITE_DOMAIN, request_id=request.user.id))
+                body = MERGE_EMAIL % fill
+                print body
+                send_mail('account merge', body, 'admin@biostars.com', ['admin@biostars.com'], fail_silently=False)
+                messages.info(request, "Your request for account merge has been sent.")
+            except Exception, exc:
+                messages.error(request, 'Submission error %s' % exc)
+    else: 
+        form = MergeForm()
+    params = html.Params(nav='')
+    return html.template(request, name='pages/merge.html', params=params, form=form)
+
+from django_openid_auth.models import UserOpenID
+
+def migrate(master, remove):
+    UserOpenID.objects.filter(user=remove).update(user=master)
+    models.Vote.objects.filter(author=remove).update(author=master)
+    models.Note.objects.filter(sender=remove).update(sender=master)
+    models.Note.objects.filter(target=remove).update(target=master)
+    models.Post.objects.filter(author=remove).update(author=master)
+    models.Post.objects.filter(lastedit_user=remove).update(lastedit_user=master)
+    models.PostRevision.objects.filter(author=remove).update(author=master)
+    models.Award.objects.filter(user=remove).update(user=master)
+    master.profile.score += remove.profile.score
+    master.profile.save()
+            
+@login_required(redirect_field_name='/openid/login/')
+def approve_merge(request, master_id, remove_id):
+    "Approves an account merge request"
+    user = request.user
+    if not user.profile.is_admin:     
+        messages.error(request, 'Error: approving user not an administrator!')
+        return html.redirect("/")
+   
+    try:
+        master = models.User.objects.get(id=master_id)
+        remove = models.User.objects.get(id=remove_id)
+        with transaction.commit_on_success():
+            migrate(master, remove)
+        remove.delete()    
+    except Exception, exc:
+        messages.error(request, 'Merge error: %s' % exc)
+        return html.redirect("/")
+    
+    messages.info(request, 'Merge completed')
+    return html.redirect("/")
+   

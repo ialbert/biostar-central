@@ -9,18 +9,25 @@
 
     <div class="faq">
 
-        <div class="title">RSS Feeds</div>
+        <div class="title">Mergin Accounts</div>
         <div class="par">
-            See the <a href="{% url main.server.pages.rss %}">Feeds page</a> <img src="{{STATIC_URL}}img/feed.png">
+            BioStar will attempt to merge accounts even when using different
+            OpenID providers. If the system is not able to detect your
+            existing account please see the <a href="/merge">account merge</a> page.
         </div>
         
-        <div class="title">Searching by tags</div>
+        <div class="title">RSS Feeds</div>
+        <div class="par">
+            We offer RSS feeds to many different sources of information. See the <a href="{% url main.server.pages.rss %}">Feeds page</a> <img src="{{STATIC_URL}}img/feed.png">
+        </div>
+        
+        <div class="title">Searching by multiple tags</div>
         <div class="par">
             To build URL that returns posts that match multiple tags separate these with <code>+</code> sign. For example: <a href="/show/tag/galaxy+bwa+tutorial/">/show/tag/galaxy+bwa+tutorial/</a>
         </div>
 
 
-        <div class="title">Content</div>
+        <div class="title">Appropriate Content</div>
         <div class="par">
             This site's focus is bioinformatics, computational genomics and biological data analysis.
             Only posts on these topics or those pertaining to Biostar itself are allowed.
@@ -46,11 +53,11 @@
         
         
         <div class="title">Voting</div>
-        <div class="par">Only upvotes exist on BioStar, each user has access to up to <b>10</b> votes every six hours. Users
+        <div class="par">Each user has access to up to <b>10</b> votes every six hours. Users
         asking questions are encouraged to click accept (<i class="icon-ok"></i>) to indicate contributions that fully
         answer the question. Note that multiple answers
         may be accepted on a question, thus the author of a question can reward  
-        excellent answers with both an upvote and an accept.
+        excellent answers with both an upvote and an accept. There is no reputation penalty for downvotes.
         </div>
 
         <div class="title">User reputation</div>
