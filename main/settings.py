@@ -266,6 +266,8 @@ LOGGING = {
     }
 }
 
+GOOGLE_ANALYTICS_TRACKER = "ABCD"
+
 # needs to be turned on explicitly
 CONTENT_INDEXING = False
 

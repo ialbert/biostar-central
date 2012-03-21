@@ -23,7 +23,8 @@ def extras(request):
     # the tab bar counts
     counts = request.session.get(SESSION_POST_COUNT, {})
  
-    return { 'BIOSTAR_VERSION': server.VERSION, 
+    return { 'BIOSTAR_VERSION': server.VERSION,
+             'GOOGLE_TRACKER': settings.GOOGLE_TRACKER,
              'user':user, 
              'q':q, 
              'm':m,
