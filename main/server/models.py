@@ -74,11 +74,6 @@ class UserProfile( models.Model ):
     # description provided by the user as html
     my_tags = models.TextField(default="", null=True, max_length=250)
     
-    def change_score(self, amount):
-        "A shortcut to reputation change"
-        self.score += amount
-        self.save()
-
     @property
     def can_moderate(self):
         return (self.is_moderator or self.is_admin)
@@ -150,6 +145,7 @@ class Post(models.Model):
     tag_set = models.ManyToManyField(Tag) # The tag set is built from the tag string and used only for fast filtering
     views = models.IntegerField(default=0, blank=True, db_index=True)
     score = models.IntegerField(default=0, blank=True, db_index=True)
+    full_score = models.IntegerField(default=0, blank=True, db_index=True)
     
     creation_date = models.DateTimeField(db_index=True)
     lastedit_date = models.DateTimeField()
@@ -219,16 +215,7 @@ class Post(models.Model):
             request.session[VIEW_KEY] = viewed
             return True
         return False
-    
-    def rank_change(self, sign, hours=1):
-        "How post ranks change upon upvotes"
-        gain = 3600 * hours # the rank increase
-        self.rank = self.rank + sign * gain
-        
-    def score_change(self, sign, hours=1):
-        "How post score changes with votes"
-        self.score += sign
-        
+           
     @property
     def top_level(self):
         return self.type in POST_TOPLEVEL
@@ -325,7 +312,16 @@ class Related(models.Model):
     """
     source  = models.ForeignKey(Post, related_name="source")
     target  = models.ForeignKey(Post, related_name="target")
-    
+
+class PostBody(models.Model):
+    """
+    Represents the content of a post body.
+    It is kept separate to avoid having to retrieve during object queries.
+    """
+    post    = models.ForeignKey(Post, related_name='bodies')
+    content = models.TextField(null=False, blank=False, max_length=10000) # the underlying Markdown
+    html    = models.TextField(blank=True) # this is the sanitized HTML for display
+   
 class PostAdmin(admin.ModelAdmin):
     list_display = ('id', 'title', )
 
@@ -485,7 +481,33 @@ class Note(models.Model):
     @property
     def status(self):
         return 'unread' if self.unread else "old"
+     
+def post_score_change(post, amount, hours=1):
+    "How post score changes with votes. Both the rank and the score changes"
+
+    root = post.root
     
+    gain = 3600 * hours # the rank increase
+    post.rank  += amount * gain
+    post.score += amount
+    if post == root:
+        post.full_score += amount
+    post.save()
+    
+    # different root also needs updating
+    if post != root:
+        root.full_score += amount
+        if post.rank > root.rank:
+            root.rank = post.rank
+        root.save()
+        
+    return post, post.root
+
+def user_score_change(user, amount):
+    "How user score changes with votes"
+    user.profile.score += amount
+    user.profile.save()
+
 class Vote(models.Model):
     """
     >>> user, flag = User.objects.get_or_create(first_name='Jane', last_name='Doe', username='jane', email='jane')
@@ -506,24 +528,16 @@ class Vote(models.Model):
         "Applies a score and reputation changes upon a vote. Direction can be set to -1 to undo (ie delete vote)"
         
         post, root = self.post, self.post.root
-        
-        post.rank_change(dir)
-        
         if self.type == VOTE_UP:
-            post.score_change(dir)
-            post.author.get_profile().change_score(dir)
+            post_score_change(post, dir)
+            user_score_change(post.author, dir)
         
         if self.type == VOTE_DOWN:
-            post.score_change(-dir)
+            post_score_change(post, -dir)
             
         if self.type == VOTE_ACCEPT:
             post.accepted = root.accepted = (dir == 1)
-        
-        post.save()
-        
-        # highly ranked answers raise the root's rank
-        if post != root and post.rank > root.rank:
-            root.rank = post.rank
+            post.save()
             root.save()
             
 @transaction.commit_on_success
