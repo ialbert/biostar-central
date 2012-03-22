@@ -16,12 +16,12 @@ def badgelink(badge):
 
 def post_moderator_action(user, post):
     action = post.get_status_display()
-    text   = 'Moderator %s set status to %s on %s' % (userlink(user), action, postlink(post))
+    text   = '%s set status to %s on %s' % (userlink(user), action, postlink(post))
     return text
 
 def user_moderator_action(user, target):
     action = target.profile.get_status_display()
-    text   = 'Moderator %s set status %s on %s' % (userlink(user), action, userlink(target))
+    text   = '%s set status %s on %s' % (userlink(user), action, userlink(target))
     return text
 
 def post_action(user, post, size=250):

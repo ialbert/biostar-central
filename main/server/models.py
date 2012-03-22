@@ -311,7 +311,8 @@ class Related(models.Model):
     source  = models.ForeignKey(Post, related_name="source")
     target  = models.ForeignKey(Post, related_name="target")
 
-class PostBody(models.Model):
+# this should not yet be enabled
+class PostBody():
     """
     Represents the content of a post body.
     It is kept separate to avoid having to retrieve during object queries.
