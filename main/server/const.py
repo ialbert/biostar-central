@@ -46,6 +46,7 @@ POST_FORUMLEVEL = set( (POST_FORUM, POST_NEWS, POST_REVIEW) )
 
 # the session key that stores new post counts
 SESSION_POST_COUNT = 'session-post-count'
+SESSION_VIEW_COUNT = 'view-count'
 
 # the type of messages that the system maintains
 NOTE_USER, NOTE_MODERATOR, NOTE_ADMIN, NOTE_AWARD, NOTE_SITE = range(1, 6)

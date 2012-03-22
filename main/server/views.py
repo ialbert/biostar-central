@@ -224,7 +224,7 @@ def post_show(request, pid):
     try:
         root = query.get(id=pid)
         # update the views for the question
-        root.update_views(request)
+        models.update_post_views(post=root, request=request)
     except models.Post.DoesNotExist, exc:
         messages.warning(request, 'The post that you are looking for does not exists. Perhaps it was deleted!')
         return html.redirect("/")

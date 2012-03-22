@@ -200,22 +200,7 @@ class Post(models.Model):
         elif self.closed:
             title = "%s [closed]" % self.title
         return "%s" % title
-    
-    def update_views(self, request):
-        "Views are updated per user session"
-        if request.user.is_anonymous():
-            return
-        VIEW_KEY = 'viewed'
-        viewed = request.session.get(VIEW_KEY, set())
-        if self.id not in viewed:
-            # updates bypass signals
-            Post.objects.filter(id=self.id).update(views = F('views') + 1 ) 
-            self.views += 1
-            viewed.add(self.id)
-            request.session[VIEW_KEY] = viewed
-            return True
-        return False
-           
+               
     @property
     def top_level(self):
         return self.type in POST_TOPLEVEL
@@ -279,6 +264,19 @@ class Post(models.Model):
         else:
             return "TITLE:%s\n%s\nTAGS:%s" % (self.title, self.content, self.tag_val)
 
+def update_post_views(post, request, amount=3600):
+    "Views are updated per user session"
+    if request.user.is_anonymous():
+        return
+    viewed = request.session.get(SESSION_VIEW_COUNT, set())
+    if post.id not in viewed:
+        # direct updates bypass signals
+        Post.objects.filter(id=post.id).update(views = F('views') + 1, rank=F('rank') + amount )
+        post.views += 1
+        viewed.add(post.id)
+        request.session[SESSION_VIEW_COUNT] = viewed
+    return post
+    
 def get_post_manager(user):
     "Returns the right post manager"
     if user and user.is_authenticated() and user.profile.can_moderate:
