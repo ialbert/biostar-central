@@ -151,7 +151,6 @@ class Post(models.Model):
     views = models.IntegerField(default=0, blank=True, db_index=True)
     score = models.IntegerField(default=0, blank=True, db_index=True)
     
- 
     creation_date = models.DateTimeField(db_index=True)
     lastedit_date = models.DateTimeField()
     lastedit_user = models.ForeignKey(User, related_name='editor')
@@ -267,25 +266,7 @@ class Post(models.Model):
             return 'answered'
         else:
             return 'open'
-        
-    def get_vote(self, user, vote_type):
-        # due to race conditions (use spamming vote button) multiple votes may register
-        votes = self.votes.filter(author=user, type=vote_type)
-        return votes
-        
-    def add_vote(self, user, vote_type):
-        "Adds a vote"
-        vote = Vote(author=user, type=vote_type, post=self)
-        vote.save()
-        return vote
-        
-    def remove_vote(self, user, vote_type):
-        "Removes a vote from a user of a certain type if it exists"
-        votes = self.get_vote(user, vote_type)
-        for vote in votes:
-            vote.delete()
-        return votes
-        
+               
     def get_tag_names(self):
         "Returns the post's tag values as a list of tag names"
         tag_val = html.ascii(self.tag_val)
@@ -317,7 +298,7 @@ def get_post_manager(user):
         return Post.objects
     else:
         return Post.open_posts
-
+    
 def query_by_tags(user, tags=[]):
     "Returns a query by tags"
     posts = get_post_manager(user)
@@ -445,10 +426,12 @@ def decorate_posts(posts, user):
     pids  = [ post.id for post in posts ]
     votes = Vote.objects.filter(author=user, post__id__in=pids)
     up_votes  = set(vote.post.id for vote in votes if vote.type == VOTE_UP)
+    down_votes = set(vote.post.id for vote in votes if vote.type == VOTE_DOWN)
     bookmarks = set(vote.post.id for vote in votes if vote.type == VOTE_BOOKMARK)
     for post in posts :
         post.writeable  = auth.authorize_post_edit(post=post, user=user, strict=False)
         post.upvoted    = post.id in up_votes
+        post.downvoted  = post.id in down_votes
         post.bookmarked = post.id in bookmarks
     return posts
 
@@ -529,7 +512,10 @@ class Vote(models.Model):
         if self.type == VOTE_UP:
             post.score_change(dir)
             post.author.get_profile().change_score(dir)
-       
+        
+        if self.type == VOTE_DOWN:
+            post.score_change(-dir)
+            
         if self.type == VOTE_ACCEPT:
             post.accepted = root.accepted = (dir == 1)
         
@@ -539,7 +525,35 @@ class Vote(models.Model):
         if post != root and post.rank > root.rank:
             root.rank = post.rank
             root.save()
-                      
+            
+@transaction.commit_on_success
+def insert_vote(post, user, vote_type):
+    "Applies a vote. Applying an existing vote type removes it"
+    
+    # due to race conditions (user spamming vote button) multiple votes may register
+    # this removes votes with the metioned type
+    votes = Vote.objects.filter(post=post, author=user, type=vote_type)
+    if votes:
+        vote = votes[0]
+        for vote in votes:
+            vote.delete()
+        msg = '%s removed' % vote.get_type_display()
+        logger.info('%s\t%s\t%s' % (user.id, post.id, msg) )
+        return vote, msg
+    
+    # remove opposing votes
+    opposing = OPPOSING_VOTES.get(vote_type)
+    if opposing:
+        for vote in Vote.objects.filter(post=post, author=user, type=opposing):
+            vote.delete()
+            post = vote.post # this reference now has been changed
+        
+    vote = Vote.objects.create(post=post, author=user, type=vote_type)
+    vote.save()
+    msg = '%s added' % vote.get_type_display()
+    logger.info('%s\t%s\t%s' % (user.id, post.id, msg) )
+    return vote, msg
+
 class Badge(models.Model):
     name = models.CharField(max_length=50)
     description = models.CharField(max_length=200)

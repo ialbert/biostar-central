@@ -53,49 +53,28 @@ def vote(request):
     type = request.POST.get('type')
     
     # remap to actual type
-    type = dict(upvote=VOTE_UP, accept=VOTE_ACCEPT, bookmark=VOTE_BOOKMARK).get(type)
+    type = dict(upvote=VOTE_UP, accept=VOTE_ACCEPT, bookmark=VOTE_BOOKMARK, downvote=VOTE_DOWN).get(type)
         
     if not type:
         return ajax_error('invalid vote type')
             
-    if type  == VOTE_UP and post.author == author:
-        return ajax_error('You may not vote up on your own post')
-    
-    if type == VOTE_ACCEPT and post.author == author:
-        return ajax_error('You may not accept your own post')
+    if type  in (VOTE_UP, VOTE_DOWN, VOTE_ACCEPT) and post.author == author:
+        return ajax_error('You may not vote on your own post')
     
     if type == VOTE_ACCEPT and post.root.author != author:
         return ajax_error('Only the original poster may accept an answer')
         
-    # see if there is an existing vote of this type
-    old_vote = post.get_vote(author, type)
-
-    if old_vote:
-        msg = '%s removed' % old_vote[0].get_type_display()
-        post.remove_vote(author, type)
-        logger.info('%s\t%s\t%s' % (author.id, post.id, msg) )
-        return ajax_success(msg)
-    
-    if type == VOTE_BOOKMARK:
-        vote = post.add_vote(author, type)
-        return ajax_success('%s added' % vote.get_type_display())
-    
-    # throttle
-    today  = datetime.now()
-    shift  = timedelta(seconds=VOTE_SESSION_LENGTH)
-    past   = today - shift
-    count  = models.Vote.objects.filter(author=author, date__gt=past).count()
-    avail  = MAX_VOTES_PER_SESSION - count
+    # voting throttle
+    past  = datetime.now() - VOTE_SESSION_LENGTH
+    count = models.Vote.objects.filter(author=author, date__gt=past).count()
+    avail = MAX_VOTES_PER_SESSION - count
     
     if avail <= 0:
         msg = "You ran out of votes ;-) there will more in a little while"
         logger.info('%s\t%s\t%s' % (author.id, post.id, "out of votes") )
         return ajax_error(msg)
     else:
-        # log all voting into the server log
-        vote = post.add_vote(author, type)
-        msg  = '%s added' % (vote.get_type_display())
-        logger.info('%s\t%s\t%s' % (author.id, post.id, msg) )
+        vote, msg = models.insert_vote(post=post, user=author, vote_type=type)
         return ajax_success(msg)
 
 @ajax_error_wrapper 

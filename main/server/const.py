@@ -13,8 +13,11 @@ MIN_REP = 1
 POST_SCORE_CHANGE = 1
 USER_SCORE_CHANGE = 1
 
-VOTE_SESSION_LENGTH   = 60   # in seconds, the time intervals to reset vote limit
 MAX_VOTES_PER_SESSION = 10    # this is how many votes can be cast per session
+
+from datetime import timedelta
+VOTE_SESSION_LENGTH = 60   # in seconds, the time intervals to reset vote limit
+VOTE_SESSION_LENGTH = timedelta(seconds=VOTE_SESSION_LENGTH)
 
 FIRST_SESSION = 'first-session'
 
@@ -76,6 +79,7 @@ USER_MOD_TYPES = [ (USER_MODERATION, 'Usermod'), (POST_MODERATION, 'Postmod') ]
 # voting related constants
 VOTE_UP, VOTE_DOWN, VOTE_ACCEPT, VOTE_BOOKMARK = range(1, 5)
 VOTE_TYPES = ((VOTE_UP, 'Upvote'), (VOTE_DOWN, 'Downvote'), (VOTE_ACCEPT, 'Accept'), (VOTE_BOOKMARK, 'Bookmark'))
+OPPOSING_VOTES = { VOTE_UP:VOTE_DOWN, VOTE_DOWN:VOTE_UP }
 
 BADGE_BRONZE, BADGE_SILVER, BADGE_GOLD = 0, 1, 2
 BADGE_TYPES = ((BADGE_BRONZE, 'bronze'), (BADGE_SILVER, 'silver'), (BADGE_GOLD, 'gold'))

@@ -443,6 +443,9 @@ td {
     }
     .vote-up.vote-off { background-image: url("/static/img/g/glyphicons_213_up_arrow.png"); opacity:0.3; }
     .vote-up.vote-on  { background-image: url("/static/img/g/glyphicons_213_up_arrow.png"); }
+    
+    .vote-down.vote-off { background-image: url("/static/img/g/glyphicons_213_up_arrow.png"); opacity:0.3; }
+    .vote-down.vote-on  { background-image: url("/static/img/g/glyphicons_213_up_arrow.png"); }
 }
         
 .vote-box{
@@ -469,7 +472,7 @@ td {
             display:block;
         }
         
-        .vote-up, .vote-accepted, .vote-bookmark {
+        .vote-up, .vote-accepted, .vote-bookmark, .vote-down {
             display: block;
             width: 30px;
             height: 14px;
@@ -482,6 +485,7 @@ td {
         .vote-bookmark {
             height:30px;
             background-position: center;
+            margin-top:10px;
         }
         
         .vote-accepted {
@@ -491,6 +495,10 @@ td {
         
         .vote-up.vote-off { background-image: url("/static/img/vote/vote-up-on.png"); opacity:0.3; &:hover { opacity:0.9; } }
         .vote-up.vote-on { background-image: url("/static/img/vote/vote-up-on.png"); }
+        
+        .vote-down.vote-off { background-image: url("/static/img/vote/vote-down-on.png"); opacity:0.3; &:hover { opacity:0.9; } }
+        .vote-down.vote-on { background-image: url("/static/img/vote/vote-down-on.png"); }
+        
         .vote-bookmark.vote-on  { background-image: url("/static/img/g/glyphicons_072_bookmark.png"); }
         .vote-bookmark.vote-off { background-image: url("/static/img/g/glyphicons_072_bookmark.png"); opacity:0.3; &:hover { opacity:0.9; } }
         .vote-accepted.vote-on  { background-image: url("/static/img/g/glyphicons_206_ok_2.png") }

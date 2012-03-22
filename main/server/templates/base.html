@@ -44,6 +44,8 @@
     {% endblock %}
     <script>
       $(document).ready(function(){
+        
+        // these are only there during debugging
         $('#queries').hide()
         $('#toggle-queries').click(function(){
             $('#queries').toggle() 
@@ -59,6 +61,11 @@
             up_button  = elem.children('.vote-up')
             up_button.click(function(){
                 do_vote($(this), $(this).parent().children('input').val(), 'upvote'); 
+            });
+            
+            down_button  = elem.children('.vote-down')
+            down_button.click(function(){
+                do_vote($(this), $(this).parent().children('input').val(), 'downvote'); 
             });
             
             bookmark_button = elem.children('.vote-bookmark')
