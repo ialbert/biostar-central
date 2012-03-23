@@ -14,15 +14,29 @@ function show_add_comment(parent, post_id){
     )
 }
 
+function moderate_post(link){
+    ask = confirm('Moderate post?')
+    if( !ask) {
+        return
+    }
+    window.location.href=link
+}
+
 //comment deletion
 function comment_delete(link){
     pid  = link.attr('target') // post id encoded in link
     par  = $('#'+pid)         // parent div
     body = par.children('div[name="content"]')
+    
+    ask = confirm('Delete comment ' + pid + ' ?')
+    if( !ask) {
+        return
+    }
+
     $.post('/comment/delete/' + pid +'/',
         function(data){
             popover(link.parent(), data.msg, data.status);
-            if (data.msg == 'Post destroyed') {
+            if (data.msg == 'destroyed') {
                 par.hide('fast')
             } else {
                 body.html('[ content deleted ]')

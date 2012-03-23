@@ -28,9 +28,9 @@
         {% endif %}
 
         {% if post.deleted %}        
-            &bull; <a href="{% url main.server.action.post_moderate post.id  'open' %}">undelete</a>                                  
+            &bull; <a href="javascript:moderate_post('{% url main.server.action.post_moderate post.id  'open' %}')">undelete</a>                                  
         {% else %}
-            &bull; <a href="{% url main.server.action.post_moderate post.id 'delete' %}">delete</a>                                  
+            &bull; <a href="javascript:moderate_post('{% url main.server.action.post_moderate post.id 'delete' %}')">delete</a>                                  
         {% endif %}
 
     </span>    

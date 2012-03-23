@@ -53,17 +53,14 @@ def post_moderate(request, pid, status):
     "General moderation function"
     user = request.user
     post = models.Post.objects.get(id=pid)
-    url  = post.get_absolute_url() # needed since the post may be destroyed
-    
+     
     # remap the status to valid
     status = dict(close=POST_CLOSED, open=POST_OPEN, delete=POST_DELETED).get(status)
     if not status:
         messages.error('Invalid post moderation action')
         return html.redirect( post.get_absolute_url() )    
     
-    flag, msg = models.post_moderate(user=user, post=post, status=status)
-    func = messages.info if flag else messages.error
-    func(request, msg)
+    url = models.post_moderate(request=request, user=user, post=post, status=status)
     return html.redirect( url )    
 
 @login_required(redirect_field_name='/openid/login/')
@@ -186,6 +183,7 @@ def request_merge(request):
 from django_openid_auth.models import UserOpenID
 
 def migrate(master, remove):
+    "Migrates user data"
     UserOpenID.objects.filter(user=remove).update(user=master)
     models.Vote.objects.filter(author=remove).update(author=master)
     models.Note.objects.filter(sender=remove).update(sender=master)

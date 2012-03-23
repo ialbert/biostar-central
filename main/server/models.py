@@ -10,7 +10,7 @@ import os, random, hashlib, string, difflib, time
 from django.db import models
 from django.db import transaction
 from django.contrib.auth.models import User, Group
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.conf import settings
 from django.db.models import F, Q
 from django.core.urlresolvers import reverse
@@ -365,31 +365,35 @@ def user_moderate(user, target, status):
      
 
 @transaction.commit_on_success
-def post_moderate(post, user, status, date=None):
+def post_moderate(request, post, user, status, date=None):
     """
     Performs a moderator action on the post. 
     """
 
+    # most actions will return the original post
+    url = post.get_absolute_url()
+    
     # setting posts to open require more than one permission
     if status == POST_OPEN and not user.profile.can_moderate:
         msg = 'User %s not a moderator' %user.id
-        logger.error(msg)
-        return False, msg
-        
+        messages.error(request, msg)
+        return url
+    
     # check that user may write the post
     if not auth.authorize_post_edit(user=user, post=post, strict=False):
         msg = 'User %s my not modfify post %s' %(user.id, post.id)
-        logger.error(msg)
-        return False, msg
+        messages.error(request, msg)
+        return url
    
     # special treatment for deletion
-    orphan = (Post.objects.filter(parent=post).exclude(id=post.id).count() == 0)
+    no_orphans = (Post.objects.filter(parent=post).exclude(id=post.id).count() == 0)
 
-    if status == POST_DELETED and orphan and (user==post.author):
+    # authors may remove their post/comments without a trace as long as it has
+    if status == POST_DELETED and no_orphans and (user==post.author):
         # destroy the post with no trace
         Vote.objects.filter(post=post).delete()
         post.delete()
-        return True, 'Post destroyed'
+        return "/"
     
     post.status = status
     post.save()
@@ -398,7 +402,9 @@ def post_moderate(post, user, status, date=None):
     send_note(target=post.author, sender=user, content=text,  type=NOTE_MODERATOR, both=True)
     
     msg = 'Post status set to %s' % post.get_status_display()
-    return True, msg
+    messages.info(request, msg)
+    
+    return url
      
 @transaction.commit_on_success        
 def send_note(sender, target, content, type=NOTE_USER, unread=True, date=None, both=False):

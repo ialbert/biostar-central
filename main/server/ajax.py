@@ -134,12 +134,14 @@ def comment_delete(request, pid):
     permit  = user.can_moderate or (user == post.author )
     if not permit:
         return ajax_error('Permission denied')
-        
-    status, msg = models.post_moderate(post=post, user=user, status=POST_DELETED)
-    if status:
-        return ajax_success(msg)
+
+    status = POST_DELETED if (post.status != POST_DELETED) else POST_OPEN    
+    url = models.post_moderate(request=request, post=post, user=user, status=status)
+    
+    if url == "/":
+        return ajax_success("destroyed") # this is required by the UI
     else:
-        return ajax_success(msg)
+        return ajax_success("The comment status set to %s" % post.get_status_display() )
     
     
 @ajax_error_wrapper

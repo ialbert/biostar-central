@@ -39,11 +39,13 @@
     $('.vote-up').tooltip('hide')
     $('.vote-down').tooltip('hide')
     $('.vote-bookmark').tooltip('hide')
-    
+        
+{% if root.open %}
     var converter1 = Markdown.getSanitizingConverter();
     var editor1 = new Markdown.Editor(converter1);
     editor1.run();
-    
+{% endif %}
+
 {% endblock %}
 
 {% block body %}

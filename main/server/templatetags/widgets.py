@@ -21,7 +21,7 @@ def form_field(field, label, help=''):
     return {'label':label, 'field':field, 'errors':errors, 'help':help}
 
 @register.inclusion_tag('widgets/user.box.html',)
-def user_box(user, size=64):
+def user_box(user, size=100):
     return {'user':user, 'size':size}
 
 @register.inclusion_tag('widgets/vote.box.html', takes_context=True)

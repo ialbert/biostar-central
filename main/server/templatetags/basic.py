@@ -50,15 +50,7 @@ def badgeicon(type):
 @register.inclusion_tag('widgets/action.box.html')
 def actionbox(user, date, action='asked'):
     return {'user':user, 'date':date, 'action':action}
-
-@register.inclusion_tag('widgets/user.box.html')
-def userbox(user):
-    return {'user':user}
     
-@register.inclusion_tag('widgets/revision.box.html')
-def revisionbox(post):
-    return {'post':post}
-
 @register.simple_tag
 def time_ago(time):
     delta = datetime.now() - time
