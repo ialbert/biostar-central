@@ -330,7 +330,7 @@ def insert_post_revisions(fname, limit, users, posts):
     with transaction.commit_on_success():
         for post, status, user, date in alist:
             if USE_DB and post.id:
-                models.post_moderate(post=post, status=status, user=user, date=date)
+                models.post_moderate(request=None, post=post, status=status, user=user, date=date)
                 
     # some posts may have been removed
     for (key, post) in posts.items():

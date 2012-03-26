@@ -34,6 +34,6 @@ def post_action(user, post, size=250):
     text   = '%s %s %s: %s' % (userlink(user), action, postlink(post), content)
     return text
 
-def badgenote(badge):
+def awardnote(badge):
     text = "Congratulations! You've just earned the **%s** badge!" % badgelink(badge)
     return text

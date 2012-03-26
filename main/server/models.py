@@ -376,13 +376,13 @@ def post_moderate(request, post, user, status, date=None):
     # setting posts to open require more than one permission
     if status == POST_OPEN and not user.profile.can_moderate:
         msg = 'User %s not a moderator' %user.id
-        messages.error(request, msg)
+        messages.error(request, msg) if request else None
         return url
     
     # check that user may write the post
     if not auth.authorize_post_edit(user=user, post=post, strict=False):
         msg = 'User %s my not modfify post %s' %(user.id, post.id)
-        messages.error(request, msg)
+        messages.error(request, msg) if request else None
         return url
    
     # special treatment for deletion
@@ -402,7 +402,7 @@ def post_moderate(request, post, user, status, date=None):
     send_note(target=post.author, sender=user, content=text,  type=NOTE_MODERATOR, both=True)
     
     msg = 'Post status set to %s' % post.get_status_display()
-    messages.info(request, msg)
+    messages.info(request, msg) if request else None
     
     return url
      
@@ -605,23 +605,6 @@ class Award(models.Model):
         prof.save()
         self.badge.count += dir
         self.badge.save()
-    
-  
-def apply_award(request, user, badge_name, messages=None):
-
-    badge = Badge.objects.get(name=badge_name)
-    award = Award.objects.filter(badge=badge, user=user)
-    
-    if award and badge.unique:
-        # this badge has already been awarded
-        return
-
-    community = User.objects.get(username='community')
-    award = Award.objects.create(badge=badge, user=user)
-    text = notegen.badgenote(award.badge)
-    note = Note.send(sender=community, target=user, content=text)
-    if messages:
-        messages.info(request, note.html)
 
 # most of the site functionality, reputation change
 # and voting is auto applied via database signals
@@ -715,7 +698,7 @@ def finalize_post(sender, instance, created, *args, **kwargs):
 def create_award(sender, instance, *args, **kwargs):
     "Pre save award function"
     instance.date = instance.date or datetime.now()
-
+        
 def verify_note(sender, instance, *args, **kwargs):
     "Pre save notice function"
     instance.date = instance.date or datetime.now()

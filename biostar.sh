@@ -120,7 +120,7 @@ while (( "$#" )); do
 		echo "*** MIGRATE_PATH=$MIGRATE_PATH"
 		echo "*** MIGRATE_LIMIT=$MIGRATE_LIMIT"
 		echo "*** FIXTURE=$FIXTURE"
-		$PYTHON_EXE -m main.migrate --path $MIGRATE_PATH --limit $MIGRATE_LIMIT -o $FIXTURE.temp
+		$PYTHON_EXE -m main.scripts.migrate --path $MIGRATE_PATH --limit $MIGRATE_LIMIT -o $FIXTURE.temp
         cat $FIXTURE.temp | gzip > $FIXTURE
         rm $FIXTURE.temp
         echo "*** migrated data to a $FIXTURE"

@@ -40,15 +40,9 @@ class LastVisit(object):
                 planet = models.Post.objects.filter(type=POST_BLOG,  creation_date__gt=last).count()
                 
                 counts = dict(planet=planet,  unanswered=unanswered, questions=questions, tutorials=tutorials, forum=forum)
-                request.session[SESSION_POST_COUNT] = counts
-                
+                request.session[SESSION_POST_COUNT] = counts 
                 models.UserProfile.objects.filter(user=user).update(last_visited=now)
                
-                # award the beta tester badge
-                #models.apply_award(request=request, user=user, badge_name=BETA_TESTER_BADGE, messages=messages)
-                
-                # recompute the posts
-                
             # a handy shortcut
             request.user.can_moderate = profile.can_moderate
         else:
