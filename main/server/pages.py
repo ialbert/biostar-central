@@ -27,7 +27,7 @@ def rss(request):
     "Renders the rss feed page"
     user = request.user
     params = html.Params(nav='rss')
-    return html.template(request, name='pages/s.html', params=params, user=user)
+    return html.template(request, name='pages/rss.html', params=params, user=user)
 
 def google(request):
     "Renders the rss feed page"
