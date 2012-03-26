@@ -45,9 +45,9 @@ code {
 .navbar .brand {
     text-indent:8px;
     margin-left:0px;
-    background-image: url(/static/img/g/glyphicons_049_star.png);
+    background-image: url(/static/img/g/star.png);
     background-repeat: no-repeat;
-    background-position: 0px 6px;
+    background-position: 0px 4px;
 }
 
 .title {
@@ -462,24 +462,21 @@ td {
         margin:10px;
         
         .vote-count {
+            
             font-size: 240%;
             font-weight: bold;
-            vertical-align: middle;
             text-align: center;
-            width: 60px;
-            margin: 10px 0 10px 0;
-            padding: 0px;
-            display:block;
+            margin:10px 0px 10px 0px;
         }
         
         .vote-up, .vote-accepted, .vote-bookmark, .vote-down {
             display: block;
-            width: 30px;
-            height: 14px;
+            width: 44px;
             background-repeat: no-repeat;
-            margin-left: auto;
-            margin-right: auto;
+            background-position: center;
+            margin: auto;
             cursor:pointer;
+            text-align: center;
         }
         
         .vote-bookmark {
@@ -489,7 +486,8 @@ td {
         }
         
         .vote-accepted {
-            height: 30px;
+            width: 44px;
+            height:44px;
             background-position: center;
         }
         
@@ -499,10 +497,10 @@ td {
         .vote-down.vote-off { background-image: url("/static/img/vote/vote-down-on.png"); opacity:0.3; &:hover { opacity:0.9; } }
         .vote-down.vote-on { background-image: url("/static/img/vote/vote-down-on.png"); }
         
-        .vote-bookmark.vote-on  { background-image: url("/static/img/g/glyphicons_072_bookmark.png"); }
-        .vote-bookmark.vote-off { background-image: url("/static/img/g/glyphicons_072_bookmark.png"); opacity:0.3; &:hover { opacity:0.9; } }
-        .vote-accepted.vote-on  { background-image: url("/static/img/g/glyphicons_206_ok_2.png") }
-        .vote-accepted.vote-off { background-image: url("/static/img/g/glyphicons_206_ok_2.png"); opacity:0.3; &:hover { opacity:0.9; }}
+        .vote-bookmark.vote-on  { background-image: url("/static/img/g/bookmark.png"); }
+        .vote-bookmark.vote-off { background-image: url("/static/img/g/bookmark.png"); opacity:0.3; &:hover { opacity:0.9; } }
+        .vote-accepted.vote-on  { background-image: url("/static/img/g/checkmark.png") }
+        .vote-accepted.vote-off { background-image: url("/static/img/g/checkmark.png"); opacity:0.3; &:hover { opacity:0.9; }}
     }
 
 }
