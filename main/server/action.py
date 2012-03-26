@@ -110,7 +110,14 @@ def user_edit(request, uid):
         else:
             for field in fields:
                 setattr(target.profile, field, form.cleaned_data[field])
-            target.email = form.cleaned_data['email']
+            # check the new email
+            new_email = form.cleaned_data['email'].strip()
+            if new_email != target.email and models.User.objects.get(email=new_email):
+                # cannot set your email to an existing other user 'semail
+                messages.error(request, "This email is aready taken - please merge the accounts!")
+            else:
+                target.email = new_email
+            
             target.profile.save()
             target.save()
             
