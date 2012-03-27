@@ -123,7 +123,7 @@
         <div class="row" id="footer">
             {% block footer %}
            
-             <a href="{% url main.server.pages.rss %}">RSS</a> <img src="{{STATIC_URL}}img/feed.png"> &bull; Powered by <a href="https://github.com/ialbert/biostar-central"><img src="{{ STATIC_URL }}biostar.antipixel.png" /></a> 
+             <a href="{% url main.server.pages.rss %}">RSS</a> <img align="middle" src="{{STATIC_URL}}img/feed-icon-small.png"> &bull; Powered by <a href="https://github.com/ialbert/biostar-central"><img src="{{ STATIC_URL }}biostar.antipixel.png" /></a> 
             &bull; Version: <b>{{BIOSTAR_VERSION}}</b></a>
             &bull; Copyright by the <a href="https://github.com/ialbert/biostar-central/contributors">BioStar team</a>
             {% if debug %}
