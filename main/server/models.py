@@ -473,7 +473,6 @@ class Note(models.Model):
     """
     sender  = models.ForeignKey(User, related_name="note_sender") # the creator of the notification
     target  = models.ForeignKey(User, related_name="note_target") # the user that will get the note
-    post    = models.ForeignKey(Post, related_name="note_post",null=True, blank=True) # the user that will get the note
     content = models.CharField(max_length=5000, default='') # this contains the raw message
     html    = models.CharField(max_length=5000, default='') # this contains the santizied content
     date    = models.DateTimeField(null=False, db_index=True)

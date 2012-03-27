@@ -184,7 +184,7 @@ def user_profile(request, uid, tab='activity'):
         page  = get_page(request, bookmarks, per_page=5)
     
     elif tab =="moderator":
-        notes = models.Note.objects.filter(target=target, type=NOTE_MODERATOR).select_related('author', 'author__profile', 'root').order_by('-date')
+        notes = models.Note.objects.filter(target=target, type=NOTE_MODERATOR).select_related('author', 'author__profile').order_by('-date')
         page  = get_page(request, notes, per_page=15)
 
     params.update(dict(question_count=question_count, answer_count=answer_count, note_count=note_count, bookmarks_count=bookmarks_count,

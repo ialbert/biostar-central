@@ -33,7 +33,7 @@ class NotificationFeed(Feed):
         return models.Note.objects.filter(target=obj).select_related('sender', 'sender__profile').order_by('-date')[:25]
 
     def item_title(self, item):
-        return "From %s" % item.sender.profile.display_name
+        return item.content[:100]
 
     def item_description(self, item):
         return item.html[:1000]
