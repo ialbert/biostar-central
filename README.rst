@@ -79,6 +79,11 @@ The *biostar.sh* run manager to pulls in environment variables to allow you to
 customize locations/test fixtures, etc. Edit the *biostar.sh* script 
 to override the various settings.
 
+Search requires indexing that is disabled during a migration or import. To enable
+the search you will need to manually trigger the indexing via::
+
+    $ ./biostar.sh index
+
 The default server will bind the all IP adapters (0.0.0.0) and port 8080. Visit http://localhost:8080 to see
 interact with your version of the test server. 
 
@@ -102,7 +107,7 @@ with the -h flag to see the flags it can take.::
 The result of a data migration is a compressed json data fixture file that, in turn, 
 may be used via the *import* command::
 
-    $ ./biostar.sh init import
+    $ ./biostar.sh init import index
 
 Account migration
 -----------------

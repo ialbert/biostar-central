@@ -3,16 +3,19 @@ This module can generate messages
 """
 from main.server.const import *
 
-def userlink(user):
-    return '[%s](%s)' % (user.profile.display_name, user.profile.get_absolute_url() )
+def userlink(user, short=False):
+    if short:
+        return '%s' % user.profile.display_name
+    else:
+        return '[%s](%s)' % (user.profile.display_name, user.profile.get_absolute_url() )
 
 def postlink(post, size=35):
     root  = post.root or post
     title = root.title if len(root.title) < size else '%s...' %  root.title[:size] 
-    return '%s:[%s]( %s)' % (post.get_type_display(), title, post.get_absolute_url())
+    return '[%s:%s]( %s)' % (post.get_type_display(), title, post.get_absolute_url())
 
 def badgelink(badge):
-    return '[%s](%s)' % (badge.name, badge.get_absolute_url() )
+    return '[%s](%s)' % (badge.name, badge.get_absolute_url())
 
 def post_moderator_action(user, post):
     action = post.get_status_display()
@@ -24,14 +27,11 @@ def user_moderator_action(user, target):
     text   = '%s set status %s on %s' % (userlink(user), action, userlink(target))
     return text
 
+def chop(text, size):
+    return text if len(text) < size else '%s...' % text[:size]
+    
 def post_action(user, post, size=250):
-    post_type = int(post.type)
-    action = 'posted'
-    if len(post.content) < size:
-        content = post.content
-    else:
-        content = '%s...' % post.content[:size]
-    text   = '%s %s %s: %s' % (userlink(user), action, postlink(post), content)
+    text   = '%s: %s in %s' % (userlink(user, short=True), chop(post.content, size=size), postlink(post))
     return text
 
 def awardnote(badge):

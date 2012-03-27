@@ -94,8 +94,6 @@ while (( "$#" )); do
 	if [ "$1" = "import" ]; then
 		echo "*** importing data from $FIXTURE"
 		$PYTHON_EXE $DJANGO_ADMIN loaddata $FIXTURE --settings=$DJANGO_SETTINGS_MODULE
-		echo "*** indexing post content"
-		$PYTHON_EXE -m main.server.search  --settings=$DJANGO_SETTINGS_MODULE
 	fi
 
 	if [ "$1" = "run" ]; then

@@ -29,6 +29,9 @@ from django.utils.datastructures import SortedDict
 # import all constants
 from main.server.const import *
 
+# this file is in the libs folder
+import nicknames
+
 def xml_reader(fname, limit=None):
     """
     SE XML dumps use similar format, everything is in tags, no attributes used anywhere
@@ -135,11 +138,13 @@ def insert_users(fname, limit):
         # these will be profile related attributes
         score = int(row.get('Reputation', 0))
         utype = typemap.get( row['UserTypeId'], const.USER_MEMBER)
-        display_name = row.get('DisplayNameCleaned', 'User %s' % userid).title()
         website  = row.get('WebsiteUrl', '')
         about_me = row.get('AboutMe', '')
         location = row.get('Location', '')
         openid   = row.get('OpenId', 'http://www.biostars.org')
+        display_name = row.get('DisplayNameCleaned')
+        display_name = display_name or nicknames.guess(openid)
+        display_name = display_name.title()
         last_login_ip = row.get('LastLoginIP', '0.0.0.0')
 
         # store profiles

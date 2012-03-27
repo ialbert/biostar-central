@@ -2,7 +2,7 @@
 Indexes all post content
 """    
     
-import shutil, os
+import shutil, os, gc
 from django import forms
 from django.conf import settings
 from main.server.const import *
@@ -118,16 +118,20 @@ def more(request, pid):
     qp = QueryParser("pid", schema=ix.schema)
     qq = qp.parse(pid)
     rr = searcher.search(qq)
-    first = rr[0]
     
-    messages.info(request, 'Searching for posts similar to: %s' % first['title'])
-
-    subset = set( (POST_MAP[key] for key in POST_TOPLEVEL) )
+    if not rr:
+        messages.error(request, 'Server settings problem - this post is not indexed! Please report.')
+        res = []
+    else:
+        first = rr[0]
+        messages.info(request, 'Searching for posts similar to: %s' % first['title'])
     
-    res = first.more_like_this("content")
-    res = filter(lambda x: x['type'] in subset, res)
-    res = map(decorate, res)
-    
+        subset = set( (POST_MAP[key] for key in POST_TOPLEVEL) )
+        
+        res = first.more_like_this("content")
+        res = filter(lambda x: x['type'] in subset, res)
+        res = map(decorate, res)
+        
     page = get_page(request, res, per_page=10)
     return html.template(request, name='search.html', page=page, params=params, counts=counts, form=form)
 
@@ -173,6 +177,8 @@ def full_index():
         if step % 1000 == 0:
             print "*** whoosh indexing step %s " % step
             wr.commit()
+            del wr
+            gc.collect()
             wr = ix.writer()
     # final commit
     wr.commit()

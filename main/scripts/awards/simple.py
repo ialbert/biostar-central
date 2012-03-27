@@ -11,7 +11,6 @@ from django.db.models import Count
 
 DEBUG = 1
     
-
 def notify(user, award):
     text = notegen.awardnote(award.badge)
     note = models.Note.objects.create(sender=user, target=user, content=text)
@@ -33,16 +32,22 @@ def supporter(badge):
     users = models.User.objects.filter(vote__type=VOTE_UP ).exclude(award__badge=badge).distinct()
     apply(badge, users)
 
-def civic_duty(badge, val=10):    
+def civic_duty(badge, val=300):    
     # users that number of votes
     users = models.User.objects.annotate(vcount=Count('vote')).filter(vcount__gt=val).exclude(award__badge=badge).distinct()
     apply(badge, users)
-    
+
+def stellar(badge, val=0):    
+    # question bookmarked by 20 users
+    votes = models.Vote.objects.all().annotate(pcount=Count('post'))
+
     
 AWARDS = [
     #('Teacher', teacher),
     #('Supporter', supporter),
-    ('Civic Duty', civic_duty),
+    #('Civic Duty', civic_duty),
+    ('Stellar Question', stellar),
+
 ]
 
 def list_badges():

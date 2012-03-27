@@ -35,6 +35,7 @@ from django.contrib.auth.models import User, Group
 from openid.consumer.consumer import SUCCESS
 from openid.extensions import ax, sreg, pape
 from urlparse import urlparse
+import nicknames
 
 from django_openid_auth import teams
 from django_openid_auth.models import UserOpenID
@@ -201,7 +202,6 @@ class OpenIDBackend:
             # No user associated with this identity_url
             pass
 
-
         if getattr(settings, 'OPENID_STRICT_USERNAMES', False):
             if User.objects.filter(username__exact=nickname).count() > 0:
                 raise DuplicateUsernameViolation(
@@ -235,31 +235,21 @@ class OpenIDBackend:
                     "returned ({0}).".format(required_attr))
 
         # parse the identity of the provider
-        url = urlparse(openid_response.identity_url)
-
-        def guess_nickname(url):
-            loc = url.netloc
-            for provider in ('myopenid.com', 'aol.com'):
-                if loc.endswith(provider):
-                    nickname = loc.split('.')[0]
-                    return nickname
-            return 'Biostar User'
-                    
-        nickname = details.get('nickname','') or guess_nickname(url)
+        nickname = details.get('nickname','') or nicknames.guess(openid_response.identity_url)
+        nickname = nickname.title()
         email    = details['email']
         
         # create a list of trusted providers
+        url = urlparse(openid_response.identity_url)
         trusted = False 
-
-        for provider in ( 'google.com',  'yahoo.com', 'myopenid.com',
-            'livejournal.com', 'blogspot.com', 'aol.com', 'wordpress.com'):
+        for provider in ( 'google.com',  'yahoo.com', 'myopenid.com', 'livejournal.com'):
             trusted = trusted or url.netloc.endswith(provider)
         
         # this should be turned off after most users migrate
         trusted = trusted and settings.ALLOW_OPENID_MIGRATION
         
         # find users with the the claimed email, 
-        # there could be more than one, merging will be necessary
+        # there could be more than one, for the others merging will be necessary
         users = User.objects.filter(email=email)
 
         if trusted and users:
