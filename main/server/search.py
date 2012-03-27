@@ -37,9 +37,9 @@ def initialize(sender=None, **kwargs):
     if not os.path.exists(path):
         print('*** creating %s' % path)
         os.mkdir(path)
-    print ('*** initializing search index %s' % path)
-    ix = index.create_in(path, SCHEMA)
-   
+        print ('*** initializing search index %s' % path)
+        ix = index.create_in(path, SCHEMA)
+    
 choices = [
     ("all", "All types"), ("top", "Top level"),  ("Question", "Questions"), ("Tutorial", "Tutorials"), ("Forum", "Forum"),
 ]
