@@ -169,7 +169,7 @@ class Post(models.Model):
     answer_count    = models.IntegerField(default=0, blank=True)
     accepted        = models.BooleanField(default=False, blank=True)
    
-     # this is used only for blog posts
+    # this is used only for blog posts
     url = models.URLField(default='', blank=True)
 
     # relevance measure, initially by timestamp, other rankings measures
@@ -358,12 +358,11 @@ def user_moderate(user, target, status):
     target.profile.status = status
     target.profile.save()
     text = notegen.user_moderator_action(user=user, target=target)
-    send_note(target=target, content=text, sender=user, both=True, type=NOTE_MODERATOR,)
+    send_note(target=target, content=text, sender=user, both=True, type=NOTE_MODERATOR, url=user.get_absolute_url() )
 
     msg = 'User status set to %s' % target.profile.get_status_display()
     return True, msg
      
-
 @transaction.commit_on_success
 def post_moderate(request, post, user, status, date=None):
     """
@@ -399,7 +398,7 @@ def post_moderate(request, post, user, status, date=None):
     post.save()
    
     text = notegen.post_moderator_action(user=user, post=post)
-    send_note(target=post.author, sender=user, content=text,  type=NOTE_MODERATOR, both=True)
+    send_note(target=post.author, sender=user, content=text,  type=NOTE_MODERATOR, both=True, url=post.get_absolute_url() )
     
     msg = 'Post status set to %s' % post.get_status_display()
     messages.info(request, msg) if request else None
@@ -407,13 +406,13 @@ def post_moderate(request, post, user, status, date=None):
     return url
      
 @transaction.commit_on_success        
-def send_note(sender, target, content, type=NOTE_USER, unread=True, date=None, both=False):
+def send_note(sender, target, content, type=NOTE_USER, unread=True, date=None, both=False, url=''):
     "Sends a note to target"
     date = date or datetime.now()
-    Note.objects.create(sender=sender, target=target, content=content, type=NOTE_USER, unread=unread, date=date)
+    Note.objects.create(sender=sender, target=target, content=content, type=NOTE_USER, unread=unread, date=date, url=url)
     if both:
         #send a note to the sender as well
-        Note.objects.create(sender=sender, target=sender, content=content, type=type, unread=False, date=date)
+        Note.objects.create(sender=sender, target=sender, content=content, type=type, unread=False, date=date, url=url)
 
 def decorate_posts(posts, user):
     """
@@ -464,7 +463,7 @@ def post_create_notification(post):
     
     for target in authors:
         unread = (target != post.author) # the unread flag will be off for the post author        
-        send_note(sender=post.author, target=target, content=text, type=NOTE_USER, unread=unread, date=post.creation_date)
+        send_note(sender=post.author, target=target, content=text, type=NOTE_USER, unread=unread, date=post.creation_date, url=post.get_absolute_url() )
     
     
 class Note(models.Model):
@@ -478,9 +477,11 @@ class Note(models.Model):
     date    = models.DateTimeField(null=False, db_index=True)
     unread  = models.BooleanField(default=True, db_index=True)
     type    = models.IntegerField(choices=NOTE_TYPES, default=NOTE_USER)
+    # this is used only for blog posts
+    url = models.URLField(default='', blank=True)
 
     def get_absolute_url(self):
-        return "/user/show/%s/" % self.target.id         
+        return "%s" % self.url        
 
     @property
     def status(self):
@@ -690,9 +691,10 @@ def finalize_post(sender, instance, created, *args, **kwargs):
             search.update(post=instance, created=created)
         
         # when a new post is created all descendants will be notified
-        post_create_notification(instance)
-        if instance.type != POST_COMMENT:
-            create_revision(instance)
+        if instance.content:
+            post_create_notification(instance)
+            if instance.type != POST_COMMENT:
+                create_revision(instance)
      
 def create_award(sender, instance, *args, **kwargs):
     "Pre save award function"
