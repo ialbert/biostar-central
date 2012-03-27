@@ -23,7 +23,7 @@ TEMPLATE_DEBUG = DEBUG
 TEMPLATE_STRING_IF_INVALID = "*** MISSING ***"
 
 ADMINS = (
-    ('John Doe', 'your-mail-here@your-server-here.com'),
+    ('Default Admin', 'your-mail-here@your-server-here.com'),
 )
 
 MANAGERS = ADMINS

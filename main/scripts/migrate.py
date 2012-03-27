@@ -101,7 +101,14 @@ def insert_users(fname, limit):
 
     # needs to create community user
     user, flag = models.User.objects.get_or_create(username='community')
-    user.profile.display_name = 'Biostar'
+    user.profile.display_name = 'Community'
+    user.profile.about_me     = """
+    I am not really a user.
+    
+    I am a background process that keep things tidy.
+    """
+    user.profile.location = "server farm"
+    user.profile.website  = settings.SITE_DOMAIN
     user.profile.save()
     
     # reads the whole file
@@ -124,6 +131,7 @@ def insert_users(fname, limit):
         # de
         if userid == '-1':
             continue
+        
         username = 'u%s' % userid
         email    = row.get('Email') or username
         name     = row.get('DisplayName', 'User %s' % userid)
@@ -525,13 +533,15 @@ def insert_awards(fname, users, badges, limit):
 
 def admin_init():
     
+    # create the community user
+    
     # create the admin users for a given settings file
     for index, (name, email) in enumerate(settings.ADMINS):
         
         admins = models.User.objects.filter(email=email).all()
             
         if not admins:
-            # create this adminsitrative user
+            # create the adminsitrative user
             admin  = models.User(email=email, first_name=name, username='a%i' % index)
             admins = [ admin ]
             print '*** created admin user %s (%s)' % (admin.username, admin.email)
@@ -545,45 +555,28 @@ def admin_init():
                 admin.profile.type = const.USER_ADMIN
                 admin.profile.save()
             print '*** added staff access to admin user %s (%s)' % (admin.username, admin.email)
-    
-    editors, flag = models.Group.objects.get_or_create(name=const.MODERATOR_GROUP)
-    if flag:
-        print '*** created group %s' % editors.name
-
-
-def parse_post(fname):
-    "An importable post is self contained with title and tags in it"
-    lines = file(fname).readlines()
-    title = lines[0].split(':')[-1]
-    tags  = lines[1].split(':')[-1]
-    body  = ''.join(lines[2:])
-    return map(string.strip, (title, tags, body))
 
 def tutorial_init():
+    from main.scripts import add
     from glob import glob
 
     # find the first admin user
-    admin = models.User.objects.get(email=settings.ADMINS[0][1])
+    admin  = models.User.objects.get(email=settings.ADMINS[0][1])
+    fnames = glob('import/forum/*.txt')
+    add.add_files(fnames, uid=admin.id, ptype=POST_FORUM)
     
+    
+    # create the ANGUS user for the tutorials
+    name  = "MSU course 2011"
+    email = "ngs-course-announce@lists.idyll.org"
+    website  = "http://ged.msu.edu/angus/tutorials-2011/"
+    about_me = 'ANGUS is a site built around the `2010 course on [Analyzing Next-Generation Sequencing Data](http://bioinformatics.msu.edu/ngs-summer-course-2010 "Angus Website")'
+    user = add.get_user(name=name, email=email, website=website, about_me=about_me)
 
-    for fname in glob('import/forum/*.txt'):
-        print "*** importing forum post %s" % fname
-        title, tag_val, body = parse_post(fname)
-        post = models.Post(title=title, author=admin,  type=POST_FORUM, tag_val=tag_val, content=body)
-        post.save()
-        post.set_tags()
+    # add the tutorials
+    tuts = glob('import/tutorials/2011/*.rst')
+    add.add_files(tuts, uid=user.id, ptype=POST_TUTORIAL)
     
-    user, flag = models.User.objects.get_or_create(username='angus')
-    user.profile.display_name = "MSU course 2011"
-    user.profile.website  = "http://ged.msu.edu/angus/tutorials-2011/"
-    user.profile.about_me = 'ANGUS is a site built around the `2010 course on [Analyzing Next-Generation Sequencing Data](http://bioinformatics.msu.edu/ngs-summer-course-2010 "Angus Website")'
-    user.profile.save()
-    for fname in glob('import/tutorials/2011/*.rst'):
-        print "*** importing tutorial post %s" % fname
-        title, tag_val, body = parse_post(fname)
-        post = models.Post(title=title, author=user,  type=POST_TUTORIAL, tag_val=tag_val, content=body)
-        post.save()
-        post.set_tags()
         
 def execute(path, limit=None):
     """

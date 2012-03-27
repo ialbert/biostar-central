@@ -13,8 +13,8 @@ def parse(fname):
     """
     An importable post is self contained file with title and tags in it:
     
-    TITLE: Blast Tutorial
-    TAGS: blast tutorial
+    TITLE: Post Title Goes Here
+    TAGS: tag1 tag2
     The rest is the content of the post
     """
     lines = file(fname).readlines()
@@ -23,7 +23,7 @@ def parse(fname):
     body  = ''.join(lines[2:])
     return map(string.strip, (title, tags, body))
     
-def add(fnames, uid, ptype):
+def add_files(fnames, uid, ptype):
     user = models.User.objects.get(id=uid)
     
     for fname in fnames:
@@ -32,8 +32,22 @@ def add(fnames, uid, ptype):
         post = models.Post(title=title, author=user,  type=ptype, tag_val=tag_val, content=body)
         post.save()
         post.set_tags()
-    
-    
+
+def get_user(name, email, website='', about_me=''):
+    users = models.User.objects.filter(email=email)
+    if users:
+        print '*** email %s already exists' % email
+        return users[0]
+    else:
+        print '*** creating user %s:%s' % (name, email)
+        username = models.make_uuid()[:10]
+        user = models.User.objects.create(username=username, first_name=name, email=email)
+        user.profile.display_name = name    
+        user.profile.website  = website
+        user.profile.about_me = about_me
+        user.profile.save()
+        return user
+
 if __name__ == '__main__':
     # debug options for the program
     if DEBUG:
@@ -54,4 +68,4 @@ if __name__ == '__main__':
         
     ptype = opts.ptype.lower()
     ptype = POST_REV_MAP[ptype]
-    add(fnames=args, uid=opts.uid, ptype=ptype)
+    add_files(fnames=args, uid=opts.uid, ptype=ptype)

@@ -249,10 +249,10 @@ class OpenIDBackend:
         trusted = trusted and settings.ALLOW_OPENID_MIGRATION
         
         # find users with the the claimed email, 
-        # there could be more than one, for the others merging will be necessary
-        users = User.objects.filter(email=email)
+        users = User.objects.filter(email=email).order_by('-date_joined')
 
-        if trusted and users:
+        # only merge if only one user has the claimed email
+        if trusted and len(users)==1:
             user = users[0]
             print "*** found user %s:%s" % (user.id, user.email)
             print "*** merging user %s:%s" % (user.id, user.email )
