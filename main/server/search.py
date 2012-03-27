@@ -135,7 +135,6 @@ def more(request, pid):
     page = get_page(request, res, per_page=10)
     return html.template(request, name='search.html', page=page, params=params, counts=counts, form=form)
 
-
 def update(post, created, handler=None):
     "Adds/updates a post to the index"
     
@@ -164,24 +163,33 @@ def update(post, created, handler=None):
     if not handler:
         writer.commit()
 
+def add_batch(posts):
+    gc.collect()
+    ix = index.open_dir(settings.WHOOSH_INDEX)
+    wr = ix.writer(limitmb=10)
+    for post in posts:
+        update(post, created=True, handler=wr)
+    wr.commit()
+    ix.close()
+    del wr, ix
+    gc.collect()
+    
 def full_index():
     "Runs a full indexing on all posts"
     from main.server import models
     
     ix = index.create_in(settings.WHOOSH_INDEX, SCHEMA)
-    wr = ix.writer()
-
-    print "*** whoosh indexing %s posts" % models.Post.objects.all().count()
-    for step, post in izip(count(1), models.Post.objects.all()):
-        update(post, created=True, handler=wr)
-        if step % 1000 == 0:
-            print "*** whoosh indexing step %s " % step
-            wr.commit()
-            del wr
-            gc.collect()
-            wr = ix.writer()
-    # final commit
-    wr.commit()
-
+    count = models.Post.objects.all().count()
+    print "*** whoosh indexing %s posts" % count
+    posts = []
+    STEP  = 1000
+    for lo in xrange(0, count, STEP):
+        print "*** whoosh indexing step %s " % lo
+        hi = min( (count, lo + STEP) )
+        posts = list(models.Post.objects.all()[lo:hi])
+        add_batch(posts)
+        del posts
+        gc.collect()
+        
 if __name__ == '__main__':
     full_index()
