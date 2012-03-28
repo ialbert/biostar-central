@@ -4,190 +4,80 @@ Model testing
 import sys, os, django, random, hashlib
 from django.conf.urls import url, patterns, include
 from django.core.urlresolvers import reverse
+from django.conf import settings
 
 from django.utils import unittest
 from main.server.const import *
-from main.server import models
+from main.server import models, search
 from main.server.models import User, Post, Tag
 from django.test.client import Client
 from django.test import TestCase
 
-POST_SHOW_URL   = "/post/show/%s/"
-NEW_ANSWER_URL  = "/new/answer/%s/"
-NEW_COMMENT_URL = "/new/comment/%s/"
+def user_show(c, uid, post_type=None):
+    if post_type:
+        loc = reverse("show-user-content", kwargs={'uid':uid, 'post_type':post_type})
+    else:
+        loc = reverse("show-user", kwargs={'uid':uid})
+    r = c.get(loc)
+    return r
 
-def make_uuid():
-    "Returns a unique id"
-    x = random.getrandbits(256)
-    u = hashlib.md5(str(x)).hexdigest()
-    return u
-   
-def create_new_question(c, tag_val='abc efg'):
-   
-    title   = "Title %s" % make_uuid()
-    content = 'Question %s' % make_uuid()
-    r = c.post("/new/question/", {'title':title , 'content':content , 'tag_val':tag_val, 'type':POST_QUESTION})
-    assert r.status_code == 302
-   
-    # now select this very question
-    q1 = models.Post.all_posts.filter(title=title)[0]
-    q2 = models.Post.all_posts.filter(type=POST_QUESTION).order_by('-magic')[0]
-    assert q1 == q2
-   
-    return q1
+def user_profile(c, uid, tab=None):
+    if tab:
+        loc = reverse("user-profile-tab", kwargs={'uid':uid, 'tab':tab})
+    else:
+        loc = reverse("user-profile", kwargs={'uid':uid})
+    r = c.get(loc)
+    return r
 
-def note_count(user, unread=False):
-    return models.Note.objects.filter(target=user, unread=unread).count()
-   
-def create_new_answer(c, q):
-   
-    post_show_url  = POST_SHOW_URL % q.id
-    new_answer_url = NEW_ANSWER_URL % q.id
-   
-    r = c.get(post_show_url)
-    assert r.status_code == 200
-   
-    content = 'Content %s' % make_uuid()
-    r = c.post(new_answer_url, {'content':content} )
-    assert r.status_code == 302
-   
-    a1 = models.Post.all_posts.filter(content=content)[0]
-    ax = list(q.children.order_by('creation_date'))
-   
-   # this is the last answer
-    assert a1 == ax[-1]
-   
-    return a1
 
-def create_new_comment(c, obj):
-   
-    post_show_url  = POST_SHOW_URL % obj.id
-    new_comment_url = NEW_COMMENT_URL % obj.id
-   
-    r = c.get(post_show_url)
-    assert r.status_code == 200
-   
-    content = 'Content %s' % make_uuid()
-    r = c.post(new_comment_url, {'content':content} )
-    assert r.status_code == 302
-   
-
-   
-class BiostarUser(unittest.TestCase):
-   
-    def setUp(self):
-      
-        # get rid of all notifications
-        models.Note.objects.all().delete()
-      
-        user1, flag1 = User.objects.get_or_create(username='john')
-        user1.set_password('test')
-        user1.save()
-      
-        self.c1 = Client()
-        self.c1.login(username='john', password='test')
-      
-        user2, flag1 = User.objects.get_or_create(username='jane')
-        user2.set_password('test')
-        user2.save()
-        self.c2 = Client()
-        self.c2.login(username='jane', password='test')
-      
-    def test_post_answer(self):
+class UserActions(TestCase):
+        
+    def test_user_edit(self):
         true, eq = self.assertTrue, self.assertEqual
-        q  = create_new_question(self.c1)
-      
-        models.Note.objects.all().delete()
-      
-        n1 = note_count(q.author, unread=True)
-        a1 = create_new_answer(self.c2, q=q)      
-        n2 = note_count(q.author, unread=True)
-        eq(n1+1, n2) # the question author gets a new note
-      
-        n1 = note_count(a1.author, unread=False)
-        a2 = create_new_answer(self.c2, q=q)
-        n2 = note_count(a1.author, unread=False)
-
-        eq(n1+1, n2)  # the answer author gets a note
-      
-        a3 = create_new_answer(self.c2, q=q)
-      
-    def test_post_comment(self):
-        true, eq = self.assertTrue, self.assertEqual
-        q = create_new_question(self.c1)
-        c = create_new_comment(self.c2, obj=q)
-      
-class BiostarSite(unittest.TestCase):
-   
-    def test_search(self):
-        "Test searching"
-        true, eq = self.assertTrue, self.assertEqual
-
-        c = Client()
-        r = c.post("/", { 'q':'motif' } )
-        eq(r.status_code, 200)
-        true( 'motif' in r.content )
-   
-    def test_answers(self):
-        "Test searching"
-        true, eq = self.assertTrue, self.assertEqual
-
-        c = Client()
-        r = c.post("/", { 'q':'motif' } )
-        eq(r.status_code, 200)
-        true( 'motif' in r.content )
-         
-    
-
-    def test_user(self):
-        "Visiting a user page by a logged in user"
-        true, eq = self.assertTrue, self.assertEqual
-
+        
         user1, flag1 = User.objects.get_or_create(username='john')
         user1.set_password('test')
         user1.save()
         
         c = Client()
         c.login(username='john', password='test')
-        r = c.get("/user/show/%s/" % user1.id)
+        
+        uid1 = user1.id
+        
+        r = user_show(c, uid=uid1)
         eq(r.status_code, 200)
-        r = c.get("/user/edit/%s/" % user1.id)
-        eq(r.status_code, 200)
+        
+        # edit the user
+        url = reverse('user-edit', kwargs={'uid':uid1})
 
-        r = c.post("/user/edit/%s/" % user1.id, { 'display_name':'John', 'email':'abc', 'about_me':'ok', 'location':'xyz', 'website':'xyz'} )
+        r = c.get(url)
+        eq(r.status_code, 200)
+        
+        r = c.post(url, { 'display_name':'John', 'email':'abc', 'about_me':'ok', 'location':'xyz', 'website':'xyz'} )
         eq(r.status_code, 302)
+        
         user = User.objects.get(username='john')
         eq(user.email, 'abc')
         eq(user.profile.location, 'xyz')
         eq(user.profile.about_me, 'ok')
-      
-        r = c.get("/post/list/%s/" % user1.id)
-        eq(r.status_code, 200)
 
-        r = c.get("/post/list/%s/questions/" % user1.id)
-        eq(r.status_code, 200)
-
-        r = c.get("/post/list/%s/answers/" % user1.id)
-        eq(r.status_code, 200)
-
-        r = c.get("/post/list/%s/comments/" % user1.id)
-        eq(r.status_code, 200)
-
-    def test_site(self):
+    def test_user_post(self):
         true, eq = self.assertTrue, self.assertEqual
-        c = Client()
         
-        # make a new user
-        user1, flag1 = User.objects.get_or_create(first_name='Jane', last_name='Doe', username='jane', email='jane')
+        user1, flag1 = User.objects.get_or_create(username='john')
         user1.set_password('test')
         user1.save()
-  
-        r = c.get("/user/list/")
-        eq(r.status_code, 200)
-        true('Doe' in r.content)
+        
+        c = Client()
+        
+        url = reverse("new-post")
+        r = c.get(url)
+        eq(r.status_code, 302)
+        
+        c.login(username='john', password='test')
 
-        c.login(username='jane', password='test')
-        r = c.get("/new/question/")
+        url = reverse("new-post")
+        r = c.get(url)
         eq(r.status_code, 200)
         
         # post a question
@@ -205,19 +95,14 @@ class BiostarSite(unittest.TestCase):
         '''
 
         # missing tag will make it stay on the same page with an error message
-        r = c.post("/new/question/", {'title':title , 'content':content , 'tag_val':'', 'type':POST_QUESTION})
+        r = c.post(url, {'title':title , 'content':content , 'tag_val':'', 'type':POST_QUESTION})
         eq(r.status_code, 200)
-
-
-        r = c.post("/new/question/", {'title':title , 'content':content , 'tag_val':'aaa bbb ccc', 'type':POST_QUESTION})
+        true('required' in r.content)
+        
+        # filling in the tags make it move to redirect
+        r = c.post(url, {'title':title , 'content':content , 'tag_val':'aaa bbb ccc', 'type':POST_QUESTION})
         eq(r.status_code, 302)
-
-        r = c.post("/new/question/", {'title':title , 'content':content , 'tag_val':'aaa bbb ccc', 'type':POST_QUESTION}, follow=True)
-        eq(r.status_code, 200)
-
-        r = c.post("/preview/", {'content':content})
-        eq(r.status_code, 200)
-
+        
         r = c.get("/")
         eq(r.status_code, 200)
         true(title in r.content)
@@ -226,37 +111,87 @@ class DataNav(TestCase):
     "Navigates to each static page that contains data"
     fixtures = [ 'simple-test.json' ]
     
+    def setUp(self):
+        search.VERBOSE = 0
+        search.full_index()
+    
+    def test_voting(self):
+        true, eq = self.assertTrue, self.assertEqual
+        
+        user1 = User.objects.get(id=2)
+        user1.set_password('test')
+        user1.save()
+        
+        c = Client()
+        url = reverse("vote")
+    
+        # user not logged in
+        r = c.post(url, {'post':2 , 'type':'upvote'})
+        true("error" in r.content)
+        eq(r.status_code, 200)
+        
+        # voting on self post
+        c.login(username=user1.username, password='test')
+        r = c.post(url, {'post':2 , 'type':'upvote'})
+        true("error" in r.content)
+        eq(r.status_code, 200)
+
+        c.login(username=user1.username, password='test')
+        r = c.post(url, {'post':2 , 'type':'bookmark'})
+        true("success" in r.content)
+        eq(r.status_code, 200)
+
+
+        # correct voting
+        r = c.post(url, {'post':4 , 'type':'upvote'})
+        true("success" in r.content)
+        eq(r.status_code, 200)
+        
     def test_uid(self):
         "Navigation to pages that require UID parameters"
         true, eq = self.assertTrue, self.assertEqual
 
         c = Client()
-        args = "show-user,2 user-profile,2 ".split()
-        for pair in args:
-            name, uid = pair.split(",")
-            loc = reverse(name, kwargs={'uid':uid})
-            r = c.get(loc)
-            eq(r.status_code, 200)
         
-        # show user content
-        r = c.get(reverse("show-user-content", kwargs={'uid':2, 'post_type':"answer"}))
+        # show all activity for a user
+        r = user_show(c, uid=2)
+        eq(r.status_code, 200)
+        
+        # test user post content
+        r = user_show(c, uid=2, post_type="answer")
         eq(r.status_code, 200)
         true("SHRiMP" in r.content)
         
+        # test user profile
+        r = user_profile(c, uid=2)
+        eq(r.status_code, 200)
+        
         # test bookmarks
-        r = c.get(reverse("user-profile-tab", kwargs={'uid':2, 'tab':"bookmarks"}))
+        r = user_profile(c, uid=2, tab="bookmarks")
         eq(r.status_code, 200)
         true("no bookmarks" in r.content)
         
         # test badges
-        r = c.get(reverse("user-profile-tab", kwargs={'uid':2, 'tab':"badges"}))
+        r = user_profile(c, uid=2, tab="badges")
         eq(r.status_code, 200)
         true("Supporter" in r.content)
         
         # test moderator tab
-        r = c.get(reverse("user-profile-tab", kwargs={'uid':2, 'tab':"moderator"}))
+        r = user_profile(c, uid=2, tab="moderator")
         eq(r.status_code, 200)
         true("Deleted" in r.content)
+        
+        # test searching from the main page
+        true, eq = self.assertTrue, self.assertEqual
+        r = c.get(reverse("search"), { 'q':'motif' } )
+        eq(r.status_code, 200)
+        true( 'common motifs' in r.content )
+        true( 'Comment' in r.content )
+        
+        r = c.get(reverse("search"), { 'q':'motif', 't':"Question" } )
+        eq(r.status_code, 200)
+        true( 'common motifs' in r.content )
+        true( 'Comment' not in r.content )
             
 class SimpleNav(TestCase):
     "Navigates to each static page"
@@ -286,12 +221,18 @@ class SimpleNav(TestCase):
             r = c.get(loc)
             eq(r.status_code, 200)
             
-        
+    def test_create(self):
+        true, eq = self.assertTrue, self.assertEqual
+
+        c = Client()
+        pass
+    
 def suite():
     
     simple = unittest.TestLoader().loadTestsFromTestCase(SimpleNav)
     data = unittest.TestLoader().loadTestsFromTestCase(DataNav)
+    uact = unittest.TestLoader().loadTestsFromTestCase(UserActions)
     
-    suite = unittest.TestSuite( [ data, simple ])
+    suite = unittest.TestSuite( [ uact, simple, data ])
     
     return suite

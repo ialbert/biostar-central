@@ -15,10 +15,6 @@ from whoosh.analysis import StemmingAnalyzer
 from django.contrib import messages
 from itertools import *
 
-# activate logging
-import logging
-logger = logging.getLogger(__name__)
-
 stem = StemmingAnalyzer()
 SCHEMA = fields.Schema(
     title   = fields.TEXT(analyzer=stem, stored=True),
@@ -44,6 +40,11 @@ choices = [
     ("all", "All types"), ("top", "Top level"),  ("Question", "Questions"), ("Tutorial", "Tutorials"), ("Forum", "Forum"),
 ]
 
+VERBOSE = 1
+def info(msg):
+    if VERBOSE:
+        print "*** %s" % msg
+        
 class SearchForm(forms.Form):
     "A form representing a new question"
     q = forms.CharField(max_length=30,  initial="", widget=forms.TextInput(attrs={'size':'50'}))   
@@ -55,23 +56,29 @@ def safe_int(val):
     except ValueError, exc:
         return None
     
-def search_query(text, subset=None):
+def search_query(request, text, subset=None):
     text = text.strip()[:200]
     
     if not text:
         return []
-    ix = index.open_dir(settings.WHOOSH_INDEX)
-    searcher = ix.searcher()
-    parser   = MultifieldParser(["title", "content"], schema=ix.schema)
-    #parser.remove_plugin_class(WildcardPlugin)
-    query    = parser.parse(text)
-    results  = searcher.search(query, limit=200)
-    results.formatter.maxchars = 350
-    results = map(decorate, results)
     
-    if subset:
-        results = filter(lambda r:r['type']in subset, results)
-    
+    try:
+        ix = index.open_dir(settings.WHOOSH_INDEX)
+        searcher = ix.searcher()
+        parser   = MultifieldParser(["title", "content"], schema=ix.schema)
+        #parser.remove_plugin_class(WildcardPlugin)
+        query    = parser.parse(text)
+        results  = searcher.search(query, limit=200)
+        results.formatter.maxchars = 350
+        results = map(decorate, results)
+        if subset:
+            results = filter(lambda r:r['type']in subset, results)
+    except Exception, exc:
+        messages.error(request, "Search error: %s" % exc)
+        results = []
+    finally:
+        searcher.close()
+        ix.close()
     return results
 
 def decorate(res):
@@ -97,7 +104,7 @@ def main(request):
 
     if params.q:
         form = SearchForm(request.GET)
-        res  = search_query(params.q, subset)
+        res  = search_query(request=request, text=params.q, subset=subset)
         size = len(res)
         messages.info(request, 'Searched results for: %s found %d results' % (params.q, size))
     else:
@@ -180,12 +187,13 @@ def full_index():
     
     ix = index.create_in(settings.WHOOSH_INDEX, SCHEMA)
     count = models.Post.objects.all().count()
-    print "*** whoosh indexing %s posts" % count
+    info("found %s posts" % count)
     posts = []
     STEP  = 1000
     for lo in xrange(0, count, STEP):
-        print "*** whoosh indexing step %s " % lo
         hi = min( (count, lo + STEP) )
+        info("whoosh indexing %s posts" % hi)
+        
         posts = list(models.Post.objects.all()[lo:hi])
         add_batch(posts)
         del posts

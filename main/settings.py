@@ -257,6 +257,10 @@ LOGGING = {
         'main.server.models': {
             'handlers': [ 'console' ],
             'level': 'INFO',
+        },
+        'main.server.search': {
+            'handlers': [ 'console' ],
+            'level': 'INFO',
         }
     }
 }

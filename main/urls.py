@@ -44,31 +44,29 @@ urlpatterns = patterns('main.server',
 
    
     # badges
-    (r'^badge/show/(?P<bid>\d+)/$', 'action.badge_show'),
+    url(r'^badge/show/(?P<bid>\d+)/$', 'action.badge_show', name="badge-show"),
     
     # revisions    
-    (r'^revision/show/(?P<pid>\d+)/$', 'views.revision_show'),
+    url(r'^revision/show/(?P<pid>\d+)/$', 'views.revision_show', name="revision-show"),
 
     # post handlers with or withouth a slug
-    (r'^post/show/(?P<pid>\d+)/$', 'views.post_show'),
-    (r'^post/show/(?P<pid>\d+)/([-\w]+)/$', 'views.post_show'),
-    (r'^post/redirect/(?P<pid>\d+)/$', 'views.post_redirect'),
+    url(r'^post/show/(?P<pid>\d+)/$', 'views.post_show', name="post-show"),
+    url(r'^post/show/(?P<pid>\d+)/([-\w]+)/$', 'views.post_show', name="post-show-slug"),
+    url(r'^post/redirect/(?P<pid>\d+)/$', 'views.post_redirect', name="post-redirect"),
     
     # editing an existing post/answer/comment
-    (r'^post/edit/(?P<pid>\d+)/$','views.post_edit'),
+    url(r'^post/edit/(?P<pid>\d+)/$','views.post_edit', name="post-edit"),
     
     # moderation views
-    (r'^user/moderate/(?P<uid>\d+)/(?P<status>\w+)/$','action.user_moderate'),    
-    (r'^post/moderate/(?P<pid>\d+)/(?P<status>\w+)/$','action.post_moderate'),
-    (r'^merge/$','action.request_merge'),
-    (r'^approve_merge/(?P<master_id>\d+)/(?P<remove_id>\d+)/$','action.approve_merge'),
+    url(r'^user/moderate/(?P<uid>\d+)/(?P<status>\w+)/$','action.user_moderate', name="user-moderate"),    
+    url(r'^post/moderate/(?P<pid>\d+)/(?P<status>\w+)/$','action.post_moderate', name="post-moderate"),
+    url(r'^merge/$','action.request_merge', name="request-merge"),
+    url(r'^approve_merge/(?P<master_id>\d+)/(?P<remove_id>\d+)/$','action.approve_merge', name="approve-merge"),
     
     # handles new post
     url(r'^new/post/$','views.new_post', name="new-post"),
-    (r'^new/answer/(?P<pid>\d+)/$','views.new_answer'),
-    (r'^new/comment/(?P<pid>\d+)/$','views.new_comment'),
-    
-    
+    url(r'^new/answer/(?P<pid>\d+)/$','views.new_answer', name="new-answer"),
+    url(r'^new/comment/(?P<pid>\d+)/$','views.new_comment', name="new-comment"),
     
     # static pages
     url(r'^about/$','pages.about', name='about'),
@@ -78,22 +76,16 @@ urlpatterns = patterns('main.server',
     url(r'^google/$','pages.google', name='google'),
     
     # lists all moderator actions
-    (r'^modlog/list/$', 'views.modlog_list'),
+    url(r'^modlog/list/$', 'views.modlog_list', name="modlog-list"),
   
-
-    # ----------------
-    
     # destroys a post
-    (r'^comment/delete/(?P<pid>\d+)/$', 'ajax.comment_delete'),
-    
-    # ajax handlers
-    
+    url(r'^comment/delete/(?P<pid>\d+)/$', 'ajax.comment_delete', name="comment-delete"),
+      
     # voting handler
-    (r'^vote/$', 'ajax.vote'),
-    
+    url(r'^vote/$', 'ajax.vote', name="vote"),
        
     # clear all notifications
-    (r'^note/clear/(?P<uid>\d+)/$','action.note_clear'),
+    url(r'^note/clear/(?P<uid>\d+)/$','action.note_clear', name="note-clear"),
    
 )
 

@@ -81,8 +81,6 @@ def index(request, tab=""):
     # returns the object manager that contains all or only visible posts
     posts = get_post_manager(request)
     
-    
-        
     # filter the posts by the tab that the user has selected
     if tab == "popular":
         posts = posts.filter(type=POST_QUESTION).order_by('-score')

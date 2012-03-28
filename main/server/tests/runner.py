@@ -16,7 +16,10 @@ from django.test.simple import DjangoTestSuiteRunner
 from coverage import coverage
   
 cov = coverage(include = [ 'main/*' ], omit=[ 'main/server/tests/*' ] )
-cov.start()
+
+COVERAGE = 0
+if COVERAGE:
+    cov.start()
 
 # add our own testing suites
 from main.server import html
@@ -45,8 +48,8 @@ class BiostarTest(DjangoTestSuiteRunner):
         ]
 
         code = super( BiostarTest, self ).run_tests(test_labels, extra_tests, **kwargs)
-        cov.stop()
-        if code == 0:
+        if COVERAGE and code == 0:
+            cov.stop()
             # reporting if there are not errors
             cov.report()
             cov.html_report(directory=REPORT_PATH)

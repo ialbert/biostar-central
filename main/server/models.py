@@ -684,14 +684,13 @@ def finalize_post(sender, instance, created, raw, *args, **kwargs):
             instance.slug   = slugify(instance.title)
             instance.save()
         
-        # you can turn off indexing
-        if settings.CONTENT_INDEXING:
-            search.update(post=instance, created=created)
-        
         # when a new post is created all descendants will be notified
         # this is only needed because in stackexchange 1 post creation
         # and content creation are separate steps
         if instance.content and not raw:
+            # you can turn off indexing from the settings
+            if settings.CONTENT_INDEXING:
+                search.update(post=instance, created=created)
             post_create_notification(instance)
             if instance.type != POST_COMMENT:
                 create_revision(instance)
