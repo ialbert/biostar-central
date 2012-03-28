@@ -77,53 +77,6 @@ def vote(request):
         vote, msg = models.insert_vote(post=post, user=author, vote_type=type)
         return ajax_success(msg)
 
-@ajax_error_wrapper 
-def moderate_post(request, pid, action):
-    
-    user = request.user
-    
-    action_map = { 'close':REV_CLOSE, 'reopen':REV_REOPEN,
-        'delete':REV_DELETE, 'undelete':REV_UNDELETE }
-    
-    action_val = action_map.get(action)
-    if not action_val:
-        return ajax_error('Unrecognized action')
-    
-    post = models.Post.objects.get(id=pid)
-    
-    # two conditions where a post moderation may occur
-    cond1  = user.can_moderate
-    cond2  = (user == post.author) and action_val in (REV_CLOSE, REV_DELETE)
-    permit = cond1 or cond2
-    
-    if permit :
-        models.moderate_post(post=post, action=action_val, user=user)
-        msg = '%s performed' % action
-        return ajax_success(msg)
-    
-    return ajax_error('permission denied - please ask a moderator')
-        
-@ajax_error_wrapper 
-def moderate_user(request, uid, action):
- 
-    user = request.user
-    target = models.User.objects.get(id=uid)
-
-    if not auth.authorize_user_edit(target=target, user=user):
-        return ajax_error('Permission denied')
-    
-    if (target == user):
-        return ajax_error('Users may not moderate themselves')
-        
-    action_map = { 'suspend':USER_SUSPENDED, 'reinstate':USER_ACTIVE }
-    action_val = action_map.get(action)
-    if not action_val:
-        return ajax_error('Unrecognized action')
-    
-    msg = models.moderate_user(user=user, target=target, action=action_val)
-    msg = "%s" % action.title()
-    return ajax_success(msg)
-
 @ajax_error_wrapper           
 def comment_delete(request, pid):
     

@@ -320,10 +320,12 @@ def post_edit(request, pid=0):
     if not post.open and not user.can_moderate:
         messages.error(request, 'Post is closed. It may not be edited.')
         return redirect(post.root)
-    
+        
     # verify that this user may indeed modify the post
-    auth.authorize_post_edit(post=post, user=request.user, strict=True)
-    
+    if not auth.authorize_post_edit(post=post, user=request.user, strict=False):
+        messages.error(request, 'User may not edit the post.')
+        return redirect(post.root)
+  
     toplevel = post.top_level
     factory  = formdef.TopLevelContent if toplevel else formdef.ChildContent
 

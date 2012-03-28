@@ -380,7 +380,7 @@ def post_moderate(request, post, user, status, date=None):
     
     # check that user may write the post
     if not auth.authorize_post_edit(user=user, post=post, strict=False):
-        msg = 'User %s my not modfify post %s' %(user.id, post.id)
+        msg = 'User %s may not moderate post %s' %(user.id, post.id)
         messages.error(request, msg) if request else None
         return url
    

@@ -115,6 +115,98 @@ class DataNav(TestCase):
         search.VERBOSE = 0
         search.full_index()
     
+    def test_post_content(self):
+
+        true, eq = self.assertTrue, self.assertEqual
+
+        c = Client()
+        url = reverse("post-show", kwargs={'pid':13})
+        r = c.get(url)
+        eq(r.status_code, 200)
+    
+        true( "CHIP DNA" in r.content)
+        true("Chang" in r.content)
+        true("Zhang" in r.content)
+        
+        post = models.Post.objects.get(id=13)
+        url = reverse("post-edit", kwargs={'pid':13})
+        
+        # unauthorized user trying to edit
+        r = c.post(url, {'title':post.title , 'content':post.content , 'tag_val':'', 'type':POST_QUESTION}, follow=True)
+        eq(r.status_code, 200)
+        true('OpenID' in r.content)
+        
+        joe = User.objects.get(id=5)
+        joe.set_password('test')
+        joe.save()
+        c.login(username=joe.username, password='test')
+        r = c.post(url, {'title':post.title , 'content':post.content , 'tag_val':'', 'type':POST_QUESTION}, follow=True)
+        eq(r.status_code, 200)
+        true("may not edit" in r.content)
+        
+        mod = User.objects.get(id=2)
+        mod.set_password('test')
+        mod.save()
+        c.login(username=mod.username, password='test')
+        
+        # missing tag, will not submit the post
+        title = "ABCDEFG"
+        r = c.post(url, {'title':title, 'content':post.content , 'tag_val':'', 'type':POST_QUESTION})
+        eq(r.status_code, 200)
+        true(models.Post.objects.get(id=13).title == post.title)
+    
+        # missing tag, will not submit the post
+        r = c.post(url, {'title':title , 'content':post.content , 'tag_val':'ABCD', 'type':POST_QUESTION})
+        eq(r.status_code, 302)
+        true(models.Post.objects.get(id=13).title == title)
+        
+        
+    def test_moderator(self):
+        "Testing moderator actions"
+        true, eq = self.assertTrue, self.assertEqual
+        
+        joe = User.objects.get(id=5)
+        joe.set_password('test')
+        joe.save()
+        
+        mod = User.objects.get(id=2)
+        mod.set_password('test')
+        mod.save()
+        
+        c = Client()
+        
+        post_close = reverse("post-moderate", kwargs={'pid':4, 'status':"close"})
+        post_open  = reverse("post-moderate", kwargs={'pid':4, 'status':"open"})
+        user_suspend = reverse("user-moderate", kwargs={'uid':4, 'status':"suspend"})
+        user_reinstate = reverse("user-moderate", kwargs={'uid':4, 'status':"reinstate"})
+        
+        # trying to moderate as a non moderator
+        r = c.get(post_close)
+        r = c.get(user_suspend)
+        
+        true(Post.objects.get(id=4).status == POST_OPEN)
+        true(User.objects.get(id=4).profile.status == USER_ACTIVE)
+        
+        # moderation by a non moderator
+        c.login(username=joe.username, password='test')
+        r = c.get(post_close)
+        r = c.get(user_suspend)
+        true(Post.objects.get(id=4).status == POST_OPEN)
+        true(User.objects.get(id=4).profile.status == USER_ACTIVE)
+        
+        # moderation by a moderator
+        c.login(username=mod.username, password='test')
+        r = c.get(post_close)
+        r = c.get(user_suspend)
+        true(Post.objects.get(id=4).status == POST_CLOSED)
+        true(User.objects.get(id=4).profile.status == USER_SUSPENDED)
+        
+        # reopen, reinstate users
+        r = c.get(post_open)
+        r = c.get(user_reinstate)
+        true(Post.objects.get(id=4).status == POST_OPEN)
+        true(User.objects.get(id=4).profile.status == USER_ACTIVE)
+            
     def test_voting(self):
         true, eq = self.assertTrue, self.assertEqual
         
@@ -140,7 +232,6 @@ class DataNav(TestCase):
         r = c.post(url, {'post':2 , 'type':'bookmark'})
         true("success" in r.content)
         eq(r.status_code, 200)
-
 
         # correct voting
         r = c.post(url, {'post':4 , 'type':'upvote'})
@@ -214,19 +305,26 @@ class SimpleNav(TestCase):
         true, eq = self.assertTrue, self.assertEqual
 
         c = Client()
-        args = "show,questions show,forum show,tutorial show,recent".split()
-        for pair in args:
-            name, arg = pair.split(",")
-            loc = reverse(name, kwargs={'tab':arg})
-            r = c.get(loc)
+        tabs = "recent popular mytags questions unanswered planet forum tutorials".split()
+        for tab in tabs:
+            r = c.get(reverse("show", kwargs={'tab':tab}))
             eq(r.status_code, 200)
             
-    def test_create(self):
+    def Xtest_post_edit(self):
         true, eq = self.assertTrue, self.assertEqual
 
         c = Client()
-        pass
-    
+        url = reverse("post-edit", kwargs={'pid':13})
+        r = c.get(url)
+        eq(r.status_code, 200)
+
+        print r.content
+        
+        true( "CHIP DNA" in r.content)
+        true("Chang" in r.content)
+        true("Zhang" in r.content)
+        
+        
 def suite():
     
     simple = unittest.TestLoader().loadTestsFromTestCase(SimpleNav)
