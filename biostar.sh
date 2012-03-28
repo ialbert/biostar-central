@@ -34,7 +34,7 @@ export PYTHONPATH=$PYTHONPATH:libs/:libs/libraries.zip
 
 # setting up the python
 export PYTHON_EXE=${PYTHON_EXE:-"python"}
-export DJANGO_ADMIN=main/manage.py
+export DJANGO_ADMIN=manage.py
 
 echo ""
 echo "Settings:"

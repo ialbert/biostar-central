@@ -11,7 +11,7 @@ def userlink(user, short=False):
 
 def postlink(post, size=35):
     root  = post.root or post
-    title = root.title if len(root.title) < size else '%s...' %  root.title[:size] 
+    title = root.title if len(root.title) < size else '%s...' %  root.title[:size]
     return '[%s:%s]( %s)' % (post.get_type_display(), title, post.get_absolute_url())
 
 def badgelink(badge):
