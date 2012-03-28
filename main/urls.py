@@ -1,5 +1,4 @@
 from django.conf.urls.defaults import *
-from django.views.generic.simple import direct_to_template, redirect_to
 from django.conf import settings
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
@@ -39,14 +38,9 @@ urlpatterns = patterns('main.server',
     (r'^user/profile/(?P<uid>\d+)/$', 'views.user_profile'),
     (r'^user/profile/(?P<uid>\d+)/(?P<tab>\w+)/$', 'views.user_profile'),
     
-    #
-    # old handlers
-    #
-    (r'^tools/$', direct_to_template, {'template': 'tools.html'}),
-    (r'^todo/$', direct_to_template, {'template': 'todo.html'}),
-   
+    
     # moderation handlers
-    (r'^cleanup/$', 'action.cleanup'),
+    #(r'^cleanup/$', 'action.cleanup'),
 
    
     # badges
@@ -106,16 +100,13 @@ urlpatterns = patterns('main.server',
 #
 # Generic views
 #
-from django.views.generic import list_detail
+from django.views.generic.list import ListView
 from main.server import models
 
-blog_list = {
-    'queryset': models.Blog.objects.all().select_related('author__profile'),
-    'template_name': 'generic/blog.list.html',
-}
-
 urlpatterns += patterns('',
-    (r'^blog/list/$', list_detail.object_list, blog_list),    
+    (r'^blog/list/$', ListView.as_view(
+        queryset = models.Blog.objects.all().select_related('author__profile'),
+        template_name='generic/blog.list.html')),    
 )
 
 #
