@@ -370,7 +370,7 @@ td {
         }
     }
     .unread {
-        background-color: #D0E5C2;
+        font-weight:bold;
     }
 }
 

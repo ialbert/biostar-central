@@ -677,7 +677,7 @@ def verify_post(sender, instance, *args, **kwargs):
     # generate the HTML from the content
     instance.html = html.generate(instance.content.strip())
             
-def finalize_post(sender, instance, created, *args, **kwargs):
+def finalize_post(sender, instance, created, raw, *args, **kwargs):
     "Post save actions for a post"
     
     if created:
@@ -696,7 +696,7 @@ def finalize_post(sender, instance, created, *args, **kwargs):
         # when a new post is created all descendants will be notified
         # this is only needed because in stackexchange 1 post creation
         # and content creation are separate steps
-        if instance.content:
+        if instance.content and not raw:
             post_create_notification(instance)
             if instance.type != POST_COMMENT:
                 create_revision(instance)

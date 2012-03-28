@@ -87,6 +87,14 @@ the search you will need to manually trigger the indexing via::
 The default server will bind the all IP adapters (0.0.0.0) and port 8080. Visit http://localhost:8080 to see
 interact with your version of the test server. 
 
+There are commands to support Postgresql specific functionality these are::
+
+    pgdrop pgdump pgrestore
+
+Most operations are customized via environment variables. To show their current settings use::
+
+    $ ./biostar.sh env
+
 Data Migration
 ---------------
 
