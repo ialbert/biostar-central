@@ -53,6 +53,8 @@ def get_post_manager(request):
     else:
         return models.Post.open_posts
     
+VALID_TABS = set( "mytags questions forum tutorials unanswered recent popular planet".split() )
+
 def index(request, tab=""):
     "Main page"
     
@@ -64,6 +66,9 @@ def index(request, tab=""):
             tab = 'mytags'
         else:
             tab = 'questions'
+    
+    if tab not in VALID_TABS:
+        messages.error(request, 'Unknown content type requested')
         
     params = html.Params(tab=tab)
     

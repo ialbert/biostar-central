@@ -518,16 +518,11 @@ class Vote(models.Model):
     >>> user, flag = User.objects.get_or_create(first_name='Jane', last_name='Doe', username='jane', email='jane')
     >>> post = Post.objects.create(author=user, type=POST_QUESTION, content='x')
     >>> vote = Vote(author=user, post=post, type=VOTE_UP)
-    >>> vote.score()
-    1
     """
     author = models.ForeignKey(User)
     post = models.ForeignKey(Post, related_name='votes')
     type = models.IntegerField(choices=VOTE_TYPES, db_index=True)
     date = models.DateTimeField(db_index=True, auto_now=True)
-    
-    def score(self):
-        return POST_SCORE.get(self.type, 0)
     
     def apply(self, dir=1):
         "Applies a score and reputation changes upon a vote. Direction can be set to -1 to undo (ie delete vote)"

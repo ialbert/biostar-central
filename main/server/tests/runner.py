@@ -40,8 +40,8 @@ class BiostarTest(DjangoTestSuiteRunner):
         
         extra_tests = [
             test_site.suite(),  
-            html.suite(),
-            test_models.suite(), 
+            #html.suite(),
+            #test_models.suite(), 
         ]
 
         code = super( BiostarTest, self ).run_tests(test_labels, extra_tests, **kwargs)

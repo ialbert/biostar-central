@@ -1,4 +1,4 @@
-from django.conf.urls.defaults import *
+from django.conf.urls import url, patterns, include
 from django.conf import settings
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
@@ -9,34 +9,34 @@ admin.autodiscover()
 urlpatterns = patterns('main.server',
 
     # main index page
-    (r'^$', 'views.index'),
+    url(r'^$', 'views.index', name='index'),
     
-    (r'^search/$', 'search.main'),
-    (r'^more/like/(?P<pid>\d+)/$', 'search.more'),
+    url(r'^search/$', 'search.main', name="search"),
+    url(r'^more/like/(?P<pid>\d+)/$', 'search.more', name="more"),
     
     # show by content type
-    (r'^show/(?P<tab>\w+)/$', 'views.index'),
+    url(r'^show/(?P<tab>\w+)/$', 'views.index', name="show"),
     
     # show tagged posts
-    (r'^show/tag/(?P<tag_name>[\w\-_\+]+)/$', 'views.show_tag'),
+    url(r'^show/tag/(?P<tag_name>[\w\-_\+]+)/$', 'views.show_tag', name="show-tag"),
     
     # show posts by user
-    (r'^show/user/(?P<uid>\d+)/$', 'views.show_user'),
-    (r'^show/user/(?P<uid>\d+)/(?P<post_type>\w+)/$', 'views.show_user'),
-    (r'^show/blog/(?P<pid>\d+)/$', 'views.blog_redirect'),
+    url(r'^show/user/(?P<uid>\d+)/$', 'views.show_user', name="show-user"),
+    url(r'^show/user/(?P<uid>\d+)/(?P<post_type>\w+)/$', 'views.show_user', name="show-user-content"),
+    url(r'^show/blog/(?P<pid>\d+)/$', 'views.blog_redirect', name="blog-redirect"),
     
     # urls for the navigation bar
-    (r'^tag/list/$', 'views.tag_list'),
-    (r'^user/list/$', 'views.user_list'),
-    (r'^badge/list/$', 'views.badge_list'),
+    url(r'^tag/list/$', 'views.tag_list', name="tag-list"),
+    url(r'^user/list/$', 'views.user_list', name="user-list"),
+    url(r'^badge/list/$', 'views.badge_list', name="badge-list"),
     
     
     # user edit page
-    (r'^user/edit/(?P<uid>\d+)/$', 'action.user_edit'),
+    url(r'^user/edit/(?P<uid>\d+)/$', 'action.user_edit', name="user-edit"),
     
     # show user profile
-    (r'^user/profile/(?P<uid>\d+)/$', 'views.user_profile'),
-    (r'^user/profile/(?P<uid>\d+)/(?P<tab>\w+)/$', 'views.user_profile'),
+    url(r'^user/profile/(?P<uid>\d+)/$', 'views.user_profile', name="user-profile"),
+    url(r'^user/profile/(?P<uid>\d+)/(?P<tab>\w+)/$', 'views.user_profile', name="user-profile-tab"),
     
     
     # moderation handlers
@@ -64,18 +64,18 @@ urlpatterns = patterns('main.server',
     (r'^approve_merge/(?P<master_id>\d+)/(?P<remove_id>\d+)/$','action.approve_merge'),
     
     # handles new post
-    (r'^new/post/$','views.new_post'),
+    url(r'^new/post/$','views.new_post', name="new-post"),
     (r'^new/answer/(?P<pid>\d+)/$','views.new_answer'),
     (r'^new/comment/(?P<pid>\d+)/$','views.new_comment'),
     
     
     
     # static pages
-    (r'^about/$','pages.about'),
-    (r'^rss/$','pages.rss'),
-    (r'^faq/$','pages.faq'),
-    (r'^beta/$','pages.beta'),
-    (r'^google/$','pages.google'),
+    url(r'^about/$','pages.about', name='about'),
+    url(r'^rss/$','pages.rss', name='rss'),
+    url(r'^faq/$','pages.faq', name='faq'),
+    url(r'^beta/$','pages.beta', name='beta'),
+    url(r'^google/$','pages.google', name='google'),
     
     # lists all moderator actions
     (r'^modlog/list/$', 'views.modlog_list'),
