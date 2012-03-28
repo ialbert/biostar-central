@@ -115,6 +115,37 @@ class DataNav(TestCase):
         search.VERBOSE = 0
         search.full_index()
     
+    def test_post_feeds(self):
+        "Tests that all the feeds work"
+        true, eq = self.assertTrue, self.assertEqual
+        
+        c = Client()
+        url = reverse("latest-feed")
+        r = c.get(url)
+        eq(r.status_code, 200)
+    
+        url = reverse("tags-feed", kwargs={'text':'bwa+blast'})
+        r = c.get(url)
+        eq(r.status_code, 200)
+        
+        url = reverse("post-feed", kwargs={'text':'2+4'})
+        r = c.get(url)
+        eq(r.status_code, 200)
+        
+        url = reverse("user-feed", kwargs={'text':'2+3+4'})
+        r = c.get(url)
+        eq(r.status_code, 200)
+        
+        url = reverse("mytags-feed", kwargs={'uuid':'3fcb6c64156c558a7fd846326fb49c8e'})
+        r = c.get(url)
+        eq(r.status_code, 200)
+        
+        url = reverse("notification-feed", kwargs={'uuid':'3fcb6c64156c558a7fd846326fb49c8e'})
+        r = c.get(url)
+        eq(r.status_code, 200)
+        
+     
+    
     def test_post_content(self):
 
         true, eq = self.assertTrue, self.assertEqual
@@ -160,6 +191,14 @@ class DataNav(TestCase):
         eq(r.status_code, 302)
         true(models.Post.objects.get(id=13).title == title)
         
+        # test the request merge pages
+        url = reverse("request-merge")
+        r = c.get(url)
+        eq(r.status_code, 200)
+        
+        url = reverse("approve-merge",kwargs={'master_id':2, 'remove_id':3})
+        r = c.get(url)
+        eq(r.status_code, 302)
         
     def test_moderator(self):
         "Testing moderator actions"

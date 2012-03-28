@@ -55,7 +55,6 @@ def nuke(text):
 def generate(text):
     if not text:
         return ""
-    text = text.rstrip()
     if text.startswith('##rest'):
         text = text[6:].strip()
         rest = core.publish_parts(text ,writer_name='html')
@@ -173,10 +172,6 @@ class HtmlTest(unittest.TestCase):
         "Testing HTML sanitization"
         text = sanitize('<a href="javascrip:something">A</a>', allowed_tags="b")
         self.assertEqual( text, u'A' )
-
-        markup = generate("ABCD\n    CDE\n*A*")
-        expect = '<p>ABCD\n<div class="highlight"><pre>    <span class="n">CDE</span>\n</pre></div>\n\n<em>A</em></p>'
-        self.assertEqual( markup, expect )
 
         p = Params(a=1, b=2, c=3)
         self.assertEqual( (p.a, p.b, p.c), (1, 2, 3))

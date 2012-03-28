@@ -37,12 +37,10 @@ urlpatterns = patterns('main.server',
     # show user profile
     url(r'^user/profile/(?P<uid>\d+)/$', 'views.user_profile', name="user-profile"),
     url(r'^user/profile/(?P<uid>\d+)/(?P<tab>\w+)/$', 'views.user_profile', name="user-profile-tab"),
-    
-    
+        
     # moderation handlers
     #(r'^cleanup/$', 'action.cleanup'),
 
-   
     # badges
     url(r'^badge/show/(?P<bid>\d+)/$', 'action.badge_show', name="badge-show"),
     
@@ -96,9 +94,9 @@ from django.views.generic.list import ListView
 from main.server import models
 
 urlpatterns += patterns('',
-    (r'^blog/list/$', ListView.as_view(
+    url(r'^blog/list/$', ListView.as_view(
         queryset = models.Blog.objects.all().select_related('author__profile'),
-        template_name='generic/blog.list.html')),    
+        template_name='generic/blog.list.html'), name='blog-list'),    
 )
 
 #
@@ -110,20 +108,20 @@ from server.feeds import TagsFeed, PostFeed, UserFeed
 urlpatterns += patterns('',
     
     # RSS feeds
-    (r'^feeds/latest/$', LatestEntriesFeed() ),
-    (r'^feeds/messages/(?P<uuid>[a-z0-9]+)/$', NotificationFeed() ),
-    (r'^feeds/mytags/(?P<uuid>[a-z0-9]+)/$', MyTagsFeed() ),
-    (r'^feeds/tag/(?P<text>[\w\-_\+]+)/$', TagsFeed() ),
-    (r'^feeds/post/(?P<text>[\w\-_\+]+)/$', PostFeed() ),
-    (r'^feeds/user/(?P<text>[\w\-_\+]+)/$', UserFeed() ),
+    url(r'^feeds/latest/$', LatestEntriesFeed(), name='latest-feed' ),
+    url(r'^feeds/messages/(?P<uuid>[a-z0-9]+)/$', NotificationFeed(), name='notification-feed' ),
+    url(r'^feeds/mytags/(?P<uuid>[a-z0-9]+)/$', MyTagsFeed(), name='mytags-feed' ),
+    url(r'^feeds/tag/(?P<text>[\w\-_\+]+)/$', TagsFeed(), name='tags-feed' ),
+    url(r'^feeds/post/(?P<text>[\w\-_\+]+)/$', PostFeed(), name='post-feed' ),
+    url(r'^feeds/user/(?P<text>[\w\-_\+]+)/$', UserFeed(), name='user-feed' ),
 
     # openid authentication
-    (r'^openid/', include('django_openid_auth.urls')),
-    (r'^logout/$', 'django.contrib.auth.views.logout',  {'next_page':'/'}),
+    url(r'^openid/', include('django_openid_auth.urls'), name='openid-login'),
+    url(r'^logout/$', 'django.contrib.auth.views.logout',  {'next_page':'/'}, name='logout'),
 
     # Enable the admin:
-    (r'^admin/', include(admin.site.urls)),
-    (r'^admin/doc/', include('django.contrib.admindocs.urls')),
+    url(r'^admin/', include(admin.site.urls), name='admin'),
+    url(r'^admin/doc/', include('django.contrib.admindocs.urls'), name='admin-docs'),
 )
 
 urlpatterns += staticfiles_urlpatterns()

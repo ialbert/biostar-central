@@ -43,6 +43,7 @@ class LastVisit(object):
                 request.session[SESSION_POST_COUNT] = counts 
                 models.UserProfile.objects.filter(user=user).update(last_visited=now)
                
+                
             # a handy shortcut
             request.user.can_moderate = profile.can_moderate
         else:
