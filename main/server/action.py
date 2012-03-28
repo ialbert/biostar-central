@@ -128,7 +128,7 @@ def badge_show(request, bid):
     "Shows users that have earned a certain badge"
     page = None
     badge  = models.Badge.objects.get(id=bid)
-    awards = models.Award.objects.filter(badge=badge).select_related('user', 'user_profile')
+    awards = models.Award.objects.filter(badge=badge).select_related('user', 'user_profile').order_by("-date")
     page  = get_page(request, awards, per_page=24)
     return html.template(request, name='badge.show.html', page=page, badge=badge)
  

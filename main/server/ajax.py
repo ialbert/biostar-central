@@ -96,16 +96,3 @@ def comment_delete(request, pid):
     else:
         return ajax_success("The comment status set to %s" % post.get_status_display() )
     
-    
-@ajax_error_wrapper
-def preview(request):
-    "This runs the markdown preview functionality"
-    content = request.POST.get('content','no input')[:5000]
-
-    try:
-        output = html.generate(content)
-    except KeyError, exc:
-        # return more userfriendly errors, used for debugging
-        output = 'Error: %s' % str(exc)
-
-    return HttpResponse(output, mimetype='text/plain')

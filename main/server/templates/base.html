@@ -105,7 +105,7 @@
                 {% for message in messages %}
                     <div class="alert {% change_css message.tags %}">
                         <a class="close" data-dismiss="alert" href="#">&times;</a>
-                        <div>{{ message }}</div>
+                        <div>{{ message|safe }}</div>
                     </div>
                 {% endfor %}
                 </div>

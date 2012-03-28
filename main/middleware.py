@@ -2,18 +2,20 @@ import datetime
 from django.contrib.auth import logout
 from django.contrib import messages
 from django.conf import settings
-from main.server import models, notegen, html
+from main.server import models, notegen, html, awards
 from main.server.const import *
 
 settings.CONTENT_INDEXING = True
 
+MINIMUM_TIME = 60 * 10 # every 5 minutes
+    
 class LastVisit(object):
     """
     Updates the last visit stamp at MINIMUM_TIME intervals
     """
+    global MINIMUM_TIME
     # minimum elapsed time
-    MINIMUM_TIME = 60 * 10 # every 5 minutes
-
+    
     def process_request(self, request):
         
         if request.user.is_authenticated():
@@ -29,7 +31,7 @@ class LastVisit(object):
             diff = (now - profile.last_visited).seconds
             
             # Prevent writing to the database too often
-            if diff > self.MINIMUM_TIME:
+            if diff > MINIMUM_TIME:
                
                 last = user.profile.last_visited
                
@@ -43,6 +45,7 @@ class LastVisit(object):
                 request.session[SESSION_POST_COUNT] = counts 
                 models.UserProfile.objects.filter(user=user).update(last_visited=now)
                
+                awards.instant(request)
                 
             # a handy shortcut
             request.user.can_moderate = profile.can_moderate

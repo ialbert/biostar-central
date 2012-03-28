@@ -10,6 +10,11 @@ from django.db import connection, transaction
 from django.db.models import Count
 
 DEBUG = 1
+  
+def instant(request, user):
+    "Produces an instant award if applicable"
+    awards = set( models.Award.objects.values('id') )
+    print awards
     
 def notify(user, award):
     text = notegen.awardnote(award.badge)
