@@ -655,11 +655,14 @@ from django.template.defaultfilters import slugify
 def verify_post(sender, instance, *args, **kwargs):
     "Pre save post information that needs to be applied"
     
+    # change type to integer
+    instance.type = int(instance.type)
+
     if not hasattr(instance, 'lastedit_user'):
         instance.lastedit_user = instance.author
     
     # these types must have valid parents
-    if int(instance.type) not in POST_TOPLEVEL:
+    if instance.type not in POST_TOPLEVEL:
         assert instance.root and instance.parent, "Instance must have parent/root"
          
     instance.creation_date = instance.creation_date or datetime.now()
