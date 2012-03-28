@@ -236,7 +236,7 @@ class OpenIDBackend:
 
         # parse the identity of the provider
         nickname = details.get('nickname','') or nicknames.guess(openid_response.identity_url)
-        nickname = nickname.title()
+        nickname = nickname
         email    = details['email']
         
         # create a list of trusted providers

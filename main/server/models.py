@@ -691,6 +691,8 @@ def finalize_post(sender, instance, created, *args, **kwargs):
             search.update(post=instance, created=created)
         
         # when a new post is created all descendants will be notified
+        # this is only needed because in stackexchange 1 post creation
+        # and content creation are separate steps
         if instance.content:
             post_create_notification(instance)
             if instance.type != POST_COMMENT:
