@@ -314,7 +314,7 @@ def post_edit(request, pid=0):
     "Handles the editing of an existing post"
     
     user = request.user
-    name   = "post.edit.html"
+    name = "post.edit.html"
     post = models.Post.objects.get(pk=pid)
 
     if not post.open and not user.can_moderate:
@@ -345,13 +345,15 @@ def post_edit(request, pid=0):
     # form is valid now set the attributes
     for key, value in form.cleaned_data.items():
         setattr(post, key, value)
-        post.set_tags()
+        post.lastedit_user = user
+        post.set_tags() # this saves the post
+        
     models.create_revision(post)
     return redirect(post)
     
 def revision_show(request, pid):
     post = models.Post.objects.get(pk=pid)
-    revs = post.revisions.order_by('-date').select_related('author')
+    revs = post.revisions.order_by('-date').select_related('author', 'lastedit_author')
     return html.template(request, name='revision.show.html', revs=revs, post=post)
    
 @login_required(redirect_field_name='/openid/login/')

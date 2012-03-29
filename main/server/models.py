@@ -302,11 +302,11 @@ class Blog(models.Model):
     """
     Sources for Planet feeds
     """
-    
     # the user that blog will belong to
     author  = models.ForeignKey(User)
     url     = models.URLField(max_length=500)
 
+# TODO, not yet used
 class Related(models.Model):
     """
     Maintains a relationship between related posts
@@ -314,8 +314,17 @@ class Related(models.Model):
     source  = models.ForeignKey(Post, related_name="source")
     target  = models.ForeignKey(Post, related_name="target")
 
-# this should not yet be enabled
-class PostBody():
+# TODO, not yet used
+class Visit(models.Model):
+    """
+    Keeps track of user visits
+    """
+    source  = models.ForeignKey(User)
+    date    = models.DateTimeField(null=False)
+    address = models.GenericIPAddressField(default='', null=True, blank=True)
+    
+# TODO: not yet used, will speed up queries
+class PostBody(models.Model):
     """
     Represents the content of a post body.
     It is kept separate to avoid having to retrieve during object queries.
@@ -692,12 +701,13 @@ def finalize_post(sender, instance, created, raw, *args, **kwargs):
         # and content creation are separate steps
         if instance.content and not raw:
             # you can turn off indexing from the settings
-            if settings.CONTENT_INDEXING:
-                search.update(post=instance, created=created)
             post_create_notification(instance)
             if instance.type != POST_COMMENT:
                 create_revision(instance)
-     
+    
+    if instance.content and settings.CONTENT_INDEXING:
+        search.update(post=instance, created=created)
+                
 def create_award(sender, instance, *args, **kwargs):
     "Pre save award function"
     instance.date = instance.date or datetime.now()

@@ -19,7 +19,6 @@ def get_datapath(blog):
 
 def init():
     "Initialize blogs to a few known blogs"
-    from main import planet
     
     urls =[
         'http://plindenbaum.blogspot.com/feeds/posts/default',

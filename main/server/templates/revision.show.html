@@ -14,7 +14,7 @@
         <table width="100%">
             {% for rev in revs %}
                 <tr valign="top">
-                    <td class="title">Revision: r{{forloop.revcounter}} by {% userlink post.author %} {% userrep post.author %}</td>
+                    <td class="title">Revision: r{{forloop.revcounter}} by {% userlink rev.author %} {% userrep rev.author %}</td>
                 </tr>
                 <tr >
                     <td style="border-bottom:1px dotted #666666">

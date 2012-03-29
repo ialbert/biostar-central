@@ -17,7 +17,7 @@ from coverage import coverage
   
 cov = coverage(include = [ 'main/*' ], omit=[ 'main/server/tests/*' ] )
 
-COVERAGE = 1
+COVERAGE = 0
 if COVERAGE:
     cov.start()
 

@@ -3,6 +3,12 @@
 <div class="post-info-panel">
     <div>{% gravatar post.author 82 %}</div>
     {{ action }} <span class="relativetime"> {% time_ago post.creation_date %} </span> by
-    <div>{% userlink post.author %}</div>
+    {% userlink post.author %}
     {% userrep post.author %}
+    
+    {% if post.lastedit_user != post.author %}
+        <div class="lastedit">last edit by
+            {% userlink post.lastedit_user %}
+        </div>
+    {% endif %}
 </div>

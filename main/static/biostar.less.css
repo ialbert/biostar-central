@@ -356,6 +356,12 @@ td {
     border-image: initial;
 }
 
+.lastedit {
+    font-size:smaller;
+    margin-top:5px;
+    font-style:italic;
+}
+
 .note-list {
     .pagebar {
         background-color: #eeeeee;
