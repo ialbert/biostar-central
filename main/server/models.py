@@ -421,6 +421,7 @@ def post_moderate(request, post, user, status, date=None):
 def send_note(sender, target, content, type=NOTE_USER, unread=True, date=None, both=False, url=''):
     "Sends a note to target"
     date = date or datetime.now()
+    url = url[:200]
     Note.objects.create(sender=sender, target=target, content=content, type=NOTE_USER, unread=unread, date=date, url=url)
     if both:
         #send a note to the sender as well
