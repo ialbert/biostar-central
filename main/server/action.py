@@ -36,6 +36,7 @@ class UserForm(forms.Form):
     website      = forms.CharField(max_length=80,  required=False, initial="", widget=forms.TextInput(attrs={'size':'50'}))
     my_tags      = forms.CharField(max_length=80,  required=False, initial="", widget=forms.TextInput(attrs={'size':'50'}))
     about_me     = forms.CharField(max_length=500, required=False, initial="", widget=forms.Textarea (attrs={'class':'span6'}))
+    scholar      = forms.CharField(max_length=500, required=False, initial="", widget=forms.TextInput(attrs={'size':'30'}))
 
 LAST_CLEANUP = datetime.now()
 def cleanup(request):
@@ -94,7 +95,7 @@ def user_edit(request, uid):
         return html.redirect(target.profile.get_absolute_url() )
     
     # valid incoming fields
-    fields = "display_name about_me website location my_tags".split()
+    fields = "display_name about_me website location my_tags scholar".split()
         
     if request.method == 'GET':
         initial = dict(email=target.email)

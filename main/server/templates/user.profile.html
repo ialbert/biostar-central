@@ -33,16 +33,23 @@
         <div>{% userrep target %}</div>
     </div>
     <div class="data-panel span4">
-        <div>Userid: <span id="userid">{{target.id}}</span></div>
-        <div about="{{target.profile.website}}" typeof="foaf:Person" xmlns:foaf="http://xmlns.com/foaf/0.1/">
-            Website: <a href="{{ target.profile.website }}">{{ target.profile.website|slice:"0:40" }}</a>
-        </div>
+        <div>Userid: <span id="userid">{{target.id}}</span> {{target.profile.scholar}}</div>
+    
+        {% if target.profile.website %}
+            <div about="{{target.profile.website}}" typeof="foaf:Person" xmlns:foaf="http://xmlns.com/foaf/0.1/">
+                Website: <a href="{{ target.profile.website }}">{{ target.profile.website|slice:"0:40" }}</a>
+            </div>
+        {% endif %}
+        
         {% if target.writeable %}
         <div property="foaf:mbox">Email: <a href="mailto:{{target.email}}">{{ target.email }}</a></div>
         {% endif %}
     
-        <div>Location: {{ target.profile.location }}</div>
-        
+        {% if target.profile.scholar %}
+            <div>Profile: <a href="http://scholar.google.com/citations?user={{target.profile.scholar}}">Google Scholar</a></div>
+        {% endif %}
+    
+        <div>Location: {{ target.profile.location }}</div>    
         <div>Member for: {{ target.date_joined|timesince }}</div>
         <div>Last seen: {{ target.profile.last_visited|timesince }} ago </div>
         

@@ -26,7 +26,7 @@ def instant(request):
     awards = set( models.Award.objects.values_list('badge__name', flat=True).distinct() )
     
     badge = badges.get('Teacher')
-    func = models.Post.objects.filter(author=user).count
+    func = models.Post.objects.filter(author=user, score__gt=1).count
     if check(badge, awards, func=func):
         create(request, user=user, badge=badge)
         return

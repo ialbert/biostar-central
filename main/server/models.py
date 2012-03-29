@@ -60,10 +60,10 @@ class UserProfile( models.Model ):
     status = models.IntegerField(choices=USER_STATUS_TYPES, default=USER_ACTIVE)
     
     # description provided by the user as markup
-    about_me = models.TextField(default="(about me)", null=True)
+    about_me = models.TextField(default="", null=True)
 
     # description provided by the user as html
-    about_me_html = models.TextField(default="(about me)", null=True)
+    about_me_html = models.TextField(default="", null=True)
     
     # user provided location
     location = models.TextField(default="", null=True)
@@ -74,6 +74,9 @@ class UserProfile( models.Model ):
     # description provided by the user as html
     my_tags = models.TextField(default="", null=True, max_length=250)
     
+    # google scholar ID
+    scholar = models.TextField(null=True, default='', max_length=50)
+
     @property
     def can_moderate(self):
         return (self.is_moderator or self.is_admin)
