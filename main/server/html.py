@@ -18,12 +18,15 @@ from itertools import groupby
 
 # safe string transformation
 import string
-VALID = set(string.ascii_letters + string.digits + "-_ ")
+SAFE_TAG = set(string.ascii_letters + string.digits + "._ ")
 
-def ascii(text):
-    global VALID
-    return filter(lambda x: x in VALID, text)
-
+def safe_tag(text):
+    global SAFE_TAG
+    def change(x):
+        return x if x in SAFE_TAG else "."
+    text = ''.join(map(change, text))
+    return text.lower()
+    
 def get_page(request, obj_list, per_page=25):
     "A generic paginator"
 

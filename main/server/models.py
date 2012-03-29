@@ -5,7 +5,7 @@ Note: some models are denormalized by design, this greatly simplifies (and speed
 the queries necessary to fetch a certain entry.
 
 """
-import os, random, hashlib, string, difflib, time
+import os, random, hashlib, string, difflib, time, re
 
 from django.db import models
 from django.db import transaction
@@ -244,8 +244,7 @@ class Post(models.Model):
                
     def get_tag_names(self):
         "Returns the post's tag values as a list of tag names"
-        tag_val = html.ascii(self.tag_val)
-        names = [ n.lower() for n in tag_val.split(' ') if n]
+        names = [ html.safe_tag(n) for n in self.tag_val.split() if n ]
         return map(unicode, names)
     
     def apply(self, dir):
@@ -287,10 +286,23 @@ def get_post_manager(user):
     else:
         return Post.open_posts
     
-def query_by_tags(user, tags=[]):
+def query_by_tags(user, text=''):
     "Returns a query by tags"
     posts = get_post_manager(user)
-    res =  posts.filter(type__in=POST_TOPLEVEL,tag_set__name__in=tags).order_by('-rank')
+    tags  = re.split("(\+|-)", text)
+    active = include = []
+    exclude = []
+    for tag in tags:
+        if tag == '-':
+            active = exclude
+        elif tag == '+':
+            active = include
+        elif tag:
+            active.append(tag)
+    if include:
+        res =  posts.filter(type__in=POST_TOPLEVEL, tag_set__name__in=include).exclude(tag_set__name__in=exclude).order_by('-rank').distinct()
+    else:
+        res =  posts.filter(type__in=POST_TOPLEVEL).exclude(tag_set__name__in=exclude).order_by('-rank').distinct()
     return res
 
 def query_by_mytags(user):

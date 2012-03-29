@@ -1,7 +1,7 @@
 """
 Biostar views
 """
-import difflib, time
+import difflib, time, re
 from datetime import datetime, timedelta
 
 from functools import partial
@@ -99,10 +99,14 @@ def index(request, tab=""):
         posts = posts.filter(type=POST_TUTORIAL).order_by('-rank')
     elif tab == 'mytags':
         if user.is_authenticated():
-            tags  = user.profile.my_tags.split()
-            if not tags:
+            text  = user.profile.my_tags
+            if not text:
                 messages.warning(request, "This Tab will show posts matching the My Tags fields in your user profile.")
-            posts = posts.filter(type__in=POST_TOPLEVEL,tag_set__name__in=tags).order_by('-rank')
+            else:
+                messages.info(request, "Filtering by %s" % text)
+            #posts = posts.filter(type__in=POST_TOPLEVEL,tag_set__name__in=tags).order_by('-rank')
+            posts = models.query_by_tags(user,text=text)
+            
         else:
             messages.warning(request, "This Tab is populated only for registered users based on the My Tags field in their user profile")
             posts = []
@@ -121,8 +125,7 @@ def show_tag(request, tag_name=None):
     user = request.user
     params = html.Params(nav='', tab='')
     messages.warning(request, 'Filtering by tag: %s' % tag_name)
-    tags  = tag_name.split('+')
-    posts = models.query_by_tags(user=user, tags=tags).order_by('-rank')
+    posts = models.query_by_tags(user=user, text=tag_name).order_by('-rank')
     page  = get_page(request, posts, per_page=20)
     return html.template( request, name='index.html', page=page, params=params)
 

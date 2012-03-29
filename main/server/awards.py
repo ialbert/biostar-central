@@ -9,6 +9,11 @@ from django.contrib import messages
 
 #models.Award.objects.all().delete()
 
+def init_badges():
+    "Initializes badges "
+    models.Badge.get_or_create(name='Teacher', description='')
+    pass
+
 def create(request, user, badge):
     award = models.Award.objects.create(user=user, badge=badge)
     text = notegen.awardnote(award.badge)

@@ -18,7 +18,7 @@ urlpatterns = patterns('main.server',
     url(r'^show/(?P<tab>\w+)/$', 'views.index', name="show"),
     
     # show tagged posts
-    url(r'^show/tag/(?P<tag_name>[\w\-_\+]+)/$', 'views.show_tag', name="show-tag"),
+    url(r'^show/tag/(?P<tag_name>[\w\-_\.\+!]+)/$', 'views.show_tag', name="show-tag"),
     
     # show posts by user
     url(r'^show/user/(?P<uid>\d+)/$', 'views.show_user', name="show-user"),

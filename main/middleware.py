@@ -8,7 +8,8 @@ from main.server.const import *
 settings.CONTENT_INDEXING = True
 
 MINIMUM_TIME = 60 * 10 # every 5 minutes
-    
+MINIMUM_TIME = 2
+
 class LastVisit(object):
     """
     Updates the last visit stamp at MINIMUM_TIME intervals

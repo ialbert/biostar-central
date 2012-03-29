@@ -57,11 +57,14 @@ class TagsFeed(PostBase):
     link = "/"
     description = "Latest posts matching tags"
 
+    def get_object(self, request, text):
+        return text
+        
     def title(self, obj):
-        return "Post matching tags for %s" % "+".join(obj)
+        return "Post matching tags for %s" % obj
  
     def items(self, obj):
-        posts = models.query_by_tags(user=None, tags=obj).order_by('-creation_date')
+        posts = models.query_by_tags(user=None, text=obj).order_by('-creation_date')
         return posts[:25]
 
 class PostFeed(PostBase):
@@ -97,6 +100,6 @@ class MyTagsFeed(PostBase):
         return obj
         
     def items(self, obj):
-        tags  = obj.profile.my_tags.split(' ')[:10]
-        posts = models.query_by_tags(user=obj, tags=tags).order_by('-creation_date')
+        text  = obj.profile.my_tags
+        posts = models.query_by_tags(user=obj, text=text).order_by('-creation_date')
         return posts[:15]
