@@ -218,6 +218,7 @@ INSTALLED_APPS = (
     'django.contrib.admindocs',
     'main.server',
     'django_openid_auth',
+    'django.contrib.sitemaps',
 )
 
 # A sample logging configuration. The only tangible logging

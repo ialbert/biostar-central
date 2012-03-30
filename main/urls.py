@@ -1,6 +1,7 @@
 from django.conf.urls import url, patterns, include
 from django.conf import settings
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+from main.server import const
 
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
@@ -85,18 +86,33 @@ urlpatterns = patterns('main.server',
     # clear all notifications
     url(r'^note/clear/(?P<uid>\d+)/$','action.note_clear', name="note-clear"),
    
+    
 )
 
 #
 # Generic views
 #
+from django.contrib.sitemaps import Sitemap
 from django.views.generic.list import ListView
 from main.server import models
+
+class PostSitemap(Sitemap):
+    
+    def items(self):
+        return models.Post.objects.filter(type__in=const.POST_TOPLEVEL)
+
+    def lastmod(self, obj):
+        return obj.lastedit_date
+    
+sitemaps = { 'posts':PostSitemap }
 
 urlpatterns += patterns('',
     url(r'^blog/list/$', ListView.as_view(
         queryset = models.Blog.objects.all().select_related('author__profile'),
-        template_name='generic/blog.list.html'), name='blog-list'),    
+        template_name='generic/blog.list.html'), name='blog-list'),
+    
+    # adding sitemap
+    (r'^sitemap\.xml$', 'django.contrib.sitemaps.views.sitemap', {'sitemaps': sitemaps})
 )
 
 #
