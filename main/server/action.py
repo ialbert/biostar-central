@@ -169,7 +169,7 @@ Hello,
 
 The requested BioStar account merge has been completed. 
 
-Profile url: http://%(domain)s/%(profile_url)s
+Profile url: http://%(domain)s%(profile_url)s
 
 cheers,
 
@@ -203,7 +203,7 @@ def request_merge(request):
                 body = ACCOUNT_MERGE_EMAIL % fill
                 logger.info('sending email to %s' % settings.SERVER_EMAIL)
                 send_mail('BioStar: account merge request', body, settings.DEFAULT_FROM_EMAIL, [ settings.SERVER_EMAIL ], fail_silently=False)
-                messages.info(request, "Your request for account merge has been sent.")
+                messages.info(request, "Your request for account merge has been submitted for review.")
                 return html.redirect( user.profile.get_absolute_url() )
             except Exception, exc:
                 messages.error(request, 'Submission error %s' % exc)

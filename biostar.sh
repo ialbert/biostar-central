@@ -105,7 +105,15 @@ while (( "$#" )); do
         echo '*** creating postgresql'
         createdb $PG_DBNAME
     fi
-        
+    
+    if [ "$1" = "pgreset" ]; then
+        # resets the postgresql database, removes all tables
+        echo '*** create drop table commans'
+        $PYTHON_EXE $DJANGO_ADMIN sqlclear server django_openid_auth  sites sessions admin auth contenttypes> import/sqlclear.sql --settings=$DJANGO_SETTINGS_MODULE
+        echo '*** postgresql reset'
+        psql $PG_DBNAME < import/sqlclear.sql
+    fi
+    
 	if [ "$1" = "flush" ]; then
         echo "*** flushing the database"
 		$PYTHON_EXE $DJANGO_ADMIN flush --noinput --settings=$DJANGO_SETTINGS_MODULE
