@@ -77,7 +77,8 @@ while (( "$#" )); do
         echo "--- databases"
         echo "*** SQLITE_DBNAME=$SQLITE_DBNAME"
         echo "*** PG_DBNAME=$PG_DBNAME"
-        
+        echo "*** PG_USERNAME=$PG_USERNAME"
+
         echo "--- migration"
         echo "*** MIGRATE_PATH=$MIGRATE_PATH"
         echo "*** MIGRATE_LIMIT=$MIGRATE_LIMIT"
@@ -111,7 +112,7 @@ while (( "$#" )); do
         echo '*** create drop table commans'
         $PYTHON_EXE $DJANGO_ADMIN sqlclear server django_openid_auth  sites sessions admin auth contenttypes> import/sqlclear.sql --settings=$DJANGO_SETTINGS_MODULE
         echo '*** postgresql reset'
-        psql $PG_DBNAME < import/sqlclear.sql
+        psql -U $PG_USERNAME $PG_DBNAME < import/sqlclear.sql
     fi
     
 	if [ "$1" = "flush" ]; then
@@ -135,7 +136,7 @@ while (( "$#" )); do
     if [ "$1" = "pgimport" ]; then
         # restores a postgresl database from a file
         echo "*** restoring database $PG_DBNAME from $SQL_FIXTURE"
-        psql $PG_DBNAME < $SQL_FIXTURE
+        psql -U $PG_USERNAME $PG_DBNAME < $SQL_FIXTURE
 	fi
     
 	if [ "$1" = "test" ]; then
