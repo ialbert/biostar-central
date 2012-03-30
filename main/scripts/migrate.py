@@ -150,9 +150,9 @@ def insert_users(fname, limit):
         about_me = row.get('AboutMe', '')
         location = row.get('Location', '')
         openid   = row.get('OpenId', 'http://www.biostars.org')
-        display_name = row.get('DisplayNameCleaned')
-        display_name = display_name or nicknames.guess(openid)
+        display_name = row.get('DisplayNameCleaned', '')
         display_name = display_name.title()
+        display_name = display_name or nicknames.guess(openid)
         last_login_ip = row.get('LastLoginIP', '0.0.0.0')
 
         # store profiles
@@ -174,8 +174,6 @@ def insert_users(fname, limit):
                 for attr, value in p.items():
                     setattr(prof, attr, value)
                 prof.save()
-
-              
             users[userid] = user
 
     return users

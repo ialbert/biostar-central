@@ -713,12 +713,12 @@ def finalize_post(sender, instance, created, raw, *args, **kwargs):
         # this is only needed because in stackexchange 1 post creation
         # and content creation are separate steps
         if instance.content and not raw:
-            # you can turn off indexing from the settings
             post_create_notification(instance)
             if instance.type != POST_COMMENT:
                 create_revision(instance)
-    
-    if instance.content and settings.CONTENT_INDEXING:
+                
+    # you can turn off indexing from the settings
+    if instance.content and settings.CONTENT_INDEXING and not raw:
         search.update(post=instance, created=created)
                 
 def create_award(sender, instance, *args, **kwargs):
