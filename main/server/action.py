@@ -146,9 +146,12 @@ def note_clear(request, uid):
 
 ACCOUNT_MERGE_EMAIL = """
 
-Account merge request by http://%(domain)s/user/profile/%(request_id)s/
+Account merge request by: %(request_name)s (%(request_id)s)
 
+Master account: %(master_email)s, %(master_name)s
 Master User: http://%(domain)s/user/profile/%(master_id)s/
+
+Remove account: %(remove_email)s, %(remove_name)s
 Remove User: http://%(domain)s/user/profile/%(remove_id)s/
 
 Look at both user accounts to verify request.
@@ -161,7 +164,17 @@ To ignore the request simply ignore this email.
 
 """
 
-ACCOUNT_APPROVAL_EMAIL = "The requested BioStar account merge has been completed"
+ACCOUNT_APPROVAL_EMAIL = """
+Hello,
+
+The requested BioStar account merge has been completed. 
+
+Profile url: http://%(domain)s/%(profile_url)s
+
+cheers,
+
+the BioStar Team
+"""
 
 @login_required(redirect_field_name='/openid/login/')
 def request_merge(request):
@@ -171,18 +184,27 @@ def request_merge(request):
         "A form representing a new question"
         master_id = forms.CharField(max_length=5,  initial="", widget=forms.TextInput(attrs={'size':'5'}))   
         remove_id = forms.CharField(max_length=5,  initial="", widget=forms.TextInput(attrs={'size':'5'}))
-   
+    
+    user = request.user
+    
     if request.method == 'POST':   
         form = MergeForm(request.POST)
         if form.is_valid():
             try:
-                fill = dict(form.cleaned_data)
-                fill.update( dict(domain=settings.SITE_DOMAIN, request_id=request.user.id))
+                data   = form.cleaned_data
+                master = models.User.objects.get(id=data['master_id'])
+                remove = models.User.objects.get(id=data['remove_id'])
+                fill = dict(
+                    domain=settings.SITE_DOMAIN, master_id=master.id, remove_id=remove.id,
+                    master_name = master.profile.display_name, remove_name=remove.profile.display_name,
+                    master_email = master.email, remove_email=remove.email,
+                    request_id = request.user.id, request_name = user.profile.display_name,
+                )
                 body = ACCOUNT_MERGE_EMAIL % fill
-                #admin_emails = [ elem[1] for elem in settings.ADMINS ]
                 logger.info('sending email to %s' % settings.SERVER_EMAIL)
-                send_mail('Account merge request', body, settings.DEFAULT_FROM_EMAIL, [ settings.SERVER_EMAIL ], fail_silently=False)
+                send_mail('BioStar: account merge request', body, settings.DEFAULT_FROM_EMAIL, [ settings.SERVER_EMAIL ], fail_silently=False)
                 messages.info(request, "Your request for account merge has been sent.")
+                return html.redirect( user.profile.get_absolute_url() )
             except Exception, exc:
                 messages.error(request, 'Submission error %s' % exc)
     else: 
@@ -219,7 +241,11 @@ def approve_merge(request, master_id, remove_id):
         with transaction.commit_on_success():
             migrate(master, remove)
         remove.delete()
-        send_mail('account merge complete', ACCOUNT_APPROVAL_EMAIL, settings.DEFAULT_FROM_EMAIL, [ master.email ], fail_silently=False)
+        fill = dict(
+            domain=settings.SITE_DOMAIN, profile_url=master.profile.get_absolute_url()
+        )
+        body = ACCOUNT_APPROVAL_EMAIL % fill
+        send_mail('BioStar: account merge complete', body, settings.DEFAULT_FROM_EMAIL, [ master.email ], fail_silently=False)
     except Exception, exc:
         messages.error(request, 'Merge error: %s' % exc)
         return html.redirect("/")
