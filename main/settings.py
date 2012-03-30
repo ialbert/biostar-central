@@ -269,7 +269,7 @@ LOGGING = {
 GOOGLE_TRACKER = "ABCD"
 
 # needs to be turned on explicitly
-CONTENT_INDEXING = False
+CONTENT_INDEXING = True
 
 # version check, we can do it at the end since
 # the version is only required in subsequent modules

@@ -109,10 +109,16 @@ while (( "$#" )); do
     
     if [ "$1" = "pgreset" ]; then
         # resets the postgresql database, removes all tables
-        echo '*** create drop table commans'
+        echo '*** create drop table commands'
         $PYTHON_EXE $DJANGO_ADMIN sqlclear server django_openid_auth  sites sessions admin auth contenttypes> import/sqlclear.sql --settings=$DJANGO_SETTINGS_MODULE
         echo '*** postgresql reset'
         psql -U $PG_USERNAME $PG_DBNAME < import/sqlclear.sql
+    fi
+    
+    if [ "$1" = "planet" ]; then
+        # initializes the planet
+        echo '*** initializes the planet'
+        $PYTHON_EXE -m main.scripts.planet --init --download --update 1
     fi
     
 	if [ "$1" = "flush" ]; then

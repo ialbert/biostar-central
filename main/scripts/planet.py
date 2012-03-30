@@ -35,7 +35,7 @@ def init():
         'http://genomeinformatician.blogspot.com/feeds/posts/default',
     ]
     
-    for url in urls:
+    for url in urls[:1]:
         add(url)
         
 def add(url):

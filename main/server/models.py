@@ -474,6 +474,7 @@ def create_revision(post, author=None):
         rev  = PostRevision.objects.create(diff=diff, content=content, author=author, post=post, date=date)    
         post.revision_count += 1
         post.save()
+        #search.update(post=post, created=False)
 
 @transaction.commit_on_success
 def post_create_notification(post):
@@ -717,10 +718,10 @@ def finalize_post(sender, instance, created, raw, *args, **kwargs):
             if instance.type != POST_COMMENT:
                 create_revision(instance)
                 
-    # you can turn off indexing from the settings
-    if instance.content and settings.CONTENT_INDEXING and not raw:
-        search.update(post=instance, created=created)
-                
+            # you can turn off indexing from the settings
+            if settings.CONTENT_INDEXING:                
+                search.update(post=instance, created=created)
+                    
 def create_award(sender, instance, *args, **kwargs):
     "Pre save award function"
     instance.date = instance.date or datetime.now()

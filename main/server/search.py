@@ -20,7 +20,8 @@ SCHEMA = fields.Schema(
     title   = fields.TEXT(analyzer=stem, stored=True),
     content = fields.TEXT(analyzer=stem, stored=True), 
     type    = fields.TEXT(stored=True),
-    pid     = fields.NUMERIC(stored=True), uid=fields.NUMERIC(stored=True),
+    pid     = fields.NUMERIC(stored=True, unique=True),
+    uid     = fields.NUMERIC(stored=True),
     author  = fields.TEXT(stored=True) 
 )
 
@@ -163,7 +164,6 @@ def update(post, created, handler=None):
     if created:                     
         writer.add_document(content=content, pid=post.id, author=author, title=title, uid=uid, type=type)
     else:
-        # updating
         writer.update_document(content=content, pid=post.id, author=author, title=title, uid=uid, type=type)
     
     # only commit if this was opened here
