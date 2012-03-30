@@ -389,8 +389,8 @@ td {
         cursor:pointer;
     }
 }
-.closed  { background-color: #FCF8E3; border-left: 5px solid #FBEED5; }
-.deleted { background-color: #FCF8E3; border-left: 5px solid #B94A48; }
+.closed  { background-color: #F9F9F9;}
+.deleted { opacity:0.75; border-right: 1px solid red;}
 .suspended { h2 { color:red; }}
 
 /* popup message rendering */

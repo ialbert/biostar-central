@@ -161,6 +161,8 @@ To ignore the request simply ignore this email.
 
 """
 
+ACCOUNT_APPROVAL_EMAIL = "The requested BioStar account merge has been completed"
+
 @login_required(redirect_field_name='/openid/login/')
 def request_merge(request):
     "Generates an account merge request"
@@ -216,7 +218,8 @@ def approve_merge(request, master_id, remove_id):
         remove = models.User.objects.get(id=remove_id)
         with transaction.commit_on_success():
             migrate(master, remove)
-        remove.delete()    
+        remove.delete()
+        send_mail('account merge complete', ACCOUNT_APPROVAL_EMAIL, settings.DEFAULT_FROM_EMAIL, [ master.email ], fail_silently=False)
     except Exception, exc:
         messages.error(request, 'Merge error: %s' % exc)
         return html.redirect("/")
