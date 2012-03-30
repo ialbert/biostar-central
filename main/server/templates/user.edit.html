@@ -23,6 +23,10 @@
     </style>
 {% endblock %}
 
+{% block title %}
+    Edit User: {{target.profile.display_name }} - BioStar
+{% endblock %}
+
 {% block body %}
 
 <form id="useredit" name="useredit" action="{% url main.server.action.user_edit target.id %}" method="post" class="form-horizontal">

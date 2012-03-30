@@ -123,7 +123,7 @@ def index(request, tab=""):
 def show_tag(request, tag_name=None):
     "Display posts by a certain tag"
     user = request.user
-    params = html.Params(nav='', tab='')
+    params = html.Params(nav='', tab='tags')
     messages.warning(request, 'Filtering by tag: %s' % tag_name)
     posts = models.query_by_tags(user=user, text=tag_name).order_by('-rank')
     page  = get_page(request, posts, per_page=20)
@@ -133,7 +133,7 @@ def show_user(request, uid, post_type=''):
     "Displays posts by a user"
 
     user = models.User.objects.filter(id=uid).select_related('profile').all()[0]
-    params = html.Params(nav='', tab='')
+    params = html.Params(nav='', tab='user')
 
     # notification
     messages.info(request, 'Filtering by user: %s' % user.profile.display_name)

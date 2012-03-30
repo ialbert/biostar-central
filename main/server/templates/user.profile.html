@@ -3,6 +3,10 @@
 {% load basic %}
 {% load widgets %}
 
+{% block title %}
+    User: {{target.profile.display_name }} - BioStar
+{% endblock %}
+
 {% block head %}
     <script src="{{ STATIC_URL }}js/handlers.js"></script>
     <script src="{{ STATIC_URL }}js/csrf.js"></script>

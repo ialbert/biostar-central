@@ -3,6 +3,10 @@
 {% load basic %}
 {% load widgets %}
 
+{% block title %}
+    Merge Accounts - BioStar
+{% endblock %}
+
 {% block body %}
 
 <div class="row">
@@ -20,7 +24,7 @@
    <div class="par">
     <h3>Did we make a mistake?</h3>
     The automated merge may fail to recognize previous users. In addition some OpenID providers are not strict enough
-    about their email verification in turn we won't fully trust the information they send over. You can always recover a previous
+    about their email verification; in turn we cannot fully trust the information they send over. You can always recover a previous
     account by the following procedure.
     <ul>
         <li> find the user ids for both accounts, this is a number around the top of the profile page</li>
@@ -29,8 +33,7 @@
     The <b>Master ID</b> is the account you wish to keep. The
     <b>Remove ID</b> is the user id for the
     account you wish to merge into the master. An adminstrator will review the request
-    and if approved will make the change. It speeds up the process if you also
-    <a href="mailto: admin@biostars.org">send us an email</a> from the master account requesting the merge.
+    and if approved will make the change.
    </div>
    
    <div class="par">

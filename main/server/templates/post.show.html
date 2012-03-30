@@ -1,6 +1,10 @@
 {% extends "base.html" %}
 {% load widgets %}
 
+{% block title %}
+    {{root.title}} - BioStar
+{% endblock %}
+
 {% block head %}
     <script src="{{ STATIC_URL }}js/handlers.js"></script>
    
