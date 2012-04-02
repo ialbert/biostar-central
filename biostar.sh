@@ -34,6 +34,9 @@ export SQL_FIXTURE=${SQL_FIXTURE:-"import/biostar-dump.sql"}
 # the postgresql database name
 export PG_DBNAME=${PG_DBNAME:-"biostar-test-database"}
 
+# the postgresql database name
+export PG_USERNAME=${PG_USERNAME:-"biostar-user"}
+
 # the DJANGO_SETTINGS_MODULE needs to be in the python import path
 export PYTHONPATH=$PYTHONPATH:$BIOSTAR_HOME   
 
