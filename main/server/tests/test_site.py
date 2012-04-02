@@ -109,7 +109,7 @@ class UserActions(TestCase):
         
 class DataNav(TestCase):
     "Navigates to each static page that contains data"
-    fixtures = [ 'simple-test.json' ]
+    fixtures = [ 'simple-test.json.gz' ]
     
     def setUp(self):
         search.VERBOSE = 0
@@ -136,11 +136,12 @@ class DataNav(TestCase):
         r = c.get(url)
         eq(r.status_code, 200)
         
-        url = reverse("mytags-feed", kwargs={'uuid':'3fcb6c64156c558a7fd846326fb49c8e'})
+        uuid = models.User.objects.get(id=2).profile.uuid
+        url = reverse("mytags-feed", kwargs={'uuid':uuid})
         r = c.get(url)
         eq(r.status_code, 200)
         
-        url = reverse("notification-feed", kwargs={'uuid':'3fcb6c64156c558a7fd846326fb49c8e'})
+        url = reverse("notification-feed", kwargs={'uuid':uuid})
         r = c.get(url)
         eq(r.status_code, 200)
         

@@ -38,27 +38,20 @@ class BiostarModelTest(unittest.TestCase):
         eq(1, Post.objects.filter(tag_set__name=names[0]).count() )
     
         # create a revision
-        models.create_revision(post1)
-        true(1 == post1.revisions.count())
-
-        # no revision generated for identical save
-        models.create_revision(post1)
-        true(1 == post1.revisions.count())
-
+        models.create_revision(post1, author=user1)
+        
         post1.title = post1.title + '?'
         post1.lastedit_user = user2
         post1.save()
         
         # two edits so far
-        models.create_revision(post1)
-        eq(2, post1.revisions.count())
+        models.create_revision(post1, user1)
         
         post2 = Post.objects.create(author=user2, type=POST_QUESTION, title=title, content=content, tag_val=tag_val)
         post2.set_tags()
         
         # two posts with this tag
         eq(2, Post.objects.filter(tag_set__name=names[0]).count() )
-        
         
 
 

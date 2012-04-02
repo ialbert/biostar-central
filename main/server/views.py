@@ -349,9 +349,9 @@ def post_edit(request, pid=0):
     for key, value in form.cleaned_data.items():
         setattr(post, key, value)
         post.lastedit_user = user
+        post.lastedit_date = datetime.now()
         post.set_tags() # this saves the post
-        
-    models.create_revision(post)
+    
     return redirect(post)
     
 def revision_show(request, pid):
@@ -359,21 +359,6 @@ def revision_show(request, pid):
     revs = post.revisions.order_by('-date').select_related('author', 'lastedit_author')
     return html.template(request, name='revision.show.html', revs=revs, post=post)
    
-@login_required(redirect_field_name='/openid/login/')
-def add_comment(request, pid):
-    "Adds a comment"
-    parent  = models.Post.objects.get(pk=pid)
-    content = request.POST['text'].strip()
-    if len(content)<1:
-        messages.warning(request, 'Comment too short!')
-        return redirect(parent)
-        
-    comment = models.Post(author=request.user, parent=parent, post_type=POST_COMMENT, creation_date=datetime.now())
-    comment.save()
-    comment.create_revision(content=content)
-    
-    return redirect(comment)
-
 def post_redirect(request, pid):
     "Redirect to a post"
     post = models.Post.objects.get(id=pid)

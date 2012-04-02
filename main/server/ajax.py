@@ -71,7 +71,6 @@ def vote(request):
     
     if avail <= 0:
         msg = "You ran out of votes ;-) there will more in a little while"
-        logger.info('%s\t%s\t%s' % (author.id, post.id, "out of votes") )
         return ajax_error(msg)
     else:
         vote, msg = models.insert_vote(post=post, user=author, vote_type=type)

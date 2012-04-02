@@ -138,7 +138,7 @@ class Post(models.Model):
     open_posts = OpenManager()
     objects    = models.Manager()
     
-    # the user that created the post
+    # there are a number of denormalized fields only that only apply to specific cases
     author  = models.ForeignKey(User)
     content = models.TextField(null=False, blank=False, max_length=10000) # the underlying Markdown
     html    = models.TextField(blank=True) # this is the sanitized HTML for display
@@ -166,9 +166,6 @@ class Post(models.Model):
     # this will maintain parent-child replationships between posts
     parent = models.ForeignKey('self', null=True, blank=True, related_name='children')
        
-    # denormalized fields only that only apply to specific cases
-    comment_count   = models.IntegerField(default=0, blank=True)
-    revision_count  = models.IntegerField(default=0, blank=True)
     answer_count    = models.IntegerField(default=0, blank=True)
     accepted        = models.BooleanField(default=False, blank=True)
    
@@ -193,7 +190,7 @@ class Post(models.Model):
             self.tag_set.clear()
             tags = [ Tag.objects.get_or_create(name=name)[0] for name in self.get_tag_names() ]
             self.tag_set.add( *tags )
-            self.save()
+        self.save()
   
     def get_title(self):
         "Returns the title and a qualifier"
@@ -250,9 +247,6 @@ class Post(models.Model):
     def apply(self, dir):
         if self.type == POST_ANSWER:
             self.parent.answer_count += dir
-            self.parent.save()
-        if self.type == POST_COMMENT:
-            self.parent.comment_count += dir
             self.parent.save()
     
     def comments(self):
@@ -371,12 +365,10 @@ def user_moderate(user, target, status):
     """
     if not user.can_moderate:
         msg = 'User %s not a moderator' %user.id
-        logger.error(msg)
         return False, msg
     
     if not auth.authorize_user_edit(user=user, target=target, strict=False):
         msg = 'User %s not authorized to moderate %s' % (user.id, target.id)
-        logger.error(msg)
         return False, msg
 
     target.profile.status = status
@@ -465,20 +457,30 @@ def decorate_posts(posts, user):
         
     return posts
 
+def get_diff(a, b):
+    a, b = a.splitlines(), b.splitlines()
+    diff = difflib.unified_diff(a, b)
+    diff = map(string.strip, diff)
+    diff = '\n'.join(diff)
+    return diff
+
 @transaction.commit_on_success
-def create_revision(post, author=None):
+def create_revision(post, author):
     "Creates a revision from a post. Compares to last content and creates only if the content changed"
     
     author = author or post.author
-    last = PostRevision.objects.filter(post=post).order_by('-date')[:1]
-    content, author, date = post.combine(), post.lastedit_user, post.lastedit_date
-    # compute the unified difference
-    prev = last[0].content if last else ''
-    if content != prev:
-        diff = ''.join(difflib.unified_diff(prev.splitlines(1), content.splitlines(1)))
-        rev  = PostRevision.objects.create(diff=diff, content=content, author=author, post=post, date=date)    
-        post.revision_count += 1
-        post.save()
+    revs = PostRevision.objects.filter(post=post).order_by('-date')[:1]
+    curr = post.combine()
+    
+    if not revs:
+        diff = get_diff('', curr)
+    else:
+        last = revs[0].content
+        diff = get_diff(last, curr)
+        
+    # compare the content of previus revision
+    if diff:
+        rev = PostRevision.objects.create(diff=diff, content=curr, author=author, post=post)
         #search.update(post=post, created=False)
 
 @transaction.commit_on_success
@@ -583,7 +585,6 @@ def insert_vote(post, user, vote_type):
         for vote in votes:
             vote.delete()
         msg = '%s removed' % vote.get_type_display()
-        logger.info('%s\t%s\t%s' % (user.id, post.id, msg) )
         return vote, msg
     
     # remove opposing votes
@@ -596,7 +597,6 @@ def insert_vote(post, user, vote_type):
     vote = Vote.objects.create(post=post, author=user, type=vote_type)
     vote.save()
     msg = '%s added' % vote.get_type_display()
-    logger.info('%s\t%s\t%s' % (user.id, post.id, msg) )
     return vote, msg
 
 class Badge(models.Model):
@@ -690,9 +690,13 @@ def verify_post(sender, instance, *args, **kwargs):
     # these types must have valid parents
     if instance.type not in POST_TOPLEVEL:
         assert instance.root and instance.parent, "Instance must have parent/root"
-         
-    instance.creation_date = instance.creation_date or datetime.now()
-    instance.lastedit_date = instance.lastedit_date or datetime.now()
+
+    now = datetime.now()
+    
+    instance.creation_date = instance.creation_date or now
+    if instance.lastedit_date is None:
+        instance.lastedit_date = instance.creation_date
+    instance.lastedit_date = instance.lastedit_date or now
     
     # some fields may not be null
     instance.rank = instance.rank or time.mktime(instance.creation_date.timetuple())
@@ -705,7 +709,7 @@ def verify_post(sender, instance, *args, **kwargs):
             
 def finalize_post(sender, instance, created, raw, *args, **kwargs):
     "Post save actions for a post"
-    
+               
     if created:
         # ensure that all posts actually have roots/parent
         if not instance.root or not instance.parent or not instance.title:
@@ -720,13 +724,13 @@ def finalize_post(sender, instance, created, raw, *args, **kwargs):
         # and content creation are separate steps
         if instance.content and not raw:
             post_create_notification(instance)
-            if instance.type != POST_COMMENT:
-                create_revision(instance)
-                
             # you can turn off indexing from the settings
             if settings.CONTENT_INDEXING:                
                 search.update(post=instance, created=created)
-                    
+
+    if instance.content and not raw:
+        create_revision(instance, instance.lastedit_user)
+
 def create_award(sender, instance, *args, **kwargs):
     "Pre save award function"
     instance.date = instance.date or datetime.now()

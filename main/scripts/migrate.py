@@ -32,6 +32,8 @@ from main.server.const import *
 # this file is in the libs folder
 import nicknames
 
+NOW = datetime.now()
+
 def xml_reader(fname, limit=None):
     """
     SE XML dumps use similar format, everything is in tags, no attributes used anywhere
@@ -265,7 +267,6 @@ def insert_posts(fname, limit, users):
                     post.parent = post.root = parent
                 post.save()
                 post.set_tags()
-                
             posts[postid] = post
             
     return posts
@@ -333,9 +334,13 @@ def insert_post_revisions(fname, limit, users, posts):
                 if (i % 1000 == 0):
                     print "*** commit at %s" % i
                     transaction.commit()
+                    
                 for key, value in data.items():
                     setattr(post, key, value)
+                    
                 post.save()
+    
+                
 
     print "*** inserting %s moderator actions" % len(alist)
     with transaction.commit_on_success():
