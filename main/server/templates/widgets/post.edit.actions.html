@@ -12,8 +12,10 @@
         &bull; <a href="/openid/login/?next={{request.path}}">log in to comment</a>
     {% endif %}
             
+        {% if post.has_revisions %}
         &bull; <a href="/revision/show/{{post.id}}/">revisions</a>
-        
+        {% endif %}
+    
     {% if post.writeable %}
     
         &bull; <a href="{% url main.server.views.post_edit post.id  %}">edit</a>

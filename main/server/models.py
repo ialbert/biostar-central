@@ -445,6 +445,10 @@ def decorate_posts(posts, user):
     For efficiency it mutates the original query. Works well for dozens of objects but
     would need to be reworked for use cases involving more than that.
     """
+    
+    for post in posts :
+        post.has_revisions = post.creation_date != post.lastedit_date
+        
     if not user.is_authenticated():
         return posts
 
@@ -458,6 +462,7 @@ def decorate_posts(posts, user):
         post.upvoted    = post.id in up_votes
         post.downvoted  = post.id in down_votes
         post.bookmarked = post.id in bookmarks
+        
     return posts
 
 @transaction.commit_on_success

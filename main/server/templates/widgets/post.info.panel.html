@@ -6,7 +6,7 @@
     {% userlink post.author %}
     {% userrep post.author %}
     
-    {% if post.lastedit_user != post.author %}
+    {% if post.has_revisions %}
         <div class="lastedit">last edit by
             {% userlink post.lastedit_user %}
         </div>
