@@ -4,22 +4,7 @@
 <tr valign="top" class={{post.get_status}}>
     
      <td colspan="3" align="right">
-        <div class="vote-box">
-            <div class="vote">
-                <input type="hidden" value="{{post.id}}">
-                {% if post.upvoted %}
-                    <div class="vote-up vote-on">&nbsp;</div>
-                {% else %}
-                    <div class="vote-up vote-off">&nbsp;</div>
-                {% endif %}
-                    <div class="vote-count">{{post.score}}</div>
-                {% if post.bookmarked %}
-                    <div class="vote-bookmark vote-on">&nbsp;</div>
-                {% else %}
-                    <div class="vote-bookmark vote-off">&nbsp;</div>
-                {% endif %}
-            </div>
-        </div>
+        {% vote_box post %}
         <div align="center">{{ post.views }} view{{post.views|pluralize}}</div>
     </td>
 
@@ -36,7 +21,7 @@
         </div>
         
         {# generates the small peek into the post #}
-        <div class="peek">{{post.content|chunk}} ... </div>
+        <div class="peek">{{post.content|truncatewords:300}}</div>
         
         {# this shows the tags on the post #}
         {% show_tags post %}

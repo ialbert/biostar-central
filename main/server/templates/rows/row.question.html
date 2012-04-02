@@ -30,7 +30,7 @@
         </div>
         
         {# generates the small peek into the post #}
-        <div class="peek">{{post.content|chunk}} ... </div>
+        <div class="peek">{{post.content|truncatewords:50}}</div>
         
         {# this shows the tags on the post #}
         {% show_tags post %}
