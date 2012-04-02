@@ -17,7 +17,7 @@ def path(*args):
 def get_datapath(blog):
     return path(settings.PLANET_DIR, "feed-%s.xml" % blog.id)
 
-def init():
+def init(limit):
     "Initialize blogs to a few known blogs"
     
     urls =[
@@ -35,7 +35,7 @@ def init():
         'http://genomeinformatician.blogspot.com/feeds/posts/default',
     ]
     
-    for url in urls[:1]:
+    for url in urls[:limit]:
         add(url)
         
 def add(url):
@@ -120,7 +120,7 @@ if __name__ == '__main__':
     parser.add_option("--url", dest="url", help="feed url to add to the database", default=None)
     parser.add_option("--download", dest="download", help="downloads feeds", action="store_true", default=False)
     parser.add_option("--update", dest="update", help="adds new posts from downloads", type=int, default=0)
-    parser.add_option("--init", dest="init", help="initializes feeds", action="store_true", default=False)
+    parser.add_option("--init", dest="init", help="initializes feeds", type=int, default=0)
     
     (opts, args) = parser.parse_args()
     
@@ -130,7 +130,7 @@ if __name__ == '__main__':
         sys.exit()
     
     if opts.init:
-        init()
+        init(opts.init)
         
     if opts.url:
         add(opts.url)

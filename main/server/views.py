@@ -382,9 +382,7 @@ def post_redirect(request, pid):
 def blog_redirect(request, pid):
     "Used to be able to count the views for a blog"
     blog = models.Post.objects.get(id=pid, type=POST_BLOG)
-    if blog.update_views(request):
-        blog.rank_change(sign=1, hours=6) 
-        blog.save()
+    models.update_post_views(post=blog, request=request, amount=43200) # 12 hour rank change
     return html.redirect( blog.get_absolute_url() )
 
 def modlog_list(request):

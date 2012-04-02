@@ -118,9 +118,9 @@ while (( "$#" )); do
     if [ "$1" = "planet" ]; then
         # initializes the planet
         echo '*** initializes the planet'
-        $PYTHON_EXE -m main.scripts.planet --init --download --update 1
+        $PYTHON_EXE -m main.scripts.planet --init 1 --download --update 1
     fi
-    
+
 	if [ "$1" = "flush" ]; then
         echo "*** flushing the database"
 		$PYTHON_EXE $DJANGO_ADMIN flush --noinput --settings=$DJANGO_SETTINGS_MODULE
@@ -184,6 +184,36 @@ while (( "$#" )); do
 		$PYTHON_EXE $DJANGO_ADMIN runserver $BIOSTAR_HOSTNAME --settings=$DJANGO_SETTINGS_MODULE
 	fi
     
+    if [ "$1" = "deploy" ]; then
+		echo "*** deploying biostar the the remote server"
+		
+        # read off the deployment variables
+        source conf/deploy.env
+        
+        # migrate the entire datadump and initialize the planet
+        time ./biostar.sh pgdrop init migrate planet
+        
+        # dump the to an SQL fixture
+        echo "--- generating $SQL_FIXTURE"
+        time ./biostar.sh pgdump
+        
+        # upload the fixture to the remote
+        echo "--- uploading $SQL_FIXTURE to $REMOTE_IMPORT"
+        rsync -azv $SQL_FIXTURE $REMOTE_IMPORT
+        
+        # generate the index
+        echo "--- generating the index"
+        time ./biostar.sh index
+        
+        # synchronize the remote index
+        echo "--- uploading the indices"
+        rsync -azv main/db/index/* $REMOTE_INDEX
+
+        echo ""
+        echo "--- uploaded $SQL_FIXTURE to the remote location $REMOTE_IMPORT"
+        echo ""
+	fi
+       
 shift
 done
 
