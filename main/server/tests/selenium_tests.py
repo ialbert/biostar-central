@@ -55,14 +55,16 @@ def fill(browser, name, text, submit=True):
 
 def post_lookup(browser):
     click = partial(click_func, browser)
-    link = "Gene ID conversion tool"
-    elem, text = click(link)
+    target = "Gene ID conversion tool"
+    elem, text = click(target)
     words = "5 answers,Dondrup,uniprot,Biomart".split(",")
     check(text, words=words)
     targets = "similar posts".split(",")
     for link in targets:
         click(link)
-        browser.back()
+        click("Questions")
+        click(target)
+        
     click("Renee")
 
 def authenticate(uid, browser):
@@ -97,7 +99,7 @@ def create_content(browser):
     
     # check the question appears on other pages
     click("Questions")
-    click(tTITLE)
+    click(TITLE)
     
     # check the that search works
     fill(browser, 'q', "Mayotte")
@@ -111,7 +113,6 @@ def add_answer(browser):
     click(TITLE)
     fill(browser, 'content', 'Take a boat then a plane then a train')
     
-    
 def update_user(browser):
     click = partial(click_func, browser)
     
@@ -119,10 +120,8 @@ def update_user(browser):
     user = settings.ACTIVE_USER
     click(user.profile.display_name)
     click("Edit info")
-    fill(browser, 'scholar', "hordfUUAAAAJ", submit=False)
     fill(browser, 'my_tags', "travel")
     click("My Tags")
-    time.sleep(2)
     
 def detailed_navigation(browser):
     click = partial(click_func, browser)

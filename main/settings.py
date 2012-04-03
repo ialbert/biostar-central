@@ -266,7 +266,7 @@ LOGGING = {
     }
 }
 
-GOOGLE_TRACKER = "ABCD"
+GOOGLE_TRACKER = ""
 
 # needs to be turned on explicitly
 CONTENT_INDEXING = True
