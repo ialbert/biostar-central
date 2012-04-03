@@ -6,20 +6,33 @@ from functools import partial
 from django.conf import settings
 from main.server import models
 
-def click_func(browser, id, func=None):
-    func = func or browser.find_element_by_link_text
-    elem = func(id)
-    assert elem, 'Element %s not found' % id
-    elem.click()
-    text = page(browser)
-    return elem, text
-
 def page(browser):
     return browser.page_source.encode("ascii", errors='replace')
 
+def click_link(browser):
+    def func(link):
+        "Clicks a link"
+        print '*** link: %s' % link
+        elem = browser.find_element_by_link_text(link)
+        assert elem, 'Element %s not found' % link
+        elem.click()
+        text = page(browser)
+        return elem, text
+    return func
+
+def click_id(browser):
+    def click_id(id):
+        print '*** id: %s' % link
+        elem = func or browser.find_element_by_id
+        assert elem, 'Element %s not found' % id
+        elem.click()
+        text = page(browser)
+        return elem, text
+    return func
+
 def feed_check(browser):
     "Checks the feeds"
-    click = partial(click_func, browser)
+    click = click_link(browser)
     elem, text  = click('About')
     elem, text  = click('Feeds page')
     targets = "Latest Questions,Follow multiple posts,Follow multiple tags,Follow multiple users".split(",")
@@ -29,13 +42,13 @@ def feed_check(browser):
         
 def simple_navigation(browser):
     "Simple navigation through the site"
-    click = partial(click_func, browser)
-    targets = "Tags Users Badges About FAQ Recent Popular Questions Unanswered Planet Forum Tutorials Search!".split()
-    targets.extend( [ 'My Tags', 'New Post!', 'Sign In' ] )
+    click = click_link(browser)
+    targets = "Tags Badges About FAQ Recent Popular Questions Unanswered Planet Forum Tutorials Search!".split()
+    targets.extend( [ 'New Post!', 'My Tags', 'Sign In' ] )
     for link in targets:    
         elem, text = click(link)
 
-    drilldown = "Users,Istvan Albert,Bookmarks,Moderator,Tags,sequence".split(",")
+    drilldown = "Users,Istvan Albert,Bookmarks,Moderator,Tags,sequence,Badges,Teacher".split(",")
     for link in drilldown: 
         elem, text = click(link)
 
@@ -54,7 +67,7 @@ def fill(browser, name, text, submit=True):
     return text
 
 def post_lookup(browser):
-    click = partial(click_func, browser)
+    click = click_link(browser)
     target = "Gene ID conversion tool"
     elem, text = click(target)
     words = "5 answers,Dondrup,uniprot,Biomart".split(",")
@@ -68,7 +81,7 @@ def post_lookup(browser):
     click("Renee")
 
 def authenticate(uid, browser):
-    click = partial(click_func, browser)
+    click = click_link(browser)
     link = "Sign In"
     
     settings.SELENIUM_TEST_LOGIN_TOKEN = 'murjkj4'
@@ -86,7 +99,7 @@ authenticate_mod  = partial(authenticate, 2)
 TITLE = "How to get to Zanzibar?"
 
 def create_content(browser):
-    click = partial(click_func, browser)
+    click = click_link(browser)
     click('New Post!')
     
     fill(browser, 'title', TITLE)
@@ -106,7 +119,7 @@ def create_content(browser):
     click(TITLE)
 
 def add_answer(browser):
-    click = partial(click_func, browser)
+    click = click_link(browser)
     
     # check the question appears on other pages
     click("Questions")
@@ -114,7 +127,7 @@ def add_answer(browser):
     fill(browser, 'content', 'Take a boat then a plane then a train')
     
 def update_user(browser):
-    click = partial(click_func, browser)
+    click = click_link(browser)
     
     # modify the mytags settings
     user = settings.ACTIVE_USER
@@ -124,11 +137,11 @@ def update_user(browser):
     click("My Tags")
     
 def detailed_navigation(browser):
-    click = partial(click_func, browser)
+    click = click_link(browser)
     
 def full_search(browser):
     "Searches via the main tab"
-    click = partial(click_func, browser)
+    click = click_link(browser)
     click('Search!')
     
     elems = browser.find_elements_by_name('q')
@@ -150,15 +163,16 @@ def quick_search(browser):
     
 tests = [
     simple_navigation,
-    detailed_navigation,
-    post_lookup,
-    quick_search,
-    feed_check,
-    authenticate_user,
-    create_content,
-    update_user,
-    authenticate_mod,
-    add_answer,
+    
+    #detailed_navigation,
+    #post_lookup,
+    #quick_search,
+    #feed_check,
+    #authenticate_user,
+    #create_content,
+    #update_user,
+    #authenticate_mod,
+    #add_answer,
 ]
 
 def main(url):

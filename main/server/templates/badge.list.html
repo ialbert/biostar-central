@@ -14,9 +14,9 @@
     {% for badge in badges %} 
         <tr>
             <td style="width: 25px;"></td>
-            <td style="width: 200px;">
+            <td style="width: 200px;" class="badge">
+                {% spaceless %}<span class="{{badge.get_type_display}}">&#8226;</span>{% endspaceless %}
                 <a class="badge" href="/badge/show/{{badge.id}}/">
-                    {% spaceless %}<span class="{{badge.get_type_display}}">&#8226;</span>{% endspaceless %}
                     {{badge.name}}
                 </a>
                 <span class="multiplier">x {{badge.count}}</span></td>
