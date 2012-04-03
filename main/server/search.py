@@ -74,12 +74,12 @@ def search_query(request, text, subset=None):
         results = map(decorate, results)
         if subset:
             results = filter(lambda r:r['type']in subset, results)
+        searcher.close()
+        ix.close()
     except Exception, exc:
         messages.error(request, "Search error: %s" % exc)
         results = []
-    finally:
-        searcher.close()
-        ix.close()
+   
     return results
 
 def decorate(res):

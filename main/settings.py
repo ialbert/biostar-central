@@ -271,6 +271,15 @@ GOOGLE_TRACKER = "ABCD"
 # needs to be turned on explicitly
 CONTENT_INDEXING = True
 
+# rank gains expressed in hours
+POST_UPVOTE_RANK_GAIN = 3
+POST_VIEW_RANK_GAIN = 1
+BLOG_VIEW_RANK_GAIN = 12
+
+# if this is set together with the DEBUG mode allows test logins
+# don't turn it on in production servers!
+SELENIUM_TEST_LOGIN_TOKEN = None
+
 # version check, we can do it at the end since
 # the version is only required in subsequent modules
 if sys.version_info < (2, 6):

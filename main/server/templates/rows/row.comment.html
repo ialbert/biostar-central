@@ -18,7 +18,7 @@
 
     <td class="summary">
          <a href="{{post.get_absolute_url}}" class="under">{{post.title}}</a>
-         <div class="peek">{{post.content|chunk|safe}}</div>
+         <div class="peek">{{post.content|truncatewords:30}}</div>
          
         <div class="started right">
             <span class="relativetime">{% time_ago post.creation_date %}</span>

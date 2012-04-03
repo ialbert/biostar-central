@@ -36,7 +36,7 @@ class UserForm(forms.Form):
     website      = forms.CharField(max_length=80,  required=False, initial="", widget=forms.TextInput(attrs={'size':'50'}))
     my_tags      = forms.CharField(max_length=80,  required=False, initial="", widget=forms.TextInput(attrs={'size':'50'}))
     about_me     = forms.CharField(max_length=500, required=False, initial="", widget=forms.Textarea (attrs={'class':'span6'}))
-    scholar      = forms.CharField(max_length=500, required=False, initial="", widget=forms.TextInput(attrs={'size':'30'}))
+    scholar      = forms.CharField(max_length=50,  required=False, initial="", widget=forms.TextInput(attrs={'size':'30'}))
 
 LAST_CLEANUP = datetime.now()
 def cleanup(request):
@@ -252,4 +252,23 @@ def approve_merge(request, master_id, remove_id):
     
     messages.info(request, 'Merge completed')
     return html.redirect("/")
-   
+
+def test_login(request, uid, token):
+    "This will allow test logins. Don't turn it on during production!"
+    from django.contrib.auth import authenticate, login
+    
+    allow = (token == settings.SELENIUM_TEST_LOGIN_TOKEN)
+    if settings.DEBUG and settings.SELENIUM_TEST_LOGIN_TOKEN and allow:
+        user = models.User.objects.get(id=uid)
+        password = models.make_uuid()
+        user.set_password(password)
+        user.save()
+        user = authenticate(username=user.username, password=password)
+        login(request=request, user=user)
+        messages.info(request, "Test login complete.")
+    else:
+        messages.error(request, "Test login failed.")
+        
+    return html.redirect("/")   
+        
+    

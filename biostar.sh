@@ -121,7 +121,7 @@ while (( "$#" )); do
     if [ "$1" = "planet" ]; then
         # initializes the planet
         echo '*** initializes the planet'
-        $PYTHON_EXE -m main.scripts.planet --init 1 --download --update 1
+        $PYTHON_EXE -m main.scripts.planet --init 30 --download --update 1
     fi
 
 	if [ "$1" = "flush" ]; then
@@ -157,7 +157,7 @@ while (( "$#" )); do
     if [ "$1" = "pgdump" ]; then
         # dumps a postgres database to a file
         echo "*** dumping database $PG_DBNAME to $SQL_FIXTURE"
-        pg_dump $PG_DBNAME > $SQL_FIXTURE
+        pg_dump -O -x $PG_DBNAME > $SQL_FIXTURE
         wc -l $SQL_FIXTURE
 	fi
     
@@ -185,6 +185,13 @@ while (( "$#" )); do
     if [ "$1" = "run" ]; then
 		echo "*** running the webserver on $BIOSTAR_HOSTNAME"
 		$PYTHON_EXE $DJANGO_ADMIN runserver $BIOSTAR_HOSTNAME --settings=$DJANGO_SETTINGS_MODULE
+	fi
+    
+    if [ "$1" = "selenium" ]; then
+        # needs to reindex to be most up to date
+        $PYTHON_EXE -m main.server.search
+		echo "*** running selenium on $SELENIUM_TEST_URL"
+		$PYTHON_EXE main/server/tests/selenium_tests.py $SELENIUM_TEST_URL
 	fi
     
     if [ "$1" = "deploy" ]; then

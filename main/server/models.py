@@ -260,8 +260,9 @@ class Post(models.Model):
         else:
             return "TITLE:%s\n%s\nTAGS:%s" % (self.title, self.content, self.tag_val)
 
-def update_post_views(post, request, amount=3600):
+def update_post_views(post, request, hours=1):
     "Views are updated per user session"
+    amount = hours * 3600
     if request.user.is_anonymous():
         return
     viewed = request.session.get(SESSION_VIEW_COUNT, set())
@@ -520,7 +521,7 @@ class Note(models.Model):
     def status(self):
         return 'unread' if self.unread else "old"
      
-def post_score_change(post, amount, hours=1):
+def post_score_change(post, amount=1, hours=1):
     "How post score changes with votes. Both the rank and the score changes"
 
     root = post.root
@@ -562,11 +563,11 @@ class Vote(models.Model):
         
         post, root = self.post, self.post.root
         if self.type == VOTE_UP:
-            post_score_change(post, dir)
-            user_score_change(post.author, dir)
+            post_score_change(post, amount=dir, hours=settings.POST_UPVOTE_RANK_GAIN)
+            user_score_change(post.author, amount=dir)
         
         if self.type == VOTE_DOWN:
-            post_score_change(post, -dir)
+            post_score_change(post, amount=-dir, hours=settings.POST_UPVOTE_RANK_GAIN)
             
         if self.type == VOTE_ACCEPT:
             post.accepted = root.accepted = (dir == 1)

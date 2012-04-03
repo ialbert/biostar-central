@@ -230,13 +230,13 @@ def post_show(request, pid):
     try:
         root = query.get(id=pid)
         # update the views for the question
-        models.update_post_views(post=root, request=request)
+        models.update_post_views(post=root, request=request, hours=settings.POST_VIEW_RANK_GAIN)
     except models.Post.DoesNotExist, exc:
         messages.warning(request, 'The post that you are looking for does not exists. Perhaps it was deleted!')
         return html.redirect("/")
     
     # get all answers to the root
-    children = models.Post.objects.filter(root=root).exclude(type=POST_COMMENT).select_related('author', 'author__profile').order_by('-accepted', '-score')
+    children = models.Post.objects.filter(root=root).exclude(type=POST_COMMENT, id=root.id).select_related('author', 'author__profile').order_by('-accepted', '-score', 'creation_date')
     
     # comments need to be displayed by creation date
     comments = models.Post.objects.filter(root=root, type=POST_COMMENT).select_related('author', 'author__profile').order_by('creation_date')
@@ -367,7 +367,7 @@ def post_redirect(request, pid):
 def blog_redirect(request, pid):
     "Used to be able to count the views for a blog"
     blog = models.Post.objects.get(id=pid, type=POST_BLOG)
-    models.update_post_views(post=blog, request=request, amount=43200) # 12 hour rank change
+    models.update_post_views(post=blog, request=request, amount=settings.BLOG_VIEW_RANK_GAIN) # 12 hour rank change
     return html.redirect( blog.get_absolute_url() )
 
 def modlog_list(request):

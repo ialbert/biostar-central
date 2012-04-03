@@ -50,6 +50,7 @@ from django_openid_auth.exceptions import (
 class OpenIDBackend:
     """A django.contrib.auth backend that authenticates the user based on
     an OpenID response."""
+    supports_inactive_user = False
 
     def get_user(self, user_id):
         try:
