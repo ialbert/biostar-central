@@ -4,46 +4,56 @@ from selenium.webdriver.common.keys import Keys
 import time
 from functools import partial
 from django.conf import settings
-from main.server import models
+from main.server import models, const
 
 def page(browser):
     return browser.page_source.encode("ascii", errors='replace')
 
-def click_link(browser):
-    def func(link):
-        "Clicks a link"
-        print '*** link: %s' % link
-        elem = browser.find_element_by_link_text(link)
-        assert elem, 'Element %s not found' % link
-        elem.click()
-        text = page(browser)
-        return elem, text
-    return func
-
-def click_id(browser):
-    def click_id(id):
-        print '*** id: %s' % link
-        elem = func or browser.find_element_by_id
-        assert elem, 'Element %s not found' % id
-        elem.click()
-        text = page(browser)
-        return elem, text
-    return func
+def contains(text, parts):
+    for part in parts:
+        # give it a chance to load, not sure if this does what I think it does though
+        for i in range(10):
+            if part in text:
+                break
+            time.sleep(0.2)
+        assert part in text, "Unable to find %s in the text" % part
+        
+def get(browser, link=None, name=None, id=None):
+    if link:
+        print '*** link:%s' % link
+        return browser.find_element_by_partial_link_text(link)
+    elif name:
+        print '*** name:%s' % name
+        return browser.find_element_by_name(name)
+    elif id:
+        print '*** id:%s' % id
+        return browser.find_element_by_id(id)
+    else:
+        raise Exception("no identifiers were set")
+        
+def click_func(browser, link=None, name=None, id=None):
+    elem = get(browser, name=name, id=id, link=link)
+    assert elem, 'Element name=%s, id=%s not found' % (name, id)
+    elem.click()
+    text = page(browser)
+    return elem, text
 
 def feed_check(browser):
     "Checks the feeds"
-    click = click_link(browser)
+    click = partial(click_func, browser)
+    
     elem, text  = click('About')
     elem, text  = click('Feeds page')
     targets = "Latest Questions,Follow multiple posts,Follow multiple tags,Follow multiple users".split(",")
     for link in targets:    
-        elem, text = click(link) # Find the query box
+        elem, text = click(link)
         elem = browser.back()
         
 def simple_navigation(browser):
     "Simple navigation through the site"
-    click = click_link(browser)
-    targets = "Tags Badges About FAQ Recent Popular Questions Unanswered Planet Forum Tutorials Search!".split()
+    click = partial(click_func, browser)
+    
+    targets = "Tags Badges About FAQ Recent Popular Questions Unanswered Planet Forum Tutorials Search! RSS".split()
     targets.extend( [ 'New Post!', 'My Tags', 'Sign In' ] )
     for link in targets:    
         elem, text = click(link)
@@ -52,93 +62,99 @@ def simple_navigation(browser):
     for link in drilldown: 
         elem, text = click(link)
 
-def check(text, words):
-    for word in words:
-        assert word in text, "Unable to find %s in the text" % word
 
-def fill(browser, name, text, submit=True):
-    elem = browser.find_element_by_name(name)
+def fill(browser, text, name=None, id=None, submit=False):
+    elem  = get(browser, name=name, id=id)
     erase = Keys.BACK_SPACE * 100
-    elem.send_keys(erase)
     submit = Keys.RETURN if submit else ''
-    elem.send_keys(text + submit)
+    elem.send_keys(erase + text + submit)
     time.sleep(0.5)
     text = page(browser)
     return text
-
+    
 def post_lookup(browser):
-    click = click_link(browser)
+    click = partial(click_func, browser)
+    
     target = "Gene ID conversion tool"
     elem, text = click(target)
-    words = "5 answers,Dondrup,uniprot,Biomart".split(",")
-    check(text, words=words)
-    targets = "similar posts".split(",")
+    parts = "5 answers,Dondrup,uniprot,Biomart".split(",")
+    contains(text, parts=parts)
+    targets = "similar posts,permalink,revisions".split(",")
     for link in targets:
         click(link)
-        click("Questions")
-        click(target)
+        browser.back()
         
+    # the username that created this post
     click("Renee")
 
-def authenticate(uid, browser):
-    click = click_link(browser)
-    link = "Sign In"
-    
-    settings.SELENIUM_TEST_LOGIN_TOKEN = 'murjkj4'
-    settings.ACTIVE_USER = models.User.objects.get(id=uid)
-    
+def login(browser, uid):
+    "Logs in with a user"
     url = browser.current_url + "test/login/%s/%s/" % (uid, settings.SELENIUM_TEST_LOGIN_TOKEN)
     browser.get(url)
     text = page(browser)
-    
     assert 'Test login ' in text
+    user = models.User.objects.get(id=uid)
+    return user
 
-authenticate_user = partial(authenticate, 10)
-authenticate_mod  = partial(authenticate, 2)
+def create_content_1(browser):    
+    # logging in as a general user
 
-TITLE = "How to get to Zanzibar?"
-
-def create_content(browser):
-    click = click_link(browser)
-    click('New Post!')
+    root = browser.current_url
+    user = login(browser=browser, uid=10)
     
-    fill(browser, 'title', TITLE)
-    fill(browser, 'tag_val', "zanzibar travel")
-    fill(browser, 'content', "Other nearby island countries and territories include \
+    click = partial(click_func, browser)
+
+    click('New Post!')
+
+    title = "How to get to Zanzibar?"
+    fill(browser, title, name='title')
+    fill(browser, "zanzibar", name='tag_val' )
+    fill(browser, "Other nearby island countries and territories include \
          Comoros and Mayotte to the south, Mauritius and Reunion to the far southeast,\
-    and the Seychelles Islands about 1,500 km to the east")
-    click("Submit Post")
-    click("travel")
+    and the Seychelles Islands about 1,500 km to the east", name='content')
+    click(id="submit-button")
+    click("zanzibar")
     
     # check the question appears on other pages
     click("Questions")
-    click(TITLE)
+    click(title)
     
     # check the that search works
-    fill(browser, 'q', "Mayotte")
-    click(TITLE)
-
-def add_answer(browser):
-    click = click_link(browser)
+    fill(browser, "Mayotte", name='q', submit=True)
+    click(title)
+    click('edit')
+    fill(browser, "zanzibar travel", name='tag_val')
+    click(id="submit-button")
+    click('travel')
+    click(title)
+    click('revisions')
     
-    # check the question appears on other pages
-    click("Questions")
-    click(TITLE)
-    fill(browser, 'content', 'Take a boat then a plane then a train')
+    # add an answer, back to root
+    browser.get(root)
+    user = login(browser=browser, uid=2)
+    click(title)
+    fill(browser, 'Take a boat then a plane then a train', name='content')
+    click(id="submit-button")
     
 def update_user(browser):
-    click = click_link(browser)
+    click = partial(click_func, browser)
+    root = browser.current_url
     
-    # modify the mytags settings
-    user = settings.ACTIVE_USER
+    user = login(browser=browser, uid=10)
     click(user.profile.display_name)
     click("Edit info")
-    fill(browser, 'my_tags', "travel")
-    click("My Tags")
-    
-def detailed_navigation(browser):
-    click = click_link(browser)
-    
+    fill(browser, "mapping", name="my_tags")
+    fill(browser, "Cool Bot", name="display_name")
+    click(id='submit-button')
+    click("My Tags")    
+    title = "Gene ID conversion tool"
+    click(title)
+ 
+    click("RSS")
+    click("Activity Feed")
+    browser.back()
+    click("My Tags Feed")
+
 def full_search(browser):
     "Searches via the main tab"
     click = click_link(browser)
@@ -155,32 +171,93 @@ def full_search(browser):
 def quick_search(browser):    
     "Searches via the top box"
     
-    text = fill(browser, 'q', "motif")
-    assert 'Finding common' in text
+    click = partial(click_func, browser)
     
-    text = fill(browser, 'q', 'NO_SUCH_WORD_FOUND')
-    assert 'found 0 results' in text
+    text = fill(browser, "motif", name='q', submit=True)
+    contains(text, parts=[ "Finding common motifs",  ])
+    
+    text = fill(browser, 'NO_SUCH_WORD_FOUND', name='q', submit=True)
+    contains(text, parts=[ 'found 0 results' ])
+  
+def voting_test(browser):
+    title = "Gene ID conversion tool"
+    
+    user = login(browser=browser, uid=10)
+    
+    click = partial(click_func, browser)
+    title = "Gene ID conversion tool"
+    click(title)
+    
+    post = models.Post.objects.get(title=title)
+    author = post.author
+    votes  = list(models.Vote.objects.filter(author=user, post=post, type=const.VOTE_UP))
+    
+    get_score = lambda x: models.User.objects.get(id=x).profile.score
+    # get the scores
+    
+    score1 = get_score(author.id)
+    first  = browser.find_elements_by_class_name("vote-up")[0]
+    first.click()
+    time.sleep(1)
+    
+    score2 = get_score(author.id)
+    diff = score2 - score1
+    
+    # existing vote, removes vote
+    if votes:
+        assert diff== -1, "Voting error 1"
+    else:
+        assert diff == +1, "Voting error 2"
+
+    # second round of voting
+    votes  = list(models.Vote.objects.filter(author=user, post=post, type=const.VOTE_UP))
+    first.click()
+    time.sleep(1)
+    score3 = get_score(author.id)
+    diff = score3 - score2
+    
+    if votes:
+        assert diff== -1, "Voting error 1"
+    else:
+        assert diff == +1, "Voting error 2"
+    
+    # it is already bookmarked it will remove the bookmark
+    bookmarked = models.Vote.objects.filter(author=user, post=post, type=const.VOTE_BOOKMARK).count()
+    
+    # check bookmarking
+    bookmark  = browser.find_elements_by_class_name("vote-bookmark")[0]
+    bookmark.click()
+    
+    count = models.Vote.objects.filter(author=user, post=post, type=const.VOTE_BOOKMARK).count()
+    if bookmarked:
+        assert count == 0, 'Bookmark has not been removed'
+    else:
+        assert count == 1, 'Item was not bookmarked'
+        click(user.profile.display_name)
+        click('Bookmarks')
+        click(title)
+        
+       
     
 tests = [
     simple_navigation,
-    
-    #detailed_navigation,
-    #post_lookup,
-    #quick_search,
-    #feed_check,
-    #authenticate_user,
-    #create_content,
-    #update_user,
-    #authenticate_mod,
-    #add_answer,
+    post_lookup,
+    feed_check,
+    quick_search,
+    update_user,
+    create_content_1,
+    voting_test,
 ]
 
 def main(url):
     browser = webdriver.Firefox()
+    browser.implicitly_wait(1)
+    
     for func in tests:
         browser.get(url)
         func(browser)
     browser.close()
+
     
 if __name__ == '__main__':
     import sys
