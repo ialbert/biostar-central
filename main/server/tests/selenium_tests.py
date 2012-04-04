@@ -88,17 +88,18 @@ def post_lookup(browser):
     click("Renee")
     
     click("Planet")
-    blog = models.Post.objects.filter(type=const.POST_BLOG)[0]
-    click(blog.title)
-    browser.back()
+    #blog = models.Post.objects.filter(type=const.POST_BLOG)[0]
+    #click(blog.title)
+    #browser.back()
     
 def login(browser, uid):
     "Logs in with a user"
+    print '*** logging in user %s' % uid
+    user = models.User.objects.get(id=uid)
     url = browser.current_url + "test/login/%s/%s/" % (uid, settings.SELENIUM_TEST_LOGIN_TOKEN)
     browser.get(url)
     text = page(browser)
-    assert 'Test login ' in text
-    user = models.User.objects.get(id=uid)
+    contains(text, [ "login complete" ])
     return user
 
 def create_content_1(browser):    
