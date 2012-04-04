@@ -283,7 +283,11 @@ def get_post_manager(user):
     
 def query_by_tags(user, text=''):
     "Returns a query by tags"
+    
     posts = get_post_manager(user)
+    if not text.strip():
+        return posts.filter(type=-1)
+        
     tags  = re.split("(\+|-)", text)
     active = include = []
     exclude = []

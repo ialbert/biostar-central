@@ -13,7 +13,7 @@ def show_value(value):
 @register.simple_tag
 def show_count(key, store):
    count = store.get(key)
-   return " (%s) " % count if count else ""
+   return "(%s)" % count if count else ""
    
 @register.inclusion_tag('widgets/form.field.html',)
 def form_field(field, label, help=''):

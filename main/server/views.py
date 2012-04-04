@@ -150,6 +150,10 @@ def show_user(request, uid, post_type=''):
 def user_profile(request, uid, tab='activity'):
     "User's profile page"
 
+    if not models.User.objects.filter(id=uid):
+        messages.error(request, "This user does not exist. It has perhaps been deleted.")
+        return html.redirect("/")
+        
     user = request.user
     target = models.User.objects.get(id=uid)
     awards = []

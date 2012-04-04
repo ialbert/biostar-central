@@ -138,6 +138,7 @@ def create_content_1(browser):
     # add an answer, back to root
     browser.get(root)
     user = login(browser=browser, uid=2)
+    click('Questions')
     click(title)
     fill(browser, 'Take a boat then a plane then a train', name='content')
     click(id="submit-button")

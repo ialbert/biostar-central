@@ -20,30 +20,35 @@ def create(request, user, badge):
     note = models.Note.objects.create(sender=user, target=user, content=text, url=award.badge.get_absolute_url() )
     messages.info(request, note.html)
 
-def check(badge, awards, func):
-    return badge and badge.name not in awards and func()
-        
+
 def instant(request):
-    "Produces an instant award if applicable and returns"
+    """
+    Produces an instant award if applicable and returns.
+    These awards may be granted during active sessions
+    """
     user = request.user
 
     badges = dict( [ (b.name, b) for b in  models.Badge.objects.all() ] )
-    awards = set( models.Award.objects.values_list('badge__name', flat=True).distinct() )
+    awards = set( models.Award.objects.filter(user=user).values_list('badge__name', flat=True).distinct() )
     
-    badge = badges.get('Teacher')
-    func = models.Post.objects.filter(author=user, score__gt=1).count
-    if check(badge, awards, func=func):
-        create(request, user=user, badge=badge)
-        return
+    def apply_award(name, func):
+        badge = badges.get(name)
+        if badge and badge.name not in awards and func():
+            create(request, user=user, badge=badge)
+            return True
+        return False
     
-    badge = badges.get('Supporter')
-    func = models.Vote.objects.filter(author=user).count
-    if check(badge, awards, func=func):
-        create(request, user=user, badge=badge)
-        return
+    def civic_duty():
+        return models.Vote.objects.filter(author=user, type=VOTE_UP).count() > 300
+        
+    pairs = [
+        ('Teacher', models.Post.objects.filter(author=user, score__gt=0).count),
+        ('Supporter', models.Vote.objects.filter(author=user).count),
+        ('Nice Question', models.Post.objects.filter(author=user, score__gt=10).count),
+        ('Famous Question', models.Post.objects.filter(author=user, score__gt=250).count),
+        ('Civic Duty', civic_duty),
+        ]
     
-    badge = badges.get('Nice Question')
-    func = models.Post.objects.filter(author=user, score__gt=10).count
-    if check(badge, awards, func=func):
-        create(request, user=user, badge=badge)
-        return
+    for name, func in pairs:
+        if apply_award(name, func):
+            return   
