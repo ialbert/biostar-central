@@ -86,7 +86,12 @@ def post_lookup(browser):
         
     # the username that created this post
     click("Renee")
-
+    
+    click("Planet")
+    blog = models.Post.objects.filter(type=const.POST_BLOG)[0]
+    click(blog.title)
+    browser.back()
+    
 def login(browser, uid):
     "Logs in with a user"
     url = browser.current_url + "test/login/%s/%s/" % (uid, settings.SELENIUM_TEST_LOGIN_TOKEN)

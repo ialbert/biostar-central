@@ -266,7 +266,9 @@ LOGGING = {
     }
 }
 
+# google analytics tracker and domain
 GOOGLE_TRACKER = ""
+GOOGLE_DOMAIN  = ""
 
 # needs to be turned on explicitly
 CONTENT_INDEXING = True

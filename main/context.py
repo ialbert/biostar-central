@@ -25,6 +25,7 @@ def extras(request):
  
     return { 'BIOSTAR_VERSION': server.VERSION,
              'GOOGLE_TRACKER': settings.GOOGLE_TRACKER,
+             'GOOGLE_DOMAIN': settings.GOOGLE_DOMAIN,
              'user':user, 
              'q':q, 
              'm':m,

@@ -627,6 +627,14 @@ def execute(path, limit=None):
     # listed in the DJAGNO settings file
     admin_init()
     tutorial_init()
+    
+    from main.scripts import planet
+    
+    # initialize the planet
+    planet.init(1)
+    planet.download()
+    planet.update(1)
+    
     finalize()
 
 if __name__ =='__main__':
