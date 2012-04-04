@@ -726,8 +726,11 @@ def finalize_post(sender, instance, created, raw, *args, **kwargs):
         if instance.content and not raw:
             post_create_notification(instance)
             # you can turn off indexing from the settings
-            if settings.CONTENT_INDEXING:                
-                search.update(post=instance, created=created)
+            if settings.CONTENT_INDEXING:
+                try:
+                    search.update(post=instance, created=created)
+                except Exception, exc:
+                    logger.error("unable to index %s" % exc)
 
     if instance.content and not raw:
         create_revision(instance, instance.lastedit_user)
