@@ -272,6 +272,7 @@ def update_post_views(post, request, hours=1):
         post.views += 1
         viewed.add(post.id)
         request.session[SESSION_VIEW_COUNT] = viewed
+        View.objects.create(user=request.user, post=post)
     return post
     
 def get_post_manager(user):
@@ -325,14 +326,21 @@ class Related(models.Model):
     source  = models.ForeignKey(Post, related_name="source")
     target  = models.ForeignKey(Post, related_name="target")
 
-# TODO, not yet used
 class Visit(models.Model):
     """
     Keeps track of user visits
     """
-    source  = models.ForeignKey(User)
-    date    = models.DateTimeField(null=False)
-    address = models.GenericIPAddressField(default='', null=True, blank=True)
+    ip = models.GenericIPAddressField(default='', null=True, blank=True)
+    user  = models.ForeignKey(User)
+    date  = models.DateTimeField(null=False, auto_now=True)
+
+class View(models.Model):
+    """
+    Keeps track of post views
+    """
+    user  = models.ForeignKey(User, related_name="user_views")
+    post  = models.ForeignKey(Post, related_name="post_views")
+    date  = models.DateTimeField(null=False, auto_now=True)
     
 # TODO: not yet used, will speed up queries
 class PostBody(models.Model):
