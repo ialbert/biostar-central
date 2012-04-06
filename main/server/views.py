@@ -115,9 +115,7 @@ def index(request, tab=""):
     
     # reset the counts
     update_counts(request, tab, 0)
-
     page = get_page(request, posts, per_page=20)
-    
     return html.template(request, name='index.html', page=page, params=params, counts=counts)
 
 def show_tag(request, tag_name=None):

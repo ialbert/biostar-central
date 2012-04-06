@@ -69,8 +69,10 @@ class LastVisit(object):
 
         return None
 
-
-class PermissionsMiddleware(object):
+class ErrorCheckMiddleware(object):
     ''' Calculates the logged-in user's permissions and adds it to the request object. '''
-    def process_request(self, request):
-        pass
+    
+    def process_exception(self, request, exc):
+        path = request.path
+        params = html.Params(exc=exc, path=path)
+        return html.template(request, name='500.html', params=params)
