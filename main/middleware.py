@@ -47,18 +47,20 @@ class LastVisit(object):
                
                 awards.instant(request)
                 
+                # add the visit to the database
+                try:
+                    # trying to establish the IP location
+                    ip1 = request.META.get('REMOTE_ADDR', '')
+                    ip2 = request.META.get('HTTP_X_FORWARDED_FOR','').split(",")[0].strip()
+                    ip  = ip1 or ip2 or '0.0.0.0'
+                    models.Visit.objects.create(ip=ip, user=user)
+                except Exception ,exc:
+                    print '*** ip handling error %s' % exc
+                    
             # a handy shortcut
             request.user.can_moderate = profile.can_moderate
             
-            # add the visit to the database
-            try:
-                # trying to establish the IP location
-                ip1 = request.META.get('REMOTE_ADDR', '')
-                ip2 = request.META.get('HTTP_X_FORWARDED_FOR','').split(",")[0].strip()
-                ip  = ip1 or ip2 or '0.0.0.0'
-                models.Visit.objects.create(ip=ip, user=user)
-            except Exception ,exc:
-                print '*** ip handling error %s' % exc
+            
  
         else:
             request.user.can_moderate = False

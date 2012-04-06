@@ -318,6 +318,15 @@ class Blog(models.Model):
     author  = models.ForeignKey(User)
     url     = models.URLField(max_length=500)
 
+class BlogAdmin(admin.ModelAdmin):
+    list_display = ('url', 'username', 'author')
+    search_fields = ['author__email']
+    def username(self, obj):
+        return "%s, id=%s" % (obj.author.email, obj.author.id)
+    username.short_description = 'Description'
+    
+admin.site.register(Blog, BlogAdmin)
+
 # TODO, not yet used
 class Related(models.Model):
     """
@@ -333,6 +342,15 @@ class Visit(models.Model):
     ip = models.GenericIPAddressField(default='', null=True, blank=True)
     user  = models.ForeignKey(User)
     date  = models.DateTimeField(null=False, auto_now=True)
+
+class VisitAdmin(admin.ModelAdmin):
+    list_display = ('ip', 'username', 'user', 'date')
+    search_fields = ['user__email']
+    def username(self, obj):
+        return "%s, id=%s" % (obj.user.email, obj.user.id)
+    username.short_description = 'Description'
+    
+admin.site.register(Visit, VisitAdmin)
 
 class View(models.Model):
     """

@@ -57,6 +57,10 @@
         <div>Member for: {{ target.date_joined|timesince }}</div>
         <div>Last seen: {{ target.profile.last_visited|timesince }} ago </div>
         
+        {% if user == target and user.profile.is_admin %}
+            <div>Admin: <a href="/admin/">admin login</a></div>
+        {% endif %}
+        
         <div>
         {# editable #}    
         {% if target.writeable %}
@@ -64,6 +68,8 @@
             <a class="btn btn-primary" href="{% url main.server.action.user_edit target.id %}"><i class="icon-edit icon-white"></i> Edit info</a>
         {% endif %}
     
+        
+       
         {# moderator access #}
         {% if target.writeable and user != target%}
             &nbsp;&bull;&nbsp;
