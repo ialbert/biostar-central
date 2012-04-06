@@ -680,6 +680,10 @@ if __name__ =='__main__':
     # also run the doctests
     #doctest.testmod()
     
+    # update the site domain
+    from main.scripts import site_domain
+    site_domain.update()
+    
     print '*** migration path %s' % opts.path
     if opts.log:
         LOGSTREAM = sys.stdout 
