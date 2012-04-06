@@ -29,17 +29,6 @@ from main.server.const import *
 import logging
 logger = logging.getLogger(__name__)
 
-# manage sites
-from django.contrib.sites.models import Site
-
-def update_site_domain():
-    site = Site.objects.get(id=settings.SITE_ID)
-    if site.domain != settings.SITE_DOMAIN:
-        site.domain = settings.SITE_DOMAIN
-        site.save()
-
-# trigger it on first import        
-update_site_domain()
 
 def update_counts(request, key, value):
     counts = request.session.get(SESSION_POST_COUNT,{})
