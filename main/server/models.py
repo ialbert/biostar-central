@@ -144,8 +144,8 @@ class Post(models.Model):
     html    = models.TextField(blank=True) # this is the sanitized HTML for display
     title   = models.TextField(max_length=200)
     slug    = models.SlugField(blank=True, max_length=200)
-    tag_val = models.CharField(max_length=200) # The tag value is the canonical form of the post's tags
-    tag_set = models.ManyToManyField(Tag) # The tag set is built from the tag string and used only for fast filtering
+    tag_val = models.CharField(max_length=200, blank=True,) # The tag value is the canonical form of the post's tags
+    tag_set = models.ManyToManyField(Tag, blank=True,) # The tag set is built from the tag string and used only for fast filtering
     views = models.IntegerField(default=0, blank=True, db_index=True)
     score = models.IntegerField(default=0, blank=True, db_index=True)
     full_score = models.IntegerField(default=0, blank=True, db_index=True)
