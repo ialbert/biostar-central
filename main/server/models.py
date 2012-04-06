@@ -641,6 +641,11 @@ class Badge(models.Model):
     def get_absolute_url(self):
         return "/badge/show/%s/" % self.id
 
+    def __unicode__(self):
+        return self.name
+    
+admin.site.register(Badge)
+
 class Award(models.Model):
     '''
     A badge being awarded to a user.Cannot be ManyToManyField
@@ -662,6 +667,11 @@ class Award(models.Model):
         prof.save()
         self.badge.count += dir
         self.badge.save()
+    
+    def __unicode__(self):
+        return "%s earned by %s" % (self.badge.name, self.user.email)
+    
+admin.site.register(Award)
 
 # most of the site functionality, reputation change
 # and voting is auto applied via database signals
