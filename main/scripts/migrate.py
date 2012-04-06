@@ -396,6 +396,8 @@ def insert_votes(fname, limit, users, posts):
             vote_type = const.VOTE_UP
         elif VoteType == '3':
             vote_type = const.VOTE_DOWN
+        elif VoteType == '5':
+            vote_type = const.VOTE_BOOKMARK
         else:
             continue
         param = dict(post=post, author=user, type=vote_type)
