@@ -28,9 +28,31 @@ from django.utils.datastructures import SortedDict
 
 # import all constants
 from main.server.const import *
+import random
+from urlparse import urlparse
 
-# this file is in the libs folder
-import nicknames
+PROVIDERS = ('myopenid.com', 'aol.com')
+
+def generate_nickname(url='', email=''):
+    """
+    Attempts to generate a nickname from a URL, email and finally a random nickname
+    """
+    nick1 = nick2 = ''
+    try:
+        loc = urlparse(url).netloc
+        # openid providers that encode username in the openid url
+        for provider in PROVIDERS: 
+            if loc.endswith(provider):
+                nick1 = loc.split('.')[0]
+        nick2 = email.split('@')[0].strip()
+    except Exception, exc:
+        print '*** nickname generation error %s'  % exc
+    nick3 = "User %04d" % random.randint(1, 10**4)
+    nickname = nick1 or nick2 or nick3
+    
+    print '*** generated nickname %s' % nickname
+    
+    return nickname
 
 NOW = datetime.now()
 
@@ -154,9 +176,9 @@ def insert_users(fname, limit):
         openid   = row.get('OpenId', 'http://www.biostars.org')
         display_name = row.get('DisplayNameCleaned', '')
         display_name = display_name.title()
-        display_name = display_name or nicknames.guess(openid)
+        display_name = display_name or generate_nickname(url=openid)
         last_login_ip = row.get('LastLoginIP', '0.0.0.0')
-
+        
         # store profiles
         ppair = (userid, dict( display_name=display_name, website=website, location=location, 
                 last_login_ip=last_login_ip, about_me=about_me, type=utype, last_visited=last_login ))        
@@ -627,13 +649,6 @@ def execute(path, limit=None):
     # listed in the DJAGNO settings file
     admin_init()
     tutorial_init()
-    
-    from main.scripts import planet
-    
-    # initialize the planet
-    planet.init(1)
-    planet.download()
-    planet.update(1)
     
     finalize()
 
