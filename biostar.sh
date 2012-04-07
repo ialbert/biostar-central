@@ -200,8 +200,11 @@ while (( "$#" )); do
         # read off the deployment variables
         source conf/deploy.env
         
+	# remove the index
+	rm -rf main/db/index/*
+
         # migrate the entire datadump and initialize the planet
-        time ./biostar.sh pgdrop init migrate planet 
+        time ./biostar.sh pgdrop init migrate planet index
         
         # dump the to an SQL fixture
         echo "--- generating $SQL_FIXTURE"
@@ -211,10 +214,7 @@ while (( "$#" )); do
         echo "--- uploading $SQL_FIXTURE to $REMOTE_IMPORT"
         rsync -azv $SQL_FIXTURE $REMOTE_IMPORT
         
-        # generate the index
-        echo "--- generating the index"
-	rm -rf main/db/index/*
-        time ./biostar.sh index
+        
         
         # synchronize the remote index
         echo "--- uploading the indices"
