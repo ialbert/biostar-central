@@ -17,12 +17,10 @@ from itertools import *
 
 stem = StemmingAnalyzer()
 SCHEMA = fields.Schema(
+    pid     = fields.NUMERIC(stored=True, unique=True),
     title   = fields.TEXT(analyzer=stem, stored=True),
     content = fields.TEXT(analyzer=stem, stored=True), 
     type    = fields.TEXT(stored=True),
-    pid     = fields.NUMERIC(stored=True, unique=True),
-    uid     = fields.NUMERIC(stored=True),
-    author  = fields.TEXT(stored=True) 
 )
 
 def initialize(sender=None, **kwargs):
@@ -73,7 +71,8 @@ class search_error_wrapper(object):
             return []
             
 @search_error_wrapper         
-def search_query(request, text, subset=None):
+def search_results(request, text, subset=None):
+    "Returns search results for a text"
     text = text.strip()[:200]
     
     if not text:
@@ -81,7 +80,7 @@ def search_query(request, text, subset=None):
     
     ix = index.open_dir(settings.WHOOSH_INDEX)
     searcher = ix.searcher()
-    parser   = MultifieldParser(["title", "content"], schema=ix.schema)
+    parser   = MultifieldParser(["content"], schema=ix.schema)
     #parser.remove_plugin_class(WildcardPlugin)
     query    = parser.parse(text)
     results  = searcher.search(query, limit=200)
@@ -91,33 +90,37 @@ def search_query(request, text, subset=None):
         results = filter(lambda r:r['type']in subset, results)
     searcher.close()
     ix.close()
-    
+
     return results
 
 def decorate(res):
+    "Decorates search results with highlights"
     content = res.highlights('content')
-    return html.Params(title=res['title'], uid=res['uid'],
-                       pid=res['pid'], content=content, type=res['type'])
- 
+    return html.Params(title=res['title'], pid=res['pid'], content=content, type=res['type'])
+
+def get_subset(word):
+    "Returns a set of post types based on a word"
+    if word == 'all':
+        subset = []
+    elif word == 'top':
+        subset = set( (POST_MAP[key] for key in POST_TOPLEVEL) )
+    else:
+        subset = [ word ]
+    return subset
+
 def main(request):
-    
+    "Main search"
     counts = request.session.get(SESSION_POST_COUNT, {})
     
     q = request.GET.get('q','') # query
     t = request.GET.get('t','all')  # type
     
     params = html.Params(tab='search', q=q)
-
-    if t == 'all':
-        subset = None
-    elif t == 'top':
-        subset = set( (POST_MAP[key] for key in POST_TOPLEVEL) )
-    else:
-        subset = [ t ]
-
+    subset = get_subset(t)
+   
     if params.q:
         form = SearchForm(request.GET)
-        res  = search_query(request=request, text=params.q, subset=subset)
+        res  = search_results(request=request, text=params.q, subset=subset)
         size = len(res)
         messages.info(request, 'Searched results for: %s found %d results' % (params.q, size))
     else:
@@ -128,50 +131,49 @@ def main(request):
     return html.template(request, name='search.html', page=page, params=params, counts=counts, form=form)
 
 @search_error_wrapper  
-def similar_posts(request, pid):
+def more_like_this(request, pid):
     ix = index.open_dir(settings.WHOOSH_INDEX)
     searcher = ix.searcher()
     qp = QueryParser("pid", schema=ix.schema)
     qq = qp.parse(pid)
-    rr = searcher.search(qq)
-    return rr
+    doc = searcher.search(qq)
+     
+    first = doc[0]
+   
+    res = first.more_like_this("content")
+    res = map(decorate, res)
+    ix.close()
+    
+    messages.info(request, 'Posts similar to ??? %d results' % len(res))
 
+    return res
+
+import time
+def print_timing(func):
+    def wrapper(*args, **kwds):
+        start = time.time()
+        res = func(*args, **kwds)
+        end = time.time() 
+        diff = (end - start ) * 1000
+        print '**** function %s in %0.3f ms' % (func.func_name, diff)
+        return res
+    return wrapper
+
+@print_timing
 def more(request, pid):
     counts = request.session.get(SESSION_POST_COUNT, {})
     
     form = SearchForm()
     
-    params = html.Params(tab='search', q='')
-
-    rr = similar_posts(request=request, pid=pid)
+    params = html.Params(tab='search', q="like:%s" % pid)
     
-    if not rr:
-        messages.error(request, 'Server settings problem - post not present in the index!')
-        res = []
-    else:
-        first = rr[0]
-        messages.info(request, 'Searching for posts similar to: %s' % first['title'])
+    res = more_like_this(request=request, pid=pid)
     
-        subset = set( (POST_MAP[key] for key in POST_TOPLEVEL) )
-        
-        res = first.more_like_this("content")
-        res = filter(lambda x: x['type'] in subset, res)
-        res = map(decorate, res)
-        
     page = get_page(request, res, per_page=10)
+
     return html.template(request, name='search.html', page=page, params=params, counts=counts, form=form)
 
-import time
-def print_timing(func):
-    def wrapper(*args, **kwds):
-        t1 = time.time()
-        res = func(*args, **kwds)
-        t2 = time.time()
-        print '%s took %0.3f ms' % (func.func_name, (t2-t1)*1000.0)
-        return res
-    return wrapper
-
-def update(post, created, handler=None):
+def update(post, handler=None):
     "Adds/updates a post to the index"
     
     if handler:
@@ -181,18 +183,15 @@ def update(post, created, handler=None):
         writer = ix.writer()
         
     # set the author name
-    content = post.content
-    title   = post.title
-    author  = unicode(post.author.profile.display_name)
-    uid     = post.author.id
-    content = unicode(content)
-    title   = unicode(title)
+    content = unicode(post.content)
+    title  = unicode(post.title)
     type    = unicode(post.get_type_display())
-    
-    if created:                     
-        writer.add_document(content=content, pid=post.id, author=author, title=title, uid=uid, type=type)
+    if post.type in POST_TOPLEVEL:
+        content = unicode(post.title + " " + post.content)
     else:
-        writer.update_document(content=content, pid=post.id, author=author, title=title, uid=uid, type=type)
+        content = unicode(post.content)
+
+    writer.update_document(pid=post.id, content=content, title=title, type=type)
     
     # only commit if this was opened here
     if not handler:
@@ -200,31 +199,40 @@ def update(post, created, handler=None):
 
 def add_batch(posts):
     ix = index.open_dir(settings.WHOOSH_INDEX)
-    wr = ix.writer(limitmb=10)
+    wr = ix.writer(limitmb=50)
     for post in posts:
-        update(post, created=True, handler=wr)
+        update(post, handler=wr)
     wr.commit()
     ix.close()
-    
-def full_index(init=False):
-    "Runs a full indexing on all posts"
+
+def reset_index():
+    info("initializing index at %s" % settings.WHOOSH_INDEX)
+    ix = index.create_in(settings.WHOOSH_INDEX, SCHEMA)
+
+def full_index(reset=False):
+    """
+    Runs indexing on all changed posts
+    """
     from main.server import models
     import glob
 
-    if not glob.glob("%s/*" % settings.WHOOSH_INDEX):
-        info("initializing index at %s" % settings.WHOOSH_INDEX)
-        ix = index.create_in(settings.WHOOSH_INDEX, SCHEMA)
+    path = "%s/*" % settings.WHOOSH_INDEX
+    if not glob.glob(path):
+       reset_index()
 
-    all  = models.IndexTracker.objects.select_related('post').all()
-    seen = set()
-    posts = []
-    for track in all:
-        if track.post.id not in seen:
-            seen.add(track.post.id)
-            posts.append(track.post)
-    info("indexing %s posts" % len(posts))
+    def get_posts():
+        return models.Post.objects.filter(changed=True).exclude(type=POST_COMMENT)
+
+    # get a count of posts
+    count = get_posts().count()
+    info("indexing %s posts" % count)
+   
+    # index the posts
+    posts = get_posts().all()
     add_batch(posts)
-    models.IndexTracker.objects.all().delete()
+    
+    # update the attribute
+    posts = get_posts().update(changed=False)
         
 if __name__ == '__main__':
     import doctest, optparse

@@ -154,6 +154,9 @@ class Post(models.Model):
     lastedit_date = models.DateTimeField()
     lastedit_user = models.ForeignKey(User, related_name='editor')
     
+    # keeps track of which posts have changed
+    changed = models.BooleanField(default=True, db_index=True)
+
     # post status: active, closed, deleted 
     status = models.IntegerField(choices=POST_STATUS_TYPES, default=POST_OPEN)
     
@@ -309,11 +312,6 @@ def query_by_mytags(user):
     "Returns a query by the My Tags fields"
     tags  = user.profile.my_tags.split()
     return query_by_tags(user=user, tags=tags)
-
-class IndexTracker(models.Model):
-    "Keeps track of posts that need to be indexed"
-    post  = models.ForeignKey(Post)
-    date  = models.DateTimeField(null=False, auto_now=True)
 
 class Blog(models.Model):
     """
@@ -753,6 +751,9 @@ def verify_post(sender, instance, *args, **kwargs):
     # generate the HTML from the content
     instance.html = html.generate(instance.content.strip())
 
+    # post gets flagged as changed on saving
+    instance.changed = True
+
 def finalize_post(sender, instance, created, raw, *args, **kwargs):
     "Post save actions for a post"
                
@@ -773,9 +774,7 @@ def finalize_post(sender, instance, created, raw, *args, **kwargs):
                  
     if instance.content and not raw:
         create_revision(instance, instance.lastedit_user)
-        if instance.type != POST_COMMENT:
-            IndexTracker.objects.create(post=instance)
-
+      
 def create_award(sender, instance, *args, **kwargs):
     "Pre save award function"
     instance.date = instance.date or datetime.now()

@@ -54,21 +54,21 @@ echo "*** DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE"
 #echo "*** PYTHONPATH=$PYTHONPATH"
 
 if [ $# == 0 ]; then
-	echo ''
-	echo 'Usage:'
-	echo '  $ run.sh <command>'
-	echo ''
-	echo 'Multiple commands may be used in the same line:'
-	echo '  $ run.sh init import run'
-	echo ''
-	echo 'Commands:'
-	echo '  init     - initializes the database'
-	echo '  import   - imports a data fixture'
+    echo ''
+    echo 'Usage:'
+    echo '  $ run.sh <command>'
+    echo ''
+    echo 'Multiple commands may be used in the same line:'
+    echo '  $ run.sh init import run'
+    echo ''
+    echo 'Commands:'
+    echo '  init     - initializes the database'
+    echo '  import   - imports a data fixture'
     echo '  dump     - dumps the current database as a data fixture'
-	echo '  delete   - removes the sqlite database (sqlite specific)'
-	echo '  run      - runs server'
-	echo '  migrate  - parses a StackExchange XML dump to a data fixture'
-	echo '  test     - runs all tests'
+    echo '  delete   - removes the sqlite database (sqlite specific)'
+    echo '  run      - runs server'
+    echo '  migrate  - parses a StackExchange XML dump to a data fixture'
+    echo '  test     - runs all tests'
     echo '  env      - shows all customizable environment variables'
     echo ''
     echo 'Use environment variables to customize the behavior. See docs.'
@@ -76,7 +76,7 @@ fi
 
 while (( "$#" )); do
 
-	if [ "$1" = "env" ]; then
+    if [ "$1" = "env" ]; then
         echo "--- databases"
         echo "*** SQLITE_DBNAME=$SQLITE_DBNAME"
         echo "*** PG_DBNAME=$PG_DBNAME"
@@ -94,13 +94,13 @@ while (( "$#" )); do
         echo "*** BIOSTAR_HOME=$BIOSTAR_HOME"
         echo "*** BIOSTAR_HOSTNAME=$BIOSTAR_HOSTNAME"
         echo "*** VERBOSITY=$VERBOSITY"    
-	fi
+    fi
     
-	if [ "$1" = "delete" ]; then
+    if [ "$1" = "delete" ]; then
         # deletes the sqlite database
-		echo "*** deleting sqlite"
-		rm -f $SQLITE_DBNAME
-	fi
+        echo "*** deleting sqlite"
+        rm -f $SQLITE_DBNAME
+    fi
 
     if [ "$1" = "pgdrop" ]; then
         # drops the PG datanase
@@ -124,84 +124,83 @@ while (( "$#" )); do
         $PYTHON_EXE -m main.scripts.planet --init 30 --download --update 1
     fi
 
-	if [ "$1" = "flush" ]; then
+    if [ "$1" = "flush" ]; then
         echo "*** flushing the database"
-		$PYTHON_EXE $DJANGO_ADMIN flush --noinput --settings=$DJANGO_SETTINGS_MODULE
-	fi
+        $PYTHON_EXE $DJANGO_ADMIN flush --noinput --settings=$DJANGO_SETTINGS_MODULE
+    fi
 
-	if [ "$1" = "init" ]; then
-		echo "*** initializing server on $BIOSTAR_HOSTNAME"
-		$PYTHON_EXE $DJANGO_ADMIN syncdb -v $VERBOSITY --noinput --settings=$DJANGO_SETTINGS_MODULE
-
+    if [ "$1" = "init" ]; then
+        echo "*** initializing server on $BIOSTAR_HOSTNAME"
+        $PYTHON_EXE $DJANGO_ADMIN syncdb -v $VERBOSITY --noinput --settings=$DJANGO_SETTINGS_MODULE
         echo "*** collecting static files"
         $PYTHON_EXE $DJANGO_ADMIN collectstatic -v $VERBOSITY --noinput --settings=$DJANGO_SETTINGS_MODULE
-	fi
+    fi
 
-	if [ "$1" = "import" ]; then
-		echo "*** importing data from $JSON_FIXTURE"
-		$PYTHON_EXE $DJANGO_ADMIN loaddata $JSON_FIXTURE --settings=$DJANGO_SETTINGS_MODULE
-	fi
+    if [ "$1" = "import" ]; then
+        echo "*** importing data from $JSON_FIXTURE"
+        $PYTHON_EXE $DJANGO_ADMIN loaddata $JSON_FIXTURE --settings=$DJANGO_SETTINGS_MODULE
+    fi
 
-    if [ "$1" = "pgimport" ]; then
+     if [ "$1" = "pgimport" ]; then
         # restores a postgresl database from a file
         echo "*** restoring database $PG_DBNAME from $SQL_FIXTURE"
         psql -U $PG_USERNAME $PG_DBNAME < $SQL_FIXTURE
-	fi
+    fi
     
-	if [ "$1" = "test" ]; then
-		echo "*** running the tests"
-		#$PYTHON_EXE $DJANGO_ADMIN test server --settings=$DJANGO_SETTINGS_MODULE --failfast
-		$PYTHON_EXE $DJANGO_ADMIN test server --settings=$DJANGO_SETTINGS_MODULE --failfast
-	fi
+    if [ "$1" = "test" ]; then
+        echo "*** running the tests"
+        #$PYTHON_EXE $DJANGO_ADMIN test server --settings=$DJANGO_SETTINGS_MODULE --failfast
+        $PYTHON_EXE $DJANGO_ADMIN test server --settings=$DJANGO_SETTINGS_MODULE --failfast
+    fi
 
     if [ "$1" = "pgdump" ]; then
         # dumps a postgres database to a file
         echo "*** dumping database $PG_DBNAME to $SQL_FIXTURE"
         pg_dump -O -x $PG_DBNAME > $SQL_FIXTURE
         wc -l $SQL_FIXTURE
-	fi
+    fi
     
-	if [ "$1" = "dump" ]; then		
-		echo "*** dumping data to $JSON_FIXTURE"
-		$PYTHON_EXE $DJANGO_ADMIN dumpdata auth.User server --settings=$DJANGO_SETTINGS_MODULE | gzip > $JSON_FIXTURE
-	fi
+    if [ "$1" = "dump" ]; then        
+        echo "*** dumping data to $JSON_FIXTURE"
+        $PYTHON_EXE $DJANGO_ADMIN dumpdata auth.User server --settings=$DJANGO_SETTINGS_MODULE | gzip > $JSON_FIXTURE
+    fi
 
-	if [ "$1" = "migrate" ]; then
-		echo "*** migrating data to a $JSON_FIXTURE"
-		echo "*** MIGRATE_PATH=$MIGRATE_PATH"
-		echo "*** MIGRATE_LIMIT=$MIGRATE_LIMIT"
-		echo "*** JSON_FIXTURE=$JSON_FIXTURE"
-		$PYTHON_EXE -m main.scripts.migrate --path $MIGRATE_PATH --limit $MIGRATE_LIMIT -o $JSON_FIXTURE.temp
+    if [ "$1" = "migrate" ]; then
+        echo "*** migrating data to a $JSON_FIXTURE"
+        echo "*** MIGRATE_PATH=$MIGRATE_PATH"
+        echo "*** MIGRATE_LIMIT=$MIGRATE_LIMIT"
+        echo "*** JSON_FIXTURE=$JSON_FIXTURE"
+        $PYTHON_EXE -m main.scripts.migrate --path $MIGRATE_PATH --limit $MIGRATE_LIMIT -o $JSON_FIXTURE.temp
         cat $JSON_FIXTURE.temp | gzip > $JSON_FIXTURE
         rm $JSON_FIXTURE.temp
         echo "*** migrated data to a $JSON_FIXTURE"
-	fi
+    fi
 
-	if [ "$1" = "index" ]; then		
-		echo "*** indexing all post content"
-		$PYTHON_EXE -m main.server.search
-	fi
+    if [ "$1" = "index" ]; then        
+        echo "*** indexing all post content"
+        $PYTHON_EXE -m main.server.search
+    fi
 
     if [ "$1" = "run" ]; then
-		echo "*** running the webserver on $BIOSTAR_HOSTNAME"
-		$PYTHON_EXE $DJANGO_ADMIN runserver $BIOSTAR_HOSTNAME --settings=$DJANGO_SETTINGS_MODULE
-	fi
+        echo "*** running the webserver on $BIOSTAR_HOSTNAME"
+        $PYTHON_EXE $DJANGO_ADMIN runserver $BIOSTAR_HOSTNAME --settings=$DJANGO_SETTINGS_MODULE
+    fi
     
     if [ "$1" = "selenium" ]; then
         # needs to reindex to be most up to date
         $PYTHON_EXE -m main.server.search
-		echo "*** running selenium on $SELENIUM_TEST_URL"
-		$PYTHON_EXE main/server/tests/selenium_tests.py $SELENIUM_TEST_URL
-	fi
+        echo "*** running selenium on $SELENIUM_TEST_URL"
+        $PYTHON_EXE main/server/tests/selenium_tests.py $SELENIUM_TEST_URL
+    fi
     
     if [ "$1" = "deploy" ]; then
-		echo "*** deploying biostar the the remote server"
-		
+        echo "*** deploying biostar the the remote server"
+        
         # read off the deployment variables
         source conf/deploy.env
         
-	# remove the index
-	rm -rf main/db/index/*
+        # remove the index
+        rm -rf main/db/index/*
 
         # migrate the entire datadump and initialize the planet
         time ./biostar.sh pgdrop init migrate planet index
@@ -214,8 +213,6 @@ while (( "$#" )); do
         echo "--- uploading $SQL_FIXTURE to $REMOTE_IMPORT"
         rsync -azv $SQL_FIXTURE $REMOTE_IMPORT
         
-        
-        
         # synchronize the remote index
         echo "--- uploading the indices"
         rsync -azv main/db/index/* $REMOTE_INDEX
@@ -223,7 +220,7 @@ while (( "$#" )); do
         echo ""
         echo "--- uploaded $SQL_FIXTURE to the remote location $REMOTE_IMPORT"
         echo ""
-	fi
+    fi
        
 shift
 done
