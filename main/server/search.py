@@ -143,6 +143,16 @@ def more(request, pid):
     page = get_page(request, res, per_page=10)
     return html.template(request, name='search.html', page=page, params=params, counts=counts, form=form)
 
+import time
+def print_timing(func):
+    def wrapper(*args, **kwds):
+        t1 = time.time()
+        res = func(*args, **kwds)
+        t2 = time.time()
+        print '%s took %0.3f ms' % (func.func_name, (t2-t1)*1000.0)
+        return res
+    return wrapper
+
 def update(post, created, handler=None):
     "Adds/updates a post to the index"
     
@@ -171,33 +181,23 @@ def update(post, created, handler=None):
         writer.commit()
 
 def add_batch(posts):
-    gc.collect()
     ix = index.open_dir(settings.WHOOSH_INDEX)
     wr = ix.writer(limitmb=10)
-    for post in posts:
-        update(post, created=True, handler=wr)
+    for tracker in posts:
+        update(tracker.post, created=True, handler=wr)
     wr.commit()
     ix.close()
-    del wr, ix
-    gc.collect()
     
 def full_index():
     "Runs a full indexing on all posts"
     from main.server import models
     
     ix = index.create_in(settings.WHOOSH_INDEX, SCHEMA)
-    count = models.Post.objects.all().count()
-    info("found %s posts" % count)
-    posts = []
-    STEP  = 1000
-    for lo in xrange(0, count, STEP):
-        hi = min( (count, lo + STEP) )
-        info("whoosh indexing %s posts" % hi)
-        
-        posts = list(models.Post.objects.all()[lo:hi])
-        add_batch(posts)
-        del posts
-        gc.collect()
+    count = models.IndexTracker.objects.all(),count()
+    posts = models.IndexTracker.objects.select_related('post').all()
+    info("indexing %s posts" % count)
+    add_batch(posts)
+    models.IndexTracker.objects.all().delete()
         
 if __name__ == '__main__':
     full_index()

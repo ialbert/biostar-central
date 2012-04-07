@@ -310,6 +310,11 @@ def query_by_mytags(user):
     tags  = user.profile.my_tags.split()
     return query_by_tags(user=user, tags=tags)
 
+class IndexTracker(models.Model):
+    "Keeps track of posts that need to be indexed"
+    post  = models.ForeignKey(Post)
+    date  = models.DateTimeField(null=False, auto_now=True)
+
 class Blog(models.Model):
     """
     Sources for Planet feeds
@@ -719,7 +724,7 @@ def verify_post(sender, instance, *args, **kwargs):
         
     # generate the HTML from the content
     instance.html = html.generate(instance.content.strip())
-            
+
 def finalize_post(sender, instance, created, raw, *args, **kwargs):
     "Post save actions for a post"
                
@@ -737,13 +742,9 @@ def finalize_post(sender, instance, created, raw, *args, **kwargs):
         # and content creation are separate steps
         if instance.content and not raw:
             post_create_notification(instance)
-            # you can turn off indexing from the settings
-            if settings.CONTENT_INDEXING:
-                try:
-                    search.update(post=instance, created=created)
-                except Exception, exc:
-                    logger.error("unable to index %s" % exc)
-
+            if instance.type != POST_COMMENT:
+                IndexTracker.objects.create(post=instance)
+           
     if instance.content and not raw:
         create_revision(instance, instance.lastedit_user)
 

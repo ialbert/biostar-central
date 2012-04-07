@@ -83,7 +83,7 @@ def index(request, tab=""):
     
     # filter the posts by the tab that the user has selected
     if tab == "popular":
-        posts = posts.filter(type=POST_QUESTION).order_by('-score')
+        posts = posts.filter(type=POST_QUESTION).order_by('-views')
     elif tab == "questions":
         posts = posts.filter(type=POST_QUESTION).order_by('-rank')
     elif tab == "unanswered":
