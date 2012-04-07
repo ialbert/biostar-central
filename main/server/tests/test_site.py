@@ -317,12 +317,10 @@ class DataNav(TestCase):
         r = c.get(reverse("search"), { 'q':'motif' } )
         eq(r.status_code, 200)
         true( 'common motifs' in r.content )
-        true( 'Comment' in r.content )
         
         r = c.get(reverse("search"), { 'q':'motif', 't':"Question" } )
         eq(r.status_code, 200)
         true( 'common motifs' in r.content )
-        true( 'Comment' not in r.content )
             
 class SimpleNav(TestCase):
     "Navigates to each static page"

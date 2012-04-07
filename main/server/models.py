@@ -770,11 +770,11 @@ def finalize_post(sender, instance, created, raw, *args, **kwargs):
         # and content creation are separate steps
         if instance.content and not raw:
             post_create_notification(instance)
-            if instance.type != POST_COMMENT:
-                IndexTracker.objects.create(post=instance)
-           
+                 
     if instance.content and not raw:
         create_revision(instance, instance.lastedit_user)
+        if instance.type != POST_COMMENT:
+            IndexTracker.objects.create(post=instance)
 
 def create_award(sender, instance, *args, **kwargs):
     "Pre save award function"

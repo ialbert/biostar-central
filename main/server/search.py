@@ -201,21 +201,35 @@ def update(post, created, handler=None):
 def add_batch(posts):
     ix = index.open_dir(settings.WHOOSH_INDEX)
     wr = ix.writer(limitmb=10)
-    for tracker in posts:
-        update(tracker.post, created=True, handler=wr)
+    for post in posts:
+        update(post, created=True, handler=wr)
     wr.commit()
     ix.close()
     
-def full_index():
+def full_index(init=False):
     "Runs a full indexing on all posts"
     from main.server import models
-    
-    ix = index.create_in(settings.WHOOSH_INDEX, SCHEMA)
-    count = models.IndexTracker.objects.all(),count()
-    posts = models.IndexTracker.objects.select_related('post').all()
-    info("indexing %s posts" % count)
+    import glob
+
+    if not glob.glob("%s/*" % settings.WHOOSH_INDEX):
+        info("initializing index at %s" % settings.WHOOSH_INDEX)
+        ix = index.create_in(settings.WHOOSH_INDEX, SCHEMA)
+
+    all  = models.IndexTracker.objects.select_related('post').all()
+    seen = set()
+    posts = []
+    for track in all:
+        if track.post.id not in seen:
+            seen.add(track.post.id)
+            posts.append(track.post)
+    info("indexing %s posts" % len(posts))
     add_batch(posts)
     models.IndexTracker.objects.all().delete()
         
 if __name__ == '__main__':
+    import doctest, optparse
+   
+    parser = optparse.OptionParser()
+    parser.add_option("--url", dest="url", help="feed url to add to the database", default=None)
+
     full_index()
