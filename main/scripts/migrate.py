@@ -693,14 +693,4 @@ if __name__ =='__main__':
     # wether to use the database
     USE_DB = not opts.dry
 
-    # call into the main program
-    from django.core import management
-    management.call_command('syncdb', verbosity=0, interactive=False)
-
     execute(path=opts.path, limit=opts.limit)
-    
-    print '*** creating the data fixture'
-    
-    fp = file(opts.output, 'wt')
-    sys.stdout = fp
-    management.call_command('dumpdata', 'auth.User', 'server', verbosity=1, interactive=False)

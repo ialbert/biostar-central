@@ -166,14 +166,9 @@ while (( "$#" )); do
     fi
 
     if [ "$1" = "migrate" ]; then
-        echo "*** migrating data to a $JSON_FIXTURE"
         echo "*** MIGRATE_PATH=$MIGRATE_PATH"
         echo "*** MIGRATE_LIMIT=$MIGRATE_LIMIT"
-        echo "*** JSON_FIXTURE=$JSON_FIXTURE"
-        $PYTHON_EXE -m main.scripts.migrate --path $MIGRATE_PATH --limit $MIGRATE_LIMIT -o $JSON_FIXTURE.temp
-        cat $JSON_FIXTURE.temp | gzip > $JSON_FIXTURE
-        rm $JSON_FIXTURE.temp
-        echo "*** migrated data to a $JSON_FIXTURE"
+        $PYTHON_EXE -m main.scripts.migrate --path $MIGRATE_PATH --limit $MIGRATE_LIMIT
     fi
 
     if [ "$1" = "index" ]; then        
