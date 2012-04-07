@@ -15,16 +15,18 @@
     
     <table class="table table-striped">
         <tr>
-            <th class="span1"> Type</th>
-            <th class="span4"> Title</th>
+            <th class="span1">Id</th>
+            <th class="span1">Type</th>
+            <th class="span4">Title</th>
             <th>Context</th>
         </tr>
         
         {% for r in page.object_list %}
             <tr>
-                <td class="span1"> {{ r.type }}</td>
-                <td class="span4"> <a href="{% url main.server.views.post_redirect r.pid %}">{{ r.title }}</a></td>
-                <td> {{ r.content|safe }}</td>
+                <td>{{ r.pid }}</td>
+                <td>{{ r.type }}</td>
+                <td><a href="{% url main.server.views.post_redirect r.pid %}">{{ r.title }}</a></td>
+                <td>{{ r.content|safe }}</td>
             </tr>
         {% empty %}
             <tr>

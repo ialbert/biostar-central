@@ -11,15 +11,22 @@ from main.server import html, const, formdef
 from main.server.html import get_page
 from whoosh import store, fields, index, highlight
 from whoosh.qparser import QueryParser,  MultifieldParser, WildcardPlugin
-from whoosh.analysis import StemmingAnalyzer
+from whoosh.analysis import StemmingAnalyzer, StopFilter, StandardAnalyzer
 from django.contrib import messages
 from itertools import *
 
-stem = StemmingAnalyzer()
+# common words that should be ignored
+stoplist = "read reads lab most post posted posting\
+".split()
+
+stem = StemmingAnalyzer(stoplist=stoplist, minsize=3, maxsize=40, cachesize=-1)
+stop = StopFilter()
+full = stem | stop 
+
 SCHEMA = fields.Schema(
     pid     = fields.NUMERIC(stored=True, unique=True),
-    title   = fields.TEXT(analyzer=stem, stored=True),
-    content = fields.TEXT(analyzer=stem, stored=True), 
+    title   = fields.TEXT(analyzer=full, stored=True),
+    content = fields.TEXT(analyzer=full, stored=True), 
     type    = fields.TEXT(stored=True),
 )
 
@@ -130,6 +137,10 @@ def main(request):
     page = get_page(request, res, per_page=10)
     return html.template(request, name='search.html', page=page, params=params, counts=counts, form=form)
 
+# number of terms extracted during a more like this query
+NUM_TERMS = 10
+TOP_COUNT = 20
+
 @search_error_wrapper  
 def more_like_this(request, pid):
     ix = index.open_dir(settings.WHOOSH_INDEX)
@@ -139,12 +150,13 @@ def more_like_this(request, pid):
     doc = searcher.search(qq)
      
     first = doc[0]
-   
-    res = first.more_like_this("content", numterms=5)
+    title = "%s: %s" % (first['type'], first['title'])
+
+    res = first.more_like_this("content", numterms=NUM_TERMS)
     res = map(decorate, res)
     ix.close()
     
-    messages.info(request, 'Posts similar to ??? %d results' % len(res))
+    messages.info(request, 'Posts similar to <b>%s</b>' % title)
 
     return res
 
@@ -162,15 +174,10 @@ def print_timing(func):
 @print_timing
 def more(request, pid):
     counts = request.session.get(SESSION_POST_COUNT, {})
-    
     form = SearchForm()
-    
     params = html.Params(tab='search', q="")
-    
     res = more_like_this(request=request, pid=pid)
-    
     page = get_page(request, res, per_page=10)
-
     return html.template(request, name='search.html', page=page, params=params, counts=counts, form=form)
 
 def update(post, handler=None):
@@ -182,7 +189,7 @@ def update(post, handler=None):
         ix = index.open_dir(settings.WHOOSH_INDEX)
         writer = ix.writer()
         
-    # set the author name
+    pid = post.id
     content = unicode(post.content)
     title  = unicode(post.title)
     type = unicode(post.get_type_display())
@@ -191,7 +198,7 @@ def update(post, handler=None):
     else:
         content = unicode(post.content)
 
-    writer.update_document(pid=post.id, content=content, title=title, type=type)
+    writer.update_document(pid=pid, content=content, title=title, type=type)
     
     # only commit if this was opened here
     if not handler:
