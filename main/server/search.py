@@ -140,7 +140,7 @@ def more_like_this(request, pid):
      
     first = doc[0]
    
-    res = first.more_like_this("content")
+    res = first.more_like_this("content", numterms=5)
     res = map(decorate, res)
     ix.close()
     
@@ -165,7 +165,7 @@ def more(request, pid):
     
     form = SearchForm()
     
-    params = html.Params(tab='search', q="like:%s" % pid)
+    params = html.Params(tab='search', q="")
     
     res = more_like_this(request=request, pid=pid)
     
@@ -185,7 +185,7 @@ def update(post, handler=None):
     # set the author name
     content = unicode(post.content)
     title  = unicode(post.title)
-    type    = unicode(post.get_type_display())
+    type = unicode(post.get_type_display())
     if post.type in POST_TOPLEVEL:
         content = unicode(post.title + " " + post.content)
     else:
@@ -206,22 +206,27 @@ def add_batch(posts):
     ix.close()
 
 def reset_index():
-    info("initializing index at %s" % settings.WHOOSH_INDEX)
+    "Resets the index"
+    info("reset index at %s" % settings.WHOOSH_INDEX)
     ix = index.create_in(settings.WHOOSH_INDEX, SCHEMA)
+    posts = get_posts(False)
+    # reset the status of all posts
+    posts.update(changed=True)
 
-def full_index(reset=False):
+def get_posts(flag=True):
+    from main.server import models
+    return models.Post.objects.filter(changed=flag).exclude(type=POST_COMMENT)
+
+def full_index():
     """
     Runs indexing on all changed posts
     """
-    from main.server import models
+   
     import glob
 
     path = "%s/*" % settings.WHOOSH_INDEX
     if not glob.glob(path):
        reset_index()
-
-    def get_posts():
-        return models.Post.objects.filter(changed=True).exclude(type=POST_COMMENT)
 
     # get a count of posts
     count = get_posts().count()
@@ -238,6 +243,10 @@ if __name__ == '__main__':
     import doctest, optparse
    
     parser = optparse.OptionParser()
-    parser.add_option("--url", dest="url", help="feed url to add to the database", default=None)
+    parser.add_option("--reset", dest="reset",  action="store_true", default=False, help="resets the index")
+
+    (opts, args) = parser.parse_args()
+    if opts.reset:
+        reset_index()
 
     full_index()
