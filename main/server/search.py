@@ -56,37 +56,49 @@ def safe_int(val):
         return int(val)
     except ValueError, exc:
         return None
-    
+
+class search_error_wrapper(object):
+    "Used as decorator to display  errors in the search calls"
+    def __init__(self, f):
+        self.f = f
+        
+    def __call__(self, *args, **kwds):
+        try:
+            # first parameter is the request
+            value = self.f(*args, **kwds)
+            return value
+        except Exception,exc:
+            request = kwds.get('request') or args[0]
+            messages.error(request, "Search error: %s" % exc)
+            return []
+            
+@search_error_wrapper         
 def search_query(request, text, subset=None):
     text = text.strip()[:200]
     
     if not text:
         return []
     
-    try:
-        ix = index.open_dir(settings.WHOOSH_INDEX)
-        searcher = ix.searcher()
-        parser   = MultifieldParser(["title", "content"], schema=ix.schema)
-        #parser.remove_plugin_class(WildcardPlugin)
-        query    = parser.parse(text)
-        results  = searcher.search(query, limit=200)
-        results.formatter.maxchars = 350
-        results = map(decorate, results)
-        if subset:
-            results = filter(lambda r:r['type']in subset, results)
-        searcher.close()
-        ix.close()
-    except Exception, exc:
-        messages.error(request, "Search error: %s" % exc)
-        results = []
-   
+    ix = index.open_dir(settings.WHOOSH_INDEX)
+    searcher = ix.searcher()
+    parser   = MultifieldParser(["title", "content"], schema=ix.schema)
+    #parser.remove_plugin_class(WildcardPlugin)
+    query    = parser.parse(text)
+    results  = searcher.search(query, limit=200)
+    results.formatter.maxchars = 350
+    results = map(decorate, results)
+    if subset:
+        results = filter(lambda r:r['type']in subset, results)
+    searcher.close()
+    ix.close()
+    
     return results
 
 def decorate(res):
     content = res.highlights('content')
     return html.Params(title=res['title'], uid=res['uid'],
                        pid=res['pid'], content=content, type=res['type'])
-
+ 
 def main(request):
     
     counts = request.session.get(SESSION_POST_COUNT, {})
@@ -115,20 +127,26 @@ def main(request):
     page = get_page(request, res, per_page=10)
     return html.template(request, name='search.html', page=page, params=params, counts=counts, form=form)
 
-def more(request, pid):
-    counts = request.session.get(SESSION_POST_COUNT, {})
-    form = SearchForm()
-    
-    params = html.Params(tab='search', q=pid)
-
+@search_error_wrapper  
+def similar_posts(request, pid):
     ix = index.open_dir(settings.WHOOSH_INDEX)
     searcher = ix.searcher()
     qp = QueryParser("pid", schema=ix.schema)
     qq = qp.parse(pid)
     rr = searcher.search(qq)
+    return rr
+
+def more(request, pid):
+    counts = request.session.get(SESSION_POST_COUNT, {})
+    
+    form = SearchForm()
+    
+    params = html.Params(tab='search', q='')
+
+    rr = similar_posts(request=request, pid=pid)
     
     if not rr:
-        messages.error(request, 'Server settings problem - this post is not indexed! Please report.')
+        messages.error(request, 'Server settings problem - post not present in the index!')
         res = []
     else:
         first = rr[0]

@@ -144,8 +144,8 @@ class Post(models.Model):
     html    = models.TextField(blank=True) # this is the sanitized HTML for display
     title   = models.TextField(max_length=200)
     slug    = models.SlugField(blank=True, max_length=200)
-    tag_val = models.CharField(max_length=200) # The tag value is the canonical form of the post's tags
-    tag_set = models.ManyToManyField(Tag) # The tag set is built from the tag string and used only for fast filtering
+    tag_val = models.CharField(max_length=200, blank=True,) # The tag value is the canonical form of the post's tags
+    tag_set = models.ManyToManyField(Tag, blank=True,) # The tag set is built from the tag string and used only for fast filtering
     views = models.IntegerField(default=0, blank=True, db_index=True)
     score = models.IntegerField(default=0, blank=True, db_index=True)
     full_score = models.IntegerField(default=0, blank=True, db_index=True)
@@ -323,6 +323,15 @@ class Blog(models.Model):
     author  = models.ForeignKey(User)
     url     = models.URLField(max_length=500)
 
+class BlogAdmin(admin.ModelAdmin):
+    list_display = ('url', 'username', 'author')
+    search_fields = ['author__email']
+    def username(self, obj):
+        return "%s, id=%s" % (obj.author.email, obj.author.id)
+    username.short_description = 'Description'
+    
+admin.site.register(Blog, BlogAdmin)
+
 # TODO, not yet used
 class Related(models.Model):
     """
@@ -338,6 +347,15 @@ class Visit(models.Model):
     ip = models.GenericIPAddressField(default='', null=True, blank=True)
     user  = models.ForeignKey(User)
     date  = models.DateTimeField(null=False, auto_now=True)
+
+class VisitAdmin(admin.ModelAdmin):
+    list_display = ('ip', 'username', 'user', 'date')
+    search_fields = ['user__email']
+    def username(self, obj):
+        return "%s, id=%s" % (obj.user.email, obj.user.id)
+    username.short_description = 'Description'
+    
+admin.site.register(Visit, VisitAdmin)
 
 class View(models.Model):
     """
@@ -628,6 +646,11 @@ class Badge(models.Model):
     def get_absolute_url(self):
         return "/badge/show/%s/" % self.id
 
+    def __unicode__(self):
+        return self.name
+    
+admin.site.register(Badge)
+
 class Award(models.Model):
     '''
     A badge being awarded to a user.Cannot be ManyToManyField
@@ -649,6 +672,11 @@ class Award(models.Model):
         prof.save()
         self.badge.count += dir
         self.badge.save()
+    
+    def __unicode__(self):
+        return "%s earned by %s" % (self.badge.name, self.user.email)
+    
+admin.site.register(Award)
 
 # most of the site functionality, reputation change
 # and voting is auto applied via database signals

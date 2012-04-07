@@ -35,7 +35,6 @@ from django.contrib.auth.models import User, Group
 from openid.consumer.consumer import SUCCESS
 from openid.extensions import ax, sreg, pape
 from urlparse import urlparse
-import nicknames
 
 from django_openid_auth import teams
 from django_openid_auth.models import UserOpenID
@@ -46,6 +45,8 @@ from django_openid_auth.exceptions import (
     MissingPhysicalMultiFactor,
     RequiredAttributeNotReturned,
 )
+
+from main.scripts.migrate import generate_nickname
 
 class OpenIDBackend:
     """A django.contrib.auth backend that authenticates the user based on
@@ -236,9 +237,9 @@ class OpenIDBackend:
                     "returned ({0}).".format(required_attr))
 
         # parse the identity of the provider
-        nickname = details.get('nickname','') or nicknames.guess(openid_response.identity_url)
-        nickname = nickname
         email    = details['email']
+        nickname = details.get('nickname','') or generate_nickname(url=openid_response.identity_url, email=email)
+        nickname = nickname
         
         # create a list of trusted providers
         url = urlparse(openid_response.identity_url)
