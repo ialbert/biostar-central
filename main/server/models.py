@@ -60,22 +60,22 @@ class UserProfile( models.Model ):
     status = models.IntegerField(choices=USER_STATUS_TYPES, default=USER_ACTIVE)
     
     # description provided by the user as markup
-    about_me = models.TextField(default="", null=True)
+    about_me = models.TextField(default="", null=True, blank=True)
 
     # description provided by the user as html
-    about_me_html = models.TextField(default="", null=True)
+    about_me_html = models.TextField(default="", null=True, blank=True)
     
     # user provided location
-    location = models.TextField(default="", null=True)
+    location = models.TextField(default="", null=True, blank=True)
     
     # website may be used as a blog
-    website  = models.URLField(default="", null=True, max_length=250)
+    website  = models.URLField(default="", null=True, max_length=250, blank=True)
     
     # description provided by the user as html
-    my_tags = models.TextField(default="", null=True, max_length=250)
+    my_tags = models.TextField(default="", null=True, max_length=250, blank=True)
     
     # google scholar ID
-    scholar = models.TextField(null=True, default='', max_length=50)
+    scholar = models.TextField(null=True, default='', max_length=50, blank=True)
 
     @property
     def can_moderate(self):
@@ -104,13 +104,20 @@ class UserProfile( models.Model ):
         note_count = Note.objects.filter(target=self.user).count()
         new_count  = Note.objects.filter(target=self.user, unread=True).count()
         return (note_count, new_count)
-    
+
+class ProfileAdmin(admin.ModelAdmin):
+    list_display = ('display_name', 'user', 'type')
+    search_fields = ['display_name']
+   
+admin.site.register(UserProfile, ProfileAdmin)
+
 class Tag(models.Model):
     name  = models.TextField(max_length=50, db_index=True)
     count = models.IntegerField(default=0)
     
 class TagAdmin(admin.ModelAdmin):
     list_display = ('name', 'count')
+    search_fields = ['name']
 
 admin.site.register(Tag, TagAdmin)
 
@@ -643,11 +650,15 @@ class Badge(models.Model):
     
     def get_absolute_url(self):
         return "/badge/show/%s/" % self.id
-
+    
     def __unicode__(self):
         return self.name
-    
-admin.site.register(Badge)
+
+class BadgeAdmin(admin.ModelAdmin):
+    list_display = ('name', 'description', 'count')
+    search_fields = ['name']
+     
+admin.site.register(Badge, BadgeAdmin)
 
 class Award(models.Model):
     '''
