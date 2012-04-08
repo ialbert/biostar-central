@@ -177,8 +177,8 @@ def user_profile(request, uid, tab='activity'):
             note_count = 0
         
     elif tab == 'bookmarks':
-        bookmarks = models.Vote.objects.filter(author=target, type=VOTE_BOOKMARK).select_related('post', 'post__author__profile').order_by('id')
-        page  = get_page(request, bookmarks, per_page=5)
+        bookmarks = models.Vote.objects.filter(author=target, type=VOTE_BOOKMARK).select_related('post', 'post__author__profile').order_by('-date')
+        page  = get_page(request, bookmarks, per_page=15)
     
     elif tab =="moderator":
         notes = models.Note.objects.filter(target=target, type=NOTE_MODERATOR).select_related('author', 'author__profile').order_by('-date')
