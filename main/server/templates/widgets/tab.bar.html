@@ -12,7 +12,7 @@
         <li {% active 'planet' tab %}><a href="/show/planet/">Planet {% show_count 'planet' counts %}</a></li>
         <li {% active 'forum' tab %}><a href="/show/forum/">Forum {% show_count 'forum' counts %}</a></li>
         <li {% active 'tutorials' tab %}><a href="/show/tutorials/">Tutorials {% show_count 'tutorials' counts %}</a></li>
-        <li {% active 'search' tab %}><a href="{% url main.server.search.main %}"><b>Search!</b></a></li>
-        <li {% active 'new' tab %}><a href="/new/post/"> <b>New Post!</b></a></li>
+        <li {% active 'search' tab %}><a href="{% url main.server.search.main %}">Search</a></li>
+        <li {% active 'new' tab %}><a href="/new/post/"> <b class="newpost">New Post!</b></a></li>
     </ul>
 </div>

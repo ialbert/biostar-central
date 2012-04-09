@@ -16,6 +16,10 @@ body {
    background-color: white;
 }
 
+.newpost {
+    text-decoration: underline;
+}
+
 .post-show {
     h1 { font-size:140% }
     h2 { font-size:130% }
