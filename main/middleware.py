@@ -43,7 +43,9 @@ class LastVisit(object):
                 
                 counts = dict(planet=planet,  unanswered=unanswered, questions=questions, tutorials=tutorials, forum=forum)
                 request.session[SESSION_POST_COUNT] = counts 
-                models.UserProfile.objects.filter(user=user).update(last_visited=now)
+                
+                user.profile.last_visited = now
+                user.profile.save()
                
                 awards.instant(request)
                 
@@ -60,8 +62,6 @@ class LastVisit(object):
             # a handy shortcut
             request.user.can_moderate = profile.can_moderate
             
-            
- 
         else:
             request.user.can_moderate = False
             has_session = request.session.get(FIRST_SESSION)

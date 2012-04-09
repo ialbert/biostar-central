@@ -32,6 +32,7 @@ def instant(request):
     awards = set( models.Award.objects.filter(user=user).values_list('badge__name', flat=True).distinct() )
     
     def apply_award(name, func):
+        "Applies an award"
         badge = badges.get(name)
         if badge and badge.name not in awards and func():
             create(request, user=user, badge=badge)
@@ -39,6 +40,7 @@ def instant(request):
         return False
     
     def civic_duty():
+        "Selector for Civid Duty badge"
         return models.Vote.objects.filter(author=user, type=VOTE_UP).count() > 300
         
     pairs = [
@@ -51,4 +53,12 @@ def instant(request):
     
     for name, func in pairs:
         if apply_award(name, func):
-            return   
+            return
+        
+    # Famous question has its own verification as it is a multi award
+    badge = badges.get('Famous Question')
+    if badge:
+        badge_count = models.Award.objects.filter(user=user, badge=badge).count()
+        post_count  = models.Post.objects.filter(author=user, views__gt=5000).count()
+        if badge_count < post_count:
+            create(request, user=user, badge=badge)

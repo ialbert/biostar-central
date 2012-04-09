@@ -53,7 +53,7 @@ def simple_navigation(browser):
     "Simple navigation through the site"
     click = partial(click_func, browser)
     
-    targets = "Tags Badges About FAQ Recent Popular Questions Unanswered Planet Forum Tutorials Search! RSS".split()
+    targets = "Tags Badges About FAQ Recent Popular Questions Unanswered Planet Forum Tutorials Search RSS".split()
     targets.extend( [ 'New Post!', 'My Tags', 'Sign In' ] )
     for link in targets:    
         elem, text = click(link)
@@ -125,21 +125,7 @@ def create_content_1(browser):
     click("Questions")
     click(title)
     
-    # check the that search works
-    fill(browser, "Mayotte", name='q', submit=True)
-    click(title)
-    click('edit')
-    fill(browser, "zanzibar travel", name='tag_val')
-    click(id="submit-button")
-    click('travel')
-    click(title)
-    click('revisions')
-    
-    # add an answer, back to root
-    browser.get(root)
-    user = login(browser=browser, uid=2)
-    click('Questions')
-    click(title)
+    # add an answer
     fill(browser, 'Take a boat then a plane then a train', name='content')
     click(id="submit-button")
     
@@ -165,7 +151,7 @@ def update_user(browser):
 def full_search(browser):
     "Searches via the main tab"
     click = click_link(browser)
-    click('Search!')
+    click('Search')
     
     elems = browser.find_elements_by_name('q')
     assert len(elems) == 2
