@@ -263,6 +263,7 @@ td {
   font-size: larger;
   font-weight: bold;
   padding-bottom:0.1em;
+  margin-bottom:5px;
   a {
     text-decoration: none;
   }
