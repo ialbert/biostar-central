@@ -114,7 +114,7 @@ urlpatterns += patterns('',
         template_name='generic/blog.list.html'), name='blog-list'),
     
     # adding sitemap
-    (r'^sitemap\.xml$', 'django.contrib.sitemaps.views.sitemap', {'sitemaps': sitemaps})
+    #(r'^sitemap\.xml$', 'django.contrib.sitemaps.views.sitemap', {'sitemaps': sitemaps})
 )
 
 #
