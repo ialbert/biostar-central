@@ -43,6 +43,7 @@ def get_post_manager(request):
         return models.Post.open_posts
     
 VALID_TABS = set( "mytags questions forum tutorials unanswered recent popular planet".split() )
+POSTS_PER_PAGE = 20
 
 def index(request, tab=""):
     "Main page"
@@ -78,6 +79,7 @@ def index(request, tab=""):
             ( "Ranking by the number of <b>answers</b>", posts.filter(type=POST_QUESTION).order_by('-answer_count') ),
         ]
         text, posts = random.choice(choices)
+        posts = posts[:POSTS_PER_PAGE]
         messages.info(request, text)
     elif tab == "questions":
         posts = posts.filter(type=POST_QUESTION).order_by('-rank')
@@ -110,7 +112,7 @@ def index(request, tab=""):
     
     # reset the counts
     update_counts(request, tab, 0)
-    page = get_page(request, posts, per_page=20)
+    page = get_page(request, posts, per_page=POSTS_PER_PAGE)
     return html.template(request, name='index.html', page=page, params=params, counts=counts)
 
 def show_tag(request, tag_name=None):

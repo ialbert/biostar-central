@@ -87,7 +87,7 @@ urlpatterns = patterns('main.server',
     url(r'^note/clear/(?P<uid>\d+)/$','action.note_clear', name="note-clear"),
    
     # redirect to new post
-    url(r'^redirect/(?P<pid>\d+)/$','action.redirect', name="redirect"),
+    url(r'^questions/(?P<pid>\d+)/([-\w]+)/$','action.redirect', name="redirect"),
 
     # test login, used during debugging
     url(r'^test/login/(?P<uid>\d+)/(?P<token>[\w\d]+)/$','action.test_login', name="test-login"),
