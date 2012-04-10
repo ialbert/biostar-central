@@ -296,6 +296,17 @@ td {
 }
 
 
+#badge-list{
+    td{
+        padding: 5px;
+        vertical-align: middle;
+    }
+    .multiplier{
+        font-weight: bold;
+        color: gray;
+    }
+}
+
 .badge {
     .badge-colors;
     margin-left: 3px;
