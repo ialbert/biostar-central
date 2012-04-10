@@ -3,7 +3,7 @@ from django.conf import settings
 import urllib, hashlib, re
 from datetime import datetime, timedelta
 from main.server import const, html, models, auth
-from django.template import Context, Template
+from django.template import Context, Template, TemplateDoesNotExist
 from django.core.context_processors import csrf
 from urlparse import urlparse
 
@@ -140,13 +140,18 @@ def flair(user):
         return '&diams;'
     return ""
 
-# preload the templates 
-row_answer   = template.loader.get_template('rows/row.answer.html')
-row_comment  = template.loader.get_template('rows/row.comment.html')
-row_blog     = template.loader.get_template('rows/row.blog.html')
-row_question = template.loader.get_template('rows/row.question.html')
-row_forum    = template.loader.get_template('rows/row.forum.html')
-row_post     = template.loader.get_template('rows/row.post.html')
+
+templates = {}
+
+def load_templates():
+    for typeid, typename in const.POST_MAP.items():
+        try:
+            templates[typeid] = template.loader.get_template('rows/row.%s.html' % typename.lower())
+        except TemplateDoesNotExist:
+            templates[typeid] = template.loader.get_template('rows/row.post.html')
+
+load_templates()
+
 
 @register.simple_tag
 def table_row(post):
@@ -155,26 +160,10 @@ def table_row(post):
     
     if settings.DEBUG:
         # this is necessary to force the reload during development
-        row_post     = template.loader.get_template('rows/row.post.html')
-        row_answer   = template.loader.get_template('rows/row.answer.html')
-        row_comment  = template.loader.get_template('rows/row.comment.html')
-        row_blog     = template.loader.get_template('rows/row.blog.html')
-        row_forum    = template.loader.get_template('rows/row.forum.html')
-        row_question = template.loader.get_template('rows/row.question.html')
+        load_templates()
 
     c = Context( {"post": post, 'root':post.root})
-    if post.type == const.POST_BLOG:
-        row = row_blog
-    elif post.type == const.POST_QUESTION:
-        row = row_question    
-    elif post.type == const.POST_ANSWER:
-        row = row_answer
-    elif post.type == const.POST_COMMENT:
-        row = row_comment
-    elif post.type == const.POST_FORUM:
-        row = row_forum
-    else:
-        row = row_post 
-    
-    text = row.render(c)
+
+    template = templates[post.type]
+    text = template.render(c)
     return text
