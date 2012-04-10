@@ -97,7 +97,11 @@
     {% endblock %}
     
     <div class="container">
-        
+
+        {% block tab_bar %}
+        {% tab_bar params counts %}
+        {% endblock %}
+
         <div class="row" id="subheader">
             {% block subheader %}
                 <div  style="width:75%; margin:auto;">
@@ -110,10 +114,6 @@
                 </div>
             {% endblock %}
         </div>
-        
-        {% block tab_bar %}
-            {% tab_bar params counts %}
-        {% endblock %}
         
         {% block body %}
            Test Body
