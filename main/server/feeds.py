@@ -14,8 +14,8 @@ class LatestEntriesFeed(Feed):
         return item.title
 
     def item_description(self, item):
-        return item.content
-
+        #return item.content
+        return item.html
 
 class NotificationFeed(Feed):
     title = "Biostar notifications"
@@ -50,7 +50,8 @@ class PostBase(Feed):
         return item.title
 
     def item_description(self, item):
-        return item.content[:1000]
+        return item.html
+        #return item.content[:1000]
         
 class TagsFeed(PostBase):
     title = "Biostar Tags"
