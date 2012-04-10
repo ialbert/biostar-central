@@ -1,7 +1,7 @@
 """
 Biostar views
 """
-import difflib, time, re
+import difflib, time, re, random
 from datetime import datetime, timedelta
 
 from functools import partial
@@ -72,7 +72,13 @@ def index(request, tab=""):
     
     # filter the posts by the tab that the user has selected
     if tab == "popular":
-        posts = posts.filter(type=POST_QUESTION).order_by('-views')
+        choices = [
+            ( "Ranking by the number of <b>views</b>", posts.filter(type=POST_QUESTION).order_by('-views') ),
+            ( "Ranking by the number of <b>votes</b>", posts.filter(type=POST_QUESTION).order_by('-full_score') ),
+            ( "Ranking by the number of <b>answers</b>", posts.filter(type=POST_QUESTION).order_by('-answer_count') ),
+        ]
+        text, posts = random.choice(choices)
+        messages.info(request, text)
     elif tab == "questions":
         posts = posts.filter(type=POST_QUESTION).order_by('-rank')
     elif tab == "unanswered":
