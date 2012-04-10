@@ -74,9 +74,12 @@ def index(request, tab=""):
     # filter the posts by the tab that the user has selected
     if tab == "popular":
         choices = [
-            ( "Ranking by the number of <b>views</b>", posts.filter(type=POST_QUESTION).order_by('-views') ),
-            ( "Ranking by the number of <b>votes</b>", posts.filter(type=POST_QUESTION).order_by('-full_score') ),
-            ( "Ranking by the number of <b>answers</b>", posts.filter(type=POST_QUESTION).order_by('-answer_count') ),
+            ( "Top 20 posts ranked by most <b>views</b>", posts.filter(type=POST_QUESTION).order_by('-views') ),
+            ( "Top 20 posts ranked by most <b>votes</b>", posts.filter(type=POST_QUESTION).order_by('-full_score') ),
+            ( "Top 20 posts ranked by most <b>answers</b>", posts.filter(type=POST_QUESTION).order_by('-answer_count') ),
+            ( "Top 20 posts ranked by most <b>bookmarks<b>", posts.raw('SELECT server_post.*, count(server_post.id) as bookmarks \
+                FROM server_post INNER JOIN server_vote ON server_post.id = server_vote.post_id WHERE \
+                server_vote.type = %s GROUP BY server_post.id ORDER BY bookmarks DESC LIMIT 20', [const.VOTE_BOOKMARK])),
         ]
         text, posts = random.choice(choices)
         posts = posts[:POSTS_PER_PAGE]
