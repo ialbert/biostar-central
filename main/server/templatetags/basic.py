@@ -145,12 +145,13 @@ row_answer   = template.loader.get_template('rows/row.answer.html')
 row_comment  = template.loader.get_template('rows/row.comment.html')
 row_blog     = template.loader.get_template('rows/row.blog.html')
 row_question = template.loader.get_template('rows/row.question.html')
+row_forum    = template.loader.get_template('rows/row.forum.html')
 row_post     = template.loader.get_template('rows/row.post.html')
 
 @register.simple_tag
 def table_row(post):
     "Renders an html row for a post "
-    global row_question, row_answer, row_comment, row_post, row_blog
+    global row_question, row_answer, row_comment, row_post, row_blog, row_forum
     
     if settings.DEBUG:
         # this is necessary to force the reload during development
@@ -158,6 +159,7 @@ def table_row(post):
         row_answer   = template.loader.get_template('rows/row.answer.html')
         row_comment  = template.loader.get_template('rows/row.comment.html')
         row_blog     = template.loader.get_template('rows/row.blog.html')
+        row_forum    = template.loader.get_template('rows/row.forum.html')
         row_question = template.loader.get_template('rows/row.question.html')
 
     c = Context( {"post": post, 'root':post.root})
@@ -169,6 +171,8 @@ def table_row(post):
         row = row_answer
     elif post.type == const.POST_COMMENT:
         row = row_comment
+    elif post.type == const.POST_FORUM:
+        row = row_forum
     else:
         row = row_post 
     

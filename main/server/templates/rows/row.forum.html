@@ -9,10 +9,10 @@
         </div>
     </td>
 
-    <td>        
-        <div class="status {{post.get_label}}">
+    <td>
+        <div class="status">
             <div class="mini-counts">{{post.answer_count}}</div>
-            <div>answer{{post.answer_count|pluralize}}</div>
+            <div>repl{{post.answer_count|pluralize:'y,ies'}}</div>
         </div>
     </td>
 
@@ -24,20 +24,20 @@
     </td>
 
     <td class="summary" width="100%">
-        
-        <div class="post-title {{post.get_type_display}}">      
+
+        <div class="post-title {{post.get_type_display}}">
             <a href="{{post.get_absolute_url}}"> {{post.get_title}}</a>
         </div>
-        
+
         {# generates the small peek into the post #}
-        {# <div class="peek">{{post.content|truncatewords:30}}</div> #}
-        
+        <div class="peek">{{post.content|truncatewords:30}}</div>
+
         {# this shows the tags on the post #}
         {% show_tags post %}
-        
+
         {# shows post creation time and author #}
         {% post_info_line '' post %}
-        
+
     </td>
 
 <tr>

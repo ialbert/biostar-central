@@ -11,8 +11,7 @@
 
     <td class="summary" width="100%">
         
-        <div class="post-title {{post.get_type_display}}">            
-            Blog: 
+        <div class="post-title {{post.get_type_display}}">
             {% if post.url %}
                 <a href="{% url main.server.views.blog_redirect post.id %}">{{post.get_title}} <i class="icon-share-alt"></i></a>
             {% else %}
@@ -25,9 +24,9 @@
         
         {# this shows the tags on the post #}
         {% show_tags post %}
-        
+
         {# shows post creation time and author #}
-        {% post_info_line 'posted' post %}
+        {% post_info_line '' post %}
         
     </td>
 

@@ -97,22 +97,27 @@ div .par {
     &:hover{
         color:white;
         background-color:#6B3E4A;
+        text-decoration: none;
     }  
 }
 
 .tag-panel {
     .tag;
     float:left;
-    padding:10px;
+    padding: 5px 10px;
     margin:0px 10px 10px 10px;
     text-align:center;
+    .tagname {
+        font-weight: bold;
+    }
     &:hover{
         a {
             color:white;
+            text-decoration: none;
         }
         color:white;
         background-color:#6B3E4A;
-    }  
+    }
 }
 
 .tag-line {
@@ -238,6 +243,17 @@ td {
         padding-top: 11px;
         padding-bottom: 11px;
     }
+
+    .post-info-line{
+        float: right;
+
+        .relativetime{
+            font-weight: bold;
+            color: gray;
+        }
+        //margin-right:10px;
+        //color:#666666;
+    }
 }
 
 @navbar-color:#8F2C47;
@@ -308,6 +324,9 @@ td {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), inset 0 -1px 0 rgba(0, 0, 0, 0.1);
   p a {
     color:white;
+  }
+  .nav > li > a {
+    color: #dddddd;
   }
 }
 
