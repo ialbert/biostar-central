@@ -14,7 +14,7 @@ def path(*args):
     return os.path.abspath(os.path.join(*args))
     
 def generate():
-    sitemap = GenericSitemap({'queryset': models.Post.objects.filter(type__in=const.POST_TOPLEVEL), })
+    sitemap = GenericSitemap({'queryset': models.Post.objects.filter(type__in=const.POST_TOPLEVEL).exclude(type=const.POST_BLOG), })
     urlset = sitemap.get_urls()
     text = loader.render_to_string('sitemap.xml', {'urlset': urlset})
     text = smart_str(text)
