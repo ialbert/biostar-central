@@ -271,4 +271,20 @@ def test_login(request, uid, token):
         
     return html.redirect("/")   
         
-    
+#
+# this is only used to map redirects from the old site
+#
+try:
+    POST_REMAP_FILE = '%s/db/post-remap.txt' % settings.HOME_DIR
+    REMAP = dict( [line.split() for line in file(POST_REMAP_FILE)] )
+except Exception, exc:
+    print '*** %s' % exc
+
+def redirect(request, pid):
+    try:
+        nid = REMAP[pid]
+        post = models.Post.objects.get(id=nid)
+        return html.redirect(post.get_absolute_url())   
+    except Exception, exc:
+        messages.error(request, "Unable to redirect: %s" % exc)
+        return html.redirect("/")   

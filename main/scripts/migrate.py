@@ -186,6 +186,7 @@ def insert_users(fname, limit):
 
     users = {}
     print "*** inserting %s users" % len(ulist)
+    
     with transaction.commit_on_success():
         for (userid, u), (userid2, p) in zip(ulist, plist):
             assert userid == userid2, 'Sanity check'
@@ -194,12 +195,17 @@ def insert_users(fname, limit):
                 user.is_staff = p['type'] == const.USER_ADMIN
                 user.is_superuser = p['type'] == const.USER_ADMIN                
                 user.save()
+                
                 prof = user.get_profile()
                 for attr, value in p.items():
                     setattr(prof, attr, value)
                 prof.save()
             users[userid] = user
-
+    
+    fp = file('userid-remap.txt', 'wt')
+    for userid, user in sorted(users.items()):
+        fp.write('%s\t%s\n' % (userid, user.id))
+    fp.close()
     return users
 
 def checkfunc(key, data):
@@ -290,7 +296,12 @@ def insert_posts(fname, limit, users):
                 post.save()
                 post.set_tags()
             posts[postid] = post
-            
+
+    fp = file('post-remap.txt', 'wt')
+    for postid, post in sorted(posts.items()):
+        fp.write('%s\t%s\n' % (postid, post.id))
+    fp.close()
+    
     return posts
 
 @transaction.commit_manually

@@ -4,6 +4,10 @@
 #
 import os, sys, re
 
+def path(*args):
+    "Generates absolute paths"
+    return os.path.abspath(os.path.join(*args))
+
 # on deployed servers make this unique, and don't share it with anybody.
 SECRET_KEY = '007'
 
