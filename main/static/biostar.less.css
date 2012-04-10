@@ -101,6 +101,12 @@ div .par {
     }  
 }
 
+.post-type {
+   margin-right: 8px;
+   //color: #5F375E;
+   background-color: #E0E0EC;
+}
+
 .tag-panel {
     .tag;
     float:left;

@@ -32,6 +32,11 @@
         {# generates the small peek into the post #}
         <div class="peek">{{post.content|truncatewords:30}}</div>
 
+        {# "fake tag" with the post type to distinguish from other posts #}
+        <div class="tag-line">
+            <a href="{% url show 'tutorials' %}" class="post-type tag">tutorial</a>
+        </div>
+
         {# this shows the tags on the post #}
         {% show_tags post %}
 
