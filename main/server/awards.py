@@ -9,17 +9,11 @@ from django.contrib import messages
 
 #models.Award.objects.all().delete()
 
-def init_badges():
-    "Initializes badges "
-    models.Badge.get_or_create(name='Teacher', description='')
-    pass
-
 def create(request, user, badge):
     award = models.Award.objects.create(user=user, badge=badge)
     text = notegen.awardnote(award.badge)
     note = models.Note.objects.create(sender=user, target=user, content=text, url=award.badge.get_absolute_url() )
     messages.info(request, note.html)
-
 
 def instant(request):
     """
@@ -47,7 +41,6 @@ def instant(request):
         ('Teacher', models.Post.objects.filter(author=user, score__gt=0).count),
         ('Supporter', models.Vote.objects.filter(author=user).count),
         ('Nice Question', models.Post.objects.filter(author=user, score__gt=10).count),
-        ('Famous Question', models.Post.objects.filter(author=user, score__gt=250).count),
         ('Civic Duty', civic_duty),
         ]
     
@@ -62,3 +55,5 @@ def instant(request):
         post_count  = models.Post.objects.filter(author=user, views__gt=5000).count()
         if badge_count < post_count:
             create(request, user=user, badge=badge)
+            return
+        
