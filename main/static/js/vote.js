@@ -63,13 +63,20 @@ function popover(parent, msg, cls){
 
 function do_vote(button, post, type){
     toggle_button(button) // Pre-emptitively toggle the button to provide feedback
-    $.post('/vote/' , {post:post, type:type},
-    function(data){
-        popover(button.parent(), data.msg, data.status)
-        if(data.status == 'error'){
-            toggle_button(button) // Untoggle the button if there was an error
+    $.ajax('/vote/', {
+        type: 'POST',
+        dataType: 'json',
+        data: {post:post, type:type},
+        success: function(data){
+            if(data.status == 'error'){ // Soft failure, like not logged in
+                popover(button.parent(), data.msg, data.status) // Display popover only if there was an error
+                toggle_button(button) // Untoggle the button if there was an error
+            }
+        },
+        error: function(){ // Hard failure, like network error
+            popover(button.parent(), 'Unable to submit vote', 'error');
+            toggle_button(button);
         }
-    }, 'json');
-    
+    });
 }
 
