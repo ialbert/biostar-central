@@ -122,7 +122,7 @@ def main(request):
     q = request.GET.get('q','') # query
     t = request.GET.get('t','all')  # type
     
-    params = html.Params(tab='search', q=q)
+    params = html.Params(tab='search', q=q, sort='')
     subset = get_subset(t)
    
     if params.q:
@@ -175,7 +175,7 @@ def print_timing(func):
 def more(request, pid):
     counts = request.session.get(SESSION_POST_COUNT, {})
     form = SearchForm()
-    params = html.Params(tab='search', q="")
+    params = html.Params(tab='search', q="", sort='')
     res = more_like_this(request=request, pid=pid)
     page = get_page(request, res, per_page=10)
     return html.template(request, name='search.html', page=page, params=params, counts=counts, form=form)

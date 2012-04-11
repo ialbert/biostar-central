@@ -72,7 +72,7 @@ def index(request, tab=""):
     posts = get_post_manager(request)
 
     # sort selected in the dropdown. by default lists cannot be sorted
-    sort = None
+    sort = ''
     sort_choices = []
 
     # filter the posts by the tab that the user has selected
@@ -83,13 +83,15 @@ def index(request, tab=""):
             'answers': posts.filter(type=POST_QUESTION).order_by('-answer_count'),
             'bookmarks': posts.raw('SELECT server_post.*, count(server_post.id) as bookmarks \
                 FROM server_post INNER JOIN server_vote ON server_post.id = server_vote.post_id WHERE \
-                server_vote.type = %s GROUP BY server_post.id ORDER BY bookmarks DESC LIMIT 20', [const.VOTE_BOOKMARK]),
+                server_vote.type = %s GROUP BY server_post.id ORDER BY bookmarks DESC LIMIT 100', [const.VOTE_BOOKMARK]),
         }
         sort = request.GET.get('sort')
         sort = sort if sort in choices else 'views'
         sort_choices = choices.keys()
         posts = choices[sort]
-        posts = posts[:POSTS_PER_PAGE]
+        if sort == 'bookmarks':
+            posts = list(posts)
+        #posts = posts[:POSTS_PER_PAGE]
     elif tab == "questions":
         posts = posts.filter(type=POST_QUESTION).order_by('-rank')
     elif tab == "unanswered":
@@ -130,7 +132,7 @@ def index(request, tab=""):
 def show_tag(request, tag_name=None):
     "Display posts by a certain tag"
     user = request.user
-    params = html.Params(nav='', tab='tags')
+    params = html.Params(nav='', tab='tags', sort='')
     msg = 'Filtering by tag: <b>%s</b>. Subscribe to an <a href="/feeds/tag/%s/">RSS feed</a> to this tag.' % (tag_name,tag_name)
     messages.info(request, msg)
     posts = models.query_by_tags(user=user, text=tag_name).order_by('-rank')
@@ -141,7 +143,7 @@ def show_user(request, uid, post_type=''):
     "Displays posts by a user"
 
     user = models.User.objects.filter(id=uid).select_related('profile').all()[0]
-    params = html.Params(nav='', tab='user')
+    params = html.Params(nav='', tab='user', sort='')
 
     # notification
     messages.info(request, 'Filtering by user: %s' % user.profile.display_name)
@@ -171,7 +173,7 @@ def user_profile(request, uid, tab='activity'):
     target.writeable = auth.authorize_user_edit(target=target, user=user, strict=False)
     target.showall = (target == user)
 
-    params = html.Params(tab=tab)
+    params = html.Params(tab=tab, sort='')
 
     # these do not actually get executed unless explicitly rendered in the page
     bookmarks = models.Vote.objects.filter(author=target, type=VOTE_BOOKMARK).select_related('post', 'post__author__profile').order_by('id')
@@ -213,7 +215,7 @@ def user_profile(request, uid, tab='activity'):
 
 def user_list(request):
     search  = request.GET.get('m','')[:80] # trim for sanity
-    params = html.Params(nav='users')
+    params = html.Params(nav='users', sort='')
     if search:
         query = Q(profile__display_name__icontains=search)
         users = models.User.objects.filter(query).select_related('profile').order_by("-profile__score")
@@ -225,12 +227,12 @@ def user_list(request):
 def tag_list(request):
     tags = models.Tag.objects.all().order_by('-count')
     page = get_page(request, tags, per_page=50)
-    params = html.Params(nav='tags')
+    params = html.Params(nav='tags', sort='')
     return html.template(request, name='tag.list.html', page=page, params=params)
 
 def badge_list(request):
     badges = models.Badge.objects.filter(secret=False).order_by('-count', '-type')
-    params = html.Params(nav='badges')
+    params = html.Params(nav='badges', sort='')
     return html.template(request, name='badge.list.html', badges=badges, params=params)
  
 def post_show(request, pid):
