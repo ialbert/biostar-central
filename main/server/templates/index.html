@@ -9,7 +9,9 @@
 
 {% block body %}
 
-{% page_bar %}
+<div class="row">
+    {% page_bar %}
+</div>
 
 <div class="row">
     
@@ -24,6 +26,8 @@
     </table>
 </div>
 
-<div class="row">{% page_bar params.tab %}</div>
+<div class="row">
+    {% page_bar %}
+</div>
 
 {% endblock %}
