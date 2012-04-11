@@ -353,6 +353,14 @@ td {
     text-align:center;
 }
 
+.page-bar-dropdown{
+    float: right;
+    .nav{
+        margin-top: -8px;
+        margin-bottom: 0px;
+    }
+}
+
 .bookmark-list {
     .pagebar {
         background-color: #eeeeee;

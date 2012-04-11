@@ -10,6 +10,9 @@
 {% block body %}
 
 <div class="row">
+    {% if params.sort %}
+        {% page_bar_dropdown params.sort params.sort_choices %}
+    {% endif %}
     {% page_bar %}
 </div>
 

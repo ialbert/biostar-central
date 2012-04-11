@@ -70,6 +70,11 @@ def tab_bar(params={}, counts={}):
 def nav_bar(context, user, params={}):
     "Renders top navigation bar"
     return { 'user':user, 'nav': params.get('nav'), 'q':params.get('q',''), 'request':context['request'] }
+
+@register.inclusion_tag('widgets/page.bar.dropdown.html')
+def page_bar_dropdown(selected, choices):
+    "Renders top navigation bar"
+    return { 'selected': selected, 'choices':choices }
     
 @register.inclusion_tag('widgets/page.bar.html', takes_context=True)
 def page_bar(context, anchor=''):
