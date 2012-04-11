@@ -93,7 +93,16 @@ def index(request, tab=""):
             posts = list(posts)
         #posts = posts[:POSTS_PER_PAGE]
     elif tab == "questions":
-        posts = posts.filter(type=POST_QUESTION).order_by('-rank')
+        posts = posts.filter(type=POST_QUESTION)
+        choices = {
+            'rank': posts.order_by('-rank'),
+            'new': posts.order_by('-creation_date'),
+            'edited': posts.order_by('-lastedit_date'),
+        }
+        sort = request.GET.get('sort')
+        sort = sort if sort in choices else 'rank'
+        sort_choices = choices.keys()
+        posts = choices[sort]
     elif tab == "unanswered":
         posts = posts.filter(type=POST_QUESTION, answer_count=0).order_by('-creation_date')
     elif tab == "recent":
