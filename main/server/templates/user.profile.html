@@ -125,7 +125,9 @@
     </div>
     <div class="note-list">
         {% if page.object_list and page.paginator.num_pages > 1 %}
-            {% page_bar %}        
+            <div class="row">
+                {% page_bar %}
+            </div>
         {% endif %}
     
         <table class="table table-striped">
@@ -149,8 +151,10 @@
 
 {% if params.tab == 'bookmarks' %}
     <div class="bookmark-list">
-        {% if page.object_list and page.paginator.num_pages > 1 %}    
-            {% page_bar %}
+        {% if page.object_list and page.paginator.num_pages > 1 %}
+            <div class="row">
+                {% page_bar %}
+            </div>
         {% endif %}
     
         {% for vote in page.object_list %}
@@ -190,7 +194,9 @@
             Moderator actions by this user. To view all moderator actions see the <a href="/modlog/list">moderator log list</a>
        </div>
         {% if page.object_list and page.paginator.num_pages > 1 %}
-            {% page_bar %}        
+            <div class="row">
+                {% page_bar %}
+            </div>
         {% endif %}
     
         <table class="table table-striped">

@@ -9,9 +9,11 @@
 
 {% block body %}
 
-<div class="row">{% page_bar %}</div>
-
 <div class="row">
+    {% page_bar %}
+</div>
+<div class="row">
+
 <div style="margin-top:5px">
 <form action="/user/list/" method="get" class="form-horizontal">
     <fieldset>
@@ -32,6 +34,8 @@
         {% user_box target 64 %}     
     {% endfor %}
 </div>
-<div class="row">{% page_bar %}</div>
 
+<div class="row">
+    {% page_bar %}
+</div>
 {% endblock %}

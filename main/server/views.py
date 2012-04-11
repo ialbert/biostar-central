@@ -70,20 +70,26 @@ def index(request, tab=""):
 
     # returns the object manager that contains all or only visible posts
     posts = get_post_manager(request)
-    
+
+    # sort selected in the dropdown. by default lists cannot be sorted
+    sort = None
+    sort_choices = []
+
     # filter the posts by the tab that the user has selected
     if tab == "popular":
-        choices = [
-            ( "Top 20 posts ranked by most <b>views</b>", posts.filter(type=POST_QUESTION).order_by('-views') ),
-            ( "Top 20 posts ranked by most <b>votes</b>", posts.filter(type=POST_QUESTION).order_by('-full_score') ),
-            ( "Top 20 posts ranked by most <b>answers</b>", posts.filter(type=POST_QUESTION).order_by('-answer_count') ),
-            ( "Top 20 posts ranked by most <b>bookmarks<b>", posts.raw('SELECT server_post.*, count(server_post.id) as bookmarks \
+        choices = {
+            'views': posts.filter(type=POST_QUESTION).order_by('-views'),
+            'votes': posts.filter(type=POST_QUESTION).order_by('-full_score'),
+            'answers': posts.filter(type=POST_QUESTION).order_by('-answer_count'),
+            'bookmarks': posts.raw('SELECT server_post.*, count(server_post.id) as bookmarks \
                 FROM server_post INNER JOIN server_vote ON server_post.id = server_vote.post_id WHERE \
-                server_vote.type = %s GROUP BY server_post.id ORDER BY bookmarks DESC LIMIT 20', [const.VOTE_BOOKMARK])),
-        ]
-        text, posts = random.choice(choices)
+                server_vote.type = %s GROUP BY server_post.id ORDER BY bookmarks DESC LIMIT 20', [const.VOTE_BOOKMARK]),
+        }
+        sort = request.GET.get('sort')
+        sort = sort if sort in choices else 'views'
+        sort_choices = choices.keys()
+        posts = choices[sort]
         posts = posts[:POSTS_PER_PAGE]
-        messages.info(request, text)
     elif tab == "questions":
         posts = posts.filter(type=POST_QUESTION).order_by('-rank')
     elif tab == "unanswered":
@@ -112,6 +118,9 @@ def index(request, tab=""):
             posts = []
     else:
         posts = posts.order_by('-rank')
+
+    # put sort options in params so they can be displayed
+    params.update(dict(sort=sort, sort_choices=sort_choices))
     
     # reset the counts
     update_counts(request, tab, 0)
