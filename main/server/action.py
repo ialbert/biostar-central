@@ -280,11 +280,18 @@ try:
 except Exception, exc:
     print '*** %s' % exc
 
-def redirect(request, pid):
+def redirect_post(request, pid):
     try:
         nid = REMAP[pid]
         post = models.Post.objects.get(id=nid)
         return html.redirect(post.get_absolute_url())   
+    except Exception, exc:
+        messages.error(request, "Unable to redirect: %s" % exc)
+        return html.redirect("/")
+        
+def redirect_tag(request, tag):
+    try:
+        return html.redirect("/show/tag/%s/" % tag)   
     except Exception, exc:
         messages.error(request, "Unable to redirect: %s" % exc)
         return html.redirect("/")   

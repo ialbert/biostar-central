@@ -19,7 +19,7 @@ urlpatterns = patterns('main.server',
     url(r'^show/(?P<tab>\w+)/$', 'views.index', name="show"),
     
     # show tagged posts
-    url(r'^show/tag/(?P<tag_name>[\w\-_\.\+!]+)/$', 'views.show_tag', name="show-tag"),
+    url(r'^show/tag/(?P<tag_name>.+)/$', 'views.show_tag', name="show-tag"),
     
     # show posts by user
     url(r'^show/user/(?P<uid>\d+)/$', 'views.show_user', name="show-user"),
@@ -86,8 +86,9 @@ urlpatterns = patterns('main.server',
     # clear all notifications
     url(r'^note/clear/(?P<uid>\d+)/$','action.note_clear', name="note-clear"),
    
-    # redirect to new post
-    url(r'^questions/(?P<pid>\d+)/([-\w]+)/$','action.redirect', name="redirect"),
+    # redirecting to new post
+    url(r'^questions/(?P<pid>\d+)/([-\w]+)/$','action.redirect_post', name="redirect-post"),
+    url(r'^questions/tagged/(?P<tag>.+)/$','action.redirect_tag', name="redirect-tag"),
 
     # test login, used during debugging
     url(r'^test/login/(?P<uid>\d+)/(?P<token>[\w\d]+)/$','action.test_login', name="test-login"),
