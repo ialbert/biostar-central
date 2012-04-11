@@ -251,7 +251,7 @@ class Post(models.Model):
                
     def get_tag_names(self):
         "Returns the post's tag values as a list of tag names"
-        names = [ html.safe_tag(n) for n in self.tag_val.split() if n ]
+        names = [ html.safe_tag(n) for n in re.split('[ ,]+', self.tag_val) if n ]
         return map(unicode, names)
     
     def apply(self, dir):
