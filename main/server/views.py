@@ -122,7 +122,8 @@ def show_tag(request, tag_name=None):
     "Display posts by a certain tag"
     user = request.user
     params = html.Params(nav='', tab='tags')
-    messages.warning(request, 'Filtering by tag: %s' % tag_name)
+    msg = 'Filtering by tag: <b>%s</b>. Subscribe to an <a href="/feeds/tag/%s/">RSS feed</a> to this tag.' % (tag_name,tag_name)
+    messages.info(request, msg)
     posts = models.query_by_tags(user=user, text=tag_name).order_by('-rank')
     page  = get_page(request, posts, per_page=20)
     return html.template( request, name='index.html', page=page, params=params)
