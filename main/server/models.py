@@ -187,7 +187,7 @@ class Post(models.Model):
            
     def get_absolute_url(self):
         if self.top_level:
-            url = "/post/show/%d/%s/" % (self.root.id, self.root.slug)
+            url = "/post/show/%d/%s/" % (self.id, self.slug)
         else:
             url = "/post/show/%d/%s/#%d" % (self.root.id, self.root.slug, self.id)
         # some objects have external links

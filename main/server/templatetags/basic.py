@@ -162,7 +162,7 @@ def table_row(post):
         # this is necessary to force the reload during development
         load_templates()
 
-    c = Context( {"post": post, 'root':post.root})
+    c = Context( {"post": post})
 
     template = templates[post.type]
     text = template.render(c)
