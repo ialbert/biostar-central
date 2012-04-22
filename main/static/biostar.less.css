@@ -255,11 +255,17 @@ td {
     vertical-align:top;
     padding:0px;
     width:100%;
-    
+
+
     td {
+
         border-bottom: 1px solid #DDD;
         padding-top: 11px;
         padding-bottom: 11px;
+    }
+
+    td.attributes > div {
+        float: left;
     }
 
     .post-info-line{
@@ -608,6 +614,14 @@ td {
         }
         div.votes, div.answers{
             width: 2em;
+        }
+    }
+}
+
+@media (min-width: 768px){
+    .post-table{
+        td.attributes{ /* On large devices, prevent votes/answers/views box from wrapping */
+            min-width: 200px;
         }
     }
 }
