@@ -88,7 +88,10 @@ div .par {
 
 
 .tag {
-    margin: 2px 2px 2px 0;
+    //margin: 2px 2px 2px 0;
+    float: left;
+    margin-right: 5px;
+    margin-bottom: 5px;
     padding: 3px 4px 3px 4px;
     text-decoration: none;
     background-color: #ECECEC;
@@ -128,7 +131,7 @@ div .par {
 }
 
 .tag-line {
-    margin-bottom: 10px;
+    //margin-bottom: 10px;
     line-height: 18px;
     float: left;
 }
@@ -573,7 +576,20 @@ td {
 
 
 // Landscape phones and down
-@media (max-width: 760px) {
+@media (max-width: 767px) {
+
+    body{ /* Remove body padding for extra space */
+        padding: 0px;
+    }
+
+    .tag{
+        font-size: 0.9em;
+        margin-right: 3px;
+        margin-bottom: 3px;
+        padding: 3px 3px 3px 3px;
+        line-height: 0.9em;
+    }
+
     .post-table{
         div.status-label{
             display: none;
