@@ -601,6 +601,10 @@ div.post-show {
         padding: 0px;
     }
 
+    body > .container{ /* Add tiny padding to the actual content */
+        padding: 0px 2px;
+    }
+
     .tag{
         font-size: 0.9em;
         margin-right: 3px;
@@ -628,6 +632,25 @@ div.post-show {
         .post-info-line .badge .score{
             display: inline;
         }
+    }
+
+    div.wmd-panel {
+        min-width: 200px; /* Disable min-width 500px */
+        width: 96%;
+    }
+
+
+    .comment .indent {
+        margin-left: 1.5em; /* Significantly reduce comment indentation */
+    }
+
+}
+
+@media (max-width: 480px) {
+
+    /* We have to remove these buttons or the page scrolls */
+    #wmd-spacer3, #wmd-undo-button, #wmd-redo-button{
+        display: none;
     }
 }
 
