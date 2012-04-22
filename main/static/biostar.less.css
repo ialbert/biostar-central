@@ -337,7 +337,7 @@ td {
 
 .badge {
     .badge-colors;
-    margin-left: 3px;
+    //margin-left: 3px;
     .count  {
         color: #6D6D6D;
         padding-left: 1px;
@@ -614,6 +614,14 @@ td {
         }
         div.votes, div.answers{
             width: 2em;
+        }
+
+        .post-info-line .badge span{
+            display: none;
+        }
+
+        .post-info-line .badge .score{
+            display: inline;
         }
     }
 }
