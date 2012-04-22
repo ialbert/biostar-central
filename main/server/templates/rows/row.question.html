@@ -5,21 +5,21 @@
     <td>
         <div class="status votes">
             <div class="mini-counts">{{post.full_score}}</div>
-            <div>vote{{post.full_score|pluralize}}</div>
+            <div class="status-label">vote{{post.full_score|pluralize}}</div>
         </div>
     </td>
 
     <td>        
-        <div class="status {{post.get_label}}">
+        <div class="status answers {{post.get_label}}">
             <div class="mini-counts">{{post.answer_count}}</div>
-            <div>answer{{post.answer_count|pluralize}}</div>
+            <div class="status-label">answer{{post.answer_count|pluralize}}</div>
         </div>
     </td>
 
     <td>
         <div class="status views">
             <div class="mini-counts">{% bignum post.views %}</div>
-            <div>view{{post.views|pluralize}}</div>
+            <div class="status-label">view{{post.views|pluralize}}</div>
         </div>
     </td>
 

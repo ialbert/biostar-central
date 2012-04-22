@@ -572,4 +572,22 @@ td {
 }
 
 
+// Landscape phones and down
+@media (max-width: 760px) {
+    .post-table{
+        div.status-label{
+            display: none;
+        }
+
+        div.views{
+            display: none;
+        }
+        div.votes, div.answers{
+            width: 2em;
+        }
+    }
+}
+
+
+
 
