@@ -222,12 +222,17 @@ div.post-show {
     }
     
     .post-info-panel {
-        /*width:10em;*/
+        max-width:10em;
+        float: right;
         background-color:#EEEEEE;
         border: 1px solid #DDD;
         padding:1em;
         margin-left:0.5em;
         text-align:center;
+    }
+
+    .body{
+        overflow: visible;
     }
     
     p {
