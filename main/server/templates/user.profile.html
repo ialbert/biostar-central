@@ -23,14 +23,15 @@
 {% block body %}
 
 <div class="row">
-<div class="user-info {{target.profile.get_status}}">
-    
     <h2>
-    {% designation target %} {{ target.profile.display_name }} {% flair target %}
-    {% if target.profile.suspended %}
-        (suspended)
-    {% endif %}
+        {% designation target %} {{ target.profile.display_name }} {% flair target %}
+        {% if target.profile.suspended %}
+            (suspended)
+        {% endif %}
     </h2>
+</div>
+
+<div class="row user-info {{target.profile.get_status}}">
 
     <div class="info-panel span2">
         <div>{% gravatar target 150 %}</div>
@@ -86,7 +87,6 @@
         {{target.profile.about_me_html|safe }}
     </div>
 </div>
-</div>
 
 {% if user == target %}
 <div class="row">
@@ -108,6 +108,7 @@
 </div>
 
 <div class="row">
+<div class="span12">
 {% if params.tab == 'activity' %}
     <div class="title" id="status">Status</div>
     
@@ -130,7 +131,7 @@
             </div>
         {% endif %}
     
-        <table class="table table-striped">
+        <table class="table table-striped" >
         {% for note in page.object_list %}
             <tr><td class="msg {{note.status}}"> <i>{% time_ago note.date %}</i> &bull; {{ note.html|safe }}</td></tr>
         {% empty %}
@@ -208,6 +209,6 @@
         </table>   
     </div>
 {% endif %}
-
+</div>
 </div>
 {% endblock %}
