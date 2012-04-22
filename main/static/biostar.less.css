@@ -50,9 +50,17 @@ code {
 .navbar .brand {
     text-indent:8px;
     margin-left:0px;
-    background-image: url(/static/img/g/star.png);
+    vertical-align: middle;
+    padding-bottom: 5px;
+    padding-top: 5px;
+/*    background-image: url(/static/img/g/star.png);
     background-repeat: no-repeat;
-    background-position: 0px 4px;
+    background-position: 0px 4px;*/
+    img{
+        position: relative;
+        top: 3px;
+        margin-right: 2px;
+    }
 }
 
 .title {
