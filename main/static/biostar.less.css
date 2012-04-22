@@ -209,7 +209,7 @@ input.search-query{
     }
 }
 
-td {
+div.post-show {
     vertical-align:top;
     .title {
         text-shadow: 1px 2px 2px rgba(0, 0, 0, 0.1);
@@ -222,7 +222,7 @@ td {
     }
     
     .post-info-panel {
-        width:10em;
+        /*width:10em;*/
         background-color:#EEEEEE;
         border: 1px solid #DDD;
         padding:1em;

@@ -5,47 +5,47 @@
 {# renders a post with title #}
 <a name="{{post.id}}"></a>
 
-<table border="0" width="100%" class="post-show {{post.get_status}}">
+<div class="post-show {{post.get_status}}">
 
     {% if post.top_level %}
-    <tr>
-        <td colspan="3"><div class="title">{{post.get_type_display}}: {{post.get_title}}</div></td>
-    </tr>
+        <div class="title">{{post.get_type_display}}: {{post.get_title}}</div>
     {% endif %}
-    <tr>
-        <td>{% vote_box post %}</td>
-    <td width="100%"> 
-        <div class="body">
+
+    <div class="row">
+
+        <div class="span1">
+            {% vote_box post %}
+        </div>
+
+
+        <div class="body span9">
             {% if post.deleted %}
                 [ content deleted, see revisions ]
             {% else %}
                 {{ post.html|safe }}
-                 <div>
-        </div>
                 {% if post.top_level %}
                     {% show_tags post %}
                 {% endif %}
             {% endif %}
         </div>
-        
-    </td>
-        <td align="right">
-           <div class="post-info">{% post_info_panel 'created' post %}</div>
-        </td>
-    </tr>
-    <tr>
-        <td>&nbsp;</td>
-        <td colspan="2" width="100%">
+
+
+        <div class="post-info span2">{% post_info_panel 'created' post %}</div>
+
+    </div>
+
+    <div class="row">
+        <div class="post-actions span11 offset1">
             <input name="post_id" type="hidden" value="{{post.id}}">
             {% post_edit_actions request post %}
-        </td>
-    </tr>
-    
-    <tr>
-    <td>&nbsp;</td>
-    <td colspan="2">
-        <div class="comment">
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="comment span11 offset1">
             {% comments request post tree %}
         </div>
-    </td></tr>
-</table>
+    </div>
+
+
+</div>
