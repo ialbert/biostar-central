@@ -278,7 +278,7 @@
     width: 714px;
   }
 }
-@media (max-width: 980px) {
+@media (max-width: 760px) {
   body {
     padding-top: 0;
   }
@@ -378,7 +378,7 @@
     height: 0;
   }
 }
-@media (min-width: 980px) {
+@media (min-width: 760px) {
   .nav-collapse.collapse {
     height: auto !important;
   }

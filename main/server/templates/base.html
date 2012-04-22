@@ -8,6 +8,8 @@
     <title>{% block title %}BioStar{% endblock %}</title>
     <meta name="description" content="">
     <meta name="author" content="">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <link href="/static/favicon.ico" rel="icon" type="image/x-icon">
     
     <!-- JQuery Library  -->
@@ -19,7 +21,8 @@
     <![endif]-->
 
     <!-- bootstrap -->
-    <link href="{{ STATIC_URL }}lib/bootstrap/css/bootstrap.css" rel="stylesheet">  
+    <link href="{{ STATIC_URL }}lib/bootstrap/css/bootstrap.css" rel="stylesheet">
+    <link href="{{ STATIC_URL }}lib/bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
     <script src="{{ STATIC_URL }}lib/bootstrap/js/bootstrap.js"></script>
     <script src="{{ STATIC_URL }}js/csrf.js"></script>
     <script src="{{ STATIC_URL }}js/vote.js"></script>
