@@ -20,6 +20,7 @@ VOTE_SESSION_LENGTH = 60   # in seconds, the time intervals to reset vote limit
 VOTE_SESSION_LENGTH = timedelta(seconds=VOTE_SESSION_LENGTH)
 
 FIRST_SESSION = 'first-session'
+LASTSORT_SESSION = 'last-sort'
 
 # Add at the end
 POST_QUESTION, POST_ANSWER, POST_COMMENT, POST_TUTORIAL, POST_BLOG, POST_FORUM, POST_NEWS, POST_REVIEW, POST_OTHER = range(1, 10)

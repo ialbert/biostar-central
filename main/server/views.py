@@ -45,6 +45,60 @@ def get_post_manager(request):
 VALID_TABS = set( "mytags questions forum tutorials unanswered recent popular planet".split() )
 POSTS_PER_PAGE = 20
 
+def filter_by_type(posts, value):
+    "Filters posts by type"
+    if value == 'questions':
+        return posts.filter(type=POST_QUESTION)
+    elif value == 'answers':
+        return posts.filter(type=POST_ANSWER)
+    elif value == 'unanswered':
+        return posts.filter(type=POST_QUESTION, answer_count=0)
+    elif value == 'planet':
+        return posts.filter(type=POST_BLOG)
+    elif value == 'forum':
+        return posts.filter(type__in=POST_FORUMLEVEL)
+    
+    # default
+    print '*** default FILTER %s' % value
+    return posts
+
+def apply_sort(posts, value, request):
+    "Sorts posts by an order"
+    if value == 'rank':
+        return posts.order_by('-rank')
+    elif value == 'views':
+        return posts.order_by('-views')
+    elif value == 'creation':
+        return posts.order_by('-creation_date')
+    elif value == 'edit':
+        return posts.order_by('-lastedit_date')
+    elif value == 'votes':
+        return posts.order_by('-full_score')
+    elif value == 'answers':
+        return posts.order_by('-answer_count')
+    elif value == 'bookmarks':
+        # this needs to be reworked!
+        posts = get_post_manager(request)
+        posts = posts.raw('SELECT server_post.*, count(server_post.id) as bookmarks \
+            FROM server_post INNER JOIN server_vote ON server_post.id = server_vote.post_id WHERE \
+            server_vote.type = %s GROUP BY server_post.id ORDER BY bookmarks DESC LIMIT 100', [const.VOTE_BOOKMARK])
+        posts = list(posts)
+        return posts
+    
+    print '*** default SORT %s' % value
+    # default value is sort by created date
+    return posts.order_by('-creation_date')
+
+def get_last_sort(request, value):
+    "Stores the last sort in a session"
+    last  = request.session.get(LASTSORT_SESSION, 'rank')
+    value = value or last
+    if last != value:
+        request.session[LASTSORT_SESSION] = value
+    return value
+    
+    #sort = sort or
+    
 def index(request, tab=""):
     "Main page"
     
@@ -71,65 +125,39 @@ def index(request, tab=""):
     # returns the object manager that contains all or only visible posts
     posts = get_post_manager(request)
 
-    # sort selected in the dropdown. by default lists cannot be sorted
-    sort = ''
-    sort_choices = []
+    # filter posts by type
+    posts = filter_by_type(posts=posts, value=tab)
 
-    # filter the posts by the tab that the user has selected
-    if tab == "popular":
-        choices = {
-            'views': posts.filter(type=POST_QUESTION).order_by('-views'),
-            'votes': posts.filter(type=POST_QUESTION).order_by('-full_score'),
-            'answers': posts.filter(type=POST_QUESTION).order_by('-answer_count'),
-            'bookmarks': posts.raw('SELECT server_post.*, count(server_post.id) as bookmarks \
-                FROM server_post INNER JOIN server_vote ON server_post.id = server_vote.post_id WHERE \
-                server_vote.type = %s GROUP BY server_post.id ORDER BY bookmarks DESC LIMIT 100', [const.VOTE_BOOKMARK]),
-        }
-        sort = request.GET.get('sort')
-        sort = sort if sort in choices else 'views'
-        sort_choices = choices.keys()
-        posts = choices[sort]
-        if sort == 'bookmarks':
-            posts = list(posts)
-        #posts = posts[:POSTS_PER_PAGE]
-    elif tab == "questions":
-        posts = posts.filter(type=POST_QUESTION)
-        choices = {
-            'rank': posts.order_by('-rank'),
-            'new': posts.order_by('-creation_date'),
-            'edited': posts.order_by('-lastedit_date'),
-        }
-        sort = request.GET.get('sort')
-        sort = sort if sort in choices else 'rank'
-        sort_choices = choices.keys()
-        posts = choices[sort]
-    elif tab == "unanswered":
-        posts = posts.filter(type=POST_QUESTION, answer_count=0).order_by('-creation_date')
-    elif tab == "recent":
+    # sort selected in the dropdown. by default lists cannot be sorted
+    sort = request.GET.get('sort', '').lower()
+    
+    # attempts to remeber the last sorting
+    sort = get_last_sort(request, sort)
+    
+    # override sort in the recent tab
+    if tab == 'recent':
+        sort = 'creation'
         posts = posts.order_by('-creation_date')
-    elif tab == 'planet':
-        posts = posts.filter(type=POST_BLOG).order_by('-rank')
+    else:
+        posts = apply_sort(posts, value=sort, request=request)
+    
+    if tab == 'planet':
         models.decorate_posts(posts, user)
-    elif tab == 'forum':
-        posts = posts.filter(type__in=POST_FORUMLEVEL).order_by('-rank')
-    elif tab == 'tutorials':
-        posts = posts.filter(type=POST_TUTORIAL).order_by('-rank')
-    elif tab == 'mytags':
+    
+    if tab == 'mytags':
         if user.is_authenticated():
             text  = user.profile.my_tags
             if not text:
                 messages.warning(request, "This Tab will show posts matching the My Tags fields in your user profile.")
             else:
                 messages.info(request, "Filtering by %s" % text)
-            #posts = posts.filter(type__in=POST_TOPLEVEL,tag_set__name__in=tags).order_by('-rank')
             posts = models.query_by_tags(user,text=text)
-            
         else:
             messages.warning(request, "This Tab is populated only for registered users based on the My Tags field in their user profile")
             posts = []
-    else:
-        posts = posts.order_by('-rank')
-
+    
+    sort_choices = "rank,views,votes,answers,bookmarks,creation,edit".split(',')
+    
     # put sort options in params so they can be displayed
     params.update(dict(sort=sort, sort_choices=sort_choices))
     
@@ -227,9 +255,10 @@ def user_list(request):
     params = html.Params(nav='users', sort='')
     if search:
         query = Q(profile__display_name__icontains=search)
-        users = models.User.objects.filter(query).select_related('profile').order_by("-profile__score")
     else:
-        users = models.User.objects.select_related('profile').order_by("-profile__score")
+        query = Q(id__gt=0)
+        
+    users = models.User.objects.filter(query).select_related('profile').order_by("-profile__score")
     page  = get_page(request, users, per_page=24)
     return html.template(request, name='user.list.html', page=page, params=params)
 
