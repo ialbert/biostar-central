@@ -155,6 +155,7 @@ def index(request, tab=""):
             else:
                 messages.info(request, "Filtering by %s" % text)
             posts = models.query_by_tags(user,text=text)
+            posts = apply_sort(posts, value=sort, request=request)
         else:
             messages.warning(request, "This Tab is populated only for registered users based on the My Tags field in their user profile")
             posts = []
