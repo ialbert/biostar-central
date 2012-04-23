@@ -111,8 +111,10 @@ div .par {
     .tag;
     float:left;
     padding: 5px 10px;
-    margin:0px 10px 10px 10px;
+    margin:0px 20px 20px 20px;
     text-align:center;
+    width:150px;
+    font-size: larger;
     .tagname {
         font-weight: bold;
     }

@@ -49,6 +49,8 @@ def filter_by_type(posts, value):
     "Filters posts by type"
     if value == 'questions':
         return posts.filter(type=POST_QUESTION)
+    if value == 'tutorials':
+        return posts.filter(type=POST_TUTORIAL)
     elif value == 'answers':
         return posts.filter(type=POST_ANSWER)
     elif value == 'unanswered':
@@ -57,9 +59,10 @@ def filter_by_type(posts, value):
         return posts.filter(type=POST_BLOG)
     elif value == 'forum':
         return posts.filter(type__in=POST_FORUMLEVEL)
+    elif value == 'recent':
+        return posts
     
-    # default
-    print '*** default FILTER %s' % value
+    #print '*** default FILTER %s' % value
     return posts
 
 def apply_sort(posts, value, request):
@@ -85,7 +88,7 @@ def apply_sort(posts, value, request):
         posts = list(posts)
         return posts
     
-    print '*** default SORT %s' % value
+    #print '*** default SORT %s' % value
     # default value is sort by created date
     return posts.order_by('-creation_date')
 
