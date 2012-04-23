@@ -56,13 +56,13 @@ class PostBase(Feed):
 class TagsFeed(PostBase):
     title = "Biostar Tags"
     link = "/"
-    description = "Latest posts matching tags"
+    description = "Biostar - latest posts matching tags"
 
     def get_object(self, request, text):
         return text
         
     def title(self, obj):
-        return "Post matching tags for %s" % obj
+        return "Biostar tags %s" % obj
  
     def items(self, obj):
         posts = models.query_by_tags(user=None, text=obj).order_by('-creation_date')
@@ -71,10 +71,10 @@ class TagsFeed(PostBase):
 class PostFeed(PostBase):
     title = "Biostar Post"
     link = "/"
-    description = "Activity on the latest posts"
+    description = "Biostar post activity"
 
     def title(self, obj):
-        return "Activity matching posts %s" % "+".join(obj)
+        return "Biostar activity on %s" % "+".join(obj)
 
     def items(self, obj):
         posts = models.Post.objects.filter(root__id__in=obj).order_by('-creation_date')
@@ -82,7 +82,7 @@ class PostFeed(PostBase):
 
 class UserFeed(PostBase):
     def title(self, obj):
-        return "Activity matching users %s" % "+".join(obj)
+        return "Biostar user %s" % "+".join(obj)
 
     def items(self, obj):
         posts = models.Post.objects.filter(author__id__in=obj).order_by('-creation_date')
@@ -91,10 +91,10 @@ class UserFeed(PostBase):
 class MyTagsFeed(PostBase):
     title = "Biostar MyTags"
     link = "/"
-    description = "Latest posts matching your tags"
+    description = "Biostar MyTags"
 
     def title(self, obj):
-        return "Post matching tags for %s" % obj.profile.display_name
+        return "Biostar my tags for %s" % obj.profile.display_name
 
     def get_object(self, request, uuid):
         obj = get_object_or_404(models.User, profile__uuid=uuid)
