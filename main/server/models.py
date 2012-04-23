@@ -756,10 +756,9 @@ def verify_post(sender, instance, *args, **kwargs):
     # attempts to create a rank that is no more than 5 levels lower than the highest ranked post
     def get_rank(post):
         now = time.mktime(post.creation_date.timetuple())
-        ranks = list(Post.objects.filter(type=post.type).values_list('rank', flat=True).order_by('-rank')[:5]) + [ now ]
-        ranks = sorted(ranks)
-        rank  = max((now, ranks[0]))
-        return rank
+        ranks = list(Post.objects.filter(type=post.type).values_list('rank', flat=True).order_by('-rank')[:1]) + [ now ]
+        ranks = sorted(ranks, reverse=True)
+        return ranks[0]
             
     instance.rank = instance.rank or get_rank(instance)
     

@@ -112,10 +112,11 @@
     <div class="title" id="status">Status</div>
     
     <div class="par">
-        {{ target.profile.display_name }} has contributed <a href="{% url main.server.views.show_user target.id %}">{{params.post_count}} posts</a>,  
+        {{ target.profile.display_name }} has contributed <a href="{% url main.server.views.show_user target.id %}">{{params.post_count}} posts</a>: 
+         <a href="{% url main.server.views.show_user target.id 'question' %}">{{params.question_count}} questions</a>, 
          <a href="{% url main.server.views.show_user target.id 'answer' %}">{{params.answer_count}} answers</a> and 
          <a href="{% url main.server.views.show_user target.id 'comment' %}">{{params.comment_count}} comments</a>. 
-        User  has voted {{params.vote_count}} times  and has earned {{params.award_count}} badges. 
+        User  has voted <b>{{params.vote_count}}</b> times  and has earned <b>{{params.award_count}}</b> badges. 
     </div>
     
     <div class="title" id="status">Activity</div>
