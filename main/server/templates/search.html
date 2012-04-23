@@ -6,6 +6,10 @@
     Search - BioStar
 {% endblock %}
 
+{% block head %}
+    <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
+{% endblock %}
+
 {% block body %}
 
 <div class="row">
@@ -37,6 +41,11 @@
         {% endfor %}
         </table>
 </div>
+
+<div class="row">
+    {% page_bar %}
+</div>
+
 {% endif %}
 <div class="row">
         
