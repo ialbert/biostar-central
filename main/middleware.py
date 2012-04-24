@@ -40,8 +40,8 @@ class LastVisit(object):
                 forum  = models.Post.objects.filter(type=POST_FORUM, answer_count=0, creation_date__gt=last).count()
                 tutorials = models.Post.objects.filter(type=POST_TUTORIAL, answer_count=0, creation_date__gt=last).count()
                 planet = models.Post.objects.filter(type=POST_BLOG,  creation_date__gt=last).count()
-                
-                counts = dict(planet=planet,  unanswered=unanswered, questions=questions, tutorials=tutorials, forum=forum)
+                tools  = models.Post.objects.filter(type=POST_TOOL,  creation_date__gt=last).count()
+                counts = dict(planet=planet,  unanswered=unanswered, questions=questions, tutorials=tutorials, forum=forum, tools=tools)
                 request.session[SESSION_POST_COUNT] = counts 
                 
                 user.profile.last_visited = now

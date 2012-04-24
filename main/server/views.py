@@ -42,7 +42,7 @@ def get_post_manager(request):
     else:
         return models.Post.open_posts
     
-VALID_TABS = set( "mytags questions forum tutorials unanswered recent popular planet".split() )
+VALID_TABS = set( "mytags questions forum tutorials unanswered recent popular planet tools".split() )
 POSTS_PER_PAGE = 20
 
 def filter_by_type(posts, value):
@@ -57,6 +57,8 @@ def filter_by_type(posts, value):
         return posts.filter(type=POST_QUESTION, answer_count=0)
     elif value == 'planet':
         return posts.filter(type=POST_BLOG)
+    elif value == 'tools':
+        return posts.filter(type=POST_TOOL)
     elif value == 'forum':
         return posts.filter(type__in=POST_FORUMLEVEL)
     elif value == 'recent':
