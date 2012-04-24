@@ -382,6 +382,7 @@ class PostBody(models.Model):
    
 class PostAdmin(admin.ModelAdmin):
     list_display = ('id', 'title', )
+    search_fields = ['id', 'title' ]
 
 admin.site.register(Post, PostAdmin)
 
