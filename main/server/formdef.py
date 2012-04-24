@@ -26,8 +26,8 @@ def valid_tag(text):
         raise ValidationError('You have too many tags, please use at most five tags')
     
     for word in words:
-        if len(word) < 3:
-            raise ValidationError("Tag '%s' is too short, use at least 3 characters" % word)
+        if len(word) < 1:
+            raise ValidationError("Tag '%s' is too short, use at least 1 character" % word)
         if len(word) > 16:
             raise ValidationError("Tag '%s' is too long, use no more than 16 characters" % word)
 
