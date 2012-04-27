@@ -13,7 +13,8 @@ from BeautifulSoup import BeautifulSoup, Comment
 
 import markdown
 from docutils import core
-
+import docutils.parsers.rst.roles
+docutils.parsers.rst.roles.DEFAULT_INTERPRETED_ROLE = 'title-reference'
 from itertools import groupby
 
 # safe string transformation
@@ -59,6 +60,8 @@ def generate(text):
     if not text:
         return ""
     if text.startswith('##rest'):
+        # this is a django bugfix!
+        docutils.parsers.rst.roles.DEFAULT_INTERPRETED_ROLE = 'title-reference'
         text = text[6:].strip()
         rest = core.publish_parts(text ,writer_name='html')
         html = rest.get('html_body','[rest error]')

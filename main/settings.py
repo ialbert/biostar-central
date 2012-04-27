@@ -155,7 +155,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'main.middleware.LastVisit',
-    'main.middleware.ErrorCheckMiddleware'
+    #'main.middleware.ErrorCheckMiddleware'
 )
 
 CACHES = {
@@ -193,7 +193,7 @@ ROOT_URLCONF = 'main.urls'
 
 AUTHENTICATION_BACKENDS = (
     'django_openid_auth.auth.OpenIDBackend',
-    'django.contrib.auth.backends.ModelBackend',
+    #'django.contrib.auth.backends.ModelBackend',
 )
 
 OPENID_CREATE_USERS = True

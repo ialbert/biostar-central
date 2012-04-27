@@ -20,6 +20,20 @@ body {
     text-decoration: underline;
 }
 
+blockquote {
+    
+    padding: 0 0 0 15px;
+    margin: 0 0 30px;
+    border-left: 5px solid #EEE;
+
+    p {
+        margin-bottom: 0;
+        font-size: 100%;
+        font-weight: 200;
+        line-height: 22.5px;
+    }
+}
+
 .post-show {
     h1 { font-size:140% }
     h2 { font-size:130% }
