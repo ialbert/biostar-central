@@ -33,9 +33,9 @@ class UserForm(forms.Form):
     display_name = forms.CharField(max_length=30,  initial="", widget=forms.TextInput(attrs={'size':'30'}))   
     email        = forms.CharField(max_length=100,  initial="", widget=forms.TextInput(attrs={'size':'50'}))
     location     = forms.CharField(max_length=100,  required=False, initial="", widget=forms.TextInput(attrs={'size':'50'}))
-    website      = forms.CharField(max_length=200,  required=False, initial="", widget=forms.TextInput(attrs={'size':'50'}))
-    my_tags      = forms.CharField(max_length=200,  required=False, initial="", widget=forms.TextInput(attrs={'size':'50'}))
-    about_me     = forms.CharField(max_length=500, required=False, initial="", widget=forms.Textarea (attrs={'class':'span6'}))
+    website      = forms.CharField(max_length=250,  required=False, initial="", widget=forms.TextInput(attrs={'size':'50'}))
+    my_tags      = forms.CharField(max_length=250,  required=False, initial="", widget=forms.TextInput(attrs={'size':'50'}))
+    about_me     = forms.CharField(max_length=2500, required=False, initial="", widget=forms.Textarea (attrs={'class':'span6'}))
     scholar      = forms.CharField(max_length=50,  required=False, initial="", widget=forms.TextInput(attrs={'size':'30'}))
 
 LAST_CLEANUP = datetime.now()
