@@ -40,6 +40,7 @@ export PG_USERNAME=${PG_USERNAME:-"biostar-user"}
 # the DJANGO_SETTINGS_MODULE needs to be in the python import path
 export PYTHONPATH=$PYTHONPATH:$BIOSTAR_HOME   
 
+
 # add the library files to the pythonpath
 export PYTHONPATH=$PYTHONPATH:libs/:libs/libraries.zip
 

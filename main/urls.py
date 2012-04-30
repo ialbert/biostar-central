@@ -95,16 +95,23 @@ urlpatterns = patterns('main.server',
    
 )
 
+
+
 #
 # Generic views
 #
 from django.views.generic.list import ListView
+from django.views.generic.simple import direct_to_template
 from main.server import models
 
 urlpatterns += patterns('',
     url(r'^blog/list/$', ListView.as_view(
         queryset = models.Blog.objects.all().select_related('author__profile'),
         template_name='generic/blog.list.html'), name='blog-list'),
+    
+     # matching the robots.txt
+    url(r'^robots\.txt$', direct_to_template, {'template': 'robots.txt', 'mimetype': 'text/plain'}, name='robots'),
+
 )
 
 #
