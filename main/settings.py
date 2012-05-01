@@ -278,9 +278,9 @@ GOOGLE_DOMAIN  = ""
 CONTENT_INDEXING = True
 
 # rank gains expressed in hours
-POST_UPVOTE_RANK_GAIN = 3
-POST_VIEW_RANK_GAIN = 1
-BLOG_VIEW_RANK_GAIN = 12
+POST_UPVOTE_RANK_GAIN = 1
+POST_VIEW_RANK_GAIN = 0.1
+BLOG_VIEW_RANK_GAIN = 0.1
 
 # if this is set together with the DEBUG mode allows test logins
 # don't turn it on in production servers!
