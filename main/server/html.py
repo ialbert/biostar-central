@@ -57,7 +57,7 @@ def nuke(text):
     return text
 
 def generate(text):
-    if not text.strip():
+    if not text:
         return ""
     if text.startswith('##rest'):
         # this is a django bugfix!
