@@ -68,12 +68,15 @@ def generate(text):
     else:
         md = markdown2.Markdown( safe_mode=True )
         md.html_removed_text="[HTML]"
+        text = fix_links(text)
         html = md.convert(text)
-        html = add_links(html)
     return html
 
-def add_links(text):
-    "Inserts full hyperlinks to orphans"
+orphans = re.compile("(^|\w\s)((https?|ftp):\S+) ", re.MULTILINE | re.VERBOSE)
+def fix_links(text):
+    global orphans
+    "Add markdown to orphan links"
+    text = orphans.sub(r'\1<\2>', text)
     return text
     
 ALLOWED_TAGS = "strong span:class br ol ul li a:href img:src pre code blockquote p em"
