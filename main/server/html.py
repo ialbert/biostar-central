@@ -11,7 +11,7 @@ from django.core.paginator import Paginator, InvalidPage, EmptyPage
 
 from BeautifulSoup import BeautifulSoup, Comment
 
-import markdown
+import markdown2
 from docutils import core
 import docutils.parsers.rst.roles
 docutils.parsers.rst.roles.DEFAULT_INTERPRETED_ROLE = 'title-reference'
@@ -57,7 +57,7 @@ def nuke(text):
     return text
 
 def generate(text):
-    if not text:
+    if not text.strip():
         return ""
     if text.startswith('##rest'):
         # this is a django bugfix!
@@ -66,11 +66,16 @@ def generate(text):
         rest = core.publish_parts(text ,writer_name='html')
         html = rest.get('html_body','[rest error]')
     else:
-        md = markdown.Markdown( safe_mode=True )
-        md.html_replacement_text = "[?]"
+        md = markdown2.Markdown( safe_mode=True )
+        md.html_removed_text="[HTML]"
         html = md.convert(text)
+        html = add_links(html)
     return html
 
+def add_links(text):
+    "Inserts full hyperlinks to orphans"
+    return text
+    
 ALLOWED_TAGS = "strong span:class br ol ul li a:href img:src pre code blockquote p em"
 def sanitize(value, allowed_tags=ALLOWED_TAGS):
     """

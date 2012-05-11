@@ -20,7 +20,7 @@ from main.server import html, notegen, auth
 
 # import all constants
 from main.server.const import *
-import markdown
+
 
 import logging
 logger = logging.getLogger(__name__)
