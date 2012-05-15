@@ -299,16 +299,18 @@ def query_by_tags(user, text=''):
     if not text.strip():
         return posts.filter(type=-1)
         
-    tags  = re.split("(\+|-)", text)
-    active = include = []
+    tags  = text.split('+')
+    include = []
     exclude = []
     for tag in tags:
-        if tag == '-':
+        if tag.endswith('!'):
+            tag = tag[:-1]
+            if not tag:
+                continue
             active = exclude
-        elif tag == '+':
+        else:
             active = include
-        elif tag:
-            active.append(tag)
+        active.append(tag)
     if include:
         res =  posts.filter(type__in=POST_TOPLEVEL, tag_set__name__in=include).exclude(tag_set__name__in=exclude).order_by('-rank').distinct()
     else:
@@ -452,6 +454,11 @@ def post_moderate(request, post, user, status, date=None):
         post.delete()
         return "/"
     
+    # replace tags with the word deleted
+    if status == POST_DELETED:
+        post.tag_val = "deleted-post"
+        post.set_tags()
+        
     post.status = status
     post.save()
    

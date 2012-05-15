@@ -19,7 +19,7 @@ from itertools import groupby
 
 # safe string transformation
 import string
-SAFE_TAG = set(string.ascii_letters + string.digits + "._ ")
+SAFE_TAG = set(string.ascii_letters + string.digits + "._-")
 
 def safe_tag(text):
     global SAFE_TAG

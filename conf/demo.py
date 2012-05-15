@@ -11,6 +11,9 @@ ADMINS = (
 # set the site url
 SITE_DOMAIN = 'localhost:8080'
 
+# set the cookie domain as needed
+SESSION_COOKIE_DOMAIN = ".biostars.org"
+
 # set the secret key for the site
 SECRET_KEY = 'my-secret key goes here'
 

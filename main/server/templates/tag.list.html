@@ -13,6 +13,23 @@
 </div>
 
 <div class="row">
+
+<div style="margin-top:5px">
+<form action="/tag/list/" method="get" class="form-horizontal">
+    <fieldset>
+        <div class="control-group">
+            <label class="control-label" for="title">Tag search</label>
+            <div class="controls">
+                <input name="m" type="text" size=20 value="{{m}}">
+                <button type="submit" id="bsignin" name="bsignin" class="btn btn-primary">Search!</button>    
+            </div>            
+        </div>
+    </fieldset>
+</form>
+</div>
+</div>
+
+<div class="row">
     {% for tag in page.object_list %} 
         <a href="{% url main.server.views.show_tag tag.name %}">
             <div class="tag-panel">
