@@ -15,7 +15,7 @@ Requirements
 
 The software requires only Python_ (2.6 or higher) to run. All other 
 libraries are included in the distribution. The code will run with 
-no changes on any operating system that supports Python. 
+no changes on any operating system that supports Python.
 
 This software runs the BioStar Bioinformatics Q&A site at: http://www.biostars.org
 
@@ -73,7 +73,7 @@ Alternatively one may run all these commands all at once::
 note that this will remove all existing content! The database re-initialization is
 database specific, for the default sqlite deployment you can use::
 
-    $ ./biostar.sh delete init import
+    $ ./biostar.sh delete init import run
 
 The *biostar.sh* run manager to pulls in environment variables to allow you to 
 customize locations/test fixtures, etc. Edit the *biostar.sh* script 
@@ -89,7 +89,7 @@ interact with your version of the test server.
 
 There are commands to support Postgresql specific functionality these are::
 
-    pgdrop pgdump pgrestore
+    pgdrop pgdump pgreset pgimport
 
 Most operations are customized via environment variables. To show their current settings use::
 
@@ -167,6 +167,17 @@ A `reports` directory will be created in the root directory
 that contains html reports on the code coverage by the tests. View the `report/index.html` file.
 
 .. _coverage: http://pypi.python.org/pypi/coverage
+
+Selenium tests can be run via::
+
+    ./biostar.sh selenium
+    
+Please note that for this to work properly the python selenium library bindings must be installed moreover
+the ``SELENIUM_TEST_LOGIN_TOKEN`` variable must be set in your Django settings file::
+
+    SELENIUM_TEST_LOGIN_TOKEN = "somepasswordgoeshere"
+
+In addition both the test site and the command line above must make use of the same settings file.
 
 How the site works
 -------------------

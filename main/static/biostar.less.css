@@ -34,6 +34,11 @@ blockquote {
     }
 }
 
+.dropdown-toggle {
+    border-style: solid;
+    border-width: 1px;
+    border-color: #DEDEDE;
+}
 .post-show {
     h1 { font-size:140% }
     h2 { font-size:130% }
