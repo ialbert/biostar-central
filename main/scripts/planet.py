@@ -71,7 +71,11 @@ def add(url):
         
     except Exception, exc:
         print '(!) error %s' % exc
-    
+
+def title(row):
+    title = row.title[:200]
+    return title
+
 def update(limit):
     blogs = models.Blog.objects.all()
     for blog in blogs:
@@ -83,13 +87,16 @@ def update(limit):
             now = datetime.datetime.now()
             models.UserProfile.objects.filter(user=blog.author).update(last_visited=now)
             doc = feedparser.parse(fname)
-            ent = [ e for e in doc.entries if e.title not in seen ]
+            
+            ent = [ e for e in doc.entries if title(e) not in seen ]
             ent = ent[:limit]
             for r in ent:
+                if not r.title:
+                    continue;
                 date = r.date_parsed
                 date = datetime.datetime(date[0], date[1], date[2])
                 content = html.strip_tags(r.description)
-                post = models.Post(title=r.title, url=r.link, author=blog.author,  type=POST_BLOG, content=content, creation_date=date)
+                post = models.Post(title=title(r), url=r.link, author=blog.author,  type=POST_BLOG, content=content, creation_date=date)
                 post.save()
                 print '*** added post %s' % post.title.encode("ascii", errors='replace')
         except KeyError, exc:
