@@ -42,9 +42,7 @@ def instant(request):
         return models.Post.objects.filter(author=user,type=POST_COMMENT).count() > 10
     
     def guru():
-        votes  = models.Vote.objects.filter(author=user, type=VOTE_UP).count() > 40
-        accept = models.Vote.objects.filter(author=user, type=VOTE_ACCEPT).count()
-        return accept and votes
+        return models.Post.objects.filter(author=user, type=POST_ANSWER, score__gt=40).count()
         
     def student():
         return models.Post.objects.filter(author=user, type=POST_QUESTION, score__gt=0).count()
@@ -75,13 +73,13 @@ def instant(request):
        
        
     pairs = [
+        ('Guru', guru),
         ('Autobiographer', autobiographer),
         ('Yearling', yearling),
         ('Pundit', pundit),
         ('Editor', editor),
         ('Teacher', teacher),
         ('Student', student),
-        ('Guru', guru),
         ('Commentator', commentator),
         ('Supporter', supporter),
         ('Nice Question', nice_question ),
