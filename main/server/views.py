@@ -54,7 +54,7 @@ def filter_by_type(posts, value):
     elif value == 'answers':
         return posts.filter(type=POST_ANSWER)
     elif value == 'unanswered':
-        return posts.filter(type=POST_QUESTION, answer_count=0)
+        return posts.filter(type__in=[POST_QUESTION, POST_FIXME], answer_count=0)
     elif value == 'planet':
         return posts.filter(type=POST_BLOG)
     elif value == 'tools':
@@ -222,7 +222,7 @@ def user_profile(request, uid, tab='activity'):
     bookmarks = models.Vote.objects.filter(author=target, type=VOTE_BOOKMARK).select_related('post', 'post__author__profile').order_by('id')
     awards = models.Award.objects.filter(user=target).select_related('badge').order_by('-date')
 
- # we need to collate and count the awards
+    # we need to collate and count the awards
     answer_count = models.Post.objects.filter(author=target, type=POST_ANSWER).count()
     question_count = models.Post.objects.filter(author=target, type=POST_QUESTION).count()
     comment_count = models.Post.objects.filter(author=target, type=POST_COMMENT).count()

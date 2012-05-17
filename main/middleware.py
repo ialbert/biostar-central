@@ -15,7 +15,7 @@ class LastVisit(object):
     """
     global MINIMUM_TIME
     # minimum elapsed time
-    
+
     def process_request(self, request):
         
         if request.user.is_authenticated():
@@ -30,9 +30,16 @@ class LastVisit(object):
             now = datetime.datetime.now()
             diff = (now - profile.last_visited).seconds
             
+            
             # Prevent writing to the database too often
             if diff > MINIMUM_TIME:
                
+               # create nagging message for fixme posts
+                fixme = models.Post.objects.filter(type=POST_FIXME, author=user, status=POST_OPEN)
+                if fixme:
+                    first = fixme[0]
+                    messages.error(request, 'You have a post that does not conform the requirements. Please edit it: <a href="%s">%s</a>' % (first.get_absolute_url(), first.title) )
+            
                 last = user.profile.last_visited
                
                 questions = models.Post.objects.filter(type=POST_QUESTION, creation_date__gt=last).count()
