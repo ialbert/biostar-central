@@ -16,6 +16,15 @@ body {
    background-color: white;
 }
 
+.earned.True {
+    display: block;
+    width: 44px;
+    background-repeat: no-repeat;
+    background-position: center;
+    margin: auto;
+    background-image: url("/static/img/g/checkmark.png")
+}
+
 .newpost {
     text-decoration: underline;
 }

@@ -286,7 +286,18 @@ def tag_list(request):
     return html.template(request, name='tag.list.html', page=page, params=params)
 
 def badge_list(request):
+    user = request.user
+    
     badges = models.Badge.objects.filter(secret=False).order_by('-count', '-type')
+    
+    # set a flag for badges that a user has
+    if user.is_authenticated():
+        earned = set( models.Award.objects.filter(user=user).values_list('badge__name', flat=True).distinct() )
+    else:
+        earned = []
+    for badge in badges:
+        badge.earned = badge.name in earned
+        
     params = html.Params(nav='badges', sort='')
     return html.template(request, name='badge.list.html', badges=badges, params=params)
  
