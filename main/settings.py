@@ -286,6 +286,12 @@ BLOG_VIEW_RANK_GAIN = 0.1
 # don't turn it on in production servers!
 SELENIUM_TEST_LOGIN_TOKEN = None
 
+# the time in seconds between session updates
+SESSION_UPDATE_TIME = 60 * 10 # every 10 minutes
+
+# setting the session for multiple servers
+SESSION_COOKIE_DOMAIN = ""
+
 # version check, we can do it at the end since
 # the version is only required in subsequent modules
 if sys.version_info < (2, 6):

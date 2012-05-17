@@ -7,14 +7,10 @@ from main.server.const import *
 
 settings.CONTENT_INDEXING = True
 
-MINIMUM_TIME = 60 * 10 # every 10 minutes
-
 class LastVisit(object):
     """
     Updates the last visit stamp at MINIMUM_TIME intervals
     """
-    global MINIMUM_TIME
-    # minimum elapsed time
 
     def process_request(self, request):
         
@@ -32,7 +28,7 @@ class LastVisit(object):
             
             
             # Prevent writing to the database too often
-            if diff > MINIMUM_TIME:
+            if diff > settings.SESSION_UPDATE_TIME:
                
                # create nagging message for fixme posts
                 fixme = models.Post.objects.filter(type=POST_FIXME, author=user, status=POST_OPEN)

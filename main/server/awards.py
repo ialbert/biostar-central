@@ -1,7 +1,8 @@
 """
 Generating awards
 """
-    
+from datetime import date, timedelta
+
 from django.conf import settings
 from main.server import models, html, notegen
 from main.server.const import *
@@ -36,11 +37,54 @@ def instant(request):
     def civic_duty():
         "Selector for Civid Duty badge"
         return models.Vote.objects.filter(author=user, type=VOTE_UP).count() > 300
+    
+    def commentator():
+        return models.Post.objects.filter(author=user,type=POST_COMMENT).count() > 10
+    
+    def guru():
+        votes  = models.Vote.objects.filter(author=user, type=VOTE_UP).count() > 40
+        accept = models.Vote.objects.filter(author=user, type=VOTE_ACCEPT).count()
+        return accept and votes
         
+    def student():
+        return models.Post.objects.filter(author=user, type=POST_QUESTION, score__gt=0).count()
+    
+    def teacher():
+        return models.Post.objects.filter(author=user, score__gt=0).exclude(type=POST_QUESTION).count()
+        
+    def editor():
+        return models.PostRevision.objects.filter(author=user).count()
+        
+    def supporter():
+        return models.Vote.objects.filter(author=user).count()
+        
+    def nice_question():
+        return models.Post.objects.filter(author=user, score__gt=10).count()
+    
+    def pundit():
+        return models.Post.objects.filter(author=user, type=POST_COMMENT, score__gt=10).count()
+      
+    def yearling():
+        start = date.today() - timedelta(days=365)
+        return models.User.objects.filter(id=user.id, date_joined__lt=start, profile__score__gt=20).count()
+    
+    def autobiographer():
+        p = user.profile
+        
+        return p.about_me and p.website and p.location
+       
+       
     pairs = [
-        ('Teacher', models.Post.objects.filter(author=user, score__gt=0).count),
-        ('Supporter', models.Vote.objects.filter(author=user).count),
-        ('Nice Question', models.Post.objects.filter(author=user, score__gt=10).count),
+        ('Autobiographer', autobiographer),
+        ('Yearling', yearling),
+        ('Pundit', pundit),
+        ('Editor', editor),
+        ('Teacher', teacher),
+        ('Student', student),
+        ('Guru', guru),
+        ('Commentator', commentator),
+        ('Supporter', supporter),
+        ('Nice Question', nice_question ),
         ('Civic Duty', civic_duty),
         ]
     
