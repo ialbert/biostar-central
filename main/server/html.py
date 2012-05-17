@@ -80,7 +80,7 @@ def fix_orphans(text):
     text = orphans.sub(r'\1<\2>', text)
     return text
 
-youtube = re.compile("youtube:(\w+) ", re.MULTILINE | re.VERBOSE)
+youtube = re.compile("youtube:([\w-]+) ", re.MULTILINE | re.VERBOSE)
 def extra_html(text):
     "Allows embedding extra html features"
     frame = r'''
