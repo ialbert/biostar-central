@@ -692,8 +692,12 @@ class Award(models.Model):
     
     def __unicode__(self):
         return "%s earned by %s" % (self.badge.name, self.user.email)
+
+class AwardAdmin(admin.ModelAdmin):
+    list_display = ('badge', 'user', 'date')
+    search_fields = ['badge__name', 'user__email']
     
-admin.site.register(Award)
+admin.site.register(Award, AwardAdmin)
 
 # most of the site functionality, reputation change
 # and voting is auto applied via database signals
