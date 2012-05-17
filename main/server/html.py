@@ -68,17 +68,30 @@ def generate(text):
     else:
         md = markdown2.Markdown( safe_mode=True )
         md.html_removed_text="[HTML]"
-        text = fix_links(text)
+        text = fix_orphans(text)
         html = md.convert(text)
+        html = extra_html(html)
     return html
 
-orphans = re.compile("(^|\w\s)((https?|ftp):\S+) ", re.MULTILINE | re.VERBOSE)
-def fix_links(text):
+orphans = re.compile("(^|[\w:.]\s)((https?|ftp):\S+) ", re.MULTILINE | re.VERBOSE)
+def fix_orphans(text):
     global orphans
     "Add markdown to orphan links"
     text = orphans.sub(r'\1<\2>', text)
     return text
-    
+
+youtube = re.compile("youtube:(\w+) ", re.MULTILINE | re.VERBOSE)
+def extra_html(text):
+    "Allows embedding extra html features"
+    frame = r'''
+    <div>
+        <iframe width="560" height="315" src="http://www.youtube.com/embed/\1" frameborder="0" allowfullscreen></iframe>
+    </div>
+    <div>Click to go to <a href="http://www.youtube.com/watch?v=\1">YouTube</a></div>
+    '''
+    text = youtube.sub(frame, text)
+    return text
+
 ALLOWED_TAGS = "strong span:class br ol ul li a:href img:src pre code blockquote p em"
 def sanitize(value, allowed_tags=ALLOWED_TAGS):
     """
