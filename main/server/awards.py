@@ -48,7 +48,7 @@ def instant(request):
         return models.Post.objects.filter(author=user, type=POST_QUESTION, score__gt=0).count()
     
     def teacher():
-        return models.Post.objects.filter(author=user, score__gt=0).exclude(type=POST_QUESTION).count()
+        return models.Post.objects.filter(author=user, type=POST_ANSWER, score__gt=0).count()
         
     def editor():
         return models.PostRevision.objects.filter(author=user).count()
@@ -73,12 +73,12 @@ def instant(request):
        
        
     pairs = [
+        ('Teacher', teacher),
         ('Guru', guru),
         ('Autobiographer', autobiographer),
         ('Yearling', yearling),
         ('Pundit', pundit),
         ('Editor', editor),
-        ('Teacher', teacher),
         ('Student', student),
         ('Commentator', commentator),
         ('Supporter', supporter),
