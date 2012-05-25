@@ -69,6 +69,14 @@ def tab_bar(params={}, counts={}):
 @register.inclusion_tag('widgets/nav.bar.html', takes_context=True)
 def nav_bar(context, user, params={}):
     "Renders top navigation bar"
+    # this is a monkey fix for an error I don't yet fully understand
+    # the params ends up being a string
+    try:
+        params.get
+    except:
+        print 'error %s, %s' % type(params), params
+        params = {}
+
     return { 'user':user, 'nav': params.get('nav'), 'q':params.get('q',''), 'request':context['request'] }
 
 @register.inclusion_tag('widgets/page.bar.dropdown.html')
