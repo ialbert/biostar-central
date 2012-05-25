@@ -74,7 +74,7 @@ def nav_bar(context, user, params={}):
     try:
         params.get
     except:
-        print 'error %s, %s' % type(params), params
+        print 'error %s, %s' % (type(params), params)
         params = {}
 
     return { 'user':user, 'nav': params.get('nav'), 'q':params.get('q',''), 'request':context['request'] }
