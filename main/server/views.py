@@ -29,7 +29,6 @@ from main.server.const import *
 import logging
 logger = logging.getLogger(__name__)
 
-
 def update_counts(request, key, value):
     counts = request.session.get(SESSION_POST_COUNT,{})
     counts[key] = value
@@ -42,7 +41,7 @@ def get_post_manager(request):
     else:
         return models.Post.open_posts
     
-VALID_TABS = set( "mytags questions forum tutorials unanswered recent planet tools videos".split() )
+VALID_TABS = set( "mytags questions forum tutorials unanswered recent planet tools jobs".split() )
 POSTS_PER_PAGE = 20
 
 def filter_by_type(posts, value):
@@ -50,11 +49,11 @@ def filter_by_type(posts, value):
     if value == 'questions':
         return posts.filter(type=POST_QUESTION)
     if value == 'tutorials':
-        return posts.filter(type=POST_TUTORIAL)
+        return posts.filter(type__in=[POST_VIDEO, POST_TUTORIAL])
     elif value == 'answers':
         return posts.filter(type=POST_ANSWER)
-    elif value == 'videos':
-        return posts.filter(type=POST_VIDEO)
+    elif value == 'jobs':
+        return posts.filter(type=POST_JOB)
     elif value == 'unanswered':
         return posts.filter(type__in=[POST_QUESTION, POST_FIXME], answer_count=0)
     elif value == 'planet':
