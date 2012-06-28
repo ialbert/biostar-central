@@ -239,7 +239,7 @@ def user_profile(request, uid, tab='activity'):
         # we evalute it here so that subsequent status updates won't interfere
         page.object_list = list(page.object_list)
         if user==target:
-            models.Note.objects.filter(target=target).update(unread=False)
+            models.Note.objects.filter(target=target, unread=True).update(unread=False)
             models.UserProfile.objects.filter(user=target).update(new_messages=0)
             note_count = 0
         

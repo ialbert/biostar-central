@@ -26,7 +26,6 @@ class LastVisit(object):
             now = datetime.datetime.now()
             diff = (now - profile.last_visited).seconds
             
-            settings.SESSION_UPDATE_TIME = 2
             # Prevent writing to the database too often
             if diff > settings.SESSION_UPDATE_TIME:
                
