@@ -68,6 +68,26 @@ class TagsFeed(PostBase):
         posts = models.query_by_tags(user=None, text=obj).order_by('-creation_date')
         return posts[:25]
 
+class PostTypeFeed(PostBase):
+    title = "Feed to a specific BioStar post type"
+    link = "/"
+    description = "Biostar - latest posts matching a post type"
+
+    def get_object(self, request, text):
+        # reverse mapping for quick lookups
+        elems = text.split("+")
+        codes = [ const.POST_REV_MAP.get(e, const.POST_QUESTION) for e in elems ]
+        return (codes, text)
+        
+    def title(self, obj):
+        codes, text = obj
+        return "Biostar %s" % text
+ 
+    def items(self, obj):
+        codes, text = obj
+        posts = models.Post.objects.filter(type__in=codes).order_by('-creation_date')
+        return posts[:25]
+        
 class PostFeed(PostBase):
     title = "Biostar Post"
     link = "/"

@@ -117,7 +117,7 @@ urlpatterns += patterns('',
 #
 # RSS Feeds 
 #
-from server.feeds import LatestEntriesFeed, NotificationFeed, MyTagsFeed
+from server.feeds import LatestEntriesFeed, NotificationFeed, MyTagsFeed, PostTypeFeed
 from server.feeds import TagsFeed, PostFeed, UserFeed
 
 urlpatterns += patterns('',
@@ -129,7 +129,8 @@ urlpatterns += patterns('',
     url(r'^feeds/tag/(?P<text>[\w\-_\+]+)/$', TagsFeed(), name='tags-feed' ),
     url(r'^feeds/post/(?P<text>[\w\-_\+]+)/$', PostFeed(), name='post-feed' ),
     url(r'^feeds/user/(?P<text>[\w\-_\+]+)/$', UserFeed(), name='user-feed' ),
-
+    url(r'^feeds/type/(?P<text>[\w\-_\+]+)/$', PostTypeFeed(), name='post-type-feed' ),
+    
     # openid authentication
     url(r'^openid/', include('django_openid_auth.urls'), name='openid-login'),
     url(r'^logout/$', 'django.contrib.auth.views.logout',  {'next_page':'/'}, name='logout'),
