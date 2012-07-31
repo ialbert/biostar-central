@@ -12,7 +12,7 @@ def userlink(user, short=False):
 def postlink(post, size=35):
     root  = post.root or post
     title = root.title if len(root.title) < size else '%s...' %  root.title[:size]
-    return '[%s:%s]( %s)' % (post.get_type_display(), title, post.get_absolute_url())
+    return '[%s: %s]( %s)' % (post.get_type_display(), title, post.get_absolute_url())
 
 def badgelink(badge):
     return '[%s](%s)' % (badge.name, badge.get_absolute_url())
@@ -31,7 +31,7 @@ def chop(text, size):
     return text if len(text) < size else '%s...' % text[:size]
     
 def post_action(user, post, size=250):
-    text   = '%s: %s in %s' % (userlink(user, short=True), chop(post.content, size=size), postlink(post))
+    text   = '%s by %s : %s' % (postlink(post), userlink(user, short=False), chop(post.content, size=size))
     return text
 
 def awardnote(badge):

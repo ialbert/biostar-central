@@ -233,8 +233,12 @@ def user_profile(request, uid, tab='activity'):
     note_count  = models.Note.objects.filter(target=target, unread=True).count()
     bookmarks_count  = models.Vote.objects.filter(author=target, type=VOTE_BOOKMARK).count()
     
-    if tab == 'activity':
-        notes = models.Note.objects.filter(target=target, type=NOTE_USER).select_related('author', 'author__profile', 'root').order_by('-date')
+    if tab in [ 'activity', 'created' ]:
+        if tab == 'created':
+            notes = models.Note.objects.filter(sender=target, target=target, type=NOTE_USER).select_related('author', 'author__profile', 'root').order_by('-date')
+        else:
+            notes = models.Note.objects.filter(target=target, type=NOTE_USER).exclude(sender=target).select_related('author', 'author__profile', 'root').order_by('-date')
+            
         page  = get_page(request, notes, per_page=15)
         # we evalute it here so that subsequent status updates won't interfere
         page.object_list = list(page.object_list)
@@ -242,7 +246,7 @@ def user_profile(request, uid, tab='activity'):
             models.Note.objects.filter(target=target, unread=True).update(unread=False)
             models.UserProfile.objects.filter(user=target).update(new_messages=0)
             note_count = 0
-        
+            
     elif tab == 'bookmarks':
         bookmarks = models.Vote.objects.filter(author=target, type=VOTE_BOOKMARK).select_related('post', 'post__author__profile').order_by('-date')
         page  = get_page(request, bookmarks, per_page=15)

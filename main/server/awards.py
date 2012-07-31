@@ -11,9 +11,11 @@ from django.contrib import messages
 #models.Award.objects.all().delete()
 
 def create(request, user, badge):
+    "Creates an award"
+    sender = models.User.objects.get(pk=1)
     award = models.Award.objects.create(user=user, badge=badge)
     text = notegen.awardnote(award.badge)
-    note = models.Note.objects.create(sender=user, target=user, content=text, url=award.badge.get_absolute_url() )
+    note = models.Note.objects.create(sender=sender, target=user, content=text, url=award.badge.get_absolute_url() )
     messages.info(request, note.html)
 
 def instant(request):
