@@ -72,8 +72,8 @@ def generate(text):
         md = markdown2.Markdown( safe_mode=False )
         text = fix_orphans(text)
         html = md.convert(text)
-        html = extra_html(html)
         html = html5_sanitize(html)
+        html = extra_html(html)
     return html
 
 orphans = re.compile("(^|[\w:.]\s)((https?|ftp):\S+) ", re.MULTILINE | re.VERBOSE)
@@ -83,7 +83,7 @@ def fix_orphans(text):
     text = orphans.sub(r'\1<\2>', text)
     return text
 
-youtube = re.compile("youtube:([\w-]+) ", re.MULTILINE | re.VERBOSE)
+youtube = re.compile("youtube:([_\w-]+) ", re.MULTILINE | re.VERBOSE)
 def extra_html(text):
     "Allows embedding extra html features"
     frame = r'''
