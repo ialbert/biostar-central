@@ -11,6 +11,9 @@ from django.core.paginator import Paginator, InvalidPage, EmptyPage
 
 from BeautifulSoup import BeautifulSoup, Comment
 
+import html5lib
+from html5lib import sanitizer
+
 import markdown2
 from docutils import core
 import docutils.parsers.rst.roles
@@ -66,11 +69,11 @@ def generate(text):
         rest = core.publish_parts(text ,writer_name='html')
         html = rest.get('html_body','[rest error]')
     else:
-        md = markdown2.Markdown( safe_mode=True )
-        md.html_removed_text="[HTML]"
+        md = markdown2.Markdown( safe_mode=False )
         text = fix_orphans(text)
         html = md.convert(text)
         html = extra_html(html)
+        html = html5_sanitize(html)
     return html
 
 orphans = re.compile("(^|[\w:.]\s)((https?|ftp):\S+) ", re.MULTILINE | re.VERBOSE)
@@ -92,6 +95,12 @@ def extra_html(text):
     text = youtube.sub(frame, text)
     return text
 
+def html5_sanitize(value):
+    "HTML sanitizer based on html5lib"
+    p = html5lib.HTMLParser(tokenizer=sanitizer.HTMLSanitizer)
+    h = p.parseFragment(value).toxml()
+    return h
+    
 ALLOWED_TAGS = "strong span:class br ol ul li a:href img:src pre code blockquote p em"
 def sanitize(value, allowed_tags=ALLOWED_TAGS):
     """
