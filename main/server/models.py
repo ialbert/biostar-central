@@ -778,7 +778,7 @@ def verify_post(sender, instance, *args, **kwargs):
     instance.slug = slugify(instance.title)
         
     # generate the HTML from the content
-    instance.html = html.generate(instance.content.strip())
+    instance.html = html.generate(instance.content)
 
     # post gets flagged as changed on saving
     instance.changed = True
