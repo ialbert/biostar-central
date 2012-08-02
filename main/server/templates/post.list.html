@@ -10,10 +10,29 @@
 {% block body %}
 
 <div class="row">
+   <ul class="nav nav-pills">
+        <li class="active">
+          <a href="#">Show All</a>
+        </li>
+        <li><a href="#">Questions</a></li>
+        <li><a href="#">Unanswered</a></li>
+        <li><a href="#">Tutorials</a></li>
+        <li><a href="#">Tools</a></li>
+        <li><a href="#">Videos</a></li>
+        <li><a href="#">Jobs</a></li>
+    </ul>
+</div>
+
+<div class="row">
+    {% if params.sort %}
+        {% page_bar_dropdown params.sort params.sort_choices %}
+    {% endif %}
     {% page_bar %}
 </div>
 
 <div class="row">
+    
+ 
     
     <table border="0" class="post-table" cellspacing="0" width="100%">
     

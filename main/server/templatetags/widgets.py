@@ -6,6 +6,9 @@ from django.core.context_processors import csrf
 import urllib
 register = template.Library()
 
+
+@register.simple_tag
+
 @register.simple_tag
 def show_value(value):
    return " (%s) " % value if value else ""
@@ -64,7 +67,12 @@ def render_post(context, post, tree):
 @register.inclusion_tag('widgets/tab.bar.html')
 def tab_bar(params={}, counts={}):
     "Renders the switchable tab on most pages"
-    return { 'tab': params.get('tab'), 'counts':counts }
+    return { 'tab': params.get('tab'), 'counts':counts, 'params':params }
+
+@register.inclusion_tag('widgets/pill.bar.html')
+def pill_bar(params={}, counts={}):
+    "Renders the switchable pill bar on most pages"
+    return { 'tab': params.get('tab'), 'pill':params.get('pill'), 'params':params }
 
 @register.inclusion_tag('widgets/nav.bar.html', takes_context=True)
 def nav_bar(context, user, params={}):

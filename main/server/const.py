@@ -3,6 +3,8 @@ Various constants used throught the site
 
 WARNING: DO NOT CHANGE ON PRODUCTION SEVERS! 
 """
+import string
+
 # The name of the editor group
 MODERATOR_GROUP = 'mod_group'
 
@@ -23,16 +25,29 @@ FIRST_SESSION = 'first-session'
 LASTSORT_SESSION = 'last-sort'
 
 # Add at the end
-POST_QUESTION, POST_ANSWER, POST_COMMENT, POST_TUTORIAL, POST_BLOG, POST_FORUM, POST_NEWS, POST_REVIEW, POST_TOOL, POST_FIXME, POST_VIDEO, POST_JOB, POST_OTHER = range(1, 14)
+POST_QUESTION, POST_ANSWER, POST_COMMENT, POST_TUTORIAL, POST_BLOG, POST_FORUM, POST_NEWS, POST_REVIEW, POST_TOOL, POST_FIXME, POST_VIDEO, POST_JOB, POST_PUBLICATION, POST_OTHER = range(1, 15)
 POST_TYPES  = ( (POST_ANSWER, 'Answer') , (POST_COMMENT, 'Comment'), (POST_QUESTION, 'Question'), (POST_TUTORIAL, 'Tutorial'), 
     (POST_BLOG, 'Blog'), (POST_FORUM, 'Forum'), (POST_NEWS, 'News'), (POST_REVIEW, 'Review'), (POST_TOOL, 'Tool'), (POST_VIDEO, 'Video'),
-    (POST_FIXME, 'FixMe'), (POST_JOB, 'Job') )
+    (POST_FIXME, 'FixMe'), (POST_JOB, 'Job'), (POST_PUBLICATION, 'Research Paper') )
 
 # direct mapping for quick lookups
 POST_MAP  = dict( POST_TYPES )
 
 # reverse mapping for quick lookups
 POST_REV_MAP = dict( (y.lower(),x) for (x,y) in POST_MAP.items() )
+
+# entities that will be displayed on the navigation bar
+POST_NAV_BAR = [  ]
+POST_NAV_BAR_LOWER = map(string.lower, POST_NAV_BAR)
+
+# valid tab bars entries
+VALID_TABS  = set( "recent posts planet".split() )
+
+# valid pill tab entries
+VALID_PILLS = set( "mytags all news questions unanswered publications tutorials tools videos jobs".split() )
+
+# valid targets
+VALID_TARGETS = VALID_TABS | VALID_PILLS
 
 # posts that only have content, no title or tags
 POST_CONTENT_ONLY = set( [POST_ANSWER, POST_COMMENT ])

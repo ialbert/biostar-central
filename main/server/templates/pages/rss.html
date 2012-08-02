@@ -11,11 +11,20 @@
 
 <div class="row">
 
-    <div class="title">Public feeds</div>
+    <div class="title">Simple feeds</div>
     
-    <div>
+    <div style="padding:20px;">
+        <ul >    
+            <li><a href="/feeds/latest/all">Latest Content</a> - latest posts from Biostar</li>
+            <li><a href="/feeds/type/question">Latest Questions</a> - latest questions from Biostar</li>
+            <li><a href="/feeds/type/job"">Latest Job postings</a> - latest questions from Biostar</li>
+        </ul>
+    </div>
+    
+    <div class="title">Combined feeds</div>
+    
+    <div style="padding:20px;">
         <ul>    
-            <li><a href="/feeds/latest/">Latest Questions</a> - 25 latest questions from Biostar</li>
             <li><a href="/feeds/type/job+tutorial+tool"">Follow posts of a certain type</a> - include one or more post types in a URL: <code>/feeds/type/job+tutorial+tool</code></li>
             <li><a href="/feeds/post/2+4+6"">Follow multiple posts</a> - include one or more post ids in a URL: <code>/feeds/post/2+8+10</code></li>
             <li><a href="/feeds/tag/galaxy+bwa+tutorial">Follow multiple tags</a> - include one or more tags in a URL: <code>/feeds/tag/galaxy+bwa+tutorial</code></li>

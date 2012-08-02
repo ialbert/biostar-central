@@ -114,7 +114,7 @@
         <li {% active 'bookmarks' params.tab %}><a href="{% url main.server.views.user_profile target.id 'bookmarks' %}">Bookmarks{% show_value params.bookmarks_count %}</a></li>
         <li {% active 'badges' params.tab %}><a href="{% url main.server.views.user_profile target.id 'badges' %}">Badges{% show_value params.award_count %}</a></li>
         {% if target.profile.can_moderate %}
-            <li {% active 'moderator' params.tab %}><a href="{% url main.server.views.user_profile target.id 'moderator' %}">Moderator</a></li>
+            <li {% active 'moderator' params.tab %}><a href="{% url main.server.views.user_profile target.id 'moderator' %}">Moderator Actions</a></li>
         {% endif %}
     </ul>
 </div>

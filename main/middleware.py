@@ -7,6 +7,45 @@ from main.server.const import *
 
 settings.CONTENT_INDEXING = True
 
+class Session(object):
+    "This object maintains various session  user."
+    SESSION_KEY, SORT_KEY, COUNT_KEY, TARGET_KEY = "custom-session-data", 'sort', 'count', 'target'
+    def __init__(self, request):
+        self.request = request
+        default = { self.COUNT_KEY:{ }, self.SORT_KEY:"rank", self.TARGET_KEY:"all" }
+        self.data = self.request.session.get(self.SESSION_KEY, default )
+    
+    def save(self):
+        "Saves the counts back to the session"
+        self.request.session[self.SESSION_KEY] = self.data
+        
+    def counts(self):
+        return self.data[self.COUNT_KEY]
+     
+    def target(self, value):
+        "Facilitates navigation by remebering the last visited tabs"
+        
+        if value not in VALID_TARGETS:
+            messages.error(self.request, 'Invalid content type requested')
+        
+        # get the last saved value when in doubt
+        if not value or value == 'posts':
+            value = self.data[self.TARGET_KEY]
+            
+        # save a valid pill target
+        if value in VALID_PILLS:
+            self.data[self.TARGET_KEY] = value
+           
+        return value
+    
+    def sort_order(self):
+        "Stores the last sort order in the session"
+        value = self.request.GET.get('sort', '').lower()
+        last  = self.data.get(self.SORT_KEY, '')
+        value = value or last
+        self.data[self.SORT_KEY] = value
+        return value
+
 class LastVisit(object):
     """
     Updates the last visit stamp at MINIMUM_TIME intervals

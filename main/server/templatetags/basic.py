@@ -118,7 +118,7 @@ def designation(user):
     if user.profile.is_admin:
         return 'Administrator: '
     elif user.profile.is_moderator:
-        return 'Moderator: '
+        return 'Editor: '
     elif user.profile.type == const.USER_BLOG:
         return 'Blog: '
     return "User"

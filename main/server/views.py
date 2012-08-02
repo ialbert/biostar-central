@@ -24,15 +24,11 @@ from django.core.urlresolvers import reverse
 
 # import all constants
 from main.server.const import *
+from main import middleware
 
 # activate logging
 import logging
 logger = logging.getLogger(__name__)
-
-def update_counts(request, key, value):
-    counts = request.session.get(SESSION_POST_COUNT,{})
-    counts[key] = value
-    request.session[SESSION_POST_COUNT] = counts
 
 def get_post_manager(request):
     user = request.user
@@ -40,48 +36,60 @@ def get_post_manager(request):
         return models.Post.objects
     else:
         return models.Post.open_posts
-    
-VALID_TABS = set( "mytags questions forum tutorials unanswered recent planet tools jobs".split() )
+
 POSTS_PER_PAGE = 20
 
-def filter_by_type(posts, value):
+FILTER_MAP = dict(
+    questions=POST_QUESTION, tutorials=POST_TUTORIAL, answers=POST_ANSWER, videos=POST_VIDEO,
+    planet=POST_BLOG, tools=POST_TOOL, jobs=POST_JOB, news=POST_NEWS, publications=POST_PUBLICATION,
+)
+
+ORDER_MAP = dict(
+    rank="-rank", views="-views", creation="-creation_date",
+    edit="lastedit_date", votes="-full_score", answers="-answer_count",
+)
+
+def mytags_posts(request):
+    "Gets posts that correspond to mytags settins or sets warnings"
+    user = request.user
+    if not user.is_authenticated():
+        messages.warning(request, "This Tab is populated only for registered users based on the My Tags field in their user profile")
+        text = ""
+    else:
+        text = request.user.profile.my_tags 
+        if not text:
+            messages.warning(request, "Showing posts matching the My Tags fields in your user profile. Currently this field is not set.")
+            
+    return models.query_by_tags(user, text=text)
+    
+def filter_by_type(request, posts, value):
     "Filters posts by type"
-    if value == 'questions':
-        return posts.filter(type=POST_QUESTION)
-    if value == 'tutorials':
-        return posts.filter(type__in=[POST_VIDEO, POST_TUTORIAL])
-    elif value == 'answers':
-        return posts.filter(type=POST_ANSWER)
-    elif value == 'jobs':
-        return posts.filter(type=POST_JOB)
+    user = request.user
+    
+    # filter is a single type
+    ftype = FILTER_MAP.get(value)
+    if ftype:
+        return posts.filter(type=ftype)
     elif value == 'unanswered':
         return posts.filter(type__in=[POST_QUESTION, POST_FIXME], answer_count=0)
-    elif value == 'planet':
-        return posts.filter(type=POST_BLOG)
-    elif value == 'tools':
-        return posts.filter(type=POST_TOOL)
-    elif value == 'forum':
-        return posts.filter(type__in=POST_FORUMLEVEL)
+    elif value == 'all':
+        return posts.exclude(type__in=POST_SUBLEVEL)
+    elif value == 'mytags':
+        return mytags_posts(request)
     elif value == 'recent':
-        return posts
+        return posts.all()
+        
+    # returns all posts by default
+    print '***filter type %s' % value
     
-    #print '*** default FILTER %s' % value
-    return posts
+    messages.error(request, 'Unknown content type requested')
+    return posts.all()
 
-def apply_sort(posts, value, request):
+def apply_sort(request, posts, value):
     "Sorts posts by an order"
-    if value == 'rank':
-        return posts.order_by('-rank')
-    elif value == 'views':
-        return posts.order_by('-views')
-    elif value == 'creation':
-        return posts.order_by('-creation_date')
-    elif value == 'edit':
-        return posts.order_by('-lastedit_date')
-    elif value == 'votes':
-        return posts.order_by('-full_score')
-    elif value == 'answers':
-        return posts.order_by('-answer_count')
+    order = ORDER_MAP.get(value)
+    if order:
+        return posts.order_by(order)
     elif value == 'bookmarks':
         # this needs to be reworked!
         posts = get_post_manager(request)
@@ -91,42 +99,98 @@ def apply_sort(posts, value, request):
         posts = list(posts)
         return posts
     
-    #print '*** default SORT %s' % value
     # default value is sort by created date
+    #print '*** default SORT %s' % value
+    
+    messages.error(request, 'Unknown sort order requested')
     return posts.order_by('-creation_date')
 
-def get_last_sort(request, value):
-    "Stores the last sort in a session"
-    last  = request.session.get(LASTSORT_SESSION, 'rank')
-    value = value or last
-    if last != value:
-        request.session[LASTSORT_SESSION] = value
-    return value
+# there is a tab bar and a lower "pill" bar
+
+SORT_CHOICES   = "rank,views,votes,answers,bookmarks,creation,edit".split(',')
+
+def tab(request, target):
     
-    #sort = sort or
+    # take a default target
+    target = target or "posts"
     
-def index(request, tab=""):
+    # populate the session data
+    sess = middleware.Session(request)
+    
+    # get the sort order
+    sort_type = sess.sort_order()
+    
+    # get the active target based on history
+    target = sess.target(target)
+    
+    # find out the section and tab that needs to be highlighted
+    # and what value to use for filtering by type
+    if target in VALID_PILLS:
+        tab, pill, post_type = "posts", target, target
+    else:
+        tab, pill, post_type = target, "", target
+        
+    user = request.user
+        
+    # override the sort order if the content so requires
+    sort_type = 'creation' if tab=='recent' else sort_type
+        
+    # the params object will carry 
+    params  = html.Params(tab=tab, pill=pill, sort=sort_type, sort_choices=SORT_CHOICES)
+    
+    # this will fill in the query (q) and the match (m)parameters
+    params.parse(request)
+    
+    # returns the object manager that contains all or only visible posts
+    posts = get_post_manager(request)
+    
+    # filter posts by type
+    posts = filter_by_type(request=request, posts=posts, value=post_type)
+    
+    # apply the sort order
+    posts = apply_sort(request=request, posts=posts, value=sort_type)
+    
+    # this is necessary because the planet posts require more attributes
+    if tab == 'planet':
+        models.decorate_posts(posts, request.user)
+        
+    counts = {}
+    
+    page = get_page(request, posts, per_page=POSTS_PER_PAGE)
+    
+    # save the session
+    sess.save()
+    
+    return html.template(request, name='index.html', page=page, params=params, counts=counts)
+    
+
+def index(request, target=''):
     "Main page"
     
     user = request.user
+     
+    return tab(request, target=target)
     
-    if not tab:
+    # loading the url root
+    if not section:
         # if the user has a mytags then switch to that
         if user.is_authenticated() and user.profile.my_tags:
-            tab = 'mytags'
+            section = 'mytags'
         else:
-            tab = 'questions'
+            # load the main tabs
+            return tab(request)
     
-    if tab not in VALID_TABS:
-        messages.error(request, 'Unknown content type requested')
+    if section not in VALID_SECTIONS:
+        messages.error(request, 'Unknown section requested')
+        return tab(request)
+        
+    return tab(request)
         
     params = html.Params(tab=tab)
     
     # this will fill in the query (q) and the match (m)parameters
     params.parse(request)
-    
-    # update with counts
-    counts = request.session.get(SESSION_POST_COUNT, {})
+
 
     # returns the object manager that contains all or only visible posts
     posts = get_post_manager(request)
