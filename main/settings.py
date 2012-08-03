@@ -206,7 +206,7 @@ ALLOW_OPENID_MIGRATION = True
 LOGIN_URL = '/openid/login/'
 LOGIN_REDIRECT_URL = '/'
 
-INSTALLED_APPS = (
+INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -223,8 +223,14 @@ INSTALLED_APPS = (
     'main.server',
     'django_openid_auth',
     'django.contrib.sitemaps',
-)
+]
 
+try:
+    import south
+    INSTALLED_APPS.append('south')
+except ImportError, exc:
+    print '*** south not installed database migrations disabled'
+    
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
 # the site admins on every HTTP 500 error.

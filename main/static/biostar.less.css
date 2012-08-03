@@ -445,6 +445,13 @@ td {
     border-image: initial;
 }
 
+.dropdown-toggle {
+    border-style: solid;
+    border-width: 1px;
+    border-color: #CCCCCC;
+    background-color: #DEDEDE;
+}
+
 .nav-pills .active > a, .nav-pills .active > a:hover {
     color: white;
     background-color: #8F2C47;
