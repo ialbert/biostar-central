@@ -4,26 +4,16 @@
 {% if pill %}
     <div style="width:80%;float:left;";>
         <ul class="nav nav-pills">
-            <li {% active 'all' pill %}><a href="/show/all/">Show&nbsp;All</a></li>
-            <li {% active 'mytags' pill %}><a href="/show/mytags/">My&nbsp;Tags</a></li>
-            <li {% active 'news' pill %}><a href="/show/news/">News</a></li>
-            <li {% active 'questions' pill %}><a href="/show/questions/">Questions</a></li>
-            <li {% active 'unanswered' pill %}><a href="/show/unanswered/">Unanswered</a></li>
-            <li {% active 'publications' pill %}><a href="/show/publications/">Publications</a></li>
-            <li {% active 'tutorials' pill %}><a href="/show/tutorials/">Tutorials</a></li>
-            <li {% active 'tools' pill %}><a href="/show/tools/">Tools</a></li>
-            <li {% active 'videos' pill %}><a href="/show/videos/">Videos</a></li>
-            <li {% active 'jobs' pill %}><a href="/show/jobs/">Jobs</a></li>
+            {% for tabkey, link, text, countkey in layout.PILL_BAR %}
+                <li {% active tabkey pill %}><a href="{{link}}">{{text|safe}}&nbsp;{% show_count countkey counts %}</a></li>
+            {% endfor %}
         </ul>
-    
     </div>
     
     <div style="margin-top:25px">
-    
     {% if params.sort %}
             {% page_bar_dropdown params.sort params.sort_choices %}
     {% endif %}
-        
     </div>
     
 {% endif %}

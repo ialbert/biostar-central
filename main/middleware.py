@@ -1,4 +1,5 @@
 import datetime
+from itertools import *
 from django.contrib.auth import logout
 from django.contrib import messages
 from django.conf import settings
@@ -8,35 +9,57 @@ from main.server.const import *
 settings.CONTENT_INDEXING = True
 
 class Session(object):
-    "This object maintains various session  user."
-    SESSION_KEY, SORT_KEY, COUNT_KEY, TARGET_KEY = "custom-session-data", 'sort', 'count', 'target'
+    """
+    This object maintains various session for user. Also works for non-authenticated users and avoids creating database sessions for them
+    """
+    SESSION_KEY, SORT_KEY, COUNT_KEY, TAB, PILL = "session-data", 'sort', 'count', 'tab', 'pill'
     def __init__(self, request):
         self.request = request
-        default = { self.COUNT_KEY:{ }, self.SORT_KEY:"rank", self.TARGET_KEY:"all" }
-        self.data = self.request.session.get(self.SESSION_KEY, default )
+        self.has_storage = request.user.is_authenticated()
+        default = { self.COUNT_KEY:{ }, self.SORT_KEY:"rank", self.TAB:"posts", self.PILL:"all" }
+        if self.has_storage:
+            self.data = self.request.session.get(self.SESSION_KEY, default )
+        else:
+            self.data = default
     
     def save(self):
         "Saves the counts back to the session"
-        self.request.session[self.SESSION_KEY] = self.data
+        if self.has_storage:
+            self.request.session[self.SESSION_KEY] = self.data
         
     def counts(self):
         return self.data[self.COUNT_KEY]
      
-    def target(self, value):
-        "Facilitates navigation by remebering the last visited tabs"
+    def tabpill(self, value=None):
+        "Facilitates navigation by remebering the last visited tab and pill"
         
-        if value not in VALID_TARGETS:
-            messages.error(self.request, 'Invalid content type requested')
+        # these are the old values
+        otab, opill = self.data[self.TAB], self.data[self.PILL]
+     
+        # nothing coming in, keep the old values
+        if not value:
+            return(otab, opill)
         
-        # get the last saved value when in doubt
-        if not value or value == 'posts':
-            value = self.data[self.TARGET_KEY]
+        # the tab is always set, the pill is only set
+        # on valid requests
+        self.data[self.TAB] = value
+        
+        # hitting the post, select last pill
+        if value == "posts":
+            tab, pill = value, opill
             
-        # save a valid pill target
-        if value in VALID_PILLS:
-            self.data[self.TARGET_KEY] = value
-           
-        return value
+        # a valid tab other than posts
+        elif value in VALID_TABS:
+            return (value, "")
+            
+        # request for a valid pill link
+        elif value in VALID_PILLS:
+            tab, pill = "posts", value
+        
+        self.data[self.TAB]  = tab
+        self.data[self.PILL] = pill
+       
+        return tab, pill
     
     def sort_order(self):
         "Stores the last sort order in the session"
@@ -46,6 +69,17 @@ class Session(object):
         self.data[self.SORT_KEY] = value
         return value
 
+def get_counts(since):
+    "Returns the number of counts for each post type in the interval that has passed"
+    
+    # get the posts with a sanity limit
+    values = models.Post.objects.filter(type__in=POST_TOPLEVEL, creation_date__gt=since).values_list("type", flat=True)[:1000]
+    
+    # how many times does each post type appear in the list
+    counts = dict( [ (POST_MAP[k], len(list(v))) for (k, v) in groupby(values) ] )
+    
+    return counts
+
 class LastVisit(object):
     """
     Updates the last visit stamp at MINIMUM_TIME intervals
@@ -53,6 +87,13 @@ class LastVisit(object):
 
     def process_request(self, request):
         
+        # content generated within the last three months
+        
+        now = datetime.datetime.now() 
+        since = now - datetime.timedelta(weeks=50)
+        
+        counts = get_counts(since)
+                
         if request.user.is_authenticated():
             user = request.user
             profile = user.get_profile()

@@ -72,7 +72,7 @@ def generate(text):
         md = markdown2.Markdown( safe_mode=False )
         text = fix_orphans(text)
         html = md.convert(text)
-        html = html5_sanitize(html)
+        html = sanitize(html)
         html = extra_html(html)
     return html
 
@@ -95,14 +95,14 @@ def extra_html(text):
     text = youtube.sub(frame, text)
     return text
 
-def html5_sanitize(value):
+def sanitize(value):
     "HTML sanitizer based on html5lib"
     p = html5lib.HTMLParser(tokenizer=sanitizer.HTMLSanitizer)
     h = p.parseFragment(value).toxml()
     return h
     
 ALLOWED_TAGS = "strong span:class br ol ul li a:href img:src pre code blockquote p em"
-def sanitize(value, allowed_tags=ALLOWED_TAGS):
+def unused_sanitize(value, allowed_tags=ALLOWED_TAGS):
     """
     From http://djangosnippets.org/snippets/1655/
 

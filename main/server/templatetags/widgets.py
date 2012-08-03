@@ -11,12 +11,12 @@ register = template.Library()
 
 @register.simple_tag
 def show_value(value):
-   return " (%s) " % value if value else ""
+    return " (%s) " % value if value else ""
    
 @register.simple_tag
 def show_count(key, store):
-   count = store.get(key)
-   return "(%s)" % count if count else ""
+    value = store.get(key)
+    return "(%s)" % value if value else ""
    
 @register.inclusion_tag('widgets/form.field.html',)
 def form_field(field, label, help=''):
@@ -67,12 +67,12 @@ def render_post(context, post, tree):
 @register.inclusion_tag('widgets/tab.bar.html')
 def tab_bar(params={}, counts={}):
     "Renders the switchable tab on most pages"
-    return { 'tab': params.get('tab'), 'counts':counts, 'params':params }
+    return { 'layout':params.get('layout'), 'tab': params.get('tab'), 'counts':counts, 'params':params }
 
 @register.inclusion_tag('widgets/pill.bar.html')
 def pill_bar(params={}, counts={}):
     "Renders the switchable pill bar on most pages"
-    return { 'tab': params.get('tab'), 'pill':params.get('pill'), 'params':params }
+    return { 'layout':params.get('layout'), 'pill':params.get('pill'), 'params':params, 'counts':counts }
 
 @register.inclusion_tag('widgets/nav.bar.html', takes_context=True)
 def nav_bar(context, user, params={}):

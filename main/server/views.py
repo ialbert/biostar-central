@@ -23,6 +23,7 @@ from django_openid_auth.models import UserOpenID
 from django.core.urlresolvers import reverse
 
 # import all constants
+from main.server import const
 from main.server.const import *
 from main import middleware
 
@@ -82,7 +83,8 @@ def filter_by_type(request, posts, value):
     # returns all posts by default
     print '***filter type %s' % value
     
-    messages.error(request, 'Unknown content type requested')
+    msg = html.sanitize('Unknown content type %s requested' % value)
+    messages.error(request, msg)
     return posts.all()
 
 def apply_sort(request, posts, value):
@@ -111,9 +113,6 @@ SORT_CHOICES   = "rank,views,votes,answers,bookmarks,creation,edit".split(',')
 
 def tab(request, target):
     
-    # take a default target
-    target = target or "posts"
-    
     # populate the session data
     sess = middleware.Session(request)
     
@@ -121,22 +120,18 @@ def tab(request, target):
     sort_type = sess.sort_order()
     
     # get the active target based on history
-    target = sess.target(target)
+    tab, pill = sess.tabpill(target)
     
-    # find out the section and tab that needs to be highlighted
-    # and what value to use for filtering by type
-    if target in VALID_PILLS:
-        tab, pill, post_type = "posts", target, target
-    else:
-        tab, pill, post_type = target, "", target
-        
+    # an override of the types
+    post_type = pill if target == "posts" else target
+    
     user = request.user
         
     # override the sort order if the content so requires
     sort_type = 'creation' if tab=='recent' else sort_type
         
     # the params object will carry 
-    params  = html.Params(tab=tab, pill=pill, sort=sort_type, sort_choices=SORT_CHOICES)
+    params  = html.Params(tab=tab, pill=pill, sort=sort_type, sort_choices=SORT_CHOICES, layout=settings)
     
     # this will fill in the query (q) and the match (m)parameters
     params.parse(request)
@@ -154,12 +149,16 @@ def tab(request, target):
     if tab == 'planet':
         models.decorate_posts(posts, request.user)
         
-    counts = {}
+    now = datetime.now() 
+    since = now - timedelta(weeks=50)
+    counts = middleware.get_counts(since)
     
     page = get_page(request, posts, per_page=POSTS_PER_PAGE)
     
     # save the session
     sess.save()
+    
+    print counts
     
     return html.template(request, name='index.html', page=page, params=params, counts=counts)
     
@@ -169,7 +168,7 @@ def index(request, target=''):
     
     user = request.user
      
-    return tab(request, target=target)
+    return tab(request, target)
     
     # loading the url root
     if not section:
@@ -374,6 +373,11 @@ def post_show(request, pid):
     "Returns a question with all answers"
     user = request.user
 
+    # populate the session data
+    sess = middleware.Session(request)
+    tab, pill = sess.tabpill() # get last visited values
+    params  = html.Params(tab=tab, pill=pill, layout=settings)
+    
     query = get_post_manager(request)
 
     try:
@@ -411,7 +415,7 @@ def post_show(request, pid):
     # generate the tag cloud
     #tags = models.Tag.objects.all().order_by('-count')[:50]
     
-    return html.template( request, name='post.show.html', root=root, answers=answers, tree=tree)
+    return html.template( request, name='post.show.html', root=root, answers=answers, tree=tree, params=params)
  
 def redirect(post):
     return html.redirect( post.get_absolute_url() )

@@ -298,6 +298,26 @@ SESSION_UPDATE_TIME = 60 * 10 # every 10 minutes
 # setting the session for multiple servers
 SESSION_COOKIE_DOMAIN = ""
 
+#
+# TEMPLATE LAYOUT,
+# One may override these variables from the settings file
+# 
+
+# this data governs the layout of the PILL_BAR    
+# bar name, link url, link name, counter key
+PILL_BAR = [
+    ("all", "/show/all/", "Show&nbsp;All", "" ),
+    ("mytags", "/show/mytags/", "My&nbsp;Tags", "" ),
+    ("news", "/show/news/", "News", "News" ),
+    ("questions", "/show/questions/", "Questions", "Question" ),
+    ("unanswered", "/show/unanswered/", "Unanswered", "Unanswered" ),
+    ("tutorials", "/show/tutorials/", "Tutorials", "Tutorial" ),
+    ("tools", "/show/tools/", "Tools", "Tool" ),
+    ("videos", "/show/videos/", "Videos", "Video" ),
+    ("jobs", "/show/jobs/", "Jobs", "Job" ),
+]
+
+
 # version check, we can do it at the end since
 # the version is only required in subsequent modules
 if sys.version_info < (2, 6):
