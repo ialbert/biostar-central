@@ -344,49 +344,14 @@ class BlogAdmin(admin.ModelAdmin):
     
 admin.site.register(Blog, BlogAdmin)
 
-# TODO, not yet used
-class Related(models.Model):
+class ViewCounter(models.Model):
     """
-    Maintains a relationship between related posts
-    """
-    source  = models.ForeignKey(Post, related_name="source")
-    target  = models.ForeignKey(Post, related_name="target")
-
-class Visit(models.Model):
-    """
-    Keeps track of user visits
+    Keeps track of post views based on IP base.
     """
     ip = models.GenericIPAddressField(default='', null=True, blank=True)
-    user  = models.ForeignKey(User)
-    date  = models.DateTimeField(null=False, auto_now=True)
-
-class VisitAdmin(admin.ModelAdmin):
-    list_display = ('ip', 'username', 'user', 'date')
-    search_fields = ['user__email']
-    def username(self, obj):
-        return "%s, id=%s" % (obj.user.email, obj.user.id)
-    username.short_description = 'Description'
+    post = models.ForeignKey(Post, related_name="post_views")
+    date = models.DateTimeField(auto_now=True)
     
-admin.site.register(Visit, VisitAdmin)
-
-class View(models.Model):
-    """
-    Keeps track of post views
-    """
-    user  = models.ForeignKey(User, related_name="user_views")
-    post  = models.ForeignKey(Post, related_name="post_views")
-    date  = models.DateTimeField(null=False, auto_now=True)
-    
-# TODO: not yet used, will speed up queries
-class PostBody(models.Model):
-    """
-    Represents the content of a post body.
-    It is kept separate to avoid having to retrieve during object queries.
-    """
-    post    = models.ForeignKey(Post, related_name='bodies')
-    content = models.TextField(null=False, blank=False, max_length=10000) # the underlying Markdown
-    html    = models.TextField(blank=True) # this is the sanitized HTML for display
-   
 class PostAdmin(admin.ModelAdmin):
     list_display = ('id', 'title', )
     search_fields = ['id', 'title' ]

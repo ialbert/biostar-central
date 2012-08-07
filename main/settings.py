@@ -4,6 +4,9 @@
 #
 import os, sys, re
 
+# database migrations via Django South
+import south
+
 def path(*args):
     "Generates absolute paths"
     return os.path.abspath(os.path.join(*args))
@@ -220,17 +223,12 @@ INSTALLED_APPS = [
     'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     'django.contrib.admindocs',
+    'south',
     'main.server',
     'django_openid_auth',
     'django.contrib.sitemaps',
 ]
 
-try:
-    import south
-    INSTALLED_APPS.append('south')
-except ImportError, exc:
-    print '*** south not installed database migrations disabled'
-    
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
 # the site admins on every HTTP 500 error.

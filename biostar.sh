@@ -97,7 +97,7 @@ while (( "$#" )); do
     if [ "$1" = "init" ]; then
         echo "*** initializing server on $BIOSTAR_HOSTNAME"
         $PYTHON_EXE $DJANGO_ADMIN syncdb -v $VERBOSITY --noinput --settings=$DJANGO_SETTINGS_MODULE
-        $PYTHON_EXE $DJANGO_ADMIN migrate main.server 0001 --settings=$DJANGO_SETTINGS_MODULE
+        $PYTHON_EXE $DJANGO_ADMIN migrate main.server --settings=$DJANGO_SETTINGS_MODULE
          
         echo "*** collecting static files"
         $PYTHON_EXE $DJANGO_ADMIN collectstatic -v $VERBOSITY --noinput --settings=$DJANGO_SETTINGS_MODULE

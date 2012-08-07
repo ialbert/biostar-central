@@ -183,6 +183,13 @@ def template(request, name, mimetype=None, **kwd):
     kwd['request'] = request
     return render_to_response(name, kwd, context_instance=RequestContext(request))
 
+def get_ip(request):
+    "Extracts the IP address from a request"
+    ip1 = request.META.get('REMOTE_ADDR', '')
+    ip2 = request.META.get('HTTP_X_FORWARDED_FOR','').split(",")[0].strip()
+    ip  = ip1 or ip2 or '0.0.0.0'
+    return ip
+  
 # stripping html tags from: http://stackoverflow.com/questions/753052/strip-html-from-strings-in-python
 from HTMLParser import HTMLParser
 

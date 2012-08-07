@@ -22,14 +22,13 @@ This software runs the BioStar Bioinformatics Q&A site at: http://www.biostars.o
 Installation
 ------------
 
-Unpack the source code archive. There are a few dependencies that
-are also included with Biostar. These only need to be installed
-if you don't already have them on your system.
-Switch to the *libs* directory and unpack the *docutils.zip* and the *django.zip* archives::
+Unpack the source code archive. There are a few dependencies such as
+Django, Docutils and South that are also included with Biostar.
+These only need to be installed if you don't already have them on your system.
+Switch to the *libs* directory and unpack the *depot.zip* ::
 
     $ cd libs
-    $ unzip docutils.zip
-    $ unzip django.zip
+    $ unzip depot.zip
     $ # switch back to the source directory
     $ cd ..
 
