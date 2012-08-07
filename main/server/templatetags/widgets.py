@@ -17,6 +17,13 @@ def show_value(value):
 def show_count(key, store):
     value = store.get(key)
     return "(%s)" % value if value else ""
+
+@register.simple_tag
+def show_type(post, flag):
+    if flag:
+        return "%s: " % post.get_type_display()
+    else:
+        return ""
    
 @register.inclusion_tag('widgets/form.field.html',)
 def form_field(field, label, help=''):

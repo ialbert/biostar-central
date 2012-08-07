@@ -305,7 +305,7 @@ SESSION_COOKIE_DOMAIN = ""
 
 # this data governs the layout of the PILL_BAR    
 # bar name, link url, link name, counter key
-PILL_BAR = [
+USER_PILL_BAR = [
     ("all", "/show/all/", "Show&nbsp;All", "" ),
     ("mytags", "/show/mytags/", "My&nbsp;Tags", "" ),
     ("news", "/show/news/", "News", "News" ),
@@ -317,6 +317,16 @@ PILL_BAR = [
     ("jobs", "/show/jobs/", "Jobs", "Job" ),
 ]
 
+ANON_PILL_BAR = [
+    ("all", "/show/all/", "Show&nbsp;All", "" ),
+    ("news", "/show/news/", "News", "News" ),
+    ("questions", "/show/questions/", "Questions", "Question" ),
+    ("unanswered", "/show/unanswered/", "Unanswered", "Unanswered" ),
+    ("tutorials", "/show/tutorials/", "Tutorials", "Tutorial" ),
+    ("tools", "/show/tools/", "Tools", "Tool" ),
+    ("videos", "/show/videos/", "Videos", "Video" ),
+    ("jobs", "/show/jobs/", "Jobs", "Job" ),
+]
 
 # version check, we can do it at the end since
 # the version is only required in subsequent modules

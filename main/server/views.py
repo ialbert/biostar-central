@@ -75,11 +75,11 @@ def filter_by_type(request, posts, post_type):
     elif post_type == 'unanswered':
         return posts.filter(type__in=[POST_QUESTION, POST_FIXME], answer_count=0)
     elif post_type == 'all':
-        return posts.exclude(type__in=POST_SUBLEVEL)
+        return posts.exclude(type__in=POST_EXCLUDE)
     elif post_type == 'mytags':
         return mytags_posts(request)
     elif post_type == 'recent':
-        return posts.all()
+        return posts.exclude(type=POST_BLOG)
         
     msg = html.sanitize('Unknown content type "%s" requested' % post_type)
     messages.error(request, msg)
@@ -111,6 +111,7 @@ SORT_CHOICES   = "rank,views,votes,answers,bookmarks,creation,edit".split(',')
 
 def tab(request, target):
     user = request.user
+    auth = user.is_authenticated()
     
     # populate the session data
     sess = middleware.Session(request)
@@ -130,8 +131,12 @@ def tab(request, target):
     # override the sort order if the content so requires
     sort_type = 'creation' if tab=='recent' else sort_type
         
-    # the params object will carry 
-    params  = html.Params(tab=tab, pill=pill, sort=sort_type, sort_choices=SORT_CHOICES, layout=settings)
+    # the params object will carry
+    layout = settings.USER_PILL_BAR if auth else settings.ANON_PILL_BAR
+    
+    # wether to show the type of the post
+    show_type = post_type in ('all', 'recent')
+    params  = html.Params(tab=tab, pill=pill, sort=sort_type, sort_choices=SORT_CHOICES, layout=layout, show_type=show_type)
     
     # this will fill in the query (q) and the match (m)parameters
     params.parse(request)

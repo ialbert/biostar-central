@@ -154,7 +154,7 @@ load_templates()
 
 
 @register.simple_tag
-def table_row(post):
+def table_row(post, params):
     "Renders an html row for a post "
     global row_question, row_answer, row_comment, row_post, row_blog, row_forum
     
@@ -162,7 +162,7 @@ def table_row(post):
         # this is necessary to force the reload during development
         load_templates()
 
-    c = Context( {"post": post})
+    c = Context( {"post": post, 'params':params})
 
     template = templates[post.type]
     text = template.render(c)

@@ -76,9 +76,6 @@ class Session(object):
             return generate_counts(self.request)
         else:
             key = TARGET_COUNT_MAP.get(post_type, None)
-            
-            print post_type, key, TARGET_COUNT_MAP
-            
             self.data[self.COUNT_KEY][key] = 0
             return self.data[self.COUNT_KEY]
             
@@ -124,7 +121,7 @@ class LastVisit(object):
             # anonymous users
             request.user.can_moderate = False
             if request.path == "/":
-                messages.info(request, 'Welcome to BioStar! Questions and answers on bioinformatics, computational genomics and systems biology.')
+                messages.info(request, 'Welcome to BioStar! Questions and Answers on Bioinformatics and Genomics!')
             
         else:
             # authenticated users get a smarter counter

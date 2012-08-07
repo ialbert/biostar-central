@@ -7,7 +7,7 @@
         <ul class="nav nav-tabs">
             <li {% active 'recent' tab %}><a href="/show/recent/">Recent</a></li>
             <li {% active 'posts' tab %}><a href="/show/posts/">Posts</a></li>
-            <li {% active 'planet' tab %}><a href="/show/planet/">Planet {% show_count 'planet' counts %}</a></li>
+            <li {% active 'planet' tab %}><a href="/show/planet/">Planet&nbsp;{% show_count 'Blog' counts %}</a></li>
             <li {% active 'search' tab %}><a href="{% url main.server.search.main %}">Search</a></li>
             <li {% active 'new' tab %}><a href="/new/post/"> <span class="newpost">New Post!</span></a></li>
         </ul>
