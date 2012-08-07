@@ -19,8 +19,20 @@ def trim_notelist(maxcount=1000):
     for user in query:
         remove_notes(user, maxcount=maxcount)
     
+def reapply_rank():
+    "Applies the new ranking system on all posts"
+    posts = models.Post.objects.exclude(type__in=POST_SUBLEVEL)
+    
+    for post in posts:
+        post.rank = html.rank(post)
+        post.save()
+        
+    print "*** reapplied ranks for %s posts " % len(posts)
+    
 def run():
-    trim_notelist(maxcount=1000)
+    #trim_notelist(maxcount=1000)
+    reapply_rank()
+    pass
     
 if __name__ == '__main__':
     run()

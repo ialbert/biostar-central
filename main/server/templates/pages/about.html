@@ -56,7 +56,7 @@
     
     <div class="par"> 
             <a href="{% url main.server.views.user_list %}">{{params.user_count|intcomma}} users</a> have contributed 
-            <a href="{% url main.server.views.index tab='recent' %}">{{params.post_count|intcomma}} posts</a> distributed as 
+            <a href="{% url main.server.views.index target='recent' %}">{{params.post_count|intcomma}} posts</a> distributed as 
             {{params.question_count|intcomma}} questions, {{params.answer_count|intcomma}} answers and  
             {{params.comment_count|intcomma}} comments
     </div>

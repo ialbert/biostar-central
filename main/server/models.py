@@ -278,20 +278,16 @@ class Post(models.Model):
 def update_post_views(post, request, hours=1):
     "Views are updated per user session"
     
-    amount = 1
-    
     ip = html.get_ip(request)
-    
     now = datetime.now()
     since = now - timedelta(hours=hours)
 
     # one view per hour will be counted per each IP address
     if not PostView.objects.filter(ip=ip, post=post, date__gt=since):
         #messages.info(request, "created view for %s" % post.title)
-        PostView.objects.create(ip=ip, post=post, date=now)
-        Post.objects.filter(id=post.id).update(views = F('views') + 1, rank=F('rank') + amount )
+        PostView.objects.create(ip=ip, post=post, date=now)        
         post.views += 1
-
+        Post.objects.filter(id=post.id).update(views = F('views') + 1, rank=html.rank(post) )
     return post
     
 def get_post_manager(user):
@@ -543,25 +539,29 @@ class Note(models.Model):
     def status(self):
         return 'unread' if self.unread else "old"
      
-def post_score_change(post, amount=1, hours=1):
+def post_score_change(post, amount=1):
     "How post score changes with votes. Both the rank and the score changes"
 
     root = post.root
     
-    gain = 3600 * hours # the rank increase
-    post.rank  += amount * gain
     post.score += amount
     if post == root:
-        post.full_score += amount
+        root.full_score += amount    
+    post.rank = html.rank(post)
     post.save()
     
-    # different root also needs updating
+    
+    
+    # a different root needs updating in a different way
     if post != root:
         root.full_score += amount
+        root.rank = html.rank(root)
         if post.rank > root.rank:
             root.rank = post.rank
         root.save()
         
+    print'*** amount', post.score, post.full_score, root.full_score
+   
     return post, post.root
 
 def user_score_change(user, amount):
@@ -585,11 +585,11 @@ class Vote(models.Model):
         
         post, root = self.post, self.post.root
         if self.type == VOTE_UP:
-            post_score_change(post, amount=dir, hours=settings.POST_UPVOTE_RANK_GAIN)
+            post_score_change(post)
             user_score_change(post.author, amount=dir)
         
         if self.type == VOTE_DOWN:
-            post_score_change(post, amount=-dir, hours=settings.POST_UPVOTE_RANK_GAIN)
+            post_score_change(post)
             
         if self.type == VOTE_ACCEPT:
             post.accepted = root.accepted = (dir == 1)
@@ -739,14 +739,8 @@ def verify_post(sender, instance, *args, **kwargs):
         instance.lastedit_date = instance.creation_date
     instance.lastedit_date = instance.lastedit_date or now
     
-    # attempts to create a rank that is no more than 5 levels lower than the highest ranked post
-    def get_rank(post):
-        now = time.mktime(post.creation_date.timetuple())
-        ranks = list(Post.objects.filter(type=post.type).values_list('rank', flat=True).order_by('-rank')[:1]) + [ now ]
-        ranks = sorted(ranks, reverse=True)
-        return ranks[0]
-            
-    instance.rank = instance.rank or get_rank(instance)
+    # assign a rank to this instance
+    #instance.rank = html.rank(instance)
     
     # generate a slug for the instance        
     instance.slug = slugify(instance.title)
@@ -767,6 +761,9 @@ def finalize_post(sender, instance, created, raw, *args, **kwargs):
             instance.parent = instance.parent or instance
             instance.title  = instance.title or ("%s: %s" % (instance.get_type_display()[0], instance.parent.title))
             instance.slug   = slugify(instance.title)
+            instance.rank   = html.rank(instance)
+            instance.root.rank = html.rank(instance.root)
+            instance.root.rank = max( (instance.rank, instance.root.rank) )
             instance.save()
         
         # when a new post is created all descendants will be notified

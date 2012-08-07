@@ -13,6 +13,8 @@ from BeautifulSoup import BeautifulSoup, Comment
 
 import html5lib
 from html5lib import sanitizer
+from datetime import datetime, timedelta
+from math import log
 
 import markdown2
 from docutils import core
@@ -190,35 +192,34 @@ def get_ip(request):
     ip  = ip1 or ip2 or '0.0.0.0'
     return ip
   
-# stripping html tags from: http://stackoverflow.com/questions/753052/strip-html-from-strings-in-python
-from HTMLParser import HTMLParser
 
-class MLStripper(HTMLParser):
-    def __init__(self):
-        self.reset()
-        self.fed = []
-    def handle_data(self, d):
-        self.fed.append(d)
-    def get_data(self):
-        return ''.join(self.fed)
+EPOCH = datetime(1970, 1, 1)
 
-def strip_tags(text):
-    try:
-        s = MLStripper()
-        s.feed(text)
-        return s.get_data()    
-    except Exception, exc:
-        return "unable to strip tags %s" % exc
+def epoch_seconds(date):
+    """Returns the number of seconds from the epoch to date."""
+    global EPOCH
+    td = date - EPOCH
+    return td.days * 86400 + td.seconds + (float(td.microseconds) / 1000000)
+
+def score(ups, downs):
+    return ups - downs
+
+def hot(ups, downs, date):
+    """The hot formula. Should match the equivalent function in postgres."""
+    s = score(ups, downs)
+    order = log(max(abs(s), 1), 10)
+    sign = 1 if s > 0 else -1 if s < 0 else 0
+    seconds = epoch_seconds(date) - 1134028003
+    print sign, seconds/45000
+    return round(order + sign * seconds / 45000, 7)
+
+def rank(post):
+    "Computes the rank of a post"
+    ups=int(post.full_score + post.views/10) + 1
+    downs=0
+    rank = hot(ups, downs, post.creation_date)
+    return rank
     
-class HtmlTest(unittest.TestCase):
-    def test_sanitize(self):
-        "Testing HTML sanitization"
-        text = sanitize('<a href="javascrip:something">A</a>', allowed_tags="b")
-        self.assertEqual( text, u'A' )
-
-        p = Params(a=1, b=2, c=3)
-        self.assertEqual( (p.a, p.b, p.c), (1, 2, 3))
-
 def suite():
     s = unittest.TestLoader().loadTestsFromTestCase(HtmlTest)
     return s
