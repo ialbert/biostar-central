@@ -277,17 +277,21 @@ class Post(models.Model):
 
 def update_post_views(post, request, hours=1):
     "Views are updated per user session"
-    amount = hours * 3600
-    if request.user.is_anonymous():
-        return
-    viewed = request.session.get(SESSION_VIEW_COUNT, set())
-    if post.id not in viewed:
-        # direct updates bypass signals
+    
+    amount = 1
+    
+    ip = html.get_ip(request)
+    
+    now = datetime.now()
+    since = now - timedelta(hours=hours)
+
+    # one view per hour will be counted per each IP address
+    if not PostView.objects.filter(ip=ip, post=post, date__gt=since):
+        #messages.info(request, "created view for %s" % post.title)
+        PostView.objects.create(ip=ip, post=post, date=now)
         Post.objects.filter(id=post.id).update(views = F('views') + 1, rank=F('rank') + amount )
         post.views += 1
-        viewed.add(post.id)
-        request.session[SESSION_VIEW_COUNT] = viewed
-        View.objects.create(user=request.user, post=post)
+
     return post
     
 def get_post_manager(user):
@@ -344,7 +348,7 @@ class BlogAdmin(admin.ModelAdmin):
     
 admin.site.register(Blog, BlogAdmin)
 
-class ViewCounter(models.Model):
+class PostView(models.Model):
     """
     Keeps track of post views based on IP base.
     """

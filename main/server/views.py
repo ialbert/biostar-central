@@ -314,7 +314,7 @@ def post_show(request, pid):
     try:
         root = query.get(id=pid)
         # update the views for the question
-        models.update_post_views(post=root, request=request, hours=settings.POST_VIEW_RANK_GAIN)
+        models.update_post_views(post=root, request=request, hours=1)
         counts = sess.get_counts()
     
     except models.Post.DoesNotExist, exc:
