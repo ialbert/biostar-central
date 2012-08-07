@@ -18,9 +18,6 @@ urlpatterns = patterns('main.server',
     # show by content type
     url(r'^show/(?P<target>\w+)/$', 'views.index', name="show"),
     
-    # show by content type
-    url(r'^show/tab/(?P<tab>\w+)/$', 'views.tab', name="show-tab"),
-    
     # show tagged posts
     url(r'^show/tag/(?P<tag_name>.+)/$', 'views.show_tag', name="show-tag"),
     

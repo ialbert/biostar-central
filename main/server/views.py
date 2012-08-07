@@ -109,7 +109,7 @@ def apply_sort(request, posts, value):
 
 SORT_CHOICES   = "rank,views,votes,answers,bookmarks,creation,edit".split(',')
 
-def tab(request, target):
+def index(request, target=''):
     user = request.user
     auth = user.is_authenticated()
     
@@ -160,85 +160,9 @@ def tab(request, target):
     
     # save the session
     sess.save()
-    
-    print counts
-    
+   
     return html.template(request, name='index.html', page=page, params=params, counts=counts)
     
-
-def index(request, target=''):
-    "Main page"
-    
-    user = request.user
-     
-    return tab(request, target)
-    
-    # loading the url root
-    if not section:
-        # if the user has a mytags then switch to that
-        if user.is_authenticated() and user.profile.my_tags:
-            section = 'mytags'
-        else:
-            # load the main tabs
-            return tab(request)
-    
-    if section not in VALID_SECTIONS:
-        messages.error(request, 'Unknown section requested')
-        return tab(request)
-        
-    return tab(request)
-        
-    params = html.Params(tab=tab)
-    
-    # this will fill in the query (q) and the match (m)parameters
-    params.parse(request)
-
-
-    # returns the object manager that contains all or only visible posts
-    posts = get_post_manager(request)
-
-    # filter posts by type
-    posts = filter_by_type(posts=posts, value=tab)
-
-    # sort selected in the dropdown. by default lists cannot be sorted
-    sort = request.GET.get('sort', '').lower()
-    
-    # attempts to remeber the last sorting
-    sort = get_last_sort(request, sort)
-    
-    # override sort in the recent tab
-    if tab == 'recent':
-        sort = 'creation'
-        posts = posts.order_by('-creation_date')
-    else:
-        posts = apply_sort(posts, value=sort, request=request)
-    
-    if tab == 'planet':
-        models.decorate_posts(posts, user)
-    
-    if tab == 'mytags':
-        if user.is_authenticated():
-            text  = user.profile.my_tags
-            if not text:
-                messages.warning(request, "This Tab will show posts matching the My Tags fields in your user profile.")
-            else:
-                messages.info(request, "Filtering by %s" % text)
-            posts = models.query_by_tags(user,text=text)
-            posts = apply_sort(posts, value=sort, request=request)
-        else:
-            messages.warning(request, "This Tab is populated only for registered users based on the My Tags field in their user profile")
-            posts = []
-    
-    sort_choices = "rank,views,votes,answers,bookmarks,creation,edit".split(',')
-    
-    # put sort options in params so they can be displayed
-    params.update(dict(sort=sort, sort_choices=sort_choices))
-    
-    # reset the counts
-    update_counts(request, tab, 0)
-    page = get_page(request, posts, per_page=POSTS_PER_PAGE)
-    return html.template(request, name='index.html', page=page, params=params, counts=counts)
-
 def show_tag(request, tag_name=None):
     "Display posts by a certain tag"
     user = request.user
@@ -379,7 +303,11 @@ def post_show(request, pid):
     # populate the session data
     sess = middleware.Session(request)
     tab, pill = sess.tabpill() # get last visited values
-    params  = html.Params(tab=tab, pill=pill, layout=settings)
+    
+    auth = user.is_authenticated()
+    layout = settings.USER_PILL_BAR if auth else settings.ANON_PILL_BAR
+    
+    params  = html.Params(tab=tab, pill=pill, layout=layout)
     
     query = get_post_manager(request)
 
@@ -387,6 +315,8 @@ def post_show(request, pid):
         root = query.get(id=pid)
         # update the views for the question
         models.update_post_views(post=root, request=request, hours=settings.POST_VIEW_RANK_GAIN)
+        counts = sess.get_counts()
+    
     except models.Post.DoesNotExist, exc:
         messages.warning(request, 'The post that you are looking for does not exists. Perhaps it was deleted!')
         return html.redirect("/")
@@ -418,7 +348,7 @@ def post_show(request, pid):
     # generate the tag cloud
     #tags = models.Tag.objects.all().order_by('-count')[:50]
     
-    return html.template( request, name='post.show.html', root=root, answers=answers, tree=tree, params=params)
+    return html.template( request, name='post.show.html', root=root, answers=answers, tree=tree, params=params, counts=counts)
  
 def redirect(post):
     return html.redirect( post.get_absolute_url() )

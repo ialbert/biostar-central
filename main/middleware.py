@@ -71,7 +71,7 @@ class Session(object):
     def set_counts(self, value):
         self.data[self.COUNT_KEY] = value
             
-    def get_counts(self, post_type):
+    def get_counts(self, post_type=None):
         if not self.has_storage:
             return generate_counts(self.request)
         else:
