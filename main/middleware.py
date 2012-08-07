@@ -10,7 +10,9 @@ settings.CONTENT_INDEXING = True
 
 class Session(object):
     """
-    This object maintains various session for user. Also works for non-authenticated users and avoids creating database sessions for them
+    This object maintains various session data for a user. To minimize database access
+    saves all at just one time. It also works for non-authenticated users but avoids
+    creating a database sessions for them
     """
     SESSION_KEY, SORT_KEY, COUNT_KEY, TAB, PILL = "session-data", 'sort', 'count', 'tab', 'pill'
     def __init__(self, request):
@@ -26,27 +28,23 @@ class Session(object):
         "Saves the counts back to the session"
         if self.has_storage:
             self.request.session[self.SESSION_KEY] = self.data
-        
-    def counts(self):
-        return self.data[self.COUNT_KEY]
-     
+             
     def tabpill(self, value=None):
         "Facilitates navigation by remebering the last visited tab and pill"
         
         # these are the old values
         otab, opill = self.data[self.TAB], self.data[self.PILL]
      
-        # nothing coming in, keep the old values
+        # nothing specified, keep the old values
         if not value:
             return(otab, opill)
         
-        # the tab is always set, the pill is only set
-        # on valid requests
+        # the tab must always be set
         self.data[self.TAB] = value
         
-        # hitting the post, select last pill
+        # requesting the post tab, select and return the last pill
         if value == "posts":
-            tab, pill = value, opill
+            return (value, opill)
             
         # a valid tab other than posts
         elif value in VALID_TABS:
@@ -56,6 +54,7 @@ class Session(object):
         elif value in VALID_PILLS:
             tab, pill = "posts", value
         
+        # only set the pill when a valid PILL request comes in
         self.data[self.TAB]  = tab
         self.data[self.PILL] = pill
        
@@ -69,15 +68,41 @@ class Session(object):
         self.data[self.SORT_KEY] = value
         return value
 
-def get_counts(since):
+    def set_counts(self, value):
+        self.data[self.COUNT_KEY] = value
+            
+    def get_counts(self, post_type):
+        if not self.has_storage:
+            return generate_counts(self.request)
+        else:
+            key = TARGET_COUNT_MAP.get(post_type, None)
+            
+            print post_type, key, TARGET_COUNT_MAP
+            
+            self.data[self.COUNT_KEY][key] = 0
+            return self.data[self.COUNT_KEY]
+            
+def generate_counts(request, weeks=50):
     "Returns the number of counts for each post type in the interval that has passed"
+    user = request.user
+    now  = datetime.datetime.now()
     
-    # get the posts with a sanity limit
+    if user.is_authenticated():
+        since = (now - user.profile.last_visited)
+    else:
+        since = now - datetime.timedelta(weeks=weeks)
+    
+    since = now - datetime.timedelta(weeks=weeks)
+    
+    # the the posts since the last time
     values = models.Post.objects.filter(type__in=POST_TOPLEVEL, creation_date__gt=since).values_list("type", flat=True)[:1000]
-    
+        
     # how many times does each post type appear in the list
     counts = dict( [ (POST_MAP[k], len(list(v))) for (k, v) in groupby(values) ] )
     
+    # fill in unanswered posts
+    counts['Unanswered'] = models.Post.objects.filter(type=POST_QUESTION, status=POST_OPEN, answer_count=0,  creation_date__gt=since).count()
+                
     return counts
 
 class LastVisit(object):
@@ -86,54 +111,49 @@ class LastVisit(object):
     """
 
     def process_request(self, request):
+        user = request.user
+        sess = Session(request)
         
-        # content generated within the last three months
-        
-        now = datetime.datetime.now() 
-        since = now - datetime.timedelta(weeks=50)
-        
-        counts = get_counts(since)
-                
-        if request.user.is_authenticated():
-            user = request.user
+        # check suspended status for users
+        if user.is_authenticated() and (user.profile.status == USER_SUSPENDED):
+            logout(request)
+            messages.error(request, 'Sorry, this account has been suspended. Please contact the administrators.')
+            return None
+            
+        if not user.is_authenticated():
+            # anonymous users
+            request.user.can_moderate = False
+            if request.path == "/":
+                messages.info(request, 'Welcome to BioStar! Questions and answers on bioinformatics, computational genomics and systems biology.')
+            
+        else:
+            # authenticated users get a smarter counter
             profile = user.get_profile()
             
+            # setting a handy shortcut
+            request.user.can_moderate = profile.can_moderate
+
+            # disconnect suspended users
             if profile.status == USER_SUSPENDED:
                 logout(request)
                 messages.error(request, 'Sorry, this account has been suspended. Please contact the administrators.')
                 return None
             
-            now = datetime.datetime.now()
-            diff = (now - profile.last_visited).seconds
+            # only write to database intermittently
+            expired = profile.check_expiration()
             
-            # Prevent writing to the database too often
-            if diff > settings.SESSION_UPDATE_TIME:
-               
-               # create nagging message for fixme posts
+            if expired:
+                counts = generate_counts(request)
+                sess.set_counts(counts)
+                sess.save()
+                
+                # create nagging message for fixme posts
                 fixme = models.Post.objects.filter(type=POST_FIXME, author=user, status=POST_OPEN)
                 if fixme:
                     first = fixme[0]
-                    messages.error(request, 'You have a post that does not conform the requirements. Please edit it: <a href="%s">%s</a>' % (first.get_absolute_url(), first.title) )
-            
-                last = user.profile.last_visited
-               
-                pairs = [
-                    ('questions', POST_QUESTION), ('forum', POST_FORUM), ('tutorials', POST_TUTORIAL),
-                    ('planet', POST_BLOG), ('jobs', POST_JOB), ('tools', POST_TOOL)
-                ]
-                
-                counts = {}
-                for key, value in pairs:
-                    counts[key] = models.Post.objects.filter(type=value, creation_date__gt=last).count()
-                
-                # this is a special case
-                counts['unanswered'] = models.Post.objects.filter(type=POST_QUESTION, status=POST_OPEN, answer_count=0,  creation_date__gt=last).count()
-                
-                request.session[SESSION_POST_COUNT] = counts 
-                
-                user.profile.last_visited = now
-                user.profile.save()
-               
+                    messages.error(request, 'You have a post that does not conform the requirements. Please edit it: <a href="%s">%s</a>' % (first.get_absolute_url(), first.title)) 
+
+                # try to award badges
                 awards.instant(request)
                 
                 # add the visit to the database
@@ -142,20 +162,10 @@ class LastVisit(object):
                     ip1 = request.META.get('REMOTE_ADDR', '')
                     ip2 = request.META.get('HTTP_X_FORWARDED_FOR','').split(",")[0].strip()
                     ip  = ip1 or ip2 or '0.0.0.0'
-                    models.Visit.objects.create(ip=ip, user=user)
+                    #models.Visit.objects.create(ip=ip, user=user)
                 except Exception ,exc:
                     print '*** ip handling error %s' % exc
                     
-            # a handy shortcut
-            request.user.can_moderate = profile.can_moderate
-            
-        else:
-            request.user.can_moderate = False
-            has_session = request.session.get(FIRST_SESSION)
-            if not has_session:
-                request.session[FIRST_SESSION] = True
-                messages.info(request, 'Welcome to BioStar! Questions and answers on bioinformatics, computational genomics and systems biology.')
-
         return None
 
 class ErrorCheckMiddleware(object):

@@ -40,10 +40,13 @@ def get_post_manager(request):
 
 POSTS_PER_PAGE = 20
 
-FILTER_MAP = dict(
+# mapst a word to a numeric post type
+POST_TYPE_MAP = dict(
     questions=POST_QUESTION, tutorials=POST_TUTORIAL, answers=POST_ANSWER, videos=POST_VIDEO,
     planet=POST_BLOG, tools=POST_TOOL, jobs=POST_JOB, news=POST_NEWS, publications=POST_PUBLICATION,
 )
+
+POST_TYPE_REV_MAP = dict( [ (v,k) for (k,v) in POST_TYPE_MAP.items()] )
 
 ORDER_MAP = dict(
     rank="-rank", views="-views", creation="-creation_date",
@@ -63,27 +66,22 @@ def mytags_posts(request):
             
     return models.query_by_tags(user, text=text)
     
-def filter_by_type(request, posts, value):
+def filter_by_type(request, posts, post_type):
     "Filters posts by type"
-    user = request.user
     
     # filter is a single type
-    ftype = FILTER_MAP.get(value)
-    if ftype:
-        return posts.filter(type=ftype)
-    elif value == 'unanswered':
+    if post_type in POST_TYPE_REV_MAP:
+        return posts.filter(type=post_type)
+    elif post_type == 'unanswered':
         return posts.filter(type__in=[POST_QUESTION, POST_FIXME], answer_count=0)
-    elif value == 'all':
+    elif post_type == 'all':
         return posts.exclude(type__in=POST_SUBLEVEL)
-    elif value == 'mytags':
+    elif post_type == 'mytags':
         return mytags_posts(request)
-    elif value == 'recent':
+    elif post_type == 'recent':
         return posts.all()
         
-    # returns all posts by default
-    print '***filter type %s' % value
-    
-    msg = html.sanitize('Unknown content type %s requested' % value)
+    msg = html.sanitize('Unknown content type "%s" requested' % post_type)
     messages.error(request, msg)
     return posts.all()
 
@@ -112,6 +110,7 @@ def apply_sort(request, posts, value):
 SORT_CHOICES   = "rank,views,votes,answers,bookmarks,creation,edit".split(',')
 
 def tab(request, target):
+    user = request.user
     
     # populate the session data
     sess = middleware.Session(request)
@@ -123,10 +122,11 @@ def tab(request, target):
     tab, pill = sess.tabpill(target)
     
     # an override of the types
-    post_type = pill if target == "posts" else target
+    target = pill if pill else target
     
-    user = request.user
-        
+    # get the numerical value for these posts
+    post_type = POST_TYPE_MAP.get(target, target)
+    
     # override the sort order if the content so requires
     sort_type = 'creation' if tab=='recent' else sort_type
         
@@ -140,7 +140,7 @@ def tab(request, target):
     posts = get_post_manager(request)
     
     # filter posts by type
-    posts = filter_by_type(request=request, posts=posts, value=post_type)
+    posts = filter_by_type(request=request, posts=posts, post_type=post_type)
     
     # apply the sort order
     posts = apply_sort(request=request, posts=posts, value=sort_type)
@@ -149,10 +149,8 @@ def tab(request, target):
     if tab == 'planet':
         models.decorate_posts(posts, request.user)
         
-    now = datetime.now() 
-    since = now - timedelta(weeks=50)
-    counts = middleware.get_counts(since)
-    
+    # get the counts for the session
+    counts = sess.get_counts(post_type)
     page = get_page(request, posts, per_page=POSTS_PER_PAGE)
     
     # save the session

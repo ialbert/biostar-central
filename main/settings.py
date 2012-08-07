@@ -293,7 +293,7 @@ BLOG_VIEW_RANK_GAIN = 0.1
 SELENIUM_TEST_LOGIN_TOKEN = None
 
 # the time in seconds between session updates
-SESSION_UPDATE_TIME = 60 * 10 # every 10 minutes
+SESSION_UPDATE_TIME = 5 # every 5 seconds
 
 # setting the session for multiple servers
 SESSION_COOKIE_DOMAIN = ""

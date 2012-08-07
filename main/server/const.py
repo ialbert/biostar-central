@@ -103,3 +103,11 @@ BADGE_BRONZE, BADGE_SILVER, BADGE_GOLD = 0, 1, 2
 BADGE_TYPES = ((BADGE_BRONZE, 'bronze'), (BADGE_SILVER, 'silver'), (BADGE_GOLD, 'gold'))
 
 BETA_TESTER_BADGE = "Beta Tester"
+
+TARGET_COUNT_MAP = {
+    POST_NEWS : "News",
+    POST_QUESTION : "Question",
+    POST_TOOL : "Tool",
+    POST_TUTORIAL : "Tutorial",
+    POST_JOB : "Job",
+}
