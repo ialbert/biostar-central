@@ -1,12 +1,17 @@
 #!/bin/bash
 
+if [ -z "$BIOSTAR_HOME" ]; then
+    echo "(!) environment variables not set"
+    echo "Try: source conf/default.env"
+    exit 1
+fi
+
 set -ue
 
 # verbosity level for commands 0=minimal, 2=maximal
 VERBOSITY=1
 
 # the migration path and limit
-
 echo "--- main settings"
 echo "*** BIOSTAR_HOME=$BIOSTAR_HOME"
 echo "*** BIOSTAR_HOSTNAME=$BIOSTAR_HOSTNAME"
