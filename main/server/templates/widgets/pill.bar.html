@@ -2,7 +2,7 @@
 {% load widgets %}
 
 {% if pill %}
-    <div style="width:80%;float:left;";>
+    <div style="float:left;";>
         <ul class="nav nav-pills">
             {% for tabkey, link, text, countkey in layout %}
                 <li {% active tabkey pill %}><a href="{{link}}">{{text|safe}}&nbsp;{% show_count countkey counts %}</a></li>

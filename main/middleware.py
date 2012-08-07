@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime, timedelta
 from itertools import *
 from django.contrib.auth import logout
 from django.contrib import messages
@@ -82,14 +82,12 @@ class Session(object):
 def generate_counts(request, weeks=50):
     "Returns the number of counts for each post type in the interval that has passed"
     user = request.user
-    now  = datetime.datetime.now()
+    now  = datetime.now()
     
     if user.is_authenticated():
-        since = (now - user.profile.last_visited)
+        since = user.profile.last_visited
     else:
-        since = now - datetime.timedelta(weeks=weeks)
-    
-    since = now - datetime.timedelta(weeks=weeks)
+        since = now - timedelta(weeks=weeks)
     
     # the the posts since the last time
     values = models.Post.objects.filter(type__in=POST_TOPLEVEL, creation_date__gt=since).values_list("type", flat=True)[:1000]
@@ -99,7 +97,7 @@ def generate_counts(request, weeks=50):
     
     # fill in unanswered posts
     counts['Unanswered'] = models.Post.objects.filter(type=POST_QUESTION, status=POST_OPEN, answer_count=0,  creation_date__gt=since).count()
-                
+     
     return counts
 
 class LastVisit(object):
@@ -137,12 +135,15 @@ class LastVisit(object):
                 return None
             
             # only write to database intermittently
-            expired = profile.check_expiration()
+            expired = (datetime.now() - profile.last_visited).seconds
             
-            if expired:
+            if expired > settings.SESSION_UPDATE_TIME:
                 counts = generate_counts(request)
                 sess.set_counts(counts)
                 sess.save()
+                
+                # save the last update time
+                profile.update_expiration()
                 
                 # create nagging message for fixme posts
                 fixme = models.Post.objects.filter(type=POST_FIXME, author=user, status=POST_OPEN)

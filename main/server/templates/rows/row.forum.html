@@ -29,9 +29,6 @@
             {% show_type post params.show_type %} <a href="{{post.get_absolute_url}}"> {{post.get_title}}</a>
         </div>
 
-        {# generates the small peek into the post #}
-        <div class="peek">{{post.content|truncatewords:30}}</div>
-
         {# "fake tag" with the post type to distinguish from other posts #}
         <div class="tag-line">
             <a href="{% url show 'forum' %}" class="post-type tag">forum</a>

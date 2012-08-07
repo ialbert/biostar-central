@@ -39,7 +39,12 @@ file located in the libs folder.
 Quickstart
 ----------
 
-From the command line execute::
+You need to first load up a configuration as environment variables:
+
+    $ source conf/default.env
+    
+This is only needed once per shell, you can also switch the configuration
+at any time by loading up a different one. Then from the command line execute::
 
     $ ./biostar.sh init import run
 
@@ -52,6 +57,10 @@ present in the *biostar.sh* run manager.
 
 Detailed Usage
 --------------
+
+You need to first load up a configuration as environment variables:
+
+    $ source conf/default.env
 
 There is a main run manager in the root directory::
 

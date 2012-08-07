@@ -105,17 +105,10 @@ class UserProfile( models.Model ):
         new_count  = Note.objects.filter(target=self.user, unread=True).count()
         return (note_count, new_count)
 
-    def check_expiration(self, seconds=settings.SESSION_UPDATE_TIME):
+    def update_expiration(self):
         "Checks the expiration"
-        
-        now  = datetime.now()
-        diff = (now - self.last_visited).seconds
-        if diff > seconds:
-            self.last_visited = now
-            self.save()
-            return True
-        
-        return False
+        self.last_visited = datetime.now()
+        self.save()
                 
 class ProfileAdmin(admin.ModelAdmin):
     list_display = ('display_name', 'user', 'type')

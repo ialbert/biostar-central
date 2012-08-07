@@ -1,52 +1,11 @@
 #!/bin/bash
+
 set -ue
 
 # verbosity level for commands 0=minimal, 2=maximal
 VERBOSITY=1
 
-# set a few default environment variables
-BIOSTAR_SRC=`dirname $0`
-
-# source directory to be added to import path
-BIOSTAR_HOME=${BIOSTAR_HOME:-"$BIOSTAR_SRC/main"}
-
-# set the hostname
-BIOSTAR_HOSTNAME=${BIOSTAR_HOSTNAME:-"0.0.0.0:8080"}
-
-# django settings module
-export DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE:-"settings"}
-
-# add to the python path
-PYTHONPATH=${PYTHONPATH:-""}
-
-export SQLITE_DBNAME=${SQLITE_DBNAME:-"$BIOSTAR_HOME/db/biostar.db"}
-
 # the migration path and limit
-export MIGRATE_PATH=${MIGRATE_PATH:-"import/se0"}
-export MIGRATE_LIMIT=${MIGRATE_LIMIT:-"100"}
-
-# the JSON fixture to dump/load data from
-export JSON_FIXTURE=${JSON_FIXTURE:-"import/biostar-dump.json.gz"}
-
-# the SQL fixture to dump/load postgresql SQL 
-export SQL_FIXTURE=${SQL_FIXTURE:-"import/biostar-dump.sql"}
-
-# the postgresql database name
-export PG_DBNAME=${PG_DBNAME:-"biostar-test-database"}
-
-# the postgresql database name
-export PG_USERNAME=${PG_USERNAME:-"biostar-user"}
-
-# the DJANGO_SETTINGS_MODULE needs to be in the python import path
-export PYTHONPATH=$PYTHONPATH:$BIOSTAR_HOME   
-
-
-# add the library files to the pythonpath
-export PYTHONPATH=$PYTHONPATH:libs/:libs/libraries.zip
-
-# setting up the python
-export PYTHON_EXE=${PYTHON_EXE:-"python"}
-export DJANGO_ADMIN=manage.py
 
 echo "--- main settings"
 echo "*** BIOSTAR_HOME=$BIOSTAR_HOME"
