@@ -210,7 +210,6 @@ def hot(ups, downs, date):
     order = log(max(abs(s), 1), 10)
     sign = 1 if s > 0 else -1 if s < 0 else 0
     seconds = epoch_seconds(date) - 1134028003
-    print sign, seconds/45000
     return round(order + sign * seconds / 45000, 7)
 
 def rank(post):
@@ -223,3 +222,16 @@ def rank(post):
 def suite():
     s = unittest.TestLoader().loadTestsFromTestCase(HtmlTest)
     return s
+
+if __name__ == '__main__':
+    
+    now = datetime.now()
+    lat = now + timedelta(hours=15)
+    
+    h1 = hot(1, 0, now)
+    h2 = hot(20, 0, now)
+    
+    h3 = hot(1, 0, lat)
+    
+    print "Upvote %4.1f, later %4.1f" % (h2-h1, h3-h1)
+    

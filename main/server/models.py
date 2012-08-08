@@ -543,24 +543,22 @@ def post_score_change(post, amount=1):
     "How post score changes with votes. Both the rank and the score changes"
 
     root = post.root
-    
+        
+    # post score increases
     post.score += amount
+    
     if post == root:
-        root.full_score += amount    
-    post.rank = html.rank(post)
-    post.save()
-    
-    
-    
-    # a different root needs updating in a different way
-    if post != root:
+        post.full_score += amount
+    else:
+        # not a top level post, need to update the root
+        post.full_score = post.score
         root.full_score += amount
         root.rank = html.rank(root)
-        if post.rank > root.rank:
-            root.rank = post.rank
         root.save()
-        
-    print'*** amount', post.score, post.full_score, root.full_score
+
+    # save the post
+    post.rank = html.rank(post)
+    post.save()
    
     return post, post.root
 
