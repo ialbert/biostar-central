@@ -180,10 +180,10 @@ def redirect(url):
 
 def template(request, name, mimetype=None, **kwd):
     """Renders a template and returns it as an http response"""
-    
     # parameters that will always be available for the template
     kwd['request'] = request
-    return render_to_response(name, kwd, context_instance=RequestContext(request))
+    resp = render_to_response(name, kwd, context_instance=RequestContext(request))
+    return resp
 
 def get_ip(request):
     "Extracts the IP address from a request"

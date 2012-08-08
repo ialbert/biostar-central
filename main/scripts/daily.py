@@ -1,3 +1,5 @@
+import sys
+
 from django.conf import settings
 from main.server import models, html
 from main.server.const import *
@@ -6,22 +8,24 @@ from django.db.models import Avg, Max, Min, Count
 
 def remove_notes(target, maxcount=1000):
     """Clears the notes  for each user"""
-    count = models.Note.objects.filter(target=target).count()
-    if count > maxcount:   
-        last  = models.Note.objects.filter(target=target).order_by('-date')[maxcount]
-        clear = models.Note.objects.filter(target=target, date__lt=last.date).exclude(sender=target)
-        clear.delete()
-        count = models.Note.objects.filter(target=target).count()
-        print '*** deleting for user %s, count %s' % (target.id, count)
     
-def trim_notelist(maxcount=1000):
-    query = models.User.objects.annotate(note_count=Count('note_target')).filter(note_count__gt = 2 * maxcount)
-    for user in query:
-        remove_notes(user, maxcount=maxcount)
+    last_valid = models.Note.objects.filter(target=target).order_by('-id').exclude(sender=target)[maxcount]
+    clear_rows = models.Note.objects.filter(target=target, id__lt=last_valid.id).exclude(sender=target)
+    clear_rows.delete()
+    
+    new_count = models.Note.objects.filter(target=target).count()
+    print '*** cleared notes for user %s to %s' % (target.id, new_count)
+    
+    
+def reduce_notelist(maxcount=1000):
+    for user in models.User.objects.all():
+        note_count = models.Note.objects.filter(target=user).exclude(sender=user).count()
+        if note_count > 2 * maxcount:
+            remove_notes(user, maxcount=maxcount)
     
 def reapply_rank():
     "Applies the new ranking system on all posts"
-    posts = models.Post.objects.exclude(type__in=POST_SUBLEVEL)
+    posts = models.Post.objects.all()
     
     for post in posts:
         post.rank = html.rank(post)
@@ -35,4 +39,27 @@ def run():
     pass
     
 if __name__ == '__main__':
-    run()
+    import doctest, optparse
+   
+    # for debugging
+    #sys.argv.extend( ["-p", "se0"] )
+    
+    # options for the program
+    parser = optparse.OptionParser()
+    parser.add_option("-n", dest="n", help="limit value default=%default", type=int, default=1000)
+    parser.add_option("--reduce", dest="reduce", help="reduce the number of notification to N", action="store_true", default=False)
+    parser.add_option("--rank", dest="rank", help="reapplies ranks to all posts", action="store_true", default=False)
+   
+    (opts, args) = parser.parse_args()
+    
+    # stop execution if no parameters were specified
+    if len(sys.argv) == 1:
+        parser.print_help()
+        sys.exit()
+        
+    if opts.rank:
+        reapply_rank()
+        
+    if opts.reduce:
+        reduce_notelist(maxcount=opts.n)
+    
