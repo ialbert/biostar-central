@@ -54,6 +54,10 @@ class Session(object):
         elif value in VALID_PILLS:
             tab, pill = "posts", value
         
+        # navigation error
+        else:
+            tab, pill = "posts", "unkown"
+            
         # only set the pill when a valid PILL request comes in
         self.data[self.TAB]  = tab
         self.data[self.PILL] = pill

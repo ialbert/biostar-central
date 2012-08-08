@@ -4,7 +4,7 @@ Too many viewa in the main views.py
 Started refactoring some here, this will eventually store all form based
 actions whereas the main views.py will contain url based actions.
 """
-import sys, traceback
+import os, sys, traceback
 
 from datetime import datetime, timedelta
 from main.server import html, models, auth, notegen
@@ -286,12 +286,12 @@ def url500(request):
 #
 # this is only used to map redirects from the old site
 #
-try:
-    POST_REMAP_FILE = '%s/db/post-remap.txt' % settings.HOME_DIR
+POST_REMAP_FILE = '%s/db/post-remap.txt' % settings.HOME_DIR
+if os.path.isfile(POST_REMAP_FILE):
     REMAP = dict( [line.split() for line in file(POST_REMAP_FILE)] )
-except Exception, exc:
-    print '*** %s' % exc
-
+else:
+    REMAP = {}
+    
 def redirect_post(request, pid):
     try:
         nid = REMAP[pid]

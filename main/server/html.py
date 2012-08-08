@@ -218,17 +218,18 @@ def rank(post):
     downs=0
     rank = hot(ups, downs, post.creation_date)
     return rank
-    
+
+class HtmlTest(unittest.TestCase):
+    def test_sanitize(self):
+        "Testing HTML"
+        p = Params(a=1, b=2, c=3)
+        self.assertEqual( (p.a, p.b, p.c), (1, 2, 3))
+
 def suite():
     s = unittest.TestLoader().loadTestsFromTestCase(HtmlTest)
     return s
 
 if __name__ == '__main__':
-    import traceback
-    try:
-        1/0
-    except Exception, exc:
-        print traceback.format_exc()
     
     now = datetime.now()
     lat = now + timedelta(hours=15)
