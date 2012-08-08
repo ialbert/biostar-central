@@ -1,7 +1,8 @@
 # Biostar version string
 
 import sys, warnings
-warnings.simplefilter("default")
+#warnings.simplefilter("default")
+warnings.filterwarnings("ignore", category=DeprecationWarning) 
 
 try:
     import django, south
