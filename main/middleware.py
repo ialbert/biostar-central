@@ -102,7 +102,7 @@ def generate_counts(request, weeks=50):
 
 class LastVisit(object):
     """
-    Updates the last visit stamp at MINIMUM_TIME intervals
+    Updates the last visit stamp at SESSION_UPDATE_TIME intervals
     """
 
     def process_request(self, request):
@@ -113,53 +113,39 @@ class LastVisit(object):
         if user.is_authenticated() and (user.profile.status == USER_SUSPENDED):
             logout(request)
             messages.error(request, 'Sorry, this account has been suspended. Please contact the administrators.')
-            return None
+            return
             
+        # handle anonymous users
         if not user.is_authenticated():
             # anonymous users
             request.user.can_moderate = False
             if request.path == "/":
                 messages.info(request, 'Welcome to BioStar! Questions and Answers on Bioinformatics and Genomics!')
+            return 
             
-        else:
-            # authenticated users get a smarter counter
-            profile = user.get_profile()
+        # at this point we only have authenticated users
+        profile = user.get_profile()
+        
+        # setting a handy shortcut
+        request.user.can_moderate = profile.can_moderate
+        
+        # only write to database intermittently
+        expired = (datetime.now() - profile.last_visited).seconds
+        
+        if expired > settings.SESSION_UPDATE_TIME:
+            counts = generate_counts(request)
+            sess.set_counts(counts)
+            sess.save()
             
-            # setting a handy shortcut
-            request.user.can_moderate = profile.can_moderate
+            # save the last update time
+            profile.update_expiration()
+            
+            # create nagging message for fixme posts
+            fixme = models.Post.objects.filter(type=POST_FIXME, author=user, status=POST_OPEN)
+            if fixme:
+                first = fixme[0]
+                messages.error(request, 'You have a post that does not conform the requirements. Please edit it: <a href="%s">%s</a>' % (first.get_absolute_url(), first.title)) 
 
-            # disconnect suspended users
-            if profile.status == USER_SUSPENDED:
-                logout(request)
-                messages.error(request, 'Sorry, this account has been suspended. Please contact the administrators.')
-                return None
-            
-            # only write to database intermittently
-            expired = (datetime.now() - profile.last_visited).seconds
-            
-            if expired > settings.SESSION_UPDATE_TIME:
-                counts = generate_counts(request)
-                sess.set_counts(counts)
-                sess.save()
-                
-                # save the last update time
-                profile.update_expiration()
-                
-                # create nagging message for fixme posts
-                fixme = models.Post.objects.filter(type=POST_FIXME, author=user, status=POST_OPEN)
-                if fixme:
-                    first = fixme[0]
-                    messages.error(request, 'You have a post that does not conform the requirements. Please edit it: <a href="%s">%s</a>' % (first.get_absolute_url(), first.title)) 
+            # try to award badges
+            awards.instant(request)
 
-                # try to award badges
-                awards.instant(request)
-                
-        return
-
-class ErrorCheckMiddleware(object):
-    ''' Calculates the logged-in user's permissions and adds it to the request object. '''
-    
-    def process_exception(self, request, exc):
-        path = request.path
-        params = html.Params(exc=exc, path=path)
-        return html.template(request, name='500.html', params=params)

@@ -224,6 +224,11 @@ def suite():
     return s
 
 if __name__ == '__main__':
+    import traceback
+    try:
+        1/0
+    except Exception, exc:
+        print traceback.format_exc()
     
     now = datetime.now()
     lat = now + timedelta(hours=15)

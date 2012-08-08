@@ -7,6 +7,8 @@ from main.server import const
 from django.contrib import admin
 admin.autodiscover()
 
+handler500 = 'main.server.action.url500'
+
 urlpatterns = patterns('main.server',
 
     # main index page
@@ -92,6 +94,7 @@ urlpatterns = patterns('main.server',
 
     # test login, used during debugging
     url(r'^test/login/(?P<uid>\d+)/(?P<token>[\w\d]+)/$','action.test_login', name="test-login"),
+   
    
 )
 

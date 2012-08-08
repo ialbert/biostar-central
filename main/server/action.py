@@ -4,6 +4,8 @@ Too many viewa in the main views.py
 Started refactoring some here, this will eventually store all form based
 actions whereas the main views.py will contain url based actions.
 """
+import sys, traceback
+
 from datetime import datetime, timedelta
 from main.server import html, models, auth, notegen
 from main.server.html import get_page
@@ -270,7 +272,17 @@ def test_login(request, uid, token):
         messages.error(request, "Test login failed.")
         
     return html.redirect("/")   
-        
+     
+def url500(request):
+    "Custom error handler"
+    
+    type, value, tb = sys.exc_info()
+    trace = traceback.format_exc()
+    trace = "\n<trace>\n%s</trace>" % trace
+    logger.error(trace)
+    
+    return html.template(request, name='500.html', path=request.path, value=value)
+    
 #
 # this is only used to map redirects from the old site
 #

@@ -158,7 +158,6 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'main.middleware.LastVisit',
-    #'main.middleware.ErrorCheckMiddleware'
 )
 
 CACHES = {
