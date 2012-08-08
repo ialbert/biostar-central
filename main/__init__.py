@@ -1,4 +1,11 @@
 # Biostar version string
 
-import warnings
+import sys, warnings
 warnings.simplefilter("default")
+
+try:
+    import django, south
+except ImportError, exc:
+    print "(!) unable to import a dependency"
+    print "Try: unpack the depot.zip file in the libs folder"
+    sys.exit()
