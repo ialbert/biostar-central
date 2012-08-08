@@ -314,7 +314,7 @@ def post_show(request, pid):
     try:
         root = query.get(id=pid)
         # update the views for the question
-        models.update_post_views(post=root, request=request, hours=1)
+        models.update_post_views(post=root, request=request, minutes=const.POST_VIEW_UPDATE)
         counts = sess.get_counts()
     
     except models.Post.DoesNotExist, exc:
@@ -453,7 +453,7 @@ def post_redirect(request, pid):
 def blog_redirect(request, pid):
     "Used to be able to count the views for a blog"
     blog = models.Post.objects.get(id=pid, type=POST_BLOG)
-    models.update_post_views(post=blog, request=request, hours=settings.BLOG_VIEW_RANK_GAIN) # 12 hour rank change
+    models.update_post_views(post=blog, request=request, minutes=const.POST_VIEW_UPDATE)
     return html.redirect( blog.get_absolute_url() )
 
 def modlog_list(request):

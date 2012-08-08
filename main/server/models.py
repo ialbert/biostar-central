@@ -275,12 +275,12 @@ class Post(models.Model):
         else:
             return "TITLE:%s\n%s\nTAGS:%s" % (self.title, self.content, self.tag_val)
 
-def update_post_views(post, request, hours=1):
+def update_post_views(post, request, minutes=30):
     "Views are updated per user session"
     
     ip = html.get_ip(request)
     now = datetime.now()
-    since = now - timedelta(hours=hours)
+    since = now - timedelta(minutes=minutes)
 
     # one view per hour will be counted per each IP address
     if not PostView.objects.filter(ip=ip, post=post, date__gt=since):
@@ -549,6 +549,7 @@ def post_score_change(post, amount=1):
     
     if post == root:
         post.full_score += amount
+        post.full_score = max((post.full_score, 1))
     else:
         # not a top level post, need to update the root
         post.full_score = post.score

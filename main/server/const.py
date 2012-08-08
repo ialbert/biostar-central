@@ -86,6 +86,10 @@ USER_STATUS_TYPES = ( (USER_ACTIVE, 'Active'), (USER_SUSPENDED, 'Suspended') )
 POST_OPEN, POST_CLOSED, POST_DELETED = 100, 200, 300
 POST_STATUS_TYPES = ( (POST_OPEN, 'Open'), (POST_CLOSED, 'Closed'), (POST_DELETED, 'Deleted') )
 
+# the time between registering two post views
+# from the same IP, in minutes
+POST_VIEW_UPDATE = 30
+
 # revision constants
 REV_NONE, REV_CLOSE, REV_REOPEN, REV_DELETE, REV_UNDELETE = range(1000, 1005)
 REV_ACTIONS = (
