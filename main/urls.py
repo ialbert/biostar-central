@@ -75,7 +75,8 @@ urlpatterns = patterns('main.server',
     url(r'^faq/$','pages.faq', name='faq'),
     url(r'^beta/$','pages.beta', name='beta'),
     url(r'^google/$','pages.google', name='google'),
-    
+    url(r'^testpage/$','pages.testpage', name='testpage'),
+
     # lists all moderator actions
     url(r'^modlog/list/$', 'views.modlog_list', name="modlog-list"),
   

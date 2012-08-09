@@ -58,7 +58,6 @@ POST_SUBLEVEL = set( [POST_ANSWER, POST_COMMENT ])
 # main level posts 
 POST_EXCLUDE = set( [POST_ANSWER, POST_COMMENT, POST_BLOG ])
 
-
 # toplevel posts may stand alone and must have title and tags
 POST_TOPLEVEL = set( POST_MAP.keys() ) - POST_SUBLEVEL
 

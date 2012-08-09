@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% load basic %}
+{% load widgets %}
+
+{% block title %}
+    Test Page
+{% endblock %}
+
+{% block body %}
+
+
+
+<div class="row">
+    
+    <h4>Queries = {{ rows|length }}</h4>
+
+    <ul>
+    {% for row in rows %}
+        <li>{{row}}</li>
+    {% endfor %}
+    </ul>
+
+</div>
+
+{% endblock %}

@@ -9,6 +9,7 @@ from collections import defaultdict
 from main.server import html, models, const, formdef, action, notegen, auth
 from main.server.html import get_page
 from datetime import datetime
+from django.db import connection
 
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
@@ -34,9 +35,9 @@ logger = logging.getLogger(__name__)
 def get_post_manager(request):
     user = request.user
     if user.is_authenticated() and user.profile.can_moderate:
-        return models.Post.objects
+        return models.Post.objects.select_related('author', 'author__profile')
     else:
-        return models.Post.open_posts
+        return models.Post.open_posts.select_related('author', 'author__profile')
 
 POSTS_PER_PAGE = 20
 
@@ -79,7 +80,7 @@ def filter_by_type(request, posts, post_type):
     elif post_type == 'mytags':
         return mytags_posts(request)
     elif post_type == 'recent':
-        return posts.exclude(type=POST_BLOG)
+        return posts.exclude(type=POST_BLOG).select_related('author', 'author__profile','root')
         
     msg = html.sanitize('Unknown content type "%s" requested' % post_type)
     messages.error(request, msg)
