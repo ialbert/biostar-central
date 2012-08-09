@@ -91,24 +91,16 @@ def apply_sort(request, posts, value):
     order = ORDER_MAP.get(value)
     if order:
         return posts.order_by(order)
-    elif value == 'bookmarks':
-        # this needs to be reworked!
-        posts = get_post_manager(request)
-        posts = posts.raw('SELECT server_post.*, count(server_post.id) as bookmarks \
-            FROM server_post INNER JOIN server_vote ON server_post.id = server_vote.post_id WHERE \
-            server_vote.type = %s GROUP BY server_post.id ORDER BY bookmarks DESC LIMIT 100', [const.VOTE_BOOKMARK])
-        posts = list(posts)
-        return posts
     
     # default value is sort by created date
     #print '*** default SORT %s' % value
     
     messages.error(request, 'Unknown sort order requested')
-    return posts.order_by('-creation_date')
+    return posts.order_by('-rank')
 
 # there is a tab bar and a lower "pill" bar
 
-SORT_CHOICES   = "rank,views,votes,answers,bookmarks,creation,edit".split(',')
+SORT_CHOICES   = "rank,views,votes,answers,creation,edit".split(',')
 
 def index(request, target=''):
     user = request.user
@@ -167,10 +159,27 @@ def index(request, target=''):
 def show_tag(request, tag_name=None):
     "Display posts by a certain tag"
     user = request.user
-    params = html.Params(nav='', tab='tags', sort='')
+    # populate the session data
+    sess = middleware.Session(request)
+    
+    # get the sort order
+    sort_type = sess.sort_order()
+    
+    # get the active target based on history
+    tab, pill = sess.tabpill()
+    
+    params = html.Params(nav='', tab=tab, sort='')
+    
+    # the params object will carry
+    layout = settings.USER_PILL_BAR if auth else settings.ANON_PILL_BAR
+    
+    # wether to show the type of the post
+    params  = html.Params(tab=tab, pill='all', sort=sort_type, sort_choices=SORT_CHOICES, layout=layout)
+    
     msg = 'Filtering by tag: <b>%s</b>. Subscribe to an <a href="/feeds/tag/%s/">RSS feed</a> to this tag.' % (tag_name,tag_name)
     messages.info(request, msg)
-    posts = models.query_by_tags(user=user, text=tag_name).order_by('-rank')
+    posts = models.query_by_tags(user=user, text=tag_name)
+    posts = apply_sort(request=request, posts=posts, value=sort_type)
     page  = get_page(request, posts, per_page=20)
     return html.template( request, name='index.html', page=page, params=params)
 

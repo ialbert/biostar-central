@@ -75,6 +75,7 @@ def fill(browser, text, name=None, id=None, submit=False):
 def post_lookup(browser):
     click = partial(click_func, browser)
     
+    click("next>")
     target = "Gene ID conversion tool"
     elem, text = click(target)
     parts = "5 answers,Dondrup,uniprot,Biomart".split(",")
@@ -139,6 +140,7 @@ def update_user(browser):
     fill(browser, "mapping", name="my_tags")
     fill(browser, "Cool Bot", name="display_name")
     click(id='submit-button')
+    click("Posts")
     click("My Tags")    
     title = "Gene ID conversion tool"
     click(title)
@@ -178,7 +180,7 @@ def voting_test(browser):
     user = login(browser=browser, uid=10)
     
     click = partial(click_func, browser)
-    title = "Gene ID conversion tool"
+    title = "How to organize a pipeline of small scripts together?"
     click(title)
     
     post = models.Post.objects.get(title=title)
@@ -235,12 +237,11 @@ def voting_test(browser):
 tests = [
     simple_navigation,
     feed_check,
-    #post_lookup,
-    #
-    #quick_search,
-    #update_user,
-    #create_content_1,
-    #voting_test,
+    post_lookup,
+    quick_search,
+    update_user,
+    create_content_1,
+    voting_test,
 ]
 
 def main(url):
