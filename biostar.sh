@@ -100,12 +100,16 @@ while (( "$#" )); do
         $PYTHON_EXE $DJANGO_ADMIN dumpdata auth.User server --settings=$DJANGO_SETTINGS_MODULE | gzip > $JSON_FIXTURE
     fi
 
-    if [ "$1" = "pgdrop" ]; then
-        # drops the PG datanase
-        echo '*** dropping postgresql database'
-        dropdb $PG_NAME
-        echo '*** creating postgresql database'
+    if [ "$1" = "pgcreate" ]; then
+        # creates the PG database
+        echo "*** creating postgresql database PG_NAME=$PG_NAME"
         createdb $PG_NAME
+    fi
+    
+    if [ "$1" = "pgdrop" ]; then
+        # drops the PG database
+        echo "*** dropping postgresql database PG_NAME=$PG_NAME"
+        dropdb $PG_NAME
     fi
     
     if [ "$1" = "pgreset" ]; then

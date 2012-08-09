@@ -53,7 +53,7 @@ def simple_navigation(browser):
     "Simple navigation through the site"
     click = partial(click_func, browser)
     
-    targets = "Tags Users Badges About FAQ Recent Planet Search Posts News Questions Unanswered Tutorials Tools Videos Jobs RSS".split()
+    targets = "Tags Users Badges About Recent Planet Search Posts News Questions Unanswered Tutorials Tools Videos Jobs RSS".split()
     targets.extend( [ 'Posts', 'Show All', 'New Post!',  'Sign In' ] )
     for link in targets:    
         elem, text = click(link)

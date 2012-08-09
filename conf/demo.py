@@ -27,8 +27,8 @@ DATABASES = {
         'NAME': 'test-database',                  
         'USER': 'someuser',                      
         'PASSWORD': 'somepassword',                  
-        'HOST': 'somehost',                      
-        'PORT': 'somepost',                      
+        'HOST': '',                      
+        'PORT': '',                      
     }
 }
 

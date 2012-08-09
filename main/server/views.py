@@ -39,7 +39,7 @@ def get_post_manager(request):
     else:
         return models.Post.open_posts.select_related('author', 'author__profile')
 
-POSTS_PER_PAGE = 20
+POSTS_PER_PAGE = 15
 
 # mapst a word to a numeric post type
 POST_TYPE_MAP = dict(

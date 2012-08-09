@@ -20,7 +20,6 @@
               <li {% active 'users'  nav %}><a href="{% url 'main.server.views.user_list' %}">Users</a></li>
               <li {% active 'badges' nav %}><a href="{% url 'main.server.views.badge_list' %}">Badges</a></li>
               <li {% active 'about'  nav %}><a href="{% url 'main.server.pages.about' %}">About</a></li>
-              <li {% active 'faq'    nav %}><a href="{% url 'main.server.pages.faq' %}">FAQ</a></li>
               <li {% active 'rss'    nav %}><a href="{% url 'main.server.pages.rss' %}">RSS</a></li>
             </ul>
             
@@ -31,7 +30,7 @@
             {%if user.is_authenticated %}
             <p class="nav navbar-text pull-right">
                 {% if user.profile.new_messages %}
-                <a class="btn btn-success" href='{% url 'main.server.views.user_profile' user.id %}'><i class="icon-envelope icon-white"></i> {% bignum user.profile.new_messages %}</a>
+                <a class="btn btn-success" href='{% url 'main.server.views.user_profile' user.id %}'><i class="icon-envelope icon-white"></i>&nbsp;{% bignum user.profile.new_messages %}</a>
                 {% endif %}
                 &nbsp;
                  <i class="icon-user icon-white"></i>
