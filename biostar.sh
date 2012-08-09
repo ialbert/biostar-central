@@ -154,8 +154,6 @@ while (( "$#" )); do
         # needs to reindex to be most up to date
         $PYTHON_EXE -m main.server.search
         
-        # this is needed temporarily because the ranking scheme changed
-        $PYTHON_EXE -m main.scripts.daily --rank
         echo "*** running selenium on $SELENIUM_TEST_URL"
         $PYTHON_EXE main/server/tests/selenium_tests.py $SELENIUM_TEST_URL
     fi
