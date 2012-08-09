@@ -5,6 +5,7 @@ from django.conf import settings
 from main.server import html, models
 from main.server.const import *
 from django.db import connection
+from django.contrib.sites.models import Site
 
 def about(request):
     "Renders the about page"

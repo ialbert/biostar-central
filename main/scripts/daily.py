@@ -3,9 +3,19 @@ import sys
 from django.conf import settings
 from main.server import models, html
 from main.server.const import *
+from django.contrib.sites.models import Site
 
 from django.db.models import Avg, Max, Min, Count
 
+def update_domain():
+    "This is really only needs to be done once per installation"
+    site = Site.objects.get(id=settings.SITE_ID)
+    print "*** current site domain %s" % site.domain
+    if site.domain != settings.SITE_DOMAIN:
+        print '--- updating site domain to %s' % settings.SITE_DOMAIN
+        site.domain = settings.SITE_DOMAIN
+        site.save()
+        
 def remove_notes(target, maxcount=1000):
     """Clears the notes  for each user"""
     
@@ -49,6 +59,7 @@ if __name__ == '__main__':
     parser.add_option("-n", dest="n", help="limit value default=%default", type=int, default=1000)
     parser.add_option("--reduce", dest="reduce", help="reduce the number of notification to N", action="store_true", default=False)
     parser.add_option("--rank", dest="rank", help="reapplies ranks to all posts", action="store_true", default=False)
+    parser.add_option("--update_domain", dest="update_domain", help="updates the site domain", action="store_true", default=False)
    
     (opts, args) = parser.parse_args()
     
@@ -56,6 +67,9 @@ if __name__ == '__main__':
     if len(sys.argv) == 1:
         parser.print_help()
         sys.exit()
+    
+    if opts.update_domain:
+        update_domain()
         
     if opts.rank:
         reapply_rank()

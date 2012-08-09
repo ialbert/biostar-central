@@ -21,6 +21,7 @@
               <li {% active 'badges' nav %}><a href="{% url 'main.server.views.badge_list' %}">Badges</a></li>
               <li {% active 'about'  nav %}><a href="{% url 'main.server.pages.about' %}">About</a></li>
               <li {% active 'faq'    nav %}><a href="{% url 'main.server.pages.faq' %}">FAQ</a></li>
+              <li {% active 'rss'    nav %}><a href="{% url 'main.server.pages.rss' %}">RSS</a></li>
             </ul>
             
             <form class="navbar-search pull-left" action="{% url 'main.server.search.main' %}" method="get">

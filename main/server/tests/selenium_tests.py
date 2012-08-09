@@ -44,7 +44,7 @@ def feed_check(browser):
     
     elem, text  = click('About')
     elem, text  = click('Feeds page')
-    targets = "Latest Questions,Follow multiple posts,Follow multiple tags,Follow multiple users".split(",")
+    targets = "Latest,Latest questions,Follow multiple posts,Follow multiple tags,Follow multiple users".split(",")
     for link in targets:    
         elem, text = click(link)
         elem = browser.back()
@@ -53,8 +53,8 @@ def simple_navigation(browser):
     "Simple navigation through the site"
     click = partial(click_func, browser)
     
-    targets = "Tags Badges About FAQ Recent Questions Unanswered Planet Tools Forum Tutorials Search RSS".split()
-    targets.extend( [ 'New Post!', 'My Tags', 'Sign In' ] )
+    targets = "Tags Users Badges About FAQ Recent Planet Search Posts News Questions Unanswered Tutorials Tools Videos Jobs RSS".split()
+    targets.extend( [ 'Posts', 'Show All', 'New Post!',  'Sign In' ] )
     for link in targets:    
         elem, text = click(link)
 
@@ -234,12 +234,13 @@ def voting_test(browser):
     
 tests = [
     simple_navigation,
-    post_lookup,
     feed_check,
-    quick_search,
-    update_user,
-    create_content_1,
-    voting_test,
+    #post_lookup,
+    #
+    #quick_search,
+    #update_user,
+    #create_content_1,
+    #voting_test,
 ]
 
 def main(url):

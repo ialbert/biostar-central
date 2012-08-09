@@ -44,14 +44,13 @@ while (( "$#" )); do
     if [ "$1" = "env" ]; then
         echo "--- databases"
         echo "*** SQLITE_DBNAME=$SQLITE_DBNAME"
-        echo "*** PG_DBNAME=$PG_DBNAME"
-        echo "*** PG_USERNAME=$PG_USERNAME"
+        echo "*** PG_NAME=$PG_NAME"
+        echo "*** PG_USER=$PG_USER"
 
         echo "--- migration"
         echo "*** MIGRATE_PATH=$MIGRATE_PATH"
         echo "*** MIGRATE_LIMIT=$MIGRATE_LIMIT"
         echo "*** JSON_FIXTURE=$JSON_FIXTURE"
-        echo "*** SQL_FIXTURE=$SQL_FIXTURE"
         
         echo "--- environment "
         echo "*** DJANGO_ADMIN=$DJANGO_ADMIN"
@@ -63,26 +62,14 @@ while (( "$#" )); do
     
     if [ "$1" = "delete" ]; then
         # deletes the sqlite database
-        echo "*** deleting sqlite"
-        rm -f $SQLITE_DBNAME
+        if [ -n "$SQLITE_DBNAME" ]; then
+            echo "*** deleting SQLITE_DBNAME=$SQLITE_DBNAME"
+            rm -f $SQLITE_DBNAME
+        else
+            echo "(!) SQLITE_DBNAME variable is empty"
+        fi
     fi
-
-    if [ "$1" = "pgdrop" ]; then
-        # drops the PG datanase
-        echo '*** dropping postgresql'
-        dropdb $PG_DBNAME
-        echo '*** creating postgresql'
-        createdb $PG_DBNAME
-    fi
-    
-    if [ "$1" = "pgreset" ]; then
-        # resets the postgresql database, removes all tables
-        echo '*** create drop table commands'
-        $PYTHON_EXE $DJANGO_ADMIN sqlclear server django_openid_auth  sites sessions admin auth contenttypes> import/sqlclear.sql --settings=$DJANGO_SETTINGS_MODULE
-        echo '*** postgresql reset'
-        psql -U $PG_USERNAME $PG_DBNAME < import/sqlclear.sql
-    fi
-    
+ 
     if [ "$1" = "planet" ]; then
         # initializes the planet
         echo '*** initializes the planet'
@@ -107,29 +94,44 @@ while (( "$#" )); do
         echo "*** importing data from $JSON_FIXTURE"
         $PYTHON_EXE $DJANGO_ADMIN loaddata $JSON_FIXTURE --settings=$DJANGO_SETTINGS_MODULE
     fi
+    
+    if [ "$1" = "dump" ]; then        
+        echo "*** dumping data to $JSON_FIXTURE"
+        $PYTHON_EXE $DJANGO_ADMIN dumpdata auth.User server --settings=$DJANGO_SETTINGS_MODULE | gzip > $JSON_FIXTURE
+    fi
 
+    if [ "$1" = "pgdrop" ]; then
+        # drops the PG datanase
+        echo '*** dropping postgresql database'
+        dropdb $PG_NAME
+        echo '*** creating postgresql database'
+        createdb $PG_NAME
+    fi
+    
+    if [ "$1" = "pgreset" ]; then
+        # resets the postgresql database, removes all tables
+        echo '*** create drop table commands'
+        $PYTHON_EXE $DJANGO_ADMIN sqlclear server django_openid_auth sites sessions admin auth contenttypes > import/sqlclear.sql --settings=$DJANGO_SETTINGS_MODULE
+        echo '*** postgresql reset'
+        psql -U $PG_USER $PG_NAME < import/sqlclear.sql
+    fi
+    
+    if [ "$1" = "pgdump" ]; then
+        # dumps a postgres database to a file
+        echo "*** dumping database $PG_NAME"
+        pg_dump -O -x $PG_NAME > $S2
+    fi
+    
      if [ "$1" = "pgimport" ]; then
         # restores a postgresl database from a file
-        echo "*** restoring database $PG_DBNAME from $SQL_FIXTURE"
-        psql -U $PG_USERNAME $PG_DBNAME < $SQL_FIXTURE
+        echo "*** restoring database $PG_NAME"
+        psql -U $PG_USER $PG_NAME < $2
     fi
     
     if [ "$1" = "test" ]; then
         echo "*** running the tests"
         #$PYTHON_EXE $DJANGO_ADMIN test server --settings=$DJANGO_SETTINGS_MODULE --failfast
         $PYTHON_EXE $DJANGO_ADMIN test server --settings=$DJANGO_SETTINGS_MODULE --failfast
-    fi
-
-    if [ "$1" = "pgdump" ]; then
-        # dumps a postgres database to a file
-        echo "*** dumping database $PG_DBNAME to $SQL_FIXTURE"
-        pg_dump -O -x $PG_DBNAME > $SQL_FIXTURE
-        wc -l $SQL_FIXTURE
-    fi
-    
-    if [ "$1" = "dump" ]; then        
-        echo "*** dumping data to $JSON_FIXTURE"
-        $PYTHON_EXE $DJANGO_ADMIN dumpdata auth.User server --settings=$DJANGO_SETTINGS_MODULE | gzip > $JSON_FIXTURE
     fi
 
     if [ "$1" = "migrate" ]; then

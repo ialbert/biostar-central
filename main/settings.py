@@ -11,14 +11,9 @@ def path(*args):
     "Generates absolute paths"
     return os.path.abspath(os.path.join(*args))
 
-# the time in seconds between session updates
-SESSION_UPDATE_TIME = 10 * 60  # in seconds
 
 # on deployed servers make this unique, and don't share it with anybody.
 SECRET_KEY = '007'
-
-# the minimal reputation needed for a user to ask new questions
-MINIMUM_REPUTATION = 0
 
 # turn off debug mode on deployed servers
 DEBUG = True
@@ -28,6 +23,9 @@ TEMPLATE_DEBUG = DEBUG
 
 # admin site may fail if this setting is active
 TEMPLATE_STRING_IF_INVALID = "*** MISSING ***"
+
+# the time in seconds between session updates
+SESSION_UPDATE_TIME = 10 * 60  # in seconds
 
 ADMINS = (
     ('Default Admin', 'your-mail-here@your-server-here.com'),
