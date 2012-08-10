@@ -4,8 +4,10 @@ from django.conf import settings
 from main.server import models, html
 from main.server.const import *
 from django.contrib.sites.models import Site
-
 from django.db.models import Avg, Max, Min, Count
+from django.db import transaction
+from django.db.models import signals
+from itertools import *
 
 def update_domain():
     "This is really only needs to be done once per installation"
@@ -32,17 +34,33 @@ def reduce_notelist(maxcount=1000):
         note_count = models.Note.objects.filter(target=user).exclude(sender=user).count()
         if note_count > 2 * maxcount:
             remove_notes(user, maxcount=maxcount)
-    
+
+@transaction.commit_manually()    
 def reapply_rank():
     "Applies the new ranking system on all posts"
-    posts = models.Post.objects.all()
     
-    for post in posts:
+    
+    total = models.Post.objects.filter(type__in=POST_TOPLEVEL).count()
+    
+    print "*** applying ranks for %s posts " % total
+        
+    posts = models.Post.objects.filter(type__in=POST_TOPLEVEL).order_by('id')
+    
+    # disconnect post related signals to speed up update
+    signals.pre_save.connect( models.verify_post, sender=models.Post )
+    signals.post_save.connect( models.finalize_post, sender=models.Post)
+    
+    counter = count(1)
+    for index, post in izip(counter, posts):
+        if (index % 250) == 0:
+            perc = 100.0 * index/total 
+            print "*** commiting %s, %4.1f%%" % (index, perc) 
+            transaction.commit()
         post.rank = html.rank(post)
         post.save()
-        
-    print "*** reapplied ranks for %s posts " % len(posts)
+    transaction.commit()
     
+
 def run():
     #trim_notelist(maxcount=1000)
     reapply_rank()

@@ -821,7 +821,7 @@ signals.pre_save.connect( update_profile, sender=UserProfile )
 
 # post signals
 signals.pre_save.connect( verify_post, sender=Post )
-signals.post_save.connect( finalize_post, sender=Post )
+signals.post_save.connect( finalize_post, sender=Post)
 
 # note signals
 signals.pre_save.connect( verify_note, sender=Note )

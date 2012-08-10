@@ -123,7 +123,7 @@ while (( "$#" )); do
     if [ "$1" = "pgdump" ]; then
         # dumps a postgres database to a file
         echo "*** dumping database $PG_NAME"
-        pg_dump -O -x $PG_NAME > $S2
+        pg_dump -O -x $PG_NAME 
     fi
     
      if [ "$1" = "pgimport" ]; then
