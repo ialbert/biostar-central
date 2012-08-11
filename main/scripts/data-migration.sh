@@ -38,7 +38,7 @@ python manage.py syncdb
 python manage.py migrate main.server --fake
 
 echo "*** apply new ranking"
-python -m main.scripts.daily --rank
+python -m main.scripts.patch --reapply_ranks --update_domain
 
 echo "*** dumping data to $NEW_PGDUMP"
 biostar.sh pgdump > $NEW_PGDUMP
