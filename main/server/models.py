@@ -268,6 +268,9 @@ class Post(models.Model):
         objs = Post.objects.filter(parent=self, type=POST_COMMENT).select_related('author','author__profile')
         return objs
     
+    def set_rank(self):
+        self.rank = html.rank(self)
+
     def combine(self):
         "Returns a compact view that combines all parts of a post. Used in computing diffs between revisions"
         if self.type in POST_CONTENT_ONLY:
@@ -551,16 +554,14 @@ def post_score_change(post, amount=1):
     
     if post == root:
         post.full_score += amount
-        post.full_score = max((post.full_score, 1))
+        post.full_score = max((post.full_score, 0))
     else:
         # not a top level post, need to update the root
         post.full_score = post.score
         root.full_score += amount
-        root.rank = html.rank(root)
+        root.full_score = max((root.full_score, 0))
         root.save()
 
-    # save the post
-    post.rank = html.rank(post)
     post.save()
    
     return post, post.root
@@ -740,8 +741,8 @@ def verify_post(sender, instance, *args, **kwargs):
         instance.lastedit_date = instance.creation_date
     instance.lastedit_date = instance.lastedit_date or now
     
-    # assign a rank to this instance
-    #instance.rank = html.rank(instance)
+    # assings the rank of the instance
+    instance.set_rank()
     
     # generate a slug for the instance        
     instance.slug = slugify(instance.title)
@@ -762,9 +763,6 @@ def finalize_post(sender, instance, created, raw, *args, **kwargs):
             instance.parent = instance.parent or instance
             instance.title  = instance.title or ("%s: %s" % (instance.get_type_display()[0], instance.parent.title))
             instance.slug   = slugify(instance.title)
-            instance.rank   = html.rank(instance)
-            instance.root.rank = html.rank(instance.root)
-            instance.root.rank = max( (instance.rank, instance.root.rank) )
             instance.save()
         
         # when a new post is created all descendants will be notified

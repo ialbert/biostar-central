@@ -20,7 +20,19 @@ def update_domain():
         print '--- updating site domain to %s' % settings.SITE_DOMAIN
         site.domain = settings.SITE_DOMAIN
         site.save()
-        
+       
+def resave_posts(patt):
+    "This is really only needs to be done once per installation"
+
+    print "*** resaving posts matching pattern '%s'" % patt
+
+    posts = models.Post.objects.all().order_by('-id')
+    posts = ifilter(lambda p: patt in p.content, posts)
+
+    for post in posts:
+        print "resaving %s, %s" % (post.id, post.title)
+        post.save()
+    
 def remove_notes(target, maxcount=1000):
     """Clears the notes  for each user"""
     
@@ -50,8 +62,8 @@ def reapply_ranks():
     posts = models.Post.objects.filter(type__in=POST_TOPLEVEL).order_by('id')
     
     # disconnect post related signals to speed up update
-    signals.pre_save.connect( models.verify_post, sender=models.Post )
-    signals.post_save.connect( models.finalize_post, sender=models.Post)
+    #signals.pre_save.disconnect( models.verify_post, sender=models.Post )
+    #signals.post_save.disconnect( models.finalize_post, sender=models.Post)
     
     counter = count(1)
     for index, post in izip(counter, posts):
@@ -70,6 +82,7 @@ if __name__ == '__main__':
     # options for the program
     parser = optparse.OptionParser()
     parser.add_option("-n", dest="n", help="limit value default=%default", type=int, default=1000)
+    parser.add_option("--resave_posts", dest="patt", help="resave posts that match pattern", type=str, default="")
     parser.add_option("--reduce_notes", dest="reduce_notes", help="reduce the number of notification to N", action="store_true", default=False)
     parser.add_option("--reapply_ranks", dest="reapply_ranks", help="reapplies ranks to all posts", action="store_true", default=False)
     parser.add_option("--update_domain", dest="update_domain", help="updates the site domain to match the settings", action="store_true", default=False)
@@ -90,4 +103,7 @@ if __name__ == '__main__':
         
     if opts.reduce_notes:
         reduce_notes(maxcount=opts.n)
+    
+    if opts.patt:
+        resave_posts(opts.patt)
     

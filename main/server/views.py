@@ -466,7 +466,7 @@ def blog_redirect(request, pid):
     "Used to be able to count the views for a blog"
     blog = models.Post.objects.get(id=pid, type=POST_BLOG)
     models.update_post_views(post=blog, request=request)
-    blog.rank = html.rank(blog)
+    blog.set_rank()
     blog.save()
     return html.redirect( blog.get_absolute_url() )
 
