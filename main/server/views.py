@@ -197,6 +197,8 @@ def show_user(request, uid, post_type=''):
         posts = get_post_manager(request).filter(type=post_type, author=user).order_by('-creation_date')
     else:
         posts = get_post_manager(request).filter(type__in=POST_TOPLEVEL, author=user).order_by('-creation_date')
+
+    posts = posts.select_related('author', 'author__profile', 'root')
     page  = get_page(request, posts, per_page=20)
     return html.template( request, name='index.html', page=page, params=params)
 
@@ -463,7 +465,9 @@ def post_redirect(request, pid):
 def blog_redirect(request, pid):
     "Used to be able to count the views for a blog"
     blog = models.Post.objects.get(id=pid, type=POST_BLOG)
-    models.update_post_views(post=blog, request=request, minutes=const.POST_VIEW_UPDATE)
+    models.update_post_views(post=blog, request=request)
+    blog.rank = html.rank(blog)
+    blog.save()
     return html.redirect( blog.get_absolute_url() )
 
 def modlog_list(request):

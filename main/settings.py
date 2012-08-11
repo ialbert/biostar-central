@@ -49,7 +49,7 @@ DATABASE_DIR  = path(HOME_DIR, 'db')
 DATABASE_NAME = path(DATABASE_DIR, 'biostar.db')
 TEMPLATE_DIR  = path(HOME_DIR, 'main', 'templates')
 STATIC_DIR    = path(HOME_DIR, 'static')
-EXPORT_DIR    = path(HOME_DIR, '..', 'export')
+EXPORT_DIR    = path(HOME_DIR, '..', 'apache', 'export')
 WHOOSH_INDEX  = path(HOME_DIR, 'db', 'index')
 PLANET_DIR    = path(HOME_DIR, 'db', 'planet')
 

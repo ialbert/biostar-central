@@ -225,6 +225,26 @@ class HtmlTest(unittest.TestCase):
         p = Params(a=1, b=2, c=3)
         self.assertEqual( (p.a, p.b, p.c), (1, 2, 3))
 
+# stripping html tags from: http://stackoverflow.com/questions/753052/strip-html-from-strings-in-python
+from HTMLParser import HTMLParser
+
+class MLStripper(HTMLParser):
+    def __init__(self):
+        self.reset()
+        self.fed = []
+    def handle_data(self, d):
+        self.fed.append(d)
+    def get_data(self):
+        return ''.join(self.fed)
+
+def strip_tags(text):
+    try:
+        s = MLStripper()
+        s.feed(text)
+        return s.get_data()
+    except Exception, exc:
+        return "unable to strip tags %s" % exc
+        
 def suite():
     s = unittest.TestLoader().loadTestsFromTestCase(HtmlTest)
     return s

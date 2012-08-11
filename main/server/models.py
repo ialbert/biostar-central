@@ -284,7 +284,7 @@ def update_post_views(post, request, minutes=30):
 
     # one view per hour will be counted per each IP address
     if not PostView.objects.filter(ip=ip, post=post, date__gt=since):
-        #messages.info(request, "created view for %s" % post.title)
+        #messages.info(request, "created post view for %s" % post.title)
         PostView.objects.create(ip=ip, post=post, date=now)        
         post.views += 1
         Post.objects.filter(id=post.id).update(views = F('views') + 1, rank=html.rank(post) )
@@ -317,9 +317,11 @@ def query_by_tags(user, text=''):
             active = include
         active.append(tag)
     if include:
-        res =  posts.filter(type__in=POST_TOPLEVEL, tag_set__name__in=include).exclude(tag_set__name__in=exclude).order_by('-rank').distinct()
+        res =  posts.filter(type__in=POST_TOPLEVEL, tag_set__name__in=include).exclude(tag_set__name__in=exclude)
     else:
-        res =  posts.filter(type__in=POST_TOPLEVEL).exclude(tag_set__name__in=exclude).order_by('-rank').distinct()
+        res =  posts.filter(type__in=POST_TOPLEVEL).exclude(tag_set__name__in=exclude)
+    #res = res.select_related('author', 'author_profile', 'root')
+    res = res.order_by('-rank').distinct()
     return res
 
 def query_by_mytags(user):

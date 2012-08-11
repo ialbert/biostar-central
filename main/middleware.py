@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.conf import settings
 from main.server import models, notegen, html, awards
 from main.server.const import *
+from django.core.cache import cache
 
 settings.CONTENT_INDEXING = True
 
@@ -88,13 +89,17 @@ def generate_counts(request, weeks=50):
     user = request.user
     now  = datetime.now()
     
+    key = 'countkey'
+    counts = cache.get(key)
+    if counts:
+        return counts
+
     if user.is_authenticated():
         since = user.profile.last_visited
+        values = models.Post.objects.filter(type__in=POST_TOPLEVEL, creation_date__gt=since).values_list("type", flat=True)[:500]
     else:
         since = now - timedelta(weeks=weeks)
-    
-    # the the posts since the last time
-    values = models.Post.objects.filter(type__in=POST_TOPLEVEL, creation_date__gt=since).values_list("type", flat=True)[:1000]
+        values = models.Post.objects.filter(type__in=POST_TOPLEVEL).order_by('-id').values_list("type", flat=True)[:1000]
         
     # how many times does each post type appear in the list
     counts = dict( [ (POST_MAP[k], len(list(v))) for (k, v) in groupby(values) ] )
@@ -102,6 +107,8 @@ def generate_counts(request, weeks=50):
     # fill in unanswered posts
     counts['Unanswered'] = models.Post.objects.filter(type=POST_QUESTION, status=POST_OPEN, answer_count=0,  creation_date__gt=since).count()
      
+    # store it in the cache
+    cache.set(key, counts, 600)
     return counts
 
 class LastVisit(object):
@@ -153,3 +160,10 @@ class LastVisit(object):
             # try to award badges
             awards.instant(request)
 
+
+class DebugMiddleware(object):
+    """
+    """
+
+    def process_request(self, request):
+        pass

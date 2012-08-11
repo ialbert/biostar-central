@@ -98,7 +98,7 @@ def update(limit):
                 content = html.strip_tags(r.description)
                 post = models.Post(title=title(r), url=r.link, author=blog.author,  type=POST_BLOG, content=content, creation_date=date)
                 post.save()
-                print '*** added post %s' % post.title.encode("ascii", errors='replace')
+                print '*** added post %s' % post.title.encode("ascii", 'replace')
         except KeyError, exc:
             print '(!) error %s' % exc
     

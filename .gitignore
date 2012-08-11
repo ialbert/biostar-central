@@ -8,5 +8,5 @@ main/db/*
 coverage.xml
 report/*
 conf/*
-export/*
+apache/export/*
 libs/*
