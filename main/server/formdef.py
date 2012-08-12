@@ -85,7 +85,7 @@ class ChildContent(forms.Form):
     """
     A form representing the body of simpler content answer/comment
     """
-    content  = forms.CharField(max_length=5000, validators=[ valid_content ],
+    content  = forms.CharField(max_length=10000, validators=[ valid_content ],
         widget=forms.Textarea(attrs={'cols':'80', 'rows':'15', 'id':'editor'}))
 
 
