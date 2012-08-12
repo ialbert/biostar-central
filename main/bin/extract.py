@@ -13,7 +13,7 @@ if __name__ == '__main__':
     is_postgres = engine.endswith('psycopg2')
      
     if is_postgres:
-        remap = dict(PG_DBNAME="NAME", PG_USERNAME="USER", PG_PASSWD="PASSWORD")
+        remap = dict(PG_DBNAME="NAME", PG_USER="USER", PG_PASSWD="PASSWORD")
     else:
         remap = dict(SQLITE_DBNAME="NAME")
     
