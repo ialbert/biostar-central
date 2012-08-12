@@ -13,25 +13,26 @@
 #
 set -ue
 
-NEW_PGDUMP=updated-biostar.sql
+PGDUMP=updated-biostar.sql
 
-OLD_REV=0938eac
-OLD_ENV=mig/migrate-old.env
+START_REV=0938eac
+START_ENV=migconf/migrate_start.env
 
-NEW_REV=de9a834
-NEW_ENV=mig/migrate.env
+END_REV=de9a834
+END_ENV=migconf/migrate_end.env
+
+# check out the schema before the database migration
+git checkout -b start-migration $START_REV
 
 # initialize the environment
-source $OLD_ENV
-
-# roll back to the last valid format
-git checkout $OLD_REV
+source $START_ENV
 
 # initialize wit the old data then migrate
 ./biostar.sh pgdrop pgcreate pgimport
 
-git checkout $NEW_REV
-source $NEW_ENV
+git checkout -b end-migration $END_REV
+
+source $END_ENV
 
 python manage.py syncdb
 python manage.py migrate main.server --fake
@@ -39,6 +40,7 @@ python manage.py migrate main.server --fake
 echo "*** apply new ranking"
 python -m main.bin.patch --reapply_ranks --update_domain
 
-echo "*** dumping data to $NEW_PGDUMP"
-./biostar.sh pgdump > $NEW_PGDUMP
+echo "*** dumping data to $PGDUMP"
+./biostar.sh pgdump > $PGDUMP
+
 echo "*** done"

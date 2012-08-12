@@ -100,8 +100,8 @@ def generate_counts(request, weeks=5):
         since = now - timedelta(weeks=weeks)
     
     # posts since the last visit
-    values = models.Post.objects.filter(type__in=POST_TOPLEVEL, creation_date__gt=since).values_list("type", flat=True)[:500]
-    unansw =  models.Post.objects.filter(type=POST_QUESTION, status=POST_OPEN, answer_count=0,  creation_date__gt=since).count()
+    values = models.Post.objects.filter(type__in=POST_TOPLEVEL, status=POST_OPEN, creation_date__gt=since).values_list("type", flat=True)[:500]
+    unansw = models.Post.objects.filter(type=POST_QUESTION, status=POST_OPEN, answer_count=0,  creation_date__gt=since).count()
     
     # how many times does each post type appear in the list
     counts = dict( [ (POST_MAP[k], len(list(v))) for (k, v) in groupby(values) ] )
