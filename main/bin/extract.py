@@ -5,17 +5,19 @@ import sys
 from django.conf import settings
 
 if __name__ == '__main__':
+    if len(sys.argv)!= 2:
+        sys.exit('(!) one value may be extracted at a time' )
+
     key = sys.argv[1]
-    
     engine = settings.DATABASES['default']['ENGINE']
-    is_sqlite = engine.endswith('sqlite3')
     is_postgres = engine.endswith('psycopg2')
-    
-    if key == 'PG_NAME':
-        PG_NAME = settings.DATABASES['default']['NAME'] if is_postgres else ""
-        print PG_NAME
-    elif key == "SQLITE_DBNAME":
-        SQLITE_DBNAME = settings.DATABASES['default']['NAME'] if is_sqlite else ""
-        print SQLITE_DBNAME
+     
+    if is_postgres:
+        remap = dict(PG_DBNAME="NAME", PG_USERNAME="USER", PG_PASSWD="PASSWORD")
     else:
-        print settings.DATABASES['default'][key]
+        remap = dict(SQLITE_DBNAME="NAME")
+    
+    key = remap.get(key, '')
+    value =  settings.DATABASES['default'].get(key, '<not set>')
+    
+    print value

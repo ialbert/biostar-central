@@ -25,12 +25,13 @@ END_ENV=migconf/migrate_end.env
 git checkout -b start-migration $START_REV
 
 # initialize the environment
-source libs/$START_ENV
+source $START_ENV
 
 # initialize wit the old data then migrate
 ./biostar.sh pgdrop pgcreate pgimport
 
-git checkout -b end-migration $END_REV
+# get the most up to date version
+git checkout master
 
 source libs/$END_ENV
 

@@ -44,7 +44,7 @@ while (( "$#" )); do
     if [ "$1" = "env" ]; then
         echo "--- databases"
         echo "*** SQLITE_DBNAME=$SQLITE_DBNAME"
-        echo "*** PG_NAME=$PG_NAME"
+        echo "*** PG_DBNAME=$PG_DBNAME"
         echo "*** PG_USER=$PG_USER"
 
         echo "--- migration"
@@ -102,14 +102,14 @@ while (( "$#" )); do
 
     if [ "$1" = "pgcreate" ]; then
         # creates the PG database
-        echo "*** creating postgresql database PG_NAME=$PG_NAME"
-        createdb $PG_NAME
+        echo "*** creating postgresql database PG_DBNAME=$PG_DBNAME"
+        createdb $PG_DBNAME
     fi
     
     if [ "$1" = "pgdrop" ]; then
         # drops the PG database
-        echo "*** dropping postgresql database PG_NAME=$PG_NAME"
-        dropdb $PG_NAME
+        echo "*** dropping postgresql database PG_DBNAME=$PG_DBNAME"
+        dropdb $PG_DBNAME
     fi
     
     if [ "$1" = "pgreset" ]; then
@@ -117,19 +117,19 @@ while (( "$#" )); do
         echo '*** create drop table commands'
         $PYTHON_EXE $DJANGO_ADMIN sqlclear server django_openid_auth sites sessions admin auth contenttypes > import/sqlclear.sql --settings=$DJANGO_SETTINGS_MODULE
         echo '*** postgresql reset'
-        psql -U $PG_USER $PG_NAME < import/sqlclear.sql
+        psql -U $PG_USER $PG_DBNAME < import/sqlclear.sql
     fi
     
     if [ "$1" = "pgdump" ]; then
         # dumps a postgres database to a file
-        echo "*** dumping database $PG_NAME"
-        pg_dump -O -x $PG_NAME 
+        echo "*** dumping database $PG_DBNAME"
+        pg_dump -O -x $PG_DBNAME 
     fi
     
      if [ "$1" = "pgimport" ]; then
         # restores a postgresl database from a file
-        echo "*** restoring database $PG_NAME"
-        psql -U $PG_USER $PG_NAME < $2
+        echo "*** restoring database $PG_DBNAME"
+        psql -U $PG_USER $PG_DBNAME < $2
     fi
     
     if [ "$1" = "test" ]; then

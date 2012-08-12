@@ -24,7 +24,7 @@ GOOGLE_TRACKER = "UA-101522-13"
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'biostar-migrate-database',
+        'NAME': os.environ['PG_DBNAME'],
         'USER': os.environ['PG_USER'],
         'PASSWORD': os.environ['PG_PASSWD'],
         'HOST': '',
