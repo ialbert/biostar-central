@@ -84,7 +84,7 @@ class Session(object):
             self.data[self.COUNT_KEY][key] = 0
             return self.data[self.COUNT_KEY]
             
-def generate_counts(request, weeks=500):
+def generate_counts(request, weeks=5):
     "Returns the number of counts for each post type in the interval that has passed"
     user = request.user
     now  = datetime.now()
@@ -101,7 +101,7 @@ def generate_counts(request, weeks=500):
         since = now - timedelta(weeks=weeks)
     
     # posts since the last visit
-    values = models.Post.objects.filter(type__in=POST_TOPLEVEL, status=POST_OPEN, creation_date__gt=since).values_list("type", flat=True)[:500]
+    values = models.Post.objects.filter(type__in=POST_TOPLEVEL, status=POST_OPEN, creation_date__gt=since).order_by('-id').values_list("type", flat=True)[:500]
     unansw = models.Post.objects.filter(type=POST_QUESTION, status=POST_OPEN, answer_count=0,  creation_date__gt=since).count()
     
     # how many times does each post type appear in the list
