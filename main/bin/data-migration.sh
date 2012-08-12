@@ -13,14 +13,13 @@
 #
 set -ue
 
-OLD_PGDUMP=$1
 NEW_PGDUMP=updated-biostar.sql
 
 OLD_REV=0938eac
-OLD_ENV=conf/migrate-old.env
+OLD_ENV=mig/migrate-old.env
 
 NEW_REV=de9a834
-NEW_ENV=conf/migrate.env
+NEW_ENV=mig/migrate.env
 
 # initialize the environment
 source $OLD_ENV
@@ -29,7 +28,7 @@ source $OLD_ENV
 git checkout $OLD_REV
 
 # initialize wit the old data then migrate
-#biostar.sh pgdrop pgcreate pgimport $OLD_PGDUMP
+./biostar.sh pgdrop pgcreate pgimport $OLD_PGDUMP
 
 git checkout $NEW_REV
 source $NEW_ENV
@@ -41,5 +40,5 @@ echo "*** apply new ranking"
 python -m main.bin.patch --reapply_ranks --update_domain
 
 echo "*** dumping data to $NEW_PGDUMP"
-biostar.sh pgdump > $NEW_PGDUMP
+./biostar.sh pgdump > $NEW_PGDUMP
 echo "*** done"
