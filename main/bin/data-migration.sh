@@ -16,7 +16,7 @@ set -ue
 #
 # make a copy of this file and customize as necessary
 #
-source conf/default
+source conf/default.env
 
 export PG_DBNAME=biostar-database
 export PG_USER=biostar-user
@@ -33,10 +33,10 @@ END_REV=de9a834
 END_ENV=migconf/migrate_end.env
 
 #this is only necessary if the migration is repeated
-#git branch -D start-migration
+#git branch -D start
 
 # check out the schema before the database migration
-git checkout -b start-migration $START_REV
+git checkout -b start $START_REV
 
 # initialize the environment
 source $START_ENV
@@ -48,11 +48,11 @@ source $START_ENV
 git checkout master
 
 # apply the new settings
-source libs/$END_ENV
+source $END_ENV
 
 python manage.py syncdb
 python manage.py migrate main.server 0001 --fake
-python manage.py migrate main.server
+python manage.py migrate main.server 
 
 echo "*** apply new ranking"
 python -m main.bin.patch --reapply_ranks --update_domain

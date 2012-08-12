@@ -84,19 +84,20 @@ class Session(object):
             self.data[self.COUNT_KEY][key] = 0
             return self.data[self.COUNT_KEY]
             
-def generate_counts(request, weeks=5):
+def generate_counts(request, weeks=500):
     "Returns the number of counts for each post type in the interval that has passed"
     user = request.user
     now  = datetime.now()
     
     key = 'countkey'
-    counts = cache.get(key)
-    if counts:
-        return counts
+   
 
     if user.is_authenticated():
         since = user.profile.last_visited
     else:
+        counts = cache.get(key)
+        if counts:
+            return counts
         since = now - timedelta(weeks=weeks)
     
     # posts since the last visit
@@ -108,9 +109,11 @@ def generate_counts(request, weeks=5):
     
     # fill in unanswered posts
     counts['Unanswered'] = unansw
-     
-    # store it in the cache
-    cache.set(key, counts, 600)
+    
+    if not user.is_authenticated():
+        # store the cache key for non-authenticated users
+        cache.set(key, counts, 600)
+
     return counts
 
 class LastVisit(object):
