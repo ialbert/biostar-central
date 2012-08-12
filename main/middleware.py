@@ -84,7 +84,7 @@ class Session(object):
             self.data[self.COUNT_KEY][key] = 0
             return self.data[self.COUNT_KEY]
             
-def generate_counts(request, weeks=500):
+def generate_counts(request, weeks=10):
     "Returns the number of counts for each post type in the interval that has passed"
     user = request.user
     now  = datetime.now()
