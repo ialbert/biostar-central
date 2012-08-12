@@ -84,7 +84,7 @@ class Session(object):
             self.data[self.COUNT_KEY][key] = 0
             return self.data[self.COUNT_KEY]
             
-def generate_counts(request, weeks=50):
+def generate_counts(request, weeks=5):
     "Returns the number of counts for each post type in the interval that has passed"
     user = request.user
     now  = datetime.now()
@@ -96,16 +96,18 @@ def generate_counts(request, weeks=50):
 
     if user.is_authenticated():
         since = user.profile.last_visited
-        values = models.Post.objects.filter(type__in=POST_TOPLEVEL, creation_date__gt=since).values_list("type", flat=True)[:500]
     else:
         since = now - timedelta(weeks=weeks)
-        values = models.Post.objects.filter(type__in=POST_TOPLEVEL).order_by('-id').values_list("type", flat=True)[:1000]
-        
+    
+    # posts since the last visit
+    values = models.Post.objects.filter(type__in=POST_TOPLEVEL, creation_date__gt=since).values_list("type", flat=True)[:500]
+    unansw =  models.Post.objects.filter(type=POST_QUESTION, status=POST_OPEN, answer_count=0,  creation_date__gt=since).count()
+    
     # how many times does each post type appear in the list
     counts = dict( [ (POST_MAP[k], len(list(v))) for (k, v) in groupby(values) ] )
     
     # fill in unanswered posts
-    counts['Unanswered'] = models.Post.objects.filter(type=POST_QUESTION, status=POST_OPEN, answer_count=0,  creation_date__gt=since).count()
+    counts['Unanswered'] = unansw
      
     # store it in the cache
     cache.set(key, counts, 600)
