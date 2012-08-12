@@ -15,7 +15,7 @@ def contains(text, parts):
         for i in range(10):
             if part in text:
                 break
-            time.sleep(0.2)
+            time.sleep(1)
         assert part in text, "Unable to find %s in the text" % part
         
 def get(browser, link=None, name=None, id=None):
