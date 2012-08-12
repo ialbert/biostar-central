@@ -51,7 +51,8 @@ git checkout master
 source libs/$END_ENV
 
 python manage.py syncdb
-python manage.py migrate main.server --fake
+python manage.py migrate main.server 0001 --fake
+python manage.py migrate main.server
 
 echo "*** apply new ranking"
 python -m main.bin.patch --reapply_ranks --update_domain
