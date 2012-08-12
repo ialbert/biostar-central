@@ -25,14 +25,14 @@ END_ENV=migconf/migrate_end.env
 git checkout -b start-migration $START_REV
 
 # initialize the environment
-source $START_ENV
+source libs/$START_ENV
 
 # initialize wit the old data then migrate
 ./biostar.sh pgdrop pgcreate pgimport
 
 git checkout -b end-migration $END_REV
 
-source $END_ENV
+source libs/$END_ENV
 
 python manage.py syncdb
 python manage.py migrate main.server --fake
