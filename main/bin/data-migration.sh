@@ -28,7 +28,7 @@ source $OLD_ENV
 git checkout $OLD_REV
 
 # initialize wit the old data then migrate
-./biostar.sh pgdrop pgcreate pgimport $OLD_PGDUMP
+./biostar.sh pgdrop pgcreate pgimport
 
 git checkout $NEW_REV
 source $NEW_ENV
