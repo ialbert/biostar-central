@@ -21,14 +21,18 @@ def update_domain():
         site.domain = settings.SITE_DOMAIN
         site.save()
        
-def resave_posts(patt):
+def resave_posts(patt, skip=0, limit=1000):
     "This is really only needs to be done once per installation"
 
-    print "*** resaving posts matching pattern '%s'" % patt
+    # this is only needed so that we can update in chunks
+    # on a low memory server
+    lo = skip * limit
+    hi = lo + limit
+    
+    print "*** resaving posts matching pattern '%s' (%s:%s)" % (patt, lo, hi)
 
-    posts = models.Post.objects.all().order_by('-id')
-    posts = ifilter(lambda p: patt in p.content, posts)
-
+    posts = models.Post.objects.filter(html__contains=patt).order_by('-id')[lo:hi]
+    
     for post in posts:
         print "resaving %s, %s" % (post.id, post.title)
         post.save()
@@ -81,7 +85,10 @@ if __name__ == '__main__':
   
     # options for the program
     parser = optparse.OptionParser()
-    parser.add_option("-n", dest="n", help="limit value default=%default", type=int, default=1000)
+    parser.add_option("-n", dest="n", help="database rows to fetch default=%default", type=int, default=1000)
+    
+    parser.add_option("-s", dest="s", help="skip this many rows default=%default", type=int, default=0)
+    
     parser.add_option("--resave_posts", dest="patt", help="resave posts that match pattern", type=str, default="")
     parser.add_option("--reduce_notes", dest="reduce_notes", help="reduce the number of notification to N", action="store_true", default=False)
     parser.add_option("--reapply_ranks", dest="reapply_ranks", help="reapplies ranks to all posts", action="store_true", default=False)
@@ -105,5 +112,5 @@ if __name__ == '__main__':
         reduce_notes(maxcount=opts.n)
     
     if opts.patt:
-        resave_posts(opts.patt)
+        resave_posts(opts.patt, skip=opts.s, limit=opts.n)
     

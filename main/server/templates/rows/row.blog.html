@@ -4,10 +4,19 @@
 <tr valign="top" class={{post.get_status}}>
     
      <td colspan="3" align="right">
-        {% vote_box post %}
-        <!--<div align="center">{{ post.views }} view{{post.views|pluralize}}</div>-->
+        <div class="vote-box">
+            <div class="vote">
+                <input type="hidden" value="{{post.id}}">
+                <div class="vote-count">{{ post.views }}</div>
+                <div align="center">view{{post.views|pluralize}}</div>
+                {% if post.bookmarked %}
+                    <div class="vote-bookmark vote-on" title="Click to remove bookmark">&nbsp;</div>
+                {% else %}
+                    <div class="vote-bookmark vote-off" title="Click to add bookmark">&nbsp;</div>
+                {% endif %}
+             </div>
+        </div>
     </td>
-
 
     <td class="summary" width="100%">
         
