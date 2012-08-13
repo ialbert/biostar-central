@@ -84,14 +84,12 @@ class Session(object):
             self.data[self.COUNT_KEY][key] = 0
             return self.data[self.COUNT_KEY]
             
-def generate_counts(request, weeks=10):
+def generate_counts(request, weeks=5):
     "Returns the number of counts for each post type in the interval that has passed"
     user = request.user
     now  = datetime.now()
     
     key = 'countkey'
-   
-
     if user.is_authenticated():
         since = user.profile.last_visited
     else:
@@ -101,12 +99,11 @@ def generate_counts(request, weeks=10):
         since = now - timedelta(weeks=weeks)
     
     # posts since the last visit
-    COUNT_LIMIT = 500
-    pairs = models.Post.objects.filter(type__in=POST_TOPLEVEL, status=POST_OPEN, creation_date__gt=since).order_by('-id').values_list("type", "answer_count")[:COUNT_LIMIT]
+    pairs = models.Post.objects.filter(type__in=POST_TOPLEVEL, status=POST_OPEN, creation_date__gt=since).order_by('-id').values_list("type", "answer_count")
     
     # establish how many of the posts have not been answered 
     values = [ p[0] for p in pairs ]
-    unansw = len([ p for p in pairs if p[1] == 0 ])
+    unansw = len([ p for p in pairs if (p[0] == POST_QUESTION) and (p[1] == 0) ])
     
     # how many times does each post type appear in the list
     counts = dict( [ (POST_MAP[k], len(list(v))) for (k, v) in groupby(values) ] )
