@@ -103,8 +103,11 @@ def generate_counts(request, weeks=5):
     
     # establish how many of the posts have not been answered 
     values = [ p[0] for p in pairs ]
-    unansw = len([ p for p in pairs if (p[0] == POST_QUESTION) and (p[1] == 0) ])
+    unansw = len([ ptype for (ptype, pcount) in pairs if (ptype == POST_QUESTION) and (pcount == 0) ])
     
+    # needs to be sorted for the groupby
+    values.sort()
+
     # how many times does each post type appear in the list
     counts = dict( [ (POST_MAP[k], len(list(v))) for (k, v) in groupby(values) ] )
     
