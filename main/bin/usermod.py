@@ -21,7 +21,7 @@ def usermod(uid, role):
     
 if __name__ == '__main__':    
     import optparse
-    usage = "usage: %prog [options] file1 file2 ..."
+    usage = "usage: %prog [options]"
     parser = optparse.OptionParser(usage=usage)
     parser.add_option("-u", "--userid", dest="uid", type=int, help="The ID of the user", default=0)
     parser.add_option("-r", "--role", dest="role", type=int, help="The role for this user (as integer)", default=0)
