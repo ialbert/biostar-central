@@ -8,10 +8,13 @@ class LatestEntriesFeed(Feed):
     description = "Latest 25 posts from the Biostar server"
 
     def items(self):
-        return models.Post.objects.filter(type=const.POST_QUESTION).order_by('-creation_date')[:25]
+        return models.Post.objects.filter(type__in=const.POST_TOPLEVEL).order_by('-creation_date')[:25]
 
     def item_title(self, item):
-        return item.title
+        if item.type != const.POST_QUESTION:
+            return "%s: %s" % (item.get_type_display(), item.title)
+        else:
+            return item.title
 
     def item_description(self, item):
         #return item.content
