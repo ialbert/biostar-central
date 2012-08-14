@@ -551,15 +551,10 @@ def post_score_change(post, amount=1):
         
     # post score increases
     post.score += amount
+    post.full_score += amount
     
-    if post == root:
-        post.full_score += amount
-        post.full_score = max((post.full_score, 0))
-    else:
-        # not a top level post, need to update the root
-        post.full_score = post.score
+    if post != root:
         root.full_score += amount
-        root.full_score = max((root.full_score, 0))
         root.save()
 
     post.save()
@@ -587,14 +582,16 @@ class Vote(models.Model):
         
         post, root = self.post, self.post.root
         if self.type == VOTE_UP:
-            post_score_change(post)
+            post_score_change(post, amount=dir)
             user_score_change(post.author, amount=dir)
         
         if self.type == VOTE_DOWN:
-            post_score_change(post)
+            post_score_change(post, amount=-dir)
+            user_score_change(post.author, amount=-dir)
             
         if self.type == VOTE_ACCEPT:
             post.accepted = root.accepted = (dir == 1)
+            user_score_change(post.author, amount=1)
             post.save()
             root.save()
             

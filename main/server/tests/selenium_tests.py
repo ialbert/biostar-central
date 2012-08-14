@@ -222,7 +222,7 @@ def voting_test(browser):
     # check bookmarking
     bookmark  = browser.find_elements_by_class_name("vote-bookmark")[0]
     bookmark.click()
-    
+    time.sleep(2)
     count = models.Vote.objects.filter(author=user, post=post, type=const.VOTE_BOOKMARK).count()
     if bookmarked:
         assert count == 0, 'Bookmark has not been removed'

@@ -214,8 +214,14 @@ def hot(ups, downs, date):
 
 def rank(post):
     "Computes the rank of a post"
-    ups=int(post.full_score + post.views/10) + 1
-    downs=0
+    
+    # rank all negativly scored posts at creation level
+    if post.full_score < 0:
+        ups = 1
+    else:
+        ups = int(post.full_score + post.views/25.0) + 1
+        
+    downs = 0
     rank = hot(ups, downs, post.creation_date)
     return rank
 
