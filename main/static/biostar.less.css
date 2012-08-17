@@ -309,13 +309,28 @@ td {
     color: #FFFFFF;
 }
 
+.job {
+    background-color: #E9530F;
+    color: #FFFFFF;
+}
+
 .tutorial {
     background-color: #2C7990;
     color: #FFFFFF;
 }
 
 .news {
-    background-color: #7209AB;
+    background-color: #762C90;
+    color: #FFFFFF;
+}
+
+.tool {
+    background-color: #538B2B;
+    color: #FFFFFF;
+}
+
+.video {
+    background-color: #9E5331;
     color: #FFFFFF;
 }
 

@@ -10,7 +10,7 @@
     </td>
 
     <td>
-        <div class="status job">
+        <div class="status video">
             <div class="mini-counts">{{post.answer_count}}</div>
             <div>repl{{post.answer_count|pluralize:'y,ies'}}</div>
         </div>
@@ -31,18 +31,17 @@
 
         {# "fake tag" with the post type to distinguish from other posts #}
         <div class="tag-line">
-            <a href="{% url show 'jobs' %}" class="post-type tag">jobs</a>
+            <a href="{% url show 'forum' %}" class="post-type tag">forum</a>
         </div>
 
 
         {# this shows the tags on the post #}
         {% show_tags post %}
 
-
-
         {# shows post creation time and author #}
         {% post_info_line '' post %}
 
     </td>
+
 
 <tr>

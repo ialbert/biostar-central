@@ -215,12 +215,9 @@ def hot(ups, downs, date):
 def rank(post):
     "Computes the rank of a post"
     
-    # rank all negativly scored posts at creation level
-    if post.full_score < 0:
-        ups = 1
-    else:
-        ups = int(post.full_score + post.views/25.0) + 1
-        
+    # Biostar tweaks to the reddit scoring
+    ups = max((post.full_score, 0)) + 1
+    ups = int(ups + post.views/25.0)
     downs = 0
     rank = hot(ups, downs, post.creation_date)
     return rank
