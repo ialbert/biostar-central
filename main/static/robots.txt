@@ -1,4 +1,10 @@
 User-agent: *
-Disallow: /more/like/
-Disallow: /search/
-Disallow: /questions/
+Disallow: /more/like
+Disallow: /search
+Disallow: /questions
+Disallow: /show/tags
+Disallow: /badge
+Disallow: /tag/list
+Disallow: /feeds
+Disallow: /new/post
+Disallow: /revision
