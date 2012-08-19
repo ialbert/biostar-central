@@ -127,6 +127,52 @@ def user_edit(request, uid):
             url = reverse('main.server.views.user_profile', kwargs=dict(uid=target.id))
             return html.redirect(url)
 
+@login_required(redirect_field_name='/openid/login/')
+def post_reparent(request, pid, rid=0):
+    "Reparent a post"
+    
+    post = models.Post.objects.get(id=pid)
+    root = post.root
+    parent = post.parent
+
+    allow = auth.authorize_post_edit(post=post, user=request.user, strict=False)
+    
+    if not allow:
+        messages.error(request, "Reparent access denied")
+        return html.redirect(post.get_absolute_url())
+
+    if post.type in POST_TOPLEVEL or post == post.root:
+        messages.error(request, "Cannot reparent a toplevel post")
+        return html.redirect(post.get_absolute_url())
+
+    # these are the valid targets
+    targets = models.Post.objects.filter(root=root).select_related('author', 'author__profile').exclude(id__in=(post.id, parent.id))
+
+    target = request.REQUEST.get('target')
+    if target:
+        target =  models.Post.objects.get(id=target)
+        
+        if target not in targets:
+            messages.error(request, "Invalid reparent %s -> %s" % (post.id, target.id) )
+            return html.redirect(post.get_absolute_url())
+        
+        # comment to comment reparent is not yet supported
+        if target.type == POST_COMMENT and post.type == POST_COMMENT:
+            messages.error(request, "Comment to comment reparent %s -> %s not implemented" % (post.id, target.id) )
+            return html.redirect(post.get_absolute_url())
+
+        # perfomr the reparent
+        post.parent = target
+        question = (target.type == POST_QUESTION)
+        post.type = POST_ANSWER if question else POST_COMMENT
+        post.save()
+
+        # valid target to be applied
+        messages.info(request, "Reparenting %s to %s" % (post.id, target.id))
+        return html.redirect(post.get_absolute_url())
+        
+    return html.template(request, name='post.reparent.html', post=post, targets=targets)
+
 def badge_show(request, bid):
     "Shows users that have earned a certain badge"
     page = None

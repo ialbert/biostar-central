@@ -54,7 +54,8 @@ urlpatterns = patterns('main.server',
     url(r'^post/show/(?P<pid>\d+)/$', 'views.post_show', name="post-show"),
     url(r'^post/show/(?P<pid>\d+)/([-\w]+)/$', 'views.post_show', name="post-show-slug"),
     url(r'^post/redirect/(?P<pid>\d+)/$', 'views.post_redirect', name="post-redirect"),
-    
+    url(r'^post/reparent/(?P<pid>\d+)/$', 'action.post_reparent', name="post-reparent"),
+
     # editing an existing post/answer/comment
     url(r'^post/edit/(?P<pid>\d+)/$','views.post_edit', name="post-edit"),
     

@@ -23,7 +23,7 @@ def parse(fname):
     body  = ''.join(lines[2:])
     return map(string.strip, (title, tags, body))
     
-def add_files(fnames, uid, ptype):
+def add_files(fnames, uid, ptype, delete=False):
     
     user = models.User.objects.get(pk=uid)
     
@@ -33,6 +33,8 @@ def add_files(fnames, uid, ptype):
         post = models.Post(title=title, author=user,  type=ptype, tag_val=tag_val, content=body)
         post.save()
         post.set_tags()
+        if delete:
+            os.delete(fname)
 
 if __name__ == '__main__':
     # debug options for the program
@@ -44,7 +46,8 @@ if __name__ == '__main__':
     parser = optparse.OptionParser(usage=usage)
     parser.add_option("-u", "--userid", dest="uid", type=int, help="The ID of the user that generated the post", default=2)
     parser.add_option("-t", "--type", dest="ptype", type=int, help="The type of the post", default=1)
-    
+    parser.add_option("--delete", dest="delete", help="deletes the imported file", action="store_true", default=False)
+   
     (opts, args) = parser.parse_args()
     
     # stop execution if no parameters were specified
@@ -54,4 +57,4 @@ if __name__ == '__main__':
         sys.exit()
         
     #ptype = POST_REV_MAP[ptype]
-    add_files(fnames=args, uid=opts.uid, ptype=opts.ptype)
+    add_files(fnames=args, uid=opts.uid, ptype=opts.ptype, delete=opts.delete)
