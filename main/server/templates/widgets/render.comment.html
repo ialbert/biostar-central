@@ -52,7 +52,6 @@
         {# owners and moderators may edit the post #}
         {% if post.writeable %}
             &bull; <a href="/post/edit/{{post.id}}/">edit</a>
-            &bull; <a href="{% url 'post-reparent' post.id  %}">rep</a>
         {% endif %}
         &bull; written <span class="relativetime"> {% time_ago post.creation_date %} </span> by {% userlink post.author %} {% userrep post.author %}
     </div>
