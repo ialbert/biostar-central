@@ -4,7 +4,7 @@ Html utility functions.
 import re, string, mimetypes, os, json, random, hashlib,  unittest
 from django.template import RequestContext, loader
 from django.core.servers.basehttp import FileWrapper
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponsePermanentRedirect
 from django.shortcuts import render_to_response
 from django.core.context_processors import csrf
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
@@ -174,9 +174,12 @@ def json_response(adict, **kwd):
     """Returns a http response in JSON format from a dictionary"""
     return HttpResponse(json.dumps(adict), **kwd)
 
-def redirect(url):
+def redirect(url, permanent=False):
     "Redirects to a url"
-    return HttpResponseRedirect(url)
+    if permanent:
+        return HttpResponsePermanentRedirect(url)
+    else:
+        return HttpResponseRedirect(url)
 
 def template(request, name, mimetype=None, **kwd):
     """Renders a template and returns it as an http response"""

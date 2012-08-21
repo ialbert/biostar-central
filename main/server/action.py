@@ -342,14 +342,14 @@ def redirect_post(request, pid):
     try:
         nid = REMAP[pid]
         post = models.Post.objects.get(id=nid)
-        return html.redirect(post.get_absolute_url())   
+        return html.redirect(post.get_absolute_url(), permanent=True)   
     except Exception, exc:
         messages.error(request, "Unable to redirect: %s" % exc)
         return html.redirect("/")
         
 def redirect_tag(request, tag):
     try:
-        return html.redirect("/show/tag/%s/" % tag)   
+        return html.redirect("/show/tag/%s/" % tag, permanent=True)   
     except Exception, exc:
         messages.error(request, "Unable to redirect: %s" % exc)
         return html.redirect("/")   

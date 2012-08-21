@@ -10,7 +10,7 @@
         &bull; <input type="hidden" value="{{post.id}}">
         <a class="add-comment">comment</a>
     {% else %}
-        &bull; <a href="/openid/login/?next={{request.path}}"> log in to comment</a>
+        &bull; <a href="/openid/login/"> log in to comment</a>
     {% endif %}
             
         {% if post.has_revisions %}

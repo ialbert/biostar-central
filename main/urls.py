@@ -93,6 +93,7 @@ urlpatterns = patterns('main.server',
     url(r'^note/clear/(?P<uid>\d+)/$','action.note_clear', name="note-clear"),
    
     # redirecting to new post
+    url(r'^questions/(?P<pid>\d+)/$','action.redirect_post', name="redirect-short"),
     url(r'^questions/(?P<pid>\d+)/([-\w]+)/$','action.redirect_post', name="redirect-post"),
     url(r'^questions/tagged/(?P<tag>.+)/$','action.redirect_tag', name="redirect-tag"),
 
