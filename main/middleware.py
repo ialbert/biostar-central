@@ -151,7 +151,7 @@ class LastVisit(object):
         
         # only write to database intermittently
         expired = (datetime.now() - profile.last_visited).seconds
-        
+            
         if expired > settings.SESSION_UPDATE_TIME:
             counts = generate_counts(request)
             sess.set_counts(counts)
@@ -166,6 +166,14 @@ class LastVisit(object):
                 first = fixme[0]
                 messages.error(request, 'You have a post that does not conform the requirements. Please edit it: <a href="%s">%s</a>' % (first.get_absolute_url(), first.title)) 
 
+            # remind user about voting every six weeks since the last vote
+            # and only nag people with lower reputations ;-)
+            if user.profile.score < 300:
+                since = datetime.now() - timedelta(weeks=6)
+                votes = models.Vote.objects.filter(author=user, date__gt=since)[:1]
+                if not votes:
+                    messages.info(request, '<i class="icon-info-sign"></i> Remember to <b>vote</b> on posts that you find useful!') 
+                
             # try to award badges
             awards.instant(request)
 

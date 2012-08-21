@@ -44,7 +44,7 @@ def feed_check(browser):
     
     elem, text  = click('About')
     elem, text  = click('Feeds page')
-    targets = "Latest,Latest questions,Follow multiple posts,Follow multiple tags,Follow multiple users".split(",")
+    targets = "New Posts,New Questions,Follow multiple posts,Follow multiple tags,Follow multiple users".split(",")
     for link in targets:    
         elem, text = click(link)
         elem = browser.back()
