@@ -181,10 +181,19 @@ class Post(models.Model):
     # this will maintain parent-child replationships between posts
     parent = models.ForeignKey('self', null=True, blank=True, related_name='children')
        
+    # the number of answer that a post has
     answer_count    = models.IntegerField(default=0, blank=True)
-    accepted        = models.BooleanField(default=False, blank=True)
+    
+    # bookmark count
+    book_count = models.IntegerField(default=0, blank=True)
+    
+    # stickiness of the post
+    sticky = models.IntegerField(default=0, db_index=True)
+    
+    # wether the post has accepted answers
+    accepted = models.BooleanField(default=False, blank=True)
    
-    # this is used only for blog posts
+    # used for post with a linkout
     url = models.URLField(default='', blank=True)
 
     # relevance measure, initially by timestamp, other rankings measures
