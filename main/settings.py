@@ -170,12 +170,12 @@ CACHES = {
 
 ROOT_URLCONF = 'main.urls'
 
-TEMPLATE_DIRS = (
+TEMPLATE_DIRS = [
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
     TEMPLATE_DIR,
-)
+]
 
 TEMPLATE_CONTEXT_PROCESSORS = (
     "django.contrib.auth.context_processors.auth",
@@ -319,6 +319,19 @@ ANON_PILL_BAR = [
     ("videos", "/show/videos/", "Videos", "Video" ),
     ("jobs", "/show/jobs/", "Jobs", "Job" ),
 ]
+
+#
+# remapping the templates to local versions
+# a row is the way a post is rendered on a page
+# list below the templates to be loaded for a post type
+# to reduce clutter there is a default mapper that
+# for missing types attempts to map each type to rows/row.type.html
+# django template lookup rules apply
+#
+TEMPLATE_ROWS = {
+    
+    'job': "rows/row.job.html",
+}
 
 # version check, we can do it at the end since
 # the version is only required in subsequent modules

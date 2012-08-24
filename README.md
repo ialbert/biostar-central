@@ -108,7 +108,8 @@ those values that need to change. For an example see the `conf/demo.env` and `co
 A number of helper methods can be found in the `main/bin` directory, when the python import paths 
 are set properly these can be invoked as:
 
-  - `python -m main.bin.addpost` to import posts into the main site
+  - `python -m main.bin.postadd` to import posts into the main site
+  - `python -m main.bin.postmod` modifies a post in the main site
   - `python -m main.bin.usermod` to edit users
   - `python -m main.bin.extract` extracts the value of a settings parameter
   - `python -m main.bin.patch` is used to change varios values after migration

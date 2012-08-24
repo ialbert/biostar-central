@@ -32,6 +32,9 @@
         {# "fake tag" with the post type to distinguish from other posts #}
         <div class="tag-line">
             <a href="{% url show 'jobs' %}" class="post-type tag">jobs</a>
+            {% if post.sticky %}
+                <a href="{% url show 'sticky' %}" class="post-type tag">sticky</a>
+            {% endif %}
         </div>
 
 

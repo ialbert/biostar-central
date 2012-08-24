@@ -73,6 +73,8 @@ def filter_by_type(request, posts, post_type):
     # filter is a single type
     if post_type in POST_TYPE_REV_MAP:
         return posts.filter(type=post_type)
+    elif post_type == 'sticky':
+        return posts.filter(sticky=True)
     elif post_type == 'unanswered':
         return posts.filter(type__in=[POST_QUESTION, POST_FIXME], answer_count=0)
     elif post_type == 'all':
@@ -90,7 +92,7 @@ def apply_sort(request, posts, value):
     "Sorts posts by an order"
     order = ORDER_MAP.get(value)
     if order:
-        return posts.order_by(order)
+        return posts.order_by("-sticky", order)
     
     # default value is sort by created date
     #print '*** default SORT %s' % value

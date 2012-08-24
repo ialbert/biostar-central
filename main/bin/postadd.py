@@ -1,5 +1,5 @@
 """
-Updating full scores 
+Imports a new post and adds it to the database 
 """
 import os, sys, datetime, urllib, glob, string, pprint
     
@@ -23,14 +23,14 @@ def parse(fname):
     body  = ''.join(lines[2:])
     return map(string.strip, (title, tags, body))
     
-def add_files(fnames, uid, ptype, delete=False):
+def add_files(fnames, uid, ptype, delete=False, sticky=False):
     
     user = models.User.objects.get(pk=uid)
     
     for fname in fnames:
         title, tag_val, body = parse(fname)
         print '*** adding %s' % title
-        post = models.Post(title=title, author=user,  type=ptype, tag_val=tag_val, content=body)
+        post = models.Post(title=title, author=user,  type=ptype, tag_val=tag_val, content=body, sticky=sticky)
         post.save()
         post.set_tags()
         if delete:
@@ -47,6 +47,7 @@ if __name__ == '__main__':
     parser.add_option("-u", "--userid", dest="uid", type=int, help="The ID of the user that generated the post", default=2)
     parser.add_option("-t", "--type", dest="ptype", type=int, help="The type of the post", default=1)
     parser.add_option("--delete", dest="delete", help="deletes the imported file", action="store_true", default=False)
+    parser.add_option("--sticky", dest="sticky", help="set the sticky flag", action="store_true", default=False)
    
     (opts, args) = parser.parse_args()
     
@@ -57,4 +58,4 @@ if __name__ == '__main__':
         sys.exit()
         
     #ptype = POST_REV_MAP[ptype]
-    add_files(fnames=args, uid=opts.uid, ptype=opts.ptype, delete=opts.delete)
+    add_files(fnames=args, uid=opts.uid, ptype=opts.ptype, delete=opts.delete, sticky=opts.sticky)

@@ -145,9 +145,18 @@ templates = {}
 
 def load_templates():
     for typeid, typename in const.POST_MAP.items():
+        
+        # this is the type of the template as a string
+        typename = typename.lower()
+        
+        # see if the template has been overriden, and generate a default value
+        default = 'rows/row.%s.html' % typename
+        fname   = settings.TEMPLATE_ROWS.get(typename, default)
         try:
-            templates[typeid] = template.loader.get_template('rows/row.%s.html' % typename.lower())
+            templates[typeid] = template.loader.get_template(fname)
         except TemplateDoesNotExist:
+            # fall back to a template that should exist
+            #print "*** template loader loading default row for type '%s" % fname
             templates[typeid] = template.loader.get_template('rows/row.post.html')
 
 load_templates()

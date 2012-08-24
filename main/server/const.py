@@ -41,7 +41,7 @@ POST_NAV_BAR = [  ]
 POST_NAV_BAR_LOWER = map(string.lower, POST_NAV_BAR)
 
 # valid tab bars entries
-VALID_TABS  = set( "recent posts planet".split() )
+VALID_TABS  = set( "recent posts planet sticky".split() )
 
 # valid pill tab entries
 VALID_PILLS = set( "mytags all news questions unanswered publications tutorials tools videos jobs".split() )
