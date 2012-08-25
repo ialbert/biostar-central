@@ -120,6 +120,22 @@ are set properly these can be invoked as:
   a django settings file. See the `conf/demo.env` file. Typically use is to `source conf/default.env` 
   then source a second smaller file that overrides just a few parameters.
 
+Versioning
+-----------
+
+BioStar uses the [common versioning nomenclature][versioning] that consists of three numbers called major.minor.revision
+The minor version number will always be bumped when the database schema changes. 
+Database dumps can only be loaded into the same minor versions that created them. 
+New installations of BioStar are automatically migrated.
+
+Existing installations of BioStar will need to be migrated manually via the command:
+
+    python manage.py migrate main.server
+
+Invoke the above command after loading the proper environment.
+
+[versioning]: http://en.wikipedia.org/wiki/Software_versioning#Sequence-based_identifiers
+
 Testing
 -------
 
