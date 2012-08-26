@@ -88,17 +88,19 @@ def filter_by_type(request, posts, post_type):
     messages.error(request, msg)
     return posts.all()
 
-def apply_sort(request, posts, value):
+def apply_sort(request, posts, value, sticky=True):
     "Sorts posts by an order"
     order = ORDER_MAP.get(value)
-    if order:
-        return posts.order_by("-sticky", order)
+    if not order:
+        messages.error(request, 'Unknown sort order requested')
+        order = '-rank'
     
-    # default value is sort by created date
-    #print '*** default SORT %s' % value
-    
-    messages.error(request, 'Unknown sort order requested')
-    return posts.order_by('-rank')
+    if sticky:
+        args = [ "-sticky", order]
+    else:
+        args = [ order ]
+            
+    return posts.order_by(*args)
 
 # there is a tab bar and a lower "pill" bar
 
@@ -142,8 +144,9 @@ def index(request, target=''):
     # filter posts by type
     posts = filter_by_type(request=request, posts=posts, post_type=post_type)
     
-    # apply the sort order
-    posts = apply_sort(request=request, posts=posts, value=sort_type)
+    # apply the sort order, sticky is only active in the tab
+    sticky = target not in ('all', 'recent')
+    posts = apply_sort(request=request, posts=posts, value=sort_type, sticky=sticky)
     
     # this is necessary because the planet posts require more attributes
     if tab == 'planet':
@@ -464,13 +467,18 @@ def post_redirect(request, pid):
     post = models.Post.objects.get(id=pid)
     return html.redirect( post.get_absolute_url() )
 
-def blog_redirect(request, pid):
-    "Used to be able to count the views for a blog"
-    blog = models.Post.objects.get(id=pid, type=POST_BLOG)
-    models.update_post_views(post=blog, request=request)
-    blog.set_rank()
-    blog.save()
-    return html.redirect( blog.get_absolute_url() )
+def linkout(request, pid):
+    "Used to be able to count the views for a linkout"
+    post = models.Post.objects.get(id=pid)
+    models.update_post_views(post=post, request=request)
+    post.set_rank()
+    post.save()
+    if post.url:
+        return html.redirect(post.url)    
+    else:
+        message.error(request, 'linkout used on a post with no url set %s' % post.id)
+        return html.redirect("/")  
+    
 
 def modlog_list(request):
     "Lists of all moderator actions"

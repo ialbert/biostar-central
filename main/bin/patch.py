@@ -11,7 +11,21 @@ from django.db.models import Avg, Max, Min, Count
 from django.db import transaction
 from django.db.models import signals
 from itertools import *
+from collections import defaultdict
 
+def update_bookmark_counts():
+    "Updates the bookmark counters. Used after migrating to version 1.2.1"
+    votes = models.Vote.objects.filter(type=VOTE_BOOKMARK).select_related('post')
+    
+    store = defaultdict(int)
+    for vote in votes:
+        store[vote.post] += 1
+    
+    for post, value in store.items():
+        print post.title, value
+        post.book_count = value
+        post.save()
+        
 def update_domain():
     "This is really only needs to be done once per installation"
     site = Site.objects.get(id=settings.SITE_ID)
@@ -83,6 +97,8 @@ def reapply_ranks():
 if __name__ == '__main__':
     import doctest, optparse
   
+    sys.argv.append( '--update_bookmark_count' )
+    
     # options for the program
     parser = optparse.OptionParser()
     parser.add_option("-n", dest="n", help="database rows to fetch default=%default", type=int, default=1000)
@@ -93,7 +109,7 @@ if __name__ == '__main__':
     parser.add_option("--reduce_notes", dest="reduce_notes", help="reduce the number of notification to N", action="store_true", default=False)
     parser.add_option("--reapply_ranks", dest="reapply_ranks", help="reapplies ranks to all posts", action="store_true", default=False)
     parser.add_option("--update_domain", dest="update_domain", help="updates the site domain to match the settings", action="store_true", default=False)
-    parser.add_option("--clean_session", dest="clean_session", help="cleans the session", action="store_true", default=False)
+    parser.add_option("--update_bookmark_counts", dest="update_bookmark_counts", help="updates bookmark counts", action="store_true", default=False)
    
     (opts, args) = parser.parse_args()
     
@@ -114,3 +130,5 @@ if __name__ == '__main__':
     if opts.patt:
         resave_posts(opts.patt, skip=opts.s, limit=opts.n)
     
+    if opts.update_bookmark_counts:
+        update_bookmark_counts()

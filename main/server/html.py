@@ -82,9 +82,13 @@ orphans = re.compile("(^|[\w:.]\s)((https?|ftp):\S+) ", re.MULTILINE | re.VERBOS
 def fix_orphans(text):
     global orphans
     "Add markdown to orphan links"
-    text = orphans.sub(r'\1<\2>', text)
-    return text
-
+    collect = []
+    for line in text.splitlines():
+        if not line.startswith("    "):    
+            line = orphans.sub(r'\1<\2>', line)
+        collect.append(line)
+    return "\n".join(collect)
+    
 youtube = re.compile("youtube:([_\w-]+) ", re.MULTILINE | re.VERBOSE)
 def extra_html(text):
     "Allows embedding extra html features"

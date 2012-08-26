@@ -7,22 +7,14 @@ from django.conf import settings
 from main.server import models, html
 from main.server.const import *
 
-def post_mod(pid, **kwds):
-    
-    post = models.Post.objects.get(pk=pid)
-    for key, value in kwds.items():
-        setattr(post, key, value)
-        print post, post.sticky
-    
-    post.save()
-
 if __name__ == '__main__':
        
     import optparse
     usage = "usage: %prog [options] file1 file2 ..."
     parser = optparse.OptionParser(usage=usage)
     parser.add_option("-p", "--pid", dest="pid", type=int, help="The ID of the post that needs to be changed", default=0)
-    parser.add_option("--sticky", dest="sticky", help="set the sticky flag", action="store_true", default=False)
+    parser.add_option("--sticky", dest="sticky", help="set the sticky level 0, 1, 2 etc", type=str, default='')
+    parser.add_option("--url", dest="url", help="adss a url to the post", type=str, default='')
    
     (opts, args) = parser.parse_args()
     
@@ -30,6 +22,15 @@ if __name__ == '__main__':
     if not opts.pid:
         parser.print_help()
         sys.exit()
-        
-    #ptype = POST_REV_MAP[ptype]
-    post_mod(pid=opts.pid, sticky=opts.sticky)
+   
+    post = models.Post.objects.get(pk=opts.pid) 
+    print '*** modifying %s (%s): %s' % (post.get_type_display(), post.id, post.title)
+    if opts.sticky:
+        post.sticky = int(opts.sticky)
+        print '*** setting stickiness to %s' % post.sticky
+        post.save()
+    
+    if opts.url:
+        post.url = opts.url
+        print '*** setting url to %s' % post.url
+        post.save()

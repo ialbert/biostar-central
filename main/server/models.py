@@ -204,8 +204,11 @@ class Post(models.Model):
             url = "/post/show/%d/%s/" % (self.id, self.slug)
         else:
             url = "/post/show/%d/%s/#%d" % (self.root.id, self.root.slug, self.id)
+        
         # some objects have external links
-        url  = self.url or url
+        if self.url:
+            url = "/linkout/%s/" % self.id
+            
         return url
           
     def set_tags(self):
