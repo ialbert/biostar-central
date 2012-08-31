@@ -11,11 +11,6 @@ def page(browser):
 
 def contains(text, parts):
     for part in parts:
-        # give it a chance to load, not sure if this does what I think it does though
-        for i in range(10):
-            if part in text:
-                break
-            time.sleep(1)
         assert part in text, "Unable to find %s in the text" % part
         
 def get(browser, link=None, name=None, id=None):
@@ -78,7 +73,8 @@ def post_lookup(browser):
     click("next>")
     target = "Gene ID conversion tool"
     elem, text = click(target)
-    parts = "5 answers,Dondrup,uniprot,Biomart".split(",")
+    time.sleep(2)
+    parts = "Dondrup,uniprot,Biomart,Agilent".split(",")
     contains(text, parts=parts)
     targets = "similar posts,permalink,revisions".split(",")
     for link in targets:
@@ -236,12 +232,12 @@ def voting_test(browser):
     
 tests = [
     simple_navigation,
-    feed_check,
     post_lookup,
     quick_search,
     update_user,
     create_content_1,
     voting_test,
+    feed_check,
 ]
 
 def main(url):
@@ -250,6 +246,9 @@ def main(url):
     
     for func in tests:
         browser.get(url)
+        # give a chance to the page to load up
+        # not sure why this is needed
+        time.sleep(2)
         func(browser)
     browser.close()
 

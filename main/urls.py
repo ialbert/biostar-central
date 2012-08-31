@@ -26,7 +26,7 @@ urlpatterns = patterns('main.server',
     # show posts by user
     url(r'^show/user/(?P<uid>\d+)/$', 'views.show_user', name="show-user"),
     url(r'^show/user/(?P<uid>\d+)/(?P<post_type>\w+)/$', 'views.show_user', name="show-user-content"),
-    url(r'^show/blog/(?P<pid>\d+)/$', 'views.blog_redirect', name="blog-redirect"),
+    url(r'^linkout/(?P<pid>\d+)/$', 'views.linkout', name="linkout"),
     
     # urls for the navigation bar
     url(r'^tag/list/$', 'views.tag_list', name="tag-list"),
