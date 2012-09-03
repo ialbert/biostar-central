@@ -696,6 +696,26 @@ div.post-show {
         }
     }
 
+    .vote-box .vote{ /* Slightly reduce margins on all vote boxes */
+        margin: 5px;
+    }
+
+    .attributes .vote-box { /* Significantly restructure post-row embedded vote boxes */
+        width: 2em;
+        .vote, .vote-bookmark {
+            width: 2em;
+            margin-left: 0;
+        }
+        .vote-count {
+            font-size: 120%;
+        }
+        .status-text {
+            display: none;
+        }
+    }
+
+
+
     div.wmd-panel {
         min-width: 200px; /* Disable min-width 500px */
         width: 96%;
@@ -718,7 +738,7 @@ div.post-show {
 
 @media (min-width: 768px){
     .post-table{
-        td.attributes{ /* On large devices, prevent votes/answers/views box from wrapping */
+        td.attributes:not(.blog){ /* On large devices, prevent votes/answers/views box from wrapping */
             min-width: 200px;
         }
     }
