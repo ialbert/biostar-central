@@ -21,6 +21,7 @@ from docutils import core
 import docutils.parsers.rst.roles
 docutils.parsers.rst.roles.DEFAULT_INTERPRETED_ROLE = 'title-reference'
 from itertools import groupby
+from textparser import process
 
 # safe string transformation
 import string
@@ -72,10 +73,12 @@ def generate(text):
         html = rest.get('html_body','[rest error]')
     else:
         md = markdown2.Markdown( safe_mode=False )
-        text = fix_orphans(text)
+        #text = fix_orphans(text)
+        text = process(text, state='pre')
         html = md.convert(text)
         html = sanitize(html)
-        html = extra_html(html)
+        html = process(html, state='post')
+        #html = extra_html(html)
     return html
 
 orphans = re.compile("(^|[\w:.]\s)((https?|ftp):\S+) ", re.MULTILINE | re.VERBOSE)

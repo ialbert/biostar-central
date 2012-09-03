@@ -292,7 +292,7 @@ def tag_list(request):
     else:
         query = Q(id__gt=0)
         
-    tags = models.Tag.objects.filter(query).order_by('name')
+    tags = models.Tag.objects.filter(query).order_by('-count')
     page = get_page(request, tags, per_page=152)
     params = html.Params(nav='tags', sort='')
     return html.template(request, name='tag.list.html', page=page, params=params)
@@ -412,7 +412,8 @@ def new_post(request, pid=0, post_type=POST_QUESTION):
     with transaction.commit_on_success():
         post = models.Post.objects.create(**params)
         post.set_tags()
-        post.save()
+        #post.save()
+
     return redirect(post)
 
 @login_required(redirect_field_name='/openid/login/')

@@ -133,6 +133,9 @@ Existing installations of BioStar will need to be migrated manually via the comm
     python manage.py migrate main.server
 
 Invoke the above command after loading the proper environment.
+The version number is located in the file main/server/__init__.py can be automatically extracted via the command:
+
+    python -c "import main.server; print main.server.VERSION"
 
 [versioning]: http://en.wikipedia.org/wiki/Software_versioning#Sequence-based_identifiers
 
