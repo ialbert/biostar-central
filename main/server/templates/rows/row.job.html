@@ -1,24 +1,11 @@
 {% extends 'rows/row.post.html' %}
-{% load basic %}
-{% load widgets %}
 
 
-{% block attribute-answers %}
-    <div class="status job">
-        <div class="mini-counts">{{post.answer_count}}</div>
-        <div>repl{{post.answer_count|pluralize:'y,ies'}}</div>
-    </div>
-{% endblock %}
-
-{% block tags %}
-    {# "fake tag" with the post type to distinguish from other posts #}
+{% block fixed-tags %}
     <div class="tag-line">
         <a href="{% url show 'jobs' %}" class="post-type tag">jobs</a>
         {% if post.sticky %}
             <a href="{% url show 'sticky' %}" class="post-type tag">sticky</a>
         {% endif %}
     </div>
-
-    {# this shows the tags on the post #}
-    {% show_tags post %}
 {% endblock %}

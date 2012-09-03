@@ -1,5 +1,12 @@
 {% extends 'rows/row.post.html' %}
 
+{% block attribute-answers %}
+    <div class="status answers {{post.get_label}}">
+        <div class="mini-counts">{{post.answer_count}}</div>
+        <div class="status-label">answer{{post.answer_count|pluralize}}</div>
+    </div>
+{% endblock %}
+
 {% block title %}
     <a href="{{post.get_absolute_url}}"> {{post.get_title}}</a>
 {% endblock %}

@@ -11,9 +11,9 @@
             </div>
 
             {% block attribute-answers %}
-                <div class="status answers {{post.get_label}}">
+                <div class="status replies {{post.get_type_display|lower}}">
                     <div class="mini-counts">{{post.answer_count}}</div>
-                    <div class="status-label">answer{{post.answer_count|pluralize}}</div>
+                    <div class="status-label">repl{{post.answer_count|pluralize:"y,ies"}}</div>
                 </div>
             {% endblock %}
 
@@ -32,6 +32,10 @@
                     {% show_type post params.show_type %} <a href="{{post.get_absolute_url}}"> {{post.get_title}}</a>
                 {% endblock %}
             </div>
+
+            {% block fixed-tags %}
+                {# "fake tag" with the post type to distinguish from other posts #}
+            {% endblock %}
 
             {% block tags %}
                 {# this shows the tags on the post #}

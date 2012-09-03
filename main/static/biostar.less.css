@@ -683,7 +683,7 @@ div.post-show {
         div.views{
             display: none;
         }
-        div.votes, div.answers{
+        div.votes, div.answers, div.replies{
             width: 2em;
         }
 
