@@ -726,6 +726,10 @@ div.post-show {
         margin-left: 1.5em; /* Significantly reduce comment indentation */
     }
 
+    .navbar {
+        margin-bottom: 0;
+    }
+
 }
 
 @media (max-width: 480px) {
