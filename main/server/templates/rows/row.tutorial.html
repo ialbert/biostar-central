@@ -26,14 +26,14 @@
     <td class="summary" width="100%">
 
         <div class="post-title {{post.get_type_display}}">
-            <a href="{{post.get_absolute_url}}"> {{post.get_title}}</a>
+            {% show_type post params.show_type %} <a href="{{post.get_absolute_url}}"> {{post.get_title}}</a>
         </div>
-
-        {# generates the small peek into the post #}
-        <div class="peek">{{post.content|truncatewords:30}}</div>
 
         {# "fake tag" with the post type to distinguish from other posts #}
         <div class="tag-line">
+            {% if post.sticky %}
+                <a href="{% url show 'sticky' %}" class="post-type tag">sticky</a>
+            {% endif %}
             <a href="{% url show 'tutorials' %}" class="post-type tag">tutorial</a>
         </div>
 

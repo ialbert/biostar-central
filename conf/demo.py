@@ -1,8 +1,6 @@
-"""
-How to change the settings for a different site
-"""
-
-# import from the main settings then override some of them
+#
+# import from the main settings then override some of the values
+#
 from main.settings import *
 
 # set the domain administrators
@@ -13,25 +11,29 @@ ADMINS = (
 # set the site url
 SITE_DOMAIN = 'localhost:8080'
 
+# set the cookie domain as needed
+SESSION_COOKIE_DOMAIN = ".biostars.org"
+
 # set the secret key for the site
 SECRET_KEY = 'my-secret key goes here'
 
-# your google tracker
-GOOGLE_TRACKER = "UA-300333-13"
+# set your google tracker
+GOOGLE_TRACKER = ""
 
-# a local postgresql database
-DATABASE_NAME = 'biostar-test-database'
-
+# database setup
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2', 
-        'NAME': DATABASE_NAME,                  
-        'USER': '',                      
-        'PASSWORD': '',                  
+        'NAME': 'test-database',                  
+        'USER': 'someuser',                      
+        'PASSWORD': 'somepassword',                  
         'HOST': '',                      
         'PORT': '',                      
     }
 }
+
+# this sets wether to allow test logins via selenium
+ALLOW_SELENIUM_TEST_LOGIN = False
 
 # set up the email provider for your site
 EMAIL_HOST = 'smtp.domain.org'

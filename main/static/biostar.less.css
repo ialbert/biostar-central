@@ -17,10 +17,38 @@ body {
    background-color: white;
 }
 
+.earned.True {
+    display: block;
+    width: 44px;
+    background-repeat: no-repeat;
+    background-position: center;
+    margin: auto;
+    background-image: url("/static/img/g/checkmark.png")
+}
+
 .newpost {
     text-decoration: underline;
 }
 
+blockquote {
+    
+    padding: 0 0 0 15px;
+    margin: 0 0 30px;
+    border-left: 5px solid #EEE;
+
+    p {
+        margin-bottom: 0;
+        font-size: 100%;
+        font-weight: 200;
+        line-height: 22.5px;
+    }
+}
+
+.dropdown-toggle {
+    border-style: solid;
+    border-width: 1px;
+    border-color: #DEDEDE;
+}
 .post-show {
     h1 { font-size:140% }
     h2 { font-size:130% }
@@ -123,8 +151,10 @@ div .par {
     .tag;
     float:left;
     padding: 5px 10px;
-    margin:0px 10px 10px 10px;
+    margin:0px 20px 20px 20px;
     text-align:center;
+    width:150px;
+    font-size: larger;
     .tagname {
         font-weight: bold;
     }
@@ -302,8 +332,28 @@ div.post-show {
     color: #FFFFFF;
 }
 
+.job {
+    background-color: #E9530F;
+    color: #FFFFFF;
+}
+
 .tutorial {
     background-color: #2C7990;
+    color: #FFFFFF;
+}
+
+.news {
+    background-color: #762C90;
+    color: #FFFFFF;
+}
+
+.tool {
+    background-color: #265040;
+    color: #FFFFFF;
+}
+
+.video {
+    background-color: #9E5331;
     color: #FFFFFF;
 }
 
@@ -438,6 +488,18 @@ div.post-show {
     border-image: initial;
 }
 
+.dropdown-toggle {
+    border-style: solid;
+    border-width: 1px;
+    border-color: #CCCCCC;
+    background-color: #DEDEDE;
+}
+
+.nav-pills .active > a, .nav-pills .active > a:hover {
+    color: white;
+    background-color: #8F2C47;
+}
+
 .lastedit {
     font-size:smaller;
     margin-top:5px;
@@ -450,7 +512,7 @@ div.post-show {
         border-bottom:1px solid #ddd;
     }
     .msg {
-        padding:5px;
+        padding:8px;
         margin-bottom:2px;
         p {
             display:inline;

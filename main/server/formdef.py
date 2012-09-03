@@ -5,6 +5,10 @@ import string
 
 P_TITLE, P_CONTENT, P_TAG = 'Post title', 'Post content', 'tag1'
 
+# safe string transformation
+import string
+SAFE_TAG = set(string.ascii_letters + string.digits + "._- ")
+
 def validate_integer(value):
     try:
         int(value)
@@ -14,6 +18,10 @@ def validate_integer(value):
 def valid_tag(text):
     "Validates form input for tags"
     
+    for char in text:
+        if char not in SAFE_TAG:
+            raise ValidationError("letter '%s' may not be used in a tag" % char)
+                    
     if not(text):
         raise ValidationError('Please enter at least one tag')
 
@@ -26,10 +34,10 @@ def valid_tag(text):
         raise ValidationError('You have too many tags, please use at most five tags')
     
     for word in words:
-        if len(word) < 3:
-            raise ValidationError("Tag '%s' is too short, use at least 3 characters" % word)
-        if len(word) > 16:
-            raise ValidationError("Tag '%s' is too long, use no more than 16 characters" % word)
+        if len(word) < 1:
+            raise ValidationError("Tag '%s' is too short, use at least 1 character" % word)
+        if len(word) > 25:
+            raise ValidationError("Tag '%s' is too long, use no more than 25 characters" % word)
 
 def valid_title(text):
     "Validates form input for title"
@@ -77,7 +85,7 @@ class ChildContent(forms.Form):
     """
     A form representing the body of simpler content answer/comment
     """
-    content  = forms.CharField(max_length=5000, validators=[ valid_content ],
+    content  = forms.CharField(max_length=10000, validators=[ valid_content ],
         widget=forms.Textarea(attrs={'cols':'80', 'rows':'15', 'id':'editor'}))
 
 

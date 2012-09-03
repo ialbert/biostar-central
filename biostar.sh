@@ -1,52 +1,17 @@
 #!/bin/bash
+
+if [ -z "$BIOSTAR_HOME" ]; then
+    echo "(!) environment variables not set"
+    echo "Try: source conf/default.env"
+    exit 1
+fi
+
 set -ue
 
 # verbosity level for commands 0=minimal, 2=maximal
 VERBOSITY=1
 
-# set a few default environment variables
-BIOSTAR_SRC=`dirname $0`
-
-# source directory to be added to import path
-BIOSTAR_HOME=${BIOSTAR_HOME:-"$BIOSTAR_SRC/main"}
-
-# set the hostname
-BIOSTAR_HOSTNAME=${BIOSTAR_HOSTNAME:-"0.0.0.0:8080"}
-
-# django settings module
-export DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE:-"settings"}
-
-# add to the python path
-PYTHONPATH=${PYTHONPATH:-""}
-
-export SQLITE_DBNAME=${SQLITE_DBNAME:-"$BIOSTAR_HOME/db/biostar.db"}
-
 # the migration path and limit
-export MIGRATE_PATH=${MIGRATE_PATH:-"import/se0"}
-export MIGRATE_LIMIT=${MIGRATE_LIMIT:-"100"}
-
-# the JSON fixture to dump/load data from
-export JSON_FIXTURE=${JSON_FIXTURE:-"import/biostar-dump.json.gz"}
-
-# the SQL fixture to dump/load postgresql SQL 
-export SQL_FIXTURE=${SQL_FIXTURE:-"import/biostar-dump.sql"}
-
-# the postgresql database name
-export PG_DBNAME=${PG_DBNAME:-"biostar-test-database"}
-
-# the postgresql database name
-export PG_USERNAME=${PG_USERNAME:-"biostar-user"}
-
-# the DJANGO_SETTINGS_MODULE needs to be in the python import path
-export PYTHONPATH=$PYTHONPATH:$BIOSTAR_HOME   
-
-# add the library files to the pythonpath
-export PYTHONPATH=$PYTHONPATH:libs/:libs/libraries.zip
-
-# setting up the python
-export PYTHON_EXE=${PYTHON_EXE:-"python"}
-export DJANGO_ADMIN=manage.py
-
 echo "--- main settings"
 echo "*** BIOSTAR_HOME=$BIOSTAR_HOME"
 echo "*** BIOSTAR_HOSTNAME=$BIOSTAR_HOSTNAME"
@@ -80,13 +45,12 @@ while (( "$#" )); do
         echo "--- databases"
         echo "*** SQLITE_DBNAME=$SQLITE_DBNAME"
         echo "*** PG_DBNAME=$PG_DBNAME"
-        echo "*** PG_USERNAME=$PG_USERNAME"
+        echo "*** PG_USER=$PG_USER"
 
         echo "--- migration"
         echo "*** MIGRATE_PATH=$MIGRATE_PATH"
         echo "*** MIGRATE_LIMIT=$MIGRATE_LIMIT"
         echo "*** JSON_FIXTURE=$JSON_FIXTURE"
-        echo "*** SQL_FIXTURE=$SQL_FIXTURE"
         
         echo "--- environment "
         echo "*** DJANGO_ADMIN=$DJANGO_ADMIN"
@@ -98,26 +62,14 @@ while (( "$#" )); do
     
     if [ "$1" = "delete" ]; then
         # deletes the sqlite database
-        echo "*** deleting sqlite"
-        rm -f $SQLITE_DBNAME
+        if [ -n "$SQLITE_DBNAME" ]; then
+            echo "*** deleting SQLITE_DBNAME=$SQLITE_DBNAME"
+            rm -f $SQLITE_DBNAME
+        else
+            echo "(!) SQLITE_DBNAME variable is empty"
+        fi
     fi
-
-    if [ "$1" = "pgdrop" ]; then
-        # drops the PG datanase
-        echo '*** dropping postgresql'
-        dropdb $PG_DBNAME
-        echo '*** creating postgresql'
-        createdb $PG_DBNAME
-    fi
-    
-    if [ "$1" = "pgreset" ]; then
-        # resets the postgresql database, removes all tables
-        echo '*** create drop table commands'
-        $PYTHON_EXE $DJANGO_ADMIN sqlclear server django_openid_auth  sites sessions admin auth contenttypes> import/sqlclear.sql --settings=$DJANGO_SETTINGS_MODULE
-        echo '*** postgresql reset'
-        psql -U $PG_USERNAME $PG_DBNAME < import/sqlclear.sql
-    fi
-    
+ 
     if [ "$1" = "planet" ]; then
         # initializes the planet
         echo '*** initializes the planet'
@@ -132,6 +84,8 @@ while (( "$#" )); do
     if [ "$1" = "init" ]; then
         echo "*** initializing server on $BIOSTAR_HOSTNAME"
         $PYTHON_EXE $DJANGO_ADMIN syncdb -v $VERBOSITY --noinput --settings=$DJANGO_SETTINGS_MODULE
+        $PYTHON_EXE $DJANGO_ADMIN migrate main.server --settings=$DJANGO_SETTINGS_MODULE
+         
         echo "*** collecting static files"
         $PYTHON_EXE $DJANGO_ADMIN collectstatic -v $VERBOSITY --noinput --settings=$DJANGO_SETTINGS_MODULE
     fi
@@ -140,29 +94,48 @@ while (( "$#" )); do
         echo "*** importing data from $JSON_FIXTURE"
         $PYTHON_EXE $DJANGO_ADMIN loaddata $JSON_FIXTURE --settings=$DJANGO_SETTINGS_MODULE
     fi
+    
+    if [ "$1" = "dump" ]; then        
+        echo "*** dumping data to $JSON_FIXTURE"
+        $PYTHON_EXE $DJANGO_ADMIN dumpdata auth.User server --settings=$DJANGO_SETTINGS_MODULE | gzip > $JSON_FIXTURE
+    fi
 
+    if [ "$1" = "pgcreate" ]; then
+        # creates the PG database
+        echo "*** creating postgresql database PG_DBNAME=$PG_DBNAME"
+        createdb $PG_DBNAME
+    fi
+    
+    if [ "$1" = "pgdrop" ]; then
+        # drops the PG database
+        echo "*** dropping postgresql database PG_DBNAME=$PG_DBNAME"
+        dropdb $PG_DBNAME
+    fi
+    
+    if [ "$1" = "pgreset" ]; then
+        # resets the postgresql database, removes all tables
+        echo '*** create drop table commands'
+        $PYTHON_EXE $DJANGO_ADMIN sqlclear server django_openid_auth sites sessions admin auth contenttypes > import/sqlclear.sql --settings=$DJANGO_SETTINGS_MODULE
+        echo '*** postgresql reset'
+        psql -U $PG_USER $PG_DBNAME < import/sqlclear.sql
+    fi
+    
+    if [ "$1" = "pgdump" ]; then
+        # dumps a postgres database to a file
+        echo "*** dumping database $PG_DBNAME"
+        pg_dump -O -x $PG_DBNAME 
+    fi
+    
      if [ "$1" = "pgimport" ]; then
         # restores a postgresl database from a file
-        echo "*** restoring database $PG_DBNAME from $SQL_FIXTURE"
-        psql -U $PG_USERNAME $PG_DBNAME < $SQL_FIXTURE
+        echo "*** restoring database $PG_DBNAME"
+        psql -U $PG_USER $PG_DBNAME < $2
     fi
     
     if [ "$1" = "test" ]; then
         echo "*** running the tests"
         #$PYTHON_EXE $DJANGO_ADMIN test server --settings=$DJANGO_SETTINGS_MODULE --failfast
         $PYTHON_EXE $DJANGO_ADMIN test server --settings=$DJANGO_SETTINGS_MODULE --failfast
-    fi
-
-    if [ "$1" = "pgdump" ]; then
-        # dumps a postgres database to a file
-        echo "*** dumping database $PG_DBNAME to $SQL_FIXTURE"
-        pg_dump -O -x $PG_DBNAME > $SQL_FIXTURE
-        wc -l $SQL_FIXTURE
-    fi
-    
-    if [ "$1" = "dump" ]; then        
-        echo "*** dumping data to $JSON_FIXTURE"
-        $PYTHON_EXE $DJANGO_ADMIN dumpdata auth.User server --settings=$DJANGO_SETTINGS_MODULE | gzip > $JSON_FIXTURE
     fi
 
     if [ "$1" = "migrate" ]; then
@@ -184,6 +157,7 @@ while (( "$#" )); do
     if [ "$1" = "selenium" ]; then
         # needs to reindex to be most up to date
         $PYTHON_EXE -m main.server.search
+        
         echo "*** running selenium on $SELENIUM_TEST_URL"
         $PYTHON_EXE main/server/tests/selenium_tests.py $SELENIUM_TEST_URL
     fi

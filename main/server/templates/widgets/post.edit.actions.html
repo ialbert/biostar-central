@@ -1,7 +1,8 @@
 {% load basic %}
 {% load widgets %}
+{% load url from future %}
 <div class="edit-action">
-    <a href="/more/like/{{post.id}}/">similar posts</a>
+    <a href="/more/like/{{post.id}}/"><i class="icon-search"></i> similar posts</a>
 
     &bull; <a href="{{request.path}}#{{post.id}}">permalink</a> 
     {% if request.user.is_authenticated %}
@@ -9,7 +10,7 @@
         &bull; <input type="hidden" value="{{post.id}}">
         <a class="add-comment">comment</a>
     {% else %}
-        &bull; <a href="/openid/login/?next={{request.path}}">log in to comment</a>
+        &bull; <a href="/openid/login/"> log in to comment</a>
     {% endif %}
             
         {% if post.has_revisions %}
@@ -18,21 +19,22 @@
     
     {% if post.writeable %}
     
-        &bull; <a href="{% url main.server.views.post_edit post.id  %}">edit</a>
+        &bull; <a href="{% url 'main.server.views.post_edit' post.id  %}">edit</a>
+       
     
     <span class="mod-menu">
         {% if post.top_level %}
             {% if post.closed %}
-                &bull; <a href="{% url main.server.action.post_moderate post.id 'open' %}">reopen</a>     
+                &bull; <a href="{% url 'main.server.action.post_moderate' post.id 'open' %}">reopen</a>     
             {% else %}
-                &bull; <a href="{% url main.server.action.post_moderate post.id 'close' %}">close</a>     
+                &bull; <a href="{% url 'main.server.action.post_moderate' post.id 'close' %}">close</a>     
             {% endif %}
         {% endif %}
 
         {% if post.deleted %}        
-            &bull; <a href="javascript:moderate_post('{% url main.server.action.post_moderate post.id  'open' %}')">undelete</a>                                  
+            &bull; <a href="javascript:moderate_post('{% url 'main.server.action.post_moderate' post.id  'open' %}')">undelete</a>                                  
         {% else %}
-            &bull; <a href="javascript:moderate_post('{% url main.server.action.post_moderate post.id 'delete' %}')">delete</a>                                  
+            &bull; <a href="javascript:moderate_post('{% url 'main.server.action.post_moderate' post.id 'delete' %}')">delete</a>                                  
         {% endif %}
 
     </span>    

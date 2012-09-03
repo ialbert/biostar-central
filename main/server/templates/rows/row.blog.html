@@ -4,16 +4,25 @@
 <tr valign="top" class={{post.get_status}}>
     
      <td colspan="3" align="right">
-        {% vote_box post %}
-        <!--<div align="center">{{ post.views }} view{{post.views|pluralize}}</div>-->
+        <div class="vote-box">
+            <div class="vote">
+                <input type="hidden" value="{{post.id}}">
+                <div class="vote-count">{{ post.views }}</div>
+                <div align="center">view{{post.views|pluralize}}</div>
+                {% if post.bookmarked %}
+                    <div class="vote-bookmark vote-on" title="Click to remove bookmark">&nbsp;</div>
+                {% else %}
+                    <div class="vote-bookmark vote-off" title="Click to add bookmark">&nbsp;</div>
+                {% endif %}
+             </div>
+        </div>
     </td>
-
 
     <td class="summary" width="100%">
         
         <div class="post-title {{post.get_type_display}}">
             {% if post.url %}
-                <a href="{% url main.server.views.blog_redirect post.id %}">{{post.get_title}} <i class="icon-share-alt"></i></a>
+                <a href="{% url main.server.views.linkout post.id %}">{{post.get_title}} <i class="icon-share-alt"></i></a>
             {% else %}
                 <a href="{{post.get_absolute_url}}">{{post.get_title}} </a>
             {% endif %}

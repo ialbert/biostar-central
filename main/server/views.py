@@ -9,6 +9,7 @@ from collections import defaultdict
 from main.server import html, models, const, formdef, action, notegen, auth
 from main.server.html import get_page
 from datetime import datetime
+from django.db import connection
 
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
@@ -23,128 +24,167 @@ from django_openid_auth.models import UserOpenID
 from django.core.urlresolvers import reverse
 
 # import all constants
+from main.server import const
 from main.server.const import *
+from main import middleware
 
 # activate logging
 import logging
 logger = logging.getLogger(__name__)
 
-
-def update_counts(request, key, value):
-    counts = request.session.get(SESSION_POST_COUNT,{})
-    counts[key] = value
-    request.session[SESSION_POST_COUNT] = counts
-
 def get_post_manager(request):
     user = request.user
     if user.is_authenticated() and user.profile.can_moderate:
-        return models.Post.objects
+        return models.Post.objects.select_related('author', 'author__profile')
     else:
-        return models.Post.open_posts
-    
-VALID_TABS = set( "mytags questions forum tutorials unanswered recent popular planet".split() )
-POSTS_PER_PAGE = 20
+        return models.Post.open_posts.select_related('author', 'author__profile')
 
-def index(request, tab=""):
-    "Main page"
-    
+POSTS_PER_PAGE = 15
+
+# mapst a word to a numeric post type
+POST_TYPE_MAP = dict(
+    questions=POST_QUESTION, tutorials=POST_TUTORIAL, answers=POST_ANSWER, videos=POST_VIDEO,
+    planet=POST_BLOG, tools=POST_TOOL, jobs=POST_JOB, news=POST_NEWS, publications=POST_PUBLICATION,
+)
+
+POST_TYPE_REV_MAP = dict( [ (v,k) for (k,v) in POST_TYPE_MAP.items()] )
+
+ORDER_MAP = dict(
+    rank="-rank", views="-views", creation="-creation_date",
+    edit="lastedit_date", votes="-full_score", answers="-answer_count",
+)
+
+def mytags_posts(request):
+    "Gets posts that correspond to mytags settins or sets warnings"
     user = request.user
+    if not user.is_authenticated():
+        messages.warning(request, "This Tab is populated only for registered users based on the My Tags field in their user profile")
+        text = ""
+    else:
+        text = request.user.profile.my_tags 
+        if not text:
+            messages.warning(request, "Showing posts matching the My Tags fields in your user profile. Currently this field is not set.")
+            
+    return models.query_by_tags(user, text=text)
     
-    if not tab:
-        # if the user has a mytags then switch to that
-        if user.is_authenticated() and user.profile.my_tags:
-            tab = 'mytags'
-        else:
-            tab = 'questions'
+def filter_by_type(request, posts, post_type):
+    "Filters posts by type"
     
-    if tab not in VALID_TABS:
-        messages.error(request, 'Unknown content type requested')
+    # filter is a single type
+    if post_type in POST_TYPE_REV_MAP:
+        return posts.filter(type=post_type)
+    elif post_type == 'sticky':
+        return posts.filter(sticky=True)
+    elif post_type == 'unanswered':
+        return posts.filter(type__in=[POST_QUESTION, POST_FIXME], answer_count=0)
+    elif post_type == 'all':
+        return posts.exclude(type__in=POST_EXCLUDE)
+    elif post_type == 'mytags':
+        return mytags_posts(request)
+    elif post_type == 'recent':
+        return posts.exclude(type=POST_BLOG).select_related('author', 'author__profile','root')
         
-    params = html.Params(tab=tab)
+    msg = html.sanitize('Unknown content type "%s" requested' % post_type)
+    messages.error(request, msg)
+    return posts.all()
+
+def apply_sort(request, posts, value, sticky=True):
+    "Sorts posts by an order"
+    order = ORDER_MAP.get(value)
+    if not order:
+        messages.error(request, 'Unknown sort order requested')
+        order = '-rank'
+    
+    if sticky:
+        args = [ "-sticky", order]
+    else:
+        args = [ order ]
+            
+    return posts.order_by(*args)
+
+# there is a tab bar and a lower "pill" bar
+
+SORT_CHOICES   = "rank,views,votes,answers,creation,edit".split(',')
+
+def index(request, target=''):
+    user = request.user
+    auth = user.is_authenticated()
+    
+    # populate the session data
+    sess = middleware.Session(request)
+    
+    # get the sort order
+    sort_type = sess.sort_order()
+    
+    # get the active target based on history
+    tab, pill = sess.tabpill(target)
+    
+    # an override of the types
+    target = pill if pill else target
+    
+    # get the numerical value for these posts
+    post_type = POST_TYPE_MAP.get(target, target)
+    
+    # override the sort order if the content so requires
+    sort_type = 'creation' if tab=='recent' else sort_type
+        
+    # the params object will carry
+    layout = settings.USER_PILL_BAR if auth else settings.ANON_PILL_BAR
+    
+    # wether to show the type of the post
+    show_type = post_type in ('all', 'recent')
+    params  = html.Params(tab=tab, pill=pill, sort=sort_type, sort_choices=SORT_CHOICES, layout=layout, show_type=show_type)
     
     # this will fill in the query (q) and the match (m)parameters
     params.parse(request)
     
-    # update with counts
-    counts = request.session.get(SESSION_POST_COUNT, {})
-
     # returns the object manager that contains all or only visible posts
     posts = get_post_manager(request)
-
-    # sort selected in the dropdown. by default lists cannot be sorted
-    sort = ''
-    sort_choices = []
-
-    # filter the posts by the tab that the user has selected
-    if tab == "popular":
-        choices = {
-            'views': posts.filter(type=POST_QUESTION).order_by('-views'),
-            'votes': posts.filter(type=POST_QUESTION).order_by('-full_score'),
-            'answers': posts.filter(type=POST_QUESTION).order_by('-answer_count'),
-            'bookmarks': posts.raw('SELECT server_post.*, count(server_post.id) as bookmarks \
-                FROM server_post INNER JOIN server_vote ON server_post.id = server_vote.post_id WHERE \
-                server_vote.type = %s GROUP BY server_post.id ORDER BY bookmarks DESC LIMIT 100', [const.VOTE_BOOKMARK]),
-        }
-        sort = request.GET.get('sort')
-        sort = sort if sort in choices else 'views'
-        sort_choices = choices.keys()
-        posts = choices[sort]
-        if sort == 'bookmarks':
-            posts = list(posts)
-        #posts = posts[:POSTS_PER_PAGE]
-    elif tab == "questions":
-        posts = posts.filter(type=POST_QUESTION)
-        choices = {
-            'rank': posts.order_by('-rank'),
-            'new': posts.order_by('-creation_date'),
-            'edited': posts.order_by('-lastedit_date'),
-        }
-        sort = request.GET.get('sort')
-        sort = sort if sort in choices else 'rank'
-        sort_choices = choices.keys()
-        posts = choices[sort]
-    elif tab == "unanswered":
-        posts = posts.filter(type=POST_QUESTION, answer_count=0).order_by('-creation_date')
-    elif tab == "recent":
-        posts = posts.order_by('-creation_date')
-    elif tab == 'planet':
-        posts = posts.filter(type=POST_BLOG).order_by('-rank')
-        models.decorate_posts(posts, user)
-    elif tab == 'forum':
-        posts = posts.filter(type__in=POST_FORUMLEVEL).order_by('-rank')
-    elif tab == 'tutorials':
-        posts = posts.filter(type=POST_TUTORIAL).order_by('-rank')
-    elif tab == 'mytags':
-        if user.is_authenticated():
-            text  = user.profile.my_tags
-            if not text:
-                messages.warning(request, "This Tab will show posts matching the My Tags fields in your user profile.")
-            else:
-                messages.info(request, "Filtering by %s" % text)
-            #posts = posts.filter(type__in=POST_TOPLEVEL,tag_set__name__in=tags).order_by('-rank')
-            posts = models.query_by_tags(user,text=text)
-            
-        else:
-            messages.warning(request, "This Tab is populated only for registered users based on the My Tags field in their user profile")
-            posts = []
-    else:
-        posts = posts.order_by('-rank')
-
-    # put sort options in params so they can be displayed
-    params.update(dict(sort=sort, sort_choices=sort_choices))
     
-    # reset the counts
-    update_counts(request, tab, 0)
+    # filter posts by type
+    posts = filter_by_type(request=request, posts=posts, post_type=post_type)
+    
+    # apply the sort order, sticky is only active in the tab
+    sticky = target not in ('all', 'recent')
+    posts = apply_sort(request=request, posts=posts, value=sort_type, sticky=sticky)
+    
+    # this is necessary because the planet posts require more attributes
+    if tab == 'planet':
+        models.decorate_posts(posts, request.user)
+        
+    # get the counts for the session
+    counts = sess.get_counts(post_type)
     page = get_page(request, posts, per_page=POSTS_PER_PAGE)
+    
+    # save the session
+    sess.save()
+   
     return html.template(request, name='index.html', page=page, params=params, counts=counts)
-
+    
 def show_tag(request, tag_name=None):
     "Display posts by a certain tag"
     user = request.user
-    params = html.Params(nav='', tab='tags', sort='')
+    # populate the session data
+    sess = middleware.Session(request)
+    
+    # get the sort order
+    sort_type = sess.sort_order()
+    
+    # get the active target based on history
+    tab, pill = sess.tabpill()
+    
+    params = html.Params(nav='', tab=tab, sort='')
+    
+    # the params object will carry
+    layout = settings.USER_PILL_BAR if auth else settings.ANON_PILL_BAR
+    
+    # wether to show the type of the post
+    params  = html.Params(tab=tab, pill='all', sort=sort_type, sort_choices=SORT_CHOICES, layout=layout)
+    
     msg = 'Filtering by tag: <b>%s</b>. Subscribe to an <a href="/feeds/tag/%s/">RSS feed</a> to this tag.' % (tag_name,tag_name)
     messages.info(request, msg)
-    posts = models.query_by_tags(user=user, text=tag_name).order_by('-rank')
+    posts = models.query_by_tags(user=user, text=tag_name)
+    posts = apply_sort(request=request, posts=posts, value=sort_type)
     page  = get_page(request, posts, per_page=20)
     return html.template( request, name='index.html', page=page, params=params)
 
@@ -162,6 +202,8 @@ def show_user(request, uid, post_type=''):
         posts = get_post_manager(request).filter(type=post_type, author=user).order_by('-creation_date')
     else:
         posts = get_post_manager(request).filter(type__in=POST_TOPLEVEL, author=user).order_by('-creation_date')
+
+    posts = posts.select_related('author', 'author__profile', 'root')
     page  = get_page(request, posts, per_page=20)
     return html.template( request, name='index.html', page=page, params=params)
 
@@ -188,7 +230,7 @@ def user_profile(request, uid, tab='activity'):
     bookmarks = models.Vote.objects.filter(author=target, type=VOTE_BOOKMARK).select_related('post', 'post__author__profile').order_by('id')
     awards = models.Award.objects.filter(user=target).select_related('badge').order_by('-date')
 
- # we need to collate and count the awards
+    # we need to collate and count the awards
     answer_count = models.Post.objects.filter(author=target, type=POST_ANSWER).count()
     question_count = models.Post.objects.filter(author=target, type=POST_QUESTION).count()
     comment_count = models.Post.objects.filter(author=target, type=POST_COMMENT).count()
@@ -198,16 +240,20 @@ def user_profile(request, uid, tab='activity'):
     note_count  = models.Note.objects.filter(target=target, unread=True).count()
     bookmarks_count  = models.Vote.objects.filter(author=target, type=VOTE_BOOKMARK).count()
     
-    if tab == 'activity':
-        notes = models.Note.objects.filter(target=target, type=NOTE_USER).select_related('author', 'author__profile', 'root').order_by('-date')
+    if tab in [ 'activity', 'created' ]:
+        if tab == 'created':
+            notes = models.Note.objects.filter(sender=target, target=target, type=NOTE_USER).select_related('author', 'author__profile', 'root').order_by('-date')
+        else:
+            notes = models.Note.objects.filter(target=target, type=NOTE_USER).exclude(sender=target).select_related('author', 'author__profile', 'root').order_by('-date')
+            
         page  = get_page(request, notes, per_page=15)
         # we evalute it here so that subsequent status updates won't interfere
         page.object_list = list(page.object_list)
-        if user==target:
-            models.Note.objects.filter(target=target).update(unread=False)
+        if user == target:
+            models.Note.objects.filter(target=target, unread=True).update(unread=False)
             models.UserProfile.objects.filter(user=target).update(new_messages=0)
             note_count = 0
-        
+            
     elif tab == 'bookmarks':
         bookmarks = models.Vote.objects.filter(author=target, type=VOTE_BOOKMARK).select_related('post', 'post__author__profile').order_by('-date')
         page  = get_page(request, bookmarks, per_page=15)
@@ -227,20 +273,43 @@ def user_list(request):
     params = html.Params(nav='users', sort='')
     if search:
         query = Q(profile__display_name__icontains=search)
-        users = models.User.objects.filter(query).select_related('profile').order_by("-profile__score")
     else:
-        users = models.User.objects.select_related('profile').order_by("-profile__score")
+        query = Q(id__gt=0)
+        
+    users = models.User.objects.filter(query).select_related('profile').order_by("-profile__score", "id")
     page  = get_page(request, users, per_page=24)
     return html.template(request, name='user.list.html', page=page, params=params)
 
 def tag_list(request):
-    tags = models.Tag.objects.all().order_by('-count')
-    page = get_page(request, tags, per_page=50)
+    
+    # remove null tags
+    models.Tag.objects.all().filter(count=0).delete()
+    
+    search  = request.GET.get('m','')[:80] # trim for sanity
+    
+    if search:
+        query = Q(name__icontains=search)
+    else:
+        query = Q(id__gt=0)
+        
+    tags = models.Tag.objects.filter(query).order_by('name')
+    page = get_page(request, tags, per_page=152)
     params = html.Params(nav='tags', sort='')
     return html.template(request, name='tag.list.html', page=page, params=params)
 
 def badge_list(request):
+    user = request.user
+    
     badges = models.Badge.objects.filter(secret=False).order_by('-count', '-type')
+    
+    # set a flag for badges that a user has
+    if user.is_authenticated():
+        earned = set( models.Award.objects.filter(user=user).values_list('badge__name', flat=True).distinct() )
+    else:
+        earned = []
+    for badge in badges:
+        badge.earned = badge.name in earned
+        
     params = html.Params(nav='badges', sort='')
     return html.template(request, name='badge.list.html', badges=badges, params=params)
  
@@ -248,12 +317,23 @@ def post_show(request, pid):
     "Returns a question with all answers"
     user = request.user
 
+    # populate the session data
+    sess = middleware.Session(request)
+    tab, pill = sess.tabpill() # get last visited values
+    
+    auth = user.is_authenticated()
+    layout = settings.USER_PILL_BAR if auth else settings.ANON_PILL_BAR
+    
+    params  = html.Params(tab=tab, pill=pill, layout=layout)
+    
     query = get_post_manager(request)
 
     try:
         root = query.get(id=pid)
         # update the views for the question
-        models.update_post_views(post=root, request=request, hours=settings.POST_VIEW_RANK_GAIN)
+        models.update_post_views(post=root, request=request, minutes=const.POST_VIEW_UPDATE)
+        counts = sess.get_counts()
+    
     except models.Post.DoesNotExist, exc:
         messages.warning(request, 'The post that you are looking for does not exists. Perhaps it was deleted!')
         return html.redirect("/")
@@ -285,7 +365,7 @@ def post_show(request, pid):
     # generate the tag cloud
     #tags = models.Tag.objects.all().order_by('-count')[:50]
     
-    return html.template( request, name='post.show.html', root=root, answers=answers, tree=tree)
+    return html.template( request, name='post.show.html', root=root, answers=answers, tree=tree, params=params, counts=counts)
  
 def redirect(post):
     return html.redirect( post.get_absolute_url() )
@@ -387,11 +467,18 @@ def post_redirect(request, pid):
     post = models.Post.objects.get(id=pid)
     return html.redirect( post.get_absolute_url() )
 
-def blog_redirect(request, pid):
-    "Used to be able to count the views for a blog"
-    blog = models.Post.objects.get(id=pid, type=POST_BLOG)
-    models.update_post_views(post=blog, request=request, hours=settings.BLOG_VIEW_RANK_GAIN) # 12 hour rank change
-    return html.redirect( blog.get_absolute_url() )
+def linkout(request, pid):
+    "Used to be able to count the views for a linkout"
+    post = models.Post.objects.get(id=pid)
+    models.update_post_views(post=post, request=request)
+    post.set_rank()
+    post.save()
+    if post.url:
+        return html.redirect(post.url)    
+    else:
+        message.error(request, 'linkout used on a post with no url set %s' % post.id)
+        return html.redirect("/")  
+    
 
 def modlog_list(request):
     "Lists of all moderator actions"

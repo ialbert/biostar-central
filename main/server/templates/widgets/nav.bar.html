@@ -1,7 +1,8 @@
  {% load basic %}
  {% load widgets %}
  {% load staticfiles %}
- 
+ {% load url from future %}
+
  <div class="navbar">
       <div class="navbar-inner">
         <div class="container">
@@ -20,25 +21,25 @@
           <div class="nav-collapse">
 
             <ul class="nav">
-              <li {% active 'tags'   nav %}><a href="{% url main.server.views.tag_list %}">Tags</a></li>
-              <li {% active 'users'  nav %}><a href="{% url main.server.views.user_list %}">Users</a></li>
-              <li {% active 'badges' nav %}><a href="{% url main.server.views.badge_list %}">Badges</a></li>
-              <li {% active 'about'  nav %}><a href="{% url main.server.pages.about %}">About</a></li>
-              <li {% active 'faq'    nav %}><a href="{% url main.server.pages.faq %}">FAQ</a></li>
+              <li {% active 'tags'   nav %}><a href="{% url 'main.server.views.tag_list' %}">Tags</a></li>
+              <li {% active 'users'  nav %}><a href="{% url 'main.server.views.user_list' %}">Users</a></li>
+              <li {% active 'badges' nav %}><a href="{% url 'main.server.views.badge_list' %}">Badges</a></li>
+              <li {% active 'about'  nav %}><a href="{% url 'main.server.pages.about' %}">About</a></li>
+              <li {% active 'rss'    nav %}><a href="{% url 'main.server.pages.rss' %}">RSS</a></li>
             </ul>
             
-            <form class="navbar-search pull-left" action="{% url main.server.search.main %}" method="get">
+            <form class="navbar-search pull-left" action="{% url 'main.server.search.main' %}" method="get">
               <input type="text" name='q' class="search-query" value="{{q}}" placeholder="Search">
             </form>
              
             {%if user.is_authenticated %}
             <p class="nav navbar-text pull-right">
                 {% if user.profile.new_messages %}
-                <a class="btn btn-success" href='{% url main.server.views.user_profile user.id %}'><i class="icon-envelope icon-white"></i> {% bignum user.profile.new_messages %}</a>
+                <a class="btn btn-success" href='{% url 'main.server.views.user_profile' user.id %}'><i class="icon-envelope icon-white"></i>&nbsp;{% bignum user.profile.new_messages %}</a>
                 {% endif %}
                 &nbsp;
                  <i class="icon-user icon-white"></i>
-                 <a href="{% url main.server.views.user_profile user.id %}">{{ user.profile.display_name }}</a> {% flair user %} <b>{% bignum user.profile.score %}</b>
+                 <a href="{% url 'main.server.views.user_profile' user.id %}">{{ user.profile.display_name }}</a> {% flair user %} <b>{% bignum user.profile.score %}</b>
                  | <a href="/logout/?next_page=/">Logout</a>
             </p>
             {% else %}

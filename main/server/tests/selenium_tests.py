@@ -11,11 +11,6 @@ def page(browser):
 
 def contains(text, parts):
     for part in parts:
-        # give it a chance to load, not sure if this does what I think it does though
-        for i in range(10):
-            if part in text:
-                break
-            time.sleep(0.2)
         assert part in text, "Unable to find %s in the text" % part
         
 def get(browser, link=None, name=None, id=None):
@@ -44,7 +39,7 @@ def feed_check(browser):
     
     elem, text  = click('About')
     elem, text  = click('Feeds page')
-    targets = "Latest Questions,Follow multiple posts,Follow multiple tags,Follow multiple users".split(",")
+    targets = "New Posts,New Questions,Follow multiple posts,Follow multiple tags,Follow multiple users".split(",")
     for link in targets:    
         elem, text = click(link)
         elem = browser.back()
@@ -53,8 +48,8 @@ def simple_navigation(browser):
     "Simple navigation through the site"
     click = partial(click_func, browser)
     
-    targets = "Tags Badges About FAQ Recent Popular Questions Unanswered Planet Forum Tutorials Search RSS".split()
-    targets.extend( [ 'New Post!', 'My Tags', 'Sign In' ] )
+    targets = "Tags Users Badges About Recent Planet Search Posts News Questions Unanswered Tutorials Tools Videos Jobs RSS".split()
+    targets.extend( [ 'Posts', 'Show All', 'New Post!',  'Sign In' ] )
     for link in targets:    
         elem, text = click(link)
 
@@ -75,9 +70,11 @@ def fill(browser, text, name=None, id=None, submit=False):
 def post_lookup(browser):
     click = partial(click_func, browser)
     
+    click("next>")
     target = "Gene ID conversion tool"
     elem, text = click(target)
-    parts = "5 answers,Dondrup,uniprot,Biomart".split(",")
+    time.sleep(2)
+    parts = "Dondrup,uniprot,Biomart,Agilent".split(",")
     contains(text, parts=parts)
     targets = "similar posts,permalink,revisions".split(",")
     for link in targets:
@@ -139,6 +136,7 @@ def update_user(browser):
     fill(browser, "mapping", name="my_tags")
     fill(browser, "Cool Bot", name="display_name")
     click(id='submit-button')
+    click("Posts")
     click("My Tags")    
     title = "Gene ID conversion tool"
     click(title)
@@ -178,7 +176,7 @@ def voting_test(browser):
     user = login(browser=browser, uid=10)
     
     click = partial(click_func, browser)
-    title = "Gene ID conversion tool"
+    title = "How to organize a pipeline of small scripts together?"
     click(title)
     
     post = models.Post.objects.get(title=title)
@@ -220,7 +218,7 @@ def voting_test(browser):
     # check bookmarking
     bookmark  = browser.find_elements_by_class_name("vote-bookmark")[0]
     bookmark.click()
-    
+    time.sleep(2)
     count = models.Vote.objects.filter(author=user, post=post, type=const.VOTE_BOOKMARK).count()
     if bookmarked:
         assert count == 0, 'Bookmark has not been removed'
@@ -235,11 +233,11 @@ def voting_test(browser):
 tests = [
     simple_navigation,
     post_lookup,
-    feed_check,
     quick_search,
     update_user,
     create_content_1,
     voting_test,
+    feed_check,
 ]
 
 def main(url):
@@ -248,6 +246,9 @@ def main(url):
     
     for func in tests:
         browser.get(url)
+        # give a chance to the page to load up
+        # not sure why this is needed
+        time.sleep(2)
         func(browser)
     browser.close()
 

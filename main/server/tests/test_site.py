@@ -345,7 +345,7 @@ class SimpleNav(TestCase):
         c = Client()
         tabs = "recent popular mytags questions unanswered planet forum tutorials".split()
         for tab in tabs:
-            r = c.get(reverse("show", kwargs={'tab':tab}))
+            r = c.get(reverse("show", kwargs={'target':tab}))
             eq(r.status_code, 200)
             
     def Xtest_post_edit(self):

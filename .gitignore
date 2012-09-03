@@ -1,11 +1,12 @@
 *.pyc
 *~
 .DS_Store
+.idea/*
 biostar.db
 import/*
 main/db/*
 coverage.xml
 report/*
 conf/*
-export/*
+apache/export/*
 libs/*

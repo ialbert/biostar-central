@@ -46,7 +46,7 @@ from django_openid_auth.exceptions import (
     RequiredAttributeNotReturned,
 )
 
-from main.scripts.migrate import generate_nickname
+from main.bin.migrate import generate_nickname
 
 class OpenIDBackend:
     """A django.contrib.auth backend that authenticates the user based on

@@ -1,0 +1,3 @@
+User-agent: *
+Disallow: /more/like/
+Disallow: /search/

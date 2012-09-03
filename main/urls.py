@@ -7,6 +7,8 @@ from main.server import const
 from django.contrib import admin
 admin.autodiscover()
 
+handler500 = 'main.server.action.url500'
+
 urlpatterns = patterns('main.server',
 
     # main index page
@@ -16,7 +18,7 @@ urlpatterns = patterns('main.server',
     url(r'^more/like/(?P<pid>\d+)/$', 'search.more', name="more"),
     
     # show by content type
-    url(r'^show/(?P<tab>\w+)/$', 'views.index', name="show"),
+    url(r'^show/(?P<target>\w+)/$', 'views.index', name="show"),
     
     # show tagged posts
     url(r'^show/tag/(?P<tag_name>.+)/$', 'views.show_tag', name="show-tag"),
@@ -24,7 +26,7 @@ urlpatterns = patterns('main.server',
     # show posts by user
     url(r'^show/user/(?P<uid>\d+)/$', 'views.show_user', name="show-user"),
     url(r'^show/user/(?P<uid>\d+)/(?P<post_type>\w+)/$', 'views.show_user', name="show-user-content"),
-    url(r'^show/blog/(?P<pid>\d+)/$', 'views.blog_redirect', name="blog-redirect"),
+    url(r'^linkout/(?P<pid>\d+)/$', 'views.linkout', name="linkout"),
     
     # urls for the navigation bar
     url(r'^tag/list/$', 'views.tag_list', name="tag-list"),
@@ -53,6 +55,9 @@ urlpatterns = patterns('main.server',
     url(r'^post/show/(?P<pid>\d+)/([-\w]+)/$', 'views.post_show', name="post-show-slug"),
     url(r'^post/redirect/(?P<pid>\d+)/$', 'views.post_redirect', name="post-redirect"),
     
+    # turned off reparenting for now
+    #url(r'^post/reparent/(?P<pid>\d+)/$', 'action.post_reparent', name="post-reparent"),
+
     # editing an existing post/answer/comment
     url(r'^post/edit/(?P<pid>\d+)/$','views.post_edit', name="post-edit"),
     
@@ -73,7 +78,8 @@ urlpatterns = patterns('main.server',
     url(r'^faq/$','pages.faq', name='faq'),
     url(r'^beta/$','pages.beta', name='beta'),
     url(r'^google/$','pages.google', name='google'),
-    
+    url(r'^testpage/$','pages.testpage', name='testpage'),
+
     # lists all moderator actions
     url(r'^modlog/list/$', 'views.modlog_list', name="modlog-list"),
   
@@ -87,30 +93,39 @@ urlpatterns = patterns('main.server',
     url(r'^note/clear/(?P<uid>\d+)/$','action.note_clear', name="note-clear"),
    
     # redirecting to new post
+    url(r'^questions/(?P<pid>\d+)/$','action.redirect_post', name="redirect-short"),
     url(r'^questions/(?P<pid>\d+)/([-\w]+)/$','action.redirect_post', name="redirect-post"),
     url(r'^questions/tagged/(?P<tag>.+)/$','action.redirect_tag', name="redirect-tag"),
 
     # test login, used during debugging
     url(r'^test/login/(?P<uid>\d+)/(?P<token>[\w\d]+)/$','action.test_login', name="test-login"),
    
+   
 )
+
+
 
 #
 # Generic views
 #
 from django.views.generic.list import ListView
+from django.views.generic import TemplateView
 from main.server import models
 
 urlpatterns += patterns('',
     url(r'^blog/list/$', ListView.as_view(
         queryset = models.Blog.objects.all().select_related('author__profile'),
         template_name='generic/blog.list.html'), name='blog-list'),
+    
+     # matching the robots.txt
+    url(r'^robots\.txt$', TemplateView.as_view(template_name="robots.txt"), name='robots'),
+
 )
 
 #
 # RSS Feeds 
 #
-from server.feeds import LatestEntriesFeed, NotificationFeed, MyTagsFeed
+from server.feeds import LatestEntriesFeed, NotificationFeed, MyTagsFeed, PostTypeFeed
 from server.feeds import TagsFeed, PostFeed, UserFeed
 
 urlpatterns += patterns('',
@@ -122,7 +137,8 @@ urlpatterns += patterns('',
     url(r'^feeds/tag/(?P<text>[\w\-_\+]+)/$', TagsFeed(), name='tags-feed' ),
     url(r'^feeds/post/(?P<text>[\w\-_\+]+)/$', PostFeed(), name='post-feed' ),
     url(r'^feeds/user/(?P<text>[\w\-_\+]+)/$', UserFeed(), name='user-feed' ),
-
+    url(r'^feeds/type/(?P<text>[\w\-_\+]+)/$', PostTypeFeed(), name='post-type-feed' ),
+    
     # openid authentication
     url(r'^openid/', include('django_openid_auth.urls'), name='openid-login'),
     url(r'^logout/$', 'django.contrib.auth.views.logout',  {'next_page':'/'}, name='logout'),

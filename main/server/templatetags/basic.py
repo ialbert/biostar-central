@@ -78,7 +78,7 @@ def gravatar(user, size=80):
     gravatar_url += urllib.urlencode({
         'gravatar_id':hashlib.md5(user.email).hexdigest(),
         'size':str(size),
-        'd':'mm',
+        'd':'identicon',
         }
     )
     return """<img src="%s" alt="gravatar for %s"/>""" % (gravatar_url, user.username)
@@ -118,7 +118,7 @@ def designation(user):
     if user.profile.is_admin:
         return 'Administrator: '
     elif user.profile.is_moderator:
-        return 'Moderator: '
+        return 'Editor: '
     elif user.profile.type == const.USER_BLOG:
         return 'Blog: '
     return "User"
@@ -145,16 +145,25 @@ templates = {}
 
 def load_templates():
     for typeid, typename in const.POST_MAP.items():
+        
+        # this is the type of the template as a string
+        typename = typename.lower()
+        
+        # see if the template has been overriden, and generate a default value
+        default = 'rows/row.%s.html' % typename
+        fname   = settings.TEMPLATE_ROWS.get(typename, default)
         try:
-            templates[typeid] = template.loader.get_template('rows/row.%s.html' % typename.lower())
+            templates[typeid] = template.loader.get_template(fname)
         except TemplateDoesNotExist:
+            # fall back to a template that should exist
+            #print "*** template loader loading default row for type '%s" % fname
             templates[typeid] = template.loader.get_template('rows/row.post.html')
 
 load_templates()
 
 
 @register.simple_tag
-def table_row(post):
+def table_row(post, params):
     "Renders an html row for a post "
     global row_question, row_answer, row_comment, row_post, row_blog, row_forum
     
@@ -162,7 +171,7 @@ def table_row(post):
         # this is necessary to force the reload during development
         load_templates()
 
-    c = Context( {"post": post})
+    c = Context( {"post": post, 'params':params})
 
     template = templates[post.type]
     text = template.render(c)

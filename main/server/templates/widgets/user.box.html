@@ -1,13 +1,13 @@
 {# displays a box with user information in it #}
 {% load basic %}
 {% load widgets %}
-
+{% load url from future %}
 <div class="user-box">
     <div>
-        <a alt="avatar" href="{% url main.server.views.user_profile user.id %}">{% gravatar user size %}</a>
+        <a alt="avatar" href="{% url 'main.server.views.user_profile' user.id %}">{% gravatar user size %}</a>
     </div>
     <div>
-        <a alt="name" href="{% url main.server.views.user_profile user.id %}">{{user.profile.display_name}}</a>&nbsp;{% flair user %}
+        <a alt="name" href="{% url 'main.server.views.user_profile' user.id %}">{{user.profile.display_name}}</a>&nbsp;{% flair user %}
     </div>
     <div>{% userrep user %}</div>
 </div>   

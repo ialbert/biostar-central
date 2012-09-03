@@ -4,6 +4,8 @@ Too many viewa in the main views.py
 Started refactoring some here, this will eventually store all form based
 actions whereas the main views.py will contain url based actions.
 """
+import os, sys, traceback
+
 from datetime import datetime, timedelta
 from main.server import html, models, auth, notegen
 from main.server.html import get_page
@@ -33,9 +35,9 @@ class UserForm(forms.Form):
     display_name = forms.CharField(max_length=30,  initial="", widget=forms.TextInput(attrs={'size':'30'}))   
     email        = forms.CharField(max_length=100,  initial="", widget=forms.TextInput(attrs={'size':'50'}))
     location     = forms.CharField(max_length=100,  required=False, initial="", widget=forms.TextInput(attrs={'size':'50'}))
-    website      = forms.CharField(max_length=200,  required=False, initial="", widget=forms.TextInput(attrs={'size':'50'}))
-    my_tags      = forms.CharField(max_length=200,  required=False, initial="", widget=forms.TextInput(attrs={'size':'50'}))
-    about_me     = forms.CharField(max_length=500, required=False, initial="", widget=forms.Textarea (attrs={'class':'span6'}))
+    website      = forms.CharField(max_length=250,  required=False, initial="", widget=forms.TextInput(attrs={'size':'50'}))
+    my_tags      = forms.CharField(max_length=250,  required=False, initial="", widget=forms.TextInput(attrs={'size':'50'}))
+    about_me     = forms.CharField(max_length=2500, required=False, initial="", widget=forms.Textarea (attrs={'class':'span6'}))
     scholar      = forms.CharField(max_length=50,  required=False, initial="", widget=forms.TextInput(attrs={'size':'30'}))
 
 LAST_CLEANUP = datetime.now()
@@ -124,6 +126,52 @@ def user_edit(request, uid):
             
             url = reverse('main.server.views.user_profile', kwargs=dict(uid=target.id))
             return html.redirect(url)
+
+@login_required(redirect_field_name='/openid/login/')
+def post_reparent(request, pid, rid=0):
+    "Reparent a post"
+    
+    post = models.Post.objects.get(id=pid)
+    root = post.root
+    parent = post.parent
+
+    allow = auth.authorize_post_edit(post=post, user=request.user, strict=False)
+    
+    if not allow:
+        messages.error(request, "Reparent access denied")
+        return html.redirect(post.get_absolute_url())
+
+    if post.type in POST_TOPLEVEL or post == post.root:
+        messages.error(request, "Cannot reparent a toplevel post")
+        return html.redirect(post.get_absolute_url())
+
+    # these are the valid targets
+    targets = models.Post.objects.filter(root=root).select_related('author', 'author__profile').exclude(id__in=(post.id, parent.id))
+
+    target = request.REQUEST.get('target')
+    if target:
+        target =  models.Post.objects.get(id=target)
+        
+        if target not in targets:
+            messages.error(request, "Invalid reparent %s -> %s" % (post.id, target.id) )
+            return html.redirect(post.get_absolute_url())
+        
+        # comment to comment reparent is not yet supported
+        if target.type == POST_COMMENT and post.type == POST_COMMENT:
+            messages.error(request, "Comment to comment reparent %s -> %s not implemented" % (post.id, target.id) )
+            return html.redirect(post.get_absolute_url())
+
+        # perfomr the reparent
+        post.parent = target
+        question = (target.type == POST_QUESTION)
+        post.type = POST_ANSWER if question else POST_COMMENT
+        post.save()
+
+        # valid target to be applied
+        messages.info(request, "Reparenting %s to %s" % (post.id, target.id))
+        return html.redirect(post.get_absolute_url())
+        
+    return html.template(request, name='post.reparent.html', post=post, targets=targets)
 
 def badge_show(request, bid):
     "Shows users that have earned a certain badge"
@@ -270,28 +318,38 @@ def test_login(request, uid, token):
         messages.error(request, "Test login failed.")
         
     return html.redirect("/")   
-        
+     
+def url500(request):
+    "Custom error handler"
+    
+    type, value, tb = sys.exc_info()
+    trace = traceback.format_exc()
+    trace = "\n<trace>\n%s</trace>" % trace
+    logger.error(trace)
+    
+    return html.template(request, name='500.html', path=request.path, value=value)
+    
 #
 # this is only used to map redirects from the old site
 #
-try:
-    POST_REMAP_FILE = '%s/db/post-remap.txt' % settings.HOME_DIR
+POST_REMAP_FILE = '%s/db/post-remap.txt' % settings.HOME_DIR
+if os.path.isfile(POST_REMAP_FILE):
     REMAP = dict( [line.split() for line in file(POST_REMAP_FILE)] )
-except Exception, exc:
-    print '*** %s' % exc
-
+else:
+    REMAP = {}
+    
 def redirect_post(request, pid):
     try:
         nid = REMAP[pid]
         post = models.Post.objects.get(id=nid)
-        return html.redirect(post.get_absolute_url())   
+        return html.redirect(post.get_absolute_url(), permanent=True)   
     except Exception, exc:
         messages.error(request, "Unable to redirect: %s" % exc)
         return html.redirect("/")
         
 def redirect_tag(request, tag):
     try:
-        return html.redirect("/show/tag/%s/" % tag)   
+        return html.redirect("/show/tag/%s/" % tag, permanent=True)   
     except Exception, exc:
         messages.error(request, "Unable to redirect: %s" % exc)
         return html.redirect("/")   

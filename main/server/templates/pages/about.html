@@ -29,6 +29,11 @@
     future visitors find their way.
   </div>
   
+  <div class="title">FAQ</div>
+  <div class="par">
+    See the <a href="{% url main.server.pages.faq %}">Frequently Asked Questions</a> page
+  </div>
+  
   <div class="title">RSS Feeds</div>
   <div class="par">
     See the <a href="{% url main.server.pages.rss %}">Feeds page</a> <img src="{{STATIC_URL}}img/feed-icon-small.png">
@@ -39,7 +44,9 @@
     <a href="http://creativecommons.org/licenses/by/3.0/">Attribution 3.0 Unported (CC BY 3.0)</a> This means that you should
     attribute the work either to the <b>author</b> and/or to the <b>site</b>, depending on the scope and presentation of the information.
     That being said our community embraces the <a href="http://en.wikipedia.org/wiki/Fair_use">fair use policy</a> that permits
-    limited use of copyrighted material without acquiring permission from the rights holders. 
+    limited use of copyrighted material without acquiring permission from the rights holders.
+    Encryped and anonymized datadumps <a href="http://www.biostars.org/static/data/">will periodically be made available.</a>
+    
   </div>
   
    <div class="title">Citing Biostar</div>
@@ -54,7 +61,7 @@
     
     <div class="par"> 
             <a href="{% url main.server.views.user_list %}">{{params.user_count|intcomma}} users</a> have contributed 
-            <a href="{% url main.server.views.index tab='recent' %}">{{params.post_count|intcomma}} posts</a> distributed as 
+            <a href="{% url main.server.views.index target='recent' %}">{{params.post_count|intcomma}} posts</a> distributed as 
             {{params.question_count|intcomma}} questions, {{params.answer_count|intcomma}} answers and  
             {{params.comment_count|intcomma}} comments
     </div>
@@ -98,7 +105,7 @@
     <div class="title">Biostar Administrators</div>
     
     <div class="par">
-        Administrators may moderate posts and may promote users to moderator status.
+        Administrators may moderate posts and may promote users to Editor status.
     </div>
     
     <div style="margin-top:5px">
@@ -109,11 +116,11 @@
 </div>
 
 <div class="row">
-    <div class="title">Biostar Moderators</div>
+    <div class="title">Biostar Editors</div>
     
     <div class="par">
-        Moderators may edit, delete and reclassify all posts.
-        Every few months we promote moderators based on activity and reputation.
+        Editors may edit, delete and reclassify all posts.
+        Every few months we promote editors based on activity and reputation.
     </div>
     
     <div style="margin-top:5px">

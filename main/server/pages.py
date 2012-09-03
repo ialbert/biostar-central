@@ -4,6 +4,8 @@ semi-static pages
 from django.conf import settings
 from main.server import html, models
 from main.server.const import *
+from django.db import connection
+from django.contrib.sites.models import Site
 
 def about(request):
     "Renders the about page"
@@ -45,3 +47,18 @@ def beta(request):
     "Renders the beta test information page"
     params = html.Params(nav='')
     return html.template(request, name='pages/beta.html', params=params)
+
+def testpage(request):
+    "Renders a test page"
+    user = request.user
+    params = html.Params(nav='rss')
+
+    posts = models.Post.objects
+    posts = posts.exclude(type=POST_BLOG).select_related('author', 'author__profile')
+    posts = posts.order_by('-rank')[:10]
+    posts = list(posts)
+
+
+    rows = connection.queries
+
+    return html.template(request, name='pages/testpage.html', params=params, user=user, rows=rows)

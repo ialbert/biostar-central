@@ -11,6 +11,7 @@
     <script src="{{ STATIC_URL }}js/handlers.js"></script>
     <script src="{{ STATIC_URL }}js/csrf.js"></script>
     <script src="{{ STATIC_URL }}js/vote.js"></script>
+    <meta name="robots" content="nofollow" />
 {% endblock %}
 
 {% block document_ready %}
@@ -94,36 +95,39 @@
 </div>
 {% endif %}
 
+
+<div class="row">
+    <div class="title" id="status">Status</div>    
+        <div class="par">
+            {{ target.profile.display_name }} has contributed <a href="{% url main.server.views.show_user target.id %}">{{params.post_count}} posts</a>: 
+             <a href="{% url main.server.views.show_user target.id 'question' %}">{{params.question_count}} questions</a>, 
+             <a href="{% url main.server.views.show_user target.id 'answer' %}">{{params.answer_count}} answers</a> and 
+             <a href="{% url main.server.views.show_user target.id 'comment' %}">{{params.comment_count}} comments</a>. 
+            User  has voted <b>{{params.vote_count}}</b> times  and has earned <b>{{params.award_count}}</b> badges. 
+        </div>
+</div>
+
 <div class="row">
     {# this the tabs that get selected for different pages #}
     <ul class="nav nav-tabs">
-        <li {% active 'activity' params.tab %}><a href="{% url main.server.views.user_profile target.id %}">Activity{% show_value params.note_count %}</a></li>
+        <li {% active 'activity' params.tab %}><a href="{% url main.server.views.user_profile target.id %}">Notifications{% show_value params.note_count %}</a></li>
+        <li {% active 'created' params.tab %}><a href="{% url main.server.views.user_profile target.id 'created' %}">Content Created</a></li>
         <li {% active 'bookmarks' params.tab %}><a href="{% url main.server.views.user_profile target.id 'bookmarks' %}">Bookmarks{% show_value params.bookmarks_count %}</a></li>
         <li {% active 'badges' params.tab %}><a href="{% url main.server.views.user_profile target.id 'badges' %}">Badges{% show_value params.award_count %}</a></li>
         {% if target.profile.can_moderate %}
-            <li {% active 'moderator' params.tab %}><a href="{% url main.server.views.user_profile target.id 'moderator' %}">Moderator</a></li>
+            <li {% active 'moderator' params.tab %}><a href="{% url main.server.views.user_profile target.id 'moderator' %}">Moderator Actions</a></li>
         {% endif %}
-    
     </ul>
 </div>
 
 <div class="row">
 <div class="span12">
 {% if params.tab == 'activity' %}
-    <div class="title" id="status">Status</div>
     
     <div class="par">
-        {{ target.profile.display_name }} has contributed <a href="{% url main.server.views.show_user target.id %}">{{params.post_count}} posts</a>,  
-         <a href="{% url main.server.views.show_user target.id 'answer' %}">{{params.answer_count}} answers</a> and 
-         <a href="{% url main.server.views.show_user target.id 'comment' %}">{{params.comment_count}} comments</a>. 
-        User  has voted {{params.vote_count}} times  and has earned {{params.award_count}} badges. 
+        Activity on posts that this user has interacted with. See the  <a href="{% url main.server.pages.rss %}">RSS</a> page on how to set up feeds.
     </div>
     
-    <div class="title" id="status">Activity</div>
-    <div class="par">
-        Below we show activity on posts that this user has interacted with. See the  <a href="{% url main.server.pages.rss %}">RSS</a> page on how to set up feeds.
-
-    </div>
     <div class="note-list">
         {% if page.object_list and page.paginator.num_pages > 1 %}
             <div class="row">
@@ -148,6 +152,30 @@
     </div>
     {% endif %}
 
+{% endif %}
+
+{% if params.tab == 'created' %}
+    
+    <div class="par">
+        Content created by {{target.profile.display_name}}.See the  <a href="{% url main.server.pages.rss %}">RSS</a> page on how to set up feeds.
+    </div>
+    <div class="note-list">
+        {% if page.object_list and page.paginator.num_pages > 1 %}
+            <div class="row">
+                {% page_bar %}
+            </div>
+        {% endif %}
+    
+        <table class="table table-striped">
+        {% for note in page.object_list %}
+            <tr><td class="msg {{note.status}}"> <i>{% time_ago note.date %}</i> &bull; {{ note.html|safe }}</td></tr>
+        {% empty %}
+            <tr><td><div class="empty">&bull; no messages</div><td></tr>
+        {% endfor %}
+        </table>        
+        
+    </div>
+    
 {% endif %}
 
 {% if params.tab == 'bookmarks' %}

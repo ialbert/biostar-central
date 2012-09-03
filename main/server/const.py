@@ -3,6 +3,8 @@ Various constants used throught the site
 
 WARNING: DO NOT CHANGE ON PRODUCTION SEVERS! 
 """
+import string
+
 # The name of the editor group
 MODERATOR_GROUP = 'mod_group'
 
@@ -20,11 +22,13 @@ VOTE_SESSION_LENGTH = 60   # in seconds, the time intervals to reset vote limit
 VOTE_SESSION_LENGTH = timedelta(seconds=VOTE_SESSION_LENGTH)
 
 FIRST_SESSION = 'first-session'
+LASTSORT_SESSION = 'last-sort'
 
 # Add at the end
-POST_QUESTION, POST_ANSWER, POST_COMMENT, POST_TUTORIAL, POST_BLOG, POST_FORUM, POST_NEWS, POST_REVIEW, POST_OTHER = range(1, 10)
+POST_QUESTION, POST_ANSWER, POST_COMMENT, POST_TUTORIAL, POST_BLOG, POST_FORUM, POST_NEWS, POST_REVIEW, POST_TOOL, POST_FIXME, POST_VIDEO, POST_JOB, POST_PUBLICATION, POST_OTHER = range(1, 15)
 POST_TYPES  = ( (POST_ANSWER, 'Answer') , (POST_COMMENT, 'Comment'), (POST_QUESTION, 'Question'), (POST_TUTORIAL, 'Tutorial'), 
-    (POST_BLOG, 'Blog'), (POST_FORUM, 'Forum'), (POST_NEWS, 'News'), (POST_REVIEW, 'Review') )
+    (POST_BLOG, 'Blog'), (POST_FORUM, 'Forum'), (POST_NEWS, 'News'), (POST_REVIEW, 'Review'), (POST_TOOL, 'Tool'), (POST_VIDEO, 'Video'),
+    (POST_FIXME, 'FixMe'), (POST_JOB, 'Job'), (POST_PUBLICATION, 'Research Paper') )
 
 # direct mapping for quick lookups
 POST_MAP  = dict( POST_TYPES )
@@ -32,11 +36,27 @@ POST_MAP  = dict( POST_TYPES )
 # reverse mapping for quick lookups
 POST_REV_MAP = dict( (y.lower(),x) for (x,y) in POST_MAP.items() )
 
+# entities that will be displayed on the navigation bar
+POST_NAV_BAR = [  ]
+POST_NAV_BAR_LOWER = map(string.lower, POST_NAV_BAR)
+
+# valid tab bars entries
+VALID_TABS  = set( "recent posts planet sticky".split() )
+
+# valid pill tab entries
+VALID_PILLS = set( "mytags all news questions unanswered publications tutorials tools videos jobs".split() )
+
+# valid targets
+VALID_TARGETS = VALID_TABS | VALID_PILLS
+
 # posts that only have content, no title or tags
 POST_CONTENT_ONLY = set( [POST_ANSWER, POST_COMMENT ])
 
 # these posts must have parent
 POST_SUBLEVEL = set( [POST_ANSWER, POST_COMMENT ])
+
+# main level posts 
+POST_EXCLUDE = set( [POST_ANSWER, POST_COMMENT, POST_BLOG ])
 
 # toplevel posts may stand alone and must have title and tags
 POST_TOPLEVEL = set( POST_MAP.keys() ) - POST_SUBLEVEL
@@ -65,6 +85,10 @@ USER_STATUS_TYPES = ( (USER_ACTIVE, 'Active'), (USER_SUSPENDED, 'Suspended') )
 POST_OPEN, POST_CLOSED, POST_DELETED = 100, 200, 300
 POST_STATUS_TYPES = ( (POST_OPEN, 'Open'), (POST_CLOSED, 'Closed'), (POST_DELETED, 'Deleted') )
 
+# the time between registering two post views
+# from the same IP, in minutes
+POST_VIEW_UPDATE = 30
+
 # revision constants
 REV_NONE, REV_CLOSE, REV_REOPEN, REV_DELETE, REV_UNDELETE = range(1000, 1005)
 REV_ACTIONS = (
@@ -86,3 +110,13 @@ BADGE_BRONZE, BADGE_SILVER, BADGE_GOLD = 0, 1, 2
 BADGE_TYPES = ((BADGE_BRONZE, 'bronze'), (BADGE_SILVER, 'silver'), (BADGE_GOLD, 'gold'))
 
 BETA_TESTER_BADGE = "Beta Tester"
+
+TARGET_COUNT_MAP = {
+    POST_NEWS : "News",
+    POST_QUESTION : "Question",
+    POST_TOOL : "Tool",
+    POST_TUTORIAL : "Tutorial",
+    POST_JOB : "Job",
+    POST_BLOG: "Blog",
+    "unanswered" : "Unanswered",
+}

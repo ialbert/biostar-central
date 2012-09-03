@@ -1,29 +1,17 @@
-
-{% extends "base.html" %}
-
-{% load basic %}
-
-{% block title %}
-    500 Error - BioStar
-{% endblock %}
-
-{% block body %}
-   
-<div class="par">
+<html>
     
-    <div class="alert alert-error">There has been an internal server error!</div>
+<body>
     
-    <div class="alert alert-error">If the error persists please contact us with the content below</div>
-    
-    
-    <pre>
-    REQUEST_PATH={{params.path}}
-    </pre>
-    
-    <pre>
-    EXCEPTION={{ params.exc }}
-    </pre>
+<pre>
 
-</div>
+Biostar Internal Error
 
-{% endblock %}            
+PATH: {{path}}
+
+ERROR: {{value}}
+
+If the problem persist please notify us at admin@biostars.org
+</pre>
+           
+</body>
+</html>

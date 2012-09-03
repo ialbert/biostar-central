@@ -4,18 +4,16 @@
 #
 import os, sys, re
 
+# database migrations via Django South
+import south
+
 def path(*args):
     "Generates absolute paths"
     return os.path.abspath(os.path.join(*args))
 
+
 # on deployed servers make this unique, and don't share it with anybody.
 SECRET_KEY = '007'
-
-# the minimal reputation needed for a user to ask new questions
-MINIMUM_REPUTATION = 0
-
-# the number of posts a new user may make in a single day
-NEWBIE_MAX_POSTS_PER_DAY = 3
 
 # turn off debug mode on deployed servers
 DEBUG = True
@@ -25,6 +23,9 @@ TEMPLATE_DEBUG = DEBUG
 
 # admin site may fail if this setting is active
 TEMPLATE_STRING_IF_INVALID = "*** MISSING ***"
+
+# the time in seconds between session updates
+SESSION_UPDATE_TIME = 10 * 60  # in seconds
 
 ADMINS = (
     ('Default Admin', 'your-mail-here@your-server-here.com'),
@@ -48,7 +49,7 @@ DATABASE_DIR  = path(HOME_DIR, 'db')
 DATABASE_NAME = path(DATABASE_DIR, 'biostar.db')
 TEMPLATE_DIR  = path(HOME_DIR, 'main', 'templates')
 STATIC_DIR    = path(HOME_DIR, 'static')
-EXPORT_DIR    = path(HOME_DIR, '..', 'export')
+EXPORT_DIR    = path(HOME_DIR, '..', 'apache', 'export')
 WHOOSH_INDEX  = path(HOME_DIR, 'db', 'index')
 PLANET_DIR    = path(HOME_DIR, 'db', 'planet')
 
@@ -155,7 +156,6 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'main.middleware.LastVisit',
-    'main.middleware.ErrorCheckMiddleware'
 )
 
 CACHES = {
@@ -170,12 +170,12 @@ CACHES = {
 
 ROOT_URLCONF = 'main.urls'
 
-TEMPLATE_DIRS = (
+TEMPLATE_DIRS = [
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
     TEMPLATE_DIR,
-)
+]
 
 TEMPLATE_CONTEXT_PROCESSORS = (
     "django.contrib.auth.context_processors.auth",
@@ -206,7 +206,7 @@ ALLOW_OPENID_MIGRATION = True
 LOGIN_URL = '/openid/login/'
 LOGIN_REDIRECT_URL = '/'
 
-INSTALLED_APPS = (
+INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -220,10 +220,11 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     'django.contrib.admindocs',
+    'south',
     'main.server',
     'django_openid_auth',
     'django.contrib.sitemaps',
-)
+]
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
@@ -278,13 +279,59 @@ GOOGLE_DOMAIN  = ""
 CONTENT_INDEXING = True
 
 # rank gains expressed in hours
-POST_UPVOTE_RANK_GAIN = 3
-POST_VIEW_RANK_GAIN = 1
-BLOG_VIEW_RANK_GAIN = 12
+POST_UPVOTE_RANK_GAIN = 1
+POST_VIEW_RANK_GAIN = 0.1
+BLOG_VIEW_RANK_GAIN = 0.1
 
 # if this is set together with the DEBUG mode allows test logins
 # don't turn it on in production servers!
 SELENIUM_TEST_LOGIN_TOKEN = None
+
+# setting the session for multiple servers
+SESSION_COOKIE_DOMAIN = ""
+
+#
+# TEMPLATE LAYOUT,
+# One may override these variables from the settings file
+# 
+
+# this data governs the layout of the PILL_BAR    
+# bar name, link url, link name, counter key
+USER_PILL_BAR = [
+    ("all", "/show/all/", "Show&nbsp;All", "" ),
+    ("mytags", "/show/mytags/", "My&nbsp;Tags", "" ),
+    ("news", "/show/news/", "News", "News" ),
+    ("questions", "/show/questions/", "Questions", "Question" ),
+    ("unanswered", "/show/unanswered/", "Unanswered", "Unanswered" ),
+    ("tutorials", "/show/tutorials/", "Tutorials", "Tutorial" ),
+    ("tools", "/show/tools/", "Tools", "Tool" ),
+    ("videos", "/show/videos/", "Videos", "Video" ),
+    ("jobs", "/show/jobs/", "Jobs", "Job" ),
+]
+
+ANON_PILL_BAR = [
+    ("all", "/show/all/", "Show&nbsp;All", "" ),
+    ("news", "/show/news/", "News", "News" ),
+    ("questions", "/show/questions/", "Questions", "Question" ),
+    ("unanswered", "/show/unanswered/", "Unanswered", "Unanswered" ),
+    ("tutorials", "/show/tutorials/", "Tutorials", "Tutorial" ),
+    ("tools", "/show/tools/", "Tools", "Tool" ),
+    ("videos", "/show/videos/", "Videos", "Video" ),
+    ("jobs", "/show/jobs/", "Jobs", "Job" ),
+]
+
+#
+# remapping the templates to local versions
+# a row is the way a post is rendered on a page
+# list below the templates to be loaded for a post type
+# to reduce clutter there is a default mapper that
+# for missing types attempts to map each type to rows/row.type.html
+# django template lookup rules apply
+#
+TEMPLATE_ROWS = {
+    
+    'job': "rows/row.job.html",
+}
 
 # version check, we can do it at the end since
 # the version is only required in subsequent modules

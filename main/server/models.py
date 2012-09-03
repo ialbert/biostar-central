@@ -20,7 +20,7 @@ from main.server import html, notegen, auth
 
 # import all constants
 from main.server.const import *
-import markdown
+
 
 import logging
 logger = logging.getLogger(__name__)
@@ -105,6 +105,11 @@ class UserProfile( models.Model ):
         new_count  = Note.objects.filter(target=self.user, unread=True).count()
         return (note_count, new_count)
 
+    def update_expiration(self):
+        "Checks the expiration"
+        self.last_visited = datetime.now()
+        self.save()
+                
 class ProfileAdmin(admin.ModelAdmin):
     list_display = ('display_name', 'user', 'type')
     search_fields = ['display_name']
@@ -176,10 +181,19 @@ class Post(models.Model):
     # this will maintain parent-child replationships between posts
     parent = models.ForeignKey('self', null=True, blank=True, related_name='children')
        
+    # the number of answer that a post has
     answer_count    = models.IntegerField(default=0, blank=True)
-    accepted        = models.BooleanField(default=False, blank=True)
+    
+    # bookmark count
+    book_count = models.IntegerField(default=0, blank=True)
+    
+    # stickiness of the post
+    sticky = models.IntegerField(default=0, db_index=True)
+    
+    # wether the post has accepted answers
+    accepted = models.BooleanField(default=False, blank=True)
    
-    # this is used only for blog posts
+    # used for post with a linkout
     url = models.URLField(default='', blank=True)
 
     # relevance measure, initially by timestamp, other rankings measures
@@ -190,8 +204,11 @@ class Post(models.Model):
             url = "/post/show/%d/%s/" % (self.id, self.slug)
         else:
             url = "/post/show/%d/%s/#%d" % (self.root.id, self.root.slug, self.id)
+        
         # some objects have external links
-        url  = self.url or url
+        if self.url:
+            url = "/linkout/%s/" % self.id
+            
         return url
           
     def set_tags(self):
@@ -263,6 +280,9 @@ class Post(models.Model):
         objs = Post.objects.filter(parent=self, type=POST_COMMENT).select_related('author','author__profile')
         return objs
     
+    def set_rank(self):
+        self.rank = html.rank(self)
+
     def combine(self):
         "Returns a compact view that combines all parts of a post. Used in computing diffs between revisions"
         if self.type in POST_CONTENT_ONLY:
@@ -270,19 +290,19 @@ class Post(models.Model):
         else:
             return "TITLE:%s\n%s\nTAGS:%s" % (self.title, self.content, self.tag_val)
 
-def update_post_views(post, request, hours=1):
+def update_post_views(post, request, minutes=30):
     "Views are updated per user session"
-    amount = hours * 3600
-    if request.user.is_anonymous():
-        return
-    viewed = request.session.get(SESSION_VIEW_COUNT, set())
-    if post.id not in viewed:
-        # direct updates bypass signals
-        Post.objects.filter(id=post.id).update(views = F('views') + 1, rank=F('rank') + amount )
+    
+    ip = html.get_ip(request)
+    now = datetime.now()
+    since = now - timedelta(minutes=minutes)
+
+    # one view per hour will be counted per each IP address
+    if not PostView.objects.filter(ip=ip, post=post, date__gt=since):
+        #messages.info(request, "created post view for %s" % post.title)
+        PostView.objects.create(ip=ip, post=post, date=now)        
         post.views += 1
-        viewed.add(post.id)
-        request.session[SESSION_VIEW_COUNT] = viewed
-        View.objects.create(user=request.user, post=post)
+        Post.objects.filter(id=post.id).update(views = F('views') + 1, rank=html.rank(post) )
     return post
     
 def get_post_manager(user):
@@ -299,20 +319,24 @@ def query_by_tags(user, text=''):
     if not text.strip():
         return posts.filter(type=-1)
         
-    tags  = re.split("(\+|-)", text)
-    active = include = []
+    tags  = text.split('+')
+    include = []
     exclude = []
     for tag in tags:
-        if tag == '-':
+        if tag.endswith('!'):
+            tag = tag[:-1]
+            if not tag:
+                continue
             active = exclude
-        elif tag == '+':
+        else:
             active = include
-        elif tag:
-            active.append(tag)
+        active.append(tag)
     if include:
-        res =  posts.filter(type__in=POST_TOPLEVEL, tag_set__name__in=include).exclude(tag_set__name__in=exclude).order_by('-rank').distinct()
+        res =  posts.filter(type__in=POST_TOPLEVEL, tag_set__name__in=include).exclude(tag_set__name__in=exclude)
     else:
-        res =  posts.filter(type__in=POST_TOPLEVEL).exclude(tag_set__name__in=exclude).order_by('-rank').distinct()
+        res =  posts.filter(type__in=POST_TOPLEVEL).exclude(tag_set__name__in=exclude)
+    #res = res.select_related('author', 'author_profile', 'root')
+    res = res.order_by('-rank').distinct()
     return res
 
 def query_by_mytags(user):
@@ -337,51 +361,17 @@ class BlogAdmin(admin.ModelAdmin):
     
 admin.site.register(Blog, BlogAdmin)
 
-# TODO, not yet used
-class Related(models.Model):
+class PostView(models.Model):
     """
-    Maintains a relationship between related posts
-    """
-    source  = models.ForeignKey(Post, related_name="source")
-    target  = models.ForeignKey(Post, related_name="target")
-
-class Visit(models.Model):
-    """
-    Keeps track of user visits
+    Keeps track of post views based on IP base.
     """
     ip = models.GenericIPAddressField(default='', null=True, blank=True)
-    user  = models.ForeignKey(User)
-    date  = models.DateTimeField(null=False, auto_now=True)
-
-class VisitAdmin(admin.ModelAdmin):
-    list_display = ('ip', 'username', 'user', 'date')
-    search_fields = ['user__email']
-    def username(self, obj):
-        return "%s, id=%s" % (obj.user.email, obj.user.id)
-    username.short_description = 'Description'
+    post = models.ForeignKey(Post, related_name="post_views")
+    date = models.DateTimeField(auto_now=True)
     
-admin.site.register(Visit, VisitAdmin)
-
-class View(models.Model):
-    """
-    Keeps track of post views
-    """
-    user  = models.ForeignKey(User, related_name="user_views")
-    post  = models.ForeignKey(Post, related_name="post_views")
-    date  = models.DateTimeField(null=False, auto_now=True)
-    
-# TODO: not yet used, will speed up queries
-class PostBody(models.Model):
-    """
-    Represents the content of a post body.
-    It is kept separate to avoid having to retrieve during object queries.
-    """
-    post    = models.ForeignKey(Post, related_name='bodies')
-    content = models.TextField(null=False, blank=False, max_length=10000) # the underlying Markdown
-    html    = models.TextField(blank=True) # this is the sanitized HTML for display
-   
 class PostAdmin(admin.ModelAdmin):
     list_display = ('id', 'title', )
+    search_fields = ['id', 'title' ]
 
 admin.site.register(Post, PostAdmin)
 
@@ -451,6 +441,11 @@ def post_moderate(request, post, user, status, date=None):
         post.delete()
         return "/"
     
+    # replace tags with the word deleted
+    if status == POST_DELETED:
+        post.tag_val = "deleted-post"
+        post.set_tags()
+        
     post.status = status
     post.save()
    
@@ -561,25 +556,21 @@ class Note(models.Model):
     def status(self):
         return 'unread' if self.unread else "old"
      
-def post_score_change(post, amount=1, hours=1):
+def post_score_change(post, amount=1):
     "How post score changes with votes. Both the rank and the score changes"
 
     root = post.root
-    
-    gain = 3600 * hours # the rank increase
-    post.rank  += amount * gain
+        
+    # post score increases
     post.score += amount
-    if post == root:
-        post.full_score += amount
-    post.save()
+    post.full_score += amount
     
-    # different root also needs updating
     if post != root:
         root.full_score += amount
-        if post.rank > root.rank:
-            root.rank = post.rank
         root.save()
-        
+
+    post.save()
+   
     return post, post.root
 
 def user_score_change(user, amount):
@@ -603,14 +594,16 @@ class Vote(models.Model):
         
         post, root = self.post, self.post.root
         if self.type == VOTE_UP:
-            post_score_change(post, amount=dir, hours=settings.POST_UPVOTE_RANK_GAIN)
+            post_score_change(post, amount=dir)
             user_score_change(post.author, amount=dir)
         
         if self.type == VOTE_DOWN:
-            post_score_change(post, amount=-dir, hours=settings.POST_UPVOTE_RANK_GAIN)
+            post_score_change(post, amount=-dir)
+            user_score_change(post.author, amount=-dir)
             
         if self.type == VOTE_ACCEPT:
             post.accepted = root.accepted = (dir == 1)
+            user_score_change(post.author, amount=1)
             post.save()
             root.save()
             
@@ -684,8 +677,12 @@ class Award(models.Model):
     
     def __unicode__(self):
         return "%s earned by %s" % (self.badge.name, self.user.email)
+
+class AwardAdmin(admin.ModelAdmin):
+    list_display = ('badge', 'user', 'date')
+    search_fields = ['badge__name', 'user__email']
     
-admin.site.register(Award)
+admin.site.register(Award, AwardAdmin)
 
 # most of the site functionality, reputation change
 # and voting is auto applied via database signals
@@ -753,21 +750,14 @@ def verify_post(sender, instance, *args, **kwargs):
         instance.lastedit_date = instance.creation_date
     instance.lastedit_date = instance.lastedit_date or now
     
-    # attempts to create a rank that is no more than 5 levels lower than the highest ranked post
-    def get_rank(post):
-        now = time.mktime(post.creation_date.timetuple())
-        ranks = list(Post.objects.filter(type=post.type).values_list('rank', flat=True).order_by('-rank')[:5]) + [ now ]
-        ranks = sorted(ranks)
-        rank  = max((now, ranks[0]))
-        return rank
-            
-    instance.rank = instance.rank or get_rank(instance)
+    # assings the rank of the instance
+    instance.set_rank()
     
     # generate a slug for the instance        
     instance.slug = slugify(instance.title)
         
     # generate the HTML from the content
-    instance.html = html.generate(instance.content.strip())
+    instance.html = html.generate(instance.content)
 
     # post gets flagged as changed on saving
     instance.changed = True
@@ -840,7 +830,7 @@ signals.pre_save.connect( update_profile, sender=UserProfile )
 
 # post signals
 signals.pre_save.connect( verify_post, sender=Post )
-signals.post_save.connect( finalize_post, sender=Post )
+signals.post_save.connect( finalize_post, sender=Post)
 
 # note signals
 signals.pre_save.connect( verify_note, sender=Note )
