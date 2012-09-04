@@ -112,9 +112,57 @@ def create_content_1(browser):
     title = "How to get to Zanzibar?"
     fill(browser, title, name='title')
     fill(browser, "zanzibar", name='tag_val' )
-    fill(browser, "Other nearby island countries and territories include \
-         Comoros and Mayotte to the south, Mauritius and Reunion to the far southeast,\
-    and the Seychelles Islands about 1,500 km to the east", name='content')
+    content = """
+Other nearby island countries and territories include 
+Comoros and Mayotte to the south, Mauritius and Reunion to the far southeast,
+and the Seychelles Islands about 1,500 km to the east
+
+Users and Posts
+===============
+
+Shortcuts to link to users and posts:
+
+    \user 2
+    \post 28
+    
+Results in \user 2 and \post 28
+
+For each of the examples you may list multiple values separated by commas:
+
+    \user 3,4
+    \post 34,79
+    
+Results in \user 3,4 and \post 34,79
+
+Embedding Gist
+==============
+
+[Gist](https://gist.github.com/) is a simple way to share snippets and pastes with others.
+All gists are git repositories, so they are automatically versioned, forkable and usable as a git repository 
+
+    \gist 2059
+    
+Result: \gist 2059
+
+Embed Search
+============
+
+Remind someone how to serch the site with
+
+    \search this
+    
+Result: \search this
+
+Embed Youtube
+=============
+
+Use the Youtube ID (see the URL)
+
+    \youtube 1ZyoI-4ObSA
+
+Results in \youtube 1ZyoI-4ObSA
+    """
+    fill(browser, content, name='content')
     click(id="submit-button")
     click("zanzibar")
     
@@ -239,6 +287,8 @@ tests = [
     voting_test,
     feed_check,
 ]
+
+tests = [ create_content_1 ]
 
 def main(url):
     browser = webdriver.Firefox()

@@ -15,22 +15,31 @@ class MainLexer:
        'LINK',
        'REFERENCE',
        'ORPHAN',
-       'TAG_OPEN',
-       'TAG_CLOSE',
+       'CODE_OPEN', 'CODE_CLOSE',
+       'TAG_OPEN', 'TAG_CLOSE',
        'COMMAND',
        'TEXT',
     )
 
-    def t_ANY_NEWLINE(self, t):
+    def t_pre_NEWLINE(self, t):
         r'\n|\r\n'
         self.lexer.code_block = False
         self.lexer.start_line = True
         return t
 
-    def t_ANY_SPACE(self, t):
+    def t_post_NEWLINE(self, t):
+        r'\n|\r\n'
+        self.lexer.start_line = True
+        return t
+
+    def t_pre_SPACE(self, t):
         r'(\s+)'
         if len(t.value) == 4 and self.lexer.start_line:
             self.lexer.code_block = True
+        return t
+
+    def t_post_SPACE(self, t):
+        r'(\s+)'
         return t
 
     def t_pre_REFERENCE(self, t):
@@ -51,6 +60,16 @@ class MainLexer:
         self.lexer.start_line = False
         return t
     
+    def t_ANY_CODE_OPEN(self, t):
+        r'<code>'
+        self.lexer.code_block = True
+        return t
+    
+    def t_ANY_CODE_CLOSE(self, t):
+        r'</code>'
+        self.lexer.code_block = False
+        return t
+    
     def t_ANY_TAG_OPEN(self, t):
         r'<\w+>'
         self.lexer.start_line = False
@@ -63,7 +82,8 @@ class MainLexer:
 
     def t_post_COMMAND(self, t):
         r'\\\w+\s+[a-zA-Z0-9_,\-]*'
-        t.value = parse_command(t.value)
+        if not self.lexer.code_block:
+            t.value = parse_command(t.value)
         self.lexer.start_line = False
         return t
 
@@ -95,6 +115,13 @@ class MainLexer:
                  break
              print tok,  self.lexer.code_block, tok.value
 
+def user_html(vals):
+    from main.server import models
+    posts = models.User.objects.filter(id__in=vals).select_related('user__profile')
+    patt  = '<a href="%s">%s</a>'
+    coll  = [patt % (u.profile.get_absolute_url(), u.profile.display_name) for u in posts ]
+    return ", " .join(coll)
+    
 def post_html(vals):
     from main.server import models
     posts = models.Post.objects.filter(id__in=vals)
@@ -107,6 +134,23 @@ def gist_html(vals):
     coll  = [patt % v for v in vals ]
     return ", " .join(coll)
 
+def search_html(vals):
+    html = """
+<div id="cse" style="width: 100%;">Loading</div>
+<script src="http://www.google.com/jsapi" type="text/javascript"></script>
+<script type="text/javascript"> 
+  google.load('search', '1', {language : 'en', style : google.loader.themes.GREENSKY});
+  google.setOnLoadCallback(function() {
+    var customSearchOptions = {};  var customSearchControl = new google.search.CustomSearchControl(
+      '003596843386727440968:raditaczxza', customSearchOptions);
+    customSearchControl.setResultSetSize(google.search.Search.FILTERED_CSE_RESULTSET);
+    customSearchControl.draw('cse');
+  }, true);
+</script>
+</div>
+"""
+    return html
+    
 def youtube_html(vals):
     patt = r'''
     <div>
@@ -118,7 +162,9 @@ def youtube_html(vals):
 
 CMD_MAP = {
     '\\post':post_html,
+    '\\user':user_html,
     '\\gist':gist_html,
+    '\\search': search_html,
     '\\youtube':youtube_html,
 }
 
