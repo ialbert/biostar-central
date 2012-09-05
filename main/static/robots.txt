@@ -6,8 +6,3 @@ Disallow: /feeds
 Disallow: /new
 Disallow: /revision
 Disallow: /openid
-Disallow: /show/user
-Disallow: /show/tag
-Disallow: /tag/list
-Disallow: /questions
-Disallow: /post/redirect

@@ -123,21 +123,11 @@ are set properly these can be invoked as:
 Versioning
 -----------
 
-BioStar uses the [common versioning nomenclature][versioning] that consists of three numbers called major.minor.revision
-The minor version number will always be bumped when the database schema changes. 
-Database dumps can only be loaded into the same minor versions that created them. 
-New installations of BioStar are automatically migrated.
-
-Existing installations of BioStar will need to be migrated manually via the command:
-
-    python manage.py migrate main.server
-
-Invoke the above command after loading the proper environment.
-The version number is located in the file main/server/__init__.py can be automatically extracted via the command:
-
-    python -c "import main.server; print main.server.VERSION"
+BioStar uses the [common versioning nomenclature][versioning] that consists of three numbers called `major.minor.revision`
+See the [NEWS.md][news] file for release numbers and version migration information.
 
 [versioning]: http://en.wikipedia.org/wiki/Software_versioning#Sequence-based_identifiers
+[news]: https://github.com/ialbert/biostar-central/blob/master/NEWS.md
 
 Testing
 -------

@@ -133,7 +133,7 @@ def index(request, target=''):
     
     # wether to show the type of the post
     show_type = post_type in ('all', 'recent')
-    params  = html.Params(tab=tab, pill=pill, sort=sort_type, sort_choices=SORT_CHOICES, layout=layout, show_type=show_type)
+    params  = html.Params(tab=tab, pill=pill, sort=sort_type, sort_choices=SORT_CHOICES, layout=layout, show_type=show_type, title="Bioinformatics Answers on BioStar")
     
     # this will fill in the query (q) and the match (m)parameters
     params.parse(request)
@@ -159,6 +159,15 @@ def index(request, target=''):
     # save the session
     sess.save()
    
+    # try to set a more informative title
+    title_map = dict(
+            questions="Bioinformatics Questions", unanswered="Unanswered Questions", tutorials="Bioinformatics Tutorials",
+            jobs="Bioinformatics Jobs", videos="Bioinformatics Videos", news='Bioinformatics News', tools="Bioinformatics Tools",
+            recent="Recent bioinformatics posts", planet="Bioinformatics Planet"
+    )
+    params.title = title_map.get(pill, params.title)
+    params.title = title_map.get(tab, params.title)
+    
     return html.template(request, name='index.html', page=page, params=params, counts=counts)
     
 def show_tag(request, tag_name=None):

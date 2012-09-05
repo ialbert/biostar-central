@@ -4,7 +4,7 @@
 <div class="edit-action">
     <a href="/more/like/{{post.id}}/"><i class="icon-search"></i> similar posts</a>
 
-    &bull; <a href="{{request.path}}#{{post.id}}">permalink</a> 
+    &bull; <a href="{{request.path}}#{{post.id}}">link</a> 
     {% if request.user.is_authenticated %}
         {% csrf_token %}
         &bull; <input type="hidden" value="{{post.id}}">
@@ -40,5 +40,11 @@
     </span>    
     {% endif %}
 
+    
+    &bull; share via
+    
+        <a href="http://twitter.com/share?url=http://{{SITE_DOMAIN}}{{post.get_absolute_url}}">Twitter</a> or
+        <a href="https://plus.google.com/share?url=http://{{SITE_DOMAIN}}{{post.get_absolute_url}}">Google+</a>
+    
 </div>
 

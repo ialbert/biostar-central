@@ -56,7 +56,8 @@ class MainLexer:
         r'((http://|ftp://)\S+)'
         self.lexer.line_start = False
         if not self.lexer.code_block:
-            t.value = "<%s>" % t.value
+            url = t.value.replace(",","")
+            t.value = "<%s>" % url
         self.lexer.start_line = False
         return t
     
@@ -122,6 +123,11 @@ def user_html(vals):
     coll  = [patt % (u.profile.get_absolute_url(), u.profile.display_name) for u in posts ]
     return ", " .join(coll)
     
+def tag_html(vals):
+    tags = "+".join(vals)
+    patt  = '<a href="/show/tag/%s/">%s</a>' %(tags, tags)
+    return patt
+    
 def post_html(vals):
     from main.server import models
     posts = models.Post.objects.filter(id__in=vals)
@@ -164,6 +170,8 @@ CMD_MAP = {
     '\\post':post_html,
     '\\user':user_html,
     '\\gist':gist_html,
+    '\\tag':tag_html,
+    '\\tags':tag_html,
     '\\search': search_html,
     '\\youtube':youtube_html,
 }
@@ -197,14 +205,14 @@ if __name__ == '__main__':
     # Test it out
     text = '''Dear all,
 
-http://www.nd.edu
+http://www.biostars1.org
 
-I am using MACS and to analyze chip-seq data. http://www.nd.edu \gist 2059 \post 10 The PeakSplitter
-here is something. http://www.biostars.org ftp://something?a=b&b=c:5
-    http://www.nd.edu
-    ok this is still inside a codeblock http://www.nd.edu
-[  http://www.biostars.org      ](ok)
-  http://www.x.com
+I am using MACS and to analyze chip-seq data. http://www.biostars2.org \gist 2059 \post 10 The PeakSplitter
+here is something. http://www.biostars3.org ftp://something?a=b&b=c:5
+    http://www.biostars5.org
+    ok this is still inside a codeblock http://www.biostars6.org
+[  http://www.biostars7.org      ](ok)
+  http://www.biostars8.org not indented sufficiently
 [something ]:   http://www.biostars.org
 ok this is outside a codeblock http://www.nd.edu
 \\gist 123,456
@@ -223,6 +231,6 @@ ok this is outside a codeblock http://www.nd.edu
 
     out = process(text, state='post')
 
-    print out
+    #print out
 
    

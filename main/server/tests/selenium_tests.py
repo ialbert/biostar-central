@@ -76,7 +76,7 @@ def post_lookup(browser):
     time.sleep(2)
     parts = "Dondrup,uniprot,Biomart,Agilent".split(",")
     contains(text, parts=parts)
-    targets = "similar posts,permalink,revisions".split(",")
+    targets = "similar posts,link,revisions".split(",")
     for link in targets:
         click(link)
         browser.back()
@@ -113,41 +113,81 @@ def create_content_1(browser):
     fill(browser, title, name='title')
     fill(browser, "zanzibar", name='tag_val' )
     content = """
+    
 Other nearby island countries and territories include 
 Comoros and Mayotte to the south, Mauritius and Reunion to the far southeast,
 and the Seychelles Islands about 1,500 km to the east
 
-Users and Posts
-===============
+Orphan links should be autolinked: http://www.biostars.org, same with ftp://www.biostars.org
+
+Links within codeblocks should be kept verbatim:
+
+    http://www.biostars.org
+    
+We have enabled a number of new features on Biostar. Using these is optional and
+are only meant to facilitate certain use cases.
+
+Shortcuts
+=========
+
+Shortcuts are words that start with a backslash followed by one or more
+comma separated parameters.
+
+For example one if a user would like to share
+code via [Gist][gist] they may write:
+
+    \gist 2059
+
+This shortcut will be replaced inside the post by \gist 2059
+
+Shortcut properties:
+
+- more than one comma separated parameter value may be listed
+- shortcuts will not take effect if they are in a codebox (as in the example).
+- unrecognized shortcuts will pass into the main text unchanged.
+- the preview will not show the results of the shortcuts, users need to submit
+the content to have them take effect.
+
+[gist]: https://gist.github.com/
+
+Shorcuts for Users and Posts
+=============================
 
 Shortcuts to link to users and posts:
 
-    \user 2
-    \post 28
+    \user 23
+    \post 34
     
-Results in \user 2 and \post 28
+Results in \user 23 and \post 34
 
 For each of the examples you may list multiple values separated by commas:
 
-    \user 3,4
+    \user 23,30
     \post 34,79
     
-Results in \user 3,4 and \post 34,79
+Results in \user 23,30 and \post 34,79
+
+Shorcuts for Tags
+=================
+
+    \tag blast,pipeline
+    
+Results in the link \tag blast,pipeline
 
 Embedding Gist
 ==============
 
-[Gist](https://gist.github.com/) is a simple way to share snippets and pastes with others.
+[Gist][gist] is a simple way to share snippets and pastes with others.
 All gists are git repositories, so they are automatically versioned, forkable and usable as a git repository 
 
     \gist 2059
     
 Result: \gist 2059
 
-Embed Search
-============
+Embed Searchbox
+===============
 
-Remind someone how to serch the site with
+To create a filled in search box write:
 
     \search this
     
@@ -156,7 +196,7 @@ Result: \search this
 Embed Youtube
 =============
 
-Use the Youtube ID (see the URL)
+Use the Youtube ID as below (you can extract this ID from the url of the video):
 
     \youtube 1ZyoI-4ObSA
 
@@ -169,9 +209,17 @@ Results in \youtube 1ZyoI-4ObSA
     # check the question appears on other pages
     click("Questions")
     click(title)
-    
+    answer="""
+Take a boat then a plane then a train
+But let's also test orpan linking here: http://www.biostars.org but not insided
+code blocks:
+
+    http://www.biostars.org
+
+First link should be a real html link, second should stay as is.
+"""
     # add an answer
-    fill(browser, 'Take a boat then a plane then a train', name='content')
+    fill(browser, answer, name='content')
     click(id="submit-button")
     
 def update_user(browser):
@@ -288,7 +336,7 @@ tests = [
     feed_check,
 ]
 
-tests = [ create_content_1 ]
+#tests = [ create_content_1 ]
 
 def main(url):
     browser = webdriver.Firefox()
