@@ -2,10 +2,12 @@
 semi-static pages 
 """
 from django.conf import settings
-from main.server import html, models
+from main.server import html, models, formdef
 from main.server.const import *
 from django.db import connection
 from django.contrib.sites.models import Site
+from django.contrib import messages
+from django.core.mail import send_mail
 
 def about(request):
     "Renders the about page"
@@ -31,6 +33,37 @@ def rss(request):
     params = html.Params(nav='rss')
     return html.template(request, name='pages/rss.html', params=params, user=user)
 
+def request_info(request, pid):
+    "Requests information from a source"
+    user = request.user
+    post = models.Post.objects.get(id=pid)
+    
+    params = html.Params(site_domain = settings.SITE_DOMAIN, user=user, post=post)
+    params.subject = "Your expert advice is needed at Biostar"
+    
+    if user.is_authenticated():
+        params.display_name, score = user.profile.display_name, user.profile.score
+    else:
+        params.display_name, score = "Anonymous", 0
+    
+    params.body = html.fill(name='pages/request-info.txt', params=params)
+     
+    LIMIT = 50
+    disabled = score < LIMIT
+    
+    if disabled:
+        messages.error(request, "Note: users with fewer than %s reputation points may not send messages via Biostar. You have %s points" % (LIMIT, score))
+    elif 'submit' in request.POST:
+        form = formdef.RequestInfo(request.POST) 
+        if form.is_valid():
+            send_mail(params.subject, params.body, settings.DEFAULT_FROM_EMAIL, [ form.cleaned_data['email'] ], fail_silently=False)
+            messages.info(request, "Your message has been sent.")
+            return html.redirect( post.get_absolute_url() )
+        else:
+           messages.error(request, "%s" % form.errors) 
+        
+    return html.template(request, name='pages/request-info.html', params=params)
+    
 def google(request):
     "Renders the rss feed page"
     user = request.user

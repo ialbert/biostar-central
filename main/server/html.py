@@ -5,9 +5,10 @@ import re, string, mimetypes, os, json, random, hashlib,  unittest
 from django.template import RequestContext, loader
 from django.core.servers.basehttp import FileWrapper
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponsePermanentRedirect
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response, render
 from django.core.context_processors import csrf
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
+from django.template.loader import render_to_string
 
 from BeautifulSoup import BeautifulSoup, Comment
 
@@ -193,6 +194,12 @@ def template(request, name, mimetype=None, **kwd):
     # parameters that will always be available for the template
     kwd['request'] = request
     resp = render_to_response(name, kwd, context_instance=RequestContext(request))
+    return resp
+
+def fill(name, **kwd):
+    """Renders a template into a string"""
+    # parameters that will always be available for the template
+    resp = render_to_string(name, kwd)
     return resp
 
 def get_ip(request):

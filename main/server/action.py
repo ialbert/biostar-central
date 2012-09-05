@@ -318,7 +318,7 @@ def test_login(request, uid, token):
         messages.error(request, "Test login failed.")
         
     return html.redirect("/")   
-     
+
 def url500(request):
     "Custom error handler"
     

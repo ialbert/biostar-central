@@ -88,4 +88,6 @@ class ChildContent(forms.Form):
     content  = forms.CharField(max_length=10000, validators=[ valid_content ],
         widget=forms.Textarea(attrs={'cols':'80', 'rows':'15', 'id':'editor'}))
 
-
+class RequestInfo(forms.Form):
+    email = forms.CharField(max_length=200)
+    

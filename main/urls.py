@@ -66,6 +66,7 @@ urlpatterns = patterns('main.server',
     url(r'^post/moderate/(?P<pid>\d+)/(?P<status>\w+)/$','action.post_moderate', name="post-moderate"),
     url(r'^merge/$','action.request_merge', name="request-merge"),
     url(r'^approve_merge/(?P<master_id>\d+)/(?P<remove_id>\d+)/$','action.approve_merge', name="approve-merge"),
+    url(r'^request/info/(?P<pid>\d+)/$','pages.request_info', name="request-info"),
     
     # handles new post
     url(r'^new/post/$','views.new_post', name="new-post"),
