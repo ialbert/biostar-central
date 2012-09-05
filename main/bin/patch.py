@@ -12,7 +12,8 @@ from django.db import transaction
 from django.db.models import signals
 from itertools import *
 from collections import defaultdict
-
+from datetime import datetime, timedelta
+   
 def update_bookmark_counts():
     "Updates the bookmark counters. Used after migrating to version 1.2.1"
     votes = models.Vote.objects.filter(type=VOTE_BOOKMARK).select_related('post')
@@ -51,23 +52,16 @@ def resave_posts(patt, skip=0, limit=1000):
         print "resaving %s, %s" % (post.id, post.title)
         post.save()
     
-def remove_notes(target, maxcount=1000):
-    """Clears the notes  for each user"""
+def reduce_notes(weeks=30):
+ 
+    since = datetime.now() - timedelta(weeks=weeks)
+    query = models.Note.objects.filter(date__lt=since)
     
-    last_valid = models.Note.objects.filter(target=target).order_by('-id').exclude(sender=target)[maxcount]
-    clear_rows = models.Note.objects.filter(target=target, id__lt=last_valid.id).exclude(sender=target)
-    clear_rows.delete()
+    print "*** deleting %s entries" % query.count()
     
-    new_count = models.Note.objects.filter(target=target).count()
-    print '*** cleared notes for user %s to %s' % (target.id, new_count)
+    query.delete()
     
     
-def reduce_notes(maxcount=1000):
-    for user in models.User.objects.all():
-        note_count = models.Note.objects.filter(target=user).exclude(sender=user).count()
-        if note_count > 2 * maxcount:
-            remove_notes(user, maxcount=maxcount)
-
 @transaction.commit_manually()    
 def reapply_ranks():
     "Applies the new ranking system on all posts"
@@ -97,7 +91,7 @@ def reapply_ranks():
 if __name__ == '__main__':
     import doctest, optparse
   
-    sys.argv.append( '--update_bookmark_count' )
+    #sys.argv.append( '--bookmarks' )
     
     # options for the program
     parser = optparse.OptionParser()
@@ -109,7 +103,7 @@ if __name__ == '__main__':
     parser.add_option("--reduce_notes", dest="reduce_notes", help="reduce the number of notification to N", action="store_true", default=False)
     parser.add_option("--reapply_ranks", dest="reapply_ranks", help="reapplies ranks to all posts", action="store_true", default=False)
     parser.add_option("--update_domain", dest="update_domain", help="updates the site domain to match the settings", action="store_true", default=False)
-    parser.add_option("--update_bookmark_counts", dest="update_bookmark_counts", help="updates bookmark counts", action="store_true", default=False)
+    parser.add_option("--bookmarks", dest="bookmarks", help="updates bookmark counts", action="store_true", default=False)
    
     (opts, args) = parser.parse_args()
     
@@ -125,10 +119,10 @@ if __name__ == '__main__':
         reapply_ranks()
         
     if opts.reduce_notes:
-        reduce_notes(maxcount=opts.n)
+        reduce_notes(weeks=opts.n)
     
     if opts.patt:
         resave_posts(opts.patt, skip=opts.s, limit=opts.n)
     
-    if opts.update_bookmark_counts:
+    if opts.bookmarks:
         update_bookmark_counts()
