@@ -51,6 +51,7 @@ urlpatterns = patterns('main.server',
     url(r'^revision/show/(?P<pid>\d+)/$', 'views.revision_show', name="revision-show"),
 
     # post handlers with or withouth a slug
+    url(r'^p/(?P<pid>\d+)/$', 'views.post_show', name="post-short-show"),
     url(r'^post/show/(?P<pid>\d+)/$', 'views.post_show', name="post-show"),
     url(r'^post/show/(?P<pid>\d+)/([-\w]+)/$', 'views.post_show', name="post-show-slug"),
     url(r'^post/redirect/(?P<pid>\d+)/$', 'views.post_redirect', name="post-redirect"),

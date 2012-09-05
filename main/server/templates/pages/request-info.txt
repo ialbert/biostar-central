@@ -7,7 +7,7 @@ question:
  
 Question: {{params.post.title}}
 
-Link: http://{{params.site_domain}}{{params.post.get_absolute_url}}
+Link: http://{{params.site_domain}}{{params.post.get_short_url}}
 
 Sign In to BioStar Using OpenID at http://www.biostars.org/openid/login/
 

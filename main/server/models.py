@@ -198,7 +198,14 @@ class Post(models.Model):
 
     # relevance measure, initially by timestamp, other rankings measures
     rank = models.FloatField(default=0, blank=True)
-           
+    
+    def get_short_url(self):
+        if self.top_level:
+            url = "/p/%d/" % (self.id)
+        else:
+            url = "/p/%d/" % (self.root.id)
+        return url
+            
     def get_absolute_url(self):
         if self.top_level:
             url = "/post/show/%d/%s/" % (self.id, self.slug)
