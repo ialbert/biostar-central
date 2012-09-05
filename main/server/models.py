@@ -290,7 +290,7 @@ class Post(models.Model):
         else:
             return "TITLE:%s\n%s\nTAGS:%s" % (self.title, self.content, self.tag_val)
 
-def update_post_views(post, request, minutes=30):
+def update_post_views(post, request, minutes=10):
     "Views are updated per user session"
     
     ip = html.get_ip(request)

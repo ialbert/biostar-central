@@ -10,8 +10,8 @@ from django.contrib.sites.models import Site
 def about(request):
     "Renders the about page"
 
-    post_count     = models.Post.objects.filter(status=POST_OPEN).count()
-    question_count = models.Post.objects.filter(status=POST_OPEN, type=POST_QUESTION).count()
+    post_count     = models.Post.objects.filter(status=POST_OPEN).exclude(type=POST_BLOG).count()
+    question_count = models.Post.objects.filter(status=POST_OPEN, type__in=POST_TOPLEVEL).exclude(type=POST_BLOG).count()
     answer_count   = models.Post.objects.filter(status=POST_OPEN, type=POST_ANSWER).count()
     comment_count  = models.Post.objects.filter(status=POST_OPEN, type=POST_COMMENT).count()
     user_count = models.User.objects.filter(profile__status=USER_ACTIVE).count()
