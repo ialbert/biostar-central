@@ -22,8 +22,8 @@ Information request
    <div class="par">
     
 
-   <div class="par">Do you know someone that might be able to answer the question <a href="{{params.post.get_absolute_url}}">{{params.post.title}}</a> 
-   Biostar can send them an email and ask them to contribute. Just enter their email into the box below and we'll do the rest.</div>
+   <div class="par">If you know someone that might be able to answer the question <a href="{{params.post.get_absolute_url}}">{{params.post.title}}</a> 
+   Biostar can send them an email and ask them to contribute. Just enter their email into the text box below and click Send. We'll do the rest.</div>
     
    <form action="{{request.path}}" method="post" id="mainform" class="form-horizontal">
             
@@ -38,6 +38,13 @@ Information request
         </div>
     </div>
     
+     <div class="control-group">
+        <div class="controls">
+            <button type="submit" name="submit" class="btn">Send The Message Below</button>
+        </div>
+    </div>
+   
+
     <div class="control-group">
         <label class="control-label" for="inputPassword">Subject</label>
         <div class="controls">
@@ -46,19 +53,13 @@ Information request
     </div>
     
     <div class="control-group">
-        <label class="control-label" for="inputPassword">The message that will be sent via BioStar</label>
+        <label class="control-label" for="inputPassword">Message</label>
         <div class="controls">
             <textarea id="body" class="wide" rows="20" disabled="True"> {{params.body}}           
             </textarea>
         </div>
     </div>
-    
-    <div class="control-group">
-        <div class="controls">
-            <button type="submit" name="submit" class="btn">Send Message</button>
-        </div>
-    </div>
-    
+
     </form>
     
 </div>
