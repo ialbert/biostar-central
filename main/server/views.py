@@ -182,13 +182,13 @@ def show_tag(request, tag_name=None):
     # get the active target based on history
     tab, pill = sess.tabpill()
     
-    params = html.Params(nav='', tab=tab, sort='')
+    params = html.Params(nav='', tab=tab, sort='' )
     
     # the params object will carry
     layout = settings.USER_PILL_BAR if auth else settings.ANON_PILL_BAR
     
     # wether to show the type of the post
-    params  = html.Params(tab=tab, pill='all', sort=sort_type, sort_choices=SORT_CHOICES, layout=layout)
+    params  = html.Params(tab=tab, pill='all', sort=sort_type, sort_choices=SORT_CHOICES, layout=layout, title="Show tags %s" % tag_name)
     
     msg = 'Filtering by tag: <b>%s</b>. Subscribe to an <a href="/feeds/tag/%s/">RSS feed</a> to this tag.' % (tag_name,tag_name)
     messages.info(request, msg)
@@ -201,7 +201,7 @@ def show_user(request, uid, post_type=''):
     "Displays posts by a user"
 
     user = models.User.objects.filter(id=uid).select_related('profile').all()[0]
-    params = html.Params(nav='', tab='user', sort='')
+    params = html.Params(nav='', tab='user', sort='', title="Activity for user %s" % user.profile.display_name)
 
     # notification
     messages.info(request, 'Filtering by user: %s' % user.profile.display_name)
@@ -233,7 +233,7 @@ def user_profile(request, uid, tab='activity'):
     target.writeable = auth.authorize_user_edit(target=target, user=user, strict=False)
     target.showall = (target == user)
 
-    params = html.Params(tab=tab, sort='')
+    params = html.Params(tab=tab, sort='', title="User %s" % target.profile.display_name)
 
     # these do not actually get executed unless explicitly rendered in the page
     bookmarks = models.Vote.objects.filter(author=target, type=VOTE_BOOKMARK).select_related('post', 'post__author__profile').order_by('id')
