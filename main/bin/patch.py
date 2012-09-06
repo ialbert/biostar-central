@@ -55,14 +55,11 @@ def resave_posts(patt, skip=0, limit=1000):
 def reduce_notes(weeks=30, limit=500):
  
     since = datetime.now() - timedelta(weeks=weeks)
-    for user in models.User.objects.all():
-        
-        size = models.Note.objects.filter(target=user).count()
-        if size > limit:
-            query = models.Note.objects.filter(target=user, date__lt=since)
-            dsize = query.count()    
-            print "*** deleting %s entries" % dsize
-            query.delete()
+    query = models.Note.objects.filter(date__lt=since)
+    dsize = query.count()    
+    
+    print "*** deleting %s entries" % dsize
+    query.delete()
     
     
 @transaction.commit_manually()    
