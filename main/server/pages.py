@@ -48,7 +48,7 @@ def request_info(request, pid):
     
     params.body = html.fill(name='pages/request-info.txt', params=params)
      
-    LIMIT = 50
+    LIMIT = 5
     disabled = score < LIMIT
     
     if disabled:
