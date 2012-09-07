@@ -141,7 +141,7 @@ def index(request, tab='all'):
     posts = filter_by_type(request=request, posts=posts, post_type=post_type)
         
     # apply the sort order, sticky is only active in the tab
-    sticky = tab not in ('all', 'recent')
+    sticky = tab not in ('posts', 'recent')
     
     # order may change if it is invalid search
     posts = apply_sort(request=request, posts=posts, order=sort_type, sticky=sticky)
