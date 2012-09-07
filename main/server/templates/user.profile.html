@@ -98,10 +98,10 @@
 <div class="row">
     <div class="title" id="status">Status</div>    
         <div class="par">
-            {{ target.profile.display_name }} has contributed <a href="{% url main.server.views.show_user target.id %}" rel="nofollow">{{params.post_count}} posts</a>: 
-             <a href="{% url main.server.views.show_user target.id 'question' %}" rel="nofollow">{{params.question_count}} questions</a>, 
-             <a href="{% url main.server.views.show_user target.id 'answer' %}" rel="nofollow">{{params.answer_count}} answers</a> and 
-             <a href="{% url main.server.views.show_user target.id 'comment' %}" rel="nofollow">{{params.comment_count}} comments</a>. 
+            {{ target.profile.display_name }} has contributed <a href="{% url main.server.views.show_user target.id %}" >{{params.post_count}} posts</a>: 
+             <a href="{% url main.server.views.show_user target.id 'question' %}" >{{params.question_count}} questions</a>, 
+             <a href="{% url main.server.views.show_user target.id 'answer' %}" >{{params.answer_count}} answers</a> and 
+             <a href="{% url main.server.views.show_user target.id 'comment' %}" >{{params.comment_count}} comments</a>. 
             User  has voted <b>{{params.vote_count}}</b> times  and has earned <b>{{params.award_count}}</b> badges. 
         </div>
 </div>
@@ -109,12 +109,12 @@
 <div class="row">
     {# this the tabs that get selected for different pages #}
     <ul class="nav nav-tabs">
-        <li {% active 'activity' params.tab %}><a href="{% url main.server.views.user_profile target.id %}" rel="nofollow">Notifications{% show_value params.note_count %}</a></li>
-        <li {% active 'created' params.tab %}><a href="{% url main.server.views.user_profile target.id 'created' %}" rel="nofollow">Content Created</a></li>
-        <li {% active 'bookmarks' params.tab %}><a href="{% url main.server.views.user_profile target.id 'bookmarks' %}" rel="nofollow">Bookmarks{% show_value params.bookmarks_count %}</a></li>
-        <li {% active 'badges' params.tab %}><a href="{% url main.server.views.user_profile target.id 'badges' %}" rel="nofollow">Badges{% show_value params.award_count %}</a></li>
+        <li {% active 'activity' params.tab %}><a href="{% url main.server.views.user_profile target.id %}" >Notifications{% show_value params.note_count %}</a></li>
+        <li {% active 'created' params.tab %}><a href="{% url main.server.views.user_profile target.id 'created' %}" >Content Created</a></li>
+        <li {% active 'bookmarks' params.tab %}><a href="{% url main.server.views.user_profile target.id 'bookmarks' %}" >Bookmarks{% show_value params.bookmarks_count %}</a></li>
+        <li {% active 'badges' params.tab %}><a href="{% url main.server.views.user_profile target.id 'badges' %}" >Badges{% show_value params.award_count %}</a></li>
         {% if target.profile.can_moderate %}
-            <li {% active 'moderator' params.tab %}><a href="{% url main.server.views.user_profile target.id 'moderator' %}" rel="nofollow">Moderator Actions</a></li>
+            <li {% active 'moderator' params.tab %}><a href="{% url main.server.views.user_profile target.id 'moderator' %}" >Moderator Actions</a></li>
         {% endif %}
     </ul>
 </div>
