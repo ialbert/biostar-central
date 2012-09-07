@@ -139,7 +139,7 @@ def index(request, target=''):
     
     # wether to show the type of the post
     show_type = post_type in ('all', 'recent')
-    params  = html.Params(tab=tab, pill=pill, sort=sort_type, sort_choices=SORT_CHOICES, layout=layout, show_type=show_type, title="Bioinformatics Answers on BioStar")
+    params  = html.Params(tab=tab, pill=pill, sort=sort_type, sort_choices=SORT_CHOICES, layout=layout, show_type=show_type, title="Bioinformatics Answers")
     
     # this will fill in the query (q) and the match (m)parameters
     params.parse(request)
