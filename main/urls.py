@@ -18,7 +18,7 @@ urlpatterns = patterns('main.server',
     url(r'^more/like/(?P<pid>\d+)/$', 'search.more', name="more"),
     
     # show by content type
-    url(r'^show/(?P<target>\w+)/$', 'views.index', name="show"),
+    url(r'^show/(?P<tab>\w+)/$', 'views.index', name="show"),
     
     # show tagged posts
     url(r'^show/tag/(?P<tag_name>.+)/$', 'views.show_tag', name="show-tag"),

@@ -298,7 +298,7 @@ SESSION_COOKIE_DOMAIN = ""
 # this data governs the layout of the PILL_BAR    
 # bar name, link url, link name, counter key
 USER_PILL_BAR = [
-    ("all", "/show/all/", "Show&nbsp;All", "" ),
+    ("all", "/", "Show&nbsp;All", "" ),
     ("mytags", "/show/mytags/", "My&nbsp;Tags", "" ),
     ("news", "/show/news/", "News", "News" ),
     ("questions", "/show/questions/", "Questions", "Question" ),
@@ -310,7 +310,7 @@ USER_PILL_BAR = [
 ]
 
 ANON_PILL_BAR = [
-    ("all", "/show/all/", "Show&nbsp;All", "" ),
+    ("all", "/", "Show&nbsp;All", "" ),
     ("news", "/show/news/", "News", "News" ),
     ("questions", "/show/questions/", "Questions", "Question" ),
     ("unanswered", "/show/unanswered/", "Unanswered", "Unanswered" ),
@@ -329,7 +329,6 @@ ANON_PILL_BAR = [
 # django template lookup rules apply
 #
 TEMPLATE_ROWS = {
-    
     'job': "rows/row.job.html",
 }
 

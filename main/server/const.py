@@ -40,14 +40,17 @@ POST_REV_MAP = dict( (y.lower(),x) for (x,y) in POST_MAP.items() )
 POST_NAV_BAR = [  ]
 POST_NAV_BAR_LOWER = map(string.lower, POST_NAV_BAR)
 
-# valid tab bars entries
-VALID_TABS  = set( "recent posts planet sticky".split() )
+# the valid sort orders
+SORT_MAP = dict(
+    rank="-rank", views="-views", creation="-creation_date",
+    edit="lastedit_date", votes="-full_score", answers="-answer_count",
+)
 
-# valid pill tab entries
-VALID_PILLS = set( "mytags all news questions unanswered publications tutorials tools videos jobs".split() )
+# valid pill entries
+VALID_PILLS = set( "mytags all news questions unanswered tutorials tools videos jobs".split() )
 
-# valid targets
-VALID_TARGETS = VALID_TABS | VALID_PILLS
+# valid tab entries
+VALID_TABS = set( "recent planet".split() ) | VALID_PILLS
 
 # posts that only have content, no title or tags
 POST_CONTENT_ONLY = set( [POST_ANSWER, POST_COMMENT ])

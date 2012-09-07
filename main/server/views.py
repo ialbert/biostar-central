@@ -49,11 +49,6 @@ POST_TYPE_MAP = dict(
 
 POST_TYPE_REV_MAP = dict( [ (v,k) for (k,v) in POST_TYPE_MAP.items()] )
 
-ORDER_MAP = dict(
-    rank="-rank", views="-views", creation="-creation_date",
-    edit="lastedit_date", votes="-full_score", answers="-answer_count",
-)
-
 def mytags_posts(request):
     "Gets posts that correspond to mytags settins or sets warnings"
     user = request.user
@@ -84,52 +79,42 @@ def filter_by_type(request, posts, post_type):
     elif post_type == 'recent':
         return posts.exclude(type=POST_BLOG).select_related('author', 'author__profile','root')
     
-    msg = html.sanitize('Unknown content type "%s" requested' % post_type)
-    messages.error(request, msg)
+    return posts.exclude(type__in=POST_EXCLUDE)
     
-    # this is a hotfix to disable runaway bot indexing    
-    return html.raise404()
-    
-    #return posts.all()
-
-def apply_sort(request, posts, value, sticky=True):
+def apply_sort(request, posts, order, sticky=True):
     "Sorts posts by an order"
-    order = ORDER_MAP.get(value)
-    if not order:
-        # this is a hotfix to disable runaway bot indexing
-        messages.error(request, 'Unknown sort order requested')
-        return html.raise404()
-        #order = '-rank'
-    
+    sort_order = SORT_MAP.get(order, "-rank")
     if sticky:
-        args = [ "-sticky", order]
+        args = [ "-sticky", sort_order]
     else:
-        args = [ order ]
-            
+        args = [ sort_order ]
     return posts.order_by(*args)
 
 # there is a tab bar and a lower "pill" bar
 
 SORT_CHOICES   = "rank,views,votes,answers,creation,edit".split(',')
 
-def index(request, target=''):
+def index(request, tab='all'):
     user = request.user
     auth = user.is_authenticated()
     
+    # asking for an invalid tab
+    if tab not in VALID_TABS:
+        msg = html.sanitize('Unknown content type "%s"' % tab)
+        messages.error(request, msg)
+        return html.redirect("/")
+        
     # populate the session data
     sess = middleware.Session(request)
     
     # get the sort order
     sort_type = sess.sort_order()
     
-    # get the active target based on history
-    tab, pill = sess.tabpill(target)
-    
-    # an override of the types
-    target = pill if pill else target
+    # set the last active tab
+    sess.set_tab(tab)
     
     # get the numerical value for these posts
-    post_type = POST_TYPE_MAP.get(target, target)
+    post_type = POST_TYPE_MAP.get(tab, tab)
     
     # override the sort order if the content so requires
     sort_type = 'creation' if tab=='recent' else sort_type
@@ -139,6 +124,11 @@ def index(request, target=''):
     
     # wether to show the type of the post
     show_type = post_type in ('all', 'recent')
+    
+    if tab in VALID_PILLS:
+        tab, pill = "posts", tab
+    else:
+        tab, pill = tab, ""
     params  = html.Params(tab=tab, pill=pill, sort=sort_type, sort_choices=SORT_CHOICES, layout=layout, show_type=show_type, title="Bioinformatics Answers")
     
     # this will fill in the query (q) and the match (m)parameters
@@ -149,10 +139,12 @@ def index(request, target=''):
     
     # filter posts by type
     posts = filter_by_type(request=request, posts=posts, post_type=post_type)
-    
+        
     # apply the sort order, sticky is only active in the tab
-    sticky = target not in ('all', 'recent')
-    posts = apply_sort(request=request, posts=posts, value=sort_type, sticky=sticky)
+    sticky = tab not in ('all', 'recent')
+    
+    # order may change if it is invalid search
+    posts = apply_sort(request=request, posts=posts, order=sort_type, sticky=sticky)
     
     # this is necessary because the planet posts require more attributes
     if tab == 'planet':
@@ -171,7 +163,6 @@ def index(request, target=''):
             jobs="Bioinformatics Jobs", videos="Bioinformatics Videos", news='Bioinformatics News', tools="Bioinformatics Tools",
             recent="Recent bioinformatics posts", planet="Bioinformatics Planet"
     )
-    params.title = title_map.get(pill, params.title)
     params.title = title_map.get(tab, params.title)
     
     return html.template(request, name='index.html', page=page, params=params, counts=counts)
@@ -185,8 +176,8 @@ def show_tag(request, tag_name=None):
     # get the sort order
     sort_type = sess.sort_order()
     
-    # get the active target based on history
-    tab, pill = sess.tabpill()
+    # select based on history
+    tab, pill = "posts", sess.get_tab()
     
     params = html.Params(nav='', tab=tab, sort='' )
     
@@ -194,13 +185,14 @@ def show_tag(request, tag_name=None):
     layout = settings.USER_PILL_BAR if auth else settings.ANON_PILL_BAR
     
     # wether to show the type of the post
-    params  = html.Params(tab=tab, pill='all', sort=sort_type, sort_choices=SORT_CHOICES, layout=layout, title="Show tags %s" % tag_name)
+    params  = html.Params(tab=tab, pill=pill, sort=sort_type, sort_choices=SORT_CHOICES, layout=layout, title="Tagged as %s" % tag_name)
     
     msg = 'Filtering by tag: <b>%s</b>. Subscribe to an <a href="/feeds/tag/%s/">RSS feed</a> to this tag.' % (tag_name,tag_name)
     messages.info(request, msg)
     posts = models.query_by_tags(user=user, text=tag_name)
-    posts = apply_sort(request=request, posts=posts, value=sort_type)
+    posts = apply_sort(request=request, posts=posts, order=sort_type)
     page  = get_page(request, posts, per_page=20)
+
     return html.template( request, name='index.html', page=page, params=params)
 
 def show_user(request, uid, post_type=''):
@@ -334,7 +326,8 @@ def post_show(request, pid):
 
     # populate the session data
     sess = middleware.Session(request)
-    tab, pill = sess.tabpill() # get last visited values
+    tab  = "posts"
+    pill = sess.get_tab()
     
     auth = user.is_authenticated()
     layout = settings.USER_PILL_BAR if auth else settings.ANON_PILL_BAR

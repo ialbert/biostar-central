@@ -1,0 +1,7 @@
+TITLE: Mapping of NGS reads
+TAG: mapping
+This is a simple explanation of how the mapping of short reads works !
+http://www.youtube.com/watch?v=1ZyoI-4ObSA&feature=related
+ see the first 16 min ! It help me a lot to  understand the basic idea of short read mapping 
+
+\youtube 1ZyoI-4ObSA
