@@ -15,7 +15,7 @@ class Session(object):
     saves all at just one time. It also works for non-authenticated users but avoids
     creating a database sessions for them
     """
-    SESSION_KEY, SORT_KEY, COUNT_KEY, TAB = "session-data", 'sort', 'count', 'tabz'
+    SESSION_KEY, SORT_KEY, COUNT_KEY, TAB = "session-data", 'sortz', 'count', 'tabz'
     def __init__(self, request):
         self.request = request
         self.has_storage = request.user.is_authenticated()
