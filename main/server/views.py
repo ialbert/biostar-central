@@ -83,17 +83,23 @@ def filter_by_type(request, posts, post_type):
         return mytags_posts(request)
     elif post_type == 'recent':
         return posts.exclude(type=POST_BLOG).select_related('author', 'author__profile','root')
-        
+    
     msg = html.sanitize('Unknown content type "%s" requested' % post_type)
     messages.error(request, msg)
-    return posts.all()
+    
+    # this is a hotfix to disable runaway bot indexing    
+    return html.raise404()
+    
+    #return posts.all()
 
 def apply_sort(request, posts, value, sticky=True):
     "Sorts posts by an order"
     order = ORDER_MAP.get(value)
     if not order:
+        # this is a hotfix to disable runaway bot indexing
         messages.error(request, 'Unknown sort order requested')
-        order = '-rank'
+        return html.raise404()
+        #order = '-rank'
     
     if sticky:
         args = [ "-sticky", order]

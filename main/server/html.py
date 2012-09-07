@@ -4,12 +4,11 @@ Html utility functions.
 import re, string, mimetypes, os, json, random, hashlib,  unittest
 from django.template import RequestContext, loader
 from django.core.servers.basehttp import FileWrapper
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponsePermanentRedirect
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponsePermanentRedirect, Http404
 from django.shortcuts import render_to_response, render
 from django.core.context_processors import csrf
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.template.loader import render_to_string
-
 from BeautifulSoup import BeautifulSoup, Comment
 
 import html5lib
@@ -27,6 +26,9 @@ from textparser import process
 # safe string transformation
 import string
 SAFE_TAG = set(string.ascii_letters + string.digits + "._-")
+
+def raise404():
+    raise Http404
 
 def safe_tag(text):
     global SAFE_TAG
