@@ -4,7 +4,7 @@ Too many viewa in the main views.py
 Started refactoring some here, this will eventually store all form based
 actions whereas the main views.py will contain url based actions.
 """
-import os, sys, traceback
+import os, sys, traceback, time
 
 from datetime import datetime, timedelta
 from main.server import html, models, auth, notegen
@@ -319,6 +319,37 @@ def test_login(request, uid, token):
         
     return html.redirect("/")   
 
+def get_traffic(end, minutes=60):
+    "Returns the traffic as a number"
+    try:
+        start = end - timedelta(minutes=minutes)
+        traffic = models.PostView.objects.filter(date__gt=start).exclude(date__gt=end).distinct('ip').count()
+    except NotImplementedError, exc:
+        traffic = models.PostView.objects.filter(date__gt=start).exclude(date__gt=end).count()
+    return traffic
+
+def stats(request, days=0):
+    "This return a json data about biostar"
+    from django.utils import simplejson
+    
+    now = datetime.now()
+    end = now - timedelta(days=int(days))
+
+    query = models.Post.objects.filter
+    minutes = 60;
+    data = {
+        'date': end.ctime(),
+        'timestamp': time.mktime(end.timetuple()),
+        'traffic': get_traffic(end, minutes=minutes),
+        'questions': query(type=POST_QUESTION, creation_date__lt=end).count(),
+        'answers': query(type=POST_ANSWER, creation_date__lt=end).count(),
+        'toplevel': query(type__in=POST_TOPLEVEL, creation_date__lt=end).count(),
+        'comments': query(type=POST_COMMENT, creation_date__lt=end).count(),
+        'users': models.User.objects.filter(date_joined__lt=end).count(),
+    }
+    payload = simplejson.dumps(data)
+    return HttpResponse(payload)    
+    
 def url500(request):
     "Custom error handler"
     
