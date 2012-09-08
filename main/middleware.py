@@ -70,13 +70,6 @@ def generate_counts(request, weeks=6):
         if counts:
             return counts
         since = now - timedelta(weeks=weeks)
-    
-    # generate visitor count in the last hour
-    recently = datetime.now() - timedelta(minutes=60)
-    try:
-        visitors = models.PostView.objects.filter(date__gt=recently).distinct('ip').count()
-    except Exception, exc:
-        visitors = models.PostView.objects.filter(date__gt=recently).count()
 
     # posts since the last visit
     pairs = models.Post.objects.filter(type__in=POST_TOPLEVEL, status=POST_OPEN, creation_date__gt=since).order_by('-id').values_list("type", "answer_count")
@@ -93,7 +86,7 @@ def generate_counts(request, weeks=6):
     
     # fill in unanswered posts
     counts['Unanswered'] = unansw
-    counts['Visitors'] = visitors
+    
     if not user.is_authenticated():
         # store the cache key for non-authenticated users
         cache.set(key, counts, 600)
