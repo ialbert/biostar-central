@@ -353,7 +353,7 @@ def stats(request, days=0):
         'timestamp': time.mktime(end.timetuple()),
         'questions': query(type=POST_QUESTION, creation_date__lt=end).count(),
         'answers': query(type=POST_ANSWER, creation_date__lt=end).count(),
-        'toplevel': query(type__in=POST_TOPLEVEL, creation_date__lt=end).count(),
+        'toplevel': query(type__in=POST_TOPLEVEL, creation_date__lt=end).exclude(type=POST_BLOG).count(),
         'comments': query(type=POST_COMMENT, creation_date__lt=end).count(),
         'users': models.User.objects.filter(date_joined__lt=end).count(),
     }
