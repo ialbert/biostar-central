@@ -22,6 +22,7 @@ from django.db.models import Q
 from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.core.mail import send_mail
+from django.utils import simplejson
 
 from whoosh import index
 from whoosh.qparser import QueryParser
@@ -328,10 +329,20 @@ def get_traffic(end, minutes=60):
         traffic = models.PostView.objects.filter(date__gt=start).exclude(date__gt=end).count()
     return traffic
 
+def traffic(request):
+    now = datetime.now()
+    minutes = 60;
+    data = {
+        'date': now.ctime(),
+        'timestamp': time.mktime(now.timetuple()),
+        'traffic': get_traffic(now, minutes=minutes),
+    }
+    payload = simplejson.dumps(data)
+    return HttpResponse(payload)
+
 def stats(request, days=0):
     "This return a json data about biostar"
-    from django.utils import simplejson
-    
+
     now = datetime.now()
     end = now - timedelta(days=int(days))
 
@@ -340,7 +351,6 @@ def stats(request, days=0):
     data = {
         'date': end.ctime(),
         'timestamp': time.mktime(end.timetuple()),
-        'traffic': get_traffic(end, minutes=minutes),
         'questions': query(type=POST_QUESTION, creation_date__lt=end).count(),
         'answers': query(type=POST_ANSWER, creation_date__lt=end).count(),
         'toplevel': query(type__in=POST_TOPLEVEL, creation_date__lt=end).count(),
