@@ -12,7 +12,8 @@
 <div class="row">
     
    <div class="par">
-            This site's focus is <b>bioinformatics</b>, <b>computational genomics</b> and <b>biological data analysis</b>. We welcome posts that are:
+     This site's focus is <b>bioinformatics</b>, <b>computational genomics</b> and <b>biological data analysis</b>. 
+     We welcome posts that are:
   </div>
 
   <ul>
@@ -31,7 +32,7 @@
   
   <div class="title">FAQ</div>
   <div class="par">
-    See the <a href="{% url main.server.pages.faq %}">Frequently Asked Questions</a> page
+    See the <a href="{% url main.server.pages.faq %}">Frequently Asked Questions</a> page.
   </div>
   
   <div class="title">RSS Feeds</div>
@@ -60,6 +61,7 @@
     <div class="title">Current stats</div>
     
     <div class="par"> 
+            We had {{params.visitors}} visitors in the past hour.
             <a href="{% url main.server.views.user_list %}">{{params.user_count|intcomma}} users</a> have contributed 
             <a href="{% url main.server.views.index tab='recent' %}">{{params.post_count|intcomma}} posts</a> distributed as 
             {{params.question_count|intcomma}} questions, {{params.answer_count|intcomma}} answers and  
