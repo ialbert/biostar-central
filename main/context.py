@@ -2,12 +2,16 @@
 Custom context processor
 """
 import itertools
+from datetime import datetime, timedelta
 
 from django.conf import settings
 
 from main import server
 from main.server import models
 from main.server.const import *
+from django.core.cache import cache
+
+TRAFFIC_KEY = 'traffic'
 
 def extras(request):
     "Adds more data to each RequestContext"
@@ -22,7 +26,17 @@ def extras(request):
     
     # the tab bar counts
     counts = request.session.get(SESSION_POST_COUNT, {})
- 
+
+    # cache the traffic counts
+    traffic = cache.get(TRAFFIC_KEY)
+    if not traffic:
+        try:
+            recently = datetime.now() - timedelta(minutes=60)
+            traffic = models.PostView.objects.filter(date__gt=recently).distinct('ip').count()
+        except Exception, exc:
+            traffic = models.PostView.objects.filter(date__gt=recently).count()
+        cache.set(TRAFFIC_KEY, traffic, 600)
+    
     return { 'BIOSTAR_VERSION': server.VERSION,
              'GOOGLE_TRACKER': settings.GOOGLE_TRACKER,
              'GOOGLE_DOMAIN': settings.GOOGLE_DOMAIN,
@@ -30,6 +44,7 @@ def extras(request):
              'q':q, 
              'm':m,
              'counts':counts,
+             'traffic':traffic,
              'params':{}, # this is needed because of the navbar
     }
 

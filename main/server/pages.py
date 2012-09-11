@@ -8,9 +8,16 @@ from django.db import connection
 from django.contrib.sites.models import Site
 from django.contrib import messages
 from django.core.mail import send_mail
+from datetime import datetime, timedelta
 
 def about(request):
     "Renders the about page"
+
+    recently = datetime.now() - timedelta(minutes=60)
+    try:
+        visitors = models.PostView.objects.filter(date__gt=recently).distinct('ip').count()
+    except NotImplementedError, exc:
+        visitors = models.PostView.objects.filter(date__gt=recently).count()
 
     post_count     = models.Post.objects.filter(status=POST_OPEN).count()
     question_count = models.Post.objects.filter(status=POST_OPEN, type=POST_QUESTION).count()
@@ -23,7 +30,7 @@ def about(request):
     managers = models.User.objects.filter(email=settings.ADMINS[0][1]).select_related("profile").order_by('-profile__score').all()
     navloc = dict(about="active")
     params = html.Params(nav='about', post_count=post_count, user_count=user_count, question_count=question_count, 
-        answer_count=answer_count, comment_count=comment_count, admins=admins, mods=mods, navloc=navloc, managers=managers)
+        answer_count=answer_count, comment_count=comment_count, admins=admins, mods=mods, navloc=navloc, managers=managers, visitors=visitors)
     
     return html.template(request, name='pages/about.html', params=params)
   

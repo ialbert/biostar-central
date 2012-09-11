@@ -102,7 +102,10 @@ urlpatterns = patterns('main.server',
     # test login, used during debugging
     url(r'^test/login/(?P<uid>\d+)/(?P<token>[\w\d]+)/$','action.test_login', name="test-login"),
    
-   
+    # json api for stat generation
+    url(r'^api/traffic/$', 'action.traffic', name='stats-traffic'),
+    url(r'^api/stats/$', 'action.stats', name='stats-short'),
+    url(r'^api/stats/(?P<days>\d+)/$', 'action.stats', name='stats'),
 )
 
 
