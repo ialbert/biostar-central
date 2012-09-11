@@ -5,4 +5,5 @@ Disallow: /request/info
 Disallow: /show/user
 Disallow: /show/tag
 Disallow: /new/post
+Disallow: /more/like
 

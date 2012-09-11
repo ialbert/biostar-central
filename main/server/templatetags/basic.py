@@ -81,7 +81,8 @@ def gravatar(user, size=80):
         'd':'identicon',
         }
     )
-    return """<img src="%s" alt="gravatar for %s"/>""" % (gravatar_url, user.username)
+    username = user.username.encode('ascii', 'replace')
+    return """<img src="%s" alt="gravatar for %s"/>""" % (gravatar_url, username)
 
 @register.simple_tag(takes_context=True)
 def navclass(context, ending):
