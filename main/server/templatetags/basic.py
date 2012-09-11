@@ -74,14 +74,17 @@ def time_ago(time):
 
 @register.simple_tag
 def gravatar(user, size=80):
+    
+    username = user.username.encode('ascii', 'replace')
+    useremail = user.email.encode('ascii', 'replace')
+    
     gravatar_url = "http://www.gravatar.com/avatar.php?"
     gravatar_url += urllib.urlencode({
-        'gravatar_id':hashlib.md5(user.email).hexdigest(),
+        'gravatar_id':hashlib.md5(useremail).hexdigest(),
         'size':str(size),
         'd':'identicon',
         }
     )
-    username = user.username.encode('ascii', 'replace')
     return """<img src="%s" alt="gravatar for %s"/>""" % (gravatar_url, username)
 
 @register.simple_tag(takes_context=True)
