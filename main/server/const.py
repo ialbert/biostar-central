@@ -50,7 +50,7 @@ SORT_MAP = dict(
 VALID_PILLS = set( "mytags all news questions unanswered tutorials tools videos jobs".split() )
 
 # valid tab entries
-VALID_TABS = set( "recent planet".split() ) | VALID_PILLS
+VALID_TABS = set( "recent planet sticky".split() ) | VALID_PILLS 
 
 # posts that only have content, no title or tags
 POST_CONTENT_ONLY = set( [POST_ANSWER, POST_COMMENT ])
