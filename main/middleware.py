@@ -15,11 +15,11 @@ class Session(object):
     saves all at just one time. It also works for non-authenticated users but avoids
     creating a database sessions for them
     """
-    SESSION_KEY, SORT_KEY, COUNT_KEY, TAB = "session-data", 'sortz', 'count', 'tabz'
+    SESSION_KEY, SORT_KEY, COUNT_KEY, TAB, ALL, RANK = "session-data", 'sortz', 'count', 'tabz', 'all', 'rank'
     def __init__(self, request):
         self.request = request
         self.has_storage = request.user.is_authenticated()
-        default = { self.COUNT_KEY:{ }, self.SORT_KEY:"rank", self.TAB:"all"}
+        default = { self.COUNT_KEY:{ }, self.SORT_KEY:self.RANK, self.TAB:self.ALL}
         if self.has_storage:
             self.data = self.request.session.get(self.SESSION_KEY, default )
         else:
@@ -35,14 +35,14 @@ class Session(object):
         
     def get_tab(self, value=None):
         "Facilitates navigation by remebering the last visited url"    
-        return self.data[self.TAB]
+        return self.data.get(self.TAB, self.ALL)
     
     def sort_order(self):
         "Stores the last sort order in the session"
         value = self.request.GET.get('sort', '').lower()
         value = value or self.data.get(self.SORT_KEY)
         if value not in SORT_MAP:
-            value = "rank"
+            value = self.RANK
         self.data[self.SORT_KEY] = value
         return value
 
