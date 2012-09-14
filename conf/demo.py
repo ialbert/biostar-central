@@ -20,6 +20,13 @@ SECRET_KEY = 'my-secret key goes here'
 # set your google tracker
 GOOGLE_TRACKER = ""
 
+# this is the authentication module and function in it
+EXTERNAL_AUTHENTICATOR_FUNC = 'dummy_auth'
+
+MIDDLEWARE_CLASSES.extend([
+    'main.extauth.ExternalAuthenticator',
+])
+
 # database setup
 DATABASES = {
     'default': {
