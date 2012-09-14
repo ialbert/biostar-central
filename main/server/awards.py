@@ -99,10 +99,10 @@ def instant(request):
         if badge:
             badge_count = models.Award.objects.filter(user=user, badge=badge).count()
             if mode == 'vote':
-                post_count  = models.Post.objects.filter(author=user, type=POST_QUESTION, votes__gt=value).count()
+                post_count  = models.Post.objects.filter(author=user, type=POST_QUESTION, score__gt=value).count()                
             else:    
                 post_count  = models.Post.objects.filter(author=user, type=POST_QUESTION, views__gt=value).count()
-                
+      
             if badge_count < post_count:
                 create(request, user=user, badge=badge)
                 return
