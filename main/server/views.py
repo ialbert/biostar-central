@@ -43,7 +43,7 @@ POSTS_PER_PAGE = 15
 
 # mapst a word to a numeric post type
 POST_TYPE_MAP = dict(
-    questions=POST_QUESTION,  answers=POST_ANSWER, videos=POST_VIDEO,
+    questions=POST_QUESTION,  tutorials=POST_TUTORIAL, answers=POST_ANSWER, videos=POST_VIDEO,
     planet=POST_BLOG, tools=POST_TOOL, jobs=POST_JOB, news=POST_NEWS, publications=POST_PUBLICATION,
 )
 
@@ -64,12 +64,12 @@ def mytags_posts(request):
     
 def filter_by_type(request, posts, post_type):
     "Filters posts by type"
-    
+
     # filter is a single type
-    if post_type in POST_TYPE_REV_MAP:
-        return posts.filter(type=post_type)
-    elif post_type =='tutorial':
+    if post_type == POST_TUTORIAL:
         return posts.filter(type__in=[POST_TUTORIAL, POST_TIP])
+    elif post_type in POST_TYPE_REV_MAP:
+        return posts.filter(type=post_type)
     elif post_type == 'sticky':
         return posts.filter(sticky=True)
     elif post_type == 'unanswered':
@@ -117,7 +117,9 @@ def index(request, tab='all'):
     
     # get the numerical value for these posts
     post_type = POST_TYPE_MAP.get(tab, tab)
-    
+
+    print post_type
+
     # override the sort order if the content so requires
     sort_type = 'creation' if tab=='recent' else sort_type
         
