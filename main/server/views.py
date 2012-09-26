@@ -118,8 +118,6 @@ def index(request, tab='all'):
     # get the numerical value for these posts
     post_type = POST_TYPE_MAP.get(tab, tab)
 
-    print post_type
-
     # override the sort order if the content so requires
     sort_type = 'creation' if tab=='recent' else sort_type
         
