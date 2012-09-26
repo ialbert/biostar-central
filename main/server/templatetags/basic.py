@@ -163,20 +163,26 @@ def load_templates():
             #print "*** template loader loading default row for type '%s" % fname
             templates[typeid] = template.loader.get_template('rows/row.post.html')
 
-load_templates()
+# the template for the deleted row
+row_deleted = template.loader.get_template('rows/row.deleted.html')
 
+load_templates()
 
 @register.simple_tag
 def table_row(post, params):
     "Renders an html row for a post "
-    global row_question, row_answer, row_comment, row_post, row_blog, row_forum
-    
+    global row_question, row_answer, row_comment, row_post, row_blog, row_forum, row_deleted
+
+    row_deleted = template.loader.get_template('rows/row.deleted.html')
+
     if settings.DEBUG:
         # this is necessary to force the reload during development
         load_templates()
 
     c = Context( {"post": post, 'params':params})
-
-    template = templates[post.type]
-    text = template.render(c)
+    if post.deleted:
+        templ = row_deleted
+    else:
+        templ = templates[post.type]
+    text = templ.render(c)
     return text

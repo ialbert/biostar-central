@@ -19,7 +19,7 @@
     </td>
 
     <td class="summary" width="100%">
-        
+
         <div class="post-title {{post.get_type_display}}">
             {% if post.url %}
                 <a href="{% url main.server.views.linkout post.id %}">{{post.get_title}} <i class="icon-share-alt"></i></a>
@@ -27,10 +27,10 @@
                 <a href="{{post.get_absolute_url}}">{{post.get_title}} </a>
             {% endif %}
         </div>
-        
+
         {# generates the small peek into the post #}
         <div class="peek">{{post.content|truncatewords:200}}</div>
-        
+
         {# this shows the tags on the post #}
         {% show_tags post %}
 
