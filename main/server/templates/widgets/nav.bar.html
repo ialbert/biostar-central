@@ -1,4 +1,5 @@
- {% load basic %}
+{% load i18n %}
+{% load basic %}
  {% load widgets %}
  {% load url from future %}
  
@@ -11,20 +12,20 @@
             <span class="i-bar"></span>
           </a>
           
-          <a class="brand" href="/">BioStar</a>
+          <a class="brand" href="/">{%  trans "BioStar" %}</a>
           
           <div class="nav-collapse">
             
             <ul class="nav">
-              <li {% active 'tags'   nav %}><a href="{% url 'main.server.views.tag_list' %}">Tags</a></li>
-              <li {% active 'users'  nav %}><a href="{% url 'main.server.views.user_list' %}">Users</a></li>
-              <li {% active 'badges' nav %}><a href="{% url 'main.server.views.badge_list' %}">Badges</a></li>
-              <li {% active 'about'  nav %}><a href="{% url 'main.server.pages.about' %}">About</a></li>
-              <li {% active 'rss'    nav %}><a href="{% url 'main.server.pages.rss' %}">RSS</a></li>
+              <li {% active 'tags'   nav %}><a href="{% url 'main.server.views.tag_list' %}">{% trans  "Tags" %}</a></li>
+              <li {% active 'users'  nav %}><a href="{% url 'main.server.views.user_list' %}">{%  trans "Users" %}</a></li>
+              <li {% active 'badges' nav %}><a href="{% url 'main.server.views.badge_list' %}">{%  trans "Badges" %}</a></li>
+              <li {% active 'about'  nav %}><a href="{% url 'main.server.pages.about' %}">{% trans "About" %}</a></li>
+              <li {% active 'rss'    nav %}><a href="{% url 'main.server.pages.rss' %}">{%  trans "RSS" %}</a></li>
             </ul>
             
             <form class="navbar-search pull-left" action="{% url 'main.server.search.main' %}" method="get">
-              <input type="text" name='q' class="search-query" value="{{q}}" placeholder="Search">
+              <input type="text" name='q' class="search-query" value="{{q}}" placeholder="{%  trans "Search" %}">
             </form>
              
             {%if user.is_authenticated %}
@@ -35,11 +36,11 @@
                 &nbsp;
                  <i class="icon-user icon-white"></i>
                  <a href="{% url 'main.server.views.user_profile' user.id %}">{{ user.profile.display_name }}</a> {% flair user %} <b>{% bignum user.profile.score %}</b>
-                 | <a href="/logout/?next_page=/">Logout</a>
+                 | <a href="/logout/?next_page=/">{%  trans "Logout" %}</a>
             </p>
             {% else %}
               <p class="navbar-text pull-right login">
-                <a class="btn btn-success" href='/openid/login/' rel="nofollow"><i class="icon-user icon-white"></i> Sign In</a>
+                <a class="btn btn-success" href='/openid/login/' rel="nofollow"><i class="icon-user icon-white"></i> {%  trans "Sign In" %}</a>
               </p>
             {% endif %}
             

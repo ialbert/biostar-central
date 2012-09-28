@@ -81,6 +81,15 @@ while (( "$#" )); do
         $PYTHON_EXE $DJANGO_ADMIN flush --noinput --settings=$DJANGO_SETTINGS_MODULE
     fi
 
+    if [ "$1" = "messages" ]; then
+        echo "*** compiling messages"
+        pushd .
+        cd main/server
+        ../../django-admin.py makemessages -l hu_HU -e html
+        ../../django-admin.py compilemessages
+        popd
+    fi
+
     if [ "$1" = "init" ]; then
         echo "*** initializing server on $BIOSTAR_HOSTNAME"
         $PYTHON_EXE $DJANGO_ADMIN syncdb -v $VERBOSITY --noinput --settings=$DJANGO_SETTINGS_MODULE

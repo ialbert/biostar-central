@@ -1,10 +1,11 @@
 {% extends "base.html" %}
+{% load i18n %}
 {% load basic %}
 {% load widgets %}
 {% load humanize %}
 
 {% block title %}
-    About BioStar
+    {% trans "About Biostar" %}
 {% endblock %}
 
 {% block body %}
@@ -12,8 +13,10 @@
 <div class="row">
     
    <div class="par">
-     This site's focus is <b>bioinformatics</b>, <b>computational genomics</b> and <b>biological data analysis</b>. 
+    {%  blocktrans %}
+     This site's focus is <b>bioinformatics</b>, <b>computational genomics</b> and <b>biological data analysis</b>.
      We welcome posts that are:
+    {% endblocktrans %}
   </div>
 
   <ul>
