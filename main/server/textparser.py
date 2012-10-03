@@ -15,7 +15,7 @@ class MainLexer:
        'LINK',
        'REFERENCE',
        'ORPHAN',
-       'CODE_OPEN', 'CODE_CLOSE',
+       'CODE_OPEN', 'CODE_CLOSE', 'CODE_INLINE',
        'TAG_OPEN', 'TAG_CLOSE',
        'COMMAND',
        'TEXT',
@@ -53,12 +53,17 @@ class MainLexer:
         return t
 
     def t_pre_ORPHAN(self, t):
-        r'((http://|ftp://)\S+)'
+        r'((http://|ftp://|https://)\S+)'
         self.lexer.line_start = False
         if not self.lexer.code_block:
             url = t.value.replace(",","")
             t.value = "<%s>" % url
         self.lexer.start_line = False
+        return t
+    
+    def t_ANY_CODE_INLINE(self, t):
+        r'<code>.*</code>'
+        self.lexer.code_block = False
         return t
     
     def t_ANY_CODE_OPEN(self, t):

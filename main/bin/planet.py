@@ -76,6 +76,13 @@ def title(row):
     title = row.title[:200]
     return title
 
+def unicode_or_bust(obj, encoding='utf-8'):
+    if isinstance(obj, basestring):
+        if not isinstance(obj, unicode):
+            obj = unicode(obj, encoding)
+    return obj
+
+    
 def update(limit):
     blogs = models.Blog.objects.all()
     for blog in blogs:
@@ -91,11 +98,13 @@ def update(limit):
             ent = [ e for e in doc.entries if title(e) not in seen ]
             ent = ent[:limit]
             for r in ent:
+                r.title = unicode_or_bust(r.title)
+                r.description = unicode_or_bust(r.description)
                 if not r.title:
                     continue;
                 date = r.date_parsed
                 date = datetime.datetime(date[0], date[1], date[2])
-                content = html.strip_tags(r.description)
+                content = html.sanitize(r.description)
                 post = models.Post(title=title(r), url=r.link, author=blog.author,  type=POST_BLOG, content=content, creation_date=date)
                 post.save()
                 print '*** added post %s' % post.title.encode("ascii", 'replace')

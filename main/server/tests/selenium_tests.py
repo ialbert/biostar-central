@@ -120,6 +120,8 @@ and the Seychelles Islands about 1,500 km to the east
 
 Orphan links should be autolinked: http://www.biostars.org, same with ftp://www.biostars.org
 
+Secure links should be recognized: https://www.biostars.org
+
 Links within codeblocks should be kept verbatim:
 
     http://www.biostars.org

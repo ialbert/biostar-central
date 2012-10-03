@@ -111,6 +111,7 @@ def sanitize(value):
     "HTML sanitizer based on html5lib"
     p = html5lib.HTMLParser(tokenizer=sanitizer.HTMLSanitizer)
     h = p.parseFragment(value).toxml()
+    h = unicode_or_bust(h)
     return h
     
 ALLOWED_TAGS = "strong span:class br ol ul li a:href img:src pre code blockquote p em"
@@ -137,6 +138,12 @@ def unused_sanitize(value, allowed_tags=ALLOWED_TAGS):
                          if attr in allowed_tags[tag.name]]
 
     return soup.renderContents().decode('utf8')
+
+def unicode_or_bust(obj, encoding='utf-8'):
+    if isinstance(obj, basestring):
+        if not isinstance(obj, unicode):
+            obj = unicode(obj, encoding)
+    return obj
 
 class Params(object):
     """
