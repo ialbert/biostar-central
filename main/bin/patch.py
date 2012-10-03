@@ -27,6 +27,14 @@ def update_bookmark_counts():
         post.book_count = value
         post.save()
         
+def blog_cleanup():
+    "Updates the bookmark counters. Used after migrating to version 1.2.1"
+    blogs = models.Post.objects.filter(type=POST_BLOG, status=POST_DELETED)
+    
+    for blog in blogs:
+        print blog.title.encode("ascii", errors="replace")
+        blog.delete()
+        
 def update_domain():
     "This is really only needs to be done once per installation"
     site = Site.objects.get(id=settings.SITE_ID)
@@ -104,6 +112,8 @@ if __name__ == '__main__':
     parser.add_option("--reapply_ranks", dest="reapply_ranks", help="reapplies ranks to all posts", action="store_true", default=False)
     parser.add_option("--update_domain", dest="update_domain", help="updates the site domain to match the settings", action="store_true", default=False)
     parser.add_option("--bookmarks", dest="bookmarks", help="updates bookmark counts", action="store_true", default=False)
+    parser.add_option("--blog_cleanup", dest="blog_cleanup", help="cleans up deleted blogs", action="store_true", default=False)
+   
    
     (opts, args) = parser.parse_args()
     
@@ -126,3 +136,6 @@ if __name__ == '__main__':
     
     if opts.bookmarks:
         update_bookmark_counts()
+        
+    if opts.blog_cleanup:
+        blog_cleanup()
