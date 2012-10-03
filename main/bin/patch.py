@@ -33,8 +33,11 @@ def blog_cleanup():
     
     for blog in blogs:
         print blog.title.encode("ascii", errors="replace")
-        blog.delete()
-        
+        try:
+            blog.delete()
+        except Exception, exc:
+            print exc
+            
 def update_domain():
     "This is really only needs to be done once per installation"
     site = Site.objects.get(id=settings.SITE_ID)
