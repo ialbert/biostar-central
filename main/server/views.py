@@ -399,7 +399,7 @@ def new_post(request, pid=0, post_type=POST_QUESTION):
     root   = parent.root if parent else None
     toplevel = (pid == 0)
     factory  = formdef.ChildContent if pid else formdef.TopLevelContent
-    
+
     params = html.Params(tab='new', title="New post", toplevel=toplevel)
     
     if request.method == 'GET':

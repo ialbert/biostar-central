@@ -112,7 +112,7 @@ while (( "$#" )); do
     if [ "$1" = "pgcreate" ]; then
         # creates the PG database
         echo "*** creating postgresql database PG_DBNAME=$PG_DBNAME"
-        createdb $PG_DBNAME
+        createdb $PG_DBNAME -E utf8 --template template0
     fi
     
     if [ "$1" = "pgdrop" ]; then
