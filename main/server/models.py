@@ -295,9 +295,9 @@ class Post(models.Model):
         if self.type in POST_CONTENT_ONLY:
             return self.content
         else:
-            title = self.title.encode('ascii', errors='replace')
-            content = self.content.encode('ascii', errors='replace')
-            tag_val = self.tag_val.encode('ascii', errors='replace')
+            title = self.title.encode('ascii', 'replace')
+            content = self.content.encode('ascii', 'replace')
+            tag_val = self.tag_val.encode('ascii','replace')
             return "TITLE:%s\n%s\nTAGS:%s" % (title, content, tag_val)
 
 def update_post_views(post, request, minutes=10):
@@ -504,8 +504,6 @@ def decorate_posts(posts, user):
     return posts
 
 def get_diff(a, b):
-    a = a.decode('utf8', errors="replace")
-    b = b.decode('utf8', errors="replace")
     a, b = a.splitlines(), b.splitlines()
     diff = difflib.unified_diff(a, b)
     diff = map(string.strip, diff)

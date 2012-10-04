@@ -1,6 +1,7 @@
 #
 # handler methods that handle all ajax based interactions
 #
+import traceback
 from functools import partial
 from collections import defaultdict
 from main.server import html, models, notegen, auth
@@ -37,6 +38,7 @@ class ajax_error_wrapper(object):
             value = self.f(*args, **kwds)
             return value
         except Exception,exc:
+            traceback.print_exc()
             return ajax_error('Error: %s' % exc)
 
 @ajax_error_wrapper           
