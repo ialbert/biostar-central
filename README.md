@@ -176,7 +176,7 @@ Internationalization
 --------------------
 
 There are some dependencies that need to be installed (notable the Unix `gettext` utility) to run
-the django [makemessages][makemsg] command. The django_admin.
+the django [makemessages][makemsg] command. 
 
 Template content needs to be tagged with the [Django Translation][trans] framework.
 The new message compilation then will be run via:
