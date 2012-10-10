@@ -172,8 +172,31 @@ In Biostar there are four types of users: anonymous users, registered users, mod
   access to the django admin interface where they may perform more database actions
   than those offered via the BioStar interface..
 
+Internationalization
+--------------------
+
+There are some dependencies that need to be installed (notable the Unix `gettext` utility) to run
+the django [makemessages][makemsg] command. The django_admin.
+
+Template content needs to be tagged with the [Django Translation][trans] framework.
+The new message compilation then will be run via:
+
+    ./biostar.sh messages
+
+The settings file needs to specify the language (see the fileas named `conf/ch.env` and `conf/ch.py`). For an example site
+in either Chinese run the following:
+
+    source conf/default.env
+    source conf/ch.env
+    ./biostar.sh run
+
+[makemsg]: https://docs.djangoproject.com/en/dev/ref/django-admin/#makemessages
+
+[trans]: https://docs.djangoproject.com/en/dev/topics/i18n/translation/#internationalization-in-template-code
+
+
 Content Persistence
-^^^^^^^^^^^^^^^^^^^
+-------------------
 
 Content may be deleted (marked invisible to users) or destroyed (removed from the database).
 

@@ -78,7 +78,14 @@
             {% else %}
                 <a class="btn btn-warning" href="{% url main.server.action.user_moderate target.id 'suspend' %}"><i class="icon-remove-sign icon-white"></i> Suspend</a>
             {% endif %}
+
+            {%  if user.profile.is_admin %}
+                &nbsp;&bull;&nbsp; <a class="btn btn-danger" href="{% url main.server.action.user_moderate target.id 'ban' %}"><i class="icon-screenshot icon-white"></i> Ban!</a>
+            {%  endif %}
+
         {% endif %}
+
+
         </div>
     
     </div>

@@ -103,7 +103,7 @@ class LastVisit(object):
         sess = Session(request)
         
         # check suspended status for users
-        if user.is_authenticated() and (user.profile.status == USER_SUSPENDED):
+        if user.is_authenticated() and ( user.profile.suspended ):
             logout(request)
             messages.error(request, 'Sorry, this account has been suspended. Please contact the administrators.')
             return

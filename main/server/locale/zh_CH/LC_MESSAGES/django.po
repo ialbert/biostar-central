@@ -19,7 +19,7 @@ msgstr ""
 
 #: templates/pages/about.html:8
 msgid "About Biostar"
-msgstr "Biosztár Info"
+msgstr ""
 
 #: templates/pages/about.html:16
 msgid ""
@@ -29,28 +29,26 @@ msgid ""
 "     We welcome posts that are:\n"
 "    "
 msgstr ""
-"\n"
-"OK"
 
 #: templates/widgets/nav.bar.html:15
 msgid "BioStar"
-msgstr "BioSztár"
+msgstr ""
 
 #: templates/widgets/nav.bar.html:20
 msgid "Tags"
-msgstr "Cinkék!"
+msgstr "标签"
 
 #: templates/widgets/nav.bar.html:21
 msgid "Users"
-msgstr "Sztárok"
+msgstr "用户"
 
 #: templates/widgets/nav.bar.html:22
 msgid "Badges"
-msgstr "Érmék"
+msgstr "徽章"
 
 #: templates/widgets/nav.bar.html:23
 msgid "About"
-msgstr "Rólunk"
+msgstr "关于"
 
 #: templates/widgets/nav.bar.html:24
 msgid "RSS"
@@ -58,27 +56,27 @@ msgstr ""
 
 #: templates/widgets/nav.bar.html:28 templates/widgets/tab.bar.html:13
 msgid "Search"
-msgstr "Keress"
+msgstr "搜索"
 
 #: templates/widgets/nav.bar.html:39
 msgid "Logout"
-msgstr "Kilép"
+msgstr "退出"
 
 #: templates/widgets/nav.bar.html:43
 msgid "Sign In"
-msgstr "Belép"
+msgstr "登录"
 
 #: templates/widgets/page.bar.html:5 templates/widgets/page.bar.html.py:8
 msgid "previous"
-msgstr "előző"
+msgstr "上页"
 
 #: templates/widgets/page.bar.html:6 templates/widgets/page.bar.html.py:8
 msgid "first"
-msgstr "első"
+msgstr "首页"
 
 #: templates/widgets/page.bar.html:11
 msgid "page"
-msgstr "lap"
+msgstr "页"
 
 #: templates/widgets/page.bar.html:11
 msgid "of"
@@ -86,24 +84,24 @@ msgstr ""
 
 #: templates/widgets/page.bar.html:14 templates/widgets/page.bar.html.py:17
 msgid "last"
-msgstr "utolsó"
+msgstr "末页"
 
 #: templates/widgets/page.bar.html:15 templates/widgets/page.bar.html.py:17
 msgid "next"
-msgstr "következő"
+msgstr "下页"
 
 #: templates/widgets/tab.bar.html:10
 msgid "Recent"
-msgstr "Friss"
+msgstr "新帖"
 
 #: templates/widgets/tab.bar.html:11
 msgid "Posts"
-msgstr "Cikkek"
+msgstr "帖子"
 
 #: templates/widgets/tab.bar.html:12
 msgid "Planet"
-msgstr "Bolygó"
+msgstr "新闻中心"
 
 #: templates/widgets/tab.bar.html:14
 msgid "New Post!"
-msgstr "Új Cikk!"
+msgstr "发帖"

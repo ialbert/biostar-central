@@ -85,8 +85,9 @@ while (( "$#" )); do
         echo "*** compiling messages"
         pushd .
         cd main/server
-        ../../django-admin.py makemessages -l hu_HU -e html
-        ../../django-admin.py compilemessages
+        $PYTHON_EXE ../../manage.py makemessages -l hu_HU -e html
+        $PYTHON_EXE ../../manage.py makemessages -l zh_CH -e html
+        $PYTHON_EXE ../../manage.py compilemessages
         popd
     fi
 

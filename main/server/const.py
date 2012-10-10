@@ -81,8 +81,8 @@ USER_TYPES = ( (USER_NEW, 'New'), (USER_MEMBER, 'Member'),  (USER_MODERATOR, 'Mo
     (USER_ADMIN, 'Administrator'), (USER_BLOG, 'Blog'), (USER_SPECIAL, 'Special'),)
 
 # user status types
-USER_ACTIVE, USER_SUSPENDED = 1, 2
-USER_STATUS_TYPES = ( (USER_ACTIVE, 'Active'), (USER_SUSPENDED, 'Suspended') )
+USER_ACTIVE, USER_SUSPENDED, USER_BANNED = 1, 2, 3
+USER_STATUS_TYPES = ( (USER_ACTIVE, 'Active'), (USER_SUSPENDED, 'Suspended'), (USER_BANNED, 'Banned' ))
 
 # post status types        
 POST_OPEN, POST_CLOSED, POST_DELETED = 100, 200, 300

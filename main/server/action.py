@@ -75,7 +75,7 @@ def user_moderate(request, uid, status):
     url    = target.profile.get_absolute_url()
 
     # remap the status to valid
-    status = dict(suspend=USER_SUSPENDED, reinstate=USER_ACTIVE).get(status)
+    status = dict(suspend=USER_SUSPENDED, reinstate=USER_ACTIVE, ban=USER_BANNED).get(status)
     if not status:
         messages.error('Invalid user moderation action')
         return html.redirect( url )    
