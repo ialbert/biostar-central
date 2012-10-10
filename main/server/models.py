@@ -91,7 +91,7 @@ class UserProfile( models.Model ):
     
     def get_status(self):
         return 'suspended' if self.suspended else ''
-    
+
     @property
     def suspended(self):
         return self.status != USER_ACTIVE
@@ -412,14 +412,12 @@ def user_moderate(user, target, status):
         msg = 'User %s not authorized to moderate %s' % (user.id, target.id)
         return False, msg
 
-    msg = 'User status set to %s' % target.profile.get_status_display()
+
 
     # banning can only be applied by admins
     ban = (status == USER_BANNED)
 
-    if ban:
-        status = USER_SUSPENDED
-        if user.profile.is_admin:
+    if ban and user.profile.is_admin:
             Post.objects.filter(author=target).update(status=POST_DELETED)
 
     target.profile.status = status
@@ -427,6 +425,7 @@ def user_moderate(user, target, status):
     text = notegen.user_moderator_action(user=user, target=target)
     send_note(target=target, content=text, sender=user, both=True, type=NOTE_MODERATOR, url=user.get_absolute_url() )
 
+    msg = 'User status set to %s' % target.profile.get_status_display()
 
     return True, msg
      
