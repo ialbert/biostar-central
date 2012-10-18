@@ -1,4 +1,5 @@
 from django import forms
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from main.server import const
 import string
@@ -52,7 +53,7 @@ def valid_content(text):
     "Validates form input for content"
     # text size, min size, max size
     text = text.strip()
-    ts, mi, mx = len(text), 15, 10000
+    ts, mi, mx = len(text), settings.MIN_POST_SIZE, settings.MAX_POST_SIZE
     if not(text):
         raise ValidationError('Content appears to be whitespace')
     if text == P_CONTENT:

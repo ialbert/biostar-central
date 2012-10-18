@@ -292,6 +292,9 @@ SELENIUM_TEST_LOGIN_TOKEN = None
 # setting the session for multiple servers
 SESSION_COOKIE_DOMAIN = ""
 
+MIN_POST_SIZE = 15
+MAX_POST_SIZE = 20000
+
 #
 # TEMPLATE LAYOUT,
 # One may override these variables from the settings file
