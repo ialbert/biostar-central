@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-10-10 09:29-0500\n"
+"POT-Creation-Date: 2012-10-24 16:07-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,6 +16,132 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+
+#: templates/post.edit.html:43
+msgid "Title"
+msgstr ""
+
+#: templates/post.edit.html:56 templates/widgets/nav.bar.html:20
+msgid "Tags"
+msgstr "Cinkék!"
+
+#: templates/post.edit.html:69
+msgid "Post Type"
+msgstr ""
+
+#: templates/post.edit.html:85
+msgid "Content"
+msgstr ""
+
+#: templates/post.edit.html:115
+msgid ""
+"\n"
+"                    <b>Note</b>: by posting to BioStar, you agree to a <a "
+"href=\"http://creativecommons.org/licenses/by/3.0/\">Creative Commons - "
+"Attribution</a> license.\n"
+"                "
+msgstr ""
+
+#: templates/user.edit.html:27
+msgid "Edit User"
+msgstr ""
+
+#: templates/user.edit.html:34
+msgid "Updating user:"
+msgstr ""
+
+#: templates/user.edit.html:47
+msgid "Submit"
+msgstr ""
+
+#: templates/user.edit.html:49
+msgid "Go back"
+msgstr ""
+
+#: templates/user.list.html:7
+#, fuzzy
+msgid "BiosStar Users"
+msgstr "BioSztár"
+
+#: templates/user.list.html:22
+#, fuzzy
+msgid "User search"
+msgstr "Sztárok"
+
+#: templates/user.list.html:26
+#, fuzzy
+msgid "Search!"
+msgstr "Keress"
+
+#: templates/user.profile.html:8
+#, fuzzy
+msgid "User"
+msgstr "Sztárok"
+
+#: templates/user.profile.html:63
+msgid "Admin:"
+msgstr ""
+
+#: templates/user.profile.html:64
+msgid "admin login"
+msgstr ""
+
+#: templates/user.profile.html:137
+msgid "Activity on posts that this user has interacted with. See th"
+msgstr ""
+
+#: templates/user.profile.html:138 templates/user.profile.html.py:174
+msgid "page on how to set up feeds."
+msgstr ""
+
+#: templates/user.profile.html:153 templates/user.profile.html.py:188
+#: templates/user.profile.html:254
+msgid "no messages"
+msgstr ""
+
+#: templates/user.profile.html:172
+msgid "Content created by"
+msgstr ""
+
+#: templates/user.profile.html:173
+msgid "See the"
+msgstr ""
+
+#: templates/user.profile.html:210
+msgid ""
+"no bookmarks - click on the <i class=\"icon-bookmark\"></i> symbol of a post "
+"to bookmark it"
+msgstr ""
+
+#: templates/user.profile.html:232
+msgid "no badges earned"
+msgstr ""
+
+#: templates/user.profile.html:241
+msgid ""
+"Moderator actions by this user. To view all moderator actions see the <a "
+"href=\"/modlog/list\">moderator log list</a>"
+msgstr ""
+
+#: templates/openid/login.html:43
+msgid " BioStar OpenID login"
+msgstr ""
+
+#: templates/openid/login.html:53
+msgid "Sign In to BioStar Using Your OpenID Provider"
+msgstr ""
+
+#: templates/openid/login.html:76
+msgid "Click the icon or paste an OpenID URL into the field above"
+msgstr ""
+
+#: templates/openid/login.html:82 templates/widgets/nav.bar.html:43
+msgid "Sign In"
+msgstr "Belép"
+
+#: templates/openid/login.html:84
+msgid "Reset"
+msgstr ""
 
 #: templates/pages/about.html:8
 msgid "About Biostar"
@@ -35,10 +161,6 @@ msgstr ""
 #: templates/widgets/nav.bar.html:15
 msgid "BioStar"
 msgstr "BioSztár"
-
-#: templates/widgets/nav.bar.html:20
-msgid "Tags"
-msgstr "Cinkék!"
 
 #: templates/widgets/nav.bar.html:21
 msgid "Users"
@@ -64,10 +186,6 @@ msgstr "Keress"
 msgid "Logout"
 msgstr "Kilép"
 
-#: templates/widgets/nav.bar.html:43
-msgid "Sign In"
-msgstr "Belép"
-
 #: templates/widgets/page.bar.html:5 templates/widgets/page.bar.html.py:8
 msgid "previous"
 msgstr "előző"
@@ -91,6 +209,14 @@ msgstr "utolsó"
 #: templates/widgets/page.bar.html:15 templates/widgets/page.bar.html.py:17
 msgid "next"
 msgstr "következő"
+
+#: templates/widgets/render.comment.html:35
+msgid "content deleted"
+msgstr ""
+
+#: templates/widgets/render.comment.html:47
+msgid "reply"
+msgstr ""
 
 #: templates/widgets/tab.bar.html:10
 msgid "Recent"

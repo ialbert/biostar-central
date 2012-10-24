@@ -1,7 +1,7 @@
 {% extends "base.html" %}
-
 {% load basic %}
 {% load widgets %}
+{% load i18n %}
 
 {% block custom-frameworks %}
     <style type="text/css">
@@ -24,13 +24,15 @@
 {% endblock %}
 
 {% block title %}
-    Edit User: {{target.profile.display_name }} - BioStar
+    {% trans 'Edit User' %}
+    : {{target.profile.display_name }} - BioStar
 {% endblock %}
 
 {% block body %}
 
 <form id="useredit" name="useredit" action="{% url main.server.action.user_edit target.id %}" method="post" class="form-horizontal">
-    <legend>Updating user: {{ target.profile.display_name }}</legend>
+    <legend>{% trans 'Updating user:' %}
+     {{ target.profile.display_name }}</legend>
     <fieldset>
     {% csrf_token %}
     {% form_field  form.display_name 'Display Name' %}
@@ -42,8 +44,10 @@
     {% form_field  form.about_me 'About me' '<a href="http://en.wikipedia.org/wiki/Markdown">Markdown</a> allowed '%}
 
     <div class="form-actions">
-        <button type="submit" id="submit-button" name="submit" class="btn btn-success">Submit</button>
-        or <a class="btn btn-danger" href='javascript: history.back()'><i class="icon-arrow-left icon-white"></i> Go back</a>
+        <button type="submit" id="submit-button" name="submit" class="btn btn-success">{% trans 'Submit' %}
+        </button>
+        or <a class="btn btn-danger" href='javascript: history.back()'><i class="icon-arrow-left icon-white"></i> {% trans 'Go back' %}
+        </a>
     </div>
     
     </fieldset>

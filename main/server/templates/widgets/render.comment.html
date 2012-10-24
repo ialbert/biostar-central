@@ -1,4 +1,5 @@
 {% load basic %}
+{% load i18n %}
 {% load humanize %}
 {% load widgets %}
 {% load url from future %}
@@ -31,7 +32,7 @@
         {% if post.open %}
             {{ post.html|safe }}
         {% else %}
-            [ content deleted ]
+            [ {%  trans 'content deleted' %} ]
         {% endif %}
     </div>
     
@@ -43,10 +44,10 @@
         
             {% csrf_token %}
             <input type="hidden" value="{{post.id}}">
-            <a class="add-comment">reply</a>
+            <a class="add-comment">{% trans 'reply' %}</a>
             
         {% else %}
-            <a href="/openid/login/">log in to reply</a>
+            <a href="/openid/login/">{%  trans 'log in to reply'}</a>
         {% endif %}
 
         {# owners and moderators may edit the post #}
