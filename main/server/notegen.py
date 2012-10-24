@@ -12,6 +12,7 @@ def userlink(user, short=False):
 def postlink(post, size=35):
     root  = post.root or post
     title = root.title
+    title = title if len(title) < size else '%s...' %  title[:size]
     return '[%s: %s]( %s)' % (post.get_type_display(), title, post.get_absolute_url())
 
 def badgelink(badge):
@@ -28,6 +29,7 @@ def user_moderator_action(user, target):
     return text
 
 def chop(text, size):
+    #text = text.encode('ascii', errors='replace')
     return text if len(text) < size else '%s...' % text[:size]
     
 def post_action(user, post, size=250):

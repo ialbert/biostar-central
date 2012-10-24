@@ -304,9 +304,9 @@ class Post(models.Model):
         if self.type in POST_CONTENT_ONLY:
             return self.content
         else:
-            title = self.title.encode('ascii', 'replace')
-            content = self.content.encode('ascii', 'replace')
-            tag_val = self.tag_val.encode('ascii','replace')
+            title = self.title
+            content = self.content
+            tag_val = self.tag_val
             return "TITLE:%s\n%s\nTAGS:%s" % (title, content, tag_val)
 
 def update_post_views(post, request, minutes=10):

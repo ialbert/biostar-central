@@ -110,6 +110,7 @@ are set properly these can be invoked as:
 
   - `python -m main.bin.postadd` to import posts into the main site
   - `python -m main.bin.postmod` modifies a post in the main site
+  - `python -m main.bin.useradd` to add users
   - `python -m main.bin.usermod` to edit users
   - `python -m main.bin.extract` extracts the value of a settings parameter
   - `python -m main.bin.patch` is used to change varios values after migration
@@ -119,6 +120,14 @@ are set properly these can be invoked as:
   The `python -m main.bin.extract` command can be used to fill an environment variable from 
   a django settings file. See the `conf/demo.env` file. Typically use is to `source conf/default.env` 
   then source a second smaller file that overrides just a few parameters.
+
+To add a new user and a post by this user you can do a:
+
+    $ source conf/default.env
+    $ python -m main.bin.useradd -u newuser -e john@gmail.com -n 'John Doe'
+    *** creating user newuser
+    $ python -m main.bin.postadd -e john@gmail.com -t 1 import/forum/rnseq-tool.txt
+    *** adding 165, 104, john@gmail.com, RNA-SeqQC quality control
 
 Versioning
 -----------
@@ -189,6 +198,10 @@ in either Chinese run the following:
     source conf/default.env
     source conf/ch.env
     ./biostar.sh run
+
+To override what pages get loaded in add a new template directory in a location and override the template loader order.
+For an example see the `conf/ch.py` settings file. In this example a different widget will be loaded
+from the corresponding templates in `conf/custom-html/widgets/page.share.html`.
 
 [makemsg]: https://docs.djangoproject.com/en/dev/ref/django-admin/#makemessages
 

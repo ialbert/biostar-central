@@ -11,6 +11,8 @@ register = template.Library()
 
 from django.template.defaultfilters import stringfilter
 
+uni = html.unicode_or_bust
+
 @register.filter(name='chunk')
 @stringfilter
 def quick_chunk(text, size=250):
@@ -79,9 +81,9 @@ def time_ago(time):
 @register.simple_tag
 def gravatar(user, size=80):
     
-    username = user.username.encode('ascii', 'replace')
-    useremail = user.email.encode('ascii', 'replace')
-    
+    username  = user.profile.display_name
+    useremail = user.email.encode('utf8')
+
     gravatar_url = "http://www.gravatar.com/avatar.php?"
     gravatar_url += urllib.urlencode({
         'gravatar_id':hashlib.md5(useremail).hexdigest(),

@@ -17,8 +17,7 @@ def usermod(uid, role):
         user.is_staff = user.is_superuser = False
         
     user.save()
-        
-    
+
 if __name__ == '__main__':    
     import optparse
     usage = "usage: %prog [options]"
