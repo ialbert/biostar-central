@@ -1,6 +1,8 @@
 {% load basic %}
 {% load widgets %}
 {% load url from future %}
+{% load i18n %}
+
 <div class="edit-action">
     <a href="/more/like/{{post.id}}/"><i class="icon-search"></i> similar posts</a>
 
@@ -42,11 +44,7 @@
 
     
     &bull;
-        {% if post.top_level %}
-        request help via <a href="/request/info/{{post.id}}">Messaging</a> or
-        {% endif %}
-        share via
-        <a href="http://twitter.com/share?url=http://{{SITE_DOMAIN}}{{post.get_absolute_url}}">Twitter</a>, 
-        <a href="https://plus.google.com/share?url=http://{{SITE_DOMAIN}}{{post.get_absolute_url}}">Google+</a>
+
+        {%  post_share post %}
 </div>
 

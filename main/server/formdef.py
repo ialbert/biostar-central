@@ -18,27 +18,20 @@ def validate_integer(value):
 
 def valid_tag(text):
     "Validates form input for tags"
-    
-    for char in text:
-        if char not in SAFE_TAG:
-            raise ValidationError("letter '%s' may not be used in a tag" % char)
-                    
-    if not(text):
+
+    if not text:
         raise ValidationError('Please enter at least one tag')
 
     if text == P_TAG:
         raise ValidationError('Please change the default tag')
-    
+
+    if len(text) > 300:
+        raise ValidationError('Tag line is too long')
+
     words = text.split()
-    
-    if len(words) > 5:
-        raise ValidationError('You have too many tags, please use at most five tags')
-    
-    for word in words:
-        if len(word) < 1:
-            raise ValidationError("Tag '%s' is too short, use at least 1 character" % word)
-        if len(word) > 25:
-            raise ValidationError("Tag '%s' is too long, use no more than 25 characters" % word)
+
+    if len(words) > 7:
+        raise ValidationError('You have too many tags, please use at most seven tags')
 
 def valid_title(text):
     "Validates form input for title"
@@ -46,8 +39,8 @@ def valid_title(text):
         raise ValidationError('Please change the default title.')
     if len(text) < 5 :
         raise ValidationError('Your title appears to be shorter than the minimum of five characters.')
-    if len(text) > 100 :
-        raise ValidationError('Your title appears to be longer than the maximum of 100 characters.')
+    if len(text) > 150 :
+        raise ValidationError('Your title appears to be longer than the maximum of 150 characters.')
 
 def valid_content(text):
     "Validates form input for content"

@@ -27,6 +27,10 @@ def smart_chunk(text):
             break
     return ' '.join(coll)
 
+@register.inclusion_tag('widgets/post.share.html')
+def post_share(post):
+    return {'post':post}
+
 @register.inclusion_tag('widgets/user.link.html')
 def userlink(user):
     return {'user':user}

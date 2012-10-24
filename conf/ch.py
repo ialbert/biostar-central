@@ -10,6 +10,11 @@ USE_L10N = True
 
 LANGUAGE_CODE = 'zh-CH'
 
+# to override a location put it before the default templates
+# usually needs full paths
+TEMPLATE_DIRS = [ 'conf/custom-html' ] + TEMPLATE_DIRS
+
+
 ANON_PILL_BAR = [
     ("all", "/", "所有", "" ),
     ("news", "/show/news/", "新闻", "News" ),

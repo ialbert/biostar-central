@@ -199,14 +199,21 @@ class Post(models.Model):
     # relevance measure, initially by timestamp, other rankings measures
     rank = models.FloatField(default=0, blank=True)
     
-    def get_short_url(self):
+    def get_absolute_url(self):
         if self.top_level:
             url = "/p/%d/" % (self.id)
         else:
             url = "/p/%d/" % (self.root.id)
+
+        # some objects have external links
+        if self.url:
+            url = "/linkout/%s/" % self.id
+
         return url
             
-    def get_absolute_url(self):
+    def get_short_url(self):
+        return self.get_absolute_url()
+        """
         if self.top_level:
             url = "/post/show/%d/%s/" % (self.id, self.slug)
         else:
@@ -215,9 +222,10 @@ class Post(models.Model):
         # some objects have external links
         if self.url:
             url = "/linkout/%s/" % self.id
-            
+
         return url
-          
+        """
+
     def set_tags(self):
         if self.type not in POST_CONTENT_ONLY:
             # save it so that we can set the many2many fiels
@@ -275,7 +283,8 @@ class Post(models.Model):
                
     def get_tag_names(self):
         "Returns the post's tag values as a list of tag names"
-        names = [ html.safe_tag(n) for n in re.split('[ ,]+', self.tag_val) if n ]
+        tag_val = html.sanitize(self.tag_val)
+        names = re.split('[ ,]+', tag_val)
         return map(unicode, names)
     
     def apply(self, dir):

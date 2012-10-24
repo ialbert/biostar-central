@@ -1,0 +1,10 @@
+{% load i18n %}
+{% load url from future %}
+
+{% if post.top_level %}
+    request help via <a href="/request/info/{{post.id}}">Messaging</a> or
+{% endif %}
+
+分享到
+<a href="http://twitter.com/share?url=http://{{SITE_DOMAIN}}{{post.get_absolute_url}}">微博</a>,
+

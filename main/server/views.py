@@ -165,8 +165,9 @@ def index(request, tab='all'):
             jobs="Bioinformatics Jobs", videos="Bioinformatics Videos", news='Bioinformatics News', tools="Bioinformatics Tools",
             recent="Recent bioinformatics posts", planet="Bioinformatics Planet"
     )
-    params.title = title_map.get(tab, params.title)
-    
+
+    params.title = title_map.get(pill) or title_map.get(tab, params.title)
+
     return html.template(request, name='index.html', page=page, params=params, counts=counts)
     
 def show_tag(request, tag_name=None):
