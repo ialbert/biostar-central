@@ -217,9 +217,17 @@ def show_user(request, uid, post_type=''):
     page  = get_page(request, posts, per_page=20)
     return html.template( request, name='index.html', page=page, params=params)
 
+def user_profile_redirect(request, uid, tab='activity'):
+    """
+    User's profile page
+    """
+    url = reverse("user-profile", kwargs=dict(uid=uid))
+    return html.redirect(url, permanent=True)
 
 def user_profile(request, uid, tab='activity'):
-    "User's profile page"
+    """
+    User's profile page
+    """
 
     if not models.User.objects.filter(id=uid):
         messages.error(request, "This user does not exist. It has perhaps been deleted.")
@@ -322,9 +330,18 @@ def badge_list(request):
         
     params = html.Params(nav='badges', sort='')
     return html.template(request, name='badge.list.html', badges=badges, params=params)
- 
+
+def post_show_redirect(request, pid):
+    """
+    Permanent redirect from an old style post show
+    """
+    url = reverse("post-show", kwargs=dict(pid=pid))
+    return html.redirect(url, permanent=True)
+
 def post_show(request, pid):
-    "Returns a question with all answers"
+    """
+    Displays a post and its children
+    """
     user = request.user
 
     # populate the session data
@@ -488,7 +505,7 @@ def linkout(request, pid):
     if post.url:
         return html.redirect(post.url)    
     else:
-        message.error(request, 'linkout used on a post with no url set %s' % post.id)
+        messages.error(request, 'linkout used on a post with no url set %s' % post.id)
         return html.redirect("/")  
     
 
