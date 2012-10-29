@@ -170,7 +170,7 @@ def index(request, tab='all'):
 
     return html.template(request, name='index.html', page=page, params=params, counts=counts)
     
-def show_tag(request, tag_name=None):
+def show_tag(request, tag_name=''):
     "Display posts by a certain tag"
     user = request.user
     # populate the session data

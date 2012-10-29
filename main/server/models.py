@@ -285,6 +285,7 @@ class Post(models.Model):
         "Returns the post's tag values as a list of tag names"
         tag_val = html.sanitize(self.tag_val)
         names = re.split('[ ,]+', tag_val)
+        names = filter(None, names)
         return map(unicode, names)
     
     def apply(self, dir):
