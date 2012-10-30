@@ -203,7 +203,7 @@ class Post(models.Model):
         if self.top_level:
             url = "/p/%d/" % (self.id)
         else:
-            url = "/p/%d/" % (self.root.id)
+            url = "/p/%d/#%d" % (self.root.id, self.id)
 
         # some objects have external links
         if self.url:
