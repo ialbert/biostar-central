@@ -13,7 +13,21 @@ from django.db.models import signals
 from itertools import *
 from collections import defaultdict
 from datetime import datetime, timedelta
-   
+
+def apply_positive():
+    "Removes negative votes from the system"
+    posts = models.Post.objects.filter(score__lt=0)
+    for post in posts:
+        votes = models.Vote.objects.filter(post=post, type=VOTE_DOWN)
+
+        print "Removing %s votes for %s" % ( len(votes), post.id)
+        for vote in votes:
+            vote.delete()
+
+        post.score = 0
+        post.save()
+
+
 def update_bookmark_counts():
     "Updates the bookmark counters. Used after migrating to version 1.2.1"
     votes = models.Vote.objects.filter(type=VOTE_BOOKMARK).select_related('post')
@@ -116,8 +130,9 @@ if __name__ == '__main__':
     parser.add_option("--update_domain", dest="update_domain", help="updates the site domain to match the settings", action="store_true", default=False)
     parser.add_option("--bookmarks", dest="bookmarks", help="updates bookmark counts", action="store_true", default=False)
     parser.add_option("--blog_cleanup", dest="blog_cleanup", help="cleans up deleted blogs", action="store_true", default=False)
-   
-   
+    parser.add_option("--positive", dest="positive", help="cleans up deleted blogs", action="store_true", default=False)
+
+
     (opts, args) = parser.parse_args()
     
     # stop execution if no parameters were specified
@@ -142,3 +157,6 @@ if __name__ == '__main__':
         
     if opts.blog_cleanup:
         blog_cleanup()
+
+    if opts.positive:
+        apply_positive()

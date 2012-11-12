@@ -1,7 +1,7 @@
 import sys
 
 # this is the biostar release number
-VERSION = '1.2.7'
+VERSION = '1.2.8'
 
 try:
     import docutils

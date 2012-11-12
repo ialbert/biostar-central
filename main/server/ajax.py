@@ -61,8 +61,8 @@ def vote(request):
         return ajax_error('invalid vote type')
 
     # throttle on downvoting, TODO: make it better
-    if type == VOTE_DOWN and post.score <= -1 and not models.Vote.objects.filter(type=VOTE_DOWN, author=author):
-        return ajax_error('Post is already at minimum')
+    if type == VOTE_DOWN:
+        return ajax_success('Downvote received!')
 
     if type  in (VOTE_UP, VOTE_DOWN, VOTE_ACCEPT) and post.author == author:
         return ajax_error('You may not vote on your own post')
