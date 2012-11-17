@@ -109,8 +109,11 @@ def extra_html(text):
 
 def sanitize(value):
     "HTML sanitizer based on html5lib"
-    p = html5lib.HTMLParser(tokenizer=sanitizer.HTMLSanitizer)
-    h = p.parseFragment(value).toxml()
+    try:
+        p = html5lib.HTMLParser(tokenizer=sanitizer.HTMLSanitizer)
+        h = p.parseFragment(value).toxml()
+    except Exception, exc:
+        h = "Unable to parse content: %s" % exc
     h = unicode_or_bust(h)
     return h
     
