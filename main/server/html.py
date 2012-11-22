@@ -109,8 +109,11 @@ def extra_html(text):
 
 def sanitize(value):
     "HTML sanitizer based on html5lib"
-    p = html5lib.HTMLParser(tokenizer=sanitizer.HTMLSanitizer)
-    h = p.parseFragment(value).toxml()
+    try:
+        p = html5lib.HTMLParser(tokenizer=sanitizer.HTMLSanitizer)
+        h = p.parseFragment(value).toxml()
+    except Exception, exc:
+        h = "Unable to parse content: %s" % exc
     h = unicode_or_bust(h)
     return h
     
@@ -238,12 +241,12 @@ def hot(ups, downs, date):
     seconds = epoch_seconds(date) - 1134028003
     return round(order + sign * seconds / 45000, 7)
 
-def rank(post):
+def rank(post, factor=5.0):
     "Computes the rank of a post"
     
     # Biostar tweaks to the reddit scoring
     ups = max((post.full_score, 0)) + 1
-    ups = int(ups + post.views/25.0)
+    ups = int(ups + post.views/factor)
     downs = 0
     rank = hot(ups, downs, post.creation_date)
     return rank
