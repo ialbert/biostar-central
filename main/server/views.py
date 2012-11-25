@@ -85,7 +85,7 @@ def filter_by_type(request, posts, post_type):
     
 def apply_sort(request, posts, order, sticky=True):
     "Sorts posts by an order"
-    sort_order = SORT_MAP.get(order, "-rank")
+    sort_order = SORT_MAP.get(order, "-lastedit_date")
     if sticky:
         args = [ "-sticky", sort_order]
     else:
@@ -94,7 +94,7 @@ def apply_sort(request, posts, order, sticky=True):
 
 # there is a tab bar and a lower "pill" bar
 
-SORT_CHOICES   = "rank,views,votes,answers,creation,edit".split(',')
+SORT_CHOICES   = "activity,rank,views,votes,answers,edit".split(',')
 
 def index(request, tab='all'):
     user = request.user

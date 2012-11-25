@@ -126,11 +126,6 @@ class TagAdmin(admin.ModelAdmin):
 
 admin.site.register(Tag, TagAdmin)
 
-class RootPostManager(models.Manager):
-    "Used for all posts (question, answer, comment); returns only non-deleted posts"
-    def get_query_set(self):
-        return super(PostManager, self).get_query_set().select_related('author','author__profile','children', 'descendants')
-
 class AllManager(models.Manager):
     "Returns all posts"
     def get_query_set(self):
@@ -291,6 +286,7 @@ class Post(models.Model):
     def apply(self, dir):
         if self.type == POST_ANSWER:
             self.parent.answer_count += dir
+            self.parent.lastedit_date = self.creation_date
             self.parent.save()
     
     def comments(self):
