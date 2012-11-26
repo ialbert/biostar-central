@@ -1,0 +1,15 @@
+TITLE: A summary of all Encode related news on the OpenHelix Blog: ENCODE floods the news
+TAGS: encode
+Long time Biostar Contributor \user 628 has compiled a beautiful summary of the current encode related news on the [OpenHelix blog][1]:
+
+
+See it at [**Encode floods the news networks**][2]
+
+While we are at it we will also reference the [ENCODE project page][3] and their video:
+
+\youtube PsV_sEDSE2o
+
+
+  [1]: http://blog.openhelix.eu
+  [2]: http://blog.openhelix.eu/?p=13613
+  [3]: http://www.nature.com/encode/

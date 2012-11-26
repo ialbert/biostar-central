@@ -20,6 +20,24 @@
             existing account please see the <a href="/merge">account merge</a> page.
         </div>
         
+         <div class="title"><a name="shortcuts"></a>Shorcuts</a></div>
+        <div class="par">Special commands may be used to generate content in BioStar. These need to be added into the post body and will not
+        be viewable in the preview. The transformations get applied only after submitting. 
+        Each shortcut is constructed via a blackslash and a word and each takes one or
+        more space separated parameters:
+        <ul>
+            <li> 
+                <code>\post 1,2,3</code> will generate a link to the posts 1, 2 and 3 using the post title. The post ids must be numbers.
+            </li>
+            <li> 
+                <code>\gist 1,2,3</code>  will embed the gists 1, 2 and 3 into the main post. The gist ids must be numbers.
+            </li>
+            <li> 
+                <code>\youtube AAA,BBB,CCC</code> will embed youtube videos AAA, BBB and CCC into the main post. The YouTube ids can be seen in the URL bar like and have a form like bz93ReOv87Y.
+            </li>
+
+        </div> 
+
         <div class="title">RSS Feeds</div>
         <div class="par">
             We offer RSS feeds to many different sources of information.
@@ -70,10 +88,7 @@
         Once edited the post type needs to be changed back to the original type.
         </div>
         
-        <div class="title" id="fixme">Embedding YouTube videos</a></div>
-        <div class="par">To embed a YouTube video find the ID of the video, you can typically see it in the URL bar like and has a form like bz93ReOv87Y.
-        To embed this video write <code>youtube:bz93ReOv87Y</code> into your post on a separate line. This will be replaced with the embedded video.
-        </div> 
+       
         
         <div class="title">Voting</div>
         <div class="par">Each user has access to up to <b>10</b> votes every six hours. Users

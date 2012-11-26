@@ -1,13 +1,9 @@
 User-agent: *
-Disallow: /more/like
 Disallow: /search
-Disallow: /badge
-Disallow: /feeds
-Disallow: /new
 Disallow: /revision
-Disallow: /openid
+Disallow: /request/info
 Disallow: /show/user
 Disallow: /show/tag
-Disallow: /tag/list
-Disallow: /questions
-Disallow: /post/redirect
+Disallow: /new/post
+Disallow: /more/like
+Disallow: /badge

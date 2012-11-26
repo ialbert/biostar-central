@@ -81,6 +81,16 @@ while (( "$#" )); do
         $PYTHON_EXE $DJANGO_ADMIN flush --noinput --settings=$DJANGO_SETTINGS_MODULE
     fi
 
+    if [ "$1" = "messages" ]; then
+        echo "*** compiling messages"
+        pushd .
+        cd main/server
+        $PYTHON_EXE ../../manage.py makemessages -l hu_HU -e html
+        $PYTHON_EXE ../../manage.py makemessages -l zh_CH -e html
+        $PYTHON_EXE ../../manage.py compilemessages
+        popd
+    fi
+
     if [ "$1" = "init" ]; then
         echo "*** initializing server on $BIOSTAR_HOSTNAME"
         $PYTHON_EXE $DJANGO_ADMIN syncdb -v $VERBOSITY --noinput --settings=$DJANGO_SETTINGS_MODULE
@@ -103,7 +113,7 @@ while (( "$#" )); do
     if [ "$1" = "pgcreate" ]; then
         # creates the PG database
         echo "*** creating postgresql database PG_DBNAME=$PG_DBNAME"
-        createdb $PG_DBNAME
+        createdb $PG_DBNAME -E utf8 --template template0
     fi
     
     if [ "$1" = "pgdrop" ]; then

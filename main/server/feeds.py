@@ -1,9 +1,13 @@
 from django.contrib.syndication.views import Feed
 from django.shortcuts import get_object_or_404
 from main.server import models, const, html
+from django.conf import settings
+from django.contrib.sites.models import Site
+
+SITE = Site.objects.get(id=settings.SITE_ID)
 
 class LatestEntriesFeed(Feed):
-    title = "Biostars.org latest"
+    title = "Biostars.org latest!"
     link = "/"
     description = "Latest 25 posts from the Biostar server"
 
@@ -19,6 +23,10 @@ class LatestEntriesFeed(Feed):
     def item_description(self, item):
         #return item.content
         return item.html
+
+    def item_guid(self, obj):
+        return "http://%s%s" %(SITE.domain, obj.get_short_url())
+
 
 class NotificationFeed(Feed):
     title = "Biostar notifications"
@@ -55,7 +63,10 @@ class PostBase(Feed):
     def item_description(self, item):
         return item.html
         #return item.content[:1000]
-        
+
+    def item_guid(self, obj):
+        return "http://%s%s" %(SITE.domain, obj.get_short_url())
+
 class TagsFeed(PostBase):
     title = "Biostar Tags"
     link = "/"
@@ -90,7 +101,7 @@ class PostTypeFeed(PostBase):
         codes, text = obj
         posts = models.Post.objects.filter(type__in=codes).order_by('-creation_date')
         return posts[:25]
-        
+
 class PostFeed(PostBase):
     title = "Biostar Post"
     link = "/"

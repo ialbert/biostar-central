@@ -58,9 +58,6 @@ def instant(request):
     def supporter():
         return models.Vote.objects.filter(author=user).count()
         
-    def nice_question():
-        return models.Post.objects.filter(author=user, score__gt=10).count()
-    
     def pundit():
         return models.Post.objects.filter(author=user, type=POST_COMMENT, score__gt=10).count()
       
@@ -70,10 +67,8 @@ def instant(request):
     
     def autobiographer():
         p = user.profile
-        
         return p.about_me and p.website and p.location
-       
-       
+          
     pairs = [
         ('Teacher', teacher),
         ('Guru', guru),
@@ -84,20 +79,31 @@ def instant(request):
         ('Student', student),
         ('Commentator', commentator),
         ('Supporter', supporter),
-        ('Nice Question', nice_question ),
         ('Civic Duty', civic_duty),
         ]
     
     for name, func in pairs:
         if apply_award(name, func):
             return
-        
-    # Famous question has its own verification as it is a multi award
-    badge = badges.get('Famous Question')
-    if badge:
-        badge_count = models.Award.objects.filter(user=user, badge=badge).count()
-        post_count  = models.Post.objects.filter(author=user, views__gt=5000).count()
-        if badge_count < post_count:
-            create(request, user=user, badge=badge)
-            return
-        
+                
+    # view based multibadges
+    view_tupl = [
+            (10,  'vote', 'Nice Question'),
+            (1000, 'view', 'Popular Question'),
+            (2000, 'view', 'Notable Question'),
+            (5000, 'view', 'Famous Question')
+    ]
+    
+    for value, mode, name in view_tupl:
+        badge = badges.get(name)
+        if badge:
+            badge_count = models.Award.objects.filter(user=user, badge=badge).count()
+            if mode == 'vote':
+                post_count  = models.Post.objects.filter(author=user, type=POST_QUESTION, score__gt=value).count()                
+            else:    
+                post_count  = models.Post.objects.filter(author=user, type=POST_QUESTION, views__gt=value).count()
+      
+            if badge_count < post_count:
+                create(request, user=user, badge=badge)
+                return
+            

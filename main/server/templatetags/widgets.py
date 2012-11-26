@@ -42,7 +42,7 @@ def vote_box(context, post):
 def post_edit_actions(request, post):
     user = request.user
     user.can_moderate = user.is_authenticated() and user.profile.can_moderate
-    return { 'post':post, 'request':request, 'user':user }
+    return { 'post':post, 'request':request, 'user':user,  'SITE_DOMAIN':settings.SITE_DOMAIN}
     
 @register.simple_tag
 def search_url(term1, type='all'):

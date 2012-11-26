@@ -31,7 +31,7 @@
             <tr>
                 <td>{{ r.pid }}</td>
                 <td>{{ r.type }}</td>
-                <td><a href="{% url main.server.views.post_redirect r.pid %}">{{ r.title }}</a></td>
+                <td><a href="{% url main.server.views.post_show r.pid %}">{{ r.title }}</a></td>
                 <td>{{ r.content|safe }}</td>
             </tr>
         {% empty %}

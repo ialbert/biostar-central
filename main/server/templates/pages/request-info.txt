@@ -1,0 +1,18 @@
+Hello,
+
+{{params.display_name}} (id={{params.user.id}}), an active member of the Biostar community,
+which provides Questions and Answers on Bioinformatics and Genomics, has
+recommended you as someone who could provide an answer to the following
+question:
+ 
+Question: {{params.post.title}}
+
+Link: http://{{params.site_domain}}{{params.post.get_short_url}}
+
+Sign In to BioStar Using OpenID at http://www.biostars.org/openid/login/
+
+Any insight you could provide would be greatly appreciated!
+
+Thank You!
+
+The Biostar Community

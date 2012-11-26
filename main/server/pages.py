@@ -2,16 +2,25 @@
 semi-static pages 
 """
 from django.conf import settings
-from main.server import html, models
+from main.server import html, models, formdef
 from main.server.const import *
 from django.db import connection
 from django.contrib.sites.models import Site
+from django.contrib import messages
+from django.core.mail import send_mail
+from datetime import datetime, timedelta
 
 def about(request):
     "Renders the about page"
 
-    post_count     = models.Post.objects.filter(status=POST_OPEN).exclude(type=POST_BLOG).count()
-    question_count = models.Post.objects.filter(status=POST_OPEN, type__in=POST_TOPLEVEL).exclude(type=POST_BLOG).count()
+    recently = datetime.now() - timedelta(minutes=60)
+    try:
+        visitors = models.PostView.objects.filter(date__gt=recently).distinct('ip').count()
+    except NotImplementedError, exc:
+        visitors = models.PostView.objects.filter(date__gt=recently).count()
+
+    post_count     = models.Post.objects.filter(status=POST_OPEN).count()
+    question_count = models.Post.objects.filter(status=POST_OPEN, type=POST_QUESTION).count()
     answer_count   = models.Post.objects.filter(status=POST_OPEN, type=POST_ANSWER).count()
     comment_count  = models.Post.objects.filter(status=POST_OPEN, type=POST_COMMENT).count()
     user_count = models.User.objects.filter(profile__status=USER_ACTIVE).count()
@@ -21,7 +30,7 @@ def about(request):
     managers = models.User.objects.filter(email=settings.ADMINS[0][1]).select_related("profile").order_by('-profile__score').all()
     navloc = dict(about="active")
     params = html.Params(nav='about', post_count=post_count, user_count=user_count, question_count=question_count, 
-        answer_count=answer_count, comment_count=comment_count, admins=admins, mods=mods, navloc=navloc, managers=managers)
+        answer_count=answer_count, comment_count=comment_count, admins=admins, mods=mods, navloc=navloc, managers=managers, visitors=visitors)
     
     return html.template(request, name='pages/about.html', params=params)
   
@@ -31,6 +40,37 @@ def rss(request):
     params = html.Params(nav='rss')
     return html.template(request, name='pages/rss.html', params=params, user=user)
 
+def request_info(request, pid):
+    "Requests information from a source"
+    user = request.user
+    post = models.Post.objects.get(id=pid)
+    
+    params = html.Params(site_domain = settings.SITE_DOMAIN, user=user, post=post)
+    params.subject = "Your expert advice is needed at Biostar"
+    
+    if user.is_authenticated():
+        params.display_name, score = user.profile.display_name, user.profile.score
+    else:
+        params.display_name, score = "Anonymous", 0
+    
+    params.body = html.fill(name='pages/request-info.txt', params=params)
+     
+    LIMIT = 5
+    disabled = score < LIMIT
+    
+    if disabled:
+        messages.error(request, "Note: users with fewer than %s reputation points may not send messages via Biostar. You have %s points" % (LIMIT, score))
+    elif 'submit' in request.POST:
+        form = formdef.RequestInfo(request.POST) 
+        if form.is_valid():
+            send_mail([params.subject, settings.DEFAULT_FROM_EMAIL], params.body, settings.DEFAULT_FROM_EMAIL, [ form.cleaned_data['email'] ], fail_silently=False)
+            messages.info(request, "Your message has been sent.")
+            return html.redirect( post.get_absolute_url() )
+        else:
+           messages.error(request, "%s" % form.errors) 
+        
+    return html.template(request, name='pages/request-info.html', params=params)
+    
 def google(request):
     "Renders the rss feed page"
     user = request.user

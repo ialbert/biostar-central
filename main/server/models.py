@@ -91,10 +91,10 @@ class UserProfile( models.Model ):
     
     def get_status(self):
         return 'suspended' if self.suspended else ''
-    
+
     @property
     def suspended(self):
-        return self.status == USER_SUSPENDED
+        return self.status != USER_ACTIVE
     
     def get_absolute_url(self):
         return reverse("main.server.views.user_profile", kwargs=dict(uid=self.user.id))
@@ -125,11 +125,6 @@ class TagAdmin(admin.ModelAdmin):
     search_fields = ['name']
 
 admin.site.register(Tag, TagAdmin)
-
-class RootPostManager(models.Manager):
-    "Used for all posts (question, answer, comment); returns only non-deleted posts"
-    def get_query_set(self):
-        return super(PostManager, self).get_query_set().select_related('author','author__profile','children', 'descendants')
 
 class AllManager(models.Manager):
     "Returns all posts"
@@ -198,8 +193,22 @@ class Post(models.Model):
 
     # relevance measure, initially by timestamp, other rankings measures
     rank = models.FloatField(default=0, blank=True)
-           
+    
     def get_absolute_url(self):
+        if self.top_level:
+            url = "/p/%d/" % (self.id)
+        else:
+            url = "/p/%d/#%d" % (self.root.id, self.id)
+
+        # some objects have external links
+        if self.url:
+            url = "/linkout/%s/" % self.id
+
+        return url
+            
+    def get_short_url(self):
+        return self.get_absolute_url()
+        """
         if self.top_level:
             url = "/post/show/%d/%s/" % (self.id, self.slug)
         else:
@@ -208,9 +217,10 @@ class Post(models.Model):
         # some objects have external links
         if self.url:
             url = "/linkout/%s/" % self.id
-            
+
         return url
-          
+        """
+
     def set_tags(self):
         if self.type not in POST_CONTENT_ONLY:
             # save it so that we can set the many2many fiels
@@ -268,12 +278,15 @@ class Post(models.Model):
                
     def get_tag_names(self):
         "Returns the post's tag values as a list of tag names"
-        names = [ html.safe_tag(n) for n in re.split('[ ,]+', self.tag_val) if n ]
+        tag_val = html.sanitize(self.tag_val)
+        names = re.split('[ ,]+', tag_val)
+        names = filter(None, names)
         return map(unicode, names)
     
     def apply(self, dir):
         if self.type == POST_ANSWER:
             self.parent.answer_count += dir
+            self.parent.lastedit_date = self.creation_date
             self.parent.save()
     
     def comments(self):
@@ -288,7 +301,10 @@ class Post(models.Model):
         if self.type in POST_CONTENT_ONLY:
             return self.content
         else:
-            return "TITLE:%s\n%s\nTAGS:%s" % (self.title, self.content, self.tag_val)
+            title = self.title
+            content = self.content
+            tag_val = self.tag_val
+            return "TITLE:%s\n%s\nTAGS:%s" % (title, content, tag_val)
 
 def update_post_views(post, request, minutes=10):
     "Views are updated per user session"
@@ -402,12 +418,21 @@ def user_moderate(user, target, status):
         msg = 'User %s not authorized to moderate %s' % (user.id, target.id)
         return False, msg
 
+
+
+    # banning can only be applied by admins
+    ban = (status == USER_BANNED)
+
+    if ban and user.profile.is_admin:
+            Post.objects.filter(author=target).update(status=POST_DELETED)
+
     target.profile.status = status
     target.profile.save()
     text = notegen.user_moderator_action(user=user, target=target)
     send_note(target=target, content=text, sender=user, both=True, type=NOTE_MODERATOR, url=user.get_absolute_url() )
 
     msg = 'User status set to %s' % target.profile.get_status_display()
+
     return True, msg
      
 @transaction.commit_on_success

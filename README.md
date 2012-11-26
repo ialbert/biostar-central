@@ -110,6 +110,7 @@ are set properly these can be invoked as:
 
   - `python -m main.bin.postadd` to import posts into the main site
   - `python -m main.bin.postmod` modifies a post in the main site
+  - `python -m main.bin.useradd` to add users
   - `python -m main.bin.usermod` to edit users
   - `python -m main.bin.extract` extracts the value of a settings parameter
   - `python -m main.bin.patch` is used to change varios values after migration
@@ -120,21 +121,22 @@ are set properly these can be invoked as:
   a django settings file. See the `conf/demo.env` file. Typically use is to `source conf/default.env` 
   then source a second smaller file that overrides just a few parameters.
 
+To add a new user and a post by this user you can do a:
+
+    $ source conf/default.env
+    $ python -m main.bin.useradd -u newuser -e john@gmail.com -n 'John Doe'
+    *** creating user newuser
+    $ python -m main.bin.postadd -e john@gmail.com -t 1 import/forum/rnseq-tool.txt
+    *** adding 165, 104, john@gmail.com, RNA-SeqQC quality control
+
 Versioning
 -----------
 
-BioStar uses the [common versioning nomenclature][versioning] that consists of three numbers called major.minor.revision
-The minor version number will always be bumped when the database schema changes. 
-Database dumps can only be loaded into the same minor versions that created them. 
-New installations of BioStar are automatically migrated.
-
-Existing installations of BioStar will need to be migrated manually via the command:
-
-    python manage.py migrate main.server
-
-Invoke the above command after loading the proper environment.
+BioStar uses the [common versioning nomenclature][versioning] that consists of three numbers called `major.minor.revision`
+See the [NEWS.md][news] file for release numbers and version migration information.
 
 [versioning]: http://en.wikipedia.org/wiki/Software_versioning#Sequence-based_identifiers
+[news]: https://github.com/ialbert/biostar-central/blob/master/NEWS.md
 
 Testing
 -------
@@ -179,8 +181,35 @@ In Biostar there are four types of users: anonymous users, registered users, mod
   access to the django admin interface where they may perform more database actions
   than those offered via the BioStar interface..
 
+Internationalization
+--------------------
+
+There are some dependencies that need to be installed (notable the Unix `gettext` utility) to run
+the django [makemessages][makemsg] command.
+
+Template content needs to be tagged with the [Django Translation][trans] framework.
+The new message compilation then will be run via:
+
+    ./biostar.sh messages
+
+The settings file needs to specify the language (see the fileas named `conf/ch.env` and `conf/ch.py`). For an example site
+in either Chinese run the following:
+
+    source conf/default.env
+    source conf/ch.env
+    ./biostar.sh run
+
+To override what pages get loaded in add a new template directory in a location and override the template loader order.
+For an example see the `conf/ch.py` settings file. In this example a different widget will be loaded
+from the corresponding templates in `conf/custom-html/widgets/page.share.html`.
+
+[makemsg]: https://docs.djangoproject.com/en/dev/ref/django-admin/#makemessages
+
+[trans]: https://docs.djangoproject.com/en/dev/topics/i18n/translation/#internationalization-in-template-code
+
+
 Content Persistence
-^^^^^^^^^^^^^^^^^^^
+-------------------
 
 Content may be deleted (marked invisible to users) or destroyed (removed from the database).
 

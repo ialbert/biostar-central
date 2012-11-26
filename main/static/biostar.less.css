@@ -342,6 +342,8 @@ div.post-show {
     color: #FFFFFF;
 }
 
+.tip { background-color: #2D9F6E; color: #FFFFFF; }
+
 .news {
     background-color: #762C90;
     color: #FFFFFF;
@@ -534,7 +536,7 @@ div.post-show {
     }
 }
 .closed  { background-color: #F9F9F9;}
-.deleted { opacity:0.75; border-right: 1px solid red;}
+.deleted { opacity:0.50; background-color: #F2DEDE;}
 .suspended { h2 { color:red; }}
 
 /* popup message rendering */

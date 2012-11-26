@@ -152,6 +152,7 @@ TEMPLATE_LOADERS = (
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    #'django.middleware.locale.LocaleMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -183,6 +184,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.request',
     'django.core.context_processors.static',
     'django.contrib.messages.context_processors.messages',
+    'django.core.context_processors.i18n',
     "main.context.extras",
     "main.context.popular_tags"
 )
@@ -290,6 +292,9 @@ SELENIUM_TEST_LOGIN_TOKEN = None
 # setting the session for multiple servers
 SESSION_COOKIE_DOMAIN = ""
 
+MIN_POST_SIZE = 15
+MAX_POST_SIZE = 20000
+
 #
 # TEMPLATE LAYOUT,
 # One may override these variables from the settings file
@@ -298,7 +303,7 @@ SESSION_COOKIE_DOMAIN = ""
 # this data governs the layout of the PILL_BAR    
 # bar name, link url, link name, counter key
 USER_PILL_BAR = [
-    ("all", "/show/all/", "Show&nbsp;All", "" ),
+    ("all", "/", "Show&nbsp;All", "" ),
     ("mytags", "/show/mytags/", "My&nbsp;Tags", "" ),
     ("news", "/show/news/", "News", "News" ),
     ("questions", "/show/questions/", "Questions", "Question" ),
@@ -310,7 +315,7 @@ USER_PILL_BAR = [
 ]
 
 ANON_PILL_BAR = [
-    ("all", "/show/all/", "Show&nbsp;All", "" ),
+    ("all", "/", "Show&nbsp;All", "" ),
     ("news", "/show/news/", "News", "News" ),
     ("questions", "/show/questions/", "Questions", "Question" ),
     ("unanswered", "/show/unanswered/", "Unanswered", "Unanswered" ),
@@ -329,7 +334,6 @@ ANON_PILL_BAR = [
 # django template lookup rules apply
 #
 TEMPLATE_ROWS = {
-    
     'job': "rows/row.job.html",
 }
 

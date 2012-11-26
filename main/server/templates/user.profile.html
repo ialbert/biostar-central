@@ -1,10 +1,11 @@
 {% extends "base.html" %}
+{% load i18n %}
 
 {% load basic %}
 {% load widgets %}
 
 {% block title %}
-    User: {{target.profile.display_name }} - BioStar
+    {{target.profile.display_name }} on BioStar
 {% endblock %}
 
 {% block head %}
@@ -59,7 +60,9 @@
         <div>Last seen: {{ target.profile.last_visited|timesince }} ago </div>
         
         {% if user == target and user.profile.is_admin %}
-            <div>Admin: <a href="/admin/">admin login</a></div>
+            <div>{% trans 'Admin:' %}
+             <a href="/admin/">{% trans 'admin login' %}
+             </a></div>
         {% endif %}
         
         <div>
@@ -79,7 +82,14 @@
             {% else %}
                 <a class="btn btn-warning" href="{% url main.server.action.user_moderate target.id 'suspend' %}"><i class="icon-remove-sign icon-white"></i> Suspend</a>
             {% endif %}
+
+            {%  if user.profile.is_admin %}
+                &nbsp;&bull;&nbsp; <a class="btn btn-danger" href="{% url main.server.action.user_moderate target.id 'ban' %}"><i class="icon-screenshot icon-white"></i> Ban!</a>
+            {%  endif %}
+
         {% endif %}
+
+
         </div>
     
     </div>
@@ -98,10 +108,10 @@
 <div class="row">
     <div class="title" id="status">Status</div>    
         <div class="par">
-            {{ target.profile.display_name }} has contributed <a href="{% url main.server.views.show_user target.id %}">{{params.post_count}} posts</a>: 
-             <a href="{% url main.server.views.show_user target.id 'question' %}">{{params.question_count}} questions</a>, 
-             <a href="{% url main.server.views.show_user target.id 'answer' %}">{{params.answer_count}} answers</a> and 
-             <a href="{% url main.server.views.show_user target.id 'comment' %}">{{params.comment_count}} comments</a>. 
+            {{ target.profile.display_name }} has contributed <a href="{% url main.server.views.show_user target.id %}" >{{params.post_count}} posts</a>: 
+             <a href="{% url main.server.views.show_user target.id 'question' %}" >{{params.question_count}} questions</a>, 
+             <a href="{% url main.server.views.show_user target.id 'answer' %}" >{{params.answer_count}} answers</a> and 
+             <a href="{% url main.server.views.show_user target.id 'comment' %}" >{{params.comment_count}} comments</a>. 
             User  has voted <b>{{params.vote_count}}</b> times  and has earned <b>{{params.award_count}}</b> badges. 
         </div>
 </div>
@@ -109,12 +119,12 @@
 <div class="row">
     {# this the tabs that get selected for different pages #}
     <ul class="nav nav-tabs">
-        <li {% active 'activity' params.tab %}><a href="{% url main.server.views.user_profile target.id %}">Notifications{% show_value params.note_count %}</a></li>
-        <li {% active 'created' params.tab %}><a href="{% url main.server.views.user_profile target.id 'created' %}">Content Created</a></li>
-        <li {% active 'bookmarks' params.tab %}><a href="{% url main.server.views.user_profile target.id 'bookmarks' %}">Bookmarks{% show_value params.bookmarks_count %}</a></li>
-        <li {% active 'badges' params.tab %}><a href="{% url main.server.views.user_profile target.id 'badges' %}">Badges{% show_value params.award_count %}</a></li>
+        <li {% active 'activity' params.tab %}><a href="{% url main.server.views.user_profile target.id %}" >Notifications{% show_value params.note_count %}</a></li>
+        <li {% active 'created' params.tab %}><a href="{% url main.server.views.user_profile target.id 'created' %}" >Content Created</a></li>
+        <li {% active 'bookmarks' params.tab %}><a href="{% url main.server.views.user_profile target.id 'bookmarks' %}" >Bookmarks{% show_value params.bookmarks_count %}</a></li>
+        <li {% active 'badges' params.tab %}><a href="{% url main.server.views.user_profile target.id 'badges' %}" >Badges{% show_value params.award_count %}</a></li>
         {% if target.profile.can_moderate %}
-            <li {% active 'moderator' params.tab %}><a href="{% url main.server.views.user_profile target.id 'moderator' %}">Moderator Actions</a></li>
+            <li {% active 'moderator' params.tab %}><a href="{% url main.server.views.user_profile target.id 'moderator' %}" >Moderator Actions</a></li>
         {% endif %}
     </ul>
 </div>
@@ -124,7 +134,9 @@
 {% if params.tab == 'activity' %}
     
     <div class="par">
-        Activity on posts that this user has interacted with. See the  <a href="{% url main.server.pages.rss %}">RSS</a> page on how to set up feeds.
+        {% trans 'Activity on posts that this user has interacted with. See th' %}
+        e  <a href="{% url main.server.pages.rss %}">RSS</a> {% trans 'page on how to set up feeds.' %}
+
     </div>
     
     <div class="note-list">
@@ -138,7 +150,8 @@
         {% for note in page.object_list %}
             <tr><td class="msg {{note.status}}"> <i>{% time_ago note.date %}</i> &bull; {{ note.html|safe }}</td></tr>
         {% empty %}
-            <tr><td><div class="empty">&bull; no messages</div><td></tr>
+            <tr><td><div class="empty">&bull; {% trans 'no messages' %}
+            </div><td></tr>
         {% endfor %}
         </table>        
         
@@ -156,7 +169,10 @@
 {% if params.tab == 'created' %}
     
     <div class="par">
-        Content created by {{target.profile.display_name}}.See the  <a href="{% url main.server.pages.rss %}">RSS</a> page on how to set up feeds.
+        {% trans 'Content created by' %}
+         {{target.profile.display_name}}.{% trans 'See the' %}
+           <a href="{% url main.server.pages.rss %}">RSS</a> {% trans 'page on how to set up feeds.' %}
+
     </div>
     <div class="note-list">
         {% if page.object_list and page.paginator.num_pages > 1 %}
@@ -169,7 +185,8 @@
         {% for note in page.object_list %}
             <tr><td class="msg {{note.status}}"> <i>{% time_ago note.date %}</i> &bull; {{ note.html|safe }}</td></tr>
         {% empty %}
-            <tr><td><div class="empty">&bull; no messages</div><td></tr>
+            <tr><td><div class="empty">&bull; {% trans 'no messages' %}
+            </div><td></tr>
         {% endfor %}
         </table>        
         
@@ -190,7 +207,8 @@
             &bull; <a href="{{vote.post.get_absolute_url}}">{{vote.post.get_title}}</a> by <a href="{{vote.post.author.profile.get_absolute_url}}">{{vote.post.author.profile.display_name}}</a>
         </div>               
         {% empty %}
-        <div class="empty">&bull; no bookmarks - click on the <i class="icon-bookmark"></i> symbol of a post to bookmark it</div>            
+        <div class="empty">&bull; {% trans 'no bookmarks - click on the <i class="icon-bookmark"></i> symbol of a post to bookmark it' %}
+        </div>
         {% endfor %}
     
     </div>
@@ -211,7 +229,8 @@
                 </div>
             </div>
         {% empty %}
-            <div class="note">&bull; no badges earned</div>
+            <div class="note">&bull; {% trans 'no badges earned' %}
+            </div>
         {% endfor %} 
     </div>
 {% endif %}
@@ -219,7 +238,8 @@
 {% if params.tab == 'moderator' %}  
     <div class="note-list">
        <div class="par">
-            Moderator actions by this user. To view all moderator actions see the <a href="/modlog/list">moderator log list</a>
+            {% trans 'Moderator actions by this user. To view all moderator actions see the <a href="/modlog/list">moderator log list</a>' %}
+
        </div>
         {% if page.object_list and page.paginator.num_pages > 1 %}
             <div class="row">
@@ -231,7 +251,8 @@
         {% for note in page.object_list %}
             <tr><td class="msg {{note.status}}"> {% time_ago note.date %} &bull; {{ note.html|safe }}</td></tr>
         {% empty %}
-            <tr><td><div class="empty">&bull; no messages</div><td></tr>
+            <tr><td><div class="empty">&bull; {% trans 'no messages' %}
+            </div><td></tr>
         {% endfor %}
         </table>   
     </div>

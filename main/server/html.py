@@ -4,11 +4,11 @@ Html utility functions.
 import re, string, mimetypes, os, json, random, hashlib,  unittest
 from django.template import RequestContext, loader
 from django.core.servers.basehttp import FileWrapper
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponsePermanentRedirect
-from django.shortcuts import render_to_response
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponsePermanentRedirect, Http404
+from django.shortcuts import render_to_response, render
 from django.core.context_processors import csrf
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
-
+from django.template.loader import render_to_string
 from BeautifulSoup import BeautifulSoup, Comment
 
 import html5lib
@@ -21,10 +21,14 @@ from docutils import core
 import docutils.parsers.rst.roles
 docutils.parsers.rst.roles.DEFAULT_INTERPRETED_ROLE = 'title-reference'
 from itertools import groupby
+from textparser import process
 
 # safe string transformation
 import string
 SAFE_TAG = set(string.ascii_letters + string.digits + "._-")
+
+def raise404():
+    raise Http404
 
 def safe_tag(text):
     global SAFE_TAG
@@ -72,10 +76,12 @@ def generate(text):
         html = rest.get('html_body','[rest error]')
     else:
         md = markdown2.Markdown( safe_mode=False )
-        text = fix_orphans(text)
+        #text = fix_orphans(text)
+        text = process(text, state='pre')
         html = md.convert(text)
         html = sanitize(html)
-        html = extra_html(html)
+        html = process(html, state='post')
+        #html = extra_html(html)
     return html
 
 orphans = re.compile("(^|[\w:.]\s)((https?|ftp):\S+) ", re.MULTILINE | re.VERBOSE)
@@ -103,8 +109,12 @@ def extra_html(text):
 
 def sanitize(value):
     "HTML sanitizer based on html5lib"
-    p = html5lib.HTMLParser(tokenizer=sanitizer.HTMLSanitizer)
-    h = p.parseFragment(value).toxml()
+    try:
+        p = html5lib.HTMLParser(tokenizer=sanitizer.HTMLSanitizer)
+        h = p.parseFragment(value).toxml()
+    except Exception, exc:
+        h = "Unable to parse content: %s" % exc
+    h = unicode_or_bust(h)
     return h
     
 ALLOWED_TAGS = "strong span:class br ol ul li a:href img:src pre code blockquote p em"
@@ -131,6 +141,12 @@ def unused_sanitize(value, allowed_tags=ALLOWED_TAGS):
                          if attr in allowed_tags[tag.name]]
 
     return soup.renderContents().decode('utf8')
+
+def unicode_or_bust(obj, encoding='utf-8'):
+    if isinstance(obj, basestring):
+        if not isinstance(obj, unicode):
+            obj = unicode(obj, encoding)
+    return obj
 
 class Params(object):
     """
@@ -192,6 +208,12 @@ def template(request, name, mimetype=None, **kwd):
     resp = render_to_response(name, kwd, context_instance=RequestContext(request))
     return resp
 
+def fill(name, **kwd):
+    """Renders a template into a string"""
+    # parameters that will always be available for the template
+    resp = render_to_string(name, kwd)
+    return resp
+
 def get_ip(request):
     "Extracts the IP address from a request"
     ip1 = request.META.get('REMOTE_ADDR', '')
@@ -219,12 +241,12 @@ def hot(ups, downs, date):
     seconds = epoch_seconds(date) - 1134028003
     return round(order + sign * seconds / 45000, 7)
 
-def rank(post):
+def rank(post, factor=5.0):
     "Computes the rank of a post"
     
     # Biostar tweaks to the reddit scoring
     ups = max((post.full_score, 0)) + 1
-    ups = int(ups + post.views/25.0)
+    ups = int(ups + post.views/factor)
     downs = 0
     rank = hot(ups, downs, post.creation_date)
     return rank

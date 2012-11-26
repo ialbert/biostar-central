@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load i18n %}
 
 {% load basic %}
 {% load widgets %}
@@ -11,7 +12,7 @@
     <!-- markitUp editor -->
     <script src="{{ STATIC_URL }}js/handlers.js"></script>
     <link rel="stylesheet" href="{{ STATIC_URL }}lib/pagedown/Markdown.css" type="text/css"/>
-    <script type="text/javascript" src="{{ STATIC_URL }}lib/pagedown/Markdown.Converter.js"></script>    
+    <script type="text/javascript" src="{{ STATIC_URL }}lib/pagedown/Markdown.Converter.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}lib/pagedown/Markdown.Sanitizer.js"></script>    
     <script type="text/javascript" src="{{ STATIC_URL }}lib/pagedown/Markdown.Editor.js"></script>
 
@@ -39,7 +40,8 @@
             {% else %}
             <div class="control-group">
             {% endif %}
-            <label class="control-label" for="title">Title</label>
+            <label class="control-label" for="title">{% trans 'Title' %}
+            </label>
                 <div class="controls">
                     {{form.title}}
                     <span class="help-inline">{{form.title.errors}}</span>
@@ -51,7 +53,8 @@
             {% else %}
             <div class="control-group">
             {% endif %}
-                <label class="control-label" for="tag_val">Tags</label>
+                <label class="control-label" for="tag_val">{% trans 'Tags' %}
+                </label>
                 <div class="controls">
                     {{form.tag_val}}
                     <div><span class="help-block">separate tags with spaces {{form.tag_val.errors}}</span></div>
@@ -63,7 +66,8 @@
             {% else %}
             <div class="control-group">
             {% endif %} 
-                <label class="control-label" for="type">Post Type</label>
+                <label class="control-label" for="type">{% trans 'Post Type' %}
+                </label>
                 <div class="controls">
                     {{form.type}}
                     <span class="help-inline">{{form.type.errors}}</span>
@@ -78,7 +82,8 @@
         {% else %}
         <div class="control-group">
         {% endif %}
-        <label class="control-label" for="editor">Content</label>
+        <label class="control-label" for="editor">{% trans 'Content' %}
+        </label>
             
             <div class="controls">
                 
@@ -106,7 +111,10 @@
        <div class="control-group">
             <label class="control-label" for="button"></label>
             <div class="controls">
-            <div class="alert"><b>Note</b>: by posting to BioStar, you agree to a <a href="http://creativecommons.org/licenses/by/3.0/">Creative Commons - Attribution</a> license. 
+            <div class="alert">
+                {% blocktrans %}
+                    <b>Note</b>: by posting to BioStar, you agree to a <a href="http://creativecommons.org/licenses/by/3.0/">Creative Commons - Attribution</a> license.
+                {%  endblocktrans %}
             </div>
         </div>
         

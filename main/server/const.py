@@ -25,8 +25,8 @@ FIRST_SESSION = 'first-session'
 LASTSORT_SESSION = 'last-sort'
 
 # Add at the end
-POST_QUESTION, POST_ANSWER, POST_COMMENT, POST_TUTORIAL, POST_BLOG, POST_FORUM, POST_NEWS, POST_REVIEW, POST_TOOL, POST_FIXME, POST_VIDEO, POST_JOB, POST_PUBLICATION, POST_OTHER = range(1, 15)
-POST_TYPES  = ( (POST_ANSWER, 'Answer') , (POST_COMMENT, 'Comment'), (POST_QUESTION, 'Question'), (POST_TUTORIAL, 'Tutorial'), 
+POST_QUESTION, POST_ANSWER, POST_COMMENT, POST_TUTORIAL, POST_BLOG, POST_FORUM, POST_NEWS, POST_REVIEW, POST_TOOL, POST_FIXME, POST_VIDEO, POST_JOB, POST_PUBLICATION, POST_TIP, POST_OTHER = range(1, 16)
+POST_TYPES  = ( (POST_ANSWER, 'Answer') , (POST_COMMENT, 'Comment'), (POST_QUESTION, 'Question'), (POST_TUTORIAL, 'Tutorial'), (POST_TIP, 'Tip'),
     (POST_BLOG, 'Blog'), (POST_FORUM, 'Forum'), (POST_NEWS, 'News'), (POST_REVIEW, 'Review'), (POST_TOOL, 'Tool'), (POST_VIDEO, 'Video'),
     (POST_FIXME, 'FixMe'), (POST_JOB, 'Job'), (POST_PUBLICATION, 'Research Paper') )
 
@@ -40,14 +40,17 @@ POST_REV_MAP = dict( (y.lower(),x) for (x,y) in POST_MAP.items() )
 POST_NAV_BAR = [  ]
 POST_NAV_BAR_LOWER = map(string.lower, POST_NAV_BAR)
 
-# valid tab bars entries
-VALID_TABS  = set( "recent posts planet sticky".split() )
+# the valid sort orders
+SORT_MAP = dict(
+    rank="-rank", views="-views", creation="-creation_date",
+    activity="-lastedit_date", votes="-full_score", answers="-answer_count",
+)
 
-# valid pill tab entries
-VALID_PILLS = set( "mytags all news questions unanswered publications tutorials tools videos jobs".split() )
+# valid pill entries
+VALID_PILLS = set( "mytags all news questions unanswered tutorials tools videos jobs".split() )
 
-# valid targets
-VALID_TARGETS = VALID_TABS | VALID_PILLS
+# valid tab entries
+VALID_TABS = set( "recent planet sticky".split() ) | VALID_PILLS 
 
 # posts that only have content, no title or tags
 POST_CONTENT_ONLY = set( [POST_ANSWER, POST_COMMENT ])
@@ -78,8 +81,8 @@ USER_TYPES = ( (USER_NEW, 'New'), (USER_MEMBER, 'Member'),  (USER_MODERATOR, 'Mo
     (USER_ADMIN, 'Administrator'), (USER_BLOG, 'Blog'), (USER_SPECIAL, 'Special'),)
 
 # user status types
-USER_ACTIVE, USER_SUSPENDED = 1, 2
-USER_STATUS_TYPES = ( (USER_ACTIVE, 'Active'), (USER_SUSPENDED, 'Suspended') )
+USER_ACTIVE, USER_SUSPENDED, USER_BANNED = 1, 2, 3
+USER_STATUS_TYPES = ( (USER_ACTIVE, 'Active'), (USER_SUSPENDED, 'Suspended'), (USER_BANNED, 'Banned' ))
 
 # post status types        
 POST_OPEN, POST_CLOSED, POST_DELETED = 100, 200, 300

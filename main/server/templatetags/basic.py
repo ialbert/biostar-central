@@ -11,6 +11,8 @@ register = template.Library()
 
 from django.template.defaultfilters import stringfilter
 
+uni = html.unicode_or_bust
+
 @register.filter(name='chunk')
 @stringfilter
 def quick_chunk(text, size=250):
@@ -26,6 +28,10 @@ def smart_chunk(text):
         if size > 180:
             break
     return ' '.join(coll)
+
+@register.inclusion_tag('widgets/post.share.html')
+def post_share(post):
+    return {'post':post}
 
 @register.inclusion_tag('widgets/user.link.html')
 def userlink(user):
@@ -74,14 +80,18 @@ def time_ago(time):
 
 @register.simple_tag
 def gravatar(user, size=80):
+    
+    username  = user.profile.display_name
+    useremail = user.email.encode('utf8')
+
     gravatar_url = "http://www.gravatar.com/avatar.php?"
     gravatar_url += urllib.urlencode({
-        'gravatar_id':hashlib.md5(user.email).hexdigest(),
+        'gravatar_id':hashlib.md5(useremail).hexdigest(),
         'size':str(size),
         'd':'identicon',
         }
     )
-    return """<img src="%s" alt="gravatar for %s"/>""" % (gravatar_url, user.username)
+    return """<img src="%s" alt="gravatar for %s"/>""" % (gravatar_url, username)
 
 @register.simple_tag(takes_context=True)
 def navclass(context, ending):
@@ -159,20 +169,26 @@ def load_templates():
             #print "*** template loader loading default row for type '%s" % fname
             templates[typeid] = template.loader.get_template('rows/row.post.html')
 
-load_templates()
+# the template for the deleted row
+row_deleted = template.loader.get_template('rows/row.deleted.html')
 
+load_templates()
 
 @register.simple_tag
 def table_row(post, params):
     "Renders an html row for a post "
-    global row_question, row_answer, row_comment, row_post, row_blog, row_forum
-    
+    global row_question, row_answer, row_comment, row_post, row_blog, row_forum, row_deleted
+
+    row_deleted = template.loader.get_template('rows/row.deleted.html')
+
     if settings.DEBUG:
         # this is necessary to force the reload during development
         load_templates()
 
     c = Context( {"post": post, 'params':params})
-
-    template = templates[post.type]
-    text = template.render(c)
+    if post.deleted:
+        templ = row_deleted
+    else:
+        templ = templates[post.type]
+    text = templ.render(c)
     return text
