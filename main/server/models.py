@@ -78,6 +78,10 @@ class UserProfile( models.Model ):
     scholar = models.TextField(null=True, default='', max_length=50, blank=True)
 
     @property
+    def get_score(self):
+        return self.score * 10
+
+    @property
     def can_moderate(self):
         return (self.is_moderator or self.is_admin)
       

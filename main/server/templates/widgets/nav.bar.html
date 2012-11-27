@@ -35,7 +35,7 @@
                 {% endif %}
                 &nbsp;
                  <i class="icon-user icon-white"></i>
-                 <a href="{% url 'main.server.views.user_profile' user.id %}">{{ user.profile.display_name }}</a> {% flair user %} <b>{% bignum user.profile.score %}</b>
+                 <a href="{% url 'main.server.views.user_profile' user.id %}">{{ user.profile.display_name }}</a> {% flair user %} <b>{% bignum user.profile.get_score %}</b>
                  | <a href="/logout/?next_page=/">{%  trans "Logout" %}</a>
             </p>
             {% else %}
