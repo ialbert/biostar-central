@@ -19,30 +19,6 @@
     <script type="text/javascript" src="{{ STATIC_URL }}lib/tagit.js"></script>
     <link rel="stylesheet" href="{{ STATIC_URL }}lib/tagit.css" />
     <script>
-        var availableTags = [
-            "ActionScript",
-            "AppleScript",
-            "Asp",
-            "BASIC",
-            "C",
-            "C++",
-            "Clojure",
-            "COBOL",
-            "ColdFusion",
-            "Erlang",
-            "Fortran",
-            "Groovy",
-            "Haskell",
-            "Java",
-            "JavaScript",
-            "Lisp",
-            "Perl",
-            "PHP",
-            "Python",
-            "Ruby",
-            "Scala",
-            "Scheme"
-        ];
         $(function(){
             var e = $('#id_tag_val').parent();
             var f = $(document.createElement('ul'));
@@ -52,7 +28,7 @@
             var oldInput = $('#id_tag_val');
             oldInput.remove();
             f.tagit({
-                tagSource: availableTags,
+                tagSource: '/tagcomplete/',
                 initialTags: oldInput.val().split(" "),
                 tagsChanged: function(){
                     var tags = f.tagit('tags');
