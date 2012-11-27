@@ -74,6 +74,7 @@ def post_lookup(browser):
     click = partial(click_func, browser)
     
     click("next>")
+    click("first")
     target = "Gene ID conversion tool"
     elem, text = click(target)
     time.sleep(2)
@@ -279,7 +280,7 @@ def voting_test(browser):
     title = "Gene ID conversion tool"
     
     user = login(browser=browser, uid=10)
-    
+    click("next>")
     click = partial(click_func, browser)
     title = "How to organize a pipeline of small scripts together?"
     click(title)
