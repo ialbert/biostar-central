@@ -33,6 +33,9 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
+# how many post per page to show
+POSTS_PER_PAGE = 15
+
 def path(*args):
     "Generates absolute paths"
     return os.path.abspath(os.path.join(*args))
