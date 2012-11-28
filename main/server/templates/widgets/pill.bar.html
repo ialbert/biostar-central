@@ -5,7 +5,7 @@
     <div style="float:left;";>
         <ul class="nav nav-pills">
             {% for tabkey, link, text, countkey in layout %}
-                <li {% active tabkey pill %}><a href="{{link}}">{{text|safe}}&nbsp;{% show_count countkey counts %}</a></li>
+                <li {% active tabkey pill %}><a href="{{link}}">{{text|safe}}{% show_count countkey counts %}</a></li>
             {% endfor %}
         </ul>
     </div>

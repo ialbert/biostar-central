@@ -16,7 +16,7 @@ def show_value(value):
 @register.simple_tag
 def show_count(key, store):
     value = store.get(key)
-    return "(%s)" % value if value else ""
+    return "<sup>%s</sup>" % value if value else ""
 
 @register.simple_tag
 def show_type(post, flag):
