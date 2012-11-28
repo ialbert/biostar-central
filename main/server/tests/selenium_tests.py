@@ -254,7 +254,7 @@ def update_user(browser):
 
 def full_search(browser):
     "Searches via the main tab"
-    click = click_link(browser)
+    click = partial(click_func, browser)
     click('Search')
     
     elems = browser.find_elements_by_name('q')
@@ -278,7 +278,7 @@ def quick_search(browser):
   
 def voting_test(browser):
     title = "Gene ID conversion tool"
-    
+    click = partial(click_func, browser)
     user = login(browser=browser, uid=10)
     click("next>")
     click = partial(click_func, browser)
