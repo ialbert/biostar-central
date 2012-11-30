@@ -121,5 +121,6 @@ TARGET_COUNT_MAP = {
     POST_TUTORIAL : "Tutorial",
     POST_JOB : "Job",
     POST_BLOG: "Blog",
+    POST_VIDEO: "Video",
     "unanswered" : "Unanswered",
 }
