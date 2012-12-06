@@ -32,14 +32,13 @@ from main import middleware
 import logging
 logger = logging.getLogger(__name__)
 
+
 def get_post_manager(request):
     user = request.user
     if user.is_authenticated() and user.profile.can_moderate:
         return models.Post.objects.select_related('author', 'author__profile')
     else:
         return models.Post.open_posts.select_related('author', 'author__profile')
-
-POSTS_PER_PAGE = 15
 
 # mapst a word to a numeric post type
 POST_TYPE_MAP = dict(
@@ -154,7 +153,7 @@ def index(request, tab='all'):
         
     # get the counts for the session
     counts = sess.get_counts(post_type)
-    page = get_page(request, posts, per_page=POSTS_PER_PAGE)
+    page = get_page(request, posts, per_page=settings.POSTS_PER_PAGE)
     
     # save the session
     sess.save()

@@ -109,9 +109,12 @@ urlpatterns = patterns('main.server',
     url(r'^test/login/(?P<uid>\d+)/(?P<token>[\w\d]+)/$','action.test_login', name="test-login"),
    
     # json api for stat generation
-    url(r'^api/traffic/$', 'action.traffic', name='stats-traffic'),
-    url(r'^api/stats/$', 'action.stats', name='stats-short'),
-    url(r'^api/stats/(?P<days>\d+)/$', 'action.stats', name='stats'),
+    url(r'^api/traffic/$', 'api.traffic', name='stats-traffic'),
+
+    url(r'^api/user/(?P<uid>\d+)/$', 'api.user_info', name='api-user'),
+    url(r'^api/post/(?P<pid>\d+)/$', 'api.post_info', name='api-post'),
+    url(r'^api/stats/(?P<days>\d+)/$', 'api.stats', name='api-stats'),
+
 )
 
 

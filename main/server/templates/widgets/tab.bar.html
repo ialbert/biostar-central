@@ -11,7 +11,7 @@
             <li {% active 'posts' tab %}><a href="/">{% trans "Posts" %}</a></li>
             <li {% active 'planet' tab %}><a href="/show/planet/">{% trans "Planet" %} {% show_count 'Blog' counts %}</a></li>
             <li {% active 'search' tab %}><a href="{% url 'main.server.search.main' %}">{%  trans "Search" %}</a></li>
-            <li {% active 'new' tab %}><a href="/new/post/"> <span class="newpost">{% trans "New Post!" %}</span></a></li>
+            <li {% active 'new' tab %}><a href="/new/post/" class="newpost">{% trans "New Post!" %}</a></li>
         </ul>
     </div>
 
