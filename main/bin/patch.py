@@ -112,6 +112,13 @@ def reapply_ranks():
         post.save()
     transaction.commit()
     
+def traffic_cleanup(days=1):
+    past = datetime.now() - timedelta(days=days)
+    query = models.PostView.objects.filter(date__lt=past)
+
+    print "*** deleting %s views" % query.count()
+
+    query.delete()
 
 if __name__ == '__main__':
     import doctest, optparse
@@ -130,7 +137,8 @@ if __name__ == '__main__':
     parser.add_option("--update_domain", dest="update_domain", help="updates the site domain to match the settings", action="store_true", default=False)
     parser.add_option("--bookmarks", dest="bookmarks", help="updates bookmark counts", action="store_true", default=False)
     parser.add_option("--blog_cleanup", dest="blog_cleanup", help="cleans up deleted blogs", action="store_true", default=False)
-    parser.add_option("--positive", dest="positive", help="cleans up deleted blogs", action="store_true", default=False)
+    parser.add_option("--positive", dest="positive", help="removes negative ratings", action="store_true", default=False)
+    parser.add_option("--traffic_cleanup", dest="traffic", help="removes post view entries older than <days>", type=int, default=0)
 
 
     (opts, args) = parser.parse_args()
@@ -160,3 +168,7 @@ if __name__ == '__main__':
 
     if opts.positive:
         apply_positive()
+
+    if opts.traffic:
+        traffic_cleanup(opts.traffic)
+

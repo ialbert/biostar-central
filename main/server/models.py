@@ -209,21 +209,10 @@ class Post(models.Model):
             url = "/linkout/%s/" % self.id
 
         return url
-            
+
+    # now obsolete, TODO: remove
     def get_short_url(self):
         return self.get_absolute_url()
-        """
-        if self.top_level:
-            url = "/post/show/%d/%s/" % (self.id, self.slug)
-        else:
-            url = "/post/show/%d/%s/#%d" % (self.root.id, self.root.slug, self.id)
-        
-        # some objects have external links
-        if self.url:
-            url = "/linkout/%s/" % self.id
-
-        return url
-        """
 
     def set_tags(self):
         if self.type not in POST_CONTENT_ONLY:
@@ -291,6 +280,7 @@ class Post(models.Model):
         if self.type == POST_ANSWER:
             self.parent.answer_count += dir
             self.parent.lastedit_date = self.creation_date
+            self.parent.lastedit_user = self.author
             self.parent.save()
     
     def comments(self):
@@ -787,6 +777,9 @@ def verify_post(sender, instance, *args, **kwargs):
         
     # generate the HTML from the content
     instance.html = html.generate(instance.content)
+
+    # lower case the tags
+    instance.tag_val = instance.tag_val.lower()
 
     # post gets flagged as changed on saving
     instance.changed = True

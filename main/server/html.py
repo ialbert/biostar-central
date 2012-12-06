@@ -68,6 +68,8 @@ def nuke(text):
 def generate(text):
     if not text:
         return ""
+    # replace tabs with whitespace
+    text = text.replace("\t","    ")
     if text.startswith('##rest'):
         # this is a django bugfix!
         docutils.parsers.rst.roles.DEFAULT_INTERPRETED_ROLE = 'title-reference'

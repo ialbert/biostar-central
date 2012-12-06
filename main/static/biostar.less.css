@@ -28,6 +28,7 @@ body {
 
 .newpost {
     text-decoration: underline;
+    font-weight: bold;
 }
 
 blockquote {

@@ -129,7 +129,7 @@ while (( "$#" )); do
         echo '*** postgresql reset'
         psql -U $PG_USER $PG_DBNAME < import/sqlclear.sql
     fi
-    
+
     if [ "$1" = "pgdump" ]; then
         # dumps a postgres database to a file
         echo "*** dumping database $PG_DBNAME"
@@ -137,9 +137,10 @@ while (( "$#" )); do
     fi
     
      if [ "$1" = "pgimport" ]; then
+     	# assumes that the datadump is gzipped
         # restores a postgresl database from a file
         echo "*** restoring database $PG_DBNAME"
-        psql -U $PG_USER $PG_DBNAME < $2
+        gunzip -c $2 | psql -U $PG_USER $PG_DBNAME
     fi
     
     if [ "$1" = "test" ]; then
