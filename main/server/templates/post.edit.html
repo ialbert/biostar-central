@@ -20,6 +20,7 @@
     <link rel="stylesheet" href="{{ STATIC_URL }}lib/tagit.css" />
     <script>
         $(function(){
+            return;
             var e = $('#id_tag_val').parent();
             var f = $(document.createElement('ul'));
             e.append(f)
@@ -51,99 +52,109 @@
 {% endblock %}
 
 {% block body %}
-      
+
     <div class="row">
-        
-        <form action="{{request.path}}" method="post" id="mainform" class="form-horizontal">
-            
-        {% csrf_token %}
-        
-        <input type="hidden" value={{post_type}} name="post_type">
-        
-     {% if params.toplevel %}
-            {% if form.title.errors %}
-            <div class="control-group error">
-            {% else %}
-            <div class="control-group">
-            {% endif %}
-            <label class="control-label" for="title">{% trans 'Title' %}
-            </label>
-                <div class="controls">
-                    {{form.title}}
-                    <span class="help-inline">{{form.title.errors}}</span>
+        <div class="span12">
+
+            <form action="{{ request.path }}" method="post" id="mainform" class="form-horizontal">
+
+                {% csrf_token %}
+
+                <input type="hidden" value="{{ post_type }}" name="post_type">
+
+                {% if params.toplevel %}
+
+                    <div class="control-group{% if form.title.errors %} error{% endif %}">
+
+                        <label class="control-label" for="title">{% trans 'Title' %}
+                        </label>
+
+                        <div class="controls">
+                            {{ form.title }}
+                            <span class="help-inline">{{ form.title.errors }}</span>
+                        </div>
+                    </div>
+
+
+                    <div class="control-group{% if form.tag_val.errors %} error{% endif %}">
+
+                        <label class="control-label" for="tag_val">{% trans 'Tags' %}
+                        </label>
+
+                        <div class="controls">
+                            {{ form.tag_val }}
+                            <div><span class="help-block">separate tags with spaces {{ form.tag_val.errors }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="control-group{% if form.type.errors %} error{% endif %}">
+
+                        <label class="control-label" for="type">{% trans 'Post Type' %}
+                        </label>
+
+                        <div class="controls">
+                            {{ form.type }}
+                            <span class="help-inline">{{ form.type.errors }}</span>
+                        </div>
+                    </div>
+
+
+                {% endif %}
+
+
+                <div class="control-group {% if form.content.errors %}error{% endif %}">
+
+                    <label class="control-label" for="editor">{% trans 'Content' %}
+                    </label>
+
+                    <div class="controls">
+
+                        <div class="wmd-panel">
+                            <div id="wmd-button-bar"></div>
+                            <textarea class="wmd-input" id="wmd-input" name="content"
+                                      onfocus="remove(this, 'Post content')">{{ form.content.value}}</textarea>
+                        </div>
+
+                        <span class="help-inline error">{{ form.content.errors }}</span>
+
+                        <div id="wmd-preview" class="wmd-panel wmd-preview"></div>
+                    </div>
                 </div>
-            </div>
-     
-            {% if form.tag_val.errors %}
-            <div class="control-group error">
-            {% else %}
-            <div class="control-group">
-            {% endif %}
-                <label class="control-label" for="tag_val">{% trans 'Tags' %}
-                </label>
-                <div class="controls">
-                    {{form.tag_val}}
-                    <div><span class="help-block">separate tags with spaces {{form.tag_val.errors}}</span></div>
+
+                <div class="control-group">
+                    <label class="control-label" for="button"></label>
+
+                    <div class="controls">
+                        <a class="btn btn-success" id="submit-button"
+                           href='javascript: document.forms["mainform"].submit()'><i
+                                class="icon-ok icon-white"></i>
+                            Submit Post</a> or
+                        <a class="btn btn-danger" id="cancel-button" href='javascript: history.back()'><i
+                                class="icon-arrow-left icon-white"></i> Go back</a>
+                    </div>
+
+
                 </div>
-            </div>
-            
-            {% if form.type.errors %}
-            <div class="control-group error">
-            {% else %}
-            <div class="control-group">
-            {% endif %} 
-                <label class="control-label" for="type">{% trans 'Post Type' %}
-                </label>
-                <div class="controls">
-                    {{form.type}}
-                    <span class="help-inline">{{form.type.errors}}</span>
-                </div>    
-            </div>
-            
-               
-        {% endif %}
-        
-        {% if form.content.errors %}
-        <div class="control-group error">
-        {% else %}
-        <div class="control-group">
-        {% endif %}
-        <label class="control-label" for="editor">{% trans 'Content' %}
-        </label>
-            
-            <div class="controls">
-                
-                <div class="wmd-panel">
-                    <div id="wmd-button-bar"></div>
-                    <textarea class="wmd-input" id="wmd-input" name="content" onfocus="remove(this, 'Post content')">{{form.content.value}}</textarea>
-                </div>    
-                
-                <span class="help-inline error">{{form.content.errors}}</span>
-                <div id="wmd-preview" class="wmd-panel wmd-preview"></div>  
-            </div>
+
+                <div class="control-group">
+                    <label class="control-label" for="button"></label>
+
+                    <div class="controls">
+                        <div class="alert">
+                            {% blocktrans %}
+                                <b>Note</b>: by posting to BioStar, you agree to a
+                                <a href="http://creativecommons.org/licenses/by/3.0/">Creative Commons -
+                                    Attribution</a>
+                                license.
+                            {% endblocktrans %}
+                        </div>
+                    </div>
+                </div>
+
+
+            </form>
         </div>
-        
-        <div class="control-group">
-            <label class="control-label" for="button"></label>
-            <div class="controls">
-                 <a class="btn btn-success" id="submit-button" href='javascript: document.forms["mainform"].submit()'><i class="icon-ok icon-white"></i> Submit Post</a> or 
-                 <a class="btn btn-danger" id="cancel-button" href='javascript: history.back()'><i class="icon-arrow-left icon-white"></i> Go back</a>
-            </div>
-            
-            
-            
-        </div>
-       
-       <div class="control-group">
-            <label class="control-label" for="button"></label>
-            <div class="controls">
-            <div class="alert">
-                {% blocktrans %}
-                    <b>Note</b>: by posting to BioStar, you agree to a <a href="http://creativecommons.org/licenses/by/3.0/">Creative Commons - Attribution</a> license.
-                {%  endblocktrans %}
-            </div>
-        </div>
-        
-        </form>
     </div>
 {% endblock %}
