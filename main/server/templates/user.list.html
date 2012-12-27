@@ -33,11 +33,9 @@
 </div>
 
 <div class="row" id="user-list">
-    <div class="span12">
-        {% for target in page.object_list %}
-            {% user_box target 64 %}
-        {% endfor %}
-    </div>
+    {% for target in page.object_list %}
+        {% user_box target 64 %}
+    {% endfor %}
 </div>
 
 <div class="row"><div class="span12">

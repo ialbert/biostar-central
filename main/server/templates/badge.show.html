@@ -9,20 +9,22 @@
 
 {% block body %}
 
-<div class="row">{% page_bar %}</div>
+<div class="row"><div class="span12">{% page_bar %}</div></div>
 
 <div class="row">
-    
-    <div class="title">Badge: {{badge.name}}</div>
-    
-    <div class="par">{{badge.description}}. Awarded recently to:</div>
-    
-    <div>
-    {% for award in page.object_list %}
-        {% user_box award.user 80 %}
-    {% endfor %}
+    <div class="span12">
+
+        <div class="title">Badge: {{badge.name}}</div>
+
+        <div class="par">{{badge.description}}. Awarded recently to:</div>
+
+        <div class="row">
+        {% for award in page.object_list %}
+            {% user_box award.user 80 %}
+        {% endfor %}
+        </div>
     </div>
 </div>
 
-<div class="row">{% page_bar %}</div>
+<div class="row"><div class="span12">{% page_bar %}</div></div>
 {% endblock %}
