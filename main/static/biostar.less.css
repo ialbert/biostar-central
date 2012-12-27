@@ -7,6 +7,7 @@
 @title-color: red;
 @bit: 18px;
 
+
 .default-style {
    
 }
@@ -79,9 +80,17 @@ code {
 .navbar .brand {
     text-indent:8px;
     margin-left:0px;
-    background-image: url(/static/img/g/star.png);
+    vertical-align: middle;
+    padding-bottom: 5px;
+    padding-top: 5px;
+/*    background-image: url(/static/img/g/star.png);
     background-repeat: no-repeat;
-    background-position: 0px 4px;
+    background-position: 0px 4px;*/
+    img{
+        position: relative;
+        top: 3px;
+        margin-right: 2px;
+    }
 }
 
 .title {
@@ -117,7 +126,10 @@ div .par {
 
 
 .tag {
-    margin: 2px 2px 2px 0;
+    //margin: 2px 2px 2px 0;
+    float: left;
+    margin-right: 5px;
+    margin-bottom: 5px;
     padding: 3px 4px 3px 4px;
     text-decoration: none;
     background-color: #ECECEC;
@@ -159,7 +171,7 @@ div .par {
 }
 
 .tag-line {
-    margin-bottom: 10px;
+    //margin-bottom: 10px;
     line-height: 18px;
     float: left;
 }
@@ -229,7 +241,7 @@ input.search-query{
     }
 }
 
-td {
+div.post-show {
     vertical-align:top;
     .title {
         text-shadow: 1px 2px 2px rgba(0, 0, 0, 0.1);
@@ -242,12 +254,17 @@ td {
     }
     
     .post-info-panel {
-        width:10em;
+        max-width:10em;
+        float: right;
         background-color:#EEEEEE;
         border: 1px solid #DDD;
         padding:1em;
         margin-left:0.5em;
         text-align:center;
+    }
+
+    .body{
+        overflow: visible;
     }
     
     p {
@@ -275,11 +292,17 @@ td {
     vertical-align:top;
     padding:0px;
     width:100%;
-    
+
+
     td {
+
         border-bottom: 1px solid #DDD;
         padding-top: 11px;
         padding-bottom: 11px;
+    }
+
+    td.attributes > div {
+        float: left;
     }
 
     .post-info-line{
@@ -373,7 +396,7 @@ td {
 
 .badge {
     .badge-colors;
-    margin-left: 3px;
+    //margin-left: 3px;
     .count  {
         color: #6D6D6D;
         padding-left: 1px;
@@ -635,6 +658,100 @@ td {
     }
 
 }
+
+
+// Landscape phones and down
+@media (max-width: 767px) {
+
+    body{ /* Remove body padding for extra space */
+        padding: 0px;
+    }
+
+    body > .container{ /* Add tiny padding to the actual content */
+        padding: 0px 2px;
+    }
+
+    .tag{
+        font-size: 0.9em;
+        margin-right: 3px;
+        margin-bottom: 3px;
+        padding: 3px 3px 3px 3px;
+        line-height: 0.9em;
+    }
+
+    .post-table{
+        div.status-label{
+            display: none;
+        }
+
+        div.views{
+            display: none;
+        }
+        div.votes, div.answers, div.replies{
+            width: 2em;
+        }
+
+        .post-info-line .badge span{
+            display: none;
+        }
+
+        .post-info-line .badge .score{
+            display: inline;
+        }
+    }
+
+    .vote-box .vote{ /* Slightly reduce margins on all vote boxes */
+        margin: 5px;
+    }
+
+    .attributes .vote-box { /* Significantly restructure post-row embedded vote boxes */
+        width: 2em;
+        .vote, .vote-bookmark {
+            width: 2em;
+            margin-left: 0;
+        }
+        .vote-count {
+            font-size: 120%;
+        }
+        .status-text {
+            display: none;
+        }
+    }
+
+
+
+    div.wmd-panel {
+        min-width: 200px; /* Disable min-width 500px */
+        width: 96%;
+    }
+
+
+    .comment .indent {
+        margin-left: 1.5em; /* Significantly reduce comment indentation */
+    }
+
+    .navbar {
+        margin-bottom: 0;
+    }
+
+}
+
+@media (max-width: 480px) {
+
+    /* We have to remove these buttons or the page scrolls */
+    #wmd-spacer3, #wmd-undo-button, #wmd-redo-button{
+        display: none;
+    }
+}
+
+@media (min-width: 768px){
+    .post-table{
+        td.attributes:not(.blog){ /* On large devices, prevent votes/answers/views box from wrapping */
+            min-width: 200px;
+        }
+    }
+}
+
 
 
 

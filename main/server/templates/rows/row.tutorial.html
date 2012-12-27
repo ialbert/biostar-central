@@ -1,48 +1,10 @@
-{% load basic %}
-{% load widgets %}
+{% extends 'rows/row.post.html' %}
 
-<tr valign="top" class="{{post.get_status}}">
-    <td>
-        <div class="status votes">
-            <div class="mini-counts">{{post.full_score}}</div>
-            <div>vote{{post.full_score|pluralize}}</div>
-        </div>
-    </td>
-
-    <td>
-        <div class="status tutorial">
-            <div class="mini-counts">{{post.answer_count}}</div>
-            <div>repl{{post.answer_count|pluralize:'y,ies'}}</div>
-        </div>
-    </td>
-
-    <td>
-        <div class="status views">
-            <div class="mini-counts">{% bignum post.views %}</div>
-            <div>view{{post.views|pluralize}}</div>
-        </div>
-    </td>
-
-    <td class="summary" width="100%">
-
-        <div class="post-title {{post.get_type_display}}">
-            {% show_type post params.show_type %} <a href="{{post.get_absolute_url}}"> {{post.get_title}}</a>
-        </div>
-
-        {# "fake tag" with the post type to distinguish from other posts #}
-        <div class="tag-line">
-            {% if post.sticky %}
-                <a href="{% url show 'sticky' %}" class="post-type tag">sticky</a>
-            {% endif %}
-            <a href="{% url show 'tutorials' %}" class="post-type tag">tutorial</a>
-        </div>
-
-        {# this shows the tags on the post #}
-        {% show_tags post %}
-
-        {# shows post creation time and author #}
-        {% post_info_line '' post %}
-
-    </td>
-
-<tr>
+{% block fixed-tags %}
+    <div class="tag-line">
+        {% if post.sticky %}
+            <a href="{% url show 'sticky' %}" class="post-type tag">sticky</a>
+        {% endif %}
+        <a href="{% url show 'tutorials' %}" class="post-type tag">tutorial</a>
+    </div>
+{% endblock %}

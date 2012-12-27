@@ -3,12 +3,12 @@
 
 <tr valign="top" class={{post.get_status}}>
     
-     <td colspan="3" align="right">
+     <td class="attributes blog" align="right">
         <div class="vote-box">
             <div class="vote">
                 <input type="hidden" value="{{post.id}}">
                 <div class="vote-count">{{ post.views }}</div>
-                <div align="center">view{{post.views|pluralize}}</div>
+                <div align="center" class="status-text">view{{post.views|pluralize}}</div>
                 {% if post.bookmarked %}
                     <div class="vote-bookmark vote-on" title="Click to remove bookmark">&nbsp;</div>
                 {% else %}

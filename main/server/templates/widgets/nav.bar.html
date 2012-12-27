@@ -1,21 +1,24 @@
 {% load i18n %}
 {% load basic %}
  {% load widgets %}
+ {% load staticfiles %}
  {% load url from future %}
- 
+
  <div class="navbar">
       <div class="navbar-inner">
         <div class="container">
-          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-            <span class="i-bar"></span>
-            <span class="i-bar"></span>
-            <span class="i-bar"></span>
-          </a>
-          
-          <a class="brand" href="/">{%  trans "BioStar" %}</a>
+
+          <a class="brand" href="/"><img src="{% static 'img/g/star.png' %}">{%  trans "BioStar" %}</a></a>
+
+
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
           
           <div class="nav-collapse">
-            
+
             <ul class="nav">
               <li {% active 'tags'   nav %}><a href="{% url 'main.server.views.tag_list' %}">{% trans  "Tags" %}</a></li>
               <li {% active 'users'  nav %}><a href="{% url 'main.server.views.user_list' %}">{%  trans "Users" %}</a></li>

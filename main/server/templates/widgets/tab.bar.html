@@ -5,7 +5,7 @@
 
 {# this the tabs that get selected for different pages #}
 <div class="row">
-    <div>
+    <div class="nav-collapse">
         <ul class="nav nav-tabs">
             <li {% active 'recent' tab %}><a href="/show/recent/">{% trans "Recent" %}</a></li>
             <li {% active 'posts' tab %}><a href="/">{% trans "Posts" %}</a></li>
@@ -16,5 +16,4 @@
     </div>
 
     {% pill_bar params counts %}
-    
 </div>
