@@ -140,6 +140,9 @@ def index(request, tab='all'):
     
     # filter posts by type
     posts = filter_by_type(request=request, posts=posts, post_type=post_type)
+
+    # reduce SQL query count by preselecting data that will be displayed
+    posts = posts.select_related('author', 'author__profile', 'lastedit_user', 'lastedit_user__profile')
         
     # sticky is not active on recent and all pages
     sticky = (tab != 'recent') and (pill != 'all')
