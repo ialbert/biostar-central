@@ -667,6 +667,12 @@ ul.tagit {
   }
 }
 
+.search-context {
+  b{
+    background-color: #FFFFCC;
+  }
+}
+
 
 // Landscape phones and down
 @media (max-width: 767px) {

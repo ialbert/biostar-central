@@ -33,14 +33,22 @@
                 {% endblock %}
             </div>
 
-            {% block fixed-tags %}
-                {# "fake tag" with the post type to distinguish from other posts #}
-            {% endblock %}
+            {% if context %}
 
-            {% block tags %}
-                {# this shows the tags on the post #}
-                {% show_tags post %}
-            {% endblock %}
+                <div class="search-context">{{context|safe}}</div>
+
+            {% else %}
+
+                {% block fixed-tags %}
+                    {# "fake tag" with the post type to distinguish from other posts #}
+                {% endblock %}
+
+                {% block tags %}
+                    {# this shows the tags on the post #}
+                    {% show_tags post %}
+                {% endblock %}
+
+            {% endif %}
 
             {# shows post creation time and author #}
             {% post_info_line '' post %}

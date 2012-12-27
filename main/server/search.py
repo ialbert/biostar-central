@@ -16,6 +16,8 @@ from django.contrib import messages
 from itertools import *
 
 # common words that should be ignored
+from main.server.models import Post
+
 stoplist = "read reads lab most post posted posting\
 ".split()
 
@@ -128,13 +130,17 @@ def main(request):
     if params.q:
         form = SearchForm(request.GET)
         res  = search_results(request=request, text=params.q, subset=subset)
+        objects = Post.objects.filter(id__in=[r['pid'] for r in res]).exclude(status=POST_DELETED)
+        for object, r in zip(objects, res):
+            object.context = r['content']
         size = len(res)
         #messages.info(request, 'Searched results for: %s found %d results' % (params.q, size))
     else:
         form = SearchForm()
         res  = []
-    
-    page = get_page(request, res, per_page=10)
+        objects = []
+
+    page = get_page(request, objects, per_page=10)
     return html.template(request, name='search.html', page=page, params=params, counts=counts, form=form)
 
 # number of terms extracted during a more like this query

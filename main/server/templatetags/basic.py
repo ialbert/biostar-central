@@ -175,7 +175,7 @@ row_deleted = template.loader.get_template('rows/row.deleted.html')
 load_templates()
 
 @register.simple_tag
-def table_row(post, params):
+def table_row(post, params, context=''):
     "Renders an html row for a post "
     global row_question, row_answer, row_comment, row_post, row_blog, row_forum, row_deleted
 
@@ -185,7 +185,7 @@ def table_row(post, params):
         # this is necessary to force the reload during development
         load_templates()
 
-    c = Context( {"post": post, 'params':params})
+    c = Context( {"post": post, 'params':params, 'context': context})
     if post.deleted:
         templ = row_deleted
     else:

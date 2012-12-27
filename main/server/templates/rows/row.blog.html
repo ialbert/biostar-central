@@ -28,11 +28,16 @@
             {% endif %}
         </div>
 
+        {% if context %}
+            <div class="search-context">{{context|safe}}</div>
+        {% else %}
         {# generates the small peek into the post #}
-        <div class="peek">{{post.content|safe}}</div>
+            <div class="peek">{{post.content|safe}}</div>
+
+            {% show_tags post %}
+        {% endif %}
 
         {# this shows the tags on the post #}
-        {% show_tags post %}
 
         {# shows post creation time and author #}
         {% post_info_line '' post %}
