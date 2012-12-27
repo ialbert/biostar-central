@@ -85,7 +85,7 @@
 {% if user.is_authenticated %}
 
 {% if root.open %}
-    <div class="row">
+    <div class="row" id="add-answer-row">
     <div class="span12">
         
     <form action="/new/answer/{{root.id}}/" method="post" id="mainform" class="form-vertical">
