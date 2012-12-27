@@ -64,17 +64,20 @@
 
 
     {# renders the main post #}
-    <div class="row">{% render_post root tree %}</div>
+    <div class="row"><div class="span12">{% render_post root tree %}</div></div>
  
-    <div class="row separator"><h3>
-    {% if root.answer_count %}
-        {{root.answer_count}} answer{{root.answer_count|pluralize}}
-    {% endif %}
-    </h3>
+    <div class="row separator">
+        <div class="span12">
+            <h3>
+                {% if root.answer_count %}
+                    {{root.answer_count}} answer{{root.answer_count|pluralize}}
+                {% endif %}
+            </h3>
+        </div>
     </div>
     {# renders all the followups post #}
     {% for answer in answers %}
-        <div class="row">{% render_post answer tree %}</div>
+        <div class="row"><div class="span12">{% render_post answer tree %}</div></div>
         <div class="row separator">&nbsp;</div>
     {% endfor %}
             
@@ -83,6 +86,7 @@
 
 {% if root.open %}
     <div class="row">
+    <div class="span12">
         
     <form action="/new/answer/{{root.id}}/" method="post" id="mainform" class="form-vertical">
         
@@ -113,9 +117,10 @@
         
     </form>
     </div>
+    </div>
 {% endif %}
 {% else %}
-    <div class="row"><div class="alert alert-info">Log in to add a post</div></div>
+    <div class="alert alert-info">Log in to add a post</div>
 {% endif %}
 
 {% endblock %}

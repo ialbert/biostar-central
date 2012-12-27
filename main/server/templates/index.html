@@ -10,24 +10,29 @@
 {% block body %}
 
 <div class="row">
-    {% page_bar %}
+    <div class="span12">
+        {% page_bar %}
+    </div>
 </div>
 
 <div class="row">
-    
-    <table border="0" class="post-table" cellspacing="0" width="100%">
-    
-        {% for post in page.object_list %}
-        
-            {% table_row post params%}
-    
-        {%  endfor %}
-    
-    </table>
+    <div class="span12">
+        <table border="0" class="post-table" cellspacing="0" width="100%">
+
+            {% for post in page.object_list %}
+
+                {% table_row post params%}
+
+            {%  endfor %}
+
+        </table>
+    </div>
 </div>
 
 <div class="row">
-    {% page_bar %}
+    <div class="span12">
+        {% page_bar %}
+    </div>
 </div>
 
 {% endblock %}

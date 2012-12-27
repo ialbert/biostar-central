@@ -5,15 +5,17 @@
 
 {# this the tabs that get selected for different pages #}
 <div class="row">
-    <div class="nav-collapse">
-        <ul class="nav nav-tabs">
-            <li {% active 'recent' tab %}><a href="/show/recent/">{% trans "Recent" %}</a></li>
-            <li {% active 'posts' tab %}><a href="/">{% trans "Posts" %}</a></li>
-            <li {% active 'planet' tab %}><a href="/show/planet/">{% trans "Planet" %} {% show_count 'Blog' counts %}</a></li>
-            <li {% active 'search' tab %}><a href="{% url 'main.server.search.main' %}">{%  trans "Search" %}</a></li>
-            <li {% active 'new' tab %}><a href="/new/post/" class="newpost">{% trans "New Post!" %}</a></li>
-        </ul>
-    </div>
+    <div class="span12">
+        <div class="nav-collapse">
+            <ul class="nav nav-tabs">
+                <li {% active 'recent' tab %}><a href="/show/recent/">{% trans "Recent" %}</a></li>
+                <li {% active 'posts' tab %}><a href="/">{% trans "Posts" %}</a></li>
+                <li {% active 'planet' tab %}><a href="/show/planet/">{% trans "Planet" %} {% show_count 'Blog' counts %}</a></li>
+                <li {% active 'search' tab %}><a href="{% url 'main.server.search.main' %}">{%  trans "Search" %}</a></li>
+                <li {% active 'new' tab %}><a href="/new/post/" class="newpost">{% trans "New Post!" %}</a></li>
+            </ul>
+        </div>
 
-    {% pill_bar params counts %}
+        {% pill_bar params counts %}
+    </div>
 </div>

@@ -109,43 +109,39 @@
             {% tab_bar params counts %}
         {% endblock %}
 
-        <div class="row" id="subheader">
-            {% block subheader %}
-                <div  style="width:75%; margin:auto;">
-                {% for message in messages %}
-                    <div class="alert {% change_css message.tags %}">
-                        <a class="close" data-dismiss="alert" href="#">&times;</a>
-                        <div>{{ message|safe }}</div>
-                    </div>
-                {% endfor %}
-                </div>
-            {% endblock %}
-        </div>
+        {% for message in messages %}
+            <div class="alert {% change_css message.tags %}">
+                <a class="close" data-dismiss="alert" href="#">&times;</a>
+                <div>{{ message|safe }}</div>
+            </div>
+        {% endfor %}
         
         {% block body %}
            Test Body
         {% endblock %}
         
         <div class="row" id="footer">
-            {% block footer %}
-           
-             <a href="{% url main.server.pages.rss %}">RSS</a> <img align="middle" src="{{STATIC_URL}}img/feed-icon-small.png"> &bull; Powered by <a href="https://github.com/ialbert/biostar-central"><img src="{{ STATIC_URL }}biostar.antipixel.png" /></a> 
-            &bull; Version: <b>{{BIOSTAR_VERSION}}</b></a>
-            &bull; Copyright by the <a href="https://github.com/ialbert/biostar-central/contributors">BioStar team</a>
-            &bull; License:
-            <a rel="license" href="http://creativecommons.org/licenses/by/3.0/">
-            <img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by/3.0/80x15.png" /></a>
-            {% if debug %}
-              &bull; <a id="toggle-queries">{{sql_queries|length}} SQL queries</a>
-              <div id="queries" style="text-align: left;">
-                <ul id="query-list">
-                  {% for query in sql_queries %}
-                    <li>{{ query.sql}} [in {{query.time}}s]</li>
-                  {% endfor %}
-                </ul>
-              </div>
-            {% endif %}
-            {% endblock %}
+            <div class="span12">
+                {% block footer %}
+
+                 <a href="{% url main.server.pages.rss %}">RSS</a> <img align="middle" src="{{STATIC_URL}}img/feed-icon-small.png"> &bull; Powered by <a href="https://github.com/ialbert/biostar-central"><img src="{{ STATIC_URL }}biostar.antipixel.png" /></a>
+                &bull; Version: <b>{{BIOSTAR_VERSION}}</b></a>
+                &bull; Copyright by the <a href="https://github.com/ialbert/biostar-central/contributors">BioStar team</a>
+                &bull; License:
+                <a rel="license" href="http://creativecommons.org/licenses/by/3.0/">
+                <img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by/3.0/80x15.png" /></a>
+                {% if debug %}
+                  &bull; <a id="toggle-queries">{{sql_queries|length}} SQL queries</a>
+                  <div id="queries" style="text-align: left;">
+                    <ul id="query-list">
+                      {% for query in sql_queries %}
+                        <li>{{ query.sql}} [in {{query.time}}s]</li>
+                      {% endfor %}
+                    </ul>
+                  </div>
+                {% endif %}
+                {% endblock %}
+            </div>
         </div>
     </div> <!-- /container -->
 
