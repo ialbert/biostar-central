@@ -1,7 +1,7 @@
 {% load basic %}
 {% load widgets %}
 
-<tr valign="top" class="{{post.get_status}}">
+<tr valign="top" class="{{post.get_status}} {% post_row_class post %}">
 
     <td class="attributes">
         {% block attributes %}

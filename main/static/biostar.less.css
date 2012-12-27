@@ -294,6 +294,10 @@ div.post-show {
     width:100%;
 
 
+    tr.tagged-interesting {
+      background-color: #FFEFC6;
+    }
+
     td {
 
         border-bottom: 1px solid #DDD;

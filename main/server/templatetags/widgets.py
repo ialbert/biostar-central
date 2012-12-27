@@ -139,3 +139,12 @@ def render_comments(request, post, tree):
     for node in tree[post.id]:
         coll.append( traverse(node) )
     return '\n'.join(coll)
+
+@register.simple_tag(takes_context=True)
+def post_row_class(context, post):
+    user = context['user']
+    my_tags = set(user.profile.my_tags.split('+'))
+    post_tags = set(post.tag_val.split(' '))
+    if my_tags.intersection(post_tags):
+        return 'tagged-interesting'
+    return ''
