@@ -659,6 +659,14 @@ div.post-show {
 
 }
 
+ul.tagit {
+  margin: 0 !important;
+  input {
+    outline: none !important;
+    box-shadow: none !important;
+  }
+}
+
 
 // Landscape phones and down
 @media (max-width: 767px) {

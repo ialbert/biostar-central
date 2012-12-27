@@ -20,7 +20,6 @@
     <link rel="stylesheet" href="{{ STATIC_URL }}lib/tagit.css" />
     <script>
         $(function(){
-            return;
             var e = $('#id_tag_val').parent();
             var f = $(document.createElement('ul'));
             e.append(f)
@@ -82,7 +81,9 @@
                         </label>
 
                         <div class="controls">
-                            {{ form.tag_val }}
+                            <div>
+                                {{ form.tag_val }}
+                            </div>
                             <div><span class="help-block">separate tags with spaces {{ form.tag_val.errors }}</span>
                             </div>
                         </div>
