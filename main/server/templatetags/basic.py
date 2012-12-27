@@ -153,26 +153,26 @@ def flair(user):
 
 templates = {}
 
-def load_templates():
-    for typeid, typename in const.POST_MAP.items():
+#def load_templates():
+#    for typeid, typename in const.POST_MAP.items():
+
+def load_template(typeid):
         
         # this is the type of the template as a string
-        typename = typename.lower()
+        typename = const.POST_MAP[typeid].lower()
         
         # see if the template has been overriden, and generate a default value
         default = 'rows/row.%s.html' % typename
         fname   = settings.TEMPLATE_ROWS.get(typename, default)
         try:
-            templates[typeid] = template.loader.get_template(fname)
+            return template.loader.get_template(fname)
         except TemplateDoesNotExist:
             # fall back to a template that should exist
             #print "*** template loader loading default row for type '%s" % fname
-            templates[typeid] = template.loader.get_template('rows/row.post.html')
+            return template.loader.get_template('rows/row.post.html')
 
 # the template for the deleted row
 row_deleted = template.loader.get_template('rows/row.deleted.html')
-
-load_templates()
 
 @register.simple_tag(takes_context=True)
 def table_row(context, post, params, search_context=''):
@@ -181,14 +181,14 @@ def table_row(context, post, params, search_context=''):
 
     row_deleted = template.loader.get_template('rows/row.deleted.html')
 
-    if settings.DEBUG:
+    #if settings.DEBUG:
         # this is necessary to force the reload during development
-        load_templates()
+        #load_templates()
 
     c = Context( {"post": post, 'params':params, 'context': search_context, 'user':context['user']})
     if post.deleted:
         templ = row_deleted
     else:
-        templ = templates[post.type]
+        templ = load_template(post.type)
     text = templ.render(c)
     return text
