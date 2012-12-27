@@ -96,7 +96,9 @@ urlpatterns = patterns('main.server',
       
     # voting handler
     url(r'^vote/$', 'ajax.vote', name="vote"),
-       
+    url(r'^tagcomplete/$', 'ajax.tagcomplete', name="tagcomplete"),
+
+
     # clear all notifications
     url(r'^note/clear/(?P<uid>\d+)/$','action.note_clear', name="note-clear"),
    

@@ -1,6 +1,7 @@
 #
 # handler methods that handle all ajax based interactions
 #
+import json
 import traceback
 from functools import partial
 from collections import defaultdict
@@ -100,4 +101,9 @@ def comment_delete(request, pid):
         return ajax_success("destroyed") # this is required by the UI
     else:
         return ajax_success("The comment status set to %s" % post.get_status_display() )
+
+def tagcomplete(request):
+    term = request.GET['term']
+    tags = models.Tag.objects.filter(name__startswith=term).order_by('name')[:50]
+    return HttpResponse(json.dumps([tag.name for tag in tags]))
     
