@@ -143,6 +143,8 @@ def render_comments(request, post, tree):
 @register.simple_tag(takes_context=True)
 def post_row_class(context, post):
     user = context['user']
+    if not user.is_authenticated():
+        return ''
     my_tags = set(user.profile.my_tags.split('+'))
     post_tags = set(post.tag_val.split(' '))
     if my_tags.intersection(post_tags):
