@@ -53,7 +53,7 @@ def info(msg):
         
 class SearchForm(forms.Form):
     "A form representing a new question"
-    q = forms.CharField(max_length=200,  initial="", widget=forms.TextInput(attrs={'size':'50'}))   
+    q = forms.CharField(max_length=200,  initial="", widget=forms.TextInput(attrs={'size':'50', 'class': 'span6', 'placeholder': 'Search Biostar'}))
     t = forms.ChoiceField(choices=choices, required=False)
 
 def safe_int(val):
@@ -129,7 +129,7 @@ def main(request):
         form = SearchForm(request.GET)
         res  = search_results(request=request, text=params.q, subset=subset)
         size = len(res)
-        messages.info(request, 'Searched results for: %s found %d results' % (params.q, size))
+        #messages.info(request, 'Searched results for: %s found %d results' % (params.q, size))
     else:
         form = SearchForm()
         res  = []

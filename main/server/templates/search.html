@@ -12,6 +12,16 @@
 
 {% block body %}
 
+<div class="row">
+    <div class="span12">
+        <form id="useredit" name="useredit" action="{% url main.server.search.main %}" method="get" class="form-horizontal">
+            {{form.q}}
+            {{form.t}}
+            <button type="submit" id="submit" name="submit" class="btn btn-primary">Search</button>
+        </form>
+    </div>
+</div>
+
 <div class="row"><div class="span12">
     {% page_bar %}
 </div></div>
@@ -49,23 +59,6 @@
 </div></div>
 
 {% endif %}
-
-
-<div class="row">
-<div class="span12">
-
-<form id="useredit" name="useredit" action="{% url main.server.search.main %}" method="get" class="form-horizontal">
-    <legend>Search Biostar</legend>
-    <fieldset>
-    {% form_field  form.q 'Terms' %}
-    {% form_field  form.t 'Type' %}
-    <div class="form-actions">
-        <button type="submit" id="submit" name="submit" class="btn btn-success">Submit</button>
-    </div>
-    </fieldset>
-</form>
-</div>
-</div>
 
 <div class="row">
     <div class="span12">
