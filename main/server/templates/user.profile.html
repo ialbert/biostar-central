@@ -24,12 +24,14 @@
 {% block body %}
 
 <div class="row">
-    <h2>
-        {% designation target %} {{ target.profile.display_name }} {% flair target %}
-        {% if target.profile.suspended %}
-            (suspended)
-        {% endif %}
-    </h2>
+    <div class="span12">
+        <h2>
+            {% designation target %} {{ target.profile.display_name }} {% flair target %}
+            {% if target.profile.suspended %}
+                (suspended)
+            {% endif %}
+        </h2>
+    </div>
 </div>
 
 <div class="row user-info {{target.profile.get_status}}">
@@ -99,14 +101,13 @@
 </div>
 
 {% if user == target %}
-<div class="row">
     <div class="alert info">We have migrated the accounts from the old version of BioStar. See the <a href="/merge">account merge</a> page for more information</div>
-</div>
 {% endif %}
 
 
 <div class="row">
-    <div class="title" id="status">Status</div>    
+    <div class="span12">
+        <div class="title" id="status">Status</div>
         <div class="par">
             {{ target.profile.display_name }} has contributed <a href="{% url main.server.views.show_user target.id %}" >{{params.post_count}} posts</a>: 
              <a href="{% url main.server.views.show_user target.id 'question' %}" >{{params.question_count}} questions</a>, 
@@ -114,19 +115,22 @@
              <a href="{% url main.server.views.show_user target.id 'comment' %}" >{{params.comment_count}} comments</a>. 
             User  has voted <b>{{params.vote_count}}</b> times  and has earned <b>{{params.award_count}}</b> badges. 
         </div>
+    </div>
 </div>
 
 <div class="row">
-    {# this the tabs that get selected for different pages #}
-    <ul class="nav nav-tabs">
-        <li {% active 'activity' params.tab %}><a href="{% url main.server.views.user_profile target.id %}" >Notifications{% show_value params.note_count %}</a></li>
-        <li {% active 'created' params.tab %}><a href="{% url main.server.views.user_profile target.id 'created' %}" >Content Created</a></li>
-        <li {% active 'bookmarks' params.tab %}><a href="{% url main.server.views.user_profile target.id 'bookmarks' %}" >Bookmarks{% show_value params.bookmarks_count %}</a></li>
-        <li {% active 'badges' params.tab %}><a href="{% url main.server.views.user_profile target.id 'badges' %}" >Badges{% show_value params.award_count %}</a></li>
-        {% if target.profile.can_moderate %}
-            <li {% active 'moderator' params.tab %}><a href="{% url main.server.views.user_profile target.id 'moderator' %}" >Moderator Actions</a></li>
-        {% endif %}
-    </ul>
+    <div class="span12">
+        {# this the tabs that get selected for different pages #}
+        <ul class="nav nav-tabs">
+            <li {% active 'activity' params.tab %}><a href="{% url main.server.views.user_profile target.id %}" >Notifications{% show_value params.note_count %}</a></li>
+            <li {% active 'created' params.tab %}><a href="{% url main.server.views.user_profile target.id 'created' %}" >Content Created</a></li>
+            <li {% active 'bookmarks' params.tab %}><a href="{% url main.server.views.user_profile target.id 'bookmarks' %}" >Bookmarks{% show_value params.bookmarks_count %}</a></li>
+            <li {% active 'badges' params.tab %}><a href="{% url main.server.views.user_profile target.id 'badges' %}" >Badges{% show_value params.award_count %}</a></li>
+            {% if target.profile.can_moderate %}
+                <li {% active 'moderator' params.tab %}><a href="{% url main.server.views.user_profile target.id 'moderator' %}" >Moderator Actions</a></li>
+            {% endif %}
+        </ul>
+    </div>
 </div>
 
 <div class="row">

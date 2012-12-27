@@ -10,35 +10,38 @@
 
 {% block body %}
 
-<div class="row">
+<div class="row"><div class="span12">
     {% page_bar %}
-</div>
-<div class="row">
+</div></div>
 
-<div style="margin-top:5px">
-<form action="/user/list/" method="get" class="form-horizontal">
-    <fieldset>
-        <div class="control-group">
-            <label class="control-label" for="title">{% trans 'User search' %}
-            </label>
-            <div class="controls">
-                <input name="m" type="text" size=20 value="{{m}}">
-                <button type="submit" id="bsignin" name="bsignin" class="btn btn-primary">{% trans 'Search!' %}
-                </button>
-            </div>            
-        </div>
-    </fieldset>
-</form>
-</div>
+<div class="row">
+    <div class="span12">
+        <form action="/user/list/" method="get" class="form-horizontal">
+            <fieldset>
+                <div class="control-group">
+                    <label class="control-label" for="title">{% trans 'User search' %}
+                    </label>
+                    <div class="controls">
+                        <input name="m" type="text" size=20 value="{{m}}">
+                        <button type="submit" id="bsignin" name="bsignin" class="btn btn-primary">{% trans 'Search!' %}
+                        </button>
+                    </div>
+                </div>
+            </fieldset>
+        </form>
+    </div>
 </div>
 
 <div class="row" id="user-list">
-    {% for target in page.object_list %}
-        {% user_box target 64 %}     
-    {% endfor %}
+    <div class="span12">
+        {% for target in page.object_list %}
+            {% user_box target 64 %}
+        {% endfor %}
+    </div>
 </div>
 
-<div class="row">
+<div class="row"><div class="span12">
     {% page_bar %}
-</div>
+</div></div>
+
 {% endblock %}
