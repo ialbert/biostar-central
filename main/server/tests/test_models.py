@@ -20,7 +20,7 @@ class BiostarModelTest(unittest.TestCase):
         # save a question to the database
         title, content, tag_val = 'My title', 'My content', 'One tWo threE'
         post1 = Post.objects.create(author=user1, type=POST_QUESTION, title=title, content=content, tag_val=tag_val)
-        true( (post1.title, post1.content, post1.tag_val) == (title, content, tag_val) )
+        true( (post1.title, post1.content, post1.tag_val) == (title, content, 'one two three') )
     
         # get rid of all tags
         Tag.objects.all().delete()
