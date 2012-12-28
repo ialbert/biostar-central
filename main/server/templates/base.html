@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+{% load i18n %}
 {% load basic %}
 {% load widgets %}
 {% load humanize %}
@@ -100,14 +101,39 @@
        <div align="center">Traffic: {{traffic}} ip/hr</div>
     </div>
 
-    {% block nav_bar %}
-        {% nav_bar user params %}
-    {% endblock %}
+{#    {% block nav_bar %}#}
+{#        {% nav_bar user params %}#}
+{#    {% endblock %}#}
     
     <div class="container">
 
+        <div class="row" id="header">
+            <div class="span3">
+                <a href="/"><img src="{{ STATIC_URL }}biostar.logo.png" width="263"></a>
+            </div>
+            <div class="span9">
+                <ul class="nav">
+                    <li {% active 'posts' tab %}><a href="/">{% trans "Posts" %}</a></li>
+                    <li {% active 'recent' tab %}><a href="/show/recent/">{% trans "Recent" %}</a></li>
+                    <li {% active 'tags'   nav %}><a href="{% url main.server.views.tag_list %}">{% trans "Tags" %}</a></li>
+                    <li {% active 'users'  nav %}><a href="{% url main.server.views.user_list %}">{%  trans "Users" %}</a></li>
+                    <li {% active 'badges' nav %}><a href="{% url main.server.views.badge_list %}">{%  trans "Badges" %}</a></li>
+                    <li {% active 'about'  nav %}><a href="{% url main.server.pages.about %}">{% trans "About" %}</a></li>
+                </ul>
+                <ul class="nav nav-right">
+                    <li {% active 'new' tab %} class="pull-right"><a href="/new/post/" class="newpost">{% trans "New Post!" %}</a></li>
+                </ul>
+            </div>
+        </div>
+
+
+        <div class="row">
+            <div class="span12">
+                {% pill_bar params counts %}
+            </div>
+        </div>
         {% block tab_bar %}
-            {% tab_bar params counts %}
+
         {% endblock %}
 
         {% for message in messages %}
