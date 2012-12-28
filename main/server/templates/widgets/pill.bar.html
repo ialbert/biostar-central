@@ -2,13 +2,13 @@
 {% load widgets %}
 
 {% if pill %}
-    <div style="float:left;" class="nav-collapse">
-        <ul class="nav nav-pills">
+    <!--<div style="float:left;" class="nav-collapse">-->
+        <ul class="nav nav-tabs" style="width: 100%;">
             {% for tabkey, link, text, countkey in layout %}
                 <li {% active tabkey pill %}><a href="{{link}}">{{text|safe}}{% show_count countkey counts %}</a></li>
             {% endfor %}
         </ul>
-    </div>
+    <!--</div>-->
     
     <div style="margin-top:25px">
     {% if params.sort %}

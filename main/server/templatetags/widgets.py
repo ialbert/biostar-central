@@ -74,7 +74,7 @@ def render_post(context, post, tree):
 @register.inclusion_tag('widgets/tab.bar.html')
 def tab_bar(params={}, counts={}):
     "Renders the switchable tab on most pages"
-    return { 'layout':params.get('layout'), 'tab': params.get('tab'), 'counts':counts, 'params':params }
+    return { 'layout':params.get('layout'), 'tab': params.get('tab'), 'nav': params.get('nav'), 'counts':counts, 'params':params }
 
 @register.inclusion_tag('widgets/pill.bar.html')
 def pill_bar(params={}, counts={}):
