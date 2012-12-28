@@ -18,6 +18,10 @@ body {
    overflow: scroll;
 }
 
+.container {
+  position: relative; // Allow absolute positioning w.r.t. container
+}
+
 .earned.True {
     display: block;
     width: 44px;
@@ -280,17 +284,24 @@ div.post-show {
 #topbar {
   position: absolute;
   right: 10px;
-  top: 10px;
+  top: 4px;
   z-index: 1;
-  height: 30px;
+  #topbar-inner{
+    background-color: #ebebeb;
+    height: 29px;
+    padding: 0 5px;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+  }
   .nav{
     display: inline;
     li{
       margin-top: 5px;
       margin-right: 10px;
       float: left;
-      .new-messages {
-        background-color: #00ec00;
+      .label {
+        margin-top: -1px;
       }
     }
   }
@@ -328,6 +339,7 @@ div.post-show {
     li {
       float: left;
       height: 20px;
+      border-radius: 10px;
       margin-right: 10px;
       font-weight: bold;
       font-size: 18px;
