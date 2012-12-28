@@ -28,8 +28,8 @@ body {
 }
 
 .newpost {
-    text-decoration: underline;
-    font-weight: bold;
+    //text-decoration: underline;
+    //font-weight: bold;
 }
 
 blockquote {
@@ -275,6 +275,46 @@ div.post-show {
 #post-edit {
     background-color:#DDDDDD;
     padding:15px;
+}
+
+#topbar {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  z-index: 1;
+  height: 30px;
+  .nav{
+    display: inline;
+    li{
+      margin-top: 5px;
+      margin-right: 10px;
+      float: left;
+      .new-messages {
+        background-color: #00ec00;
+      }
+    }
+  }
+//  .topbar-section {
+//    height: 30px;
+//  }
+//  .topbar-user {
+//    i{
+//      position: relative;
+//      top: 1px;
+//    }
+//  }
+//  .topbar-links a{
+//    padding-right: 10px;
+//    position: relative;
+//    top: -1px;
+//  }
+  .topbar-search-form {
+    display: inline;
+    input {
+      height: 15px;
+      margin-top: 2px;
+    }
+  }
 }
 
 #header {

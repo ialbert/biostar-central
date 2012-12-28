@@ -107,6 +107,13 @@
     
     <div class="container">
 
+
+        <div class="row" id="topbar">
+            <div class="span9 offset3">
+                {% nav_bar user params %}
+            </div>
+        </div>
+
         <div class="row" id="header">
             <div class="span3">
                 <a href="/"><img src="{{ STATIC_URL }}biostar.logo.png" width="263"></a>
