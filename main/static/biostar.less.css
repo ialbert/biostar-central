@@ -347,11 +347,14 @@ div.post-show {
       padding: 5px 10px;
       a{
         color: white;
+        &:hover{
+          background-color: transparent;
+        }
       }
       &.pull-right{
         float: right;
       }
-      &.active {
+      &.active, &:hover{
         background-color: #e13e59;
       }
     }
