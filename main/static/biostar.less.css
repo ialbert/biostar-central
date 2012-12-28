@@ -530,7 +530,8 @@ div.post-show {
 }
 
 .page-bar-dropdown{
-    float: right;
+    position: absolute;
+    right: 0;
     .nav{
         margin-top: -8px;
         margin-bottom: 0px;
@@ -584,8 +585,8 @@ div.post-show {
 .dropdown-toggle {
     border-style: solid;
     border-width: 1px;
-    border-color: #CCCCCC;
-    background-color: #DEDEDE;
+    border-color: #d7d7d7;
+    background-color: #f0f0f0;
 }
 
 .nav-pills .active > a, .nav-pills .active > a:hover {
