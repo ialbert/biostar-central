@@ -332,6 +332,7 @@ div.post-show {
   margin-top: 10px;
   margin-bottom: 10px;
   position: relative;
+  min-height: 70px;
   .nav {
     position: absolute;
     bottom: 0;
