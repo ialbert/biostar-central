@@ -47,7 +47,7 @@ SORT_MAP = dict(
 )
 
 # valid pill entries
-VALID_PILLS = set( "mytags all news questions unanswered tutorials tools videos jobs".split() )
+VALID_PILLS = set( "mytags all news questions unanswered tutorials tools videos jobs planet".split() )
 
 # valid tab entries
 VALID_TABS = set( "recent planet sticky".split() ) | VALID_PILLS 
@@ -99,6 +99,9 @@ REV_ACTIONS = (
     (REV_DELETE, 'Delete'), (REV_UNDELETE, 'Undelete')
 )
 REV_ACTION_MAP = dict(REV_ACTIONS)
+
+# this stores the counts in the cache
+CACHE_COUNT_KEY = "cache-count-key"
 
 # moderation actions
 USER_MODERATION, POST_MODERATION = 0, 1

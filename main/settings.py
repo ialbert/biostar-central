@@ -315,7 +315,8 @@ USER_PILL_BAR = [
     ("tools", "/show/tools/", "Tools", "Tool" ),
     ("videos", "/show/videos/", "Videos", "Video" ),
     ("jobs", "/show/jobs/", "Jobs", "Job" ),
-]
+    ("blog", "/show/planet/", "Planet", "Blog" ),
+    ]
 
 ANON_PILL_BAR = [
     ("all", "/", "Show&nbsp;All", "" ),
@@ -326,6 +327,7 @@ ANON_PILL_BAR = [
     ("tools", "/show/tools/", "Tools", "Tool" ),
     ("videos", "/show/videos/", "Videos", "Video" ),
     ("jobs", "/show/jobs/", "Jobs", "Job" ),
+    ("blog", "/show/planet/", "Planet", "Blog" ),
 ]
 
 #

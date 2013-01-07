@@ -38,7 +38,7 @@ def feed_check(browser):
     "Checks the feeds"
     click = partial(click_func, browser)
     
-    elem, text  = click('About')
+    elem, text  = click('about')
     elem, text  = click('Feeds page')
     targets = "New Posts,New Questions,Follow multiple posts,Follow multiple tags,Follow multiple users".split(",")
     for link in targets:    
@@ -49,7 +49,7 @@ def simple_navigation(browser):
     "Simple navigation through the site"
     click = partial(click_func, browser)
     
-    targets = "Tags Users Badges About Recent Planet Search Posts News Questions Unanswered Tutorials Tools Videos Jobs RSS".split()
+    targets = "Posts Recent Tags Users Badges about faq rss Posts News Questions Unanswered Tutorials Tools Videos Jobs Planet".split()
     targets.extend( [ 'Posts', 'Show All', 'New Post!',  'Sign In' ] )
     for link in targets:    
         elem, text = click(link)
