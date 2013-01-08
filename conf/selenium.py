@@ -33,8 +33,8 @@ EMAIL_HOST_PASSWORD = ''
 DEFAULT_FROM_EMAIL = 'iua1@psu.edu'
 SERVER_EMAIL = 'beta@biostars.org'
 
+# add a custom html page
 TEMPLATE_ROWS['job'] = "row.job-sponsored.html"
-
 LIVE_DIR = path(HOME_DIR, '..', 'live')
 TEMPLATE_DIRS.append(LIVE_DIR)
     

@@ -1,26 +1,13 @@
+{% extends 'rows/row.post.html' %}
 {% load basic %}
 {% load widgets %}
 
-<tr valign="top" class={{post.get_status}}>
-    
-    <td colspan="3" align="right">
-
-    </td>
-
-    <td class="summary" width="100%">
-        <div>
-             <span class="post-title {{post.get_type_display}}">
-            {% if post.url %}
-                <a href="{% url main.server.views.linkout post.id %}">{{post.get_title}} <i class="icon-share-alt"></i></a>
-            {% else %}
-                <a href="{{post.get_absolute_url}}">{{post.get_title}} </a>
-            {% endif %}
-            </span>
-
-        {# shows post creation time and author #}
-        {% post_info_line '' post %}
-
-        </div>
-    </td>
-
-<tr>
+{% block summary %}
+    <div class="post-title {{post.get_type_display}}">
+        {% block title %}
+            {% show_type post params.show_type %} <a href="{{post.get_absolute_url}}"> {{post.get_title}}</a>
+        {% endblock %}
+    </div>
+    {# shows post creation time and author #}
+    {% post_info_line '' post %}
+{%  endblock %}

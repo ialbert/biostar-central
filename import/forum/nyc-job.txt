@@ -1,5 +1,5 @@
 TITLE:Bioinformatics Scientist and Scientific Software Engineer positions at New York Genome Center
-TAG: programmer
+TAGS: programmer
 [NYGC][1] is hiring a Bioinformatics Scientist and two Software Engineers, one to develop computational pipelines for data analysis, the other to develop tools for scientific data visualization. To apply please send a resume or CV to careers@nygenome.org.
 
 More information at:
