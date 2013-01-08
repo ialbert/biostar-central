@@ -158,7 +158,6 @@ def search_html(vals):
     customSearchControl.draw('cse');
   }, true);
 </script>
-</div>
 """
     return html
     

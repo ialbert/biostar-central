@@ -30,6 +30,7 @@
 
             var oldInput = $('#id_tag_val');
             oldInput.remove();
+
             f.tagit({
                 tagSource: '/tagcomplete/',
                 caseSensitive: false,
@@ -43,7 +44,9 @@
                     input.val(a.join(" "));
                 }
             });
+
             // add an id to the newly created input element, used in testing
+            input.val(oldInput.val());
             $('.tagit-input').first().attr("name", "tagit-input-value");
         });
     </script>
