@@ -25,10 +25,14 @@
             e.append(f)
             var input = $("<input type='hidden' name='tag_val'>");
             e.append(input);
+
+
+
             var oldInput = $('#id_tag_val');
             oldInput.remove();
             f.tagit({
                 tagSource: '/tagcomplete/',
+                caseSensitive: false,
                 initialTags: oldInput.val().split(" "),
                 tagsChanged: function(){
                     var tags = f.tagit('tags');
@@ -39,6 +43,8 @@
                     input.val(a.join(" "));
                 }
             });
+            // add an id to the newly created input element, used in testing
+            $('.tagit-input').first().attr("name", "tagit-input-value");
         });
     </script>
 
@@ -59,7 +65,7 @@
 
                 {% csrf_token %}
 
-                <input type="hidden" value="{{ post_type }}" name="post_type">
+
 
                 {% if params.toplevel %}
 
@@ -84,7 +90,7 @@
                             <div>
                                 {{ form.tag_val }}
                             </div>
-                            <div><span class="help-block">separate tags with spaces {{ form.tag_val.errors }}</span>
+                            <div><span class="help-block">separate tags with spaces, select suggestions with the up/down arrows {{ form.tag_val.errors }}</span>
                             </div>
                         </div>
                     </div>

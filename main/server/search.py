@@ -105,7 +105,7 @@ def search_results(request, text, subset=None):
 def decorate(res):
     "Decorates search results with highlights"
     content = res.highlights('content')
-    return html.Params(title=res['title'], pid=res['pid'], content=content, type=res['type'])
+    return html.Params(title=res['title'], pid=res['pid'], content=content, type=res['type'], deleted=False)
 
 def get_subset(word):
     "Returns a set of post types based on a word"
@@ -129,18 +129,20 @@ def main(request):
    
     if params.q:
         form = SearchForm(request.GET)
-        res  = search_results(request=request, text=params.q, subset=subset)
-        objects = Post.objects.filter(id__in=[r['pid'] for r in res]).exclude(status=POST_DELETED)
-        for object, r in zip(objects, res):
-            object.context = r['content']
-        size = len(res)
+        results  = search_results(request=request, text=params.q, subset=subset)
+        posts = Post.objects.filter(id__in=[row['pid'] for row in results]).exclude(status=POST_DELETED)
+        for post, row in zip(posts, results):
+            post.context = row['content']
+
+        #size = len(results)
         #messages.info(request, 'Searched results for: %s found %d results' % (params.q, size))
+
     else:
         form = SearchForm()
         res  = []
         objects = []
 
-    page = get_page(request, objects, per_page=10)
+    page = get_page(request, posts, per_page=10)
     return html.template(request, name='search.html', page=page, params=params, counts=counts, form=form)
 
 # number of terms extracted during a more like this query
@@ -182,8 +184,11 @@ def more(request, pid):
     counts = request.session.get(SESSION_POST_COUNT, {})
     form = SearchForm()
     params = html.Params(tab='search', q="", sort='')
-    res = more_like_this(request=request, pid=pid)
-    page = get_page(request, res, per_page=10)
+    results = more_like_this(request=request, pid=pid)
+    posts = Post.objects.filter(id__in=[row['pid'] for row in results]).exclude(status=POST_DELETED)
+    for post, row in zip(posts, results):
+        post.context = row['content']
+    page = get_page(request, posts, per_page=10)
     return html.template(request, name='search.html', page=page, params=params, counts=counts, form=form)
 
 def update(post, handler=None):

@@ -4,7 +4,7 @@ from django.core.exceptions import ValidationError
 from main.server import const
 import string
 
-P_TITLE, P_CONTENT, P_TAG = 'Post title', 'Post content', 'tag1'
+P_TITLE, P_CONTENT, P_TAG = 'Post title', 'Post content', ''
 
 # safe string transformation
 import string

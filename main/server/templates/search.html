@@ -27,66 +27,12 @@
 </div></div>
 
 {% if page.object_list  %}
-{#<div class="row" id="user-list">#}
-{#    <div class="span12">#}
-{#    #}
-{#        <table class="table table-striped">#}
-{#            <tr>#}
-{#                <th class="span1">Id</th>#}
-{#                <th class="span1">Type</th>#}
-{#                <th class="span4">Title</th>#}
-{#                <th>Context</th>#}
-{#            </tr>#}
-{##}
-{#            {% for r in page.object_list %}#}
-{#                <tr>#}
-{#                    <td>{{ r.pid }}</td>#}
-{#                    <td>{{ r.type }}</td>#}
-{#                    <td><a href="{% url main.server.views.post_show r.pid %}">{{ r.title }}</a></td>#}
-{#                    <td>{{ r.content|safe }}</td>#}
-{#                </tr>#}
-{#            {% empty %}#}
-{#                <tr>#}
-{#                    <td colspan="3" class="alert"> No results found!</b></td>#}
-{#                </tr>#}
-{#            {% endfor %}#}
-{#          </table>#}
-{#    </div>#}
-{#</div>#}
-
     <div class="row">
         <div class="span12">
             <table border="0" class="post-table" cellspacing="0" width="100%">
 
                 {% for post in page.object_list %}
                     {% table_row post params post.context %}
-
-{% comment %}                    <tr valign="top">
-
-                        <td class="attributes">
-{#                            <div class="status votes">#}
-{#                                <div class="mini-counts">{{post.score}}</div>#}
-{#                                <div class="status-label">votes</div>#}
-{#                            </div>#}
-
-                            <div class="status views">
-                                <div class="mini-counts">{{post.type.0|upper}}</div>
-                                <div>{{post.type}}</div>
-                            </div>
-                        </td>
-
-                        <td class="summary">
-                            <div class="post-title">
-                                <a href="{% url main.server.views.post_show post.id %}" class="under">{{post.title}}</a>
-                            </div>
-                            <div class="peek">{{post.content|safe}}</div>
-
-                            {# shows post creation time and author #}
-                            {% post_info_line '' post %}
-
-                        </td>
-
-                    <tr>{% endcomment %}
                 {%  endfor %}
 
             </table>
@@ -96,8 +42,12 @@
 <div class="row"><div class="span12">
     {% page_bar %}
 </div></div>
-
+{% else %}
+	<div class="row">
+	    <div class="span6"><div class="alert"> No results found for this search!</div></div>
+	</div>
 {% endif %}
+
 
 <div class="row">
     <div class="span12">

@@ -88,7 +88,6 @@ def post_lookup(browser):
     # the username that created this post
     click("Renee")
     
-    click("Planet")
     #blog = models.Post.objects.filter(type=const.POST_BLOG)[0]
     #click(blog.title)
     #browser.back()
@@ -115,7 +114,7 @@ def create_content_1(browser):
 
     title = u"How to get to Zanzibar? 啊"
     fill(browser, title, name='title')
-    fill(browser, u"zanzibar", name='tag_val' )
+    fill(browser, u"zanzibar", name='tagit-input-value' )
     content = """
     
 Other nearby sland countries and territories include
@@ -274,7 +273,7 @@ def quick_search(browser):
     contains(text, parts=[ "Finding common motifs",  ])
     
     text = fill(browser, 'NO_SUCH_WORD_FOUND', name='q', submit=True)
-    contains(text, parts=[ 'found 0 results' ])
+    contains(text, parts=[ 'No results found' ])
   
 def voting_test(browser):
     title = "Gene ID conversion tool"
