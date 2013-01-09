@@ -287,7 +287,6 @@ div.post-show {
   margin-top: 5px;
   margin-bottom: 10px;
   position: relative;
-  min-height: 70px;
   .span3 {
 
   }
@@ -335,7 +334,7 @@ div.post-show {
 
 @media (min-width: 768px) and (max-width: 979px) {
   #header {
-    height: 60px;
+    height: 70px;
     .logo {
       width: 175px;
     }
@@ -382,6 +381,35 @@ div.post-show {
       height: 15px;
       margin-top: 2px;
     }
+  }
+}
+
+@media (max-width: 767px){
+  #header > .span3 {
+    display: none;
+  }
+  .logo {
+    display: none;
+  }
+  .pull-right {
+    //float: left !important;
+  }
+  .tab-bar, #topbar, .nav-right {
+    position: static !important;
+  }
+  .tab-bar li{
+    margin-top: 5px;
+  }
+  .tab-bar:not(.nav-right) {
+    clear: both;
+  }
+  .nav-tabs {
+    clear: both;
+  }
+}
+@media (max-width: 550px){
+  .pull-right {
+    float: left !important;
   }
 }
 
