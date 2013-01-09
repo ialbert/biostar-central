@@ -305,20 +305,6 @@ div.post-show {
       }
     }
   }
-//  .topbar-section {
-//    height: 30px;
-//  }
-//  .topbar-user {
-//    i{
-//      position: relative;
-//      top: 1px;
-//    }
-//  }
-//  .topbar-links a{
-//    padding-right: 10px;
-//    position: relative;
-//    top: -1px;
-//  }
   .topbar-search-form {
     display: inline;
     input {
@@ -329,14 +315,24 @@ div.post-show {
 }
 
 #header {
+  height: 70px;
+  background-color: red;
   margin-top: 10px;
   margin-bottom: 10px;
   position: relative;
   min-height: 70px;
+  .span3 {
+
+  }
+  .logo {
+    position: absolute;
+    bottom: 0;
+    width: 225px;
+  }
   .nav {
     position: absolute;
     bottom: 0;
-    //margin-bottom: 0;
+    margin-bottom: 0;
     li {
       float: left;
       height: 20px;
@@ -354,6 +350,7 @@ div.post-show {
       }
       &.pull-right{
         float: right;
+        margin-right: 0;
       }
       &.active, &:hover{
         background-color: #436C27;
@@ -361,6 +358,24 @@ div.post-show {
     }
     &.nav-right {
       right: 0;
+    }
+  }
+}
+
+@media (min-width: 768px) and (max-width: 979px) {
+  #header {
+    height: 60px;
+    .logo {
+      width: 175px;
+    }
+  }
+}
+
+@media (min-width: 1200px) {
+  #header {
+    height: 85px;
+    .logo {
+      width: 275px;
     }
   }
 }
