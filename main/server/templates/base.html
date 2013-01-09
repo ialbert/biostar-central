@@ -107,19 +107,17 @@
     
     <div class="container">
 
-
-        <div class="row" id="topbar">
-            <div class="span9 offset3" id="topbar-inner">
-                {% nav_bar user params %}
-            </div>
-        </div>
-
         <div class="row" id="header">
             <div class="span3">
                 &nbsp;
                 <a href="/"><img src="{{ STATIC_URL }}biostar.logo.png" width="263" class="logo"></a>
             </div>
             <div class="span9">
+                <div id="topbar">
+                    <div id="topbar-inner">
+                        {% nav_bar user params %}
+                    </div>
+                </div>
                 {% tab_bar params counts %}
             </div>
         </div>
