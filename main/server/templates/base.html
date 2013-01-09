@@ -115,15 +115,25 @@
             <div class="span9">
                 <div id="topbar">
                     <div id="topbar-inner">
-                        {% nav_bar user params %}
+                        <img id="mini-logo" src="{{ STATIC_URL }}biostar.antipixel.png" >
+                        <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </a>
+                        <div class="nav-collapse">
+                            {% nav_bar user params %}
+                        </div>
                     </div>
                 </div>
-                {% tab_bar params counts %}
+                <div class="nav-collapse" style="position: static;"> {# inline style fixes Bootstrap bug. do not remove #}
+                    {% tab_bar params counts %}
+                </div>
             </div>
         </div>
 
 
-        <div class="row">
+        <div class="row nav-collapse">
             <div class="span12">
                 {% pill_bar params counts %}
             </div>

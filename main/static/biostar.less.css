@@ -364,6 +364,11 @@ div.post-show {
     -moz-box-sizing: border-box;
     box-sizing: border-box;
   }
+  #mini-logo {
+    display: none;
+    float: left;
+    margin-top: 7px;
+  }
   .nav{
     display: inline;
     li{
@@ -385,6 +390,16 @@ div.post-show {
 }
 
 @media (max-width: 767px){
+  #header, #topbar-inner {
+    height: auto;
+  }
+  #mini-logo {
+    display: block !important;
+  }
+  #topbar-inner {
+    height: auto !important;
+    min-height: 29px;
+  }
   #header > .span3 {
     display: none;
   }
