@@ -7,7 +7,7 @@
     {% userrep post.author %}
     
     {% if post.has_revisions %}
-        <div class="lastedit hidden-phone">last edit by
+        <div class="lastedit hidden-phone">updated {% time_ago post.lastedit_date %} by
             {% userlink post.lastedit_user %}
         </div>
     {% endif %}
