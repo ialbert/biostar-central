@@ -251,7 +251,7 @@ def request_merge(request):
                 )
                 body = ACCOUNT_MERGE_EMAIL % fill
                 logger.info('sending email to %s' % settings.SERVER_EMAIL)
-                send_mail('BioStar: account merge request', body, settings.DEFAULT_FROM_EMAIL, [ settings.SERVER_EMAIL ], fail_silently=False)
+                send_mail(subject='BioStar: account merge request', message=body, from_email=settings.DEFAULT_FROM_EMAIL, recipient_list=[ settings.DEFAULT_FROM_EMAIL ], fail_silently=False)
                 messages.info(request, "Your request for account merge has been submitted for review.")
                 return html.redirect( user.profile.get_absolute_url() )
             except Exception, exc:
@@ -294,7 +294,7 @@ def approve_merge(request, master_id, remove_id):
             domain=settings.SITE_DOMAIN, profile_url=master.profile.get_absolute_url()
         )
         body = ACCOUNT_APPROVAL_EMAIL % fill
-        send_mail('BioStar: account merge complete', body, settings.DEFAULT_FROM_EMAIL, [ master.email ], fail_silently=False)
+        send_mail(subject='BioStar: account merge complete', message=body, from_email=settings.DEFAULT_FROM_EMAIL, recipient_list=[ settings.SERVER_EMAIL, master.email ], fail_silently=False)
     except Exception, exc:
         messages.error(request, 'Merge error: %s' % exc)
         return html.redirect("/")

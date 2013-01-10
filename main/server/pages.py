@@ -63,7 +63,7 @@ def request_info(request, pid):
     elif 'submit' in request.POST:
         form = formdef.RequestInfo(request.POST) 
         if form.is_valid():
-            send_mail([params.subject, settings.DEFAULT_FROM_EMAIL], params.body, settings.DEFAULT_FROM_EMAIL, [ form.cleaned_data['email'] ], fail_silently=False)
+            send_mail(subject=params.subject, from_email=settings.DEFAULT_FROM_EMAIL, message=params.body, recipient_list=[settings.DEFAULT_FROM_EMAIL, form.cleaned_data['email']], fail_silently=False)
             messages.info(request, "Your message has been sent.")
             return html.redirect( post.get_absolute_url() )
         else:

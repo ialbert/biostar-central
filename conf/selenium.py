@@ -31,7 +31,7 @@ EMAIL_HOST = 'smtp.psu.edu'
 EMAIL_HOST_USER = ''
 EMAIL_HOST_PASSWORD = ''
 DEFAULT_FROM_EMAIL = 'iua1@psu.edu'
-SERVER_EMAIL = 'beta@biostars.org'
+SERVER_EMAIL = 'iua1@psu.edu'
 
 # add a custom html page
 TEMPLATE_ROWS['job'] = "row.job-sponsored.html"
