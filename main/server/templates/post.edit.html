@@ -93,7 +93,7 @@
                             <div>
                                 {{ form.tag_val }}
                             </div>
-                            <div><span class="help-block">separate tags with spaces, select suggestions with the up/down arrows {{ form.tag_val.errors }}</span>
+                            <div><span class="help-block">cycle through suggestions with the UP/DOWN arrow keys {{ form.tag_val.errors }}</span>
                             </div>
                         </div>
                     </div>
@@ -110,7 +110,8 @@
                         </div>
                     </div>
 
-
+                {%  else %}
+                    <input type="hidden" id="id_tag_val">
                 {% endif %}
 
 
