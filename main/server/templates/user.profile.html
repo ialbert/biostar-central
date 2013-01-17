@@ -94,13 +94,15 @@
                 {% csrf_token %}
                 <input type="hidden" name="userid" value="{{user.id}}">
                 <textarea name="message" class="span4" rows="10"></textarea>
-                <a class="btn btn-success" id="pm-send" onclick="document.getElementById('pm').submit();"><i class="icon-comment icon-white"></i> Send message</a>
-                <a class="btn btn-warning" id="pm-cancel" href="#"><i class="icon-remove icon-white"></i> Cancel</a>
+                <a class="btn btn-success" id="pm-send" onclick="document.getElementById('pm').submit();"><i class="icon-comment icon-white"></i> Send Message</a>
+
+                <a class="btn btn-warning pull-right" id="pm-cancel" href="#"><i class="icon-remove icon-white"></i> Cancel</a>
             </form>
         </div>​
 
         <div id="button-row">
-                <a class="btn btn-primary pm-control" id="pm-toggle" href="#"><i class="icon-comment icon-white"></i> Private Message</a>
+
+                <a class="btn btn-primary pm-control" id="pm-toggle" href="#"><i class="icon-comment icon-white"></i> Send Message</a>
 
                 {% if target.writeable %}
                      <a class="btn btn-success" href="{% url main.server.action.user_edit target.id %}"><i class="icon-edit icon-white"></i> Edit Info</a>
@@ -119,13 +121,15 @@
 
         {% endif %}
 
+
+            {%  if user.profile.is_admin %}
+                <div style="padding-top: 10px;">
+                    <a class="btn btn-danger pull-right" href="{% url main.server.action.user_moderate target.id 'ban' %}"><i class="icon-screenshot icon-white"></i> -- Ban! --</a>
+                </div>
+            {%  endif %}
+
         </div>
 
-        {%  if user.profile.is_admin %}
-            <div>
-                <a class="btn btn-danger pull-right" href="{% url main.server.action.user_moderate target.id 'ban' %}"><i class="icon-screenshot icon-white"></i> -- Ban! --</a>
-            </div>
-        {%  endif %}
 
 
     </div>

@@ -12,7 +12,7 @@ def page(browser):
 
 def contains(text, parts):
     for part in parts:
-        assert part in text, "Unable to find %s in the text" % part
+        assert part in text, "Unable to find '%s' in the text" % part
         
 def get(browser, link=None, name=None, id=None):
     if link:
@@ -235,7 +235,7 @@ def update_user(browser):
     
     user = login(browser=browser, uid=10)
     click(user.profile.display_name)
-    click("Edit info")
+    click("Edit Info")
     fill(browser, "mapping", name="my_tags")
     fill(browser, u"Cóól Bót 啊不比", name="display_name")
     fill(browser, u"some@啊啊啊.cóm", name="email")

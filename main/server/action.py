@@ -62,6 +62,7 @@ def private_message(request, uid):
 
     # get the message from the body
     text  = request.POST.get("message","").strip()[:1500]
+    text  = html.generate(text)
     text  = html.sanitize(text)
     if not text:
         messages.error(request, 'Empty message')
