@@ -39,3 +39,7 @@ def post_action(user, post, size=250):
 def awardnote(badge):
     text = "Congratulations! You've just earned the **%s** badge!" % badgelink(badge)
     return text
+
+def private_message(user, target, text):
+    text = "%s by %s" % (userlink(user), text)
+    return text

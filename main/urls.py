@@ -67,7 +67,10 @@ urlpatterns = patterns('main.server',
 
     # editing an existing post/answer/comment
     url(r'^post/edit/(?P<pid>\d+)/$','views.post_edit', name="post-edit"),
-    
+
+    # private messaging
+    url(r'^pm/(?P<uid>\d+)/$','action.private_message', name="private-message"),
+
     # moderation views
     url(r'^user/moderate/(?P<uid>\d+)/(?P<status>\w+)/$','action.user_moderate', name="user-moderate"),    
     url(r'^post/moderate/(?P<pid>\d+)/(?P<status>\w+)/$','action.post_moderate', name="post-moderate"),

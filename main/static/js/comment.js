@@ -6,6 +6,7 @@ $(document).ready(function(){
             show_add_comment($(this).parent(), $(this).parent().children('input').val()); 
         });
     });
+
 });
 
 

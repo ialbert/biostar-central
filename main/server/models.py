@@ -428,7 +428,7 @@ def user_moderate(user, target, status):
     msg = 'User status set to %s' % target.profile.get_status_display()
 
     return True, msg
-     
+
 @transaction.commit_on_success
 def post_moderate(request, post, user, status, date=None):
     """
@@ -481,7 +481,8 @@ def send_note(sender, target, content, type=NOTE_USER, unread=True, date=None, b
     "Sends a note to target"
     date = date or datetime.now()
     url = url[:200]
-    Note.objects.create(sender=sender, target=target, content=content, type=NOTE_USER, unread=unread, date=date, url=url)
+    Note.objects.create(sender=sender, target=target, content=content, type=type, unread=unread, date=date, url=url)
+    both = both and (sender != target)
     if both:
         #send a note to the sender as well
         Note.objects.create(sender=sender, target=sender, content=content, type=type, unread=False, date=date, url=url)

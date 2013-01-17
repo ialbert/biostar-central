@@ -242,7 +242,7 @@ def user_profile(request, uid, tab='activity'):
     
     # some information is only visible to the user
     target.writeable = auth.authorize_user_edit(target=target, user=user, strict=False)
-    target.showall = (target == user)
+    show_private = target.showall = (target == user)
 
     params = html.Params(tab=tab, sort='', title="User %s" % target.profile.display_name)
 
@@ -259,25 +259,33 @@ def user_profile(request, uid, tab='activity'):
     award_count = models.Award.objects.filter(user=target).count()
     note_count  = models.Note.objects.filter(target=target, unread=True).count()
     bookmarks_count  = models.Vote.objects.filter(author=target, type=VOTE_BOOKMARK).count()
-    
+
+    note_types = [ NOTE_USER, NOTE_PRIVATE ] if show_private else [ NOTE_USER ]
+
     if tab in [ 'activity', 'created' ]:
         if tab == 'created':
-            notes = models.Note.objects.filter(sender=target, target=target, type=NOTE_USER).select_related('author', 'author__profile', 'root').order_by('-date')
+            q = Q(sender=target, target=target, type__in=note_types)
+            e = Q()
         else:
-            notes = models.Note.objects.filter(target=target, type=NOTE_USER).exclude(sender=target).select_related('author', 'author__profile', 'root').order_by('-date')
-            
+            q = Q(target=target, type__in=note_types)
+            e = Q(sender=target, type=NOTE_USER)
+
+        notes = models.Note.objects.filter(q)
+        notes = notes.exclude(e)
+        notes = notes.select_related('author', 'author__profile', 'root').order_by('-date')
+
         page  = get_page(request, notes, per_page=15)
         # we evalute it here so that subsequent status updates won't interfere
         page.object_list = list(page.object_list)
-        if user == target:
+        if show_private:
             models.Note.objects.filter(target=target, unread=True).update(unread=False)
             models.UserProfile.objects.filter(user=target).update(new_messages=0)
             note_count = 0
-            
+
     elif tab == 'bookmarks':
         bookmarks = models.Vote.objects.filter(author=target, type=VOTE_BOOKMARK).select_related('post', 'post__author__profile').order_by('-date')
         page  = get_page(request, bookmarks, per_page=15)
-    
+
     elif tab =="moderator":
         notes = models.Note.objects.filter(target=target, type=NOTE_MODERATOR).select_related('author', 'author__profile').order_by('-date')
         page  = get_page(request, notes, per_page=15)

@@ -5,7 +5,7 @@
     {% userlink post.author %}
     {% userrep post.author %}
     {%  if post.author != post.lastedit_user %}
-        &bull;  {% time_ago post.lastedit_date %}  {% userlink post.lastedit_user %}
+        &bull;  {% time_ago post.lastedit_date %} by {% userlink post.lastedit_user %}
 		{% userrep post.lastedit_user %}
     {% endif %}
 </div>

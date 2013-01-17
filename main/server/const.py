@@ -72,8 +72,8 @@ SESSION_POST_COUNT = 'session-post-count'
 SESSION_VIEW_COUNT = 'view-count'
 
 # the type of messages that the system maintains
-NOTE_USER, NOTE_MODERATOR, NOTE_ADMIN, NOTE_AWARD, NOTE_SITE = range(1, 6)
-NOTE_TYPES = ((NOTE_USER,'User'), (NOTE_MODERATOR,'Moderator'), (NOTE_ADMIN,'Admin'), (NOTE_AWARD, 'Award'), (NOTE_SITE, "Site"))
+NOTE_USER, NOTE_MODERATOR, NOTE_ADMIN, NOTE_AWARD, NOTE_SITE, NOTE_PRIVATE = range(1, 7)
+NOTE_TYPES = ((NOTE_USER,'User'), (NOTE_MODERATOR,'Moderator'), (NOTE_ADMIN,'Admin'), (NOTE_AWARD, 'Award'), (NOTE_SITE, "Site"), (NOTE_PRIVATE, "Private"))
 
 # user types
 USER_NEW, USER_MEMBER,  USER_MODERATOR, USER_ADMIN, USER_BLOG, USER_SPECIAL, = range(1, 7)

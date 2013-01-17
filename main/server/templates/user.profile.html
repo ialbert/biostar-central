@@ -12,6 +12,7 @@
     <script src="{{ STATIC_URL }}js/handlers.js"></script>
     <script src="{{ STATIC_URL }}js/csrf.js"></script>
     <script src="{{ STATIC_URL }}js/vote.js"></script>
+    <script src="{{ STATIC_URL }}js/comment.js"></script>
 {% endblock %}
 
 {% block document_ready %}
@@ -19,6 +20,20 @@
     $('.usermod-link').click(function(){
         usermod_link_clicked($(this))
     });
+
+    $('#pm-toggle').click( function() {
+        $('#pm-form').show();
+        $('#button-row').hide();
+    });
+
+    $('#pm-cancel').click( function() {
+        $('#pm-form').hide();
+        $('#button-row').show();
+    });
+
+
+
+
 {% endblock %}
 
 {% block body %}
@@ -67,33 +82,52 @@
              </a></div>
         {% endif %}
         
-        <div>
-        {# editable #}    
-        {% if target.writeable %}
-            <div>My tags: <code>{{ target.profile.my_tags }}</code></div>
-            <a class="btn btn-primary" href="{% url main.server.action.user_edit target.id %}"><i class="icon-edit icon-white"></i> Edit info</a>
-        {% endif %}
-    
-        
-       
-        {# moderator access #}
-        {% if target.writeable and user != target%}
-            &nbsp;&bull;&nbsp;
-            {% if target.profile.get_status %}
-                <a class="btn btn-success" href="{% url main.server.action.user_moderate target.id 'reinstate' %}"><i class="icon-edit icon-white"></i> Reinstate</a>
-            {% else %}
-                <a class="btn btn-warning" href="{% url main.server.action.user_moderate target.id 'suspend' %}"><i class="icon-remove-sign icon-white"></i> Suspend</a>
+
+            {# editable #}
+
+            {% if target.writeable %}
+                <div>My tags: <code>{{ target.profile.my_tags }}</code></div>
             {% endif %}
 
-            {%  if user.profile.is_admin %}
-                &nbsp;&bull;&nbsp; <a class="btn btn-danger" href="{% url main.server.action.user_moderate target.id 'ban' %}"><i class="icon-screenshot icon-white"></i> Ban!</a>
-            {%  endif %}
+        <div id="pm-form" style="display:none">
+            <form id="pm" action="/pm/{{ target.id }}/"  method="post" accept-charset="UTF-8">
+                {% csrf_token %}
+                <input type="hidden" name="userid" value="{{user.id}}">
+                <textarea name="message" class="span4" rows="10"></textarea>
+                <a class="btn btn-success" id="pm-send" onclick="document.getElementById('pm').submit();"><i class="icon-comment icon-white"></i> Send message</a>
+                <a class="btn btn-warning" id="pm-cancel" href="#"><i class="icon-remove icon-white"></i> Cancel</a>
+            </form>
+        </div>​
+
+        <div id="button-row">
+                <a class="btn btn-primary pm-control" id="pm-toggle" href="#"><i class="icon-comment icon-white"></i> Private Message</a>
+
+                {% if target.writeable %}
+                     <a class="btn btn-success" href="{% url main.server.action.user_edit target.id %}"><i class="icon-edit icon-white"></i> Edit Info</a>
+                {% endif %}
+
+
+        {# moderator access #}
+        {% if target.writeable and user != target%}
+
+            {% if target.profile.get_status %}
+                 <a class="btn btn-success" href="{% url main.server.action.user_moderate target.id 'reinstate' %}"><i class="icon-edit icon-white"></i> Reinstate</a>
+            {% else %}
+                <a class="btn btn-warning pull-right" href="{% url main.server.action.user_moderate target.id 'suspend' %}"><i class="icon-remove-sign icon-white"></i> Suspend</a>
+            {% endif %}
+
 
         {% endif %}
 
-
         </div>
-    
+
+        {%  if user.profile.is_admin %}
+            <div>
+                <a class="btn btn-danger pull-right" href="{% url main.server.action.user_moderate target.id 'ban' %}"><i class="icon-screenshot icon-white"></i> -- Ban! --</a>
+            </div>
+        {%  endif %}
+
+
     </div>
     <div class="span6 bio-panel">
         {{target.profile.about_me_html|safe }}
@@ -152,7 +186,7 @@
     
         <table class="table table-striped" >
         {% for note in page.object_list %}
-            <tr><td class="msg {{note.status}}"> <i>{% time_ago note.date %}</i> &bull; {{ note.html|safe }}</td></tr>
+            <tr><td class="msg {{note.status}}"><i>{% time_ago note.date %}</i> &bull; {{ note.html|safe }}</td></tr>
         {% empty %}
             <tr><td><div class="empty">&bull; {% trans 'no messages' %}
             </div><td></tr>

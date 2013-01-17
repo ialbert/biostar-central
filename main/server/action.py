@@ -53,6 +53,30 @@ def cleanup(request):
         models.Tag.objects.filter(count=0).delete()
 
 @login_required(redirect_field_name='/openid/login/')
+def private_message(request, uid):
+    "General moderation function"
+    user   = request.user
+    target = models.User.objects.get(id=uid)
+
+    # TODO allow users to opt out from getting messages
+
+    # get the message from the body
+    text  = request.POST.get("message","").strip()[:1500]
+    text  = html.sanitize(text)
+    if not text:
+        messages.error(request, 'Empty message')
+    else:
+        content = "PM to %s: %s" % (notegen.userlink(target), text)
+        models.send_note(target=user, content=content, sender=user, both=False, unread=False, type=NOTE_PRIVATE, url=user.profile.get_absolute_url() )
+
+        content = "PM from %s: %s" % (notegen.userlink(user), text)
+        models.send_note(target=target, content=content, sender=user, both=False, type=NOTE_PRIVATE, url=user.profile.get_absolute_url() )
+
+        messages.info(request, 'Your private message to <b>%s</b> has been sent!' % target.profile.display_name)
+
+    return html.redirect( target.profile.get_absolute_url() )
+
+@login_required(redirect_field_name='/openid/login/')
 def post_moderate(request, pid, status):
     "General moderation function"
     user = request.user
