@@ -118,15 +118,16 @@
                 <a class="btn btn-warning pull-right" href="{% url main.server.action.user_moderate target.id 'suspend' %}"><i class="icon-remove-sign icon-white"></i> Suspend</a>
             {% endif %}
 
-
-        {% endif %}
-
-
             {%  if user.profile.is_admin %}
                 <div style="padding-top: 10px;">
                     <a class="btn btn-danger pull-right" href="{% url main.server.action.user_moderate target.id 'ban' %}"><i class="icon-screenshot icon-white"></i> -- Ban! --</a>
                 </div>
             {%  endif %}
+            
+        {% endif %}
+
+
+
 
         </div>
 
