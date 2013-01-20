@@ -55,11 +55,11 @@
 {% block body %}
     
     {% if root.closed %}
-        <div class="row"><div class="alert alert-warning">This post has been closed. No more answers may be added.</div></div>
+        <div class="alert alert-warning">This post has been closed. No more answers may be added.</div>
     {% endif %}
 
     {% if root.deleted %}
-        <div class="row"><div class="alert alert-error">This post has been deleted. No more answers may be added.</div></div>
+        <div class="alert alert-error">This post has been deleted. No more answers may be added.</div>
     {% endif %}
 
 
@@ -120,7 +120,7 @@
     </div>
 {% endif %}
 {% else %}
-    <div class="alert alert-info">Log in to add a post</div>
+    <div class="alert alert-info" style="margin-top: 5px;">Log in to add a post</div>
 {% endif %}
 
 {% endblock %}
