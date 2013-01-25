@@ -12,7 +12,7 @@
 <div class="row">
     <div class="span12">
         {% if params.sort %}
-            {% page_bar_dropdown params.sort params.sort_choices %}
+            {% page_bar_dropdown params.sort params.sort_choices params.since params.date_filter%}
         {% endif %}
         {% page_bar %}
     </div>

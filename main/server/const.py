@@ -47,7 +47,7 @@ SORT_MAP = dict(
 )
 
 # valid pill entries
-VALID_PILLS = set( "mytags all news questions unanswered tutorials tools videos jobs planet".split() )
+VALID_PILLS = set( "mytags all news questions unanswered forum tutorials tools videos jobs planet".split() )
 
 # valid tab entries
 VALID_TABS = set( "recent planet sticky".split() ) | VALID_PILLS 
@@ -126,4 +126,5 @@ TARGET_COUNT_MAP = {
     POST_BLOG: "Blog",
     POST_VIDEO: "Video",
     "unanswered" : "Unanswered",
+    POST_FORUM: "Forum",
 }

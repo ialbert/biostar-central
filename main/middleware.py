@@ -43,7 +43,8 @@ class Session(object):
         value = value or self.data.get(self.SORT_KEY)
         if value not in SORT_MAP:
             value = self.RANK
-        self.data[self.SORT_KEY] = value
+        # disable storing sort order in the sessions
+        #self.data[self.SORT_KEY] = value
         return value
 
     def set_counts(self, value):

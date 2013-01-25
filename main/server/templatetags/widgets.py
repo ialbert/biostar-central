@@ -87,9 +87,9 @@ def nav_bar(context, user, params={}):
     return { 'user':user, 'nav': params.get('nav'), 'q':params.get('q',''), 'request':context['request'] }
 
 @register.inclusion_tag('widgets/page.bar.dropdown.html')
-def page_bar_dropdown(selected, choices):
+def page_bar_dropdown(selected_sort, sort_choices, since, date_filter):
     "Renders top navigation bar"
-    return { 'selected': selected, 'choices':choices }
+    return { 'selected_sort': selected_sort, 'sort_choices': sort_choices, 'since': since, 'date_filter': date_filter }
     
 @register.inclusion_tag('widgets/page.bar.html', takes_context=True)
 def page_bar(context, anchor=''):
@@ -102,6 +102,7 @@ def page_bar(context, anchor=''):
         'request': context['request'],
         'anchor' : anchor,
         'path'   : path,
+
     }
     
 # this contains the body of each comment

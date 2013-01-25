@@ -305,12 +305,13 @@ MAX_POST_SIZE = 20000
 
 # this data governs the layout of the PILL_BAR    
 # bar name, link url, link name, counter key
-USER_PILL_BAR = [
+ANON_PILL_BAR = [
     ("all", "/", "Show&nbsp;All", "" ),
-    ("mytags", "/show/mytags/", "My&nbsp;Tags", "" ),
+    ("best", "/show/best", "Best Of", "Best"),
     ("news", "/show/news/", "News", "News" ),
     ("questions", "/show/questions/", "Questions", "Question" ),
     ("unanswered", "/show/unanswered/", "Unanswered", "Unanswered" ),
+    ("forum", "/show/forum/", "Forum", "Forum" ),
     ("tutorials", "/show/tutorials/", "Tutorials", "Tutorial" ),
     ("tools", "/show/tools/", "Tools", "Tool" ),
     ("videos", "/show/videos/", "Videos", "Video" ),
@@ -318,17 +319,10 @@ USER_PILL_BAR = [
     ("blog", "/show/planet/", "Planet", "Blog" ),
     ]
 
-ANON_PILL_BAR = [
-    ("all", "/", "Show&nbsp;All", "" ),
-    ("news", "/show/news/", "News", "News" ),
-    ("questions", "/show/questions/", "Questions", "Question" ),
-    ("unanswered", "/show/unanswered/", "Unanswered", "Unanswered" ),
-    ("tutorials", "/show/tutorials/", "Tutorials", "Tutorial" ),
-    ("tools", "/show/tools/", "Tools", "Tool" ),
-    ("videos", "/show/videos/", "Videos", "Video" ),
-    ("jobs", "/show/jobs/", "Jobs", "Job" ),
-    ("blog", "/show/planet/", "Planet", "Blog" ),
-]
+USER_PILL_BAR = list(ANON_PILL_BAR)
+USER_PILL_BAR.insert(1,
+    ("mytags", "/show/mytags/", "My&nbsp;Tags", "" )
+)
 
 #
 # remapping the templates to local versions

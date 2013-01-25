@@ -2,8 +2,8 @@
 <div class="page_bar hidden-phone">&nbsp;
     {% if page.paginator.num_pages > 1 %}
         {% if page.has_previous %}
-            <a href="{{path}}?page={{page.previous_page_number}}&q={{params.q}}&sort={{params.sort}}">&lt;{%  trans "previous" %}</a>
-            &bull; <a href="{{path}}?page=1&q={{params.q}}&sort={{params.sort}}">{% trans "first" %}</a>
+            <a href="{{path}}?page={{page.previous_page_number}}&q={{params.q}}&sort={{params.sort}}&since={{ params.since }} }}">&lt;{%  trans "previous" %}</a>
+            &bull; <a href="{{path}}?page=1&q={{params.q}}&sort={{params.sort}}&since={{ params.since  }}">{% trans "first" %}</a>
         {% else %}
             <span style="color:#555555;">&lt;{%  trans "previous" %} &bull; {% trans "first" %}</span>
         {% endif %}
@@ -11,8 +11,8 @@
         &bull; {%  trans "page" %} {{ page.number }} {% trans "of" %} {{ page.paginator.num_pages }}
 
         {% if page.has_next %}
-            &bull; <a href="{{path}}?page={{page.paginator.num_pages}}&q={{params.q}}&sort={{params.sort}}">{%  trans "last" %}</a>
-            &bull; <a href="{{path}}?page={{page.next_page_number}}&q={{params.q}}&sort={{params.sort}}">{% trans "next" %}&gt;</a>
+            &bull; <a href="{{path}}?page={{page.paginator.num_pages}}&q={{params.q}}&sort={{params.sort}}&since={{ params.since  }}">{%  trans "last" %}</a>
+            &bull; <a href="{{path}}?page={{page.next_page_number}}&q={{params.q}}&sort={{params.sort}}&since={{ params.since  }}">{% trans "next" %}&gt;</a>
         {% else %}
             <span style="color:#555555;">&bull; {%  trans "last" %}&bull; {% trans "next" %}&gt;</span>
         {% endif %}
@@ -23,7 +23,7 @@
 <div class="page_bar visible-phone">&nbsp;
     {% if page.paginator.num_pages > 1 %}
         {% if page.has_previous %}
-            <a href="{{path}}?page={{page.previous_page_number}}&q={{params.q}}&sort={{params.sort}}">&lt;prev</a>
+            <a href="{{path}}?page={{page.previous_page_number}}&q={{params.q}}&sort={{params.sort}}&since={{ params.since }}">&lt;prev</a>
         {% else %}
             <span style="color:#555555;">&lt;prev</span>
         {% endif %}
@@ -31,7 +31,7 @@
         &bull; page {{ page.number }} of {{ page.paginator.num_pages }} &bull;
 
         {% if page.has_next %}
-            <a href="{{path}}?page={{page.next_page_number}}&q={{params.q}}&sort={{params.sort}}">next&gt;</a>
+            <a href="{{path}}?page={{page.next_page_number}}&q={{params.q}}&sort={{params.sort}}&since={{ params.since  }}">next&gt;</a>
         {% else %}
             <span style="color:#555555;">next&gt;</span>
         {% endif %}

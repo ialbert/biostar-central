@@ -1,13 +1,30 @@
-<div class="page-bar-dropdown">
+
+<div class="page-bar-left-dropdown">
     <ul class="nav nav-pills">
         <li class="dropdown" id="menu1">
             <a class="dropdown-toggle" data-toggle="dropdown" href="#menu1">
-                Sort by: {{selected}}
+                Limit to: {{since}}
                 <b class="caret"></b>
             </a>
             <ul class="dropdown-menu">
-                {% for choice in choices %}
-                    <li><a href="?sort={{choice}}">{{choice}}</a></li>
+                {% for choice in date_filter %}
+                    <li><a href="?since={{choice}}&sort={{selected_sort}}">{{choice}}</a></li>
+                {% endfor %}
+            </ul>
+        </li>
+    </ul>
+</div>
+
+<div class="page-bar-right-dropdown">
+    <ul class="nav nav-pills">
+        <li class="dropdown" id="menu2">
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#menu2">
+                Sort by: {{selected_sort}}
+                <b class="caret"></b>
+            </a>
+            <ul class="dropdown-menu">
+                {% for choice in sort_choices %}
+                    <li><a href="?sort={{choice}}&since={{ since }}">{{choice}}</a></li>
                 {% endfor %}
             </ul>
         </li>

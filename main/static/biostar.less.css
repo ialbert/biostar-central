@@ -13,6 +13,7 @@
 }
 
 body {
+    margin-top: 5px;
    .default-style;
    background-color: white;
    overflow: scroll;
@@ -258,6 +259,7 @@ div.post-show {
     }
     
     .post-info-panel {
+        margin-top: 5px;
         max-width:10em;
         float: right;
         background-color:#EEEEEE;
@@ -596,7 +598,7 @@ div.post-show {
     text-align:center;
 }
 
-.page-bar-dropdown{
+.page-bar-right-dropdown{
     position: absolute;
     right: 0;
     .nav{
@@ -604,6 +606,16 @@ div.post-show {
         margin-bottom: 0px;
     }
 }
+
+.page-bar-left-dropdown{
+    position: absolute;
+    left: 0;
+.nav{
+    margin-top: -8px;
+    margin-bottom: 0px;
+}
+    }
+
 
 .bookmark-list {
     .pagebar {

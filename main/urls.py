@@ -16,7 +16,10 @@ urlpatterns = patterns('main.server',
     
     url(r'^search/$', 'search.main', name="search"),
     url(r'^more/like/(?P<pid>\d+)/$', 'search.more', name="more"),
-    
+
+    # show the best of tab
+    url(r'^show/best/$', 'views.bestof', name="bestof"),
+
     # show by content type
     url(r'^show/(?P<tab>\w+)/$', 'views.index', name="show"),
     

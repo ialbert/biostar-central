@@ -44,6 +44,7 @@ def get_post_manager(request):
 POST_TYPE_MAP = dict(
     questions=POST_QUESTION,  tutorials=POST_TUTORIAL, answers=POST_ANSWER, videos=POST_VIDEO,
     planet=POST_BLOG, tools=POST_TOOL, jobs=POST_JOB, news=POST_NEWS, publications=POST_PUBLICATION,
+    forum=POST_FORUM,
 )
 
 POST_TYPE_REV_MAP = dict( [ (v,k) for (k,v) in POST_TYPE_MAP.items()] )
@@ -60,7 +61,24 @@ def mytags_posts(request):
             messages.warning(request, "Showing posts matching the My Tags fields in your user profile. Currently this field is not set.")
             
     return models.query_by_tags(user, text=text)
-    
+
+def filter_by_date(request, posts, since):
+    days = 0
+    if since == "today":
+        days = 1
+    elif since == "this week":
+        days = 7
+    elif since == "this month":
+        days = 30
+    elif since == "this year":
+        days = 365
+    if days:
+        now = datetime.now().date()
+        start = now - timedelta(days=days)
+        posts = posts.filter(lastedit_date__gt=start)
+
+    return posts
+
 def filter_by_type(request, posts, post_type):
     "Filters posts by type"
 
@@ -93,7 +111,8 @@ def apply_sort(request, posts, order, sticky=True):
 
 # there is a tab bar and a lower "pill" bar
 
-SORT_CHOICES   = "activity,rank,views,votes,answers,edit".split(',')
+SORT_CHOICES  = "activity,rank,views,votes,answers,edit".split(',')
+DATE_FILTER   = "all time,today,this week,this month,this year".split(',')
 
 def index(request, tab='all'):
     user = request.user
@@ -110,7 +129,10 @@ def index(request, tab='all'):
     
     # get the sort order
     sort_type = sess.sort_order()
-    
+
+    # parse the date request
+    since = request.GET.get('since', DATE_FILTER[0]).lower()
+
     # set the last active tab
     sess.set_tab(tab)
     
@@ -130,7 +152,8 @@ def index(request, tab='all'):
         tab, pill = "posts", tab
     else:
         tab, pill = tab, ""
-    params  = html.Params(tab=tab, pill=pill, sort=sort_type, sort_choices=SORT_CHOICES, layout=layout, show_type=show_type, title="Bioinformatics Answers")
+    params  = html.Params(tab=tab, pill=pill, sort=sort_type, sort_choices=SORT_CHOICES, date_filter=DATE_FILTER, since=since,
+        layout=layout, show_type=show_type, title="Bioinformatics Answers")
     
     # this will fill in the query (q) and the match (m)parameters
     params.parse(request)
@@ -140,6 +163,9 @@ def index(request, tab='all'):
     
     # filter posts by type
     posts = filter_by_type(request=request, posts=posts, post_type=post_type)
+
+    # apply date filtering
+    posts = filter_by_date(request=request, posts=posts, since=since)
 
     # reduce SQL query count by preselecting data that will be displayed
     posts = posts.select_related('author', 'author__profile', 'lastedit_user', 'lastedit_user__profile')
@@ -171,7 +197,13 @@ def index(request, tab='all'):
     params.title = title_map.get(pill) or title_map.get(tab, params.title)
 
     return html.template(request, name='index.html', page=page, params=params, counts=counts)
-    
+
+# generate the Best Of tab, collection a highest rated posts
+def bestof(request, tab='best'):
+    messages.info(request, "Most <b>upvoted</b> active posts <b>this week!</b>")
+    return html.redirect("/show/all/?sort=votes&since=this week")
+
+
 def show_tag(request, tag_name=''):
     "Display posts by a certain tag"
     user = request.user
