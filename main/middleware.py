@@ -131,7 +131,14 @@ class LastVisit(object):
             counts = generate_counts(request)
             sess.set_counts(counts)
             sess.save()
-            
+
+            since = user.profile.last_visited
+
+            # votes since the last visit
+            vote_count = models.Vote.objects.filter(post__author=user, date__gt=since).count()
+            if vote_count > 0:
+                messages.info(request, '<i class="icon-info-sign"></i> You have received <b>%s</b> upvotes since your last visit! Nice job!' % vote_count)
+
             # save the last update time
             profile.update_expiration()
             

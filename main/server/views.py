@@ -487,10 +487,11 @@ def new_post(request, pid=0, post_type=POST_QUESTION):
 
     # form is valid at this point, create the post
     params = dict(author=user, type=post_type, parent=parent, root=root)
-    params.update(form.cleaned_data)
 
-    # remove spam defense, TODO: needs a better solution!
-    del params['bioinfo']
+    # form may contain a variable number of elements
+    for attr in "title content tag_val".split():
+        if attr in form.cleaned_data:
+            params[attr] = form.cleaned_data[attr]
 
     with transaction.commit_on_success():
         post = models.Post.objects.create(**params)
