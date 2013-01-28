@@ -43,6 +43,13 @@ def update_bookmark_counts():
         
 def blog_cleanup():
     "Updates the bookmark counters. Used after migrating to version 1.2.1"
+
+    # move posts for banned users into the blog section (we need a trash section)
+    posts = models.Post.objects.filter(author__profile__status=USER_BANNED)
+    print "setting up %s posts for deletion" % len(posts)
+    if posts:
+        posts.update(type=POST_BLOG)
+        
     blogs = models.Post.objects.filter(type=POST_BLOG, status=POST_DELETED)
     
     for blog in blogs:
@@ -51,7 +58,9 @@ def blog_cleanup():
             blog.delete()
         except Exception, exc:
             print exc
-            
+
+
+
 def update_domain():
     "This is really only needs to be done once per installation"
     site = Site.objects.get(id=settings.SITE_ID)
