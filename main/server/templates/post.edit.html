@@ -104,9 +104,22 @@
                         <label class="control-label" for="type">{% trans 'Post Type' %}
                         </label>
 
+
                         <div class="controls">
                             {{ form.type }}
                             <span class="help-inline">{{ form.type.errors }}</span>
+                        </div>
+                    </div>
+
+                    <div class="control-group{% if form.bioinfo.errors %} error{% endif %}">
+
+                        <label class="control-label" for="bioinfo">Spam defense
+                        </label>
+
+
+                        <div class="controls">
+                            {{ form.bioinfo }}
+                            <span class="help-inline">What is the shorthand notation for Deoxyribonucleic Acid?</span>
                         </div>
                     </div>
 

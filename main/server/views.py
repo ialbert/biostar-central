@@ -469,8 +469,18 @@ def new_post(request, pid=0, post_type=POST_QUESTION):
     
     # process the incoming data
     assert request.method == 'POST', "Method=%s" % request.method
-    
+
     form = factory(request.POST)
+
+    # throttle new users to no more than 3 posts per 3 hours
+    MIN_AGE, MIN_COUNT = 6, 3
+    brand_new = (datetime.now() - user.date_joined) < timedelta(hours=MIN_AGE)
+    too_many = models.Post.objects.filter(author=user).count() >= MIN_COUNT
+
+    if brand_new and too_many:
+        messages.error(request, "Brand new users (accounts less than 6 hours old) may not create more than 3 posts. Apologies, it is an anti-spam measure. Gives us a chance to ban the bots")
+        return html.template(request, name=name, form=form, params=params)
+
     if not form.is_valid():
         # returns with an error message
         return html.template(request, name=name, form=form, params=params)
@@ -478,7 +488,10 @@ def new_post(request, pid=0, post_type=POST_QUESTION):
     # form is valid at this point, create the post
     params = dict(author=user, type=post_type, parent=parent, root=root)
     params.update(form.cleaned_data)
-    
+
+    # remove spam defense, TODO: needs a better solution!
+    del params['bioinfo']
+
     with transaction.commit_on_success():
         post = models.Post.objects.create(**params)
         post.set_tags()
@@ -548,8 +561,7 @@ def linkout(request, pid):
         return html.redirect(post.url)    
     else:
         messages.error(request, 'linkout used on a post with no url set %s' % post.id)
-        return html.redirect("/")  
-    
+        return html.redirect("/")
 
 def modlog_list(request):
     "Lists of all moderator actions"

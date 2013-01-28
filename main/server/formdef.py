@@ -55,7 +55,12 @@ def valid_content(text):
         raise ValidationError('Your content is only %d charactes long. The minimum is %d.' %(ts, mi))
     if ts > mx :
         raise ValidationError('Your content  is too long %d characters. The maximum is %d .' % (ts, mx))
-  
+
+# simple spam detector
+def bioinfo_question(text):
+    if text.strip().lower() != "dna" :
+        raise ValidationError('Invalid entry.')
+
 class TopLevelContent(forms.Form):
     """
     A form representing a new question
@@ -71,7 +76,11 @@ class TopLevelContent(forms.Form):
 
     tag_val = forms.CharField(max_length=250, initial='', validators=[ valid_tag ],
         widget=forms.TextInput(attrs={'class':'span4', 'placeholder': P_TAG}))
-    
+
+
+    bioinfo = forms.CharField(max_length=250, initial='', validators=[ bioinfo_question ],
+        widget=forms.TextInput(attrs={'class':'span1', 'placeholder': '???'}))
+
     # the first two post types are not creatable here
     type = forms.ChoiceField(choices=const.POST_TYPES[2:])
 

@@ -208,6 +208,7 @@ Use the Youtube ID as below (you can extract this ID from the url of the video):
 Results in \youtube 1ZyoI-4ObSA
     """
     fill(browser, content, name='content')
+    fill(browser, "  dNa  ", name='bioinfo')
     click(id="submit-button")
     click("zanzibar")
     
