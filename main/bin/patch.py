@@ -44,12 +44,17 @@ def update_bookmark_counts():
 def blog_cleanup():
     "Updates the bookmark counters. Used after migrating to version 1.2.1"
 
+    # remove banned users
+    profs = models.UserProfile.objects.filter(status=USER_BANNED).exclude(about_me="banned")
+    if profs:
+        profs.update(about_me="banned", website="")
+
     # move posts for banned users into the blog section (we need a trash section)
     posts = models.Post.objects.filter(author__profile__status=USER_BANNED)
     print "setting up %s posts for deletion" % len(posts)
     if posts:
         posts.update(type=POST_BLOG)
-        
+
     blogs = models.Post.objects.filter(type=POST_BLOG, status=POST_DELETED)
     
     for blog in blogs:

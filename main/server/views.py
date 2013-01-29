@@ -472,13 +472,14 @@ def new_post(request, pid=0, post_type=POST_QUESTION):
 
     form = factory(request.POST)
 
-    # throttle new users to no more than 3 posts per 3 hours
-    MIN_AGE, MIN_COUNT = 6, 3
+    # throttle new users to no more than 3 posts per 2 hours
+    MIN_AGE, MIN_COUNT = 6, 2
     brand_new = (datetime.now() - user.date_joined) < timedelta(hours=MIN_AGE)
     too_many = models.Post.objects.filter(author=user).count() >= MIN_COUNT
 
     if brand_new and too_many:
-        messages.error(request, "Brand new users (accounts less than 6 hours old) may not create more than 3 posts. Apologies, it is an anti-spam measure. Gives us a chance to ban the bots")
+        messages.error(request, "Brand new users (accounts less than 6 hours old) may not create more than 2 posts. Apologies \
+            if that interferes with your usage, it is an anti-spam measure. Gives us a chance to ban the spamming bots")
         return html.template(request, name=name, form=form, params=params)
 
     if not form.is_valid():

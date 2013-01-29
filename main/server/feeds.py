@@ -3,6 +3,7 @@ from django.shortcuts import get_object_or_404
 from main.server import models, const, html
 from django.conf import settings
 from django.contrib.sites.models import Site
+from datetime import datetime, timedelta
 
 SITE = Site.objects.get(id=settings.SITE_ID)
 
@@ -12,7 +13,10 @@ class LatestEntriesFeed(Feed):
     description = "Latest 25 posts from the Biostar server"
 
     def items(self):
-        return models.Post.objects.filter(type__in=const.POST_TOPLEVEL).exclude(type=const.POST_BLOG).order_by('-creation_date')[:25]
+        # new questions delayed by four hours
+        timestamp = datetime.now() - timedelta(hours=4)
+        posts =  models.Post.objects.filter(type__in=const.POST_TOPLEVEL, creation_date__lt=timestamp).exclude(type=const.POST_BLOG).order_by('-creation_date')
+        return posts[:25]
 
     def item_title(self, item):
         if item.type != const.POST_QUESTION:

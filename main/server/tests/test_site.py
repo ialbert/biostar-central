@@ -95,12 +95,12 @@ class UserActions(TestCase):
         '''
 
         # missing tag will make it stay on the same page with an error message
-        r = c.post(url, {'title':title , 'content':content , 'bioinfo':"  DnA ", 'tag_val':'', 'type':POST_QUESTION})
+        r = c.post(url, {'title':title , 'content':content ,  'tag_val':'', 'type':POST_QUESTION})
         eq(r.status_code, 200)
         true('required' in r.content)
         
         # filling in the tags make it move to redirect
-        r = c.post(url, {'title':title , 'content':content , 'tag_val':'aaa bbb ccc', 'bioinfo':"dnA", 'type':POST_QUESTION})
+        r = c.post(url, {'title':title , 'content':content , 'tag_val':'aaa bbb ccc', 'type':POST_QUESTION})
         eq(r.status_code, 302)
         
         r = c.get("/")
@@ -162,7 +162,7 @@ class DataNav(TestCase):
         url = reverse("post-edit", kwargs={'pid':13})
         
         # unauthorized user trying to edit
-        r = c.post(url, {'title':post.title , 'content':post.content , 'tag_val':'', 'type':POST_QUESTION, 'bioinfo':"  DnA ",}, follow=True)
+        r = c.post(url, {'title':post.title , 'content':post.content , 'tag_val':'', 'type':POST_QUESTION, }, follow=True)
         eq(r.status_code, 200)
         true('OpenID' in r.content)
         
@@ -170,7 +170,7 @@ class DataNav(TestCase):
         joe.set_password('test')
         joe.save()
         c.login(username=joe.username, password='test')
-        r = c.post(url, {'title':post.title , 'content':post.content , 'tag_val':'', 'type':POST_QUESTION, 'bioinfo':"  DnA ",}, follow=True)
+        r = c.post(url, {'title':post.title , 'content':post.content , 'tag_val':'', 'type':POST_QUESTION,}, follow=True)
         eq(r.status_code, 200)
         true("may not edit" in r.content)
         
@@ -181,12 +181,12 @@ class DataNav(TestCase):
         
         # missing tag, will not submit the post
         title = "ABCDEFG"
-        r = c.post(url, {'title':title, 'content':post.content ,  'tag_val':'', 'type':POST_QUESTION, 'bioinfo':"  DnA ",})
+        r = c.post(url, {'title':title, 'content':post.content ,  'tag_val':'', 'type':POST_QUESTION, })
         eq(r.status_code, 200)
         true(models.Post.objects.get(id=13).title == post.title)
     
         # missing tag, will not submit the post
-        r = c.post(url, {'title':title , 'content':post.content , 'bioinfo':"  DnA ", 'tag_val':'ABCD', 'type':POST_QUESTION})
+        r = c.post(url, {'title':title , 'content':post.content , 'tag_val':'ABCD', 'type':POST_QUESTION})
         eq(r.status_code, 302)
         true(models.Post.objects.get(id=13).title == title)
         
