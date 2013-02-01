@@ -329,11 +329,10 @@ def user_profile(request, uid, tab='activity'):
 
     elif tab =="supporters":
         votes = models.Vote.objects.filter(post__author=target).select_related('author', 'author__profile', 'post').order_by('-date')
-        votes = votes[:21]
+        votes = list(votes)[:21]
         if len(votes) < 10:
             votes = []
-        else:
-            random.shuffle(list(votes))
+        random.shuffle(votes)
         page  = get_page(request, votes, per_page=21)
 
 

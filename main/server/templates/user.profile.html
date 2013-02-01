@@ -298,8 +298,7 @@
             <table class="table table-striped">
                 {% for vote in page.object_list %}
                     <tr>
-                        <td width="1%"> {{vote.post.score}} </td>
-                        <td> <a href="{{ vote.post.get_absolute_url }}">{{vote.post.title}}</a> </td>
+                        <td> <a href="{{ vote.post.get_absolute_url }}">{{vote.post.title}}</a> with {{ vote.post.score }} votes in total</td>
                     </tr>
                 {% empty %}
                     <tr><td><div class="empty">&bull; {% trans 'no votes yet' %}
