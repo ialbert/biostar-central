@@ -22,6 +22,7 @@ from django.db.models import Q
 # the openid association model
 from django_openid_auth.models import UserOpenID
 from django.core.urlresolvers import reverse
+from django.db.models import Count, Max, Min
 
 # import all constants
 from main.server import const
@@ -321,6 +322,20 @@ def user_profile(request, uid, tab='activity'):
     elif tab =="moderator":
         notes = models.Note.objects.filter(target=target, type=NOTE_MODERATOR).select_related('author', 'author__profile').order_by('-date')
         page  = get_page(request, notes, per_page=15)
+
+    elif tab =="votes":
+        votes = models.Vote.objects.filter(post__author=target).select_related('author', 'author__profile', 'post').order_by('-date')[:30]
+        page  = get_page(request, votes, per_page=15)
+
+    elif tab =="supporters":
+        votes = models.Vote.objects.filter(post__author=target).select_related('author', 'author__profile', 'post').order_by('-date')
+        votes = votes[:21]
+        if len(votes) < 10:
+            votes = []
+        else:
+            random.shuffle(list(votes))
+        page  = get_page(request, votes, per_page=21)
+
 
     params.update(dict(question_count=question_count, answer_count=answer_count, note_count=note_count, bookmarks_count=bookmarks_count,
             comment_count=comment_count, post_count=post_count, vote_count=vote_count, award_count=award_count))

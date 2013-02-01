@@ -137,7 +137,9 @@ class LastVisit(object):
             # votes since the last visit
             vote_count = models.Vote.objects.filter(post__author=user, date__gt=since).count()
             if vote_count > 0:
-                messages.info(request, '<i class="icon-info-sign"></i> You have received <b>%s</b> upvotes since your last visit! Nice job!' % vote_count)
+                msg = '<i class="icon-info-sign"></i> <b>%s</b> upvotes since your last visit! \
+                    See your <a href="/u/%s/votes/">recent upvoted posts</a>!' % (vote_count, user.id)
+                messages.info(request, msg)
 
             # save the last update time
             profile.update_expiration()

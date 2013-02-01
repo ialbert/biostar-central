@@ -164,6 +164,8 @@
             <li {% active 'activity' params.tab %}><a href="{% url main.server.views.user_profile target.id %}" >Notifications{% show_value params.note_count %}</a></li>
             <li {% active 'created' params.tab %}><a href="{% url main.server.views.user_profile target.id 'created' %}" >Content Created</a></li>
             <li {% active 'bookmarks' params.tab %}><a href="{% url main.server.views.user_profile target.id 'bookmarks' %}" >Bookmarks{% show_value params.bookmarks_count %}</a></li>
+            <li {% active 'votes' params.tab %}><a href="{% url main.server.views.user_profile target.id 'votes' %}" >Upvoted Posts</a></li>
+            <li {% active 'supporters' params.tab %}><a href="{% url main.server.views.user_profile target.id 'supporters' %}" >Supporters</a></li>
             <li {% active 'badges' params.tab %}><a href="{% url main.server.views.user_profile target.id 'badges' %}" >Badges{% show_value params.award_count %}</a></li>
             {% if target.profile.can_moderate %}
                 <li {% active 'moderator' params.tab %}><a href="{% url main.server.views.user_profile target.id 'moderator' %}" >Moderator Actions</a></li>
@@ -174,6 +176,7 @@
 
 <div class="row">
 <div class="span12">
+
 {% if params.tab == 'activity' %}
     
     <div class="par">
@@ -277,6 +280,61 @@
         {% endfor %} 
     </div>
 {% endif %}
+
+{% if params.tab == 'votes' %}
+        <div class="note-list">
+
+            <div class="par">
+                {% trans 'Your latest upvotes were added to these posts' %}
+
+            </div>
+
+            {% if page.object_list and page.paginator.num_pages > 1 %}
+                <div class="row">
+                    {% page_bar %}
+                </div>
+            {% endif %}
+
+            <table class="table table-striped">
+                {% for vote in page.object_list %}
+                    <tr>
+                        <td width="1%"> {{vote.post.score}} </td>
+                        <td> <a href="{{ vote.post.get_absolute_url }}">{{vote.post.title}}</a> </td>
+                    </tr>
+                {% empty %}
+                    <tr><td><div class="empty">&bull; {% trans 'no votes yet' %}
+                    </div><td></tr>
+                {% endfor %}
+            </table>
+
+        </div>
+{% endif %}
+
+{% if params.tab == 'supporters' %}
+        <div class="note-list">
+
+            <div class="par">
+                {% trans 'Your most recent upvotes were added by (shown in random order) ' %}
+
+            </div>
+
+            {% if page.object_list and page.paginator.num_pages > 1 %}
+                <div class="row">
+                    {% page_bar %}
+                </div>
+            {% endif %}
+
+            <div class="table table-striped">
+                {% for vote in page.object_list %}
+                   <span> {%  user_box  vote.author 64 %}</span>
+                {% empty %}
+                    <div class="empty">&bull; {% trans 'List shown only if you have at least 10 upvotes.' %}
+                    </div>
+                {% endfor %}
+            </div>
+
+        </div>
+    {% endif %}
 
 {% if params.tab == 'moderator' %}  
     <div class="note-list">
