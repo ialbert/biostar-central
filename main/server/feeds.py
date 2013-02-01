@@ -14,7 +14,7 @@ class LatestEntriesFeed(Feed):
 
     def items(self):
         # new questions delayed by four hours
-        timestamp = datetime.now() - timedelta(hours=4)
+        timestamp = datetime.now() - timedelta(hours=settings.FEED_DELAY)
         posts =  models.Post.objects.filter(type__in=const.POST_TOPLEVEL, creation_date__lt=timestamp).exclude(type=const.POST_BLOG).order_by('-creation_date')
         return posts[:25]
 

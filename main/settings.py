@@ -36,6 +36,9 @@ MANAGERS = ADMINS
 # how many post per page to show
 POSTS_PER_PAGE = 15
 
+# feed delay in hours
+FEED_DELAY = 2
+
 def path(*args):
     "Generates absolute paths"
     return os.path.abspath(os.path.join(*args))
