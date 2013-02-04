@@ -48,6 +48,14 @@
     </script>
     {% endif %}
 
+    <!-- TODO: refactor into a CSS file -->
+     <style TYPE="text/css">
+        .tagcloud { padding:5px;}
+        .taglist li {
+            list-style-type:none; float:left; margin:0 10px;
+        }
+     </style>
+
     {% block head %}
         
     {% endblock %}
@@ -86,6 +94,15 @@
             accept_button.click(function(){
                 do_vote($(this), $(this).parent().children('input').val(), 'accept'); 
             });
+        });
+
+        $('.tagcloud').each(function(){
+            elem = $(this);
+            val = elem.attr("value")
+            console.log(val);
+            elem.css("fontSize", (val / 10 < 1) ? val / 10 + 1 + "em": (val / 10 > 2) ? "2em" : val / 10 + "em");
+
+            //li.children().css("fontSize", (val.freq / 10 < 1) ? val.freq / 10 + 1 + "em": (val.freq / 10 > 2) ? "2em" : val.freq / 10 + "em");
         });
 
         {% block document_ready %}

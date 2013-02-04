@@ -18,14 +18,12 @@ IMPORTANT_TAGS = models.Tag.objects.filter(name__in=settings.IMPORTANT_TAG_NAMES
 
 def get_recent_tags():
     "returns the recent tags"
-    posts = models.Post.objects.filter(type=POST_QUESTION).order_by("-creation_date")[:10]
+    posts = models.Post.objects.filter(type=POST_QUESTION, status=POST_OPEN).order_by("-creation_date")[:30]
     tags  = set()
     for p in posts:
         tags.update( p.tag_set.all() )
     tags = list(tags)
-    return tags[:10]
-
-
+    return tags[:30]
 
 def extras(request):
     "Adds more data to each RequestContext"
@@ -44,7 +42,7 @@ def extras(request):
     recent_tags = cache.get(RECENT_TAGS_KEY)
     if not recent_tags:
         recent_tags = get_recent_tags()
-        cache.set(TRAFFIC_KEY, recent_tags, 600)
+        cache.set(RECENT_TAGS_KEY, recent_tags, 600)
 
     # cache the traffic counts
     traffic = cache.get(TRAFFIC_KEY)

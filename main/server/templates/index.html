@@ -9,7 +9,7 @@
 
 {% block body %}
 
-<div class="row">
+<div class="row" xmlns="http://www.w3.org/1999/html">
     <div class="span12">
         {% if params.sort %}
             {% page_bar_dropdown params.sort params.sort_choices params.since params.date_filter%}
@@ -19,7 +19,7 @@
 </div>
 
 <div class="row">
-    <div class="span10">
+    <div class="span9">
         <table border="0" class="post-table" cellspacing="0" width="100%">
 
             {% for post in page.object_list %}
@@ -30,31 +30,34 @@
 
         </table>
     </div>
-    <div class="span2">
+    <div class="span3">
 
 
         <div class="post-title" style="padding: 10px;">Recent Tags &bull; <a href="/tag/list">All</a></div>
 
-        {% for tag in recent_tags %}
-            <a href="{% url main.server.views.show_tag tag.name %}">
-                <div class="tag-panel">
-                    <span class="tagname">{{tag.name}}</span>
-                    <span class="multiplier">x {{tag.count}}</span>
-                </div>
-            </a>
-        {%  endfor %}
+        <div class="clearfix">
+            <ul class="taglist">
+            {% for tag in recent_tags %}
+                <li class="tagcloud" value="{{ tag.count }}"><a href="{% url main.server.views.show_tag tag.name %}">
+                    {{tag.name}}
+                </a></li>
+            {%  endfor %}
+            </ul>
+        </div>
 
         <div class="post-title" style="padding: 10px;">Important Tags &bull; <a href="/tag/list">All</a></div>
 
+        <div class="clearfix">
+        <ul class="taglist">
         {% for tag in important_tags %}
-            <a href="{% url main.server.views.show_tag tag.name %}">
-                <div class="tag-panel">
-                    <span class="tagname">{{tag.name}}</span>
-                    <span class="multiplier">x {{tag.count}}</span>
-                </div>
-            </a>
-        {%  endfor %}
 
+                <li class="tagcloud" value="{{ tag.count }}"><a href="{% url main.server.views.show_tag tag.name %}">
+                    {{tag.name}}
+                </a></li>
+
+        {%  endfor %}
+        <ul>
+        </div>
     </div>
 </div>
 
