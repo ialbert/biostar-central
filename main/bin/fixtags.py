@@ -43,11 +43,21 @@ def delete_rare():
 
         tag.delete()
 
+def merge_tags(old_value,new_value):
+    tag = models.Tag.objects.filter(name=old_value)[0]
+    posts = tag.post_set.all()
+    for post in posts:
+        print tag.name, tag.count, post.id
+        post.tag_val = post.tag_val.replace(tag.name, new_value)
+        post.set_tags()
+    tag.delete()
 
 def run(limit=None):
-    fix_lastuser()
-    lowercase_tags()
-    delete_rare()
+    #fix_lastuser()
+    #lowercase_tags()
+    #delete_rare()
+    old_value, new_value = sys.argv[1:3]
+    merge_tags(old_value, new_value)
 
 if __name__ == '__main__':
     limit = None
