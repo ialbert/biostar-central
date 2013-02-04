@@ -2,7 +2,7 @@
 <div class="page_bar hidden-phone">&nbsp;
     {% if page.paginator.num_pages > 1 %}
         {% if page.has_previous %}
-            <a href="{{path}}?page={{page.previous_page_number}}&q={{params.q}}&sort={{params.sort}}&since={{ params.since }} }}">&lt;{%  trans "previous" %}</a>
+            <a href="{{path}}?page={{page.previous_page_number}}&q={{params.q}}&sort={{params.sort}}&since={{ params.since }}">&lt;{%  trans "previous" %}</a>
             &bull; <a href="{{path}}?page=1&q={{params.q}}&sort={{params.sort}}&since={{ params.since  }}">{% trans "first" %}</a>
         {% else %}
             <span style="color:#555555;">&lt;{%  trans "previous" %} &bull; {% trans "first" %}</span>

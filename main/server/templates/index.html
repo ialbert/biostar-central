@@ -19,7 +19,7 @@
 </div>
 
 <div class="row">
-    <div class="span12">
+    <div class="span10">
         <table border="0" class="post-table" cellspacing="0" width="100%">
 
             {% for post in page.object_list %}
@@ -29,6 +29,32 @@
             {%  endfor %}
 
         </table>
+    </div>
+    <div class="span2">
+
+
+        <div class="post-title" style="padding: 10px;">Recent Tags &bull; <a href="/tag/list">All</a></div>
+
+        {% for tag in recent_tags %}
+            <a href="{% url main.server.views.show_tag tag.name %}">
+                <div class="tag-panel">
+                    <span class="tagname">{{tag.name}}</span>
+                    <span class="multiplier">x {{tag.count}}</span>
+                </div>
+            </a>
+        {%  endfor %}
+
+        <div class="post-title" style="padding: 10px;">Important Tags &bull; <a href="/tag/list">All</a></div>
+
+        {% for tag in important_tags %}
+            <a href="{% url main.server.views.show_tag tag.name %}">
+                <div class="tag-panel">
+                    <span class="tagname">{{tag.name}}</span>
+                    <span class="multiplier">x {{tag.count}}</span>
+                </div>
+            </a>
+        {%  endfor %}
+
     </div>
 </div>
 

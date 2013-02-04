@@ -1,7 +1,7 @@
 """
 Custom context processor
 """
-import itertools
+import itertools, random
 from datetime import datetime, timedelta
 
 from django.conf import settings
@@ -12,6 +12,20 @@ from main.server.const import *
 from django.core.cache import cache
 
 TRAFFIC_KEY = 'traffic'
+RECENT_TAGS_KEY = "recent-tags"
+
+IMPORTANT_TAGS = models.Tag.objects.filter(name__in=settings.IMPORTANT_TAG_NAMES).order_by('-count')
+
+def get_recent_tags():
+    "returns the recent tags"
+    posts = models.Post.objects.filter(type=POST_QUESTION).order_by("-creation_date")[:10]
+    tags  = set()
+    for p in posts:
+        tags.update( p.tag_set.all() )
+    tags = list(tags)
+    return tags[:10]
+
+
 
 def extras(request):
     "Adds more data to each RequestContext"
@@ -27,8 +41,14 @@ def extras(request):
     # the tab bar counts
     counts = request.session.get(SESSION_POST_COUNT, {})
 
+    recent_tags = cache.get(RECENT_TAGS_KEY)
+    if not recent_tags:
+        recent_tags = get_recent_tags()
+        cache.set(TRAFFIC_KEY, recent_tags, 600)
+
     # cache the traffic counts
     traffic = cache.get(TRAFFIC_KEY)
+
     if not traffic:
         try:
             recently = datetime.now() - timedelta(minutes=60)
@@ -45,6 +65,8 @@ def extras(request):
              'm':m,
              'counts':counts,
              'traffic':traffic,
+             'important_tags': IMPORTANT_TAGS,
+             'recent_tags': recent_tags,
              'params':{}, # this is needed because of the navbar
     }
 
