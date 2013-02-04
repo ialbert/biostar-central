@@ -100,9 +100,9 @@
             elem = $(this);
             val = elem.attr("value")
             console.log(val);
-            elem.css("fontSize", (val / 10 < 1) ? val / 10 + 1 + "em": (val / 10 > 2) ? "2em" : val / 10 + "em");
+            var fact=3; minfs=0.5; maxfs=1.8;
 
-            //li.children().css("fontSize", (val.freq / 10 < 1) ? val.freq / 10 + 1 + "em": (val.freq / 10 > 2) ? "2em" : val.freq / 10 + "em");
+            elem.css("fontSize", (val / fact < minfs) ? val / fact + minfs + "em": (val / fact > maxfs) ? "1.8em" : val / fact + "em");
         });
 
         {% block document_ready %}
