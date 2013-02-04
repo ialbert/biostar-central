@@ -213,7 +213,10 @@ def show_tag(request, tag_name=''):
     
     # get the sort order
     sort_type = sess.sort_order()
-    
+
+    # parse the date request
+    since = request.GET.get('since', DATE_FILTER[0]).lower()
+
     # select based on history
     tab, pill = "posts", sess.get_tab()
     
@@ -223,12 +226,20 @@ def show_tag(request, tag_name=''):
     layout = settings.USER_PILL_BAR if auth else settings.ANON_PILL_BAR
     
     # wether to show the type of the post
-    params  = html.Params(tab=tab, pill=pill, sort=sort_type, sort_choices=SORT_CHOICES, layout=layout, title="Tagged as %s" % tag_name)
+    params  = html.Params(tab=tab, pill=pill, sort=sort_type, sort_choices=SORT_CHOICES, date_filter=DATE_FILTER, since=since,
+            layout=layout, title="Tagged as %s" % tag_name)
     
     msg = 'Filtering by tag: <b>%s</b>. Subscribe to an <a href="/feeds/tag/%s/">RSS feed</a> to this tag.' % (tag_name,tag_name)
     messages.info(request, msg)
     posts = models.query_by_tags(user=user, text=tag_name)
-    posts = apply_sort(request=request, posts=posts, order=sort_type)
+
+    # apply date filtering
+    posts = filter_by_date(request=request, posts=posts, since=since)
+
+    # order may change if it is invalid search
+    posts = apply_sort(request=request, posts=posts, order=sort_type, sticky=False)
+
+
     page  = get_page(request, posts, per_page=20)
 
     return html.template( request, name='index.html', page=page, params=params)
