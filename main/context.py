@@ -13,11 +13,17 @@ from django.core.cache import cache
 
 TRAFFIC_KEY = 'traffic'
 RECENT_TAGS_KEY = "recent-tags"
+RECENT_VOTES_KEY = "recent-votes"
 
 IMPORTANT_TAGS = models.Tag.objects.filter(name__in=settings.IMPORTANT_TAG_NAMES).order_by('-count')
 
 def alpha(x, y):
     return cmp(x.name, y.name)
+
+def get_recent_votes():
+    "returns the recent tags"
+    votes = models.Vote.objects.filter(post__status=POST_OPEN).select_related("post").order_by("-date")[:5]
+    return votes
 
 def get_recent_tags():
     "returns the recent tags"
@@ -41,6 +47,11 @@ def extras(request):
     
     # the tab bar counts
     counts = request.session.get(SESSION_POST_COUNT, {})
+
+    recent_votes = cache.get(RECENT_VOTES_KEY)
+    if not recent_votes:
+        recent_votes = get_recent_votes()
+        cache.set(RECENT_VOTES_KEY, recent_votes, 5)
 
     recent_tags = cache.get(RECENT_TAGS_KEY)
     if not recent_tags:
@@ -68,6 +79,7 @@ def extras(request):
              'traffic':traffic,
              'important_tags': IMPORTANT_TAGS,
              'recent_tags': recent_tags,
+             'recent_votes': recent_votes,
              'params':{}, # this is needed because of the navbar
     }
 

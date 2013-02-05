@@ -33,6 +33,18 @@
     <div class="span3">
 
 
+        <div class="post-title" style="padding: 10px;">Recent Up Votes for</div>
+
+        <div class="clearfix">
+            <ul style="opacity: 0.8;">
+                {% for vote in recent_votes %}
+                        <li><a href="{% url main.server.views.show_tag vote.id %}">
+                        {{vote.post.title}}</a>
+                    </li>
+                {%  endfor %}
+            </ul>
+        </div>
+
         <div class="post-title" style="padding: 10px;">Recent Tags &bull; <a href="/tag/list">See All</a></div>
 
         <div class="clearfix">
