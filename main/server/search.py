@@ -142,7 +142,7 @@ def main(request):
         res  = []
         objects = []
 
-    page = get_page(request, posts, per_page=1)
+    page = get_page(request, posts, per_page=25)
     return html.template(request, name='search.html', page=page, params=params, counts=counts, form=form)
 
 # number of terms extracted during a more like this query
