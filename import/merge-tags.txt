@@ -23,4 +23,22 @@ genbank-format genbank
 chipseq	chip-seq
 chip	chip-seq
 careers career
-p	p-value
+p	p-valuep	p-value
+annovar.	annovar
+depthofcoverage depth
+ds dssp
+exon-skipping 	exon
+linkage-disequilibrium	linkage
+lineage-specific	lineage
+ion	ion-torrent
+htseqcount htseq
+hic	hi-c
+networks	network
+nextgen	next-gen
+next	next-gen
+NGS	next-gen
+ngs	next-gen
+pathways	pathway
+parameters	parameter
+next-gen-sequencing	next-gen
+next-generation-sequencing	next-gen
