@@ -793,7 +793,7 @@ def finalize_post(sender, instance, created, raw, *args, **kwargs):
         if not instance.root or not instance.parent or not instance.title:
             instance.root   = instance.root or instance
             instance.parent = instance.parent or instance
-            instance.title  = instance.title or ("%s: %s" % (instance.get_type_display()[0], instance.parent.title))
+            instance.title  = instance.title or ("%s: %s" % (instance.get_type_display()[0], instance.root.title))
             instance.slug   = slugify(instance.title)
             instance.save()
         
