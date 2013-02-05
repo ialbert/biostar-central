@@ -43,6 +43,7 @@ def delete_rare():
 def merge_tags(fname):
     """Merges tags based on pairs in a file"""
     for line in file(fname):
+
         val1, val2 = line.strip().split()
 
         tag1 = models.Tag.objects.filter(name=val1)
@@ -59,8 +60,16 @@ def merge_tags(fname):
             tag2 = models.Tag.objects.get(name=val2)
             print '*** after merge %s (%s)' % (tag2.name, tag2.count)
             tag1.delete()
+def drop_tags():
+    "Removes all tags with no open posts"
+    for tag in models.Tag.objects.all():
+        posts = tag.post_set.all().count()
+        if not posts:
+            print "*** removing tag %s " % tag.name
+            tag.delete()
 
 def remove_tags(fname):
+
     for line in file(fname):
         name = line.strip()
         tags = models.Tag.objects.filter(name=name)
@@ -87,11 +96,17 @@ if __name__ == '__main__':
     parser = optparse.OptionParser()
     parser.add_option("--merge", dest="merge", help="filename, reads tag-pairs from a file, replaces first tag with the second", default=None)
     parser.add_option("--delete", dest="delete", help="filename, reads tag names from a file, removes them from the system", default=None)
+    parser.add_option("--drop", dest="drop", help="drops tags with no posts", action="store_true", default=False)
+
 
     (opts, args) = parser.parse_args()
-    if not(opts.delete or opts.merge):
+
+    if not(opts.delete or opts.merge or opts.drop):
         parser.print_help()
         sys.exit()
+
+    if opts.drop:
+        drop_tags()
 
     # stop execution if no parameters were specified
     if opts.merge:

@@ -23,7 +23,7 @@ genbank-format genbank
 chipseq	chip-seq
 chip	chip-seq
 careers career
-p	p-valuep	p-value
+p	p-value
 annovar.	annovar
 depthofcoverage depth
 ds dssp
