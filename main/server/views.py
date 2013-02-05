@@ -518,7 +518,7 @@ def new_post(request, pid=0, post_type=POST_QUESTION):
     params = dict(author=user, type=post_type, parent=parent, root=root)
 
     # form may contain a variable number of elements
-    for attr in "title content tag_val".split():
+    for attr in "title content tag_val type".split():
         if attr in form.cleaned_data:
             params[attr] = form.cleaned_data[attr]
 
