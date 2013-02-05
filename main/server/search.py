@@ -124,7 +124,7 @@ def main(request):
     q = request.GET.get('q','') # query
     t = request.GET.get('t','all')  # type
     
-    params = html.Params(tab='search', q=q, sort='')
+    params = html.Params(tab='search', q=q, sort='', t=t)
     subset = get_subset(t)
    
     if params.q:
@@ -142,7 +142,7 @@ def main(request):
         res  = []
         objects = []
 
-    page = get_page(request, posts, per_page=10)
+    page = get_page(request, posts, per_page=1)
     return html.template(request, name='search.html', page=page, params=params, counts=counts, form=form)
 
 # number of terms extracted during a more like this query
