@@ -30,15 +30,18 @@
 
 <div class="row">
     <div class="span12">
-        {% for tag in page.object_list %}
-            <a href="{% url main.server.views.show_tag tag.name %}">
-                <div class="tag-panel">
-                    <span class="tagname">{{tag.name}}</span>
-                    <span class="multiplier">x {{tag.count}}</span>
-                </div>
-            </a>
-        {% endfor %}
+        <ul class="taglist">
+            {% for tag in page.object_list %}
+
+                <li class="tagcloud" value="{{ tag.count }}"><a href="{% url main.server.views.show_tag tag.name %}">
+                    {{tag.name}}
+                </a></li>
+
+            {%  endfor %}
+        </ul>
     </div>
+
+
 </div>
 
 <div class="row"><div class="span12">

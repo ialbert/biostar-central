@@ -377,8 +377,8 @@ def tag_list(request):
     else:
         query = Q(id__gt=0)
         
-    tags = models.Tag.objects.filter(query).order_by('-count')
-    page = get_page(request, tags, per_page=152)
+    tags = models.Tag.objects.filter(query).order_by('name')
+    page = get_page(request, tags, per_page=250)
     params = html.Params(nav='tags', sort='')
     return html.template(request, name='tag.list.html', page=page, params=params)
 

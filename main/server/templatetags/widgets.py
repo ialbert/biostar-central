@@ -102,7 +102,6 @@ def page_bar(context, anchor=''):
         'request': context['request'],
         'anchor' : anchor,
         'path'   : path,
-
     }
 
 @register.inclusion_tag('widgets/search.page.bar.html', takes_context=True)
