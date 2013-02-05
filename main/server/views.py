@@ -379,7 +379,7 @@ def tag_list(request):
         
     tags = models.Tag.objects.filter(query).exclude(name="deleted-post").order_by('name')
     page = get_page(request, tags, per_page=250)
-    params = html.Params(nav='tags', sort='')
+    params = html.Params(nav='tags', sort='', since='')
     return html.template(request, name='tag.list.html', page=page, params=params)
 
 def badge_list(request):
