@@ -104,7 +104,20 @@ def page_bar(context, anchor=''):
         'path'   : path,
 
     }
-    
+
+@register.inclusion_tag('widgets/search.page.bar.html', takes_context=True)
+def search_page_bar(context, anchor=''):
+    path = context['request'].path
+    return {
+        'page'   : context['page'],
+        'match'  : context.get('match',''),
+        'query'  : context.get('query',''),
+        'params' : context.get('params', ''),
+        'request': context['request'],
+        'anchor' : anchor,
+        'path'   : path,
+        }
+
 # this contains the body of each comment
 comment_body  = template.loader.get_template('widgets/render.comment.html')
 
