@@ -19,10 +19,15 @@
     $('.tagcloud-big').each(function(){
     elem = $(this);
     val = elem.attr("value")
-    console.log(val);
-    var fact=3; minfs=1; maxfs=3;
+    var fact=5; minfs=1; maxfs=2.6;
     val = Math.log(val);
-    elem.css("fontSize", (val / fact < minfs) ? val / fact + minfs + "em": (val / fact > maxfs) ? "3em" : val / fact + "em");
+    var fsize = minfs + val / fact;
+
+    if (fsize > maxfs) {
+        fsize = maxfs
+    }
+    elem.css("fontSize", fsize +"em");
+
     });
 {%  endblock %}
 
