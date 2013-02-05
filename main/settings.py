@@ -306,7 +306,7 @@ MIN_POST_SIZE = 15
 MAX_POST_SIZE = 20000
 
 # set the tag names are to be displayed on the main page
-IMPORTANT_TAG_NAMES = "rna-seq chip-seq assembly snp metagenomics vcf cnv mirna indel bwa bowtie bedtools".split()
+IMPORTANT_TAG_NAMES = "rna-seq chip-seq assembly snp metagenomics vcf cnv mirna indel bwa bowtie bedtools biopython bioperl".split()
 
 # TEMPLATE LAYOUT,
 # One may override these variables from the settings file

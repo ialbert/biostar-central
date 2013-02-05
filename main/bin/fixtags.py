@@ -33,32 +33,69 @@ def delete_rare():
     tags = models.Tag.objects.filter(count__lt=3)
 
     for tag in tags:
-
         posts = tag.post_set.all()
-
         for post in posts:
             print tag.name, tag.count, post.id
             post.tag_val = post.tag_val.replace(tag.name, "")
             post.set_tags()
-
         tag.delete()
 
-def merge_tags(old_value,new_value):
-    tag = models.Tag.objects.filter(name=old_value)[0]
-    posts = tag.post_set.all()
-    for post in posts:
-        print tag.name, tag.count, post.id
-        post.tag_val = post.tag_val.replace(tag.name, new_value)
-        post.set_tags()
-    tag.delete()
+def merge_tags(fname):
+    """Merges tags based on pairs in a file"""
+    for line in file(fname):
+        val1, val2 = line.strip().split()
+
+        tag1 = models.Tag.objects.filter(name=val1)
+        tag2, flag = models.Tag.objects.get_or_create(name=val2)
+
+        if tag1:
+            tag1 = tag1[0]
+
+            print "*** merging %s (%s) with %s (%s)" % (tag1.name, tag1.count, tag2.name, tag2.count)
+            posts = tag1.post_set.all()
+            for post in posts:
+                post.tag_val = post.tag_val.replace(tag1.name, tag2.name)
+                post.set_tags()
+            tag2 = models.Tag.objects.get(name=val2)
+            print '*** after merge %s (%s)' % (tag2.name, tag2.count)
+            tag1.delete()
+
+def remove_tags(fname):
+    for line in file(fname):
+        name = line.strip()
+        tags = models.Tag.objects.filter(name=name)
+        if tags:
+            tag = tags[0]
+            print "*** deleting %s (%s)" % (tag.name, tag.count)
+            posts = tag.post_set.all()
+            for post in posts:
+                post.tag_val = post.tag_val.replace(tag.name, "")
+                post.set_tags()
+            tag.delete()
 
 def run(limit=None):
     #fix_lastuser()
     #lowercase_tags()
     #delete_rare()
-    old_value, new_value = sys.argv[1:3]
-    merge_tags(old_value, new_value)
+    #old_value, new_value = sys.argv[1:3]
+    #merge_tags(old_value, new_value)
+    pass
 
 if __name__ == '__main__':
-    limit = None
-    run(limit=limit)
+# options for the program
+    import optparse
+    parser = optparse.OptionParser()
+    parser.add_option("--merge", dest="merge", help="filename, reads tag-pairs from a file, replaces first tag with the second", default=None)
+    parser.add_option("--delete", dest="delete", help="filename, reads tag names from a file, removes them from the system", default=None)
+
+    (opts, args) = parser.parse_args()
+    if not(opts.delete or opts.merge):
+        parser.print_help()
+        sys.exit()
+
+    # stop execution if no parameters were specified
+    if opts.merge:
+        merge_tags(opts.merge)
+
+    if opts.delete:
+        remove_tags(opts.delete)

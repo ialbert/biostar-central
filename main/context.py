@@ -16,6 +16,9 @@ RECENT_TAGS_KEY = "recent-tags"
 
 IMPORTANT_TAGS = models.Tag.objects.filter(name__in=settings.IMPORTANT_TAG_NAMES).order_by('-count')
 
+def alpha(x, y):
+    return cmp(x.name, y.name)
+
 def get_recent_tags():
     "returns the recent tags"
     posts = models.Post.objects.filter(type=POST_QUESTION, status=POST_OPEN).order_by("-creation_date")[:30]
@@ -23,7 +26,7 @@ def get_recent_tags():
     for p in posts:
         tags.update( p.tag_set.all() )
     tags = list(tags)
-    return tags[:30]
+    return tags[:40]
 
 def extras(request):
     "Adds more data to each RequestContext"
