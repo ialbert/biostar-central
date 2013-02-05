@@ -305,6 +305,8 @@ SESSION_COOKIE_DOMAIN = ""
 MIN_POST_SIZE = 15
 MAX_POST_SIZE = 20000
 
+RECENT_VOTE_COUNT = 8
+RECENT_TAG_COUNT  = 30
 # set the tag names are to be displayed on the main page
 IMPORTANT_TAG_NAMES = "rna-seq chip-seq assembly snp metagenomics vcf cnv mirna indel bwa bowtie bedtools biopython bioperl".split()
 

@@ -22,17 +22,17 @@ def alpha(x, y):
 
 def get_recent_votes():
     "returns the recent tags"
-    votes = models.Vote.objects.filter(post__status=POST_OPEN).select_related("post").order_by("-date")[:5]
+    votes = models.Vote.objects.filter(post__status=POST_OPEN).select_related("post").order_by("-date")[:settings.RECENT_VOTE_COUNT]
     return votes
 
 def get_recent_tags():
     "returns the recent tags"
-    posts = models.Post.objects.filter(type=POST_QUESTION, status=POST_OPEN).order_by("-creation_date")[:30]
+    posts = models.Post.objects.filter(type=POST_QUESTION, status=POST_OPEN).order_by("-creation_date")[:settings.RECENT_TAG_COUNT]
     tags  = set()
     for p in posts:
         tags.update( p.tag_set.all() )
     tags = list(tags)
-    return tags[:40]
+    return tags[:settings.RECENT_TAG_COUNT]
 
 def extras(request):
     "Adds more data to each RequestContext"

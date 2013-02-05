@@ -427,7 +427,7 @@ def post_show(request, pid):
         root = query.get(id=pid)
         if not root.top_level:
             return html.redirect( root.get_absolute_url() )
-        
+
         # update the views for the question
         models.update_post_views(post=root, request=request, minutes=const.POST_VIEW_UPDATE)
         counts = sess.get_counts()
