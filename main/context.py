@@ -48,11 +48,16 @@ def extras(request):
     # the tab bar counts
     counts = request.session.get(SESSION_POST_COUNT, {})
 
-    recent_votes = cache.get(RECENT_VOTES_KEY)
-    if not recent_votes:
+    # authenticated users get up to date vote information, other users get cached values
+    if request.user.is_authenticated():
         recent_votes = get_recent_votes()
-        cache.set(RECENT_VOTES_KEY, recent_votes, 5)
+    else:
+        recent_votes = cache.get(RECENT_VOTES_KEY)
+        if not recent_votes:
+            recent_votes = get_recent_votes()
+            cache.set(RECENT_VOTES_KEY, recent_votes, 600)
 
+    # recent tag information is cached
     recent_tags = cache.get(RECENT_TAGS_KEY)
     if not recent_tags:
         recent_tags = get_recent_tags()
@@ -60,7 +65,6 @@ def extras(request):
 
     # cache the traffic counts
     traffic = cache.get(TRAFFIC_KEY)
-
     if not traffic:
         try:
             recently = datetime.now() - timedelta(minutes=60)
