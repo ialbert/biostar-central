@@ -51,9 +51,9 @@
 
 <form id="fopenid" name="fopenid" action="/openid/login/" method="post" class="form-horizontal" >
     
-    <legend>{% trans 'Sign In to BioStar Using an OpenID Provider' %}
+    <legend>{% trans 'Just click the image of your OpenID Provider.' %}
     </legend>
-    
+
     <div class="control-group">
         <label class="control-label" for="id_openid_identifier">&nbsp;</label>
         <div class="controls openid-providers">
@@ -74,7 +74,7 @@
         <label class="control-label" for="id_openid_identifier">OpenID URL</label>
         <div class="controls">
             <input name="openid_identifier" maxlength="255" id="id_openid_identifier" type="text" class="required openid span6">
-            <p class="help-block " id="openid_help">{{ form.openid_identifier.errors|join:", " }} {% trans 'Click the icon or paste an OpenID URL into the field above' %}
+            <p class="help-block " id="openid_help">{{ form.openid_identifier.errors|join:", " }} {% trans 'Click the icon or paste an OpenID URL into the field above. <a href="http://openid.net/get-an-openid/what-is-openid/">What is OpenID?</a>.' %}
             </p>
         </div>
     </div>
