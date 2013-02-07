@@ -27,10 +27,11 @@ def get_recent_votes():
 
 def get_recent_tags():
     "returns the recent tags"
-    posts = models.Post.objects.filter(type=POST_QUESTION, status=POST_OPEN).order_by("-creation_date")[:settings.RECENT_TAG_COUNT]
+    posts = models.Post.objects.filter(type=POST_QUESTION, status=POST_OPEN).prefetch_related("tag_set").order_by("-creation_date")[:settings.RECENT_TAG_COUNT]
     tags  = set()
     for p in posts:
         tags.update( p.tag_set.all() )
+        pass
     tags = list(tags)
     return tags[:settings.RECENT_TAG_COUNT]
 
