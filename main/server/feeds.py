@@ -13,8 +13,13 @@ class LatestEntriesFeed(Feed):
     description = "Latest 25 posts from the Biostar server"
 
     def items(self):
-        # new questions delayed by four hours
-        timestamp = datetime.now() - timedelta(hours=settings.FEED_DELAY)
+        # the feed is delayed to reduce spam
+        now = datetime.now()
+        if 7 < now.hour < 20 :
+            timestamp = now - timedelta(minutes=settings.FEED_DELAY)
+        else:
+            # slow down the feeds
+            timestamp = now - timedelta(hours=3)
         posts =  models.Post.objects.filter(type__in=const.POST_TOPLEVEL, creation_date__lt=timestamp).exclude(type=const.POST_BLOG).order_by('-creation_date')
         return posts[:25]
 

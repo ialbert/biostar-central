@@ -36,8 +36,8 @@ MANAGERS = ADMINS
 # how many post per page to show
 POSTS_PER_PAGE = 15
 
-# feed delay in hours
-FEED_DELAY = 2
+# feed delay in minutes
+FEED_DELAY = 10
 
 def path(*args):
     "Generates absolute paths"
@@ -305,7 +305,7 @@ SESSION_COOKIE_DOMAIN = ""
 MIN_POST_SIZE = 15
 MAX_POST_SIZE = 20000
 
-RECENT_VOTE_COUNT = 8
+RECENT_VOTE_COUNT = 10
 RECENT_TAG_COUNT  = 30
 # set the tag names are to be displayed on the main page
 IMPORTANT_TAG_NAMES = "rna-seq chip-seq assembly snp metagenomics vcf cnv mirna indel bwa bowtie bedtools biopython bioperl".split()
