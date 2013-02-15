@@ -8,7 +8,7 @@ ADMINS = (
     ('Istvan Albert', 'istvan.albert@gmail.com'),
 )
 
-DEBUG = True
+DEBUG = False
 # template debug mode
 TEMPLATE_DEBUG = DEBUG
 
