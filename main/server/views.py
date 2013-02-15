@@ -85,7 +85,7 @@ def filter_by_type(request, posts, post_type):
 
     # filter is a single type
     if post_type == POST_TUTORIAL:
-        return posts.filter(type__in=[POST_TUTORIAL, POST_TIP])
+        return posts.filter(type__in=[POST_TUTORIAL, POST_TIP, POST_REVIEW])
     elif post_type in POST_TYPE_REV_MAP:
         return posts.filter(type=post_type)
     elif post_type == 'sticky':
@@ -161,7 +161,11 @@ def index(request, tab='all'):
     
     # returns the object manager that contains all or only visible posts
     posts = get_post_manager(request)
-    
+
+    # deferring certain fields objects
+    if post_type not in (POST_BLOG, "recent"):
+        posts = posts.defer("html", "content","slug", "root", "parent", "tag_set")
+
     # filter posts by type
     posts = filter_by_type(request=request, posts=posts, post_type=post_type)
 
@@ -176,11 +180,7 @@ def index(request, tab='all'):
     
     # order may change if it is invalid search
     posts = apply_sort(request=request, posts=posts, order=sort_type, sticky=sticky)
-    
-    # this is necessary because the planet posts require more attributes
-    if tab == 'planet':
-        models.decorate_posts(posts, request.user)
-        
+
     # get the counts for the session
     counts = sess.get_counts(post_type)
     page = get_page(request, posts, per_page=settings.POSTS_PER_PAGE)

@@ -8,6 +8,10 @@ ADMINS = (
     ('Istvan Albert', 'istvan.albert@gmail.com'),
 )
 
+DEBUG = False
+# template debug mode
+TEMPLATE_DEBUG = DEBUG
+
 # set the site url
 SITE_DOMAIN = 'localhost:8080'
 

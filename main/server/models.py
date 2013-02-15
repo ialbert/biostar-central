@@ -162,7 +162,7 @@ class Post(models.Model):
     full_score = models.IntegerField(default=0, blank=True, db_index=True)
     
     creation_date = models.DateTimeField(db_index=True)
-    lastedit_date = models.DateTimeField()
+    lastedit_date = models.DateTimeField(db_index=True)
     lastedit_user = models.ForeignKey(User, related_name='editor')
     
     # keeps track of which posts have changed
