@@ -162,9 +162,12 @@ def index(request, tab='all'):
     # returns the object manager that contains all or only visible posts
     posts = get_post_manager(request)
 
+
     # deferring certain fields objects
-    if post_type not in (POST_BLOG, "recent"):
+    # disabled for testing
+    if 0 and post_type not in (POST_BLOG, "recent"):
         posts = posts.defer("html", "content","slug", "root", "parent", "tag_set")
+
 
     # filter posts by type
     posts = filter_by_type(request=request, posts=posts, post_type=post_type)
