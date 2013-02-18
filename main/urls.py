@@ -113,8 +113,11 @@ urlpatterns = patterns('main.server',
     url(r'^questions/(?P<pid>\d+)/([-\w]+)/$','action.redirect_post', name="redirect-post"),
     url(r'^questions/tagged/(?P<tag>.+)/$','action.redirect_tag', name="redirect-tag"),
 
-    # test login, used during debugging
-    url(r'^x/login/$','action.external_login', name="external-login"),
+
+    # help page for external authentication
+    url(r'^help/x/$','pages.external_help', name="external-help"),
+    # the main handler for the external authentication
+    url(r'^x/$','action.external_handler', name="external-login"),
 
     #url(r'^x/post/$','action.external_post', name="external-post"),
 

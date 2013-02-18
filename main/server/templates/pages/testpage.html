@@ -17,16 +17,24 @@
 
         Secret key: {{ params.key }}
 
-        Data: {{ params.data }}
+        Json: {{ params.data }}
 
-        Encoding: {{ params.enc }}
+        Data: {{ params.enc }}
 
         Digest: {{ params.digest }}
 
     </pre>
 
+    <div>To log in a user add the <code>data, digest</code> and <code>name</code>parameters</div>
+
     <div style="padding: 10px;">
-        Test Login URL: <a href="{{ params.url }}">{{ params.url }}</a>
+        External Login: <a href="{{ params.login_url }}">{{ params.login_url }}</a>
+    </div>
+
+    <div>To authenticate and redirect the new question page also add the <code>action=new</code> parameter to the url</div>
+
+    <div style="padding: 10px;">
+        New Question: <a href="{{ params.post_url }}">{{ params.post_url }}</a>
     </div>
 
 </div>

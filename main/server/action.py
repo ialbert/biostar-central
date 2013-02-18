@@ -363,11 +363,11 @@ def authorize_external_user(request, data):
     login(request=request, user=user)
     return user
 
-def external_login(request):
+def external_handler(request):
     "This allows for external login"
     from django.contrib.auth import authenticate, login
 
-    url = "/testpage/"
+    url = "/help/x/"
     try:
         user = request.user
         get = request.GET.get

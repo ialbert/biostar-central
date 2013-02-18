@@ -481,7 +481,7 @@ def new_answer(request, pid):
     return new_post(request=request, pid=pid, post_type=POST_ANSWER)
     
 @login_required(redirect_field_name='/openid/login/')
-def new_post(request, pid=0, post_type=POST_QUESTION):
+def new_post(request, pid=0, post_type=POST_QUESTION, data=None):
     "Handles the creation of a new post"
     
     user   = request.user
@@ -491,7 +491,7 @@ def new_post(request, pid=0, post_type=POST_QUESTION):
     toplevel = (pid == 0)
     factory  = formdef.ChildContent if pid else formdef.TopLevelContent
 
-    params = html.Params(tab='new', title="New post", toplevel=toplevel)
+    params = html.Params(tab='new', title="New post", toplevel=toplevel, data=data)
     
     if request.method == 'GET':
         # no incoming data, render form
@@ -504,13 +504,30 @@ def new_post(request, pid=0, post_type=POST_QUESTION):
     form = factory(request.POST)
 
     # throttle new users to no more than 3 posts per 2 hours
-    MIN_AGE, MIN_COUNT = 6, 2
-    brand_new = (datetime.now() - user.date_joined) < timedelta(hours=MIN_AGE)
-    too_many = models.Post.objects.filter(author=user).count() >= MIN_COUNT
+    MIN_AGE, MIN_COUNT1, MIN_COUNT2 = 6, 2, 15
+
+    # applying some throttles here
+
+    # six hours ago
+    six_hours = datetime.now() - timedelta(hours=MIN_AGE)
+
+    # a user that joined six hours ago
+    brand_new = (datetime.now() - user.date_joined) < six_hours
+
+    if brand_new:
+        too_many = models.Post.objects.filter(author=user).count() >= MIN_COUNT1
+    else:
+        too_many = models.Post.objects.filter(author=user, creation_date__gt=six_hours).count() >= MIN_COUNT2
 
     if brand_new and too_many:
-        messages.error(request, "Brand new users (accounts less than 6 hours old) may not create more than 2 posts. Apologies \
-            if that interferes with your usage, it is an anti-spam measure. Gives us a chance to ban the spamming bots")
+        messages.error(request, "Brand new users (accounts less than %s hours old) may not create more than %s posts.\
+            Apologies if that interferes with your usage, it is an anti-spam measure.\
+            Gives us a chance to ban the spam bots." % (MIN_AGE, MIN_COUNT1))
+        return html.template(request, name=name, form=form, params=params)
+
+    if too_many:
+        messages.error(request, "A user may only create %s posts within a six hour period. This is to protect against\
+            runaway bots. Apologies for the inconvenience." % MIN_COUNT2)
         return html.template(request, name=name, form=form, params=params)
 
     if not form.is_valid():

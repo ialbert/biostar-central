@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% load basic %}
+{% load widgets %}
+
+{% block title %}
+    Help: External Authentication
+{% endblock %}
+
+{% block body %}
+
+
+
+<div class="row">
+
+    <h2>External Authentication</h2>
+
+    <div class="par">
+        Trusted third party websites may provide user authentication for BioStar. This means
+        that a user logged into such a website may use their account to post in BioStar under
+        the same name while keeping their account associated with the originating website.
+    </div>
+
+    <div class="par">
+        The external authentication takes place via requesting a BioStar URL with an authenticated message in the
+        URL parameters. The message must be a base64 encoded JSON string accompanied by the HMAC digest created
+        with a secret key agreed upon by both BioStar and the third party website.
+
+        Three parameters need to be passed: name, data and digest corresponding
+        to the pre-agreed key name, the base64 encoded data and the HMAC digest of the data.
+    </div>
+
+    <pre>
+
+        Secret key: {{ params.key }}
+
+        Json: {{ params.data }}
+
+        Data: {{ params.enc }}
+
+        Digest: {{ params.digest }}
+
+    </pre>
+
+    <div class="par">To log in a user send the <code>data, digest</code> and <code>name</code>parameters to the <code>/x/</code> url</div>
+
+    <div style="padding: 10px;">
+        External Login: <a href="{{ params.login_url }}">{{ params.login_url }}</a>
+    </div>
+
+    <div class="par">To authenticate and redirect the new question page also add the <code>action=new</code> parameter to the url</div>
+
+    <div style="padding: 10px;">
+        New Question: <a href="{{ params.post_url }}">{{ params.post_url }}</a>
+    </div>
+
+</div>
+
+{% endblock %}

@@ -399,6 +399,20 @@ class PostRevision(models.Model):
         '''We won't cache the HTML in the DB because revisions are viewed fairly infrequently '''
         return html.generate(self.content)
 
+class PostExtras(models.Model):
+    """
+    A class that adds extra fields to posts
+    """
+    post = models.ForeignKey(Post, related_name='extras')
+    category = models.TextField()
+
+class RelatedPosts(models.Model):
+    """
+    A model that represents related posts
+    """
+    source = models.ForeignKey(Post, related_name='source')
+    target = models.ForeignKey(Post, related_name='target')
+
 @transaction.commit_on_success
 def user_moderate(user, target, status): 
     """

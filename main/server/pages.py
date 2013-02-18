@@ -91,7 +91,7 @@ def beta(request):
     params = html.Params(nav='')
     return html.template(request, name='pages/beta.html', params=params)
 
-def testpage(request):
+def external_help(request):
     "Renders a test page"
     user = request.user
 
@@ -100,19 +100,27 @@ def testpage(request):
     key, patt = settings.EXTERNAL_AUTHENICATION[name]
 
     # prepare the data
-    data = dict(name="John Doe", id=1, email="john.doe@gmail.com")
+    data = dict(name="John Doe", a=1, b=2, email="john.doe@gmail.com", tags="X Y Z")
     enc, digest = formdef.encode(data, key=key)
 
     # the data that needs to be sent via parameters
     store = dict(name=name, data=enc, digest=digest)
 
-    # the url to submit to
-    url = "/x/login/"
 
     # encoding the parameters into the url to be loaded
     params = urllib.urlencode(store.items())
-    url = "%s?%s" % (url, params)
+    login_url = "/x/?%s" % params
+
+    store['action']='new'
+    params = urllib.urlencode(store.items())
+    post_url = "/x/?%s" % params
 
     # this is used inside the templates
-    params = html.Params(url=url, key=key, data=data, enc=enc, digest=digest)
+    params = html.Params(post_url=post_url, login_url=login_url, key=key, data=data, enc=enc, digest=digest)
+    return html.template(request, name='pages/external-help.html', params=params, user=user)
+
+def testpage(request):
+    "Renders a test page"
+    user = request.user
+    params = html.Params()
     return html.template(request, name='pages/testpage.html', params=params, user=user)
