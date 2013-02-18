@@ -101,18 +101,18 @@ def testpage(request):
 
     # prepare the data
     data = dict(name="John Doe", id=1, email="john.doe@gmail.com")
-    data, digest = formdef.encode(data, key=key)
+    enc, digest = formdef.encode(data, key=key)
 
     # the data that needs to be sent via parameters
-    store = dict(name=name, data=data, digest=digest)
+    store = dict(name=name, data=enc, digest=digest)
 
     # the url to submit to
     url = "/x/login/"
 
-    # encoding the paramters
-    params =  urllib.urlencode(store.items())
+    # encoding the parameters into the url to be loaded
+    params = urllib.urlencode(store.items())
     url = "%s?%s" % (url, params)
 
     # this is used inside the templates
-    params = html.Params(url=url)
+    params = html.Params(url=url, key=key, data=data, enc=enc, digest=digest)
     return html.template(request, name='pages/testpage.html', params=params, user=user)

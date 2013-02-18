@@ -112,13 +112,17 @@ class ExternalLogin(forms.Form):
             name = cleaned_data.get("name")
             data = str(cleaned_data.get("data"))
             digest = str(cleaned_data.get("digest"))
+            if name not in settings.EXTERNAL_AUTHENICATION:
+                raise Exception("unable to locate the authentication key by name")
+
             key, patt = settings.EXTERNAL_AUTHENICATION[name]
             data = decode(data, digest, key)
             email = data.get("email","").strip()
             if not email:
-                raise Exception("email field not present in the data")
+                raise Exception("email field not found in the data")
             cleaned_data['data'] = data
         except Exception, exc:
             raise forms.ValidationError("Invalid external login: %s" % exc)
+
         # Always return the full collection of cleaned data.
         return cleaned_data

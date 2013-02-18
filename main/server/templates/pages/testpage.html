@@ -12,8 +12,22 @@
 
 
 <div class="row">
-    
-    Test Login URL: <a href="{{ params.url }}">{{ params.url }}</a>
+
+    <pre>
+
+        Secret key: {{ params.key }}
+
+        Data: {{ params.data }}
+
+        Encoding: {{ params.enc }}
+
+        Digest: {{ params.digest }}
+
+    </pre>
+
+    <div style="padding: 10px;">
+        Test Login URL: <a href="{{ params.url }}">{{ params.url }}</a>
+    </div>
 
 </div>
 
