@@ -2,7 +2,7 @@ from django import forms
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from main.server import const
-import string
+import string, base64, json, hmac
 
 P_TITLE, P_CONTENT, P_TAG = 'Post title', 'Post content', ''
 
@@ -84,4 +84,41 @@ class ChildContent(forms.Form):
 
 class RequestInfo(forms.Form):
     email = forms.CharField(max_length=200)
-    
+
+#
+# Forms and validators for external login
+#
+def encode(data, key):
+    text = json.dumps(data)
+    text = base64.urlsafe_b64encode(text)
+    digest = hmac.new(key, text).hexdigest()
+    return text, digest
+
+def decode(text, digest, key):
+    if digest != hmac.new(key, text).hexdigest():
+        raise Exception("message does not match the digest")
+    text = base64.urlsafe_b64decode(text)
+    data = json.loads(text)
+    return data
+
+class ExternalLogin(forms.Form):
+    name = forms.CharField(max_length=50)
+    data = forms.CharField(max_length=1500)
+    digest = forms.CharField(max_length=64)
+
+    def clean(self):
+        cleaned_data = super(ExternalLogin, self).clean()
+        try:
+            name = cleaned_data.get("name")
+            data = str(cleaned_data.get("data"))
+            digest = str(cleaned_data.get("digest"))
+            key, patt = settings.EXTERNAL_AUTHENICATION[name]
+            data = decode(data, digest, key)
+            email = data.get("email","").strip()
+            if not email:
+                raise Exception("email field not present in the data")
+            cleaned_data['data'] = data
+        except Exception, exc:
+            raise forms.ValidationError("Invalid external login: %s" % exc)
+        # Always return the full collection of cleaned data.
+        return cleaned_data

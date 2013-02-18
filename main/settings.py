@@ -319,6 +319,12 @@ BLOG_VIEW_RANK_GAIN = 0.1
 # don't turn it on in production servers!
 SELENIUM_TEST_LOGIN_TOKEN = None
 
+# no external authentication by default
+# dictionary keyed by name containing the tuple of (secret key, template)
+EXTERNAL_AUTHENICATION = {
+
+}
+
 # setting the session for multiple servers
 SESSION_COOKIE_DOMAIN = ""
 

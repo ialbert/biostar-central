@@ -114,6 +114,11 @@ urlpatterns = patterns('main.server',
     url(r'^questions/tagged/(?P<tag>.+)/$','action.redirect_tag', name="redirect-tag"),
 
     # test login, used during debugging
+    url(r'^x/login/$','action.external_login', name="external-login"),
+
+    #url(r'^x/post/$','action.external_post', name="external-post"),
+
+    # test login, used during debugging
     url(r'^test/login/(?P<uid>\d+)/(?P<token>[\w\d]+)/$','action.test_login', name="test-login"),
    
     # json api for stat generation

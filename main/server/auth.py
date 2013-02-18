@@ -5,6 +5,7 @@ User access authorization
 import logging
 logger = logging.getLogger(__name__)
 
+
 def authorize_user_edit(target, user, strict=True):
     """
     Authorizes writing a target user by another user.  

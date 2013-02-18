@@ -36,7 +36,9 @@ def safe_tag(text):
         return x if x in SAFE_TAG else "."
     text = ''.join(map(change, text))
     return text.lower()
-    
+
+
+
 def get_page(request, obj_list, per_page=25):
     "A generic paginator"
 

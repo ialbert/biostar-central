@@ -58,7 +58,7 @@ class UserProfile( models.Model ):
     
     # user status: active, suspended
     status = models.IntegerField(choices=USER_STATUS_TYPES, default=USER_ACTIVE)
-    
+
     # description provided by the user as markup
     about_me = models.TextField(default="", null=True, blank=True)
 

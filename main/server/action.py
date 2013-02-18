@@ -7,7 +7,7 @@ actions whereas the main views.py will contain url based actions.
 import os, sys, traceback, time
 
 from datetime import datetime, timedelta
-from main.server import html, models, auth, notegen
+from main.server import html, models, auth, notegen, formdef
 from main.server.html import get_page
 from main.server.const import *
 
@@ -23,6 +23,7 @@ from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.core.mail import send_mail
 from django.utils import simplejson
+from django.core.exceptions import ObjectDoesNotExist
 
 from whoosh import index
 from whoosh.qparser import QueryParser
@@ -327,10 +328,71 @@ def approve_merge(request, master_id, remove_id):
     messages.info(request, 'Merge completed')
     return html.redirect("/")
 
+def authorize_external_user(request, data):
+    """
+    Authorizes and returns a user based on a trusted JSON string
+    """
+    email = data['email']
+
+    # get the user
+    users = models.User.objects.filter(email=email)
+
+    if users:
+        # this user already exists in the database
+        user = users[0]
+        if user.profile.type != USER_EXTERNAL:
+            raise Exception("this email already exists in BioStar for a local user")
+
+    else:
+        # create a new user
+        username = models.make_uuid()
+        user = models.User(username=username, email=email)
+        user.save()
+
+        # now update the profile
+        default_name = email.split('@')[0]
+        user.profile.display_name = data.get("name", default_name)
+        user.profile.type = USER_EXTERNAL
+        user.profile.save()
+
+    # login the user
+    password = models.make_uuid()
+    user.set_password(password)
+    user.save()
+    user = authenticate(username=user.username, password=password)
+    login(request=request, user=user)
+    return user
+
+def external_login(request):
+    "This allows for external login"
+    from django.contrib.auth import authenticate, login
+
+    url = "/testpage/"
+    try:
+        user = request.user
+        get = request.GET.get
+        form = formdef.ExternalLogin(request.GET)
+        if user.is_authenticated():
+            messages.info(request, "User <b>%s</b> is already logged in." % user.profile.display_name)
+            return html.redirect(url)
+        if form.is_valid():
+            data = form.cleaned_data['data']
+            user = authorize_external_user(request=request, data=data)
+            messages.info(request, "External login for <b>%s</b> completed" % user.profile.display_name)
+        else:
+            messages.error(request, "Unable to validate external login %s" % form.errors)
+            return html.redirect(url)
+
+    except Exception, exc:
+        messages.error(request, "Unable to validate external login: %s" % exc)
+        return html.redirect(url)
+
+    return html.redirect(url)
+
 def test_login(request, uid, token):
     "This will allow test logins. Don't turn it on during production!"
     from django.contrib.auth import authenticate, login
-    
+
     allow = (token == settings.SELENIUM_TEST_LOGIN_TOKEN)
     if settings.DEBUG and settings.SELENIUM_TEST_LOGIN_TOKEN and allow:
         user = models.User.objects.get(id=uid)
@@ -342,8 +404,10 @@ def test_login(request, uid, token):
         messages.info(request, "Test login complete.")
     else:
         messages.error(request, "Test login failed.")
-        
-    return html.redirect("/")   
+
+    return html.redirect("/")
+
+
 
 def get_traffic(end, minutes=60):
     "Returns the traffic as a number"

@@ -1,6 +1,7 @@
 """
 semi-static pages 
 """
+import urllib
 from django.conf import settings
 from main.server import html, models, formdef
 from main.server.const import *
@@ -9,6 +10,8 @@ from django.contrib.sites.models import Site
 from django.contrib import messages
 from django.core.mail import send_mail
 from datetime import datetime, timedelta
+from django.core.urlresolvers import reverse
+
 
 def about(request):
     "Renders the about page"
@@ -91,14 +94,25 @@ def beta(request):
 def testpage(request):
     "Renders a test page"
     user = request.user
-    params = html.Params(nav='rss')
 
-    posts = models.Post.objects
-    posts = posts.exclude(type=POST_BLOG).select_related('author', 'author__profile')
-    posts = posts.order_by('-rank')[:10]
-    posts = list(posts)
+    # get the key name and key value
+    name = "TEST-KEY"
+    key, patt = settings.EXTERNAL_AUTHENICATION[name]
 
+    # prepare the data
+    data = dict(name="John Doe", id=1, email="john.doe@gmail.com")
+    data, digest = formdef.encode(data, key=key)
 
-    rows = connection.queries
+    # the data that needs to be sent via parameters
+    store = dict(name=name, data=data, digest=digest)
 
-    return html.template(request, name='pages/testpage.html', params=params, user=user, rows=rows)
+    # the url to submit to
+    url = "/x/login/"
+
+    # encoding the paramters
+    params =  urllib.urlencode(store.items())
+    url = "%s?%s" % (url, params)
+
+    # this is used inside the templates
+    params = html.Params(url=url)
+    return html.template(request, name='pages/testpage.html', params=params, user=user)
