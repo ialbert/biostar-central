@@ -155,6 +155,7 @@ class Post(models.Model):
     html    = models.TextField(blank=True) # this is the sanitized HTML for display
     title   = models.TextField(max_length=200)
     slug    = models.SlugField(blank=True, max_length=200)
+
     tag_val = models.CharField(max_length=200, blank=True,) # The tag value is the canonical form of the post's tags
     tag_set = models.ManyToManyField(Tag, blank=True,) # The tag set is built from the tag string and used only for fast filtering
     views = models.IntegerField(default=0, blank=True, db_index=True)
@@ -173,7 +174,10 @@ class Post(models.Model):
     
     # the type of the post
     type = models.IntegerField(choices=POST_TYPES, db_index=True)
-    
+
+    # used to display a context the post was created in
+    context   = models.TextField(max_length=1000, default='')
+
     # this will maintain the ancestor/descendant relationship bewteen posts
     root = models.ForeignKey('self', related_name="descendants", null=True, blank=True)
     
@@ -399,12 +403,6 @@ class PostRevision(models.Model):
         '''We won't cache the HTML in the DB because revisions are viewed fairly infrequently '''
         return html.generate(self.content)
 
-class PostExtras(models.Model):
-    """
-    A class that adds extra fields to posts
-    """
-    post = models.ForeignKey(Post, related_name='extras')
-    category = models.TextField()
 
 class RelatedPosts(models.Model):
     """
@@ -762,7 +760,6 @@ def update_profile(sender, instance, *args, **kwargs):
     "Pre save hook for profiles"
     instance.about_me_html = html.generate(instance.about_me)
     
-from django.template.defaultfilters import slugify
 
 def verify_post(sender, instance, *args, **kwargs):
     "Pre save post information that needs to be applied"
@@ -786,10 +783,7 @@ def verify_post(sender, instance, *args, **kwargs):
     
     # assings the rank of the instance
     instance.set_rank()
-    
-    # generate a slug for the instance        
-    instance.slug = slugify(instance.title)
-        
+
     # generate the HTML from the content
     instance.html = html.generate(instance.content)
 
@@ -808,7 +802,6 @@ def finalize_post(sender, instance, created, raw, *args, **kwargs):
             instance.root   = instance.root or instance
             instance.parent = instance.parent or instance
             instance.title  = instance.title or ("%s: %s" % (instance.get_type_display()[0], instance.root.title))
-            instance.slug   = slugify(instance.title)
             instance.save()
         
         # when a new post is created all descendants will be notified

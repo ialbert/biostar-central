@@ -479,7 +479,14 @@ def new_comment(request, pid=0):
 @login_required(redirect_field_name='/openid/login/')
 def new_answer(request, pid):
     return new_post(request=request, pid=pid, post_type=POST_ANSWER)
-    
+
+def safe_context(key_name, data):
+    try:
+        patt = settings.EXTERNAL_AUTHENICATION[key_name][1]
+        return patt % data
+    except Exception, exc:
+        return "context error: %s" % exc
+
 @login_required(redirect_field_name='/openid/login/')
 def new_post(request, pid=0, post_type=POST_QUESTION, data=None):
     "Handles the creation of a new post"
@@ -491,8 +498,18 @@ def new_post(request, pid=0, post_type=POST_QUESTION, data=None):
     toplevel = (pid == 0)
     factory  = formdef.ChildContent if pid else formdef.TopLevelContent
 
+
     params = html.Params(tab='new', title="New post", toplevel=toplevel, data=data)
-    
+
+    extern = formdef.ExternalLogin(request.GET)
+    if extern.is_valid():
+        e = extern.cleaned_data['data']
+        context = safe_context(extern.cleaned_data['name'], e)
+        tag_val = e.get("tags", "")
+        title   = e.get("title", "")
+        form = factory(initial=dict(tag_val=tag_val, context=context, title=title))
+        return html.template(request, name=name, form=form, params=params)
+
     if request.method == 'GET':
         # no incoming data, render form
         form = factory()
@@ -503,31 +520,37 @@ def new_post(request, pid=0, post_type=POST_QUESTION, data=None):
 
     form = factory(request.POST)
 
-    # throttle new users to no more than 3 posts per 2 hours
-    MIN_AGE, MIN_COUNT1, MIN_COUNT2 = 6, 2, 15
-
     # applying some throttles here
+    now = datetime.now()
 
-    # six hours ago
-    six_hours = datetime.now() - timedelta(hours=MIN_AGE)
+    # minimum age
+    trust_range = timedelta(hours=settings.TRUST_INTERVAL)
 
     # a user that joined six hours ago
-    brand_new = (datetime.now() - user.date_joined) < six_hours
+    new_user = (now - user.date_joined) < trust_range
 
-    if brand_new:
-        too_many = models.Post.objects.filter(author=user).count() >= MIN_COUNT1
-    else:
-        too_many = models.Post.objects.filter(author=user, creation_date__gt=six_hours).count() >= MIN_COUNT2
+    # posts within a trust interval
+    post_count = models.Post.objects.filter(author=user, creation_date__gt=now - trust_range).count()
 
-    if brand_new and too_many:
-        messages.error(request, "Brand new users (accounts less than %s hours old) may not create more than %s posts.\
-            Apologies if that interferes with your usage, it is an anti-spam measure.\
-            Gives us a chance to ban the spam bots." % (MIN_AGE, MIN_COUNT1))
+    # how many posts are too many
+    too_many = (post_count >= settings.TRUST_NEW_USER_MAX_POST) if new_user else post_count >= settings.TRUST_USER_MAX_POST
+
+    # different error messages for different type of users
+    if new_user and too_many:
+        messages.error(request, """
+            Brand new users (accounts less than %s hours old) may not create more than %s posts.<br>
+            Apologies if that interferes with your usage, it is an anti-spam measure.<br>
+            Gives us a chance to ban the spam bots before too long. This limitation is lifted later.
+            """ % (settings.TRUST_INTERVAL, settings.TRUST_NEW_USER_MAX_POST))
         return html.template(request, name=name, form=form, params=params)
 
+    # this is main user throttling
     if too_many:
-        messages.error(request, "A user may only create %s posts within a six hour period. This is to protect against\
-            runaway bots. Apologies for the inconvenience." % MIN_COUNT2)
+        messages.error(request, """
+            A user may only create %s posts within a six hour period.<br>
+            This is to protect against runaway bots.<br>
+            Sorry for any inconvenience this may cause.
+            """ % settings.TRUST_USER_MAX_POST)
         return html.template(request, name=name, form=form, params=params)
 
     if not form.is_valid():
@@ -538,14 +561,13 @@ def new_post(request, pid=0, post_type=POST_QUESTION, data=None):
     params = dict(author=user, type=post_type, parent=parent, root=root)
 
     # form may contain a variable number of elements
-    for attr in "title content tag_val type".split():
+    for attr in "title content tag_val type context".split():
         if attr in form.cleaned_data:
             params[attr] = form.cleaned_data[attr]
 
     with transaction.commit_on_success():
         post = models.Post.objects.create(**params)
         post.set_tags()
-        #post.save()
 
     return redirect(post)
 
@@ -572,7 +594,7 @@ def post_edit(request, pid=0):
     params = html.Params(tab='edit', title="Edit post", toplevel=toplevel)
     if request.method == 'GET':
         # no incoming data, render prefilled form
-        form = factory(initial=dict(title=post.title, content=post.content, tag_val=post.tag_val, type=post.type))
+        form = factory(initial=dict(title=post.title, content=post.content, tag_val=post.tag_val, type=post.type, context=post.context))
         return html.template(request, name=name, form=form, params=params)
 
     # process the incoming data

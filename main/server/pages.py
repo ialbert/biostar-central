@@ -100,7 +100,7 @@ def external_help(request):
     key, patt = settings.EXTERNAL_AUTHENICATION[name]
 
     # prepare the data
-    data = dict(name="John Doe", a=1, b=2, email="john.doe@gmail.com", tags="X Y Z")
+    data = dict(name="John Doe", email="john.doe@gmail.com", tags="galaxy bwa", title="How do I run bwa?")
     enc, digest = formdef.encode(data, key=key)
 
     # the data that needs to be sent via parameters

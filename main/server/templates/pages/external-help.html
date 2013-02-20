@@ -23,11 +23,13 @@
 
     <div class="par">
         The external authentication takes place via requesting a BioStar URL with an authenticated message in the
-        URL parameters. The message must be a base64 encoded JSON string accompanied by the HMAC digest created
+        URL parameters. The message must be a <a href="http://docs.python.org/2/library/base64.html">urlsafe base64 encoded</a>
+        JSON dictionary accompanied by the HMAC digest created
         with a secret key agreed upon by both BioStar and the third party website.
 
         Three parameters need to be passed: name, data and digest corresponding
-        to the pre-agreed key name, the base64 encoded data and the HMAC digest of the data.
+        to the pre-agreed key name, the base64 encoded data and the HMAC digest of the data. The data must contain at least
+        an email field.
     </div>
 
     <pre>
@@ -48,10 +50,38 @@
         External Login: <a href="{{ params.login_url }}">{{ params.login_url }}</a>
     </div>
 
-    <div class="par">To authenticate and redirect the new question page also add the <code>action=new</code> parameter to the url</div>
+    <div class="par">To authenticate and redirect to the new question page also add the <code>action=new</code> parameter to the url</div>
 
     <div style="padding: 10px;">
         New Question: <a href="{{ params.post_url }}">{{ params.post_url }}</a>
+    </div>
+
+    <h2>Parameter Filling</h2>
+
+    <div style="padding: 10px;">
+        The incoming JSON data may contain optional content such as <code>title</code>, <code>tags</code> that will be applied to the question
+        that is posted.
+    </div>
+
+    <h2>Post Context</h2>
+
+    <div style="padding: 10px;">
+        A context is extra information that the originating website
+        can provide to the question to connect the post to a location on the originating website.
+    </div>
+
+    <div style="padding: 10px;">
+        The context is created by filling a standard string dictionary template
+        with the content of the JSON dictionary that was sent over. The template is agreed upon at the
+        same time with the secret key. For example if a template is defined as
+        <pre>
+            Hello %(name)s with email %(email)s!</pre>
+
+        Then the result of the template fill with the JSON will be:
+
+        <pre>
+            Hello John Doe with email john.doe@gmail.com!</pre>
+
     </div>
 
 </div>

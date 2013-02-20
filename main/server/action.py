@@ -29,7 +29,7 @@ from whoosh import index
 from whoosh.qparser import QueryParser
 
 # activate logging
-import logging
+import logging, urllib
 logger = logging.getLogger(__name__)
 
 class UserForm(forms.Form):
@@ -345,7 +345,7 @@ def authorize_external_user(request, data):
 
     else:
         # create a new user
-        username = models.make_uuid()
+        username = models.make_uuid()[:30]
         user = models.User(username=username, email=email)
         user.save()
 
@@ -372,19 +372,26 @@ def external_handler(request):
         user = request.user
         get = request.GET.get
         form = formdef.ExternalLogin(request.GET)
-        if user.is_authenticated():
-            messages.info(request, "User <b>%s</b> is already logged in." % user.profile.display_name)
-            return html.redirect(url)
+
         if form.is_valid():
             data = form.cleaned_data['data']
-            user = authorize_external_user(request=request, data=data)
-            messages.info(request, "External login for <b>%s</b> completed" % user.profile.display_name)
+
+            if user.is_authenticated():
+                messages.info(request, "User <b>%s</b> session is active." % user.profile.display_name)
+            else:
+                user = authorize_external_user(request=request, data=data)
+                messages.info(request, "User <b>%s</b> logged in" % user.profile.display_name)
+
+            if form.cleaned_data.get('action') == "new":
+                params = urllib.urlencode(request.GET.items())
+                url = "%s?%s" % (reverse("new-post"), params)
+                return html.redirect(url)
         else:
-            messages.error(request, "Unable to validate external login %s" % form.errors)
+            messages.error(request, "Invalid form data for external login %s" % form.errors)
             return html.redirect(url)
 
     except Exception, exc:
-        messages.error(request, "Unable to validate external login: %s" % exc)
+        messages.error(request, "Error on external login: %s" % exc)
         return html.redirect(url)
 
     return html.redirect(url)

@@ -72,7 +72,8 @@ class TopLevelContent(forms.Form):
     tag_val = forms.CharField(max_length=250, initial='', validators=[ valid_tag ],
         widget=forms.TextInput(attrs={'class':'span4', 'placeholder': P_TAG}))
 
-    # the first two post types are not creatable here
+    context = forms.CharField(max_length=1000, required=False, initial='')
+
     type = forms.ChoiceField(choices=const.POST_TYPES[2:])
 
 class ChildContent(forms.Form):
@@ -105,6 +106,7 @@ class ExternalLogin(forms.Form):
     name = forms.CharField(max_length=50)
     data = forms.CharField(max_length=1500)
     digest = forms.CharField(max_length=64)
+    action = forms.CharField(max_length=64, required=False)
 
     def clean(self):
         cleaned_data = super(ExternalLogin, self).clean()

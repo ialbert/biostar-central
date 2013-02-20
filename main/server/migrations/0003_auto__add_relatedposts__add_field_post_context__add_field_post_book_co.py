@@ -8,14 +8,6 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding model 'PostExtras'
-        db.create_table('server_postextras', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('post', self.gf('django.db.models.fields.related.ForeignKey')(related_name='extras', to=orm['server.Post'])),
-            ('category', self.gf('django.db.models.fields.TextField')()),
-        ))
-        db.send_create_signal('server', ['PostExtras'])
-
         # Adding model 'RelatedPosts'
         db.create_table('server_relatedposts', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
@@ -23,6 +15,21 @@ class Migration(SchemaMigration):
             ('target', self.gf('django.db.models.fields.related.ForeignKey')(related_name='target', to=orm['server.Post'])),
         ))
         db.send_create_signal('server', ['RelatedPosts'])
+
+        # Adding field 'Post.context'
+        db.add_column('server_post', 'context',
+                      self.gf('django.db.models.fields.TextField')(default='', max_length=1000),
+                      keep_default=False)
+
+        # Adding field 'Post.book_count'
+        db.add_column('server_post', 'book_count',
+                      self.gf('django.db.models.fields.IntegerField')(default=0, blank=True),
+                      keep_default=False)
+
+        # Adding field 'Post.sticky'
+        db.add_column('server_post', 'sticky',
+                      self.gf('django.db.models.fields.IntegerField')(default=0, db_index=True),
+                      keep_default=False)
 
         # Adding index on 'Post', fields ['lastedit_date']
         db.create_index('server_post', ['lastedit_date'])
@@ -32,11 +39,17 @@ class Migration(SchemaMigration):
         # Removing index on 'Post', fields ['lastedit_date']
         db.delete_index('server_post', ['lastedit_date'])
 
-        # Deleting model 'PostExtras'
-        db.delete_table('server_postextras')
-
         # Deleting model 'RelatedPosts'
         db.delete_table('server_relatedposts')
+
+        # Deleting field 'Post.context'
+        db.delete_column('server_post', 'context')
+
+        # Deleting field 'Post.book_count'
+        db.delete_column('server_post', 'book_count')
+
+        # Deleting field 'Post.sticky'
+        db.delete_column('server_post', 'sticky')
 
 
     models = {
@@ -119,6 +132,7 @@ class Migration(SchemaMigration):
             'book_count': ('django.db.models.fields.IntegerField', [], {'default': '0', 'blank': 'True'}),
             'changed': ('django.db.models.fields.BooleanField', [], {'default': 'True', 'db_index': 'True'}),
             'content': ('django.db.models.fields.TextField', [], {'max_length': '10000'}),
+            'context': ('django.db.models.fields.TextField', [], {'default': "''", 'max_length': '1000'}),
             'creation_date': ('django.db.models.fields.DateTimeField', [], {'db_index': 'True'}),
             'full_score': ('django.db.models.fields.IntegerField', [], {'default': '0', 'db_index': 'True', 'blank': 'True'}),
             'html': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
@@ -138,12 +152,6 @@ class Migration(SchemaMigration):
             'type': ('django.db.models.fields.IntegerField', [], {'db_index': 'True'}),
             'url': ('django.db.models.fields.URLField', [], {'default': "''", 'max_length': '200', 'blank': 'True'}),
             'views': ('django.db.models.fields.IntegerField', [], {'default': '0', 'db_index': 'True', 'blank': 'True'})
-        },
-        'server.postextras': {
-            'Meta': {'object_name': 'PostExtras'},
-            'category': ('django.db.models.fields.TextField', [], {}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'post': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'extras'", 'to': "orm['server.Post']"})
         },
         'server.postrevision': {
             'Meta': {'object_name': 'PostRevision'},

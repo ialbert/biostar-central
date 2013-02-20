@@ -336,6 +336,18 @@ RECENT_TAG_COUNT  = 30
 # set the tag names are to be displayed on the main page
 IMPORTANT_TAG_NAMES = "rna-seq chip-seq assembly snp metagenomics vcf cnv mirna indel bwa bowtie bedtools biopython bioperl".split()
 
+
+# the interval specified in hours
+# that user activity throttling is computed over
+TRUST_INTERVAL = 6
+
+# how many posts may a new user make in a trust interval
+# new user means a user that joined within a trust interval time
+TRUST_NEW_USER_MAX_POST = 2
+
+# how many posts may a trusted user make withing a trus in
+TRUST_USER_MAX_POST = 15
+
 # TEMPLATE LAYOUT,
 # One may override these variables from the settings file
 # 

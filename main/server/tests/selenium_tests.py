@@ -332,16 +332,14 @@ def voting_test(browser):
         click(user.profile.display_name)
         click('Bookmarks')
         click(title)
-        
-       
-    
+
 tests = [
+    create_content_1,
+    voting_test,
     simple_navigation,
     post_lookup,
     quick_search,
     update_user,
-    create_content_1,
-    voting_test,
     feed_check,
 ]
 
