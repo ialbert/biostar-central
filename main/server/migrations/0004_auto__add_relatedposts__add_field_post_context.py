@@ -21,16 +21,6 @@ class Migration(SchemaMigration):
                       self.gf('django.db.models.fields.TextField')(default='', max_length=1000),
                       keep_default=False)
 
-        # Adding field 'Post.book_count'
-        db.add_column('server_post', 'book_count',
-                      self.gf('django.db.models.fields.IntegerField')(default=0, blank=True),
-                      keep_default=False)
-
-        # Adding field 'Post.sticky'
-        db.add_column('server_post', 'sticky',
-                      self.gf('django.db.models.fields.IntegerField')(default=0, db_index=True),
-                      keep_default=False)
-
         # Adding index on 'Post', fields ['lastedit_date']
         db.create_index('server_post', ['lastedit_date'])
 
@@ -44,12 +34,6 @@ class Migration(SchemaMigration):
 
         # Deleting field 'Post.context'
         db.delete_column('server_post', 'context')
-
-        # Deleting field 'Post.book_count'
-        db.delete_column('server_post', 'book_count')
-
-        # Deleting field 'Post.sticky'
-        db.delete_column('server_post', 'sticky')
 
 
     models = {
