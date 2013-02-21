@@ -61,6 +61,8 @@ see <https://github.com/trentm/python-markdown2/wiki/Extras> for details):
   some limitations.
 * metadata: Extract metadata from a leading '---'-fenced block.
   See <https://github.com/trentm/python-markdown2/issues/77> for details.
+* nofollow: Add `rel="nofollow"` to add `<a>` tags with an href. See
+  <http://en.wikipedia.org/wiki/Nofollow>.
 * pyshell: Treats unindented Python interactive shell sessions as <code>
   blocks.
 * link-patterns: Auto-link given regex patterns in text (e.g. bug number
@@ -80,7 +82,7 @@ see <https://github.com/trentm/python-markdown2/wiki/Extras> for details):
 #   not yet sure if there implications with this. Compare 'pydoc sre'
 #   and 'perldoc perlre'.
 
-__version_info__ = (1, 4, 0)
+__version_info__ = (2, 1, 1)
 __version__ = '.'.join(map(str, __version_info__))
 __author__ = "Trent Mick"
 
@@ -248,6 +250,10 @@ class Markdown(object):
         if "metadata" in self.extras:
             self.metadata = {}
 
+    # Per <https://developer.mozilla.org/en-US/docs/HTML/Element/a> "rel"
+    # should only be used in <a> tags with an "href" attribute.
+    _a_nofollow = re.compile(r"<(a)([^>]*href=)", re.IGNORECASE)
+
     def convert(self, text):
         """Convert the given text."""
         # Main function. The order in which other subs are called here is
@@ -300,6 +306,8 @@ class Markdown(object):
         if "metadata" in self.extras:
             text = self._extract_metadata(text)
 
+        text = self.preprocess(text)
+
         if self.safe_mode:
             text = self._hash_html_spans(text)
 
@@ -326,6 +334,9 @@ class Markdown(object):
         if self.safe_mode:
             text = self._unhash_html_spans(text)
 
+        if "nofollow" in self.extras:
+            text = self._a_nofollow.sub(r'<\1 rel="nofollow"\2', text)
+
         text += "\n"
 
         rv = UnicodeWithAttrs(text)
@@ -339,6 +350,13 @@ class Markdown(object):
         """A hook for subclasses to do some postprocessing of the html, if
         desired. This is called before unescaping of special chars and
         unhashing of raw HTML spans.
+        """
+        return text
+
+    def preprocess(self, text):
+        """A hook for subclasses to do some preprocessing of the Markdown, if
+        desired. This is called after basic formatting of the text, but prior
+        to any extras, safe mode, etc. processing.
         """
         return text
 
@@ -766,6 +784,9 @@ class Markdown(object):
         # These are all the transformations that form block-level
         # tags like paragraphs, headers, and list items.
 
+        if "fenced-code-blocks" in self.extras:
+            text = self._do_fenced_code_blocks(text)
+
         text = self._do_headers(text)
 
         # Do Horizontal Rules:
@@ -788,8 +809,6 @@ class Markdown(object):
             text = self._prepare_pyshell_blocks(text)
         if "wiki-tables" in self.extras:
             text = self._do_wiki_tables(text)
-        if "fenced-code-blocks" in self.extras:
-            text = self._do_fenced_code_blocks(text)
 
         text = self._do_code_blocks(text)
 
@@ -1223,7 +1242,7 @@ class Markdown(object):
     def _toc_add_entry(self, level, id, name):
         if self._toc is None:
             self._toc = []
-        self._toc.append((level, id, name))
+        self._toc.append((level, id, self._unescape_special_chars(name)))
 
     _setext_h_re = re.compile(r'^(.+)[ \t]*\n(=+|-+)[ \t]*\n+', re.M)
     def _setext_h_sub(self, match):
@@ -1244,7 +1263,7 @@ class Markdown(object):
 
     _atx_h_re = re.compile(r'''
         ^(\#{1,6})  # \1 = string of #'s
-        [ \t]*
+        [ \t]+
         (.+?)       # \2 = Header text
         [ \t]*
         (?<!\\)     # ensure not an escaped trailing '#'
@@ -1304,56 +1323,51 @@ class Markdown(object):
     def _do_lists(self, text):
         # Form HTML ordered (numbered) and unordered (bulleted) lists.
 
-        for marker_pat in (self._marker_ul, self._marker_ol):
-            # Re-usable pattern to match any entire ul or ol list:
-            less_than_tab = self.tab_width - 1
-            whole_list = r'''
-                (                   # \1 = whole list
-                  (                 # \2
-                    [ ]{0,%d}
-                    (%s)            # \3 = first list item marker
-                    [ \t]+
-                    (?!\ *\3\ )     # '- - - ...' isn't a list. See 'not_quite_a_list' test case.
-                  )
-                  (?:.+?)
-                  (                 # \4
-                      \Z
-                    |
-                      \n{2,}
-                      (?=\S)
-                      (?!           # Negative lookahead for another list item marker
-                        [ \t]*
-                        %s[ \t]+
+        # Iterate over each *non-overlapping* list match.
+        pos = 0
+        while True:
+            # Find the *first* hit for either list style (ul or ol). We
+            # match ul and ol separately to avoid adjacent lists of different
+            # types running into each other (see issue #16).
+            hits = []
+            for marker_pat in (self._marker_ul, self._marker_ol):
+                less_than_tab = self.tab_width - 1
+                whole_list = r'''
+                    (                   # \1 = whole list
+                      (                 # \2
+                        [ ]{0,%d}
+                        (%s)            # \3 = first list item marker
+                        [ \t]+
+                        (?!\ *\3\ )     # '- - - ...' isn't a list. See 'not_quite_a_list' test case.
                       )
-                  )
-                )
-            ''' % (less_than_tab, marker_pat, marker_pat)
-
-            # We use a different prefix before nested lists than top-level lists.
-            # See extended comment in _process_list_items().
-            #
-            # Note: There's a bit of duplication here. My original implementation
-            # created a scalar regex pattern as the conditional result of the test on
-            # $g_list_level, and then only ran the $text =~ s{...}{...}egmx
-            # substitution once, using the scalar as the pattern. This worked,
-            # everywhere except when running under MT on my hosting account at Pair
-            # Networks. There, this caused all rebuilds to be killed by the reaper (or
-            # perhaps they crashed, but that seems incredibly unlikely given that the
-            # same script on the same server ran fine *except* under MT. I've spent
-            # more time trying to figure out why this is happening than I'd like to
-            # admit. My only guess, backed up by the fact that this workaround works,
-            # is that Perl optimizes the substition when it can figure out that the
-            # pattern will never change, and when this optimization isn't on, we run
-            # afoul of the reaper. Thus, the slightly redundant code to that uses two
-            # static s/// patterns rather than one conditional pattern.
-
-            if self.list_level:
-                sub_list_re = re.compile("^"+whole_list, re.X | re.M | re.S)
-                text = sub_list_re.sub(self._list_sub, text)
-            else:
-                list_re = re.compile(r"(?:(?<=\n\n)|\A\n?)"+whole_list,
-                                     re.X | re.M | re.S)
-                text = list_re.sub(self._list_sub, text)
+                      (?:.+?)
+                      (                 # \4
+                          \Z
+                        |
+                          \n{2,}
+                          (?=\S)
+                          (?!           # Negative lookahead for another list item marker
+                            [ \t]*
+                            %s[ \t]+
+                          )
+                      )
+                    )
+                ''' % (less_than_tab, marker_pat, marker_pat)
+                if self.list_level:  # sub-list
+                    list_re = re.compile("^"+whole_list, re.X | re.M | re.S)
+                else:
+                    list_re = re.compile(r"(?:(?<=\n\n)|\A\n?)"+whole_list,
+                                         re.X | re.M | re.S)
+                match = list_re.search(text, pos)
+                if match:
+                    hits.append((match.start(), match))
+            if not hits:
+                break
+            hits.sort()
+            match = hits[0][1]
+            start, end = match.span()
+            text = text[:start] + self._list_sub(match) + text[end:]
+            pos = end
 
         return text
 
@@ -1442,7 +1456,8 @@ class Markdown(object):
                 """Return the source with a code, pre, and div."""
                 return self._wrap_div(self._wrap_pre(self._wrap_code(source)))
 
-        formatter = HtmlCodeFormatter(cssclass="codehilite", **formatter_opts)
+        formatter_opts.setdefault("cssclass", "codehilite")
+        formatter = HtmlCodeFormatter(**formatter_opts)
         return pygments.highlight(codeblock, lexer, formatter)
 
     def _code_block_sub(self, match, is_fenced_code_block=False):
@@ -1498,7 +1513,7 @@ class Markdown(object):
     def _do_code_blocks(self, text):
         """Process Markdown `<pre><code>` blocks."""
         code_block_re = re.compile(r'''
-            (?:\n\n|\A)
+            (?:\n\n|\A\n?)
             (               # $1 = the code block -- one or more lines, starting with a space/tab
               (?:
                 (?:[ ]{%d} | \t)  # Lines must start with a tab or a tab-width of spaces
@@ -1508,23 +1523,21 @@ class Markdown(object):
             ((?=^[ ]{0,%d}\S)|\Z)   # Lookahead for non-space at line-start, or end of doc
             ''' % (self.tab_width, self.tab_width),
             re.M | re.X)
-
         return code_block_re.sub(self._code_block_sub, text)
+
+    _fenced_code_block_re = re.compile(r'''
+        (?:\n\n|\A\n?)
+        ^```([\w+-]+)?[ \t]*\n      # opening fence, $1 = optional lang
+        (.*?)                       # $2 = code block content
+        ^```[ \t]*\n                # closing fence
+        ''', re.M | re.X | re.S)
 
     def _fenced_code_block_sub(self, match):
         return self._code_block_sub(match, is_fenced_code_block=True);
 
     def _do_fenced_code_blocks(self, text):
         """Process ```-fenced unindented code blocks ('fenced-code-blocks' extra)."""
-        fenced_code_block_re = re.compile(r'''
-            (?:\n\n|\A)
-            ^```([\w+-]+)?[ \t]*\n      # opening fence, $1 = optional lang
-            (.*?)                       # $2 = code block content
-            ^```[ \t]*\n                # closing fence
-            ''', re.M | re.X | re.S)
-
-        #print "XXX", fenced_code_block_re.findall(text)
-        return fenced_code_block_re.sub(self._fenced_code_block_sub, text)
+        return self._fenced_code_block_re.sub(self._fenced_code_block_sub, text)
 
     # Rules for a code span:
     # - backslash escapes are not interpreted in a code span
@@ -1586,18 +1599,12 @@ class Markdown(object):
             # Do the angle bracket song and dance:
             ('<', '&lt;'),
             ('>', '&gt;'),
-            # Now, escape characters that are magic in Markdown:
-            ('*', self._escape_table['*']),
-            ('_', self._escape_table['_']),
-            ('{', self._escape_table['{']),
-            ('}', self._escape_table['}']),
-            ('[', self._escape_table['[']),
-            (']', self._escape_table[']']),
-            ('\\', self._escape_table['\\']),
         ]
         for before, after in replacements:
             text = text.replace(before, after)
-        return text
+        hashed = _hash_text(text)
+        self._escape_table[text] = hashed
+        return hashed
 
     _strong_re = re.compile(r"(\*\*|__)(?=\S)(.+?[*_]*)(?<=\S)\1", re.S)
     _em_re = re.compile(r"(\*|_)(?=\S)(.+?)(?<=\S)\1", re.S)
@@ -1849,7 +1856,8 @@ class Markdown(object):
                         # To avoid markdown <em> and <strong>:
                         .replace('*', self._escape_table['*'])
                         .replace('_', self._escape_table['_']))
-                link = '<a href="%s">%s</a>' % (escaped_href, text[start:end])
+                #link = '<a href="%s">%s</a>' % (escaped_href, text[start:end])
+                link = escaped_href
                 hash = _hash_text(link)
                 link_from_hash[hash] = link
                 text = text[:start] + hash + text[end:]

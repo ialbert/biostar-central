@@ -22,6 +22,7 @@ import docutils.parsers.rst.roles
 docutils.parsers.rst.roles.DEFAULT_INTERPRETED_ROLE = 'title-reference'
 from itertools import groupby
 from textparser import process
+from . import link_patterns
 
 # safe string transformation
 import string
@@ -67,6 +68,8 @@ def nuke(text):
     text = text.replace("&","&amp;")
     return text
 
+
+
 def generate(text):
     if not text:
         return ""
@@ -76,15 +79,15 @@ def generate(text):
         # this is a django bugfix!
         docutils.parsers.rst.roles.DEFAULT_INTERPRETED_ROLE = 'title-reference'
         text = text[6:].strip()
-        rest = core.publish_parts(text ,writer_name='html')
+        rest = core.publish_parts(text ,writer_name='html',)
         html = rest.get('html_body','[rest error]')
     else:
-        md = markdown2.Markdown( safe_mode=False )
+        md = markdown2.Markdown( safe_mode=False, extras=["code-friendly", "nofollow", "link-patterns"], link_patterns=link_patterns.all)
         #text = fix_orphans(text)
-        text = process(text, state='pre')
+        #text = process(text, state='pre')
         html = md.convert(text)
         html = sanitize(html)
-        html = process(html, state='post')
+        #html = process(html, state='post')
         #html = extra_html(html)
     return html
 
