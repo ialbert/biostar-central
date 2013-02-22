@@ -115,9 +115,11 @@ urlpatterns = patterns('main.server',
 
 
     # help page for external authentication
-    url(r'^help/x/$','pages.external_help', name="external-help"),
+    url(r'^help/$','pages.help', name="help"),
+    url(r'^help/(?P<word>.+)/$','pages.help', name="help-long"),
+
     # the main handler for the external authentication
-    url(r'^x/$','action.external_handler', name="external-login"),
+    url(r'^x/$','action.external_handler', name="external-handler"),
 
     #url(r'^x/post/$','action.external_post', name="external-post"),
 

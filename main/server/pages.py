@@ -91,33 +91,51 @@ def beta(request):
     params = html.Params(nav='')
     return html.template(request, name='pages/beta.html', params=params)
 
-def external_help(request):
+def help(request, word='main'):
     "Renders a test page"
     user = request.user
 
-    # get the key name and key value
-    name = "TEST-KEY"
-    key, patt = settings.EXTERNAL_AUTHENICATION[name]
+    # existing help pages
+    template_map = dict(
+        about = "help/help.about.html",
+        main = "help/help.main.html",
+        x = "help/help.external.html",
+    )
 
-    # prepare the data
-    data = dict(name="John Doe", email="john.doe@gmail.com", tags="galaxy bwa", title="How do I run bwa?")
-    enc, digest = formdef.encode(data, key=key)
+    if word not in template_map:
+        messages.warning(request, "The help page that you were looking for cannot be found.")
+        return html.redirect(reverse("help"))
 
-    # the data that needs to be sent via parameters
-    store = dict(name=name, data=enc, digest=digest)
+    if word == "x":
+        # external authentication needs more detailed help
+
+        # get the key name and key value
+        name = "TEST-KEY"
+        key, patt = "abcd", "User %(name)s is asking about %(title)s"
+
+        # prepare the data
+        data = dict(name="John Doe", email="john.doe@gmail.com", tags="galaxy bwa", title="How do I run bwa?")
+
+        # encode the data and get the digest
+        enc, digest = formdef.encode(data, key=key)
+
+        # encode into url parameters
+        store = dict(name=name, data=enc, digest=digest)
+
+        # encoding the parameters into the url to be loaded
+        params = urllib.urlencode(store.items())
+        login_url = "/x/?%s" % params
+
+        store['action']='new'
+        params = urllib.urlencode(store.items())
+        post_url = "/x/?%s" % params
+
+        # this is used inside the templates
+        params = html.Params(post_url=post_url, login_url=login_url, key=key, data=data, enc=enc, digest=digest)
+        return html.template(request, name='help/help.external.html', params=params, user=user)
 
 
-    # encoding the parameters into the url to be loaded
-    params = urllib.urlencode(store.items())
-    login_url = "/x/?%s" % params
-
-    store['action']='new'
-    params = urllib.urlencode(store.items())
-    post_url = "/x/?%s" % params
-
-    # this is used inside the templates
-    params = html.Params(post_url=post_url, login_url=login_url, key=key, data=data, enc=enc, digest=digest)
-    return html.template(request, name='pages/external-help.html', params=params, user=user)
+    return html.template(request, name=template_map[word])
 
 def testpage(request):
     "Renders a test page"

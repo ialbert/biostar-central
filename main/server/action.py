@@ -414,8 +414,6 @@ def test_login(request, uid, token):
 
     return html.redirect("/")
 
-
-
 def get_traffic(end, minutes=60):
     "Returns the traffic as a number"
     try:

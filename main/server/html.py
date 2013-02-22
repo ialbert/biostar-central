@@ -85,8 +85,8 @@ def generate(text):
         md = markdown2.Markdown( safe_mode=False, extras=["code-friendly", "nofollow", "link-patterns"], link_patterns=link_patterns.all)
         #text = fix_orphans(text)
         #text = process(text, state='pre')
+        text = sanitize(text)
         html = md.convert(text)
-        html = sanitize(html)
         #html = process(html, state='post')
         #html = extra_html(html)
     return html
