@@ -88,11 +88,11 @@ def gravatar(user, size=80):
     
     username  = user.profile.display_name
     useremail = user.email.encode('utf8')
+    hash = hashlib.md5(useremail).hexdigest(),
 
-    gravatar_url = "http://www.gravatar.com/avatar.php?"
+    gravatar_url = "http://www.gravatar.com/avatar/%s?" % hash
     gravatar_url += urllib.urlencode({
-        'gravatar_id':hashlib.md5(useremail).hexdigest(),
-        'size':str(size),
+        's':str(size),
         'd':'identicon',
         }
     )
