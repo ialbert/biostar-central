@@ -3,10 +3,8 @@
 .DS_Store
 .idea/*
 biostar.db
-import/*
-main/db/*
+/import/*
+/main/db/*
 coverage.xml
-report/*
-conf/*
-apache/export/*
-libs/*
+/report/*
+/apache/export/*
