@@ -328,30 +328,30 @@ def approve_merge(request, master_id, remove_id):
     messages.info(request, 'Merge completed')
     return html.redirect("/")
 
+
 def authorize_external_user(request, data):
     """
     Authorizes and returns a user based on a trusted JSON string
     """
-    email = data['email']
+    username = data['username']
 
     # get the user
-    users = models.User.objects.filter(email=email)
+    users = models.User.objects.filter(username=username)
 
     if users:
         # this user already exists in the database
         user = users[0]
         if user.profile.type != USER_EXTERNAL:
-            raise Exception("this email already exists in BioStar for a local user")
+            raise Exception("this username already exists in BioStar for a local user")
 
     else:
         # create a new user
-        username = models.make_uuid()[:30]
+        email = data.get("email","no-email")
         user = models.User(username=username, email=email)
         user.save()
 
         # now update the profile
-        default_name = email.split('@')[0]
-        user.profile.display_name = data.get("name", default_name)
+        user.profile.display_name = data.get("display_name", "Biostar User")
         user.profile.type = USER_EXTERNAL
         user.profile.save()
 

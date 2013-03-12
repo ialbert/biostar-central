@@ -114,7 +114,7 @@ def help(request, word='main'):
         key, patt = "abcd", "User %(name)s is asking about %(title)s"
 
         # prepare the data
-        data = dict(name="John Doe", email="john.doe@gmail.com", tags="galaxy bwa", title="How do I run bwa?")
+        data = dict(display_name="Jane Doe", username="galaxy-jane2", email="jane.doe@gmail.com", tags="galaxy bwa", title="How do I run bwa?")
 
         # encode the data and get the digest
         enc, digest = formdef.encode(data, key=key)

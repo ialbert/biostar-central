@@ -29,7 +29,7 @@
 
         Three parameters need to be passed: name, data and digest corresponding
         to the pre-agreed key name, the base64 encoded data and the HMAC digest of the data. The data must contain at least
-        an email field.
+        a <code>username</code>field.
     </div>
 
     <pre>
@@ -59,7 +59,9 @@
     <h2>Parameter Filling</h2>
 
     <div style="padding: 10px;">
-        The incoming JSON data may contain optional content such as <code>title</code>, <code>tags</code> that will be applied to the question
+        The incoming JSON data may contain optional content such as <code>display_name</code>, <code>email</code> used
+        in the user account creation as well as parameters such as
+        <code>title</code>, <code>tags</code> that will be applied to the question
         that is posted.
     </div>
 
