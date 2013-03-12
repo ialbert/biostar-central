@@ -114,7 +114,13 @@ def help(request, word='main'):
         key, patt = "abcd", "User %(name)s is asking about %(title)s"
 
         # prepare the data
-        data = dict(display_name="Jane Doe", username="galaxy-jane2", email="jane.doe@gmail.com", tags="galaxy bwa", title="How do I run bwa?")
+        data = dict(display_name="Jane Doe",
+                    username="galaxy-jane2",
+                    email="jane.doe@gmail.com", tags="galaxy bwa", title="How do I run bwa?",
+                    tool_name="Uber Convert",
+                    tool_id = 1,
+                    tool_version= "0.0.1.alpha",
+        )
 
         # encode the data and get the digest
         enc, digest = formdef.encode(data, key=key)
