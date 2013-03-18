@@ -3,6 +3,8 @@ from django.conf import settings
 from django.template import Context, Template
 from django.template.defaultfilters import stringfilter
 from django.core.context_processors import csrf
+from main.server.const import *
+
 import urllib
 register = template.Library()
 
@@ -20,11 +22,11 @@ def show_count(key, store):
 
 @register.simple_tag
 def show_type(post, flag):
-    if flag:
-        return "%s: " % post.get_type_display()
+    if post.type == POST_QUESTION:
+        return "%s"
     else:
-        return ""
-   
+        return "%s: " % post.get_type_display()
+
 @register.inclusion_tag('widgets/form.field.html',)
 def form_field(field, label, help=''):
     errors = ", ".join(field.errors)

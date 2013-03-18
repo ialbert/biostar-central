@@ -21,7 +21,6 @@ from docutils import core
 import docutils.parsers.rst.roles
 docutils.parsers.rst.roles.DEFAULT_INTERPRETED_ROLE = 'title-reference'
 from itertools import groupby
-from textparser import process
 from . import link_patterns
 
 # safe string transformation

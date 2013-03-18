@@ -84,10 +84,10 @@ def filter_by_type(request, posts, post_type):
     "Filters posts by type"
 
     # filter is a single type
-    if post_type == POST_TUTORIAL:
-        return posts.filter(type__in=[POST_TUTORIAL, POST_TIP, POST_REVIEW])
-    elif post_type in POST_TYPE_REV_MAP:
+    if post_type in POST_TYPE_REV_MAP:
         return posts.filter(type=post_type)
+    elif post_type == "training":
+        return posts.filter(type__in=[POST_TUTORIAL, POST_TIP, POST_TOOL, POST_VIDEO, POST_REVIEW])
     elif post_type == 'sticky':
         return posts.filter(sticky=True)
     elif post_type == 'unanswered':
@@ -98,7 +98,9 @@ def filter_by_type(request, posts, post_type):
         return mytags_posts(request)
     elif post_type == 'recent':
         return posts.exclude(type=POST_BLOG).select_related('author', 'author__profile','root')
-    
+    elif post_type == "galaxy":
+        return posts.filter(type__in=POST_TOPLEVEL, tag_set__name__in=["galaxy"])
+
     return posts.exclude(type__in=POST_EXCLUDE)
     
 def apply_sort(request, posts, order, sticky=True):
@@ -142,7 +144,18 @@ def index(request, tab='all'):
 
     # override the sort order if the content so requires
     sort_type = 'creation' if tab=='recent' else sort_type
-        
+
+    # this here needs to be reworked TODO
+    if tab == "best":
+        sort_type = "votes"
+        since = request.GET.get('since', 'this week')
+        messages.info(request, "Most <b>upvoted</b> active posts of <b>%s!</b>" % since)
+
+    elif tab == "bookmarked":
+        sort_type = "bookmark"
+        since = request.GET.get('since', 'this month')
+        messages.info(request, "Most <b>bookmarked</b> active posts of <b>%s!</b>" % since)
+
     # the params object will carry
     layout = settings.USER_PILL_BAR if auth else settings.ANON_PILL_BAR
     
@@ -172,7 +185,7 @@ def index(request, tab='all'):
     posts = posts.select_related('author', 'author__profile', 'lastedit_user', 'lastedit_user__profile')
         
     # sticky is not active on recent and all pages
-    sticky = (tab != 'recent') and (pill != 'all')
+    sticky = (tab != 'recent') and (pill not in ('all', "best", "bookmarked"))
     
     # order may change if it is invalid search
     posts = apply_sort(request=request, posts=posts, order=sort_type, sticky=sticky)
@@ -188,8 +201,11 @@ def index(request, tab='all'):
     title_map = dict(
             questions="Bioinformatics Questions", unanswered="Unanswered Questions", tutorials="Bioinformatics Tutorials",
             jobs="Bioinformatics Jobs", videos="Bioinformatics Videos", news='Bioinformatics News', tools="Bioinformatics Tools",
-            recent="Recent bioinformatics posts", planet="Bioinformatics Planet"
+            recent="Recent bioinformatics posts", planet="Bioinformatics Planet",
+            galaxy="Galaxy on Biostar", bookmarked="Most bookmarked",
     )
+
+
 
     params.title = title_map.get(pill) or title_map.get(tab, params.title)
 
@@ -198,7 +214,7 @@ def index(request, tab='all'):
 # generate the Best Of tab, collection a highest rated posts
 def bestof(request, tab='best'):
     messages.info(request, "Most <b>upvoted</b> active posts <b>this week!</b>")
-    return html.redirect("/show/all/?sort=votes&since=this week")
+    return html.redirect("/show/best/?sort=votes&since=this week")
 
 
 def show_tag(request, tag_name=''):
@@ -234,7 +250,6 @@ def show_tag(request, tag_name=''):
 
     # order may change if it is invalid search
     posts = apply_sort(request=request, posts=posts, order=sort_type, sticky=False)
-
 
     page  = get_page(request, posts, per_page=20)
 

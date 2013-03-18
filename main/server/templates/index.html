@@ -25,7 +25,10 @@
             {% for post in page.object_list %}
 
                 {% table_row post params%}
-
+            {% empty %}
+                <div class="alert alert-block">
+                    No posts seem to match the criteria.
+                </div>
             {%  endfor %}
 
         </table>

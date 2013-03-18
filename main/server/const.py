@@ -44,10 +44,11 @@ POST_NAV_BAR_LOWER = map(string.lower, POST_NAV_BAR)
 SORT_MAP = dict(
     rank="-rank", views="-views", creation="-creation_date",
     activity="-lastedit_date", votes="-full_score", answers="-answer_count",
+    bookmark="-book_count",
 )
 
 # valid pill entries
-VALID_PILLS = set( "mytags all news questions unanswered forum tutorials tools videos jobs planet".split() )
+VALID_PILLS = set( "mytags all news questions unanswered galaxy best bookmarked training jobs planet forum".split() )
 
 # valid tab entries
 VALID_TABS = set( "recent planet sticky".split() ) | VALID_PILLS 

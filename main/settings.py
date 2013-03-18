@@ -357,13 +357,13 @@ TRUST_USER_MAX_POST = 15
 ANON_PILL_BAR = [
     ("all", "/", "Show&nbsp;All", "" ),
     ("best", "/show/best", "Best Of", "Best"),
+    ("bookmarked", "/show/bookmarked", "Bookmarked", "Bookmarked"),
     ("news", "/show/news/", "News", "News" ),
     ("questions", "/show/questions/", "Questions", "Question" ),
     ("unanswered", "/show/unanswered/", "Unanswered", "Unanswered" ),
+    ("galaxy", "/show/galaxy/", "Galaxy", "Galaxy" ),
     ("forum", "/show/forum/", "Forum", "Forum" ),
-    ("tutorials", "/show/tutorials/", "Tutorials", "Tutorial" ),
-    ("tools", "/show/tools/", "Tools", "Tool" ),
-    ("videos", "/show/videos/", "Videos", "Video" ),
+    ("training", "/show/training/", "Training", "Training" ),
     ("jobs", "/show/jobs/", "Jobs", "Job" ),
     ("blog", "/show/planet/", "Planet", "Blog" ),
     ]

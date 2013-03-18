@@ -3,6 +3,9 @@
 # Copyright (c) 2007-2008 ActiveState Corp.
 # License: MIT (http://www.opensource.org/licenses/mit-license.php)
 
+# Modified by ialbert: March 18, 2013
+# Link pattersn work differently user must supply the replacement text as well
+
 from __future__ import generators
 
 r"""A fast and complete Python implementation of Markdown.
@@ -1856,6 +1859,9 @@ class Markdown(object):
                         # To avoid markdown <em> and <strong>:
                         .replace('*', self._escape_table['*'])
                         .replace('_', self._escape_table['_']))
+
+                # changes of how the link patterns work, the full link needs to
+                # be provided in the pattern
                 #link = '<a href="%s">%s</a>' % (escaped_href, text[start:end])
                 link = escaped_href
                 hash = _hash_text(link)

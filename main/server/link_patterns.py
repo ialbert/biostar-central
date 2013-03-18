@@ -1,18 +1,17 @@
 # coding=utf-8
 """
-Link patterns to process the markdown
+Link patterns matched in the markdown2 library.
+
+Requires a modified markdown2 library!
+
 """
 
 __author__ = 'ialbert'
 
+from django.conf import settings
 import re
 
-def code_match(m):
-    value = m.group('value')
-    return r"http://code.activestate.com/recipes/%s/" % value
-
-code_match.patt = re.compile("recipe\s+(?P<id>(\d+))", re.I)
-
+DOMAIN = settings.SITE_DOMAIN
 
 class AutoLink(object):
     pattern = re.compile(r'((?P<start>(\s|\(|^))(?P<url>((http://|ftp://|https://)\S+)))', re.I)
@@ -23,11 +22,9 @@ class AutoLink(object):
         url  = m.group('url')
         start = m.group('start')
         link = start + "<a href='%s'>%s</a>"
-        # some common corner cases dealt with explicitly
-        # rather than regexp matching that would
-        # turn this into a very complex regexp
 
-        # deal with various punctuations at the end
+        # some common corner cases matched explicitly rather than regexp matching to simplify the RE
+        # recognize various punctuations at the end
         if url[-1] in r":,.()'\<>\"":
             end = url[-1]
             url = url[:-1]
@@ -37,7 +34,7 @@ class AutoLink(object):
 
 class TagMatch(object):
 
-    pattern1 = re.compile(r"(?P<url>(http://\S+?/show/tag/)(?P<tag>(\S+)))/", re.I)
+    pattern1 = re.compile(r"(?P<url>(http://%s/show/tag/)(?P<tag>(\S+)))/" % DOMAIN, re.I)
     pattern2 = re.compile(r"(tag\s*?:\s*?(?P<tag>(\S+)))", re.I)
 
     @staticmethod
@@ -49,7 +46,7 @@ class TagMatch(object):
 
 class UserMatch(object):
 
-    pattern1 = re.compile(r"(?P<url>(http://\S+?/u/)(?P<uid>(\d+)))/", re.I)
+    pattern1 = re.compile(r"(?P<url>(http://%s/u/)(?P<uid>(\d+)))/" % DOMAIN, re.I)
     pattern2 = re.compile(r"(?P<url>(\\user\s)(?P<uid>(\d+)))", re.I)
     @staticmethod
     def action(m):
@@ -68,7 +65,7 @@ class UserMatch(object):
 
 class PostMatch(object):
 
-    pattern1 = re.compile(r"(?P<url>(http://\S+?/p/)(?P<uid>(\S+)))/", re.I)
+    pattern1 = re.compile(r"(?P<url>(http://%s/p/)(?P<uid>(\S+)))/" % DOMAIN, re.I)
     pattern2 = re.compile(r"(?P<url>(\\post\s+)(?P<uid>(\d+)))", re.I)
     @staticmethod
     def action(m):
@@ -76,11 +73,12 @@ class PostMatch(object):
         from main.server import models
         uid = m.group('uid')
         url = m.group('url')
-        posts = models.Post.objects.filter(id=uid)
-        if posts:
+        try:
+            posts = models.Post.objects.filter(id=uid)
             post = posts[0]
             link = "<a href='%s'>%s</a>" % (post.get_absolute_url(), post.title)
-        else:
+        except Exception, exc:
+            print "*** postmatch error %s, %s, %s" %(url, uid, exc)
             link = "%s%s" % (url, uid)
 
         return link
@@ -118,5 +116,5 @@ for c in classes:
     all.append((c.pattern2, c.action))
 
 # add the autolink
-#all.append((AutoLink.pattern, AutoLink.action))
+all.append((AutoLink.pattern, AutoLink.action))
 

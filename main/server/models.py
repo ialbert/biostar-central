@@ -638,6 +638,12 @@ class Vote(models.Model):
             user_score_change(post.author, amount=1)
             post.save()
             root.save()
+
+        print "HERE"
+        if self.type == VOTE_BOOKMARK:
+            print "VOTE"
+            post.book_count += dir
+            post.save()
             
 @transaction.commit_on_success
 def insert_vote(post, user, vote_type):

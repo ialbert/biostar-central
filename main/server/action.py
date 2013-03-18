@@ -367,7 +367,7 @@ def external_handler(request):
     "This allows for external login"
     from django.contrib.auth import authenticate, login
 
-    url = "/help/x/"
+    url = "/show/galaxy/"
     try:
         user = request.user
         get = request.GET.get
