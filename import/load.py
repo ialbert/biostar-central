@@ -4,12 +4,14 @@ from django.conf import settings
 from main.server import models, const
 from email.utils import parsedate
 from datetime import datetime
+import itertools
 
 def parse_email(text):
     #print text
     address, name = text.split("(")[:2]
     address = address.replace(" at ", "@")
     address = address.replace(" ", "")
+    address = address.lower()
     test = name.upper()
     if "ISO" in test or "UTF" in test:
         name = address.split("@")[0]
@@ -19,12 +21,34 @@ def parse_email(text):
 class Bunch(object):
     pass
 
+def no_junk(line):
+
+    # invalid starts
+    for word in "> --- From:".split():
+        if line.strip().startswith(word):
+            return False
+
+    # junk words
+    for word in "scrubbed attachment.html wrote:".split():
+        if word in line:
+            return False
+
+    return True
+
+
 def get_body(m):
     body = m.get_payload()
-    if type(body) == str:
-        return body
-    else:
-        return '\n'.join([get_body(part.get_payload()) for part in body])
+    if type(body) != str:
+        body = '\n'.join([get_body(part.get_payload()) for part in body])
+
+    # modify body to include at least one
+    lines = body.splitlines()
+    lines = filter(no_junk, lines)
+    body = "\n".join(lines)
+    return body
+
+def valid(m):
+    return m['Subject']
 
 def unpack(m):
     b = Bunch()
@@ -32,6 +56,7 @@ def unpack(m):
     b.id = m['Message-ID']
     b.reply_to = m['In-Reply-To']
     b.subj = m['Subject']
+    assert b.subj, m
     b.subj = b.subj.replace("[galaxy-user]","").strip()
     b.body = get_body(m)
     # Sun, 2 Dec 2012 18:01:21 +0000
@@ -60,8 +85,9 @@ def create_post(b, author, post_type, root=None, parent=None):
 def summary(filename):
 
     mbox = mailbox.mbox(filename)
-
+    mbox = filter(valid, mbox)
     mbox = map(unpack, mbox)
+
     mbox = filter(lambda m:  m.sender, mbox)
     mbox = map(fill, mbox)
 
@@ -73,9 +99,10 @@ def summary(filename):
     for i, m in enumerate(mbox):
         if m.email not in users:
             print "creating user %s" % m.email, m.display_name
-            username = m.email.split("@")[0]
+            username = m.email.replace("@",'.')
             u = models.User.objects.create(username=username, email=m.email)
             u.profile.display_name = m.display_name
+            u.profile.type = const.USER_EXTERNAL
             u.profile.save()
             users[m.email] = u
 
