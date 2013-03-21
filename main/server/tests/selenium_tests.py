@@ -26,7 +26,7 @@ def get(browser, link=None, name=None, id=None):
         return browser.find_element_by_id(id)
     else:
         raise Exception("no identifiers were set")
-        
+
 def click_func(browser, link=None, name=None, id=None):
     elem = get(browser, name=name, id=id, link=link)
     assert elem, 'Element name=%s, id=%s not found' % (name, id)
@@ -49,7 +49,7 @@ def simple_navigation(browser):
     "Simple navigation through the site"
     click = partial(click_func, browser)
     
-    targets = "Posts Recent Tags Users Badges about faq rss Posts News Questions Unanswered Tutorials Tools Videos Jobs Planet".split()
+    targets = "Posts Recent Tags Users Badges about faq rss Posts News Questions Unanswered Galaxy Training Jobs Planet".split()
     targets.extend( [ 'Posts', 'Show All', 'New Post!',  'Sign In' ] )
     for link in targets:    
         elem, text = click(link)

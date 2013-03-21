@@ -29,7 +29,7 @@ def no_junk(line):
             return False
 
     # junk words
-    for word in "scrubbed attachment.html wrote:".split():
+    for word in "scrubbed attachment.html wrote: Sent:".split():
         if word in line:
             return False
 
@@ -75,7 +75,10 @@ def fill(b):
 def create_post(b, author, post_type, root=None, parent=None):
     title = b.subj
     body = b.body
-    post = models.Post(title=title, type=post_type, content=body, tag_val="galaxy", author=author, root=root, parent=parent)
+    if post_type == const.POST_QUESTION:
+        post = models.Post(title=title, type=post_type, content=body, tag_val="galaxy", author=author, root=root, parent=parent)
+    else:
+        post = models.Post(type=post_type, content=body, tag_val="galaxy", author=author, root=root, parent=parent)
     post.save()
     post.creation_date = post.lastedit_date = b.datetime
     post.set_tags()
@@ -99,7 +102,7 @@ def summary(filename):
     for i, m in enumerate(mbox):
         if m.email not in users:
             print "creating user %s" % m.email, m.display_name
-            username = m.email.replace("@",'.')
+            username = m.email.replace("@",'.')[:30]
             u = models.User.objects.create(username=username, email=m.email)
             u.profile.display_name = m.display_name
             u.profile.type = const.USER_EXTERNAL

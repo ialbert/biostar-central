@@ -268,7 +268,7 @@ def show_user(request, uid, post_type=''):
     if post_type:
         posts = get_post_manager(request).filter(type=post_type, author=user).order_by('-creation_date')
     else:
-        posts = get_post_manager(request).filter(type__in=POST_TOPLEVEL, author=user).order_by('-creation_date')
+        posts = get_post_manager(request).filter(author=user).order_by('-creation_date')
 
     posts = posts.select_related('author', 'author__profile', 'root')
     page  = get_page(request, posts, per_page=20)
