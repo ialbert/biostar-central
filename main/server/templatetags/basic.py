@@ -29,6 +29,10 @@ def smart_chunk(text):
             break
     return ' '.join(coll)
 
+@register.inclusion_tag('widgets/google.custom.html')
+def google_custom_search():
+    return { }
+
 @register.inclusion_tag('widgets/post.share.html')
 def post_share(post):
     return {'post':post}
