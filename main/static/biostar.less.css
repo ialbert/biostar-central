@@ -134,8 +134,8 @@ div .par {
     //margin: 2px 2px 2px 0;
     float: left;
     margin-right: 5px;
-    margin-bottom: 5px;
-    padding: 3px 4px 3px 4px;
+    margin-bottom: 1px;
+    padding: 1px 4px 1px 4px;
     text-decoration: none;
     background-color: #ECECEC;
     border-bottom: 1px solid #BBB;
@@ -930,7 +930,7 @@ ul.tagit {
 @media (min-width: 768px){
     .post-table{
         td.attributes:not(.blog){ /* On large devices, prevent votes/answers/views box from wrapping */
-            min-width: 200px;
+            min-width: 15em;
         }
     }
 }
