@@ -40,7 +40,8 @@ def user_link(m):
 
     return link
 
-POST_FULL = re.compile(r"(?P<url>http://%s/p/)(?P<uid>\d+)/*" % DOMAIN, re.I)
+POST_FULL = re.compile(r"(?P<url>http://%s/p/\d+/#)(?P<uid>\d+)" % DOMAIN, re.I)
+POST_TOP  = re.compile(r"(?P<url>http://%s/p/)(?P<uid>\d+)/*" % DOMAIN, re.I)
 POST_SHORT = re.compile(r"(?P<url>\\post\s+)(?P<uid>\d+)", re.I)
 
 def post_link(m):
@@ -126,6 +127,7 @@ patterns = [
 
     (POST_SHORT, post_link),
     (POST_FULL, post_link),
+    (POST_TOP, post_link),
 
     (GIST_FULL, gist_link),
     (GIST_SHORT, gist_link),
@@ -154,9 +156,9 @@ http://www.youtube.com/watch?v=tY2n2CHMXfI
 
 https://gist.github.com/ialbert/ae46c5f51d63cdf2d0d2
 
-\post 1
+\post 98
 
-http://%(domain)s/p/1/
+http://%(domain)s/p/22/#98
 
 \user 2
 
