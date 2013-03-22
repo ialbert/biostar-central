@@ -8,3 +8,4 @@ biostar.db
 coverage.xml
 /report/*
 /apache/export/*
+/libs/*
