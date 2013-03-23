@@ -1,48 +1,26 @@
 # -*- coding: utf-8 -*-
 import datetime
 from south.db import db
-from south.v2 import SchemaMigration
+from south.v2 import DataMigration
 from django.db import models
+from django.db.models import Count
+from main.server import const
 
-
-class Migration(SchemaMigration):
+class Migration(DataMigration):
 
     def forwards(self, orm):
-        # Adding model 'RelatedPosts'
-        db.create_table('server_relatedposts', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('source', self.gf('django.db.models.fields.related.ForeignKey')(related_name='source', to=orm['server.Post'])),
-            ('target', self.gf('django.db.models.fields.related.ForeignKey')(related_name='target', to=orm['server.Post'])),
-        ))
-        db.send_create_signal('server', ['RelatedPosts'])
+        "Write your forwards methods here."
+        # Note: Remember to use orm['appname.ModelName'] rather than "from appname.models..."
 
-        # Adding field 'Post.context'
-        db.add_column('server_post', 'context',
-                      self.gf('django.db.models.fields.TextField')(default='', max_length=1000),
-                      keep_default=False)
-
-        # Adding index on 'Post', fields ['lastedit_date']
-        db.create_index('server_post', ['lastedit_date'])
-
-        # Adding field 'UserProfile.verified_email'
-        db.add_column('server_userprofile', 'verified_email',
-                      self.gf('django.db.models.fields.BooleanField')(default=False),
-                      keep_default=False)
-
+        posts = orm.Post.objects.filter(votes__type=const.VOTE_BOOKMARK)
+        posts = posts.annotate(count=Count("votes")).order_by("-count")
+        #print "Updating %s posts" % len(posts)
+        for post in posts:
+            post.book_count = post.count
+            print post.title, post.book_count
 
     def backwards(self, orm):
-        # Removing index on 'Post', fields ['lastedit_date']
-        db.delete_index('server_post', ['lastedit_date'])
-
-        # Deleting model 'RelatedPosts'
-        db.delete_table('server_relatedposts')
-
-        # Deleting field 'Post.context'
-        db.delete_column('server_post', 'context')
-
-        # Deleting field 'UserProfile.verified_email'
-        db.delete_column('server_userprofile', 'verified_email')
-
+        "Write your backwards methods here."
 
     models = {
         'auth.group': {
@@ -206,3 +184,4 @@ class Migration(SchemaMigration):
     }
 
     complete_apps = ['server']
+    symmetrical = True
