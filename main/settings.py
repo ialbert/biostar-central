@@ -339,13 +339,13 @@ IMPORTANT_TAG_NAMES = "rna-seq chip-seq assembly snp metagenomics vcf cnv mirna 
 
 # the interval specified in hours
 # that user activity throttling is computed over
-TRUST_INTERVAL = 6
+TRUST_INTERVAL = 3
 
 # how many posts may a new user make in a trust interval
 # new user means a user that joined within a trust interval time
-TRUST_NEW_USER_MAX_POST = 2
+TRUST_NEW_USER_MAX_POST = 3
 
-# how many posts may a trusted user make withing a trus in
+# how many posts may a trusted user make withing a trust in
 TRUST_USER_MAX_POST = 15
 
 # TEMPLATE LAYOUT,

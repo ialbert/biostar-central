@@ -11,6 +11,151 @@
 <thead>
 <tr><td rowspan="1" colspan="3">Create Content</td></tr>
 </thead><tbody>
+<tr>
+	<td>open</td>
+	<td>test/login/10/abc</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>link=New Post!</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=id_title</td>
+	<td>How to get to zanzibar?</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>id=id_type</td>
+	<td>label=Tutorial</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=wmd-input</td>
+	<td>Other nearby sland countries and territories include<br />Comoros and Mayotte to the south, Mauritius and Reunion to the far southeast,<br />and the Seychelles Islands about 1,500 km to the east</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>name=tag_val</td>
+	<td>zanzibar</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>id=submit-button</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>link=comment</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=textarea</td>
+	<td>Adding a comment to the tutorial</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>link=Add comment</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>link=reply</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=textarea</td>
+	<td>And a reply to the comment</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>link=Add comment</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=wmd-input</td>
+	<td>ake a boat then a plane then a train<br />But let's also test orpan linking here: http://www.biostars.org but not insided<br />code blocks:<br /><br />&nbsp;&nbsp;&nbsp;&nbsp;http://www.biostars.org<br /><br />First link should be a real html link, second should stay as is.<br /><br />Encoding test: 吖 不 才</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>id=submit-button</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>link=zanzibar</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyTextPresent</td>
+	<td>How to get to zanzibar?</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>css=img.logo</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyTextPresent</td>
+	<td>How to get to zanzibar?</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>link=next&gt;</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>link=next&gt;</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>link=New Post!</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=id_title</td>
+	<td>Testing the various autolinking methods</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>id=id_type</td>
+	<td>label=Tutorial</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=wmd-input</td>
+	<td>URL Autolinking<br />---------------<br /><br />http://www.psu.edu or at middle https://www.psu.edu or end ftp://www.psu.edu<br /><br />but the same is protected as inline code<br /><br />`http://www.psu.edu` or at middle `https://www.psu.edu` or end `ftp://www.psu.edu`<br /><br />or as block code:<br /><br />&nbsp;&nbsp;&nbsp;&nbsp;http://www.psu.edu or at middle https://www.psu.edu or end ftp://www.psu.edu<br /><br />Punctuation surrounding the url should be ignored (http://www.psu.edu), http://www.psu.edu, http://www.psu.edu;, http://www.psu.edu:<br /><br />The same should work for lists<br /><br /> - (http://www.psu.edu). (http://www.psu.edu )<br /> - (http://www.psu.edu) http://www.psu.edu.<br /><br />Biostar Autolinking<br />-------------------<br /><br />The parser will now recognize links to this site and will generate more meaningful links from them.<br /><br />For example the url `http://localhost:8080/p/22/` added to a post will be displayed as http://localhost:8080/p/22. This<br />works with anchors as well `http://localhost:8080/p/22/#98` will expand to http://localhost:8080/p/22/#98.<br />The previous style of shortcuts of writing `\post 22` has also been kept functional.<br /><br />The same type of autolinking works for user pages. Pasting a link to a user page `http://localhost:8080/u/30/`<br />will result in it being displayed as http://localhost:8080/u/30/.<br /><br />To disable autolinking wrap the url into inline code or a code block.<br /><br />Bioinformatics Terms<br />--------------------<br /><br />Certain words such as `bwa`, `SAM`, `samtools` or `bedtools` are automatically recognized and linked to homepage like so:<br />bwa, SAM, samtools and bedtools.<br /><br />We started with just a few terms listed above and we are evaluating how well this works in practice.<br /><br />Gist Embedding<br />--------------<br /><br />To embed gists you may use a shortcut `\gist ialbert/ae46c5f51d63cdf2d0d2` or a full link<br />`https://gist.github.com/ialbert/ae46c5f51d63cdf2d0d2` and each will be displayed as<br /><br />\gist ialbert/ae46c5f51d63cdf2d0d2<br /><br />or as<br /><br />https://gist.github.com/ialbert/ae46c5f51d63cdf2d0d2<br /><br /><br />Youtube Embedding<br />-----------------<br /><br />YouTube embedding works via shortcuts `\youtube _cDaX0xJPvI` or full url embedding `http://www.youtube.com/watch?v=_cDaX0xJPvI`<br /><br />resulting in<br /><br />\youtube _cDaX0xJPvI<br /><br />or<br /><br />http://www.youtube.com/watch?v=_cDaX0xJPvI</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>name=tagit-input-value</td>
+	<td>autolink</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>name=tag_val</td>
+	<td>autolink</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>id=submit-button</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>link=log out</td>
+	<td></td>
+</tr>
 
 </tbody></table>
 </body>
