@@ -161,14 +161,16 @@ def index(request, tab='all'):
     
     # wether to show the type of the post
     show_type = post_type in ('all', 'recent')
-    
+
+    show_search = tab == "all"
     if tab in VALID_PILLS:
         tab, pill = "posts", tab
     else:
         tab, pill = tab, ""
+
     params  = html.Params(tab=tab, pill=pill, sort=sort_type, sort_choices=SORT_CHOICES, date_filter=DATE_FILTER, since=since,
-        layout=layout, show_type=show_type, title="Bioinformatics Answers")
-    
+                          layout=layout, show_type=show_type, title="Bioinformatics Answers", show_search=show_search)
+
     # this will fill in the query (q) and the match (m)parameters
     params.parse(request)
     

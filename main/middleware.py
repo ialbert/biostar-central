@@ -113,8 +113,8 @@ class LastVisit(object):
         if not user.is_authenticated():
             # anonymous users
             request.user.can_moderate = False
-            if request.path == "/":
-                messages.info(request, 'Welcome to BioStar! Questions and Answers on Bioinformatics and Genomics!')
+            #if request.path == "/":
+            #    messages.info(request, 'Welcome to BioStar! Questions and Answers on Bioinformatics and Genomics!')
             return 
             
         # at this point we only have authenticated users

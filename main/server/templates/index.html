@@ -9,6 +9,20 @@
 
 {% block body %}
 
+    {% if params.show_search %}
+    <div class="row">
+
+
+        <div class="offset2 span8 offset2" style="height:60px;margin-top:-15px;">
+
+            {%  google_custom_search %}
+
+        </div>
+
+
+    </div>
+    {%  endif  %}
+
 <div class="row" xmlns="http://www.w3.org/1999/html">
     <div class="span12">
         {% if params.sort %}
