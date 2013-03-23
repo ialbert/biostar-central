@@ -66,7 +66,7 @@ class TopLevelContent(forms.Form):
     title = forms.CharField(max_length=250, initial='', validators=[ valid_title ],
         widget=forms.TextInput(attrs={'class':'span8', 'placeholder': P_TITLE }))
     
-    content = forms.CharField(max_length=10000, initial='', validators=[ valid_content ],
+    content = forms.CharField(max_length=15000, initial='', validators=[ valid_content ],
         widget=forms.Textarea(attrs={'cols':'80', 'rows':'15', 'id':'editor', 'placeholder': P_CONTENT}))
 
     tag_val = forms.CharField(max_length=250, initial='', validators=[ valid_tag ],

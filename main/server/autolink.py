@@ -13,6 +13,20 @@ import re
 
 DOMAIN = settings.SITE_DOMAIN
 
+BIOINFO_WORDS = re.compile(r"(?P<word>\b(bwa|sam|bam|samtools|bedtools|sam)\b)", re.I)
+
+BIOINFO_PATT = {
+    'bwa' : 'http://bio-bwa.sourceforge.net/',
+    'sam' : 'http://samtools.sourceforge.net/SAM1.pdf',
+    'bam' : 'http://samtools.sourceforge.net/SAM1.pdf',
+    'samtools' : 'http://samtools.sourceforge.net/',
+    'bedtools' : 'https://code.google.com/p/bedtools/',
+}
+def bioinfo_link(m):
+    word = m.group('word')
+    patt = BIOINFO_PATT.get(word,"?")
+    link = "<a href='%s'>%s</a>" % (patt, word)
+    return link
 
 TAG_FULL = re.compile(r"(?P<url>http://%s/show/tag/)(?P<tag>\S+)/" % DOMAIN, re.I)
 
@@ -118,6 +132,8 @@ def auto_link(m):
     return link
 
 patterns = [
+
+    (BIOINFO_WORDS, bioinfo_link),
 
     (TAG_FULL, tag_link),
 
