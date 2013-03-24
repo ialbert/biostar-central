@@ -474,12 +474,7 @@ def post_moderate(request, post, user, status, date=None):
         Vote.objects.filter(post=post).delete()
         post.delete()
         return "/"
-    
-    # replace tags with the word deleted
-    if status == POST_DELETED:
-        post.tag_val = "deleted-post"
-        post.set_tags()
-        
+
     post.status = status
     post.save()
    

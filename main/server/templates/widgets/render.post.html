@@ -19,9 +19,7 @@
 
 
         <div class="body span9">
-            {% if post.deleted %}
-                [ content deleted, see revisions ]
-            {% else %}
+
                 {{ post.html|safe }}
 
                 {%  if post.context %}
@@ -31,7 +29,7 @@
                 {% if post.top_level %}
                     {% show_tags post %}
                 {% endif %}
-            {% endif %}
+
         </div>
 
 

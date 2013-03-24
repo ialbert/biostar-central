@@ -111,7 +111,7 @@ def youtube_link(m):
     return link
 
 
-AUTO_LINK_PATTERN = re.compile(r'(?P<url>(http|https|ftp)://\S+)', re.I)
+AUTO_LINK_PATTERN = re.compile(r'(\s|^)(?P<url>(http|https|ftp)://\S+)', re.I)
 EXCLUDE_CHARS = ";,)].:"
 
 

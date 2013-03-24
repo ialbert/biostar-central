@@ -43,10 +43,16 @@ def unicode_or_bust(obj, encoding='utf-8'):
     return obj
 
 def generate(text):
+    if not text:
+        return ""
+
+    # replace tabs with whitespace
+    text = text.replace("\t","    ")
     md = markdown2x.Markdown(safe_mode=False, extras=["code-friendly", "link-patterns"],
                              link_patterns=autolink.patterns)
-    text = sanitize(text)
+
     page = md.convert(text)
+    text = sanitize(text)
     page = unicode_or_bust(page)
     return page
 
