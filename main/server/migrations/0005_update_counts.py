@@ -12,13 +12,6 @@ class Migration(DataMigration):
         "Write your forwards methods here."
         # Note: Remember to use orm['appname.ModelName'] rather than "from appname.models..."
 
-        posts = orm.Post.objects.filter(votes__type=const.VOTE_BOOKMARK)
-        posts = posts.annotate(count=Count("votes")).order_by("-count")
-        #print "Updating %s posts" % len(posts)
-        for post in posts:
-            post.book_count = post.count
-            print post.title, post.book_count
-
         # remove all fixme posts
         orm.Post.objects.filter(type=const.POST_FIXME).update(type=const.POST_QUESTION)
 
