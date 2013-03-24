@@ -356,16 +356,15 @@ TRUST_USER_MAX_POST = 15
 # bar name, link url, link name, counter key
 ANON_PILL_BAR = [
     ("all", "/", "Show&nbsp;All", "" ),
-    ("best", "/show/best", "Best Of", "Best"),
+    ("best", "/show/best", "Popular", "Popular"),
     ("bookmarked", "/show/bookmarked", "Bookmarked", "Bookmarked"),
-    ("news", "/show/news/", "News", "News" ),
     ("questions", "/show/questions/", "Questions", "Question" ),
     ("unanswered", "/show/unanswered/", "Unanswered", "Unanswered" ),
+    ("howto", "/show/howto/", "How To", "How To" ),
     ("galaxy", "/show/galaxy/", "Galaxy", "Galaxy" ),
     ("forum", "/show/forum/", "Forum", "Forum" ),
-    ("training", "/show/training/", "Training", "Training" ),
     ("jobs", "/show/jobs/", "Jobs", "Job" ),
-    ("blog", "/show/planet/", "Planet", "Blog" ),
+    ("blog", "/show/planet/", "Planet", "Planet" ),
     ]
 
 USER_PILL_BAR = list(ANON_PILL_BAR)

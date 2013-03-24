@@ -145,7 +145,7 @@ def foo():
 
     for post in posts:
         post.book_count = post.count
-        #post.save()
+        post.save()
         print post.title, post.book_count
 
 

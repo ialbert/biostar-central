@@ -84,9 +84,11 @@ def filter_by_type(request, posts, post_type):
     "Filters posts by type"
 
     # filter is a single type
-    if post_type in POST_TYPE_REV_MAP:
+    if post_type == POST_FORUM:
+        return posts.filter(type__in=[POST_FORUM, POST_NEWS])
+    elif post_type in POST_TYPE_REV_MAP:
         return posts.filter(type=post_type)
-    elif post_type == "training":
+    elif post_type == "howto":
         return posts.filter(type__in=[POST_TUTORIAL, POST_TIP, POST_TOOL, POST_VIDEO, POST_REVIEW])
     elif post_type == 'sticky':
         return posts.filter(sticky=True)
@@ -100,7 +102,8 @@ def filter_by_type(request, posts, post_type):
         return posts.exclude(type=POST_BLOG).select_related('author', 'author__profile','root')
     elif post_type == "galaxy":
         return posts.filter(type__in=POST_TOPLEVEL, tag_set__name__in=["galaxy"])
-
+    elif post_type == "bookmarked":
+        return posts.filter(book_count__gt=0)
     return posts.exclude(type__in=POST_EXCLUDE)
     
 def apply_sort(request, posts, order, sticky=True):

@@ -32,6 +32,14 @@ body {
     background-image: url("/static/img/g/checkmark.png")
 }
 
+
+.bookcount {
+    color: silver;
+    font-size: x-small;
+    text-align: center;
+    width: 100%;
+}
+
 .newpost {
     //text-decoration: underline;
     //font-weight: bold;
