@@ -4,16 +4,66 @@
 <head profile="http://selenium-ide.openqa.org/profiles/test-case">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <link rel="selenium.base" href="http://localhost:8080/" />
-<title>Navigation</title>
+<title>User Edit</title>
 </head>
 <body>
 <table cellpadding="1" cellspacing="1" border="1">
 <thead>
-<tr><td rowspan="1" colspan="3">Navigation</td></tr>
+<tr><td rowspan="1" colspan="3">User Edit</td></tr>
 </thead><tbody>
 <tr>
 	<td>open</td>
-	<td>/</td>
+	<td>test/login/10/abc</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyTextPresent</td>
+	<td>Test login complete</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>link=Question Bot</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>link=Edit Info</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=id_display_name</td>
+	<td>Cóól Bót 啊不比</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=id_my_tags</td>
+	<td>mapping</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>id=submit-button</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>link=Cóól Bót 啊不比</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>link=Edit Info</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=id_display_name</td>
+	<td>Question Bot</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>id=submit-button</td>
 	<td></td>
 </tr>
 <tr>
@@ -23,122 +73,27 @@
 </tr>
 <tr>
 	<td>clickAndWait</td>
-	<td>link=Recent</td>
+	<td>link=My Tags</td>
 	<td></td>
 </tr>
 <tr>
 	<td>clickAndWait</td>
-	<td>link=Tags</td>
+	<td>link=mapping</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyTextPresent</td>
+	<td> Mapping of NGS reads</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyTextPresent</td>
+	<td>Filtering by tag: mapping</td>
 	<td></td>
 </tr>
 <tr>
 	<td>clickAndWait</td>
-	<td>link=Users</td>
-	<td></td>
-</tr>
-<tr>
-	<td>clickAndWait</td>
-	<td>link=Badges</td>
-	<td></td>
-</tr>
-<tr>
-	<td>clickAndWait</td>
-	<td>link=about</td>
-	<td></td>
-</tr>
-<tr>
-	<td>clickAndWait</td>
-	<td>link=faq</td>
-	<td></td>
-</tr>
-<tr>
-	<td>clickAndWait</td>
-	<td>link=rss</td>
-	<td></td>
-</tr>
-<tr>
-	<td>clickAndWait</td>
-	<td>link=New Post!</td>
-	<td></td>
-</tr>
-<tr>
-	<td>clickAndWait</td>
-	<td>link=Posts</td>
-	<td></td>
-</tr>
-<tr>
-	<td>clickAndWait</td>
-	<td>link=Best Of</td>
-	<td></td>
-</tr>
-<tr>
-	<td>clickAndWait</td>
-	<td>link=Bookmarked</td>
-	<td></td>
-</tr>
-<tr>
-	<td>clickAndWait</td>
-	<td>link=News</td>
-	<td></td>
-</tr>
-<tr>
-	<td>clickAndWait</td>
-	<td>link=Questions</td>
-	<td></td>
-</tr>
-<tr>
-	<td>clickAndWait</td>
-	<td>link=Unanswered</td>
-	<td></td>
-</tr>
-<tr>
-	<td>clickAndWait</td>
-	<td>link=Galaxy</td>
-	<td></td>
-</tr>
-<tr>
-	<td>clickAndWait</td>
-	<td>link=Forum</td>
-	<td></td>
-</tr>
-<tr>
-	<td>clickAndWait</td>
-	<td>link=Training</td>
-	<td></td>
-</tr>
-<tr>
-	<td>clickAndWait</td>
-	<td>link=Jobs</td>
-	<td></td>
-</tr>
-<tr>
-	<td>clickAndWait</td>
-	<td>link=Planet</td>
-	<td></td>
-</tr>
-<tr>
-	<td>clickAndWait</td>
-	<td>link=Show All</td>
-	<td></td>
-</tr>
-<tr>
-	<td>click</td>
-	<td>link=Limit to: all time</td>
-	<td></td>
-</tr>
-<tr>
-	<td>clickAndWait</td>
-	<td>link=this year</td>
-	<td></td>
-</tr>
-<tr>
-	<td>click</td>
-	<td>css=#menu2 &gt; a.dropdown-toggle &gt; b.caret</td>
-	<td></td>
-</tr>
-<tr>
-	<td>clickAndWait</td>
-	<td>link=votes</td>
+	<td>link=log out</td>
 	<td></td>
 </tr>
 
