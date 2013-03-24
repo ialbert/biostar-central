@@ -19,6 +19,9 @@ class Migration(DataMigration):
             post.book_count = post.count
             print post.title, post.book_count
 
+        # remove all fixme posts
+        orm.Post.objects.filter(type=const.POST_FIXME).update(type=const.POST_QUESTION)
+
     def backwards(self, orm):
         "Write your backwards methods here."
 
