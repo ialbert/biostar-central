@@ -13,7 +13,7 @@ import re
 
 DOMAIN = settings.SITE_DOMAIN
 
-BIOINFO_WORDS = re.compile(r"(?P<word>\b(bwa|sam|bam|samtools|bedtools|sam)\b)", re.I)
+BIOINFO_WORDS = re.compile(r"\s(?P<word>(bwa|sam|bam|samtools|bedtools|sam)\b)", re.I)
 
 BIOINFO_PATT = {
     'bwa' : 'http://bio-bwa.sourceforge.net/',
@@ -25,7 +25,7 @@ BIOINFO_PATT = {
 def bioinfo_link(m):
     word = m.group('word')
     patt = BIOINFO_PATT.get(word.lower(),"?")
-    link = "<a href='%s'>%s</a>" % (patt, word)
+    link = " <a href='%s'>%s</a>" % (patt, word)
     return link
 
 TAG_FULL = re.compile(r"(?P<url>http://%s/show/tag/)(?P<tag>\S+)/" % DOMAIN, re.I)
