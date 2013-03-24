@@ -156,7 +156,7 @@ def index(request, tab='all'):
 
     elif tab == "bookmarked":
         sort_type = "bookmark"
-        since = request.GET.get('since', 'this year')
+        since = request.GET.get('since', 'this month')
         messages.info(request, "Most <b>bookmarked</b> active posts of <b>%s!</b>" % since)
 
     # the params object will carry
