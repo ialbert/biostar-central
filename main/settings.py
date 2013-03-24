@@ -364,7 +364,7 @@ ANON_PILL_BAR = [
     ("galaxy", "/show/galaxy/", "Galaxy", "Galaxy" ),
     ("forum", "/show/forum/", "Forum", "Forum" ),
     ("jobs", "/show/jobs/", "Jobs", "Job" ),
-    ("blog", "/show/planet/", "Planet", "Planet" ),
+    ("planet", "/show/planet/", "Planet", "Blog" ),
     ]
 
 USER_PILL_BAR = list(ANON_PILL_BAR)

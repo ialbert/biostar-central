@@ -156,7 +156,7 @@ def index(request, tab='all'):
 
     elif tab == "bookmarked":
         sort_type = "bookmark"
-        since = request.GET.get('since', 'this month')
+        since = request.GET.get('since', 'this year')
         messages.info(request, "Most <b>bookmarked</b> active posts of <b>%s!</b>" % since)
 
     # the params object will carry
@@ -201,7 +201,7 @@ def index(request, tab='all'):
     
     # save the session
     sess.save()
-   
+
     # try to set a more informative title
     title_map = dict(
             questions="Bioinformatics Questions", unanswered="Unanswered Questions", tutorials="Bioinformatics Tutorials",
@@ -209,7 +209,6 @@ def index(request, tab='all'):
             recent="Recent bioinformatics posts", planet="Bioinformatics Planet",
             galaxy="Galaxy on Biostar", bookmarked="Most bookmarked",
     )
-
 
 
     params.title = title_map.get(pill) or title_map.get(tab, params.title)
