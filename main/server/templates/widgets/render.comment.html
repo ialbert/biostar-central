@@ -44,7 +44,7 @@
         
             {% csrf_token %}
             <input type="hidden" value="{{post.id}}">
-            <a class="add-comment">{% trans 'reply' %}</a>
+            <a class="add-comment"><span class="label">reply</span></a>
             
         {% else %}
             <a href="/openid/login/">{%  trans 'log in to reply' %}</a>
