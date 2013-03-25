@@ -20,23 +20,32 @@
             OpenID providers. If the system is not able to detect your
             existing account please see the <a href="/merge">account merge</a> page.
         </div>
-        
-         <div class="title"><a name="shortcuts"></a>Shorcuts</a></div>
+
+        <div class="title">External Authentication</div>
+        <div class="par">
+             Other sites may provide user login for Biostar. See the <a href="/help/x/">External Authentication</a> page.
+        </div>
+
+        <div class="title"><a name="shortcuts"></a>Shorcuts</a></div>
         <div class="par">Special commands may be used to generate content in BioStar. These need to be added into the post body and will not
-        be viewable in the preview. The transformations get applied only after submitting. 
-        Each shortcut is constructed via a blackslash and a word and each takes one or
-        more space separated parameters:
+        be viewable in the preview. The transformations get applied only after submitting:
         <ul>
             <li> 
-                <code>\post 1,2,3</code> will generate a link to the posts 1, 2 and 3 using the post title. The post ids must be numbers.
-            </li>
-            <li> 
-                <code>\gist 1,2,3</code>  will embed the gists 1, 2 and 3 into the main post. The gist ids must be numbers.
-            </li>
-            <li> 
-                <code>\youtube AAA,BBB,CCC</code> will embed youtube videos AAA, BBB and CCC into the main post. The YouTube ids can be seen in the URL bar like and have a form like bz93ReOv87Y.
+                <code>\post 1</code> or a full url <code>http://www.biostars.org/p/1/</code>
+                will be replaced by  a link to the post using the post title.
             </li>
 
+            <li>
+                <code>\user 1</code> or a full url <code>http://www.biostars.org/u/1/</code>
+                will be replaced by a link using the user's display name.
+            </li>
+
+            <li> 
+                <code>\gist 1</code>  will embed the gists with id 1 into the post.
+            </li>
+            <li> 
+                <code>\youtube AAA </code> will embed youtube videos AAA into the main post. The YouTube ids can be seen in the URL bar like and have a form like bz93ReOv87Y.
+            </li>
         </div> 
 
         <div class="title">RSS Feeds</div>
@@ -145,9 +154,7 @@
         for extended periods of time may lose their moderation rights.</div> 
           
         <div class="title">Markup</div>
-        <div class="par">Post may be formatted either with <a href="http://en.wikipedia.org/wiki/Markdown">Markdown</a> (default) or in 
-        <a href= "http://docutils.sourceforge.net/docs/user/rst/quickstart.html">Restructured Text Format</a>. Include the <code>##rest</code> pragma at the beginning of your text to
-        indicate that the content is in the ReST format
+        <div class="par">Post must be formatted with <a href="http://en.wikipedia.org/wiki/Markdown">Markdown</a>.
         </div>
 
 

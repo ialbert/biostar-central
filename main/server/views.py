@@ -84,10 +84,10 @@ def filter_by_type(request, posts, post_type):
     "Filters posts by type"
 
     # filter is a single type
-    if post_type == POST_TUTORIAL:
-        return posts.filter(type__in=[POST_TUTORIAL, POST_TIP, POST_REVIEW])
-    elif post_type in POST_TYPE_REV_MAP:
+    if post_type in POST_TYPE_REV_MAP:
         return posts.filter(type=post_type)
+    elif post_type == "training":
+        return posts.filter(type__in=[POST_TUTORIAL, POST_TIP, POST_TOOL, POST_VIDEO, POST_REVIEW])
     elif post_type == 'sticky':
         return posts.filter(sticky=True)
     elif post_type == 'unanswered':
@@ -98,7 +98,9 @@ def filter_by_type(request, posts, post_type):
         return mytags_posts(request)
     elif post_type == 'recent':
         return posts.exclude(type=POST_BLOG).select_related('author', 'author__profile','root')
-    
+    elif post_type == "galaxy":
+        return posts.filter(type__in=POST_TOPLEVEL, tag_set__name__in=["galaxy"])
+
     return posts.exclude(type__in=POST_EXCLUDE)
     
 def apply_sort(request, posts, order, sticky=True):
@@ -142,7 +144,18 @@ def index(request, tab='all'):
 
     # override the sort order if the content so requires
     sort_type = 'creation' if tab=='recent' else sort_type
-        
+
+    # this here needs to be reworked TODO
+    if tab == "best":
+        sort_type = "votes"
+        since = request.GET.get('since', 'this week')
+        messages.info(request, "Most <b>upvoted</b> active posts of <b>%s!</b>" % since)
+
+    elif tab == "bookmarked":
+        sort_type = "bookmark"
+        since = request.GET.get('since', 'this month')
+        messages.info(request, "Most <b>bookmarked</b> active posts of <b>%s!</b>" % since)
+
     # the params object will carry
     layout = settings.USER_PILL_BAR if auth else settings.ANON_PILL_BAR
     
@@ -174,7 +187,7 @@ def index(request, tab='all'):
     posts = posts.select_related('author', 'author__profile', 'lastedit_user', 'lastedit_user__profile')
         
     # sticky is not active on recent and all pages
-    sticky = (tab != 'recent') and (pill != 'all')
+    sticky = (tab != 'recent') and (pill not in ('all', "best", "bookmarked"))
     
     # order may change if it is invalid search
     posts = apply_sort(request=request, posts=posts, order=sort_type, sticky=sticky)
@@ -190,8 +203,11 @@ def index(request, tab='all'):
     title_map = dict(
             questions="Bioinformatics Questions", unanswered="Unanswered Questions", tutorials="Bioinformatics Tutorials",
             jobs="Bioinformatics Jobs", videos="Bioinformatics Videos", news='Bioinformatics News', tools="Bioinformatics Tools",
-            recent="Recent bioinformatics posts", planet="Bioinformatics Planet"
+            recent="Recent bioinformatics posts", planet="Bioinformatics Planet",
+            galaxy="Galaxy on Biostar", bookmarked="Most bookmarked",
     )
+
+
 
     params.title = title_map.get(pill) or title_map.get(tab, params.title)
 
@@ -200,7 +216,7 @@ def index(request, tab='all'):
 # generate the Best Of tab, collection a highest rated posts
 def bestof(request, tab='best'):
     messages.info(request, "Most <b>upvoted</b> active posts <b>this week!</b>")
-    return html.redirect("/show/all/?sort=votes&since=this week")
+    return html.redirect("/show/best/?sort=votes&since=this week")
 
 
 def show_tag(request, tag_name=''):
@@ -237,7 +253,6 @@ def show_tag(request, tag_name=''):
     # order may change if it is invalid search
     posts = apply_sort(request=request, posts=posts, order=sort_type, sticky=False)
 
-
     page  = get_page(request, posts, per_page=20)
 
     return html.template( request, name='index.html', page=page, params=params)
@@ -255,7 +270,7 @@ def show_user(request, uid, post_type=''):
     if post_type:
         posts = get_post_manager(request).filter(type=post_type, author=user).order_by('-creation_date')
     else:
-        posts = get_post_manager(request).filter(type__in=POST_TOPLEVEL, author=user).order_by('-creation_date')
+        posts = get_post_manager(request).filter(author=user).order_by('-creation_date')
 
     posts = posts.select_related('author', 'author__profile', 'root')
     page  = get_page(request, posts, per_page=20)
@@ -474,9 +489,16 @@ def new_comment(request, pid=0):
 @login_required(redirect_field_name='/openid/login/')
 def new_answer(request, pid):
     return new_post(request=request, pid=pid, post_type=POST_ANSWER)
-    
+
+def safe_context(key_name, data):
+    try:
+        patt = settings.EXTERNAL_AUTHENICATION[key_name][1]
+        return patt % data
+    except Exception, exc:
+        return "context error: %s" % exc
+
 @login_required(redirect_field_name='/openid/login/')
-def new_post(request, pid=0, post_type=POST_QUESTION):
+def new_post(request, pid=0, post_type=POST_QUESTION, data=None):
     "Handles the creation of a new post"
     
     user   = request.user
@@ -486,8 +508,18 @@ def new_post(request, pid=0, post_type=POST_QUESTION):
     toplevel = (pid == 0)
     factory  = formdef.ChildContent if pid else formdef.TopLevelContent
 
-    params = html.Params(tab='new', title="New post", toplevel=toplevel)
-    
+
+    params = html.Params(tab='new', title="New post", toplevel=toplevel, data=data)
+
+    extern = formdef.ExternalLogin(request.GET)
+    if extern.is_valid():
+        e = extern.cleaned_data['data']
+        context = safe_context(extern.cleaned_data['name'], e)
+        tag_val = e.get("tags", "")
+        title   = e.get("title", "")
+        form = factory(initial=dict(tag_val=tag_val, context=context, title=title))
+        return html.template(request, name=name, form=form, params=params)
+
     if request.method == 'GET':
         # no incoming data, render form
         form = factory()
@@ -498,14 +530,37 @@ def new_post(request, pid=0, post_type=POST_QUESTION):
 
     form = factory(request.POST)
 
-    # throttle new users to no more than 3 posts per 2 hours
-    MIN_AGE, MIN_COUNT = 6, 2
-    brand_new = (datetime.now() - user.date_joined) < timedelta(hours=MIN_AGE)
-    too_many = models.Post.objects.filter(author=user).count() >= MIN_COUNT
+    # applying some throttles here
+    now = datetime.now()
 
-    if brand_new and too_many:
-        messages.error(request, "Brand new users (accounts less than 6 hours old) may not create more than 2 posts. Apologies \
-            if that interferes with your usage, it is an anti-spam measure. Gives us a chance to ban the spamming bots")
+    # minimum age
+    trust_range = timedelta(hours=settings.TRUST_INTERVAL)
+
+    # a user that joined six hours ago
+    new_user = (now - user.date_joined) < trust_range
+
+    # posts within a trust interval
+    post_count = models.Post.objects.filter(author=user, creation_date__gt=now - trust_range).count()
+
+    # how many posts are too many
+    too_many = (post_count >= settings.TRUST_NEW_USER_MAX_POST) if new_user else post_count >= settings.TRUST_USER_MAX_POST
+
+    # different error messages for different type of users
+    if new_user and too_many:
+        messages.error(request, """
+            Brand new users (accounts less than %s hours old) may not create more than %s posts.<br>
+            Apologies if that interferes with your usage, it is an anti-spam measure.<br>
+            Gives us a chance to ban the spam bots before too long. This limitation is lifted later.
+            """ % (settings.TRUST_INTERVAL, settings.TRUST_NEW_USER_MAX_POST))
+        return html.template(request, name=name, form=form, params=params)
+
+    # this is main user throttling
+    if too_many:
+        messages.error(request, """
+            A user may only create %s posts within a six hour period.<br>
+            This is to protect against runaway bots.<br>
+            Sorry for any inconvenience this may cause.
+            """ % settings.TRUST_USER_MAX_POST)
         return html.template(request, name=name, form=form, params=params)
 
     if not form.is_valid():
@@ -516,14 +571,13 @@ def new_post(request, pid=0, post_type=POST_QUESTION):
     params = dict(author=user, type=post_type, parent=parent, root=root)
 
     # form may contain a variable number of elements
-    for attr in "title content tag_val type".split():
+    for attr in "title content tag_val type context".split():
         if attr in form.cleaned_data:
             params[attr] = form.cleaned_data[attr]
 
     with transaction.commit_on_success():
         post = models.Post.objects.create(**params)
         post.set_tags()
-        #post.save()
 
     return redirect(post)
 
@@ -550,7 +604,7 @@ def post_edit(request, pid=0):
     params = html.Params(tab='edit', title="Edit post", toplevel=toplevel)
     if request.method == 'GET':
         # no incoming data, render prefilled form
-        form = factory(initial=dict(title=post.title, content=post.content, tag_val=post.tag_val, type=post.type))
+        form = factory(initial=dict(title=post.title, content=post.content, tag_val=post.tag_val, type=post.type, context=post.context))
         return html.template(request, name=name, form=form, params=params)
 
     # process the incoming data

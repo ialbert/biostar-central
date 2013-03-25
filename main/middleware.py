@@ -67,7 +67,6 @@ def generate_counts(request, weeks=10):
     if counts:
         return counts
 
-
     if user.is_authenticated():
         since = user.profile.last_visited
     else:
@@ -91,7 +90,7 @@ def generate_counts(request, weeks=10):
 
     if not user.is_authenticated():
         # store the cache key for non-authenticated users
-        cache.set(CACHE_COUNT_KEY, counts, 600)
+        cache.set(CACHE_COUNT_KEY, counts, 3600)
 
     return counts
 

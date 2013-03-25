@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% load basic %}
+{% load widgets %}
+
+{% block body %}
+
+<div class="row">
+
+   <h3>Help</h3>
+
+
+   <div class="par">
+    Help goes here.
+   </div>
+
+   <h3>Contact</h3>
+   <div class="par">
+
+    <ul>
+        <li> send a private message to one of the site administrators</li>
+        <li> open a <a href="https://github.com/ialbert/biostar-central/issues">new issue</a> in the issue tracker</li>
+        <li> email your comments to <a href="mailto:biostar@biostars.org">biostar@biostars.org</a></li>
+        <li> post in the <a href="http://www.biostars.org/show/forum">Biostar Forum</a></li>
+        <li> if the site is down we can also be contacted via <a href="http://groups.google.com/group/biostar-central">News Group</a></li>
+    </ul>
+   </div>
+</div>
+
+{% endblock %}

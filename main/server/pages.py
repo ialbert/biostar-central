@@ -1,6 +1,7 @@
 """
 semi-static pages 
 """
+import urllib
 from django.conf import settings
 from main.server import html, models, formdef
 from main.server.const import *
@@ -9,6 +10,8 @@ from django.contrib.sites.models import Site
 from django.contrib import messages
 from django.core.mail import send_mail
 from datetime import datetime, timedelta
+from django.core.urlresolvers import reverse
+
 
 def about(request):
     "Renders the about page"
@@ -88,17 +91,44 @@ def beta(request):
     params = html.Params(nav='')
     return html.template(request, name='pages/beta.html', params=params)
 
+
+def help_external(request, word='main'):
+    "Renders a test page"
+    user = request.user
+
+    # create a test key/value pair
+    name = "TEST-KEY"
+    key, patt = "abcd", "User %(name)s is asking about %(title)s"
+
+    # prepare the data
+    data = dict(display_name="Jane Doe",
+                username="galaxy-jane2",
+                email="jane.doe@gmail.com", tags="galaxy bwa", title="How do I run bwa?",
+                tool_name="Uber Convert",
+                tool_id=1,
+                tool_version="0.0.1.alpha",
+    )
+
+    # encode the data and get the digest
+    enc, digest = formdef.encode(data, key=key)
+
+    # encode into url parameters
+    store = dict(name=name, data=enc, digest=digest)
+
+    # encoding the parameters into the url to be loaded
+    params = urllib.urlencode(store.items())
+    login_url = "/x/?%s" % params
+
+    store['action'] = 'new'
+    params = urllib.urlencode(store.items())
+    post_url = "/x/?%s" % params
+
+    # this is used inside the templates
+    params = html.Params(post_url=post_url, login_url=login_url, key=key, data=data, enc=enc, digest=digest)
+    return html.template(request, name='help/help.external.html', params=params, user=user)
+
 def testpage(request):
     "Renders a test page"
     user = request.user
-    params = html.Params(nav='rss')
-
-    posts = models.Post.objects
-    posts = posts.exclude(type=POST_BLOG).select_related('author', 'author__profile')
-    posts = posts.order_by('-rank')[:10]
-    posts = list(posts)
-
-
-    rows = connection.queries
-
-    return html.template(request, name='pages/testpage.html', params=params, user=user, rows=rows)
+    params = html.Params()
+    return html.template(request, name='pages/testpage.html', params=params, user=user)

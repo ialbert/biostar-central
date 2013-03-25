@@ -7,6 +7,6 @@ warnings.filterwarnings("ignore", category=DeprecationWarning)
 try:
     import django, south
 except ImportError, exc:
-    print "(!) unable to import a dependency"
+    print "(!) unable to import a dependency %s" % exc
     print "Try: unpack the depot.zip file in the libs folder"
     sys.exit()

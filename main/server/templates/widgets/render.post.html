@@ -23,6 +23,11 @@
                 [ content deleted, see revisions ]
             {% else %}
                 {{ post.html|safe }}
+
+                {%  if post.context %}
+                    <div class="context">Context: {{ post.context|safe }}</div>
+                {%  endif %}
+
                 {% if post.top_level %}
                     {% show_tags post %}
                 {% endif %}

@@ -1,11 +1,2 @@
 {% extends 'rows/row.post.html' %}
 
-{% block fixed-tags %}
-    <div class="tag-line">
-        {% if post.sticky %}
-            <a href="{% url show 'sticky' %}" class="post-type tag">sticky</a>
-        {% endif %}
-        <a href="{% url show 'tutorials' %}" class="post-type tag">tip</a>
-    </div>
-{% endblock %}
-

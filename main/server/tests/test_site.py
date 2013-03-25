@@ -341,7 +341,7 @@ class SimpleNav(TestCase):
         true, eq = self.assertTrue, self.assertEqual
 
         c = Client()
-        tabs = "recent mytags questions unanswered planet tutorials".split()
+        tabs = "recent mytags questions unanswered planet training".split()
         for tab in tabs:
             
             r = c.get(reverse("show", kwargs={'tab':tab}))

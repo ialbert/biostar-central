@@ -17,9 +17,6 @@ urlpatterns = patterns('main.server',
     url(r'^search/$', 'search.main', name="search"),
     url(r'^more/like/(?P<pid>\d+)/$', 'search.more', name="more"),
 
-    # show the best of tab
-    url(r'^show/best/$', 'views.bestof', name="bestof"),
-
     # show by content type
     url(r'^show/(?P<tab>\w+)/$', 'views.index', name="show"),
     
@@ -94,6 +91,9 @@ urlpatterns = patterns('main.server',
     url(r'^google/$','pages.google', name='google'),
     url(r'^testpage/$','pages.testpage', name='testpage'),
 
+    # help pages go here
+    url(r'^help/x/$','pages.help_external'),
+
     # lists all moderator actions
     url(r'^modlog/list/$', 'views.modlog_list', name="modlog-list"),
   
@@ -112,6 +112,14 @@ urlpatterns = patterns('main.server',
     url(r'^questions/(?P<pid>\d+)/$','action.redirect_post', name="redirect-short"),
     url(r'^questions/(?P<pid>\d+)/([-\w]+)/$','action.redirect_post', name="redirect-post"),
     url(r'^questions/tagged/(?P<tag>.+)/$','action.redirect_tag', name="redirect-tag"),
+
+
+
+
+    # the main handler for the external authentication
+    url(r'^x/$','action.external_handler', name="external-handler"),
+
+    #url(r'^x/post/$','action.external_post', name="external-post"),
 
     # test login, used during debugging
     url(r'^test/login/(?P<uid>\d+)/(?P<token>[\w\d]+)/$','action.test_login', name="test-login"),

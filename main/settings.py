@@ -319,6 +319,12 @@ BLOG_VIEW_RANK_GAIN = 0.1
 # don't turn it on in production servers!
 SELENIUM_TEST_LOGIN_TOKEN = None
 
+# no external authentication by default
+# dictionary keyed by name containing the tuple of (secret key, template)
+EXTERNAL_AUTHENICATION = {
+
+}
+
 # setting the session for multiple servers
 SESSION_COOKIE_DOMAIN = ""
 
@@ -330,6 +336,18 @@ RECENT_TAG_COUNT  = 30
 # set the tag names are to be displayed on the main page
 IMPORTANT_TAG_NAMES = "rna-seq chip-seq assembly snp metagenomics vcf cnv mirna indel bwa bowtie bedtools biopython bioperl".split()
 
+
+# the interval specified in hours
+# that user activity throttling is computed over
+TRUST_INTERVAL = 6
+
+# how many posts may a new user make in a trust interval
+# new user means a user that joined within a trust interval time
+TRUST_NEW_USER_MAX_POST = 2
+
+# how many posts may a trusted user make withing a trus in
+TRUST_USER_MAX_POST = 15
+
 # TEMPLATE LAYOUT,
 # One may override these variables from the settings file
 # 
@@ -339,13 +357,13 @@ IMPORTANT_TAG_NAMES = "rna-seq chip-seq assembly snp metagenomics vcf cnv mirna 
 ANON_PILL_BAR = [
     ("all", "/", "Show&nbsp;All", "" ),
     ("best", "/show/best", "Best Of", "Best"),
+    ("bookmarked", "/show/bookmarked", "Bookmarked", "Bookmarked"),
     ("news", "/show/news/", "News", "News" ),
     ("questions", "/show/questions/", "Questions", "Question" ),
     ("unanswered", "/show/unanswered/", "Unanswered", "Unanswered" ),
+    ("galaxy", "/show/galaxy/", "Galaxy", "Galaxy" ),
     ("forum", "/show/forum/", "Forum", "Forum" ),
-    ("tutorials", "/show/tutorials/", "Tutorials", "Tutorial" ),
-    ("tools", "/show/tools/", "Tools", "Tool" ),
-    ("videos", "/show/videos/", "Videos", "Video" ),
+    ("training", "/show/training/", "Training", "Training" ),
     ("jobs", "/show/jobs/", "Jobs", "Job" ),
     ("blog", "/show/planet/", "Planet", "Blog" ),
     ]

@@ -44,10 +44,11 @@ POST_NAV_BAR_LOWER = map(string.lower, POST_NAV_BAR)
 SORT_MAP = dict(
     rank="-rank", views="-views", creation="-creation_date",
     activity="-lastedit_date", votes="-full_score", answers="-answer_count",
+    bookmark="-book_count",
 )
 
 # valid pill entries
-VALID_PILLS = set( "mytags all news questions unanswered forum tutorials tools videos jobs planet".split() )
+VALID_PILLS = set( "mytags all news questions unanswered galaxy best bookmarked training jobs planet forum".split() )
 
 # valid tab entries
 VALID_TABS = set( "recent planet sticky".split() ) | VALID_PILLS 
@@ -76,9 +77,9 @@ NOTE_USER, NOTE_MODERATOR, NOTE_ADMIN, NOTE_AWARD, NOTE_SITE, NOTE_PRIVATE = ran
 NOTE_TYPES = ((NOTE_USER,'User'), (NOTE_MODERATOR,'Moderator'), (NOTE_ADMIN,'Admin'), (NOTE_AWARD, 'Award'), (NOTE_SITE, "Site"), (NOTE_PRIVATE, "Private"))
 
 # user types
-USER_NEW, USER_MEMBER,  USER_MODERATOR, USER_ADMIN, USER_BLOG, USER_SPECIAL, = range(1, 7)
+USER_NEW, USER_MEMBER,  USER_MODERATOR, USER_ADMIN, USER_BLOG, USER_SPECIAL, USER_EXTERNAL = range(1, 8)
 USER_TYPES = ( (USER_NEW, 'New'), (USER_MEMBER, 'Member'),  (USER_MODERATOR, 'Moderator'), 
-    (USER_ADMIN, 'Administrator'), (USER_BLOG, 'Blog'), (USER_SPECIAL, 'Special'),)
+    (USER_ADMIN, 'Administrator'), (USER_BLOG, 'Blog'), (USER_SPECIAL, 'Special'), (USER_EXTERNAL, "external"))
 
 # user status types
 USER_ACTIVE, USER_SUSPENDED, USER_BANNED = 1, 2, 3

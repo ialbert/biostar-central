@@ -101,7 +101,7 @@
 
                     <div class="control-group{% if form.type.errors %} error{% endif %}">
 
-                        <label class="control-label" for="type">{% trans 'Post Type' %}
+                        <label class="control-label">{% trans 'Post Type' %}
                         </label>
 
 
@@ -115,7 +115,17 @@
                     <input type="hidden" id="id_tag_val">
                 {% endif %}
 
+                {%  if form.context %}
+                    <div class="control-group">
 
+                        <label class="control-label">&nbsp;</label>
+
+                        <div class="controls">
+                            Context: {{ form.context.value|safe }}
+                            <input type="hidden" name="context" value="{{ form.context.value  }}">
+                        </div>
+                    </div>
+                {% endif %}
                 <div class="control-group {% if form.content.errors %}error{% endif %}">
 
                     <label class="control-label" for="editor">{% trans 'Content' %}

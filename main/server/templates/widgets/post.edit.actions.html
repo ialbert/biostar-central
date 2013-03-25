@@ -42,9 +42,14 @@
     </span>    
     {% endif %}
 
-    
+    {%  if post.book_count > 0 %}
+        &bull; {{ post.book_count }} bookmark{{ post.book_count|pluralize }}
+    {%  endif %}
+
     &bull;
 
         {%  post_share post %}
+
+
 </div>
 
