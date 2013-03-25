@@ -52,7 +52,10 @@ class UserProfile( models.Model ):
     silver_badges = models.IntegerField(default=0)
     gold_badges   = models.IntegerField(default=0)
     new_messages  = models.IntegerField(default=0)
-   
+
+    # is the email verified
+    verified_email  = models.BooleanField(default=False)
+
     # the last visit by the user
     last_visited = models.DateTimeField()
     
@@ -471,12 +474,7 @@ def post_moderate(request, post, user, status, date=None):
         Vote.objects.filter(post=post).delete()
         post.delete()
         return "/"
-    
-    # replace tags with the word deleted
-    if status == POST_DELETED:
-        post.tag_val = "deleted-post"
-        post.set_tags()
-        
+
     post.status = status
     post.save()
    
@@ -639,9 +637,7 @@ class Vote(models.Model):
             post.save()
             root.save()
 
-        print "HERE"
         if self.type == VOTE_BOOKMARK:
-            print "VOTE"
             post.book_count += dir
             post.save()
             

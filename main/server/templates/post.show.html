@@ -9,8 +9,10 @@
     <script src="{{ STATIC_URL }}js/handlers.js"></script>
    
     <!-- prettify -->
-    <link href="{{ STATIC_URL }}lib/prettify.css" rel="stylesheet"> 
+    <link href="{{ STATIC_URL }}lib/prettify.css" rel="stylesheet">
     <script src="{{ STATIC_URL }}lib/prettify.js"></script>
+
+
 
     <link rel="stylesheet" href="{{ STATIC_URL }}lib/pagedown/Markdown.css" type="text/css"/>
     <script type="text/javascript" src="{{ STATIC_URL }}lib/pagedown/Markdown.Converter.js"></script>    
@@ -23,7 +25,7 @@
      
     // google prettify library
     $('pre').addClass('prettyprint')
-    prettyPrint()
+    //prettyPrint()
 
     $('.comment-delete').click(function(){
         comment_delete($(this))

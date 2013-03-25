@@ -13,6 +13,20 @@ import re
 
 DOMAIN = settings.SITE_DOMAIN
 
+BIOINFO_WORDS = re.compile(r"\s(?P<word>(bwa|sam|bam|samtools|bedtools|sam)\b)", re.I)
+
+BIOINFO_PATT = {
+    'bwa' : 'http://bio-bwa.sourceforge.net/',
+    'sam' : 'http://samtools.sourceforge.net/SAM1.pdf',
+    'bam' : 'http://samtools.sourceforge.net/SAM1.pdf',
+    'samtools' : 'http://samtools.sourceforge.net/',
+    'bedtools' : 'https://code.google.com/p/bedtools/',
+}
+def bioinfo_link(m):
+    word = m.group('word')
+    patt = BIOINFO_PATT.get(word.lower(),"?")
+    link = " <a href='%s'>%s</a>" % (patt, word)
+    return link
 
 TAG_FULL = re.compile(r"(?P<url>http://%s/show/tag/)(?P<tag>\S+)/" % DOMAIN, re.I)
 
@@ -97,8 +111,8 @@ def youtube_link(m):
     return link
 
 
-AUTO_LINK_PATTERN = re.compile(r'(?P<url>(http|https|ftp)://\S+)', re.I)
-EXCLUDE_CHARS = ";,)]."
+AUTO_LINK_PATTERN = re.compile(r'(\s|^)(?P<url>(http|https|ftp)://\S+)', re.I)
+EXCLUDE_CHARS = ";,)].:"
 
 
 def auto_link(m):
@@ -107,7 +121,7 @@ def auto_link(m):
     end = ""
 
     # a "real" URL regexp is very complex so we do it this way
-    # these are charactes that are used as punctuation rather than in the URL
+    # these are characters that are usually a punctuation at the end
     while 1:
         if url[-1] in EXCLUDE_CHARS:
             end += url[-1]
@@ -119,6 +133,8 @@ def auto_link(m):
     return link
 
 patterns = [
+
+    (BIOINFO_WORDS, bioinfo_link),
 
     (TAG_FULL, tag_link),
 
@@ -148,11 +164,8 @@ def test():
 
 (http://www.psu.edu) http://www.psu.edu. ok
 
-\youtube ialbert/123
 
-http://www.youtube.com/watch?v=tY2n2CHMXfI
-
-\gist 123
+\gist ialbert/ae46c5f51d63cdf2d0d2
 
 https://gist.github.com/ialbert/ae46c5f51d63cdf2d0d2
 
@@ -165,6 +178,14 @@ http://%(domain)s/p/22/#98
 http://%(domain)s/u/2/
 
 http://%(domain)s/show/tag/bwa+galaxy+bowtie/
+
+Youtube Embedding
+-----------------
+
+\youtube tY2n2CHMXfI
+
+http://www.youtube.com/watch?v=tY2n2CHMXfI
+
 
     """ % dict(domain=DOMAIN)
 

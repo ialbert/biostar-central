@@ -32,6 +32,24 @@ body {
     background-image: url("/static/img/g/checkmark.png")
 }
 
+.about {
+    .title {
+        color: #333333;
+        font-weight: bold;
+        font-size: larger;
+    }
+    ul {
+        margin-top:10px;
+    }
+}
+
+.bookcount {
+    color: #800080;
+    font-size: x-small;
+    text-align: center;
+    width: 100%;
+}
+
 .newpost {
     //text-decoration: underline;
     //font-weight: bold;

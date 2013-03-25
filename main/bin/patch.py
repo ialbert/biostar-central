@@ -134,6 +134,21 @@ def traffic_cleanup(days=1):
 
     query.delete()
 
+def foo():
+    from django.db.models import Q, F
+
+    posts = models.Post.objects.filter(votes__type=VOTE_BOOKMARK)
+
+    posts = posts.annotate(count=Count("votes")).order_by("-count")
+
+    print "Updating %s posts" % len(posts)
+
+    for post in posts:
+        post.book_count = post.count
+        post.save()
+        print post.title, post.book_count
+
+
 if __name__ == '__main__':
     import doctest, optparse
   
@@ -153,7 +168,7 @@ if __name__ == '__main__':
     parser.add_option("--blog_cleanup", dest="blog_cleanup", help="cleans up deleted blogs", action="store_true", default=False)
     parser.add_option("--positive", dest="positive", help="removes negative ratings", action="store_true", default=False)
     parser.add_option("--traffic_cleanup", dest="traffic", help="removes post view entries older than <days>", type=int, default=0)
-
+    parser.add_option("--foo", dest="foo", help="applies a function ", action="store_true", default=False)
 
     (opts, args) = parser.parse_args()
     
@@ -186,3 +201,5 @@ if __name__ == '__main__':
     if opts.traffic:
         traffic_cleanup(opts.traffic)
 
+    if opts.foo:
+        foo()

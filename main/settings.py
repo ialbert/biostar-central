@@ -339,13 +339,13 @@ IMPORTANT_TAG_NAMES = "rna-seq chip-seq assembly snp metagenomics vcf cnv mirna 
 
 # the interval specified in hours
 # that user activity throttling is computed over
-TRUST_INTERVAL = 6
+TRUST_INTERVAL = 3
 
 # how many posts may a new user make in a trust interval
 # new user means a user that joined within a trust interval time
-TRUST_NEW_USER_MAX_POST = 2
+TRUST_NEW_USER_MAX_POST = 3
 
-# how many posts may a trusted user make withing a trus in
+# how many posts may a trusted user make withing a trust in
 TRUST_USER_MAX_POST = 15
 
 # TEMPLATE LAYOUT,
@@ -356,16 +356,15 @@ TRUST_USER_MAX_POST = 15
 # bar name, link url, link name, counter key
 ANON_PILL_BAR = [
     ("all", "/", "Show&nbsp;All", "" ),
-    ("best", "/show/best", "Best Of", "Best"),
+    ("best", "/show/best", "Popular", "Popular"),
     ("bookmarked", "/show/bookmarked", "Bookmarked", "Bookmarked"),
-    ("news", "/show/news/", "News", "News" ),
     ("questions", "/show/questions/", "Questions", "Question" ),
     ("unanswered", "/show/unanswered/", "Unanswered", "Unanswered" ),
+    ("howto", "/show/howto/", "How To", "How To" ),
     ("galaxy", "/show/galaxy/", "Galaxy", "Galaxy" ),
     ("forum", "/show/forum/", "Forum", "Forum" ),
-    ("training", "/show/training/", "Training", "Training" ),
     ("jobs", "/show/jobs/", "Jobs", "Job" ),
-    ("blog", "/show/planet/", "Planet", "Blog" ),
+    ("planet", "/show/planet/", "Planet", "Blog" ),
     ]
 
 USER_PILL_BAR = list(ANON_PILL_BAR)
