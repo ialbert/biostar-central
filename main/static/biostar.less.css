@@ -93,6 +93,13 @@ code {
 
 .add-comment {
     cursor: pointer;
+    .label {
+        &:hover {
+        background-color : #436C27;
+            text-decoration: none;
+            padding: 3px;
+        }
+    }
 }
 
 .message {
@@ -762,6 +769,13 @@ div.post-show {
     margin-top:3px;
     margin-bottom:3px;
     cursor:pointer;
+    .label {
+        &:hover {
+            background-color: #436C27;
+            text-decoration: none;
+            padding: 3px;
+        }
+    }
 }
 
 .mini-vote-box {
