@@ -217,6 +217,10 @@ class Post(models.Model):
 
         return url
 
+    def answer_only(self):
+        "The post should only have answers associate with it"
+        return self.type != POST_FORUM
+
     # now obsolete, TODO: remove
     def get_short_url(self):
         return self.get_absolute_url()

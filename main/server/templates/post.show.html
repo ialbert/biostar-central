@@ -89,12 +89,37 @@
 {% if root.open %}
     <div class="row" id="add-answer-row">
     <div class="span12">
-        
+
+    {%  if root.answer_only %}
+
+    <div class="alert alert-block" style="margin-top:10px;">
+        <h4>Please Note!</h4>
+
+        <p>Only a new <b>answer</b> to the top level question should be added below!</p>
+
+        <p>To respond to an existing post, ask for clarifications, add extra information,
+            thank a user, etc ... use the
+            <b>comment</b> link associated with the corresponding post!</p>
+    </div>
+    {%  else %}
+        <div class="alert alert-success alert-block" style="margin-top:10px;">
+            <p>This is a Forum section. You may add any type of posts below.</p>
+            <p>To respond to someone
+                click the <b>comment</b> link associated with the corresponding post!</p>
+        </div>
+    {%  endif %}
+
     <form action="/new/answer/{{root.id}}/" method="post" id="mainform" class="form-vertical">
         
         {% csrf_token %}
-        <legend>Add your answer</legend>
-        <fieldset>        
+
+        {%  if root.answer_only %}
+        <legend>Add a new answer to the question!</legend>
+        {%  else %}
+            <legend>Add a new post!</legend>
+        {%  endif %}
+
+        <fieldset>
         <div class="control-group">
             <div class="controls">
                 <div class="wmd-panel">
