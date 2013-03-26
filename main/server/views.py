@@ -165,7 +165,8 @@ def index(request, tab='all'):
     # wether to show the type of the post
     show_type = post_type in ('all', 'recent')
 
-    show_search = tab == "all"
+    show_search = True
+
     if tab in VALID_PILLS:
         tab, pill = "posts", tab
     else:
