@@ -13,6 +13,13 @@ import re
 
 DOMAIN = settings.SITE_DOMAIN
 
+
+NO_LINK_PATT = re.compile(r"(?P<url><a.+?</a>)", re.I)
+def no_link(m):
+    url = m.group('url')
+    url = url.replace('"', "'")
+    return url
+
 BIOINFO_WORDS = re.compile(r"\s(?P<word>(bwa|sam|bam|samtools|bedtools|sam)\b)", re.I)
 
 BIOINFO_PATT = {
@@ -111,7 +118,7 @@ def youtube_link(m):
     return link
 
 
-AUTO_LINK_PATTERN = re.compile(r'(\s|^)(?P<url>(http|https|ftp)://\S+)', re.I)
+AUTO_LINK_PATTERN = re.compile(r'\b(?P<url>(http|https|ftp)://\S+)', re.I)
 EXCLUDE_CHARS = ";,)].:"
 
 
@@ -120,8 +127,6 @@ def auto_link(m):
     url = m.group('url')
     end = ""
 
-    # a "real" URL regexp is very complex so we do it this way
-    # these are characters that are usually a punctuation at the end
     while 1:
         if url[-1] in EXCLUDE_CHARS:
             end += url[-1]
@@ -133,6 +138,8 @@ def auto_link(m):
     return link
 
 patterns = [
+
+    (NO_LINK_PATT, no_link),
 
     (BIOINFO_WORDS, bioinfo_link),
 
