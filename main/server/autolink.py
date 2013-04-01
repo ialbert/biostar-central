@@ -14,7 +14,7 @@ import re
 DOMAIN = settings.SITE_DOMAIN
 
 
-NO_LINK_PATT = re.compile(r"(?P<url><a.+?</a>)", re.I)
+NO_LINK_PATT = re.compile(r"(?P<url>(<a.+?</a>)|(<img.+?>))", re.I)
 def no_link(m):
     url = m.group('url')
     url = url.replace('"', "'")
