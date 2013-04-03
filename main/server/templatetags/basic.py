@@ -33,6 +33,10 @@ def smart_chunk(text):
 def google_custom_search():
     return { }
 
+@register.inclusion_tag('widgets/swiftype.search.html')
+def swiftype_search():
+    return { }
+
 @register.inclusion_tag('widgets/post.share.html')
 def post_share(post):
     return {'post':post}

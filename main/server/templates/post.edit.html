@@ -48,6 +48,9 @@
             // add an id to the newly created input element, used in testing
             input.val(oldInput.val());
             $('.tagit-input').first().attr("name", "tagit-input-value");
+
+
+
         });
     </script>
 
@@ -62,8 +65,15 @@
 {% block body %}
 
     <div class="row">
+        <br><br>
         <div class="span12">
 
+            <div align="center" style="padding-bottom: 20px;" >
+                How to ask good questions: <a target="new" href="http://www.ploscollections.org/article/info%3Adoi%2F10.1371%2Fjournal.pcbi.1002202;jsessionid=A2C2B677241104800E044DA36AFB577B">
+                    Ten Simple Rules for Getting Help from Online Scientific Communities</a>
+            </div>
+
+            <div>
             <form action="{{ request.path }}" method="post" id="mainform" class="form-horizontal">
 
                 {% csrf_token %}
@@ -74,26 +84,36 @@
 
                     <div class="control-group{% if form.title.errors %} error{% endif %}">
 
-                        <label class="control-label" for="title">{% trans 'Title' %}
+
+                        <label class="control-label" for="title"><b>{% trans 'Title' %}</b>
                         </label>
 
                         <div class="controls">
+
                             {{ form.title }}
                             <span class="help-inline">{{ form.title.errors }}</span>
+                            <!-- <div>
+                                <span class="help-block">As you type we will try to suggest existing questions that may have the answer.
+                            Keep expanding your title until it is unique.</span>
+                            </div> -->
                         </div>
+
                     </div>
+
+
 
 
                     <div class="control-group{% if form.tag_val.errors %} error{% endif %}">
 
-                        <label class="control-label" for="tag_val">{% trans 'Tags' %}
+                        <label class="control-label" for="tag_val"><b>{% trans 'Tags' %}</b>
                         </label>
 
                         <div class="controls">
                             <div>
                                 {{ form.tag_val }}
                             </div>
-                            <div><span class="help-block">cycle through suggestions with the UP/DOWN arrow keys {{ form.tag_val.errors }}</span>
+                            <div>
+                                <span class="help-block">Good tags are short and specific. Cycle through suggestions with the UP/DOWN arrow keys {{ form.tag_val.errors }}</span>
                             </div>
                         </div>
                     </div>
@@ -121,7 +141,7 @@
                         <label class="control-label">&nbsp;</label>
 
                         <div class="controls">
-                            Context: {{ form.context.value|safe }}
+                            {{ form.context.value|safe }}
                             <input type="hidden" name="context" value="{{ form.context.value  }}">
                         </div>
                     </div>
@@ -140,7 +160,7 @@
                         </div>
 
                         <span class="help-inline error">{{ form.content.errors }}</span>
-
+                        <div>Post preview:</div>
                         <div id="wmd-preview" class="wmd-panel wmd-preview"></div>
                     </div>
                 </div>
@@ -177,6 +197,7 @@
 
 
             </form>
+            </div>
         </div>
     </div>
 {% endblock %}
