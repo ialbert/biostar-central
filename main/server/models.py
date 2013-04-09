@@ -459,13 +459,18 @@ def post_moderate(request, post, user, status, date=None):
     
     # setting posts to open require more than one permission
     if status == POST_OPEN and not user.profile.can_moderate:
-        msg = 'User %s not a moderator' %user.id
+        msg = 'User %s not a moderator' % user.id
         messages.error(request, msg) if request else None
         return url
-    
+
+    if post.top_level and post.answer_count > 0 and (not user.profile.can_moderate):
+        msg = 'The post already has one or more answers. Only a moderator may delete it.'
+        messages.error(request, msg) if request else None
+        return url
+
     # check that user may write the post
     if not auth.authorize_post_edit(user=user, post=post, strict=False):
-        msg = 'User %s may not moderate post %s' %(user.id, post.id)
+        msg = 'User %s may not moderate post %s' % (user.id, post.id)
         messages.error(request, msg) if request else None
         return url
    
