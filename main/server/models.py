@@ -473,7 +473,14 @@ def post_moderate(request, post, user, status, date=None):
         msg = 'User %s may not moderate post %s' % (user.id, post.id)
         messages.error(request, msg) if request else None
         return url
-   
+
+    if status == POST_CLOSED:
+        msg1 = 'Post closings are temporarily disabled pending a re-evaluation of the entire concept!'
+        msg2 = '<b>Note</b>: Duplicated posts should be marked with an answer that links to the older post.'
+        messages.error(request, msg1) if request else None
+        messages.info(request, msg2) if request else None
+        return url
+
     # special treatment for deletion
     no_orphans = (Post.objects.filter(parent=post).exclude(id=post.id).count() == 0)
 
