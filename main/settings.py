@@ -372,10 +372,11 @@ ANON_PILL_BAR = [
 
 USER_PILL_BAR = [
 
-    ("myposts", "/show/myposts/", '<i class="icon-user"></i>', "" ),
-    ("mytags", "/show/mytags/", '<i class="icon-tags"></i>', "" ),
-    ("mybookmarks", "/show/mybookmarks/", '<i class="icon-bookmark"></i>', "" ),
-    ("myvotes", "/show/myvotes/", '<i class="icon-heart"></i>', "" ),
+    ("myposts", "/show/myposts/", '<i class="icon-user tx" data-toggle="tooltip" title="Your posts"></i>', "" ),
+    ("mytags", "/show/mytags/", '<i class="icon-tags tx" data-toggle="tooltip" title="Your tags"></i>', "" ),
+    ("mybookmarks", "/show/mybookmarks/", '<i class="icon-bookmark tx" data-toggle="tooltip" title="Your bookmarks"></i>', "" ),
+    ("myvotes", "/show/myvotes/", '<i class="icon-heart tx" data-toggle="tooltip" title="Up votes"></i>', "" ),
+    ("messages", "/show/messages/", '<i class="icon-envelope tx" data-toggle="tooltip" title="Messages"></i>', "" ),
 
     ("all", "/", "Show&nbsp;All", "" ),
 
