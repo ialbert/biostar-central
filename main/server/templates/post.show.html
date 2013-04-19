@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load widgets %}
-
+{%  load basic %}
 {% block title %}
     {{root.title}} - BioStar
 {% endblock %}
@@ -55,7 +55,11 @@
 {% endblock %}
 
 {% block body %}
-    
+
+    <div class="row">
+        {% google_custom_search %}
+    </div>
+
     {% if root.closed %}
         <div class="alert alert-warning">This post has been closed. No more answers may be added.</div>
     {% endif %}
