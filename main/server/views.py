@@ -165,10 +165,13 @@ def index(request, tab='all'):
         since = request.GET.get('since', 'this month')
         messages.info(request, "Most <b>bookmarked</b> active posts of <b>%s!</b>" % since)
     elif tab == "myvotes":
+        sort_type = "creation"
         messages.info(request, "Posts created by you that have received up-votes from other users")
     elif tab == "mybookmarks":
+        sort_type = "creation"
         messages.info(request, "Your bookmarked posts")
     elif tab == "myposts":
+        sort_type = "creation"
         messages.info(request, "Posts created by you")
 
     # the params object will carry
