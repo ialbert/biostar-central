@@ -23,10 +23,6 @@ body {
   position: relative; // Allow absolute positioning w.r.t. container
 }
 
-.nav-tabs > li {
-    margin-bottom: -2px;
-}
-
 .earned.True {
     display: block;
     width: 44px;
