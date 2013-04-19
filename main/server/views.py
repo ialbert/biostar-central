@@ -20,7 +20,7 @@ from django.conf import settings
 from django.http import HttpResponse
 from django.db.models import Q
 # the openid association model
-from django_openid_auth.models import UserOpenID
+
 from django.core.urlresolvers import reverse
 from django.db.models import Count, Max, Min
 
@@ -165,10 +165,10 @@ def index(request, tab='all'):
         since = request.GET.get('since', 'this month')
         messages.info(request, "Most <b>bookmarked</b> active posts of <b>%s!</b>" % since)
     elif tab == "myvotes":
-        sort_type = "creation"
+        sort_type = "votes__date"
         messages.info(request, "Posts created by you that have received up-votes from other users")
     elif tab == "mybookmarks":
-        sort_type = "creation"
+        sort_type = "votes__date"
         messages.info(request, "Your bookmarked posts")
     elif tab == "myposts":
         sort_type = "creation"
@@ -207,7 +207,10 @@ def index(request, tab='all'):
         
     # sticky is not active on recent and all pages
     sticky = (tab != 'recent') and (pill not in ('all', "best", "bookmarked"))
-    
+
+    # hackfix
+    sticky = False if pill.startswith("my") else sticky
+
     # order may change if it is invalid search
     posts = apply_sort(request=request, posts=posts, order=sort_type, sticky=sticky)
 

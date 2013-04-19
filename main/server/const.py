@@ -44,7 +44,7 @@ POST_NAV_BAR_LOWER = map(string.lower, POST_NAV_BAR)
 SORT_MAP = dict(
     rank="-rank", views="-views", creation="-creation_date",
     activity="-lastedit_date", votes="-full_score", answers="-answer_count",
-    bookmark="-book_count",
+    bookmark="-book_count", votes__date="-votes__date",
 )
 
 # valid pill entries
