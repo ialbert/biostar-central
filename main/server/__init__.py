@@ -1,4 +1,4 @@
 import sys
 
 # this is the BioStar release number
-VERSION = '1.3.2'
+VERSION = '1.3.3'
