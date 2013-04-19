@@ -73,8 +73,8 @@ def extras(request):
         except Exception, exc:
             traffic = models.PostView.objects.filter(date__gt=recently).count()
         cache.set(TRAFFIC_KEY, traffic, 600)
-    
-    return { 'BIOSTAR_VERSION': server.VERSION,
+
+    context = { 'BIOSTAR_VERSION': server.VERSION,
              'GOOGLE_TRACKER': settings.GOOGLE_TRACKER,
              'GOOGLE_DOMAIN': settings.GOOGLE_DOMAIN,
              'user':user, 
@@ -87,6 +87,13 @@ def extras(request):
              'recent_votes': recent_votes,
              'params':{}, # this is needed because of the navbar
     }
+
+    # that's just so bad I can't even begin to explain
+    # this whole thing needs to be tossed and refactored
+    if request.path == "/show/messages/":
+        del context['params']
+
+    return context
 
 def popular_tags(request):
     tags1 = models.Tag.objects.filter(name='galaxy') # Special treatment for Galaxy folks

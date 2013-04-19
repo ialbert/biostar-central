@@ -7,12 +7,6 @@
 <div class="pull-left topbar-user topbar-section">
     <ul class="nav">
         {% if user.is_authenticated %}
-            {% if user.profile.new_messages %}
-                <li>
-                    <a class="label label-success" href='{% url 'main.server.views.user_profile' user.id %}'><i
-                        class="icon-envelope icon-white"></i>&nbsp;{% bignum user.profile.new_messages %}</a>
-                </li>
-            {% endif %}
             <li>
                 <a style="display: inline;" href="{% url 'main.server.views.user_profile' user.id %}">
                     <i class="icon-user"></i>
@@ -36,56 +30,6 @@
         <li><a href="{% url 'main.server.pages.faq' %}">{% trans "faq" %}</a></li>
         <li><a href="{% url 'main.server.pages.rss' %}">{% trans "rss" %}</a></li>
     </ul>
-    <!-- <form class="topbar-search-form" action="{% url 'main.server.search.main' %}" method="get">
-        <input type="text" name='q' value="{{q}}" placeholder="{%  trans "Search" %}">
-    </form> -->
 </div>
 
 
-{% comment %}
-
- <div class="navbar">
-      <div class="navbar-inner">
-        <div class="container">
-
-          <a class="brand" href="/"><img src="{% static 'img/g/star.png' %}">{%  trans "BioStar" %}</a></a>
-
-
-            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </a>
-
-          <div class="nav-collapse">
-
-            <ul class="nav">
-              <li {% active 'tags'   nav %}><a href="{% url 'main.server.views.tag_list' %}">{% trans  "Tags" %}</a></li>
-              <li {% active 'users'  nav %}><a href="{% url 'main.server.views.user_list' %}">{%  trans "Users" %}</a></li>
-              <li {% active 'badges' nav %}><a href="{% url 'main.server.views.badge_list' %}">{%  trans "Badges" %}</a></li>
-              <li {% active 'about'  nav %}><a href="{% url 'main.server.pages.about' %}">{% trans "About" %}</a></li>
-              <li {% active 'rss'    nav %}><a href="{% url 'main.server.pages.rss' %}">{%  trans "RSS" %}</a></li>
-            </ul>
-
-
-
-            {%if user.is_authenticated %}
-            <p class="nav navbar-text pull-right">
-                {% if user.profile.new_messages %}
-                <a class="btn btn-success" href='{% url 'main.server.views.user_profile' user.id %}'><i class="icon-envelope icon-white"></i>&nbsp;{% bignum user.profile.new_messages %}</a>
-                {% endif %}
-                &nbsp;
-                 <i class="icon-user icon-white"></i>
-                 <a href="{% url 'main.server.views.user_profile' user.id %}">{{ user.profile.display_name }}</a> {% flair user %} <b>{% bignum user.profile.get_score %}</b>
-                 | <a href="/logout/?next_page=/">{%  trans "Logout" %}</a>
-            </p>
-            {% else %}
-              <p class="navbar-text pull-right login">
-                <a class="btn btn-success" href='/openid/login/' rel="nofollow"><i class="icon-user icon-white"></i> {%  trans "Sign In" %}</a>
-              </p>
-            {% endif %}
-
-          </div><!--/.nav-collapse -->
-        </div>
-      </div>
-    </div>{% endcomment %}

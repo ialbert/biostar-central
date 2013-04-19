@@ -18,7 +18,7 @@ def show_value(value):
 @register.simple_tag
 def show_count(key, store):
     value = store.get(key)
-    return "<sup>%s</sup>" % value if value else ""
+    return ' <sup class="label label-success">%s</sup>' % value if value else ""
 
 @register.simple_tag
 def show_type(post, flag):
@@ -100,7 +100,7 @@ def page_bar(context, anchor=''):
         'page'   : context['page'],
         'match'  : context.get('match',''),
         'query'  : context.get('query',''),
-        'params' : context.get('params', ''),
+        'params' : context.get('params', {}),
         'request': context['request'],
         'anchor' : anchor,
         'path'   : path,
@@ -113,7 +113,7 @@ def search_page_bar(context, anchor=''):
         'page'   : context['page'],
         'match'  : context.get('match',''),
         'query'  : context.get('query',''),
-        'params' : context.get('params', ''),
+        'params' : context.get('params', {}),
         'request': context['request'],
         'anchor' : anchor,
         'path'   : path,

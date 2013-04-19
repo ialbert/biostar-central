@@ -3,6 +3,8 @@ from django.conf import settings
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from main.server import const
 
+from server.views_refactored import MessageView
+
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
 admin.autodiscover()
@@ -16,6 +18,10 @@ urlpatterns = patterns('main.server',
     
     url(r'^search/$', 'search.main', name="search"),
     url(r'^more/like/(?P<pid>\d+)/$', 'search.more', name="more"),
+
+    # shows new messages
+    url(r'^show/messages/$', MessageView.as_view(), name=MessageView.url),
+
 
     # show by content type
     url(r'^show/(?P<tab>\w+)/$', 'views.index', name="show"),

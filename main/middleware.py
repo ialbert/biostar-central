@@ -77,7 +77,7 @@ def generate_counts(request, weeks=10):
     
     # establish how many of the posts have not been answered 
     values = [ p[0] for p in pairs ]
-    unansw = len([ ptype for (ptype, pcount) in pairs if (ptype == POST_QUESTION) and (pcount == 0) ])
+    unanswered = len([ ptype for (ptype, pcount) in pairs if (ptype == POST_QUESTION) and (pcount == 0) ])
     
     # needs to be sorted for the groupby
     values.sort()
@@ -86,7 +86,12 @@ def generate_counts(request, weeks=10):
     counts = dict( [ (POST_MAP[k], len(list(v))) for (k, v) in groupby(values) ] )
     
     # fill in unanswered posts
-    counts['Unanswered'] = unansw
+    counts['Unanswered'] = unanswered
+
+    if user.is_authenticated():
+        vote_count = models.Vote.objects.filter(post__author=user, date__gt=since).count()
+        counts['vote_count'] = vote_count
+        counts['message_count'] = user.profile.new_messages
 
     if not user.is_authenticated():
         # store the cache key for non-authenticated users
@@ -113,8 +118,6 @@ class LastVisit(object):
         if not user.is_authenticated():
             # anonymous users
             request.user.can_moderate = False
-            #if request.path == "/":
-            #    messages.info(request, 'Welcome to BioStar! Questions and Answers on Bioinformatics and Genomics!')
             return 
             
         # at this point we only have authenticated users
@@ -126,37 +129,14 @@ class LastVisit(object):
         # only write to database intermittently
         expired = (datetime.now() - profile.last_visited).seconds
             
-        if expired > settings.SESSION_UPDATE_TIME:
+        if 1 or expired > settings.SESSION_UPDATE_TIME:
             counts = generate_counts(request)
             sess.set_counts(counts)
             sess.save()
 
-            since = user.profile.last_visited
-
-            # votes since the last visit
-            vote_count = models.Vote.objects.filter(post__author=user, date__gt=since).count()
-            if vote_count > 0:
-                msg = '<i class="icon-info-sign"></i> <b>%s</b> upvotes since your last visit!\
-                    See your <a href="/show/myvotes/">recent upvoted posts</a>!' % vote_count
-                messages.info(request, msg)
-
             # save the last update time
             profile.update_expiration()
-            
-            # create nagging message for fixme posts
-            fixme = models.Post.objects.filter(type=POST_FIXME, author=user, status=POST_OPEN)
-            if fixme:
-                first = fixme[0]
-                messages.error(request, 'You have a post that does not conform the requirements. Please edit it: <a href="%s">%s</a>' % (first.get_absolute_url(), first.title)) 
 
-            # remind user about voting every six weeks since the last vote
-            # and only nag people with lower reputations ;-)
-            if user.profile.score < 300:
-                since = datetime.now() - timedelta(weeks=6)
-                votes = models.Vote.objects.filter(author=user, date__gt=since)[:1]
-                if not votes:
-                    messages.info(request, '<i class="icon-info-sign"></i> Remember to <b>vote</b> on posts that you find useful!') 
-                
             # try to award badges
             awards.instant(request)
 
