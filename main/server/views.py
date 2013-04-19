@@ -95,7 +95,7 @@ def filter_by_type(request, posts, post_type):
     elif post_type == "myposts":
         return  posts.filter(author=request.user)
     elif post_type == "mybookmarks":
-        return  posts.filter(votes__post__author=request.user, votes__type=const.VOTE_BOOKMARK)
+        return  posts.filter(votes__author=request.user, votes__type=const.VOTE_BOOKMARK)
     elif post_type == 'sticky':
         return posts.filter(sticky=True)
     elif post_type == 'unanswered':

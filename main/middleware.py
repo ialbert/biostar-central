@@ -136,8 +136,8 @@ class LastVisit(object):
             # votes since the last visit
             vote_count = models.Vote.objects.filter(post__author=user, date__gt=since).count()
             if vote_count > 0:
-                msg = '<i class="icon-info-sign"></i> <b>%s</b> upvotes since your last visit! \
-                    See your <a href="/show/myvotes/">recent upvoted posts</a>!' % (vote_count, user.id)
+                msg = '<i class="icon-info-sign"></i> <b>%s</b> upvotes since your last visit!\
+                    See your <a href="/show/myvotes/">recent upvoted posts</a>!' % vote_count
                 messages.info(request, msg)
 
             # save the last update time
