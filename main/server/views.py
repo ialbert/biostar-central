@@ -90,6 +90,12 @@ def filter_by_type(request, posts, post_type):
         return posts.filter(type=post_type)
     elif post_type == "howto":
         return posts.filter(type__in=[POST_TUTORIAL, POST_TIP, POST_TOOL, POST_VIDEO, POST_REVIEW])
+    elif post_type == "myvotes":
+        return  posts.filter(votes__post__author=request.user)
+    elif post_type == "myposts":
+        return  posts.filter(author=request.user)
+    elif post_type == "mybookmarks":
+        return  posts.filter(votes__post__author=request.user, votes__type=const.VOTE_BOOKMARK)
     elif post_type == 'sticky':
         return posts.filter(sticky=True)
     elif post_type == 'unanswered':
@@ -158,6 +164,12 @@ def index(request, tab='all'):
         sort_type = "bookmark"
         since = request.GET.get('since', 'this month')
         messages.info(request, "Most <b>bookmarked</b> active posts of <b>%s!</b>" % since)
+    elif tab == "myvotes":
+        messages.info(request, "Posts created by you that have received up-votes from other users")
+    elif tab == "mybookmarks":
+        messages.info(request, "Your bookmarked posts")
+    elif tab == "myposts":
+        messages.info(request, "Posts created by you")
 
     # the params object will carry
     layout = settings.USER_PILL_BAR if auth else settings.ANON_PILL_BAR

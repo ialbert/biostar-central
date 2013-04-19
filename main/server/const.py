@@ -48,7 +48,7 @@ SORT_MAP = dict(
 )
 
 # valid pill entries
-VALID_PILLS = set( "mytags all questions unanswered galaxy best bookmarked howto jobs planet forum".split() )
+VALID_PILLS = set( "mytags all questions unanswered galaxy best bookmarked howto myvotes mybookmarks myposts jobs planet forum".split() )
 
 # valid tab entries
 VALID_TABS = set( "recent planet sticky".split() ) | VALID_PILLS 
