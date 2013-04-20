@@ -35,6 +35,9 @@ class MessageView(TemplateView):
         notes = notes.select_related('author', 'author__profile').order_by('-date')
         page = html.get_page(request=self.request, obj_list=notes, per_page=25)
 
+        # evaluate the query here so that the unread status is kept
+        page.object_list = list(page.object_list)
+
         # reset the counts
         models.Note.objects.filter(target=user, unread=True).update(unread=False)
         models.UserProfile.objects.filter(user=user).update(new_messages=0)
