@@ -351,6 +351,8 @@ TRUST_NEW_USER_MAX_POST = 3
 # how many posts may a trusted user make withing a trust in
 TRUST_USER_MAX_POST = 15
 
+COUNT_INTERVAL_WEEKS = 25
+
 # TEMPLATE LAYOUT,
 # One may override these variables from the settings file
 # 
