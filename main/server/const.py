@@ -126,6 +126,9 @@ TARGET_COUNT_MAP = {
     POST_JOB : "Job",
     POST_BLOG: "Blog",
     POST_VIDEO: "Video",
-    "unanswered" : "Unanswered",
     POST_FORUM: "Forum",
+    "unanswered" : "Unanswered",
+    "howto" : "howto",
+    "message_count": "message_count",
+    "myvotes": "vote_count",
 }

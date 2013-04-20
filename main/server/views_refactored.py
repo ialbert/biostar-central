@@ -8,6 +8,7 @@ from django.db.models import Q
 from main.server import html
 from main.server.const import *
 from django.conf import settings
+from main import middleware
 
 class PageBase(TemplateView):
     url = "default"
@@ -39,12 +40,19 @@ class MessageView(TemplateView):
         models.Note.objects.filter(target=user, unread=True).update(unread=False)
         models.UserProfile.objects.filter(user=user).update(new_messages=0)
 
+        sess = middleware.Session(self.request)
+        counts = sess.get_counts("message_count")
+        sess.save()
+
         # the params object will carry
         layout  = settings.USER_PILL_BAR
-        params  = html.Params(tab="", pill="messages", sort='', since='', layout=layout, title="Your Messages")
+
+        params  = html.Params(tab="", pill="messages",
+                              sort='', since='', layout=layout, title="Your Messages")
 
         context['page'] = page
         context['params'] = params
+        context['counts'] = counts
 
         return context
 

@@ -54,6 +54,7 @@ class Session(object):
         if not self.has_storage:
             return generate_counts(self.request)
         else:
+
             key = TARGET_COUNT_MAP.get(post_type, None)
             self.data[self.COUNT_KEY][key] = 0
             return self.data[self.COUNT_KEY]
@@ -64,6 +65,7 @@ def generate_counts(request, weeks=10):
     now  = datetime.now()
 
     counts = cache.get(CACHE_COUNT_KEY)
+
     if counts:
         return counts
 
@@ -71,6 +73,9 @@ def generate_counts(request, weeks=10):
         since = user.profile.last_visited
     else:
         since = now - timedelta(weeks=weeks)
+
+    # for debugging
+    #since = now - timedelta(weeks=1000)
 
     # posts since the last visit
     pairs = models.Post.objects.filter(type__in=POST_TOPLEVEL, status=POST_OPEN, creation_date__gt=since).order_by('-id').values_list("type", "answer_count")
@@ -87,6 +92,8 @@ def generate_counts(request, weeks=10):
     
     # fill in unanswered posts
     counts['Unanswered'] = unanswered
+
+    counts['howto'] = counts.get("Tutorial", 0) + counts.get("Tool", 0) + counts.get("Tip", 0)
 
     if user.is_authenticated():
         vote_count = models.Vote.objects.filter(post__author=user, date__gt=since).count()
@@ -129,7 +136,7 @@ class LastVisit(object):
         # only write to database intermittently
         expired = (datetime.now() - profile.last_visited).seconds
             
-        if 1 or expired > settings.SESSION_UPDATE_TIME:
+        if expired > settings.SESSION_UPDATE_TIME:
             counts = generate_counts(request)
             sess.set_counts(counts)
             sess.save()
