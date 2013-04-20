@@ -90,7 +90,7 @@ def extras(request):
 
     # that's just so bad I can't even begin to explain
     # this whole thing needs to be tossed and refactored
-    if request.path == "/show/messages/":
+    if request.path == "/show/messages/" or request.path == "/show/ads/":
         del context['params']
 
     return context

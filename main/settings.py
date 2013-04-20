@@ -32,6 +32,8 @@ ADMINS = (
     ('Default Admin', 'your-mail-here@your-server-here.com'),
 )
 
+ADMIN_EMAILS = [ r[1] for r in ADMINS ]
+
 MANAGERS = ADMINS
 
 # how many post per page to show
@@ -402,6 +404,8 @@ USER_PILL_BAR = [
 TEMPLATE_ROWS = {
     'job': "rows/row.job.html",
 }
+
+MINIMUM_AD_REP = 100
 
 # version check, we can do it at the end since
 # the version is only required in subsequent modules

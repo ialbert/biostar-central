@@ -48,3 +48,23 @@ class MessageView(TemplateView):
 
         return context
 
+class AdView(ListView):
+    model = models.Ad
+    url = "show/ads/"
+    template_name = "refactored/show.ads.html"
+    paginate_by = 25
+    context_object_name = 'ads'
+
+    def get_context_data(self, **kwargs):
+        
+        context = super(AdView, self).get_context_data(**kwargs)
+        user = self.request.user
+        user.is_admin = user.email in settings.ADMIN_EMAILS
+
+        layout  = settings.USER_PILL_BAR
+        params  = html.Params(tab="", pill="ads", sort='', since='', layout=layout, title="Ad List")
+
+        context['params'] = params
+        context['user'] = self.request.user
+
+        return context

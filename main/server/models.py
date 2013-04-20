@@ -56,6 +56,9 @@ class UserProfile( models.Model ):
     # is the email verified
     verified_email  = models.BooleanField(default=False)
 
+    # show ads to the user
+    show_ads  = models.BooleanField(default=True)
+
     # the last visit by the user
     last_visited = models.DateTimeField()
     
@@ -122,6 +125,7 @@ class ProfileAdmin(admin.ModelAdmin):
     search_fields = ['display_name']
    
 admin.site.register(UserProfile, ProfileAdmin)
+
 
 class Tag(models.Model):
     name  = models.TextField(max_length=50, db_index=True)
@@ -381,6 +385,24 @@ class BlogAdmin(admin.ModelAdmin):
     username.short_description = 'Description'
     
 admin.site.register(Blog, BlogAdmin)
+
+class Ad(models.Model):
+    ACTIVE, STOPPED, PENDING = range(1,4)
+    CHOICES = ((ACTIVE, "Active"), (STOPPED, "Stopped"), (PENDING, "Pending"))
+    user = models.ForeignKey(User)
+    post = models.ForeignKey(Post)
+    rank = models.FloatField(default=0, db_index=True)
+    clicks = models.IntegerField(default=0)
+    count  = models.IntegerField(default=0)
+    status = models.IntegerField(choices=CHOICES, default=PENDING, db_index=True)
+
+    def __unicode__(self):
+        return "Ad %s" % self.id
+
+class AdAdmin(admin.ModelAdmin):
+    search_fields = ['user__email', 'user__profile__display_name', 'post__title']
+
+admin.site.register(Ad, AdAdmin)
 
 class PostView(models.Model):
     """
@@ -815,6 +837,14 @@ def finalize_post(sender, instance, created, raw, *args, **kwargs):
     "Post save actions for a post"
                
     if created:
+        if instance.type == POST_AD:
+            # create a corresponding Ad object
+            if instance.author.profile.score > settings.MINIMUM_AD_REP:
+                status = Ad.ACTIVE
+            else:
+                status = Ad.PENDING
+            Ad.objects.create(user=instance.author, post=instance, status=status)
+
         # ensure that all posts actually have roots/parent
         if not instance.root or not instance.parent or not instance.title:
             instance.root   = instance.root or instance

@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% load basic %}
+{% load widgets %}
+{% load humanize %}
+{% load i18n %}
+
+{% block title %}
+    {{ params.title }}
+{% endblock %}
+
+{% block body %}
+
+    <div class="row">
+        <div class="span12">
+
+
+            <table class="table table-striped ad-list" cellspacing="0" width="100%">
+                <tr>
+                    <th>ID</th>
+                    <th>Impressions</th>
+                    <th>Status</th>
+                    <th>Title</th>
+                </tr>
+                {% for ad in ads %}
+                    <tr>
+                        <td>
+                            {{ ad.id }}
+                        </td>
+                        <td>
+                           {{ ad.count }}
+                        </td>
+                        <td>
+                            {{ ad.get_status_display }}
+                        </td>
+                        <td>
+                            <b>{{ ad.post.title }}</b>
+                        </td>
+                    </tr>
+
+                {% empty %}
+                    <tr>
+                        <td>
+                            <div class="empty"> &bull; {% trans 'no ads here' %}</div>
+                        <td>
+                    </tr>
+                {% endfor %}
+
+            </table>
+        </div>
+    </div>
+{% endblock %}

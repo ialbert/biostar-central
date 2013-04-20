@@ -3,7 +3,7 @@ from django.conf import settings
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from main.server import const
 
-from server.views_refactored import MessageView
+from server.views_refactored import MessageView, AdView
 
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
@@ -20,6 +20,7 @@ urlpatterns = patterns('main.server',
     url(r'^more/like/(?P<pid>\d+)/$', 'search.more', name="more"),
 
     # shows new messages
+    url(r'^show/ads/$', AdView.as_view(), name=AdView.url),
     url(r'^show/messages/$', MessageView.as_view(), name=MessageView.url),
 
 
