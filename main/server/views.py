@@ -216,6 +216,7 @@ def index(request, tab='all'):
 
     # get the counts for the session
     counts = sess.get_counts(post_type)
+
     page = get_page(request, posts, per_page=settings.POSTS_PER_PAGE)
     
     # save the session

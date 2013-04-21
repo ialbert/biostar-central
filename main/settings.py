@@ -353,6 +353,8 @@ TRUST_NEW_USER_MAX_POST = 3
 # how many posts may a trusted user make withing a trust in
 TRUST_USER_MAX_POST = 15
 
+COUNT_INTERVAL_WEEKS = 25
+
 # TEMPLATE LAYOUT,
 # One may override these variables from the settings file
 # 
@@ -366,7 +368,7 @@ ANON_PILL_BAR = [
     ("questions", "/show/questions/", "Questions", "Question" ),
     ("unanswered", "/show/unanswered/", "Unanswered", "Unanswered" ),
     ("forum", "/show/forum/", "Forum", "Forum" ),
-    ("howto", "/show/howto/", "How To", "How To" ),
+    ("howto", "/show/howto/", "How To", "howto" ),
     #("galaxy", "/show/galaxy/", "Galaxy", "Galaxy" ),
     ("jobs", "/show/jobs/", "Jobs", "Job" ),
     ("planet", "/show/planet/", "Planet", "Blog" ),
@@ -377,8 +379,8 @@ USER_PILL_BAR = [
     ("myposts", "/show/myposts/", '<i class="icon-user tx" data-toggle="tooltip" title="Your posts"></i>', "" ),
     ("mytags", "/show/mytags/", '<i class="icon-tags tx" data-toggle="tooltip" title="Your tags"></i>', "" ),
     ("mybookmarks", "/show/mybookmarks/", '<i class="icon-bookmark tx" data-toggle="tooltip" title="Your bookmarks"></i>', "" ),
-    ("myvotes", "/show/myvotes/", '<i class="icon-heart tx" data-toggle="tooltip" title="Up votes"></i>', "vote_count" ),
-    ("messages", "/show/messages/", '<i class="icon-envelope tx" data-toggle="tooltip" title="Messages"></i>', "message_count" ),
+    ("myvotes", "/show/myvotes/", '<i class="icon-heart tx" data-toggle="tooltip" title="Up votes"></i>', "vote_count", "" ),
+    ("messages", "/show/messages/", '<i class="icon-envelope tx" data-toggle="tooltip" title="Messages"></i>', "message_count", "" ),
 
     ("all", "/", "Show&nbsp;All", "" ),
 
@@ -386,7 +388,7 @@ USER_PILL_BAR = [
     ("questions", "/show/questions/", "Questions", "Question" ),
     ("unanswered", "/show/unanswered/", "Unanswered", "Unanswered" ),
     ("forum", "/show/forum/", "Forum", "Forum" ),
-    ("howto", "/show/howto/", "How To", "How To" ),
+    ("howto", "/show/howto/", "How To", "howto" ),
     #("galaxy", "/show/galaxy/", "Galaxy", "Galaxy" ),
     ("jobs", "/show/jobs/", "Jobs", "Job" ),
     ("planet", "/show/planet/", "Planet", "Blog" ),
