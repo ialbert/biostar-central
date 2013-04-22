@@ -13,13 +13,14 @@ class Migration(SchemaMigration):
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'])),
             ('post', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['server.Post'])),
-            ('approved_by', self.gf('django.db.models.fields.related.ForeignKey')(related_name='approved_by', to=orm['auth.User'])),
+            ('status_by', self.gf('django.db.models.fields.related.ForeignKey')(related_name='approved_by', to=orm['auth.User'])),
             ('rate', self.gf('django.db.models.fields.FloatField')(default=0, db_index=True)),
             ('show_count', self.gf('django.db.models.fields.IntegerField')(default=0)),
             ('click_count', self.gf('django.db.models.fields.IntegerField')(default=0)),
             ('status', self.gf('django.db.models.fields.IntegerField')(default=3, db_index=True)),
             ('created_date', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, db_index=True, blank=True)),
-            ('approval_date', self.gf('django.db.models.fields.DateTimeField')(null=True)),
+            ('status_change_date', self.gf('django.db.models.fields.DateTimeField')(null=True)),
+            ('expiration_date', self.gf('django.db.models.fields.DateTimeField')(db_index=True)),
         ))
         db.send_create_signal('server', ['Ad'])
 
@@ -76,15 +77,16 @@ class Migration(SchemaMigration):
         },
         'server.ad': {
             'Meta': {'object_name': 'Ad'},
-            'approval_date': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
-            'approved_by': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'approved_by'", 'to': "orm['auth.User']"}),
             'click_count': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'created_date': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'db_index': 'True', 'blank': 'True'}),
+            'expiration_date': ('django.db.models.fields.DateTimeField', [], {'db_index': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'post': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['server.Post']"}),
             'rate': ('django.db.models.fields.FloatField', [], {'default': '0', 'db_index': 'True'}),
             'show_count': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'status': ('django.db.models.fields.IntegerField', [], {'default': '3', 'db_index': 'True'}),
+            'status_by': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'approved_by'", 'to': "orm['auth.User']"}),
+            'status_change_date': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
             'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']"})
         },
         'server.award': {

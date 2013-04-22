@@ -17,23 +17,46 @@
             <table class="table table-striped ad-list" cellspacing="0" width="100%">
                 <tr>
                     <th>ID</th>
-                    <th>Impressions</th>
+                    <th>Rate</th>
+                    <th>Shown</th>
                     <th>Status</th>
-                    <th>Title</th>
+                    <th>Status By</th>
+                    <th>Ad Author</th>
+                    <th>Post</th>
+                    <th>Expiration</th>
                 </tr>
                 {% for ad in ads %}
                     <tr>
                         <td>
                             {{ ad.id }}
                         </td>
+
                         <td>
-                           {{ ad.count }}
+                           {{ ad.rate }}
+                        </td>
+
+                        <td>
+                           {{ ad.show_count }}
+                        </td>
+
+                        <td>
+                            <a href="/toggle/ad/{{ ad.id }}/"> {{ ad.get_status_display }} </a>
                         </td>
                         <td>
-                            {{ ad.get_status_display }}
+                           {{ ad.status_by.profile.display_name }}
                         </td>
+
+                         <td>
+                           {{ ad.user.profile.display_name }}
+                        </td>
+
                         <td>
-                            <b>{{ ad.post.title }}</b>
+                            <a href="{% url post-show pid=ad.post.id %}">{{ ad.post.title }}</a>
+                        </td>
+
+
+                        <td>
+                            {{ ad.expiration_date }}
                         </td>
                     </tr>
 
