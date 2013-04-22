@@ -4,12 +4,14 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import render
 from django.contrib import messages
 from main.server import models
-from django.db.models import Q
+from django.db.models import Q, F
 from main.server import html
 from main.server.const import *
 from django.conf import settings
 from main import middleware
 from datetime import datetime, timedelta
+from django.shortcuts import render_to_response
+from django.template import RequestContext
 
 
 class PageBase(TemplateView):
@@ -62,6 +64,24 @@ class MessageView(TemplateView):
 
         return context
 
+class NextAd(TemplateView):
+    url = "/view/ad/"
+    template_name = "refactored/ad.view.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(NextAd, self).get_context_data(**kwargs)
+        ads = models.Ad.objects.filter(status=models.Ad.ACTIVE).order_by('rate').select_related("user__profile", "post")
+        if ads:
+            ad = ads[0]
+            age  = ad.created_date
+            now  = datetime.now()
+            # per hour
+            rate = float(ad.show_count)/(now - age).seconds * 3600
+            models.Ad.objects.filter(id=ad.id).update(show_count=F('show_count')+1, rate=rate)
+        else:
+            ad = None
+        context['ad'] = ad
+        return context
 
 class ToggleAd(ListView):
     url = "/toggle/ad/"

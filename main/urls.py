@@ -3,7 +3,7 @@ from django.conf import settings
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from main.server import const
 
-from server.views_refactored import MessageView, AdView, ToggleAd
+from server.views_refactored import MessageView, AdView, ToggleAd, NextAd
 
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
@@ -25,6 +25,8 @@ urlpatterns = patterns('main.server',
     # shows new messages
     url(r'^toggle/ad/(?P<pk>\d+)/$', ToggleAd.as_view(), name=ToggleAd.url),
 
+    # get next ad
+    url(r'^next/ad/$', NextAd.as_view(), name=NextAd.url),
 
     url(r'^show/messages/$', MessageView.as_view(), name=MessageView.url),
 

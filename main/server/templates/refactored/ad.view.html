@@ -1,0 +1,6 @@
+{%  load basic %}
+{% if  ad %}
+    <b><a href="{{ ad.post.get_absolute_url }}">{{  ad.post.title }}</a></b> by {% userlink ad.user %} {% userrep ad.user %}
+{%  else %}
+    Your ad goes here
+{%  endif %}
