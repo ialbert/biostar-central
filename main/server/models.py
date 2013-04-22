@@ -56,8 +56,8 @@ class UserProfile( models.Model ):
     # is the email verified
     verified_email  = models.BooleanField(default=False)
 
-    # show ads to the user
-    show_ads  = models.BooleanField(default=True)
+    # hide ads from the user
+    hide_ads  = models.BooleanField(default=False)
 
     # the last visit by the user
     last_visited = models.DateTimeField()
@@ -98,7 +98,11 @@ class UserProfile( models.Model ):
     @property
     def is_admin(self):
         return self.type == USER_ADMIN
-    
+
+    @property
+    def is_superuser(self):
+        return self.user.email in settings.ADMIN_EMAILS
+
     def get_status(self):
         return 'suspended' if self.suspended else ''
 
@@ -387,17 +391,36 @@ class BlogAdmin(admin.ModelAdmin):
 admin.site.register(Blog, BlogAdmin)
 
 class Ad(models.Model):
-    ACTIVE, STOPPED, PENDING = range(1,4)
-    CHOICES = ((ACTIVE, "Active"), (STOPPED, "Stopped"), (PENDING, "Pending"))
+    ACTIVE, STOPPED, PENDING, REVIEW = range(1, 5)
+    CHOICES = ((ACTIVE, "Active"), (STOPPED, "Stopped"), (PENDING, "Pending"), (REVIEW, "Under Review"))
+
     user = models.ForeignKey(User)
     post = models.ForeignKey(Post)
-    rank = models.FloatField(default=0, db_index=True)
-    clicks = models.IntegerField(default=0)
-    count  = models.IntegerField(default=0)
+    status_by = models.ForeignKey(User, related_name="approved_by")
+
+    # this determines which ad will be shown next
+    rate = models.FloatField(default=0, db_index=True)
+
+    # how many times the has the ad been shown
+    show_count  = models.IntegerField(default=0)
+
+    # how many times the ad has been clicked
+    click_count = models.IntegerField(default=0)
+
+    # the current status for the ad
     status = models.IntegerField(choices=CHOICES, default=PENDING, db_index=True)
 
+    # when was the ad created
+    created_date = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    # when was the ad approved
+    status_change_date = models.DateTimeField(null=True)
+
+    # when was the ad approved
+    expiration_date = models.DateTimeField(db_index=True)
+
     def __unicode__(self):
-        return "Ad %s" % self.id
+        return "%s: %s" % (self.id, self.post.title)
 
 class AdAdmin(admin.ModelAdmin):
     search_fields = ['user__email', 'user__profile__display_name', 'post__title']
@@ -838,12 +861,13 @@ def finalize_post(sender, instance, created, raw, *args, **kwargs):
                
     if created:
         if instance.type == POST_AD:
-            # create a corresponding Ad object
-            if instance.author.profile.score > settings.MINIMUM_AD_REP:
-                status = Ad.ACTIVE
-            else:
-                status = Ad.PENDING
-            Ad.objects.create(user=instance.author, post=instance, status=status)
+            now = datetime.now()
+            expiration = now + timedelta(days=30)
+            status = Ad.PENDING
+
+            # Create an ad
+            Ad.objects.create(user=instance.author, post=instance, status=status, status_by=instance.author,
+                              created_date=now, expiration_date=expiration, status_change_date=now)
 
         # ensure that all posts actually have roots/parent
         if not instance.root or not instance.parent or not instance.title:

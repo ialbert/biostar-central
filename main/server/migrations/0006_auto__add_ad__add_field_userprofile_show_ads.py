@@ -13,16 +13,20 @@ class Migration(SchemaMigration):
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'])),
             ('post', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['server.Post'])),
-            ('rank', self.gf('django.db.models.fields.FloatField')(default=0, db_index=True)),
-            ('clicks', self.gf('django.db.models.fields.IntegerField')(default=0)),
-            ('count', self.gf('django.db.models.fields.IntegerField')(default=0)),
+            ('status_by', self.gf('django.db.models.fields.related.ForeignKey')(related_name='approved_by', to=orm['auth.User'])),
+            ('rate', self.gf('django.db.models.fields.FloatField')(default=0, db_index=True)),
+            ('show_count', self.gf('django.db.models.fields.IntegerField')(default=0)),
+            ('click_count', self.gf('django.db.models.fields.IntegerField')(default=0)),
             ('status', self.gf('django.db.models.fields.IntegerField')(default=3, db_index=True)),
+            ('created_date', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, db_index=True, blank=True)),
+            ('status_change_date', self.gf('django.db.models.fields.DateTimeField')(null=True)),
+            ('expiration_date', self.gf('django.db.models.fields.DateTimeField')(db_index=True)),
         ))
         db.send_create_signal('server', ['Ad'])
 
-        # Adding field 'UserProfile.show_ads'
-        db.add_column('server_userprofile', 'show_ads',
-                      self.gf('django.db.models.fields.BooleanField')(default=True),
+        # Adding field 'UserProfile.hide_ads'
+        db.add_column('server_userprofile', 'hide_ads',
+                      self.gf('django.db.models.fields.BooleanField')(default=False),
                       keep_default=False)
 
 
@@ -30,8 +34,8 @@ class Migration(SchemaMigration):
         # Deleting model 'Ad'
         db.delete_table('server_ad')
 
-        # Deleting field 'UserProfile.show_ads'
-        db.delete_column('server_userprofile', 'show_ads')
+        # Deleting field 'UserProfile.hide_ads'
+        db.delete_column('server_userprofile', 'hide_ads')
 
 
     models = {
@@ -73,12 +77,16 @@ class Migration(SchemaMigration):
         },
         'server.ad': {
             'Meta': {'object_name': 'Ad'},
-            'clicks': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
-            'count': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
+            'click_count': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
+            'created_date': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'db_index': 'True', 'blank': 'True'}),
+            'expiration_date': ('django.db.models.fields.DateTimeField', [], {'db_index': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'post': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['server.Post']"}),
-            'rank': ('django.db.models.fields.FloatField', [], {'default': '0', 'db_index': 'True'}),
+            'rate': ('django.db.models.fields.FloatField', [], {'default': '0', 'db_index': 'True'}),
+            'show_count': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'status': ('django.db.models.fields.IntegerField', [], {'default': '3', 'db_index': 'True'}),
+            'status_by': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'approved_by'", 'to': "orm['auth.User']"}),
+            'status_change_date': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
             'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']"})
         },
         'server.award': {
@@ -180,6 +188,7 @@ class Migration(SchemaMigration):
             'bronze_badges': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'display_name': ('django.db.models.fields.CharField', [], {'default': "'User'", 'max_length': '250', 'db_index': 'True'}),
             'gold_badges': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
+            'hide_ads': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'last_visited': ('django.db.models.fields.DateTimeField', [], {}),
             'location': ('django.db.models.fields.TextField', [], {'default': "''", 'null': 'True', 'blank': 'True'}),
@@ -187,7 +196,6 @@ class Migration(SchemaMigration):
             'new_messages': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'scholar': ('django.db.models.fields.TextField', [], {'default': "''", 'max_length': '50', 'null': 'True', 'blank': 'True'}),
             'score': ('django.db.models.fields.IntegerField', [], {'default': '0', 'blank': 'True'}),
-            'show_ads': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'silver_badges': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'status': ('django.db.models.fields.IntegerField', [], {'default': '1'}),
             'type': ('django.db.models.fields.IntegerField', [], {'default': '1'}),

@@ -8,13 +8,12 @@ from main.server.const import *
 import urllib
 register = template.Library()
 
-
 @register.simple_tag
 
 @register.simple_tag
 def show_value(value):
     return " (%s) " % value if value else ""
-   
+
 @register.simple_tag
 def show_count(key, store):
     value = store.get(key)

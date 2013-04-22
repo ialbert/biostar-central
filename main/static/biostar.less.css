@@ -23,6 +23,11 @@ body {
   position: relative; // Allow absolute positioning w.r.t. container
 }
 
+.adbox {
+    padding: 15px;
+    text-align: center;
+
+}
 .nav-tabs > li {
     margin-bottom: -2px;
 }

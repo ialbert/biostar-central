@@ -138,7 +138,11 @@
                     fsize = maxfs
                 }
                 elem.css("fontSize", fsize + "em");
+
+
             });
+
+            $("#ad").load("/next/ad/");
 
             {% block document_ready %}
                 // other javascript to be executed on document ready
@@ -159,6 +163,12 @@
 {#    {% endblock %}#}
 
 <div class="container">
+
+    <div class="row">
+        <div class="offset1 span10">
+            <div class="adbox" id="ad">&nbsp;</div>
+        </div>
+    </div>
 
     <div class="row" id="header">
         <div class="span3">
