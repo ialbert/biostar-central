@@ -28,7 +28,7 @@ LASTSORT_SESSION = 'last-sort'
 POST_QUESTION, POST_ANSWER, POST_COMMENT, POST_TUTORIAL, POST_BLOG, POST_FORUM, POST_NEWS, POST_REVIEW, POST_TOOL, POST_FIXME, POST_VIDEO, POST_JOB, POST_PUBLICATION, POST_TIP, POST_OTHER, POST_AD = range(1, 17)
 POST_TYPES  = ( (POST_ANSWER, 'Answer') , (POST_COMMENT, 'Comment'), (POST_QUESTION, 'Question'), (POST_TUTORIAL, 'Tutorial'), (POST_TIP, 'Tip'),
     (POST_BLOG, 'Blog'), (POST_FORUM, 'Forum'), (POST_NEWS, 'News'), (POST_REVIEW, 'Review'), (POST_TOOL, 'Tool'), (POST_VIDEO, 'Video'),
-    (POST_JOB, 'Job'), (POST_AD, 'Advertisement') )
+    (POST_JOB, 'Job'), (POST_AD, 'Ad') )
 
 # direct mapping for quick lookups
 POST_MAP  = dict( POST_TYPES )

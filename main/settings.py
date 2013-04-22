@@ -370,6 +370,8 @@ ANON_PILL_BAR = [
     #("galaxy", "/show/galaxy/", "Galaxy", "Galaxy" ),
     ("jobs", "/show/jobs/", "Jobs", "Job" ),
     ("planet", "/show/planet/", "Planet", "Blog" ),
+    ("ads", "/show/ads/", "Ads", "Ads" ),
+
 ]
 
 USER_PILL_BAR = [
@@ -390,6 +392,7 @@ USER_PILL_BAR = [
     #("galaxy", "/show/galaxy/", "Galaxy", "Galaxy" ),
     ("jobs", "/show/jobs/", "Jobs", "Job" ),
     ("planet", "/show/planet/", "Planet", "Blog" ),
+    ("ads", "/show/ads/", "Ads", "Ads" ),
 ]
 
 
