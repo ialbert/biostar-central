@@ -92,6 +92,7 @@ def extras(request):
     # this whole thing needs to be tossed and refactored
     if request.path == "/show/messages/" or request.path == "/show/ads/":
         del context['params']
+        del context['counts']
 
     return context
 
