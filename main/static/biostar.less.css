@@ -24,9 +24,8 @@ body {
 }
 
 .adbox {
-    padding: 15px;
+    padding: 5px;
     text-align: center;
-
 }
 .nav-tabs > li {
     margin-bottom: -2px;
@@ -481,14 +480,17 @@ div.post-show {
     padding:0px;
     width:100%;
 
+    tr {
+     border-bottom: 1px solid #DDD;
+    }
 
     tr.tagged-interesting {
       background-color: #FFEFC6;
     }
 
     td {
+        margin:0px;
 
-        border-bottom: 1px solid #DDD;
         padding-top: 11px;
         padding-bottom: 11px;
     }
@@ -937,7 +939,7 @@ ul.tagit {
             margin-left: 0;
         }
         .vote-count {
-            font-size: 120%;
+            font-size: 110%;
         }
         .status-text {
             display: none;
