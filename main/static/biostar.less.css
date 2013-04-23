@@ -475,6 +475,7 @@ div.post-show {
         border-image: initial;
     }
 }
+
 .post-table {
     vertical-align:top;
     padding:0px;
@@ -491,11 +492,12 @@ div.post-show {
     td {
         margin:0px;
 
-        padding-top: 11px;
-        padding-bottom: 11px;
+        padding-top: 8px;
+        padding-bottom: 8px;
     }
 
     td.attributes > div {
+
         float: left;
     }
 
