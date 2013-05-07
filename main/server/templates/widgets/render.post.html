@@ -23,7 +23,7 @@
                 {{ post.html|safe }}
 
                 {%  if post.context %}
-                    <div class="context">Context: {{ post.context|safe }}</div>
+                    <div class="context">{{ post.context|safe }}</div>
                 {%  endif %}
 
                 {% if post.top_level %}

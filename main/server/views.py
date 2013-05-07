@@ -515,8 +515,9 @@ def new_answer(request, pid):
 
 def safe_context(key_name, data):
     try:
-        patt = settings.EXTERNAL_AUTHENICATION[key_name][1]
-        return patt % data
+        key, template = settings.EXTERNAL_AUTHENICATION[key_name]
+        page = html.render_template(template, data)
+        return page
     except Exception, exc:
         return "context error: %s" % exc
 
