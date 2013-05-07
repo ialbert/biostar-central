@@ -2,7 +2,7 @@
 {% load humanize %}
 {% spaceless %}
     <span class="badge">
-        <span class="score">{{ user.profile.score }}</span>
+        <span class="score">{{ user.profile.get_score|intcomma }}</span>
         {% if user.profile.gold_badges %}
             <span class="gold">&#8226;</span>
             <span class="count">{{user.profile.gold_badges}}</span>

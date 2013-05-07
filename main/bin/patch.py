@@ -13,7 +13,21 @@ from django.db.models import signals
 from itertools import *
 from collections import defaultdict
 from datetime import datetime, timedelta
-   
+
+def apply_positive():
+    "Removes negative votes from the system"
+    posts = models.Post.objects.filter(score__lt=0)
+    for post in posts:
+        votes = models.Vote.objects.filter(post=post, type=VOTE_DOWN)
+
+        print "Removing %s votes for %s" % ( len(votes), post.id)
+        for vote in votes:
+            vote.delete()
+
+        post.score = 0
+        post.save()
+
+
 def update_bookmark_counts():
     "Updates the bookmark counters. Used after migrating to version 1.2.1"
     votes = models.Vote.objects.filter(type=VOTE_BOOKMARK).select_related('post')
@@ -27,6 +41,31 @@ def update_bookmark_counts():
         post.book_count = value
         post.save()
         
+def blog_cleanup():
+    "Updates the bookmark counters. Used after migrating to version 1.2.1"
+
+    # remove banned users
+    profs = models.UserProfile.objects.filter(status=USER_BANNED).exclude(about_me="banned")
+    if profs:
+        profs.update(about_me="banned", website="")
+
+    # move posts for banned users into the blog section (we need a trash section)
+    posts = models.Post.objects.filter(author__profile__status=USER_BANNED)
+    print "setting up %s posts for deletion" % len(posts)
+    if posts:
+        posts.update(type=POST_BLOG)
+
+    blogs = models.Post.objects.filter(type=POST_BLOG, status=POST_DELETED)
+    
+    for blog in blogs:
+        print blog.title.encode("ascii", errors="replace")
+        try:
+            blog.delete()
+        except Exception, exc:
+            print exc
+
+
+
 def update_domain():
     "This is really only needs to be done once per installation"
     site = Site.objects.get(id=settings.SITE_ID)
@@ -87,6 +126,28 @@ def reapply_ranks():
         post.save()
     transaction.commit()
     
+def traffic_cleanup(days=1):
+    past = datetime.now() - timedelta(days=days)
+    query = models.PostView.objects.filter(date__lt=past)
+
+    print "*** deleting %s views" % query.count()
+
+    query.delete()
+
+def foo():
+    from django.db.models import Q, F
+
+    posts = models.Post.objects.filter(votes__type=VOTE_BOOKMARK)
+
+    posts = posts.annotate(count=Count("votes")).order_by("-count")
+
+    print "Updating %s posts" % len(posts)
+
+    for post in posts:
+        post.book_count = post.count
+        post.save()
+        print post.title, post.book_count
+
 
 if __name__ == '__main__':
     import doctest, optparse
@@ -104,7 +165,11 @@ if __name__ == '__main__':
     parser.add_option("--reapply_ranks", dest="reapply_ranks", help="reapplies ranks to all posts", action="store_true", default=False)
     parser.add_option("--update_domain", dest="update_domain", help="updates the site domain to match the settings", action="store_true", default=False)
     parser.add_option("--bookmarks", dest="bookmarks", help="updates bookmark counts", action="store_true", default=False)
-   
+    parser.add_option("--blog_cleanup", dest="blog_cleanup", help="cleans up deleted blogs", action="store_true", default=False)
+    parser.add_option("--positive", dest="positive", help="removes negative ratings", action="store_true", default=False)
+    parser.add_option("--traffic_cleanup", dest="traffic", help="removes post view entries older than <days>", type=int, default=0)
+    parser.add_option("--foo", dest="foo", help="applies a function ", action="store_true", default=False)
+
     (opts, args) = parser.parse_args()
     
     # stop execution if no parameters were specified
@@ -126,3 +191,15 @@ if __name__ == '__main__':
     
     if opts.bookmarks:
         update_bookmark_counts()
+        
+    if opts.blog_cleanup:
+        blog_cleanup()
+
+    if opts.positive:
+        apply_positive()
+
+    if opts.traffic:
+        traffic_cleanup(opts.traffic)
+
+    if opts.foo:
+        foo()

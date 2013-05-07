@@ -52,13 +52,16 @@ class UserProfile( models.Model ):
     silver_badges = models.IntegerField(default=0)
     gold_badges   = models.IntegerField(default=0)
     new_messages  = models.IntegerField(default=0)
-   
+
+    # is the email verified
+    verified_email  = models.BooleanField(default=False)
+
     # the last visit by the user
     last_visited = models.DateTimeField()
     
     # user status: active, suspended
     status = models.IntegerField(choices=USER_STATUS_TYPES, default=USER_ACTIVE)
-    
+
     # description provided by the user as markup
     about_me = models.TextField(default="", null=True, blank=True)
 
@@ -78,6 +81,10 @@ class UserProfile( models.Model ):
     scholar = models.TextField(null=True, default='', max_length=50, blank=True)
 
     @property
+    def get_score(self):
+        return self.score * 10
+
+    @property
     def can_moderate(self):
         return (self.is_moderator or self.is_admin)
       
@@ -91,10 +98,10 @@ class UserProfile( models.Model ):
     
     def get_status(self):
         return 'suspended' if self.suspended else ''
-    
+
     @property
     def suspended(self):
-        return self.status == USER_SUSPENDED
+        return self.status != USER_ACTIVE
     
     def get_absolute_url(self):
         return reverse("main.server.views.user_profile", kwargs=dict(uid=self.user.id))
@@ -126,11 +133,6 @@ class TagAdmin(admin.ModelAdmin):
 
 admin.site.register(Tag, TagAdmin)
 
-class RootPostManager(models.Manager):
-    "Used for all posts (question, answer, comment); returns only non-deleted posts"
-    def get_query_set(self):
-        return super(PostManager, self).get_query_set().select_related('author','author__profile','children', 'descendants')
-
 class AllManager(models.Manager):
     "Returns all posts"
     def get_query_set(self):
@@ -156,6 +158,7 @@ class Post(models.Model):
     html    = models.TextField(blank=True) # this is the sanitized HTML for display
     title   = models.TextField(max_length=200)
     slug    = models.SlugField(blank=True, max_length=200)
+
     tag_val = models.CharField(max_length=200, blank=True,) # The tag value is the canonical form of the post's tags
     tag_set = models.ManyToManyField(Tag, blank=True,) # The tag set is built from the tag string and used only for fast filtering
     views = models.IntegerField(default=0, blank=True, db_index=True)
@@ -163,7 +166,7 @@ class Post(models.Model):
     full_score = models.IntegerField(default=0, blank=True, db_index=True)
     
     creation_date = models.DateTimeField(db_index=True)
-    lastedit_date = models.DateTimeField()
+    lastedit_date = models.DateTimeField(db_index=True)
     lastedit_user = models.ForeignKey(User, related_name='editor')
     
     # keeps track of which posts have changed
@@ -174,7 +177,10 @@ class Post(models.Model):
     
     # the type of the post
     type = models.IntegerField(choices=POST_TYPES, db_index=True)
-    
+
+    # used to display a context the post was created in
+    context   = models.TextField(max_length=1000, default='')
+
     # this will maintain the ancestor/descendant relationship bewteen posts
     root = models.ForeignKey('self', related_name="descendants", null=True, blank=True)
     
@@ -199,25 +205,26 @@ class Post(models.Model):
     # relevance measure, initially by timestamp, other rankings measures
     rank = models.FloatField(default=0, blank=True)
     
-    def get_short_url(self):
+    def get_absolute_url(self):
         if self.top_level:
             url = "/p/%d/" % (self.id)
         else:
-            url = "/p/%d/" % (self.root.id)
-        return url
-            
-    def get_absolute_url(self):
-        if self.top_level:
-            url = "/post/show/%d/%s/" % (self.id, self.slug)
-        else:
-            url = "/post/show/%d/%s/#%d" % (self.root.id, self.root.slug, self.id)
-        
+            url = "/p/%d/#%d" % (self.root.id, self.id)
+
         # some objects have external links
         if self.url:
             url = "/linkout/%s/" % self.id
-            
+
         return url
-          
+
+    def answer_only(self):
+        "The post should only have answers associate with it"
+        return self.type == POST_QUESTION
+
+    # now obsolete, TODO: remove
+    def get_short_url(self):
+        return self.get_absolute_url()
+
     def set_tags(self):
         if self.type not in POST_CONTENT_ONLY:
             # save it so that we can set the many2many fiels
@@ -275,12 +282,16 @@ class Post(models.Model):
                
     def get_tag_names(self):
         "Returns the post's tag values as a list of tag names"
-        names = [ html.safe_tag(n) for n in re.split('[ ,]+', self.tag_val) if n ]
+        tag_val = html.sanitize(self.tag_val)
+        names = re.split('[ ,]+', tag_val)
+        names = filter(None, names)
         return map(unicode, names)
     
     def apply(self, dir):
         if self.type == POST_ANSWER:
             self.parent.answer_count += dir
+            self.parent.lastedit_date = self.creation_date
+            self.parent.lastedit_user = self.author
             self.parent.save()
     
     def comments(self):
@@ -295,7 +306,10 @@ class Post(models.Model):
         if self.type in POST_CONTENT_ONLY:
             return self.content
         else:
-            return "TITLE:%s\n%s\nTAGS:%s" % (self.title, self.content, self.tag_val)
+            title = self.title
+            content = self.content
+            tag_val = self.tag_val
+            return "TITLE:%s\n%s\nTAGS:%s" % (title, content, tag_val)
 
 def update_post_views(post, request, minutes=10):
     "Views are updated per user session"
@@ -396,6 +410,14 @@ class PostRevision(models.Model):
         '''We won't cache the HTML in the DB because revisions are viewed fairly infrequently '''
         return html.generate(self.content)
 
+
+class RelatedPosts(models.Model):
+    """
+    A model that represents related posts
+    """
+    source = models.ForeignKey(Post, related_name='source')
+    target = models.ForeignKey(Post, related_name='target')
+
 @transaction.commit_on_success
 def user_moderate(user, target, status): 
     """
@@ -409,14 +431,23 @@ def user_moderate(user, target, status):
         msg = 'User %s not authorized to moderate %s' % (user.id, target.id)
         return False, msg
 
+
+
+    # banning can only be applied by admins
+    ban = (status == USER_BANNED)
+
+    if ban and user.profile.is_admin:
+            Post.objects.filter(author=target).update(status=POST_DELETED)
+
     target.profile.status = status
     target.profile.save()
     text = notegen.user_moderator_action(user=user, target=target)
     send_note(target=target, content=text, sender=user, both=True, type=NOTE_MODERATOR, url=user.get_absolute_url() )
 
     msg = 'User status set to %s' % target.profile.get_status_display()
+
     return True, msg
-     
+
 @transaction.commit_on_success
 def post_moderate(request, post, user, status, date=None):
     """
@@ -428,16 +459,28 @@ def post_moderate(request, post, user, status, date=None):
     
     # setting posts to open require more than one permission
     if status == POST_OPEN and not user.profile.can_moderate:
-        msg = 'User %s not a moderator' %user.id
+        msg = 'User %s not a moderator' % user.id
         messages.error(request, msg) if request else None
         return url
-    
+
+    if post.top_level and post.answer_count > 0 and (not user.profile.can_moderate):
+        msg = 'The post already has one or more answers. Only a moderator may delete it.'
+        messages.error(request, msg) if request else None
+        return url
+
     # check that user may write the post
     if not auth.authorize_post_edit(user=user, post=post, strict=False):
-        msg = 'User %s may not moderate post %s' %(user.id, post.id)
+        msg = 'User %s may not moderate post %s' % (user.id, post.id)
         messages.error(request, msg) if request else None
         return url
-   
+
+    if status == POST_CLOSED:
+        msg1 = 'Post closings are temporarily disabled pending a re-evaluation of the entire concept!'
+        msg2 = '<b>Note</b>: Duplicated posts should be marked with an answer that links to the older post.'
+        messages.error(request, msg1) if request else None
+        messages.info(request, msg2) if request else None
+        return url
+
     # special treatment for deletion
     no_orphans = (Post.objects.filter(parent=post).exclude(id=post.id).count() == 0)
 
@@ -447,12 +490,7 @@ def post_moderate(request, post, user, status, date=None):
         Vote.objects.filter(post=post).delete()
         post.delete()
         return "/"
-    
-    # replace tags with the word deleted
-    if status == POST_DELETED:
-        post.tag_val = "deleted-post"
-        post.set_tags()
-        
+
     post.status = status
     post.save()
    
@@ -469,7 +507,8 @@ def send_note(sender, target, content, type=NOTE_USER, unread=True, date=None, b
     "Sends a note to target"
     date = date or datetime.now()
     url = url[:200]
-    Note.objects.create(sender=sender, target=target, content=content, type=NOTE_USER, unread=unread, date=date, url=url)
+    Note.objects.create(sender=sender, target=target, content=content, type=type, unread=unread, date=date, url=url)
+    both = both and (sender != target)
     if both:
         #send a note to the sender as well
         Note.objects.create(sender=sender, target=sender, content=content, type=type, unread=False, date=date, url=url)
@@ -613,6 +652,10 @@ class Vote(models.Model):
             user_score_change(post.author, amount=1)
             post.save()
             root.save()
+
+        if self.type == VOTE_BOOKMARK:
+            post.book_count += dir
+            post.save()
             
 @transaction.commit_on_success
 def insert_vote(post, user, vote_type):
@@ -735,7 +778,6 @@ def update_profile(sender, instance, *args, **kwargs):
     "Pre save hook for profiles"
     instance.about_me_html = html.generate(instance.about_me)
     
-from django.template.defaultfilters import slugify
 
 def verify_post(sender, instance, *args, **kwargs):
     "Pre save post information that needs to be applied"
@@ -759,12 +801,12 @@ def verify_post(sender, instance, *args, **kwargs):
     
     # assings the rank of the instance
     instance.set_rank()
-    
-    # generate a slug for the instance        
-    instance.slug = slugify(instance.title)
-        
+
     # generate the HTML from the content
     instance.html = html.generate(instance.content)
+
+    # lower case the tags
+    instance.tag_val = instance.tag_val.lower()
 
     # post gets flagged as changed on saving
     instance.changed = True
@@ -777,8 +819,7 @@ def finalize_post(sender, instance, created, raw, *args, **kwargs):
         if not instance.root or not instance.parent or not instance.title:
             instance.root   = instance.root or instance
             instance.parent = instance.parent or instance
-            instance.title  = instance.title or ("%s: %s" % (instance.get_type_display()[0], instance.parent.title))
-            instance.slug   = slugify(instance.title)
+            instance.title  = instance.title or ("%s: %s" % (instance.get_type_display()[0], instance.root.title))
             instance.save()
         
         # when a new post is created all descendants will be notified

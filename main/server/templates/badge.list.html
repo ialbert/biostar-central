@@ -10,39 +10,40 @@
 {% block body %}
     
 <div class="row">
-    <table id="badge-list">
-    {% for badge in badges %} 
-        <tr>
-            <td style="width: 25px;"></td>
-            <td style="width: 200px;" class="badge-cell">
-                <a class="badge-name" href="/badge/show/{{badge.id}}/">
-                    {% spaceless %}<span class="badge-icon {{badge.get_type_display}}">&#8226;</span>{% endspaceless %}
-                     {{badge.name}}
-                </a>
-                <span class="multiplier">x {{badge.count}}</span></td>
-            <td class="earned {{badge.earned}}">&nbsp;</td>
-            <td>{{badge.description}}</td>
-        </tr>
-    {% endfor %}
-    </table>
-</div>
-
-<div class="row" >
-    <div class="title">Legend</div>
-    <div>
-        
-        <div style="margin-bottom: 5px;">
-            Gold Badges are rare. You'll have to not only participate but be skilled and knowledgeable
-            to earn these. They're something of an accomplishment!
-        </div>
-        <div style="margin-bottom: 5px;">
-            Silver badges are earned for longer term goals. Silver badges are uncommon, but
-            definitely attainable if you're interested enough.
-        </div>
-        <div style="margin-bottom: 5px;">
-            Bronze badges are earned for basic use of the BioStar site; they are relatively
-            easy to earn.
-        </div>
+    <div class="span8">
+        <table id="badge-list">
+        {% for badge in badges %}
+            <tr>
+                <td style="width: 25px;"></td>
+                <td style="width: 200px;" class="badge-cell">
+                    <a class="badge-name" href="/badge/show/{{badge.id}}/">
+                        {% spaceless %}<span class="badge-icon {{badge.get_type_display}}">&#8226;</span>{% endspaceless %}
+                         {{badge.name}}
+                    </a>
+                    <span class="multiplier">x {{badge.count}}</span></td>
+                <td class="earned {{badge.earned}}">&nbsp;</td>
+                <td>{{badge.description}}</td>
+            </tr>
+        {% endfor %}
+        </table>
+    </div>
+    <div class="span4">
+        <div class="title">Legend</div>
+        <ul>
+            <li>
+                <strong>Gold badges</strong> are rare. You'll have to not only participate but be skilled and knowledgeable
+                to earn these. They're something of an accomplishment!
+            </li>
+            <li>
+                <strong>Silver badges</strong> are earned for longer term goals. Silver badges are uncommon, but
+                definitely attainable if you're interested enough.
+            </li>
+            <li>
+                <strong>Bronze badges</strong> are earned for basic use of the BioStar site; they are relatively
+                easy to earn.
+            </li>
+        </ul>
     </div>
 </div>
+
 {% endblock %}

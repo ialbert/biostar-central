@@ -11,6 +11,8 @@ register = template.Library()
 
 from django.template.defaultfilters import stringfilter
 
+uni = html.unicode_or_bust
+
 @register.filter(name='chunk')
 @stringfilter
 def quick_chunk(text, size=250):
@@ -26,6 +28,18 @@ def smart_chunk(text):
         if size > 180:
             break
     return ' '.join(coll)
+
+@register.inclusion_tag('widgets/google.custom.html')
+def google_custom_search():
+    return { }
+
+@register.inclusion_tag('widgets/swiftype.search.html')
+def swiftype_search():
+    return { }
+
+@register.inclusion_tag('widgets/post.share.html')
+def post_share(post):
+    return {'post':post}
 
 @register.inclusion_tag('widgets/user.link.html')
 def userlink(user):
@@ -50,38 +64,43 @@ def badgeicon(type):
 @register.inclusion_tag('widgets/action.box.html')
 def actionbox(user, date, action='asked'):
     return {'user':user, 'date':date, 'action':action}
-    
+
+def pluralize(value, word):
+    if value > 1:
+        return "%d %ss" % (value, word)
+    else:
+        return "%d %s" % (value, word)
+
 @register.simple_tag
 def time_ago(time):
     delta = datetime.now() - time
     if delta < timedelta(minutes=1):
         return 'just now'
-    if delta < timedelta(hours=1):
-        return '%d min ago' % (delta.seconds // 60 )
-    if delta < timedelta(days=1):
-        return '%d hrs ago' % (delta.seconds // 3600 )
-    if delta < timedelta(days=30):
-        return '%d days ago' % delta.days
-    if delta < timedelta(days=90):
-        return '%d weeks ago' % int(delta.days/7)
-    if delta < timedelta(days=730):
-        return '%d months ago' % int(delta.days/30)
-    # not quite exact
-    diff = delta.days/365.0
-    return '%0.1f years ago' % diff
-    
-    return time.strftime('%b %d at %H:%M')
+    elif delta < timedelta(hours=1):
+        unit = pluralize(delta.seconds // 60, "minute" )
+    elif delta < timedelta(days=1):
+        unit = pluralize(delta.seconds // 3600, "hour" )
+    elif delta < timedelta(days=30):
+        unit = pluralize(delta.days, "day")
+    elif delta < timedelta(days=90):
+        unit = pluralize(int(delta.days/7), "week")
+    elif delta < timedelta(days=730):
+        unit = pluralize(int(delta.days/30), "month")
+    else:
+        diff = delta.days/365.0
+        unit = '%0.1f years' % diff
+    return "%s ago" % unit
 
 @register.simple_tag
 def gravatar(user, size=80):
     
-    username = user.username.encode('ascii', 'replace')
-    useremail = user.email.encode('ascii', 'replace')
-    
-    gravatar_url = "http://www.gravatar.com/avatar.php?"
+    username  = user.profile.display_name
+    useremail = user.email.encode('utf8')
+    hash = hashlib.md5(useremail).hexdigest(),
+
+    gravatar_url = "http://www.gravatar.com/avatar/%s?" % hash
     gravatar_url += urllib.urlencode({
-        'gravatar_id':hashlib.md5(useremail).hexdigest(),
-        'size':str(size),
+        's':str(size),
         'd':'identicon',
         }
     )
@@ -147,36 +166,42 @@ def flair(user):
 
 templates = {}
 
-def load_templates():
-    for typeid, typename in const.POST_MAP.items():
+#def load_templates():
+#    for typeid, typename in const.POST_MAP.items():
+
+def load_template(typeid):
         
         # this is the type of the template as a string
-        typename = typename.lower()
+        typename = const.POST_MAP[typeid].lower()
         
         # see if the template has been overriden, and generate a default value
         default = 'rows/row.%s.html' % typename
         fname   = settings.TEMPLATE_ROWS.get(typename, default)
         try:
-            templates[typeid] = template.loader.get_template(fname)
+            return template.loader.get_template(fname)
         except TemplateDoesNotExist:
             # fall back to a template that should exist
             #print "*** template loader loading default row for type '%s" % fname
-            templates[typeid] = template.loader.get_template('rows/row.post.html')
+            return template.loader.get_template('rows/row.post.html')
 
-load_templates()
+# the template for the deleted row
+row_deleted = template.loader.get_template('rows/row.deleted.html')
 
-
-@register.simple_tag
-def table_row(post, params):
+@register.simple_tag(takes_context=True)
+def table_row(context, post, params, search_context=''):
     "Renders an html row for a post "
-    global row_question, row_answer, row_comment, row_post, row_blog, row_forum
-    
-    if settings.DEBUG:
+    global row_question, row_answer, row_comment, row_post, row_blog, row_forum, row_deleted
+
+    row_deleted = template.loader.get_template('rows/row.deleted.html')
+
+    #if settings.DEBUG:
         # this is necessary to force the reload during development
-        load_templates()
+        #load_templates()
 
-    c = Context( {"post": post, 'params':params})
-
-    template = templates[post.type]
-    text = template.render(c)
+    c = Context( {"post": post, 'params':params, 'context': search_context, 'user':context['user']})
+    if post.deleted:
+        templ = row_deleted
+    else:
+        templ = load_template(post.type)
+    text = templ.render(c)
     return text

@@ -95,7 +95,7 @@ class UserActions(TestCase):
         '''
 
         # missing tag will make it stay on the same page with an error message
-        r = c.post(url, {'title':title , 'content':content , 'tag_val':'', 'type':POST_QUESTION})
+        r = c.post(url, {'title':title , 'content':content ,  'tag_val':'', 'type':POST_QUESTION})
         eq(r.status_code, 200)
         true('required' in r.content)
         
@@ -144,9 +144,7 @@ class DataNav(TestCase):
         url = reverse("notification-feed", kwargs={'uuid':uuid})
         r = c.get(url)
         eq(r.status_code, 200)
-        
-     
-    
+
     def test_post_content(self):
 
         true, eq = self.assertTrue, self.assertEqual
@@ -164,7 +162,7 @@ class DataNav(TestCase):
         url = reverse("post-edit", kwargs={'pid':13})
         
         # unauthorized user trying to edit
-        r = c.post(url, {'title':post.title , 'content':post.content , 'tag_val':'', 'type':POST_QUESTION}, follow=True)
+        r = c.post(url, {'title':post.title , 'content':post.content , 'tag_val':'', 'type':POST_QUESTION, }, follow=True)
         eq(r.status_code, 200)
         true('OpenID' in r.content)
         
@@ -172,7 +170,7 @@ class DataNav(TestCase):
         joe.set_password('test')
         joe.save()
         c.login(username=joe.username, password='test')
-        r = c.post(url, {'title':post.title , 'content':post.content , 'tag_val':'', 'type':POST_QUESTION}, follow=True)
+        r = c.post(url, {'title':post.title , 'content':post.content , 'tag_val':'', 'type':POST_QUESTION,}, follow=True)
         eq(r.status_code, 200)
         true("may not edit" in r.content)
         
@@ -183,7 +181,7 @@ class DataNav(TestCase):
         
         # missing tag, will not submit the post
         title = "ABCDEFG"
-        r = c.post(url, {'title':title, 'content':post.content , 'tag_val':'', 'type':POST_QUESTION})
+        r = c.post(url, {'title':title, 'content':post.content ,  'tag_val':'', 'type':POST_QUESTION, })
         eq(r.status_code, 200)
         true(models.Post.objects.get(id=13).title == post.title)
     
@@ -343,7 +341,7 @@ class SimpleNav(TestCase):
         true, eq = self.assertTrue, self.assertEqual
 
         c = Client()
-        tabs = "recent mytags questions unanswered planet tutorials".split()
+        tabs = "recent mytags questions unanswered planet training".split()
         for tab in tabs:
             
             r = c.get(reverse("show", kwargs={'tab':tab}))

@@ -3,6 +3,8 @@ from django.conf import settings
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from main.server import const
 
+from server.views_refactored import MessageView
+
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
 admin.autodiscover()
@@ -16,7 +18,11 @@ urlpatterns = patterns('main.server',
     
     url(r'^search/$', 'search.main', name="search"),
     url(r'^more/like/(?P<pid>\d+)/$', 'search.more', name="more"),
-    
+
+    # shows new messages
+    url(r'^show/messages/$', MessageView.as_view(), name=MessageView.url),
+
+
     # show by content type
     url(r'^show/(?P<tab>\w+)/$', 'views.index', name="show"),
     
@@ -37,9 +43,13 @@ urlpatterns = patterns('main.server',
     # user edit page
     url(r'^user/edit/(?P<uid>\d+)/$', 'action.user_edit', name="user-edit"),
     
-    # show user profile
-    url(r'^user/profile/(?P<uid>\d+)/$', 'views.user_profile', name="user-profile"),
-    url(r'^user/profile/(?P<uid>\d+)/(?P<tab>\w+)/$', 'views.user_profile', name="user-profile-tab"),
+    # new style user profile
+    url(r'^u/(?P<uid>\d+)/$', 'views.user_profile', name="user-profile"),
+    url(r'^u/(?P<uid>\d+)/(?P<tab>\w+)/$', 'views.user_profile', name="user-profile-tab"),
+
+    # old style user profile
+    url(r'^user/profile/(?P<uid>\d+)/$', 'views.user_profile_redirect', name="user-profile-redirect"),
+    url(r'^user/profile/(?P<uid>\d+)/(?P<tab>\w+)/$', 'views.user_profile_redirect', name="user-profile-tab-redirect"),
         
     # moderation handlers
     #(r'^cleanup/$', 'action.cleanup'),
@@ -50,10 +60,12 @@ urlpatterns = patterns('main.server',
     # revisions    
     url(r'^revision/show/(?P<pid>\d+)/$', 'views.revision_show', name="revision-show"),
 
-    # post handlers with or withouth a slug
-    url(r'^p/(?P<pid>\d+)/$', 'views.post_show', name="post-short-show"),
-    url(r'^post/show/(?P<pid>\d+)/$', 'views.post_show', name="post-show"),
-    url(r'^post/show/(?P<pid>\d+)/([-\w]+)/$', 'views.post_show', name="post-show-slug"),
+    # new-style (short) post handlers
+    url(r'^p/(?P<pid>\d+)/$', 'views.post_show', name="post-show"),
+
+    # old style post show
+    url(r'^post/show/(?P<pid>\d+)/$', 'views.post_show_redirect', name="post-show-redirect"),
+    url(r'^post/show/(?P<pid>\d+)/([-\w]+)/$', 'views.post_show_redirect', name="post-show-slug-redirect"),
     url(r'^post/redirect/(?P<pid>\d+)/$', 'views.post_redirect', name="post-redirect"),
     
     # turned off reparenting for now
@@ -61,7 +73,10 @@ urlpatterns = patterns('main.server',
 
     # editing an existing post/answer/comment
     url(r'^post/edit/(?P<pid>\d+)/$','views.post_edit', name="post-edit"),
-    
+
+    # private messaging
+    url(r'^pm/(?P<uid>\d+)/$','action.private_message', name="private-message"),
+
     # moderation views
     url(r'^user/moderate/(?P<uid>\d+)/(?P<status>\w+)/$','action.user_moderate', name="user-moderate"),    
     url(r'^post/moderate/(?P<pid>\d+)/(?P<status>\w+)/$','action.post_moderate', name="post-moderate"),
@@ -82,6 +97,9 @@ urlpatterns = patterns('main.server',
     url(r'^google/$','pages.google', name='google'),
     url(r'^testpage/$','pages.testpage', name='testpage'),
 
+    # help pages go here
+    url(r'^help/x/$','pages.help_external'),
+
     # lists all moderator actions
     url(r'^modlog/list/$', 'views.modlog_list', name="modlog-list"),
   
@@ -90,7 +108,9 @@ urlpatterns = patterns('main.server',
       
     # voting handler
     url(r'^vote/$', 'ajax.vote', name="vote"),
-       
+    url(r'^tagcomplete/$', 'ajax.tagcomplete', name="tagcomplete"),
+
+
     # clear all notifications
     url(r'^note/clear/(?P<uid>\d+)/$','action.note_clear', name="note-clear"),
    
@@ -99,13 +119,24 @@ urlpatterns = patterns('main.server',
     url(r'^questions/(?P<pid>\d+)/([-\w]+)/$','action.redirect_post', name="redirect-post"),
     url(r'^questions/tagged/(?P<tag>.+)/$','action.redirect_tag', name="redirect-tag"),
 
+
+
+
+    # the main handler for the external authentication
+    url(r'^x/$','action.external_handler', name="external-handler"),
+
+    #url(r'^x/post/$','action.external_post', name="external-post"),
+
     # test login, used during debugging
     url(r'^test/login/(?P<uid>\d+)/(?P<token>[\w\d]+)/$','action.test_login', name="test-login"),
    
     # json api for stat generation
-    url(r'^api/traffic/$', 'action.traffic', name='stats-traffic'),
-    url(r'^api/stats/$', 'action.stats', name='stats-short'),
-    url(r'^api/stats/(?P<days>\d+)/$', 'action.stats', name='stats'),
+    url(r'^api/traffic/$', 'api.traffic', name='stats-traffic'),
+
+    url(r'^api/user/(?P<uid>\d+)/$', 'api.user_info', name='api-user'),
+    url(r'^api/post/(?P<pid>\d+)/$', 'api.post_info', name='api-post'),
+    url(r'^api/stats/(?P<days>\d+)/$', 'api.stats', name='api-stats'),
+
 )
 
 

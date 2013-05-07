@@ -1,7 +1,7 @@
 """
 Custom context processor
 """
-import itertools
+import itertools, random
 from datetime import datetime, timedelta
 
 from django.conf import settings
@@ -12,6 +12,28 @@ from main.server.const import *
 from django.core.cache import cache
 
 TRAFFIC_KEY = 'traffic'
+RECENT_TAGS_KEY = "recent-tags"
+RECENT_VOTES_KEY = "recent-votes"
+
+IMPORTANT_TAGS = models.Tag.objects.filter(name__in=settings.IMPORTANT_TAG_NAMES).order_by('-count')
+
+def alpha(x, y):
+    return cmp(x.name, y.name)
+
+def get_recent_votes():
+    "returns the recent tags"
+    votes = models.Vote.objects.filter(post__status=POST_OPEN).select_related("post").order_by("-date")[:settings.RECENT_VOTE_COUNT]
+    return votes
+
+def get_recent_tags():
+    "returns the recent tags"
+    posts = models.Post.objects.filter(type=POST_QUESTION, status=POST_OPEN).prefetch_related("tag_set").order_by("-creation_date")[:settings.RECENT_TAG_COUNT]
+    tags  = set()
+    for p in posts:
+        tags.update( p.tag_set.all() )
+        pass
+    tags = list(tags)
+    return tags[:settings.RECENT_TAG_COUNT]
 
 def extras(request):
     "Adds more data to each RequestContext"
@@ -27,6 +49,21 @@ def extras(request):
     # the tab bar counts
     counts = request.session.get(SESSION_POST_COUNT, {})
 
+    # authenticated users get up to date vote information, other users get cached values
+    if request.user.is_authenticated():
+        recent_votes = get_recent_votes()
+    else:
+        recent_votes = cache.get(RECENT_VOTES_KEY)
+        if not recent_votes:
+            recent_votes = get_recent_votes()
+            cache.set(RECENT_VOTES_KEY, recent_votes, 600)
+
+    # recent tag information is cached
+    recent_tags = cache.get(RECENT_TAGS_KEY)
+    if not recent_tags:
+        recent_tags = get_recent_tags()
+        cache.set(RECENT_TAGS_KEY, recent_tags, 600)
+
     # cache the traffic counts
     traffic = cache.get(TRAFFIC_KEY)
     if not traffic:
@@ -36,8 +73,8 @@ def extras(request):
         except Exception, exc:
             traffic = models.PostView.objects.filter(date__gt=recently).count()
         cache.set(TRAFFIC_KEY, traffic, 600)
-    
-    return { 'BIOSTAR_VERSION': server.VERSION,
+
+    context = { 'BIOSTAR_VERSION': server.VERSION,
              'GOOGLE_TRACKER': settings.GOOGLE_TRACKER,
              'GOOGLE_DOMAIN': settings.GOOGLE_DOMAIN,
              'user':user, 
@@ -45,8 +82,19 @@ def extras(request):
              'm':m,
              'counts':counts,
              'traffic':traffic,
+             'important_tags': IMPORTANT_TAGS,
+             'recent_tags': recent_tags,
+             'recent_votes': recent_votes,
              'params':{}, # this is needed because of the navbar
     }
+
+    # that's just so bad I can't even begin to explain
+    # this whole thing needs to be tossed and refactored
+    if request.path == "/show/messages/":
+        del context['params']
+        del context['counts']
+
+    return context
 
 def popular_tags(request):
     tags1 = models.Tag.objects.filter(name='galaxy') # Special treatment for Galaxy folks

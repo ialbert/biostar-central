@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% load basic %}
+{% load widgets %}
+{% load humanize %}
+{% load i18n %}
+
+{% block title %}
+    {{ params.title }}
+{% endblock %}
+
+{% block body %}
+
+    {% if params.show_search %}
+        <div class="row">
+            {% google_custom_search %}
+        </div>
+    {% endif %}
+
+    <div class="row">
+        <div class="span12">
+            {% page_bar %}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="span9">
+            <table border="0" class="table table-striped note-list" cellspacing="0" width="100%">
+
+                {% for note in page.object_list %}
+                    <tr>
+                        <td class="msg {{note.status}}"> <i>{% time_ago note.date %}</i> {{ note.html|safe }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td>
+                            <div class="empty"> &bull; {% trans 'no messages' %}</div>
+                        <td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+
+    <div class="row">
+        <div class="span12">
+            {% page_bar %}
+        </div>
+    </div>
+
+{% endblock %}

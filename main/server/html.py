@@ -11,21 +11,51 @@ from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.template.loader import render_to_string
 from BeautifulSoup import BeautifulSoup, Comment
 
-import html5lib
-from html5lib import sanitizer
 from datetime import datetime, timedelta
 from math import log
+from main.server import autolink
 
-import markdown2
-from docutils import core
-import docutils.parsers.rst.roles
-docutils.parsers.rst.roles.DEFAULT_INTERPRETED_ROLE = 'title-reference'
+import re
+import html5lib
+from html5lib import sanitizer
+import markdown2x
+
 from itertools import groupby
-from textparser import process
 
 # safe string transformation
 import string
 SAFE_TAG = set(string.ascii_letters + string.digits + "._-")
+
+def sanitize(value):
+    "HTML sanitizer based on html5lib"
+    try:
+        p = html5lib.HTMLParser(tokenizer=sanitizer.HTMLSanitizer)
+        h = p.parseFragment(value).toxml()
+        h = unicode_or_bust(h)
+    except Exception, exc:
+        h = "*** unable to parse content: %s" % exc
+    return h
+
+def unicode_or_bust(obj, encoding='utf-8'):
+    if isinstance(obj, basestring):
+        if not isinstance(obj, unicode):
+            obj = unicode(obj, encoding)
+    return obj
+
+def generate(text):
+    if not text:
+        return ""
+
+    # replace tabs with whitespace
+    text = text.replace("\t","    ")
+
+    md = markdown2x.Markdown(safe_mode=False, extras=["code-friendly", "link-patterns"],
+                             link_patterns=autolink.patterns)
+
+    page = md.convert(text)
+    text = sanitize(text)
+    page = unicode_or_bust(page)
+    return page
 
 def raise404():
     raise Http404
@@ -36,7 +66,7 @@ def safe_tag(text):
         return x if x in SAFE_TAG else "."
     text = ''.join(map(change, text))
     return text.lower()
-    
+
 def get_page(request, obj_list, per_page=25):
     "A generic paginator"
 
@@ -65,54 +95,6 @@ def nuke(text):
     text = text.replace("&","&amp;")
     return text
 
-def generate(text):
-    if not text:
-        return ""
-    if text.startswith('##rest'):
-        # this is a django bugfix!
-        docutils.parsers.rst.roles.DEFAULT_INTERPRETED_ROLE = 'title-reference'
-        text = text[6:].strip()
-        rest = core.publish_parts(text ,writer_name='html')
-        html = rest.get('html_body','[rest error]')
-    else:
-        md = markdown2.Markdown( safe_mode=False )
-        #text = fix_orphans(text)
-        text = process(text, state='pre')
-        html = md.convert(text)
-        html = sanitize(html)
-        html = process(html, state='post')
-        #html = extra_html(html)
-    return html
-
-orphans = re.compile("(^|[\w:.]\s)((https?|ftp):\S+) ", re.MULTILINE | re.VERBOSE)
-def fix_orphans(text):
-    global orphans
-    "Add markdown to orphan links"
-    collect = []
-    for line in text.splitlines():
-        if not line.startswith("    "):    
-            line = orphans.sub(r'\1<\2>', line)
-        collect.append(line)
-    return "\n".join(collect)
-    
-youtube = re.compile("youtube:([_\w-]+) ", re.MULTILINE | re.VERBOSE)
-def extra_html(text):
-    "Allows embedding extra html features"
-    frame = r'''
-    <div>
-        <iframe width="560" height="315" src="http://www.youtube.com/embed/\1" frameborder="0" allowfullscreen></iframe>
-    </div>
-    <div>Click to go to <a href="http://www.youtube.com/watch?v=\1">YouTube</a></div>
-    '''
-    text = youtube.sub(frame, text)
-    return text
-
-def sanitize(value):
-    "HTML sanitizer based on html5lib"
-    p = html5lib.HTMLParser(tokenizer=sanitizer.HTMLSanitizer)
-    h = p.parseFragment(value).toxml()
-    return h
-    
 ALLOWED_TAGS = "strong span:class br ol ul li a:href img:src pre code blockquote p em"
 def unused_sanitize(value, allowed_tags=ALLOWED_TAGS):
     """
@@ -163,6 +145,9 @@ class Params(object):
         
     def update(self, data):
         self.__dict__.update(data)
+
+    def __setitem__(self, key, value):
+        self.__dict__[key] = value
 
     def __getitem__(self, key):
         return self.__dict__[key]
@@ -231,12 +216,12 @@ def hot(ups, downs, date):
     seconds = epoch_seconds(date) - 1134028003
     return round(order + sign * seconds / 45000, 7)
 
-def rank(post):
+def rank(post, factor=5.0):
     "Computes the rank of a post"
     
     # Biostar tweaks to the reddit scoring
     ups = max((post.full_score, 0)) + 1
-    ups = int(ups + post.views/25.0)
+    ups = int(ups + post.views/factor)
     downs = 0
     rank = hot(ups, downs, post.creation_date)
     return rank

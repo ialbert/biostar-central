@@ -23,18 +23,18 @@ SITE_DOMAIN = 'localhost:8080'
 # set the secret key for the site
 SECRET_KEY = 'murjkj468712u7u2888271209239929u7u2888271209239929u7u28882'
 
-SESSION_UPDATE_TIME = 2
+SESSION_UPDATE_TIME = 120
 
-SELENIUM_TEST_LOGIN_TOKEN = "bumbum456988465"
+SELENIUM_TEST_LOGIN_TOKEN = "abc"
 
 EMAIL_HOST = 'smtp.psu.edu'
 EMAIL_HOST_USER = ''
 EMAIL_HOST_PASSWORD = ''
 DEFAULT_FROM_EMAIL = 'iua1@psu.edu'
-SERVER_EMAIL = 'beta@biostars.org'
+SERVER_EMAIL = 'iua1@psu.edu'
 
+# add a custom html page
 TEMPLATE_ROWS['job'] = "row.job-sponsored.html"
-
 LIVE_DIR = path(HOME_DIR, '..', 'live')
 TEMPLATE_DIRS.append(LIVE_DIR)
     

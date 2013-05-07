@@ -21,14 +21,14 @@ def init(limit):
     "Initialize blogs to a few known blogs"
     
     urls =[
+        'http://feeds.feedburner.com/MyWeblogOnBioinformaticsGenomeScienceNextGenerationSequencing',
+        'http://feeds.feedburner.com/OmicsOmics',
         'http://plindenbaum.blogspot.com/feeds/posts/default',
         'http://nsaunders.wordpress.com/feed/',
         'http://feeds2.feedburner.com/bcbio',
         'http://ivory.idyll.org/blog/tags/bioinformatics?flav=atom',
         'http://feeds.feedburner.com/GenomesUnzipped?format=xml',
         'http://feeds.feedburner.com/Massgenomics?format=xml',
-        'http://feeds.feedburner.com/MyWeblogOnBioinformaticsGenomeScienceNextGenerationSequencing',
-        'http://feeds.feedburner.com/OmicsOmics',
         'http://feeds.feedburner.com/JermdemoRaisedToTheLaw?format=xml',
         'http://hackmap.blogspot.com/feeds/posts/default',
         'http://feeds.feedburner.com/GettingGeneticsDone?format=xml',
@@ -76,6 +76,13 @@ def title(row):
     title = row.title[:200]
     return title
 
+def unicode_or_bust(obj, encoding='utf-8'):
+    if isinstance(obj, basestring):
+        if not isinstance(obj, unicode):
+            obj = unicode(obj, encoding)
+    return obj
+
+    
 def update(limit):
     blogs = models.Blog.objects.all()
     for blog in blogs:
@@ -91,11 +98,13 @@ def update(limit):
             ent = [ e for e in doc.entries if title(e) not in seen ]
             ent = ent[:limit]
             for r in ent:
+                r.title = unicode_or_bust(r.title)
+                r.description = unicode_or_bust(r.description)
                 if not r.title:
                     continue;
                 date = r.date_parsed
                 date = datetime.datetime(date[0], date[1], date[2])
-                content = html.strip_tags(r.description)
+                content = html.sanitize(r.description)                
                 post = models.Post(title=title(r), url=r.link, author=blog.author,  type=POST_BLOG, content=content, creation_date=date)
                 post.save()
                 print '*** added post %s' % post.title.encode("ascii", 'replace')

@@ -3,8 +3,6 @@ This setup is specific to our hosting company
 """
 import os, sys
 
-# customize this
-DJANGO_SETTINGS_MODULE = 'conf.demo'
 
 def path(*args):
     "Generates absolute paths"
@@ -26,5 +24,5 @@ extras = [
 sys.path.extend( extras )
 
 from django.core.handlers.wsgi import WSGIHandler
-os.environ['DJANGO_SETTINGS_MODULE'] = DJANGO_SETTINGS_MODULE
+print '*** using the DJANGO_SETTINGS_MODULE=%s' % os.environ['DJANGO_SETTINGS_MODULE']
 application = WSGIHandler()

@@ -7,6 +7,7 @@ import os, sys, re
 # database migrations via Django South
 import south
 
+
 def path(*args):
     "Generates absolute paths"
     return os.path.abspath(os.path.join(*args))
@@ -33,6 +34,13 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
+# how many post per page to show
+POSTS_PER_PAGE = 15
+
+# feed delay in minutes
+FEED_DELAY = 10
+
+
 def path(*args):
     "Generates absolute paths"
     return os.path.abspath(os.path.join(*args))
@@ -44,25 +52,30 @@ INTERNAL_IPS = ('127.0.0.1', )
 __CURR_DIR = path(os.path.dirname(__file__))
 
 # set location relative to the current file directory
-HOME_DIR      = path(__CURR_DIR )
-DATABASE_DIR  = path(HOME_DIR, 'db')
+HOME_DIR = path(__CURR_DIR)
+DATABASE_DIR = path(HOME_DIR, 'db')
 DATABASE_NAME = path(DATABASE_DIR, 'biostar.db')
-TEMPLATE_DIR  = path(HOME_DIR, 'main', 'templates')
-STATIC_DIR    = path(HOME_DIR, 'static')
-EXPORT_DIR    = path(HOME_DIR, '..', 'apache', 'export')
-WHOOSH_INDEX  = path(HOME_DIR, 'db', 'index')
-PLANET_DIR    = path(HOME_DIR, 'db', 'planet')
+TEMPLATE_DIR = path(HOME_DIR, 'main', 'templates')
+STATIC_DIR = path(HOME_DIR, 'static')
+EXPORT_DIR = path(HOME_DIR, '..', 'apache', 'export')
+WHOOSH_INDEX = path(HOME_DIR, 'db', 'index')
+PLANET_DIR = path(HOME_DIR, 'db', 'planet')
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': DATABASE_NAME,                  # Or path to database file if using sqlite3.
-        'USER': '',                      # Not used with sqlite3.
-        'PASSWORD': '',                  # Not used with sqlite3.
-        'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
+        'ENGINE': 'django.db.backends.sqlite3',
+        # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
+        'NAME': DATABASE_NAME, # Or path to database file if using sqlite3.
+        'USER': '', # Not used with sqlite3.
+        'PASSWORD': '', # Not used with sqlite3.
+        'HOST': '', # Set to empty string for localhost. Not used with sqlite3.
+        'PORT': '', # Set to empty string for default. Not used with sqlite3.
     }
 }
+
+
+
+
 
 # email specific settings
 EMAIL_HOST = 'smtp.yourserver.com'
@@ -72,7 +85,7 @@ DEFAULT_FROM_EMAIL = 'default'
 SERVER_EMAIL = 'default'
 
 # add external dependecies
-__ZIP_LIBS =  [
+__ZIP_LIBS = [
     path(__CURR_DIR, '..', 'libs'),
     path(__CURR_DIR, '..', 'libs', 'libraries.zip'),
 ]
@@ -97,7 +110,7 @@ SITE_ID = 1
 SITE_DOMAIN = 'localhost:8080'
 
 # added a custom test runner
-TEST_RUNNER='server.tests.runner.BiostarTest'
+TEST_RUNNER = 'server.tests.runner.BiostarTest'
 
 # If you set this to False, Django will make some optimizations so as not
 # to load the internationalization machinery.
@@ -120,7 +133,7 @@ MEDIA_URL = "/"
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
-STATIC_ROOT = EXPORT_DIR
+STATIC_ROOT = path(EXPORT_DIR, "static")
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
@@ -131,7 +144,7 @@ STATICFILES_DIRS = (
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    STATIC_DIR, 
+    STATIC_DIR,
 )
 
 # List of finder classes that know how to find static files in
@@ -139,24 +152,36 @@ STATICFILES_DIRS = (
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-#    'django.contrib.staticfiles.finders.DefaultStorageFinder',
+    'compressor.finders.CompressorFinder',
+    #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
-#     'django.template.loaders.eggs.Loader',
+    #     'django.template.loaders.eggs.Loader',
 )
 
 MIDDLEWARE_CLASSES = [
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    #'django.middleware.locale.LocaleMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'main.middleware.LastVisit',
 ]
+
+COMPRESS_PRECOMPILERS = (
+    #('text/coffeescript', 'coffee --compile --stdio'),
+    ('text/less', 'lessc {infile} {outfile}'),
+)
+
+
+DEBUG_TOOLBAR_CONFIG = {
+    'INTERCEPT_REDIRECTS': False,
+}
 
 CACHES = {
     'default': {
@@ -183,6 +208,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.request',
     'django.core.context_processors.static',
     'django.contrib.messages.context_processors.messages',
+    'django.core.context_processors.i18n',
     "main.context.extras",
     "main.context.popular_tags"
 )
@@ -221,10 +247,20 @@ INSTALLED_APPS = [
     # Uncomment the next line to enable admin documentation:
     'django.contrib.admindocs',
     'south',
+    'compressor',
     'main.server',
     'django_openid_auth',
     'django.contrib.sitemaps',
 ]
+
+# add debugging tools
+if DEBUG:
+    MIDDLEWARE_CLASSES.append('debug_toolbar.middleware.DebugToolbarMiddleware')
+    INSTALLED_APPS.append('debug_toolbar')
+
+# don't allow mutating this
+MIDDLEWARE_CLASSES = tuple(MIDDLEWARE_CLASSES)
+
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
@@ -241,31 +277,31 @@ LOGGING = {
         },
     },
     'handlers': {
-        'console':{
-            'level':'DEBUG',
-            'class':'logging.StreamHandler',
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
             'formatter': 'simple'
-        },        
+        },
     },
     'loggers': {
         'main.server.views': {
-            'handlers': [ 'console' ],
+            'handlers': ['console'],
             'level': 'INFO',
         },
         'main.server.action': {
-            'handlers': [ 'console' ],
+            'handlers': ['console'],
             'level': 'INFO',
         },
         'main.server.auth': {
-            'handlers': [ 'console' ],
+            'handlers': ['console'],
             'level': 'INFO',
         },
         'main.server.models': {
-            'handlers': [ 'console' ],
+            'handlers': ['console'],
             'level': 'INFO',
         },
         'main.server.search': {
-            'handlers': [ 'console' ],
+            'handlers': ['console'],
             'level': 'INFO',
         }
     }
@@ -273,7 +309,7 @@ LOGGING = {
 
 # google analytics tracker and domain
 GOOGLE_TRACKER = ""
-GOOGLE_DOMAIN  = ""
+GOOGLE_DOMAIN = ""
 
 # needs to be turned on explicitly
 CONTENT_INDEXING = True
@@ -287,38 +323,76 @@ BLOG_VIEW_RANK_GAIN = 0.1
 # don't turn it on in production servers!
 SELENIUM_TEST_LOGIN_TOKEN = None
 
+# no external authentication by default
+# dictionary keyed by name containing the tuple of (secret key, template)
+EXTERNAL_AUTHENICATION = {
+
+}
+
 # setting the session for multiple servers
 SESSION_COOKIE_DOMAIN = ""
 
-#
+MIN_POST_SIZE = 15
+MAX_POST_SIZE = 20000
+
+RECENT_VOTE_COUNT = 10
+RECENT_TAG_COUNT = 30
+# set the tag names are to be displayed on the main page
+IMPORTANT_TAG_NAMES = "rna-seq chip-seq assembly snp metagenomics vcf cnv mirna indel bwa bowtie bedtools biopython bioperl".split()
+
+
+# the interval specified in hours
+# that user activity throttling is computed over
+TRUST_INTERVAL = 3
+
+# how many posts may a new user make in a trust interval
+# new user means a user that joined within a trust interval time
+TRUST_NEW_USER_MAX_POST = 3
+
+# how many posts may a trusted user make withing a trust in
+TRUST_USER_MAX_POST = 15
+
+COUNT_INTERVAL_WEEKS = 25
+
 # TEMPLATE LAYOUT,
 # One may override these variables from the settings file
 # 
 
 # this data governs the layout of the PILL_BAR    
 # bar name, link url, link name, counter key
-USER_PILL_BAR = [
-    ("all", "/", "Show&nbsp;All", "" ),
-    ("mytags", "/show/mytags/", "My&nbsp;Tags", "" ),
-    ("news", "/show/news/", "News", "News" ),
-    ("questions", "/show/questions/", "Questions", "Question" ),
-    ("unanswered", "/show/unanswered/", "Unanswered", "Unanswered" ),
-    ("tutorials", "/show/tutorials/", "Tutorials", "Tutorial" ),
-    ("tools", "/show/tools/", "Tools", "Tool" ),
-    ("videos", "/show/videos/", "Videos", "Video" ),
-    ("jobs", "/show/jobs/", "Jobs", "Job" ),
-]
-
 ANON_PILL_BAR = [
     ("all", "/", "Show&nbsp;All", "" ),
-    ("news", "/show/news/", "News", "News" ),
+    ("best", "/show/best", "Popular", "Popular"),
+    ("bookmarked", "/show/bookmarked", "Bookmarked", "Bookmarked"),
     ("questions", "/show/questions/", "Questions", "Question" ),
     ("unanswered", "/show/unanswered/", "Unanswered", "Unanswered" ),
-    ("tutorials", "/show/tutorials/", "Tutorials", "Tutorial" ),
-    ("tools", "/show/tools/", "Tools", "Tool" ),
-    ("videos", "/show/videos/", "Videos", "Video" ),
+    ("forum", "/show/forum/", "Forum", "Forum" ),
+    ("howto", "/show/howto/", "How To", "howto" ),
+    #("galaxy", "/show/galaxy/", "Galaxy", "Galaxy" ),
     ("jobs", "/show/jobs/", "Jobs", "Job" ),
+    ("planet", "/show/planet/", "Planet", "Blog" ),
 ]
+
+USER_PILL_BAR = [
+
+    ("myposts", "/show/myposts/", '<i class="icon-user tx" data-toggle="tooltip" title="Your posts"></i>', "" ),
+    ("mytags", "/show/mytags/", '<i class="icon-tags tx" data-toggle="tooltip" title="Your tags"></i>', "" ),
+    ("mybookmarks", "/show/mybookmarks/", '<i class="icon-bookmark tx" data-toggle="tooltip" title="Your bookmarks"></i>', "" ),
+    ("myvotes", "/show/myvotes/", '<i class="icon-heart tx" data-toggle="tooltip" title="Up votes"></i>', "vote_count", "" ),
+    ("messages", "/show/messages/", '<i class="icon-envelope tx" data-toggle="tooltip" title="Messages"></i>', "message_count", "" ),
+
+    ("all", "/", "Show&nbsp;All", "" ),
+
+    ("best", "/show/best", "Popular", "Popular"),
+    ("questions", "/show/questions/", "Questions", "Question" ),
+    ("unanswered", "/show/unanswered/", "Unanswered", "Unanswered" ),
+    ("forum", "/show/forum/", "Forum", "Forum" ),
+    ("howto", "/show/howto/", "How To", "howto" ),
+    #("galaxy", "/show/galaxy/", "Galaxy", "Galaxy" ),
+    ("jobs", "/show/jobs/", "Jobs", "Job" ),
+    ("planet", "/show/planet/", "Planet", "Blog" ),
+]
+
 
 #
 # remapping the templates to local versions
@@ -335,5 +409,5 @@ TEMPLATE_ROWS = {
 # version check, we can do it at the end since
 # the version is only required in subsequent modules
 if sys.version_info < (2, 6):
-    sys.stderr.write( '*** this code requires python 2.6 or higher ***' )
+    sys.stderr.write('*** this code requires python 2.6 or higher ***')
     sys.exit()

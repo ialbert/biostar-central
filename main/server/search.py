@@ -16,6 +16,8 @@ from django.contrib import messages
 from itertools import *
 
 # common words that should be ignored
+from main.server.models import Post
+
 stoplist = "read reads lab most post posted posting\
 ".split()
 
@@ -53,7 +55,7 @@ def info(msg):
         
 class SearchForm(forms.Form):
     "A form representing a new question"
-    q = forms.CharField(max_length=200,  initial="", widget=forms.TextInput(attrs={'size':'50'}))   
+    q = forms.CharField(max_length=200,  initial="", widget=forms.TextInput(attrs={'size':'50', 'class': 'span6', 'placeholder': 'Search Biostar'}))
     t = forms.ChoiceField(choices=choices, required=False)
 
 def safe_int(val):
@@ -103,7 +105,7 @@ def search_results(request, text, subset=None):
 def decorate(res):
     "Decorates search results with highlights"
     content = res.highlights('content')
-    return html.Params(title=res['title'], pid=res['pid'], content=content, type=res['type'])
+    return html.Params(title=res['title'], pid=res['pid'], content=content, type=res['type'], deleted=False)
 
 def get_subset(word):
     "Returns a set of post types based on a word"
@@ -122,19 +124,25 @@ def main(request):
     q = request.GET.get('q','') # query
     t = request.GET.get('t','all')  # type
     
-    params = html.Params(tab='search', q=q, sort='')
+    params = html.Params(tab='search', q=q, sort='', t=t)
     subset = get_subset(t)
    
     if params.q:
         form = SearchForm(request.GET)
-        res  = search_results(request=request, text=params.q, subset=subset)
-        size = len(res)
-        messages.info(request, 'Searched results for: %s found %d results' % (params.q, size))
+        results  = search_results(request=request, text=params.q, subset=subset)
+        posts = Post.objects.filter(id__in=[row['pid'] for row in results]).exclude(status=POST_DELETED)
+        for post, row in zip(posts, results):
+            post.context = row['content']
+
+        #size = len(results)
+        #messages.info(request, 'Searched results for: %s found %d results' % (params.q, size))
+
     else:
         form = SearchForm()
         res  = []
-    
-    page = get_page(request, res, per_page=10)
+        objects = []
+
+    page = get_page(request, posts, per_page=25)
     return html.template(request, name='search.html', page=page, params=params, counts=counts, form=form)
 
 # number of terms extracted during a more like this query
@@ -176,8 +184,11 @@ def more(request, pid):
     counts = request.session.get(SESSION_POST_COUNT, {})
     form = SearchForm()
     params = html.Params(tab='search', q="", sort='')
-    res = more_like_this(request=request, pid=pid)
-    page = get_page(request, res, per_page=10)
+    results = more_like_this(request=request, pid=pid)
+    posts = Post.objects.filter(id__in=[row['pid'] for row in results]).exclude(status=POST_DELETED)
+    for post, row in zip(posts, results):
+        post.context = row['content']
+    page = get_page(request, posts, per_page=10)
     return html.template(request, name='search.html', page=page, params=params, counts=counts, form=form)
 
 def update(post, handler=None):

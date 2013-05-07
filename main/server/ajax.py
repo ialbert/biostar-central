@@ -1,6 +1,8 @@
 #
 # handler methods that handle all ajax based interactions
 #
+import json
+import traceback
 from functools import partial
 from collections import defaultdict
 from main.server import html, models, notegen, auth
@@ -37,6 +39,7 @@ class ajax_error_wrapper(object):
             value = self.f(*args, **kwds)
             return value
         except Exception,exc:
+            traceback.print_exc()
             return ajax_error('Error: %s' % exc)
 
 @ajax_error_wrapper           
@@ -57,7 +60,11 @@ def vote(request):
         
     if not type:
         return ajax_error('invalid vote type')
-            
+
+    # throttle on downvoting, TODO: make it better
+    if type == VOTE_DOWN:
+        return ajax_success('Downvote received!')
+
     if type  in (VOTE_UP, VOTE_DOWN, VOTE_ACCEPT) and post.author == author:
         return ajax_error('You may not vote on your own post')
     
@@ -94,4 +101,9 @@ def comment_delete(request, pid):
         return ajax_success("destroyed") # this is required by the UI
     else:
         return ajax_success("The comment status set to %s" % post.get_status_display() )
+
+def tagcomplete(request):
+    term = request.GET['term']
+    tags = models.Tag.objects.filter(name__startswith=term).order_by('name')[:50]
+    return HttpResponse(json.dumps([tag.name for tag in tags]))
     

@@ -3,6 +3,8 @@ from django.conf import settings
 from django.template import Context, Template
 from django.template.defaultfilters import stringfilter
 from django.core.context_processors import csrf
+from main.server.const import *
+
 import urllib
 register = template.Library()
 
@@ -16,15 +18,15 @@ def show_value(value):
 @register.simple_tag
 def show_count(key, store):
     value = store.get(key)
-    return "(%s)" % value if value else ""
+    return ' <sup class="label label-success">%s</sup>' % value if value else ""
 
 @register.simple_tag
 def show_type(post, flag):
-    if flag:
-        return "%s: " % post.get_type_display()
+    if post.type == POST_QUESTION:
+        return "%s"
     else:
-        return ""
-   
+        return "%s: " % post.get_type_display()
+
 @register.inclusion_tag('widgets/form.field.html',)
 def form_field(field, label, help=''):
     errors = ", ".join(field.errors)
@@ -74,7 +76,7 @@ def render_post(context, post, tree):
 @register.inclusion_tag('widgets/tab.bar.html')
 def tab_bar(params={}, counts={}):
     "Renders the switchable tab on most pages"
-    return { 'layout':params.get('layout'), 'tab': params.get('tab'), 'counts':counts, 'params':params }
+    return { 'layout':params.get('layout'), 'tab': params.get('tab'), 'nav': params.get('nav'), 'counts':counts, 'params':params }
 
 @register.inclusion_tag('widgets/pill.bar.html')
 def pill_bar(params={}, counts={}):
@@ -87,9 +89,9 @@ def nav_bar(context, user, params={}):
     return { 'user':user, 'nav': params.get('nav'), 'q':params.get('q',''), 'request':context['request'] }
 
 @register.inclusion_tag('widgets/page.bar.dropdown.html')
-def page_bar_dropdown(selected, choices):
+def page_bar_dropdown(selected_sort, sort_choices, since, date_filter):
     "Renders top navigation bar"
-    return { 'selected': selected, 'choices':choices }
+    return { 'selected_sort': selected_sort, 'sort_choices': sort_choices, 'since': since, 'date_filter': date_filter }
     
 @register.inclusion_tag('widgets/page.bar.html', takes_context=True)
 def page_bar(context, anchor=''):
@@ -98,12 +100,25 @@ def page_bar(context, anchor=''):
         'page'   : context['page'],
         'match'  : context.get('match',''),
         'query'  : context.get('query',''),
-        'params' : context.get('params', ''),
+        'params' : context.get('params', {}),
         'request': context['request'],
         'anchor' : anchor,
         'path'   : path,
     }
-    
+
+@register.inclusion_tag('widgets/search.page.bar.html', takes_context=True)
+def search_page_bar(context, anchor=''):
+    path = context['request'].path
+    return {
+        'page'   : context['page'],
+        'match'  : context.get('match',''),
+        'query'  : context.get('query',''),
+        'params' : context.get('params', {}),
+        'request': context['request'],
+        'anchor' : anchor,
+        'path'   : path,
+        }
+
 # this contains the body of each comment
 comment_body  = template.loader.get_template('widgets/render.comment.html')
 
@@ -139,3 +154,15 @@ def render_comments(request, post, tree):
     for node in tree[post.id]:
         coll.append( traverse(node) )
     return '\n'.join(coll)
+
+@register.simple_tag(takes_context=True)
+def post_row_class(context, post):
+    user = context['user']
+    if not user.is_authenticated():
+        return ''
+    m = user.profile.my_tags
+    my_tags = set(m.split('+')) if m else set()
+    post_tags = set(post.tag_val.split(' '))
+    if my_tags.intersection(post_tags):
+        return 'tagged-interesting'
+    return ''

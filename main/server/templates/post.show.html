@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load widgets %}
-
+{%  load basic %}
 {% block title %}
     {{root.title}} - BioStar
 {% endblock %}
@@ -9,8 +9,10 @@
     <script src="{{ STATIC_URL }}js/handlers.js"></script>
    
     <!-- prettify -->
-    <link href="{{ STATIC_URL }}lib/prettify.css" rel="stylesheet"> 
+    <link href="{{ STATIC_URL }}lib/prettify.css" rel="stylesheet">
     <script src="{{ STATIC_URL }}lib/prettify.js"></script>
+
+
 
     <link rel="stylesheet" href="{{ STATIC_URL }}lib/pagedown/Markdown.css" type="text/css"/>
     <script type="text/javascript" src="{{ STATIC_URL }}lib/pagedown/Markdown.Converter.js"></script>    
@@ -23,7 +25,7 @@
      
     // google prettify library
     $('pre').addClass('prettyprint')
-    prettyPrint()
+    //prettyPrint()
 
     $('.comment-delete').click(function(){
         comment_delete($(this))
@@ -53,28 +55,35 @@
 {% endblock %}
 
 {% block body %}
-    
+
+    <div class="row">
+        {% google_custom_search %}
+    </div>
+
     {% if root.closed %}
-        <div class="row"><div class="alert alert-warning">This post has been closed. No more answers may be added.</div></div>
+        <div class="alert alert-warning">This post has been closed. No more answers may be added.</div>
     {% endif %}
 
     {% if root.deleted %}
-        <div class="row"><div class="alert alert-error">This post has been deleted. No more answers may be added.</div></div>
+        <div class="alert alert-error">This post has been deleted. No more answers may be added.</div>
     {% endif %}
 
 
     {# renders the main post #}
-    <div class="row">{% render_post root tree %}</div>
+    <div class="row"><div class="span12">{% render_post root tree %}</div></div>
  
-    <div class="row separator"><h3>
-    {% if root.answer_count %}
-        {{root.answer_count}} answer{{root.answer_count|pluralize}}
-    {% endif %}
-    </h3>
+    <div class="row separator">
+        <div class="span12">
+            <h3>
+                {% if root.answer_count %}
+                    {{root.answer_count}} answer{{root.answer_count|pluralize}}
+                {% endif %}
+            </h3>
+        </div>
     </div>
     {# renders all the followups post #}
     {% for answer in answers %}
-        <div class="row">{% render_post answer tree %}</div>
+        <div class="row"><div class="span12">{% render_post answer tree %}</div></div>
         <div class="row separator">&nbsp;</div>
     {% endfor %}
             
@@ -82,13 +91,38 @@
 {% if user.is_authenticated %}
 
 {% if root.open %}
-    <div class="row">
-        
+    <div class="row" id="add-answer-row">
+    <div class="span12">
+
+    {%  if root.answer_only %}
+
+    <div class="alert alert-info alert-block" style="margin-top:20px;">
+        <h4>By submitting the form below you will be adding a new Answer for the Question at the very top!</h4>
+
+        <p> Please use the
+            <span class="label">comment</span> or <span class="label">reply</span>
+             links if you want to respond to an existing answer, ask for clarifications, add more information, thank a user, etc...</p>
+    </div>
+    {%  else %}
+        <div class="alert alert-success alert-block" style="margin-top:10px;">
+            <p>This is a general section. You may add any type of post below.</p>
+            <p> Please use the
+                <span class="label">comment</span> or <span class="label">reply</span>
+                links to respond to an existing post, ask for clarifications, add more information, thank them, etc...</p>
+        </div>
+    {%  endif %}
+
     <form action="/new/answer/{{root.id}}/" method="post" id="mainform" class="form-vertical">
         
         {% csrf_token %}
-        <legend>Add your answer</legend>
-        <fieldset>        
+
+        {%  if root.answer_only %}
+        <legend>Add a new answer to the question!</legend>
+        {%  else %}
+            <legend>Add a new post!</legend>
+        {%  endif %}
+
+        <fieldset>
         <div class="control-group">
             <div class="controls">
                 <div class="wmd-panel">
@@ -113,9 +147,10 @@
         
     </form>
     </div>
+    </div>
 {% endif %}
 {% else %}
-    <div class="row"><div class="alert alert-info">Log in to add a post</div></div>
+    <div class="alert alert-info" style="margin-top: 5px;">Log in to add a post</div>
 {% endif %}
 
 {% endblock %}

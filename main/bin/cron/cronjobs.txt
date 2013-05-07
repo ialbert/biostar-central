@@ -1,0 +1,6 @@
+MAILTO=admin@biostars.org
+40 1 * * * /home/biostar/cron/cleanup.sh 2>&1 >> /home/biostar/cron/crontab.log
+40 18 * * * /home/biostar/cron/dump.sh 2>&1 >> /home/biostar/cron/crontab.log
+40 11 * * * /home/biostar/cron/daily.sh 2>&1 >> /home/biostar/cron/crontab.log
+20 */6 * * * /home/biostar/cron/sixhours.sh 2>&1 >> /home/biostar/cron/crontab.log
+25 * * * * /home/biostar/cron/hourly.sh 2>&1 >> /home/biostar/cron/crontab.log

@@ -40,17 +40,19 @@
 {% endblock %}
 
 {% block title %}
-    BioStar OpenID login
+   {% trans ' BioStar OpenID login' %}
 {% endblock %}
 
 {% block body %}
 
 <div class="row">
+<div class="span12">
 
 <form id="fopenid" name="fopenid" action="/openid/login/" method="post" class="form-horizontal" >
     
-    <legend>Sign In to BioStar Using Your OpenID Provider</legend>
-    
+    <legend>{% trans 'Just click the image of your OpenID Provider.' %}
+    </legend>
+
     <div class="control-group">
         <label class="control-label" for="id_openid_identifier">&nbsp;</label>
         <div class="controls openid-providers">
@@ -71,13 +73,16 @@
         <label class="control-label" for="id_openid_identifier">OpenID URL</label>
         <div class="controls">
             <input name="openid_identifier" maxlength="255" id="id_openid_identifier" type="text" class="required openid span6">
-            <p class="help-block " id="openid_help">{{ form.openid_identifier.errors|join:", " }} Click the icon or paste an OpenID URL into the field above</p>
+            <p class="help-block " id="openid_help">{{ form.openid_identifier.errors|join:", " }} {% trans 'Click the icon or paste an OpenID URL into the field above. <a href="http://openid.net/get-an-openid/what-is-openid/">What is OpenID?</a>.' %}
+            </p>
         </div>
     </div>
     
     <div class="form-actions">
-        <button type="submit" id="bsignin" name="bsignin" class="btn btn-primary">Sign In</button>
-        <button type="reset" class="btn">Reset</button>
+        <button type="submit" id="bsignin" name="bsignin" class="btn btn-primary">{% trans 'OpenID Login' %}
+        </button>
+        <button type="reset" class="btn">{% trans 'Reset' %}
+        </button>
     </div>
 
     {% if next %}
@@ -86,6 +91,57 @@
     
 </form>
 
+<hr>
+    <!-- 
+    <form id="local" name="fopenid" action="/local/login/" method="post" class="form-horizontal" >
+
+        <legend>{% trans 'Sign in with your local account' %}
+        </legend>
+
+        <div class="control-group">
+            <label class="control-label" for="id_openid_identifier">&nbsp;</label>
+            <div class="controls openid-providers">
+            </div>
+        </div>
+
+        {% csrf_token %}
+
+
+        <div class="control-group">
+            <label class="control-label" for="id_openid_identifier">Email</label>
+            <div class="controls">
+                <input name="email" maxlength="255" id="email" type="text" class="required email span4">
+                <p class="help-block">
+                    {% trans 'Enter your email' %}
+                </p>
+            </div>
+        </div>
+
+
+        <div class="control-group">
+            <label class="control-label" for="id_openid_identifier">Password</label>
+            <div class="controls">
+                <input name="password" maxlength="255" id="passwd" type="password" class="required email span4">
+                <p class="help-block">
+                    {% trans 'Enter your password' %}
+                </p>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" name="login" class="btn btn-primary">{% trans 'Log In' %}
+            </button>
+            <button type="reset" class="btn">{% trans 'Reset' %}
+            </button>
+        </div>
+
+        {% if next %}
+            <input type="hidden" name="next" value="{{ next }}" />
+        {% endif %}
+
+    </form>
+-->
+</div>
 </div>
 
 

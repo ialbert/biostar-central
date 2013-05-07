@@ -25,10 +25,10 @@ FIRST_SESSION = 'first-session'
 LASTSORT_SESSION = 'last-sort'
 
 # Add at the end
-POST_QUESTION, POST_ANSWER, POST_COMMENT, POST_TUTORIAL, POST_BLOG, POST_FORUM, POST_NEWS, POST_REVIEW, POST_TOOL, POST_FIXME, POST_VIDEO, POST_JOB, POST_PUBLICATION, POST_OTHER = range(1, 15)
-POST_TYPES  = ( (POST_ANSWER, 'Answer') , (POST_COMMENT, 'Comment'), (POST_QUESTION, 'Question'), (POST_TUTORIAL, 'Tutorial'), 
+POST_QUESTION, POST_ANSWER, POST_COMMENT, POST_TUTORIAL, POST_BLOG, POST_FORUM, POST_NEWS, POST_REVIEW, POST_TOOL, POST_FIXME, POST_VIDEO, POST_JOB, POST_PUBLICATION, POST_TIP, POST_OTHER = range(1, 16)
+POST_TYPES  = ( (POST_ANSWER, 'Answer') , (POST_COMMENT, 'Comment'), (POST_QUESTION, 'Question'), (POST_TUTORIAL, 'Tutorial'), (POST_TIP, 'Tip'),
     (POST_BLOG, 'Blog'), (POST_FORUM, 'Forum'), (POST_NEWS, 'News'), (POST_REVIEW, 'Review'), (POST_TOOL, 'Tool'), (POST_VIDEO, 'Video'),
-    (POST_FIXME, 'FixMe'), (POST_JOB, 'Job'), (POST_PUBLICATION, 'Research Paper') )
+    (POST_JOB, 'Job'), (POST_PUBLICATION, 'Research Paper') )
 
 # direct mapping for quick lookups
 POST_MAP  = dict( POST_TYPES )
@@ -43,11 +43,12 @@ POST_NAV_BAR_LOWER = map(string.lower, POST_NAV_BAR)
 # the valid sort orders
 SORT_MAP = dict(
     rank="-rank", views="-views", creation="-creation_date",
-    edit="lastedit_date", votes="-full_score", answers="-answer_count",
+    activity="-lastedit_date", votes="-full_score", answers="-answer_count",
+    bookmark="-book_count", votes__date="-votes__date",
 )
 
 # valid pill entries
-VALID_PILLS = set( "mytags all news questions unanswered tutorials tools videos jobs".split() )
+VALID_PILLS = set( "mytags all questions unanswered galaxy best bookmarked howto myvotes mybookmarks myposts jobs planet forum".split() )
 
 # valid tab entries
 VALID_TABS = set( "recent planet sticky".split() ) | VALID_PILLS 
@@ -72,17 +73,17 @@ SESSION_POST_COUNT = 'session-post-count'
 SESSION_VIEW_COUNT = 'view-count'
 
 # the type of messages that the system maintains
-NOTE_USER, NOTE_MODERATOR, NOTE_ADMIN, NOTE_AWARD, NOTE_SITE = range(1, 6)
-NOTE_TYPES = ((NOTE_USER,'User'), (NOTE_MODERATOR,'Moderator'), (NOTE_ADMIN,'Admin'), (NOTE_AWARD, 'Award'), (NOTE_SITE, "Site"))
+NOTE_USER, NOTE_MODERATOR, NOTE_ADMIN, NOTE_AWARD, NOTE_SITE, NOTE_PRIVATE = range(1, 7)
+NOTE_TYPES = ((NOTE_USER,'User'), (NOTE_MODERATOR,'Moderator'), (NOTE_ADMIN,'Admin'), (NOTE_AWARD, 'Award'), (NOTE_SITE, "Site"), (NOTE_PRIVATE, "Private"))
 
 # user types
-USER_NEW, USER_MEMBER,  USER_MODERATOR, USER_ADMIN, USER_BLOG, USER_SPECIAL, = range(1, 7)
+USER_NEW, USER_MEMBER,  USER_MODERATOR, USER_ADMIN, USER_BLOG, USER_SPECIAL, USER_EXTERNAL = range(1, 8)
 USER_TYPES = ( (USER_NEW, 'New'), (USER_MEMBER, 'Member'),  (USER_MODERATOR, 'Moderator'), 
-    (USER_ADMIN, 'Administrator'), (USER_BLOG, 'Blog'), (USER_SPECIAL, 'Special'),)
+    (USER_ADMIN, 'Administrator'), (USER_BLOG, 'Blog'), (USER_SPECIAL, 'Special'), (USER_EXTERNAL, "external"))
 
 # user status types
-USER_ACTIVE, USER_SUSPENDED = 1, 2
-USER_STATUS_TYPES = ( (USER_ACTIVE, 'Active'), (USER_SUSPENDED, 'Suspended') )
+USER_ACTIVE, USER_SUSPENDED, USER_BANNED = 1, 2, 3
+USER_STATUS_TYPES = ( (USER_ACTIVE, 'Active'), (USER_SUSPENDED, 'Suspended'), (USER_BANNED, 'Banned' ))
 
 # post status types        
 POST_OPEN, POST_CLOSED, POST_DELETED = 100, 200, 300
@@ -99,6 +100,9 @@ REV_ACTIONS = (
     (REV_DELETE, 'Delete'), (REV_UNDELETE, 'Undelete')
 )
 REV_ACTION_MAP = dict(REV_ACTIONS)
+
+# this stores the counts in the cache
+CACHE_COUNT_KEY = "cache-count-key"
 
 # moderation actions
 USER_MODERATION, POST_MODERATION = 0, 1
@@ -121,5 +125,10 @@ TARGET_COUNT_MAP = {
     POST_TUTORIAL : "Tutorial",
     POST_JOB : "Job",
     POST_BLOG: "Blog",
+    POST_VIDEO: "Video",
+    POST_FORUM: "Forum",
     "unanswered" : "Unanswered",
+    "howto" : "howto",
+    "message_count": "message_count",
+    "myvotes": "vote_count",
 }

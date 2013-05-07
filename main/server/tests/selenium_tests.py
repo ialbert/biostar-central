@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.keys import Keys
@@ -11,21 +12,21 @@ def page(browser):
 
 def contains(text, parts):
     for part in parts:
-        assert part in text, "Unable to find %s in the text" % part
+        assert part in text, "Unable to find '%s' in the text" % part
         
 def get(browser, link=None, name=None, id=None):
     if link:
-        print '*** link:%s' % link
+        print '*** link:%s' % link.encode("utf8", "replace")
         return browser.find_element_by_partial_link_text(link)
     elif name:
-        print '*** name:%s' % name
+        print '*** name:%s' % name.encode("utf8", "replace")
         return browser.find_element_by_name(name)
     elif id:
         print '*** id:%s' % id
         return browser.find_element_by_id(id)
     else:
         raise Exception("no identifiers were set")
-        
+
 def click_func(browser, link=None, name=None, id=None):
     elem = get(browser, name=name, id=id, link=link)
     assert elem, 'Element name=%s, id=%s not found' % (name, id)
@@ -37,7 +38,7 @@ def feed_check(browser):
     "Checks the feeds"
     click = partial(click_func, browser)
     
-    elem, text  = click('About')
+    elem, text  = click('about')
     elem, text  = click('Feeds page')
     targets = "New Posts,New Questions,Follow multiple posts,Follow multiple tags,Follow multiple users".split(",")
     for link in targets:    
@@ -48,7 +49,7 @@ def simple_navigation(browser):
     "Simple navigation through the site"
     click = partial(click_func, browser)
     
-    targets = "Tags Users Badges About Recent Planet Search Posts News Questions Unanswered Tutorials Tools Videos Jobs RSS".split()
+    targets = "Posts Recent Tags Users Badges about faq rss Posts News Questions Unanswered Galaxy Training Jobs Planet".split()
     targets.extend( [ 'Posts', 'Show All', 'New Post!',  'Sign In' ] )
     for link in targets:    
         elem, text = click(link)
@@ -62,7 +63,9 @@ def fill(browser, text, name=None, id=None, submit=False):
     elem  = get(browser, name=name, id=id)
     erase = Keys.BACK_SPACE * 100
     submit = Keys.RETURN if submit else ''
-    elem.send_keys(erase + text + submit)
+    elem.send_keys(erase)
+    elem.send_keys(text)
+    elem.send_keys(submit)
     time.sleep(0.5)
     text = page(browser)
     return text
@@ -71,6 +74,7 @@ def post_lookup(browser):
     click = partial(click_func, browser)
     
     click("next>")
+    click("first")
     target = "Gene ID conversion tool"
     elem, text = click(target)
     time.sleep(2)
@@ -84,7 +88,6 @@ def post_lookup(browser):
     # the username that created this post
     click("Renee")
     
-    click("Planet")
     #blog = models.Post.objects.filter(type=const.POST_BLOG)[0]
     #click(blog.title)
     #browser.back()
@@ -109,16 +112,18 @@ def create_content_1(browser):
 
     click('New Post!')
 
-    title = "How to get to Zanzibar?"
+    title = u"How to get to Zanzibar? 啊"
     fill(browser, title, name='title')
-    fill(browser, "zanzibar", name='tag_val' )
+    fill(browser, u"zanzibar", name='tagit-input-value' )
     content = """
     
-Other nearby island countries and territories include 
+Other nearby sland countries and territories include
 Comoros and Mayotte to the south, Mauritius and Reunion to the far southeast,
 and the Seychelles Islands about 1,500 km to the east
 
 Orphan links should be autolinked: http://www.biostars.org, same with ftp://www.biostars.org
+
+Secure links should be recognized: https://www.biostars.org
 
 Links within codeblocks should be kept verbatim:
 
@@ -209,7 +214,7 @@ Results in \youtube 1ZyoI-4ObSA
     # check the question appears on other pages
     click("Questions")
     click(title)
-    answer="""
+    answer=u"""
 Take a boat then a plane then a train
 But let's also test orpan linking here: http://www.biostars.org but not insided
 code blocks:
@@ -217,6 +222,8 @@ code blocks:
     http://www.biostars.org
 
 First link should be a real html link, second should stay as is.
+
+Encoding test: 吖 不 才
 """
     # add an answer
     fill(browser, answer, name='content')
@@ -228,9 +235,11 @@ def update_user(browser):
     
     user = login(browser=browser, uid=10)
     click(user.profile.display_name)
-    click("Edit info")
+    click("Edit Info")
     fill(browser, "mapping", name="my_tags")
-    fill(browser, "Cool Bot", name="display_name")
+    fill(browser, u"Cóól Bót 啊不比", name="display_name")
+    fill(browser, u"some@啊啊啊.cóm", name="email")
+    fill(browser, u"I am the mighty Cóól Bót 吖不才", name="about_me")
     click(id='submit-button')
     click("Posts")
     click("My Tags")    
@@ -244,7 +253,7 @@ def update_user(browser):
 
 def full_search(browser):
     "Searches via the main tab"
-    click = click_link(browser)
+    click = partial(click_func, browser)
     click('Search')
     
     elems = browser.find_elements_by_name('q')
@@ -264,13 +273,13 @@ def quick_search(browser):
     contains(text, parts=[ "Finding common motifs",  ])
     
     text = fill(browser, 'NO_SUCH_WORD_FOUND', name='q', submit=True)
-    contains(text, parts=[ 'found 0 results' ])
+    contains(text, parts=[ 'No results found' ])
   
 def voting_test(browser):
     title = "Gene ID conversion tool"
-    
+    click = partial(click_func, browser)
     user = login(browser=browser, uid=10)
-    
+    click("next>")
     click = partial(click_func, browser)
     title = "How to organize a pipeline of small scripts together?"
     click(title)
@@ -323,16 +332,14 @@ def voting_test(browser):
         click(user.profile.display_name)
         click('Bookmarks')
         click(title)
-        
-       
-    
+
 tests = [
+    create_content_1,
+    voting_test,
     simple_navigation,
     post_lookup,
     quick_search,
     update_user,
-    create_content_1,
-    voting_test,
     feed_check,
 ]
 
