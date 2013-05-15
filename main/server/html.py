@@ -21,10 +21,17 @@ from html5lib import sanitizer
 import markdown2x
 
 from itertools import groupby
+from django.template import Context, Template
 
 # safe string transformation
 import string
 SAFE_TAG = set(string.ascii_letters + string.digits + "._-")
+
+def render_template(text, data):
+    t = Template(text)
+    c = Context(data)
+    r = t.render(c)
+    return r
 
 def sanitize(value):
     "HTML sanitizer based on html5lib"

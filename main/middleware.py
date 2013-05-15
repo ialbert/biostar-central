@@ -147,10 +147,13 @@ class LastVisit(object):
             # try to award badges
             awards.instant(request)
 
-
-class DebugMiddleware(object):
-    """
-    """
-
-    def process_request(self, request):
-        pass
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            

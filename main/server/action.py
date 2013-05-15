@@ -353,6 +353,7 @@ def authorize_external_user(request, data):
         # now update the profile
         user.profile.display_name = data.get("display_name", "Biostar User")
         user.profile.type = USER_EXTERNAL
+        user.profile.my_tags = "galaxy"
         user.profile.save()
 
     # login the user
@@ -367,7 +368,7 @@ def external_handler(request):
     "This allows for external login"
     from django.contrib.auth import authenticate, login
 
-    url = "/show/galaxy/"
+    url = "/show/mytags/"
     try:
         user = request.user
         get = request.GET.get

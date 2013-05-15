@@ -54,13 +54,14 @@ def mytags_posts(request):
     "Gets posts that correspond to mytags settins or sets warnings"
     user = request.user
     if not user.is_authenticated():
-        messages.warning(request, "This Tab is populated only for registered users based on the My Tags field in their user profile")
+        messages.warning(request, "This Tab is populated only for registered users based on the <b>My Tags</b> field in their user profile")
         text = ""
     else:
         text = request.user.profile.my_tags 
         if not text:
-            messages.warning(request, "Showing posts matching the My Tags fields in your user profile. Currently this field is not set.")
-            
+            messages.warning(request, "Showing posts matching the <b>My Tags</b> field in your user profile. Currently this field is not set.")
+        else:
+            messages.info(request, "Showing posts matching the <b>My Tags</b> field in your user profile.")
     return models.query_by_tags(user, text=text)
 
 def filter_by_date(request, posts, since):
@@ -514,8 +515,9 @@ def new_answer(request, pid):
 
 def safe_context(key_name, data):
     try:
-        patt = settings.EXTERNAL_AUTHENICATION[key_name][1]
-        return patt % data
+        key, template = settings.EXTERNAL_AUTHENICATION[key_name]
+        page = html.render_template(template, data)
+        return page
     except Exception, exc:
         return "context error: %s" % exc
 
