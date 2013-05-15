@@ -11,5 +11,7 @@
     <li {% active 'badges' nav %}><a href="{% url main.server.views.badge_list %}">{%  trans "Badges" %}</a></li>
 </ul>
 <ul class="nav nav-right tab-bar">
-    <li {% active 'new' tab %} class="pull-right"><a href="/new/post/" class="newpost">{% trans "New Post!" %}</a></li>
+    {%  if tab != "new" %}
+        <li {% active 'new' tab %} class="pull-right"><a href="/new/post/" class="newpost">{% trans "New Post!" %}</a></li>
+    {% endif %}
 </ul>
