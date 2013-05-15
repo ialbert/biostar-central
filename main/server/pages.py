@@ -97,10 +97,12 @@ def help_external(request, word='main'):
     user = request.user
 
     # create a test key/value pair
-    name = "TEST-KEY"
+
+    name = "GALAXY"
     pair = settings.EXTERNAL_AUTHENICATION.get(name)
+
     if pair:
-        messages.info(request, "The <b>TEST KEY</b> is active!")
+        messages.info(request, "The <b>%s</b> key is active!" % name)
         key, patt = pair
     else:
         key, patt = "abcd", ""
@@ -127,6 +129,11 @@ def help_external(request, word='main'):
     store['action'] = 'new'
     params = urllib.urlencode(store.items())
     post_url = "/x/?%s" % params
+
+    # override
+    login_url = "http://test.biostars.org" + login_url
+
+    post_url = "http://test.biostars.org" + post_url
 
     # this is used inside the templates
     params = html.Params(post_url=post_url, login_url=login_url, key=key, data=data, enc=enc, digest=digest)
