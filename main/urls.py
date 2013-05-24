@@ -3,7 +3,7 @@ from django.conf import settings
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from main.server import const
 
-from server.views_refactored import MessageView, AdView, ToggleAd, NextAd
+from server.views_refactored import MessageView, AdView, ToggleAd, NextAd, AdHelp
 
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
@@ -27,6 +27,7 @@ urlpatterns = patterns('main.server',
 
     # get next ad
     url(r'^next/ad/$', NextAd.as_view(), name=NextAd.url),
+    url(r'^help/ads/$', AdHelp.as_view(), name=AdHelp.url),
 
     url(r'^show/messages/$', MessageView.as_view(), name=MessageView.url),
 

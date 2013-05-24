@@ -373,7 +373,6 @@ ANON_PILL_BAR = [
     #("galaxy", "/show/galaxy/", "Galaxy", "Galaxy" ),
     ("jobs", "/show/jobs/", "Jobs", "Job" ),
     ("planet", "/show/planet/", "Planet", "Blog" ),
-    #("ads", "/show/ads/", "Ads", "Ads" ),
 
 ]
 
@@ -395,9 +394,15 @@ USER_PILL_BAR = [
     #("galaxy", "/show/galaxy/", "Galaxy", "Galaxy" ),
     ("jobs", "/show/jobs/", "Jobs", "Job" ),
     ("planet", "/show/planet/", "Planet", "Blog" ),
-    ("ads", "/show/ads/all/", "Ads", "Ads" ),
+
 ]
 
+SHOW_ADS = True
+
+if SHOW_ADS:
+    USER_PILL_BAR.append(
+        ("ads", "/show/ads/all/", "Ads", "Ads" ),
+    )
 
 #
 # remapping the templates to local versions
@@ -416,6 +421,8 @@ MINIMUM_AD_REP = 100
 
 # how long will an ad be active by default
 DEFAULT_AD_EXPIRATION = 1
+
+
 
 # version check, we can do it at the end since
 # the version is only required in subsequent modules

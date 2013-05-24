@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% load basic %}
+{% load widgets %}
+
+{% block body %}
+
+    <div class="row">
+
+        <h3>Advertising on Biostar</h3>
+
+        <div class="par">
+            Advertising on Biostar is open to active users wishing to promote ideas, products
+            and accomplishments that relate to the focus of the site: Bioinformatics and Genomics.
+        </div>
+
+
+        <h3>What may be advertised?</h3>
+
+        <div class="par">
+            Individual users may advertise personal accomplishments, research results, research publications, tools and techniques that they have developed,
+            blogs or websites that they have created, activities that they undertake regardless of whether these have any commercial nature.
+        </div>
+
+        <div class="par">
+            The sole restriction of the user initiated advertising is that the person
+            must be in the position to claim full or partial ownership (at a non trivial level) of the the product/idea/concept
+            that is being advertised.
+        </div>
+
+        <div class="par">
+            For advertising outside these conditions please contact the site manager at <code>admin@biostars.org.</code>
+        </div>
+
+        <h3>Who may run ads?</h3>
+
+        <div class="par">
+            Depending on the accumulated reputation users have the following options to run their ads:
+            <ul>
+                <li>
+                    Users with the reputation of 1000 or above (accumulated after 100 votes) may run a single ad at no cost.
+                </li>
+                <li>
+                    Moderators and users with the reputation of 5000 or above may activate a single ad for any other user
+                    at no cost.
+                </li>
+            </ul>
+        </div>
+
+        <h3>Creating an Ad</h3>
+
+        <div class="par">
+            To create a new ad select the <b>New Post</b> button and select the <b>Ad</b> category. The title of your post
+            will constitute the line that will be shown as the ad. The body of your posts will
+            be a regular Biostar post that users can access after clicking the link and should contain further
+            information on the advertised product.
+        </div>
+
+        <div class="par">
+            Ads have three stages <code>Stopped</code>, <code>Pending</code>, <code>Active</code> Upon
+            creating your ad it will have the <code>Pending</code> status and it will need to be activated to be shown
+            within the Ad rotation.
+        </div>
+
+        <h3>Launching and Stopping Ads</h3>
+
+        <div class="par">
+            To see a list of all ads visit the <a href="/show/ads"> tab that may be accesed by authenticated users.
+            If you have sufficient permissions then clicking the word <code>change</code>
+            for your ad will toggle its state to the next one in the succestion of <code>Stopped -> Pending -> Active -> Stopped ...</code>
+            <b>Note:</b> depending on your permission rights you may be able to stop your own ad but not reactivate it.
+        </div>
+
+    </div>
+
+{% endblock %}

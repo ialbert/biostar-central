@@ -64,6 +64,10 @@ class MessageView(TemplateView):
 
         return context
 
+class AdHelp(TemplateView):
+    url = "/help/ads/"
+    template_name = "help/help.ads.html"
+
 class NextAd(TemplateView):
     url = "/view/ad/"
     template_name = "refactored/ad.view.html"
@@ -73,15 +77,16 @@ class NextAd(TemplateView):
         ads = models.Ad.objects.filter(status=models.Ad.ACTIVE).order_by('rate').select_related("user__profile", "post")
         if ads:
             ad = ads[0]
-            age  = ad.created_date
-            now  = datetime.now()
+            age = ad.created_date
+            now = datetime.now()
             # per hour
-            rate = float(ad.show_count)/(now - age).seconds * 3600
-            models.Ad.objects.filter(id=ad.id).update(show_count=F('show_count')+1, rate=rate)
+            rate = float(ad.show_count) / (now - age).seconds * 3600
+            models.Ad.objects.filter(id=ad.id).update(show_count=F('show_count') + 1, rate=rate)
         else:
             ad = None
         context['ad'] = ad
         return context
+
 
 class ToggleAd(ListView):
     url = "/toggle/ad/"
@@ -137,7 +142,8 @@ class ToggleAd(ListView):
         if ad.status == m.PENDING:
 
             if total_ads:
-                messages.error(self.request, 'Your aready have active ads. You must stop those before activating new ones')
+                messages.error(self.request,
+                               'Your aready have active ads. You must stop those before activating new ones')
 
             # a moderator may start at least one ad
             if is_moderator and not total_ads:
@@ -177,34 +183,35 @@ class ToggleAd(ListView):
             messages.error(self.request, 'Only the author may put this ad in Pending mode.')
             return html.redirect(url)
 
-        messages.error(self.request, 'You are not authorized to make changes for that ad. Please read the activation rules.')
+        messages.error(self.request,
+                       'You are not authorized to make changes for that ad. Please read the activation rules.')
         return html.redirect(url)
-
 
 class AdView(ListView):
     url = "show/ads/"
     template_name = "refactored/show.ads.html"
-    paginate_by = 25
+    paginate_by = 100
     context_object_name = 'ads'
 
     def get_queryset(self):
         user = self.request.user
         target = self.kwargs['target']
 
-        if target == "my":
-            cond = Q(user=user) | Q(status_by=user)
-            messages.info(self.request, 'Showing your ads. Switch to <a href="%s">all ads</a>' % reverse(self.url,
-                                                                                                         kwargs=dict(
-                                                                                                             target="all")))
-        else:
-            messages.info(self.request, 'Showing all ads. Switch to <a href="%s">your ads</a>' % reverse(self.url,
-                                                                                                         kwargs=dict(
-                                                                                                             target="my")))
-            cond = Q()
+        all_ads_url = reverse(self.url, kwargs=dict(target="all"))
+        my_ads_url = reverse(self.url, kwargs=dict(target="my"))
 
-        queryset = models.Ad.objects.filter(cond).select_related("user__profile", "status_by__profile",
-                                                                 "post").order_by('-id')
+        my_cond = Q(user=user) | Q(status_by=user)
+        all_cond = Q()
 
+        my_ads = models.Ad.objects.filter(my_cond).select_related("user__profile", "status_by__profile",
+                                                                 "post").order_by('-rate')
+
+        all_ads = models.Ad.objects.filter(all_cond).exclude(my_cond).select_related("user__profile", "status_by__profile",
+                                                                 "post").order_by('-rate')
+
+        queryset = list(my_ads) + list(all_ads[:100])
+
+        messages.info(self.request, 'Learn more about the Biostar advertising on the <a href="/help/ads/">Ad Info page</a>')
         return queryset
 
     def get_context_data(self, target="", **kwargs):

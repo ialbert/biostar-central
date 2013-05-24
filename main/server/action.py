@@ -27,7 +27,7 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from whoosh import index
 from whoosh.qparser import QueryParser
-
+from django_openid_auth.models import UserOpenID
 # activate logging
 import logging, urllib
 logger = logging.getLogger(__name__)
@@ -287,7 +287,7 @@ def request_merge(request):
     params = html.Params(nav='')
     return html.template(request, name='pages/merge.html', params=params, form=form)
 
-from django_openid_auth.models import UserOpenID
+
 
 def migrate(master, remove):
     "Migrates user data"

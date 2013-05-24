@@ -20,6 +20,7 @@
                     <th>Rate</th>
                     <th>Shown</th>
                     <th>Status</th>
+                    <th>Action</th>
                     <th>Approved By</th>
                     <th>Ad Author</th>
                     <th>Post</th>
@@ -40,7 +41,11 @@
                         </td>
 
                         <td>
-                            <a href="/toggle/ad/{{ ad.id }}/"> {{ ad.get_status_display }} </a>
+                            {{ ad.get_status_display }}
+                        </td>
+
+                        <td>
+                            <a href="/toggle/ad/{{ ad.id }}/"> change </a>
                         </td>
                         <td>
                            {{ ad.status_by.profile.display_name }}

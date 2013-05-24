@@ -4,6 +4,7 @@ from django.template import Context, Template
 from django.template.defaultfilters import stringfilter
 from django.core.context_processors import csrf
 from main.server.const import *
+import random
 
 import urllib
 register = template.Library()
@@ -13,6 +14,10 @@ register = template.Library()
 @register.simple_tag
 def show_value(value):
     return " (%s) " % value if value else ""
+
+@register.simple_tag
+def rand_num():
+    return " %f " % random.random()
 
 @register.simple_tag
 def show_count(key, store):

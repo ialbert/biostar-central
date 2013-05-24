@@ -74,9 +74,13 @@ def extras(request):
             traffic = models.PostView.objects.filter(date__gt=recently).count()
         cache.set(TRAFFIC_KEY, traffic, 600)
 
+    # when to show ads
+    show_ads = settings.SHOW_ADS
+
     context = { 'BIOSTAR_VERSION': server.VERSION,
              'GOOGLE_TRACKER': settings.GOOGLE_TRACKER,
              'GOOGLE_DOMAIN': settings.GOOGLE_DOMAIN,
+             'show_ads': show_ads,
              'user':user, 
              'q':q, 
              'm':m,
@@ -88,7 +92,9 @@ def extras(request):
              'params':{}, # this is needed because of the navbar
     }
 
-    # that's just so bad I can't even begin to explain
+    # this below is just so bad I can't even begin to explain, there is a difference
+    # between the order in which context is applied in function and class based views
+    # therefore we need to remove some keys so that they won't overwrite class based context
     # this whole thing needs to be tossed and refactored
     if request.path == "/show/messages/" or request.path.startswith("/show/ads/"):
         del context['params']
