@@ -546,7 +546,16 @@ def new_post(request, pid=0, post_type=POST_QUESTION, data=None):
         # no incoming data, render form
         form = factory()
         return html.template(request, name=name, form=form, params=params)
-    
+
+    # polls can only have comments associated with the root
+    is_poll = root and root.type == POST_POLL
+    is_author = root and root.author == user
+    is_root_comment = (post_type == POST_COMMENT) and (parent == root)
+
+    if is_poll and not is_author and not is_root_comment:
+        messages.error(request, "Polls are special content. Users other than the author of the poll may only create comments directly associated with the top post.")
+        return redirect(root)
+
     # process the incoming data
     assert request.method == 'POST', "Method=%s" % request.method
 
