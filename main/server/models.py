@@ -622,7 +622,7 @@ def post_score_change(post, amount=1):
 
 def user_score_change(post, amount):
     "How user score changes with votes"
-    if post.type == POST_POLL:
+    if post.root.type == POST_POLL:
         return
     user = post.author
     user.profile.score += amount
