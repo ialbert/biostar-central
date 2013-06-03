@@ -189,7 +189,7 @@ class ToggleAd(ListView):
 
 class AdView(ListView):
     url = "show/ads/"
-    template_name = "refactored/show.ads.html"
+    template_name = "refactored/ad.list.html"
     paginate_by = 100
     context_object_name = 'ads'
 

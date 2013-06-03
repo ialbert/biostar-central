@@ -399,11 +399,6 @@ USER_PILL_BAR = [
 
 SHOW_ADS = True
 
-if SHOW_ADS:
-    USER_PILL_BAR.append(
-        ("ads", "/show/ads/all/", "Ads", "Ads" ),
-    )
-
 #
 # remapping the templates to local versions
 # a row is the way a post is rendered on a page
