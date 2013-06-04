@@ -20,7 +20,7 @@ urlpatterns = patterns('main.server',
     url(r'^more/like/(?P<pid>\d+)/$', 'search.more', name="more"),
 
     # shows new messages
-    url(r'^show/ads/(?P<target>.+)/$', AdView.as_view(), name=AdView.url),
+    url(r'^show/ads/$', AdView.as_view(), name=AdView.url),
 
     # shows new messages
     url(r'^toggle/ad/(?P<pk>\d+)/$', ToggleAd.as_view(), name=ToggleAd.url),

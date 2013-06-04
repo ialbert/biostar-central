@@ -3,14 +3,36 @@
 {% load widgets %}
 {% load humanize %}
 {% load i18n %}
+ {% load url from future %}
 
 {% block title %}
-    {{ params.title }}
+    Biostar Ad List
 {% endblock %}
 
 {% block body %}
 
     <div class="row">
+        <div class="span12">
+
+            <form class="form-inline" action="{%  url "show-ads" %}">
+                <label>Search for </label>
+                <input type="text" class="input-large" placeholder="">
+
+                <button type="submit" class="btn">Go!</button>
+            </form>
+        </div>
+    </div>
+
+
+    <div class="row">
+        <div class="span12">
+            Showing the first 50 items. Learn more about how ads work on the <a href="/help/ads">Ad Information</a>
+            page.
+        </div>
+    </div>
+
+    <div class="row">
+
         <div class="span12">
 
 
@@ -33,11 +55,11 @@
                         </td>
 
                         <td>
-                           {{ ad.rate|floatformat:4 }}
+                            {{ ad.rate|floatformat:4 }}
                         </td>
 
                         <td>
-                           {{ ad.show_count }}
+                            {{ ad.show_count }}
                         </td>
 
                         <td>
@@ -48,15 +70,15 @@
                             <a href="/toggle/ad/{{ ad.id }}/"> change </a>
                         </td>
                         <td>
-                           {{ ad.status_by.profile.display_name }}
-                        </td>
-
-                         <td>
-                           {{ ad.user.profile.display_name }}
+                            {{ ad.status_by.profile.display_name }}
                         </td>
 
                         <td>
-                            <a href="{% url post-show pid=ad.post.id %}">{{ ad.post.title }}</a>
+                            {{ ad.user.profile.display_name }}
+                        </td>
+
+                        <td>
+                            <a href="{% url "post-show" pid=ad.post.id %}">{{ ad.post.title }}</a>
                         </td>
 
 

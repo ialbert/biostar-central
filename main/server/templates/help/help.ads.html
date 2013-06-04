@@ -24,7 +24,7 @@
 
         <div class="par">
             The sole restriction of the user initiated advertising is that the person
-            must be in the position to claim full or partial ownership (at a non trivial level) of the the product/idea/concept
+            creating the ad must be legally entitled to claim full or partial ownership (at a non trivial level) of the the product/idea/concept
             that is being advertised.
         </div>
 
@@ -38,11 +38,10 @@
             Depending on the accumulated reputation users have the following options to run their ads:
             <ul>
                 <li>
-                    Users with the reputation of 1000 or above (accumulated after 100 votes) may run a single ad at no cost.
+                    Users with the reputation of 1000 or above (accumulated after 100 votes) may run one ad.
                 </li>
                 <li>
-                    Moderators and users with the reputation of 5000 or above may activate a single ad for any other user
-                    at no cost.
+                    Moderators and users with the reputation of 5000 or above may also activate an additional ad for another user.
                 </li>
             </ul>
         </div>
@@ -57,18 +56,30 @@
         </div>
 
         <div class="par">
-            Ads have three stages <code>Stopped</code>, <code>Pending</code>, <code>Active</code> Upon
-            creating your ad it will have the <code>Pending</code> status and it will need to be activated to be shown
+            Ads have three stages <code>Stopped</code>, <code>Pending</code>, <code>Active</code>.
+
+            Upon creating your ad it will have the <code>Pending</code> status and it will need to be activated to be shown
             within the Ad rotation.
+            Ads in the <code>running</code> state will be shown in the top bar. Every twenty seconds the site loads up the
+            the 10 least shown ads and will select from them for the next 20 seconds. The `rate` field for ads shows the number
+            of times an ads was shown in the last hour. Ideally this number is equal to to all ads. New ads will quickly catch up
+            upon creation.
         </div>
 
         <h3>Launching and Stopping Ads</h3>
 
         <div class="par">
-            To see a list of all ads visit the <a href="/show/ads"> tab that may be accesed by authenticated users.
+            To see a list of all ads visit the <a href="/show/ads/">ads</a> tab.
             If you have sufficient permissions then clicking the word <code>change</code>
-            for your ad will toggle its state to the next one in the succestion of <code>Stopped -> Pending -> Active -> Stopped ...</code>
+            for your ad will toggle its state to the next one in the succession of <code>Stopped -> Pending -> Active -> Stopped ...</code>
             <b>Note:</b> depending on your permission rights you may be able to stop your own ad but not reactivate it.
+        </div>
+
+    <h3>Expiration</h3>
+
+        <div class="par">
+            Ads expire after one month and at that point will be placed in
+            the <code>Stopped</code> state. Users will need to reactivate the ad by clicking the <code>change</code>.
         </div>
 
     </div>

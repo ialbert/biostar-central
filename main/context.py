@@ -92,14 +92,6 @@ def extras(request):
              'params':{}, # this is needed because of the navbar
     }
 
-    # this below is just so bad I can't even begin to explain, there is a difference
-    # between the order in which context is applied in function and class based views
-    # therefore we need to remove some keys so that they won't overwrite class based context
-    # this whole thing needs to be tossed and refactored
-    if request.path == "/show/messages/" or request.path.startswith("/show/ads/"):
-        del context['params']
-        del context['counts']
-
     return context
 
 def popular_tags(request):

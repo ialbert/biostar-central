@@ -188,31 +188,16 @@ class ToggleAd(ListView):
         return html.redirect(url)
 
 class AdView(ListView):
-    url = "show/ads/"
+    url = "show-ads"
     template_name = "refactored/ad.list.html"
     paginate_by = 100
     context_object_name = 'ads'
 
     def get_queryset(self):
         user = self.request.user
-        target = self.kwargs['target']
-
-        all_ads_url = reverse(self.url, kwargs=dict(target="all"))
-        my_ads_url = reverse(self.url, kwargs=dict(target="my"))
-
-        my_cond = Q(user=user) | Q(status_by=user)
-        all_cond = Q()
-
-        my_ads = models.Ad.objects.filter(my_cond).select_related("user__profile", "status_by__profile",
+        query = models.Ad.objects.all().select_related("user__profile", "status_by__profile",
                                                                  "post").order_by('-rate')
-
-        all_ads = models.Ad.objects.filter(all_cond).exclude(my_cond).select_related("user__profile", "status_by__profile",
-                                                                 "post").order_by('-rate')
-
-        queryset = list(my_ads) + list(all_ads[:100])
-
-        messages.info(self.request, 'Learn more about the Biostar advertising on the <a href="/help/ads/">Ad Info page</a>')
-        return queryset
+        return query
 
     def get_context_data(self, target="", **kwargs):
         context = super(AdView, self).get_context_data(**kwargs)
@@ -221,13 +206,7 @@ class AdView(ListView):
         layout = settings.USER_PILL_BAR
         params = html.Params(tab="", pill="ads", sort='', since='', layout=layout, title="Ad List")
 
-        sess = middleware.Session(self.request)
-        counts = sess.get_counts("ad_count")
-        sess.save()
-
         context['params'] = params
-        context['user'] = self.request.user
-        context['counts'] = counts
-        context['ads'] = context['ads']
+
 
         return context
