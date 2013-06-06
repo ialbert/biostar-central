@@ -60,7 +60,7 @@ class UserProfile( models.Model ):
     verified_email  = models.BooleanField(default=False)
 
     # hide ads from the user
-    hide_ads  = models.BooleanField(default=False)
+    hide_ads = models.BooleanField(default=False)
 
     # the last visit by the user
     last_visited = models.DateTimeField()
@@ -394,8 +394,8 @@ class BlogAdmin(admin.ModelAdmin):
 admin.site.register(Blog, BlogAdmin)
 
 class Ad(models.Model):
-    ACTIVE, STOPPED, PENDING, REVIEW = range(1, 5)
-    CHOICES = ((ACTIVE, "Active"), (STOPPED, "Stopped"), (PENDING, "Pending"), (REVIEW, "Under Review"))
+    RUNNING, STOPPED = range(2)
+    CHOICES = ((RUNNING, "Running"), (STOPPED, "Stopped"))
 
     user = models.ForeignKey(User)
     post = models.ForeignKey(Post)
@@ -411,7 +411,7 @@ class Ad(models.Model):
     click_count = models.IntegerField(default=0)
 
     # the current status for the ad
-    status = models.IntegerField(choices=CHOICES, default=PENDING, db_index=True)
+    status = models.IntegerField(choices=CHOICES, default=STOPPED, db_index=True)
 
     # when was the ad created
     created_date = models.DateTimeField(auto_now_add=True, db_index=True)
@@ -529,6 +529,10 @@ def post_moderate(request, post, user, status, date=None):
             msg = '<b>Note</b>: post closing require that you add a comment that explains the rationale for closing it.'
             messages.error(request, msg)
             return url
+
+    # stop any ads that may be attached to this post
+    if status in (POST_CLOSED, POST_DELETED):
+        post.ad_set.update(status=Ad.STOPPED)
 
     # special treatment for deletion
     no_orphans = (Post.objects.filter(parent=post).exclude(id=post.id).count() == 0)
@@ -870,7 +874,7 @@ def finalize_post(sender, instance, created, raw, *args, **kwargs):
         if instance.type == POST_AD:
             now = datetime.now()
             expiration = now + timedelta(days=30)
-            status = Ad.PENDING
+            status = Ad.STOPPED
 
             # Create an ad
             Ad.objects.create(user=instance.author, post=instance, status=status, status_by=instance.author,

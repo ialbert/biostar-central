@@ -76,8 +76,11 @@ def extras(request):
 
     # when to show ads
     show_ads = settings.SHOW_ADS
+    if user.is_authenticated() and user.profile.hide_ads:
+        show_ads = False
 
-    context = { 'BIOSTAR_VERSION': server.VERSION,
+    context = {
+             'BIOSTAR_VERSION': server.VERSION,
              'GOOGLE_TRACKER': settings.GOOGLE_TRACKER,
              'GOOGLE_DOMAIN': settings.GOOGLE_DOMAIN,
              'show_ads': show_ads,

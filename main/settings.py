@@ -42,6 +42,9 @@ POSTS_PER_PAGE = 15
 # feed delay in minutes
 FEED_DELAY = 10
 
+AD_MIN_REP = 10
+AD_MOD_REP = 20
+
 
 def path(*args):
     "Generates absolute paths"
@@ -410,9 +413,6 @@ SHOW_ADS = True
 TEMPLATE_ROWS = {
     'job': "rows/row.job.html",
 }
-
-# how much reputation is needed to automatically create an ad
-MINIMUM_AD_REP = 100
 
 # how long will an ad be active by default
 DEFAULT_AD_EXPIRATION = 1

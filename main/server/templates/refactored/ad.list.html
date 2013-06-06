@@ -3,7 +3,7 @@
 {% load widgets %}
 {% load humanize %}
 {% load i18n %}
- {% load url from future %}
+{% load url from future %}
 
 {% block title %}
     Biostar Ad List
@@ -14,9 +14,9 @@
     <div class="row">
         <div class="span12">
 
-            <form class="form-inline" action="{%  url "show-ads" %}">
+            <form class="form-inline" action="{% url "show-ads" %}">
                 <label>Search for </label>
-                <input type="text" class="input-large" placeholder="">
+                <input type="text" class="input-large" placeholder="" name="search" value="{{ search }}">
 
                 <button type="submit" class="btn">Go!</button>
             </form>
@@ -26,8 +26,10 @@
 
     <div class="row">
         <div class="span12">
-            Showing the first 50 items. Learn more about how ads work on the <a href="/help/ads">Ad Information</a>
-            page.
+            <div class="alert alert-block">
+                Showing the first 50 items. Learn more about how ads work on the <a href="/help/ads">Ad Information</a>
+                page.
+            </div>
         </div>
     </div>
 
@@ -39,13 +41,13 @@
             <table class="table table-striped ad-list" cellspacing="0" width="100%">
                 <tr>
                     <th>ID</th>
-                    <th>Rate</th>
-                    <th>Shown</th>
+
+                    <th>Show Count</th>
                     <th>Status</th>
                     <th>Action</th>
-                    <th>Approved By</th>
+                    <th>Status By</th>
                     <th>Ad Author</th>
-                    <th>Post</th>
+                    <th>Ad Title</th>
                     <th>Expiration</th>
                 </tr>
                 {% for ad in ads %}
@@ -54,9 +56,7 @@
                             {{ ad.id }}
                         </td>
 
-                        <td>
-                            {{ ad.rate|floatformat:4 }}
-                        </td>
+
 
                         <td>
                             {{ ad.show_count }}
@@ -67,7 +67,19 @@
                         </td>
 
                         <td>
-                            <a href="/toggle/ad/{{ ad.id }}/"> change </a>
+
+                            {% if ad.allow_start %}
+
+                                <a href="{% url "toggle-ad" pk=ad.id %}?action=start"> Start </a>
+
+                            {% elif ad.allow_stop %}
+
+                                <a href="{% url "toggle-ad" pk=ad.id %}?action=stop"> Stop </a>
+
+                            {% else %}
+
+                                &dash;
+                            {% endif %}
                         </td>
                         <td>
                             {{ ad.status_by.profile.display_name }}
@@ -78,7 +90,7 @@
                         </td>
 
                         <td>
-                            <a href="{% url "post-show" pid=ad.post.id %}">{{ ad.post.title }}</a>
+                            <a href="{% url "post-show" pid=ad.post.id %}">{{ ad.post.get_title }}</a>
                         </td>
 
 
