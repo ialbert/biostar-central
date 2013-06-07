@@ -27,7 +27,7 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from whoosh import index
 from whoosh.qparser import QueryParser
-
+from django_openid_auth.models import UserOpenID
 # activate logging
 import logging, urllib
 logger = logging.getLogger(__name__)
@@ -41,6 +41,7 @@ class UserForm(forms.Form):
     my_tags      = forms.CharField(max_length=250,  required=False, initial="", widget=forms.TextInput(attrs={'size':'50'}))
     about_me     = forms.CharField(max_length=2500, required=False, initial="", widget=forms.Textarea (attrs={'class':'span6'}))
     scholar      = forms.CharField(max_length=50,  required=False, initial="", widget=forms.TextInput(attrs={'size':'30'}))
+    hide_ads      = forms.BooleanField( initial=False, required=False)
 
 LAST_CLEANUP = datetime.now()
 def cleanup(request):
@@ -124,7 +125,7 @@ def user_edit(request, uid):
         return html.redirect(target.profile.get_absolute_url() )
     
     # valid incoming fields
-    fields = "display_name about_me website location my_tags scholar".split()
+    fields = "display_name about_me website location my_tags scholar hide_ads".split()
         
     if request.method == 'GET':
         initial = dict(email=target.email)
@@ -140,6 +141,12 @@ def user_edit(request, uid):
         else:
             for field in fields:
                 setattr(target.profile, field, form.cleaned_data[field])
+
+            # hiding ads requires a minimum reputation
+            if target.profile.hide_ads and target.profile.score < settings.AD_MIN_REP:
+                target.profile.hide_ads = False
+                messages.warning(request, "The reputation needed to hide ads is %s" % (settings.AD_MIN_REP * 10))
+
             # check the new email
             new_email = form.cleaned_data['email'].strip()
             if new_email != target.email and models.User.objects.filter(email=new_email):
@@ -287,7 +294,7 @@ def request_merge(request):
     params = html.Params(nav='')
     return html.template(request, name='pages/merge.html', params=params, form=form)
 
-from django_openid_auth.models import UserOpenID
+
 
 def migrate(master, remove):
     "Migrates user data"
@@ -353,6 +360,7 @@ def authorize_external_user(request, data):
         # now update the profile
         user.profile.display_name = data.get("display_name", "Biostar User")
         user.profile.type = USER_EXTERNAL
+        user.profile.my_tags = "galaxy"
         user.profile.save()
 
     # login the user
@@ -367,7 +375,7 @@ def external_handler(request):
     "This allows for external login"
     from django.contrib.auth import authenticate, login
 
-    url = "/show/galaxy/"
+    url = "/show/mytags/"
     try:
         user = request.user
         get = request.GET.get

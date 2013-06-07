@@ -24,6 +24,11 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal('server', ['Ad'])
 
+        # Adding field 'UserProfile.rank'
+        db.add_column('server_userprofile', 'rank',
+                      self.gf('django.db.models.fields.IntegerField')(default=0, blank=True),
+                      keep_default=False)
+
         # Adding field 'UserProfile.hide_ads'
         db.add_column('server_userprofile', 'hide_ads',
                       self.gf('django.db.models.fields.BooleanField')(default=False),
@@ -33,6 +38,9 @@ class Migration(SchemaMigration):
     def backwards(self, orm):
         # Deleting model 'Ad'
         db.delete_table('server_ad')
+
+        # Deleting field 'UserProfile.rank'
+        db.delete_column('server_userprofile', 'rank')
 
         # Deleting field 'UserProfile.hide_ads'
         db.delete_column('server_userprofile', 'hide_ads')
@@ -194,6 +202,7 @@ class Migration(SchemaMigration):
             'location': ('django.db.models.fields.TextField', [], {'default': "''", 'null': 'True', 'blank': 'True'}),
             'my_tags': ('django.db.models.fields.TextField', [], {'default': "''", 'max_length': '250', 'null': 'True', 'blank': 'True'}),
             'new_messages': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
+            'rank': ('django.db.models.fields.IntegerField', [], {'default': '0', 'blank': 'True'}),
             'scholar': ('django.db.models.fields.TextField', [], {'default': "''", 'max_length': '50', 'null': 'True', 'blank': 'True'}),
             'score': ('django.db.models.fields.IntegerField', [], {'default': '0', 'blank': 'True'}),
             'silver_badges': ('django.db.models.fields.IntegerField', [], {'default': '0'}),

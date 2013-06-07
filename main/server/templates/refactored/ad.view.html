@@ -1,6 +1,9 @@
-{%  load basic %}
+{% load basic %}
+{% load widgets %}
 {% if  ad %}
-    <b><a href="{{ ad.post.get_absolute_url }}">{{  ad.post.title }}</a></b> by {% userlink ad.user %} {% userrep ad.user %}
+        <b><a href="{{ ad.post.get_absolute_url }}">{{ ad.post.title }}</a></b> by {% userlink ad.user %} {%  userrep ad.user %}
+        {% gravatar ad.post.author 32 %}
 {%  else %}
-    Your ad goes here
-{%  endif %}
+    There are no active ads!
+{% endif %}
+<div class="pull-right" style="padding-top: 8px"><a href="/help/ads/"><i class="icon-question-sign"></i></a></div>

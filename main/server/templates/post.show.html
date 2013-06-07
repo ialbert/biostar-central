@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 {% load widgets %}
-{%  load basic %}
+{% load basic %}
 {% block title %}
-    {{root.title}} - BioStar
+    {{ root.title }} - BioStar
 {% endblock %}
 
 {% block head %}
     <script src="{{ STATIC_URL }}js/handlers.js"></script>
-   
+
     <!-- prettify -->
     <link href="{{ STATIC_URL }}lib/prettify.css" rel="stylesheet">
     <script src="{{ STATIC_URL }}lib/prettify.js"></script>
@@ -15,42 +15,42 @@
 
 
     <link rel="stylesheet" href="{{ STATIC_URL }}lib/pagedown/Markdown.css" type="text/css"/>
-    <script type="text/javascript" src="{{ STATIC_URL }}lib/pagedown/Markdown.Converter.js"></script>    
-    <script type="text/javascript" src="{{ STATIC_URL }}lib/pagedown/Markdown.Sanitizer.js"></script>    
+    <script type="text/javascript" src="{{ STATIC_URL }}lib/pagedown/Markdown.Converter.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}lib/pagedown/Markdown.Sanitizer.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}lib/pagedown/Markdown.Editor.js"></script>
-    <meta name="keywords" content="{{root.tag_val}}" />
+    <meta name="keywords" content="{{ root.tag_val }}"/>
 {% endblock %}
 
 {% block document_ready %}
-     
+
     // google prettify library
     $('pre').addClass('prettyprint')
     //prettyPrint()
 
     $('.comment-delete').click(function(){
-        comment_delete($(this))
+    comment_delete($(this))
     });
-    
+
     // register the add comment function
     $('.add-comment').each(function(){
-        elem = $(this)
-        //console.log(elem)
-        //callback function defined in /static/js/widgets.js
-        elem.click(function(){
-            show_add_comment($(this).parent(), $(this).parent().children('input').val()); 
-        });
+    elem = $(this)
+    //console.log(elem)
+    //callback function defined in /static/js/widgets.js
+    elem.click(function(){
+    show_add_comment($(this).parent(), $(this).parent().children('input').val());
     });
-    
+    });
+
     // tooltips
     $('.vote-up').tooltip('hide')
     $('.vote-down').tooltip('hide')
     $('.vote-bookmark').tooltip('hide')
-        
-{% if root.open %}
-    var converter1 = Markdown.getSanitizingConverter();
-    var editor1 = new Markdown.Editor(converter1);
-    editor1.run();
-{% endif %}
+
+    {% if root.open %}
+        var converter1 = Markdown.getSanitizingConverter();
+        var editor1 = new Markdown.Editor(converter1);
+        editor1.run();
+    {% endif %}
 
 {% endblock %}
 
@@ -60,97 +60,127 @@
         {% google_custom_search %}
     </div>
 
-    {% if root.closed %}
-        <div class="alert alert-warning">This post has been closed. No more answers may be added.</div>
-    {% endif %}
+    <div class="row span12">
+        {% if root.closed %}
 
-    {% if root.deleted %}
-        <div class="alert alert-error">This post has been deleted. No more answers may be added.</div>
-    {% endif %}
+            <div class="alert alert-warning">
+                <div class="par">This post has been closed. Only comments may be added to it.</div>
+
+                <div class="par">
+                    If you disagree with
+                    the decision please use the comment section to add your input. This will notify the moderator that
+                    closed
+                    your post.
+                </div>
+                <div>
+                    The process is reversible. Posts will be reopened if the author addresses the issues and problems
+                    that
+                    have been raised.
+                </div>
+            </div>
+        {% endif %}
+
+        {% if root.deleted %}
+            <div class="alert alert-error">This post has been deleted. No more answers may be added.</div>
+        {% endif %}
+    </div>
 
 
     {# renders the main post #}
-    <div class="row"><div class="span12">{% render_post root tree %}</div></div>
- 
+    <div class="row">
+        <div class="span12">{% render_post root tree %}</div>
+    </div>
+
     <div class="row separator">
         <div class="span12">
             <h3>
                 {% if root.answer_count %}
-                    {{root.answer_count}} answer{{root.answer_count|pluralize}}
+                    {{ root.answer_count }} answer{{ root.answer_count|pluralize }}
                 {% endif %}
             </h3>
         </div>
     </div>
     {# renders all the followups post #}
     {% for answer in answers %}
-        <div class="row"><div class="span12">{% render_post answer tree %}</div></div>
+        <div class="row">
+            <div class="span12">{% render_post answer tree %}</div>
+        </div>
         <div class="row separator">&nbsp;</div>
     {% endfor %}
-            
 
-{% if user.is_authenticated %}
 
-{% if root.open %}
-    <div class="row" id="add-answer-row">
-    <div class="span12">
+    {% if user.is_authenticated %}
 
-    {%  if root.answer_only %}
+        {% if root.open %}
+            <div class="row" id="add-answer-row">
+                <div class="span12">
 
-    <div class="alert alert-info alert-block" style="margin-top:20px;">
-        <h4>By submitting the form below you will be adding a new Answer for the Question at the very top!</h4>
+                    {% if root.answer_only %}
 
-        <p> Please use the
-            <span class="label">comment</span> or <span class="label">reply</span>
-             links if you want to respond to an existing answer, ask for clarifications, add more information, thank a user, etc...</p>
-    </div>
-    {%  else %}
-        <div class="alert alert-success alert-block" style="margin-top:10px;">
-            <p>This is a general section. You may add any type of post below.</p>
-            <p> Please use the
-                <span class="label">comment</span> or <span class="label">reply</span>
-                links to respond to an existing post, ask for clarifications, add more information, thank them, etc...</p>
-        </div>
-    {%  endif %}
+                        <div class="alert alert-info alert-block" style="margin-top:20px;">
+                            <h4>By submitting the form below you will be adding a new Answer for the Question at the
+                                very top!</h4>
 
-    <form action="/new/answer/{{root.id}}/" method="post" id="mainform" class="form-vertical">
-        
-        {% csrf_token %}
+                            <p> Please use the
+                                <span class="label">comment</span> or <span class="label">reply</span>
+                                links if you want to respond to an existing answer, ask for clarifications, add more
+                                information, thank a user, etc...</p>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-success alert-block" style="margin-top:10px;">
+                            <p>This is a general section. You may add any type of post below.</p>
 
-        {%  if root.answer_only %}
-        <legend>Add a new answer to the question!</legend>
-        {%  else %}
-            <legend>Add a new post!</legend>
-        {%  endif %}
+                            <p> Please use the
+                                <span class="label">comment</span> or <span class="label">reply</span>
+                                links to respond to an existing post, ask for clarifications, add more information,
+                                thank them, etc...</p>
+                        </div>
+                    {% endif %}
 
-        <fieldset>
-        <div class="control-group">
-            <div class="controls">
-                <div class="wmd-panel">
-                    <div id="wmd-button-bar"></div>
-                    <textarea class="wmd-input" id="wmd-input" name="content"></textarea>
-                </div>    
-                <div id="wmd-preview" class="wmd-panel wmd-preview"></div>
+                    <form action="/new/answer/{{ root.id }}/" method="post" id="mainform" class="form-vertical">
+
+                        {% csrf_token %}
+
+                        {% if root.answer_only %}
+                            <legend>Add a new answer to the question!</legend>
+                        {% else %}
+                            <legend>Add a new post!</legend>
+                        {% endif %}
+
+                        <fieldset>
+                            <div class="control-group">
+                                <div class="controls">
+                                    <div class="wmd-panel">
+                                        <div id="wmd-button-bar"></div>
+                                        <textarea class="wmd-input" id="wmd-input" name="content"></textarea>
+                                    </div>
+                                    <div id="wmd-preview" class="wmd-panel wmd-preview"></div>
+                                </div>
+                            </div>
+                            <div class="form-actions">
+                                <a class="btn btn-success" id="submit-button"
+                                   href='javascript: document.forms["mainform"].submit()'><i
+                                        class="icon-ok icon-white"></i> Submit Answer</a>
+                            </div>
+
+                            <div class="control-group">
+                                <label class="control-label" for="button"></label>
+
+                                <div class="controls">
+                                    <div class="alert"><b>Note</b>: by posting to BioStar, you agree to a <a
+                                            href="http://creativecommons.org/licenses/by/3.0/">Creative Commons -
+                                        Attribution</a> license.
+                                    </div>
+                                </div>
+
+                        </fieldset>
+
+                    </form>
+                </div>
             </div>
-        </div>
-        <div class="form-actions">
-            <a class="btn btn-success" id="submit-button" href='javascript: document.forms["mainform"].submit()'><i class="icon-ok icon-white"></i> Submit Answer</a>
-        </div>
-        
-         <div class="control-group">
-            <label class="control-label" for="button"></label>
-            <div class="controls">
-            <div class="alert"><b>Note</b>: by posting to BioStar, you agree to a <a href="http://creativecommons.org/licenses/by/3.0/">Creative Commons - Attribution</a> license. 
-            </div>
-        </div>
-            
-        </fieldset>
-        
-    </form>
-    </div>
-    </div>
-{% endif %}
-{% else %}
-    <div class="alert alert-info" style="margin-top: 5px;">Log in to add a post</div>
-{% endif %}
+        {% endif %}
+    {% else %}
+        <div class="alert alert-info" style="margin-top: 5px;">Log in to add a post</div>
+    {% endif %}
 
 {% endblock %}

@@ -5,54 +5,60 @@
 
 {% block custom-frameworks %}
     <style type="text/css">
-      
-      label {
-        width: 10em;
-        float: left;
-        text-align: right;
-        margin-right: 0.5em;
-        display: block
-      }
-      .errorlist {
-        background:#F4A83D;
-      }
 
-      p {
-        display:block;
-      }
+        label {
+            width: 10em;
+            float: left;
+            text-align: right;
+            margin-right: 0.5em;
+            display: block
+        }
+
+        .errorlist {
+            background: #F4A83D;
+        }
+
+        p {
+            display: block;
+        }
     </style>
 {% endblock %}
 
 {% block title %}
     {% trans 'Edit User' %}
-    : {{target.profile.display_name }} - BioStar
+    : {{ target.profile.display_name }} - BioStar
 {% endblock %}
 
 {% block body %}
 
-<form id="useredit" name="useredit" action="{% url main.server.action.user_edit target.id %}" method="post" class="form-horizontal">
-    <legend>{% trans 'Updating user:' %}
-     {{ target.profile.display_name }}</legend>
-    <fieldset>
-    {% csrf_token %}
-    {% form_field  form.display_name 'Display Name' %}
-    {% form_field  form.email 'Email' %}
-    {% form_field  form.location 'Location' %}
-    {% form_field  form.website 'Website' %}
-    {% form_field  form.scholar 'ScholarID' 'Enter your <a href="http://scholar.google.com/citations">Google Scholar ID</a>. Example: <b>hordfUUAAAAJ</b>' %}
-    {% form_field  form.my_tags 'My tags' 'Tags to match in the My Tags tab. Join tags with +, remove tag with the ! suffix: Example: blast+sequence+tutorial!' %}
-    {% form_field  form.about_me 'About me' '<a href="http://en.wikipedia.org/wiki/Markdown">Markdown</a> allowed '%}
+    <form id="useredit" name="useredit" action="{% url main.server.action.user_edit target.id %}" method="post"
+          class="form-horizontal">
+        <legend>{% trans 'Updating user:' %}
+            {{ target.profile.display_name }}</legend>
+        <fieldset>
+            {% csrf_token %}
+            {% form_field form.display_name 'Display Name' %}
+            {% form_field form.email 'Email' %}
+            {% form_field form.location 'Location' %}
+            {% form_field form.website 'Website' %}
 
-    <div class="form-actions">
-        <button type="submit" id="submit-button" name="submit" class="btn btn-success">{% trans 'Submit' %}
-        </button>
-        or <a class="btn btn-danger" href='javascript: history.back()'><i class="icon-arrow-left icon-white"></i> {% trans 'Go back' %}
-        </a>
+            {% form_field form.scholar 'ScholarID' 'Enter your <a href="http://scholar.google.com/citations">Google Scholar ID</a>. Example: <b>hordfUUAAAAJ</b>' %}
+            {% form_field form.my_tags 'My tags' 'Tags to match in the My Tags tab. Join tags with +, remove tag with the ! suffix: Example: blast+sequence+tutorial!' %}
+             {% form_field form.hide_ads 'Hide Ads' %}
+            {% form_field form.about_me 'About me' '<a href="http://en.wikipedia.org/wiki/Markdown">Markdown</a> allowed ' %}
+
+            <div class="form-actions">
+                <button type="submit" id="submit-button" name="submit" class="btn btn-success">{% trans 'Submit' %}
+                </button>
+                or <a class="btn btn-danger" href='javascript: history.back()'><i
+                    class="icon-arrow-left icon-white"></i> {% trans 'Go back' %}
+            </a>
+            </div>
+
+
+        </fieldset>
+
+    </form>
     </div>
-    
-    </fieldset>
-
-</form>
-</div>
 
 {% endblock %}

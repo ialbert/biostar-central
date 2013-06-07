@@ -42,6 +42,9 @@ POSTS_PER_PAGE = 15
 # feed delay in minutes
 FEED_DELAY = 10
 
+AD_MIN_REP = 10
+AD_MOD_REP = 20
+
 
 def path(*args):
     "Generates absolute paths"
@@ -179,6 +182,7 @@ COMPRESS_PRECOMPILERS = (
     #('text/coffeescript', 'coffee --compile --stdio'),
     ('text/less', 'lessc {infile} {outfile}'),
 )
+
 
 DEBUG_TOOLBAR_CONFIG = {
     'INTERCEPT_REDIRECTS': False,
@@ -372,7 +376,6 @@ ANON_PILL_BAR = [
     #("galaxy", "/show/galaxy/", "Galaxy", "Galaxy" ),
     ("jobs", "/show/jobs/", "Jobs", "Job" ),
     ("planet", "/show/planet/", "Planet", "Blog" ),
-    #("ads", "/show/ads/", "Ads", "Ads" ),
 
 ]
 
@@ -394,9 +397,10 @@ USER_PILL_BAR = [
     #("galaxy", "/show/galaxy/", "Galaxy", "Galaxy" ),
     ("jobs", "/show/jobs/", "Jobs", "Job" ),
     ("planet", "/show/planet/", "Planet", "Blog" ),
-    ("ads", "/show/ads/all/", "Ads", "Ads" ),
+
 ]
 
+SHOW_ADS = True
 
 #
 # remapping the templates to local versions
@@ -410,11 +414,10 @@ TEMPLATE_ROWS = {
     'job': "rows/row.job.html",
 }
 
-# how much reputation is needed to automatically create an ad
-MINIMUM_AD_REP = 100
-
 # how long will an ad be active by default
 DEFAULT_AD_EXPIRATION = 1
+
+
 
 # version check, we can do it at the end since
 # the version is only required in subsequent modules

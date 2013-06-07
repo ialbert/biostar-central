@@ -74,9 +74,16 @@ def extras(request):
             traffic = models.PostView.objects.filter(date__gt=recently).count()
         cache.set(TRAFFIC_KEY, traffic, 600)
 
-    context = { 'BIOSTAR_VERSION': server.VERSION,
+    # when to show ads
+    show_ads = settings.SHOW_ADS
+    if user.is_authenticated() and user.profile.hide_ads:
+        show_ads = False
+
+    context = {
+             'BIOSTAR_VERSION': server.VERSION,
              'GOOGLE_TRACKER': settings.GOOGLE_TRACKER,
              'GOOGLE_DOMAIN': settings.GOOGLE_DOMAIN,
+             'show_ads': show_ads,
              'user':user, 
              'q':q, 
              'm':m,
@@ -87,12 +94,6 @@ def extras(request):
              'recent_votes': recent_votes,
              'params':{}, # this is needed because of the navbar
     }
-
-    # that's just so bad I can't even begin to explain
-    # this whole thing needs to be tossed and refactored
-    if request.path == "/show/messages/" or request.path.startswith("/show/ads/"):
-        del context['params']
-        del context['counts']
 
     return context
 

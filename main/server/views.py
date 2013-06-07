@@ -54,13 +54,14 @@ def mytags_posts(request):
     "Gets posts that correspond to mytags settins or sets warnings"
     user = request.user
     if not user.is_authenticated():
-        messages.warning(request, "This Tab is populated only for registered users based on the My Tags field in their user profile")
+        messages.warning(request, "This Tab is populated only for registered users based on the <b>My Tags</b> field in their user profile")
         text = ""
     else:
         text = request.user.profile.my_tags 
         if not text:
-            messages.warning(request, "Showing posts matching the My Tags fields in your user profile. Currently this field is not set.")
-            
+            messages.warning(request, "Showing posts matching the <b>My Tags</b> field in your user profile. Currently this field is not set.")
+        else:
+            messages.info(request, "Showing posts matching the <b>My Tags</b> field in your user profile.")
     return models.query_by_tags(user, text=text)
 
 def filter_by_date(request, posts, since):
@@ -514,8 +515,9 @@ def new_answer(request, pid):
 
 def safe_context(key_name, data):
     try:
-        patt = settings.EXTERNAL_AUTHENICATION[key_name][1]
-        return patt % data
+        key, template = settings.EXTERNAL_AUTHENICATION[key_name]
+        page = html.render_template(template, data)
+        return page
     except Exception, exc:
         return "context error: %s" % exc
 
@@ -546,7 +548,16 @@ def new_post(request, pid=0, post_type=POST_QUESTION, data=None):
         # no incoming data, render form
         form = factory()
         return html.template(request, name=name, form=form, params=params)
-    
+
+    # polls can only have comments associated with the root
+    is_poll = root and root.type == POST_POLL
+    is_author = root and root.author == user
+    is_root_comment = (post_type == POST_COMMENT) and (parent == root)
+
+    if is_poll and not is_author and not is_root_comment:
+        messages.error(request, "Polls are special content. Users other than the author of the poll may only create comments directly associated with the top post.")
+        return redirect(root)
+
     # process the incoming data
     assert request.method == 'POST', "Method=%s" % request.method
 
