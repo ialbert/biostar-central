@@ -123,7 +123,7 @@ def allow_stop(ad, user):
         return False
     is_moderator = user.profile.can_moderate
     same_author = (user == ad.user)
-    cond = (ad.status == models.Ad.RUNNING) and (is_moderator or same_author)
+    cond = (ad.status == models.Ad.RUNNING) and same_author
 
     return cond
 
