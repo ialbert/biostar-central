@@ -99,6 +99,7 @@ def update(limit):
             ent = ent[:limit]
             for r in ent:
                 r.title = unicode_or_bust(r.title)
+                r.title = r.title[:200]
                 r.description = unicode_or_bust(r.description)
                 if not r.title:
                     continue;
