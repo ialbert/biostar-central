@@ -42,7 +42,9 @@
                 <tr>
                     <th>ID</th>
 
-                    <th>Show Count</th>
+
+                    <th>Shown</th>
+                    <th>CTR(%)</th>
                     <th>Status</th>
                     <th>Action</th>
                     <th>Status By</th>
@@ -60,6 +62,10 @@
 
                         <td>
                             {{ ad.show_count|intcomma }}
+                        </td>
+
+                        <td>
+                            {{ ad.ctr|floatformat:-4 }}
                         </td>
 
                         <td>

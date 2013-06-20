@@ -203,6 +203,7 @@ class AdView(ListView):
         for ad in query:
             ad.allow_start = allow_start(user)(ad=ad, user=user)
             ad.allow_stop = allow_stop(ad=ad, user=user)
+            ad.ctr = float(ad.post.views)/(ad.show_count + 1)
 
         return query
 
