@@ -103,7 +103,7 @@ Most operations are customized via environment variables. To show their current 
 Settings
 --------
 
-Custom settings should import all settings as `from main.settings import *` then overide 
+Custom settings should import all settings as `from main.settings import *` then override 
 those values that need to change. For an example see the `conf/demo.env` and `conf/demo.py` files. 
 A number of helper methods can be found in the `main/bin` directory, when the python import paths 
 are set properly these can be invoked as:
@@ -113,12 +113,12 @@ are set properly these can be invoked as:
   - `python -m main.bin.useradd` to add users
   - `python -m main.bin.usermod` to edit users
   - `python -m main.bin.extract` extracts the value of a settings parameter
-  - `python -m main.bin.patch` is used to change varios values after migration
-  - `python -m main.bin.sitemap` generates a sitemap into the export directory
+  - `python -m main.bin.patch` is used to change various values after migration
+  - `python -m main.bin.sitemap` generates a site map into the export directory
 
   The best practice is to establish separate environments and settings files. 
   The `python -m main.bin.extract` command can be used to fill an environment variable from 
-  a django settings file. See the `conf/demo.env` file. Typically use is to `source conf/default.env` 
+  a Django settings file. See the `conf/demo.env` file. Typically use is to `source conf/default.env` 
   then source a second smaller file that overrides just a few parameters.
 
 To add a new user and a post by this user you can do a:
@@ -171,21 +171,21 @@ excellent answers.
 In Biostar there are four types of users: anonymous users, registered users, moderators and administrators.
 
 - *Anonymous users*: May browse all content of a site.
-- *Registered users*: In addition to the privileges that anymous users have registered users may create new posts if their reputation 
-  exceeeds a limit (the default is zero), may vote and post answers and comments. 
+- *Registered users*: In addition to the privileges that anonymous users have registered users may create new posts if their reputation 
+  exceeds a limit (the default is zero), may vote and post answers and comments. 
 - *Editors*: In addition to the privileges that registered users have Editors may edit, close and delete posts, 
   edit user information (other than email) and may also suspend and reinstate users. All the actions of the Editors
   may be followed via the Moderator Log page (see About BioStar page for a link)
 - *Administrators*: In addition to the privileges that moderators have administrators 
   may promote/demote users from having moderator roles. Administrators also have 
-  access to the django admin interface where they may perform more database actions
+  access to the Django admin interface where they may perform more database actions
   than those offered via the BioStar interface..
 
 Internationalization
 --------------------
 
 There are some dependencies that need to be installed (notable the Unix `gettext` utility) to run
-the django [makemessages][makemsg] command.
+the Django [makemessages][makemsg] command.
 
 Template content needs to be tagged with the [Django Translation][trans] framework.
 The new message compilation then will be run via:
@@ -214,7 +214,7 @@ Content Persistence
 Content may be deleted (marked invisible to users) or destroyed (removed from the database).
 
 A post submitted for deletion will be destroyed only if the author requests the deletion 
-and the post does not have any followups (answers/comments) associated with it. Deleted top level posts 
+and the post does not have any follow-ups (answers/comments) associated with it. Deleted top level posts 
 are marked invisible to regular users.
 
 Code Layout
@@ -308,7 +308,7 @@ takes about 1 hour and 10Gb of RAM. This is an area that we
 could do a lot better job (possibly orders of magnitude better).
 
 The resulting data fixture is database independent and can now be loaded
-into type database: sqlite, mysql, postgresql supported by Djano. For example
+into type database: sqlite, mysql, postgresql supported by Django. For example
 when loading into postgresql it takes about 2 hours and 2Gb of RAM.
 
 Note that the databases can be dumped and restored with far fewer resources.
