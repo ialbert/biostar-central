@@ -5,6 +5,12 @@
 {% load i18n %}
 {% load url from future %}
 
+{% block head %}
+<style>
+    .Running {color:green; font-weight: bold;}
+</style>
+
+{% endblock %}
 {% block title %}
     Biostar Ad List
 {% endblock %}
@@ -53,7 +59,7 @@
                     <th>Expiration</th>
                 </tr>
                 {% for ad in ads %}
-                    <tr>
+                    <tr class="{{ ad.get_status_display}}">
                         <td>
                             {{ ad.id }}
                         </td>
