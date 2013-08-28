@@ -96,16 +96,17 @@ if __name__ == '__main__':
     parser = optparse.OptionParser()
     parser.add_option("--merge", dest="merge", help="filename, reads tag-pairs from a file, replaces first tag with the second", default=None)
     parser.add_option("--delete", dest="delete", help="filename, reads tag names from a file, removes them from the system", default=None)
-    parser.add_option("--drop", dest="drop", help="drops tags with no posts", action="store_true", default=False)
+    parser.add_option("--drop_empty", dest="drop_empty", help="drops tags with no posts", action="store_true", default=False)
+    parser.add_option("--drop_rare", dest="drop_rare", help="delete tags with few posts", action="store_true", default=False)
 
 
     (opts, args) = parser.parse_args()
 
-    if not(opts.delete or opts.merge or opts.drop):
+    if not(opts.delete or opts.merge or opts.drop_empty or opts.drop_rare):
         parser.print_help()
         sys.exit()
 
-    if opts.drop:
+    if opts.drop_empty:
         drop_tags()
 
     # stop execution if no parameters were specified
@@ -114,3 +115,6 @@ if __name__ == '__main__':
 
     if opts.delete:
         remove_tags(opts.delete)
+
+    if opts.drop_rare:
+        delete_rare()
