@@ -4,6 +4,7 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from main.server import const
 
 from server.views_refactored import MessageView, AdView, ToggleAd, NextAd, AdHelp
+from server.views_tag import TagList
 
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
@@ -128,7 +129,8 @@ urlpatterns = patterns('main.server',
     url(r'^questions/tagged/(?P<tag>.+)/$','action.redirect_tag', name="redirect-tag"),
 
 
-
+    # tag editing
+    url(r'^edit/tags/$',TagList.as_view(), name=TagList.url),
 
     # the main handler for the external authentication
     url(r'^x/$','action.external_handler', name="external-handler"),
