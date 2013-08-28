@@ -8,7 +8,7 @@
 
 {% block head %}
     <style TYPE="text/css">
-        .tagcloud-big { padding:7px; opacity: 0.7;}
+        .tagcloud-big { padding:10px; opacity: 0.7;}
         .taglist li {
             list-style-type:none; float:left; margin:0 10px;
         }
@@ -19,7 +19,7 @@
     $('.tagcloud-big').each(function(){
     elem = $(this);
     val = elem.attr("value")
-    var fact=5; minfs=1; maxfs=2.6;
+    var fact=3; minfs=0.8; maxfs=3.8;
     val = Math.log(val);
     var fsize = minfs + val / fact;
 
