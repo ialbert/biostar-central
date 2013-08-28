@@ -73,6 +73,9 @@ class PostBase(Feed):
         return item.html
         #return item.content[:1000]
 
+    #def item_extra_kwargs(self, item):
+    #    return {'content_encoded': item.html}
+
     def item_guid(self, obj):
         return "http://%s%s" %(SITE.domain, obj.get_short_url())
 

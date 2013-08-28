@@ -465,7 +465,7 @@ def post_show(request, pid):
             return html.redirect( root.get_absolute_url() )
 
         # update the views for the question
-        models.update_post_views(post=root, request=request, minutes=const.POST_VIEW_UPDATE)
+        models.update_post_views(post=root, request=request)
         counts = sess.get_counts()
     
     except models.Post.DoesNotExist, exc:

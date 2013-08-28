@@ -322,7 +322,7 @@ class Post(models.Model):
             tag_val = self.tag_val
             return "TITLE:%s\n%s\nTAGS:%s" % (title, content, tag_val)
 
-def update_post_views(post, request, minutes=10):
+def update_post_views(post, request, minutes=settings.POST_VIEW_UPDATE):
     "Views are updated per user session"
     
     ip = html.get_ip(request)
