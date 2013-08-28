@@ -359,6 +359,10 @@ TRUST_USER_MAX_POST = 15
 
 COUNT_INTERVAL_WEEKS = 25
 
+# the time between registering two post views
+# from the same IP, in minutes
+POST_VIEW_UPDATE = 30
+
 # TEMPLATE LAYOUT,
 # One may override these variables from the settings file
 # 
