@@ -138,7 +138,7 @@ def expire_ads():
     now = datetime.now()
     ads = models.Ad.objects.filter(expiration_date__lt=now, status=models.Ad.RUNNING)
     for ad in ads:
-        print "Ad %s has expired" % ad.post.title
+        # print "Ad %s has expired" % ad.post.title
         ad.status = models.Ad.STOPPED
         ad.save()
 
