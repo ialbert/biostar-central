@@ -7,6 +7,8 @@ import os, sys, re
 # database migrations via Django South
 import south
 
+# we now required django celery to be present
+from celery import task
 
 def path(*args):
     "Generates absolute paths"
@@ -78,16 +80,15 @@ DATABASES = {
     }
 }
 
-
-
-
-
 # email specific settings
 EMAIL_HOST = 'smtp.yourserver.com'
+EMAIL_PORT = 465
 EMAIL_HOST_USER = 'user'
 EMAIL_HOST_PASSWORD = 'password'
 DEFAULT_FROM_EMAIL = 'default'
 SERVER_EMAIL = 'default'
+EMAIL_USE_TLS = True
+EMAIL_BACKEND = 'main.server.email_backend.SSLEmailBackend'
 
 # add external dependecies
 __ZIP_LIBS = [
@@ -251,7 +252,9 @@ INSTALLED_APPS = [
     'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     'django.contrib.admindocs',
+    'kombu.transport.django',
     'south',
+    'djcelery',
     'compressor',
     'main.server',
     'django_openid_auth',

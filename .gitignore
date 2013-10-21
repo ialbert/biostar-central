@@ -1,3 +1,4 @@
+conf/porthos.*
 *.pyc
 *~
 .DS_Store

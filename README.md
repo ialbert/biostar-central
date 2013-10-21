@@ -13,8 +13,11 @@ framework.
 Requirements
 ------------
 
-The software requires only [Python][python] (version 2.7) to run. All other
-libraries are included in the distribution. The code will run with no changes
+The software requires only [Python][python] (version 2.7) to run. Most of the
+other libraries except `django-celery` are included in the distribution. This latter
+needs to be present on the installed computer.
+
+The code will run with no changes
 on any operating system that supports Python. The software runs the **BioStar
 Bioinformatics Q&A** site at: http://www.biostars.org
 
@@ -35,6 +38,10 @@ have them on your system. Switch to the *libs* directory and unpack the
  
 For faster loading performance may also want to unzip the entire
 `libraries.zip` file located in the libs folder. 
+
+Install the django celery package:
+
+    pip install django-celery
 
 Quickstart
 ----------
