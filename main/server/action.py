@@ -28,6 +28,9 @@ from django.core.exceptions import ObjectDoesNotExist
 from whoosh import index
 from whoosh.qparser import QueryParser
 from django_openid_auth.models import UserOpenID
+
+from main.server import tasks
+
 # activate logging
 import logging, urllib
 logger = logging.getLogger(__name__)
@@ -74,6 +77,8 @@ def private_message(request, uid):
 
         content = "PM from %s: %s" % (notegen.userlink(user), text)
         models.send_note(target=target, content=content, sender=user, both=False, type=NOTE_PRIVATE, url=user.profile.get_absolute_url() )
+
+        tasks.send_test_email()
 
         messages.info(request, 'Your private message to <b>%s</b> has been sent!' % target.profile.display_name)
 

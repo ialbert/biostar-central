@@ -161,6 +161,11 @@ while (( "$#" )); do
         $PYTHON_EXE -m main.server.search
     fi
 
+	if [ "$1" = "worker" ]; then
+        echo "*** running the celery worker"
+        $PYTHON_EXE $DJANGO_ADMIN celery worker --loglevel info --autoreload -c 3
+    fi
+
     if [ "$1" = "run" ]; then
         echo "*** running the webserver on $BIOSTAR_HOSTNAME"
         $PYTHON_EXE $DJANGO_ADMIN runserver $BIOSTAR_HOSTNAME --settings=$DJANGO_SETTINGS_MODULE

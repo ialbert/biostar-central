@@ -16,7 +16,7 @@ from django.db.models import F, Q
 from django.core.urlresolvers import reverse
 
 from datetime import datetime, timedelta
-from main.server import html, notegen, auth
+from main.server import html, notegen, auth, tasks
 
 # import all constants
 from main.server.const import *
@@ -469,7 +469,6 @@ class PostRevision(models.Model):
         '''We won't cache the HTML in the DB because revisions are viewed fairly infrequently '''
         return html.generate(self.content)
 
-
 class RelatedPosts(models.Model):
     """
     A model that represents related posts
@@ -634,12 +633,22 @@ def post_create_notification(post):
     "Generates notifications to all users related with this post. Invoked only on the creation of the post"
     
     root = post.root or post
+
     authors = set( [ root.author ] )
-    for child in Post.objects.filter(root=root):
+
+    # add users that want to just follow the post
+    for row in Watcher.objects.filter(pk=post.id, type=Watcher.NOTE).select_related('user'):
+        authors.add(row.user)
+
+    for child in Post.objects.filter(root=root).select_related('author'):
         authors.add(child.author)
     
     text = notegen.post_action(user=post.author, post=post)
-    
+
+    # generate emails for people that want to follow a post via email
+    for row in Watcher.objects.filter(pk=post.id, type=Watcher.EMAIL).select_related('user'):
+        tasks.send_test_email()
+
     for target in authors:
         unread = (target != post.author) # the unread flag will be off for the post author        
         send_note(sender=post.author, target=target, content=text, type=NOTE_USER, unread=unread, date=post.creation_date, url=post.get_absolute_url() )

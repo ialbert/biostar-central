@@ -14,7 +14,10 @@ def send_test_email():
     sender  = "istvan.albert@gmail.com"
     recipient = "iua1@psu.edu"
     body = "this is a test email"
-    send_mail(subject, body, sender, [recipient], fail_silently=False)
+
+    print "sending test email"
+
+    #send_mail(subject, body, sender, [recipient], fail_silently=False)
 
 if __name__ == '__main__':
     send_test_email()

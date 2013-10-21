@@ -8,7 +8,8 @@ import os, sys, re
 import south
 
 # we now required django celery to be present
-from celery import task
+import djcelery
+djcelery.setup_loader()
 
 def path(*args):
     "Generates absolute paths"
@@ -184,6 +185,8 @@ COMPRESS_PRECOMPILERS = (
     ('text/less', 'lessc {infile} {outfile}'),
 )
 
+
+BROKER_URL = 'django://'
 
 DEBUG_TOOLBAR_CONFIG = {
     'INTERCEPT_REDIRECTS': False,
