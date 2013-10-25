@@ -98,7 +98,7 @@ def help_external(request, word='main'):
 
     # create a test key/value pair
 
-    name = "GALAXY"
+    name = "TEST-KEY"
     pair = settings.EXTERNAL_AUTHENICATION.get(name)
 
     if pair:
