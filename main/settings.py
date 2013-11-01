@@ -421,7 +421,9 @@ TEMPLATE_ROWS = {
 # how long will an ad be active by default
 DEFAULT_AD_EXPIRATION = 1
 
-
+# used during testing external authentication
+EXTERNAL_AUTHENICATION_TEST_URL=""
+EXTERNAL_AUTHENICATION_TEST_KEY="TEST-KEY"
 
 # version check, we can do it at the end since
 # the version is only required in subsequent modules
