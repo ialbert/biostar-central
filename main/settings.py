@@ -7,10 +7,6 @@ import os, sys, re
 # database migrations via Django South
 import south
 
-# we now required django celery to be present
-import djcelery
-djcelery.setup_loader()
-
 def path(*args):
     "Generates absolute paths"
     return os.path.abspath(os.path.join(*args))
@@ -255,9 +251,7 @@ INSTALLED_APPS = [
     'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     'django.contrib.admindocs',
-    'kombu.transport.django',
     'south',
-    'djcelery',
     'compressor',
     'main.server',
     'django_openid_auth',
