@@ -49,7 +49,7 @@
     {% endif %}
     
     <div class="par">
-    <form id="merge" name="merge" action="{% url main.server.action.request_merge%}" method="post" class="form-horizontal">
+    <form id="merge" name="merge" action={% url "main.server.action.request_merge" %} method="post" class="form-horizontal">
         <legend>Account Merge Request</legend>
         <fieldset>
         {% csrf_token %}

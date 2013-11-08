@@ -40,8 +40,8 @@
         <div class="title">Current stats</div>
 
         We had {{params.visitors}} visitors in the past hour.
-        <a href="{% url main.server.views.user_list %}">{{params.user_count|intcomma}} users</a> have contributed
-        <a href="{% url main.server.views.index tab='recent' %}">{{params.post_count|intcomma}} posts</a> distributed as
+        <a href={% url "main.server.views.user_list" %}>{{params.user_count|intcomma}} users</a> have contributed
+        <a href={% url "main.server.views.index" tab='recent' %}>{{params.post_count|intcomma}} posts</a> distributed as
         {{params.question_count|intcomma}} questions, {{params.answer_count|intcomma}} answers and
         {{params.comment_count|intcomma}} comments
     </div>
@@ -78,12 +78,12 @@
 
     <div class="title">FAQ</div>
   <div class="par">
-    See the <a href="{% url main.server.pages.faq %}">Frequently Asked Questions</a> page.
+    See the <a href={% url "main.server.pages.faq" %}>Frequently Asked Questions</a> page.
   </div>
   
   <div class="title">RSS Feeds</div>
   <div class="par">
-    See the <a href="{% url main.server.pages.rss %}">Feeds page</a> <img src="{{STATIC_URL}}img/feed-icon-small.png">
+    See the <a href={% url "main.server.pages.rss" %}>Feeds page</a> <img src="{{STATIC_URL}}img/feed-icon-small.png">
   </div>
 
   <div class="par">BioStar content is licensed under the

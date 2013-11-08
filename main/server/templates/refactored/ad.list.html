@@ -20,7 +20,7 @@
     <div class="row">
         <div class="span12">
 
-            <form class="form-inline" action="{% url "show-ads" %}">
+            <form class="form-inline" action={% url "show-ads" %}>
                 <label>Search for </label>
                 <input type="text" class="input-large" placeholder="" name="search" value="{{ search }}">
 
@@ -82,11 +82,11 @@
 
                             {% if ad.allow_start %}
 
-                                <a href="{% url "toggle-ad" pk=ad.id %}?action=start"> Start </a>
+                                <a href={% url "toggle-ad" pk=ad.id %}?action=start> Start </a>
 
                             {% elif ad.allow_stop %}
 
-                                <a href="{% url "toggle-ad" pk=ad.id %}?action=stop"> Stop </a>
+                                <a href={% url "toggle-ad" pk=ad.id %}?action=stop> Stop </a>
 
                             {% else %}
 
@@ -102,7 +102,7 @@
                         </td>
 
                         <td>
-                            <a href="{% url "post-show" pid=ad.post.id %}">{{ ad.post.get_title }}</a>
+                            <a href={% url "post-show" pid=ad.post.id %}>{{ ad.post.get_title }}</a>
                         </td>
 
 

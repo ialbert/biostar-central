@@ -58,7 +58,7 @@
         <ul class="taglist">
             {% for tag in page.object_list %}
 
-                <li class="tagcloud-big" value="{{ tag.count }}"><a href="{% url main.server.views.show_tag tag.name %}">
+                <li class="tagcloud-big" value="{{ tag.count }}"><a href={% url "main.server.views.show_tag" tag.name %}>
                     {{tag.name}}
                 </a></li>
 

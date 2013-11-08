@@ -57,7 +57,7 @@ def mytags_posts(request):
         messages.warning(request, "This Tab is populated only for registered users based on the <b>My Tags</b> field in their user profile")
         text = ""
     else:
-        text = request.user.profile.my_tags 
+        text = request.user.profile.my_tags
         if not text:
             messages.warning(request, "Showing posts matching the <b>My Tags</b> field in your user profile. Currently this field is not set.")
         else:
@@ -112,7 +112,7 @@ def filter_by_type(request, posts, post_type):
     elif post_type == "bookmarked":
         return posts.filter(book_count__gt=0)
     return posts.exclude(type__in=POST_EXCLUDE)
-    
+
 def apply_sort(request, posts, order, sticky=True):
     "Sorts posts by an order"
     sort_order = SORT_MAP.get(order, "-lastedit_date")
@@ -130,16 +130,16 @@ DATE_FILTER   = "all time,today,this week,this month,this year".split(',')
 def index(request, tab='all'):
     user = request.user
     auth = user.is_authenticated()
-    
+
     # asking for an invalid tab
     if tab not in VALID_TABS:
         msg = html.sanitize('Unknown content type "%s"' % tab)
         messages.error(request, msg)
         return html.redirect("/")
-        
+
     # populate the session data
     sess = middleware.Session(request)
-    
+
     # get the sort order
     sort_type = sess.sort_order()
 
@@ -148,7 +148,7 @@ def index(request, tab='all'):
 
     # set the last active tab
     sess.set_tab(tab)
-    
+
     # get the numerical value for these posts
     post_type = POST_TYPE_MAP.get(tab, tab)
 
@@ -177,7 +177,7 @@ def index(request, tab='all'):
 
     # the params object will carry
     layout = settings.USER_PILL_BAR if auth else settings.ANON_PILL_BAR
-    
+
     # wether to show the type of the post
     show_type = post_type in ('all', 'recent')
 
@@ -193,7 +193,7 @@ def index(request, tab='all'):
 
     # this will fill in the query (q) and the match (m)parameters
     params.parse(request)
-    
+
     # returns the object manager that contains all or only visible posts
     posts = get_post_manager(request)
 
@@ -205,7 +205,7 @@ def index(request, tab='all'):
 
     # reduce SQL query count by preselecting data that will be displayed
     posts = posts.select_related('author', 'author__profile', 'lastedit_user', 'lastedit_user__profile')
-        
+
     # sticky is not active on recent and all pages
     sticky = (tab != 'recent') and (pill not in ('all', "best", "bookmarked"))
 
@@ -219,7 +219,7 @@ def index(request, tab='all'):
     counts = sess.get_counts(post_type)
 
     page = get_page(request, posts, per_page=settings.POSTS_PER_PAGE)
-    
+
     # save the session
     sess.save()
 
@@ -247,7 +247,7 @@ def show_tag(request, tag_name=''):
     user = request.user
     # populate the session data
     sess = middleware.Session(request)
-    
+
     # get the sort order
     sort_type = sess.sort_order()
 
@@ -256,16 +256,16 @@ def show_tag(request, tag_name=''):
 
     # select based on history
     tab, pill = "posts", sess.get_tab()
-    
+
     params = html.Params(nav='', tab=tab, sort='' )
-    
+
     # the params object will carry
     layout = settings.USER_PILL_BAR if auth else settings.ANON_PILL_BAR
-    
+
     # wether to show the type of the post
     params  = html.Params(tab=tab, pill=pill, sort=sort_type, sort_choices=SORT_CHOICES, date_filter=DATE_FILTER, since=since,
             layout=layout, title="Tagged as %s" % tag_name)
-    
+
     msg = 'Filtering by tag: <b>%s</b>. Subscribe to an <a href="/feeds/tag/%s/">RSS feed</a> to this tag.' % (tag_name,tag_name)
     messages.info(request, msg)
     posts = models.query_by_tags(user=user, text=tag_name)
@@ -288,7 +288,7 @@ def show_user(request, uid, post_type=''):
 
     # notification
     messages.info(request, 'Filtering by user: %s' % user.profile.display_name)
-   
+
     post_type = POST_REV_MAP.get(post_type.lower())
     if post_type:
         posts = get_post_manager(request).filter(type=post_type, author=user).order_by('-creation_date')
@@ -314,12 +314,12 @@ def user_profile(request, uid, tab='activity'):
     if not models.User.objects.filter(id=uid):
         messages.error(request, "This user does not exist. It has perhaps been deleted.")
         return html.redirect("/")
-        
+
     user = request.user
     target = models.User.objects.get(id=uid)
     awards = []
     page   = None
-    
+
     # some information is only visible to the user
     target.writeable = auth.authorize_user_edit(target=target, user=user, strict=False)
     show_private = target.showall = (target == user)
@@ -385,7 +385,7 @@ def user_profile(request, uid, tab='activity'):
 
     params.update(dict(question_count=question_count, answer_count=answer_count, note_count=note_count, bookmarks_count=bookmarks_count,
             comment_count=comment_count, post_count=post_count, vote_count=vote_count, award_count=award_count))
-    
+
     return html.template(request, name='user.profile.html', awards=awards,
         user=request.user,target=target, params=params, page=page)
 
@@ -396,23 +396,23 @@ def user_list(request):
         query = Q(profile__display_name__icontains=search)
     else:
         query = Q(id__gt=0)
-        
+
     users = models.User.objects.filter(query).select_related('profile').order_by("-profile__score", "id")
     page  = get_page(request, users, per_page=28)
     return html.template(request, name='user.list.html', page=page, params=params)
 
 def tag_list(request):
-    
+
     # remove null tags
     models.Tag.objects.all().filter(count=0).delete()
-    
+
     search  = request.GET.get('m','')[:80] # trim for sanity
-    
+
     if search:
         query = Q(name__icontains=search)
     else:
         query = Q(id__gt=0)
-        
+
     tags = models.Tag.objects.filter(query).exclude(name="deleted-post").order_by('name')
     page = get_page(request, tags, per_page=250)
     params = html.Params(nav='tags', sort='', since='')
@@ -420,9 +420,9 @@ def tag_list(request):
 
 def badge_list(request):
     user = request.user
-    
+
     badges = models.Badge.objects.filter(secret=False).order_by('-count', '-type')
-    
+
     # set a flag for badges that a user has
     if user.is_authenticated():
         earned = set( models.Award.objects.filter(user=user).values_list('badge__name', flat=True).distinct() )
@@ -430,7 +430,7 @@ def badge_list(request):
         earned = []
     for badge in badges:
         badge.earned = badge.name in earned
-        
+
     params = html.Params(nav='badges', sort='')
     return html.template(request, name='badge.list.html', badges=badges, params=params)
 
@@ -451,12 +451,12 @@ def post_show(request, pid):
     sess = middleware.Session(request)
     tab  = "posts"
     pill = sess.get_tab()
-    
+
     auth = user.is_authenticated()
     layout = settings.USER_PILL_BAR if auth else settings.ANON_PILL_BAR
-    
+
     params  = html.Params(tab=tab, pill=pill, layout=layout)
-    
+
     query = get_post_manager(request)
 
     try:
@@ -467,43 +467,43 @@ def post_show(request, pid):
         # update the views for the question
         models.update_post_views(post=root, request=request)
         counts = sess.get_counts()
-    
+
     except models.Post.DoesNotExist, exc:
         messages.warning(request, 'The post that you are looking for does not exists. Perhaps it was deleted!')
         return html.redirect("/")
-    
+
     # get all answers to the root
     children = models.Post.objects.filter(root=root).exclude(type=POST_COMMENT, id=root.id).select_related('author', 'author__profile').order_by('-accepted', '-score', 'creation_date')
-    
+
     # comments need to be displayed by creation date
     comments = models.Post.objects.filter(root=root, type=POST_COMMENT).select_related('author', 'author__profile').order_by('creation_date')
 
     all = [ root ] + list(children) + list(comments)
     # add the various decorators
-    
+
     models.decorate_posts(all, user)
-    
+
     # may this user accept answers on this root
     accept_flag = (user == root.author)
-    
+
     # these are all the answers
     answers = [ o for o in children if o.type == POST_ANSWER ]
     for a in answers:
         a.accept_flag = accept_flag
-        
+
     # get all the comments
     tree = defaultdict(list)
-    for comment in comments:  
+    for comment in comments:
         tree[comment.parent_id].append(comment)
-   
+
     # generate the tag cloud
     #tags = models.Tag.objects.all().order_by('-count')[:50]
-    
+
     return html.template( request, name='post.show.html', root=root, answers=answers, tree=tree, params=params, counts=counts)
- 
+
 def redirect(post):
     return html.redirect( post.get_absolute_url() )
-    
+
 @login_required(redirect_field_name='/openid/login/')
 def new_comment(request, pid=0):
     "Shortcut to new comments"
@@ -524,7 +524,7 @@ def safe_context(key_name, data):
 @login_required(redirect_field_name='/openid/login/')
 def new_post(request, pid=0, post_type=POST_QUESTION, data=None):
     "Handles the creation of a new post"
-    
+
     user   = request.user
     name   = "post.edit.html"
     parent = models.Post.objects.get(pk=pid) if pid else None
@@ -617,7 +617,7 @@ def new_post(request, pid=0, post_type=POST_QUESTION, data=None):
 @login_required(redirect_field_name='/openid/login/')
 def post_edit(request, pid=0):
     "Handles the editing of an existing post"
-    
+
     user = request.user
     name = "post.edit.html"
     post = models.Post.objects.get(pk=pid)
@@ -625,12 +625,12 @@ def post_edit(request, pid=0):
     if not post.open and not user.can_moderate:
         messages.error(request, 'Post is closed. It may not be edited.')
         return redirect(post.root)
-        
+
     # verify that this user may indeed modify the post
     if not auth.authorize_post_edit(post=post, user=request.user, strict=False):
         messages.error(request, 'User may not edit the post.')
         return redirect(post.root)
-  
+
     toplevel = post.top_level
     factory  = formdef.TopLevelContent if toplevel else formdef.ChildContent
 
@@ -653,14 +653,14 @@ def post_edit(request, pid=0):
         post.lastedit_user = user
         post.lastedit_date = datetime.now()
         post.set_tags() # this saves the post
-    
+
     return redirect(post)
-    
+
 def revision_show(request, pid):
     post = models.Post.objects.get(pk=pid)
     revs = post.revisions.order_by('-date').select_related('author', 'lastedit_author')
     return html.template(request, name='revision.show.html', revs=revs, post=post)
-   
+
 def post_redirect(request, pid):
     "Redirect to a post"
     post = models.Post.objects.get(id=pid)
@@ -673,7 +673,7 @@ def linkout(request, pid):
     post.set_rank()
     post.save()
     if post.url:
-        return html.redirect(post.url)    
+        return html.redirect(post.url)
     else:
         messages.error(request, 'linkout used on a post with no url set %s' % post.id)
         return html.redirect("/")
