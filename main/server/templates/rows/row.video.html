@@ -1,7 +1,10 @@
 {% extends 'rows/row.post.html' %}
 
+{% comment %}
+XXX
 {% block fixed-tags %}
     <div class="tag-line">
-        <a href="{% url show 'training' %}" class="post-type tag">video</a>
+        <a href={% url show "training" %} class="post-type tag">video</a>
     </div>
 {% endblock %}
+{% endcomment %}

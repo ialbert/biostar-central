@@ -38,7 +38,7 @@
 
 {% block body %}
 
-    <form action="{% url "list-tags" %}" method="POST">
+    <form action={% url "list-tags" %} method="POST">
     <fieldset>
         {% csrf_token %}
 

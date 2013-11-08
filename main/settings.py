@@ -200,7 +200,7 @@ CACHES = {
     }
 }
 
-#SESSION_ENGINE = "django.contrib.sessions.backends.cache" 
+#SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 
 ROOT_URLCONF = 'main.urls'
 
@@ -249,7 +249,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
-    'django.contrib.markup',
+    'django_markwhat',
     'django.contrib.messages',
     # Uncomment the next line to enable the admin:
     'django.contrib.admin',
@@ -258,7 +258,7 @@ INSTALLED_APPS = [
     'kombu.transport.django',
     'south',
     'djcelery',
-    'compressor',
+    'pipeline',
     'main.server',
     'django_openid_auth',
     'django.contrib.sitemaps',
@@ -371,9 +371,9 @@ POST_VIEW_UPDATE = 30
 
 # TEMPLATE LAYOUT,
 # One may override these variables from the settings file
-# 
+#
 
-# this data governs the layout of the PILL_BAR    
+# this data governs the layout of the PILL_BAR
 # bar name, link url, link name, counter key
 ANON_PILL_BAR = [
     ("all", "/", "Show&nbsp;All", "" ),

@@ -4,7 +4,7 @@ Too many viewa in the main views.py
 Started refactoring some here, this will eventually store all form based
 actions whereas the main views.py will contain url based actions.
 """
-import os, sys, traceback, time
+import os, sys, traceback, time, json
 
 from datetime import datetime, timedelta
 from main.server import html, models, auth, notegen, formdef
@@ -22,7 +22,6 @@ from django.db.models import Q
 from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.core.mail import send_mail
-from django.utils import simplejson
 from django.core.exceptions import ObjectDoesNotExist
 
 from whoosh import index
@@ -37,7 +36,7 @@ logger = logging.getLogger(__name__)
 
 class UserForm(forms.Form):
     "A form representing a new question"
-    display_name = forms.CharField(max_length=30,  initial="", widget=forms.TextInput(attrs={'size':'30'}))   
+    display_name = forms.CharField(max_length=30,  initial="", widget=forms.TextInput(attrs={'size':'30'}))
     email        = forms.CharField(max_length=100,  initial="", widget=forms.TextInput(attrs={'size':'50'}))
     location     = forms.CharField(max_length=100,  required=False, initial="", widget=forms.TextInput(attrs={'size':'50'}))
     website      = forms.CharField(max_length=250,  required=False, initial="", widget=forms.TextInput(attrs={'size':'50'}))
@@ -52,7 +51,7 @@ def cleanup(request):
     global LAST_CLEANUP
     now  = datetime.now()
     diff = (now - LAST_CLEANUP).seconds
-    if diff > 300: # five minutes        
+    if diff > 300: # five minutes
         LAST_CLEANUP = now
         # get rid of unused tags
         models.Tag.objects.filter(count=0).delete()
@@ -89,15 +88,15 @@ def post_moderate(request, pid, status):
     "General moderation function"
     user = request.user
     post = models.Post.objects.get(id=pid)
-     
+
     # remap the status to valid
     status = dict(close=POST_CLOSED, open=POST_OPEN, delete=POST_DELETED).get(status)
     if not status:
         messages.error('Invalid post moderation action')
-        return html.redirect( post.get_absolute_url() )    
-    
+        return html.redirect( post.get_absolute_url() )
+
     url = models.post_moderate(request=request, user=user, post=post, status=status)
-    return html.redirect( url )    
+    return html.redirect( url )
 
 @login_required(redirect_field_name='/openid/login/')
 def user_moderate(request, uid, status):
@@ -110,36 +109,36 @@ def user_moderate(request, uid, status):
     status = dict(suspend=USER_SUSPENDED, reinstate=USER_ACTIVE, ban=USER_BANNED).get(status)
     if not status:
         messages.error('Invalid user moderation action')
-        return html.redirect( url )    
-    
+        return html.redirect( url )
+
     flag, msg = models.user_moderate(user=user, target=target, status=status)
     func = messages.info if flag else messages.error
     func(request, msg)
-    return html.redirect( url )    
-    
+    return html.redirect( url )
+
 
 @login_required(redirect_field_name='/openid/login/')
 def user_edit(request, uid):
     "User's profile page"
-    
+
     target = models.User.objects.select_related('profile').get(id=uid)
-    
+
     allow = auth.authorize_user_edit(target=target, user=request.user, strict=False)
     if not allow:
         messages.error(request, "unable to edit this user")
         return html.redirect(target.profile.get_absolute_url() )
-    
+
     # valid incoming fields
     fields = "display_name about_me website location my_tags scholar hide_ads".split()
-        
+
     if request.method == 'GET':
         initial = dict(email=target.email)
         for field in fields:
-            initial[field] = getattr(target.profile, field) or ''                
+            initial[field] = getattr(target.profile, field) or ''
         form = UserForm(initial)
         return html.template(request, name='user.edit.html', target=target, form=form)
     elif request.method == 'POST':
-        
+
         form = UserForm(request.POST)
         if not form.is_valid():
             return html.template(request, name='user.edit.html', target=target, form=form)
@@ -159,23 +158,23 @@ def user_edit(request, uid):
                 messages.error(request, "This email is aready taken - please merge the accounts!")
             else:
                 target.email = new_email
-            
+
             target.profile.save()
             target.save()
-            
+
             url = reverse('main.server.views.user_profile', kwargs=dict(uid=target.id))
             return html.redirect(url)
 
 @login_required(redirect_field_name='/openid/login/')
 def post_reparent(request, pid, rid=0):
     "Reparent a post"
-    
+
     post = models.Post.objects.get(id=pid)
     root = post.root
     parent = post.parent
 
     allow = auth.authorize_post_edit(post=post, user=request.user, strict=False)
-    
+
     if not allow:
         messages.error(request, "Reparent access denied")
         return html.redirect(post.get_absolute_url())
@@ -190,11 +189,11 @@ def post_reparent(request, pid, rid=0):
     target = request.REQUEST.get('target')
     if target:
         target =  models.Post.objects.get(id=target)
-        
+
         if target not in targets:
             messages.error(request, "Invalid reparent %s -> %s" % (post.id, target.id) )
             return html.redirect(post.get_absolute_url())
-        
+
         # comment to comment reparent is not yet supported
         if target.type == POST_COMMENT and post.type == POST_COMMENT:
             messages.error(request, "Comment to comment reparent %s -> %s not implemented" % (post.id, target.id) )
@@ -209,7 +208,7 @@ def post_reparent(request, pid, rid=0):
         # valid target to be applied
         messages.info(request, "Reparenting %s to %s" % (post.id, target.id))
         return html.redirect(post.get_absolute_url())
-        
+
     return html.template(request, name='post.reparent.html', post=post, targets=targets)
 
 def badge_show(request, bid):
@@ -219,7 +218,7 @@ def badge_show(request, bid):
     awards = models.Award.objects.filter(badge=badge).select_related('user', 'user_profile').order_by("-date")
     page  = get_page(request, awards, per_page=24)
     return html.template(request, name='badge.show.html', page=page, badge=badge)
- 
+
 def note_clear(request, uid):
     "Clears all notifications of a user"
     user = models.User.objects.get(pk=uid)
@@ -254,7 +253,7 @@ To ignore the request simply ignore this email.
 ACCOUNT_APPROVAL_EMAIL = """
 Hello,
 
-The requested BioStar account merge has been completed. 
+The requested BioStar account merge has been completed.
 
 Profile url: http://%(domain)s%(profile_url)s
 
@@ -266,15 +265,15 @@ the BioStar Team
 @login_required(redirect_field_name='/openid/login/')
 def request_merge(request):
     "Generates an account merge request"
-    
+
     class MergeForm(forms.Form):
         "A form representing a new question"
-        master_id = forms.CharField(max_length=5,  initial="", widget=forms.TextInput(attrs={'size':'5'}))   
+        master_id = forms.CharField(max_length=5,  initial="", widget=forms.TextInput(attrs={'size':'5'}))
         remove_id = forms.CharField(max_length=5,  initial="", widget=forms.TextInput(attrs={'size':'5'}))
-    
+
     user = request.user
-    
-    if request.method == 'POST':   
+
+    if request.method == 'POST':
         form = MergeForm(request.POST)
         if form.is_valid():
             try:
@@ -294,7 +293,7 @@ def request_merge(request):
                 return html.redirect( user.profile.get_absolute_url() )
             except Exception, exc:
                 messages.error(request, 'Submission error %s' % exc)
-    else: 
+    else:
         form = MergeForm()
     params = html.Params(nav='')
     return html.template(request, name='pages/merge.html', params=params, form=form)
@@ -313,15 +312,15 @@ def migrate(master, remove):
     models.Award.objects.filter(user=remove).update(user=master)
     master.profile.score += remove.profile.score
     master.profile.save()
-            
+
 @login_required(redirect_field_name='/openid/login/')
 def approve_merge(request, master_id, remove_id):
     "Approves an account merge request"
     user = request.user
-    if not user.profile.is_admin:     
+    if not user.profile.is_admin:
         messages.error(request, 'Error: approving user not an administrator!')
         return html.redirect("/")
-   
+
     try:
         master = models.User.objects.get(id=master_id)
         remove = models.User.objects.get(id=remove_id)
@@ -336,7 +335,7 @@ def approve_merge(request, master_id, remove_id):
     except Exception, exc:
         messages.error(request, 'Merge error: %s' % exc)
         return html.redirect("/")
-    
+
     messages.info(request, 'Merge completed')
     return html.redirect("/")
 
@@ -444,7 +443,7 @@ def traffic(request):
         'timestamp': time.mktime(now.timetuple()),
         'traffic': get_traffic(now, minutes=minutes),
     }
-    payload = simplejson.dumps(data)
+    payload = json.dumps(data)
     return HttpResponse(payload)
 
 def stats(request, days=0):
@@ -465,19 +464,19 @@ def stats(request, days=0):
         'votes':  models.Vote.objects.filter(date__lt=end).count(),
         'users': models.User.objects.filter(date_joined__lt=end).count(),
     }
-    payload = simplejson.dumps(data)
-    return HttpResponse(payload)    
-    
+    payload = json.dumps(data)
+    return HttpResponse(payload)
+
 def url500(request):
     "Custom error handler"
-    
+
     type, value, tb = sys.exc_info()
     trace = traceback.format_exc()
     trace = "\n<trace>\n%s</trace>" % trace
     logger.error(trace)
-    
+
     return html.template(request, name='500.html', path=request.path, value=value)
-    
+
 #
 # this is only used to map redirects from the old site
 #
@@ -486,19 +485,19 @@ if os.path.isfile(POST_REMAP_FILE):
     REMAP = dict( [line.split() for line in file(POST_REMAP_FILE)] )
 else:
     REMAP = {}
-    
+
 def redirect_post(request, pid):
     try:
         nid = REMAP[pid]
         post = models.Post.objects.get(id=nid)
-        return html.redirect(post.get_absolute_url(), permanent=True)   
+        return html.redirect(post.get_absolute_url(), permanent=True)
     except Exception, exc:
         messages.error(request, "Unable to redirect: %s" % exc)
         return html.redirect("/")
-        
+
 def redirect_tag(request, tag):
     try:
-        return html.redirect("/show/tag/%s/" % tag, permanent=True)   
+        return html.redirect("/show/tag/%s/" % tag, permanent=True)
     except Exception, exc:
         messages.error(request, "Unable to redirect: %s" % exc)
-        return html.redirect("/")   
+        return html.redirect("/")

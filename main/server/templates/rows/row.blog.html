@@ -22,7 +22,7 @@
 
         <div class="post-title {{post.get_type_display}}">
             {% if post.url %}
-                <a href="{% url main.server.views.linkout post.id %}">{{post.get_title}} <i class="icon-share-alt"></i></a>
+                <a href={% url "main.server.views.linkout" post.id %}>{{post.get_title}} <i class="icon-share-alt"></i></a>
             {% else %}
                 <a href="{{post.get_absolute_url}}">{{post.get_title}} </a>
             {% endif %}
