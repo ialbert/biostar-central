@@ -28,20 +28,13 @@ Get the source from github
 
     $ git clone https://github.com/ialbert/biostar-central.git
 
-There are a few dependencies such as Django, Docutils and South that are also
-included with Biostar. These only need to be installed if you don't already
-have them on your system. Switch to the *libs* directory and unpack the
-*depot.zip* :
+Setup a virtual environment (if not installing the site system-wide):
 
-    $ cd libs
-    $ unzip depot.zip
- 
-For faster loading performance may also want to unzip the entire
-`libraries.zip` file located in the libs folder. 
+    $ curl -s https://raw.github.com/brainsik/virtualenv-burrito/master/virtualenv-burrito.sh | $SHELL
 
-Install the django celery package:
+Install dependencies:
 
-    pip install django-celery
+    $ pip install -r requirements.txt
 
 Quickstart
 ----------
