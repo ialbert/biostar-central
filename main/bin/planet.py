@@ -84,7 +84,7 @@ def unicode_or_bust(obj, encoding='utf-8'):
 
     
 def update(limit):
-    blogs = models.Blog.objects.all()
+    blogs = models.Blog.objects.exclude(pk=19)
     for blog in blogs:
         posts = models.Post.objects.filter(author=blog.author)
         seen  = set( p.title for p in posts )
