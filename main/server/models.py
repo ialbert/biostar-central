@@ -176,9 +176,6 @@ class Post(models.Model):
     score = models.IntegerField(default=0, blank=True, db_index=True)
     full_score = models.IntegerField(default=0, blank=True, db_index=True)
 
-    # how many people watch this post
-    watcher_count = models.IntegerField(default=0)
-
     # dates
     creation_date = models.DateTimeField(db_index=True)
     lastedit_date = models.DateTimeField(db_index=True)
@@ -396,13 +393,6 @@ class BlogAdmin(admin.ModelAdmin):
     username.short_description = 'Description'
     
 admin.site.register(Blog, BlogAdmin)
-
-class Watcher(models.Model):
-    NOTE, EMAIL = range(2)
-    CHOICES = ((NOTE, "Notification"), (EMAIL, "Email"))
-    user = models.ForeignKey(User)
-    post = models.ForeignKey(Post)
-    type = models.IntegerField(choices=CHOICES, default=NOTE)
 
 class Ad(models.Model):
     RUNNING, STOPPED = range(2)
