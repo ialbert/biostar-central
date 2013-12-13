@@ -57,7 +57,7 @@ class UserProfile( models.Model ):
     new_messages  = models.IntegerField(default=0)
 
     # is the email verified
-    verified_email  = models.BooleanField(default=False)
+    verified_email = models.BooleanField(default=False)
 
     # hide ads from the user
     hide_ads = models.BooleanField(default=False)
