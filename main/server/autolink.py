@@ -137,6 +137,24 @@ def auto_link(m):
     link = "<a href='%s'>%s</a>%s" % (url, url, end)
     return link
 
+NBVIEWER_FULL = re.compile(r"(?P<url>http://nbviewer.ipython.org/)(?P<uid>\S+)", re.I)
+NBVIEWER_SHORT = re.compile(r"(?P<url>\\nbviewer\s+)(?P<uid>\S+)", re.I)
+
+
+def nbviewer_link(m):
+    "Creates nbviewer links"
+    url = m.group("url")
+    uid = m.group('uid')
+    furl = 'http://nbviewer.ipython.org/%s' % uid
+    title = furl.split('/')[-1].replace('.ipynb', '')
+    link = r'''
+        <a href='%(furl)s'>[nbviewer: %(title)s]</a>
+        <div class='ipython-notebook-iframe'>
+            <iframe width='100%%' height='500' src='%(furl)s' frameborder='0' allowfullscreen></iframe>
+        </div>
+        ''' % locals()
+    return link
+
 patterns = [
 
     (NO_LINK_PATT, no_link),
@@ -159,6 +177,9 @@ patterns = [
     (YOUTUBE_SHORT, youtube_link),
 
     (AUTO_LINK_PATTERN, auto_link),
+
+    (NBVIEWER_FULL, nbviewer_link),
+    (NBVIEWER_SHORT, nbviewer_link),
 
 ]
 
