@@ -1,12 +1,4 @@
-conf/porthos.*
 *.pyc
 *~
 .DS_Store
 .idea/*
-biostar.db
-/import/*
-/main/db/*
-coverage.xml
-/report/*
-/apache/export/*
-/libs/*
