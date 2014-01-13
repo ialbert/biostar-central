@@ -1,0 +1,14 @@
+django >=1.6, <1.7
+django-braces
+django-taggit
+django-treebeard
+django-haystack
+django-debug-toolbar
+django-secure
+django-compressor
+django-crispy-forms
+python-dateutil
+django-registration
+django-notification==1.1.1
+django-reversion
+South
