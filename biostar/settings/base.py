@@ -13,7 +13,7 @@ def get_env(name):
     try:
         return os.environ[name]
     except KeyError:
-        msg = "required environment variable %s not set" % name
+        msg = "*** Required environment variable %s not set." % name
         raise ImproperlyConfigured(msg)
 
 def abspath(*args):
@@ -32,7 +32,7 @@ DATABASE_DIR = abspath(HOME_DIR, 'data')
 DATABASE_NAME = abspath(DATABASE_DIR, 'biostar2.db')
 TEMPLATE_DIR = abspath(HOME_DIR, 'biostar', 'templates')
 STATIC_DIR = abspath(HOME_DIR, 'biostar', 'static')
-EXPORT_DIR = abspath(HOME_DIR, 'data', 'export')
+BIOSTAR_STATIC_ROOT = get_env("BIOSTAR_STATIC_ROOT")
 
 ADMINS = (
     ('Istvan Albert', 'istvan.albert@gmail.com'),
@@ -44,11 +44,11 @@ DATABASES = {
     'default': {
         # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': DATABASE_NAME,                      # Or path to database file if using sqlite
+        'NAME': DATABASE_NAME,
         'USER': '',
         'PASSWORD': '',
-        'HOST': '',                      # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
-        'PORT': '',                      # Set to empty string for default.
+        'HOST': '',
+        'PORT': '',
     }
 }
 
@@ -95,7 +95,7 @@ MEDIA_URL = ''
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/var/www/example.com/static/"
-STATIC_ROOT = EXPORT_DIR
+STATIC_ROOT = BIOSTAR_STATIC_ROOT
 
 # URL prefix for static files.
 # Example: "http://example.com/static/", "http://static.example.com/"
@@ -106,6 +106,7 @@ STATICFILES_DIRS = (
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
+    STATIC_DIR,
 )
 
 # List of finder classes that know how to find static files in
@@ -133,8 +134,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    # Uncomment the next line for simple clickjacking protection:
-    # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
 ROOT_URLCONF = 'biostar.urls'
@@ -155,17 +155,18 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # The javascript and CSS asset manager.
     'compressor',
 
-    # biostar libraries
+    # Biostar generic libraries.
     'biostar.libs.util',
 
-    # biostar apps
+    # Biostar apps contain web facing functionality.
     'biostar.apps.accounts',
 
-    # Uncomment the next line to enable the admin:
+    # Enabling the admin and its documentation
     'django.contrib.admin',
-    # Uncomment the next line to enable admin documentation:
     'django.contrib.admindocs',
 )
 

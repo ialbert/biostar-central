@@ -1,25 +1,15 @@
 #!/bin/bash
 
+
+# Environment variables must be set externally.
+if [ -z "$BIOSTAR_HOME" ]; then
+    echo "(!) environment variables not set."
+    echo "(!) try: source conf/defaults.env"
+    exit 1
+fi
+
 # Stop on errors or missing environment variables.
 set -ue
-
-# Setting up the default environment variables.
-# Override them in the calling environment.
-
-# Hostname for the development server.
-BIOSTAR_HOSTNAME=${BIOSTAR_HOSTNAME:="localhost"}
-
-# The settings files to be used.
-DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE:="biostar.settings.devel"}
-
-# The python executable to invoke.
-PYTHON=python
-
-# The level of verbosity for django commands.
-VERBOSITY=${VERBOSITY:="1"}
-
-# The django manager to run.
-DJANGO_ADMIN=manage.py
 
 if [ $# == 0 ]; then
     echo ''
@@ -52,9 +42,10 @@ while (( "$#" )); do
 
     if [ "$1" = "delete" ]; then
     	echo "*** deleting the sqlite database"
-        #$PYTHON $DJANGO_ADMIN delete_database --settings=$DJANGO_SETTINGS_MODULE
+        $PYTHON $DJANGO_ADMIN delete_database --settings=$DJANGO_SETTINGS_MODULE
     fi
 
+	# Initializes a database
     if [ "$1" = "init" ]; then
         echo "*** initializing server on $BIOSTAR_HOSTNAME"
         $PYTHON $DJANGO_ADMIN syncdb -v $VERBOSITY --noinput --settings=$DJANGO_SETTINGS_MODULE
@@ -63,6 +54,14 @@ while (( "$#" )); do
         #$PYTHON_EXE $DJANGO_ADMIN migrate kombu.transport.django --settings=$DJANGO_SETTINGS_MODULE
         #echo "*** collecting static files"
         $PYTHON $DJANGO_ADMIN collectstatic -v $VERBOSITY --noinput --settings=$DJANGO_SETTINGS_MODULE
+    fi
+
+	# Produce the environment variables recognized by Biostar.
+    if [ "$1" = "env" ]; then
+    	echo "*** Biostar specific environment variables"
+    	echo BIOSTAR_HOME=$BIOSTAR_HOME
+    	echo BIOSTAR_STATIC_ROOT=$BIOSTAR_STATIC_ROOT
+    	echo DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE
     fi
 
 shift
