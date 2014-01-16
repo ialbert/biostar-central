@@ -1,6 +1,8 @@
 # Django settings for biostar project.
 import os, sys, re
 from django.core.exceptions import ImproperlyConfigured
+from .logger import LOGGING
+from .social import *
 
 # turn off debug mode on deployed servers
 DEBUG = True
@@ -34,9 +36,12 @@ TEMPLATE_DIR = abspath(HOME_DIR, 'biostar', 'templates')
 STATIC_DIR = abspath(HOME_DIR, 'biostar', 'static')
 BIOSTAR_STATIC_ROOT = get_env("BIOSTAR_STATIC_ROOT")
 
+# Must contains at least one (name, email) pair
 ADMINS = (
     ('Istvan Albert', 'istvan.albert@gmail.com'),
 )
+
+SECRET_KEY = get_env("SECRET_KEY")
 
 MANAGERS = ADMINS
 
@@ -69,7 +74,10 @@ TIME_ZONE = 'America/Chicago'
 # http://www.i18nguy.com/unicode/language-identifiers.html
 LANGUAGE_CODE = 'en-us'
 
+# These parameters will be inserted into the database automatically.
 SITE_ID = 1
+SITE_NAME = "localhost"
+SITE_DOMAIN = "localhost"
 
 # If you set this to False, Django will make some optimizations so as not
 # to load the internationalization machinery.
@@ -168,35 +176,23 @@ INSTALLED_APPS = (
     # Enabling the admin and its documentation
     'django.contrib.admin',
     'django.contrib.admindocs',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.github',
+    'allauth.socialaccount.providers.google',
+    'allauth.socialaccount.providers.twitter',
+    'allauth.socialaccount.providers.facebook',
 )
 
+TEMPLATE_CONTEXT_PROCESSORS = (
+    "django.core.context_processors.request",
+    "django.contrib.auth.context_processors.auth",
+    "allauth.account.context_processors.account",
+    "allauth.socialaccount.context_processors.socialaccount",
+)
+
+
+# Session specific settings.
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
 
-# A sample logging configuration. The only tangible logging
-# performed by this configuration is to send an email to
-# the site admins on every HTTP 500 error when DEBUG=False.
-# See http://docs.djangoproject.com/en/dev/topics/logging for
-# more details on how to customize your logging configuration.
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'filters': {
-        'require_debug_false': {
-            '()': 'django.utils.log.RequireDebugFalse'
-        }
-    },
-    'handlers': {
-        'mail_admins': {
-            'level': 'ERROR',
-            'filters': ['require_debug_false'],
-            'class': 'django.utils.log.AdminEmailHandler'
-        }
-    },
-    'loggers': {
-        'django.request': {
-            'handlers': ['mail_admins'],
-            'level': 'ERROR',
-            'propagate': True,
-        },
-    }
-}

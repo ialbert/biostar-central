@@ -24,14 +24,14 @@ if [ $# == 0 ]; then
     echo 'Commands:'
     echo ''
     echo '  init     - initializes the database'
-    echo '  import   - imports a data fixture'
-    echo '  dump     - dumps the current database as a data fixture'
+    echo '  import   - imports a JSON data fixture'
+    echo '  dump     - dumps the current database as a JSON data fixture'
     echo '  delete   - removes the sqlite database (sqlite specific)'
-    echo '  run      - runs server'
+    echo '  run      - runs the development server'
     echo '  test     - runs all tests'
     echo '  env      - shows all customizable environment variables'
     echo ''
-    echo "Use environment variables to customize settings. See docs"
+    echo "Use environment variables to customize settings. See the docs."
     echo ''
     echo "DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE"
     echo ''
@@ -39,6 +39,11 @@ fi
 
 
 while (( "$#" )); do
+
+	if [ "$1" = "run" ]; then
+    	echo "*** run the development server"
+        $PYTHON $DJANGO_ADMIN runserver $BIOSTAR_HOSTNAME --settings=$DJANGO_SETTINGS_MODULE
+    fi
 
     if [ "$1" = "delete" ]; then
     	echo "*** deleting the sqlite database"
@@ -57,12 +62,20 @@ while (( "$#" )); do
     fi
 
 	# Produce the environment variables recognized by Biostar.
+    if [ "$1" = "test" ]; then
+    	echo "*** running all test"
+    	$PYTHON $DJANGO_ADMIN test -v $VERBOSITY --settings=$DJANGO_SETTINGS_MODULE
+    fi
+
+	# Produce the environment variables recognized by Biostar.
     if [ "$1" = "env" ]; then
     	echo "*** Biostar specific environment variables"
     	echo BIOSTAR_HOME=$BIOSTAR_HOME
     	echo BIOSTAR_STATIC_ROOT=$BIOSTAR_STATIC_ROOT
     	echo DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE
     fi
+
+
 
 shift
 done

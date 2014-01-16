@@ -3,13 +3,12 @@ from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
 import os
 
+__author__ = 'ialbert'
 
 class Command(BaseCommand):
-    help = 'deletes an sqlite database'
+    help = 'initializes the database with the admin users'
 
     def handle(self, *args, **options):
-        target = settings.DATABASE_NAME
-        if os.path.isfile(target):
-            os.remove(target)
-        else:
-            print("*** file not found: %s" % target)
+        from biostar.apps.accounts.models import User
+
+        #user, flag = User.objects.
