@@ -21,12 +21,18 @@ AUTHENTICATION_BACKENDS = (
 )
 
 SOCIALACCOUNT_PROVIDERS = {
-    'facebook': {
-        'SCOPE': ['email'],
-        'AUTH_PARAMS': {'auth_type': 'reauthenticate'},
-        'METHOD': 'oauth2',
-        'LOCALE_FUNC': lambda x: 'en_US',
-    }
+    #'facebook': {
+    #    'SCOPE': ['email'],
+    #    'AUTH_PARAMS': {'auth_type': 'reauthenticate'},
+    #    'METHOD': 'oauth2',
+    #    'LOCALE_FUNC': lambda x: 'en_US',
+    #},
+    'google': {
+        'SCOPE': ['email', 'https://www.googleapis.com/auth/userinfo.profile'],
+        'AUTH_PARAMS': {'access_type': 'online'},
+        'PROVIDER_KEY' : get_env("GOOGLE_PROVIDER_KEY"),
+        'PROVIDER_SECRET': get_env("GOOGLE_PROVIDER_SECRET"),
+    },
 }
 
 ACCOUNT_AUTHENTICATION_METHOD = "email"

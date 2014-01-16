@@ -6,7 +6,8 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
     # Examples:
-    # url(r'^$', 'biostar.views.home', name='home'),
+    url(r'^$', 'biostar.apps.main.views.home', name='home'),
+
     # url(r'^biostar/', include('biostar.foo.urls')),
 
     # Social login pages.

@@ -75,7 +75,5 @@ while (( "$#" )); do
     	echo DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE
     fi
 
-
-
 shift
 done

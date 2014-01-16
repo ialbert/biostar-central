@@ -167,11 +167,10 @@ INSTALLED_APPS = (
     # The javascript and CSS asset manager.
     'compressor',
 
-    # Biostar generic libraries.
-    'biostar.libs.util',
-
-    # Biostar apps contain web facing functionality.
+    # Biostar specific apps.
+    'biostar.apps.util',
     'biostar.apps.accounts',
+    'biostar.apps.main',
 
     # Enabling the admin and its documentation
     'django.contrib.admin',
@@ -179,10 +178,10 @@ INSTALLED_APPS = (
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
-    'allauth.socialaccount.providers.github',
+    #'allauth.socialaccount.providers.github',
     'allauth.socialaccount.providers.google',
-    'allauth.socialaccount.providers.twitter',
-    'allauth.socialaccount.providers.facebook',
+    #'allauth.socialaccount.providers.twitter',
+    #'allauth.socialaccount.providers.facebook',
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
@@ -196,3 +195,5 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 # Session specific settings.
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
 
+# Use a mock email backend for development.
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
