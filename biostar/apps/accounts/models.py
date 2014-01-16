@@ -1,21 +1,15 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
-from django.conf import settings
+import logging
+from django import forms
 from django.db import models
-from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
-from django.contrib.auth.models import UserManager
+from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from django import forms
-from django.contrib.auth.models import Group
-from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
+from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, UserManager
 
-import logging
 logger = logging.getLogger(__name__)
 
-# Represents a Biostar user across all sites.
-class Profile(models.Model):
-    pass
 
 class User(AbstractBaseUser):
     USERNAME_FIELD = 'email'
@@ -23,9 +17,7 @@ class User(AbstractBaseUser):
     objects = UserManager()
 
     email = models.EmailField(verbose_name='email address', max_length=255, unique=True)
-
     name = models.CharField(verbose_name='display name', max_length=255, default="", blank=False)
-
     is_active = models.BooleanField(default=True)
     is_admin  = models.BooleanField(default=False)
     is_staff  = models.BooleanField(default=False)
@@ -48,9 +40,9 @@ class User(AbstractBaseUser):
         # Simplest possible answer: Yes, always
         return True
 
+
 class UserCreationForm(forms.ModelForm):
-    """A form for creating new users. Includes all the required
-    fields, plus a repeated password."""
+    """A form for creating new users."""
     password1 = forms.CharField(label='Password', widget=forms.PasswordInput)
     password2 = forms.CharField(label='Password confirmation', widget=forms.PasswordInput)
 
@@ -76,10 +68,7 @@ class UserCreationForm(forms.ModelForm):
 
 
 class UserChangeForm(forms.ModelForm):
-    """A form for updating users. Includes all the fields on
-    the user, but replaces the password field with admin's
-    password hash display field.
-    """
+    """A form for updating users."""
     password = ReadOnlyPasswordHashField()
 
     class Meta:
@@ -120,10 +109,12 @@ class BiostarUserAdmin(UserAdmin):
     ordering = ('email',)
     filter_horizontal = ()
 
+# Register the class in the admin interface.
 admin.site.register(User, BiostarUserAdmin)
 
 # Enabling app specific signals.
 from django.db.models.signals import post_syncdb, pre_save
+
 
 def verify_new_user(sender, instance, **kwargs):
     if not instance.name:
