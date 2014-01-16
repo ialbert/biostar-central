@@ -37,7 +37,7 @@ BIOSTAR_STATIC_ROOT = get_env("BIOSTAR_STATIC_ROOT")
 
 # Must contains at least one (name, email) pair
 ADMINS = (
-    ('Istvan Albert', 'istvan.albert@gmail.com'),
+    ('Istvan Albert', 'foo@bar.com'),
 )
 
 SECRET_KEY = get_env("SECRET_KEY")
@@ -145,6 +145,8 @@ MIDDLEWARE_CLASSES = (
 )
 
 ROOT_URLCONF = 'biostar.urls'
+
+AUTH_USER_MODEL = 'accounts.User'
 
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'biostar.wsgi.application'
