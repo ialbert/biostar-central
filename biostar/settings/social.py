@@ -5,7 +5,6 @@ __author__ = 'ialbert'
 import os
 from django.core.exceptions import ImproperlyConfigured
 
-
 def get_env(name):
     """Get the environment variable or return exception"""
     try:
@@ -39,7 +38,7 @@ ACCOUNT_AUTHENTICATION_METHOD = "email"
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_EMAIL_VERIFICATION = "optional"
-ACCOUNT_EMAIL_SUBJECT_PREFIX = "[biostar]"
+ACCOUNT_EMAIL_SUBJECT_PREFIX = "[biostar] "
 ACCOUNT_PASSWORD_MIN_LENGHT = 6
 
 ACCOUNT_DEFAULT_HTTP_PROTOCOL = "http"

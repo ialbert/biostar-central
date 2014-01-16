@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Hello</title>
+</head>
+
+<body>
+
+{% if request.user.is_authenticated %}
+    Hello {{user.get_full_name}} | <a href="/accounts/logout">
+        Logout
+    </a>
+{% else %}
+    Hello | <a href="/accounts/login">
+        Please Log In
+    </a>
+{% endif %}
+
+<pre>
+    {{request}}
+</pre>
+
+</html>

@@ -4,9 +4,11 @@ from django.conf.urls import patterns, include, url
 from django.contrib import admin
 admin.autodiscover()
 
+from biostar.apps.main import views
+
 urlpatterns = patterns('',
     # Examples:
-    url(r'^$', 'biostar.apps.main.views.home', name='home'),
+    url(r'^$', views.IndexView.as_view(), name=views.IndexView.name),
 
     # url(r'^biostar/', include('biostar.foo.urls')),
 

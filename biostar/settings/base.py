@@ -32,7 +32,6 @@ __CURR_DIR = abspath(os.path.dirname(__file__))
 HOME_DIR = abspath(__CURR_DIR, '..', '..')
 DATABASE_DIR = abspath(HOME_DIR, 'data')
 DATABASE_NAME = abspath(DATABASE_DIR, 'biostar2.db')
-TEMPLATE_DIR = abspath(HOME_DIR, 'biostar', 'templates')
 STATIC_DIR = abspath(HOME_DIR, 'biostar', 'static')
 BIOSTAR_STATIC_ROOT = get_env("BIOSTAR_STATIC_ROOT")
 
@@ -156,6 +155,8 @@ TEMPLATE_DIRS = (
     # Don't forget to use absolute paths, not relative paths.
 )
 
+LOGIN_REDIRECT_URL = "/"
+
 INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -174,7 +175,7 @@ INSTALLED_APPS = (
 
     # Enabling the admin and its documentation
     'django.contrib.admin',
-    'django.contrib.admindocs',
+    'django.contrib.messages',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
