@@ -40,6 +40,11 @@ class User(AbstractBaseUser):
         # Simplest possible answer: Yes, always
         return True
 
+    def save(self, *args, **kwargs):
+        if not self.name:
+            self.name = self.email.split("@")[0]
+            logger.info("setting name to %s" % self.name)
+        super(User, self).save(*args, **kwargs)
 
 class UserCreationForm(forms.ModelForm):
     """A form for creating new users."""
@@ -111,15 +116,3 @@ class BiostarUserAdmin(UserAdmin):
 
 # Register the class in the admin interface.
 admin.site.register(User, BiostarUserAdmin)
-
-# Enabling app specific signals.
-from django.db.models.signals import post_syncdb, pre_save
-
-
-def verify_new_user(sender, instance, **kwargs):
-    if not instance.name:
-        instance.name = instance.email.split("@")[0]
-        logger.info("setting name to %s" % instance.name)
-
-# Verify new user and populate missing fields.
-pre_save.connect(verify_new_user, sender=User)

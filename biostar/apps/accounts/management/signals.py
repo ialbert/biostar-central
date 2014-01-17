@@ -39,7 +39,7 @@ def initialize(sender, **kwargs):
     for name, data in settings.SOCIALACCOUNT_PROVIDERS.items():
         try:
             client_id = data['PROVIDER_KEY']
-            secret = data['PROVIDER_SECRET']
+            secret = data['PROVIDER_SECRET_KEY']
             site = Site.objects.get(id=settings.SITE_ID)
             provider = providers.registry.by_id(name)
 

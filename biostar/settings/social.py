@@ -30,7 +30,7 @@ SOCIALACCOUNT_PROVIDERS = {
         'SCOPE': ['email', 'https://www.googleapis.com/auth/userinfo.profile'],
         'AUTH_PARAMS': {'access_type': 'online'},
         'PROVIDER_KEY' : get_env("GOOGLE_PROVIDER_KEY"),
-        'PROVIDER_SECRET': get_env("GOOGLE_PROVIDER_SECRET"),
+        'PROVIDER_SECRET_KEY': get_env("GOOGLE_PROVIDER_SECRET_KEY"),
     },
 }
 
