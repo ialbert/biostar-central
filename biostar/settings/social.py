@@ -5,6 +5,7 @@ __author__ = 'ialbert'
 import os
 from django.core.exceptions import ImproperlyConfigured
 
+
 def get_env(name):
     """Get the environment variable or return exception"""
     try:
@@ -20,16 +21,30 @@ AUTHENTICATION_BACKENDS = (
 )
 
 SOCIALACCOUNT_PROVIDERS = {
-    #'facebook': {
-    #    'SCOPE': ['email'],
-    #    'AUTH_PARAMS': {'auth_type': 'reauthenticate'},
-    #    'METHOD': 'oauth2',
-    #    'LOCALE_FUNC': lambda x: 'en_US',
-    #},
+
+    'facebook': {
+        'SCOPE': ['email'],
+        'AUTH_PARAMS': {'auth_type': 'reauthenticate'},
+        'METHOD': 'oauth2',
+        'LOCALE_FUNC': lambda x: 'en_US',
+        'PROVIDER_KEY': get_env("FACEBOOK_PROVIDER_KEY"),
+        'PROVIDER_SECRET_KEY': get_env("FACEBOOK_PROVIDER_SECRET_KEY"),
+    },
+
+    'twitter': {
+        'SCOPE': ['email' ],
+        'PROVIDER_KEY': get_env("TWITTER_PROVIDER_KEY"),
+        'PROVIDER_SECRET_KEY': get_env("TWITTER_PROVIDER_SECRET_KEY"),
+    },
+
+    'persona': {
+        'REQUEST_PARAMETERS': {'siteName': 'Biostar'}
+    },
+
     'google': {
         'SCOPE': ['email', 'https://www.googleapis.com/auth/userinfo.profile'],
         'AUTH_PARAMS': {'access_type': 'online'},
-        'PROVIDER_KEY' : get_env("GOOGLE_PROVIDER_KEY"),
+        'PROVIDER_KEY': get_env("GOOGLE_PROVIDER_KEY"),
         'PROVIDER_SECRET_KEY': get_env("GOOGLE_PROVIDER_SECRET_KEY"),
     },
 }
@@ -41,6 +56,6 @@ ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_EMAIL_VERIFICATION = "optional"
 ACCOUNT_EMAIL_SUBJECT_PREFIX = "[biostar] "
 ACCOUNT_PASSWORD_MIN_LENGHT = 6
-ACCOUNT_USER_MODEL_USERNAME_FIELD="email"
+ACCOUNT_USER_MODEL_USERNAME_FIELD = "email"
 
 ACCOUNT_DEFAULT_HTTP_PROTOCOL = "http"

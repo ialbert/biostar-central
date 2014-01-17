@@ -37,6 +37,11 @@ def initialize(sender, **kwargs):
 
     # Initialize social login providers.
     for name, data in settings.SOCIALACCOUNT_PROVIDERS.items():
+
+        # not all providers need to have entries
+        if "PROVIDER_KEY" not in data:
+            continue
+
         try:
             client_id = data['PROVIDER_KEY']
             secret = data['PROVIDER_SECRET_KEY']
