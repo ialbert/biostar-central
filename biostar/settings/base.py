@@ -1,13 +1,14 @@
+#
 # Django settings for biostar project.
-import os, sys, re
+#
+import os
 from django.core.exceptions import ImproperlyConfigured
 from .logger import LOGGING
-from .social import *
 
-# turn off debug mode on deployed servers
+# Turn off debug mode on deployed servers.
 DEBUG = True
 
-# template debug mode
+# Template debug mode.
 TEMPLATE_DEBUG = DEBUG
 
 def get_env(name):
@@ -22,24 +23,26 @@ def abspath(*args):
     """Generates absolute paths"""
     return os.path.abspath(os.path.join(*args))
 
-# displays debug comments when the server is run from this IP
+# Displays debug comments when the server is run from this IP.
 INTERNAL_IPS = ('127.0.0.1', )
 
-# the directory that this file is located in
+# The directory that this file is located in.
 __CURR_DIR = abspath(os.path.dirname(__file__))
 
-# set location relative to the current file directory
+# Set location relative to the current file directory.
 HOME_DIR = abspath(__CURR_DIR, '..', '..')
 DATABASE_DIR = abspath(HOME_DIR, 'data')
 DATABASE_NAME = abspath(DATABASE_DIR, 'biostar2.db')
 STATIC_DIR = abspath(HOME_DIR, 'biostar', 'static')
 BIOSTAR_STATIC_ROOT = get_env("BIOSTAR_STATIC_ROOT")
 
-# Must contains at least one (name, email) pair
+# Must contains at least one (name, email) pair.
 ADMINS = (
     ('Istvan Albert', 'foo@bar.com'),
+    #('Istvan Albert', 'istvan.albert@gmail.com'),
 )
 
+# Get the secret key from the environment.
 SECRET_KEY = get_env("SECRET_KEY")
 
 MANAGERS = ADMINS
@@ -175,13 +178,14 @@ INSTALLED_APPS = (
     'biostar.apps.accounts',
     'biostar.apps.main',
 
-    # Enabling the admin and its documentation
+    # Enabling the admin and its documentation.
     'django.contrib.admin',
     'django.contrib.messages',
+
+    # Social login handlers.
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
-    #'allauth.socialaccount.providers.github',
     'allauth.socialaccount.providers.google',
     'allauth.socialaccount.providers.twitter',
     'allauth.socialaccount.providers.facebook',
@@ -195,6 +199,52 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "allauth.socialaccount.context_processors.socialaccount",
 )
 
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+    "allauth.account.auth_backends.AuthenticationBackend",
+)
+
+# Customize this to match the providers listed in the APPs
+SOCIALACCOUNT_PROVIDERS = {
+
+    'facebook': {
+        'SCOPE': ['email'],
+        'AUTH_PARAMS': {'auth_type': 'reauthenticate'},
+        'METHOD': 'oauth2',
+        'LOCALE_FUNC': lambda x: 'en_US',
+        'PROVIDER_KEY': get_env("FACEBOOK_PROVIDER_KEY"),
+        'PROVIDER_SECRET_KEY': get_env("FACEBOOK_PROVIDER_SECRET_KEY"),
+    },
+
+    'twitter': {
+        'SCOPE': ['email' ],
+        'PROVIDER_KEY': get_env("TWITTER_PROVIDER_KEY"),
+        'PROVIDER_SECRET_KEY': get_env("TWITTER_PROVIDER_SECRET_KEY"),
+    },
+
+    'persona': {
+        'REQUEST_PARAMETERS': {'siteName': 'Biostar'}
+    },
+
+    'google': {
+        'SCOPE': ['email', 'https://www.googleapis.com/auth/userinfo.profile'],
+        'AUTH_PARAMS': {'access_type': 'online'},
+        'PROVIDER_KEY': get_env("GOOGLE_PROVIDER_KEY"),
+        'PROVIDER_SECRET_KEY': get_env("GOOGLE_PROVIDER_SECRET_KEY"),
+    },
+}
+
+ACCOUNT_AUTHENTICATION_METHOD = "email"
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_UNIQUE_EMAIL = True
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_EMAIL_VERIFICATION = "optional"
+ACCOUNT_EMAIL_SUBJECT_PREFIX = "[biostar] "
+ACCOUNT_PASSWORD_MIN_LENGHT = 6
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+ACCOUNT_USER_MODEL_EMAIL_FIELD = "email"
+ACCOUNT_DEFAULT_HTTP_PROTOCOL = "http"
+ACCOUNT_LOGOUT_ON_GET=True
 
 # Session specific settings.
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'

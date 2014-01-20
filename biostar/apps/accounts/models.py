@@ -41,10 +41,14 @@ class User(AbstractBaseUser):
         return True
 
     def save(self, *args, **kwargs):
+        logger.info("email is to %s" % self.email)
         if not self.name:
             self.name = self.email.split("@")[0]
             logger.info("setting name to %s" % self.name)
         super(User, self).save(*args, **kwargs)
+
+    def __unicode__(self):
+        return unicode(self.email)
 
 class UserCreationForm(forms.ModelForm):
     """A form for creating new users."""
