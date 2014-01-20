@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 # Environment variables must be set externally.
 if [ -z "$BIOSTAR_HOME" ]; then
     echo "(!) environment variables not set."

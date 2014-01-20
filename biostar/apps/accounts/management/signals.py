@@ -10,22 +10,24 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-def initialize(sender, **kwargs):
 
+def initialize(sender, **kwargs):
     # Add the admin user if it is not present.
-    email = settings.ADMINS[0][1]
+    email = settings.ADMIN_EMAIL
     admin = models.User.objects.filter(email=email)
 
     if not admin:
         admin = models.User(
             email=email,
-            is_staff = True,
-            is_admin = True,
-            name = "Señor Admin",
+            is_staff=True,
+            is_admin=True,
+            name=settings.ADMIN_NAME,
+            type=models.User.ADMIN
         )
         admin.set_password(settings.SECRET_KEY)
         admin.save()
-        logger.info("added admin user with email=%s, password=SECRET_KEY, name=%s" % (admin.email, admin.get_full_name()))
+        logger.info(
+            "added admin user with email=%s, password=SECRET_KEY, name=%s" % (admin.email, admin.get_full_name()))
 
     # Initialize the current site if it is not present.
     site = Site.objects.get_current()

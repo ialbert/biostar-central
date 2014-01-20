@@ -1,3 +1,4 @@
+# -*- coding: utf8 -*-
 #
 # Django settings for biostar project.
 #
@@ -37,9 +38,13 @@ STATIC_DIR = abspath(HOME_DIR, 'biostar', 'static')
 BIOSTAR_STATIC_ROOT = get_env("BIOSTAR_STATIC_ROOT")
 
 # Must contains at least one (name, email) pair.
+
+# These settings create an admin user. The default password is the SECRET_KEY.
+ADMIN_NAME = u"Señor Admin"
+ADMIN_EMAIL = u"foo@bar.com"
+
 ADMINS = (
-    ('Istvan Albert', 'foo@bar.com'),
-    #('Istvan Albert', 'istvan.albert@gmail.com'),
+    (ADMIN_NAME, ADMIN_EMAIL),
 )
 
 # Get the secret key from the environment.
@@ -149,7 +154,7 @@ MIDDLEWARE_CLASSES = (
 
 ROOT_URLCONF = 'biostar.urls'
 
-AUTH_USER_MODEL = 'accounts.User'
+
 
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'biostar.wsgi.application'
@@ -162,7 +167,7 @@ TEMPLATE_DIRS = (
 
 LOGIN_REDIRECT_URL = "/"
 
-INSTALLED_APPS = (
+INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -172,11 +177,6 @@ INSTALLED_APPS = (
 
     # The javascript and CSS asset manager.
     'compressor',
-
-    # Biostar specific apps.
-    'biostar.apps.util',
-    'biostar.apps.accounts',
-    'biostar.apps.main',
 
     # Enabling the admin and its documentation.
     'django.contrib.admin',
@@ -190,7 +190,14 @@ INSTALLED_APPS = (
     'allauth.socialaccount.providers.twitter',
     'allauth.socialaccount.providers.facebook',
     'allauth.socialaccount.providers.persona',
-)
+
+    # Biostar specific apps.
+    'biostar.apps.util',
+    'biostar.apps.accounts',
+    'biostar.apps.main',
+]
+
+AUTH_USER_MODEL = 'accounts.User'
 
 TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.request",

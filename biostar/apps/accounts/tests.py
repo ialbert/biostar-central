@@ -4,13 +4,23 @@ when you run "manage.py test".
 
 Replace this with more appropriate tests for your application.
 """
-
+import logging
+from django.conf import settings
+from biostar.apps.accounts.models import User, Profile
 from django.test import TestCase
 
+logging.disable(logging.CRITICAL)
 
 class SimpleTest(TestCase):
-    def test_basic_addition(self):
+    def test_users(self):
         """
-        Tests that 1 + 1 always equals 2.
+        Testing users and their profile creation
         """
-        self.assertEqual(1 + 1, 2)
+        eq = self.assertEqual
+        admin = User.objects.get(email=settings.ADMIN_EMAIL)
+
+        # An admin user is created by default.
+        eq(admin.name, settings.ADMIN_NAME)
+
+        # It must have a profile created.
+        eq(admin.profile.user.email, settings.ADMIN_EMAIL)
