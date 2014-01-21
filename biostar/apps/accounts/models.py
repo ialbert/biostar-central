@@ -16,10 +16,10 @@ logger = logging.getLogger(__name__)
 class User(AbstractBaseUser):
     # Class level constants.
     NEW, MEMBER, MODERATOR, ADMIN = range(4)
-    USER_TYPE_CHOICES = [(NEW, "New"), (MEMBER, "Member"), (MODERATOR, "Moderator"), (ADMIN, "Admin")]
+    TYPE_CHOICES = [(NEW, "New"), (MEMBER, "Member"), (MODERATOR, "Moderator"), (ADMIN, "Admin")]
 
     ACTIVE, SUSPENDED, BANNED = range(3)
-    USER_STATUS_CHOICES = ( (ACTIVE, 'Active'), (SUSPENDED, 'Suspended'), (BANNED, 'Banned' ))
+    STATUS_CHOICES = ((ACTIVE, 'Active'), (SUSPENDED, 'Suspended'), (BANNED, 'Banned'))
 
     # Required by Django.
     USERNAME_FIELD = 'email'
@@ -36,10 +36,10 @@ class User(AbstractBaseUser):
     is_staff = models.BooleanField(default=False)
 
     # This designates a user types and with that permissions.
-    type = models.IntegerField(choices=USER_TYPE_CHOICES, default=NEW)
+    type = models.IntegerField(choices=TYPE_CHOICES, default=NEW)
 
     # This designates a user statuses on whether they are allowed to log in.
-    status = models.IntegerField(choices=USER_STATUS_CHOICES, default=ACTIVE)
+    status = models.IntegerField(choices=STATUS_CHOICES, default=ACTIVE)
 
     # User total reputation.
     reputation = models.IntegerField(default=0)
@@ -81,7 +81,7 @@ class User(AbstractBaseUser):
         super(User, self).save(*args, **kwargs)
 
     def __unicode__(self):
-        return unicode("User: %s (%s, %s)" % (self.name, self.email, self.id))
+        return "User: %s (%s, %s)" % (self.name, self.email, self.id)
 
 
 class Profile(models.Model):
@@ -173,9 +173,11 @@ class UserChangeForm(forms.ModelForm):
         # field does not have access to the initial value
         return self.initial["password"]
 
+
 class ProfileInline(admin.StackedInline):
     model = Profile
-    fields = [ "location", "website", "scholar", "info"]
+    fields = ["location", "website", "scholar", "info"]
+
 
 class BiostarUserAdmin(UserAdmin):
     # The forms to add and change user instances
@@ -205,25 +207,15 @@ class BiostarUserAdmin(UserAdmin):
     filter_horizontal = ()
     inlines = [ProfileInline]
 
-
-class BiostarProfileAdmin(admin.ModelAdmin):
-
-    list_display = ('user', 'location', 'last_login', 'date_joined')
-
-    fieldsets = (
-        (None, {'fields': ('location', 'website')}),
-    )
-
-
 # Register in the admin interface.
 admin.site.register(User, BiostarUserAdmin)
-#admin.site.register(Profile, BiostarProfileAdmin)
 
 # Data signals
 from django.db.models.signals import post_save
 
 
 def create_profile(sender, instance, created, *args, **kwargs):
+    "Should run on every user creation."
     if created:
         prof = Profile(user=instance)
         prof.save()

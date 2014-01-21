@@ -197,6 +197,7 @@ INSTALLED_APPS = [
 
     # Biostar specific apps.
     'biostar.apps.util',
+    'biostar.apps.posts',
     'biostar.apps.accounts',
     'biostar.apps.main',
 ]
