@@ -55,35 +55,45 @@ def export_users(N):
 def export_posts(N):
     workdir = pj(MIGRATE_DIR, "posts")
 
+    out_name = pj(MIGRATE_DIR, "posts.txt")
+    out_stream = file(out_name, 'wt')
+    def write(line):
+        out_stream.write('%s\n' % line)
+
     limit = N or None
 
-    fields = "id root_id post_type parent.id author_id title tag_val views creation_date lastedit_date".split()
+    fields = "id root_id parent.id author_id post_type post_status title tag_val views creation_date lastedit_date".split()
 
     if not os.path.exists(workdir):
         os.makedirs(workdir)
 
-    print "\t".join(fields)
+    write("\t".join(fields))
 
-    for post in models.Post.objects.all()[:limit]:
+    for post in models.Post.objects.all().order_by('id')[:limit]:
 
         try:
-            title = post.title.encode("ascii", "replace")
-            content = post.content.encode("ascii", "replace")
-            tag_val = post.tag_val.encode("ascii", "replace")
+            title = post.title.encode("utf-8", "replace")
+            content = post.content.encode("utf-8", "replace")
+            tag_val = post.tag_val.encode("utf-8", "replace")
 
             fp = file(pj(workdir, str(post.id)), "wt")
             fp.write(content)
             fp.close()
 
             data = [
-                post.id, post.root.id, post.get_type_display(), post.parent.id, post.author.id, title,
+                post.id, post.root.id,  post.parent.id, post.author.id,
+                post.get_type_display(), post.get_status_display(), title,
                 tag_val, post.views,
-                post.creation_date, post.lastedit_date, post.lastedit_user.id
+                post.creation_date, post.lastedit_date
             ]
+
             data = map(unicode, data)
-            print "\t".join(data)
+            write("\t".join(data))
+
         except Exception, e:
             sys.stderr.write("%s at %s\n" % (e, post.id))
+
+    print ("*** wrote posts into %s" % out_name)
 
 def export_votes(N):
 
@@ -107,8 +117,6 @@ if __name__ == '__main__':
     usage = """usage: %prog [options]
 
 BIOSTAR_MIGRATE_DIR=""" + MIGRATE_DIR
-
-
 
     parser = optparse.OptionParser(usage=usage)
     parser.add_option("-u", "--users", dest="users", action="store_true", help="prints the users to the standard out", default=0)
