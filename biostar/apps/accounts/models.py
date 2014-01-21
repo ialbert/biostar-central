@@ -12,6 +12,7 @@ from biostar.apps import util
 
 logger = logging.getLogger(__name__)
 
+
 class User(AbstractBaseUser):
     # Class level constants.
     NEW, MEMBER, MODERATOR, ADMIN = range(4)
@@ -71,17 +72,16 @@ class User(AbstractBaseUser):
         return True
 
     def save(self, *args, **kwargs):
-        "Contains the actions that need to be peformed on every user save."
+        "Actions that need to be performed on every user save."
 
         if not self.name:
             # Name must always be set.
             self.name = self.email.split("@")[0]
-            logger.info("setting name to %s" % self.name)
 
         super(User, self).save(*args, **kwargs)
 
     def __unicode__(self):
-        return unicode(self.email)
+        return unicode("User: %s (%s, %s)" % (self.name, self.email, self.id))
 
 
 class Profile(models.Model):
@@ -100,16 +100,16 @@ class Profile(models.Model):
     date_joined = models.DateTimeField()
 
     # User provided location.
-    location = models.TextField(default="", null=True, blank=True)
+    location = models.CharField(default="", max_length=255)
 
     # User provided website.
-    website = models.URLField(default="", null=True, max_length=250, blank=True)
-
-    # This field is used to select content for the user.
-    my_tags = models.TextField(default="", null=True, max_length=250, blank=True)
+    website = models.URLField(default="", max_length=255, blank=True)
 
     # Google scholar ID
-    scholar = models.TextField(null=True, default='', max_length=50, blank=True)
+    scholar = models.CharField(default="", max_length=255, blank=True)
+
+    # This field is used to select content for the user.
+    my_tags = models.TextField(default="", max_length=255, blank=True)
 
     # Description provided by the user as markup
     info = models.TextField(default="", null=True, blank=True)
@@ -128,6 +128,9 @@ class Profile(models.Model):
             self.last_login = self.date_joined
 
         super(Profile, self).save(*args, **kwargs)
+
+    def __unicode__(self):
+        return unicode("%s" % self.user.name)
 
 
 class UserCreationForm(forms.ModelForm):
@@ -155,6 +158,7 @@ class UserCreationForm(forms.ModelForm):
             user.save()
         return user
 
+
 class UserChangeForm(forms.ModelForm):
     """A form for updating users."""
     password = ReadOnlyPasswordHashField()
@@ -169,6 +173,9 @@ class UserChangeForm(forms.ModelForm):
         # field does not have access to the initial value
         return self.initial["password"]
 
+class ProfileInline(admin.StackedInline):
+    model = Profile
+    fields = [ "location", "website", "scholar", "info"]
 
 class BiostarUserAdmin(UserAdmin):
     # The forms to add and change user instances
@@ -178,7 +185,7 @@ class BiostarUserAdmin(UserAdmin):
     # The fields to be used in displaying the User model.
     # These override the definitions on the base UserAdmin
     # that reference specific fields on auth.User.
-    list_display = ('email', 'name', 'type', 'is_admin', 'is_staff')
+    list_display = ('name', 'id', 'email', 'type', 'is_admin', 'is_staff')
     list_filter = ('is_admin',)
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
@@ -194,18 +201,32 @@ class BiostarUserAdmin(UserAdmin):
         ),
     )
     search_fields = ('email',)
-    ordering = ('email',)
+    ordering = ('id', 'email',)
     filter_horizontal = ()
+    inlines = [ProfileInline]
 
-# Register the class in the admin interface.
+
+class BiostarProfileAdmin(admin.ModelAdmin):
+
+    list_display = ('user', 'location', 'last_login', 'date_joined')
+
+    fieldsets = (
+        (None, {'fields': ('location', 'website')}),
+    )
+
+
+# Register in the admin interface.
 admin.site.register(User, BiostarUserAdmin)
+#admin.site.register(Profile, BiostarProfileAdmin)
 
 # Data signals
 from django.db.models.signals import post_save
+
 
 def create_profile(sender, instance, created, *args, **kwargs):
     if created:
         prof = Profile(user=instance)
         prof.save()
+
 
 post_save.connect(create_profile, sender=User)
