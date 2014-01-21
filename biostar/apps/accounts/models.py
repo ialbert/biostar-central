@@ -8,9 +8,9 @@ from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, UserManager
 from django.utils.timezone import utc
+from biostar.apps import util
 
 logger = logging.getLogger(__name__)
-
 
 class User(AbstractBaseUser):
     # Class level constants.
@@ -91,7 +91,7 @@ class Profile(models.Model):
     user = models.OneToOneField(User)
 
     # Globally unique id used to identify the user in a private feeds
-    uuid = models.TextField(null=False, db_index=True, unique=True)
+    uuid = models.CharField(null=False, db_index=True, unique=True, max_length=255)
 
     # The last visit by the user.
     last_login = models.DateTimeField()
@@ -122,7 +122,8 @@ class Profile(models.Model):
         self.info_html = self.info
 
         if not self.id:
-            # This runs only on object creation.
+            # This runs only once upon object creation.
+            self.uuid = util.make_uuid()
             self.date_joined = datetime.datetime.utcnow().replace(tzinfo=utc)
             self.last_login = self.date_joined
 

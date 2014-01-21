@@ -1,4 +1,5 @@
 -r base.txt
 django-celery
+djcelery_email
 pysolr
 psycopg2

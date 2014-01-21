@@ -12,10 +12,13 @@ DEBUG = True
 # Template debug mode.
 TEMPLATE_DEBUG = DEBUG
 
-def get_env(name):
+def get_env(name, func=None):
     """Get the environment variable or return exception"""
     try:
-        return os.environ[name]
+        if func:
+            return func(os.environ[name])
+        else:
+            return unicode(os.environ[name], encoding="utf-8")
     except KeyError:
         msg = "*** Required environment variable %s not set." % name
         raise ImproperlyConfigured(msg)
@@ -31,17 +34,16 @@ INTERNAL_IPS = ('127.0.0.1', )
 __CURR_DIR = abspath(os.path.dirname(__file__))
 
 # Set location relative to the current file directory.
-HOME_DIR = abspath(__CURR_DIR, '..', '..')
+HOME_DIR = get_env("BIOSTAR_HOME")
 DATABASE_DIR = abspath(HOME_DIR, 'data')
 DATABASE_NAME = abspath(DATABASE_DIR, 'biostar2.db')
 STATIC_DIR = abspath(HOME_DIR, 'biostar', 'static')
 BIOSTAR_STATIC_ROOT = get_env("BIOSTAR_STATIC_ROOT")
 
-# Must contains at least one (name, email) pair.
-
-# These settings create an admin user. The default password is the SECRET_KEY.
-ADMIN_NAME = u"Señor Admin"
-ADMIN_EMAIL = u"foo@bar.com"
+# These settings create an admin user.
+# The default password is the SECRET_KEY.
+ADMIN_NAME = get_env("BIOSTAR_ADMIN_NAME")
+ADMIN_EMAIL = get_env("BIOSTAR_ADMIN_EMAIL")
 
 ADMINS = (
     (ADMIN_NAME, ADMIN_EMAIL),
@@ -85,6 +87,8 @@ LANGUAGE_CODE = 'en-us'
 SITE_ID = 1
 SITE_NAME = "localhost"
 SITE_DOMAIN = "localhost"
+
+DEFAULT_FROM_EMAIL=get_env("DEFAULT_FROM_EMAIL")
 
 # If you set this to False, Django will make some optimizations so as not
 # to load the internationalization machinery.
@@ -200,10 +204,18 @@ INSTALLED_APPS = [
 AUTH_USER_MODEL = 'accounts.User'
 
 TEMPLATE_CONTEXT_PROCESSORS = (
+    # Django specific context processors.
+    "django.core.context_processors.static",
     "django.core.context_processors.request",
     "django.contrib.auth.context_processors.auth",
+    "django.contrib.messages.context_processors.messages",
+
+    # Social authorization specific context.
     "allauth.account.context_processors.account",
     "allauth.socialaccount.context_processors.socialaccount",
+
+    # Biostar specific context.
+    'biostar.apps.main.context.shortcuts',
 )
 
 AUTHENTICATION_BACKENDS = (
@@ -258,3 +270,9 @@ SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
 
 # Use a mock email backend for development.
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# On deployed servers the following must be set.
+EMAIL_HOST = get_env("EMAIL_HOST")
+EMAIL_PORT = get_env("EMAIL_PORT", func=int)
+EMAIL_HOST_USER = get_env("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = get_env("EMAIL_HOST_PASSWORD")
