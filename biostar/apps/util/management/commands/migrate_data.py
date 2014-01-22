@@ -7,7 +7,8 @@ from django.contrib.auth import get_user_model
 import os, csv, datetime
 from django.utils.dateparse import parse_datetime
 from django.utils import timezone, encoding
-from biostar.apps.posts.models import Post
+from biostar.apps.posts.models import Post, Vote
+from django.db import transaction
 
 def path_join(*args):
     return os.path.abspath(os.path.join(*args))
@@ -15,8 +16,10 @@ def path_join(*args):
 # Obtain the user model
 User = get_user_model()
 
+BATCH_SIZE = 100
+
 USER_TYPE_MAP = {
-    "New": User.NEW, "Member": User.MEMBER,
+    "New": User.NEW, "Member": User.MEMBER, "Blog" : User.BLOG,
     "Moderator": User.MODERATOR, "Administrator": User.ADMIN
 }
 
@@ -27,6 +30,11 @@ USER_STATUS_MAP = {
 POST_TYPE_MAP = {
     "Question": Post.QUESTION, "Answer": Post.ANSWER,
     "Comment": Post.COMMENT, "Job": Post.JOB,
+}
+
+VOTE_TYPE_MAP = {
+    "Upvote": Vote.UP, "Downvote": Vote.DOWN,
+    "Accept": Vote.ACCEPT, "Bookmark": Vote.BOOKMARK,
 }
 
 MIGRATE_DIR = os.environ["BIOSTAR_MIGRATE_DIR"]
@@ -48,20 +56,23 @@ class Command(BaseCommand):
     help = 'migrate data from Biostar 1.*'
 
     option_list = BaseCommand.option_list + (
-        make_option("-u", '--user', action="store_true", dest='user', default=False, help='import users'),
-        make_option("-p", '--post', action="store_true", dest='post', default=False, help='import posts'),
+        make_option("-u", '--users', action="store_true", dest='users', default=False, help='import users'),
+        make_option("-p", '--posts', action="store_true", dest='posts', default=False, help='import posts'),
+        make_option("-x", '--votes', action="store_true", dest='votes', default=False, help='import posts'),
     )
 
     def migrate_posts(self, fname):
 
-        Post.objects.all().delete()
+        log = self.stdout.write
+
+        #Post.objects.all().delete()
 
         user_map = dict((u.id, u) for u in User.objects.all())
 
-        self.stdout.write("migrating posts data from %s" % fname)
+        log("migrating posts from %s" % fname)
         stream = csv.DictReader(file(fname), delimiter=b'\t')
 
-        for row in stream:
+        for i, row in enumerate(stream):
             uid = get(row, 'id')
             title = get(row, 'title')
             tag_val = get(row, 'tag_val').strip()
@@ -71,7 +82,7 @@ class Command(BaseCommand):
             author = user_map.get(author_id)
 
             if not author:
-                print ("*** author %s not found for post %s" % (author_id, uid))
+                log ("*** author %s not found for post %s" % (author_id, uid))
                 continue
 
             post_type = get(row, 'post_type')
@@ -95,11 +106,14 @@ class Command(BaseCommand):
 
             self.stdout.write("migrated %s" % post)
 
+        log("migrated %s posts" % Post.objects.all().count())
+
     def migrate_users(self, fname):
 
         #User.objects.all().delete()
+        log = self.stdout.write
 
-        self.stdout.write("migrating user data from %s" % fname)
+        log("migrating users from %s" % fname)
         stream = csv.DictReader(file(fname), delimiter=b'\t')
 
         seen = set()
@@ -107,7 +121,7 @@ class Command(BaseCommand):
         for row in stream:
             uid = int(get(row, 'id'))
 
-            # The first user is the default admin.
+            # Skip the first user. It is the default admin.
             if uid == 1:
                 continue
 
@@ -148,25 +162,61 @@ class Command(BaseCommand):
             prof.last_login = localize_time(last_visited)
             about_me_file = path_join(MIGRATE_DIR, 'about_me', str(uid))
             prof.about_me = file(about_me_file, 'rt').read()
-
             prof.save()
 
-            self.stdout.write("migrated %s" % user)
+        log("migrated %s users" % User.objects.all().count())
 
-            #print(row)
 
-        for user in User.objects.all():
-            print (user)
+    def migrate_votes(self, fname):
+        log = self.stdout.write
 
+        Vote.objects.all().delete()
+
+        log("migrating votes from %s" % fname)
+
+        user_map = dict((u.id, u) for u in User.objects.all())
+
+        stream = csv.DictReader(file(fname), delimiter=b'\t')
+
+        transaction.set_autocommit(False)
+
+        for i, row in enumerate(stream):
+            author_id= int(get(row, 'author_id'))
+            post_id= int(get(row, 'post_id'))
+
+            vote_type= get(row, 'vote_type')
+            vote_type= VOTE_TYPE_MAP[vote_type]
+
+
+            vote_date= get(row, 'vote_date')
+            vote_date = localize_time(vote_date)
+            author = user_map.get(author_id)
+
+            if not author:
+                log ("*** author %s not found" % author_id)
+                continue
+
+            vote = Vote(author=author, post_id=post_id, type=vote_type, creation_date=vote_date)
+            vote.save()
+
+            if (i % BATCH_SIZE == 0):
+                log("commit at %s" % i)
+                transaction.commit()
+
+        transaction.set_autocommit(True)
+
+        log("migrated %s votes" % Vote.objects.all().count())
 
     def handle(self, *args, **options):
-        user_file = options['user']
-        post_file = options['post']
 
-        if user_file:
+        if options['users']:
             fname = path_join(MIGRATE_DIR, "users.txt")
             self.migrate_users(fname)
 
-        if post_file:
+        if options['posts']:
             fname = path_join(MIGRATE_DIR, "posts.txt")
             self.migrate_posts(fname)
+
+        if options['votes']:
+            fname = path_join(MIGRATE_DIR, "votes.txt")
+            self.migrate_votes(fname)

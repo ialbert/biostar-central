@@ -15,8 +15,8 @@ logger = logging.getLogger(__name__)
 
 class User(AbstractBaseUser):
     # Class level constants.
-    NEW, MEMBER, MODERATOR, ADMIN = range(4)
-    TYPE_CHOICES = [(NEW, "New"), (MEMBER, "Member"), (MODERATOR, "Moderator"), (ADMIN, "Admin")]
+    NEW, MEMBER, MODERATOR, ADMIN, BLOG = range(5)
+    TYPE_CHOICES = [(NEW, "New"), (MEMBER, "Member"), (MODERATOR, "Moderator"), (ADMIN, "Admin"), (BLOG, "Blog")]
 
     ACTIVE, SUSPENDED, BANNED = range(3)
     STATUS_CHOICES = ((ACTIVE, 'Active'), (SUSPENDED, 'Suspended'), (BANNED, 'Banned'))
@@ -81,7 +81,7 @@ class User(AbstractBaseUser):
         super(User, self).save(*args, **kwargs)
 
     def __unicode__(self):
-        return "User: %s (%s, %s)" % (self.name, self.email, self.id)
+        return "User %s: %s (%s)" % (self.id, self.name, self.email)
 
 
 class Profile(models.Model):

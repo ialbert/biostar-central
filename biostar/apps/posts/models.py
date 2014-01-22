@@ -107,3 +107,13 @@ class PostAdmin(reversion.VersionAdmin):
 
 admin.site.register(Post, PostAdmin)
 
+
+class Vote(models.Model):
+    # Post statuses.
+    UP, DOWN, BOOKMARK, ACCEPT = range(4)
+    TYPE_CHOICES = [(UP, "Up"), (DOWN, "Down"), (BOOKMARK, "Bookmark"), (ACCEPT, "Accept")]
+
+    author = models.ForeignKey(User)
+    post = models.ForeignKey(Post, related_name='votes')
+    type = models.IntegerField(choices=TYPE_CHOICES, db_index=True)
+    creation_date = models.DateTimeField(db_index=True, auto_now=True)
