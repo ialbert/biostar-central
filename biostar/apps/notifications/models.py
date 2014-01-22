@@ -1,6 +1,7 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
 import logging, datetime
 from django import forms
+from django.db.models import signals
 from django.db import models
 from django.conf import settings
 from django.contrib import admin
@@ -49,13 +50,17 @@ from biostar.apps.posts.models import Post
 
 class Subscription(models.Model):
     "Connects a post to a message"
-    LOCAL, EMAIL = range(2)
-    TYPE_CHOICES = [(LOCAL, "Local"), (EMAIL, "Email")]
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("User"))
     post = models.ForeignKey(Post, verbose_name=_("User"))
-    type = models.IntegerField(choices=TYPE_CHOICES, db_index=True)
     creation_date = models.DateTimeField(_("Creation date"), null=False)
+
+    @staticmethod
+    def add_subscription(post, user):
+        "Creates a subscription to a post"
+        sub = Subscription(post=post, user=user)
+        sub.creation_date = datetime.datetime.utcnow().replace(tzinfo=utc)
+        sub.save()
 
 def inbox_count_for(user):
     """
@@ -63,3 +68,10 @@ def inbox_count_for(user):
     mark them seen
     """
     return Message.objects.filter(recipient=user, read_at__isnull=True).count()
+
+def init_subscription(sender, instance, created, *args, **kwargs):
+    "Creates a subscription to a post"
+    if created:
+        Subscription.add_subscription(post=instance, user=instance.author)
+
+signals.post_save.connect(init_subscription, sender=Post)

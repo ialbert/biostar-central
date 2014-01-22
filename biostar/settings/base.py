@@ -202,8 +202,10 @@ INSTALLED_APPS = [
     'biostar.apps.util',
     'biostar.apps.main',
     'biostar.apps.posts',
-    'biostar.apps.notify',
+    'biostar.apps.notifications',
+    'biostar.apps.badges',
     'biostar.apps.accounts',
+
 ]
 
 AUTH_USER_MODEL = 'accounts.User'
