@@ -50,7 +50,7 @@ def export_users(N):
         line = line.encode("utf", "replace")
         write(line)
 
-    print ("*** wrote user data into %s" % out_name)
+    print ("*** wrote users into %s" % out_name)
 
 def export_posts(N):
     workdir = pj(MIGRATE_DIR, "posts")
@@ -97,11 +97,16 @@ def export_posts(N):
 
 def export_votes(N):
 
+    out_name = pj(MIGRATE_DIR, "votes.txt")
+    out_stream = file(out_name, 'wt')
+    def write(line):
+        out_stream.write('%s\n' % line)
+
     limit = N or None
 
     fields = "author_id post_id vote_type vote_date".split()
 
-    print "\t".join(fields)
+    write("\t".join(fields))
 
     for vote in models.Vote.objects.all()[:limit]:
 
@@ -110,7 +115,9 @@ def export_votes(N):
             ]
 
         data = map(str, data)
-        print "\t".join(data)
+        write("\t".join(data))
+
+    print ("*** wrote votes into %s" % out_name)
 
 if __name__ == '__main__':
     import optparse
