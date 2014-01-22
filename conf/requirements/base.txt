@@ -4,10 +4,11 @@ django-debug-toolbar
 django-compressor
 django-crispy-forms
 django-braces
+django-taggit
+django-haystack
+bleach
 
-#django-taggit
 #django-treebeard
-#django-haystack
 #django-secure
 #python-dateutil
 #django-registration
