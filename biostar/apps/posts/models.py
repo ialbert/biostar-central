@@ -6,6 +6,9 @@ from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth import get_user_model
 from django.utils.timezone import utc
+from taggit.managers import TaggableManager
+import reversion
+
 
 # Obtain the user model
 User = get_user_model()
@@ -14,6 +17,9 @@ logger = logging.getLogger(__name__)
 
 
 class Post(models.Model):
+    "Represents a post in Biostar"
+
+    tags = TaggableManager()
 
     # Post statuses.
     OPEN, CLOSED, DELETED = range(3)
@@ -23,18 +29,7 @@ class Post(models.Model):
     QUESTION, ANSWER, COMMENT, JOB, FORUM = range(5)
     TYPE_CHOICES = [(QUESTION,"Question"), (ANSWER, "Answer"), (COMMENT, "Comment"), (JOB, "Job"), (FORUM, "Forum")]
 
-    title = models.TextField(max_length=200)
-
-    # The tag string is the canonical form of the tags
-    tag_string = models.CharField(max_length=200, blank=True,)
-
-    # Post attributes
-    views = models.IntegerField(default=0, blank=True, db_index=True)
-    score = models.IntegerField(default=0, blank=True, db_index=True)
-    full_score = models.IntegerField(default=0, blank=True, db_index=True)
-
-    creation_date = models.DateTimeField(db_index=True)
-    lastedit_date = models.DateTimeField(db_index=True)
+    title = models.CharField(max_length=255)
 
     # The user that originally created the post.
     author = models.ForeignKey(User)
@@ -42,17 +37,8 @@ class Post(models.Model):
     # The user that edited the post most recently.
     lastedit_user = models.ForeignKey(User, related_name='editor')
 
-    # The number of replies that a post has.
-    reply_count = models.IntegerField(default=0, blank=True)
-
-    # Bookmark count.
-    book_count = models.IntegerField(default=0, blank=True)
-
-    # Stickiness of the post.
-    sticky = models.IntegerField(default=0, db_index=True)
-
-    # Indicates whether the post has accepted answer.
-    has_accepted = models.BooleanField(default=False, blank=True)
+    # Indicates the information value of the post.
+    rank = models.FloatField(default=0, blank=True)
 
     # Post status: open, closed, deleted.
     status = models.IntegerField(choices=STATUS_CHOICES, default=OPEN)
@@ -60,14 +46,39 @@ class Post(models.Model):
     # The type of the post: question, answer, comment.
     type = models.IntegerField(choices=TYPE_CHOICES, db_index=True)
 
-    # Some posts have links to other content.
-    link_out = models.URLField(default='', blank=True)
+    # Number of upvotes for the post
+    vote_count = models.IntegerField(default=0, blank=True, db_index=True)
+
+    # The number of views for the post.
+    view_count = models.IntegerField(default=0, blank=True)
+
+    # The number of replies that a post has.
+    reply_count = models.IntegerField(default=0, blank=True)
+
+    # Bookmark count.
+    book_count = models.IntegerField(default=0)
+
+    # The total score of the thread (used for top level only)
+    thread_score = models.IntegerField(default=0, blank=True, db_index=True)
+
+    # Date related fields.
+    creation_date = models.DateTimeField(db_index=True)
+    lastedit_date = models.DateTimeField(db_index=True)
+
+    # Stickiness of the post.
+    sticky = models.BooleanField(default=False, db_index=True)
+
+    # Indicates whether the post has accepted answer.
+    has_accepted = models.BooleanField(default=False, blank=True)
 
     # This will maintain the ancestor/descendant relationship bewteen posts.
     root = models.ForeignKey('self', related_name="descendants", null=True, blank=True)
 
     # This will maintain parent/child replationships between posts.
     parent = models.ForeignKey('self', null=True, blank=True, related_name='children')
+
+    # This is the sanitized HTML for display.
+    html = models.TextField(default='')
 
     def save(self, *args, **kwargs):
 
@@ -81,17 +92,18 @@ class Post(models.Model):
     def __unicode__(self):
         return "%s: %s (%s)" % (self.get_type_display(), self.title, self.id)
 
-class PostBody(models.Model):
-    "The post stores each revision"
-    post = models.OneToOneField(Post, related_name="body")
-    author = models.ForeignKey(User)
+# Posts will have revisions.
+reversion.register(Post)
 
-    # Title and tag_strings are duplicated because they also serve as revision.
-    title = models.TextField(max_length=200)
+# Revision admin setup.
+class PostAdmin(reversion.VersionAdmin):
+    list_display = ('title', 'type', 'author')
+    fieldsets = (
+        (None, {'fields': ('title',)}),
+        ('Attributes', {'fields': ('type', 'status', 'sticky',)}),
+        ('Content', {'fields': ('tags', 'html', )}),
+    )
+    search_fields = ('title', 'author__name')
 
-    # The underlying Markdown
-    content = models.TextField(default='', max_length=25000)
-
-    # This is the sanitized HTML for display.
-    html = models.TextField(default='')
+admin.site.register(Post, PostAdmin)
 

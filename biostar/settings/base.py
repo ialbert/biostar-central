@@ -195,6 +195,10 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.facebook',
     'allauth.socialaccount.providers.persona',
 
+    # Externall apps.
+    'taggit',
+    'reversion',
+
     # Biostar specific apps.
     'biostar.apps.util',
     'biostar.apps.posts',

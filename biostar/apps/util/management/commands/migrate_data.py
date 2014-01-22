@@ -7,12 +7,12 @@ from django.contrib.auth import get_user_model
 import os, csv, datetime
 from django.utils.dateparse import parse_datetime
 from django.utils import timezone, encoding
-from biostar.apps.posts.models import Post, PostBody
+from biostar.apps.posts.models import Post
 
 def path_join(*args):
     return os.path.abspath(os.path.join(*args))
 
-# Obtaine the user model
+# Obtain the user model
 User = get_user_model()
 
 USER_TYPE_MAP = {
@@ -64,6 +64,7 @@ class Command(BaseCommand):
         for row in stream:
             uid = get(row, 'id')
             title = get(row, 'title')
+            tag_val = get(row, 'tag_val').strip()
 
             author_id = get(row, 'author_id')
             author_id = int(author_id)
@@ -77,12 +78,18 @@ class Command(BaseCommand):
             post_type = POST_TYPE_MAP.get(post_type, Post.FORUM)
             post_status = Post.OPEN if get(row, 'post_status') == "Open" else Post.CLOSED
 
-
             post = Post(id=uid, title=title, author=author, lastedit_user=author)
             post.status = post_status
             post.type = post_type
             post.creation_date = localize_time(get(row, 'creation_date'))
             post.lastedit_date = localize_time(get(row, 'lastedit_date'))
+            post_file = path_join(MIGRATE_DIR, 'posts', str(uid))
+            post.html = file(post_file, 'rt').read()
+
+            # TODO migrate only tags with high counts
+            if tag_val:
+                tags = tag_val.split(" ")
+                post.tags.add(*tags)
 
             post.save()
 

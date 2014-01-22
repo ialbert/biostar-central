@@ -43,12 +43,11 @@ while (( "$#" )); do
         $PYTHON $DJANGO_ADMIN runserver $BIOSTAR_HOSTNAME --settings=$DJANGO_SETTINGS_MODULE
     fi
 
-    if [ "$1" = "delete" ]; then
+	if [ "$1" = "delete" ]; then
     	echo "*** deleting the sqlite database"
         $PYTHON $DJANGO_ADMIN delete_database --settings=$DJANGO_SETTINGS_MODULE
     fi
 
-	# Initializes a database
     if [ "$1" = "init" ]; then
         echo "*** initializing server on $BIOSTAR_HOSTNAME"
         $PYTHON $DJANGO_ADMIN test -v $VERBOSITY --settings=$DJANGO_SETTINGS_MODULE
@@ -72,6 +71,11 @@ while (( "$#" )); do
     	echo BIOSTAR_HOME=$BIOSTAR_HOME
     	echo BIOSTAR_STATIC_ROOT=$BIOSTAR_STATIC_ROOT
     	echo DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE
+    fi
+
+    if [ "$1" = "biostar1" ]; then
+    	echo "*** migrating from Biostar 1"
+        $PYTHON $DJANGO_ADMIN migrate_data -u -p
     fi
 
 shift
