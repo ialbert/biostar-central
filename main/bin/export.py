@@ -73,11 +73,11 @@ def export_posts(N):
 
         try:
             title = post.title.encode("utf-8", "replace")
-            content = post.content.encode("utf-8", "replace")
+            html = post.html.encode("utf-8", "replace")
             tag_val = post.tag_val.encode("utf-8", "replace")
 
             fp = file(pj(workdir, str(post.id)), "wt")
-            fp.write(content)
+            fp.write(html)
             fp.close()
 
             data = [
