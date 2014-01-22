@@ -9,10 +9,6 @@ from django.utils.timezone import utc
 from taggit.managers import TaggableManager
 import reversion
 
-
-# Obtain the user model
-User = get_user_model()
-
 logger = logging.getLogger(__name__)
 
 
@@ -32,10 +28,10 @@ class Post(models.Model):
     title = models.CharField(max_length=255)
 
     # The user that originally created the post.
-    author = models.ForeignKey(User)
+    author = models.ForeignKey(settings.AUTH_USER_MODEL)
 
     # The user that edited the post most recently.
-    lastedit_user = models.ForeignKey(User, related_name='editor')
+    lastedit_user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='editor')
 
     # Indicates the information value of the post.
     rank = models.FloatField(default=0, blank=True)
@@ -113,7 +109,7 @@ class Vote(models.Model):
     UP, DOWN, BOOKMARK, ACCEPT = range(4)
     TYPE_CHOICES = [(UP, "Up"), (DOWN, "Down"), (BOOKMARK, "Bookmark"), (ACCEPT, "Accept")]
 
-    author = models.ForeignKey(User)
+    author = models.ForeignKey(settings.AUTH_USER_MODEL)
     post = models.ForeignKey(Post, related_name='votes')
     type = models.IntegerField(choices=TYPE_CHOICES, db_index=True)
     creation_date = models.DateTimeField(db_index=True, auto_now=True)

@@ -15,6 +15,9 @@ urlpatterns = patterns('',
     # Social login pages.
     (r'^accounts/', include('allauth.urls')),
 
+    # Postman messages
+    #(r'^messages/', include('messages.urls')),
+
     # Uncomment the admin/doc line below to enable admin documentation:
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 

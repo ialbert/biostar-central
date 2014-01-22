@@ -197,13 +197,13 @@ INSTALLED_APPS = [
 
     # Externall apps.
     'taggit',
-    'reversion',
 
     # Biostar specific apps.
     'biostar.apps.util',
-    'biostar.apps.posts',
-    'biostar.apps.accounts',
     'biostar.apps.main',
+    'biostar.apps.posts',
+    'biostar.apps.notify',
+    'biostar.apps.accounts',
 ]
 
 AUTH_USER_MODEL = 'accounts.User'
@@ -257,6 +257,8 @@ SOCIALACCOUNT_PROVIDERS = {
         'PROVIDER_SECRET_KEY': get_env("GOOGLE_PROVIDER_SECRET_KEY"),
     },
 }
+
+POSTMAN_SHOW_USER_AS = "name"
 
 ACCOUNT_AUTHENTICATION_METHOD = "email"
 ACCOUNT_EMAIL_REQUIRED = True
