@@ -23,18 +23,20 @@ def post_create_messages(sender, instance, created, *args, **kwargs):
 
     if created:
         # The user sending the notifications.
-        sender = instance.author
+        author = instance.author
 
         # Get all subscriptions for the post.
-        subs = Subscription.objects.get_subs(instance).exclude(user=sender)
+        subs = Subscription.objects.get_subs(instance).exclude(user=author)
 
         # Generate the message from the template.
         page = html.render(name=NEW_POST_CREATED_TEMPLATE, post=instance)
 
         # Create the message body.
-        body = MessageBody(sender=instance.author, subject=instance.title, text=page)
+        body = MessageBody(author=author, subject=instance.title, text=page)
         body.save()
 
-        # Insert a message for everyone involved.
-        for sub in subs:
-            Message.objects.create(user=sub.user, body=body)
+        # Bulk insert of all messages
+        def messages():
+            for sub in subs:
+                yield Message(user=sub.user, body=body)
+        Message.objects.bulk_create(messages(), batch_size=100)

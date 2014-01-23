@@ -27,7 +27,7 @@ class MessageBody(models.Model):
     """
 
     text = models.TextField(_("Text"))
-    sender = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='sent_messages', verbose_name=_("Sender"))
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='sent_messages', verbose_name=_("Sender"))
     subject = models.CharField(_("Subject"), max_length=120)
     parent_msg = models.ForeignKey('self', related_name='next_messages', null=True, blank=True, verbose_name=_("Parent message"))
     sent_at = models.DateTimeField(_("sent at"), null=False)
