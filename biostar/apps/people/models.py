@@ -27,8 +27,8 @@ class User(AbstractBaseUser):
     objects = UserManager()
 
     # Default information on every user.
-    email = models.EmailField(verbose_name='email address', db_index=True, max_length=255, unique=True)
-    name = models.CharField(verbose_name='display name', max_length=255, default="", blank=False)
+    email = models.EmailField(verbose_name='Email', db_index=True, max_length=255, unique=True)
+    name = models.CharField(verbose_name='Name', max_length=255, default="", blank=False)
 
     # Fields used by the Django admin.
     is_active = models.BooleanField(default=True)
@@ -100,7 +100,7 @@ class Profile(models.Model):
     date_joined = models.DateTimeField()
 
     # User provided location.
-    location = models.CharField(default="", max_length=255)
+    location = models.CharField(default="", max_length=255, blank=True)
 
     # User provided website.
     website = models.URLField(default="", max_length=255, blank=True)
@@ -113,9 +113,6 @@ class Profile(models.Model):
 
     # Description provided by the user as markup
     info = models.TextField(default="", null=True, blank=True)
-
-    # The markup rendered as html.
-    info_html = models.TextField(default="", null=True, blank=True)
 
     def save(self, *args, **kwargs):
         # Generate html from the markdown.
@@ -130,7 +127,7 @@ class Profile(models.Model):
         super(Profile, self).save(*args, **kwargs)
 
     def __unicode__(self):
-        return unicode("%s" % self.user.name)
+        return "%s" % self.user.name
 
     @staticmethod
     def auto_create(sender, instance, created, *args, **kwargs):

@@ -8,7 +8,7 @@ import logging
 from django.conf import settings
 from biostar.apps.people.models import User, Profile
 from biostar.apps.posts.models import Post, Subscription
-from biostar.apps.notifications.models import Message
+from biostar.apps.notes.models import Message
 
 from django.test import TestCase
 
@@ -22,7 +22,7 @@ class PostTest(TestCase):
         eq = self.assertEqual
 
         # Create an admin user and a post.
-        title = "Hello World!"
+        title = "Hello Posts!"
         email = "john@this.edu"
         jane = User.objects.create(email=email)
         post = Post(title=title, author=jane, type=Post.FORUM)

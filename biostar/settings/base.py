@@ -202,7 +202,7 @@ INSTALLED_APPS = [
     'biostar.apps.util',
     'biostar.apps.main',
     'biostar.apps.posts',
-    'biostar.apps.notifications',
+    'biostar.apps.notes',
     'biostar.apps.badges',
     'biostar.apps.people',
 

@@ -1,12 +1,12 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
 import logging, datetime
-from django import forms
-from django.db.models import signals
 from django.db import models
 from django.conf import settings
 from django.contrib import admin
 from django.utils.timezone import utc
 from django.utils.translation import ugettext_lazy as _
+
+logger = logging.getLogger(__name__)
 
 # Inspired by django-messages at https://github.com/arneb/django-messages
 
@@ -26,10 +26,9 @@ class MessageBody(models.Model):
     A private message from user to user
     """
 
-    body = models.TextField(_("Body"))
+    text = models.TextField(_("Text"))
     sender = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='sent_messages', verbose_name=_("Sender"))
     subject = models.CharField(_("Subject"), max_length=120)
-
     parent_msg = models.ForeignKey('self', related_name='next_messages', null=True, blank=True, verbose_name=_("Parent message"))
     sent_at = models.DateTimeField(_("sent at"), null=False)
 
@@ -42,20 +41,24 @@ class MessageBody(models.Model):
 
         if not self.id:
             self.sent_at = datetime.datetime.utcnow().replace(tzinfo=utc)
-        super(Message, self).save(**kwargs)
+        super(MessageBody, self).save(**kwargs)
 
 
 # Connects user to message bodies
 class Message(models.Model):
     "Connects recipents to sent messages"
-    recipient = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='recipients', verbose_name=_("Recipient"))
-    message = models.ForeignKey(MessageBody, related_name='messages', verbose_name=_("Message"))
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='recipients', verbose_name=_("Recipient"))
+    body = models.ForeignKey(MessageBody, related_name='messages', verbose_name=_("Message"))
     read_at = models.DateTimeField(_("read at"), null=True, blank=True, db_index=True)
+
+    def __unicode__(self):
+        return unicode(self.user)
 
     @staticmethod
     def inbox_count_for(user):
         "Returns the number of unread messages for the given user but does not mark them seen"
         return MessageBody.objects.filter(recipient=user, read_at__isnull=True).count()
+
 
 # Admin interface to Message and MessageBody.
 class MessageBodyAdmin(admin.ModelAdmin):
@@ -67,15 +70,10 @@ class MessageAdmin(admin.ModelAdmin):
     search_fields = ('recipient__name', 'recipient__email', 'recipient__name', 'recipient__email', 'subject')
     list_select_related = ["user", "post"]
 
-admin.site.register(Message, MessageAdmin)
-admin.site.register(MessageBody, MessageBodyAdmin)
+#admin.site.register(Message, MessageAdmin)
+#admin.site.register(MessageBody, MessageBodyAdmin)
 
-# Set up signals on a new post.
-from biostar.apps.posts.models import Post
-from . import actions
 
-# Add the notification related signals
-signals.post_save.connect(actions.new_post_created, sender=Post)
 
 
 

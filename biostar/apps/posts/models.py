@@ -1,14 +1,10 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
-import logging, datetime
-from django import forms
+import logging, datetime, reversion
 from django.db import models
 from django.conf import settings
 from django.contrib import admin
-from django.contrib.auth import get_user_model
 from django.utils.timezone import utc
 from taggit.managers import TaggableManager
-import reversion
-from django.db.models import signals
 from django.utils.translation import ugettext_lazy as _
 
 logger = logging.getLogger(__name__)
@@ -118,13 +114,6 @@ class Post(models.Model):
     def __unicode__(self):
         return "%s: %s (%s)" % (self.get_type_display(), self.title, self.id)
 
-    @staticmethod
-    def finalize(sender, instance, created, *args, **kwargs):
-        "Finalizes a post"
-        if created:
-            assert instance.root
-            Subscription.create(post=instance, user=instance.author)
-
 # Posts will have revisions.
 reversion.register(Post)
 
@@ -150,28 +139,28 @@ class Vote(models.Model):
     type = models.IntegerField(choices=TYPE_CHOICES, db_index=True)
     creation_date = models.DateTimeField(db_index=True, auto_now=True)
 
-class SubscrptionManager(models.Manager):
+class SubscriptionManager(models.Manager):
 
     def get_subs(self, post):
         "Returns all suscriptions for a post"
-        return self.filter(post=post.root)
+        return self.filter(post=post.root).select_related("user")
+
 
 class Subscription(models.Model):
     "Connects a post to a user"
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("User"),  db_index=True)
-    post = models.ForeignKey(Post, verbose_name=_("User"), related_name="subs", db_index=True)
-    creation_date = models.DateTimeField(_("Creation date"), db_index=True)
+    post = models.ForeignKey(Post, verbose_name=_("Post"), related_name="subs", db_index=True)
+    creation_date = models.DateTimeField(_("Date"), db_index=True)
 
-    objects = SubscrptionManager()
+    objects = SubscriptionManager()
 
     def __unicode__(self):
-        return "%s %s to %s" % (self.__class__.name, self.user.name, self.post.title)
+        return "%s to %s" % (self.user.name, self.post.title)
 
     @staticmethod
     def create(post, user):
         "Creates a subscription of a user to a post"
-        print (post, post.root, post.id)
         sub = Subscription(post=post.root, user=user)
         sub.creation_date = datetime.datetime.utcnow().replace(tzinfo=utc)
         sub.save()
@@ -184,5 +173,3 @@ class SubscriptionAdmin(admin.ModelAdmin):
 
 admin.site.register(Subscription, SubscriptionAdmin)
 
-# Add the notification related signals
-signals.post_save.connect(Post.finalize, sender=Post)

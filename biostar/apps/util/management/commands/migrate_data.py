@@ -83,7 +83,6 @@ class Command(BaseCommand):
             author_id = get(row, 'author_id')
             author_id = int(author_id)
             author = user_map.get(author_id)
-            parent = None
 
             if not author:
                 log ("*** author %s not found for post %s" % (author_id, uid))
