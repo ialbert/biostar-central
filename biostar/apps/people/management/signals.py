@@ -1,7 +1,7 @@
 # -*- coding: utf8 -*-
 from __future__ import print_function, unicode_literals, absolute_import, division
 from django.conf import settings
-from biostar.apps.accounts import models
+from biostar.apps.people import models
 from django.contrib.sites.models import Site, get_current_site
 from allauth.socialaccount.models import SocialApp, providers
 from django.core.exceptions import ImproperlyConfigured

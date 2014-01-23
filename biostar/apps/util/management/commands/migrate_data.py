@@ -74,12 +74,16 @@ class Command(BaseCommand):
 
         for i, row in enumerate(stream):
             uid = get(row, 'id')
+            root_id = get(row, 'root_id')
+            parent_id = get(row, 'parent_id')
+
             title = get(row, 'title')
             tag_val = get(row, 'tag_val').strip()
 
             author_id = get(row, 'author_id')
             author_id = int(author_id)
             author = user_map.get(author_id)
+            parent = None
 
             if not author:
                 log ("*** author %s not found for post %s" % (author_id, uid))
@@ -89,7 +93,8 @@ class Command(BaseCommand):
             post_type = POST_TYPE_MAP.get(post_type, Post.FORUM)
             post_status = Post.OPEN if get(row, 'post_status') == "Open" else Post.CLOSED
 
-            post = Post(id=uid, title=title, author=author, lastedit_user=author)
+            post = Post(id=uid, title=title, author=author, lastedit_user=author,
+                parent_id=parent_id, root_id=root_id)
             post.status = post_status
             post.type = post_type
             post.creation_date = localize_time(get(row, 'creation_date'))

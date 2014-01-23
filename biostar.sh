@@ -75,7 +75,7 @@ while (( "$#" )); do
 
     if [ "$1" = "biostar1" ]; then
     	echo "*** migrating from Biostar 1"
-        $PYTHON $DJANGO_ADMIN migrate_data -u -p
+        $PYTHON $DJANGO_ADMIN migrate_data -u -p -x
     fi
 
 shift

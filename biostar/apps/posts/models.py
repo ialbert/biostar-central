@@ -8,6 +8,8 @@ from django.contrib.auth import get_user_model
 from django.utils.timezone import utc
 from taggit.managers import TaggableManager
 import reversion
+from django.db.models import signals
+from django.utils.translation import ugettext_lazy as _
 
 logger = logging.getLogger(__name__)
 
@@ -18,14 +20,19 @@ class Post(models.Model):
     tags = TaggableManager()
 
     # Post statuses.
-    OPEN, CLOSED, DELETED = range(3)
-    STATUS_CHOICES = [(OPEN, "Open"), (CLOSED, "Closed"), (DELETED, "Deleted")]
+    PENDING, OPEN, CLOSED, DELETED = range(4)
+    STATUS_CHOICES = [(PENDING, "Pending"), (OPEN, "Open"), (CLOSED, "Closed"), (DELETED, "Deleted")]
 
     # Question types.
-    QUESTION, ANSWER, COMMENT, JOB, FORUM = range(5)
-    TYPE_CHOICES = [(QUESTION,"Question"), (ANSWER, "Answer"), (COMMENT, "Comment"), (JOB, "Job"), (FORUM, "Forum")]
+    QUESTION, ANSWER, COMMENT, JOB, FORUM, PAGE = range(6)
+    TYPE_CHOICES = [
+        (QUESTION,"Question"), (ANSWER, "Answer"), (COMMENT, "Comment"),
+        (JOB, "Job"), (FORUM, "Forum"), (PAGE, "Page"),
+    ]
 
-    title = models.CharField(max_length=255)
+    TOP_LEVEL = set((QUESTION, JOB, FORUM, PAGE))
+
+    title = models.CharField(max_length=255, null=False)
 
     # The user that originally created the post.
     author = models.ForeignKey(settings.AUTH_USER_MODEL)
@@ -76,10 +83,33 @@ class Post(models.Model):
     # This is the sanitized HTML for display.
     html = models.TextField(default='')
 
+
     def save(self, *args, **kwargs):
 
         if not self.id:
             # This runs only once upon object creation.
+
+            if not (self.parent or self.root):
+                # Neither of root nor parent are set.
+                # This will be a top level post.
+                self.root = self.parent = self
+                self.type = self.type if self.type in Post.TOP_LEVEL else self.FORUM
+            elif self.parent:
+                # If the parent is set root must follow the parent.
+                self.root = self.parent.root
+                self.type = self.ANSWER if self.parent.type in Post.TOP_LEVEL else self.COMMENT
+            elif self.root:
+                # If only the root is set the parent has follow the root.
+                # Note: In general the root should not be directly set.
+                # Let the save method figure out the correct root.
+                self.parent = self.root
+                self.type = self.ANSWER
+            else:
+                raise Exception("This shouldn't ever happen really")
+
+            self.title = self.parent.title if self.parent else self.title
+            self.lastedit_user = self.author
+            self.status = self.status or Post.PENDING
             self.creation_date = datetime.datetime.utcnow().replace(tzinfo=utc)
             self.lastedit_date = self.creation_date
 
@@ -87,6 +117,13 @@ class Post(models.Model):
 
     def __unicode__(self):
         return "%s: %s (%s)" % (self.get_type_display(), self.title, self.id)
+
+    @staticmethod
+    def finalize(sender, instance, created, *args, **kwargs):
+        "Finalizes a post"
+        if created:
+            assert instance.root
+            Subscription.create(post=instance, user=instance.author)
 
 # Posts will have revisions.
 reversion.register(Post)
@@ -103,7 +140,6 @@ class PostAdmin(reversion.VersionAdmin):
 
 admin.site.register(Post, PostAdmin)
 
-
 class Vote(models.Model):
     # Post statuses.
     UP, DOWN, BOOKMARK, ACCEPT = range(4)
@@ -113,3 +149,40 @@ class Vote(models.Model):
     post = models.ForeignKey(Post, related_name='votes')
     type = models.IntegerField(choices=TYPE_CHOICES, db_index=True)
     creation_date = models.DateTimeField(db_index=True, auto_now=True)
+
+class SubscrptionManager(models.Manager):
+
+    def get_subs(self, post):
+        "Returns all suscriptions for a post"
+        return self.filter(post=post.root)
+
+class Subscription(models.Model):
+    "Connects a post to a user"
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("User"),  db_index=True)
+    post = models.ForeignKey(Post, verbose_name=_("User"), related_name="subs", db_index=True)
+    creation_date = models.DateTimeField(_("Creation date"), db_index=True)
+
+    objects = SubscrptionManager()
+
+    def __unicode__(self):
+        return "%s %s to %s" % (self.__class__.name, self.user.name, self.post.title)
+
+    @staticmethod
+    def create(post, user):
+        "Creates a subscription of a user to a post"
+        print (post, post.root, post.id)
+        sub = Subscription(post=post.root, user=user)
+        sub.creation_date = datetime.datetime.utcnow().replace(tzinfo=utc)
+        sub.save()
+
+
+# Admin interface for subscriptions
+class SubscriptionAdmin(admin.ModelAdmin):
+    search_fields = ('user__name', 'user__email')
+    list_select_related = ["user", "post"]
+
+admin.site.register(Subscription, SubscriptionAdmin)
+
+# Add the notification related signals
+signals.post_save.connect(Post.finalize, sender=Post)

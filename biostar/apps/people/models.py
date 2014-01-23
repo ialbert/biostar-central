@@ -132,6 +132,13 @@ class Profile(models.Model):
     def __unicode__(self):
         return unicode("%s" % self.user.name)
 
+    @staticmethod
+    def auto_create(sender, instance, created, *args, **kwargs):
+        "Should run on every user creation."
+        if created:
+            prof = Profile(user=instance)
+            prof.save()
+
 
 class UserCreationForm(forms.ModelForm):
     """A form for creating new users."""
@@ -213,12 +220,4 @@ admin.site.register(User, BiostarUserAdmin)
 # Data signals
 from django.db.models.signals import post_save
 
-
-def create_profile(sender, instance, created, *args, **kwargs):
-    "Should run on every user creation."
-    if created:
-        prof = Profile(user=instance)
-        prof.save()
-
-
-post_save.connect(create_profile, sender=User)
+post_save.connect(Profile.auto_create, sender=User)

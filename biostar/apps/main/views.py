@@ -1,6 +1,6 @@
 from django.shortcuts import render_to_response
 from django.views import generic
-from biostar.apps.accounts.models import User
+from biostar.apps.people.models import User
 
 # Create your views here.
 class IndexView(generic.TemplateView):
