@@ -2,6 +2,7 @@
 
 {%  block mainbody %}
 
+    <div id="header">OK</div>
     {% if request.user.is_authenticated %}
         Hello {{user.get_full_name}} | <a href="/admin/">Admin</a> | <a href="/accounts/logout">Logout</a>
     {% else %}

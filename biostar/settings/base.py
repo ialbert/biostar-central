@@ -185,6 +185,7 @@ INSTALLED_APPS = [
     # Enabling the admin and its documentation.
     'django.contrib.admin',
     'django.contrib.messages',
+    'django.contrib.humanize',
 
     # Social login handlers.
     'allauth',
@@ -263,6 +264,7 @@ SOCIALACCOUNT_PROVIDERS = {
 # The google id will injected as a template variable.
 GOOGLE_TRACKER = "foobar"
 SITE_LOGO = "biostar.logo.png"
+SITE_STYLE_CSS = "biostar.styles.less"
 
 ACCOUNT_AUTHENTICATION_METHOD = "email"
 ACCOUNT_EMAIL_REQUIRED = True
