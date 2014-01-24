@@ -151,6 +151,9 @@ from biostar.const import LOCAL_MESSAGE, MESSAGING_TYPE_CHOICES
 class Subscription(models.Model):
     "Connects a post to a user"
 
+    class Meta:
+        unique_together = (("user", "post"),)
+
     user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("User"),  db_index=True)
     post = models.ForeignKey(Post, verbose_name=_("Post"), related_name="subs", db_index=True)
     type = models.IntegerField(choices=MESSAGING_TYPE_CHOICES, default=LOCAL_MESSAGE, db_index=True)
@@ -164,9 +167,11 @@ class Subscription(models.Model):
     @staticmethod
     def create(post, user):
         "Creates a subscription of a user to a post"
-        sub = Subscription(post=post.root, user=user)
-        sub.date = datetime.datetime.utcnow().replace(tzinfo=utc)
-        sub.save()
+        root = post.root
+        if Subscription.objects.filter(post=root, user=user).count() == 0:
+            sub = Subscription(post=root, user=user)
+            sub.date = datetime.datetime.utcnow().replace(tzinfo=utc)
+            sub.save()
 
 
 # Admin interface for subscriptions

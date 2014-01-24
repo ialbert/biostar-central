@@ -7,7 +7,8 @@ from django.contrib.auth import get_user_model
 import os, csv, datetime
 from django.utils.dateparse import parse_datetime
 from django.utils import timezone, encoding
-from biostar.apps.posts.models import Post, Vote
+from biostar.apps.posts.models import Post, Vote, Subscription
+from biostar.apps.notes.models import Message, MessageBody
 from django.db import transaction
 
 
@@ -113,6 +114,8 @@ class Command(BaseCommand):
             self.stdout.write("migrated %s" % post)
 
         log("migrated %s posts" % Post.objects.all().count())
+        log("created %s subscriptions" % Subscription.objects.all().count())
+        log("created %s messages" % Message.objects.all().count())
 
     def migrate_users(self, fname):
 
