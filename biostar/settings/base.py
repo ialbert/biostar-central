@@ -262,6 +262,7 @@ SOCIALACCOUNT_PROVIDERS = {
 
 # The google id will injected as a template variable.
 GOOGLE_TRACKER = "foobar"
+SITE_LOGO = "biostar.logo.png"
 
 ACCOUNT_AUTHENTICATION_METHOD = "email"
 ACCOUNT_EMAIL_REQUIRED = True

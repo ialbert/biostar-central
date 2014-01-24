@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>{{ title }}</title>
+    <title>{{ page_title }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet">
 </head>
@@ -10,7 +10,7 @@
 {% block header %}
     <div>
         <div class="span3">
-            <a href="/"><img src="{{ STATIC_URL }}biostar.logo.png"></a>
+            <a href="/"><img src="{{ STATIC_URL }}{{ SITE_LOGO }}"></a>
         </div>
     </div>
 {% endblock %}

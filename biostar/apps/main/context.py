@@ -6,6 +6,7 @@ def shortcuts(request):
     # These values will be added to each context
     context = {
         "GOOGLE_TRACKER": settings.GOOGLE_TRACKER,
-        "BIOSTAR_VERSION": VERSION
+        "SITE_LOGO": settings.SITE_LOGO,
+        "BIOSTAR_VERSION": VERSION,
     }
     return context
