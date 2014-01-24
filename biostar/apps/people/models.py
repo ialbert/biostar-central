@@ -83,6 +83,8 @@ class User(AbstractBaseUser):
     def __unicode__(self):
         return "User %s: %s (%s)" % (self.id, self.name, self.email)
 
+# This contains the notification types.
+from biostar.const import LOCAL_MESSAGE, MESSAGING_TYPE_CHOICES
 
 class Profile(models.Model):
     """
@@ -113,6 +115,9 @@ class Profile(models.Model):
 
     # Description provided by the user as markup
     info = models.TextField(default="", null=True, blank=True)
+
+    # The default notification preferences.
+    message_prefs = models.IntegerField(choices=MESSAGING_TYPE_CHOICES, default=LOCAL_MESSAGE, db_index=True)
 
     def save(self, *args, **kwargs):
         # Generate html from the markdown.

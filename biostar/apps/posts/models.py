@@ -137,7 +137,7 @@ class Vote(models.Model):
     author = models.ForeignKey(settings.AUTH_USER_MODEL)
     post = models.ForeignKey(Post, related_name='votes')
     type = models.IntegerField(choices=TYPE_CHOICES, db_index=True)
-    creation_date = models.DateTimeField(db_index=True, auto_now=True)
+    date = models.DateTimeField(db_index=True, auto_now=True)
 
 class SubscriptionManager(models.Manager):
 
@@ -145,13 +145,16 @@ class SubscriptionManager(models.Manager):
         "Returns all suscriptions for a post"
         return self.filter(post=post.root).select_related("user")
 
+# This contains the notification types.
+from biostar.const import LOCAL_MESSAGE, MESSAGING_TYPE_CHOICES
 
 class Subscription(models.Model):
     "Connects a post to a user"
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("User"),  db_index=True)
     post = models.ForeignKey(Post, verbose_name=_("Post"), related_name="subs", db_index=True)
-    creation_date = models.DateTimeField(_("Date"), db_index=True)
+    type = models.IntegerField(choices=MESSAGING_TYPE_CHOICES, default=LOCAL_MESSAGE, db_index=True)
+    date = models.DateTimeField(_("Date"), db_index=True)
 
     objects = SubscriptionManager()
 
@@ -162,7 +165,7 @@ class Subscription(models.Model):
     def create(post, user):
         "Creates a subscription of a user to a post"
         sub = Subscription(post=post.root, user=user)
-        sub.creation_date = datetime.datetime.utcnow().replace(tzinfo=utc)
+        sub.date = datetime.datetime.utcnow().replace(tzinfo=utc)
         sub.save()
 
 

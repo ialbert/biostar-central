@@ -43,12 +43,15 @@ class MessageBody(models.Model):
             self.sent_at = datetime.datetime.utcnow().replace(tzinfo=utc)
         super(MessageBody, self).save(**kwargs)
 
+# This contains the notification types.
+from biostar.const import LOCAL_MESSAGE, MESSAGING_TYPE_CHOICES
 
 # Connects user to message bodies
 class Message(models.Model):
     "Connects recipents to sent messages"
     user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='recipients', verbose_name=_("Recipient"))
     body = models.ForeignKey(MessageBody, related_name='messages', verbose_name=_("Message"))
+    type = models.IntegerField(choices=MESSAGING_TYPE_CHOICES, default=LOCAL_MESSAGE, db_index=True)
     read_at = models.DateTimeField(_("read at"), null=True, blank=True, db_index=True)
 
     def __unicode__(self):

@@ -10,6 +10,7 @@ from django.utils import timezone, encoding
 from biostar.apps.posts.models import Post, Vote
 from django.db import transaction
 
+
 def path_join(*args):
     return os.path.abspath(os.path.join(*args))
 
@@ -19,7 +20,7 @@ User = get_user_model()
 BATCH_SIZE = 100
 
 USER_TYPE_MAP = {
-    "New": User.NEW, "Member": User.MEMBER, "Blog" : User.BLOG,
+    "New": User.NEW, "Member": User.MEMBER, "Blog": User.BLOG,
     "Moderator": User.MODERATOR, "Administrator": User.ADMIN
 }
 
@@ -45,6 +46,7 @@ def get(data, attr):
     value = data.get(attr, '').strip()
     value = encoding.smart_unicode(value)
     return value
+
 
 def localize_time(text):
     naive = parse_datetime(text)
@@ -85,7 +87,7 @@ class Command(BaseCommand):
             author = user_map.get(author_id)
 
             if not author:
-                log ("*** author %s not found for post %s" % (author_id, uid))
+                log("*** author %s not found for post %s" % (author_id, uid))
                 continue
 
             post_type = get(row, 'post_type')
@@ -93,7 +95,7 @@ class Command(BaseCommand):
             post_status = Post.OPEN if get(row, 'post_status') == "Open" else Post.CLOSED
 
             post = Post(id=uid, title=title, author=author, lastedit_user=author,
-                parent_id=parent_id, root_id=root_id)
+                        parent_id=parent_id, root_id=root_id)
             post.status = post_status
             post.type = post_type
             post.creation_date = localize_time(get(row, 'creation_date'))
@@ -182,32 +184,27 @@ class Command(BaseCommand):
 
         stream = csv.DictReader(file(fname), delimiter=b'\t')
 
-        transaction.set_autocommit(False)
+        def vote_generator():
+            for i, row in enumerate(stream):
+                post_id = int(get(row, 'post_id'))
+                author_id = int(get(row, 'author_id'))
+                author = user_map.get(author_id)
 
-        for i, row in enumerate(stream):
-            author_id= int(get(row, 'author_id'))
-            post_id= int(get(row, 'post_id'))
+                if not author:
+                    log("*** author %s not found" % author_id)
+                    continue
 
-            vote_type= get(row, 'vote_type')
-            vote_type= VOTE_TYPE_MAP[vote_type]
+                vote_type = get(row, 'vote_type')
+                vote_type = VOTE_TYPE_MAP[vote_type]
+                vote_date = get(row, 'vote_date')
+                vote_date = localize_time(vote_date)
 
+                # Create the vote.
+                vote = Vote(author=author, post_id=post_id, type=vote_type, date=vote_date)
+                yield vote
 
-            vote_date= get(row, 'vote_date')
-            vote_date = localize_time(vote_date)
-            author = user_map.get(author_id)
-
-            if not author:
-                log ("*** author %s not found" % author_id)
-                continue
-
-            vote = Vote(author=author, post_id=post_id, type=vote_type, creation_date=vote_date)
-            vote.save()
-
-            if (i % BATCH_SIZE == 0):
-                log("commit at %s" % i)
-                transaction.commit()
-
-        transaction.set_autocommit(True)
+        # Insert votes in batch. Bypasses the signals!
+        Vote.objects.bulk_create(vote_generator(), batch_size=500)
 
         log("migrated %s votes" % Vote.objects.all().count())
 
