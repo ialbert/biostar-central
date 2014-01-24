@@ -74,7 +74,7 @@ class MessageAdmin(admin.ModelAdmin):
     list_select_related = ["user", "post"]
 
 #admin.site.register(Message, MessageAdmin)
-#admin.site.register(MessageBody, MessageBodyAdmin)
+admin.site.register(MessageBody, MessageBodyAdmin)
 
 
 
