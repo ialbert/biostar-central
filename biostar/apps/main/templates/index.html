@@ -1,22 +1,13 @@
-<!DOCTYPE html>
-<html>
+{%  extends "starbase.html" %}
 
-<head>
-    <title>Hello</title>
-</head>
+{%  block mainbody %}
 
-<body>
+    {% if request.user.is_authenticated %}
+        Hello {{user.get_full_name}} | <a href="/admin/">Admin</a> | <a href="/accounts/logout">Logout</a>
+    {% else %}
+        Hello | <a href="/accounts/login">
+            Please Log In
+        </a>
+    {% endif %}
 
-{% if request.user.is_authenticated %}
-    Hello {{user.get_full_name}} | <a href="/admin/">Admin</a> | <a href="/accounts/logout">Logout</a>
-{% else %}
-    Hello | <a href="/accounts/login">
-        Please Log In
-    </a>
-{% endif %}
-
-<pre>
-    {{request}}
-</pre>
-
-</html>
+{%  endblock %}

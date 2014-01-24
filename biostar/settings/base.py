@@ -260,7 +260,8 @@ SOCIALACCOUNT_PROVIDERS = {
     },
 }
 
-POSTMAN_SHOW_USER_AS = "name"
+# The google id will injected as a template variable.
+GOOGLE_TRACKER = "foobar"
 
 ACCOUNT_AUTHENTICATION_METHOD = "email"
 ACCOUNT_EMAIL_REQUIRED = True
