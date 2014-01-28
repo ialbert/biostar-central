@@ -98,7 +98,7 @@ def help_external(request, word='main'):
 
     # create a test key/value pair
 
-    name = settings.EXTERNAL_AUTHENICATION_TEST_KEY
+    name = "GALAXY"
     pair = settings.EXTERNAL_AUTHENICATION.get(name)
 
     if pair:
@@ -131,9 +131,9 @@ def help_external(request, word='main'):
     post_url = "/x/?%s" % params
 
     # override
-    login_url = settings.EXTERNAL_AUTHENICATION_TEST_URL + login_url
+    login_url = "http://test.biostars.org" + login_url
 
-    post_url = settings.EXTERNAL_AUTHENICATION_TEST_URL + post_url
+    post_url = "http://test.biostars.org" + post_url
 
     # this is used inside the templates
     params = html.Params(post_url=post_url, login_url=login_url, key=key, data=data, enc=enc, digest=digest)

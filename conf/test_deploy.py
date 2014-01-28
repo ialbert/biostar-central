@@ -8,7 +8,7 @@ ADMINS = (
     ('Istvan Albert', 'istvan.albert@gmail.com'),
 )
 
-DEBUG = False
+DEBUG = True
 # template debug mode
 TEMPLATE_DEBUG = DEBUG
 
@@ -16,10 +16,10 @@ TEMPLATE_DEBUG = DEBUG
 SITE_DOMAIN = 'localhost:8080'
 
 # set the cookie domain as needed
-SESSION_COOKIE_DOMAIN = ".biostars.org"
+#SESSION_COOKIE_DOMAIN = ".biostars.org"
 
-# set the secret key for the site
-SECRET_KEY = 'murjkj468712u7u2888271209239929u7u2888271209239929u7u28882'
+# set the secret key for the site, keep this secret of course
+SECRET_KEY = 'abcd%#$%@&!^@%#&#^%#'
 
 SESSION_UPDATE_TIME = 30
 
