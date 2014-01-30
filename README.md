@@ -26,6 +26,6 @@ Data migration requires a data export from the old site followed by an import in
 
 Please follow the instructions in the [docs/migration.md][migration] file.
 
-[migration]: tree/master/docs/migration.md
+[migration]: docs/migration.md
 [django]: http://www.djangoproject.com/
 [python]: http://www.python.org/
