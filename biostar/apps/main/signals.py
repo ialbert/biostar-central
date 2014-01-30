@@ -6,6 +6,9 @@ import logging, datetime
 from biostar.apps.util import html
 
 from biostar.apps.messages.models import Message, MessageBody
+import logging
+
+logger = logging.getLogger(__name__)
 
 NEW_POST_CREATED_TEMPLATE = "notes/post.created.html"
 
@@ -29,14 +32,16 @@ def post_create_messages(sender, instance, created, *args, **kwargs):
         subs = Subscription.objects.get_subs(instance).exclude(user=author)
 
         # Generate the message from the template.
-        page = html.render(name=NEW_POST_CREATED_TEMPLATE, post=instance)
+        text = html.render(name=NEW_POST_CREATED_TEMPLATE, post=instance, user=author)
 
         # Create the message body.
-        body = MessageBody(author=author, subject=instance.title, text=page)
+        body = MessageBody(author=author, subject=instance.title, text=text)
         body.save()
 
-        # Bulk insert of all messages
+        # This generator will produce the messages.
         def messages():
             for sub in subs:
                 yield Message(user=sub.user, body=body)
+
+        # Bulk insert of all messages.
         Message.objects.bulk_create(messages(), batch_size=100)

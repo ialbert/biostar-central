@@ -12,7 +12,7 @@ from biostar.apps.messages.models import Message
 
 from django.test import TestCase
 
-logging.disable(logging.CRITICAL)
+logging.disable(logging.INFO)
 
 
 class PostTest(TestCase):
@@ -25,7 +25,8 @@ class PostTest(TestCase):
         title = "Hello Posts!"
         email = "john@this.edu"
         jane = User.objects.create(email=email)
-        post = Post(title=title, author=jane, type=Post.FORUM)
+        html = "<b>Hello World!</b>"
+        post = Post(title=title, author=jane, type=Post.FORUM, html=html)
         post.save()
         eq(post.type, Post.FORUM)
         eq(post.root, post)

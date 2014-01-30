@@ -8,7 +8,7 @@ from django.conf import settings
 from biostar.apps.people.models import User, Profile
 from django.test import TestCase
 
-logging.disable(logging.CRITICAL)
+logging.disable(logging.INFO)
 
 class UserTest(TestCase):
     def test_user_creation(self):
