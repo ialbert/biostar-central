@@ -131,6 +131,7 @@ STATICFILES_DIRS = (
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    'compressor.finders.CompressorFinder',
 )
 
 # Make this unique, and don't share it with anybody.
@@ -204,7 +205,6 @@ INSTALLED_APPS = [
 
     # The main Biostar server.
     'biostar.server',
-
 ]
 
 AUTH_USER_MODEL = 'people.User'
@@ -261,8 +261,9 @@ SOCIALACCOUNT_PROVIDERS = {
 
 # The google id will injected as a template variable.
 GOOGLE_TRACKER = "foobar"
-SITE_LOGO = "biostar.logo.png"
-SITE_STYLE_CSS = "biostar.styles.less"
+
+# The default CSS file to load.
+SITE_STYLE_CSS = "biostar.style.less"
 
 ACCOUNT_AUTHENTICATION_METHOD = "email"
 ACCOUNT_EMAIL_REQUIRED = True

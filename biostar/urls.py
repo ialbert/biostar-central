@@ -7,16 +7,16 @@ admin.autodiscover()
 from biostar.server import views
 
 urlpatterns = patterns('',
-    # Examples:
-    url(r'^$', views.IndexView.as_view(), name=views.IndexView.name),
+
+    # This is the home page.
+    url(r'^$', views.IndexView.as_view(), name="home"),
+
+
 
     # url(r'^biostar/', include('biostar.foo.urls')),
 
     # Social login pages.
     (r'^accounts/', include('allauth.urls')),
-
-    # Postman messages
-    #(r'^messages/', include('messages.urls')),
 
     # Uncomment the admin/doc line below to enable admin documentation:
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),

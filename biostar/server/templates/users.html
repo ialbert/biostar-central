@@ -1,0 +1,14 @@
+{%  extends "starbase.html" %}
+
+{%  block mainbody %}
+
+    <div id="header">OK</div>
+    {% if request.user.is_authenticated %}
+        Hello {{user.get_full_name}} | <a href="/admin/">Admin</a> | <a href="/accounts/logout">Logout</a>
+    {% else %}
+        Hello | <a href="/accounts/login">
+            Please Log In
+        </a>
+    {% endif %}
+
+{%  endblock %}

@@ -7,7 +7,6 @@ def shortcuts(request):
     context = {
         "GOOGLE_TRACKER": settings.GOOGLE_TRACKER,
         "SITE_STYLE_CSS": settings.SITE_STYLE_CSS,
-        "SITE_LOGO": settings.SITE_LOGO,
         "BIOSTAR_VERSION": VERSION,
     }
     return context
