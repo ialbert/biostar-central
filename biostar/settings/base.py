@@ -7,7 +7,7 @@ from django.core.exceptions import ImproperlyConfigured
 from .logger import LOGGING
 
 # Turn off debug mode on deployed servers.
-DEBUG = False
+DEBUG = True
 
 # Template debug mode.
 TEMPLATE_DEBUG = DEBUG
@@ -275,6 +275,13 @@ COMPRESS_OFFLINE_CONTEXT = {
     'STATIC_URL': STATIC_URL,
     'SITE_STYLE_CSS': SITE_STYLE_CSS,
 }
+
+# This will form the category navigation bar.
+# Will be treated as tags on posts.
+# These should be the most frequent tags on the site.
+DEFAULT_CATEGORIES = [
+    "All", "Assembly", "RNA-Seq", "ChIP-Seq", "SNP-Calling", "Galaxy",
+]
 
 ACCOUNT_AUTHENTICATION_METHOD = "email"
 ACCOUNT_EMAIL_REQUIRED = True

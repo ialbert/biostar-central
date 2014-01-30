@@ -1,14 +1,29 @@
 {% load staticfiles %}
 
-<div>
+<div class="row">
     <div class="span3">
-        HEADER
+        <ul class="nav nav-pills">
+            {% for tag in CATEGORIES %}
+                <li><a href="#">{{ tag }}</a></li>
+
+            {% endfor %}
+        </ul>
     </div>
 </div>
 
-<div>
+<div class="row">
     <div class="span3">
-        <a href="/"><div id="site-logo"></div></a>
+        <a href="/">
+            <div id="site-logo"></div>
+        </a>
     </div>
-    NAVBAR
+    <div class="span3">
+        {% if request.user.is_authenticated %}
+            Hello {{user.get_full_name}} | <a href="/admin/">Admin</a> | <a href="/accounts/logout">Logout</a>
+        {% else %}
+            Hello | <a href="/accounts/login">
+                Please Log In
+            </a>
+        {% endif %}
+    </div>
 </div>
