@@ -4,7 +4,7 @@ from django.conf.urls import patterns, include, url
 from django.contrib import admin
 admin.autodiscover()
 
-from biostar.apps.main import views
+from biostar.server import views
 
 urlpatterns = patterns('',
     # Examples:

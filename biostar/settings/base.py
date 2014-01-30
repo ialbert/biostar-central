@@ -197,11 +197,13 @@ INSTALLED_APPS = [
 
     # Biostar specific apps.
     'biostar.apps.util',
-    'biostar.apps.main',
     'biostar.apps.posts',
     'biostar.apps.messages',
     'biostar.apps.badges',
     'biostar.apps.people',
+
+    # The main Biostar server.
+    'biostar.server',
 
 ]
 
@@ -219,7 +221,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "allauth.socialaccount.context_processors.socialaccount",
 
     # Biostar specific context.
-    'biostar.apps.main.context.shortcuts',
+    'biostar.server.context.shortcuts',
 )
 
 AUTHENTICATION_BACKENDS = (

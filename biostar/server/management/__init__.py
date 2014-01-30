@@ -1,5 +1,5 @@
-from django.db.models.signals import post_syncdb, pre_save
-from biostar.apps.people.management import actions
+from django.db.models.signals import post_syncdb
+from biostar.server.management import actions
 from biostar.apps.people import models
 
 # Populate the database with default admin, site info and social providers.
