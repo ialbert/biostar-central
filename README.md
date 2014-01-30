@@ -14,9 +14,19 @@ Requirements: `Python 2.7`
 Installation
 ------------
 
-The recommended installation is via `virtualenv`.
+Biostar 2.0 requires Python and a number of python packages that can be automatically installed with `pip`.
+By default there are no other dependency beyond easy to install pure python packages. This means
+that Biostar 2.0 will run on any platform that supports Python.
 
-	pip install -r requirements/base.txt
+For high traffic sites third party packages are also required. These too can be automatically and easily
+installed on typical Unix based systems.
+
+Please follow the instructions in the [docs/install.md][install] file.
+
+Deploy and customize
+--------------------
+
+Please follow the instructions in the [docs/deploy.md][deploy] file.
 
 
 Migration from Biostar 1.X
@@ -24,8 +34,10 @@ Migration from Biostar 1.X
 
 Data migration requires a data export from the old site followed by an import into the new site.
 
-Please follow the instructions in the [docs/migration.md][migration] file.
+Please follow the instructions in the [docs/migration.md][migrate] file.
 
-[migration]: docs/migration.md
+[install]: docs/install.md
+[migrate]: docs/migrate.md
+[deploy]: docs/deploy.md
 [django]: http://www.djangoproject.com/
 [python]: http://www.python.org/
