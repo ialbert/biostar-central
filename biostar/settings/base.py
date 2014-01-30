@@ -7,7 +7,7 @@ from django.core.exceptions import ImproperlyConfigured
 from .logger import LOGGING
 
 # Turn off debug mode on deployed servers.
-DEBUG = True
+DEBUG = False
 
 # Template debug mode.
 TEMPLATE_DEBUG = DEBUG
@@ -71,7 +71,9 @@ TEMPLATE_STRING_IF_INVALID = "*** MISSING ***"
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["localhost"]
+
+
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -154,8 +156,6 @@ MIDDLEWARE_CLASSES = (
 )
 
 ROOT_URLCONF = 'biostar.urls'
-
-
 
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'biostar.wsgi.application'
@@ -264,6 +264,17 @@ GOOGLE_TRACKER = "foobar"
 
 # The default CSS file to load.
 SITE_STYLE_CSS = "biostar.style.less"
+
+# Django precompressor settings.
+COMPRESS_PRECOMPILERS = (
+    ('text/coffeescript', 'coffee --compile --stdio'),
+    ('text/less', 'lessc {infile} {outfile}'),
+)
+
+COMPRESS_OFFLINE_CONTEXT = {
+    'STATIC_URL': STATIC_URL,
+    'SITE_STYLE_CSS': SITE_STYLE_CSS,
+}
 
 ACCOUNT_AUTHENTICATION_METHOD = "email"
 ACCOUNT_EMAIL_REQUIRED = True
