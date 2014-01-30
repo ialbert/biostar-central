@@ -5,7 +5,7 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 import logging, datetime
 from biostar.apps.util import html
 
-from biostar.apps.notes.models import Message, MessageBody
+from biostar.apps.messages.models import Message, MessageBody
 
 NEW_POST_CREATED_TEMPLATE = "notes/post.created.html"
 

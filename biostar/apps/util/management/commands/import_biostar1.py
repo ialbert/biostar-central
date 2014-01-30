@@ -8,7 +8,7 @@ import os, csv, datetime
 from django.utils.dateparse import parse_datetime
 from django.utils import timezone, encoding
 from biostar.apps.posts.models import Post, Vote, Subscription
-from biostar.apps.notes.models import Message, MessageBody
+from biostar.apps.messages.models import Message, MessageBody
 from django.db import transaction
 
 

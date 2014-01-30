@@ -8,7 +8,7 @@ import logging
 from django.conf import settings
 from biostar.apps.people.models import User, Profile
 from biostar.apps.posts.models import Post, Subscription
-from biostar.apps.notes.models import Message
+from biostar.apps.messages.models import Message
 
 from django.test import TestCase
 
