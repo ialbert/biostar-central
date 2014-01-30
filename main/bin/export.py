@@ -2,17 +2,19 @@
 Exports Biostar content into a tab delimited format
 """
 __author__ = 'ialbert'
-import sys, os
+import sys, os, shutil
 from main.server import models
 pj = os.path.join
 
-MIGRATE_DIR = os.environ['BIOSTAR_MIGRATE_DIR']
+MIGRATE_DIR = os.environ.get('BIOSTAR_MIGRATE_DIR')
 
 if not MIGRATE_DIR:
     raise Exception("set the BIOSTAR_MIGRATE_DIR environment variable")
 
 MIGRATE_DIR = os.path.expanduser(MIGRATE_DIR)
 
+if not os.path.isdir(MIGRATE_DIR):
+    os.makedirs(MIGRATE_DIR)
 
 def export_users(N):
     workdir = pj(MIGRATE_DIR, "about_me")
