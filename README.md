@@ -22,7 +22,10 @@ The recommended installation is via `virtualenv`.
 Migration from Biostar 1.X
 --------------------------
 
-Please follow the instructions in the `docs/migration.md` file.
+Data migration requires a data export from the old site followed by an import into the new site.
 
+Please follow the instructions in the [docs/migration.md][migration] file.
+
+[migration]: tree/master/docs/migration.md
 [django]: http://www.djangoproject.com/
 [python]: http://www.python.org/

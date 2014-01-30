@@ -1,5 +1,7 @@
 """
+
 There are no database models declarations in this file. Data models are specified in the apps.
+
 Only signals and connections between models are specfied here.
 """
 from __future__ import print_function, unicode_literals, absolute_import, division
