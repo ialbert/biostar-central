@@ -38,13 +38,13 @@ fi
 
 while (( "$#" )); do
 
-	if [ "$1" = "run" ]; then
-    	echo "*** run the development server"
+    if [ "$1" = "run" ]; then
+        echo "*** run the development server"
         $PYTHON $DJANGO_ADMIN runserver $BIOSTAR_HOSTNAME --settings=$DJANGO_SETTINGS_MODULE
     fi
 
-	if [ "$1" = "delete" ]; then
-    	echo "*** deleting the sqlite database"
+    if [ "$1" = "delete" ]; then
+        echo "*** deleting the sqlite database"
         $PYTHON $DJANGO_ADMIN delete_database --settings=$DJANGO_SETTINGS_MODULE
     fi
 
@@ -59,23 +59,24 @@ while (( "$#" )); do
         $PYTHON $DJANGO_ADMIN collectstatic -v $VERBOSITY --noinput --settings=$DJANGO_SETTINGS_MODULE
     fi
 
-	# Produce the environment variables recognized by Biostar.
+    # Produce the environment variables recognized by Biostar.
     if [ "$1" = "test" ]; then
-    	echo "*** running all test"
-    	$PYTHON $DJANGO_ADMIN test -v $VERBOSITY --settings=$DJANGO_SETTINGS_MODULE
+        echo "*** running all test"
+        $PYTHON $DJANGO_ADMIN test -v $VERBOSITY --settings=$DJANGO_SETTINGS_MODULE
     fi
 
-	# Produce the environment variables recognized by Biostar.
+    # Produce the environment variables recognized by Biostar.
     if [ "$1" = "env" ]; then
-    	echo "*** Biostar specific environment variables"
-    	echo BIOSTAR_HOME=$BIOSTAR_HOME
-    	echo BIOSTAR_STATIC_ROOT=$BIOSTAR_STATIC_ROOT
-    	echo DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE
+        echo "*** Biostar specific environment variables"
+        echo BIOSTAR_HOME=$BIOSTAR_HOME
+        echo BIOSTAR_STATIC_ROOT=$BIOSTAR_STATIC_ROOT
+        echo DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE
     fi
 
-    if [ "$1" = "biostar1" ]; then
-    	echo "*** migrating from Biostar 1"
-        $PYTHON $DJANGO_ADMIN migrate_data -u -p -x
+    if [ "$1" = "import_biostar1" ]; then
+        echo "*** migrating from Biostar 1"
+        echo "*** BIOSTAR_MIGRATE_DIR=$BIOSTAR_MIGRATE_DIR"
+        $PYTHON $DJANGO_ADMIN import_biostar1 -u -p -x
     fi
 
 shift
