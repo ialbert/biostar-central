@@ -211,6 +211,7 @@ AUTH_USER_MODEL = 'people.User'
 
 TEMPLATE_CONTEXT_PROCESSORS = (
     # Django specific context processors.
+    "django.core.context_processors.debug",
     "django.core.context_processors.static",
     "django.core.context_processors.request",
     "django.contrib.auth.context_processors.auth",
