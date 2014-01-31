@@ -1,14 +1,16 @@
 /*
-All settings before the import are required
+All variables declared before the import must be
+present because the importing file will use these.
 */
 @color: #4D926F;
 
-/* Importing the main css file then overriding as needed */
-@import "biostar.css.less";
+/* Import the default styles */
+@import "biostar.base.less";
 
-/* Overriding the default logo */
+/* Overriding styles for the current setup */
 #site-logo {
   background-color: transparent;
+  float: left;
   width: 326px;
   height: 80px;
   background-image: url('/static/biostar.logo.png');
