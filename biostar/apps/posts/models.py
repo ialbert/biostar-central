@@ -79,7 +79,6 @@ class Post(models.Model):
     # This is the sanitized HTML for display.
     html = models.TextField(default='')
 
-
     def save(self, *args, **kwargs):
 
         if not self.id:

@@ -201,13 +201,13 @@ INSTALLED_APPS = [
     'biostar.apps.posts',
     'biostar.apps.messages',
     'biostar.apps.badges',
-    'biostar.apps.people',
+    'biostar.apps.users',
 
     # The main Biostar server.
     'biostar.server',
 ]
 
-AUTH_USER_MODEL = 'people.User'
+AUTH_USER_MODEL = 'users.User'
 
 TEMPLATE_CONTEXT_PROCESSORS = (
     # Django specific context processors.

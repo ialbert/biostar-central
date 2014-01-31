@@ -1,6 +1,6 @@
 from django.shortcuts import render_to_response
 from django.views import generic
-from biostar.apps.people.models import User
+from biostar.apps.users.models import User
 
 
 class PageBase(generic.TemplateView):

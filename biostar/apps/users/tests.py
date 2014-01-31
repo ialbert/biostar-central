@@ -3,9 +3,10 @@ User related tests.
 
 These will execute when you run "manage.py test".
 """
+from __future__ import print_function, unicode_literals, absolute_import, division
 import logging
 from django.conf import settings
-from biostar.apps.people.models import User, Profile
+from biostar.apps.users.models import User, Profile
 from django.test import TestCase
 
 logging.disable(logging.INFO)
