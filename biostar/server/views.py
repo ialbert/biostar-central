@@ -1,5 +1,5 @@
 from django.shortcuts import render_to_response
-from django.views import generic
+from django.views.generic import TemplateView, DetailView
 from biostar.apps.users.models import User
 from biostar.apps.posts.models import Post
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -26,7 +26,7 @@ def paginate(paginator, page):
     return objs
 
 
-class PageBase(generic.TemplateView):
+class PageBase(TemplateView):
     """
     All pages will inherit the attributes of this class.
     """
@@ -44,19 +44,24 @@ class PageBase(generic.TemplateView):
         return context
 
 
-class IndexView(PageBase):
+class Index(PageBase):
     page_title = "Welcome to Biostars"
     template_name = "index.html"
 
     def get_context_data(self, **kwargs):
         LIMIT = None
-        context = super(IndexView, self).get_context_data(**kwargs)
+        context = super(Index, self).get_context_data(**kwargs)
         objs = Post.objects.top_level(self.request.user)[:LIMIT]
         objs = Paginator(objs, settings.POSTS_PER_PAGE)
         posts = paginate(objs, self.page)
         context['posts'] = posts
         return context
 
-class UserView(PageBase):
+class UserList(PageBase):
     page_title = "The Biostars"
-    template_name = "users.html"
+    template_name = "user-list.html"
+
+class UserProfile(DetailView):
+    model = User
+    page_title = "User Profile"
+    template_name = "user-profile.html"

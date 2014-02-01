@@ -17,7 +17,12 @@ def navbar(context, user):
     "Renders top navigation bar"
     return {'user': user, 'TOPICS': context['TOPICS']}
 
-@register.inclusion_tag('server_tags/pagebar.html', takes_context=True)
-def pagebar(context, objs):
-    "Renders top navigation bar"
+@register.inclusion_tag('server_tags/pagebar.html')
+def pagebar(objs):
+    "Renders a paging bar"
     return {'objs': objs}
+
+@register.inclusion_tag('server_tags/userlink.html')
+def userlink(user):
+    "User display in a link"
+    return {'user': user}

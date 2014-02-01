@@ -1,7 +1,7 @@
 {% extends "starbase.html" %}
 {% load server_tags %}
 
-{% block mainbody %}
+{% block main_body %}
 
     {% pagebar posts %}
 
@@ -13,7 +13,7 @@
                         {%  for tag in post.tags.all %}
                             {{  tag.name }}
                         {% endfor %}
-
+                        {%  userlink post.author %}
                     </li>
                 {% endfor %}
             </ul>

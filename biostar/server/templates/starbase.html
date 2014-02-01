@@ -5,7 +5,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>{{ page_title }}</title>
+
+    <title>{%  block page_title %}{{ page_title }}{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet">
@@ -39,7 +40,7 @@
     {% navbar user %}
 
     {# Contains the actual body of the page. #}
-    {% block mainbody %}
+    {% block main_body %}
     Body
     {% endblock %}
 

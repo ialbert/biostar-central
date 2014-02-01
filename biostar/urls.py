@@ -9,10 +9,13 @@ from biostar.server import views
 
 urlpatterns = patterns('',
     # Homepage.
-    url(r'^$', views.IndexView.as_view(), name="home"),
+    url(r'^$', views.Index.as_view(), name="home"),
 
     # The list of users.
-    url(r'^user/list/$', views.UserView.as_view(), name="userlist"),
+    url(r'^user/list/$', views.UserList.as_view(), name="userlist"),
+
+    # User profile.
+    url(r'^u/(?P<pk>\d+)/$', views.UserProfile.as_view(), name="profile"),
 
     # Social login pages.
     (r'^accounts/', include('allauth.urls')),
