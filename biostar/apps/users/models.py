@@ -60,6 +60,10 @@ class User(AbstractBaseUser):
         else:
             return False
 
+    @property
+    def is_suspended(self):
+        return self.status == User.SUSPENDED or self.status == User.BANNED
+
     def get_full_name(self):
         # The user is identified by their email address
         return self.name or self.email

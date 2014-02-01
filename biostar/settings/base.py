@@ -217,6 +217,8 @@ INSTALLED_APPS = [
 
 AUTH_USER_MODEL = 'users.User'
 
+DEBUG_TOOLBAR_PATCH_SETTINGS = False
+
 TEMPLATE_CONTEXT_PROCESSORS = (
     # Django specific context processors.
     "django.core.context_processors.debug",

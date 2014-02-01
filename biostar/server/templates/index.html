@@ -1,18 +1,25 @@
-{%  extends "starbase.html" %}
+{% extends "starbase.html" %}
 {% load server_tags %}
 
-{%  block mainbody %}
+{% block mainbody %}
 
-<div class="row">
-    <div class="col-md-12">
-        {%  pagebar posts %}
-        <ul>
-        {% for post in posts.object_list %}
-            <li>{{ post.title }}</li>
-        {% endfor %}
-        </ul>
+    {% pagebar posts %}
+
+    <div class="row">
+        <div class="col-md-12">
+            <ul>
+                {% for post in posts.object_list %}
+                    <li>{{ post.title }}
+                        {%  for tag in post.tags.all %}
+                            {{  tag.name }}
+                        {% endfor %}
+
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
     </div>
 
-</div>
+    {% pagebar posts %}
 
-{%  endblock %}
+{% endblock %}

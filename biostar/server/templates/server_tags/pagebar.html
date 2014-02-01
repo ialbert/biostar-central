@@ -1,1 +1,21 @@
-pagebar
+<div clas="row">
+    <div class="col-md-12 text-center pagination">
+    <span class="step-links">
+        {% if objs.has_previous %}
+            <a href="?page={{ objs.previous_page_number }}">&lt;prev</a>
+        {% else %}
+            &lt;prev</a>
+        {% endif %}
+
+        <span class="current">
+              &bull; page {{ objs.number }} of {{ objs.paginator.num_pages }} &bull;
+        </span>
+
+        {% if objs.has_next %}
+            <a href="?page={{ objs.next_page_number }}">next &gt;</a>
+        {% else %}
+            next &gt;</a>
+        {% endif %}
+    </span>
+    </div>
+</div>

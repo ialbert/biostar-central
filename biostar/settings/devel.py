@@ -12,7 +12,7 @@ MIDDLEWARE_CLASSES.insert(0, 'debug_toolbar.middleware.DebugToolbarMiddleware')
 INSTALLED_APPS = list(INSTALLED_APPS)
 
 # This needs to be added before the user models.
-INSTALLED_APPS.insert(0, "debug_toolbar")
+INSTALLED_APPS.append( "debug_toolbar")
 
 # more email settings
 EMAIL_USE_TLS = True

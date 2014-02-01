@@ -14,10 +14,10 @@ class PostManager(models.Manager):
     def top_level(self, user):
         "Returns posts based on a user type"
         if user.is_moderator:
-            query = self.filter(type__in=Post.TOP_LEVEL)
+            query = self.filter(type__in=Post.TOP_LEVEL).defer("html")
         else:
-            query = self.filter(type__in=Post.TOP_LEVEL, status=Post.OPEN)
-        return query
+            query = self.filter(type__in=Post.TOP_LEVEL, status=Post.OPEN).defer("html")
+        return query.prefetch_related('tags')
 
 class Post(models.Model):
     "Represents a post in Biostar"

@@ -49,8 +49,9 @@ class IndexView(PageBase):
     template_name = "index.html"
 
     def get_context_data(self, **kwargs):
+        LIMIT = None
         context = super(IndexView, self).get_context_data(**kwargs)
-        objs = Post.objects.top_level(self.request.user)
+        objs = Post.objects.top_level(self.request.user)[:LIMIT]
         objs = Paginator(objs, settings.POSTS_PER_PAGE)
         posts = paginate(objs, self.page)
         context['posts'] = posts
