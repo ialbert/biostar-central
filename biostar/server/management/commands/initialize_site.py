@@ -3,6 +3,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
 import os, logging
 from django.contrib.sites.models import Site
+from django.contrib.flatpages.models import FlatPage
 from allauth.socialaccount.models import SocialApp, providers
 
 from django.core.exceptions import ImproperlyConfigured
@@ -10,6 +11,9 @@ from django.core.exceptions import ImproperlyConfigured
 
 logger = logging.getLogger(__name__)
 
+def abspath(*args):
+    """Generates absolute paths"""
+    return os.path.abspath(os.path.join(*args))
 
 class Command(BaseCommand):
     help = 'Initializes content in Biostar'
@@ -21,7 +25,24 @@ class Command(BaseCommand):
         init_flatpages()
 
 def init_flatpages():
-    pass
+    # list for the flatpages
+    names = "faq about help policy".split()
+    site = Site.objects.get_current()
+    FlatPage.objects.all().delete()
+    for name in names:
+        url = "/info/%s/" % name
+        page = FlatPage.objects.filter(url=url, sites=site)
+        if not page:
+            path = abspath(settings.FLATPAGE_IMPORT_DIR, name)
+            path = "%s.html" % path
+            if not os.path.isfile(path):
+                logger.error("cannot find flatpage %s" % path)
+                continue
+            content = file(path).read()
+            page = FlatPage.objects.create(url=url, content=content, title=name.capitalize())
+            page.sites.add(site)
+            page.save()
+            logger.info("added flatpage for url: %s" % url)
 
 def init_admin():
     # Add the admin user if it is not present.

@@ -40,6 +40,10 @@ DATABASE_NAME = abspath(DATABASE_DIR, 'biostar2.db')
 STATIC_DIR = abspath(HOME_DIR, 'biostar', 'static')
 BIOSTAR_STATIC_ROOT = get_env("BIOSTAR_STATIC_ROOT")
 
+# Needs to point to the directory that contains the
+# html files that are stored in the flatpages about, faq, help, policy etc.
+FLATPAGE_IMPORT_DIR = abspath(__CURR_DIR, '..', '..', 'data', 'import', 'flatpages')
+
 # These settings create an admin user.
 # The default password is the SECRET_KEY.
 ADMIN_NAME = get_env("BIOSTAR_ADMIN_NAME")
