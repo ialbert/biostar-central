@@ -158,6 +158,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
+    'biostar.server.middleware.Visit',
 )
 
 ROOT_URLCONF = 'biostar.urls'
@@ -284,12 +285,23 @@ COMPRESS_OFFLINE_CONTEXT = {
     'SITE_STYLE_CSS': SITE_STYLE_CSS,
 }
 
+# The cache mechanism is deployment dependent. Override it externally.
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.dummy.DummyCache' if DEBUG else 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake'
+    }
+}
+
 # This will form the category navigation bar.
 # Will be treated as tags on posts.
 # These should be the most frequent tags on the site.
 DEFAULT_TOPICS = [
-    "All", "Assembly", "RNA-Seq", "ChIP-Seq", "SNP-Calling", "Galaxy",
+    "New", "Assembly", "RNA-Seq", "ChIP-Seq", "SNP-Calling", "Galaxy",
 ]
+
+# How many posts to show per page.
+POSTS_PER_PAGE = 15
 
 ACCOUNT_AUTHENTICATION_METHOD = "email"
 ACCOUNT_EMAIL_REQUIRED = True

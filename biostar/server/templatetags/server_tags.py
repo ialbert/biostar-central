@@ -7,14 +7,17 @@ import random
 
 register = template.Library()
 
-
 @register.simple_tag
 def rand_num():
     "The purpose of this is to return a random number"
     return " %f " % random.random()
 
-
 @register.inclusion_tag('server_tags/navbar.html', takes_context=True)
 def navbar(context, user):
     "Renders top navigation bar"
     return {'user': user, 'TOPICS': context['TOPICS']}
+
+@register.inclusion_tag('server_tags/pagebar.html', takes_context=True)
+def pagebar(context, objs):
+    "Renders top navigation bar"
+    return {'objs': objs}

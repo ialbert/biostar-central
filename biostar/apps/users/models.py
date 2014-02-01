@@ -53,6 +53,13 @@ class User(AbstractBaseUser):
     # Activity score computed over a shorter period.
     score = models.IntegerField(default=0)
 
+    @property
+    def is_moderator(self):
+        if self.is_authenticated():
+            return self.type == User.MODERATOR or self.type == User.ADMIN
+        else:
+            return False
+
     def get_full_name(self):
         # The user is identified by their email address
         return self.name or self.email

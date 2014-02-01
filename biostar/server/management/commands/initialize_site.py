@@ -28,7 +28,6 @@ def init_flatpages():
     # list for the flatpages
     names = "faq about help policy".split()
     site = Site.objects.get_current()
-    FlatPage.objects.all().delete()
     for name in names:
         url = "/info/%s/" % name
         page = FlatPage.objects.filter(url=url, sites=site)

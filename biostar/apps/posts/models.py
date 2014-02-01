@@ -9,9 +9,20 @@ from django.utils.translation import ugettext_lazy as _
 
 logger = logging.getLogger(__name__)
 
+class PostManager(models.Manager):
+
+    def top_level(self, user):
+        "Returns posts based on a user type"
+        if user.is_moderator:
+            query = self.filter(type__in=Post.TOP_LEVEL)
+        else:
+            query = self.filter(type__in=Post.TOP_LEVEL, status=Post.OPEN)
+        return query
 
 class Post(models.Model):
     "Represents a post in Biostar"
+
+    objects = PostManager()
 
     tags = TaggableManager()
 
