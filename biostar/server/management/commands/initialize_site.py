@@ -2,9 +2,9 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
 import os, logging
-from biostar.apps.users import models
-from django.contrib.sites.models import Site, get_current_site
+from django.contrib.sites.models import Site
 from allauth.socialaccount.models import SocialApp, providers
+
 from django.core.exceptions import ImproperlyConfigured
 
 
@@ -25,15 +25,17 @@ def init_flatpages():
 
 def init_admin():
     # Add the admin user if it is not present.
+    from biostar.apps.users.models import User
+
     email = settings.ADMIN_EMAIL
-    admin = models.User.objects.filter(email=email)
+    admin = User.objects.filter(email=email)
     if not admin:
-        admin = models.User(
+        admin = User(
             email=email,
             is_staff=True,
             is_admin=True,
             name=settings.ADMIN_NAME,
-            type=models.User.ADMIN
+            type=User.ADMIN
         )
         admin.set_password(settings.SECRET_KEY)
         admin.save()
@@ -42,6 +44,7 @@ def init_admin():
 
 def init_domain():
     # Initialize the current site if it is not present.
+
     site = Site.objects.get_current()
     if site.domain != settings.SITE_DOMAIN:
         site.name = settings.SITE_NAME
@@ -51,6 +54,7 @@ def init_domain():
 
 def init_social_providers():
     # Initialize social login providers.
+
     for name, data in settings.SOCIALACCOUNT_PROVIDERS.items():
 
         # not all providers need to have entries

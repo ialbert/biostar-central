@@ -7,9 +7,11 @@ Only signals and connections between models are specfied here.
 from __future__ import print_function, unicode_literals, absolute_import, division
 import logging, datetime
 from django.db.models import signals
-from biostar.apps.posts.models import Post
+from biostar.apps.users.models import User
+from biostar.apps.posts.models import Post, Subscription
+from biostar.apps.util import html
+
 from biostar.apps.messages.models import Message, MessageBody
-from biostar.apps.posts.models import Subscription
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +19,8 @@ NEW_POST_CREATED_MESSAGE_TEMPLATE = "messages/post.created.html"
 
 def post_create_subscriptions(sender, instance, created, *args, **kwargs):
     "The actions to undertake when creating a new post"
-    from biostar.apps.posts.models import Subscription
+
+    from biostar.apps.posts.models import Post, Subscription
 
     if created:
         # Create a subscription by the user
@@ -27,10 +30,6 @@ def post_create_messages(sender, instance, created, *args, **kwargs):
     "The actions to undertake when creating a new post"
 
     if created:
-        # We need to load the module here to avoid circular imports
-        # withouth having to introduce a new module.
-        from biostar.apps.util import html
-
         # The user sending the notifications.
         author = instance.author
 
