@@ -153,6 +153,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
 )
 
 ROOT_URLCONF = 'biostar.urls'
@@ -180,9 +181,11 @@ INSTALLED_APPS = [
     'compressor',
 
     # Enabling the admin and its documentation.
+    'django.contrib.sites',
     'django.contrib.admin',
     'django.contrib.messages',
     'django.contrib.humanize',
+    'django.contrib.flatpages',
 
     # Social login handlers.
     'allauth',
@@ -193,7 +196,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.facebook',
     'allauth.socialaccount.providers.persona',
 
-    # Externall apps.
+    # External apps.
     'taggit',
 
     # Biostar specific apps.
@@ -280,7 +283,7 @@ COMPRESS_OFFLINE_CONTEXT = {
 # This will form the category navigation bar.
 # Will be treated as tags on posts.
 # These should be the most frequent tags on the site.
-DEFAULT_CATEGORIES = [
+DEFAULT_TOPICS = [
     "All", "Assembly", "RNA-Seq", "ChIP-Seq", "SNP-Calling", "Galaxy",
 ]
 

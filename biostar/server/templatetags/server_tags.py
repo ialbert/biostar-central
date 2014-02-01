@@ -17,4 +17,4 @@ def rand_num():
 @register.inclusion_tag('server_tags/navbar.html', takes_context=True)
 def navbar(context, user):
     "Renders top navigation bar"
-    return {'user': user, 'CATEGORIES': context['CATEGORIES']}
+    return {'user': user, 'TOPICS': context['TOPICS']}

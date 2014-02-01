@@ -55,7 +55,7 @@
         <div class="col-md-2 col-md-offset-3">
             <div class="title">Content</div>
             <ul class="flat">
-                <li>Users</li>
+                <li><a href="{% url 'userlist' %}">Users</a></li>
                 <li>Tags</li>
                 <li>Badges</li>
             </ul>
@@ -64,9 +64,9 @@
         <div class="col-md-2">
             <div class="title">Help</div>
             <ul class="flat">
-                <li>About</li>
-                <li>Help</li>
-                <li>FAQ</li>
+                <li><a href="{% url 'about' %}">About</a></li>
+                <li><a href="{% url 'about' %}">Help</a></li>
+                <li><a href="{% url 'faq' %}">FAQ</a></li>
             </ul>
         </div>
 
@@ -74,7 +74,7 @@
             <div class="title">Access</div>
             <ul class="flat">
                 <li>RSS</li>
-                <li>Email</li>
+                <li>Stats</li>
                 <li>API</li>
             </ul>
         </div>
@@ -88,7 +88,7 @@
 
     <div class="row">
         <div class="col-md-12 text-center">
-            Use of this site constitutes acceptance of our User Agreement and Privacy Policy.
+            Use of this site constitutes acceptance of our <a href="{% url 'policy'">User Agreement and Privacy Policy</a>.
         </div>
         <div class="col-md-12 text-center">
             Powered by Biostar version {{ BIOSTAR_VERSION }}

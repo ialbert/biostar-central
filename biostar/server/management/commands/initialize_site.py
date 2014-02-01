@@ -1,21 +1,32 @@
-# -*- coding: utf8 -*-
 from __future__ import print_function, unicode_literals, absolute_import, division
+from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
+import os, logging
 from biostar.apps.users import models
 from django.contrib.sites.models import Site, get_current_site
 from allauth.socialaccount.models import SocialApp, providers
 from django.core.exceptions import ImproperlyConfigured
 
-import logging
 
 logger = logging.getLogger(__name__)
 
 
-def initialize(sender, **kwargs):
+class Command(BaseCommand):
+    help = 'Initializes content in Biostar'
+
+    def handle(self, *args, **options):
+        init_admin()
+        init_domain()
+        init_social_providers()
+        init_flatpages()
+
+def init_flatpages():
+    pass
+
+def init_admin():
     # Add the admin user if it is not present.
     email = settings.ADMIN_EMAIL
     admin = models.User.objects.filter(email=email)
-
     if not admin:
         admin = models.User(
             email=email,
@@ -29,6 +40,7 @@ def initialize(sender, **kwargs):
         logger.info(
             "added admin user with email=%s, password=SECRET_KEY, name=%s" % (admin.email, admin.get_full_name()))
 
+def init_domain():
     # Initialize the current site if it is not present.
     site = Site.objects.get_current()
     if site.domain != settings.SITE_DOMAIN:
@@ -37,6 +49,7 @@ def initialize(sender, **kwargs):
         site.save()
         logger.info("adding site=%s, name=%s, domain=%s" % (site.id, site.name, site.domain))
 
+def init_social_providers():
     # Initialize social login providers.
     for name, data in settings.SOCIALACCOUNT_PROVIDERS.items():
 
@@ -69,6 +82,5 @@ def initialize(sender, **kwargs):
 
         except Exception, exc:
             raise ImproperlyConfigured("error setting provider %s, %s" % (name, exc))
-
 
 
