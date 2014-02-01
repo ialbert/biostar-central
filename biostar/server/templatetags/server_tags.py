@@ -26,3 +26,8 @@ def pagebar(objs):
 def userlink(user):
     "User display in a link"
     return {'user': user}
+
+@register.inclusion_tag('server_tags/searchbar.html')
+def searchbar():
+    "Displays search bar"
+    return {}
