@@ -22,5 +22,5 @@ class IndexView(PageBase):
 
 
 class UserView(PageBase):
-    page_title = "Users on Biostars"
+    page_title = "The Biostars"
     template_name = "users.html"

@@ -5,19 +5,19 @@
         <ul class="nav nav-pills">
             {% for tag in CATEGORIES %}
                 <li><a href="#">{{ tag }}</a></li>
-
             {% endfor %}
         </ul>
     </div>
 </div>
 
 <div class="row">
-    <div class="span3">
-        <a href="/">
-            <div id="site-logo"></div>
-        </a>
+
+    <div class="col-md-4">
+        <a href="/"><div id="site-logo"></div></a>
     </div>
-    <div class="span3">
+
+
+    <div class="col-md-4">
         {% if request.user.is_authenticated %}
             Hello {{user.get_full_name}} | <a href="/admin/">Admin</a> | <a href="/accounts/logout">Logout</a>
         {% else %}
