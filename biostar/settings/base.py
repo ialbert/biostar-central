@@ -39,10 +39,15 @@ DATABASE_DIR = abspath(HOME_DIR, 'data')
 DATABASE_NAME = abspath(DATABASE_DIR, 'biostar2.db')
 STATIC_DIR = abspath(HOME_DIR, 'biostar', 'static')
 BIOSTAR_STATIC_ROOT = get_env("BIOSTAR_STATIC_ROOT")
+TEMPLATE_DIR = abspath(__CURR_DIR, '..', 'server', 'templates')
 
 # Needs to point to the directory that contains the
 # html files that are stored in the flatpages about, faq, help, policy etc.
-FLATPAGE_IMPORT_DIR = abspath(__CURR_DIR, '..', '..', 'data', 'import', 'flatpages')
+FLATPAGE_IMPORT_DIR = abspath(TEMPLATE_DIR, 'flatpages')
+
+# Default search index location.
+DATA_DIR = abspath(__CURR_DIR, '..', '..', 'data')
+WHOOSH_INDEX = abspath(DATA_DIR, "whoosh_index")
 
 # These settings create an admin user.
 # The default password is the SECRET_KEY.
@@ -140,10 +145,6 @@ STATICFILES_FINDERS = (
     'compressor.finders.CompressorFinder',
 )
 
-# Make this unique, and don't share it with anybody.
-# on deployed servers make this unique, and don't share it with anybody.
-SECRET_KEY = get_env("SECRET_KEY")
-
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
@@ -203,6 +204,7 @@ INSTALLED_APPS = [
 
     # External apps.
     'taggit',
+    'haystack',
 
     # Biostar specific apps.
     'biostar.apps.util',
@@ -218,6 +220,15 @@ INSTALLED_APPS = [
 AUTH_USER_MODEL = 'users.User'
 
 DEBUG_TOOLBAR_PATCH_SETTINGS = False
+
+# Default search is provided via Whoosh
+
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
+        'PATH': WHOOSH_INDEX,
+    },
+}
 
 TEMPLATE_CONTEXT_PROCESSORS = (
     # Django specific context processors.

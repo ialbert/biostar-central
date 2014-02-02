@@ -9,6 +9,7 @@ django-haystack
 django-reversion
 django-simple-captcha
 bleach
+whoosh
 South
 
 #django-treebeard

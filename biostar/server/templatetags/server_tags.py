@@ -23,14 +23,13 @@ def active(x, y):
 @register.inclusion_tag('server_tags/navbar.html', takes_context=True)
 def navbar(context, user):
     "Renders top navigation bar"
-    return {'user': user, 'TOPICS': context['TOPICS'], 'topic': context['topic']}
+    return {'user': user, 'TOPICS': context['TOPICS'], 'topic': context.get('topic')}
 
 
-@register.inclusion_tag('server_tags/pagebar.html')
-def pagebar(objs):
+@register.inclusion_tag('server_tags/pagebar.html', takes_context=True)
+def pagebar(context):
     "Renders a paging bar"
-    return {'objs': objs}
-
+    return context
 
 @register.inclusion_tag('server_tags/userlink.html')
 def userlink(user):

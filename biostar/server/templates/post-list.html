@@ -1,16 +1,16 @@
 {% extends "starbase.html" %}
 {% load server_tags %}
 
-{% block main_body %}
+{% block content %}
 
     {%  searchbar  %}
 
-    {% pagebar posts %}
+    {% pagebar  %}
 
     <div class="row">
         <div class="col-md-12">
             <ul>
-                {% for post in posts.object_list %}
+                {% for post in posts %}
                     <li>{{ post.title }}
                         {%  for tag in post.tags.all %}
                             {{  tag.name }}
@@ -22,6 +22,6 @@
         </div>
     </div>
 
-    {% pagebar posts %}
+    {% pagebar %}
 
 {% endblock %}

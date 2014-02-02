@@ -8,8 +8,12 @@ admin.autodiscover()
 from biostar.server import views
 
 urlpatterns = patterns('',
-    # Homepage.
-    url(r'^$', views.Index.as_view(), name="home"),
+
+    # Post listing.
+    url(r'^$', views.PostList.as_view(), name="home"),
+
+    # Topic listing.
+    url(r'^t/(?P<topic>.+)/$', views.PostList.as_view(), name="topic-list"),
 
     # The list of users.
     url(r'^user/list/$', views.UserList.as_view(), name="user-list"),
@@ -17,15 +21,18 @@ urlpatterns = patterns('',
     # User details.
     url(r'^u/(?P<pk>\d+)/$', views.UserDetails.as_view(), name="user-details"),
 
-    # Topic listing.
-    url(r'^t/(?P<topic>.+)/$', views.TopicList.as_view(), name="topic-list"),
-
+    # Post details.
+    url(r'^p/(?P<pk>\d+)/$', views.PostDetails.as_view(), name="post-details"),
 
     # Social login pages.
     (r'^accounts/', include('allauth.urls')),
 
     # Uncomment the next line to enable the admin:
     url(r'^admin/', include(admin.site.urls)),
+
+    # Adding the search urls.
+    url(r'^search/', views.SiteSearch(), name="post-details"),
+
 )
 
 

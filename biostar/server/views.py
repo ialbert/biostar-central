@@ -1,87 +1,68 @@
 from django.shortcuts import render_to_response
-from django.views.generic import TemplateView, DetailView
+from django.views.generic import TemplateView, DetailView, ListView
 from biostar.apps.users.models import User
 from biostar.apps.posts.models import Post
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.utils.encoding import smart_text
 from django.conf import settings
+from haystack.views import SearchView
 
 
-def get_int(text):
-    try:
-        return int(text)
-    except ValueError, exc:
-        return 1
+class PostList(ListView):
+    model = Post
+    template_name = "post-list.html"
+    context_object_name = "posts"
+    paginate_by = 25
 
+    def __init__(self, *args, **kwds):
+        super(PostList, self).__init__(*args, **kwds)
+        self.limit = 250
+        self.topic = "Latest"
 
-def get_page(paginator, page):
-    try:
-        objs = paginator.page(page)
-    except PageNotAnInteger:
-        # If page is not an integer, deliver first page.
-        objs = paginator.page(1)
-    except EmptyPage:
-        # If page is out of range (e.g. 9999), deliver last page of results.
-        objs = paginator.page(paginator.num_pages)
-    return objs
+    def page_title(self):
+        if self.topic:
+            return "%s Posts" % self.topic
+        else:
+            return "Latest Posts"
 
+    def get_queryset(self):
+        self.topic = self.kwargs.get("topic", self.topic)
+        if self.topic:
+            objs = Post.objects.top_level(self.request.user).filter(tags__name=self.topic.lower())
+        else:
+            # Limit the latest posts so that engines don't crawl outside of the topics catergories.
+            objs = Post.objects.top_level(self.request.user)[:self.limit]
 
-class PageBase(TemplateView):
-    """
-    All pages will inherit the attributes of this class.
-    """
-    page_title = "Welcome"
-
-    def get_context_data(self, **kwargs):
-        context = super(PageBase, self).get_context_data(**kwargs)
-        context['page_title'] = self.page_title
-        context['user'] = self.request.user
-        context['topic'] = None
-
-        # Populate attributes required for all views.
-        self.page = context['page'] = self.request.GET.get("page", "1")
-        self.query = context['query'] = self.request.GET.get("query", "")
-
-        return context
-
-class Index(PageBase):
-    page_title = "Welcome"
-    template_name = "index.html"
-
-    def paginate(self, objs):
-        objs = Paginator(objs, settings.POSTS_PER_PAGE)
-        objs = get_page(objs, self.page)
         return objs
 
     def get_context_data(self, **kwargs):
-        context = super(Index, self).get_context_data(**kwargs)
-        # We limit this so that search engines don't follow it forever
-        objs = Post.objects.top_level(self.request.user)[:250]
-        context['posts'] = self.paginate(objs)
+        context = super(PostList, self).get_context_data(**kwargs)
+        context['topic'] = self.topic
+        context['page_title'] = self.page_title()
         return context
 
-class TopicList(Index):
-    page_title = "Topics"
-    template_name = "index.html"
 
-    def get_context_data(self, topic):
-        context = super(TopicList, self).get_context_data()
-        objs = Post.objects.top_level(self.request.user).filter(tags__name=topic.lower())
-        context['posts'] = self.paginate(objs)
-        context['page_title'] = "%s Answers" % topic
-        context['topic'] = topic
-        return context
-
-class UserList(PageBase):
-    page_title = "User List"
+class UserList(ListView):
+    model = User
     template_name = "user-list.html"
+    context_object_name = "users"
+    paginate_by = 50
+
+    def get_context_data(self, **kwargs):
+        context = super(UserList, self).get_context_data(**kwargs)
+        context['topic'] = "Users"
+        return context
 
 class UserDetails(DetailView):
     model = User
-    page_title = "User Profile"
     template_name = "user-details.html"
 
+class PostDetails(DetailView):
+    model = User
+    template_name = "post-details.html"
 
-class TagDetails(DetailView):
-    page_title = "Topics"
-    template_name = "tag-details.html"
+class TopicDetails(DetailView):
+    template_name = "topic-details.html"
+
+class SiteSearch(SearchView):
+    extra_context = lambda x: dict(topic="search")

@@ -6,6 +6,7 @@ from django.contrib import admin
 from django.utils.timezone import utc
 from taggit.managers import TaggableManager
 from django.utils.translation import ugettext_lazy as _
+from django.core.urlresolvers import reverse
 
 logger = logging.getLogger(__name__)
 
@@ -123,6 +124,9 @@ class Post(models.Model):
 
     def __unicode__(self):
         return "%s: %s (%s)" % (self.get_type_display(), self.title, self.id)
+
+    def get_absolute_url(self):
+        return reverse("post-details", kwargs=dict(pk=self.id))
 
 # Posts will have revisions.
 reversion.register(Post)
