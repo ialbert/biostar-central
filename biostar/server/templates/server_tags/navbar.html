@@ -1,12 +1,15 @@
 {% load staticfiles %}
+{% load server_tags %}
 
-<div class="row">
+<div class="row" id="navbar">
     <div class="col-md-11 col-md-offset-1">
         <ul class="nav nav-pills">
-            {% for tag in TOPICS %}
-                <li><a href="#">{{ tag }}</a></li>
+            <li class="{%  active None topic %}"><a href="{%  url 'home' %}">Recent</a></li>
+            {% for word in TOPICS %}
+                <li class="{%  active word topic %}"><a href="{%  url 'topic-list' topic=word %}">{{ word }}</a></li>
             {% endfor %}
         </ul>
+
     </div>
 </div>
 

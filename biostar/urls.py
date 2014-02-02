@@ -12,10 +12,14 @@ urlpatterns = patterns('',
     url(r'^$', views.Index.as_view(), name="home"),
 
     # The list of users.
-    url(r'^user/list/$', views.UserList.as_view(), name="userlist"),
+    url(r'^user/list/$', views.UserList.as_view(), name="user-list"),
 
-    # User profile.
-    url(r'^u/(?P<pk>\d+)/$', views.UserProfile.as_view(), name="profile"),
+    # User details.
+    url(r'^u/(?P<pk>\d+)/$', views.UserDetails.as_view(), name="user-details"),
+
+    # Topic listing.
+    url(r'^t/(?P<topic>.+)/$', views.TopicList.as_view(), name="topic-list"),
+
 
     # Social login pages.
     (r'^accounts/', include('allauth.urls')),
