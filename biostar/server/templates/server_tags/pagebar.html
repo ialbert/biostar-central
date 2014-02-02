@@ -1,3 +1,5 @@
+{% load humanize %}
+
 <div clas="row">
     <div class="col-md-12 text-center pagination">
     <span class="step-links">
@@ -8,7 +10,7 @@
         {% endif %}
 
         <span class="current">
-              &bull; page {{ objs.number }} of {{ objs.paginator.num_pages }} &bull;
+              &bull; {{ objs.paginator.count|intcomma }} posts &bull; page {{ objs.number }} of {{ objs.paginator.num_pages }} &bull;
         </span>
 
         {% if objs.has_next %}

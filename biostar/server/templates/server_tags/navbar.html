@@ -24,12 +24,16 @@
 
     <div class="col-md-8">
         <ul class="nav nav-pills navfix">
-            {% if request.user.is_authenticated %}
-                <li>Hello {{ user.get_full_name }} | <a href="/admin/">Admin</a> | <a href="/accounts/logout">Logout</a></li>
+            <li class="active pull-right"><a href="#">New Post</a></li>
+            {% if user.is_authenticated %}
+                <li><a href="#">{{ user.get_full_name }}</a></li>
+                <li><a href="/admin/">Messages</a></li>
+                <li><a href="/admin/">Bookmarks</a></li>
+                <li><a href="/accounts/logout">Logout</a></li>
             {% else %}
                 <li><a href="{%  url 'account_login' %}">Log In or Sign Up</a></li>
             {% endif %}
-            <li class="active pull-right"><a href="#">New Post</a></li>
+
         </ul>
 
 
