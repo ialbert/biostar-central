@@ -31,7 +31,7 @@ urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls)),
 
     # Adding the search urls.
-    url(r'^search/', views.SiteSearch(), name="post-details"),
+    url(r'^search/', views.SiteSearch(), name="search"),
 
 )
 

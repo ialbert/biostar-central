@@ -11,7 +11,7 @@
         <div class="col-md-12">
             <ul>
                 {% for post in posts %}
-                    <li>{{ post.title }}
+                    <li>{{ post.id }} {{ post.title }}
                         {%  for tag in post.tags.all %}
                             {{  tag.name }}
                         {% endfor %}

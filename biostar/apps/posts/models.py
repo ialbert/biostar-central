@@ -126,7 +126,8 @@ class Post(models.Model):
         return "%s: %s (%s)" % (self.get_type_display(), self.title, self.id)
 
     def get_absolute_url(self):
-        return reverse("post-details", kwargs=dict(pk=self.id))
+        url = reverse("post-details", kwargs=dict(pk=self.root.id))
+        return "%s#%s" % (url, self.id)
 
 # Posts will have revisions.
 reversion.register(Post)

@@ -13,11 +13,12 @@ class PostList(ListView):
     template_name = "post-list.html"
     context_object_name = "posts"
     paginate_by = 25
+    LATEST = "Latest"
 
     def __init__(self, *args, **kwds):
         super(PostList, self).__init__(*args, **kwds)
         self.limit = 250
-        self.topic = "Latest"
+        self.topic = None
 
     def page_title(self):
         if self.topic:
@@ -26,7 +27,7 @@ class PostList(ListView):
             return "Latest Posts"
 
     def get_queryset(self):
-        self.topic = self.kwargs.get("topic", self.topic)
+        self.topic = self.kwargs.get("topic")
         if self.topic:
             objs = Post.objects.top_level(self.request.user).filter(tags__name=self.topic.lower())
         else:
@@ -37,7 +38,7 @@ class PostList(ListView):
 
     def get_context_data(self, **kwargs):
         context = super(PostList, self).get_context_data(**kwargs)
-        context['topic'] = self.topic
+        context['topic'] = self.topic or self.LATEST
         context['page_title'] = self.page_title()
         return context
 
@@ -58,7 +59,7 @@ class UserDetails(DetailView):
     template_name = "user-details.html"
 
 class PostDetails(DetailView):
-    model = User
+    model = Post
     template_name = "post-details.html"
 
 class TopicDetails(DetailView):
