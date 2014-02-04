@@ -12,6 +12,7 @@ DEBUG = True
 # Template debug mode.
 TEMPLATE_DEBUG = DEBUG
 
+
 def get_env(name, func=None):
     """Get the environment variable or return exception"""
     try:
@@ -22,6 +23,7 @@ def get_env(name, func=None):
     except KeyError:
         msg = "*** Required environment variable %s not set." % name
         raise ImproperlyConfigured(msg)
+
 
 def abspath(*args):
     """Generates absolute paths"""
@@ -99,7 +101,7 @@ SITE_ID = 1
 SITE_NAME = "localhost"
 SITE_DOMAIN = "localhost"
 
-DEFAULT_FROM_EMAIL=get_env("DEFAULT_FROM_EMAIL")
+DEFAULT_FROM_EMAIL = get_env("DEFAULT_FROM_EMAIL")
 
 # If you set this to False, Django will make some optimizations so as not
 # to load the internationalization machinery.
@@ -168,12 +170,15 @@ ROOT_URLCONF = 'biostar.urls'
 WSGI_APPLICATION = 'biostar.wsgi.application'
 
 TEMPLATE_DIRS = (
+    TEMPLATE_DIR,
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
 )
 
 LOGIN_REDIRECT_URL = "/"
+
+MESSAGE_TAGS = { 10: 'debug', 20: 'info', 25: 'alert-success', 30: 'warning', 40: 'error',}
 
 INSTALLED_APPS = [
     'django.contrib.auth',
@@ -201,10 +206,12 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.twitter',
     'allauth.socialaccount.providers.facebook',
     'allauth.socialaccount.providers.persona',
+    'allauth.socialaccount.providers.github',
 
     # External apps.
     'taggit',
     'haystack',
+    'crispy_forms',
 
     # Biostar specific apps.
     'biostar.apps.util',
@@ -216,6 +223,8 @@ INSTALLED_APPS = [
     # The main Biostar server.
     'biostar.server',
 ]
+
+CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
 AUTH_USER_MODEL = 'users.User'
 
@@ -264,7 +273,7 @@ SOCIALACCOUNT_PROVIDERS = {
     },
 
     'twitter': {
-        'SCOPE': ['email' ],
+        'SCOPE': ['email'],
         'PROVIDER_KEY': get_env("TWITTER_PROVIDER_KEY"),
         'PROVIDER_SECRET_KEY': get_env("TWITTER_PROVIDER_SECRET_KEY"),
     },
@@ -326,7 +335,7 @@ ACCOUNT_PASSWORD_MIN_LENGHT = 6
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_USER_MODEL_EMAIL_FIELD = "email"
 ACCOUNT_DEFAULT_HTTP_PROTOCOL = "http"
-ACCOUNT_LOGOUT_ON_GET=True
+ACCOUNT_LOGOUT_ON_GET = True
 
 # Session specific settings.
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'

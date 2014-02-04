@@ -4,9 +4,9 @@
 <div class="row" id="navbar">
     <div class="col-md-11 col-md-offset-1">
         <ul class="nav nav-pills">
-            <li class="{%  active "Latest" topic %}"><a href="{%  url 'home' %}">Latest</a></li>
+            <li class="{% active "Latest" topic %}"><a href="{% url 'home' %}">Latest</a></li>
             {% for word in TOPICS %}
-                <li class="{%  active word topic %}"><a href="{%  url 'topic-list' topic=word %}">{{ word }}</a></li>
+                <li class="{% active word topic %}"><a href="{% url 'topic-list' topic=word %}">{{ word }}</a></li>
             {% endfor %}
         </ul>
 
@@ -28,13 +28,13 @@
             {% if user.is_authenticated %}
                 <li><a href="#"><i class="fa fa-user"></i> {{ user.get_full_name|truncatechars:15 }}</a></li>
                 <li><a href="/admin/"><i class="fa fa-envelope"></i> Mail</a></li>
-                 <li><a href="/admin/"><i class="fa fa-heart"></i> Votes</a></li>
+                <li><a href="/admin/"><i class="fa fa-heart"></i> Votes</a></li>
                 <li><a href="/admin/"><i class="fa fa-bookmark"></i> Bookmarks</a></li>
                 <li><a href="/admin/"><i class="fa fa-comments"></i> My Posts</a></li>
-                <li><a href="{%  url 'account_logout' %}"><i class="fa fa-hand-o-up"></i>  Logout</a></li>
+                <li><a href="{% url 'account_logout' %}"><i class="fa fa-hand-o-up"></i> Logout</a></li>
             {% else %}
-                <li><a href="{%  url 'account_signup' %}"><i class="fa fa-star"></i> Sign Up</a></li>
-                <li><a href="{%  url 'account_login' %}"><i class="fa fa-user"></i> Log In</a></li>
+                <li><a href="{% url 'account_login' %}"><i class="fa fa-user"></i> Log In</a></li>
+                <li><a href="{% url 'account_signup' %}"><i class="fa fa-star"></i> Sign Up</a></li>
             {% endif %}
 
         </ul>
