@@ -18,7 +18,7 @@ class PostManager(models.Manager):
             query = self.filter(type__in=Post.TOP_LEVEL).defer("html")
         else:
             query = self.filter(type__in=Post.TOP_LEVEL, status=Post.OPEN).defer("html")
-        return query.prefetch_related('tags')
+        return query.prefetch_related('tags').order_by('-lastedit_date')
 
 class Post(models.Model):
     "Represents a post in Biostar"
@@ -36,6 +36,13 @@ class Post(models.Model):
     TYPE_CHOICES = [
         (QUESTION,"Question"), (ANSWER, "Answer"), (COMMENT, "Comment"),
         (JOB, "Job"), (FORUM, "Forum"), (PAGE, "Page"),
+    ]
+
+    # Edit types
+    CREATED, UPDATED, ANSWERED, COMMENTED, DELETED = range(5)
+    UPDATE_CHOICES = [
+        (CREATED, "Created"), (UPDATED, "Updated"), (ANSWERED, "Answered"),
+        (COMMENTED, "Commented on"), (DELETED, "Deleted"),
     ]
 
     TOP_LEVEL = set((QUESTION, JOB, FORUM, PAGE))
@@ -56,6 +63,9 @@ class Post(models.Model):
 
     # The type of the post: question, answer, comment.
     type = models.IntegerField(choices=TYPE_CHOICES, db_index=True)
+
+    # The type the update for the post.
+    update_type = models.IntegerField(choices=UPDATE_CHOICES, default=CREATED, db_index=True)
 
     # Number of upvotes for the post
     vote_count = models.IntegerField(default=0, blank=True, db_index=True)

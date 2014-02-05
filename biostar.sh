@@ -80,6 +80,11 @@ while (( "$#" )); do
         $PYTHON $DJANGO_ADMIN loaddata $JSON_DATA_FIXTURE --settings=$DJANGO_SETTINGS_MODULE
     fi
 
+    if [ "$1" = "dump" ]; then
+        echo "*** dumping json data into $JSON_DATA_FIXTURE"
+        $PYTHON $DJANGO_ADMIN dumpdata $JSON_DATA_FIXTURE --settings=$DJANGO_SETTINGS_MODULE
+    fi
+
     if [ "$1" = "index" ]; then
         echo "*** indexing site content"
         $PYTHON $DJANGO_ADMIN rebuild_index --noinput --settings=$DJANGO_SETTINGS_MODULE
