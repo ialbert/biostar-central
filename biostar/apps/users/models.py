@@ -86,7 +86,7 @@ class User(AbstractBaseUser):
         "Actions that need to be performed on every user save."
 
         if not self.name:
-            # Name must always be set.
+            # Name should be set.
             self.name = self.email.split("@")[0]
 
         super(User, self).save(*args, **kwargs)

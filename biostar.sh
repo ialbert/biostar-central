@@ -38,8 +38,8 @@ fi
 
 while (( "$#" )); do
 
-    if [ "$1" = "run with $DJANGO_SETTINGS_MODULE" ]; then
-        echo "*** run the development server"
+    if [ "$1" = "run" ]; then
+        echo "*** run the development server with $DJANGO_SETTINGS_MODULE"
         $PYTHON $DJANGO_ADMIN runserver $BIOSTAR_HOSTNAME --settings=$DJANGO_SETTINGS_MODULE
     fi
 
