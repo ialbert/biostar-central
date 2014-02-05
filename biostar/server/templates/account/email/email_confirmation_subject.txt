@@ -1,1 +1,4 @@
-email confirmation subject
+{% load i18n %}
+{% autoescape off %}
+{% blocktrans %}Confirming your e-mail address on {{current_site.name }}{% endblocktrans %}
+{% endautoescape %}

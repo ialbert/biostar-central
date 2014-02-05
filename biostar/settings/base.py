@@ -178,7 +178,10 @@ TEMPLATE_DIRS = (
 
 LOGIN_REDIRECT_URL = "/"
 
-MESSAGE_TAGS = { 10: 'debug', 20: 'info', 25: 'alert-success', 30: 'warning', 40: 'error',}
+MESSAGE_TAGS = {
+    10: 'alert-info', 20: 'alert-info',
+    25: 'alert-success', 30: 'alert-warning', 40: 'alert-error',
+}
 
 INSTALLED_APPS = [
     'django.contrib.auth',
@@ -259,6 +262,8 @@ AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
     "allauth.account.auth_backends.AuthenticationBackend",
 )
+
+ACCOUNT_CONFIRM_EMAIL_ON_GET = True
 
 # Customize this to match the providers listed in the APPs
 SOCIALACCOUNT_PROVIDERS = {

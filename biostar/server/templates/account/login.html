@@ -22,7 +22,8 @@
                 {% include "socialaccount/snippets/login_extra.html" %}
             {% endif %}
 
-            <div class="login-or">Don't want to use social logins? <a href="{{ signup_url }}">Sign up with an email!</a></div>
+            <div class="login-or">Don't want to use social logins? 
+                <a role="button"  class="btn btn-default" href="{{ signup_url }}">Sign up with an email! &raquo;</a></div>
         </div>
         <div class="col-md-4">
             <h1>{% trans "Email Login" %}</h1>
@@ -33,7 +34,7 @@
                 {% if redirect_field_value %}
                     <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}"/>
                 {% endif %}
-                <button class="primaryAction" type="submit">{% trans "Sign In" %}</button>
+                <button type="submit" class="btn btn-success">{% trans "Sign In" %}</button>
                 <span class="btn btn-default pull-right"><a class="button secondaryAction"
                                                             href="{% url 'account_reset_password' %}">{% trans "Forgot Password?" %}</a></span>
 

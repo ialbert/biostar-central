@@ -11,7 +11,11 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         from_email = settings.DEFAULT_FROM_EMAIL
         subject = "[biostar] test email"
-        message = "sending email from biostar"
+        message = """
+        Test Email.
+
+        Sent via the test_email management command.
+        """
         recipient_list = ["istvan.albert@gmail.com"]
 
         send_mail(subject=subject, message=message, from_email=from_email, recipient_list=recipient_list)

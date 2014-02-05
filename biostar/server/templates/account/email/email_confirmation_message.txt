@@ -1,1 +1,8 @@
-email confirmation message
+{% load account %}{% user_display user as user_display %}{% load i18n %}{% autoescape off %}{% blocktrans with current_site.name as site_name %}
+
+Hello {{ user_display }}!
+
+Welcome to {{ site_name }}.
+
+To confirm this is correct, go to {{ activate_url }}
+{% endblocktrans %}{% endautoescape %}
