@@ -3,6 +3,7 @@ from django.conf import settings
 from django.template import Context, Template
 from django.template.defaultfilters import stringfilter
 from django.core.context_processors import csrf
+from biostar.apps.posts.models import Post
 import random
 
 register = template.Library()
@@ -19,6 +20,16 @@ def active(x, y):
     # Create the active class css
     return 'active' if x == y else ''
 
+@register.simple_tag
+def boxclass(post):
+    # Create the active class css
+    if post.type == Post.QUESTION:
+        if post.reply_count == 0:
+            return "unanswered"
+        else:
+            return "default"
+    else:
+        return post.get_type_display()
 
 @register.inclusion_tag('server_tags/navbar.html', takes_context=True)
 def navbar(context, user):

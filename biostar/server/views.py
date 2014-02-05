@@ -9,6 +9,9 @@ from haystack.views import SearchView
 
 
 class PostList(ListView):
+    """
+    This is the base class for any view that produces a list of posts.
+    """
     model = Post
     template_name = "post-list.html"
     context_object_name = "posts"
@@ -44,6 +47,9 @@ class PostList(ListView):
 
 
 class UserList(ListView):
+    """
+    Base class for the showing user listing.
+    """
     model = User
     template_name = "user-list.html"
     context_object_name = "users"
@@ -54,16 +60,26 @@ class UserList(ListView):
         context['topic'] = "Users"
         return context
 
+
 class UserDetails(DetailView):
+    """
+    Renders a user profile.
+    """
     model = User
     template_name = "user-details.html"
 
+
 class PostDetails(DetailView):
+    """
+    Shows a thread, top level post and all related content.
+    """
     model = Post
     template_name = "post-details.html"
 
+
 class TopicDetails(DetailView):
     template_name = "topic-details.html"
+
 
 class SiteSearch(SearchView):
     extra_context = lambda x: dict(topic="search")

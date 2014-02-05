@@ -40,7 +40,7 @@ h2 {
   text-align: center;
 }
 
-.title {
+.titleX {
   font-family: arial, verdana, helvetica, sans-serif;
   color: #777;
   font-size: 18px;
@@ -50,6 +50,90 @@ h2 {
 
 .rounded {
   border-radius: 7px;
+}
+
+.tag {
+  float: left;
+  margin-right: 5px;
+  margin-bottom: 1px;
+  padding: 1px 4px 1px 4px;
+  text-decoration: none;
+  background-color: #ECECEC;
+  border-bottom: 1px solid #BBB;
+  border-right: 1px solid #BBB;
+  color: #6B3E4A;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+}
+
+table#posts {
+  vertical-align: top;
+  padding: 0px;
+  width: 100%;
+
+  .boxcell {
+    width: 13em;
+  }
+
+  tr {
+    vertical-align: top;
+    border-bottom: 1px solid #cccccc;
+  }
+  td {
+    padding-bottom: 0.3em;
+    padding-top: 0.3em;
+  }
+
+  .vote {
+    background-color: #eeeeee;
+  }
+
+  .accepted {
+    background-color: #eeeeee;
+  }
+
+  .unanswered {
+    background-color: #8f2c47;
+    color: white;
+  }
+
+  .default {
+    background-color: #eeeeee;
+  }
+
+  .box {
+    margin: 0 3px 0 0;
+    padding: 1px;
+    width: 4em;
+    text-align: center;
+    float: left;
+
+    .t {
+      font-size: smaller;
+      margin-top: 5px;
+    }
+
+    .c {
+      font-size: 1.6em;
+      font-weight: bold;
+      height: 1.6ex;
+      vertical-align: middle;
+      text-align: center;
+    }
+
+  }
+
+  .title {
+    font-weight: bold;
+    padding-bottom: 0.5em;
+    font-size: large;
+  }
+
+  .userlink {
+    font-size: smaller;
+  }
+
 }
 
 ul.flat {

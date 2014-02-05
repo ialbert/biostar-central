@@ -3,22 +3,49 @@
 
 {% block content %}
 
-    {%  searchbar  %}
+    {% searchbar %}
 
-    {% pagebar  %}
+    {% pagebar %}
 
     <div class="row">
-        <div class="col-md-12">
-            <ul>
+        <div class="col-md-9" >
+            <table id="posts">
                 {% for post in posts %}
-                    <li>{{ post.id }} {{ post.title }}
-                        {%  for tag in post.tags.all %}
-                            {{  tag.name }}
-                        {% endfor %}
-                        {%  userlink post.author %}
-                    </li>
+                    <tr>
+                        <td class="boxcell">
+                            <div class="box vote">
+                                <div class="c">{{ post.vote_count }}</div>
+                                <div class="t">votes</div>
+                            </div>
+                            <div class="box {% boxclass post %}">
+                                <div class="c">{{ post.reply_count }}</div>
+                                <div class="t">answers</div>
+                            </div>
+                            <div class="box view">
+                                <div class="c">{{ post.view_count }}</div>
+                                <div class="t">views</div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="title"><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></div>
+                            <div class="tagrow">
+                                {% for tag in post.tags.all %}
+                                    <span class="tag">{{ tag.name }}</span>
+                                {% endfor %}
+                            </div>
+                            <div class="userlink text-right">
+                                updated by {% userlink post.author %}
+                            </div>
+                        </td>
+                    </tr>
+
+
+
                 {% endfor %}
-            </ul>
+            </table>
+        </div>
+        <div class="col-md-3">
+            Side Bar
         </div>
     </div>
 

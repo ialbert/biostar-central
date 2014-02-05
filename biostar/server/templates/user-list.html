@@ -1,7 +1,27 @@
 {%  extends "starbase.html" %}
+{% load server_tags %}
+
+{%  block page_title %}
+    User List
+{%  endblock %}
 
 {%  block content %}
 
-This is the user list.
+ {% pagebar  %}
+
+    <div class="row">
+        <div class="col-md-12">
+            <ul>
+                {% for user in users %}
+                    <li>{{ user.id }} {{ user.name }}
+                        &bull;
+                        {%  userlink user %}
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    {% pagebar %}
 
 {%  endblock %}
