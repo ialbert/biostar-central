@@ -38,7 +38,7 @@ fi
 
 while (( "$#" )); do
 
-    if [ "$1" = "run" ]; then
+    if [ "$1" = "run with $DJANGO_SETTINGS_MODULE" ]; then
         echo "*** run the development server"
         $PYTHON $DJANGO_ADMIN runserver $BIOSTAR_HOSTNAME --settings=$DJANGO_SETTINGS_MODULE
     fi
@@ -49,7 +49,7 @@ while (( "$#" )); do
     fi
 
     if [ "$1" = "init" ]; then
-        echo "*** initializing server on $BIOSTAR_HOSTNAME"
+        echo "*** initializing server on $BIOSTAR_HOSTNAME with $DJANGO_SETTINGS_MODULE"
 
         $PYTHON $DJANGO_ADMIN test -v $VERBOSITY --settings=$DJANGO_SETTINGS_MODULE
         $PYTHON $DJANGO_ADMIN syncdb -v $VERBOSITY --noinput --settings=$DJANGO_SETTINGS_MODULE

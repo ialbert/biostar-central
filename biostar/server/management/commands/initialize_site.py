@@ -77,14 +77,12 @@ def init_social_providers():
 
     for name, data in settings.SOCIALACCOUNT_PROVIDERS.items():
 
-        # not all providers need to have entries
-        if "PROVIDER_KEY" not in data:
-            continue
-
         try:
-            client_id = data['PROVIDER_KEY']
-            secret = data['PROVIDER_SECRET_KEY']
+            client_id = data.get('PROVIDER_KEY','')
+            secret = data.get('PROVIDER_SECRET_KEY','')
             site = Site.objects.get(id=settings.SITE_ID)
+
+            # Check that the provider is registered
             provider = providers.registry.by_id(name)
 
             # Code duplication since many2many fields cannot be initialized in one step

@@ -210,6 +210,8 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.facebook',
     'allauth.socialaccount.providers.persona',
     'allauth.socialaccount.providers.github',
+    #'allauth.socialaccount.providers.linkedin',
+    # 'allauth.socialaccount.providers.weibo',
 
     # External apps.
     'taggit',
@@ -286,6 +288,21 @@ SOCIALACCOUNT_PROVIDERS = {
     'persona': {
         'REQUEST_PARAMETERS': {'siteName': 'Biostar'}
     },
+
+    'github': {
+        'PROVIDER_KEY': get_env("GITHUB_PROVIDER_KEY"),
+        'PROVIDER_SECRET_KEY': get_env("GITHUB_PROVIDER_SECRET_KEY"),
+    },
+
+    #'linkedin': {
+    #    'SCOPE': ['r_emailaddress'],
+    #    'PROFILE_FIELDS' : [ 'id', 'first-name', 'last-name', 'email-address'],
+    #},
+
+    #'weibo': {
+    #    'PROVIDER_KEY': get_env("WEIBO_PROVIDER_KEY"),
+    #    'PROVIDER_SECRET_KEY': get_env("WEIBO_PROVIDER_SECRET_KEY"),
+    #},
 
     'google': {
         'SCOPE': ['email', 'https://www.googleapis.com/auth/userinfo.profile'],
