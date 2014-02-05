@@ -125,6 +125,9 @@ class Post(models.Model):
     def __unicode__(self):
         return "%s: %s (%s)" % (self.get_type_display(), self.title, self.id)
 
+    def is_toplevel(self):
+        return self.type in Post.TOP_LEVEL
+
     def get_absolute_url(self):
         url = reverse("post-details", kwargs=dict(pk=self.root.id))
         return "%s#%s" % (url, self.id)

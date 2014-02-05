@@ -1,4 +1,5 @@
 {% extends 'starbase.html' %}
+{% load crispy_forms_tags %}
 
 {% block content %}
 
@@ -8,7 +9,7 @@
 
             <form method="get" action=".">
                 <table>
-                    {{ form.as_table }}
+                    {{ form|crispy }}
                     <tr>
                         <td>&nbsp;</td>
                         <td>

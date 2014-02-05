@@ -75,6 +75,16 @@ while (( "$#" )); do
         echo DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE
     fi
 
+    if [ "$1" = "import" ]; then
+        echo "*** importing json data from $JSON_DATA_FIXTURE"
+        $PYTHON $DJANGO_ADMIN loaddata $JSON_DATA_FIXTURE --settings=$DJANGO_SETTINGS_MODULE
+    fi
+
+    if [ "$1" = "index" ]; then
+        echo "*** indexing site content"
+        $PYTHON $DJANGO_ADMIN rebuild_index --noinput --settings=$DJANGO_SETTINGS_MODULE
+    fi
+
     if [ "$1" = "import_biostar1" ]; then
         echo "*** migrating from Biostar 1"
         echo "*** BIOSTAR_MIGRATE_DIR=$BIOSTAR_MIGRATE_DIR"

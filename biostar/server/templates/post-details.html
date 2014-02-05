@@ -4,6 +4,8 @@
 {%  endblock %}
 {%  block content %}
 
-This is the post {{ object.title }}
+<h2>{{ object.title }}</h2>
+
+{{ object.html|safe }}
 
 {%  endblock %}

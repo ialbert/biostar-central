@@ -5,6 +5,7 @@ from django.conf import settings
 from django.contrib import admin
 admin.autodiscover()
 
+from django.views.generic import TemplateView
 from biostar.server import views
 
 urlpatterns = patterns('',
@@ -32,6 +33,9 @@ urlpatterns = patterns('',
 
     # Adding the search urls.
     url(r'^search/', views.SiteSearch(), name="search"),
+
+     # matching the robots.txt
+    url(r'^robots\.txt$', TemplateView.as_view(template_name="robots.txt", content_type='text/plain'), name='robots'),
 
 )
 
