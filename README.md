@@ -7,8 +7,8 @@ Introduction
 BioStar is a [Python][python] and [Django][django] based Q&A web software
 modeled after the StackOverflow Q&A engine.
 
-Our primary goal is to create a simple, generic, flexible and extendeable Q&A
-framework. 
+Our primary goal is to create a simple, generic, flexible and extendable Q&A
+framework.
 
 Requirements
 ------------
@@ -24,22 +24,22 @@ Bioinformatics Q&A** site at: http://www.biostars.org
 Installation
 ------------
 
-Get the source from github
+Get the source from GitHub
 
     $ git clone https://github.com/ialbert/biostar-central.git
 
 There are a few dependencies such as Django, Docutils and South that are also
-included with Biostar. These only need to be installed if you don't already
+included with BioStar. These only need to be installed if you don't already
 have them on your system. Switch to the *libs* directory and unpack the
 *depot.zip* :
 
     $ cd libs
     $ unzip depot.zip
- 
-For faster loading performance may also want to unzip the entire
-`libraries.zip` file located in the libs folder. 
 
-Install the django celery package:
+For faster loading performance may also want to unzip the entire
+`libraries.zip` file located in the libs folder.
+
+Install the Django celery package:
 
     pip install django-celery
 
@@ -101,9 +101,9 @@ enable the search you will need to manually trigger the indexing via::
     $ ./biostar.sh index
 
 The default server will bind the all IP adapters (0.0.0.0) and port 8080. Visit
-http://localhost:8080 to see interact with your version of the test server. 
+http://localhost:8080 to see interact with your version of the test server.
 
-There are commands to support the Postgresql database. The commands are:
+There are commands to support the PostgreSQL database. The commands are:
 
     pgdrop pgdump pgreset pgimport <your-sql-file>
 
@@ -166,7 +166,7 @@ reports on the code coverage by the tests. View the `report/index.html` file.
 Selenium tests can be run via:
 
     ./biostar.sh selenium
-    
+
 Please note that for this to work properly the python selenium library bindings
 must be installed moreover the ``SELENIUM_TEST_LOGIN_TOKEN`` variable must be
 set in your Django settings file. See the `conf/selenium.env` file:
@@ -186,7 +186,7 @@ accumulates. Note that multiple answers may be accepted on a question, in
 effect this provides the author of a question to reward twice the excellent
 answers.
 
-In Biostar there are four types of users: anonymous users, registered users,
+In BioStar there are four types of users: anonymous users, registered users,
 moderators and administrators.
 
 - *Anonymous users*: May browse all content of a site.
@@ -213,7 +213,7 @@ framework.  The new message compilation then will be run via:
 
     ./biostar.sh messages
 
-The settings file needs to specify the language (see the fileas named
+The settings file needs to specify the language (see the files named
 `conf/ch.env` and `conf/ch.py`). For an example site in either Chinese run the
 following:
 
@@ -245,7 +245,7 @@ users.
 Code Layout
 -----------
 
-The Python code, templates, static content (css, images, javascript) and
+The Python code, templates, static content (css, images, JavaScript) and
 default database are found in the *main* directory. There is partial datadump
 of the existing BioStar content in the *import* folder. The *import* command
 will load this data into the current database.
@@ -253,13 +253,13 @@ will load this data into the current database.
 Other Libraries
 ---------------
 
-Biostar is built with open source libraries. The following software packages
+BioStar is built with open source libraries. The following software packages
 are used and if necessary included and distributed with BioStar:
 
 * [Bootstrap][bootstrap] as a CSS framework
-* [JQuery][jquery] for javascript programming
+* [JQuery][jquery] for JavaScript programming
 * [Less][less] used for syntactically awesome css
-* [markitup][markitup] as rich text javascript editor. 
+* [markitup][markitup] as rich text JavaScript editor.
 * [python-markdown2][markdown2] python library to convert [Markdown][markdown] to  HTML
 * [docutils][docutils] is used to convert ReST_ to HTML
 * [django_openid_auth][django_openid_auth] and [python_openid][python_openid]
@@ -316,11 +316,11 @@ There is an automatic account migration based on the email provided by the
 OpenID provider. Only the information from a subset of well known OpenID
 providers are trusted enough to allow automatic account merging. Accepted
 providers are: Google, Yahoo, Myopenid, LiveJournal, Blogspot, AOL, and
-Wordpress. For other users manual migration of accounts will be required.
+WordPress. For other users manual migration of accounts will be required.
 Users listed in the Django *ADMINS* settings will have full administration
 privileges.
 
-There is a postgresql database management script in `conf/pg-manager.sh` that
+There is a PostgreSQL database management script in `conf/pg-manager.sh` that
 is used to facilitate data dumps and restoration.
 
 Environment variables may be used to customize the behavior:
@@ -331,16 +331,16 @@ Environment variables may be used to customize the behavior:
 - `MIGRATE_PATH`: path to the directory that stores the StackExchange XML dump
 - `MIGRATE_LIMIT`: the number of records to load from the XML dump
 
-For a current Biostar run with about 4K users, 30K posts, 40K edits, 60K votes
+For a current BioStar run with about 4K users, 30K posts, 40K edits, 60K votes
 generates about 300K database entries of various kinds. Data migration into a
 fixture takes about 1 hour and 10Gb of RAM. This is an area that we could do a
 lot better job (possibly orders of magnitude better).
 
 The resulting data fixture is database independent and can now be loaded into
-type database: sqlite, mysql, postgresql supported by Django. For example when
-loading into postgresql it takes about 2 hours and 2Gb of RAM.
+type database: SQLite, MySQL, PostgreSQL supported by Django. For example when
+loading into PostgreSQL it takes about 2 hours and 2Gb of RAM.
 
 Note that the databases can be dumped and restored with far fewer resources.
-Exporting directly into/from postgresql for example takes less than a few
+Exporting directly into/from PostgreSQL for example takes less than a few
 minutes.
 
