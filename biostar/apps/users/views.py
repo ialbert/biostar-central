@@ -7,17 +7,18 @@ from django import forms
 from django.core.urlresolvers import reverse
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
+from django.shortcuts import render
+from django.http import HttpResponseRedirect
+from django.contrib import messages
 
 class UserEditForm(forms.Form):
     name = forms.CharField()
-    location = forms.CharField()
-    website = forms.CharField()
-    scholar = forms.CharField()
+    email = forms.CharField()
+    location = forms.CharField(required=False)
+    website = forms.CharField(required=False)
+    scholar = forms.CharField(required=False)
 
-    info = forms.CharField(widget=forms.Textarea)
-
-    # form.helper.form_action = reverse('user-edit', args=[event.id])
-    # form.helper.form_action = reverse('url_name', kwargs={'book_id': book.id})
+    info = forms.CharField(widget=forms.Textarea, required=False)
 
     def send_email(self):
         # send email using the self.cleaned_data dictionary
@@ -35,8 +36,42 @@ class EditUser(FormView):
     """
 
     form_class = UserEditForm
-    # the template name must be specified in the calling apps.
-    # template_name = "???"
+    # The template_name attribute must be specified in the calling apps.
+    template_name = ""
+    user_fields = "name email".split()
+    prof_fields = "location website info scholar".split()
+    def get(self, request, *args, **kwargs):
+        target = User.objects.get(pk=self.kwargs['pk'])
+        prof = target.profile
+        initial = dict(name=target.name, location=prof.location, email=target.email,
+                       website=prof.website, scholar=prof.scholar, info=prof.info)
+        form = self.form_class(initial=initial)
+        return render(request, self.template_name, {'form': form})
+
+    def post(self, request, *args, **kwargs):
+        target = User.objects.get(pk=self.kwargs['pk'])
+        target = auth.user_permissions(request=request, target=target)
+        if not target.has_ownership:
+            messages.error(request, "Only owners may edit their profiles")
+            return HttpResponseRedirect(reverse("home"))
+
+        prof = target.profile
+        form = self.form_class(request.POST)
+        if form.is_valid():
+            # Valid data. Save model attributes and redirect.
+            for field in self.user_fields:
+                setattr(target, field, form.cleaned_data[field])
+            for field in self.prof_fields:
+                setattr(target.profile, field, form.cleaned_data[field])
+            target.save()
+            prof.save()
+            messages.success(request, "Profile updated")
+            return HttpResponseRedirect(self.get_success_url())
+
+        return render(request, self.template_name, {'form': form})
+
+    def get_success_url(self):
+        return reverse("user-details", kwargs=dict(pk=self.kwargs['pk']))
 
 
     """

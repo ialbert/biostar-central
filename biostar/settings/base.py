@@ -180,7 +180,7 @@ LOGIN_REDIRECT_URL = "/"
 
 MESSAGE_TAGS = {
     10: 'alert-info', 20: 'alert-info',
-    25: 'alert-success', 30: 'alert-warning', 40: 'alert-error',
+    25: 'alert-success', 30: 'alert-warning', 40: 'alert-danger',
 }
 
 INSTALLED_APPS = [
@@ -347,8 +347,8 @@ DEFAULT_TOPICS = [
 # The number of posts to show per page.
 PAGINATE_BY = 25
 
-# How many posts to show per page.
-POSTS_PER_PAGE = 15
+# Used by crispyforms.
+#CRISPY_FAIL_SILENTLY = not DEBUG
 
 ACCOUNT_AUTHENTICATION_METHOD = "email"
 ACCOUNT_EMAIL_REQUIRED = True

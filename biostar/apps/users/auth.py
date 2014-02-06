@@ -1,9 +1,10 @@
 __author__ = 'ialbert'
 
-def user_permissions(user, target):
+def user_permissions(request, target):
     """
     Sets permission attributes on a user
     """
+    user = request.user
     is_editable = has_ownership = False
 
     if user.is_authenticated():

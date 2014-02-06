@@ -78,7 +78,7 @@ class UserDetails(DetailView):
 
     def get_object(self):
         obj = super(UserDetails, self).get_object()
-        obj = auth.user_permissions(user=self.request.user, target=obj)
+        obj = auth.user_permissions(request=self.request, target=obj)
         return obj
 
     def get_context_data(self, **kwargs):
