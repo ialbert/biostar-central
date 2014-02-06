@@ -28,6 +28,10 @@ urlpatterns = patterns('',
     # Post details.
     url(r'^p/(?P<pk>\d+)/$', views.PostDetails.as_view(), name="post-details"),
 
+    # User details.
+    url(r'^p/edit/(?P<pk>\d+)/$', views.EditPost.as_view(), name="post-edit"),
+
+
     # Social login pages.
     (r'^accounts/', include('allauth.urls')),
 

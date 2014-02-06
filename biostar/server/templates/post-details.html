@@ -1,11 +1,25 @@
-{%  extends "starbase.html" %}
-{%  block page_title %}
+{% extends "starbase.html" %}
+{% block page_title %}
     {{ object.title }} on Biostars
-{%  endblock %}
-{%  block content %}
+{% endblock %}
+{% block content %}
 
-<h2>{{ object.title }}</h2>
+    <div class="row">
 
-{{ object.html|safe }}
+        <div class="col-md-9">
 
-{%  endblock %}
+            <h2>{{ post.title }}</h2>
+
+            {{ post.html|safe }}
+
+        </div>
+
+    <div class="col-md-3">
+        Sidebar
+    </div>
+
+    </div>
+
+
+
+{% endblock %}

@@ -25,7 +25,7 @@ class UserEditForm(forms.Form):
         self.helper.layout = Layout(
             Fieldset(
                 'Update your profile',
-                'name', 
+                'name',
                 'email',
                 'location',
                 'website',

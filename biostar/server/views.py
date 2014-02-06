@@ -2,8 +2,11 @@ from django.views.generic import DetailView, ListView
 from django.conf import settings
 from haystack.views import SearchView
 
-from biostar.apps.users import views, auth
-from biostar.apps.users.models import  User
+from biostar.apps.users import auth
+from biostar.apps.users.views import EditUser
+from biostar.apps.posts.views import EditPost
+
+from biostar.apps.users.models import User
 from biostar.apps.posts.models import Post
 
 
@@ -85,8 +88,13 @@ class UserDetails(DetailView):
         context = super(UserDetails, self).get_context_data(**kwargs)
         return context
 
-class EditUser(views.EditUser):
+
+class EditUser(EditUser):
     template_name = "user-edit.html"
+
+
+class EditPost(EditPost):
+    template_name = "post-edit.html"
 
 
 class PostDetails(DetailView):
@@ -94,6 +102,7 @@ class PostDetails(DetailView):
     Shows a thread, top level post and all related content.
     """
     model = Post
+    context_object_name = "post"
     template_name = "post-details.html"
 
 
