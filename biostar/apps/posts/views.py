@@ -24,7 +24,7 @@ class PostEditForm(forms.Form):
             Fieldset(
                 'Post information',
                 'title',
-                'html',
+                'content',
             ),
             ButtonHolder(
                 Submit('submit', 'Submit')

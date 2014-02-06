@@ -27,7 +27,7 @@ class PostTest(TestCase):
         email = "john@this.edu"
         jane = User.objects.create(email=email)
         html = "<b>Hello World!</b>"
-        post = Post(title=title, author=jane, type=Post.FORUM, html=html)
+        post = Post(title=title, author=jane, type=Post.FORUM, content=html)
         post.save()
         eq(post.type, Post.FORUM)
         eq(post.root, post)

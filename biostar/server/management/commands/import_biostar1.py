@@ -108,7 +108,7 @@ class Command(BaseCommand):
             post.vote_count = get(row, "score")
 
             post_file = path_join(MIGRATE_DIR, 'posts', str(uid))
-            post.html = file(post_file, 'rt').read()
+            post.content = file(post_file, 'rt').read()
 
             # TODO migrate only tags with high counts
             if tag_val:

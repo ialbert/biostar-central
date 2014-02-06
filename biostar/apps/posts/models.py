@@ -7,6 +7,12 @@ from django.utils.timezone import utc
 from taggit.managers import TaggableManager
 from django.utils.translation import ugettext_lazy as _
 from django.core.urlresolvers import reverse
+import bleach
+
+# HTML sanitization parameters.
+ALLOWED_TAGS = bleach.ALLOWED_TAGS + "p div br code pre".split()
+ALLOWED_STYLES = bleach.ALLOWED_STYLES
+ALLOWED_ATTRIBUTES = bleach.ALLOWED_ATTRIBUTES
 
 logger = logging.getLogger(__name__)
 
@@ -15,9 +21,9 @@ class PostManager(models.Manager):
     def top_level(self, user):
         "Returns posts based on a user type"
         if user.is_moderator:
-            query = self.filter(type__in=Post.TOP_LEVEL).defer("html")
+            query = self.filter(type__in=Post.TOP_LEVEL).defer("content")
         else:
-            query = self.filter(type__in=Post.TOP_LEVEL, status=Post.OPEN).defer("html")
+            query = self.filter(type__in=Post.TOP_LEVEL, status=Post.OPEN).defer("content")
         return query.prefetch_related('tags').order_by('-lastedit_date')
 
 class Post(models.Model):
@@ -102,10 +108,12 @@ class Post(models.Model):
     parent = models.ForeignKey('self', null=True, blank=True, related_name='children')
 
     # This is the sanitized HTML for display.
-    html = models.TextField(default='')
+    content = models.TextField(default='')
 
     def save(self, *args, **kwargs):
 
+        self.content = bleach.clean(self.content, tags=ALLOWED_TAGS,
+                                    attributes=ALLOWED_ATTRIBUTES, styles=ALLOWED_STYLES)
         if not self.id:
             # This runs only once upon object creation.
 

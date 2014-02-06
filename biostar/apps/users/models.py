@@ -11,6 +11,11 @@ from django.utils.timezone import utc
 from biostar.apps import util
 import bleach
 
+# HTML sanitization parameters.
+ALLOWED_TAGS = bleach.ALLOWED_TAGS + "p div br code pre".split()
+ALLOWED_STYLES = bleach.ALLOWED_STYLES
+ALLOWED_ATTRIBUTES = bleach.ALLOWED_ATTRIBUTES
+
 logger = logging.getLogger(__name__)
 
 
@@ -98,8 +103,6 @@ class User(AbstractBaseUser):
             # Name should be set.
             self.name = self.email.split("@")[0]
 
-
-
         super(User, self).save(*args, **kwargs)
 
     def __unicode__(self):
@@ -141,19 +144,20 @@ class Profile(models.Model):
     info = models.TextField(default="", null=True, blank=True)
 
     # The default notification preferences.
-    message_prefs = models.IntegerField(choices=const.MESSAGING_TYPE_CHOICES, default=const.LOCAL_MESSAGE, db_index=True)
+    message_prefs = models.IntegerField(choices=const.MESSAGING_TYPE_CHOICES, default=const.LOCAL_MESSAGE,
+                                        db_index=True)
 
     def save(self, *args, **kwargs):
 
         # Clean the info fields.
-        self.info = bleach.clean(self.info, tags=const.ALLOWED_TAGS)
+        self.info = bleach.clean(self.info, tags=ALLOWED_TAGS,
+                                 attributes=ALLOWED_ATTRIBUTES, styles=ALLOWED_STYLES)
 
         if not self.id:
             # This runs only once upon object creation.
             self.uuid = util.make_uuid()
             self.date_joined = datetime.datetime.utcnow().replace(tzinfo=utc)
             self.last_login = self.date_joined
-
 
         super(Profile, self).save(*args, **kwargs)
 
