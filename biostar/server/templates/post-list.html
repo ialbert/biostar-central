@@ -12,7 +12,7 @@
             <table id="posts">
                 {% for post in posts %}
                     <tr>
-                        <td class="boxcell">
+                        <td class="boxcell {{ post.get_type_display }}">
                             <div class="box vote">
                                 <div class="c">{{ post.vote_count }}</div>
                                 <div class="t">votes</div>
@@ -27,7 +27,7 @@
                             </div>
                         </td>
                         <td>
-                            <div class="title"><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></div>
+                            <div class="title">{{ post.get_type_display }} <a href="{{ post.get_absolute_url }}">{{ post.title }}</a></div>
                             <div class="tagrow">
                                 {% for tag in post.tags.all %}
                                     <a class="tag" href="{% url 'topic-list' topic=tag.name %}">{{ tag.name }}</a>

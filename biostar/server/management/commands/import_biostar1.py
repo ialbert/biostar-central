@@ -31,7 +31,7 @@ USER_STATUS_MAP = {
 
 POST_TYPE_MAP = {
     "Question": Post.QUESTION, "Answer": Post.ANSWER,
-    "Comment": Post.COMMENT, "Job": Post.JOB,
+    "Comment": Post.COMMENT, "Job": Post.JOB, "Blog": Post.BLOG,
 }
 
 VOTE_TYPE_MAP = {
@@ -101,6 +101,12 @@ class Command(BaseCommand):
             post.type = post_type
             post.creation_date = localize_time(get(row, 'creation_date'))
             post.lastedit_date = localize_time(get(row, 'lastedit_date'))
+            post.view_count = get(row, "views")
+            post.reply_count = get(row, "answer_count")
+            post.book_count = get(row, "book_count")
+            post.thread_score = get(row, "full_score")
+            post.vote_count = get(row, "score")
+
             post_file = path_join(MIGRATE_DIR, 'posts', str(uid))
             post.html = file(post_file, 'rt').read()
 

@@ -67,17 +67,74 @@ h2 {
   border-radius: 5px;
 
   &:hover {
-      color: white;
-      background-color: #6B3E4A;
-    }
-
-
+    color: white;
+    background-color: #6B3E4A;
+  }
 }
 
 table#posts {
   vertical-align: top;
   padding: 0px;
   width: 100%;
+
+  .Forum {
+
+    .answered {
+      background-color: #B79538;
+      color: white;
+    }
+    .commented {
+      background-color: #B79538;
+      color: white;
+    }
+    .accepted {
+      background-color: #B79538;
+      color: #E1E818;
+    }
+    .unanswered {
+      background-color: #B79538;
+      color: white;
+    }
+  }
+
+  .Job {
+    .answered {
+      background-color: #E9530F;
+      color: white;
+    }
+    .commented {
+      background-color: #E9530F;
+      color: white;
+    }
+    .accepted {
+      background-color: #E9530F;
+      color: #E1E818;
+    }
+    .unanswered {
+      background-color: #E9530F;
+      color: white;
+    }
+  }
+
+  .Question {
+
+    .answered {
+      background-color: #436C27;
+      color: white;
+    }
+    .commented {
+      background-color: #436C27;
+      color: white;
+    }
+    .accepted {
+      background-color: #436C27;
+      color: #E1E818;
+    }
+    .unanswered {
+      background-color: #8f2c47;
+      color: white;
+    }
+  }
 
   .boxcell {
     width: 13em;
@@ -94,15 +151,6 @@ table#posts {
 
   .vote {
     background-color: #eeeeee;
-  }
-
-  .accepted {
-    background-color: #eeeeee;
-  }
-
-  .unanswered {
-    background-color: #8f2c47;
-    color: white;
   }
 
   .default {
@@ -141,20 +189,6 @@ table#posts {
     //font-size: smaller;
   }
 
-}
-
-
-.badge-name {
-  background-color: #333;
-  border: 1px solid #333;
-  border-radius: 6px 6px 6px 6px;
-  color: white !important;
-  line-height: 1.9;
-  margin: 0 3px 3px 0;
-  padding: 4px 8px 4px 3px;
-  text-decoration: none;
-  border-image: initial;
-  color: #FFCC00;
 }
 
 ul.flat {

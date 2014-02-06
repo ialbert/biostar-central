@@ -15,9 +15,9 @@ class PostList(ListView):
     model = Post
     template_name = "post-list.html"
     context_object_name = "posts"
-    paginate_by = 25
+    paginate_by = settings.PAGINATE_BY
     LATEST = "Latest"
-
+    POST_TYPE_TOPICS = dict(jobs=Post.JOB, forum=Post.FORUM, blog=Post.BLOG, pages=Post.PAGE)
     def __init__(self, *args, **kwds):
         super(PostList, self).__init__(*args, **kwds)
         self.limit = 250
@@ -30,12 +30,17 @@ class PostList(ListView):
             return "Latest Posts"
 
     def get_queryset(self):
-        self.topic = self.kwargs.get("topic")
-        if self.topic:
-            objs = Post.objects.top_level(self.request.user).filter(tags__name=self.topic.lower())
+        self.topic = self.kwargs.get("topic","")
+        # Internally topics are case insensitive.
+        topic = self.topic.lower()
+        if topic:
+            if topic in self.POST_TYPE_TOPICS:
+                objs = Post.objects.top_level(self.request.user).filter(type=self.POST_TYPE_TOPICS[topic])
+            else:
+                objs = Post.objects.top_level(self.request.user).filter(tags__name=topic).exclude(type=Post.BLOG)
         else:
-            # Limit the latest posts so that engines don't crawl outside of the topics catergories.
-            objs = Post.objects.top_level(self.request.user)[:self.limit]
+            # Limit the latest posts so that engines don't crawl outside of the topics categories.
+            objs = Post.objects.top_level(self.request.user).exclude(type=Post.BLOG)[:self.limit]
 
         return objs
 

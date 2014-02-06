@@ -32,10 +32,10 @@ class Post(models.Model):
     STATUS_CHOICES = [(PENDING, "Pending"), (OPEN, "Open"), (CLOSED, "Closed"), (DELETED, "Deleted")]
 
     # Question types.
-    QUESTION, ANSWER, COMMENT, JOB, FORUM, PAGE = range(6)
+    QUESTION, ANSWER, COMMENT, JOB, FORUM, PAGE, BLOG = range(7)
     TYPE_CHOICES = [
         (QUESTION,"Question"), (ANSWER, "Answer"), (COMMENT, "Comment"),
-        (JOB, "Job"), (FORUM, "Forum"), (PAGE, "Page"),
+        (JOB, "Job"), (FORUM, "Forum"), (PAGE, "Page"), (BLOG, "Blog"),
     ]
 
     # Edit types
@@ -45,7 +45,7 @@ class Post(models.Model):
         (COMMENTED, "Commented on"), (DELETED, "Deleted"),
     ]
 
-    TOP_LEVEL = set((QUESTION, JOB, FORUM, PAGE))
+    TOP_LEVEL = set((QUESTION, JOB, FORUM, PAGE, BLOG))
 
     title = models.CharField(max_length=255, null=False)
 
@@ -75,6 +75,9 @@ class Post(models.Model):
 
     # The number of replies that a post has.
     reply_count = models.IntegerField(default=0, blank=True)
+
+    # The number of comments that a post has.
+    comment_count = models.IntegerField(default=0, blank=True)
 
     # Bookmark count.
     book_count = models.IntegerField(default=0)
