@@ -6,25 +6,36 @@ from . import auth
 from django import forms
 from django.core.urlresolvers import reverse
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit
+from crispy_forms.layout import Layout, Field, Fieldset, Submit, ButtonHolder
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.contrib import messages
 
 class UserEditForm(forms.Form):
     name = forms.CharField()
-    email = forms.CharField()
+    email = forms.EmailField()
     location = forms.CharField(required=False)
-    website = forms.CharField(required=False)
-    scholar = forms.CharField(required=False)
-
+    website = forms.CharField(required=False, max_length=200)
+    scholar = forms.CharField(required=False, max_length=15)
     info = forms.CharField(widget=forms.Textarea, required=False)
-
 
     def __init__(self, *args, **kwargs):
         super(UserEditForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.add_input(Submit('submit', 'Submit'))
+        self.helper.layout = Layout(
+            Fieldset(
+                'Update your profile',
+                'name', 
+                'email',
+                'location',
+                'website',
+                'scholar',
+                'info',
+            ),
+            ButtonHolder(
+                Submit('submit', 'Submit')
+            )
+        )
 
 
 class EditUser(FormView):
