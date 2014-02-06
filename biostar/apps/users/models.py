@@ -61,6 +61,14 @@ class User(AbstractBaseUser):
             return False
 
     @property
+    def is_administrator(self):
+        # The site administrator is different from the Django admin.
+        if self.is_authenticated():
+            return self.type == User.ADMIN
+        else:
+            return False
+
+    @property
     def is_suspended(self):
         return self.status == User.SUSPENDED or self.status == User.BANNED
 
@@ -96,6 +104,7 @@ class User(AbstractBaseUser):
 
 # This contains the notification types.
 from biostar.const import LOCAL_MESSAGE, MESSAGING_TYPE_CHOICES
+
 
 class Profile(models.Model):
     """

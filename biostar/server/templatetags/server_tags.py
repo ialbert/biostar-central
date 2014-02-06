@@ -19,9 +19,9 @@ def rand_num():
 
 @register.simple_tag
 def gravatar(user, size=80):
-    username = user.profile.display_name
-    useremail = user.email.encode('utf8')
-    hash = hashlib.md5(useremail).hexdigest(),
+    name = user.name
+    email = user.email.encode('utf8')
+    hash = hashlib.md5(email).hexdigest(),
 
     gravatar_url = "http://www.gravatar.com/avatar/%s?" % hash
     gravatar_url += urllib.urlencode({
@@ -29,7 +29,7 @@ def gravatar(user, size=80):
         'd': 'identicon',
     }
     )
-    return """<img src="%s" alt="gravatar for %s"/>""" % (gravatar_url, username)
+    return """<img src="%s" alt="gravatar for %s"/>""" % (gravatar_url, name)
 
 
 def pluralize(value, word):

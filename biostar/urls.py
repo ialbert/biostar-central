@@ -22,6 +22,9 @@ urlpatterns = patterns('',
     # User details.
     url(r'^u/(?P<pk>\d+)/$', views.UserDetails.as_view(), name="user-details"),
 
+    # User details.
+    url(r'^u/edit/(?P<pk>\d+)/$', views.EditUser.as_view(), name="user-edit"),
+
     # Post details.
     url(r'^p/(?P<pk>\d+)/$', views.PostDetails.as_view(), name="post-details"),
 

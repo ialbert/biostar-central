@@ -1,0 +1,21 @@
+{% extends "starbase.html" %}
+{% load server_tags %}
+{% load humanize %}
+{% load crispy_forms_tags %}
+
+{% block page_title %}
+    User Edit
+{% endblock %}
+
+{% block content %}
+
+    <div class="row">
+
+        <div class="col-md-12">
+
+          {% crispy form %}
+
+        </div>
+    </div>
+
+{% endblock %}

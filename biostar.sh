@@ -82,7 +82,7 @@ while (( "$#" )); do
 
     if [ "$1" = "dump" ]; then
         echo "*** dumping json data into $JSON_DATA_FIXTURE"
-        $PYTHON $DJANGO_ADMIN dumpdata users posts messages badges --settings=$DJANGO_SETTINGS_MODULE | gzip > $JSON_DATA_FIXTURE
+        $PYTHON $DJANGO_ADMIN dumpdata users posts messages badges tag --settings=$DJANGO_SETTINGS_MODULE | gzip > $JSON_DATA_FIXTURE
     fi
 
     if [ "$1" = "index" ]; then

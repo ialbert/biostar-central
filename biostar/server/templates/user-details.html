@@ -1,9 +1,78 @@
-{%  extends "starbase.html" %}
-{%  block page_title %}
-    {{ object.name }} on Biostars
-{%  endblock %}
-{%  block content %}
+{% extends "starbase.html" %}
+{% load server_tags %}
+{% load humanize %}
 
-This is the user profile for {{ object.name }}
+{% block page_title %}
+    User: {{ target.name }}
+{% endblock %}
 
-{%  endblock %}
+{% block content %}
+
+    <div class="row">
+
+        <div class="col-md-12">
+
+
+            <table id="user-table" class="table table-striped">
+
+                <tr>
+                    <td colspan="3">
+                        <h2>{{ target.name }}</h2>
+                    </td>
+                </tr>
+
+                <tr>
+
+                    {#  User gravatar.  #}
+                    <td width="10%">
+                        {% gravatar target 200 %}
+                        <div class="text-center">
+                            {%  userlink target %}
+                        </div>
+                        <div class="text-center" style="margin-top:20px">
+                            <a href="{% url "user-edit" target.id %}"  class="btn btn-default" role="button" href="#">Edit Profile</a>
+                        </div>
+                    </td>
+
+                    {#  The short description entered by the user.  #}
+                    <td width="30%">
+                        <dl class="dl-horizontal">
+
+                            <dt>Role:</dt>
+                            <dd>{{ target.get_type_display }}</dd>
+
+                            <dt>Last seen:</dt>
+                            <dd>{{ target.profile.last_login|naturaltime }}</dd>
+
+                            <dt>Joined:</dt>
+                            <dd>{{ target.profile.date_joined|naturaltime }}</dd>
+
+                            <dt>Location:</dt>
+                            <dd>{{ target.profile.location }}</dd>
+
+                            <dt>Website:</dt>
+                            <dd><a href="{{ target.profile.website }}">{{ target.profile.website }}</a></dd>
+
+                            <dt>Scholar ID:</dt>
+                            <dd>{{ target.profile.scholar }}</dd>
+
+                            {% if target.is_editable %}
+                                <dt></dt>
+                                <dd></dd>
+                            {%  endif %}
+                        </dl>
+                    </td>
+
+                    {#  User bio.  #}
+                    <td width="50%">
+                        {{ target.profile.info }}
+                    </td>
+                </tr>
+
+
+            </table>
+
+        </div>
+    </div>
+
+{% endblock %}

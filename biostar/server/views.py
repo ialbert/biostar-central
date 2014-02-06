@@ -1,12 +1,10 @@
-from django.shortcuts import render_to_response
-from django.views.generic import TemplateView, DetailView, ListView
-from biostar.apps.users.models import User
-from biostar.apps.posts.models import Post
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.utils.encoding import smart_text
+from django.views.generic import DetailView, ListView
 from django.conf import settings
-from django.contrib import messages
 from haystack.views import SearchView
+
+from biostar.apps.users import views, auth
+from biostar.apps.users.models import  User
+from biostar.apps.posts.models import Post
 
 
 class PostList(ListView):
@@ -76,6 +74,19 @@ class UserDetails(DetailView):
     """
     model = User
     template_name = "user-details.html"
+    context_object_name = "target"
+
+    def get_object(self):
+        obj = super(UserDetails, self).get_object()
+        obj = auth.user_permissions(user=self.request.user, target=obj)
+        return obj
+
+    def get_context_data(self, **kwargs):
+        context = super(UserDetails, self).get_context_data(**kwargs)
+        return context
+
+class EditUser(views.EditUser):
+    template_name = "user-edit.html"
 
 
 class PostDetails(DetailView):
