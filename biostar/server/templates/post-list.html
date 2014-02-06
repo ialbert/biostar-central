@@ -25,6 +25,7 @@
                                 <div class="c">{{ post.view_count }}</div>
                                 <div class="t">views</div>
                             </div>
+                            {%  if post.book_count %}<div class="book_count text-center">{{ post.book_count }} bookmarks</div>{%  endif %}
                         </td>
                         <td>
                             <div class="title">{{ post.get_type_display }} <a href="{{ post.get_absolute_url }}">{{ post.title }}</a></div>

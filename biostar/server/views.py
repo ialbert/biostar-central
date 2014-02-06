@@ -5,6 +5,7 @@ from biostar.apps.posts.models import Post
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.utils.encoding import smart_text
 from django.conf import settings
+from django.contrib import messages
 from haystack.views import SearchView
 
 
@@ -31,10 +32,13 @@ class PostList(ListView):
 
     def get_queryset(self):
         self.topic = self.kwargs.get("topic","")
+
         # Internally topics are case insensitive.
         topic = self.topic.lower()
         if topic:
-            if topic in self.POST_TYPE_TOPICS:
+            if topic == "myposts":
+                objs = Post.objects.filter(author=self.request.user)
+            elif topic in self.POST_TYPE_TOPICS:
                 objs = Post.objects.top_level(self.request.user).filter(type=self.POST_TYPE_TOPICS[topic])
             else:
                 objs = Post.objects.top_level(self.request.user).filter(tags__name=topic).exclude(type=Post.BLOG)

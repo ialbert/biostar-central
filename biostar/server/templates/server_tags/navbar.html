@@ -26,11 +26,11 @@
         <ul class="nav nav-pills navfix">
             <li class="active pull-right"><a href="#">New Post</a></li>
             {% if user.is_authenticated %}
-                <li><a href="#"><i class="fa fa-user"></i> {{ user.get_full_name|truncatechars:15 }}</a></li>
-                <li><a href="/admin/"><i class="fa fa-envelope"></i> Mail</a></li>
-                <li><a href="/admin/"><i class="fa fa-heart"></i> Votes</a></li>
-                <li><a href="/admin/"><i class="fa fa-bookmark"></i> Bookmarks</a></li>
-                <li><a href="/admin/"><i class="fa fa-comments"></i> My Posts</a></li>
+                <li class="{% active "userprofile" topic %}"><a href="{% url 'user-details' user.id %}"><i class="fa fa-user"></i> {{ user.get_full_name|truncatechars:15 }}</a></li>
+                <li class="{% active "messages" topic %}"><a href="/admin/"><i class="fa fa-envelope"></i> Messages</a></li>
+                <li class="{% active "votes" topic %}"><a href="/admin/"><i class="fa fa-heart"></i> Votes</a></li>
+                <li class="{% active "bookmarks" topic %}"><a href="/admin/"><i class="fa fa-bookmark"></i> Bookmarks</a></li>
+                <li class="{% active "myposts" topic %}"><a href="{% url 'topic-list' topic="myposts" %}"><i class="fa fa-comments"></i> My Posts</a></li>
                 <li><a href="{% url 'account_logout' %}"><i class="fa fa-hand-o-up"></i> Logout</a></li>
             {% else %}
                 <li><a href="{% url 'account_login' %}"><i class="fa fa-user"></i> Log In</a></li>

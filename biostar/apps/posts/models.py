@@ -142,6 +142,9 @@ class Post(models.Model):
         return self.type in Post.TOP_LEVEL
 
     def get_absolute_url(self):
+        "A blog will redirect to the original post"
+        #if self.url:
+        #    return self.url
         url = reverse("post-details", kwargs=dict(pk=self.root.id))
         return "%s#%s" % (url, self.id)
 

@@ -341,7 +341,7 @@ CACHES = {
 # Will be treated as tags on posts.
 # These should be the most frequent tags on the site.
 DEFAULT_TOPICS = [
-    "Forum", "Assembly", "RNA-Seq", "ChIP-Seq", "SNP-Calling", "Galaxy", "Jobs", "Blog",
+    "Forum", "Assembly", "RNA-Seq", "ChIP-Seq", "SNP-Calling", "Galaxy", "Jobs", "Planet",
 ]
 
 # The number of posts to show per page.
