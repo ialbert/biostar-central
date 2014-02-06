@@ -120,12 +120,13 @@ class Post(models.Model):
             if not (self.parent or self.root):
                 # Neither of root nor parent are set.
                 # This will be a top level post.
-                self.root = self.parent = self
                 self.type = self.type if self.type in Post.TOP_LEVEL else self.FORUM
+
             elif self.parent:
                 # If the parent is set root must follow the parent.
                 self.root = self.parent.root
                 self.type = self.ANSWER if self.parent.type in Post.TOP_LEVEL else self.COMMENT
+
             elif self.root:
                 # If only the root is set the parent has follow the root.
                 # Note: In general the root should not be directly set.

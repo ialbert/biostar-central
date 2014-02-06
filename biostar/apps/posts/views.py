@@ -15,14 +15,14 @@ from braces.views import LoginRequiredMixin
 # Create your views here.
 class PostEditForm(forms.Form):
     title = forms.CharField()
-    html = forms.CharField(widget=forms.Textarea, required=False)
+    content = forms.CharField(widget=forms.Textarea, required=False)
 
     def __init__(self, *args, **kwargs):
         super(PostEditForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Fieldset(
-                'Post information',
+                'Post',
                 'title',
                 'content',
             ),
@@ -35,7 +35,7 @@ class PostEditForm(forms.Form):
 
 class EditPost(LoginRequiredMixin, FormView):
     """
-    Edits a user.
+    Edits a post.
     """
 
     # The template_name attribute must be specified in the calling apps.
@@ -49,7 +49,8 @@ class EditPost(LoginRequiredMixin, FormView):
         pk = int(self.kwargs['pk'])
         if pk > 0:
             post = Post.objects.get(pk=pk)
-            initial = dict(title=post.title, html=post.html)
+            initial = dict(title=post.title, content=post.content)
+            print (post.id, post.root)
 
         form = self.form_class(initial=initial)
         return render(request, self.template_name, {'form': form})
@@ -67,9 +68,11 @@ class EditPost(LoginRequiredMixin, FormView):
         data = form.cleaned_data
         # Valid forms start here.
         if pk == 0:
-            post = Post.objects.create(
-                title=data['title'], html=data['content'], author=user
+            post = Post(
+                title=data['title'], content=data['content'], author=user, type=Post.FORUM,
             )
+            post.save()
+
         else:
             post = Post.objects.get(pk=self.kwargs['pk'])
             post = auth.post_permissions(request=request, post=post)
@@ -77,7 +80,7 @@ class EditPost(LoginRequiredMixin, FormView):
                 messages.error(request, "This user may not modify the post")
                 return HttpResponseRedirect(reverse("home"))
             post.title = data['title']
-            post.html  = data['html']
+            post.content  = data['content']
             post.lastedit_user = user
             post.save()
             messages.success(request, "Post updated")
