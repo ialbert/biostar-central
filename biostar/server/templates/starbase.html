@@ -42,10 +42,11 @@
 
     {% if messages %}
         <div class="row">
-            <div class="col-md-12" id="messages">
-                    {% for message in messages %}
-                        <div class="alert  {{message.tags}} alert-dismissable">{{ message }}</div>
-                    {% endfor %}
+            <div class="col-md-12">
+                {% for message in messages %}
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                    <div class="alert  {{ message.tags }} alert-dismissable">{{ message }}</div>
+                {% endfor %}
             </div>
         </div>
     {% endif %}
@@ -100,10 +101,12 @@
 
         <div class="row">
             <div class="col-md-12 text-center">
-                Use of this site constitutes acceptance of our <a href="{% url 'policy' %}">User Agreement and Privacy Policy</a>.
+                Use of this site constitutes acceptance of our <a href="{% url 'policy' %}">User Agreement and Privacy
+                Policy</a>.
             </div>
             <div class="col-md-12 text-center">
-                Powered by <a href="https://github.com/ialbert/biostar-central">Biostar</a> version {{ BIOSTAR_VERSION }}
+                Powered by <a href="https://github.com/ialbert/biostar-central">Biostar</a>
+                version {{ BIOSTAR_VERSION }}
             </div>
         </div>
     {% endblock %}
@@ -132,6 +135,7 @@
             s.parentNode.insertBefore(ga, s);
         })();
     </script>
+
 {% endif %}
 </body>
 </html>

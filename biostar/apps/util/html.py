@@ -19,7 +19,6 @@ def userlinks(attrs, new=False):
 # These callback will be applied on html parsing.
 CALLBACKS = bleach.DEFAULT_CALLBACKS + [userlinks]
 
-
 def render(name, **kwds):
     tmpl = loader.get_template(name)
     cont = Context(kwds)

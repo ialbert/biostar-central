@@ -9,6 +9,7 @@ from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, UserManager
 from django.utils.timezone import utc
 from biostar.apps import util
+import bleach
 
 logger = logging.getLogger(__name__)
 
@@ -97,14 +98,17 @@ class User(AbstractBaseUser):
             # Name should be set.
             self.name = self.email.split("@")[0]
 
+
+
         super(User, self).save(*args, **kwargs)
 
     def __unicode__(self):
         return "User %s: %s (%s)" % (self.id, self.name, self.email)
 
 # This contains the notification types.
-from biostar.const import LOCAL_MESSAGE, MESSAGING_TYPE_CHOICES
+from biostar import const
 
+#import LOCAL_MESSAGE, MESSAGING_TYPE_CHOICES
 
 class Profile(models.Model):
     """
@@ -137,17 +141,19 @@ class Profile(models.Model):
     info = models.TextField(default="", null=True, blank=True)
 
     # The default notification preferences.
-    message_prefs = models.IntegerField(choices=MESSAGING_TYPE_CHOICES, default=LOCAL_MESSAGE, db_index=True)
+    message_prefs = models.IntegerField(choices=const.MESSAGING_TYPE_CHOICES, default=const.LOCAL_MESSAGE, db_index=True)
 
     def save(self, *args, **kwargs):
-        # Generate html from the markdown.
-        self.info_html = self.info
+
+        # Clean the info fields.
+        self.info = bleach.clean(self.info, tags=const.ALLOWED_TAGS)
 
         if not self.id:
             # This runs only once upon object creation.
             self.uuid = util.make_uuid()
             self.date_joined = datetime.datetime.utcnow().replace(tzinfo=utc)
             self.last_login = self.date_joined
+
 
         super(Profile, self).save(*args, **kwargs)
 

@@ -20,9 +20,6 @@ class UserEditForm(forms.Form):
 
     info = forms.CharField(widget=forms.Textarea, required=False)
 
-    def send_email(self):
-        # send email using the self.cleaned_data dictionary
-        pass
 
     def __init__(self, *args, **kwargs):
         super(UserEditForm, self).__init__(*args, **kwargs)
@@ -35,11 +32,12 @@ class EditUser(FormView):
     Edits a user.
     """
 
-    form_class = UserEditForm
     # The template_name attribute must be specified in the calling apps.
     template_name = ""
+    form_class = UserEditForm
     user_fields = "name email".split()
     prof_fields = "location website info scholar".split()
+
     def get(self, request, *args, **kwargs):
         target = User.objects.get(pk=self.kwargs['pk'])
         prof = target.profile
@@ -51,6 +49,8 @@ class EditUser(FormView):
     def post(self, request, *args, **kwargs):
         target = User.objects.get(pk=self.kwargs['pk'])
         target = auth.user_permissions(request=request, target=target)
+
+        # The essential authentication step.
         if not target.has_ownership:
             messages.error(request, "Only owners may edit their profiles")
             return HttpResponseRedirect(reverse("home"))
@@ -68,19 +68,8 @@ class EditUser(FormView):
             messages.success(request, "Profile updated")
             return HttpResponseRedirect(self.get_success_url())
 
+        # There is an error in the form.
         return render(request, self.template_name, {'form': form})
 
     def get_success_url(self):
         return reverse("user-details", kwargs=dict(pk=self.kwargs['pk']))
-
-
-    """
-    def get_object(self):
-        obj = super(UserDetails, self).get_object()
-        obj = auth.user_permissions(user=self.request.user, target=obj)
-        return obj
-
-    def get_context_data(self, **kwargs):
-        context = super(UserDetails, self).get_context_data(**kwargs)
-        return context
-    """

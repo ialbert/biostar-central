@@ -17,14 +17,14 @@
 
                 <tr>
                     <td colspan="3">
-                        <h2>{{ target.name }}</h2>
+                        <h2 class="text-center">{{ target.name }}</h2>
                     </td>
                 </tr>
 
                 <tr>
 
                     {#  User gravatar.  #}
-                    <td width="10%">
+                    <td>
                         {% gravatar target 200 %}
                         <div class="text-center">
                             {%  userlink target %}
@@ -35,7 +35,7 @@
                     </td>
 
                     {#  The short description entered by the user.  #}
-                    <td width="30%">
+                    <td width="40%">
                         <dl class="dl-horizontal">
 
                             <dt>Role:</dt>
@@ -64,11 +64,16 @@
                     </td>
 
                     {#  User bio.  #}
-                    <td width="50%">
-                        {{ target.profile.info }}
+                    <td width="40%">
+                        {{ target.profile.info|safe }}
                     </td>
                 </tr>
 
+                <tr>
+                    <td colspan="3" class="text-center">
+                       Contributions
+                    </td>
+                </tr>
 
             </table>
 
