@@ -97,7 +97,6 @@ class EditUser(EditUser):
 class EditPost(EditPost):
     template_name = "post-edit.html"
 
-
 class PostDetails(DetailView):
     """
     Shows a thread, top level post and all related content.
@@ -114,10 +113,11 @@ class PostDetails(DetailView):
             obj = obj.root
 
         # Populate the object to build a tree that contains all posts in the thread.
-        all = Post.objects.get_thread(obj)
+        # Answers sorted before comments.
+        all = list(Post.objects.get_thread(obj))
 
-        # Answers need to be sorted by score.
-        answers = [ p for p in all if p.type == Post.ANSWER ]
+        # Do a little preprocessing.
+        answers = [p for p in all if p.type == Post.ANSWER]
 
         tree = OrderedDict()
         for post in all:
@@ -125,6 +125,7 @@ class PostDetails(DetailView):
 
         # Add this to the object.
         obj.tree = tree
+        obj.answers = answers
 
         return obj
 

@@ -20,7 +20,7 @@ class PostManager(models.Manager):
 
     def get_thread(self, root):
         # Populate the object to build a tree that contains all posts in the thread.
-        query = self.filter(root=root).exclude(pk=root.id).select_related("author").order_by("has_accepted", "vote_count")
+        query = self.filter(root=root).exclude(pk=root.id).select_related("author").order_by("type", "has_accepted", "vote_count")
         return query
 
     def top_level(self, user):
@@ -42,7 +42,7 @@ class Post(models.Model):
     PENDING, OPEN, CLOSED, DELETED = range(4)
     STATUS_CHOICES = [(PENDING, "Pending"), (OPEN, "Open"), (CLOSED, "Closed"), (DELETED, "Deleted")]
 
-    # Question types.
+    # Question types. Answers should be listed before comments.
     QUESTION, ANSWER, JOB, FORUM, PAGE, BLOG, COMMENT = range(7)
     TYPE_CHOICES = [
         (QUESTION,"Question"), (ANSWER, "Answer"), (COMMENT, "Comment"),

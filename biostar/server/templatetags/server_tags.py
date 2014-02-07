@@ -7,6 +7,7 @@ from biostar.apps.posts.models import Post
 import random, hashlib, urllib
 from datetime import datetime, timedelta
 from django.utils.timezone import utc
+from django import template
 
 register = template.Library()
 
@@ -111,3 +112,41 @@ def userlink(user):
     elif user.is_moderator:
         marker = '&diams;'
     return {'user': user, 'marker': marker}
+
+# this contains the body of each comment
+COMMENT_TEMPLATE = 'server_tags/comment.html'
+COMMENT_BODY = template.loader.get_template(COMMENT_TEMPLATE)
+
+
+@register.simple_tag
+def comments(request, post, tree):
+    global COMMENT_BODY, COMMENT_TEMPLATE
+    if settings.DEBUG:
+        # reload the template to get changes
+        COMMENT_BODY = template.loader.get_template(COMMENT_TEMPLATE)
+    if post.id in tree:
+        text = render_comments(request=request, post=post, tree=tree)
+    else:
+        text = ''
+    return text
+
+def render_comments(request, post, tree):
+    "Traverses the tree and generates the page"
+    global COMMENT_BODY
+
+    def traverse(node):
+        data = ['<div class="indent">']
+        cont = Context({"post": node, 'user': request.user, 'request': request})
+        cont.update(csrf(request))
+        html = COMMENT_BODY.render(cont)
+        data.append(html)
+        for child in tree[node.id]:
+            data.append(traverse(child))
+        data.append("</div>")
+        return '\n'.join(data)
+
+    # this collects the comments for the post
+    coll = []
+    for node in tree[post.id]:
+        coll.append(traverse(node))
+    return '\n'.join(coll)

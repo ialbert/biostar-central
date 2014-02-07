@@ -12,7 +12,12 @@
 
             {{ post.content|safe }}
 
-            {{  post.tree | safe }}
+            {%  for answer in post.answers %}
+                   <hr>
+                <div>{{  answer.content | safe }}</div>
+
+            {% endfor %}
+
         </div>
 
     <div class="col-md-3">
