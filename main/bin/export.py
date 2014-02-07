@@ -64,7 +64,7 @@ def export_posts(N):
 
     limit = N or None
 
-    fields = "id root_id parent.id author_id post_type post_status title tag_val " \
+    fields = "id root_id parent_id author_id post_type post_status title tag_val " \
         "score full_score views answer_count book_count accepted creation_date lastedit_date".split()
 
     if not os.path.exists(workdir):
