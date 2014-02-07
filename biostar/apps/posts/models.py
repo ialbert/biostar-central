@@ -18,6 +18,11 @@ logger = logging.getLogger(__name__)
 
 class PostManager(models.Manager):
 
+    def get_thread(self, root):
+        # Populate the object to build a tree that contains all posts in the thread.
+        query = self.filter(root=root).exclude(pk=root.id).select_related("author").order_by("has_accepted", "vote_count")
+        return query
+
     def top_level(self, user):
         "Returns posts based on a user type"
         if user.is_moderator:
@@ -38,7 +43,7 @@ class Post(models.Model):
     STATUS_CHOICES = [(PENDING, "Pending"), (OPEN, "Open"), (CLOSED, "Closed"), (DELETED, "Deleted")]
 
     # Question types.
-    QUESTION, ANSWER, COMMENT, JOB, FORUM, PAGE, BLOG = range(7)
+    QUESTION, ANSWER, JOB, FORUM, PAGE, BLOG, COMMENT = range(7)
     TYPE_CHOICES = [
         (QUESTION,"Question"), (ANSWER, "Answer"), (COMMENT, "Comment"),
         (JOB, "Job"), (FORUM, "Forum"), (PAGE, "Page"), (BLOG, "Blog"),

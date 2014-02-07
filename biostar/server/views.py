@@ -8,7 +8,7 @@ from biostar.apps.posts.views import EditPost
 
 from biostar.apps.users.models import User
 from biostar.apps.posts.models import Post
-
+from collections import defaultdict, OrderedDict
 
 class PostList(ListView):
     """
@@ -105,6 +105,32 @@ class PostDetails(DetailView):
     model = Post
     context_object_name = "post"
     template_name = "post-details.html"
+
+    def get_object(self):
+        obj = super(PostDetails, self).get_object()
+
+        # Just a sanity check to start at top level.
+        if obj != obj.root:
+            obj = obj.root
+
+        # Populate the object to build a tree that contains all posts in the thread.
+        all = Post.objects.get_thread(obj)
+
+        # Answers need to be sorted by score.
+        answers = [ p for p in all if p.type == Post.ANSWER ]
+
+        tree = OrderedDict()
+        for post in all:
+            tree.setdefault(post.parent_id, []).append(post)
+
+        # Add this to the object.
+        obj.tree = tree
+
+        return obj
+
+    def get_context_data(self, **kwargs):
+        context = super(PostDetails, self).get_context_data(**kwargs)
+        return context
 
 
 class TopicDetails(DetailView):
