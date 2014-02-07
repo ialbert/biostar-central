@@ -29,6 +29,10 @@ class PostTest(TestCase):
         html = "<b>Hello World!</b>"
         post = Post(title=title, author=jane, type=Post.FORUM, content=html)
         post.save()
+
+        # Get the object fresh.
+        post = Post.objects.get(pk=post.id)
+
         eq(post.type, Post.FORUM)
         eq(post.root, post)
         eq(post.parent, post)

@@ -43,9 +43,12 @@ MIGRATE_DIR = os.environ["BIOSTAR_MIGRATE_DIR"]
 MIGRATE_DIR = os.path.expanduser(MIGRATE_DIR)
 
 
-def get(data, attr):
+def get(data, attr, func=encoding.smart_unicode):
     value = data.get(attr, '').strip()
-    value = encoding.smart_unicode(value)
+    try:
+        value = func(value)
+    except Exception, exc:
+        raise Exception(value)
     return value
 
 
@@ -76,15 +79,14 @@ class Command(BaseCommand):
         stream = csv.DictReader(file(fname), delimiter=b'\t')
 
         for i, row in enumerate(stream):
-            uid = get(row, 'id')
-            root_id = get(row, 'root_id')
-            parent_id = get(row, 'parent_id')
+            uid = get(row, 'id', func=int)
+            root_id = get(row, 'root_id', func=int)
+            parent_id = get(row, 'parent_id', func=int)
 
             title = get(row, 'title')
             tag_val = get(row, 'tag_val').strip()
 
-            author_id = get(row, 'author_id')
-            author_id = int(author_id)
+            author_id = get(row, 'author_id', func=int)
             author = user_map.get(author_id)
 
             if not author:
@@ -101,11 +103,11 @@ class Command(BaseCommand):
             post.type = post_type
             post.creation_date = localize_time(get(row, 'creation_date'))
             post.lastedit_date = localize_time(get(row, 'lastedit_date'))
-            post.view_count = get(row, "views")
-            post.reply_count = get(row, "answer_count")
-            post.book_count = get(row, "book_count")
-            post.thread_score = get(row, "full_score")
-            post.vote_count = get(row, "score")
+            post.view_count = get(row, "views", func=int)
+            post.reply_count = get(row, "answer_count", func=int)
+            post.book_count = get(row, "book_count", func=int)
+            post.thread_score = get(row, "full_score", func=int)
+            post.vote_count = get(row, "score", func=int)
 
             post_file = path_join(MIGRATE_DIR, 'posts', str(uid))
             post.content = file(post_file, 'rt').read()
@@ -115,9 +117,11 @@ class Command(BaseCommand):
                 tags = tag_val.split(" ")
                 post.tags.add(*tags)
 
+            self.stdout.write("migrating %s" % post)
+
             post.save()
 
-            self.stdout.write("migrated %s" % post)
+
 
         log("migrated %s posts" % Post.objects.all().count())
         log("created %s subscriptions" % Subscription.objects.all().count())

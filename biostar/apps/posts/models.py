@@ -157,6 +157,13 @@ class Post(models.Model):
         url = reverse("post-details", kwargs=dict(pk=self.root.id))
         return "%s#%s" % (url, self.id)
 
+    @staticmethod
+    def check_root(sender, instance, created, *args, **kwargs):
+        "We need to ensure that the parent and root are set on object creation."
+        if created and (not instance.root or not instance.parent):
+            instance.root = instance.parent = instance
+            instance.save()
+
 # Posts will have revisions.
 reversion.register(Post)
 
@@ -224,3 +231,7 @@ class SubscriptionAdmin(admin.ModelAdmin):
 
 admin.site.register(Subscription, SubscriptionAdmin)
 
+# Data signals
+from django.db.models.signals import post_save
+
+post_save.connect(Post.check_root, sender=Post)

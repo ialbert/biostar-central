@@ -19,7 +19,8 @@ class PostList(ListView):
     context_object_name = "posts"
     paginate_by = settings.PAGINATE_BY
     LATEST = "Latest"
-    POST_TYPE_TOPICS = dict(jobs=Post.JOB, forum=Post.FORUM, blog=Post.BLOG, pages=Post.PAGE)
+    POST_TYPE_TOPICS = dict(jobs=Post.JOB, forum=Post.FORUM, planet=Post.BLOG, pages=Post.PAGE)
+
     def __init__(self, *args, **kwds):
         super(PostList, self).__init__(*args, **kwds)
         self.limit = 250
