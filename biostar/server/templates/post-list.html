@@ -1,5 +1,6 @@
 {% extends "starbase.html" %}
 {% load server_tags %}
+{% load humanize %}
 
 {% block content %}
 
@@ -28,14 +29,14 @@
                             {%  if post.book_count %}<div class="book_count text-center">{{ post.book_count }} bookmarks</div>{%  endif %}
                         </td>
                         <td>
-                            <div class="title">{{ post.get_type_display }} <a href="{{ post.get_absolute_url }}">{{ post.title }}</a></div>
-                            <div class="tagrow">
+                            <div class="title"><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></div>
+                            <div class="tags">
                                 {% for tag in post.tags.all %}
                                     <a class="tag" href="{% url 'topic-list' topic=tag.name %}">{{ tag.name }}</a>
                                 {% endfor %}
                             </div>
-                            <div class="userlink text-right">
-                                  {% action_time_ago post %} ago by {% userlink post.author %}
+                            <div class="text-right">
+                                  {%  last_action post %} {%  time_ago post %} ago by {% userlink post.author %}
                             </div>
                         </td>
                     </tr>

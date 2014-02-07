@@ -1,28 +1,57 @@
 {% extends "starbase.html" %}
+{% load server_tags %}
+
 {% block page_title %}
-    {{ object.title }} on Biostars
+    {{ post.title }}
 {% endblock %}
 {% block content %}
 
     <div class="row">
 
-        <div class="col-md-9">
+        <div class="col-md-9 post">
 
-            <h2>{{ post.title }}</h2>
+            {#  The toplevel post is rendered here #}
+            <div class="title">{{ post.get_type_display }}: {{ post.title }}</div>
+            <div class="col-md-1">
+                <div class="vote-box">
+                    <div class="vote.off" data-original-title="Click to add bookmark"></div>
+                    <div class="count">{{ post.vote_count }}</div>
+                    <div class="bookmark off" data-original-title="Click to add bookmark"></div>
+                </div>
+            </div>
 
-            {{ post.content|safe }}
+            <div class="col-md-11">
+                <div class="content">{{ post.content|safe }}</div>
+                {% post_actions post %}
+            </div>
 
-            {%  for answer in post.answers %}
-                   <hr>
-                <div>{{  answer.content | safe }}</div>
+            <div class="col-md-12 sep"><hr></div>
 
+            {# Render each answer for the post #}
+            {% for answer in post.answers %}
+
+                <div class="col-md-1">
+                    <div class="vote-box">
+                        <div class="vote.off" data-original-title="Click to add bookmark"></div>
+                        <div class="count">{{ answer.vote_count }}</div>
+                        <div class="bookmark off" data-original-title="Click to add bookmark"></div>
+                    </div>
+                </div>
+
+                <div class="col-md-11">
+                    <div class="content">{{ answer.content|safe }}</div>
+                    {% post_actions answer %}
+
+                </div>
+
+                <div class="col-md-12"><hr></div>
             {% endfor %}
 
         </div>
 
-    <div class="col-md-3">
-        Sidebar
-    </div>
+        <div class="col-md-3">
+            Sidebar
+        </div>
 
     </div>
 

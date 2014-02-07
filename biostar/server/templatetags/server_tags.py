@@ -41,7 +41,7 @@ def pluralize(value, word):
 
 
 @register.simple_tag
-def action_time_ago(post):
+def time_ago(post):
     now = datetime.utcnow().replace(tzinfo=utc)
     delta = now - post.lastedit_date
     if delta < timedelta(minutes=1):
@@ -59,9 +59,13 @@ def action_time_ago(post):
     else:
         diff = delta.days / 365.0
         unit = '%0.1f years' % diff
+    return "%s" % unit
 
-    action = post.get_update_type_display().lower()
-    return "%s %s" % (action, unit)
+
+@register.simple_tag
+def last_action(post):
+    action = "written"
+    return "%s" % action
 
 
 @register.simple_tag
@@ -103,6 +107,12 @@ def searchbar():
     return {}
 
 
+@register.inclusion_tag('server_tags/post_actions.html')
+def post_actions(post):
+    "Renders post actions"
+    return {'post': post}
+
+
 @register.inclusion_tag('server_tags/userlink.html')
 def userlink(user):
     "Renders the flair"
@@ -129,6 +139,7 @@ def comments(request, post, tree):
     else:
         text = ''
     return text
+
 
 def render_comments(request, post, tree):
     "Traverses the tree and generates the page"
