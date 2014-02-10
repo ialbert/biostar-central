@@ -86,8 +86,12 @@ table#posts {
   width: 100%;
 
   .book_count {
+    width: 100%;
     font-size: x-small;
     color: #762C90;
+    float:left;
+    margin-left:-5px;
+    font-weight: bold;
   }
   .Forum {
 
@@ -270,7 +274,7 @@ ul.flat {
     font-size: 240%;
     font-weight: bold;
     text-align: center;
-    margin: 10px 0px 10px 0px;
+    margin: 5px 0px 5px 0px;
   }
 
   display: block;
@@ -281,11 +285,29 @@ ul.flat {
     height: 30px;
     background-position: center;
     margin-top: 10px;
-    background-image: url('/static/img/bookmark.png');
+    //background-image: url('/static/img/bookmark.png');
     background-repeat: no-repeat;
     cursor: pointer;
+    color: #2F5B14;
+    opacity: 0.6;
   }
+
   .bookmark.off {
+    opacity: 0.3;
+  }
+
+  .vote {
+    height: 30px;
+    background-position: center;
+    margin-top: 10px;
+    //background-image: url('/static/img/vote-up-on.png');
+    background-repeat: no-repeat;
+    cursor: pointer;
+    color: #2F5B14;
+    opacity: 0.6;
+  }
+
+  .vote.off {
     opacity: 0.3;
   }
 

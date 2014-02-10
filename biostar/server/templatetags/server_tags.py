@@ -95,10 +95,16 @@ def navbar(context, user):
     return {'user': user, 'TOPICS': context['TOPICS'], 'topic': context.get('topic')}
 
 
-@register.inclusion_tag('server_tags/pagebar.html', takes_context=True)
+@register.inclusion_tag('server_tags/page-bar.html', takes_context=True)
 def pagebar(context):
     "Renders a paging bar"
     return context
+
+
+@register.inclusion_tag('server_tags/post-body.html', takes_context=True)
+def post_body(context, post, user):
+    "Renders a paging bar"
+    return dict(post=post, user=user)
 
 
 @register.inclusion_tag('server_tags/searchbar.html')

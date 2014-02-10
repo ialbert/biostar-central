@@ -2,7 +2,9 @@
 <div>
     <div class="action">
         <span class="label label-default">Add Comment</span>
-        &bull; Edit &bull; Moderate
+        &bull; <a href="{{ post.get_absolute_url }}">Link</a>
+        &bull; Edit
+        &bull; Moderate
     </div>
     <div class="text-right"> {% time_ago post %} ago by {% userlink post.author %}
     {%  gravatar post.author 48 %}

@@ -15,6 +15,9 @@
     {% if debug %}
 
         {# Development sites will compile less on the fly #}
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+        <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+
         {# Random numbers added to bypass potential browser caching. #}
         <link rel="stylesheet/less" type="text/less" href="{{ STATIC_URL }}{{ SITE_STYLE_CSS }}?x={% rand_num %}">
         <script src="{{ STATIC_URL }}lib/less-1.6.1.min.js" type="text/javascript"></script>
@@ -27,6 +30,8 @@
         {% endcompress %}
 
         {% compress js %}
+            <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+            <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
             <script src="{{ STATIC_URL }}biostar.js" type="text/javascript"></script>
         {% endcompress %}
     {% endif %}
@@ -35,7 +40,7 @@
 <body>
 
 {# Main page container. #}
-<div class="container">
+<div class="container" id="content">
 
     {# Navigation bar for each page. #}
     {% navbar user %}
@@ -114,10 +119,6 @@
     {# This information is cached and updated periodically via the context. #}
     <div id="traffic">Traffic: {{ TRAFFIC }} ip/hr</div>
 </div>
-
-{# Including the javascript libraries below #}
-<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
-<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
 
 {# Google tracker injected if it exists in the context. Found in settings.py #}
 {% if GOOGLE_TRACKER %}

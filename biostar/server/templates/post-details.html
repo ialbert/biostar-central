@@ -10,47 +10,17 @@
 
         <div class="col-md-9 post">
 
-            {#  The toplevel post is rendered here #}
-            <div class="title">{{ post.get_type_display }}: {{ post.title }}</div>
-            <div class="col-md-1">
-                <div class="vote-box">
-                    <div class="vote.off" data-original-title="Click to add bookmark"></div>
-                    <div class="count">{{ post.vote_count }}</div>
-                    <div class="bookmark off" data-original-title="Click to add bookmark"></div>
-                </div>
-            </div>
-
-            <div class="col-md-11">
-                <div class="content">{{ post.content|safe }}</div>
-                {% post_actions post %}
-            </div>
-
-            <div class="col-md-12 sep"><hr></div>
+            {% post_body post user %}
 
             {# Render each answer for the post #}
             {% for answer in post.answers %}
-
-                <div class="col-md-1">
-                    <div class="vote-box">
-                        <div class="vote.off" data-original-title="Click to add bookmark"></div>
-                        <div class="count">{{ answer.vote_count }}</div>
-                        <div class="bookmark off" data-original-title="Click to add bookmark"></div>
-                    </div>
-                </div>
-
-                <div class="col-md-11">
-                    <div class="content">{{ answer.content|safe }}</div>
-                    {% post_actions answer %}
-
-                </div>
-
-                <div class="col-md-12"><hr></div>
+                {% post_body answer user %}
             {% endfor %}
 
         </div>
 
         <div class="col-md-3">
-            Sidebar
+            Sidebar Goes Here
         </div>
 
     </div>

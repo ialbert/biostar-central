@@ -26,9 +26,13 @@
                                 <div class="c">{{ post.view_count }}</div>
                                 <div class="t">views</div>
                             </div>
-                            {%  if post.book_count %}<div class="book_count text-center">{{ post.book_count }} bookmarks</div>{%  endif %}
+                            {%  if post.book_count %}
+                                <div class="book_count text-center">
+                                    {{ post.book_count }} bookmark{{ post.book_count|pluralize }}
+                                </div>
+                            {%  endif %}
                         </td>
-                        <td>
+                        <td width="100%">
                             <div class="title"><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></div>
                             <div class="tags">
                                 {% for tag in post.tags.all %}
