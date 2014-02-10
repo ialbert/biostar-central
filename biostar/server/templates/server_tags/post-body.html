@@ -1,38 +1,47 @@
 {% load server_tags %}
 {# This renders a non-comment post. #}
 
+
 {#  The title is shown at top level only #}
-<a id="{{ post.id }}"></a>
 
-{% if post.is_toplevel %}
-    <div class="title">{{ post.get_type_display }}: {{ post.title }}</div>
-{% endif %}
+<tr>
 
-{#  The body of the post #}
-<div class="col-md-1">
-    <div class="vote-box">
-        <div class="vote off tip" data-toggle="tooltip" data-placement="top" title="Up Vote!">
-            <i class="fa fa-thumbs-o-up fa-2x"></i></div>
-        <div class="count">{{ post.vote_count }}</div>
+    <td>
+        <a id="{{ post.id }}"></a>
 
-        <div class="bookmark off tip" data-toggle="tooltip" data-placement="top" title="Bookmark!">
-            <i class="fa fa-book fa-2x"></i>
+        <div class="vote-box">
+            <div class="vote off tip" data-toggle="tooltip" data-placement="top" title="Upvote!">
+                <i class="fa fa-thumbs-o-up fa-2x"></i></div>
+            <div class="count">{{ post.vote_count }}</div>
+
+            <div class="bookmark off tip" data-toggle="tooltip" data-placement="top" title="Bookmark!">
+                <i class="fa fa-book fa-2x"></i>
+            </div>
+            {% if not post.is_toplevel and post.has_ownership %}
+                <div class="bookmark off tip" data-toggle="tooltip" data-placement="bottom" title="Accept!">
+                    <i class="fa fa-check-circle-o fa-2x"></i>
+                </div>
+            {% endif %}
         </div>
-        {%  if not post.is_toplevel %}
-        <div class="bookmark off tip" data-toggle="tooltip" data-placement="bottom" title="Accept!">
-            <i class="fa fa-check-circle-o fa-2x"></i>
+
+    </td>
+
+    <td>
+        {% if post.is_toplevel %}
+            <div class="title">{{ post.get_type_display }}: {{ post.title }}</div>
+        {% endif %}
+
+        {#  The body of the post #}
+        <div class="content">{{ post.content|safe }}</div>
+
+        {#  Post action line #}
+        {% post_actions post user %}
+
+        {#  Comments for each post rendered here #}
+        <div class="comment">
+            {% render_comments request post tree %}
         </div>
-        {%  endif %}
-    </div>
-</div>
+    </td>
 
-{#  Post content and action bars #}
-<div class="col-md-11">
-    <div class="content">{{ post.content|safe }}</div>
-    {% post_actions post %}
-</div>
 
-{#  Comments for each post rendered here #}
-
-{#  Post separator #}
-<div class="col-md-12"><hr></div>
+</tr>

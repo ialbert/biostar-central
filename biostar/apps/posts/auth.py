@@ -10,9 +10,9 @@ def post_permissions(request, post):
 
     if user.is_authenticated():
 
-        if user == post.author or user.is_staff:
+        if user == post.author :
             has_ownership = is_editable = True
-        elif user.is_moderator:
+        elif user.is_moderator or user.is_staff:
             is_editable = True
 
     post.is_editable = is_editable

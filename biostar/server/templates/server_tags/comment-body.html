@@ -1,0 +1,6 @@
+{% load server_tags %}
+<div class="entry">
+    {{ post.content|safe }}
+    {#  Post action line #}
+    {% post_actions post user %}
+</div>

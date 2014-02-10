@@ -96,27 +96,27 @@ def navbar(context, user):
 
 
 @register.inclusion_tag('server_tags/page-bar.html', takes_context=True)
-def pagebar(context):
+def page_bar(context):
     "Renders a paging bar"
     return context
 
 
 @register.inclusion_tag('server_tags/post-body.html', takes_context=True)
-def post_body(context, post, user):
-    "Renders a paging bar"
-    return dict(post=post, user=user)
+def post_body(context, post, user, tree):
+    "Renders the post body"
+    return dict(post=post, user=user, tree=tree, request=context['request'])
 
 
-@register.inclusion_tag('server_tags/searchbar.html')
-def searchbar():
+@register.inclusion_tag('server_tags/search_bar.html')
+def search_bar():
     "Displays search bar"
     return {}
 
 
 @register.inclusion_tag('server_tags/post_actions.html')
-def post_actions(post):
+def post_actions(post, user):
     "Renders post actions"
-    return {'post': post}
+    return dict(post=post, user=user)
 
 
 @register.inclusion_tag('server_tags/userlink.html')
@@ -130,24 +130,28 @@ def userlink(user):
     return {'user': user, 'marker': marker}
 
 # this contains the body of each comment
-COMMENT_TEMPLATE = 'server_tags/comment.html'
+COMMENT_TEMPLATE = 'server_tags/comment-body.html'
 COMMENT_BODY = template.loader.get_template(COMMENT_TEMPLATE)
 
 
 @register.simple_tag
-def comments(request, post, tree):
+def render_comments(request, post, tree):
+
+    print (post.id)
+    print (tree)
+
     global COMMENT_BODY, COMMENT_TEMPLATE
     if settings.DEBUG:
         # reload the template to get changes
         COMMENT_BODY = template.loader.get_template(COMMENT_TEMPLATE)
     if post.id in tree:
-        text = render_comments(request=request, post=post, tree=tree)
+        text = traverse_comments(request=request, post=post, tree=tree)
     else:
         text = ''
     return text
 
 
-def render_comments(request, post, tree):
+def traverse_comments(request, post, tree):
     "Traverses the tree and generates the page"
     global COMMENT_BODY
 
@@ -157,7 +161,7 @@ def render_comments(request, post, tree):
         cont.update(csrf(request))
         html = COMMENT_BODY.render(cont)
         data.append(html)
-        for child in tree[node.id]:
+        for child in tree.get(node.id, []):
             data.append(traverse(child))
         data.append("</div>")
         return '\n'.join(data)

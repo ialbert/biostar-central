@@ -4,9 +4,9 @@
 
 {% block content %}
 
-    {% searchbar %}
+    {% search_bar %}
 
-    {% pagebar %}
+    {% page_bar %}
 
     <div class="row">
         <div class="col-md-9" >
@@ -16,11 +16,11 @@
                         <td class="boxcell {{ post.get_type_display }}">
                             <div class="box vote">
                                 <div class="c">{{ post.vote_count }}</div>
-                                <div class="t">votes</div>
+                                <div class="t">vote{{ post.vote_count|pluralize }}</div>
                             </div>
                             <div class="box {% boxclass post %}">
                                 <div class="c">{{ post.reply_count }}</div>
-                                <div class="t">answers</div>
+                                <div class="t">answer{{ post.reply_count|pluralize }}</div>
                             </div>
                             <div class="box view">
                                 <div class="c">{{ post.view_count }}</div>
@@ -45,8 +45,6 @@
                         </td>
                     </tr>
 
-
-
                 {% endfor %}
             </table>
         </div>
@@ -55,6 +53,6 @@
         </div>
     </div>
 
-    {% pagebar %}
+    {% page_bar %}
 
 {% endblock %}

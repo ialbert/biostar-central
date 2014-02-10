@@ -9,6 +9,8 @@ from biostar.apps.posts.views import EditPost
 from biostar.apps.users.models import User
 from biostar.apps.posts.models import Post
 from collections import defaultdict, OrderedDict
+from biostar.apps.posts.auth import post_permissions
+
 
 class PostList(ListView):
     """
@@ -33,7 +35,7 @@ class PostList(ListView):
             return "Latest Posts"
 
     def get_queryset(self):
-        self.topic = self.kwargs.get("topic","")
+        self.topic = self.kwargs.get("topic", "")
 
         # Internally topics are case insensitive.
         topic = self.topic.lower()
@@ -97,6 +99,7 @@ class EditUser(EditUser):
 class EditPost(EditPost):
     template_name = "post-edit.html"
 
+
 class PostDetails(DetailView):
     """
     Shows a thread, top level post and all related content.
@@ -108,20 +111,24 @@ class PostDetails(DetailView):
     def get_object(self):
         obj = super(PostDetails, self).get_object()
 
+        # Adds the permissions
+        obj = post_permissions(request=self.request, post=obj)
+
         # Just a sanity check to start at top level.
         if obj != obj.root:
             obj = obj.root
 
         # Populate the object to build a tree that contains all posts in the thread.
         # Answers sorted before comments.
-        all = list(Post.objects.get_thread(obj))
+        thread = [post_permissions(request=self.request, post=post) for post in Post.objects.get_thread(obj)]
 
         # Do a little preprocessing.
-        answers = [p for p in all if p.type == Post.ANSWER]
+        answers = [p for p in thread if p.type == Post.ANSWER]
 
         tree = OrderedDict()
-        for post in all:
-            tree.setdefault(post.parent_id, []).append(post)
+        for post in thread:
+            if post.type == Post.COMMENT:
+                tree.setdefault(post.parent_id, []).append(post)
 
         # Add this to the object.
         obj.tree = tree
@@ -131,6 +138,7 @@ class PostDetails(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(PostDetails, self).get_context_data(**kwargs)
+        context['request'] = self.request
         return context
 
 

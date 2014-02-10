@@ -1,12 +1,18 @@
-{%  load server_tags %}
-<div>
-    <div class="action">
-        <span class="label label-default">Add Comment</span>
-        &bull; <a href="{{ post.get_absolute_url }}">Link</a>
-        &bull; Edit
-        &bull; Moderate
-    </div>
-    <div class="text-right"> {% time_ago post %} ago by {% userlink post.author %}
-    {%  gravatar post.author 48 %}
-    </div>
-</div>
+{% load server_tags %}
+<table width="100%">
+    <tr>
+        <td>
+            <span class="label label-default">Comment</span>
+            &bull; <a href="{{ post.get_absolute_url }}">link</a>
+            {% if post.is_editable %}
+                &bull; <a href="{% url 'post-edit' post.id %}">edit</a>
+                &bull; <a href="#">moderate</a>
+            {% endif %}
+
+        </td>
+        <td align="right">
+            {% time_ago post %} ago by {% userlink post.author %}
+            {% gravatar post.author 48 %}
+        </td>
+    </tr>
+</table>
