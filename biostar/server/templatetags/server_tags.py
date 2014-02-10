@@ -137,9 +137,6 @@ COMMENT_BODY = template.loader.get_template(COMMENT_TEMPLATE)
 @register.simple_tag
 def render_comments(request, post, tree):
 
-    print (post.id)
-    print (tree)
-
     global COMMENT_BODY, COMMENT_TEMPLATE
     if settings.DEBUG:
         # reload the template to get changes

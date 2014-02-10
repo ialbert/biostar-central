@@ -24,7 +24,7 @@
 
     <div class="col-md-8">
         <ul class="nav nav-pills navfix">
-            <li class="active pull-right"><a href="{%  url "post-edit" 0 %}">New Post</a></li>
+            <li class="active pull-right"><a href="{%  url "post-new" 0 %}">New Post</a></li>
             {% if user.is_authenticated %}
                 <li class="{% active "userprofile" topic %}"><a href="{% url 'user-details' user.id %}"><i class="fa fa-user"></i> {{ user.get_full_name|truncatechars:15 }}</a></li>
                 <li class="{% active "messages" topic %}"><a href="/admin/"><i class="fa fa-envelope"></i> Messages</a></li>

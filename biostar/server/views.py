@@ -4,7 +4,7 @@ from haystack.views import SearchView
 
 from biostar.apps.users import auth
 from biostar.apps.users.views import EditUser
-from biostar.apps.posts.views import EditPost
+from biostar.apps.posts.views import EditPost, NewPost
 
 from biostar.apps.users.models import User
 from biostar.apps.posts.models import Post
@@ -94,10 +94,6 @@ class UserDetails(DetailView):
 
 class EditUser(EditUser):
     template_name = "user-edit.html"
-
-
-class EditPost(EditPost):
-    template_name = "post-edit.html"
 
 
 class PostDetails(DetailView):

@@ -28,7 +28,11 @@ urlpatterns = patterns('',
     # Post details.
     url(r'^p/(?P<pk>\d+)/$', views.PostDetails.as_view(), name="post-details"),
 
-    # User details.
+
+    # Create a new post.
+    url(r'^p/new/(?P<pid>\d+)/$', views.NewPost.as_view(), name="post-new"),
+
+    # Edit an existing post.
     url(r'^p/edit/(?P<pk>\d+)/$', views.EditPost.as_view(), name="post-edit"),
 
 
