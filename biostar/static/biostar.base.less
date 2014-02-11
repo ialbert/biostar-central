@@ -80,11 +80,11 @@ h2 {
   margin-top: 10px;
 }
 
-table#post-details{
+table#post-details {
   vertical-align: top;
   padding: 0px;
   width: 100%;
-  margin-top:1em;
+  margin-top: 1em;
   .title {
     font-weight: bold;
     padding-bottom: 0.5em;
@@ -92,7 +92,6 @@ table#post-details{
   }
 
 }
-
 
 table#posts {
   vertical-align: top;
@@ -103,8 +102,8 @@ table#posts {
     width: 100%;
     font-size: x-small;
     color: #762C90;
-    float:left;
-    margin-left:-5px;
+    float: left;
+    margin-left: -5px;
     font-weight: bold;
   }
   .Forum {
@@ -295,7 +294,7 @@ ul.flat {
 
   text-align: center;
 
-  .bookmark  {
+  .bookmark {
     height: 30px;
     background-position: center;
     margin-top: 10px;
@@ -328,32 +327,54 @@ ul.flat {
 }
 
 .action-line {
-  width:50%;
+  width: 50%;
   float: left;
 }
 
 .author-line {
-  width:30%;
+  width: 30%;
   float: right;
 }
 
 .comment {
-    clear:left;
+  clear: left;
 
-    .entry {
-        padding:10px;
-        margin-top:0.5em;
-        color:#666666;
-        background-color:#efefef;
-        border-bottom: 1px solid #eeeeee;
+  .entry {
+    padding: 10px;
+    margin-top: 0.5em;
+    color: #666666;
+    background-color: #efefef;
+    border-bottom: 1px solid #eeeeee;
 
+  }
+  .post-info-line {
+    float: left;
+    margin-right: 10px;
+    color: #666666;
+  }
+  .indent {
+    margin-left: 1.5em;
+  }
+}
+
+div#navbar {
+  margin-top: 5px;
+  div:not(:first-child) {
+    vertical-align: middle;
+    text-align: center;
+    padding: 5px;
+    //height: 60px;
+    //padding-right: 1em;
+    //padding-left: 1em;
+
+    //margin-right: 5px;
+    //margin-bottom: 1px;
+    //text-decoration: none;
+
+    &:hover {
+      background-color: #eeeeee;
     }
-    .post-info-line{
-        float: left;
-        margin-right:10px;
-        color:#666666;
-    }
-    .indent {
-        margin-left:1.5em;
-    }
+
+  }
+
 }

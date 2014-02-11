@@ -89,10 +89,10 @@ def boxclass(post):
     return style
 
 
-@register.inclusion_tag('server_tags/navbar.html', takes_context=True)
-def navbar(context, user):
+@register.inclusion_tag('server_tags/nav_bar.html', takes_context=True)
+def nav_bar(context, user):
     "Renders top navigation bar"
-    return {'user': user, 'TOPICS': context['TOPICS'], 'topic': context.get('topic')}
+    return context
 
 
 @register.inclusion_tag('server_tags/page-bar.html', takes_context=True)

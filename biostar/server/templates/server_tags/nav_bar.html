@@ -1,0 +1,85 @@
+{% load staticfiles %}
+{% load server_tags %}
+
+<div class="row" id="navbar">
+    <div class="col-md-11 col-md-offset-1">
+        <ul class="nav nav-pills">
+            <li class="{% active "Latest" topic %}"><a href="{% url 'home' %}">Latest</a></li>
+            {% for word in TOPICS %}
+                <li class="{% active word topic %}"><a href="{% url 'topic-list' topic=word %}">{{ word }}</a></li>
+            {% endfor %}
+        </ul>
+
+    </div>
+</div>
+
+<div class="row">
+
+    <div class="col-sm-12" id="navbar">
+
+
+        <div class="col-sm-4 logo" >
+            <a href="/"><img src="{{ STATIC_URL }}{{ SITE_LOGO }}"></a>
+        </div>
+
+        {% if user.is_authenticated %}
+            <div class="col-sm-1 {% active "userprofile" topic %}">
+                <a href="{% url 'user-details' user.id %}">
+
+                    <div>{%  gravatar user 60 %}</div>
+                </a>
+            </div>
+            <div class="col-sm-1 {% active "messages" topic %}">
+                <a href="/admin/">
+                    <div><i class="fa fa-envelope fa-1x"></i>
+                    </div>
+                    <div>Messages</div>
+                </a>
+            </div>
+            <div class="col-sm-1 {% active "votes" topic %}">
+                <a href="/admin/" class="navitem">
+                    <div class="navitem">
+                        <div><i class="fa fa-heart"></i></div>
+                        <div>Votes</div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-sm-1 {% active "bookmarks" topic %}">
+                <a href="/admin/" class="navitem">
+                    <div><i class="fa fa-bookmark"></i></div>
+                    <div>Bookmarks</div>
+                </a>
+            </div>
+            <div class="col-sm-1 {% active "myposts" topic %}">
+                <a href="{% url 'topic-list' topic="myposts" %}" class="navitem">
+                    <div><i class="fa fa-comments"></i></div>
+                    <div>My Posts</div>
+                </a>
+            </div>
+            <div class="col-sm-1"><a href="{% url 'account_logout' %}">
+                <div><i class="fa fa-hand-o-up"></i></div>
+                <div>Logout</div>
+            </a></div>
+        {% else %}
+
+            <div>
+                <a href="{% url 'account_login' %}">
+                    <div><i class="fa fa-user"></i></div>
+                    <div>Log In</div>
+                </a>
+            </div>
+
+            <div>
+                <a href="{% url 'account_signup' %}">
+                    <div><i class="fa fa-star"></i></div>
+                    <div>Sign Up</div>
+                </a></div>
+
+        {% endif %}
+        <div class="col-sm-1"><a role="button" class="btn btn-success" href="{% url 'account_logout' %}">
+
+            New <br> Question
+        </a></div>
+
+    </div>
+</div>

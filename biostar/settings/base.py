@@ -317,6 +317,7 @@ GOOGLE_TRACKER = "foobar"
 
 # The default CSS file to load.
 SITE_STYLE_CSS = "biostar.style.less"
+SITE_LOGO = "biostar.logo.png"
 
 # Django precompressor settings.
 COMPRESS_PRECOMPILERS = (
