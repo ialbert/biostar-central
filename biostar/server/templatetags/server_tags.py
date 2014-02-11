@@ -95,13 +95,13 @@ def nav_bar(context, user):
     return context
 
 
-@register.inclusion_tag('server_tags/page-bar.html', takes_context=True)
+@register.inclusion_tag('server_tags/page_bar.html', takes_context=True)
 def page_bar(context):
     "Renders a paging bar"
     return context
 
 
-@register.inclusion_tag('server_tags/post-body.html', takes_context=True)
+@register.inclusion_tag('server_tags/post_body.html', takes_context=True)
 def post_body(context, post, user, tree):
     "Renders the post body"
     return dict(post=post, user=user, tree=tree, request=context['request'])
@@ -119,7 +119,7 @@ def post_actions(post, user):
     return dict(post=post, user=user)
 
 
-@register.inclusion_tag('server_tags/userlink.html')
+@register.inclusion_tag('server_tags/user_link.html')
 def userlink(user):
     "Renders the flair"
     marker = "&bull;"
@@ -130,7 +130,7 @@ def userlink(user):
     return {'user': user, 'marker': marker}
 
 # this contains the body of each comment
-COMMENT_TEMPLATE = 'server_tags/comment-body.html'
+COMMENT_TEMPLATE = 'server_tags/comment_body.html'
 COMMENT_BODY = template.loader.get_template(COMMENT_TEMPLATE)
 
 
