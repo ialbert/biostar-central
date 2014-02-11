@@ -7,10 +7,28 @@
 {% endblock %}
 {% block content %}
     <div class="row">
-        <div class="col-md-4 col-md-offset-0">
-            <h1>{% trans "Sign Up" %}</h1>
+     <div class="col-md-6">
+            <h1>{% trans "Social Signup" %}</h1>
 
-            <p>{% blocktrans %}Already have an account? Then please <a href="{{ login_url }}">sign in</a>.{% endblocktrans %}</p>
+            {% if socialaccount.providers %}
+                <p>{% blocktrans with site.name as site_name %}You may use the following
+                    providers to create an account.{% endblocktrans %}</p>
+
+                <div class="socialaccount_ballot">
+                    <ul class="socialaccount_providers">
+                        {% include "socialaccount/snippets/provider_list.html" with process="login" %}
+                    </ul>
+                </div>
+                {% include "socialaccount/snippets/login_extra.html" %}
+            {% endif %}
+
+            <div class="login-or">Don't want to use social logins? Use the form on the left to create an account &raquo;</div>
+        </div>
+
+        <div class="col-md-6 col-md-offset-0">
+            <h1>{% trans "Create an account" %}</h1>
+
+            <p>{% blocktrans %}Already have an account? Then please <a href="{{ login_url }}">log in</a>.{% endblocktrans %}</p>
 
 
             <form role="form" class="signup" id="signup_form" method="post" action="{% url 'account_signup' %}">

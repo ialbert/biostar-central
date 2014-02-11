@@ -358,11 +358,29 @@ ul.flat {
 }
 
 div#navbar {
+
   margin-top: 5px;
-  div:not(:first-child) {
+  .top {
+    padding:0.5em;
+    margin-bottom: 5px;
+    background-color: #eeeeee;
+    border-radius: 4px;
+    //text-align: center;
+  }
+  .anon {
+    padding:1em;
+    text-align: center;
+    border-radius: 4px;
+    &:hover {
+      background-color: #eeeeee;
+    }
+  }
+  .mid {
+    border-radius: 4px;
     vertical-align: middle;
     text-align: center;
     padding: 5px;
+    border-radius: 4px;
     //height: 60px;
     //padding-right: 1em;
     //padding-left: 1em;

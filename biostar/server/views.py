@@ -48,7 +48,7 @@ class PostList(ListView):
                 objs = Post.objects.top_level(self.request.user).filter(tags__name=topic).exclude(type=Post.BLOG)
         else:
             # Limit the latest posts so that engines don't crawl outside of the topics categories.
-            objs = Post.objects.top_level(self.request.user).exclude(type=Post.BLOG)[:self.limit]
+            objs = Post.objects.top_level(self.request.user).exclude(type=Post.BLOG)[:settings.SITE_LATEST_POST_LIMIT]
 
         return objs
 

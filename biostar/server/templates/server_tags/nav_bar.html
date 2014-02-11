@@ -2,12 +2,14 @@
 {% load server_tags %}
 
 <div class="row" id="navbar">
-    <div class="col-md-11 col-md-offset-1">
+    <div class="col-md-12">
         <ul class="nav nav-pills">
             <li class="{% active "Latest" topic %}"><a href="{% url 'home' %}">Latest</a></li>
+            <li class="{% active "Unanswered" topic %}"><a href="{% url 'home' %}">Unanswered</a></li>
             {% for word in TOPICS %}
                 <li class="{% active word topic %}"><a href="{% url 'topic-list' topic=word %}">{{ word }}</a></li>
             {% endfor %}
+            <li class="{% active "All" topic %} pull-right"><a href="{% url 'home' %}">All &raquo;</a></li>
         </ul>
 
     </div>
@@ -18,25 +20,28 @@
     <div class="col-sm-12" id="navbar">
 
 
-        <div class="col-sm-4 logo" >
+        <div class="col-md-4 logo">
             <a href="/"><img src="{{ STATIC_URL }}{{ SITE_LOGO }}"></a>
         </div>
 
         {% if user.is_authenticated %}
-            <div class="col-sm-1 {% active "userprofile" topic %}">
+            <div class="col-md-8 top {% active "userprofile" topic %}">
                 <a href="{% url 'user-details' user.id %}">
-
-                    <div>{%  gravatar user 60 %}</div>
+                    <div><i class="fa fa-user fa-1x"></i>
+                        {% userlink user %} &nbsp;|&nbsp;
+                        <a href="{% url 'account_logout' %}">Logout &raquo;
+                    </div>
                 </a>
             </div>
-            <div class="col-sm-1 {% active "messages" topic %}">
+
+            <div class="col-sm-1 mid {% active "messages" topic %}">
                 <a href="/admin/">
                     <div><i class="fa fa-envelope fa-1x"></i>
                     </div>
                     <div>Messages</div>
                 </a>
             </div>
-            <div class="col-sm-1 {% active "votes" topic %}">
+            <div class="col-sm-1 mid {% active "votes" topic %}">
                 <a href="/admin/" class="navitem">
                     <div class="navitem">
                         <div><i class="fa fa-heart"></i></div>
@@ -44,42 +49,42 @@
                     </div>
                 </a>
             </div>
-            <div class="col-sm-1 {% active "bookmarks" topic %}">
+            <div class="col-sm-1 mid {% active "bookmarks" topic %}">
                 <a href="/admin/" class="navitem">
                     <div><i class="fa fa-bookmark"></i></div>
                     <div>Bookmarks</div>
                 </a>
             </div>
-            <div class="col-sm-1 {% active "myposts" topic %}">
+            <div class="col-sm-1 mid {% active "myposts" topic %}">
                 <a href="{% url 'topic-list' topic="myposts" %}" class="navitem">
                     <div><i class="fa fa-comments"></i></div>
                     <div>My Posts</div>
                 </a>
             </div>
-            <div class="col-sm-1"><a href="{% url 'account_logout' %}">
-                <div><i class="fa fa-hand-o-up"></i></div>
-                <div>Logout</div>
-            </a></div>
+
+
         {% else %}
 
-            <div>
+            <div class="col-sm-2 col-md-offset-1 anon {% active "login" topic %}">
                 <a href="{% url 'account_login' %}">
-                    <div><i class="fa fa-user"></i></div>
+                    <div><i class="fa fa-user fa-2x"></i></div>
                     <div>Log In</div>
                 </a>
             </div>
 
-            <div>
+            <div class="col-sm-2 anon {% active "signup" topic %}">
                 <a href="{% url 'account_signup' %}">
-                    <div><i class="fa fa-star"></i></div>
+                    <div><i class="fa fa-star fa-2x"></i></div>
                     <div>Sign Up</div>
                 </a></div>
 
-        {% endif %}
-        <div class="col-sm-1"><a role="button" class="btn btn-success" href="{% url 'account_logout' %}">
 
-            New <br> Question
-        </a></div>
+        {% endif %}
+
+        <div class="col-sm-1 pull-right">
+            <a role="button" class="btn btn-success" href="{% url 'account_logout' %}"> New <br> Question
+            </a></div>
+
 
     </div>
 </div>

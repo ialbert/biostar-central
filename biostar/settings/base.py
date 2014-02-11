@@ -317,7 +317,12 @@ GOOGLE_TRACKER = "foobar"
 
 # The default CSS file to load.
 SITE_STYLE_CSS = "biostar.style.less"
+
+# The site logo.
 SITE_LOGO = "biostar.logo.png"
+
+# Set it to None if all posts should be accesible via the Latest tab.
+SITE_LATEST_POST_LIMIT = 200
 
 # Django precompressor settings.
 COMPRESS_PRECOMPILERS = (
