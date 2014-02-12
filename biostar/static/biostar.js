@@ -1,9 +1,8 @@
 // comment add
-function show_add_comment(elem) {
+function user_comment_click(elem) {
 
     // remove comment body if exists.
     $("#comment-form").remove();
-
 
     post_id = elem.attr('data-value')
     container = elem.closest("table")
@@ -22,15 +21,19 @@ function show_add_comment(elem) {
     CKEDITOR.replace('comment-box');
 }
 
+function anon_comment_click(elem) {
+    container = elem.closest("table")
+    elem.css("background-color", "red");
+    $("#comment-box").remove();
+    container.append('<tr id="comment-box">\
+    <td colspan="2">\
+        <div class="alert alert-warning">Please log in to comment</div>\
+    </td></tr>'
+    )
 
-$(document).ready(function () {
-    var tooltip_options = {};
+}
 
-    // Register tooltips.
-    $('.tip').tooltip(tooltip_options)
-
-
-    // Register comment adding.
+function anon_actions() {
     $('.add-comment').each(function () {
         elem = $(this)
         //console.log(elem)
@@ -39,5 +42,31 @@ $(document).ready(function () {
             show_add_comment($(this));
         });
     });
+}
+
+
+$(document).ready(function () {
+    var tooltip_options = {};
+
+    user_id = $("#user_id").val()
+
+
+    // Register tooltips.
+    $('.tip').tooltip(tooltip_options)
+
+    // Register comment adding.
+    if (user_id) {
+        $('.add-comment').each(function () {
+            $(this).click(function () {
+                user_comment_click($(this));
+            });
+        });
+    } else {
+        $('.add-comment').each(function () {
+            $(this).click(function () {
+                anon_comment_click($(this));
+            });
+        });
+    }
 
 });

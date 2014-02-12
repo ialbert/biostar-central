@@ -20,21 +20,29 @@
 
                 <span id="csrf_token">{% csrf_token %}</span>
                 <tr>
-                    <td colspan="2">
-                        <h3>Add your answer</h3>
+                    <td>&nbsp;</td>
+                    <td>
 
-                        <p><strong>Plese note:</strong> Answers relate to the original question at the top. Use comments
-                            to discuss existing posts, ask for clarifications, etc. </p>
+                        {% if user.is_authenticated %}
+                            <h3>Add your answer</h3>
+                            <p><strong>Plese note:</strong> Answers relate to the original question at the top. Use
+                                comments
+                                to discuss existing posts, ask for clarifications, etc. </p>
 
-                        <form role="form" id="answer-form" method="post" action="{% url "new-answer" post.id %}">
-                            {% csrf_token %}
-                            <div class="form-group">
-                                <textarea class="textarea form-control" cols="40" id="answerbox" name="content" rows="10"></textarea>
+                            <form role="form" id="answer-form" method="post" action="{% url "new-answer" post.id %}">
+                                {% csrf_token %}
+                                <div class="form-group">
+                                    <textarea class="textarea form-control" cols="40" id="answerbox" name="content"
+                                              rows="10"></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-success">Add Answer</button>
+
+                            </form>
+                        {% else %}
+                            <div class="alert alert-info">
+                                Please <a href="account-login">log in</a> to add an answer.
                             </div>
-                            <button type="submit" class="btn btn-success">Add Answer</button>
-
-                        </form>
-
+                        {% endif %}
 
                     </td>
                 </tr>
@@ -49,9 +57,11 @@
     </div>
 
     <script src="/static/ckeditor/ckeditor.js"></script>
-    <script>
-        // Replace the <textarea id="editor1"> with a CKEditor
-        CKEDITOR.replace('answerbox');
-    </script>
+    {% if user.is_authenticated %}
+        <script>
+            // Replace the <textarea id="editor1"> with a CKEditor
+            CKEDITOR.replace('answerbox');
+        </script>
+    {% endif %}
 
 {% endblock %}

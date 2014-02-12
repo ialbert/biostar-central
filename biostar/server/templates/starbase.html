@@ -39,6 +39,11 @@
 
 <body>
 
+{% if user.is_authenticated %}
+    {# We use this to detect in javascript when the user is authenticated #}
+    <input type="hidden" id="user_id" value="{{ user.id }}">
+{% endif %}
+
 {# Main page container. #}
 <div class="container" id="content">
 
