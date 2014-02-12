@@ -4,7 +4,7 @@ from haystack.views import SearchView
 
 from biostar.apps.users import auth
 from biostar.apps.users.views import EditUser
-from biostar.apps.posts.views import EditPost, NewPost
+from biostar.apps.posts.views import EditPost, NewPost, NewAnswer
 
 from biostar.apps.users.models import User
 from biostar.apps.posts.models import Post

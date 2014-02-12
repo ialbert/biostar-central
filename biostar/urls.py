@@ -28,8 +28,11 @@ urlpatterns = patterns('',
     # Post details.
     url(r'^p/(?P<pk>\d+)/$', views.PostDetails.as_view(), name="post-details"),
 
-    # Create a new post.
-    url(r'^p/new/(?P<pid>\d+)/$', views.NewPost.as_view(), name="newpost"),
+    # A separate url for each post type.
+    url(r'^p/new/post/$', views.NewPost.as_view(), name="new-post"),
+
+    url(r'^p/new/answer/(?P<pid>\d+)/$', views.NewAnswer.as_view(post_type="answer"), name="new-answer"),
+    url(r'^p/new/comment/(?P<pid>\d+)/$', views.NewAnswer.as_view(post_type="comment"), name="new-comment"),
 
     # Edit an existing post.
     url(r'^p/edit/(?P<pk>\d+)/$', views.EditPost.as_view(), name="post-edit"),

@@ -13,6 +13,7 @@ from . import auth
 from braces.views import LoginRequiredMixin
 from datetime import datetime
 from django.utils.timezone import utc
+from django.core.exceptions import ObjectDoesNotExist
 
 class LongForm(forms.Form):
     FIELDS = "title content".split()
@@ -36,7 +37,7 @@ class LongForm(forms.Form):
 
 
 class ShortForm(forms.Form):
-    FIELDS = "content2"
+    FIELDS = "content"
 
     content = forms.CharField(widget=forms.Textarea)
 
@@ -53,13 +54,35 @@ class ShortForm(forms.Form):
             )
         )
 
-
 class NewPost(LoginRequiredMixin, FormView):
+    form_class = LongForm
+    template_name = "post-edit.html"
+
+    def post(self, request, *args, **kwargs):
+
+        # Validating the form.
+        form = self.form_class(request.POST)
+        if not form.is_valid():
+            return render(request, self.template_name, {'form': form})
+
+        # Valid forms start here.
+        data = form.cleaned_data.get
+
+        post = Post(
+            title=data('title'), content=data('content'), author=request.user, type=Post.QUESTION,
+        )
+        post.save()
+        messages.success(request, "%s created" % post.get_type_display())
+        return HttpResponseRedirect(post.get_absolute_url())
+
+class NewAnswer(LoginRequiredMixin, FormView):
     """
     Creates a new post.
     """
-    form_class = LongForm
+    form_class = ShortForm
     template_name = "post-edit.html"
+    type_map = dict(answer=Post.ANSWER, comment=Post.COMMENT)
+    post_type = None
 
     def get(self, request, *args, **kwargs):
         initial = {}
@@ -71,35 +94,31 @@ class NewPost(LoginRequiredMixin, FormView):
         return render(request, self.template_name, {'form': form})
 
     def post(self, request, *args, **kwargs):
-        user = request.user
+
         pid = int(self.kwargs['pid'])
 
-        # Posts with a parent are not toplevel
-        form_class = ShortForm if pid else LongForm
+        # Find the parent.
+        try:
+            parent = Post.objects.get(pk=pid)
+        except ObjectDoesNotExist, exc:
+            messages.error(request, "The post does not exist. Perhaps it was deleted")
+            HttpResponseRedirect("/")
 
         # Validating the form.
-        form = form_class(request.POST)
+        form = self.form_class(request.POST)
         if not form.is_valid():
             return render(request, self.template_name, {'form': form})
 
         # Valid forms start here.
-        data = form.cleaned_data
+        data = form.cleaned_data.get
 
-        # Set the parent if it exists
-        parent = Post.objects.get(pk=pid) if pid else None
-
-        # Set the title based on the level of the object.
-        if parent:
-            title = parent.title
-        else:
-            title = data['title']
-
+        # Figure out the right type for this new post
+        post_type = self.type_map.get(self.post_type)
         # Create a new post.
         post = Post(
-            title=title, content=data['content'], author=user, type=Post.FORUM,
+            title=parent.title, content=data('content'), author=request.user, type=post_type,
             parent=parent,
         )
-
 
         messages.success(request, "%s created" % post.get_type_display())
         post.save()

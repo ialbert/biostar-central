@@ -18,7 +18,7 @@
                     {% post_body answer user post.tree %}
                 {% endfor %}
 
-
+                <span id="csrf_token">{% csrf_token %}</span>
                 <tr>
                     <td colspan="2">
                         <h3>Add your answer</h3>
@@ -26,7 +26,7 @@
                         <p><strong>Plese note:</strong> Answers relate to the original question at the top. Use comments
                             to discuss existing posts, ask for clarifications, etc. </p>
 
-                        <form role="form" method="post" action="{% url "newpost" post.id %}">
+                        <form role="form" id="answer-form" method="post" action="{% url "new-answer" post.id %}">
                             {% csrf_token %}
                             <div class="form-group">
                                 <textarea class="textarea form-control" cols="40" id="answerbox" name="content" rows="10"></textarea>

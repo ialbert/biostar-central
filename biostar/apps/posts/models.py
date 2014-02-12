@@ -129,6 +129,10 @@ class Post(models.Model):
                 # Only comments may be added to a parent that is answer or comment.
                 self.type = Post.COMMENT
 
+            if not self.type:
+                # Set post type if it was left empty.
+                self.type = self.COMMENT if self.parent else self.FORUM
+
             # This runs only once upon object creation.
             self.title = self.parent.title if self.parent else self.title
             self.lastedit_user = self.author
@@ -165,7 +169,6 @@ class Post(models.Model):
             elif instance.root:
                 # The root should never be set on creation.
                 raise Exception('Root may not be set on creation')
-
             if instance.parent.type in (Post.ANSWER, Post.COMMENT):
                 # Answers and comments may only have comments associated with them.
                 instance.type = Post.COMMENT
