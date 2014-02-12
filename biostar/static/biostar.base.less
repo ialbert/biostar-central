@@ -9,12 +9,10 @@ The importing LESS file must have certain constants and variables set.
 See the biostar.style.less file for details.
 */
 
-#header {
-  color: @color;
-}
-
-h2 {
-  color: @color;
+.btn-success {
+  color: #fff;
+  border-color: darken(@BACKGROUND_SUCCESS, 1%);
+  background-color: @BACKGROUND_SUCCESS;
 }
 
 #messages {
@@ -58,10 +56,10 @@ h2 {
   margin-bottom: 1px;
   padding: 1px 4px 1px 4px;
   text-decoration: none;
-  background-color: #ECECEC;
-  border-bottom: 1px solid #BBB;
-  border-right: 1px solid #BBB;
-  color: #6B3E4A;
+  background-color: @TAG_BACKGROUND_COLOR;
+  border-bottom: 1px solid @TAG_BORDER_COLOR;
+  border-right: 1px solid @TAG_BORDER_COLOR;
+  color: @TAG_COLOR;
   -webkit-border-radius: 5px;
   -moz-border-radius: 5px;
   border-radius: 5px;
@@ -86,7 +84,7 @@ table#post-details {
   width: 100%;
   margin-top: 1em;
   td {
-    padding:5px;
+    padding: 5px;
   }
   .title {
     font-weight: bold;
@@ -112,7 +110,7 @@ table#posts {
   .Forum {
 
     .answered {
-      background-color: #B79538;
+      background-color: @BACKGROUND_SUCCESS;
       color: white;
     }
     .commented {
@@ -131,7 +129,7 @@ table#posts {
 
   .Job {
     .answered {
-      background-color: #E9530F;
+      background-color: @BACKGROUND_SUCCESS;
       color: white;
     }
     .commented {
@@ -151,7 +149,7 @@ table#posts {
   .Question {
 
     .answered {
-      background-color: #436C27;
+      background-color: @BACKGROUND_SUCCESS;
       color: white;
     }
     .commented {
@@ -252,11 +250,11 @@ ul.flat {
 
 .nav-pills > li.active > a, .nav-pills > li.active > a:hover, .nav-pills > li.active > a:focus {
   color: #fff;
-  background-color: #5B8C3E;
+  background-color: @BACKGROUND_SUCCESS;
 }
 
 #navbar li.active {
-  background-color: #436C27;
+  background-color: @BACKGROUND_SUCCESS;
 }
 
 .post {
@@ -364,14 +362,15 @@ div#navbar {
 
   margin-top: 5px;
   .top {
-    padding:0.5em;
+    padding: 0.5em;
     margin-bottom: 5px;
     background-color: #eeeeee;
     border-radius: 4px;
+    border: 1px solid #ececec;
     //text-align: center;
   }
   .anon {
-    padding:1em;
+    padding: 1em;
     text-align: center;
     border-radius: 4px;
     &:hover {
@@ -402,6 +401,6 @@ div#navbar {
 .add-comment {
   cursor: pointer;
   &:hover {
-      background-color: #436C27;
-    }
+    background-color: #436C27;
+  }
 }

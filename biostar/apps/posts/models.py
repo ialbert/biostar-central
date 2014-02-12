@@ -20,7 +20,7 @@ class PostManager(models.Manager):
 
     def get_thread(self, root):
         # Populate the object to build a tree that contains all posts in the thread.
-        query = self.filter(root=root).exclude(pk=root.id).select_related("author").order_by("type", "has_accepted", "vote_count")
+        query = self.filter(root=root).exclude(pk=root.id).select_related("author").order_by("type", "has_accepted", "-vote_count")
         return query
 
     def top_level(self, user):
@@ -145,6 +145,7 @@ class Post(models.Model):
     def __unicode__(self):
         return "%s: %s (id=%s)" % (self.get_type_display(), self.title, self.id)
 
+    @property
     def is_toplevel(self):
         return self.type in Post.TOP_LEVEL
 
@@ -153,7 +154,8 @@ class Post(models.Model):
         #if self.url:
         #    return self.url
         url = reverse("post-details", kwargs=dict(pk=self.root.id))
-        return "%s#%s" % (url, self.id)
+        return url if self.is_toplevel else "%s#%s" % (url, self.id)
+
 
     @staticmethod
     def check_root(sender, instance, created, *args, **kwargs):
