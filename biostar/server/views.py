@@ -56,6 +56,7 @@ class PostList(ListView):
         context = super(PostList, self).get_context_data(**kwargs)
         context['topic'] = self.topic or self.LATEST
         context['page_title'] = self.page_title()
+        context['show_create_button'] = True
         return context
 
 

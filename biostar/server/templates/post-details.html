@@ -8,7 +8,7 @@
 
     <div class="row">
 
-        <div class="col-md-9" >
+        <div class="col-md-9">
 
             <table class="table" id="post-details">
                 {% post_body post user post.tree %}
@@ -18,6 +18,26 @@
                     {% post_body answer user post.tree %}
                 {% endfor %}
 
+
+                <tr>
+                    <td colspan="2">
+                        <h3>Add your answer</h3>
+
+                        <p><strong>Plese note:</strong> Answers relate to the original question at the top. Use comments
+                            to discuss existing posts, ask for clarifications, etc. </p>
+
+                        <form role="form" method="post" action="{% url "newpost" post.id %}">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <textarea class="textarea form-control" cols="40" id="answerbox" name="content" rows="10"></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-success">Add Answer</button>
+
+                        </form>
+
+
+                    </td>
+                </tr>
             </table>
 
         </div>
@@ -28,6 +48,10 @@
 
     </div>
 
-
+    <script src="/static/ckeditor/ckeditor.js"></script>
+    <script>
+        // Replace the <textarea id="editor1"> with a CKEditor
+        CKEDITOR.replace('answerbox');
+    </script>
 
 {% endblock %}

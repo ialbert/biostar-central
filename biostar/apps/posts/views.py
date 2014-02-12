@@ -18,7 +18,7 @@ class LongForm(forms.Form):
     FIELDS = "title content".split()
 
     title = forms.CharField()
-    content = forms.CharField(widget=forms.Textarea, required=False)
+    content = forms.CharField(widget=forms.Textarea)
 
     def __init__(self, *args, **kwargs):
         super(LongForm, self).__init__(*args, **kwargs)
@@ -36,10 +36,9 @@ class LongForm(forms.Form):
 
 
 class ShortForm(forms.Form):
-    FIELDS = "content"
+    FIELDS = "content2"
 
-    title = forms.CharField()
-    content = forms.CharField(widget=forms.Textarea, required=False)
+    content = forms.CharField(widget=forms.Textarea)
 
     def __init__(self, *args, **kwargs):
         super(ShortForm, self).__init__(*args, **kwargs)
@@ -101,7 +100,8 @@ class NewPost(LoginRequiredMixin, FormView):
             parent=parent,
         )
 
-        messages.success(request, "Post created")
+
+        messages.success(request, "%s created" % post.get_type_display())
         post.save()
 
         return HttpResponseRedirect(post.get_absolute_url())

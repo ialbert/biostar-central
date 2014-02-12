@@ -23,39 +23,90 @@ class NoteTest(TestCase):
         eq = self.assertEqual
 
         # Create some users
-        title = "Hello Notifications!"
+        title = "Test"
         emails = ["john@this.edu", "jane@this.edu", "bob@this.edu", "alice@this.edu",
                   "bill@this.edu", "jeff@this.edu" ]
-        users, posts = [], []
+
+        EMAIL_COUNT = len(emails)
+
+        users, posts, user = [], [], None
         parent = None
         for email in emails:
+
+            # Create users.
             user = User.objects.create(email=email)
             users.append(user)
 
-            post = Post(title=title, author=user, type=Post.FORUM, parent=parent)
-            post.save()
-            posts.append(post)
+        # Create a question.
+        first = users[0]
+        post = Post(title=title, author=first, type=Post.QUESTION)
+        post.save()
 
-            parent = post
+        answers = []
+        for user in users:
+            # Every user adds an answer.
+            answ = Post(author=user, type=Post.ANSWER, parent=post)
+            answ.save()
+            answers.append(answ)
 
-        count = len(emails)
+        # A default admin user is added.
+        eq(EMAIL_COUNT + 1, User.objects.all().count())
 
-        allp = Post.objects.all()
-        eq(len(allp), count)
+        # Total number of posts
+        eq(EMAIL_COUNT + 1, Post.objects.all().count())
 
-        answ = Post.objects.filter(type=Post.ANSWER)
-        eq(len(answ), 1)
+        # Every user has one subscription to the main post
+        eq(EMAIL_COUNT, Subscription.objects.all().count())
 
-        comm = Post.objects.filter(type=Post.COMMENT)
-        eq(len(comm), count - 2)
+        # Each user has a messages for content posted after
+        # they started following the thread.
+        for index, user in enumerate(users):
+            mesg_c = Message.objects.filter(user=user).count()
+            eq (mesg_c, EMAIL_COUNT - index - 1)
 
-        subs = Subscription.objects.get_subs(post=parent)
-        eq(len(subs), count)
+        '''
+        COMMENT_COUNT = 3
+        comments = []
+        for i in range(COMMENT_COUNT):
+            com = Post(author=last, type=Post.COMMENT, parent=answers[0])
+            com.save()
+            comments.append(com)
+
+        # This is the total number of posts created.
+        eq(EMAIL_COUNT + COMMENT_COUNT + ANSWER_COUNT, Post.objects.all().count())
+
+        ansc = Post.objects.filter(type=Post.ANSWER).count()
+        eq(ansc, 1)
+
+
+        comc = Post.objects.filter(type=Post.COMMENT).count()
+        eq(comc, 3)
+
+        # Does not matter which comment we pick, each person should
+        # have a subscription to the root.
+        for sub in Subscription.objects.all():
+            print sub.user, sub.post.root
+
+        subsc = Subscription.objects.get_subs(post=comments[-1]).count()
+        eq(subsc, EMAIL_COUNT)
+
+        # Check how many messages do users have.
+        # A user gets messages for posts they did not create.
+
 
         # now test the number of messages that they have
-        for index, email in enumerate(emails):
-            num = Message.objects.filter(user__email=email).count()
-            eq(num, count - index - 1)
+        for user in users:
+            mesg_c = Message.objects.filter(user=user).count()
+            post_c = Post.objects.exclude(author=user).count()
+
+            print (user.email, post_c, mesg_c)
 
 
+            #eq(num,
+        #
+        #    num = Message.objects.filter(user__email=email).count()
+        #    print (email, index, num)
+        #    eq(num, email_count + COMMENTS - index)
+
+        '''
 

@@ -120,27 +120,16 @@ class Post(models.Model):
         self.content = bleach.clean(self.content, tags=ALLOWED_TAGS,
                                     attributes=ALLOWED_ATTRIBUTES, styles=ALLOWED_STYLES)
         if not self.id:
+
+            # Set the titles
+            if self.parent and not self.title:
+                self.title = self.parent.title
+
+            if self.parent and self.parent.type in (Post.ANSWER, Post.COMMENT):
+                # Only comments may be added to a parent that is answer or comment.
+                self.type = Post.COMMENT
+
             # This runs only once upon object creation.
-
-            if not (self.parent or self.root):
-                # Neither of root nor parent are set.
-                # This will be a top level post.
-                self.type = self.type if self.type in Post.TOP_LEVEL else self.FORUM
-
-            elif self.parent:
-                # If the parent is set root must follow the parent.
-                self.root = self.parent.root
-                self.type = self.ANSWER if self.parent.type in Post.TOP_LEVEL else self.COMMENT
-
-            elif self.root:
-                # If only the root is set the parent has follow the root.
-                # Note: In general the root should not be directly set.
-                # Let the save method figure out the correct root.
-                self.parent = self.root
-                self.type = self.ANSWER
-            else:
-                raise Exception("This shouldn't ever happen really")
-
             self.title = self.parent.title if self.parent else self.title
             self.lastedit_user = self.author
             self.status = self.status or Post.PENDING
@@ -150,7 +139,7 @@ class Post(models.Model):
         super(Post, self).save(*args, **kwargs)
 
     def __unicode__(self):
-        return "%s: %s (%s)" % (self.get_type_display(), self.title, self.id)
+        return "%s: %s (id=%s)" % (self.get_type_display(), self.title, self.id)
 
     def is_toplevel(self):
         return self.type in Post.TOP_LEVEL
@@ -165,8 +154,22 @@ class Post(models.Model):
     @staticmethod
     def check_root(sender, instance, created, *args, **kwargs):
         "We need to ensure that the parent and root are set on object creation."
-        if created and (not instance.root or not instance.parent):
-            instance.root = instance.parent = instance
+        if created:
+
+            if not (instance.root or instance.parent):
+                # Neither root or parent are set.
+                instance.root = instance.parent = instance
+            elif instance.parent:
+                # When only the parent is set the root must follow the parent root.
+                instance.root = instance.parent.root
+            elif instance.root:
+                # The root should never be set on creation.
+                raise Exception('Root may not be set on creation')
+
+            if instance.parent.type in (Post.ANSWER, Post.COMMENT):
+                # Answers and comments may only have comments associated with them.
+                instance.type = Post.COMMENT
+
             instance.save()
 
 # Posts will have revisions.
@@ -227,6 +230,7 @@ class Subscription(models.Model):
             sub = Subscription(post=root, user=user)
             sub.date = datetime.datetime.utcnow().replace(tzinfo=utc)
             sub.save()
+
 
 
 # Admin interface for subscriptions

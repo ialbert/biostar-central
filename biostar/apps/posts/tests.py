@@ -45,7 +45,7 @@ class PostTest(TestCase):
         # A new post triggers a message to the author.
         email = "jane@this.edu"
         john = User.objects.create(email=email)
-        answer = Post(author=john, parent=post)
+        answer = Post(author=john, parent=post, type=Post.ANSWER)
         answer.save()
 
         eq(answer.root, post)
