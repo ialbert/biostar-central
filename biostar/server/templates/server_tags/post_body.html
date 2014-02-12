@@ -9,16 +9,17 @@
     <td>
         <a id="{{ post.id }}"></a>
 
-        <div class="vote-box">
-            <div class="vote off tip" data-toggle="tooltip" data-placement="top" title="Upvote!">
+        <div class="vote-box" data-post="{{ post.id }}">
+            <div class="vote off tip" data-toggle="tooltip" data-placement="top" data-type="vote" title="Upvote!">
                 <i class="fa fa-thumbs-o-up fa-2x"></i></div>
             <div class="count">{{ post.vote_count }}</div>
 
-            <div class="bookmark off tip" data-toggle="tooltip" data-placement="top" title="Bookmark!">
+            <div class="vote bookmark off tip" data-toggle="tooltip" data-placement="top" data-type="bookmark" title="Bookmark!">
                 <i class="fa fa-book fa-2x"></i>
             </div>
+
             {% if not post.is_toplevel and post.has_ownership %}
-                <div class="bookmark off tip" data-toggle="tooltip" data-placement="bottom" title="Accept!">
+                <div class="vote bookmark off tip" data-toggle="tooltip" data-type="accept" data-placement="bottom" title="Accept!">
                     <i class="fa fa-check-circle-o fa-2x"></i>
                 </div>
             {% endif %}

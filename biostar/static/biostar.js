@@ -4,10 +4,10 @@ function user_comment_click(elem) {
     // remove comment body if exists.
     $("#comment-form").remove();
 
-    post_id = elem.attr('data-value')
-    container = elem.closest("table")
+    var post_id = elem.attr('data-value')
+    var container = elem.closest("table")
 
-    csrf_html = $('#csrf_token').find("input[name='csrfmiddlewaretoken']").parent().html()
+    var csrf_html = $('#csrf_token').find("input[name='csrfmiddlewaretoken']").parent().html()
 
     container.append('<tr><td colspan="2">\
     <form role="form" action="/p/new/comment/' + post_id + '/" method="post" id="comment-form" id="comment-form">' + csrf_html + '\
@@ -33,23 +33,55 @@ function anon_comment_click(elem) {
 
 }
 
-function anon_actions() {
-    $('.add-comment').each(function () {
-        elem = $(this)
-        //console.log(elem)
-        //callback function defined in /static/js/widgets.js
-        elem.click(function () {
-            show_add_comment($(this));
-        });
+function toggle_button(elem) {
+    // Toggles the state of the buttons and updates the label messages
+    if (elem.hasClass('off')) {
+        elem.removeClass('off');
+    } else {
+        elem.addClass('off');
+    }
+}
+
+function pop_over(elem, msg, cls) {
+
+    elem.append('<div></div>')
+    var tag = elem.children('div').last()
+    tag.addClass('vote-popover ' + cls)
+    tag.text(msg)
+    tag.delay(1000).fadeOut(1000, function () {
+        $(this).remove()
     });
 }
 
+function ajax_vote(elem, post, type) {
+    // Pre-emptitively toggle the button to provide feedback
+    toggle_button(elem)
+
+    $.ajax('/x/vote/', {
+        type: 'GET',
+        dataType: 'json',
+        data: {post: post, type: type},
+        success: function (data) {
+            if (data.status == 'error') { // Soft failure, like not logged in
+                pop_over(elem, data.msg, data.status) // Display popover only if there was an error
+                toggle_button(elem) // Untoggle the button if there was an error
+            } else {
+                //pop_over(elem, "Vote Success", "success")
+            }
+
+        },
+        error: function () { // Hard failure, like network error
+            pop_over(elem, 'Unable to submit vote!', 'error');
+            toggle_button(elem);
+        }
+    });
+}
 
 $(document).ready(function () {
     var tooltip_options = {};
 
-    user_id = $("#user_id").val()
-
+    // This detects the user id
+    var user_id = $("#user_id").val()
 
     // Register tooltips.
     $('.tip').tooltip(tooltip_options)
@@ -68,5 +100,16 @@ $(document).ready(function () {
             });
         });
     }
+
+    $('.vote').each(function () {
+
+        $($(this)).click(function () {
+            var elem = $(this)
+            var post = 100
+            var type = elem.attr('data-type')
+            ajax_vote(elem, post, type);
+        });
+    });
+
 
 });

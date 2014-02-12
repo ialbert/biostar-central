@@ -7,6 +7,7 @@ admin.autodiscover()
 
 from django.views.generic import TemplateView
 from biostar.server import views
+from biostar.server.ajax import VoteSubmit
 
 urlpatterns = patterns('',
 
@@ -37,6 +38,8 @@ urlpatterns = patterns('',
     # Edit an existing post.
     url(r'^p/edit/(?P<pk>\d+)/$', views.EditPost.as_view(), name="post-edit"),
 
+    # Vote submission.
+    url(r'^x/vote/$', VoteSubmit.as_view(), name="vote-submit"),
 
     # Social login pages.
     (r'^accounts/', include('allauth.urls')),

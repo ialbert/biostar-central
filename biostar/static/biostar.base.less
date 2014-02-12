@@ -212,7 +212,7 @@ table#posts {
   .title {
     font-weight: bold;
     padding-bottom: 0.5em;
-    font-size: large;
+    font-size: larger;
   }
 
 }
@@ -299,29 +299,33 @@ ul.flat {
     height: 30px;
     background-position: center;
     margin-top: 10px;
-    //background-image: url('/static/img/bookmark.png');
     background-repeat: no-repeat;
     cursor: pointer;
     color: #2F5B14;
-    opacity: 0.6;
-  }
-
-  .bookmark.off {
-    opacity: 0.3;
+    opacity: 0.9;
   }
 
   .vote {
     height: 30px;
     background-position: center;
     margin-top: 10px;
-    //background-image: url('/static/img/vote-up-on.png');
     background-repeat: no-repeat;
     cursor: pointer;
     color: #2F5B14;
-    opacity: 0.6;
+    opacity: 0.9;
   }
 
-  .vote.off {
+  .accept {
+    height: 30px;
+    background-position: center;
+    margin-top: 10px;
+    background-repeat: no-repeat;
+    cursor: pointer;
+    color: #2F5B14;
+    opacity: 0.9;
+  }
+
+  .off {
     opacity: 0.3;
   }
 
@@ -404,3 +408,19 @@ div#navbar {
     background-color: #436C27;
   }
 }
+
+.vote-popover {
+  position: absolute;
+  padding:10px;
+  margin-top: 10px;
+  color: black;
+  background-color: @BACKGROUND_SUCCESS;
+  opacity:1;
+  //border: 1px solid darken(#D7615F, 20%);
+}
+.vote-popover.error {
+  background-color: red;
+  font-weight: bold;
+  opacity:1;
+}
+
