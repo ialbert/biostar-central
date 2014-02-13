@@ -39,7 +39,7 @@ urlpatterns = patterns('',
     url(r'^p/edit/(?P<pk>\d+)/$', views.EditPost.as_view(), name="post-edit"),
 
     # Vote submission.
-    url(r'^x/vote/$', ajax.vote, name="vote-submit"),
+    url(r'^x/vote/$', ajax.vote_handler, name="vote-submit"),
 
     # Social login pages.
     (r'^accounts/', include('allauth.urls')),

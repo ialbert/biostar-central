@@ -7,7 +7,7 @@ from biostar.apps.users.views import EditUser
 from biostar.apps.posts.views import EditPost, NewPost, NewAnswer
 
 from biostar.apps.users.models import User
-from biostar.apps.posts.models import Post
+from biostar.apps.posts.models import Post, Vote
 from collections import defaultdict, OrderedDict
 from biostar.apps.posts.auth import post_permissions
 
@@ -106,6 +106,8 @@ class PostDetails(DetailView):
     template_name = "post-details.html"
 
     def get_object(self):
+        user = self.request.user
+
         obj = super(PostDetails, self).get_object()
 
         # Adds the permissions
@@ -124,10 +126,31 @@ class PostDetails(DetailView):
 
         tree = OrderedDict()
         for post in thread:
+
             if post.type == Post.COMMENT:
                 tree.setdefault(post.parent_id, []).append(post)
 
-        # Add this to the object.
+        store = {Vote.UP: set(), Vote.BOOKMARK: set()}
+
+        if user.is_authenticated():
+            pids = [p.id for p in thread]
+            votes = Vote.objects.filter(post_id__in=pids, author=user).values_list("post_id", "type")
+
+            for post_id, vote_type in votes:
+                store.setdefault(vote_type, set()).add(post_id)
+
+        # Shortcuts to each storage.
+        bookmarks = store[Vote.BOOKMARK]
+        upvotes = store[Vote.UP]
+
+        def decorate(post):
+            post.has_bookmark = post.id in bookmarks
+            post.has_upvote = post.id in upvotes
+
+        # Add attributes by mutating the objects
+        map(decorate, thread + [ obj ])
+
+        # Additional attributes used during rendering
         obj.tree = tree
         obj.answers = answers
 

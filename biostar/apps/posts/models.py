@@ -21,7 +21,7 @@ class PostManager(models.Manager):
 
     def get_thread(self, root):
         # Populate the object to build a tree that contains all posts in the thread.
-        query = self.filter(root=root).exclude(pk=root.id).select_related("author").order_by("type", "has_accepted", "-vote_count")
+        query = self.filter(root=root).select_related("author").order_by("type", "has_accepted", "-vote_count")
         return query
 
     def top_level(self, user):
@@ -197,12 +197,15 @@ admin.site.register(Post, PostAdmin)
 class Vote(models.Model):
     # Post statuses.
     UP, DOWN, BOOKMARK, ACCEPT = range(4)
-    TYPE_CHOICES = [(UP, "Up"), (DOWN, "Down"), (BOOKMARK, "Bookmark"), (ACCEPT, "Accept")]
+    TYPE_CHOICES = [(UP, "Upvote"), (DOWN, "DownVote"), (BOOKMARK, "Bookmark"), (ACCEPT, "Accept")]
 
     author = models.ForeignKey(settings.AUTH_USER_MODEL)
     post = models.ForeignKey(Post, related_name='votes')
     type = models.IntegerField(choices=TYPE_CHOICES, db_index=True)
     date = models.DateTimeField(db_index=True, auto_now=True)
+
+    def __unicode__(self):
+        return u"Vote: %s, %s, %s" % (self.post_id, self.author_id, self.get_type_display())
 
 class SubscriptionManager(models.Manager):
 

@@ -47,9 +47,6 @@ class User(AbstractBaseUser):
     # This designates a user statuses on whether they are allowed to log in.
     status = models.IntegerField(choices=STATUS_CHOICES, default=ACTIVE)
 
-    # User total reputation.
-    reputation = models.IntegerField(default=0)
-
     # The number of new messages for the user.
     new_messages = models.IntegerField(default=0)
 
@@ -58,6 +55,9 @@ class User(AbstractBaseUser):
 
     # Activity score computed over a shorter period.
     score = models.IntegerField(default=0)
+
+    # User total reputation.
+    full_score = models.IntegerField(default=0)
 
     @property
     def is_moderator(self):
@@ -105,6 +105,11 @@ class User(AbstractBaseUser):
 
         super(User, self).save(*args, **kwargs)
 
+    @property
+    def scaled_score(self):
+        "People like to see big scores."
+        return self.score * 10
+
     def __unicode__(self):
         return "User %s: %s (%s)" % (self.id, self.name, self.email)
 
@@ -146,6 +151,7 @@ class Profile(models.Model):
     # The default notification preferences.
     message_prefs = models.IntegerField(choices=const.MESSAGING_TYPE_CHOICES, default=const.LOCAL_MESSAGE,
                                         db_index=True)
+
 
     def save(self, *args, **kwargs):
 

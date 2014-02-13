@@ -1,4 +1,4 @@
 {%  load humanize %}
 {% spaceless %}
-    <a href="{% url 'user-details' user.id %}">{{user.name}}</a>&nbsp;{{ marker|safe }}<b>&nbsp;{{  user.score|intcomma }}</b>
+    <a href="{% url 'user-details' user.id %}">{{user.name}}</a>&nbsp;{{ marker|safe }}<b>&nbsp;{{  user.scaled_score |intcomma }}</b>
 {% endspaceless %}

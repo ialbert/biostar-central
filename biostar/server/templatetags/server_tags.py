@@ -17,6 +17,16 @@ def rand_num():
     "The purpose of this is to return a random number"
     return " %f " % random.random()
 
+@register.filter
+def show_nonzero(value):
+    "The purpose of this is to return value or empty"
+    return value if value else ''
+
+@register.filter
+def on(value):
+    "The purpose of this is to return value or empty"
+    return "on" if value else 'off'
+
 
 @register.simple_tag
 def gravatar(user, size=80):
@@ -113,9 +123,9 @@ def search_bar():
 
 
 @register.inclusion_tag('server_tags/post_actions.html')
-def post_actions(post, user):
+def post_actions(post, user, label="COMMENT"):
     "Renders post actions"
-    return dict(post=post, user=user)
+    return dict(post=post, user=user, label=label)
 
 
 @register.inclusion_tag('server_tags/user_link.html')

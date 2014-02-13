@@ -177,10 +177,7 @@ table#posts {
   td {
     padding-bottom: 0.3em;
     padding-top: 0.3em;
-  }
-
-  .vote {
-    background-color: #eeeeee;
+    padding-left: 0px;
   }
 
   .default {
@@ -278,7 +275,8 @@ ul.flat {
 
 }
 
-.vote-box {
+// Voting box for posts.
+.post.vote-box {
   text-align: center;
   width: 60px;
   float: left;
@@ -305,7 +303,42 @@ ul.flat {
   .off {
     opacity: 0.3;
   }
+}
 
+// Voting box for comments.
+.comment.vote-box {
+  text-align: center;
+  padding: 10px;
+  padding-right: 15px;
+  width: 35px;
+  float: left;
+  margin-left: -10px;
+  display: block;
+
+  .mark {
+    cursor: pointer;
+    color: #2F5B14;
+    opacity: 0.9;
+    width: 20px;
+    float: left;
+    vertical-align: middle;
+  }
+
+  .count {
+    width: 20px;
+    float: left;
+    font-size: small;
+    font-weight: bold;
+    text-align: center;
+    vertical-align: middle;
+    margin: 1px 0px 5px 0px;
+  }
+
+
+
+  .off {
+    opacity: 0.3;
+  }
 }
 
 .action-line {
@@ -388,18 +421,18 @@ div#navbar {
 
 .vote-popover {
   position: absolute;
-  padding:10px;
-  margin-top: 10px;
-  color: black;
-  background-color: @BACKGROUND_SUCCESS;
-  opacity:1;
-  //border: 1px solid darken(#D7615F, 20%);
-  border-radius: 5px;
+  background-color: #dff0d8;
+  border-color: #d6e9c6;
+  color: #3c763d;
+  padding: 15px;
+  margin-bottom: 20px;
+  border: 1px solid transparent;
+  border-radius: 4px;
 }
-.vote-popover.error {
-  background-color: red;
-  font-weight: bold;
-  opacity:1;
 
+.vote-popover.error {
+  background-color: #f2dede;
+  border-color: #ebccd1;
+  color: #a94442;
 }
 

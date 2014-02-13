@@ -50,31 +50,45 @@ class ajax_error_wrapper(object):
             return ajax_error('Error: %s' % exc)
 
 
+POST_TYPE_MAP = dict(vote=Vote.UP, bookmark=Vote.BOOKMARK, accept=Vote.ACCEPT)
+
+
+def perform_vote(post, user, vote_type):
+
+    # Only maintain one vote for each user/post pair.
+    votes = Vote.objects.filter(author=user, post=post, type=vote_type)
+    if votes:
+        msg = "%s removed" % votes[0].get_type_display()
+        change = -1
+        votes.delete()
+    else:
+        change = +1
+        vote = Vote.objects.create(author=user, post=post, type=vote_type)
+        msg = "%s added" % vote.get_type_display()
+
+    # Update the scores.
+    User.objects.filter(pk=post.author.id).update(score=F('score') + change)
+    Post.objects.filter(pk=post.id).update(vote_count=F('vote_count') + change)
+
+    return msg
+
+
 @ajax_error_wrapper
-def vote(request):
+def vote_handler(request):
     "Handles all voting on posts"
 
     user = request.user
-    post_type = request.POST['post_type']
+    vote_type = request.POST['vote_type']
+    vote_type = POST_TYPE_MAP[vote_type]
     post_id = request.POST['post_id']
 
     # Check the post that is voted on.
     post = Post.objects.get(pk=post_id)
 
-    if post.author == user and post_type == "vote":
-        return ajax_error("May not vote on your own posts")
+    if post.author == user and vote_type == Vote.UP:
+        return ajax_error("You can't upvote your own post.")
 
     with transaction.atomic():
-        # Only maintain one vote for each user/post pair.
-        votes = Vote.objects.filter(author=user, post=post)
-        if votes:
-            change = -1
-            votes.delete()
-        else:
-            change = +1
-            Vote.objects.create(author=user, post=post, type=Vote.UP)
+        msg = perform_vote(post=post, user=user, vote_type=vote_type)
 
-        # Update the user score.
-        User.objects.filter(pk=post.author.id).update(score=F('score') + change)
-
-    return ajax_success("OK")
+    return ajax_success(msg)
