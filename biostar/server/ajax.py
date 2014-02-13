@@ -29,16 +29,15 @@ class ajax_error_wrapper(object):
     def __init__(self, f):
         self.f = f
 
-    def __call__(self, *args, **kwds):
+    def __call__(self, request):
         try:
-            # first parameter is the request
-            if args[0].method != 'POST':
+            if request.method != 'POST':
                 return ajax_error('POST method must be used.')
 
-            if not args[0].user.is_authenticated():
+            if not request.user.is_authenticated():
                 return ajax_error('You must be logged in to do that')
 
-            value = self.f(*args, **kwds)
+            value = self.f(request)
             return value
         except Exception,exc:
             traceback.print_exc()
@@ -48,4 +47,5 @@ class ajax_error_wrapper(object):
 def vote(request):
     "Handles all voting on posts"
 
+    print(request.POST)
     return ajax_success("OK")
