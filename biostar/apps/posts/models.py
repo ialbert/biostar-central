@@ -8,6 +8,7 @@ from taggit.managers import TaggableManager
 from django.utils.translation import ugettext_lazy as _
 from django.core.urlresolvers import reverse
 import bleach
+from django.db.models import Q, F
 
 # HTML sanitization parameters.
 ALLOWED_TAGS = bleach.ALLOWED_TAGS + settings.ALLOWED_TAGS
@@ -93,6 +94,9 @@ class Post(models.Model):
 
     # Bookmark count.
     book_count = models.IntegerField(default=0)
+
+    # How many people follow that thread.
+    subs_count = models.IntegerField(default=0)
 
     # The total score of the thread (used for top level only)
     thread_score = models.IntegerField(default=0, blank=True, db_index=True)
@@ -245,14 +249,21 @@ class Subscription(models.Model):
         return "%s to %s" % (self.user.name, self.post.title)
 
     @staticmethod
-    def create(post, user):
+    def create(sender, instance, created, *args, **kwargs):
         "Creates a subscription of a user to a post"
-        root = post.root
+        user = instance.author
+        root = instance.root
         if Subscription.objects.filter(post=root, user=user).count() == 0:
             sub = Subscription(post=root, user=user)
             sub.date = datetime.datetime.utcnow().replace(tzinfo=utc)
             sub.save()
+            # Increase the subscription count of the root.
+            Post.objects.filter(pk=root.id).update(subs_count=F('subs_count') + 1)
 
+    @staticmethod
+    def finalize_delete(sender, instance, *args, **kwargs):
+        # Decrease the subscription count of the post.
+        Post.objects.filter(pk=instance.root.id).update(subs_count=F('subs_count') - 1)
 
 
 # Admin interface for subscriptions
@@ -263,6 +274,10 @@ class SubscriptionAdmin(admin.ModelAdmin):
 admin.site.register(Subscription, SubscriptionAdmin)
 
 # Data signals
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, post_delete
 
 post_save.connect(Post.check_root, sender=Post)
+post_save.connect(Subscription.create, sender=Post, dispatch_uid="create_subs")
+post_delete.connect(Subscription.finalize_delete, sender=Subscription, dispatch_uid="delete_subs")
+
+

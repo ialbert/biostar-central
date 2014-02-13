@@ -68,10 +68,12 @@ def perform_vote(post, user, vote_type):
 
     # Update the scores.
     User.objects.filter(pk=post.author.id).update(score=F('score') + change)
-    Post.objects.filter(pk=post.id).update(vote_count=F('vote_count') + change)
 
     if vote.type == Vote.BOOKMARK:
-        Post.objects.filter(pk=post.id).update(book_count=F('book_count') + change)
+        Post.objects.filter(pk=post.id).update(book_count=F('book_count') + change, vote_count=F('vote_count') + change)
+        Post.objects.filter(pk=post.id).update(subs_count=F('subs_count') + change)
+    else:
+        Post.objects.filter(pk=post.id).update(vote_count=F('vote_count') + change)
 
     # Clear old votes.
     if votes:

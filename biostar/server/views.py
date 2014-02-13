@@ -11,8 +11,8 @@ from biostar.apps.posts.models import Post, Vote
 from collections import defaultdict, OrderedDict
 from biostar.apps.posts.auth import post_permissions
 
-MYPOSTS = "myposts"
-UNANSWERED = "unanswered"
+MYPOSTS, UNANSWERED, FOLLOWING, BOOKMARKS = "myposts unanswered following bookmarks".split()
+
 POST_TYPES = dict(jobs=Post.JOB, forum=Post.FORUM, planet=Post.BLOG, pages=Post.PAGE)
 
 
@@ -27,6 +27,14 @@ def posts_by_topic(user, topic):
     if topic == UNANSWERED:
         # Get unanswered posts.
         return Post.objects.top_level(user).filter(type=Post.QUESTION, reply_count=0)
+
+    if topic == FOLLOWING:
+        # Get that posts that a user follows.
+        return Post.objects.top_level(user).filter(subs__user=user)
+
+    if topic == BOOKMARKS:
+        # Get that posts that a user bookmarked.
+        return Post.objects.filter(votes__author=user, votes__type=Vote.BOOKMARK)
 
     if topic in POST_TYPES:
         # A post type.

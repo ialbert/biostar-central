@@ -28,9 +28,9 @@
                                     <div class="c">{{ post.view_count }}</div>
                                     <div class="t">views</div>
                                 </div>
-                                {% if post.book_count %}
+                                {% if post.subs_count > 1 %}
                                     <div class="book_count text-center">
-                                        {{ post.book_count }} bookmark{{ post.book_count|pluralize }}
+                                        {{ post.subs_count }} following
                                     </div>
                                 {% endif %}
                             {% else %}
@@ -41,10 +41,11 @@
                                 </div>
 
                                 {% if post.book_count %}
-                                    <div class="box view">
-                                        <div class="c">{{ post.book_count }}</div>
-                                        <div class="t">bookmark{{ post.book_count|pluralize }}</div>
-                                    </div>
+                                    <div class="box bookmark">
+                                    <div class="c">{{ post.book_count }}</div>
+                                    <div class="t">bookmark{{ post.book_count|pluralize }}</div>
+                                </div>
+
                                 {% endif %}
 
                             {% endif %}
