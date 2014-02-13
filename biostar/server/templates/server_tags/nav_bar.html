@@ -49,6 +49,12 @@
                     </div>
                 </a>
             </div>
+            <div class="col-sm-1 mid {% active "myposts" topic %}">
+                <a href="{% url 'topic-list' topic="myposts" %}" class="navitem">
+                    <div><i class="fa fa-eye"></i></div>
+                    <div>Following</div>
+                </a>
+            </div>
             <div class="col-sm-1 mid {% active "bookmarks" topic %}">
                 <a href="/admin/" class="navitem">
                     <div><i class="fa fa-bookmark"></i></div>

@@ -84,6 +84,8 @@ TEMPLATE_STRING_IF_INVALID = "*** MISSING ***"
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
 ALLOWED_HOSTS = ["localhost"]
 
+ATOMIC_REQUESTS = True
+CONN_MAX_AGE = 10;
 
 # Allowed html content.
 ALLOWED_TAGS = "p div br code pre h1 h2 h3 h4 hr span s underline super table thead tr th td tbody".split()

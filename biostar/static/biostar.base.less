@@ -283,6 +283,7 @@ ul.flat {
   width: 60px;
   float: left;
   margin-left: -10px;
+  display: block;
 
   .count {
     font-size: 240%;
@@ -291,31 +292,7 @@ ul.flat {
     margin: 5px 0px 5px 0px;
   }
 
-  display: block;
-
-  text-align: center;
-
-  .bookmark {
-    height: 30px;
-    background-position: center;
-    margin-top: 10px;
-    background-repeat: no-repeat;
-    cursor: pointer;
-    color: #2F5B14;
-    opacity: 0.9;
-  }
-
-  .vote {
-    height: 30px;
-    background-position: center;
-    margin-top: 10px;
-    background-repeat: no-repeat;
-    cursor: pointer;
-    color: #2F5B14;
-    opacity: 0.9;
-  }
-
-  .accept {
+  .mark {
     height: 30px;
     background-position: center;
     margin-top: 10px;
@@ -417,7 +394,7 @@ div#navbar {
   background-color: @BACKGROUND_SUCCESS;
   opacity:1;
   //border: 1px solid darken(#D7615F, 20%);
-  border-radius: 7px;
+  border-radius: 5px;
 }
 .vote-popover.error {
   background-color: red;

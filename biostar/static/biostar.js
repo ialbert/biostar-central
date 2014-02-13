@@ -24,7 +24,7 @@ function csrfSafeMethod(method) {
 
 $.ajaxSetup({
     crossDomain: false, // obviates need for sameOrigin test
-    beforeSend: function(xhr, settings) {
+    beforeSend: function (xhr, settings) {
         if (!csrfSafeMethod(settings.type)) {
             xhr.setRequestHeader("X-CSRFToken", csrftoken);
         }
@@ -52,8 +52,15 @@ function user_comment_click(elem) {
     </td></tr>'
     )
     CKEDITOR.replace('comment-box', {
-        customConfig : '/static/ck_config.js'
+        customConfig: '/static/ck_config.js'
     });
+}
+
+// modifies the votecount value
+function mod_votecount(elem, k) {
+    count = parseInt(elem.siblings('.count').text()) || 0
+    count += k
+    elem.siblings('.count').text(count)
 }
 
 function anon_comment_click(elem) {
@@ -68,17 +75,23 @@ function anon_comment_click(elem) {
 
 }
 
-function toggle_button(elem) {
+function toggle_button(elem, type) {
     // Toggles the state of the buttons and updates the label messages
+
     if (elem.hasClass('off')) {
         elem.removeClass('off');
+        if (type == "vote") {
+            mod_votecount(elem, 1)
+        }
     } else {
         elem.addClass('off');
+        if (type == "vote") {
+            mod_votecount(elem, -1)
+        }
     }
 }
 
 function pop_over(elem, msg, cls) {
-
     var text = '<div></div>'
     var tag = $(text).insertAfter(elem)
     tag.addClass('vote-popover ' + cls)
@@ -88,26 +101,26 @@ function pop_over(elem, msg, cls) {
     });
 }
 
-function ajax_vote(elem, post, type) {
+function ajax_vote(elem, post_id, type) {
     // Pre-emptitively toggle the button to provide feedback
-    toggle_button(elem)
+    toggle_button(elem, type)
 
     $.ajax('/x/vote/', {
         type: 'POST',
         dataType: 'json',
-        data: {post: post, type: type},
+        data: {post_id: post_id, post_type: type},
         success: function (data) {
             if (data.status == 'error') { // Soft failure, like not logged in
                 pop_over(elem, data.msg, data.status) // Display popover only if there was an error
-                toggle_button(elem) // Untoggle the button if there was an error
+                toggle_button(elem, type) // Untoggle the button if there was an error
             } else {
-                pop_over(elem, "Vote Success", "success")
+                //pop_over(elem, data.msg, data.status)
             }
 
         },
         error: function () { // Hard failure, like network error
             pop_over(elem, 'Unable to submit vote!', 'error');
-            toggle_button(elem);
+            toggle_button(elem, type);
         }
     });
 }
@@ -139,10 +152,10 @@ $(document).ready(function () {
     $('.vote').each(function () {
 
         $($(this)).click(function () {
-            var elem = $(this)
-            var post = 100
+            var elem = $(this);
+            var post_id = elem.parent().attr('data-post_id');
             var type = elem.attr('data-type')
-            ajax_vote(elem, post, type);
+            ajax_vote(elem, post_id, type);
         });
     });
 
