@@ -77,8 +77,8 @@ function toggle_button(elem) {
 
 function pop_over(elem, msg, cls) {
 
-    elem.append('<div></div>')
-    var tag = elem.children('div').last()
+    var text = '<div></div>'
+    var tag = $(text).insertAfter(elem)
     tag.addClass('vote-popover ' + cls)
     tag.text(msg)
     tag.delay(1000).fadeOut(1000, function () {
@@ -99,7 +99,7 @@ function ajax_vote(elem, post, type) {
                 pop_over(elem, data.msg, data.status) // Display popover only if there was an error
                 toggle_button(elem) // Untoggle the button if there was an error
             } else {
-                //pop_over(elem, "Vote Success", "success")
+                pop_over(elem, "Vote Success", "success")
             }
 
         },
