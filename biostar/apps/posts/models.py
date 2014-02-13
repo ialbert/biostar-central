@@ -116,6 +116,12 @@ class Post(models.Model):
     # This is the sanitized HTML for display.
     content = models.TextField(default='')
 
+    def get_title(self):
+        if self.status == Post.OPEN:
+            return self.title
+        else:
+            return "%s [%s]" % (self.title, self.get_status_display())
+
     def save(self, *args, **kwargs):
 
         self.content = bleach.clean(self.content, tags=ALLOWED_TAGS,
@@ -177,10 +183,16 @@ class Post(models.Model):
                 # Answers and comments may only have comments associated with them.
                 instance.type = Post.COMMENT
 
+            if not instance.is_toplevel:
+                # Title is inherited from top level.
+                instance.title = "%s: %s" % (instance.get_type_display()[0], instance.root.title)
+
+            assert instance.root and instance.parent
+
             instance.save()
 
 # Posts will have revisions.
-reversion.register(Post)
+#reversion.register(Post)
 
 # Revision admin setup.
 class PostAdmin(reversion.VersionAdmin):

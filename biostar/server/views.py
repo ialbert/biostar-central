@@ -11,6 +11,29 @@ from biostar.apps.posts.models import Post, Vote
 from collections import defaultdict, OrderedDict
 from biostar.apps.posts.auth import post_permissions
 
+MYPOSTS = "myposts"
+POST_TYPES = dict(jobs=Post.JOB, forum=Post.FORUM, planet=Post.BLOG, pages=Post.PAGE)
+
+
+def posts_by_topic(user, topic):
+    "Returns a post query that matches a topic"
+    topic = topic.lower()
+
+    if topic == MYPOSTS:
+        # Get the posts that the user wrote.
+        return Post.objects.filter(author=user)
+
+    if topic in POST_TYPES:
+        # A post type.
+        return Post.objects.top_level(user).filter(type=POST_TYPES[topic])
+
+    if topic:
+        # Any type of topic.
+        return Post.objects.top_level(user).filter(tags__name=topic).exclude(type=Post.BLOG)
+
+    # Return latest by default.
+    return Post.objects.top_level(user).exclude(type=Post.BLOG)[:settings.SITE_LATEST_POST_LIMIT]
+
 
 class PostList(ListView):
     """
@@ -21,7 +44,7 @@ class PostList(ListView):
     context_object_name = "posts"
     paginate_by = settings.PAGINATE_BY
     LATEST = "Latest"
-    POST_TYPE_TOPICS = dict(jobs=Post.JOB, forum=Post.FORUM, planet=Post.BLOG, pages=Post.PAGE)
+
 
     def __init__(self, *args, **kwds):
         super(PostList, self).__init__(*args, **kwds)
@@ -36,20 +59,7 @@ class PostList(ListView):
 
     def get_queryset(self):
         self.topic = self.kwargs.get("topic", "")
-
-        # Internally topics are case insensitive.
-        topic = self.topic.lower()
-        if topic:
-            if topic == "myposts":
-                objs = Post.objects.filter(author=self.request.user)
-            elif topic in self.POST_TYPE_TOPICS:
-                objs = Post.objects.top_level(self.request.user).filter(type=self.POST_TYPE_TOPICS[topic])
-            else:
-                objs = Post.objects.top_level(self.request.user).filter(tags__name=topic).exclude(type=Post.BLOG)
-        else:
-            # Limit the latest posts so that engines don't crawl outside of the topics categories.
-            objs = Post.objects.top_level(self.request.user).exclude(type=Post.BLOG)[:settings.SITE_LATEST_POST_LIMIT]
-
+        objs = posts_by_topic(self.request.user, self.topic)
         return objs
 
     def get_context_data(self, **kwargs):
@@ -148,7 +158,7 @@ class PostDetails(DetailView):
             post.has_upvote = post.id in upvotes
 
         # Add attributes by mutating the objects
-        map(decorate, thread + [ obj ])
+        map(decorate, thread + [obj])
 
         # Additional attributes used during rendering
         obj.tree = tree
