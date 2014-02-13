@@ -12,6 +12,7 @@ from collections import defaultdict, OrderedDict
 from biostar.apps.posts.auth import post_permissions
 
 MYPOSTS = "myposts"
+UNANSWERED = "unanswered"
 POST_TYPES = dict(jobs=Post.JOB, forum=Post.FORUM, planet=Post.BLOG, pages=Post.PAGE)
 
 
@@ -22,6 +23,10 @@ def posts_by_topic(user, topic):
     if topic == MYPOSTS:
         # Get the posts that the user wrote.
         return Post.objects.filter(author=user)
+
+    if topic == UNANSWERED:
+        # Get unanswered posts.
+        return Post.objects.top_level(user).filter(type=Post.QUESTION, reply_count=0)
 
     if topic in POST_TYPES:
         # A post type.

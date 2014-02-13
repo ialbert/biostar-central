@@ -5,7 +5,7 @@
     <div class="col-md-12">
         <ul class="nav nav-pills">
             <li class="{% active "Latest" topic %}"><a href="{% url 'home' %}">Latest</a></li>
-            <li class="{% active "Unanswered" topic %}"><a href="{% url 'home' %}">Unanswered</a></li>
+            <li class="{% active "Unanswered" topic %}"><a href="{% url 'topic-list' topic='Unanswered' %}">Unanswered</a></li>
             {% for word in TOPICS %}
                 <li class="{% active word topic %}"><a href="{% url 'topic-list' topic=word %}">{{ word }}</a></li>
             {% endfor %}

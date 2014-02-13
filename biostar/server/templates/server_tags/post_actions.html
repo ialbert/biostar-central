@@ -1,4 +1,5 @@
 {% load server_tags %}
+{%  load humanize %}
 <table width="100%">
     <tr>
         <td>
@@ -7,6 +8,7 @@
             {% if post.is_editable %}
                 &bull; <a href="{% url 'post-edit' post.id %}">edit</a>
                 &bull; <a href="#">moderate</a>
+                {%  if post.book_count %} &bull; {{ post.book_count }} bookmark{{post.book_count|pluralize }}{%  endif %}
             {% endif %}
 
         </td>

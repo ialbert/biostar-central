@@ -58,9 +58,9 @@ def perform_vote(post, user, vote_type):
     # Only maintain one vote for each user/post pair.
     votes = Vote.objects.filter(author=user, post=post, type=vote_type)
     if votes:
-        msg = "%s removed" % votes[0].get_type_display()
+        vote = votes[0]
+        msg = "%s removed" % vote.get_type_display()
         change = -1
-        votes.delete()
     else:
         change = +1
         vote = Vote.objects.create(author=user, post=post, type=vote_type)
@@ -69,6 +69,13 @@ def perform_vote(post, user, vote_type):
     # Update the scores.
     User.objects.filter(pk=post.author.id).update(score=F('score') + change)
     Post.objects.filter(pk=post.id).update(vote_count=F('vote_count') + change)
+
+    if vote.type == Vote.BOOKMARK:
+        Post.objects.filter(pk=post.id).update(book_count=F('book_count') + change)
+
+    # Clear old votes.
+    if votes:
+        votes.delete()
 
     return msg
 
