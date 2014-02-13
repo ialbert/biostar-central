@@ -42,8 +42,8 @@ function user_comment_click(elem) {
 
     var csrf_html = $('#csrf_token').find("input[name='csrfmiddlewaretoken']").parent().html()
 
-    container.append('<tr><td colspan="2">\
-    <form role="form" action="/p/new/comment/' + post_id + '/" method="post" id="comment-form" id="comment-form">' + csrf_html + '\
+    container.append('<tr id="comment-form"><td colspan="2">\
+    <form role="form" action="/p/new/comment/' + post_id + '/" method="post">' + csrf_html + '\
         <div class="form-group">\
         <textarea class="input-xlarge span8" id="comment-box" name="content" rows="3"></textarea></div> \
         <div><a class="btn btn-success" href=\'javascript:document.forms["comment-form"].submit()\'><i class="icon-comment"></i> Add comment</a>          \
@@ -51,7 +51,9 @@ function user_comment_click(elem) {
     </form>            \
     </td></tr>'
     )
-    CKEDITOR.replace('comment-box');
+    CKEDITOR.replace('comment-box', {
+        customConfig : '/static/ck_config.js'
+    });
 }
 
 function anon_comment_click(elem) {

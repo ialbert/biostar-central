@@ -25,9 +25,9 @@
 
                         {% if user.is_authenticated %}
                             <h3>Add your answer</h3>
-                            <p><strong>Plese note:</strong> Answers relate to the original question at the top. Use
-                                comments
-                                to discuss existing posts, ask for clarifications, etc. </p>
+                            <p><strong>Note:</strong> Answers should be for the original question only. Use
+                                the comments
+                                to discuss existing content, ask for clarifications, request more details, etc. </p>
 
                             <form role="form" id="answer-form" method="post" action="{% url "new-answer" post.id %}">
                                 {% csrf_token %}
@@ -56,11 +56,12 @@
 
     </div>
 
-    <script src="/static/ckeditor/ckeditor.js"></script>
     {% if user.is_authenticated %}
+        <script src="/static/ckeditor/ckeditor.js"></script>
         <script>
-            // Replace the <textarea id="editor1"> with a CKEditor
-            CKEDITOR.replace('answerbox');
+            CKEDITOR.replace('answerbox', {
+                customConfig: '/static/ck_config.js'
+            });
         </script>
     {% endif %}
 

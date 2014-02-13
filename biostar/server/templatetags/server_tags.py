@@ -94,7 +94,6 @@ def nav_bar(context, user):
     "Renders top navigation bar"
     return context
 
-
 @register.inclusion_tag('server_tags/page_bar.html', takes_context=True)
 def page_bar(context):
     "Renders a paging bar"

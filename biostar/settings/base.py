@@ -85,6 +85,14 @@ TEMPLATE_STRING_IF_INVALID = "*** MISSING ***"
 ALLOWED_HOSTS = ["localhost"]
 
 
+# Allowed html content.
+ALLOWED_TAGS = "p div br code pre h1 h2 h3 h4 hr span".split()
+ALLOWED_STYLES = 'color font-weight background-color'.split()
+ALLOWED_ATTRIBUTES = {
+    '*': ['class', 'style'],
+    'a': ['href', 'rel'],
+    'img': ['src', 'alt'],
+}
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name

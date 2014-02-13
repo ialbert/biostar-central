@@ -37,7 +37,7 @@ class LongForm(forms.Form):
 
 
 class ShortForm(forms.Form):
-    FIELDS = "content"
+    FIELDS = [ "content" ]
 
     content = forms.CharField(widget=forms.Textarea)
 
