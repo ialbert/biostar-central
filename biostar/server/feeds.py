@@ -51,6 +51,9 @@ class LatestEntriesFeed(PostBase):
 class PostTypeFeed(PostBase):
     title = "title"
 
+    def get_object(self, request, text):
+        return text
+
     def title(self, obj):
         return "Feed to %s" % obj
 
