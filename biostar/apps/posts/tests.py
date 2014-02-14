@@ -8,7 +8,7 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 import logging
 from django.conf import settings
 from biostar.apps.users.models import User, Profile
-from biostar.apps.posts.models import Post, Subscription
+from biostar.apps.posts.models import Post, Subscription, Tag
 from biostar.apps.messages.models import Message
 
 from django.test import TestCase
@@ -17,6 +17,41 @@ logging.disable(logging.INFO)
 
 
 class PostTest(TestCase):
+
+    def test_tagging(self):
+        "Testing tagging"
+        eq = self.assertEqual
+
+        eq(0, Tag.objects.all().count() )
+
+        # Create an admin user and a post.
+        title = "Hello Posts!"
+        email = "john@this.edu"
+        jane = User.objects.create(email=email)
+        html = "<b>Hello World!</b>"
+        post = Post(title=title, author=jane, type=Post.FORUM, content=html)
+        post.save()
+        post.add_tags("t1 t2 t3")
+
+        eq(3, Tag.objects.all().count())
+
+        post = Post(title=title, author=jane, type=Post.FORUM, content=html)
+        post.save()
+        post.add_tags("t1 t2 t3 t2 t1 t1")
+
+        t1 = Tag.objects.get(name="t1")
+        t3 = Tag.objects.get(name="t3")
+
+        eq(2, t1.count)
+        eq(2, t3.count)
+
+        post.add_tags("t2 t4")
+
+        t1 = Tag.objects.get(name="t1")
+        t3 = Tag.objects.get(name="t3")
+
+        eq(1, t1.count)
+        eq(1, t3.count)
 
     def test_post_creation(self):
         "Testing post creation"

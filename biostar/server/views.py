@@ -8,7 +8,7 @@ from biostar.apps.posts.views import EditPost, NewPost, NewAnswer
 
 from biostar.apps.messages.models import Message
 from biostar.apps.users.models import User
-from biostar.apps.posts.models import Post, Vote
+from biostar.apps.posts.models import Post, Vote, Tag
 from collections import defaultdict, OrderedDict
 from biostar.apps.posts.auth import post_permissions
 
@@ -16,6 +16,16 @@ MYPOSTS, UNANSWERED, FOLLOWING, BOOKMARKS = "myposts unanswered following bookma
 
 POST_TYPES = dict(jobs=Post.JOB, forum=Post.FORUM, planet=Post.BLOG, pages=Post.PAGE)
 
+
+class BaseListView(ListView):
+    "Base class for each mixin"
+    page_title = "Title"
+    paginate_by = settings.PAGINATE_BY
+
+    def get_context_data(self, **kwargs):
+        context = super(BaseListView, self).get_context_data(**kwargs)
+        context['page_title'] = self.page_title
+        return context
 
 def posts_by_topic(user, topic):
     "Returns a post query that matches a topic"
@@ -43,7 +53,7 @@ def posts_by_topic(user, topic):
 
     if topic:
         # Any type of topic.
-        return Post.objects.top_level(user).filter(tags__name=topic).exclude(type=Post.BLOG)
+        return Post.objects.tag_search(topic)
 
     # Return latest by default.
     return Post.objects.top_level(user).exclude(type=Post.BLOG)[:settings.SITE_LATEST_POST_LIMIT]
@@ -103,6 +113,16 @@ class MessageList(ListView):
         context['topic'] = "messages"
         context['page_title'] = "Messages"
         return context
+
+class TagList(BaseListView):
+    """
+    Produces the list of tags
+    """
+    model = Tag
+    page_title = "Tags"
+    context_object_name = "tags"
+    template_name = "tag-list.html"
+
 
 class VoteList(ListView):
     """

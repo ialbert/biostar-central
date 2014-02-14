@@ -4,10 +4,9 @@ django-debug-toolbar
 django-compressor
 django-crispy-forms
 django-braces
-django-taggit
 django-haystack
 django-reversion
-django-simple-captcha
+#django-simple-captcha
 bleach
 whoosh
 South

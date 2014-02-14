@@ -14,6 +14,9 @@ urlpatterns = patterns('',
     # Post listing.
     url(r'^$', views.PostList.as_view(), name="home"),
 
+    # Listing of all tags.
+    url(r'^t/$', views.TagList.as_view(), name="tag-list"),
+
     # Topic listing.
     url(r'^t/(?P<topic>.+)/$', views.PostList.as_view(), name="topic-list"),
 

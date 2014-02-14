@@ -18,11 +18,57 @@ ALLOWED_ATTRIBUTES.update(settings.ALLOWED_ATTRIBUTES)
 
 logger = logging.getLogger(__name__)
 
+
+class Tag(models.Model):
+    name = models.TextField(max_length=50, db_index=True)
+    count = models.IntegerField(default=0)
+
+    @staticmethod
+    def update_counts(sender, instance, action, pk_set, *args, **kwargs):
+        "Applies tag count updates upon post changes"
+
+        if action == 'post_add':
+            Tag.objects.filter(pk__in=pk_set).update(count=F('count') + 1)
+
+        if action == 'post_delete':
+            Tag.objects.filter(pk__in=pk_set).update(count=F('count') - 1)
+
+        if action == 'pre_clear':
+            instance.tag_set.all().update(count=F('count') - 1)
+
+
+class TagAdmin(admin.ModelAdmin):
+    list_display = ('name', 'count')
+    search_fields = ['name']
+
+
+admin.site.register(Tag, TagAdmin)
+
+
 class PostManager(models.Manager):
+
+    def tag_search(self, text):
+        "Performs a query by one or more + separated tags"
+
+        include, exclude = [], []
+        for term in text.split('+'):
+            if term.endswith("!"):
+                exclude.append(term[:-1])
+            else:
+                include.append(term)
+
+        if include:
+            query = self.filter(type__in=Post.TOP_LEVEL, tag_set__name__in=include).exclude(tag_set__name__in=exclude).defer('content')
+        else:
+            query = self.filter(type__in=Post.TOP_LEVEL).exclude(tag_set__name__in=exclude).defer('content')
+
+        query = query.select_related("author").prefetch_related("tag_set").order_by('-lastedit_date').distinct()
+
+        return query
 
     def get_thread(self, root):
         # Populate the object to build a tree that contains all posts in the thread.
-        query = self.filter(root=root).select_related("author").order_by("type", "has_accepted", "-vote_count")
+        query = self.filter(root=root).select_related("root author").order_by("type", "has_accepted", "-vote_count")
         return query
 
     def top_level(self, user):
@@ -31,14 +77,17 @@ class PostManager(models.Manager):
             query = self.filter(type__in=Post.TOP_LEVEL).defer("content")
         else:
             query = self.filter(type__in=Post.TOP_LEVEL, status=Post.OPEN).defer("content")
-        return query.prefetch_related('tags').order_by('-lastedit_date')
+
+
+        return query.select_related("author").prefetch_related("tag_set").order_by('-lastedit_date')
+
 
 class Post(models.Model):
     "Represents a post in Biostar"
 
     objects = PostManager()
 
-    tags = TaggableManager()
+    #tags = TaggableManager()
 
     # Post statuses.
     PENDING, OPEN, CLOSED, DELETED = range(4)
@@ -47,7 +96,7 @@ class Post(models.Model):
     # Question types. Answers should be listed before comments.
     QUESTION, ANSWER, JOB, FORUM, PAGE, BLOG, COMMENT = range(7)
     TYPE_CHOICES = [
-        (QUESTION,"Question"), (ANSWER, "Answer"), (COMMENT, "Comment"),
+        (QUESTION, "Question"), (ANSWER, "Answer"), (COMMENT, "Comment"),
         (JOB, "Job"), (FORUM, "Forum"), (PAGE, "Page"), (BLOG, "Blog"),
     ]
 
@@ -120,6 +169,26 @@ class Post(models.Model):
     # This is the sanitized HTML for display.
     content = models.TextField(default='')
 
+    # The tag value is the canonical form of the post's tags
+    tag_val = models.CharField(max_length=100, default="", blank=True)
+
+    # The tag set is built from the tag string and used only for fast filtering
+    tag_set = models.ManyToManyField(Tag, blank=True, )
+
+    def parse_tags(self):
+        names = self.tag_val.split()
+        return map(unicode, names)
+
+    def add_tags(self, text):
+        text = text.strip()
+        # Sanitize the tag value
+        self.tag_val = bleach.clean(text, tags=[], attributes=[], styles={}, strip=True)
+        # Clear old tags
+        self.tag_set.clear()
+        tags = [Tag.objects.get_or_create(name=name)[0] for name in self.parse_tags()]
+        self.tag_set.add(*tags)
+        self.save()
+
     def peek(self, length=300):
         text = bleach.clean(self.content, tags=[], attributes=[], styles={}, strip=True)
         text = text[:length]
@@ -133,8 +202,12 @@ class Post(models.Model):
 
     def save(self, *args, **kwargs):
 
+        # Sanitize the post body.
         self.content = bleach.clean(self.content, tags=ALLOWED_TAGS,
                                     attributes=ALLOWED_ATTRIBUTES, styles=ALLOWED_STYLES)
+
+        # Must add tags with instance method. This is just for safety.
+        self.tag_val = bleach.clean(self.tag_val, tags=[], attributes=[], styles={}, strip=True)
 
         if not self.id:
 
@@ -170,7 +243,7 @@ class Post(models.Model):
         "A blog will redirect to the original post"
         #if self.url:
         #    return self.url
-        url = reverse("post-details", kwargs=dict(pk=self.root.id))
+        url = reverse("post-details", kwargs=dict(pk=self.root_id))
         return url if self.is_toplevel else "%s#%s" % (url, self.id)
 
 
@@ -200,6 +273,7 @@ class Post(models.Model):
 
             instance.save()
 
+
 # Posts will have revisions.
 #reversion.register(Post)
 
@@ -213,7 +287,9 @@ class PostAdmin(reversion.VersionAdmin):
     )
     search_fields = ('title', 'author__name')
 
+
 admin.site.register(Post, PostAdmin)
+
 
 class Vote(models.Model):
     # Post statuses.
@@ -228,8 +304,8 @@ class Vote(models.Model):
     def __unicode__(self):
         return u"Vote: %s, %s, %s" % (self.post_id, self.author_id, self.get_type_display())
 
-class SubscriptionManager(models.Manager):
 
+class SubscriptionManager(models.Manager):
     def get_subs(self, post):
         "Returns all suscriptions for a post"
         return self.filter(post=post.root).select_related("user")
@@ -237,13 +313,14 @@ class SubscriptionManager(models.Manager):
 # This contains the notification types.
 from biostar.const import LOCAL_MESSAGE, MESSAGING_TYPE_CHOICES
 
+
 class Subscription(models.Model):
     "Connects a post to a user"
 
     class Meta:
         unique_together = (("user", "post"),)
 
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("User"),  db_index=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("User"), db_index=True)
     post = models.ForeignKey(Post, verbose_name=_("Post"), related_name="subs", db_index=True)
     type = models.IntegerField(choices=MESSAGING_TYPE_CHOICES, default=LOCAL_MESSAGE, db_index=True)
     date = models.DateTimeField(_("Date"), db_index=True)
@@ -276,13 +353,14 @@ class SubscriptionAdmin(admin.ModelAdmin):
     search_fields = ('user__name', 'user__email')
     list_select_related = ["user", "post"]
 
+
 admin.site.register(Subscription, SubscriptionAdmin)
 
 # Data signals
-from django.db.models.signals import post_save, post_delete
+from django.db.models.signals import post_save, post_delete, m2m_changed
 
 post_save.connect(Post.check_root, sender=Post)
 post_save.connect(Subscription.create, sender=Post, dispatch_uid="create_subs")
 post_delete.connect(Subscription.finalize_delete, sender=Subscription, dispatch_uid="delete_subs")
-
+m2m_changed.connect(Tag.update_counts, sender=Post.tag_set.through)
 

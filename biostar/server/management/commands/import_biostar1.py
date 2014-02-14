@@ -112,14 +112,14 @@ class Command(BaseCommand):
             post_file = path_join(MIGRATE_DIR, 'posts', str(uid))
             post.content = file(post_file, 'rt').read()
 
+            post.save()
+
             # TODO migrate only tags with high counts
-            if tag_val:
-                tags = tag_val.split(" ")
-                post.tags.add(*tags)
+            post.add_tags(tag_val)
 
             self.stdout.write("migrating %s" % post)
 
-            post.save()
+
 
 
 

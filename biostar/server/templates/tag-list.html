@@ -1,7 +1,32 @@
-{%  extends "starbase.html" %}
+{% extends "starbase.html" %}
+{% load server_tags %}
+{% load humanize %}
 
-{%  block content %}
+{% block content %}
 
-This is the tag list.
+    {% search_bar %}
 
-{%  endblock %}
+    {% page_bar %}
+
+    <div class="row">
+        <div class="col-md-9">
+
+            <table id="posts" class="table table-striped">
+                {% for tag in tags %}
+                    <tr>
+                        <td>
+                            {{ tag.name }} {{ tag.count }}
+                        </td>
+                    </tr>
+
+                {% endfor %}
+            </table>
+        </div>
+        <div class="col-md-3">
+            Sidebar
+        </div>
+    </div>
+
+    {% page_bar %}
+
+{% endblock %}

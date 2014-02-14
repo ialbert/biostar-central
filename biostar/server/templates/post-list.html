@@ -53,9 +53,10 @@
                         </td>
 
                         <td width="100%">
-                            <div class="title"><a href="{{ post.get_absolute_url }}">{{ post.get_title }}</a></div>
+
+                            <div class="title"><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></div>
                             <div class="tags">
-                                {% for tag in post.tags.all %}
+                                {% for tag in post.tag_set.all %}
                                     <a class="tag" href="{% url 'topic-list' topic=tag.name %}">{{ tag.name }}</a>
                                 {% endfor %}
                             </div>

@@ -225,7 +225,6 @@ INSTALLED_APPS = [
     # 'allauth.socialaccount.providers.weibo',
 
     # External apps.
-    'taggit',
     'haystack',
     'crispy_forms',
 
