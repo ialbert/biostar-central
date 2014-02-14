@@ -334,6 +334,14 @@ SITE_LOGO = "biostar.logo.png"
 # Set it to None if all posts should be accesible via the Latest tab.
 SITE_LATEST_POST_LIMIT = 200
 
+# How many recent objects to show in the sidebar.
+RECENT_VOTE_COUNT = 10
+RECENT_USER_COUNT = 10
+RECENT_POST_COUNT = 10
+
+# Default cache expiration in seconds.
+CACHE_TIMEOUT = 60
+
 # Django precompressor settings.
 COMPRESS_PRECOMPILERS = (
     ('text/coffeescript', 'coffee --compile --stdio'),
