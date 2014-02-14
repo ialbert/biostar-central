@@ -110,7 +110,7 @@ LANGUAGE_CODE = 'en-us'
 # These parameters will be inserted into the database automatically.
 SITE_ID = 1
 SITE_NAME = "localhost"
-SITE_DOMAIN = "localhost"
+SITE_DOMAIN = "localhost:8080"
 
 DEFAULT_FROM_EMAIL = get_env("DEFAULT_FROM_EMAIL")
 

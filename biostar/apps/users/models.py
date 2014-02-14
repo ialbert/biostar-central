@@ -60,6 +60,9 @@ class User(AbstractBaseUser):
     # User total reputation.
     full_score = models.IntegerField(default=0)
 
+    # Display next to a user name.
+    flair = models.CharField(verbose_name='Falir', max_length=15, default="")
+
     @property
     def is_moderator(self):
         if self.is_authenticated():
@@ -156,7 +159,6 @@ class Profile(models.Model):
     # The default notification preferences.
     message_prefs = models.IntegerField(choices=const.MESSAGING_TYPE_CHOICES, default=const.LOCAL_MESSAGE,
                                         db_index=True)
-
 
     def save(self, *args, **kwargs):
 

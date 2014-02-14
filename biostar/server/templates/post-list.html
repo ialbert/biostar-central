@@ -6,10 +6,11 @@
 
     {% search_bar %}
 
-    {% page_bar %}
+
 
     <div class="row">
         <div class="col-md-9">
+            {% page_bar %}
             <table id="posts" class="table table-striped">
                 {% for post in posts %}
                     <tr>
@@ -34,8 +35,8 @@
                                     </div>
                                 {% endif %}
 
-                            {%  else %}
-                                 <div class="box vote">
+                            {% else %}
+                                <div class="box vote">
                                     <div class="c">{{ post.vote_count }}</div>
                                     <div class="t">vote{{ post.vote_count|pluralize }}</div>
                                 </div>
@@ -45,7 +46,7 @@
                                 </div>
 
                             {% endif %}
-                    </td>
+                        </td>
                         <td width="100%">
 
                             <div class="title"><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></div>
@@ -59,21 +60,25 @@
                             </div>
                         </td>
                     </tr>
-
+                {% empty %}
+                    <tr>
+                        <td>
+                            <div class="alert alert-info">There are no results for this page.</div>
+                        </td>
+                    </tr>
                 {% endfor %}
             </table>
+            {% page_bar %}
         </div>
         <div class="col-md-3 sidebar">
 
             <div class="head">Recent Votes</div>
-            {%  sidebar_votes  RECENT_VOTES %}
+            {% sidebar_votes RECENT_VOTES %}
 
-            <div class="head">Latest replies</div>
-            {%  sidebar_posts  RECENT_REPLIES %}
+            <div class="head">Recent Posts</div>
+            {% sidebar_posts RECENT_REPLIES %}
 
         </div>
     </div>
-
-    {% page_bar %}
 
 {% endblock %}
