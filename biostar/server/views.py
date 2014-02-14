@@ -33,7 +33,7 @@ def posts_by_topic(user, topic):
 
     if topic == MYPOSTS:
         # Get the posts that the user wrote.
-        return Post.objects.filter(author=user)
+        return Post.objects.my_posts(user)
 
     if topic == UNANSWERED:
         # Get unanswered posts.
@@ -45,7 +45,7 @@ def posts_by_topic(user, topic):
 
     if topic == BOOKMARKS:
         # Get that posts that a user bookmarked.
-        return Post.objects.filter(votes__author=user, votes__type=Vote.BOOKMARK)
+        return Post.objects.my_bookmarks(user)
 
     if topic in POST_TYPES:
         # A post type.
@@ -57,7 +57,6 @@ def posts_by_topic(user, topic):
 
     # Return latest by default.
     return Post.objects.top_level(user).exclude(type=Post.BLOG)[:settings.SITE_LATEST_POST_LIMIT]
-
 
 class PostList(ListView):
     """
@@ -103,9 +102,6 @@ class MessageList(ListView):
 
     def get_queryset(self):
         objs = Message.objects.filter(user=self.request.user).select_related("body").order_by('-creation_date')
-
-        objs = Message.objects.filter(user_id=2).select_related("body").order_by('-creation_date')
-
         return objs
 
     def get_context_data(self, **kwargs):
@@ -135,7 +131,6 @@ class VoteList(ListView):
 
     def get_queryset(self):
         objs = Vote.objects.filter(post__author=self.request.user).select_related("post").order_by('-date')
-        objs = Vote.objects.filter(post__author=2).select_related("post").order_by('-date')
         return objs
 
     def get_context_data(self, **kwargs):
@@ -244,11 +239,6 @@ class PostDetails(DetailView):
         context = super(PostDetails, self).get_context_data(**kwargs)
         context['request'] = self.request
         return context
-
-
-class TopicDetails(DetailView):
-    template_name = "topic-details.html"
-
 
 class SiteSearch(SearchView):
     extra_context = lambda x: dict(topic="search")

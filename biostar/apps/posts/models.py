@@ -47,6 +47,16 @@ admin.site.register(Tag, TagAdmin)
 
 class PostManager(models.Manager):
 
+    def my_bookmarks(self, user):
+        query = self.filter(votes__author=user, votes__type=Vote.BOOKMARK).select_related("author")
+        query = query.prefetch_related("tag_set").order_by('-lastedit_date')
+        return query
+
+    def my_posts(self, user):
+        query = self.filter(author=user).select_related("author")
+        query = query.prefetch_related("tag_set").order_by('-lastedit_date')
+        return query
+
     def tag_search(self, text):
         "Performs a query by one or more + separated tags"
 

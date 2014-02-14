@@ -13,8 +13,8 @@
             <table id="posts" class="table table-striped">
                 {% for post in posts %}
                     <tr>
-
                         <td class="boxcell {{ post.get_type_display }}">
+
                             {% if post.is_toplevel %}
                                 <div class="box vote">
                                     <div class="c">{{ post.vote_count }}</div>
@@ -33,25 +33,19 @@
                                         {{ post.subs_count }} following
                                     </div>
                                 {% endif %}
-                            {% else %}
 
-                                <div class="box vote">
+                            {%  else %}
+                                 <div class="box vote">
                                     <div class="c">{{ post.vote_count }}</div>
                                     <div class="t">vote{{ post.vote_count|pluralize }}</div>
                                 </div>
-
-                                {% if post.book_count %}
-                                    <div class="box bookmark">
-                                        <div class="c">{{ post.book_count }}</div>
-                                        <div class="t">bookmark{{ post.book_count|pluralize }}</div>
-                                    </div>
-
-                                {% endif %}
+                                <div class="box {% boxclass post %}">
+                                    <div class="c">{{ post.book_count }}</div>
+                                    <div class="t">bookmark{{ post.reply_count|pluralize }}</div>
+                                </div>
 
                             {% endif %}
-
-                        </td>
-
+                    </td>
                         <td width="100%">
 
                             <div class="title"><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></div>

@@ -11,6 +11,7 @@ RECENT_USERS_KEY = "RECENT_USERS_KEY"
 RECENT_REPLIES_KEY = "RECENT_REPLIES_KEY"
 
 def get_recent_votes():
+    return []
     votes = cache.get(RECENT_VOTES_KEY)
     if not votes:
         votes = Vote.objects.filter(post__status=Post.OPEN).select_related("post").order_by("-date")[:settings.RECENT_VOTE_COUNT]
@@ -18,6 +19,7 @@ def get_recent_votes():
     return votes
 
 def get_recent_users():
+    return []
     users = cache.get(RECENT_USERS_KEY)
     if not users:
         users = User.objects.all().order_by("-profile__last_login")[:settings.RECENT_USER_COUNT]
@@ -25,6 +27,7 @@ def get_recent_users():
     return users
 
 def get_recent_replies():
+    return []
     posts = cache.get(RECENT_REPLIES_KEY)
     if not posts:
         posts = Post.objects.filter(type__in=(Post.ANSWER, Post.COMMENT))\

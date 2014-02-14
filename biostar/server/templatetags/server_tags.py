@@ -8,19 +8,28 @@ import random, hashlib, urllib
 from datetime import datetime, timedelta
 from django.utils.timezone import utc
 from django import template
+from django.core.urlresolvers import reverse
 
 register = template.Library()
 
+
+@register.simple_tag
+def current(request, *urls):
+    if request.path in (reverse(url) for url in urls):
+        return "active"
+    return ''
 
 @register.simple_tag
 def rand_num():
     "The purpose of this is to return a random number"
     return " %f " % random.random()
 
+
 @register.filter
 def show_nonzero(value):
     "The purpose of this is to return value or empty"
     return value if value else ''
+
 
 @register.filter
 def on(value):
@@ -104,6 +113,7 @@ def nav_bar(context, user):
     "Renders top navigation bar"
     return context
 
+
 @register.inclusion_tag('server_tags/page_bar.html', takes_context=True)
 def page_bar(context):
     "Renders a paging bar"
@@ -145,7 +155,6 @@ COMMENT_BODY = template.loader.get_template(COMMENT_TEMPLATE)
 
 @register.simple_tag
 def render_comments(request, post, tree):
-
     global COMMENT_BODY, COMMENT_TEMPLATE
     if settings.DEBUG:
         # reload the template to get changes

@@ -59,7 +59,7 @@ urlpatterns = patterns('',
     # Adding the search urls.
     url(r'^search/', views.SiteSearch(), name="search"),
 
-     # matching the robots.txt
+     # Local robots.txt.
     url(r'^robots\.txt$', TemplateView.as_view(template_name="robots.txt", content_type='text/plain'), name='robots'),
 
 )
