@@ -11,8 +11,9 @@ from biostar.apps.users.models import User
 from biostar.apps.posts.models import Post, Vote, Tag
 from collections import defaultdict, OrderedDict
 from biostar.apps.posts.auth import post_permissions
+from django.contrib import messages
 
-MYPOSTS, UNANSWERED, FOLLOWING, BOOKMARKS = "myposts unanswered following bookmarks".split()
+MYPOSTS, MYTAGS, UNANSWERED, FOLLOWING, BOOKMARKS = "myposts mytags unanswered following bookmarks".split()
 
 POST_TYPES = dict(jobs=Post.JOB, forum=Post.FORUM, planet=Post.BLOG, pages=Post.PAGE)
 
@@ -27,13 +28,18 @@ class BaseListView(ListView):
         context['page_title'] = self.page_title
         return context
 
-def posts_by_topic(user, topic):
+def posts_by_topic(request, topic):
     "Returns a post query that matches a topic"
+    user = request.user
     topic = topic.lower()
 
     if topic == MYPOSTS:
         # Get the posts that the user wrote.
         return Post.objects.my_posts(user)
+
+    if topic == MYTAGS:
+        # Get the posts that the user wrote.
+        return Post.objects.tag_search(user.profile.my_tags)
 
     if topic == UNANSWERED:
         # Get unanswered posts.
@@ -82,7 +88,7 @@ class PostList(ListView):
 
     def get_queryset(self):
         self.topic = self.kwargs.get("topic", "")
-        objs = posts_by_topic(self.request.user, self.topic)
+        objs = posts_by_topic(self.request, self.topic)
         return objs
 
     def get_context_data(self, **kwargs):

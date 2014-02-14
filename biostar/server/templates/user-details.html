@@ -27,10 +27,11 @@
                     <td>
                         {% gravatar target 200 %}
                         <div class="text-center">
-                            {%  userlink target %}
+                            {% userlink target %}
                         </div>
                         <div class="text-center" style="margin-top:20px">
-                            <a href="{% url "user-edit" target.id %}"  class="btn btn-default" role="button" href="#">Edit Profile</a>
+                            <a href="{% url "user-edit" target.id %}" class="btn btn-default" role="button" href="#">Edit
+                                Profile</a>
                         </div>
                     </td>
 
@@ -56,10 +57,13 @@
                             <dt>Scholar ID:</dt>
                             <dd>{{ target.profile.scholar }}</dd>
 
+                            <dt>Tags:</dt>
+                            <dd>{{ target.profile.my_tags }}</dd>
+
                             {% if target.is_editable %}
                                 <dt></dt>
                                 <dd></dd>
-                            {%  endif %}
+                            {% endif %}
                         </dl>
                     </td>
 
@@ -71,7 +75,7 @@
 
                 <tr>
                     <td colspan="3" class="text-center">
-                       Contributions
+                        Contributions
                     </td>
                 </tr>
 

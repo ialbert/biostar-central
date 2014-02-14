@@ -10,6 +10,7 @@ from crispy_forms.layout import Layout, Field, Fieldset, Submit, ButtonHolder
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.contrib import messages
+from django.core.validators import validate_email
 
 class UserEditForm(forms.Form):
     name = forms.CharField()
@@ -17,6 +18,7 @@ class UserEditForm(forms.Form):
     location = forms.CharField(required=False)
     website = forms.CharField(required=False, max_length=200)
     scholar = forms.CharField(required=False, max_length=15)
+    my_tags = forms.CharField(max_length=200, required=False)
     info = forms.CharField(widget=forms.Textarea, required=False)
 
     def __init__(self, *args, **kwargs):
@@ -30,12 +32,14 @@ class UserEditForm(forms.Form):
                 'location',
                 'website',
                 'scholar',
+                'my_tags',
                 'info',
             ),
             ButtonHolder(
                 Submit('submit', 'Submit')
             )
         )
+
 
 
 class EditUser(FormView):
@@ -47,7 +51,7 @@ class EditUser(FormView):
     template_name = ""
     form_class = UserEditForm
     user_fields = "name email".split()
-    prof_fields = "location website info scholar".split()
+    prof_fields = "location website info scholar my_tags".split()
 
     def get(self, request, *args, **kwargs):
         target = User.objects.get(pk=self.kwargs['pk'])
@@ -69,11 +73,19 @@ class EditUser(FormView):
         prof = target.profile
         form = self.form_class(request.POST)
         if form.is_valid():
+            f = form.cleaned_data
+
+            if User.objects.filter(email=f['email']).exclude(pk=request.user.id):
+                # Changing email to one that already belongs to someone else.
+                messages.error(request, "The email that you've entered is already registered")
+                return render(request, self.template_name, {'form': form})
+
             # Valid data. Save model attributes and redirect.
             for field in self.user_fields:
-                setattr(target, field, form.cleaned_data[field])
+                setattr(target, field, f[field])
+
             for field in self.prof_fields:
-                setattr(target.profile, field, form.cleaned_data[field])
+                setattr(target.profile, field, f[field])
             target.save()
             prof.save()
             messages.success(request, "Profile updated")

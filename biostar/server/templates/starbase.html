@@ -52,10 +52,9 @@
 
     {% if messages %}
         <div class="row">
-            <div class="col-md-12">
+            <div class="col-md-12 col-sm-offset-0 text-center" >
                 {% for message in messages %}
-                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                    <div class="alert  {{ message.tags }} alert-dismissable">{{ message }}</div>
+                    <div class="alert  {{ message.tags }}">{{ message|safe }}</div>
                 {% endfor %}
             </div>
         </div>
