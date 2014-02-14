@@ -1,0 +1,12 @@
+<div class="recent-posts">
+    <ul style="opacity: 0.8;">
+        {% for post in posts %}
+            <li>
+                <a href="{{ post.get_absolute_url }}">
+                    <em>{{ post.title }}</em></a> {{ post.creation_date|timesince }} ago by <a
+            href="{{ user.get_absolute_url }}">{{ post.author.name }}</a>
+
+            </li>
+        {% endfor %}
+    </ul>
+</div>
