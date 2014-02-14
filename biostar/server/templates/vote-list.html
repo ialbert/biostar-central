@@ -15,8 +15,8 @@
                 {% for vote in votes %}
                     <tr>
                         <td>
-                            {{ vote.get_type_display }} {{ vote.date|timesince }} ago for
-                            <a href="{{ vote.post.get_absolute_url }}">{{ vote.post.title }}</a>
+                            {{ vote.get_type_display }}, {{ vote.date|timesince }} ago for
+                            the {{ vote.post.get_type_display|lower }}: <a href="{{ vote.post.get_absolute_url }}">{{ vote.post.title }}</a>
                         </td>
                     </tr>
 
