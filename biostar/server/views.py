@@ -5,6 +5,7 @@ from haystack.views import SearchView
 from biostar.apps.users import auth
 from biostar.apps.users.views import EditUser
 from biostar.apps.posts.views import EditPost, NewPost, NewAnswer
+import random
 
 from biostar.apps.messages.models import Message
 from biostar.apps.users.models import User
@@ -39,6 +40,7 @@ def posts_by_topic(request, topic):
 
     if topic == MYTAGS:
         # Get the posts that the user wrote.
+        messages.success(request, 'Posts matching the <b><i class="fa fa-tag"></i> My Tags</b> setting in your user profile')
         return Post.objects.tag_search(user.profile.my_tags)
 
     if topic == UNANSWERED:
@@ -47,6 +49,7 @@ def posts_by_topic(request, topic):
 
     if topic == FOLLOWING:
         # Get that posts that a user follows.
+        messages.success(request, 'Threads that will produce notifications.')
         return Post.objects.top_level(user).filter(subs__user=user)
 
     if topic == BOOKMARKS:
@@ -141,8 +144,11 @@ class VoteList(ListView):
 
     def get_context_data(self, **kwargs):
         context = super(VoteList, self).get_context_data(**kwargs)
+        people = [ v.author for v in context[self.context_object_name]]
+        random.shuffle(people)
         context['topic'] = "votes"
         context['page_title'] = "Votes"
+        context['people'] = people
         return context
 
 class UserList(ListView):

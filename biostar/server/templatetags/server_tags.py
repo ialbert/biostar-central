@@ -109,13 +109,15 @@ def boxclass(post):
 
 @register.inclusion_tag('server_tags/sidebar_posts.html')
 def sidebar_posts(posts):
-    "Renders top navigation bar"
     return dict(posts=posts)
 
 @register.inclusion_tag('server_tags/sidebar_votes.html')
 def sidebar_votes(votes):
-    "Renders top navigation bar"
     return dict(votes=votes)
+
+@register.inclusion_tag('server_tags/sidebar_users.html')
+def sidebar_users(users):
+    return dict(users=users)
 
 @register.inclusion_tag('server_tags/nav_bar.html', takes_context=True)
 def nav_bar(context, user):
