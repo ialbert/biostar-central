@@ -1,0 +1,33 @@
+{% extends "starbase.html" %}
+{% load server_tags %}
+{% load humanize %}
+
+{% block content %}
+
+    {% search_bar %}
+
+    {% page_bar %}
+
+    <div class="row">
+        <div class="col-md-9">
+
+            <table id="posts" class="table table-striped">
+                {% for vote in votes %}
+                    <tr>
+                        <td>
+                            {{ vote.get_type_display }} {{ vote.date|timesince }} ago for
+                            <a href="{{ vote.post.get_absolute_url }}">{{ vote.post.title }}</a>
+                        </td>
+                    </tr>
+
+                {% endfor %}
+            </table>
+        </div>
+        <div class="col-md-3">
+            Sidebar
+        </div>
+    </div>
+
+    {% page_bar %}
+
+{% endblock %}

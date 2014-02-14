@@ -10,6 +10,7 @@ from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, UserMa
 from django.utils.timezone import utc
 from biostar.apps import util
 import bleach
+from django.core.urlresolvers import reverse
 
 # HTML sanitization parameters.
 ALLOWED_TAGS = bleach.ALLOWED_TAGS + "p div br code pre".split()
@@ -112,6 +113,10 @@ class User(AbstractBaseUser):
 
     def __unicode__(self):
         return "User %s: %s (%s)" % (self.id, self.name, self.email)
+
+    def get_absolute_url(self):
+        url = reverse("user-details", kwargs=dict(pk=self.id))
+        return url
 
 # This contains the notification types.
 from biostar import const

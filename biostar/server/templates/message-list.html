@@ -1,0 +1,29 @@
+{% extends "starbase.html" %}
+{% load server_tags %}
+{% load humanize %}
+
+{% block content %}
+
+    {% search_bar %}
+
+    {% page_bar %}
+
+    <div class="row">
+        <div class="col-md-12">
+
+            <table id="posts" class="table table-striped">
+                {% for message in objects %}
+                    <tr>
+                        <td>
+                           {{ message.body.text|safe }}
+                        </td>
+                    </tr>
+
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+
+    {% page_bar %}
+
+{% endblock %}

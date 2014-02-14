@@ -9,6 +9,8 @@ from django.utils.translation import ugettext_lazy as _
 logger = logging.getLogger(__name__)
 
 # Inspired by django-messages at https://github.com/arneb/django-messages
+def now():
+    return datetime.datetime.utcnow().replace(tzinfo=utc)
 
 class MessageManager(models.Manager):
 
@@ -40,7 +42,7 @@ class MessageBody(models.Model):
     def save(self, **kwargs):
 
         if not self.id:
-            self.sent_at = datetime.datetime.utcnow().replace(tzinfo=utc)
+            self.sent_at = now()
         super(MessageBody, self).save(**kwargs)
 
 # This contains the notification types.
@@ -54,8 +56,16 @@ class Message(models.Model):
     type = models.IntegerField(choices=MESSAGING_TYPE_CHOICES, default=LOCAL_MESSAGE, db_index=True)
     read_at = models.DateTimeField(_("read at"), null=True, blank=True, db_index=True)
 
+    creation_date = models.DateTimeField(db_index=True, null=True)
+
+    def is_new(self):
+        return bool(self.read_at)
+
+    def save(self, *args, **kwargs):
+        self.creation_date = self.creation_date or now()
+
     def __unicode__(self):
-        return unicode(self.user)
+        return u"Message %s, %s" % (self.user, self.body_id)
 
     @staticmethod
     def inbox_count_for(user):

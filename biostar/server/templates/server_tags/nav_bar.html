@@ -35,14 +35,14 @@
             </div>
 
             <div class="col-sm-1 mid {% active "messages" topic %}">
-                <a href="/admin/">
+                <a href="{% url 'user-messages' %}">
                     <div><i class="fa fa-envelope fa-1x"></i>
                     </div>
                     <div>Messages</div>
                 </a>
             </div>
             <div class="col-sm-1 mid {% active "votes" topic %}">
-                <a href="/admin/" class="navitem">
+                <a href="{% url 'user-votes' %}" class="navitem">
                     <div class="navitem">
                         <div><i class="fa fa-heart"></i></div>
                         <div>Votes</div>
@@ -87,7 +87,7 @@
 
         {% endif %}
 
-        {%  if  show_create_button %}
+        {%  if not form %}
         <div class="col-sm-1 pull-right">
             <a role="button" class="btn btn-success" href="{% url 'new-post' %}"> Create <br> New Post
             </a></div>

@@ -38,6 +38,12 @@ urlpatterns = patterns('',
     # Edit an existing post.
     url(r'^p/edit/(?P<pk>\d+)/$', views.EditPost.as_view(), name="post-edit"),
 
+    # Message display.
+    url(r'^local/messages/$', views.MessageList.as_view(), name="user-messages"),
+
+    # Vote display.
+    url(r'^local/votes/$', views.VoteList.as_view(), name="user-votes"),
+
     # Vote submission.
     url(r'^x/vote/$', ajax.vote_handler, name="vote-submit"),
 

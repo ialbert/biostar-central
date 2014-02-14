@@ -60,7 +60,7 @@ class Post(models.Model):
 
     TOP_LEVEL = set((QUESTION, JOB, FORUM, PAGE, BLOG))
 
-    title = models.CharField(max_length=255, null=False)
+    title = models.CharField(max_length=140, null=False)
 
     # The user that originally created the post.
     author = models.ForeignKey(settings.AUTH_USER_MODEL)
@@ -119,6 +119,11 @@ class Post(models.Model):
 
     # This is the sanitized HTML for display.
     content = models.TextField(default='')
+
+    def peek(self, length=300):
+        text = bleach.clean(self.content, tags=[], attributes=[], styles={}, strip=True)
+        text = text[:length]
+        return text
 
     def get_title(self):
         if self.status == Post.OPEN:
@@ -189,7 +194,7 @@ class Post(models.Model):
 
             if not instance.is_toplevel:
                 # Title is inherited from top level.
-                instance.title = "%s: %s" % (instance.get_type_display()[0], instance.root.title)
+                instance.title = "%s: %s" % (instance.get_type_display(), instance.root.title[:80])
 
             assert instance.root and instance.parent
 

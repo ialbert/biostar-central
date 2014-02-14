@@ -1,3 +1,2 @@
-{{ post.creation_date|timesince }}, ago {{ post.get_type_display }}: {{post.title}} by {{user.name}}
-
-{{post.html}}
+{{ post.creation_date|timesince }} ago <a href="{{ post.get_absolute_url }}">{{ post.get_title }}</a>
+by <a href="{{ user.get_absolute_url }}">{{user.name}}</a>: {{post.peek}}

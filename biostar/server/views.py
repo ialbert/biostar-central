@@ -6,6 +6,7 @@ from biostar.apps.users import auth
 from biostar.apps.users.views import EditUser
 from biostar.apps.posts.views import EditPost, NewPost, NewAnswer
 
+from biostar.apps.messages.models import Message
 from biostar.apps.users.models import User
 from biostar.apps.posts.models import Post, Vote
 from collections import defaultdict, OrderedDict
@@ -79,9 +80,49 @@ class PostList(ListView):
         context = super(PostList, self).get_context_data(**kwargs)
         context['topic'] = self.topic or self.LATEST
         context['page_title'] = self.page_title()
-        context['show_create_button'] = True
         return context
 
+class MessageList(ListView):
+    """
+    This is the base class for any view that produces a list of posts.
+    """
+    model = Message
+    template_name = "message-list.html"
+    context_object_name = "objects"
+    paginate_by = settings.PAGINATE_BY
+
+    def get_queryset(self):
+        objs = Message.objects.filter(user=self.request.user).select_related("body").order_by('-creation_date')
+
+        objs = Message.objects.filter(user_id=2).select_related("body").order_by('-creation_date')
+
+        return objs
+
+    def get_context_data(self, **kwargs):
+        context = super(MessageList, self).get_context_data(**kwargs)
+        context['topic'] = "messages"
+        context['page_title'] = "Messages"
+        return context
+
+class VoteList(ListView):
+    """
+    Produces the list of votes
+    """
+    model = Message
+    template_name = "vote-list.html"
+    context_object_name = "votes"
+    paginate_by = settings.PAGINATE_BY
+
+    def get_queryset(self):
+        objs = Vote.objects.filter(post__author=self.request.user).select_related("post").order_by('-date')
+        objs = Vote.objects.filter(post__author=2).select_related("post").order_by('-date')
+        return objs
+
+    def get_context_data(self, **kwargs):
+        context = super(VoteList, self).get_context_data(**kwargs)
+        context['topic'] = "votes"
+        context['page_title'] = "Votes"
+        return context
 
 class UserList(ListView):
     """
