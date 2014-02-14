@@ -1,4 +1,4 @@
-from django.views.generic import DetailView, ListView
+from django.views.generic import DetailView, ListView, TemplateView
 from django.conf import settings
 from haystack.views import SearchView
 
@@ -254,3 +254,6 @@ class PostDetails(DetailView):
 
 class SiteSearch(SearchView):
     extra_context = lambda x: dict(topic="search")
+
+class RSS(TemplateView):
+    template_name="rss-info.html"

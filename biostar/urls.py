@@ -47,8 +47,10 @@ urlpatterns = patterns('',
     # Vote display.
     url(r'^local/votes/$', views.VoteList.as_view(), name="user-votes"),
 
+
     # Vote submission.
     url(r'^x/vote/$', ajax.vote_handler, name="vote-submit"),
+
 
     # Social login pages.
     (r'^accounts/', include('allauth.urls')),
@@ -64,6 +66,26 @@ urlpatterns = patterns('',
 
 )
 
+from biostar.server.feeds import LatestEntriesFeed, PostTypeFeed
+
+# Adding the RSS related urls.
+urlpatterns += patterns('',
+
+    # RSS info page.
+    url(r'^info/rss/$', views.RSS.as_view(), name='rss'),
+
+    # RSS feeds
+    url(r'^feeds/latest/$', LatestEntriesFeed(), name='latest-feed'),
+
+    url(r'^feeds/tag/(?P<text>[\w\-_\+]+)/$', PostTypeFeed(), name='tag-feed'),
+
+    #url(r'^feeds/messages/(?P<uuid>[a-z0-9]+)/$', NotificationFeed(), name='notification-feed' ),
+    #url(r'^feeds/mytags/(?P<uuid>[a-z0-9]+)/$', MyTagsFeed(), name='mytags-feed' ),
+    #url(r'^feeds/tag/(?P<text>[\w\-_\+]+)/$', TagsFeed(), name='tags-feed' ),
+    #
+    #url(r'^feeds/user/(?P<text>[\w\-_\+]+)/$', UserFeed(), name='user-feed' ),
+    #url(r'^feeds/type/(?P<text>[\w\-_\+]+)/$', PostTypeFeed(), name='post-type-feed' ),
+)
 
 # Adding the flatpages.
 urlpatterns += patterns('django.contrib.flatpages.views',
