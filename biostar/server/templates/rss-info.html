@@ -16,29 +16,39 @@
                 </div>
                 <div class="panel-body">
 
-                    Standard feeds:
+                    <p>
+                        Standard feeds:
+                    </p>
 
 
-                        <ul>
-                            <li><a href="{%  url "latest-feed" %}">Latest Posts</a> - latest posts from Biostar</li>
-                            <li><a href="/feeds/type/question">New Questions</a> - latest questions from Biostar</li>
-                            <li><a href="/feeds/type/job">New Job postings</a> - latest questions from Biostar</li>
-                        </ul>
+                    <ul>
+                        <li><a href="{% url "latest-feed" %}">Latest Posts</a> - latest posts (all posts)</li>
+                        <li><a href="{% url "post-type" "question" %}">New Questions</a> - latest questions</li>
+                        <li><a href="{% url "post-type" "job" %}">New Job postings</a> - latest jobs</li>
+                        <li><a href="{% url "post-type" "blog" %}">Planet Feed</a> - latest blog entries</li>
+                    </ul>
 
 
-                    We also provide complex feed urls:
+                    <p>
+                        Advanced usage, multiple sources can be added to a feed.
 
+                    <p>
 
-                        <ul>
-                            <li><a href="/feeds/type/job+tutorial+tool"">Follow posts of different types</a> -
-                                include one or more post types in a URL: <code>/feeds/type/job+tutorial+tool</code></li>
-                            <li><a href="/feeds/post/2+4+6"">Follow multiple posts</a> - include one or more post ids in
-                                a URL: <code>/feeds/post/2+8+10</code></li>
-                            <li><a href="/feeds/tag/galaxy+bwa+tutorial">Follow multiple tags</a> - include one or more
-                                tags in a URL: <code>/feeds/tag/galaxy+bwa+tutorial</code></li>
-                            <li><a href="/feeds/user/2+4+6"">Follow multiple users</a> - include one or more user ids in
-                                a URL: <code>/feeds/user/2+8+10</code></li>
-                        </ul>
+                    <ul>
+                        <li><a href="{% url "post-type" "blog+job" %}">Follow posts of different types</a>, posts of certain types:
+                            <code>/feeds/type/job+blog</code>
+                        </li>
+                        <li><a href="{% url "post-feed" "2+4+6" %}">Follow multiple posts</a>, answers and comments attached to the
+                            specified posts: <code>/feeds/post/2+8+10</code>
+                        </li>
+                        <li><a href="{% url "tag-feed" 'galaxy+bwa+tutorial' %}">Follow multiple tags</a>, posts that are tagged with one or more
+                            tags:
+                            <code>/feeds/tag/galaxy+bwa+tutorial</code>
+                        </li>
+                        <li><a href="{% url "user-feed" "2+4+6" %}">Follow multiple users</a> a feed to posts by these users:
+                            <code>/feeds/user/2+8+10</code>
+                        </li>
+                    </ul>
 
                 </div>
             </div>

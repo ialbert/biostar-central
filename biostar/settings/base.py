@@ -45,7 +45,7 @@ TEMPLATE_DIR = abspath(__CURR_DIR, '..', 'server', 'templates')
 
 # Needs to point to the directory that contains the
 # html files that are stored in the flatpages about, faq, help, policy etc.
-FLATPAGE_IMPORT_DIR = abspath(TEMPLATE_DIR, 'flatpages')
+FLATPAGE_IMPORT_DIR = abspath(HOME_DIR, "data", "init")
 
 # Default search index location.
 DATA_DIR = abspath(__CURR_DIR, '..', '..', 'data')
@@ -220,7 +220,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.twitter',
     'allauth.socialaccount.providers.facebook',
     'allauth.socialaccount.providers.persona',
-    'allauth.socialaccount.providers.github',
+    #'allauth.socialaccount.providers.github',
     #'allauth.socialaccount.providers.linkedin',
     # 'allauth.socialaccount.providers.weibo',
 
@@ -298,21 +298,6 @@ SOCIALACCOUNT_PROVIDERS = {
     'persona': {
         'REQUEST_PARAMETERS': {'siteName': 'Biostar'}
     },
-
-    'github': {
-        'PROVIDER_KEY': get_env("GITHUB_PROVIDER_KEY"),
-        'PROVIDER_SECRET_KEY': get_env("GITHUB_PROVIDER_SECRET_KEY"),
-    },
-
-    #'linkedin': {
-    #    'SCOPE': ['r_emailaddress'],
-    #    'PROFILE_FIELDS' : [ 'id', 'first-name', 'last-name', 'email-address'],
-    #},
-
-    #'weibo': {
-    #    'PROVIDER_KEY': get_env("WEIBO_PROVIDER_KEY"),
-    #    'PROVIDER_SECRET_KEY': get_env("WEIBO_PROVIDER_SECRET_KEY"),
-    #},
 
     'google': {
         'SCOPE': ['email', 'https://www.googleapis.com/auth/userinfo.profile'],

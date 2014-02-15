@@ -277,7 +277,7 @@ class Post(models.Model):
 
             if not instance.is_toplevel:
                 # Title is inherited from top level.
-                instance.title = "%s: %s" % (instance.get_type_display(), instance.root.title[:80])
+                instance.title = "%s: %s" % (instance.get_type_display()[0], instance.root.title[:80])
 
             assert instance.root and instance.parent
 

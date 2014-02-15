@@ -66,7 +66,7 @@ urlpatterns = patterns('',
 
 )
 
-from biostar.server.feeds import LatestEntriesFeed, PostTypeFeed
+from biostar.server.feeds import LatestFeed, TagFeed, UserFeed, PostFeed, PostTypeFeed
 
 # Adding the RSS related urls.
 urlpatterns += patterns('',
@@ -75,16 +75,13 @@ urlpatterns += patterns('',
     url(r'^info/rss/$', views.RSS.as_view(), name='rss'),
 
     # RSS feeds
-    url(r'^feeds/latest/$', LatestEntriesFeed(), name='latest-feed'),
+    url(r'^feeds/latest/$', LatestFeed(), name='latest-feed'),
 
-    url(r'^feeds/tag/(?P<text>[\w\-_\+]+)/$', PostTypeFeed(), name='tag-feed'),
+    url(r'^feeds/tag/(?P<text>[\w\-_\+]+)/$', TagFeed(), name='tag-feed'),
+    url(r'^feeds/user/(?P<text>[\w\-_\+]+)/$', UserFeed(), name='user-feed'),
+    url(r'^feeds/post/(?P<text>[\w\-_\+]+)/$', PostFeed(), name='post-feed' ),
+    url(r'^feeds/type/(?P<text>[\w\-_\+]+)/$', PostTypeFeed(), name='post-type'),
 
-    #url(r'^feeds/messages/(?P<uuid>[a-z0-9]+)/$', NotificationFeed(), name='notification-feed' ),
-    #url(r'^feeds/mytags/(?P<uuid>[a-z0-9]+)/$', MyTagsFeed(), name='mytags-feed' ),
-    #url(r'^feeds/tag/(?P<text>[\w\-_\+]+)/$', TagsFeed(), name='tags-feed' ),
-    #
-    #url(r'^feeds/user/(?P<text>[\w\-_\+]+)/$', UserFeed(), name='user-feed' ),
-    #url(r'^feeds/type/(?P<text>[\w\-_\+]+)/$', PostTypeFeed(), name='post-type-feed' ),
 )
 
 # Adding the flatpages.
