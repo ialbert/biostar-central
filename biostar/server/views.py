@@ -13,21 +13,57 @@ from biostar.apps.posts.models import Post, Vote, Tag
 from collections import defaultdict, OrderedDict
 from biostar.apps.posts.auth import post_permissions
 from django.contrib import messages
-
-MYPOSTS, MYTAGS, UNANSWERED, FOLLOWING, BOOKMARKS = "myposts mytags unanswered following bookmarks".split()
-
-POST_TYPES = dict(jobs=Post.JOB, forum=Post.FORUM, planet=Post.BLOG, pages=Post.PAGE)
+from django.utils.timezone import utc
+from datetime import datetime, timedelta
 
 
-class BaseListView(ListView):
+def now():
+    return datetime.utcnow().replace(tzinfo=utc)
+
+
+class BaseListMixin(ListView):
     "Base class for each mixin"
     page_title = "Title"
     paginate_by = settings.PAGINATE_BY
 
+    def get_title(self):
+        return self.page_title
+
     def get_context_data(self, **kwargs):
-        context = super(BaseListView, self).get_context_data(**kwargs)
-        context['page_title'] = self.page_title
+        context = super(BaseListMixin, self).get_context_data(**kwargs)
+        context['page_title'] = self.get_title()
+        context['sort'] = self.request.GET.get('sort', 'date')
+        context['limit'] = self.request.GET.get('limit', 'all time')
         return context
+
+# The naming here needs to match that in the server_tag.py template tags.
+DAY_MAP = {"today": 1, "this week": 7, "this month": 30, "this year": 365}
+SORT_MAP = {
+    "date": "-lastedit_date", "views": "-view_count", "followers":"-subs_count",
+    "answers": "-answer_count", "bookmarks": "-book_count",
+    "votes": "-vote_count", "rank": "-rank", "creation": "-creation_date",
+}
+
+
+def apply_sort(request, query):
+    # Apply sort order
+    sort = request.GET.get('sort', 'date')
+    field = SORT_MAP.get(sort, "-lastedit_date")
+    query = query.order_by(field)
+
+    # Apply time limit.
+    limit = request.GET.get('limit', 'all time')
+    days = DAY_MAP.get(limit)
+    if days:
+        delta = now() - timedelta(days=days)
+        query = query.filter(lastedit_date__gt=delta)
+    return query
+
+
+LATEST = "latest"
+MYPOSTS, MYTAGS, UNANSWERED, FOLLOWING, BOOKMARKS = "myposts mytags unanswered following bookmarks".split()
+POST_TYPES = dict(jobs=Post.JOB, forum=Post.FORUM, planet=Post.BLOG, pages=Post.PAGE)
+
 
 def posts_by_topic(request, topic):
     "Returns a post query that matches a topic"
@@ -65,9 +101,10 @@ def posts_by_topic(request, topic):
         return Post.objects.tag_search(topic)
 
     # Return latest by default.
-    return Post.objects.top_level(user).exclude(type=Post.BLOG)[:settings.SITE_LATEST_POST_LIMIT]
+    return Post.objects.top_level(user).exclude(type=Post.BLOG)
 
-class PostList(ListView):
+
+class PostList(BaseListMixin):
     """
     This is the base class for any view that produces a list of posts.
     """
@@ -83,7 +120,7 @@ class PostList(ListView):
         self.limit = 250
         self.topic = None
 
-    def page_title(self):
+    def get_title(self):
         if self.topic:
             return "%s Posts" % self.topic
         else:
@@ -91,14 +128,19 @@ class PostList(ListView):
 
     def get_queryset(self):
         self.topic = self.kwargs.get("topic", "")
-        objs = posts_by_topic(self.request, self.topic)
-        return objs
+        query = posts_by_topic(self.request, self.topic)
+        query = apply_sort(self.request, query)
+
+        # Limit latest topics to a few pages.
+        if not self.topic:
+            query = query[:settings.SITE_LATEST_POST_LIMIT]
+        return query
 
     def get_context_data(self, **kwargs):
         context = super(PostList, self).get_context_data(**kwargs)
         context['topic'] = self.topic or self.LATEST
-        context['page_title'] = self.page_title()
         return context
+
 
 class MessageList(ListView):
     """
@@ -119,7 +161,8 @@ class MessageList(ListView):
         context['page_title'] = "Messages"
         return context
 
-class TagList(BaseListView):
+
+class TagList(BaseListMixin):
     """
     Produces the list of tags
     """
@@ -144,12 +187,13 @@ class VoteList(ListView):
 
     def get_context_data(self, **kwargs):
         context = super(VoteList, self).get_context_data(**kwargs)
-        people = [ v.author for v in context[self.context_object_name]]
+        people = [v.author for v in context[self.context_object_name]]
         random.shuffle(people)
         context['topic'] = "votes"
         context['page_title'] = "Votes"
         context['people'] = people
         return context
+
 
 class UserList(ListView):
     """
@@ -252,8 +296,10 @@ class PostDetails(DetailView):
         context['request'] = self.request
         return context
 
+
 class SiteSearch(SearchView):
     extra_context = lambda x: dict(topic="search")
 
+
 class RSS(TemplateView):
-    template_name="rss-info.html"
+    template_name = "rss-info.html"

@@ -49,12 +49,12 @@ class PostManager(models.Manager):
 
     def my_bookmarks(self, user):
         query = self.filter(votes__author=user, votes__type=Vote.BOOKMARK).select_related("author")
-        query = query.prefetch_related("tag_set").order_by('-lastedit_date')
+        query = query.prefetch_related("tag_set")
         return query
 
     def my_posts(self, user):
         query = self.filter(author=user).select_related("author")
-        query = query.prefetch_related("tag_set").order_by('-lastedit_date')
+        query = query.prefetch_related("tag_set")
         return query
 
     def tag_search(self, text):
@@ -72,7 +72,7 @@ class PostManager(models.Manager):
         else:
             query = self.filter(type__in=Post.TOP_LEVEL).exclude(tag_set__name__in=exclude).defer('content')
 
-        query = query.select_related("author").prefetch_related("tag_set").order_by('-lastedit_date').distinct()
+        query = query.select_related("author").prefetch_related("tag_set").distinct()
 
         return query
 
@@ -89,7 +89,7 @@ class PostManager(models.Manager):
             query = self.filter(type__in=Post.TOP_LEVEL, status=Post.OPEN).defer("content")
 
 
-        return query.select_related("author").prefetch_related("tag_set").order_by('-lastedit_date')
+        return query.select_related("author").prefetch_related("tag_set")
 
 
 class Post(models.Model):

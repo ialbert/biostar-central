@@ -1,3 +1,7 @@
+'''
+Inspired by django-messages at https://github.com/arneb/django-messages
+'''
+
 from __future__ import print_function, unicode_literals, absolute_import, division
 import logging, datetime
 from django.db import models
@@ -8,7 +12,7 @@ from django.utils.translation import ugettext_lazy as _
 
 logger = logging.getLogger(__name__)
 
-# Inspired by django-messages at https://github.com/arneb/django-messages
+
 def now():
     return datetime.datetime.utcnow().replace(tzinfo=utc)
 

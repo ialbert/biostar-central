@@ -10,7 +10,9 @@
 
     <div class="row">
         <div class="col-md-9">
-            {% page_bar %}
+
+            {% page_bar_sort_posts %}
+
             <table id="posts" class="table table-striped">
                 {% for post in posts %}
                     <tr>
@@ -29,9 +31,10 @@
                                     <div class="c">{{ post.view_count }}</div>
                                     <div class="t">views</div>
                                 </div>
-                                {% if post.subs_count > 5 %}
+                                {% if post.subs_count > 4 %}
                                     <div class="book_count text-center">
                                         {{ post.subs_count }} following
+
                                     </div>
                                 {% endif %}
 
@@ -68,7 +71,7 @@
                     </tr>
                 {% endfor %}
             </table>
-            {% page_bar %}
+
         </div>
         <div class="col-md-3 sidebar">
 

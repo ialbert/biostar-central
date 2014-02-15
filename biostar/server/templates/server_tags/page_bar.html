@@ -1,10 +1,12 @@
 {% load humanize %}
 
 <div clas="row">
+
     <div class="col-md-12 text-center pagination">
+
         <span class="step-links">
         {% if page_obj.has_previous %}
-            <a href="?page={{ page_obj.previous_page_number }}">&lt;prev</a>
+            <a href="?page={{ page_obj.previous_page_number }}&sort={{ sort }}&limit={{ limit }}">&lt;prev</a>
         {% else %}
             &lt;prev
         {% endif %}
@@ -15,7 +17,7 @@
         </span>
 
             {% if page_obj.has_next %}
-                <a href="?page={{ page_obj.next_page_number }}">next &gt;</a>
+                <a href="?page={{ page_obj.next_page_number }}&sort={{ sort }}&limit={{ limit }}">next &gt;</a>
             {% else %}
                 next &gt;
             {% endif %}
