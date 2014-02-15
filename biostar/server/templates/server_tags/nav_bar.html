@@ -27,16 +27,24 @@
         {% if user.is_authenticated %}
             <div class="col-md-8 top {% active "userprofile" topic %}">
                 <a href="{% url 'user-details' user.id %}">
-                    <div><i class="fa fa-user fa-1x"></i>
+                    <div><i class="fa fa-user"></i>
                         {% userlink user %} &nbsp;|&nbsp;
-                        <a href="{% url 'account_logout' %}">Logout &raquo;</a> {{  topic }}
+                        <a href="{% url 'account_logout' %}"><i class="fa fa-sign-out"></i> Logout </a>
                     </div>
                 </a>
             </div>
 
-            <div class="col-sm-1 mid {% current request "user-messages"%}">
+            <div class="col-sm-1 mid {% current request "user-list" %}">
+                <a href="{% url 'user-list' %}">
+                    <div><i class="fa fa-globe"></i>
+                    </div>
+                    <div>Community</div>
+                </a>
+            </div>
+
+            <div class="col-sm-1 mid {% current request "user-messages" %}">
                 <a href="{% url 'user-messages' %}">
-                    <div><i class="fa fa-envelope fa-1x"></i>
+                    <div><i class="fa fa-envelope"></i>
                     </div>
                     <div>Messages</div>
                 </a>
@@ -76,31 +84,48 @@
                 </a>
             </div>
 
+             <div class="col-sm-1 mid">
+                <a href="{% url 'new-post' %}" class="navitem">
+                    <div><i class="fa fa-plus-circle"></i></div>
+                    <div>New Post</div>
+                </a>
+            </div>
 
         {% else %}
 
-            <div class="col-sm-2 col-md-offset-1 anon {% current request "account_login" %}">
+            <div class="col-md-8 top">
+                Join now
+            </div>
+
+            <div class="col-sm-2 col-md-offset-1 mid {% current request "account_login" %}">
                 <a href="{% url 'account_login' %}">
-                    <div><i class="fa fa-user fa-2x"></i></div>
+                    <div><i class="fa fa-user fa-1x"></i></div>
                     <div>Log In</div>
                 </a>
             </div>
 
-            <div class="col-sm-2 anon {% current request "account_signup" %}">
+            <div class="col-sm-2 mid {% current request "account_signup" %}">
                 <a href="{% url 'account_signup' %}">
-                    <div><i class="fa fa-star fa-2x"></i></div>
+                    <div><i class="fa fa-star fa-1x"></i></div>
                     <div>Sign Up</div>
-                </a></div>
+                </a>
+            </div>
+
+             <div class="col-sm-2 col-sm-offest-1 mid">
+                <a href="{% url 'new-post' %}" class="navitem">
+                    <div><i class="fa fa-plus-circle fa-1x"></i></div>
+                    <div>New Post</div>
+                </a>
+            </div>
 
 
         {% endif %}
 
-        {%  if not form %}
-        <div class="col-sm-1 pull-right">
-            <a role="button" class="btn btn-success" href="{% url 'new-post' %}"> Create <br> New Post
-            </a></div>
-        {%  endif %}
+        {% if not form %}
 
+
+        {% endif %}
 
     </div>
+
 </div>
