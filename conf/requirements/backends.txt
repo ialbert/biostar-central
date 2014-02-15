@@ -1,0 +1,2 @@
+pysolr
+psycopg2

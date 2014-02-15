@@ -1,4 +1,0 @@
--r base.txt
-django-celery
-pysolr
-psycopg2
