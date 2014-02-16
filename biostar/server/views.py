@@ -14,7 +14,7 @@ from biostar.apps.posts.auth import post_permissions
 from django.contrib import messages
 from django.utils.timezone import utc
 from datetime import datetime, timedelta
-from ordereddict import OrderedDict
+from biostar.const import OrderedDict
 from biostar import const
 from braces.views import LoginRequiredMixin
 from django import shortcuts
