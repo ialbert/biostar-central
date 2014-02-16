@@ -4,11 +4,12 @@ from django.db import models
 from django.conf import settings
 from django.contrib import admin
 from django.utils.timezone import utc
-from taggit.managers import TaggableManager
 from django.utils.translation import ugettext_lazy as _
 from django.core.urlresolvers import reverse
 import bleach
 from django.db.models import Q, F
+from django.core.exceptions import ObjectDoesNotExist
+from biostar import const
 
 # HTML sanitization parameters.
 ALLOWED_TAGS = bleach.ALLOWED_TAGS + settings.ALLOWED_TAGS
@@ -341,12 +342,23 @@ class Subscription(models.Model):
         return "%s to %s" % (self.user.name, self.post.title)
 
     @staticmethod
+    def get_sub(post, user):
+
+        if user.is_authenticated():
+            try:
+                return Subscription.objects.get(post=post, user=user)
+            except ObjectDoesNotExist, exc:
+                return None
+
+        return None
+
+    @staticmethod
     def create(sender, instance, created, *args, **kwargs):
         "Creates a subscription of a user to a post"
         user = instance.author
         root = instance.root
         if Subscription.objects.filter(post=root, user=user).count() == 0:
-            sub = Subscription(post=root, user=user)
+            sub = Subscription(post=root, user=user, type=user.profile.message_prefs)
             sub.date = datetime.datetime.utcnow().replace(tzinfo=utc)
             sub.save()
             # Increase the subscription count of the root.

@@ -11,15 +11,30 @@ from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.contrib import messages
 from django.core.validators import validate_email
+from biostar import const
 
 class UserEditForm(forms.Form):
     name = forms.CharField()
+
     email = forms.EmailField()
-    location = forms.CharField(required=False, help_text="Location/Institution (optional)")
-    website = forms.URLField(required=False, max_length=200, help_text="The URL to your website (optional)")
-    scholar = forms.CharField(required=False, max_length=15, help_text="Your Google Scholar ID (optional)")
-    my_tags = forms.CharField(max_length=200, required=False, help_text="Use <code>+</code> to add tags. Add a <code>!</code> to remove a tag. Example: <code>galaxy + bed + solid!</code> (optional)")
-    info = forms.CharField(widget=forms.Textarea, required=False, help_text="A brief description about yourself (optional)")
+
+    location = forms.CharField(required=False,
+                               help_text="Location/Institution (optional)")
+
+    website = forms.URLField(required=False, max_length=200,
+                             help_text="The URL to your website (optional)")
+
+    scholar = forms.CharField(required=False, max_length=15,
+                              help_text="Your Google Scholar ID (optional)")
+
+    my_tags = forms.CharField(max_length=200, required=False,
+                              help_text="Use <code>+</code> to add tags. Add a <code>!</code> to remove a tag. Example: <code>galaxy + bed + solid!</code> (optional)")
+
+    message_prefs = forms.ChoiceField(required=True, choices=const.MESSAGING_TYPE_CHOICES, label="Notifications",
+                                    help_text="Where do notifications go if you get a reply")
+
+    info = forms.CharField(widget=forms.Textarea, required=False,
+                           help_text="A brief description about yourself (optional)")
 
     def __init__(self, *args, **kwargs):
         super(UserEditForm, self).__init__(*args, **kwargs)
@@ -35,6 +50,7 @@ class UserEditForm(forms.Form):
                 'location',
                 'website',
                 'scholar',
+                'message_prefs',
                 Field('my_tags'),
                 'info',
             ),
@@ -42,7 +58,6 @@ class UserEditForm(forms.Form):
                 Submit('submit', 'Submit')
             )
         )
-
 
 
 class EditUser(FormView):
@@ -54,7 +69,7 @@ class EditUser(FormView):
     template_name = ""
     form_class = UserEditForm
     user_fields = "name email".split()
-    prof_fields = "location website info scholar my_tags".split()
+    prof_fields = "location website info scholar my_tags message_prefs".split()
 
     def get(self, request, *args, **kwargs):
         target = User.objects.get(pk=self.kwargs['pk'])
@@ -62,10 +77,10 @@ class EditUser(FormView):
         initial = {}
 
         for field in self.user_fields:
-                initial[field] = getattr(target, field)
+            initial[field] = getattr(target, field)
 
         for field in self.prof_fields:
-                initial[field] = getattr(target.profile, field)
+            initial[field] = getattr(target.profile, field)
 
         form = self.form_class(initial=initial)
         return render(request, self.template_name, {'form': form})

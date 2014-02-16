@@ -10,6 +10,7 @@ django-reversion
 bleach
 whoosh
 South
+ordereddict
 
 #django-treebeard
 #django-secure

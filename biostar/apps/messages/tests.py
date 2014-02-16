@@ -9,6 +9,7 @@ from django.conf import settings
 from biostar.apps.users.models import User, Profile
 from biostar.apps.posts.models import Post, Subscription
 from biostar.apps.messages.models import Message
+from django.core import mail
 
 from django.test import TestCase
 
@@ -16,6 +17,14 @@ logging.disable(logging.CRITICAL)
 
 
 class NoteTest(TestCase):
+
+    def test_send_email(self):
+        "Testing email sending"
+        mail.send_mail('Subject here', 'Here is the message.',
+            'from@example.com', ['to@example.com'],
+            fail_silently=False)
+        self.assertEquals(len(mail.outbox), 1)
+        self.assertEquals(mail.outbox[0].subject, 'Subject here')
 
     def test_note_creation(self):
         "Testing notifications"

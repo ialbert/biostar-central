@@ -9,16 +9,13 @@ import random
 
 from biostar.apps.messages.models import Message
 from biostar.apps.users.models import User
-from biostar.apps.posts.models import Post, Vote, Tag
-from collections import defaultdict, OrderedDict
+from biostar.apps.posts.models import Post, Vote, Tag, Subscription
 from biostar.apps.posts.auth import post_permissions
 from django.contrib import messages
 from django.utils.timezone import utc
 from datetime import datetime, timedelta
-
-
-def now():
-    return datetime.utcnow().replace(tzinfo=utc)
+from ordereddict import OrderedDict
+from biostar import const
 
 
 class BaseListMixin(ListView):
@@ -32,30 +29,37 @@ class BaseListMixin(ListView):
     def get_context_data(self, **kwargs):
         context = super(BaseListMixin, self).get_context_data(**kwargs)
         context['page_title'] = self.get_title()
-        context['sort'] = self.request.GET.get('sort', 'date')
-        context['limit'] = self.request.GET.get('limit', 'all time')
+
+        sort =  self.request.GET.get('sort', const.POST_SORT_DEFAULT)
+        limit =  self.request.GET.get('limit', const.POST_LIMIT_DEFAULT)
+
+        if sort not in const.POST_SORT_MAP:
+            messages.warning(self.request, const.POST_SORT_INVALID_MSG )
+            sort = const.POST_SORT_DEFAULT
+
+        if limit not in const.POST_LIMIT_MAP:
+            messages.warning(self.request, const.POST_LIMIT_INVALID_MSG )
+            limit = const.POST_LIMIT_DEFAULT
+
+        context['sort'] = sort
+        context['limit'] = limit
         return context
 
 # The naming here needs to match that in the server_tag.py template tags.
-DAY_MAP = {"today": 1, "this week": 7, "this month": 30, "this year": 365}
-SORT_MAP = {
-    "date": "-lastedit_date", "views": "-view_count", "followers":"-subs_count",
-    "answers": "-answer_count", "bookmarks": "-book_count",
-    "votes": "-vote_count", "rank": "-rank", "creation": "-creation_date",
-}
+
 
 
 def apply_sort(request, query):
     # Apply sort order
-    sort = request.GET.get('sort', 'date')
-    field = SORT_MAP.get(sort, "-lastedit_date")
+    sort = request.GET.get('sort', const.POST_SORT_DEFAULT)
+    field = const.POST_SORT_MAP.get(sort, "-lastedit_date")
     query = query.order_by(field)
 
     # Apply time limit.
-    limit = request.GET.get('limit', 'all time')
-    days = DAY_MAP.get(limit)
+    limit = request.GET.get('limit', const.POST_LIMIT_DEFAULT)
+    days = const.POST_LIMIT_MAP.get(limit, 0)
     if days:
-        delta = now() - timedelta(days=days)
+        delta = const.now() - timedelta(days=days)
         query = query.filter(lastedit_date__gt=delta)
     return query
 
@@ -247,6 +251,9 @@ class PostDetails(DetailView):
 
         # Adds the permissions
         obj = post_permissions(request=self.request, post=obj)
+
+        # This will be piggybacked on the main object.
+        obj.sub = Subscription.get_sub(post=obj, user=user)
 
         # Just a sanity check to start at top level.
         if obj != obj.root:

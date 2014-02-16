@@ -1,5 +1,5 @@
 {% load server_tags %}
-{%  load humanize %}
+{% load humanize %}
 <table width="100%">
     <tr>
         <td>
@@ -8,7 +8,31 @@
             {% if post.is_editable %}
                 &bull; <a href="{% url 'post-edit' post.id %}">edit</a>
                 &bull; <a href="#">moderate</a>
-                {%  if post.book_count %} &bull; {{ post.book_count }} bookmark{{post.book_count|pluralize }}{%  endif %}
+                {% if post.book_count %} &bull; {{ post.book_count }} bookmark{{ post.book_count|pluralize }}{% endif %}
+            {% endif %}
+
+            {% if post.is_toplevel %}
+                &bull;
+
+                <div class="btn-group">
+                    <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
+                        {% if post.sub %}
+                           Follow: {{ post.sub.get_type_display }}
+                        {% else %}
+                            not following
+                        {% endif %}
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" role="menu">
+
+                        <li><a href="#">Follow via notifications</a></li>
+                        <li><a href="#">Follow via email</a></li>
+                        <li><a href="#">Do not follow</a></li>
+
+                    </ul>
+                </div>
+
+
             {% endif %}
 
         </td>

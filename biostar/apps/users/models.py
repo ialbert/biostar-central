@@ -158,7 +158,7 @@ class Profile(models.Model):
 
     # The default notification preferences.
     message_prefs = models.IntegerField(choices=const.MESSAGING_TYPE_CHOICES, default=const.LOCAL_MESSAGE,
-                                        db_index=True)
+                                        )
 
     def save(self, *args, **kwargs):
 

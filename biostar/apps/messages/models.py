@@ -10,6 +10,7 @@ from django.contrib import admin
 from django.utils.timezone import utc
 from django.utils.translation import ugettext_lazy as _
 
+
 logger = logging.getLogger(__name__)
 
 
@@ -49,6 +50,7 @@ class MessageBody(models.Model):
             self.sent_at = now()
         super(MessageBody, self).save(**kwargs)
 
+
 # This contains the notification types.
 from biostar.const import LOCAL_MESSAGE, MESSAGING_TYPE_CHOICES
 
@@ -70,6 +72,9 @@ class Message(models.Model):
 
     def __unicode__(self):
         return u"Message %s, %s" % (self.user, self.body_id)
+
+    def save(self):
+        pass
 
     @staticmethod
     def inbox_count_for(user):

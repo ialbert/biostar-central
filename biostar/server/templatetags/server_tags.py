@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 from django.utils.timezone import utc
 from django import template
 from django.core.urlresolvers import reverse
+from biostar import const
 
 register = template.Library()
 
@@ -130,13 +131,11 @@ def page_bar(context):
     "Renders a paging bar"
     return context
 
-POST_SORT_FIELDS  = "date,views,votes,bookmarks,followers,rank,creation".split(',')
-POST_DATE_FIELDS = "all time,today,this week,this month,this year".split(',')
 
 @register.inclusion_tag('server_tags/page_bar_sort_posts.html', takes_context=True)
 def page_bar_sort_posts(context):
-    context['sort_fields'] = POST_SORT_FIELDS
-    context['date_fields'] = POST_DATE_FIELDS
+    context['sort_fields'] = const.POST_SORT_FIELDS
+    context['date_fields'] = const.POST_LIMIT_FIELDS
     "Renders a paging bar"
     return context
 

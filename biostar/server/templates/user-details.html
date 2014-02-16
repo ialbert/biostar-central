@@ -60,11 +60,18 @@
                             <dt>Tags:</dt>
                             <dd>{{ target.profile.my_tags }}</dd>
 
-                            {% if target.is_editable %}
-                                <dt></dt>
-                                <dd></dd>
-                            {% endif %}
+
                         </dl>
+
+                        {% if target.has_ownership %}
+                            <dl class="dl-horizontal">
+                                <dt>Email:</dt>
+                                <dd>{{ target.email }}</dd>
+
+                                <dt>Notifications:</dt>
+                                <dd>{{ target.profile.get_message_prefs_display }}</dd>
+                            </dl>
+                            {% endif %}
                     </td>
 
                     {#  User bio.  #}

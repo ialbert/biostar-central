@@ -11,6 +11,8 @@
         <div class="col-md-9">
 
             <table class="table" id="post-details">
+
+                {#  This is the toplevel post #}
                 {% post_body post user post.tree %}
 
                 {# Render each answer for the post #}
@@ -18,7 +20,10 @@
                     {% post_body answer user post.tree %}
                 {% endfor %}
 
+
                 <span id="csrf_token">{% csrf_token %}</span>
+
+                {#  Answers go into a different row #}
                 <tr>
                     <td>&nbsp;</td>
                     <td>
