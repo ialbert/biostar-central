@@ -12,6 +12,7 @@ from django.http import HttpResponseRedirect
 from django.contrib import messages
 from django.core.validators import validate_email
 from biostar import const
+from braces.views import LoginRequiredMixin
 
 class UserEditForm(forms.Form):
     name = forms.CharField()
@@ -31,7 +32,7 @@ class UserEditForm(forms.Form):
                               help_text="Use <code>+</code> to add tags. Add a <code>!</code> to remove a tag. Example: <code>galaxy + bed + solid!</code> (optional)")
 
     message_prefs = forms.ChoiceField(required=True, choices=const.MESSAGING_TYPE_CHOICES, label="Notifications",
-                                    help_text="Where do notifications go if you get a reply")
+                                    help_text="The default setting for notifications when you contribute to a thread")
 
     info = forms.CharField(widget=forms.Textarea, required=False,
                            help_text="A brief description about yourself (optional)")
@@ -60,7 +61,7 @@ class UserEditForm(forms.Form):
         )
 
 
-class EditUser(FormView):
+class EditUser(LoginRequiredMixin, FormView):
     """
     Edits a user.
     """

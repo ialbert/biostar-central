@@ -33,8 +33,8 @@ def post_create_messages(sender, instance, created, *args, **kwargs):
         text = html.render(name=NEW_POST_CREATED_MESSAGE_TEMPLATE, post=post, user=author)
 
         # Create the message body.
-        body = MessageBody(author=author, subject=post.title, text=text)
-        body.save()
+        body = MessageBody.objects.create(author=author, subject=post.title,
+                                          text=text, sent_at=post.creation_date)
 
         # Collects the emails for bulk sending.
         emails = []
@@ -42,7 +42,7 @@ def post_create_messages(sender, instance, created, *args, **kwargs):
         # This generator will produce the messages.
         def messages():
             for sub in subs:
-                message = Message(user=sub.user, body=body)
+                message = Message(user=sub.user, body=body, sent_at=body.sent_at)
                 # collect to a bulk email if the subscription is by email:
                 if sub.type == EMAIL_MESSAGE:
                     emails.append(
@@ -50,7 +50,7 @@ def post_create_messages(sender, instance, created, *args, **kwargs):
                     )
                 yield message
 
-        # Bulk insert of all messages.
+        # Bulk insert of all messages. Bypasses the Django ORM!
         Message.objects.bulk_create(messages(), batch_size=100)
 
 

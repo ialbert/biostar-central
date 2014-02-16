@@ -1,2 +1,4 @@
-{{ post.creation_date|timesince }} ago <a href="{{ post.get_absolute_url }}">{{ post.get_title }}</a>
-by <a href="{{ user.get_absolute_url }}">{{user.name}}</a>: {{post.peek}}
+<a href="{{ user.get_absolute_url }}">{{user.name}}</a> wrote on
+
+<a href="{{ post.get_absolute_url }}">{{ post.get_title }}</a> : 
+{{post.peek}}

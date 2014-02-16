@@ -341,6 +341,15 @@ class Subscription(models.Model):
     def __unicode__(self):
         return "%s to %s" % (self.user.name, self.post.title)
 
+    def save(self, *args, **kwargs):
+
+        if not self.id:
+            # Set the date to current time if missing.
+            self.date = self.date or const.now()
+
+        super(Subscription, self).save(*args, **kwargs)
+
+
     @staticmethod
     def get_sub(post, user):
 
@@ -367,7 +376,7 @@ class Subscription(models.Model):
     @staticmethod
     def finalize_delete(sender, instance, *args, **kwargs):
         # Decrease the subscription count of the post.
-        Post.objects.filter(pk=instance.root.id).update(subs_count=F('subs_count') - 1)
+        Post.objects.filter(pk=instance.post.root_id).update(subs_count=F('subs_count') - 1)
 
 
 # Admin interface for subscriptions

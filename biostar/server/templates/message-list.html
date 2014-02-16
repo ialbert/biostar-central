@@ -15,7 +15,7 @@
                 {% for message in objects %}
                     <tr>
                         <td>
-                           {{ message.body.text|safe }}
+                           {{ message.sent_at|timesince }} ago {{ message.body.text|safe }}
                         </td>
                     </tr>
 

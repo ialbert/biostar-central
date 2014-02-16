@@ -45,9 +45,7 @@ class MessageBody(models.Model):
         return self.subject
 
     def save(self, **kwargs):
-
-        if not self.id:
-            self.sent_at = now()
+        self.sent_at = self.sent_at or now()
         super(MessageBody, self).save(**kwargs)
 
 
@@ -62,19 +60,18 @@ class Message(models.Model):
     type = models.IntegerField(choices=MESSAGING_TYPE_CHOICES, default=LOCAL_MESSAGE, db_index=True)
     read_at = models.DateTimeField(_("read at"), null=True, blank=True, db_index=True)
 
-    creation_date = models.DateTimeField(db_index=True, null=True)
+    sent_at = models.DateTimeField(db_index=True, null=True)
 
     def is_new(self):
         return bool(self.read_at)
 
     def save(self, *args, **kwargs):
-        self.creation_date = self.creation_date or now()
+        self.sent_at = self.body.sent_at
+        super(Message, self).save(**kwargs)
 
     def __unicode__(self):
         return u"Message %s, %s" % (self.user, self.body_id)
 
-    def save(self):
-        pass
 
     @staticmethod
     def inbox_count_for(user):

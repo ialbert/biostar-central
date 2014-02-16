@@ -32,6 +32,9 @@ urlpatterns = patterns('',
     # Post details.
     url(r'^p/(?P<pk>\d+)/$', views.PostDetails.as_view(), name="post-details"),
 
+    # Change subscription view.
+    url(r'^local/sub/(?P<pk>\d+)/(?P<type>\w+)/$', views.ChangeSub.as_view(), name="change-sub"),
+
     # A separate url for each post type.
     url(r'^p/new/post/$', views.NewPost.as_view(), name="new-post"),
 

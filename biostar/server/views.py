@@ -1,4 +1,4 @@
-from django.views.generic import DetailView, ListView, TemplateView
+from django.views.generic import DetailView, ListView, TemplateView, RedirectView, View
 from django.conf import settings
 from haystack.views import SearchView
 
@@ -16,7 +16,8 @@ from django.utils.timezone import utc
 from datetime import datetime, timedelta
 from ordereddict import OrderedDict
 from biostar import const
-
+from braces.views import LoginRequiredMixin
+from django import shortcuts
 
 class BaseListMixin(ListView):
     "Base class for each mixin"
@@ -156,7 +157,7 @@ class MessageList(ListView):
     paginate_by = settings.PAGINATE_BY
 
     def get_queryset(self):
-        objs = Message.objects.filter(user=self.request.user).select_related("body").order_by('-creation_date')
+        objs = Message.objects.filter(user=self.request.user).select_related("body").order_by('-sent_at')
         return objs
 
     def get_context_data(self, **kwargs):
@@ -303,6 +304,31 @@ class PostDetails(DetailView):
         context['request'] = self.request
         return context
 
+
+class ChangeSub(LoginRequiredMixin, View):
+    pk, type = 0, 0
+    TYPE_MAP = { "local": const.LOCAL_MESSAGE, "email": const.EMAIL_MESSAGE}
+
+    def get(self, *args, **kwargs):
+        # TODO needs to be done via POST.
+        pk = self.kwargs["pk"]
+        new_type = self.kwargs["type"]
+
+        new_type = self.TYPE_MAP.get(new_type,None)
+
+        user = self.request.user
+        post = Post.objects.get(pk=pk)
+
+        subs = Subscription.objects.filter(post=post, user=user)
+        if new_type is None:
+            subs.delete()
+        else:
+            if subs:
+                subs.update(type=new_type)
+            else:
+                Subscription.objects.create(post=post, user=user, type=new_type)
+
+        return shortcuts.redirect(post.get_absolute_url())
 
 class SiteSearch(SearchView):
     extra_context = lambda x: dict(topic="search")
