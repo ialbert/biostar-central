@@ -1,6 +1,6 @@
 {% load server_tags %}
 
-<tr>
+<tr class="{{post.get_status_display}}">
 
     <td>
         <a id="{{ post.id }}"></a>
@@ -34,7 +34,7 @@
         {% endif %}
 
         {#  The body of the post #}
-        <div class="content">{{ post.content|safe }}</div>
+        <div class="content">{{post.get_status_display}} {{ post.content|safe }}</div>
 
         <div class="clearfix">
             {% if post.is_toplevel %}

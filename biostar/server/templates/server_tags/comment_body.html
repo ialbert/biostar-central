@@ -1,6 +1,6 @@
 {% load server_tags %}
 <a id="{{ post.id }}"></a>
-<div class="entry clearfix">
+<div class="entry {{ post.get_status_display }}  clearfix">
 
     <div class="comment vote-box" data-post_id="{{ post.id }}">
         <div class="vote mark {{ post.has_upvote|on }} " data-type="vote" title="Upvote!">
@@ -8,7 +8,7 @@
         <div class="count">{{ post.vote_count|show_nonzero }}</div>
     </div>
 
-    {{ post.content|safe }}
+   {{ post.content|safe }}
 
     {#  Post action line #}
     {% post_actions post user "REPLY" %}

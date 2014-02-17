@@ -94,6 +94,7 @@ def perform_vote(post, user, vote_type):
 def vote_handler(request):
     "Handles all voting on posts"
 
+    print (request.POST)
     user = request.user
     vote_type = request.POST['vote_type']
     vote_type = POST_TYPE_MAP[vote_type]

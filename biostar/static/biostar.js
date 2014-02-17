@@ -33,7 +33,25 @@ $.ajaxSetup({
 
 // Moderator actions.
 function moderator_click(elem) {
+
     var post_id = elem.attr('data-value')
+
+    var modpanel = $('#modpanel')
+
+    console.log(modpanel)
+
+    if (modpanel.length > 0) {
+        $('#modpanel').remove()
+
+    } else {
+
+        // Passing a data forces a POST request.
+        var page = $('<div id="modpanel"></div>').load("/local/moderate/" + post_id + "/")
+
+        // Insert the result
+        elem.parent().parent().after(page)
+    }
+
 }
 
 // Comments by authenticated users.
