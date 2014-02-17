@@ -16,6 +16,11 @@
                 <i class="fa fa-book fa-2x"></i>
             </div>
 
+            {% if not post.is_toplevel %}
+                <div class="vote mark {{ post.has_accepted|on }} tip" data-toggle="tooltip" data-placement="top" data-type="accept" title="Accept!">
+                    <i class="fa fa-check-circle-o fa-2x"></i>
+                </div>
+            {% endif %}
         </div>
 
     </td>

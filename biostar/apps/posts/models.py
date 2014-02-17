@@ -79,7 +79,7 @@ class PostManager(models.Manager):
 
     def get_thread(self, root):
         # Populate the object to build a tree that contains all posts in the thread.
-        query = self.filter(root=root).select_related("root author").order_by("type", "has_accepted", "-vote_count")
+        query = self.filter(root=root).select_related("root author").order_by("type", "-has_accepted", "-vote_count")
         return query
 
     def top_level(self, user):

@@ -63,7 +63,7 @@ See the biostar.style.less file for details.
   -webkit-border-radius: 3px;
   -moz-border-radius: 3px;
   border-radius: 3px;
-  font-size:smaller;
+  //font-size:smaller;
   &:hover {
     color: white;
     background-color: #6B3E4A;
@@ -82,13 +82,19 @@ See the biostar.style.less file for details.
   font-size: larger;
 }
 
+#post-list {
+  .post-row:nth-of-type(odd) {
+    background: #f9f9f9;
+  }
+}
+
 .post-row {
 
   .count-box {
     float: left;
     .book_count {
       font-size: smaller;
-       color: #762C90;
+      color: #762C90;
     }
   }
 
@@ -97,9 +103,9 @@ See the biostar.style.less file for details.
     //margin-left:12em;
   }
 
-  padding-top: 5px;
-  padding-bottom: 5px;
-  border-bottom: 1px solid #ECECEC;
+  padding: 5px;
+
+  border-top: 1px solid #ECECEC;
 
   .post-title {
     font-weight: bold;
@@ -447,3 +453,4 @@ div#navbar {
 .pagebar {
   margin-bottom: 3px;
 }
+

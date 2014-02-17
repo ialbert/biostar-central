@@ -72,8 +72,16 @@ def perform_vote(post, user, vote_type):
     if vote.type == Vote.BOOKMARK:
         Post.objects.filter(pk=post.id).update(book_count=F('book_count') + change, vote_count=F('vote_count') + change)
         Post.objects.filter(pk=post.id).update(subs_count=F('subs_count') + change)
+    if vote_type == Vote.ACCEPT:
+
+        if change > 0:
+            # There does not seem to be a negation operator for F objects.
+            Post.objects.filter(pk=post.id).update(vote_count=F('vote_count') + change, has_accepted=True)
+        else:
+            Post.objects.filter(pk=post.id).update(vote_count=F('vote_count') + change, has_accepted=False)
     else:
         Post.objects.filter(pk=post.id).update(vote_count=F('vote_count') + change)
+
 
     # Clear old votes.
     if votes:
@@ -96,6 +104,12 @@ def vote_handler(request):
 
     if post.author == user and vote_type == Vote.UP:
         return ajax_error("You can't upvote your own post.")
+
+    if post.author == user and vote_type == Vote.ACCEPT:
+        return ajax_error("You can't accept your own post.")
+
+    if post.root.author != user and vote_type == Vote.ACCEPT:
+        return ajax_error("Only the person asking the question may accept this answer.")
 
     with transaction.atomic():
         msg = perform_vote(post=post, user=user, vote_type=vote_type)
