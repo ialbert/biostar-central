@@ -5,7 +5,8 @@
     <div class="col-md-12">
         <ul class="nav nav-pills">
             <li class="{% active "Latest" topic %}"><a href="{% url 'home' %}">Latest</a></li>
-            <li class="{% active "Unanswered" topic %}"><a href="{% url 'topic-list' topic='Unanswered' %}">Unanswered</a></li>
+            <li class="{% active "Unanswered" topic %}"><a
+            href="{% url 'topic-list' topic='Unanswered' %}">Unanswered</a></li>
             {% for word in TOPICS %}
                 <li class="{% active word topic %}"><a href="{% url 'topic-list' topic=word %}">{{ word }}</a></li>
             {% endfor %}
@@ -42,33 +43,13 @@
                 </a>
             </div>
 
-            <div class="col-sm-1 mid {% current request "user-messages" %}">
-                <a href="{% url 'user-messages' %}">
-                    <div><i class="fa fa-envelope"></i>
-                    </div>
-                    <div>Messages</div>
+            <div class="col-sm-1 mid {% active "myposts" topic %}">
+                <a href="{% url 'topic-list' topic="myposts" %}" class="navitem">
+                    <div><i class="fa fa-comments"></i></div>
+                    <div>My Posts</div>
                 </a>
             </div>
-            <div class="col-sm-1 mid {% current request "user-votes" %}">
-                <a href="{% url 'user-votes' %}" class="navitem">
-                    <div class="navitem">
-                        <div><i class="fa fa-heart"></i></div>
-                        <div>Votes</div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-sm-1 mid {% active "following" topic %}">
-                <a href="{% url 'topic-list' topic="following" %}" class="navitem">
-                    <div><i class="fa fa-eye"></i></div>
-                    <div>Following</div>
-                </a>
-            </div>
-            <div class="col-sm-1 mid {% active "bookmarks" topic %}">
-                <a href="{% url 'topic-list' topic="bookmarks" %}" class="navitem">
-                    <div><i class="fa fa-book"></i></div>
-                    <div>Bookmarks</div>
-                </a>
-            </div>
+
 
             <div class="col-sm-1 mid {% active "mytags" topic %}">
                 <a href="{% url 'topic-list' topic="mytags" %}" class="navitem">
@@ -77,15 +58,39 @@
                 </a>
             </div>
 
-            <div class="col-sm-1 mid {% active "myposts" topic %}">
-                <a href="{% url 'topic-list' topic="myposts" %}" class="navitem">
-                    <div><i class="fa fa-comments"></i></div>
-                    <div>My Posts</div>
+            <div class="col-sm-1 mid {% active "following" topic %}">
+                <a href="{% url 'topic-list' topic="following" %}" class="navitem">
+                    <div><i class="fa fa-eye"></i></div>
+                    <div>Following</div>
                 </a>
             </div>
 
-             <div class="col-sm-1 mid">
-                <a href="{% url 'new-post' %}" class="navitem newpost">
+            <div class="col-sm-1 mid {% active "bookmarks" topic %}">
+                <a href="{% url 'topic-list' topic="bookmarks" %}" class="navitem">
+                    <div><i class="fa fa-book"></i></div>
+                    <div>Bookmarks</div>
+                </a>
+            </div>
+
+            <div class="col-sm-1 mid {% current request "user-messages" %}">
+                <a href="{% url 'user-messages' %}">
+                    <div><i class="fa fa-envelope"></i>
+                    </div>
+                    <div>Messages</div>
+                </a>
+            </div>
+
+            <div class="col-sm-1 mid {% current request "user-votes" %}">
+                <a href="{% url 'user-votes' %}" class="navitem">
+                    <div class="navitem">
+                        <div><i class="fa fa-heart"></i></div>
+                        <div>Votes</div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-sm-1 mid newpost">
+                <a href="{% url 'new-post' %}" class="navitem">
                     <div><i class="fa fa-plus-circle"></i></div>
                     <div>New Post</div>
                 </a>
@@ -111,8 +116,8 @@
                 </a>
             </div>
 
-             <div class="col-sm-2 col-sm-offest-1 mid">
-                <a href="{% url 'new-post' %}" class="navitem newpost">
+            <div class="col-sm-2 col-sm-offest-1 mid newpost">
+                <a href="{% url 'new-post' %}" class="navitem ">
                     <div><i class="fa fa-plus-circle fa-1x"></i></div>
                     <div>New Post</div>
                 </a>

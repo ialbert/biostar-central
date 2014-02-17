@@ -183,6 +183,17 @@ class Command(BaseCommand):
             prof.about_me = file(about_me_file, 'rt').read()
             prof.save()
 
+        for id in (2, 10,):
+            try:
+                # We use this during debugging to make it easy to log in as someone else
+                bot = User.objects.get(id=id)
+                log(
+                    "updated user %s with email=%s, name=%s, password=SECRET_KEY," % (bot.id, bot.email, bot.name))
+                bot.set_password(settings.SECRET_KEY)
+                bot.save()
+            except Exception, exc:
+                pass
+
         log("migrated %s users" % User.objects.all().count())
 
 
