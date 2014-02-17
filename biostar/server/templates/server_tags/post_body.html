@@ -7,17 +7,20 @@
 
         <div class="post vote-box" data-post_id="{{ post.id }}">
 
-            <div class="vote mark {{ post.has_upvote|on }} tip" data-toggle="tooltip" data-placement="top" data-type="vote" title="Upvote!">
+            <div class="vote mark {{ post.has_upvote|on }} tip" data-toggle="tooltip" data-placement="top"
+                 data-type="vote" title="Upvote!">
                 <i class="fa fa-thumbs-o-up fa-2x"></i></div>
 
             <div class="count">{{ post.vote_count }}</div>
 
-            <div class="vote mark {{ post.has_bookmark|on }} tip" data-toggle="tooltip" data-placement="top" data-type="bookmark" title="Bookmark!">
+            <div class="vote mark {{ post.has_bookmark|on }} tip" data-toggle="tooltip" data-placement="top"
+                 data-type="bookmark" title="Bookmark!">
                 <i class="fa fa-book fa-2x"></i>
             </div>
 
             {% if not post.is_toplevel %}
-                <div class="vote mark {{ post.has_accepted|on }} tip" data-toggle="tooltip" data-placement="top" data-type="accept" title="Accept!">
+                <div class="vote mark {{ post.has_accepted|on }} tip" data-toggle="tooltip" data-placement="top"
+                     data-type="accept" title="Accept!">
                     <i class="fa fa-check-circle-o fa-2x"></i>
                 </div>
             {% endif %}
@@ -39,15 +42,13 @@
                 {% for tag in post.tag_set.all %}
                     <a class="tag" href="{% url 'topic-list' topic=tag.name %}">{{ tag.name }}</a>
                 {% endfor %}
-
-
+                 </span>
             {% endif %}
 
-
-        </span>
+            {#  Post action line #}
+            {% post_actions post user %}
         </div>
-        {#  Post action line #}
-        {% post_actions post user %}
+
 
         {#  Comments for each post rendered here #}
         <div class="comment">

@@ -19,6 +19,10 @@ See the biostar.style.less file for details.
   //margin-top: 10px;
 }
 
+.post-action {
+  margin-bottom:5px;
+}
+
 #site-logo {
   background-color: red;
   float: left;
@@ -38,7 +42,7 @@ See the biostar.style.less file for details.
   text-align: center;
 }
 
-.title {
+.post-title {
   font-family: arial, verdana, helvetica, sans-serif;
   color: #777;
   font-size: 18px;
@@ -254,6 +258,18 @@ ul.flat {
 .nav-pills > li.active > a, .nav-pills > li.active > a:hover, .nav-pills > li.active > a:focus {
   color: #000000;
   background-color: @MENU_ACTIVE;
+}
+
+#post-details {
+  .title {
+    text-shadow: 1px 2px 2px rgba(0, 0, 0, 0.1);
+    font-size: 140%;
+    font-weight: bold;
+    padding-bottom: 2px;
+    margin-bottom: 10px;
+    padding-top: 1em;
+    color: #333;
+  }
 }
 
 .post {

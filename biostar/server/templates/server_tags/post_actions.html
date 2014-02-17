@@ -1,16 +1,16 @@
 {% load server_tags %}
 {% load humanize %}
-<div>
+<div class="post-action">
     <span class="label label-default add-comment" data-value="{{ post.id }}">{{ label }}</span>
     &bull; <a href="{{ post.get_absolute_url }}">link</a>
     {% if post.is_editable %}
         &bull; <a href="{% url 'post-edit' post.id %}">edit</a>
-        &bull; <a href="#">moderate</a>
+        &bull; <a class="moderate" data-value="{{ post.id }}" href="#">moderate</a>
         {% if post.book_count %} &bull; {{ post.book_count }} bookmark{{ post.book_count|pluralize }}{% endif %}
     {% endif %}
 
     {% if post.is_toplevel %}
-
+        {#  Produce the Follow button #}
         &bull;
 
         <div class="btn-group">
@@ -29,11 +29,11 @@
                 <li><a href="{% url "change-sub" pk=post.id type="nofollow" %}">Do not follow</a></li>
             </ul>
         </div>
-
-
     {% endif %}
-    <span class="userlink text-right">
-            {% last_action post %} {% time_ago post %} ago by {% userlink post.author %}
-             {% gravatar post.author 48 %}
-    </span>
+
+    <div class="userlink text-right">
+        {% last_action post %} {% time_ago post %} ago by {% userlink post.author %}
+        {% gravatar post.author 48 %}
+    </div>
+
 </div>

@@ -31,25 +31,30 @@ $.ajaxSetup({
     }
 });
 
-// comment add
+// Moderator actions.
+function moderator_click(elem) {
+    var post_id = elem.attr('data-value')
+}
+
+// Comments by authenticated users.
 function user_comment_click(elem) {
 
     // remove comment body if exists.
     $("#comment-row").remove();
 
     var post_id = elem.attr('data-value')
-    var container = elem.closest("table")
+    var container = elem.parent().parent()
 
     var csrf_html = $('#csrf_token').find("input[name='csrfmiddlewaretoken']").parent().html()
 
-    container.append('<tr id="comment-row"><td colspan="2">\
+    container.after('<div id="comment-row">\
     <form id="comment-form" role="form" action="/p/new/comment/' + post_id + '/" method="post">' + csrf_html + '\
         <div class="form-group">\
         <textarea class="input-xlarge span8" id="comment-box" name="content" rows="3"></textarea></div> \
         <div><a class="btn btn-success" href=\'javascript:document.forms["comment-form"].submit()\'><i class="icon-comment"></i> Add comment</a>          \
         <a class="btn btn-warning pull-right" onclick="javascript:obj=$(\'#comment-row\').remove();"><i class="icon-remove"></i> Cancel</a>   </div>       \
     </form>            \
-    </td></tr>'
+    </div>'
     )
     CKEDITOR.replace('comment-box', {
         customConfig: '/static/ck_config.js'
@@ -126,7 +131,7 @@ function ajax_vote(elem, post_id, vote_type) {
 $(document).ready(function () {
     var tooltip_options = {};
 
-    // This detects the user id
+    // This detects the user id on the page.
     var user_id = $("#user_id").val()
 
     // Register tooltips.
@@ -134,12 +139,23 @@ $(document).ready(function () {
 
     // Register comment adding.
     if (user_id) {
+
+        // Authenticated user actions.
         $('.add-comment').each(function () {
             $(this).click(function () {
                 user_comment_click($(this));
             });
         });
+
+        // Moderator actions.
+        $('.moderate').each(function () {
+            $(this).click(function () {
+                moderator_click($(this));
+            });
+        });
     } else {
+
+        // Anonymous user actions.
         $('.add-comment').each(function () {
             $(this).click(function () {
                 anon_comment_click($(this));
@@ -147,6 +163,7 @@ $(document).ready(function () {
         });
     }
 
+    // Vote submission.
     $('.vote').each(function () {
 
         $($(this)).click(function () {

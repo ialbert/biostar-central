@@ -6,7 +6,7 @@ from django.contrib import admin
 admin.autodiscover()
 
 from django.views.generic import TemplateView
-from biostar.server import views, ajax, search
+from biostar.server import views, ajax, search, moderate
 from biostar.apps.posts.views import NewAnswer, NewPost, EditPost
 
 urlpatterns = patterns('',
@@ -49,6 +49,9 @@ urlpatterns = patterns('',
 
     # Vote display.
     url(r'^local/votes/$', views.VoteList.as_view(), name="user-votes"),
+
+    # Produces the moderator panel.
+    url(r'^local/moderate/$', moderate.ModeratorPanel.as_view(), name="moderator-panel"),
 
     # Vote submission.
     url(r'^x/vote/$', ajax.vote_handler, name="vote-submit"),
