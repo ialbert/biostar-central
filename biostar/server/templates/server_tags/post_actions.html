@@ -1,44 +1,39 @@
 {% load server_tags %}
 {% load humanize %}
-<table width="100%">
-    <tr>
-        <td>
-            <span class="label label-default add-comment" data-value="{{ post.id }}">{{ label }}</span>
-            &bull; <a href="{{ post.get_absolute_url }}">link</a>
-            {% if post.is_editable %}
-                &bull; <a href="{% url 'post-edit' post.id %}">edit</a>
-                &bull; <a href="#">moderate</a>
-                {% if post.book_count %} &bull; {{ post.book_count }} bookmark{{ post.book_count|pluralize }}{% endif %}
-            {% endif %}
+<div>
+    <span class="label label-default add-comment" data-value="{{ post.id }}">{{ label }}</span>
+    &bull; <a href="{{ post.get_absolute_url }}">link</a>
+    {% if post.is_editable %}
+        &bull; <a href="{% url 'post-edit' post.id %}">edit</a>
+        &bull; <a href="#">moderate</a>
+        {% if post.book_count %} &bull; {{ post.book_count }} bookmark{{ post.book_count|pluralize }}{% endif %}
+    {% endif %}
 
-            {% if post.is_toplevel %}
+    {% if post.is_toplevel %}
 
-                &bull;
+        &bull;
 
-                <div class="btn-group">
-                    <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
-                        {% if post.sub %}
-                           {{ post.sub.get_type_display }}
-                        {% else %}
-                            not following
-                        {% endif %}
-                        <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu" role="menu">
+        <div class="btn-group">
+            <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
+                {% if post.sub %}
+                    {{ post.sub.get_type_display }}
+                {% else %}
+                    not following
+                {% endif %}
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" role="menu">
 
-                        <li><a href="{%  url "change-sub" pk=post.id type="local" %}">Follow via messages</a></li>
-                        <li><a href="{%  url "change-sub" pk=post.id type="email" %}">Follow via email</a></li>
-                        <li><a href="{%  url "change-sub" pk=post.id type="nofollow" %}">Do not follow</a></li>
-                    </ul>
-                </div>
+                <li><a href="{% url "change-sub" pk=post.id type="local" %}">Follow via messages</a></li>
+                <li><a href="{% url "change-sub" pk=post.id type="email" %}">Follow via email</a></li>
+                <li><a href="{% url "change-sub" pk=post.id type="nofollow" %}">Do not follow</a></li>
+            </ul>
+        </div>
 
 
-            {% endif %}
-
-        </td>
-        <td align="right">
-            {% time_ago post %} ago by {% userlink post.author %} &nbsp;
-            {% gravatar post.author 48 %}
-        </td>
-    </tr>
-</table>
+    {% endif %}
+    <span class="userlink text-right">
+            {% last_action post %} {% time_ago post %} ago by {% userlink post.author %}
+             {% gravatar post.author 48 %}
+    </span>
+</div>

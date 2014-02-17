@@ -33,6 +33,19 @@
         {#  The body of the post #}
         <div class="content">{{ post.content|safe }}</div>
 
+        <div class="clearfix">
+            {% if post.is_toplevel %}
+                <span class="tags">
+                {% for tag in post.tag_set.all %}
+                    <a class="tag" href="{% url 'topic-list' topic=tag.name %}">{{ tag.name }}</a>
+                {% endfor %}
+
+
+            {% endif %}
+
+
+        </span>
+        </div>
         {#  Post action line #}
         {% post_actions post user %}
 
