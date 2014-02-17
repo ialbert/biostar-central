@@ -1,47 +1,39 @@
 {% extends 'starbase.html' %}
 {% load crispy_forms_tags %}
-
+{% load server_tags %}
 {% block content %}
 
     <div class="row">
-        <div class="col-md-12">
-            <h2>Search</h2>
 
-            <form method="get" action=".">
-                <table>
-                    {{ form|crispy }}
-                    <tr>
-                        <td>&nbsp;</td>
-                        <td>
-                            <input type="submit" value="Search">
-                        </td>
-                    </tr>
-                </table>
 
-                {% if query %}
-                    <h3>Results</h3>
-
-                    {% for result in page.object_list %}
-                        <p>
-                            {{ result.object.id }} <a href="{{ result.object.get_absolute_url }}">{{ result.object.title }}</a>
-                        </p>
-                    {% empty %}
-                        <p>No results found.</p>
-                    {% endfor %}
-
-                    {% if page.has_previous or page.has_next %}
-                        <div>
-                            {% if page.has_previous %}<a href="?q={{ query }}&amp;page={{ page.previous_page_number }}">{% endif %}&laquo; Previous
-                            {% if page.has_previous %}</a>{% endif %}
-                            |
-                            {% if page.has_next %}<a href="?q={{ query }}&amp;page={{ page.next_page_number }}">{% endif %}Next &raquo;
-                            {% if page.has_next %}</a>{% endif %}
-                        </div>
-                    {% endif %}
-                {% else %}
-                    {# Show some example queries to run, maybe query syntax, something else? #}
-                {% endif %}
+        <div class="col-md-10 col-md-offset-2 searchbar">
+            <form class="form-inline" role="form" action="{% url 'search' %}">
+                <div class="form-group col-xs-9">
+                    <label class="sr-only" for="searchform">Search</label>
+                    <input type="text" name="q" class="form-control" value="{{ q }}" searchform" placeholder="Search">
+                </div>
+                <button type="submit" class="btn btn-default">Search</button>
             </form>
         </div>
+
+        <div class="col-md-9 searchbar">
+
+
+
+            {% for result in results %}
+
+                {% post_count_box result.object %}
+
+            {% empty %}
+                <div>No results found.</div>
+            {% endfor %}
+
+
+
+        </div>
+    </div>
+
+
+    </div>
     </div>
 {% endblock %}

@@ -18,7 +18,7 @@
                 <div class="btn-group">
                     <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
                         {% if post.sub %}
-                           follow: {{ post.sub.get_type_display }}
+                           {{ post.sub.get_type_display }}
                         {% else %}
                             not following
                         {% endif %}
@@ -26,7 +26,7 @@
                     </button>
                     <ul class="dropdown-menu" role="menu">
 
-                        <li><a href="{%  url "change-sub" pk=post.id type="local" %}">Follow via notifications</a></li>
+                        <li><a href="{%  url "change-sub" pk=post.id type="local" %}">Follow via messages</a></li>
                         <li><a href="{%  url "change-sub" pk=post.id type="email" %}">Follow via email</a></li>
                         <li><a href="{%  url "change-sub" pk=post.id type="nofollow" %}">Do not follow</a></li>
                     </ul>

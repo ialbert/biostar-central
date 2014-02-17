@@ -6,8 +6,8 @@ from django.contrib import admin
 admin.autodiscover()
 
 from django.views.generic import TemplateView
-from biostar.server import views, ajax
-
+from biostar.server import views, ajax, search
+from biostar.apps.posts.views import NewAnswer, NewPost, EditPost
 
 urlpatterns = patterns('',
 
@@ -36,13 +36,13 @@ urlpatterns = patterns('',
     url(r'^local/sub/(?P<pk>\d+)/(?P<type>\w+)/$', views.ChangeSub.as_view(), name="change-sub"),
 
     # A separate url for each post type.
-    url(r'^p/new/post/$', views.NewPost.as_view(), name="new-post"),
+    url(r'^p/new/post/$', NewPost.as_view(), name="new-post"),
 
-    url(r'^p/new/answer/(?P<pid>\d+)/$', views.NewAnswer.as_view(post_type="answer"), name="new-answer"),
-    url(r'^p/new/comment/(?P<pid>\d+)/$', views.NewAnswer.as_view(post_type="comment"), name="new-comment"),
+    url(r'^p/new/answer/(?P<pid>\d+)/$', NewAnswer.as_view(post_type="answer"), name="new-answer"),
+    url(r'^p/new/comment/(?P<pid>\d+)/$', NewAnswer.as_view(post_type="comment"), name="new-comment"),
 
     # Edit an existing post.
-    url(r'^p/edit/(?P<pk>\d+)/$', views.EditPost.as_view(), name="post-edit"),
+    url(r'^p/edit/(?P<pk>\d+)/$', EditPost.as_view(), name="post-edit"),
 
     # Message display.
     url(r'^local/messages/$', views.MessageList.as_view(), name="user-messages"),
@@ -50,10 +50,8 @@ urlpatterns = patterns('',
     # Vote display.
     url(r'^local/votes/$', views.VoteList.as_view(), name="user-votes"),
 
-
     # Vote submission.
     url(r'^x/vote/$', ajax.vote_handler, name="vote-submit"),
-
 
     # Social login pages.
     (r'^accounts/', include('allauth.urls')),
@@ -62,7 +60,7 @@ urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls)),
 
     # Adding the search urls.
-    url(r'^search/', views.SiteSearch(), name="search"),
+    url(r'^search/', search.Search.as_view(), name="search"),
 
      # Local robots.txt.
     url(r'^robots\.txt$', TemplateView.as_view(template_name="robots.txt", content_type='text/plain'), name='robots'),

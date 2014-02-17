@@ -14,8 +14,8 @@ from datetime import datetime
 LOCAL_MESSAGE, EMAIL_MESSAGE, NO_MESSAGES = range(3)
 
 MESSAGING_MAP = OrderedDict([
-    ( LOCAL_MESSAGE, "locally",),
-    ( EMAIL_MESSAGE, "via email",),
+    ( LOCAL_MESSAGE, "messages",),
+    ( EMAIL_MESSAGE, "email",),
 ])
 
 MESSAGING_TYPE_CHOICES = MESSAGING_MAP.items()

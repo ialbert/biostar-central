@@ -1,0 +1,54 @@
+{# Renders the countbox for each post #}
+{% load server_tags %}
+<div class="post-row {{ post.get_type_display }}">
+    <div class="count-box clearfix">
+        {% if post.is_toplevel %}
+            <div class="box vote">
+                <div class="c">{{ post.vote_count }}</div>
+                <div class="t">vote{{ post.vote_count|pluralize }}</div>
+            </div>
+            <div class="box {% boxclass post %}">
+                <div class="c">{{ post.reply_count }}</div>
+                <div class="t">answer{{ post.reply_count|pluralize }}</div>
+            </div>
+            <div class="box view">
+                <div class="c">{{ post.view_count }}</div>
+                <div class="t">views</div>
+            </div>
+
+            {% if post.subs_count > 4 %}
+                <div class="book_count text-center">
+                    {{ post.subs_count }} following
+
+                </div>
+            {%  else %}
+                <div></div>
+            {% endif %}
+        {% else %}
+            <div class="box vote">
+                <div class="c">{{ post.vote_count }}</div>
+                <div class="t">vote{{ post.vote_count|pluralize }}</div>
+            </div>
+            <div class="box vote">
+                <div class="c">{{ post.book_count }}</div>
+                <div class="t">bookmark{{ post.reply_count|pluralize }}</div>
+            </div>
+            <div class="box vote">
+                &nbsp;
+            </div>
+        {% endif %}
+    </div>
+    <div class="title-box clearfix">
+        <div class="post-title"><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></div>
+        <div>
+            <span class="tags">
+            {% for tag in post.tag_set.all %}
+                <a class="tag" href="{% url 'topic-list' topic=tag.name %}">{{ tag.name }}</a>
+            {% endfor %}
+            </span>
+            <span class="userlink text-right">
+            {% last_action post %} {% time_ago post %} ago by {% userlink post.author %}
+            </span>
+        </div>
+    </div>
+</div>

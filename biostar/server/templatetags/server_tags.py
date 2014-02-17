@@ -127,10 +127,8 @@ def nav_bar(context, user):
 
 @register.inclusion_tag('server_tags/page_bar.html', takes_context=True)
 def page_bar(context):
-
     "Renders a paging bar"
     return context
-
 
 @register.inclusion_tag('server_tags/page_bar_sort_posts.html', takes_context=True)
 def page_bar_sort_posts(context):
@@ -145,11 +143,15 @@ def post_body(context, post, user, tree):
     return dict(post=post, user=user, tree=tree, request=context['request'])
 
 
-@register.inclusion_tag('server_tags/search_bar.html')
-def search_bar():
+@register.inclusion_tag('server_tags/search_bar.html', takes_context=True)
+def search_bar(context):
     "Displays search bar"
-    return {}
+    return context
 
+@register.inclusion_tag('server_tags/post_count_box.html')
+def post_count_box(post):
+    "Displays the count box for a post row"
+    return dict(post=post)
 
 @register.inclusion_tag('server_tags/post_actions.html')
 def post_actions(post, user, label="COMMENT"):

@@ -13,65 +13,16 @@
 
             {% page_bar_sort_posts %}
 
-            <table id="posts" class="table table-striped">
+            <div>
                 {% for post in posts %}
-                    <tr>
-                        <td class="boxcell {{ post.get_type_display }}">
-
-                            {% if post.is_toplevel %}
-                                <div class="box vote">
-                                    <div class="c">{{ post.vote_count }}</div>
-                                    <div class="t">vote{{ post.vote_count|pluralize }}</div>
-                                </div>
-                                <div class="box {% boxclass post %}">
-                                    <div class="c">{{ post.reply_count }}</div>
-                                    <div class="t">answer{{ post.reply_count|pluralize }}</div>
-                                </div>
-                                <div class="box view">
-                                    <div class="c">{{ post.view_count }}</div>
-                                    <div class="t">views</div>
-                                </div>
-                                {% if post.subs_count > 4 %}
-                                    <div class="book_count text-center">
-                                        {{ post.subs_count }} following
-
-                                    </div>
-                                {% endif %}
-
-                            {% else %}
-                                <div class="box vote">
-                                    <div class="c">{{ post.vote_count }}</div>
-                                    <div class="t">vote{{ post.vote_count|pluralize }}</div>
-                                </div>
-                                <div class="box {% boxclass post %}">
-                                    <div class="c">{{ post.book_count }}</div>
-                                    <div class="t">bookmark{{ post.reply_count|pluralize }}</div>
-                                </div>
-
-                            {% endif %}
-                        </td>
-                        <td width="100%">
-
-                            <div class="title"><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></div>
-                            <div class="tags">
-                                {% for tag in post.tag_set.all %}
-                                    <a class="tag" href="{% url 'topic-list' topic=tag.name %}">{{ tag.name }}</a>
-                                {% endfor %}
-                            </div>
-                            <div class="text-right">
-                                {% last_action post %} {% time_ago post %} ago by {% userlink post.author %}
-                            </div>
-                        </td>
-                    </tr>
+                    {% post_count_box post %}
                 {% empty %}
-                    <tr>
-                        <td>
-                            <div class="alert alert-info">There are no results for this page.</div>
-                        </td>
-                    </tr>
-                {% endfor %}
-            </table>
 
+                    <div class="alert alert-info">There are no results for this page.</div>
+
+                {% endfor %}
+
+            </div>
         </div>
         <div class="col-md-3 sidebar">
 
@@ -83,5 +34,6 @@
 
         </div>
     </div>
+
 
 {% endblock %}

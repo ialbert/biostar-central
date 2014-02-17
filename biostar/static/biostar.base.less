@@ -53,17 +53,17 @@ See the biostar.style.less file for details.
 .tag {
   float: left;
   margin-right: 5px;
-  margin-bottom: 1px;
+  //margin-bottom: 1px;
   padding: 1px 4px 1px 4px;
   text-decoration: none;
   background-color: @TAG_BACKGROUND_COLOR;
   border-bottom: 1px solid @TAG_BORDER_COLOR;
   border-right: 1px solid @TAG_BORDER_COLOR;
   color: @TAG_COLOR;
-  -webkit-border-radius: 5px;
-  -moz-border-radius: 5px;
-  border-radius: 5px;
-
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  font-size:smaller;
   &:hover {
     color: white;
     background-color: #6B3E4A;
@@ -82,20 +82,53 @@ See the biostar.style.less file for details.
   font-size: larger;
 }
 
-table#post-details {
-  vertical-align: top;
-  padding: 0px;
-  width: 100%;
-  margin-top: 1em;
-  td {
-    padding: 5px;
-  }
-  .title {
-    font-weight: bold;
-    padding-bottom: 0.5em;
-    font-size: large;
+.post-row {
+
+  .count-box {
+    float: left;
+    .book_count {
+      font-size: smaller;
+       color: #762C90;
+    }
   }
 
+  .title-box {
+    //Don't overlap with counts.
+    //margin-left:12em;
+  }
+
+  padding-top: 5px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #ECECEC;
+
+  .post-title {
+    font-weight: bold;
+    font-size: larger;
+  }
+
+  .userlink {
+    float: right;
+  }
+
+  .box {
+    margin: 0 3px 0 0;
+    padding: 1px;
+    width: 4em;
+    text-align: center;
+    float: left;
+
+    .t {
+      font-size: smaller;
+      margin-top: 5px;
+    }
+    .c {
+      font-size: 1.6em;
+      font-weight: bold;
+      height: 1.6ex;
+      vertical-align: middle;
+      text-align: center;
+    }
+  }
 }
 
 table#posts {
@@ -111,120 +144,72 @@ table#posts {
     margin-left: -5px;
     //font-weight: bold;
   }
-  .Forum {
+}
 
-    .answered {
-      background-color: @NAVBAR_ACTIVE;
-      color: white;
-    }
-    .commented {
-      background-color: #B79538;
-      color: white;
-    }
-    .accepted {
-      background-color: #B79538;
-      color: #E1E818;
-    }
-    .unanswered {
-      background-color: #B79538;
-      color: white;
-    }
+// Default post row colors.
+.post-row {
+
+  .answered {
+    background-color: @NAVBAR_ACTIVE;
+    color: white;
   }
 
-  .Job {
-    .answered {
-      background-color: @NAVBAR_ACTIVE;
-      color: white;
-    }
-    .commented {
-      background-color: #E9530F;
-      color: white;
-    }
-    .accepted {
-      background-color: #E9530F;
-      color: #E1E818;
-    }
-    .unanswered {
-      background-color: #E9530F;
-      color: white;
-    }
+  .commented {
+    background-color: #436C27;
+    color: white;
   }
 
-  .Answer {
-    .bookmark {
-      //background-color: #ececec;
-      .t {
-        //font-size: x-small;
-      }
-      //color: white;
-    }
+  .accepted {
+    background-color: #436C27;
+    color: #E1E818;
   }
-  .Question {
+  .unanswered {
+    background-color: #8f2c47;
+    color: white;
+  }
+}
 
-    .answered {
-      background-color: @NAVBAR_ACTIVE;
-      color: white;
-    }
-    .commented {
-      background-color: #436C27;
-      color: white;
-    }
-    .accepted {
-      background-color: #436C27;
-      color: #E1E818;
-    }
-    .unanswered {
-      background-color: #8f2c47;
-      color: white;
-    }
+.post-row.Forum {
+
+  .answered {
+    background-color: #B79538;;
+    color: white;
   }
 
-  .boxcell {
-    min-width: 14em;
+  .commented {
+    background-color: #B79538;;
+    color: white;
   }
 
-  tr {
-    vertical-align: top;
-    border-bottom: 1px solid #cccccc;
-  }
-  td {
-    padding-bottom: 0.3em;
-    padding-top: 0.3em;
-    padding-left: 0px;
+  .accepted {
+    background-color: #B79538;;
+    color: #E1E818;
   }
 
-  .default {
-    background-color: #eeeeee;
+  .unanswered {
+    background-color: #B79538;;
+    color: white;
   }
+}
 
-  .box {
-    margin: 0 3px 0 0;
-    padding: 1px;
-    width: 4em;
-    text-align: center;
-    float: left;
+.post-row.Job {
 
-    .t {
-      font-size: smaller;
-      margin-top: 5px;
-    }
-
-    .c {
-      font-size: 1.6em;
-      font-weight: bold;
-      height: 1.6ex;
-      vertical-align: middle;
-      text-align: center;
-    }
-
+  .answered {
+    background-color: @NAVBAR_ACTIVE;
+    color: white;
   }
-
-  .title {
-    font-weight: bold;
-    padding-bottom: 0.5em;
-    font-size: larger;
+  .commented {
+    background-color: #E9530F;
+    color: white;
   }
-
+  .accepted {
+    background-color: #E9530F;
+    color: #E1E818;
+  }
+  .unanswered {
+    background-color: #E9530F;
+    color: white;
+  }
 }
 
 ul.flat {
@@ -451,14 +436,14 @@ div#navbar {
     font-weight: bold;
     margin-bottom: 5px;
   }
-  ul{
-    margin-left:-5px;
+  ul {
+    margin-left: -5px;
     li {
-      margin-bottom:2px;
+      margin-bottom: 2px;
     }
   }
 }
 
-.pagebar{
-  margin-bottom:3px;
+.pagebar {
+  margin-bottom: 3px;
 }

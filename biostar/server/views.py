@@ -1,10 +1,8 @@
 from django.views.generic import DetailView, ListView, TemplateView, RedirectView, View
 from django.conf import settings
-from haystack.views import SearchView
 
 from biostar.apps.users import auth
 from biostar.apps.users.views import EditUser
-from biostar.apps.posts.views import EditPost, NewPost, NewAnswer
 import random
 
 from biostar.apps.messages.models import Message
@@ -12,7 +10,6 @@ from biostar.apps.users.models import User
 from biostar.apps.posts.models import Post, Vote, Tag, Subscription
 from biostar.apps.posts.auth import post_permissions
 from django.contrib import messages
-from django.utils.timezone import utc
 from datetime import datetime, timedelta
 from biostar.const import OrderedDict
 from biostar import const
@@ -44,6 +41,7 @@ class BaseListMixin(ListView):
 
         context['sort'] = sort
         context['limit'] = limit
+        context['q'] = self.request.GET.get('q','')
         return context
 
 # The naming here needs to match that in the server_tag.py template tags.
@@ -329,10 +327,6 @@ class ChangeSub(LoginRequiredMixin, View):
                 Subscription.objects.create(post=post, user=user, type=new_type)
 
         return shortcuts.redirect(post.get_absolute_url())
-
-class SiteSearch(SearchView):
-    extra_context = lambda x: dict(topic="search")
-
 
 class RSS(TemplateView):
     template_name = "rss-info.html"
