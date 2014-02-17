@@ -201,6 +201,16 @@ class Post(models.Model):
         else:
             return "%s [%s]" % (self.title, self.get_status_display())
 
+    @property
+    def is_open(self):
+        return self.status == Post.OPEN
+
+    @property
+    def age_in_days(self):
+        delta = const.now() - self.creation_date
+        return delta.days
+
+
     def save(self, *args, **kwargs):
 
         # Sanitize the post body.

@@ -1,0 +1,26 @@
+
+<p>Hello {{ user.name }}!</p>
+
+<p>Questions similar to yours can already be found at:</p>
+
+<ul>
+{% for post in posts %}
+	<li> <a href="{{ post.get_absolute_url }}">{{post.title}}</a></li>
+{% endfor %}
+</ul>
+
+<p>
+    We have closed your question to allow us to keep similar content in the same thread.
+</p>
+
+<p>
+    If you disagree with this please tell us why in a reply below. We'll be happy to talk about it.
+</p>
+
+<p>Cheers!</p>
+
+{%  if comment %}
+    PS: {{ comment }}
+{%  endif %}
+
+

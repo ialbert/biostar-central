@@ -29,20 +29,29 @@
                     <td>
 
                         {% if user.is_authenticated %}
-                            <h3>Add your answer</h3>
-                            <p><strong>Note:</strong> Answers should be for the original question only. Use
-                                the comments
-                                to discuss existing content, ask for clarifications, request more details, etc. </p>
+                            {% if post.is_open %}
+                                <h3>Add your answer</h3>
+                                <p><strong>Note:</strong> Answers should be for the original question only. Use
+                                    the comments
+                                    to discuss existing content, ask for clarifications, request more details, etc. </p>
 
-                            <form role="form" id="answer-form" method="post" action="{% url "new-answer" post.id %}">
-                                {% csrf_token %}
-                                <div class="form-group">
-                                    <textarea class="textarea form-control" cols="40" id="answerbox" name="content"
-                                              rows="10"></textarea>
+                                <form role="form" id="answer-form" method="post"
+                                      action="{% url "new-answer" post.id %}">
+                                    {% csrf_token %}
+                                    <div class="form-group">
+                                        <textarea class="textarea form-control" cols="40" id="answerbox" name="content"
+                                                  rows="10"></textarea>
+                                    </div>
+                                    <button type="submit" class="btn btn-success">Add Answer</button>
+
+                                </form>
+                            {% else %}
+                                <div class="alert alert-warning">
+                                    The thread is closed. No new answers may be added.
                                 </div>
-                                <button type="submit" class="btn btn-success">Add Answer</button>
 
-                            </form>
+
+                            {% endif %}
                         {% else %}
                             <div class="alert alert-info">
                                 Please <a href="account-login">log in</a> to add an answer.

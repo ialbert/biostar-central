@@ -1,6 +1,6 @@
 {# Renders the countbox for each post #}
 {% load server_tags %}
-<div class="post-row {{ post.get_type_display }}">
+<div class="post-row {{ post.get_type_display }} {{ post.get_status_display }}">
     <div class="count-box clearfix">
         {% if post.is_toplevel %}
             <div class="box vote">
@@ -39,7 +39,7 @@
         {% endif %}
     </div>
     <div class="title-box clearfix">
-        <div class="post-title"><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></div>
+        <div class="post-title"><a href="{{ post.get_absolute_url }}">{{ post.get_title }}</a></div>
         <div>
             <span class="tags">
             {% for tag in post.tag_set.all %}
