@@ -21,12 +21,12 @@ User = get_user_model()
 BATCH_SIZE = 100
 
 USER_TYPE_MAP = {
-    "New": User.NEW, "Member": User.MEMBER, "Blog": User.BLOG,
+    "New": User.NEW_USER, "Member": User.USER, "Blog": User.BLOG,
     "Moderator": User.MODERATOR, "Administrator": User.ADMIN
 }
 
 USER_STATUS_MAP = {
-    "Active": User.ACTIVE, "Suspended": User.SUSPENDED, "Banned": User.BANNED,
+    "Active": User.TRUSTED, "Suspended": User.SUSPENDED, "Banned": User.BANNED,
 }
 
 POST_TYPE_MAP = {

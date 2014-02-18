@@ -10,83 +10,91 @@
 
     <div class="row">
 
-        <div class="col-md-12">
+        <div class="col-md-12 user-details">
+
+            <div class="col-md-12">
+
+                <h2 class="text-center">{{ target.get_type_display }}: {{ target.name }}</h2>
+
+            </div>
+
+            <div class="col-md-3">
+
+                {#  User gravatar.  #}
+
+                {% gravatar target 200 %}
+                <div class="text-center">
+                    {% userlink target %}
+                </div>
 
 
-            <table id="user-table" class="table table-striped">
-
-                <tr>
-                    <td colspan="3">
-                        <h2 class="text-center">{{ target.name }}</h2>
-                    </td>
-                </tr>
-
-                <tr>
-
-                    {#  User gravatar.  #}
-                    <td>
-                        {% gravatar target 200 %}
-                        <div class="text-center">
-                            {% userlink target %}
-                        </div>
-                        <div class="text-center" style="margin-top:20px">
-                            <a href="{% url "user-edit" target.id %}" class="btn btn-default" role="button" href="#">Edit
-                                Profile</a>
-                        </div>
-                    </td>
-
-                    {#  The short description entered by the user.  #}
-                    <td width="40%">
-                        <dl class="dl-horizontal">
-
-                            <dt>Role:</dt>
-                            <dd>{{ target.get_type_display }}</dd>
-
-                            <dt>Last seen:</dt>
-                            <dd>{{ target.profile.last_login|naturaltime }}</dd>
-
-                            <dt>Joined:</dt>
-                            <dd>{{ target.profile.date_joined|naturaltime }}</dd>
-
-                            <dt>Location:</dt>
-                            <dd>{{ target.profile.location }}</dd>
-
-                            <dt>Website:</dt>
-                            <dd><a href="{{ target.profile.website }}">{{ target.profile.website }}</a></dd>
-
-                            <dt>Scholar ID:</dt>
-                            <dd>{{ target.profile.scholar }}</dd>
-
-                            <dt>Tags:</dt>
-                            <dd>{{ target.profile.my_tags }}</dd>
+                <div class="text-center" style="margin-top:20px">
+                    <a href="{% url "user-edit" target.id %}" class="btn btn-default" role="button" href="#">Edit
+                        Profile</a>
+                </div>
 
 
-                        </dl>
+                {% if target.has_ownership %}
+                    <div style="font-size: small; padding-top:20px;">
+                        Your portrait is loaded from <a href="http://www.gravatar.com">Gravatar</a> based
+                        on your email. If you don't have a <a href="http://www.gravatar.com">Gravatar</a> account
+                        your portait is
+                        an "identicon": an automatically generated, unique image.
+                    </div>
+                {% endif %}
 
-                        {% if target.has_ownership %}
-                            <dl class="dl-horizontal">
-                                <dt>Email:</dt>
-                                <dd>{{ target.email }}</dd>
+            </div>
 
-                                <dt>Notifications:</dt>
-                                <dd>{{ target.profile.get_message_prefs_display }}</dd>
-                            </dl>
-                            {% endif %}
-                    </td>
+            {#  The short description entered by the user.  #}
+            <div class="col-md-4">
+                <dl class="dl-horizontal">
 
-                    {#  User bio.  #}
-                    <td width="40%">
-                        {{ target.profile.info|safe }}
-                    </td>
-                </tr>
+                    <dt>Role:</dt>
+                    <dd>{{ target.get_type_display }}</dd>
 
-                <tr>
-                    <td colspan="3" class="text-center">
-                        Contributions
-                    </td>
-                </tr>
+                    <dt>Last seen:</dt>
+                    <dd>{{ target.profile.last_login|naturaltime }}</dd>
 
-            </table>
+                    <dt>Joined:</dt>
+                    <dd>{{ target.profile.date_joined|naturaltime }}</dd>
+
+                    <dt>Location:</dt>
+                    <dd>{{ target.profile.location }}</dd>
+
+                    <dt>Website:</dt>
+                    <dd><a href="{{ target.profile.website }}">{{ target.profile.website }}</a></dd>
+
+                    <dt>Scholar ID:</dt>
+                    <dd>{{ target.profile.scholar }}</dd>
+
+                    <dt>Tags:</dt>
+                    <dd>{{ target.profile.my_tags }}</dd>
+
+
+                </dl>
+
+                {% if target.has_ownership %}
+
+                    <dl class="dl-horizontal">
+                        <dt>Email:</dt>
+                        <dd>{{ target.email }}</dd>
+
+                        <dt>Notifications:</dt>
+                        <dd>{{ target.profile.get_message_prefs_display }}</dd>
+                    </dl>
+                {% endif %}
+            </div>
+
+            {#  User bio.  #}
+            <div class="col-md-5">
+                {{ target.profile.info|safe }}
+            </div>
+
+
+            <div class="col-md-12">
+
+
+            </div>
 
         </div>
     </div>

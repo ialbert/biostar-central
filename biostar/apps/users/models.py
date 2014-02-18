@@ -22,11 +22,11 @@ logger = logging.getLogger(__name__)
 
 class User(AbstractBaseUser):
     # Class level constants.
-    NEW, MEMBER, MODERATOR, ADMIN, BLOG = range(5)
-    TYPE_CHOICES = [(NEW, "New"), (MEMBER, "Member"), (MODERATOR, "Moderator"), (ADMIN, "Admin"), (BLOG, "Blog")]
+    USER, MODERATOR, ADMIN, BLOG = range(4)
+    TYPE_CHOICES = [(USER, "User"), (MODERATOR, "Moderator"), (ADMIN, "Admin"), (BLOG, "Blog")]
 
-    ACTIVE, SUSPENDED, BANNED = range(3)
-    STATUS_CHOICES = ((ACTIVE, 'Active'), (SUSPENDED, 'Suspended'), (BANNED, 'Banned'))
+    NEW_USER, TRUSTED, SUSPENDED, BANNED = range(4)
+    STATUS_CHOICES = ((NEW_USER, 'New User'), (TRUSTED, 'Trusted'), (SUSPENDED, 'Suspended'), (BANNED, 'Banned'))
 
     # Required by Django.
     USERNAME_FIELD = 'email'
@@ -43,10 +43,10 @@ class User(AbstractBaseUser):
     is_staff = models.BooleanField(default=False)
 
     # This designates a user types and with that permissions.
-    type = models.IntegerField(choices=TYPE_CHOICES, default=NEW)
+    type = models.IntegerField(choices=TYPE_CHOICES, default=USER)
 
     # This designates a user statuses on whether they are allowed to log in.
-    status = models.IntegerField(choices=STATUS_CHOICES, default=ACTIVE)
+    status = models.IntegerField(choices=STATUS_CHOICES, default=NEW_USER)
 
     # The number of new messages for the user.
     new_messages = models.IntegerField(default=0)
@@ -61,7 +61,7 @@ class User(AbstractBaseUser):
     full_score = models.IntegerField(default=0)
 
     # Display next to a user name.
-    flair = models.CharField(verbose_name='Falir', max_length=15, default="")
+    flair = models.CharField(verbose_name='Flair', max_length=15, default="")
 
     @property
     def is_moderator(self):
