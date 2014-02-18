@@ -80,7 +80,7 @@ class PostModForm(forms.Form):
 
 class PostModeration(LoginRequiredMixin, FormView):
     model = Post
-    template_name = "moderator_form.html"
+    template_name = "post_moderation_form.html"
     context_object_name = "post"
     form_class = PostModForm
 

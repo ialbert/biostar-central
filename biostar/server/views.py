@@ -112,7 +112,7 @@ class PostList(BaseListMixin):
     This is the base class for any view that produces a list of posts.
     """
     model = Post
-    template_name = "post-list.html"
+    template_name = "post_list.html"
     context_object_name = "posts"
     paginate_by = settings.PAGINATE_BY
     LATEST = "Latest"
@@ -150,7 +150,7 @@ class MessageList(ListView):
     This is the base class for any view that produces a list of posts.
     """
     model = Message
-    template_name = "message-list.html"
+    template_name = "message_list.html"
     context_object_name = "objects"
     paginate_by = settings.PAGINATE_BY
 
@@ -172,7 +172,7 @@ class TagList(BaseListMixin):
     model = Tag
     page_title = "Tags"
     context_object_name = "tags"
-    template_name = "tag-list.html"
+    template_name = "tag_list.html"
 
 
 class VoteList(ListView):
@@ -180,7 +180,7 @@ class VoteList(ListView):
     Produces the list of votes
     """
     model = Message
-    template_name = "vote-list.html"
+    template_name = "vote_list.html"
     context_object_name = "votes"
     paginate_by = settings.PAGINATE_BY
 
@@ -203,7 +203,7 @@ class UserList(ListView):
     Base class for the showing user listing.
     """
     model = User
-    template_name = "user-list.html"
+    template_name = "user_list.html"
     context_object_name = "users"
     paginate_by = 50
 
@@ -218,7 +218,7 @@ class UserDetails(DetailView):
     Renders a user profile.
     """
     model = User
-    template_name = "user-details.html"
+    template_name = "user_details.html"
     context_object_name = "target"
 
     def get_object(self):
@@ -232,7 +232,7 @@ class UserDetails(DetailView):
 
 
 class EditUser(EditUser):
-    template_name = "user-edit.html"
+    template_name = "user_edit.html"
 
 
 class PostDetails(DetailView):
@@ -241,7 +241,7 @@ class PostDetails(DetailView):
     """
     model = Post
     context_object_name = "post"
-    template_name = "post-details.html"
+    template_name = "post_details.html"
 
     def get_object(self):
         user = self.request.user
@@ -329,4 +329,4 @@ class ChangeSub(LoginRequiredMixin, View):
         return shortcuts.redirect(post.get_absolute_url())
 
 class RSS(TemplateView):
-    template_name = "rss-info.html"
+    template_name = "rss_info.html"

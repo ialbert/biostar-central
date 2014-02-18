@@ -56,7 +56,7 @@ class ShortForm(forms.Form):
 
 class NewPost(LoginRequiredMixin, FormView):
     form_class = LongForm
-    template_name = "post-edit.html"
+    template_name = "post_edit.html"
 
     def post(self, request, *args, **kwargs):
 
@@ -80,7 +80,7 @@ class NewAnswer(LoginRequiredMixin, FormView):
     Creates a new post.
     """
     form_class = ShortForm
-    template_name = "post-edit.html"
+    template_name = "post_edit.html"
     type_map = dict(answer=Post.ANSWER, comment=Post.COMMENT)
     post_type = None
 
@@ -132,7 +132,7 @@ class EditPost(LoginRequiredMixin, FormView):
     """
 
     # The template_name attribute must be specified in the calling apps.
-    template_name = "post-edit.html"
+    template_name = "post_edit.html"
     form_class = LongForm
 
     def get(self, request, *args, **kwargs):
@@ -188,5 +188,5 @@ class EditPost(LoginRequiredMixin, FormView):
         return HttpResponseRedirect(post.get_absolute_url())
 
     def get_success_url(self):
-        return reverse("user-details", kwargs=dict(pk=self.kwargs['pk']))
+        return reverse("user_details", kwargs=dict(pk=self.kwargs['pk']))
 
