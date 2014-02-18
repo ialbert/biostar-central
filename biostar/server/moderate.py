@@ -31,7 +31,7 @@ class PostModForm(forms.Form):
     action = forms.ChoiceField(choices=CHOICES, widget=forms.RadioSelect(), label="Select Action")
 
     comment = forms.CharField(required=False, max_length=200,
-                              help_text="Enter a reason (required when closing)")
+                              help_text="Enter a reason (required when closing). This will be inserted into a template comment.")
 
     dupe = forms.CharField(required=False, max_length=200,
                            help_text="One or more duplicated post numbers, space or comma separated (required for duplicate closing).",
@@ -124,15 +124,15 @@ class PostModeration(LoginRequiredMixin, FormView):
 
         action = get('action')
         if action == OPEN and not user.is_moderator:
-            messages.error(request, "Only a moderator may open this post")
+            messages.error(request, "Only a moderator may open a post")
 
         elif action == OPEN:
             query.update(status=Post.OPEN)
-            messages.success(request, "Opened %s" % post.title)
+            messages.success(request, "Opened post: %s" % post.title)
 
         elif action in CLOSE_OFFTOPIC:
             query.update(status=Post.CLOSED)
-            messages.success(request, "Closed %s" % post.title)
+            messages.success(request, "Closed post: %s" % post.title)
             content = html.render(name="messages/offtopic_posts.html", user=post.author, comment=get("comment"), post=post)
             comment = Post(content=content, type=Post.COMMENT, parent=post, author=user)
             comment.save()
@@ -156,15 +156,15 @@ class PostModeration(LoginRequiredMixin, FormView):
 
             if delete_only:
                 query.update(status=Post.DELETED)
-                messages.success(request, "Deleted %s" % post.title)
-
+                messages.success(request, "Deleted post: %s" % post.title)
             else:
+                url = "/" if post.is_toplevel else post.parent.get_absolute_url()
                 post.delete()
-                messages.success(request, "Destroyed %s" % post.title)
-                return HttpResponseRedirect("/")
+                messages.success(request, "Removed post: %s" % post.title)
+                return HttpResponseRedirect(url)
 
         else:
-            messages.error(request, "Invalid action %s" % action)
+            messages.error(request, "Invalid action: %s" % action)
 
         return HttpResponseRedirect(post.root.get_absolute_url())
 

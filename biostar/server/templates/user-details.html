@@ -20,19 +20,16 @@
 
             <div class="col-md-3">
 
-                {#  User gravatar.  #}
-
-                {% gravatar target 200 %}
                 <div class="text-center">
+                      {#  User gravatar.  #}
+                    {% gravatar target 200 %}
                     {% userlink target %}
                 </div>
-
 
                 <div class="text-center" style="margin-top:20px">
                     <a href="{% url "user-edit" target.id %}" class="btn btn-default" role="button" href="#">Edit
                         Profile</a>
                 </div>
-
 
                 {% if target.has_ownership %}
                     <div style="font-size: small; padding-top:20px;">

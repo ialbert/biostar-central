@@ -43,6 +43,23 @@
                 </a>
             </div>
 
+            <div class="col-sm-1 mid {% current request "user-messages" %}">
+                <a href="{% url 'user-messages' %}">
+                    <div><i class="fa fa-envelope"></i>
+                    </div>
+                    <div>Messages</div>
+                </a>
+            </div>
+
+            <div class="col-sm-1 mid {% current request "user-votes" %}">
+                <a href="{% url 'user-votes' %}" class="navitem">
+                    <div class="navitem">
+                        <div><i class="fa fa-heart"></i></div>
+                        <div>Votes</div>
+                    </div>
+                </a>
+            </div>
+
             <div class="col-sm-1 mid {% active "myposts" topic %}">
                 <a href="{% url 'topic-list' topic="myposts" %}" class="navitem">
                     <div><i class="fa fa-comments"></i></div>
@@ -69,23 +86,6 @@
                 <a href="{% url 'topic-list' topic="bookmarks" %}" class="navitem">
                     <div><i class="fa fa-book"></i></div>
                     <div>Bookmarks</div>
-                </a>
-            </div>
-
-            <div class="col-sm-1 mid {% current request "user-messages" %}">
-                <a href="{% url 'user-messages' %}">
-                    <div><i class="fa fa-envelope"></i>
-                    </div>
-                    <div>Messages</div>
-                </a>
-            </div>
-
-            <div class="col-sm-1 mid {% current request "user-votes" %}">
-                <a href="{% url 'user-votes' %}" class="navitem">
-                    <div class="navitem">
-                        <div><i class="fa fa-heart"></i></div>
-                        <div>Votes</div>
-                    </div>
                 </a>
             </div>
 
