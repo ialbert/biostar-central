@@ -13,9 +13,7 @@
         <div class="col-md-12 user-details">
 
             <div class="col-md-12">
-
                 <h2 class="text-center">{{ target.get_type_display }}: {{ target.name }}</h2>
-
             </div>
 
             <div class="col-md-3">
@@ -29,10 +27,11 @@
                 <div class="text-center" style="margin-top:20px">
                     <a href="{% url "user-edit" target.id %}" class="btn btn-default" role="button" href="#">Edit Profile</a>
 
-                    <div style="margin-top:10px;">
-                        <a role="button" class="btn btn-warning btn-xs mod-user" data-value="{{ target.id }}">Moderate User</a>
-                    </div>
-
+                    {% if target.is_editable and user.is_moderator and user != target %}
+                        <div style="margin-top:10px;">
+                            <a role="button" class="btn btn-warning btn-xs mod-user" data-value="{{ target.id }}">Moderate User</a>
+                        </div>
+                    {% endif %}
                 </div>
 
                 {% if target.has_ownership %}

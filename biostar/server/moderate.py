@@ -21,12 +21,16 @@ from django.core.urlresolvers import reverse
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field, Fieldset, Submit, ButtonHolder
 from django.http import HttpResponseRedirect
+from django.db.models import Q, F
 
-OPEN, CLOSE_OFFTOPIC, CLOSE_SPAM, DELETE, DUPLICATE = map(str, range(5))
+OPEN, CLOSE_OFFTOPIC, CLOSE_SPAM, DELETE, DUPLICATE, MOVE_TO_COMMENT, MOVE_TO_ANSWER = map(str, range(7))
+
 
 class PostModForm(forms.Form):
     CHOICES = [
         (OPEN, "Open a closed or deleted post"),
+        (MOVE_TO_ANSWER, "Move post as an answer"),
+        (MOVE_TO_COMMENT, "Move post to a comment"),
         (DUPLICATE, "Duplicated, close"),
         (CLOSE_OFFTOPIC, "Closing, off topic"),
         (DELETE, "Delete post"),
@@ -82,6 +86,7 @@ class PostModForm(forms.Form):
 
         return cleaned_data
 
+
 class PostModeration(LoginRequiredMixin, FormView):
     model = Post
     template_name = "post_moderation_form.html"
@@ -109,75 +114,94 @@ class PostModeration(LoginRequiredMixin, FormView):
         post = self.get_obj()
         post = post_permissions(request, post)
 
+        # The default return url
+        response = HttpResponseRedirect(post.root.get_absolute_url())
+
         if not post.is_editable:
             messages.warning(request, "You may not moderate this post")
-            return HttpResponseRedirect(post.root.get_absolute_url())
+            return response
 
+        # Initialize the form class.
         form = self.form_class(request.POST, pk=post.id)
 
         # Bail out on errors.
         if not form.is_valid():
             messages.error(request, "%s" % form.errors)
-            return HttpResponseRedirect(post.root.get_absolute_url())
+            return response
 
+        # A shortcut to the clean form data.
         get = form.cleaned_data.get
 
-        # Using a new query to update. Bypasses signals.
+        # These will be used in updates, will bypasses signals.
         query = Post.objects.filter(pk=post.id)
-
+        root  = Post.objects.filter(pk=post.root_id)
 
         action = get('action')
         if action == OPEN and not user.is_moderator:
             messages.error(request, "Only a moderator may open a post")
+            return response
 
-        elif action == OPEN:
+        if action == MOVE_TO_ANSWER and post.type == Post.COMMENT:
+            # This is a valid action only for comments.
+            messages.success(request, "Moved post to answer")
+            query.update(type=Post.ANSWER, parent=post.root)
+            root.update(reply_count=F("reply_count") + 1)
+            return response
+
+        if action == MOVE_TO_COMMENT and post.type == Post.ANSWER:
+            # This is a valid action only for answers.
+            messages.success(request, "Moved post to answer")
+            query.update(type=Post.COMMENT, parent=post.root)
+            root.update(reply_count=F("reply_count") - 1)
+            return response
+
+        if action == OPEN:
             query.update(status=Post.OPEN)
             messages.success(request, "Opened post: %s" % post.title)
+            return response
 
-        elif action in CLOSE_OFFTOPIC:
+        if action in CLOSE_OFFTOPIC:
             query.update(status=Post.CLOSED)
             messages.success(request, "Closed post: %s" % post.title)
             content = html.render(name="messages/offtopic_posts.html", user=post.author, comment=get("comment"), post=post)
             comment = Post(content=content, type=Post.COMMENT, parent=post, author=user)
             comment.save()
+            return response
 
-        elif action == DUPLICATE:
+        if action == DUPLICATE:
             query.update(status=Post.CLOSED)
             posts = Post.objects.filter(id__in=get("dupe"))
             content = html.render(name="messages/duplicate_posts.html", user=post.author, comment=get("comment"), posts=posts)
             comment = Post(content=content, type=Post.COMMENT, parent=post, author=user)
             comment.save()
+            return response
 
-        elif action == DELETE:
+        if action == DELETE:
+
+            # Delete means to mark a post deleted. Remove means to delete the post from the database.
+            # Posts with children or older than some value can only be deleted not removed
+            # Banning a user will remove their posts.
 
             children = Post.objects.filter(parent_id=post.id).exclude(pk=post.id)
-
-            #
-            # Delete vs destroy
-            #
-            # Posts with children or older than some value can only be deleted not destroyed
-            delete_only = children or post.age_in_days > 7 or post.vote_count > 1
+            delete_only = children or post.age_in_days > 7 or post.vote_count > 1 or (post.author != user)
 
             if delete_only:
+                # Deleted posts can be undeleted by re-opening them.
                 query.update(status=Post.DELETED)
                 messages.success(request, "Deleted post: %s" % post.title)
+                return response
             else:
+                # This will remove the post. Redirect depends on the level of the post.
                 url = "/" if post.is_toplevel else post.parent.get_absolute_url()
                 post.delete()
                 messages.success(request, "Removed post: %s" % post.title)
                 return HttpResponseRedirect(url)
 
-        else:
-            messages.error(request, "Invalid action: %s" % action)
-
-        return HttpResponseRedirect(post.root.get_absolute_url())
-
-    #    pid = request.GET.get("post_id")
-    #    context = {}
-    #    return render(request, self.template_name, context)
+        # By this time all actions should have been performed
+        messages.error(request, "That seems to be an invalid action for the post. It's ok!")
+        return response
 
 class UserModForm(forms.Form):
-
     CHOICES = [
         (User.NEW_USER, "Reinstate as new user"),
         (User.TRUSTED, "Reinstate as trusted user"),
@@ -207,6 +231,7 @@ class UserModForm(forms.Form):
             )
         )
 
+
 class UserModeration(LoginRequiredMixin, FormView):
     model = Post
     template_name = "user_moderation_form.html"
@@ -222,10 +247,6 @@ class UserModeration(LoginRequiredMixin, FormView):
         user = request.user
         target = self.get_obj()
         target = user_permissions(request, target)
-
-        if not user.is_moderator or not target.is_editable:
-            messages.warning(request, "Current user does not have sufficient moderator privileges")
-            return HttpResponseRedirect(user.get_absolute_url())
 
         form = self.form_class(pk=target.id)
         context = dict(form=form, target=target)
@@ -244,6 +265,10 @@ class UserModeration(LoginRequiredMixin, FormView):
             messages.warning(request, "Current user does not have sufficient moderator privileges")
             return response
 
+        if target.is_administrator:
+            messages.warning(request, "Cannot moderate an administrator")
+            return response
+
         if user == target:
             messages.warning(request, "Cannot moderate yourself")
             return response
@@ -253,8 +278,21 @@ class UserModeration(LoginRequiredMixin, FormView):
             messages.error(request, "Invalid user modification action")
             return response
 
+        action = int(form.cleaned_data['action'])
+
+        if action == User.BANNED and not user.is_administrator:
+            messages.info(request, "Only administrators can ban users")
+            return response
+
+        if action == User.BANNED and user.is_administrator:
+            query = Post.objects.filter(author=target, type__in=Post.TOP_LEVEL, vote_count=0)
+            count = query.count()
+            query.delete()
+            messages.success(request, "User banned, %s posts removed" % count)
+            return response
+
         # Apply the new status
-        User.objects.filter(pk=target.id).update(status=form.cleaned_data['action'])
+        User.objects.filter(pk=target.id).update(status=action)
 
         messages.success(request, 'Moderation completed')
         return response
