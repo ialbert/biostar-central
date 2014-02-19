@@ -56,6 +56,11 @@ urlpatterns = patterns('',
     # Produces the moderator panel.
     url(r'^local/moderate/user/(?P<pk>\d+)/$', moderate.UserModeration.as_view(), name="user-moderation"),
 
+    # Search the body.
+    url(r'^local/search/page/', search.Search.as_view(), name="search"),
+
+    # Search the titles.
+    url(r'^local/search/title/', search.search_title, name="search-title"),
 
     # Vote submission.
     url(r'^x/vote/$', ajax.vote_handler, name="vote-submit"),
@@ -66,8 +71,7 @@ urlpatterns = patterns('',
     # Uncomment the next line to enable the admin:
     url(r'^admin/', include(admin.site.urls)),
 
-    # Adding the search urls.
-    url(r'^search/', search.Search.as_view(), name="search"),
+
 
      # Local robots.txt.
     url(r'^robots\.txt$', TemplateView.as_view(template_name="robots.txt", content_type='text/plain'), name='robots'),

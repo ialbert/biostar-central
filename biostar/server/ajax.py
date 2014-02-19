@@ -19,8 +19,10 @@ def json_response(adict, **kwd):
 logger = logging.getLogger(__name__)
 
 
-def ajax_msg(msg, status):
-    return json_response(dict(status=status, msg=msg))
+def ajax_msg(msg, status, **kwargs):
+    payload = dict(status=status, msg=msg)
+    payload.update(kwargs)
+    return json_response(payload)
 
 
 ajax_success = partial(ajax_msg, status='success')

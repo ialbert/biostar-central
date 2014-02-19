@@ -15,6 +15,7 @@ from biostar.const import OrderedDict
 from biostar import const
 from braces.views import LoginRequiredMixin
 from django import shortcuts
+from django.http import HttpResponseRedirect
 
 class BaseListMixin(ListView):
     "Base class for each mixin"
@@ -242,6 +243,16 @@ class PostDetails(DetailView):
     model = Post
     context_object_name = "post"
     template_name = "post_details.html"
+
+    def get(self, *args, **kwargs):
+         # This will scroll the page to the right anchor.
+        self.object = self.get_object()
+        context = self.get_context_data(object=self.object)
+
+        if not self.object.is_toplevel:
+            return HttpResponseRedirect(self.object.get_absolute_url())
+
+        return self.render_to_response(context)
 
     def get_object(self):
         user = self.request.user

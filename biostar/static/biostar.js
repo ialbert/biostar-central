@@ -149,17 +149,53 @@ function ajax_vote(elem, post_id, vote_type) {
     });
 }
 
+function title_format(row) {
+
+    link ='<a href="/p/' + row.id +'"/>' + row.text + '</a>';
+    return link
+}
+
 $(document).ready(function () {
     var tooltip_options = {};
 
-    // This detects the user id on the page.
-    var user_id = $("#user_id").val()
+    // Add the search functionality
+    $("#searchform").select2({
+        placeholder: "Search: start typing",
+        minimumInputLength: 1,
+        ajax: {
+            url: TITLE_SEARCH_URL,
+            dataType: 'json',
+            data: function (term, page) {
+                return {
+                    q: term, // search term
+                    page_limit: 10,
+                };
+            },
+            results: function (data, page) {
+                console.log(data.items)
+                console.log(page)
+                return {results: data.items};
+            }
+        },
+
+        formatResult: title_format,
+        //formatSelection: movieFormatSelection,
+        dropdownCssClass: "bigdrop",
+        escapeMarkup: function (m) {
+            return m;
+        }
+    })
+
+
+    $("#searchform").on("change", function(e) {
+        window.location = POST_DISPLAY_URL + e.val +"/"
+    })
 
     // Register tooltips.
     $('.tip').tooltip(tooltip_options)
 
     // Register comment adding.
-    if (user_id) {
+    if (USER_ID) {
 
         // Authenticated user actions.
         $('.add-comment').each(function () {
@@ -203,4 +239,5 @@ $(document).ready(function () {
         });
     });
 
-});
+})
+;
