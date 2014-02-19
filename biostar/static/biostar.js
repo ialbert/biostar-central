@@ -151,17 +151,22 @@ function ajax_vote(elem, post_id, vote_type) {
 
 function title_format(row) {
 
-    link ='<a href="/p/' + row.id +'"/>' + row.text + '</a>';
+    link ='<a href="/p/' + row.id +'"/>' + row.text + '</a><div class="in">'+ row.snippet +' by ' + row.author + '</div>';
     return link
 }
 
 $(document).ready(function () {
     var tooltip_options = {};
 
+
+    var searchform = $("#searchform")
+
+    searchform.focus();
+
     // Add the search functionality
-    $("#searchform").select2({
+    searchform.select2({
         placeholder: "Search: start typing",
-        minimumInputLength: 1,
+        minimumInputLength: 3,
         ajax: {
             url: TITLE_SEARCH_URL,
             dataType: 'json',
@@ -179,7 +184,7 @@ $(document).ready(function () {
         },
 
         formatResult: title_format,
-        //formatSelection: movieFormatSelection,
+        
         dropdownCssClass: "bigdrop",
         escapeMarkup: function (m) {
             return m;
@@ -187,7 +192,7 @@ $(document).ready(function () {
     })
 
 
-    $("#searchform").on("change", function(e) {
+    searchform.on("change", function(e) {
         window.location = POST_DISPLAY_URL + e.val +"/"
     })
 
