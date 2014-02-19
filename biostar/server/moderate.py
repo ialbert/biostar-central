@@ -2,11 +2,16 @@
 Moderator views
 """
 from biostar.apps.posts.models import Post
+from biostar.apps.posts.auth import post_permissions
+
+from biostar.apps.users.models import User
+from biostar.apps.users.auth import user_permissions
+
 from biostar.apps.util import html
 
 from django.conf import settings
 from django.views.generic import FormView
-from biostar.apps.posts.auth import post_permissions
+
 from django.shortcuts import render
 from django.contrib import messages
 from biostar import const
@@ -18,7 +23,6 @@ from crispy_forms.layout import Layout, Field, Fieldset, Submit, ButtonHolder
 from django.http import HttpResponseRedirect
 
 OPEN, CLOSE_OFFTOPIC, CLOSE_SPAM, DELETE, DUPLICATE = map(str, range(5))
-
 
 class PostModForm(forms.Form):
     CHOICES = [
@@ -171,3 +175,87 @@ class PostModeration(LoginRequiredMixin, FormView):
     #    pid = request.GET.get("post_id")
     #    context = {}
     #    return render(request, self.template_name, context)
+
+class UserModForm(forms.Form):
+
+    CHOICES = [
+        (User.NEW_USER, "Reinstate as new user"),
+        (User.TRUSTED, "Reinstate as trusted user"),
+        (User.SUSPENDED, "Suspend user"),
+        (User.BANNED, "Ban user"),
+    ]
+
+    action = forms.ChoiceField(choices=CHOICES, widget=forms.RadioSelect(), label="Select Action")
+
+    def __init__(self, *args, **kwargs):
+        pk = kwargs['pk']
+        kwargs.pop('pk')
+        super(UserModForm, self).__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.error_text_inline = False
+        self.helper.help_text_inline = True
+        self.helper.form_action = reverse("user-moderation", kwargs=dict(pk=pk))
+
+        self.helper.layout = Layout(
+            Fieldset(
+                'Select action',
+                'action',
+            ),
+            ButtonHolder(
+                Submit('submit', 'Submit')
+            )
+        )
+
+class UserModeration(LoginRequiredMixin, FormView):
+    model = Post
+    template_name = "user_moderation_form.html"
+    context_object_name = "user"
+    form_class = UserModForm
+
+    def get_obj(self):
+        pk = self.kwargs['pk']
+        obj = User.objects.get(pk=pk)
+        return obj
+
+    def get(self, request, *args, **kwargs):
+        user = request.user
+        target = self.get_obj()
+        target = user_permissions(request, target)
+
+        if not user.is_moderator or not target.is_editable:
+            messages.warning(request, "Current user does not have sufficient moderator privileges")
+            return HttpResponseRedirect(user.get_absolute_url())
+
+        form = self.form_class(pk=target.id)
+        context = dict(form=form, target=target)
+        return render(request, self.template_name, context)
+
+    def post(self, request, *args, **kwargs):
+        user = request.user
+
+        target = self.get_obj()
+        target = user_permissions(request, target)
+
+        # The response after the action
+        response = HttpResponseRedirect(target.get_absolute_url())
+
+        if not user.is_moderator or not target.is_editable:
+            messages.warning(request, "Current user does not have sufficient moderator privileges")
+            return response
+
+        if user == target:
+            messages.warning(request, "Cannot moderate yourself")
+            return response
+
+        form = self.form_class(request.POST, pk=target.id)
+        if not form.is_valid():
+            messages.error(request, "Invalid user modification action")
+            return response
+
+        # Apply the new status
+        User.objects.filter(pk=target.id).update(status=form.cleaned_data['action'])
+
+        messages.success(request, 'Moderation completed')
+        return response
+

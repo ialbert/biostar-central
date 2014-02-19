@@ -8,7 +8,7 @@
 
 {% block content %}
 
-    <div class="row">
+    <div class="row {{ target.get_status_display }}">
 
         <div class="col-md-12 user-details">
 
@@ -21,14 +21,18 @@
             <div class="col-md-3">
 
                 <div class="text-center">
-                      {#  User gravatar.  #}
+                    {#  User gravatar.  #}
                     {% gravatar target 200 %}
-                    {% userlink target %}
+                    <div>{% userlink target %}</div>
                 </div>
 
                 <div class="text-center" style="margin-top:20px">
-                    <a href="{% url "user-edit" target.id %}" class="btn btn-default" role="button" href="#">Edit
-                        Profile</a>
+                    <a href="{% url "user-edit" target.id %}" class="btn btn-default" role="button" href="#">Edit Profile</a>
+
+                    <div style="margin-top:10px;">
+                        <a role="button" class="btn btn-warning btn-xs mod-user" data-value="{{ target.id }}">Moderate User</a>
+                    </div>
+
                 </div>
 
                 {% if target.has_ownership %}
@@ -40,14 +44,15 @@
                     </div>
                 {% endif %}
 
+
             </div>
 
             {#  The short description entered by the user.  #}
             <div class="col-md-4">
                 <dl class="dl-horizontal">
 
-                    <dt>Role:</dt>
-                    <dd>{{ target.get_type_display }}</dd>
+                    <dt>Status:</dt>
+                    <dd>{{ target.get_status_display }}</dd>
 
                     <dt>Last seen:</dt>
                     <dd>{{ target.profile.last_login|naturaltime }}</dd>

@@ -51,7 +51,11 @@ urlpatterns = patterns('',
     url(r'^local/votes/$', views.VoteList.as_view(), name="user-votes"),
 
     # Produces the moderator panel.
-    url(r'^local/moderate/(?P<pk>\d+)/$', moderate.PostModeration.as_view(), name="post-moderation"),
+    url(r'^local/moderate/post/(?P<pk>\d+)/$', moderate.PostModeration.as_view(), name="post-moderation"),
+
+    # Produces the moderator panel.
+    url(r'^local/moderate/user/(?P<pk>\d+)/$', moderate.UserModeration.as_view(), name="user-moderation"),
+
 
     # Vote submission.
     url(r'^x/vote/$', ajax.vote_handler, name="vote-submit"),

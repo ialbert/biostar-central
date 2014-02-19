@@ -5,7 +5,7 @@
     &bull; <a href="{{ post.get_absolute_url }}">link</a>
     {% if post.is_editable %}
         &bull; <a href="{% url 'post-edit' post.id %}">edit</a>
-        &bull; <a class="moderate" data-value="{{ post.id }}">moderate</a>
+        &bull; <a class="mod-post" data-value="{{ post.id }}">moderate</a>
         {% if post.book_count %} &bull; {{ post.book_count }} bookmark{{ post.book_count|pluralize }}{% endif %}
     {% endif %}
 

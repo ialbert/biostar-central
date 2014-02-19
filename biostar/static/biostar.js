@@ -31,31 +31,34 @@ $.ajaxSetup({
     }
 });
 
-// Moderator actions.
-function moderator_click(elem) {
-
+// Triggered on post moderation.
+function moderate_post(elem) {
     var post_id = elem.attr('data-value')
-
     var modpanel = $('#modpanel')
-
-    console.log(modpanel)
-
     if (modpanel.length > 0) {
         $('#modpanel').remove()
-
     } else {
+        var page = $('<div id="modpanel"></div>').load("/local/moderate/post/" + post_id + "/")
+        elem.parent().parent().after(page)
+    }
+}
 
+// Triggered on user moderation.
+function moderate_user(elem) {
+    var user_id = elem.attr('data-value')
+    var modpanel = $('#modpanel')
+    if (modpanel.length > 0) {
+        $('#modpanel').remove()
+    } else {
         // Passing a data forces a POST request.
-        var page = $('<div id="modpanel"></div>').load("/local/moderate/" + post_id + "/")
-
+        var page = $('<div id="modpanel"></div>').load("/local/moderate/user/" + user_id + "/")
         // Insert the result
         elem.parent().parent().after(page)
     }
-
 }
 
 // Comments by authenticated users.
-function user_comment_click(elem) {
+function add_comment(elem) {
 
     // remove comment body if exists.
     $("#comment-row").remove();
@@ -86,7 +89,7 @@ function mod_votecount(elem, k) {
     elem.siblings('.count').text(count)
 }
 
-function anon_comment_click(elem) {
+function add_comment_anon(elem) {
     container = elem.closest("table")
     elem.css("background-color", "red");
     $("#comment-box").remove();
@@ -161,22 +164,30 @@ $(document).ready(function () {
         // Authenticated user actions.
         $('.add-comment').each(function () {
             $(this).click(function () {
-                user_comment_click($(this));
+                add_comment($(this));
             });
         });
 
         // Moderator actions.
-        $('.moderate').each(function () {
+        $('.mod-post').each(function () {
             $(this).click(function () {
-                moderator_click($(this));
+                moderate_post($(this));
             });
         });
+
+        // Moderator actions.
+        $('.mod-user').each(function () {
+            $(this).click(function () {
+                moderate_user($(this));
+            });
+        });
+
     } else {
 
         // Anonymous user actions.
         $('.add-comment').each(function () {
             $(this).click(function () {
-                anon_comment_click($(this));
+                add_comment_anon($(this));
             });
         });
     }
@@ -191,6 +202,5 @@ $(document).ready(function () {
             ajax_vote(elem, post_id, vote_type);
         });
     });
-
 
 });
