@@ -1,5 +1,4 @@
-from fabric.api import run, sudo
-from email.mime.text import MIMEText
+from fabric.api import run
 
-def empty(msg):
-    print msg
+def host_type():
+    run('uname -s')

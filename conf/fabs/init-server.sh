@@ -2,8 +2,13 @@
 #
 # Initializing an Ubuntu based linux distribution
 #
-IP="0.0.0.0"
-HOSTNAME="hostname"
+set -ue
+
+echo "IP=$IP"
+echo "HOSTNAME=$HOSTNAME"
+
+# User needs to check the above for validity.
+read -p "Press [Enter] key to start server prep..."
 
 # Set the hostname
 echo  $HOSTNAME > /etc/hostname
@@ -23,6 +28,9 @@ apt-get upgrade -y --show-upgraded
 # Install postgresql
 apt-get install -y postgresql nginx fail2ban redis-server ufw
 
+# Install postfix
+apt-get install postfix
+
 # Start installing required packages
 apt-get install -y build-essential ncurses-dev byacc zlib1g-dev python-dev git
 apt-get install -y python-setuptools
@@ -40,3 +48,16 @@ ufw enable
 
 # Start services
 service nginx start
+
+# Create the users that will run the server
+groupadd admin
+
+useradd -m -s /bin/bash www
+useradd -m -s /bin/bash -g admin admin
+
+# Prompt the user for password setting
+echo "Set the password for the www user"
+passwd www
+
+echo "Set the password for the admin user"
+passwd admin
