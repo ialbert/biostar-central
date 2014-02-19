@@ -5,27 +5,31 @@
 
     <div class="row">
 
+        <div class="alert alert-info text-center"> Classic search. Type your query and press enter. Go to the main page for dynamic search.</div>
 
         <div class="col-md-10 col-md-offset-2 searchbar">
-            <form class="form-inline" role="form" action="{% url 'search' %}">
+            <form class="form-inline" role="form" action="{% url 'search-page' %}">
                 <div class="form-group col-xs-9">
                     <label class="sr-only" for="searchform">Search</label>
-                    <input type="text" name="q" class="form-control" value="{{ q }}" searchform" placeholder="Search">
+                    <input type="text" name="q" class="form-control" value="{{ q }}" id="searchpage" placeholder="Search">
                 </div>
                 <button type="submit" class="btn btn-default">Search</button>
             </form>
         </div>
 
-        <div class="col-md-9 searchbar">
+        <div class="col-md-12 searchbar">
 
-
+            {%  page_bar %}
 
             {% for result in results %}
 
-                {% post_count_box result.object %}
+                {% post_count_box result.object result.context %}
+
 
             {% empty %}
-                <div>No results found.</div>
+                {%  if q %}
+                    <div class="alert alert-warning text-center">No results found.</div>
+                {%  endif %}
             {% endfor %}
 
 

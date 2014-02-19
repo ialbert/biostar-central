@@ -57,7 +57,7 @@ urlpatterns = patterns('',
     url(r'^local/moderate/user/(?P<pk>\d+)/$', moderate.UserModeration.as_view(), name="user-moderation"),
 
     # Search the body.
-    url(r'^local/search/page/', search.Search.as_view(), name="search"),
+    url(r'^local/search/page/', search.Search.as_view(), name="search-page"),
 
     # Search the titles.
     url(r'^local/search/title/', search.search_title, name="search-title"),

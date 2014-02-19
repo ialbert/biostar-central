@@ -21,7 +21,7 @@
                     {{ post.subs_count }} following
 
                 </div>
-            {%  else %}
+            {% else %}
                 <div></div>
             {% endif %}
         {% else %}
@@ -40,7 +40,8 @@
     </div>
     <div class="title-box clearfix">
         <div class="post-title"><a href="{{ post.get_absolute_url }}">{{ post.get_title }}</a></div>
-        <div>
+        <div class="clearfix">
+
             <span class="tags">
             {% for tag in post.tag_set.all %}
                 <a class="tag" href="{% url 'topic-list' topic=tag.name %}">{{ tag.name }}</a>
@@ -49,6 +50,10 @@
             <span class="userlink text-right">
             {% last_action post %} {% time_ago post %} ago by {% userlink post.author %}
             </span>
+
         </div>
+        {% if context %}
+            <div>Context: <em>{{ context|safe }}</em></div>
+        {% endif %}
     </div>
 </div>

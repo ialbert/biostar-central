@@ -151,7 +151,7 @@ function ajax_vote(elem, post_id, vote_type) {
 
 function title_format(row) {
 
-    link ='<a href="/p/' + row.id +'"/>' + row.text + '</a><div class="in">'+ row.snippet +' by ' + row.author + '</div>';
+    link ='<a href="/p/' + row.id +'"/>' + row.text + '</a><div class="in">'+ row.context +' by <i>' + row.author + '</i></div>';
     return link
 }
 
@@ -165,7 +165,7 @@ $(document).ready(function () {
 
     // Add the search functionality
     searchform.select2({
-        placeholder: "Search: start typing",
+        placeholder: "Live search: start typing...",
         minimumInputLength: 3,
         ajax: {
             url: TITLE_SEARCH_URL,
@@ -184,7 +184,7 @@ $(document).ready(function () {
         },
 
         formatResult: title_format,
-        
+
         dropdownCssClass: "bigdrop",
         escapeMarkup: function (m) {
             return m;

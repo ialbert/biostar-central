@@ -149,9 +149,9 @@ def search_bar(context):
     return context
 
 @register.inclusion_tag('server_tags/post_count_box.html')
-def post_count_box(post):
+def post_count_box(post, context=''):
     "Displays the count box for a post row"
-    return dict(post=post)
+    return dict(post=post, context=context)
 
 @register.inclusion_tag('server_tags/post_actions.html')
 def post_actions(post, user, label="COMMENT"):
