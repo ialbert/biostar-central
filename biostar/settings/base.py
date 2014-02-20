@@ -12,7 +12,6 @@ DEBUG = True
 # Template debug mode.
 TEMPLATE_DEBUG = DEBUG
 
-
 def get_env(name, func=None):
     """Get the environment variable or return exception"""
     try:

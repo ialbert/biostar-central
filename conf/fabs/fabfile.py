@@ -15,14 +15,21 @@ def setenv():
     # This is the prefix invoked when opertating on the deployed site.
     env.workon = "source /usr/local/bin/virtualenvwrapper.sh && workon biostar && cd %(biostar_home)s && source %(biostar_env)s" % env
 
-def init_config():
+def server_config():
 
     with prefix(env.workon):
         # Logging redirected to this output.
-        run("mkdir -p data/logs")
-        put("conf/server/*.conf", "~/sites/biostar-central/data/")
-        #run("cp -i conf/server/nginx.conf data/biostar.nginx.conf")
-        #sudo("ln -fs /home/www/sites/biostar-central/data/biostar.nginx.conf /etc/nginx/sites-enabled/")
+        run("mkdir -p live/logs")
+
+        #put("conf/defaults.env", "~/sites/biostar-central/live/deployed.env")
+        #put("conf/server/*.sh", "~/sites/biostar-central/live/")
+        #put("biostar/settings/live.py", "~/sites/biostar-central/live/deployed.env")
+        #put("biostar/settings/__init__.py", "~/sites/biostar-central/live/")
+
+        #run("cp -i conf/server/*.conf live/")
+        #run("cp -i conf/server/wsgi.py live/")
+        #sudo("ln -fs /home/www/sites/biostar-central/live/biostar.nginx.conf /etc/nginx/sites-enabled/")
+        #sudo("ln -fs /home/www/sites/biostar-central/live/biostar.supervisor.conf /etc/supervisor/conf.d/")
 
 def init_biostar():
     # Create directories.
@@ -45,6 +52,7 @@ def update_biostar():
 
     with prefix(env.workon):
         run("git pull")
-        #run("python manage.py collectstatic --noinput")
+        run("python manage.py collectstatic --noinput")
+        run("./biostar.sh init")
         #sudo("sudo supervisorctl restart biostar")
         #sudo("sudo supervisorctl restart celery")

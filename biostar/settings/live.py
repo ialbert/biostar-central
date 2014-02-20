@@ -1,10 +1,8 @@
 # -*- coding: utf8 -*-
 #
-# Development settings
+# Deployment settings
 #
-from .base import *
-
-ALLOWED_HOSTS = []
+from biostar.settings.base import *
 
 # more email settings
 EMAIL_USE_TLS = True
