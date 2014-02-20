@@ -26,7 +26,7 @@ apt-get update -y
 apt-get upgrade -y --show-upgraded
 
 # Install postgresql
-apt-get install -y postgresql nginx fail2ban redis-server ufw
+apt-get install -y postgresql postgresql-contrib postgresql-server-dev-all nginx fail2ban redis-server ufw
 
 # Install postfix
 apt-get install postfix
