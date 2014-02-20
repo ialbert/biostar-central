@@ -18,3 +18,6 @@ def decode(text, digest, key):
     text = base64.urlsafe_b64decode(text)
     data = json.loads(text)
     return data
+
+def always_true(*args, **kwargs):
+    return True
