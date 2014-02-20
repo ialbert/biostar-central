@@ -21,9 +21,9 @@ def server_config():
         # Logging redirected to this output.
         run("mkdir -p live/logs")
 
-        put("conf/defaults.env", "~/sites/biostar-central/live/deploy.env")
+        #put("conf/defaults.env", "~/sites/biostar-central/live/deploy.env")
         put("conf/server/*.sh", "~/sites/biostar-central/live/")
-        put("biostar/settings/deploy.py", "~/sites/biostar-central/live/")
+        #put("biostar/settings/deploy.py", "~/sites/biostar-central/live/")
 
         #put("biostar/settings/__init__.py", "~/sites/biostar-central/live/")
 
@@ -53,7 +53,8 @@ def update_biostar():
 
     with prefix(env.workon):
         run("git pull")
-        run("python manage.py collectstatic --noinput")
-        run("./biostar.sh init")
+        run("./biostar.sh test")
+
+        #run("python manage.py collectstatic --noinput")
         #sudo("sudo supervisorctl restart biostar")
         #sudo("sudo supervisorctl restart celery")
