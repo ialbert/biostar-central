@@ -2,6 +2,7 @@
 # more details on how to customize your logging configuration.
 LOGGING = {
     'version': 1,
+
     'disable_existing_loggers': False,
 
     'formatters': {
@@ -18,6 +19,7 @@ LOGGING = {
             '()': 'django.utils.log.RequireDebugFalse'
         }
     },
+
     'handlers': {
         'mail_admins': {
             'level': 'ERROR',
@@ -30,6 +32,7 @@ LOGGING = {
             'formatter': 'verbose'
         },
     },
+
     'loggers': {
 
         'django.request': {

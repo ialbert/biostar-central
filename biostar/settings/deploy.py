@@ -4,6 +4,15 @@
 #
 from biostar.settings.base import *
 
+
+TEMPLATE_LOADERS = (
+    (
+        'django.template.loaders.cached.Loader', (
+        'django.template.loaders.filesystem.Loader',
+        'django.template.loaders.app_directories.Loader',
+    )),
+)
+
 # more email settings
 EMAIL_USE_TLS = True
 

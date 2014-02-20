@@ -25,7 +25,9 @@ MAX_REQUESTS=1000
 # The name of the application.
 NAME="biostar_app"
 
-# --log-level=debug \
+LOG_FILE=error.log
+
+echo "Starting with DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE"
 
 exec $GUNICORN ${DJANGO_WSGI_MODULE}:application \
   --name $NAME \
@@ -33,3 +35,4 @@ exec $GUNICORN ${DJANGO_WSGI_MODULE}:application \
   --max-requests $MAX_REQUESTS\
   --bind $BIND
   --pid $PID\
+  #--log-file $LOG_FILE
