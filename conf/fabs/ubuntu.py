@@ -48,14 +48,10 @@ def update_distro():
     user_add(user="admin", group="admin")
 
     # Install requirements.
-    sudo("apt-get install -y postgresql postgresql-contrib postgresql-server-dev-all npm")
-    sudo("apt-get install -y nginx fail2ban redis-server ufw")
+    sudo("apt-get install -y postgresql postgresql-contrib postgresql-server-dev-all software-properties-common")
+    sudo("apt-get install -y nginx fail2ban redis-server ufw python-software-properties g++ make")
     sudo("apt-get install -y build-essential ncurses-dev byacc zlib1g-dev python-dev git supervisor")
     sudo("apt-get install -y python-setuptools")
-
-    # Install the lessc compiler.
-    sudo("npm config set registry http://registry.npmjs.org/")
-    sudo("npm install -g less")
 
     # Install pip.
     sudo("easy_install pip")
@@ -70,4 +66,12 @@ def update_distro():
     sudo("ufw allow ssh")
     sudo("ufw allow http")
     sudo("ufw enable")
+
+
+    # Install the lessc compiler.
+    sudo("sudo add-apt-repository ppa:chris-lea/node.js")
+    sudo("apt-get update")
+    sudo("apt-get install -y nodejs")
+    sudo("npm install -g less")
+
 

@@ -7,7 +7,7 @@ from django.core.exceptions import ImproperlyConfigured
 from .logger import LOGGING
 
 # Turn off debug mode on deployed servers.
-DEBUG = True
+DEBUG = False
 
 # Template debug mode.
 TEMPLATE_DEBUG = DEBUG
@@ -85,7 +85,7 @@ TEMPLATE_STRING_IF_INVALID = "*** MISSING ***"
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = [ get_env("BIOSTAR_HOSTNAME") ]
+ALLOWED_HOSTS = [ "localhost", get_env("BIOSTAR_HOSTNAME") ]
 
 ATOMIC_REQUESTS = True
 CONN_MAX_AGE = 10;

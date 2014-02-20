@@ -21,9 +21,10 @@ def server_config():
         # Logging redirected to this output.
         run("mkdir -p live/logs")
 
-        #put("conf/defaults.env", "~/sites/biostar-central/live/deployed.env")
-        #put("conf/server/*.sh", "~/sites/biostar-central/live/")
-        #put("biostar/settings/live.py", "~/sites/biostar-central/live/deployed.env")
+        put("conf/defaults.env", "~/sites/biostar-central/live/deploy.env")
+        put("conf/server/*.sh", "~/sites/biostar-central/live/")
+        put("biostar/settings/deploy.py", "~/sites/biostar-central/live/")
+
         #put("biostar/settings/__init__.py", "~/sites/biostar-central/live/")
 
         #run("cp -i conf/server/*.conf live/")

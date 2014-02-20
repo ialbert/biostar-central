@@ -1,8 +1,8 @@
 #!/bin/bash
 set -ue
 
-# This will need to set the environment variables.
-source conf/defaults.env
+# This will set the environment variables.
+source /home/www/sites/biostar-central/live/deploy.env
 
 PID="/home/www/sites/biostar-central/live/biostar.gunicorn.pid"
 
