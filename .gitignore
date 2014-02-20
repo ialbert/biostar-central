@@ -3,5 +3,5 @@
 .DS_Store
 .idea/*
 /env/*
-/data/*
+/live/*
 /conf/*.env

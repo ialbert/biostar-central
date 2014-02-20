@@ -37,20 +37,23 @@ __CURR_DIR = abspath(os.path.dirname(__file__))
 
 # Set location relative to the current file directory.
 HOME_DIR = get_env("BIOSTAR_HOME")
-DATABASE_DIR = abspath(HOME_DIR, 'data')
-DATABASE_NAME = abspath(DATABASE_DIR, 'biostar2.db')
+LIVE_DIR = abspath(HOME_DIR, 'live')
+DATABASE_NAME = abspath(LIVE_DIR, 'biostar2.db')
 STATIC_DIR = abspath(HOME_DIR, 'biostar', 'static')
-
-BIOSTAR_STATIC_ROOT = get_env("BIOSTAR_STATIC_ROOT")
 TEMPLATE_DIR = abspath(__CURR_DIR, '..', 'server', 'templates')
+
+# Absolute path to the directory static files should be collected to.
+# Don't put anything in this directory yourself; store your static files
+# in apps' "static/" subdirectories and in STATICFILES_DIRS.
+# Example: "/var/www/example.com/static/"
+STATIC_ROOT = abspath(LIVE_DIR, "export", "static")
 
 # Needs to point to the directory that contains the
 # html files that are stored in the flatpages about, faq, help, policy etc.
 FLATPAGE_IMPORT_DIR = abspath(HOME_DIR, "import", "pages")
 
 # Default search index location.
-DATA_DIR = abspath(__CURR_DIR, '..', '..', 'data')
-WHOOSH_INDEX = abspath(DATA_DIR, "whoosh_index")
+WHOOSH_INDEX = abspath(LIVE_DIR, "whoosh_index")
 
 # These settings create an admin user.
 # The default password is the SECRET_KEY.
@@ -134,12 +137,6 @@ MEDIA_ROOT = ''
 # trailing slash.
 # Examples: "http://example.com/media/", "http://media.example.com/"
 MEDIA_URL = ''
-
-# Absolute path to the directory static files should be collected to.
-# Don't put anything in this directory yourself; store your static files
-# in apps' "static/" subdirectories and in STATICFILES_DIRS.
-# Example: "/var/www/example.com/static/"
-STATIC_ROOT = BIOSTAR_STATIC_ROOT
 
 # URL prefix for static files.
 # Example: "http://example.com/static/", "http://static.example.com/"

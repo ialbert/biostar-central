@@ -20,7 +20,7 @@ def init_config():
     with prefix(env.workon):
         # Logging redirected to this output.
         run("mkdir -p data/logs")
-        put("conf/server/biostar.nginx.conf", "~/sites/biostar-central/data/")
+        put("conf/server/*.conf", "~/sites/biostar-central/data/")
         #run("cp -i conf/server/nginx.conf data/biostar.nginx.conf")
         #sudo("ln -fs /home/www/sites/biostar-central/data/biostar.nginx.conf /etc/nginx/sites-enabled/")
 
