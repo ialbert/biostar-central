@@ -14,3 +14,9 @@ INSTALLED_APPS = list(INSTALLED_APPS)
 # This needs to be added before the user models.
 INSTALLED_APPS.append( "debug_toolbar")
 
+def show_toolbar(request):
+    return True
+
+DEBUG_TOOLBAR_CONFIG = {
+    'SHOW_TOOLBAR_CALLBACK': show_toolbar,
+}
