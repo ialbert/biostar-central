@@ -1,39 +1,46 @@
-from fabric.api import run, cd
 from fabric.context_managers import prefix
-import socket
-
-INSTALL_DIR = "~/sites"
-INSTALL_NAME = "biostar-central"
-BIOSTAR_CLONE_URL = "https://github.com/ialbert/biostar-central.git"
-BRANCH = "biostar2"
-
-BIOSTAR_HOME = "%s/%s" % (INSTALL_DIR, INSTALL_NAME)
-
-ENV_NAME = "biostar"
-LOAD_ENV = "source /usr/local/bin/virtualenvwrapper.sh"
-WORKON = "%s && workon %s" % (LOAD_ENV, ENV_NAME)
+from fabric.api import *
+from getpass import getpass
+from sites import *
 
 
-def init_site():
+def setenv():
+    # The python environment that the system needs.
+    env.biostar_home = "~/sites/biostar-central"
+    env.wrapper = "source /usr/local/bin/virtualenvwrapper.sh"
+    env.biostar_clone = "https://github.com/ialbert/biostar-central.git"
+    env.biostar_branch = "biostar2"
+    env.biostar_env = "conf/defaults.env"
+
+    # This is the prefix invoked when opertating on the deployed site.
+    env.workon = "source /usr/local/bin/virtualenvwrapper.sh && workon biostar && cd %(biostar_home)s && source %(biostar_env)s" % env
+
+def init_config():
+    
+    with prefix(env.workon):
+        run("cp -i conf/server/nginx.conf data/")
+
+def init_biostar():
     # Create directories.
-    run('mkdir -p %s' % INSTALL_DIR)
+    run('mkdir -p %(biostar_home)s' % env)
 
     # Clone from repository.
-    run("git clone %s %s" % (BIOSTAR_CLONE_URL, BIOSTAR_HOME))
+    run("git clone %(biostar_clone)s %(biostar_home)s" % env)
 
-    with cd(BIOSTAR_HOME):
-        run("git checkout %s" % BRANCH)
+    with cd(env.biostar_home):
+        run("git checkout %(biostar_branch)s" % env)
 
-    with prefix(LOAD_ENV):
-        run("mkvirtualenv %s" % ENV_NAME)
+    with prefix(env.wrapper):
+        run("mkvirtualenv biostar")
 
-    with prefix(WORKON):
-        run("pip install -r conf/requirements/base.txt")
-        run("pip install -r conf/requirements/backends.txt")
-        run("pip install -r conf/requirements/celery.txt")
+    with prefix(env.workon):
+        run("pip install -r %(biostar_home)s/conf/requirements/base.txt" % env)
 
-def init_python():
-    with prefix(WORKON):
-        with cd(BIOSTAR_HOME):
-            run("which python")
+def update_biostar():
+    # Clone from repository.
 
+    with prefix(env.workon):
+        run("git pull")
+        run("python manage.py collectstatic --noinput")
+        sudo("sudo supervisorctl restart biostar")
+        #sudo("sudo supervisorctl restart celery")
