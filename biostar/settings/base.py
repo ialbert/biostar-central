@@ -40,12 +40,13 @@ HOME_DIR = get_env("BIOSTAR_HOME")
 DATABASE_DIR = abspath(HOME_DIR, 'data')
 DATABASE_NAME = abspath(DATABASE_DIR, 'biostar2.db')
 STATIC_DIR = abspath(HOME_DIR, 'biostar', 'static')
+
 BIOSTAR_STATIC_ROOT = get_env("BIOSTAR_STATIC_ROOT")
 TEMPLATE_DIR = abspath(__CURR_DIR, '..', 'server', 'templates')
 
 # Needs to point to the directory that contains the
 # html files that are stored in the flatpages about, faq, help, policy etc.
-FLATPAGE_IMPORT_DIR = abspath(HOME_DIR, "data", "init")
+FLATPAGE_IMPORT_DIR = abspath(HOME_DIR, "import", "pages")
 
 # Default search index location.
 DATA_DIR = abspath(__CURR_DIR, '..', '..', 'data')
@@ -82,7 +83,7 @@ TEMPLATE_STRING_IF_INVALID = "*** MISSING ***"
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = ["localhost"]
+ALLOWED_HOSTS = [ get_env("BIOSTAR_HOSTNAME") ]
 
 ATOMIC_REQUESTS = True
 CONN_MAX_AGE = 10;

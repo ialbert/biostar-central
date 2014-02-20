@@ -16,9 +16,13 @@ def setenv():
     env.workon = "source /usr/local/bin/virtualenvwrapper.sh && workon biostar && cd %(biostar_home)s && source %(biostar_env)s" % env
 
 def init_config():
-    
+
     with prefix(env.workon):
-        run("cp -i conf/server/nginx.conf data/")
+        # Logging redirected to this output.
+        run("mkdir -p data/logs")
+        put("conf/server/biostar.nginx.conf", "~/sites/biostar-central/data/")
+        #run("cp -i conf/server/nginx.conf data/biostar.nginx.conf")
+        #sudo("ln -fs /home/www/sites/biostar-central/data/biostar.nginx.conf /etc/nginx/sites-enabled/")
 
 def init_biostar():
     # Create directories.
@@ -41,6 +45,6 @@ def update_biostar():
 
     with prefix(env.workon):
         run("git pull")
-        run("python manage.py collectstatic --noinput")
-        sudo("sudo supervisorctl restart biostar")
+        #run("python manage.py collectstatic --noinput")
+        #sudo("sudo supervisorctl restart biostar")
         #sudo("sudo supervisorctl restart celery")
