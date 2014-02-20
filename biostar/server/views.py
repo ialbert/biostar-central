@@ -235,7 +235,6 @@ class UserDetails(DetailView):
 class EditUser(EditUser):
     template_name = "user_edit.html"
 
-
 class PostDetails(DetailView):
     """
     Shows a thread, top level post and all related content.

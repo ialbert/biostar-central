@@ -1,0 +1,37 @@
+
+External Authentication
+=======================
+
+Other domains can provide authentication for Biostar by setting a cookie
+with a certain value. For this to work Biostar will have to be set to
+run as a subdomain of the hosting site.
+
+The cookie value needs to contain the `email:hash` as value.
+
+Example:
+
+set the `EXTERNAL_AUTH` django settings as:
+
+    # Cookie name, cookie secret key pair
+    EXTERNAL_AUTH = [
+        ("foo.bar.com", "ABC"),
+    ]
+
+If an unauthenticated user sends a cookie named `foo.bar.com` with the value
+
+    foo@bar.com:d46d8c07777e3adf739cfc0c432759b0
+
+then Biostar will automatically log in the user. It will automatically create
+an account for the user if the email does not already exist.
+
+Setting the  `EXTERNAL_LOGIN_URL` and `EXTERNAL_LOGOUT_URL` settings  will also
+perform the redirects to the external site login and logout urls.
+
+    EXTERNAL_LOGIN_URL = "http://some.site.com/login"
+    EXTERNAL_LOGOUT_URL = "http://some.site.com/logout"
+
+Generating the value is simple like so:
+
+    email = "foo@bar.com"
+    digest = hmac.new(key, email).hexdigest()
+    value = "%s:%s" % (email, digest)

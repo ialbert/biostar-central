@@ -30,7 +30,7 @@
                 <a href="{% url 'user-details' user.id %}">
                     <div><i class="fa fa-user"></i>
                         {% userlink user %} &nbsp;|&nbsp;
-                        <a href="{% url 'account_logout' %}"><i class="fa fa-sign-out"></i> Logout </a>
+                        <a href="{% url 'logout' %}"><i class="fa fa-sign-out"></i> Logout </a>
                     </div>
                 </a>
             </div>
@@ -103,14 +103,14 @@
             </div>
 
             <div class="col-sm-2 col-md-offset-1 mid {% current request "account_login" %}">
-                <a href="{% url 'account_login' %}">
+                <a href="{% url 'login' %}">
                     <div><i class="fa fa-user fa-1x"></i></div>
                     <div>Log In</div>
                 </a>
             </div>
 
             <div class="col-sm-2 mid {% current request "account_signup" %}">
-                <a href="{% url 'account_signup' %}">
+                <a href="{% url 'signup' %}">
                     <div><i class="fa fa-star fa-1x"></i></div>
                     <div>Sign Up</div>
                 </a>

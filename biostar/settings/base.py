@@ -346,6 +346,17 @@ CACHES = {
     }
 }
 
+# Setting a cookie with email:signed_hash(email)
+# will automatically create accounts
+EXTERNAL_AUTH = [
+    ("foo.bar.com", "ABC"),
+]
+
+# Set these to redirect login to an external site.
+EXTERNAL_LOGIN_URL = None
+EXTERNAL_SIGNUP_URL = None
+EXTERNAL_LOGOUT_URL = None
+
 # This will form the category navigation bar.
 # Will be treated as tags on posts.
 # These should be the most frequent tags on the site.

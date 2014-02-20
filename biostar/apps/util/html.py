@@ -1,10 +1,7 @@
 import bleach
 
 from django.conf import settings
-
 from django.template import loader, Context, Template, RequestContext
-from biostar.apps.posts.models import Post
-from biostar.apps.users.models import User
 from re import match
 
 # The pattern that matches the user link.
