@@ -8,10 +8,10 @@ from fabric.api import *
 from getpass import getpass
 from sites import *
 
-def usegalaxy(user="www"):
-    "Sets the environment for the biostar galaxy"
-    env.hosts = ['biostar.usegalaxy.org']
-    env.user = user
+def postgres_setuo():
+    # sudo su - postgres
+    # createuser www
+    pass
 
 def add_ssh_key():
     "Appends the current SSH pub key to the remote authorized keys"

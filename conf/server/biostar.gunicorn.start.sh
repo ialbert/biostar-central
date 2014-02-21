@@ -1,9 +1,10 @@
 #!/bin/bash
 set -ue
 
-# This will set the environment variables.
+# This is required so that the default configuration file works.
 source /home/www/sites/biostar-central/live/deploy.env
 
+# Setting the various access logs.
 ACCESS_LOG=/home/www/sites/biostar-central/live/logs/gunicorn-access.log
 ERROR_LOG=/home/www/sites/biostar-central/live/logs/gunicorn-error.log
 
@@ -25,6 +26,8 @@ MAX_REQUESTS=1000
 
 # The name of the application.
 NAME="biostar_app"
+
+export DJANGO_SETTINGS_MODULE=live.deploy
 
 echo "gunicorn starting with DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE"
 
