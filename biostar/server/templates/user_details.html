@@ -1,6 +1,7 @@
 {% extends "starbase.html" %}
 {% load server_tags %}
 {% load humanize %}
+{% load socialaccount %}
 
 {% block page_title %}
     User: {{ target.name }}
@@ -41,6 +42,13 @@
                         your portait is
                         an "identicon": an automatically generated, unique image.
                     </div>
+                    <div style="padding:10px" class="text-center">
+
+                        <a role="button" class="btn btn-default" href="{%  url 'socialaccount_connections' %}">Connect Social Account</a>
+
+                    </div>
+
+
                 {% endif %}
 
 
