@@ -4,8 +4,6 @@ set -ue
 # This will set the environment variables.
 source /home/www/sites/biostar-central/live/deploy.env
 
-PID="/home/www/sites/biostar-central/live/biostar.gunicorn.pid"
-
 # The user and group the unicorn process will run as.
 NUM_WORKERS=3
 
@@ -17,7 +15,7 @@ BIND="unix:/tmp/biostar.sock"
 DJANGO_WSGI_MODULE='biostar.wsgi'
 
 # The gunicorn instance to run.
-GUNICORN="gunicorn"
+GUNICORN="/home/www/.virtualenvs/biostar/bin/gunicorn"
 
 # How many requests to serve.
 MAX_REQUESTS=1000
@@ -25,14 +23,10 @@ MAX_REQUESTS=1000
 # The name of the application.
 NAME="biostar_app"
 
-LOG_FILE=error.log
-
-echo "Starting with DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE"
+echo "gunicorn starting with DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE"
 
 exec $GUNICORN ${DJANGO_WSGI_MODULE}:application \
   --name $NAME \
   --workers $NUM_WORKERS \
   --max-requests $MAX_REQUESTS\
   --bind $BIND
-  --pid $PID\
-  #--log-file $LOG_FILE
