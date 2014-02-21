@@ -12,31 +12,7 @@
     <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet">
     <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
 
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
-    <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
 
-    {% if debug %}
-
-        <link href="{{ STATIC_URL }}lib/select2-3.4.5/select2.css" rel="stylesheet">
-
-        {# Random numbers added to bypass potential browser caching. #}
-        <link rel="stylesheet/less" type="text/less" href="{{ STATIC_URL }}{{ SITE_STYLE_CSS }}?x={% rand_num %}">
-        <script src="{{ STATIC_URL }}lib/less-1.6.1.min.js" type="text/javascript"></script>
-        <script src="{{ STATIC_URL }}lib/select2-3.4.5/select2.min.js" type="text/javascript"></script>
-        <script src="{{ STATIC_URL }}biostar.js?x={% rand_num %}" type="text/javascript"></script>
-
-    {% else %}
-        {# Deployed sites will require the presence of less compiler #}
-        {% compress css %}
-            <link rel="stylesheet" type="text/less" href="{{ STATIC_URL }}{{ SITE_STYLE_CSS }}">
-            <link href="{{ STATIC_URL }}lib/select2-3.4.5/select2.css" rel="stylesheet">
-        {% endcompress %}
-
-        {% compress js %}
-            <script src="{{ STATIC_URL }}lib/select2-3.4.5/select2.min.js" type="text/javascript"></script>
-            <script src="{{ STATIC_URL }}biostar.js" type="text/javascript"></script>
-        {% endcompress %}
-    {% endif %}
     <script type="application/javascript">
         {% if user.is_authenticated %}
             USER_ID = {{ user.id }};
@@ -81,7 +57,7 @@
             <div class="col-md-2 col-md-offset-3">
                 <div class="title">Content</div>
                 <ul class="flat">
-                    <li><a href="{%  url 'search-page' %}">Search</a></li>
+                    <li><a href="{% url 'search-page' %}">Search</a></li>
                     <li><a href="{% url 'user-list' %}">Users</a></li>
                     <li><a href="{% url 'tag-list' %}">Tags</a></li>
                     <li>Badges</li>
@@ -125,9 +101,37 @@
         </div>
     {% endblock %}
 
+
     {# This information is cached and updated periodically via the context. #}
     <div id="traffic">Traffic: {{ TRAFFIC }} ip/hr</div>
 </div>
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+
+{% if debug %}
+
+    <link href="{{ STATIC_URL }}lib/select2-3.4.5/select2.css" rel="stylesheet">
+
+    {# Random numbers added to bypass potential browser caching. #}
+    <link rel="stylesheet/less" type="text/less" href="{{ STATIC_URL }}{{ SITE_STYLE_CSS }}?x={% rand_num %}">
+    <script src="{{ STATIC_URL }}lib/less-1.6.1.min.js" type="text/javascript"></script>
+
+    <script async src="{{ STATIC_URL }}lib/select2-3.4.5/select2.min.js" type="text/javascript"></script>
+    <script async src="{{ STATIC_URL }}biostar.js?x={% rand_num %}" type="text/javascript"></script>
+
+{% else %}
+    {# Deployed sites will require the presence of less compiler #}
+    {% compress css %}
+        <link href="{{ STATIC_URL }}lib/select2-3.4.5/select2.css" rel="stylesheet">
+        <link rel="stylesheet" type="text/less" href="{{ STATIC_URL }}{{ SITE_STYLE_CSS }}">
+    {% endcompress %}
+
+    {% compress js %}
+        <script async src="{{ STATIC_URL }}lib/select2-3.4.5/select2.min.js" type="text/javascript"></script>
+        <script async src="{{ STATIC_URL }}biostar.js" type="text/javascript"></script>
+    {% endcompress %}
+{% endif %}
 
 {# Google tracker injected if it exists in the context. Found in settings.py #}
 {% if GOOGLE_TRACKER %}

@@ -2,7 +2,7 @@ __author__ = 'ialbert'
 from django.contrib import messages
 from django.contrib.auth import logout
 from django.conf import settings
-import hmac, logging
+import hmac, logging, re
 from django.contrib.auth import authenticate, login, logout
 from biostar.apps.users.models import User
 
@@ -47,7 +47,6 @@ class Visit(object):
     """
 
     def process_request(self, request):
-
 
         user = request.user
 
