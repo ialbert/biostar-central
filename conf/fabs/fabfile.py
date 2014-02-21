@@ -11,10 +11,11 @@ def setenv():
     env.wrapper = "source /usr/local/bin/virtualenvwrapper.sh"
     env.biostar_clone = "https://github.com/ialbert/biostar-central.git"
     env.biostar_branch = "biostar2"
-    env.biostar_env = "conf/defaults.env"
 
+    # The is the main environment that will be applied to each command.
     # This is the prefix invoked when opertating on the deployed site.
     env.biostar_live = "%(biostar_home)s/live/" % env
+    env.biostar_env = "%(biostar_live)s/deploy.env" % env
     env.workon = "source /usr/local/bin/virtualenvwrapper.sh && workon biostar && cd %(biostar_home)s && source %(biostar_env)s" % env
 
 def server_restart():
@@ -23,15 +24,19 @@ def server_restart():
 
 def server_config():
 
+    # Customize the deployment environment.
+    if not exists(env.biostar_env):
+        put("%(biostar_home)s/conf/defaults.env" % env, "%(biostar_env)s" % env)
+
     with prefix(env.workon):
 
         # Logging into this directory.
         if not exists("live/logs"):
             run("mkdir -p live/logs")
 
-        # Copy and link the various config files but don't overwrite
-        if not exists("live/deploy.env"):
-            put("conf/defaults.env", "%(biostar_live)s/deploy.env" % env)
+        # This is the script that runs the gunicorn process.
+        if 1 or not exists("live/biostar.gunicorn.start.sh"):
+            put("conf/server/biostar.gunicorn.start.sh", env.biostar_live)
 
         if not exists("live/deploy.py"):
             put("biostar/settings/deploy.py", env.biostar_live)

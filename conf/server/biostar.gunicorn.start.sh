@@ -4,6 +4,9 @@ set -ue
 # This will set the environment variables.
 source /home/www/sites/biostar-central/live/deploy.env
 
+ACCESS_LOG=/home/www/sites/biostar-central/live/logs/gunicorn-access.log
+ERROR_LOG=/home/www/sites/biostar-central/live/logs/gunicorn-error.log
+
 # The user and group the unicorn process will run as.
 NUM_WORKERS=3
 
@@ -29,4 +32,7 @@ exec $GUNICORN ${DJANGO_WSGI_MODULE}:application \
   --name $NAME \
   --workers $NUM_WORKERS \
   --max-requests $MAX_REQUESTS\
-  --bind $BIND
+  --bind $BIND\
+  --access-logfile $ACCESS_LOG\
+  --error-logfile $ERROR_LOG
+
