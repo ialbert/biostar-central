@@ -74,10 +74,12 @@ def index_biostar():
     with prefix(env.workon):
         run("./biostar.sh index")
 
-def update_biostar():
+def pull():
     # Clone from repository.
 
     with prefix(env.workon):
         run("git pull")
         run("./biostar.sh test")
         run("python manage.py collectstatic --noinput")
+        sudo("supervisorctl restart biostar")
+
