@@ -64,7 +64,8 @@ def init_admin():
             "added admin user with email=%s, password=SECRET_KEY, name=%s" % (admin.email, admin.get_full_name()))
 
 def init_domain():
-    # Initialize the current site if it is not present.
+    # Initialize to the current site if it is not present.
+    from django.contrib.sites.models import Site
 
     site = Site.objects.get_current()
     if site.domain != settings.SITE_DOMAIN:
