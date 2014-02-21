@@ -2,6 +2,6 @@
 *~
 .DS_Store
 .idea/*
-/env/*
+/import/*
 /live/*
 /conf/*.env

@@ -47,7 +47,6 @@ admin.site.register(Tag, TagAdmin)
 
 
 class PostManager(models.Manager):
-
     def my_bookmarks(self, user):
         query = self.filter(votes__author=user, votes__type=Vote.BOOKMARK).select_related("author")
         query = query.prefetch_related("tag_set")
@@ -69,7 +68,8 @@ class PostManager(models.Manager):
                 include.append(term)
 
         if include:
-            query = self.filter(type__in=Post.TOP_LEVEL, tag_set__name__in=include).exclude(tag_set__name__in=exclude).defer('content')
+            query = self.filter(type__in=Post.TOP_LEVEL, tag_set__name__in=include).exclude(
+                tag_set__name__in=exclude).defer('content')
         else:
             query = self.filter(type__in=Post.TOP_LEVEL).exclude(tag_set__name__in=exclude).defer('content')
 
@@ -88,7 +88,6 @@ class PostManager(models.Manager):
             query = self.filter(type__in=Post.TOP_LEVEL).defer("content")
         else:
             query = self.filter(type__in=Post.TOP_LEVEL, status=Post.OPEN).defer("content")
-
 
         return query.select_related("author").prefetch_related("tag_set")
 
@@ -230,7 +229,7 @@ class Post(models.Model):
                 # Only comments may be added to a parent that is answer or comment.
                 self.type = Post.COMMENT
 
-            if not self.type:
+            if self.type is None:
                 # Set post type if it was left empty.
                 self.type = self.COMMENT if self.parent else self.FORUM
 
@@ -281,6 +280,9 @@ class Post(models.Model):
                 instance.title = "%s: %s" % (instance.get_type_display()[0], instance.root.title[:80])
 
             assert instance.root and instance.parent
+
+            if not instance.is_toplevel:
+                Post.objects.filter(id=instance.root.id).update(reply_count=F("reply_count") + 1)
 
             instance.save()
 
