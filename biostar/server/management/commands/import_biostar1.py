@@ -10,6 +10,7 @@ from django.utils import timezone, encoding
 from biostar.apps.posts.models import Post, Vote, Subscription
 from biostar.apps.messages.models import Message, MessageBody
 from django.db import transaction
+from itertools import *
 
 
 def path_join(*args):
@@ -58,14 +59,60 @@ def localize_time(text):
     return local
 
 
+def get_post(row, users):
+    uid = get(row, 'id', func=int)
+    root_id = get(row, 'root_id', func=int)
+    parent_id = get(row, 'parent_id', func=int)
+
+    title = get(row, 'title').title()
+    tag_val = get(row, 'tag_val').strip()
+
+    author_id = get(row, 'author_id', func=int)
+    author = users.get(author_id)
+
+    if not author:
+        print("*** author %s not found for post %s" % (author_id, uid))
+        return None
+
+    post_type = get(row, 'post_type')
+    post_type = POST_TYPE_MAP.get(post_type, Post.FORUM)
+    post_status = Post.OPEN if get(row, 'post_status') == "Open" else Post.CLOSED
+
+    post = Post(id=uid, title=title, author=author, lastedit_user=author,
+                parent_id=parent_id, root_id=root_id)
+
+    post.status = post_status
+    post.type = post_type
+    post.tag_val = tag_val
+    post.creation_date = localize_time(get(row, 'creation_date'))
+    post.lastedit_date = localize_time(get(row, 'lastedit_date'))
+    post.view_count = get(row, "views", func=int)
+    post.reply_count = get(row, "answer_count", func=int)
+    post.book_count = get(row, "book_count", func=int)
+    post.thread_score = get(row, "full_score", func=int)
+    post.vote_count = get(row, "score", func=int)
+
+    post_file = path_join(MIGRATE_DIR, 'posts', str(uid))
+    post.content = file(post_file, 'rt').read()
+
+    return post
+
+
 class Command(BaseCommand):
     help = 'migrate data from Biostar 1.*'
 
     option_list = BaseCommand.option_list + (
         make_option("-u", '--users', action="store_true", dest='users', default=False, help='import users'),
         make_option("-p", '--posts', action="store_true", dest='posts', default=False, help='import posts'),
-        make_option("-x", '--votes', action="store_true", dest='votes', default=False, help='import posts'),
+        make_option("-x", '--votes', action="store_true", dest='votes', default=False, help='import votes'),
+        make_option("-t", '--tags', action="store_true", dest='tags', default=False, help='auto tag'),
     )
+
+    def auto_tag(self, fname):
+        from textblob.classifiers import NaiveBayesClassifier
+        # TODO
+        pass
+
 
     def migrate_posts(self, fname):
 
@@ -73,55 +120,21 @@ class Command(BaseCommand):
 
         #Post.objects.all().delete()
 
-        user_map = dict((u.id, u) for u in User.objects.all())
+        users = dict((u.id, u) for u in User.objects.all())
 
         log("migrating posts from %s" % fname)
         stream = csv.DictReader(file(fname), delimiter=b'\t')
 
         for i, row in enumerate(stream):
-            uid = get(row, 'id', func=int)
-            root_id = get(row, 'root_id', func=int)
-            parent_id = get(row, 'parent_id', func=int)
-
-            title = get(row, 'title')
-            tag_val = get(row, 'tag_val').strip()
-
-            author_id = get(row, 'author_id', func=int)
-            author = user_map.get(author_id)
-
-            if not author:
-                log("*** author %s not found for post %s" % (author_id, uid))
+            post = get_post(row, users)
+            if not post:
                 continue
-
-            post_type = get(row, 'post_type')
-            post_type = POST_TYPE_MAP.get(post_type, Post.FORUM)
-            post_status = Post.OPEN if get(row, 'post_status') == "Open" else Post.CLOSED
-
-            post = Post(id=uid, title=title, author=author, lastedit_user=author,
-                        parent_id=parent_id, root_id=root_id)
-            post.status = post_status
-            post.type = post_type
-            post.creation_date = localize_time(get(row, 'creation_date'))
-            post.lastedit_date = localize_time(get(row, 'lastedit_date'))
-            post.view_count = get(row, "views", func=int)
-            post.reply_count = get(row, "answer_count", func=int)
-            post.book_count = get(row, "book_count", func=int)
-            post.thread_score = get(row, "full_score", func=int)
-            post.vote_count = get(row, "score", func=int)
-
-            post_file = path_join(MIGRATE_DIR, 'posts', str(uid))
-            post.content = file(post_file, 'rt').read()
-
             post.save()
 
             # TODO migrate only tags with high counts
-            post.add_tags(tag_val)
+            post.add_tags(post.tag_val)
 
-            self.stdout.write("migrating %s" % post)
-
-
-
-
+            log("migrating %s" % post)
 
         log("migrated %s posts" % Post.objects.all().count())
         log("created %s subscriptions" % Subscription.objects.all().count())
@@ -245,3 +258,7 @@ class Command(BaseCommand):
         if options['votes']:
             fname = path_join(MIGRATE_DIR, "votes.txt")
             self.migrate_votes(fname)
+
+        if options['tags']:
+            fname = path_join(MIGRATE_DIR, "posts.txt")
+            self.auto_tag(fname)
