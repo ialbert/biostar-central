@@ -8,17 +8,21 @@ from fabric.api import *
 from getpass import getpass
 from sites import *
 
+
 def postgres_setuo():
     # sudo su - postgres
     # createuser www
     pass
 
+
 def add_ssh_key():
     "Appends the current SSH pub key to the remote authorized keys"
-    local("scp ~/.ssh/id_rsa.pub %(user)s@%(host)s:~/" % env)
+    put("~/.ssh/id_rsa.pub", "~/")
+    run("mkdir -p .ssh")
     run("cat ~/id_rsa.pub >> ~/.ssh/authorized_keys")
     run("chmod 600 ~/.ssh/authorized_keys")
     run("rm -f ~/id_rsa.pub")
+
 
 def user_add(user, group=''):
     "Create new users on the remote server"
@@ -31,10 +35,20 @@ def user_add(user, group=''):
 
     sudo('echo %s:%s | chpasswd' % (user, password))
 
+
 def test():
     user_add(user="mary")
 
+
 def update_distro():
+    # Set the hostname
+    host = prompt('enter the hostname')
+    ip = prompt('enter the ip number')
+
+    sudo('echo  %s > /etc/hostname' % host)
+    sudo('hostname -F /etc/hostname')
+    sudo('echo "127.0.0.1     localhost.localdomain    localhost" > /etc/hosts')
+    sudo('echo "%s    %s    %s" >> /etc/hosts' % ip, host, host)
 
     # Update the linux distribution.
     sudo("apt-get update")
@@ -42,10 +56,6 @@ def update_distro():
 
     # Create group and users that will run the sertver.
     sudo("groupadd admin")
-
-    # Add two default users
-    user_add(user="www")
-    user_add(user="admin", group="admin")
 
     # Install requirements.
     sudo("apt-get install -y postgresql postgresql-contrib postgresql-server-dev-all software-properties-common")
@@ -65,12 +75,19 @@ def update_distro():
     # Enable firewall.
     sudo("ufw allow ssh")
     sudo("ufw allow http")
-    sudo("ufw enable")
 
+
+def install_nodejs():
+
+    # reconfigure timezone
+    # dpkg-reconfigure tzdata
+
+    # Add two default users
+    user_add(user="www", group="admin")
 
     # Install the lessc compiler.
+    sudo("ufw enable")
     sudo("sudo add-apt-repository ppa:chris-lea/node.js")
-    sudo("apt-get update")
     sudo("apt-get install -y nodejs")
     sudo("npm install -g less")
 
