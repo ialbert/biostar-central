@@ -30,8 +30,8 @@ More information on how to install, deploy and customize in [docs/install.md][in
 Other documentation
 -------------------
 
-* How to provide authentication from a different website. See [External authentication][docs/external.md]
-* How to [migrate data from a Biostar 1.5 site][docs/migrate.md]
+* How to provide authentication from a different website. See [External authentication](docs/external.md)
+* How to [migrate data from a Biostar 1.5 site](docs/migrate.md)
 
 [django]: http://www.djangoproject.com/
 [python]: http://www.python.org/
