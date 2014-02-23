@@ -8,7 +8,18 @@ from haystack.utils import Highlighter
 from django.conf import settings
 from biostar.server.views import BaseListMixin
 from ajax import ajax_error, ajax_success, ajax_error_wrapper, json_response
+from django.conf.urls import patterns
+from django.contrib.sitemaps import FlatPageSitemap, GenericSitemap
+from biostar.apps.posts.models import Post
 
+info_dict = {
+    'queryset': Post.objects.all(),
+}
+
+sitemaps = {
+    'flatpages': FlatPageSitemap,
+    'posts': GenericSitemap(info_dict, priority=0.6),
+}
 
 class SiteSearch(SearchView):
     extra_context = lambda x: dict(topic="search", page_title="Search")
