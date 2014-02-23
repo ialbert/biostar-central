@@ -22,6 +22,49 @@ To enable searching you must the content with:
 
     ./biostar.sh index
 
-The next step is to [deploy Biostar][deploy].
+Deploy
+------
+A typical deployment requires `lessc` to be installed and a number of other python libraries.
 
-[deploy]: docs/deploy.md
+    pip install -r requirements/all.txt
+
+There are different deployment strategies that one might follow. The site is quite performant
+and site will low concurrency can operate well even with the default settings of an
+sqlite database running via python based webserver.
+
+For optimal results we recommend deploying the production servers with the following stack:
+
+* Front end webserver with `nginx`
+* Biostar WSGI running via `gunicorn`
+* `Postgresql` as the database
+* `Redis` as the job queue
+* `Celery` for running the asynchronous jobs
+* `Supervisord` keeping everything running
+
+The `conf/server` folder has configuration files for `nginx`, `gunicorn` and `supervisord`.
+The `conf/fabs` folder has Fabric files to automate a large number of site deployment operations.
+
+Customize
+---------
+
+The `SITE_STYLE_CSS` and `SITE_LOGO` settings permit loading up custom sytles. See the `/static/themes` folder
+for examples.
+
+
+Social Authentication
+---------------------
+
+Adding Facebook authentication:
+
+* [Create Authentication App](http://developers.facebook.com/setup/)
+* More information [Facebook Developer Resources](http://developers.facebook.com/docs/authentication/)
+
+Adding Google authentication:
+
+* [Google Developer Console](https://cloud.google.com/console/project)
+* Create new project and copy data from credentials
+* Callback must be `http://domain/accounts/google/login/callback/`
+
+Twitter:
+
+* Add your application at [Twitter Apps Interface](http://twitter.com/apps/)

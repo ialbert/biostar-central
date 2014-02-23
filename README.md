@@ -11,33 +11,27 @@ framework.
 
 Requirements: `Python 2.7`
 
-Installation
+Quick Start
 ------------
 
-Biostar 2.0 requires Python and a number of python packages that can be automatically installed with `pip`.
-By default there are no other dependency beyond easy to install pure python packages. This means
-that Biostar 2.0 will run on any platform that supports Python.
+From the biostar source directory:
 
-For high traffic sites third party packages are also required. These too can be automatically and easily
-installed on typical Unix based systems.
+    pip install -r requirements/base.txt
+    ./biostar.sh init import run
 
-Please follow the instructions in the [docs/install.md][install] file.
+Visit `http://locahost:8080` to see the site loaded with default settings.
 
-Deploy and customize
---------------------
+The default admin login is `foo@bar.com` with the password `foobar`.
 
-Please follow the instructions in the [docs/deploy.md][deploy] file.
+The default email handler will print to the console.
 
+More information on how to install, deploy and customize in [docs/install.md][install] file.
 
-Migration from Biostar 1.X
---------------------------
+Other documentation
+-------------------
 
-Data migration requires a data export from the old site followed by an import into the new site.
+* How to provide authentication from a different website. See [External authentication][docs/external.md]
+* How to [migrate data from a Biostar 1.5 site][docs/migrate.md]
 
-Please follow the instructions in the [docs/migration.md][migrate] file.
-
-[install]: docs/install.md
-[migrate]: docs/migrate.md
-[deploy]: docs/deploy.md
 [django]: http://www.djangoproject.com/
 [python]: http://www.python.org/
