@@ -17,6 +17,7 @@ from braces.views import LoginRequiredMixin
 from django import shortcuts
 from django.http import HttpResponseRedirect
 
+
 class BaseListMixin(ListView):
     "Base class for each mixin"
     page_title = "Title"
@@ -29,21 +30,22 @@ class BaseListMixin(ListView):
         context = super(BaseListMixin, self).get_context_data(**kwargs)
         context['page_title'] = self.get_title()
 
-        sort =  self.request.GET.get('sort', const.POST_SORT_DEFAULT)
-        limit =  self.request.GET.get('limit', const.POST_LIMIT_DEFAULT)
+        sort = self.request.GET.get('sort', const.POST_SORT_DEFAULT)
+        limit = self.request.GET.get('limit', const.POST_LIMIT_DEFAULT)
 
         if sort not in const.POST_SORT_MAP:
-            messages.warning(self.request, const.POST_SORT_INVALID_MSG )
+            messages.warning(self.request, const.POST_SORT_INVALID_MSG)
             sort = const.POST_SORT_DEFAULT
 
         if limit not in const.POST_LIMIT_MAP:
-            messages.warning(self.request, const.POST_LIMIT_INVALID_MSG )
+            messages.warning(self.request, const.POST_LIMIT_INVALID_MSG)
             limit = const.POST_LIMIT_DEFAULT
 
         context['sort'] = sort
         context['limit'] = limit
-        context['q'] = self.request.GET.get('q','')
+        context['q'] = self.request.GET.get('q', '')
         return context
+
 
 # The naming here needs to match that in the server_tag.py template tags.
 
@@ -80,7 +82,8 @@ def posts_by_topic(request, topic):
 
     if topic == MYTAGS:
         # Get the posts that the user wrote.
-        messages.success(request, 'Posts matching the <b><i class="fa fa-tag"></i> My Tags</b> setting in your user profile')
+        messages.success(request,
+                         'Posts matching the <b><i class="fa fa-tag"></i> My Tags</b> setting in your user profile')
         return Post.objects.tag_search(user.profile.my_tags)
 
     if topic == UNANSWERED:
@@ -235,6 +238,7 @@ class UserDetails(DetailView):
 class EditUser(EditUser):
     template_name = "user_edit.html"
 
+
 class PostDetails(DetailView):
     """
     Shows a thread, top level post and all related content.
@@ -244,7 +248,7 @@ class PostDetails(DetailView):
     template_name = "post_details.html"
 
     def get(self, *args, **kwargs):
-         # This will scroll the page to the right anchor.
+        # This will scroll the page to the right anchor.
         self.object = self.get_object()
         context = self.get_context_data(object=self.object)
 
@@ -315,14 +319,14 @@ class PostDetails(DetailView):
 
 class ChangeSub(LoginRequiredMixin, View):
     pk, type = 0, 0
-    TYPE_MAP = { "local": const.LOCAL_MESSAGE, "email": const.EMAIL_MESSAGE}
+    TYPE_MAP = {"local": const.LOCAL_MESSAGE, "email": const.EMAIL_MESSAGE}
 
     def get(self, *args, **kwargs):
         # TODO needs to be done via POST.
         pk = self.kwargs["pk"]
         new_type = self.kwargs["type"]
 
-        new_type = self.TYPE_MAP.get(new_type,None)
+        new_type = self.TYPE_MAP.get(new_type, None)
 
         user = self.request.user
         post = Post.objects.get(pk=pk)
@@ -337,6 +341,7 @@ class ChangeSub(LoginRequiredMixin, View):
                 Subscription.objects.create(post=post, user=user, type=new_type)
 
         return shortcuts.redirect(post.get_absolute_url())
+
 
 class RSS(TemplateView):
     template_name = "rss_info.html"

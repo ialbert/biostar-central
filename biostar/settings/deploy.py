@@ -7,6 +7,11 @@ from biostar.settings.base import *
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
+# These should be the most frequent (or special) tags on the site.
+CATEGORIES = [
+    "Forum", "Assembly", "RNA-Seq", "ChIP-Seq", "SNP-Calling", "Galaxy", "Jobs", "Planet",
+]
+
 # Every settings needs to be filled for a deployed site.
 ADMIN_NAME = "Site Admin"
 ADMIN_EMAIL = "admin@email"
@@ -30,11 +35,6 @@ SITE_STYLE_CSS = "biostar.style.less"
 
 # The site logo.
 SITE_LOGO = "biostar.logo.png"
-
-# These are the topics listed on the top bar.
-DEFAULT_TOPICS = [
-    "Forum", "Assembly", "RNA-Seq", "ChIP-Seq", "SNP-Calling", "Galaxy", "Jobs", "Planet",
-]
 
 DATABASE_NAME = "biostar-database"
 

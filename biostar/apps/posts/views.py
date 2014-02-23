@@ -14,11 +14,14 @@ from braces.views import LoginRequiredMixin
 from datetime import datetime
 from django.utils.timezone import utc
 from django.core.exceptions import ObjectDoesNotExist
+from django.conf import settings
 
 class LongForm(forms.Form):
-    FIELDS = "title content".split()
-
+    FIELDS  = "title content".split()
+    CHOICES = [ (x,x) for x in settings.CATEGORIES ]
     title = forms.CharField()
+    category = forms.ChoiceField(choices=CHOICES, help_text="Select a post category")
+    tag_val = forms.CharField(required=False)
     content = forms.CharField(widget=forms.Textarea)
 
     def __init__(self, *args, **kwargs):
@@ -28,6 +31,8 @@ class LongForm(forms.Form):
             Fieldset(
                 'Post',
                 'title',
+                'category',
+                'tag_val',
                 'content',
             ),
             ButtonHolder(

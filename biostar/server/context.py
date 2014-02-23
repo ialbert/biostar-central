@@ -41,7 +41,7 @@ def shortcuts(request):
         "GOOGLE_TRACKER": settings.GOOGLE_TRACKER,
         "SITE_STYLE_CSS": settings.SITE_STYLE_CSS,
         "SITE_LOGO": settings.SITE_LOGO,
-        "TOPICS": settings.DEFAULT_TOPICS,
+        "CATEGORIES": settings.CATEGORIES,
         "BIOSTAR_VERSION": VERSION,
         "TRAFFIC": get_traffic(),
         'RECENT_REPLIES': get_recent_replies(),

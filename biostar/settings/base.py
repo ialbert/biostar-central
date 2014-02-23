@@ -12,6 +12,12 @@ DEBUG = True
 # Template debug mode.
 TEMPLATE_DEBUG = DEBUG
 
+# These should be the most frequent (or special) tags on the site.
+CATEGORIES = [
+    "Assembly", "RNA-Seq", "ChIP-Seq", "SNP-Calling", "Galaxy", "Job", "Planet",
+    "Forum",
+]
+
 def get_env(name, func=None):
     """Get the environment variable or return exception"""
     try:
@@ -354,12 +360,6 @@ EXTERNAL_LOGIN_URL = None
 EXTERNAL_SIGNUP_URL = None
 EXTERNAL_LOGOUT_URL = None
 
-# This will form the category navigation bar.
-# Will be treated as tags on posts.
-# These should be the most frequent tags on the site.
-DEFAULT_TOPICS = [
-    "Forum", "Assembly", "RNA-Seq", "ChIP-Seq", "SNP-Calling", "Galaxy", "Jobs", "Planet",
-]
 
 # The number of posts to show per page.
 PAGINATE_BY = 25
