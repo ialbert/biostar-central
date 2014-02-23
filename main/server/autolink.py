@@ -27,7 +27,7 @@ BIOINFO_PATT = {
     'sam' : 'http://samtools.sourceforge.net/SAM1.pdf',
     'bam' : 'http://samtools.sourceforge.net/SAM1.pdf',
     'samtools' : 'http://samtools.sourceforge.net/',
-    'bedtools' : 'https://code.google.com/p/bedtools/',
+    'bedtools' : 'https://github.com/arq5x/bedtools2',
 }
 def bioinfo_link(m):
     word = m.group('word')
