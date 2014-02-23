@@ -37,9 +37,9 @@ A typical deployment requires `lessc` to be installed and a number of other pyth
 Start with the `conf/defaults.env` and `biostar/settings/deploy.py` files and customize them.
 
 Investigate the `server_config` task in `conf/fabs/fabfile.py` to see how we automatized the process.
-  
-There are different deployment strategies that one might follow. The site is quite performant
-and site will low concurrency can operate well even with the default settings of an
+
+There are different deployment strategies that one might follow. The sites is quite performant
+and underlow concurrency the site can operate well even with the default settings of an
 sqlite database running via python based webserver.
 
 For optimal results we recommend deploying the production servers with the following stack:
