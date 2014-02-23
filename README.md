@@ -16,7 +16,13 @@ Quick Start
 
 From the biostar source directory:
 
+    # Install the requirements.
     pip install -r requirements/base.txt
+
+    # Load the environment variables.
+    source conf/defaults.env
+
+    # Initialize, import test data and run the site.
     ./biostar.sh init import run
 
 Visit `http://locahost:8080` to see the site loaded with default settings.

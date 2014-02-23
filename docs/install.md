@@ -7,16 +7,22 @@ The recommended installation is via `virtualenv` and `pip`:
 
     pip install -r requirements/base.txt
 
-The site manager is `biostar.sh`. This command can take one or more commands like so:
+The site manager is `biostar.sh`. This script can take one or more commands like so:
 
     ./biostar.sh delete init import run
 
 Visit `http://locahost:8080` to see the site loaded with default settings.
-The default admin is `foo@bar.com` password `foobar`.
-The default email handler will print to the console. You can reset the password
+The default admin is `foo@bar.com` password `foobar`. The default email
+handler will print to the console. You can reset the password
 for any user then copy paste the password reset url into the browser.
 
-The Social Logins will need to be enabled via the proper authentication parameters (see `defaults.env`)
+Run the manager on its own to see all the commands at your disposal:
+
+    ./biostar.sh
+
+
+
+
 
 To enable searching you must the content with:
 
@@ -28,6 +34,10 @@ A typical deployment requires `lessc` to be installed and a number of other pyth
 
     pip install -r requirements/all.txt
 
+Start with the `conf/defaults.env` and `biostar/settings/deploy.py` files and customize them.
+
+Investigate the `server_config` task in `conf/fabs/fabfile.py` to see how we automatized the process.
+  
 There are different deployment strategies that one might follow. The site is quite performant
 and site will low concurrency can operate well even with the default settings of an
 sqlite database running via python based webserver.
@@ -47,12 +57,19 @@ The `conf/fabs` folder has Fabric files to automate a large number of site deplo
 Customize
 ---------
 
+See the `conf/defaults.env` for all the parameters that need to be customized.
+
 The `SITE_STYLE_CSS` and `SITE_LOGO` settings permit loading up custom sytles. See the `/static/themes` folder
 for examples.
 
 
 Social Authentication
 ---------------------
+
+The social logins settings will need to be initialized with the proper authentication parameters. Typically
+this involves creating an application at the provider and obtaining the credentials.
+
+See the `conf/defaults.env` for the proper variable naming.
 
 Adding Facebook authentication:
 
