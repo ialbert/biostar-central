@@ -1,0 +1,29 @@
+/*
+All variables declared before the import must be
+present because the importing file will use these.
+*/
+@COLOR1:#5B8C3E;
+@COLOR2: #8F2C48;
+
+
+@MENU_ACTIVE: #dff0d8;
+@MENU_ACTIVE_BORDER: #d6e9c6;
+
+
+// Success button and navbar color.
+@NAVBAR_ACTIVE: @COLOR1;
+
+
+// Tag related colors.
+@TAG_COLOR: #6B3E4A;
+@TAG_BACKGROUND_COLOR: #ECECEC;
+@TAG_BORDER_COLOR: #BBB;
+
+/* Import the default styles */
+@import "../../biostar.base.less";
+
+/* Overriding styles for the current setup */
+#site-logo {
+  background-color: transparent;
+  float: left;
+}
