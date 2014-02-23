@@ -21,12 +21,12 @@
     <div class="col-sm-12" id="navbar">
 
 
-        <div class="col-md-4 logo">
+        <div class="col-md-3" id="logo">
             <a href="/"><img src="{{ STATIC_URL }}{{ SITE_LOGO }}"></a>
         </div>
 
         {% if user.is_authenticated %}
-            <div class="col-md-8 top {% active "userprofile" topic %}">
+            <div class="col-md-9 top {% active "userprofile" topic %}">
                 <a href="{% url 'user-details' user.id %}">
                     <div><i class="fa fa-user"></i>
                         {% userlink user %} &nbsp;|&nbsp;
@@ -89,7 +89,7 @@
                 </a>
             </div>
 
-            <div class="col-sm-1 mid newpost">
+            <div class="col-sm-1 mid newpost pull-right">
                 <a href="{% url 'new-post' %}" class="navitem">
                     <div><i class="fa fa-plus-circle"></i></div>
                     <div>New Post</div>
