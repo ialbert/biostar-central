@@ -25,7 +25,7 @@ The default admin login is `foo@bar.com` with the password `foobar`.
 
 The default email handler will print to the console.
 
-More information on how to install, deploy and customize in [docs/install.md][install] file.
+More information on how to install, deploy and customize in [docs/install.md](docs/install.md) file.
 
 Other documentation
 -------------------
