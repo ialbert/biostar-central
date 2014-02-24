@@ -211,6 +211,12 @@ class UserList(ListView):
     context_object_name = "users"
     paginate_by = 60
 
+
+    def get_object(self):
+        obj = User.objects.all().order_by('-profile__date_joined')
+        return obj
+
+
     def get_context_data(self, **kwargs):
         context = super(UserList, self).get_context_data(**kwargs)
         context['topic'] = "Users"
