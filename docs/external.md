@@ -35,3 +35,10 @@ Generating the value is simple like so:
     email = "foo@bar.com"
     digest = hmac.new(key, email).hexdigest()
     value = "%s:%s" % (email, digest)
+
+Prefill new post
+----------------
+
+Set the `title`, `tag_val`, `content` and `category` fields of a get request to pre-populate a question.
+
+    http://localhost:8080/p/new/post/?title=Need+help+with+bwa&tag_val=bwa+samtools&content=What+does+it+do?&category=SNP-Calling

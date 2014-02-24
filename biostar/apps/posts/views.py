@@ -15,14 +15,22 @@ from datetime import datetime
 from django.utils.timezone import utc
 from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
+from biostar.const import OrderedDict
+
 
 class LongForm(forms.Form):
-    FIELDS  = "title content".split()
-    CHOICES = [ (x,x) for x in settings.CATEGORIES ]
+    FIELDS = "title content".split()
+    CHOICES = [(x, x) for x in settings.NAVBAR_SPECIAL_TAGS]
+    POST_CHOICES = [(Post.QUESTION, "Question"), (Post.FORUM, "Forum"), (Post.JOB, "Job"), (Post.BLOG, "Blog")]
     title = forms.CharField()
-    category = forms.ChoiceField(choices=CHOICES, help_text="Select a post category")
-    tag_val = forms.CharField(required=False)
-    content = forms.CharField(widget=forms.Textarea)
+
+    post_type = forms.ChoiceField(choices=POST_CHOICES, help_text="Select a post type: Question, Forum, Job, Blog")
+
+    category = forms.ChoiceField(choices=CHOICES, help_text="Select a main post category")
+
+    tag_val = forms.CharField(required=False, help_text="Choose more tags to match the topic")
+
+    content = forms.CharField(widget=forms.Textarea, label="Enter your content:")
 
     def __init__(self, *args, **kwargs):
         super(LongForm, self).__init__(*args, **kwargs)
@@ -31,6 +39,7 @@ class LongForm(forms.Form):
             Fieldset(
                 'Post',
                 'title',
+                'post_type',
                 'category',
                 'tag_val',
                 'content',
@@ -42,7 +51,7 @@ class LongForm(forms.Form):
 
 
 class ShortForm(forms.Form):
-    FIELDS = [ "content" ]
+    FIELDS = ["content"]
 
     content = forms.CharField(widget=forms.Textarea)
 
@@ -59,12 +68,23 @@ class ShortForm(forms.Form):
             )
         )
 
+
+POST_TYPE_MAP = {
+    "Job": Post.JOB, "Forum": Post.FORUM, "Blog": Post.BLOG,
+}
+
+
 class NewPost(LoginRequiredMixin, FormView):
     form_class = LongForm
     template_name = "post_edit.html"
 
-    def post(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
+        initial = self.request.GET
+        form = self.form_class(initial=initial)
+        return render(request, self.template_name, {'form': form})
 
+
+    def post(self, request, *args, **kwargs):
         # Validating the form.
         form = self.form_class(request.POST)
         if not form.is_valid():
@@ -72,13 +92,28 @@ class NewPost(LoginRequiredMixin, FormView):
 
         # Valid forms start here.
         data = form.cleaned_data.get
+        title = data('title')
+        content = data('content')
+
+        category = data('category')
+
+        tag_val = data('tag_val')
+
+        # Set the post type
+        post_type = POST_TYPE_MAP.get(category, Post.QUESTION)
 
         post = Post(
-            title=data('title'), content=data('content'), author=request.user, type=Post.QUESTION,
+            title=title, content=content, tag_val=tag_val, author=request.user, type=post_type,
         )
+
         post.save()
+
+        # Triggers a post save.
+        post.add_tags(tag_val)
+
         messages.success(request, "%s created" % post.get_type_display())
         return HttpResponseRedirect(post.get_absolute_url())
+
 
 class NewAnswer(LoginRequiredMixin, FormView):
     """
@@ -94,8 +129,8 @@ class NewAnswer(LoginRequiredMixin, FormView):
 
         # The parent id.
         pid = int(self.kwargs['pid'])
-        form_class = ShortForm if pid else LongForm
-        form = form_class(initial=initial)
+        #form_class = ShortForm if pid else LongForm
+        form = self.form_class(initial=initial)
         return render(request, self.template_name, {'form': form})
 
     def post(self, request, *args, **kwargs):

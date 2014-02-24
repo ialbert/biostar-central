@@ -12,11 +12,23 @@ DEBUG = True
 # Template debug mode.
 TEMPLATE_DEBUG = DEBUG
 
-# These should be the most frequent (or special) tags on the site.
-CATEGORIES = [
-    "Assembly", "RNA-Seq", "ChIP-Seq", "SNP-Calling", "Galaxy", "Job", "Planet",
-    "Forum",
+
+# The top navigation has three parts: start, special tags, end
+NAVBAR_START_CATEGORIES = [
+    "Latest", "Unanswered",
 ]
+
+# These should be the most frequent (or special) tags on the site.
+NAVBAR_SPECIAL_TAGS = [
+    "Assembly", "RNA-Seq", "ChIP-Seq", "SNP-Calling", "Galaxy",
+]
+
+NAVBAR_END_CATEGORIES = [
+    "Job", "Planet", "Forum",
+]
+
+# This will form the navbar
+CATEGORIES = NAVBAR_START_CATEGORIES + NAVBAR_SPECIAL_TAGS + NAVBAR_END_CATEGORIES
 
 def get_env(name, func=None):
     """Get the environment variable or return exception"""
@@ -37,15 +49,12 @@ def abspath(*args):
 # Displays debug comments when the server is run from this IP.
 INTERNAL_IPS = ('127.0.0.1', )
 
-# The directory that this file is located in.
-__CURR_DIR = abspath(os.path.dirname(__file__))
-
 # Set location relative to the current file directory.
 HOME_DIR = get_env("BIOSTAR_HOME")
 LIVE_DIR = abspath(HOME_DIR, 'live')
 DATABASE_NAME = abspath(LIVE_DIR, 'biostar2.db')
 STATIC_DIR = abspath(HOME_DIR, 'biostar', 'static')
-TEMPLATE_DIR = abspath(__CURR_DIR, '..', 'server', 'templates')
+TEMPLATE_DIR = abspath(HOME_DIR, 'biostar', 'server', 'templates')
 
 # Absolute path to the directory static files should be collected to.
 # Don't put anything in this directory yourself; store your static files
