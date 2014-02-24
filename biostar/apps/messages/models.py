@@ -32,10 +32,11 @@ class MessageBody(models.Model):
     """
     A private message from user to user
     """
+    MAX_SIZE = 120
 
     text = models.TextField(_("Text"))
     author = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='sent_messages', verbose_name=_("Sender"))
-    subject = models.CharField(_("Subject"), max_length=120)
+    subject = models.CharField(_("Subject"), max_length=MAX_SIZE)
     parent_msg = models.ForeignKey('self', related_name='next_messages', null=True, blank=True, verbose_name=_("Parent message"))
     sent_at = models.DateTimeField(_("sent at"), null=False)
 
@@ -45,6 +46,7 @@ class MessageBody(models.Model):
         return self.subject
 
     def save(self, **kwargs):
+        self.subject = self.subject[:self.MAX_SIZE]
         self.sent_at = self.sent_at or now()
         super(MessageBody, self).save(**kwargs)
 

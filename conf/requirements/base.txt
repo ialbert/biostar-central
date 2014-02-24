@@ -12,6 +12,7 @@ whoosh
 South
 ordereddict
 pyparsing
+markdown
 
 #django-treebeard
 #django-secure
