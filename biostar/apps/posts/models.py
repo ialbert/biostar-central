@@ -1,5 +1,5 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
-import logging, datetime, reversion
+import logging, datetime
 from django.db import models
 from django.conf import settings
 from django.contrib import admin
@@ -286,12 +286,8 @@ class Post(models.Model):
 
             instance.save()
 
+class PostAdmin(admin.ModelAdmin):
 
-# Posts will have revisions.
-#reversion.register(Post)
-
-# Revision admin setup.
-class PostAdmin(reversion.VersionAdmin):
     list_display = ('title', 'type', 'author')
     fieldsets = (
         (None, {'fields': ('title',)}),
