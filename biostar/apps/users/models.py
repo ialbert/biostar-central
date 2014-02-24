@@ -169,7 +169,7 @@ class Profile(models.Model):
         if not self.id:
             # This runs only once upon object creation.
             self.uuid = util.make_uuid()
-            self.date_joined = datetime.datetime.utcnow().replace(tzinfo=utc)
+            self.date_joined = self.date_joined or datetime.datetime.utcnow().replace(tzinfo=utc)
             self.last_login = self.date_joined
 
         super(Profile, self).save(*args, **kwargs)
