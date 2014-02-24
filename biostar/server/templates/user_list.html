@@ -1,27 +1,30 @@
-{%  extends "starbase.html" %}
+{% extends "starbase.html" %}
 {% load server_tags %}
 
-{%  block page_title %}
+{% block page_title %}
     User List
-{%  endblock %}
+{% endblock %}
 
-{%  block content %}
+{% block content %}
 
- {% page_bar  %}
+    {% page_bar %}
 
     <div class="row">
         <div class="col-md-12">
-            <ul>
-                {% for user in users %}
-                    <li>{{ user.id }} {{ user.name }}
-                        &bull;
-                        {%  userlink user %}
-                    </li>
-                {% endfor %}
-            </ul>
+
+            {% for user in users %}
+                <div class="col-md-2">
+                    <div class="userbox text-center">
+                        <div>{% gravatar user 85 %}</div>
+
+                        <div>{% userlink user %}</div>
+                    </div>
+                </div>
+            {% endfor %}
+
         </div>
     </div>
 
     {% page_bar %}
 
-{%  endblock %}
+{% endblock %}

@@ -190,7 +190,7 @@ def parse_mbox(filename):
 
     tree, posts = {}, {}
 
-    rows = islice(rows, 10)
+    #rows = islice(rows, 10)
 
     for b in rows:
         if b.email not in users:

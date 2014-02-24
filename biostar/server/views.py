@@ -209,7 +209,7 @@ class UserList(ListView):
     model = User
     template_name = "user_list.html"
     context_object_name = "users"
-    paginate_by = 50
+    paginate_by = 60
 
     def get_context_data(self, **kwargs):
         context = super(UserList, self).get_context_data(**kwargs)
