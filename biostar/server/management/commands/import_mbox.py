@@ -190,13 +190,13 @@ def parse_mbox(filename):
 
     tree, posts = {}, {}
 
-    rows = islice(rows, 10000)
+    rows = islice(rows, 10)
 
     for b in rows:
         if b.email not in users:
             print ("--- creating user %s, %s" % (b.name, b.email))
 
-            u = User.objects.create(email=b.email)
+            u = User.objects.create(email=b.email, name=b.name)
             u.save()
             u.profile.date_joined = b.datetime
             u.profile.save()
