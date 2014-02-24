@@ -52,7 +52,8 @@ INTERNAL_IPS = ('127.0.0.1', )
 # Set location relative to the current file directory.
 HOME_DIR = get_env("BIOSTAR_HOME")
 LIVE_DIR = abspath(HOME_DIR, 'live')
-DATABASE_NAME = abspath(LIVE_DIR, 'biostar2.db')
+
+DATABASE_NAME = abspath(LIVE_DIR, get_env("DATABASE_NAME"))
 STATIC_DIR = abspath(HOME_DIR, 'biostar', 'static')
 TEMPLATE_DIR = abspath(HOME_DIR, 'biostar', 'server', 'templates')
 
@@ -229,10 +230,10 @@ INSTALLED_APPS = [
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
+    'allauth.socialaccount.providers.persona',
     'allauth.socialaccount.providers.google',
     'allauth.socialaccount.providers.twitter',
     'allauth.socialaccount.providers.facebook',
-    'allauth.socialaccount.providers.persona',
     #'allauth.socialaccount.providers.github',
     #'allauth.socialaccount.providers.linkedin',
     # 'allauth.socialaccount.providers.weibo',

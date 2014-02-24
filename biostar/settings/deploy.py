@@ -36,7 +36,8 @@ SITE_STYLE_CSS = "biostar.style.less"
 # The site logo.
 SITE_LOGO = "biostar.logo.png"
 
-DATABASE_NAME = "biostar-database"
+# Load the database name from the environment.
+DATABASE_NAME = get_env("DATABASE_NAME")
 
 DATABASES = {
     'default': {

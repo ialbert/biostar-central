@@ -38,15 +38,22 @@ fi
 
 while (( "$#" )); do
 
+	if [ "$1" = "delete" ]; then
+        echo "*** deleting the sqlite database"
+        $PYTHON $DJANGO_ADMIN delete_database --settings=$DJANGO_SETTINGS_MODULE
+    fi
+
+    if [ "$1" = "postgres_reset" ]; then
+        echo "*** Dropping the $DATABASE_NAME database!"
+        dropdb -i $DATABASE_NAME
+        createdb $DATABASE_NAME
+    fi
+
     if [ "$1" = "run" ]; then
         echo "*** run the development server with $DJANGO_SETTINGS_MODULE"
         $PYTHON $DJANGO_ADMIN runserver $BIOSTAR_HOSTNAME --settings=$DJANGO_SETTINGS_MODULE
     fi
 
-    if [ "$1" = "delete" ]; then
-        echo "*** deleting the sqlite database"
-        $PYTHON $DJANGO_ADMIN delete_database --settings=$DJANGO_SETTINGS_MODULE
-    fi
 
     if [ "$1" = "init" ]; then
         echo "*** initializing server on $BIOSTAR_HOSTNAME with $DJANGO_SETTINGS_MODULE"
@@ -95,6 +102,8 @@ while (( "$#" )); do
         echo "*** BIOSTAR_MIGRATE_DIR=$BIOSTAR_MIGRATE_DIR"
         $PYTHON $DJANGO_ADMIN import_biostar1 -u -p -x
     fi
+
+
 
 shift
 done
