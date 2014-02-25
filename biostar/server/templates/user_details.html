@@ -44,7 +44,7 @@
                     </div>
                     <div style="padding:10px" class="text-center">
 
-                        <a role="button" class="btn btn-info btn-xs" href="{%  url 'socialaccount_connections' %}">Add Social Login</a>
+                        <a role="button" class="btn btn-info btn-xs" href="{% url 'socialaccount_connections' %}">Add Social Login</a>
 
                     </div>
 
@@ -99,13 +99,26 @@
                 {{ target.profile.info|safe }}
             </div>
 
-
+            {#  Post list goes here #}
             <div class="col-md-12">
+                <h4 class="text-center">Posts created by {{ target.name }}</h4>
+                {% page_bar %}
+            </div>
+            <div class="col-md-12">
+                <div id="post-list">
+                    {% for post in posts %}
+                        {% post_count_box post %}
+                    {% empty %}
 
+                        <div class="alert alert-info">There are no results for this page.</div>
 
+                    {% endfor %}
+                </div>
             </div>
 
         </div>
+
+    </div>
     </div>
 
 {% endblock %}

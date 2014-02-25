@@ -20,6 +20,22 @@ ALLOWED_ATTRIBUTES = bleach.ALLOWED_ATTRIBUTES
 logger = logging.getLogger(__name__)
 
 
+class LocalManager(UserManager):
+
+    def get_users(self, sort, limit, q):
+        sort = const.USER_SORT_MAP.get(sort, None)
+        days = const.POST_LIMIT_MAP.get(limit, 0)
+
+        if q:
+            query = self.filter(name__icontains=q)
+        else:
+            query = self
+        if days:
+            delta = const.now() - datetime.timedelta(days=days)
+            query = self.filter(lastedit_date__gt=delta)
+        query = query.order_by(sort)
+        return query
+
 class User(AbstractBaseUser):
     # Class level constants.
     USER, MODERATOR, ADMIN, BLOG = range(4)
@@ -31,7 +47,7 @@ class User(AbstractBaseUser):
     # Required by Django.
     USERNAME_FIELD = 'email'
 
-    objects = UserManager()
+    objects = LocalManager()
 
     # Default information on every user.
     email = models.EmailField(verbose_name='Email', db_index=True, max_length=255, unique=True)

@@ -16,7 +16,7 @@ from biostar import const
 from braces.views import LoginRequiredMixin
 from django import shortcuts
 from django.http import HttpResponseRedirect
-
+from django.core.paginator import Paginator
 
 class BaseListMixin(ListView):
     "Base class for each mixin"
@@ -211,19 +211,39 @@ class UserList(ListView):
     context_object_name = "users"
     paginate_by = 60
 
-
     def get_queryset(self):
-        obj = User.objects.all().order_by('profile__date_joined')
 
+        self.q = self.request.GET.get('q', '')
+        self.sort = self.request.GET.get('sort', const.USER_SORT_DEFAULT)
+        self.limit = self.request.GET.get('limit', const.POST_LIMIT_DEFAULT)
+
+        # Apply the sort on users
+        obj = User.objects.get_users(sort=self.sort, limit=self.limit, q=self.q)
         return obj
 
     def get_context_data(self, **kwargs):
         context = super(UserList, self).get_context_data(**kwargs)
         context['topic'] = "Users"
+
+        context['sort'] = self.sort
+        context['limit'] = self.limit
+        context['q'] = self.q
+
         return context
 
+class BaseDetailMixin(DetailView):
 
-class UserDetails(DetailView):
+    def get_context_data(self, **kwargs):
+        context = super(BaseDetailMixin, self).get_context_data(**kwargs)
+        sort = self.request.GET.get('sort', const.POST_SORT_DEFAULT)
+        limit = self.request.GET.get('limit', const.POST_LIMIT_DEFAULT)
+
+        context['sort'] = sort
+        context['limit'] = limit
+        context['q'] = self.request.GET.get('q', '')
+        return context
+
+class UserDetails(BaseDetailMixin):
     """
     Renders a user profile.
     """
@@ -238,6 +258,14 @@ class UserDetails(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(UserDetails, self).get_context_data(**kwargs)
+        target = context[self.context_object_name]
+        posts = Post.objects.filter(author=target).defer("content").order_by("-creation_date")
+        paginator = Paginator(posts, 10)
+        page = self.request.GET.get("page", 1)
+        page_obj = paginator.page(int(page))
+        context['page_obj'] = page_obj
+        context['posts'] = page_obj.object_list
+
         return context
 
 
