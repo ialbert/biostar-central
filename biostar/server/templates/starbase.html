@@ -109,19 +109,10 @@
 <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
 <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
 
-{% if debug %}
+{#  Set in the django settings module. #}
+{% if USE_COMPRESSOR %}
 
-    <link href="{{ STATIC_URL }}lib/select2-3.4.5/select2.css" rel="stylesheet">
-
-    {# Random numbers added to bypass potential browser caching. #}
-    <link rel="stylesheet/less" type="text/less" href="{{ STATIC_URL }}{{ SITE_STYLE_CSS }}?x={% rand_num %}">
-    <script src="{{ STATIC_URL }}lib/less-1.6.1.min.js" type="text/javascript"></script>
-
-    <script async src="{{ STATIC_URL }}lib/select2-3.4.5/select2.min.js" type="text/javascript"></script>
-    <script async src="{{ STATIC_URL }}biostar.js?x={% rand_num %}" type="text/javascript"></script>
-
-{% else %}
-    {# Deployed sites will require the presence of less compiler #}
+    {# Requires the lessc compiler. #}
     {% compress css %}
         <link href="{{ STATIC_URL }}lib/select2-3.4.5/select2.css" rel="stylesheet">
         <link rel="stylesheet" type="text/less" href="{{ STATIC_URL }}{{ SITE_STYLE_CSS }}">
@@ -131,9 +122,22 @@
         <script async src="{{ STATIC_URL }}lib/select2-3.4.5/select2.min.js" type="text/javascript"></script>
         <script async src="{{ STATIC_URL }}biostar.js" type="text/javascript"></script>
     {% endcompress %}
+
+{% else %}
+
+    {#  No asset compression. #}
+    <link href="{{ STATIC_URL }}lib/select2-3.4.5/select2.css" rel="stylesheet">
+
+    {# Random numbers added to bypass potential browser caching. #}
+    <link rel="stylesheet/less" type="text/less" href="{{ STATIC_URL }}{{ SITE_STYLE_CSS }}?x={% rand_num %}">
+    <script src="{{ STATIC_URL }}lib/less-1.6.1.min.js" type="text/javascript"></script>
+
+    <script async src="{{ STATIC_URL }}lib/select2-3.4.5/select2.min.js" type="text/javascript"></script>
+    <script async src="{{ STATIC_URL }}biostar.js?x={% rand_num %}" type="text/javascript"></script>
+
 {% endif %}
 
-{# Google tracker injected if it exists in the context. Found in settings.py #}
+{# Google tracker injected if it exists in the context. Set in the django settings. #}
 {% if GOOGLE_TRACKER %}
     <script type="text/javascript">
         var _gaq = _gaq || [];

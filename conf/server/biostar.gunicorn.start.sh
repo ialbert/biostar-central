@@ -27,8 +27,6 @@ MAX_REQUESTS=1000
 # The name of the application.
 NAME="biostar_app"
 
-export DJANGO_SETTINGS_MODULE=live.deploy
-
 echo "gunicorn starting with DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE"
 
 exec $GUNICORN ${DJANGO_WSGI_MODULE}:application \

@@ -6,6 +6,8 @@ django-crispy-forms
 django-braces
 django-haystack
 django-reversion
+django-celery
+django-celery-email
 #django-simple-captcha
 bleach
 whoosh
@@ -14,7 +16,6 @@ ordereddict
 pyparsing
 markdown
 
-#django-treebeard
 #django-secure
 #python-dateutil
 #django-registration

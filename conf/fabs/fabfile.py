@@ -20,7 +20,7 @@ def setenv():
     env.workon = "source /usr/local/bin/virtualenvwrapper.sh && workon biostar && cd %(biostar_home)s && source %(biostar_env)s" % env
 
 
-def server_restart():
+def restart():
     sudo("service nginx restart")
     sudo("supervisorctl restart biostar")
 
@@ -41,6 +41,11 @@ def server_config():
         if not exists("live/biostar.gunicorn.start.sh"):
             put("conf/server/biostar.gunicorn.start.sh", env.biostar_live)
             run("chmod +x %(biostar_live)s/biostar.gunicorn.start.sh" % env)
+
+        # This is the script that runs the gunicorn process.
+        if not exists("live/biostar.celery.start.sh"):
+            put("conf/server/biostar.celery.start.sh", env.biostar_live)
+            run("chmod +x %(biostar_live)s/biostar.celery.start.sh" % env)
 
         if not exists("live/deploy.py"):
             put("biostar/settings/deploy.py", env.biostar_live)

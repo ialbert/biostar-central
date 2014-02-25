@@ -46,6 +46,7 @@ def shortcuts(request):
         "TRAFFIC": get_traffic(),
         'RECENT_REPLIES': get_recent_replies(),
         'RECENT_VOTES': get_recent_votes(),
+        'USE_COMPRESSOR': settings.USE_COMPRESSOR
     }
 
     return context

@@ -30,9 +30,10 @@ To enable searching you must the content with:
 
 Deploy
 ------
+
 A typical deployment requires `lessc` to be installed and a number of other python libraries.
 
-    pip install -r conf/requirements/all.txt
+    pip install -r conf/requirements/deploy.txt
 
 Start with the `conf/defaults.env` and `biostar/settings/deploy.py` files and customize them.
 

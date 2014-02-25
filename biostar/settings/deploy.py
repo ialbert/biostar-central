@@ -7,10 +7,34 @@ from biostar.settings.base import *
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
-# These should be the most frequent (or special) tags on the site.
-CATEGORIES = [
-    "Forum", "Assembly", "RNA-Seq", "ChIP-Seq", "SNP-Calling", "Galaxy", "Jobs", "Planet",
+# The top navigation has three parts: start, special tags, end
+NAVBAR_START_CATEGORIES = [
+    "Latest", "Unanswered",
 ]
+
+# These should be the most frequent (or special) tags on the site.
+NAVBAR_SPECIAL_TAGS = [
+    "Assembly", "RNA-Seq", "ChIP-Seq", "SNP-Calling", "Galaxy",
+]
+
+NAVBAR_END_CATEGORIES = [
+    "Job", "Planet", "Forum",
+]
+
+# This will form the navbar
+CATEGORIES = NAVBAR_START_CATEGORIES + NAVBAR_SPECIAL_TAGS + NAVBAR_END_CATEGORIES
+
+# Adding the django celery email.
+INSTALLED_APPS += ("djcelery_email",)
+
+
+# Enable this if you have the lessc installed.
+USE_COMPRESSOR = False
+
+# Override the backend.
+BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+
 
 # Every settings needs to be filled for a deployed site.
 ADMIN_NAME = "Site Admin"

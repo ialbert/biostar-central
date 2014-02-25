@@ -241,6 +241,8 @@ INSTALLED_APPS = [
     # External apps.
     'haystack',
     'crispy_forms',
+    'djcelery',
+    'kombu.transport.django',
 
     # Biostar specific apps.
     'biostar.apps.util',
@@ -322,7 +324,7 @@ SOCIALACCOUNT_PROVIDERS = {
 }
 
 # The google id will injected as a template variable.
-GOOGLE_TRACKER = "foobar"
+GOOGLE_TRACKER = ""
 
 # The default CSS file to load.
 SITE_STYLE_CSS = "biostar.style.less"
@@ -340,6 +342,9 @@ RECENT_POST_COUNT = 10
 
 # Default cache expiration in seconds.
 CACHE_TIMEOUT = 60
+
+# Should the django compressor be used.
+USE_COMPRESSOR = False
 
 # Django precompressor settings.
 COMPRESS_PRECOMPILERS = (
@@ -359,6 +364,10 @@ CACHES = {
         'LOCATION': 'unique-snowflake'
     }
 }
+
+# The celery backend to use.
+CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend',
+BROKER_URL = 'django://'
 
 # Setting a cookie with email:signed_hash(email)
 # will automatically create accounts

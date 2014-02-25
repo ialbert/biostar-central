@@ -26,11 +26,11 @@
                 </div>
 
                 <div class="text-center" style="margin-top:20px">
-                    <a href="{% url "user-edit" target.id %}" class="btn btn-default" role="button" href="#">Edit Profile</a>
+
 
                     {% if target.is_editable and user.is_moderator and user != target %}
                         <div style="margin-top:10px;">
-                            <a role="button" class="btn btn-warning btn-xs mod-user" data-value="{{ target.id }}">Moderate User</a>
+                            <a role="button" class="btn btn-warning mod-user" data-value="{{ target.id }}">Moderate User</a>
                         </div>
                     {% endif %}
                 </div>
@@ -43,8 +43,7 @@
                         an "identicon": an automatically generated, unique image.
                     </div>
                     <div style="padding:10px" class="text-center">
-
-
+                        <a href="{% url "user-edit" target.id %}" class="btn btn-success" role="button" href="#">Edit Your Profile</a>
                     </div>
 
 

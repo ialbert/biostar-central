@@ -1,3 +1,0 @@
-pysolr
-psycopg2
-gunicorn
