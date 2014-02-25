@@ -24,7 +24,7 @@ def restart():
     sudo("service nginx restart")
     sudo("supervisorctl restart biostar")
 
-def server_config():
+def copy_config():
 
     # Create a default environment.
     if not exists(env.biostar_env):
@@ -37,15 +37,16 @@ def server_config():
     # Customize the deployment environment.
     with prefix(env.workon):
 
-        # This is the script that runs the gunicorn process.
-        if not exists("live/biostar.gunicorn.start.sh"):
-            put("conf/server/biostar.gunicorn.start.sh", env.biostar_live)
-            run("chmod +x %(biostar_live)s/biostar.gunicorn.start.sh" % env)
-
-        # This is the script that runs the gunicorn process.
-        if not exists("live/biostar.celery.start.sh"):
-            put("conf/server/biostar.celery.start.sh", env.biostar_live)
-            run("chmod +x %(biostar_live)s/biostar.celery.start.sh" % env)
+        # Copy over all scripts
+        scripts = [
+            "biostar.celery.beat.sh",
+            "biostar.celery.worker.sh",
+            "biostar.gunicorn.start.sh",
+        ]
+        for name in scripts:
+            if not exists("live/%s" % name):
+                put("conf/server/%s" % name, env.biostar_live)
+                run("chmod +x %(biostar_live)s/*.sh" % env)
 
         if not exists("live/deploy.py"):
             put("biostar/settings/deploy.py", env.biostar_live)

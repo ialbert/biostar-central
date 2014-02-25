@@ -12,12 +12,12 @@ ERROR_LOG=/home/www/sites/biostar-central/live/logs/celery-error.log
 NUM_WORKERS=3
 
 # The name of the application.
-NAME="biostar"
+NAME="biostar.server.tasks"
 
 # The gunicorn instance to run.
 CELERY="/home/www/.virtualenvs/biostar/bin/celery"
 
-echo "celery starting with DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE"
+echo "starting celery beat with DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE"
 
-exec $CELERY celery -A biostar.server.tasks worker -l info
+exec $CELERY celery -A $NAME beat -l info
 

@@ -34,6 +34,4 @@ exec $GUNICORN ${DJANGO_WSGI_MODULE}:application \
   --workers $NUM_WORKERS \
   --max-requests $MAX_REQUESTS\
   --bind $BIND\
-  --access-logfile $ACCESS_LOG\
-  --error-logfile $ERROR_LOG
 

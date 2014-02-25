@@ -35,7 +35,6 @@ USE_COMPRESSOR = False
 BROKER_URL = 'redis://localhost:6379/0'
 CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
 
-
 # Every settings needs to be filled for a deployed site.
 ADMIN_NAME = "Site Admin"
 ADMIN_EMAIL = "admin@email"
