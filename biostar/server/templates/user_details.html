@@ -44,7 +44,6 @@
                     </div>
                     <div style="padding:10px" class="text-center">
 
-                        <a role="button" class="btn btn-info btn-xs" href="{% url 'socialaccount_connections' %}">Add Social Login</a>
 
                     </div>
 
@@ -61,6 +60,14 @@
                     <dt>Status:</dt>
                     <dd>{{ target.get_status_display }}</dd>
 
+
+                    <dt>Email:</dt>
+                    {% if target.has_ownership %}
+                        <dd>{{ target.email }}</dd>
+                    {% else %}
+                        <dd>{{ target.email|hide_email }}</dd>
+                    {% endif %}
+
                     <dt>Last seen:</dt>
                     <dd>{{ target.profile.last_login|naturaltime }}</dd>
 
@@ -76,22 +83,21 @@
                     <dt>Scholar ID:</dt>
                     <dd>{{ target.profile.scholar }}</dd>
 
-                    <dt>Tags:</dt>
-                    <dd>{{ target.profile.my_tags }}</dd>
+                    {% if target.has_ownership %}
 
-
-                </dl>
-
-                {% if target.has_ownership %}
-
-                    <dl class="dl-horizontal">
-                        <dt>Email:</dt>
-                        <dd>{{ target.email }}</dd>
+                        <dt>My Tags:</dt>
+                        <dd>{{ target.profile.my_tags }}</dd>
 
                         <dt>Notifications:</dt>
                         <dd>{{ target.profile.get_message_prefs_display }}</dd>
-                    </dl>
-                {% endif %}
+
+                        <dt>Log in options:</dt>
+                        <dd>
+                            <a role="button" class="btn btn-info btn-xs" href="{% url 'socialaccount_connections' %}">Add Social Login</a>
+                        </dd>
+
+                    {% endif %}
+                </dl>
             </div>
 
             {#  User bio.  #}

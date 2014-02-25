@@ -7,7 +7,7 @@
 {% endblock %}
 {% block content %}
     <div class="row">
-        <div class="col-md-6 col-md-offset-0">
+        <div class="col-md-8 col-md-offset-0">
 
             <h3>{% blocktrans with provider_name=account.get_provider.name site_name=site.name %}Signing up with
                 {{ provider_name }}{% endblocktrans %}</h3>
@@ -33,9 +33,28 @@
             {% else %}
 
                 <div class="alert alert-warning">
-                    <p>It seems that there is already an account with the email sent by {{ account.get_provider.name }} </p>
+                    <p>
 
-                    <p>To connect your social account reset your password, then visit your user page.</p>
+                        <i class="fa fa-exclamation-circle fa-1x"></i> It seems that there is already an account with the email sent by {{ account.get_provider.name }}.
+                    </p>
+                    <p>
+                        We can't fully trust this information as some providers do not verify the emails that
+                        they send.
+                    </p>
+                    <p>
+                        Your mission, should you choose to accept it:
+                    </p>
+                    <p>
+                        <ol>
+                            <li>Reset your password below.</li>
+                            <li>Log into the site with the new password.</li>
+                            <li>Connect your social account from your user account page.</li>
+                        </ol>
+                    </p>
+
+                    <p>
+                        Once the accounts have been connected the login will work on all devices.
+                    </p>
 
                     <form method="POST" action="{% url 'account_reset_password' %}">
                         {% csrf_token %}

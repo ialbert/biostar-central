@@ -37,6 +37,17 @@ def on(value):
     "The purpose of this is to return value or empty"
     return "on" if value else 'off'
 
+@register.filter
+def hide_email(value):
+    "Attempts to hide parts of the email"
+    try:
+        addr, host = value.split('@')
+        hide = '*' * (len(addr) - 1)
+        email = addr[0] + hide + '@' + host
+        return email
+    except Exception, exc:
+        return value
+
 
 @register.simple_tag
 def gravatar(user, size=80):
