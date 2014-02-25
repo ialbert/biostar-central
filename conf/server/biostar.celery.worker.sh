@@ -19,5 +19,5 @@ CELERY="/home/www/.virtualenvs/biostar/bin/celery"
 
 echo "starting celery worker with DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE"
 
-exec $CELERY celery -A $NAME worker -l info
+exec $CELERY -A $NAME worker -l info
 

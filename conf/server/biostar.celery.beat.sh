@@ -19,5 +19,5 @@ CELERY="/home/www/.virtualenvs/biostar/bin/celery"
 
 echo "starting celery beat with DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE"
 
-exec $CELERY celery -A $NAME beat -l info
+exec $CELERY -A $NAME beat -l info
 
