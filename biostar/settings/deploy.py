@@ -93,4 +93,5 @@ TEMPLATE_LOADERS = (
 EMAIL_USE_TLS = True
 EMAIL_BACKEND = 'biostar.apps.util.mailer.SSLEmailBackend'
 
-
+INSTALLED_APPS += ("djcelery_email",)
+EMAIL_BACKEND = 'djcelery_email.backends.CeleryEmailBackend'

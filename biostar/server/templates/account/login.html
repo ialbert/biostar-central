@@ -8,20 +8,20 @@
 {% block content %}
     <div class="row">
 
-        <div class="col-md-5 col-md-offset-1">
+        <div class="col-md-6 col-md-offset-3">
 
 
-            <div class="panel panel-default">
+            <div class="panel panel-default" style="margin-top:2em">
                 <div class="panel-heading">
-                    <h3 class="panel-title">{% trans "Social Login" %}</h3>
+                    <h3 class="panel-title">{% trans "Quick Login/Sign Up" %}</h3>
                 </div>
                 <div class="panel-body">
                     {% if socialaccount.providers %}
                         <p>{% blocktrans with site.name as site_name %}
-                            Click the name of a provider to log in. The site will create
-                            an account for you.{% endblocktrans %}</p>
+                            Click the name of a provider to log in. We will create
+                            an account for you if necessary.{% endblocktrans %}</p>
                         <div class="socialaccount_ballot">
-                            <ul class="socialaccount_providers">
+                            <ul class="socialaccount_providers" style="font-size:large;">
                                 {% include "socialaccount/snippets/provider_list.html" with process="login" %}
                             </ul>
                         </div>
@@ -30,8 +30,8 @@
 
 
                     <div>
-                         Our connection is used for authentication only.
-                         We can't access your timeline, see your friends or post on your behalf.
+                        Our connection is used for authentication only.
+                        We can't access your timeline, see your friends or post on your behalf.
                     </div>
                     <div class="login-or" style="margin-top:1em">Don't want to use social logins?
                         <a role="button" class="btn btn-info btn-xs" href="{{ signup_url }}">Sign up with an email!</a>
@@ -40,7 +40,14 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-5 col-md-offset-1">
+
+
+        <div class="col-md-6 col-md-offset-3">
+
+            <div class="text-center" style="margin-top:5em">
+                Do you have an email based account? Log in below:
+            </div>
+
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h3 class="panel-title">{% trans "Email Login" %}</h3>

@@ -5,7 +5,7 @@ from celery.schedules import crontab
 
 import logging
 
-logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 from celery import Celery
 
@@ -17,8 +17,8 @@ def add(x, y):
 
 @app.task
 def test(*args, **kwds):
-    print("*** delayed task %s, %s" % (args, kwds))
-    return
+    logger.info("*** delayed task %s, %s" % (args, kwds))
+    return 1000
 
 
 CELERYBEAT_SCHEDULE = {

@@ -39,9 +39,9 @@ def copy_config():
 
         # Copy over all scripts
         scripts = [
-            "biostar.celery.beat.sh",
-            "biostar.celery.worker.sh",
-            "biostar.gunicorn.start.sh",
+            "celery.beat.sh",
+            "celery.worker.sh",
+            "gunicorn.start.sh",
         ]
         for name in scripts:
             if not exists("live/%s" % name):
