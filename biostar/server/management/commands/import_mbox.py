@@ -106,10 +106,10 @@ def create_post(b, author, root=None, parent=None):
         post_type = Post.ANSWER if parent.is_toplevel else Post.COMMENT
         post = Post(type=post_type, content=body, tag_val="galaxy", author=author, parent=parent)
 
+    post.creation_date = post.lastedit_date = b.datetime
     post.save()
 
-    post.creation_date = post.lastedit_date = b.datetime
-    post.add_tags("galaxy")
+    #post.add_tags("galaxy")
     logger.info("creating %s: %s" % (post.get_type_display(), title))
 
     return post
@@ -127,7 +127,7 @@ def format_text(text):
     assert type(text), str
     lines = text.splitlines()
     lines = filter(no_junk, lines)
-    lines = [textwrap.fill(line, width=80) for line in lines]
+    lines = [textwrap.fill(line, width=100) for line in lines]
     text = "\n".join(lines)
     text = unicode(text, encoding="utf8", errors="replace")
     text = "<div class='preformatted'>" + text + "</div>"
@@ -164,15 +164,10 @@ def unpack_data(m):
         b.body = "\n".join(data)
         b.body = format_text(b.body)
 
-        #print (b.body)
-        #print '-' * 20
-
     except KeyError, exc:
         print exc
         print "skipping post %s" % b.subj
-        print dir(m)
-        sys.exit()
-        b.body = ''
+
 
     b.date = m['Date']
     #b.datetime = time.strptime(b.date,"%a, %d %b %Y %H:%M:%S +0000")
@@ -183,9 +178,13 @@ def unpack_data(m):
 
     return b
 
+from django.db.models import signals
 
 def parse_mbox(filename):
-    print ("*** parsing mbox %s" % filename)
+
+    signals.post_save.disconnect(dispatch_uid="create_messages")
+
+    logger.info ("*** parsing mbox %s" % filename)
 
     # Parse the mbox.
     rows = mailbox.mbox(filename)
@@ -201,7 +200,7 @@ def parse_mbox(filename):
 
     Post.objects.all().delete()
 
-    print "*** found %s users" % len(users)
+    logger.info("*** found %s users" % len(users))
 
     tree, posts = {}, {}
 
@@ -231,6 +230,9 @@ def parse_mbox(filename):
                 root = parent.root
                 post = create_post(b=b, author=author, parent=parent)
                 posts[b.id] = post
+
+    logger.info("*** %s users" % len(users))
+    logger.info("*** %s posts" % len(posts))
 
 
 if __name__ == '__main__':

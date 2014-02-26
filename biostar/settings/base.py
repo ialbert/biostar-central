@@ -333,7 +333,7 @@ SITE_STYLE_CSS = "biostar.style.less"
 SITE_LOGO = "biostar.logo.png"
 
 # Set it to None if all posts should be accesible via the Latest tab.
-SITE_LATEST_POST_LIMIT = 200
+SITE_LATEST_POST_LIMIT = None
 
 # How many recent objects to show in the sidebar.
 RECENT_VOTE_COUNT = 10
