@@ -24,9 +24,9 @@ MESSAGING_TYPE_CHOICES = MESSAGING_MAP.items()
 USER_SORT_MAP = OrderedDict([
     ("date joined", "profile__date_joined"),
     ("recent visit", "-profile__last_login"),
-    ("number of posts", "profile__date_joined"),
-    ("reputation", "full_score"),
-    ("activity level", "score"),
+    ("number of posts", "-score"),
+    ("reputation", "-full_score"),
+    ("activity level", "-score"),
 ])
 
 # These are the fields rendered in the user sort order drop down.

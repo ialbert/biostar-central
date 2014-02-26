@@ -158,7 +158,7 @@ class Profile(models.Model):
     date_joined = models.DateTimeField()
 
     # User provided location.
-    location = models.CharField(default="", max_length=255, blank=True)
+    location = models.CharField(default=" ", max_length=255, blank=True)
 
     # User provided website.
     website = models.URLField(default="", max_length=255, blank=True)

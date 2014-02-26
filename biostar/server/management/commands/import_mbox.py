@@ -25,20 +25,22 @@ class Command(BaseCommand):
 
     option_list = BaseCommand.option_list + (
         make_option("-f", '--file', dest='file', default=False, help='import file'),
+        make_option("-l", '--limit', dest='limit', default=None, help='limit posts'),
+        make_option("-t", '--tags', dest='tags', default=None, help='tags'),
     )
 
     def handle(self, *args, **options):
         fname = options['file']
+        tags = options['tags']
+        limit = options['limit']
         if fname:
-            parse_mbox(fname)
-
+            parse_mbox(fname, limit=limit, tag_val=tags)
 
 from pyparsing import Word, Or, alphanums, OneOrMore
 
 chars = alphanums + r",?.-=_\/()[]"
 email = alphanums + "+@._-"
 
-#
 # Detecting the various way the From field may be formatted.
 #
 # User name followed by email in angled brackets: John Doe <foo@bar.com>
@@ -93,7 +95,7 @@ def no_junk(line):
     return True
 
 
-def create_post(b, author, root=None, parent=None):
+def create_post(b, author, root=None, parent=None, tag_val=''):
     title = b.subj
     body = b.body
     if not parent:
@@ -101,15 +103,17 @@ def create_post(b, author, root=None, parent=None):
         title = ' '.join(title.splitlines())
         title = ' '.join(title.split())
         title = title.title()
-        post = Post(title=title, type=Post.QUESTION, content=body, tag_val="galaxy", author=author)
+        post = Post(title=title, type=Post.QUESTION, content=body, tag_val=tag_val, author=author)
     else:
         post_type = Post.ANSWER if parent.is_toplevel else Post.COMMENT
         post = Post(type=post_type, content=body, tag_val="galaxy", author=author, parent=parent)
 
     post.creation_date = post.lastedit_date = b.datetime
+
     post.save()
 
-    #post.add_tags("galaxy")
+    if tag_val:
+        post.add_tags(tag_val)
     logger.info("creating %s: %s" % (post.get_type_display(), title))
 
     return post
@@ -137,7 +141,7 @@ def format_text(text):
 def collect(m, data=[]):
     if m.is_multipart():
         for part in m.get_payload():
-            data = collect(part, data)
+            collect(part, data)
     else:
         value = m.get_payload(decode=True)
         data.append(value)
@@ -168,19 +172,19 @@ def unpack_data(m):
         print exc
         print "skipping post %s" % b.subj
 
-
     b.date = m['Date']
-    #b.datetime = time.strptime(b.date,"%a, %d %b %Y %H:%M:%S +0000")
     b.datetime = parsedate(b.date)
     b.datetime = datetime(*b.datetime[:6])
-
     b.datetime = timezone.make_aware(b.datetime, timezone=utc)
 
     return b
 
 from django.db.models import signals
 
-def parse_mbox(filename):
+def parse_mbox(filename, limit=None, tag_val=''):
+
+    if limit is not None:
+        limit = int(limit)
 
     signals.post_save.disconnect(dispatch_uid="create_messages")
 
@@ -204,7 +208,7 @@ def parse_mbox(filename):
 
     tree, posts = {}, {}
 
-    #rows = islice(rows, 100)
+    rows = islice(rows, limit)
 
     for b in rows:
 
@@ -213,6 +217,7 @@ def parse_mbox(filename):
             u = User.objects.create(email=b.email, name=b.name)
             u.save()
             u.profile.date_joined = b.datetime
+            u.profile.last_login = b.datetime
             u.profile.save()
             users[u.email] = u
 
@@ -222,7 +227,7 @@ def parse_mbox(filename):
         author = users[b.email]
 
         if not b.reply_to:
-            post = create_post(b=b, author=author, )
+            post = create_post(b=b, author=author, tag_val=tag_val)
             posts[b.id] = post
         else:
             parent = posts.get(b.reply_to)
@@ -231,8 +236,17 @@ def parse_mbox(filename):
                 post = create_post(b=b, author=author, parent=parent)
                 posts[b.id] = post
 
-    logger.info("*** %s users" % len(users))
-    logger.info("*** %s posts" % len(posts))
+    logger.info("*** users %s" % len(users))
+    logger.info("*** posts %s" % len(posts))
+    logger.info("*** post limit: %s" % limit)
+
+
+    logger.info("*** updating user scores")
+    for user in User.objects.all():
+        score = Post.objects.filter(author=user).count()
+        user.score = user.full_score = score
+        user.save()
+
 
 
 if __name__ == '__main__':

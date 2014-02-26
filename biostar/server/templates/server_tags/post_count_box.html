@@ -1,5 +1,6 @@
 {# Renders the countbox for each post #}
 {% load server_tags %}
+{% load humanize %}
 <div class="post-row {{ post.get_type_display }} {{ post.get_status_display }}">
     <div class="count-box clearfix">
         {% if post.is_toplevel %}
@@ -48,7 +49,7 @@
             {% endfor %}
             </span>
             <span class="userlink text-right">
-            {% last_action post %} {% time_ago post %} ago by {% userlink post.author %}
+            {% last_action post %} {{ post.creation_date|naturaltime }} by {% userlink post.author %}
             </span>
 
         </div>

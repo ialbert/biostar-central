@@ -237,7 +237,7 @@ class Post(models.Model):
             self.title = self.parent.title if self.parent else self.title
             self.lastedit_user = self.author
             self.status = self.status or Post.PENDING
-            self.creation_date = datetime.datetime.utcnow().replace(tzinfo=utc)
+            self.creation_date = self.creation_date or datetime.datetime.utcnow().replace(tzinfo=utc)
             self.lastedit_date = self.creation_date
 
         super(Post, self).save(*args, **kwargs)

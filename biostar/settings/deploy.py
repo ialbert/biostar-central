@@ -7,6 +7,12 @@ from biostar.settings.base import *
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
+# How far to look for posts for anonymous users.
+COUNT_INTERVAL_WEEKS = 10
+
+# How frequently do we update the counts for authenticated users.
+SESSION_UPDATE_SECONDS = 10 * 60
+
 # The top navigation has three parts: start, special tags, end
 NAVBAR_START_CATEGORIES = [
     "Latest", "Unanswered",

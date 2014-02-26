@@ -44,6 +44,7 @@ class BaseListMixin(ListView):
         context['sort'] = sort
         context['limit'] = limit
         context['q'] = self.request.GET.get('q', '')
+
         return context
 
 
@@ -110,6 +111,13 @@ def posts_by_topic(request, topic):
     # Return latest by default.
     return Post.objects.top_level(user).exclude(type=Post.BLOG)
 
+def reset_counts(request, label):
+    "Resets counts in the session"
+    label = label.lower()
+    counts = request.session.get(settings.SESSION_KEY)
+    if label in counts:
+        counts[label] = ''
+        request.session[settings.SESSION_KEY] = counts
 
 class PostList(BaseListMixin):
     """
@@ -144,8 +152,13 @@ class PostList(BaseListMixin):
         return query
 
     def get_context_data(self, **kwargs):
+        session = self.request.session
+
         context = super(PostList, self).get_context_data(**kwargs)
         context['topic'] = self.topic or self.LATEST
+
+        reset_counts(self.request, self.topic)
+
         return context
 
 
@@ -157,6 +170,7 @@ class MessageList(ListView):
     template_name = "message_list.html"
     context_object_name = "objects"
     paginate_by = settings.PAGINATE_BY
+    topic = "messages"
 
     def get_queryset(self):
         objs = Message.objects.filter(user=self.request.user).select_related("body").order_by('-sent_at')
@@ -164,8 +178,9 @@ class MessageList(ListView):
 
     def get_context_data(self, **kwargs):
         context = super(MessageList, self).get_context_data(**kwargs)
-        context['topic'] = "messages"
+        context['topic'] = self.topic
         context['page_title'] = "Messages"
+        reset_counts(self.request, self.topic)
         return context
 
 
@@ -187,6 +202,7 @@ class VoteList(ListView):
     template_name = "vote_list.html"
     context_object_name = "votes"
     paginate_by = settings.PAGINATE_BY
+    topic = "votes"
 
     def get_queryset(self):
         objs = Vote.objects.filter(post__author=self.request.user).select_related("post").order_by('-date')
@@ -196,9 +212,10 @@ class VoteList(ListView):
         context = super(VoteList, self).get_context_data(**kwargs)
         people = [v.author for v in context[self.context_object_name]]
         random.shuffle(people)
-        context['topic'] = "votes"
+        context['topic'] = self.topic
         context['page_title'] = "Votes"
         context['people'] = people
+        reset_counts(self.request, self.topic)
         return context
 
 

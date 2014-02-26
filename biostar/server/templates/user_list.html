@@ -1,5 +1,6 @@
 {% extends "starbase.html" %}
 {% load server_tags %}
+{% load humanize %}
 
 {% block page_title %}
     User List
@@ -31,7 +32,9 @@
                         <div class="userbox text-center">
                             <div>{% gravatar user 85 %}</div>
                             <div>{% userlink user %}</div>
+                            <div class="ago">{{  user.profile.last_login|naturaltime }}</div>
                             <div class="loc">{{  user.profile.location }}</div>
+
                         </div>
                     </div>
                 {% endfor %}

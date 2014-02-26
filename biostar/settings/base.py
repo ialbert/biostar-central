@@ -210,7 +210,10 @@ MESSAGE_TAGS = {
 INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
-    'django.contrib.sessions',
+
+    # This needs to be added back if sessions are stored in the database.
+    # 'django.contrib.sessions',
+
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
@@ -380,6 +383,11 @@ EXTERNAL_LOGIN_URL = None
 EXTERNAL_SIGNUP_URL = None
 EXTERNAL_LOGOUT_URL = None
 
+# How far to look for posts for anonymous users.
+COUNT_INTERVAL_WEEKS = 10000
+
+# How frequently do we update the counts for authenticated users.
+SESSION_UPDATE_SECONDS = 10
 
 # The number of posts to show per page.
 PAGINATE_BY = 25
@@ -401,6 +409,8 @@ ACCOUNT_LOGOUT_ON_GET = True
 
 # Session specific settings.
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
+SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
+SESSION_KEY = "session"
 
 # Use a mock email backend for development.
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

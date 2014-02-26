@@ -37,6 +37,7 @@ def get_traffic():
 
 def shortcuts(request):
     # These values will be added to each context
+
     context = {
         "GOOGLE_TRACKER": settings.GOOGLE_TRACKER,
         "SITE_STYLE_CSS": settings.SITE_STYLE_CSS,
@@ -46,7 +47,8 @@ def shortcuts(request):
         "TRAFFIC": get_traffic(),
         'RECENT_REPLIES': get_recent_replies(),
         'RECENT_VOTES': get_recent_votes(),
-        'USE_COMPRESSOR': settings.USE_COMPRESSOR
+        'USE_COMPRESSOR': settings.USE_COMPRESSOR,
+        'COUNTS': request.session[settings.SESSION_KEY]
     }
 
     return context

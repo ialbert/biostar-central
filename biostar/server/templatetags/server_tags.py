@@ -13,6 +13,9 @@ from biostar import const
 
 register = template.Library()
 
+@register.simple_tag
+def get_count(counts, word):
+    return counts.get(word.lower()) or ''
 
 @register.simple_tag
 def current(request, *urls):
