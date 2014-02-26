@@ -22,10 +22,10 @@ MESSAGING_TYPE_CHOICES = MESSAGING_MAP.items()
 
 # Connects a user sort dropdown word to a data model field.
 USER_SORT_MAP = OrderedDict([
+    ("reputation", "-full_score"),
     ("date joined", "profile__date_joined"),
     ("recent visit", "-profile__last_login"),
     ("number of posts", "-score"),
-    ("reputation", "-full_score"),
     ("activity level", "-score"),
 ])
 

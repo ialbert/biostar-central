@@ -137,14 +137,22 @@ def format_text(text):
     text = "<div class='preformatted'>" + text + "</div>"
     return text
 
+SIZE_LIMIT = 5000
 
 def collect(m, data=[]):
+
+    subj = m["Subject"]
+    type = m.get_content_type()
+
     if m.is_multipart():
         for part in m.get_payload():
             collect(part, data)
     else:
-        value = m.get_payload(decode=True)
-        data.append(value)
+        if m.get_content_type() == "text/plain":
+            value = m.get_payload(decode=True)
+            if len(value) > SIZE_LIMIT:
+                value = value[:SIZE_LIMIT]
+            data.append(value)
 
 
 def unpack_data(m):
