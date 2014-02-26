@@ -5,7 +5,7 @@ Get the source and switch to the source directory. The
 recommended installation is via `virtualenv` and `pip`:
 
     # Install the requirements.
-    pip install --upgrade -r requirements/base.txt
+    pip install --upgrade -r conf/requirements/base.txt
 
     # Load the environment variables.
     source conf/defaults.env
@@ -32,7 +32,7 @@ Deploy
 
 A typical deployment requires `lessc` to be installed and a number of other python libraries.
 
-    pip install --upgrade -r requirements/all.txt
+    pip install --upgrade -r conf/requirements/all.txt
 
 Start with the `conf/defaults.env` and `biostar/settings/deploy.py` files and customize them.
 

@@ -128,7 +128,7 @@ def create_post(b, author, root=None, parent=None):
 
     post.creation_date = post.lastedit_date = b.datetime
     post.add_tags("galaxy")
-    print "creating %s: %s" % (post.get_type_display(), title)
+    logger.info("creating %s: %s" % (post.get_type_display(), title))
 
     return post
 
@@ -145,6 +145,8 @@ def unpack_data(m):
     b.id = m['Message-ID']
     b.reply_to = m['In-Reply-To']
     b.subj = m['Subject']
+
+    b.subj = unicode(b.subj, encoding="utf8", errors="replace")
     assert b.subj, m
 
     for patt in REPLACE_PATT:
@@ -193,9 +195,9 @@ def parse_mbox(filename):
     #rows = islice(rows, 10)
 
     for b in rows:
+
         if b.email not in users:
             print ("--- creating user %s, %s" % (b.name, b.email))
-
             u = User.objects.create(email=b.email, name=b.name)
             u.save()
             u.profile.date_joined = b.datetime
@@ -206,6 +208,7 @@ def parse_mbox(filename):
         #print '-' * 20
 
         author = users[b.email]
+
         if not b.reply_to:
             post = create_post(b=b, author=author, )
             posts[b.id] = post
