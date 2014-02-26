@@ -104,7 +104,7 @@ def posts_by_topic(request, topic):
         # A post type.
         return Post.objects.top_level(user).filter(type=POST_TYPES[topic])
 
-    if topic:
+    if topic and topic != LATEST:
         # Any type of topic.
         return Post.objects.tag_search(topic)
 
@@ -129,7 +129,6 @@ class PostList(BaseListMixin):
     paginate_by = settings.PAGINATE_BY
     LATEST = "Latest"
 
-
     def __init__(self, *args, **kwds):
         super(PostList, self).__init__(*args, **kwds)
         self.limit = 250
@@ -143,6 +142,7 @@ class PostList(BaseListMixin):
 
     def get_queryset(self):
         self.topic = self.kwargs.get("topic", "")
+
         query = posts_by_topic(self.request, self.topic)
         query = apply_sort(self.request, query)
 
@@ -178,8 +178,10 @@ class MessageList(ListView):
 
     def get_context_data(self, **kwargs):
         context = super(MessageList, self).get_context_data(**kwargs)
+        people = [m.body.author for m in context[self.context_object_name]]
         context['topic'] = self.topic
         context['page_title'] = "Messages"
+        context['people'] = people
         reset_counts(self.request, self.topic)
         return context
 

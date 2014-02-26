@@ -9,7 +9,7 @@
     {% page_bar %}
 
     <div class="row">
-        <div class="col-md-12">
+        <div class="col-md-9">
 
             <table id="posts" class="table table-striped">
                 {% for message in objects %}
@@ -21,6 +21,11 @@
 
                 {% endfor %}
             </table>
+        </div>
+
+        <div class="col-md-3 sidebar">
+            <div class="head">People posting your threads</div>
+            {% sidebar_users people %}
         </div>
     </div>
 

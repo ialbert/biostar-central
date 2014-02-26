@@ -75,9 +75,11 @@ def get_counts(request, weeks=settings.COUNT_INTERVAL_WEEKS):
 
     # Compute a few more counts for the user.
     if user.is_authenticated():
-        counts['messages'] = Message.objects.filter(read_at=None, sent_at__gt=since).count()
-        counts['votes'] = Vote.objects.filter(post__author=user, date__gt=since).count()
+        # These are the new messages since the last login.
+        counts['messages'] = Message.objects.filter(user=user, read_at=None, sent_at__gt=since).count()
 
+        # These are the new votes since the last login.
+        counts['votes'] = Vote.objects.filter(post__author=user, date__gt=since).count()
 
     return counts
 

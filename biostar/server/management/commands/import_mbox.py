@@ -114,7 +114,7 @@ def create_post(b, author, root=None, parent=None, tag_val=''):
 
     if tag_val:
         post.add_tags(tag_val)
-        
+
     logger.info("--- creating %s: %s" % (post.get_type_display(), title))
 
     return post
