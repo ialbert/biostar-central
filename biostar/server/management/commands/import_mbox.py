@@ -34,7 +34,7 @@ class Command(BaseCommand):
         tags = options['tags']
         limit = options['limit']
         if fname:
-            parse_mbox(fname, limit=limit, tag_val=tags)
+            parse_mboxx(fname, limit=limit, tag_val=tags)
 
 from pyparsing import Word, Or, alphanums, OneOrMore
 
@@ -114,7 +114,8 @@ def create_post(b, author, root=None, parent=None, tag_val=''):
 
     if tag_val:
         post.add_tags(tag_val)
-    logger.info("creating %s: %s" % (post.get_type_display(), title))
+        
+    logger.info("--- creating %s: %s" % (post.get_type_display(), title))
 
     return post
 
@@ -123,7 +124,7 @@ REPLACE_PATT = [
     "[Galaxy-user]",
     "[Galaxy-User]",
     "[galaxy-user]",
-    "[Bioc]",
+    "[BioC]",
 ]
 
 
@@ -137,11 +138,13 @@ def format_text(text):
     text = "<div class='preformatted'>" + text + "</div>"
     return text
 
-SKIPPED = 0
+SKIPPED_SIZE = 0
 SIZE_LIMIT = 10000
+SKIPPED_REPLY = 0
 
 def collect(m, data=[]):
-    global SKIPPED
+    global SKIPPED_SIZE
+
     subj = m["Subject"]
     type = m.get_content_type()
 
@@ -153,7 +156,7 @@ def collect(m, data=[]):
             value = m.get_payload(decode=True)
             if len(value) > SIZE_LIMIT:
                 logger.info( "skipping %s" % len(value))
-                SKIPPED += 1
+                SKIPPED_SIZE += 1
             else:
                 data.append(value)
 
@@ -170,10 +173,12 @@ def unpack_data(m):
     b.subj = unicode(b.subj, encoding="utf8", errors="replace")
     assert b.subj, m
 
-    logger.info("parsing %s" % b.subj)
+
 
     for patt in REPLACE_PATT:
         b.subj = b.subj.replace(patt, '')
+
+    b.subj = b.subj.strip()
 
     try:
         data = []
@@ -194,7 +199,8 @@ def unpack_data(m):
 
 from django.db.models import signals
 
-def parse_mbox(filename, limit=None, tag_val=''):
+def parse_mboxx(filename, limit=None, tag_val=''):
+    global  SKIPPED_REPLY
 
     if limit is not None:
         limit = int(limit)
@@ -225,6 +231,8 @@ def parse_mbox(filename, limit=None, tag_val=''):
 
     for b in rows:
 
+        logger.info("*** parsing %s" % b.subj)
+
         if b.email not in users:
             logger.info("--- creating user %s, %s" % (b.name, b.email))
             u = User.objects.create(email=b.email, name=b.name)
@@ -233,9 +241,6 @@ def parse_mbox(filename, limit=None, tag_val=''):
             u.profile.last_login = b.datetime
             u.profile.save()
             users[u.email] = u
-
-        #print b.body
-        #print '-' * 20
 
         author = users[b.email]
 
@@ -248,11 +253,15 @@ def parse_mbox(filename, limit=None, tag_val=''):
                 root = parent.root
                 post = create_post(b=b, author=author, parent=parent)
                 posts[b.id] = post
+            else:
+                SKIPPED_REPLY += 1
+                logger.info("(!) skipping, no parent post for: %s" % b.subj)
 
     logger.info("*** users %s" % len(users))
     logger.info("*** posts %s" % len(posts))
     logger.info("*** post limit: %s" % limit)
-    logger.info("*** skipped posts due to size: %s" % SKIPPED)
+    logger.info("*** skipped posts due to size: %s" % SKIPPED_SIZE)
+    logger.info("*** skipped posts due to missing parent: %s" % SKIPPED_REPLY)
 
 
     logger.info("*** updating user scores")

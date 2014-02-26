@@ -30,9 +30,11 @@ class LocalManager(UserManager):
             query = self.filter(name__icontains=q)
         else:
             query = self
+
         if days:
             delta = const.now() - datetime.timedelta(days=days)
-            query = self.filter(lastedit_date__gt=delta)
+            query = self.filter(profile__last_login__gt=delta)
+
         query = query.order_by(sort)
         return query
 

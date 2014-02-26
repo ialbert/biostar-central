@@ -24,7 +24,7 @@ MESSAGING_TYPE_CHOICES = MESSAGING_MAP.items()
 USER_SORT_MAP = OrderedDict([
     ("reputation", "-full_score"),
     ("date joined", "profile__date_joined"),
-    ("recent visit", "-profile__last_login"),
+    ("last login", "-profile__last_login"),
     ("number of posts", "-score"),
     ("activity level", "-score"),
 ])
@@ -68,7 +68,6 @@ POST_LIMIT_FIELDS = POST_LIMIT_MAP.keys()
 POST_LIMIT_DEFAULT = POST_LIMIT_FIELDS[0]
 
 POST_LIMIT_INVALID_MSG = "Invalid limit parameter received"
-
 
 def now():
     return datetime.utcnow().replace(tzinfo=utc)
