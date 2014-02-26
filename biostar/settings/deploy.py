@@ -24,10 +24,6 @@ NAVBAR_END_CATEGORIES = [
 # This will form the navbar
 CATEGORIES = NAVBAR_START_CATEGORIES + NAVBAR_SPECIAL_TAGS + NAVBAR_END_CATEGORIES
 
-# Adding the django celery email.
-INSTALLED_APPS += ("djcelery_email",)
-
-
 # Enable this if you have the lessc installed.
 USE_COMPRESSOR = False
 
@@ -89,9 +85,9 @@ TEMPLATE_LOADERS = (
         )),
 )
 
-# Amazon SES email settings.
+# Background email sending.
 EMAIL_USE_TLS = True
-EMAIL_BACKEND = 'biostar.apps.util.mailer.SSLEmailBackend'
 
-INSTALLED_APPS += ("djcelery_email",)
-EMAIL_BACKEND = 'djcelery_email.backends.CeleryEmailBackend'
+CELERY_EMAIL_BACKEND = 'biostar.apps.util.mailer.SSLEmailBackend'
+
+EMAIL_BACKEND = 'biostar.server.tasks.CeleryEmailBackend'
