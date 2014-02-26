@@ -12,7 +12,7 @@ ERROR_LOG=/home/www/sites/biostar-central/live/logs/celery-error.log
 NUM_WORKERS=3
 
 # The name of the application.
-NAME="biostar.server.tasks"
+NAME="biostar.tasks"
 
 # The gunicorn instance to run.
 CELERY="/home/www/.virtualenvs/biostar/bin/celery"

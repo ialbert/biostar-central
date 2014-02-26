@@ -1,9 +1,12 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
-from django.core.management.base import BaseCommand, CommandError
+import logging
+
+from django.core.management.base import BaseCommand
 from django.conf import settings
-import os
 from django.core.mail import send_mail
-from biostar.apps.util import mailer
+
+
+logger = logging.getLogger(__name__)
 
 class Command(BaseCommand):
     help = 'tests email settings'
@@ -18,5 +21,6 @@ class Command(BaseCommand):
         """
         recipient_list = ["istvan.albert@gmail.com"]
 
+        logger.info("sending to %s" % recipient_list)
         send_mail(subject=subject, message=message, from_email=from_email, recipient_list=recipient_list)
 

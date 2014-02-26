@@ -31,13 +31,6 @@ USE_COMPRESSOR = False
 BROKER_URL = 'redis://localhost:6379/0'
 CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
 
-# Every settings needs to be filled for a deployed site.
-ADMIN_NAME = "Site Admin"
-ADMIN_EMAIL = "admin@email"
-
-# This is where users get email from.
-DEFAULT_FROM_EMAIL = "admin@email"
-
 ADMINS = (
     (ADMIN_NAME, ADMIN_EMAIL),
 )
@@ -88,6 +81,6 @@ TEMPLATE_LOADERS = (
 # Background email sending.
 EMAIL_USE_TLS = True
 
-CELERY_EMAIL_BACKEND = 'biostar.apps.util.mailer.SSLEmailBackend'
+CELERY_EMAIL_BACKEND = 'biostar.mailer.SSLEmailBackend'
 
-EMAIL_BACKEND = 'biostar.server.tasks.CeleryEmailBackend'
+EMAIL_BACKEND = 'biostar.mailer.CeleryEmailBackend'

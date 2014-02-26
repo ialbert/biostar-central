@@ -2,7 +2,6 @@ from __future__ import absolute_import
 from django.conf import settings
 from datetime import timedelta
 from celery.schedules import crontab
-from django.core.mail.backends.base import BaseEmailBackend
 from django.core.mail import get_connection
 from celery.utils.log import get_task_logger
 
@@ -10,11 +9,8 @@ logger = get_task_logger(__name__)
 
 from celery import Celery
 
-app = Celery('biostar', broker=settings.BROKER_URL)
-
-@app.task
-def add(x, y):
-    return x + y
+app = Celery('biostar',
+             broker=settings.BROKER_URL)
 
 @app.task
 def test(*args, **kwds):
@@ -43,21 +39,10 @@ def send_email(message, **kwargs):
         logger.debug("Successfully sent email message to %r.", message.to)
         return result
     except Exception as e:
-        logger.warning("Failed to send email message to %r, retrying.",
-                       message.to)
+        print(dir(message))
+        logger.error("Error sending email to %r: %s retrying.",
+                     message.to, e)
         send_email.retry(exc=e)
-
-class CeleryEmailBackend(BaseEmailBackend):
-    def __init__(self, fail_silently=False, **kwargs):
-        super(CeleryEmailBackend, self).__init__(fail_silently)
-        self.init_kwargs = kwargs
-
-    def send_messages(self, email_messages, **kwargs):
-        results = []
-        kwargs['_backend_init_kwargs'] = self.init_kwargs
-        for msg in email_messages:
-            results.append(send_email.delay(msg, **kwargs))
-        return results
 
 CELERYBEAT_SCHEDULE = {
     # Executes every Monday morning at 7:30 A.M
