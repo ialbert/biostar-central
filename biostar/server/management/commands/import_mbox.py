@@ -11,6 +11,7 @@ import itertools
 from django.core.management.base import BaseCommand, CommandError
 from optparse import make_option
 from itertools import *
+import textwrap
 
 logger = logging.getLogger(__name__)
 
@@ -37,11 +38,20 @@ from pyparsing import Word, Or, alphanums, OneOrMore
 chars = alphanums + r",?.-=_\/()[]"
 email = alphanums + "+@._-"
 
-patt1 = OneOrMore(Word( chars )).setResultsName('name') + "<" + Word( email ).setResultsName('email') + ">"
-patt2 = Word( email ).setResultsName('email')
-patt3 = '<' + Word( email ).setResultsName('email') + '>'
+#
+# Detecting the various way the From field may be formatted.
+#
+# User name followed by email in angled brackets: John Doe <foo@bar.com>
+patt1 = OneOrMore(Word(chars)).setResultsName('name') + "<" + Word(email).setResultsName('email') + ">"
+
+# An email alone: foo@bar.com
+patt2 = Word(email).setResultsName('email')
+
+# An email with angled brackerts: <foo@bar.com>
+patt3 = '<' + Word(email).setResultsName('email') + '>'
 
 user_patt = patt1 | patt2 | patt3
+
 
 def check_name(name, email):
     start = email.split("@")[0]
@@ -50,6 +60,7 @@ def check_name(name, email):
 
     return name.title()
 
+
 def parse_email(data):
     sender = data['From']
 
@@ -57,7 +68,7 @@ def parse_email(data):
     sender = sender.replace('"', '')
     check = sender.upper()
     res = user_patt.parseString(sender)
-    name  = ' '.join(res.name)
+    name = ' '.join(res.name)
     email = res.email
 
     # Corrects the name.
@@ -65,51 +76,22 @@ def parse_email(data):
     return name, email
 
 
-
 class Bunch(object):
     pass
 
 
 def no_junk(line):
+    "Gets rid of lines that contain junk"
     # invalid starts
     for word in "> --- From:".split():
         if line.strip().startswith(word):
             return False
-
     # junk words
     for word in "scrubbed attachment.html wrote: Sent:".split():
         if word in line:
             return False
-
     return True
 
-def format_text(text):
-    assert type(text), str
-    lines = text.splitlines()
-    lines = filter(no_junk, lines)
-    text = "\n".join(lines)
-    text = unicode(text, encoding="utf8", errors="replace")
-    text = markdown.markdown(text)
-    return text
-
-def get_body(m):
-
-    if type(m) == str:
-        body = format_text(m)
-        return body
-
-    if type(m) == list:
-        body = '\n'.join([get_body(part.get_payload()) for part in m])
-        return body
-
-    body = m.get_payload()
-
-    if type(body) == str:
-        body = format_text(body)
-        return body
-
-    body = '\n'.join([get_body(part.get_payload()) for part in body])
-    return body
 
 def create_post(b, author, root=None, parent=None):
     title = b.subj
@@ -132,11 +114,35 @@ def create_post(b, author, root=None, parent=None):
 
     return post
 
+
 REPLACE_PATT = [
     "[Galaxy-user]",
     "[Galaxy-User]",
-    "[galaxy-user]"
+    "[galaxy-user]",
+    "[Bioc]",
 ]
+
+
+def format_text(text):
+    assert type(text), str
+    lines = text.splitlines()
+    lines = filter(no_junk, lines)
+    lines = [textwrap.fill(line, width=80) for line in lines]
+    text = "\n".join(lines)
+    text = unicode(text, encoding="utf8", errors="replace")
+    text = "<div class='preformatted'>" + text + "</div>"
+    return text
+
+
+def collect(m, data=[]):
+    if m.is_multipart():
+        for part in m.get_payload():
+            data = collect(part, data)
+    else:
+        value = m.get_payload(decode=True)
+        data.append(value)
+
+
 def unpack_data(m):
     b = Bunch()
     b.name, b.email = parse_email(m)
@@ -153,7 +159,14 @@ def unpack_data(m):
         b.subj = b.subj.replace(patt, '')
 
     try:
-        b.body = get_body(m)
+        data = []
+        collect(m, data)
+        b.body = "\n".join(data)
+        b.body = format_text(b.body)
+
+        #print (b.body)
+        #print '-' * 20
+
     except KeyError, exc:
         print exc
         print "skipping post %s" % b.subj
@@ -186,18 +199,18 @@ def parse_mbox(filename):
     users = User.objects.all()
     users = dict([(u.email, u) for u in users])
 
-    #Post.objects.all().delete()
+    Post.objects.all().delete()
 
     print "*** found %s users" % len(users)
 
     tree, posts = {}, {}
 
-    #rows = islice(rows, 10)
+    #rows = islice(rows, 100)
 
     for b in rows:
 
         if b.email not in users:
-            print ("--- creating user %s, %s" % (b.name, b.email))
+            logger.info("--- creating user %s, %s" % (b.name, b.email))
             u = User.objects.create(email=b.email, name=b.name)
             u.save()
             u.profile.date_joined = b.datetime
@@ -221,5 +234,4 @@ def parse_mbox(filename):
 
 
 if __name__ == '__main__':
-
     pass
