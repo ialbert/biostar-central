@@ -1,17 +1,20 @@
 Installation
 ------------
 
-Get the source and switch to the source directory
+Get the source and switch to the source directory. The
+recommended installation is via `virtualenv` and `pip`:
 
-The recommended installation is via `virtualenv` and `pip`:
+    # Install the requirements.
+    pip install --upgrade -r requirements/base.txt
 
-    pip install -r requirements/base.txt
+    # Load the environment variables.
+    source conf/defaults.env
 
-The site manager is `biostar.sh`. This script can take one or more commands like so:
-
-    ./biostar.sh delete init import run
+    # Initialize, import test data and run the site.
+    ./biostar.sh init import run
 
 Visit `http://locahost:8080` to see the site loaded with default settings.
+
 The default admin is `foo@bar.com` password `foobar`. The default email
 handler will print to the console. You can reset the password
 for any user then copy paste the password reset url into the browser.
@@ -19,10 +22,6 @@ for any user then copy paste the password reset url into the browser.
 Run the manager on its own to see all the commands at your disposal:
 
     ./biostar.sh
-
-
-
-
 
 To enable searching you must the content with:
 
@@ -33,7 +32,7 @@ Deploy
 
 A typical deployment requires `lessc` to be installed and a number of other python libraries.
 
-    pip install -r conf/requirements/deploy.txt
+    pip install --upgrade -r requirements/all.txt
 
 Start with the `conf/defaults.env` and `biostar/settings/deploy.py` files and customize them.
 
