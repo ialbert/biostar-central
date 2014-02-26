@@ -34,6 +34,18 @@ def show_nonzero(value):
     "The purpose of this is to return value or empty"
     return value if value else ''
 
+@register.filter
+def bignum(number):
+    "Reformats numbers with qualifiers as K"
+    try:
+        value = float(number)/1000.0
+        if value > 10:
+            return "%0.fk" % value
+        elif value > 1:
+            return "%0.1fk" % value
+    except ValueError, exc:
+        pass
+    return str(number)
 
 @register.filter
 def on(value):
