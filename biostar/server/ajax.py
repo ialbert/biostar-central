@@ -72,10 +72,11 @@ def perform_vote(post, user, vote_type):
     User.objects.filter(pk=post.author.id).update(score=F('score') + change)
 
     if vote.type == Vote.BOOKMARK:
+
         Post.objects.filter(pk=post.id).update(book_count=F('book_count') + change, vote_count=F('vote_count') + change)
         Post.objects.filter(pk=post.id).update(subs_count=F('subs_count') + change)
-    if vote_type == Vote.ACCEPT:
 
+    elif vote_type == Vote.ACCEPT:
         if change > 0:
             # There does not seem to be a negation operator for F objects.
             Post.objects.filter(pk=post.id).update(vote_count=F('vote_count') + change, has_accepted=True)
@@ -83,7 +84,6 @@ def perform_vote(post, user, vote_type):
             Post.objects.filter(pk=post.id).update(vote_count=F('vote_count') + change, has_accepted=False)
     else:
         Post.objects.filter(pk=post.id).update(vote_count=F('vote_count') + change)
-
 
     # Clear old votes.
     if votes:
