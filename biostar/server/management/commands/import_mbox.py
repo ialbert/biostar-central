@@ -137,10 +137,11 @@ def format_text(text):
     text = "<div class='preformatted'>" + text + "</div>"
     return text
 
-SIZE_LIMIT = 5000
+SKIPPED = 0
+SIZE_LIMIT = 10000
 
 def collect(m, data=[]):
-
+    global SKIPPED
     subj = m["Subject"]
     type = m.get_content_type()
 
@@ -151,8 +152,10 @@ def collect(m, data=[]):
         if m.get_content_type() == "text/plain":
             value = m.get_payload(decode=True)
             if len(value) > SIZE_LIMIT:
-                value = value[:SIZE_LIMIT]
-            data.append(value)
+                logger.info( "skipping %s" % len(value))
+                SKIPPED += 1
+            else:
+                data.append(value)
 
 
 def unpack_data(m):
@@ -166,6 +169,8 @@ def unpack_data(m):
 
     b.subj = unicode(b.subj, encoding="utf8", errors="replace")
     assert b.subj, m
+
+    logger.info("parsing %s" % b.subj)
 
     for patt in REPLACE_PATT:
         b.subj = b.subj.replace(patt, '')
@@ -247,6 +252,7 @@ def parse_mbox(filename, limit=None, tag_val=''):
     logger.info("*** users %s" % len(users))
     logger.info("*** posts %s" % len(posts))
     logger.info("*** post limit: %s" % limit)
+    logger.info("*** skipped posts due to size: %s" % SKIPPED)
 
 
     logger.info("*** updating user scores")
@@ -254,7 +260,10 @@ def parse_mbox(filename, limit=None, tag_val=''):
         score = Post.objects.filter(author=user).count()
         user.score = user.full_score = score
         user.save()
-
+        latest = Post.objects.filter(author=user).order_by("-creation_date")[:1]
+        if latest:
+            user.profile.last_login = latest[0].creation_date
+            user.profile.save()
 
 
 if __name__ == '__main__':
