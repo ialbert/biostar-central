@@ -334,6 +334,8 @@ GOOGLE_TRACKER = ""
 # The default CSS file to load.
 SITE_STYLE_CSS = "biostar.style.less"
 
+SITE_STYLE_CSS = "themes/galaxy/galaxy.style.less"
+
 # The site logo.
 SITE_LOGO = "biostar.logo.png"
 
