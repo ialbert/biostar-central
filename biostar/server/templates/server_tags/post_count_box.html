@@ -45,7 +45,7 @@
 
             <span class="tags">
             {% for tag in post.tag_set.all %}
-                <a class="tag" href="{% url 'topic-list' topic=tag.name %}">{{ tag.name }}</a>
+                <a class="tag" href="/t/{{tag.name }}/">{{ tag.name }}</a>
             {% endfor %}
             </span>
             <span class="userlink text-right">

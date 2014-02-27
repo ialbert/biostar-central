@@ -18,8 +18,11 @@
             {% post_body post user post.tree %}
 
             {# Render each answer for the post #}
+
             {% for answer in post.answers %}
-            {% post_body answer user post.tree %}
+
+                {% post_body answer user post.tree %}
+
             {% endfor %}
 
 

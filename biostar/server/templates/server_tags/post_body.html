@@ -40,7 +40,7 @@
             {% if post.is_toplevel %}
             <div class="tags clearfix" style="margin-bottom:0.5em;">
                 {% for tag in post.tag_set.all %}
-                <a class="tag" href="{% url 'topic-list' topic=tag.name %}">{{ tag.name }}</a>
+                <a class="tag" href="/t/{{tag.name}}/">{{ tag.name }}</a>
                 {% endfor %}
             </div>
             {% endif %}

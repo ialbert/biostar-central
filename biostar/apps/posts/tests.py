@@ -31,13 +31,13 @@ class PostTest(TestCase):
         html = "<b>Hello World!</b>"
         post = Post(title=title, author=jane, type=Post.FORUM, content=html)
         post.save()
-        post.add_tags("t1 t2 t3")
+        post.add_tags("t1,t2, t3")
 
         eq(3, Tag.objects.all().count())
 
         post = Post(title=title, author=jane, type=Post.FORUM, content=html)
         post.save()
-        post.add_tags("t1 t2 t3 t2 t1 t1")
+        post.add_tags("t1, t2, t3, t2, t1, t1")
 
         t1 = Tag.objects.get(name="t1")
         t3 = Tag.objects.get(name="t3")

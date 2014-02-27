@@ -29,10 +29,10 @@ OPEN, CLOSE_OFFTOPIC, CLOSE_SPAM, DELETE, DUPLICATE, MOVE_TO_COMMENT, MOVE_TO_AN
 class PostModForm(forms.Form):
     CHOICES = [
         (OPEN, "Open a closed or deleted post"),
-        (MOVE_TO_ANSWER, "Move post as an answer"),
-        (MOVE_TO_COMMENT, "Move post to a comment"),
+        (MOVE_TO_ANSWER, "Move post to an answer"),
+        (MOVE_TO_COMMENT, "Move post to a comment on the top level post"),
         (DUPLICATE, "Duplicated, close"),
-        (CLOSE_OFFTOPIC, "Closing, off topic"),
+        (CLOSE_OFFTOPIC, "Closing"),
         (DELETE, "Delete post"),
     ]
 
@@ -154,6 +154,11 @@ class PostModeration(LoginRequiredMixin, FormView):
             root.update(reply_count=F("reply_count") - 1)
             return response
 
+        # Some actions are valid on top level posts only.
+        if action in (CLOSE_OFFTOPIC, DUPLICATE, OPEN) and not post.is_toplevel:
+            messages.warning(request, "You can only close or open a top level post")
+            return response
+
         if action == OPEN:
             query.update(status=Post.OPEN)
             messages.success(request, "Opened post: %s" % post.title)
@@ -197,8 +202,8 @@ class PostModeration(LoginRequiredMixin, FormView):
                 return HttpResponseRedirect(url)
 
         # By this time all actions should have been performed
-        messages.warning(request, "That seems to be an invalid action for the post. It is probably ok!\
-            Some options are shown if are not valid.")
+        messages.warning(request, "That seems to be an invalid action for that post. \
+                It is probably ok! Actions may be shown even when not valid.")
         return response
 
 class UserModForm(forms.Form):
