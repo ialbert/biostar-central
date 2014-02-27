@@ -10,7 +10,8 @@ from biostar.server.views import BaseListMixin
 from ajax import ajax_error, ajax_success, ajax_error_wrapper, json_response
 from django.conf.urls import patterns
 from django.contrib.sitemaps import FlatPageSitemap, GenericSitemap
-from biostar.apps.posts.models import Post
+from biostar.apps.posts.models import Post, Tag
+
 
 info_dict = {
     'queryset': Post.objects.all(),
@@ -60,6 +61,17 @@ class Search(BaseListMixin):
         context = super(Search, self).get_context_data(**kwargs)
         context['q'] = self.q
         return context
+
+
+def suggest_tags(request):
+    "Returns suggested tags"
+
+    tags = Tag.objects.all().order_by('-count')[:10]
+
+    data = [ x.lower() for x in settings.NAVBAR_SPECIAL_TAGS ] + \
+           [ "error" ] + [ t.name for t in tags ]
+
+    return json_response(data)
 
 
 #@ajax_error_wrapper

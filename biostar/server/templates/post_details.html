@@ -74,11 +74,22 @@
 
     {% if user.is_authenticated %}
         <script src="/static/ckeditor/ckeditor.js"></script>
-        <script>
+        <script type="application/javascript">
             CKEDITOR.replace('answerbox', {
                 customConfig: '/static/ck_config.js'
             });
         </script>
     {% endif %}
+
+{% endblock %}
+
+{% block extras %}
+    <script type="application/javascript">
+
+        $("#id_tag_val").select2(
+            {tags:["red", "green", "blue"]}
+        )
+
+    </script>
 
 {% endblock %}

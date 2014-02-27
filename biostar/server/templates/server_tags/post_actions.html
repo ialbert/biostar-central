@@ -3,7 +3,7 @@
 <div class="post-action">
 
     <span class="label label-default add-comment" data-value="{{ post.id }}">{{ label }}</span>
-    
+
     &bull; <a href="{{ post.get_absolute_url }}">link</a>
     {% if post.is_editable %}
         &bull; <a href="{% url 'post-edit' post.id %}">edit</a>

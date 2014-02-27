@@ -59,7 +59,6 @@ class PostManager(models.Manager):
 
     def tag_search(self, text):
         "Performs a query by one or more + separated tags"
-        text = ''.join(text.split())
         include, exclude = [], []
         for term in text.split('+'):
             if term.endswith("!"):
@@ -177,8 +176,17 @@ class Post(models.Model):
     tag_set = models.ManyToManyField(Tag, blank=True, )
 
     def parse_tags(self):
-        names = self.tag_val.split()
-        return map(unicode, names)
+
+        # Try splitting by comma
+        words = self.tag_val.split(",")
+
+        if len(words) == 1:
+            # Try splitting by space
+            words = self.tag_val.split()
+
+        # Strip each tag.
+        words = [ w.lower().strip() for w in words ]
+        return map(unicode, words)
 
     def add_tags(self, text):
         text = text.strip()

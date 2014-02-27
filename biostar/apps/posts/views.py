@@ -17,10 +17,11 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
 from biostar.const import OrderedDict
 
+CHOICES = settings.NAVBAR_SPECIAL_TAGS
 
 class LongForm(forms.Form):
-    FIELDS = "title content".split()
-    CHOICES = [(x, x) for x in settings.NAVBAR_SPECIAL_TAGS]
+    FIELDS = "title content post_type tag_val".split()
+
     POST_CHOICES = [(Post.QUESTION, "Question"), (Post.FORUM, "Forum Post"), (Post.JOB, "Job Ad"), (Post.BLOG, "Blog Post"), (Post.PAGE, "Biostar Page")]
     title = forms.CharField()
 
@@ -88,11 +89,8 @@ class NewPost(LoginRequiredMixin, FormView):
         data = form.cleaned_data.get
 
         title = data('title')
-
         content = data('content')
-
         post_type = int(data('post_type'))
-
         tag_val = data('tag_val')
 
         post = Post(
@@ -180,7 +178,7 @@ class EditPost(LoginRequiredMixin, FormView):
             messages.error(request, "This user may not modify the post")
             return HttpResponseRedirect(reverse("home"))
 
-        initial = dict(title=post.title, content=post.content)
+        initial = dict(title=post.title, content=post.content, post_type=post.type, tag_val=post.tag_val)
 
         form_class = LongForm if post.is_toplevel else ShortForm
         form = form_class(initial=initial)
@@ -211,6 +209,9 @@ class EditPost(LoginRequiredMixin, FormView):
         # Set the form attributes.
         for field in form_class.FIELDS:
             setattr(post, field, data[field])
+
+        if post.is_toplevel:
+            post.add_tags(post.tag_val)
 
         # Update the last editing user.
         post.lastedit_user = request.user

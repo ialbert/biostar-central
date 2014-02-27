@@ -67,6 +67,9 @@ urlpatterns = patterns('',
     # Search the titles.
     url(r'^local/search/title/', search.search_title, name="search-title"),
 
+    # Returns suggested tags
+    url(r'^local/search/tags/', search.suggest_tags, name="suggest-tags"),
+
     # Vote submission.
     url(r'^x/vote/$', ajax.vote_handler, name="vote-submit"),
 

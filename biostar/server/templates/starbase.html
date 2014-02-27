@@ -137,6 +137,10 @@
 
 {% endif %}
 
+{% block extras %}
+ {# Exta javascript may be injected here #}
+{% endblock %}
+
 {# Google tracker injected if it exists in the context. Set in the django settings. #}
 {% if GOOGLE_TRACKER %}
     <script type="text/javascript">

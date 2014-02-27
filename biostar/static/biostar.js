@@ -151,7 +151,7 @@ function ajax_vote(elem, post_id, vote_type) {
 
 function title_format(row) {
 
-    link ='<a href="/p/' + row.id +'"/>' + row.text + '</a><div class="in">'+ row.context +' by <i>' + row.author + '</i></div>';
+    link = '<a href="/p/' + row.id + '"/>' + row.text + '</a><div class="in">' + row.context + ' by <i>' + row.author + '</i></div>';
     return link
 }
 
@@ -192,9 +192,27 @@ $(document).ready(function () {
     })
 
 
-    searchform.on("change", function(e) {
-        window.location = POST_DISPLAY_URL + e.val +"/"
+    searchform.on("change", function (e) {
+        window.location = POST_DISPLAY_URL + e.val + "/"
     })
+
+    var tagval = $("#id_tag_val")
+    tagval.removeClass("textinput textInput form-control")
+    tagval.width("100%")
+
+    var tag_list = $.ajax({
+        url: "/local/search/tags/",
+        dataType: 'json',
+        success: function (response) {
+            tagval.select2({
+                tags: response
+            });
+        }
+    });
+
+    /*tagval.select2({
+     tags:["red", "green", "blue"]
+     })*/
 
     // Register tooltips.
     $('.tip').tooltip(tooltip_options)
