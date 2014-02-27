@@ -105,6 +105,7 @@ class Post(models.Model):
 
     # Question types. Answers should be listed before comments.
     QUESTION, ANSWER, JOB, FORUM, PAGE, BLOG, COMMENT = range(7)
+
     TYPE_CHOICES = [
         (QUESTION, "Question"), (ANSWER, "Answer"), (COMMENT, "Comment"),
         (JOB, "Job"), (FORUM, "Forum"), (PAGE, "Page"), (BLOG, "Blog"),
@@ -265,23 +266,24 @@ class Post(models.Model):
             if not (instance.root or instance.parent):
                 # Neither root or parent are set.
                 instance.root = instance.parent = instance
+
             elif instance.parent:
                 # When only the parent is set the root must follow the parent root.
                 instance.root = instance.parent.root
+
             elif instance.root:
                 # The root should never be set on creation.
                 raise Exception('Root may not be set on creation')
+
             if instance.parent.type in (Post.ANSWER, Post.COMMENT):
                 # Answers and comments may only have comments associated with them.
                 instance.type = Post.COMMENT
 
-            if not instance.is_toplevel:
-                # Title is inherited from top level.
-                instance.title = "%s: %s" % (instance.get_type_display()[0], instance.root.title[:80])
-
             assert instance.root and instance.parent
 
             if not instance.is_toplevel:
+                # Title is inherited from top level.
+                instance.title = "??? %s: %s" % (instance.get_type_display()[0], instance.root.title[:80])
                 Post.objects.filter(id=instance.root.id).update(reply_count=F("reply_count") + 1)
 
             instance.save()

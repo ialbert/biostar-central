@@ -19,10 +19,10 @@
             </div>
 
             {% if not post.is_toplevel %}
-                <div class="vote mark {{ post.has_accepted|on }} tip" data-toggle="tooltip" data-placement="top"
-                     data-type="accept" title="Accept!">
-                    <i class="fa fa-check-circle-o fa-2x"></i>
-                </div>
+            <div class="vote mark {{ post.has_accepted|on }} tip" data-toggle="tooltip" data-placement="top"
+                 data-type="accept" title="Accept!">
+                <i class="fa fa-check-circle-o fa-2x"></i>
+            </div>
             {% endif %}
         </div>
 
@@ -30,27 +30,27 @@
 
     <td>
         {% if post.is_toplevel %}
-            <div class="title">{{ post.get_type_display }}: {{ post.get_title }}</div>
+        <div class="title">{{ post.get_type_display }}: {{ post.get_title }}</div>
         {% endif %}
 
-        {#  The body of the post #}
+        {# The body of the post #}
         <div class="content">{{ post.content|safe }}</div>
 
         <div class="clearfix">
             {% if post.is_toplevel %}
-                <span class="tags">
+            <div class="tags clearfix" style="margin-bottom:0.5em;">
                 {% for tag in post.tag_set.all %}
-                    <a class="tag" href="{% url 'topic-list' topic=tag.name %}">{{ tag.name }}</a>
+                <a class="tag" href="{% url 'topic-list' topic=tag.name %}">{{ tag.name }}</a>
                 {% endfor %}
-                 </span>
+            </div>
             {% endif %}
 
-            {#  Post action line #}
+            {# Post action line #}
             {% post_actions post user %}
         </div>
 
 
-        {#  Comments for each post rendered here #}
+        {# Comments for each post rendered here #}
         <div class="comment">
             {% render_comments request post tree %}
         </div>

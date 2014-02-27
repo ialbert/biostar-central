@@ -21,14 +21,12 @@ from biostar.const import OrderedDict
 class LongForm(forms.Form):
     FIELDS = "title content".split()
     CHOICES = [(x, x) for x in settings.NAVBAR_SPECIAL_TAGS]
-    POST_CHOICES = [(Post.QUESTION, "Question"), (Post.FORUM, "Forum"), (Post.JOB, "Job"), (Post.BLOG, "Blog")]
+    POST_CHOICES = [(Post.QUESTION, "Question"), (Post.FORUM, "Forum Post"), (Post.JOB, "Job Ad"), (Post.BLOG, "Blog Post"), (Post.PAGE, "Biostar Page")]
     title = forms.CharField()
 
     post_type = forms.ChoiceField(choices=POST_CHOICES, help_text="Select a post type: Question, Forum, Job, Blog")
 
-    category = forms.ChoiceField(choices=CHOICES, help_text="Select a main post category")
-
-    tag_val = forms.CharField(required=False, help_text="Choose more tags to match the topic")
+    tag_val = forms.CharField(required=False, help_text="Choose one or more tags to match the topic", label="Tags")
 
     content = forms.CharField(widget=forms.Textarea, label="Enter your content:")
 
@@ -40,7 +38,6 @@ class LongForm(forms.Form):
                 'Post',
                 'title',
                 'post_type',
-                'category',
                 'tag_val',
                 'content',
             ),
@@ -68,11 +65,8 @@ class ShortForm(forms.Form):
             )
         )
 
-
-POST_TYPE_MAP = {
-    "Job": Post.JOB, "Forum": Post.FORUM, "Blog": Post.BLOG,
-}
-
+def parse_tags(category, tag_val):
+    pass
 
 class NewPost(LoginRequiredMixin, FormView):
     form_class = LongForm
@@ -92,23 +86,22 @@ class NewPost(LoginRequiredMixin, FormView):
 
         # Valid forms start here.
         data = form.cleaned_data.get
+
         title = data('title')
+
         content = data('content')
 
-        category = data('category')
+        post_type = int(data('post_type'))
 
         tag_val = data('tag_val')
 
-        # Set the post type
-        post_type = POST_TYPE_MAP.get(category, Post.QUESTION)
-
         post = Post(
-            title=title, content=content, tag_val=tag_val, author=request.user, type=post_type,
+            title=title, content=content, tag_val=tag_val,
+            author=request.user, type=post_type,
         )
-
         post.save()
 
-        # Triggers a post save.
+        # Triggers a new post save.
         post.add_tags(tag_val)
 
         messages.success(request, "%s created" % post.get_type_display())

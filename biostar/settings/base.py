@@ -211,7 +211,7 @@ INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
 
-    # This needs to be added back if sessions are stored in the database.
+
     # 'django.contrib.sessions',
 
     'django.contrib.sites',
