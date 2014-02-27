@@ -86,7 +86,6 @@ class PostModForm(forms.Form):
 
         return cleaned_data
 
-
 class PostModeration(LoginRequiredMixin, FormView):
     model = Post
     template_name = "post_moderation_form.html"
@@ -198,7 +197,8 @@ class PostModeration(LoginRequiredMixin, FormView):
                 return HttpResponseRedirect(url)
 
         # By this time all actions should have been performed
-        messages.error(request, "That seems to be an invalid action for the post. It's ok!")
+        messages.warning(request, "That seems to be an invalid action for the post. It is probably ok!\
+            Some options are shown if are not valid.")
         return response
 
 class UserModForm(forms.Form):

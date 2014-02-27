@@ -16,8 +16,18 @@ from django.utils.timezone import utc
 from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
 from biostar.const import OrderedDict
+from django.core.exceptions import ValidationError
 
-CHOICES = settings.NAVBAR_SPECIAL_TAGS
+def valid_tag(text):
+    "Validates form input for tags"
+    text = text.strip()
+    if not text:
+        raise ValidationError('Please enter at least one tag')
+    if len(text) > 50:
+        raise ValidationError('Tag line is too long (50 characters max)')
+    words = text.split(",")
+    if len(words) > 5:
+        raise ValidationError('You have too many tags (5 allowed)')
 
 class LongForm(forms.Form):
     FIELDS = "title content post_type tag_val".split()
@@ -27,7 +37,8 @@ class LongForm(forms.Form):
 
     post_type = forms.ChoiceField(choices=POST_CHOICES, help_text="Select a post type: Question, Forum, Job, Blog")
 
-    tag_val = forms.CharField(required=False, help_text="Choose one or more tags to match the topic", label="Tags")
+    tag_val = forms.CharField(required=True, validators=[ valid_tag ],
+                              help_text="Choose one or more tags to match the topic", label="Tags")
 
     content = forms.CharField(widget=forms.Textarea, label="Enter your content:")
 

@@ -69,7 +69,7 @@ def suggest_tags(request):
     tags = Tag.objects.all().order_by('-count')[:10]
 
     data = [ x.lower() for x in settings.NAVBAR_SPECIAL_TAGS ] + \
-           [ "error" ] + [ t.name for t in tags ]
+           [ "software error" ] + [ t.name for t in tags ]
 
     return json_response(data)
 

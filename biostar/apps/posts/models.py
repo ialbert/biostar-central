@@ -180,10 +180,6 @@ class Post(models.Model):
         # Try splitting by comma
         words = self.tag_val.split(",")
 
-        if len(words) == 1:
-            # Try splitting by space
-            words = self.tag_val.split()
-
         # Strip each tag.
         words = [ w.lower().strip() for w in words ]
         return map(unicode, words)
@@ -218,6 +214,11 @@ class Post(models.Model):
         delta = const.now() - self.creation_date
         return delta.days
 
+    def update_reply_count(self):
+        "This can be used to set the answer count."
+        if self.type == Post.ANSWER:
+            reply_count = Post.objects.filter(parent=self, type=Post.ANSWER, status=Post.OPEN).count()
+            Post.objects.filter(pl=self.root_id).update(reply_count=reply_count)
 
     def save(self, *args, **kwargs):
 
@@ -292,7 +293,9 @@ class Post(models.Model):
             if not instance.is_toplevel:
                 # Title is inherited from top level.
                 instance.title = "??? %s: %s" % (instance.get_type_display()[0], instance.root.title[:80])
-                Post.objects.filter(id=instance.root.id).update(reply_count=F("reply_count") + 1)
+
+                if instance.type == Post.ANSWER:
+                    Post.objects.filter(id=instance.root.id).update(reply_count=F("reply_count") + 1)
 
             instance.save()
 
