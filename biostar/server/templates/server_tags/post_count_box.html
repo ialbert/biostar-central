@@ -4,7 +4,7 @@
 <div class="post-row {{ post.get_type_display }} {{ post.get_status_display }}">
     <div class="count-box clearfix">
         {% if post.is_toplevel %}
-            <div class="box vote">
+            <div class="box vote visible-lg visible-md">
                 <div class="c">{{ post.vote_count }}</div>
                 <div class="t">vote{{ post.vote_count|pluralize }}</div>
             </div>
@@ -12,7 +12,7 @@
                 <div class="c">{{ post.reply_count }}</div>
                 <div class="t">answer{{ post.reply_count|pluralize }}</div>
             </div>
-            <div class="box view">
+            <div class="box view visible-lg visible-md">
                 <div class="c">{{ post.view_count }}</div>
                 <div class="t">views</div>
             </div>
@@ -43,7 +43,7 @@
         <div class="post-title"><a href="{{ post.get_absolute_url }}">{{ post.get_title }}</a></div>
         <div class="clearfix">
 
-            <span class="tags">
+            <span class="tags visible-lg visible-md">
             {% for tag in post.tag_set.all %}
                 <a class="tag" href="/t/{{tag.name }}/">{{ tag.name }}</a>
             {% endfor %}
