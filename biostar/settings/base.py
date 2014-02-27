@@ -12,6 +12,8 @@ DEBUG = True
 # Template debug mode.
 TEMPLATE_DEBUG = DEBUG
 
+# Should the django compressor be used.
+USE_COMPRESSOR = False
 
 # The top navigation has three parts: start, special tags, end
 NAVBAR_START_CATEGORIES = [
@@ -345,9 +347,6 @@ RECENT_POST_COUNT = 10
 
 # Default cache expiration in seconds.
 CACHE_TIMEOUT = 60
-
-# Should the django compressor be used.
-USE_COMPRESSOR = False
 
 # Django precompressor settings.
 COMPRESS_PRECOMPILERS = (
