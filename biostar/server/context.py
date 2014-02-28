@@ -1,9 +1,10 @@
 __author__ = 'ialbert'
 from django.conf import settings
-from biostar import VERSION
+from biostar import const, VERSION
 from django.core.cache import cache
 from biostar.apps.users.models import User
-from biostar.apps.posts.models import Post, Vote, Subscription
+from biostar.apps.posts.models import Post, Vote, PostView, Subscription
+from datetime import timedelta
 
 CACHE_TIMEOUT = settings.CACHE_TIMEOUT
 RECENT_VOTES_KEY = "RECENT_VOTES_KEY"
@@ -32,8 +33,18 @@ def get_recent_replies():
         cache.set(RECENT_REPLIES_KEY, posts, CACHE_TIMEOUT)
     return posts
 
+TRAFFIC_KEY = "traffic"
 def get_traffic():
-    return 1
+    global TRAFFIC_KEY
+    traffic = cache.get(TRAFFIC_KEY)
+    if not traffic:
+        try:
+            recent = const.now() - timedelta(minutes=60)
+            traffic = PostView.objects.filter(date__gt=recent).distinct('ip').count()
+        except Exception, exc:
+            traffic = PostView.objects.filter(date__gt=recent).count()
+        cache.set(TRAFFIC_KEY, traffic, 300)
+    return traffic
 
 def shortcuts(request):
     # These values will be added to each context

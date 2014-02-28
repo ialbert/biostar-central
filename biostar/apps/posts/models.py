@@ -181,7 +181,7 @@ class Post(models.Model):
         words = self.tag_val.split(",")
 
         # Strip each tag.
-        words = [ w.lower().strip() for w in words ]
+        words = [w.lower().strip() for w in words]
         return map(unicode, words)
 
     def add_tags(self, text):
@@ -266,6 +266,23 @@ class Post(models.Model):
         url = reverse("post-details", kwargs=dict(pk=self.root_id))
         return url if self.is_toplevel else "%s#%s" % (url, self.id)
 
+    @staticmethod
+    def update_post_views(post, request, minutes=settings.POST_VIEW_MINUTES):
+        "Views are updated per user session"
+
+        # Extract the IP number from the request.
+        ip1 = request.META.get('REMOTE_ADDR', '')
+        ip2 = request.META.get('HTTP_X_FORWARDED_FOR', '').split(",")[0].strip()
+        ip = ip1 or ip2 or '0.0.0.0'
+
+        now = const.now()
+        since = now - datetime.timedelta(minutes=minutes)
+
+        # One view per time interval from each IP address.
+        if not PostView.objects.filter(ip=ip, post=post, date__gt=since):
+            PostView.objects.create(ip=ip, post=post, date=now)
+            Post.objects.filter(id=post.id).update(view_count=F('view_count') + 1)
+        return post
 
     @staticmethod
     def check_root(sender, instance, created, *args, **kwargs):
@@ -299,8 +316,8 @@ class Post(models.Model):
 
             instance.save()
 
-class PostAdmin(admin.ModelAdmin):
 
+class PostAdmin(admin.ModelAdmin):
     list_display = ('title', 'type', 'author')
     fieldsets = (
         (None, {'fields': ('title',)}),
@@ -311,6 +328,15 @@ class PostAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Post, PostAdmin)
+
+
+class PostView(models.Model):
+    """
+    Keeps track of post views based on IP address.
+    """
+    ip = models.GenericIPAddressField(default='', null=True, blank=True)
+    post = models.ForeignKey(Post, related_name="post_views")
+    date = models.DateTimeField(auto_now=True)
 
 
 class Vote(models.Model):

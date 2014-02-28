@@ -66,11 +66,9 @@ def apply_sort(request, query):
         query = query.filter(lastedit_date__gt=delta)
     return query
 
-
 LATEST = "latest"
 MYPOSTS, MYTAGS, UNANSWERED, FOLLOWING, BOOKMARKS = "myposts mytags unanswered following bookmarks".split()
-POST_TYPES = dict(jobs=Post.JOB, forum=Post.FORUM, planet=Post.BLOG, pages=Post.PAGE)
-
+POST_TYPES = dict(job=Post.JOB, forum=Post.FORUM, planet=Post.BLOG, pages=Post.PAGE)
 
 def posts_by_topic(request, topic):
     "Returns a post query that matches a topic"
@@ -314,6 +312,9 @@ class PostDetails(DetailView):
         user = self.request.user
 
         obj = super(PostDetails, self).get_object()
+
+        # Update the post views.
+        Post.update_post_views(obj, request=self.request)
 
         # Adds the permissions
         obj = post_permissions(request=self.request, post=obj)

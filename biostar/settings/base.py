@@ -350,6 +350,9 @@ RECENT_VOTE_COUNT = 10
 RECENT_USER_COUNT = 10
 RECENT_POST_COUNT = 10
 
+# Time between two accesses from the same IP to qualify as a different view.
+POST_VIEW_MINUTES = 5
+
 # Default cache expiration in seconds.
 CACHE_TIMEOUT = 60
 
