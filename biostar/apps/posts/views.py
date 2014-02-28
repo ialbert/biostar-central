@@ -33,7 +33,8 @@ class LongForm(forms.Form):
     FIELDS = "title content post_type tag_val".split()
 
     POST_CHOICES = [(Post.QUESTION, "Question"), (Post.FORUM, "Forum Post"), (Post.JOB, "Job Ad"), (Post.BLOG, "Blog Post"), (Post.PAGE, "Biostar Page")]
-    title = forms.CharField()
+
+    title = forms.CharField(max_length=100)
 
     post_type = forms.ChoiceField(choices=POST_CHOICES, help_text="Select a post type: Question, Forum, Job, Blog")
 

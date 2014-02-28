@@ -133,7 +133,7 @@ class User(AbstractBaseUser):
         return self.score * 10
 
     def __unicode__(self):
-        return "User %s: %s (%s)" % (self.id, self.name, self.email)
+        return "%s: %s (%s)" % (self.name, self.email, self.id)
 
     def get_absolute_url(self):
         url = reverse("user-details", kwargs=dict(pk=self.id))
@@ -272,8 +272,8 @@ class BiostarUserAdmin(UserAdmin):
             'fields': ('email', 'name', 'type', 'password1', 'password2')}
         ),
     )
-    search_fields = ('email',)
-    ordering = ('id', 'email',)
+    search_fields = ('email', 'name',)
+    ordering = ('id', 'name', 'email',)
     filter_horizontal = ()
     inlines = [ProfileInline]
 

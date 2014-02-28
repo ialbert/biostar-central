@@ -161,58 +161,59 @@ $(document).ready(function () {
 
     var searchform = $("#searchform")
 
-    searchform.focus();
+    if (searchform.length > 0) {
+        searchform.focus();
 
-    // Add the search functionality
-    searchform.select2({
-        placeholder: "Live search: start typing...",
-        minimumInputLength: 3,
-        ajax: {
-            url: TITLE_SEARCH_URL,
-            dataType: 'json',
-            data: function (term, page) {
-                return {
-                    q: term, // search term
-                    page_limit: 10,
-                };
+        // Add the search functionality
+        searchform.select2({
+            placeholder: "Live search: start typing...",
+            minimumInputLength: 3,
+            ajax: {
+                url: TITLE_SEARCH_URL,
+                dataType: 'json',
+                data: function (term, page) {
+                    return {
+                        q: term, // search term
+                        page_limit: 10,
+                    };
+                },
+                results: function (data, page) {
+                    console.log(data.items)
+                    console.log(page)
+                    return {results: data.items};
+                }
             },
-            results: function (data, page) {
-                console.log(data.items)
-                console.log(page)
-                return {results: data.items};
+
+            formatResult: title_format,
+
+            dropdownCssClass: "bigdrop",
+            escapeMarkup: function (m) {
+                return m;
             }
-        },
+        })
+        searchform.on("change", function (e) {
+            window.location = POST_DISPLAY_URL + e.val + "/"
+        })
+    }
 
-        formatResult: title_format,
-
-        dropdownCssClass: "bigdrop",
-        escapeMarkup: function (m) {
-            return m;
-        }
-    })
-
-
-    searchform.on("change", function (e) {
-        window.location = POST_DISPLAY_URL + e.val + "/"
-    })
 
     var tagval = $("#id_tag_val")
-    tagval.removeClass("textinput textInput form-control")
-    tagval.width("100%")
 
-    var tag_list = $.ajax({
-        url: "/local/search/tags/",
-        dataType: 'json',
-        success: function (response) {
-            tagval.select2({
-                tags: response
-            });
-        }
-    });
+    if (tagval.length > 0) {
+        tagval.removeClass("textinput textInput form-control")
+        tagval.width("100%")
 
-    /*tagval.select2({
-     tags:["red", "green", "blue"]
-     })*/
+        var tag_list = $.ajax({
+            url: "/local/search/tags/",
+            dataType: 'json',
+            success: function (response) {
+                tagval.select2({
+                    tags: response
+                });
+            }
+        });
+    }
+
 
     // Register tooltips.
     $('.tip').tooltip(tooltip_options)

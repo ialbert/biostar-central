@@ -29,12 +29,18 @@
     </td>
 
     <td>
+        {% user_box post.author post.lastedit_date %}
+
         {% if post.is_toplevel %}
-        <div class="title">{{ post.get_type_display }}: {{ post.get_title }}</div>
+            <div class="title">{{ post.get_type_display }}: {{ post.get_title }}</div>
         {% endif %}
 
         {# The body of the post #}
-        <div class="content">{{ post.content|safe }}</div>
+        <div class="content">
+
+            {{ post.content|safe }}
+
+        </div>
 
         <div class="clearfix">
             {% if post.is_toplevel %}

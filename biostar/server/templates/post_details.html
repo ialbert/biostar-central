@@ -2,106 +2,90 @@
 {% load server_tags %}
 
 {% block page_title %}
-{{ post.title }}
+    {{ post.title }}
 {% endblock %}
 {% block content %}
 
-{% search_bar %}
+    {% search_bar %}
 
-<div class="row">
+    <div class="row">
 
-    <div class="col-xs-12 col-md-9">
+        <div class="col-xs-12 col-md-12">
 
-        <table class="table" id="post-details">
+            <table class="table" id="post-details">
 
-            {# This is the toplevel post #}
-            {% post_body post user post.tree %}
+                {# This is the toplevel post #}
+                {% post_body post user post.tree %}
 
-            {# Render each answer for the post #}
+                {# Render each answer for the post #}
 
-            {% for answer in post.answers %}
+                {% for answer in post.answers %}
 
-                {% post_body answer user post.tree %}
+                    {% post_body answer user post.tree %}
 
-            {% endfor %}
-
-
-            <span id="csrf_token">{% csrf_token %}</span>
-
-            {# Answers go into a different row #}
-            <tr>
-                <td>&nbsp;</td>
-                <td>
-
-                    {% if user.is_authenticated %}
-                    {% if post.is_open %}
-                    <h3>Add your answer</h3>
-
-                    <div class="alert alert-warning">
-
-                        <p><strong>Note:</strong> Answers should respond to the original question on the top!
-                        </p>
-
-                        <p>
-                            Use the comments
-                            to discuss an answer, ask for clarifications, request more details, etc.
-                        </p>
-                    </div>
-
-                    <form role="form" id="answer-form" method="post"
-                          action="{% url " new-answer
-                    " post.id %}">
-                    {% csrf_token %}
-                    <div class="form-group">
-                        <textarea class="textarea form-control" cols="40" id="answerbox" name="content"
-                                  rows="10"></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-success">Add Answer</button>
-
-                    </form>
-                    {% else %}
-                    <div class="alert alert-warning">
-                        The thread is closed. No new answers may be added.
-                    </div>
+                {% endfor %}
 
 
-                    {% endif %}
-                    {% else %}
-                    <div class="alert alert-info">
-                        Please <a href="account-login">log in</a> to add an answer.
-                    </div>
-                    {% endif %}
+                <span id="csrf_token">{% csrf_token %}</span>
 
-                </td>
-            </tr>
-        </table>
+                {# Answers go into a different row #}
+                <tr>
+                    <td>&nbsp;</td>
+                    <td>
 
+                        {% if user.is_authenticated %}
+                            {% if post.is_open %}
+                                <h3>Add your answer</h3>
+
+                                <div class="alert alert-warning">
+
+                                    <p><strong>Note:</strong> Answers should respond to the original question on the
+                                        top!
+                                    </p>
+
+                                    <p>
+                                        Use the comments
+                                        to discuss an answer, ask for clarifications, request more details, etc.
+                                    </p>
+                                </div>
+
+                                <form role="form" id="answer-form" method="post"
+                                      action="{% url 'new-answer' post.id %}">
+                                    {% csrf_token %}
+                                    <div class="form-group">
+                                        <textarea class="textarea form-control" cols="40" id="answerbox" name="content"
+                                                  rows="10"></textarea>
+                                    </div>
+                                    <button type="submit" class="btn btn-success">Add Answer</button>
+
+                                </form>
+                            {% else %}
+                                <div class="alert alert-warning">
+                                    The thread is closed. No new answers may be added.
+                                </div>
+
+
+                            {% endif %}
+                        {% else %}
+                            <div class="alert alert-info">
+                                Please <a href="account-login">log in</a> to add an answer.
+                            </div>
+                        {% endif %}
+
+                    </td>
+                </tr>
+            </table>
+
+        </div>
     </div>
 
-    <div class="col-md-3 visible-lg visible-md">
-        Sidebar Goes Here
-    </div>
-
-</div>
-
-{% if user.is_authenticated %}
-<script src="/static/ckeditor/ckeditor.js"></script>
-<script type="application/javascript">
-    CKEDITOR.replace('answerbox', {
-        customConfig: '/static/ck_config.js'
-    });
-</script>
-{% endif %}
-
-{% endblock %}
-
-{% block extras %}
-<script type="application/javascript">
-
-    $("#id_tag_val").select2(
-    {tags: ["red", "green", "blue"]}
-    )
-
-</script>
+    {% if user.is_authenticated %}
+        <script src="/static/ckeditor/ckeditor.js"></script>
+        <script type="application/javascript">
+            CKEDITOR.replace('answerbox', {
+                customConfig: '/static/ck_config.js'
+            });
+        </script>
+    {% endif %}
 
 {% endblock %}

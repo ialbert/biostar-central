@@ -49,7 +49,7 @@
             {% endfor %}
             </span>
             <span class="userlink text-right">
-            {% last_action post %} {{ post.creation_date|naturaltime }} by {% userlink post.author %}
+            {% last_action post %} {{ post.creation_date|time_ago }} by {% userlink post.author %}
             </span>
 
         </div>

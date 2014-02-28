@@ -24,7 +24,7 @@ See the biostar.style.less file for details.
 }
 
 #logo {
-  padding:0px;
+  padding: 0px;
 }
 
 #traffic {
@@ -420,10 +420,10 @@ div#navbar {
 
   .newpost {
     a {
-    //color: @ACCENT_COLOR;
+      //color: @ACCENT_COLOR;
     }
   }
-  
+
   .mid {
     border-radius: 4px;
     vertical-align: middle;
@@ -515,9 +515,20 @@ div#navbar {
   color: black;
 }
 
+.userbox.grey {
+  background-color: #e1e1e1;
+  border: 1px solid #d3d3d3;
+}
+
 .userbox {
-  padding-bottom:10px;
-  height: 160px;
+  padding: 10px 0px 10px 0px;
+  //height: 160px;
+
+  .fixed {
+    height: 160px;
+
+  }
+
   .uname {
     font-size: small;
   }
@@ -532,7 +543,9 @@ div#navbar {
 }
 
 .preformatted {
-    font-family: monospace;
-    white-space: pre;
+  font-family: monospace;
+  white-space: pre;
 }
+
+
 

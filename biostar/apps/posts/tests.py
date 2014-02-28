@@ -19,7 +19,7 @@ logging.disable(logging.INFO)
 class PostTest(TestCase):
 
     def test_tagging(self):
-        "Testing tagging"
+        "Testing tagging."
         eq = self.assertEqual
 
         eq(0, Tag.objects.all().count() )
@@ -54,7 +54,7 @@ class PostTest(TestCase):
         eq(1, t3.count)
 
     def test_post_creation(self):
-        "Testing post creation"
+        "Testing post creation."
         eq = self.assertEqual
 
         # Create an admin user and a post.

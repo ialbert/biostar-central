@@ -92,10 +92,9 @@ def pluralize(value, word):
         return "%d %s" % (value, word)
 
 
-@register.simple_tag
-def time_ago(post):
-    now = datetime.utcnow().replace(tzinfo=utc)
-    delta = now - post.lastedit_date
+@register.filter
+def time_ago(date):
+    delta = const.now() - date
     if delta < timedelta(minutes=1):
         return 'just now'
     elif delta < timedelta(hours=1):
@@ -111,7 +110,7 @@ def time_ago(post):
     else:
         diff = delta.days / 365.0
         unit = '%0.1f years' % diff
-    return "%s" % unit
+    return "%s ago" % unit
 
 
 @register.simple_tag
@@ -119,13 +118,11 @@ def last_action(post):
     action = "written"
     return "%s" % action
 
-
 @register.simple_tag
 def active(x, y):
     # Create the active class css
     x, y = x or '', y or ''
     return 'active' if x.lower() == y.lower() else ''
-
 
 @register.simple_tag
 def boxclass(post):
@@ -161,6 +158,11 @@ def nav_bar(context, user):
 def page_bar(context):
     "Renders a paging bar"
     return context
+
+@register.inclusion_tag('server_tags/user_box.html')
+def user_box(user, date):
+    "Renders a user box"
+    return dict(user=user, date=date)
 
 @register.inclusion_tag('server_tags/page_bar_sort_posts.html', takes_context=True)
 def page_bar_sort_posts(context):

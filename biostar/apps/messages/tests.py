@@ -41,7 +41,6 @@ class NoteTest(TestCase):
         users, posts, user = [], [], None
         parent = None
         for email in emails:
-
             # Create users.
             user = User.objects.create(email=email)
             users.append(user)
@@ -73,49 +72,5 @@ class NoteTest(TestCase):
             mesg_c = Message.objects.filter(user=user).count()
             eq (mesg_c, EMAIL_COUNT - index - 1)
 
-        '''
-        COMMENT_COUNT = 3
-        comments = []
-        for i in range(COMMENT_COUNT):
-            com = Post(author=last, type=Post.COMMENT, parent=answers[0])
-            com.save()
-            comments.append(com)
 
-        # This is the total number of posts created.
-        eq(EMAIL_COUNT + COMMENT_COUNT + ANSWER_COUNT, Post.objects.all().count())
-
-        ansc = Post.objects.filter(type=Post.ANSWER).count()
-        eq(ansc, 1)
-
-
-        comc = Post.objects.filter(type=Post.COMMENT).count()
-        eq(comc, 3)
-
-        # Does not matter which comment we pick, each person should
-        # have a subscription to the root.
-        for sub in Subscription.objects.all():
-            print sub.user, sub.post.root
-
-        subsc = Subscription.objects.get_subs(post=comments[-1]).count()
-        eq(subsc, EMAIL_COUNT)
-
-        # Check how many messages do users have.
-        # A user gets messages for posts they did not create.
-
-
-        # now test the number of messages that they have
-        for user in users:
-            mesg_c = Message.objects.filter(user=user).count()
-            post_c = Post.objects.exclude(author=user).count()
-
-            print (user.email, post_c, mesg_c)
-
-
-            #eq(num,
-        #
-        #    num = Message.objects.filter(user__email=email).count()
-        #    print (email, index, num)
-        #    eq(num, email_count + COMMENTS - index)
-
-        '''
 

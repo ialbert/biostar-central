@@ -53,7 +53,6 @@ def post_create_messages(sender, instance, created, *args, **kwargs):
         # Bulk insert of all messages. Bypasses the Django ORM!
         Message.objects.bulk_create(messages(), batch_size=100)
 
-
         try:
             # Bulk sending email messages.
             results = mail.send_mass_mail(emails)
