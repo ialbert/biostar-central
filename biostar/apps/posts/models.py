@@ -292,7 +292,7 @@ class Post(models.Model):
 
             if not instance.is_toplevel:
                 # Title is inherited from top level.
-                instance.title = "??? %s: %s" % (instance.get_type_display()[0], instance.root.title[:80])
+                instance.title = "%s: %s" % (instance.get_type_display()[0], instance.root.title[:80])
 
                 if instance.type == Post.ANSWER:
                     Post.objects.filter(id=instance.root.id).update(reply_count=F("reply_count") + 1)

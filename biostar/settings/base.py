@@ -339,6 +339,9 @@ SITE_STYLE_CSS = "themes/galaxy/galaxy.style.less"
 # The site logo.
 SITE_LOGO = "biostar.logo.png"
 
+# The name that appears.
+SITE_NAME = "Biostar"
+
 # Set it to None if all posts should be accesible via the Latest tab.
 SITE_LATEST_POST_LIMIT = None
 

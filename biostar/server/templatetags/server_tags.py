@@ -53,6 +53,12 @@ def on(value):
     return "on" if value else 'off'
 
 @register.filter
+def latest(value):
+    "Attempts to hide parts of the email"
+    print "-" * 10, value
+    return value if value else "Latest"
+
+@register.filter
 def hide_email(value):
     "Attempts to hide parts of the email"
     try:

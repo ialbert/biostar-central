@@ -48,7 +48,8 @@ def shortcuts(request):
         'RECENT_REPLIES': get_recent_replies(),
         'RECENT_VOTES': get_recent_votes(),
         'USE_COMPRESSOR': settings.USE_COMPRESSOR,
-        'COUNTS': request.session[settings.SESSION_KEY]
+        'COUNTS': request.session[settings.SESSION_KEY],
+        'SITE_NAME': settings.SITE_NAME,
     }
 
     return context
