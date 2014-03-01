@@ -63,6 +63,7 @@ def shortcuts(request):
         'RECENT_VOTES': get_recent_votes(),
         'USE_COMPRESSOR': settings.USE_COMPRESSOR,
         'COUNTS': request.session.get(settings.SESSION_KEY, {}),
+        'SITE_ADMINS': settings.ADMINS,
     }
 
     return context

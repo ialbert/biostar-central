@@ -102,7 +102,7 @@ def init_social_providers():
                 app.save()
                 app.sites.add(site)
                 app.save()
-                logger.info("enabling authentication via %s" % name)
+                logger.info("initializing social provider %s" % name)
 
         except Exception, exc:
             raise ImproperlyConfigured("error setting provider %s, %s" % (name, exc))

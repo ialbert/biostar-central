@@ -109,15 +109,9 @@ urlpatterns += patterns('',
 
 )
 
-# Adding the flatpages.
-from biostar.apps.util.views import FlatPageUpdate
-
 urlpatterns += patterns('django.contrib.flatpages.views',
-    url(r'^info/about/$', 'flatpage', {'url': '/about/'}, name='about'),
-    url(r'^info/faq/$', 'flatpage', {'url': '/faq/'}, name='faq'),
-    url(r'^info/help/$', 'flatpage', {'url': '/about/'}, name='help'),
-    url(r'^info/policy/$', 'flatpage', {'url': '/policy/'}, name='policy'),
-    url(r'^info/update/(?P<pk>\d+)/$', FlatPageUpdate.as_view(), name='flatpage-update'),
+    url(r'^info/(?P<slug>\w+)/$', views.FlatPageView.as_view(), name='flatpage'),
+    url(r'^info/update/(?P<pk>\d+)/$', views.FlatPageUpdate.as_view(), name='flatpage-update'),
 )
 
 # This is used only for the debug toolbar

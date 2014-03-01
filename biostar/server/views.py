@@ -1,10 +1,10 @@
-from django.views.generic import DetailView, ListView, TemplateView, RedirectView, View
+from django.views.generic import DetailView, ListView, TemplateView, UpdateView, View
 from django.conf import settings
 
 from biostar.apps.users import auth
 from biostar.apps.users.views import EditUser
-import random
-
+import os, random
+from django.core.cache import cache
 from biostar.apps.messages.models import Message
 from biostar.apps.users.models import User
 from biostar.apps.posts.models import Post, Vote, Tag, Subscription
@@ -17,6 +17,14 @@ from braces.views import LoginRequiredMixin
 from django import shortcuts
 from django.http import HttpResponseRedirect
 from django.core.paginator import Paginator
+import logging
+from django.contrib.flatpages.models import FlatPage
+
+logger = logging.getLogger(__name__)
+
+def abspath(*args):
+    """Generates absolute paths"""
+    return os.path.abspath(os.path.join(*args))
 
 class BaseListMixin(ListView):
     "Base class for each mixin"
@@ -398,6 +406,90 @@ class ChangeSub(LoginRequiredMixin, View):
 
         return shortcuts.redirect(post.get_absolute_url())
 
-
 class RSS(TemplateView):
     template_name = "rss_info.html"
+
+class FlatPageView(DetailView):
+    template_name = "flatpages/default.html"
+    context_object_name = 'flatpage'
+
+    def get_object(self):
+        #site_id = get_current_site(self.request).id
+        slug = self.kwargs['slug']
+        # This is so that we can switch this off and
+        # Fall back to the real flatpages app.
+        url = "/info/%s/" % slug
+        query = FlatPage.objects.get(url=url)
+        return query
+    def get_context_data(self, **kwargs):
+        context = super(FlatPageView, self).get_context_data(**kwargs)
+
+        admins = User.objects.filter(type=User.ADMIN)
+
+        mods = User.objects.filter(type=User.MODERATOR)
+
+
+        fields = stat_key, u_count, p_count, q_count, a_count, c_count = "user_stats user_count post_count\
+            question_count answer_count comment_count".split()
+
+        params = cache.get(stat_key)
+        if not params:
+            params = dict()
+            params[u_count] = User.objects.all().select_related('profile').count()
+            params[p_count] = Post.objects.all().count()
+            params[q_count] = Post.objects.filter(type=Post.QUESTION).count()
+            params[a_count] = Post.objects.filter(type=Post.ANSWER).count()
+            params[c_count] = Post.objects.filter(type=Post.COMMENT).count()
+            cache.set(stat_key, 600)
+
+        # Add each value to the context
+        for field in fields:
+            context[field] = params.get(field, 0)
+
+        context['admins'] = admins
+        context['mods'] = mods
+
+        return context
+
+class FlatPageUpdate(UpdateView):
+    model = FlatPage
+    fields = ['content']
+    template_name = "flatpages/flatpage_edit.html"
+
+    def get_success_url(self):
+        pk = self.kwargs['pk']
+        page = FlatPage.objects.get(pk=pk)
+
+        # The page will be saved under this name.
+        fname = "%s.html" % page.title.lower()
+
+        # The output directory for the flatpage.
+        fdir = abspath(settings.LIVE_DIR, "flatpages")
+
+        # Temporary override
+        fdir = settings.FLATPAGE_IMPORT_DIR
+
+        if not os.path.isdir(fdir):
+            os.mkdir(fdir)
+
+        # This here is user inputted!
+        fpath = abspath(fdir, fname)
+
+        # Ensure file goes under the export directory
+        if fpath.startswith(fdir):
+            with file(fpath, 'wt') as fp:
+                fp.write(page.content)
+
+        return super(FlatPageUpdate, self).get_success_url()
+
+    def post(self, *args, **kwargs):
+        req = self.request
+        user = req.user
+
+        logger.info("user %s edited %s" % (user, kwargs))
+        if not self.request.user.is_admin:
+            logger.error("user %s access denied on %s" % (user, kwargs))
+            messages.error(req, "Only administrators may edit that page")
+            return HttpResponseRedirect("/")
+
+        return super(FlatPageUpdate, self).post(*args, **kwargs)
