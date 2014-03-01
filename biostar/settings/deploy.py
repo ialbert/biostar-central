@@ -27,6 +27,8 @@ NAVBAR_END_CATEGORIES = [
     "Job", "Planet", "Forum",
 ]
 
+CAPTCHA = True
+
 # This will form the navbar
 CATEGORIES = NAVBAR_START_CATEGORIES + NAVBAR_SPECIAL_TAGS + NAVBAR_END_CATEGORIES
 

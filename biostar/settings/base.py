@@ -298,6 +298,8 @@ AUTHENTICATION_BACKENDS = (
 
 ACCOUNT_CONFIRM_EMAIL_ON_GET = True
 
+CAPTCHA = False
+
 # Customize this to match the providers listed in the APPs
 SOCIALACCOUNT_PROVIDERS = {
 

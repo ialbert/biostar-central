@@ -70,7 +70,7 @@ while (( "$#" )); do
     # Produce the environment variables recognized by Biostar.
     if [ "$1" = "test" ]; then
         echo "*** running all test"
-        $PYTHON $DJANGO_ADMIN test -v $VERBOSITY --settings=$DJANGO_SETTINGS_MODULE
+        $PYTHON $DJANGO_ADMIN test --failfast -v $VERBOSITY --settings=$DJANGO_SETTINGS_MODULE
     fi
 
     # Produce the environment variables recognized by Biostar.

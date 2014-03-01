@@ -157,8 +157,16 @@ def external_login(request):
     response = redirect(url)
     return response
 
-def external_signup(request):
-    "This is required to allow external login to proceed"
-    url = settings.EXTERNAL_SIGNUP_URL or 'account_signup'
-    response = redirect(url)
-    return response
+# Adding a captcha enabled form
+from allauth.account.views import SignupForm, SignupView
+from biostar.apps.util.captcha.fields import MathCaptchaField
+
+if settings.CAPTCHA:
+    class CaptchaForm(SignupForm):
+        captcha = MathCaptchaField()
+else:
+    class CaptchaForm(SignupForm):
+        pass
+
+class CaptchaView(SignupView):
+    form_class = CaptchaForm

@@ -8,7 +8,7 @@ django-haystack
 django-reversion
 django-celery
 django-celery-email
-#django-simple-captcha
+django-simple-math-captcha
 bleach
 whoosh
 South

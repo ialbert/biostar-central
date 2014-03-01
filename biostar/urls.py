@@ -8,7 +8,7 @@ admin.autodiscover()
 from django.views.generic import TemplateView
 from biostar.server import views, ajax, search, moderate
 from biostar.apps.posts.views import NewAnswer, NewPost, EditPost
-from biostar.apps.users.views import external_logout, external_login, external_signup
+from biostar.apps.users.views import external_logout, external_login, CaptchaView
 urlpatterns = patterns('',
 
     # Post listing.
@@ -59,7 +59,7 @@ urlpatterns = patterns('',
     # Full login and logout
     url(r'^site/login/$', external_login, name="login"),
     url(r'^site/logout/$', external_logout, name="logout"),
-    url(r'^site/signup/$', external_signup, name="signup"),
+    url(r'^accounts/signup/$', CaptchaView.as_view(), name="signup"),
 
     # Search the body.
     url(r'^local/search/page/', search.Search.as_view(), name="search-page"),

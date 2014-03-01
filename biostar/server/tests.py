@@ -219,7 +219,7 @@ class SiteTest(TestCase):
         eq = self.assertEqual
 
         # Main site navigation.
-        names = "home user-list tag-list rss latest-feed".split()
+        names = "home user-list tag-list rss latest-feed signup".split()
         for name in names:
             r = self.client.get(reverse(name))
             self.code(r)
@@ -236,7 +236,7 @@ class SiteTest(TestCase):
         "Testing page redirects."
 
         # Pages with redirects.
-        names = "login logout signup new-post".split()
+        names = "login logout new-post".split()
         for name in names:
             r = self.client.get(reverse(name))
             self.code(r, 302)
