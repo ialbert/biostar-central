@@ -34,16 +34,18 @@ def get_recent_replies():
     return posts
 
 TRAFFIC_KEY = "traffic"
-def get_traffic():
+def get_traffic(minutes=60):
+    "Obtains the number of distinct IP numbers "
     global TRAFFIC_KEY
     traffic = cache.get(TRAFFIC_KEY)
     if not traffic:
+        recent = const.now() - timedelta(minutes=minutes)
         try:
-            recent = const.now() - timedelta(minutes=60)
             traffic = PostView.objects.filter(date__gt=recent).distinct('ip').count()
         except Exception, exc:
             traffic = PostView.objects.filter(date__gt=recent).count()
-        cache.set(TRAFFIC_KEY, traffic, 300)
+        # How long to cache the traffic.
+        cache.set(TRAFFIC_KEY, traffic, CACHE_TIMEOUT)
     return traffic
 
 def shortcuts(request):
@@ -53,14 +55,14 @@ def shortcuts(request):
         "GOOGLE_TRACKER": settings.GOOGLE_TRACKER,
         "SITE_STYLE_CSS": settings.SITE_STYLE_CSS,
         "SITE_LOGO": settings.SITE_LOGO,
+        "SITE_NAME": settings.SITE_NAME,
         "CATEGORIES": settings.CATEGORIES,
         "BIOSTAR_VERSION": VERSION,
         "TRAFFIC": get_traffic(),
         'RECENT_REPLIES': get_recent_replies(),
         'RECENT_VOTES': get_recent_votes(),
         'USE_COMPRESSOR': settings.USE_COMPRESSOR,
-        'COUNTS': request.session[settings.SESSION_KEY],
-        'SITE_NAME': settings.SITE_NAME,
+        'COUNTS': request.session.get(settings.SESSION_KEY, {}),
     }
 
     return context

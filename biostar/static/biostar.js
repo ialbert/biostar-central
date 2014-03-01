@@ -201,7 +201,7 @@ $(document).ready(function () {
 
     if (tagval.length > 0) {
         tagval.removeClass("textinput textInput form-control")
-        tagval.width("100%")
+        tagval.width("96%")
 
         var tag_list = $.ajax({
             url: "/local/search/tags/",

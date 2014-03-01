@@ -5,10 +5,11 @@ Copyright (c) 2013 Istvan Albert and Biostar contributors.
 Core developers
 ---------------
 Istvan Albert
-Pindi Albert
+
 
 Contributors
 ------------
+Pindi Albert
 Alexandr Levchuck
 Eric Normandeau
 Egon Willingham
