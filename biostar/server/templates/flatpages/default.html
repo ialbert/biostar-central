@@ -1,10 +1,15 @@
-{%  extends "starbase.html" %}
-{%  block title %}
-{{ flatpage.title }}
+{% extends "starbase.html" %}
+{% block page_title %}
+    {{ flatpage.title }}
 {% endblock %}
 
-{%  block content %}
+{% block content %}
 
-{{ flatpage.content }}
+    {{ flatpage.content }}
 
-{%  endblock %}
+    {% if user.is_admin %}
+        Administrator access:
+        <a role="button" class="btn btn-primary" href="{% url 'flatpage-update' flatpage.id %}">Edit {{ flatpage.title }}</a>
+    {% endif %}
+
+{% endblock %}

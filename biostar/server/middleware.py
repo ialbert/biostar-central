@@ -104,7 +104,7 @@ class Visit(object):
         if not user.is_authenticated():
 
             # This attribute is required inside templates.
-            user.is_moderator = False
+            user.is_moderator = user.is_admin = False
 
             # Check external logins.
             if settings.EXTERNAL_AUTH and valid_external_login(request):
