@@ -202,6 +202,11 @@ class TagList(BaseListMixin):
     page_title = "Tags"
     context_object_name = "tags"
     template_name = "tag_list.html"
+    paginate_by = 100
+
+    def get_queryset(self):
+        objs = Tag.objects.all().order_by("-count")
+        return objs
 
 
 class VoteList(ListView):

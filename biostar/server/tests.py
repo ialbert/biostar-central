@@ -95,8 +95,6 @@ class UserTest(TestCase):
         self.assertEqual(post_count(), p_count + 1)
         self.assertEqual(subs_count(), s_count + 1)
 
-
-
     def create_new_answer(self, post):
         r = self.client.post(
             reverse("new-answer", kwargs=dict(pid=post.id)),
@@ -221,10 +219,13 @@ class SiteTest(TestCase):
         eq = self.assertEqual
 
         # Main site navigation.
-        names = "home user-list tag-list help about faq policy rss latest-feed".split()
+        names = "home user-list tag-list rss latest-feed".split()
         for name in names:
             r = self.client.get(reverse(name))
             self.code(r)
+
+
+
 
         # Check that default categories work.
         for topic in settings.CATEGORIES:

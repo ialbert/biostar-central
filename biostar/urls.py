@@ -109,7 +109,7 @@ urlpatterns += patterns('',
 
 )
 
-urlpatterns += patterns('django.contrib.flatpages.views',
+urlpatterns += patterns('',
     url(r'^info/(?P<slug>\w+)/$', views.FlatPageView.as_view(), name='flatpage'),
     url(r'^info/update/(?P<pk>\d+)/$', views.FlatPageUpdate.as_view(), name='flatpage-update'),
 )
