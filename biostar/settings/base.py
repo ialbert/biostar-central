@@ -353,7 +353,7 @@ RECENT_POST_COUNT = 10
 # Time between two accesses from the same IP to qualify as a different view.
 POST_VIEW_MINUTES = 5
 
-# Default cache expiration in seconds.
+# Default  expiration in seconds.
 CACHE_TIMEOUT = 60
 
 # Django precompressor settings.
@@ -375,9 +375,8 @@ CACHES = {
     }
 }
 
-# The celery backend to use.
-CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend',
-BROKER_URL = 'django://'
+# The celery configuration file
+CELERY_CONFIG = 'biostar.celeryconfig'
 
 # Setting a cookie with email:signed_hash(email)
 # will automatically create accounts

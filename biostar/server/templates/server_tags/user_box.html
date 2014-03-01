@@ -3,13 +3,12 @@
 
 <div class="col xs-3 col-md-2 userbox grey text-center pull-right visible-lg visible-md">
     <div>{% gravatar user 82 %}</div>
-    <div class="ago">posted {{ date|time_ago }} by</div>
+    <div class="ago">{{ date|time_ago }} by</div>
     <div class="uname">{%  userlink user %}</div>
     <div class="loc">{{ user.profile.location }}</div>
 </div>
 
 <div class="col xs-3 col-md-2 userbox grey text-center pull-right visible-sm visible-xs">
-
     <div class="uname">{%  userlink user %}</div>
-
+    <div class="loc">{{ user.profile.location }}</div>
 </div>

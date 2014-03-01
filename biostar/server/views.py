@@ -73,7 +73,9 @@ POST_TYPES = dict(job=Post.JOB, forum=Post.FORUM, planet=Post.BLOG, pages=Post.P
 def posts_by_topic(request, topic):
     "Returns a post query that matches a topic"
     user = request.user
-    topic = topic.lower()
+
+    # One letter tags are always uppercase
+    topic = Tag.fixcase(topic)
 
     if topic == MYPOSTS:
         # Get the posts that the user wrote.

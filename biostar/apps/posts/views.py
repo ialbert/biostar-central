@@ -18,6 +18,21 @@ from django.conf import settings
 from biostar.const import OrderedDict
 from django.core.exceptions import ValidationError
 
+
+def valid_title(text):
+    "Validates form input for tags"
+    text = text.strip()
+    if not text:
+        raise ValidationError('Please enter a title')
+
+    if len(text) < 10:
+        raise ValidationError('The title is too short')
+
+    words = text.split(" ")
+    if len(words) < 3:
+        raise ValidationError('More than two words please.')
+
+
 def valid_tag(text):
     "Validates form input for tags"
     text = text.strip()
@@ -29,19 +44,25 @@ def valid_tag(text):
     if len(words) > 5:
         raise ValidationError('You have too many tags (5 allowed)')
 
+
 class LongForm(forms.Form):
     FIELDS = "title content post_type tag_val".split()
 
-    POST_CHOICES = [(Post.QUESTION, "Question"), (Post.FORUM, "Forum Post"), (Post.JOB, "Job Ad"), (Post.BLOG, "Blog Post"), (Post.PAGE, "Biostar Page")]
+    POST_CHOICES = [(Post.QUESTION, "Question"), (Post.FORUM, "Forum Post"), (Post.JOB, "Job Ad"),
+                    (Post.BLOG, "Blog Post"), (Post.PAGE, "Biostar Page")]
 
-    title = forms.CharField(max_length=100)
+    title = forms.CharField(max_length=100, min_length=10, validators=[valid_title],
+                            help_text="Descriptive titles promote better answers.")
 
     post_type = forms.ChoiceField(choices=POST_CHOICES, help_text="Select a post type: Question, Forum, Job, Blog")
 
-    tag_val = forms.CharField(required=True, validators=[ valid_tag ],
-                              help_text="Choose one or more tags to match the topic", label="Tags")
+    tag_val = forms.CharField(required=True, validators=[valid_tag],
+                              help_text="Choose one or more tags to match the topic. To create a new tag just type it in and press ENTER.",
+                              label="Tags")
 
-    content = forms.CharField(widget=forms.Textarea, label="Enter your content:")
+    content = forms.CharField(widget=forms.Textarea,
+                              min_length=80, max_length=15000,
+                              label="Post content")
 
     def __init__(self, *args, **kwargs):
         super(LongForm, self).__init__(*args, **kwargs)
@@ -79,8 +100,10 @@ class ShortForm(forms.Form):
             )
         )
 
+
 def parse_tags(category, tag_val):
     pass
+
 
 class NewPost(LoginRequiredMixin, FormView):
     form_class = LongForm

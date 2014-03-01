@@ -1,8 +1,10 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
-import logging, datetime
+import logging, datetime, string
 from django.db import models
 from django.conf import settings
 from django.contrib import admin
+from django.contrib.sites.models import Site
+
 from django.utils.timezone import utc
 from django.utils.translation import ugettext_lazy as _
 from django.core.urlresolvers import reverse
@@ -23,6 +25,10 @@ logger = logging.getLogger(__name__)
 class Tag(models.Model):
     name = models.TextField(max_length=50, db_index=True)
     count = models.IntegerField(default=0)
+
+    @staticmethod
+    def fixcase(name):
+        return name.upper() if len(name) == 1 else name.lower()
 
     @staticmethod
     def update_counts(sender, instance, action, pk_set, *args, **kwargs):
@@ -175,14 +181,24 @@ class Post(models.Model):
     # The tag set is built from the tag string and used only for fast filtering
     tag_set = models.ManyToManyField(Tag, blank=True, )
 
+    # What site does the post belong to.
+    site = models.ForeignKey(Site, null=True)
+
     def parse_tags(self):
+
+        # Upper case
+        def fixcase(w):
+            w = w.strip()
+            w = w.upper() if len(w) == 1 else w.lower()
+            return w
 
         # Try splitting by comma
         words = self.tag_val.split(",")
 
-        # Strip each tag.
-        words = [w.lower().strip() for w in words]
-        return map(unicode, words)
+        # Change case as necessary.
+        words = map(fixcase, words)
+
+        return words
 
     def add_tags(self, text):
         text = text.strip()

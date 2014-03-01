@@ -28,8 +28,16 @@ class UserTest(TestCase):
     ]
 
     # The name of test posts
-    TITLE_1, CAT_1, TAG_VAL_1 = "Post 1", Post.QUESTION, "tagA tagB galaXY"
-    TITLE_2, CAT_2, TAG_VAL_2 = "Job 1", Post.JOB, "jobA jobB galaxy"
+    TITLE_1 = "Post 1, title needs to be sufficiently long"
+    CAT_1, TAG_VAL_1 = Post.QUESTION, "tagA tagB galaXY"
+
+    TITLE_2 = "Post 2, title needs to be sufficiently long"
+    CAT_2, TAG_VAL_2 = Post.JOB, "jobA jobB galaxy"
+
+    CONTENT = """
+    Lorem ipsum dolor sit amet, consectetur adipisicing elit,
+    sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+    """
 
     POST_DATA = [
         (TITLE_1, CAT_1, TAG_VAL_1),
@@ -77,22 +85,24 @@ class UserTest(TestCase):
         s_count = subs_count()
         r = self.client.post(
             reverse("new-post"),
-            dict(title=title, tag_val=tag_val, post_type=post_type, content="Lorem ipsum"),
-            follow=True,
+            dict(title=title, tag_val=tag_val, post_type=post_type, content=self.CONTENT),
         )
+
+        # Needs to redirect to post
+        self.code(r, 302)
+
         # After creating a new post the post count and subscription counts increase.
         self.assertEqual(post_count(), p_count + 1)
         self.assertEqual(subs_count(), s_count + 1)
-        self.code(r, 200)
+
 
 
     def create_new_answer(self, post):
         r = self.client.post(
             reverse("new-answer", kwargs=dict(pid=post.id)),
-            dict(content="Lorem ipsum"),
-            follow=True,
+            dict(content=self.CONTENT),
         )
-        self.code(r, 200)
+        self.code(r, 302)
 
 
     def get_post(self, pk):

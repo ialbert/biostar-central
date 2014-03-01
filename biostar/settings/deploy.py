@@ -31,11 +31,13 @@ NAVBAR_END_CATEGORIES = [
 CATEGORIES = NAVBAR_START_CATEGORIES + NAVBAR_SPECIAL_TAGS + NAVBAR_END_CATEGORIES
 
 # Enable this if you have the lessc installed.
-USE_COMPRESSOR = False
+USE_COMPRESSOR = True
 
-# Override the backend.
-BROKER_URL = 'redis://localhost:6379/0'
-CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+# The celery configuration file
+CELERY_CONFIG = 'live.celeryconfig'
+
+#BROKER_URL = 'redis://localhost:6379/0'
+#CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
 
 ADMINS = (
     (ADMIN_NAME, ADMIN_EMAIL),
@@ -43,7 +45,7 @@ ADMINS = (
 
 # These parameters will be inserted into the database automatically.
 SITE_ID = 1
-SITE_NAME = "Biostar"
+SITE_NAME = "My Site"
 
 # The google id will injected as a template variable.
 GOOGLE_TRACKER = "foobar"

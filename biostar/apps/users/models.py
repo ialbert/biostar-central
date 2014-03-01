@@ -11,6 +11,7 @@ from django.utils.timezone import utc
 from biostar.apps import util
 import bleach
 from django.core.urlresolvers import reverse
+from django.contrib.sites.models import Site
 
 # HTML sanitization parameters.
 ALLOWED_TAGS = bleach.ALLOWED_TAGS + "p div br code pre".split()
@@ -80,6 +81,9 @@ class User(AbstractBaseUser):
 
     # Display next to a user name.
     flair = models.CharField(verbose_name='Flair', max_length=15, default="")
+
+    # The site this users belongs to.
+    site = models.ForeignKey(Site, null=True)
 
     @property
     def is_moderator(self):
