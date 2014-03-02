@@ -224,9 +224,6 @@ class SiteTest(TestCase):
             r = self.client.get(reverse(name))
             self.code(r)
 
-
-
-
         # Check that default categories work.
         for topic in settings.CATEGORIES:
             r = self.client.get(reverse("topic-list", kwargs=dict(topic=topic)))

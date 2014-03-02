@@ -47,7 +47,7 @@ class MessageBody(models.Model):
 
     def save(self, **kwargs):
         self.subject = self.subject[:self.MAX_SIZE]
-        self.sent_at = self.sent_at or now()
+        self.sent_at= self.sent_at or now()
         super(MessageBody, self).save(**kwargs)
 
 
@@ -60,8 +60,7 @@ class Message(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='recipients', verbose_name=_("Recipient"))
     body = models.ForeignKey(MessageBody, related_name='messages', verbose_name=_("Message"))
     type = models.IntegerField(choices=MESSAGING_TYPE_CHOICES, default=LOCAL_MESSAGE, db_index=True)
-    read_at = models.DateTimeField(_("read at"), null=True, blank=True, db_index=True)
-
+    unread = models.BooleanField(default=True)
     sent_at = models.DateTimeField(db_index=True, null=True)
 
     def is_new(self):
