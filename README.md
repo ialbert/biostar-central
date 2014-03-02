@@ -5,7 +5,9 @@ BioStar Q&A Version 2.0
 be used by third parties until this notice disappears (posted on Jan 13, 2013)**
 
 The version of Biostar that is currently deployed
-can be found in branch `biostar1` at https://github.com/ialbert/biostar-central/tree/biostar1
+can be found in branch `biostar1` at
+
+https://github.com/ialbert/biostar-central/tree/biostar1
 
 BioStar is a [Python][python] and [Django][django] based Q&A software.
 
@@ -13,6 +15,15 @@ Our goal is to create a simple, generic, flexible and extensible Q&A
 framework.
 
 Requirements: `Python 2.7`
+
+Documentation
+-------------
+
+The documentation is maintained at:
+
+http://biostar-central.readthedocs.org/
+
+The source for the documentation can be found in  the `docs` folder.
 
 Quick Start
 ------------
@@ -30,11 +41,8 @@ From the biostar source directory:
 
 Visit `http://locahost:8080` to see the site loaded with default settings.
 
-The documentation is maintained at:
+Enjoy.
 
-http://biostar-central.readthedocs.org/en/latest/
-
-the source for the documentation can be found in  the `docs` folder.
 
 [django]: http://www.djangoproject.com/
 [python]: http://www.python.org/
