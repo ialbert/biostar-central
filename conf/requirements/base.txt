@@ -15,6 +15,7 @@ South
 ordereddict
 pyparsing
 markdown
+Sphinx
 
 #django-secure
 #python-dateutil
