@@ -19,13 +19,14 @@ app.autodiscover_tasks(
     lambda: ["biostar.mailer"]
 )
 
-
 @app.task
 def data_cleanup(days=1, weeks=20):
+    "Reduces messages and post views"
+
     from biostar.apps.posts.models import PostView
     from biostar.apps.messages.models import Message
 
-    "Reduces messages and post views"
+    # Reduce post views.
     past = const.now() - timedelta(days=days)
     query = PostView.objects.filter(date__lt=past)
     msg = "Deleting %s PostViews" % query.count()
