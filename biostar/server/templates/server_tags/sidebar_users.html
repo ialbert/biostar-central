@@ -1,0 +1,10 @@
+{% load server_tags %}
+<div class="recent-posts">
+    <ul style="opacity: 0.8; list-style: none; padding:5px; margin-bottom:5px">
+        {% for user in users %}
+            <li >
+                {%  gravatar user 35 %} &nbsp; {%  userlink user %}
+            </li>
+        {% endfor %}
+    </ul>
+</div>

@@ -1,0 +1,39 @@
+{% extends "starbase.html" %}
+{% load server_tags %}
+{% load humanize %}
+
+{% block content %}
+
+    {% search_bar %}
+
+
+
+    <div class="row">
+        <div class="col-md-9">
+
+            {% page_bar_sort_posts %}
+
+            <div id="post-list">
+                {% for post in posts %}
+                    {% post_count_box post %}
+                {% empty %}
+
+                    <div class="alert alert-info">There are no results for this page.</div>
+
+                {% endfor %}
+
+            </div>
+        </div>
+        <div class="col-md-3 sidebar">
+
+            <div class="head">Recent Votes</div>
+            {% sidebar_votes RECENT_VOTES %}
+
+            <div class="head">Recent Posts</div>
+            {% sidebar_posts RECENT_REPLIES %}
+
+        </div>
+    </div>
+
+
+{% endblock %}

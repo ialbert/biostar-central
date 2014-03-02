@@ -1,0 +1,199 @@
+{% load staticfiles %}
+{% load server_tags %}
+
+<div class="row visible-lg visible-md">
+    <div class="col-md-12 ">
+        <ul class="nav nav-pills">
+            {% for word in CATEGORIES %}
+                <li class="{% active word topic %}">
+                    <a href="{% url 'topic-list' topic=word %}">{{ word }} <span
+                    class="badge">{% get_count COUNTS word %}</span></a>
+                </li>
+            {% endfor %}
+            <li class="{% current request 'tag-list' %} pull-right"><a href="{% url 'tag-list' %}">All &raquo;</a></li>
+        </ul>
+    </div>
+</div>
+
+<div class="row visible-sm visible-xs">
+
+    <div class="col-xs-12 text-center" style="margin-bottom:5px">
+        <a href="{% url 'home' %}">
+            <i class="fa fa-star fa-1x"></i> Welcome to {{ SITE_NAME }}  </a>
+        </a>
+
+    </div>
+    <div class="col-xs-6">
+        <div class="btn-group">
+            <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+                {% if topic %} {{ topic }} {% else %} View Posts {% endif %}
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" role="menu">
+                {% for word in CATEGORIES %}
+                    <li>
+                        <a href="/t/{{ word }}">{{ word }}</a>
+                    </li>
+                {% endfor %}
+                <li><a href="{% url 'tag-list' %}">All &raquo;</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="col-xs-6 ">
+        <div class="btn-group pull-right">
+
+            {% if user.is_authenticated %}
+                <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown">
+                    <i class="fa fa-user"></i> You <span class="badge">{% get_count COUNTS 'messages' %}</span>
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" role="menu">
+                    <li>
+                        <a href="{% url 'topic-list' topic='myposts' %}"><i class="fa fa-comments"></i> My Posts</a>
+                    </li>
+                    <li>
+                        <a href="{% url 'topic-list' topic='messages' %}"><i class="fa fa-envelope"></i> My Messages
+                            <span class="badge">{% get_count COUNTS 'messages' %}</span> </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'topic-list' topic='bookmarks' %}"><i class="fa fa-book"></i> My Bookmarks</a>
+                    </li>
+                    <li class="divider"></li>
+                    <li>
+                        <a href="{% url 'logout' %}"><i class="fa fa-sign-out"></i> Log Out</a>
+                    </li>
+                </ul>
+            {% else %}
+                <div>
+                    <a class="btn btn-primary active" role="button" href="{% url 'login' %}">
+                        <i class="fa fa-user fa-1x"></i> Log In
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+
+<div class="row visible-lg visible-md">
+
+    <div class="col-md-12" id="navbar">
+
+        <div class="col-lg-3 visible-lg" id="logo">
+            <a href="/"><img src="{{ STATIC_URL }}{{ SITE_LOGO }}"></a>
+        </div>
+
+        <div class="col-md-3 visible-md text-center">
+            <a href="/">
+                <a href="/"><img style="width:200px; height: auto;" src="{{ STATIC_URL }}{{ SITE_LOGO }}"></a>
+            </a>
+        </div>
+
+        {% if user.is_authenticated %}
+
+            <div class="col-md-9 top {% active 'userprofile' topic %}">
+                <a href="{% url 'user-details' user.id %}">
+                    <div><i class="fa fa-user"></i>
+                        {% userlink user %} &nbsp;|&nbsp;
+                        <a href="{% url 'logout' %}"><i class="fa fa-sign-out"></i> Logout </a>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-sm-1 mid {% current request 'user-list' %}">
+                <a href="{% url 'user-list' %}">
+                    <div><i class="fa fa-globe"></i>
+                    </div>
+                    <div>Community</div>
+                </a>
+            </div>
+
+            <div class="col-sm-1 mid {% current request 'user-messages' %}">
+                <a href="{% url 'user-messages' %}">
+                    <div><i class="fa fa-envelope"></i>
+                    </div>
+                    <div>Messages</div>
+                </a>
+                <span class="badge">{% get_count COUNTS 'messages' %}</span>
+            </div>
+
+            <div class="col-sm-1 mid {% current request 'user-votes' %}">
+
+                <a href="{% url 'user-votes' %}" class="navitem">
+                    <div class="navitem">
+                        <div><i class="fa fa-heart"></i></div>
+                        <div> Votes</div>
+                    </div>
+                </a>
+                <span class="badge">{% get_count COUNTS 'votes' %}</span>
+            </div>
+
+            <div class="col-sm-1 mid {% active 'myposts' topic %}">
+                <a href="{% url 'topic-list' topic='myposts' %}" class="navitem">
+                    <div><i class="fa fa-comments"></i></div>
+                    <div>My Posts</div>
+                </a>
+            </div>
+
+
+            <div class="col-sm-1 mid {% active 'mytags' topic %}">
+                <a href="{% url 'topic-list' topic='mytags' %}" class="navitem">
+                    <div><i class="fa fa-tag"></i></div>
+                    <div>My Tags</div>
+                </a>
+            </div>
+
+            <div class="col-sm-1 mid {% active 'following' topic %}">
+                <a href="{% url 'topic-list' topic='following' %}" class="navitem">
+                    <div><i class="fa fa-eye"></i></div>
+                    <div>Following</div>
+                </a>
+            </div>
+
+            <div class="col-sm-1 mid {% active 'bookmarks' topic %}">
+                <a href="{% url 'topic-list' topic='bookmarks' %}" class="navitem">
+                    <div><i class="fa fa-book"></i></div>
+                    <div>Bookmarks</div>
+                </a>
+            </div>
+
+            <div class="col-sm-1 mid newpost pull-right">
+                <a href="{% url 'new-post' %}" class="navitem">
+                    <div><i class="fa fa-plus-circle"></i></div>
+                    <div>New Post</div>
+                </a>
+            </div>
+
+
+        {% else %}
+
+            <div class="col-md-9 top ">
+                Join now
+            </div>
+
+            <div class="col-md-2 col-md-offset-10 mid {% current request 'user-list' %}">
+                <a href="{% url 'user-list' %}">
+                    <div><i class="fa fa-globe"></i>
+                    </div>
+                    <div>Community</div>
+                </a>
+            </div>
+
+            <div class="col-md-2 mid {% current request 'account_login' %}">
+                <a href="{% url 'login' %}">
+                    <div><i class="fa fa-user fa-1x"></i></div>
+                    <div>Log In</div>
+                </a>
+            </div>
+
+            <div class="col-md-2 mid newpost">
+                <a href="{% url 'new-post' %}" class="navitem ">
+                    <div><i class="fa fa-plus-circle fa-1x"></i></div>
+                    <div>New Post</div>
+                </a>
+            </div>
+
+        {% endif %}
+    </div>
+</div>

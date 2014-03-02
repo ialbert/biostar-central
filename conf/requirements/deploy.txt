@@ -1,0 +1,6 @@
+-r base.txt
+redis
+pysolr
+psycopg2
+gunicorn
+

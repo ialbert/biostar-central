@@ -1,9 +1,0 @@
-User-agent: *
-Disallow: /search
-Disallow: /revision
-Disallow: /request/info
-Disallow: /show/user
-Disallow: /show/tag
-Disallow: /new/post
-Disallow: /more/like
-Disallow: /badge

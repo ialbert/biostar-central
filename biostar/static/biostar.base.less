@@ -1,0 +1,564 @@
+/* base.less :-)
+
+Contains the base LESS (css) that should be imported at the beginning
+of any customization CSS. Sets the default styles for all
+components.
+
+The importing LESS file must have certain constants and variables set.
+
+See the biostar.style.less file for details.
+*/
+
+.btn-success {
+  color: #fff;
+  //border-color: darken(@MUTED_BACKGROUND, 1%);
+  //background-color: @MUTED_BACKGROUND;
+}
+
+#messages {
+  //margin-top: 10px;
+}
+
+.post-action {
+  margin-bottom: 5px;
+}
+
+#logo {
+  padding: 0px;
+}
+
+#traffic {
+  position: fixed;
+  font-size: 10px;
+  bottom: 0px;
+  left: 0px;
+  color: #999999;
+}
+
+.center {
+  text-align: center;
+}
+
+.post-title {
+  font-family: arial, verdana, helvetica, sans-serif;
+  color: #777;
+  font-size: 18px;
+  font-weight: normal;
+  margin-bottom: 5px;
+}
+
+.rounded {
+  border-radius: 7px;
+}
+
+.tag {
+  float: left;
+  margin-right: 5px;
+  //margin-bottom: 1px;
+  padding: 1px 4px 1px 4px;
+  text-decoration: none;
+  background-color: @TAG_BACKGROUND_COLOR;
+  border-bottom: 1px solid @TAG_BORDER_COLOR;
+  border-right: 1px solid @TAG_BORDER_COLOR;
+  color: @TAG_COLOR;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  //font-size:smaller;
+  &:hover {
+    color: white;
+    background-color: #6B3E4A;
+  }
+}
+
+.alert {
+  padding: 5px;
+}
+
+#user-table {
+  margin-top: 10px;
+}
+
+.socialaccount_providers {
+  font-size: larger;
+}
+
+#post-list {
+  .post-row:nth-of-type(odd) {
+    background: #f9f9f9;
+  }
+}
+
+.post-row {
+
+  .count-box {
+    float: left;
+    .book_count {
+      font-size: smaller;
+      color: #762C90;
+    }
+  }
+
+  .title-box {
+    //Don't overlap with counts.
+    //margin-left:12em;
+  }
+
+  padding: 5px;
+
+  border-top: 1px solid #ECECEC;
+
+  .post-title {
+    font-weight: bold;
+    font-size: larger;
+  }
+
+  .box {
+    margin: 0 3px 0 0;
+    padding: 1px;
+    width: 4em;
+    text-align: center;
+    float: left;
+
+    .t {
+      font-size: smaller;
+      margin-top: 5px;
+    }
+    .c {
+      font-size: 1.6em;
+      font-weight: bold;
+      height: 2ex;
+      vertical-align: middle;
+      text-align: center;
+    }
+  }
+  .box.vote {
+    //border:1px solid #ECECEC;
+  }
+
+}
+
+.userlink {
+  float: right;
+}
+
+table#posts {
+  vertical-align: top;
+  padding: 0px;
+  width: 100%;
+
+  .book_count {
+    width: 100%;
+    font-size: x-small;
+    color: #762C90;
+    float: left;
+    margin-left: -5px;
+    //font-weight: bold;
+  }
+}
+
+// Default post row colors.
+.post-row {
+
+  .answered {
+    background-color: @ANSWERED_POST;
+    color: white;
+  }
+
+  .commented {
+    background-color: #436C27;
+    color: white;
+  }
+
+  .accepted {
+    background-color: #436C27;
+    color: #E1E818;
+  }
+
+  .unanswered {
+    background-color: #8f2c47;
+    color: white;
+  }
+}
+
+.post-row.Forum {
+
+  .answered {
+    background-color: @DEFAULT_FORUM;
+    color: yellow;
+  }
+
+  .commented {
+    background-color: @DEFAULT_FORUM;
+    color: yellow;
+  }
+
+  .accepted {
+    background-color: @DEFAULT_FORUM;
+    color: green;
+  }
+
+  .unanswered {
+    background-color: @DEFAULT_FORUM;
+    color: white;
+  }
+}
+
+.post-row.Job {
+
+  .answered {
+    background-color: @DEFAULT_JOB;
+    color: yellow;
+  }
+
+  .commented {
+    background-color: @DEFAULT_JOB;
+    color: yellow;
+  }
+  .accepted {
+    background-color: @DEFAULT_JOB;
+    color: green;
+  }
+
+  .unanswered {
+    background-color: @DEFAULT_JOB;
+    color: white;
+  }
+}
+
+ul.flat {
+  list-style: none;
+  padding: 0px;
+  margin: 0px;
+}
+
+.navfix {
+  margin-top: 23px;
+}
+
+.searchbar {
+  margin-top: 1em;
+  margin-bottom: 0.8em;
+}
+
+.pagination {
+  margin: 5px 0;
+}
+
+.login {
+  font-size: large;
+}
+
+.nav-pills > li > a {
+  &:hover {
+    background-color: @MUTED_BACKGROUND;
+  }
+}
+
+.nav-pills > li.active > a, .nav-pills > li.active > a:hover, .nav-pills > li.active > a:focus {
+  color: #000000;
+  background-color: @MUTED_BACKGROUND;
+}
+
+#post-details {
+  .title {
+    text-shadow: 1px 2px 2px rgba(0, 0, 0, 0.1);
+    font-size: 140%;
+    font-weight: bold;
+    padding-bottom: 2px;
+    margin-bottom: 10px;
+    padding-top: 1em;
+    color: #333;
+  }
+}
+
+.post {
+
+  .title {
+    text-shadow: 1px 2px 2px rgba(0, 0, 0, 0.1);
+    font-size: 140%;
+    font-weight: bold;
+    padding-bottom: 2px;
+    margin-bottom: 10px;
+    padding-top: 1em;
+    color: #333;
+  }
+
+  .action {
+    float: left;
+    width: 50%;
+    padding-top: 10px;
+    vertical-align: middle;
+  }
+
+}
+
+// Voting box for posts.
+.post.vote-box {
+  text-align: center;
+  width: 60px;
+  float: left;
+  margin-left: -10px;
+  display: block;
+
+  .count {
+    font-size: 240%;
+    font-weight: bold;
+    text-align: center;
+    margin: 5px 0px 5px 0px;
+  }
+
+  .mark {
+    height: 30px;
+    background-position: center;
+    margin-top: 10px;
+    background-repeat: no-repeat;
+    cursor: pointer;
+    color: #2F5B14;
+    opacity: 0.9;
+  }
+
+  .off {
+    opacity: 0.3;
+  }
+}
+
+// Voting box for comments.
+.comment.vote-box {
+  text-align: center;
+  padding: 10px;
+  padding-right: 15px;
+  width: 35px;
+  float: left;
+  margin-left: -10px;
+  display: block;
+
+  .mark {
+    cursor: pointer;
+    color: #2F5B14;
+    opacity: 0.9;
+    width: 20px;
+    float: left;
+    vertical-align: middle;
+  }
+
+  .count {
+    width: 20px;
+    float: left;
+    font-size: small;
+    font-weight: bold;
+    text-align: center;
+    vertical-align: middle;
+    margin: 1px 0px 5px 0px;
+  }
+
+  .off {
+    opacity: 0.3;
+  }
+}
+
+.action-line {
+  width: 50%;
+  float: left;
+}
+
+.author-line {
+  width: 30%;
+  float: right;
+}
+
+.comment {
+  clear: left;
+
+  .entry {
+    padding-left: 5px;
+    margin-top: 0.5em;
+    color: #666666;
+    background-color: #efefef;
+    border-bottom: 1px solid #eeeeee;
+
+  }
+  .post-info-line {
+    float: left;
+    margin-right: 10px;
+    color: #666666;
+  }
+  .indent {
+    margin-left: 1.5em;
+  }
+}
+
+div#navbar {
+
+  margin-top: 2px;
+  margin-bottom: 2px;
+
+  .active {
+    background-color: @MUTED_BACKGROUND;
+    //border: 1px solid @MENU_ACTIVE_BORDER;
+    border-radius: 4px;
+  }
+
+  .top {
+    padding: 0.1em;
+    padding-left: 1em;
+    margin-bottom: 1px;
+    background-color: #eeeeee;
+    border-radius: 4px;
+    border: 1px solid #ececec;
+    //text-align: center;
+  }
+
+  .anon {
+    padding: 1em;
+    text-align: center;
+    border-radius: 4px;
+    &:hover {
+      background-color: #eeeeee;
+    }
+  }
+
+  .newpost {
+    a {
+      //color: @ACCENT_COLOR;
+    }
+  }
+
+  .mid {
+    border-radius: 4px;
+    vertical-align: middle;
+    text-align: center;
+    padding: 5px;
+    margin-left: 2px;
+    margin-bottom: 2px;
+    &:hover {
+      background-color: @MUTED_BACKGROUND;
+    }
+
+  }
+}
+
+.Deleted {
+  opacity: 0.5;
+  background-color: #FFD9CC;
+}
+
+#post-list .post-row:nth-of-type(odd).Deleted {
+  opacity: 0.5;
+  background-color: #FFD9CC;
+}
+
+.mod-post {
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 2px;
+  &:hover {
+    background-color: darkorange;
+    color: white;
+  }
+}
+
+.add-comment {
+  cursor: pointer;
+  &:hover {
+    background-color: #white;
+  }
+}
+
+.vote-popover {
+  position: absolute;
+  background-color: @MUTED_BACKGROUND;
+  border-color: @MUTED_BACKGROUND_BORDER;
+  color: #3c763d;
+  padding: 15px;
+  margin-bottom: 20px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+}
+
+.vote-popover.error {
+  background-color: #f2dede;
+  border-color: #ebccd1;
+  color: #a94442;
+}
+
+.sidebar {
+  .head {
+    font-size: larger;
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+  ul {
+    margin-left: -5px;
+    li {
+      margin-bottom: 2px;
+    }
+  }
+}
+
+.pagebar {
+  margin-bottom: 3px;
+}
+
+.select2-results {
+  //min-height: 550px;
+  max-height: 650px;
+  overflow-y: auto;
+  .in {
+    font-size: small;
+    color: #666666;
+  }
+}
+
+.select2-results .select2-highlighted {
+  background: @MUTED_BACKGROUND;
+  color: black;
+}
+
+.form-group {
+  background-color: #efefef;
+  padding: 5px;
+  border-radius: 5px;
+}
+
+.userbox.grey {
+  background-color: #efefef;
+  border: 1px solid #d3d3d3;
+}
+
+.userbox {
+  padding: 10px 0px 10px 0px;
+  //height: 160px;
+  font-size: small;
+  .fixed {
+    height: 160px;
+
+  }
+
+  .uname {
+
+  }
+  .loc {
+    font-size: small;
+    color: #808080;
+  }
+  .ago {
+    font-size: small;
+    color: #808080;
+  }
+}
+
+.preformatted {
+  font-family: monospace;
+  white-space: pre;
+}
+
+.user-sidebar {
+  margin-top:30px;
+  li {
+    margin-bottom: 3px;
+    list-style: none;
+  }
+}
+
+

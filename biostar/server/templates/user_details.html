@@ -1,0 +1,132 @@
+{% extends "starbase.html" %}
+{% load server_tags %}
+{% load humanize %}
+{% load socialaccount %}
+
+{% block page_title %}
+    User: {{ target.name }}
+{% endblock %}
+
+{% block content %}
+
+    <div class="row {{ target.get_status_display }}">
+
+        <div class="col-md-12 user-details">
+
+            <div class="col-md-12">
+                <h2 class="text-center">{{ target.get_type_display }}: {{ target.name }}</h2>
+            </div>
+
+            <div class="col-md-3">
+
+                <div class="text-center">
+                    {#  User gravatar.  #}
+                    {% gravatar target 200 %}
+                    <div>{% userlink target %}</div>
+                </div>
+
+                <div class="text-center" style="margin-top:20px">
+
+
+                    {% if target.is_editable and user.is_moderator and user != target %}
+                        <div style="margin-top:10px;">
+                            <a role="button" class="btn btn-warning mod-user" data-value="{{ target.id }}">Moderate User</a>
+                        </div>
+                    {% endif %}
+                </div>
+
+                {% if target.has_ownership %}
+                    <div style="font-size: small; padding-top:20px;">
+                        Your portrait is loaded from <a href="http://www.gravatar.com">Gravatar</a> based
+                        on your email. If you don't have a <a href="http://www.gravatar.com">Gravatar</a> account
+                        your portait is
+                        an "identicon": an automatically generated, unique image.
+                    </div>
+                    <div style="padding:10px" class="text-center">
+                        <a href="{% url "user-edit" target.id %}" class="btn btn-success" role="button" href="#">Edit Your Profile</a>
+                    </div>
+
+
+                {% endif %}
+
+
+            </div>
+
+            {#  The short description entered by the user.  #}
+            <div class="col-md-4">
+                <dl class="dl-horizontal">
+
+                    <dt>Reputation:</dt>
+                    <dd>{{  target.scaled_score |intcomma }} stars</dd>
+
+                    <dt>Status:</dt>
+                    <dd>{{ target.get_status_display }}</dd>
+
+
+                    <dt>Email:</dt>
+                    {% if target.has_ownership %}
+                        <dd>{{ target.email }}</dd>
+                    {% else %}
+                        <dd>{{ target.email|hide_email }}</dd>
+                    {% endif %}
+
+                    <dt>Last seen:</dt>
+                    <dd>{{ target.profile.last_login|naturaltime }}</dd>
+
+                    <dt>Joined:</dt>
+                    <dd>{{ target.profile.date_joined|naturaltime }}</dd>
+
+                    <dt>Location:</dt>
+                    <dd>{{ target.profile.location }}</dd>
+
+                    <dt>Website:</dt>
+                    <dd><a href="{{ target.profile.website }}">{{ target.profile.website }}</a></dd>
+
+                    <dt>Scholar ID:</dt>
+                    <dd>{{ target.profile.scholar }}</dd>
+
+                    {% if target.has_ownership %}
+
+                        <dt>My Tags:</dt>
+                        <dd>{{ target.profile.my_tags }}</dd>
+
+                        <dt>Notifications:</dt>
+                        <dd>{{ target.profile.get_message_prefs_display }}</dd>
+
+                        <dt>Log in options:</dt>
+                        <dd>
+                            <a role="button" class="btn btn-info btn-xs" href="{% url 'socialaccount_connections' %}">Add Social Login</a>
+                        </dd>
+
+                    {% endif %}
+                </dl>
+            </div>
+
+            {#  User bio.  #}
+            <div class="col-md-5">
+                {{ target.profile.info|safe }}
+            </div>
+
+            {#  Post list goes here #}
+            <div class="col-md-12">
+                <h4 class="text-center">Posts created by {{ target.name }}</h4>
+                {% page_bar %}
+            </div>
+            <div class="col-md-12">
+                <div id="post-list">
+                    {% for post in posts %}
+                        {% post_count_box post %}
+                    {% empty %}
+
+                        <div class="alert alert-info">There are no results for this page.</div>
+
+                    {% endfor %}
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+    </div>
+
+{% endblock %}

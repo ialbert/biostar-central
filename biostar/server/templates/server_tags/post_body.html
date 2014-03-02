@@ -1,0 +1,65 @@
+{% load server_tags %}
+
+<tr class="{{post.get_status_display}}">
+
+    <td>
+        <a id="{{ post.id }}"></a>
+
+        <div class="post vote-box" data-post_id="{{ post.id }}">
+
+            <div class="vote mark {{ post.has_upvote|on }} tip" data-toggle="tooltip" data-placement="top"
+                 data-type="vote" title="Upvote!">
+                <i class="fa fa-thumbs-o-up fa-2x"></i></div>
+
+            <div class="count">{{ post.vote_count }}</div>
+
+            <div class="vote mark {{ post.has_bookmark|on }} tip" data-toggle="tooltip" data-placement="top"
+                 data-type="bookmark" title="Bookmark!">
+                <i class="fa fa-book fa-2x"></i>
+            </div>
+
+            {% if not post.is_toplevel %}
+            <div class="vote mark {{ post.has_accepted|on }} tip" data-toggle="tooltip" data-placement="top"
+                 data-type="accept" title="Accept!">
+                <i class="fa fa-check-circle-o fa-2x"></i>
+            </div>
+            {% endif %}
+        </div>
+
+    </td>
+
+    <td>
+        {% user_box post.author post.lastedit_date %}
+
+        {% if post.is_toplevel %}
+            <div class="title">{{ post.get_type_display }}: {{ post.get_title }}</div>
+        {% endif %}
+
+        {# The body of the post #}
+        <div class="content">
+
+            {{ post.content|safe }}
+
+        </div>
+
+        <div class="clearfix">
+            {% if post.is_toplevel %}
+            <div class="tags clearfix" style="margin-bottom:0.5em;">
+                {% for tag in post.tag_set.all %}
+                <a class="tag" href="/t/{{tag.name}}/">{{ tag.name }}</a>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {# Post action line #}
+            {% post_actions post user %}
+        </div>
+
+
+        {# Comments for each post rendered here #}
+        <div class="comment">
+            {% render_comments request post tree %}
+        </div>
+    </td>
+
+</tr>

@@ -1,0 +1,60 @@
+{# Renders the countbox for each post #}
+{% load server_tags %}
+{% load humanize %}
+<div class="post-row {{ post.get_type_display }} {{ post.get_status_display }}">
+    <div class="count-box clearfix">
+        {% if post.is_toplevel %}
+            <div class="box vote visible-lg visible-md">
+                <div class="c">{{ post.vote_count }}</div>
+                <div class="t">vote{{ post.vote_count|pluralize }}</div>
+            </div>
+            <div class="box {% boxclass post %}">
+                <div class="c">{{ post.reply_count }}</div>
+                <div class="t">answer{{ post.reply_count|pluralize }}</div>
+            </div>
+            <div class="box view visible-lg visible-md">
+                <div class="c">{{ post.view_count }}</div>
+                <div class="t">views</div>
+            </div>
+
+            {% if post.subs_count > 4 %}
+                <div class="book_count text-center">
+                    {{ post.subs_count }} following
+
+                </div>
+            {% else %}
+                <div></div>
+            {% endif %}
+        {% else %}
+            <div class="box vote">
+                <div class="c">{{ post.vote_count }}</div>
+                <div class="t">vote{{ post.vote_count|pluralize }}</div>
+            </div>
+            <div class="box vote visible-lg visible-md">
+                <div class="c">{{ post.book_count }}</div>
+                <div class="t">bookmark{{ post.reply_count|pluralize }}</div>
+            </div>
+            <div class="box vote visible-lg visible-md">
+                &nbsp;
+            </div>
+        {% endif %}
+    </div>
+    <div class="title-box clearfix">
+        <div class="post-title"><a href="{{ post.get_absolute_url }}">{{ post.get_title }}</a></div>
+        <div class="clearfix">
+
+            <span class="tags visible-lg visible-md">
+            {% for tag in post.tag_set.all %}
+                <a class="tag" href="/t/{{tag.name }}/">{{ tag.name }}</a>
+            {% endfor %}
+            </span>
+            <span class="userlink text-right">
+            {% last_action post %} {{ post.creation_date|time_ago }} by {% userlink post.author %}
+            </span>
+
+        </div>
+        {% if context %}
+            <div>Context: <em>{{ context|safe }}</em></div>
+        {% endif %}
+    </div>
+</div>

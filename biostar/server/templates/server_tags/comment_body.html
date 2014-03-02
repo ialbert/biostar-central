@@ -1,0 +1,23 @@
+{% load server_tags %}
+<a id="{{ post.id }}"></a>
+<div class="entry {{ post.get_status_display }}  clearfix">
+
+    <div class="comment vote-box" data-post_id="{{ post.id }}">
+        <div class="vote mark {{ post.has_upvote|on }} " data-type="vote" title="Upvote!">
+            <i class="fa fa-thumbs-o-up fa-1x"></i></div>
+        <div class="count">{{ post.vote_count|show_nonzero }}</div>
+    </div>
+
+   {{ post.content|safe }}
+
+    {#  Post action line #}
+    {% post_actions post user "REPLY" %}
+
+    <span class="userlink text-right">
+        {% if post.author != post.lastedit_user %}
+            modified {{ post.lastedit_date|time_ago }} by {% userlink post.lastedit_user %} &bull;
+        {% endif %}
+        written {{ post.creation_date|time_ago }} by {% userlink post.author %}
+    </span>
+
+</div>

@@ -1,0 +1,34 @@
+{% extends "starbase.html" %}
+{% load server_tags %}
+{% load humanize %}
+
+{% block content %}
+
+    {% search_bar %}
+
+    {% page_bar %}
+
+    <div class="row">
+        <div class="col-md-9">
+
+            <table id="posts" class="table table-striped">
+                {% for message in objects %}
+                    <tr>
+                        <td>
+                           {{ message.sent_at|timesince }} ago {{ message.body.text|safe }}
+                        </td>
+                    </tr>
+
+                {% endfor %}
+            </table>
+        </div>
+
+        <div class="col-md-3 sidebar">
+            <div class="head">People posting your threads</div>
+            {% sidebar_users people %}
+        </div>
+    </div>
+
+    {% page_bar %}
+
+{% endblock %}

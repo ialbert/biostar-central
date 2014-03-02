@@ -1,0 +1,163 @@
+{% load i18n %}
+{% load humanize %}
+{% load server_tags %}
+{% load compress %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <title>{% block page_title %}{{ page_title }}{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet">
+    <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+
+
+    <script type="application/javascript">
+        {% if user.is_authenticated %}
+            USER_ID = {{ user.id }};
+        {%  else %}
+            USER_ID = null;
+        {% endif %}
+        TITLE_SEARCH_URL = "{% url 'search-title' %}"
+        POST_DISPLAY_URL = "/p/"
+    </script>
+</head>
+<body>
+{# Main page container. #}
+<div class="container" id="content">
+
+    {# Navigation bar for each page. #}
+    {% nav_bar user %}
+
+    {% if messages %}
+        <div class="row">
+            <div class="col-md-12 col-sm-offset-0 text-center">
+                {% for message in messages %}
+                    <div class="alert  {{ message.tags }}">{{ message|safe }}</div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+    {# Contains the actual body of the page. #}
+    {% block content %}
+        Body
+    {% endblock %}
+
+    {# The footer for each page. #}
+    {% block footer %}
+        <div class="row">
+            <div class="col-sm-12 col-md-12">
+                <hr>
+            </div>
+        </div>
+
+        <div class="row">
+
+            <div class="col-xs-3 col-xs-offset-1 col-md-2 col-md-offset-3">
+                <div class="title">Content</div>
+                <ul class="flat">
+                    <li><a href="{% url 'search-page' %}">Search</a></li>
+                    <li><a href="{% url 'user-list' %}">Users</a></li>
+                    <li><a href="{% url 'tag-list' %}">Tags</a></li>
+                    <li>Badges</li>
+                </ul>
+            </div>
+
+            <div class="col-xs-3 col-md-2">
+                <div class="title">Help</div>
+                <ul class="flat">
+                    <li><a href="{% url 'flatpage' 'about' %}">About</a></li>
+                    <li><a href="{% url 'flatpage' 'faq' %}">FAQ</a></li>
+                </ul>
+            </div>
+
+            <div class="col-xs-3 col-md-2">
+                <div class="title">Access</div>
+                <ul class="flat">
+                    <li><a href="{% url 'rss' %}">RSS</a></li>
+                    <li>Stats</li>
+                    <li>API</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <hr>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12 text-center">
+                Use of this site constitutes acceptance of our <a href="{% url 'flatpage' 'policy' %}">User Agreement and Privacy
+                Policy</a>.
+            </div>
+            <div class="col-md-12 text-center">
+                Powered by <a href="https://github.com/ialbert/biostar-central">Biostar</a>
+                version {{ BIOSTAR_VERSION }}
+            </div>
+        </div>
+    {% endblock %}
+
+
+    {# This information is cached and updated periodically via the context. #}
+    <div id="traffic">Traffic: {{ TRAFFIC }} ip/hr</div>
+</div>
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+
+{#  Set in the django settings module. #}
+{% if USE_COMPRESSOR %}
+
+    {# Requires the lessc compiler. #}
+    {% compress css %}
+        <link href="{{ STATIC_URL }}lib/select2-3.4.5/select2.css" rel="stylesheet">
+        <link rel="stylesheet" type="text/less" href="{{ STATIC_URL }}{{ SITE_STYLE_CSS }}">
+    {% endcompress %}
+
+    {% compress js %}
+        <script async src="{{ STATIC_URL }}lib/select2-3.4.5/select2.min.js" type="text/javascript"></script>
+        <script async src="{{ STATIC_URL }}biostar.js" type="text/javascript"></script>
+    {% endcompress %}
+
+{% else %}
+
+    {#  No asset compression. #}
+    <link href="{{ STATIC_URL }}lib/select2-3.4.5/select2.css" rel="stylesheet">
+
+    {# Random numbers added to bypass potential browser caching. #}
+    <link rel="stylesheet/less" type="text/less" href="{{ STATIC_URL }}{{ SITE_STYLE_CSS }}?x={% rand_num %}">
+    <script src="{{ STATIC_URL }}lib/less-1.6.1.min.js" type="text/javascript"></script>
+
+    <script async src="{{ STATIC_URL }}lib/select2-3.4.5/select2.min.js" type="text/javascript"></script>
+    <script async src="{{ STATIC_URL }}biostar.js?x={% rand_num %}" type="text/javascript"></script>
+
+{% endif %}
+
+{% block extras %}
+ {# Exta javascript may be injected here #}
+{% endblock %}
+
+{# Google tracker injected if it exists in the context. Set in the django settings. #}
+{% if GOOGLE_TRACKER %}
+    <script type="text/javascript">
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', '{{GOOGLE_TRACKER}}']);
+        _gaq.push(['_setDomainName', '{{GOOGLE_DOMAIN}}']);
+        _gaq.push(['_trackPageview']);
+        (function () {
+            var ga = document.createElement('script');
+            ga.type = 'text/javascript';
+            ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+
+{% endif %}
+</body>
+</html>

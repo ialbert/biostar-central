@@ -1,0 +1,7 @@
+User: {{user.name}} on Biostar wrote:
+
+{{ post.get_type_display }}: {{ post.root.get_title }}
+
+{{post.peek}}...
+
+See the post at: http://{{site.domain}}{{ post.get_absolute_url }}
