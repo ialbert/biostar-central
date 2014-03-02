@@ -44,7 +44,6 @@ def data_cleanup(days=1, weeks=20):
 @app.task
 def test(*args, **kwds):
     logger.info("*** executing task %s %s, %s" % (__name__, args, kwds))
-    return 1000
 
 
 

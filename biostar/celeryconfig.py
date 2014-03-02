@@ -12,16 +12,9 @@ CELERY_ACCEPT_CONTENT = ['pickle' ]
 
 CELERYBEAT_SCHEDULE = {
 
-    'test_task': {
-        'task': 'biostar.celery.test',
-        'schedule': timedelta(hours=15),
-        'args': (16, 16),
-    },
-
     'data_cleanup': {
         'task': 'biostar.celery.data_cleanup',
-        'schedule': timedelta(seconds=15),
-        'args': (16, 16),
+        'schedule': timedelta(hours=6),
     },
 
 }
