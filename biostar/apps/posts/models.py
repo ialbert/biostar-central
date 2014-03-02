@@ -68,9 +68,9 @@ class PostManager(models.Manager):
         include, exclude = [], []
         for term in text.split('+'):
             if term.endswith("!"):
-                exclude.append(term[:-1])
+                exclude.append(term[:-1].lower())
             else:
-                include.append(term)
+                include.append(term.lower())
 
         if include:
             query = self.filter(type__in=Post.TOP_LEVEL, tag_set__name__in=include).exclude(
