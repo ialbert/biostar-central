@@ -7,12 +7,12 @@ Welcome to Biostar Central's documentation!
 ===========================================
 
 BioStar is a `Python <http://www.python.org/>`_ and
-`Django <http://www.djangoproject.com/>`_ based Q&A software.
+`Django <http://www.djangoproject.com/>`_ based Q&A software licensed under the *MIT Open Source License*.
 
 Our goal is to create a simple, generic, flexible and extensible Q&A
 framework.
 
-Requirements: `Python 2.7`
+Requirements: *Python 2.7*
 
 Quick Start
 ------------
@@ -28,7 +28,7 @@ From the biostar source directory::
     # Initialize database, import test data, and run the site.
     ./biostar.sh init import run
 
-Visit ``http://locahost:8080`` to see the site loaded with default settings.
+Visit **http://localhost:8080** to see the site loaded with default settings. Enjoy.
 
 For more information see the documentation.
 
@@ -38,6 +38,7 @@ For more information see the documentation.
    install
    external
    migrate
+   about
 
 Indices and tables
 ==================

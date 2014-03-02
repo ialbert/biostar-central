@@ -21,7 +21,7 @@ Documentation
 
 The documentation is maintained at:
 
-http://biostar-central.readthedocs.org/
+http://docs.biostars.org/
 
 The source for the documentation can be found in  the `docs` folder.
 
