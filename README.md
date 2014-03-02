@@ -1,12 +1,16 @@
-BioStar Q&A Engine
-==================
+BioStar Q&A Version 2.0
+=======================
 
 **NOTE: This branch is under heavy development, it should not be used by third parties
-until this notice disappears (Jan 13, 2013)**
+until this notice disappears (Jan 13, 2013)
 
-BioStar is a [Python][python] and [Django][django] based Q&A web software.
+The version of Biostar that is currently deployed can be found
+in branch `biostar1` at https://github.com/ialbert/biostar-central/tree/biostar1
+**
 
-Our primary goal is to create a simple, generic, flexible and extensible Q&A
+BioStar is a [Python][python] and [Django][django] based Q&A software.
+
+Our goal is to create a simple, generic, flexible and extensible Q&A
 framework.
 
 Requirements: `Python 2.7`
@@ -27,17 +31,11 @@ From the biostar source directory:
 
 Visit `http://locahost:8080` to see the site loaded with default settings.
 
-The default admin login is `foo@bar.com` with the password `foobar`.
+The documentation is maintained at:
 
-The default email handler will print to the console.
+http://biostar-central.readthedocs.org/en/latest/
 
-More information on how to install, deploy and customize in [docs/install.md](docs/install.md) file.
-
-Other documentation
--------------------
-
-* How to provide authentication from a different website. See [External authentication](docs/external.md)
-* How to [migrate data from a Biostar 1.5 site](docs/migrate.md)
+the source for the documentation can be found in  the `docs` folder.
 
 [django]: http://www.djangoproject.com/
 [python]: http://www.python.org/
