@@ -36,7 +36,7 @@ class LocalManager(UserManager):
             delta = const.now() - datetime.timedelta(days=days)
             query = self.filter(profile__last_login__gt=delta)
 
-        query = query.order_by(sort)
+        query = query.select_related("profile").order_by(sort)
         return query
 
 class User(AbstractBaseUser):

@@ -54,11 +54,13 @@ def get_counts(request, weeks=settings.COUNT_INTERVAL_WEEKS):
     user = request.user
     now = const.now()
 
+    # Authenticated users get counts since their last login.
     if user.is_authenticated():
         since = user.profile.last_login
     else:
         since = now - timedelta(weeks=weeks)
 
+    # This fetches the posts since last login.
     posts = Post.objects.filter(type__in=Post.TOP_LEVEL, status=Post.OPEN, creation_date__gt=since).order_by('-id').only("id").prefetch_related("tag_set")
     counts = defaultdict(int)
 
@@ -75,8 +77,9 @@ def get_counts(request, weeks=settings.COUNT_INTERVAL_WEEKS):
 
     # Compute a few more counts for the user.
     if user.is_authenticated():
+
         # These are the new messages since the last login.
-        counts['messages'] = Message.objects.filter(user=user, unread=None, sent_at__gt=since).count()
+        counts['messages'] = Message.objects.filter(user=user, unread=True, sent_at__gt=since).count()
 
         # These are the new votes since the last login.
         counts['votes'] = Vote.objects.filter(post__author=user, date__gt=since).count()
@@ -139,7 +142,3 @@ class Visit(object):
 
             # Store them in the cache for the next anonymous user.
             cache.set(SESSION_KEY, counts, settings.SESSION_UPDATE_SECONDS)
-
-        # The session key must be present in the session
-        assert SESSION_KEY in session
-

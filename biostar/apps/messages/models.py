@@ -63,9 +63,6 @@ class Message(models.Model):
     unread = models.BooleanField(default=True)
     sent_at = models.DateTimeField(db_index=True, null=True)
 
-    def is_new(self):
-        return bool(self.unread)
-
     def save(self, *args, **kwargs):
         self.sent_at = self.body.sent_at
         super(Message, self).save(**kwargs)
@@ -73,11 +70,10 @@ class Message(models.Model):
     def __unicode__(self):
         return u"Message %s, %s" % (self.user, self.body_id)
 
-
     @staticmethod
     def inbox_count_for(user):
         "Returns the number of unread messages for the given user but does not mark them seen"
-        return MessageBody.objects.filter(recipient=user, unread__isnull=True).count()
+        return MessageBody.objects.filter(recipient=user, unread=True).count()
 
 
 # Admin interface to Message and MessageBody.
