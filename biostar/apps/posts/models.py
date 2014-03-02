@@ -63,14 +63,17 @@ class PostManager(models.Manager):
         query = query.prefetch_related("tag_set")
         return query
 
+    def fixcase(self, text):
+        return text.upper() if len(text) == 1 else text.lower()
+
     def tag_search(self, text):
         "Performs a query by one or more + separated tags"
         include, exclude = [], []
         for term in text.split('+'):
             if term.endswith("!"):
-                exclude.append(term[:-1])
+                exclude.append(self.fixcase(term[:-1]))
             else:
-                include.append(term)
+                include.append(self.fixcase(term))
 
         if include:
             query = self.filter(type__in=Post.TOP_LEVEL, tag_set__name__in=include).exclude(
