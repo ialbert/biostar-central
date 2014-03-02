@@ -17,7 +17,7 @@ Quick Start
 From the biostar source directory:
 
     # Install the requirements.
-    pip install --upgrade -r requirements/base.txt
+    pip install --upgrade -r conf/requirements/base.txt
 
     # Load the environment variables.
     source conf/defaults.env
