@@ -83,7 +83,7 @@ def get_post(row, users):
 
     post.status = post_status
     post.type = post_type
-    post.tag_val = tag_val
+    post.tag_val = ",".join(tag_val.split())
     post.creation_date = localize_time(get(row, 'creation_date'))
     post.lastedit_date = localize_time(get(row, 'lastedit_date'))
     post.view_count = get(row, "views", func=int)
