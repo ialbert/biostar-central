@@ -14,6 +14,8 @@ framework.
 
 Requirements: *Python 2.7*
 
+Official documentation is located at http://docs.biostars.org
+
 Quick Start
 ------------
 
@@ -30,14 +32,14 @@ From the biostar source directory::
 
 Visit **http://localhost:8080** to see the site loaded with default settings. Enjoy.
 
-For more information see the documentation.
+For more information see the documentation below:
 
 .. toctree::
    :maxdepth: 2
 
    install
-   external
-   migrate
+   deploy
+   customize
    about
 
 Indices and tables
