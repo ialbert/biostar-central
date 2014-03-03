@@ -4,14 +4,8 @@
 #
 from biostar.settings.base import *
 
-DEBUG = False
+DEBUG = True
 TEMPLATE_DEBUG = DEBUG
-
-# How far to look for posts for anonymous users.
-COUNT_INTERVAL_WEEKS = 10
-
-# How frequently do we update the counts for authenticated users.
-SESSION_UPDATE_SECONDS = 10 * 60
 
 # The top navigation has three parts: start, special tags, end
 NAVBAR_START_CATEGORIES = [
@@ -27,16 +21,17 @@ NAVBAR_END_CATEGORIES = [
     "Job", "Planet", "Forum",
 ]
 
-CAPTCHA = True
+# Should the math captcha be turned on.
+CAPTCHA = False
 
 # This will form the navbar
 CATEGORIES = NAVBAR_START_CATEGORIES + NAVBAR_SPECIAL_TAGS + NAVBAR_END_CATEGORIES
 
 # Enable this if you have the lessc installed.
-USE_COMPRESSOR = True
+USE_COMPRESSOR = False
 
 # The celery configuration file
-CELERY_CONFIG = 'live.celeryconfig'
+CELERY_CONFIG = 'biostar.celeryconfig'
 
 #BROKER_URL = 'redis://localhost:6379/0'
 #CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'

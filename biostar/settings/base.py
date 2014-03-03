@@ -232,6 +232,16 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
     'django.contrib.flatpages',
 
+    # Biostar specific apps.
+    'biostar.apps.users',
+    'biostar.apps.util',
+    'biostar.apps.posts',
+    'biostar.apps.messages',
+    'biostar.apps.badges',
+
+    # The main Biostar server.
+    'biostar.server',
+
     # Social login handlers.
     'allauth',
     'allauth.account',
@@ -250,15 +260,7 @@ INSTALLED_APPS = [
     'djcelery',
     'kombu.transport.django',
 
-    # Biostar specific apps.
-    'biostar.apps.util',
-    'biostar.apps.posts',
-    'biostar.apps.messages',
-    'biostar.apps.badges',
-    'biostar.apps.users',
 
-    # The main Biostar server.
-    'biostar.server',
     'south',
 ]
 

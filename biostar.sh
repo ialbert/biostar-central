@@ -43,9 +43,9 @@ while (( "$#" )); do
         $PYTHON $DJANGO_ADMIN delete_database --settings=$DJANGO_SETTINGS_MODULE
     fi
 
-    if [ "$1" = "postgres_reset" ]; then
+    if [ "$1" = "pg_reset" ]; then
         echo "*** Dropping the $DATABASE_NAME database!"
-        dropdb -i $DATABASE_NAME
+        dropdb -i $DATABASE_NAME --if-exists
         createdb $DATABASE_NAME
     fi
 
@@ -54,17 +54,19 @@ while (( "$#" )); do
         $PYTHON $DJANGO_ADMIN runserver $BIOSTAR_HOSTNAME --settings=$DJANGO_SETTINGS_MODULE
     fi
 
-
     if [ "$1" = "init" ]; then
         echo "*** initializing server on $BIOSTAR_HOSTNAME with $DJANGO_SETTINGS_MODULE"
-
+		echo "*** testing the code"
+		$PYTHON $DJANGO_ADMIN test --noinput -v $VERBOSITY --settings=$DJANGO_SETTINGS_MODULE
         $PYTHON $DJANGO_ADMIN syncdb -v $VERBOSITY --noinput --settings=$DJANGO_SETTINGS_MODULE
 
+ 		$PYTHON $DJANGO_ADMIN migrate  biostar.apps.users --settings=$DJANGO_SETTINGS_MODULE
+ 		$PYTHON $DJANGO_ADMIN migrate  biostar.apps.posts --settings=$DJANGO_SETTINGS_MODULE
         $PYTHON $DJANGO_ADMIN migrate  --settings=$DJANGO_SETTINGS_MODULE
         $PYTHON $DJANGO_ADMIN initialize_site --settings=$DJANGO_SETTINGS_MODULE
 
         $PYTHON $DJANGO_ADMIN collectstatic -v $VERBOSITY --noinput --settings=$DJANGO_SETTINGS_MODULE
-        $PYTHON $DJANGO_ADMIN test -v $VERBOSITY --settings=$DJANGO_SETTINGS_MODULE
+
     fi
 
     # Produce the environment variables recognized by Biostar.

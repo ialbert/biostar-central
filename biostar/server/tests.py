@@ -184,8 +184,8 @@ class UserTest(TestCase):
         self.assertEqual(user1.score + 1, user4.score)
 
 
-    def test_post_rendering(self):
-        "Stress test."
+    def test_stress(self):
+        "Stress test. Render multiple nested posts"
         emails = [ "%s@test.org" % x for x in range(10) ]
         passwd = "1234567"
         for email in emails:
@@ -200,9 +200,10 @@ class UserTest(TestCase):
             self.logout()
 
         for count in range(10):
+            valid_ids = [ p.id for p in Post.objects.all() ]
             email = random.choice(emails)
             self.login(email, passwd)
-            id = random.choice(range(1, Post.objects.all().count()))
+            id = random.choice(valid_ids)
             self.get_post(pk=id)
             post = Post.objects.get(pk=id)
             self.create_new_answer(post)
