@@ -45,7 +45,7 @@ while (( "$#" )); do
 
     if [ "$1" = "pg_reset" ]; then
         echo "*** Dropping the $DATABASE_NAME database!"
-        dropdb -i $DATABASE_NAME --if-exists
+        dropdb -i $DATABASE_NAME
         createdb $DATABASE_NAME
     fi
 
@@ -72,7 +72,7 @@ while (( "$#" )); do
     # Produce the environment variables recognized by Biostar.
     if [ "$1" = "test" ]; then
         echo "*** running all test"
-        $PYTHON $DJANGO_ADMIN test --failfast -v $VERBOSITY --settings=$DJANGO_SETTINGS_MODULE
+        $PYTHON $DJANGO_ADMIN test --noinput --failfast -v $VERBOSITY --settings=$DJANGO_SETTINGS_MODULE
     fi
 
     # Produce the environment variables recognized by Biostar.

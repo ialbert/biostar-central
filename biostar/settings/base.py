@@ -399,7 +399,7 @@ EXTERNAL_LOGOUT_URL = None
 COUNT_INTERVAL_WEEKS = 10000
 
 # How frequently do we update the counts for authenticated users.
-SESSION_UPDATE_SECONDS = 10
+SESSION_UPDATE_SECONDS = 2 * 60
 
 # The number of posts to show per page.
 PAGINATE_BY = 25
