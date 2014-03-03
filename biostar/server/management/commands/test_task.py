@@ -3,7 +3,7 @@ import logging
 
 from django.core.management.base import BaseCommand
 
-from biostar.celery import test, data_cleanup
+from biostar.celery import test
 
 logger = logging.getLogger(__name__)
 
@@ -13,6 +13,5 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         logger.info("submitting test task to celery")
         test.delay(100, name="Hello!")
-        data_cleanup.delay()
 
 

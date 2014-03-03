@@ -12,9 +12,22 @@ CELERY_ACCEPT_CONTENT = ['pickle' ]
 
 CELERYBEAT_SCHEDULE = {
 
-    'data_cleanup': {
-        'task': 'biostar.celery.data_cleanup',
+    'prune_data': {
+        'task': 'biostar.celery.call_command',
+        'schedule': timedelta(days=1),
+        'kwargs': dict(name="prune_data")
+    },
+
+    'sitemap': {
+        'task': 'biostar.celery.call_command',
         'schedule': timedelta(hours=6),
+        'kwargs': dict(name="sitemap")
+    },
+
+    'rebuild_index': {
+        'task': 'biostar.celery.call_command',
+        'schedule': timedelta(hours=1),
+        'args': [ "update_index" ],
     },
 
 }

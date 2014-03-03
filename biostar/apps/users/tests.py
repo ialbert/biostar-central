@@ -17,10 +17,9 @@ class UserTest(TestCase):
         Testing users and their profile creation
         """
         eq = self.assertEqual
-        admin = User.objects.get(email=settings.ADMIN_EMAIL)
 
-        # An admin user is created by default.
-        eq(admin.name, settings.ADMIN_NAME)
+        # Create a new usr
+        user = User.objects.create(email="foo@bar.com")
 
-        # It must have a profile created.
-        eq(admin.profile.user.email, settings.ADMIN_EMAIL)
+        # A user will automatically get a profile
+        eq (user.profile.user_id, user.id)

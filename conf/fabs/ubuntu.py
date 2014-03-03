@@ -59,7 +59,7 @@ def update_distro():
 
     # Install requirements.
     sudo("apt-get install -y postgresql postgresql-contrib postgresql-server-dev-all software-properties-common")
-    sudo("apt-get install -y nginx fail2ban redis-server ufw python-software-properties g++ make")
+    sudo("apt-get install -y nginx fail2ban redis-server ufw python-software-properties g++ make openjdk-7-jdk")
     sudo("apt-get install -y build-essential ncurses-dev byacc zlib1g-dev python-dev git supervisor")
     sudo("apt-get install -y python-setuptools")
 

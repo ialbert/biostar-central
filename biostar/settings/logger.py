@@ -45,6 +45,12 @@ LOGGING = {
             'level': 'INFO',
             'handlers': ['console'],
         },
+
+        'command':{
+            'level': 'INFO',
+            'handlers': ['console'],
+        },
     }
 
 }
+

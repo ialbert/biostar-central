@@ -20,26 +20,10 @@ app.autodiscover_tasks(
 )
 
 @app.task
-def data_cleanup(days=1, weeks=20):
-    "Reduces messages and post views"
-
-    from biostar.apps.posts.models import PostView
-    from biostar.apps.messages.models import Message
-
-    # Reduce post views.
-    past = const.now() - timedelta(days=days)
-    query = PostView.objects.filter(date__lt=past)
-    msg = "Deleting %s PostViews" % query.count()
-    logger.info(msg)
-    query.delete()
-
-    # Reduce messages.
-    since = const.now() - timedelta(weeks=weeks)
-    query = Message.objects.filter(sent_at__lt=since)
-    msg = "Deleting %s messages" % query.count()
-    logger.info(msg)
-    query.delete()
-
+def call_command(name, *args, **kwargs):
+    "Calls a django command in a delayed fashion"
+    from django.core.management import call_command
+    call_command(name, *args, **kwargs)
 
 @app.task
 def test(*args, **kwds):

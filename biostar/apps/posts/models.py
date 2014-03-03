@@ -153,6 +153,9 @@ class Post(models.Model):
     # Bookmark count.
     book_count = models.IntegerField(default=0)
 
+    # Indicates indexing is needed.
+    changed = models.BooleanField(default=True)
+
     # How many people follow that thread.
     subs_count = models.IntegerField(default=0)
 

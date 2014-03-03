@@ -12,14 +12,14 @@ from django.core.management.base import BaseCommand, CommandError
 import logging
 from django.contrib import sitemaps
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("command")
 
 class Command(BaseCommand):
     help = 'Creates a sitemap in the export folder of the site'
 
     def handle(self, *args, **options):
         generate_sitemap()
-        ping_google()
+        #ping_google()
 
 def path(*args):
     "Generates absolute paths"
@@ -33,7 +33,6 @@ def ping_google():
         # of HTTP-related exceptions.
         logger.error(exc)
         pass
-
 
 def generate_sitemap():
     sitemap = GenericSitemap({

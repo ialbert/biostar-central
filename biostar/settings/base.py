@@ -5,7 +5,7 @@
 from __future__ import absolute_import
 import os
 from django.core.exceptions import ImproperlyConfigured
-#from .logger import LOGGING
+from .logger import LOGGING
 
 # Turn off debug mode on deployed servers.
 DEBUG = True
@@ -259,6 +259,7 @@ INSTALLED_APPS = [
 
     # The main Biostar server.
     'biostar.server',
+    'south',
 ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'

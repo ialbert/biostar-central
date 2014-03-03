@@ -58,7 +58,7 @@ class NoteTest(TestCase):
             answers.append(answ)
 
         # A default admin user is added.
-        eq(EMAIL_COUNT + 1, User.objects.all().count())
+        eq(EMAIL_COUNT, User.objects.all().count())
 
         # Total number of posts
         eq(EMAIL_COUNT + 1, Post.objects.all().count())
