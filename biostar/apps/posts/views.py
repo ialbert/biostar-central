@@ -49,7 +49,7 @@ class LongForm(forms.Form):
     FIELDS = "title content post_type tag_val".split()
 
     POST_CHOICES = [(Post.QUESTION, "Question"), (Post.FORUM, "Forum Post"), (Post.JOB, "Job Ad"),
-                    (Post.BLOG, "Blog Post"), (Post.PAGE, "Biostar Page")]
+                    (Post.BLOG, "Blog Post"), (Post.PAGE, "Site Page")]
 
     title = forms.CharField(max_length=100, min_length=10, validators=[valid_title],
                             help_text="Descriptive titles promote better answers.")

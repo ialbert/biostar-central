@@ -14,9 +14,10 @@ from django.core.urlresolvers import reverse
 from django.contrib.sites.models import Site
 
 # HTML sanitization parameters.
-ALLOWED_TAGS = bleach.ALLOWED_TAGS + "p div br code pre".split()
-ALLOWED_STYLES = bleach.ALLOWED_STYLES
-ALLOWED_ATTRIBUTES = bleach.ALLOWED_ATTRIBUTES
+ALLOWED_TAGS = bleach.ALLOWED_TAGS + settings.ALLOWED_TAGS
+ALLOWED_STYLES = bleach.ALLOWED_STYLES + settings.ALLOWED_STYLES
+ALLOWED_ATTRIBUTES = dict(bleach.ALLOWED_ATTRIBUTES)
+ALLOWED_ATTRIBUTES.update(settings.ALLOWED_ATTRIBUTES)
 
 logger = logging.getLogger(__name__)
 

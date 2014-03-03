@@ -426,6 +426,7 @@ class FlatPageView(DetailView):
         url = "/info/%s/" % slug
         query = FlatPage.objects.get(url=url)
         return query
+
     def get_context_data(self, **kwargs):
         context = super(FlatPageView, self).get_context_data(**kwargs)
 
@@ -462,6 +463,12 @@ class FlatPageUpdate(UpdateView):
     template_name = "flatpages/flatpage_edit.html"
 
     def get_success_url(self):
+
+        # The purpose here is to allow site admins to
+        # edit they flatpages and have them being saved
+        # on the filesystem. That way they can reimport
+        # the modified pages if they need to.
+
         pk = self.kwargs['pk']
         page = FlatPage.objects.get(pk=pk)
 
@@ -471,9 +478,10 @@ class FlatPageUpdate(UpdateView):
         # The output directory for the flatpage.
         fdir = abspath(settings.LIVE_DIR, "flatpages")
 
-        # Temporary override
-        fdir = settings.FLATPAGE_IMPORT_DIR
+        # Temporary activated only in development.
+        #fdir = settings.FLATPAGE_IMPORT_DIR
 
+        # Make the directory under the live path.
         if not os.path.isdir(fdir):
             os.mkdir(fdir)
 

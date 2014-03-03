@@ -20,7 +20,8 @@
 
     <script src="/static/ckeditor/ckeditor.js"></script>
     <script>
-        // Replace the <textarea id="editor1"> with a CKEditor
-        CKEDITOR.replace('id_info');
+        CKEDITOR.replace('id_info', {
+            customConfig: '/static/ck_config.js'
+        });
     </script>
 {% endblock %}
