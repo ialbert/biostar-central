@@ -336,6 +336,7 @@ SOCIALACCOUNT_PROVIDERS = {
 
 # The google id will injected as a template variable.
 GOOGLE_TRACKER = ""
+GOOGLE_DOMAIN = ""
 
 # The default CSS file to load.
 SITE_STYLE_CSS = "biostar.style.less"
