@@ -5,3 +5,4 @@
 /import/*
 /live/*
 /conf/*.env
+/docs/_build

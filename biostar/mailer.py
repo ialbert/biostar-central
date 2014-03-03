@@ -6,7 +6,8 @@ from django.core.mail.utils import DNS_NAME
 from django.core.mail.backends import smtp
 from django.core.mail.backends.base import BaseEmailBackend
 from django.core.mail import get_connection
-from celery import shared_task
+
+from .celery import app
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +25,7 @@ TASK_CONFIG = {
 }
 TASK_CONFIG.update(CONFIG)
 
-@shared_task
+@app.task
 def send_email(message, **kwargs):
 
     conn = get_connection(backend=BACKEND,
