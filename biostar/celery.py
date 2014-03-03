@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 from django.conf import settings
 from celery.utils.log import get_task_logger
+import os
 
 from biostar import const
 from datetime import timedelta

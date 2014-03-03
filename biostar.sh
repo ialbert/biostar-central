@@ -43,10 +43,25 @@ while (( "$#" )); do
         $PYTHON $DJANGO_ADMIN delete_database --settings=$DJANGO_SETTINGS_MODULE
     fi
 
-    if [ "$1" = "pg_reset" ]; then
-        echo "*** Dropping the $DATABASE_NAME database!"
+    if [ "$1" = "pg_drop" ]; then
+        echo "*** Dropping the $DATABASE_NAME=$DATABASE_NAME!"
         dropdb -i $DATABASE_NAME
-        createdb $DATABASE_NAME
+    fi
+
+	if [ "$1" = "pg_create" ]; then
+        # creates the PG database
+        echo "*** creating postgresql database DATABASE_NAME=$DATABASE_NAME"
+        createdb $DATABASE_NAME -E utf8 --template template0
+    fi
+
+ 	if [ "$1" = "pg_import" ]; then
+        echo "*** Importing into DATABASE_NAME=$DATABASE_NAME"
+        gunzip -c $2 | psql $DATABASE_NAME
+    fi
+
+    if [ "$1" = "pg_dump" ]; then
+        echo "*** Dumping the $DATABASE_NAME database."
+        $PYTHON $DJANGO_ADMIN biostar_pg_dump -v $VERBOSITY --settings=$DJANGO_SETTINGS_MODULE
     fi
 
     if [ "$1" = "run" ]; then

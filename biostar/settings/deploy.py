@@ -4,7 +4,7 @@
 #
 from biostar.settings.base import *
 
-DEBUG = False
+DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 # The top navigation has three parts: start, special tags, end

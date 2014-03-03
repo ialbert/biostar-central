@@ -8,7 +8,7 @@ BROKER_URL = 'django://'
 
 CELERY_TASK_SERIALIZER = 'pickle'
 
-CELERY_ACCEPT_CONTENT = ['pickle' ]
+CELERY_ACCEPT_CONTENT = ['pickle']
 
 CELERYBEAT_SCHEDULE = {
 
@@ -27,7 +27,20 @@ CELERYBEAT_SCHEDULE = {
     'rebuild_index': {
         'task': 'biostar.celery.call_command',
         'schedule': timedelta(hours=1),
-        'args': [ "update_index" ],
+        'args': ["update_index"],
+    },
+
+    'hourly_dump': {
+        'task': 'biostar.celery.call_command',
+        'schedule': crontab(minute=10),
+        'args': ["biostar_pg_dump"],
+        'kwargs': {"--hourly": ""}
+    },
+
+    'daily_dump': {
+        'task': 'biostar.celery.call_command',
+        'schedule': crontab(hour=22),
+        'args': ["biostar_pg_dump"],
     },
 
 }
