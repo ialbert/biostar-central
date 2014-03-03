@@ -22,6 +22,7 @@ app.autodiscover_tasks(
 @app.task
 def call_command(name, *args, **kwargs):
     "Calls a django command in a delayed fashion"
+    logger.info("calling django command %s with %s and %s" % (name, args, kwargs))
     from django.core.management import call_command
     call_command(name, *args, **kwargs)
 
