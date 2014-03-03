@@ -14,6 +14,11 @@ app = Celery('biostar')
 # Read the configuration from the config file.
 app.config_from_object(settings.CELERY_CONFIG)
 
+# Discover tasks in applications.
+app.autodiscover_tasks(
+    lambda: ["biostar.mailer"]
+)
+
 @app.task
 def data_cleanup(days=1, weeks=20):
     "Reduces messages and post views"
@@ -39,6 +44,3 @@ def data_cleanup(days=1, weeks=20):
 @app.task
 def test(*args, **kwds):
     logger.info("*** executing task %s %s, %s" % (__name__, args, kwds))
-
-
-
