@@ -1,6 +1,9 @@
 Deploy
 ======
 
+Getting started
+---------------
+
 Thanks to the modular structure of its design Biostar is able to integrate with
 a wide variety of backends and provides a number of configuration scripts and helper
 methods to different deployment options.

@@ -1,8 +1,8 @@
-About Biostar
-=============
+About
+=====
 
-People
-------
+Team
+----
 
 For the most up do date information on contributors see: https://github.com/ialbert/biostar-central/graphs/contributors
 
@@ -19,8 +19,8 @@ Contributors
 * Eric Normandeau
 * Egon Willingham
 
-Funding for Biostar
--------------------
+Supporting organizations
+------------------------
 
 Biostar was initiated to serve the needs of the bioinformatics community.
 
@@ -38,8 +38,9 @@ Citing Biostar
   PLoS Comput Biol 7(10): e1002216. doi:10.1371/journal.pcbi.1002216
 
 
-Commercial Support
-^^^^^^^^^^^^^^^^^^
+Commercial support
+------------------
 
 Commercial support can be obtained via **Biostar Genomics LLC**, a bioinformatics consulting firm
-founded by Dr. Istvan Albert, For more information contact **admin@biostars.org**
+founded by Dr. Istvan Albert. The company can provide hosting for your organization and
+customize the site for your needs. For more information contact **admin@biostars.org**

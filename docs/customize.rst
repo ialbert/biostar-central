@@ -1,6 +1,9 @@
 Customize
 =========
 
+Getting started
+---------------
+
 TODO...
 
 See the ``conf/defaults.env`` for all the parameters that need to be customized.

@@ -1,12 +1,12 @@
-Installation
-============
+Install
+=======
 
 The sourcecode can be obtained via::
 
 	git clone https://github.com/ialbert/biostar-central.git
 
-First Steps
------------
+Getting started
+---------------
 
 Get the source and switch to the source directory. The
 recommended installation is via ``virtualenv`` and ``pip``::
@@ -34,7 +34,7 @@ To enable searching you must the content with::
 
     ./biostar.sh index
 
-Social Authentication
+Social authentication
 ---------------------
 
 The social logins settings will need to be initialized with the proper
@@ -58,14 +58,14 @@ Twitter:
 
 * Add your application at Twitter Apps Interface: http://twitter.com/apps/
 
-External Authentication
+External authentication
 -----------------------
 
 Other domains can provide authentication for Biostar by setting a cookie
 with a certain value. For this to work Biostar will have to be set to
 run as a subdomain of the hosting site.
 
-Cookie Settings
+Cookie settings
 ^^^^^^^^^^^^^^^
 
 The cookie value needs to contain the ``email:hash`` as value.
