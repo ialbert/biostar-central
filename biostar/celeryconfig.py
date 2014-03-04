@@ -34,7 +34,7 @@ CELERYBEAT_SCHEDULE = {
         'task': 'biostar.celery.call_command',
         'schedule': crontab(minute=10),
         'args': ["biostar_pg_dump"],
-        'kwargs': {"--hourly": ""}
+        'kwargs': {"hourly": True}
     },
 
     'daily_dump': {

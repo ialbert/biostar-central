@@ -380,9 +380,6 @@ class PostDetails(DetailView):
 
         # Add the more like this field
         post = super(PostDetails, self).get_object()
-        obj.more_like_this = SearchQuerySet().all()[:25]
-
-        #print obj.more_like_this
 
         return obj
 

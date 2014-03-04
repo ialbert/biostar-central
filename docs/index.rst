@@ -28,7 +28,7 @@ From the biostar source directory::
     source conf/defaults.env
 
     # Initialize database, import test data, and run the site.
-    ./biostar.sh init import run
+    ./biostar.sh init import index run
 
 Visit **http://localhost:8080** to see the site loaded with default settings. Enjoy.
 
@@ -38,6 +38,7 @@ For more information see the documentation below:
    :maxdepth: 2
 
    install
+   manage
    deploy
    customize
    about

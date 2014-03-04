@@ -16,6 +16,7 @@ subs_count = lambda: Subscription.objects.all().count()
 msg_count = lambda: Message.objects.all().count()
 get_user = lambda x: User.objects.get(email=x)
 
+haystack_logger = logging.getLogger('haystack')
 
 class UserTest(TestCase):
     # The name of test users
@@ -47,7 +48,15 @@ class UserTest(TestCase):
     def code(self, response, code=200):
         self.assertEqual(response.status_code, code)
 
+    def tearDown(self):
+         haystack_logger.setLevel(logging.INFO)
+
     def setUp(self):
+
+        # Disable haystack logger, testing will raise errors
+        # on the more_like_this field in templates.
+        haystack_logger.setLevel(logging.CRITICAL)
+
         # Sign up then log out each user.
         for email, passwd in self.USER_DATA:
             self.sign_up(email, passwd)

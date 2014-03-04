@@ -36,8 +36,8 @@ From the biostar source directory:
     # Load the environment variables.
     source conf/defaults.env
 
-    # Initialize, import test data and run the site.
-    ./biostar.sh init import run
+    # Initialize database, import test data, index for searching and run the server.
+    ./biostar.sh init import index run
 
 Visit `http://locahost:8080` to see the site loaded with default settings.
 
