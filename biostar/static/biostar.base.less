@@ -500,6 +500,10 @@ div#navbar {
   margin-bottom: 3px;
 }
 
+.highlighted {
+  background-color: yellow;
+}
+
 .select2-results {
   //min-height: 550px;
   max-height: 650px;
@@ -507,12 +511,17 @@ div#navbar {
   .in {
     font-size: small;
     color: #666666;
+    em {
+      background-color: yellow;
+    }
   }
+
 }
 
 .select2-results .select2-highlighted {
-  background: @MUTED_BACKGROUND;
+  background-color: @MUTED_BACKGROUND;
   color: black;
+
 }
 
 .form-group {
@@ -554,11 +563,17 @@ div#navbar {
 }
 
 .user-sidebar {
-  margin-top:30px;
+  margin-top: 30px;
   li {
     margin-bottom: 3px;
     list-style: none;
   }
 }
 
-
+.context {
+  margin-left: 12em;
+  em {
+    background-color: yellow;
+    text-transform: uppercase;
+  }
+}

@@ -216,10 +216,15 @@ class Post(models.Model):
         self.tag_set.add(*tags)
         self.save()
 
-    def peek(self, length=300):
+    @property
+    def as_text(self):
+        "Returns the body of the post after stripping the HTML tags"
         text = bleach.clean(self.content, tags=[], attributes=[], styles={}, strip=True)
-        text = text[:length]
         return text
+
+    def peek(self, length=300):
+        "A short peek at the post"
+        return self.as_text[:length]
 
     def get_title(self):
         if self.status == Post.OPEN:

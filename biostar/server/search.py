@@ -35,8 +35,9 @@ def slow_highlight(query, text):
 
 def join_highlights(row):
     "Joins the highlighted text"
-    return '<br>'.join(x for x in row.highlighted['text'])
-
+    if type(row.highlighted) is dict:
+        return ''
+    return '<br>'.join(x for x in row.highlighted)
 
 class Search(BaseListMixin):
     template_name = "search/search.html"

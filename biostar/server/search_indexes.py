@@ -7,7 +7,7 @@ class PostIndex(indexes.SearchIndex, indexes.Indexable):
     text = indexes.CharField(document=True, use_template=True)
     title = indexes.CharField(model_attr='title')
     content = indexes.CharField(model_attr='content')
-    author  = indexes.CharField(model_attr='author__name')
+    author = indexes.CharField(model_attr='author__name')
 
     def get_model(self):
         return Post
