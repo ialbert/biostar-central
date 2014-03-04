@@ -1,5 +1,6 @@
 {% extends "starbase.html" %}
 {% load server_tags %}
+{% load more_like_this %}
 
 {% block page_title %}
     {{ post.title }}
@@ -77,14 +78,34 @@
             </table>
 
         </div>
+        <div class="col-xs-12 col-md-3">
+            <h4>Similar posts</h4>
+            {% more_like_this post as related limit 10  %}
+
+            <ul class="more-like-this">
+                {% for row in related %}
+                    {% with row.object as post %}
+                        {%  if post.is_toplevel %}
+                        <li>
+                            <a href="{{ post.get_absolute_url }}">{{ post.title }} </a>
+                            <div class="peek">{{ post.peek|truncatechars:100 }}</div>
+                        </li>
+                        {%  endif %}
+                    {% endwith %}
+
+                {% endfor %}
+            </ul>
+        </div>
     </div>
 
     {% if user.is_authenticated %}
         <script src="/static/ckeditor/ckeditor.js"></script>
-        <script type="application/javascript">
-            CKEDITOR.replace('answerbox', {
-                customConfig: '/static/ck_config.js'
-            });
+        <
+        script
+        type = "application/javascript" >
+        CKEDITOR.replace('answerbox', {
+        customConfig: '/static/ck_config.js'
+        });
         </script>
     {% endif %}
 

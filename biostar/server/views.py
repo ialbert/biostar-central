@@ -1,6 +1,5 @@
 from django.views.generic import DetailView, ListView, TemplateView, UpdateView, View
 from django.conf import settings
-
 from biostar.apps.users import auth
 from biostar.apps.users.views import EditUser
 import os, random
@@ -19,6 +18,7 @@ from django.http import HttpResponseRedirect
 from django.core.paginator import Paginator
 import logging
 from django.contrib.flatpages.models import FlatPage
+from haystack.query import SearchQuerySet
 
 logger = logging.getLogger(__name__)
 
@@ -377,6 +377,12 @@ class PostDetails(DetailView):
         # Additional attributes used during rendering
         obj.tree = tree
         obj.answers = answers
+
+        # Add the more like this field
+        post = super(PostDetails, self).get_object()
+        obj.more_like_this = SearchQuerySet().all()[:25]
+
+        #print obj.more_like_this
 
         return obj
 

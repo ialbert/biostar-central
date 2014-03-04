@@ -15,6 +15,7 @@ import textwrap
 
 logger = logging.getLogger(__name__)
 
+LINE_WIDTH= 80
 
 def path_join(*args):
     return os.path.abspath(os.path.join(*args))
@@ -128,11 +129,13 @@ REPLACE_PATT = [
 ]
 
 
+
 def format_text(text):
+    global LINE_WIDTH
     assert type(text), str
     lines = text.splitlines()
     lines = filter(no_junk, lines)
-    lines = [textwrap.fill(line, width=100) for line in lines]
+    lines = [textwrap.fill(line, width=LINE_WIDTH) for line in lines]
     text = "\n".join(lines)
     text = unicode(text, encoding="utf8", errors="replace")
     text = "<div class='preformatted'>" + text + "</div>"
