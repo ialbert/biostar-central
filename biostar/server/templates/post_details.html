@@ -100,9 +100,7 @@
 
     {% if user.is_authenticated %}
         <script src="/static/ckeditor/ckeditor.js"></script>
-        <
-        script
-        type = "application/javascript" >
+        <script type = "application/javascript">
         CKEDITOR.replace('answerbox', {
         customConfig: '/static/ck_config.js'
         });
