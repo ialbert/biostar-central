@@ -22,24 +22,30 @@ if [ $# == 0 ]; then
     echo ''
     echo 'Commands:'
     echo ''
-    echo '  init     - initializes the database'
-    echo '  import   - imports a JSON data fixture'
-    echo '  dump     - dumps the current database as a JSON data fixture'
-    echo '  delete   - removes the sqlite database (sqlite specific)'
-    echo '  run      - runs the development server'
-    echo '  test     - runs all tests'
-    echo '  env      - shows all customizable environment variables'
+    echo '  init      - initializes the database'
+    echo '  run       - runs the development server'
+    echo "  index     - initializes the search index"
+    echo '  test      - runs all tests'
+    echo '  env       - shows all customizable environment variables'
+    echo ' '
+    echo "  import    - imports the data fixture JSON_DATA_FIXTURE=$JSON_DATA_FIXTURE"
+    echo "  dump      - dumps data as JSON_DATA_FIXTURE=$JSON_DATA_FIXTURE"
+    echo "  delete    - removes the sqlite database DATABASE_NAME=$DATABASE_NAME"
+    echo ''
+    echo "  pg_drop        - drops postgres DATABASE_NAME=$DATABASE_NAME"
+    echo "  pg_create      - creates postgres DATABASE_NAME=$DATABASE_NAME"
+    echo "  pg_import f.gz - imports the gzipped filename into postgres DATABASE_NAME=$DATABASE_NAME"
     echo ''
     echo "Use environment variables to customize settings. See the docs."
-    echo ''
+    echo ' '
     echo "DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE"
     echo ''
 fi
 
 while (( "$#" )); do
 
-	if [ "$1" = "delete" ]; then
-        echo "*** deleting the sqlite database"
+    if [ "$1" = "delete" ]; then
+        echo "*** Deleting the sqlite database"
         $PYTHON $DJANGO_ADMIN delete_database --settings=$DJANGO_SETTINGS_MODULE
     fi
 
@@ -48,13 +54,13 @@ while (( "$#" )); do
         dropdb -i $DATABASE_NAME
     fi
 
-	if [ "$1" = "pg_create" ]; then
+    if [ "$1" = "pg_create" ]; then
         # creates the PG database
-        echo "*** creating postgresql database DATABASE_NAME=$DATABASE_NAME"
+        echo "*** Creating postgresql database DATABASE_NAME=$DATABASE_NAME"
         createdb $DATABASE_NAME -E utf8 --template template0
     fi
 
- 	if [ "$1" = "pg_import" ]; then
+    if [ "$1" = "pg_import" ]; then
         echo "*** Importing into DATABASE_NAME=$DATABASE_NAME"
         gunzip -c $2 | psql $DATABASE_NAME
     fi
@@ -65,18 +71,18 @@ while (( "$#" )); do
     fi
 
     if [ "$1" = "run" ]; then
-        echo "*** run the development server with $DJANGO_SETTINGS_MODULE"
+        echo "*** Run the development server with $DJANGO_SETTINGS_MODULE"
         $PYTHON $DJANGO_ADMIN runserver $BIOSTAR_HOSTNAME --settings=$DJANGO_SETTINGS_MODULE
     fi
 
     if [ "$1" = "init" ]; then
-        echo "*** initializing server on $BIOSTAR_HOSTNAME with $DJANGO_SETTINGS_MODULE"
-		echo "*** testing the code"
-		$PYTHON $DJANGO_ADMIN test --noinput -v $VERBOSITY --settings=$DJANGO_SETTINGS_MODULE
+        echo "*** Initializing server on $BIOSTAR_HOSTNAME with $DJANGO_SETTINGS_MODULE"
+        echo "*** Running all tests"
+        $PYTHON $DJANGO_ADMIN test --noinput -v $VERBOSITY --settings=$DJANGO_SETTINGS_MODULE
         $PYTHON $DJANGO_ADMIN syncdb -v $VERBOSITY --noinput --settings=$DJANGO_SETTINGS_MODULE
 
- 		$PYTHON $DJANGO_ADMIN migrate  biostar.apps.users --settings=$DJANGO_SETTINGS_MODULE
- 		$PYTHON $DJANGO_ADMIN migrate  biostar.apps.posts --settings=$DJANGO_SETTINGS_MODULE
+        $PYTHON $DJANGO_ADMIN migrate  biostar.apps.users --settings=$DJANGO_SETTINGS_MODULE
+        $PYTHON $DJANGO_ADMIN migrate  biostar.apps.posts --settings=$DJANGO_SETTINGS_MODULE
         $PYTHON $DJANGO_ADMIN migrate  --settings=$DJANGO_SETTINGS_MODULE
         $PYTHON $DJANGO_ADMIN initialize_site --settings=$DJANGO_SETTINGS_MODULE
 
@@ -86,7 +92,7 @@ while (( "$#" )); do
 
     # Produce the environment variables recognized by Biostar.
     if [ "$1" = "test" ]; then
-        echo "*** running all test"
+        echo "*** Running all tests"
         $PYTHON $DJANGO_ADMIN test --noinput --failfast -v $VERBOSITY --settings=$DJANGO_SETTINGS_MODULE
     fi
 
@@ -94,27 +100,31 @@ while (( "$#" )); do
     if [ "$1" = "env" ]; then
         echo "*** Biostar specific environment variables"
         echo BIOSTAR_HOME=$BIOSTAR_HOME
-        echo BIOSTAR_STATIC_ROOT=$BIOSTAR_STATIC_ROOT
+        echo BIOSTAR_ADMIN_EMAIL=$BIOSTAR_ADMIN_EMAIL
+        echo BIOSTAR_ADMIN_NAME=$BIOSTAR_ADMIN_NAME
+        echo "-"
         echo DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE
+        echo DATABASE_NAME=$DATABASE_NAME
+        echo DEFAULT_FROM_EMAIL=$DEFAULT_FROM_EMAIL
     fi
 
     if [ "$1" = "import" ]; then
-        echo "*** importing json data from $JSON_DATA_FIXTURE"
+        echo "*** Importing json data from $JSON_DATA_FIXTURE"
         $PYTHON $DJANGO_ADMIN loaddata $JSON_DATA_FIXTURE --settings=$DJANGO_SETTINGS_MODULE
     fi
 
     if [ "$1" = "dump" ]; then
-        echo "*** dumping json data into $JSON_DATA_FIXTURE"
+        echo "*** Dumping json data into $JSON_DATA_FIXTURE"
         $PYTHON $DJANGO_ADMIN dumpdata users posts messages badges --settings=$DJANGO_SETTINGS_MODULE | gzip > $JSON_DATA_FIXTURE
     fi
 
     if [ "$1" = "index" ]; then
-        echo "*** indexing site content"
+        echo "*** Indexing site content"
         $PYTHON $DJANGO_ADMIN rebuild_index --noinput --settings=$DJANGO_SETTINGS_MODULE
     fi
 
     if [ "$1" = "import_biostar1" ]; then
-        echo "*** migrating from Biostar 1"
+        echo "*** Migrating from Biostar 1"
         echo "*** BIOSTAR_MIGRATE_DIR=$BIOSTAR_MIGRATE_DIR"
         $PYTHON $DJANGO_ADMIN import_biostar1 -u -p -x
     fi

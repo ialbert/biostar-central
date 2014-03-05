@@ -78,7 +78,7 @@ def pull():
     # Perform a pull.
     with prefix(env.workon):
         run("git pull")
-        #run("./biostar.sh test")
+        run("./biostar.sh test")
         run("python manage.py collectstatic --noinput")
 
 

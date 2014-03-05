@@ -151,6 +151,7 @@ def external_logout(request):
         response.delete_cookie(name)
     return response
 
+
 def external_login(request):
     "This is required to allow external login to proceed"
     url = settings.EXTERNAL_LOGIN_URL or 'account_login'
@@ -161,12 +162,18 @@ def external_login(request):
 from allauth.account.views import SignupForm, SignupView
 from biostar.apps.util.captcha.fields import MathCaptchaField
 
-if settings.CAPTCHA:
-    class CaptchaForm(SignupForm):
-        captcha = MathCaptchaField()
-else:
-    class CaptchaForm(SignupForm):
-        pass
+
+class CaptchaForm(SignupForm):
+    captcha = MathCaptchaField()
+
 
 class CaptchaView(SignupView):
     form_class = CaptchaForm
+
+    def get_form_class(self):
+        # This is to allow tests to override the form class during testing.
+        if settings.CAPTCHA:
+            return CaptchaForm
+        else:
+            return SignupForm
+

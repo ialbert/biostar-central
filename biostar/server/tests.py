@@ -61,13 +61,19 @@ class UserTest(TestCase):
         for email, passwd in self.USER_DATA:
             self.sign_up(email, passwd)
 
+        # Turn off the CAPTCHA settings
+
+
     def sign_up(self, email, passwd):
         count = user_count()
-        r = self.client.post(reverse("account_signup"), dict(email=email, password1=passwd, password2=passwd),
-                             follow=True)
-        self.assertContains(r, "My Tags")
-        self.assertEqual(user_count(), count + 1)
-        self.logout()
+
+        with self.settings(CAPTCHA=False):
+            r = self.client.post(reverse("account_signup"), dict(email=email, password1=passwd, password2=passwd),
+                                 follow=True)
+            self.assertContains(r, "My Tags")
+            self.code(r)
+            self.assertEqual(user_count(), count + 1)
+            self.logout()
 
     def login(self, email, passwd):
         "Logs in a user"
