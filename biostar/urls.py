@@ -36,10 +36,10 @@ urlpatterns = patterns('',
     url(r'^local/sub/(?P<pk>\d+)/(?P<type>\w+)/$', views.ChangeSub.as_view(), name="change-sub"),
 
     # A separate url for each post type.
-    url(r'^p/new/post/$', NewPost.as_view(), name="new-post"),
+    url(r'^p/new/post/$', views.RateLimitedNewPost.as_view(), name="new-post"),
 
-    url(r'^p/new/answer/(?P<pid>\d+)/$', NewAnswer.as_view(post_type="answer"), name="new-answer"),
-    url(r'^p/new/comment/(?P<pid>\d+)/$', NewAnswer.as_view(post_type="comment"), name="new-comment"),
+    url(r'^p/new/answer/(?P<pid>\d+)/$', views.RateLimitedNewAnswer.as_view(post_type="answer"), name="new-answer"),
+    url(r'^p/new/comment/(?P<pid>\d+)/$', views.RateLimitedNewAnswer.as_view(post_type="comment"), name="new-comment"),
 
     # Edit an existing post.
     url(r'^p/edit/(?P<pk>\d+)/$', EditPost.as_view(), name="post-edit"),

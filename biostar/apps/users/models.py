@@ -102,6 +102,10 @@ class User(AbstractBaseUser):
             return False
 
     @property
+    def is_trusted(self):
+        return self.status == User.TRUSTED
+
+    @property
     def is_suspended(self):
         return self.status == User.SUSPENDED or self.status == User.BANNED
 

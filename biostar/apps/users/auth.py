@@ -1,4 +1,6 @@
 __author__ = 'ialbert'
+from django.conf import settings
+from datetime import datetime, timedelta
 
 def user_permissions(request, target):
     """

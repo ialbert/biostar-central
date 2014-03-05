@@ -302,7 +302,22 @@ AUTHENTICATION_BACKENDS = (
 
 ACCOUNT_CONFIRM_EMAIL_ON_GET = True
 
+# Should the captcha be shown on the signup page.
 CAPTCHA = True
+
+# For how long does a user need to be a member to become trusted.
+TRUST_RANGE_DAYS = 7
+
+# Votes needed to start trusting the user
+TRUST_VOTE_COUNT = 5
+
+# How many non top level posts per day for users.
+MAX_POSTS_NEW_USER = 5
+MAX_POSTS_TRUSTED_USER = 30
+
+# How many top level posts per day for a new user.
+MAX_TOP_POSTS_NEW_USER = 1
+MAX_TOP_POSTS_TRUSTED_USER = 5
 
 # Customize this to match the providers listed in the APPs
 SOCIALACCOUNT_PROVIDERS = {

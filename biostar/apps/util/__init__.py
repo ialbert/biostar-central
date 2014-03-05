@@ -1,4 +1,9 @@
 import random, hashlib, json, base64, hmac
+from django.utils.timezone import utc
+from datetime import datetime
+
+def now():
+    return datetime.utcnow().replace(tzinfo=utc)
 
 def make_uuid():
     "Returns a unique id"
@@ -20,4 +25,5 @@ def decode(text, digest, key):
     return data
 
 def always_true(*args, **kwargs):
+    "A helper we can substitue into any conditional function call"
     return True

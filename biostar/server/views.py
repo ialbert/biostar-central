@@ -7,6 +7,8 @@ from django.core.cache import cache
 from biostar.apps.messages.models import Message
 from biostar.apps.users.models import User
 from biostar.apps.posts.models import Post, Vote, Tag, Subscription
+from biostar.apps.posts.views import NewPost, NewAnswer
+
 from biostar.apps.posts.auth import post_permissions
 from django.contrib import messages
 from datetime import datetime, timedelta
@@ -19,6 +21,7 @@ from django.core.paginator import Paginator
 import logging
 from django.contrib.flatpages.models import FlatPage
 from haystack.query import SearchQuerySet
+from . import moderate
 
 logger = logging.getLogger(__name__)
 
@@ -55,12 +58,9 @@ class BaseListMixin(ListView):
 
         return context
 
-
-# The naming here needs to match that in the server_tag.py template tags.
-
-
-
 def apply_sort(request, query):
+
+    # Note: the naming here needs to match that in the server_tag.py template tags.
     # Apply sort order
     sort = request.GET.get('sort', const.POST_SORT_DEFAULT)
     field = const.POST_SORT_MAP.get(sort, "-lastedit_date")
@@ -416,6 +416,33 @@ class ChangeSub(LoginRequiredMixin, View):
 
 class RSS(TemplateView):
     template_name = "rss_info.html"
+
+
+class RateLimitedNewPost(NewPost):
+    "Applies limits to the number of top level posts that can be made"
+    def get(self, request, *args, **kwargs):
+        if moderate.user_exceeds_limits(request, top_level=True):
+            return HttpResponseRedirect("/")
+        return super(RateLimitedNewPost, self).get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        if moderate.user_exceeds_limits(request, top_level=True):
+            return HttpResponseRedirect("/")
+        return super(RateLimitedNewPost, self).post(request, *args, **kwargs)
+
+
+class RateLimitedNewAnswer(NewAnswer):
+    "Applies limits to the number of answers that can be made"
+
+    def get(self, request, *args, **kwargs):
+        if moderate.user_exceeds_limits(request):
+            return HttpResponseRedirect("/")
+        return super(RateLimitedNewAnswer, self).get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        if moderate.user_exceeds_limits(request):
+            return HttpResponseRedirect("/")
+        return super(RateLimitedNewAnswer, self).post(request, *args, **kwargs)
 
 class FlatPageView(DetailView):
     template_name = "flatpages/default.html"

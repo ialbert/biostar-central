@@ -45,7 +45,7 @@ Run::
 
     python manage.py help
 
-And look for the output for the app ``[server]``, these commands will look like:
+And look for the output for the app ``[server]``, these commands will look like::
 
     [server]
         biostar_pg_dump
