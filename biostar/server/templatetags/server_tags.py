@@ -4,6 +4,7 @@ from django.template import Context, Template
 from django.template.defaultfilters import stringfilter
 from django.core.context_processors import csrf
 from biostar.apps.posts.models import Post
+from biostar.apps.messages.models import Message
 import random, hashlib, urllib
 from datetime import datetime, timedelta
 from django.utils.timezone import utc
@@ -69,6 +70,10 @@ def hide_email(value):
     except Exception, exc:
         return value
 
+@register.simple_tag
+def messages_read(user):
+    Message.objects.filter(user=user, unread=True).update(unread=False)
+    return ''
 
 @register.simple_tag
 def gravatar(user, size=80):

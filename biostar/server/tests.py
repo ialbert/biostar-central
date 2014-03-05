@@ -179,7 +179,9 @@ class UserTest(TestCase):
 
         # A message is added for the author of the parent.
         self.assertEqual(msg_count(), m_count + 1)
-        self.assertTrue(Message.objects.filter(user__email=EMAIL_1).count() == 1)
+
+        # The user also has a welcome message.
+        self.assertEqual(Message.objects.filter(user__email=EMAIL_1).count(), 2)
 
         # Test voting and that it applies to user and posts
         user1 = get_user(EMAIL_1)

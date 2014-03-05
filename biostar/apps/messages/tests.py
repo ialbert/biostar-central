@@ -15,6 +15,7 @@ from django.test import TestCase
 
 logging.disable(logging.CRITICAL)
 
+note_count = lambda: Message.objects.all().count()
 
 class NoteTest(TestCase):
 
@@ -36,7 +37,7 @@ class NoteTest(TestCase):
         emails = ["john@this.edu", "jane@this.edu", "bob@this.edu", "alice@this.edu",
                   "bill@this.edu", "jeff@this.edu" ]
 
-        EMAIL_COUNT = len(emails)
+        email_count = len(emails)
 
         users, posts, user = [], [], None
         parent = None
@@ -44,6 +45,9 @@ class NoteTest(TestCase):
             # Create users.
             user = User.objects.create(email=email)
             users.append(user)
+
+        # A welcome message for each user.
+        eq(note_count(), email_count)
 
         # Create a question.
         first = users[0]
@@ -57,20 +61,18 @@ class NoteTest(TestCase):
             answ.save()
             answers.append(answ)
 
-        # A default admin user is added.
-        eq(EMAIL_COUNT, User.objects.all().count())
 
         # Total number of posts
-        eq(EMAIL_COUNT + 1, Post.objects.all().count())
+        eq(note_count(), 21)
 
         # Every user has one subscription to the main post
-        eq(EMAIL_COUNT, Subscription.objects.all().count())
+        eq(email_count, Subscription.objects.all().count())
 
         # Each user has a messages for content posted after
         # they started following the thread.
         for index, user in enumerate(users):
             mesg_c = Message.objects.filter(user=user).count()
-            eq (mesg_c, EMAIL_COUNT - index - 1)
+            eq (mesg_c, email_count - index )
 
 
 

@@ -8,6 +8,7 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 import logging, datetime
 from django.db.models import signals
 from biostar.apps.posts.models import Post, Subscription
+from biostar.apps.users.models import User
 from biostar.apps.util import html
 from biostar.apps.messages.models import Message, MessageBody
 from django.core import mail
@@ -18,10 +19,29 @@ from django.contrib.sites.models import Site
 logger = logging.getLogger(__name__)
 
 # This will be the message body on the site.
-POST_CREATED_HTML = "messages/post.created.html"
+POST_CREATED_HTML_TEMPLATE = "messages/post.created.html"
 
 # This will be the message body in an email.
-POST_CREATED_TEXT = "messages/post.created.txt"
+POST_CREATED_TEXT_TEMPLATE = "messages/post.created.txt"
+
+NEW_USER_WELCOME_TEMPLATE = "messages/new_user_welcome.html"
+
+def user_create_messages(sender, instance, created, *args, **kwargs):
+    "The actions to undertake when creating a new post"
+
+    user = instance
+    if created:
+        # Create a welcome message to a user
+        # We do this so that tests pass, there is no admin user there
+        authors = User.objects.filter(is_admin=True) or [ user ]
+        author = authors[0]
+
+        title = "Welcome!"
+        content = html.render(name=NEW_USER_WELCOME_TEMPLATE, user=user)
+        body = MessageBody.objects.create(author=author, subject=title,
+                                          text=content, sent_at=now())
+        message = Message(user=user, body=body, sent_at=body.sent_at)
+        message.save()
 
 def post_create_messages(sender, instance, created, *args, **kwargs):
     "The actions to undertake when creating a new post"
@@ -35,11 +55,11 @@ def post_create_messages(sender, instance, created, *args, **kwargs):
         subs = Subscription.objects.get_subs(post).exclude(user=author)
 
         # Generate the message from the template.
-        content = html.render(name=POST_CREATED_HTML, post=post, user=author)
+        content = html.render(name=POST_CREATED_HTML_TEMPLATE, post=post, user=author)
 
         # Generate the email message body.
         site = Site.objects.get_current()
-        email_text = html.render(name=POST_CREATED_TEXT, post=post, user=author, site=site)
+        email_text = html.render(name=POST_CREATED_TEXT_TEMPLATE, post=post, user=author, site=site)
 
 
         # Create the message body.
@@ -70,4 +90,7 @@ def post_create_messages(sender, instance, created, *args, **kwargs):
             logger.error("email error %s" % exc)
 
 # Creates a message to everyone involved
-signals.post_save.connect(post_create_messages, sender=Post, dispatch_uid="create_messages")
+signals.post_save.connect(post_create_messages, sender=Post, dispatch_uid="post-create-messages")
+
+# Creates a message to everyone involved
+signals.post_save.connect(user_create_messages, sender=User, dispatch_uid="user-create_messages")

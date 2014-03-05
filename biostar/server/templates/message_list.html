@@ -11,16 +11,14 @@
     <div class="row">
         <div class="col-md-9">
 
-            <table id="posts" class="table table-striped">
-                {% for message in objects %}
-                    <tr>
-                        <td>
-                           {{ message.sent_at|timesince }} ago {{ message.body.text|safe }}
-                        </td>
-                    </tr>
+            {% for message in objects %}
+                <div class="unread {{ message.unread }}">
+                    {{ message.sent_at|timesince }} ago {{ message.body.text|safe }}
+                </div>
 
-                {% endfor %}
-            </table>
+
+            {% endfor %}
+
         </div>
 
         <div class="col-md-3 sidebar">
@@ -29,6 +27,7 @@
         </div>
     </div>
 
-    {% page_bar %}
+    {#  this will reset the user unread messages #}
+    {% messages_read user %}
 
 {% endblock %}
