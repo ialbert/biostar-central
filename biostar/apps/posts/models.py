@@ -37,7 +37,7 @@ class Tag(models.Model):
         if action == 'post_add':
             Tag.objects.filter(pk__in=pk_set).update(count=F('count') + 1)
 
-        if action == 'post_delete':
+        if action == 'post_remove':
             Tag.objects.filter(pk__in=pk_set).update(count=F('count') - 1)
 
         if action == 'pre_clear':
@@ -246,6 +246,17 @@ class Post(models.Model):
         if self.type == Post.ANSWER:
             reply_count = Post.objects.filter(parent=self, type=Post.ANSWER, status=Post.OPEN).count()
             Post.objects.filter(pl=self.root_id).update(reply_count=reply_count)
+
+    def delete(self, using=None):
+        # Collect tag names.
+        tag_names = [t.name for t in self.tag_set.all()]
+
+        # While there is a signal to do this it is much faster this way.
+        Tag.objects.filter(name__in=tag_names).update(count=F('count') - 1)
+
+        # Remove tags with zero counts.
+        Tag.objects.filter(count=0).delete()
+        super(Post, self).delete(using=using)
 
     def save(self, *args, **kwargs):
 
