@@ -76,6 +76,14 @@ def update_distro():
     sudo("ufw allow ssh")
     sudo("ufw allow http")
 
+    # Installing elastic search
+    # wget https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.0.0.deb
+    # sudo dpkg -i elasticsearch-1.0.1.deb
+    # sudo update-rc.d elasticsearch defaults 95 10
+    # sudo /etc/init.d/elasticsearch start
+
+
+
 
 def install_nodejs():
 

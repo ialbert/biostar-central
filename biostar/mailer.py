@@ -34,12 +34,12 @@ def send_email(message, **kwargs):
         result = conn.send_messages([message])
         logger.debug("Successfully sent email message to %r.", message.to)
         return result
-    except Exception as e:
-        print(dir(message))
-        logger.error("Error sending email to %r: %s retrying.",
-                     message.to, e)
-        send_email.retry(exc=e)
 
+    except Exception as e:
+        print(message.from_email, message.recipients)
+        logger.error("Error sending email from %s to %r: %s retrying.",
+                     message.from_email, message.to, e)
+        send_email.retry(exc=e)
 
 class SSLEmailBackend(smtp.EmailBackend):
     "Required for Amazon SES"
