@@ -52,7 +52,7 @@ def main(pg_user, hourly, prog, outdir):
         tstamp = datetime.now().strftime("hourly-%H")
     else:
         # These names include the date.
-        tstamp = datetime.now().strftime("%Y-%m-%H")
+        tstamp = datetime.now().strftime("%Y-%m-%d")
 
     db_file = "%s-%s-%s.sql.gz" % (pg_name, biostar.VERSION, tstamp)
     db_file = abspath(outdir, db_file)
