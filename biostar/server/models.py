@@ -7,10 +7,12 @@ Only signals and connections between models are specfied here.
 from __future__ import print_function, unicode_literals, absolute_import, division
 import logging, datetime
 from django.db.models import signals
+
 from biostar.apps.posts.models import Post, Subscription
-from biostar.apps.users.models import User
-from biostar.apps.util import html
 from biostar.apps.messages.models import Message, MessageBody
+
+from biostar.apps.util import html
+
 from django.core import mail
 from django.conf import settings
 from biostar.const import *
@@ -24,24 +26,6 @@ POST_CREATED_HTML_TEMPLATE = "messages/post.created.html"
 # This will be the message body in an email.
 POST_CREATED_TEXT_TEMPLATE = "messages/post.created.txt"
 
-NEW_USER_WELCOME_TEMPLATE = "messages/new_user_welcome.html"
-
-def user_create_messages(sender, instance, created, *args, **kwargs):
-    "The actions to undertake when creating a new post"
-
-    user = instance
-    if created:
-        # Create a welcome message to a user
-        # We do this so that tests pass, there is no admin user there
-        authors = User.objects.filter(is_admin=True) or [ user ]
-        author = authors[0]
-
-        title = "Welcome!"
-        content = html.render(name=NEW_USER_WELCOME_TEMPLATE, user=user)
-        body = MessageBody.objects.create(author=author, subject=title,
-                                          text=content, sent_at=now())
-        message = Message(user=user, body=body, sent_at=body.sent_at)
-        message.save()
 
 def post_create_messages(sender, instance, created, *args, **kwargs):
     "The actions to undertake when creating a new post"
@@ -92,5 +76,3 @@ def post_create_messages(sender, instance, created, *args, **kwargs):
 # Creates a message to everyone involved
 signals.post_save.connect(post_create_messages, sender=Post, dispatch_uid="post-create-messages")
 
-# Creates a message to everyone involved
-signals.post_save.connect(user_create_messages, sender=User, dispatch_uid="user-create_messages")
