@@ -170,7 +170,7 @@ class PostList(BaseListMixin):
         return context
 
 
-class MessageList(ListView):
+class MessageList(LoginRequiredMixin, ListView):
     """
     This is the base class for any view that produces a list of posts.
     """
@@ -209,7 +209,7 @@ class TagList(BaseListMixin):
         return objs
 
 
-class VoteList(ListView):
+class VoteList(LoginRequiredMixin, ListView):
     """
     Produces the list of votes
     """
