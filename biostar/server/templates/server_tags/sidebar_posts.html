@@ -3,12 +3,12 @@
 
 {% cache 120 "recent-posts"  %}
 <div class="recent-posts">
-    <ul style="opacity: 0.8;">
+    <ul>
         {% for post in posts %}
             <li>
                 <a href="{{ post.get_absolute_url }}">{{ post.title }}</a> by <a
-            href="{{ user.get_absolute_url }}">{%  userlink post.author %}</a>
-            <div>{{ post.peek }}</div>
+            href="{{ post.author.get_absolute_url }}">{%  userlink post.author %}</a>
+            <div class="peek">{{ post.peek|truncatechars:100 }}</div>
 
             </li>
         {% endfor %}

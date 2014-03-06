@@ -11,7 +11,7 @@ import itertools
 from django.core.management.base import BaseCommand, CommandError
 from optparse import make_option
 from itertools import *
-import textwrap
+import re, textwrap
 
 logger = logging.getLogger(__name__)
 
@@ -95,6 +95,13 @@ def no_junk(line):
             return False
     return True
 
+PATTS = [
+    # pattern, tag
+
+]
+
+def guess_tags(text, tag_val):
+    return tag_val
 
 def create_post(b, author, root=None, parent=None, tag_val=''):
     title = b.subj
@@ -112,6 +119,8 @@ def create_post(b, author, root=None, parent=None, tag_val=''):
     post.creation_date = post.lastedit_date = b.datetime
 
     post.save()
+
+    tag_val = guess_tags(post.content, tag_val)
 
     if tag_val:
         post.add_tags(tag_val)
