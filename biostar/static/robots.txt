@@ -1,3 +1,2 @@
 User-agent: *
 Disallow: /local/
-Sitemap: http://www.example.com/sitemap.xml
