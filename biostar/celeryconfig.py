@@ -24,10 +24,11 @@ CELERYBEAT_SCHEDULE = {
         'kwargs': dict(name="sitemap")
     },
 
-    'rebuild_index': {
+    'update_index': {
         'task': 'biostar.celery.call_command',
-        'schedule': timedelta(hours=1),
+        'schedule': timedelta(minutes=15),
         'args': ["update_index"],
+        'kwargs': {"age": 1}
     },
 
     'hourly_dump': {

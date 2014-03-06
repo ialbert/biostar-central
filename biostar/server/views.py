@@ -117,7 +117,7 @@ def posts_by_topic(request, topic):
         return Post.objects.tag_search(topic)
 
     # Return latest by default.
-    return Post.objects.top_level(user).exclude(type=Post.BLOG)
+    return Post.objects.top_level(user)
 
 def reset_counts(request, label):
     "Resets counts in the session"
@@ -413,6 +413,7 @@ class ChangeSub(LoginRequiredMixin, View):
                 Subscription.objects.create(post=post, user=user, type=new_type)
 
         return shortcuts.redirect(post.get_absolute_url())
+
 
 class RSS(TemplateView):
     template_name = "rss_info.html"

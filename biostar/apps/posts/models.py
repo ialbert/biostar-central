@@ -53,6 +53,7 @@ admin.site.register(Tag, TagAdmin)
 
 
 class PostManager(models.Manager):
+
     def my_bookmarks(self, user):
         query = self.filter(votes__author=user, votes__type=Vote.BOOKMARK).select_related("author")
         query = query.prefetch_related("tag_set")
@@ -105,21 +106,19 @@ class Post(models.Model):
 
     objects = PostManager()
 
-    #tags = TaggableManager()
-
     # Post statuses.
     PENDING, OPEN, CLOSED, DELETED = range(4)
     STATUS_CHOICES = [(PENDING, "Pending"), (OPEN, "Open"), (CLOSED, "Closed"), (DELETED, "Deleted")]
 
     # Question types. Answers should be listed before comments.
-    QUESTION, ANSWER, JOB, FORUM, PAGE, BLOG, COMMENT = range(7)
+    QUESTION, ANSWER, JOB, FORUM, PAGE, BLOG, COMMENT, DATA = range(8)
 
     TYPE_CHOICES = [
         (QUESTION, "Question"), (ANSWER, "Answer"), (COMMENT, "Comment"),
-        (JOB, "Job"), (FORUM, "Forum"), (PAGE, "Page"), (BLOG, "Blog"),
+        (JOB, "Job"), (FORUM, "Forum"), (DATA, "Data"), (PAGE, "Page"), (BLOG, "Blog"),
     ]
 
-    TOP_LEVEL = set((QUESTION, JOB, FORUM, PAGE, BLOG))
+    TOP_LEVEL = set((QUESTION, JOB, FORUM, PAGE, BLOG, DATA))
 
     title = models.CharField(max_length=140, null=False)
 
