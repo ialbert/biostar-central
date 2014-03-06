@@ -1,4 +1,6 @@
-{% load server_tags %}
+{% load cache %}
+
+{% cache 120 "recent-users"  %}
 <div class="recent-posts">
     <ul style="opacity: 0.8; list-style: none; padding:5px; margin-bottom:5px">
         {% for user in users %}
@@ -8,3 +10,4 @@
         {% endfor %}
     </ul>
 </div>
+{%  endcache %}

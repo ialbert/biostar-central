@@ -11,6 +11,7 @@ from biostar.apps.posts.models import Post, Vote, Subscription
 from biostar.apps.messages.models import Message, MessageBody
 from django.db import transaction
 from itertools import *
+from django.db.models import signals
 
 
 def path_join(*args):
@@ -43,7 +44,6 @@ VOTE_TYPE_MAP = {
 MIGRATE_DIR = os.environ["BIOSTAR_MIGRATE_DIR"]
 MIGRATE_DIR = os.path.expanduser(MIGRATE_DIR)
 
-
 def get(data, attr, func=encoding.smart_unicode):
     value = data.get(attr, '').strip()
     try:
@@ -52,12 +52,10 @@ def get(data, attr, func=encoding.smart_unicode):
         raise Exception(value)
     return value
 
-
 def localize_time(text):
     naive = parse_datetime(text)
     local = timezone.make_aware(naive, timezone=utc)
     return local
-
 
 def get_post(row, users):
     uid = get(row, 'id', func=int)
@@ -109,14 +107,17 @@ class Command(BaseCommand):
     )
 
     def auto_tag(self, fname):
-        from textblob.classifiers import NaiveBayesClassifier
-        # TODO
         pass
 
 
     def migrate_posts(self, fname):
 
         log = self.stdout.write
+        from biostar.server.models import post_create_messages
+
+        # Disconnect the message creation signal,
+        # it would generate way too many messages
+        signals.post_save.disconnect(post_create_messages, sender=Post)
 
         #Post.objects.all().delete()
 

@@ -1,12 +1,17 @@
 {% load server_tags %}
+{% load cache %}
+
+{% cache 120 "recent-posts"  %}
 <div class="recent-posts">
     <ul style="opacity: 0.8;">
         {% for post in posts %}
             <li>
                 <a href="{{ post.get_absolute_url }}">{{ post.title }}</a> by <a
             href="{{ user.get_absolute_url }}">{%  userlink post.author %}</a>
+            <div>{{ post.peek }}</div>
 
             </li>
         {% endfor %}
     </ul>
 </div>
+{%  endcache %}
