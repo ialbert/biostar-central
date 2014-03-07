@@ -44,13 +44,8 @@ POST_DATA = [
     (TITLE_2, CAT_2, TAG_VAL_2),
 ]
 
-class UserLimitTest(TestCase):
-    pass
-
 class UserTest(TestCase):
     # The name of test users
-
-
 
     def code(self, response, code=200):
         self.assertEqual(response.status_code, code)
@@ -232,14 +227,13 @@ class UserTest(TestCase):
                 self.logout()
 
 
-class SiteTest(TestCase):
+class SiteTest(SimpleTestCase):
+
     def code(self, response, code=200):
         self.assertEqual(response.status_code, code)
 
     def test_site_navigation(self):
         "Testing site navigation."
-
-        eq = self.assertEqual
 
         # Main site navigation.
         names = "home user-list tag-list rss latest-feed signup".split()
@@ -256,13 +250,15 @@ class SiteTest(TestCase):
         "Testing page redirects."
 
         # Pages with redirects.
-        names = "login logout new-post".split()
+        names = "login logout new-post user-messages user-votes".split()
         for name in names:
             r = self.client.get(reverse(name))
             self.code(r, 302)
 
+    def test_edit_pages(self):
+        "Testing page redirects."
         # Pages that take parameters and redirect.
-        names = "user-edit post-edit".split()
+        names = "user-edit post-edit user-moderation post-moderation ".split()
         for name in names:
             r = self.client.get(reverse(name, kwargs=dict(pk=1)))
             self.code(r, 302)

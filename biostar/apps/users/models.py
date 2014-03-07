@@ -157,6 +157,10 @@ class Profile(models.Model):
     """
     Maintains information that does not always need to be retreived whe a user is accessed.
     """
+    EMAIL_MESSAGE, LOCAL_MESSAGE = const.LOCAL_MESSAGE, const.EMAIL_MESSAGE
+
+    TYPE_CHOICES = const.MESSAGING_TYPE_CHOICES
+
     user = models.OneToOneField(User)
 
     # Globally unique id used to identify the user in a private feeds
@@ -180,12 +184,11 @@ class Profile(models.Model):
     # This field is used to select content for the user.
     my_tags = models.TextField(default="", max_length=255, blank=True)
 
-    # Description provided by the user as markup
+    # Description provided by the user html.
     info = models.TextField(default="", null=True, blank=True)
 
     # The default notification preferences.
-    message_prefs = models.IntegerField(choices=const.MESSAGING_TYPE_CHOICES, default=const.LOCAL_MESSAGE,
-                                        )
+    message_prefs = models.IntegerField(choices=TYPE_CHOICES, default=LOCAL_MESSAGE)
 
     def save(self, *args, **kwargs):
 
