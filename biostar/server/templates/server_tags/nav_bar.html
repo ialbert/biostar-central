@@ -66,7 +66,7 @@
                 </ul>
             {% else %}
                 <div>
-                    <a class="btn btn-primary active" role="button" href="{% url 'login' %}">
+                    <a class="btn btn-success active" role="button" href="{% url 'login' %}">
                         <i class="fa fa-user fa-1x"></i> Log In
                     </a>
                 </div>
@@ -181,9 +181,8 @@
             </div>
 
             <div class="col-md-2 mid {% current request 'account_login' %}">
-                <a href="{% url 'login' %}">
-                    <div><i class="fa fa-user fa-1x"></i></div>
-                    <div>Log In</div>
+                <a style="margin:5px;" class="btn btn-success" role="button" href="{% url 'login' %}">
+                    <i class="fa fa-user"></i> User Login
                 </a>
             </div>
 
