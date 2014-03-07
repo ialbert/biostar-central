@@ -22,6 +22,7 @@ sitemaps = {
     'posts': GenericSitemap(info_dict, priority=0.6),
 }
 
+
 class SiteSearch(SearchView):
     extra_context = lambda x: dict(topic="search", page_title="Search")
 
@@ -38,6 +39,7 @@ def join_highlights(row):
     if type(row.highlighted) is dict:
         return ''
     return '<br>'.join(x for x in row.highlighted)
+
 
 class Search(BaseListMixin):
     template_name = "search/search.html"
@@ -69,8 +71,8 @@ def suggest_tags(request):
 
     tags = Tag.objects.all().order_by('-count')[:10]
 
-    data = [ x.lower() for x in settings.NAVBAR_SPECIAL_TAGS ] + \
-           [ "software error" ] + [ t.name for t in tags ]
+    data = settings.POST_TAG_LIST + [t.name for t in tags]
+    data = filter(None, data)
 
     return json_response(data)
 

@@ -16,22 +16,27 @@ TEMPLATE_DEBUG = DEBUG
 # Should the django compressor be used.
 USE_COMPRESSOR = False
 
-# The top navigation has three parts: start, special tags, end
-NAVBAR_START_CATEGORIES = [
+# The start categories. These tags have special meaning internally.
+START_CATEGORIES = [
     "Latest", "Unanswered",
 ]
 
 # These should be the most frequent (or special) tags on the site.
-NAVBAR_SPECIAL_TAGS = [
+NAVBAR_TAGS = [
     "Assembly", "RNA-Seq", "ChIP-Seq", "SNP-Calling", "Galaxy",
 ]
 
-NAVBAR_END_CATEGORIES = [
+# The last categories. These tags have special meaning internally.
+END_CATEGORIES = [
     "Job", "Planet", "Forum",
 ]
 
+# These are the tags that always show up in the tag recommendation dropdown.
+POST_TAG_LIST = NAVBAR_TAGS + ["software error"]
+
 # This will form the navbar
-CATEGORIES = NAVBAR_START_CATEGORIES + NAVBAR_SPECIAL_TAGS + NAVBAR_END_CATEGORIES
+CATEGORIES = START_CATEGORIES + NAVBAR_TAGS + END_CATEGORIES
+
 
 def get_env(name, func=None):
     """Get the environment variable or return exception"""
@@ -104,7 +109,7 @@ TEMPLATE_STRING_IF_INVALID = "*** MISSING ***"
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = [ "localhost", get_env("BIOSTAR_HOSTNAME") ]
+ALLOWED_HOSTS = ["localhost", get_env("BIOSTAR_HOSTNAME")]
 
 ATOMIC_REQUESTS = True
 CONN_MAX_AGE = 10;
