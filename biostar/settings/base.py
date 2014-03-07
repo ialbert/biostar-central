@@ -236,6 +236,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.humanize',
     'django.contrib.flatpages',
+    'django.contrib.sessions',
 
     # Biostar specific apps.
     'biostar.apps.users',
@@ -257,7 +258,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.facebook',
     #'allauth.socialaccount.providers.github',
     #'allauth.socialaccount.providers.linkedin',
-    # 'allauth.socialaccount.providers.weibo',
+    #'allauth.socialaccount.providers.weibo',
 
     # External apps.
     'haystack',
@@ -442,7 +443,6 @@ ACCOUNT_LOGOUT_ON_GET = True
 
 # Session specific settings.
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
-SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
 SESSION_KEY = "session"
 
 # Use a mock email backend for development.

@@ -122,7 +122,7 @@ def posts_by_topic(request, topic):
 def reset_counts(request, label):
     "Resets counts in the session"
     label = label.lower()
-    counts = request.session.get(settings.SESSION_KEY)
+    counts = request.session.get(settings.SESSION_KEY, {})
     if label in counts:
         counts[label] = ''
         request.session[settings.SESSION_KEY] = counts
@@ -170,7 +170,7 @@ class PostList(BaseListMixin):
         return context
 
 
-class MessageList(ListView):
+class MessageList(LoginRequiredMixin, ListView):
     """
     This is the base class for any view that produces a list of posts.
     """
@@ -209,7 +209,7 @@ class TagList(BaseListMixin):
         return objs
 
 
-class VoteList(ListView):
+class VoteList(LoginRequiredMixin, ListView):
     """
     Produces the list of votes
     """
