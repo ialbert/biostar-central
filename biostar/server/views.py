@@ -244,7 +244,6 @@ class UserList(ListView):
     paginate_by = 60
 
     def get_queryset(self):
-
         self.q = self.request.GET.get('q', '')
         self.sort = self.request.GET.get('sort', const.USER_SORT_DEFAULT)
         self.limit = self.request.GET.get('limit', const.POST_LIMIT_DEFAULT)
@@ -299,7 +298,6 @@ class UserDetails(BaseDetailMixin):
         context['posts'] = page_obj.object_list
 
         return context
-
 
 class EditUser(EditUser):
     template_name = "user_edit.html"

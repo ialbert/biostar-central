@@ -9,6 +9,7 @@ from django.views.generic import TemplateView
 from biostar.server import views, ajax, search, moderate
 from biostar.apps.posts.views import NewAnswer, NewPost, EditPost
 from biostar.apps.users.views import external_logout, external_login, CaptchaView
+
 urlpatterns = patterns('',
 
     # Post listing.

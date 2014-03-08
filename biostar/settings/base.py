@@ -8,7 +8,7 @@ from django.core.exceptions import ImproperlyConfigured
 from .logger import LOGGING
 
 # Turn off debug mode on deployed servers.
-DEBUG = True
+DEBUG = False
 
 # Template debug mode.
 TEMPLATE_DEBUG = DEBUG
@@ -22,6 +22,7 @@ NAVBAR_START_CATEGORIES = [
 ]
 
 # These should be the most frequent (or special) tags on the site.
+# The special tags are also the default tags offered during a new post.
 NAVBAR_SPECIAL_TAGS = [
     "Assembly", "RNA-Seq", "ChIP-Seq", "SNP-Calling", "Galaxy",
 ]
@@ -43,7 +44,6 @@ def get_env(name, func=None):
     except KeyError:
         msg = "*** Required environment variable %s not set." % name
         raise ImproperlyConfigured(msg)
-
 
 def abspath(*args):
     """Generates absolute paths"""
@@ -134,7 +134,7 @@ SITE_ID = 1
 SITE_NAME = "localhost"
 SITE_DOMAIN = get_env("BIOSTAR_HOSTNAME")
 
-DEFAULT_FROM_EMAIL = get_env("DEFAULT_FROM_EMAIL")
+SERVER_EMAIL = DEFAULT_FROM_EMAIL = get_env("DEFAULT_FROM_EMAIL")
 
 # If you set this to False, Django will make some optimizations so as not
 # to load the internationalization machinery.
@@ -260,8 +260,6 @@ INSTALLED_APPS = [
     'crispy_forms',
     'djcelery',
     'kombu.transport.django',
-
-
     'south',
 ]
 
@@ -354,16 +352,11 @@ SOCIALACCOUNT_PROVIDERS = {
 GOOGLE_TRACKER = ""
 GOOGLE_DOMAIN = ""
 
-# The default CSS file to load.
-SITE_STYLE_CSS = "biostar.style.less"
-
-SITE_STYLE_CSS = "biostar.style.less"
-
 # The site logo.
 SITE_LOGO = "biostar.logo.png"
 
-# The name that appears.
-SITE_NAME = "Biostar"
+# The default CSS file to load.
+SITE_STYLE_CSS = "biostar.style.less"
 
 # Set it to None if all posts should be accesible via the Latest tab.
 SITE_LATEST_POST_LIMIT = None
