@@ -197,6 +197,8 @@ $(document).ready(function () {
     }
 
 
+    // This gets triggered only if tag recommendation
+    // becomes necessary.
     var tagval = $("#id_tag_val")
 
     if (tagval.length > 0) {
@@ -213,7 +215,6 @@ $(document).ready(function () {
             }
         });
     }
-
 
     // Register tooltips.
     $('.tip').tooltip(tooltip_options)

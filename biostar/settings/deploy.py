@@ -7,25 +7,26 @@ from biostar.settings.base import *
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
-# The top navigation has three parts: start, special tags, end
-NAVBAR_START_CATEGORIES = [
+# The start categories. These tags have special meaning internally.
+START_CATEGORIES = [
     "Latest", "Unanswered",
 ]
 
 # These should be the most frequent (or special) tags on the site.
-NAVBAR_SPECIAL_TAGS = [
+NAVBAR_TAGS = [
     "Assembly", "RNA-Seq", "ChIP-Seq", "SNP-Calling", "Galaxy",
 ]
 
-NAVBAR_END_CATEGORIES = [
+# The last categories. These tags have special meaning internally.
+END_CATEGORIES = [
     "Job", "Planet", "Forum",
 ]
 
-# Should the math captcha be turned on.
-CAPTCHA = False
+# These are the tags that always show up in the tag recommendation dropdown.
+TAG_LIST = NAVBAR_TAGS
 
 # This will form the navbar
-CATEGORIES = NAVBAR_START_CATEGORIES + NAVBAR_SPECIAL_TAGS + NAVBAR_END_CATEGORIES
+CATEGORIES = START_CATEGORIES + NAVBAR_TAGS + END_CATEGORIES
 
 # Enable this if you have the lessc installed.
 USE_COMPRESSOR = False
