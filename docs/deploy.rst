@@ -14,15 +14,12 @@ we provide are the two extremes, some deployments may use a combination of setti
 
 Example files can be found in the ``conf/deploy`` folder.
 
-Getting started
----------------
-
 The basic rule is to create a settings file based on the default settings. This means that
 the customized settings file will start with::
 
     from biostar.settings.base import *
 
-Then subsequently override the various settings for the current deployment. For example:
+Then subsequently override the various settings for the current deployment. For example::
 
     from biostar.settings.base import *
     SITE_DOMAIN = "mysite.com"
@@ -35,7 +32,7 @@ file to populate a shell environment and a settings file that pulls some of thes
 the environment.
 
 We recomment that you start with the files in ``conf/deploy`` folder and copy them to the ``live`` folder.
-Then you can do the following:
+Then you can do the following::
 
     source live/deploy.env
     ./biostar.sh test
