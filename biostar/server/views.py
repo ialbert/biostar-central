@@ -468,6 +468,7 @@ class FlatPageView(DetailView):
             question_count answer_count comment_count".split()
 
         params = cache.get(stat_key)
+
         if not params:
             params = dict()
             params[u_count] = User.objects.all().select_related('profile').count()
@@ -475,7 +476,7 @@ class FlatPageView(DetailView):
             params[q_count] = Post.objects.filter(type=Post.QUESTION).count()
             params[a_count] = Post.objects.filter(type=Post.ANSWER).count()
             params[c_count] = Post.objects.filter(type=Post.COMMENT).count()
-            cache.set(stat_key, 600)
+            cache.set(stat_key, params, TIMEOUT=600)
 
         # Add each value to the context
         for field in fields:
