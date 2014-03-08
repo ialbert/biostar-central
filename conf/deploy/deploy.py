@@ -34,6 +34,8 @@ USE_COMPRESSOR = False
 # The celery configuration file
 CELERY_CONFIG = 'biostar.celeryconfig'
 
+WSGI_APPLICATION = 'live.wsgi_deploy.application'
+
 #BROKER_URL = 'redis://localhost:6379/0'
 #CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
 

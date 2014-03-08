@@ -24,11 +24,17 @@ def current(request, *urls):
         return "active"
     return ''
 
-@register.simple_tag
-def rand_num():
-    "The purpose of this is to return a random number"
-    return " %f " % random.random()
-
+# The purpose of this is to return a random number
+# that makes resources look different and therefore reload
+if settings.DEBUG:
+    @register.simple_tag
+    def rand_num():
+        return " %f " % random.random()
+else:
+    # Turns it off when not in debug mode.
+    @register.simple_tag
+    def rand_num():
+        return "1"
 
 @register.filter
 def show_nonzero(value):

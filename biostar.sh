@@ -123,6 +123,11 @@ while (( "$#" )); do
         $PYTHON $DJANGO_ADMIN rebuild_index --noinput --settings=$DJANGO_SETTINGS_MODULE
     fi
 
+    if [ "$1" = "update_index" ]; then
+        echo "*** Updating site index"
+        $PYTHON $DJANGO_ADMIN update_index --age 1 --settings=$DJANGO_SETTINGS_MODULE
+    fi
+
     if [ "$1" = "import_biostar1" ]; then
         echo "*** Migrating from Biostar 1"
         echo "*** BIOSTAR_MIGRATE_DIR=$BIOSTAR_MIGRATE_DIR"
