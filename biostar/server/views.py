@@ -476,7 +476,7 @@ class FlatPageView(DetailView):
             params[q_count] = Post.objects.filter(type=Post.QUESTION).count()
             params[a_count] = Post.objects.filter(type=Post.ANSWER).count()
             params[c_count] = Post.objects.filter(type=Post.COMMENT).count()
-            cache.set(stat_key, params, TIMEOUT=600)
+            cache.set(stat_key, params, 600)
 
         # Add each value to the context
         for field in fields:
