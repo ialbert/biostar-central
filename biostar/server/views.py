@@ -244,7 +244,6 @@ class UserList(ListView):
     paginate_by = 60
 
     def get_queryset(self):
-
         self.q = self.request.GET.get('q', '')
         self.sort = self.request.GET.get('sort', const.USER_SORT_DEFAULT)
         self.limit = self.request.GET.get('limit', const.POST_LIMIT_DEFAULT)
@@ -299,7 +298,6 @@ class UserDetails(BaseDetailMixin):
         context['posts'] = page_obj.object_list
 
         return context
-
 
 class EditUser(EditUser):
     template_name = "user_edit.html"
@@ -470,6 +468,7 @@ class FlatPageView(DetailView):
             question_count answer_count comment_count".split()
 
         params = cache.get(stat_key)
+
         if not params:
             params = dict()
             params[u_count] = User.objects.all().select_related('profile').count()
@@ -477,7 +476,7 @@ class FlatPageView(DetailView):
             params[q_count] = Post.objects.filter(type=Post.QUESTION).count()
             params[a_count] = Post.objects.filter(type=Post.ANSWER).count()
             params[c_count] = Post.objects.filter(type=Post.COMMENT).count()
-            cache.set(stat_key, 600)
+            cache.set(stat_key, params, 600)
 
         # Add each value to the context
         for field in fields:

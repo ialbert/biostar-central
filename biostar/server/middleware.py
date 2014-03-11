@@ -47,7 +47,7 @@ def valid_external_login(request):
 
     return False
 
-SESSION_KEY = settings.SESSION_KEY
+SESSION_KEY, ANON_USER = settings.SESSION_KEY, "anon-user"
 
 def get_counts(request, weeks=settings.COUNT_INTERVAL_WEEKS):
     "Returns the number of counts for each post type in the interval that has passed"
@@ -93,7 +93,7 @@ class Visit(object):
     """
 
     def process_request(self, request, weeks=settings.COUNT_INTERVAL_WEEKS):
-        global SESSION_KEY
+        global SESSION_KEY, ANON_USER
 
         user, session = request.user, request.session
 
@@ -113,11 +113,21 @@ class Visit(object):
             if settings.EXTERNAL_AUTH and valid_external_login(request):
                 messages.success(request, "Login completed")
 
+            # We do this to detect when an anonymous session turns into a logged in one.
+            if ANON_USER not in session:
+                session[ANON_USER] = True
+
         # User attributes that refresh at given intervals.
         if user.is_authenticated():
 
             # The time between two count refreshes.
             elapsed = (const.now() - user.profile.last_login).seconds
+
+            # The user has an anonymous session already.
+            # Update the user login data now.
+            if ANON_USER in session:
+                del session[ANON_USER]
+                elapsed = settings.SESSION_UPDATE_SECONDS + 1
 
             if elapsed > settings.SESSION_UPDATE_SECONDS:
                 # Set the last login time.

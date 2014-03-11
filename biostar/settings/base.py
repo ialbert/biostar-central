@@ -49,7 +49,6 @@ def get_env(name, func=None):
         msg = "*** Required environment variable %s not set." % name
         raise ImproperlyConfigured(msg)
 
-
 def abspath(*args):
     """Generates absolute paths"""
     return os.path.abspath(os.path.join(*args))
@@ -143,7 +142,7 @@ SITE_ID = 1
 SITE_NAME = "localhost"
 SITE_DOMAIN = get_env("BIOSTAR_HOSTNAME")
 
-DEFAULT_FROM_EMAIL = get_env("DEFAULT_FROM_EMAIL")
+SERVER_EMAIL = DEFAULT_FROM_EMAIL = get_env("DEFAULT_FROM_EMAIL")
 
 # If you set this to False, Django will make some optimizations so as not
 # to load the internationalization machinery.
@@ -266,8 +265,6 @@ INSTALLED_APPS = [
     'crispy_forms',
     'djcelery',
     'kombu.transport.django',
-
-
     'south',
 ]
 
@@ -360,16 +357,11 @@ SOCIALACCOUNT_PROVIDERS = {
 GOOGLE_TRACKER = ""
 GOOGLE_DOMAIN = ""
 
-# The default CSS file to load.
-SITE_STYLE_CSS = "biostar.style.less"
-
-SITE_STYLE_CSS = "biostar.style.less"
-
 # The site logo.
 SITE_LOGO = "biostar.logo.png"
 
-# The name that appears.
-SITE_NAME = "Biostar"
+# The default CSS file to load.
+SITE_STYLE_CSS = "biostar.style.less"
 
 # Set it to None if all posts should be accesible via the Latest tab.
 SITE_LATEST_POST_LIMIT = None
@@ -440,7 +432,7 @@ ACCOUNT_PASSWORD_MIN_LENGHT = 6
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_USER_MODEL_EMAIL_FIELD = "email"
 ACCOUNT_DEFAULT_HTTP_PROTOCOL = "http"
-ACCOUNT_LOGOUT_ON_GET = True
+#ACCOUNT_LOGOUT_ON_GET = True
 
 # Session specific settings.
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'

@@ -9,38 +9,79 @@ a wide variety of backends and provides a number of configuration scripts and he
 methods to different deployment options.
 
 The choices made when deploying Biostar depend on the expected levels
-of traffic and number of posts that the site needs to manage.
+of traffic and number of posts that the site needs to manage. The examples that
+we provide are the two extremes, some deployments may use a combination of settings from both.
 
-The examples that we provide are the two extremes, some deployments may
-use a combination of settings from both.
+Example files can be found in the ``live/deploy`` folder.
 
+The basic rule is to create a settings file based on the default settings. This means that
+the customized settings file will start with::
+
+    from biostar.settings.base import *
+
+Then subsequently override the various settings for the current deployment. For example::
+
+    from biostar.settings.base import *
+    SITE_DOMAIN = "mysite.com"
+    SERVER_EMAIL = "myemail@mysite.com"
+
+etc.
+
+Technically a django deployment needs only a settings file, but in practice we use an environment
+file to populate a shell environment and a settings file that pulls some of these variables out of
+the environment.
+
+We recomment that you start with the files in ``live/deploy`` folder and copy them another
+python package folder. The ``simple.env`` file shows the minimally necessary variables
+that need to be set.
+
+    source live/deploy/simple.env
+    ./biostar.sh test
+
+The ``deploy.env`` must specify the correct django settings module.
+
+To run periodic scripts make sure that they load up the enviroment variables before executing the
+script.
 
 Low traffic deployment
 -----------------------
 
-Low concurrency: dozens of hits per minute, few emails sent.
-Suited to websites that distribute information to smaller organizations.
+Suited to websites that distribute information to smaller organizations. It can be achieved
+with just python based solutions. Install the dependencies with::
 
-TODO... waitress and django_static
+    pip install -r conf/requirements/deploy.txt
+
+Copy the ``conf/deploy/deploy.env`` and ``conf/deploy/deploy.py`` files to a different
+location. Customize these as needed. To run the site invoke the waitress server that
+was installed above::
+
+    source live/deploy/simple.env
+    waitress-serve --port 8080 live.deploy.simple_wsgi:application
+
+Create a crontab entry that updates the index every 30 minutes::
+
+    source live/deploy/simple.env
+    biostar.sh update_index
+
+You are done.
 
 High traffic deployment
 -----------------------
 
-TODO...
+While not required to be turned on the site supports compressing and precompiling the site assets.
+To make use of this functionality you will need to have ``lessc`` to be installed and you will
+need to set the ``USE_COMPRESSOR=True`` in your settings file.
 
-A typical deployment requires ``lessc`` to be installed and a number of other python libraries::
+To deply the site with ``postgresql`` and ``elasticsearch`` install the requirements::
 
     pip install --upgrade -r conf/requirements/all.txt
 
-Start with the ``conf/defaults.env`` and ``biostar/settings/deploy.py`` files and customize them.
+Start with the ``conf/defaults.env`` and files unde ``conf/deploy/*`` and customize them.
+We typically copy these into the ``live`` folder. Rember to add an ``__init__.py`` file in
+this folder if you want to import your settings from it.
 
-Investigate the ``server_config`` task in ``conf/fabs/fabfile.py`` to see how we automatized the process.
-
-There are different deployment strategies that one might follow. The sites is quite performant
-and underlow concurrency the site can operate well even with the default settings of an
-sqlite database running via python based webserver.
-
-For optimal results we recommend deploying the production servers with the following stack:
+For high performance installation we recommend deploying the production servers with
+the following stack:
 
 * Front end webserver with ``nginx``
 * Biostar WSGI running via ``gunicorn``
@@ -48,6 +89,7 @@ For optimal results we recommend deploying the production servers with the follo
 * ``Redis`` as the job queue
 * ``Celery`` for running the asynchronous jobs
 * ``Supervisord`` keeping everything running
+* ``Elasticsearch`` as the search engine
 
 The ``conf/server`` folder has configuration files for ``nginx``, ``gunicorn`` and ``supervisord``.
 The ``conf/fabs`` folder has Fabric files to automate a large number of site deployment operations.
