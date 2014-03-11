@@ -111,11 +111,11 @@ class Post(models.Model):
     STATUS_CHOICES = [(PENDING, "Pending"), (OPEN, "Open"), (CLOSED, "Closed"), (DELETED, "Deleted")]
 
     # Question types. Answers should be listed before comments.
-    QUESTION, ANSWER, JOB, FORUM, PAGE, BLOG, COMMENT, DATA = range(8)
+    QUESTION, ANSWER, JOB, FORUM, PAGE, BLOG, COMMENT, DATA, ARTICLE = range(9)
 
     TYPE_CHOICES = [
         (QUESTION, "Question"), (ANSWER, "Answer"), (COMMENT, "Comment"),
-        (JOB, "Job"), (FORUM, "Forum"), (DATA, "Data"), (PAGE, "Page"), (BLOG, "Blog"),
+        (JOB, "Job"), (FORUM, "Forum"), (ARTICLE, "Article"), (DATA, "Data"), (PAGE, "Page"), (BLOG, "Blog"),
     ]
 
     TOP_LEVEL = set((QUESTION, JOB, FORUM, PAGE, BLOG, DATA))
@@ -353,6 +353,12 @@ class Post(models.Model):
 
             instance.save()
 
+class Data(models.Model):
+    "Represents a dataset attached to a post"
+    name = models.CharField(max_length=80)
+    post = models.ForeignKey(Post)
+    file = models.FileField(upload_to=settings.MEDIA_ROOT)
+    size = models.IntegerField()
 
 class PostAdmin(admin.ModelAdmin):
     list_display = ('title', 'type', 'author')
