@@ -11,11 +11,12 @@ from django.utils.timezone import utc
 from datetime import datetime
 
 # Message type selector.
-LOCAL_MESSAGE, EMAIL_MESSAGE, NO_MESSAGES = range(3)
+LOCAL_MESSAGE, EMAIL_MESSAGE, NO_MESSAGES, ALL_MESSAGES = range(4)
 
 MESSAGING_MAP = OrderedDict([
-    ( LOCAL_MESSAGE, "messages",),
-    ( EMAIL_MESSAGE, "email",),
+    (LOCAL_MESSAGE, "local messages",),
+    (EMAIL_MESSAGE, "email on threads I follow",),
+    (ALL_MESSAGES, "email for every new thread",),
 ])
 
 MESSAGING_TYPE_CHOICES = MESSAGING_MAP.items()
@@ -68,6 +69,7 @@ POST_LIMIT_FIELDS = POST_LIMIT_MAP.keys()
 POST_LIMIT_DEFAULT = POST_LIMIT_FIELDS[0]
 
 POST_LIMIT_INVALID_MSG = "Invalid limit parameter received"
+
 
 def now():
     return datetime.utcnow().replace(tzinfo=utc)

@@ -8,7 +8,7 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 import logging, datetime
 from django.db.models import signals
 
-
+from biostar.apps.users.models import User, Profile
 from biostar.apps.posts.models import Post, Subscription
 from biostar.apps.messages.models import Message, MessageBody
 
@@ -64,6 +64,13 @@ def post_create_messages(sender, instance, created, *args, **kwargs):
                         (body.subject, email_text, settings.DEFAULT_FROM_EMAIL, [sub.user.email])
                     )
                 yield message
+
+            # Generate an email to everyone that has a profile with all messages
+            users = User.objects.filter(profile__message_prefs=ALL_MESSAGES)
+            for user in users:
+                emails.append(
+                    (body.subject, email_text, settings.DEFAULT_FROM_EMAIL, [user.email])
+                )
 
         # Bulk insert of all messages. Bypasses the Django ORM!
         Message.objects.bulk_create(messages(), batch_size=100)

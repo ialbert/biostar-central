@@ -39,16 +39,12 @@ class Award(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL)
     date = models.DateTimeField(auto_now_add=True)
 
-    def notify_user(self):
-        from biostar.apps.messages.models import send_message
-
-
 class BadgeDef(object):
     def __init__(self, name, desc, func):
         self.name = name
         self.desc = desc
         self.fun = func
-        self.template = "awards/default.txt"
+        self.template = "badge/default.html"
 
     def __hash__(self):
         return hash(self.name)
@@ -56,13 +52,15 @@ class BadgeDef(object):
     def __cmp__(self, other):
         return cmp(self.name, other.name)
 
+
+# Simple badges can be computed via a single function call
 AUTOBIO = BadgeDef(
     name = "Autobiographer",
     desc = "more than 80 character in the information field of your profile",
     func = lambda user: (len(user.profile.info) > 80)
 )
 
-SIMPLE_BADGES = [
+USER_BADGES = [
     AUTOBIO,
 ]
 
@@ -72,7 +70,7 @@ def check_badges(request):
     user = request.user
     awards = set(a.name for a in Award.objects.filter(user=user))
 
-    for obj in SIMPLE_BADGES:
+    for obj in USER_BADGES:
         if obj.fun(user) and obj.name not in awards:
             badge = Badge.objects.get_or_create(name=obj.name)
             award = Award.objects.create(user=user, badge=badge)

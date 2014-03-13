@@ -74,6 +74,12 @@ class Message(models.Model):
         "Returns the number of unread messages for the given user but does not mark them seen"
         return MessageBody.objects.filter(recipient=user, unread=True).count()
 
+    def email_tuple(self, recipient_list, from_email=None):
+        "Returns an email tuple suitable to be mass emailed"
+        from_email = from_email or settings.DEFAULT_FROM_EMAIL
+        data = (self.body.subject, self.body.text, settings.DEFAULT_FROM_EMAIL, recipient_list)
+        return data
+
 # Admin interface to Message and MessageBody.
 class MessageBodyAdmin(admin.ModelAdmin):
     search_fields = ('sender__name', 'sender__email', 'recipient__name', 'recipient__email', 'subject')
@@ -87,20 +93,4 @@ class MessageAdmin(admin.ModelAdmin):
 #admin.site.register(Message, MessageAdmin)
 admin.site.register(MessageBody, MessageBodyAdmin)
 
-# A basic message sending utility function.
-def send_message(sender, recipient, subject, content, sent_at=None):
-    from biostar.apps.users.models import User, Profile
 
-    sent_at = sent_at or now()
-    body = MessageBody.objects.create(author=sender, subject=subject,
-                                          text=content, sent_at=sent_at)
-
-    msg = Message.objects.create(user=recipient, body=body, sent_at=body.sent_at)
-
-    if recipient.profile.message_prefs == Profile.EMAIL_MESSAGE:
-        try:
-            # Bulk sending email messages.
-            emails = [ (body.subject, content, settings.DEFAULT_FROM_EMAIL, [recipient.email]) ]
-            results = mail.send_mass_mail(emails)
-        except Exception, exc:
-            logger.error("email error %s" % exc)
