@@ -21,6 +21,18 @@ app.autodiscover_tasks(
 )
 
 @app.task
+def user_login_tasks(user):
+    "Executed on a user login"
+    from biostar.apps.badges.models import create_user_award
+    logger.info("user login task")
+    create_user_award(user)
+
+@app.task
+def post_created(user):
+    "Executed on a post creation"
+    logger.info("post created")
+
+@app.task
 def call_command(name, *args, **kwargs):
     "Calls a django command in a delayed fashion"
     logger.info("calling django command %s with %s and %s" % (name, args, kwargs))

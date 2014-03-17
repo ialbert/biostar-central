@@ -11,6 +11,7 @@ from biostar.apps.posts.models import Post, Vote
 from biostar.apps.messages.models import Message
 
 from collections import defaultdict
+from biostar.celery import user_login_tasks
 
 logger = logging.getLogger(__name__)
 
@@ -129,6 +130,7 @@ class Visit(object):
                 del session[ANON_USER]
                 elapsed = settings.SESSION_UPDATE_SECONDS + 1
 
+            # The user session will be updated.
             if elapsed > settings.SESSION_UPDATE_SECONDS:
                 # Set the last login time.
                 Profile.objects.filter(user_id=user.id).update(last_login=const.now())
@@ -138,6 +140,10 @@ class Visit(object):
 
                 # Store the counts in the session for later use.
                 session[SESSION_KEY] = counts
+
+                # Run user specific delayed tasks.
+                user_login_tasks.delay(user=user)
+
 
         # Get the counts from the session or the cache.
         counts = session.get(SESSION_KEY) or cache.get(SESSION_KEY)

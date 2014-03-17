@@ -11,6 +11,7 @@ from django.db.models import signals
 from biostar.apps.users.models import User, Profile
 from biostar.apps.posts.models import Post, Subscription
 from biostar.apps.messages.models import Message, MessageBody
+from biostar.apps.badges.models import Award
 
 from biostar.apps.util import html
 
@@ -22,11 +23,11 @@ from django.contrib.sites.models import Site
 logger = logging.getLogger(__name__)
 
 # This will be the message body on the site.
-POST_CREATED_HTML_TEMPLATE = "messages/post.created.html"
+POST_CREATED_HTML_TEMPLATE = "messages/post_created.html"
+AWARD_CREATED_HTML_TEMPLATE = "messages/award_created.html"
 
 # This will be the message body in an email.
-POST_CREATED_TEXT_TEMPLATE = "messages/post.created.txt"
-
+POST_CREATED_TEXT_TEMPLATE = "messages/post_created.txt"
 
 def post_create_messages(sender, instance, created, *args, **kwargs):
     "The actions to undertake when creating a new post"
@@ -81,6 +82,24 @@ def post_create_messages(sender, instance, created, *args, **kwargs):
         except Exception, exc:
             logger.error("email error %s" % exc)
 
+def award_create_messages(sender, instance, created, *args, **kwargs):
+    "The actions to undertake when creating a new post"
+    award = instance
+
+    if created:
+        # The user sending the notifications.
+        user = award.user
+        # Generate the message from the template.
+        content = html.render(name=AWARD_CREATED_HTML_TEMPLATE, award=award, user=user)
+
+        subject = "Congratulations: you won %s" % award.badge.name
+
+        # Create the message body.
+        body = MessageBody.objects.create(author=user, subject=subject, text=content)
+        message = Message.objects.create(user=user, body=body, sent_at=body.sent_at)
+
 # Creates a message to everyone involved
 signals.post_save.connect(post_create_messages, sender=Post, dispatch_uid="post-create-messages")
 
+# Creates a message when an award has been made
+signals.post_save.connect(award_create_messages, sender=Award, dispatch_uid="award-create-messages")

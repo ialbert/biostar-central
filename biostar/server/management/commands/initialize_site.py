@@ -19,10 +19,12 @@ class Command(BaseCommand):
     help = 'Initializes content in Biostar'
 
     def handle(self, *args, **options):
+        from biostar.apps.badges.models import init_badges
         init_admin()
         init_domain()
         init_social_providers()
         init_flatpages()
+        init_badges()
 
 def init_flatpages():
     # list for the flatpages

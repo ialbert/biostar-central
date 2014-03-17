@@ -1,0 +1,23 @@
+{% extends "starbase.html" %}
+{% load server_tags %}
+{% load humanize %}
+
+{% block page_title %}
+    Badge List
+{% endblock %}
+
+{% block content %}
+
+
+    <div class="row">
+        <div class="col-xs-9 col-xs-offset-2">
+            <h4>Badge list</h4>
+        </div>
+        {% for badge in badges %}
+            <div class="col-xs-9 col-xs-offset-2">
+                 <a href="{%  url 'badge-view' pk=badge.id %}" class="tag">{{ badge.count }} &times; {{ badge.name }}</a> {{ badge.description }}
+            </div>
+        {% endfor %}
+    </div>
+
+{% endblock %}

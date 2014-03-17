@@ -1,0 +1,9 @@
+<b>Congratulations!</b> You have won the <b><a href="{% url "badge-view" award.badge.id %}">{{ award.badge.name }}</a></b>
+badge for the notable accomplishment of: <em>{{ award.badge.description }}</em>.
+
+{%  if award.badge.count < 100 %}
+Interestingly this award has been won only {{ award.badge.count }} times so far.
+{%  else %}
+This award has been won {{ award.badge.count }} times.
+{%  endif %}
+

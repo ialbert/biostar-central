@@ -2,6 +2,10 @@ from django.db import models
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.core import mail
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 # Create your models here.
 
@@ -46,34 +50,57 @@ class BadgeDef(object):
         self.fun = func
         self.template = "badge/default.html"
 
+    def validate(self, *args, **kwargs):
+        try:
+            return self.fun(*args, **kwargs)
+        except Exception, exc:
+            logger.error("validator error %s" % exc)
+
     def __hash__(self):
         return hash(self.name)
 
     def __cmp__(self, other):
         return cmp(self.name, other.name)
 
-
 # Simple badges can be computed via a single function call
 AUTOBIO = BadgeDef(
     name = "Autobiographer",
-    desc = "more than 80 character in the information field of your profile",
+    desc = "having more than 80 characters in the information field of the user's profile",
     func = lambda user: (len(user.profile.info) > 80)
 )
 
-USER_BADGES = [
+SIMPLE_USER_BADGES = [
     AUTOBIO,
 ]
 
+def init_badges():
+    "Initializes the badges"
+    logger.info("initializing badges")
+    for obj in SIMPLE_USER_BADGES:
+        badge = Badge.objects.get_or_create(name=obj.name, description=obj.desc)
 
 # Tries to award a badge to the user
-def check_badges(request):
-    user = request.user
-    awards = set(a.name for a in Award.objects.filter(user=user))
+def create_user_award(user):
+    "The callback is a function that called at the end of awardin"
 
-    for obj in USER_BADGES:
-        if obj.fun(user) and obj.name not in awards:
-            badge = Badge.objects.get_or_create(name=obj.name)
+    # Debug only
+    #Award.objects.all().delete()
+
+    # The awards the user has won at this point
+    awards = set(a.badge.name for a in Award.objects.filter(user=user).select_related('badge'))
+
+    # Function to detect if the award already exists
+    not_awarded = lambda name: name not in awards
+
+    for obj in SIMPLE_USER_BADGES:
+
+        if not_awarded(obj.name) and obj.validate(user):
+
+            # Get the badge
+            badge = Badge.objects.get(name=obj.name)
+            badge.count += 1
+            badge.save()
+
+            # Create the corresponding award.
             award = Award.objects.create(user=user, badge=badge)
-            award.notify_user()
-            return
-
+            logger.info("award %s created for %s" % (award.badge.name, user.email))

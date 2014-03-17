@@ -1,0 +1,34 @@
+{% extends "starbase.html" %}
+{% load server_tags %}
+{% load humanize %}
+
+{% block page_title %}
+    Badge: {{ badge.name }}
+{% endblock %}
+
+{% block content %}
+
+    <div class="row">
+
+        <div class="col-md-12">
+            <h3>Badge: {{ badge.name }}  </h3>
+
+            <p>Awarded {{ badge.count }} times. See <a href="{%  url 'badge-list' %}">all badges</a></p>
+
+
+            <h4>Recently awarded </h4>
+
+            {% for award in awards %}
+
+                <div class="col xs-3 col-md-2 text-center">
+                    <div>{% gravatar award.user 82 %}</div>
+                    <div class="ago">{{ award.date|time_ago }} to </div>
+                    <div class="uname">{% userlink user %}</div>
+                    <div class="loc">{{ user.profile.location }}</div>
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+{% endblock %}

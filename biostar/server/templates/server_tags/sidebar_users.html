@@ -3,7 +3,7 @@
 
 {% cache 120 "recent-users"  %}
 <div class="recent-posts">
-    <ul style="opacity: 0.8; list-style: none; padding:5px; margin-bottom:5px">
+    <ul>
         {% for user in users %}
             <li >
                 {%  gravatar user 35 %} &nbsp; {%  userlink user %}

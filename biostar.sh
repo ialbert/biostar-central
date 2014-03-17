@@ -32,9 +32,9 @@ if [ $# == 0 ]; then
     echo "  dump      - dumps data as JSON_DATA_FIXTURE=$JSON_DATA_FIXTURE"
     echo "  delete    - removes the sqlite database DATABASE_NAME=$DATABASE_NAME"
     echo ''
-    echo "  pg_drop        - drops postgres DATABASE_NAME=$DATABASE_NAME"
-    echo "  pg_create      - creates postgres DATABASE_NAME=$DATABASE_NAME"
-    echo "  pg_import f.gz - imports the gzipped filename into postgres DATABASE_NAME=$DATABASE_NAME"
+    echo "  pg_drop   - drops postgres DATABASE_NAME=$DATABASE_NAME"
+    echo "  pg_create - creates postgres DATABASE_NAME=$DATABASE_NAME"
+    echo "  pg_import sqldump.gz - imports the gzipped filename into postgres DATABASE_NAME=$DATABASE_NAME"
     echo ''
     echo "Use environment variables to customize settings. See the docs."
     echo ' '

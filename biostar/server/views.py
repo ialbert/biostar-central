@@ -8,6 +8,7 @@ from biostar.apps.messages.models import Message
 from biostar.apps.users.models import User
 from biostar.apps.posts.models import Post, Vote, Tag, Subscription
 from biostar.apps.posts.views import NewPost, NewAnswer
+from biostar.apps.badges.models import Badge, Award
 
 from biostar.apps.posts.auth import post_permissions
 from django.contrib import messages
@@ -536,3 +537,30 @@ class FlatPageUpdate(UpdateView):
             return HttpResponseRedirect("/")
 
         return super(FlatPageUpdate, self).post(*args, **kwargs)
+
+class BadgeView(BaseDetailMixin):
+    model = Badge
+    template_name = "badge_details.html"
+
+    def get_context_data(self, **kwargs):
+
+        context = super(BadgeView, self).get_context_data(**kwargs)
+
+        # Get the current badge
+        badge = context['badge']
+
+        # Get all awards related to this badge
+        awards = Award.objects.filter(badge_id=badge.id).select_related('user').order_by("-date")[:50]
+
+        context['awards'] = awards
+
+        return context
+
+class BadgeList( BaseListMixin):
+    model = Badge
+    template_name = "badge_list.html"
+    context_object_name = "badges"
+
+    def get_context_data(self, **kwargs):
+        context = super(BadgeList, self).get_context_data(**kwargs)
+        return context
