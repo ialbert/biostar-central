@@ -87,6 +87,7 @@ def export_posts(N):
             # Help gauging the rate of import
             print post.id
             title = to_unicode_or_bust(post.title)
+            title = title.replace("\t", " ")
             html = to_unicode_or_bust(post.html)
             tag_val = to_unicode_or_bust(post.tag_val)
 
