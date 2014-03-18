@@ -7,7 +7,7 @@ from django.contrib.flatpages.models import FlatPage
 from allauth.socialaccount.models import SocialApp, providers
 
 from django.core.exceptions import ImproperlyConfigured
-
+from optparse import make_option
 
 logger = logging.getLogger(__name__)
 
@@ -19,12 +19,12 @@ class Command(BaseCommand):
     help = 'Initializes content in Biostar'
 
     def handle(self, *args, **options):
-        from biostar.apps.badges.models import init_badges
+        from biostar import awards
         init_admin()
         init_domain()
         init_social_providers()
         init_flatpages()
-        init_badges()
+        awards.init_awards()
 
 def init_flatpages():
     # list for the flatpages

@@ -186,14 +186,15 @@ class MessageList(LoginRequiredMixin, ListView):
         return objs
 
     def get_context_data(self, **kwargs):
+        user = self.request.user
         context = super(MessageList, self).get_context_data(**kwargs)
         people = [m.body.author for m in context[self.context_object_name]]
+        people = filter(lambda u: u.id != user.id, people)
         context['topic'] = self.topic
         context['page_title'] = "Messages"
         context['people'] = people
         reset_counts(self.request, self.topic)
         return context
-
 
 class TagList(BaseListMixin):
     """
@@ -560,6 +561,11 @@ class BadgeList( BaseListMixin):
     model = Badge
     template_name = "badge_list.html"
     context_object_name = "badges"
+
+    def get_queryset(self):
+        qs = super(BadgeList, self).get_queryset()
+        qs = qs.order_by('count')
+        return qs
 
     def get_context_data(self, **kwargs):
         context = super(BadgeList, self).get_context_data(**kwargs)

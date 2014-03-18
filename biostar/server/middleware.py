@@ -11,7 +11,7 @@ from biostar.apps.posts.models import Post, Vote
 from biostar.apps.messages.models import Message
 
 from collections import defaultdict
-from biostar.celery import user_login_tasks
+from biostar.awards import create_user_award
 
 logger = logging.getLogger(__name__)
 
@@ -141,8 +141,8 @@ class Visit(object):
                 # Store the counts in the session for later use.
                 session[SESSION_KEY] = counts
 
-                # Run user specific delayed tasks.
-                user_login_tasks.delay(user=user)
+                # Create user awards if possible.
+                create_user_award.delay(user=user)
 
 
         # Get the counts from the session or the cache.

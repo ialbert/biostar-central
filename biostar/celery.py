@@ -17,15 +17,9 @@ app.config_from_object(settings.CELERY_CONFIG)
 
 # Discover tasks in applications.
 app.autodiscover_tasks(
-    lambda: ["biostar.mailer"]
+    lambda: ["biostar.mailer", "biostar.awards"]
 )
 
-@app.task
-def user_login_tasks(user):
-    "Executed on a user login"
-    from biostar.apps.badges.models import create_user_award
-    logger.info("user login task")
-    create_user_award(user)
 
 @app.task
 def post_created(user):
