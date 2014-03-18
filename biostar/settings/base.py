@@ -358,7 +358,7 @@ GOOGLE_TRACKER = ""
 GOOGLE_DOMAIN = ""
 
 # The site logo.
-SITE_LOGO = "biostar.logo.png"
+SITE_LOGO = "biostar2.logo.png"
 
 # The default CSS file to load.
 SITE_STYLE_CSS = "biostar.style.less"

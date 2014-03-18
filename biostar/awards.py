@@ -9,7 +9,8 @@ logger = logging.getLogger(__name__)
 
 def init_awards():
     "Initializes the badges"
-    from biostar.apps.badges.models import Badge, ALL_AWARDS
+    from biostar.apps.badges.models import Badge
+    from biostar.apps.badges.award_defs import ALL_AWARDS
 
     for obj in ALL_AWARDS:
         badge, created = Badge.objects.get_or_create(name=obj.name)
@@ -33,7 +34,8 @@ def create_post_award(user):
 # Tries to award a badge to the user
 def create_user_award(user):
     "The callback is a function that called at the end of awardin"
-    from biostar.apps.badges.models import Badge, Award, ALL_AWARDS
+    from biostar.apps.badges.models import Badge, Award
+    from biostar.apps.badges.award_defs import ALL_AWARDS
 
     # Debug only
     #Award.objects.all().delete()
@@ -61,10 +63,7 @@ def create_user_award(user):
             badge.count += 1
             badge.save()
 
-            # Create the corresponding award.
-            award = Award.objects.create(user=user, badge=badge)
-            logger.info("award %s created for %s" % (award.badge.name, user.email))
-
-            # On deplyed sites create only one award at a time
-            if not settings.DEBUG:
-                break
+            # Create the corresponding awards as many times as needed.
+            for x in range(valid_count - seen_count):
+                award = Award.objects.create(user=user, badge=badge)
+                logger.info("award %s created for %s" % (award.badge.name, user.email))

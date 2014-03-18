@@ -7,8 +7,7 @@ from django.contrib.auth import get_user_model
 import os, csv, datetime
 from django.utils.dateparse import parse_datetime
 from django.utils import timezone, encoding
-from biostar.apps.posts.models import Post, Vote, Subscription
-from biostar.apps.messages.models import Message, MessageBody
+
 from django.db import transaction
 from itertools import *
 from django.db.models import signals
@@ -31,15 +30,7 @@ USER_STATUS_MAP = {
     "Active": User.TRUSTED, "Suspended": User.SUSPENDED, "Banned": User.BANNED,
 }
 
-POST_TYPE_MAP = {
-    "Question": Post.QUESTION, "Answer": Post.ANSWER,
-    "Comment": Post.COMMENT, "Job": Post.JOB, "Blog": Post.BLOG,
-}
 
-VOTE_TYPE_MAP = {
-    "Upvote": Vote.UP, "Downvote": Vote.DOWN,
-    "Accept": Vote.ACCEPT, "Bookmark": Vote.BOOKMARK,
-}
 
 MIGRATE_DIR = os.environ["BIOSTAR_MIGRATE_DIR"]
 MIGRATE_DIR = os.path.expanduser(MIGRATE_DIR)
@@ -57,12 +48,20 @@ def localize_time(text):
     local = timezone.make_aware(naive, timezone=utc)
     return local
 
-def get_post(row, users):
+def get_post(row, users, klass):
+
+    POST_TYPE_MAP = {
+        "Question": klass.QUESTION, "Answer": klass.ANSWER,
+        "Comment": klass.COMMENT, "Job": klass.JOB, "Blog": klass.BLOG,
+    }
+
+
     uid = get(row, 'id', func=int)
     root_id = get(row, 'root_id', func=int)
     parent_id = get(row, 'parent_id', func=int)
 
     title = get(row, 'title').title()
+    title = title[:140]
     tag_val = get(row, 'tag_val').strip()
 
     author_id = get(row, 'author_id', func=int)
@@ -73,10 +72,10 @@ def get_post(row, users):
         return None
 
     post_type = get(row, 'post_type')
-    post_type = POST_TYPE_MAP.get(post_type, Post.FORUM)
-    post_status = Post.OPEN if get(row, 'post_status') == "Open" else Post.CLOSED
+    post_type = POST_TYPE_MAP.get(post_type, klass.FORUM)
+    post_status = klass.OPEN if get(row, 'post_status') == "Open" else klass.CLOSED
 
-    post = Post(id=uid, title=title, author=author, lastedit_user=author,
+    post = klass(id=uid, title=title, author=author, lastedit_user=author,
                 parent_id=parent_id, root_id=root_id)
 
     post.status = post_status
@@ -95,6 +94,12 @@ def get_post(row, users):
 
     return post
 
+def to_unicode(obj, encoding='utf-8'):
+    if isinstance(obj, basestring):
+        if not isinstance(obj, unicode):
+            obj = unicode(obj, encoding)
+    return obj
+
 
 class Command(BaseCommand):
     help = 'migrate data from Biostar 1.*'
@@ -111,15 +116,16 @@ class Command(BaseCommand):
 
 
     def migrate_posts(self, fname):
+        from biostar.apps.posts.models import Post, Subscription
+        from biostar.apps.messages.models import Message
 
         log = self.stdout.write
-        from biostar.server.models import post_create_messages
 
         # Disconnect the message creation signal,
         # it would generate way too many messages
-        signals.post_save.disconnect(post_create_messages, sender=Post)
+        signals.post_save.disconnect(dispatch_uid="post-create-messages")
 
-        #Post.objects.all().delete()
+        Post.objects.all().delete()
 
         users = dict((u.id, u) for u in User.objects.all())
 
@@ -127,7 +133,11 @@ class Command(BaseCommand):
         stream = csv.DictReader(file(fname), delimiter=b'\t')
 
         for i, row in enumerate(stream):
-            post = get_post(row, users)
+            title = to_unicode(row['title'])
+
+            log("migrating %s: %s" % (i, title))
+            post = get_post(row, users, klass=Post)
+
             if not post:
                 continue
             post.save()
@@ -135,7 +145,7 @@ class Command(BaseCommand):
             # TODO migrate only tags with high counts
             post.add_tags(post.tag_val)
 
-            log("migrating %s" % post)
+            #log("migrated %s" % post)
 
         log("migrated %s posts" % Post.objects.all().count())
         log("created %s subscriptions" % Subscription.objects.all().count())
@@ -197,22 +207,33 @@ class Command(BaseCommand):
             prof.about_me = file(about_me_file, 'rt').read()
             prof.save()
 
-        for id in (2, 10,):
-            try:
-                # We use this during debugging to make it easy to log in as someone else
-                bot = User.objects.get(id=id)
-                log(
-                    "updated user %s with email=%s, name=%s, password=SECRET_KEY," % (bot.id, bot.email, bot.name))
-                bot.set_password(settings.SECRET_KEY)
-                bot.save()
-            except Exception, exc:
-                pass
+            log("migrated user %s:%s" % (user.id, user.email))
+
+        if settings.DEBUG:
+            for id in (2, 10,):
+                try:
+                    # We use this during debugging to make it easy to log in as someone else
+                    bot = User.objects.get(id=id)
+                    log(
+                        "updated user %s with email=%s, name=%s, password=SECRET_KEY," % (bot.id, bot.email, bot.name))
+                    bot.set_password(settings.SECRET_KEY)
+                    bot.save()
+                except Exception, exc:
+                    pass
 
         log("migrated %s users" % User.objects.all().count())
 
 
     def migrate_votes(self, fname):
         log = self.stdout.write
+
+        from biostar.apps.posts.models import Vote
+
+        VOTE_TYPE_MAP = {
+            "Upvote": Vote.UP, "Downvote": Vote.DOWN,
+            "Accept": Vote.ACCEPT, "Bookmark": Vote.BOOKMARK,
+        }
+
 
         Vote.objects.all().delete()
 
@@ -239,6 +260,7 @@ class Command(BaseCommand):
 
                 # Create the vote.
                 vote = Vote(author=author, post_id=post_id, type=vote_type, date=vote_date)
+                log("*** adding votes %s" % i)
                 yield vote
 
         # Insert votes in batch. Bypasses the signals!
