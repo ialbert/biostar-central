@@ -23,17 +23,14 @@ GOOGLE_TRACKER = ""
 # this is the authentication module and function in it
 EXTERNAL_AUTHENTICATOR_FUNC = 'dummy_auth'
 
-MIDDLEWARE_CLASSES.extend([
-    'main.extauth.ExternalAuthenticator',
-])
 
 # database setup
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2', 
-        'NAME': 'test-database',                  
-        'USER': 'someuser',                      
-        'PASSWORD': 'somepassword',                  
+        'NAME': 'biostar-pg',
+        'USER': 'ialbert',
+        'PASSWORD': '',
         'HOST': '',                      
         'PORT': '',                      
     }
