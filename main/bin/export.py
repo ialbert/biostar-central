@@ -62,7 +62,7 @@ def export_posts(N, dest):
     limit = N or None
 
     fields = "id root_id parent_id author_id post_type post_status title tag_val " \
-        "score full_score views answer_count book_count accepted creation_date lastedit_date".split()
+        "score full_score views answer_count book_count accepted creation_date lastedit_date lastedit_user".split()
 
     if not os.path.exists(workdir):
         os.makedirs(workdir)
@@ -99,7 +99,7 @@ def export_posts(N, dest):
                 post.id, post.root.id,  post.parent.id, post.author.id,
                 post.get_type_display(), post.get_status_display(), title, tag_val,
                 post.score, post.full_score, post.views, post.answer_count, post.book_count, post.accepted,
-                post.creation_date, post.lastedit_date
+                post.creation_date, post.lastedit_date, post.lastedit_user_id
             ]
 
             data = map(unicode, data)
