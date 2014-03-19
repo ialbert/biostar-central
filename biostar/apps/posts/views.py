@@ -51,7 +51,7 @@ class LongForm(forms.Form):
     POST_CHOICES = [(Post.QUESTION, "Question"), (Post.FORUM, "Forum Post"), (Post.JOB, "Job Ad"),
                     (Post.BLOG, "Blog Post"), (Post.PAGE, "Site Page")]
 
-    title = forms.CharField(max_length=100, min_length=10, validators=[valid_title],
+    title = forms.CharField(max_length=200, min_length=10, validators=[valid_title],
                             help_text="Descriptive titles promote better answers.")
 
     post_type = forms.ChoiceField(choices=POST_CHOICES, help_text="Select a post type: Question, Forum, Job, Blog")
@@ -85,7 +85,7 @@ class LongForm(forms.Form):
 class ShortForm(forms.Form):
     FIELDS = ["content"]
 
-    content = forms.CharField(widget=forms.Textarea)
+    content = forms.CharField(widget=forms.Textarea, min_length=20)
 
     def __init__(self, *args, **kwargs):
         super(ShortForm, self).__init__(*args, **kwargs)

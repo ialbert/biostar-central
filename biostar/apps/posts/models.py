@@ -120,7 +120,7 @@ class Post(models.Model):
 
     TOP_LEVEL = set((QUESTION, JOB, FORUM, PAGE, BLOG, DATA))
 
-    title = models.CharField(max_length=140, null=False)
+    title = models.CharField(max_length=200, null=False)
 
     # The user that originally created the post.
     author = models.ForeignKey(settings.AUTH_USER_MODEL)

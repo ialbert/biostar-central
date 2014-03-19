@@ -57,14 +57,19 @@ def get_post(row, users, klass):
     parent_id = get(row, 'parent_id', func=int)
 
     title = get(row, 'title').title()
-    title = title[:140]
+    title = title[:200]
     tag_val = get(row, 'tag_val').strip()
 
     author_id = get(row, 'author_id', func=int)
     author = users.get(author_id)
 
+    lastedit_user_id = get(row, 'lastedit_user', func=int)
+    lastedit_user = users.get(lastedit_user_id)
+
+    lastedit_user = lastedit_user or author
+
     if not author:
-        print("*** author %s not found for post %s" % (author_id, uid))
+        print("*** author found for post %s" % (author_id, uid))
         return None
 
     post_type = get(row, 'post_type')
@@ -84,8 +89,7 @@ def get_post(row, users, klass):
     post.book_count = get(row, "book_count", func=int)
     post.thread_score = get(row, "full_score", func=int)
     post.vote_count = get(row, "score", func=int)
-
-
+    post.lastedit_user = lastedit_user
 
     return post
 
@@ -128,18 +132,27 @@ class Command(BaseCommand):
         log("migrating posts from %s" % fname)
         stream = csv.DictReader(file(fname), delimiter=b'\t')
 
+        seen = set()
         for i, row in enumerate(stream):
             title = to_unicode(row['title'])
 
             log("migrating %s: %s" % (i, title))
             post = get_post(row, users, klass=Post)
 
+            if not post:
+                continue
+
             # Read and add the post body.
             post_file = path_join(source, 'posts', str(post.id))
             post.content = file(post_file, 'rt').read()
 
-            if not post:
+            seen.add(post.id)
+
+            # In a few cases the parent id may be missing
+            if post.parent_id not in seen:
+                log('*** error inserting post %s' % post.id)
                 continue
+
             post.save()
 
             # TODO migrate only tags with high count

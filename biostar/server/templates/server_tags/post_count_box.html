@@ -2,7 +2,8 @@
 {% load server_tags %}
 {% load humanize %}
 <div class="post-row {{ post.get_type_display }} {{ post.get_status_display }}">
-    <div class="count-box clearfix">
+
+    <div class="count-box">
         {% if post.is_toplevel %}
             <div class="box vote visible-lg visible-md">
                 <div class="c">{{ post.vote_count }}</div>
@@ -20,7 +21,6 @@
             {% if post.subs_count > 4 %}
                 <div class="book_count text-center">
                     {{ post.subs_count }} following
-
                 </div>
             {% else %}
                 <div></div>
@@ -39,18 +39,24 @@
             </div>
         {% endif %}
     </div>
+
     <div class="title-box clearfix">
-        <div class="post-title"><a href="{{ post.get_absolute_url }}">{{ post.get_title }}</a></div>
+        <div class="post-title">
+            <a href="{{ post.get_absolute_url }}">{{ post.get_title }}</a>
+        </div>
 
         <div class="clearfix">
 
-            <span class="tags visible-lg visible-md">
+            <span class="tags tag-pad visible-lg visible-md">
             {% for tag in post.tag_set.all %}
-                <a class="tag" href="/t/{{tag.name }}/">{{ tag.name }}</a>
+                <a class="tag" href="/t/{{ tag.name }}/">{{ tag.name }}</a>
             {% endfor %}
             </span>
             <span class="userlink text-right">
-            {% last_action post %} {{ post.creation_date|time_ago }} by {% userlink post.author %}
+            {{ post.creation_date|time_ago }} by {% userlink post.author %}
+                {% if post.author != post.lastedit_user %}
+                    &bull; updated {{ post.lastedit_date|time_ago }} by {% userlink post.lastedit_user %}
+                {% endif %}
             </span>
 
         </div>
