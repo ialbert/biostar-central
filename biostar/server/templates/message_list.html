@@ -13,7 +13,7 @@
 
             {% for message in objects %}
                 <div class="unread {{ message.unread }}">
-                    {{ message.sent_at|timesince }} ago {{ message.body.text|safe }}
+                    {{ message.sent_at|timesince }} ago: {{ message.body.text|safe }}
                 </div>
 
 

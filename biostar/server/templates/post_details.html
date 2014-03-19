@@ -20,60 +20,61 @@
                 {% post_body post user post.tree %}
 
                 {# Render each answer for the post #}
-
                 {% for answer in post.answers %}
-
                     {% post_body answer user post.tree %}
-
                 {% endfor %}
 
-
+                {#  This is required element to access the token in javascript #}
                 <span id="csrf_token">{% csrf_token %}</span>
 
-                {# Answers go into a different row #}
+                {# Generate the form to post an answer #}
                 <tr>
                     <td>&nbsp;</td>
                     <td>
+                        {#  Below we could do an if/else but it is very hard to follow #}
 
-                        {% if user.is_authenticated %}
-                            {% if post.is_open %}
-                                <h3>Add your answer</h3>
-
-                                <div class="alert alert-warning">
-
-                                    <p><strong>Note:</strong> Answers should respond to the original question on the
-                                        top!
-                                    </p>
-
-                                    <p>
-                                        Use the comments
-                                        to discuss an answer, ask for clarifications, request more details, etc.
-                                    </p>
-                                </div>
-
-                                <form role="form" id="answer-form" method="post"
-                                      action="{% url 'new-answer' post.id %}">
-                                    {% csrf_token %}
-                                    <div class="form-group">
-                                        <textarea class="textarea form-control" cols="40" id="answerbox" name="content"
-                                                  rows="10"></textarea>
-                                    </div>
-                                    <button type="submit" class="btn btn-success">Add Answer</button>
-
-                                </form>
-                            {% else %}
-                                <div class="alert alert-warning">
-                                    The thread is closed. No new answers may be added.
-                                </div>
-
-
-                            {% endif %}
-                        {% else %}
+                        {#  Anonymous users. #}
+                        {% if not user.is_authenticated %}
                             <div class="alert alert-info">
-                                Please <a href="{%  url 'login' %}">log in</a> to add an answer.
+                                Please <a href="{% url 'login' %}">log in</a> to add an answer.
                             </div>
                         {% endif %}
 
+                        {#  Closed posts cannot get more answers #}
+                        {% if not post.is_open %}
+                            <div class="alert alert-warning">
+                                The thread is closed. No new answers may be added.
+                            </div>
+                        {% endif %}
+
+                        {#  Authenticated users on an open post #}
+                        {% if user.is_authenticated and post.is_open %}
+
+                            <h3>Add your answer</h3>
+
+                            <div class="alert alert-warning">
+
+                                <p><strong>Note:</strong> Answers should respond to the original question on the
+                                    top!
+                                </p>
+
+                                <p>
+                                    Use the comments
+                                    to discuss an answer, ask for clarifications, request more details, etc.
+                                </p>
+                            </div>
+
+                            <form role="form" id="answer-form" method="post"
+                                  action="{% url 'new-answer' post.id %}">
+                                {% csrf_token %}
+                                <div class="form-group">
+                                    <textarea class="textarea form-control" cols="40" id="answerbox" name="content"
+                                              rows="10"></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-success">Add Answer</button>
+
+                            </form>
+                        {% endif %}
                     </td>
                 </tr>
             </table>

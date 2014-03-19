@@ -157,7 +157,7 @@ class Profile(models.Model):
     """
     Maintains information that does not always need to be retreived whe a user is accessed.
     """
-    EMAIL_MESSAGE, LOCAL_MESSAGE = const.LOCAL_MESSAGE, const.EMAIL_MESSAGE
+    LOCAL_MESSAGE, EMAIL_MESSAGE = const.LOCAL_MESSAGE, const.EMAIL_MESSAGE
 
     TYPE_CHOICES = const.MESSAGING_TYPE_CHOICES
 
@@ -188,7 +188,7 @@ class Profile(models.Model):
     info = models.TextField(default="", null=True, blank=True)
 
     # The default notification preferences.
-    message_prefs = models.IntegerField(choices=TYPE_CHOICES, default=LOCAL_MESSAGE)
+    message_prefs = models.IntegerField(choices=TYPE_CHOICES, default=EMAIL_MESSAGE)
 
     def save(self, *args, **kwargs):
 

@@ -90,15 +90,12 @@ function mod_votecount(elem, k) {
 }
 
 function add_comment_anon(elem) {
-    container = elem.closest("table")
+    container = elem.closest("div")
     elem.css("background-color", "red");
     $("#comment-box").remove();
-    container.append('<tr id="comment-box">\
-    <td colspan="2">\
-        <div class="alert alert-warning">Please <a class="alert-link" href="/accounts/login/">log in</a> to comment</div>\
-    </td></tr>'
-    )
-
+    container.append('' +
+        '<div id="comment-box" class="alert alert-warning">Please <a class="alert-link" href="/accounts/login/">log in</a> to comment</div>'
+     )
 }
 
 VOTE = "vote"

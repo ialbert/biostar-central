@@ -103,3 +103,7 @@ signals.post_save.connect(post_create_messages, sender=Post, dispatch_uid="post-
 
 # Creates a message when an award has been made
 signals.post_save.connect(award_create_messages, sender=Award, dispatch_uid="award-create-messages")
+
+def disconnect_all():
+    signals.post_save.disconnect(post_create_messages, sender=Post, dispatch_uid="post-create-messages")
+    signals.post_save.disconnect(award_create_messages, sender=Award, dispatch_uid="award-create-messages")

@@ -25,21 +25,12 @@
     </div>
     <div class="row">
         <div class="col-md-12">
+
             {% page_bar_sort_users %}
 
             <div id="userlist">
                 {% for user in users %}
-                    <div class="col-xs-6 col-md-2">
-                        <div class="userbox text-center">
-                            <div class="fixed">
-                                <div>{% gravatar user 85 %}</div>
-                                <div class="uname">{% userlink user %}</div>
-
-                                <div class="ago">{{ user.profile.last_login|time_ago }}</div>
-                                <div class="loc">{{ user.profile.location }}</div>
-                            </div>
-                        </div>
-                    </div>
+                     {%  user_box user user.profile.date_joined %}
                 {% endfor %}
             </div>
         </div>

@@ -170,6 +170,11 @@ def page_bar(context):
     "Renders a paging bar"
     return context
 
+@register.inclusion_tag('server_tags/post_user_box.html')
+def post_user_box(user, date):
+    "Renders a user box"
+    return dict(user=user, date=date)
+
 @register.inclusion_tag('server_tags/user_box.html')
 def user_box(user, date):
     "Renders a user box"

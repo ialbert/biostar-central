@@ -38,9 +38,9 @@ Citing Biostar
   PLoS Comput Biol 7(10): e1002216. doi:10.1371/journal.pcbi.1002216
 
 
-Commercial support
-------------------
+Support
+-------
 
-Commercial support can be obtained via **Biostar Genomics LLC**, a bioinformatics consulting firm
-founded by Dr. Istvan Albert. The company can provide hosting for your organization and
-customize the site for your needs. For more information contact **admin@biostars.org**
+We can also provide custom support for organizations or institutions. Depending on the situation and arrangements the costs
+would typically involve hosting fees and hourly system administration type charges.
+For more information contact **admin@biostars.org**

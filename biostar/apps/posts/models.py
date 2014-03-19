@@ -207,6 +207,8 @@ class Post(models.Model):
 
     def add_tags(self, text):
         text = text.strip()
+        if not text:
+            return
         # Sanitize the tag value
         self.tag_val = bleach.clean(text, tags=[], attributes=[], styles={}, strip=True)
         # Clear old tags

@@ -15,7 +15,9 @@ import re, textwrap
 
 logger = logging.getLogger(__name__)
 
-LINE_WIDTH= 80
+# This needs to be shorter so that the content looks good
+# on smaller screens as well.
+LINE_WIDTH= 60
 
 def path_join(*args):
     return os.path.abspath(os.path.join(*args))

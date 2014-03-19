@@ -39,6 +39,7 @@ if [ $# == 0 ]; then
     echo "Use environment variables to customize settings. See the docs."
     echo ' '
     echo "DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE"
+    echo "DATABASE_NAME=$DATABASE_NAME"
     echo ''
 fi
 
@@ -78,7 +79,7 @@ while (( "$#" )); do
     if [ "$1" = "init" ]; then
         echo "*** Initializing server on $BIOSTAR_HOSTNAME with $DJANGO_SETTINGS_MODULE"
         echo "*** Running all tests"
-        $PYTHON $DJANGO_ADMIN test --noinput -v $VERBOSITY --settings=$DJANGO_SETTINGS_MODULE
+        #$PYTHON $DJANGO_ADMIN test --noinput -v $VERBOSITY --settings=$DJANGO_SETTINGS_MODULE
         $PYTHON $DJANGO_ADMIN syncdb -v $VERBOSITY --noinput --settings=$DJANGO_SETTINGS_MODULE
 
         $PYTHON $DJANGO_ADMIN migrate  biostar.apps.users --settings=$DJANGO_SETTINGS_MODULE

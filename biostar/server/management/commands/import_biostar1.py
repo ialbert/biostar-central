@@ -31,10 +31,6 @@ USER_STATUS_MAP = {
 }
 
 
-
-MIGRATE_DIR = os.environ["BIOSTAR_MIGRATE_DIR"]
-MIGRATE_DIR = os.path.expanduser(MIGRATE_DIR)
-
 def get(data, attr, func=encoding.smart_unicode):
     value = data.get(attr, '').strip()
     try:
@@ -89,8 +85,7 @@ def get_post(row, users, klass):
     post.thread_score = get(row, "full_score", func=int)
     post.vote_count = get(row, "score", func=int)
 
-    post_file = path_join(MIGRATE_DIR, 'posts', str(uid))
-    post.content = file(post_file, 'rt').read()
+
 
     return post
 
@@ -109,21 +104,22 @@ class Command(BaseCommand):
         make_option("-p", '--posts', action="store_true", dest='posts', default=False, help='import posts'),
         make_option("-x", '--votes', action="store_true", dest='votes', default=False, help='import votes'),
         make_option("-t", '--tags', action="store_true", dest='tags', default=False, help='auto tag'),
+        make_option("-d", '--dir', dest='dir', default="~/tmp/biostar-migrate", help='import directory'),
     )
 
-    def auto_tag(self, fname):
+    def auto_tag(self, source, fname):
         pass
 
 
-    def migrate_posts(self, fname):
+    def migrate_posts(self, source, fname):
+        from biostar.server.models import disconnect_all
         from biostar.apps.posts.models import Post, Subscription
         from biostar.apps.messages.models import Message
 
         log = self.stdout.write
 
-        # Disconnect the message creation signal,
-        # it would generate way too many messages
-        signals.post_save.disconnect(dispatch_uid="post-create-messages")
+        # Disconnect signals they will generate way too many messages
+        disconnect_all()
 
         Post.objects.all().delete()
 
@@ -138,20 +134,23 @@ class Command(BaseCommand):
             log("migrating %s: %s" % (i, title))
             post = get_post(row, users, klass=Post)
 
+            # Read and add the post body.
+            post_file = path_join(source, 'posts', str(post.id))
+            post.content = file(post_file, 'rt').read()
+
             if not post:
                 continue
             post.save()
 
-            # TODO migrate only tags with high counts
+            # TODO migrate only tags with high count
             post.add_tags(post.tag_val)
 
-            #log("migrated %s" % post)
 
         log("migrated %s posts" % Post.objects.all().count())
         log("created %s subscriptions" % Subscription.objects.all().count())
         log("created %s messages" % Message.objects.all().count())
 
-    def migrate_users(self, fname):
+    def migrate_users(self, source, fname):
 
         #User.objects.all().delete()
         log = self.stdout.write
@@ -203,7 +202,7 @@ class Command(BaseCommand):
             prof.location = location
             prof.date_joined = localize_time(date_joined)
             prof.last_login = localize_time(last_visited)
-            about_me_file = path_join(MIGRATE_DIR, 'about_me', str(uid))
+            about_me_file = path_join(source, 'about_me', str(uid))
             prof.about_me = file(about_me_file, 'rt').read()
             prof.save()
 
@@ -224,7 +223,7 @@ class Command(BaseCommand):
         log("migrated %s users" % User.objects.all().count())
 
 
-    def migrate_votes(self, fname):
+    def migrate_votes(self, source, fname):
         log = self.stdout.write
 
         from biostar.apps.posts.models import Vote
@@ -260,28 +259,31 @@ class Command(BaseCommand):
 
                 # Create the vote.
                 vote = Vote(author=author, post_id=post_id, type=vote_type, date=vote_date)
-                log("*** adding votes %s" % i)
                 yield vote
 
         # Insert votes in batch. Bypasses the signals!
-        Vote.objects.bulk_create(vote_generator(), batch_size=500)
+        Vote.objects.bulk_create(vote_generator(), batch_size=1000)
 
         log("migrated %s votes" % Vote.objects.all().count())
 
     def handle(self, *args, **options):
 
+        source = os.path.expanduser(options['dir'])
+
         if options['users']:
-            fname = path_join(MIGRATE_DIR, "users.txt")
-            self.migrate_users(fname)
+            fname = path_join(source, "users.txt")
+            self.migrate_users(source, fname)
 
         if options['posts']:
-            fname = path_join(MIGRATE_DIR, "posts.txt")
-            self.migrate_posts(fname)
+            fname = path_join(source, "posts.txt")
+            self.migrate_posts(source, fname)
 
         if options['votes']:
-            fname = path_join(MIGRATE_DIR, "votes.txt")
-            self.migrate_votes(fname)
+            fname = path_join(source, "votes.txt")
+            self.migrate_votes(source, fname)
 
         if options['tags']:
-            fname = path_join(MIGRATE_DIR, "posts.txt")
-            self.auto_tag(fname)
+            fname = path_join(source, "posts.txt")
+            self.auto_tag(source, fname)
+
+        print("*** migrated from %s" % source)

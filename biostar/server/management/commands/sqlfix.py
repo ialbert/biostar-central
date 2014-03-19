@@ -6,13 +6,15 @@ from django.db import connection, transaction
 from django.db.models.loading import get_app
 from StringIO import StringIO
 from django.core.management.base import BaseCommand, CommandError
+import os
+
+os.environ['DJANGO_COLORS'] = 'nocolor'
 
 class Command(BaseCommand):
     help = 'Resets the SQL sequence ids'
 
     def handle(self, *args, **options):
         main()
-
 
 def main():
     commands = StringIO()
@@ -26,8 +28,8 @@ def main():
         if get_app(label, emptyOK=True):
             call_command('sqlsequencereset', label, stdout=commands)
 
-
     sql = commands.getvalue()
     print sql
     cursor.execute(sql)
+
 

@@ -9,13 +9,13 @@
     {% page_bar %}
 
     <div class="row">
-        <div class="col-md-9">
+        <div class="col-md-12">
 
 
-            <div>
+            <div id="tag-list">
                 {% for tag in tags %}
 
-                    <div class="col-xs-3 text-center">
+                    <div class="col-xs-3 col-md-3 text-center">
                         <a class="tag" href="/t/{{ tag.name }}">{{ tag.name }} &times; {{ tag.count }}
                         </a>
                     </div>
