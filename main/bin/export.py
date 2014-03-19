@@ -6,19 +6,9 @@ import sys, os, shutil
 from main.server import models
 pj = os.path.join
 
-MIGRATE_DIR = os.environ.get('BIOSTAR_MIGRATE_DIR')
-
-if not MIGRATE_DIR:
-    raise Exception("set the BIOSTAR_MIGRATE_DIR environment variable")
-
-MIGRATE_DIR = os.path.expanduser(MIGRATE_DIR)
-
-if not os.path.isdir(MIGRATE_DIR):
-    os.makedirs(MIGRATE_DIR)
-
-def export_users(N):
-    workdir = pj(MIGRATE_DIR, "about_me")
-    out_name = pj(MIGRATE_DIR, "users.txt")
+def export_users(N, dest):
+    workdir = pj(dest, "about_me")
+    out_name = pj(dest, "users.txt")
     out_stream = file(out_name, 'wt')
     def write(line):
         out_stream.write('%s\n' % line)
@@ -54,17 +44,16 @@ def export_users(N):
 
     print ("*** wrote users into %s" % out_name)
 
-def to_unicode_or_bust(
-        obj, encoding='utf-8'):
+def to_unicode_or_bust(obj, encoding='utf-8'):
     if isinstance(obj, basestring):
         if not isinstance(obj, unicode):
             obj = unicode(obj, encoding)
     return obj
 
-def export_posts(N):
-    workdir = pj(MIGRATE_DIR, "posts")
+def export_posts(N, dest):
+    workdir = pj(dest, "posts")
 
-    out_name = pj(MIGRATE_DIR, "posts.txt")
+    out_name = pj(dest, "posts.txt")
     out_stream = file(out_name, 'wt')
     def write(line):
         line = line.encode("utf8")
@@ -80,16 +69,27 @@ def export_posts(N):
 
     write("\t".join(fields))
 
+    pcount = limit or models.Post.objects.all().count()
+    stream = models.Post.objects.all().order_by('id')[:limit]
 
-    for post in models.Post.objects.all().order_by('id')[:limit]:
+    tags = models.Tag.objects.all()
+    tags = filter(lambda t: t.count > 10, tags)
+    tags = map(lambda t: t.name, tags)
+    keep = set(tags)
+
+    for index, post in enumerate(stream):
 
         try:
             # Help gauging the rate of import
-            print post.id
+            print ("*** exporting post %s (%2.1f%%)" % (post.id, (100.0 * index/pcount)))
             title = to_unicode_or_bust(post.title)
             title = title.replace("\t", " ")
             html = to_unicode_or_bust(post.html)
             tag_val = to_unicode_or_bust(post.tag_val)
+
+            words = tag_val.split()
+            words = filter(lambda w: w in keep, words)
+            tag_val = " ".join(words)
 
             fp = file(pj(workdir, str(post.id)), "wt")
             fp.write(html.encode('utf8'))
@@ -110,9 +110,9 @@ def export_posts(N):
 
     print ("*** wrote posts into %s" % out_name)
 
-def export_votes(N):
+def export_votes(N, dest):
 
-    out_name = pj(MIGRATE_DIR, "votes.txt")
+    out_name = pj(dest, "votes.txt")
     out_stream = file(out_name, 'wt')
     def write(line):
         out_stream.write('%s\n' % line)
@@ -122,6 +122,10 @@ def export_votes(N):
     fields = "author_id post_id vote_type vote_date".split()
 
     write("\t".join(fields))
+
+    v_count = models.Vote.objects.all().count()
+
+    print ("*** exporting %s votes" % v_count)
 
     for vote in models.Vote.objects.all()[:limit]:
 
@@ -136,9 +140,8 @@ def export_votes(N):
 
 if __name__ == '__main__':
     import optparse
-    usage = """usage: %prog [options]
 
-BIOSTAR_MIGRATE_DIR=""" + MIGRATE_DIR
+    usage = "usage: %prog [options]"
 
     parser = optparse.OptionParser(usage=usage)
     parser.add_option("-u", "--users", dest="users", action="store_true", help="prints the users to the standard out", default=0)
@@ -146,18 +149,25 @@ BIOSTAR_MIGRATE_DIR=""" + MIGRATE_DIR
     parser.add_option("-v", "--votes", dest="votes", action="store_true", help="prints the votes to the standard out", default=0)
 
     parser.add_option("-n", dest="N", type=int, help="limits to N users", default=0)
+    parser.add_option("-d", dest="dir",  help="limits to N users", default="~/tmp/biostar-migrate")
 
     (opts, args) = parser.parse_args()
 
-    print ("migration work directory: %s" % MIGRATE_DIR)
+    opts.dir = os.path.expanduser(opts.dir)
+
+    # Create the directory if does not exists.
+    if not os.path.isdir(opts.dir):
+        os.makedirs(opts.dir)
 
     if opts.users:
-        export_users(opts.N)
+        export_users(opts.N, opts.dir)
 
     if opts.posts:
-        export_posts(opts.N)
+        export_posts(opts.N, opts.dir)
 
     if opts.votes:
-        export_votes(opts.N)
+        export_votes(opts.N, opts.dir)
+
+    print ("*** data exported to: %s" % opts.dir)
 
 
