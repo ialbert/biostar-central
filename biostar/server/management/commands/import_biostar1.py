@@ -11,7 +11,7 @@ from django.utils import timezone, encoding
 from django.db import transaction
 from itertools import *
 from django.db.models import signals
-
+from biostar.const import now
 
 def path_join(*args):
     return os.path.abspath(os.path.join(*args))
@@ -132,11 +132,10 @@ class Command(BaseCommand):
         log("migrating posts from %s" % fname)
         stream = csv.DictReader(file(fname), delimiter=b'\t')
 
-        seen = set()
         for i, row in enumerate(stream):
             title = to_unicode(row['title'])
-
-            log("migrating %s: %s" % (i, title))
+            uid = row['id']
+            log("migrating %s: %s" % (uid, title))
             post = get_post(row, users, klass=Post)
 
             if not post:
@@ -146,14 +145,12 @@ class Command(BaseCommand):
             post_file = path_join(source, 'posts', str(post.id))
             post.content = file(post_file, 'rt').read()
 
-            seen.add(post.id)
-
-            # In a few cases the parent id may be missing
-            if post.parent_id not in seen:
+            try:
+                post.save()
+            except Exception, exc:
                 log('*** error inserting post %s' % post.id)
+                log("*** %s" % exc)
                 continue
-
-            post.save()
 
             # TODO migrate only tags with high count
             post.add_tags(post.tag_val)
@@ -219,6 +216,10 @@ class Command(BaseCommand):
             prof.about_me = file(about_me_file, 'rt').read()
             prof.save()
 
+            if (now() - prof.last_login).weeks > 25 and (user.type != User.NEW_USER):
+                user.type = User.NEW_USER
+                user.save()
+
             log("migrated user %s:%s" % (user.id, user.email))
 
         if settings.DEBUG:
@@ -239,17 +240,22 @@ class Command(BaseCommand):
     def migrate_votes(self, source, fname):
         log = self.stdout.write
 
-        from biostar.apps.posts.models import Vote
+        from biostar.apps.posts.models import Post, Vote
 
         VOTE_TYPE_MAP = {
             "Upvote": Vote.UP, "Downvote": Vote.DOWN,
             "Accept": Vote.ACCEPT, "Bookmark": Vote.BOOKMARK,
         }
 
-
         Vote.objects.all().delete()
 
+        posts = Post.objects.all().values_list('id')
+        seen = set(p[0] for p in posts)
+
+        log("loaded %s post ids" % len(seen) )
+
         log("migrating votes from %s" % fname)
+
 
         user_map = dict((u.id, u) for u in User.objects.all())
 
@@ -270,8 +276,12 @@ class Command(BaseCommand):
                 vote_date = get(row, 'vote_date')
                 vote_date = localize_time(vote_date)
 
+                if post_id not in seen:
+                    continue
+
                 # Create the vote.
                 vote = Vote(author=author, post_id=post_id, type=vote_type, date=vote_date)
+
                 yield vote
 
         # Insert votes in batch. Bypasses the signals!

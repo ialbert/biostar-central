@@ -20,10 +20,19 @@
 
                     <h4>Server Stats</h4>
 
-                    Content: <b>{{ user_count|intcomma }}</b> users have created <b>{{ post_count|intcomma }}</b> posts,
-                    distributed
-                    as <b>{{ question_count|intcomma }}</b> questions,<b> {{ answer_count|intcomma }}</b> answers and
-                    <b>{{ comment_count|intcomma }}</b> comments.
+                    <p>Traffic: <b>{{ TRAFFIC|intcomma }}</b> users visited in the last hour.</p>
+
+
+                    <p>The site has <b>{{ user_count|intcomma }}</b> users that created
+                        <b>{{ post_count|intcomma }}</b> posts</li>
+                    </p>
+                    <p>
+                        These are distributed as <b>{{ question_count|intcomma }}</b>
+                        questions,<b> {{ answer_count|intcomma }}</b> answers
+                        and <b>{{ comment_count|intcomma }}</b> comments.
+                    </p>
+
+
                 </div>
 
                 <h4>Site Admins</h4>

@@ -1,5 +1,5 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
-import logging, datetime
+import logging
 from django import forms
 from django.db import models
 from django.conf import settings
@@ -12,6 +12,7 @@ from biostar.apps import util
 import bleach
 from django.core.urlresolvers import reverse
 from django.contrib.sites.models import Site
+from datetime import datetime
 
 # HTML sanitization parameters.
 ALLOWED_TAGS = bleach.ALLOWED_TAGS + settings.ALLOWED_TAGS
@@ -21,6 +22,8 @@ ALLOWED_ATTRIBUTES.update(settings.ALLOWED_ATTRIBUTES)
 
 logger = logging.getLogger(__name__)
 
+def now():
+    return datetime.utcnow().replace(tzinfo=utc)
 
 class LocalManager(UserManager):
 
@@ -77,8 +80,8 @@ class User(AbstractBaseUser):
     # Activity score computed over a shorter period.
     score = models.IntegerField(default=0)
 
-    # User total reputation.
-    full_score = models.IntegerField(default=0)
+    # User's recent activity level.
+    activity = models.IntegerField(default=0)
 
     # Display next to a user name.
     flair = models.CharField(verbose_name='Flair', max_length=15, default="")
@@ -199,7 +202,7 @@ class Profile(models.Model):
         if not self.id:
             # This runs only once upon object creation.
             self.uuid = util.make_uuid()
-            self.date_joined = self.date_joined or datetime.datetime.utcnow().replace(tzinfo=utc)
+            self.date_joined = self.date_joined or now()
             self.last_login = self.date_joined
 
         super(Profile, self).save(*args, **kwargs)

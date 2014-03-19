@@ -19,10 +19,16 @@ class Migration(SchemaMigration):
         db.send_create_signal(u'posts', ['Data'])
 
 
+        # Changing field 'Post.title'
+        db.alter_column(u'posts_post', 'title', self.gf('django.db.models.fields.CharField')(max_length=200))
+
     def backwards(self, orm):
         # Deleting model 'Data'
         db.delete_table(u'posts_data')
 
+
+        # Changing field 'Post.title'
+        db.alter_column(u'posts_post', 'title', self.gf('django.db.models.fields.CharField')(max_length=140))
 
     models = {
         u'posts.data': {
@@ -56,7 +62,7 @@ class Migration(SchemaMigration):
             'tag_set': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['posts.Tag']", 'symmetrical': 'False', 'blank': 'True'}),
             'tag_val': ('django.db.models.fields.CharField', [], {'default': "u''", 'max_length': '100', 'blank': 'True'}),
             'thread_score': ('django.db.models.fields.IntegerField', [], {'default': '0', 'db_index': 'True', 'blank': 'True'}),
-            'title': ('django.db.models.fields.CharField', [], {'max_length': '140'}),
+            'title': ('django.db.models.fields.CharField', [], {'max_length': '200'}),
             'type': ('django.db.models.fields.IntegerField', [], {'db_index': 'True'}),
             'view_count': ('django.db.models.fields.IntegerField', [], {'default': '0', 'blank': 'True'}),
             'vote_count': ('django.db.models.fields.IntegerField', [], {'default': '0', 'db_index': 'True', 'blank': 'True'})
@@ -98,10 +104,10 @@ class Migration(SchemaMigration):
         },
         u'users.user': {
             'Meta': {'object_name': 'User'},
+            'activity': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'badges': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'email': ('django.db.models.fields.EmailField', [], {'unique': 'True', 'max_length': '255', 'db_index': 'True'}),
             'flair': ('django.db.models.fields.CharField', [], {'default': "u''", 'max_length': '15'}),
-            'full_score': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'is_active': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'is_admin': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),

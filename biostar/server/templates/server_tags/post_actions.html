@@ -33,4 +33,10 @@
         </div>
     {% endif %}
 
+    <span class="userlink text-right">
+        {% if post.author != post.lastedit_user %}
+            modified {{ post.lastedit_date|time_ago }} by {% userlink post.lastedit_user %} &bull;
+        {% endif %}
+        written {{ post.creation_date|time_ago }} by {% userlink post.author %}
+    </span>
 </div>
