@@ -23,7 +23,7 @@ START_CATEGORIES = [
 
 # These should be the most frequent (or special) tags on the site.
 NAVBAR_TAGS = [
-    "Assembly", "RNA-Seq", "ChIP-Seq", "SNP-Calling", "Galaxy",
+    "Assembly", "RNA-Seq", "ChIP-Seq", "SNP", "Galaxy",
 ]
 
 # The last categories. These tags have special meaning internally.

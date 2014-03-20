@@ -216,10 +216,6 @@ class Command(BaseCommand):
             prof.about_me = file(about_me_file, 'rt').read()
             prof.save()
 
-            if (now() - prof.last_login).weeks > 25 and (user.type != User.NEW_USER):
-                user.type = User.NEW_USER
-                user.save()
-
             log("migrated user %s:%s" % (user.id, user.email))
 
         if settings.DEBUG:
