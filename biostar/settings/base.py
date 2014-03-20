@@ -377,6 +377,9 @@ POST_VIEW_MINUTES = 5
 # Default  expiration in seconds.
 CACHE_TIMEOUT = 60
 
+# Should the messages go to email by default?
+DEFAULT_EMAIL_ON = False
+
 # Django precompressor settings.
 COMPRESS_PRECOMPILERS = (
     ('text/coffeescript', 'coffee --compile --stdio'),

@@ -8,6 +8,11 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
+        # Adding field 'Profile.flag'
+        db.add_column(u'users_profile', 'flag',
+                      self.gf('django.db.models.fields.IntegerField')(default=0),
+                      keep_default=False)
+
         # Deleting field 'User.full_score'
         db.delete_column(u'users_user', 'full_score')
 
@@ -18,6 +23,9 @@ class Migration(SchemaMigration):
 
 
     def backwards(self, orm):
+        # Deleting field 'Profile.flag'
+        db.delete_column(u'users_profile', 'flag')
+
         # Adding field 'User.full_score'
         db.add_column(u'users_user', 'full_score',
                       self.gf('django.db.models.fields.IntegerField')(default=0),
@@ -37,6 +45,7 @@ class Migration(SchemaMigration):
         u'users.profile': {
             'Meta': {'object_name': 'Profile'},
             'date_joined': ('django.db.models.fields.DateTimeField', [], {}),
+            'flag': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'info': ('django.db.models.fields.TextField', [], {'default': "u''", 'null': 'True', 'blank': 'True'}),
             'last_login': ('django.db.models.fields.DateTimeField', [], {}),

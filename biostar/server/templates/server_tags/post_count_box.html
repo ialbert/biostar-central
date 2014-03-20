@@ -45,6 +45,10 @@
             <a href="{{ post.get_absolute_url }}">{{ post.get_title }}</a>
         </div>
 
+        {% if context %}
+            <div class="context">... {{ context|safe }} ...</div>
+        {% endif %}
+
         <div class="clearfix">
 
             <span class="tags tag-pad visible-lg visible-md">
@@ -53,15 +57,13 @@
             {% endfor %}
             </span>
             <span class="userlink text-right">
-            {{ post.creation_date|time_ago }} by {% userlink post.author %}
+            written {{ post.creation_date|time_ago }} by {% userlink post.author %}
                 {% if post.author != post.lastedit_user %}
                     &bull; updated {{ post.lastedit_date|time_ago }} by {% userlink post.lastedit_user %}
                 {% endif %}
             </span>
 
         </div>
-        {% if context %}
-            <div class="context">... {{ context|safe }} ...</div>
-        {% endif %}
+
     </div>
 </div>
