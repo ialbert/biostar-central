@@ -320,7 +320,7 @@ MAX_POSTS_NEW_USER = 5
 MAX_POSTS_TRUSTED_USER = 30
 
 # How many top level posts per day for a new user.
-MAX_TOP_POSTS_NEW_USER = 1
+MAX_TOP_POSTS_NEW_USER = 2
 MAX_TOP_POSTS_TRUSTED_USER = 5
 
 # Customize this to match the providers listed in the APPs

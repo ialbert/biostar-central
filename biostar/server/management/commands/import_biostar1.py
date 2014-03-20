@@ -213,7 +213,7 @@ class Command(BaseCommand):
             prof.date_joined = localize_time(date_joined)
             prof.last_login = localize_time(last_visited)
             about_me_file = path_join(source, 'about_me', str(uid))
-            prof.about_me = file(about_me_file, 'rt').read()
+            prof.info = file(about_me_file, 'rt').read()
             prof.save()
 
             log("migrated user %s:%s" % (user.id, user.email))

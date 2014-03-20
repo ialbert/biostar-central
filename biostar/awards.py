@@ -7,6 +7,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 def init_awards():
     "Initializes the badges"
     from biostar.apps.badges.models import Badge
@@ -23,19 +24,26 @@ def init_awards():
             badge.save()
 
         if created:
-             logger.info("initializing badge %s" % badge)
+            logger.info("initializing badge %s" % badge)
+
 
 @app.task
 # Tries to award a badge to the user
 def create_post_award(user):
     pass
 
+
 @app.task
 # Tries to award a badge to the user
 def create_user_award(user):
-    "The callback is a function that called at the end of awardin"
+    from biostar.apps.users.models import User
     from biostar.apps.badges.models import Badge, Award
     from biostar.apps.badges.award_defs import ALL_AWARDS
+
+    # Update user types.
+    if (user.type == User.NEW_USER) and (user.score > 10):
+        user.type = User.TRUSTED
+        user.save()
 
     # Debug only
     #Award.objects.all().delete()
