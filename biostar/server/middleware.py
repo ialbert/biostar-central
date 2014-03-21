@@ -20,13 +20,18 @@ from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
 class AutoSignupAdapter(DefaultSocialAccountAdapter):
 
     def pre_social_login(self, request, sociallogin):
+
+        # This social login already exists.
+        if sociallogin.is_existing:
+            return
+
+        # Check if we could/should connect it.
         try:
             email = sociallogin.account.extra_data.get('email')
-            verified = sociallogin.account.extra_data.get('verified_email')
-            if email and verified:
+            #verified = sociallogin.account.extra_data.get('verified_email')
+            if email:
                 user = User.objects.get(email=email)
-                if not sociallogin.is_existing:
-                    sociallogin.connect(request, user)
+                sociallogin.connect(request, user)
         except User.DoesNotExist:
             pass
 

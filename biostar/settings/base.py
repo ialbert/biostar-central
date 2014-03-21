@@ -254,9 +254,8 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'allauth.socialaccount.providers.persona',
     'allauth.socialaccount.providers.google',
-    'allauth.socialaccount.providers.twitter',
     'allauth.socialaccount.providers.facebook',
-    #'allauth.socialaccount.providers.github',
+    'allauth.socialaccount.providers.github',
     #'allauth.socialaccount.providers.linkedin',
     #'allauth.socialaccount.providers.weibo',
 
@@ -325,7 +324,6 @@ MAX_TOP_POSTS_TRUSTED_USER = 5
 
 SOCIALACCOUNT_ADAPTER = 'biostar.server.middleware.AutoSignupAdapter'
 
-
 # Customize this to match the providers listed in the APPs
 SOCIALACCOUNT_PROVIDERS = {
 
@@ -338,14 +336,14 @@ SOCIALACCOUNT_PROVIDERS = {
         'PROVIDER_SECRET_KEY': get_env("FACEBOOK_PROVIDER_SECRET_KEY"),
     },
 
-    'twitter': {
-        'SCOPE': ['email'],
-        'PROVIDER_KEY': get_env("TWITTER_PROVIDER_KEY"),
-        'PROVIDER_SECRET_KEY': get_env("TWITTER_PROVIDER_SECRET_KEY"),
-    },
-
     'persona': {
         'REQUEST_PARAMETERS': {'siteName': 'Biostar'}
+    },
+
+    'github': {
+        'SCOPE': ['email'],
+        'PROVIDER_KEY': get_env("GITHUB_PROVIDER_KEY"),
+        'PROVIDER_SECRET_KEY': get_env("GITHUB_PROVIDER_SECRET_KEY"),
     },
 
     'google': {

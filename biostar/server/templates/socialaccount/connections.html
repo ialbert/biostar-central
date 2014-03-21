@@ -13,20 +13,19 @@
 
             <div>
                 You can connect a social account to this site account.
-            </div>
-            <div>
                 This will allow you to log in more quickly from all of your devices.
             </div>
 
             <div>
-                Our access is for authentication only. We can't access your timeline, see your friends or post on your behalf.
+                Our access is for authentication only. We can't access your timeline, see your friends or post on your
+                behalf.
             </div>
-            <ul style="padding:10px">
-
-                <li><a href="{% provider_login_url "twitter" process="connect" %}">Connect Twitter account</a></li>
-                <li><a href="{% provider_login_url "google" process="connect" %}">Connect Google account</a></li>
-                <li><a href="{% provider_login_url "facebook" process="connect" %}">Connect Facebook account</a></li>
-            </ul>
+            <div class="socialaccount_ballot">
+                <ul class="socialaccount_providers">
+                    {% include "socialaccount/snippets/provider_list.html" with process="connect" %}
+                </ul>
+                {% include "socialaccount/snippets/login_extra.html" %}
+            </div>
 
             <h4>List of your connected social accounts </h4>
 
