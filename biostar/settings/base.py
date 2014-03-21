@@ -323,6 +323,9 @@ MAX_POSTS_TRUSTED_USER = 30
 MAX_TOP_POSTS_NEW_USER = 2
 MAX_TOP_POSTS_TRUSTED_USER = 5
 
+SOCIALACCOUNT_ADAPTER = 'biostar.server.middleware.AutoSignupAdapter'
+
+
 # Customize this to match the providers listed in the APPs
 SOCIALACCOUNT_PROVIDERS = {
 

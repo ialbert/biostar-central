@@ -15,6 +15,21 @@ from biostar.awards import create_user_award
 
 logger = logging.getLogger(__name__)
 
+from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
+
+class AutoSignupAdapter(DefaultSocialAccountAdapter):
+
+    def pre_social_login(self, request, sociallogin):
+        try:
+            email = sociallogin.account.extra_data.get('email')
+            verified = sociallogin.account.extra_data.get('verified_email')
+            if email and verified:
+                user = User.objects.get(email=email)
+                if not sociallogin.is_existing:
+                    sociallogin.connect(request, user)
+        except User.DoesNotExist:
+            pass
+
 def valid_external_login(request):
     "Attempts to perform an external login"
 
