@@ -30,8 +30,9 @@
 
             <div id="userlist">
                 {% for user in users %}
-                     {%  user_box user user.profile.date_joined %}
+                     {%  user_box user show_lastlogin%}
                 {% endfor %}
+
             </div>
         </div>
     </div>

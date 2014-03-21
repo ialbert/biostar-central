@@ -261,7 +261,7 @@ class UserList(ListView):
         context['sort'] = self.sort
         context['limit'] = self.limit
         context['q'] = self.q
-
+        context['show_lastlogin'] = (self.sort == const.USER_SORT_DEFAULT)
         return context
 
 class BaseDetailMixin(DetailView):

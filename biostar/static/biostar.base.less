@@ -16,13 +16,17 @@ See the biostar.style.less file for details.
 }
 
 sup {
-  .badge { font-size: 10px; }
+  .badge {
+    font-size: 10px;
+  }
 }
+
 .badge {
   background-color: #5b8c3e;
 }
-#messages {
-  //margin-top: 10px;
+
+.stripe:nth-of-type(odd) {
+  background: #f9f9f9;
 }
 
 .post-action {
@@ -59,14 +63,16 @@ sup {
 
 .tag-pad {
   margin-left: 12em;
-  margin-bottom:2px;
+  margin-bottom: 2px;
 }
+
 #tag-list {
   .tag {
-    margin-top:5px;
+    margin-top: 5px;
     font-size: large;
   }
 }
+
 .tag {
   float: left;
   margin-right: 5px;
@@ -568,13 +574,13 @@ div#navbar {
   }
 }
 
-.post-body{
+.post-body {
 
   .box {
     padding: 10px 0px 10px 0px;
     background-color: #f5f5f5;
     font-size: small;
-    margin-left:10px;
+    margin-left: 10px;
     .loc {
       color: #808080;
     }

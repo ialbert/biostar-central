@@ -176,9 +176,9 @@ def post_user_box(user, date):
     return dict(user=user, date=date)
 
 @register.inclusion_tag('server_tags/user_box.html')
-def user_box(user, date):
+def user_box(user, lastlogin):
     "Renders a user box"
-    return dict(user=user, date=date)
+    return dict(user=user, lastlogin=lastlogin)
 
 @register.inclusion_tag('server_tags/page_bar_sort_posts.html', takes_context=True)
 def page_bar_sort_posts(context):
