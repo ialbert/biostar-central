@@ -30,5 +30,11 @@ def metastars(user="www"):
     env.hosts.append('metastars.org')
     env.user = user
 
+def biostars(user="www"):
+    "Sets the environment for the biostar galaxy"
+    setenv()
+    env.hosts.append('test.biostars.org')
+    env.user = user
+
 def hostname():
     run("hostname")
