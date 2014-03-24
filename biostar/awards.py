@@ -66,12 +66,15 @@ def create_user_award(user):
 
         if valid_count > seen_count:
 
-            # Get the badge
+            # Update the badge counts.
             badge = Badge.objects.get(name=obj.name)
-            badge.count += 1
+            badge.count += (valid_count - seen_count)
             badge.save()
 
             # Create the corresponding awards as many times as needed.
             for x in range(valid_count - seen_count):
                 award = Award.objects.create(user=user, badge=badge)
                 logger.info("award %s created for %s" % (award.badge.name, user.email))
+
+            # Grant one type of award at a time.
+            break
