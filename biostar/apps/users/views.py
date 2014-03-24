@@ -20,7 +20,6 @@ import logging, hmac
 
 logger = logging.getLogger(__name__)
 
-
 class UserEditForm(forms.Form):
     name = forms.CharField()
 

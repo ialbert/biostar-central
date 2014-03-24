@@ -18,6 +18,16 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal(u'posts', ['Data'])
 
+        # Adding field 'Post.html'
+        db.add_column(u'posts_post', 'html',
+                      self.gf('django.db.models.fields.TextField')(default=u''),
+                      keep_default=False)
+
+        # Migrate the posts.
+        if not db.dry_run:
+            for post in orm.Post.objects.all():
+                post.html = post.content
+                post.save()
 
         # Changing field 'Post.title'
         db.alter_column(u'posts_post', 'title', self.gf('django.db.models.fields.CharField')(max_length=200))
@@ -25,6 +35,9 @@ class Migration(SchemaMigration):
     def backwards(self, orm):
         # Deleting model 'Data'
         db.delete_table(u'posts_data')
+
+        # Deleting field 'Post.html'
+        db.delete_column(u'posts_post', 'html')
 
 
         # Changing field 'Post.title'
@@ -48,6 +61,7 @@ class Migration(SchemaMigration):
             'content': ('django.db.models.fields.TextField', [], {'default': "u''"}),
             'creation_date': ('django.db.models.fields.DateTimeField', [], {'db_index': 'True'}),
             'has_accepted': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'html': ('django.db.models.fields.TextField', [], {'default': "u''"}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'lastedit_date': ('django.db.models.fields.DateTimeField', [], {'db_index': 'True'}),
             'lastedit_user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "u'editor'", 'to': u"orm['users.User']"}),

@@ -12,15 +12,14 @@ import bleach
 from django.db.models import Q, F
 from django.core.exceptions import ObjectDoesNotExist
 from biostar import const
+from biostar.apps.util import html
 
 # HTML sanitization parameters.
-ALLOWED_TAGS = bleach.ALLOWED_TAGS + settings.ALLOWED_TAGS
-ALLOWED_STYLES = bleach.ALLOWED_STYLES + settings.ALLOWED_STYLES
-ALLOWED_ATTRIBUTES = dict(bleach.ALLOWED_ATTRIBUTES)
-ALLOWED_ATTRIBUTES.update(settings.ALLOWED_ATTRIBUTES)
 
 logger = logging.getLogger(__name__)
 
+def now():
+    return datetime.datetime.utcnow().replace(tzinfo=utc)
 
 class Tag(models.Model):
     name = models.TextField(max_length=50, db_index=True)
@@ -51,7 +50,6 @@ class TagAdmin(admin.ModelAdmin):
 
 admin.site.register(Tag, TagAdmin)
 
-
 class PostManager(models.Manager):
 
     def my_bookmarks(self, user):
@@ -78,10 +76,14 @@ class PostManager(models.Manager):
 
         if include:
             query = self.filter(type__in=Post.TOP_LEVEL, tag_set__name__in=include).exclude(
-                tag_set__name__in=exclude).defer('content')
+                tag_set__name__in=exclude)
         else:
-            query = self.filter(type__in=Post.TOP_LEVEL).exclude(tag_set__name__in=exclude).defer('content')
+            query = self.filter(type__in=Post.TOP_LEVEL).exclude(tag_set__name__in=exclude)
 
+        # Remove fields that are not used.
+        query = query.defer('content', 'html')
+
+        # Get the tags.
         query = query.select_related("author").prefetch_related("tag_set").distinct()
 
         return query
@@ -94,11 +96,11 @@ class PostManager(models.Manager):
     def top_level(self, user):
         "Returns posts based on a user type"
         if user.is_moderator:
-            query = self.filter(type__in=Post.TOP_LEVEL).defer("content")
+            query = self.filter(type__in=Post.TOP_LEVEL)
         else:
-            query = self.filter(type__in=Post.TOP_LEVEL, status=Post.OPEN).defer("content")
+            query = self.filter(type__in=Post.TOP_LEVEL, status=Post.OPEN)
 
-        return query.select_related("author").prefetch_related("tag_set")
+        return query.select_related("author").prefetch_related("tag_set").defer("content", "html")
 
 
 class Post(models.Model):
@@ -177,8 +179,11 @@ class Post(models.Model):
     # This will maintain parent/child replationships between posts.
     parent = models.ForeignKey('self', null=True, blank=True, related_name='children')
 
-    # This is the sanitized HTML for display.
+    # This is the HTML that the user enters.
     content = models.TextField(default='')
+
+    # This is the  HTML that gets displayed.
+    html = models.TextField(default='')
 
     # The tag value is the canonical form of the post's tags
     tag_val = models.CharField(max_length=100, default="", blank=True)
@@ -262,11 +267,10 @@ class Post(models.Model):
     def save(self, *args, **kwargs):
 
         # Sanitize the post body.
-        self.content = bleach.clean(self.content, tags=ALLOWED_TAGS,
-                                    attributes=ALLOWED_ATTRIBUTES, styles=ALLOWED_STYLES)
+        self.html = html.parse_html(self.content)
 
         # Must add tags with instance method. This is just for safety.
-        self.tag_val = bleach.clean(self.tag_val, tags=[], attributes=[], styles={}, strip=True)
+        self.tag_val = html.strip_tags(self.tag_val)
 
         if not self.id:
 
@@ -286,7 +290,7 @@ class Post(models.Model):
             self.title = self.parent.title if self.parent else self.title
             self.lastedit_user = self.author
             self.status = self.status or Post.PENDING
-            self.creation_date = self.creation_date or datetime.datetime.utcnow().replace(tzinfo=utc)
+            self.creation_date = self.creation_date or now()
             self.lastedit_date = self.creation_date
 
         super(Post, self).save(*args, **kwargs)
