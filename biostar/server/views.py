@@ -250,6 +250,14 @@ class UserList(ListView):
         self.sort = self.request.GET.get('sort', const.USER_SORT_DEFAULT)
         self.limit = self.request.GET.get('limit', const.POST_LIMIT_DEFAULT)
 
+        if self.sort not in const.USER_SORT_MAP:
+            messages.warning(self.request, "Warning! Invalid sort order!")
+            self.sort = const.USER_SORT_DEFAULT
+
+        if self.limit not in const.POST_LIMIT_MAP:
+            messages.warning(self.request, "Warning! Invalid limit applied!")
+            self.limit = const.POST_LIMIT_DEFAULT
+
         # Apply the sort on users
         obj = User.objects.get_users(sort=self.sort, limit=self.limit, q=self.q)
         return obj

@@ -12,7 +12,7 @@ from biostar.apps import util
 import bleach
 from django.core.urlresolvers import reverse
 from django.contrib.sites.models import Site
-from datetime import datetime
+from datetime import datetime, timedelta
 
 # HTML sanitization parameters.
 ALLOWED_TAGS = bleach.ALLOWED_TAGS + settings.ALLOWED_TAGS
@@ -37,7 +37,7 @@ class LocalManager(UserManager):
             query = self
 
         if days:
-            delta = const.now() - datetime.timedelta(days=days)
+            delta = const.now() - timedelta(days=days)
             query = self.filter(profile__last_login__gt=delta)
 
         query = query.select_related("profile").order_by(sort)
