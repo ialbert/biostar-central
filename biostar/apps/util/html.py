@@ -18,16 +18,13 @@ USER_PATTERN = "http://%s/u/(?P<uid>(\d+))" % settings.SITE_DOMAIN
 POST_PATTERN = "http://%s/p/(?P<uid>(\d+))" % settings.SITE_DOMAIN
 
 # These are for debugging only.
-USER_PATTERN = "http://%s/u/(?P<uid>(\d+))" % "abc.com"
-POST_PATTERN = "http://%s/p/(?P<uid>(\d+))" % "abc.com"
+#USER_PATTERN = "http://%s/u/(?P<uid>(\d+))" % "abc.com"
+#POST_PATTERN = "http://%s/p/(?P<uid>(\d+))" % "abc.com"
 
 USER_RE = re.compile(USER_PATTERN)
 POST_RE = re.compile(POST_PATTERN)
 
-# These callback will be applied on html parsing.
-
 def parse_html(text):
-
     from biostar.apps.users.models import User
     from biostar.apps.posts.models import Post
 
@@ -76,34 +73,7 @@ def render(name, **kwds):
     return page
 
 def test():
-    global USER_PATTERN, USER_RE
-
-    # The pattern that matches the user link.
-    USER_PATTERN = "http://%s/u/\d+" % "localhost.com"
-
-    USER_RE = re.compile(USER_PATTERN)
-
-
-    print settings.SITE_DOMAIN
-
-    text = """
-
-    http://localhost.com
-
-    <a href="ABCD">X</a>
-
-
-    """
-
-    html = parse_html(text)
-
-    print text
-
-
-    print '---'
-
-    print html
+    pass
 
 if __name__ == '__main__':
-    import biostar
     test()
