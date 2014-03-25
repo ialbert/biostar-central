@@ -49,6 +49,7 @@ def get_post(row, users, klass):
     POST_TYPE_MAP = {
         "Question": klass.QUESTION, "Answer": klass.ANSWER,
         "Comment": klass.COMMENT, "Job": klass.JOB, "Blog": klass.BLOG,
+        "Tutorial": klass.TUTORIAL,
     }
 
 
@@ -73,7 +74,12 @@ def get_post(row, users, klass):
         return None
 
     post_type = get(row, 'post_type')
+
     post_type = POST_TYPE_MAP.get(post_type, klass.FORUM)
+
+    if post_type == klass.TUTORIAL:
+        tag_val += " tutorial"
+
     post_status = klass.OPEN if get(row, 'post_status') == "Open" else klass.CLOSED
 
     post = klass(id=uid, title=title, author=author, lastedit_user=author,
@@ -139,6 +145,7 @@ class Command(BaseCommand):
             post = get_post(row, users, klass=Post)
 
             if not post:
+                log("skipped %s: %s" % (uid, title))
                 continue
 
             # Read and add the post body.

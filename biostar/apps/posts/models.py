@@ -113,14 +113,15 @@ class Post(models.Model):
     STATUS_CHOICES = [(PENDING, "Pending"), (OPEN, "Open"), (CLOSED, "Closed"), (DELETED, "Deleted")]
 
     # Question types. Answers should be listed before comments.
-    QUESTION, ANSWER, JOB, FORUM, PAGE, BLOG, COMMENT, DATA, ARTICLE = range(9)
+    QUESTION, ANSWER, JOB, FORUM, PAGE, BLOG, COMMENT, DATA, TUTORIAL, BOARD = range(10)
 
     TYPE_CHOICES = [
         (QUESTION, "Question"), (ANSWER, "Answer"), (COMMENT, "Comment"),
-        (JOB, "Job"), (FORUM, "Forum"), (ARTICLE, "Article"), (DATA, "Data"), (PAGE, "Page"), (BLOG, "Blog"),
+        (JOB, "Job"), (FORUM, "Forum"), (TUTORIAL, "Tutorial"), (DATA, "Data"), (PAGE, "Page"),
+        (BLOG, "Blog"), (BOARD, "Bulletin Board")
     ]
 
-    TOP_LEVEL = set((QUESTION, JOB, FORUM, PAGE, BLOG, DATA))
+    TOP_LEVEL = set((QUESTION, JOB, FORUM, PAGE, BLOG, DATA, TUTORIAL, BOARD))
 
     title = models.CharField(max_length=200, null=False)
 
