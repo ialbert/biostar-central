@@ -7,29 +7,42 @@ from django.db.models.loading import get_app
 from StringIO import StringIO
 from django.core.management.base import BaseCommand, CommandError
 import os
+from optparse import make_option
 
 os.environ['DJANGO_COLORS'] = 'nocolor'
 
 class Command(BaseCommand):
     help = 'Resets the SQL sequence ids'
 
-    def handle(self, *args, **options):
-        main()
+    option_list = BaseCommand.option_list + (
+        make_option('--drop_index', dest='drop_index', action='store_true', default=False, help='drops the index'),
+        make_option('--add_index', dest='add_index', action='store_true', default=False, help='adds the index'),
+        make_option('--reset', dest='reset', action='store_true', default=False, help='reset sequences'),
+    )
 
-def main():
+    def handle(self, *args, **options):
+
+        if options['drop_index']:
+            sql_command("sqldropindexes", "posts")
+
+        if options['add_index']:
+            sql_command("sqlindexes", "posts")
+
+        if options['reset']:
+            sql_command("sqlsequencereset", "users posts")
+
+def sql_command(command, apps):
     commands = StringIO()
     cursor = connection.cursor()
-    targets = settings.INSTALLED_APPS
 
-    targets = "biostar.apps.users biostar.apps.posts".split()
+    targets = apps.split()
 
     for app in targets:
         label = app.split('.')[-1]
         if get_app(label, emptyOK=True):
-            call_command('sqlsequencereset', label, stdout=commands)
+            call_command(command, label, stdout=commands)
 
     sql = commands.getvalue()
     print sql
     cursor.execute(sql)
-
 

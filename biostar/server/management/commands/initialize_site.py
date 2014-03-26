@@ -77,8 +77,10 @@ def init_domain():
         logger.info("adding site=%s, name=%s, domain=%s" % (site.id, site.name, site.domain))
 
     # Initialize media folder
-    if not os.path.isdir(settings.MEDIA_ROOT):
-        os.mkdir(settings.MEDIA_ROOT)
+    for path in (settings.EXPORT_DIR, settings.MEDIA_ROOT):
+        if not os.path.isdir(path):
+            os.mkdir(path)
+
 
 def init_social_providers():
     # Initialize social login providers.
