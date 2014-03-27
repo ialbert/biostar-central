@@ -42,7 +42,7 @@
 
     <div class="title-box clearfix">
         <div class="post-title">
-            <a href="{{ post.get_absolute_url }}">{{ post.get_title }}</a>
+            <a href="{{ post.get_absolute_url }}">{{ post.get_title|truncatechars:75 }}</a>
         </div>
 
         {% if context %}

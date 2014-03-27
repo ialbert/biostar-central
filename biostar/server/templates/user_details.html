@@ -73,7 +73,11 @@
                     <dd>{{ target.profile.location }}</dd>
 
                     <dt>Website:</dt>
-                    <dd><a href="{{ target.profile.website }}">{{ target.profile.website }}</a></dd>
+                    <dd>
+                        {%  if target.profile.website %}
+                        <a href="{{ target.profile.website }}">{{ target.profile.website|truncatechars:25 }}</a>
+                        {% endif %}
+                    </dd>
 
                     <dt>Last seen:</dt>
                     <dd>{{ target.profile.last_login|naturaltime }}</dd>
