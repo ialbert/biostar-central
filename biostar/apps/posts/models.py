@@ -53,12 +53,14 @@ admin.site.register(Tag, TagAdmin)
 class PostManager(models.Manager):
 
     def my_bookmarks(self, user):
-        query = self.filter(votes__author=user, votes__type=Vote.BOOKMARK).select_related("author")
+        query = self.filter(votes__author=user, votes__type=Vote.BOOKMARK)
+        query = query.select_related("root", "author", "lastedit_user")
         query = query.prefetch_related("tag_set")
         return query
 
     def my_posts(self, user):
-        query = self.filter(author=user).select_related("author")
+        query = self.filter(author=user)
+        query = query.select_related("root", "author", "lastedit_user")
         query = query.prefetch_related("tag_set")
         return query
 
@@ -84,13 +86,13 @@ class PostManager(models.Manager):
         query = query.defer('content', 'html')
 
         # Get the tags.
-        query = query.select_related("author").prefetch_related("tag_set").distinct()
+        query = query.select_related("root", "author", "lastedit_user").prefetch_related("tag_set").distinct()
 
         return query
 
     def get_thread(self, root):
         # Populate the object to build a tree that contains all posts in the thread.
-        query = self.filter(root=root).select_related("root author").order_by("type", "-has_accepted", "-vote_count", "creation_date")
+        query = self.filter(root=root).select_related("root", "author", "lastedit_user").order_by("type", "-has_accepted", "-vote_count", "creation_date")
         return query
 
     def top_level(self, user):
@@ -100,7 +102,7 @@ class PostManager(models.Manager):
         else:
             query = self.filter(type__in=Post.TOP_LEVEL, status=Post.OPEN)
 
-        return query.select_related("author").prefetch_related("tag_set").defer("content", "html")
+        return query.select_related("root", "author", "lastedit_user").prefetch_related("tag_set").defer("content", "html")
 
 
 class Post(models.Model):
