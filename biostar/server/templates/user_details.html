@@ -15,6 +15,13 @@
 
             <div class="col-md-12">
                 <h2 class="text-center">{{ target.get_type_display }}: {{ target.name }}</h2>
+                {% if target.has_ownership and target.missing_info %}
+                    <div class="alert alert-warning text-center">
+                    There are missing entries in your profile. People here want to know you better
+                    <a href="{% url "user-edit" target.id %}" class="btn btn-success" role="button" href="#">Edit
+                            Your Profile</a>
+                    </div>
+                {%  endif %}
             </div>
 
             <div class="col-md-3">

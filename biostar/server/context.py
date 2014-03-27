@@ -62,6 +62,7 @@ def shortcuts(request):
         "TRAFFIC": get_traffic(),
         'RECENT_REPLIES': get_recent_replies(),
         'RECENT_VOTES': get_recent_votes(),
+        "RECENT_USERS":  get_recent_users(),
         'USE_COMPRESSOR': settings.USE_COMPRESSOR,
         'COUNTS': request.session.get(settings.SESSION_KEY, {}),
         'SITE_ADMINS': settings.ADMINS,

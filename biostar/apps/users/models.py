@@ -176,7 +176,7 @@ class Profile(models.Model):
     date_joined = models.DateTimeField()
 
     # User provided location.
-    location = models.CharField(default=" ", max_length=255, blank=True)
+    location = models.CharField(default="", max_length=255, blank=True)
 
     # User provided website.
     website = models.URLField(default="", max_length=255, blank=True)
@@ -203,6 +203,10 @@ class Profile(models.Model):
         self.info = bleach.clean(self.info, tags=ALLOWED_TAGS,
                                  attributes=ALLOWED_ATTRIBUTES, styles=ALLOWED_STYLES)
 
+
+        # Strip whitespace from location string
+        self.location = self.location.strip()
+
         if not self.id:
             # This runs only once upon object creation.
             self.uuid = util.make_uuid()
@@ -213,6 +217,9 @@ class Profile(models.Model):
 
     def __unicode__(self):
         return "%s" % self.user.name
+
+    def missing_info(self):
+        return len(self.profile.location.strip()) == 0 or len(self.profile.info.strip()) == 0
 
     @staticmethod
     def auto_create(sender, instance, created, *args, **kwargs):

@@ -21,12 +21,12 @@ import logging, hmac
 logger = logging.getLogger(__name__)
 
 class UserEditForm(forms.Form):
-    name = forms.CharField()
+    name = forms.CharField(help_text="The name displayed on the site (required)")
 
-    email = forms.EmailField()
+    email = forms.EmailField(help_text="Your email, it will not be visible to other users (required)")
 
     location = forms.CharField(required=False,
-                               help_text="Location/Institution (optional)")
+                               help_text="Country/City/Institution (recommended)")
 
     website = forms.URLField(required=False, max_length=200,
                              help_text="The URL to your website (optional)")
@@ -41,7 +41,7 @@ class UserEditForm(forms.Form):
                                       help_text="The default setting for notifications when you contribute to a thread")
 
     info = forms.CharField(widget=forms.Textarea, required=False,
-                           help_text="A brief description about yourself (optional)")
+                           help_text="A brief description about yourself (recommended)")
 
     def __init__(self, *args, **kwargs):
         super(UserEditForm, self).__init__(*args, **kwargs)

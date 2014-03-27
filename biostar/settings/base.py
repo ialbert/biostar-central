@@ -85,7 +85,7 @@ WHOOSH_INDEX = abspath(LIVE_DIR, "whoosh_index")
 # The default password is the SECRET_KEY.
 ADMIN_NAME = get_env("BIOSTAR_ADMIN_NAME")
 ADMIN_EMAIL = get_env("BIOSTAR_ADMIN_EMAIL")
-
+ADMIN_LOCATION = "State College, USA"
 ADMINS = (
     (ADMIN_NAME, ADMIN_EMAIL),
 )
@@ -139,7 +139,7 @@ LANGUAGE_CODE = 'en-us'
 
 # These parameters will be inserted into the database automatically.
 SITE_ID = 1
-SITE_NAME = "localhost"
+SITE_NAME = "Site Name"
 SITE_DOMAIN = get_env("BIOSTAR_HOSTNAME")
 
 SERVER_EMAIL = DEFAULT_FROM_EMAIL = get_env("DEFAULT_FROM_EMAIL")

@@ -9,6 +9,10 @@ The importing LESS file must have certain constants and variables set.
 See the biostar.style.less file for details.
 */
 
+body {
+  font-size: 13px;
+}
+
 .btn-success {
   color: #fff;
   //border-color: darken(@MUTED_BACKGROUND, 1%);
@@ -107,7 +111,7 @@ sup {
 
 #post-list {
   .post-row:nth-of-type(odd) {
-    background: #f9f9f9;
+    //background: #f9f9f9;
   }
 }
 
@@ -126,7 +130,7 @@ sup {
     //margin-left:12em;
   }
 
-  padding: 5px;
+  padding: 5px 5px 5px 0px;
 
   border-top: 1px solid #ECECEC;
 
@@ -156,14 +160,25 @@ sup {
   }
   .box.vote {
     //border:1px solid #ECECEC;
+    background-color: #eeeeee;
   }
 
 }
 
 .userlink {
   float: right;
-  color: #808080;
+
   font-size: small;
+}
+
+.ago {
+  color: #808080;
+}
+
+.title-box {
+  .ago {
+    font-weight: bold;
+  }
 }
 
 table#posts {
@@ -409,7 +424,7 @@ ul.flat {
   .entry {
 
     overflow: scroll;
-    overflow:hidden;
+    overflow: hidden;
     padding: 0px 10px 0px 5px;
     margin-top: 0.3em;
     color: #666666;
@@ -576,6 +591,10 @@ div#navbar {
   border: 1px solid #d3d3d3;
 }
 
+.subtle {
+  color: #808080;
+}
+
 #userlist {
   .box {
     padding: 10px 0px 10px 0px;
@@ -618,7 +637,7 @@ div#navbar {
 
 .content {
   overflow: scroll;
-  overflow:hidden;
+  overflow: hidden;
 }
 
 .context {
