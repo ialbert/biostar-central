@@ -7,26 +7,25 @@
 # Usage: migrate filename
 #
 
-
 set -ue
 
+FNAME=latest.sql.gz
 
-FNAME=$1
+REMOTE_SQL="biostar@biostars.org:~/data/$FNAME"
+LOCAL_SQL=import/$FNAME
+MIGRATE_DIR=/tmp/migrate
 
-REMOTE="biostar@biostars.org:~/data/$FNAME"
-LOCAL=import/$FNAME
-
-echo "*** fetching $REMOTE"
+echo "*** fetching $REMOTE_SQL to $LOCAL_SQL"
 
 # Pull the latest file from remote, this is a postgres datadump
-rsync -avz --rsh='ssh' $REMOTE $LOCAL
+rsync -avz --rsh='ssh' $REMOTE_SQL $LOCAL_SQL
 
 # Prepare the environment
 source conf/default.env
 source conf/migrate.env
 
 # Drop the old database and import the new values
-./biostar.sh pgdrop pgcreate pgimport $LOCAL
+./biostar.sh pgdrop pgcreate pgimport $LOCAL_SQL
 
 # Export the data into a directory
-python -m main.bin.export -u -p -v -d /tmp/full
+python -m main.bin.export -u -p -v -d $MIGRATE_DIR -n 100

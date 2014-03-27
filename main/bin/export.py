@@ -6,10 +6,13 @@ import sys, os, shutil
 from main.server import models
 pj = os.path.join
 
-def export_users(N, dest):
+def export_users(N, dest, since):
     workdir = pj(dest, "about_me")
     out_name = pj(dest, "users.txt")
-    out_stream = file(out_name, 'wt')
+
+    mode = 'at' if since else 'wt'
+    out_stream = file(out_name, mode)
+
     def write(line):
         out_stream.write('%s\n' % line)
 
@@ -22,10 +25,17 @@ def export_users(N, dest):
 
     write("\t".join(fields))
 
-    for user in models.User.objects.all().select_related("profile").order_by('id')[:limit]:
+    if since:
+        users = models.User.objects.filter(date_joined__gt=since).select_related("profile").order_by('id')
+    else:
+        users = models.User.objects.all().select_related("profile").order_by('id')[:limit]
+
+    print ("*** found %s users" % users.count() )
+
+    for user in users:
         p = user.profile
-        fp = file(pj(workdir, str(user.id)), "wt")
-        about_me = p.about_me or ''
+        fp = file(pj(workdir, str(user.id)), "at")
+        about_me = p.about_me_html or ''
         website = p.website or ''
         location = p.location or ''
         fp.write(about_me.encode("utf", "replace"))
@@ -50,11 +60,13 @@ def to_unicode_or_bust(obj, encoding='utf-8'):
             obj = unicode(obj, encoding)
     return obj
 
-def export_posts(N, dest):
+def export_posts(N, dest, since):
     workdir = pj(dest, "posts")
 
     out_name = pj(dest, "posts.txt")
-    out_stream = file(out_name, 'wt')
+    mode = 'at' if since else 'wt'
+    out_stream = file(out_name, mode)
+
     def write(line):
         line = line.encode("utf8")
         out_stream.write('%s\n' % line)
@@ -70,18 +82,24 @@ def export_posts(N, dest):
     write("\t".join(fields))
 
     pcount = limit or models.Post.objects.all().count()
-    stream = models.Post.objects.all().order_by('id')[:limit]
+
+    if since:
+        posts = models.Post.objects.filter(creation_date__gt=since).order_by('id')
+    else:
+        posts = models.Post.objects.all().order_by('id')[:limit]
 
     tags = models.Tag.objects.all()
     tags = filter(lambda t: t.count > 10, tags)
     tags = map(lambda t: t.name, tags)
     keep = set(tags)
 
-    for index, post in enumerate(stream):
+    print ("*** exporting %s posts" % posts.count())
+
+    for index, post in enumerate(posts):
 
         try:
             # Help gauging the rate of import
-            print ("*** exporting post %s (%2.1f%%)" % (post.id, (100.0 * index/pcount)))
+            #print ("*** exporting post %s (%2.1f%%)" % (post.id, (100.0 * index/pcount)))
             title = to_unicode_or_bust(post.title)
             title = title.replace("\t", " ")
             html = to_unicode_or_bust(post.html)
@@ -110,10 +128,11 @@ def export_posts(N, dest):
 
     print ("*** wrote posts into %s" % out_name)
 
-def export_votes(N, dest):
+def export_votes(N, dest, since):
 
     out_name = pj(dest, "votes.txt")
     out_stream = file(out_name, 'wt')
+
     def write(line):
         out_stream.write('%s\n' % line)
 
@@ -123,11 +142,11 @@ def export_votes(N, dest):
 
     write("\t".join(fields))
 
-    v_count = models.Vote.objects.all().count()
+    votes = models.Vote.objects.all()[:limit]
 
-    print ("*** exporting %s votes" % v_count)
+    print ("*** exporting %s votes" % votes.count())
 
-    for vote in models.Vote.objects.all()[:limit]:
+    for vote in votes:
 
         data = [
             vote.author.id, vote.post.id, vote.get_type_display(), vote.date
@@ -140,6 +159,7 @@ def export_votes(N, dest):
 
 if __name__ == '__main__':
     import optparse
+    from datetime import datetime, timedelta
 
     usage = "usage: %prog [options]"
 
@@ -149,24 +169,32 @@ if __name__ == '__main__':
     parser.add_option("-v", "--votes", dest="votes", action="store_true", help="prints the votes to the standard out", default=0)
 
     parser.add_option("-n", dest="N", type=int, help="limits to N users", default=0)
+
+    parser.add_option("-w", dest="weeks", type=int, help="limits to last N weeks", default=0)
+
     parser.add_option("-d", dest="dir",  help="limits to N users", default="~/tmp/biostar-migrate")
 
     (opts, args) = parser.parse_args()
 
     opts.dir = os.path.expanduser(opts.dir)
 
+    if opts.weeks:
+        since = datetime.now() - timedelta(weeks=opts.weeks)
+    else:
+        since = None
+
     # Create the directory if does not exists.
     if not os.path.isdir(opts.dir):
         os.makedirs(opts.dir)
 
     if opts.users:
-        export_users(opts.N, opts.dir)
+        export_users(N=opts.N, dest=opts.dir, since=since)
 
     if opts.posts:
-        export_posts(opts.N, opts.dir)
+        export_posts(N=opts.N, dest=opts.dir, since=since)
 
     if opts.votes:
-        export_votes(opts.N, opts.dir)
+        export_votes(N=opts.N, dest=opts.dir, since=since)
 
     print ("*** data exported to: %s" % opts.dir)
 
