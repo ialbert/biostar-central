@@ -132,6 +132,7 @@ class Command(BaseCommand):
         disconnect_all()
 
         posts = [ p[0] for p in Post.objects.all().values_list("id") ]
+
         posts = set(posts)
 
         users = dict((u.id, u) for u in User.objects.all())
@@ -143,8 +144,11 @@ class Command(BaseCommand):
             title = to_unicode(row['title'])
             uid = int(row['id'])
 
+            # Skip existing posts
             if uid in posts:
                 continue
+
+            posts.add(uid)
 
             log("migrating post %s: %s" % (uid, title))
             post = get_post(row, users, klass=Post)
@@ -180,15 +184,19 @@ class Command(BaseCommand):
         log("migrating users from %s" % fname)
         stream = csv.DictReader(file(fname), delimiter=b'\t')
 
-        seen = set()
+        email_set, uid_seen = set(), set()
 
         users = dict((u.id, u) for u in User.objects.all())
 
         for row in stream:
             uid = int(get(row, 'id'))
 
-            if uid in users:
+            # The file may contain the same user multiple times
+            # Caused by incremental dumping
+            if uid in users or uid in uid_seen:
                 continue
+
+            uid_seen.add(uid)
 
             # Skip the first user. It is the default admin.
             if uid == 1:
@@ -213,11 +221,11 @@ class Command(BaseCommand):
             user.type = user_type
 
             # Original email were not required to be unique.
-            if user.email in seen:
+            if user.email in email_set:
                 user.email = "%s@biostars.org" % uid
 
             # Adds the email to the seen bucket.
-            seen.add(user.email)
+            email_set.add(user.email)
 
             user.is_active = is_active
             user.save()
@@ -263,6 +271,7 @@ class Command(BaseCommand):
         Vote.objects.all().delete()
 
         posts = Post.objects.all().values_list('id')
+
         seen = set(p[0] for p in posts)
 
         log("loaded %s post ids" % len(seen) )

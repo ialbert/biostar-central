@@ -4,7 +4,7 @@
 <div class="recent-votes">
     <ul style="opacity: 0.8;">
         {% for vote in votes %}
-            <li><a href="{% url "post-details" pk=vote.post_id %}">
+            <li><a href="{{ vote.post.get_absolute_url }}">
                 {{ vote.post.title }}</a>
             </li>
         {% endfor %}

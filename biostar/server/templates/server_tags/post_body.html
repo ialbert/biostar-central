@@ -3,7 +3,7 @@
 <tr class="{{post.get_status_display}}">
 
     <td>
-        <a name="{{ post.id }}"></a>
+
 
         <div class="post vote-box" data-post_id="{{ post.id }}">
 
@@ -29,6 +29,8 @@
     </td>
 
     <td class="post-body">
+
+        <a name="{{ post.id }}"></a>
 
         {% post_user_box post.author post.lastedit_date %}
 
@@ -64,3 +66,4 @@
     </td>
 
 </tr>
+

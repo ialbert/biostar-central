@@ -62,6 +62,9 @@ def init_admin():
         admin.set_password(settings.SECRET_KEY)
         admin.save()
 
+        admin.profile.location = settings.ADMIN_LOCATION
+        admin.profile.save()
+
         logger.info(
             "added admin user with email=%s, password=SECRET_KEY, name=%s" % (admin.email, admin.get_full_name()))
 

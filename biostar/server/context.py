@@ -21,7 +21,7 @@ def get_recent_votes():
 def get_recent_users():
     users = cache.get(RECENT_USERS_KEY)
     if not users:
-        users = User.objects.all().order_by("-profile__last_login")[:settings.RECENT_USER_COUNT]
+        users = User.objects.all().select_related("profile").order_by("-profile__last_login")[:settings.RECENT_USER_COUNT]
         cache.set(RECENT_USERS_KEY, users, CACHE_TIMEOUT)
     return users
 
@@ -62,6 +62,7 @@ def shortcuts(request):
         "TRAFFIC": get_traffic(),
         'RECENT_REPLIES': get_recent_replies(),
         'RECENT_VOTES': get_recent_votes(),
+        "RECENT_USERS":  get_recent_users(),
         'USE_COMPRESSOR': settings.USE_COMPRESSOR,
         'COUNTS': request.session.get(settings.SESSION_KEY, {}),
         'SITE_ADMINS': settings.ADMINS,

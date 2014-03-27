@@ -8,7 +8,7 @@
 {% endblock %}
 {% block content %}
 
-    {% search_bar %}
+    {#  {% search_bar %} #}
 
     <div class="row">
 
@@ -82,7 +82,7 @@
         </div>
         <div class="col-xs-12 col-md-3 sidebar">
             {% cache 600 post.id %}
-                <h4>Similar posts</h4>
+                <h4>Similar posts &bull; <a href="{%  url 'search-page' %}">Search &raquo;</a></h4>
                 {% more_like_this post as related limit 10 %}
 
                 <ul class="more-like-this">
