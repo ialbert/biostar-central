@@ -14,8 +14,8 @@ from datetime import datetime
 LOCAL_MESSAGE, EMAIL_MESSAGE, NO_MESSAGES, ALL_MESSAGES = range(4)
 
 MESSAGING_MAP = OrderedDict([
-    (LOCAL_MESSAGE, "local messages",),
-    (EMAIL_MESSAGE, "email on threads I follow",),
+    (LOCAL_MESSAGE, "messages",),
+    (EMAIL_MESSAGE, "email",),
     (ALL_MESSAGES, "email for every new thread",),
 ])
 

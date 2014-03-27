@@ -19,15 +19,15 @@ AUTOBIO = AwardDef(
 
 GOOD_QUESTION = AwardDef(
     name = "Good Question",
-    desc = "asked a question that was upvoted",
-    func = lambda user: Post.objects.filter(vote_count__gt=0, author=user, type=Post.QUESTION).count() > 0,
+    desc = "asked a question that was upvoted at least five times",
+    func = lambda user: Post.objects.filter(vote_count__gt=5, author=user, type=Post.QUESTION).count() > 0,
     icon = "fa fa-question"
 )
 
 GOOD_ANSWER = AwardDef(
     name = "Good Answer",
-    desc = "created an answer that was upvoted",
-    func = lambda user: Post.objects.filter(vote_count__gt=0, author=user, type=Post.ANSWER).count() > 0,
+    desc = "created an answer that was at least five times",
+    func = lambda user: Post.objects.filter(vote_count__gt=5, author=user, type=Post.ANSWER).count() > 0,
     icon = "fa fa-pencil-square-o"
 )
 
@@ -47,8 +47,8 @@ TEACHER = AwardDef(
 
 COMMENTATOR = AwardDef(
     name = "Commentator",
-    desc = "created a comment with at least one up-vote",
-    func = lambda user: Post.objects.filter(vote_count__gt=0, author=user, type=Post.COMMENT).count(),
+    desc = "created a comment with at least three up-votes",
+    func = lambda user: Post.objects.filter(vote_count__gt=2, author=user, type=Post.COMMENT).count(),
     icon = "fa fa-comment"
 )
 
@@ -110,8 +110,8 @@ CYLON = AwardDef(
 
 VOTER = AwardDef(
     name = "Voter",
-    desc = "upvoted one post",
-    func = lambda user: Vote.objects.filter(author=user).count() > 0,
+    desc = "voted more than one hundred times",
+    func = lambda user: Vote.objects.filter(author=user).count() > 100,
     icon = "fa fa-thumbs-o-up"
 )
 

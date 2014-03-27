@@ -131,7 +131,8 @@ class Command(BaseCommand):
         # Disconnect signals they will generate way too many messages
         disconnect_all()
 
-        Post.objects.all().delete()
+        posts = [ p[0] for p in Post.objects.all().values_list("id") ]
+        posts = set(posts)
 
         users = dict((u.id, u) for u in User.objects.all())
 
@@ -140,8 +141,12 @@ class Command(BaseCommand):
 
         for i, row in enumerate(stream):
             title = to_unicode(row['title'])
-            uid = row['id']
-            log("migrating %s: %s" % (uid, title))
+            uid = int(row['id'])
+
+            if uid in posts:
+                continue
+
+            log("migrating post %s: %s" % (uid, title))
             post = get_post(row, users, klass=Post)
 
             if not post:
@@ -177,8 +182,13 @@ class Command(BaseCommand):
 
         seen = set()
 
+        users = dict((u.id, u) for u in User.objects.all())
+
         for row in stream:
             uid = int(get(row, 'id'))
+
+            if uid in users:
+                continue
 
             # Skip the first user. It is the default admin.
             if uid == 1:
