@@ -34,12 +34,13 @@ def export_users(N, dest, since):
 
     for user in users:
         p = user.profile
-        fp = file(pj(workdir, str(user.id)), "at")
+        fp = file(pj(workdir, str(user.id)), "wt")
         about_me = p.about_me_html or ''
         website = p.website or ''
         location = p.location or ''
         fp.write(about_me.encode("utf", "replace"))
         fp.close()
+
         dispay_name = p.display_name.encode("utf", "replace")
 
         data = [user.id, p.get_type_display(), p.get_status_display(), user.email, p.display_name,
@@ -65,6 +66,7 @@ def export_posts(N, dest, since):
 
     out_name = pj(dest, "posts.txt")
     mode = 'at' if since else 'wt'
+
     out_stream = file(out_name, mode)
 
     def write(line):

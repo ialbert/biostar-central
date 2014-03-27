@@ -7,7 +7,7 @@ from main.settings import *
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2', 
-        'NAME': 'biostar-migration',
+        'NAME': 'biostar-export',
         'USER': 'ialbert',
         'PASSWORD': '',
         'HOST': '',                      

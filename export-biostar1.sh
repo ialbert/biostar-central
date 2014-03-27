@@ -28,4 +28,6 @@ source conf/migrate.env
 ./biostar.sh pgdrop pgcreate pgimport $LOCAL_SQL
 
 # Export the data into a directory
-python -m main.bin.export -u -p -v -d $MIGRATE_DIR -n 100
+python -m main.bin.export -u -p -v -d $MIGRATE_DIR
+
+echo "*** exported into: $MIGRATE_DIR"
