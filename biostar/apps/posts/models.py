@@ -223,7 +223,7 @@ class Post(models.Model):
         self.tag_set.clear()
         tags = [Tag.objects.get_or_create(name=name)[0] for name in self.parse_tags()]
         self.tag_set.add(*tags)
-        self.save()
+        #self.save()
 
     @property
     def as_text(self):
@@ -274,6 +274,11 @@ class Post(models.Model):
 
         # Must add tags with instance method. This is just for safety.
         self.tag_val = html.strip_tags(self.tag_val)
+
+        # Posts other than a question also carry the same tag
+        required_tag = self.get_type_display()
+        if self.type != Post.QUESTION and required_tag not in self.tag_val:
+            self.tag_val += "," + required_tag
 
         if not self.id:
 

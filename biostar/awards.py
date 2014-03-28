@@ -53,7 +53,7 @@ def create_user_award(user):
     for award in Award.objects.filter(user=user).select_related('badge'):
         awards.setdefault(award.badge.name, []).append(award)
 
-    # Function to detect if the award already exists
+    # Shorcut function to get the award count
     get_award_count = lambda name: len(awards[name]) if name in awards else 0
 
     for obj in ALL_AWARDS:
@@ -68,13 +68,9 @@ def create_user_award(user):
 
             # Update the badge counts.
             badge = Badge.objects.get(name=obj.name)
-            badge.count += (valid_count - seen_count)
+            badge.count += 1
             badge.save()
 
-            # Create the corresponding awards as many times as needed.
-            for x in range(valid_count - seen_count):
-                award = Award.objects.create(user=user, badge=badge)
-                logger.info("award %s created for %s" % (award.badge.name, user.email))
+            award = Award.objects.create(user=user, badge=badge)
+            logger.info("award %s created for %s" % (award.badge.name, user.email))
 
-            # Grant one type of award at a time.
-            break

@@ -4,44 +4,35 @@
 <div class="post-row {{ post.get_type_display }} {{ post.get_status_display }}">
 
     <div class="count-box">
-        {% if post.is_toplevel %}
-            <div class="box vote visible-lg visible-md">
-                <div class="c">{{ post.vote_count }}</div>
-                <div class="t">vote{{ post.vote_count|pluralize }}</div>
-            </div>
-            <div class="box {% boxclass post %}">
-                <div class="c">{{ post.reply_count }}</div>
-                <div class="t">answer{{ post.reply_count|pluralize }}</div>
-            </div>
-            <div class="box view visible-lg visible-md">
-                <div class="c">{{ post.view_count|bignum }}</div>
-                <div class="t">views</div>
-            </div>
 
-            {% if post.subs_count > 4 %}
-                <div class="book_count text-center">
-                    {{ post.subs_count }} following
-                </div>
-            {% else %}
-                <div></div>
-            {% endif %}
+        <div class="box vote visible-lg visible-md">
+            <div class="c">{{ post.root.vote_count }}</div>
+            <div class="t">vote{{ post.vote_count|pluralize }}</div>
+        </div>
+        <div class="box {% boxclass post.root %}">
+            <div class="c">{{ post.root.reply_count }}</div>
+            <div class="t">answer{{ post.reply_count|pluralize }}</div>
+        </div>
+        <div class="box view visible-lg visible-md">
+            <div class="c">{{ post.view_count|bignum }}</div>
+            <div class="t">views</div>
+        </div>
+
+        {% if post.subs_count > 4 %}
+            <div class="book_count text-center">
+                {{ post.subs_count }} following
+            </div>
         {% else %}
-            <div class="box vote">
-                <div class="c">{{ post.vote_count }}</div>
-                <div class="t">vote{{ post.vote_count|pluralize }}</div>
-            </div>
-            <div class="box vote visible-lg visible-md">
-                <div class="c">{{ post.book_count }}</div>
-                <div class="t">bookmark{{ post.reply_count|pluralize }}</div>
-            </div>
-            <div class="box vote visible-lg visible-md">
-                &nbsp;
-            </div>
+            <div></div>
         {% endif %}
+
     </div>
 
     <div class="title-box clearfix">
         <div class="post-title">
+            {%  if post.type != 0 %}
+                {{ post.get_type_display }}:
+            {%  endif %}
             <a href="{{ post.get_absolute_url }}">{{ post.get_title|truncatechars:75 }}</a>
         </div>
 
@@ -59,7 +50,8 @@
             <span class="userlink text-right">
             <span class="ago">{{ post.creation_date|time_ago }}</span> by {% userlink post.author %}
                 {% if post.author != post.lastedit_user %}
-                    &bull; <span class="dago">{{ post.lastedit_date|time_ago }}</span> by {% userlink post.lastedit_user %}
+                    &bull; <span class="ago">{{ post.lastedit_date|time_ago }}</span> by
+                    {% userlink post.lastedit_user %}
                 {% endif %}
             </span>
 

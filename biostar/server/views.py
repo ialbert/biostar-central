@@ -182,7 +182,7 @@ class MessageList(LoginRequiredMixin, ListView):
     topic = "messages"
 
     def get_queryset(self):
-        objs = Message.objects.filter(user=self.request.user).select_related("body").order_by('-sent_at')
+        objs = Message.objects.filter(user=self.request.user).select_related("body", "body__author").order_by('-sent_at')
         return objs
 
     def get_context_data(self, **kwargs):
@@ -222,7 +222,7 @@ class VoteList(LoginRequiredMixin, ListView):
     topic = "votes"
 
     def get_queryset(self):
-        objs = Vote.objects.filter(post__author=self.request.user).select_related("post").order_by('-date')
+        objs = Vote.objects.filter(post__author=self.request.user).select_related("author", "post").order_by('-date')
         return objs
 
     def get_context_data(self, **kwargs):
@@ -559,7 +559,7 @@ class BadgeView(BaseDetailMixin):
         badge = context['badge']
 
         # Get all awards related to this badge
-        awards = Award.objects.filter(badge_id=badge.id).select_related('user').order_by("-date")[:50]
+        awards = Award.objects.filter(badge_id=badge.id).select_related('user').order_by("date")[:50]
 
         context['awards'] = awards
 

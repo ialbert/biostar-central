@@ -136,7 +136,7 @@ class NewPost(LoginRequiredMixin, FormView):
         post.save()
 
         # Triggers a new post save.
-        post.add_tags(tag_val)
+        post.add_tags(post.tag_val)
 
         messages.success(request, "%s created" % post.get_type_display())
         return HttpResponseRedirect(post.get_absolute_url())
@@ -245,6 +245,9 @@ class EditPost(LoginRequiredMixin, FormView):
         # Set the form attributes.
         for field in form_class.FIELDS:
             setattr(post, field, data[field])
+
+        # This is needed to validate some fields.
+        post.save()
 
         if post.is_toplevel:
             post.add_tags(post.tag_val)
