@@ -1,8 +1,7 @@
 import sys, time, os, logging
 import mailbox, markdown
 from django.conf import settings
-from biostar.apps.posts.models import Post
-from biostar.apps.users.models import User
+
 from django.utils.timezone import utc
 from django.utils import timezone, encoding
 from email.utils import parsedate
@@ -106,6 +105,9 @@ def guess_tags(text, tag_val):
     return tag_val
 
 def create_post(b, author, root=None, parent=None, tag_val=''):
+    from biostar.apps.posts.models import Post
+
+
     title = b.subj
     body = b.body
     if not parent:
@@ -214,6 +216,9 @@ def unpack_data(m):
 from django.db.models import signals
 
 def parse_mboxx(filename, limit=None, tag_val=''):
+    from biostar.apps.users.models import User
+    from biostar.apps.posts.models import Post
+
     global  SKIPPED_REPLY
 
     if limit is not None:
@@ -235,7 +240,7 @@ def parse_mboxx(filename, limit=None, tag_val=''):
     users = User.objects.all()
     users = dict([(u.email, u) for u in users])
 
-    Post.objects.all().delete()
+    #Post.objects.all().delete()
 
     logger.info("*** found %s users" % len(users))
 
