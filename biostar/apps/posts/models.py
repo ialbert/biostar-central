@@ -115,15 +115,16 @@ class Post(models.Model):
     STATUS_CHOICES = [(PENDING, "Pending"), (OPEN, "Open"), (CLOSED, "Closed"), (DELETED, "Deleted")]
 
     # Question types. Answers should be listed before comments.
-    QUESTION, ANSWER, JOB, FORUM, PAGE, BLOG, COMMENT, DATA, TUTORIAL, BOARD = range(10)
+    QUESTION, ANSWER, JOB, FORUM, PAGE, BLOG, COMMENT, DATA, TUTORIAL, BOARD, TOOL, NEWS = range(12)
 
     TYPE_CHOICES = [
         (QUESTION, "Question"), (ANSWER, "Answer"), (COMMENT, "Comment"),
-        (JOB, "Job"), (FORUM, "Forum"), (TUTORIAL, "Tutorial"), (DATA, "Data"), (PAGE, "Page"),
+        (JOB, "Job"), (FORUM, "Forum"), (TUTORIAL, "Tutorial"),
+        (DATA, "Data"), (PAGE, "Page"), (TOOL, "Tool"), (NEWS, "News"),
         (BLOG, "Blog"), (BOARD, "Bulletin Board")
     ]
 
-    TOP_LEVEL = set((QUESTION, JOB, FORUM, PAGE, BLOG, DATA, TUTORIAL, BOARD))
+    TOP_LEVEL = set((QUESTION, JOB, FORUM, PAGE, BLOG, DATA, TUTORIAL, TOOL, NEWS, BOARD))
 
     title = models.CharField(max_length=200, null=False)
 
@@ -211,6 +212,9 @@ class Post(models.Model):
         # Change case as necessary.
         words = map(fixcase, words)
 
+        # Remove empty
+        words = filter(None, words)
+
         return words
 
     def add_tags(self, text):
@@ -276,9 +280,10 @@ class Post(models.Model):
         self.tag_val = html.strip_tags(self.tag_val)
 
         # Posts other than a question also carry the same tag
-        required_tag = self.get_type_display()
-        if self.type != Post.QUESTION and required_tag not in self.tag_val:
-            self.tag_val += "," + required_tag
+        if self.is_toplevel and self.type != Post.QUESTION:
+            required_tag = self.get_type_display()
+            if required_tag not in self.tag_val:
+                self.tag_val += "," + required_tag
 
         if not self.id:
 

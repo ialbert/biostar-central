@@ -218,8 +218,11 @@ class Profile(models.Model):
     def __unicode__(self):
         return "%s" % self.user.name
 
-    def missing_info(self):
-        return len(self.profile.location.strip()) == 0 or len(self.profile.info.strip()) == 0
+    @property
+    def filled(self):
+        has_location = bool(self.location.strip())
+        has_info = bool(self.info.strip())
+        return has_location and has_info
 
     @staticmethod
     def auto_create(sender, instance, created, *args, **kwargs):

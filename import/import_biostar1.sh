@@ -23,4 +23,4 @@ python manage.py sqlfix --reset
 # and transfer it to the new site
 /usr/bin/pg_dump -Fp -x -O -b -U $PG_USER $DATABASE_NAME | gzip > $LOCAL_SQL
 
-#scp $LOCAL_SQL $REMOTE_SQL
+scp $LOCAL_SQL $REMOTE_SQL

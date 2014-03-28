@@ -1,10 +1,11 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
 from django.core.management.base import BaseCommand, CommandError
 from optparse import make_option
-from django.utils.timezone import utc
+from django.utils.timezone import utc, get_current_timezone
 from django.conf import settings
 from django.contrib.auth import get_user_model
 import os, csv, datetime
+
 from django.utils.dateparse import parse_datetime
 from django.utils import timezone, encoding
 
@@ -30,6 +31,7 @@ USER_STATUS_MAP = {
     "Active": User.TRUSTED, "Suspended": User.SUSPENDED, "Banned": User.BANNED,
 }
 
+tz = get_current_timezone()
 
 def get(data, attr, func=encoding.smart_unicode):
     value = data.get(attr, '').strip()
@@ -41,7 +43,7 @@ def get(data, attr, func=encoding.smart_unicode):
 
 def localize_time(text):
     naive = parse_datetime(text)
-    local = timezone.make_aware(naive, timezone=utc)
+    local = timezone.make_aware(naive, timezone=tz)
     return local
 
 def get_post(row, users, klass):
@@ -52,6 +54,11 @@ def get_post(row, users, klass):
         "Tutorial": klass.TUTORIAL,
     }
 
+    POST_STATUS_MAP = {
+        "Open": klass.OPEN,
+        "Closed": klass.CLOSED,
+        "Deleted": klass.DELETED,
+    }
 
     uid = get(row, 'id', func=int)
     root_id = get(row, 'root_id', func=int)
@@ -80,7 +87,9 @@ def get_post(row, users, klass):
     if post_type == klass.TUTORIAL:
         tag_val += " tutorial"
 
-    post_status = klass.OPEN if get(row, 'post_status') == "Open" else klass.CLOSED
+    post_status = get(row, 'post_status')
+
+    post_status = POST_STATUS_MAP[post_status]
 
     post = klass(id=uid, title=title, author=author, lastedit_user=author,
                 parent_id=parent_id, root_id=root_id)

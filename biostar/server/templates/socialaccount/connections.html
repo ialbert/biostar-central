@@ -9,7 +9,7 @@
     <div class="row">
         <div class="col-md-8 col-md-offset-1">
 
-            <h4>Connect account </h4>
+            <h3>Connect account </h3>
 
             <div>
                 You can connect a social account to this site account.
@@ -20,6 +20,8 @@
                 Our access is for authentication only. We can't access your timeline, see your friends or post on your
                 behalf.
             </div>
+
+            <div> Click a link to connect that provider to your account</div>
             <div class="socialaccount_ballot">
                 <ul class="socialaccount_providers">
                     {% include "socialaccount/snippets/provider_list.html" with process="connect" %}
@@ -27,8 +29,8 @@
                 {% include "socialaccount/snippets/login_extra.html" %}
             </div>
 
-            <h4>List of your connected social accounts </h4>
-
+            <h3>Disconnect accounts </h3>
+            <p>To disconnect an account select the account from below then click the remove button </p>
             <form method="post" action="{% url 'socialaccount_connections' %}">
                 {% csrf_token %}
 
@@ -56,7 +58,7 @@
                     </div>
 
                     <div>
-                        <button type="submit">Remove</button>
+                        <button type="submit">Disconnect</button>
                     </div>
                 </fieldset>
             </form>
