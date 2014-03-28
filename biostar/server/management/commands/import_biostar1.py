@@ -5,6 +5,7 @@ from django.utils.timezone import utc, get_current_timezone
 from django.conf import settings
 from django.contrib.auth import get_user_model
 import os, csv, datetime
+from datetime import timedelta
 
 from django.utils.dateparse import parse_datetime
 from django.utils import timezone, encoding
@@ -33,6 +34,8 @@ USER_STATUS_MAP = {
 
 tz = get_current_timezone()
 
+shift = timedelta(hours=6)
+
 def get(data, attr, func=encoding.smart_unicode):
     value = data.get(attr, '').strip()
     try:
@@ -42,8 +45,9 @@ def get(data, attr, func=encoding.smart_unicode):
     return value
 
 def localize_time(text):
-    naive = parse_datetime(text)
-    local = timezone.make_aware(naive, timezone=tz)
+    global shift
+    naive = parse_datetime(text) + shift
+    local = timezone.make_aware(naive, timezone=utc)
     return local
 
 def get_post(row, users, klass):
