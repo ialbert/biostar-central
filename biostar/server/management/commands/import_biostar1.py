@@ -139,6 +139,7 @@ class Command(BaseCommand):
         from biostar.server.models import disconnect_all
         from biostar.apps.posts.models import Post, Subscription
         from biostar.apps.messages.models import Message
+        from biostar.apps.util import html
 
         log = self.stdout.write
 
@@ -157,6 +158,7 @@ class Command(BaseCommand):
         for i, row in enumerate(stream):
             title = to_unicode(row['title'])
             uid = int(row['id'])
+            url = row['url'].strip()
 
             # Skip existing posts
             if uid in posts:
@@ -174,6 +176,13 @@ class Command(BaseCommand):
             # Read and add the post body.
             post_file = path_join(source, 'posts', str(post.id))
             post.content = file(post_file, 'rt').read()
+
+            if url and post.type == Post.BLOG:
+                # Link to external blog bosts.
+                url_link = '<p><b><i class="fa fa-external-link-square"></i> Read full blogpost at <a href="%s">%s</a></b><p>' % (url, url)
+                url_link = to_unicode(url_link)
+                content = to_unicode(post.content)
+                post.content = url_link + content
 
             try:
                 post.save()
