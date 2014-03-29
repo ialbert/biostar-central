@@ -573,7 +573,7 @@ class BadgeList( BaseListMixin):
 
     def get_queryset(self):
         qs = super(BadgeList, self).get_queryset()
-        qs = qs.order_by('count')
+        qs = qs.order_by('-count')
         return qs
 
     def get_context_data(self, **kwargs):
