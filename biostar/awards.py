@@ -80,7 +80,8 @@ def create_user_award(user):
 
             if isinstance(target, Post):
                 date = target.creation_date
-                context = '<a href="%s">%s</a>' % (target.get_absolute_url(), target.title)
+                post_type = target.get_type_display().lower()
+                context = '%s: <a href="%s">%s</a>' % (post_type, target.get_absolute_url(), target.title)
             else:
                 date = target.profile.last_login
                 context = ""
