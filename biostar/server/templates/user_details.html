@@ -1,4 +1,5 @@
 {% extends "starbase.html" %}
+{% load cache %}
 {% load server_tags %}
 {% load humanize %}
 {% load socialaccount %}
@@ -137,7 +138,7 @@
 
             {#  Post list goes here #}
             <div class="col-md-12">
-                <h4 class="text-center">Posts created by {{ target.name }}</h4>
+                <h4 class="text-center">Posts by {{ target.name }}</h4>
                 {% page_bar %}
             </div>
             <div class="col-md-12">
@@ -151,6 +152,30 @@
                     {% endfor %}
                 </div>
             </div>
+
+            {% cache 500 target.id %}
+                {#  Award list goes here #}
+                <div class="col-md-12">
+                    <h4 class="text-center">Awards to {{ target.name }}</h4>
+                </div>
+                <div class="col-md-12">
+                    <div id="award-list">
+                        {% for award in awards %}
+                            <div class="col-xs-4 award"><a
+                                    href="{% url "badge-view" award.badge.id %}">{{ award.badge.name }}
+                                <i class="{{ award.badge.icon }}"></i></a>
+                                {{ award.badge.desc }}.
+                                {% if award.context %}
+                                    For {{ award.context|safe }}
+                                {% endif %}
+
+                            </div>
+                        {% empty %}
+                            <div class="alert alert-info">No awards yet. Soon to come :-)</div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endcache %}
 
         </div>
 
