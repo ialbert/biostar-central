@@ -307,7 +307,8 @@ class UserDetails(BaseDetailMixin):
         page_obj = paginator.page(int(page))
         context['page_obj'] = page_obj
         context['posts'] = page_obj.object_list
-        context['awards'] = Award.objects.filter(user=target).select_related("badge", "user").order_by("-date")
+        awards = Award.objects.filter(user=target).select_related("badge", "user").order_by("-date")
+        context['awards'] = awards[:25]
         return context
 
 class EditUser(EditUser):

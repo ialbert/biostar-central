@@ -156,14 +156,16 @@
             {% cache 500 target.id %}
                 {#  Award list goes here #}
                 <div class="col-md-12">
-                    <h4 class="text-center">Awards to {{ target.name }}</h4>
+                    <h4 class="text-center">Latest awards to {{ target.name }}</h4>
                 </div>
                 <div class="col-md-12">
                     <div id="award-list">
                         {% for award in awards %}
-                            <div class="col-xs-4 award"><a
-                                    href="{% url "badge-view" award.badge.id %}">{{ award.badge.name }}
-                                <i class="{{ award.badge.icon }}"></i></a>
+                            <div class="col-xs-4 award">
+
+                                <a href="{% url "badge-view" award.badge.id %}">{{ award.badge.name }}
+                                    <i class="{{ award.badge.icon }}"></i></a>
+                                <span class="ago">{{ award.date|time_ago }}</span>,
                                 {{ award.badge.desc }}.
                                 {% if award.context %}
                                     For {{ award.context|safe }}
