@@ -48,8 +48,11 @@ def valid_tag(text):
 class LongForm(forms.Form):
     FIELDS = "title content post_type tag_val".split()
 
-    POST_CHOICES = [(Post.QUESTION, "Question"), (Post.FORUM, "Forum Post"), (Post.JOB, "Job Ad"),
-                    (Post.BLOG, "Blog Post"), (Post.PAGE, "Site Page")]
+    POST_CHOICES = [(Post.QUESTION, "Question"),
+                    (Post.JOB, "Job Ad"),
+                    (Post.TUTORIAL, "Tutorial"), (Post.TOOL, "Tool"),
+                    (Post.FORUM, "Forum"), (Post.NEWS, "News"),
+                    (Post.BLOG, "Blog"), (Post.PAGE, "Page")]
 
     title = forms.CharField(max_length=200, min_length=10, validators=[valid_title],
                             help_text="Descriptive titles promote better answers.")
@@ -245,6 +248,9 @@ class EditPost(LoginRequiredMixin, FormView):
         # Set the form attributes.
         for field in form_class.FIELDS:
             setattr(post, field, data[field])
+
+        # TODO: fix this oversight!
+        post.type = int(data['post_type'])
 
         # This is needed to validate some fields.
         post.save()

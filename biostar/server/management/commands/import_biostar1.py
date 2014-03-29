@@ -55,6 +55,7 @@ def get_post(row, users, klass):
     POST_TYPE_MAP = {
         "Question": klass.QUESTION, "Answer": klass.ANSWER,
         "Comment": klass.COMMENT, "Job": klass.JOB, "Blog": klass.BLOG,
+        "Tool": klass.TOOL, "News": klass.NEWS,
         "Tutorial": klass.TUTORIAL,
     }
 
