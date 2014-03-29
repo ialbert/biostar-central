@@ -42,8 +42,7 @@ LOGGING = {
     'handlers': {
         'mail_admins': {
             'level': 'ERROR',
-            #'filters': ['require_debug_false'],
-            'filters': ['ratelimit'],
+            'filters': ['require_debug_false', 'ratelimit'],
             'class': 'django.utils.log.AdminEmailHandler'
         },
         'console':{
