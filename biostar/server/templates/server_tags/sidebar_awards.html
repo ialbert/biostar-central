@@ -8,7 +8,7 @@
             {% for award in awards %}
                 <li>
                     <a href="{% url "badge-view" award.badge.id %}">{{ award.badge.name }} <i class="{{ award.badge.icon }}"></i></a>
-                      to {{ award.date|time_ago }} {% userlink award.user %}
+                      to {% userlink award.user %}
                 </li>
             {% endfor %}
         </ul>
