@@ -26,17 +26,13 @@
         </div>
         <div class="col-md-3 sidebar">
 
-            <div class="head">Recent Votes</div>
             {% sidebar_votes RECENT_VOTES %}
 
-            <div class="head">Recent locations &bull;
-                    <a href="{% url 'user-list' %}">See all</a></div>
             {% sidebar_locations RECENT_USERS %}
 
-            <div class="head">Recent Replies</div>
+            {% sidebar_awards RECENT_AWARDS %}
+
             {% sidebar_posts RECENT_REPLIES %}
-
-
 
         </div>
     </div>

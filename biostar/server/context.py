@@ -3,34 +3,27 @@ from django.conf import settings
 from biostar import const, VERSION
 from django.core.cache import cache
 from biostar.apps.users.models import User
-from biostar.apps.posts.models import Post, Vote, PostView, Subscription
+from biostar.apps.posts.models import Post, Vote, PostView
+from biostar.apps.badges.models import Award
+
 from datetime import timedelta
 
 CACHE_TIMEOUT = settings.CACHE_TIMEOUT
-RECENT_VOTES_KEY = "RECENT_VOTES_KEY"
-RECENT_USERS_KEY = "RECENT_USERS_KEY"
-RECENT_REPLIES_KEY = "RECENT_REPLIES_KEY"
 
 def get_recent_votes():
-    votes = cache.get(RECENT_VOTES_KEY)
-    if not votes:
-        votes = Vote.objects.filter(post__status=Post.OPEN).select_related("post").order_by("-date")[:settings.RECENT_VOTE_COUNT]
-        cache.set(RECENT_VOTES_KEY, votes, CACHE_TIMEOUT)
+    votes = Vote.objects.filter(post__status=Post.OPEN).select_related("post").order_by("-date")[:settings.RECENT_VOTE_COUNT]
     return votes
 
 def get_recent_users():
-    users = cache.get(RECENT_USERS_KEY)
-    if not users:
-        users = User.objects.all().select_related("profile").order_by("-profile__last_login")[:settings.RECENT_USER_COUNT]
-        cache.set(RECENT_USERS_KEY, users, CACHE_TIMEOUT)
+    users = User.objects.all().select_related("profile").order_by("-profile__last_login")[:settings.RECENT_USER_COUNT]
+    return users
+
+def get_recent_awards():
+    users = Award.objects.all().select_related("user", "badge").order_by("date")[:7]
     return users
 
 def get_recent_replies():
-    posts = cache.get(RECENT_REPLIES_KEY)
-    if not posts:
-        posts = Post.objects.filter(type__in=(Post.ANSWER, Post.COMMENT))\
-                    .select_related("author").order_by("-creation_date")[:settings.RECENT_POST_COUNT]
-        cache.set(RECENT_REPLIES_KEY, posts, CACHE_TIMEOUT)
+    posts = Post.objects.filter(type__in=(Post.ANSWER, Post.COMMENT))
     return posts
 
 TRAFFIC_KEY = "traffic"
@@ -63,6 +56,7 @@ def shortcuts(request):
         'RECENT_REPLIES': get_recent_replies(),
         'RECENT_VOTES': get_recent_votes(),
         "RECENT_USERS":  get_recent_users(),
+        "RECENT_AWARDS": get_recent_awards(),
         'USE_COMPRESSOR': settings.USE_COMPRESSOR,
         'COUNTS': request.session.get(settings.SESSION_KEY, {}),
         'SITE_ADMINS': settings.ADMINS,
