@@ -26,7 +26,7 @@
                     <div class="uname">{% userlink award.user %}</div>
                     <div class="loc">{{ award.user.profile.location }}</div>
                     {% if award.context %}
-                        <div class="">For: {{ award.context|safe|truncatechars:60 }}</div>
+                        <div class="">{{ award.context|safe|truncatechars:60 }}</div>
                     {% endif %}
                 </div>
 
