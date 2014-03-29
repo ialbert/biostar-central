@@ -15,13 +15,17 @@
 
             <div class="col-md-12">
                 <h2 class="text-center">{{ target.get_type_display }}: {{ target.name }}</h2>
+
                 {% if target.has_ownership and not target.profile.filled %}
-                    <div class="alert alert-warning text-center">
-                    Plese fill in the 'location' and 'info' field of your profile. People here would like to know you better &nbsp;
-                    <a href="{% url "user-edit" target.id %}" class="btn btn-success" role="button" href="#">Edit
+
+                    <div class="alert alert-info text-center">
+                        People here would like to know
+                        you better <i class="fa fa-smile-o"></i>. Please fill in
+                        the <b>location</b> and <b>info</b> field of your profile:
+                        <a href="{% url "user-edit" target.id %}" class="btn btn-xs btn-success" role="button" href="#">Edit
                             Your Profile</a>
                     </div>
-                {%  endif %}
+                {% endif %}
             </div>
 
             <div class="col-md-3">
@@ -44,16 +48,13 @@
                 </div>
 
                 {% if target.has_ownership %}
-                    <div style="font-size: small; padding-top:20px;">
+                    <div style="font-size: smaller; padding:0px 0px 20px 20px;">
                         Your portrait is loaded from <a href="http://www.gravatar.com">Gravatar</a> based
                         on your email. If you don't have a <a href="http://www.gravatar.com">Gravatar</a> account
                         your portait is
                         an "identicon": an automatically generated, unique image.
                     </div>
-                    <div style="padding:10px" class="text-center">
-                        <a href="{% url "user-edit" target.id %}" class="btn btn-success" role="button" href="#">Edit
-                            Your Profile</a>
-                    </div>
+
 
 
                 {% endif %}
@@ -74,8 +75,8 @@
 
                     <dt>Website:</dt>
                     <dd>
-                        {%  if target.profile.website %}
-                        <a href="{{ target.profile.website }}">{{ target.profile.website|truncatechars:25 }}</a>
+                        {% if target.profile.website %}
+                            <a href="{{ target.profile.website }}">{{ target.profile.website|truncatechars:25 }}</a>
                         {% endif %}
                     </dd>
 
@@ -96,7 +97,8 @@
                     <dt>Scholar ID:</dt>
 
                     {% if target.profile.scholar %}
-                        <dd><a href="http://scholar.google.com/citations?user={{ target.profile.scholar }}">Google Scholar Page</a></dd>
+                        <dd><a href="http://scholar.google.com/citations?user={{ target.profile.scholar }}">Google
+                            Scholar Page</a></dd>
                     {% else %}
                         <dd>{{ target.profile.scholar }}</dd>
                     {% endif %}
@@ -111,8 +113,17 @@
 
                         <dt>Log in options:</dt>
                         <dd>
-                            <a role="button" class="btn btn-info btn-xs" href="{% url 'socialaccount_connections' %}">Manage
+                            <a role="button" class="btn btn-info btn-xs" href="{% url 'socialaccount_connections' %}">
                                 Social Login</a>
+                        </dd>
+
+                        <dt style="margin-top:5px;">
+                            Profile settings:
+                        </dt>
+                        <dd style="margin-top:5px;">
+                            <a href="{% url "user-edit" target.id %}" class="btn btn-success btn-xs" role="button"
+                               href="#">Edit
+                                Your Profile</a>
                         </dd>
 
                     {% endif %}

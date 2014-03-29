@@ -71,6 +71,7 @@ class PostManager(models.Manager):
         "Performs a query by one or more + separated tags"
         include, exclude = [], []
         for term in text.split('+'):
+            term = term.strip()
             if term.endswith("!"):
                 exclude.append(self.fixcase(term[:-1]))
             else:
