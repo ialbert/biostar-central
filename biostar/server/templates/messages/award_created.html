@@ -1,10 +1,14 @@
 <b>Congratulations!</b> You have won the
 <b><a href="{% url "badge-view" award.badge.id %}">{{ award.badge.name }} <i class="{{ award.badge.icon }}"></i></a></b>
-badge for the notable accomplishment of: <em>{{ award.badge.desc }}</em>.
+badge for the notable accomplishment described as <em>{{ award.badge.desc }}</em>.
 
-{%  if award.badge.count < 100 %}
-This award has been won only {{ award.badge.count }} times so far.
-{%  else %}
-This award has been won {{ award.badge.count }} times.
-{%  endif %}
-
+{% if award.context %}
+    <p>You've earned this for: {{ award.context|safe }}</p>
+{% endif %}
+<p>
+    {% if award.badge.count < 100 %}
+        This award has been won only {{ award.badge.count }} times so far.
+    {% else %}
+        This award has been won {{ award.badge.count }} times.
+    {% endif %}
+</p>

@@ -37,6 +37,7 @@ def create_post_award(user):
 # Tries to award a badge to the user
 def create_user_award(user):
     from biostar.apps.users.models import User
+    from biostar.apps.posts.models import Post
     from biostar.apps.badges.models import Badge, Award
     from biostar.apps.badges.award_defs import ALL_AWARDS
 
@@ -62,15 +63,29 @@ def create_user_award(user):
         seen_count = get_award_count(obj.name)
 
         # How many times should it been awarded
-        valid_count = obj.validate(user)
+        valid_targets = obj.validate(user)
 
-        if valid_count > seen_count:
+        # Keep that targets that have not been awarded
+        valid_targets = valid_targets[seen_count:]
 
+        # No more than 3 at the time
+        valid_targets = valid_targets[:3]
+
+        # Award the targets
+        for target in valid_targets:
             # Update the badge counts.
             badge = Badge.objects.get(name=obj.name)
             badge.count += 1
             badge.save()
 
-            award = Award.objects.create(user=user, badge=badge)
+            if isinstance(target, Post):
+                date = target.creation_date
+                context = '<a href="%s">%s</a>' % (target.get_absolute_url(), target.title)
+            else:
+                date = target.profile.last_login
+                context = ""
+
+            award = Award.objects.create(user=user, badge=badge, date=date, context=context)
             logger.info("award %s created for %s" % (award.badge.name, user.email))
+
 

@@ -45,7 +45,8 @@ class Award(models.Model):
     '''
     badge = models.ForeignKey(Badge)
     user = models.ForeignKey(settings.AUTH_USER_MODEL)
-    date = models.DateTimeField(auto_now_add=True)
+    date = models.DateTimeField()
+    context = models.CharField(max_length=1000, default='')
 
 class AwardDef(object):
     def __init__(self, name, desc, func, icon, type=Badge.BRONZE):
@@ -59,7 +60,7 @@ class AwardDef(object):
     def validate(self, *args, **kwargs):
         try:
             value = self.fun(*args, **kwargs)
-            return int(value)
+            return value
         except Exception, exc:
             logger.error("validator error %s" % exc)
         return 0
