@@ -6,7 +6,7 @@
 <html lang="en">
 <head>
 
-    <link rel="shortcut icon" href="{{ STATIC_URL }}favicon.ico" />
+    <link rel="shortcut icon" href="{{ STATIC_URL }}favicon.ico"/>
 
     <title>{% block page_title %}{{ page_title }}{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -28,90 +28,91 @@
 <body>
 {# Main page container. #}
 <div class="container-fluid" id="content">
-<div style="padding:0 15px;">
-    {%  if TOP_BANNER %}
-        {% include TOP_BANNER %}
-    {%  endif %}
-    {# Navigation bar for each page. #}
-    {% nav_bar user %}
+    <div style="padding:0 25px;">
+        {% if TOP_BANNER %}
+            {% include TOP_BANNER %}
+        {% endif %}
+        {# Navigation bar for each page. #}
+        {% nav_bar user %}
 
-    {% if messages %}
-        <div class="row">
-            <div class="col-md-12 col-sm-offset-0 text-center">
-                {% for message in messages %}
-                    <div class="alert  {{ message.tags }}">{{ message|safe }}</div>
-                {% endfor %}
+        {% if messages %}
+            <div class="row">
+                <div class="col-md-12 col-sm-offset-0 text-center">
+                    {% for message in messages %}
+                        <div class="alert  {{ message.tags }}">{{ message|safe }}</div>
+                    {% endfor %}
+                </div>
             </div>
-        </div>
-    {% endif %}
+        {% endif %}
 
-    {# Contains the actual body of the page. #}
-    {% block content %}
-        Body
-    {% endblock %}
+        {# Contains the actual body of the page. #}
+        {% block content %}
+            Body
+        {% endblock %}
 
-    {# The footer for each page. #}
-    {% block footer %}
-        <div class="row">
-            <div class="col-sm-12 col-md-12">
-                <hr>
-            </div>
-        </div>
-
-        <div class="row toc">
-
-            <div class="col-xs-3 col-xs-offset-1 col-md-2 col-md-offset-3">
-                <div class="title">Content</div>
-                <ul class="flat">
-                    <li><a href="{% url 'search-page' %}">Search</a></li>
-                    <li><a href="{% url 'user-list' %}">Users</a></li>
-                    <li><a href="{% url 'tag-list' %}">Tags</a></li>
-                    <li><a href="{% url 'badge-list' %}">Badges</a></li>
-                </ul>
+        {# The footer for each page. #}
+        {% block footer %}
+            <div class="row">
+                <div class="col-sm-12 col-md-12">
+                    <hr>
+                </div>
             </div>
 
-            <div class="col-xs-3 col-md-2">
-                <div class="title">Help</div>
-                <ul class="flat">
-                    <li><a href="{% url 'flatpage' 'about' %}">About</a></li>
-                    <li><a href="{% url 'flatpage' 'faq' %}">FAQ</a></li>
-                </ul>
+            <div class="row toc">
+
+                <div class="col-xs-3 col-xs-offset-1 col-md-2 col-md-offset-3">
+                    <div class="title">Content</div>
+                    <ul class="flat">
+                        <li><a href="{% url 'search-page' %}">Search</a></li>
+                        <li><a href="{% url 'user-list' %}">Users</a></li>
+                        <li><a href="{% url 'tag-list' %}">Tags</a></li>
+                        <li><a href="{% url 'badge-list' %}">Badges</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-xs-3 col-md-2">
+                    <div class="title">Help</div>
+                    <ul class="flat">
+                        <li><a href="{% url 'flatpage' 'about' %}">About</a></li>
+                        <li><a href="{% url 'flatpage' 'faq' %}">FAQ</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-xs-3 col-md-2 ">
+                    <div class="title">Access</div>
+                    <ul class="flat">
+                        <li><a href="{% url 'rss' %}">RSS</a></li>
+                        <li>Stats</li>
+                        <li>API</li>
+                    </ul>
+                </div>
             </div>
 
-            <div class="col-xs-3 col-md-2 ">
-                <div class="title">Access</div>
-                <ul class="flat">
-                    <li><a href="{% url 'rss' %}">RSS</a></li>
-                    <li>Stats</li>
-                    <li>API</li>
-                </ul>
+            <div class="row">
+                <div class="col-md-12">
+                    <hr>
+                </div>
             </div>
-        </div>
 
-        <div class="row">
-            <div class="col-md-12">
-                <hr>
+            <div class="row">
+                <div class="col-md-12 text-center">
+                    Use of this site constitutes acceptance of our <a href="{% url 'flatpage' 'policy' %}">User
+                    Agreement
+                    and Privacy
+                    Policy</a>.
+                </div>
+                <div class="col-md-12 text-center">
+                    Powered by <a href="https://github.com/ialbert/biostar-central">Biostar</a>
+                    version {{ BIOSTAR_VERSION }}
+                </div>
             </div>
-        </div>
-
-        <div class="row">
-            <div class="col-md-12 text-center">
-                Use of this site constitutes acceptance of our <a href="{% url 'flatpage' 'policy' %}">User Agreement
-                and Privacy
-                Policy</a>.
-            </div>
-            <div class="col-md-12 text-center">
-                Powered by <a href="https://github.com/ialbert/biostar-central">Biostar</a>
-                version {{ BIOSTAR_VERSION }}
-            </div>
-        </div>
-    {% endblock %}
+        {% endblock %}
 
 
-    {# This information is cached and updated periodically via the context. #}
-    <div id="traffic">Traffic: {{ TRAFFIC }} ip/hr</div>
+        {# This information is cached and updated periodically via the context. #}
+        <div id="traffic">Traffic: {{ TRAFFIC }} ip/hr</div>
 
-</div>
+    </div>
 </div>
 
 <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
@@ -158,7 +159,7 @@
                 (i[r].q = i[r].q || []).push(arguments)
             }, i[r].l = 1 * new Date();
             a = s.createElement(o),
-            m = s.getElementsByTagName(o)[0];
+                    m = s.getElementsByTagName(o)[0];
             a.async = 1;
             a.src = g;
             m.parentNode.insertBefore(a, m)
