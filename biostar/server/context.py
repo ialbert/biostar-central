@@ -66,6 +66,7 @@ def shortcuts(request):
         'USE_COMPRESSOR': settings.USE_COMPRESSOR,
         'COUNTS': request.session.get(settings.SESSION_KEY, {}),
         'SITE_ADMINS': settings.ADMINS,
+        'TOP_BANNER': settings.TOP_BANNER,
     }
 
     return context

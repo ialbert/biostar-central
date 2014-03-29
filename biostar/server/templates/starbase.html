@@ -29,6 +29,9 @@
 {# Main page container. #}
 <div class="container" id="content">
 
+    {%  if TOP_BANNER %}
+        {% include TOP_BANNER %}
+    {%  endif %}
     {# Navigation bar for each page. #}
     {% nav_bar user %}
 

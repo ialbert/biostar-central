@@ -37,6 +37,11 @@ POST_TAG_LIST = NAVBAR_TAGS + ["software error"]
 # This will form the navbar
 CATEGORIES = START_CATEGORIES + NAVBAR_TAGS + END_CATEGORIES
 
+# This will appear as a top banner.
+# It should point to a template that will be included.
+TOP_BANNER = ""
+
+#TOP_BANNER = "test-banner.html"
 
 def get_env(name, func=None):
     """Get the environment variable or return exception"""
