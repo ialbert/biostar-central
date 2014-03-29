@@ -37,7 +37,7 @@ CELERYBEAT_SCHEDULE = {
         'args': ["user_crawl"],
         'kwargs': {"award": True}
     },
-   
+
     'hourly_dump': {
         'task': 'biostar.celery.call_command',
         'schedule': crontab(minute=10),

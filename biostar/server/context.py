@@ -19,11 +19,13 @@ def get_recent_users():
     return users
 
 def get_recent_awards():
-    users = Award.objects.all().select_related("user", "badge").order_by("date")[:7]
+    users = Award.objects.all().select_related("user", "badge").order_by("-date")[:7]
     return users
 
 def get_recent_replies():
-    posts = Post.objects.filter(type__in=(Post.ANSWER, Post.COMMENT), root__status=Post.OPEN).select_related(("author"))[:settings.RECENT_POST_COUNT]
+    posts = Post.objects.filter(type__in=(Post.ANSWER, Post.COMMENT), root__status=Post.OPEN).select_related(("author"))
+    posts = posts.order_by("-creation_date")
+    posts = posts[:settings.RECENT_POST_COUNT]
     return posts
 
 TRAFFIC_KEY = "traffic"
