@@ -1,7 +1,7 @@
 {% load cache %}
 {% load server_tags %}
 
-{% cache 200 "recent-posts" %}
+{% cache 200 "recent-awards" %}
     <div class="head">Recent Awards &bull; <a href="{% url 'badge-list' %}">All &raquo;</a></div>
     <div class="recent-awards">
         <ul>
