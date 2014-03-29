@@ -1,7 +1,7 @@
 {% load cache %}
 {%  load server_tags %}
 
-{% cache 120 "recent-users"  %}
+{% cache 120 "recent-locations"  %}
 <div class="recent-posts">
     <ul>
         {% for user in users %}
