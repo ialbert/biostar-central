@@ -560,7 +560,7 @@ class BadgeView(BaseDetailMixin):
         badge = context['badge']
 
         # Get all awards related to this badge
-        awards = Award.objects.filter(badge_id=badge.id).select_related('user').order_by("date")[:50]
+        awards = Award.objects.filter(badge_id=badge.id).select_related('user').order_by("-date")[:50]
 
         context['awards'] = awards
 

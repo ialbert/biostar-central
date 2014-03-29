@@ -23,7 +23,7 @@ def get_recent_awards():
     return users
 
 def get_recent_replies():
-    posts = Post.objects.filter(type__in=(Post.ANSWER, Post.COMMENT))
+    posts = Post.objects.filter(type__in=(Post.ANSWER, Post.COMMENT), root__status=Post.OPEN).select_related(("author"))[:settings.RECENT_POST_COUNT]
     return posts
 
 TRAFFIC_KEY = "traffic"
