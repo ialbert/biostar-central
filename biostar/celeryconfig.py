@@ -31,6 +31,13 @@ CELERYBEAT_SCHEDULE = {
         'kwargs': {"age": 1}
     },
 
+    'awards': {
+        'task': 'biostar.celery.call_command',
+        'schedule': timedelta(hours=3),
+        'args': ["user_crawl"],
+        'kwargs': {"award": True}
+    },
+   
     'hourly_dump': {
         'task': 'biostar.celery.call_command',
         'schedule': crontab(minute=10),
