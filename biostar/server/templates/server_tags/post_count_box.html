@@ -33,7 +33,7 @@
             {%  if post.type != 0 %}
                 {{ post.get_type_display }}:
             {%  endif %}
-            <a href="{{ post.get_absolute_url }}">{{ post.get_title|truncatechars:75 }}</a>
+            <a href="{{ post.get_absolute_url }}">{{ post.get_title }}</a>
         </div>
 
         {% if context %}

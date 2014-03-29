@@ -100,7 +100,7 @@ class PostManager(models.Manager):
         if user.is_moderator:
             query = self.filter(type__in=Post.TOP_LEVEL)
         else:
-            query = self.filter(type__in=Post.TOP_LEVEL, status=Post.OPEN)
+            query = self.filter(type__in=Post.TOP_LEVEL).exclude(status=Post.DELETED)
 
         return query.select_related("root", "author", "lastedit_user").prefetch_related("tag_set").defer("content", "html")
 
@@ -243,7 +243,7 @@ class Post(models.Model):
         if self.status == Post.OPEN:
             return self.title
         else:
-            return "%s [%s]" % (self.title, self.get_status_display())
+            return "(%s) %s" % ( self.get_status_display(), self.title)
 
     @property
     def is_open(self):

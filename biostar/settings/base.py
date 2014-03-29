@@ -18,7 +18,7 @@ USE_COMPRESSOR = False
 
 # The start categories. These tags have special meaning internally.
 START_CATEGORIES = [
-    "Latest", "Tutorial", "Tool",  "Job", "Forum", "Unanswered",
+    "Latest", "Tutorials", "Tools",  "Jobs", "Forum", "Unanswered",
 ]
 
 # These should be the most frequent (or special) tags on the site.

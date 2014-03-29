@@ -88,8 +88,8 @@ class PostModForm(forms.Form):
         (OPEN, "Open a closed or deleted post"),
         (MOVE_TO_ANSWER, "Move post to an answer"),
         (MOVE_TO_COMMENT, "Move post to a comment on the top level post"),
-        (DUPLICATE, "Duplicated, close"),
-        (CLOSE_OFFTOPIC, "Closing"),
+        (DUPLICATE, "Duplicated post (top level)"),
+        (CLOSE_OFFTOPIC, "Close post (top level)"),
         (DELETE, "Delete post"),
     ]
 

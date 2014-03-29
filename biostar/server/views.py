@@ -77,7 +77,8 @@ def apply_sort(request, query):
 
 LATEST = "latest"
 MYPOSTS, MYTAGS, UNANSWERED, FOLLOWING, BOOKMARKS = "myposts mytags unanswered following bookmarks".split()
-POST_TYPES = dict(job=Post.JOB, forum=Post.FORUM, planet=Post.BLOG, pages=Post.PAGE)
+POST_TYPES = dict(jobs=Post.JOB, tools=Post.TOOL, tutorials=Post.TUTORIAL,
+                  forum=Post.FORUM, planet=Post.BLOG, pages=Post.PAGE)
 
 def posts_by_topic(request, topic):
     "Returns a post query that matches a topic"
