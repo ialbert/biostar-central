@@ -153,7 +153,7 @@
                 </div>
             </div>
 
-            {% cache 500 target.id %}
+            {% cache 500 "award" target.id %}
                 {#  Award list goes here #}
                 <div class="col-md-12">
                     <h4 class="text-center">Latest awards to {{ target.name }}</h4>
@@ -178,10 +178,7 @@
                     </div>
                 </div>
             {% endcache %}
-
         </div>
-
-    </div>
     </div>
 
 {% endblock %}
