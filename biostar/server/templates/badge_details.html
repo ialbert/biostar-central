@@ -20,14 +20,13 @@
 
             {% for award in awards %}
 
-                <div class="col xs-3 col-md-2 text-center" style="height:220px;">
+                <div class="col xs-3 col-md-2 text-center" style="height:250px;">
                     <div>{% gravatar award.user 82 %}</div>
                     <div class="ago">{{ award.date|time_ago }} to</div>
                     <div class="uname">{% userlink award.user %}</div>
                     <div class="loc">{{ award.user.profile.location }}</div>
                     {% if award.context %}
-                        {#  the closing </a> protects againg #}
-                        <div class="">{{ award.context|safe|truncatechars:60 }}</a></div>
+                        <div class="">For: {{ award.context|safe }}</div>
                     {% endif %}
                 </div>
 
