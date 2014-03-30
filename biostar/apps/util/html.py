@@ -14,50 +14,91 @@ ALLOWED_ATTRIBUTES = dict(bleach.ALLOWED_ATTRIBUTES)
 ALLOWED_ATTRIBUTES.update(settings.ALLOWED_ATTRIBUTES)
 
 # The pattern that matches the user link.
-USER_PATTERN = "http://%s/u/(?P<uid>(\d+))" % settings.SITE_DOMAIN
-POST_PATTERN = "http://%s/p/(?P<uid>(\d+))" % settings.SITE_DOMAIN
-
-# These are for debugging only.
-#USER_PATTERN = "http://%s/u/(?P<uid>(\d+))" % "abc.com"
-#POST_PATTERN = "http://%s/p/(?P<uid>(\d+))" % "abc.com"
+USER_PATTERN = r"http://.*?/u/(?P<uid>(\d+))"
+POST_PATTERN1 = r"http://.*?/p/(?P<uid>(\d+))"
+POST_PATTERN2 = r"http://.*?/p/\d+/\#(?P<uid>(\d+))"
+GIST_PATTERN = r"https://gist.github.com/(?P<uid>([\w/]+))"
+YOUTUBE_PATTERN = r"http://www.youtube.com/watch\?v=(?P<uid>(\w+))"
 
 USER_RE = re.compile(USER_PATTERN)
-POST_RE = re.compile(POST_PATTERN)
+POST_RE1 = re.compile(POST_PATTERN1)
+POST_RE2 = re.compile(POST_PATTERN2)
+GIST_RE = re.compile(GIST_PATTERN)
+YOUTUBE_RE = re.compile(YOUTUBE_PATTERN)
 
 def parse_html(text):
     from biostar.apps.users.models import User
     from biostar.apps.posts.models import Post
 
-    def postlinks(attrs, new=False):
+    # This will collect the objects that could be embedded
+    embed = []
+
+    def internal_links(attrs, new=False):
         "Matches a user"
         try:
             href = attrs['href']
-            patt = POST_RE.search(href)
+
+            # Try the patterns
+            patt1 = POST_RE1.search(href)
+            patt2 = POST_RE2.search(href)
+            patt = patt1 or patt2
             if patt:
                 uid = patt.group("uid")
                 attrs['_text'] = Post.objects.get(id=uid).title
+
+            # Try the user patterns
+            patt3 = USER_RE.search(href)
+            if patt3:
+                uid = patt3.group("uid")
+                attrs['_text'] = User.objects.get(id=uid).name
+
         except Exception, exc:
             logger.error(exc)
         return attrs
 
-    def userlinks(attrs, new=False):
-        "Matches a user"
-        try:
-            href = attrs['href']
-            patt = USER_RE.search(href)
+    def embedder(attrs, new):
+        # This is an existing <a> tag, leave it be.
+        if not new:
+            return attrs
+
+        href = attrs['_text']
+
+        # Don't linkify non http links
+        if href[:4] not in ('http', 'ftp:'):
+            return None
+
+        # Try the gist embedding patterns
+        targets = [
+            (GIST_RE, '<script src="https://gist.github.com/%s.js"></script>'),
+            (YOUTUBE_RE, '<iframe width="420" height="315" src="//www.youtube.com/embed/%s" frameborder="0" allowfullscreen></iframe>')
+        ]
+
+        for regex, text in targets:
+            patt = regex.search(href)
             if patt:
                 uid = patt.group("uid")
-                attrs['_text'] = User.objects.get(id=uid).name
-        except Exception, exc:
-            logger.error(exc)
+                obj = text % uid
+                embed.append( (uid, obj) )
+                attrs['_text'] = uid
+                attrs['href'] = uid
+                if 'rel' in attrs:
+                    del attrs['rel']
+
         return attrs
 
-    CALLBACKS = bleach.DEFAULT_CALLBACKS + [userlinks, postlinks]
-
-    text = bleach.linkify(text, callbacks=CALLBACKS, skip_pre=True)
+    CALLBACKS = bleach.DEFAULT_CALLBACKS + [embedder, internal_links]
 
     html = bleach.clean(text, tags=ALLOWED_TAGS,
         attributes=ALLOWED_ATTRIBUTES, styles=ALLOWED_STYLES)
+
+    try:
+        html = bleach.linkify(html, callbacks=CALLBACKS, skip_pre=True)
+        # embed the objects
+        for uid, obj in embed:
+            emb_patt = '<a href="%s">%s</a>' % (uid, uid)
+            html = html.replace(emb_patt, obj)
+    except Exception, exc:
+        logger.error("*** %s" % exc)
 
     return html
 

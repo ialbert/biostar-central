@@ -229,10 +229,16 @@ class EditPost(LoginRequiredMixin, FormView):
         post = Post.objects.get(pk=pk)
         post = auth.post_permissions(request=request, post=post)
 
+        # For historical reasons we had posts with iframes
+        # these cannot be edited because the content would be lost in the front end
+        if "<iframe" in post.content:
+            messages.error(request, "This post is not editable because of an iframe! Contact if you must edit it")
+            return HttpResponseRedirect(post.get_absolute_url())
+
         # Check and exit if not a valid edit.
         if not post.is_editable:
             messages.error(request, "This user may not modify the post")
-            return HttpResponseRedirect(reverse("home"))
+            return HttpResponseRedirect(post.get_absolute_url())
 
         # Posts with a parent are not toplevel
         form_class = LongForm if post.is_toplevel else ShortForm

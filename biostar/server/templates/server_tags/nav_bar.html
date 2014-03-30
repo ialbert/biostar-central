@@ -16,13 +16,7 @@
 
 <div class="row visible-sm visible-xs">
 
-    <div class="col-xs-12 text-center" style="margin-bottom:5px">
-        <a href="{% url 'home' %}">
-            <i class="fa fa-star fa-1x"></i> Welcome to {{ SITE_NAME }} </a>
-        </a>
-
-    </div>
-    <div class="col-xs-6">
+    <div class="col-xs-4">
         <div class="btn-group">
             <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
                 {% if topic %} {{ topic }} {% else %} View Posts {% endif %}
@@ -39,7 +33,14 @@
         </div>
     </div>
 
-    <div class="col-xs-6 ">
+        <div class="col-xs-4 text-center" style="margin-bottom:5px">
+        <a role="button" class="btn btn-primary" href="{% url 'home' %}">
+            <i class="fa fa-star fa-1x"></i> Home </a>
+        </a>
+
+    </div>
+
+    <div class="col-xs-4 ">
         <div class="btn-group pull-right">
 
             {% if user.is_authenticated %}
