@@ -17,7 +17,6 @@ register = template.Library()
 @register.simple_tag
 def get_count(counts, word):
     num = counts.get(word.lower()) or ''
-    num = bignum(num) if num else num
     return num
 
 @register.simple_tag
