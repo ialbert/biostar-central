@@ -250,7 +250,7 @@ class EditPost(LoginRequiredMixin, FormView):
             setattr(post, field, data[field])
 
         # TODO: fix this oversight!
-        post.type = int(data['post_type'])
+        post.type = int(data.get('post_type', post.type))
 
         # This is needed to validate some fields.
         post.save()
