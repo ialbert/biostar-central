@@ -64,8 +64,8 @@ CENTURION = AwardDef(
     type=Badge.SILVER,
 )
 
-BULLSEYE = AwardDef(
-    name="Bullseye",
+EPIC_QUESTION = AwardDef(
+    name="Epic Question",
     desc="created a question with more than 10,000 views",
     func=lambda user: Post.objects.filter(author=user, view_count__gt=10000),
     icon="fa fa-bullseye",
@@ -80,8 +80,8 @@ POPULAR = AwardDef(
     type=Badge.GOLD,
 )
 
-SUPERNOVA = AwardDef(
-    name="Supernova",
+ORACLE = AwardDef(
+    name="Oracle",
     desc="created more than 1,000 posts (questions + answers + comments)",
     func=lambda user: wrap_list(user, Post.objects.filter(author=user).count() > 1000),
     icon="fa fa-sun-o",
@@ -98,8 +98,8 @@ PUNDIT = AwardDef(
 
 GURU = AwardDef(
     name="Guru",
-    desc="received 50 upvotes",
-    func=lambda user: wrap_list(user, Vote.objects.filter(post__author=user).count() > 50),
+    desc="received more than 100 upvotes",
+    func=lambda user: wrap_list(user, Vote.objects.filter(post__author=user).count() > 100),
     icon="fa fa-beer",
     type=Badge.SILVER,
 )
@@ -130,10 +130,23 @@ SUPPORTER = AwardDef(
 SCHOLAR = AwardDef(
     name="Scholar",
     desc="created an answer that has been accepted",
-    func=lambda user: wrap_list(user, Post.objects.filter(author=user, type=Post.ANSWER, has_accepted=True).count()),
+    func=lambda user: Post.objects.filter(author=user, type=Post.ANSWER, has_accepted=True),
     icon="fa fa-check-circle-o"
 )
 
+PROPHET = AwardDef(
+    name="Prophet",
+    desc="created a post with more than 20 followers",
+    func=lambda user: Post.objects.filter(author=user, type__in=Post.TOP_LEVEL, subs_count__gt=20),
+    icon="fa fa-pagelines"
+)
+
+LIBRARIAN = AwardDef(
+    name="Librarian",
+    desc="created a post with more than 10 bookmarks",
+    func=lambda user: Post.objects.filter(author=user, type__in=Post.TOP_LEVEL, book_count__gt=10),
+    icon="fa fa-bookmark-o"
+)
 
 def rising_star(user):
     # The user joined no more than three months ago
@@ -163,23 +176,25 @@ SINGLE_AWARDS = [
     RISING_STAR,
     GURU,
     POPULAR,
-    BULLSEYE,
-    SUPERNOVA,
+    EPIC_QUESTION,
+    ORACLE,
     PUNDIT,
     GOOD_ANSWER,
     GOOD_QUESTION,
+    PROPHET,
+    LIBRARIAN,
 ]
 
 GREAT_QUESTION = AwardDef(
     name="Great Question",
-    desc="created a question more than 1,000 views",
-    func=lambda user: Post.objects.filter(author=user, view_count__gt=1000),
+    desc="created a question more than 5,000 views",
+    func=lambda user: Post.objects.filter(author=user, view_count__gt=5000),
     icon="fa fa-fire",
     type=Badge.SILVER,
 )
 
-ORACLE = AwardDef(
-    name="Oracle",
+GOLD_STANDARD = AwardDef(
+    name="Gold Standard",
     desc="created a post with more than 25 bookmarks",
     func=lambda user: Post.objects.filter(author=user, book_count__gt=25),
     icon="fa fa-bookmark",
@@ -198,7 +213,7 @@ APPRECIATED = AwardDef(
 # These awards can be won multiple times
 MULTI_AWARDS = [
     GREAT_QUESTION,
-    ORACLE,
+    GOLD_STANDARD,
     APPRECIATED,
 ]
 
