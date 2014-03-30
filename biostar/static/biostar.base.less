@@ -11,7 +11,7 @@ See the biostar.style.less file for details.
 
 body {
   font-size: 13px;
-  font-family: Verdana, Arial, sans-serif;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 .btn-success {
@@ -21,8 +21,8 @@ body {
 }
 
 .award {
-    padding-bottom: 1em;
-    height: 6em;
+  padding-bottom: 1em;
+  height: 6em;
 }
 
 sup {
@@ -49,10 +49,11 @@ sup {
 
 #traffic {
   position: fixed;
-  font-size: 10px;
+  font-size: smaller;
   bottom: 0px;
   left: 0px;
   color: #999999;
+  background-color: white;
 }
 
 .center {
@@ -340,7 +341,10 @@ ul.flat {
 
 .nav {
   text-transform: uppercase;
+  //font-size: 90%;
+  //line-height: 18px
 }
+
 .nav-pills > li > a {
   &:hover {
     background-color: @MUTED_BACKGROUND;
