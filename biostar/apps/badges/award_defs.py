@@ -187,7 +187,7 @@ SINGLE_AWARDS = [
 
 GREAT_QUESTION = AwardDef(
     name="Great Question",
-    desc="created a question more than 5,000 views",
+    desc="created a question with more than 5,000 views",
     func=lambda user: Post.objects.filter(author=user, view_count__gt=5000),
     icon="fa fa-fire",
     type=Badge.SILVER,

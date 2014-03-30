@@ -2,5 +2,5 @@
 {% load server_tags %}
 
 {% spaceless %}
-    <a href="{% url 'user-details' user.id %}">{{user.name}}</a>&nbsp;{{ marker|safe }}<b>&nbsp;{{  user.scaled_score|bignum }}</b>
+    <a href="{% url 'user-details' user.id %}">{{user.name}}</a> {{ marker|safe }} <b>{{  user.scaled_score|bignum }}</b>
 {% endspaceless %}
