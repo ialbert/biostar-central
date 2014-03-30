@@ -170,11 +170,10 @@ SINGLE_AWARDS = [
     GOOD_QUESTION,
 ]
 
-
 GREAT_QUESTION = AwardDef(
     name="Great Question",
-    desc="created a question with 1,000 views",
-    func=lambda user: wrap_list(user, Post.objects.filter(author=user, view_count__gt=1000)),
+    desc="created a question more than 1,000 views",
+    func=lambda user: Post.objects.filter(author=user, view_count__gt=1000),
     icon="fa fa-fire",
     type=Badge.SILVER,
 )

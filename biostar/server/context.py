@@ -20,7 +20,7 @@ def get_recent_users():
 
 def get_recent_awards():
     awards = Award.objects.all().select_related("user", "badge").exclude(user__pk=2)
-    awards = awards.order_by("-date")[:7]
+    awards = awards.order_by("-date")[:8]
     return awards
 
 def get_recent_replies():
