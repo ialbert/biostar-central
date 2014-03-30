@@ -27,8 +27,8 @@
 </head>
 <body>
 {# Main page container. #}
-<div class="container-fluid" id="content">
-    <div style="padding:0 25px;">
+<div class="container" id="content">
+
         {% if TOP_BANNER %}
             {% include TOP_BANNER %}
         {% endif %}
@@ -110,9 +110,8 @@
 
 
         {# This information is cached and updated periodically via the context. #}
-        <div id="traffic">Traffic: {{ TRAFFIC }} ip/hr</div>
+        <div id="traffic">Traffic: {{ TRAFFIC }} users visited in the last hour</div>
 
-    </div>
 </div>
 
 <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>

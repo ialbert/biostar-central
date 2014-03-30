@@ -6,8 +6,7 @@
         <ul class="nav nav-pills">
             {% for word in CATEGORIES %}
                 <li class="{% active word topic %}">
-                    <a href="{% url 'topic-list' topic=word %}">{{ word }} <sup><span
-                    class="badge">{% get_count COUNTS word %}</span></sup></a>
+                    <a href="{% url 'topic-list' topic=word %}">{{ word }} <sup><b>{% get_count COUNTS word %}</b></sup></a>
                 </li>
             {% endfor %}
             <li class="{% current request 'tag-list' %} pull-right"><a href="{% url 'tag-list' %}">All &raquo;</a></li>
@@ -19,7 +18,7 @@
 
     <div class="col-xs-12 text-center" style="margin-bottom:5px">
         <a href="{% url 'home' %}">
-            <i class="fa fa-star fa-1x"></i> Welcome to {{ SITE_NAME }}  </a>
+            <i class="fa fa-star fa-1x"></i> Welcome to {{ SITE_NAME }} </a>
         </a>
 
     </div>
