@@ -18,6 +18,7 @@ from django.conf import settings
 from biostar.const import OrderedDict
 from django.core.exceptions import ValidationError
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
 
 def valid_title(text):
     "Validates form input for tags"
@@ -108,6 +109,7 @@ def parse_tags(category, tag_val):
     pass
 
 @login_required
+@csrf_exempt
 def external_post_handler(request):
     "This is used to pre-populate a new form submission"
     import hmac
