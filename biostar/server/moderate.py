@@ -323,16 +323,20 @@ class UserModeration(LoginRequiredMixin, FormView):
         # The response after the action
         response = HttpResponseRedirect(target.get_absolute_url())
 
-        if not user.is_moderator or not target.is_editable:
-            messages.warning(request, "Current user does not have sufficient moderator privileges")
-            return response
-
         if target.is_administrator:
             messages.warning(request, "Cannot moderate an administrator")
             return response
 
         if user == target:
             messages.warning(request, "Cannot moderate yourself")
+            return response
+
+        if not user.is_moderator:
+            messages.warning(request, "Only moderators have this permission")
+            return response
+
+        if not target.is_editable:
+            messages.warning(request, "Target not editable by this user")
             return response
 
         form = self.form_class(request.POST, pk=target.id)
@@ -343,15 +347,21 @@ class UserModeration(LoginRequiredMixin, FormView):
         action = int(form.cleaned_data['action'])
 
         if action == User.BANNED and not user.is_administrator:
-            messages.info(request, "Only administrators can ban users")
+            messages.error(request, "Only administrators may ban users")
             return response
 
         if action == User.BANNED and user.is_administrator:
-            query = Post.objects.filter(author=target, type__in=Post.TOP_LEVEL, vote_count=0)
+
+            # Mass delete posts by this user
+            query = Post.objects.filter(author=target, type__in=Post.TOP_LEVEL).update(status=Post.DELETED)
+
+            # Delete posts with no votes.
+            query = Post.objects.filter(author=target, type__in=Post.TOP_LEVEL, vote_count=0, reply_count=0)
             count = query.count()
             query.delete()
+
             messages.success(request, "User banned, %s posts removed" % count)
-            return response
+
 
         # Apply the new status
         User.objects.filter(pk=target.id).update(status=action)

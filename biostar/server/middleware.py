@@ -122,7 +122,6 @@ class Visit(object):
         if user.is_authenticated() and user.is_suspended:
             logout(request)
             messages.error(request, 'Sorry, this account has been suspended. Please contact the administrators.')
-            return
 
         # Add attributes to anonymous users.
         if not user.is_authenticated():

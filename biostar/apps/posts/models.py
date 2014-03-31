@@ -42,6 +42,8 @@ class Tag(models.Model):
         if action == 'pre_clear':
             instance.tag_set.all().update(count=F('count') - 1)
 
+    def __unicode__(self):
+        return self.name
 
 class TagAdmin(admin.ModelAdmin):
     list_display = ('name', 'count')
@@ -98,7 +100,8 @@ class PostManager(models.Manager):
 
     def top_level(self, user):
         "Returns posts based on a user type"
-        if user.is_moderator:
+        is_moderator = user.is_authenticated() and user.is_moderator
+        if is_moderator:
             query = self.filter(type__in=Post.TOP_LEVEL)
         else:
             query = self.filter(type__in=Post.TOP_LEVEL).exclude(status=Post.DELETED)
@@ -385,7 +388,7 @@ class PostAdmin(admin.ModelAdmin):
     fieldsets = (
         (None, {'fields': ('title',)}),
         ('Attributes', {'fields': ('type', 'status', 'sticky',)}),
-        ('Content', {'fields': ('tags', 'html', )}),
+        ('Content', {'fields': ('content', )}),
     )
     search_fields = ('title', 'author__name')
 
@@ -415,6 +418,13 @@ class Vote(models.Model):
     def __unicode__(self):
         return u"Vote: %s, %s, %s" % (self.post_id, self.author_id, self.get_type_display())
 
+class VoteAdmin(admin.ModelAdmin):
+    list_display = ('author', 'post', 'type', 'date')
+    ordering = ['-date']
+    search_fields = ('post__title', 'author__name')
+
+
+admin.site.register(Vote, VoteAdmin)
 
 class SubscriptionManager(models.Manager):
     def get_subs(self, post):

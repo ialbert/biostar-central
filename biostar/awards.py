@@ -41,9 +41,9 @@ def create_user_award(user):
     from biostar.apps.badges.models import Badge, Award
     from biostar.apps.badges.award_defs import ALL_AWARDS
 
-    # Update user types.
-    if (user.type == User.NEW_USER) and (user.score > 10):
-        user.type = User.TRUSTED
+    # Update user status.
+    if (user.status == User.NEW_USER) and (user.score > 10):
+        user.status = User.TRUSTED
         user.save()
 
     # Debug only

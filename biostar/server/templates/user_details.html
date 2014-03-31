@@ -10,12 +10,12 @@
 
 {% block content %}
 
-    <div class="row {{ target.get_status_display }}">
+    <div class="row">
 
         <div class="col-md-12 user-details">
 
             <div class="col-md-12">
-                <h2 class="text-center">{{ target.get_type_display }}: {{ target.name }}</h2>
+                <h2 class="text-center {{ target.get_status_display}}">{{ target.get_type_display }}: {{ target.name }}</h2>
 
                 {% if target.has_ownership and not target.profile.filled %}
 
@@ -70,6 +70,9 @@
 
                     <dt>Reputation:</dt>
                     <dd><b>{{ target.scaled_score |intcomma }}</b></dd>
+
+                    <dt>Status:</dt>
+                    <dd>{{ target.get_status_display }}</dd>
 
                     <dt>Location:</dt>
                     <dd>{{ target.profile.location }}</dd>
