@@ -17,7 +17,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
 from biostar.const import OrderedDict
 from django.core.exceptions import ValidationError
-
+from django.contrib.auth.decorators import login_required
 
 def valid_title(text):
     "Validates form input for tags"
@@ -107,26 +107,36 @@ class ShortForm(forms.Form):
 def parse_tags(category, tag_val):
     pass
 
+@login_required
 def external_post_handler(request):
     "This is used to pre-populate a new form submission"
     import hmac
+
+    user = request.user
 
     name = request.REQUEST.get("name")
     secret = dict(settings.EXTERNAL_AUTH)[name]
 
     content = request.REQUEST.get("content")
-
+    submit  = request.REQUEST.get("submit")
     digest1 = request.REQUEST.get("digest")
     digest2 = hmac.new(secret, content).hexdigest()
-
-    print digest2
 
     if digest1 != digest2:
         messages.error(request, "digests does not match")
         return HttpResponseRedirect(reverse("home"))
 
-    sess = request.session
+    # auto submit the post
+    if submit:
+        post = Post(author=user, type=Post.QUESTION)
+        for field in settings.EXTERNAL_SESSION_FIELDS:
+            setattr(post, field, request.REQUEST.get(field, ''))
+        post.save()
+        post.add_tags(post.tag_val)
+        return HttpResponseRedirect(reverse("post-details", kwargs=dict(pk=post.id)))
 
+    # pre populate the form
+    sess = request.session
     sess[settings.EXTERNAL_SESSION_KEY] = dict()
     for field in settings.EXTERNAL_SESSION_FIELDS:
         sess[settings.EXTERNAL_SESSION_KEY][field] = request.REQUEST.get(field, '')
