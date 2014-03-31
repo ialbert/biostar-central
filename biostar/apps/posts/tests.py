@@ -100,3 +100,39 @@ class PostTest(TestCase):
         # Everyone posting in a thread gets a subscription to the root post of the
         subs = Subscription.objects.filter(post=post)
         eq(len(subs), 3)
+
+TEST_CONTENT_EMBEDDING ="""
+<p>Gist links may be formatted</p>
+
+<pre>
+https://gist.github.com/ialbert/ae46c5f51d63cdf2d0d2</pre>
+
+<p>or embedded:</p>
+
+<p>https://gist.github.com/ialbert/ae46c5f51d63cdf2d0d2</p>
+
+<p>Video links may be formatted</p>
+
+<pre>
+http://www.youtube.com/watch?v=_cDaX0xJPvI</pre>
+
+<p>or embedded:</p>
+
+<p>http://www.youtube.com/watch?v=_cDaX0xJPvI</p>
+
+<p>Internal links are recognized:</p>
+
+<pre>
+http://test.biostars.org/u/2193/</pre>
+
+<p>vs&nbsp;http://test.biostars.org/u/2193/</p>
+
+<p>Similarly&nbsp;</p>
+
+<pre>
+http://test.biostars.org/p/96509/</pre>
+
+<p>versus&nbsp;http://test.biostars.org/p/96509/</p>
+
+<p>&nbsp;</p>
+"""
