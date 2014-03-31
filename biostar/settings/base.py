@@ -43,6 +43,8 @@ TOP_BANNER = ""
 
 #TOP_BANNER = "test-banner.html"
 
+
+
 def get_env(name, func=None):
     """Get the environment variable or return exception"""
     try:
@@ -423,7 +425,8 @@ EXTERNAL_LOGOUT_URL = None
 COUNT_INTERVAL_WEEKS = 10000
 
 # How frequently do we update the counts for authenticated users.
-SESSION_UPDATE_SECONDS = 2 * 60
+SESSION_UPDATE_SECONDS = 10 * 60
+SESSION_COOKIE_NAME = "biostar2"
 
 # The number of posts to show per page.
 PAGINATE_BY = 25
