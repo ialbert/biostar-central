@@ -420,6 +420,8 @@ EXTERNAL_AUTH = [
 EXTERNAL_LOGIN_URL = None
 EXTERNAL_SIGNUP_URL = None
 EXTERNAL_LOGOUT_URL = None
+EXTERNAL_SESSION_KEY = "EXTERNAL"
+EXTERNAL_SESSION_FIELDS = "title tag_val content".split()
 
 # How far to look for posts for anonymous users.
 COUNT_INTERVAL_WEEKS = 10000

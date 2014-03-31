@@ -45,7 +45,7 @@ def valid_external_login(request):
                 email, digest1 = value.split(":")
                 digest2 = hmac.new(key, email).hexdigest()
                 if digest1 != digest2:
-                    raise Exception("digests do not match: %s vs %s" % (digest1, digest2))
+                    raise Exception("digests do not match")
             except Exception, exc:
                 logger.error(exc)
                 return None

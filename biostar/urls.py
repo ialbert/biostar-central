@@ -7,7 +7,7 @@ admin.autodiscover()
 
 from django.views.generic import TemplateView
 from biostar.server import views, ajax, search, moderate
-from biostar.apps.posts.views import NewAnswer, NewPost, EditPost
+from biostar.apps.posts.views import NewAnswer, NewPost, EditPost, external_post_handler
 from biostar.apps.users.views import external_logout, external_login, CaptchaView
 
 urlpatterns = patterns('',
@@ -44,6 +44,9 @@ urlpatterns = patterns('',
 
     # A separate url for each post type.
     url(r'^p/new/post/$', views.RateLimitedNewPost.as_view(), name="new-post"),
+
+    # A new external post
+    url(r'^p/new/external/post/$', external_post_handler, name="new-external-post"),
 
     url(r'^p/new/answer/(?P<pid>\d+)/$', views.RateLimitedNewAnswer.as_view(post_type="answer"), name="new-answer"),
     url(r'^p/new/comment/(?P<pid>\d+)/$', views.RateLimitedNewAnswer.as_view(post_type="comment"), name="new-comment"),

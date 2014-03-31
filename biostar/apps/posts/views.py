@@ -107,13 +107,46 @@ class ShortForm(forms.Form):
 def parse_tags(category, tag_val):
     pass
 
+def external_post_handler(request):
+    "This is used to pre-populate a new form submission"
+    import hmac
+
+    name = request.REQUEST.get("name")
+    secret = dict(settings.EXTERNAL_AUTH)[name]
+
+    content = request.REQUEST.get("content")
+
+    digest1 = request.REQUEST.get("digest")
+    digest2 = hmac.new(secret, content).hexdigest()
+
+    print digest2
+
+    if digest1 != digest2:
+        messages.error(request, "digests does not match")
+        return HttpResponseRedirect(reverse("home"))
+
+    sess = request.session
+
+    sess[settings.EXTERNAL_SESSION_KEY] = dict()
+    for field in settings.EXTERNAL_SESSION_FIELDS:
+        sess[settings.EXTERNAL_SESSION_KEY][field] = request.REQUEST.get(field, '')
+
+    return HttpResponseRedirect(reverse("new-post"))
+
 
 class NewPost(LoginRequiredMixin, FormView):
     form_class = LongForm
     template_name = "post_edit.html"
 
     def get(self, request, *args, **kwargs):
-        initial = self.request.GET
+        initial = dict()
+
+        sess = request.session
+        if settings.EXTERNAL_SESSION_KEY in sess:
+            for field in settings.EXTERNAL_SESSION_FIELDS:
+                initial[field] = sess[settings.EXTERNAL_SESSION_KEY].get(field)
+            del sess[settings.EXTERNAL_SESSION_KEY]
+
         form = self.form_class(initial=initial)
         return render(request, self.template_name, {'form': form})
 
