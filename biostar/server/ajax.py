@@ -68,8 +68,9 @@ def perform_vote(post, user, vote_type):
         vote = Vote.objects.create(author=user, post=post, type=vote_type)
         msg = "%s added" % vote.get_type_display()
 
-    # Update the scores.
-    User.objects.filter(pk=post.author.id).update(score=F('score') + change)
+    if post.author != user:
+        # Update the scores only if the author is different.
+        User.objects.filter(pk=post.author.id).update(score=F('score') + change)
 
     if vote.type == Vote.BOOKMARK:
 
@@ -80,8 +81,10 @@ def perform_vote(post, user, vote_type):
         if change > 0:
             # There does not seem to be a negation operator for F objects.
             Post.objects.filter(pk=post.id).update(vote_count=F('vote_count') + change, has_accepted=True)
+            Post.objects.filter(pk=post.root_id).update(has_accepted=True)
         else:
             Post.objects.filter(pk=post.id).update(vote_count=F('vote_count') + change, has_accepted=False)
+            Post.objects.filter(pk=post.root_id).update(has_accepted=False)
     else:
         Post.objects.filter(pk=post.id).update(vote_count=F('vote_count') + change)
 
@@ -110,8 +113,8 @@ def vote_handler(request):
     if post.author == user and vote_type == Vote.UP:
         return ajax_error("You can't upvote your own post.")
 
-    if post.author == user and vote_type == Vote.ACCEPT:
-        return ajax_error("You can't accept your own post.")
+    #if post.author == user and vote_type == Vote.ACCEPT:
+    #    return ajax_error("You can't accept your own post.")
 
     if post.root.author != user and vote_type == Vote.ACCEPT:
         return ajax_error("Only the person asking the question may accept this answer.")
