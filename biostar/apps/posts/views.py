@@ -120,7 +120,7 @@ def external_post_handler(request):
     secret = dict(settings.EXTERNAL_AUTH)[name]
 
     content = request.REQUEST.get("content")
-    submit  = request.REQUEST.get("submit")
+    submit  = request.REQUEST.get("action")
     digest1 = request.REQUEST.get("digest")
     digest2 = hmac.new(secret, content).hexdigest()
 
