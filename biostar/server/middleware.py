@@ -83,6 +83,7 @@ def get_counts(request, weeks=settings.COUNT_INTERVAL_WEEKS):
 
     # This fetches the posts since last login.
     posts = Post.objects.filter(type__in=Post.TOP_LEVEL, status=Post.OPEN, creation_date__gt=since).order_by('-id').only("id").prefetch_related("tag_set")
+    posts = posts[:200]
     counts = defaultdict(int)
 
     # How many news posts.
