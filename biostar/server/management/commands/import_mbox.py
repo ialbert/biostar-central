@@ -9,7 +9,7 @@ import itertools
 from django.core.management.base import BaseCommand, CommandError
 from optparse import make_option
 from itertools import *
-import re, textwrap
+import re, textwrap, urllib
 from chardet import detect
 
 from django.db.models import signals
@@ -18,7 +18,12 @@ logger = logging.getLogger('simple-logger')
 
 # This needs to be shorter so that the content looks good
 # on smaller screens as well.
-LINE_WIDTH= 60
+LINE_WIDTH= 70
+
+TEMPDIR = "import/bioc"
+
+if not os.path.isdir(TEMPDIR):
+    os.mkdir(TEMPDIR)
 
 def path_join(*args):
     return os.path.abspath(os.path.join(*args))
@@ -119,6 +124,13 @@ def format_text(text):
     text = "<div class='preformatted'>" + text + "</div>"
     return text
 
+def to_unicode_or_bust(
+        obj, encoding='utf-8'):
+    if isinstance(obj, basestring):
+        if not isinstance(obj, unicode):
+            obj = unicode(obj, encoding)
+    return obj
+
 def unpack_message(data):
     msg = pyzmail.PyzMessage(data)
 
@@ -147,8 +159,37 @@ def unpack_message(data):
     body = msg.text_part.get_payload()
     charset = detect(body)['encoding']
     body = body.decode(charset).encode('UTF-8')
+
+    # Fetch the page if it is missing
+    if "URL: <https://stat.ethz.ch/pipermail" in body:
+        lines = body.splitlines()
+        lines = filter(lambda x: x.startswith("URL:"), lines)
+        if lines:
+            line = lines[0]
+            url = line.split()[1]
+            url = url[1:-1]
+            elems = url.split("/")
+            fid = elems[-3] + elems[-2]
+            fname = "%s/%s" % (TEMPDIR, fid)
+            if not os.path.isfile(fname):
+                logger.info(">>> fetching %s" % url)
+                web = urllib.urlopen(url)
+                text = web.read()
+                try:
+                    text = to_unicode_or_bust(text)
+                except Exception, exc:
+                    logger.error(exc)
+                    text = "unable to parse"
+                fp = open(fname, 'wt')
+                fp.write(text.encode("utf-8"))
+                fp.close()
+            body = open(fname).read().decode('utf8')
+
     body = format_text(body)
     b.body = body
+
+    #print commands(body)
+
     return b
 
 def parse_mboxx(filename, limit=None, tag_val=''):

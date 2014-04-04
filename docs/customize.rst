@@ -78,7 +78,7 @@ A typical site initialization would be::
 
     source live/custome.env
     ./biostar.sh delete init import run
-    
+
 There are no limitations how many settings one may have. To check which environment is loaded run the
 ``biostar.sh`` manager on its own. The last printout will display the current django settings module.
 
