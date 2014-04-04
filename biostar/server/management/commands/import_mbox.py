@@ -1,7 +1,6 @@
 import sys, time, os, logging
-import mailbox, markdown
+import mailbox, markdown, pyzmail
 from django.conf import settings
-
 from django.utils.timezone import utc
 from django.utils import timezone, encoding
 from email.utils import parsedate
@@ -11,8 +10,11 @@ from django.core.management.base import BaseCommand, CommandError
 from optparse import make_option
 from itertools import *
 import re, textwrap
+from chardet import detect
 
-logger = logging.getLogger(__name__)
+from django.db.models import signals
+
+logger = logging.getLogger('simple-logger')
 
 # This needs to be shorter so that the content looks good
 # on smaller screens as well.
@@ -20,7 +22,6 @@ LINE_WIDTH= 60
 
 def path_join(*args):
     return os.path.abspath(os.path.join(*args))
-
 
 class Command(BaseCommand):
     help = 'migrate data from Biostar 1.*'
@@ -38,75 +39,26 @@ class Command(BaseCommand):
         if fname:
             parse_mboxx(fname, limit=limit, tag_val=tags)
 
-from pyparsing import Word, Or, alphanums, OneOrMore
-
-chars = alphanums + r",?.-=_\/()[]"
-email = alphanums + "+@._-"
-
-# Detecting the various way the From field may be formatted.
-#
-# User name followed by email in angled brackets: John Doe <foo@bar.com>
-patt1 = OneOrMore(Word(chars)).setResultsName('name') + "<" + Word(email).setResultsName('email') + ">"
-
-# An email alone: foo@bar.com
-patt2 = Word(email).setResultsName('email')
-
-# An email with angled brackerts: <foo@bar.com>
-patt3 = '<' + Word(email).setResultsName('email') + '>'
-
-user_patt = patt1 | patt2 | patt3
-
-
-def check_name(name, email):
-    start = email.split("@")[0]
-    if not name or '?' in name:
-        return start
-
-    return name.title()
-
-
-def parse_email(data):
-    sender = data['From']
-
-    # print sender
-    sender = sender.replace('"', '')
-    check = sender.upper()
-    res = user_patt.parseString(sender)
-    name = ' '.join(res.name)
-    email = res.email
-
-    # Corrects the name.
-    name = check_name(name, email)
-    return name, email
-
-
 class Bunch(object):
-    pass
-
-
-def no_junk(line):
-    "Gets rid of lines that contain junk"
-    # invalid starts
-    for word in "> --- From:".split():
-        if line.strip().startswith(word):
-            return False
-    # junk words
-    for word in "scrubbed attachment.html wrote: Sent:".split():
-        if word in line:
-            return False
-    return True
-
-PATTS = [
-    # pattern, tag
-
-]
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
 
 def guess_tags(text, tag_val):
     return tag_val
 
+REPLACE_PATT = [
+    "[Galaxy-user]",
+    "[Galaxy-User]",
+    "[galaxy-user]",
+    "[BioC]",
+]
+
+SKIPPED_SIZE = 0
+SIZE_LIMIT = 10000
+SKIPPED_REPLY = 0
+
 def create_post(b, author, root=None, parent=None, tag_val=''):
     from biostar.apps.posts.models import Post
-
 
     title = b.subj
     body = b.body
@@ -120,7 +72,7 @@ def create_post(b, author, root=None, parent=None, tag_val=''):
         post_type = Post.ANSWER if parent.is_toplevel else Post.COMMENT
         post = Post(type=post_type, content=body, tag_val="galaxy", author=author, parent=parent)
 
-    post.creation_date = post.lastedit_date = b.datetime
+    post.creation_date = post.lastedit_date = b.date
 
     post.save()
 
@@ -134,92 +86,84 @@ def create_post(b, author, root=None, parent=None, tag_val=''):
     return post
 
 
-REPLACE_PATT = [
-    "[Galaxy-user]",
-    "[Galaxy-User]",
-    "[galaxy-user]",
-    "[BioC]",
-]
+def fix_file(fname):
+    "Fixes the obfuscated emails in mbox files"
+    new_name = "tmp-output.txt"
+    logger.info("*** fixing obfuscated emails: %s" % new_name)
+    fp = open(new_name, 'wt')
+    for line in file(fname):
+        if line.startswith("From: "):
+            line = line.replace(" at ", "@")
+        fp.write(line)
+    fp.close()
+    return new_name
 
-
+def no_junk(line):
+    "Gets rid of lines that contain junk"
+    # invalid starts
+    for word in "> --- From:".split():
+        if line.strip().startswith(word):
+            return False
+    # junk words
+    for word in "scrubbed attachment.html wrote: Sent:".split():
+        if word in line:
+            return False
+    return True
 
 def format_text(text):
     global LINE_WIDTH
-    assert type(text), str
     lines = text.splitlines()
     lines = filter(no_junk, lines)
     lines = [textwrap.fill(line, width=LINE_WIDTH) for line in lines]
     text = "\n".join(lines)
-    text = unicode(text, encoding="utf8", errors="replace")
     text = "<div class='preformatted'>" + text + "</div>"
     return text
 
-SKIPPED_SIZE = 0
-SIZE_LIMIT = 10000
-SKIPPED_REPLY = 0
+def unpack_message(data):
+    msg = pyzmail.PyzMessage(data)
 
-def collect(m, data=[]):
-    global SKIPPED_SIZE
+    # Get the name and email the message is coming from
+    name, email = msg.get_address('from')
+    email = email.lower()
 
-    subj = m["Subject"]
-    type = m.get_content_type()
+    # Parse the date
+    date = msg.get_decoded_header("Date")
+    subj = msg.get_subject()
+    if not date or not subj:
+        return
 
-    if m.is_multipart():
-        for part in m.get_payload():
-            collect(part, data)
-    else:
-        if m.get_content_type() == "text/plain":
-            value = m.get_payload(decode=True)
-            if len(value) > SIZE_LIMIT:
-                logger.info( "skipping %s" % len(value))
-                SKIPPED_SIZE += 1
-            else:
-                data.append(value)
+    date = parsedate(date)
+    date = datetime(*date[:6])
+    date = timezone.make_aware(date, timezone=utc)
 
-
-def unpack_data(m):
-    b = Bunch()
-    b.name, b.email = parse_email(m)
-
-    b.sender = m['From']
-    b.id = m['Message-ID']
-    b.reply_to = m['In-Reply-To']
-    b.subj = m['Subject']
-
-    b.subj = unicode(b.subj, encoding="utf8", errors="replace")
-    assert b.subj, m
-
-
-
+    b = Bunch(name=name, email=email, date=date)
+    b.id = msg.get_decoded_header("Message-ID")
+    b.reply_to = msg.get_decoded_header('In-Reply-To')
+    b.subj = subj
     for patt in REPLACE_PATT:
-        b.subj = b.subj.replace(patt, '')
+        b.subj = b.subj.replace(patt, "")
 
-    b.subj = b.subj.strip()
-
-    try:
-        data = []
-        collect(m, data)
-        b.body = "\n".join(data)
-        b.body = format_text(b.body)
-
-    except KeyError, exc:
-        print exc
-        print "skipping post %s" % b.subj
-
-    b.date = m['Date']
-    b.datetime = parsedate(b.date)
-    b.datetime = datetime(*b.datetime[:6])
-    b.datetime = timezone.make_aware(b.datetime, timezone=utc)
-
+    # Get the body of the message
+    body = msg.text_part.get_payload()
+    charset = detect(body)['encoding']
+    body = body.decode(charset).encode('UTF-8')
+    body = format_text(body)
+    b.body = body
     return b
-
-from django.db.models import signals
 
 def parse_mboxx(filename, limit=None, tag_val=''):
     from biostar.apps.users.models import User
     from biostar.apps.posts.models import Post
 
     global  SKIPPED_REPLY
+
+    #users = User.objects.all().delete()
+    users = User.objects.all()
+    users = dict([(u.email, u) for u in users])
+
+    #Post.objects.all().delete()
+
+    logger.info("*** found %s users" % len(users))
 
     if limit is not None:
         limit = int(limit)
@@ -228,36 +172,33 @@ def parse_mboxx(filename, limit=None, tag_val=''):
 
     logger.info ("*** parsing mbox %s" % filename)
 
-    # Parse the mbox.
-    rows = mailbox.mbox(filename)
+    new_name = fix_file(filename)
 
-    # Keep only messages with a valid subject.
-    mbox = ifilter(lambda m: m['Subject'], rows)
+    # Parse the modified mbox.
+    mbox = mailbox.mbox(new_name)
+    rows = imap(unpack_message, mbox)
 
-    # Create users
-    rows = imap(unpack_data, rows)
+    # Remove empty elements
+    rows = ifilter(None, rows)
+    # Keep only email with sender and subject.
+    rows = ifilter(lambda b: b.email, rows)
+    rows = ifilter(lambda b: b.subj, rows)
 
-    users = User.objects.all()
-    users = dict([(u.email, u) for u in users])
-
-    #Post.objects.all().delete()
-
-    logger.info("*** found %s users" % len(users))
+    # Apply limits if necessary.
+    rows = islice(rows, limit)
 
     tree, posts = {}, {}
-
-    rows = islice(rows, limit)
 
     for b in rows:
 
         logger.info("*** parsing %s" % b.subj)
 
         if b.email not in users:
-            logger.info("--- creating user %s, %s" % (b.name, b.email))
+            logger.info("--- creating user name:%s, email:%s" % (b.name, b.email))
             u = User.objects.create(email=b.email, name=b.name)
             u.save()
-            u.profile.date_joined = b.datetime
-            u.profile.last_login = b.datetime
+            u.profile.date_joined = b.date
+            u.profile.last_login = b.date
             u.profile.save()
             users[u.email] = u
 
@@ -292,7 +233,6 @@ def parse_mboxx(filename, limit=None, tag_val=''):
         if latest:
             user.profile.last_login = latest[0].creation_date
             user.profile.save()
-
 
 if __name__ == '__main__':
     pass

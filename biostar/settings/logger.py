@@ -50,6 +50,12 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'verbose'
         },
+
+        'simple':{
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple'
+        },
     },
 
     'loggers': {
@@ -68,6 +74,11 @@ LOGGING = {
         'command':{
             'level': 'INFO',
             'handlers': ['console'],
+        },
+
+       'simple-logger':{
+            'level': 'INFO',
+            'handlers': ['simple'],
         },
     }
 

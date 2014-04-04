@@ -20,13 +20,13 @@ def abspath(*args):
 
 
 class Command(BaseCommand):
-    help = 'Dumps the postgresql database into a file'
+    help = 'Dumps the postgresql database into a file.'
 
     option_list = BaseCommand.option_list + (
         make_option('--hourly', dest='hourly', action='store_true', default=False, help='hourly datadump'),
-        make_option('-u', '--pg_user', dest='pg_user', default="www", help='postgres user'),
-        make_option('-p', '--prog', dest='prog', default="/usr/bin/pg_dump", help='the postgres dumper'),
-        make_option('-o', '--outdir', dest='outdir', default="~/data/", help='output directory'),
+        make_option('-u', dest='pg_user', default="www", help='postgres user default=%default'),
+        make_option('-p', dest='prog', default="/usr/bin/pg_dump", help='the postgres program default=%default'),
+        make_option('-o', dest='outdir', default="~/data/", help='output directory default=%default'),
     )
 
     def handle(self, *args, **options):
