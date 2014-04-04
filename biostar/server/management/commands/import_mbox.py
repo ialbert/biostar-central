@@ -18,15 +18,18 @@ logger = logging.getLogger('simple-logger')
 
 # This needs to be shorter so that the content looks good
 # on smaller screens as well.
-LINE_WIDTH= 70
+LINE_WIDTH = 70
 
 TEMPDIR = "import/bioc"
+DRY_RUN = False
 
 if not os.path.isdir(TEMPDIR):
     os.mkdir(TEMPDIR)
 
+
 def path_join(*args):
     return os.path.abspath(os.path.join(*args))
+
 
 class Command(BaseCommand):
     help = 'migrate data from Biostar 1.*'
@@ -35,21 +38,28 @@ class Command(BaseCommand):
         make_option("-f", '--file', dest='file', default=False, help='import file'),
         make_option("-l", '--limit', dest='limit', default=None, help='limit posts'),
         make_option("-t", '--tags', dest='tags', default=None, help='tags'),
+        make_option("-d", '--dry', dest='dry', action='store_true', default=False,
+                    help='dry run, parses the emails only'),
     )
 
     def handle(self, *args, **options):
+        global DRY_RUN
         fname = options['file']
         tags = options['tags']
         limit = options['limit']
+        DRY_RUN = options['dry']
         if fname:
             parse_mboxx(fname, limit=limit, tag_val=tags)
+
 
 class Bunch(object):
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
 
+
 def guess_tags(text, tag_val):
     return tag_val
+
 
 REPLACE_PATT = [
     "[Galaxy-user]",
@@ -61,6 +71,7 @@ REPLACE_PATT = [
 SKIPPED_SIZE = 0
 SIZE_LIMIT = 10000
 SKIPPED_REPLY = 0
+
 
 def create_post(b, author, root=None, parent=None, tag_val=''):
     from biostar.apps.posts.models import Post
@@ -79,11 +90,12 @@ def create_post(b, author, root=None, parent=None, tag_val=''):
 
     post.creation_date = post.lastedit_date = b.date
 
-    post.save()
+    if not DRY_RUN:
+        post.save()
 
     tag_val = guess_tags(post.content, tag_val)
 
-    if tag_val:
+    if tag_val and not DRY_RUN:
         post.add_tags(tag_val)
 
     logger.info("--- creating %s: %s" % (post.get_type_display(), title))
@@ -103,6 +115,7 @@ def fix_file(fname):
     fp.close()
     return new_name
 
+
 def no_junk(line):
     "Gets rid of lines that contain junk"
     # invalid starts
@@ -115,6 +128,7 @@ def no_junk(line):
             return False
     return True
 
+
 def format_text(text):
     global LINE_WIDTH
     lines = text.splitlines()
@@ -124,42 +138,18 @@ def format_text(text):
     text = "<div class='preformatted'>" + text + "</div>"
     return text
 
-def to_unicode_or_bust(
-        obj, encoding='utf-8'):
+
+def to_unicode_or_bust(obj, encoding='utf-8'):
     if isinstance(obj, basestring):
         if not isinstance(obj, unicode):
             obj = unicode(obj, encoding)
     return obj
 
-def unpack_message(data):
-    msg = pyzmail.PyzMessage(data)
 
-    # Get the name and email the message is coming from
-    name, email = msg.get_address('from')
-    email = email.lower()
+def bioc_remote_body(body):
+    "Attempts to fetch remote body posts"
 
-    # Parse the date
-    date = msg.get_decoded_header("Date")
-    subj = msg.get_subject()
-    if not date or not subj:
-        return
-
-    date = parsedate(date)
-    date = datetime(*date[:6])
-    date = timezone.make_aware(date, timezone=utc)
-
-    b = Bunch(name=name, email=email, date=date)
-    b.id = msg.get_decoded_header("Message-ID")
-    b.reply_to = msg.get_decoded_header('In-Reply-To')
-    b.subj = subj
-    for patt in REPLACE_PATT:
-        b.subj = b.subj.replace(patt, "")
-
-    # Get the body of the message
-    body = msg.text_part.get_payload()
-    charset = detect(body)['encoding']
-    body = body.decode(charset).encode('UTF-8')
-
+    # This is a fix for importing the bioconductor email list
     # Fetch the page if it is missing
     if "URL: <https://stat.ethz.ch/pipermail" in body:
         lines = body.splitlines()
@@ -179,24 +169,66 @@ def unpack_message(data):
                     text = to_unicode_or_bust(text)
                 except Exception, exc:
                     logger.error(exc)
-                    text = "unable to parse"
+                    text = "Error: unable to decode %s" % url
                 fp = open(fname, 'wt')
                 fp.write(text.encode("utf-8"))
                 fp.close()
             body = open(fname).read().decode('utf8')
+    return body
 
+
+def unpack_message(data):
+    msg = pyzmail.PyzMessage(data)
+
+    # Get the name and email the message is coming from
+    name, email = msg.get_address('from')
+    email = email.lower()
+
+    # Parse the date
+    date = msg.get_decoded_header("Date")
+    subj = msg.get_subject()
+    if not date or not subj:
+        return None
+
+    date = parsedate(date)
+    date = datetime(*date[:6])
+    date = timezone.make_aware(date, timezone=utc)
+
+    b = Bunch(name=name, email=email, date=date)
+    b.id = msg.get_decoded_header("Message-ID")
+    b.reply_to = msg.get_decoded_header('In-Reply-To')
+    b.subj = subj
+    for patt in REPLACE_PATT:
+        b.subj = b.subj.replace(patt, "")
+
+    # Get the body of the message
+    if not msg.text_part:
+        return None
+
+    body = msg.text_part.get_payload()
+    charset = detect(body)['encoding']
+    body = body.decode(charset).encode('utf-8')
+
+    # Checks for remote body for bioconductor import
+    body = bioc_remote_body(body)
+
+    # Reformat the body
     body = format_text(body)
-    b.body = body
 
-    #print commands(body)
+    try:
+        b.body = to_unicode_or_bust(body)
+    except UnicodeDecodeError, exc:
+        # Ignore this post
+        return None
 
     return b
+
 
 def parse_mboxx(filename, limit=None, tag_val=''):
     from biostar.apps.users.models import User
     from biostar.apps.posts.models import Post
 
-    global  SKIPPED_REPLY
+    global SKIPPED_REPLY
 
     #users = User.objects.all().delete()
     users = User.objects.all()
@@ -211,7 +243,7 @@ def parse_mboxx(filename, limit=None, tag_val=''):
 
     signals.post_save.disconnect(dispatch_uid="create_messages")
 
-    logger.info ("*** parsing mbox %s" % filename)
+    logger.info("*** parsing mbox %s" % filename)
 
     new_name = fix_file(filename)
 
@@ -231,32 +263,31 @@ def parse_mboxx(filename, limit=None, tag_val=''):
     tree, posts = {}, {}
 
     for b in rows:
-
-        logger.info("*** parsing %s" % b.subj)
+        datefmt = b.date.strftime('%Y-%m-%d')
+        logger.info("*** %s parsing %s " % (datefmt, b.subj))
 
         if b.email not in users:
+
             logger.info("--- creating user name:%s, email:%s" % (b.name, b.email))
-            u = User.objects.create(email=b.email, name=b.name)
-            u.save()
-            u.profile.date_joined = b.date
-            u.profile.last_login = b.date
-            u.profile.save()
+            u = User(email=b.email, name=b.name)
+            if not DRY_RUN:
+                u.save()
+                u.profile.date_joined = b.date
+                u.profile.last_login = b.date
+                u.profile.save()
+
             users[u.email] = u
 
         author = users[b.email]
 
-        if not b.reply_to:
-            post = create_post(b=b, author=author, tag_val=tag_val)
-            posts[b.id] = post
+        parent = posts.get(b.reply_to)
+        if parent:
+            root = parent.root
+            post = create_post(b=b, author=author, parent=parent)
         else:
-            parent = posts.get(b.reply_to)
-            if parent:
-                root = parent.root
-                post = create_post(b=b, author=author, parent=parent)
-                posts[b.id] = post
-            else:
-                SKIPPED_REPLY += 1
-                logger.info("(!) skipping, no parent post for: %s" % b.subj)
+            post = create_post(b=b, author=author, tag_val=tag_val)
+
+        posts[b.id] = post
 
     logger.info("*** users %s" % len(users))
     logger.info("*** posts %s" % len(posts))
@@ -264,6 +295,9 @@ def parse_mboxx(filename, limit=None, tag_val=''):
     logger.info("*** skipped posts due to size: %s" % SKIPPED_SIZE)
     logger.info("*** skipped posts due to missing parent: %s" % SKIPPED_REPLY)
 
+    if DRY_RUN:
+        logger.info("*** dry run, no data saved")
+        sys.exit()
 
     logger.info("*** updating user scores")
     for user in User.objects.all():
@@ -274,6 +308,7 @@ def parse_mboxx(filename, limit=None, tag_val=''):
         if latest:
             user.profile.last_login = latest[0].creation_date
             user.profile.save()
+
 
 if __name__ == '__main__':
     pass
