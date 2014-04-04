@@ -4,9 +4,102 @@ Customize
 Getting started
 ---------------
 
-TODO...
+To customize Biostar you will need to overwrite the settings.
 
-See the ``conf/defaults.env`` for all the parameters that need to be customized.
+The settings are located in two files, an environment file and a python module.
+
+Technically speaking only the python module is absolutely required. We chose to
+put some variable into an environment so that it is easier to share the same
+values across multiple settings as well as to have them available at the command line.
+
+Every single variable in the ``biostar/settings/base.py`` file directly
+affects the operation of the site. Each group of settings is documented
+to describe what it is used for. Typically only a small subset will ever need
+to be changed.
+
+A typical run sources a shell program and loads variables. The python module then looks
+for the values it expects and pulls them out from the environment.
+
+Custom modules
+--------------
+
+To get started create a new empty python file. Say ``custom.py``. This file will govern
+the entire operation of your site and is the so called  **django settings module**.
+
+Place your django settings module into a folder that python will recognize as a package directory (has a ``__init__.py`` in it).
+For example we use the ``live`` directory in the biostar source. The file then will be
+located in ``live/custom.py``. Into your django settings module place the following::
+
+    from biostar.settings.base import *
+
+This line will ensure that all the default variable are loaded from the base module. You
+can now selectively override one or more of these base variables.
+
+By default the emails are printed to the console.
+To use a typical SMTP based email service add the following to your custom settings module so
+that the entire file looks like::
+
+    from biostar.settings.base import *
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+The settings are now correct. Now an environment file needs to be created.
+
+Copy the ``conf/defaults.env`` file to a new file with a name that typically matches
+the settings file that you want to activate. Let's call it ``live/custom.env``::
+
+    cp conf/defaults.env live/custom.env
+
+Modify the ``custom.env`` file so that the ``DJANGO_SETTINGS_MODULE``
+variable points to your custom django settings module ``live/custom.py``.
+This needs to follow the Python convention for import a dot instead of
+a slash like so ``live.custom`` find and override the line to look like this::
+
+    export DJANGO_SETTINGS_MODULE=live.custom
+
+In this environment file you may also override other variables. Notably
+find the ``EMAIL_HOST``, ``EMAIL_PORT``, ``EMAIL_USER``, ``EMAIL_PASSWORD`` variables and
+fill in the values that are specific to your internet provider. If you get an
+error sending emails then this information is not set properly.
+
+To use the new environment start
+the site by sourcing this script instead of the default one.
+For example to initialize the site one would run::
+
+    source live/custom.env
+    ./biostar.sh delete init run
+
+There are no limitations how many settings one may have. To check which environment is loaded run the
+``biostar.sh`` manager on its own. The last printout will display the current django settings module.
+
+Advanced example
+----------------
+
+To change the
+upper navigation bar ook inside ``biostar.settings.base`` find and copy the following
+categories into your custom django settings module ``custom.py`` file then modify as wish::
+
+    # The start categories. These tags have special meaning internally.
+    START_CATEGORIES = [
+        "Latest", "Tutorials", "Tools",  "Jobs", "Forum", "Unanswered",
+    ]
+
+    # These should be the most frequent (or special) tags on the site.
+    NAVBAR_TAGS = [
+        "Assembly", "RNA-Seq", "ChIP-Seq", "SNP",
+    ]
+
+    # The last categories. Right now are empty.
+    END_CATEGORIES = [
+
+    ]
+
+    # These are the tags that will show up in the tag recommendation dropdown.
+    POST_TAG_LIST = NAVBAR_TAGS + ["software error"]
+
+    # This will form the navbar
+    CATEGORIES = START_CATEGORIES + NAVBAR_TAGS + END_CATEGORIES
+
+See the ``conf/defaults.env`` and for all the parameters that can to be customized.
 
 The ``SITE_STYLE_CSS`` and ``SITE_LOGO`` settings permit loading up custom sytles.
 See the ``/static/themes`` folder
