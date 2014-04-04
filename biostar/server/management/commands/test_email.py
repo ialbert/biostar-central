@@ -16,7 +16,7 @@ class Command(BaseCommand):
         from_email = settings.DEFAULT_FROM_EMAIL
         subject = "[biostar] test email "
 
-        recipient_list = ["istvan.albert@gmail.com"]
+        recipient_list = [settings.ADMIN_EMAIL]
 
         params = dict(subject=subject, from_email=from_email, recipient_list=recipient_list)
 

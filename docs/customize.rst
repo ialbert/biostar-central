@@ -64,11 +64,21 @@ error sending emails then this information is not set properly.
 
 To use the new environment to start
 the site by sourcing this script instead of the default one.
-For example to initialize the site one would run::
+You will need to run this once per terminal::
 
     source live/custom.env
-    ./biostar.sh delete init run
 
+To test that the email was set up correctly::
+
+    python manage.py test_email
+
+This command will send a test email to the email address listed in ``ADMIN_EMAIL`` in the environment file.
+
+A typical site initialization would be::
+
+    source live/custome.env
+    ./biostar.sh delete init import run
+    
 There are no limitations how many settings one may have. To check which environment is loaded run the
 ``biostar.sh`` manager on its own. The last printout will display the current django settings module.
 
