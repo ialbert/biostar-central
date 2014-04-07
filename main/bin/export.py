@@ -90,8 +90,10 @@ def export_posts(N, dest, since):
     else:
         posts = models.Post.objects.all().order_by('id')[:limit]
 
-    tags = models.Tag.objects.all()
-    tags = filter(lambda t: t.count > 10, tags)
+    tags = models.Tag.objects.filter(count__gt=20).order_by("-count")
+    if len(tags) < 100:
+        tags = models.Tag.objects.all().order_by("-count")[:100]
+
     tags = map(lambda t: t.name, tags)
     keep = set(tags)
 
