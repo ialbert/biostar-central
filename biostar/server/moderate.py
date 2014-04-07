@@ -212,7 +212,7 @@ class PostModeration(LoginRequiredMixin, FormView):
             return response
 
         # Some actions are valid on top level posts only.
-        if action in (CLOSE_OFFTOPIC, DUPLICATE, OPEN) and not post.is_toplevel:
+        if action in (CLOSE_OFFTOPIC, DUPLICATE) and not post.is_toplevel:
             messages.warning(request, "You can only close or open a top level post")
             return response
 
@@ -239,24 +239,33 @@ class PostModeration(LoginRequiredMixin, FormView):
 
         if action == DELETE:
 
-            # Delete means to mark a post deleted. Remove means to delete the post from the database.
-            # Posts with children or older than some value can only be deleted not removed
-            # Banning a user will remove their posts.
+            # Delete marks a post deleted but does not remove it.
+            # Remove means to delete the post from the database with no trace.
 
+            # Posts with children or older than some value can only be deleted not removed
+
+            # The children of a post.
             children = Post.objects.filter(parent_id=post.id).exclude(pk=post.id)
+
+            # The condition where post can only be deleted.
             delete_only = children or post.age_in_days > 7 or post.vote_count > 1 or (post.author != user)
 
             if delete_only:
                 # Deleted posts can be undeleted by re-opening them.
                 query.update(status=Post.DELETED)
                 messages.success(request, "Deleted post: %s" % post.title)
-                return response
+                response = HttpResponseRedirect(post.root.get_absolute_url())
             else:
                 # This will remove the post. Redirect depends on the level of the post.
                 url = "/" if post.is_toplevel else post.parent.get_absolute_url()
                 post.delete()
                 messages.success(request, "Removed post: %s" % post.title)
-                return HttpResponseRedirect(url)
+                response = HttpResponseRedirect(url)
+
+            # Recompute post reply count
+            post.update_reply_count()
+
+            return response
 
         # By this time all actions should have been performed
         messages.warning(request, "That seems to be an invalid action for that post. \

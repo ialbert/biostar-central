@@ -54,7 +54,7 @@ class ajax_error_wrapper(object):
 
 POST_TYPE_MAP = dict(vote=Vote.UP, bookmark=Vote.BOOKMARK, accept=Vote.ACCEPT)
 
-
+@transaction.atomic
 def perform_vote(post, user, vote_type):
 
     # Only maintain one vote for each user/post pair.
@@ -69,13 +69,17 @@ def perform_vote(post, user, vote_type):
         msg = "%s added" % vote.get_type_display()
 
     if post.author != user:
-        # Update the scores only if the author is different.
+        # Update the user reputation only if the author is different.
         User.objects.filter(pk=post.author.id).update(score=F('score') + change)
 
-    if vote.type == Vote.BOOKMARK:
+    # The thread score represents all votes in a thread
+    Post.objects.filter(pk=post.root_id).update(thread_score=F('thread_score') + change)
 
+    if vote.type == Vote.BOOKMARK:
+        # Apply the vote
         Post.objects.filter(pk=post.id).update(book_count=F('book_count') + change, vote_count=F('vote_count') + change)
         Post.objects.filter(pk=post.id).update(subs_count=F('subs_count') + change)
+        Post.objects.filter(pk=post.root_id).update(subs_count=F('subs_count') + change)
 
     elif vote_type == Vote.ACCEPT:
         if change > 0:

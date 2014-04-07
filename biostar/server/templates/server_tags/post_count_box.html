@@ -6,8 +6,8 @@
     <div class="count-box visible-lg visible-md">
 
         <div class="box vote">
-            <div class="c">{{ post.vote_count }}</div>
-            <div class="t">vote{{ post.vote_count|pluralize }}</div>
+            <div class="c">{{ post.thread_score }}</div>
+            <div class="t">vote{{ post.thread_score|pluralize }}</div>
         </div>
         <div class="box {% boxclass post.root %}">
             <div class="c">{{ post.root.reply_count }}</div>
@@ -20,7 +20,7 @@
 
         {% if post.subs_count > 4 %}
             <div class="book_count text-center">
-                {{ post.subs_count }} following
+                {{ post.subs_count }} follow
             </div>
         {% endif %}
 

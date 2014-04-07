@@ -261,8 +261,8 @@ class Post(models.Model):
     def update_reply_count(self):
         "This can be used to set the answer count."
         if self.type == Post.ANSWER:
-            reply_count = Post.objects.filter(parent=self, type=Post.ANSWER, status=Post.OPEN).count()
-            Post.objects.filter(pl=self.root_id).update(reply_count=reply_count)
+            reply_count = Post.objects.filter(parent=self.parent, type=Post.ANSWER, status=Post.OPEN).count()
+            Post.objects.filter(pk=self.root_id).update(reply_count=reply_count)
 
     def delete(self, using=None):
         # Collect tag names.
@@ -309,6 +309,9 @@ class Post(models.Model):
             self.status = self.status or Post.PENDING
             self.creation_date = self.creation_date or now()
             self.lastedit_date = self.creation_date
+
+        # Recompute post reply count
+        self.update_reply_count()
 
         super(Post, self).save(*args, **kwargs)
 
