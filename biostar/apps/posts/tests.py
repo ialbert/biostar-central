@@ -123,16 +123,16 @@ http://www.youtube.com/watch?v=_cDaX0xJPvI</pre>
 <p>Internal links are recognized:</p>
 
 <pre>
-http://test.biostars.org/u/2193/</pre>
+http://test.biostars.org/u/2/</pre>
 
-<p>vs&nbsp;http://test.biostars.org/u/2193/</p>
 
+<p>vs&nbsp;http://test.biostars.org/u/2/</p>
 <p>Similarly&nbsp;</p>
 
 <pre>
-http://test.biostars.org/p/96509/</pre>
+http://test.biostars.org/p/2/</pre>
 
-<p>versus&nbsp;http://test.biostars.org/p/96509/</p>
+<p>versus&nbsp;http://test.biostars.org/p/2/</p>
 
 <p>&nbsp;</p>
 """
