@@ -78,7 +78,7 @@ function add_comment(elem) {
     </div>'
     )
     CKEDITOR.replace('comment-box', {
-        customConfig: '/static/ck_config.js'
+        customConfig: '/static/ck_comment_config.js'
     });
 }
 

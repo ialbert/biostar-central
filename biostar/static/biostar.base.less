@@ -20,6 +20,13 @@ body {
   //background-color: @MUTED_BACKGROUND;
 }
 
+blockquote p {
+  font-size: 14px;
+  font-weight: 300;
+  line-height: 1.25;
+  font-style: italic;
+}
+
 .award {
   padding-bottom: 1em;
   height: 6em;
@@ -124,9 +131,9 @@ sup {
 
 .post-row {
 
-   .count-box-sm {
+  .count-box-sm {
     float: left;
-   }
+  }
 
   .count-box {
     float: left;
@@ -479,6 +486,9 @@ ul.flat {
     color: #666666;
     background-color: #efefef;
     border-bottom: 1px solid #eeeeee;
+    hr{
+      border-top: 1px solid #e3e3e3;
+    }
 
   }
   .post-info-line {
@@ -631,7 +641,6 @@ div#navbar {
   background-color: lightpink;
 }
 
-
 .select2-results .select2-highlighted {
   background-color: @MUTED_BACKGROUND;
   color: black;
@@ -683,11 +692,11 @@ div#navbar {
 .preformatted {
   font-family: monospace;
   //white-space: pre;
-  white-space: pre-wrap;       /* css-3 */
-  white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
-  white-space: -pre-wrap;      /* Opera 4-6 */
-  white-space: -o-pre-wrap;    /* Opera 7 */
-  word-wrap: break-word;       /* Internet Explorer 5.5+ */
+  white-space: pre-wrap; /* css-3 */
+  white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
+  white-space: -pre-wrap; /* Opera 4-6 */
+  white-space: -o-pre-wrap; /* Opera 7 */
+  word-wrap: break-word; /* Internet Explorer 5.5+ */
 }
 
 .user-sidebar {
