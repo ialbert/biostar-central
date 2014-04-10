@@ -17,6 +17,7 @@ markdown
 Sphinx
 pyzmail
 chardet
+feedparser
 
 #django-secure
 #python-dateutil

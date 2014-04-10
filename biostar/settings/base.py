@@ -78,6 +78,9 @@ TEMPLATE_DIR = abspath(HOME_DIR, 'biostar', 'server', 'templates')
 EXPORT_DIR = abspath(LIVE_DIR, "export")
 STATIC_ROOT = abspath(EXPORT_DIR, "static")
 
+# This is where the planet files are collected
+PLANET_DIR = abspath(LIVE_DIR, "planet")
+
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 MEDIA_ROOT = abspath(EXPORT_DIR, "media")
 
@@ -251,6 +254,7 @@ INSTALLED_APPS = [
     'biostar.apps.posts',
     'biostar.apps.messages',
     'biostar.apps.badges',
+    'biostar.apps.planet',
 
     # The main Biostar server.
     'biostar.server',

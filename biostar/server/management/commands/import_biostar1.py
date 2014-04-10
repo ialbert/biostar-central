@@ -179,7 +179,7 @@ class Command(BaseCommand):
 
             if url and post.type == Post.BLOG:
                 # Link to external blog bosts.
-                url_link = '<p><b><i class="fa fa-external-link-square"></i> Read full blogpost at <a href="%s">%s</a></b><p>' % (url, url)
+                url_link = '<p><b><i class="fa fa-external-link-square"></i> Read full blogpost at <a href="%s">%s</a></b><p>' % (url, url[:45])
                 url_link = to_unicode(url_link)
                 content = to_unicode(post.content)
                 post.content = url_link + content

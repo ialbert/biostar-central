@@ -1,0 +1,33 @@
+{% extends "starbase.html" %}
+{% load server_tags %}
+{% load humanize %}
+
+{% block content %}
+
+    {% search_bar %}
+
+    {% page_bar %}
+
+    <div class="row">
+        <div class="col-md-9">
+
+            <table class="table">
+                <div id="blogposts">
+                    {% for post in blogposts %}
+                        <tr>
+                            <td>
+                                <a href="#">{{ post.title }}</a> {{ post.creation_date|time_ago }}
+                                by {{ post.blog.title }}
+                            </td>
+                        </tr>
+
+                    {% endfor %}
+            </table>
+
+        </div>
+
+    </div>
+
+    {% page_bar %}
+
+{% endblock %}

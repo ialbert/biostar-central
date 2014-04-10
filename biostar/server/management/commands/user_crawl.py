@@ -24,9 +24,9 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
 
         if options['award']:
-            craw_awards()
+            crawl_awards()
 
-def craw_awards():
+def crawl_awards():
     from biostar.apps.users.models import User
     from biostar.awards import create_user_award
     import random

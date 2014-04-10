@@ -9,6 +9,7 @@ from django.views.generic import TemplateView
 from biostar.server import views, ajax, search, moderate
 from biostar.apps.posts.views import NewAnswer, NewPost, EditPost, external_post_handler
 from biostar.apps.users.views import external_logout, external_login, CaptchaView
+from biostar.apps.planet.views import BlogPostList
 
 urlpatterns = patterns('',
 
@@ -79,6 +80,10 @@ urlpatterns = patterns('',
 
     # Returns suggested tags
     url(r'^local/search/tags/', search.suggest_tags, name="suggest-tags"),
+
+
+    # Returns the planet view
+    url(r'^planet/$', BlogPostList.as_view(), name="planet-entry-list"),
 
     # Vote submission.
     url(r'^x/vote/$', ajax.vote_handler, name="vote-submit"),

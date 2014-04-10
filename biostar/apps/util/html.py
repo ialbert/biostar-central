@@ -26,6 +26,12 @@ POST_RE2 = re.compile(POST_PATTERN2)
 GIST_RE = re.compile(GIST_PATTERN)
 YOUTUBE_RE = re.compile(YOUTUBE_PATTERN)
 
+def clean(text):
+    "Simple clean"
+    html = bleach.clean(text, tags=ALLOWED_TAGS,
+        attributes=ALLOWED_ATTRIBUTES, styles=ALLOWED_STYLES)
+    return html
+
 def parse_html(text):
     from biostar.apps.users.models import User
     from biostar.apps.posts.models import Post
