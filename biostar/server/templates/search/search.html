@@ -20,16 +20,20 @@
             </form>
         </div>
 
-        <div class="col-md-12 searchbar">
+        <div class="col-md-10 col-md-offset-1 searchbar">
 
             {% if results %}
                 {% page_bar %}
             {% endif %}
 
-            {% for result in results %}
+            {% for res in results %}
 
-                {% post_count_box result.object result.context %}
-
+                <div>
+                   <h4><a href="{{ res.object.get_absolute_url }}"> {{ res.object.get_title }} </a></h4>
+                </div>
+                <div>
+                    {{ res.context|safe }}
+                <div>
 
             {% empty %}
                 {% if q %}

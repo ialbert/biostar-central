@@ -17,7 +17,7 @@ class PostIndex(indexes.SearchIndex, indexes.Indexable):
 
     def index_queryset(self, using=None):
         """Used when the entire index for model is updated."""
-        return self.get_model().objects.all()
+        return self.get_model().objects.exclude(status=Post.DELETED)
 
     def get_updated_field(self):
         return "lastedit_date"
@@ -25,8 +25,9 @@ class PostIndex(indexes.SearchIndex, indexes.Indexable):
 # Create the search indices.
 class BlogPostIndex(indexes.SearchIndex, indexes.Indexable):
     text = indexes.CharField(document=True, use_template=True)
-    title = indexes.CharField(model_attr='title')
+    title = indexes.CharField(model_attr='get_title')
     content = indexes.CharField(model_attr='html')
+    author = indexes.CharField(model_attr='blog__title')
 
     def get_model(self):
         return BlogPost

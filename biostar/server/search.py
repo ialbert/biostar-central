@@ -2,7 +2,7 @@ __author__ = 'ialbert'
 from django.views.generic import DetailView, ListView, TemplateView, RedirectView, View
 from haystack.views import SearchView
 from haystack.forms import SearchForm
-from haystack.query import SearchQuerySet
+from haystack.query import SearchQuerySet, AutoQuery
 from haystack.utils import Highlighter
 
 from django.conf import settings
@@ -53,7 +53,8 @@ class Search(BaseListMixin):
         if not self.q:
             return []
 
-        query = SearchQuerySet().models(Post, BlogPost).filter(content=self.q).highlight()[:50]
+        content = AutoQuery(self.q)
+        query = SearchQuerySet().filter(content=content).highlight()[:50]
         for row in query:
             context = join_highlights(row)
             context = context or slow_highlight(query=self.q, text=row.content)
@@ -82,7 +83,8 @@ def search_title(request):
     "Handles title searches"
     q = request.GET.get('q', '')
 
-    results = SearchQuerySet().filter(content=q).highlight()[:50]
+    content = AutoQuery(q)
+    results = SearchQuerySet().filter(content=content).highlight()[:50]
 
     items = []
     for row in results:
@@ -91,7 +93,7 @@ def search_title(request):
         context = context or slow_highlight(query=q, text=row.content)
         text = "%s" % row.title
         items.append(
-            dict(id=ob.id, text=text, context=context, author=row.author),
+            dict(id=ob.get_absolute_url(), text=text, context=context, author=row.author, url=ob.get_absolute_url()),
         )
 
     payload = dict(items=items)

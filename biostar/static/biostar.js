@@ -147,8 +147,7 @@ function ajax_vote(elem, post_id, vote_type) {
 }
 
 function title_format(row) {
-
-    link = '<a href="/p/' + row.id + '"/>' + row.text + '</a><div class="in">' + row.context + ' by <i>' + row.author + '</i></div>';
+    link = '<a href="' + row.url + '"/>' + row.text + '</a><div class="in">' + row.context + ' by <i>' + row.author + '</i></div>';
     return link
 }
 
@@ -171,7 +170,7 @@ $(document).ready(function () {
                 data: function (term, page) {
                     return {
                         q: term, // search term
-                        page_limit: 10,
+                        page_limit: 10
                     };
                 },
                 results: function (data, page) {
@@ -189,7 +188,7 @@ $(document).ready(function () {
             }
         })
         searchform.on("change", function (e) {
-            window.location = POST_DISPLAY_URL + e.val + "/"
+            window.location = e.val
         })
     }
 

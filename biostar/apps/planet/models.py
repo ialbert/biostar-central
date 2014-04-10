@@ -71,5 +71,9 @@ class BlogPost(models.Model):
     # Used to determine wether the post needs indexing
     updated = models.BooleanField(default=True)
 
+    @property
+    def get_title(self):
+        return u"BLOG: %s" % self.title
+
     def get_absolute_url(self):
         return self.link
