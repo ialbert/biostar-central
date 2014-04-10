@@ -11,18 +11,31 @@
     <div class="row">
         <div class="col-md-9">
 
-            <table class="table">
-                <div id="blogposts">
-                    {% for post in blogposts %}
-                        <tr>
-                            <td>
-                                <a href="#">{{ post.title }}</a> {{ post.creation_date|time_ago }}
-                                by {{ post.blog.title }}
-                            </td>
-                        </tr>
+            <div class="alert alert-info text-center">
+                Blog posts aggregated by the Biostar reader
+            </div>
+            {% for post in blogposts %}
 
-                    {% endfor %}
-            </table>
+                <div class="blog-post">
+
+                    <div>
+                        <h3><a href="{{ post.link }}">{{ post.title }}</a></h3>
+                    </div>
+
+                    <div>
+                        <h4>
+                            written {{ post.creation_date|time_ago }}
+                            by <a href="{{ post.blog.link }}">{{ post.blog.title|safe }}</a>
+                        </h4>
+                    </div>
+
+                    <div>
+                        {{ post.content|truncatewords:250 }}
+                    </div>
+
+
+                </div>
+            {% endfor %}
 
         </div>
 

@@ -12,5 +12,7 @@ class BlogPostList(ListView):
         query = super(BlogPostList, self).get_queryset()
         return query.select_related("blog").order_by("-creation_date")
 
-
-
+    def get_context_data(self, **kwargs):
+        context = super(BlogPostList, self).get_context_data(**kwargs)
+        context['page_title'] = "Planet"
+        return context

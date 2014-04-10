@@ -13,7 +13,8 @@ class Migration(SchemaMigration):
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('title', self.gf('django.db.models.fields.CharField')(default='', max_length=255)),
             ('desc', self.gf('django.db.models.fields.TextField')(default='')),
-            ('url', self.gf('django.db.models.fields.URLField')(max_length=200)),
+            ('feed', self.gf('django.db.models.fields.URLField')(max_length=200)),
+            ('link', self.gf('django.db.models.fields.URLField')(max_length=200)),
             ('active', self.gf('django.db.models.fields.BooleanField')(default=True)),
         ))
         db.send_create_signal(u'planet', ['Blog'])
@@ -29,6 +30,7 @@ class Migration(SchemaMigration):
             ('creation_date', self.gf('django.db.models.fields.DateTimeField')(db_index=True)),
             ('published', self.gf('django.db.models.fields.BooleanField')(default=False)),
             ('link', self.gf('django.db.models.fields.URLField')(max_length=200)),
+            ('updated', self.gf('django.db.models.fields.BooleanField')(default=True)),
         ))
         db.send_create_signal(u'planet', ['BlogPost'])
 
@@ -46,9 +48,10 @@ class Migration(SchemaMigration):
             'Meta': {'object_name': 'Blog'},
             'active': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'desc': ('django.db.models.fields.TextField', [], {'default': "''"}),
+            'feed': ('django.db.models.fields.URLField', [], {'max_length': '200'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'title': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '255'}),
-            'url': ('django.db.models.fields.URLField', [], {'max_length': '200'})
+            'link': ('django.db.models.fields.URLField', [], {'max_length': '200'}),
+            'title': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '255'})
         },
         u'planet.blogpost': {
             'Meta': {'object_name': 'BlogPost'},
@@ -60,7 +63,8 @@ class Migration(SchemaMigration):
             'link': ('django.db.models.fields.URLField', [], {'max_length': '200'}),
             'published': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'title': ('django.db.models.fields.CharField', [], {'max_length': '200'}),
-            'uid': ('django.db.models.fields.CharField', [], {'max_length': '200'})
+            'uid': ('django.db.models.fields.CharField', [], {'max_length': '200'}),
+            'updated': ('django.db.models.fields.BooleanField', [], {'default': 'True'})
         }
     }
 

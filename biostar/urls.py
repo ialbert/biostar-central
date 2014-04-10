@@ -83,7 +83,7 @@ urlpatterns = patterns('',
 
 
     # Returns the planet view
-    url(r'^planet/$', BlogPostList.as_view(), name="planet-entry-list"),
+    url(r'^planet/$', BlogPostList.as_view(), name="planet"),
 
     # Vote submission.
     url(r'^x/vote/$', ajax.vote_handler, name="vote-submit"),

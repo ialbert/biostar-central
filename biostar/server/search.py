@@ -11,7 +11,7 @@ from ajax import ajax_error, ajax_success, ajax_error_wrapper, json_response
 from django.conf.urls import patterns
 from django.contrib.sitemaps import FlatPageSitemap, GenericSitemap
 from biostar.apps.posts.models import Post, Tag
-
+from biostar.apps.planet.models import BlogPost
 
 info_dict = {
     'queryset': Post.objects.all(),
@@ -53,7 +53,7 @@ class Search(BaseListMixin):
         if not self.q:
             return []
 
-        query = SearchQuerySet().filter(content=self.q).highlight()
+        query = SearchQuerySet().models(Post, BlogPost).filter(content=self.q).highlight()[:50]
         for row in query:
             context = join_highlights(row)
             context = context or slow_highlight(query=self.q, text=row.content)

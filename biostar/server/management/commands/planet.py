@@ -16,7 +16,6 @@ from django.utils import timezone
 
 logger = logging.getLogger('simple-logger')
 
-
 def abspath(*args):
     """Generates absolute paths"""
     return os.path.abspath(os.path.join(*args))
@@ -50,12 +49,12 @@ class Command(BaseCommand):
         if options['update']:
             update_entries()
 
-def add_blog(url):
+def add_blog(feed):
     from biostar.apps.planet.models import Blog
     # makes it easier to troubleshoot when thing fail
     fname = abspath(settings.PLANET_DIR, 'add-blog.xml')
     try:
-        text = urllib.urlopen(url).read()
+        text = urllib.urlopen(feed).read()
         stream = file(fname, 'wt')
         stream.write(text)
         stream.close()
@@ -65,11 +64,13 @@ def add_blog(url):
             desc = doc.feed.description
         else:
             desc = ""
-        blog = Blog.objects.create(title=smart_text(title), url=url, desc=smart_text(desc))
+        link = doc.feed.link
+        blog = Blog.objects.create(title=smart_text(title), feed=feed, link=link, desc=smart_text(desc))
         logger.info("adding %s" % blog.title)
+        logger.info("link: %s" % blog.link)
         logger.info(blog.desc)
     except Exception, exc:
-        logger.error("error %s parsing %s" % (exc, url))
+        logger.error("error %s parsing %s" % (exc, feed))
         blog = None
 
     logger.info('-' * 10)
@@ -78,13 +79,12 @@ def add_blog(url):
 def download_blogs():
     from biostar.apps.planet.models import Blog
 
-
     blogs = Blog.objects.filter(active=True)
     for blog in blogs:
         logger.info("downloading: %s" % blog.title)
         blog.download()
 
-def update_entries(count=30):
+def update_entries(count=3):
     from biostar.apps.planet.models import Blog, BlogPost
     from biostar.apps.util import html
 
@@ -110,14 +110,18 @@ def update_entries(count=30):
             for r in entries:
                 r.title = smart_text(r.title)
                 r.title = r.title.strip()[:200]
+                r.title = html.strip_tags(r.title)
                 r.description = smart_text(r.description)
+                r.description = html.strip_tags(r.description)
+
                 date = r.get('date_parsed') or r.get('published_parsed')
                 date = datetime(date[0], date[1], date[2])
                 date = timezone.make_aware(date, timezone=timezone.utc)
                 if not r.title:
                     continue
-                content = html.clean(r.description)[:5000]
-                post = BlogPost.objects.create(title=r.title, blog=blog, uid=r.id, content=content, creation_date=date, link=r.link)
+                body = html.clean(r.description)[:5000]
+                content = html.strip_tags(body)
+                post = BlogPost.objects.create(title=r.title, blog=blog, uid=r.id, content=content, html=body, creation_date=date, link=r.link)
                 logger.info("added: %s" % post.title)
 
         except KeyError, exc:
@@ -133,12 +137,12 @@ def add_blogs(add_fname):
     urls = map(strip, open(add_fname))
 
     # Keep feeds with urls that do not yet exists
-    urls = filter(lambda url: not Blog.objects.filter(url=url), urls)
+    urls = filter(lambda url: not Blog.objects.filter(feed=url), urls)
 
     #urls = urls[:1]
 
     # Attempt to populate the database with the feeds
-    for url in urls:
-        logger.info("parsing %s" % url)
-        add_blog(url)
+    for feed in urls:
+        logger.info("parsing %s" % feed)
+        add_blog(feed)
 

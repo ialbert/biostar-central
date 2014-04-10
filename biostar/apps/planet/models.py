@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 import os, urllib, logging, feedparser
+from django.core.urlresolvers import reverse
 
 logger = logging.getLogger(__name__)
 
@@ -14,7 +15,8 @@ class Blog(models.Model):
     "Represents a blog"
     title = models.CharField(verbose_name='Blog Name', max_length=255, default="", blank=False)
     desc = models.TextField(default='')
-    url = models.URLField()
+    feed = models.URLField()
+    link = models.URLField()
     active = models.BooleanField(default=True)
 
     @property
@@ -32,13 +34,12 @@ class Blog(models.Model):
 
     def download(self):
         try:
-            text = urllib.urlopen(self.url).read()
+            text = urllib.urlopen(self.feed).read()
             stream = file(self.fname, 'wt')
             stream.write(text)
             stream.close()
         except Exception, exc:
-            logger.error("error %s downloading %s", (exc, self.url))
-
+            logger.error("error %s downloading %s", (exc, self.feed))
 
 class BlogPost(models.Model):
     "Represents an entry of a Blog"
@@ -66,3 +67,9 @@ class BlogPost(models.Model):
 
     # The link to the entry
     link = models.URLField()
+
+    # Used to determine wether the post needs indexing
+    updated = models.BooleanField(default=True)
+
+    def get_absolute_url(self):
+        return self.link
