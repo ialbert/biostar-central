@@ -178,6 +178,8 @@ class Command(BaseCommand):
             post.content = file(post_file, 'rt').read()
 
             if url and post.type == Post.BLOG:
+                # Will break out an not deal with Blogs in Biostar.
+                continue
                 # Link to external blog bosts.
                 url_link = '<p><b><i class="fa fa-external-link-square"></i> Read full blogpost at <a href="%s">%s</a></b><p>' % (url, url[:45])
                 url_link = to_unicode(url_link)
