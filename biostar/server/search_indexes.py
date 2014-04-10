@@ -34,7 +34,8 @@ class BlogPostIndex(indexes.SearchIndex, indexes.Indexable):
 
     def index_queryset(self, using=None):
         """Used when the entire index for model is updated."""
-        return self.get_model().objects.all()
+        query = self.get_model().objects.all()
+        return query
 
     def get_updated_field(self):
         return "creation_date"

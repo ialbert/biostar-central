@@ -30,7 +30,6 @@ class Migration(SchemaMigration):
             ('creation_date', self.gf('django.db.models.fields.DateTimeField')(db_index=True)),
             ('published', self.gf('django.db.models.fields.BooleanField')(default=False)),
             ('link', self.gf('django.db.models.fields.URLField')(max_length=200)),
-            ('updated', self.gf('django.db.models.fields.BooleanField')(default=True)),
         ))
         db.send_create_signal(u'planet', ['BlogPost'])
 
@@ -63,8 +62,7 @@ class Migration(SchemaMigration):
             'link': ('django.db.models.fields.URLField', [], {'max_length': '200'}),
             'published': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'title': ('django.db.models.fields.CharField', [], {'max_length': '200'}),
-            'uid': ('django.db.models.fields.CharField', [], {'max_length': '200'}),
-            'updated': ('django.db.models.fields.BooleanField', [], {'default': 'True'})
+            'uid': ('django.db.models.fields.CharField', [], {'max_length': '200'})
         }
     }
 

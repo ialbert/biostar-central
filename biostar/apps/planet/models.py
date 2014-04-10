@@ -68,9 +68,6 @@ class BlogPost(models.Model):
     # The link to the entry
     link = models.URLField()
 
-    # Used to determine wether the post needs indexing
-    updated = models.BooleanField(default=True)
-
     @property
     def get_title(self):
         return u"BLOG: %s" % self.title
