@@ -34,6 +34,21 @@ To enable searching you must the content with::
 
     ./biostar.sh index
 
+Blog Aggregation
+----------------
+
+Biostar has the ability to aggregate blog feeds and allow searching and linking to them.
+List the RSS feeds in a file then::
+
+    # Initialize with new feed urls (see example)
+    python manage.py planet --add biostar/apps/planet/example-feeds.txt
+
+    # Download all feeds (usually performed daily)
+    python manage.py planet --download
+
+    # Add one new blog entry for each feed the downloaded file (if there is any)
+    python manage.py planet --update 1
+
 Social authentication
 ---------------------
 

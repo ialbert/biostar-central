@@ -29,7 +29,7 @@ class Command(BaseCommand):
                     help='adds blogs to the database'),
         make_option('--download', dest='download', action="store_true", default=False,
                     help='downloads latest feeds'),
-        make_option('--update', dest='update', action="store_true", default=False,
+        make_option('--update', dest='update', default=0, type=int,
                     help='updates with latest feeds'),
     )
 
@@ -46,8 +46,9 @@ class Command(BaseCommand):
         if options['download']:
             download_blogs()
 
-        if options['update']:
-            update_entries()
+        count = options['update']
+        if count:
+            update_entries(count)
 
 def add_blog(feed):
     from biostar.apps.planet.models import Blog
