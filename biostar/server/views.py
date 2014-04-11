@@ -76,7 +76,7 @@ def apply_sort(request, query):
     return query
 
 LATEST = "latest"
-MYPOSTS, MYTAGS, UNANSWERED, FOLLOWING, BOOKMARKS = "myposts mytags unanswered following bookmarks".split()
+MYPOSTS, MYTAGS, UNANSWERED, FOLLOWING, BOOKMARKS = "myposts mytags open following bookmarks".split()
 POST_TYPES = dict(jobs=Post.JOB, tools=Post.TOOL, tutorials=Post.TUTORIAL,
                   forum=Post.FORUM, planet=Post.BLOG, pages=Post.PAGE)
 

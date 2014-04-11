@@ -18,17 +18,17 @@ USE_COMPRESSOR = False
 
 # The start categories. These tags have special meaning internally.
 START_CATEGORIES = [
-    "Latest", "Tutorials", "Tools",  "Jobs", "Forum", "Unanswered",
+    "Latest",  "Open",
 ]
 
 # These should be the most frequent (or special) tags on the site.
 NAVBAR_TAGS = [
-    "Assembly", "RNA-Seq", "ChIP-Seq", "SNP",
+    "RNA-Seq", "ChIP-Seq", "SNP", "Assembly",
 ]
 
 # The last categories. These tags have special meaning internally.
 END_CATEGORIES = [
-
+    "Tutorials", "Tools",  "Jobs", "Forum",
 ]
 
 # These are the tags that always show up in the tag recommendation dropdown.

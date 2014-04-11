@@ -95,7 +95,7 @@ def get_counts(request, weeks=settings.COUNT_INTERVAL_WEEKS):
             counts[tag.name] += 1
 
     # Fill in the unanswered counts.
-    counts['unanswered'] = Post.objects.filter(type=Post.QUESTION, reply_count=0, status=Post.OPEN, creation_date__gt=since).count()
+    counts['open'] = Post.objects.filter(type=Post.QUESTION, reply_count=0, status=Post.OPEN, creation_date__gt=since).count()
 
     # Compute a few more counts for the user.
     if user.is_authenticated():

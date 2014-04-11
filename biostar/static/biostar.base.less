@@ -208,6 +208,7 @@ sup {
   padding: 1em 0em 1em 0em;
   border-bottom: 1px solid #d3d3d3;
 }
+
 table#posts {
   vertical-align: top;
   padding: 0px;
@@ -351,15 +352,16 @@ ul.flat {
 
 }
 
-#search-results{
+#search-results {
   .result {
     padding-bottom: 0.5em;
     border-bottom: 1px solid #d3d3d3;
   }
-   em {
+  em {
     background-color: yellow;
   }
 }
+
 .pagination {
   margin: 5px 0;
 }
@@ -368,19 +370,31 @@ ul.flat {
   font-size: large;
 }
 
-.nav {
+#topnav {
+  margin-top: 3px;
   text-transform: uppercase;
+
   //font-size: 90%;
   //line-height: 18px
 }
 
-.nav-pills > li > a {
+.dropdown-toggle {
+  border-style: solid;
+  border-width: 1px;
+  border-color: #d7d7d7;
+  background-color: #f0f0f0;
+}
+
+#topnav > div {
+  padding: 0.5em 0em 0.5em 0em;
+  border-radius: 5px;
+  -moz-border-radius: 5px;
   &:hover {
     background-color: @MUTED_BACKGROUND;
   }
 }
 
-.nav-pills > li.active > a, .nav-pills > li.active > a:hover, .nav-pills > li.active > a:focus {
+#topnav > div.active {
   color: #000000;
   background-color: @MUTED_BACKGROUND;
 }
@@ -504,7 +518,7 @@ ul.flat {
     color: #666666;
     background-color: #efefef;
     border-bottom: 1px solid #eeeeee;
-    hr{
+    hr {
       border-top: 1px solid #e3e3e3;
     }
 
