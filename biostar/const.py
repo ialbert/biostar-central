@@ -11,12 +11,13 @@ from django.utils.timezone import utc
 from datetime import datetime
 
 # Message type selector.
-LOCAL_MESSAGE, EMAIL_MESSAGE, NO_MESSAGES, ALL_MESSAGES = range(4)
+LOCAL_MESSAGE, EMAIL_MESSAGE, NO_MESSAGES, DEFAULT_MESSAGES, ALL_MESSAGES = range(5)
 
 MESSAGING_MAP = OrderedDict([
-    (LOCAL_MESSAGE, "messages",),
+    (DEFAULT_MESSAGES, "default",),
+    (LOCAL_MESSAGE, "local messages",),
     (EMAIL_MESSAGE, "email",),
-    (ALL_MESSAGES, "email for every new thread",),
+    (ALL_MESSAGES, "email for every new thread (mailing list mode)",),
 ])
 
 MESSAGING_TYPE_CHOICES = MESSAGING_MAP.items()

@@ -480,7 +480,10 @@ class Subscription(models.Model):
         user = instance.author
         root = instance.root
         if Subscription.objects.filter(post=root, user=user).count() == 0:
-            sub = Subscription(post=root, user=user, type=user.profile.message_prefs)
+            sub_type = user.profile.message_prefs
+            if sub_type == const.DEFAULT_MESSAGES:
+                sub_type = const.EMAIL_MESSAGE if instance.is_toplevel else const.LOCAL_MESSAGE
+            sub = Subscription(post=root, user=user, type=sub_type)
             sub.date = datetime.datetime.utcnow().replace(tzinfo=utc)
             sub.save()
             # Increase the subscription count of the root.

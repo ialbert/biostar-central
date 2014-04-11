@@ -379,9 +379,9 @@ SITE_STYLE_CSS = "biostar.style.less"
 SITE_LATEST_POST_LIMIT = None
 
 # How many recent objects to show in the sidebar.
-RECENT_VOTE_COUNT = 10
-RECENT_USER_COUNT = 10
-RECENT_POST_COUNT = 10
+RECENT_VOTE_COUNT = 7
+RECENT_USER_COUNT = 7
+RECENT_POST_COUNT = 12
 
 # Time between two accesses from the same IP to qualify as a different view.
 POST_VIEW_MINUTES = 5

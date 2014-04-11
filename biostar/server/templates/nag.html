@@ -1,0 +1,9 @@
+{% if user.is_authenticated and not user.profile.filled %}
+    <div class="alert alert-info text-center">
+        The community would like to know
+        you better <i class="fa fa-smile-o"></i>. Please fill in
+        the <b>location</b> and <b>info</b> field of your profile:
+        <a href="{% url "user-edit" user.id %}" class="btn btn-xs btn-success" role="button" href="#">Edit
+            Your Profile &raquo;</a>
+    </div>
+{% endif %}

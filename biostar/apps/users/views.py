@@ -38,7 +38,7 @@ class UserEditForm(forms.Form):
                               help_text="Use <code>+</code> to add tags. Add a <code>!</code> to remove a tag. Example: <code>galaxy + bed + solid!</code> (optional)")
 
     message_prefs = forms.ChoiceField(required=True, choices=const.MESSAGING_TYPE_CHOICES, label="Notifications",
-                                      help_text="The default setting for notifications when you contribute to a thread")
+                                      help_text="Where to send notifications. Default mode sends email on followups to questions you've created.")
 
     info = forms.CharField(widget=forms.Textarea, required=False,
                            help_text="A brief description about yourself (recommended)")
