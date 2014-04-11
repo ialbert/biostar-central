@@ -20,21 +20,21 @@
             </form>
         </div>
 
-        <div class="col-md-10 col-md-offset-1 searchbar">
+        <div class="col-md-10 col-md-offset-1" id="search-results">
 
             {% if results %}
                 {% page_bar %}
             {% endif %}
 
             {% for res in results %}
-
-                <div>
-                   <h4><a href="{{ res.object.get_absolute_url }}"> {{ res.object.get_title }} </a></h4>
+                <div class="result">
+                    <div>
+                        <h4><a href="{{ res.object.get_absolute_url }}"> {{ res.object.get_title }} </a></h4>
+                    </div>
+                    <div>
+                        {{ res.context|safe }}
+                    </div>
                 </div>
-                <div>
-                    {{ res.context|safe }}
-                <div>
-
             {% empty %}
                 {% if q %}
                     <div class="alert alert-warning text-center">No results found.</div>
