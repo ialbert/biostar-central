@@ -54,9 +54,9 @@
             {% endfor %}
             </span>
             <span class="userlink text-right">
-            <span class="ago">{{ post.creation_date|time_ago }}</span> by {% userlink post.author %}
+            written <span class="ago2">{{ post.creation_date|time_ago }}</span> by {% userlink post.author %}
                 {% if post.author != post.lastedit_user %}
-                    &bull; <span class="ago">{{ post.lastedit_date|time_ago }}</span> by
+                    &bull; updated <span class="ago2">{{ post.lastedit_date|time_ago }}</span> by
                     {% userlink post.lastedit_user %}
                 {% endif %}
             </span>

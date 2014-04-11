@@ -38,7 +38,11 @@ class PlanetFeed(Feed):
     description = "Latest 50 posts of the %s" % title
 
     def item_title(self, item):
-        return item.title
+        try:
+            title = u"%s (%s)" % (item.title, item.blog.title)
+        except Exception, exc:
+            title = item.title
+        return title
 
     def item_description(self, item):
         return item.content[:250]
@@ -47,7 +51,7 @@ class PlanetFeed(Feed):
         return "%s" % obj.id
 
     def items(self):
-        posts = BlogPost.objects.order_by('-creation_date')
+        posts = BlogPost.objects.select_related("blog").order_by('-creation_date')
         return posts[:FEED_COUNT]
 
 

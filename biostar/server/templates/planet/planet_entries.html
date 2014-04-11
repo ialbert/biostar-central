@@ -6,14 +6,19 @@
 
     {% search_bar %}
 
-    {% page_bar %}
+
 
     <div class="row">
         <div class="col-md-9">
 
+            {% page_bar %}
+
             <div class="alert alert-info text-center">
-                Blog posts aggregated by the Biostar reader. To follow subscribe to the <a class="alert-link" href="{% url "planet-feed" %}">planet feed <i class="fa fa-rss"></i></a>
+                Blog posts collected by the Biostar aggregator.
+                To follow subscribe to the <a class="alert-link" href="{% url "planet-feed" %}">planet
+                feed <i class="fa fa-rss"></i></a>
             </div>
+
             {% for post in blogposts %}
 
                 <div class="blog-post">
@@ -36,11 +41,15 @@
 
                 </div>
             {% endfor %}
-
+            {% page_bar %}
+        </div>
+        <div class="col-md-3">
+            <h4>Planet</h4>
+            {% for blog in blogs %}
+                <h5><a href="{{ blog.link }}">{{ blog.title }}</a></h5>
+            {% endfor %}
         </div>
 
     </div>
-
-    {% page_bar %}
 
 {% endblock %}
