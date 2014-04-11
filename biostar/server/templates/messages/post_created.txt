@@ -1,7 +1,11 @@
-User: {{user.name}} on Biostar wrote:
+User {{user.name}} on {{site.name}} replied to "{{ post.root.get_title }}":
 
-{{ post.get_type_display }}: {{ post.root.get_title }}
+{{post.as_text|truncatewords:100}}
 
-{{post.peek}}...
+---
 
-See the post at: http://{{site.domain}}{{ post.get_absolute_url }}
+See more at: http://{{site.domain}}{{ post.get_absolute_url }}
+
+---
+
+You are receiving this message because you are subscribed to the post via email.
