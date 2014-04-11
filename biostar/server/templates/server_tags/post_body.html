@@ -1,6 +1,6 @@
 {% load server_tags %}
 
-<div class="post-body {{ post.get_status_display }}">
+<div class="post-body {{ post.get_status_display }} clearfix">
 
     {% if post.is_toplevel %}
         <div class="title">{{ post.get_type_display }}: {{ post.get_title }}</div>
