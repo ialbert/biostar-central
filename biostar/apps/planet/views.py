@@ -15,4 +15,5 @@ class BlogPostList(ListView):
     def get_context_data(self, **kwargs):
         context = super(BlogPostList, self).get_context_data(**kwargs)
         context['page_title'] = "Planet"
+        context['topic'] = 'planet'
         return context

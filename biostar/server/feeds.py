@@ -5,6 +5,7 @@ from django.shortcuts import get_object_or_404
 from biostar.apps.posts.models import Post
 from biostar.apps.users.models import User
 from biostar.apps.messages.models import Message
+from biostar.apps.planet.models import BlogPost
 
 from django.conf import settings
 from django.contrib.sites.models import Site
@@ -29,6 +30,26 @@ def split(text):
     rows = text.split('+')
     return rows
 
+class PlanetFeed(Feed):
+    "Latest posts"
+    link = "/"
+    FEED_COUNT = 50
+    title = "%s Planet!" % SITE_NAME
+    description = "Latest 50 posts of the %s" % title
+
+    def item_title(self, item):
+        return item.title
+
+    def item_description(self, item):
+        return item.content[:250]
+
+    def item_guid(self, obj):
+        return "%s" % obj.id
+
+    def items(self):
+        posts = BlogPost.objects.order_by('-creation_date')
+        return posts[:FEED_COUNT]
+
 
 class PostBase(Feed):
     "Forms the base class to any feed producing posts"
@@ -46,8 +67,7 @@ class PostBase(Feed):
         return reduce_html(item.content)
 
     def item_guid(self, obj):
-        return "http://%s%s" % (SITE.domain, obj.get_absolute_url())
-
+        return "%s" % obj.id
 
 class LatestFeed(PostBase):
     "Latest posts"
@@ -57,7 +77,6 @@ class LatestFeed(PostBase):
     def items(self):
         posts = Post.objects.filter(type__in=Post.TOP_LEVEL).exclude(type=Post.BLOG).order_by('-creation_date')
         return posts[:FEED_COUNT]
-
 
 class PostTypeFeed(PostBase):
     TYPE_MAP = {

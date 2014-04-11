@@ -106,7 +106,7 @@ urlpatterns += patterns('',
     (r'^sitemap\.xml$', 'django.contrib.sitemaps.views.sitemap', {'sitemaps': search.sitemaps})
 )
 
-from biostar.server.feeds import LatestFeed, TagFeed, UserFeed, PostFeed, PostTypeFeed
+from biostar.server.feeds import LatestFeed, TagFeed, UserFeed, PostFeed, PostTypeFeed, PlanetFeed
 
 # Adding the RSS related urls.
 urlpatterns += patterns('',
@@ -121,7 +121,7 @@ urlpatterns += patterns('',
     url(r'^feeds/user/(?P<text>[\w\-_\+]+)/$', UserFeed(), name='user-feed'),
     url(r'^feeds/post/(?P<text>[\w\-_\+]+)/$', PostFeed(), name='post-feed' ),
     url(r'^feeds/type/(?P<text>[\w\-_\+]+)/$', PostTypeFeed(), name='post-type'),
-
+    url(r'^feeds/planet/$', PlanetFeed(), name='planet-feed'),
 )
 
 urlpatterns += patterns('',
