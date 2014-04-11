@@ -1,9 +1,12 @@
 from django.db import models
 from django.conf import settings
-import os, urllib, logging, feedparser
+import os, urllib, logging, feedparser, datetime
 from django.core.urlresolvers import reverse
-
+from django.utils.timezone import utc
 logger = logging.getLogger(__name__)
+
+def now():
+    return datetime.datetime.utcnow().replace(tzinfo=utc)
 
 def abspath(*args):
     """Generates absolute paths"""
@@ -62,6 +65,9 @@ class BlogPost(models.Model):
     # Date related fields.
     creation_date = models.DateTimeField(db_index=True)
 
+    # Date at which the post has been inserted into the database
+    insert_date = models.DateTimeField(db_index=True, null=True)
+
     # Has the entry been published
     published = models.BooleanField(default=False)
 
@@ -74,3 +80,11 @@ class BlogPost(models.Model):
 
     def get_absolute_url(self):
         return self.link
+
+    def save(self, *args, **kwargs):
+
+        if not self.id:
+            # Set the date to current time if missing.
+            self.insert_date = self.insert_date or now()
+
+        super(BlogPost, self).save(*args, **kwargs)

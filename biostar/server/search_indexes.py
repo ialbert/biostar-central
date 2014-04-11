@@ -39,4 +39,4 @@ class BlogPostIndex(indexes.SearchIndex, indexes.Indexable):
         return query
 
     def get_updated_field(self):
-        return "creation_date"
+        return "insert_date"

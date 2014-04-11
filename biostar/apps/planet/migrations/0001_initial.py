@@ -28,6 +28,7 @@ class Migration(SchemaMigration):
             ('content', self.gf('django.db.models.fields.TextField')(default='', max_length=20000)),
             ('html', self.gf('django.db.models.fields.TextField')(default='')),
             ('creation_date', self.gf('django.db.models.fields.DateTimeField')(db_index=True)),
+            ('insert_date', self.gf('django.db.models.fields.DateTimeField')(null=True, db_index=True)),
             ('published', self.gf('django.db.models.fields.BooleanField')(default=False)),
             ('link', self.gf('django.db.models.fields.URLField')(max_length=200)),
         ))
@@ -59,6 +60,7 @@ class Migration(SchemaMigration):
             'creation_date': ('django.db.models.fields.DateTimeField', [], {'db_index': 'True'}),
             'html': ('django.db.models.fields.TextField', [], {'default': "''"}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'insert_date': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'db_index': 'True'}),
             'link': ('django.db.models.fields.URLField', [], {'max_length': '200'}),
             'published': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'title': ('django.db.models.fields.CharField', [], {'max_length': '200'}),

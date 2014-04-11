@@ -30,10 +30,14 @@
                 <div class="result">
                     <div>
                         <h4><a href="{{ res.object.get_absolute_url }}"> {{ res.object.get_title }} </a></h4>
+
                     </div>
                     <div>
                         {{ res.context|safe }}
                     </div>
+
+                    <div class="muted">by {{ res.author }}</div>
+
                 </div>
             {% empty %}
                 {% if q %}

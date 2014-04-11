@@ -14,7 +14,7 @@
 
         <div class="col-xs-12 col-md-9">
 
-            <table class="table" id="post-details">
+            <div id="post-details">
 
                 {# This is the toplevel post #}
                 {% post_body post user post.tree %}
@@ -28,61 +28,58 @@
                 <span id="csrf_token">{% csrf_token %}</span>
 
                 {# Generate the form to post an answer #}
-                <tr>
-                    <td>&nbsp;</td>
-                    <td>
-                        {#  Below we could do an if/else but it is very hard to follow #}
+                <div>
 
-                        {#  Anonymous users. #}
-                        {% if not user.is_authenticated %}
-                            <div class="alert alert-info">
-                                Please <a href="{% url 'login' %}">log in</a> to add an answer.
+                    {#  Below we could do an if/else but it is very hard to follow #}
+
+                    {#  Anonymous users. #}
+                    {% if not user.is_authenticated %}
+                        <div class="alert alert-info">
+                            Please <a href="{% url 'login' %}">log in</a> to add an answer.
+                        </div>
+                    {% endif %}
+
+                    {#  Closed posts cannot get more answers #}
+                    {% if not post.is_open %}
+                        <div class="alert alert-warning">
+                            The thread is closed. No new answers may be added.
+                        </div>
+                    {% endif %}
+
+                    {#  Authenticated users on an open post #}
+                    {% if user.is_authenticated and post.is_open %}
+
+                        <h3>Add your answer</h3>
+
+                        <div class="alert alert-success">
+
+                            <p><strong>Note:</strong> Answers should respond to the original question on the
+                                top!
+                            </p>
+
+                            <p>
+                                Use the comments
+                                to discuss an answer, ask for clarifications, request more details, etc.
+                            </p>
+                        </div>
+
+                        <form role="form" id="answer-form" method="post"
+                              action="{% url 'new-answer' post.id %}">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <textarea class="textarea form-control" cols="40" id="answerbox" name="content"
+                                          rows="10"></textarea>
                             </div>
-                        {% endif %}
+                            <button type="submit" class="btn btn-success">Add Answer</button>
 
-                        {#  Closed posts cannot get more answers #}
-                        {% if not post.is_open %}
-                            <div class="alert alert-warning">
-                                The thread is closed. No new answers may be added.
-                            </div>
-                        {% endif %}
-
-                        {#  Authenticated users on an open post #}
-                        {% if user.is_authenticated and post.is_open %}
-
-                            <h3>Add your answer</h3>
-
-                            <div class="alert alert-success">
-
-                                <p><strong>Note:</strong> Answers should respond to the original question on the
-                                    top!
-                                </p>
-
-                                <p>
-                                    Use the comments
-                                    to discuss an answer, ask for clarifications, request more details, etc.
-                                </p>
-                            </div>
-
-                            <form role="form" id="answer-form" method="post"
-                                  action="{% url 'new-answer' post.id %}">
-                                {% csrf_token %}
-                                <div class="form-group">
-                                    <textarea class="textarea form-control" cols="40" id="answerbox" name="content"
-                                              rows="10"></textarea>
-                                </div>
-                                <button type="submit" class="btn btn-success">Add Answer</button>
-
-                            </form>
-                        {% endif %}
-                    </td>
-                </tr>
-            </table>
-
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
         </div>
         <div class="col-xs-12 col-md-3 sidebar">
             {% cache 600 "similar" post.id %}
-                <h4>Similar posts &bull; <a href="{%  url 'search-page' %}">Search &raquo;</a></h4>
+                <h4>Similar posts &bull; <a href="{% url 'search-page' %}">Search &raquo;</a></h4>
                 {% more_like_this post as related limit 25 %}
 
                 <ul class="more-like-this">
@@ -105,7 +102,6 @@
             {% endcache %}
         </div>
     </div>
-
     {% if user.is_authenticated %}
         <script src="/static/ckeditor/ckeditor.js"></script>
         <script type="application/javascript">

@@ -93,9 +93,14 @@ class PostManager(models.Manager):
 
         return query
 
-    def get_thread(self, root):
+    def get_thread(self, root, user):
         # Populate the object to build a tree that contains all posts in the thread.
-        query = self.filter(root=root).select_related("root", "author", "lastedit_user").order_by("type", "-has_accepted", "-vote_count", "creation_date")
+        is_moderator = user.is_authenticated() and user.is_moderator
+        if is_moderator:
+            query = self.filter(root=root).select_related("root", "author", "lastedit_user").order_by("type", "-has_accepted", "-vote_count", "creation_date")
+        else:
+            query = self.filter(root=root).exclude(status=Post.DELETED).select_related("root", "author", "lastedit_user").order_by("type", "-has_accepted", "-vote_count", "creation_date")
+
         return query
 
     def top_level(self, user):

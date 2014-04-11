@@ -353,7 +353,7 @@ class PostDetails(DetailView):
 
         # Populate the object to build a tree that contains all posts in the thread.
         # Answers sorted before comments.
-        thread = [post_permissions(request=self.request, post=post) for post in Post.objects.get_thread(obj)]
+        thread = [post_permissions(request=self.request, post=post) for post in Post.objects.get_thread(obj, user)]
 
         # Do a little preprocessing.
         answers = [p for p in thread if p.type == Post.ANSWER]
@@ -377,9 +377,13 @@ class PostDetails(DetailView):
         bookmarks = store[Vote.BOOKMARK]
         upvotes = store[Vote.UP]
 
+        # Can the current user accept answers
+        can_accept = obj.author == user
+
         def decorate(post):
             post.has_bookmark = post.id in bookmarks
             post.has_upvote = post.id in upvotes
+            post.can_accept = can_accept
 
         # Add attributes by mutating the objects
         map(decorate, thread + [obj])

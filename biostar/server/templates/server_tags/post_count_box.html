@@ -53,7 +53,7 @@
                 <a class="tag" href="/t/{{ tag.name }}/">{{ tag.name }}</a>
             {% endfor %}
             </span>
-            <span class="userlink text-right">
+            <span class="userlink text-right muted">
             written <span class="ago2">{{ post.creation_date|time_ago }}</span> by {% userlink post.author %}
                 {% if post.author != post.lastedit_user %}
                     &bull; updated <span class="ago2">{{ post.lastedit_date|time_ago }}</span> by

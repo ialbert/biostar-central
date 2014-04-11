@@ -11,13 +11,13 @@
     <div class="row">
         <div class="col-md-9">
 
-            {% page_bar %}
-
             <div class="alert alert-info text-center">
                 Blog posts collected by the Biostar aggregator.
                 To follow subscribe to the <a class="alert-link" href="{% url "planet-feed" %}">planet
                 feed <i class="fa fa-rss"></i></a>
             </div>
+
+            {% page_bar %}
 
             {% for post in blogposts %}
 
