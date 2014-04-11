@@ -1,7 +1,7 @@
 __author__ = 'ialbert'
 from biostar.apps.posts.models import Post
 from biostar.apps.planet.models import BlogPost
-
+from django.db.models import Q
 from haystack import indexes
 
 # Create the search indices.
@@ -17,7 +17,8 @@ class PostIndex(indexes.SearchIndex, indexes.Indexable):
 
     def index_queryset(self, using=None):
         """Used when the entire index for model is updated."""
-        return self.get_model().objects.exclude(status=Post.DELETED)
+        cond = Q(type=Post.COMMENT) | Q(status=Post.DELETED)
+        return self.get_model().objects.all().exclude(cond)
 
     def get_updated_field(self):
         return "lastedit_date"
