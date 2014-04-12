@@ -43,8 +43,6 @@ TOP_BANNER = ""
 
 #TOP_BANNER = "test-banner.html"
 
-
-
 def get_env(name, func=None):
     """Get the environment variable or return exception"""
     try:
