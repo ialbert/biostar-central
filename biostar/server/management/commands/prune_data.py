@@ -9,10 +9,13 @@ from datetime import datetime, timedelta
 
 import logging
 
+
 def now():
     return datetime.utcnow().replace(tzinfo=utc)
 
+
 logger = logging.getLogger("command")
+
 
 class Command(BaseCommand):
     help = 'Creates a sitemap in the export folder of the site'
@@ -20,9 +23,12 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         main()
 
+
 def main(days=1, weeks=10):
     from biostar.apps.posts.models import PostView
     from biostar.apps.messages.models import Message
+    from biostar.apps.users.models import User
+    from django.db.models import Count
 
     # Reduce post views.
     past = now() - timedelta(days=days)
@@ -37,6 +43,14 @@ def main(days=1, weeks=10):
     msg = "Deleting %s messages" % query.count()
     logger.info(msg)
     query.delete()
+
+    # Get rid of too many messages
+    MAX_MSG = 100
+    users = User.objects.annotate(total=Count("recipients")).filter(total__gt=MAX_MSG)[:100]
+    for user in users:
+        query = Message.objects.filter(user=user).order_by("-date")[MAX_MSG:]
+        query.delete()
+
 
 if __name__ == '__main__':
     #generate_sitemap()

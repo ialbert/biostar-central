@@ -69,7 +69,7 @@ def create_user_award(user):
         valid_targets = valid_targets[seen_count:]
 
         # No more than 3 at the time
-        valid_targets = valid_targets[:3]
+        valid_targets = valid_targets[:10]
 
         # Award the targets
         for target in valid_targets:
