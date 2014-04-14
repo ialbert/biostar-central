@@ -48,8 +48,8 @@ def main(days=1, weeks=10):
     MAX_MSG = 100
     users = User.objects.annotate(total=Count("recipients")).filter(total__gt=MAX_MSG)[:100]
     for user in users:
-        query = Message.objects.filter(user=user).order_by("-date")[MAX_MSG:]
-        query.delete()
+        since = now() - timedelta(days=1)
+        Message.objects.filter(user=user, sent_at__lt=since).delete()
 
 
 if __name__ == '__main__':
