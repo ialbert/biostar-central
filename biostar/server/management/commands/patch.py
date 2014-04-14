@@ -23,9 +23,9 @@ class Command(BaseCommand):
 
 def patch_users():
     from biostar.apps.users.models import User, Profile
-    from biostar.const import EMAIL_MESSAGE
+    from biostar.const import DEFAULT_MESSAGES
 
     users = Profile.objects.all()
-    users.update(message_prefs=EMAIL_MESSAGE)
+    users.update(message_prefs=DEFAULT_MESSAGES)
 
 
