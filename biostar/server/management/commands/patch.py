@@ -8,18 +8,26 @@ from StringIO import StringIO
 from django.core.management.base import BaseCommand, CommandError
 import os
 from optparse import make_option
+import random
+import logging
+
+logger = logging.getLogger(__name__)
 
 class Command(BaseCommand):
     help = 'Runs quick patches over the data'
 
     option_list = BaseCommand.option_list + (
         make_option('--users', dest='users', action='store_true', default=False, help='patches_users'),
+        make_option('--bump', dest='bump', action='store_true', default=False, help='bumps a random post'),
     )
 
     def handle(self, *args, **options):
 
         if options['users']:
             patch_users()
+
+        if options['bump']:
+            bump()
 
 def patch_users():
     from biostar.apps.users.models import User, Profile
@@ -28,4 +36,27 @@ def patch_users():
     users = Profile.objects.all()
     users.update(message_prefs=DEFAULT_MESSAGES)
 
+def bump():
+    from biostar.apps.posts.models import Post
+    from biostar.apps.users.models import User
+    from biostar.const import now
 
+
+    query = Post.objects.filter(type=Post.QUESTION, status=Post.OPEN)
+
+    if random.random() > 0.50:
+        query = query.filter(answer_count=0)
+
+    query = query.values_list("id")
+
+    ids = [ p[0] for p in query ]
+
+    pk = random.choice(ids)
+
+    community = User.objects.get(pk=1)
+    post = Post.objects.get(pk=pk)
+    post.lastedit_date = now()
+    post.lastedit_user = community
+    post.save()
+
+    logger.info(post.title)
