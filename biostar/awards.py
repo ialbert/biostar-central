@@ -68,8 +68,8 @@ def create_user_award(user):
         # Keep that targets that have not been awarded
         valid_targets = valid_targets[seen_count:]
 
-        # No more than 3 at the time
-        valid_targets = valid_targets[:10]
+        # Some limit on awards
+        valid_targets = valid_targets[:100]
 
         # Award the targets
         for target in valid_targets:
