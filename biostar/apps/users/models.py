@@ -154,8 +154,6 @@ class User(AbstractBaseUser):
 # This contains the notification types.
 from biostar import const
 
-DEFAULT_USER_MESSAGE_PREFS = const.EMAIL_MESSAGE if settings.DEFAULT_EMAIL_ON else const.LOCAL_MESSAGE
-
 class Profile(models.Model):
     """
     Maintains information that does not always need to be retreived whe a user is accessed.
@@ -191,7 +189,7 @@ class Profile(models.Model):
     info = models.TextField(default="", null=True, blank=True)
 
     # The default notification preferences.
-    message_prefs = models.IntegerField(choices=TYPE_CHOICES, default=DEFAULT_USER_MESSAGE_PREFS)
+    message_prefs = models.IntegerField(choices=TYPE_CHOICES, default=const.DEFAULT_MESSAGES)
 
     # This stores binary flags on users. Their usage is to
     # allow easy subselection of various subsets of users.
