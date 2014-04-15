@@ -12,6 +12,9 @@ from django.conf.urls import patterns
 from django.contrib.sitemaps import FlatPageSitemap, GenericSitemap
 from biostar.apps.posts.models import Post, Tag
 from biostar.apps.planet.models import BlogPost
+import logging
+
+logger = logging.getLogger(__name__)
 
 info_dict = {
     'queryset': Post.objects.all(),
@@ -88,13 +91,23 @@ def search_title(request):
 
     items = []
     for row in results:
-        ob = row.object
-        context = join_highlights(row)
-        context = context or slow_highlight(query=q, text=row.content)
-        text = "%s" % row.title
-        items.append(
-            dict(id=ob.get_absolute_url(), text=text, context=context, author=row.author, url=ob.get_absolute_url()),
-        )
+        try:
+            ob = row.object
+
+            # Why can this happen?
+            if not ob:
+                continue
+            context = join_highlights(row)
+            context = context or slow_highlight(query=q, text=row.content)
+            text = "%s" % row.title
+            items.append(
+                dict(id=ob.get_absolute_url(), text=text, context=context, author=row.author,
+                     url=ob.get_absolute_url()),
+            )
+        except Exception, exc:
+            logger.error(content)
+            logger.error(exc)
+            pass
 
     payload = dict(items=items)
     return json_response(payload)
