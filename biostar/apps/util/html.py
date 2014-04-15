@@ -14,9 +14,9 @@ ALLOWED_ATTRIBUTES = dict(bleach.ALLOWED_ATTRIBUTES)
 ALLOWED_ATTRIBUTES.update(settings.ALLOWED_ATTRIBUTES)
 
 # The pattern that matches the user link.
-USER_PATTERN = r"http://.*?/u/(?P<uid>(\d+))"
-POST_PATTERN1 = r"http://.*?/p/(?P<uid>(\d+))"
-POST_PATTERN2 = r"http://.*?/p/\d+/\#(?P<uid>(\d+))"
+USER_PATTERN = r"http(s)?://.*?/u/(?P<uid>(\d+))"
+POST_PATTERN1 = r"http(s)?://.*?/p/(?P<uid>(\d+))"
+POST_PATTERN2 = r"http(s)?://.*?/p/\d+/\#(?P<uid>(\d+))"
 GIST_PATTERN = r"https://gist.github.com/(?P<uid>([\w/]+))"
 YOUTUBE_PATTERN = r"http://www.youtube.com/watch\?v=(?P<uid>(\w+))"
 
