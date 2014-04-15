@@ -33,11 +33,13 @@
 
         <a name="{{ post.id }}"></a>
 
-        {% post_user_box post.author post.lastedit_date %}
+
 
 
         {# The body of the post #}
         <div class="content">
+
+            {% post_user_box post.author post.lastedit_date %}
 
             {{ post.html|safe }}
 
