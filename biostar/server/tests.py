@@ -127,7 +127,9 @@ class UserTest(TestCase):
         r = self.client.get(reverse("post-details", kwargs=dict(pk=pk)))
         if post.is_toplevel:
             self.assertContains(r, post.title)
-        self.code(r)
+            self.code(r)
+        else:
+            self.code(r, 302)
 
         # Verify that a subscription exists for this post and author.
 

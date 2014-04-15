@@ -347,9 +347,9 @@ class PostDetails(DetailView):
         # This will be piggybacked on the main object.
         obj.sub = Subscription.get_sub(post=obj, user=user)
 
-        # Just a sanity check to start at top level.
-        if obj != obj.root:
-            obj = obj.root
+        # Bail out if not at top level.
+        if not obj.is_toplevel:
+            return obj
 
         # Populate the object to build a tree that contains all posts in the thread.
         # Answers sorted before comments.
