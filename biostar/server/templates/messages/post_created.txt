@@ -1,6 +1,6 @@
-User {{user.name}} on {{site.name}} replied to "{{ post.root.get_title }}":
+User {{user.name}} replied to "{{ post.root.get_title|safe }}":
 
-{{post.as_text|truncatewords:100}}
+{{post.as_text|safe|truncatewords:150}}
 
 ---
 

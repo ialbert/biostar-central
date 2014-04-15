@@ -44,8 +44,10 @@ def bump():
 
     query = Post.objects.filter(type=Post.QUESTION, status=Post.OPEN)
 
-    if random.random() > 0.50:
-        query = query.filter(answer_count=0)
+    value = random.random()
+
+    if value > 0.75:
+        query = query.filter(reply_count=0)
 
     query = query.values_list("id")
 
