@@ -383,7 +383,7 @@ class PostDetails(DetailView):
         def decorate(post):
             post.has_bookmark = post.id in bookmarks
             post.has_upvote = post.id in upvotes
-            post.can_accept = can_accept
+            post.can_accept = can_accept or post.has_accepted
 
         # Add attributes by mutating the objects
         map(decorate, thread + [obj])
