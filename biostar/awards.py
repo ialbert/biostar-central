@@ -79,12 +79,11 @@ def create_user_award(user):
             badge.save()
 
             if isinstance(target, Post):
-                date = target.creation_date
                 context = '<a href="%s">%s</a>' % (target.get_absolute_url(), target.title)
             else:
-                date = target.profile.last_login
                 context = ""
 
+            date = user.profile.last_login
             award = Award.objects.create(user=user, badge=badge, date=date, context=context)
             logger.info("award %s created for %s" % (award.badge.name, user.email))
 
