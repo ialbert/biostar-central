@@ -267,7 +267,7 @@ class Post(models.Model):
         "This can be used to set the answer count."
         if self.type == Post.ANSWER:
             reply_count = Post.objects.filter(parent=self.parent, type=Post.ANSWER, status=Post.OPEN).count()
-            Post.objects.filter(pk=self.root_id).update(reply_count=reply_count)
+            Post.objects.filter(pk=self.parent_id).update(reply_count=reply_count)
 
     def delete(self, using=None):
         # Collect tag names.
@@ -314,6 +314,12 @@ class Post(models.Model):
             self.status = self.status or Post.PENDING
             self.creation_date = self.creation_date or now()
             self.lastedit_date = self.creation_date
+
+            # Set the timestamps on the parent
+            if self.type == Post.ANSWER:
+                self.parent.lastedit_date = self.lastedit_date
+                self.parent.lastedit_user = self.lastedit_user
+                self.parent.save()
 
         # Recompute post reply count
         self.update_reply_count()
