@@ -34,12 +34,12 @@
         </div>
     </div>
 
-    <div class="title-box clearfix" itemscope itemtype="http://schema.org/Article">
+    <div class="title-box clearfix">
         <div class="post-title">
             {%  if post.type != 0 %}
                 {{ post.get_type_display }}:
             {%  endif %}
-            <a href="{{ post.get_absolute_url }}"><span itemprop="headline">{{ post.get_title }}</span></a>
+            <a href="{{ post.get_absolute_url }}">{{ post.get_title }}</a>
         </div>
 
         {% if context %}
@@ -54,7 +54,7 @@
             {% endfor %}
             </span>
             <span class="userlink text-right muted">
-            written <time datetime="{{post.lastedit_date|date:'c'}}">{{ post.creation_date|time_ago }}</time> by {% userlink post.author %}
+            written {{ post.creation_date|time_ago }} by {% userlink post.author %}
                 {% if post.author != post.lastedit_user %}
                     &bull; updated <span class="ago2">{{ post.lastedit_date|time_ago }}</span> by
                     {% userlink post.lastedit_user %}

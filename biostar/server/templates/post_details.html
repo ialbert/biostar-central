@@ -14,10 +14,13 @@
 
         <div class="col-xs-12 col-md-9">
 
-            <div id="post-details">
+            <div id="post-details" itemscope itemtype="http://schema.org/Article">
 
                 {# This is the toplevel post #}
                 {% post_body post user post.tree %}
+
+                <span itemprop="datePublished" content="{{ post.lastedit_date|date:'c' }}"></span>
+
 
                 {# Render each answer for the post #}
                 {% for answer in post.answers %}
