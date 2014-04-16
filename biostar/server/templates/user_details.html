@@ -138,7 +138,7 @@
             <div class="col-md-12">
                 <div id="post-list">
                     {% for post in posts %}
-                        {% post_count_box post %}
+                        {% post_count_box post post.peek %}
                     {% empty %}
 
                         <div class="alert alert-info">There are no results for this page.</div>
