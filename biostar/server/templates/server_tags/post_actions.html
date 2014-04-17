@@ -24,7 +24,7 @@
                 {% endif %}
                 <span class="caret"></span>
             </button>
-            <ul class="dropdown-menu" role="menu">
+            <ul class="dropdown-menu dropup" role="menu">
 
                 <li><a href="{% url 'change-sub' pk=post.id type='local' %}">Follow via messages</a></li>
                 <li><a href="{% url 'change-sub' pk=post.id type='email' %}">Follow via email</a></li>
