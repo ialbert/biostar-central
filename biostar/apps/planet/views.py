@@ -21,5 +21,5 @@ class BlogPostList(ListView):
         context['limit'] = get('limit', '')
         context['q'] = get('q', '')
         context['sort'] = get('sort', '')
-        context['blogs'] = Blog.objects.all()
+        context['blogs'] = Blog.objects.all().order_by("-list_order")
         return context

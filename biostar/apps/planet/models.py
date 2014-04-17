@@ -3,6 +3,8 @@ from django.conf import settings
 import os, urllib, logging, feedparser, datetime
 from django.core.urlresolvers import reverse
 from django.utils.timezone import utc
+from django.contrib import admin
+
 logger = logging.getLogger(__name__)
 
 def now():
@@ -17,10 +19,11 @@ def abspath(*args):
 class Blog(models.Model):
     "Represents a blog"
     title = models.CharField(verbose_name='Blog Name', max_length=255, default="", blank=False)
-    desc = models.TextField(default='')
+    desc = models.TextField(default='', blank=True)
     feed = models.URLField()
     link = models.URLField()
     active = models.BooleanField(default=True)
+    list_order = models.IntegerField(default=0)
 
     @property
     def fname(self):
@@ -43,6 +46,9 @@ class Blog(models.Model):
             stream.close()
         except Exception, exc:
             logger.error("error %s downloading %s", (exc, self.feed))
+
+    def __unicode__(self):
+        return self.title
 
 class BlogPost(models.Model):
     "Represents an entry of a Blog"
@@ -88,3 +94,8 @@ class BlogPost(models.Model):
             self.insert_date = self.insert_date or now()
 
         super(BlogPost, self).save(*args, **kwargs)
+
+    def __unicode__(self):
+        return self.title
+
+admin.site.register(Blog)

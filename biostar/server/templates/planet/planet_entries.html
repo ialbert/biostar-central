@@ -44,9 +44,12 @@
             {% page_bar %}
         </div>
         <div class="col-md-3">
-            <h4>Planet</h4>
+            <h4>Planet Feeds</h4>
             {% for blog in blogs %}
-                <h5><a href="{{ blog.link }}">{{ blog.title }}</a></h5>
+                <div class="blog-feed">
+                    <h5><a href="{{ blog.link }}">{{ blog.title }}</a></h5>
+                    <div>{{ blog.desc|safe }}</div>
+                </div>
             {% endfor %}
         </div>
 
