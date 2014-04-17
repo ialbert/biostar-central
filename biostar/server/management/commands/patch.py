@@ -19,6 +19,7 @@ class Command(BaseCommand):
     option_list = BaseCommand.option_list + (
         make_option('--users', dest='users', action='store_true', default=False, help='patches_users'),
         make_option('--bump', dest='bump', action='store_true', default=False, help='bumps a random post'),
+        make_option('--bump_id', dest='bump_id', type=int, help='bumps a specific post'),
     )
 
     def handle(self, *args, **options):
@@ -29,6 +30,10 @@ class Command(BaseCommand):
         if options['bump']:
             bump()
 
+        pk = options['bump_id']
+        if pk:
+            bump(pk)
+
 def patch_users():
     from biostar.apps.users.models import User, Profile
     from biostar.const import DEFAULT_MESSAGES
@@ -36,29 +41,34 @@ def patch_users():
     users = Profile.objects.all()
     users.update(message_prefs=DEFAULT_MESSAGES)
 
-def bump():
+def bump(pk=None):
     from biostar.apps.posts.models import Post
     from biostar.apps.users.models import User
     from biostar.const import now
 
+    if not pk:
+        query = Post.objects.filter(type=Post.QUESTION, status=Post.OPEN)
 
-    query = Post.objects.filter(type=Post.QUESTION, status=Post.OPEN)
+        value = random.random()
 
-    value = random.random()
+        if value > 0.75:
+            query = query.filter(reply_count=0)
 
-    if value > 0.75:
-        query = query.filter(reply_count=0)
+        query = query.values_list("id")
 
-    query = query.values_list("id")
+        ids = [ p[0] for p in query ]
 
-    ids = [ p[0] for p in query ]
-
-    pk = random.choice(ids)
+        pk = random.choice(ids)
 
     community = User.objects.get(pk=1)
     post = Post.objects.get(pk=pk)
+    logger.info(post.title)
+
+    if not post.is_toplevel:
+        logger.warning("post is not at toplevel")
+    
     post.lastedit_date = now()
     post.lastedit_user = community
     post.save()
 
-    logger.info(post.title)
+
