@@ -66,7 +66,7 @@ def bump(pk=None):
 
     if not post.is_toplevel:
         logger.warning("post is not at toplevel")
-    
+
     post.lastedit_date = now()
     post.lastedit_user = community
     post.save()

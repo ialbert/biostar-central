@@ -18,7 +18,7 @@ USER_PATTERN = r"http(s)?://.*?/u/(?P<uid>(\d+))"
 POST_PATTERN1 = r"http(s)?://.*?/p/(?P<uid>(\d+))"
 POST_PATTERN2 = r"http(s)?://.*?/p/\d+/\#(?P<uid>(\d+))"
 GIST_PATTERN = r"https://gist.github.com/(?P<uid>([\w/]+))"
-YOUTUBE_PATTERN = r"http://www.youtube.com/watch\?v=(?P<uid>(\w+))"
+YOUTUBE_PATTERN = r"http(s)?://www.youtube.com/watch\?v=(?P<uid>(\w+))"
 
 USER_RE = re.compile(USER_PATTERN)
 POST_RE1 = re.compile(POST_PATTERN1)
