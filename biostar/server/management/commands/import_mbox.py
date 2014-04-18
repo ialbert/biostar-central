@@ -262,7 +262,7 @@ def parse_mboxx(filename, limit=None, tag_val=''):
     # Apply limits if necessary.
     rows = islice(rows, limit)
 
-    tree, posts = {}, {}
+    tree, posts, fallback = {}, {}, {}
 
     for b in rows:
         datefmt = b.date.strftime('%Y-%m-%d')
@@ -282,7 +282,7 @@ def parse_mboxx(filename, limit=None, tag_val=''):
 
         author = users[b.email]
 
-        parent = posts.get(b.reply_to)
+        parent = posts.get(b.reply_to) or fallback.get(b.subj)
         if parent:
             root = parent.root
             post = create_post(b=b, author=author, parent=parent)
@@ -290,6 +290,10 @@ def parse_mboxx(filename, limit=None, tag_val=''):
             post = create_post(b=b, author=author, tag_val=tag_val)
 
         posts[b.id] = post
+
+        # Fall back to guessing post inheritance from the title
+        fall_key = "Re: %s" % post.title
+        fallback[fall_key] = post
 
     logger.info("*** users %s" % len(users))
     logger.info("*** posts %s" % len(posts))
