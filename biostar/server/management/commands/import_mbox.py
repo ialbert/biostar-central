@@ -13,6 +13,7 @@ import re, textwrap, urllib
 from chardet import detect
 
 from django.db.models import signals
+import difflib
 
 logger = logging.getLogger('simple-logger')
 
@@ -283,6 +284,17 @@ def parse_mboxx(filename, limit=None, tag_val=''):
         author = users[b.email]
 
         parent = posts.get(b.reply_to) or fallback.get(b.subj)
+
+        # Looks like a reply but still no parent
+        # Fuzzy matching to commence
+        if not parent and b.subj.startswith("Re:"):
+            curr_key = b.subj
+            logger.info("searching for best match %s" % curr_key)
+            cands = difflib.get_close_matches(curr_key, fallback.keys())
+            if cands:
+                logger.info("found %s" % cands)
+                parent = fallback[cands[0]]
+
         if parent:
             root = parent.root
             post = create_post(b=b, author=author, parent=parent)
