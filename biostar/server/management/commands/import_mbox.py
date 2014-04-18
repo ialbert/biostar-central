@@ -225,6 +225,7 @@ def unpack_message(data):
 
 
 def parse_mboxx(filename, limit=None, tag_val=''):
+    from biostar.server.models import disconnect_all
     from biostar.apps.users.models import User
     from biostar.apps.posts.models import Post
 
@@ -241,7 +242,8 @@ def parse_mboxx(filename, limit=None, tag_val=''):
     if limit is not None:
         limit = int(limit)
 
-    signals.post_save.disconnect(dispatch_uid="create_messages")
+    # Disconnect signals
+    disconnect_all()
 
     logger.info("*** parsing mbox %s" % filename)
 
