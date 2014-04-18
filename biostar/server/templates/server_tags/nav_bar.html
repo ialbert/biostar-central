@@ -139,7 +139,6 @@
                 </a>
             </div>
 
-
             <div class="col-sm-1 mid {% active 'mytags' topic %}">
                 <a href="{% url 'topic-list' topic='mytags' %}" class="navitem">
                     <div><i class="fa fa-tag"></i></div>
@@ -168,11 +167,10 @@
                 </a>
             </div>
 
-
         {% else %}
 
             <div class="col-md-9 top text-center">
-                Welcome to {{ SITE_NAME }}!
+                {%  include "site_description.html" %}
                 <span class="pull-right">
                     <a href="{% url 'flatpage' 'about' %}">about</a> &bull; <a href="{% url 'flatpage' 'faq' %}">faq</a>
                     &bull; <a href="{% url 'rss' %}">rss <i class="fa fa-rss"></i></a>
