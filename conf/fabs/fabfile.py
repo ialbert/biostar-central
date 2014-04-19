@@ -57,7 +57,8 @@ def create_biostar():
 
 def restart():
     sudo("service nginx restart")
-    sudo("supervisorctl restart all")
+    sudo("supervisorctl restart biostar")
+    sudo("supervisorctl restart worker beat")
 
 def init_biostar():
     with prefix(env.workon):
