@@ -29,8 +29,20 @@ def init_awards():
 
 @app.task
 # Tries to award a badge to the user
-def create_post_award(user):
-    pass
+def check_user_profile(ip, user):
+    import urllib2, json
+    if not user.profile.location:
+        try:
+            url = "http://api.hostip.info/get_json.php?ip=%s" % ip
+            logger.info(url)
+            f = urllib2.urlopen(url)
+            data = json.loads(f.read())
+            f.close()
+            location = data.get('country_name', '').title()
+            user.profile.location = location
+            user.profile.save()
+        except Exception, exc:
+            logger.error(exc)
 
 
 @app.task

@@ -11,11 +11,17 @@ from biostar.apps.posts.models import Post, Vote
 from biostar.apps.messages.models import Message
 
 from collections import defaultdict
-from biostar.awards import create_user_award
+from biostar.awards import create_user_award, check_user_profile
 
 logger = logging.getLogger(__name__)
 
 from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
+
+def get_ip(request):
+    ip1 = request.META.get('REMOTE_ADDR', '')
+    ip2 = request.META.get('HTTP_X_FORWARDED_FOR', '').split(",")[0].strip()
+    ip = ip1 or ip2 or '0.0.0.0'
+    return ip
 
 class AutoSignupAdapter(DefaultSocialAccountAdapter):
 
@@ -163,6 +169,9 @@ class Visit(object):
 
                 # Create user awards if possible.
                 create_user_award.delay(user=user)
+
+                # check user and fill in details
+                check_user_profile.delay(ip=get_ip(request), user=user)
 
 
         # Get the counts from the session or the cache.
