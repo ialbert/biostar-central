@@ -35,12 +35,13 @@ def check_user_profile(ip, user):
         try:
             url = "http://api.hostip.info/get_json.php?ip=%s" % ip
             logger.info(url)
-            f = urllib2.urlopen(url)
+            f = urllib2.urlopen(url, timeout=3)
             data = json.loads(f.read())
             f.close()
             location = data.get('country_name', '').title()
-            #user.profile.location = location
-            #user.profile.save()
+            if "unkown" not in location.lower():
+                user.profile.location = location
+                user.profile.save()
         except Exception, exc:
             logger.error(exc)
 
