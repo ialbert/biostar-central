@@ -80,6 +80,9 @@ MYPOSTS, MYTAGS, UNANSWERED, FOLLOWING, BOOKMARKS = "myposts mytags open followi
 POST_TYPES = dict(jobs=Post.JOB, tools=Post.TOOL, tutorials=Post.TUTORIAL,
                   forum=Post.FORUM, planet=Post.BLOG, pages=Post.PAGE)
 
+# Topics that requires authorization
+AUTH_TOPIC = set((MYPOSTS, MYTAGS, BOOKMARKS, FOLLOWING))
+
 def posts_by_topic(request, topic):
     "Returns a post query that matches a topic"
     user = request.user
@@ -152,6 +155,11 @@ class PostList(BaseListMixin):
 
     def get_queryset(self):
         self.topic = self.kwargs.get("topic", "")
+
+        # Catch expired sessions accessing user related information
+        if self.topic in AUTH_TOPIC and self.request.user.is_anonymous():
+            messages.warning(self.request, "Session expired")
+            self.topic = LATEST
 
         query = posts_by_topic(self.request, self.topic)
         query = apply_sort(self.request, query)
@@ -303,13 +311,18 @@ class UserDetails(BaseDetailMixin):
         target = context[self.context_object_name]
         posts = Post.objects.filter(author=target).defer("content").order_by("-creation_date")
         paginator = Paginator(posts, 10)
-        page = self.request.GET.get("page", 1)
-        page_obj = paginator.page(int(page))
+        try:
+            page = int(self.request.GET.get("page", 1))
+            page_obj = paginator.page(page)
+        except Exception, exc:
+            messages.error(self.request, "Invalid page number")
+            page_obj = paginator.page(1)
         context['page_obj'] = page_obj
         context['posts'] = page_obj.object_list
         awards = Award.objects.filter(user=target).select_related("badge", "user").order_by("-date")
         context['awards'] = awards[:25]
         return context
+
 
 class EditUser(EditUser):
     template_name = "user_edit.html"
