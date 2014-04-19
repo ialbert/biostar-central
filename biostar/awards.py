@@ -39,7 +39,7 @@ def check_user_profile(ip, user):
             data = json.loads(f.read())
             f.close()
             location = data.get('country_name', '').title()
-            if "unkown" not in location.lower():
+            if "unknown" not in location.lower():
                 user.profile.location = location
                 user.profile.save()
         except Exception, exc:
