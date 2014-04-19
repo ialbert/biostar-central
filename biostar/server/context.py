@@ -44,13 +44,7 @@ def get_traffic(minutes=10):
     traffic = cache.get(TRAFFIC_KEY)
     if not traffic:
         recent = const.now() - timedelta(minutes=minutes)
-        try:
-            traffic = PostView.objects.filter(date__gt=recent).distinct('ip').count()
-        except NotImplementedError, exc:
-            traffic = PostView.objects.filter(date__gt=recent).values_list('ip')
-            traffic = [t[0] for t in traffic]
-            traffic = len(set(traffic))
-        # How long to cache the traffic.
+        traffic = PostView.objects.filter(date__gt=recent).count()
         cache.set(TRAFFIC_KEY, traffic, CACHE_TIMEOUT)
     return traffic
 
