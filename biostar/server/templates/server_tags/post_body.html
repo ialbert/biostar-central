@@ -39,7 +39,7 @@
         {# The body of the post #}
         <div class="content" >
 
-            {% post_user_box post.author post.lastedit_date %}
+            {% post_user_box post.author post.creation_date %}
 
             <span itemprop="articleBody">{{ post.html|safe }}</span>
 
