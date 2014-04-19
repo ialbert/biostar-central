@@ -10,18 +10,23 @@ from datetime import timedelta
 
 CACHE_TIMEOUT = settings.CACHE_TIMEOUT
 
+
 def get_recent_votes():
-    votes = Vote.objects.filter(post__status=Post.OPEN).select_related("post").order_by("-date")[:settings.RECENT_VOTE_COUNT]
+    votes = Vote.objects.filter(post__status=Post.OPEN).select_related("post").order_by("-date")[
+            :settings.RECENT_VOTE_COUNT]
     return votes
+
 
 def get_recent_users():
     users = User.objects.all().select_related("profile").order_by("-profile__last_login")[:settings.RECENT_USER_COUNT]
     return users
 
+
 def get_recent_awards():
     awards = Award.objects.all().select_related("user", "badge")
     awards = awards.order_by("-date")[:6]
     return awards
+
 
 def get_recent_replies():
     posts = Post.objects.filter(type__in=(Post.ANSWER, Post.COMMENT), root__status=Post.OPEN).select_related(("author"))
@@ -29,8 +34,11 @@ def get_recent_replies():
     posts = posts[:settings.RECENT_POST_COUNT]
     return posts
 
+
 TRAFFIC_KEY = "traffic"
-def get_traffic(minutes=60):
+
+
+def get_traffic(minutes=10):
     "Obtains the number of distinct IP numbers "
     global TRAFFIC_KEY
     traffic = cache.get(TRAFFIC_KEY)
@@ -38,11 +46,14 @@ def get_traffic(minutes=60):
         recent = const.now() - timedelta(minutes=minutes)
         try:
             traffic = PostView.objects.filter(date__gt=recent).distinct('ip').count()
-        except Exception, exc:
-            traffic = PostView.objects.filter(date__gt=recent).count()
+        except NotImplementedError, exc:
+            traffic = PostView.objects.filter(date__gt=recent).values_list('ip')
+            traffic = [t[0] for t in traffic]
+            traffic = len(set(traffic))
         # How long to cache the traffic.
         cache.set(TRAFFIC_KEY, traffic, CACHE_TIMEOUT)
     return traffic
+
 
 def shortcuts(request):
     # These values will be added to each context
@@ -58,7 +69,7 @@ def shortcuts(request):
         "TRAFFIC": get_traffic(),
         'RECENT_REPLIES': get_recent_replies(),
         'RECENT_VOTES': get_recent_votes(),
-        "RECENT_USERS":  get_recent_users(),
+        "RECENT_USERS": get_recent_users(),
         "RECENT_AWARDS": get_recent_awards(),
         'USE_COMPRESSOR': settings.USE_COMPRESSOR,
         'COUNTS': request.session.get(settings.SESSION_KEY, {}),
