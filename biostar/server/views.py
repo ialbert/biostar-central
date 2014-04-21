@@ -26,9 +26,11 @@ from . import moderate
 
 logger = logging.getLogger(__name__)
 
+
 def abspath(*args):
     """Generates absolute paths"""
     return os.path.abspath(os.path.join(*args))
+
 
 class BaseListMixin(ListView):
     "Base class for each mixin"
@@ -59,8 +61,8 @@ class BaseListMixin(ListView):
 
         return context
 
-def apply_sort(request, query):
 
+def apply_sort(request, query):
     # Note: the naming here needs to match that in the server_tag.py template tags.
     # Apply sort order
     sort = request.GET.get('sort', const.POST_SORT_DEFAULT)
@@ -75,6 +77,7 @@ def apply_sort(request, query):
         query = query.filter(lastedit_date__gt=delta)
     return query
 
+
 LATEST = "latest"
 MYPOSTS, MYTAGS, UNANSWERED, FOLLOWING, BOOKMARKS = "myposts mytags open following bookmarks".split()
 POST_TYPES = dict(jobs=Post.JOB, tools=Post.TOOL, tutorials=Post.TUTORIAL,
@@ -82,6 +85,7 @@ POST_TYPES = dict(jobs=Post.JOB, tools=Post.TOOL, tutorials=Post.TUTORIAL,
 
 # Topics that requires authorization
 AUTH_TOPIC = set((MYPOSTS, MYTAGS, BOOKMARKS, FOLLOWING))
+
 
 def posts_by_topic(request, topic):
     "Returns a post query that matches a topic"
@@ -124,6 +128,7 @@ def posts_by_topic(request, topic):
     # Return latest by default.
     return Post.objects.top_level(user)
 
+
 def reset_counts(request, label):
     "Resets counts in the session"
     label = label.lower()
@@ -131,6 +136,7 @@ def reset_counts(request, label):
     if label in counts:
         counts[label] = ''
         request.session[settings.SESSION_KEY] = counts
+
 
 class PostList(BaseListMixin):
     """
@@ -191,7 +197,8 @@ class MessageList(LoginRequiredMixin, ListView):
     topic = "messages"
 
     def get_queryset(self):
-        objs = Message.objects.filter(user=self.request.user).select_related("body", "body__author").order_by('-sent_at')
+        objs = Message.objects.filter(user=self.request.user).select_related("body", "body__author").order_by(
+            '-sent_at')
         return objs
 
     def get_context_data(self, **kwargs):
@@ -204,6 +211,7 @@ class MessageList(LoginRequiredMixin, ListView):
         context['people'] = people
         reset_counts(self.request, self.topic)
         return context
+
 
 class TagList(BaseListMixin):
     """
@@ -281,8 +289,8 @@ class UserList(ListView):
         context['show_lastlogin'] = (self.sort == const.USER_SORT_DEFAULT)
         return context
 
-class BaseDetailMixin(DetailView):
 
+class BaseDetailMixin(DetailView):
     def get_context_data(self, **kwargs):
         context = super(BaseDetailMixin, self).get_context_data(**kwargs)
         sort = self.request.GET.get('sort', const.POST_SORT_DEFAULT)
@@ -292,6 +300,7 @@ class BaseDetailMixin(DetailView):
         context['limit'] = limit
         context['q'] = self.request.GET.get('q', '')
         return context
+
 
 class UserDetails(BaseDetailMixin):
     """
@@ -448,6 +457,7 @@ class RSS(TemplateView):
 
 class RateLimitedNewPost(NewPost):
     "Applies limits to the number of top level posts that can be made"
+
     def get(self, request, *args, **kwargs):
         if moderate.user_exceeds_limits(request, top_level=True):
             return HttpResponseRedirect("/")
@@ -472,6 +482,7 @@ class RateLimitedNewAnswer(NewAnswer):
             return HttpResponseRedirect("/")
         return super(RateLimitedNewAnswer, self).post(request, *args, **kwargs)
 
+
 class FlatPageView(DetailView):
     template_name = "flatpages/default.html"
     context_object_name = 'flatpage'
@@ -491,7 +502,6 @@ class FlatPageView(DetailView):
         admins = User.objects.filter(type=User.ADMIN)
 
         mods = User.objects.filter(type=User.MODERATOR)
-
 
         fields = stat_key, u_count, p_count, q_count, a_count, c_count = "user_stats user_count post_count\
             question_count answer_count comment_count".split()
@@ -515,6 +525,7 @@ class FlatPageView(DetailView):
         context['mods'] = mods
 
         return context
+
 
 class FlatPageUpdate(UpdateView):
     model = FlatPage
@@ -566,12 +577,12 @@ class FlatPageUpdate(UpdateView):
 
         return super(FlatPageUpdate, self).post(*args, **kwargs)
 
+
 class BadgeView(BaseDetailMixin):
     model = Badge
     template_name = "badge_details.html"
 
     def get_context_data(self, **kwargs):
-
         context = super(BadgeView, self).get_context_data(**kwargs)
 
         # Get the current badge
@@ -584,7 +595,8 @@ class BadgeView(BaseDetailMixin):
 
         return context
 
-class BadgeList( BaseListMixin):
+
+class BadgeList(BaseListMixin):
     model = Badge
     template_name = "badge_list.html"
     context_object_name = "badges"
@@ -597,3 +609,35 @@ class BadgeList( BaseListMixin):
     def get_context_data(self, **kwargs):
         context = super(BadgeList, self).get_context_data(**kwargs)
         return context
+
+#
+# These views below are here to catch old URLs from the 2009 version of the SE1 site
+#
+POST_REMAP_FILE = '%s/post-remap.txt' % settings.LIVE_DIR
+if os.path.isfile(POST_REMAP_FILE):
+    logger.info("loading post remap file %s" % POST_REMAP_FILE)
+    REMAP = dict([line.split() for line in file(POST_REMAP_FILE)])
+else:
+    REMAP = {}
+
+def post_redirect(request, pid):
+    "Redirect to a post"
+    post = Post.objects.get(id=pid)
+    return shortcuts.redirect(post.get_absolute_url(), permanent=True)
+
+def post_remap_redirect(request, pid):
+    "Remap post id and redirect, SE1 ids"
+    try:
+        nid = REMAP[pid]
+        post = Post.objects.get(id=nid)
+        return shortcuts.redirect(post.get_absolute_url(), permanent=True)
+    except Exception, exc:
+        messages.error(request, "Unable to redirect: %s" % exc)
+        return shortcuts.redirect("/")
+
+def tag_redirect(request, tag):
+    try:
+        return shortcuts.redirect("/t/%s/" % tag, permanent=True)
+    except Exception, exc:
+        messages.error(request, "Unable to redirect: %s" % exc)
+        return shortcuts.redirect("/")

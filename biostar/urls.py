@@ -91,10 +91,16 @@ urlpatterns = patterns('',
     # Social login pages.
     (r'^accounts/', include('allauth.urls')),
 
+    # Redirecting old posts urls from previous versions of Biostar
+    url(r'^post/redirect/(?P<pid>\d+)/$', views.post_redirect),
+    url(r'^post/show/(?P<pid>\d+)/$', views.post_redirect),
+    url(r'^post/show/(?P<pid>\d+)/([-\w]+)/$', views.post_redirect),
+    url(r'^questions/(?P<pid>\d+)/$', views.post_remap_redirect),
+    url(r'^questions/(?P<pid>\d+)/([-\w]+)/$', views.post_remap_redirect),
+    url(r'^questions/tagged/(?P<tag>.+)/$',views.tag_redirect),
+
     # Uncomment the next line to enable the admin:
     url(r'^admin/', include(admin.site.urls)),
-
-
 
      # Local robots.txt.
     url(r'^robots\.txt$', TemplateView.as_view(template_name="robots.txt", content_type='text/plain'), name='robots'),
