@@ -13,7 +13,7 @@
              data-type="vote" title="Upvote!">
             <i class="fa fa-thumbs-o-up fa-2x"></i></div>
 
-        <div class="count">{{ post.vote_count }}</div>
+        <div class="count" itemprop="voteCount">{{ post.vote_count }}</div>
 
         <div class="vote mark {{ post.has_bookmark|on }} tip" data-toggle="tooltip" data-placement="top"
              data-type="bookmark" title="Bookmark!">
@@ -28,20 +28,15 @@
         {% endif %}
     </div>
 
-
     <div>
 
         <a name="{{ post.id }}"></a>
-
-
-
-
         {# The body of the post #}
         <div class="content" >
 
             {% post_user_box post.author post.creation_date %}
 
-            <span itemprop="articleBody">{{ post.html|safe }}</span>
+            <span itemprop="text">{{ post.html|safe }}</span>
 
 
             <div class="clearfix">

@@ -41,6 +41,7 @@
             {%  endif %}
             &bull;
         {% endif %}
-        written {{ post.creation_date|time_ago }} by {% userlink post.author %}
+        written <span itemprop="dateCreated" content="{{ post.creation_date|date:'c' }}">
+        {{ post.creation_date|time_ago }}</span> by {% userlink post.author %}
     </span>
 </div>
