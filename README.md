@@ -1,18 +1,11 @@
 BioStar Q&A Version 2.0
 =======================
 
-**NOTE: This branch is under heavy development, it should not
-be used by third parties until this notice disappears (posted on Jan 13, 2013)**
-
-The version of Biostar that is currently deployed
-can be found in branch `biostar1` at
-
-https://github.com/ialbert/biostar-central/tree/biostar1
-
 BioStar is a [Python][python] and [Django][django] based Q&A software.
-
 Our goal is to create a simple, generic, flexible and extensible Q&A
 framework.
+
+This is the software that runs the Biostars Bioinformatics Q&A at: http://www.biostars.org
 
 Requirements: `Python 2.7`
 
