@@ -41,4 +41,6 @@ CKEDITOR.editorConfig = function( config ) {
     config.height = '10em';
 
     config.stylesSet = 'biostar_comment';
+    config.disableNativeSpellChecker = false;
+    config.removePlugins = 'liststyle,tabletools,scayt,menubutton,contextmenu';
 };
