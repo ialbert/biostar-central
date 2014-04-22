@@ -10,7 +10,7 @@ import os
 from optparse import make_option
 import random
 import logging
-
+from datetime import timedelta
 logger = logging.getLogger(__name__)
 
 class Command(BaseCommand):
@@ -60,8 +60,9 @@ def bump(pk=None):
 
         value = random.random()
 
-        if value > 0.75:
-            query = query.filter(reply_count=0)
+        if value > 0.5:
+            since = now() - timedelta(weeks=10)
+            query = query.filter(reply_count=0, creation_date__gt=since)
 
         query = query.values_list("id")
 
