@@ -20,9 +20,13 @@ class Command(BaseCommand):
         make_option('--users', dest='users', action='store_true', default=False, help='patches_users'),
         make_option('--bump', dest='bump', action='store_true', default=False, help='bumps a random post'),
         make_option('--bump_id', dest='bump_id', type=int, help='bumps a specific post'),
+        make_option('--stuff', dest='stuff', action='store_true', default=False, help='runs stuff ...'),
     )
 
     def handle(self, *args, **options):
+
+        if options['stuff']:
+            stuff()
 
         if options['users']:
             patch_users()
@@ -33,6 +37,11 @@ class Command(BaseCommand):
         pk = options['bump_id']
         if pk:
             bump(pk)
+
+def stuff():
+    "One off tasks go here that just need a quick access to the data"
+    from biostar.apps.posts.models import Post
+    from biostar.apps.users.models import User
 
 def patch_users():
     from biostar.apps.users.models import User, Profile
