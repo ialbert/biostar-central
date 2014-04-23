@@ -69,6 +69,8 @@ def tagger(pattern, dry):
             logger.info(post.title)
             if not dry:
                 tag_val = "%s, %s" % (post.tag_val, name)
+                post.tag_val = tag_val
+                post.save()
                 post.add_tags(tag_val)
 
 def patch_users():
