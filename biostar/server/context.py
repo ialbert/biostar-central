@@ -38,7 +38,7 @@ def get_recent_replies():
 TRAFFIC_KEY = "traffic"
 
 
-def get_traffic(minutes=10):
+def get_traffic(minutes=60):
     "Obtains the number of distinct IP numbers "
     global TRAFFIC_KEY
     traffic = cache.get(TRAFFIC_KEY)
