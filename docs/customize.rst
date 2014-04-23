@@ -116,3 +116,5 @@ The ``SITE_STYLE_CSS`` and ``SITE_LOGO`` settings permit loading up custom sytle
 See the ``/static/themes`` folder
 for examples.
 
+
+

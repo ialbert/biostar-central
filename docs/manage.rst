@@ -60,8 +60,29 @@ And look for the output for the app ``[server]``, these commands will look like:
         user_crawl
         test_email
         test_task
+        patch
 
 You can run each of these subcommands with the `-h` flag to get more information on them.
+
+Command line tagging
+--------------------
+
+There is a command line tool to perform content tagging based on a regular expression. The
+invocation is::
+
+    python manage.py patch --tag "regexp:tag1,tag2,tag3"
+
+Where the regular expression ``regexp`` will be searched against the content and when found matching
+tags ``tag1``, ``tag2``, ``tag3`` will be applied. Example::
+
+    python manage.py patch --tag "gff:gff,interval"
+
+To detect what posts would be tagged but not actually perform the tagging pass the ``--dry`` command.
+In that case only the post titles will be listed.
+
+    python manage.py patch --tag "gff:gff,interval" --dry
+
+This command will navigate through all questions in the database. 
 
 Example commands
 ----------------

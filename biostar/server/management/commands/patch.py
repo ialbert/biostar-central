@@ -6,7 +6,7 @@ from django.db import connection, transaction
 from django.db.models.loading import get_app
 from StringIO import StringIO
 from django.core.management.base import BaseCommand, CommandError
-import os
+import os, re
 from optparse import make_option
 import random
 import logging
@@ -14,16 +14,24 @@ from datetime import timedelta
 logger = logging.getLogger(__name__)
 
 class Command(BaseCommand):
-    help = 'Runs quick patches over the data'
+    help = "Runs quick patches over the data. Use it only if you know what you're doing."
 
     option_list = BaseCommand.option_list + (
         make_option('--users', dest='users', action='store_true', default=False, help='patches_users'),
         make_option('--bump', dest='bump', action='store_true', default=False, help='bumps a random post'),
         make_option('--bump_id', dest='bump_id', type=int, help='bumps a specific post'),
         make_option('--stuff', dest='stuff', action='store_true', default=False, help='runs stuff ...'),
+        make_option('--tag', dest='tag', default="", help='tags post by matching a regex.Format regex:name'),
+        make_option('--dry', dest='dry', action='store_true', default=False, help='dry run, sometimes applies ;-)'),
     )
 
     def handle(self, *args, **options):
+
+        tag = options['tag']
+        dry = options['dry']
+
+        if tag:
+            tagger(tag, dry)
 
         if options['stuff']:
             stuff()
@@ -42,6 +50,26 @@ def stuff():
     "One off tasks go here that just need a quick access to the data"
     from biostar.apps.posts.models import Post
     from biostar.apps.users.models import User
+
+def tagger(pattern, dry):
+
+    "One off tasks go here that just need a quick access to the data"
+    from biostar.apps.posts.models import Post
+    from biostar.apps.users.models import User
+
+    posts = Post.objects.filter(type__in=Post.TOP_LEVEL)
+    patt, name = pattern.split(":")
+
+    logger.info('%s -> %s' % (patt, name))
+
+    patt = re.compile(patt, re.MULTILINE | re.IGNORECASE| re.DOTALL)
+    for post in posts:
+        hits = patt.search(post.content)
+        if hits:
+            logger.info(post.title)
+            if not dry:
+                tag_val = "%s, %s" % (post.tag_val, name)
+                post.add_tags(tag_val)
 
 def patch_users():
     from biostar.apps.users.models import User, Profile
