@@ -5,10 +5,10 @@
     <div class="col-md-12 text-center" id="topnav">
             {% for word in CATEGORIES %}
                 <div class="col-md-1 {% active word topic %}">
-                    <a href="{% url 'topic-list' topic=word %}">{{ word }}<sup><b>{% get_count COUNTS word %}</b></sup></a>
+                    <a href="{% url 'topic-list' topic=word %}">{{ word }} <sup><b>{% get_count COUNTS word %}</b></sup></a>
                 </div>
             {% endfor %}
-            <div class="col-md-1 {% active 'planet' topic %}"><a href="{% url 'planet' %}">Planet</a></div>
+            <div class="col-md-1 {% active 'planet' topic %}"><a href="{% url 'planet' %}">Planet <sup><b>{% get_count COUNTS 'planet' %}</b></sup></a></div>
             <div class="col-md-1 {% current request 'tag-list' %}"><a href="{% url 'tag-list' %}">All &raquo;</a></div>
         </ul>
     </div>

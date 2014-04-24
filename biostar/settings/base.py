@@ -308,8 +308,9 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 )
 
 AUTHENTICATION_BACKENDS = (
-    'django.contrib.auth.backends.ModelBackend',
+    "django.contrib.auth.backends.ModelBackend",
     "allauth.account.auth_backends.AuthenticationBackend",
+    "biostar.server.middleware.ExternalAuth",
 )
 
 ACCOUNT_CONFIRM_EMAIL_ON_GET = True

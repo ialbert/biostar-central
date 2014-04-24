@@ -9,6 +9,7 @@ from biostar import const
 from django.core.cache import cache
 from biostar.apps.posts.models import Post, Vote
 from biostar.apps.messages.models import Message
+from biostar.apps.planet.models import BlogPost
 
 from collections import defaultdict
 from biostar.awards import create_user_award, check_user_profile
@@ -17,14 +18,15 @@ logger = logging.getLogger(__name__)
 
 from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
 
+
 def get_ip(request):
     ip1 = request.META.get('REMOTE_ADDR', '')
     ip2 = request.META.get('HTTP_X_FORWARDED_FOR', '').split(",")[0].strip()
     ip = ip1 or ip2 or '0.0.0.0'
     return ip
 
-class AutoSignupAdapter(DefaultSocialAccountAdapter):
 
+class AutoSignupAdapter(DefaultSocialAccountAdapter):
     def pre_social_login(self, request, sociallogin):
 
         # This social login already exists.
@@ -41,6 +43,29 @@ class AutoSignupAdapter(DefaultSocialAccountAdapter):
         except User.DoesNotExist:
             pass
 
+
+class ExternalAuth(object):
+    '''
+    This is an "autentication" that relies on the user being valid.
+    We're just following the Django interfaces here.
+    '''
+
+    def authenticate(self, email, valid=False):
+        # Check the username/password and return a User.
+        if valid:
+            user = User.objects.get(email=email)
+            user.backend = "%s.%s" % (__name__, self.__class__.__name__)
+            print user.backend
+            return user
+        else:
+            return None
+
+    def get_user(self, user_id):
+        try:
+            return User.objects.get(pk=user_id)
+        except User.DoesNotExist:
+            return None
+
 def valid_external_login(request):
     "Attempts to perform an external login"
 
@@ -50,31 +75,28 @@ def valid_external_login(request):
             try:
                 email, digest1 = value.split(":")
                 digest2 = hmac.new(key, email).hexdigest()
-                if digest1 != digest2:
+                valid = (digest1 == digest2)
+                if not valid:
                     raise Exception("digests do not match")
             except Exception, exc:
                 logger.error(exc)
-                return None
+                return False
 
             # If we made it this far the data is valid.
-            password = settings.SECRET_KEY + email
-
             user, flag = User.objects.get_or_create(email=email)
             if flag:
                 logger.info("created user %s" % user.email)
 
-            # Regular login is not allowed.
-            user.set_password(password)
-            user.save()
-
-            # Authenticate.
-            user = authenticate(username=user.email, password=password)
+            # Authenticate with local info.
+            user = ExternalAuth().authenticate(email=user.email, valid=valid)
             login(request=request, user=user)
             return True
 
     return False
 
+
 SESSION_KEY, ANON_USER = settings.SESSION_KEY, "anon-user"
+
 
 def get_counts(request, weeks=settings.COUNT_INTERVAL_WEEKS):
     "Returns the number of counts for each post type in the interval that has passed"
@@ -88,7 +110,8 @@ def get_counts(request, weeks=settings.COUNT_INTERVAL_WEEKS):
         since = now - timedelta(weeks=weeks)
 
     # This fetches the posts since last login.
-    posts = Post.objects.filter(type__in=Post.TOP_LEVEL, status=Post.OPEN, creation_date__gt=since).order_by('-id').only("id").prefetch_related("tag_set")
+    posts = Post.objects.filter(type__in=Post.TOP_LEVEL, status=Post.OPEN, creation_date__gt=since).order_by(
+        '-id').only("id").prefetch_related("tag_set")
     posts = posts[:200]
     counts = defaultdict(int)
 
@@ -101,11 +124,14 @@ def get_counts(request, weeks=settings.COUNT_INTERVAL_WEEKS):
             counts[tag.name] += 1
 
     # Fill in the unanswered counts.
-    counts['open'] = Post.objects.filter(type=Post.QUESTION, reply_count=0, status=Post.OPEN, creation_date__gt=since).count()
+    counts['open'] = Post.objects.filter(type=Post.QUESTION, reply_count=0, status=Post.OPEN,
+                                         creation_date__gt=since).count()
+
+    # How many new planet posts
+    counts['planet'] = BlogPost.objects.filter(insert_date__gt=since).count()
 
     # Compute a few more counts for the user.
     if user.is_authenticated():
-
         # These are the new messages since the last login.
         counts['messages'] = Message.objects.filter(user=user, unread=True, sent_at__gt=since).count()
 
