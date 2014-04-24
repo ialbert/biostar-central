@@ -19,6 +19,9 @@ from biostar.const import OrderedDict
 from django.core.exceptions import ValidationError
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
+import logging
+
+logger = logging.getLogger(__name__)
 
 def valid_title(text):
     "Validates form input for tags"
@@ -115,9 +118,23 @@ def external_post_handler(request):
     import hmac
 
     user = request.user
-
+    home = reverse("home")
     name = request.REQUEST.get("name")
-    secret = dict(settings.EXTERNAL_AUTH)[name]
+
+    if not name:
+        messages.error(request, "Incorrect request. The name parameter is missing")
+        return HttpResponseRedirect(home)
+
+    try:
+        secret = dict(settings.EXTERNAL_AUTH).get(name)
+    except Exception, exc:
+        logger.error(exc)
+        messages.error(request, "Incorrect EXTERNAL_AUTH settings, internal exception")
+        return HttpResponseRedirect(home)
+
+    if not secret:
+        messages.error(request, "Incorrect EXTERNAL_AUTH, no KEY found for this name")
+        return HttpResponseRedirect(home)
 
     content = request.REQUEST.get("content")
     submit  = request.REQUEST.get("action")
@@ -126,7 +143,7 @@ def external_post_handler(request):
 
     if digest1 != digest2:
         messages.error(request, "digests does not match")
-        return HttpResponseRedirect(reverse("home"))
+        return HttpResponseRedirect(home)
 
     # auto submit the post
     if submit:
@@ -153,6 +170,13 @@ class NewPost(LoginRequiredMixin, FormView):
     def get(self, request, *args, **kwargs):
         initial = dict()
 
+        # Attempt to prefill from GET parameters
+        for key in "title tag_val content".split():
+            value = request.GET.get(key)
+            if value:
+                initial[key]=value
+
+        # Attempt to prefill from external session
         sess = request.session
         if settings.EXTERNAL_SESSION_KEY in sess:
             for field in settings.EXTERNAL_SESSION_FIELDS:
