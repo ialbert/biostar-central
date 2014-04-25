@@ -195,6 +195,43 @@ class Profile(models.Model):
     # allow easy subselection of various subsets of users.
     flag = models.IntegerField(default=0)
 
+    # The tag value is the canonical form of the post's tags
+    watch_tags = models.CharField(max_length=100, default="", blank=True)
+
+    # The tag set is built from the watch_tag string and is used to trigger actions
+    # when a post that matches this tag is set
+    tag_set = models.ManyToManyField(Tag, blank=True, )
+
+    def parse_tags(self):
+        # Currently duplicated with post models. Not sure if the format should stay the same.
+        # Upper case
+        def fixcase(w):
+            w = w.strip()
+            w = w.upper() if len(w) == 1 else w.lower()
+            return w
+
+        # Try splitting by comma
+        words = self.tag_val.split(",")
+
+        # Change case as necessary.
+        words = map(fixcase, words)
+
+        # Remove empty
+        words = filter(None, words)
+
+        return words
+
+    def add_tags(self, text):
+        text = text.strip()
+        if not text:
+            return
+        # Sanitize the tag value
+        self.tag_val = bleach.clean(text, tags=[], attributes=[], styles={}, strip=True)
+        # Clear old tags
+        self.tag_set.clear()
+        tags = [Tag.objects.get_or_create(name=name)[0] for name in self.parse_tags()]
+        self.tag_set.add(*tags)
+
     def save(self, *args, **kwargs):
 
         # Clean the info fields.
@@ -229,6 +266,9 @@ class Profile(models.Model):
             prof = Profile(user=instance)
             prof.save()
 
+
+class Tag(models.Model):
+    name = models.TextField(max_length=50, db_index=True)
 
 class UserCreationForm(forms.ModelForm):
     """A form for creating new users."""
