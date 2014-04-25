@@ -50,7 +50,7 @@ def init_admin():
     from biostar.apps.users.models import User
 
     email = settings.ADMIN_EMAIL
-    admin = User.objects.filter(email=email)
+    admin = User.objects.filter(id=1)
     if not admin:
         admin = User(
             email=email,
@@ -99,10 +99,7 @@ def init_social_providers():
             provider = providers.registry.by_id(name)
 
             # Code duplication since many2many fields cannot be initialized in one step
-            exists = SocialApp.objects.filter(
-                name=name, client_id=client_id, provider=name,
-                secret=secret, sites=site
-            )
+            exists = SocialApp.objects.filter(name=name)
             if not exists:
                 app = SocialApp(
                     name=name,

@@ -23,8 +23,8 @@ class Migration(SchemaMigration):
                       self.gf('django.db.models.fields.TextField')(default=u''),
                       keep_default=False)
 
-        # Migrate the posts.
-        if not db.dry_run:
+        # Migrate the posts. Temporarily disable.
+        if 0 and not db.dry_run:
             for post in orm.Post.objects.all():
                 post.html = post.content
                 post.save()

@@ -49,7 +49,13 @@ class Command(BaseCommand):
 def stuff():
     "One off tasks go here that just need a quick access to the data"
     from biostar.apps.posts.models import Post
-    from biostar.apps.users.models import User
+    from biostar.apps.users.models import User, Profile
+    for post in Post.objects.all():
+        post.html = post.content
+        post.save()
+    for prof in Profile.objects.all():
+        prof.location = prof.location.strip()
+        prof.save()
 
 def tagger(pattern, dry):
 
