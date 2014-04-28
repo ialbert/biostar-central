@@ -6,7 +6,7 @@ from . import auth
 from django import forms
 from django.core.urlresolvers import reverse
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Field, Fieldset, Submit, ButtonHolder
+from crispy_forms.layout import Layout, Field, Fieldset, Submit, ButtonHolder, Div
 from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect
 from django.contrib import messages
@@ -20,6 +20,7 @@ import logging, hmac
 
 logger = logging.getLogger(__name__)
 
+
 class UserEditForm(forms.Form):
     name = forms.CharField(help_text="The name displayed on the site (required)")
 
@@ -31,11 +32,17 @@ class UserEditForm(forms.Form):
     website = forms.URLField(required=False, max_length=200,
                              help_text="The URL to your website (optional)")
 
+    twitter_id = forms.CharField(required=False, max_length=15,
+                                 help_text="Your twitter id (optional)")
+
     scholar = forms.CharField(required=False, max_length=15,
                               help_text="Your Google Scholar ID (optional)")
 
     my_tags = forms.CharField(max_length=200, required=False,
-                              help_text="Use <code>+</code> to add tags. Add a <code>!</code> to remove a tag. Example: <code>galaxy + bed + solid!</code> (optional)")
+                              help_text="Use a comma to separate tags. Add a <code>!</code> to remove a tag. Example: <code>galaxy, bed, solid!</code> (optional)")
+
+    watched_tags = forms.CharField(max_length=200, required=False,
+                                   help_text="Get email when a post matching the tag is posted. Example: <code>minia, bedops, breakdancer, music</code>.")
 
     message_prefs = forms.ChoiceField(required=True, choices=const.MESSAGING_TYPE_CHOICES, label="Notifications",
                                       help_text="Where to send notifications. Default mode sends email on followups to questions you've created.")
@@ -48,18 +55,21 @@ class UserEditForm(forms.Form):
         self.helper = FormHelper()
         self.helper.error_text_inline = False
         self.helper.help_text_inline = True
-
+        #self.helper.field_class = "col-md-6"
+        #self.helper.label_class = "col-md-6"
         self.helper.layout = Layout(
             Fieldset(
                 'Update your profile',
-                'name',
-                'email',
-                'location',
-                'website',
-                'scholar',
-                'message_prefs',
-                Field('my_tags'),
-                'info',
+                Div('name', css_class="col-md-6"),
+                Div('email', css_class="col-md-6"),
+                Div('location', css_class="col-md-6"),
+                Div('website', css_class="col-md-6"),
+                Div('twitter_id', css_class="col-md-6"),
+                Div('scholar', css_class="col-md-6"),
+                Div('message_prefs', css_class="col-md-6"),
+                Div('my_tags', css_class="col-md-6"),
+                Div('watched_tags', css_class="col-md-12"),
+                Div('info', css_class="col-md-12"),
             ),
             ButtonHolder(
                 Submit('submit', 'Submit')
@@ -76,7 +86,7 @@ class EditUser(LoginRequiredMixin, FormView):
     template_name = ""
     form_class = UserEditForm
     user_fields = "name email".split()
-    prof_fields = "location website info scholar my_tags message_prefs".split()
+    prof_fields = "location website info scholar my_tags watched_tags twitter_id message_prefs".split()
 
     def get(self, request, *args, **kwargs):
         target = User.objects.get(pk=self.kwargs['pk'])
@@ -99,6 +109,7 @@ class EditUser(LoginRequiredMixin, FormView):
     def post(self, request, *args, **kwargs):
         target = User.objects.get(pk=self.kwargs['pk'])
         target = auth.user_permissions(request=request, target=target)
+        profile = target.profile
 
         # The essential authentication step.
         if not target.has_ownership:
@@ -119,10 +130,11 @@ class EditUser(LoginRequiredMixin, FormView):
                 setattr(target, field, f[field])
 
             for field in self.prof_fields:
-                setattr(target.profile, field, f[field])
+                setattr(profile, field, f[field])
 
             target.save()
-            target.profile.save()
+            profile.add_tags(profile.watched_tags)
+            profile.save()
             messages.success(request, "Profile updated")
             return HttpResponseRedirect(self.get_success_url())
 
@@ -180,3 +192,8 @@ class CaptchaView(SignupView):
         else:
             return SignupForm
 
+
+class EmailListSignup(FormView):
+    """
+    Edits a user.
+    """

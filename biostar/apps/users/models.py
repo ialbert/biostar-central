@@ -154,6 +154,16 @@ class User(AbstractBaseUser):
 # This contains the notification types.
 from biostar import const
 
+class EmailList(models.Model):
+    "The list of emails that opted in receiving emails"
+    email = models.EmailField(verbose_name='Email', db_index=True, max_length=255, unique=True)
+    type = models.IntegerField(default=0)
+    active = models.BooleanField(default=True)
+    date = models.DateTimeField(auto_created=True)
+
+class Tag(models.Model):
+    name = models.TextField(max_length=50, db_index=True)
+
 class Profile(models.Model):
     """
     Maintains information that does not always need to be retreived whe a user is accessed.
@@ -182,6 +192,9 @@ class Profile(models.Model):
     # Google scholar ID
     scholar = models.CharField(default="", max_length=255, blank=True)
 
+    # Twitter ID
+    twitter_id = models.CharField(default="", max_length=255, blank=True)
+
     # This field is used to select content for the user.
     my_tags = models.TextField(default="", max_length=255, blank=True)
 
@@ -196,7 +209,7 @@ class Profile(models.Model):
     flag = models.IntegerField(default=0)
 
     # The tag value is the canonical form of the post's tags
-    watch_tags = models.CharField(max_length=100, default="", blank=True)
+    watched_tags = models.CharField(max_length=100, default="", blank=True)
 
     # The tag set is built from the watch_tag string and is used to trigger actions
     # when a post that matches this tag is set
@@ -223,8 +236,6 @@ class Profile(models.Model):
 
     def add_tags(self, text):
         text = text.strip()
-        if not text:
-            return
         # Sanitize the tag value
         self.tag_val = bleach.clean(text, tags=[], attributes=[], styles={}, strip=True)
         # Clear old tags
@@ -267,8 +278,6 @@ class Profile(models.Model):
             prof.save()
 
 
-class Tag(models.Model):
-    name = models.TextField(max_length=50, db_index=True)
 
 class UserCreationForm(forms.ModelForm):
     """A form for creating new users."""

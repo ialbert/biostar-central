@@ -15,7 +15,8 @@
         <div class="col-md-12 user-details">
 
             <div class="col-md-12">
-                <h2 class="text-center {{ target.get_status_display}}">{{ target.get_type_display }}: {{ target.name }}</h2>
+                <h2
+                class="text-center {{ target.get_status_display }}">{{ target.get_type_display }}: {{ target.name }}</h2>
 
 
             </div>
@@ -46,11 +47,7 @@
                         your portait is
                         an "identicon": an automatically generated, unique image.
                     </div>
-
-
-
                 {% endif %}
-
 
             </div>
 
@@ -72,6 +69,14 @@
                     <dd>
                         {% if target.profile.website %}
                             <a href="{{ target.profile.website }}">{{ target.profile.website|truncatechars:25 }}</a>
+                        {% endif %}
+                    </dd>
+
+                    <dt>Twitter:</dt>
+                    <dd>
+                        {% if target.profile.twitter_id %}
+                            <a
+                            href="{{ target.profile.twitter_id }}">{{ target.profile.twitter_id|truncatechars:25 }}</a>
                         {% endif %}
                     </dd>
 
@@ -101,10 +106,18 @@
                     {% if target.has_ownership %}
 
                         <dt>My Tags:</dt>
-                        <dd>{{ target.profile.my_tags }}</dd>
+                        <dd>{{ target.profile.my_tags|truncatechars:25 }}</dd>
+
+                        <dt>Watched Tags:</dt>
+                        <dd>
+                            {% for tag in target.profile.tag_set.all %}
+                                {{ tag.name }},
+                            {% endfor %}
+                        </dd>
 
                         <dt>Notifications:</dt>
                         <dd>{{ target.profile.get_message_prefs_display }}</dd>
+
 
                         <dt>Log in options:</dt>
                         <dd>
