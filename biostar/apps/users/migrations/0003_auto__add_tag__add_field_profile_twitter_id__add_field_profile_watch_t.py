@@ -35,8 +35,8 @@ class Migration(SchemaMigration):
                       self.gf('django.db.models.fields.CharField')(default=u'', max_length=100, blank=True),
                       keep_default=False)
 
-        # Adding M2M table for field tag_set on 'Profile'
-        m2m_table_name = db.shorten_name(u'users_profile_tag_set')
+        # Adding M2M table for field tags on 'Profile'
+        m2m_table_name = db.shorten_name(u'users_profile_tags')
         db.create_table(m2m_table_name, (
             ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
             ('profile', models.ForeignKey(orm[u'users.profile'], null=False)),
@@ -58,8 +58,8 @@ class Migration(SchemaMigration):
         # Deleting field 'Profile.watched_tags'
         db.delete_column(u'users_profile', 'watched_tags')
 
-        # Removing M2M table for field tag_set on 'Profile'
-        db.delete_table(db.shorten_name(u'users_profile_tag_set'))
+        # Removing M2M table for field tags on 'Profile'
+        db.delete_table(db.shorten_name(u'users_profile_tags'))
 
 
     models = {
@@ -88,7 +88,7 @@ class Migration(SchemaMigration):
             'message_prefs': ('django.db.models.fields.IntegerField', [], {'default': '3'}),
             'my_tags': ('django.db.models.fields.TextField', [], {'default': "u''", 'max_length': '255', 'blank': 'True'}),
             'scholar': ('django.db.models.fields.CharField', [], {'default': "u''", 'max_length': '255', 'blank': 'True'}),
-            'tag_set': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['users.Tag']", 'symmetrical': 'False', 'blank': 'True'}),
+            'tags': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['users.Tag']", 'symmetrical': 'False', 'blank': 'True'}),
             'twitter_id': ('django.db.models.fields.CharField', [], {'default': "u''", 'max_length': '255', 'blank': 'True'}),
             'user': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['users.User']", 'unique': 'True'}),
             'uuid': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '255', 'db_index': 'True'}),

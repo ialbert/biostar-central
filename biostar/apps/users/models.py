@@ -213,7 +213,7 @@ class Profile(models.Model):
 
     # The tag set is built from the watch_tag string and is used to trigger actions
     # when a post that matches this tag is set
-    tag_set = models.ManyToManyField(Tag, blank=True, )
+    tags = models.ManyToManyField(Tag, blank=True, )
 
     def parse_tags(self):
         # Currently duplicated with post models. Not sure if the format should stay the same.
@@ -239,9 +239,9 @@ class Profile(models.Model):
         # Sanitize the tag value
         self.tag_val = bleach.clean(text, tags=[], attributes=[], styles={}, strip=True)
         # Clear old tags
-        self.tag_set.clear()
+        self.tags.clear()
         tags = [Tag.objects.get_or_create(name=name)[0] for name in self.parse_tags()]
-        self.tag_set.add(*tags)
+        self.tags.add(*tags)
 
     def save(self, *args, **kwargs):
 

@@ -6,7 +6,7 @@ Only signals and connections between models are specfied here.
 """
 from __future__ import print_function, unicode_literals, absolute_import, division
 import logging, datetime
-from django.db.models import signals
+from django.db.models import signals, Q
 
 from biostar.apps.users.models import User, Profile
 from biostar.apps.posts.models import Post, Subscription
@@ -67,7 +67,8 @@ def post_create_messages(sender, instance, created, *args, **kwargs):
                 yield message
 
             # Generate an email to everyone that has a profile with all messages
-            users = User.objects.filter(profile__message_prefs=ALL_MESSAGES)
+            cond = Q(profile__message_prefs=ALL_MESSAGES)
+            users = User.objects.filter(cond)
             for user in users:
                 emails.append(
                     (body.subject, email_text, settings.DEFAULT_FROM_EMAIL, [user.email])

@@ -110,7 +110,7 @@
 
                         <dt>Watched Tags:</dt>
                         <dd>
-                            {% for tag in target.profile.tag_set.all %}
+                            {% for tag in target.profile.tags.all %}
                                 {{ tag.name }},
                             {% endfor %}
                         </dd>
