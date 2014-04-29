@@ -23,6 +23,7 @@ import logging
 from django.contrib.flatpages.models import FlatPage
 from haystack.query import SearchQuerySet
 from . import moderate
+from django.http import Http404
 
 logger = logging.getLogger(__name__)
 
@@ -622,8 +623,12 @@ else:
 
 def post_redirect(request, pid):
     "Redirect to a post"
-    post = Post.objects.get(id=pid)
+    try:
+        post = Post.objects.get(id=pid)
+    except Post.DoesNotExist:
+        raise Http404
     return shortcuts.redirect(post.get_absolute_url(), permanent=True)
+
 
 def post_remap_redirect(request, pid):
     "Remap post id and redirect, SE1 ids"
@@ -634,6 +639,7 @@ def post_remap_redirect(request, pid):
     except Exception, exc:
         messages.error(request, "Unable to redirect: %s" % exc)
         return shortcuts.redirect("/")
+
 
 def tag_redirect(request, tag):
     try:

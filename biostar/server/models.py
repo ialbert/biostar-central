@@ -67,8 +67,10 @@ def post_create_messages(sender, instance, created, *args, **kwargs):
                 yield message
 
             # Generate an email to everyone that has a profile with all messages
-            cond = Q(profile__message_prefs=ALL_MESSAGES)
-            users = User.objects.filter(cond)
+            # or that is watching one of the tags on the post
+            cond1 = Q(profile__message_prefs=ALL_MESSAGES)
+            cond2 = Q(profile__tags__name__in=post.parse_tags())
+            users = User.objects.filter(cond1 | cond2)
             for user in users:
                 emails.append(
                     (body.subject, email_text, settings.DEFAULT_FROM_EMAIL, [user.email])

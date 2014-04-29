@@ -3,9 +3,17 @@ BioStar Q&A Version 2.0
 
 BioStar is a [Python][python] and [Django][django] based Q&A software.
 Our goal is to create a simple, generic, flexible and extensible Q&A
-framework.
+framework. The site has been developed by scientists and aims to
+address specific needs that scientific communities have.
 
-This is the software that runs the Biostars Bioinformatics Q&A at: http://www.biostars.org
+This software runs several science oriented Q&A sites:
+
+ * Biostars Bioinformatics Q&A at: https://www.biostars.org
+ * Galaxy User support site: https://biostar.usegalaxy.org
+ * Metabolomics Q&A: http://www.metastars.org
+ 
+The developers of the software may be available to provide commercial level support
+when deploying sites for entire organizations. Contact: admin@biostars.org
 
 Requirements: `Python 2.7`
 

@@ -11,6 +11,8 @@ from optparse import make_option
 import random
 import logging
 from datetime import timedelta
+from django.db.models import signals, Q
+
 logger = logging.getLogger(__name__)
 
 class Command(BaseCommand):
@@ -46,16 +48,33 @@ class Command(BaseCommand):
         if pk:
             bump(pk)
 
-def stuff():
+
+def post_patch():
     "One off tasks go here that just need a quick access to the data"
     from biostar.apps.posts.models import Post
     from biostar.apps.users.models import User, Profile
+
     for post in Post.objects.all():
         post.html = post.content
         post.save()
     for prof in Profile.objects.all():
         prof.location = prof.location.strip()
         prof.save()
+
+
+def stuff():
+    "One off tasks go here that just need a quick access to the data"
+    from biostar.apps.posts.models import Post
+    from biostar.apps.users.models import User, Profile
+    from biostar.const import ALL_MESSAGES
+
+    cond = Q(profile__message_prefs=ALL_MESSAGES)
+    cond = Q(profile__tags__name__in=["galaxy"])
+    users = User.objects.filter(cond)
+
+    for user in users:
+        print user.id, user.email
+
 
 def tagger(pattern, dry):
 

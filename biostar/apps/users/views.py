@@ -47,7 +47,7 @@ class UserEditForm(forms.Form):
     message_prefs = forms.ChoiceField(required=True, choices=const.MESSAGING_TYPE_CHOICES, label="Notifications",
                                       help_text="Where to send notifications. Default mode sends email on followups to questions you've created.")
 
-    info = forms.CharField(widget=forms.Textarea, required=False,
+    info = forms.CharField(widget=forms.Textarea, required=False, label="Add some information about yourself",
                            help_text="A brief description about yourself (recommended)")
 
     def __init__(self, *args, **kwargs):
@@ -55,20 +55,21 @@ class UserEditForm(forms.Form):
         self.helper = FormHelper()
         self.helper.error_text_inline = False
         self.helper.help_text_inline = True
-        #self.helper.field_class = "col-md-6"
-        #self.helper.label_class = "col-md-6"
         self.helper.layout = Layout(
             Fieldset(
                 'Update your profile',
-                Div('name', css_class="col-md-6"),
-                Div('email', css_class="col-md-6"),
-                Div('location', css_class="col-md-6"),
-                Div('website', css_class="col-md-6"),
-                Div('twitter_id', css_class="col-md-6"),
-                Div('scholar', css_class="col-md-6"),
-                Div('message_prefs', css_class="col-md-6"),
-                Div('my_tags', css_class="col-md-6"),
-                Div('watched_tags', css_class="col-md-12"),
+                Div(
+                    Div('name', ),
+                    Div('email', ),
+                    Div('location'),
+                    Div('website'),
+                    Div('twitter_id'),
+                    Div('scholar'),
+                    Div('message_prefs'),
+                    Div('my_tags'),
+                    Div('watched_tags'),
+                    css_class="col-md-offset-3 col-md-6",
+                ),
                 Div('info', css_class="col-md-12"),
             ),
             ButtonHolder(
