@@ -5,10 +5,11 @@ from datetime import datetime
 def now():
     return datetime.utcnow().replace(tzinfo=utc)
 
-def make_uuid():
+def make_uuid(size=None):
     "Returns a unique id"
     x = random.getrandbits(256)
     u = hashlib.md5(str(x)).hexdigest()
+    u = u[:size]
     return u
 
 def encode(data, key):

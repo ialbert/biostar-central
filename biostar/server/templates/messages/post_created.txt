@@ -3,7 +3,8 @@
 {{post.as_text|safe|truncatewords:150}}
 
 ---
-See more at: http://{{site.domain}}{{ post.get_absolute_url }}
+See the full post at: http://{{site.domain}}{{ post.get_absolute_url }}
+You may reply via email and your message will be posted in the thread.
 ---
-You are receiving this message because you are subscribed to the post via email.
+You are receiving this because you have subscribed to the post.
 ---

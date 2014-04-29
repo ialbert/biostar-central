@@ -66,14 +66,28 @@ def post_create_messages(sender, instance, created, *args, **kwargs):
         def messages():
             for sub in subs:
                 message = Message(user=sub.user, body=body, sent_at=body.sent_at)
+
                 # collect to a bulk email if the subscription is by email:
                 if sub.type == EMAIL_MESSAGE:
-                    emails.append(
-                        (body.subject, email_text, settings.DEFAULT_FROM_EMAIL, [sub.user.email])
-                    )
-                    tokens.append(
-                        ReplyToken(user=sub.user, post=post, token=make_uuid(), date=now())
-                    )
+                    try:
+                        token = ReplyToken(user=sub.user, post=post, token=make_uuid(8), date=now())
+                        from_email = u"%s <%s>" % (author.name, settings.DEFAULT_FROM_EMAIL)
+                        from_email = from_email.encode("utf-8")
+                        reply_to = "reply+%s+code@biostars.io" % token.token
+                        # create the email message
+                        email = mail.EmailMessage(
+                            subject=body.subject,
+                            body = email_text,
+                            from_email = from_email,
+                            to=[ sub.user.email ],
+                            headers = {'Reply-To': reply_to},
+                        )
+                        emails.append(email)
+                        tokens.append(token)
+                    except Exception, exc:
+                        # This here can crash the post submission hence the catchall
+                        logger.error(exc)
+
                 yield message
 
         # Bulk insert of all messages. Bypasses the Django ORM!
@@ -82,7 +96,8 @@ def post_create_messages(sender, instance, created, *args, **kwargs):
 
         try:
             # Bulk sending email messages.
-            results = mail.send_mass_mail(emails)
+            conn = mail.get_connection()
+            conn.send_messages(emails)
         except Exception, exc:
             logger.error("email error %s" % exc)
 
