@@ -15,7 +15,7 @@ from django.contrib import messages
 from datetime import datetime, timedelta
 from biostar.const import OrderedDict
 from biostar import const
-from braces.views import LoginRequiredMixin
+from braces.views import LoginRequiredMixin, JSONResponseMixin
 from django import shortcuts
 from django.http import HttpResponseRedirect
 from django.core.paginator import Paginator
@@ -611,6 +611,18 @@ class BadgeList(BaseListMixin):
         context = super(BadgeList, self).get_context_data(**kwargs)
         return context
 
+class EmailHandler(JSONResponseMixin, View):
+
+    def get(self, request, *args, **kwargs):
+        data = dict(status="OK")
+        return self.render_json_response(data)
+
+    def post(self, request, *args, **kwargs):
+        "This is called on replying via email"
+        print request.POST
+        data = dict(status="OK",)
+        return self.render_json_response(data)
+
 #
 # These views below are here to catch old URLs from the 2009 version of the SE1 site
 #
@@ -620,6 +632,7 @@ if os.path.isfile(POST_REMAP_FILE):
     REMAP = dict([line.split() for line in file(POST_REMAP_FILE)])
 else:
     REMAP = {}
+
 
 def post_redirect(request, pid):
     "Redirect to a post"

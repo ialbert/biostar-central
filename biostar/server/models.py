@@ -8,7 +8,6 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 import logging, datetime
 from django.db.models import signals, Q
 
-from biostar.apps.users.models import User, Profile
 from biostar.apps.posts.models import Post, Subscription, ReplyToken
 from biostar.apps.messages.models import Message, MessageBody
 from biostar.apps.badges.models import Award
@@ -31,6 +30,7 @@ POST_CREATED_TEXT_TEMPLATE = "messages/post_created.txt"
 
 def post_create_messages(sender, instance, created, *args, **kwargs):
     "The actions to undertake when creating a new post"
+    from biostar.apps.users.models import User
 
     post = instance
     if created:
@@ -73,7 +73,7 @@ def post_create_messages(sender, instance, created, *args, **kwargs):
                         token = ReplyToken(user=sub.user, post=post, token=make_uuid(8), date=now())
                         from_email = u"%s <%s>" % (author.name, settings.DEFAULT_FROM_EMAIL)
                         from_email = from_email.encode("utf-8")
-                        reply_to = "reply+%s+code@biostars.io" % token.token
+                        reply_to = "reply+%s+code@%s" % (token.token, settings.EMAIL_REPLY_DOMAIN)
                         # create the email message
                         email = mail.EmailMessage(
                             subject=body.subject,

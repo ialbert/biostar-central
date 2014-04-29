@@ -76,6 +76,11 @@ while (( "$#" )); do
         $PYTHON $DJANGO_ADMIN runserver $BIOSTAR_HOSTNAME --settings=$DJANGO_SETTINGS_MODULE
     fi
 
+	if [ "$1" = "waitress" ]; then
+        echo "*** Run a waitress server with $DJANGO_SETTINGS_MODULE and DATABASE_NAME=$DATABASE_NAME"
+        waitress-serve --port=8080 --call biostar.wsgi:white
+    fi
+
     if [ "$1" = "init" ]; then
         echo "*** Initializing server on $BIOSTAR_HOSTNAME with $DJANGO_SETTINGS_MODULE"
         echo "*** Running all tests"

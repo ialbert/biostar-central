@@ -152,6 +152,9 @@ SITE_DOMAIN = get_env("BIOSTAR_HOSTNAME")
 
 SERVER_EMAIL = DEFAULT_FROM_EMAIL = get_env("DEFAULT_FROM_EMAIL")
 
+# What domain will handle the replies.
+EMAIL_REPLY_DOMAIN = "biostars.io"
+
 # If you set this to False, Django will make some optimizations so as not
 # to load the internationalization machinery.
 USE_I18N = True
