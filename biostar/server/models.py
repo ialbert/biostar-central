@@ -9,11 +9,11 @@ import logging, datetime
 from django.db.models import signals, Q
 
 from biostar.apps.users.models import User, Profile
-from biostar.apps.posts.models import Post, Subscription
+from biostar.apps.posts.models import Post, Subscription, ReplyToken
 from biostar.apps.messages.models import Message, MessageBody
 from biostar.apps.badges.models import Award
 
-from biostar.apps.util import html
+from biostar.apps.util import html, make_uuid
 
 from django.core import mail
 from django.conf import settings
@@ -37,6 +37,14 @@ def post_create_messages(sender, instance, created, *args, **kwargs):
         # The user sending the notifications.
         author = instance.author
 
+        # Insert email subscriptions to users that watch these posts
+        if post.is_toplevel:
+            cond1 = Q(profile__message_prefs=ALL_MESSAGES)
+            cond2 = Q(profile__tags__name__in=post.parse_tags())
+            cond = cond1 | cond2
+            for watcher in User.objects.filter(cond).exclude(id=author.id):
+                sub, flag = Subscription.objects.get_or_create(post=post, user=watcher, type=EMAIL_MESSAGE)
+
         # Get all subscriptions for the post.
         subs = Subscription.objects.get_subs(post).exclude(user=author)
 
@@ -47,13 +55,12 @@ def post_create_messages(sender, instance, created, *args, **kwargs):
         site = Site.objects.get_current()
         email_text = html.render(name=POST_CREATED_TEXT_TEMPLATE, post=post, user=author, site=site)
 
-
         # Create the message body.
         body = MessageBody.objects.create(author=author, subject=post.title,
                                           text=content, sent_at=post.creation_date)
 
         # Collects the emails for bulk sending.
-        emails = []
+        emails, tokens = [], []
 
         # This generator will produce the messages.
         def messages():
@@ -64,20 +71,14 @@ def post_create_messages(sender, instance, created, *args, **kwargs):
                     emails.append(
                         (body.subject, email_text, settings.DEFAULT_FROM_EMAIL, [sub.user.email])
                     )
+                    tokens.append(
+                        ReplyToken(user=sub.user, post=post, token=make_uuid(), date=now())
+                    )
                 yield message
-
-            # Generate an email to everyone that has a profile with all messages
-            # or that is watching one of the tags on the post
-            cond1 = Q(profile__message_prefs=ALL_MESSAGES)
-            cond2 = Q(profile__tags__name__in=post.parse_tags())
-            users = User.objects.filter(cond1 | cond2)
-            for user in users:
-                emails.append(
-                    (body.subject, email_text, settings.DEFAULT_FROM_EMAIL, [user.email])
-                )
 
         # Bulk insert of all messages. Bypasses the Django ORM!
         Message.objects.bulk_create(messages(), batch_size=100)
+        ReplyToken.objects.bulk_create(tokens, batch_size=100)
 
         try:
             # Bulk sending email messages.

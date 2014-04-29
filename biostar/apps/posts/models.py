@@ -13,7 +13,7 @@ from django.db.models import Q, F
 from django.core.exceptions import ObjectDoesNotExist
 from biostar import const
 from biostar.apps.util import html
-
+from biostar.apps import util
 # HTML sanitization parameters.
 
 logger = logging.getLogger(__name__)
@@ -389,6 +389,28 @@ class Post(models.Model):
                     Post.objects.filter(id=instance.root.id).update(reply_count=F("reply_count") + 1)
 
             instance.save()
+
+class ReplyToken(models.Model):
+    """
+    Connects a user and a post to a unique token. Sending back the token identifies
+    both the user and the post that they are replying to.
+    """
+    user = models.ForeignKey(settings.AUTH_USER_MODEL)
+    post = models.ForeignKey(Post)
+    token = models.CharField(max_length=256)
+    date = models.DateTimeField(auto_created=True)
+
+    def save(self, *args, **kwargs):
+        if not self.id:
+            self.token = util.make_uuid()
+        super(ReplyToken, self).save(*args, **kwargs)
+
+class ReplyTokenAdmin(admin.ModelAdmin):
+    list_display = ('user', 'post', 'token', 'date')
+    ordering = ['-date']
+    search_fields = ('post__title', 'user__name')
+
+admin.site.register(ReplyToken, ReplyTokenAdmin)
 
 class Data(models.Model):
     "Represents a dataset attached to a post"

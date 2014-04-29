@@ -39,7 +39,7 @@ class UserEditForm(forms.Form):
                               help_text="Your Google Scholar ID (optional)")
 
     my_tags = forms.CharField(max_length=200, required=False,
-                              help_text="Use a comma to separate tags. Add a <code>!</code> to remove a tag. Example: <code>galaxy, bed, solid!</code> (optional)")
+                              help_text="Post with tags listed here will show up in the My Tags tab. Use a comma to separate tags. Add a <code>!</code> to remove a tag. Example: <code>galaxy, bed, solid!</code> (optional)")
 
     watched_tags = forms.CharField(max_length=200, required=False,
                                    help_text="Get email when a post matching the tag is posted. Example: <code>minia, bedops, breakdancer, music</code>.")
@@ -68,7 +68,7 @@ class UserEditForm(forms.Form):
                     Div('message_prefs'),
                     Div('my_tags'),
                     Div('watched_tags'),
-                    css_class="col-md-offset-3 col-md-6",
+                    css_class="col-md-offset-1 col-md-10",
                 ),
                 Div('info', css_class="col-md-12"),
             ),

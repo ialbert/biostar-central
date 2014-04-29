@@ -11,7 +11,7 @@ This software runs several science oriented Q&A sites:
  * Biostars Bioinformatics Q&A at: https://www.biostars.org
  * Galaxy User support site: https://biostar.usegalaxy.org
  * Metabolomics Q&A: http://www.metastars.org
- 
+
 The developers of the software may be available to provide commercial level support
 when deploying sites for entire organizations. Contact: admin@biostars.org
 

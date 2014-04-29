@@ -18,16 +18,21 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal(u'posts', ['Data'])
 
+        # Adding model 'ReplyToken'
+        db.create_table(u'posts_replytoken', (
+            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('date', self.gf('django.db.models.fields.DateTimeField')()),
+            ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['users.User'])),
+            ('post', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['posts.Post'])),
+            ('token', self.gf('django.db.models.fields.CharField')(max_length=256)),
+        ))
+        db.send_create_signal(u'posts', ['ReplyToken'])
+
         # Adding field 'Post.html'
         db.add_column(u'posts_post', 'html',
                       self.gf('django.db.models.fields.TextField')(default=u''),
                       keep_default=False)
 
-        # Migrate the posts. Temporarily disable.
-        if 0 and not db.dry_run:
-            for post in orm.Post.objects.all():
-                post.html = post.content
-                post.save()
 
         # Changing field 'Post.title'
         db.alter_column(u'posts_post', 'title', self.gf('django.db.models.fields.CharField')(max_length=200))
@@ -35,6 +40,9 @@ class Migration(SchemaMigration):
     def backwards(self, orm):
         # Deleting model 'Data'
         db.delete_table(u'posts_data')
+
+        # Deleting model 'ReplyToken'
+        db.delete_table(u'posts_replytoken')
 
         # Deleting field 'Post.html'
         db.delete_column(u'posts_post', 'html')
@@ -87,6 +95,14 @@ class Migration(SchemaMigration):
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'ip': ('django.db.models.fields.GenericIPAddressField', [], {'default': "u''", 'max_length': '39', 'null': 'True', 'blank': 'True'}),
             'post': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "u'post_views'", 'to': u"orm['posts.Post']"})
+        },
+        u'posts.replytoken': {
+            'Meta': {'object_name': 'ReplyToken'},
+            'date': ('django.db.models.fields.DateTimeField', [], {}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'post': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['posts.Post']"}),
+            'token': ('django.db.models.fields.CharField', [], {'max_length': '256'}),
+            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['users.User']"})
         },
         u'posts.subscription': {
             'Meta': {'unique_together': "((u'user', u'post'),)", 'object_name': 'Subscription'},
