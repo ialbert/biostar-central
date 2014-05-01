@@ -155,6 +155,9 @@ SERVER_EMAIL = DEFAULT_FROM_EMAIL = get_env("DEFAULT_FROM_EMAIL")
 # What domain will handle the replies.
 EMAIL_REPLY_DOMAIN = "biostars.io"
 
+# The secret key that is required to parse the email
+EMAIL_REPLY_SECRET_KEY="abc"
+
 # If you set this to False, Django will make some optimizations so as not
 # to load the internationalization machinery.
 USE_I18N = True

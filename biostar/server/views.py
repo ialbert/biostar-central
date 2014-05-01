@@ -611,17 +611,32 @@ class BadgeList(BaseListMixin):
         context = super(BadgeList, self).get_context_data(**kwargs)
         return context
 
-class EmailHandler(JSONResponseMixin, View):
+from django.views.decorators.csrf import csrf_exempt
+from django.http import HttpResponse
+from django.utils.encoding import smart_text
+import json
 
-    def get(self, request, *args, **kwargs):
-        data = dict(status="OK")
-        return self.render_json_response(data)
+@csrf_exempt
+def email_handler(request):
+    import markdown, pyzmail
+    key = request.POST.get("key")
+    if key != settings.EMAIL_REPLY_SECRET_KEY:
+        data = dict(status="error", msg="key does not match")
+    else:
+        body = request.POST.get("body")
+        body = smart_text(body)
+        msg = pyzmail.PyzMessage.factory(body)
 
-    def post(self, request, *args, **kwargs):
-        "This is called on replying via email"
-        print request.POST
+        print msg
+
+        fname = "%s/email-debug.txt" % settings.LIVE_DIR
+        fp = file(fname, "wt")
+        fp.write(body.encode("utf-8"))
+        fp.close()
         data = dict(status="OK",)
-        return self.render_json_response(data)
+
+    data = json.dumps(data)
+    return HttpResponse(data, content_type="application/json")
 
 #
 # These views below are here to catch old URLs from the 2009 version of the SE1 site

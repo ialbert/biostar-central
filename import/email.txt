@@ -1,0 +1,18 @@
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Subject: A: Fast Interval Intersection Methodologies
+From: =?utf-8?q?Istv=C3=A1n_Albert?= <foo@bar.com>
+To: istvan.albert@yahoo.com
+Date: Thu, 01 May 2014 18:53:56 -0000
+Message-ID: <20140501185356.10700.80567@client-75-102-84-3.mobility-up.psu.edu>
+Reply-To: reply+cd05f4e8+code@biostars.io
+
+István Albert posted the Answer: "Fast Interval Intersection Methodologies":
+
+This code example generates 10,000 intervals then queries them for overlapping regions. Requires only the presence of Python. The code below requires the either the installation of the bx python package or alternatively you may just download the quicksect.py module and place it next to the script itself: from random import randint, seed # if you can install bx python then uncomment the line below # # from bx.intervals.operations.quicksect import IntervalNode # otherwise just download the quickset module as shown above # and place it in next to your program # from quicksect import IntervalNode # the span of the generated intervals SPAN = 10 # the size of the genome SIZE = 5*10**4 # the number of intervals N = 10**4 def generate(x): "Generates random interval over a size and span" lo = randint(10000, SIZE) hi = lo + randint(1, SPAN) return (lo, hi) def find(start, end, tree): "Returns ...
+
+---
+See the full post at: http://localhost:8080/p/99/#100
+Replying to this email will post a comment to the answer above.
+

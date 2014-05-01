@@ -73,7 +73,7 @@ urlpatterns = patterns('',
     url(r'^accounts/signup/$', CaptchaView.as_view(), name="signup"),
 
     # Email handlers
-    url(r'^local/email/', views.EmailHandler.as_view(), name="email-handler"),
+    url(r'^local/email/', views.email_handler, name="email-handler"),
 
     # Search the body.
     url(r'^local/search/page/', search.Search.as_view(), name="search-page"),
