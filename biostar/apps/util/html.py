@@ -13,11 +13,15 @@ ALLOWED_STYLES = bleach.ALLOWED_STYLES + settings.ALLOWED_STYLES
 ALLOWED_ATTRIBUTES = dict(bleach.ALLOWED_ATTRIBUTES)
 ALLOWED_ATTRIBUTES.update(settings.ALLOWED_ATTRIBUTES)
 
-# The pattern that matches the user link.
-USER_PATTERN = r"http(s)?://.*?/u/(?P<uid>(\d+))"
-POST_PATTERN1 = r"http(s)?://.*?/p/(?P<uid>(\d+))"
-POST_PATTERN2 = r"http(s)?://.*?/p/\d+/\#(?P<uid>(\d+))"
+# Matching patterns will be filled in with post title or user name
+USER_PATTERN = r"http(s)?://%s/u/(?P<uid>(\d+))" % settings.SITE_DOMAIN
+POST_PATTERN1 = r"http(s)?://%s/p/(?P<uid>(\d+))" % settings.SITE_DOMAIN
+POST_PATTERN2 = r"http(s)?://%s/p/\d+/\#(?P<uid>(\d+))" % settings.SITE_DOMAIN
+
+# Matches gists that may be embeded
 GIST_PATTERN = r"https://gist.github.com/(?P<uid>([\w/]+))"
+
+# Matches Youtube video links.
 YOUTUBE_PATTERN = r"http(s)?://www.youtube.com/watch\?v=(?P<uid>(\w+))"
 
 USER_RE = re.compile(USER_PATTERN)
@@ -27,12 +31,13 @@ GIST_RE = re.compile(GIST_PATTERN)
 YOUTUBE_RE = re.compile(YOUTUBE_PATTERN)
 
 def clean(text):
-    "Simple clean"
+    "Sanitize text with no other substitutions"
     html = bleach.clean(text, tags=ALLOWED_TAGS,
         attributes=ALLOWED_ATTRIBUTES, styles=ALLOWED_STYLES)
     return html
 
 def parse_html(text):
+    "Sanitize text and expand links to match content"
     from biostar.apps.users.models import User
     from biostar.apps.posts.models import Post
 
@@ -109,11 +114,12 @@ def parse_html(text):
     return html
 
 def strip_tags(text):
-    "Strip html tags from an input"
+    "Strip html tags from text"
     text = bleach.clean(text, tags=[], attributes=[], styles={}, strip=True)
     return text
 
 def render(name, **kwds):
+    "Helper function to render a template"
     tmpl = loader.get_template(name)
     cont = Context(kwds)
     page = tmpl.render(cont)

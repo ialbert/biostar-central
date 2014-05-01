@@ -65,20 +65,32 @@
                     <dt>Location:</dt>
                     <dd>{{ target.profile.location }}</dd>
 
-                    <dt>Website:</dt>
-                    <dd>
-                        {% if target.profile.website %}
-                            <a href="{{ target.profile.website }}">{{ target.profile.website|truncatechars:25 }}</a>
-                        {% endif %}
-                    </dd>
+                    {% if target.profile.website %}
+                        <dt>Website:</dt>
+                        <dd>
 
-                    <dt>Twitter:</dt>
-                    <dd>
-                        {% if target.profile.twitter_id %}
-                            <a
-                            href="{{ target.profile.twitter_id }}">{{ target.profile.twitter_id|truncatechars:25 }}</a>
-                        {% endif %}
-                    </dd>
+                            <a href="{{ target.profile.website }}">{{ target.profile.website|truncatechars:25 }}</a>
+
+                        </dd>
+                    {% endif %}
+
+                    {% if target.profile.twitter_id %}
+                        <dt>Twitter:</dt>
+                        <dd>
+
+                            <i class="fa fa-twitter"></i> <a
+                        href="http://twitter.com/{{ target.profile.twitter_id }}">{{ target.profile.twitter_id|truncatechars:25 }}</a>
+
+                        </dd>
+                    {% endif %}
+
+                    {% if target.profile.scholar %}
+                        <dt>Scholar ID:</dt>
+                        <dd>
+                            <a href="http://scholar.google.com/citations?user={{ target.profile.scholar }}">Google
+                                Scholar Page</a>
+                        </dd>
+                    {% endif %}
 
                     <dt>Last seen:</dt>
                     <dd>{{ target.profile.last_login|naturaltime }}</dd>
@@ -93,15 +105,6 @@
                         <dd>{{ target.email|hide_email }}</dd>
                     {% endif %}
 
-
-                    <dt>Scholar ID:</dt>
-
-                    {% if target.profile.scholar %}
-                        <dd><a href="http://scholar.google.com/citations?user={{ target.profile.scholar }}">Google
-                            Scholar Page</a></dd>
-                    {% else %}
-                        <dd>{{ target.profile.scholar }}</dd>
-                    {% endif %}
 
                     {% if target.has_ownership %}
 
