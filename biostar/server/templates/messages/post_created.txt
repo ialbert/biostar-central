@@ -1,10 +1,9 @@
-{{user.name}} posted on "{{ post.root.get_title|safe }}":
+{{user.name}} posted the {{post.get_type_display}}: "{{ post.root.get_title|safe }}":
 
 {{post.as_text|safe|truncatewords:150}}
 
 ---
 See the full post at: http://{{site.domain}}{{ post.get_absolute_url }}
-You may reply via email and your message will be posted in the thread.
----
-You are receiving this because you have subscribed to the post.
----
+{% if post.is_toplevel %}Replying to this email will post an answer to the question above.
+{% else %}Replying to this email will post a comment to the answer above.
+{% endif %}
