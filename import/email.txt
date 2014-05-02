@@ -1,18 +1,73 @@
+From istvan.albert@gmail.com  Fri May  2 11:57:57 2014
+Return-Path: <istvan.albert@gmail.com>
+X-Original-To: reply+6aec751a+code@biostars.io
+Delivered-To: reply+6aec751a+code@biostars.io
+Received: from mail-vc0-f172.google.com (mail-vc0-f172.google.com [209.85.220.172])
+	by gigabio.com (Postfix) with ESMTPS id E02E710E93
+	for <reply+6aec751a+code@biostars.io>; Fri,  2 May 2014 11:57:57 -0400 (EDT)
+Received: by mail-vc0-f172.google.com with SMTP id id10so5642687vcb.31
+        for <reply+6aec751a+code@biostars.io>; Fri, 02 May 2014 08:57:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20120113;
+        h=mime-version:in-reply-to:references:from:date:message-id:subject:to
+         :content-type;
+        bh=RjujOSIZGYlIVozZwFMvCfr8+drWoJfBQWkQmiCRA1o=;
+        b=RjWiopDoVDFa2oAuVKhc8ABPvHFDkMEqKSlGY3BfrGHu0bO8karU2DWo8TeSYhHtkU
+         jT6ENVmh9gfyEM0EL4XS5kyca0eyuA5niYpScxJPlrUjt9BMtVT8//ZRmzU36MWt+I8/
+         4GNrXScq6ifPSPpqwy1vwrRl0cw0nY7QFZj1FlfgDtjDXq10uflXNGbnji/+afaEHGU/
+         mHduHTguRpQqRKW6OJOfmn9nbpbpJPn13x6PLKN4ZtlDCUmGrxJNzZC6zzpb68M3Akrm
+         NPumGn3njXmbDK6Wgmd23isS2fy43W95R9+X2lYa98E5vm7D2UwCvG9USapaddGV2QBt
+         ullw==
+X-Received: by 10.58.31.136 with SMTP id a8mr14282876vei.20.1399046277267;
+ Fri, 02 May 2014 08:57:57 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Subject: A: Fast Interval Intersection Methodologies
-From: =?utf-8?q?Istv=C3=A1n_Albert?= <foo@bar.com>
-To: istvan.albert@yahoo.com
-Date: Thu, 01 May 2014 18:53:56 -0000
-Message-ID: <20140501185356.10700.80567@client-75-102-84-3.mobility-up.psu.edu>
-Reply-To: reply+cd05f4e8+code@biostars.io
+Received: by 10.58.80.98 with HTTP; Fri, 2 May 2014 08:57:17 -0700 (PDT)
+In-Reply-To: <00000145bda03530-dee6cbaa-a4ab-42de-8f0a-618cb3677990-000000@email.amazonses.com>
+References: <00000145bda03530-dee6cbaa-a4ab-42de-8f0a-618cb3677990-000000@email.amazonses.com>
+From: Istvan Albert <istvan.albert@gmail.com>
+Date: Fri, 2 May 2014 11:57:17 -0400
+Message-ID: <CALHEkC=S9AsncsB_mu_Xv8_XBQkJKENye57Sb0C+A-8hXAD6Dw@mail.gmail.com>
+Subject: Re: A: Test post to verify email sending
+To: reply+6aec751a+code@biostars.io
+Content-Type: multipart/alternative; boundary=047d7b2e49d061879c04f86cd8d2
 
-István Albert posted the Answer: "Fast Interval Intersection Methodologies":
+--047d7b2e49d061879c04f86cd8d2
+Content-Type: text/plain; charset=UTF-8
 
-This code example generates 10,000 intervals then queries them for overlapping regions. Requires only the presence of Python. The code below requires the either the installation of the bx python package or alternatively you may just download the quicksect.py module and place it next to the script itself: from random import randint, seed # if you can install bx python then uncomment the line below # # from bx.intervals.operations.quicksect import IntervalNode # otherwise just download the quickset module as shown above # and place it in next to your program # from quicksect import IntervalNode # the span of the generated intervals SPAN = 10 # the size of the genome SIZE = 5*10**4 # the number of intervals N = 10**4 def generate(x): "Generates random interval over a size and span" lo = randint(10000, SIZE) hi = lo + randint(1, SPAN) return (lo, hi) def find(start, end, tree): "Returns ...
+second reply
 
----
-See the full post at: http://localhost:8080/p/99/#100
-Replying to this email will post a comment to the answer above.
 
+On Fri, May 2, 2014 at 11:49 AM, Biostar Community <
+notifications@biostars.org> wrote:
+
+> Biostar Community posted the Answer: "Test post to verify email sending ":
+>
+> This response will have a reply-to header for the user
+>
+> ---
+> See the full post at: http://test.biostars.org/p/1/#2
+> Replying to this email will post a comment to the answer above.
+>
+
+--047d7b2e49d061879c04f86cd8d2
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr">second reply</div><div class=3D"gmail_extra"><br><br><div =
+class=3D"gmail_quote">On Fri, May 2, 2014 at 11:49 AM, Biostar Community <s=
+pan dir=3D"ltr">&lt;<a href=3D"mailto:notifications@biostars.org" target=3D=
+"_blank">notifications@biostars.org</a>&gt;</span> wrote:<br>
+
+<blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1p=
+x #ccc solid;padding-left:1ex">Biostar Community posted the Answer: &quot;T=
+est post to verify email sending &quot;:<br>
+<br>
+This response will have a reply-to header for the user<br>
+<br>
+---<br>
+See the full post at: <a href=3D"http://test.biostars.org/p/1/#2" target=3D=
+"_blank">http://test.biostars.org/p/1/#2</a><br>
+Replying to this email will post a comment to the answer above.<br>
+</blockquote></div><br></div>
+
+--047d7b2e49d061879c04f86cd8d2--
