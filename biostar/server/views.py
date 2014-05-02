@@ -668,7 +668,7 @@ def email_handler(request):
             obj = Post.objects.create(type=post_type, parent=post, content=text, author=author)
 
             # Delete the token.
-            token.delete()
+            #token.delete()
 
             # Form the return message.
             data = dict(status="ok", id=obj.id)
