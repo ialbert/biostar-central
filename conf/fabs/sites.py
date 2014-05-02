@@ -30,8 +30,13 @@ def metastars(user="www"):
     env.hosts.append('metastars.org')
     env.user = user
 
-def biostars(user="www"):
+def main_biostars(user="www"):
     "Sets the environment for the biostar galaxy"
+    setenv()
+    env.hosts.append('biostars.org')
+    env.user = user
+
+def test_site(user='www'):
     setenv()
     env.hosts.append('test.biostars.org')
     env.user = user

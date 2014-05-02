@@ -394,8 +394,9 @@ POST_VIEW_MINUTES = 5
 # Default  expiration in seconds.
 CACHE_TIMEOUT = 60
 
-# Should the messages go to email by default?
-DEFAULT_EMAIL_ON = False
+# Should the messages go to email by default
+# Valid values are local, default, email
+DEFAULT_MESSAGE_PREF = "local"
 
 # Django precompressor settings.
 COMPRESS_PRECOMPILERS = (

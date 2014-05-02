@@ -164,6 +164,13 @@ class EmailList(models.Model):
 class Tag(models.Model):
     name = models.TextField(max_length=50, db_index=True)
 
+
+# Default message preferences.
+MESSAGE_PREF_MAP = dict(
+    local=const.LOCAL_MESSAGE, default=const.DEFAULT_MESSAGES, email=const.EMAIL_MESSAGE
+)
+MESSAGE_PREFS = MESSAGE_PREF_MAP.get(settings.DEFAULT_MESSAGE_PREF, const.LOCAL_MESSAGE)
+
 class Profile(models.Model):
     """
     Maintains information that does not always need to be retreived whe a user is accessed.
@@ -202,7 +209,7 @@ class Profile(models.Model):
     info = models.TextField(default="", null=True, blank=True)
 
     # The default notification preferences.
-    message_prefs = models.IntegerField(choices=TYPE_CHOICES, default=const.DEFAULT_MESSAGES)
+    message_prefs = models.IntegerField(choices=TYPE_CHOICES, default=MESSAGE_PREFS)
 
     # This stores binary flags on users. Their usage is to
     # allow easy subselection of various subsets of users.
