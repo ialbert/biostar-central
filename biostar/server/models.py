@@ -73,15 +73,16 @@ def post_create_messages(sender, instance, created, *args, **kwargs):
                         token = ReplyToken(user=sub.user, post=post, token=make_uuid(8), date=now())
                         from_email = u"%s <%s>" % (author.name, settings.DEFAULT_FROM_EMAIL)
                         from_email = from_email.encode("utf-8")
-                        reply_to = "reply+%s+code@%s" % (token.token, settings.EMAIL_REPLY_DOMAIN)
+                        reply_to = settings.EMAIL_REPLY_PATTERN % token.token
                         # create the email message
-                        email = mail.EmailMessage(
+                        email = mail.EmailMultiAlternatives(
                             subject=body.subject,
                             body = email_text,
                             from_email = from_email,
                             to=[ sub.user.email ],
                             headers = {'Reply-To': reply_to},
                         )
+                        email.attach_alternative(post.html, "text/html")
                         emails.append(email)
                         tokens.append(token)
                     except Exception, exc:

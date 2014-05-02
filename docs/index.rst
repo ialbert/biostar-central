@@ -8,9 +8,30 @@ Welcome to Biostar Central's documentation!
 
 BioStar is a `Python <http://www.python.org/>`_ and
 `Django <http://www.djangoproject.com/>`_ based Q&A software licensed under the *MIT Open Source License*.
-
 Our goal is to create a simple, generic, flexible and extensible Q&A
 framework.
+
+This software runs several science oriented Q&A sites:
+
+ * Biostars Bioinformatics Q&A at: https://www.biostars.org
+ * Galaxy User support site: https://biostar.usegalaxy.org
+ * Metabolomics Q&A: http://www.metastars.org
+
+Features
+--------
+
+The site has been developed by scientists for scientists. It aims to
+address specific needs that scientific communities have.
+
+ * Stackoverflow style question and answer site
+ * Post and user moderation
+ * Voting, bookmarking and badges
+ * Threaded discussions
+ * Email integration, follow posts via email, respond to posts via email
+ * Import a new site from a standard mailing list (mbox) format
+
+The developers of the software may be available to provide commercial level support
+when deploying sites for entire organizations. Contact: admin@biostars.org
 
 Requirements: *Python 2.7*
 

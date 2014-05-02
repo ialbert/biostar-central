@@ -25,7 +25,7 @@ class Command(BaseCommand):
 
 
 def main(days=1, weeks=10):
-    from biostar.apps.posts.models import PostView
+    from biostar.apps.posts.models import PostView, ReplyToken
     from biostar.apps.messages.models import Message
     from biostar.apps.users.models import User
     from django.db.models import Count
@@ -33,14 +33,20 @@ def main(days=1, weeks=10):
     # Reduce post views.
     past = now() - timedelta(days=days)
     query = PostView.objects.filter(date__lt=past)
-    msg = "Deleting %s PostViews" % query.count()
+    msg = "deleting %s views" % query.count()
     logger.info(msg)
     query.delete()
 
     # Reduce messages.
     since = now() - timedelta(weeks=weeks)
     query = Message.objects.filter(sent_at__lt=since)
-    msg = "Deleting %s messages" % query.count()
+    msg = "deleting %s messages" % query.count()
+    logger.info(msg)
+    query.delete()
+
+    # Remove old reply tokens
+    query = ReplyToken.objects.filter(date__lt=since)
+    msg = "deleting %s tokens" % query.count()
     logger.info(msg)
     query.delete()
 

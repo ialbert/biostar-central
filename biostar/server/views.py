@@ -10,6 +10,8 @@ from biostar.apps.posts.models import Post, Vote, Tag, Subscription, ReplyToken
 from biostar.apps.posts.views import NewPost, NewAnswer
 from biostar.apps.badges.models import Badge, Award
 from biostar.apps.posts.auth import post_permissions
+from biostar.apps.util import html
+
 from django.contrib import messages
 from datetime import datetime, timedelta
 from biostar.const import OrderedDict
@@ -647,13 +649,18 @@ def email_handler(request):
             # Verify that the token exists.
             token = ReplyToken.objects.get(token=token)
 
-            # Extract the post that it replies to and the author that wrote the post.
+            # Find the post that the reply targets
             post, author = token.post, token.user
 
-            # Attempts to extract the reply from the email.
+            # Extract the body of the email.
             part = msg.text_part or msg.html_part
             text = part.get_payload()
+
+            # Remove the reply related content
             text = EmailReplyParser.parse_reply(text)
+
+            # Apply server specific formatting
+            text = html.parse_html(text)
 
             # Apply the markdown on the text
             text = markdown.markdown(text)
@@ -667,7 +674,8 @@ def email_handler(request):
             post_type = Post.ANSWER if post.is_toplevel else Post.COMMENT
             obj = Post.objects.create(type=post_type, parent=post, content=text, author=author)
 
-            # Delete the token.
+            # Delete the token. Disabled for now.
+            # Old token should be deleted in the data pruning
             #token.delete()
 
             # Form the return message.
