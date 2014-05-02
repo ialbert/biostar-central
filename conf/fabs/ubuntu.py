@@ -9,7 +9,7 @@ from getpass import getpass
 from sites import *
 
 
-def postgres_setuo():
+def postgres_setup():
     # sudo su - postgres
     # createuser www
     pass
