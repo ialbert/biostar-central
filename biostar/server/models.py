@@ -22,11 +22,11 @@ from django.contrib.sites.models import Site
 logger = logging.getLogger(__name__)
 
 # This will be the message body on the site.
+POST_CREATED_TEXT_TEMPLATE = "messages/post_created.txt"
 POST_CREATED_HTML_TEMPLATE = "messages/post_created.html"
 AWARD_CREATED_HTML_TEMPLATE = "messages/award_created.html"
 
 # This will be the message body in an email.
-POST_CREATED_TEXT_TEMPLATE = "messages/post_created.txt"
 
 def post_create_messages(sender, instance, created, *args, **kwargs):
     "The actions to undertake when creating a new post"
@@ -55,6 +55,7 @@ def post_create_messages(sender, instance, created, *args, **kwargs):
         site = Site.objects.get_current()
         email_text = html.render(name=POST_CREATED_TEXT_TEMPLATE, post=post, user=author, site=site)
 
+        email_html = html.render(name=POST_CREATED_HTML_TEMPLATE, post=post, user=author, site=site)
         # Create the message body.
         body = MessageBody.objects.create(author=author, subject=post.title,
                                           text=content, sent_at=post.creation_date)
@@ -82,7 +83,7 @@ def post_create_messages(sender, instance, created, *args, **kwargs):
                             to=[ sub.user.email ],
                             headers = {'Reply-To': reply_to},
                         )
-                        email.attach_alternative(post.html, "text/html")
+                        email.attach_alternative(email_html, "text/html")
                         emails.append(email)
                         tokens.append(token)
                     except Exception, exc:

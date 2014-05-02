@@ -1,4 +1,13 @@
-<a href="{{ user.get_absolute_url }}">{{user.name}}</a> wrote on
+<p>
+    <b>{{ user.name }}</b> posted the {{ post.get_type_display }}: "{{ post.root.get_title|safe }}":
+</p>
+<p>
+    {{ post.html|safe }}
+</p>
 
-<a href="{{ post.get_absolute_url }}">{{ post.get_title }}</a> : 
-{{post.peek}}
+<p>
+    See the full post at: http://{{ site.domain }}{{ post.get_absolute_url }}
+    {% if post.is_toplevel %}Replying to this email will post an answer to the question above.
+    {% else %}Replying to this email will post a comment to the answer above.
+    {% endif %}
+</p>
