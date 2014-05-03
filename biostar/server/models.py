@@ -22,8 +22,10 @@ from django.contrib.sites.models import Site
 logger = logging.getLogger(__name__)
 
 # This will be the message body on the site.
-POST_CREATED_TEXT_TEMPLATE = "messages/post_created.txt"
-POST_CREATED_HTML_TEMPLATE = "messages/post_created.html"
+POST_CREATED_TEXT = "messages/post_created.txt"
+POST_CREATED_HTML = "messages/post_created.html"
+POST_CREATED_SHORT = "messages/post_created.html"
+
 AWARD_CREATED_HTML_TEMPLATE = "messages/award_created.html"
 
 # This will be the message body in an email.
@@ -49,13 +51,15 @@ def post_create_messages(sender, instance, created, *args, **kwargs):
         subs = Subscription.objects.get_subs(post).exclude(user=author)
 
         # Generate the message from the template.
-        content = html.render(name=POST_CREATED_HTML_TEMPLATE, post=post, user=author)
+        content = html.render(name=POST_CREATED_SHORT, post=post, user=author)
 
         # Generate the email message body.
         site = Site.objects.get_current()
-        email_text = html.render(name=POST_CREATED_TEXT_TEMPLATE, post=post, user=author, site=site)
+        email_text = html.render(name=POST_CREATED_TEXT, post=post, user=author, site=site)
 
-        email_html = html.render(name=POST_CREATED_HTML_TEMPLATE, post=post, user=author, site=site)
+        # Generate the html message
+        email_html = html.render(name=POST_CREATED_HTML, post=post, user=author, site=site)
+
         # Create the message body.
         body = MessageBody.objects.create(author=author, subject=post.title,
                                           text=content, sent_at=post.creation_date)
