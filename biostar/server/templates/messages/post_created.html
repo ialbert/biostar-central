@@ -1,13 +1,11 @@
+Activity on a post you are following on <b>{{ site.name }}</b>
 <p>
-    <b>{{ user.name }}</b> posted the {{ post.get_type_display }}: "{{ post.root.get_title|safe }}":
+    <a href="{{ user.get_absolute_url }}">{{ user.name }}</a> posted the <a href="{{ post.get_absolute_url }}">{{ post.get_type_display }}: {{ post.root.get_title }}</a>:
 </p>
 <p>
     {{ post.html|safe }}
 </p>
-
-<p>
-    See the full post at: http://{{ site.domain }}{{ post.get_absolute_url }}<br>
-    {% if post.is_toplevel %}Replying to this email will post an answer to the question above.
-    {% else %}Replying to this email will post a comment to the answer above.
-    {% endif %}
+<hr>
+<p style="color:#666666">
+    You may reply via email or visit http://{{ site.domain }}{{ post.get_absolute_url }}
 </p>

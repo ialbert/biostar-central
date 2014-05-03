@@ -75,13 +75,14 @@ def post_create_messages(sender, instance, created, *args, **kwargs):
                         from_email = u"%s <%s>" % (author.name, settings.DEFAULT_FROM_EMAIL)
                         from_email = from_email.encode("utf-8")
                         reply_to = settings.EMAIL_REPLY_PATTERN % token.token
+                        subject = settings.EMAIL_REPLY_SUBJECT % body.subject
                         # create the email message
                         email = mail.EmailMultiAlternatives(
-                            subject=body.subject,
-                            body = email_text,
-                            from_email = from_email,
-                            to=[ sub.user.email ],
-                            headers = {'Reply-To': reply_to},
+                            subject=subject,
+                            body=email_text,
+                            from_email=from_email,
+                            to=[sub.user.email],
+                            headers={'Reply-To': reply_to},
                         )
                         email.attach_alternative(email_html, "text/html")
                         emails.append(email)
@@ -102,6 +103,7 @@ def post_create_messages(sender, instance, created, *args, **kwargs):
             conn.send_messages(emails)
         except Exception, exc:
             logger.error("email error %s" % exc)
+
 
 def award_create_messages(sender, instance, created, *args, **kwargs):
     "The actions to undertake when creating a new post"
@@ -124,6 +126,7 @@ signals.post_save.connect(post_create_messages, sender=Post, dispatch_uid="post-
 
 # Creates a message when an award has been made
 signals.post_save.connect(award_create_messages, sender=Award, dispatch_uid="award-create-messages")
+
 
 def disconnect_all():
     signals.post_save.disconnect(post_create_messages, sender=Post, dispatch_uid="post-create-messages")

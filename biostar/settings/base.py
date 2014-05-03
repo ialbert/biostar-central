@@ -156,7 +156,10 @@ SERVER_EMAIL = DEFAULT_FROM_EMAIL = get_env("DEFAULT_FROM_EMAIL")
 EMAIL_REPLY_PATTERN = "reply+%s+code@biostars.io"
 
 # The secret key that is required to parse the email
-EMAIL_REPLY_SECRET_KEY="abc"
+EMAIL_REPLY_SECRET_KEY = "abc"
+
+# The subject of the reply goes here
+EMAIL_REPLY_SUBJECT = u"[biostar] %s"
 
 # If you set this to False, Django will make some optimizations so as not
 # to load the internationalization machinery.
