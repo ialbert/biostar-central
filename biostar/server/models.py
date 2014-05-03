@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 # This will be the message body on the site.
 POST_CREATED_TEXT = "messages/post_created.txt"
 POST_CREATED_HTML = "messages/post_created.html"
-POST_CREATED_SHORT = "messages/post_created.html"
+POST_CREATED_SHORT = "messages/post_created_short.html"
 
 AWARD_CREATED_HTML_TEMPLATE = "messages/award_created.html"
 
