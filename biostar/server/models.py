@@ -76,7 +76,7 @@ def post_create_messages(sender, instance, created, *args, **kwargs):
                 if sub.type == EMAIL_MESSAGE:
                     try:
                         token = ReplyToken(user=sub.user, post=post, token=make_uuid(8), date=now())
-                        from_email = u"%s <%s>" % (author.name, settings.DEFAULT_FROM_EMAIL)
+                        from_email = settings.EMAIL_FROM_PATTERN % (author.name, settings.DEFAULT_FROM_EMAIL)
                         from_email = from_email.encode("utf-8")
                         reply_to = settings.EMAIL_REPLY_PATTERN % token.token
                         subject = settings.EMAIL_REPLY_SUBJECT % body.subject
