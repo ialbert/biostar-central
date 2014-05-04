@@ -390,6 +390,9 @@ class Post(models.Model):
 
             instance.save()
 
+class Foo(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL)
+
 class ReplyToken(models.Model):
     """
     Connects a user and a post to a unique token. Sending back the token identifies

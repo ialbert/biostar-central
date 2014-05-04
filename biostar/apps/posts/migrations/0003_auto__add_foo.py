@@ -8,38 +8,27 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding model 'Data'
-        db.create_table(u'posts_data', (
+        # Adding model 'Foo'
+        db.create_table(u'posts_foo', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=80)),
-            ('post', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['posts.Post'])),
-            ('file', self.gf('django.db.models.fields.files.FileField')(max_length=100)),
-            ('size', self.gf('django.db.models.fields.IntegerField')()),
+            ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['users.User'])),
         ))
-        db.send_create_signal(u'posts', ['Data'])
+        db.send_create_signal(u'posts', ['Foo'])
 
-        # Adding field 'Post.html'
-        db.add_column(u'posts_post', 'html',
-                      self.gf('django.db.models.fields.TextField')(default=u''),
-                      keep_default=False)
-
-
-        # Changing field 'Post.title'
-        db.alter_column(u'posts_post', 'title', self.gf('django.db.models.fields.CharField')(max_length=200))
+        # Adding model 'ReplyToken'
+        db.create_table(u'posts_replytoken', (
+            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('date', self.gf('django.db.models.fields.DateTimeField')()),
+            ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['users.User'])),
+            ('post', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['posts.Post'])),
+            ('token', self.gf('django.db.models.fields.CharField')(max_length=256)),
+        ))
+        db.send_create_signal(u'posts', ['ReplyToken'])
 
     def backwards(self, orm):
-        # Deleting model 'Data'
-        db.delete_table(u'posts_data')
+        # Deleting model 'Foo'
+        db.delete_table(u'posts_foo')
 
-        # Deleting model 'ReplyToken'
-        db.delete_table(u'posts_replytoken')
-
-        # Deleting field 'Post.html'
-        db.delete_column(u'posts_post', 'html')
-
-
-        # Changing field 'Post.title'
-        db.alter_column(u'posts_post', 'title', self.gf('django.db.models.fields.CharField')(max_length=140))
 
     models = {
         u'posts.data': {
@@ -49,6 +38,11 @@ class Migration(SchemaMigration):
             'name': ('django.db.models.fields.CharField', [], {'max_length': '80'}),
             'post': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['posts.Post']"}),
             'size': ('django.db.models.fields.IntegerField', [], {})
+        },
+        u'posts.foo': {
+            'Meta': {'object_name': 'Foo'},
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['users.User']"})
         },
         u'posts.post': {
             'Meta': {'object_name': 'Post'},
