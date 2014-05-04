@@ -2,12 +2,12 @@
 {% load humanize %}
 <div class="post-action">
 
-    <span class="label label-default add-comment" data-value="{{ post.id }}">ADD {{ label }}</span>
+    <span class="label label-default add-comment" data-value="{{ post.id }}" id="C{{ post.id }}">ADD {{ label }}</span>
 
     &bull; <a href="{{ post.get_absolute_url }}">link</a>
     {% if post.is_editable %}
-        &bull; <a href="{% url 'post-edit' post.id %}">edit</a>
-        &bull; <a class="mod-post" data-value="{{ post.id }}">moderate</a>
+        &bull; <a href="{% url 'post-edit' post.id %}" id="E{{ post.id }}">edit</a>
+        &bull; <a class="mod-post" data-value="{{ post.id }}" id="M{{ post.id }}">moderate</a>
         {% if post.book_count %} &bull; {{ post.book_count }} bookmark{{ post.book_count|pluralize }}{% endif %}
     {% endif %}
 
@@ -16,7 +16,7 @@
         &bull;
 
         <div class="btn-group">
-            <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
+            <button type="button" class="btn btn-default btn-xs dropdown-toggle" id="F{{ post.id }}" data-toggle="dropdown">
                 {% if post.sub %}
                     Follow via {{ post.sub.get_type_display }}
                 {% else %}
