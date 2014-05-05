@@ -60,7 +60,7 @@ CELERYBEAT_SCHEDULE = {
 
     'daily_feed': {
         'task': 'biostar.celery.call_command',
-        'schedule': crontab(hour=23),
+        'schedule': crontab(hour='*/2', minute=15),
         'args': ["planet"],
         'kwargs': {"download": True}
     },
