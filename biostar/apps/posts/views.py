@@ -59,23 +59,30 @@ class LongForm(forms.Form):
                     (Post.FORUM, "Forum"), (Post.NEWS, "News"),
                     (Post.BLOG, "Blog"), (Post.PAGE, "Page")]
 
-    title = forms.CharField(max_length=200, min_length=10, validators=[valid_title],
-                            help_text="Descriptive titles promote better answers.")
+    title = forms.CharField(
+        label="Post Title",
+        max_length=200, min_length=10, validators=[valid_title],
+        help_text="Descriptive titles promote better answers.")
 
-    post_type = forms.ChoiceField(choices=POST_CHOICES, help_text="Select a post type: Question, Forum, Job, Blog")
+    post_type = forms.ChoiceField(
+        label="Post Type",
+        choices=POST_CHOICES, help_text="Select a post type: Question, Forum, Job, Blog")
 
-    tag_val = forms.CharField(required=True, validators=[valid_tag],
-                              help_text="Choose one or more tags to match the topic. To create a new tag just type it in and press ENTER.",
-                              label="Tags")
+    tag_val = forms.CharField(
+        label="Post Tags",
+        required=True, validators=[valid_tag],
+        help_text="Choose one or more tags to match the topic. To create a new tag just type it in and press ENTER.",
+    )
 
     content = forms.CharField(widget=forms.Textarea,
                               min_length=80, max_length=15000,
                               label="Enter your post below")
 
-    upload = forms.FileField(
+    data_ids = forms.CharField(
+        max_length=250,
         required=False,
-        label="Share data",
-        help_text='Required only if you are sharing a dataset. Read the page <a href="/about/how/" target="_blank">How does data sharing work?</a>'
+        label="Optional: comma separated data ids. Example: 389, 8993, 1023",
+        help_text='Required only if you are sharing datasets. Read the page <a href="/info/sharing/" target="_blank">How does data sharing work?</a>'
     )
 
     def __init__(self, *args, **kwargs):
@@ -88,7 +95,7 @@ class LongForm(forms.Form):
                 Field('title'),
                 Field('post_type'),
                 Field('tag_val'),
-                Field('upload'),
+                Field('data_ids'),
                 Field('content'),
             ),
             ButtonHolder(

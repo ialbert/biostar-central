@@ -174,6 +174,23 @@ def external_login(request):
     response = redirect(url)
     return response
 
+class EmailListForm(forms.Form):
+    email = forms.EmailField(help_text="Your email")
+    subs  = forms.BooleanField(help_text="Subscribe")
+
+class EmailListView(FormView):
+    form_class = EmailListForm
+    template_name = "email_list_form.html"
+
+    def get(self, request,  *args, **kwargs):
+        form = self.form_class()
+        return render(request, self.template_name, {'form': form})
+
+    def post(self, request, *args, **kwargs):
+        form = self.form_class()
+        return render(request, self.template_name, {'form': form})
+
+
 # Adding a captcha enabled form
 from allauth.account.views import SignupForm, SignupView
 from biostar.apps.util.captcha.fields import MathCaptchaField

@@ -8,7 +8,7 @@ admin.autodiscover()
 from django.views.generic import TemplateView
 from biostar.server import views, ajax, search, moderate
 from biostar.apps.posts.views import NewAnswer, NewPost, EditPost, external_post_handler
-from biostar.apps.users.views import external_logout, external_login, CaptchaView
+from biostar.apps.users.views import external_logout, external_login, CaptchaView, EmailListView
 from biostar.apps.planet.views import BlogPostList
 
 urlpatterns = patterns('',
@@ -54,6 +54,9 @@ urlpatterns = patterns('',
 
     # Edit an existing post.
     url(r'^p/edit/(?P<pk>\d+)/$', EditPost.as_view(), name="post-edit"),
+
+    # Message display.
+    url(r'^local/list/$', EmailListView.as_view(), name="email-list"),
 
     # Message display.
     url(r'^local/messages/$', views.MessageList.as_view(), name="user-messages"),

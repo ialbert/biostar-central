@@ -2,6 +2,8 @@
 from django.views.generic import DetailView, ListView, TemplateView, UpdateView, View
 from .models import Blog, BlogPost
 from django.conf import settings
+from django.db.models import Max, Count
+
 
 def reset_counts(request, label):
     "Resets counts in the session"
@@ -10,6 +12,7 @@ def reset_counts(request, label):
     if label in counts:
         counts[label] = ''
         request.session[settings.SESSION_KEY] = counts
+
 
 class BlogPostList(ListView):
     template_name = "planet/planet_entries.html"
@@ -30,6 +33,11 @@ class BlogPostList(ListView):
         context['limit'] = get('limit', '')
         context['q'] = get('q', '')
         context['sort'] = get('sort', '')
-        context['blogs'] = Blog.objects.all().order_by("-list_order")
+
+        # Sort blog posts by latest insert time
+        blogs = Blog.objects.all().annotate(updated_date=Max("blogpost__creation_date"),
+                                            count=Count("blogpost__id")).order_by("-updated_date")
+        context['blogs'] = blogs
+
         reset_counts(self.request, self.topic)
         return context

@@ -223,23 +223,7 @@ class Profile(models.Model):
     tags = models.ManyToManyField(Tag, blank=True, )
 
     def parse_tags(self):
-        # Currently duplicated with post models. Not sure if the format should stay the same.
-        # Upper case
-        def fixcase(w):
-            w = w.strip()
-            w = w.upper() if len(w) == 1 else w.lower()
-            return w
-
-        # Try splitting by comma
-        words = self.tag_val.split(",")
-
-        # Change case as necessary.
-        words = map(fixcase, words)
-
-        # Remove empty
-        words = filter(None, words)
-
-        return words
+        return util.split_tags(self.tag_val)
 
     def clear_data(self):
         "Actions to take when suspending or banning users"

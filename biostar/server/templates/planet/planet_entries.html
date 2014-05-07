@@ -49,6 +49,7 @@
                 <div class="blog-feed">
                     <h5><a href="{{ blog.link }}">{{ blog.title }}</a></h5>
                     <div>{{ blog.desc|safe }}</div>
+                <div class="muted">last post {{ blog.updated_date|time_ago }}</div>
                 </div>
             {% endfor %}
         </div>

@@ -215,23 +215,12 @@ class Post(models.Model):
     site = models.ForeignKey(Site, null=True)
 
     def parse_tags(self):
+        return util.split_tags(self.tag_val)
 
-        # Upper case
-        def fixcase(w):
-            w = w.strip()
-            w = w.upper() if len(w) == 1 else w.lower()
-            return w
+    def add_data(self, text):
+        ids = util.split_tags(text)
+        data = Data.objects.filter(id__in=ids)
 
-        # Try splitting by comma
-        words = self.tag_val.split(",")
-
-        # Change case as necessary.
-        words = map(fixcase, words)
-
-        # Remove empty
-        words = filter(None, words)
-
-        return words
 
     def add_tags(self, text):
         text = text.strip()
@@ -425,7 +414,7 @@ admin.site.register(ReplyToken, ReplyTokenAdmin)
 class Data(models.Model):
     "Represents a dataset attached to a post"
     name = models.CharField(max_length=80)
-    post = models.ForeignKey(Post)
+    post = models.ForeignKey(Post, null=True)
     file = models.FileField(upload_to=settings.MEDIA_ROOT)
     size = models.IntegerField()
 

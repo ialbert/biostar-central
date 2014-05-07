@@ -402,7 +402,7 @@ CACHE_TIMEOUT = 60
 
 # Should the messages go to email by default
 # Valid values are local, default, email
-DEFAULT_MESSAGE_PREF = "default"
+DEFAULT_MESSAGE_PREF = "local"
 
 # Django precompressor settings.
 COMPRESS_PRECOMPILERS = (
