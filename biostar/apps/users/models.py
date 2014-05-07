@@ -241,6 +241,11 @@ class Profile(models.Model):
 
         return words
 
+    def clear_data(self):
+        "Actions to take when suspending or banning users"
+        self.website = self.twitter_id = self.info = self.location = ''
+        self.save()
+
     def add_tags(self, text):
         text = text.strip()
         # Sanitize the tag value
@@ -329,7 +334,7 @@ class UserChangeForm(forms.ModelForm):
 
 class ProfileInline(admin.StackedInline):
     model = Profile
-    fields = ["location", "website", "scholar", "info"]
+    fields = ["location", "website", "scholar", "twitter_id", "message_prefs", "my_tags", "watched_tags", "info"]
 
 
 class BiostarUserAdmin(UserAdmin):

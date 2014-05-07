@@ -23,6 +23,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 def valid_title(text):
     "Validates form input for tags"
     text = text.strip()
@@ -69,7 +70,13 @@ class LongForm(forms.Form):
 
     content = forms.CharField(widget=forms.Textarea,
                               min_length=80, max_length=15000,
-                              label="Post content")
+                              label="Enter your post below")
+
+    upload = forms.FileField(
+        required=False,
+        label="Share data",
+        help_text='Required only if you are sharing a dataset. Read the page <a href="/about/how/" target="_blank">How does data sharing work?</a>'
+    )
 
     def __init__(self, *args, **kwargs):
         super(LongForm, self).__init__(*args, **kwargs)
@@ -81,6 +88,7 @@ class LongForm(forms.Form):
                 Field('title'),
                 Field('post_type'),
                 Field('tag_val'),
+                Field('upload'),
                 Field('content'),
             ),
             ButtonHolder(
@@ -111,6 +119,7 @@ class ShortForm(forms.Form):
 def parse_tags(category, tag_val):
     pass
 
+
 @login_required
 @csrf_exempt
 def external_post_handler(request):
@@ -137,7 +146,7 @@ def external_post_handler(request):
         return HttpResponseRedirect(home)
 
     content = request.REQUEST.get("content")
-    submit  = request.REQUEST.get("action")
+    submit = request.REQUEST.get("action")
     digest1 = request.REQUEST.get("digest")
     digest2 = hmac.new(secret, content).hexdigest()
 
@@ -174,7 +183,7 @@ class NewPost(LoginRequiredMixin, FormView):
         for key in "title tag_val content".split():
             value = request.GET.get(key)
             if value:
-                initial[key]=value
+                initial[key] = value
 
         # Attempt to prefill from external session
         sess = request.session

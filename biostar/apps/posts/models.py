@@ -60,10 +60,17 @@ class PostManager(models.Manager):
         query = query.prefetch_related("tag_set")
         return query
 
-    def my_posts(self, user):
-        query = self.filter(author=user)
+    def my_posts(self, target, user):
+
+        # Show all posts for moderators or targets
+        if user.is_moderator or user == target:
+            query = self.filter(author=target)
+        else:
+            query = self.filter(author=target).exclude(status=Post.DELETED)
+
         query = query.select_related("root", "author", "lastedit_user")
         query = query.prefetch_related("tag_set")
+        query = query.order_by("-creation_date")
         return query
 
     def fixcase(self, text):

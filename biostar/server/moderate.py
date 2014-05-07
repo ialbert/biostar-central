@@ -328,6 +328,7 @@ class UserModeration(LoginRequiredMixin, FormView):
 
         target = self.get_obj()
         target = user_permissions(request, target)
+        profile = target.profile
 
         # The response after the action
         response = HttpResponseRedirect(target.get_absolute_url())
@@ -360,6 +361,8 @@ class UserModeration(LoginRequiredMixin, FormView):
             return response
 
         if action == User.BANNED and user.is_administrator:
+            # Remove data by user
+            profile.clear_data()
 
             # Mass delete posts by this user
             query = Post.objects.filter(author=target, type__in=Post.TOP_LEVEL).update(status=Post.DELETED)
