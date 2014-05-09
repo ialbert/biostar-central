@@ -3,19 +3,23 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Biostar Central's documentation!
-===========================================
+Biostar: Software for building Scientific Communities
+=====================================================
 
 BioStar is a `Python <http://www.python.org/>`_ and
 `Django <http://www.djangoproject.com/>`_ based Q&A software licensed under the *MIT Open Source License*.
-Our goal is to create a simple, generic, flexible and extensible Q&A
-framework.
+It is a simple, generic, flexible and extensible Q&A framework.
 
-This software runs several science oriented Q&A sites:
+The site has been developed by **scientists and for scientists**.
+It aims to address requirements and needs that scientific communities have.
+
+Biostar is the software that runs several science oriented Q&A sites:
 
  * Biostars Bioinformatics Q&A at: https://www.biostars.org
  * Galaxy User support site: https://biostar.usegalaxy.org
  * Metabolomics Q&A: http://www.metastars.org
+ * Neurostars: http://www.neurostars.org
+
 
 Features
 --------
@@ -23,15 +27,18 @@ Features
 The site has been developed by scientists for scientists. It aims to
 address specific needs that scientific communities have.
 
- * Stackoverflow style question and answer site
- * Post and user moderation
- * Voting, bookmarking and badges
- * Threaded discussions
- * Email integration, follow posts via email, respond to posts via email
- * Import a new site from a standard mailing list (mbox) format
+ * Standard Q&A: post questions, answers, comments, user moderation, voting, badges, threaded discussions
+ * Email integration: import previous posts from mailing lists, reply to posts via email
+ * RSS Planet: feed aggregation from different sources
+ * External authentication: authenticate users with a different web service
 
-The developers of the software may be available to provide commercial level support
-when deploying sites for entire organizations. Contact: admin@biostars.org
+Support
+-------
+
+The software is open source and free to use under the most permissible license.
+
+The developers of the software are also available to provide commercial level support
+for deploying Biostar sites for entire organizations. Contact: admin@biostars.org
 
 Requirements: *Python 2.7*
 
