@@ -78,13 +78,6 @@ class LongForm(forms.Form):
                               min_length=80, max_length=15000,
                               label="Enter your post below")
 
-    data_ids = forms.CharField(
-        max_length=250,
-        required=False,
-        label="Optional: comma separated data ids. Example: 389, 8993, 1023",
-        help_text='Required only if you are sharing datasets. Read the page <a href="/info/sharing/" target="_blank">How does data sharing work?</a>'
-    )
-
     def __init__(self, *args, **kwargs):
         super(LongForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
@@ -95,7 +88,6 @@ class LongForm(forms.Form):
                 Field('title'),
                 Field('post_type'),
                 Field('tag_val'),
-                Field('data_ids'),
                 Field('content'),
             ),
             ButtonHolder(
