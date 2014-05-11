@@ -1,6 +1,7 @@
 {% extends "starbase.html" %}
 {% load server_tags %}
 {% load humanize %}
+{% load cache %}
 
 {% block content %}
 
@@ -44,14 +45,18 @@
             {% page_bar %}
         </div>
         <div class="col-md-3">
-            <h4>Planet Feeds</h4>
-            {% for blog in blogs %}
-                <div class="blog-feed">
-                    <h5><a href="{{ blog.link }}">{{ blog.title }}</a></h5>
-                    <div>{{ blog.desc|safe }}</div>
-                <div class="muted">last post {{ blog.updated_date|time_ago }}</div>
-                </div>
-            {% endfor %}
+            {% cache 600 "planet-feeds" %}
+                <h4>Planet Feeds</h4>
+
+                {% for blog in blogs %}
+                    <div class="blog-feed">
+                        <h5><a href="{{ blog.link }}">{{ blog.title }}</a></h5>
+
+                        <div>{{ blog.desc|safe }}</div>
+                        <div class="muted">{{ blog.count }} posts, last updated {{ blog.updated_date|time_ago }} </div>
+                    </div>
+                {% endfor %}
+            {% endcache %}
         </div>
 
     </div>
