@@ -280,7 +280,7 @@ class UserList(ListView):
             self.limit = const.POST_LIMIT_DEFAULT
 
         # Apply the sort on users
-        obj = User.objects.get_users(sort=self.sort, limit=self.limit, q=self.q)
+        obj = User.objects.get_users(sort=self.sort, limit=self.limit, q=self.q, user=self.request.user)
         return obj
 
     def get_context_data(self, **kwargs):

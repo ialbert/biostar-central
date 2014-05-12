@@ -27,7 +27,7 @@ def now():
 
 class LocalManager(UserManager):
 
-    def get_users(self, sort, limit, q):
+    def get_users(self, sort, limit, q, user):
         sort = const.USER_SORT_MAP.get(sort, None)
         days = const.POST_LIMIT_MAP.get(limit, 0)
 
@@ -40,7 +40,11 @@ class LocalManager(UserManager):
             delta = const.now() - timedelta(days=days)
             query = self.filter(profile__last_login__gt=delta)
 
-        query = query.select_related("profile").order_by(sort)
+        if user.is_authenticated() and user.is_moderator:
+            query = query.select_related("profile").order_by(sort)
+        else:
+            query = query.exclude(status=User.BANNED).select_related("profile").order_by(sort)
+
         return query
 
 class User(AbstractBaseUser):

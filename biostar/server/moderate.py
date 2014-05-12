@@ -2,6 +2,7 @@
 Moderator views
 """
 from biostar.apps.posts.models import Post
+from biostar.apps.badges.models import Award
 from biostar.apps.posts.auth import post_permissions
 from biostar.apps.users.models import User
 from biostar.apps.users.auth import user_permissions
@@ -373,6 +374,9 @@ class UserModeration(LoginRequiredMixin, FormView):
         if action == User.BANNED and user.is_administrator:
             # Remove data by user
             profile.clear_data()
+
+            # Remove badges that may have been earned by this user
+            Award.objects.filter(user=target).delete()
 
             # Mass delete posts by this user
             query = Post.objects.filter(author=target, type__in=Post.TOP_LEVEL).update(status=Post.DELETED)
