@@ -36,7 +36,7 @@ class BlogPostList(ListView):
 
         # Sort blog posts by latest insert time
         blogs = Blog.objects.all().annotate(updated_date=Max("blogpost__creation_date"),
-                                            count=Count("blogpost__id")).order_by("-updated_date")
+                                            count=Count("blogpost__id")).order_by("-updated_date", "-list_order")
         context['blogs'] = blogs
 
         reset_counts(self.request, self.topic)

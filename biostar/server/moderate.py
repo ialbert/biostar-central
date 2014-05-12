@@ -23,7 +23,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-OPEN, CLOSE_OFFTOPIC, CLOSE_SPAM, DELETE, DUPLICATE, MOVE_TO_COMMENT, MOVE_TO_ANSWER = map(str, range(7))
+OPEN, CLOSE_OFFTOPIC, CLOSE_SPAM, DELETE, DUPLICATE, MOVE_TO_COMMENT, MOVE_TO_ANSWER, CROSSPOST = map(str, range(8))
 
 from biostar.apps.util import now
 
@@ -89,6 +89,7 @@ class PostModForm(forms.Form):
         (MOVE_TO_ANSWER, "Move post to an answer"),
         (MOVE_TO_COMMENT, "Move post to a comment on the top level post"),
         (DUPLICATE, "Duplicated post (top level)"),
+        (CROSSPOST, "Cross posted at other site"),
         (CLOSE_OFFTOPIC, "Close post (top level)"),
         (DELETE, "Delete post"),
     ]
@@ -96,7 +97,7 @@ class PostModForm(forms.Form):
     action = forms.ChoiceField(choices=CHOICES, widget=forms.RadioSelect(), label="Select Action")
 
     comment = forms.CharField(required=False, max_length=200,
-                              help_text="Enter a reason (required when closing). This will be inserted into a template comment.")
+                              help_text="Enter a reason (required when closing, crosspost). This will be inserted into a template comment.")
 
     dupe = forms.CharField(required=False, max_length=200,
                            help_text="One or more duplicated post numbers, space or comma separated (required for duplicate closing).",
@@ -132,6 +133,9 @@ class PostModForm(forms.Form):
 
         if action == CLOSE_OFFTOPIC and not comment:
             raise forms.ValidationError("Unable to close. Please add a comment!")
+
+        if action == CROSSPOST and not comment:
+            raise forms.ValidationError("Please add URL into the comment!")
 
         if action == DUPLICATE and not dupe:
             raise forms.ValidationError("Unable to close duplicate. Please fill in the post numbers")
@@ -225,6 +229,12 @@ class PostModeration(LoginRequiredMixin, FormView):
             query.update(status=Post.CLOSED)
             messages.success(request, "Closed post: %s" % post.title)
             content = html.render(name="messages/offtopic_posts.html", user=post.author, comment=get("comment"), post=post)
+            comment = Post(content=content, type=Post.COMMENT, parent=post, author=user)
+            comment.save()
+            return response
+
+        if action == CROSSPOST:
+            content = html.render(name="messages/crossposted.html", user=post.author, comment=get("comment"), post=post)
             comment = Post(content=content, type=Post.COMMENT, parent=post, author=user)
             comment.save()
             return response
