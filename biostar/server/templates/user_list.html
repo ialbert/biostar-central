@@ -1,0 +1,42 @@
+{% extends "starbase.html" %}
+{% load server_tags %}
+{% load humanize %}
+
+{% block page_title %}
+    User List
+{% endblock %}
+
+{% block content %}
+
+
+
+    <div class="row">
+
+        <div class="col xs-6 col-md-12 text-center" style="margin-top:5px">
+            <form class="form-inline" role="form" method="get" action="{% url 'user-list' %}">
+                <div class="form-group">
+                    <input type="text" class="form-control" id="usersearch" name="q" placeholder="Enter name"
+                           value="{{ q }}">
+                </div>
+
+                <button type="submit" class="btn btn-default">Search user</button>
+            </form>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+
+            {% page_bar_sort_users %}
+
+            <div id="userlist">
+                {% for user in users %}
+                     {%  user_box user show_lastlogin%}
+                {% endfor %}
+
+            </div>
+        </div>
+    </div>
+
+    {% page_bar %}
+
+{% endblock %}

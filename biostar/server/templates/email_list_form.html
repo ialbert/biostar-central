@@ -1,0 +1,19 @@
+{% extends "starbase.html" %}
+{% load server_tags %}
+{% load humanize %}
+{% load crispy_forms_tags %}
+
+{{ SITE_DOMAIN }}Email list subscription
+
+{% block content %}
+
+    <div class="row">
+
+        <div class="col-md-4 col-md-offset-4">
+            <h2>Update Email List Settings</h2>
+            {% crispy form %}
+        </div>
+
+    </div>
+
+{% endblock %}

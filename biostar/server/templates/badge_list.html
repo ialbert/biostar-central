@@ -1,0 +1,32 @@
+{% extends "starbase.html" %}
+{% load server_tags %}
+{% load humanize %}
+
+{% block page_title %}
+    Badge List
+{% endblock %}
+
+{% block content %}
+
+
+    <div class="row">
+        <div class="col-xs-8 col-xs-offset-2">
+            <h4>Badge list</h4>
+        </div>
+        <div class="col-xs-8 col-xs-offset-2">
+            <table class="table">
+                {% for badge in badges %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'badge-view' pk=badge.id %}" class="tag">
+                                {{ badge.name }} <i class="{{ badge.icon }}"></i></a> &times; {{ badge.count }}
+                        </td>
+                        <td>
+                            {{ badge.desc }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+
+{% endblock %}

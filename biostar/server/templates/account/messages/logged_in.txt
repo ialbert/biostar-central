@@ -1,0 +1,2 @@
+
+You have successfully signed in as <b>{{user.email}}</b>.

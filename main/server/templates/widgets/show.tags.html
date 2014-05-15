@@ -1,8 +1,0 @@
-{% load url from future %}
-{% if post.tag_val %}                            
-    <div class="tag-line">
-    {% for name in post.get_tag_names %}
-        <a href="{% url 'main.server.views.show_tag' name %}" class="tag">{{name}}</a>
-    {% endfor %}
-    </div>
-{% endif %}

@@ -1,0 +1,14 @@
+{%  load cache %}
+
+{% cache 120 "recent-votes" %}
+<div class="head">Recent Votes</div>
+<div class="recent-votes">
+    <ul style="opacity: 0.8;">
+        {% for vote in votes %}
+            <li><a href="{{ vote.post.get_absolute_url }}">
+                {{ vote.post.title }}</a>
+            </li>
+        {% endfor %}
+    </ul>
+</div>
+{%  endcache %}

@@ -1,0 +1,15 @@
+{% load humanize %}
+{% load server_tags %}
+
+{#  This is very similar to userbox but needs different positioning #}
+
+<div class="col-xs-3 col-md-2 box pull-right text-center visible-lg visible-md">
+        <div><a href="{{ user.get_absolute_url }}">{% gravatar user 82 %}</a></div>
+        <div class="ago">{{ date|time_ago }} by</div>
+        <div class="uname">{% userlink user %}</div>
+        <div class="loc">{{ user.profile.location }}</div>
+</div>
+
+<div class="box text-center visible-sm visible-xs">
+    <div class="uname">{% userlink user %} wrote:</div>
+</div>
