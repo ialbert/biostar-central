@@ -6,7 +6,7 @@ from django.contrib import admin
 admin.autodiscover()
 
 from django.views.generic import TemplateView
-from biostar.server import views, ajax, search, moderate
+from biostar.server import views, ajax, search, moderate, api
 from biostar.apps.posts.views import NewAnswer, NewPost, EditPost, external_post_handler
 from biostar.apps.users.views import external_logout, external_login, CaptchaView, EmailListView
 from biostar.apps.planet.views import BlogPostList
@@ -104,6 +104,9 @@ urlpatterns = patterns('',
     url(r'^questions/(?P<pid>\d+)/$', views.post_remap_redirect),
     url(r'^questions/(?P<pid>\d+)/([-\w]+)/$', views.post_remap_redirect),
     url(r'^questions/tagged/(?P<tag>.+)/$',views.tag_redirect),
+
+    # Api.
+    url(r'^api/ping/$', api.ping, name='api-ping'),
 
     # Uncomment the next line to enable the admin:
     url(r'^admin/', include(admin.site.urls)),
