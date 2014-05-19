@@ -1,6 +1,0 @@
-django
-south
-django_celery
-django_pipeline
-django_markwhat
-django_debug_toolbar
