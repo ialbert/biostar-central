@@ -105,6 +105,31 @@ def post_details(request, id):
 
 
 @json_response
+def vote_details(request, id):
+    """
+    Details for a vote.
+
+    Parameters:
+    id -- the id of the `Vote`.
+    """
+    try:
+        vote = Vote.objects.get(pk=id)
+    except Vote.DoesNotExist:
+        return {}
+
+    data = {
+        'id': vote.id,
+        'author_id ': vote.author.id,
+        'author ': vote.author.name,
+        'post_id': vote.post.id,
+        'type': vote.get_type_display(),
+        'type_id': vote.type,
+        'date': datetime_to_iso(vote.date),
+    }
+    return data
+
+
+@json_response
 def daily_stats(request, days_ago=1):
     """
     Statistics about this website for the given day.
@@ -118,7 +143,3 @@ def daily_stats(request, days_ago=1):
         return {}
 
     return compute_stats(days_ago)
-
-
-# TODO: to add:
-# TODO: def vote_details(request, id):
