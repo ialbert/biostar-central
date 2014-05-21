@@ -2,6 +2,7 @@ import json
 from datetime import datetime, timedelta
 
 from django.http import HttpResponse
+from django.contrib.sites.models import get_current_site
 
 from .util.dates import datetime_to_iso, datetime_to_unix
 from .util.stats import count_traffic, compute_stats
@@ -67,22 +68,38 @@ def post_details(request, id):
     Parameters:
     id -- the id of the `Post`.
     """
-    post = Post.objects.get(pk=id)
+    try:
+        post = Post.objects.get(pk=id)
+    except Post.DoesNotExist:
+        return {}
+
     data = {
         'id': post.id,
         'title': post.title,
         'type': post.get_type_display(),
         'type_id': post.type,
-        'creation_date ':  datetime_to_iso(post.creation_date),
-        'lastedit_date':  datetime_to_iso(post.lastedit_date),
-        'author_id ':  post.author.id,
-        'author ':  post.author.name,
-        'thread_score ':  post.thread_score,
+        'creation_date': datetime_to_iso(post.creation_date),
+        'lastedit_date': datetime_to_iso(post.lastedit_date),
+        'lastedit_user_id': post.lastedit_user.id,
+        'author_id': post.author.id,
+        'author': post.author.name,
+        'status': post.get_status_display(),
+        'status_id': post.status,
+        'thread_score': post.thread_score,
+        'rank': post.rank,
+        'vote_count': post.vote_count,
+        'view_count': post.view_count,
+        'reply_count': post.reply_count,
+        'comment_count': post.comment_count,
+        'book_count': post.book_count,
+        'subs_count': post.subs_count,
         'answer_count': post.root.reply_count,
-        'rank ':  post.rank,
-        'parent_id ':  post.parent.id,
+        'has_accepted': post.has_accepted,
+        'parent_id': post.parent.id,
         'root_id': post.root_id,
-        'xhtml':  post.html,
+        'xhtml': post.html,
+        'tag_val': post.tag_val,
+        'url': 'http://{}{}'.format(get_current_site(request).domain, post.get_absolute_url()),
     }
     return data
 
