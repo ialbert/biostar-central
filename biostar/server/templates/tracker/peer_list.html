@@ -1,0 +1,17 @@
+{% extends "starbase.html" %}
+{% load server_tags %}
+{% load cache %}
+{% load more_like_this %}
+
+{% block page_title %}
+    Peers
+{% endblock %}
+{% block content %}
+
+<h2> Peer List | <a href="{%  url 'tracker:index'%}">Datasets</a> </h2>
+
+{% for p in peers %}
+    <div>{{ p.peer_id }} {{ p.uploaded }} </div>
+{% endfor %}
+
+{%  endblock %}

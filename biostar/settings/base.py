@@ -265,6 +265,7 @@ INSTALLED_APPS = [
     'biostar.apps.messages',
     'biostar.apps.badges',
     'biostar.apps.planet',
+    'biostar.apps.tracker',
 
     # The main Biostar server.
     'biostar.server',
@@ -423,6 +424,9 @@ CACHES = {
     }
 }
 
+# How often should the trackers update (seconds)
+TRACKER_UPDATE_INTERVAL = 60
+
 # The celery configuration file
 CELERY_CONFIG = 'biostar.celeryconfig'
 
@@ -451,6 +455,7 @@ PAGINATE_BY = 25
 
 # Used by crispyforms.
 #CRISPY_FAIL_SILENTLY = not DEBUG
+
 
 ACCOUNT_AUTHENTICATION_METHOD = "email"
 ACCOUNT_EMAIL_REQUIRED = True

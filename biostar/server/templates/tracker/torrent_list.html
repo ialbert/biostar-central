@@ -1,0 +1,18 @@
+{% extends "starbase.html" %}
+{% load server_tags %}
+{% load cache %}
+{% load more_like_this %}
+
+{% block page_title %}
+    Datasets
+{% endblock %}
+{% block content %}
+
+<h2>Datasets | <a href="{%  url 'tracker:peer-list'%}">Peer List</a> | <a href="{%  url 'tracker:upload'%}">Upload Data</a></h2>
+
+{% for t in torrents %}
+    <div>{{ t.info_hash }} {{ t.seeds }} {{  t.user }}
+        <a href="{%  url 'tracker:torrent-detail' pk=t.id %}">{{ t.info_hash }}</a></div>
+{% endfor %}
+
+{%  endblock %}

@@ -1,6 +1,7 @@
 {% load staticfiles %}
 {% load server_tags %}
 
+{#  Large and Medium #}
 <div class="row visible-lg visible-md">
     <div class="col-md-12 text-center" id="topnav">
             {% for word in CATEGORIES %}
@@ -14,6 +15,7 @@
     </div>
 </div>
 
+{#  Small and Extra small  #}
 <div class="row visible-sm visible-xs">
 
     <div class="col-xs-4">
@@ -116,6 +118,15 @@
                 </a>
             </div>
 
+            <div class="col-md-1 col-md-offset-10 mid {% current request 'tracker:index' %}">
+                <a href="{% url 'tracker:index' %}">
+                    <div><i class="fa fa-cube"></i>
+                    </div>
+                    <div>Data</div>
+                    <span class="badge">{% get_count COUNTS 'data' %}</span>
+                </a>
+            </div>
+
             <div class="col-sm-1 mid {% current request 'user-messages' %}">
                 <a href="{% url 'user-messages' %}">
                     <div><i class="fa fa-envelope"></i>
@@ -150,12 +161,6 @@
                 </a>
             </div>
 
-            <div class="col-sm-1 mid {% active 'following' topic %}">
-                <a href="{% url 'topic-list' topic='following' %}" class="navitem">
-                    <div><i class="fa fa-eye"></i></div>
-                    <div>Following</div>
-                </a>
-            </div>
 
             <div class="col-sm-1 mid {% active 'bookmarks' topic %}">
                 <a href="{% url 'topic-list' topic='bookmarks' %}" class="navitem">
@@ -172,7 +177,7 @@
             </div>
 
         {% else %}
-
+            {#  User is not authenticated #}
             <div class="col-md-9 top text-center">
                 {%  include "site_description.html" %}
                 <span class="pull-right">
@@ -186,6 +191,14 @@
                     <div><i class="fa fa-globe"></i>
                     </div>
                     <div>Community</div>
+                </a>
+            </div>
+
+            <div class="col-md-2 col-md-offset-10 mid {% current request 'tracker:index' %}">
+                <a href="{% url 'tracker:index' %}">
+                    <div><i class="fa fa-cube"></i>
+                    </div>
+                    <div>Data</div>
                 </a>
             </div>
 
