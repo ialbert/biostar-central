@@ -110,7 +110,9 @@ urlpatterns = patterns('',
     url(r'^api/user/(?P<id>\d+)/$', api.user_details, name='api-user'),
     url(r'^api/post/(?P<id>\d+)/$', api.post_details, name='api-post'),
     url(r'^api/vote/(?P<id>\d+)/$', api.vote_details, name='api-vote'),
-    url(r'^api/stats/(?P<days_ago>\d+)/$', api.daily_stats, name='api-stats'),
+    url(r'^api/stats/day/(?P<day>\d+)/$', api.daily_stats_on_day, name='api-stats-on-day'),
+    url(r'^api/stats/date/(?P<year>\d{4})/(?P<month>\d{2})/(?P<day>\d{2})/$',
+        api.daily_stats_on_date, name='api-stats-on-date'),
 
     # Uncomment the next line to enable the admin:
     url(r'^admin/', include(admin.site.urls)),

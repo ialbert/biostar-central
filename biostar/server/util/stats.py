@@ -3,7 +3,6 @@ Utility module for statistics about the website.
 """
 from datetime import datetime, timedelta
 import logging
-import time
 from os.path import join, normpath, isfile, exists
 from os import makedirs
 import json
@@ -35,17 +34,16 @@ def count_traffic(start, end):
         return PostView.objects.filter(date__gt=start).exclude(date__gt=end).count()
 
 
-def compute_stats(days_ago=0):
+def compute_stats(date):
     """
-    Statistics about this website for the given day.
+    Statistics about this website for the given date.
     Statistics are stored to a json file for caching purpose.
 
     Parameters:
-    days_ago -- a day, given as a number of days ago.
+    date -- a `datetime`.
     """
 
-    now = datetime.now().date()
-    start = now - timedelta(days=days_ago)
+    start = date.date()
     end = start + timedelta(days=1)
 
     try:
@@ -73,9 +71,8 @@ def compute_stats(days_ago=0):
     new_votes_ids = [vote.id for vote in new_votes]
 
     data = {
-        'days_ago': days_ago,
-        'date': datetime_to_iso(now),
-        'timestamp': datetime_to_unix(end),
+        'date': datetime_to_iso(start),
+        'timestamp': datetime_to_unix(start),
         'questions': questions,
         'answers': answers,
         'toplevel': toplevel,
@@ -131,5 +128,5 @@ def _build_stats_file_path(date):
     Params:
     date -- a `datetime` instance.
     """
-    file_name = time.strftime("%Y-%m-%d.json", date.timetuple())
+    file_name = '{}-{}-{}.json'.format(date.year, date.month, date.day)
     return normpath(join(STATS_FOLDER, file_name))

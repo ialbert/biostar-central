@@ -4,8 +4,9 @@ from datetime import datetime, timedelta
 from django.http import HttpResponse
 from django.contrib.sites.models import get_current_site
 
-from .util.dates import datetime_to_iso, datetime_to_unix
+from .util.dates import datetime_to_iso, datetime_to_unix, days_after_day_zero_to_datetime
 from .util.stats import count_traffic, compute_stats
+from .util.exceptions import NoDayZeroError
 from ..apps.users.models import User
 from ..apps.posts.models import Vote, Post
 
@@ -139,16 +140,37 @@ def vote_details(request, id):
 
 
 @json_response
-def daily_stats(request, days_ago=1):
+def daily_stats_on_day(request, day):
     """
     Statistics about this website for the given day.
+    Day-0 is the day of the first post.
 
     Parameters:
-    days_ago -- a day, given as a number of days ago.
+    day -- a day, given as a number of days from day-0 (the day of the first post).
     """
-    days_ago = int(days_ago)
-
-    if days_ago < 1:
+    try:
+        date = days_after_day_zero_to_datetime(day)
+    except NoDayZeroError:
         return {}
 
-    return compute_stats(days_ago)
+    # We don't provide stats for today or the future.
+    if date.date() >= datetime.today().date():
+        return {}
+    return compute_stats(date)
+
+
+@json_response
+def daily_stats_on_date(request, year, month, day):
+    """
+    Statistics about this website for the given date.
+
+    Parameters:
+    year -- Year, 4 digits.
+    month -- Month, 2 digits.
+    day -- Day, 2 digits.
+    """
+    date = datetime(int(year), int(month), int(day))
+    # We don't provide stats for today or the future.
+    if date.date() >= datetime.today().date():
+        return {}
+    return compute_stats(date)
