@@ -59,7 +59,7 @@ def _find_day_zero():
     Finds the day-0, which is the date of the first post ever.
     The day-0 is computer only one time and then cached in an environment var.
     """
-    day_zero = environ.get('ZERO_DAY', None)
+    day_zero = environ.get('DAY_ZERO', None)
     if day_zero:
         return unix_to_datetime(day_zero)
 
@@ -70,5 +70,5 @@ def _find_day_zero():
         # In Python 3: raise NoDayZeroError('...') from IndexError
         raise NoDayZeroError('No posts yet.')
 
-    environ['ZERO_DAY'] = '{}'.format(datetime_to_unix(day_zero))
+    environ['DAY_ZERO'] = '{}'.format(datetime_to_unix(day_zero))
     return day_zero
