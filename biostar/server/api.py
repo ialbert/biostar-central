@@ -14,14 +14,19 @@ def json_response(f):
     """
     Converts any functions which returns a dictionary to a proper HttpResponse with json content.
     """
-    # TODO: This decorator might be moved to util.json.py. We will see later on, when we
+    # TODO: This decorator might be moved to util/json.py. We will see later on, when we
     # TODO: introduce django-rest-framework.
     def to_json(request, *args, **kwargs):
         """
         Creates the actual HttpResponse with json content.
         """
-        return HttpResponse(json.dumps(f(request, *args, **kwargs), sort_keys=True, indent=4),
-                            content_type="application/json")
+        data = f(request, *args, **kwargs)
+        response = HttpResponse(json.dumps(data, sort_keys=True, indent=4),
+                                content_type="application/json")
+        if not data:
+            response.status_code = 404
+            response.reason_phrase = 'Not found'
+        return response
     return to_json
 
 
@@ -47,7 +52,11 @@ def user_details(request, id):
     Parameters:
     id -- the id of the `User`.
     """
-    user = User.objects.get(pk=id)
+    try:
+        user = User.objects.get(pk=id)
+    except User.DoesNotExist:
+        return {}
+
     days_ago = (datetime.now().date() - user.profile.date_joined.date()).days
     data = {
         'id': user.id,
