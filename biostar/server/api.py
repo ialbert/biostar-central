@@ -1,14 +1,20 @@
 import json
+import logging
 from datetime import datetime, timedelta
+from calendar import timegm
+from os.path import join, normpath, isfile, exists
+from os import makedirs
 
 from django.http import HttpResponse
 from django.contrib.sites.models import get_current_site
+from django.conf import settings
+from django.core.cache import get_cache
 
-from .util.dates import datetime_to_iso, datetime_to_unix, days_after_day_zero_to_datetime
-from .util.stats import count_traffic, compute_stats
-from .util.exceptions import NoDayZeroError
 from ..apps.users.models import User
-from ..apps.posts.models import Vote, Post
+from ..apps.posts.models import Vote, Post, PostView
+
+
+logger = logging.getLogger(__name__)
 
 
 def json_response(f):
@@ -37,10 +43,17 @@ def traffic(request):
     Traffic as post views in the last 60 min.
     """
     now = datetime.now()
+    start = now-timedelta(minutes=60)
+    try:
+        post_views = PostView.objects.filter(date__gt=start).exclude(date__gt=now).distinct(
+            'ip').count()
+    except NotImplementedError:
+        post_views = PostView.objects.filter(date__gt=start).exclude(date__gt=now).count()
+
     data = {
         'date': datetime_to_iso(now),
         'timestamp': datetime_to_unix(now),
-        'post_views_last_60_min': count_traffic(now-timedelta(minutes=60), now),
+        'post_views_last_60_min': post_views,
     }
     return data
 
@@ -148,13 +161,10 @@ def daily_stats_on_day(request, day):
     Parameters:
     day -- a day, given as a number of days from day-0 (the day of the first post).
     """
-    try:
-        date = days_after_day_zero_to_datetime(day)
-    except NoDayZeroError:
-        return {}
+    date = days_after_day_zero_to_datetime(day)
 
     # We don't provide stats for today or the future.
-    if date.date() >= datetime.today().date():
+    if not date or date.date() >= datetime.today().date():
         return {}
     return compute_stats(date)
 
@@ -174,3 +184,161 @@ def daily_stats_on_date(request, year, month, day):
     if date.date() >= datetime.today().date():
         return {}
     return compute_stats(date)
+
+
+## Statistics #####################################################################################
+
+STATS_FOLDER = normpath(join(settings.EXPORT_DIR, 'stats'))
+
+
+def compute_stats(date):
+    """
+    Statistics about this website for the given date.
+    Statistics are stored to a json file for caching purpose.
+
+    Parameters:
+    date -- a `datetime`.
+    """
+
+    start = date.date()
+    end = start + timedelta(days=1)
+
+    try:
+        return load_stats_from_file(start)
+    except IOError:  # This will be FileNotFoundError in Python3.
+        logger.info('No stats file for {}.'.format(start))
+
+    query = Post.objects.filter
+
+    questions = query(type=Post.QUESTION, creation_date__lt=end).count()
+    answers = query(type=Post.ANSWER, creation_date__lt=end).count()
+    toplevel = query(type__in=Post.TOP_LEVEL, creation_date__lt=end).exclude(
+        type=Post.BLOG).count()
+    comments = query(type=Post.COMMENT, creation_date__lt=end).count()
+    votes = Vote.objects.filter(date__lt=end).count()
+    users = User.objects.filter(profile__date_joined__lt=end).count()
+
+    new_users = User.objects.filter(profile__date_joined__gte=start, profile__date_joined__lt=end)
+    new_users_ids = [user.id for user in new_users]
+
+    new_posts = Post.objects.filter(creation_date__gte=start, creation_date__lt=end)
+    new_posts_ids = [post.id for post in new_posts]
+
+    new_votes = Vote.objects.filter(date__gte=start, date__lt=end)
+    new_votes_ids = [vote.id for vote in new_votes]
+
+    data = {
+        'date': datetime_to_iso(start),
+        'timestamp': datetime_to_unix(start),
+        'questions': questions,
+        'answers': answers,
+        'toplevel': toplevel,
+        'comments': comments,
+        'votes': votes,
+        'users': users,
+        'new_users': new_users_ids,
+        'new_posts': new_posts_ids,
+        'new_votes': new_votes_ids,
+    }
+    dump_stats_to_file(start, data)
+    return data
+
+
+def load_stats_from_file(date):
+    """
+    Load stats data from a stat file.
+
+    Params:
+    date -- a `datetime` instance.
+    """
+    file_path = _build_stats_file_path(date)
+
+    if not isfile(file_path):
+        raise IOError  # This will be FileNotFoundError in Python3.
+
+    with open(file_path, 'r') as fin:
+        return json.loads(fin.read())
+
+
+def dump_stats_to_file(date, data):
+    """
+    Store stats data to a json file for caching purpose.
+
+    Params:
+    date -- a `datetime` instance.
+    data -- stats data in a dictionary.
+    """
+    if not exists(STATS_FOLDER):
+        # Ensure STATS_FOLDER exists.
+        makedirs(STATS_FOLDER)
+
+    file_path = _build_stats_file_path(date)
+
+    with open(file_path, 'w') as fout:
+        fout.write(json.dumps(data))
+
+
+def _build_stats_file_path(date):
+    """
+    Build the path of a stat file from a date.
+
+    Params:
+    date -- a `datetime` instance.
+    """
+    file_name = '{}-{}-{}.json'.format(date.year, date.month, date.day)
+    return normpath(join(STATS_FOLDER, file_name))
+
+
+## Date utils #####################################################################################
+
+def datetime_to_iso(date):
+    """
+    Converts a datetime to the ISO8601 format, like: 2014-05-20T06:11:41.733900.
+
+    Parameters:
+    date -- a `datetime` instance.
+    """
+    if not isinstance(date, datetime):
+        date = datetime.combine(date, datetime.min.time())
+    return date.isoformat()
+
+
+def datetime_to_unix(date):
+    """
+    Converts a datetime to a Unix timestamp , like: 1400566301.
+
+    Parameters:
+    date -- a `datetime` instance.
+    """
+    return timegm(date.timetuple())
+
+
+def unix_to_datetime(timestamp):
+    """
+    Converts a Unix timestamp (like: 1400566301) to a datetime.
+
+    Parameters:
+    timestamp -- a Unix timestamp like: 1400566301.
+    """
+    return datetime.fromtimestamp(float(timestamp))
+
+
+def days_after_day_zero_to_datetime(days):
+    """
+    Converts a date expressed as number of days after day-0 (the date of the first ever post) to
+    `datetime`.
+
+    Params:
+    days -- number of days after day-0 (the date of the first post ever).
+    """
+    cache = get_cache('default')
+    day_zero = cache.get('day_zero')
+
+    if not day_zero:
+        first_post = Post.objects.order_by('creation_date').only('creation_date')
+        if not first_post:
+            return False
+        day_zero = first_post[0].creation_date
+        cache.set('day_zero', day_zero, 60*60*24*7)  # Cache valid for a week.
+
+    return day_zero + timedelta(days=int(days))
