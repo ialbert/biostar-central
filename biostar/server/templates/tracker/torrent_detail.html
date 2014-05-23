@@ -10,5 +10,13 @@
 
 <h2>Details on torrent {{ torrent.name }}</h2>
 
+    <div>
+    Seeds: {{ torrent.seeds }}
+    Downloading: {{ torrent.leeches }}
+    Downloading: {{ torrent.uploaded}}
+    Downloading: {{ torrent.downloaded}}
+    Downloading: {{ torrent.completed}}
+
+    </div>
 
 {%  endblock %}

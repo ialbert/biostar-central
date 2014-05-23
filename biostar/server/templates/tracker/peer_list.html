@@ -8,10 +8,13 @@
 {% endblock %}
 {% block content %}
 
-<h2> Peer List | <a href="{%  url 'tracker:index'%}">Datasets</a> </h2>
-
 {% for p in peers %}
-    <div>{{ p.peer_id }} {{ p.uploaded }} </div>
+
+    <div>
+
+        {{ p.user }} {{ p.peer_id }} {{ p.uploaded }}
+    </div>
+
 {% endfor %}
 
 {%  endblock %}

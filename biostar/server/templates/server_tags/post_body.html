@@ -3,7 +3,7 @@
 <div class="post-body {{ post.get_status_display }} clearfix">
 
     {% if post.is_toplevel %}
-        <div class="title" >{{ post.get_type_display }}: <span itemprop="name">{{ post.get_title }}</span></div>
+        <div class="title">{{ post.get_type_display }}: <span itemprop="name">{{ post.get_title }}</span></div>
     {% endif %}
 
 
@@ -32,12 +32,41 @@
 
         <a name="{{ post.id }}"></a>
         {# The body of the post #}
-        <div class="content" >
+        <div class="content">
 
             {% post_user_box post.author post.creation_date %}
 
+
             <span itemprop="text">{{ post.html|safe }}</span>
 
+            {% if post.torrent %}
+                <div class="torrent text-center">
+                    <div class="download">
+                        <a class="btn btn-success btn-sm" role="button" href="{% url 'tracker:download' post.torrent.id %}">
+                            <i class="fa fa-cloud-download"></i> download</a>
+
+                        &bull;
+                        <a class="btn btn-info btn-sm" role="button" href="/info/data/">
+                            <i class="fa fa-info-circle"></i> more info</a>
+                    </div>
+
+                    <div class="info">
+                        Shared by:
+                        {% for peer in post.peers %}
+                            {% if peer.user %}
+                                {% userlink peer.user %}
+                            {% else %}
+                                Anonymous
+                            {% endif %}
+                        {% endfor %}
+                        &bull;
+                        <a href="{% url 'tracker:peer-list' %}">
+                            <i class="fa fa-empire"></i> all peers</a>
+                    </div>
+
+                </div>
+
+            {% endif %}
 
             <div class="clearfix">
                 {% if post.is_toplevel %}

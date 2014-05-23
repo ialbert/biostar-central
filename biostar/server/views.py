@@ -9,6 +9,7 @@ from biostar.apps.users.models import User
 from biostar.apps.posts.models import Post, Vote, Tag, Subscription, ReplyToken
 from biostar.apps.posts.views import NewPost, NewAnswer
 from biostar.apps.badges.models import Badge, Award
+from biostar.apps.tracker.models import Peer
 from biostar.apps.posts.auth import post_permissions
 from biostar.apps.util import html
 
@@ -418,10 +419,10 @@ class PostDetails(DetailView):
         # Additional attributes used during rendering
         obj.tree = tree
         obj.answers = answers
-
-        # Add the more like this field
-        post = super(PostDetails, self).get_object()
-
+        if obj.torrent:
+            obj.peers = Peer.objects.filter(info_hash=obj.torrent.info_hash)
+        else:
+            obj.peers = []
         return obj
 
     def get_context_data(self, **kwargs):

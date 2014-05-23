@@ -81,7 +81,12 @@ sup {
   -moz-border-radius: 3px;
   border-radius: 3px;
 }
-
+.torrent {
+  padding:1em;
+  .info {
+    padding: 1em;
+  }
+}
 .center {
   text-align: center;
 }
@@ -329,6 +334,13 @@ table#posts {
 
   .unanswered {
     background-color: @DEFAULT_FORUM;
+    color: white;
+  }
+}
+
+.post-row.Data {
+  .answered, .accepted, .unanswered {
+    background-color: @DEFAULT_DATA;
     color: white;
   }
 }

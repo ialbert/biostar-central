@@ -52,6 +52,38 @@ class TagAdmin(admin.ModelAdmin):
 
 admin.site.register(Tag, TagAdmin)
 
+class Torrent(models.Model):
+    name = models.CharField(max_length=200, default="Data", db_index=True)
+
+    info_hash = models.CharField(max_length=40, db_index=True)
+
+    # Some torrents may end up as disabled
+    disabled = models.BooleanField(default=False)
+
+    completed = models.PositiveIntegerField(default=0)
+    downloaded = models.PositiveIntegerField(default=0)
+    uploaded = models.PositiveIntegerField(default=0)
+
+    # computed as len(Peer.objects.filter(torrent=self).filter(left=0)
+    seeds = models.PositiveIntegerField(default=0)
+
+    # computed as len(Peer.objects.filter(torrent=self).exclude(left=0)
+    leeches = models.PositiveIntegerField(default=0)
+
+    # Store the torrentin the database
+    content = models.BinaryField()
+
+    # Date related functionality
+    lastupdate_date = models.DateTimeField(auto_now=True)
+    creation_date = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ('name', )
+
+    def __unicode__(self):
+        return self.name
+
+
 class PostManager(models.Manager):
 
     def my_bookmarks(self, user):
@@ -214,12 +246,11 @@ class Post(models.Model):
     # What site does the post belong to.
     site = models.ForeignKey(Site, null=True)
 
+    # The post to which the torrent is assigned to
+    torrent = models.OneToOneField(Torrent, null=True)
+
     def parse_tags(self):
         return util.split_tags(self.tag_val)
-
-    def add_data(self, text):
-        ids = util.split_tags(text)
-        data = Data.objects.filter(id__in=ids)
 
 
     def add_tags(self, text):
@@ -386,9 +417,6 @@ class Post(models.Model):
 
             instance.save()
 
-class Foo(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL)
-
 class ReplyToken(models.Model):
     """
     Connects a user and a post to a unique token. Sending back the token identifies
@@ -411,12 +439,6 @@ class ReplyTokenAdmin(admin.ModelAdmin):
 
 admin.site.register(ReplyToken, ReplyTokenAdmin)
 
-class Data(models.Model):
-    "Represents a dataset attached to a post"
-    name = models.CharField(max_length=80)
-    post = models.ForeignKey(Post, null=True)
-    file = models.FileField(upload_to=settings.MEDIA_ROOT)
-    size = models.IntegerField()
 
 class PostAdmin(admin.ModelAdmin):
     list_display = ('title', 'type', 'author')

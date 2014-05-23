@@ -10,9 +10,38 @@
 
 <h2>Datasets | <a href="{%  url 'tracker:peer-list'%}">Peer List</a> | <a href="{%  url 'tracker:upload'%}">Upload Data</a></h2>
 
-{% for t in torrents %}
-    <div>{{ t.info_hash }} {{ t.seeds }} {{  t.user }}
-        <a href="{%  url 'tracker:torrent-detail' pk=t.id %}">{{ t.info_hash }}</a></div>
-{% endfor %}
+
+     <div class="row">
+        <div class="col-md-9">
+
+            {% page_bar_sort_posts %}
+
+            <div id="post-list">
+                {% for post in posts %}
+                    {% post_count_box post %}
+                {% empty %}
+
+                    <div class="alert alert-info">There are no results for this page.</div>
+
+                {% endfor %}
+
+            </div>
+
+            {% page_bar_sort_posts %}
+
+        </div>
+        <div class="col-md-3 sidebar">
+
+            {% sidebar_votes RECENT_VOTES %}
+
+            {% sidebar_locations RECENT_USERS %}
+
+            {% sidebar_awards RECENT_AWARDS %}
+
+            {% sidebar_posts RECENT_REPLIES %}
+
+        </div>
+    </div>
+
 
 {%  endblock %}

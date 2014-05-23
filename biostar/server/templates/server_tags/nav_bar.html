@@ -118,8 +118,8 @@
                 </a>
             </div>
 
-            <div class="col-md-1 col-md-offset-10 mid {% current request 'tracker:index' %}">
-                <a href="{% url 'tracker:index' %}">
+            <div class="col-md-1 col-md-offset-10 mid {% active 'data' topic %}">
+                <a href="/t/data/">
                     <div><i class="fa fa-cube"></i>
                     </div>
                     <div>Data</div>
@@ -195,7 +195,7 @@
             </div>
 
             <div class="col-md-2 col-md-offset-10 mid {% current request 'tracker:index' %}">
-                <a href="{% url 'tracker:index' %}">
+                <a href="/t/data/">
                     <div><i class="fa fa-cube"></i>
                     </div>
                     <div>Data</div>
