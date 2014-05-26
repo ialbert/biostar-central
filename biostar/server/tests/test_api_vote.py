@@ -1,7 +1,7 @@
 import json
 import logging
 
-from django.test import SimpleTestCase
+from django.test import TestCase
 from django.core.urlresolvers import reverse
 
 from ..api import datetime_to_iso
@@ -13,7 +13,7 @@ logging.disable(logging.WARNING)
 haystack_logger = logging.getLogger('haystack')
 
 
-class ApiVoteTest(SimpleTestCase):
+class ApiVoteTest(TestCase):
     def setUp(self):
         # Disable haystack logger (testing will raise errors on more_like_this field in templates).
         haystack_logger.setLevel(logging.CRITICAL)

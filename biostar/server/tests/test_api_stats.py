@@ -1,8 +1,8 @@
-from django.test import SimpleTestCase
+from django.test import TestCase
 from django.core.urlresolvers import reverse
 
 
-class ApiStatsTest(SimpleTestCase):
+class ApiStatsTest(TestCase):
     def test_no_posts(self):
         """
         There is no posts in the db.
