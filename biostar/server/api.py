@@ -142,8 +142,8 @@ def vote_details(request, id):
 
     data = {
         'id': vote.id,
-        'author_id ': vote.author.id,
-        'author ': vote.author.name,
+        'author_id': vote.author.id,
+        'author': vote.author.name,
         'post_id': vote.post.id,
         'type': vote.get_type_display(),
         'type_id': vote.type,
