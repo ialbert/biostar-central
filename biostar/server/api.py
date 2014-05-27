@@ -240,7 +240,9 @@ def compute_stats(date):
         'new_posts': new_posts_ids,
         'new_votes': new_votes_ids,
     }
-    dump_stats_to_file(start, data)
+
+    if not settings.DEBUG:
+        dump_stats_to_file(start, data)
     return data
 
 
