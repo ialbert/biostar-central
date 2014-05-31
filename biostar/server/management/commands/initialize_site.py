@@ -28,7 +28,7 @@ class Command(BaseCommand):
 
 def init_flatpages():
     # list for the flatpages
-    names = "faq about help policy sharing".split()
+    names = "faq about help policy api".split()
     site = Site.objects.get_current()
     for name in names:
         url = "/info/%s/" % name
