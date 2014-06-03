@@ -128,7 +128,8 @@ def update_entries(count=3):
                 except Exception, exc:
                     logger.error(r.title)
                     logger.error("database error %s" % exc)
-                logger.info("added: %s" % post.title)
+                else:
+                    logger.info("added: %s" % post.title)
 
         except KeyError, exc:
             logger.error("%s" % exc)
