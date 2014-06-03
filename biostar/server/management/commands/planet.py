@@ -110,8 +110,9 @@ def update_entries(count=3):
 
             for r in entries:
                 r.title = smart_text(r.title)
-                r.title = r.title.strip()[:200]
+                r.title = r.title.strip()
                 r.title = html.strip_tags(r.title)
+                r.title = r.title.strip()[:200]
                 r.description = smart_text(r.description)
                 r.description = html.strip_tags(r.description)
 
@@ -122,7 +123,11 @@ def update_entries(count=3):
                     continue
                 body = html.clean(r.description)[:5000]
                 content = html.strip_tags(body)
-                post = BlogPost.objects.create(title=r.title, blog=blog, uid=r.id, content=content, html=body, creation_date=date, link=r.link)
+                try:
+                    post = BlogPost.objects.create(title=r.title, blog=blog, uid=r.id, content=content, html=body, creation_date=date, link=r.link)
+                except Exception, exc:
+                    logger.error(r.title)
+                    logger.error("database error %s" % exc)
                 logger.info("added: %s" % post.title)
 
         except KeyError, exc:

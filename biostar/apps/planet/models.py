@@ -57,7 +57,7 @@ class BlogPost(models.Model):
     blog = models.ForeignKey(Blog)
 
     # A unique id for this entry
-    uid = models.CharField(max_length=200, null=False)
+    uid = models.CharField(max_length=200, default="", null=False)
 
     # The title of the entry
     title = models.CharField(max_length=200, null=False)
