@@ -4,20 +4,16 @@ set -ue
 # This is required so that the default configuration file works.
 source /home/www/sites/biostar-central/live/deploy.env
 
-# Setting the various access logs.
-ACCESS_LOG=/home/www/sites/biostar-central/live/logs/celery-access.log
-ERROR_LOG=/home/www/sites/biostar-central/live/logs/celery-error.log
-
-# The user and group the unicorn process will run as.
-NUM_WORKERS=3
+# Location of the log file
+LOGFILE=/home/www/sites/biostar-central/live/logs/celery-beat.log
 
 # The name of the application.
-NAME="biostar"
+APP="biostar"
 
 # The gunicorn instance to run.
 CELERY="/home/www/.virtualenvs/biostar/bin/celery"
 
 echo "starting celery beat with DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE"
 
-exec $CELERY -A $NAME beat -l info
+$CELERY -A $APP beat -l info -f $LOGFILE
 
