@@ -68,7 +68,7 @@ class CeleryEmailBackend(BaseEmailBackend):
         self.init_kwargs = kwargs
 
     def send_messages(self, email_messages, **kwargs):
-        logger.info("send_messages %s" % len(email_messages))
+        logger.debug("send_messages %s" % len(email_messages))
         results = []
         kwargs['_backend_init_kwargs'] = self.init_kwargs
         for msg in email_messages:

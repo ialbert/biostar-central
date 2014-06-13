@@ -337,7 +337,7 @@ class BiostarUserAdmin(UserAdmin):
     list_filter = ('is_admin',)
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
-        ('Personal info', {'fields': ('name', 'type')}),
+        ('Personal info', {'fields': ('name', 'status', 'type')}),
         ('Permissions', {'fields': ('is_admin', 'is_staff')}),
     )
     # add_fieldsets is not a standard ModelAdmin attribute. UserAdmin
