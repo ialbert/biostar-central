@@ -171,7 +171,8 @@ class Tag(models.Model):
 
 # Default message preferences.
 MESSAGE_PREF_MAP = dict(
-    local=const.LOCAL_MESSAGE, default=const.DEFAULT_MESSAGES, email=const.EMAIL_MESSAGE
+    local=const.LOCAL_MESSAGE, default=const.DEFAULT_MESSAGES,
+    email=const.EMAIL_MESSAGE, all=const.ALL_MESSAGES,
 )
 MESSAGE_PREFS = MESSAGE_PREF_MAP.get(settings.DEFAULT_MESSAGE_PREF, const.LOCAL_MESSAGE)
 
