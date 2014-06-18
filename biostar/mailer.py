@@ -9,7 +9,10 @@ from django.core.mail import get_connection
 
 from .celery import app
 
-logger = logging.getLogger(__name__)
+#logger = logging.getLogger(__name__)
+
+from celery.utils.log import get_task_logger
+logger = get_task_logger(__name__)
 
 # Based on django-celery-email
 # https://github.com/pmclanahan/django-celery-email
@@ -31,13 +34,13 @@ def send_email(message, **kwargs):
     conn = get_connection(backend=BACKEND,
                           **kwargs.pop('_backend_init_kwargs', {}))
     try:
+        logger.info("send_email to %s", message.to)
         result = conn.send_messages([message])
-        logger.debug("Successfully sent email message to %r.", message.to)
         return result
     except Exception as e:
-        logger.error("Error sending email from %s to %r: %s retrying.",
+        logger.error("Error sending email from %s to %r: %s",
                      message.from_email, message.to, e)
-        send_email.retry(exc=e)
+        #send_email.retry(exc=e)
 
 class SSLEmailBackend(smtp.EmailBackend):
     "Required for Amazon SES"
@@ -65,6 +68,7 @@ class CeleryEmailBackend(BaseEmailBackend):
         self.init_kwargs = kwargs
 
     def send_messages(self, email_messages, **kwargs):
+        logger.debug("send_messages %s" % len(email_messages))
         results = []
         kwargs['_backend_init_kwargs'] = self.init_kwargs
         for msg in email_messages:
