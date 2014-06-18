@@ -39,7 +39,7 @@ class Command(BaseCommand):
             stuff()
 
         if options['users']:
-            patch_users()
+            patch_users_all_messages()
 
         if options['bump']:
             bump()
@@ -48,6 +48,10 @@ class Command(BaseCommand):
         if pk:
             bump(pk)
 
+def patch_users_all_messages():
+    from biostar.apps.users.models import User, Profile
+    from biostar.const import ALL_MESSAGES
+    Profile.objects.all().update(message_prefs=ALL_MESSAGES)
 
 def post_patch():
     "One off tasks go here that just need a quick access to the data"
