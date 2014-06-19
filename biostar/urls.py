@@ -6,7 +6,7 @@ from django.contrib import admin
 admin.autodiscover()
 
 from django.views.generic import TemplateView
-from biostar.server import views, ajax, search, moderate
+from biostar.server import views, ajax, search, moderate, api
 from biostar.apps.posts.views import NewAnswer, NewPost, EditPost, external_post_handler
 from biostar.apps.users.views import external_logout, external_login, CaptchaView, EmailListView
 from biostar.apps.planet.views import BlogPostList
@@ -104,6 +104,15 @@ urlpatterns = patterns('',
     url(r'^questions/(?P<pid>\d+)/$', views.post_remap_redirect),
     url(r'^questions/(?P<pid>\d+)/([-\w]+)/$', views.post_remap_redirect),
     url(r'^questions/tagged/(?P<tag>.+)/$',views.tag_redirect),
+
+    # Api.
+    url(r'^api/traffic/$', api.traffic, name='api-traffic'),
+    url(r'^api/user/(?P<id>\d+)/$', api.user_details, name='api-user'),
+    url(r'^api/post/(?P<id>\d+)/$', api.post_details, name='api-post'),
+    url(r'^api/vote/(?P<id>\d+)/$', api.vote_details, name='api-vote'),
+    url(r'^api/stats/day/(?P<day>\d+)/$', api.daily_stats_on_day, name='api-stats-on-day'),
+    url(r'^api/stats/date/(?P<year>\d{4})/(?P<month>\d{2})/(?P<day>\d{2})/$',
+        api.daily_stats_on_date, name='api-stats-on-date'),
 
     # Uncomment the next line to enable the admin:
     url(r'^admin/', include(admin.site.urls)),
