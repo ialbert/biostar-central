@@ -29,13 +29,13 @@ OPEN, CLOSE_OFFTOPIC, CLOSE_SPAM, DELETE, DUPLICATE, MOVE_TO_COMMENT, MOVE_TO_AN
 from biostar.apps.util import now
 
 POST_LIMIT_ERROR_MSG = '''
-<p><b>Sorry!</b> Your posting limit of (%s) post per day has been reached.</p>
+<p><b>Sorry!</b> Your posting limit of (%s) posts per six hours has been reached.</p>
 <p>This limit is very low for new users and is raised as you gain reputation.</p>
 <p>This limit is necessary to protect the site from automated postings by spammers.</p>
 '''
 
 TOP_POST_LIMIT_ERROR_MSG = '''
-<p><b>Sorry!</b> Your posting limit of (%s) questions per day has been reached.
+<p><b>Sorry!</b> Your posting limit of (%s) questions per six hours has been reached.
 Note that you can still contribute with comments and answers though.</p>
 <p>This limit is very low for new users and is raised as you gain reputation.</p>
 <p>This limit is necessary to protect the site from automated postings by spammers.</p>
@@ -53,7 +53,7 @@ def user_exceeds_limits(request, top_level=False):
     Puts on limits on how many posts a user can post.
     """
     user = request.user
-    since = now() - timedelta(days=1)
+    since = now() - timedelta(hours=6)
 
     # Check the user's credentials.
     user = update_user_status(user)

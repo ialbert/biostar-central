@@ -54,7 +54,7 @@
                         <a href="{% url 'topic-list' topic='myposts' %}"><i class="fa fa-comments"></i> My Posts</a>
                     </li>
                     <li>
-                        <a href="{% url 'topic-list' topic='messages' %}"><i class="fa fa-envelope"></i> My Messages
+                        <a href="{% url 'user-messages' %}"><i class="fa fa-envelope"></i> My Messages
                             <span class="badge">{% get_count COUNTS 'messages' %}</span> </a>
                     </li>
                     <li>

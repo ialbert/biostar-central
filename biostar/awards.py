@@ -5,8 +5,10 @@ from .celery import app
 
 import logging
 
-logger = logging.getLogger(__name__)
 
+from celery.utils.log import get_task_logger
+
+logger = get_task_logger(__name__)
 
 def init_awards():
     "Initializes the badges"
@@ -31,10 +33,11 @@ def init_awards():
 # Tries to award a badge to the user
 def check_user_profile(ip, user):
     import urllib2, json
+    logger.info("profile check from %s on %s" % (ip, user))
     if not user.profile.location:
         try:
             url = "http://api.hostip.info/get_json.php?ip=%s" % ip
-            logger.info(url)
+            logger.info("%s, %s, %s" % (ip, user, url))
             f = urllib2.urlopen(url, timeout=3)
             data = json.loads(f.read())
             f.close()
@@ -45,7 +48,6 @@ def check_user_profile(ip, user):
         except Exception, exc:
             logger.error(exc)
 
-
 @app.task
 # Tries to award a badge to the user
 def create_user_award(user):
@@ -53,6 +55,8 @@ def create_user_award(user):
     from biostar.apps.posts.models import Post
     from biostar.apps.badges.models import Badge, Award
     from biostar.apps.badges.award_defs import ALL_AWARDS
+
+    logger.info("award check for %s" % user)
 
     # Update user status.
     if (user.status == User.NEW_USER) and (user.score > 10):
@@ -99,5 +103,4 @@ def create_user_award(user):
             date = user.profile.last_login
             award = Award.objects.create(user=user, badge=badge, date=date, context=context)
             logger.info("award %s created for %s" % (award.badge.name, user.email))
-
 
