@@ -83,7 +83,7 @@ def create_post(b, author, root=None, parent=None, tag_val=''):
         title = title.strip()
         title = ' '.join(title.splitlines())
         title = ' '.join(title.split())
-        title = title.title()
+        title = title[:200]
         post = Post(title=title, type=Post.QUESTION, content=body, tag_val=tag_val, author=author)
     else:
         post_type = Post.ANSWER if parent.is_toplevel else Post.COMMENT
