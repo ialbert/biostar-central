@@ -20,18 +20,9 @@ class ApiUserTest(TestCase):
         haystack_logger.setLevel(logging.CRITICAL)
 
         # Create a user.
-        with self.settings(CAPTCHA=False, TRUST_VOTE_COUNT=0):
-            email_address = 'test@test.com'
-            self.client.post(reverse("account_signup"),
-                             {
-                                 'email': email_address,
-                                 'password1': 'password',
-                                 'password2': 'password',
-                                 'follow': True,
-                             },)
+        self.user = User.objects.create(email='test@test.com', password='...')
 
         # Edit date_joined.
-        self.user = User.objects.get(email=email_address)
         self.user.profile.date_joined = datetime.now() - timedelta(days=12)
         self.user.profile.save()
 
@@ -47,7 +38,7 @@ class ApiUserTest(TestCase):
                          datetime_to_iso(self.user.profile.date_joined)[:10])
         self.assertEqual(content['last_login'][:10].encode(),
                          datetime_to_iso(datetime.today())[:10])
-        self.assertEqual(content['id'], 1)
+        self.assertEqual(content['id'], self.user.id)
         self.assertEqual(content['joined_days_ago'], 12)
         self.assertEqual(content['name'], 'test')
         self.assertEqual(content['vote_count'], 0)

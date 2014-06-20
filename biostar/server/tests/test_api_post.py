@@ -19,16 +19,7 @@ class ApiPostTest(TestCase):
         haystack_logger.setLevel(logging.CRITICAL)
 
         # Create a user.
-        with self.settings(CAPTCHA=False, TRUST_VOTE_COUNT=0):
-            email_address = 'test@test.com'
-            self.client.post(reverse("account_signup"),
-                             {
-                                 'email': email_address,
-                                 'password1': 'password',
-                                 'password2': 'password',
-                                 'follow': True,
-                             },)
-        self.user = User.objects.get(email=email_address)
+        self.user = User.objects.create(email='test@test.com', password='...')
 
         # Create a post.
         title = "Post 1, title needs to be sufficiently long"
