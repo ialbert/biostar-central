@@ -77,7 +77,7 @@ class PostManager(models.Manager):
         return text.upper() if len(text) == 1 else text.lower()
 
     def tag_search(self, text):
-        "Performs a query by one or more + separated tags"
+        "Performs a query by one or more , separated tags"
         include, exclude = [], []
         for term in text.split(','):
             term = term.strip()
