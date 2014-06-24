@@ -3,7 +3,7 @@ from django.conf import settings
 from django.template import Context, Template
 from django.template.defaultfilters import stringfilter
 from django.core.context_processors import csrf
-from biostar.apps.posts.models import Post
+from biostar.apps.posts.models import Post, Tag
 from biostar.apps.messages.models import Message
 import random, hashlib, urllib
 from datetime import datetime, timedelta
@@ -11,6 +11,7 @@ from django.utils.timezone import utc
 from django import template
 from django.core.urlresolvers import reverse
 from biostar import const
+from biostar.server.views import LATEST
 
 register = template.Library()
 
@@ -216,9 +217,13 @@ def search_bar(context):
     return context
 
 @register.inclusion_tag('server_tags/post_count_box.html')
-def post_count_box(post, context=''):
+def post_count_box(post, context='', topic=''):
     "Displays the count box for a post row"
-    return dict(post=post, context=context)
+    topic = Tag.fixcase(topic)
+    topic = topic.split('+')
+    if LATEST in topic:
+        topic.remove(LATEST)
+    return dict(post=post, context=context, topic=topic)
 
 @register.inclusion_tag('server_tags/post_actions.html')
 def post_actions(post, user, label="COMMENT"):

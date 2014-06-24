@@ -79,7 +79,9 @@ class PostManager(models.Manager):
     def tag_search(self, text):
         "Performs a query by one or more , separated tags"
         include, exclude = [], []
-        for term in text.split(','):
+        # Split the given tags on ',' and '+'.
+        terms = text.split(',') if ',' in text else text.split('+')
+        for term in terms:
             term = term.strip()
             if term.endswith("!"):
                 exclude.append(self.fixcase(term[:-1]))
