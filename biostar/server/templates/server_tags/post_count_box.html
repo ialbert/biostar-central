@@ -50,7 +50,11 @@
 
             <span class="tags tag-pad visible-lg visible-md">
             {% for tag in post.tag_set.all %}
-                <a class="tag" href="/t/{{ tag.name }}/">{{ tag.name }}</a>
+                {% if tag.name not in topic %}
+                    <a class="tag" href="/t/{{ topic|join:"+" }}{% if topic %}+{% endif %}{{ tag.name }}/">{{ tag.name }}</a>
+                {% else %}
+                    <a class="tag" href="/t/{{ topic|join:"+" }}/">{{ tag.name }}</a>
+                {% endif %}
             {% endfor %}
             </span>
             <span class="userlink text-right muted">

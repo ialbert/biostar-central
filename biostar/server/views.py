@@ -27,6 +27,7 @@ from . import moderate
 from django.http import Http404
 import markdown, pyzmail
 from biostar.apps.util.email_reply_parser import EmailReplyParser
+from django.core.urlresolvers import reverse
 
 logger = logging.getLogger(__name__)
 
@@ -127,6 +128,10 @@ def posts_by_topic(request, topic):
 
     if topic and topic != LATEST:
         # Any type of topic.
+        if '+' in topic:
+            messages.info(request,
+                          "Filtering by tags: {} - <a href='{}'>Reset</a>".format(
+                              ' OR '.join(topic.split('+')), reverse('tag-list')))
         return Post.objects.tag_search(topic)
 
     # Return latest by default.
