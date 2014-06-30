@@ -23,7 +23,7 @@
 <h3>Methods</h3>
 
 <h4>Traffic</h4>
-<pre>GET /api/traffic</pre>
+<pre>GET /api/traffic/</pre>
 <p>
     Number of post views over the last 60 min filtered by unique IPs.<br />
     <br />
@@ -35,7 +35,7 @@
         <li><em>timestamp</em>: the current date, unix epoch time format.</li>
     </ul>
     <b>Example</b><br />
-    <a href="/api/traffic/">/api/traffic</a><br />
+    <a href="/api/traffic/">/api/traffic/</a><br />
     <pre>
 {
     "date": "2014-05-29T14:59:55.788069",
@@ -46,7 +46,7 @@
 </p>
 
 <h4>User</h4>
-<pre>GET /api/user/{id}</pre>
+<pre>GET /api/user/{id}/</pre>
 <p>
     General info about a user.<br />
     <br />
@@ -67,21 +67,21 @@
         <li><em>vote_count</em>: the number of votes given by the user.</li>
     </ul>
     <b>Example</b><br />
-    <a href="/api/user/15">/api/user/15</a><br />
+    <a href="/api/user/23/">/api/user/23/</a><br />
     <pre>
 {
-    "date_joined": "2009-10-18T09:22:53.687000+00:00",
-    "id": 15,
-    "joined_days_ago": 1684,
-    "last_login": "2009-10-18T09:22:53.687000+00:00",
-    "name": "John",
-    "vote_count": 13
+    "date_joined": "2010-01-18T21:43:55.253000+00:00",
+    "id": 23,
+    "joined_days_ago": 1614,
+    "last_login": "2011-11-08T19:37:21.753000+00:00",
+    "name": "Giovanni M Dall'Olio",
+    "vote_count": 37
 }
     </pre>
 </p>
 
 <h4>Post</h4>
-<pre>GET /api/post/{id}</pre>
+<pre>GET /api/post/{id}/</pre>
 <p>
     General info about a post.<br />
     <br />
@@ -121,11 +121,11 @@
         <li><em>xhtml</em>: content.</li>
     </ul>
     <b>Example</b><br />
-    <a href="/api/post/25">/api/post/25</a><br />
+    <a href="/api/post/25/">/api/post/25/</a><br />
     <pre>
 {
     "answer_count": 2,
-    "author": "John Doe",
+    "author": "Gue Su",
     "author_id": 18,
     "book_count": 0,
     "comment_count": 0,
@@ -143,19 +143,19 @@
     "subs_count": 0,
     "tag_val": "",
     "thread_score": 0,
-    "title": "A: Formula for mass–energy equivalence?",
+    "title": "A: How To Set Shrimp Parameters For Best Sensitivity With 35Bp Colorspace Data?",
     "type": "Answer",
     "type_id": 1,
-    "url": "https://www.biostars.org/p/24/#25",
+    "url": "http://localhost:8080/p/24/#25",
     "view_count": 0,
     "vote_count": 2,
-    "xhtml": "&lt;p&gt;E=MC2&lt;/p&gt;"
+    "xhtml": "<p>I just read the SHRiMP manual again, but I think that their explanation about -M option may not be enough to answer your question. I usually use the \"seed\" mode by using -s, -n, and -w and the option -M is a new feature of the version 1.3.1, which I have never tried before.</p>\n\n<p>I recommend for you to use the \"seed\" mode--the default would be good, but please adjust the -s option if you want more sensitivity. Always fast speed compensates sensitivity and the -M option seems to exist for this purpose.</p>\n\n<p>Hope my message to be helpful for your project.</p>\n"
 }
     </pre>
 </p>
 
 <h4>Vote</h4>
-<pre>GET /api/vote/{id}</pre>
+<pre>GET /api/vote/{id}/</pre>
 <p>
     General info about a vote.<br />
     <br />
@@ -176,14 +176,14 @@
         <li><em>type_id</em>: type's identifier for this vote.</li>
     </ul>
     <b>Example</b><br />
-    <a href="/api/vote/6">/api/vote/6</a><br />
+    <a href="/api/vote/21/">/api/vote/21/</a><br />
     <pre>
 {
-    "author": "John Doe",
-    "author_id": 10,
+    "author": "Zhaorong",
+    "author_id": 14,
     "date": "2014-04-29T15:02:17.740000+00:00",
-    "id": 6,
-    "post_id": 11,
+    "id": 21,
+    "post_id": 26,
     "type": "Upvote",
     "type_id": 0
 }
@@ -191,7 +191,7 @@
 </p>
 
 <h4>Statistics on the <i>N</i>th day</h4>
-<pre>GET /api/stats/day/{day}</pre>
+<pre>GET /api/stats/day/{day}/</pre>
 <p>
     Statistics as of the <i>N</i>th day after day-0 (the day of the first ever post).<br />
     <br />
@@ -216,34 +216,33 @@
         <li><em>votes</em>: total number of votes as of the given day.</li>
     </ul>
     <b>Example</b><br />
-    <a href="/api/stats/day/45">/api/stats/day/45</a><br />
+    <a href="/api/stats/day/5/">/api/stats/day/5/</a><br />
     <pre>
 {
-    "answers": 489,
-    "comments": 1125,
-    "date": "2009-09-30T00:00:00",
+    "answers": 6,
+    "comments": 0,
+    "date": "2009-10-05T00:00:00",
     "new_posts": [
-        7,
-        8,
-        9
+        10,
+        11,
+        12
     ],
     "new_users": [
-        5,
-        6,
-        7
+        10,
+        11
     ],
-    "new_votes": [12, 15],
-    "questions": 5,
-    "timestamp": 1254268800,
-    "toplevel": 5,
-    "users": 6,
-    "votes": 67
+    "new_votes": [],
+    "questions": 6,
+    "timestamp": 1254700800,
+    "toplevel": 6,
+    "users": 10,
+    "votes": 0
 }
     </pre>
 </p>
 
 <h4>Statistics on a date</h4>
-<pre>GET /api/stats/date/{year}/{month}/{day}</pre>
+<pre>GET /api/stats/date/{year}/{month}/{day}/</pre>
 <p>
     Statistics as of the given date.<br />
     <br />
@@ -268,28 +267,28 @@
         <li><em>votes</em>: total number of votes as of the given date.</li>
     </ul>
     <b>Example</b><br />
-    <a href="/api/stats/date/2014/04/01">/api/stats/date/2014/04/01</a><br />
+    <a href="/api/stats/date/2009/10/06/">/api/stats/date/2009/10/06/</a><br />
     <pre>
 {
-    "answers": 489,
-    "comments": 1125,
-    "date": "2009-09-30T00:00:00",
+    "answers": 9,
+    "comments": 0,
+    "date": "2009-10-06T00:00:00",
     "new_posts": [
-        7,
-        8,
-        9
+        13,
+        14,
+        15,
+        16
     ],
     "new_users": [
-        5,
-        6,
-        7
+        12,
+        13
     ],
-    "new_votes": [12, 15],
-    "questions": 5,
-    "timestamp": 1254268800,
-    "toplevel": 5,
-    "users": 6,
-    "votes": 67
+    "new_votes": [],
+    "questions": 7,
+    "timestamp": 1254787200,
+    "toplevel": 7,
+    "users": 12,
+    "votes": 0
 }
     </pre>
 </p>
