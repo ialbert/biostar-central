@@ -1,0 +1,19 @@
+branches:
+  only:
+    - travis-ci
+
+language: python
+
+python:
+  - "2.7"
+
+addons:
+  postgresql: "9.3"
+
+before_script:
+  - psql -c 'create database travis_ci_test;' -U postgres
+
+install: "pip install -r conf/requirements/test.txt"
+
+script: source conf/test-travis.env && python manage.py test
+
