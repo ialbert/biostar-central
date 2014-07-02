@@ -1,8 +1,3 @@
-# TODO: this is temporary!
-branches:
-  only:
-    - travis-ci
-
 language: python
 
 python:
@@ -16,5 +11,5 @@ before_script:
 
 install: "pip install -r conf/requirements/test.txt"
 
-script: source conf/test-travis.env && python manage.py test
+script: source conf/test_travis.env && python manage.py test
 
