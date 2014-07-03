@@ -9,7 +9,13 @@ addons:
 before_script:
   - psql -c 'create database travis_ci_test;' -U postgres
 
-install: "pip install -r conf/requirements/test.txt"
+env:
+  - DJANGO_VERSION=1.5
+  - DJANGO_VERSION=1.6
+
+install:
+    - pip install -q -r conf/requirements/test.txt
+    - pip install -q -I Django==$DJANGO_VERSION
 
 script: source conf/test_travis.env && python manage.py test
 
