@@ -168,15 +168,19 @@ def bioc_remote_body(body):
                 _, params = cgi.parse_header(req.headers.get('Content-Type', ''))
                 try:
                     enc = params.get('charset', 'utf-8')
-                    text = req.read().decode(enc)
+                    text = req.read().decode(enc, "replace")
                     text = to_unicode_or_bust(text)
                 except Exception, exc:
                     logger.error(exc)
-                    text = "Error: unable to decode %s" % url
+                    text = r'''
+                    Unable to decode %s
+                    Error: %s
+                    ''' % (url, exc)
+                    logger.error(text)
                 fp = open(fname, 'wt')
                 fp.write(text.encode("utf-8"))
                 fp.close()
-            body = open(fname).read().decode('utf8')
+            body = open(fname).read().decode('utf8', 'replace')
     return body
 
 
@@ -210,8 +214,12 @@ def unpack_message(data):
 
     body = msg.text_part.get_payload()
     charset = detect(body)['encoding'] or 'utf-8'
-    body = body.decode(charset).encode('utf-8')
 
+    try:
+        body = body.decode(charset, "replace").encode('utf-8')
+    except Exception, exc:
+        logger.error("error decoding message %s" % b.id )
+        raise exc
     # Checks for remote body for bioconductor import
     body = bioc_remote_body(body)
 
