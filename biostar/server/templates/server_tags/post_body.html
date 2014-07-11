@@ -39,30 +39,19 @@
 
             <span itemprop="text">{{ post.html|safe }}</span>
 
-            {% if post.torrent %}
-                <div class="torrent text-center">
-                    <div class="download">
-                        <a class="btn btn-success btn-sm" role="button" href="{% url 'tracker:download' post.torrent.id %}">
-                            <i class="fa fa-cloud-download"></i> download</a>
+            {% if post.has_data %}
+                <div class="databox">
+                HAS DATA
 
-                        &bull;
-                        <a class="btn btn-info btn-sm" role="button" href="/info/data/">
-                            <i class="fa fa-info-circle"></i> more info</a>
+                {%  for torrent in post.torrents %}
+
+                    <div>
+
+                        {{  torrent.name|truncatechars:80 }} {{ torrent.seeds }}
+
                     </div>
 
-                    <div class="info">
-                        Shared by:
-                        {% for peer in post.peers %}
-                            {% if peer.user %}
-                                {% userlink peer.user %}
-                            {% else %}
-                                Anonymous
-                            {% endif %}
-                        {% endfor %}
-                        &bull;
-                        <a href="{% url 'tracker:peer-list' %}">
-                            <i class="fa fa-empire"></i> all peers</a>
-                    </div>
+                {% endfor %}
 
                 </div>
 

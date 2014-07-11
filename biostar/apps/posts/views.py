@@ -118,10 +118,10 @@ class LongForm(forms.Form):
 
         fieldset = self.helper.layout[0]
 
-        if post and post.torrent:
-            fieldset.append(
-                Field('remove'),
-            )
+        #if post and post.torrent:
+        #    fieldset.append(
+        #        Field('remove'),
+        #    )
 
         # add data upload
         fieldset.append(
@@ -140,8 +140,8 @@ class LongForm(forms.Form):
             raise forms.ValidationError('Filesize must be under %s Mb' % MAX_MB)
 
         try:
-            data = data.read()
-            info_hash = torrent_get_hash(data)
+            value = data.read()
+            info_hash = torrent_get_hash(value)
         except Exception, exc:
             logger.error(exc)
             raise forms.ValidationError('The file does not appear to be a torrent file')
@@ -232,13 +232,19 @@ def external_post_handler(request):
 def add_data(post, data):
     if not data:
         return
-    info_hash = torrent_get_hash(data)
+
+    # rewind the incoming file
+    data.seek(0)
+    content = data.read()
+    name = data.name
+
+    info_hash = torrent_get_hash(content)
     torrent = Torrent.objects.create(
+        post = post,
         info_hash=info_hash,
-        name=post.title, content=data,
+        name=name, content=content,
     )
-    post.type = Post.DATA
-    post.torrent = torrent
+    post.has_data = True
     post.save()
 
 class NewPost(LoginRequiredMixin, FormView):
@@ -290,7 +296,6 @@ class NewPost(LoginRequiredMixin, FormView):
         )
         post.save()
 
-        # Attach the data to the post
         add_data(post=post, data=data)
 
          # Triggers a new post save.
@@ -414,16 +419,12 @@ class EditPost(LoginRequiredMixin, FormView):
         # TODO: fix this oversight!
         post.type = int(clean.get('post_type', post.type))
 
-        # Remove the torrent from this post
-        if clean.get('remove') and post.torrent:
-            post.type = Post.FORUM if post.type == Post.DATA else post.type
-            post.torrent.delete()
-            post.torrent = None
-
         # This is needed to validate some fields.
         post.save()
 
         data = clean.get('data')
+
+        print (data.name)
 
         # add the data if
         add_data(post=post, data=data)

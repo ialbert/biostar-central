@@ -49,40 +49,7 @@ class TagAdmin(admin.ModelAdmin):
     list_display = ('name', 'count')
     search_fields = ['name']
 
-
 admin.site.register(Tag, TagAdmin)
-
-class Torrent(models.Model):
-    name = models.CharField(max_length=200, default="Data", db_index=True)
-
-    info_hash = models.CharField(max_length=40, db_index=True)
-
-    # Some torrents may end up as disabled
-    disabled = models.BooleanField(default=False)
-
-    completed = models.PositiveIntegerField(default=0)
-    downloaded = models.PositiveIntegerField(default=0)
-    uploaded = models.PositiveIntegerField(default=0)
-
-    # computed as len(Peer.objects.filter(torrent=self).filter(left=0)
-    seeds = models.PositiveIntegerField(default=0)
-
-    # computed as len(Peer.objects.filter(torrent=self).exclude(left=0)
-    leeches = models.PositiveIntegerField(default=0)
-
-    # Store the torrentin the database
-    content = models.BinaryField()
-
-    # Date related functionality
-    lastupdate_date = models.DateTimeField(auto_now=True)
-    creation_date = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ('name', )
-
-    def __unicode__(self):
-        return self.name
-
 
 class PostManager(models.Manager):
 
@@ -211,6 +178,9 @@ class Post(models.Model):
     # Indicates indexing is needed.
     changed = models.BooleanField(default=True)
 
+    # De-normalized to save on a database lookup since most post don't have data.
+    has_data = models.BooleanField(default=False)
+
     # How many people follow that thread.
     subs_count = models.IntegerField(default=0)
 
@@ -247,9 +217,6 @@ class Post(models.Model):
 
     # What site does the post belong to.
     site = models.ForeignKey(Site, null=True)
-
-    # The post to which the torrent is assigned to
-    torrent = models.OneToOneField(Torrent, null=True)
 
     def parse_tags(self):
         return util.split_tags(self.tag_val)
@@ -462,6 +429,42 @@ class PostView(models.Model):
     ip = models.GenericIPAddressField(default='', null=True, blank=True)
     post = models.ForeignKey(Post, related_name="post_views")
     date = models.DateTimeField(auto_now=True)
+
+class Torrent(models.Model):
+
+    # connects the torrent to the Post
+    post = models.ForeignKey(Post)
+
+    # Internal name
+    name = models.CharField(max_length=200, default="Data", db_index=True)
+
+    info_hash = models.CharField(max_length=40, db_index=True)
+
+    # Some torrents may end up as disabled
+    disabled = models.BooleanField(default=False)
+
+    completed = models.PositiveIntegerField(default=0)
+    downloaded = models.PositiveIntegerField(default=0)
+    uploaded = models.PositiveIntegerField(default=0)
+
+    # computed as len(Peer.objects.filter(torrent=self).filter(left=0)
+    seeds = models.PositiveIntegerField(default=0)
+
+    # computed as len(Peer.objects.filter(torrent=self).exclude(left=0)
+    leeches = models.PositiveIntegerField(default=0)
+
+    # Store the actuall torrent in the database
+    content = models.BinaryField()
+
+    # Date related functionality
+    lastupdate_date = models.DateTimeField(auto_now=True)
+    creation_date = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ('name', )
+
+    def __unicode__(self):
+        return self.name
 
 
 class Vote(models.Model):

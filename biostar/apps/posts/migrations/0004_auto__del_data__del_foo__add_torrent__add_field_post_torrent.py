@@ -17,6 +17,7 @@ class Migration(SchemaMigration):
         # Adding model 'Torrent'
         db.create_table(u'posts_torrent', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('post', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['posts.Post'])),
             ('name', self.gf('django.db.models.fields.CharField')(default=u'Data', max_length=200, db_index=True)),
             ('info_hash', self.gf('django.db.models.fields.CharField')(max_length=40, db_index=True)),
             ('disabled', self.gf('django.db.models.fields.BooleanField')(default=False)),
@@ -31,9 +32,9 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal(u'posts', ['Torrent'])
 
-        # Adding field 'Post.torrent'
-        db.add_column(u'posts_post', 'torrent',
-                      self.gf('django.db.models.fields.related.OneToOneField')(to=orm['posts.Torrent'], unique=True, null=True),
+        # Adding field 'Post.has_data'
+        db.add_column(u'posts_post', 'has_data',
+                      self.gf('django.db.models.fields.BooleanField')(default=False),
                       keep_default=False)
 
 
@@ -58,8 +59,8 @@ class Migration(SchemaMigration):
         # Deleting model 'Torrent'
         db.delete_table(u'posts_torrent')
 
-        # Deleting field 'Post.torrent'
-        db.delete_column(u'posts_post', 'torrent_id')
+        # Deleting field 'Post.has_data'
+        db.delete_column(u'posts_post', 'has_data')
 
 
     models = {
@@ -72,6 +73,7 @@ class Migration(SchemaMigration):
             'content': ('django.db.models.fields.TextField', [], {'default': "u''"}),
             'creation_date': ('django.db.models.fields.DateTimeField', [], {'db_index': 'True'}),
             'has_accepted': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'has_data': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'html': ('django.db.models.fields.TextField', [], {'default': "u''"}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'lastedit_date': ('django.db.models.fields.DateTimeField', [], {'db_index': 'True'}),
@@ -88,7 +90,6 @@ class Migration(SchemaMigration):
             'tag_val': ('django.db.models.fields.CharField', [], {'default': "u''", 'max_length': '100', 'blank': 'True'}),
             'thread_score': ('django.db.models.fields.IntegerField', [], {'default': '0', 'db_index': 'True', 'blank': 'True'}),
             'title': ('django.db.models.fields.CharField', [], {'max_length': '200'}),
-            'torrent': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['posts.Torrent']", 'unique': 'True', 'null': 'True'}),
             'type': ('django.db.models.fields.IntegerField', [], {'db_index': 'True'}),
             'view_count': ('django.db.models.fields.IntegerField', [], {'default': '0', 'blank': 'True'}),
             'vote_count': ('django.db.models.fields.IntegerField', [], {'default': '0', 'db_index': 'True', 'blank': 'True'})
@@ -134,6 +135,7 @@ class Migration(SchemaMigration):
             'lastupdate_date': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
             'leeches': ('django.db.models.fields.PositiveIntegerField', [], {'default': '0'}),
             'name': ('django.db.models.fields.CharField', [], {'default': "u'Data'", 'max_length': '200', 'db_index': 'True'}),
+            'post': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['posts.Post']"}),
             'seeds': ('django.db.models.fields.PositiveIntegerField', [], {'default': '0'}),
             'uploaded': ('django.db.models.fields.PositiveIntegerField', [], {'default': '0'})
         },
