@@ -4,12 +4,12 @@
 <head profile="http://selenium-ide.openqa.org/profiles/test-case">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <link rel="selenium.base" href="http://localhost:8080/" />
-<title>User Login</title>
+<title>Add Answer</title>
 </head>
 <body>
 <table cellpadding="1" cellspacing="1" border="1">
 <thead>
-<tr><td rowspan="1" colspan="3">User Login</td></tr>
+<tr><td rowspan="1" colspan="3">Add Answer</td></tr>
 </thead><tbody>
 <tr>
 	<td>open</td>
@@ -18,23 +18,18 @@
 </tr>
 <tr>
 	<td>clickAndWait</td>
-	<td>css=img</td>
-	<td></td>
-</tr>
-<tr>
-	<td>clickAndWait</td>
-	<td>link=New Post</td>
+	<td>link=User Login</td>
 	<td></td>
 </tr>
 <tr>
 	<td>type</td>
 	<td>id=id_login</td>
-	<td>1@foo.bar</td>
+	<td>2@foo.bar</td>
 </tr>
 <tr>
 	<td>type</td>
 	<td>id=id_password</td>
-	<td>1@foo.bar</td>
+	<td>2@foo.bar</td>
 </tr>
 <tr>
 	<td>clickAndWait</td>
@@ -42,33 +37,23 @@
 	<td></td>
 </tr>
 <tr>
-	<td>type</td>
-	<td>id=id_title</td>
-	<td>Test Question 1 via Selenium</td>
-</tr>
-<tr>
-	<td>type</td>
-	<td>id=id_tag_val</td>
-	<td>galaxy, motif</td>
-</tr>
-<tr>
-	<td>pause</td>
-	<td>1000</td>
+	<td>clickAndWait</td>
+	<td>link=Test Question 1 via Selenium</td>
 	<td></td>
 </tr>
 <tr>
 	<td>runScript</td>
-	<td>javascript{selenium.browserbot.getCurrentWindow().CKEDITOR.instances['id_content'].setData(&quot;This question has been posted via the selenium testing bot. Verify that the contents show up&quot;)}</td>
+	<td>javascript{selenium.browserbot.getCurrentWindow().CKEDITOR.instances['answerbox'].setData(&quot;First answer posted via the Selenium Bot. SOMBRERO&quot;)}</td>
 	<td></td>
 </tr>
 <tr>
 	<td>clickAndWait</td>
-	<td>id=submit-id-submit</td>
+	<td>css=#answer-form &gt; button.btn.btn-success</td>
 	<td></td>
 </tr>
 <tr>
-	<td>waitForPageToLoad</td>
-	<td></td>
+	<td>verifyTextPresent</td>
+	<td>SOMBRERO</td>
 	<td></td>
 </tr>
 <tr>

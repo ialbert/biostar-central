@@ -106,10 +106,6 @@ def patch_users():
     from biostar.const import DEFAULT_MESSAGES
     #users = Profile.objects.all()
     #users.update(message_prefs=DEFAULT_MESSAGES)
-    for index, user in enumerate(User.objects.all()):
-        print index, user
-        user.email = "%s@foo.bar" % index
-        user.save()
 
 def bump(pk=None):
     from biostar.apps.posts.models import Post
