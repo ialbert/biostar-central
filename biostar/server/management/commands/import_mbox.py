@@ -9,7 +9,7 @@ import itertools
 from django.core.management.base import BaseCommand, CommandError
 from optparse import make_option
 from itertools import *
-import re, textwrap, urllib
+import re, textwrap, urllib2, cgi
 from chardet import detect
 
 from django.db.models import signals
@@ -83,7 +83,7 @@ def create_post(b, author, root=None, parent=None, tag_val=''):
         title = title.strip()
         title = ' '.join(title.splitlines())
         title = ' '.join(title.split())
-        title = title.title()
+        title = title[:180]
         post = Post(title=title, type=Post.QUESTION, content=body, tag_val=tag_val, author=author)
     else:
         post_type = Post.ANSWER if parent.is_toplevel else Post.COMMENT
@@ -164,17 +164,23 @@ def bioc_remote_body(body):
             fname = "%s/%s" % (TEMPDIR, fid)
             if not os.path.isfile(fname):
                 logger.info(">>> fetching %s" % url)
-                web = urllib.urlopen(url)
-                text = web.read()
+                req = urllib2.urlopen(url)
+                _, params = cgi.parse_header(req.headers.get('Content-Type', ''))
                 try:
+                    enc = params.get('charset', 'utf-8')
+                    text = req.read().decode(enc, "replace")
                     text = to_unicode_or_bust(text)
                 except Exception, exc:
                     logger.error(exc)
-                    text = "Error: unable to decode %s" % url
+                    text = r'''
+                    Unable to decode %s
+                    Error: %s
+                    ''' % (url, exc)
+                    logger.error(text)
                 fp = open(fname, 'wt')
                 fp.write(text.encode("utf-8"))
                 fp.close()
-            body = open(fname).read().decode('utf8')
+            body = open(fname).read().decode('utf8', 'replace')
     return body
 
 
@@ -207,9 +213,13 @@ def unpack_message(data):
         return None
 
     body = msg.text_part.get_payload()
-    charset = detect(body)['encoding']
-    body = body.decode(charset).encode('utf-8')
+    charset = detect(body)['encoding'] or 'utf-8'
 
+    try:
+        body = body.decode(charset, "replace").encode('utf-8')
+    except Exception, exc:
+        logger.error("error decoding message %s" % b.id )
+        raise exc
     # Checks for remote body for bioconductor import
     body = bioc_remote_body(body)
 

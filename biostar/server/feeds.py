@@ -126,7 +126,8 @@ class TagFeed(PostBase):
     "Posts matching one or more tags"
 
     def get_object(self, request, text):
-        return text
+        elems = split(text)
+        return ",".join(elems)
 
     def description(self, obj):
         return "Posts that match  %s" % obj

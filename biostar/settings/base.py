@@ -156,7 +156,7 @@ SERVER_EMAIL = DEFAULT_FROM_EMAIL = get_env("DEFAULT_FROM_EMAIL")
 EMAIL_REPLY_PATTERN = "reply+%s+code@biostars.io"
 
 # The format of the email that is sent
-EMAIL_FROM_PATTERN = u"%s on Biostar <%s>"
+EMAIL_FROM_PATTERN = u'''"%s on Biostar" <%s>'''
 
 # The secret key that is required to parse the email
 EMAIL_REPLY_SECRET_KEY = "abc"

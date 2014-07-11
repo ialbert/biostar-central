@@ -175,7 +175,8 @@ class UserIP(models.Model):
 
 # Default message preferences.
 MESSAGE_PREF_MAP = dict(
-    local=const.LOCAL_MESSAGE, default=const.DEFAULT_MESSAGES, email=const.EMAIL_MESSAGE
+    local=const.LOCAL_MESSAGE, default=const.DEFAULT_MESSAGES,
+    email=const.EMAIL_MESSAGE, all=const.ALL_MESSAGES,
 )
 MESSAGE_PREFS = MESSAGE_PREF_MAP.get(settings.DEFAULT_MESSAGE_PREF, const.LOCAL_MESSAGE)
 
@@ -341,7 +342,7 @@ class BiostarUserAdmin(UserAdmin):
     list_filter = ('is_admin',)
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
-        ('Personal info', {'fields': ('name', 'type')}),
+        ('Personal info', {'fields': ('name', 'status', 'type')}),
         ('Permissions', {'fields': ('is_admin', 'is_staff')}),
     )
     # add_fieldsets is not a standard ModelAdmin attribute. UserAdmin

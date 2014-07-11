@@ -32,6 +32,8 @@ class Command(BaseCommand):
         tag = options['tag']
         dry = options['dry']
 
+
+
         if tag:
             tagger(tag, dry)
 
@@ -47,6 +49,7 @@ class Command(BaseCommand):
         pk = options['bump_id']
         if pk:
             bump(pk)
+
 
 
 def post_patch():
@@ -101,9 +104,8 @@ def tagger(pattern, dry):
 def patch_users():
     from biostar.apps.users.models import User, Profile
     from biostar.const import DEFAULT_MESSAGES
-
-    users = Profile.objects.all()
-    users.update(message_prefs=DEFAULT_MESSAGES)
+    #users = Profile.objects.all()
+    #users.update(message_prefs=DEFAULT_MESSAGES)
 
 def bump(pk=None):
     from biostar.apps.posts.models import Post

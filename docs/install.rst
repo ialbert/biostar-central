@@ -49,6 +49,85 @@ List the RSS feeds in a file then::
     # Add one new blog entry for each feed the downloaded file (if there is any)
     python manage.py planet --update 1
 
+Sending Emails
+--------------
+
+By default Biostar can send email via the standard email facilities that Django provides see
+https://docs.djangoproject.com/en/dev/topics/email/
+
+Biostar offers a few helper functions that allow emailing via Amazon SES::
+
+    # Amazon SES email settings.
+    EMAIL_USE_TLS = True
+    EMAIL_BACKEND = 'biostar.mailer.SSLEmailBackend'
+
+Note: sending an email blocks the server thread! This means that the server process
+allocated to sending email will stop serving other users while the email is being sent.
+For low traffic sites this
+may not be a problem but for higher traffic sites the approach is not feasible.
+
+To address that Biostar also implements a Celery based email backend that queues up and sends
+emails as separate worker processes, independently of the main server. Setting that
+up is very simple via the settings::
+
+    # Amazon SES email sent asynchronously.
+    EMAIL_USE_TLS = True
+    EMAIL_BACKEND = 'biostar.mailer.CeleryEmailBackend'
+    CELERY_EMAIL_BACKEND = 'biostar.mailer.SSLEmailBackend'
+
+
+Receiving Emails
+----------------
+
+Biostar can be set up to receive emails and deposit them into threads. This allows users to use emails
+to post to Biostar.
+
+To enable this functionality the site admins need to set up an email system that
+can, when a matching and address can perform a POST action to a predetermined URL.
+For example when delivering email via ``postmaster`` utility
+on linux the ``etc/alias`` file would need to contain::
+
+    reply: "| curl -F key='123' -F body='<-' https://www.mybiostar.org/local/email/
+
+The above line will trigger a submit action
+every time that an email is received that matches the address words ``reply``.
+For example: ``reply@server.org``
+
+
+Important: Biostar will send emails as ``reply+1238429283+code@server.org``. The segment between the
+two ``+`` signs is unique to the user and post and are required for the
+post to be inserted in the correct location. The email server
+will have to properly interpret the ``+`` signs and route this email via the ``reply@server.org`` address.
+Now the default installations of ``postmaster`` already work this way, and
+it is an internal settings to ``postmaster``. This pattern that routes the email
+must match the ``EMAIL_REPLY_PATTERN`` setting in Biostar.
+
+The ``key=123`` parameter is just an additional measure that
+prevent someone flooding the email service. The value is set via
+the ``EMAIL_REPLY_SECRET_KEY`` settings.
+
+The default settings that govern the email reply service are the following::
+
+    # What address pattern will handle the replies.
+    EMAIL_REPLY_PATTERN = "reply+%s+code@biostars.io"
+
+    # The format of the email address that is sent
+    EMAIL_FROM_PATTERN = u'''"%s on Biostar" <%s>'''
+
+    # The secret key that is required to parse the email
+    EMAIL_REPLY_SECRET_KEY = "abc"
+
+    # The subject of the reply goes here
+    EMAIL_REPLY_SUBJECT = u"[biostar] %s"
+
+Note: when you set the alias remember to restart the services::
+
+    sudo postalias /etc/alias
+    sudo service postmaster restart
+
+A simpler setup that requires no local SMTP servers
+could reply on commercial services such as mailgun and others.
+
 Social authentication
 ---------------------
 
