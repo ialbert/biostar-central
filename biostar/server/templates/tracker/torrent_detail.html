@@ -26,7 +26,7 @@
             class="fa fa-download"></i> DOWNLOAD</a>
             <a href="{% url 'flatpage' 'data' %}" role="button"
                class="btn btn-info"> <i
-            class="fa fa-download"></i> Get Help</a>
+            class="fa fa-question"></i> Get Help</a>
 
 
             {% if post.is_editable %}
@@ -47,6 +47,7 @@
                     {% if peer.user %}
                         {% user_box peer.user peer.user.lastlogin_date %}
                     {% else %}
+
                         <div class="col-xs-3 col-md-2 box text-center">
                             <div class="uname">Anonymous User</div>
                             <div class="loc">{{ peer.ip_address }}</div>
