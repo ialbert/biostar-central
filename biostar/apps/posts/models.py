@@ -179,7 +179,7 @@ class Post(models.Model):
     changed = models.BooleanField(default=True)
 
     # De-normalized to save on a database lookup since most post don't have data.
-    has_data = models.BooleanField(default=False)
+    data_count = models.IntegerField(default=0)
 
     # How many people follow that thread.
     subs_count = models.IntegerField(default=0)
@@ -217,6 +217,10 @@ class Post(models.Model):
 
     # What site does the post belong to.
     site = models.ForeignKey(Site, null=True)
+
+    @property
+    def has_data(self):
+        return bool(self.data_count)
 
     def parse_tags(self):
         return util.split_tags(self.tag_val)
@@ -455,6 +459,9 @@ class Torrent(models.Model):
 
     # Store the actuall torrent in the database
     content = models.BinaryField()
+
+    # datasize in bytes
+    size = models.PositiveIntegerField(default=0)
 
     # Date related functionality
     lastupdate_date = models.DateTimeField(auto_now=True)

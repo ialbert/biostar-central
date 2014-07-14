@@ -34,30 +34,21 @@
         {# The body of the post #}
         <div class="content">
 
-            {% post_user_box post.author post.creation_date %}
 
 
-            <span itemprop="text">{{ post.html|safe }}</span>
 
-            {% if post.has_data %}
-                <div class="databox">
-                HAS DATA
+            <div class="col-sm-12">
+                {% post_user_box post.author post.creation_date %}
+                <span itemprop="text">{{ post.html|safe }}</span>
+                {%  data_list post %}
 
-                {%  for torrent in post.torrents %}
+            </div>
 
-                    <div>
 
-                        {{  torrent.name|truncatechars:80 }} {{ torrent.seeds }}
-
-                    </div>
-
-                {% endfor %}
-
-                </div>
-
-            {% endif %}
 
             <div class="clearfix">
+
+
                 {% if post.is_toplevel %}
                     <div class="tags clearfix" style="margin-bottom:0.5em;">
                         {% for tag in post.tag_set.all %}
@@ -66,10 +57,14 @@
                     </div>
                 {% endif %}
 
+
+
                 {# Post action line #}
                 {% post_actions post user %}
 
             </div>
+
+
 
             {# Comments for each post rendered here #}
             <div class="comment" itemprop="comment">

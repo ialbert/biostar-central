@@ -26,5 +26,9 @@ class Peer(models.Model):
     def __unicode__(self):
         return "%s,%s" % (self.peerinfo, self.torrentinfo)
 
+class IPUser(models.Model):
+    """This is uses to connect users to IP addresses"""
+    ip_address = models.IPAddressField()
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True)
 
 admin.site.register(Peer)

@@ -150,6 +150,10 @@ def boxclass(post):
         style = "unanswered"
     return style
 
+@register.inclusion_tag('server_tags/data_list.html')
+def data_list(post):
+    return dict(post=post)
+
 @register.inclusion_tag('server_tags/sidebar_posts.html')
 def sidebar_posts(posts):
     return dict(posts=posts)

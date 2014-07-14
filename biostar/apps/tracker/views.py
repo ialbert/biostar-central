@@ -268,8 +268,32 @@ class PeerDetail(DetailView):
     model = Peer
     context_object_name = "peer"
 
-
 class TorrentDetail(DetailView):
     template_name = "tracker/torrent_detail.html"
     model = Torrent
     context_object_name = "torrent"
+
+    def get_context_data(self, **kwargs):
+
+        from biostar.apps.posts.auth import post_permissions
+
+        context = super(TorrentDetail, self).get_context_data(**kwargs)
+        user = self.request.user
+        ip = get_ip(self.request)
+        if user.is_authenticated() and ip:
+            peers = Peer.objects.filter(user=None, ip_address=ip).update(user=user)
+            logger.info(peers)
+
+        torrent = context[self.context_object_name]
+
+        # find the post of the torrent
+        post = torrent.post
+
+        # adds the post permissions
+        post = post_permissions(self.request, post)
+
+
+        context['peers'] = Peer.objects.filter(info_hash=torrent.info_hash).all()[:100]
+        context['post'] = post
+
+        return context
