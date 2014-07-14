@@ -14,6 +14,8 @@ from django.conf import settings
 from django import forms
 from django.core.urlresolvers import reverse_lazy
 from biostar.apps.posts.models import Torrent
+from django.views.generic.edit import DeleteView
+from django.contrib import messages
 
 logger = logging.getLogger(__name__)
 
@@ -127,37 +129,18 @@ def announce(request):
     # Handle the events
     event = request.GET.get('event', None)
 
-    seed_change = leech_change = completed_change = 0
-
-    if event == 'started':
-        if peer.left == 0:
-            seed_change = 1
-        else:
-            leech_change = 1
-
-    elif event == 'stopped':
-        if peer.left == 0:
-            seed_change = - 1
-        else:
-            leech_change = - 1
+    if event == 'stopped':
         peer.delete()
-
-    elif event == 'completed':
-        completed_change = 1
 
     try:
         logger.info('fetching %s' % info_hash)
         torrent = Torrent.objects.filter(info_hash=info_hash).update(
             uploaded=F('uploaded') + uploaded,
-            downloaded=F('downloaded') + downloaded,
-            seeds=F('seeds') + seed_change,
-            leeches=F('leeches') + leech_change,
-            completed=F('completed') + completed_change,
+            seeds = Peer.objects.filter(info_hash=info_hash).count(),
         )
-    except Torrent.DoesNotExist:
-        logger.inf('torrent does not exist for %s' % info_hash)
 
-    # This below should should be cached
+    except Torrent.DoesNotExist:
+        logger.info('torrent does not exist for %s' % info_hash)
 
     # everything is ok, let's make response
     peers = Peer.objects.filter(info_hash=info_hash).order_by('?')[:20]
@@ -213,25 +196,6 @@ def download_torrent(request, pk):
                                       (slugify(torrent.name), torrent.id)
 
     return response
-
-
-class TorrentUploadForm(forms.ModelForm):
-    content = forms.FileField(label='File')
-
-    class Meta:
-        model = Torrent
-        fields = ['name']
-
-
-class TorrentUploadView(CreateView):
-    model = Torrent
-    template_name = 'tracker/torrent_upload.html'
-    form_class = TorrentUploadForm
-    success_url = reverse_lazy('tracker:index')
-
-    def form_valid(self, form):
-        form.instance.content = b''.join(form.cleaned_data['content'].chunks())
-        return super(TorrentUploadView, self).form_valid(form)
 
 
 class TorrentList(ListView):
@@ -292,8 +256,31 @@ class TorrentDetail(DetailView):
         # adds the post permissions
         post = post_permissions(self.request, post)
 
-
         context['peers'] = Peer.objects.filter(info_hash=torrent.info_hash).all()[:100]
         context['post'] = post
 
         return context
+
+from django.http import Http404
+
+class TorrentDelete(DeleteView):
+    model = Torrent
+
+    def get_success_url(self):
+        obj = super(TorrentDelete, self).get_object()
+        return obj.post.get_absolute_url()
+
+    def get_object(self, queryset=None):
+        """ Hook to ensure object is owned by request.user. """
+        from biostar.apps.posts.auth import post_permissions
+
+        obj = super(TorrentDelete, self).get_object()
+        post = post_permissions(self.request, obj.post)
+
+        if not post.is_editable:
+            messages.error(self.request, "Current user may not delete the tracker")
+            raise Http404
+
+        return obj
+
+

@@ -20,7 +20,7 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 import logging
-from biostar.apps.tracker.utils import torrent_get_hash
+from biostar.apps.tracker.utils import torrent_get_hash, torrent_get_size
 
 logger = logging.getLogger(__name__)
 
@@ -247,10 +247,15 @@ def add_data(post, data):
     name = data.name
 
     info_hash = torrent_get_hash(content)
+    size, count = torrent_get_size(content)
+
     torrent = Torrent.objects.create(
         post=post,
         info_hash=info_hash,
         name=name, content=content,
+        seeds=1,
+        size=size,
+        count=count,
     )
     post.data_count = post.torrent_set.all().count()
     post.save()
@@ -436,8 +441,6 @@ class EditPost(LoginRequiredMixin, FormView):
 
         # add the data if
         add_data(post=post, data=data)
-
-        print post.torrent_set.all()
 
         if post.is_toplevel:
             post.add_tags(post.tag_val)

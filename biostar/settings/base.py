@@ -425,7 +425,7 @@ CACHES = {
 }
 
 # How often should the trackers update (seconds)
-TRACKER_UPDATE_INTERVAL = 60
+TRACKER_UPDATE_INTERVAL = 3600
 
 # The celery configuration file
 CELERY_CONFIG = 'biostar.celeryconfig'

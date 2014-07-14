@@ -4,18 +4,26 @@ from django.http import HttpResponse
 from .bencode import bencode, bdecode
 import hashlib
 
-def torrent_get_length(content):
-    decoded = bdecode(str(content))
-    if 'length' in decoded['info']:
-        return int(decoded['info']['length'])
-    else:
-        return sum(map(lambda x: x['length'], decoded['info']['files']))
+def torrent_get_size(content):
+    "Returns the size and number of pieces"
+    try:
+        decoded = bdecode(str(content))
+        if 'length' in decoded['info']:
+            size = int(decoded['info']['length'])
+            count = 1
+        else:
+            files = decoded['info']['files']
+            size = sum(map(lambda x: x['length'], files))
+            count = len(files)
+    except Exception, exc:
+        size, count = 0, 1
+
+    return size, count
 
 
 def torrent_get_hash(content):
     decoded = bdecode(str(content))
     return hashlib.sha1(bencode(decoded['info'])).hexdigest()
-
 
 def torrent_get_announce(content):
     decoded = bdecode(str(content))

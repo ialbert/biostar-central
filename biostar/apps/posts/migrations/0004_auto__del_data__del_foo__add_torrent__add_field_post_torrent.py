@@ -28,6 +28,7 @@ class Migration(SchemaMigration):
             ('leeches', self.gf('django.db.models.fields.PositiveIntegerField')(default=0)),
             ('content', self.gf('django.db.models.fields.BinaryField')()),
             ('size', self.gf('django.db.models.fields.PositiveIntegerField')(default=0)),
+            ('count', self.gf('django.db.models.fields.PositiveIntegerField')(default=0)),
             ('lastupdate_date', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, blank=True)),
             ('creation_date', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
         ))
@@ -128,6 +129,7 @@ class Migration(SchemaMigration):
             'Meta': {'ordering': "(u'name',)", 'object_name': 'Torrent'},
             'completed': ('django.db.models.fields.PositiveIntegerField', [], {'default': '0'}),
             'content': ('django.db.models.fields.BinaryField', [], {}),
+            'count': ('django.db.models.fields.PositiveIntegerField', [], {'default': '0'}),
             'creation_date': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'disabled': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'downloaded': ('django.db.models.fields.PositiveIntegerField', [], {'default': '0'}),

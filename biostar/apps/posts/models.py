@@ -463,6 +463,9 @@ class Torrent(models.Model):
     # datasize in bytes
     size = models.PositiveIntegerField(default=0)
 
+    # how many files in the torrent
+    count = models.PositiveIntegerField(default=0)
+
     # Date related functionality
     lastupdate_date = models.DateTimeField(auto_now=True)
     creation_date = models.DateTimeField(auto_now_add=True)

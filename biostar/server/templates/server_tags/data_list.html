@@ -4,7 +4,7 @@
 
 
     <div class="file-list">
-        <p>Attached data:</p>
+
         <ol>
         {% for torrent in post.torrent_set.all %}
             <li>
@@ -13,7 +13,9 @@
                 &nbsp; <a href="{% url 'tracker:view-torrent' pk=torrent.id %}">
                 {{ torrent.name|truncatechars:80 }}
             </a>
-                &bull; size: {{ torrent.size|filesizeformat }} &bull; seeds: {{ torrent.seeds }}
+                &bull; {{ torrent.count }} file{{ torrent.count|pluralize }}
+                &bull; {{ torrent.size|filesizeformat }}
+                &bull; shared by {{ torrent.seeds }} peer{{ torrent.seeds|pluralize }}
             </li>
         {% endfor %}
         </ol>

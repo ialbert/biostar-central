@@ -4,23 +4,42 @@
 {% load more_like_this %}
 
 {% block page_title %}
-    Torrent View
+    Torrent: {{ torrent.name }}
 {% endblock %}
 {% block content %}
 
-<div class="col-md-12">
-    <h2>Dataset: {{ torrent.name }} <a href="{% url 'tracker:download' pk=torrent.id %}" role="button"
-                                       class="btn btn-success"> <i
-    class="fa fa-download"></i> DOWNLOAD</a></h2>
+    <div class="col-md-12 text-center">
+        <h2>Dataset: {{ torrent.name }} ({{ torrent.size|filesizeformat }})</h2>
+        <h3>
+            {{ torrent.count }} file{{ torrent.count|pluralize }}
+                &bull; {{ torrent.size|filesizeformat }}
+                &bull; shared by {{ torrent.seeds }} peer{{ torrent.seeds|pluralize }}
+        </h3>
 
-    <div>
-    <h2>Shared by:</h2>
+        <h3>Posted on <a href="{{ post.get_absolute_url }}">{{ post.get_type_display }}
+            {{ post.title }}</a></h3>
+
+        <h2><a href="{% url 'tracker:download' pk=torrent.id %}" role="button"
+               class="btn btn-success"> <i
+        class="fa fa-download"></i> DOWNLOAD</a>
+        <a href="{% url 'flatpage' 'data' %}" role="button"
+               class="btn btn-info"> <i
+        class="fa fa-download"></i> Get Help</a>
+        </h2>
+    </div>
+
+    <div class="col-md-12">
+        <h2 align="center">Shared by {{ peers|length }} peer{{ peers|pluralize }}</h2>
         {% if peers %}
             {% for peer in peers %}
                 {% if peer.user %}
-                    {{ peer.user.name }}
+                    {% user_box peer.user peer.user.lastlogin_date %}
                 {% else %}
-                    {{ peer.ip }}
+                    <div class="col-xs-3 col-md-2 box text-center">
+                        <div class="uname">Anonymous User</div>
+                        <div class="loc">{{ peer.ip_address }}</div>
+                    </div>
+
                 {% endif %}
             {% endfor %}
         {% else %}
@@ -29,55 +48,54 @@
 
     </div>
 
-    <h3>Posted on <a href="{{ post.get_absolute_url }}">{{ post.get_type_display }}
-        {{ post.title }}</a></h3>
+
+    <div class="col-md-12">
+        <h2 align="center">Torrent stats</h2>
+    </div>
+    <div class="col-md-offset-4 col-md-4">
+        <div class="list-group">
+
+            <div class="list-group-item">
+                <h3 class="list-group-item-heading">Torrent statistics</h3>
+            </div>
+
+            <div class="list-group-item">
+                Seeds: {{ torrent.seeds }}
+            </div>
 
 
-</div>
+            <div class="list-group-item">
+                Downloading: {{ torrent.leeches }}
+            </div>
 
-<div class="col-md-3">
-    <div class="list-group">
+            <div class="list-group-item">
+                Uploaded: {{ torrent.uploaded|filesizeformat }}
+            </div>
 
-        <div class="list-group-item">
-            <h3 class="list-group-item-heading">Torrent statistics</h3>
+            <div class="list-group-item">
+                Downloaded: {{ torrent.downloaded|filesizeformat }}
+            </div>
+
+            <div class="list-group-item">
+                Completed: {{ torrent.completed }}
+            </div>
+
+            <div class="list-group-item">
+                Disabled: {{ torrent.disabled }}
+            </div>
+
         </div>
+    </div>
 
-        <div class="list-group-item">
-            Seeds: {{ torrent.seeds }}
-        </div>
+    <div class="col-md-12">
 
-
-        <div class="list-group-item">
-            Downloading: {{ torrent.leeches }}
-        </div>
-
-        <div class="list-group-item">
-            Uploaded: {{ torrent.uploaded|filesizeformat }}
-        </div>
-
-        <div class="list-group-item">
-            Downloaded: {{ torrent.downloaded|filesizeformat }}
-        </div>
-
-        <div class="list-group-item">
-            Completed: {{ torrent.completed }}
-        </div>
-
-        <div class="list-group-item">
-            Disabled: {{ torrent.disabled }}
-        </div>
+        {% if post.is_editable %}
+            <form method="post" action="{% url 'tracker:torrent-delete' pk=torrent.id %}">
+                {% csrf_token %}
+                Moderator action:
+                <button class="btn btn-warning">Delete Torrent</button>
+            </form>
+        {% endif %}
 
     </div>
-</div>
-
-<div class="col-md-12">
-
-    {% if post.is_editable %}
-        <form method="post" action="#">
-            Moderator action:
-            <button class="btn btn-warning">Disable Torrent</button>
-        </form>
-    {% endif %}
-
-</div>
 {% endblock %}
