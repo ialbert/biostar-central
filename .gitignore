@@ -6,3 +6,18 @@
 /live/*
 /conf/*.env
 /docs/_build
+
+# Common machine-specific settings files.
+biostar/settings/local*.py
+biostar/settings/production*.py
+biostar/settings/staging*.py
+biostar/settings/test*.py
+
+# Common machine-specific requirements files.
+conf/requirements/local*.txt
+conf/requirements/production*.txt
+conf/requirements/staging*.txt
+conf/requirements/test*.txt
+
+# Common machine-specific logger files.
+biostar/settings/logger_*.py

@@ -138,10 +138,10 @@ urlpatterns += patterns('',
     # RSS feeds
     url(r'^feeds/latest/$', LatestFeed(), name='latest-feed'),
 
-    url(r'^feeds/tag/(?P<text>[\w\-_\+]+)/$', TagFeed(), name='tag-feed'),
-    url(r'^feeds/user/(?P<text>[\w\-_\+]+)/$', UserFeed(), name='user-feed'),
-    url(r'^feeds/post/(?P<text>[\w\-_\+]+)/$', PostFeed(), name='post-feed' ),
-    url(r'^feeds/type/(?P<text>[\w\-_\+]+)/$', PostTypeFeed(), name='post-type'),
+    url(r'^feeds/tag/(?P<text>[\w\-_\+!]+)/$', TagFeed(), name='tag-feed'),
+    url(r'^feeds/user/(?P<text>[\w\-_\+!]+)/$', UserFeed(), name='user-feed'),
+    url(r'^feeds/post/(?P<text>[\w\-_\+!]+)/$', PostFeed(), name='post-feed' ),
+    url(r'^feeds/type/(?P<text>[\w\-_\+!]+)/$', PostTypeFeed(), name='post-type'),
     url(r'^feeds/planet/$', PlanetFeed(), name='planet-feed'),
 )
 
