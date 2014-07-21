@@ -9,11 +9,13 @@ import itertools
 from django.core.management.base import BaseCommand, CommandError
 from optparse import make_option
 from itertools import *
-import re, textwrap, urllib
+import re, textwrap, urllib2, cgi
 from chardet import detect
 
 from django.db.models import signals
 import difflib
+from collections import deque
+from datetime import timedelta
 
 logger = logging.getLogger('simple-logger')
 
@@ -83,7 +85,7 @@ def create_post(b, author, root=None, parent=None, tag_val=''):
         title = title.strip()
         title = ' '.join(title.splitlines())
         title = ' '.join(title.split())
-        title = title[:200]
+        title = title[:180]
         post = Post(title=title, type=Post.QUESTION, content=body, tag_val=tag_val, author=author)
     else:
         post_type = Post.ANSWER if parent.is_toplevel else Post.COMMENT
@@ -143,7 +145,7 @@ def format_text(text):
 def to_unicode_or_bust(obj, encoding='utf-8'):
     if isinstance(obj, basestring):
         if not isinstance(obj, unicode):
-            obj = unicode(obj, encoding)
+            obj = unicode(obj, encoding, errors='ignore')
     return obj
 
 
@@ -155,6 +157,7 @@ def bioc_remote_body(body):
     if "URL: <https://stat.ethz.ch/pipermail" in body:
         lines = body.splitlines()
         lines = filter(lambda x: x.startswith("URL:"), lines)
+        lines = filter(lambda x: x.endswith("attachment.pl>"), lines)
         if lines:
             line = lines[0]
             url = line.split()[1]
@@ -164,19 +167,33 @@ def bioc_remote_body(body):
             fname = "%s/%s" % (TEMPDIR, fid)
             if not os.path.isfile(fname):
                 logger.info(">>> fetching %s" % url)
-                web = urllib.urlopen(url)
-                text = web.read()
+                req = urllib2.urlopen(url)
+                _, params = cgi.parse_header(req.headers.get('Content-Type', ''))
                 try:
+                    enc = params.get('charset', 'utf-8')
+                    text = req.read().decode(enc, "replace")
                     text = to_unicode_or_bust(text)
                 except Exception, exc:
                     logger.error(exc)
-                    text = "Error: unable to decode %s" % url
+                    text = r'''
+                    Unable to decode %s
+                    Error: %s
+                    ''' % (url, exc)
+                    logger.error(text)
                 fp = open(fname, 'wt')
-                fp.write(text.encode("utf-8"))
+                fp.write(text.encode('utf8'))
                 fp.close()
-            body = open(fname).read().decode('utf8')
+            body = to_unicode_or_bust(open(fname).read())
     return body
 
+def fix_accents(text):
+    # ... bioconductor fix,  some people deserve to have their names spelled right ;-)
+    text = to_unicode_or_bust(text)
+    pairs = [ (u'Herv? Pag?s', u'Herv\u00E9 Pag\u00E8s') ]
+    for left, right in pairs:
+        if left in text:
+            text = text.replace(left, right)
+    return text
 
 def unpack_message(data):
     msg = pyzmail.PyzMessage(data)
@@ -207,9 +224,14 @@ def unpack_message(data):
         return None
 
     body = msg.text_part.get_payload()
-    charset = detect(body)['encoding']
-    body = body.decode(charset).encode('utf-8')
+    charset = detect(body)['encoding'] or 'utf-8'
 
+    try:
+        body = body.decode(charset, "replace")
+        body = fix_accents(body)
+    except Exception, exc:
+        logger.error("error decoding message %s" % b.id )
+        raise exc
     # Checks for remote body for bioconductor import
     body = bioc_remote_body(body)
 
@@ -265,6 +287,9 @@ def parse_mboxx(filename, limit=None, tag_val=''):
 
     tree, posts, fallback = {}, {}, {}
 
+    # titles that have been seen in the past
+    roots = {}
+
     for b in rows:
         datefmt = b.date.strftime('%Y-%m-%d')
         logger.info("*** %s parsing %s " % (datefmt, b.subj))
@@ -287,13 +312,21 @@ def parse_mboxx(filename, limit=None, tag_val=''):
 
         # Looks like a reply but still no parent
         # Fuzzy matching to commence
-        if not parent and b.subj.startswith("Re:"):
+        if not parent and b.subj.lower().startswith("Re:"):
             curr_key = b.subj
             logger.info("searching for best match %s" % curr_key)
             cands = difflib.get_close_matches(curr_key, fallback.keys())
             if cands:
                 logger.info("found %s" % cands)
                 parent = fallback[cands[0]]
+
+        # some emailers do not append Re: to replies, this is a heuristics
+        if not parent and b.subj in roots:
+            # try a candidate
+            cand = roots[b.subj]
+            delta = b.date - cand.creation_date
+            if delta < timedelta(weeks=5):
+                parent = cand
 
         if parent:
             root = parent.root
@@ -302,6 +335,10 @@ def parse_mboxx(filename, limit=None, tag_val=''):
             post = create_post(b=b, author=author, tag_val=tag_val)
 
         posts[b.id] = post
+
+        # keep track of posts that could be parents
+        if not parent:
+            roots[b.subj] = post
 
         # Fall back to guessing post inheritance from the title
         fall_key = "Re: %s" % post.title

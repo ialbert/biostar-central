@@ -19,16 +19,7 @@ class ApiVoteTest(TestCase):
         haystack_logger.setLevel(logging.CRITICAL)
 
         # Create a user.
-        with self.settings(CAPTCHA=False, TRUST_VOTE_COUNT=0):
-            email_address = 'test@test.com'
-            self.client.post(reverse("account_signup"),
-                             {
-                                 'email': email_address,
-                                 'password1': 'password',
-                                 'password2': 'password',
-                                 'follow': True,
-                             },)
-        self.user = User.objects.get(email=email_address)
+        self.user = User.objects.create(email='test@test.com', password='...')
 
         # Create a post.
         title = "Post 1, title needs to be sufficiently long"
@@ -52,7 +43,7 @@ class ApiVoteTest(TestCase):
         content = json.loads(r.content)
 
         self.assertEqual(content['author'], 'test')
-        self.assertEqual(content['author_id'], 1)
+        self.assertEqual(content['author_id'], self.user.id)
         self.assertEqual(content['date'], datetime_to_iso(self.vote.date))
         self.assertEqual(content['id'], self.vote.id)
         self.assertEqual(content['post_id'], self.vote.post.id)
