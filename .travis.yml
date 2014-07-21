@@ -1,0 +1,22 @@
+language: python
+
+python:
+  - "2.7"
+  #- "3.3"
+
+addons:
+  postgresql: "9.3"
+
+before_script:
+  - psql -c 'create database travis_ci_test;' -U postgres
+
+env:
+  - DJANGO_VERSION=1.6
+  #- DJANGO_VERSION=1.7
+
+install:
+    - pip install -q -r conf/requirements/test.txt
+    - pip install -q -I Django==$DJANGO_VERSION
+
+script: source conf/test_travis.env && python manage.py test
+

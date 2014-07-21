@@ -92,14 +92,17 @@ def tagger(pattern, dry):
 
     patt = re.compile(patt, re.MULTILINE | re.IGNORECASE| re.DOTALL)
     for post in posts:
-        hits = patt.search(post.content)
-        if hits:
-            logger.info(post.title)
-            if not dry:
-                tag_val = "%s, %s" % (post.tag_val, name)
-                post.tag_val = tag_val
-                post.save()
-                post.add_tags(tag_val)
+        try:
+            hits = patt.search(post.content)
+            if hits:
+                logger.info(post.title)
+                if not dry:
+                    tag_val = "%s, %s" % (post.tag_val, name)
+                    post.tag_val = tag_val
+                    post.save()
+                    post.add_tags(tag_val)
+        except Exception, exc:
+            logger.error("exception:'%s' while tagging %s: %s" % (exc, post.id, post.title))
 
 def patch_users():
     from biostar.apps.users.models import User, Profile
