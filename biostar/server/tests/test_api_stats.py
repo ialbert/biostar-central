@@ -54,33 +54,22 @@ class ApiStatsTest1(TestCase):
 
 class ApiStatsTest2(TestCase):
     def setUp(self):
-        # Create a user.
-        with self.settings(CAPTCHA=False, TRUST_VOTE_COUNT=0):
-            email_address = 'test@test.com'
-            self.client.post(reverse("account_signup"),
-                             {
-                                 'email': email_address,
-                                 'password1': 'password',
-                                 'password2': 'password',
-                                 'follow': True,
-                             },)
-        self.user = User.objects.get(email=email_address)
+        # Create a user and edit the date joined.
+        self.user = User.objects.create(email='test@test.com', password='...')
         self.user.profile.date_joined = datetime.today() - timedelta(days=3)
         self.user.profile.save()
 
-        self.question = self.create_post(Post.QUESTION, days=3)
+        # Create a question and a vote.
+        self.post = self.create_post(self.user, Post.QUESTION, days=3)
+        Vote.objects.create(author=self.user, post=self.post, type=Vote.UP)
 
-        # Create a vote.
-        self.vote = Vote.objects.create(author=self.user, post=self.question, type=Vote.UP)
-
-    def create_post(self, post_type, days=3):
+    def create_post(self, user, post_type, days=3):
         # Create a post.
         title = "Post 1, title needs to be sufficiently long"
         content = ('Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod'
                    'tempor incididunt ut labore et dolore magna aliqua.')
         tag_val = 'tag_val'
-        post = Post(title=title, content=content, tag_val=tag_val, author=self.user,
-                    type=post_type, )
+        post = Post(title=title, content=content, tag_val=tag_val, author=user, type=post_type, )
         post.save()
         post.creation_date = datetime.today() - timedelta(days=days)
         post.save()
@@ -98,10 +87,10 @@ class ApiStatsTest2(TestCase):
             "comments": 0,
             "date": content['date'],  # Hard to test cause timezones are involved.
             "new_posts": [
-                1
+                self.post.id
             ],
             "new_users": [
-                1
+                self.user.id
             ],
             "new_votes": [],
             "questions": 1,
@@ -111,6 +100,7 @@ class ApiStatsTest2(TestCase):
             "votes": 0
         }
         self.assertDictEqual(content, expected_data)
+        # Use the following lines to debug the content of the dictionaries.
         #for key, val in expected_data.items():
         #    print(key, content[key], val)
         #    self.assertEqual(content[key], val)
@@ -138,16 +128,7 @@ class ApiStatsTest2(TestCase):
 class ApiStatsTest3(TestCase):
     def setUp(self):
         # Create a user.
-        with self.settings(CAPTCHA=False, TRUST_VOTE_COUNT=0):
-            email_address = 'test@test.com'
-            self.client.post(reverse("account_signup"),
-                             {
-                                 'email': email_address,
-                                 'password1': 'password',
-                                 'password2': 'password',
-                                 'follow': True,
-                             },)
-        self.user = User.objects.get(email=email_address)
+        self.user = User.objects.create(email='test@test.com', password='...')
         self.user.profile.date_joined = datetime.today() - timedelta(days=4)
         self.user.profile.save()
 

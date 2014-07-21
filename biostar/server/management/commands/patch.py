@@ -32,6 +32,8 @@ class Command(BaseCommand):
         tag = options['tag']
         dry = options['dry']
 
+
+
         if tag:
             tagger(tag, dry)
 
@@ -39,7 +41,7 @@ class Command(BaseCommand):
             stuff()
 
         if options['users']:
-            patch_users_all_messages()
+            patch_users()
 
         if options['bump']:
             bump()
@@ -48,10 +50,7 @@ class Command(BaseCommand):
         if pk:
             bump(pk)
 
-def patch_users_all_messages():
-    from biostar.apps.users.models import User, Profile
-    from biostar.const import ALL_MESSAGES
-    Profile.objects.all().update(message_prefs=ALL_MESSAGES)
+
 
 def post_patch():
     "One off tasks go here that just need a quick access to the data"
@@ -93,21 +92,23 @@ def tagger(pattern, dry):
 
     patt = re.compile(patt, re.MULTILINE | re.IGNORECASE| re.DOTALL)
     for post in posts:
-        hits = patt.search(post.content)
-        if hits:
-            logger.info(post.title)
-            if not dry:
-                tag_val = "%s, %s" % (post.tag_val, name)
-                post.tag_val = tag_val
-                post.save()
-                post.add_tags(tag_val)
+        try:
+            hits = patt.search(post.content)
+            if hits:
+                logger.info(post.title)
+                if not dry:
+                    tag_val = "%s, %s" % (post.tag_val, name)
+                    post.tag_val = tag_val
+                    post.save()
+                    post.add_tags(tag_val)
+        except Exception, exc:
+            logger.error("exception:'%s' while tagging %s: %s" % (exc, post.id, post.title))
 
 def patch_users():
     from biostar.apps.users.models import User, Profile
     from biostar.const import DEFAULT_MESSAGES
-
-    users = Profile.objects.all()
-    users.update(message_prefs=DEFAULT_MESSAGES)
+    #users = Profile.objects.all()
+    #users.update(message_prefs=DEFAULT_MESSAGES)
 
 def bump(pk=None):
     from biostar.apps.posts.models import Post
