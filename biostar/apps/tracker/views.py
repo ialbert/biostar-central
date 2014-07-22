@@ -197,7 +197,6 @@ def download_torrent(request, pk):
 
     return response
 
-
 class TorrentList(ListView):
     template_name = "tracker/torrent_list.html"
     queryset = Torrent.objects.select_related()
