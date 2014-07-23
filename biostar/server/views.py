@@ -624,7 +624,7 @@ class BadgeList(BaseListMixin):
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 from django.utils.encoding import smart_text
-import json
+import json, StringIO, traceback
 
 
 @csrf_exempt
@@ -634,7 +634,7 @@ def email_handler(request):
         data = dict(status="error", msg="key does not match")
     else:
         body = request.POST.get("body")
-        body = smart_text(body)
+        body = smart_text(body, errors="ignore")
 
         # This is for debug only
         #fname = "%s/email-debug.txt" % settings.LIVE_DIR
@@ -688,7 +688,9 @@ def email_handler(request):
             data = dict(status="ok", id=obj.id)
 
         except Exception, exc:
-            data = dict(status="error", msg=str(exc))
+            output = StringIO.StringIO()
+            traceback.print_exc(file=output)
+            data = dict(status="error", msg=str(output.getvalue()))
 
     data = json.dumps(data)
     return HttpResponse(data, content_type="application/json")
