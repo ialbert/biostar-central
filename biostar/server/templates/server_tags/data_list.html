@@ -8,7 +8,7 @@
         <ol>
         {% for torrent in post.torrent_set.all %}
             <li>
-                <a href="{% url 'tracker:magnet' pk=torrent.id %}" class="label label-success"><i
+                <a href="{% url 'tracker:magnet' torrent.id %}" class="label label-success"><i
                 class="fa fa-magnet"></i></a>
 
 
