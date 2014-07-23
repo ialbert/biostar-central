@@ -20,6 +20,9 @@ def torrent_get_size(content):
 
     return size, count
 
+def torrent_get_name(content):
+    decoded = bdecode(str(content))
+    return hashlib.sha1(bencode(decoded['name'])).hexdigest()
 
 def torrent_get_hash(content):
     decoded = bdecode(str(content))

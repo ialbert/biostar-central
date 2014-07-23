@@ -66,6 +66,23 @@ def extract_params(request):
 def create_torrent(request, info_hash):
     Torrent.objects.create(info_hash=info_hash.encode('hex'))
 
+def create_magnet(request, pk):
+    '''
+    :returns: A magnet link conforming with magnet URI schema:
+        magnet:?xt=urn:btih:'INFO_HASH'&dn='NAME'&tr='TRACKER1:port'&tr='TRACKER2:port'
+    '''
+
+    torrent = get_object_or_404(Torrent, pk=pk)
+
+    content = torrent.content
+
+    magnet = "magnet:?xt=urn:btih:{info_hash}&dn={name}&tr={tracker}".format(info_hash=torrent.info_hash, name=torrent.name, tracker=torrent.seeds)
+
+    response = HttpResponse(content, content_type='text/plain')
+    response.content = magnet
+
+    return response
+
 
 def announce(request):
     """This function handles announce request send by torrent client.

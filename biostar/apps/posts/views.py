@@ -20,7 +20,7 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 import logging
-from biostar.apps.tracker.utils import torrent_get_hash, torrent_get_size, torrent_get_announce
+from biostar.apps.tracker.utils import torrent_get_hash, torrent_get_size
 
 logger = logging.getLogger(__name__)
 
@@ -76,28 +76,6 @@ class DataForm(forms.Form):
             raise forms.ValidationError('The file does not appear to be a torrent file')
 
         return data
-
-    def generate_magnet_url(self):
-        '''
-        :returns: A magnet link conforming with magnet URI:
-            magnet:?xt=urn:btih:'INFO_HASH'&dn='NAME'&tr='TRACKER1:port'&tr='TRACKER2:port'
-        '''
-
-        data = self.cleaned_data['data']
-
-        try:
-            value = data.read()
-            info_hash = torrent_get_hash(value)
-            #XXX: modify torrent_get_announce to support multiple trackers
-            tracker = torrent_get_announce(value)
-            #XXX: get the name from the bencoded hash
-            dataset_name = torrent_get_name(value)
-        except Exception, exc:
-            logger.error(exc)
-            raise forms.ValidationError('Cannot generate magnet link from torrent file')
-
-        return "magnet:?xt=urn:btih:{info_hash}&dn={name}&tr={tracker}".format(info_hash=info_hash, name=dataset_name, tracker=tracker)
-
 
 
 class LongForm(DataForm):
