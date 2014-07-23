@@ -16,6 +16,7 @@ from django.core.urlresolvers import reverse_lazy
 from biostar.apps.posts.models import Torrent
 from django.views.generic.edit import DeleteView
 from django.contrib import messages
+from biostar.apps.tracker.utils import torrent_get_announce
 
 logger = logging.getLogger(__name__)
 
@@ -74,12 +75,10 @@ def create_magnet(request, pk):
 
     torrent = get_object_or_404(Torrent, pk=pk)
 
-    content = torrent.content
+    magnet = "magnet:?xt=urn:btih:{info_hash}&dn={name}&tr={tracker}"
+    magnet.format(info_hash=torrent.info_hash, name=torrent.name, tracker=torrent_get_announce(torrent.content))
 
-    magnet = "magnet:?xt=urn:btih:{info_hash}&dn={name}&tr={tracker}".format(info_hash=torrent.info_hash, name=torrent.name, tracker=torrent.seeds)
-
-    response = HttpResponse(content, content_type='text/plain')
-    response.content = magnet
+    response = HttpResponse(magnet, content_type='text/plain')
 
     return response
 
