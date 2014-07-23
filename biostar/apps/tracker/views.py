@@ -76,7 +76,7 @@ def create_magnet(request, pk):
     torrent = get_object_or_404(Torrent, pk=pk)
 
     magnet = "magnet:?xt=urn:btih:{info_hash}&dn={name}&tr={tracker}"
-    magnet.format(info_hash=torrent.info_hash, name=torrent.name, tracker=torrent_get_announce(torrent.content))
+    magnet = magnet.format(info_hash=torrent.info_hash, name=torrent.name, tracker=torrent_get_announce(torrent.content))
 
     response = HttpResponse(magnet, content_type='text/plain')
 

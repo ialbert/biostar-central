@@ -457,7 +457,7 @@ class Torrent(models.Model):
     # computed as len(Peer.objects.filter(torrent=self).exclude(left=0)
     leeches = models.PositiveIntegerField(default=0)
 
-    # Store the actuall torrent in the database
+    # Store the actual torrent in the database
     content = models.BinaryField()
 
     # datasize in bytes
