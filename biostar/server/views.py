@@ -672,7 +672,8 @@ def email_handler(request):
             if settings.EMAIL_REPLY_REMOVE_QUOTED_TEXT:
                 text = EmailReplyParser.parse_reply(text)
             else:
-                 text = u"<div class='preformatted'>%s</div>" % text
+                text = text.decode("utf8", errors='replace')
+                text = u"<div class='preformatted'>%s</div>" % text
 
             # Apply server specific formatting
             text = html.parse_html(text)
