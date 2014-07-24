@@ -14,6 +14,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from biostar import const
 from biostar.apps.util import html
 from biostar.apps import util
+from biostar.apps.tracker.utils import torrent_get_announce
 # HTML sanitization parameters.
 
 logger = logging.getLogger(__name__)
@@ -457,7 +458,7 @@ class Torrent(models.Model):
     # computed as len(Peer.objects.filter(torrent=self).exclude(left=0)
     leeches = models.PositiveIntegerField(default=0)
 
-    # Store the actuall torrent in the database
+    # Store the actual torrent in the database
     content = models.BinaryField()
 
     # datasize in bytes
@@ -475,6 +476,15 @@ class Torrent(models.Model):
 
     def __unicode__(self):
         return self.name
+
+    def get_magnet_url(self):
+        """
+        Return a magnet link conforming with magnet URI schema:
+        magnet:?xt=urn:btih:'INFO_HASH'&dn='NAME'&tr='TRACKER1:port'&tr='TRACKER2:port'
+        """
+        magnet = "magnet:?xt=urn:btih:{info_hash}&dn={name}&tr={tracker}"
+        return magnet.format(info_hash=self.info_hash, name=self.name,
+                             tracker=torrent_get_announce(self.content))
 
 
 class Vote(models.Model):

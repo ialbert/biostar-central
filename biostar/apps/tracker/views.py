@@ -16,7 +16,6 @@ from django.core.urlresolvers import reverse_lazy
 from biostar.apps.posts.models import Torrent
 from django.views.generic.edit import DeleteView
 from django.contrib import messages
-from biostar.apps.tracker.utils import torrent_get_announce
 
 logger = logging.getLogger(__name__)
 
@@ -66,21 +65,6 @@ def extract_params(request):
 
 def create_torrent(request, info_hash):
     Torrent.objects.create(info_hash=info_hash.encode('hex'))
-
-def create_magnet(request, pk):
-    '''
-    :returns: A magnet link conforming with magnet URI schema:
-        magnet:?xt=urn:btih:'INFO_HASH'&dn='NAME'&tr='TRACKER1:port'&tr='TRACKER2:port'
-    '''
-
-    torrent = get_object_or_404(Torrent, pk=pk)
-
-    magnet = "magnet:?xt=urn:btih:{info_hash}&dn={name}&tr={tracker}"
-    magnet.format(info_hash=torrent.info_hash, name=torrent.name, tracker=torrent_get_announce(torrent.content))
-
-    response = HttpResponse(magnet, content_type='text/plain')
-
-    return response
 
 
 def announce(request):
