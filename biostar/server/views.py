@@ -625,7 +625,7 @@ class BadgeList(BaseListMixin):
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 from django.utils.encoding import smart_text
-import json
+import json, StringIO, traceback
 
 
 @csrf_exempt
@@ -635,7 +635,8 @@ def email_handler(request):
         data = dict(status="error", msg="key does not match")
     else:
         body = request.POST.get("body")
-        body = smart_text(body)
+        body = smart_text(body, errors="ignore")
+
 
         # This is for debug only
         #fname = "%s/email-debug.txt" % settings.LIVE_DIR
@@ -645,7 +646,12 @@ def email_handler(request):
 
         try:
             # Parse the incoming email.
-            msg = pyzmail.PyzMessage.factory(body)
+            # Emails can be malformed in which case we will force utf8 on them before parsing
+            try:
+                msg = pyzmail.PyzMessage.factory(body)
+            except Exception, exc:
+                body = body.encode('utf8', errors='ignore')
+                msg = pyzmail.PyzMessage.factory(body)
 
             # Extract the address from the address tuples.
             address = msg.get_addresses('to')[0][1]
@@ -664,7 +670,11 @@ def email_handler(request):
             text = part.get_payload()
 
             # Remove the reply related content
-            text = EmailReplyParser.parse_reply(text)
+            if settings.EMAIL_REPLY_REMOVE_QUOTED_TEXT:
+                text = EmailReplyParser.parse_reply(text)
+            else:
+                text = text.decode("utf8", errors='replace')
+                text = u"<div class='preformatted'>%s</div>" % text
 
             # Apply server specific formatting
             text = html.parse_html(text)
@@ -689,7 +699,9 @@ def email_handler(request):
             data = dict(status="ok", id=obj.id)
 
         except Exception, exc:
-            data = dict(status="error", msg=str(exc))
+            output = StringIO.StringIO()
+            traceback.print_exc(file=output)
+            data = dict(status="error", msg=str(output.getvalue()))
 
     data = json.dumps(data)
     return HttpResponse(data, content_type="application/json")
