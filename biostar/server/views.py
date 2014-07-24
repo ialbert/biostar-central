@@ -636,6 +636,7 @@ def email_handler(request):
         body = request.POST.get("body")
         body = smart_text(body, errors="ignore")
 
+
         # This is for debug only
         #fname = "%s/email-debug.txt" % settings.LIVE_DIR
         #fp = file(fname, "wt")
@@ -644,7 +645,12 @@ def email_handler(request):
 
         try:
             # Parse the incoming email.
-            msg = pyzmail.PyzMessage.factory(body)
+            # Emails can be malformed in which case we will force utf8 on them before parsing
+            try:
+                msg = pyzmail.PyzMessage.factory(body)
+            except Exception, exc:
+                body = body.encode('utf8', errors='ignore')
+                msg = pyzmail.PyzMessage.factory(body)
 
             # Extract the address from the address tuples.
             address = msg.get_addresses('to')[0][1]
@@ -663,7 +669,8 @@ def email_handler(request):
             text = part.get_payload()
 
             # Remove the reply related content
-            text = EmailReplyParser.parse_reply(text)
+            if settings.EMAIL_REPLY_REMOVE_QUOTED_TEXT:
+                text = EmailReplyParser.parse_reply(text)
 
             # Apply server specific formatting
             text = html.parse_html(text)
