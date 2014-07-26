@@ -1,5 +1,9 @@
 django >=1.6, <1.7
-django-allauth
+# We've implemented the support for ORCID in django-allauth.
+# The code has been merged to the master branch but in PyPy the current version is
+# still 0.17.0, which does not include ORCID yet. So we install it from GitHub.
+#django-allauth
+-e git+https://github.com/pennersr/django-allauth.git#egg=django-allauth
 django-debug-toolbar
 django-compressor
 django-crispy-forms
