@@ -63,6 +63,8 @@ def shortcuts(request):
         "SITE_STYLE_CSS": settings.SITE_STYLE_CSS,
         "SITE_LOGO": settings.SITE_LOGO,
         "SITE_NAME": settings.SITE_NAME,
+        "SITE_RIBBON_TEXT": settings.SITE_RIBBON_TEXT,
+        "SITE_RIBBON_URL": settings.SITE_RIBBON_URL,
         "CATEGORIES": settings.CATEGORIES,
         "BIOSTAR_VERSION": VERSION,
         "TRAFFIC": get_traffic(),

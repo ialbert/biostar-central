@@ -14,6 +14,9 @@
     <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet">
     <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
 
+    {# "You can fork me on github"-type floating ribbons or other custom ones #}
+    <link href="{{ STATIC_URL }}ribbon.css" rel="stylesheet">
+
     <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
     <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
 
@@ -130,6 +133,16 @@
                 <hr>
             </div>
         </div>
+
+        {% if SITE_RIBBON_TEXT %}
+            <div class="github-fork-ribbon-wrapper left-bottom">
+                <div class="github-fork-ribbon">
+                    <a href={{ SITE_RIBBON_URL }}>{{ SITE_RIBBON_TEXT }}</a>
+                </div>
+            </div>
+        {% endif %}
+
+
 
         <div class="row">
             <div class="col-md-12 text-center">
