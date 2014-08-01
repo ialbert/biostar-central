@@ -6,7 +6,7 @@ from django.contrib import admin
 admin.autodiscover()
 
 from django.views.generic import TemplateView
-from biostar.server import views, ajax, search, moderate, api
+from biostar.server import views, ajax, search, moderate, api, orcid
 from biostar.apps.posts.views import NewAnswer, NewPost, EditPost, external_post_handler
 from biostar.apps.users.views import external_logout, external_login, CaptchaView, EmailListView
 from biostar.apps.planet.views import BlogPostList
@@ -95,6 +95,7 @@ urlpatterns = patterns('',
     url(r'^x/vote/$', ajax.vote_handler, name="vote-submit"),
 
     # Social login pages.
+    url(r'^accounts/social/orcid/import/$', orcid.import_bio, name="orcid-import"),
     (r'^accounts/', include('allauth.urls')),
 
     # Redirecting old posts urls from previous versions of Biostar

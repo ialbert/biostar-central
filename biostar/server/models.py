@@ -13,7 +13,7 @@ from allauth.socialaccount.signals import social_account_added
 from biostar.apps.posts.models import Post, Subscription, ReplyToken
 from biostar.apps.messages.models import Message, MessageBody
 from biostar.apps.badges.models import Award
-from biostar.server.orcid import import_orcid_profile_data
+from biostar.server.orcid import hook_social_account_added
 
 from biostar.apps.util import html, make_uuid
 
@@ -140,7 +140,7 @@ def disconnect_all():
     signals.post_save.disconnect(award_create_messages, sender=Award, dispatch_uid="award-create-messages")
 
 
-# django-allauth signals when a new user is created using a social provider or a new social
+# django-allauth sends a signal when a new user is created using a social provider or a new social
 # provider is connected to an existing user.
-user_signed_up.connect(import_orcid_profile_data)
-social_account_added.connect(import_orcid_profile_data)
+user_signed_up.connect(hook_social_account_added)
+social_account_added.connect(hook_social_account_added)
