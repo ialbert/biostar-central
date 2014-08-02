@@ -340,6 +340,17 @@ class UserDetails(BaseDetailMixin):
         context['posts'] = page_obj.object_list
         awards = Award.objects.filter(user=target).select_related("badge", "user").order_by("-date")
         context['awards'] = awards[:25]
+
+        # Get user's ORCID profile URL.
+        try:
+            social_account = target.socialaccount_set.get(provider__icontains='orcid')
+            context['orcid_profile_url'] = (social_account.extra_data['orcid-profile']
+                                            ['orcid-identifier']['uri'])
+            context['orcid_id'] = (social_account.extra_data['orcid-profile']
+                                            ['orcid-identifier']['path'])
+        except Exception:
+            pass
+
         return context
 
 

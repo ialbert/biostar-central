@@ -1,4 +1,3 @@
-import json
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
@@ -29,13 +28,14 @@ def ask_to_import_orcid_profile(request):
     Parameters:
     request - a `WSGIRequest`;
     """
-    messages.info(request, "Do you want <a href='{}'>one</a>?".format(reverse('orcid-import')))
+    messages.info(request, "Do you want to import your <i>Biography</i> and <i>Works</i> sections"
+                           " from ORCID? <a href='{}'>Yes</a>".format(reverse('orcid-import')))
 
 
 @login_required
 def import_bio(request):
     """
-    Import bio from ORCID for the current user and store it in ........
+    Import bio from ORCID for the current user and store it in `user.profile.info`.
     """
     # The ORCID bio for the current user is stored in:
     # `allauth.socialaccount.models.SocialAccount.extra_data`
@@ -47,7 +47,7 @@ def import_bio(request):
                                      'orcid-work'])
     # Add works (list of papers).
     txt = '<b>Works</b><br /><ul>'
-    for work in works[:3]:
+    for work in works[:3]:  # Add only max 3 works.
         title = extract_from_dict(work, ['work-title', 'title', 'value'])
         year = extract_from_dict(work, ['publication-date', 'year', 'value'])
         month = extract_from_dict(work, ['publication-date', 'month', 'value'])
@@ -62,9 +62,18 @@ def import_bio(request):
 
     # Add bio.
     bio = extract_from_dict(data, ['orcid-profile', 'orcid-bio', 'biography', 'value'])
+    MAX_LENGTH = 680  # Max length for bio.
+    if len(bio) > MAX_LENGTH:
+        bio = bio[:MAX_LENGTH]
+        bio += '...'
     if bio:
         bio += '<br />'
-    txt = bio + txt
+    txt = '<b>Biography</b><br />' + bio + txt
+
+    # Add link to the original ORCID profile.
+    profile_url = extract_from_dict(data, ['orcid-profile', 'orcid-identifier', 'uri'])
+    if profile_url:
+        txt += "<a href='{}'>Full ORCID profile...</a>".format(profile_url)
 
     user.profile.info = txt
     user.profile.save()
