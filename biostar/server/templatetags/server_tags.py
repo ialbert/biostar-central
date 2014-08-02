@@ -204,6 +204,9 @@ def page_bar_sort_users(context):
     "Renders a paging bar"
     return context
 
+@register.inclusion_tag('server_tags/page_ribbon.html')
+def page_ribbon(text, url):
+    return dict(text=text, url=url)
 
 @register.inclusion_tag('server_tags/post_body.html', takes_context=True)
 def post_body(context, post, user, tree):

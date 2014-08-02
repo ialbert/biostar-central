@@ -135,11 +135,7 @@
         </div>
 
         {% if SITE_RIBBON_TEXT %}
-            <div class="github-fork-ribbon-wrapper left-bottom">
-                <div class="github-fork-ribbon">
-                    <a href={{ SITE_RIBBON_URL }}>{{ SITE_RIBBON_TEXT }}</a>
-                </div>
-            </div>
+            {% page_ribbon SITE_RIBBON_TEXT SITE_RIBBON_URL %}
         {% endif %}
 
 
