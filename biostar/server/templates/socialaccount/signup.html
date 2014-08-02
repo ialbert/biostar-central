@@ -12,8 +12,7 @@
             <h3>{% blocktrans with provider_name=account.get_provider.name site_name=site.name %}Signing up with
                 {{ provider_name }}{% endblocktrans %}</h3>
 
-            {% if  account.get_provider.name == "Twitter" %}
-
+            {% if account.get_provider.name == "Twitter" or not user.email %}
                 <p>{% blocktrans with provider_name=account.get_provider.name site_name=site.name %}You are about to use
                     your {{ provider_name }} account
                     to login to
