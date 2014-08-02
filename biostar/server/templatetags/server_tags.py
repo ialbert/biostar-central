@@ -192,20 +192,21 @@ def user_box(user, lastlogin):
 
 @register.inclusion_tag('server_tags/page_bar_sort_posts.html', takes_context=True)
 def page_bar_sort_posts(context):
+    "Renders a paging bar"
     context['sort_fields'] = const.POST_SORT_FIELDS
     context['date_fields'] = const.POST_LIMIT_FIELDS
-    "Renders a paging bar"
     return context
 
 @register.inclusion_tag('server_tags/page_bar_sort_users.html', takes_context=True)
 def page_bar_sort_users(context):
+    "Renders a paging bar"
     context['sort_fields'] = const.USER_SORT_FIELDS
     context['date_fields'] = const.POST_LIMIT_FIELDS
-    "Renders a paging bar"
     return context
 
 @register.inclusion_tag('server_tags/page_ribbon.html')
 def page_ribbon(text, url):
+    "Renders a 'fork me on github'-style ribbon"
     return dict(text=text, url=url)
 
 @register.inclusion_tag('server_tags/post_body.html', takes_context=True)
