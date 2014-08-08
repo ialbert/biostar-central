@@ -20,8 +20,8 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 import logging
-from .serializers import VoteSerializer
 from rest_framework import viewsets
+from .serializers import VoteSerializer, PostSerializer
 
 logger = logging.getLogger(__name__)
 
@@ -358,3 +358,8 @@ class EditPost(LoginRequiredMixin, FormView):
 class VoteViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Vote.objects.all()
     serializer_class = VoteSerializer
+
+
+class PostViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer

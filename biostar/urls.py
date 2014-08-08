@@ -12,12 +12,13 @@ from biostar.apps.users.views import external_logout, external_login, CaptchaVie
 from biostar.apps.planet.views import BlogPostList
 from rest_framework.routers import DefaultRouter
 from biostar.apps.users.views import UserViewSet
-from biostar.apps.posts.views import VoteViewSet
+from biostar.apps.posts.views import VoteViewSet, PostViewSet
 
 
 router = DefaultRouter()
 router.register(r'users', UserViewSet)
 router.register(r'votes', VoteViewSet)
+router.register(r'posts', PostViewSet)
 
 urlpatterns = patterns('',
 
