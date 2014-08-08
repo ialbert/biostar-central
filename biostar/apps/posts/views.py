@@ -1,7 +1,7 @@
 # Create your views here.
 from django.shortcuts import render_to_response
 from django.views.generic import TemplateView, DetailView, ListView, FormView, UpdateView
-from .models import Post
+from .models import Post, Vote
 from django import forms
 from django.core.urlresolvers import reverse
 from crispy_forms.helper import FormHelper
@@ -20,6 +20,8 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 import logging
+from .serializers import VoteSerializer
+from rest_framework import viewsets
 
 logger = logging.getLogger(__name__)
 
@@ -352,3 +354,7 @@ class EditPost(LoginRequiredMixin, FormView):
     def get_success_url(self):
         return reverse("user_details", kwargs=dict(pk=self.kwargs['pk']))
 
+
+class VoteViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Vote.objects.all()
+    serializer_class = VoteSerializer
