@@ -10,7 +10,14 @@ from biostar.server import views, ajax, search, moderate, api
 from biostar.apps.posts.views import NewAnswer, NewPost, EditPost, external_post_handler
 from biostar.apps.users.views import external_logout, external_login, CaptchaView, EmailListView
 from biostar.apps.planet.views import BlogPostList
-from biostar.apps.users.views import UserList
+from rest_framework.routers import DefaultRouter
+from biostar.apps.users.views import UserViewSet
+from biostar.apps.posts.views import VoteViewSet
+
+
+router = DefaultRouter()
+router.register(r'users', UserViewSet)
+router.register(r'votes', VoteViewSet)
 
 urlpatterns = patterns('',
 
@@ -115,7 +122,7 @@ urlpatterns = patterns('',
     url(r'^api0/stats/date/(?P<year>\d{4})/(?P<month>\d{2})/(?P<day>\d{2})/$',
         api.daily_stats_on_date, name='api-stats-on-date'),
 
-    url(r'^api/users/$', UserList.as_view()),
+    url(r'^api/', include(router.urls)),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 
     # Uncomment the next line to enable the admin:

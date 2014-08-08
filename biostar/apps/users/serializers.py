@@ -5,7 +5,7 @@ from biostar.apps.posts.models import Vote
 from .models import User
 
 
-class UserSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.HyperlinkedModelSerializer):
     date_joined = serializers.DateTimeField(source='profile.date_joined')
     joined_days_ago = serializers.SerializerMethodField('get_joined_days_ago')
     vote_count = serializers.SerializerMethodField('get_vote_count')
@@ -14,7 +14,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'email', 'name', 'last_login', 'date_joined', 'joined_days_ago',
+        fields = ('id', 'url', 'email', 'name', 'last_login', 'date_joined', 'joined_days_ago',
                   'vote_count')
 
     def get_joined_days_ago(self, obj):

@@ -17,9 +17,8 @@ from django.contrib.auth import authenticate, login, logout
 from django.conf import settings
 from biostar.apps import util
 import logging, hmac
-from rest_framework import generics
-from rest_framework import mixins
-from .serializer import UserSerializer
+from .serializers import UserSerializer
+from rest_framework import viewsets
 
 logger = logging.getLogger(__name__)
 
@@ -220,12 +219,6 @@ class EmailListSignup(FormView):
     """
 
 
-class UserList(mixins.ListModelMixin, generics.GenericAPIView):
-    """
-    List all users.
-    """
+class UserViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-
-    def get(self, request, *args, **kwargs):
-        return self.list(request, *args, **kwargs)
