@@ -20,8 +20,11 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 import logging
-from rest_framework import viewsets
-from .serializers import VoteSerializer, PostSerializer
+from rest_framework import viewsets, permissions, mixins, status
+from rest_framework.response import Response
+from rest_framework.exceptions import PermissionDenied
+from .api_serializers import VoteSerializer, PostSerializer, IsOwnerOrReadOnly
+
 
 logger = logging.getLogger(__name__)
 
@@ -355,11 +358,83 @@ class EditPost(LoginRequiredMixin, FormView):
         return reverse("user_details", kwargs=dict(pk=self.kwargs['pk']))
 
 
-class VoteViewSet(viewsets.ReadOnlyModelViewSet):
+class VoteViewSet(mixins.CreateModelMixin,
+                  mixins.RetrieveModelMixin,
+                  mixins.DestroyModelMixin,
+                  mixins.ListModelMixin,
+                  viewsets.GenericViewSet):
+    """
+    Votes endpoint to list, retrieve, create and delete votes.
+    """
     queryset = Vote.objects.all()
     serializer_class = VoteSerializer
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly)
+
+    def pre_save(self, obj):
+        obj.author = self.request.user
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.DATA, files=request.FILES)
+
+        if serializer.is_valid():
+            # Rule 1: downvotes not allowed.
+            if serializer.object.type == Vote.DOWN:
+                raise PermissionDenied("Downvotes are not allowed.")
+
+            # Rule 2: a user can not upvote her own post.
+            if (serializer.object.type == Vote.UP and
+               serializer.object.post.author == request.user):
+                raise PermissionDenied("You are not allowed to upvote your own posts.")
+
+            # Rule 3: accept votes are only allowed for posts of type "answer".
+            if (serializer.object.type == Vote.ACCEPT and
+                not serializer.object.post.type == Post.ANSWER):
+                raise PermissionDenied("Only answer posts can be accepted.")
+
+            # Rule 4: the author of an accept vote must match the author of the root post (the
+            # original question).
+            if (serializer.object.type == Vote.ACCEPT and
+                not request.user == serializer.object.post.root.author):
+                raise PermissionDenied("Only the author of a question can accept an answer.")
+
+            self.pre_save(serializer.object)
+            self.object = serializer.save(force_insert=True)
+            self.post_save(self.object, created=True)
+            headers = self.get_success_headers(serializer.data)
+            response = Response(serializer.data, status=status.HTTP_201_CREATED,
+                                headers=headers)
+
+            # When a vote with the same type, post and user is already existent, the vote
+            # itself is deleted.
+            if not serializer.data['id']:
+                response = Response(status=status.HTTP_204_NO_CONTENT)
+
+            return response
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class PostViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    Posts endpoint to list, retrieve, create and update votes.
+    """
     queryset = Post.objects.all()
     serializer_class = PostSerializer
+    #TODO: finish this
+
+
+## Temporary test cases
+#Good up vote
+#curl -iL -X POST http://127.0.0.1:8000/api/votes/ -u 0@foo.bar:0@foo.bar -d '{"type": 0, "post": "http://127.0.0.1:8000/api/posts/94/"}' -H "Content-Type: application/json"
+#Vote your own post
+#curl -iL -X POST http://127.0.0.1:8000/api/votes/ -u 0@foo.bar:0@foo.bar -d '{"type": 0, "post": "http://127.0.0.1:8000/api/posts/105/"}' -H "Content-Type: application/json"
+#Downvote
+#curl -iL -X POST http://127.0.0.1:8000/api/votes/ -u 0@foo.bar:0@foo.bar -d '{"type": 1, "post": "http://127.0.0.1:8000/api/posts/1/"}' -H "Content-Type: application/json"
+#Delete someone's else vote
+#curl -iL -X DELETE http://127.0.0.1:8000/api/votes/1/ -u 0@foo.bar:0@foo.bar
+#Accept a question
+#curl -iL -X POST http://127.0.0.1:8000/api/votes/ -u 0@foo.bar:0@foo.bar -d '{"type": 3, "post": "http://127.0.0.1:8000/api/posts/90/"}' -H "Content-Type: application/json"
+#Accept a comment
+#curl -iL -X POST http://127.0.0.1:8000/api/votes/ -u 0@foo.bar:0@foo.bar -d '{"type": 3, "post": "http://127.0.0.1:8000/api/posts/102/"}' -H "Content-Type: application/json"
+#Accept a answer when I am not the author fo the question
+#curl -iL -X POST http://127.0.0.1:8000/api/votes/ -u 0@foo.bar:0@foo.bar -d '{"type": 3, "post": "http://127.0.0.1:8000/api/posts/104/"}' -H "Content-Type: application/json"
