@@ -366,7 +366,7 @@ class VoteViewSet(mixins.CreateModelMixin,
                   mixins.ListModelMixin,
                   viewsets.GenericViewSet):
     """
-    Votes endpoint to list, retrieve, create and delete votes.
+    Votes API endpoint to list, retrieve, create and delete votes.
     """
     queryset = Vote.objects.all()
     serializer_class = VoteSerializer
@@ -376,43 +376,23 @@ class VoteViewSet(mixins.CreateModelMixin,
         obj.author = self.request.user
 
     def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.DATA, files=request.FILES)
+        # This is a trick to change a Response after a Vote has been created.
+        # One of our rule states that when a vote with the same type, post and user is already
+        # existent, the vote itself is deleted. So in this case we'd rather prefer respond with
+        # a `status.HTTP_204_NO_CONTENT` to mark this specific situation.
 
-        if serializer.is_valid():
-            # Copy the vote instance so that we can use it for validation without affecting the
-            # original vote instance.
-            vote_to_validate = copy.copy(serializer.object)
-            # Set the author.
-            vote_to_validate.author = request.user
+        # Call the regular create method.
+        response = super(VoteViewSet, self).create(request, *args, **kwargs)
 
-            # Validate the vote.
-            validation_code, validation_msg = validate_vote(vote_to_validate)
-
-            # Parse the validation result.
-            if validation_code != 0:
-                raise PermissionDenied("{}.".format(validation_msg))
-
-            # Store the vote.
-            self.pre_save(serializer.object)
-            self.object = serializer.save(force_insert=True)
-            self.post_save(self.object, created=True)
-            headers = self.get_success_headers(serializer.data)
-            response = Response(serializer.data, status=status.HTTP_201_CREATED,
-                                headers=headers)
-
-            # When a vote with the same type, post and user is already existent, the vote
-            # itself is deleted.
-            if not serializer.data['id']:
-                response = Response(status=status.HTTP_204_NO_CONTENT)
-
-            return response
-
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        # If there is no `id`, we are in the specific situation described above.
+        if not response.data.get('id', 1):
+            response = Response(status=status.HTTP_204_NO_CONTENT)
+        return response
 
 
 class PostViewSet(viewsets.ReadOnlyModelViewSet):
     """
-    Posts endpoint to list, retrieve, create and update votes.
+    Posts API endpoint to list, retrieve, create and update votes.
     """
     queryset = Post.objects.all()
     serializer_class = PostSerializer

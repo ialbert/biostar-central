@@ -114,30 +114,35 @@ def vote_handler(request):
     vote = Vote(author=user, post=post, type=vote_type)
 
     # Perform the vote validation.
-    validation_code, validation_msg = validate_vote(vote)
+    validation_result = validate_vote(vote)
 
     # Parse the result fo the validation and return a proper ajax message.
-    if validation_code == 0:
+    if validation_result == VALID_VOTE:
         with transaction.atomic():
             msg = perform_vote(post=post, user=user, vote_type=vote_type)
         return ajax_success(msg)
 
-    if validation_code == 2:
+    if validation_result == UPVOTED_OWN_POST:
         return ajax_error("You can't upvote your own post.")
 
-    if validation_code == 4:
+    if validation_result == ACCEPTED_NOT_OWN_QUESTION:
         return ajax_error("Only the person asking the question may accept this answer.")
 
-    return ajax_error("{}.".format(validation_msg))
+    return ajax_error("{}.".format(VOTE_VALIDATION_MSGS[validation_result]))
 
 
-VOTE_VALIDATION_MSGS = [
-    'Ok',  # status code (index): 0
-    'Downvotes are not allowed',  # error code (index): 1
-    'You are not allowed to upvote your own posts',  # error code (index): 2
-    'Only answer posts can be accepted',  # error code (index): 3
-    'Only the author of a question can accept a relative answer',  # error code (index): 4
-]
+VALID_VOTE = 0
+DOWNVOTE = 1
+UPVOTED_OWN_POST = 2
+ACCEPTED_NOT_ANSWER = 3
+ACCEPTED_NOT_OWN_QUESTION = 4
+VOTE_VALIDATION_MSGS = {
+    VALID_VOTE: 'Ok',
+    DOWNVOTE: 'Downvotes are not allowed',
+    UPVOTED_OWN_POST: 'You are not allowed to upvote your own posts',
+    ACCEPTED_NOT_ANSWER: 'Only answer posts can be accepted',
+    ACCEPTED_NOT_OWN_QUESTION: 'Only the author of a question can accept a relative answer',
+}
 
 
 def validate_vote(vote):
@@ -146,27 +151,27 @@ def validate_vote(vote):
     """
     # Rule 1: downvotes not allowed.
     if vote.type == Vote.DOWN:
-        return 1, VOTE_VALIDATION_MSGS[1]
+        return DOWNVOTE
 
     # Rule 2: a user can not upvote her own post.
     if (vote.type == Vote.UP and
         vote.author == vote.post.author):
-        return 2, VOTE_VALIDATION_MSGS[2]
+        return UPVOTED_OWN_POST
 
     # Rule 3: accept votes are only allowed for posts of type "answer".
     if (vote.type == Vote.ACCEPT and
         not vote.post.type == Post.ANSWER):
-        return 3, VOTE_VALIDATION_MSGS[3]
+        return ACCEPTED_NOT_ANSWER
 
     # Rule 4: the author of an accept vote must match the author of the root post (the
     # original question).
     if (vote.type == Vote.ACCEPT and
         not vote.author == vote.post.root.author):
-        return 4, VOTE_VALIDATION_MSGS[4]
+        return ACCEPTED_NOT_OWN_QUESTION
 
     # Rule 5: users can not accept their own answers.
     #if (vote.type == Vote.ACCEPT and
     #    vote.author == vote.post.author):
     #    return ...
 
-    return 0, VOTE_VALIDATION_MSGS[0]
+    return VALID_VOTE

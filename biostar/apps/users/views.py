@@ -221,7 +221,7 @@ class EmailListSignup(FormView):
 
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
     """
-    Users endpoint to list and retrieve users.
+    Users API endpoint to list and retrieve users.
     """
     queryset = User.objects.all()
     serializer_class = UserSerializer
