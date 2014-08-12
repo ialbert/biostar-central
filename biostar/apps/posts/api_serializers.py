@@ -33,7 +33,7 @@ class PostSerializer(serializers.HyperlinkedModelSerializer):
     """
     class Meta:
         model = Post
-        #fields = ('id', 'url', 'title', 'author', 'votes', 'html')
+        fields = ('id', 'url', 'title', 'author', 'votes', 'html')
                 #TODO choose what fields to display
 
 

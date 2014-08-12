@@ -1,14 +1,11 @@
 __author__ = 'ialbert'
 import json, traceback, logging
-from braces.views import JSONResponseMixin
 from biostar.apps.posts.models import Post, Vote
 from biostar.apps.users.models import User
-from django.views.generic import View
-from django.shortcuts import render_to_response, render
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponsePermanentRedirect, Http404
+from django.http import HttpResponse
 from functools import partial
 from django.db import transaction
-from django.db.models import Q, F
+from django.db.models import F
 
 
 def json_response(adict, **kwd):
@@ -54,9 +51,12 @@ class ajax_error_wrapper(object):
 
 POST_TYPE_MAP = dict(vote=Vote.UP, bookmark=Vote.BOOKMARK, accept=Vote.ACCEPT)
 
+
 @transaction.atomic
 def perform_vote(post, user, vote_type):
-
+    """
+    Stores a vote and run side effects like updating the author reputation.
+    """
     # Only maintain one vote for each user/post pair.
     votes = Vote.objects.filter(author=user, post=post, type=vote_type)
     if votes:
@@ -99,31 +99,74 @@ def perform_vote(post, user, vote_type):
     return msg
 
 
-
-
 @ajax_error_wrapper
 def vote_handler(request):
-    "Handles all voting on posts"
-
-
+    """
+    Handles all voting on posts via AJAX.
+    """
     user = request.user
     vote_type = request.POST['vote_type']
     vote_type = POST_TYPE_MAP[vote_type]
     post_id = request.POST['post_id']
-
-    # Check the post that is voted on.
     post = Post.objects.get(pk=post_id)
 
-    if post.author == user and vote_type == Vote.UP:
+    # Create a new vote for validation (not storing it to the db yet).
+    vote = Vote(author=user, post=post, type=vote_type)
+
+    # Perform the vote validation.
+    validation_code, validation_msg = validate_vote(vote)
+
+    # Parse the result fo the validation and return a proper ajax message.
+    if validation_code == 0:
+        with transaction.atomic():
+            msg = perform_vote(post=post, user=user, vote_type=vote_type)
+        return ajax_success(msg)
+
+    if validation_code == 2:
         return ajax_error("You can't upvote your own post.")
 
-    #if post.author == user and vote_type == Vote.ACCEPT:
-    #    return ajax_error("You can't accept your own post.")
-
-    if post.root.author != user and vote_type == Vote.ACCEPT:
+    if validation_code == 4:
         return ajax_error("Only the person asking the question may accept this answer.")
 
-    with transaction.atomic():
-        msg = perform_vote(post=post, user=user, vote_type=vote_type)
+    return ajax_error("{}.".format(validation_msg))
 
-    return ajax_success(msg)
+
+VOTE_VALIDATION_MSGS = [
+    'Ok',  # status code (index): 0
+    'Downvotes are not allowed',  # error code (index): 1
+    'You are not allowed to upvote your own posts',  # error code (index): 2
+    'Only answer posts can be accepted',  # error code (index): 3
+    'Only the author of a question can accept a relative answer',  # error code (index): 4
+]
+
+
+def validate_vote(vote):
+    """
+    Vote validation based on some rules.
+    """
+    # Rule 1: downvotes not allowed.
+    if vote.type == Vote.DOWN:
+        return 1, VOTE_VALIDATION_MSGS[1]
+
+    # Rule 2: a user can not upvote her own post.
+    if (vote.type == Vote.UP and
+        vote.author == vote.post.author):
+        return 2, VOTE_VALIDATION_MSGS[2]
+
+    # Rule 3: accept votes are only allowed for posts of type "answer".
+    if (vote.type == Vote.ACCEPT and
+        not vote.post.type == Post.ANSWER):
+        return 3, VOTE_VALIDATION_MSGS[3]
+
+    # Rule 4: the author of an accept vote must match the author of the root post (the
+    # original question).
+    if (vote.type == Vote.ACCEPT and
+        not vote.author == vote.post.root.author):
+        return 4, VOTE_VALIDATION_MSGS[4]
+
+    # Rule 5: users can not accept their own answers.
+    #if (vote.type == Vote.ACCEPT and
+    #    vote.author == vote.post.author):
+    #    return ...
+
+    return 0, VOTE_VALIDATION_MSGS[0]

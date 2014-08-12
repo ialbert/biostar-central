@@ -20,10 +20,12 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 import logging
+import copy
 from rest_framework import viewsets, permissions, mixins, status
 from rest_framework.response import Response
 from rest_framework.exceptions import PermissionDenied
 from .api_serializers import VoteSerializer, PostSerializer, IsOwnerOrReadOnly
+from biostar.server.ajax import validate_vote
 
 
 logger = logging.getLogger(__name__)
@@ -377,26 +379,20 @@ class VoteViewSet(mixins.CreateModelMixin,
         serializer = self.get_serializer(data=request.DATA, files=request.FILES)
 
         if serializer.is_valid():
-            # Rule 1: downvotes not allowed.
-            if serializer.object.type == Vote.DOWN:
-                raise PermissionDenied("Downvotes are not allowed.")
+            # Copy the vote instance so that we can use it for validation without affecting the
+            # original vote instance.
+            vote_to_validate = copy.copy(serializer.object)
+            # Set the author.
+            vote_to_validate.author = request.user
 
-            # Rule 2: a user can not upvote her own post.
-            if (serializer.object.type == Vote.UP and
-               serializer.object.post.author == request.user):
-                raise PermissionDenied("You are not allowed to upvote your own posts.")
+            # Validate the vote.
+            validation_code, validation_msg = validate_vote(vote_to_validate)
 
-            # Rule 3: accept votes are only allowed for posts of type "answer".
-            if (serializer.object.type == Vote.ACCEPT and
-                not serializer.object.post.type == Post.ANSWER):
-                raise PermissionDenied("Only answer posts can be accepted.")
+            # Parse the validation result.
+            if validation_code != 0:
+                raise PermissionDenied("{}.".format(validation_msg))
 
-            # Rule 4: the author of an accept vote must match the author of the root post (the
-            # original question).
-            if (serializer.object.type == Vote.ACCEPT and
-                not request.user == serializer.object.post.root.author):
-                raise PermissionDenied("Only the author of a question can accept an answer.")
-
+            # Store the vote.
             self.pre_save(serializer.object)
             self.object = serializer.save(force_insert=True)
             self.post_save(self.object, created=True)
