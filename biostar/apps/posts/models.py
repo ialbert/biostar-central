@@ -219,11 +219,6 @@ class Post(models.Model):
     def parse_tags(self):
         return util.split_tags(self.tag_val)
 
-    def add_data(self, text):
-        ids = util.split_tags(text)
-        data = Data.objects.filter(id__in=ids)
-
-
     def add_tags(self, text):
         text = text.strip()
         if not text:
@@ -388,8 +383,6 @@ class Post(models.Model):
 
             instance.save()
 
-class Foo(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL)
 
 class ReplyToken(models.Model):
     """
@@ -413,12 +406,39 @@ class ReplyTokenAdmin(admin.ModelAdmin):
 
 admin.site.register(ReplyToken, ReplyTokenAdmin)
 
-class Data(models.Model):
-    "Represents a dataset attached to a post"
-    name = models.CharField(max_length=80)
+
+class EmailSub(models.Model):
+    """
+    Represents an email subscription to the newsletter
+    """
+    SUBSCRIBED, UNSUBSCRIBED = 0, 1
+    TYPE_CHOICES = [
+        (SUBSCRIBED, "Subscribed"), (UNSUBSCRIBED, "Unsubscribed"),
+
+    ]
+    email = models.EmailField()
+    status = models.IntegerField(choices=TYPE_CHOICES)
+
+
+class EmailEntry(models.Model):
+    """
+    Represents a draft post that can be created externally that does not show
+    up among the rest of the content until saved into a post.
+    """
+    # The email entry may be posted as an entry.
     post = models.ForeignKey(Post, null=True)
-    file = models.FileField(upload_to=settings.MEDIA_ROOT)
-    size = models.IntegerField()
+
+    # This is the HTML that the user enters.
+    content = models.TextField(default='')
+
+    # This is the  HTML that gets displayed.
+    html = models.TextField(default='')
+
+    # The data the entry was created at.
+    creation_date = models.DateTimeField(auto_now_add=True)
+
+    # The date the email was sent
+    sent_at = models.DateTimeField()
 
 class PostAdmin(admin.ModelAdmin):
     list_display = ('title', 'type', 'author')
@@ -428,7 +448,6 @@ class PostAdmin(admin.ModelAdmin):
         ('Content', {'fields': ('content', )}),
     )
     search_fields = ('title', 'author__name')
-
 
 admin.site.register(Post, PostAdmin)
 
