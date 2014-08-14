@@ -503,7 +503,10 @@ class FlatPageView(DetailView):
         # This is so that we can switch this off and
         # Fall back to the real flatpages app.
         url = "/info/%s/" % slug
-        query = FlatPage.objects.get(url=url)
+        try:
+            query = FlatPage.objects.get(url=url)
+        except FlatPage.DoesNotExist, exc:
+            raise Http404
         return query
 
     def get_context_data(self, **kwargs):
