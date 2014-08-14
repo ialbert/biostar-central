@@ -128,10 +128,9 @@ def posts_by_topic(request, topic):
 
     if topic and topic != LATEST:
         # Any type of topic.
-        if '+' in topic:
+        if topic:
             messages.info(request,
-                          "Filtering by tags: {} - <a href='{}'>Reset</a>".format(
-                              ' OR '.join(topic.split('+')), reverse('tag-list')))
+                          "Showing: <code>%s</code> &bull; <a href='/'>reset</a>" % topic)
         return Post.objects.tag_search(topic)
 
     # Return latest by default.
