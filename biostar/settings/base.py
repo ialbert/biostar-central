@@ -375,6 +375,11 @@ SOCIALACCOUNT_PROVIDERS = {
         'PROVIDER_KEY': get_env("GOOGLE_PROVIDER_KEY"),
         'PROVIDER_SECRET_KEY': get_env("GOOGLE_PROVIDER_SECRET_KEY"),
     },
+
+    'orcid': {
+        'PROVIDER_KEY': get_env("ORCID_PROVIDER_KEY"),
+        'PROVIDER_SECRET_KEY': get_env("ORCID_PROVIDER_SECRET_KEY"),
+    },
 }
 
 # The google id will injected as a template variable.
