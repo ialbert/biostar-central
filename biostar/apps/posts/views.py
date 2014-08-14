@@ -368,6 +368,8 @@ class VoteViewSet(mixins.CreateModelMixin,
     """
     Votes API endpoint to list, retrieve, create and delete votes.
     """
+    # Rule V7: updates are not allowed (it does not inherit from mixins.UpdateModelMixin).
+
     queryset = Vote.objects.all()
     serializer_class = VoteSerializer
     permission_classes = (permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly)
@@ -408,22 +410,3 @@ class PostViewSet(viewsets.ModelViewSet):
     def post_save(self, obj, created=False):
         if obj.is_toplevel:
             obj.add_tags(obj.tag_val)
-
-## Temporary test cases
-# VOTES
-#Good up vote
-#curl -iL -X POST http://127.0.0.1:8000/api/votes/ -u 0@foo.bar:0@foo.bar -d '{"type": 0, "post": "http://127.0.0.1:8000/api/posts/94/"}' -H "Content-Type: application/json"
-#Good vote including author, date, id, url and a random field: no errors, these fields are just ignored
-#curl -iL -X POST http://127.0.0.1:8000/api/votes/ -u 0@foo.bar:0@foo.bar -d '{"type": 0, "post": "http://127.0.0.1:8000/api/posts/94/", "id":"210", "url": "myurl", "date": "2013-08-13T10:47:27.585Z", "author": "http://127.0.0.1:8000/api/users/100001/", "random_field": "useless"}' -H "Content-Type: application/json"
-#Vote your own post
-#curl -iL -X POST http://127.0.0.1:8000/api/votes/ -u 0@foo.bar:0@foo.bar -d '{"type": 0, "post": "http://127.0.0.1:8000/api/posts/105/"}' -H "Content-Type: application/json"
-#Downvote
-#curl -iL -X POST http://127.0.0.1:8000/api/votes/ -u 0@foo.bar:0@foo.bar -d '{"type": 1, "post": "http://127.0.0.1:8000/api/posts/1/"}' -H "Content-Type: application/json"
-#Delete someone's else vote
-#curl -iL -X DELETE http://127.0.0.1:8000/api/votes/1/ -u 0@foo.bar:0@foo.bar
-#Accept a question
-#curl -iL -X POST http://127.0.0.1:8000/api/votes/ -u 0@foo.bar:0@foo.bar -d '{"type": 3, "post": "http://127.0.0.1:8000/api/posts/90/"}' -H "Content-Type: application/json"
-#Accept a comment
-#curl -iL -X POST http://127.0.0.1:8000/api/votes/ -u 0@foo.bar:0@foo.bar -d '{"type": 3, "post": "http://127.0.0.1:8000/api/posts/102/"}' -H "Content-Type: application/json"
-#Accept a answer when I am not the author fo the question
-#curl -iL -X POST http://127.0.0.1:8000/api/votes/ -u 0@foo.bar:0@foo.bar -d '{"type": 3, "post": "http://127.0.0.1:8000/api/posts/104/"}' -H "Content-Type: application/json"

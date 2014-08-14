@@ -2,6 +2,7 @@ import copy
 
 from django.contrib.sites.models import get_current_site
 from django.db import transaction
+from django.core import exceptions
 
 from rest_framework import serializers, permissions
 
@@ -36,6 +37,11 @@ class VoteSerializer(serializers.HyperlinkedModelSerializer):
             # So the object is saved to the db and `self.object` points to it.
             # But since we have to use `perform_vote` to save a vote, then we have to manually
             # fetch the vote from the db and assign it to `self.object`.
+            #
+            # `perform_vote`, among the other things, implements also the following rule:
+            # Rule V5: if a vote with the same author, post, type does exist in the database, the
+            # vote itself is deleted.
+
             if 'added' in msg.lower():
                 self.object = Vote.objects.get(post=obj.post,
                                                author=obj.author,
@@ -49,6 +55,11 @@ class VoteSerializer(serializers.HyperlinkedModelSerializer):
         The actual validation of the vote is executed by `validate_vote`. This method calls once
         the actual validation and caches the result in `_validation_result`.
         """
+        # Rule V1: downvotes not allowed.
+        # Rule V2: a user can not upvote her own post.
+        # Rule V3: accept votes are only allowed for posts of type "answer".
+        # Rule V4: the author of an accept vote must match the author of the root post (the
+        # original question).
         if self._validation_result == None:
             request = self.context['request']
             vote = Vote(author=request.user, post=attrs['post'], type=int(attrs['type']))
@@ -80,7 +91,6 @@ class VoteSerializer(serializers.HyperlinkedModelSerializer):
         """
         validation_result = self.get_validation_result(attrs)
 
-        # The only validation error related to this field is downvote.
         if validation_result == DOWNVOTE:
             raise serializers.ValidationError(VOTE_VALIDATION_MSGS[validation_result] + '.')
         return attrs
@@ -128,15 +138,15 @@ class PostSerializer(serializers.HyperlinkedModelSerializer):
         """
         post = self.get_new_post_preview(attrs)
 
-        # Rule x: answers allowed only if the parent post is open.
+        # Rule P6: answers allowed only if the parent post is open.
         if (post.type == Post.ANSWER and
             post.parent.status != Post.OPEN):
             raise serializers.ValidationError("Only open posts can have answers.")
 
-        # Rule x: comments allowed only if the root post is open or closed.
+        # Rule P7: comments allowed only if the root post is open or closed.
         if (post.type == Post.COMMENT and
             post.parent.root.status not in [Post.OPEN, Post.CLOSED]):
-            raise serializers.ValidationError("Only open and closed posts can have somments.")
+            raise serializers.ValidationError("Only open and closed posts can have comments.")
 
         return attrs
 
@@ -144,22 +154,17 @@ class PostSerializer(serializers.HyperlinkedModelSerializer):
         """
         Validation of `title` attribute.
         """
-        # Rule 1: users can only update the `content` and `tag_val` fields.
+        # Rule P1: users can only update the `content` and `tag_val` fields.
         self.rule_field_not_updatable(attrs, source)
 
-        #from .views import valid_title
-        #
-        #try:
-        #    valid_title(attrs[source])
-        #except exceptions.ValidationError as ex:
-        #    raise serializers.ValidationError(ex.message)
-        #
-        ### If it is an update/partial_update request and the post is not is_toplevel then the title
-        ### cannot be changed.
-        ##if (self.context['request'].method.upper() in ['PUT', 'PATCH'] and
-        ##    not self.object.is_toplevel and
-        ##    self.object.title != attrs[source]):
-        ##    raise serializers.ValidationError('You can edit titles only for top level posts.')
+        # Rule P2: let x be the title length: 10 <= x <= 200; x >= 3 words.
+        from .views import valid_title
+        try:
+            valid_title(attrs[source])
+        except exceptions.ValidationError as ex:
+            raise serializers.ValidationError(ex.message)
+        if len(attrs[source]) > 200:
+            raise serializers.ValidationError("The tile must be shorter than 200 chars.")
 
         return attrs
 
@@ -167,20 +172,8 @@ class PostSerializer(serializers.HyperlinkedModelSerializer):
         """
         Validation of `type` attribute.
         """
-        # The `type` field is numeric, but here it is serialized as a string (like '0').
-        # I am creating a new `attrs_fixed` with a nuumeric `type` field.
-        #attrs_fixed = attrs.copy()
-        #attrs_fixed[source] = int(attrs_fixed[source])
-
-        # Rule 1: users can only update the `content` and `tag_val` fields.
+        # Rule P1: users can only update the `content` and `tag_val` fields.
         self.rule_field_not_updatable(attrs, source)
-
-        ## If it is an update/partial_update request and the post is not is_toplevel then the type
-        ## cannot be changed.
-        #if (self.context['request'].method.upper() in ['PUT', 'PATCH'] and
-        #    not self.object.is_toplevel and
-        #    self.object.type != int(attrs[source])):
-        #    raise serializers.ValidationError('You can edit types only for top level posts.')
 
         return attrs
 
@@ -188,33 +181,14 @@ class PostSerializer(serializers.HyperlinkedModelSerializer):
         """
         Validation of `parent` attribute.
         """
-        # Rule 1: users can only update the `content` and `tag_val` fields.
+        # Rule P1: users can only update the `content` and `tag_val` fields.
         self.rule_field_not_updatable(attrs, source)
 
-        # Rule 2: consistent parents.
+        # Rule P3: consistent parents:
+        #  - The parent of a toplevel post must be emtpy or the post itself;
+        #  - There must be a parent for non toplevel posts;
+        #  - The parent of an answer must be a toplevel post.
         self.rule_consistent_parent(attrs, source)
-
-        ## If the post is a toplevel post, then its parent must be the post itself.
-        #if (int(attrs['type']) in Post.TOP_LEVEL and
-        #    not (attrs['parent'] is self.object or not attrs['parent'])):
-        #    raise serializers.ValidationError('The parent of a top level post must be emtpy or '
-        #                                      'the post itself.')
-        ## If the post is not a toplevel post, there must be a parent and the parent must be a top
-        ## level post if the current post is an answer.
-        #if int(attrs['type']) not in Post.TOP_LEVEL:
-        #    if not attrs['parent']:
-        #        raise serializers.ValidationError('Non top level posts must have a parent.')
-        #    if (int(attrs['type']) == Post.ANSWER and
-        #        not attrs['parent'].type in Post.TOP_LEVEL):
-        #        raise serializers.ValidationError('The parent of an answer must be a top level '
-        #                                          'post.')
-        #
-        ## If it is an update/partial_update request and the post is not is_toplevel then the parent
-        ## cannot be changed.
-        #if (self.context['request'].method.upper() in ['PUT', 'PATCH'] and
-        #    not self.object.is_toplevel and
-        #    self.object.parent != attrs[source]):
-        #    raise serializers.ValidationError('You can edit parents only for top level posts.')
 
         return attrs
 
@@ -222,19 +196,12 @@ class PostSerializer(serializers.HyperlinkedModelSerializer):
         """
         Validation of `tag_val` attribute.
         """
-        #from .views import valid_tag
-        #
-        #try:
-        #    valid_tag(attrs[source])
-        #except exceptions.ValidationError as ex:
-        #    raise serializers.ValidationError(ex.message)
-        #
-        ## If it is an update/partial_update request and the post is not is_toplevel then the
-        ## tag_val cannot be changed.
-        #if (self.context['request'].method.upper() in ['PUT', 'PATCH'] and
-        #    not self.object.is_toplevel and
-        #    self.object.tag_val != attrs[source]):
-        #    raise serializers.ValidationError('You can edit tags only for top level posts.')
+        # Rule P4: let x be the tag_val length: 0 < x <= 50, x <= 5 words.
+        from .views import valid_tag
+        try:
+            valid_tag(attrs[source])
+        except exceptions.ValidationError as ex:
+            raise serializers.ValidationError(ex.message)
 
         return attrs
 
@@ -242,6 +209,11 @@ class PostSerializer(serializers.HyperlinkedModelSerializer):
         """
         Validation of `content` attribute.
         """
+        # Rule P5: let x be the content length: 80 < x < 15000.
+        if len(attrs[source]) < 80 or len(attrs[source]) > 15000:
+            raise serializers.ValidationError("The content must be longer than 80 chars "
+                                              "and shorter than 15000 chars.")
+
         return attrs
 
     def get_new_post_preview(self, attrs):
@@ -266,48 +238,20 @@ class PostSerializer(serializers.HyperlinkedModelSerializer):
     def rule_consistent_parent(self, attrs, source):
         post = self.get_new_post_preview(attrs)
 
+        # The parent of a toplevel post must be emtpy or the post itself.
         if post.is_toplevel:
             if post.parent and not post.parent == post:
                 raise serializers.ValidationError("The parent of a top level post must be either"
                                                   " emtpy or the post itself.")
+        # There must be a parent for non toplevel posts.
         else:
             if not post.parent:
                 raise serializers.ValidationError("Non top level posts must have parents.")
 
+        # The parent of an answer must be a toplevel post.
         if post.type == Post.ANSWER:
             if not post.parent.is_toplevel:
                 raise serializers.ValidationError("Answers must have top level parents.")
-
-
-#class ParentFieldValidator:
-#    def __init__(self, serializer, attrs, source):
-#        self.serializer = serializer
-#        self.is_post_request = self.is_put_request = self.is_patch_request = False
-#        #self.old_post = self.new_post = None
-#        self.post = None
-#
-#        self._init_request_method()
-#        #self._init_fields(attrs, source)
-#
-#    def _init_request_method(self):
-#        method = self.context['request'].method.upper()
-#        self.is_post_request = method == 'POST'
-#        self.is_put_request = method == 'PUT'
-#        self.is_patch_request = method == 'PATCH'
-#
-#    def _init_fields(self, attrs, source):
-#        if self.is_patch_request or self.is_put_request:
-#            self.post = self.serializer.object
-#
-#        if self.is_post_request:
-#            self.post = Post()
-#
-#        for key, val in attrs.items():
-#            setattr(self.post, key, val)
-#
-#        self.new_post.type = attrs.get('type', None) or self.new_post.type
-#        self.new_post.is_toplevel = self.new_post.type in Post.TOP_LEVEL
-#        self.new_post.parent = attrs.get('parent', None) or self.new_post.parent
 
 
 ## Custom permissions #############################################################################
@@ -315,6 +259,8 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
     """
     Custom permission to allow only the author of a vote to delete it.
     """
+    # Rule V6: only the author of a vote can delete it.
+    # Rule P8: users can update/delete only posts they authored.
     def has_object_permission(self, request, view, obj):
         # Read permissions are allowed to any request,
         # so we'll always allow GET, HEAD or OPTIONS requests.
@@ -329,6 +275,7 @@ class IsOpenOrReadOnly(permissions.BasePermission):
     """
     Custom permission to allow updates only for open posts.
     """
+    # Rule P9: only open posts can be updated.
     def has_object_permission(self, request, view, obj):
         # Read permissions are allowed to any request,
         # so we'll always allow GET, HEAD or OPTIONS requests.
