@@ -24,7 +24,7 @@ import copy
 from rest_framework import viewsets, permissions, mixins, status
 from rest_framework.response import Response
 from rest_framework.exceptions import PermissionDenied
-from .api_serializers import VoteSerializer, PostSerializer, IsOwnerOrReadOnly
+from .api_serializers import VoteSerializer, PostSerializer, IsOwnerOrReadOnly, IsOpenOrReadOnly
 from biostar.server.ajax import validate_vote
 
 
@@ -376,11 +376,13 @@ class VoteViewSet(mixins.CreateModelMixin,
         obj.author = self.request.user
 
     def create(self, request, *args, **kwargs):
-        # This is a trick to change a Response after a Vote has been created.
-        # One of our rule states that when a vote with the same type, post and user is already
-        # existent, the vote itself is deleted. So in this case we'd rather prefer respond with
-        # a `status.HTTP_204_NO_CONTENT` to mark this specific situation.
-
+        """
+        Create a new vote. This methods overrides the original one provided by `CreateModelMixin`
+        to implement a trick to change a Response after a Vote has been created.
+        One of our rule states that when a vote with the same type, post and user is already
+        existent, the vote itself is deleted. So in this case we'd rather prefer respond with
+        a `status.HTTP_204_NO_CONTENT` to mark this specific situation.
+        """
         # Call the regular create method.
         response = super(VoteViewSet, self).create(request, *args, **kwargs)
 
@@ -390,18 +392,29 @@ class VoteViewSet(mixins.CreateModelMixin,
         return response
 
 
-class PostViewSet(viewsets.ReadOnlyModelViewSet):
+class PostViewSet(viewsets.ModelViewSet):
     """
     Posts API endpoint to list, retrieve, create and update votes.
     """
     queryset = Post.objects.all()
     serializer_class = PostSerializer
-    #TODO: finish this
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,
+                          IsOwnerOrReadOnly,
+                          IsOpenOrReadOnly)
 
+    def pre_save(self, obj):
+        obj.author = self.request.user
+
+    def post_save(self, obj, created=False):
+        if obj.is_toplevel:
+            obj.add_tags(obj.tag_val)
 
 ## Temporary test cases
+# VOTES
 #Good up vote
 #curl -iL -X POST http://127.0.0.1:8000/api/votes/ -u 0@foo.bar:0@foo.bar -d '{"type": 0, "post": "http://127.0.0.1:8000/api/posts/94/"}' -H "Content-Type: application/json"
+#Good vote including author, date, id, url and a random field: no errors, these fields are just ignored
+#curl -iL -X POST http://127.0.0.1:8000/api/votes/ -u 0@foo.bar:0@foo.bar -d '{"type": 0, "post": "http://127.0.0.1:8000/api/posts/94/", "id":"210", "url": "myurl", "date": "2013-08-13T10:47:27.585Z", "author": "http://127.0.0.1:8000/api/users/100001/", "random_field": "useless"}' -H "Content-Type: application/json"
 #Vote your own post
 #curl -iL -X POST http://127.0.0.1:8000/api/votes/ -u 0@foo.bar:0@foo.bar -d '{"type": 0, "post": "http://127.0.0.1:8000/api/posts/105/"}' -H "Content-Type: application/json"
 #Downvote

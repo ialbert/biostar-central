@@ -131,11 +131,7 @@ def vote_handler(request):
     return ajax_error("{}.".format(VOTE_VALIDATION_MSGS[validation_result]))
 
 
-VALID_VOTE = 0
-DOWNVOTE = 1
-UPVOTED_OWN_POST = 2
-ACCEPTED_NOT_ANSWER = 3
-ACCEPTED_NOT_OWN_QUESTION = 4
+VALID_VOTE, DOWNVOTE, UPVOTED_OWN_POST, ACCEPTED_NOT_ANSWER, ACCEPTED_NOT_OWN_QUESTION = range(5)
 VOTE_VALIDATION_MSGS = {
     VALID_VOTE: 'Ok',
     DOWNVOTE: 'Downvotes are not allowed',
