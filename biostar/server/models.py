@@ -7,10 +7,13 @@ Only signals and connections between models are specfied here.
 from __future__ import print_function, unicode_literals, absolute_import, division
 import logging, datetime
 from django.db.models import signals, Q
+from allauth.account.signals import user_signed_up
+from allauth.socialaccount.signals import social_account_added
 
 from biostar.apps.posts.models import Post, Subscription, ReplyToken
 from biostar.apps.messages.models import Message, MessageBody
 from biostar.apps.badges.models import Award
+from biostar.server.orcid import hook_social_account_added
 
 from biostar.apps.util import html, make_uuid
 
@@ -73,7 +76,7 @@ def post_create_messages(sender, instance, created, *args, **kwargs):
                 message = Message(user=sub.user, body=body, sent_at=body.sent_at)
 
                 # collect to a bulk email if the subscription is by email:
-                if sub.type == EMAIL_MESSAGE:
+                if sub.type in (EMAIL_MESSAGE, ALL_MESSAGES):
                     try:
                         token = ReplyToken(user=sub.user, post=post, token=make_uuid(8), date=now())
                         from_email = settings.EMAIL_FROM_PATTERN % (author.name, settings.DEFAULT_FROM_EMAIL)
@@ -135,3 +138,9 @@ signals.post_save.connect(award_create_messages, sender=Award, dispatch_uid="awa
 def disconnect_all():
     signals.post_save.disconnect(post_create_messages, sender=Post, dispatch_uid="post-create-messages")
     signals.post_save.disconnect(award_create_messages, sender=Award, dispatch_uid="award-create-messages")
+
+
+# django-allauth sends a signal when a new user is created using a social provider or a new social
+# provider is connected to an existing user.
+user_signed_up.connect(hook_social_account_added)
+social_account_added.connect(hook_social_account_added)

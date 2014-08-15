@@ -128,10 +128,9 @@ def posts_by_topic(request, topic):
 
     if topic and topic != LATEST:
         # Any type of topic.
-        if '+' in topic:
+        if topic:
             messages.info(request,
-                          "Filtering by tags: {} - <a href='{}'>Reset</a>".format(
-                              ' OR '.join(topic.split('+')), reverse('tag-list')))
+                          "Showing: <code>%s</code> &bull; <a href='/'>reset</a>" % topic)
         return Post.objects.tag_search(topic)
 
     # Return latest by default.
@@ -340,6 +339,17 @@ class UserDetails(BaseDetailMixin):
         context['posts'] = page_obj.object_list
         awards = Award.objects.filter(user=target).select_related("badge", "user").order_by("-date")
         context['awards'] = awards[:25]
+
+        # Get user's ORCID profile URL.
+        try:
+            social_account = target.socialaccount_set.get(provider__icontains='orcid')
+            context['orcid_profile_url'] = (social_account.extra_data['orcid-profile']
+                                            ['orcid-identifier']['uri'])
+            context['orcid_id'] = (social_account.extra_data['orcid-profile']
+                                            ['orcid-identifier']['path'])
+        except Exception:
+            pass
+
         return context
 
 
@@ -503,7 +513,10 @@ class FlatPageView(DetailView):
         # This is so that we can switch this off and
         # Fall back to the real flatpages app.
         url = "/info/%s/" % slug
-        query = FlatPage.objects.get(url=url)
+        try:
+            query = FlatPage.objects.get(url=url)
+        except FlatPage.DoesNotExist, exc:
+            raise Http404
         return query
 
     def get_context_data(self, **kwargs):
