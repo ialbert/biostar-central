@@ -1,10 +1,9 @@
 About
 =====
 
-Team
-----
+Development
+-----------
 
-For the most up do date information on contributors see: https://github.com/ialbert/biostar-central/graphs/contributors
 
 Core developers
 ^^^^^^^^^^^^^^^
@@ -14,10 +13,13 @@ Core developers
 Contributors
 ^^^^^^^^^^^^
 
-* Pindi Albert
-* Alexandr Levchuck
-* Eric Normandeau
-* Egon Willingham
+Contributors
+------------
+* Paolo Coffetti, https://github.com/nimiq
+* Pindi Albert, https://github.com/pindia
+
+For the most up do date information on contributors see: https://github.com/ialbert/biostar-central/graphs/contributors
+
 
 Supporting organizations
 ------------------------
