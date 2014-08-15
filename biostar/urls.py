@@ -86,9 +86,9 @@ urlpatterns = patterns('',
     url(r'^local/search/title/', search.search_title, name="search-title"),
 
     # Newsletter management.
+    url(r'^local/newsletter/edit/(?P<pk>\d+)/', newsletter.EditEntry.as_view(), name="newsletter-create"),
     url(r'^local/newsletter/', newsletter.EntryList.as_view(), name="newsletter-index"),
-    url(r'^local/newsletter/update/', newsletter.CreateEntry.as_view(), name="newsletter-update"),
-    url(r'^local/newsletter/create/', newsletter.UdpdateEntry.as_view(), name="newsletter-create"),
+
 
 
     # Returns suggested tags

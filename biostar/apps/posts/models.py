@@ -425,20 +425,23 @@ class EmailEntry(models.Model):
     Represents a draft post that can be created externally that does not show
     up among the rest of the content until saved into a post.
     """
+    DRAFT, PENDING, PUBLISHED = 0, 1, 2
+
     # The email entry may be posted as an entry.
     post = models.ForeignKey(Post, null=True)
 
-    # This is the HTML that the user enters.
-    content = models.TextField(default='')
-
-    # This is the  HTML that gets displayed.
-    html = models.TextField(default='')
+    # This is a simplified text content of the Post body.
+    text = models.TextField(default='')
 
     # The data the entry was created at.
     creation_date = models.DateTimeField(auto_now_add=True)
 
     # The date the email was sent
-    sent_at = models.DateTimeField()
+    sent_at = models.DateTimeField(null=True, blank=True)
+
+    # The date the email was sent
+    status = models.IntegerField(choices=((DRAFT, "Draft"), (PUBLISHED, "Published")))
+
 
 class PostAdmin(admin.ModelAdmin):
     list_display = ('title', 'type', 'author')

@@ -18,10 +18,10 @@ class Migration(SchemaMigration):
         db.create_table(u'posts_emailentry', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('post', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['posts.Post'], null=True)),
-            ('content', self.gf('django.db.models.fields.TextField')(default=u'')),
-            ('html', self.gf('django.db.models.fields.TextField')(default=u'')),
+            ('text', self.gf('django.db.models.fields.TextField')(default=u'')),
             ('creation_date', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('sent_at', self.gf('django.db.models.fields.DateTimeField')()),
+            ('sent_at', self.gf('django.db.models.fields.DateTimeField')(null=True, blank=True)),
+            ('status', self.gf('django.db.models.fields.IntegerField')()),
         ))
         db.send_create_signal(u'posts', ['EmailEntry'])
 
@@ -62,12 +62,12 @@ class Migration(SchemaMigration):
     models = {
         u'posts.emailentry': {
             'Meta': {'object_name': 'EmailEntry'},
-            'content': ('django.db.models.fields.TextField', [], {'default': "u''"}),
             'creation_date': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'html': ('django.db.models.fields.TextField', [], {'default': "u''"}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'post': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['posts.Post']", 'null': 'True'}),
-            'sent_at': ('django.db.models.fields.DateTimeField', [], {})
+            'sent_at': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
+            'status': ('django.db.models.fields.IntegerField', [], {}),
+            'text': ('django.db.models.fields.TextField', [], {'default': "u''"})
         },
         u'posts.emailsub': {
             'Meta': {'object_name': 'EmailSub'},
