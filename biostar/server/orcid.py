@@ -17,7 +17,8 @@ def hook_social_account_added(**kwargs):
       'sender': <class 'allauth.socialaccount.models.SocialLogin'>
     }
     """
-    if 'orcid' in kwargs['sociallogin'].account.provider.lower():
+    sociallogin = kwargs.get('sociallogin', None)
+    if sociallogin and 'orcid' in sociallogin.account.provider.lower():
         ask_to_import_orcid_profile(kwargs['request'])
 
 
