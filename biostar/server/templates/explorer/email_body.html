@@ -9,6 +9,23 @@
 </p>
 
 
-<p>
+<h3>Most Viewed Recent Posts</h3>
+<ul>
+{% for post in most_viewed %}
+    <li><a href="{{protocol}}{{site.domain}}{{post.get_absolute_url}}">{{ post.title }}</a> by {{ post.author.name }}</li>
+{% endfor %}
+</ul>
 
-</p>
+<h3>Most Active Posts</h3>
+<ul>
+{% for post in most_active %}
+    <li><a href="{{protocol}}{{site.domain}}{{post.get_absolute_url}}">{{ post.title }}</a> by {{ post.author.name }}</li>
+{% endfor %}
+</ul>
+
+<h3>New users with most contributions</h3>
+<ul>
+
+</ul>
+
+https://www/biostars.org

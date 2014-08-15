@@ -14,7 +14,14 @@ from django.utils.timezone import utc
 from biostar.apps.util import html
 from django.template import loader, Context, Template, RequestContext
 from django.contrib.sites.models import Site
+from django.contrib.auth import get_user_model
 
+def text_render(request, name, params):
+    "Helper function to render a template"
+    tmpl = loader.get_template(name)
+    cont = RequestContext(request, params)
+    page = tmpl.render(cont)
+    return page
 
 class EntryList(LoginRequiredMixin, StaffuserRequiredMixin, ListView):
     model = EmailEntry
@@ -70,13 +77,19 @@ def generate_title(request):
     return "Biostar Explorer #%s on %s" % (count, date)
 
 
-def generate_content(request, days=14):
-    since = now() - datetime.timedelta(days=days)
+def generate_content(request, days=365*10):
+    since1 = now() - datetime.timedelta(days=days)
 
-    most_viewed = Post.objects.filter(creation_date__gt=since).order_by("view_count")[:5]
-    most_active = Post.objects.filter(lastedit_date__gt=since).order_by("view_count")[:5]
+    most_viewed = Post.objects.filter(creation_date__gt=since1, type__in=Post.TOP_LEVEL).order_by("-view_count")[:5]
+    most_active = Post.objects.filter(lastedit_date__gt=since1, type__in=Post.TOP_LEVEL).order_by("-view_count")[:5]
 
-    # new_active_users = Users.objects.filter(modified_date__gt=since).query.order_by("view_count")[:5]
+
+    User = get_user_model()
+    since2 = now() - datetime.timedelta(days=365*10)
+    new_active_users = User.objects.filter(profile__date_joined__gt=since2, score__gt=0).order_by("-score")[:5]
+
+    # Most active users.
+    active_users = User.objects.filter(profile__date_joined__gt=since2, score__gt=0).order_by("-score")[:5]
 
     protocol = 'https://' if request.is_secure() else 'http://'
 
@@ -85,9 +98,11 @@ def generate_content(request, days=14):
         site=Site.objects.get_current(),
         most_viewed=most_viewed,
         most_active=most_active,
+        new_active_users = new_active_users,
+        active_users = active_users,
     )
-    rich = render(request, "explorer/email_body.html", params)
-    text = render(request, "explorer/email_body.txt", params)
+    rich = text_render(request, "explorer/email_body.html", params)
+    text = text_render(request, "explorer/email_body.txt", params)
     return rich, text
 
 
