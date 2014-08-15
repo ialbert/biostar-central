@@ -59,4 +59,4 @@ class ApiPostTest(TestCase):
         r = self.client.get(reverse('topic-list', kwargs={'topic': 'mytag1+mytag2'}))
         self.assertIn('<a class="tag" href="/t/mytag1+mytag2/">mytag1</a>', r.content)
         self.assertIn('<a class="tag" href="/t/mytag1+mytag2/">mytag2</a>', r.content)
-        self.assertIn('Filtering by tags: mytag1 OR mytag2', r.content)
+        self.assertIn('Showing: <code>mytag1+mytag2</code>', r.content)
