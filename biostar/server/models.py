@@ -76,7 +76,7 @@ def post_create_messages(sender, instance, created, *args, **kwargs):
                 message = Message(user=sub.user, body=body, sent_at=body.sent_at)
 
                 # collect to a bulk email if the subscription is by email:
-                if sub.type == EMAIL_MESSAGE:
+                if sub.type in (EMAIL_MESSAGE, ALL_MESSAGES):
                     try:
                         token = ReplyToken(user=sub.user, post=post, token=make_uuid(8), date=now())
                         from_email = settings.EMAIL_FROM_PATTERN % (author.name, settings.DEFAULT_FROM_EMAIL)
