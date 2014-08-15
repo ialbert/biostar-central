@@ -1,0 +1,12 @@
+This week on Biostars
+---------------------
+
+Most Viewed Recent Post:
+{% for post in most_viewed %}
+- {{ post.title }}, {{protocol}}{{site.domain}}{{post.get_absolute_url}}{% endfor %}
+
+Most Active Recent Post:
+{% for post in most_active %}
+- {{ post.title }}, {{protocol}}{{site.domain}}{{post.get_absolute_url}}{% endfor %}
+
+https://www/biostars.org
