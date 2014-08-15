@@ -6,8 +6,9 @@ from django.contrib import admin
 admin.autodiscover()
 
 from django.views.generic import TemplateView
-from biostar.server import views, ajax, search, moderate, api
+from biostar.server import views, ajax, search, moderate, api, orcid
 from biostar.apps.posts.views import NewAnswer, NewPost, EditPost, external_post_handler
+from biostar.apps.posts import explorer
 from biostar.apps.users.views import external_logout, external_login, CaptchaView, EmailListView
 from biostar.apps.planet.views import BlogPostList
 
@@ -84,6 +85,10 @@ urlpatterns = patterns('',
     # Search the titles.
     url(r'^local/search/title/', search.search_title, name="search-title"),
 
+    # Newsletter management.
+    url(r'^local/explorer/new/', explorer.EditEntry.as_view(), name="explorer-new"),
+    url(r'^local/explorer/list/', explorer.EntryList.as_view(), name="explorer-list"),
+
     # Returns suggested tags
     url(r'^local/search/tags/', search.suggest_tags, name="suggest-tags"),
 
@@ -95,6 +100,7 @@ urlpatterns = patterns('',
     url(r'^x/vote/$', ajax.vote_handler, name="vote-submit"),
 
     # Social login pages.
+    url(r'^accounts/social/orcid/import/$', orcid.import_bio, name="orcid-import"),
     (r'^accounts/', include('allauth.urls')),
 
     # Redirecting old posts urls from previous versions of Biostar

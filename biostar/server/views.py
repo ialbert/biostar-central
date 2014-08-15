@@ -128,10 +128,9 @@ def posts_by_topic(request, topic):
 
     if topic and topic != LATEST:
         # Any type of topic.
-        if '+' in topic:
+        if topic:
             messages.info(request,
-                          "Filtering by tags: {} - <a href='{}'>Reset</a>".format(
-                              ' OR '.join(topic.split('+')), reverse('tag-list')))
+                          "Showing: <code>%s</code> &bull; <a href='/'>reset</a>" % topic)
         return Post.objects.tag_search(topic)
 
     # Return latest by default.
@@ -340,6 +339,17 @@ class UserDetails(BaseDetailMixin):
         context['posts'] = page_obj.object_list
         awards = Award.objects.filter(user=target).select_related("badge", "user").order_by("-date")
         context['awards'] = awards[:25]
+
+        # Get user's ORCID profile URL.
+        try:
+            social_account = target.socialaccount_set.get(provider__icontains='orcid')
+            context['orcid_profile_url'] = (social_account.extra_data['orcid-profile']
+                                            ['orcid-identifier']['uri'])
+            context['orcid_id'] = (social_account.extra_data['orcid-profile']
+                                            ['orcid-identifier']['path'])
+        except Exception:
+            pass
+
         return context
 
 
@@ -503,7 +513,10 @@ class FlatPageView(DetailView):
         # This is so that we can switch this off and
         # Fall back to the real flatpages app.
         url = "/info/%s/" % slug
-        query = FlatPage.objects.get(url=url)
+        try:
+            query = FlatPage.objects.get(url=url)
+        except FlatPage.DoesNotExist, exc:
+            raise Http404
         return query
 
     def get_context_data(self, **kwargs):
@@ -624,7 +637,7 @@ class BadgeList(BaseListMixin):
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 from django.utils.encoding import smart_text
-import json
+import json, StringIO, traceback
 
 
 @csrf_exempt
@@ -634,7 +647,8 @@ def email_handler(request):
         data = dict(status="error", msg="key does not match")
     else:
         body = request.POST.get("body")
-        body = smart_text(body)
+        body = smart_text(body, errors="ignore")
+
 
         # This is for debug only
         #fname = "%s/email-debug.txt" % settings.LIVE_DIR
@@ -644,7 +658,12 @@ def email_handler(request):
 
         try:
             # Parse the incoming email.
-            msg = pyzmail.PyzMessage.factory(body)
+            # Emails can be malformed in which case we will force utf8 on them before parsing
+            try:
+                msg = pyzmail.PyzMessage.factory(body)
+            except Exception, exc:
+                body = body.encode('utf8', errors='ignore')
+                msg = pyzmail.PyzMessage.factory(body)
 
             # Extract the address from the address tuples.
             address = msg.get_addresses('to')[0][1]
@@ -663,7 +682,11 @@ def email_handler(request):
             text = part.get_payload()
 
             # Remove the reply related content
-            text = EmailReplyParser.parse_reply(text)
+            if settings.EMAIL_REPLY_REMOVE_QUOTED_TEXT:
+                text = EmailReplyParser.parse_reply(text)
+            else:
+                text = text.decode("utf8", errors='replace')
+                text = u"<div class='preformatted'>%s</div>" % text
 
             # Apply server specific formatting
             text = html.parse_html(text)
@@ -688,7 +711,9 @@ def email_handler(request):
             data = dict(status="ok", id=obj.id)
 
         except Exception, exc:
-            data = dict(status="error", msg=str(exc))
+            output = StringIO.StringIO()
+            traceback.print_exc(file=output)
+            data = dict(status="error", msg=str(output.getvalue()))
 
     data = json.dumps(data)
     return HttpResponse(data, content_type="application/json")

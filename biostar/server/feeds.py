@@ -73,6 +73,9 @@ class PostBase(Feed):
     def item_guid(self, obj):
         return "%s" % obj.id
 
+    def item_pubdate(self, item):
+        return item.creation_date
+
 class LatestFeed(PostBase):
     "Latest posts"
     title = "%s latest!" % SITE_NAME

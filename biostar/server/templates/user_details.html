@@ -137,6 +137,14 @@
                                 Your Profile</a>
                         </dd>
 
+                        {% if orcid_profile_url and orcid_id %}
+                            <dt style="margin-top:5px;">
+                                ORCID profile:
+                            </dt>
+                            <dd style="margin-top:5px;">
+                                <a href="{{ orcid_profile_url }}">{{ orcid_id }}</a>
+                            </dd>
+                        {% endif %}
                     {% endif %}
                 </dl>
             </div>

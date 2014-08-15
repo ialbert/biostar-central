@@ -152,6 +152,12 @@ Twitter:
 
 * Add your application at Twitter Apps Interface: http://twitter.com/apps/
 
+ORCID:
+
+* Enable "Developer Tools" in your ORCID account, following these instructions: http://support.orcid.org/knowledgebase/articles/343182-register-a-client-with-the-public-api
+* Create new application: https://orcid.org/developer-tools
+* Redirect URI must be ``http://domain/accounts/orcid/login/callback/``
+
 External authentication
 -----------------------
 
