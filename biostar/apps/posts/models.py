@@ -409,7 +409,7 @@ admin.site.register(ReplyToken, ReplyTokenAdmin)
 
 class EmailSub(models.Model):
     """
-    Represents an email subscription to the newsletter
+    Represents an email subscription to the explorer explorer.
     """
     SUBSCRIBED, UNSUBSCRIBED = 0, 1
     TYPE_CHOICES = [
@@ -422,8 +422,7 @@ class EmailSub(models.Model):
 
 class EmailEntry(models.Model):
     """
-    Represents a draft post that can be created externally that does not show
-    up among the rest of the content until saved into a post.
+    Represents an explorer explorer email entry.
     """
     DRAFT, PENDING, PUBLISHED = 0, 1, 2
 

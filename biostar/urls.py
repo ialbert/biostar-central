@@ -8,7 +8,7 @@ admin.autodiscover()
 from django.views.generic import TemplateView
 from biostar.server import views, ajax, search, moderate, api, orcid
 from biostar.apps.posts.views import NewAnswer, NewPost, EditPost, external_post_handler
-from biostar.apps.posts import newsletter
+from biostar.apps.posts import explorer
 from biostar.apps.users.views import external_logout, external_login, CaptchaView, EmailListView
 from biostar.apps.planet.views import BlogPostList
 
@@ -86,10 +86,8 @@ urlpatterns = patterns('',
     url(r'^local/search/title/', search.search_title, name="search-title"),
 
     # Newsletter management.
-    url(r'^local/newsletter/edit/(?P<pk>\d+)/', newsletter.EditEntry.as_view(), name="newsletter-create"),
-    url(r'^local/newsletter/', newsletter.EntryList.as_view(), name="newsletter-index"),
-
-
+    url(r'^local/explorer/new/', explorer.EditEntry.as_view(), name="explorer-new"),
+    url(r'^local/explorer/list/', explorer.EntryList.as_view(), name="explorer-list"),
 
     # Returns suggested tags
     url(r'^local/search/tags/', search.suggest_tags, name="suggest-tags"),
