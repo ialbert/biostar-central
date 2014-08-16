@@ -14,15 +14,15 @@ ALLOWED_ATTRIBUTES = dict(bleach.ALLOWED_ATTRIBUTES)
 ALLOWED_ATTRIBUTES.update(settings.ALLOWED_ATTRIBUTES)
 
 # Matching patterns will be filled in with post title or user name
-USER_PATTERN = r"http(s)?://%s/u/(?P<uid>(\d+))" % settings.SITE_DOMAIN
-POST_PATTERN1 = r"http(s)?://%s/p/(?P<uid>(\d+))" % settings.SITE_DOMAIN
-POST_PATTERN2 = r"http(s)?://%s/p/\d+/\#(?P<uid>(\d+))" % settings.SITE_DOMAIN
+USER_PATTERN = r"^http(s)?://%s/u/(?P<uid>(\d+))(/)?$" % settings.SITE_DOMAIN
+POST_PATTERN1 = r"^http(s)?://%s/p/(?P<uid>(\d+))(/)?$" % settings.SITE_DOMAIN
+POST_PATTERN2 = r"^http(s)?://%s/p/\d+/\#(?P<uid>(\d+))(/)?$" % settings.SITE_DOMAIN
 
 # Matches gists that may be embeded
-GIST_PATTERN = r"https://gist.github.com/(?P<uid>([\w/]+))"
+GIST_PATTERN = r"^https://gist.github.com/(?P<uid>([\w/]+))"
 
 # Matches Youtube video links.
-YOUTUBE_PATTERN = r"http(s)?://www.youtube.com/watch\?v=(?P<uid>(\w+))"
+YOUTUBE_PATTERN = r"^http(s)?://www.youtube.com/watch\?v=(?P<uid>(\w+))(/)?"
 
 USER_RE = re.compile(USER_PATTERN)
 POST_RE1 = re.compile(POST_PATTERN1)
