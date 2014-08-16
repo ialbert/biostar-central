@@ -6,8 +6,8 @@ CKEDITOR.stylesSet.add( 'biostar',
 [
 
 	{ name : 'Text', element : 'p' },
-	{ name : 'Formatted' , element : 'pre' },
-    { name : 'Code' , element : 'code' },
+	{ name : 'Code' , element : 'pre' },
+    { name : 'Red Code' , element : 'code' },
 	{ name : 'Yellow Marker', element : 'span', styles : { 'background-color' : 'Yellow' } },
 ]);
 
@@ -33,7 +33,7 @@ CKEDITOR.editorConfig = function( config ) {
 	config.removeButtons = 'Underline,Subscript,Superscript';
 
 	// Set the most common block elements.
-	config.format_tags = 'p;h1;h2;h3;pre';
+	config.format_tags = 'p;h1;h2;h3;h4;pre';
 
 	// Make dialogs simpler.
 	config.removeDialogTabs = 'image:advanced;link:advanced';
