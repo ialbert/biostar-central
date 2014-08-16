@@ -1,10 +1,10 @@
-import bleach
-
-from django.conf import settings
-from django.template import loader, Context, Template, RequestContext
 import re
 import bleach
 import logging
+import requests
+
+from django.conf import settings
+from django.template import loader, Context
 
 logger = logging.getLogger(__name__)
 
@@ -18,17 +18,21 @@ USER_PATTERN = r"^http(s)?://%s/u/(?P<uid>(\d+))(/)?$" % settings.SITE_DOMAIN
 POST_PATTERN1 = r"^http(s)?://%s/p/(?P<uid>(\d+))(/)?$" % settings.SITE_DOMAIN
 POST_PATTERN2 = r"^http(s)?://%s/p/\d+/\#(?P<uid>(\d+))(/)?$" % settings.SITE_DOMAIN
 
-# Matches gists that may be embeded
+# Matches gists that may be embeded.
 GIST_PATTERN = r"^https://gist.github.com/(?P<uid>([\w/]+))"
 
 # Matches Youtube video links.
 YOUTUBE_PATTERN = r"^http(s)?://www.youtube.com/watch\?v=(?P<uid>(\w+))(/)?"
+
+# Twitter: tweets to embed.
+TWITTER_PATTERN = r"http(s)?://twitter.com/\w+/status(es)?/(?P<uid>([\d]+))"
 
 USER_RE = re.compile(USER_PATTERN)
 POST_RE1 = re.compile(POST_PATTERN1)
 POST_RE2 = re.compile(POST_PATTERN2)
 GIST_RE = re.compile(GIST_PATTERN)
 YOUTUBE_RE = re.compile(YOUTUBE_PATTERN)
+TWITTER_RE = re.compile(TWITTER_PATTERN)
 
 def clean(text):
     "Sanitize text with no other substitutions"
@@ -80,15 +84,17 @@ def parse_html(text):
 
         # Try the gist embedding patterns
         targets = [
-            (GIST_RE, '<script src="https://gist.github.com/%s.js"></script>'),
-            (YOUTUBE_RE, '<iframe width="420" height="315" src="//www.youtube.com/embed/%s" frameborder="0" allowfullscreen></iframe>')
+            (GIST_RE, lambda x: '<script src="https://gist.github.com/%s.js"></script>' % x),
+            (YOUTUBE_RE, lambda x: '<iframe width="420" height="315" src="//www.youtube.com/embed/%s" frameborder="0" allowfullscreen></iframe>' % x),
+            (TWITTER_RE, get_embedded_tweet),
         ]
 
-        for regex, text in targets:
+        for regex, get_text in targets:
             patt = regex.search(href)
+
             if patt:
                 uid = patt.group("uid")
-                obj = text % uid
+                obj = get_text(uid)
                 embed.append( (uid, obj) )
                 attrs['_text'] = uid
                 attrs['href'] = uid
@@ -112,6 +118,24 @@ def parse_html(text):
         logger.error("*** %s" % exc)
 
     return html
+
+def get_embedded_tweet(tweet_id):
+    """
+    Get the HTML code with the embedded tweet.
+    It requires an API call at https://api.twitter.com/1/statuses/oembed.json as documented here:
+    https://dev.twitter.com/docs/embedded-tweets - section "Embedded Tweets for Developers"
+    https://dev.twitter.com/docs/api/1/get/statuses/oembed
+
+    Params:
+    tweet_id -- a tweet's numeric id like 2311234267 for the tweet at
+    https://twitter.com/Linux/status/2311234267
+    """
+    try:
+        response = requests.get("https://api.twitter.com/1/statuses/oembed.json?id={}".format(
+            tweet_id))
+        return response.json()['html']
+    except:
+        return ''
 
 def strip_tags(text):
     "Strip html tags from text"
