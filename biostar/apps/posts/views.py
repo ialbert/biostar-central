@@ -1,7 +1,7 @@
 # Create your views here.
 from django.shortcuts import render_to_response
 from django.views.generic import TemplateView, DetailView, ListView, FormView, UpdateView
-from .models import Post
+from .models import Post, Vote
 from django import forms
 from django.core.urlresolvers import reverse
 from crispy_forms.helper import FormHelper
@@ -20,6 +20,13 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 import logging
+import copy
+from rest_framework import viewsets, permissions, mixins, status
+from rest_framework.response import Response
+from rest_framework.exceptions import PermissionDenied
+from .api_serializers import VoteSerializer, PostSerializer, IsOwnerOrReadOnly, IsOpenOrReadOnly
+from biostar.server.ajax import validate_vote
+
 
 logger = logging.getLogger(__name__)
 
@@ -352,3 +359,54 @@ class EditPost(LoginRequiredMixin, FormView):
     def get_success_url(self):
         return reverse("user_details", kwargs=dict(pk=self.kwargs['pk']))
 
+
+class VoteViewSet(mixins.CreateModelMixin,
+                  mixins.RetrieveModelMixin,
+                  mixins.DestroyModelMixin,
+                  mixins.ListModelMixin,
+                  viewsets.GenericViewSet):
+    """
+    Votes API endpoint to list, retrieve, create and delete votes.
+    """
+    # Rule V7: updates are not allowed (it does not inherit from mixins.UpdateModelMixin).
+
+    queryset = Vote.objects.all()
+    serializer_class = VoteSerializer
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly)
+
+    def pre_save(self, obj):
+        obj.author = self.request.user
+
+    def create(self, request, *args, **kwargs):
+        """
+        Create a new vote. This methods overrides the original one provided by `CreateModelMixin`
+        to implement a trick to change a Response after a Vote has been created.
+        One of our rule states that when a vote with the same type, post and user is already
+        existent, the vote itself is deleted. So in this case we'd rather prefer respond with
+        a `status.HTTP_204_NO_CONTENT` to mark this specific situation.
+        """
+        # Call the regular create method.
+        response = super(VoteViewSet, self).create(request, *args, **kwargs)
+
+        # If there is no `id`, we are in the specific situation described above.
+        if not response.data.get('id', 1):
+            response = Response(status=status.HTTP_204_NO_CONTENT)
+        return response
+
+
+class PostViewSet(viewsets.ModelViewSet):
+    """
+    Posts API endpoint to list, retrieve, create and update votes.
+    """
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,
+                          IsOwnerOrReadOnly,
+                          IsOpenOrReadOnly)
+
+    def pre_save(self, obj):
+        obj.author = self.request.user
+
+    def post_save(self, obj, created=False):
+        if obj.is_toplevel:
+            obj.add_tags(obj.tag_val)
