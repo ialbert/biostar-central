@@ -109,10 +109,10 @@ def tagger(pattern, dry):
             logger.error("exception:'%s' while tagging %s: %s" % (exc, post.id, post.title))
 
 def merge_users(fname):
-    from biostar.apps.posts.models import Post
+    from biostar.apps.posts.models import Post, Subscription, ReplyToken
     from biostar.apps.posts.models import Vote
     from biostar.apps.users.models import User
-    from biostar.apps.messages.models import Message
+    from biostar.apps.messages.models import Message, MessageBody
     from allauth.socialaccount.models import SocialAccount
     from allauth.account.models import EmailAddress
 
@@ -131,21 +131,46 @@ def merge_users(fname):
     pairs = dict(map(create_pairs, stream))
 
     for key, values in pairs.items():
-        print("*** merging master: %s, aliases: %s" % (key, ",".join(values)))
+
         master = User.objects.get(email=key)
         aliases = User.objects.filter(email__in=values)
+
+        if not aliases:
+            print("*** no matching aliases for master: %s, aliases: %s" % (key, ",".join(values)))
+            continue
+
+        print("*** merging master: %s, aliases: %s" % (key, ",".join(values)))
+
         Post.objects.filter(author__in=aliases).update(author=master)
         Post.objects.filter(lastedit_user__in=aliases).update(lastedit_user=master)
         Vote.objects.filter(author__in=aliases).update(author=master)
         Message.objects.filter(user__in=aliases).update(user=master)
+        MessageBody.objects.filter(author__in=aliases).update(author=master)
 
         # Migrate the social accounts
         SocialAccount.objects.filter(user__in=aliases).update(user=master)
         EmailAddress.objects.filter(user__in=aliases).update(user=master)
 
         # New score for the master
-        score = Vote.objects.filter(post__author=master).count()
+        score = sum( u.score for u in aliases ) + master.score
         User.objects.filter(pk=master.pk).update(score=score)
+
+        # Update tokens
+        ReplyToken.objects.filter(user__in=aliases).update(user=master)
+
+        # Migrate subscriptions
+        subs = Subscription.objects.filter(user__in=aliases)
+        for sub in subs:
+            # The master already has a subscription to the post.
+            if Subscription.objects.filter(user=master, post=sub.post):
+                sub.delete()
+            else:
+                sub.user = master
+                sub.save()
+
+        # Delete the users
+        aliases.delete()
+
 
 def patch_users():
     from biostar.apps.users.models import User, Profile
