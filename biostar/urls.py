@@ -6,7 +6,7 @@ from django.contrib import admin
 admin.autodiscover()
 
 from django.views.generic import TemplateView
-from biostar.server import views, ajax, search, moderate, api, orcid
+from biostar.server import views, ajax, search, moderate, api, orcid, webhooks_listener
 from biostar.apps.posts.views import NewAnswer, NewPost, EditPost, external_post_handler
 from biostar.apps.posts import explorer
 from biostar.apps.users.views import external_logout, external_login, CaptchaView, EmailListView
@@ -119,6 +119,9 @@ urlpatterns = patterns('',
     url(r'^api/stats/day/(?P<day>\d+)/$', api.daily_stats_on_day, name='api-stats-on-day'),
     url(r'^api/stats/date/(?P<year>\d{4})/(?P<month>\d{2})/(?P<day>\d{2})/$',
         api.daily_stats_on_date, name='api-stats-on-date'),
+
+    # GitHub Webhooks for continuous deployment.
+    url(r'^github_webhooks/$', webhooks_listener.github, name='github-webhooks'),
 
     # Uncomment the next line to enable the admin:
     url(r'^admin/', include(admin.site.urls)),
