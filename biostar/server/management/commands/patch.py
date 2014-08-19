@@ -133,11 +133,16 @@ def merge_users(fname):
     for key, values in pairs.items():
 
         master = User.objects.get(email=key)
-        aliases = User.objects.filter(email__in=values)
+        aliases = User.objects.filter(email__in=values).order_by('profile__date_joined')
 
         if not aliases:
             print("*** no matching aliases for master: %s, aliases: %s" % (key, ",".join(values)))
             continue
+
+        # Keep the oldest dates for join and login
+        master.profile.date_joined = aliases[0].profile.date_joined
+        master.profile.last_login = aliases[0].profile.last_login
+        master.profile.save()
 
         print("*** merging master: %s, aliases: %s" % (key, ",".join(values)))
 
