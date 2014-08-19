@@ -7,7 +7,7 @@ CKEDITOR.stylesSet.add( 'biostar',
 
 	{ name : 'Text', element : 'p' },
 	{ name : 'Code' , element : 'pre' },
-    { name : 'Pre-formatted', element : 'div', styles : { 'white-space' : 'pre-wrap', 'font-family':'monospace' } },
+    { name : 'Formatted' , element : 'div', attributes: { 'class': 'preformatted' } },
     { name : 'Red Code' , element : 'code'},
 	{ name : 'Yellow Marker', element : 'span', styles : { 'background-color' : 'Yellow' } }
 

@@ -81,6 +81,11 @@ while (( "$#" )); do
         waitress-serve --port=8080 --call biostar.wsgi:white
     fi
 
+   	if [ "$1" = "testdeploy" ]; then
+        echo "*** deploys to the test site"
+        fab -f conf/fabs/fabfile.py test_site pull restart
+    fi
+
     if [ "$1" = "init" ]; then
         echo "*** Initializing server on $BIOSTAR_HOSTNAME with $DJANGO_SETTINGS_MODULE"
         echo "*** Running all tests"
