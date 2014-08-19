@@ -108,3 +108,18 @@ Frequently used commands::
 
     # Create a postgres database dump
     python manage.py biostar_pg_dump
+
+Merging Users
+-------------
+
+Create a space separated text file that contains the emails in the form::
+
+    master_email alias_email1 alias_email2 ...
+
+Then run the command::
+
+	python manage.py patch --merge_users yourfile.txt
+
+The command will move all content, votes and accounts associated with users identified by
+the aliases into the master email. It then deletes the alias users. The effect of this
+command cannot be reverted other than loading up a backup database dump.
