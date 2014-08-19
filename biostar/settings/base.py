@@ -490,3 +490,14 @@ EMAIL_HOST_PASSWORD = get_env("EMAIL_HOST_PASSWORD")
 REST_FRAMEWORK = {
     'PAGINATE_BY': 10
 }
+
+# Continuous deployment with GitHub Webhooks.
+# Setting all events to False will disable the continuous deployment.
+GITHUB_WEBHOOK_EVENTS = {
+    'push': False,
+    'release': False,
+}
+GITHUB_WEBHOOK_PASSWORD = ''  # Or: get_env('GITHUB_WEBHOOK_PASSWORD')
+GITHUB_WEBHOOK_PUSH_MONITORED_BRANCH = 'master'
+GITHUB_WEBHOOK_SCRIPT_TO_TRIGGER = 'path_to_the_script'
+GITHUB_WEBHOOK_SCRIPT_LOG_FILE = 'path_to_the_log_file'

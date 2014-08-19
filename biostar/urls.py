@@ -6,7 +6,7 @@ from django.contrib import admin
 admin.autodiscover()
 
 from django.views.generic import TemplateView
-from biostar.server import views, ajax, search, moderate, api, orcid
+from biostar.server import views, ajax, search, moderate, api, orcid, webhooks_listener
 from biostar.apps.posts.views import NewAnswer, NewPost, EditPost, external_post_handler
 from biostar.apps.posts import explorer
 from biostar.apps.users.views import external_logout, external_login, CaptchaView, EmailListView
@@ -19,8 +19,6 @@ from biostar.apps.posts.views import VoteViewSet, PostViewSet
 router = DefaultRouter()
 router.register(r'users', UserViewSet)
 router.register(r'votes', VoteViewSet)
-router.register(r'posts', PostViewSet)
-
 urlpatterns = patterns('',
 
     # Post listing.
@@ -132,6 +130,9 @@ urlpatterns = patterns('',
     url(r'^api/', include(router.urls)),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 
+    # GitHub Webhooks for continuous deployment.
+    url(r'^github_webhooks/$', webhooks_listener.github, name='github-webhooks'),
+
     # Uncomment the next line to enable the admin:
     url(r'^admin/', include(admin.site.urls)),
 
@@ -139,6 +140,8 @@ urlpatterns = patterns('',
     url(r'^robots\.txt$', TemplateView.as_view(template_name="robots.txt", content_type='text/plain'), name='robots'),
 
 )
+router.register(r'posts', PostViewSet)
+
 
 # Adding the sitemap.
 urlpatterns += patterns('',
