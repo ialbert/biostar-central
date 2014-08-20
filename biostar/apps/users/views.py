@@ -17,6 +17,8 @@ from django.contrib.auth import authenticate, login, logout
 from django.conf import settings
 from biostar.apps import util
 import logging, hmac
+from .api_serializers import UserSerializer
+from rest_framework import viewsets
 
 logger = logging.getLogger(__name__)
 
@@ -215,3 +217,11 @@ class EmailListSignup(FormView):
     """
     Edits a user.
     """
+
+
+class UserViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    Users API endpoint to list and retrieve users.
+    """
+    queryset = User.objects.all()
+    serializer_class = UserSerializer

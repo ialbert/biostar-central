@@ -6,12 +6,19 @@ from django.contrib import admin
 admin.autodiscover()
 
 from django.views.generic import TemplateView
-from biostar.server import views, ajax, search, moderate, api, orcid
+from biostar.server import views, ajax, search, moderate, api, orcid, webhooks_listener
 from biostar.apps.posts.views import NewAnswer, NewPost, EditPost, external_post_handler
 from biostar.apps.posts import explorer
 from biostar.apps.users.views import external_logout, external_login, CaptchaView, EmailListView
 from biostar.apps.planet.views import BlogPostList
+from rest_framework.routers import DefaultRouter
+from biostar.apps.users.views import UserViewSet
+from biostar.apps.posts.views import VoteViewSet, PostViewSet
 
+
+router = DefaultRouter()
+router.register(r'users', UserViewSet)
+router.register(r'votes', VoteViewSet)
 urlpatterns = patterns('',
 
     # Post listing.
@@ -112,13 +119,19 @@ urlpatterns = patterns('',
     url(r'^questions/tagged/(?P<tag>.+)/$',views.tag_redirect),
 
     # Api.
-    url(r'^api/traffic/$', api.traffic, name='api-traffic'),
-    url(r'^api/user/(?P<id>\d+)/$', api.user_details, name='api-user'),
-    url(r'^api/post/(?P<id>\d+)/$', api.post_details, name='api-post'),
-    url(r'^api/vote/(?P<id>\d+)/$', api.vote_details, name='api-vote'),
-    url(r'^api/stats/day/(?P<day>\d+)/$', api.daily_stats_on_day, name='api-stats-on-day'),
-    url(r'^api/stats/date/(?P<year>\d{4})/(?P<month>\d{2})/(?P<day>\d{2})/$',
+    url(r'^api-old-tmp/traffic/$', api.traffic, name='api-traffic'),
+    url(r'^api-old-tmp/user/(?P<id>\d+)/$', api.user_details, name='api-user'),
+    url(r'^api-old-tmp/post/(?P<id>\d+)/$', api.post_details, name='api-post'),
+    url(r'^api-old-tmp/vote/(?P<id>\d+)/$', api.vote_details, name='api-vote'),
+    url(r'^api-old-tmp/stats/day/(?P<day>\d+)/$', api.daily_stats_on_day, name='api-stats-on-day'),
+    url(r'^api-old-tmp/stats/date/(?P<year>\d{4})/(?P<month>\d{2})/(?P<day>\d{2})/$',
         api.daily_stats_on_date, name='api-stats-on-date'),
+
+    url(r'^api/', include(router.urls)),
+    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+
+    # GitHub Webhooks for continuous deployment.
+    url(r'^github_webhooks/$', webhooks_listener.github, name='github-webhooks'),
 
     # Uncomment the next line to enable the admin:
     url(r'^admin/', include(admin.site.urls)),
@@ -127,6 +140,8 @@ urlpatterns = patterns('',
     url(r'^robots\.txt$', TemplateView.as_view(template_name="robots.txt", content_type='text/plain'), name='robots'),
 
 )
+router.register(r'posts', PostViewSet)
+
 
 # Adding the sitemap.
 urlpatterns += patterns('',
