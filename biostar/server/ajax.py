@@ -1,14 +1,11 @@
 __author__ = 'ialbert'
 import json, traceback, logging
-from braces.views import JSONResponseMixin
 from biostar.apps.posts.models import Post, Vote
 from biostar.apps.users.models import User
-from django.views.generic import View
-from django.shortcuts import render_to_response, render
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponsePermanentRedirect, Http404
+from django.http import HttpResponse
 from functools import partial
 from django.db import transaction
-from django.db.models import Q, F
+from django.db.models import F
 
 
 def json_response(adict, **kwd):
@@ -54,9 +51,12 @@ class ajax_error_wrapper(object):
 
 POST_TYPE_MAP = dict(vote=Vote.UP, bookmark=Vote.BOOKMARK, accept=Vote.ACCEPT)
 
+
 @transaction.atomic
 def perform_vote(post, user, vote_type):
-
+    """
+    Stores a vote and run side effects like updating the author reputation.
+    """
     # Only maintain one vote for each user/post pair.
     votes = Vote.objects.filter(author=user, post=post, type=vote_type)
     if votes:
@@ -99,31 +99,75 @@ def perform_vote(post, user, vote_type):
     return msg
 
 
-
-
 @ajax_error_wrapper
 def vote_handler(request):
-    "Handles all voting on posts"
-
-
+    """
+    Handles all voting on posts via AJAX.
+    """
     user = request.user
     vote_type = request.POST['vote_type']
     vote_type = POST_TYPE_MAP[vote_type]
     post_id = request.POST['post_id']
-
-    # Check the post that is voted on.
     post = Post.objects.get(pk=post_id)
 
-    if post.author == user and vote_type == Vote.UP:
+    # Create a new vote for validation (not storing it to the db yet).
+    vote = Vote(author=user, post=post, type=vote_type)
+
+    # Perform the vote validation.
+    validation_result = validate_vote(vote)
+
+    # Parse the result fo the validation and return a proper ajax message.
+    if validation_result == VALID_VOTE:
+        with transaction.atomic():
+            msg = perform_vote(post=post, user=user, vote_type=vote_type)
+        return ajax_success(msg)
+
+    if validation_result == UPVOTED_OWN_POST:
         return ajax_error("You can't upvote your own post.")
 
-    #if post.author == user and vote_type == Vote.ACCEPT:
-    #    return ajax_error("You can't accept your own post.")
-
-    if post.root.author != user and vote_type == Vote.ACCEPT:
+    if validation_result == ACCEPTED_NOT_OWN_QUESTION:
         return ajax_error("Only the person asking the question may accept this answer.")
 
-    with transaction.atomic():
-        msg = perform_vote(post=post, user=user, vote_type=vote_type)
+    return ajax_error("{}.".format(VOTE_VALIDATION_MSGS[validation_result]))
 
-    return ajax_success(msg)
+
+VALID_VOTE, DOWNVOTE, UPVOTED_OWN_POST, ACCEPTED_NOT_ANSWER, ACCEPTED_NOT_OWN_QUESTION = range(5)
+VOTE_VALIDATION_MSGS = {
+    VALID_VOTE: 'Ok',
+    DOWNVOTE: 'Downvotes are not allowed',
+    UPVOTED_OWN_POST: 'You are not allowed to upvote your own posts',
+    ACCEPTED_NOT_ANSWER: 'Only answer posts can be accepted',
+    ACCEPTED_NOT_OWN_QUESTION: 'Only the author of a question can accept a relative answer',
+}
+
+
+def validate_vote(vote):
+    """
+    Vote validation based on some rules.
+    """
+    # Rule 1: downvotes not allowed.
+    if vote.type == Vote.DOWN:
+        return DOWNVOTE
+
+    # Rule 2: a user can not upvote her own post.
+    if (vote.type == Vote.UP and
+        vote.author == vote.post.author):
+        return UPVOTED_OWN_POST
+
+    # Rule 3: accept votes are only allowed for posts of type "answer".
+    if (vote.type == Vote.ACCEPT and
+        not vote.post.type == Post.ANSWER):
+        return ACCEPTED_NOT_ANSWER
+
+    # Rule 4: the author of an accept vote must match the author of the root post (the
+    # original question).
+    if (vote.type == Vote.ACCEPT and
+        not vote.author == vote.post.root.author):
+        return ACCEPTED_NOT_OWN_QUESTION
+
+    # Rule 5: users can not accept their own answers.
+    #if (vote.type == Vote.ACCEPT and
+    #    vote.author == vote.post.author):
+    #    return ...
+
+    return VALID_VOTE
