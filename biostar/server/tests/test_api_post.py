@@ -35,7 +35,7 @@ class ApiPostTest(TestCase):
         self.vote = Vote.objects.create(author=self.user, post=self.post, type=Vote.UP)
 
     def test_invalid_post_id(self):
-        r = self.client.get(reverse('api-post', kwargs={'id': 15}))
+        r = self.client.get(reverse('api-post', kwargs={'id': 1115}))
         self.assertEqual(r.status_code, 404)
 
     def test_naked_post(self):
