@@ -2,6 +2,7 @@
 {% load humanize %}
 {% load server_tags %}
 {% load compress %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -148,7 +149,7 @@
         </div>
     {% endblock %}
 
-    {% page_ribbon SITE_RIBBON_TEXT SITE_RIBBON_URL %}
+    {% page_ribbon %}
 
     {# This information is cached and updated periodically via the context. #}
     <div id="traffic">Traffic: {{ TRAFFIC }} users visited in the last hour</div>

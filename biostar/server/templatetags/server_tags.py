@@ -204,10 +204,10 @@ def page_bar_sort_users(context):
     context['date_fields'] = const.POST_LIMIT_FIELDS
     return context
 
-@register.inclusion_tag('server_tags/page_ribbon.html')
-def page_ribbon(text, url):
+@register.inclusion_tag('server_tags/page_ribbon.html', takes_context=True)
+def page_ribbon(context):
     "Renders a 'fork me on github'-style ribbon"
-    return dict(text=text, url=url)
+    return dict(url=context['STATIC_URL'], text=context['site_ribbon_text'])
 
 @register.inclusion_tag('server_tags/post_body.html', takes_context=True)
 def post_body(context, post, user, tree):

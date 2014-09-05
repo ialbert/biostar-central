@@ -605,6 +605,13 @@ class BadgeView(BaseDetailMixin):
 
         return context
 
+class Ribbon(TemplateView):
+    def __init__(self, site_ribbon_text):
+        self.site_ribbon_text = settings.SITE_RIBBON_TEXT
+    def render(self, context):
+        context['site_ribbon_text'] = self.site_ribbon_text
+        return ''
+
 
 class BadgeList(BaseListMixin):
     model = Badge
