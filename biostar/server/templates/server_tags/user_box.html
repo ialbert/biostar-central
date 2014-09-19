@@ -2,7 +2,9 @@
 {% load server_tags %}
 
 <div class="col-xs-3 col-md-2 box text-center visible-lg visible-md">
-    <div><a href="{{ user.get_absolute_url }}">{% gravatar user 82 %}</a></div>
+    <div>
+        <a href="{{ user.get_absolute_url }}">{% gravatar user 82 %}</a>
+    </div>
     <div class="uname">{% userlink user %}</div>
     {% if lastlogin %}
         <div class="ago">visited {{ user.profile.last_login|time_ago }}</div>
@@ -14,6 +16,7 @@
 </div>
 
 <div class="col-xs-3 col-md-2 box text-center visible-sm visible-xs">
+
     <div class="uname">{% userlink user %}</div>
     <div class="loc">{{ user.profile.location }}</div>
 </div>

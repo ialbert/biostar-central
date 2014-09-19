@@ -133,6 +133,7 @@ ALLOWED_ATTRIBUTES = {
     'a': ['href', 'rel'],
     'img': ['src', 'alt', 'width', 'height'],
     'table': ['border', 'cellpadding', 'cellspacing'],
+
 }
 
 # Local time zone for this installation. Choices can be found here:

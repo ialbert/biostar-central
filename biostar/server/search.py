@@ -41,6 +41,11 @@ def join_highlights(row):
     "Joins the highlighted text"
     if type(row.highlighted) is dict:
         return ''
+
+    # Unable to highlight by the back end
+    if not row.highlighted:
+        return ''
+
     return '<br>'.join(x for x in row.highlighted)
 
 
