@@ -150,7 +150,7 @@ def get_embed_video(id):
         <param name="allowFullScreen" value="true"></param>
         <param name="allowscriptaccess" value="always"></param>
         <param name="flashvars" value="videoID=23221"></param>
-        <embed src="http://captiongenerator.com/Youtube_Captioner.swf" flashvars="videoID=%s" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="480" height="320"></embed>
+        <embed src="https://captiongenerator.com/Youtube_Captioner.swf" flashvars="videoID=%s" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="480" height="320"></embed>
     </object>
     """ % id
     return text
