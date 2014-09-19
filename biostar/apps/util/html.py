@@ -27,17 +27,12 @@ YOUTUBE_PATTERN = r"^http(s)?://www.youtube.com/watch\?v=(?P<uid>(\w+))(/)?"
 # Twitter: tweets to embed.
 TWITTER_PATTERN = r"http(s)?://twitter.com/\w+/status(es)?/(?P<uid>([\d]+))"
 
-# allows embedding from http://captiongenerator.com/1234567/
-# yes, I made a pattern just to post meme videos
-CAPTION_PATTERN = r"http(s)?://captiongenerator.com/(?P<uid>([\d]+))/"
-
 USER_RE = re.compile(USER_PATTERN)
 POST_RE1 = re.compile(POST_PATTERN1)
 POST_RE2 = re.compile(POST_PATTERN2)
 GIST_RE = re.compile(GIST_PATTERN)
 YOUTUBE_RE = re.compile(YOUTUBE_PATTERN)
 TWITTER_RE = re.compile(TWITTER_PATTERN)
-CAPTION_RE = re.compile(CAPTION_PATTERN)
 
 def clean(text):
     "Sanitize text with no other substitutions"
@@ -92,7 +87,6 @@ def parse_html(text):
             (GIST_RE, lambda x: '<script src="https://gist.github.com/%s.js"></script>' % x),
             (YOUTUBE_RE, lambda x: '<iframe width="420" height="315" src="//www.youtube.com/embed/%s" frameborder="0" allowfullscreen></iframe>' % x),
             (TWITTER_RE, get_embedded_tweet),
-            (CAPTION_RE, get_embed_video)
         ]
 
         for regex, get_text in targets:
@@ -142,18 +136,6 @@ def get_embedded_tweet(tweet_id):
         return response.json()['html']
     except:
         return ''
-
-def get_embed_video(id):
-    text = """
-    <object width="480" height="320">
-        <param name="movie" value="http://captiongenerator.com/Youtube_Captioner.swf"></param>
-        <param name="allowFullScreen" value="true"></param>
-        <param name="allowscriptaccess" value="always"></param>
-        <param name="flashvars" value="videoID=23221"></param>
-        <embed src="https://captiongenerator.com/Youtube_Captioner.swf" flashvars="videoID=%s" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="480" height="320"></embed>
-    </object>
-    """ % id
-    return text
 
 def strip_tags(text):
     "Strip html tags from text"
