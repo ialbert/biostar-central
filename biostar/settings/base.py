@@ -232,6 +232,9 @@ TEMPLATE_DIRS = (
     # Don't forget to use absolute paths, not relative paths.
 )
 
+# The user score that halves the chance.
+HALF_LIFE = 30.0
+
 LOGIN_REDIRECT_URL = "/"
 
 MESSAGE_TAGS = {

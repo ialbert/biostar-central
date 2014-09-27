@@ -14,6 +14,7 @@ from django.core.urlresolvers import reverse
 from django.contrib.sites.models import Site
 from datetime import datetime, timedelta
 
+
 # HTML sanitization parameters.
 ALLOWED_TAGS = bleach.ALLOWED_TAGS + settings.ALLOWED_TAGS
 ALLOWED_STYLES = bleach.ALLOWED_STYLES + settings.ALLOWED_STYLES
