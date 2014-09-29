@@ -236,7 +236,7 @@ class NewAnswer(LoginRequiredMixin, FormView):
 
         # The parent id.
         pid = int(self.kwargs['pid'])
-        #form_class = ShortForm if pid else LongForm
+        # form_class = ShortForm if pid else LongForm
         form = self.form_class(initial=initial)
         return render(request, self.template_name, {'form': form})
 
@@ -296,9 +296,11 @@ class EditPost(LoginRequiredMixin, FormView):
 
         initial = dict(title=post.title, content=post.content, post_type=post.type, tag_val=post.tag_val)
 
+        # Disable rich editing for preformatted posts
+        pre = 'class="preformatted"' in post.content
         form_class = LongForm if post.is_toplevel else ShortForm
         form = form_class(initial=initial)
-        return render(request, self.template_name, {'form': form})
+        return render(request, self.template_name, {'form': form, 'pre': pre})
 
     def post(self, request, *args, **kwargs):
 

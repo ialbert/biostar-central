@@ -85,8 +85,13 @@ def messages_read(user):
 
 @register.simple_tag
 def gravatar(user, size=80):
+
     name = user.name
-    email = user.email.encode('utf8')
+    if user.is_suspended:
+        # Removes spammy images for suspended users
+        email = 'suspended@biostars.org'
+    else:
+        email = user.email.encode('utf8')
     hash = hashlib.md5(email).hexdigest(),
 
     gravatar_url = "https://secure.gravatar.com/avatar/%s?" % hash

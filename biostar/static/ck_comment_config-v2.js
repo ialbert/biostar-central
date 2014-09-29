@@ -4,11 +4,10 @@
  */
 CKEDITOR.stylesSet.add( 'biostar_comment',
 [
-
 	{ name : 'Text', element : 'p' },
-	{ name : 'Formatted' , element : 'pre' },
-    { name : 'Code' , element : 'code' },
-	{ name : 'Yellow Marker', element : 'span', styles : { 'background-color' : 'Yellow' } },
+    { name : 'Code' , element : 'pre' },
+    { name : 'Red Code' , element : 'code'},
+	{ name : 'Yellow Marker', element : 'span', styles : { 'background-color' : 'Yellow' } }
 ]);
 
 CKEDITOR.editorConfig = function( config ) {

@@ -219,11 +219,6 @@ class Post(models.Model):
     def parse_tags(self):
         return util.split_tags(self.tag_val)
 
-    def add_data(self, text):
-        ids = util.split_tags(text)
-        data = Data.objects.filter(id__in=ids)
-
-
     def add_tags(self, text):
         text = text.strip()
         if not text:
@@ -345,6 +340,9 @@ class Post(models.Model):
         # Extract the IP number from the request.
         ip1 = request.META.get('REMOTE_ADDR', '')
         ip2 = request.META.get('HTTP_X_FORWARDED_FOR', '').split(",")[0].strip()
+        # 'localhost' is not a valid ip address.
+        ip1 = '' if ip1.lower() == 'localhost' else ip1
+        ip2 = '' if ip2.lower() == 'localhost' else ip2
         ip = ip1 or ip2 or '0.0.0.0'
 
         now = const.now()
@@ -388,8 +386,6 @@ class Post(models.Model):
 
             instance.save()
 
-class Foo(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL)
 
 class ReplyToken(models.Model):
     """
@@ -413,12 +409,41 @@ class ReplyTokenAdmin(admin.ModelAdmin):
 
 admin.site.register(ReplyToken, ReplyTokenAdmin)
 
-class Data(models.Model):
-    "Represents a dataset attached to a post"
-    name = models.CharField(max_length=80)
+
+class EmailSub(models.Model):
+    """
+    Represents an email subscription to the explorer explorer.
+    """
+    SUBSCRIBED, UNSUBSCRIBED = 0, 1
+    TYPE_CHOICES = [
+        (SUBSCRIBED, "Subscribed"), (UNSUBSCRIBED, "Unsubscribed"),
+
+    ]
+    email = models.EmailField()
+    status = models.IntegerField(choices=TYPE_CHOICES)
+
+
+class EmailEntry(models.Model):
+    """
+    Represents an explorer explorer email entry.
+    """
+    DRAFT, PENDING, PUBLISHED = 0, 1, 2
+
+    # The email entry may be posted as an entry.
     post = models.ForeignKey(Post, null=True)
-    file = models.FileField(upload_to=settings.MEDIA_ROOT)
-    size = models.IntegerField()
+
+    # This is a simplified text content of the Post body.
+    text = models.TextField(default='')
+
+    # The data the entry was created at.
+    creation_date = models.DateTimeField(auto_now_add=True)
+
+    # The date the email was sent
+    sent_at = models.DateTimeField(null=True, blank=True)
+
+    # The date the email was sent
+    status = models.IntegerField(choices=((DRAFT, "Draft"), (PUBLISHED, "Published")))
+
 
 class PostAdmin(admin.ModelAdmin):
     list_display = ('title', 'type', 'author')
@@ -428,7 +453,6 @@ class PostAdmin(admin.ModelAdmin):
         ('Content', {'fields': ('content', )}),
     )
     search_fields = ('title', 'author__name')
-
 
 admin.site.register(Post, PostAdmin)
 

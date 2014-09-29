@@ -53,6 +53,8 @@
         {# Extra header may be injected here #}
     {% endblock %}
 
+    {% include "banners/banner-scripts.html" %}
+
     <script type="application/javascript">
         {% if user.is_authenticated %}
             USER_ID = {{ user.id }};

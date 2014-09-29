@@ -9,10 +9,13 @@ Istvan Albert
 
 Contributors
 ------------
-Pindi Albert
-Alexandr Levchuck
+Paolo Coffetti, https://github.com/nimiq
+Pindi Albert, https://github.com/pindia
+Alexandr Levchuck, https://github.com/alevchuk
 Eric Normandeau
 Egon Willingham
+
+See: https://github.com/ialbert/biostar-central/graphs/contributors
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
