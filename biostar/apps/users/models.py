@@ -228,6 +228,10 @@ class Profile(models.Model):
     # when a post that matches this tag is set
     tags = models.ManyToManyField(Tag, blank=True, )
 
+    # Subscription to daily and weekly digests.
+    daily_digest = models.BooleanField(default=False)
+    weekly_digest = models.BooleanField(default=True)
+
     def parse_tags(self):
         return util.split_tags(self.tag_val)
 

@@ -44,6 +44,12 @@ class UserEditForm(forms.Form):
     watched_tags = forms.CharField(max_length=200, required=False,
                                    help_text="Get email when a post matching the tag is posted. Example: <code>minia, bedops, breakdancer, music</code>.")
 
+    daily_digest = forms.BooleanField(required=False,
+                                   help_text="Get a daily digest")
+
+    weekly_digest = forms.BooleanField(required=False,
+                                   help_text="Get a weekly digest")
+
     message_prefs = forms.ChoiceField(required=True, choices=const.MESSAGING_TYPE_CHOICES, label="Notifications",
                                       help_text="Where to send notifications. Default mode sends email on followups to questions you've created.")
 
@@ -61,6 +67,8 @@ class UserEditForm(forms.Form):
                 Div(
                     Div('name', ),
                     Div('email', ),
+                    Div('daily_digest'),
+                    Div('weekly_digest'),
                     Div('location'),
                     Div('website'),
                     Div('twitter_id'),
@@ -87,7 +95,7 @@ class EditUser(LoginRequiredMixin, FormView):
     template_name = ""
     form_class = UserEditForm
     user_fields = "name email".split()
-    prof_fields = "location website info scholar my_tags watched_tags twitter_id message_prefs".split()
+    prof_fields = "location website info scholar my_tags watched_tags twitter_id message_prefs daily_digest weekly_digest".split()
 
     def get(self, request, *args, **kwargs):
         target = User.objects.get(pk=self.kwargs['pk'])
