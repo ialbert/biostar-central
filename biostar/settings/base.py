@@ -396,6 +396,11 @@ GOOGLE_DOMAIN = ""
 # The site logo.
 SITE_LOGO = "biostar2.logo.png"
 
+# Digest title
+DAILY_DIGEST_TITLE = '[biostar daily digest] %s'
+WEEKLY_DIGEST_TITLE = '[biostar weekly digest] %s'
+
+
 # The default CSS file to load.
 SITE_STYLE_CSS = "biostar.style.less"
 
