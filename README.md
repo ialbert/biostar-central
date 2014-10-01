@@ -15,6 +15,7 @@ Biostar is the software that runs several science oriented Q&A sites:
 
  * Biostars Bioinformatics Q&A at: https://www.biostars.org
  * Galaxy User support site: https://biostar.usegalaxy.org
+ * Bioconductor User support site: https://support.bioconductor.org/
  * Metabolomics Q&A: http://www.metastars.org
  * Neurostars: http://www.neurostars.org
 
@@ -26,7 +27,10 @@ Features
  * Email integration: import previous posts from mailing lists, reply to posts via email
  * RSS Planet: feed aggregation from different sources
  * External authentication: authenticate users with a different web service
- * Low resource utilization and easy deployment
+ * Low resource utilization and easy deployment. Host an entire domain, the database, and
+   all related background jobs and serve millions of page views per month on
+   a computer with just 4GB of RAM.
+
 
 Support
 -------
