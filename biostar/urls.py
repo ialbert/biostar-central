@@ -86,8 +86,8 @@ urlpatterns = patterns('',
     url(r'^local/search/title/', search.search_title, name="search-title"),
 
     # Newsletter management.
-    url(r'^local/explorer/new/', explorer.EditEntry.as_view(), name="explorer-new"),
-    url(r'^local/explorer/list/', explorer.EntryList.as_view(), name="explorer-list"),
+    url(r'^local/digest/new/', explorer.EditEntry.as_view(), name="digest-new"),
+    url(r'^local/digest/list/', explorer.EntryList.as_view(), name="digest-list"),
 
     # Returns suggested tags
     url(r'^local/search/tags/', search.suggest_tags, name="suggest-tags"),

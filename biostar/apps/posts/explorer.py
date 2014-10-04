@@ -25,7 +25,7 @@ def text_render(request, name, params):
 
 class EntryList(LoginRequiredMixin, StaffuserRequiredMixin, ListView):
     model = EmailEntry
-    template_name = "explorer/email_list.html"
+    template_name = "digest/email_list.html"
     context_object_name = 'entries'
 
     def get_context_data(self, **kwargs):
@@ -101,15 +101,15 @@ def generate_content(request, days=365*10):
         new_active_users = new_active_users,
         active_users = active_users,
     )
-    rich = text_render(request, "explorer/email_body.html", params)
-    text = text_render(request, "explorer/email_body.txt", params)
+    rich = text_render(request, "digest/email_body.html", params)
+    text = text_render(request, "digest/email_body.txt", params)
     return rich, text
 
 
 class EditEntry(LoginRequiredMixin, StaffuserRequiredMixin, FormView):
     form_class = EditForm
     model = EmailEntry
-    template_name = "explorer/email_edit.html"
+    template_name = "digest/email_edit.html"
 
     def get(self, request, *args, **kwargs):
         form = self.form_class()

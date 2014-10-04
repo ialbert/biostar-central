@@ -232,6 +232,9 @@ class Profile(models.Model):
     daily_digest = models.BooleanField(default=False)
     weekly_digest = models.BooleanField(default=True)
 
+    # Opt-in to all messages from the site
+    opt_in = models.BooleanField(default=False)
+
     def parse_tags(self):
         return util.split_tags(self.tag_val)
 
