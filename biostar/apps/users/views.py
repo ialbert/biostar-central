@@ -1,7 +1,7 @@
 # Create your views here.
 from django.shortcuts import render_to_response
 from django.views.generic import TemplateView, DetailView, ListView, FormView, UpdateView
-from .models import User
+from .models import User, Profile
 from . import auth
 from django import forms
 from django.core.urlresolvers import reverse
@@ -44,14 +44,11 @@ class UserEditForm(forms.Form):
     watched_tags = forms.CharField(max_length=200, required=False,
                                    help_text="Get email when a post matching the tag is posted. Example: <code>minia, bedops, breakdancer, music</code>.")
 
-    daily_digest = forms.BooleanField(required=False,
-                                   help_text="Get a daily digest")
-
-    weekly_digest = forms.BooleanField(required=False,
-                                   help_text="Get a weekly digest")
+    digest_prefs = forms.ChoiceField(required=True, choices=Profile.DIGEST_CHOICES, label="Email Digest",
+                                     help_text="Sets the frequence of digest emails. A digest email is a summary of events on the site.")
 
     message_prefs = forms.ChoiceField(required=True, choices=const.MESSAGING_TYPE_CHOICES, label="Notifications",
-                                      help_text="Where to send notifications. Default mode sends email on followups to questions you've created.")
+                                      help_text="Default mode  sends you an email if you receive anwers to questions that you've posted.")
 
     info = forms.CharField(widget=forms.Textarea, required=False, label="Add some information about yourself",
                            help_text="A brief description about yourself (recommended)")
@@ -67,22 +64,28 @@ class UserEditForm(forms.Form):
                 Div(
                     Div('name', ),
                     Div('email', ),
-                    Div('daily_digest'),
-                    Div('weekly_digest'),
                     Div('location'),
                     Div('website'),
-                    Div('twitter_id'),
-                    Div('scholar'),
-                    Div('message_prefs'),
+                    css_class="col-md-offset-3 col-md-6",
+                ),
+                Div(
+                    Div('twitter_id', css_class="col-md-6"),
+                    Div('scholar', css_class="col-md-6"),
+                    Div('digest_prefs', css_class="col-md-6"),
+                    Div('message_prefs', css_class="col-md-6"),
+                    css_class="col-md-12",
+                ),
+                Div(
                     Div('my_tags'),
                     Div('watched_tags'),
-                    css_class="col-md-offset-1 col-md-10",
+                    Div('info'),
+                    ButtonHolder(
+                        Submit('submit', 'Submit')
+                    ),
+                    css_class="col-md-12",
                 ),
-                Div('info', css_class="col-md-12"),
             ),
-            ButtonHolder(
-                Submit('submit', 'Submit')
-            )
+
         )
 
 
@@ -95,7 +98,7 @@ class EditUser(LoginRequiredMixin, FormView):
     template_name = ""
     form_class = UserEditForm
     user_fields = "name email".split()
-    prof_fields = "location website info scholar my_tags watched_tags twitter_id message_prefs daily_digest weekly_digest".split()
+    prof_fields = "location website info scholar my_tags watched_tags twitter_id message_prefs digest_prefs".split()
 
     def get(self, request, *args, **kwargs):
         target = User.objects.get(pk=self.kwargs['pk'])
@@ -176,27 +179,68 @@ def external_logout(request):
     return response
 
 
+class DigestForm(forms.Form):
+    digest_prefs = forms.ChoiceField(required=True, choices=Profile.DIGEST_CHOICES, label="Emails",
+                                     help_text="Sets the frequence of digest emails")
+
+
+    def __init__(self, *args, **kwargs):
+        super(DigestForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.error_text_inline = False
+        self.helper.help_text_inline = True
+        self.helper.layout = Layout(
+            Fieldset(
+                'Update your digest settings',
+                Div(
+                    Div('digest_prefs', ),
+                    ButtonHolder(
+                        Submit('submit', 'Submit')
+                    ),
+                    css_class="col-md-6",
+                ),
+            ),
+        )
+
+def unsubscribe(request, uuid):
+
+    user = User.objects.filter(profile__uuid=uuid)
+    if not user:
+        messages.error(request, 'Invalid user identifier.')
+    else:
+        user[0].profile.digest_prefs = Profile.NO_DIGEST
+        messages.success(request, 'User unsubscribed.')
+
+    response = redirect(reverse("home"))
+    return response
+
+class DigestManager(LoginRequiredMixin, FormView):
+    "Handle user digest subscriptions"
+
+    template_name = "digest/manager.html"
+    form_class = DigestForm
+
+    def get(self, request, *args, **kwargs):
+        form = self.form_class()
+        return render(request, self.template_name, {'form': form})
+
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST)
+        if form.is_valid():
+            f = form.cleaned_data
+            user = request.user
+            user.profile.digest_prefs = int(form.cleaned_data['digest_prefs'])
+            user.profile.save()
+            messages.success(request, 'Email frequency has been set to %s' % user.profile.get_digest_prefs_display())
+
+        return render(request, self.template_name, {'form': form})
+
+
 def external_login(request):
     "This is required to allow external login to proceed"
     url = settings.EXTERNAL_LOGIN_URL or 'account_login'
     response = redirect(url)
     return response
-
-class EmailListForm(forms.Form):
-    email = forms.EmailField(help_text="Your email")
-    subs  = forms.BooleanField(help_text="Subscribe")
-
-class EmailListView(FormView):
-    form_class = EmailListForm
-    template_name = "email_list_form.html"
-
-    def get(self, request,  *args, **kwargs):
-        form = self.form_class()
-        return render(request, self.template_name, {'form': form})
-
-    def post(self, request, *args, **kwargs):
-        form = self.form_class()
-        return render(request, self.template_name, {'form': form})
 
 
 # Adding a captcha enabled form
@@ -217,9 +261,3 @@ class CaptchaView(SignupView):
             return CaptchaForm
         else:
             return SignupForm
-
-
-class EmailListSignup(FormView):
-    """
-    Edits a user.
-    """

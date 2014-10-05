@@ -1,6 +1,6 @@
 {% load humanize %}
 Biostar Daily Digest for {{start}}
-------------------------------------
+-------------------------------------
 {% if hard_worker %}
 Top posters: {% for user in hard_worker %}{{user.name}} ({{user.total}}), {% endfor %}
 {% endif %}
@@ -26,7 +26,11 @@ Bioinformatics Planet
 {% endfor %}
 {% endif %}
 Biostars, https://{{site.domain}}, {{total_user_count|intcomma}} users, {{total_post_count|intcomma}} posts.
+
 ---
-You've received this because your Biostar profile has the digest option on.
-To un-subscribe click here: https://{{site.domain}}/digest/change/
+You've received this because your Biostar profile has the digest option turned on.
+
+To set your options click here: https://{{site.domain}}%(digest_manage)s
+
+To un-subscribe click here: https://{{site.domain}}%(digest_unsubscribe)s
 ---
