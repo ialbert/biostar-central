@@ -23,11 +23,12 @@ ALLOWED_ATTRIBUTES.update(settings.ALLOWED_ATTRIBUTES)
 
 logger = logging.getLogger(__name__)
 
+
 def now():
     return datetime.utcnow().replace(tzinfo=utc)
 
-class LocalManager(UserManager):
 
+class LocalManager(UserManager):
     def get_users(self, sort, limit, q, user):
         sort = const.USER_SORT_MAP.get(sort, None)
         days = const.POST_LIMIT_MAP.get(limit, 0)
@@ -47,6 +48,7 @@ class LocalManager(UserManager):
             query = query.exclude(status=User.BANNED).select_related("profile").order_by(sort)
 
         return query
+
 
 class User(AbstractBaseUser):
     # Class level constants.
@@ -159,12 +161,14 @@ class User(AbstractBaseUser):
 # This contains the notification types.
 from biostar import const
 
+
 class EmailList(models.Model):
     "The list of emails that opted in receiving emails"
     email = models.EmailField(verbose_name='Email', db_index=True, max_length=255, unique=True)
     type = models.IntegerField(default=0)
     active = models.BooleanField(default=True)
     date = models.DateTimeField(auto_created=True)
+
 
 class Tag(models.Model):
     name = models.TextField(max_length=50, db_index=True)
@@ -177,14 +181,17 @@ MESSAGE_PREF_MAP = dict(
 )
 MESSAGE_PREFS = MESSAGE_PREF_MAP.get(settings.DEFAULT_MESSAGE_PREF, const.LOCAL_MESSAGE)
 
+
 class Profile(models.Model):
     """
     Maintains information that does not always need to be retreived whe a user is accessed.
     """
     LOCAL_MESSAGE, EMAIL_MESSAGE = const.LOCAL_MESSAGE, const.EMAIL_MESSAGE
-
+    NO_DIGEST, DAILY_DIGEST, WEEKLY_DIGEST, MONTHLY_DIGEST = range(4)
     TYPE_CHOICES = const.MESSAGING_TYPE_CHOICES
 
+    DIGEST_CHOICES = [(NO_DIGEST, 'Never'), (DAILY_DIGEST, 'Daily'),
+                      (WEEKLY_DIGEST, 'Weekly'), (MONTHLY_DIGEST, 'Monthly')]
     user = models.OneToOneField(User)
 
     # Globally unique id used to identify the user in a private feeds
@@ -227,6 +234,12 @@ class Profile(models.Model):
     # The tag set is built from the watch_tag string and is used to trigger actions
     # when a post that matches this tag is set
     tags = models.ManyToManyField(Tag, blank=True, )
+
+    # Subscription to daily and weekly digests.
+    digest_prefs = models.IntegerField(choices=DIGEST_CHOICES, default=WEEKLY_DIGEST)
+
+    # Opt-in to all messages from the site
+    opt_in = models.BooleanField(default=False)
 
     def parse_tags(self):
         return util.split_tags(self.tag_val)
@@ -278,7 +291,6 @@ class Profile(models.Model):
         if created:
             prof = Profile(user=instance)
             prof.save()
-
 
 
 class UserCreationForm(forms.ModelForm):
@@ -365,6 +377,7 @@ post_save.connect(Profile.auto_create, sender=User)
 
 NEW_USER_WELCOME_TEMPLATE = "messages/new_user_welcome.html"
 
+
 def user_create_messages(sender, instance, created, *args, **kwargs):
     "The actions to undertake when creating a new post"
     from biostar.apps.messages.models import Message, MessageBody
@@ -375,7 +388,7 @@ def user_create_messages(sender, instance, created, *args, **kwargs):
     if created:
         # Create a welcome message to a user
         # We do this so that tests pass, there is no admin user there
-        authors = User.objects.filter(is_admin=True) or [ user ]
+        authors = User.objects.filter(is_admin=True) or [user]
         author = authors[0]
 
         title = "Welcome!"

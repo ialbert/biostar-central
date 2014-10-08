@@ -8,8 +8,7 @@ admin.autodiscover()
 from django.views.generic import TemplateView
 from biostar.server import views, ajax, search, moderate, api, orcid
 from biostar.apps.posts.views import NewAnswer, NewPost, EditPost, external_post_handler
-from biostar.apps.posts import explorer
-from biostar.apps.users.views import external_logout, external_login, CaptchaView, EmailListView
+from biostar.apps.users.views import external_logout, external_login, CaptchaView, DigestManager, unsubscribe
 from biostar.apps.planet.views import BlogPostList
 
 urlpatterns = patterns('',
@@ -57,9 +56,6 @@ urlpatterns = patterns('',
     url(r'^p/edit/(?P<pk>\d+)/$', EditPost.as_view(), name="post-edit"),
 
     # Message display.
-    url(r'^local/list/$', EmailListView.as_view(), name="email-list"),
-
-    # Message display.
     url(r'^local/messages/$', views.MessageList.as_view(), name="user-messages"),
 
     # Vote display.
@@ -85,9 +81,9 @@ urlpatterns = patterns('',
     # Search the titles.
     url(r'^local/search/title/', search.search_title, name="search-title"),
 
-    # Newsletter management.
-    url(r'^local/explorer/new/', explorer.EditEntry.as_view(), name="explorer-new"),
-    url(r'^local/explorer/list/', explorer.EntryList.as_view(), name="explorer-list"),
+    # Digest news manager.
+    url(r'^digest/manage/', DigestManager.as_view() , name="digest_manage"),
+    url(r'^digest/unsubscribe/(?P<uuid>\w+)/', unsubscribe , name="digest_unsubscribe"),
 
     # Returns suggested tags
     url(r'^local/search/tags/', search.suggest_tags, name="suggest-tags"),

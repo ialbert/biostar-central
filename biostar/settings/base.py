@@ -400,6 +400,10 @@ SITE_LOGO = "biostar2.logo.png"
 SITE_RIBBON_TEXT = "BioStars rules, fork it"
 SITE_RIBBON_URL = "http://github.com/ialbert/biostar-central"
 
+# Digest title
+DAILY_DIGEST_TITLE = '[biostar daily digest] %s'
+WEEKLY_DIGEST_TITLE = '[biostar weekly digest] %s'
+
 # The default CSS file to load.
 SITE_STYLE_CSS = "biostar.style.less"
 

@@ -58,9 +58,10 @@ def get_traffic(minutes=60):
 
 
 def banner_trigger(request, half=settings.HALF_LIFE):
-    if request.user.is_anonymous():
+    user = request.user
+    if user.is_anonymous() or user.profile.opt_in:
         return True
-    level = pow(e, -LOG2 * request.user.score/half) + 0.01
+    level = pow(e, -LOG2 * user.score/half) + 0.01
     rand = random()
     return rand <= level
 
