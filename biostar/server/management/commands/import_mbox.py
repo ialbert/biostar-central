@@ -60,50 +60,15 @@ class Bunch(object):
         self.__dict__.update(kwargs)
 
 
-def guess_tags(text):
-    # Try to figure out tags between [] enclosures in subject
-    subj_tags = re.findall(r'\[(.*?)\]', text)
+def guess_tags(text, tag_val):
+    return tag_val
 
-    # XXX: Adhoc tokens for neurosci community
-    others = re.findall(r'AFNI|afni|FSL|fsl|ipython|DICOM|OHBM|MNI|itk|SPM|spm|nipy|Nipype|nipype|ANTS|ANTs|MATLAB', text)
-    if others:
-        for i in others:
-            subj_tags.append(i)
 
-    if subj_tags is not None:
-        tags = ','.join(subj_tags)
-        if tags:
-            logger.info("Guessed tags: %s from %s" % (tags.lower(), subj_tags))
-        return tags
-    else:
-        return ''
-
-# XXX: Tag posts containing the following keywords (in subject)
-CUSTOM_TAGS = [
-    "AFNI",
-    "FSL"
-]
-
-# Strip subject text before creating post
 REPLACE_PATT = [
     "[Galaxy-user]",
     "[Galaxy-User]",
     "[galaxy-user]",
     "[BioC]",
-    "[Nipy-devel]",
-    "[nipype]",
-    "[NiPype]",
-    "[Nipype]",
-    "[FSL]",
-    "[off-topic]",
-    "[OT]",
-    "[ot-fyi]",
-    "[nitime]",
-    "[nibabel]",
-    "[nipy]",
-    "[Nipy]",
-    "[NiBabel]",
-    "[SPM]"
 ]
 
 SKIPPED_SIZE = 0
@@ -124,12 +89,14 @@ def create_post(b, author, root=None, parent=None, tag_val=''):
         post = Post(title=title, type=Post.QUESTION, content=body, tag_val=tag_val, author=author)
     else:
         post_type = Post.ANSWER if parent.is_toplevel else Post.COMMENT
-        post = Post(type=post_type, content=body, tag_val=tag_val, author=author, parent=parent)
+        post = Post(type=post_type, content=body, tag_val="galaxy", author=author, parent=parent)
 
     post.creation_date = post.lastedit_date = b.date
 
     if not DRY_RUN:
         post.save()
+
+    tag_val = guess_tags(post.content, tag_val)
 
     if tag_val and not DRY_RUN:
         post.add_tags(tag_val)
@@ -245,11 +212,10 @@ def unpack_message(data):
     date = datetime(*date[:6])
     date = timezone.make_aware(date, timezone=utc)
 
-    b = Bunch(name=name, email=email, date=date, tags=guess_tags(msg.get_subject()))
+    b = Bunch(name=name, email=email, date=date)
     b.id = msg.get_decoded_header("Message-ID")
     b.reply_to = msg.get_decoded_header('In-Reply-To')
     b.subj = subj
-
     for patt in REPLACE_PATT:
         b.subj = b.subj.replace(patt, "")
 
@@ -288,11 +254,11 @@ def parse_mboxx(filename, limit=None, tag_val=''):
 
     global SKIPPED_REPLY
 
-    users = User.objects.all().delete()
+    #users = User.objects.all().delete()
     users = User.objects.all()
     users = dict([(u.email, u) for u in users])
 
-    Post.objects.all().delete()
+    #Post.objects.all().delete()
 
     logger.info("*** found %s users" % len(users))
 
@@ -367,7 +333,6 @@ def parse_mboxx(filename, limit=None, tag_val=''):
             post = create_post(b=b, author=author, parent=parent)
         else:
             post = create_post(b=b, author=author, tag_val=tag_val)
-            post.add_tags(b.tags)
 
         posts[b.id] = post
 
