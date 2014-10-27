@@ -397,8 +397,13 @@ GOOGLE_DOMAIN = ""
 SITE_LOGO = "biostar2.logo.png"
 
 # The site "fork me on github"-style ribbon text:
-SITE_RIBBON_TEXT = None
-SITE_RIBBON_URL = None
+SITE_RIBBON_TEXT = ""
+SITE_RIBBON_LOGO = ""
+SITE_RIBBON_URL = ""
+
+#SITE_RIBBON_TEXT = ""
+#SITE_RIBBON_LOGO = "/static/themes/neurostars/img/logo-ribbon.png"
+#SITE_RIBBON_URL = "http://incf.org"
 
 # Digest title
 DAILY_DIGEST_TITLE = '[biostar daily digest] %s'

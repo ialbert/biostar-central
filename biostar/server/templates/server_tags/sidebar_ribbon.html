@@ -1,0 +1,13 @@
+{% load humanize %}
+
+{% if url or logo or text %}
+<div class="github-fork-ribbon-wrapper right-bottom">
+   <div class="github-fork-ribbon">
+       {% if logo %}
+            <a href={{ url }}>{{ text }} <img src={{ logo }}/></a>
+       {% else %}
+            <a href={{ url }}>{{ text }}</a>
+       {% endif %}
+   </div>
+</div>
+{% endif %}
