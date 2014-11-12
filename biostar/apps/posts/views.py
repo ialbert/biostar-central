@@ -249,7 +249,7 @@ class NewAnswer(LoginRequiredMixin, FormView):
             parent = Post.objects.get(pk=pid)
         except ObjectDoesNotExist, exc:
             messages.error(request, "The post does not exist. Perhaps it was deleted")
-            HttpResponseRedirect("/")
+            return HttpResponseRedirect("/")
 
         # Validating the form.
         form = self.form_class(request.POST)
