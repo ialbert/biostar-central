@@ -14,6 +14,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from biostar import const
 from biostar.apps.util import html
 from biostar.apps import util
+from biostar.apps.tracker.utils import torrent_get_announce
 # HTML sanitization parameters.
 
 logger = logging.getLogger(__name__)
@@ -179,6 +180,9 @@ class Post(models.Model):
     # Indicates indexing is needed.
     changed = models.BooleanField(default=True)
 
+    # De-normalized to save on a database lookup since most post don't have data.
+    data_count = models.IntegerField(default=0)
+
     # How many people follow that thread.
     subs_count = models.IntegerField(default=0)
 
@@ -215,6 +219,10 @@ class Post(models.Model):
 
     # What site does the post belong to.
     site = models.ForeignKey(Site, null=True)
+
+    @property
+    def has_data(self):
+        return bool(self.data_count)
 
     def parse_tags(self):
         return util.split_tags(self.tag_val)
@@ -386,7 +394,6 @@ class Post(models.Model):
 
             instance.save()
 
-
 class ReplyToken(models.Model):
     """
     Connects a user and a post to a unique token. Sending back the token identifies
@@ -408,7 +415,6 @@ class ReplyTokenAdmin(admin.ModelAdmin):
     search_fields = ('post__title', 'user__name')
 
 admin.site.register(ReplyToken, ReplyTokenAdmin)
-
 
 class EmailSub(models.Model):
     """
@@ -444,7 +450,6 @@ class EmailEntry(models.Model):
     # The date the email was sent
     status = models.IntegerField(choices=((DRAFT, "Draft"), (PUBLISHED, "Published")))
 
-
 class PostAdmin(admin.ModelAdmin):
     list_display = ('title', 'type', 'author')
     fieldsets = (
@@ -464,6 +469,57 @@ class PostView(models.Model):
     ip = models.GenericIPAddressField(default='', null=True, blank=True)
     post = models.ForeignKey(Post, related_name="post_views")
     date = models.DateTimeField(auto_now=True)
+
+class Torrent(models.Model):
+
+    # connects the torrent to the Post
+    post = models.ForeignKey(Post)
+
+    # Internal name
+    name = models.CharField(max_length=200, default="Data", db_index=True)
+
+    info_hash = models.CharField(max_length=40, db_index=True)
+
+    # Some torrents may end up as disabled
+    disabled = models.BooleanField(default=False)
+
+    completed = models.PositiveIntegerField(default=0)
+    downloaded = models.PositiveIntegerField(default=0)
+    uploaded = models.PositiveIntegerField(default=0)
+
+    # computed as len(Peer.objects.filter(torrent=self).filter(left=0)
+    seeds = models.PositiveIntegerField(default=0)
+
+    # computed as len(Peer.objects.filter(torrent=self).exclude(left=0)
+    leeches = models.PositiveIntegerField(default=0)
+
+    # Store the actual torrent in the database
+    content = models.BinaryField()
+
+    # datasize in bytes
+    size = models.PositiveIntegerField(default=0)
+
+    # how many files in the torrent
+    count = models.PositiveIntegerField(default=0)
+
+    # Date related functionality
+    lastupdate_date = models.DateTimeField(auto_now=True)
+    creation_date = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ('name', )
+
+    def __unicode__(self):
+        return self.name
+
+    def get_magnet_url(self):
+        """
+        Return a magnet link conforming with magnet URI schema:
+        magnet:?xt=urn:btih:'INFO_HASH'&dn='NAME'&tr='TRACKER1:port'&tr='TRACKER2:port'
+        """
+        magnet = "magnet:?xt=urn:btih:{info_hash}&dn={name}&tr={tracker}"
+        return magnet.format(info_hash=self.info_hash, name=self.name,
+                             tracker=torrent_get_announce(self.content))
 
 
 class Vote(models.Model):

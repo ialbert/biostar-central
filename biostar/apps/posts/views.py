@@ -1,7 +1,7 @@
 # Create your views here.
 from django.shortcuts import render_to_response
 from django.views.generic import TemplateView, DetailView, ListView, FormView, UpdateView
-from .models import Post
+from .models import Post, Torrent
 from django import forms
 from django.core.urlresolvers import reverse
 from crispy_forms.helper import FormHelper
@@ -20,6 +20,7 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 import logging
+from biostar.apps.tracker.utils import torrent_get_hash, torrent_get_size
 
 logger = logging.getLogger(__name__)
 
@@ -50,14 +51,42 @@ def valid_tag(text):
         raise ValidationError('You have too many tags (5 allowed)')
 
 
-class LongForm(forms.Form):
+class DataForm(forms.Form):
+    data = forms.FileField(
+        label="Optional: Share Data",
+        required=False,
+        help_text='File must be a torrent file! Read the <a href="/info/data" target="blank">Data Sharing</a> for how this works'
+    )
+
+    def clean_data(self):
+        MAX_MB = 1
+        MAX_SIZE = MAX_MB * 1024 * 1024
+        data = self.cleaned_data['data']
+        if not data:
+            return data
+
+        if data._size > MAX_SIZE:
+            raise forms.ValidationError('Filesize must be under %s Mb' % MAX_MB)
+
+        try:
+            value = data.read()
+            info_hash = torrent_get_hash(value)
+        except Exception, exc:
+            logger.error(exc)
+            raise forms.ValidationError('The file does not appear to be a torrent file')
+
+        return data
+
+
+class LongForm(DataForm):
     FIELDS = "title content post_type tag_val".split()
 
     POST_CHOICES = [(Post.QUESTION, "Question"),
                     (Post.JOB, "Job Ad"),
+                    (Post.DATA, "Data"),
                     (Post.TUTORIAL, "Tutorial"), (Post.TOOL, "Tool"),
                     (Post.FORUM, "Forum"), (Post.NEWS, "News"),
-                    (Post.BLOG, "Blog"), (Post.PAGE, "Page")]
+                    (Post.BLOG, "Blog"), ]
 
     title = forms.CharField(
         label="Post Title",
@@ -78,7 +107,19 @@ class LongForm(forms.Form):
                               min_length=80, max_length=15000,
                               label="Enter your post below")
 
+    remove = forms.BooleanField(
+        label="Remove the data from this post", initial=False, required=False,
+        help_text="Checking this box will remove the data. Uploading a new file will replace the data",
+    )
+
+    POST_KEY = "post"
+
     def __init__(self, *args, **kwargs):
+        # This is sent only when editing a post
+        post = kwargs.get(self.POST_KEY)
+        if post:
+            kwargs.pop(self.POST_KEY)
+
         super(LongForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_class = "post-form"
@@ -95,20 +136,45 @@ class LongForm(forms.Form):
             )
         )
 
+        fieldset = self.helper.layout[0]
 
-class ShortForm(forms.Form):
+        #if post and post.torrent:
+        #    fieldset.append(
+        #        Field('remove'),
+        #    )
+
+        # add data upload
+        fieldset.append(
+            Field('data'),
+        )
+
+
+class ShortForm(DataForm):
     FIELDS = ["content"]
 
     content = forms.CharField(widget=forms.Textarea, min_length=20)
 
+    data = forms.FileField(
+        label="Optional: Share Data",
+        required=False,
+        help_text='File must be a torrent file! Read the <a href="/info/data" target="blank">Data Sharing</a> for how this works'
+    )
+
+    POST_KEY = "post"
+
     def __init__(self, *args, **kwargs):
+        post = kwargs.get(self.POST_KEY)
+        if post:
+            kwargs.pop(self.POST_KEY)
         super(ShortForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Fieldset(
                 'Post',
-                'content',
+                Field('content'),
+                Field('data'),
             ),
+
             ButtonHolder(
                 Submit('submit', 'Submit')
             )
@@ -171,6 +237,30 @@ def external_post_handler(request):
     return HttpResponseRedirect(reverse("new-post"))
 
 
+def add_data(post, data):
+    if not data:
+        return
+
+    # rewind the incoming file
+    data.seek(0)
+    content = data.read()
+    name = data.name
+
+    info_hash = torrent_get_hash(content)
+    size, count = torrent_get_size(content)
+
+    torrent = Torrent.objects.create(
+        post=post,
+        info_hash=info_hash,
+        name=name, content=content,
+        seeds=1,
+        size=size,
+        count=count,
+    )
+    post.data_count = post.torrent_set.all().count()
+    post.save()
+
+
 class NewPost(LoginRequiredMixin, FormView):
     form_class = LongForm
     template_name = "post_edit.html"
@@ -196,24 +286,31 @@ class NewPost(LoginRequiredMixin, FormView):
 
 
     def post(self, request, *args, **kwargs):
+
         # Validating the form.
-        form = self.form_class(request.POST)
+        form = self.form_class(request.POST, request.FILES)
+
         if not form.is_valid():
             return render(request, self.template_name, {'form': form})
 
         # Valid forms start here.
-        data = form.cleaned_data.get
+        get = form.cleaned_data.get
 
-        title = data('title')
-        content = data('content')
-        post_type = int(data('post_type'))
-        tag_val = data('tag_val')
+        title = get('title')
+        content = get('content')
+        post_type = int(get('post_type'))
+        tag_val = get('tag_val')
+
+        # This the the data set
+        data = get('data')
 
         post = Post(
             title=title, content=content, tag_val=tag_val,
             author=request.user, type=post_type,
         )
         post.save()
+
+        add_data(post=post, data=data)
 
         # Triggers a new post save.
         post.add_tags(post.tag_val)
@@ -257,13 +354,13 @@ class NewAnswer(LoginRequiredMixin, FormView):
             return render(request, self.template_name, {'form': form})
 
         # Valid forms start here.
-        data = form.cleaned_data.get
+        clean = form.cleaned_data.get
 
         # Figure out the right type for this new post
         post_type = self.type_map.get(self.post_type)
         # Create a new post.
         post = Post(
-            title=parent.title, content=data('content'), author=request.user, type=post_type,
+            title=parent.title, content=clean('content'), author=request.user, type=post_type,
             parent=parent,
         )
 
@@ -322,23 +419,30 @@ class EditPost(LoginRequiredMixin, FormView):
         # Posts with a parent are not toplevel
         form_class = LongForm if post.is_toplevel else ShortForm
 
-        form = form_class(request.POST)
+        form = form_class(request.POST, request.FILES)
+
         if not form.is_valid():
             # Invalid form submission.
             return render(request, self.template_name, {'form': form})
 
         # Valid forms start here.
-        data = form.cleaned_data
+        clean = form.cleaned_data
 
         # Set the form attributes.
         for field in form_class.FIELDS:
-            setattr(post, field, data[field])
+            setattr(post, field, clean[field])
 
         # TODO: fix this oversight!
-        post.type = int(data.get('post_type', post.type))
+        post.type = int(clean.get('post_type', post.type))
 
         # This is needed to validate some fields.
         post.save()
+
+        # Obtain dataset
+        data = clean.get('data')
+
+        # add the data if
+        add_data(post=post, data=data)
 
         if post.is_toplevel:
             post.add_tags(post.tag_val)

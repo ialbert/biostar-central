@@ -11,6 +11,7 @@ from biostar.apps.posts.views import NewAnswer, NewPost, EditPost, external_post
 from biostar.apps.users.views import external_logout, external_login, CaptchaView, DigestManager, unsubscribe
 from biostar.apps.planet.views import BlogPostList
 
+
 urlpatterns = patterns('',
 
     # Post listing.
@@ -151,6 +152,13 @@ urlpatterns += patterns('',
     url(r'^info/(?P<slug>\w+)/$', views.FlatPageView.as_view(), name='flatpage'),
     url(r'^info/update/(?P<pk>\d+)/$', views.FlatPageUpdate.as_view(), name='flatpage-update'),
 )
+
+# Add the tracker urls
+urlpatterns += patterns('',
+    url(r'^data/', include('biostar.apps.tracker.urls', namespace='tracker', app_name='tracker')),
+)
+
+
 
 # This is used only for the debug toolbar
 if settings.DEBUG:

@@ -3,10 +3,10 @@
 <div class="post-body {{ post.get_status_display }} clearfix">
 
     {% if post.is_toplevel %}
-
         {% include "banners/leaderboard.html" %}
 
         <div class="title" >{{ post.get_type_display }}: <span itemprop="name">{{ post.get_title }}</span></div>
+    {% endif %}
 
     {% endif %}
 
@@ -35,14 +35,23 @@
 
         <a name="{{ post.id }}"></a>
         {# The body of the post #}
-        <div class="content" >
+        <div class="content">
 
-            {% post_user_box post.author post.creation_date %}
 
-            <span itemprop="text">{{ post.html|safe }}</span>
+
+
+            <div class="col-sm-12">
+                {% post_user_box post.author post.creation_date %}
+                <span itemprop="text">{{ post.html|safe }}</span>
+                {%  data_list post %}
+
+            </div>
+
 
 
             <div class="clearfix">
+
+
                 {% if post.is_toplevel %}
                     <div class="tags clearfix" style="margin-bottom:0.5em;">
                         {% for tag in post.tag_set.all %}
@@ -51,10 +60,14 @@
                     </div>
                 {% endif %}
 
+
+
                 {# Post action line #}
                 {% post_actions post user %}
 
             </div>
+
+
 
             {# Comments for each post rendered here #}
             <div class="comment" itemprop="comment">

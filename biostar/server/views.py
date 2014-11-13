@@ -6,9 +6,10 @@ import os, random
 from django.core.cache import cache
 from biostar.apps.messages.models import Message
 from biostar.apps.users.models import User
-from biostar.apps.posts.models import Post, Vote, Tag, Subscription, ReplyToken
+from biostar.apps.posts.models import Post, Vote, Tag, Subscription, ReplyToken, Torrent
 from biostar.apps.posts.views import NewPost, NewAnswer
 from biostar.apps.badges.models import Badge, Award
+from biostar.apps.tracker.models import Peer
 from biostar.apps.posts.auth import post_permissions
 from biostar.apps.util import html
 
@@ -434,8 +435,8 @@ class PostDetails(DetailView):
         obj.tree = tree
         obj.answers = answers
 
-        # Add the more like this field
-        post = super(PostDetails, self).get_object()
+        # Get the torrents attached to this post
+        obj.torrents = obj.torrent_set.all()
 
         return obj
 
