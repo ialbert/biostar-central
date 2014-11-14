@@ -191,7 +191,7 @@ def download_torrent(request, pk):
     #content = utils.torrent_set_announce(content, 'url')
     #content = utils.torrent_set_private(content, True)
 
-    response = HttpResponse(content, content_type='application/octet-stream')
+    response = HttpResponse(content, content_type='application/bittorrent')
     response['Content-Disposition'] = 'attachment; filename="%s-%d.torrent"' % \
                                       (slugify(torrent.name), torrent.id)
 

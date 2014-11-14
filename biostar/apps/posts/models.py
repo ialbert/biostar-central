@@ -521,6 +521,9 @@ class Torrent(models.Model):
         magnet = "magnet:?xt=urn:btih:{info_hash}&dn={name}&tr={tracker}"
         return magnet.format(info_hash=self.info_hash, name="neurotorrent",
                              tracker=urllib.quote_plus(torrent_get_announce(self.content)))
+        #XXX: Transmission client stalls with "torrent metadata needed" forever (https://trac.transmissionbt.com/ticket/5507)...
+        # The following legitimate magnet link does not work either
+        #return 'magnet:?xt=urn:btih:5fc2f273123336ee34b9ea635ef8440377a42888&tr=http%3A%2F%2Facademictorrents.com%2Fannounce.php&tr=udp%3A%2F%2Ftracker.publicbt.com%3A80%2Fannounce&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80%2Fannounce'
 
 
 class Vote(models.Model):
