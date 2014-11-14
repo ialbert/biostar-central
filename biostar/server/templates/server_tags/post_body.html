@@ -8,8 +8,6 @@
         <div class="title" >{{ post.get_type_display }}: <span itemprop="name">{{ post.get_title }}</span></div>
     {% endif %}
 
-    {% endif %}
-
     <div class="post vote-box visible-lg visible-md" data-post_id="{{ post.id }}">
 
         <div class="vote mark {{ post.has_upvote|on }} tip" data-toggle="tooltip" data-placement="top"

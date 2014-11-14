@@ -1,5 +1,6 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
 import logging, datetime, string
+import urllib
 from django.db import models
 from django.conf import settings
 from django.contrib import admin
@@ -518,8 +519,8 @@ class Torrent(models.Model):
         magnet:?xt=urn:btih:'INFO_HASH'&dn='NAME'&tr='TRACKER1:port'&tr='TRACKER2:port'
         """
         magnet = "magnet:?xt=urn:btih:{info_hash}&dn={name}&tr={tracker}"
-        return magnet.format(info_hash=self.info_hash, name=self.name,
-                             tracker=torrent_get_announce(self.content))
+        return magnet.format(info_hash=self.info_hash, name="neurotorrent",
+                             tracker=urllib.quote_plus(torrent_get_announce(self.content)))
 
 
 class Vote(models.Model):

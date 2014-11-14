@@ -368,7 +368,8 @@ SOCIALACCOUNT_PROVIDERS = {
     #},
 
     'persona': {
-        'REQUEST_PARAMETERS': {'siteName': 'Biostar'}
+        'REQUEST_PARAMETERS': {'siteName': 'Biostar'},
+        'AUDIENCE': "localhost"
     },
 
     'github': {
