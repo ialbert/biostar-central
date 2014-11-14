@@ -15,7 +15,7 @@ from django.db.models import Count
 from django.core.urlresolvers import reverse
 from django.core.mail import EmailMultiAlternatives
 
-def daily_digest(days, text_tmpl, html_tmpl, send, options, limit=10, verbosity=1):
+def render_digest(days, text_tmpl, html_tmpl, send, options, limit=10, verbosity=1):
     from_email = settings.DEFAULT_FROM_EMAIL
     from biostar.apps.posts.models import Post
     from biostar.apps.users.models import User
@@ -113,15 +113,15 @@ class Command(BaseCommand):
 
     option_list = BaseCommand.option_list + (
 
-        make_option('--get_emails', dest='prefs', default=None,
+        make_option('--emails', dest='emails', default=None,
                     help='returns the emails for users with a certain digest preference set (daily, weekly, monthly)'),
 
         make_option('--subject', dest='subject', default="Biostar Digest",
                     help='the subject line of the email'),
 
-        make_option('--send_to', dest='send', default=None,
-                    help='sends the email subscribers. Both text and html templates '
-                         'are sent in a single multi-part email. (default=%default)'),
+        make_option('--send', dest='send', metavar="FILE", default=None,
+                    help='sends the rendered templates to the list of emails in the file. Both text and html templates '
+                         'are sent in a single multi-part email.'),
 
         make_option('--days', dest='days', default=1, type=int, metavar='NUMBER',
                     help='how many days back to include into the digest (default=%default)'),
@@ -134,14 +134,27 @@ class Command(BaseCommand):
 
         make_option('--html', dest='html_template', metavar='FILE', default=None,
                     help='html template to use (default=%default)'),
+
+        make_option('--show', dest='show',
+                    action="store_true", default=False, help='show the results'),
+
     )
 
     def handle(self, *args, **options):
+
         days, send = options['days'], options['send']
+        emails, show = options['emails'], options['show']
+
         verbosity = options['verbosity']
         text_tmpl, html_tmpl = options['text_template'], options['html_template']
 
-        daily_digest(days=days, send=send, text_tmpl=text_tmpl, html_tmpl=html_tmpl, options=options,
+        if emails:
+            # Shows the emails of users registered for a digest
+            pass
+
+        if show:
+            # Produces the daily digest.
+            render_digest(days=days, send=send, text_tmpl=text_tmpl, html_tmpl=html_tmpl, options=options,
                      verbosity=int(verbosity), )
 
 
