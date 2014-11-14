@@ -519,7 +519,7 @@ class Torrent(models.Model):
         magnet:?xt=urn:btih:'INFO_HASH'&dn='NAME'&tr='TRACKER1:port'&tr='TRACKER2:port'
         """
         magnet = "magnet:?xt=urn:btih:{info_hash}&dn={name}&tr={tracker}"
-        return magnet.format(info_hash=self.info_hash, name="neurotorrent",
+        return magnet.format(info_hash=self.info_hash, name=self.name,
                              tracker=urllib.quote_plus(torrent_get_announce(self.content)))
         #XXX: Transmission client stalls with "torrent metadata needed" forever (https://trac.transmissionbt.com/ticket/5507)...
         # The following legitimate magnet link does not work either
