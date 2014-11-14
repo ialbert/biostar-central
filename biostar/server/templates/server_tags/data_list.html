@@ -11,14 +11,11 @@
                 <a href="{{ torrent.get_magnet_url }}" class="label label-success"><i
                 class="fa fa-magnet"></i></a>
 
-                <a href="{% url 'tracker:download' pk=torrent.id %}" class="label label-success"><i
+                <a href="{% url 'tracker:download' pk=torrent.id %}" class="label label-success"
+                   title="{{ torrent.count }} file{{ torrent.count|pluralize }} {{ torrent.size|filesizeformat }}, shared by {{ torrent.seeds }} peer{{ torrent.seeds|pluralize }}"><i
                 class="fa fa-download"></i></a>
                 &nbsp; <a href="{% url 'tracker:view-torrent' pk=torrent.id %}">
                 {{ torrent.name|truncatechars:80 }}</a>
-
-                &bull; {{ torrent.count }} file {{ torrent.count|pluralize }}
-                &bull; {{ torrent.size|filesizeformat }}
-                &bull; shared by {{ torrent.seeds }} peer{{ torrent.seeds|pluralize }}
             </li>
         {% endfor %}
         </ol>
