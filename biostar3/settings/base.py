@@ -43,6 +43,8 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'biostar3.forum',
+
 )
 
 MIDDLEWARE_CLASSES = (
@@ -62,11 +64,11 @@ WSGI_APPLICATION = 'biostar3.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/1.7/ref/settings/#databases
-
+DATABASE_NAME = get_env('DATABASE_NAME')
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': get_env('DATABASE_NAME'),
+        'NAME': DATABASE_NAME,
     }
 }
 

@@ -63,9 +63,15 @@ while (( "$#" )); do
 
     fi
 
+    if [ "$1" = "run" ]; then
+        echo "*** Run the development server with $DJANGO_SETTINGS_MODULE and DATABASE_NAME=$DATABASE_NAME"
+        $PYTHON $DJANGO_ADMIN runserver $BIOSTAR_HOSTNAME --settings=$DJANGO_SETTINGS_MODULE
+    fi
+
+
     if [ "$1" = "delete" ]; then
         echo "*** Deleting the sqlite database"
-        $PYTHON $DJANGO_ADMIN delete_database --settings=$DJANGO_SETTINGS_MODULE
+        $PYTHON $DJANGO_ADMIN delete_sqlite --settings=$DJANGO_SETTINGS_MODULE
     fi
 
     if [ "$1" = "pg_drop" ]; then
@@ -89,10 +95,6 @@ while (( "$#" )); do
         $PYTHON $DJANGO_ADMIN biostar_pg_dump -v $VERBOSITY --settings=$DJANGO_SETTINGS_MODULE
     fi
 
-    if [ "$1" = "run" ]; then
-        echo "*** Run the development server with $DJANGO_SETTINGS_MODULE and DATABASE_NAME=$DATABASE_NAME"
-        $PYTHON $DJANGO_ADMIN runserver $BIOSTAR_HOSTNAME --settings=$DJANGO_SETTINGS_MODULE
-    fi
 
 	if [ "$1" = "waitress" ]; then
         echo "*** Run a waitress server with $DJANGO_SETTINGS_MODULE and DATABASE_NAME=$DATABASE_NAME"
