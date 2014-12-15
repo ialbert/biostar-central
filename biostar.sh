@@ -45,6 +45,24 @@ fi
 
 while (( "$#" )); do
 
+     if [ "$1" = "init" ]; then
+        echo "*** Initializing server on $BIOSTAR_HOSTNAME with $DJANGO_SETTINGS_MODULE"
+
+        $PYTHON $DJANGO_ADMIN migrate --settings=$DJANGO_SETTINGS_MODULE
+
+        #echo "*** Running all tests"
+        #$PYTHON $DJANGO_ADMIN test --noinput -v $VERBOSITY --settings=$DJANGO_SETTINGS_MODULE
+        #$PYTHON $DJANGO_ADMIN syncdb -v $VERBOSITY --noinput --settings=$DJANGO_SETTINGS_MODULE
+
+        #$PYTHON $DJANGO_ADMIN migrate  biostar.apps.users --settings=$DJANGO_SETTINGS_MODULE
+        #$PYTHON $DJANGO_ADMIN migrate  biostar.apps.posts --settings=$DJANGO_SETTINGS_MODULE
+        #$PYTHON $DJANGO_ADMIN migrate  --settings=$DJANGO_SETTINGS_MODULE
+        #$PYTHON $DJANGO_ADMIN initialize_site --settings=$DJANGO_SETTINGS_MODULE
+
+        #$PYTHON $DJANGO_ADMIN collectstatic -v $VERBOSITY --noinput --settings=$DJANGO_SETTINGS_MODULE
+
+    fi
+
     if [ "$1" = "delete" ]; then
         echo "*** Deleting the sqlite database"
         $PYTHON $DJANGO_ADMIN delete_database --settings=$DJANGO_SETTINGS_MODULE
@@ -86,20 +104,7 @@ while (( "$#" )); do
         fab -f conf/fabs/fabfile.py test_site pull restart
     fi
 
-    if [ "$1" = "init" ]; then
-        echo "*** Initializing server on $BIOSTAR_HOSTNAME with $DJANGO_SETTINGS_MODULE"
-        echo "*** Running all tests"
-        #$PYTHON $DJANGO_ADMIN test --noinput -v $VERBOSITY --settings=$DJANGO_SETTINGS_MODULE
-        $PYTHON $DJANGO_ADMIN syncdb -v $VERBOSITY --noinput --settings=$DJANGO_SETTINGS_MODULE
 
-        $PYTHON $DJANGO_ADMIN migrate  biostar.apps.users --settings=$DJANGO_SETTINGS_MODULE
-        $PYTHON $DJANGO_ADMIN migrate  biostar.apps.posts --settings=$DJANGO_SETTINGS_MODULE
-        $PYTHON $DJANGO_ADMIN migrate  --settings=$DJANGO_SETTINGS_MODULE
-        $PYTHON $DJANGO_ADMIN initialize_site --settings=$DJANGO_SETTINGS_MODULE
-
-        $PYTHON $DJANGO_ADMIN collectstatic -v $VERBOSITY --noinput --settings=$DJANGO_SETTINGS_MODULE
-
-    fi
 
     # Produce the environment variables recognized by Biostar.
     if [ "$1" = "test" ]; then

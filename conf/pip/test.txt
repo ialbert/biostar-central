@@ -1,4 +1,4 @@
 # Inherit from base
--r base.txt
+-r basic.txt
 
 psycopg2
