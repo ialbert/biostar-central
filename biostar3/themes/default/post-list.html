@@ -1,8 +1,16 @@
-{% extends "site-base.html" %}
+{% extends "site-layout.html" %}
 {% block body %}
-    <ul>
+    <div class="container">
         {% for post in posts %}
-            <li>{{ post.title }}</li>
+
+
+            <div class="row">
+                <div class="one columns">100</div>
+                <div class="eleven columns">{{ post.title }}</div>
+            </div>
+
+        
+
         {% endfor %}
-    </ul>
+    </div>
 {% endblock %}

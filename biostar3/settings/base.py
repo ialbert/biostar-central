@@ -82,12 +82,11 @@ DATABASES = {
 
 AUTH_USER_MODEL = 'forum.User'
 
-# Looks
-CUSTOM_THEME_PATH = abspath(get_env('CUSTOM_THEME_PATH'))
-DEFAULT_THEME_PATH = abspath(BASE_DIR, "biostar3", "themes", "default")
+TEMPLATE_PATH = abspath(get_env('TEMPLATE_PATH'))
+DEFAULT_PATH = abspath(BASE_DIR, "biostar3", "themes", "default")
 TEMPLATE_DIRS = (
-    CUSTOM_THEME_PATH,
-    DEFAULT_THEME_PATH,
+   TEMPLATE_PATH,
+   DEFAULT_PATH
 )
 
 # Internationalization
@@ -108,3 +107,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.7/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = get_env('STATIC_ROOT')
+STATICFILES_DIRS = (
+    abspath(TEMPLATE_PATH, "static"),
+)

@@ -1,4 +1,25 @@
-{%  extends "site-base.html" %}
-{%  block body %}
-    Body
-{%  endblock %}
+{% extends "site-base.html" %}
+{% load staticfiles %}
+
+{% block head %}
+
+    <link href='//fonts.googleapis.com/css?family=Raleway:400,300,600' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href={% static "css/normalize.css" %}>
+    <link rel="stylesheet" href={% static "css/skeleton.css" %}>
+    <link rel="icon" type="image/png" href={% static "images/favicon.png" %}/>
+
+{% endblock %}
+
+{% block header %}
+    <div class="container">
+         Welcome to Biostar!
+    </div>
+{% endblock %}
+{% block body %}
+    Default Body
+{% endblock %}
+{% block footer %}
+    <div class="container">
+         Page Footer
+    </div>
+{% endblock %}}
