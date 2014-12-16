@@ -4,8 +4,14 @@ import os
 from django.core.exceptions import ImproperlyConfigured
 from .logger import LOGGING
 
+
+def abspath(*args):
+    "Generates absolute paths."
+    return os.path.abspath(os.path.join(*args))
+
+
 def get_env(name, func=None):
-    """Get the environment variable or return exception"""
+    "Gets the values from environment variables. Applies the function if specified."
     try:
         if func:
             return func(os.environ[name])
@@ -17,6 +23,7 @@ def get_env(name, func=None):
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+
 BASE_DIR = get_env('BIOSTAR_HOME')
 
 
@@ -24,7 +31,7 @@ BASE_DIR = get_env('BIOSTAR_HOME')
 # See https://docs.djangoproject.com/en/1.7/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '_e9md8r6@_(-e9d%c^n4l2x9hpa@+29sm(=-8=o^@i9*+rs)95'
+SECRET_KEY = get_env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -43,8 +50,9 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
+    'django.contrib.sitemaps',
     'biostar3.forum',
-
 )
 
 MIDDLEWARE_CLASSES = (
@@ -71,6 +79,16 @@ DATABASES = {
         'NAME': DATABASE_NAME,
     }
 }
+
+AUTH_USER_MODEL = 'forum.User'
+
+# Looks
+CUSTOM_THEME_PATH = abspath(get_env('CUSTOM_THEME_PATH'))
+DEFAULT_THEME_PATH = abspath(BASE_DIR, "biostar3", "themes", "default")
+TEMPLATE_DIRS = (
+    CUSTOM_THEME_PATH,
+    DEFAULT_THEME_PATH,
+)
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.7/topics/i18n/

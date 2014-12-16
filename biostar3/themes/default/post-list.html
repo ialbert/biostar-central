@@ -1,0 +1,8 @@
+{% extends "site-base.html" %}
+{% block body %}
+    <ul>
+        {% for post in posts %}
+            <li>{{ post.title }}</li>
+        {% endfor %}
+    </ul>
+{% endblock %}

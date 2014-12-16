@@ -1,15 +1,21 @@
 from django.db import models
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, UserManager
 from django.contrib.sites.models import Site
+from django.conf import settings
 
 # The main user model.
 class User(AbstractBaseUser):
+    "Represents a registered user of the website."
+
     # Class level constants.
     USER, MODERATOR, ADMIN, BLOG = range(4)
     TYPE_CHOICES = [(USER, "User"), (MODERATOR, "Moderator"), (ADMIN, "Admin"), (BLOG, "Blog")]
 
     NEW_USER, TRUSTED, SUSPENDED, BANNED = range(4)
     STATUS_CHOICES = ((NEW_USER, 'New User'), (TRUSTED, 'Trusted'), (SUSPENDED, 'Suspended'), (BANNED, 'Banned'))
+
+    class Meta:
+        db_table = "users_user"
 
     # Required by Django.
     USERNAME_FIELD = 'email'
@@ -45,5 +51,111 @@ class User(AbstractBaseUser):
     flair = models.CharField(verbose_name='Flair', max_length=15, default="")
 
     # The site this users belongs to.
-    #site = models.ForeignKey(Site, null=True)
+    site = models.ForeignKey(Site, null=True)
+
+
+class Tag(models.Model):
+    "Represents a tag."
+
+    class Meta:
+        db_table = "posts_tag"
+
+    name = models.TextField(max_length=50, db_index=True)
+    count = models.IntegerField(default=0)
+
+
+class Post(models.Model):
+    "Represents a post."
+
+    class Meta:
+        db_table = "posts_post"
+        ordering = ["-lastedit_date"]
+
+    # Post statuses.
+    PENDING, OPEN, CLOSED, DELETED = range(4)
+    STATUS_CHOICES = [(PENDING, "Pending"), (OPEN, "Open"), (CLOSED, "Closed"), (DELETED, "Deleted")]
+
+    # Question types. Answers should be listed before comments.
+    QUESTION, ANSWER, JOB, FORUM, PAGE, BLOG, COMMENT, DATA, TUTORIAL, BOARD, TOOL, NEWS = range(12)
+
+    TYPE_CHOICES = [
+        (QUESTION, "Question"), (ANSWER, "Answer"), (COMMENT, "Comment"),
+        (JOB, "Job"), (FORUM, "Forum"), (TUTORIAL, "Tutorial"),
+        (DATA, "Data"), (PAGE, "Page"), (TOOL, "Tool"), (NEWS, "News"),
+        (BLOG, "Blog"), (BOARD, "Bulletin Board")
+    ]
+
+    TOP_LEVEL = {QUESTION, JOB, FORUM, PAGE, BLOG, DATA, TUTORIAL, TOOL, NEWS, BOARD}
+
+    title = models.CharField(max_length=250, null=False)
+
+    # The user that originally created the post.
+    author = models.ForeignKey(settings.AUTH_USER_MODEL)
+
+    # The user that edited the post most recently.
+    lastedit_user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='editor')
+
+    # Indicates the information value of the post.
+    rank = models.FloatField(default=0, blank=True)
+
+    # Post status: open, closed, deleted.
+    status = models.IntegerField(choices=STATUS_CHOICES, default=OPEN)
+
+    # The type of the post: question, answer, comment.
+    type = models.IntegerField(choices=TYPE_CHOICES, db_index=True)
+
+    # Number of upvotes for the post
+    vote_count = models.IntegerField(default=0, blank=True, db_index=True)
+
+    # The number of views for the post.
+    view_count = models.IntegerField(default=0, blank=True)
+
+    # The number of replies that a post has.
+    reply_count = models.IntegerField(default=0, blank=True)
+
+    # The number of comments that a post has.
+    comment_count = models.IntegerField(default=0, blank=True)
+
+    # Bookmark count.
+    book_count = models.IntegerField(default=0)
+
+    # Indicates indexing is needed.
+    changed = models.BooleanField(default=True)
+
+    # How many people follow that thread.
+    subs_count = models.IntegerField(default=0)
+
+    # The total score of the thread (used for top level only)
+    thread_score = models.IntegerField(default=0, blank=True, db_index=True)
+
+    # Date related fields.
+    creation_date = models.DateTimeField(db_index=True)
+    lastedit_date = models.DateTimeField(db_index=True)
+
+    # Stickiness of the post.
+    sticky = models.BooleanField(default=False, db_index=True)
+
+    # Indicates whether the post has accepted answer.
+    has_accepted = models.BooleanField(default=False, blank=True)
+
+    # This will maintain the ancestor/descendant relationship bewteen posts.
+    root = models.ForeignKey('self', related_name="descendants", null=True, blank=True)
+
+    # This will maintain parent/child replationships between posts.
+    parent = models.ForeignKey('self', null=True, blank=True, related_name='children')
+
+    # This is the HTML that the user enters.
+    content = models.TextField(default='')
+
+    # This is the  HTML that gets displayed.
+    html = models.TextField(default='')
+
+    # The tag value is the canonical form of the post's tags
+    tag_val = models.CharField(max_length=100, default="", blank=True)
+
+    # The tag set is built from the tag string and used only for fast filtering
+    tag_set = models.ManyToManyField(Tag, blank=True, )
+
+    # What site does the post belong to.
+    site = models.ForeignKey(Site, null=True)
 
