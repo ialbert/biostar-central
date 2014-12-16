@@ -1,16 +1,28 @@
 {% extends "site-layout.html" %}
 {% block body %}
     <div class="container">
-        {% for post in posts %}
 
+        <div class="nine columns">
+            <h5>&nbsp;</h5>
+            <table class="u-full-width">
+                {% for post in posts %}
+                    <tr>
+                        <td>{{ post.thread_score }}</td>
+                        <td>{{ post.title }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
 
-            <div class="row">
-                <div class="one columns">100</div>
-                <div class="eleven columns">{{ post.title }}</div>
-            </div>
-
-        
-
-        {% endfor %}
+        <div class="three columns">
+            <h5>Recent Votes</h5>
+            <ul>
+                {% for vote in recent_votes %}
+                    <li>
+                        {{ vote.post.title }}
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
     </div>
 {% endblock %}

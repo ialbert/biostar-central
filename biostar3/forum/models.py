@@ -5,7 +5,7 @@ from django.conf import settings
 
 # The main user model.
 class User(AbstractBaseUser):
-    "Represents a registered user of the website."
+    """Represents a registered user of the website."""
 
     # Class level constants.
     USER, MODERATOR, ADMIN, BLOG = range(4)
@@ -55,7 +55,7 @@ class User(AbstractBaseUser):
 
 
 class Tag(models.Model):
-    "Represents a tag."
+    """Represents a tag."""
 
     class Meta:
         db_table = "posts_tag"
@@ -65,7 +65,7 @@ class Tag(models.Model):
 
 
 class Post(models.Model):
-    "Represents a post."
+    """Represents a post."""
 
     class Meta:
         db_table = "posts_post"
@@ -159,3 +159,29 @@ class Post(models.Model):
     # What site does the post belong to.
     site = models.ForeignKey(Site, null=True)
 
+class PostView(models.Model):
+    """Represents a post vote"""
+
+    class Meta:
+        db_table = "posts_postview"
+
+    ip = models.GenericIPAddressField(default='', null=True, blank=True)
+    post = models.ForeignKey(Post, related_name="post_views")
+    date = models.DateTimeField(auto_now=True)
+
+
+class Vote(models.Model):
+
+    class Meta:
+        db_table = "posts_vote"
+
+    UP, DOWN, BOOKMARK, ACCEPT = range(4)
+    TYPE_CHOICES = [(UP, "Upvote"), (DOWN, "DownVote"), (BOOKMARK, "Bookmark"), (ACCEPT, "Accept")]
+
+    author = models.ForeignKey(settings.AUTH_USER_MODEL)
+    post = models.ForeignKey(Post, related_name='votes')
+    type = models.IntegerField(choices=TYPE_CHOICES, db_index=True)
+    date = models.DateTimeField(db_index=True, auto_now=True)
+
+    def __unicode__(self):
+        return u"Vote: %s, %s, %s" % (self.post_id, self.author_id, self.get_type_display())

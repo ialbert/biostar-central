@@ -1,8 +1,12 @@
 from __future__ import absolute_import
-import os
-
+import os, string
 from django.core.exceptions import ImproperlyConfigured
+
+# Loggin configuration.
 from .logger import LOGGING
+
+# This pulls in various site specific settings.
+from .values import *
 
 
 def abspath(*args):
@@ -11,21 +15,21 @@ def abspath(*args):
 
 
 def get_env(name, func=None):
-    "Gets the values from environment variables. Applies the function if specified."
+    "Gets the values from environment variables."
     try:
-        if func:
-            return func(os.environ[name])
+        value = os.environ[name]
+        if func == list:
+            return [x.strip() for x in value.split(",")]
+        elif func:
+            return func(value)
         else:
-            return unicode(os.environ[name], encoding="utf-8")
+            return unicode(value, encoding="utf-8")
     except KeyError:
         msg = "*** Required environment variable %s not set. See conf/defaults.env." % name
         raise ImproperlyConfigured(msg)
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-import os
 
 BASE_DIR = get_env('BIOSTAR_HOME')
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.7/howto/deployment/checklist/
@@ -38,7 +42,7 @@ DEBUG = True
 
 TEMPLATE_DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = get_env('ALLOWED_HOSTS', func=list)
 
 
 # Application definition
@@ -85,8 +89,8 @@ AUTH_USER_MODEL = 'forum.User'
 TEMPLATE_PATH = abspath(get_env('TEMPLATE_PATH'))
 DEFAULT_PATH = abspath(BASE_DIR, "biostar3", "themes", "default")
 TEMPLATE_DIRS = (
-   TEMPLATE_PATH,
-   DEFAULT_PATH
+    TEMPLATE_PATH,
+    DEFAULT_PATH
 )
 
 # Internationalization
