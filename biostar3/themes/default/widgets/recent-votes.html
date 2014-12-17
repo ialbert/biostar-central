@@ -1,0 +1,8 @@
+<h5>Recent Votes</h5>
+<ul>
+    {% for vote in votes %}
+        <li>
+            <a href="{{ vote.post.get_absolute_url }}">{{ vote.post.title }}</a>
+        </li>
+    {% endfor %}
+</ul>

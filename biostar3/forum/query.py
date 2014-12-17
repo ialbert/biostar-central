@@ -1,4 +1,5 @@
-__author__ = 'ialbert'
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 from django.conf import settings
 from .models import Post, Vote
 from django.contrib.auth import get_user_model
@@ -18,9 +19,8 @@ def get_recent_users():
 
 
 def get_posts(user):
-    is_moderator = user.is_authenticated() and user.is_moderator
 
-    if is_moderator:
+    if user.is_moderator:
         posts = Post.objects.filter(type__in=Post.TOP_LEVEL)
     else:
         posts = Post.objects.filter(type__in=Post.TOP_LEVEL).exclude(status=Post.DELETED)

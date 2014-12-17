@@ -68,6 +68,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'biostar3.middleware.GlobalMiddleware',
 )
 
 ROOT_URLCONF = 'biostar3.urls'
@@ -92,6 +93,22 @@ DEFAULT_PATH = abspath(BASE_DIR, "biostar3", "themes", "default")
 TEMPLATE_DIRS = (
     TEMPLATE_PATH,
     DEFAULT_PATH
+)
+
+TEMPLATE_CONTEXT_PROCESSORS = (
+    # Django specific context processors.
+    "django.core.context_processors.debug",
+    "django.core.context_processors.static",
+    "django.core.context_processors.request",
+    "django.contrib.auth.context_processors.auth",
+    "django.contrib.messages.context_processors.messages",
+
+    # Social authorization specific context.
+    "allauth.account.context_processors.account",
+    "allauth.socialaccount.context_processors.socialaccount",
+
+    # Biostar specific context.
+    'biostar3.context.shortcuts',
 )
 
 # Internationalization

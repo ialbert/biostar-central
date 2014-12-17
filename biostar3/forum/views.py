@@ -1,3 +1,4 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
 from django.shortcuts import render
 from django.views.generic import DetailView, ListView, TemplateView, UpdateView, View
 from django.contrib.auth import get_user_model

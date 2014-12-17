@@ -1,9 +1,11 @@
 {% extends "site-layout.html" %}
+{% load widgets %}
+
 {% block body %}
     <div class="container">
 
         <div class="nine columns">
-            <h5>{{  is_paginated }}</h5>
+            <h5>Paging: {{  is_paginated }}</h5>
             <table class="u-full-width">
                 {% for post in posts %}
                     <tr>
@@ -14,15 +16,9 @@
             </table>
         </div>
 
-        <div class="three columns">
-            <h5>Recent Votes</h5>
-            <ul class="recent-votes">
-                {% for vote in recent_votes %}
-                    <li>
-                        {{ vote.post.title }}
-                    </li>
-                {% endfor %}
-            </ul>
+        <div class="three columns recent_votes">
+            {%  render_recent_votes recent_votes %}
         </div>
+
     </div>
 {% endblock %}
