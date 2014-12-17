@@ -9,25 +9,29 @@ User = get_user_model()
 
 
 class UserList(ListView):
-    """
-    Generate user listing.
-    """
+    """Generate user listing."""
     model = User
     template_name = "user-list.html"
     context_object_name = "users"
     paginate_by = 60
 
-class RecentContext(ListView):
+
+class ExtraContext(ListView):
+    """Base class that add extra context."""
+
     def get_context_data(self, **kwargs):
-        context = super(RecentContext, self).get_context_data(**kwargs)
+        context = super(ExtraContext, self).get_context_data(**kwargs)
         context['recent_votes'] = query.recent_votes()
         return context
 
-class PostList(RecentContext):
-    """
-    Generate user listing.
-    """
+
+class PostList(ExtraContext):
+    """Generate post lists from a request."""
     model = models.Post
     template_name = "post-list.html"
     context_object_name = "posts"
-    paginate_by = 60
+    paginate_by = settings.POST_PAGINATE_BY
+
+    def get_queryset(self, **kwargs):
+        posts = query.get_posts(self.request.user)
+        return posts

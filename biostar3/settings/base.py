@@ -57,6 +57,7 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.sitemaps',
     'biostar3.forum',
+    "compressor",
 )
 
 MIDDLEWARE_CLASSES = (
@@ -86,7 +87,7 @@ DATABASES = {
 
 AUTH_USER_MODEL = 'forum.User'
 
-TEMPLATE_PATH = abspath(get_env('TEMPLATE_PATH'))
+TEMPLATE_PATH = abspath(get_env('THEME_PATH'))
 DEFAULT_PATH = abspath(BASE_DIR, "biostar3", "themes", "default")
 TEMPLATE_DIRS = (
     TEMPLATE_PATH,
@@ -114,4 +115,9 @@ STATIC_URL = '/static/'
 STATIC_ROOT = get_env('STATIC_ROOT')
 STATICFILES_DIRS = (
     abspath(TEMPLATE_PATH, "static"),
+)
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    'compressor.finders.CompressorFinder',
 )

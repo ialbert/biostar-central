@@ -3,7 +3,7 @@
     <div class="container">
 
         <div class="nine columns">
-            <h5>&nbsp;</h5>
+            <h5>{{  is_paginated }}</h5>
             <table class="u-full-width">
                 {% for post in posts %}
                     <tr>
@@ -16,7 +16,7 @@
 
         <div class="three columns">
             <h5>Recent Votes</h5>
-            <ul>
+            <ul class="recent-votes">
                 {% for vote in recent_votes %}
                     <li>
                         {{ vote.post.title }}
