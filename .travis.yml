@@ -5,18 +5,17 @@ python:
   #- "3.3"
 
 addons:
-  postgresql: "9.3"
-
-before_script:
-  - psql -c 'create database travis_ci_test;' -U postgres
+  postgresql: "9.4"
 
 env:
-  - DJANGO_VERSION=1.6
-  #- DJANGO_VERSION=1.7
+  DATABASE_NAME=travis_ci_test
+
+before_script:
+  - createuser -d biostar
+  - createdb $DATABASE_NAME -E utf8 --template template0
 
 install:
-    - pip install -q -r conf/requirements/test.txt
-    - pip install -q -I Django==$DJANGO_VERSION
+    - pip install -q -r conf/pip/travis.txt
 
-script: source conf/test_travis.env && python manage.py test
+script: source conf/travis.env && python manage.py test
 

@@ -13,6 +13,5 @@ pyzmail
 ftfy
 chardet
 feedparser
-#django-secure
-#whitenoise
-#waitress
+whitenoise
+waitress

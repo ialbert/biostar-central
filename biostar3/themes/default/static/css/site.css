@@ -1,7 +1,6 @@
 
 .recent_votes > ul {
     list-style-type: none;
-    font-size: smaller;
     opacity: 0.8;
     line-height: 1;
 }
