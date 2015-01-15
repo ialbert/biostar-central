@@ -4,10 +4,6 @@ python:
   - "2.7"
   #- "3.3"
 
-branches:
-  only:
-    -3.0
-
 # This needs to match that database name in the environment.
 env:
   DATABASE_NAME=travis_ci_test
