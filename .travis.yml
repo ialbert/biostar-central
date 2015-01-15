@@ -17,5 +17,5 @@ before_script:
 install:
   - pip install -q -r conf/pip/travis.txt
 
-script: source conf/travis.env && python manage.py test
+script: source conf/travis.env && python manage.py test biostar3
 
