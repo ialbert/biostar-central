@@ -7,12 +7,8 @@ python:
 addons:
   postgresql: "9.4"
 
-env:
-  DATABASE_NAME=travis_ci_test
-
 before_script:
-  - createuser -d biostar
-  - createdb $DATABASE_NAME -E utf8 --template template0
+  - psql -c 'create database travis_ci_test;' -U postgres
 
 install:
     - pip install -q -r conf/pip/travis.txt
