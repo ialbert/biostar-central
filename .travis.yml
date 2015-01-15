@@ -4,14 +4,18 @@ python:
   - "2.7"
   #- "3.3"
 
+# This needs to match that database name in the environment.
+env:
+  DATABASE_NAME=travis_ci_test
+
 addons:
   postgresql: "9.3"
 
 before_script:
-  - psql -c 'create database travis_ci_test;' -U postgres
+  - psql -c "create database $DATABASE_NAME;" -U postgres
 
 install:
-    - pip install -q -r conf/pip/travis.txt
+  - pip install -q -r conf/pip/travis.txt
 
 script: source conf/travis.env && python manage.py test
 
