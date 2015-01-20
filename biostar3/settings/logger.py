@@ -2,12 +2,12 @@
 # more details on how to customize your logging configuration.
 
 
-class RateLimitFilter(object):
+class LogRateLimit(object):
     """
-    Limits the number of emails that are sent to admins.
+    A log filter that limits the number of emails that are sent to admins.
     """
     TIMEOUT = 600
-    CACHE_KEY = "error-limiter"
+    CACHE_KEY = "lograte-limiter"
 
     def filter(self, record):
         from django.core.cache import cache
@@ -36,7 +36,7 @@ LOGGING = {
         },
 
         'ratelimit': {
-            '()': 'biostar.settings.logger.RateLimitFilter',
+            '()': 'biostar3.settings.logger.LogRateLimit',
         }
     },
 

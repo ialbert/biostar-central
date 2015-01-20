@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>
+        {% block title %}{{ html_title }}{% endblock %}
+    </title>
+    {% block head %}
+        {# Content in the head tags. #}
+    {% endblock %}
+</head>
+<body>
+{% block top %}
+    {# Content that must be above page. #}
+{% endblock %}
+
+{% block header %}
+    Base Header
+{% endblock %}
+
+{% block body %}
+    Base Body.
+{% endblock %}
+
+{% block footer %}
+    Base Footer
+{% endblock %}
+
+{% block bottom %}
+    {#  Content that must be below page. #}
+{% endblock %}
+</body>
+</html>

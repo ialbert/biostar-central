@@ -12,7 +12,7 @@ urlpatterns = patterns('',
 
     # The list of users.
 
-    url(r'^user/list/$', UserList.as_view(), name="user-list"),
+    url(r'^user/list/$', UserList.as_view(), name="user_list"),
 
     url(r'^admin/', include(admin.site.urls)),
 )

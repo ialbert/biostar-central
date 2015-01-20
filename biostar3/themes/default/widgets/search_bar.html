@@ -1,0 +1,9 @@
+{% load humanize %}
+
+<div class="row" align="center">
+    <form action="." method="get">
+        <input type="text" name="q" class="ten columns"
+               maxlength="100" placeholder="Search here" id="search" value="{{ q }}">
+        <input class="button" type="submit" value="Submit">
+    </form>
+</div>

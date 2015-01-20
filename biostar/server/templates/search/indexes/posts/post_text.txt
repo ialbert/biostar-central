@@ -1,2 +1,0 @@
-{% if object.is_toplevel %}{{ object.title }}{% endif %}
-{{ object.as_text }}

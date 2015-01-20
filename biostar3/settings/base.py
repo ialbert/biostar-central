@@ -2,12 +2,11 @@ from __future__ import absolute_import
 import os, string
 from django.core.exceptions import ImproperlyConfigured
 
-# Loggin configuration.
+# Logging configuration.
 from .logger import LOGGING
 
 # This pulls in various site specific settings.
 from .values import *
-
 
 def abspath(*args):
     "Generates absolute paths."
@@ -15,15 +14,10 @@ def abspath(*args):
 
 
 def get_env(name, func=None):
-    "Gets the values from environment variables."
+    "Gets values from environment variables."
     try:
         value = os.environ[name]
-        if func == list:
-            return [x.strip() for x in value.split(",")]
-        elif func:
-            return func(value)
-        else:
-            return unicode(value, encoding="utf-8")
+        return unicode(value, encoding="utf-8")
     except KeyError:
         msg = "*** Required environment variable %s not set. See conf/defaults.env." % name
         raise ImproperlyConfigured(msg)
@@ -56,8 +50,9 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.sites',
     'django.contrib.sitemaps',
+    'django.contrib.humanize',
     'biostar3.forum',
-    "compressor",
+    'compressor',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -94,6 +89,8 @@ TEMPLATE_DIRS = (
     TEMPLATE_PATH,
     DEFAULT_PATH
 )
+
+TEMPLATE_STRING_IF_INVALID = "*** missing variable ***"
 
 TEMPLATE_CONTEXT_PROCESSORS = (
     # Django specific context processors.

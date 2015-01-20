@@ -4,3 +4,14 @@
     opacity: 0.8;
     line-height: 1;
 }
+
+a {
+    text-decoration: none;
+}
+
+#logo, #page_title {
+    float: left;
+    padding: 5px 10px 0px 0px;
+    vertical-align: middle;
+    line-height: 1.0;
+}

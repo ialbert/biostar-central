@@ -60,7 +60,6 @@ while (( "$#" )); do
         #$PYTHON $DJANGO_ADMIN initialize_site --settings=$DJANGO_SETTINGS_MODULE
 
         #$PYTHON $DJANGO_ADMIN collectstatic -v $VERBOSITY --noinput --settings=$DJANGO_SETTINGS_MODULE
-
     fi
 
     if [ "$1" = "run" ]; then
@@ -68,10 +67,20 @@ while (( "$#" )); do
         $PYTHON $DJANGO_ADMIN runserver $BIOSTAR_HOSTNAME --settings=$DJANGO_SETTINGS_MODULE
     fi
 
-
     if [ "$1" = "delete" ]; then
-        echo "*** Deleting the sqlite database"
-        $PYTHON $DJANGO_ADMIN delete_sqlite --settings=$DJANGO_SETTINGS_MODULE
+		# Deletes the sqlite database. Used during development.
+        $PYTHON $DJANGO_ADMIN patch --delete_sqlite --settings=$DJANGO_SETTINGS_MODULE
+
+        # Copy a previous database over. Used for migrating from 2.* line.
+        # To be removed.
+        echo "*** Copying from ./biostar-central/live/biostar.db"
+        cp ../biostar-central/live/biostar.db live/
+    fi
+
+ 	# Produce the environment variables recognized by Biostar.
+    if [ "$1" = "test" ]; then
+        echo "*** Running all tests"
+        $PYTHON $DJANGO_ADMIN test --noinput --failfast -v $VERBOSITY --settings=$DJANGO_SETTINGS_MODULE
     fi
 
     if [ "$1" = "pg_drop" ]; then
@@ -104,14 +113,6 @@ while (( "$#" )); do
    	if [ "$1" = "testdeploy" ]; then
         echo "*** deploys to the test site"
         fab -f conf/fabs/fabfile.py test_site pull restart
-    fi
-
-
-
-    # Produce the environment variables recognized by Biostar.
-    if [ "$1" = "test" ]; then
-        echo "*** Running all tests"
-        $PYTHON $DJANGO_ADMIN test --noinput --failfast -v $VERBOSITY --settings=$DJANGO_SETTINGS_MODULE
     fi
 
     # Produce the environment variables recognized by Biostar.
