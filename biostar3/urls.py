@@ -2,11 +2,13 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
 
-from biostar3.forum.views import PostList, UserList
+from biostar3.forum.views import PostList, UserList, SearchResults
+
 
 urlpatterns = patterns('',
 
     url(r'^$', PostList.as_view(), name='home'),
+    url(r'^search/$', SearchResults.as_view(), name='search'),
 
     # url(r'^blog/', include('blog.urls')),
 

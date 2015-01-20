@@ -53,6 +53,7 @@ INSTALLED_APPS = (
     'django.contrib.humanize',
     'biostar3.forum',
     'compressor',
+    'haystack',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -135,3 +136,10 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
     'compressor.finders.CompressorFinder',
 )
+
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
+        'PATH': get_env('WHOOSH_INDEX'),
+    },
+}
