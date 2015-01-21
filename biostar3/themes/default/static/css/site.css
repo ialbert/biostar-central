@@ -1,4 +1,10 @@
 
+* {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
 .recent_votes > ul {
     list-style-type: none;
     opacity: 0.8;
@@ -9,9 +15,79 @@ a {
     text-decoration: none;
 }
 
+.highlighted {
+    background-color: yellow;
+}
+
+.post_title {
+    font-size: larger;
+
+}
+
+#search_bar form {
+    margin-bottom: 0rem;
+}
+
 #logo, #page_title {
     float: left;
     padding: 5px 10px 0px 0px;
     vertical-align: middle;
     line-height: 1.0;
 }
+
+#logo {
+    display: none;
+}
+
+#footer1 {
+    margin-top: 1em;
+}
+
+.hide-phone {
+    display: none;
+}
+
+.content {
+  word-wrap: break-word;
+}
+
+.search-info {
+    padding:1em;
+    text-align: center;
+    background-color: #E1E1E1;
+    border-radius: 4px;
+}
+
+/* Media Queries
+–––––––––––––––––––––––––––––––––––––––––––––––––– */
+/*
+Note: The best way to structure the use of media queries is to create the queries
+near the relevant code. For example, if you wanted to change the styles for buttons
+on small devices, paste the mobile query code up in the buttons section and style it
+there.
+*/
+
+
+/* Larger than mobile */
+@media (min-width: 400px) {
+
+}
+
+/* Larger than phablet (also point when grid becomes active) */
+@media (min-width: 550px) {
+    #logo {
+        display: block;
+    }
+    .hide-phone {
+        display: block;
+    }
+}
+
+/* Larger than tablet */
+@media (min-width: 750px) {}
+
+/* Larger than desktop */
+@media (min-width: 1000px) {}
+
+/* Larger than Desktop HD */
+@media (min-width: 1200px) {}

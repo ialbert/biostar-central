@@ -6,6 +6,8 @@ from . import models, query
 from django.conf import settings
 from biostar3.forum import search
 from django.contrib import messages
+from django import shortcuts
+from django.core.urlresolvers import reverse
 
 # Get custom user model.
 User = get_user_model()
@@ -81,3 +83,12 @@ class SearchResults(PostList):
     def get_queryset(self, **kwargs):
         posts = search.plain(self.q)
         return posts
+
+    def dispatch(self, request, *args, **kwargs):
+        # check if there is some video onsite
+        if not self.q:
+            return shortcuts.redirect(reverse("home"))
+        else:
+            return super(SearchResults, self).dispatch(request, *args, **kwargs)
+
+

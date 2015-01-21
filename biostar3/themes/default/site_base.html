@@ -2,6 +2,8 @@
 <html>
 <head lang="en">
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
     <title>
         {% block title %}{{ html_title }}{% endblock %}
     </title>
@@ -10,24 +12,40 @@
     {% endblock %}
 </head>
 <body>
-{% block top %}
-    {# Content that must be above page. #}
-{% endblock %}
 
-{% block header %}
-    Base Header
-{% endblock %}
+<div>
+    {% block top %}
+        {# Content that must be above page. #}
+    {% endblock %}
+</div>
 
-{% block body %}
-    Base Body.
-{% endblock %}
+<div class="container">
+    <div class="row" id="header">
+        {% block header %}
+            Base Header.
+        {% endblock %}
+    </div>
+</div>
 
-{% block footer %}
-    Base Footer
-{% endblock %}
+<div class="container">
+    {% block body %}
+        Base Body.
+    {% endblock %}
+</div>
 
-{% block bottom %}
-    {#  Content that must be below page. #}
-{% endblock %}
+<div class="container">
+    <div class="row" id="footer">
+        {% block footer %}
+            Base Footer.
+        {% endblock %}
+    </div>
+</div>
+
+<div>
+    {% block bottom %}
+        {#  Content that must be below page. #}
+    {% endblock %}
+</div>
+
 </body>
 </html>

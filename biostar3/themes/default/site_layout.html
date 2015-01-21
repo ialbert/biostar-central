@@ -3,7 +3,6 @@
 {% load compress %}
 
 {% block head %}
-
     <link href='//fonts.googleapis.com/css?family=Raleway:400,300,600' rel='stylesheet' type='text/css'>
 
     {% compress css %}
@@ -13,33 +12,24 @@
     {% endcompress %}
 
     <link rel="icon" type="image/png" href={% static "images/favicon.png" %}/>
-
 {% endblock %}
 
 {% block header %}
-    <div class="container">
-        <a href="{%  url "home" %}"><img src="{% static "images/logo.png" %}" id="logo"></a>
-        <h3 id="page_title">{{ page_title }}</h3>
-
-        {% if messages %}
-            <div class="row">
-                {% for message in messages %}
-                    <div class="{{ message.tags }}">{{ message|safe }}</div>
-                {% endfor %}
-            </div>
-        {% endif %}
-
-    </div>
-
+    <a href="{% url "home" %}"><img src="{% static "images/logo.png" %}" id="logo"></a>
+    <h3 id="page_title">{{ page_title }}</h3>
+    {% if messages %}
+        {% for message in messages %}
+            <div class="{{ message.tags }}">{{ message|safe }}</div>
+        {% endfor %}
+        </div>
+    {% endif %}
 {% endblock %}
 
 {% block body %}
-    Default Body
+   Layout Body.
 {% endblock %}
+
 {% block footer %}
-    <div class="container">
-        <div class="row">
-            Powered by <a href="https://github.com/ialbert/biostar-central">Biostars</a> version {{ BIOSTAR_VERSION }}
-        </div>
-    </div>
-{% endblock %}}
+    Powered by <a href="https://github.com/ialbert/biostar-central">Biostars</a> version {{ BIOSTAR_VERSION }}
+{% endblock %}
+

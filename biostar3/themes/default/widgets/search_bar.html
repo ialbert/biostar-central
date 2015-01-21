@@ -1,9 +1,26 @@
 {% load humanize %}
 
-<div class="row" align="center">
-    <form action="{%  url "search" %}" method="get">
-        <input type="text" name="q" class="ten columns"
-               maxlength="100" placeholder="Search here" id="search" value="{{ q }}">
-        <input class="button" type="submit" value="Submit">
+<div class="row" align="center" id="search_bar">
+    <form action="{% url "search" %}" method="get">
+        <div class="ten columns">
+            <input type="text" name="q" class="u-full-width"
+                   maxlength="100" placeholder="Type here" id="search" value="{{ q }}">
+        </div>
+        <div class="two columns hide-phone" style="margin-left:0.5em;">
+            <input class="button" type="submit" value="Search">
+        </div>
     </form>
 </div>
+
+{% if q %}
+    <div class="row">
+        <div class="search-info">
+            {% if posts %}
+                Searching for
+            {% else %}
+                Nothing matches
+            {% endif %}
+            <span class="highlighted">{{ q }}</span> &bull; <a href="{% url "home" %}">Clear Search</a>
+        </div>
+    </div>
+{% endif %}

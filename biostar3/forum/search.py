@@ -1,7 +1,9 @@
 __author__ = 'ialbert'
 from haystack.query import SearchQuerySet, AutoQuery
 from haystack.utils import Highlighter
+import logging
 
+logger = logging.getLogger(__name__)
 
 def slow_highlight(query, text):
     "Invoked only if the search backend does not support highlighting"
@@ -23,14 +25,21 @@ def join_highlights(row):
 
 
 def plain(query):
+    """
+    Simplest search query.
+    """
     content = AutoQuery(query)
     results = SearchQuerySet().filter(content=content).highlight()[:100]
 
-    for row in query:
-        #context = join_highlights(row)
-        #context = context or slow_highlight(query=query, text=row.content)
-        #row.context = ''
-        pass
+    for row in results:
+        try:
+            context = join_highlights(row)
+            context = context or slow_highlight(query=query, text=row.content)
+            row.context = context
+        except Exception as exc:
+            # Occasionally haystack triggers errors. row.obj is None - perhaps for deleted objects
+            # that are still in the search index.
+            logger.error(exc)
 
     return results
 

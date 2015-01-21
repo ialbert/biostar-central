@@ -8,6 +8,8 @@ from biostar3.forum.views import PostList, UserList, SearchResults
 urlpatterns = patterns('',
 
     url(r'^$', PostList.as_view(), name='home'),
+
+    # Renders search results.
     url(r'^search/$', SearchResults.as_view(), name='search'),
 
     # url(r'^blog/', include('blog.urls')),

@@ -2,7 +2,7 @@
 {% load widgets %}
 
 {% block body %}
-    <div class="container">
+    <div class="row">
 
         <div class="nine columns">
             {% search_bar %}
@@ -13,14 +13,18 @@
                 {% for post in posts %}
                     <tr>
                         <td>{{ post.vote_count }}</td>
-                        <td>{{ post.title }}
-                            <div>
+                        <td>
+                            <div class="post_title">{{ post.title }}</div>
+                            <div class="content" class="u-full-width">
                                 {{ post.context|safe }}
                             </div>
                         </td>
                     </tr>
                 {% endfor %}
             </table>
+
+            {% page_bar %}
+
         </div>
 
         <div class="three columns recent_votes">

@@ -20,4 +20,5 @@ def page_bar(context):
 @register.inclusion_tag('widgets/search_bar.html', takes_context=True)
 def search_bar(context):
     q = context.get('q', '')
-    return dict(q=q, context=context)
+    posts = context.get('posts', '')
+    return dict(q=q, posts=posts)
