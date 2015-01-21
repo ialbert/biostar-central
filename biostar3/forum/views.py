@@ -56,18 +56,19 @@ class ExtraContext(ListView):
 
 class UserList(ExtraContext):
     """
-    Generate user listing.
+    Generates user listing.
     """
     html_title = "Users"
     model = User
     template_name = "user_list.html"
     context_object_name = "users"
-    paginate_by = 60
+    paginate_by = 20
 
 
 class PostList(ExtraContext):
     """
-    Generate post lists from a request.
+    Generates post lists from a web request.
+    Handles filtering by tags, users and post types.
     """
     model = models.Post
     template_name = "post_list.html"
@@ -77,6 +78,9 @@ class PostList(ExtraContext):
 
 
 class SearchResults(PostList):
+    """
+    Handles search requests.
+    """
     template_name = "post_search_results.html"
     html_title = "Search Results"
 

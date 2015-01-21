@@ -1,8 +1,8 @@
 
 * {
-  -webkit-box-sizing: border-box;
-  -moz-box-sizing: border-box;
-  box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
 }
 
 .recent_votes > ul {
@@ -39,8 +39,10 @@ a {
     display: none;
 }
 
-#footer1 {
+#footer {
     margin-top: 1em;
+    text-align: center;
+    padding: 1em;
 }
 
 .hide-phone {
@@ -48,15 +50,25 @@ a {
 }
 
 .content {
-  word-wrap: break-word;
+    word-wrap: break-word;
 }
 
 .search-info {
-    padding:1em;
+    padding: 1em;
     text-align: center;
-    background-color: #E1E1E1;
+    background-color: #F1F1F1;
     border-radius: 4px;
+    margin-bottom: 0.5em;
 }
+
+.alert {
+    padding-bottom: 1em;
+}
+
+.alert-warning {
+    color: red;
+}
+
 
 /* Media Queries
 –––––––––––––––––––––––––––––––––––––––––––––––––– */
@@ -66,7 +78,6 @@ near the relevant code. For example, if you wanted to change the styles for butt
 on small devices, paste the mobile query code up in the buttons section and style it
 there.
 */
-
 
 /* Larger than mobile */
 @media (min-width: 400px) {
@@ -78,16 +89,20 @@ there.
     #logo {
         display: block;
     }
+
     .hide-phone {
         display: block;
     }
 }
 
 /* Larger than tablet */
-@media (min-width: 750px) {}
+@media (min-width: 750px) {
+}
 
 /* Larger than desktop */
-@media (min-width: 1000px) {}
+@media (min-width: 1000px) {
+}
 
 /* Larger than Desktop HD */
-@media (min-width: 1200px) {}
+@media (min-width: 1200px) {
+}

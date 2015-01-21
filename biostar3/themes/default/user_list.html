@@ -1,9 +1,30 @@
 {% extends "site_layout.html" %}
+{% load widgets %}
 
 {% block body %}
-    <ul>
-        {% for user in users %}
-            <li>{{ user.name }}</li>
-        {% endfor %}
-    </ul>
+
+    <div class="row">
+        <div class="nine columns">
+
+            {% search_bar action='user_list' %}
+
+            {% page_bar %}
+
+            <table class="u-full-width">
+                {% for user in users %}
+                    <tr>
+                        <td>
+                            <div class="post_title">
+                                {{ user.name }}
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+
+            {% page_bar %}
+        </div>
+
+    </div>
+
 {% endblock %}

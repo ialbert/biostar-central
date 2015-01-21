@@ -1,7 +1,7 @@
 {% load humanize %}
 
 <div class="row" align="center" id="search_bar">
-    <form action="{% url "search" %}" method="get">
+    <form action="{% url action %}" method="get">
         <div class="ten columns">
             <input type="text" name="q" class="u-full-width"
                    maxlength="100" placeholder="Type here" id="search" value="{{ q }}">

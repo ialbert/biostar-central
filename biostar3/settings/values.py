@@ -34,4 +34,4 @@ POST_SORT_FIELDS = POST_SORT_MAP.keys()
 POST_SORT_DEFAULT = POST_SORT_FIELDS[0]
 
 # The messages show when the sort is not valid.
-POST_SORT_INVALID_MSG = "Invalid sort parameter received"
+POST_SORT_INVALID_MSG = "Invalid sort parameter in URL."

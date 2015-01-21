@@ -15,21 +15,30 @@
 {% endblock %}
 
 {% block header %}
-    <a href="{% url "home" %}"><img src="{% static "images/logo.png" %}" id="logo"></a>
-    <h3 id="page_title">{{ page_title }}</h3>
+    <div class="row">
+        <a href="{% url "home" %}"><img src="{% static "images/logo.png" %}" id="logo"></a>
+
+        <h3 id="page_title">{{ page_title }}</h3>
+    </div>
     {% if messages %}
-        {% for message in messages %}
-            <div class="{{ message.tags }}">{{ message|safe }}</div>
-        {% endfor %}
+        <div class="row">
+            {% for message in messages %}
+                <div class="alert {{ message.tags }}">{{ message|safe }}</div>
+            {% endfor %}
         </div>
     {% endif %}
+
+    <div class="row">
+    	<a href="{%  url "user_list" %}">Community</a>
+    </div>
+
 {% endblock %}
 
 {% block body %}
-   Layout Body.
+    Layout Body.
 {% endblock %}
 
 {% block footer %}
-    Powered by <a href="https://github.com/ialbert/biostar-central">Biostars</a> version {{ BIOSTAR_VERSION }}
+    Powered by <a href="https://github.com/ialbert/biostar-central">Biostars</a> &bull; version {{ BIOSTAR_VERSION }}
 {% endblock %}
 
