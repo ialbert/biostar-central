@@ -171,6 +171,17 @@ class PostView(models.Model):
     post = models.ForeignKey(Post, related_name="post_views")
     date = models.DateTimeField(auto_now=True)
 
+class FederatedContent(models.Model):
+    """
+    Represents a searchable text sent over from another site.
+
+    This is a content that can be searched. Used when exchanging content
+    across sites. Should be a json object that gets used and deserialized only when indexed.
+    """
+    obj_id = models.IntegerField(default=0, db_index=True)
+    domain = models.TextField(default='', null=False, blank=False)
+    content = models.TextField(default='', null=False, blank=False)
+    changed = models.BooleanField(default=False, blank=True)
 
 class Vote(models.Model):
 

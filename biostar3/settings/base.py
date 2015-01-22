@@ -8,9 +8,11 @@ from .logger import LOGGING
 # This pulls in various site specific settings.
 from .values import *
 
+
 def abspath(*args):
     "Generates absolute paths."
     return os.path.abspath(os.path.join(*args))
+
 
 def get_env(name, default=''):
     "Gets values from environment variables."
@@ -22,8 +24,9 @@ def get_env(name, default=''):
 
 BIOSTAR_HOME = get_env('BIOSTAR_HOME')
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/1.7/howto/deployment/checklist/
+SITE_ID = 1
+SITE_NAME = "Site Name"
+SITE_DOMAIN = "localhost"
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = get_env('SECRET_KEY')
@@ -121,3 +124,9 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
     'compressor.finders.CompressorFinder',
 )
+
+# Secret keys that allow sites to submit content
+FEDERATION_SECRET_KEYS = {
+    "foo": ("http://www.foo.com", "Foo Site", "foo-secret"),
+    "bar": ("http://www.bar.com", "Bar Site", "bar-secret"),
+}

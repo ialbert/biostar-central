@@ -9,6 +9,7 @@ fi
 
 # Optionall override the python executable.
 PYTHON=${PYTHON:=python}
+VERBOSITY=${VERBOSITY:=1}
 
 # Stop on errors or missing environment variables.
 set -ue
@@ -78,7 +79,7 @@ while (( "$#" )); do
  	# Produce the environment variables recognized by Biostar.
     if [ "$1" = "test" ]; then
         echo "*** Running all tests"
-        $PYTHON manage.py test --noinput --failfast -v $VERBOSITY --settings=$DJANGO_SETTINGS_MODULE
+        $PYTHON manage.py test biostar3 --noinput --failfast -v $VERBOSITY --settings=$DJANGO_SETTINGS_MODULE
     fi
 
     if [ "$1" = "pg_drop" ]; then
