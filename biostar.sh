@@ -2,10 +2,13 @@
 
 # Environment variables must be set externally.
 if [ -z "$BIOSTAR_HOME" ]; then
-    echo "(!) environment variables not set."
-    echo "(!) try: source conf/defaults.env"
+    echo "(!) Environment variables not set. See the README.md."
+    echo "(!) Try: source run/sqlite.env"
     exit 1
 fi
+
+# Optionall override the python executable.
+PYTHON=${PYTHON:=python}
 
 # Stop on errors or missing environment variables.
 set -ue
@@ -28,13 +31,13 @@ if [ $# == 0 ]; then
     echo '  test      - runs all tests'
     echo '  env       - shows all customizable environment variables'
     echo ' '
-    echo "  import    - imports the data fixture JSON_DATA_FIXTURE=$JSON_DATA_FIXTURE"
-    echo "  dump      - dumps data as JSON_DATA_FIXTURE=$JSON_DATA_FIXTURE"
+    #echo "  import    - imports the data fixture JSON_DATA_FIXTURE=$JSON_DATA_FIXTURE"
+    #echo "  dump      - dumps data as JSON_DATA_FIXTURE=$JSON_DATA_FIXTURE"
     echo "  delete    - removes the sqlite database DATABASE_NAME=$DATABASE_NAME"
     echo ''
-    echo "  pg_drop   - drops postgres DATABASE_NAME=$DATABASE_NAME"
-    echo "  pg_create - creates postgres DATABASE_NAME=$DATABASE_NAME"
-    echo "  pg_import sqldump.gz - imports the gzipped filename into postgres DATABASE_NAME=$DATABASE_NAME"
+    echo "  pg_drop   - drops postgres DATABASE_NAME"
+    echo "  pg_create - creates postgres DATABASE_NAME"
+    echo "  pg_import file.gz - imports the gzipped file into postgres DATABASE_NAME"
     echo ''
     echo "Use environment variables to customize settings. See the docs."
     echo ' '
@@ -48,39 +51,34 @@ while (( "$#" )); do
      if [ "$1" = "init" ]; then
         echo "*** Initializing server on $BIOSTAR_HOSTNAME with $DJANGO_SETTINGS_MODULE"
 
-        $PYTHON $DJANGO_ADMIN migrate --settings=$DJANGO_SETTINGS_MODULE
+        $PYTHON manage.py migrate --settings=$DJANGO_SETTINGS_MODULE
 
         #echo "*** Running all tests"
-        #$PYTHON $DJANGO_ADMIN test --noinput -v $VERBOSITY --settings=$DJANGO_SETTINGS_MODULE
-        #$PYTHON $DJANGO_ADMIN syncdb -v $VERBOSITY --noinput --settings=$DJANGO_SETTINGS_MODULE
+        #$PYTHON manage.py test --noinput -v $VERBOSITY --settings=$DJANGO_SETTINGS_MODULE
+        #$PYTHON manage.py syncdb -v $VERBOSITY --noinput --settings=$DJANGO_SETTINGS_MODULE
 
-        #$PYTHON $DJANGO_ADMIN migrate  biostar.apps.users --settings=$DJANGO_SETTINGS_MODULE
-        #$PYTHON $DJANGO_ADMIN migrate  biostar.apps.posts --settings=$DJANGO_SETTINGS_MODULE
-        #$PYTHON $DJANGO_ADMIN migrate  --settings=$DJANGO_SETTINGS_MODULE
-        #$PYTHON $DJANGO_ADMIN initialize_site --settings=$DJANGO_SETTINGS_MODULE
+        #$PYTHON manage.py migrate  biostar.apps.users --settings=$DJANGO_SETTINGS_MODULE
+        #$PYTHON manage.py migrate  biostar.apps.posts --settings=$DJANGO_SETTINGS_MODULE
+        #$PYTHON manage.py migrate  --settings=$DJANGO_SETTINGS_MODULE
+        #$PYTHON manage.py initialize_site --settings=$DJANGO_SETTINGS_MODULE
 
-        #$PYTHON $DJANGO_ADMIN collectstatic -v $VERBOSITY --noinput --settings=$DJANGO_SETTINGS_MODULE
+        #$PYTHON manage.py collectstatic -v $VERBOSITY --noinput --settings=$DJANGO_SETTINGS_MODULE
     fi
 
     if [ "$1" = "run" ]; then
         echo "*** Run the development server with $DJANGO_SETTINGS_MODULE and DATABASE_NAME=$DATABASE_NAME"
-        $PYTHON $DJANGO_ADMIN runserver $BIOSTAR_HOSTNAME --settings=$DJANGO_SETTINGS_MODULE
+        $PYTHON manage.py runserver $BIOSTAR_HOSTNAME --settings=$DJANGO_SETTINGS_MODULE
     fi
 
     if [ "$1" = "delete" ]; then
 		# Deletes the sqlite database. Used during development.
-        $PYTHON $DJANGO_ADMIN patch --delete_sqlite --settings=$DJANGO_SETTINGS_MODULE
-
-        # Copy a previous database over. Used for migrating from 2.* line.
-        # To be removed.
-        echo "*** Copying from ./biostar-central/live/biostar.db"
-        cp ../biostar-central/live/biostar.db live/
+        $PYTHON manage.py patch --delete_sqlite --settings=$DJANGO_SETTINGS_MODULE
     fi
 
  	# Produce the environment variables recognized by Biostar.
     if [ "$1" = "test" ]; then
         echo "*** Running all tests"
-        $PYTHON $DJANGO_ADMIN test --noinput --failfast -v $VERBOSITY --settings=$DJANGO_SETTINGS_MODULE
+        $PYTHON manage.py test --noinput --failfast -v $VERBOSITY --settings=$DJANGO_SETTINGS_MODULE
     fi
 
     if [ "$1" = "pg_drop" ]; then
@@ -94,6 +92,11 @@ while (( "$#" )); do
         createdb $DATABASE_NAME -E utf8 --template template0
     fi
 
+ 	if [ "$1" = "import" ]; then
+        echo "*** Importing data with DATA_IMPORT_COMMAND"
+        eval $DATA_IMPORT_COMMAND
+    fi
+
     if [ "$1" = "pg_import" ]; then
         echo "*** Importing into DATABASE_NAME=$DATABASE_NAME"
         gunzip -c $2 | psql $DATABASE_NAME
@@ -101,7 +104,7 @@ while (( "$#" )); do
 
     if [ "$1" = "pg_dump" ]; then
         echo "*** Dumping the $DATABASE_NAME database."
-        $PYTHON $DJANGO_ADMIN biostar_pg_dump -v $VERBOSITY --settings=$DJANGO_SETTINGS_MODULE
+        $PYTHON manage.py biostar_pg_dump -v $VERBOSITY --settings=$DJANGO_SETTINGS_MODULE
     fi
 
 
@@ -127,30 +130,25 @@ while (( "$#" )); do
         echo DEFAULT_FROM_EMAIL=$DEFAULT_FROM_EMAIL
     fi
 
-    if [ "$1" = "import" ]; then
-        echo "*** Importing json data from $JSON_DATA_FIXTURE"
-        $PYTHON $DJANGO_ADMIN loaddata $JSON_DATA_FIXTURE --settings=$DJANGO_SETTINGS_MODULE
-    fi
-
     if [ "$1" = "dump" ]; then
         echo "*** Dumping json data into $JSON_DATA_FIXTURE"
-        $PYTHON $DJANGO_ADMIN dumpdata users posts messages badges planet --settings=$DJANGO_SETTINGS_MODULE | gzip > $JSON_DATA_FIXTURE
+        $PYTHON manage.py dumpdata users posts messages badges planet --settings=$DJANGO_SETTINGS_MODULE | gzip > $JSON_DATA_FIXTURE
     fi
 
     if [ "$1" = "index" ]; then
         echo "*** Indexing site content"
-        $PYTHON $DJANGO_ADMIN rebuild_index --noinput --settings=$DJANGO_SETTINGS_MODULE
+        $PYTHON manage.py rebuild_index --noinput --settings=$DJANGO_SETTINGS_MODULE
     fi
 
     if [ "$1" = "update_index" ]; then
         echo "*** Updating site index"
-        $PYTHON $DJANGO_ADMIN update_index --age 1 --settings=$DJANGO_SETTINGS_MODULE
+        $PYTHON manage.py update_index --age 1 --settings=$DJANGO_SETTINGS_MODULE
     fi
 
     if [ "$1" = "import_biostar1" ]; then
         echo "*** Migrating from Biostar 1"
         echo "*** BIOSTAR_MIGRATE_DIR=$BIOSTAR_MIGRATE_DIR"
-        $PYTHON $DJANGO_ADMIN import_biostar1 -u -p -x
+        $PYTHON manage.py import_biostar1 -u -p -x
     fi
 
 

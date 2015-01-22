@@ -12,18 +12,15 @@ def abspath(*args):
     "Generates absolute paths."
     return os.path.abspath(os.path.join(*args))
 
-
-def get_env(name, func=None):
+def get_env(name, default=''):
     "Gets values from environment variables."
-    try:
-        value = os.environ[name]
-        return unicode(value, encoding="utf-8")
-    except KeyError:
-        msg = "*** Required environment variable %s not set. See conf/defaults.env." % name
+    value = os.environ.get(name, default)
+    if not value:
+        msg = "*** Required environment variable %s not set. See README.md " % name
         raise ImproperlyConfigured(msg)
+    return value
 
-
-BASE_DIR = get_env('BIOSTAR_HOME')
+BIOSTAR_HOME = get_env('BIOSTAR_HOME')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.7/howto/deployment/checklist/
@@ -36,11 +33,9 @@ DEBUG = True
 
 TEMPLATE_DEBUG = True
 
-ALLOWED_HOSTS = get_env('ALLOWED_HOSTS', func=list)
-
+ALLOWED_HOSTS = ["localhost"]
 
 # Application definition
-
 INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.auth',
@@ -71,21 +66,10 @@ ROOT_URLCONF = 'biostar3.urls'
 
 WSGI_APPLICATION = 'biostar3.wsgi.application'
 
-
-# Database
-# https://docs.djangoproject.com/en/1.7/ref/settings/#databases
-DATABASE_NAME = get_env('DATABASE_NAME')
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': DATABASE_NAME,
-    }
-}
-
 AUTH_USER_MODEL = 'forum.User'
 
 TEMPLATE_PATH = abspath(get_env('THEME_PATH'))
-DEFAULT_PATH = abspath(BASE_DIR, "biostar3", "themes", "default")
+DEFAULT_PATH = abspath(BIOSTAR_HOME, "biostar3", "themes", "default")
 TEMPLATE_DIRS = (
     TEMPLATE_PATH,
     DEFAULT_PATH
@@ -122,24 +106,18 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.7/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = get_env('STATIC_ROOT')
+STATIC_ROOT = abspath(BIOSTAR_HOME, "export")
+
 STATICFILES_DIRS = (
     abspath(TEMPLATE_PATH, "static"),
 )
+
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
     'compressor.finders.CompressorFinder',
 )
-
-HAYSTACK_CONNECTIONS = {
-    'default': {
-        'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
-        'PATH': get_env('WHOOSH_INDEX'),
-    },
-}

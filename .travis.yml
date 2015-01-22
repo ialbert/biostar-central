@@ -7,15 +7,16 @@ python:
 # This needs to match that database name in the environment.
 env:
   DATABASE_NAME=travis_ci_test
+  DATABASE_USER=postgres
 
 addons:
   postgresql: "9.3"
 
 before_script:
-  - psql -c "create database $DATABASE_NAME;" -U postgres
+  - psql -c "create database $DATABASE_NAME;" -U $DATABASE_USER
 
 install:
   - pip install -q -r conf/pip/travis.txt
 
-script: source conf/travis.env && python manage.py test biostar3
+script: source run/travis.env && python manage.py test biostar3
 
