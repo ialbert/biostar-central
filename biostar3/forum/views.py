@@ -19,7 +19,7 @@ def check_request(request):
     """
 
 
-class ExtraContext(ListView):
+class ExtraContext(object):
     """
     Base class that adds extra context to a list view.
     """
@@ -54,7 +54,7 @@ class ExtraContext(ListView):
         return self.request.GET.get('q', '')[:150]
 
 
-class UserList(ExtraContext):
+class UserList(ExtraContext, ListView):
     """
     Generates user listing.
     """
@@ -65,7 +65,7 @@ class UserList(ExtraContext):
     paginate_by = 20
 
 
-class PostList(ExtraContext):
+class PostList(ExtraContext, ListView):
     """
     Generates post lists from a web request.
     Handles filtering by tags, users and post types.
@@ -96,3 +96,11 @@ class SearchResults(PostList):
             return super(SearchResults, self).dispatch(request, *args, **kwargs)
 
 
+class PostView(ExtraContext, ListView):
+    """
+    Generates apage that contains a full thread.
+    """
+    model = models.Post
+    template_name = "post_detail.html"
+    context_object_name = "post"
+    html_title = "Posts"

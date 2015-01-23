@@ -2,7 +2,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
 
-from biostar3.forum.views import PostList, UserList, SearchResults
+from biostar3.forum.views import PostList, UserList, SearchResults, PostView
 
 
 urlpatterns = patterns('',
@@ -12,10 +12,12 @@ urlpatterns = patterns('',
     # Renders search results.
     url(r'^search/$', SearchResults.as_view(), name='search'),
 
+    # Post details.
+    url(r'^p/(?P<pk>\d+)/$', PostView.as_view(), name="post_view"),
+
     # url(r'^blog/', include('blog.urls')),
 
     # The list of users.
-
     url(r'^user/list/$', UserList.as_view(), name="user_list"),
 
     url(r'^admin/', include(admin.site.urls)),

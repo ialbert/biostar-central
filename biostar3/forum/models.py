@@ -4,6 +4,7 @@ from django.db import models
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, UserManager
 from django.contrib.sites.models import Site
 from django.conf import settings
+from django.core.urlresolvers import reverse
 
 # The main user model.
 class User(AbstractBaseUser):
@@ -161,6 +162,18 @@ class Post(models.Model):
     # What site does the post belong to.
     site = models.ForeignKey(Site, null=True)
 
+    @property
+    def is_toplevel(self):
+        return self.type in Post.TOP_LEVEL
+
+    def get_absolute_url(self):
+        url = reverse("post_view", kwargs=dict(pk=self.root_id))
+        if self.is_toplevel:
+            return url
+        else:
+            return "%s#%s" % (url, self.id)
+
+
 class PostView(models.Model):
     """Represents a post vote"""
 
@@ -170,6 +183,7 @@ class PostView(models.Model):
     ip = models.GenericIPAddressField(default='', null=True, blank=True)
     post = models.ForeignKey(Post, related_name="post_views")
     date = models.DateTimeField(auto_now=True)
+
 
 class FederatedContent(models.Model):
     """
@@ -182,9 +196,10 @@ class FederatedContent(models.Model):
     domain = models.TextField(default='', null=False, blank=False)
     content = models.TextField(default='', null=False, blank=False)
     changed = models.BooleanField(default=False, blank=True)
+    creation_date = models.DateTimeField(db_index=True, auto_now=True)
+
 
 class Vote(models.Model):
-
     class Meta:
         db_table = "posts_vote"
 

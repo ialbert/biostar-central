@@ -1,6 +1,6 @@
 {
   "title": "Federated Post 1 Title",
-  "url": "Federated Post 1 URL",
+  "url": "http://localhost:8080/p/1/",
   "vote_count": 100,
   "domain": "Post 1 Domain",
   "type": "Post 1 Type",

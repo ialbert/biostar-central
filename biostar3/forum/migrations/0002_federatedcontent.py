@@ -19,6 +19,7 @@ class Migration(migrations.Migration):
                 ('domain', models.TextField(default='')),
                 ('content', models.TextField(default='')),
                 ('changed', models.BooleanField(default=False)),
+                ('creation_date', models.DateTimeField(auto_now=True, db_index=True)),
             ],
             options={
             },

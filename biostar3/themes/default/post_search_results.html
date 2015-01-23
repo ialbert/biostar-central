@@ -14,7 +14,10 @@
                     <tr>
                         <td>{{ post.vote_count }}</td>
                         <td>
-                            <div class="post_title">{{ post.title }}</div>
+                            <div class="post_title">
+                            	{{ post.domain }} <a href="{{ post.url }}">{{ post.title }}</a>
+                            </div>
+                            {{  post.domain }}
                             <div class="content" class="u-full-width">
                                 {{ post.context|safe }}
                             </div>

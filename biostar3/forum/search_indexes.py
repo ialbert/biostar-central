@@ -14,21 +14,15 @@ class PostIndex(indexes.SearchIndex, indexes.Indexable):
     domain = indexes.CharField()
     url = indexes.CharField()
 
-    def prepare_url(self, obj):
-        return "url"
-
-    def prepare_domain(self, obj):
-        return "local"
-
-    def prepare_type(self, obj):
-        return "%s" % obj.get_type_display()
-
     def get_model(self):
         return Post
 
     def prepare(self, obj):
         data = super(PostIndex, self).prepare(obj)
         data['boost'] = 1.0
+        data['url'] = obj.get_absolute_url()
+        data['domain'] = ''
+        data['type'] = obj.get_type_display()
         return data
 
     def index_queryset(self, using=None):
