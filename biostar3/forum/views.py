@@ -96,7 +96,7 @@ class SearchResults(PostList):
             return super(SearchResults, self).dispatch(request, *args, **kwargs)
 
 
-class PostView(ExtraContext, ListView):
+class PostView(ExtraContext, DetailView):
     """
     Generates apage that contains a full thread.
     """

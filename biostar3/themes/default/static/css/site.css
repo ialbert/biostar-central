@@ -19,9 +19,16 @@ a {
     background-color: yellow;
 }
 
-.post_title {
+#post_list .post_title {
     font-size: larger;
 
+}
+
+#post_detail .post_title {
+    font-size: larger;
+    font-weight: bold;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
 }
 
 #search_bar form {
@@ -65,10 +72,22 @@ a {
     padding-bottom: 1em;
 }
 
+
 .alert-warning {
     color: red;
 }
 
+.post_user_box {
+    float: right;
+    width: 140px;
+    padding: 1rem;
+    border: 1px solid #D1D1D1;
+    border-radius: 4px;
+    text-align: center;
+    background-color: #f5f5f5;
+    font-size: small;
+    margin-left: 10px;
+}
 
 /* Media Queries
 –––––––––––––––––––––––––––––––––––––––––––––––––– */

@@ -6,6 +6,7 @@ from django.contrib.sites.models import Site
 from django.conf import settings
 from django.core.urlresolvers import reverse
 
+
 # The main user model.
 class User(AbstractBaseUser):
     """Represents a registered user of the website."""
@@ -28,6 +29,7 @@ class User(AbstractBaseUser):
     name = models.CharField(verbose_name='Name', max_length=255, default="Biostar User", blank=False)
 
     # Fields used by the Django admin.
+    # These are different from the Biostar user types even though Django also calls them admin.
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
@@ -56,6 +58,9 @@ class User(AbstractBaseUser):
     # The site this users belongs to.
     site = models.ForeignKey(Site, null=True)
 
+    @property
+    def is_suspended(self):
+        return (self.status == self.SUSPENDED) or (self.status == self.BANNED)
 
 class Tag(models.Model):
     """Represents a tag."""
@@ -66,6 +71,66 @@ class Tag(models.Model):
     name = models.TextField(max_length=50, db_index=True)
     count = models.IntegerField(default=0)
 
+class Profile(models.Model):
+    """
+    Maintains information that does not always need to be retreived whe a user is accessed.
+    """
+
+    class Meta:
+        db_table = "users_profile"
+
+    # Message type selector.
+    TYPE_CHOICES = settings.MESSAGING_MAP.items()
+
+    # Digest choices.
+    NO_DIGEST, DAILY_DIGEST, WEEKLY_DIGEST, MONTHLY_DIGEST = range(4)
+
+    DIGEST_CHOICES = [(NO_DIGEST, 'Never'), (DAILY_DIGEST, 'Daily'),
+                      (WEEKLY_DIGEST, 'Weekly'), (MONTHLY_DIGEST, 'Monthly')]
+
+    # The user that this profile is for.
+    user = models.OneToOneField(User)
+
+    # Globally unique id used to identify the user in a private feeds
+    uuid = models.CharField(null=False, db_index=True, unique=True, max_length=255)
+
+    # The last visit by the user.
+    last_login = models.DateTimeField()
+
+    # The last visit by the user.
+    date_joined = models.DateTimeField()
+
+    # User provided location.
+    location = models.CharField(default="", max_length=255, blank=True)
+
+    # User provided website.
+    website = models.URLField(default="", max_length=255, blank=True)
+
+    # Google scholar ID
+    scholar = models.CharField(default="", max_length=255, blank=True)
+
+    # Twitter ID
+    twitter_id = models.CharField(default="", max_length=255, blank=True)
+
+    # This field is used to select content for the user.
+    my_tags = models.TextField(default="", max_length=255, blank=True)
+
+    # Description provided by the user html.
+    info = models.TextField(default="", null=True, blank=True)
+
+    # The default notification preferences.
+    message_prefs = models.IntegerField(choices=TYPE_CHOICES, default=settings.MESSAGE_DEFAULT)
+
+    # This stores binary flags on users. Their usage is to
+    # allow easy subselection of various subsets of users.
+    flag = models.IntegerField(default=0)
+
+    # The tag value is the canonical form of the post's tags
+    watched_tags = models.CharField(max_length=250, default="", blank=True)
+
+    # The tag set is built from the watch_tag string and is used to trigger actions
+    # when a post that matches this tag is set
+    tags = models.ManyToManyField(Tag, blank=True, )
 
 class Post(models.Model):
     """Represents a post."""

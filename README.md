@@ -10,7 +10,7 @@ Quick Start
 
 Install requirements. The site needs [Python 2.7][python] installed:
 
-	pip install -r conf/pip/base.txt
+	pip install -r setup/pip/base.txt
 
 Run the site with default data over an `sqlite` database:
 

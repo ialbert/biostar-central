@@ -2,7 +2,7 @@
 {% load widgets %}
 
 {% block body %}
-    <div class="row">
+    <div class="row" id="post_list">
         <div class="nine columns">
 
             {% search_bar %}
@@ -15,7 +15,7 @@
                         <td>{{ post.thread_score }}</td>
                         <td>
                             <div class="post_title">
-                                {{ post.title }}
+                                 <a href="{{ post.get_absolute_url }}">{{ post.title }}</a>
                             </div>
                         </td>
                     </tr>

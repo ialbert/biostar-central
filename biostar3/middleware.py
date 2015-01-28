@@ -19,5 +19,5 @@ class GlobalMiddleware(object):
 
     def process_request(self, request):
 
-        # Ensure that anonymous users have all required attributes.
+        # Ensure that even anonymous users have extra attributes.
         add_user_attributes(request.user)

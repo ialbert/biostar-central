@@ -1,0 +1,18 @@
+{# The user box displayed in a post detail #}
+{% load humanize %}
+{% load widgets %}
+
+<div class="post_user_box">
+    <div>
+        <a href="{{ author.get_absolute_url }}">{% gravatar author 82 %}</a>
+    </div>
+    <div>
+        {{ post.creation_date|time_ago }}
+    </div>
+    <div>
+        <a href="{{ author.get_absolute_url }}">{{ author.name }}</a>
+    </div>
+    <div>
+        {{ author.profile.location }}
+    </div>
+</div>

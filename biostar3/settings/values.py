@@ -35,3 +35,15 @@ POST_SORT_DEFAULT = POST_SORT_FIELDS[0]
 
 # The messages show when the sort is not valid.
 POST_SORT_INVALID_MSG = "Invalid sort parameter in URL."
+
+# Messaging related settings.
+LOCAL_MESSAGE, EMAIL_MESSAGE, NO_MESSAGES, SMART_MESSAGES, ALL_MESSAGES = range(5)
+
+MESSAGING_MAP = OrderedDict([
+    (SMART_MESSAGES, "smart mode",),
+    (LOCAL_MESSAGE, "local messages",),
+    (EMAIL_MESSAGE, "emails",),
+    (ALL_MESSAGES, "email for every new thread (mailing list mode)",),
+])
+
+MESSAGE_DEFAULT = SMART_MESSAGES

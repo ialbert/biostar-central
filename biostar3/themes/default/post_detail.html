@@ -1,2 +1,26 @@
 {% extends "site_layout.html" %}
 {% load widgets %}
+
+{% block body %}
+    <div class="row" id="post_detail">
+        <div class="nine columns">
+
+            {% search_bar %}
+
+            <div>
+                {% post_user_box post %}
+
+
+                <div class="post_title">
+                    {{ post.title }}
+                </div>
+
+                <div>
+
+
+                    {{ post.html|safe }}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

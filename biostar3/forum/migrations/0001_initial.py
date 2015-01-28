@@ -87,6 +87,28 @@ class Migration(migrations.Migration):
             bases=(models.Model,),
         ),
         migrations.CreateModel(
+            name='Profile',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('uuid', models.CharField(unique=True, max_length=255, db_index=True)),
+                ('last_login', models.DateTimeField()),
+                ('date_joined', models.DateTimeField()),
+                ('location', models.CharField(default='', max_length=255, blank=True)),
+                ('website', models.URLField(default='', max_length=255, blank=True)),
+                ('scholar', models.CharField(default='', max_length=255, blank=True)),
+                ('twitter_id', models.CharField(default='', max_length=255, blank=True)),
+                ('my_tags', models.TextField(default='', max_length=255, blank=True)),
+                ('info', models.TextField(default='', null=True, blank=True)),
+                ('message_prefs', models.IntegerField(default=3, choices=[(3, b'smart mode'), (0, b'local messages'), (1, b'emails'), (4, b'email for every new thread (mailing list mode)')])),
+                ('flag', models.IntegerField(default=0)),
+                ('watched_tags', models.CharField(default='', max_length=250, blank=True)),
+            ],
+            options={
+                'db_table': 'users_profile',
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
             name='Tag',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
@@ -111,6 +133,18 @@ class Migration(migrations.Migration):
                 'db_table': 'posts_vote',
             },
             bases=(models.Model,),
+        ),
+        migrations.AddField(
+            model_name='profile',
+            name='tags',
+            field=models.ManyToManyField(to='forum.Tag', blank=True),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='profile',
+            name='user',
+            field=models.OneToOneField(to=settings.AUTH_USER_MODEL),
+            preserve_default=True,
         ),
         migrations.AddField(
             model_name='post',

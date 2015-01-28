@@ -7,5 +7,3 @@ redis
 pyelasticsearch
 psycopg2
 gunicorn
-whitenoise
-waitress
