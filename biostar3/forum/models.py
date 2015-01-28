@@ -62,6 +62,11 @@ class User(AbstractBaseUser):
     def is_suspended(self):
         return (self.status == self.SUSPENDED) or (self.status == self.BANNED)
 
+    def get_absolute_url(self):
+        url = reverse("post_view", kwargs=dict(pk=self.id))
+        return url
+
+
 class Tag(models.Model):
     """Represents a tag."""
 

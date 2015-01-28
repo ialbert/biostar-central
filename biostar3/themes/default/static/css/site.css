@@ -6,6 +6,16 @@
 
 }
 
+body {
+    font-size: 13px;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+a {
+    color: #428bca;
+    text-decoration: none;
+}
+
 .recent_votes > ul {
     list-style-type: none;
     opacity: 0.8;
@@ -97,21 +107,37 @@ a {
 
 td {
     border-top: 1px solid #E1E1E1;
-    padding: 0.5em;
+    padding: 0.2em;
 }
 
 .clearfix {
-    clear:left;
+    overflow: auto;
+    zoom: 1;
+
+}
+
+.userlink {
+    color: #808080;
+    padding-left: 0.5em;
+    text-align: right;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+}
+
+.left {
+    float: left;
+}
+
+.right {
+    float: right
 }
 
 .tag_bar {
     margin-top: 0.5em;
     margin-bottom: 0.5em;
-    //float: left;
 }
 
 .tag {
-
     padding: 0.5rem;
     text-decoration: none;
     background-color: #ECECEC;

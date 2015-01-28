@@ -14,6 +14,9 @@ def now():
 def recent_votes(votes):
     return dict(votes=votes)
 
+@register.inclusion_tag('widgets/user_link.html')
+def user_link(user):
+    return dict(user=user)
 
 @register.inclusion_tag('widgets/page_bar.html', takes_context=True)
 def page_bar(context):
