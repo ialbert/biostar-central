@@ -1,12 +1,11 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views.generic import DetailView, ListView, TemplateView, UpdateView, View
 from django.contrib.auth import get_user_model
 from . import models, query
 from django.conf import settings
 from biostar3.forum import search
 from django.contrib import messages
-from django import shortcuts
 from django.core.urlresolvers import reverse
 
 # Get custom user model.
@@ -91,7 +90,7 @@ class SearchResults(PostList):
     def dispatch(self, request, *args, **kwargs):
         # check if there is some video onsite
         if not self.q:
-            return shortcuts.redirect(reverse("home"))
+            return redirect(reverse("home"))
         else:
             return super(SearchResults, self).dispatch(request, *args, **kwargs)
 
@@ -104,3 +103,18 @@ class PostView(ExtraContext, DetailView):
     template_name = "post_detail.html"
     context_object_name = "post"
     html_title = "Posts"
+
+    def get(self, *args, **kwargs):
+        # This will scroll the page to the right anchor.
+        self.object = self.get_object()
+        context = self.get_context_data(object=self.object)
+
+        if not self.object.is_toplevel:
+            return redirect(self.object.get_absolute_url())
+
+        return self.render_to_response(context)
+
+    def get_object(self, *args, **kwargs):
+        user = self.request.user
+        obj = super(PostView, self).get_object()
+        return obj

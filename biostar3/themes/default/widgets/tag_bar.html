@@ -1,0 +1,10 @@
+<div>
+    <div class="tag_bar">
+        {% for tag in post.tag_set.all %}
+            <a class="tag" href="/t/{{ tag.name }}/">{{ tag.name }}</a>
+        {% endfor %}
+        {% if show_update %}
+            <span class="ago">updated 1.0 minutes ago by {{ post.author.name }}</span>
+        {% endif %}
+    </div>
+</div>

@@ -17,6 +17,7 @@
                             <div class="post_title">
                                  <a href="{{ post.get_absolute_url }}">{{ post.title }}</a>
                             </div>
+                            {%  tag_bar post %}
                         </td>
                     </tr>
                 {% endfor %}

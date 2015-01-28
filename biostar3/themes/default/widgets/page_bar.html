@@ -1,7 +1,7 @@
 {%  load humanize %}
 
 {% if page %}
-    <div align="center">
+    <div class="page_bar">
 
         {% if page.has_previous %}
             <a href="?page={{ page.previous_page_number }}&sort={{ context.sort }}&limit={{ context.limit }}&q={{ context.q }}">&lt;prev</a>

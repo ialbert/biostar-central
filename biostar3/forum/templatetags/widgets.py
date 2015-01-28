@@ -35,6 +35,10 @@ def search_bar(context, action='search'):
 def post_user_box(post):
     return dict(post=post, author=post.author)
 
+@register.inclusion_tag('widgets/tag_bar.html')
+def tag_bar(post, show_update=True):
+    return dict(post=post, show_update=show_update)
+
 @register.filter
 def bignum(number):
     "Reformats numbers with qualifiers as K"
