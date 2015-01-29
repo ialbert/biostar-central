@@ -129,8 +129,8 @@ td {
     color: #808080;
     padding-left: 0.5em;
     text-align: right;
-    margin-top: 0.5em;
-    margin-bottom: 0.5em;
+    //margin-top: 0.5em;
+    //margin-bottom: 0.5em;
 }
 
 .left {
@@ -207,8 +207,25 @@ td {
     padding: 0px 0.1em 0em 0.1em;
 }
 
+.action_bar {
+    float:left;
+    width: 50%;
+    padding-bottom: 1em;
+}
 
-
+.label {
+    display: inline;
+    padding: .2em .6em .3em;
+    font-size: 75%;
+    font-weight: bold;
+    line-height: 1;
+    color: #fff;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: .25em;
+    background-color: #999
+}
 /* Media Queries
 –––––––––––––––––––––––––––––––––––––––––––––––––– */
 /*

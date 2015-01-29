@@ -20,11 +20,12 @@
                 </div>
 
                 <div class="clearfix">
-                    {% tag_bar post show_update=False %}
+                    {% tag_bar post %}
                 </div>
 
-                <div>
-                    action bar
+                <div style="margin-top:1em;">
+                    {% action_bar post %}
+                    {% update_bar post %}
                 </div>
 
             </div>
@@ -37,6 +38,12 @@
                         {% post_user_box answer %}
                         {{ answer.html|safe }}
                     </div>
+
+                    <div>
+                        {% action_bar answer %}
+                        {% update_bar answer %}
+                    </div>
+
                 </div>
             {% endfor %}
         </div>

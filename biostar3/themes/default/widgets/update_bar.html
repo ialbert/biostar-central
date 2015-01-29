@@ -1,0 +1,4 @@
+{%  load widgets %}
+<div class="userlink right">
+    updated {{ post.lastedit_date|time_ago }} by {% user_link post.author %}
+</div>

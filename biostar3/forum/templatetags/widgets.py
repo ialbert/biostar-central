@@ -53,6 +53,13 @@ def search_bar(context, action='search'):
     posts = context.get('posts', '')
     return dict(q=q, posts=posts, action=action)
 
+@register.inclusion_tag('widgets/action_bar.html')
+def action_bar(post):
+    return dict(post=post)
+
+@register.inclusion_tag('widgets/update_bar.html')
+def update_bar(post):
+    return dict(post=post)
 
 @register.inclusion_tag('widgets/post_user_box.html')
 def post_user_box(post):
@@ -60,8 +67,8 @@ def post_user_box(post):
 
 
 @register.inclusion_tag('widgets/tag_bar.html')
-def tag_bar(post, show_update=True):
-    return dict(post=post, show_update=show_update)
+def tag_bar(post):
+    return dict(post=post)
 
 
 @register.filter
