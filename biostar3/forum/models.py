@@ -244,6 +244,15 @@ class Post(models.Model):
         else:
             return "%s#%s" % (url, self.id)
 
+    def subtype(self):
+        "This is a method of the class the Question type is subdivided."
+        if self.type == Post.QUESTION:
+            if self.has_accepted:
+                return "Accepted"
+            elif self.reply_count > 0:
+                return "Answered"
+            return "Unanswered"
+        return self.get_type_display()
 
 class PostView(models.Model):
     """Represents a post vote"""

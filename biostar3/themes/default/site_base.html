@@ -13,11 +13,9 @@
 </head>
 <body>
 
-<div>
-    {% block top %}
-        {# Content that must be above page. #}
-    {% endblock %}
-</div>
+{% block top %}
+    {# Content that must be above page. #}
+{% endblock %}
 
 <div class="container">
     <div class="row" id="header">
@@ -41,11 +39,11 @@
     </div>
 </div>
 
-<div>
-    {% block bottom %}
-        {#  Content that must be below page. #}
-    {% endblock %}
-</div>
+
+{% block bottom %}
+    {#  Content that must be below page. #}
+{% endblock %}
+
 
 </body>
 </html>

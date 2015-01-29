@@ -11,6 +11,9 @@ class PostIndex(indexes.SearchIndex, indexes.Indexable):
     type = indexes.CharField(model_attr='type')
     content = indexes.CharField(model_attr='content')
     vote_count = indexes.IntegerField(model_attr='vote_count')
+    view_count = indexes.IntegerField()
+    reply_count = indexes.IntegerField(model_attr='reply_count')
+    subtype = indexes.CharField(model_attr='subtype')
     domain = indexes.CharField()
     url = indexes.CharField()
 
@@ -23,6 +26,7 @@ class PostIndex(indexes.SearchIndex, indexes.Indexable):
         data['url'] = obj.get_absolute_url()
         data['domain'] = ''
         data['type'] = obj.get_type_display()
+        data['view_count'] = obj.root.view_count
         return data
 
     def index_queryset(self, using=None):
@@ -30,7 +34,7 @@ class PostIndex(indexes.SearchIndex, indexes.Indexable):
         Used when the entire index for model is updated.
         """
         cond = Q(type=Post.COMMENT) | Q(status=Post.DELETED)
-        return self.get_model().objects.all().exclude(cond)
+        return self.get_model().objects.all().exclude(cond).select_related('root')
 
     def get_updated_field(self):
         return "lastedit_date"

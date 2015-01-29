@@ -19,8 +19,9 @@
                     {{ post.html|safe }}
                 </div>
 
-
-                {% tag_bar post show_update=False %}
+                <div class="clearfix">
+                    {% tag_bar post show_update=False %}
+                </div>
 
                 <div>
                     action bar
@@ -33,13 +34,13 @@
             {% for answer in post.answers %}
                 <div itemscope itemtype="http://schema.org/Answer">
                     <div class="answer u-full-width">
-                         {% post_user_box answer %}
+                        {% post_user_box answer %}
                         {{ answer.html|safe }}
                     </div>
                 </div>
             {% endfor %}
         </div>
-    	<div class="three columns">
+        <div class="three columns">
             Side Bar
         </div>
     </div>

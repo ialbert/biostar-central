@@ -14,18 +14,11 @@ def now():
     return datetime.utcnow().replace(tzinfo=utc)
 
 
-POST_TYPE_CSS = dict()
 @register.simple_tag
-def post_type_css(post):
-    if post.type == Post.QUESTION:
-        if post.has_accepted:
-            return "accepted"
-        elif post.reply_count > 0:
-            return "answered"
-
-        return "unanswered"
-
-    return post.get_type_display()
+def cachebuster():
+    value = random.random()
+    param = "?x=%f" % value
+    return param
 
 @register.inclusion_tag('widgets/recent_votes.html')
 def recent_votes(votes):

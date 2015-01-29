@@ -1,14 +1,13 @@
 {% extends "site_base.html" %}
 {% load staticfiles %}
 {% load compress %}
-
+{%  load widgets %}
 {% block head %}
-    <link href='//fonts.googleapis.com/css?family=Raleway:400,300,600' rel='stylesheet' type='text/css'>
 
     {% compress css %}
         <link rel="stylesheet" href={% static "css/normalize.css" %}>
         <link rel="stylesheet" href={% static "css/skeleton.css" %}>
-        <link rel="stylesheet" href={% static "css/site.css" %}>
+        <link rel="stylesheet" href="{% static "css/site.css" %}">
     {% endcompress %}
 
     <link rel="icon" type="image/png" href={% static "images/favicon.png" %}/>
@@ -29,7 +28,7 @@
     {% endif %}
 
     <div class="row">
-    	<a href="{%  url "user_list" %}">Community</a>
+        <a href="{% url "user_list" %}">Community</a>
     </div>
 
 {% endblock %}
@@ -42,3 +41,7 @@
     Powered by <a href="https://github.com/ialbert/biostar-central">Biostars</a> &bull; version {{ BIOSTAR_VERSION }}
 {% endblock %}
 
+{% block bottom %}
+    <script src={% static "js/jquery-1.11.2.min.js" %}></script>
+	<script src={% static "js/site.js" %}></script>
+{%  endblock %}
