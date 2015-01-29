@@ -12,7 +12,7 @@
                 {% post_user_box post %}
 
                 <div class="post_title">
-                    {{ post.title }}
+                    {{ post.get_type_display }}: {{ post.title }}
                 </div>
 
                 <div>
@@ -20,8 +20,7 @@
                 </div>
 
 
-            	{%  tag_bar post show_update=False%}
-
+                {% tag_bar post show_update=False %}
 
                 <div>
                     action bar
@@ -29,6 +28,19 @@
 
             </div>
 
+            {#  Answers follow #}
+
+            {% for answer in post.answers %}
+                <div itemscope itemtype="http://schema.org/Answer">
+                    <div class="answer u-full-width">
+                         {% post_user_box answer %}
+                        {{ answer.html|safe }}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    	<div class="three columns">
+            Side Bar
         </div>
     </div>
 {% endblock %}

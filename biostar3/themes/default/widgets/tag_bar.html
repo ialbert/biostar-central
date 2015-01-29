@@ -1,16 +1,17 @@
 {% load humanize %}
 {% load widgets %}
-<div class="clearfix">
-    <div class="tag_bar left">
-        {% for tag in post.tag_set.all %}
-            <a class="tag" href="/t/{{ tag.name }}/">{{ tag.name }}</a>
-        {% endfor %}
-    </div>
 
-    {% if show_update %}
-        <div class="userlink right">
-            activity {{ post.lastedit_date|time_ago }} by {%  user_link post.author %}
-        </div>
-    {% endif %}
+<div class="tag_bar left">
+    {% for tag in post.tag_set.all %}
+        <a class="tag" href="/t/{{ tag.name }}/">{{ tag.name }}</a>
+    {% endfor %}
 </div>
+
+{% if show_update %}
+    <div class="userlink right">
+        updated {{ post.lastedit_date|time_ago }} by {% user_link post.author %}
+    </div>
+{% endif %}
+
+
 

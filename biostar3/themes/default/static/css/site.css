@@ -7,8 +7,13 @@
 }
 
 body {
-    font-size: 13px;
+/ / font-size : 13 px;
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: #333333;
+}
+
+.container {
+    max-width: 1200px;
 }
 
 a {
@@ -31,19 +36,21 @@ a {
 }
 
 #post_list .post_title {
-    font-size: larger;
-
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-bottom: 0.2em;
 }
 
 #post_detail .post_title {
-    font-size: larger;
+    font-size: 1.3em;
     font-weight: bold;
-    margin-top: 1rem;
-    margin-bottom: 1rem;
+    margin-top: 1em;
+    margin-bottom: 1em;
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1);
 }
 
 #search_bar form {
-    margin-bottom: 0rem;
+    margin-bottom: 0em;
 }
 
 #logo, #page_title {
@@ -89,25 +96,26 @@ a {
 
 .page_bar {
     text-align: center;
-    margin-bottom: 1rem;
+    margin-bottom: 1em;
 }
 
 .post_user_box {
     float: right;
     width: 150px;
-    padding: 1rem;
+    padding: 1em;
     border: 1px solid #D1D1D1;
     border-radius: 4px;
     text-align: center;
     background-color: #f5f5f5;
     font-size: small;
     margin-left: 10px;
-    overflow: auto;
+/ / overflow : auto;
 }
 
 td {
     border-top: 1px solid #E1E1E1;
     padding: 0.2em;
+    vertical-align: top;
 }
 
 .clearfix {
@@ -133,12 +141,12 @@ td {
 }
 
 .tag_bar {
-    margin-top: 0.5em;
-    margin-bottom: 0.5em;
+/ / margin-top : 0.5 em;
+/ / margin-bottom : 0.5 em;
 }
 
 .tag {
-    padding: 0.5rem;
+    padding: 0.1em 0.3em 0.1em 0.3em;
     text-decoration: none;
     background-color: #ECECEC;
     border-bottom: 1px solid #BBB;
@@ -152,6 +160,50 @@ td {
 .tag:hover {
     color: white;
     background-color: #6B3E4A;
+}
+
+.answer {
+    border-top: 1px solid #D1D1D1;
+    margin-bottom: 0.5em;
+    padding-top: 0.5em;
+    overflow: auto;
+    width: 100%
+}
+
+.box {
+    padding: 0.2em;
+    width: 4em;
+    text-align: center;
+}
+
+.box .c {
+    font-size: 1.4em;
+    font-weight: bold;
+    height: 2ex;
+    vertical-align: middle;
+    text-align: center;
+    margin-bottom: 2px;
+}
+
+.box .t {
+    font-size: smaller;
+}
+
+.box .vote {
+    background-color: #eeeeee;
+    padding: 0px 0.1em 0em 0.1em;
+}
+
+.box .unanswered {
+    background-color: #8f2c47;
+    color: white;
+    padding: 0px 0.1em 0em 0.1em;
+}
+
+.box .answered {
+    background-color: #5b8c3e;
+    color: white;
+    padding: 0px 0.1em 0em 0.1em;
 }
 
 /* Media Queries

@@ -137,6 +137,7 @@ class Profile(models.Model):
     # when a post that matches this tag is set
     tags = models.ManyToManyField(Tag, blank=True, )
 
+
 class Post(models.Model):
     """Represents a post."""
 

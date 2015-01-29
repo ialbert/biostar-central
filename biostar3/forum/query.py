@@ -18,13 +18,25 @@ def get_recent_users():
     return users
 
 
-def get_posts(user):
+def get_toplevel_posts(user):
+    "Returns posts"
+    posts = Post.objects.filter(type__in=Post.TOP_LEVEL)
 
-    if user.is_moderator:
-        posts = Post.objects.filter(type__in=Post.TOP_LEVEL)
-    else:
-        posts = Post.objects.filter(type__in=Post.TOP_LEVEL).exclude(status=Post.DELETED)
+    if not user.is_moderator:
+        posts = posts.exclude(status=Post.DELETED)
 
     posts = posts.select_related("root", "author", "lastedit_user").prefetch_related("tag_set").defer("content", "html")
+
+    return posts
+
+
+def get_thread(root, user):
+    # Populate the object to build a tree that contains all posts in the thread.
+    posts = Post.objects.filter(root=root)
+    if not user.is_moderator:
+        posts = posts.exclude(status=Post.DELETED)
+
+    posts = posts.select_related("root", "author", "lastedit_user", "author__profile")
+    posts = posts.order_by("type", "-has_accepted", "-vote_count", "creation_date")
 
     return posts

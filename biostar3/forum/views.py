@@ -7,6 +7,7 @@ from django.conf import settings
 from biostar3.forum import search
 from django.contrib import messages
 from django.core.urlresolvers import reverse
+from collections import OrderedDict, defaultdict
 
 # Get custom user model.
 User = get_user_model()
@@ -75,6 +76,10 @@ class PostList(ExtraContext, ListView):
     paginate_by = settings.POST_PAGINATE_BY
     html_title = "Posts"
 
+    def get_queryset(self):
+        results = query.get_toplevel_posts(user=self.request.user)
+        return results
+
 
 class SearchResults(PostList):
     """
@@ -115,6 +120,27 @@ class PostView(ExtraContext, DetailView):
         return self.render_to_response(context)
 
     def get_object(self, *args, **kwargs):
+
         user = self.request.user
-        obj = super(PostView, self).get_object()
-        return obj
+        root = super(PostView, self).get_object()
+
+        # The correct data representation would be an ordered tree amp.
+        thread = [p for p in query.get_thread(root, user)]
+
+        # Store answers in a separate list.
+        answers = filter(lambda p: p.type == models.Post.ANSWER, thread)
+
+        # Populate the answers.
+        root.answers = answers
+
+        # Comments will be stored in a dictionary for fast access.
+        comment_list = filter(lambda p: p.type == models.Post.COMMENT, thread)
+
+        comments = OrderedDict()
+        for post in comment_list:
+            comments.setdefault(post.id, []).append(post)
+
+        # Populate comments.
+        root.comments = comments
+
+        return root
