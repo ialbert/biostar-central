@@ -6,4 +6,7 @@ $(document).ready(function () {
     search.focus();
     search[0].setSelectionRange(size, size);
 
+    // Draw pietyis.
+    $(".line").peity("line")
+
 });
