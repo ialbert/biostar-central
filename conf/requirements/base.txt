@@ -1,5 +1,5 @@
 django >=1.6, <1.7
-django-allauth
+django-allauth <=0.18.0
 django-debug-toolbar
 django-compressor
 django-crispy-forms
