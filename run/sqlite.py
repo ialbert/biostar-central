@@ -1,6 +1,16 @@
 # Import all values from the base then override site specific settings.
 from biostar3.settings.base import *
 
+# Site administrators. Make sure to override this.
+ADMINS = (
+    ("Biostar Community", "1@localhost.com"),
+)
+
+MANAGERS = ADMINS
+
+# Get the secret key from the environment.
+SECRET_KEY = get_env("SECRET_KEY")
+
 # Sqlite specific settings.
 DEBUG = True
 TEMPLATE_DEBUG = True

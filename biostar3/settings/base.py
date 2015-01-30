@@ -24,6 +24,18 @@ def get_env(name, default=''):
 
 BIOSTAR_HOME = get_env('BIOSTAR_HOME')
 
+# Site administrators. Make sure to override this.
+ADMINS = (
+    ("Biostar Community", "1@localhost.com"),
+)
+
+MANAGERS = ADMINS
+
+# Get the secret key from the environment.
+SECRET_KEY = get_env("SECRET_KEY")
+
+TEST_RUNNER = 'django.test.runner.DiscoverRunner'
+
 SITE_ID = 1
 SITE_NAME = "Site Name"
 SITE_DOMAIN = "localhost"

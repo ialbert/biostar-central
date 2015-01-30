@@ -1,15 +1,25 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 from django.db import models
-from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, UserManager
+from django.contrib.auth.models import UserManager, AbstractBaseUser, UserManager, Group, GroupManager
 from django.contrib.sites.models import Site
 from django.conf import settings
 from django.core.urlresolvers import reverse
 
+# Default groups.
+ADMIN_GROUP_NAME = "Admins"
+MODERATOR_GROUP_NAME = "Moderators"
+
+# Permissions.
+MODERATE_POST_PERMISSION = "moderate_post"
+MODERATE_USER_PERMISSION = "moderate_user"
+BAN_USER_PERMISSION = "ban_user"
 
 # The main user model.
 class User(AbstractBaseUser):
     """Represents a registered user of the website."""
+
+    objects = UserManager()
 
     # Class level constants.
     USER, MODERATOR, ADMIN, BLOG = range(4)
@@ -20,6 +30,10 @@ class User(AbstractBaseUser):
 
     class Meta:
         db_table = "users_user"
+        permissions = (
+            (MODERATE_USER_PERMISSION, "Can moderate a user"),
+            (BAN_USER_PERMISSION, "Can ban a user"),
+        )
 
     # Required by Django.
     USERNAME_FIELD = 'email'
@@ -66,7 +80,15 @@ class User(AbstractBaseUser):
         url = reverse("post_view", kwargs=dict(pk=self.id))
         return url
 
+    def has_perm(self, perm, obj=None):
+        return self.is_admin
 
+    def has_module_perms(self, app_label):
+        return self.is_admin
+
+    def get_short_name(self):
+        return self.name
+    
 class Tag(models.Model):
     """Represents a tag."""
 
@@ -144,6 +166,9 @@ class Post(models.Model):
     class Meta:
         db_table = "posts_post"
         ordering = ["-lastedit_date"]
+        permissions = (
+            (MODERATE_POST_PERMISSION, "Can moderate a post"),
+        )
 
     # Post statuses.
     PENDING, OPEN, CLOSED, DELETED = range(4)

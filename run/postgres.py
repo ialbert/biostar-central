@@ -4,6 +4,16 @@
 #
 from biostar3.settings.base import *
 
+# Site administrators. Make sure to override this.
+ADMINS = (
+    ("Biostar Community", "1@localhost.com"),
+)
+
+MANAGERS = ADMINS
+
+# Get the secret key from the environment.
+SECRET_KEY = get_env("SECRET_KEY")
+
 DATABASE_NAME = get_env('DATABASE_NAME')
 DATABASE_USER = get_env('DATABASE_USER')
 DATABASE_HOST = get_env('DATABASE_HOST')

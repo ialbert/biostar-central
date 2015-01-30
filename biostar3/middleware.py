@@ -6,18 +6,29 @@ from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
-def add_user_attributes(user):
+def modify_request(request):
     """
-    Ensures that anyonymous users have attributes that autheniticated users have.
+    Each request will be altered to contain settings that the site expects.
+
+    1. Ensures that anyonymous users have attributes that autheniticated users have.
     This greatly simplfies templating. Will mutate data for anonymous users.
+
+    2. Sets the subdomain of the current request. It is used to filter content by.
+
     """
+    user = request.user
+
     if not user.is_authenticated():
         user.is_moderator = user.is_admin = False
+
+    domain = request.META['HTTP_HOST']
+    request.subdomain = domain.split('.')[0]
 
 class GlobalMiddleware(object):
     """Performs tasks that are applied on every request"""
 
     def process_request(self, request):
 
-        # Ensure that even anonymous users have extra attributes.
-        add_user_attributes(request.user)
+        # Ensures that requests have all the information needed.
+        modify_request(request)
+
