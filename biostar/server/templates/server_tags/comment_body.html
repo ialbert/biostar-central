@@ -10,6 +10,8 @@
 
    {{ post.html|safe }}
 
+    {%  data_list post %}
+
     {#  Post action line #}
     {% post_actions post user "REPLY" %}
 
