@@ -36,10 +36,17 @@ a {
 }
 
 #post_list .post_title {
-    font-size: 1.2em;
+    font-size: 1.1em;
     font-weight: bold;
     margin-bottom: 0.2em;
 }
+
+#post_list td {
+    border-top: 1px solid #E1E1E1;
+    padding: 0.5em 0em 0.5em 0em;
+    vertical-align: top;
+}
+
 
 #post_detail .post_title {
     font-size: 1.3em;
@@ -113,12 +120,6 @@ a {
 / / overflow : auto;
 }
 
-td {
-    border-top: 1px solid #E1E1E1;
-    padding: 0.2em 0em 0.3em 0em;
-    vertical-align: top;
-
-}
 
 .clearfix {
     overflow: auto;

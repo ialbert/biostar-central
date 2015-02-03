@@ -29,7 +29,6 @@ def get_toplevel_posts(user):
 
     return posts
 
-
 def get_thread(root, user):
     # Populate the object to build a tree that contains all posts in the thread.
     posts = Post.objects.filter(root=root)
