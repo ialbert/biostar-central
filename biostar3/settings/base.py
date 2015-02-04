@@ -22,7 +22,10 @@ def get_env(name, default=''):
         raise ImproperlyConfigured(msg)
     return value
 
+
 BIOSTAR_HOME = get_env('BIOSTAR_HOME')
+DEFAULT_SUBDOMAINS = {'www'}
+DEFAULT_GROUP_NAME = "General"
 
 # Site administrators. Make sure to override this.
 ADMINS = (

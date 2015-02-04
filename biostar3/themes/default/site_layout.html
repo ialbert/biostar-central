@@ -22,7 +22,7 @@
     {% if messages %}
         <div class="row">
             {% for message in messages %}
-                <div class="alert {{ message.tags }}">{{ message|safe }}</div>
+                <div class="alert {{ message.tags }}">{{ message }}</div>
             {% endfor %}
         </div>
     {% endif %}

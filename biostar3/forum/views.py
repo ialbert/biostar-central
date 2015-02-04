@@ -77,7 +77,8 @@ class PostList(ExtraContext, ListView):
     html_title = "Posts"
 
     def get_queryset(self):
-        results = query.get_toplevel_posts(user=self.request.user)
+        group = query.get_group(self.request, self.request.subdomain)
+        results = query.get_toplevel_posts(user=self.request.user, group=group)
         return results
 
 

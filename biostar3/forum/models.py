@@ -15,6 +15,7 @@ MODERATE_USER_PERMISSION = "moderate_user"
 MODERATE_POST_PERMISSION = "moderate_post"
 BAN_USER_PERMISSION = "ban_user"
 
+
 # The main user model.
 class User(AbstractBaseUser, PermissionsMixin):
     """Represents a registered user of the website."""
@@ -83,6 +84,12 @@ class User(AbstractBaseUser, PermissionsMixin):
     def get_short_name(self):
         return self.name
 
+class GroupInfo(models.Model):
+    "Extra group information"
+    author = models.ForeignKey(settings.AUTH_USER_MODEL)
+    group = models.OneToOneField(Group)
+    creation_date = models.DateTimeField(auto_now_add=True)
+
 class Tag(models.Model):
     """Represents a tag."""
 
@@ -110,7 +117,7 @@ class Profile(models.Model):
                       (WEEKLY_DIGEST, 'Weekly'), (MONTHLY_DIGEST, 'Monthly')]
 
     # The user that this profile is for.
-    user = models.OneToOneField(User)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL)
 
     # Globally unique id used to identify the user in a private feeds
     uuid = models.CharField(null=False, db_index=True, unique=True, max_length=255)
@@ -184,6 +191,9 @@ class Post(models.Model):
 
     # The user that originally created the post.
     author = models.ForeignKey(settings.AUTH_USER_MODEL)
+
+    # The group that this post belongs to.
+    group = models.ForeignKey(Group, null=True, blank=True)
 
     # The user that edited the post most recently.
     lastedit_user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='editor')

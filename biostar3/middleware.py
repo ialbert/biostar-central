@@ -21,8 +21,11 @@ def modify_request(request):
     if not user.is_authenticated():
         user.is_moderator = user.is_admin = False
 
+    # Set the subdomain on the request.
     domain = request.META['HTTP_HOST']
     request.subdomain = domain.split('.')[0]
+    if request.subdomain in settings.DEFAULT_SUBDOMAINS:
+        request.subdomain = settings.DEFAULT_GROUP_NAME
 
 class GlobalMiddleware(object):
     """Performs tasks that are applied on every request"""
