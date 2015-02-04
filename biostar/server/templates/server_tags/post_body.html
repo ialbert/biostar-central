@@ -2,8 +2,8 @@
 
 <div class="post-body {{ post.get_status_display }} clearfix">
 
-    {% if post.is_toplevel %}
 
+    {% if post.is_toplevel %}
         {% include "banners/leaderboard.html" %}
 
         <div class="title" >{{ post.get_type_display }}: <span itemprop="name">{{ post.get_title }}</span></div>

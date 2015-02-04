@@ -29,7 +29,7 @@ class UserEditForm(forms.Form):
     location = forms.CharField(required=False,
                                help_text="Country/City/Institution (recommended)")
 
-    website = forms.URLField(required=False, max_length=200,
+    website = forms.URLField(required=False, max_length=100,
                              help_text="The URL to your website (optional)")
 
     twitter_id = forms.CharField(required=False, max_length=15,
@@ -38,14 +38,14 @@ class UserEditForm(forms.Form):
     scholar = forms.CharField(required=False, max_length=15,
                               help_text="Your Google Scholar ID (optional)")
 
-    my_tags = forms.CharField(max_length=200, required=False,
+    my_tags = forms.CharField(max_length=100, required=False,
                               help_text="Post with tags listed here will show up in the My Tags tab. Use a comma to separate tags. Add a <code>!</code> to remove a tag. Example: <code>galaxy, bed, solid!</code> (optional)")
 
-    watched_tags = forms.CharField(max_length=200, required=False,
+    watched_tags = forms.CharField(max_length=100, required=False,
                                    help_text="Get email when a post matching the tag is posted. Example: <code>minia, bedops, breakdancer, music</code>.")
 
     digest_prefs = forms.ChoiceField(required=True, choices=Profile.DIGEST_CHOICES, label="Email Digest",
-                                     help_text="Sets the frequence of digest emails. A digest email is a summary of events on the site.")
+                                     help_text="(This feature is not working yet!). Sets the frequence of digest emails. A digest email is a summary of events on the site.")
 
     message_prefs = forms.ChoiceField(required=True, choices=const.MESSAGING_TYPE_CHOICES, label="Notifications",
                                       help_text="Default mode  sends you an email if you receive anwers to questions that you've posted.")

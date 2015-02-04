@@ -150,6 +150,8 @@
     {# This information is cached and updated periodically via the context. #}
     <div id="traffic">Traffic: {{ TRAFFIC }} users visited in the last hour</div>
 
+ 	{% include "banners/bottom-block.html" %}
+
 </div>
 
 {# Google tracker injected if it exists in the context. Set in the django settings. #}
