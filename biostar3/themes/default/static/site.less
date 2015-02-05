@@ -1,0 +1,313 @@
+/*
+This file uses LESS: http://lesscss.org/
+*/
+/* Import the default styles */
+@import "style.less";
+
+* {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: @BODY_FONT;
+  color: @BODY_TEXT_COLOR;
+
+  a {
+    color: @LINK_COLOR;
+    text-decoration: none;
+  }
+
+  .container {
+    max-width: @CONTAINER_WIDTH;
+  }
+
+  .highlighted {
+    background-color: @HIGHLIGHT_COLOR;
+  }
+
+}
+
+.recent_votes > ul {
+  list-style-type: none;
+  opacity: 0.8;
+  line-height: 1;
+}
+
+.content {
+  word-wrap: break-word;
+}
+
+.search-info {
+  padding: 1em;
+  text-align: center;
+  background-color: #F1F1F1;
+  border-radius: 4px;
+  margin-bottom: 0.5em;
+}
+
+.post_user_box {
+  float: right;
+  width: 150px;
+  padding: 0.5em 0.2em 0.5em 0.2em;
+  border: 1px solid #D1D1D1;
+  border-radius: 4px;
+  text-align: center;
+  background-color: #f5f5f5;
+  margin-left: 0.5em;
+  color: #999999;
+}
+
+.page_bar {
+  text-align: center;
+  margin-bottom: 1em;
+}
+
+.action_bar {
+  float: left;
+  padding-bottom: 1em;
+}
+
+.clearfix {
+  overflow: auto;
+  zoom: 1;
+}
+
+.left {
+  float: left;
+}
+
+.right {
+  float: right
+}
+
+.answer {
+  border-top: 1px solid #D1D1D1;
+  margin: 0.5em 0em 0.5em 0em;
+  padding-top: 0.5em;
+  overflow: auto;
+  width: 100%
+}
+
+/* User link */
+.userlink {
+  color: #808080;
+  padding-left: 0.5em;
+  text-align: right;
+}
+
+/* Post listing */
+#post_list {
+
+  .post_title {
+    font-size: 1.1em;
+    font-weight: bold;
+    margin-bottom: 0.2em;
+  }
+
+  td {
+    border-top: 1px solid #E1E1E1;
+    padding: 0.5em 0em 0.5em 0em;
+    vertical-align: top;
+  }
+
+}
+
+/* Post detail */
+#post_detail {
+
+  .post_title {
+    font-size: 1.3em;
+    font-weight: bold;
+    margin-top: 1em;
+    margin-bottom: 1em;
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1);
+  }
+
+}
+
+/* Tags */
+.tag {
+  padding: 0.1em 0.3em 0.1em 0.3em;
+  text-decoration: none;
+  background-color: @TAG_BG_COLOR;
+  border-bottom: 1px solid #BBB;
+  border-right: 1px solid #BBB;
+  color: @TAG_TEXT_COLOR;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+
+  &:hover {
+    color: white;
+    background-color: @TAG_BG_HOVER_COLOR;
+  }
+}
+
+/* Count boxes */
+.box {
+
+  width: 4em;
+  text-align: center;
+
+  .c {
+    font-size: 1.4em;
+    font-weight: bold;
+    height: 2ex;
+    vertical-align: middle;
+    text-align: center;
+    margin-bottom: 2px;
+  }
+
+  .t {
+    font-size: smaller;
+  }
+
+  .vote {
+    background-color: #eeeeee;
+    padding: 0px 0.1em 0em 0.1em;
+  }
+
+  .Unanswered {
+    background-color: #8f2c47;
+    color: white;
+    padding: 0px 0.1em 0em 0.1em;
+  }
+
+  .Answered {
+    background-color: #5b8c3e;
+    color: white;
+    padding: 0px 0.1em 0em 0.1em;
+  }
+}
+
+/* Search bar */
+#search_bar form {
+  margin-bottom: 0em;
+}
+
+/* Labels */
+.label {
+  display: inline;
+  padding: .2em .6em .3em;
+  font-size: 75%;
+  font-weight: bold;
+  line-height: 1;
+  color: #fff;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+  border-radius: .25em;
+  background-color: #999
+}
+
+/* Site logo */
+#logo {
+  display: none;
+}
+
+#logo, #page_title {
+  float: left;
+  padding: 5px 10px 0px 0px;
+  vertical-align: middle;
+  line-height: 1.0;
+}
+
+/* Footer */
+#footer {
+  margin-top: 1em;
+  text-align: center;
+  padding: 1em;
+}
+
+/* Alert styles */
+.alert {
+
+  padding: 1em;
+  margin-bottom: 1ex;
+  border: 1px solid transparent;
+  border-radius: 4px;
+
+  .alert-danger {
+    color: #a94442;
+    background-color: #f2dede;
+    border-color: #ebccd1;
+  }
+
+  .alert-info {
+    color: #31708f;
+    background-color: #d9edf7;
+    border-color: #bce8f1;
+  }
+
+  .alert-warning {
+    color: #8a6d3b;
+    background-color: #fcf8e3;
+    border-color: #faebcc;
+  }
+
+  .alert-success {
+    color: #3c763d;
+    background-color: #dff0d8;
+    border-color: #d6e9c6;
+  }
+
+}
+
+/* Navigation */
+
+nav.primary {
+
+  ul {
+    margin: 0 0 1ex 0;
+    padding: 0px;
+  }
+
+  ul li {
+    display: inline;
+    float: left;
+    position: relative;
+    margin: 0px;
+  }
+
+  ul li a {
+    display: inline-block;
+    line-height: 2em;
+    padding: 0 1em;
+  }
+
+  ul li a:hover {
+    background-color: #EFEFEF;
+    cursor: pointer;
+    border-radius: 4px;
+  }
+
+
+}
+
+
+/* Media Queries
+–––––––––––––––––––––––––––––––––––––––––––––––––– */
+/*
+Note: The best way to structure the use of media queries is to create the queries
+near the relevant code. For example, if you wanted to change the styles for buttons
+on small devices, paste the mobile query code up in the buttons section and style it
+there.
+*/
+
+/* Larger than phablet (also point when grid becomes active) */
+
+
+@media (min-width: 550px) {
+  #logo {
+    display: block;
+  }
+
+  .hide-phone {
+    display: block;
+  }
+}
+
+
+
