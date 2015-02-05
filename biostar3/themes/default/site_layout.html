@@ -10,6 +10,8 @@
         <link rel="stylesheet/less" type="text/less" href="{% static "site.less" %}">
     {% endcompress %}
 
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+
     <script src="{% static "js/less.min.js" %}" type="text/javascript"></script>
 
     <link rel="icon" type="image/png" href={% static "images/favicon.png" %}/>
@@ -19,15 +21,47 @@
 {% block header %}
 
     <div class="row">
-        <a href="{% url "home" %}"><img src="{% static "images/logo.png" %}" id="logo"></a>
 
-        <h3 id="page_title">{{ page_title }}</h3>  <select>
-            <option value="volvo">Biostar</option>
-            <option value="saab">Qiime 1</option>
-            <option value="opel">Qiime 2</option>
-            <option value="audi">Chipster</option>
-            <option value="audi">Galaxy</option>
-        </select>
+        <div class="three columns">
+            <a href="{% url "home" %}"><img src="{% static "images/biostar.logo.png" %}" id="logo"></a>
+        </div>
+
+
+        <div class="seven columns">
+            <nav class="primary">
+                <ul>
+                    <li>
+                        <a href="#"><i class="fa fa-globe"></i> <br> Community</a>
+                    </li>
+
+                    <li>
+                        <a href="#"><i class="fa fa-user"></i> <br> User Name</a>
+                    </li>
+
+                    <li>
+                        <a href="#">30 <i class="fa fa-envelope"></i> <br> Messages</a>
+                    </li>
+
+                    <li>
+                        <a href="#">20 <i class="fa fa-heart"></i> <br> &nbsp;Votes&nbsp;</a>
+                    </li>
+
+                    <li>
+                        <a href="#"><i class="fa fa-comments"></i> <br> My Posts</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+
+    <div class="one columns">
+        <nav class="primary">
+            <ul>
+                    <li>
+                        <a href="#"><i class="fa fa-plus-circle"></i> <br> New&nbsp;Post</a>
+                    </li>
+    		</ul>
+            </nav>
+    </div>
 
     </div>
 
@@ -42,14 +76,7 @@
 
 
     <div class="row">
-        Groups:
-        <select>
-            <option value="volvo">Bioinfo</option>
-            <option value="saab">Qiime 1</option>
-            <option value="opel">Qiime 2</option>
-            <option value="audi">Chipster</option>
-            <option value="audi">Galaxy</option>
-        </select>
+
 
     </div>
 
@@ -60,7 +87,20 @@
     Layout Body.
 {% endblock %}
 
+
+
 {% block footer %}
+    <div class="right">
+        Switch to:
+        <select class="rights">
+            <option value="volvo">Biostar</option>
+            <option value="saab">Qiime 1</option>
+            <option value="opel">Qiime 2</option>
+            <option value="audi">Chipster</option>
+            <option value="audi">Galaxy</option>
+        </select>
+    </div>
+
     Powered by <a href="https://github.com/ialbert/biostar-central">Biostars</a> &bull; version {{ BIOSTAR_VERSION }}
 {% endblock %}
 

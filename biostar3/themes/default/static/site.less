@@ -13,6 +13,11 @@ This file uses LESS: http://lesscss.org/
 body {
   font-family: @BODY_FONT;
   color: @BODY_TEXT_COLOR;
+  line-height: 1.4em;
+
+  p {
+    margin-bottom: 1ex;
+  }
 
   a {
     color: @LINK_COLOR;
@@ -99,6 +104,7 @@ body {
 
 /* Post listing */
 #post_list {
+  line-height: 1.6em;
 
   .post_title {
     font-size: 1.1em;
@@ -258,7 +264,8 @@ body {
 /* Navigation */
 
 nav.primary {
-
+  text-align: center;
+  line-height: 1.2em;
   ul {
     margin: 0 0 1ex 0;
     padding: 0px;
@@ -269,12 +276,13 @@ nav.primary {
     float: left;
     position: relative;
     margin: 0px;
+    min-width: 13%;
   }
 
   ul li a {
     display: inline-block;
-    line-height: 2em;
-    padding: 0 1em;
+    line-height: 1.6;
+    padding: 1ex;
   }
 
   ul li a:hover {
