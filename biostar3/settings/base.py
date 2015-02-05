@@ -24,7 +24,7 @@ def get_env(name, default=''):
 
 
 BIOSTAR_HOME = get_env('BIOSTAR_HOME')
-DEFAULT_SUBDOMAINS = {'www'}
+DEFAULT_SUBDOMAINS = {'www', '127', 'localhost:8080' }
 DEFAULT_GROUP_NAME = "General"
 
 # Site administrators. Make sure to override this.
@@ -41,7 +41,9 @@ TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
 SITE_ID = 1
 SITE_NAME = "Site Name"
-SITE_DOMAIN = "localhost"
+
+# This resolves to localhost yet contains dotted domain name.
+SITE_DOMAIN = "www.lvh.me:8080"
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = get_env('SECRET_KEY')
@@ -153,3 +155,9 @@ HAYSTACK_CONNECTIONS = {
         'PATH': get_env('SEARCH_INDEX'),
     },
 }
+
+def GET_SUBDOMAIN(request):
+    "Used to extract the subdomain. Override if deployed under multilevel subdomains."
+    domain = request.META['HTTP_HOST']
+    subdomain = domain.split('.')[0]
+    return subdomain.lower()

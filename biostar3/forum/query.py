@@ -8,6 +8,7 @@ from django.contrib import messages
 
 User = get_user_model()
 
+DEFAULT_GROUP = Group.objects.filter(name=settings.DEFAULT_GROUP_NAME).first()
 
 def recent_votes():
     votes = Vote.objects.filter(post__status=Post.OPEN).select_related("post").order_by("-date")[
@@ -19,13 +20,6 @@ def get_recent_users():
     users = User.objects.all().select_related("profile").order_by("-profile__last_login")[:settings.RECENT_USER_COUNT]
     return users
 
-
-def get_group(request, name):
-    group = Group.objects.filter(name__iexact=name)
-    if not group:
-        messages.error(request, "Invalid group name: %s" % name)
-        group = Group.objects.filter(name=settings.DEFAULT_GROUP_NAME)
-    return group
 
 def get_toplevel_posts(user, group):
     "Returns posts"

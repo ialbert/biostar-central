@@ -5,6 +5,7 @@ from biostar3.forum.models import User, Group, Post
 from django.contrib.auth.models import Permission
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
+from django.contrib.sites.models import Site
 
 import logging
 
@@ -46,6 +47,10 @@ def create_group(name, user):
 
 
 def post_migrate_tasks(sender, **kwargs):
+    """
+    Sets up data post migration. The site will rely on data set up via this function.
+    """
+
     # Create the default admin user.
     for name, email in settings.ADMINS:
         admin, created = User.objects.get_or_create(email=email)
@@ -83,3 +88,11 @@ def post_migrate_tasks(sender, **kwargs):
     # Update all admin users to have permissions.
     for user in models.User.objects.filter(type=User.ADMIN):
         user.groups.add(admin_group, mod_group)
+
+    # Sets up the default domain
+    site = Site.objects.get_current()
+    if site.domain != settings.SITE_DOMAIN:
+        site.name = settings.SITE_NAME
+        site.domain = settings.SITE_DOMAIN
+        site.save()
+        logger.info("adding site=%s, name=%s, domain=%s" % (site.id, site.name, site.domain))

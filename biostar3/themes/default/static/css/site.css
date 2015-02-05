@@ -47,7 +47,6 @@ a {
     vertical-align: top;
 }
 
-
 #post_detail .post_title {
     font-size: 1.3em;
     font-weight: bold;
@@ -120,7 +119,6 @@ a {
 / / overflow : auto;
 }
 
-
 .clearfix {
     overflow: auto;
     zoom: 1;
@@ -131,8 +129,8 @@ a {
     color: #808080;
     padding-left: 0.5em;
     text-align: right;
-    //margin-top: 0.5em;
-    //margin-bottom: 0.5em;
+/ / margin-top : 0.5 em;
+/ / margin-bottom : 0.5 em;
 }
 
 .left {
@@ -174,7 +172,7 @@ a {
 }
 
 .box {
-    //padding: 0.2em;
+/ / padding : 0.2 em;
     width: 4em;
     text-align: center;
 }
@@ -210,7 +208,7 @@ a {
 }
 
 .action_bar {
-    float:left;
+    float: left;
     width: 50%;
     padding-bottom: 1em;
 }
@@ -228,6 +226,62 @@ a {
     border-radius: .25em;
     background-color: #999
 }
+
+/* navigation */
+nav.primary ul li {
+    margin: 0 0 1ex 0;
+    padding: 0px;
+}
+
+nav.primary ul li {
+    display: inline;
+    float: left;
+    position: relative;
+}
+
+nav.primary ul li a {
+    display: inline-block;
+    line-height: 2em;
+    padding: 0 1em;
+}
+
+nav.primary ul li a:hover {
+    background-color: #EFEFEF;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.alert {
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+}
+
+.alert-danger {
+    color: #a94442;
+    background-color: #f2dede;
+    border-color: #ebccd1;
+}
+
+.alert-info {
+    color: #31708f;
+    background-color: #d9edf7;
+    border-color: #bce8f1;
+}
+
+.alert-warning {
+    color: #8a6d3b;
+    background-color: #fcf8e3;
+    border-color: #faebcc;
+}
+
+.alert-success {
+    color: #3c763d;
+    background-color: #dff0d8;
+    border-color: #d6e9c6;
+}
+
 /* Media Queries
 –––––––––––––––––––––––––––––––––––––––––––––––––– */
 /*

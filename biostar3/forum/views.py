@@ -9,9 +9,9 @@ from django.contrib import messages
 from django.core.urlresolvers import reverse
 from collections import OrderedDict, defaultdict
 
+
 # Get custom user model.
 User = get_user_model()
-
 
 def check_request(request):
     """
@@ -77,8 +77,7 @@ class PostList(ExtraContext, ListView):
     html_title = "Posts"
 
     def get_queryset(self):
-        group = query.get_group(self.request, self.request.subdomain)
-        results = query.get_toplevel_posts(user=self.request.user, group=group)
+        results = query.get_toplevel_posts(user=self.request.user, group=self.request.group)
         return results
 
 
