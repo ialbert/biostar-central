@@ -28,7 +28,7 @@ def get_toplevel_posts(user, group):
     if not user.is_moderator:
         posts = posts.exclude(status=Post.DELETED)
 
-    posts = posts.select_related("root", "author", "lastedit_user").prefetch_related("tag_set").defer("content", "html")
+    posts = posts.select_related("root", "author", "lastedit_user").prefetch_related("tags").defer("content", "html")
 
     return posts
 

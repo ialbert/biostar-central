@@ -96,3 +96,8 @@ def post_migrate_tasks(sender, **kwargs):
         site.domain = settings.SITE_DOMAIN
         site.save()
         logger.info("adding site=%s, name=%s, domain=%s" % (site.id, site.name, site.domain))
+
+    # Migrate tags if these exist.
+    for post in Post.objects.filter(type__in=Post.TOP_LEVEL).exclude(tag_val=''):
+        tags = post.tag_val.split(",")
+        post.tags.set(*tags)

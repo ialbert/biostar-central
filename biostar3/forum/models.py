@@ -5,7 +5,7 @@ from django.contrib.auth.models import UserManager, AbstractBaseUser, UserManage
 from django.contrib.sites.models import Site
 from django.conf import settings
 from django.core.urlresolvers import reverse
-
+from taggit.managers import TaggableManager
 
 # Default groups.
 ADMIN_GROUP_NAME = "Admins"
@@ -186,6 +186,9 @@ class Post(models.Model):
     ]
 
     TOP_LEVEL = {QUESTION, JOB, FORUM, PAGE, BLOG, DATA, TUTORIAL, TOOL, NEWS, BOARD}
+
+    # Maintains post tags.
+    tags = TaggableManager()
 
     title = models.CharField(max_length=250, null=False)
 

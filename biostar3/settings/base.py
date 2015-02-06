@@ -69,6 +69,7 @@ INSTALLED_APPS = (
     'biostar3.forum',
     'compressor',
     'haystack',
+    'taggit',
 )
 
 MIDDLEWARE_CLASSES = (
