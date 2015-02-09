@@ -15,10 +15,12 @@ from biostar.server.views import LATEST
 
 register = template.Library()
 
+
 @register.simple_tag
 def get_count(counts, word):
     num = counts.get(word.lower()) or ''
     return num
+
 
 @register.simple_tag
 def current(request, *urls):
@@ -38,16 +40,18 @@ else:
     def rand_num():
         return "1"
 
+
 @register.filter
 def show_nonzero(value):
     "The purpose of this is to return value or empty"
     return value if value else ''
 
+
 @register.filter
 def bignum(number):
     "Reformats numbers with qualifiers as K"
     try:
-        value = float(number)/1000.0
+        value = float(number) / 1000.0
         if value > 10:
             return "%0.fk" % value
         elif value > 1:
@@ -56,16 +60,19 @@ def bignum(number):
         pass
     return str(number)
 
+
 @register.filter
 def on(value):
     "The purpose of this is to return value or empty"
     return "on" if value else 'off'
+
 
 @register.filter
 def latest(value):
     "Attempts to hide parts of the email"
     print "-" * 10, value
     return value if value else "Latest"
+
 
 @register.filter
 def hide_email(value):
@@ -78,14 +85,15 @@ def hide_email(value):
     except Exception, exc:
         return value
 
+
 @register.simple_tag
 def messages_read(user):
     Message.objects.filter(user=user, unread=True).update(unread=False)
     return ''
 
+
 @register.simple_tag
 def gravatar(user, size=80):
-
     name = user.name
     if user.is_suspended:
         # Removes spammy images for suspended users
@@ -112,6 +120,9 @@ def pluralize(value, word):
 
 @register.filter
 def time_ago(date):
+    # Rare bug. TODO: Need to investigate why this can happen.
+    if not date:
+        return ''
     delta = const.now() - date
     if delta < timedelta(minutes=1):
         return 'just now'
@@ -136,11 +147,13 @@ def last_action(post):
     action = "written"
     return "%s" % action
 
+
 @register.simple_tag
 def active(x, y):
     # Create the active class css
     x, y = x or '', y or ''
     return 'active' if x.lower() == y.lower() else ''
+
 
 @register.simple_tag
 def boxclass(post):
@@ -155,45 +168,55 @@ def boxclass(post):
         style = "unanswered"
     return style
 
+
 @register.inclusion_tag('server_tags/sidebar_posts.html')
 def sidebar_posts(posts):
     return dict(posts=posts)
+
 
 @register.inclusion_tag('server_tags/sidebar_votes.html')
 def sidebar_votes(votes):
     return dict(votes=votes)
 
+
 @register.inclusion_tag('server_tags/sidebar_users.html')
 def sidebar_users(users):
     return dict(users=users)
+
 
 @register.inclusion_tag('server_tags/sidebar_locations.html')
 def sidebar_locations(users):
     return dict(users=users)
 
+
 @register.inclusion_tag('server_tags/sidebar_awards.html')
 def sidebar_awards(awards):
     return dict(awards=awards)
+
 
 @register.inclusion_tag('server_tags/nav_bar.html', takes_context=True)
 def nav_bar(context, user):
     "Renders top navigation bar"
     return context
 
+
 @register.inclusion_tag('server_tags/page_bar.html', takes_context=True)
 def page_bar(context):
     "Renders a paging bar"
     return context
+
 
 @register.inclusion_tag('server_tags/post_user_box.html')
 def post_user_box(user, date):
     "Renders a user box"
     return dict(user=user, date=date)
 
+
 @register.inclusion_tag('server_tags/user_box.html')
 def user_box(user, lastlogin):
     "Renders a user box"
     return dict(user=user, lastlogin=lastlogin)
+
 
 @register.inclusion_tag('server_tags/page_bar_sort_posts.html', takes_context=True)
 def page_bar_sort_posts(context):
@@ -201,6 +224,7 @@ def page_bar_sort_posts(context):
     context['date_fields'] = const.POST_LIMIT_FIELDS
     "Renders a paging bar"
     return context
+
 
 @register.inclusion_tag('server_tags/page_bar_sort_users.html', takes_context=True)
 def page_bar_sort_users(context):
@@ -221,6 +245,7 @@ def search_bar(context):
     "Displays search bar"
     return context
 
+
 @register.inclusion_tag('server_tags/post_count_box.html')
 def post_count_box(post, context='', topic=''):
     "Displays the count box for a post row"
@@ -229,6 +254,7 @@ def post_count_box(post, context='', topic=''):
     if LATEST in topic:
         topic.remove(LATEST)
     return dict(post=post, context=context, topic=topic)
+
 
 @register.inclusion_tag('server_tags/post_actions.html')
 def post_actions(post, user, label="COMMENT"):
