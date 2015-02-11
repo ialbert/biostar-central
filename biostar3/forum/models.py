@@ -7,6 +7,10 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from taggit.managers import TaggableManager
 
+class MyTaggableManager(TaggableManager):
+    def get_internal_type(self):
+        return 'ManyToManyField'
+
 # Default groups.
 ADMIN_GROUP_NAME = "Admins"
 MODERATOR_GROUP_NAME = "Moderators"
@@ -188,7 +192,7 @@ class Post(models.Model):
     TOP_LEVEL = {QUESTION, JOB, FORUM, PAGE, BLOG, DATA, TUTORIAL, TOOL, NEWS, BOARD}
 
     # Maintains post tags.
-    tags = TaggableManager()
+    tags = MyTaggableManager()
 
     title = models.CharField(max_length=250, null=False)
 

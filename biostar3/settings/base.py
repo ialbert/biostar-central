@@ -66,10 +66,10 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.sitemaps',
     'django.contrib.humanize',
-    'biostar3.forum',
     'compressor',
     'haystack',
     'taggit',
+    'biostar3.forum',
 )
 
 MIDDLEWARE_CLASSES = (
