@@ -6,6 +6,7 @@ from django.contrib.auth.models import Permission
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.contrib.sites.models import Site
+from django.db import transaction
 
 import logging
 
@@ -22,6 +23,9 @@ class BiostarAppConfig(AppConfig):
     verbose_name = 'Biostar Forum'
 
     def ready(self):
+        """
+        Triggers when the application configuration is ready.
+        """
         post_migrate.connect(post_migrate_tasks, sender=self)
 
     @property
@@ -29,17 +33,24 @@ class BiostarAppConfig(AppConfig):
         return self.name.split(".")[-1]
 
 
-def check_permission(user, perm_name):
-    perm_label = "%s.%s" % (BiostarAppConfig.app_label, perm_name)
+def check_permission(user, perm_name, label=BiostarAppConfig.app_label):
+    """
+    Generic function to apply a permission on the current app.
+    """
+    perm_label = "%s.%s" % (label, perm_name)
     return user.has_perm(perm_label)
 
 
+# Functions to check permissions of the user on an action.
 authorize_post_mod = lambda user: check_permission(user, models.MODERATE_POST_PERMISSION)
 authorize_user_mod = lambda user: check_permission(user, models.MODERATE_USER_PERMISSION)
 authorize_user_ban = lambda user: check_permission(user, models.BAN_USER_PERMISSION)
 
-
+@transaction.atomic
 def create_group(name, user):
+    """
+    Group objects also carry a group info. We reuse the groups as defined in Django.
+    """
     group, flag = models.Group.objects.get_or_create(name=name)
     if flag:
         models.GroupInfo.objects.create(group=group, author=user)
@@ -72,11 +83,11 @@ def post_migrate_tasks(sender, **kwargs):
     if not admin:
         raise ImproperlyConfigured("settings must include ADMINS attribute.")
 
-    # General group created.
-    general_group, general_created = create_group(name=settings.DEFAULT_GROUP_NAME, user=admin)
+    # Create the default group.
+    default_group, default_created = create_group(name=settings.DEFAULT_GROUP_NAME, user=admin)
 
-    # Update all toplevel posts with no groups to have the general group.
-    Post.objects.filter(type__in=Post.TOP_LEVEL, group=None).update(group=general_group)
+    # Update all toplevel posts with no groups to have the default group.
+    Post.objects.filter(type__in=Post.TOP_LEVEL, group=None).update(group=default_group)
 
     # Ensure admin and moderator groups exist and have the right permissions.
     admin_group, admin_created = create_group(name=models.ADMIN_GROUP_NAME, user=admin)
@@ -85,7 +96,7 @@ def post_migrate_tasks(sender, **kwargs):
     mod_group, mod_created = create_group(name=models.MODERATOR_GROUP_NAME, user=admin)
     mod_group.permissions.add(can_moderate_user, can_moderate_post)
 
-    # Update all admin users to have permissions.
+    # All admin users have admin group level permissions.
     for user in models.User.objects.filter(type=User.ADMIN):
         user.groups.add(admin_group, mod_group)
 
@@ -97,7 +108,11 @@ def post_migrate_tasks(sender, **kwargs):
         site.save()
         logger.info("adding site=%s, name=%s, domain=%s" % (site.id, site.name, site.domain))
 
+    # This is only needed when migrating the database.
     # Migrate tags if these exist.
     for post in Post.objects.filter(type__in=Post.TOP_LEVEL).exclude(tag_val=''):
         tags = post.tag_val.split(",")
         post.tags.set(*tags)
+
+    # Reset tag_val field. This attribute will be dropped on a second migration.
+    Post.objects.filter(type__in=Post.TOP_LEVEL).exclude(tag_val='').update(tag_val='')

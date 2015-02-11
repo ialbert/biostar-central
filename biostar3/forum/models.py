@@ -94,15 +94,6 @@ class GroupInfo(models.Model):
     group = models.OneToOneField(Group)
     creation_date = models.DateTimeField(auto_now_add=True)
 
-class Tag(models.Model):
-    """Represents a tag."""
-
-    class Meta:
-        db_table = "posts_tag"
-
-    name = models.TextField(max_length=50, db_index=True)
-    count = models.IntegerField(default=0)
-
 class Profile(models.Model):
     """
     Maintains information that does not always need to be retreived whe a user is accessed.
@@ -159,11 +150,6 @@ class Profile(models.Model):
 
     # The tag value is the canonical form of the post's tags
     watched_tags = models.CharField(max_length=250, default="", blank=True)
-
-    # The tag set is built from the watch_tag string and is used to trigger actions
-    # when a post that matches this tag is set
-    tags = models.ManyToManyField(Tag, blank=True, )
-
 
 class Post(models.Model):
     """Represents a post."""
@@ -262,9 +248,6 @@ class Post(models.Model):
 
     # The tag value is the canonical form of the post's tags
     tag_val = models.CharField(max_length=100, default="", blank=True)
-
-    # The tag set is built from the tag string and used only for fast filtering
-    tag_set = models.ManyToManyField(Tag, blank=True, )
 
     # What site does the post belong to.
     site = models.ForeignKey(Site, null=True)
