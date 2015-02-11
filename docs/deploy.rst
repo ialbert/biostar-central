@@ -12,7 +12,7 @@ The choices made when deploying Biostar depend on the expected levels
 of traffic and number of posts that the site needs to manage. The examples that
 we provide are the two extremes, some deployments may use a combination of settings from both.
 
-Example files can be found in the ``live/deploy`` folder.
+Example files can be found in the ``live`` folder named ``deploy.env`` and ``deploy.py``.
 
 The basic rule is to create a settings file based on the default settings. This means that
 the customized settings file will start with::
@@ -31,14 +31,15 @@ Technically a django deployment needs only a settings file, but in practice we u
 file to populate a shell environment and a settings file that pulls some of these variables out of
 the environment.
 
-We recomment that you start with the files in ``live/deploy`` folder and copy them another
-python package folder. The ``simple.env`` file shows the minimally necessary variables
+We recommend that you start with the files in ``live/deploy*`` and copy them another
+name. The ``deploy.env`` and ``deploy.py`` files show the minimally necessary variables
 that need to be set.
 
-    source live/deploy/simple.env
+    source live/deploy.env
     ./biostar.sh test
 
-The ``deploy.env`` must specify the correct django settings module.
+The ``deploy.env`` must specify the correct django settings module in this case ``live.deploy`` that will
+load the ``live/deploy.py`` python module.
 
 To run periodic scripts make sure that they load up the enviroment variables before executing the
 script.
@@ -51,16 +52,17 @@ with just python based solutions. Install the dependencies with::
 
     pip install -r conf/requirements/deploy.txt
 
-Copy the ``conf/deploy/deploy.env`` and ``conf/deploy/deploy.py`` files to a different
-location. Customize these as needed. To run the site invoke the waitress server that
+Copy the ``live/deploy.env`` and ``live/deploy.py`` files to a different
+name/location.  For example ``simple.env`` and ``simple.py``.
+Customize these as needed. To run the site invoke the waitress server that
 was installed above::
 
-    source live/deploy/simple.env
+    source live/simple.env
     waitress-serve --port 8080 live.deploy.simple_wsgi:application
 
 Create a crontab entry that updates the index every 30 minutes::
 
-    source live/deploy/simple.env
+    source live/simple.env
     biostar.sh update_index
 
 You are done.
