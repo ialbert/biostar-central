@@ -10,7 +10,7 @@ Quick Start
 
 Install requirements. The site needs [Python 2.7][python] installed:
 
-	pip install -r setup/pip/base.txt
+	pip install -r init/pip/base.txt
 
 Run the site with default data over an `sqlite` database:
 
@@ -27,7 +27,13 @@ To run a postgresql based site use:
 
 The best practice is to copy the settings into a new file for example
 `mysettings.env` that are not in the repository and make use of that.
-Same with the Django settings. See more in the documentation.
+Same with the Django settings.
+
+Documentation
+-------------
+
+* [Introduction](docs/index.md)
+* [Site setup and customizations](docs/setup.md)
 
 
 [django]: http://www.djangoproject.com/

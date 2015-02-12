@@ -90,7 +90,8 @@ WSGI_APPLICATION = 'biostar3.wsgi.application'
 AUTH_USER_MODEL = 'forum.User'
 
 TEMPLATE_PATH = abspath(get_env('THEME_PATH'))
-DEFAULT_PATH = abspath(BIOSTAR_HOME, "biostar3", "themes", "default")
+DEFAULT_PATH = abspath(BIOSTAR_HOME, "themes", "default")
+
 TEMPLATE_DIRS = (
     TEMPLATE_PATH,
     DEFAULT_PATH
