@@ -28,6 +28,8 @@ def main(days=1, weeks=10):
     from biostar.apps.posts.models import PostView, ReplyToken
     from biostar.apps.messages.models import Message
     from biostar.apps.users.models import User
+    from biostar.apps.tracker.models import Peer, Torrent
+
     from django.db.models import Count
 
     # Reduce post views.
@@ -57,6 +59,13 @@ def main(days=1, weeks=10):
         since = now() - timedelta(days=1)
         Message.objects.filter(user=user, sent_at__lt=since).delete()
 
+
+    # Remove expired trackers
+    past = now() - datetime.timedelta(days=2)
+    Peer.objects.filter(last_updated__lt=past).delete()
+
+    # Remove torrents with no peers
+    #Torrent.objects.filter()
 
 if __name__ == '__main__':
     #generate_sitemap()

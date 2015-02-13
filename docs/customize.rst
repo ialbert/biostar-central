@@ -113,8 +113,7 @@ categories into your custom django settings module ``custom.py`` file then modif
 See the ``conf/defaults.env`` and for all the parameters that can to be customized.
 
 The ``SITE_STYLE_CSS`` and ``SITE_LOGO`` settings permit loading up custom sytles.
-See the ``/static/themes`` folder
-for examples.
+See the ``/static/themes`` folder for examples.
 
 
 

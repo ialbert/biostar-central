@@ -272,6 +272,7 @@ INSTALLED_APPS = [
     'biostar.apps.messages',
     'biostar.apps.badges',
     'biostar.apps.planet',
+    'biostar.apps.tracker',
 
     # The main Biostar server.
     'biostar.server',
@@ -367,7 +368,8 @@ SOCIALACCOUNT_PROVIDERS = {
     #},
 
     'persona': {
-        'REQUEST_PARAMETERS': {'siteName': 'Biostar'}
+        'REQUEST_PARAMETERS': {'siteName': 'Biostar'},
+        'AUDIENCE': "localhost"
     },
 
     'github': {
@@ -396,10 +398,18 @@ GOOGLE_DOMAIN = ""
 # The site logo.
 SITE_LOGO = "biostar2.logo.png"
 
+# The site "fork me on github"-style ribbon text:
+SITE_RIBBON_TEXT = ""
+SITE_RIBBON_LOGO = ""
+SITE_RIBBON_URL = ""
+
+#SITE_RIBBON_TEXT = ""
+#SITE_RIBBON_LOGO = "/static/themes/neurostars/img/logo-ribbon.png"
+#SITE_RIBBON_URL = "http://incf.org"
+
 # Digest title
 DAILY_DIGEST_TITLE = '[biostar daily digest] %s'
 WEEKLY_DIGEST_TITLE = '[biostar weekly digest] %s'
-
 
 # The default CSS file to load.
 SITE_STYLE_CSS = "biostar.style.less"
@@ -441,6 +451,9 @@ CACHES = {
     }
 }
 
+# How often should the trackers update (seconds)
+TRACKER_UPDATE_INTERVAL = 3600
+
 # The celery configuration file
 CELERY_CONFIG = 'biostar.celeryconfig'
 
@@ -469,6 +482,7 @@ PAGINATE_BY = 25
 
 # Used by crispyforms.
 #CRISPY_FAIL_SILENTLY = not DEBUG
+
 
 ACCOUNT_AUTHENTICATION_METHOD = "email"
 ACCOUNT_EMAIL_REQUIRED = True

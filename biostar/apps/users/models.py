@@ -173,6 +173,10 @@ class EmailList(models.Model):
 class Tag(models.Model):
     name = models.TextField(max_length=50, db_index=True)
 
+class UserIP(models.Model):
+    # Can be used to connect a user to an IP address
+    user = models.ForeignKey(User)
+    ip_address = models.IPAddressField()
 
 # Default message preferences.
 MESSAGE_PREF_MAP = dict(

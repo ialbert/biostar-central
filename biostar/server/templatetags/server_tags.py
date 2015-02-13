@@ -169,6 +169,11 @@ def boxclass(post):
     return style
 
 
+@register.inclusion_tag('server_tags/data_list.html')
+def data_list(post):
+    return dict(post=post)
+
+
 @register.inclusion_tag('server_tags/sidebar_posts.html')
 def sidebar_posts(posts):
     return dict(posts=posts)
@@ -220,19 +225,23 @@ def user_box(user, lastlogin):
 
 @register.inclusion_tag('server_tags/page_bar_sort_posts.html', takes_context=True)
 def page_bar_sort_posts(context):
+    "Renders a paging bar"
     context['sort_fields'] = const.POST_SORT_FIELDS
     context['date_fields'] = const.POST_LIMIT_FIELDS
-    "Renders a paging bar"
     return context
 
 
 @register.inclusion_tag('server_tags/page_bar_sort_users.html', takes_context=True)
 def page_bar_sort_users(context):
+    "Renders a paging bar"
     context['sort_fields'] = const.USER_SORT_FIELDS
     context['date_fields'] = const.POST_LIMIT_FIELDS
-    "Renders a paging bar"
     return context
 
+@register.inclusion_tag('server_tags/sidebar_ribbon.html', takes_context=True)
+def sidebar_ribbon(context):
+    "Renders a 'fork me on github'-style ribbon"
+    return dict(url=settings.SITE_RIBBON_URL, text=settings.SITE_RIBBON_TEXT, logo=settings.SITE_RIBBON_LOGO)
 
 @register.inclusion_tag('server_tags/post_body.html', takes_context=True)
 def post_body(context, post, user, tree):

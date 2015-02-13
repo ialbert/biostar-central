@@ -1,0 +1,20 @@
+{% extends "starbase.html" %}
+{% load server_tags %}
+{% load cache %}
+{% load more_like_this %}
+
+{% block page_title %}
+    Peers
+{% endblock %}
+{% block content %}
+
+{% for p in peers %}
+
+    <div>
+
+        {{ p.user }} {{ p.peer_id }} {{ p.uploaded }}
+    </div>
+
+{% endfor %}
+
+{%  endblock %}

@@ -1,0 +1,68 @@
+{% extends "starbase.html" %}
+{% load server_tags %}
+{% load cache %}
+{% load more_like_this %}
+
+{% block page_title %}
+    Torrent: {{ torrent.name }}
+{% endblock %}
+{% block content %}
+
+    <div class="col-md-12">
+        <h2>Dataset: {{ torrent.name }} ({{ torrent.size|filesizeformat }})</h2>
+
+        <h3>
+            {{ torrent.count }} file{{ torrent.count|pluralize }}
+            &bull; {{ torrent.size|filesizeformat }}
+            &bull; shared by {{ torrent.seeds }} peer{{ torrent.seeds|pluralize }}
+        </h3>
+
+        <h3>Posted on <a href="{{ post.get_absolute_url }}">{{ post.get_type_display }}
+            {{ post.title }}</a></h3>
+
+        <div>
+            <a href="{% url 'tracker:download' pk=torrent.id %}" role="button"
+               class="btn btn-success"> <i
+            class="fa fa-download"></i> DOWNLOAD</a>
+            <a href="{% url 'flatpage' 'data' %}" role="button"
+               class="btn btn-info"> <i
+            class="fa fa-question"></i> Get Help</a>
+
+
+            {% if post.is_editable %}
+                <span class="pull-right">
+                <form method="post" action="{% url 'tracker:torrent-delete' pk=torrent.id %}">
+                    {% csrf_token %}
+                    <button class="btn btn-warning">Delete Torrent</button>
+                </form>
+            {% endif %}
+
+            </span>
+        </div>
+
+        <div class="col-md-12">
+            <h2>Shared by {{ peers|length }} peer{{ peers|pluralize }}</h2>
+            {% if peers %}
+                {% for peer in peers %}
+                    {% if peer.user %}
+                        {% user_box peer.user peer.user.lastlogin_date %}
+                    {% else %}
+
+                        <div class="col-xs-3 col-md-2 box text-center">
+                            <div class="uname">Anonymous User</div>
+                            <div class="loc">{{ peer.ip_address }}</div>
+                        </div>
+
+                    {% endif %}
+                {% endfor %}
+            {% else %}
+                <div class="alert alert-danger">Data is not available at this time</div>
+            {% endif %}
+
+        </div>
+
+        <div class="col-md-12">
+
+        </div>
+    </div>
+{% endblock %}

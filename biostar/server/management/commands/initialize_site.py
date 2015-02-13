@@ -28,7 +28,9 @@ class Command(BaseCommand):
 
 def init_flatpages():
     # list for the flatpages
+
     names = "faq about help policy api advertise".split()
+
     site = Site.objects.get_current()
     for name in names:
         url = "/info/%s/" % name
@@ -113,6 +115,6 @@ def init_social_providers():
                 logger.info("initializing social provider %s" % name)
 
         except Exception, exc:
-            raise ImproperlyConfigured("error setting provider %s, %s" % (name, exc))
+            logger.error("unable initialize social account %s" % exc)
 
 
