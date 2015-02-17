@@ -1,21 +1,18 @@
 {% load humanize %}
-
+{#  Search bar on top of the page #}
 <div class="row" id="search_bar">
-
     <form action="{% url action %}" method="get">
-
         <div class="ten columns">
             <input type="text" name="q" class="u-full-width"
                    maxlength="100" placeholder="Type here to search" id="search" value="{{ q }}">
         </div>
-
          <div class="two columns hide-phone" style="float:right">
             <input class="button" type="submit" value="Search">
         </div>
-
     </form>
 </div>
 
+{#  This renders if there seems to have been a value filled in for the form #}
 {% if q %}
     <div class="row">
         <div class="search-info">

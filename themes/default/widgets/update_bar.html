@@ -1,4 +1,6 @@
 {%  load widgets %}
+
+{#  Renders the last update line under a post #}
 <div class="userlink right">
     updated {{ post.lastedit_date|time_ago }} by {% user_link post.author %}
 </div>

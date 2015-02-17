@@ -22,42 +22,16 @@
 
     <div class="row">
 
-        <div class="three columns">
-            <a href="{% url "home" %}"><img src="{% static "images/logo.png" %}" id="logo"></a>
-        </div>
+    	{#  Override this to include your own logo #}
+   		{%  include "widgets/logo_box.html" %}
 
-
-        <div class="seven columns">
-            <nav class="primary">
-                <ul>
-                    <li>
-                        <a href="#"><i class="fa fa-globe"></i> <br> Community</a>
-                    </li>
-
-                    <li>
-                        <a href="#"><i class="fa fa-user"></i> <br> User Name</a>
-                    </li>
-
-                    <li>
-                        <a href="#">30 <i class="fa fa-envelope"></i> <br> Messages</a>
-                    </li>
-
-                    <li>
-                        <a href="#">20 <i class="fa fa-heart"></i> <br> &nbsp;New&nbsp;Votes&nbsp;</a>
-                    </li>
-
-                    <li>
-                        <a href="#"><i class="fa fa-comments"></i> <br> My Posts</a>
-                    </li>
-                </ul>
-            </nav>
-        </div>
+        {%  user_bar user %}
 
     <div class="one columns">
         <nav class="primary">
             <ul>
                     <li>
-                        <a href="#"><i class="fa fa-plus-circle"></i> <br> New&nbsp;Post</a>
+
                     </li>
     		</ul>
             </nav>

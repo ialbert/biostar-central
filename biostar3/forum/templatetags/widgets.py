@@ -70,6 +70,10 @@ def post_user_box(post):
 def tag_bar(post):
     return dict(post=post)
 
+@register.inclusion_tag('widgets/user_bar.html')
+def user_bar(user):
+    return dict(user=user)
+
 
 @register.filter
 def bignum(number):
