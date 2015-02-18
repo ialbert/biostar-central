@@ -83,7 +83,6 @@ body {
   float: left;
 }
 
-
 .answer {
   border-top: 1px solid #D1D1D1;
   margin: 0.5em 0em 0.5em 0em;
@@ -161,7 +160,7 @@ body {
     vertical-align: middle;
     text-align: center;
     margin-bottom: 2px;
-    padding-top:0.2em;
+    padding-top: 0.2em;
   }
 
   .t {
@@ -190,7 +189,7 @@ body {
 /* Search bar */
 #search_bar {
   form {
-    margin:0px;
+    margin: 0px;
   }
   margin: 0.5em 0em 0em 0em;
 }
@@ -215,7 +214,7 @@ body {
   display: none;
 }
 
-#logo, #page_title {
+#page_title {
   float: left;
   padding: 5px 10px 0px 0px;
   vertical-align: middle;
@@ -265,17 +264,17 @@ body {
 
 /* Navigation */
 #logo {
-  float:left;
+  float: left;
 }
 
 #nav_table {
-  width:100%;
+  width: 100%;
   margin: 0px;
   th, td, tr {
     border: 0px;
     text-align: center;
     vertical-align: middle;
-    padding:0px;
+    padding: 0px;
   }
 
   td a {
@@ -297,33 +296,36 @@ body {
     text-align: left;
   }
   select {
-    margin:0px;
+    margin: 0px;
   }
 }
 
-.nav {
-
-  padding-top:1.1em;
-
-  ul li {
-    display: inline;
+nav {
+  .item {
+    height: 79px;
     float: left;
     text-align: center;
-    min-width: 5em;
-  }
+    min-width: 4em;
+    a {
+      display: inline-block;
+      padding: 1.1em;
+    }
+    a:hover {
+      background-color: #EFEFEF;
+      cursor: pointer;
+      border-radius: 4px;
+    }
 
-  ul li a {
-    display: inline-block;
-    padding: 1ex 1em 1ex 1em;
   }
-
-  ul li a:hover {
-    background-color: #EFEFEF;
-    cursor: pointer;
-    border-radius: 4px;
+  .last {
+      float:right;
+    }
+  select {
+    margin-top:1em;
   }
-
 }
+
+
 
 /* Media Queries
 –––––––––––––––––––––––––––––––––––––––––––––––––– */
@@ -336,8 +338,8 @@ there.
 
 /* Larger than phablet (also point when grid becomes active) */
 
-
 @media (min-width: 550px) {
+
   #logo {
     display: block;
   }
@@ -345,6 +347,7 @@ there.
   .hide-phone {
     display: block;
   }
+
 }
 
 
