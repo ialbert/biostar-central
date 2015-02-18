@@ -1,20 +1,54 @@
 {# Renders the user bar #}
+{% load widgets %}
+<div class="row">
+    <div class="three columns">
+        {% include "widgets/site_logo.html" %}
+	</div>
 
-<div class="six columns userbar">
+	<div class="nine columns">
+        <div class="nav">
+            <ul>
 
-    <a href="#"><i class="fa fa-user"></i> {{ user }}</a> &nbsp; &bull;&nbsp;
+				<li id="newposts">
+                    <a href="#"><i class="fa fa-plus-circle"></i><br>New&nbsp;Post</a>
+                </li>
 
-   <a href="#">30 <i class="fa fa-envelope"></i></a> &nbsp; &bull;&nbsp;
+                <li>
+                    <a href="#"><i class="fa fa-globe"></i><br>Community</a>
+                </li>
 
-    <a href="#">20 <i class="fa fa-heart"></i> </a> &nbsp; &bull;&nbsp; 
+                {% if user.is_autenticated %}
 
-     <a href="#"> <i class="fa fa-sign-out"></i> Logout </a>
-</div>
-<div class="three columns userbar">
+                    <li>
+                        <a href="#"><i class="fa fa-envelope"></i><br>30</a>
+                    </li>
 
-    <div class="center newpost" style="text-align: center;">
-        <a href="#"><i class="fa fa-plus-circle"></i> Write New&nbsp;Post</a>
+                    <li>
+                        <a href="#"><i class="fa fa-heart"></i><br>20</a>
+                    </li>
+
+                    <li>
+                        <a href="#"><i class="fa fa-star"></i><br>1</a>
+                    </li>
+
+                    <li>
+                        <a href="#"><i class="fa fa-user"> <span
+                        class="line">{% scoreline user %}</span></i><br>{{ user }}</a>
+                    </li>
+
+                    <li>
+                        <a href="#"> <i class="fa fa-sign-out"></i><br>Sign out</a>
+                    </li>
+                {% else %}
+                    <li>
+                        <a href="#"> <i class="fa fa-sign-in"></i><br>Sign in</a>
+                    </li>
+                {% endif %}
+
+
+            </ul>
+        </div>
+
     </div>
-
 
 </div>

@@ -20,26 +20,10 @@
 
 {% block header %}
 
-    <div class="row">
+    {#  Logo and user informatino #}
+    {%  user_bar user %}
 
-    	{#  Override this to include your own logo #}
-   		{%  include "widgets/logo_box.html" %}
-
-        {%  user_bar user %}
-
-    <div class="one columns">
-        <nav class="primary">
-            <ul>
-                    <li>
-
-                    </li>
-    		</ul>
-            </nav>
-    </div>
-
-    </div>
-
-
+    {#  Messages get displayed here #}
     {% if messages %}
         <div class="row">
             {% for message in messages %}
@@ -47,13 +31,6 @@
             {% endfor %}
         </div>
     {% endif %}
-
-
-    <div class="row">
-
-
-    </div>
-
 
 {% endblock %}
 

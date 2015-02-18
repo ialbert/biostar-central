@@ -190,8 +190,11 @@ body {
 }
 
 /* Search bar */
-#search_bar form {
-  margin-bottom: 0em;
+#search_bar {
+  form {
+    margin:0px;
+  }
+  margin: 0.5em 0em 0em 0em;
 }
 
 /* Labels */
@@ -263,31 +266,24 @@ body {
 }
 
 /* Navigation */
-
-.userbar {
-  //height: 74px;
-  line-height: 85px;
+#logo {
+  float:left;
 }
 
-nav.primary {
-  text-align: center;
-  line-height: 1.2em;
-  ul {
-    margin: 0 0 1ex 0;
-    padding: 0px;
-  }
+.nav {
+
+  padding-top:1.1em;
 
   ul li {
     display: inline;
     float: left;
-    position: relative;
-    margin: 0px;
+    text-align: center;
+    min-width: 5em;
   }
 
   ul li a {
     display: inline-block;
-    line-height: 1.6;
-    padding: 1ex;
+    padding: 1ex 1em 1ex 1em;
   }
 
   ul li a:hover {
@@ -297,7 +293,6 @@ nav.primary {
   }
 
 }
-
 
 /* Media Queries
 –––––––––––––––––––––––––––––––––––––––––––––––––– */
