@@ -21,7 +21,7 @@
 {% block header %}
 
     {#  Logo and user informatino #}
-    {%  user_bar user %}
+    {%  nav_bar user %}
 
     {#  Messages get displayed here #}
     {% if messages %}
@@ -41,16 +41,7 @@
 
 
 {% block footer %}
-    <div class="right">
-        Switch to:
-        <select class="rights">
-            <option value="volvo">Biostar</option>
-            <option value="saab">Qiime 1</option>
-            <option value="opel">Qiime 2</option>
-            <option value="audi">Chipster</option>
-            <option value="audi">Galaxy</option>
-        </select>
-    </div>
+
 
     Powered by <a href="https://github.com/ialbert/biostar-central">Biostars</a> &bull; version {{ BIOSTAR_VERSION }}
 {% endblock %}

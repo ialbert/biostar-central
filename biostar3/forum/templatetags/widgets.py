@@ -28,6 +28,11 @@ def cachebuster():
     param = "?x=%f" % value
     return param
 
+@register.simple_tag
+def group_logo_img():
+    src = "/static/images/logo-default.png"
+    return src
+
 @register.inclusion_tag('widgets/recent_votes.html')
 def recent_votes(votes):
     return dict(votes=votes)
@@ -70,8 +75,8 @@ def post_user_box(post):
 def tag_bar(post):
     return dict(post=post)
 
-@register.inclusion_tag('widgets/user_bar.html')
-def user_bar(user):
+@register.inclusion_tag('widgets/nav_bar.html')
+def nav_bar(user):
     return dict(user=user)
 
 

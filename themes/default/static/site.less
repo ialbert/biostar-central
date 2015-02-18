@@ -83,9 +83,6 @@ body {
   float: left;
 }
 
-.right {
-  float: right
-}
 
 .answer {
   border-top: 1px solid #D1D1D1;
@@ -164,6 +161,7 @@ body {
     vertical-align: middle;
     text-align: center;
     margin-bottom: 2px;
+    padding-top:0.2em;
   }
 
   .t {
@@ -268,6 +266,39 @@ body {
 /* Navigation */
 #logo {
   float:left;
+}
+
+#nav_table {
+  width:100%;
+  margin: 0px;
+  th, td, tr {
+    border: 0px;
+    text-align: center;
+    vertical-align: middle;
+    padding:0px;
+  }
+
+  td a {
+    display: inline-block;
+    padding: 1ex 1em 1ex 1em;
+  }
+
+  td > a:hover {
+    background-color: #EFEFEF;
+    cursor: pointer;
+    border-radius: 4px;
+  }
+
+  td:last-child {
+    //color:red;
+    text-align: right;
+  }
+  td:first-child {
+    text-align: left;
+  }
+  select {
+    margin:0px;
+  }
 }
 
 .nav {

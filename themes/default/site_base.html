@@ -17,33 +17,27 @@
     {# Content that must be above page. #}
 {% endblock %}
 
-<div class="container" >
-    <div id="header" >
-        {% block header %}
-            Base Header.
-        {% endblock %}
-    </div>
+<div class="container" id="header">
+    {% block header %}
+        Base Header.
+    {% endblock %}
 </div>
 
-<div class="container">
+<div class="container" id="body">
     {% block body %}
         Base Body.
     {% endblock %}
 </div>
 
-<div class="container">
-    <div id="footer">
-        {% block footer %}
-            Base Footer.
-        {% endblock %}
-    </div>
+<div class="container" id="footer">
+    {% block footer %}
+        Base Footer.
+    {% endblock %}
 </div>
-
 
 {% block bottom %}
     {#  Content that must be below page. #}
 {% endblock %}
-
 
 </body>
 </html>

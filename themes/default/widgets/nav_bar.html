@@ -1,0 +1,58 @@
+{# Renders the user bar #}
+{% load widgets %}
+{% load staticfiles %}
+<div class="row">
+
+    <div class="twelve columns">
+        <table id="nav_table">
+            <tr>
+                <td>
+                    <a href="{% url "home" %}"><img src="{% group_logo_img %}" id="logo"></a>
+                </td>
+                <td>
+                    <a href="#"><i class="fa fa-plus-circle"></i><br>New&nbsp;Post</a>
+                </td>
+                <td>
+                    <a href="#"><i class="fa fa-globe"></i><br>Community</a>
+                </td>
+
+                {% if 1 %}
+                    <td>
+                        <a href="#"><i class="fa fa-envelope"></i><br>30</a>
+                    </td>
+                    <td>
+                        <a href="#"><i class="fa fa-heart"></i><br>20</a>
+                    </td>
+                    <td>
+                        <a href="#"><i class="fa fa-star"></i><br>1</a>
+                    </td>
+                    <td>
+                        <a href="#"><i class="fa fa-user"> <span
+                        class="line">{% scoreline user %}</span></i><br>{{ user }}</a>
+                    </td>
+                    <td>
+                        <a href="#"> <i class="fa fa-sign-out"></i><br>Sign&nbsp;out</a>
+                    </td>
+                {% else %}
+                    <td>
+                        <a href="#"> <i class="fa fa-sign-in"></i><br>Sign&nbsp;in</a>
+                    </td>
+                {% endif %}
+
+                <td>
+                    <select class="rights">
+                        <option value="volvo">Biostar</option>
+                        <option value="saab">Qiime 1</option>
+                        <option value="opel">Qiime 2</option>
+                        <option value="audi">Chipster</option>
+                        <option value="audi">Galaxy</option>
+                    </select>
+                </td>
+
+            </tr>
+
+        </table>
+
+    </div>
+
+</div>
