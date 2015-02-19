@@ -255,6 +255,10 @@ def post_count_box(post, context='', topic=''):
         topic.remove(LATEST)
     return dict(post=post, context=context, topic=topic)
 
+@register.inclusion_tag('server_tags/post_count_box_only.html')
+def post_count_box_only(post):
+    "Displays the count box for a post"
+    return dict(post=post)
 
 @register.inclusion_tag('server_tags/post_actions.html')
 def post_actions(post, user, label="COMMENT"):
