@@ -1,9 +1,10 @@
-{# Renders the user bar #}
+{# Renders the navigation bar #}
 {% load widgets %}
 {% load staticfiles %}
 <div class="row">
 
     <nav>
+    	{#  Page logo #}
         <div>
             <a href="{% url "home" %}"><img src="{% group_logo_img %}" id="logo"></a>
         </div>
@@ -17,6 +18,7 @@
         </div>
 
         {% if user.is_authenticated %}
+            {#  This gets show for authenticated users #}
             <div class="item">
                 <a href="#"><i class="fa fa-envelope"></i><br>30</a>
             </div>
@@ -35,7 +37,7 @@
             </div>
 
         {% else %}
-
+			{#  This gets show for anonymous users #}
             <div class="item">
                 <a href="#"> <i class="fa fa-sign-in"></i><br>Sign&nbsp;in</a>
             </div>
@@ -49,6 +51,7 @@
             </div>
         {% endif %}
 
+    	{#  Group switching widget #}
         <div class="item last">
             <select id="group_select">
                 <option value="volvo">Biostar</option>

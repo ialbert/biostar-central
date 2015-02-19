@@ -81,7 +81,14 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'biostar3.middleware.GlobalMiddleware',
+    'ratelimit.middleware.RatelimitMiddleware',
 )
+
+# Rate limit view to return.
+RATELIMIT_VIEW = "biostar3.forum.views.ratelimited"
+
+# Enable rate limiting.
+RATELIMIT_ENABLE =  True
 
 ROOT_URLCONF = 'biostar3.urls'
 
@@ -156,6 +163,13 @@ HAYSTACK_CONNECTIONS = {
         'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
         'PATH': get_env('SEARCH_INDEX'),
     },
+}
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake'
+    }
 }
 
 def GET_SUBDOMAIN(request):

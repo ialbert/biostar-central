@@ -2,7 +2,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
 
-from biostar3.forum.views import PostList, UserList, SearchResults, PostView
+from biostar3.forum.post_views import PostList, UserList, SearchResults, PostView
 
 
 urlpatterns = patterns('',
