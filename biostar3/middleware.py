@@ -1,4 +1,5 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
+import logging
 
 from django.contrib import messages
 from django.conf import settings
@@ -10,6 +11,8 @@ from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
 
 # Get current site
 User = get_user_model()
+
+logger = logging.getLogger("biostar")
 
 SITE = Site.objects.get_current()
 
@@ -31,14 +34,30 @@ class AutoSignupAdapter(DefaultSocialAccountAdapter):
             return
 
         try:
-            print (sociallogin.account.extra_data)
+
+            # The provider that produces the login
+            provider_id = sociallogin.account.get_provider().id
 
             # Check if we could/should connect it.
             email = sociallogin.account.extra_data.get('email')
-            #verified = sociallogin.account.extra_data.get('verified_email')
+
+            logger.info("connecting %s with %s" % (email, provider_id))
+
+            # Try to get the verification for the account
+            verified = sociallogin.account.extra_data.get('verified_email')
+
+            # We will trust some social account providers with the email information.
+            verified = verified or (provider_id in settings.TRUSTED_SOCIALACCOUNT_PROVIDERS)
+
             if email:
                 user = User.objects.get(email=email)
-                sociallogin.connect(request, user)
+                if verified:
+                    sociallogin.connect(request, user)
+                else:
+                    msg = "Attempt to log with email from non verified provider!"
+                    logger.error(msg)
+                    raise Exception(msg)
+
         except User.DoesNotExist:
             pass
 

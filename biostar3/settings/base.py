@@ -122,6 +122,7 @@ ACCOUNT_USER_MODEL_EMAIL_FIELD = "email"
 ACCOUNT_DEFAULT_HTTP_PROTOCOL = "http"
 ACCOUNT_CONFIRM_EMAIL_ON_GET = True
 LOGIN_REDIRECT_URL = "/"
+ACCOUNT_SESSION_COOKIE_AGE = 3600 * 24 * 60
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -231,9 +232,23 @@ CACHES = {
     }
 }
 
+TRUSTED_SOCIALACCOUNT_PROVIDERS = {
+    'google',
+    'github',
+    'persona',
+}
+
+SOCIALACCOUNT_PROVIDERS = {
+    'persona': {
+        'AUDIENCE': 'http://www.lvh.me:8080/',
+        'REQUEST_PARAMETERS': {'siteName': 'Biostars'}
+    }
+}
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 def GET_SUBDOMAIN(request):
     "Used to extract the subdomain. Override if deployed under multilevel subdomains."
-    domain = request.META['HTTP_HOST']
+    domain = request.META.get('HTTP_HOST', 'www')
     subdomain = domain.split('.')[0]
     return subdomain.lower()

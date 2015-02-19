@@ -39,7 +39,6 @@ class ExtraContext(object):
         # Add empty values if not present in the request.
         sort = self.request.GET.get('sort', '')
         limit = self.request.GET.get('limit', '')
-        q = self.request.GET.get('q', '')[:150]
 
         # Flash a warning message on invalid parameters.
         if sort and sort not in settings.POST_SORT_MAP:
@@ -48,10 +47,13 @@ class ExtraContext(object):
 
         context['sort'] = sort
         context['limit'] = limit
-        context['q'] = q
+        context['q'] = self.q
 
         return context
 
+    @property
+    def q(self):
+        return self.request.GET.get('q', '')[:150]
 
 class UserList(ExtraContext, ListView):
     """

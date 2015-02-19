@@ -1,26 +1,39 @@
 {% extends "site_layout.html" %}
-
+{% load socialaccount %}
 {% load widgets %}
 
-{% block page_title %}
-    Sign Up.
+{% block title %}
+    Sign In.
 {% endblock %}
 
 {% block body %}
     <div class="row">
-        <div class="nine columns">
+    	<div class="three columns">
+            &nbsp;
+        </div>
+        <div class="six columns">
+
+
             {% if socialaccount.providers %}
-                <p>
+                <div>
                     Click the name of a provider to log in.
-                </p>
-                <div class="socialaccount_ballot">
-                    <ul class="socialaccount_providers">
-                        {% include "socialaccount/snippets/provider_list.html" with process="login" %}
+                </div>
+
+                <div style="margin-top:1em; font-size: larger;">
+                    <ul style="margin-left:2em;">
+                        {% for provider in socialaccount.providers %}
+                            <li>
+                                <a title="{{ provider.name }}"
+                                   href="{% provider_login_url provider.id process=process scope=scope auth_params=auth_params %}">{{ provider.name }}</a>
+                            </li>
+                        {% endfor %}
                     </ul>
                 </div>
-                {% include "socialaccount/snippets/login_extra.html" %}
             {% endif %}
         </div>
     </div>
 
+    {% providers_media_js %}
+
 {% endblock %}
+

@@ -24,6 +24,11 @@ Loading these settings would be performed with:
 
 # Setup Examples
 
+Biostar uses ``django-allauth`` for authentication. The documentation for it can be found at
+http://django-allauth.readthedocs.org/en/latest/providers.html
+
+We demonstrate a few simple examples below
+
 ## Adding Google authentication:
 
 * Ensure that ``allauth.socialaccount.providers.google`` is listed in your ``INSTALLED_APPS``
@@ -35,8 +40,14 @@ Loading these settings would be performed with:
 
 ## Adding Persona Authentication:
 
-The persona authentication is unique as it does not require ids or settings.
+Setting up persona authentication is somewhat different from others.
 
 * Ensure that ``allauth.socialaccount.providers.persona`` is listed in your ``INSTALLED_APPS``
+* Ensure that an audience is set up in your settings:
 
-
+		SOCIALACCOUNT_PROVIDERS = {
+			'persona': {
+				'AUDIENCE': 'http://yoursite.here/',
+				'REQUEST_PARAMETERS': {'siteName': 'Your Site Name'}
+			}
+		}
