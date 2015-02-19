@@ -30,6 +30,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     USER, MODERATOR, ADMIN, BLOG = range(4)
     TYPE_CHOICES = [(USER, "User"), (MODERATOR, "Moderator"), (ADMIN, "Admin"), (BLOG, "Blog")]
 
+    # Moderator types.
+    MODERATOR_TYPES = { MODERATOR, ADMIN }
+
     NEW_USER, TRUSTED, SUSPENDED, BANNED = range(4)
     STATUS_CHOICES = ((NEW_USER, 'New User'), (TRUSTED, 'Trusted'), (SUSPENDED, 'Suspended'), (BANNED, 'Banned'))
 
@@ -76,6 +79,10 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     # The site this users belongs to.
     site = models.ForeignKey(Site, null=True)
+
+    @property
+    def is_moderator(self):
+        return (self.type in self.MODERATOR_TYPES)
 
     @property
     def is_suspended(self):

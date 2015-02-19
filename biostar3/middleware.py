@@ -6,12 +6,14 @@ from django.contrib.auth import get_user_model
 from django.http import HttpResponsePermanentRedirect as Redirect
 from biostar3.forum.models import Group
 from django.contrib.sites.models import Site
+from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
 
 # Get current site
 User = get_user_model()
 
 SITE = Site.objects.get_current()
 
+# Loads this group when none are specified.
 DEFAULT_GROUP = Group.objects.filter(name=settings.DEFAULT_GROUP_NAME).first()
 
 def full_url(request, url):
@@ -19,6 +21,24 @@ def full_url(request, url):
         return "https://%s" % url
     else:
         return "http://%s" % url
+
+class AutoSignupAdapter(DefaultSocialAccountAdapter):
+
+    def pre_social_login(self, request, sociallogin):
+
+        # This social login already exists.
+        if sociallogin.is_existing:
+            return
+
+        try:
+            # Check if we could/should connect it.
+            email = sociallogin.account.extra_data.get('email')
+            #verified = sociallogin.account.extra_data.get('verified_email')
+            if email:
+                user = User.objects.get(email=email)
+                sociallogin.connect(request, user)
+        except User.DoesNotExist:
+            pass
 
 class GlobalMiddleware(object):
     """Performs tasks that are applied on every request"""

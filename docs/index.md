@@ -1,4 +1,5 @@
-Biostar Documentation
----------------------
+# Biostar Documentation
 
-* [Site setup and customizations](setup.md)
+* [Setup](setup.md)
+* [Authentication](authentication.md)
+* [Customizing the site](setup.md)

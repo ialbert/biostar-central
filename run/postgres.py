@@ -11,8 +11,9 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
-# Get the secret key from the environment.
-SECRET_KEY = get_env("SECRET_KEY")
+# Default secret key is the admin email.
+# Make sure to change it in production.
+SECRET_KEY = ADMINS[0][1]
 
 DATABASE_NAME = get_env('DATABASE_NAME')
 DATABASE_USER = get_env('DATABASE_USER')

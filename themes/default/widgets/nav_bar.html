@@ -33,13 +33,13 @@
                 class="line">{% scoreline user %}</span></i><br>{{ user }}</a>
             </div>
             <div class="item">
-                <a href="#"> <i class="fa fa-sign-out"></i><br>Sign&nbsp;out</a>
+                <a href="{% url 'account_logout' %}"> <i class="fa fa-sign-out"></i><br>Sign&nbsp;out</a>
             </div>
 
         {% else %}
 			{#  This gets show for anonymous users #}
             <div class="item">
-                <a href="#"> <i class="fa fa-sign-in"></i><br>Sign&nbsp;in</a>
+                <a href="{% url 'account_login' %}"> <i class="fa fa-sign-in"></i><br>Sign&nbsp;in</a>
             </div>
 
             <div class="item">

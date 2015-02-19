@@ -24,13 +24,17 @@ def get_env(name, default=''):
 
 
 BIOSTAR_HOME = get_env('BIOSTAR_HOME')
-DEFAULT_SUBDOMAINS = {'www', '127', 'localhost:8080' }
+DEFAULT_SUBDOMAINS = {'www', '127', 'localhost:8080'}
 DEFAULT_GROUP_NAME = "General"
 
 # Site administrators. Make sure to override this.
 ADMINS = (
     ("Biostar Community", "1@localhost.com"),
 )
+
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = "1@localhost.com"
+
 
 MANAGERS = ADMINS
 
@@ -44,9 +48,6 @@ SITE_NAME = "Site Name"
 
 # This resolves to localhost yet contains dotted domain name.
 SITE_DOMAIN = "www.lvh.me:8080"
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = get_env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -70,7 +71,60 @@ INSTALLED_APPS = (
     'haystack',
     'taggit',
     'biostar3.forum',
+
+    # Authentication apps
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+
+    # Available providers:
+    'allauth.socialaccount.providers.persona',
+    'allauth.socialaccount.providers.github',
+    'allauth.socialaccount.providers.google',
+
+    # 'allauth.socialaccount.providers.amazon',
+    # 'allauth.socialaccount.providers.angellist',
+    # 'allauth.socialaccount.providers.bitbucket',
+    # 'allauth.socialaccount.providers.bitly',
+    # 'allauth.socialaccount.providers.coinbase',
+    # 'allauth.socialaccount.providers.dropbox',
+    # 'allauth.socialaccount.providers.dropbox_oauth2',
+    # 'allauth.socialaccount.providers.facebook',
+    # 'allauth.socialaccount.providers.flickr',
+    # 'allauth.socialaccount.providers.feedly',
+    # 'allauth.socialaccount.providers.fxa',
+    # 'allauth.socialaccount.providers.hubic',
+    # 'allauth.socialaccount.providers.instagram',
+    # 'allauth.socialaccount.providers.linkedin',
+    # 'allauth.socialaccount.providers.linkedin_oauth2',
+    # 'allauth.socialaccount.providers.odnoklassniki',
+    # 'allauth.socialaccount.providers.openid',
+    # 'allauth.socialaccount.providers.persona',
+    # 'allauth.socialaccount.providers.soundcloud',
+    # 'allauth.socialaccount.providers.stackexchange',
+    # 'allauth.socialaccount.providers.tumblr',
+    # 'allauth.socialaccount.providers.twitch',
+    # 'allauth.socialaccount.providers.twitter',
+    # 'allauth.socialaccount.providers.vimeo',
+    # 'allauth.socialaccount.providers.vk',
+    # 'allauth.socialaccount.providers.weibo',
+    # 'allauth.socialaccount.providers.xing',
 )
+
+SOCIALACCOUNT_ADAPTER = 'biostar3.middleware.AutoSignupAdapter'
+
+ACCOUNT_AUTHENTICATION_METHOD = "email"
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_UNIQUE_EMAIL = True
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_EMAIL_VERIFICATION = "optional"
+ACCOUNT_EMAIL_SUBJECT_PREFIX = "[biostar] "
+ACCOUNT_PASSWORD_MIN_LENGHT = 6
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+ACCOUNT_USER_MODEL_EMAIL_FIELD = "email"
+ACCOUNT_DEFAULT_HTTP_PROTOCOL = "http"
+ACCOUNT_CONFIRM_EMAIL_ON_GET = True
+LOGIN_REDIRECT_URL = "/"
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -88,7 +142,7 @@ MIDDLEWARE_CLASSES = (
 RATELIMIT_VIEW = "biostar3.forum.views.ratelimited"
 
 # Enable rate limiting.
-RATELIMIT_ENABLE =  True
+RATELIMIT_ENABLE = True
 
 ROOT_URLCONF = 'biostar3.urls'
 
@@ -165,12 +219,21 @@ HAYSTACK_CONNECTIONS = {
     },
 }
 
+AUTHENTICATION_BACKENDS = (
+    # Needed to login by username in Django admin, regardless of `allauth`
+    "django.contrib.auth.backends.ModelBackend",
+
+    # `allauth` specific authentication methods, such as login by e-mail
+    "allauth.account.auth_backends.AuthenticationBackend",
+)
+
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
         'LOCATION': 'unique-snowflake'
     }
 }
+
 
 def GET_SUBDOMAIN(request):
     "Used to extract the subdomain. Override if deployed under multilevel subdomains."

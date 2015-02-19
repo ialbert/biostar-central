@@ -1,0 +1,26 @@
+{% extends "site_layout.html" %}
+
+{% load widgets %}
+
+{% block page_title %}
+    Sign Up.
+{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="nine columns">
+            {% if socialaccount.providers %}
+                <p>
+                    Click the name of a provider to log in.
+                </p>
+                <div class="socialaccount_ballot">
+                    <ul class="socialaccount_providers">
+                        {% include "socialaccount/snippets/provider_list.html" with process="login" %}
+                    </ul>
+                </div>
+                {% include "socialaccount/snippets/login_extra.html" %}
+            {% endif %}
+        </div>
+    </div>
+
+{% endblock %}
