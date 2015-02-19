@@ -255,7 +255,6 @@ def post_count_box(post, context='', topic=''):
         topic.remove(LATEST)
     return dict(post=post, context=context, topic=topic)
 
-
 @register.inclusion_tag('server_tags/post_actions.html')
 def post_actions(post, user, label="COMMENT"):
     "Renders post actions"
