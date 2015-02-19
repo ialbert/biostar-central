@@ -13,7 +13,16 @@ into the ``Social Applications`` table.
 Note: The authentication information is stored in the database.
 Database dumps will contain this potentially sensitive information.
 
-# Examples
+To avoid having to manually add social account settings users can export social
+authentication related values from their database with:
+
+    python manage.py dumpdata socialaccount.socialapp > socialapp.json
+
+Loading these settings would be performed with:
+
+	python manage.py loaddata socialapp.json
+
+# Setup Examples
 
 ## Adding Google authentication:
 

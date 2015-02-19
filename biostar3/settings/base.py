@@ -32,14 +32,11 @@ ADMINS = (
     ("Biostar Community", "1@localhost.com"),
 )
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "1@localhost.com"
-
+# SECURITY WARNING: make this private.
+# By default we use the Admin Email as secret key.
+SECRET_KEY = ADMINS[0][1]
 
 MANAGERS = ADMINS
-
-# Get the secret key from the environment.
-SECRET_KEY = get_env("SECRET_KEY")
 
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 

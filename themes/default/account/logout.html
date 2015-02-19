@@ -6,9 +6,9 @@
 {% block body %}
 
     <div style="text-align: center; padding:1em;">
-        <h3>{% trans "Sign Out" %}</h3>
 
-        <p>{% trans 'Are you sure you want to sign out?' %}</p>
+
+        <h4>{% trans 'Are you sure you want to sign out?' %}</h4>
 
         <form method="post" action="{% url 'account_logout' %}">
             {% csrf_token %}

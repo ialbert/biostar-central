@@ -48,7 +48,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     # Default information on every user.
     email = models.EmailField(verbose_name='Email', db_index=True, max_length=255, unique=True, blank=False)
-    name = models.CharField(verbose_name='Name', max_length=255, default="Biostar User", blank=False)
+    name = models.CharField(verbose_name='Name', max_length=255, default="", blank=False)
 
     # Fields used by the Django admin.
     # These are different from the Biostar user types even though Django also calls them admin.
@@ -75,10 +75,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     activity = models.IntegerField(default=0)
 
     # Display next to a user name.
-    flair = models.CharField(verbose_name='Flair', max_length=15, default="")
+    flair = models.CharField(verbose_name='Flair', max_length=15, default="", blank=True)
 
     # The site this users belongs to.
-    site = models.ForeignKey(Site, null=True)
+    site = models.ForeignKey(Site, null=True, blank=True)
 
     @property
     def is_moderator(self):
@@ -94,6 +94,16 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def get_short_name(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        "Actions that need to be performed on every user save."
+
+        if not self.name:
+            # When there is no name try to split from email.
+            # Triggered mostly on user creation.
+            self.name = self.email.split("@")[0]
+
+        super(User, self).save(*args, **kwargs)
 
 class GroupInfo(models.Model):
     "Extra group information"

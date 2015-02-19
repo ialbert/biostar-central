@@ -31,6 +31,8 @@ class AutoSignupAdapter(DefaultSocialAccountAdapter):
             return
 
         try:
+            print (sociallogin.account.extra_data)
+
             # Check if we could/should connect it.
             email = sociallogin.account.extra_data.get('email')
             #verified = sociallogin.account.extra_data.get('verified_email')
