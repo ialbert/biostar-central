@@ -1,17 +1,16 @@
 {% load humanize %}
+{% load widgets %}
 
 {#  Search bar on top of the page #}
 <div class="row">
 
-    <div class="six columns" id="search_bar">
+    <div class="twelve columns" id="search_bar">
         <form action="{% url action %}" method="get">
             <input type="text" name="q" class="u-full-width"
                    maxlength="100" placeholder="Search" id="search" value="{{ q }}">
         </form>
     </div>
 
-    <div class="six-columns">
-    </div>
 
 </div>
 

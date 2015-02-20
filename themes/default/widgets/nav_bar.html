@@ -11,7 +11,7 @@
 
             <div class="eight columns">
                 <div class="item w20">
-                    <a href="#"><i class="fa fa-plus-circle"></i><br>Write&nbsp;Post</a>
+                    <a href="#"><i class="fa fa-plus-circle"></i><br>New&nbsp;Post</a>
                 </div>
 
                 <div class="item w20">
@@ -47,18 +47,32 @@
         <div class="twelve columns">
             {# This gets show for authenticated users #}
             <div class="item">
-                <a href="#">Open <i class="fa fa-envelope"></i></a>
+                <a href="#">ALL</a>
+            </div>
+            <div class="item">
+                <a href="#">OPEN</a>
+            </div>
+
+            <div class="item">
+                <a href="#">TAGS</a>
             </div>
 
             <div class="item">
                 <a href="#">30 <i class="fa fa-envelope"></i></a>
             </div>
+
             <div class="item">
                 <a href="#">20 <i class="fa fa-heart"></i></a>
             </div>
+
             <div class="item">
                 <a href="#">4 <i class="fa fa-star"></i><br></a>
             </div>
+
+            <div class="item">
+                <a href="#">10 <i class="fa fa-bookmark"></i><br></a>
+            </div>
+
             <div class="item">
                 <a href="#"><i class="fa fa-user"> <span
                         class="line">{% scoreline user %}</span></i> {{ user.name }}</a>
