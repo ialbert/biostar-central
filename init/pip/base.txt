@@ -17,4 +17,5 @@ chardet
 feedparser
 whitenoise
 waitress
+pygments
 fake-factory

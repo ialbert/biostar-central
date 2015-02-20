@@ -2,66 +2,70 @@
 {% load widgets %}
 {% load staticfiles %}
 <div class="row">
+    <div class="twelve columns">
+        <nav>
+            {# Page logo #}
+            <div class="four columns">
+                <a href="{% url 'home' %}"><img src="{% group_logo_img %}" id="logo"></a>
+            </div>
 
+            <div class="eight columns">
+                <div class="item w20">
+                    <a href="#"><i class="fa fa-plus-circle"></i><br>Write&nbsp;Post</a>
+                </div>
+
+                <div class="item w20">
+                    <a href="#"><i class="fa fa-globe"></i><br>Community</a>
+                </div>
+
+
+                {# This gets show for anonymous users #}
+                {% if user.is_anonymous %}
+                <div class="item w20">
+                    <a href="{% url 'account_login' %}"> <i class="fa fa-sign-in"></i><br>Sign&nbsp;in</a>
+                </div>
+                {% else %}
+                <div class="item w20">
+                    <a href="{% url 'account_logout' %}"> <i class="fa fa-sign-out"></i><br>Sign&nbsp;Out</a>
+                </div>
+                {% endif %}
+
+                <div class="item w20">
+                    <a href="#"> <i class="fa fa-info-circle"></i><br>Site Info</a>
+                </div>
+
+                <div class="item w20">
+                    <a href="#"> <i class="fa fa-group"></i><br>Groups</a>
+                </div>
+            </div>
+
+        </nav>
+    </div>
+
+    {% if user.is_authenticated %}
     <nav>
-    	{#  Page logo #}
-        <div>
-            <a href="{% url "home" %}"><img src="{% group_logo_img %}" id="logo"></a>
-        </div>
-
-        <div class="item">
-            <a href="#"><i class="fa fa-plus-circle"></i><br>New&nbsp;Post</a>
-        </div>
-
-        <div class="item">
-            <a href="#"><i class="fa fa-globe"></i><br>Community</a>
-        </div>
-
-        {% if user.is_authenticated %}
-            {#  This gets show for authenticated users #}
+        <div class="twelve columns">
+            {# This gets show for authenticated users #}
             <div class="item">
-                <a href="#"><i class="fa fa-envelope"></i><br>30</a>
+                <a href="#">Open <i class="fa fa-envelope"></i></a>
+            </div>
+
+            <div class="item">
+                <a href="#">30 <i class="fa fa-envelope"></i></a>
             </div>
             <div class="item">
-                <a href="#"><i class="fa fa-heart"></i><br>20</a>
+                <a href="#">20 <i class="fa fa-heart"></i></a>
             </div>
             <div class="item">
-                <a href="#"><i class="fa fa-star"></i><br>1</a>
+                <a href="#">4 <i class="fa fa-star"></i><br></a>
             </div>
             <div class="item">
                 <a href="#"><i class="fa fa-user"> <span
-                class="line">{% scoreline user %}</span></i><br>{{ user.name }}</a>
-            </div>
-            <div class="item">
-                <a href="{% url 'account_logout' %}"> <i class="fa fa-sign-out"></i><br>Sign&nbsp;out</a>
+                        class="line">{% scoreline user %}</span></i> {{ user.name }}</a>
             </div>
 
-        {% else %}
-			{#  This gets show for anonymous users #}
-            <div class="item">
-                <a href="{% url 'account_login' %}"> <i class="fa fa-sign-in"></i><br>Sign&nbsp;in</a>
-            </div>
-
-            <div class="item">
-                <a href="#"> <i class="fa fa-info-circle"></i><br>Site Info</a>
-            </div>
-
-            <div class="item">
-                <a href="#"> <i class="fa fa-rss"></i><br>RSS</a>
-            </div>
-        {% endif %}
-
-    	{#  Group switching widget #}
-        <div class="item last">
-            <select id="group_select">
-                <option value="volvo">Biostar</option>
-                <option value="saab">Qiime 1</option>
-                <option value="opel">Qiime 2</option>
-                <option value="audi">Chipster</option>
-                <option value="audi">Galaxy</option>
-            </select>
         </div>
     </nav>
-
+    {% endif %}
 </div>
 

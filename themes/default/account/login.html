@@ -13,7 +13,6 @@
         </div>
         <div class="six columns">
 
-
             {% if socialaccount.providers %}
                 <div>
                     Click the name of a provider to log in.
@@ -24,7 +23,7 @@
                         {% for provider in socialaccount.providers %}
                             <li>
                                 <a title="{{ provider.name }}"
-                                   href="{% provider_login_url provider.id process=process scope=scope auth_params=auth_params %}">{{ provider.name }}</a>
+                                   href="{% provider_login_url provider.id process='login'  %}">{{ provider.name }}</a>
                             </li>
                         {% endfor %}
                     </ul>
