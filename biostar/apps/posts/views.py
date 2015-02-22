@@ -1,3 +1,4 @@
+from functools import partial
 # Create your views here.
 from django.shortcuts import render_to_response
 from django.views.generic import TemplateView, DetailView, ListView, FormView, UpdateView
@@ -25,7 +26,7 @@ logger = logging.getLogger(__name__)
 
 
 def valid_title(text):
-    "Validates form input for tags"
+    "Validates form input for titles"
     text = text.strip()
     if not text:
         raise ValidationError('Please enter a title')
@@ -50,6 +51,17 @@ def valid_tag(text):
         raise ValidationError('You have too many tags (5 allowed)')
 
 
+def valid_content(text, min_len):
+    cleaned_text = bleach.clean(text, tags=[None], strip=True)
+    cleaned_text = cleaned_text.strip()
+    lt = len( cleaned_text )
+    if lt < min_len:
+        raise ValidationError('Ensure this value has atleast %d characters (it has %d).' % (min_len, lt))
+
+long_validate = partial(valid_content, min_len=80)
+short_validate = partial(valid_content, min_len=20)
+
+
 class LongForm(forms.Form):
     FIELDS = "title content post_type tag_val".split()
 
@@ -71,12 +83,14 @@ class LongForm(forms.Form):
     tag_val = forms.CharField(
         label="Post Tags",
         required=True, validators=[valid_tag],
-        help_text="Choose one or more tags to match the topic. To create a new tag just type it in and press ENTER.",
+        help_text="Choose one or more tags to match the topic. To create a new tag just type it in and press ENTER."
     )
 
-    content = forms.CharField(widget=forms.Textarea,
-                              min_length=80, max_length=15000,
-                              label="Enter your post below")
+    content = forms.CharField(widget=forms.Textarea,label="Enter your post below",
+                               max_length=15000, validators = [long_validate])
+
+
+
 
     def __init__(self, *args, **kwargs):
         super(LongForm, self).__init__(*args, **kwargs)
@@ -99,7 +113,7 @@ class LongForm(forms.Form):
 class ShortForm(forms.Form):
     FIELDS = ["content"]
 
-    content = forms.CharField(widget=forms.Textarea, min_length=20)
+    content = forms.CharField(widget=forms.Textarea, validators = [short_validate])
 
     def __init__(self, *args, **kwargs):
         super(ShortForm, self).__init__(*args, **kwargs)
@@ -353,4 +367,3 @@ class EditPost(LoginRequiredMixin, FormView):
 
     def get_success_url(self):
         return reverse("user_details", kwargs=dict(pk=self.kwargs['pk']))
-
