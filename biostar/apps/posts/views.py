@@ -1,4 +1,5 @@
 from functools import partial
+import bleach
 # Create your views here.
 from django.shortcuts import render_to_response
 from django.views.generic import TemplateView, DetailView, ListView, FormView, UpdateView
@@ -88,9 +89,6 @@ class LongForm(forms.Form):
 
     content = forms.CharField(widget=forms.Textarea,label="Enter your post below",
                                max_length=15000, validators = [long_validate])
-
-
-
 
     def __init__(self, *args, **kwargs):
         super(LongForm, self).__init__(*args, **kwargs)
