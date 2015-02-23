@@ -2,49 +2,100 @@
 {% load widgets %}
 {% load staticfiles %}
 <div class="row">
-    <div class="twelve columns">
-        <nav>
-            {# Page logo #}
-            <div class="four columns">
-                <a href="{% url 'home' %}"><img src="{% group_logo_img %}" id="logo"></a>
+
+	<div class="two columns nav" id="search_bar">
+		<a href="{% url 'home' %}"><img src="{% group_logo_img %}" id="logo" class="lg"></a>
+	</div>
+
+    <div class="four columns" id="search_bar">
+        <form action="{% url 'search' %}" method="get">
+            <input type="text" name="q" class="u-full-width"
+                   maxlength="100" placeholder="Search" id="search" value="{{ q }}">
+        </form>
+    </div>
+
+    <div class="six columns">
+
+        <div class="twelve columns nav ">
+            <div class="item">
+                <a href="#"><i class="fa fa-plus-circle"></i><span class="lg">New&nbsp;Post</span></a>
+            </div>
+            <div class="item">
+                <a href="#"><i class="fa fa-globe"></i><span class="lg">Community </span></a>
             </div>
 
-            <div class="eight columns">
-                <div class="item w20">
+            {# This gets show for anonymous users #}
+            {% if user.is_anonymous %}
+                <div class="item">
+                    <a href="{% url 'account_login' %}"><i class="fa fa-sign-in"></i><span
+                    class="lg">Sign&nbsp;in</span></a>
+                </div>
+            {% else %}
+                <div class="item">
+                    <a href="{% url 'account_logout' %}"> <i class="fa fa-sign-out"></i><span class="lg">Sign&nbsp;Out</span></a>
+                </div>
+            {% endif %}
+
+            <div class="item">
+                <a href="#"> <i class="fa fa-info-circle"></i><span class="lg">Site&nbsp;Info</span></a>
+            </div>
+
+            <div class="item">
+                <a href="#"> <i class="fa fa-group"></i><span class="lg">Groups</span></a>
+            </div>
+        </div>
+
+    </div>
+
+
+</div>
+
+<div class="nav-sep"> </div>
+
+<!--
+
+    <nav>
+        {# Page logo #}
+        <div class="twelve columns">
+
+
+            <div class="eight columns evenly">
+                <div class="item">
                     <a href="#"><i class="fa fa-plus-circle"></i><br>New&nbsp;Post</a>
                 </div>
 
-                <div class="item w20">
+                <div class="item">
                     <a href="#"><i class="fa fa-globe"></i><br>Community</a>
                 </div>
 
-
                 {# This gets show for anonymous users #}
                 {% if user.is_anonymous %}
-                <div class="item w20">
-                    <a href="{% url 'account_login' %}"> <i class="fa fa-sign-in"></i><br>Sign&nbsp;in</a>
-                </div>
+                    <div class="item">
+                        <a href="{% url 'account_login' %}"> <i class="fa fa-sign-in"></i><br>Sign&nbsp;in</a>
+                    </div>
                 {% else %}
-                <div class="item w20">
-                    <a href="{% url 'account_logout' %}"> <i class="fa fa-sign-out"></i><br>Sign&nbsp;Out</a>
-                </div>
+                    <div class="item">
+                        <a href="{% url 'account_logout' %}"> <i class="fa fa-sign-out"></i><br>Sign&nbsp;Out</a>
+                    </div>
                 {% endif %}
 
-                <div class="item w20">
+                <div class="item">
                     <a href="#"> <i class="fa fa-info-circle"></i><br>Site Info</a>
                 </div>
 
-                <div class="item w20">
+                <div class="item">
                     <a href="#"> <i class="fa fa-group"></i><br>Groups</a>
                 </div>
             </div>
+        </div>
+    </nav>
+</div>
 
-        </nav>
-    </div>
+{% if user.is_authenticated %}
+    {#  A second navigation bar for authenticated users #}
+    <div class="row">
+        <nav class="nine columns evenly">
 
-    {% if user.is_authenticated %}
-    <nav>
-        <div class="twelve columns">
             {# This gets show for authenticated users #}
             <div class="item">
                 <a href="#">ALL</a>
@@ -75,11 +126,11 @@
 
             <div class="item">
                 <a href="#"><i class="fa fa-user"> <span
-                        class="line">{% scoreline user %}</span></i> {{ user.name }}</a>
+                class="line">{% scoreline user %}</span></i> {{ user.name }}</a>
             </div>
 
-        </div>
-    </nav>
-    {% endif %}
-</div>
+        </nav>
+    </div>
+{% endif %}
+ -->
 

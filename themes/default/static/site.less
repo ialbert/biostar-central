@@ -188,10 +188,11 @@ body {
 
 /* Search bar */
 #search_bar {
+  padding:1ex;
   form {
     margin: 0px;
   }
-  margin: 0.5em 0em 0em 0em;
+  //margin: 0.5em 0em 0em 0em;
 }
 
 /* Labels */
@@ -207,11 +208,6 @@ body {
   vertical-align: baseline;
   border-radius: .25em;
   background-color: #999
-}
-
-/* Site logo */
-#logo {
-  display: none;
 }
 
 #page_title {
@@ -261,10 +257,10 @@ body {
   border-color: #d6e9c6;
 }
 
-
 /* Navigation */
 #logo {
   float: left;
+   min-width: 177px;
 }
 
 #nav_table {
@@ -300,32 +296,39 @@ body {
   }
 }
 
-nav {
-
-  .w20 {
-    min-width: 20%;
-  }
-
+.nav {
+  display: flex;
+  justify-content: space-between;
   .item {
     float: left;
     text-align: center;
 
     a {
       display: inline-block;
-      padding: 1.1em;
+      padding: 1ex;
     }
+
     a:hover {
       background-color: #EFEFEF;
       cursor: pointer;
       border-radius: 4px;
     }
   }
+
   .last {
     float: right;
   }
-  select {
-    margin-top: 1em;
-  }
+}
+
+.lg {
+  display: none;
+}
+
+.nav-sep {
+  height:1ex;
+  margin: 0em 0em 1ex 0em;
+  border-bottom: 1px solid #ddd;
+  box-shadow: 0 3px 2px -2px rgba(200, 200, 200, 0.3);
 }
 
 /* Media Queries
@@ -339,14 +342,14 @@ there.
 
 /* Larger than phablet (also point when grid becomes active) */
 
-@media (min-width: 550px) {
+@media (min-width: 800px) {
 
-  #logo {
+  .lg {
     display: block;
   }
 
-  .hide-phone {
-    display: block;
+  #logo {
+
   }
 
 }

@@ -30,7 +30,7 @@ def cachebuster():
 
 @register.simple_tag
 def group_logo_img():
-    src = "/static/images/logo-default.png"
+    src = "/static/images/logo.png"
     return src
 
 @register.inclusion_tag('widgets/recent_votes.html')
@@ -75,9 +75,11 @@ def post_user_box(post):
 def tag_bar(post):
     return dict(post=post)
 
-@register.inclusion_tag('widgets/nav_bar.html')
-def nav_bar(user):
-    return dict(user=user)
+@register.inclusion_tag('widgets/nav_bar.html', takes_context=True)
+def nav_bar(context, user):
+    q = context.get('q', '')
+    posts = context.get('posts', '')
+    return dict(user=user, q=q, posts=posts)
 
 
 @register.filter

@@ -32,7 +32,7 @@ class BiostarAppConfig(AppConfig):
         return self.name.split(".")[-1]
 
 
-def check_permission(user, perm_name, label=BiostarAppConfig.app_label):
+def has_permission(user, perm_name, label=BiostarAppConfig.app_label):
     """
     Generic function to apply a permission on the current app.
     """
@@ -41,9 +41,9 @@ def check_permission(user, perm_name, label=BiostarAppConfig.app_label):
 
 
 # Functions to check permissions of the user on an action.
-authorize_post_mod = lambda user: check_permission(user, models.MODERATE_POST_PERMISSION)
-authorize_user_mod = lambda user: check_permission(user, models.MODERATE_USER_PERMISSION)
-authorize_user_ban = lambda user: check_permission(user, models.BAN_USER_PERMISSION)
+authorize_post_mod = lambda user: has_permission(user, models.MODERATE_POST_PERMISSION)
+authorize_user_mod = lambda user: has_permission(user, models.MODERATE_USER_PERMISSION)
+authorize_user_ban = lambda user: has_permission(user, models.BAN_USER_PERMISSION)
 
 def post_migrate_tasks(sender, **kwargs):
     """
