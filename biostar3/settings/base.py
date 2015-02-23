@@ -67,6 +67,7 @@ INSTALLED_APPS = (
     'compressor',
     'haystack',
     'taggit',
+    'biostar3.mailer',
     'biostar3.forum',
 
     # Authentication apps
@@ -153,7 +154,12 @@ DEFAULT_PATH = abspath(BIOSTAR_HOME, "themes", "default")
 
 TEMPLATE_DIRS = (
     TEMPLATE_PATH,
-    DEFAULT_PATH
+    DEFAULT_PATH,
+)
+
+TEMPLATE_LOADERS = (
+    'django.template.loaders.filesystem.Loader',
+    'django.template.loaders.app_directories.Loader',
 )
 
 TEMPLATE_STRING_IF_INVALID = "*** missing variable ***"

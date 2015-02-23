@@ -46,6 +46,7 @@ LOGGING = {
             'filters': ['require_debug_false', 'ratelimit'],
             'class': 'django.utils.log.AdminEmailHandler'
         },
+
         'console':{
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
