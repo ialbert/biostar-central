@@ -188,7 +188,7 @@ body {
 
 /* Search bar */
 #search_bar {
-  padding:1ex;
+  padding: 1ex;
   form {
     margin: 0px;
   }
@@ -260,7 +260,7 @@ body {
 /* Navigation */
 #logo {
   float: left;
-   min-width: 177px;
+  min-width: 177px;
 }
 
 #nav_table {
@@ -325,10 +325,15 @@ body {
 }
 
 .nav-sep {
-  height:1ex;
+  height: 1ex;
   margin: 0em 0em 1ex 0em;
   border-bottom: 1px solid #ddd;
   box-shadow: 0 3px 2px -2px rgba(200, 200, 200, 0.3);
+}
+
+.unit {
+  width: 100%;
+  float: left;
 }
 
 /* Media Queries
@@ -342,7 +347,18 @@ there.
 
 /* Larger than phablet (also point when grid becomes active) */
 
-@media (min-width: 800px) {
+@media (min-width: 768px) {
+  .unit {
+    width: 50%;
+  }
+
+}
+
+@media (min-width: 1024px) {
+
+  .unit {
+    width: 50%;
+  }
 
   .lg {
     display: block;
@@ -353,6 +369,9 @@ there.
   }
 
 }
+
+
+
 
 
 

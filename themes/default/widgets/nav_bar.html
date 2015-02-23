@@ -1,22 +1,26 @@
 {# Renders the navigation bar #}
 {% load widgets %}
 {% load staticfiles %}
+
+<div class="row lg" >
+	<div id="logo">
+        <a href="{% url 'home' %}"><img src="{% group_logo_img %}"></a>
+    </div>
+</div>
+
 <div class="row">
 
-	<div class="two columns nav" id="search_bar">
-		<a href="{% url 'home' %}"><img src="{% group_logo_img %}" id="logo" class="lg"></a>
-	</div>
 
-    <div class="four columns" id="search_bar">
+	<div class="six columns" id="search_bar">
         <form action="{% url 'search' %}" method="get">
             <input type="text" name="q" class="u-full-width"
                    maxlength="100" placeholder="Search" id="search" value="{{ q }}">
         </form>
     </div>
 
-    <div class="six columns">
+	<div class="six columns">
 
-        <div class="twelve columns nav ">
+        <div class="nav ">
             <div class="item">
                 <a href="#"><i class="fa fa-plus-circle"></i><span class="lg">New&nbsp;Post</span></a>
             </div>
@@ -46,7 +50,6 @@
         </div>
 
     </div>
-
 
 </div>
 
