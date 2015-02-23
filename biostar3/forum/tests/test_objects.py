@@ -2,6 +2,7 @@ from __future__ import absolute_import, division, unicode_literals
 
 from django.test import TestCase
 from django.conf import settings
+from django.core import mail
 
 from biostar3.forum import apps, models
 from biostar3.forum.models import User
@@ -29,13 +30,22 @@ class SimpleTests(TestCase):
         """
         Test normal user creation
         """
+        EQ = self.assertEqual
+
         f = Factory.create()
         count = 10
+
+        start_group_count = models.Group.objects.all().count()
+
         for i in range(count):
             user = User.objects.create(name=f.name(), email=f.email())
             for func in AUTH_FUNCS:
                 self.assertEqual(func(user), False)
             # Create a few groups.
-            apps.create_group(name=f.user_name(), user=user)
+            models.get_or_create_group(name=f.user_name(), user=user)
 
-        self.assertTrue(models.Group.objects.all().count() > count)
+        self.assertTrue(models.Group.objects.all().count() == start_group_count + count)
+
+        # Test sending automated emails.
+        EQ(len(mail.outbox), count)
+

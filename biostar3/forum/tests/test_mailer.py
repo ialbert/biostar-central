@@ -1,5 +1,5 @@
 from django.test import TestCase
-from . import EmailTemplate
+from biostar3.forum.mailer import EmailTemplate
 from django.core import mail
 
 # Create your tests here.

@@ -10,7 +10,7 @@ Extracts all information from a single template like so. All three blocks must b
     {% block html %} declares text/html
 
 """
-
+from django.conf import settings
 from django.template.loader import get_template
 from django.template.loader_tags import BlockNode
 from django.core.mail import EmailMultiAlternatives
@@ -43,7 +43,14 @@ class EmailTemplate(object):
         self.text = get_node(template, name=self.TEXT).render(context)
         self.html = get_node(template, name=self.HTML).render(context)
 
-    def send(self, from_email, to, cc=None, bcc=None, headers=None):
+    def send(self, to, from_email=None, cc=None, bcc=None, headers=None):
+
+        # Support address in the `to` parameter.
+        if type(to) != list:
+            to = [ to ]
+
+        # Fall back to defaults
+        from_email = from_email or settings.DEFAULT_FROM_EMAIL
         msg = EmailMultiAlternatives(
             subject=self.subj, body=self.text, from_email=from_email, to=to,
             cc=cc, bcc=bcc, headers=headers,

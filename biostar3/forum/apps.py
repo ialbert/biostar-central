@@ -17,7 +17,6 @@ logger = logging.getLogger('biostar')
 # connector below.
 from django.contrib.auth.management import create_permissions
 
-
 class BiostarAppConfig(AppConfig):
     name = 'biostar3.forum'
     verbose_name = 'Biostar Forum'
@@ -46,17 +45,6 @@ authorize_post_mod = lambda user: check_permission(user, models.MODERATE_POST_PE
 authorize_user_mod = lambda user: check_permission(user, models.MODERATE_USER_PERMISSION)
 authorize_user_ban = lambda user: check_permission(user, models.BAN_USER_PERMISSION)
 
-@transaction.atomic
-def create_group(name, user):
-    """
-    Group objects also carry a group info. We reuse the groups as defined in Django.
-    """
-    group, flag = models.Group.objects.get_or_create(name=name)
-    if flag:
-        models.GroupInfo.objects.create(group=group, author=user)
-    return group, flag
-
-
 def post_migrate_tasks(sender, **kwargs):
     """
     Sets up data post migration. The site will rely on data set up via this function.
@@ -84,21 +72,26 @@ def post_migrate_tasks(sender, **kwargs):
         raise ImproperlyConfigured("settings must include ADMINS attribute.")
 
     # Create the default group.
-    default_group, default_created = create_group(name=settings.DEFAULT_GROUP_NAME, user=admin)
+    default_group, default_created = models.get_or_create_group(name=settings.DEFAULT_GROUP_NAME, user=admin)
 
     # Update all toplevel posts with no groups to have the default group.
     Post.objects.filter(type__in=Post.TOP_LEVEL, group=None).update(group=default_group)
 
-    # Ensure admin and moderator groups exist and have the right permissions.
-    admin_group, admin_created = create_group(name=models.ADMIN_GROUP_NAME, user=admin)
+    # Admin group and premissions
+    admin_group, admin_created = models.get_or_create_group(name=models.ADMIN_GROUP_NAME, user=admin)
     admin_group.permissions.add(can_moderate_user, can_moderate_post, can_ban_user)
 
-    mod_group, mod_created = create_group(name=models.MODERATOR_GROUP_NAME, user=admin)
+    # Moderator group and permissions
+    mod_group, mod_created = models.get_or_create_group(name=models.MODERATOR_GROUP_NAME, user=admin)
     mod_group.permissions.add(can_moderate_user, can_moderate_post)
 
-    # All admin users have admin group level permissions.
+    # All admin users need to have admin group level permissions.
     for user in models.User.objects.filter(type=User.ADMIN):
         user.groups.add(admin_group, mod_group)
+
+    # All moderator users need to have moderator level permissions.
+    for user in models.User.objects.filter(type=User.MODERATOR):
+        user.groups.add(mod_group)
 
     # Sets up the default domain
     site = Site.objects.get_current()

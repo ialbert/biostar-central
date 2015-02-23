@@ -67,7 +67,6 @@ INSTALLED_APPS = (
     'compressor',
     'haystack',
     'taggit',
-    'biostar3.mailer',
     'biostar3.forum',
 
     # Authentication apps
@@ -251,7 +250,8 @@ SOCIALACCOUNT_PROVIDERS = {
     }
 }
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+#EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
 
 def GET_SUBDOMAIN(request):
     "Used to extract the subdomain. Override if deployed under multilevel subdomains."

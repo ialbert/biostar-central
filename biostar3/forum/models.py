@@ -1,6 +1,6 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from django.db import models
+from django.db import models, transaction
 from django.contrib.auth.models import UserManager, AbstractBaseUser, UserManager, PermissionsMixin, Group, GroupManager
 from django.contrib.sites.models import Site
 from django.conf import settings
@@ -105,11 +105,24 @@ class User(AbstractBaseUser, PermissionsMixin):
 
         super(User, self).save(*args, **kwargs)
 
+    def __unicode__(self):
+        return "User: %s (%s)" % (self.id, self.email)
+
 class GroupInfo(models.Model):
     "Extra group information"
     author = models.ForeignKey(settings.AUTH_USER_MODEL)
     group = models.OneToOneField(Group)
     creation_date = models.DateTimeField(auto_now_add=True)
+
+@transaction.atomic
+def get_or_create_group(name, user=None):
+    """
+    Group objects also carry a group info. We reuse the groups as defined in Django.
+    """
+    group, flag = Group.objects.get_or_create(name=name)
+    if flag:
+        GroupInfo.objects.create(group=group, author=user)
+    return group, flag
 
 class Profile(models.Model):
     """
