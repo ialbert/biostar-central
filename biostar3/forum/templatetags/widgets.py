@@ -70,17 +70,17 @@ def update_bar(post):
 def post_user_box(post):
     return dict(post=post, author=post.author)
 
-
 @register.inclusion_tag('widgets/tag_bar.html')
 def tag_bar(post):
     return dict(post=post)
 
-@register.inclusion_tag('widgets/nav_bar.html', takes_context=True)
-def nav_bar(context, user):
-    q = context.get('q', '')
-    posts = context.get('posts', '')
-    return dict(user=user, q=q, posts=posts)
+@register.inclusion_tag('widgets/nav_bar.html')
+def nav_bar(user):
+    return dict(user=user)
 
+@register.inclusion_tag('widgets/user_bar.html')
+def user_bar(user):
+    return dict(user=user)
 
 @register.filter
 def bignum(number):

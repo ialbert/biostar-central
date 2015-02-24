@@ -268,13 +268,11 @@ body {
 /* Navigation */
 #logo {
   float: left;
-  width:100%;
+  width: 100%;
 }
 
-
-#navbar {
-  height: 74px;
-  width:100%;
+#userbar, #navbar {
+  width: 100%;
   display: flex;
   justify-content: space-between;
   margin-bottom: 2px;
@@ -283,7 +281,7 @@ body {
   }
 
   .navlabel {
-    font-size:small;
+    font-size: small;
   }
 
   .signin {
@@ -292,12 +290,12 @@ body {
   }
 
   .signout {
-    border: 1px solid pink;
-    border-radius: 4px;
+    //border: 1px solid pink;
+    //border-radius: 4px;
   }
 
   .item {
-    margin-top:1ex;
+    margin-top: 1ex;
     float: left;
     text-align: center;
 
@@ -329,7 +327,6 @@ body {
   box-shadow: 0 3px 2px -2px rgba(200, 200, 200, 0.3);
 }
 
-
 /* Media Queries
 –––––––––––––––––––––––––––––––––––––––––––––––––– */
 /*
@@ -341,8 +338,8 @@ there.
 
 /* Larger than phablet (also point when grid becomes active) */
 
-@media (min-width: 768px) {
-
+@media (min-width: 550px) {
+  
 }
 
 @media (min-width: 1024px) {
@@ -352,7 +349,7 @@ there.
   }
 
   #navbar {
-    width:auto;
+    width: auto;
 
     i {
       font-size: 1em;
@@ -360,7 +357,7 @@ there.
   }
 
   #logo {
-    width:330px;
+    width: 330px;
   }
 
 }

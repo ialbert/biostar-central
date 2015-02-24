@@ -1,0 +1,39 @@
+{%  load widgets %}
+{% if user.is_authenticated %}
+    {#  A second navigation bar for authenticated users #}
+    <div class="row">
+        <div class="twelve columns">
+            <div id="userbar">
+                {# This gets show for authenticated users #}
+                <div class="item">
+                    <a href="#"><i class="fa fa-caret-down"></i> ALL</a>
+                </div>
+
+                <div class="item lg">
+                    <a href="#"><i class="fa fa-question-circle"></i> OPEN</a>
+                </div>
+
+                <div class="item">
+                    <a href="#"><i class="fa fa-envelope"></i> 30</a>
+                </div>
+
+                <div class="item">
+                    <a href="#"><i class="fa fa-heart"></i> 20</a>
+                </div>
+
+                <div class="item">
+                    <a href="#"><i class="fa fa-star"></i> 4</a>
+                </div>
+
+                <div class="item">
+                    <a href="#"><i class="fa fa-bookmark"></i> 10</a>
+                </div>
+
+                <div class="item">
+                    <a href="#"><i class="fa fa-user"> <span
+                            class="line">{% scoreline user %}</span></i> {{ user.name }}</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
