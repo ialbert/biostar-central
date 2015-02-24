@@ -2,98 +2,62 @@
 {% load widgets %}
 {% load staticfiles %}
 
-<div class="row lg" >
-	<div id="logo">
-        <a href="{% url 'home' %}"><img src="{% group_logo_img %}"></a>
-    </div>
-</div>
-
 <div class="row">
 
-
-	<div class="six columns" id="search_bar">
-        <form action="{% url 'search' %}" method="get">
-            <input type="text" name="q" class="u-full-width"
-                   maxlength="100" placeholder="Search" id="search" value="{{ q }}">
-        </form>
+    <div id="logo">
+        <a href="{% url 'home' %}"><img src="{% group_logo_img %}"></a>
     </div>
 
-	<div class="six columns">
-
-        <div class="nav ">
-            <div class="item">
-                <a href="#"><i class="fa fa-plus-circle"></i><span class="lg">New&nbsp;Post</span></a>
-            </div>
-            <div class="item">
-                <a href="#"><i class="fa fa-globe"></i><span class="lg">Community </span></a>
-            </div>
-
-            {# This gets show for anonymous users #}
-            {% if user.is_anonymous %}
-                <div class="item">
-                    <a href="{% url 'account_login' %}"><i class="fa fa-sign-in"></i><span
-                    class="lg">Sign&nbsp;in</span></a>
-                </div>
-            {% else %}
-                <div class="item">
-                    <a href="{% url 'account_logout' %}"> <i class="fa fa-sign-out"></i><span class="lg">Sign&nbsp;Out</span></a>
-                </div>
-            {% endif %}
-
-            <div class="item">
-                <a href="#"> <i class="fa fa-info-circle"></i><span class="lg">Site&nbsp;Info</span></a>
-            </div>
-
-            <div class="item">
-                <a href="#"> <i class="fa fa-group"></i><span class="lg">Groups</span></a>
-            </div>
+    <div id="navbar">
+        <div class="item">
+            <a href="#">
+                <div class="icon"><i class="fa fa-plus-circle"></i></div>
+                <div class="navlabel">New&nbsp;Post</div>
+            </a>
+        </div>
+        <div class="item">
+            <a href="#">
+                <div class="icon"><i class="fa fa-globe"></i></div>
+                <div class="navlabel">Users</div>
+            </a>
         </div>
 
+        <div class="item">
+            <a href="#">
+                <div class="icon"><i class="fa fa-group"></i></div>
+                <div class="navlabel">Groups</div>
+            </a>
+        </div>
+
+        <div class="item">
+            <a href="#">
+                <div class="icon"><i class="fa fa-info-circle"></i></div>
+                <div class="navlabel">About</div>
+            </a>
+        </div>
+
+        {# This gets show for anonymous users #}
+        {% if user.is_anonymous %}
+            <div class="item">
+                <a href="{% url 'account_login' %}" class="signin">
+                    <div class="icon"><i class="fa fa-sign-in"></i></div>
+                    <div class="navlabel">Sign&nbsp;in</div>
+                </a>
+            </div>
+        {% else %}
+            <div class="item ">
+                <a href="{% url 'account_logout' %}" class="signout">
+                    <div class="icon"><i class="fa fa-sign-out"></i></div>
+                    <div class="navlabel">Sign&nbsp;Out</div>
+                </a>
+            </div>
+        {% endif %}
+
     </div>
-
+    <div class="nav-sep"></div>
 </div>
-
-<div class="nav-sep"> </div>
 
 <!--
-
-    <nav>
-        {# Page logo #}
-        <div class="twelve columns">
-
-
-            <div class="eight columns evenly">
-                <div class="item">
-                    <a href="#"><i class="fa fa-plus-circle"></i><br>New&nbsp;Post</a>
-                </div>
-
-                <div class="item">
-                    <a href="#"><i class="fa fa-globe"></i><br>Community</a>
-                </div>
-
-                {# This gets show for anonymous users #}
-                {% if user.is_anonymous %}
-                    <div class="item">
-                        <a href="{% url 'account_login' %}"> <i class="fa fa-sign-in"></i><br>Sign&nbsp;in</a>
-                    </div>
-                {% else %}
-                    <div class="item">
-                        <a href="{% url 'account_logout' %}"> <i class="fa fa-sign-out"></i><br>Sign&nbsp;Out</a>
-                    </div>
-                {% endif %}
-
-                <div class="item">
-                    <a href="#"> <i class="fa fa-info-circle"></i><br>Site Info</a>
-                </div>
-
-                <div class="item">
-                    <a href="#"> <i class="fa fa-group"></i><br>Groups</a>
-                </div>
-            </div>
-        </div>
-    </nav>
-</div>
-
 {% if user.is_authenticated %}
     {#  A second navigation bar for authenticated users #}
     <div class="row">
