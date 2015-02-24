@@ -6,10 +6,15 @@ from django.contrib.sites.models import Site
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from taggit.managers import TaggableManager
+from django.utils.timezone import utc
+from datetime import datetime
 
 class MyTaggableManager(TaggableManager):
     def get_internal_type(self):
         return 'ManyToManyField'
+
+def now():
+    return datetime.utcnow().replace(tzinfo=utc)
 
 # Default groups.
 ADMIN_GROUP_NAME = "Admins"
@@ -302,6 +307,16 @@ class Post(models.Model):
                 return "Answered"
             return "Unanswered"
         return self.get_type_display()
+
+    def save(self, *args, **kwargs):
+        "Actions that need to be performed on every post save."
+
+        self.root = self.root or self.parent or self
+        self.creation_date = self.creation_date or now()
+        self.lastedit_date = self.lastedit_date or self.creation_date
+        #self.lastedit_user = self.lastedit_user or self.author
+
+        super(Post, self).save(*args, **kwargs)
 
 class PostView(models.Model):
     """Represents a post vote"""

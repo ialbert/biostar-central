@@ -3,6 +3,7 @@ from django.conf.urls import patterns, include, url
 from django.contrib import admin
 
 from biostar3.forum.post_views import PostList, UserList, SearchResults, PostView
+from biostar3.forum.form_views import NewContent
 
 urlpatterns = patterns('',
 
@@ -18,5 +19,8 @@ urlpatterns = patterns('',
 
     # The list of users.
     url(r'^user/list/$', UserList.as_view(), name="user_list"),
+
+    # Create new content: answer, comments
+    url(r'^p/new/content/$', NewContent.as_view(), name="new_content"),
 
 )

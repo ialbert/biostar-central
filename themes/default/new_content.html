@@ -1,0 +1,20 @@
+{% extends "site_layout.html" %}
+{% load widgets %}
+
+{% block title %}Edit Content{% endblock %}
+
+{% block body %}
+
+    <div class="row">
+
+        {% if form.errors %}
+            {{  form.errors }}
+        {% endif %}
+
+        <form method="post" action="{% url "new_content" %}">
+            {{ form.parent_id }}
+            {%  include "visual_editor.html" %}
+        </form>
+    </div>
+
+{% endblock %}
