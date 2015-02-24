@@ -8,6 +8,7 @@ from django.core.urlresolvers import reverse
 from taggit.managers import TaggableManager
 from django.utils.timezone import utc
 from datetime import datetime
+from . import html
 
 class MyTaggableManager(TaggableManager):
     def get_internal_type(self):
@@ -330,7 +331,7 @@ class Post(models.Model):
         self.creation_date = self.creation_date or now()
         self.lastedit_date = self.lastedit_date or self.creation_date
         self.lastedit_user = self.lastedit_user or self.author
-        self.html = self.content
+        self.html = html.generate(self.content)
 
         # Attempt to sensibly set the post type if not specified.
         if not self.type:

@@ -257,6 +257,23 @@ EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
 MIN_POST_SIZE = 50
 MAX_POST_SIZE = 150000
 
+# Allowed html content.
+ALLOWED_TAGS = "p div br code pre h1 h2 h3 h4 hr span s sub sup b i img strong \
+    strike em underline super table thead tr th td tbody".split()
+TRUSTED_TAGS = "embed".split()
+
+ALLOWED_STYLES = 'color font-weight background-color width height'.split()
+TRUSTED_STYLES = ''.split()
+
+ALLOWED_ATTRIBUTES = {
+    '*': ['class', 'style'],
+    'a': ['href', 'rel'],
+    'img': ['src', 'alt', 'width', 'height'],
+    'table': ['border', 'cellpadding', 'cellspacing'],
+
+}
+TRUSTED_ATTRIBUTES = ''.split()
+
 def GET_SUBDOMAIN(request):
     "Used to extract the subdomain. Override if deployed under multilevel subdomains."
     domain = request.META.get('HTTP_HOST', 'www')
