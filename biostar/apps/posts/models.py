@@ -284,7 +284,7 @@ class Post(models.Model):
         # Posts other than a question also carry the same tag
         if self.is_toplevel and self.type != Post.QUESTION:
             required_tag = self.get_type_display()
-            if required_tag not in self.tag_val:
+            if required_tag.lower() not in self.tag_val.lower():
                 self.tag_val += "," + required_tag
 
         if not self.id:
