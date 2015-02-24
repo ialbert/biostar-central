@@ -13,7 +13,7 @@
 
         <form method="post" action="{% url "new_content" %}">
             {{ form.parent_id }}
-            {%  include "visual_editor.html" %}
+            {%  visual_editor form.content.value %}
         </form>
     </div>
 

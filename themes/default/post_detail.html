@@ -9,23 +9,23 @@
 
             {% search_bar %}
 
+        	{#  This is the top level post #}
             <div itemscope itemtype="http://schema.org/Question">
 
-                {% post_user_box post %}
-
-                <div class="post_title">
+            	<div class="row post_title">
                     {{ post.get_type_display }}: {{ post.title }}
                 </div>
 
-                <div>
+                <div class="row">
+                	{% post_user_box post %}
                     {{ post.html|safe }}
                 </div>
 
-                <div class="clearfix">
+                <div class="row">
                     {% tag_bar post %}
                 </div>
 
-                <div style="margin-top:1em;">
+                <div class="row">
                     {% action_bar post %}
                     {% update_bar post %}
                 </div>
@@ -33,27 +33,26 @@
             </div>
 
             {#  Answers follow #}
-
             {% for answer in post.answers %}
                 <div itemscope itemtype="http://schema.org/Answer">
-                    <div class="answer u-full-width">
+                    <div class="row answer">
                         {% post_user_box answer %}
                         {{ answer.html|safe }}
                     </div>
 
-                    <div>
+                    <div class="row">
                         {% action_bar answer %}
                         {% update_bar answer %}
                     </div>
-
                 </div>
             {% endfor %}
 
+        	{#  Visual editor here #}
             <div class="row">
                 <div class="nav-sep"></div>
                 <form method="post" action="{% url "new_content" %}">
                     <input type="hidden" value="{{ post.id }}" name="parent_id">
-                    {%  include "visual_editor.html" %}
+                    {% visual_editor %}
                 </form>
             </div>
 

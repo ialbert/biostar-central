@@ -14,9 +14,11 @@ from .models import Post
 from django.http import HttpResponseRedirect
 
 import logging
-
+from django.contrib.auth import get_user_model
 logger = logging.getLogger('biostar')
 
+# Get custom user model.
+User = get_user_model()
 
 def post_title_validator(text):
     "Validates form input for tags"
@@ -70,10 +72,33 @@ class NewContentForm(forms.Form):
                               min_length=settings.MIN_POST_SIZE, max_length=settings.MAX_POST_SIZE,
                               label="Enter your answer", initial="")
 
+    def clean(self):
+        cleaned_data = super(NewContentForm, self).clean()
+        parent_id = cleaned_data['parent_id']
+        parent = Post.objects.filter(pk=parent_id).select_related("group", "group__groupinfo").first()
+
+        # The parent may not exist anymore.
+        if not parent:
+            raise ValidationError("Parent post does not exist. Perhaps it has been deleted.")
+
+        # User must be in the group that created this thread.
+        if not self.request.user.groups.filter(name=parent.group.name).exists():
+            raise ValidationError("Parent post may not be accessed by this user!")
+
+    def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop('request', None)
+        super(NewContentForm, self).__init__(*args, **kwargs)
+
 
 class NewContent(LoginRequiredMixin, FormView):
     form_class = NewContentForm
     template_name = "new_content.html"
+
+    def get_form_kwargs(self):
+        # Pass the request into the form validator
+        kwargs = super(NewContent, self).get_form_kwargs()
+        kwargs['request'] = self.request
+        return kwargs
 
     def form_valid(self, form):
         # Create the new post based on access rights.
@@ -82,17 +107,14 @@ class NewContent(LoginRequiredMixin, FormView):
         content = form.cleaned_data['content']
         try:
             parent = Post.objects.get(pk=parent_id)
-            self.post = Post.objects.create(parent=parent, content=content, author=user,
-                                            type=Post.ANSWER, lastedit_user=user)
-        except KeyError, exc:
-            logger.error(exc)
+            self.post = Post.objects.create(parent=parent, content=content, author=user,)
+        except Exception, exc:
             self.post = None
         return super(NewContent, self).form_valid(form)
 
     def get_success_url(self):
         # Redirect to new post
         if self.post:
-            print self.post.id
             return self.post.get_absolute_url()
         else:
             messages.error(self.request, "Unable to create the post")

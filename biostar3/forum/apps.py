@@ -1,7 +1,7 @@
 from django.apps import AppConfig
 from django.db.models.signals import post_migrate
 from biostar3.forum import models
-from biostar3.forum.models import User, Group, Post
+from biostar3.forum.models import User, Group, Post, GroupInfo
 from django.contrib.auth.models import Permission
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
@@ -49,6 +49,8 @@ def post_migrate_tasks(sender, **kwargs):
     """
     Sets up data post migration. The site will rely on data set up via this function.
     """
+    # Chicken and egg problem. Default group needs to be created before the first user.
+    default_group, default_flag = Group.objects.get_or_create(name=settings.DEFAULT_GROUP_NAME)
 
     # Create the default admin user.
     for name, email in settings.ADMINS:
@@ -61,20 +63,22 @@ def post_migrate_tasks(sender, **kwargs):
             admin.save()
             logger.info("added admin user with email=%s, password=SECRET_KEY, name=%s" % (admin.email, admin.name))
 
-    # The permissions should already exist. See comment on create_permissions.
-    can_moderate_user = Permission.objects.get(codename=models.MODERATE_USER_PERMISSION)
-    can_moderate_post = Permission.objects.get(codename=models.MODERATE_POST_PERMISSION)
-    can_ban_user = Permission.objects.get(codename=models.BAN_USER_PERMISSION)
-
     # Get the first admin user
     admin = models.User.objects.filter(type=User.ADMIN).first()
     if not admin:
         raise ImproperlyConfigured("settings must include ADMINS attribute.")
 
-    # Create the default group.
-    default_group, default_created = models.get_or_create_group(name=settings.DEFAULT_GROUP_NAME, user=admin)
+    # Associate a GroupInfo with the default group.
+    if default_flag:
+        GroupInfo.objects.create(group=default_group, author=admin, public=True)
+
+    # The permissions should already exist. See comment on create_permissions.
+    can_moderate_user = Permission.objects.get(codename=models.MODERATE_USER_PERMISSION)
+    can_moderate_post = Permission.objects.get(codename=models.MODERATE_POST_PERMISSION)
+    can_ban_user = Permission.objects.get(codename=models.BAN_USER_PERMISSION)
 
     # Update all toplevel posts with no groups to have the default group.
+    logger.info("adding groups to posts")
     Post.objects.filter(type__in=Post.TOP_LEVEL, group=None).update(group=default_group)
 
     # Admin group and premissions
@@ -88,6 +92,11 @@ def post_migrate_tasks(sender, **kwargs):
     # All admin users need to have admin group level permissions.
     for user in models.User.objects.filter(type=User.ADMIN):
         user.groups.add(admin_group, mod_group)
+
+    logger.info("adding groups users")
+    # All moderator users need to have moderator level permissions.
+    for user in models.User.objects.all():
+        user.groups.add(default_group)
 
     # All moderator users need to have moderator level permissions.
     for user in models.User.objects.filter(type=User.MODERATOR):
@@ -103,9 +112,11 @@ def post_migrate_tasks(sender, **kwargs):
 
     # This is only needed when migrating the database.
     # Migrate tags if these exist.
+    logger.info('migrating tags')
     for post in Post.objects.filter(type__in=Post.TOP_LEVEL).exclude(tag_val=''):
         tags = post.tag_val.split(",")
         post.tags.set(*tags)
 
     # Reset tag_val field. This attribute will be dropped on a second migration.
+    logger.info('resetting tag_val')
     Post.objects.filter(type__in=Post.TOP_LEVEL).exclude(tag_val='').update(tag_val='')

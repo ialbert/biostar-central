@@ -1,5 +1,5 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
-
+import random, hashlib
 from django.db import models, transaction
 from django.contrib.auth.models import UserManager, AbstractBaseUser, UserManager, PermissionsMixin, Group, GroupManager
 from django.contrib.sites.models import Site
@@ -15,6 +15,13 @@ class MyTaggableManager(TaggableManager):
 
 def now():
     return datetime.utcnow().replace(tzinfo=utc)
+
+def make_uuid(size=None):
+    "Returns a unique id"
+    x = random.getrandbits(256)
+    u = hashlib.md5(str(x)).hexdigest()
+    u = u[:size]
+    return u
 
 # Default groups.
 ADMIN_GROUP_NAME = "Admins"
@@ -118,9 +125,10 @@ class GroupInfo(models.Model):
     author = models.ForeignKey(settings.AUTH_USER_MODEL)
     group = models.OneToOneField(Group)
     creation_date = models.DateTimeField(auto_now_add=True)
+    public = models.BooleanField(default=True)
 
 @transaction.atomic
-def get_or_create_group(name, user=None):
+def get_or_create_group(name, user):
     """
     Group objects also carry a group info. We reuse the groups as defined in Django.
     """
@@ -155,7 +163,7 @@ class Profile(models.Model):
     # The last visit by the user.
     last_login = models.DateTimeField()
 
-    # The last visit by the user.
+    # The date the user joined user.
     date_joined = models.DateTimeField()
 
     # User provided location.
@@ -179,12 +187,19 @@ class Profile(models.Model):
     # The default notification preferences.
     message_prefs = models.IntegerField(choices=TYPE_CHOICES, default=settings.MESSAGE_DEFAULT)
 
+    # Subscription to daily and weekly digests.
+    digest_prefs = models.IntegerField(choices=DIGEST_CHOICES, default=WEEKLY_DIGEST)
+
     # This stores binary flags on users. Their usage is to
     # allow easy subselection of various subsets of users.
     flag = models.IntegerField(default=0)
 
     # The tag value is the canonical form of the post's tags
     watched_tags = models.CharField(max_length=250, default="", blank=True)
+
+    def save(self, *args, **kwargs):
+        self.uuid = self.uuid or make_uuid()
+        super(Profile, self).save(*args, **kwargs)
 
 class Post(models.Model):
     """Represents a post."""
@@ -224,7 +239,7 @@ class Post(models.Model):
     group = models.ForeignKey(Group, null=True, blank=True)
 
     # The user that edited the post most recently.
-    lastedit_user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='editor')
+    lastedit_user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='editor', null=True)
 
     # Indicates the information value of the post.
     rank = models.FloatField(default=0, blank=True)
@@ -314,7 +329,17 @@ class Post(models.Model):
         self.root = self.root or self.parent or self
         self.creation_date = self.creation_date or now()
         self.lastedit_date = self.lastedit_date or self.creation_date
-        #self.lastedit_user = self.lastedit_user or self.author
+        self.lastedit_user = self.lastedit_user or self.author
+        self.html = self.content
+
+        # Attempt to sensibly set the post type if not specified.
+        if not self.type:
+            if self.parent.type == Post.ANSWER:
+                self.type = Post.COMMENT
+            elif self.parent.type in Post.TOP_LEVEL:
+                self.type = Post.ANSWER
+            else:
+                self.type = Post.QUESTION
 
         super(Post, self).save(*args, **kwargs)
 

@@ -37,6 +37,9 @@ def group_logo_img():
 def recent_votes(votes):
     return dict(votes=votes)
 
+@register.inclusion_tag('widgets/visual_editor.html')
+def visual_editor(content=''):
+    return dict(content=content)
 
 @register.inclusion_tag('widgets/user_link.html')
 def user_link(user):
