@@ -1,10 +1,10 @@
-{%  load widgets %}
+{% load widgets %}
 {% if user.is_authenticated %}
     {#  A second navigation bar for authenticated users #}
     <div class="row">
         <div class="twelve columns">
             <div id="userbar">
-                {# This gets show for authenticated users #}
+
                 <div class="item">
                     <a href="#"><i class="fa fa-caret-down"></i> ALL</a>
                 </div>
@@ -30,10 +30,13 @@
                 </div>
 
                 <div class="item">
-                    <a href="#"><i class="fa fa-user"> <span
-                            class="line">{% scoreline user %}</span></i> {{ user.name }}</a>
+                    <a href="#"><i class="fa fa-user">
+                        <span class="line">{% scoreline user %}</span></i> {{ user.name }}
+                    </a>
                 </div>
+
             </div>
         </div>
     </div>
+    <div class="nav-sep"></div>
 {% endif %}

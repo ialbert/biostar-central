@@ -8,7 +8,9 @@
         <link rel="stylesheet" href={% static "css/normalize.css" %}>
         <link rel="stylesheet" href={% static "css/skeleton.css" %}>
         <link rel="stylesheet/less" type="text/less" href="{% static "site.less" %}">
+        <link rel="stylesheet" href={% static "lib/pagedown/markdown.css" %}>
     {% endcompress %}
+
 
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
 
@@ -21,7 +23,7 @@
 {% block header %}
 
     {#  Logo and user informatino #}
-    {%  nav_bar user %}
+    {% nav_bar user %}
 
     {#  Messages get displayed here #}
     {% if messages %}
@@ -51,5 +53,10 @@
         <script src={% static "js/jquery-1.11.2.min.js" %}></script>
         <script src={% static "js/jquery.peity.min.js" %}></script>
         <script src={% static "site.js" %}></script>
+
+        <script type="text/javascript" src="{% static "lib/pagedown/Markdown.Converter.js" %}"></script>
+        <script type="text/javascript" src="{% static "lib/pagedown/Markdown.Sanitizer.js" %}"></script>
+        <script type="text/javascript" src="{% static "lib/pagedown/Markdown.Editor.js" %}"></script>
+
     {% endcompress %}
 {% endblock %}

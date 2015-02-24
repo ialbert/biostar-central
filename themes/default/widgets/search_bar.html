@@ -3,15 +3,12 @@
 
 {#  Search bar on top of the page #}
 <div class="row">
-
     <div class="twelve columns" id="search_bar">
         <form action="{% url action %}" method="get">
             <input type="text" name="q" class="u-full-width"
-                   maxlength="100" placeholder="Search" id="search" value="{{ q }}">
+                   maxlength="100" placeholder=" Search" id="search" value="{{ q }}">
         </form>
     </div>
-
-
 </div>
 
 {#  This renders if there seems to have been a value filled in for the form #}
