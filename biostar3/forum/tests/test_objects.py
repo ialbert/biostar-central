@@ -6,6 +6,7 @@ from django.core import mail
 
 from biostar3.forum import apps, models
 from biostar3.forum.models import User
+from biostar3.forum.html import embed_links
 
 from faker import Factory
 
@@ -48,4 +49,15 @@ class SimpleTests(TestCase):
 
         # Test sending automated emails.
         EQ(len(mail.outbox), count)
+
+    def test_embed_links(self):
+        EQ = self.assertEqual
+        pairs = [
+            # input, expected
+            ("abcd", "abcd"),
+            ('Example: https://gist.github.com/123.js', 'Example: <script src="https://gist.github.com/123.js"></script>')
+        ]
+        for input, expect in pairs:
+            print input, expect, embed_links(input)
+            EQ(expect, embed_links(input))
 

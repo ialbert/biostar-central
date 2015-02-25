@@ -2,20 +2,23 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
 
+from biostar3.forum.user_views import MeView
 from biostar3.forum.post_views import PostList, UserList, SearchResults, PostView
 from biostar3.forum.form_views import NewContent
 
 urlpatterns = patterns('',
 
+    # List of posts.
     url(r'^$', PostList.as_view(), name='home'),
 
     # Renders search results.
     url(r'^search/$', SearchResults.as_view(), name='search'),
 
+    # A shortcut to a user's account.
+    url(r'^me/$',MeView.as_view(), name='me'),
+
     # Post details.
     url(r'^p/(?P<pk>\d+)/$', PostView.as_view(), name="post_view"),
-
-    # url(r'^blog/', include('blog.urls')),
 
     # The list of users.
     url(r'^user/list/$', UserList.as_view(), name="user_list"),
