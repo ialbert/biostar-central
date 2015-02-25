@@ -19,18 +19,44 @@ TRUSTED_STYLES = ALLOWED_STYLES + settings.TRUSTED_STYLES
 TRUSTED_ATTRIBUTES = dict(ALLOWED_ATTRIBUTES).update(settings.TRUSTED_ATTRIBUTES)
 
 # Patterns that will be recognized and embedded into the posts as links.
-USER_PATTERN = r"^http(s)?://%s/u/(?P<uid>(\d+))(/)?$" % settings.SITE_DOMAIN
-POST_PATTERN1 = r"^http(s)?://%s/p/(?P<uid>(\d+))(/)?$" % settings.SITE_DOMAIN
-POST_PATTERN2 = r"^http(s)?://%s/p/\d+/\#(?P<uid>(\d+))(/)?$" % settings.SITE_DOMAIN
+USER_PATTERN = r"http(s)?://%s/u/(?P<uid>(\d+))(/)?" % settings.SITE_DOMAIN
+POST_PATTERN1 = r"http(s)?://%s/p/(?P<uid>(\d+))(/)?" % settings.SITE_DOMAIN
+POST_PATTERN2 = r"http(s)?://%s/p/\d+/\#(?P<uid>(\d+))(/)?" % settings.SITE_DOMAIN
 
 # Matches gists that may be embeded.
-GIST_PATTERN = r"^https://gist.github.com/(?P<uid>([\w/]+))"
+GIST_PATTERN = r"https://gist.github.com/(?P<uid>([\w/]+))"
 
 # Matches Youtube video links.
-YOUTUBE_PATTERN = r"^http(s)?://www.youtube.com/watch\?v=(?P<uid>(\w+))(/)?"
+YOUTUBE_PATTERN = r"http(s)?://www.youtube.com/watch\?v=(?P<uid>(\w+))(/)?"
 
 # Twitter: tweets to embed.
 TWITTER_PATTERN = r"http(s)?://twitter.com/\w+/status(es)?/(?P<uid>([\d]+))"
+
+def get_embedded_youtube(uid):
+    return '<iframe width="420" height="315" src="//www.youtube.com/embed/%s" frameborder="0" allowfullscreen></iframe>' % uid
+
+
+def get_embedded_gist(uid):
+    return '<script src="https://gist.github.com/%s.js"></script>' % uid
+
+
+def get_embedded_tweet(tweet_id):
+    """
+    Get the HTML code with the embedded tweet.
+    It requires an API call at https://api.twitter.com/1/statuses/oembed.json as documented here:
+    https://dev.twitter.com/docs/embedded-tweets - section "Embedded Tweets for Developers"
+    https://dev.twitter.com/docs/api/1/get/statuses/oembed
+
+    Params:
+    tweet_id -- a tweet's numeric id like 2311234267 for the tweet at
+    https://twitter.com/Linux/status/2311234267
+    """
+    try:
+        response = requests.get("https://api.twitter.com/1/statuses/oembed.json?id={}".format(
+            tweet_id))
+        return response.json()['html']
+    except:
+        return ''
 
 # Compile the patterns into regular expressions.
 USER_RE = re.compile(USER_PATTERN)
@@ -40,12 +66,10 @@ GIST_RE = re.compile(GIST_PATTERN)
 YOUTUBE_RE = re.compile(YOUTUBE_PATTERN)
 TWITTER_RE = re.compile(TWITTER_PATTERN)
 
-
 def strip_tags(text):
     "Strip html tags from text"
     clean = bleach.clean(text, tags=[], attributes=[], styles={}, strip=True)
     return clean
-
 
 def clean(text):
     "Sanitize text with no other substitutions"
@@ -90,12 +114,20 @@ def sanitize(text, user):
     else:
         tags, attrs, styles = ALLOWED_TAGS, ALLOWED_ATTRIBUTES, ALLOWED_STYLES
 
+    # Clean the content of dangeours html constructs.
     html = bleach.clean(text, tags=tags, attributes=attrs, styles=styles)
-    html = markdown(html)
+
+    # Apply the markdown transformation.
+    html = markdown(html, extras=["fenced-code-blocks", "code-friendly", "nofollow", "spoiler"])
+
+    # Turn links into urls.
     html = bleach.linkify(html, callbacks=callbacks, skip_pre=True)
 
-    html = embed_links(html)
     # Find embeddable patterns.
+    html = embed_links(html)
+
+    # Strip whitespace.
+    html = html.strip()
 
     return html
 
@@ -116,28 +148,3 @@ def embed_links(text):
 
     return text
 
-def get_embedded_youtube(uid):
-    return '<iframe width="420" height="315" src="//www.youtube.com/embed/%s" frameborder="0" allowfullscreen></iframe>' % uid
-
-
-def get_embedded_gist(uid):
-    return '<script src="https://gist.github.com/%s.js"></script>' % uid
-
-
-def get_embedded_tweet(tweet_id):
-    """
-    Get the HTML code with the embedded tweet.
-    It requires an API call at https://api.twitter.com/1/statuses/oembed.json as documented here:
-    https://dev.twitter.com/docs/embedded-tweets - section "Embedded Tweets for Developers"
-    https://dev.twitter.com/docs/api/1/get/statuses/oembed
-
-    Params:
-    tweet_id -- a tweet's numeric id like 2311234267 for the tweet at
-    https://twitter.com/Linux/status/2311234267
-    """
-    try:
-        response = requests.get("https://api.twitter.com/1/statuses/oembed.json?id={}".format(
-            tweet_id))
-        return response.json()['html']
-    except:
-        return ''

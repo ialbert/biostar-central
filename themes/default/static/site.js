@@ -12,6 +12,9 @@ $(document).ready(function () {
     // Draw pietyis.
     $(".line").peity("line")
 
+    // Initialize the sytnax highlighter.
+    hljs.initHighlightingOnLoad();
+
     // Markdow editor initializer
     var converter = new Markdown.Converter();
     var editor = new Markdown.Editor(converter);

@@ -93,7 +93,7 @@ def post_migrate_tasks(sender, **kwargs):
     for user in models.User.objects.filter(type=User.ADMIN):
         user.groups.add(admin_group, mod_group)
 
-    logger.info("adding groups users")
+    logger.info("adding groups to users")
     # All moderator users need to have moderator level permissions.
     for user in models.User.objects.all():
         user.groups.add(default_group)

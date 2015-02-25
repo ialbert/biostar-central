@@ -102,7 +102,8 @@ class User(AbstractBaseUser, PermissionsMixin):
         return (self.status == self.SUSPENDED) or (self.status == self.BANNED)
 
     def get_absolute_url(self):
-        url = reverse("post_view", kwargs=dict(pk=self.id))
+        #url = reverse("user_view", kwargs=dict(pk=self.id))
+        url = "/u/view/%s" % self.id
         return url
 
     def get_short_name(self):
@@ -331,7 +332,7 @@ class Post(models.Model):
         self.creation_date = self.creation_date or now()
         self.lastedit_date = self.lastedit_date or self.creation_date
         self.lastedit_user = self.lastedit_user or self.author
-        self.html = html.generate(self.content)
+        self.html = html.sanitize(self.content, user=self.lastedit_user)
 
         # Attempt to sensibly set the post type if not specified.
         if not self.type:

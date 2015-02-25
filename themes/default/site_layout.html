@@ -9,6 +9,7 @@
         <link rel="stylesheet" href={% static "css/skeleton.css" %}>
         <link rel="stylesheet/less" type="text/less" href="{% static "site.less" %}">
         <link rel="stylesheet" href={% static "lib/pagedown/markdown.css" %}>
+        <link rel="stylesheet" href="{% static "lib/highlight/styles/github.css"%}">
     {% endcompress %}
 
 
@@ -57,6 +58,9 @@
         <script type="text/javascript" src="{% static "lib/pagedown/Markdown.Converter.js" %}"></script>
         <script type="text/javascript" src="{% static "lib/pagedown/Markdown.Sanitizer.js" %}"></script>
         <script type="text/javascript" src="{% static "lib/pagedown/Markdown.Editor.js" %}"></script>
+
+
+        <script src="{% static "lib/highlight/highlight.pack.js"%}"></script>
 
     {% endcompress %}
 {% endblock %}

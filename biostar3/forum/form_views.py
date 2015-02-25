@@ -108,7 +108,7 @@ class NewContent(LoginRequiredMixin, FormView):
         try:
             parent = Post.objects.get(pk=parent_id)
             self.post = Post.objects.create(parent=parent, content=content, author=user,)
-        except Exception, exc:
+        except KeyError, exc:
             self.post = None
         return super(NewContent, self).form_valid(form)
 
