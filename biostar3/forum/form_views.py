@@ -147,9 +147,9 @@ class NewPost(BaseNode):
         content = form.cleaned_data.get('content', '')
 
         obj = Post.objects.create(content=content, title=title,
-                                  author=user, type=type)
+                                  author=user, type=type, group=self.request.group)
 
-        # Needs to save root explicitly!
-        obj.root.save()
+        # Here we need to save root and parent ids explicitly!
+        Post.objects.filter(pk=obj.pk).update(root_id=obj.id, parent_id=obj.id)
 
         return obj
