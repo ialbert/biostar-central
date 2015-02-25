@@ -11,8 +11,8 @@
 </div>
 
 {% if user.is_anonymous %}
-    <input type="submit" value="Submit Answer" disabled="True"> &bull;
+    <input type="submit" value="Submit!" disabled="True"> &bull;
     <a href="{% url "account_login" %}">Please log in</a> to submit!
 {% else %}
-    <input type="submit" value="Submit Answer">
+    <input type="submit" value="Submit!">
 {% endif %}

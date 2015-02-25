@@ -312,7 +312,7 @@ class Post(models.Model):
         return self.type in Post.TOP_LEVEL
 
     def get_absolute_url(self):
-        url = reverse("post_view", kwargs=dict(pk=self.root_id))
+        url = reverse("post_view", kwargs=dict(pk=self.root.id))
         if self.is_toplevel:
             return url
         else:
@@ -331,12 +331,6 @@ class Post(models.Model):
     def save(self, *args, **kwargs):
         "Actions that need to be performed on every post save."
 
-        self.root = self.root or self.parent or self
-        self.creation_date = self.creation_date or now()
-        self.lastedit_date = self.lastedit_date or self.creation_date
-        self.lastedit_user = self.lastedit_user or self.author
-        self.html = html.sanitize(self.content, user=self.lastedit_user)
-
         # Attempt to sensibly set the post type if not specified.
         if self.type is None:
             if self.parent.type == Post.ANSWER:
@@ -345,6 +339,18 @@ class Post(models.Model):
                 self.type = Post.ANSWER
             else:
                 self.type = Post.QUESTION
+
+        if self.is_toplevel:
+            self.root = self.parent = self
+        else:
+            if not self.parent:
+                raise Exception("non toplevel posts must have a parent")
+            self.root = self.parent.root
+
+        self.creation_date = self.creation_date or now()
+        self.lastedit_date = self.lastedit_date or self.creation_date
+        self.lastedit_user = self.lastedit_user or self.author
+        self.html = html.sanitize(self.content, user=self.lastedit_user)
 
         super(Post, self).save(*args, **kwargs)
 

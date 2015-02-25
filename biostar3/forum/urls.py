@@ -4,7 +4,7 @@ from django.contrib import admin
 
 from biostar3.forum.user_views import MeView
 from biostar3.forum.post_views import PostList, UserList, SearchResults, PostView
-from biostar3.forum.form_views import EditNode, NewNode
+from biostar3.forum.form_views import EditNode, NewNode, NewPost
 
 urlpatterns = patterns('',
 
@@ -25,7 +25,9 @@ urlpatterns = patterns('',
 
     # Create new content: answer, comments
     url(r'^new/node/(?P<pk>\d+)/$', NewNode.as_view(), name="new_node"),
-
     url(r'^edit/node/(?P<pk>\d+)/$', EditNode.as_view(), name="edit_node"),
+
+    url(r'^new/post/$', NewPost.as_view(), name="new_post"),
+
 
 )
