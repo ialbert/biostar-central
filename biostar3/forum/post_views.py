@@ -117,6 +117,7 @@ class PostView(ExtraContext, DetailView):
 
         # This will redirect to top level and scroll the page to the right anchor.
         if not self.object.is_toplevel:
+            print (self.object.is_toplevel)
             return redirect(self.object.get_absolute_url())
 
         # Gets all objects in a thread. Moderators get deleted objects as well.

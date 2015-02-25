@@ -304,6 +304,9 @@ class Post(models.Model):
     # What site does the post belong to.
     site = models.ForeignKey(Site, null=True)
 
+    def __unicode__(self):
+        return "Post (id=%s)" % self.id
+
     @property
     def is_toplevel(self):
         return self.type in Post.TOP_LEVEL
@@ -335,7 +338,7 @@ class Post(models.Model):
         self.html = html.sanitize(self.content, user=self.lastedit_user)
 
         # Attempt to sensibly set the post type if not specified.
-        if not self.type:
+        if self.type is None:
             if self.parent.type == Post.ANSWER:
                 self.type = Post.COMMENT
             elif self.parent.type in Post.TOP_LEVEL:

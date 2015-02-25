@@ -66,6 +66,21 @@ while (( "$#" )); do
         #$PYTHON manage.py collectstatic -v $VERBOSITY --noinput --settings=$DJANGO_SETTINGS_MODULE
     fi
 
+	if [ "$1" = "quick" ]; then
+		# Used during development only.
+        echo "*** Quick init: delete import init loaddata"
+		$PYTHON manage.py patch --delete_sqlite --settings=$DJANGO_SETTINGS_MODULE
+
+ 		# Load the database dump into sqlite.
+ 		sqlite3 $DATABASE_NAME < init/biostar2/biostar2-sqlite3.sql
+
+		# Migrate the database.
+        $PYTHON manage.py migrate --settings=$DJANGO_SETTINGS_MODULE
+
+		# You will need to create this file - a dump of social authentication data - see docs.
+		$PYTHON manage.py loaddata init/socialapp.json
+    fi
+
     if [ "$1" = "run" ]; then
         echo "*** Run the development server with $DJANGO_SETTINGS_MODULE and DATABASE_NAME=$DATABASE_NAME"
         $PYTHON manage.py runserver $BIOSTAR_HOSTNAME --settings=$DJANGO_SETTINGS_MODULE

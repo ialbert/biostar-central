@@ -36,6 +36,7 @@
             {% for answer in post.answers %}
                 <div itemscope itemtype="http://schema.org/Answer">
                     <div class="row answer">
+                        <a name="{{ answer.id }}"></a>
                         {% post_user_box answer %}
                         {{ answer.html|safe }}
                     </div>
@@ -50,8 +51,7 @@
         	{#  Visual editor here #}
             <div class="row">
                 <div class="nav-sep"></div>
-                <form method="post" action="{% url "new_content" %}">
-                    <input type="hidden" value="{{ post.id }}" name="parent_id">
+                <form method="post" action="{% url "new_node" pk=post.id %}">
                     {% visual_editor %}
                 </form>
             </div>

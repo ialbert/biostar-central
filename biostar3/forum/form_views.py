@@ -12,13 +12,16 @@ from django.views.decorators.csrf import csrf_exempt
 from django.core.exceptions import ObjectDoesNotExist
 from .models import Post
 from django.http import HttpResponseRedirect
+from . import auth
 
 import logging
 from django.contrib.auth import get_user_model
+
 logger = logging.getLogger('biostar')
 
 # Get custom user model.
 User = get_user_model()
+
 
 def post_title_validator(text):
     "Validates form input for tags"
@@ -34,111 +37,135 @@ def post_title_validator(text):
         raise ValidationError('Please have more than two words in the title.')
 
 
-def parent_id_validator(text):
-    try:
-        value = int(text)
-    except ValueError, exc:
-        raise ValidationError("The parent_id must be an integer")
-    try:
-        parent = Post.objects.get(pk=value)
-    except ObjectDoesNotExist, exc:
-        raise ValidationError("The parent does not exist. Perhaps it was deleted")
-
-
 def post_id_validator(text):
     try:
         value = int(text)
     except ValueError, exc:
         raise ValidationError("The post_id must be an integer")
 
-    if value == 0:
-        # This indicates a new entry into the database. Allow to proceed.
-        return
-
     try:
         post = Post.objects.get(pk=value)
     except ObjectDoesNotExist, exc:
         raise ValidationError("The post does not exist. Perhaps it was deleted")
 
-    # Need to validate access to the post
+        # Need to validate access to the post
 
 
-class NewContentForm(forms.Form):
+class ContentForm(forms.Form):
     """
-    For posts that have only content: answers, comments
+    Edit or create form for content: answers, comments
     """
-    parent_id = forms.IntegerField(validators=[parent_id_validator], widget=forms.HiddenInput, required=True)
+    #action = forms.CharField(widget=forms.HiddenInput, required=True)
+    #post_id = forms.IntegerField(validators=[post_id_validator], widget=forms.HiddenInput, required=True)
     content = forms.CharField(widget=forms.Textarea,
                               min_length=settings.MIN_POST_SIZE, max_length=settings.MAX_POST_SIZE,
-                              label="Enter your answer", initial="")
+                              initial="", required=True)
 
+    #def __init__(self, *args, **kwargs):
+    #    # Needs to know about the request to validate access.
+    #    self.request = kwargs.pop('request', None)
+    #    super(ContentForm, self).__init__(*args, **kwargs)
+
+    '''
     def clean(self):
-        cleaned_data = super(NewContentForm, self).clean()
-        parent_id = cleaned_data['parent_id']
-        parent = Post.objects.filter(pk=parent_id).select_related("group", "group__groupinfo").first()
+        cleaned_data = super(ContentForm, self).clean()
+        post_id = cleaned_data.get('post_id', 0)
 
-        # The parent may not exist anymore.
-        if not parent:
-            raise ValidationError("Parent post does not exist. Perhaps it has been deleted.")
+        post = Post.objects.filter(pk=post_id).select_related("group", "group__groupinfo").first()
 
-        # User must be in the group that created this thread.
-        if not self.request.user.groups.filter(name=parent.group.name).exists():
-            raise ValidationError("Parent post may not be accessed by this user!")
+        # The post may not exist anymore.
+        if not post:
+            raise ValidationError("Post does not exist. Perhaps it has been deleted.")
 
-    def __init__(self, *args, **kwargs):
-        self.request = kwargs.pop('request', None)
-        super(NewContentForm, self).__init__(*args, **kwargs)
+        # User must be in the group that created the thread this post belongs to.
+        if not auth.read_access_post(user=self.request.user, post=post):
+            raise ValidationError("Post may not be accessed by this user!")
+    '''
 
+def redirect(name):
+    return HttpResponseRedirect(reverse(name))
 
-class NewContent(LoginRequiredMixin, FormView):
-    form_class = NewContentForm
-    template_name = "new_content.html"
+class BaseNode(LoginRequiredMixin, FormView):
+    form_class = ContentForm
+    template_name = "edit_content.html"
 
-    def get_form_kwargs(self):
-        # Pass the request into the form validator
-        kwargs = super(NewContent, self).get_form_kwargs()
-        kwargs['request'] = self.request
-        return kwargs
+    def get_post(self, user):
+        """
+        Will authenticate user access to
+        """
+        pk = self.kwargs.get('pk')
+        post = Post.objects.filter(pk=pk).select_related("group", "group__groupinfo").first()
+
+        if not post:
+            messages.error(self.request, "Post does not exist. Perhaps it has been deleted.")
+            raise auth.AccessDenied()
+
+        if not auth.read_access_post(user=user, post=post):
+            messages.error(self.request, "This post may not be accessed by this user!")
+            raise auth.AccessDenied()
+
+        return post
+
+    def action(self, post, user, content):
+        raise NotImplementedError()
+
+    def get(self, *args, **kwargs):
+        try:
+           self.get_post(user=self.request.user)
+        except auth.AccessDenied, exc:
+            logger.error(exc)
+            return redirect("home")
+
+        return super(BaseNode, self).get(*args, **kwargs)
+
+    def post(self, *args, **kwargs):
+        try:
+            self.get_post(user=self.request.user)
+        except auth.AccessDenied, exc:
+            logger.error(exc)
+            return redirect("home")
+        return super(BaseNode, self).post(*args, **kwargs)
 
     def form_valid(self, form):
-        # Create the new post based on access rights.
+        # Create the new post.
         user = self.request.user
-        parent_id = form.cleaned_data['parent_id']
+        post = self.get_post(user=user)
         content = form.cleaned_data['content']
         try:
-            parent = Post.objects.get(pk=parent_id)
-            self.post = Post.objects.create(parent=parent, content=content, author=user,)
-        except KeyError, exc:
-            self.post = None
-        return super(NewContent, self).form_valid(form)
+            # Apply the action using the content and post
+            self.post = self.action(post=post, user=user, content=content)
+        except Exception, exc:
+            logger.error(exc)
+            messages.error(self.request, "Unable to create the post!")
+            return redirect("home")
+
+        return super(BaseNode, self).form_valid(form)
 
     def get_success_url(self):
-        # Redirect to new post
-        if self.post:
-            return self.post.get_absolute_url()
-        else:
-            messages.error(self.request, "Unable to create the post")
-            return reverse("home")
-
-class EditContent(FormView):
-    """
-    Edits existing content.
-    """
-    form_class = NewContentForm
-    template_name = "new_content.html"
-
-    def get(self, request, *args, **kwargs):
-        form_class = self.get_form_class()
-        form = self.get_form(form_class)
-        context = self.get_context_data(form=form)
-
-        return self.render_to_response(context)
+        return self.post.get_absolute_url()
 
 
-    def form_valid(self, form):
-        self.obj = 123
-        return super(EditContent, self).form_valid(form)
+class NewNode(BaseNode):
+    def action(self, post, user, content):
+        post = Post.objects.create(parent=post, content=content, author=user)
+        return post
 
-    def get_success_url(self):
-        messages.info(self.request, "SUCCESS %s" % self.obj)
-        return '/'
+class EditNode(BaseNode):
+
+    def get_initial(self):
+        try:
+           post = self.get_post(user=self.request.user)
+        except auth.AccessDenied, exc:
+            logger.error(exc)
+            return redirect("home")
+        initial = dict(content=post.content)
+        return initial
+
+    def action(self, post, user, content):
+        # Update the post
+        post.content = content
+        post.lastedit_user = user
+        post.lastedit_date = auth.now()
+        post.save()
+        return post
+
