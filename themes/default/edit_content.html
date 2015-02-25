@@ -12,7 +12,7 @@
         {% endif %}
 
         <form method="post" action="{{ request.path }}">
-        {% visual_editor form.content.value %}
+        {% visual_editor user=user content=form.content.value %}
         </form>
     </div>
 
