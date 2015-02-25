@@ -1,0 +1,27 @@
+{% extends "starbase.html" %}
+{% load server_tags %}
+{% load humanize %}
+{% load crispy_forms_tags %}
+
+{% block page_title %}
+    User Edit
+{% endblock %}
+
+{% block content %}
+
+    <div class="row">
+
+        <div class="col-md-8 col-md-offset-2">
+          <br>
+          {% crispy form %}
+
+        </div>
+    </div>
+
+    <script src="/static/ckeditor/ckeditor.js"></script>
+    <script>
+        CKEDITOR.replace('id_info', {
+            customConfig: '/static/ck_config-v2.js'
+        });
+    </script>
+{% endblock %}

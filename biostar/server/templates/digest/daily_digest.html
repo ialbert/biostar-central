@@ -1,0 +1,34 @@
+<h4>Biostar Daily Digest</h4>
+{% if created %}
+<h4>New Posts</h4>
+    {% for post in created %}
+    <div>
+        <a href="https://{{site.domain}}{{post.get_absolute_url}}">{{post.title}}</a>
+        written by <a href="https://{{site.domain}}{{post.author.get_absolute_url}}">{{post.author.name}}</a>
+    </div>
+    {% endfor %}
+{% endif %}
+
+{% if updated %}
+<hr>
+<h4>Updated Posts</h4>
+    {% for post in updated %}
+    <div>
+        {{post.get_type_display}}: <a href="https://{{site.domain}}{{post.get_absolute_url}}">{{post.title}}</a>
+        written by <a href="https://{{site.domain}}{{post.author.get_absolute_url}}">{{post.author.name}}</a>
+    </div>
+    {% endfor %}
+{% endif %}
+
+{% if blog %}
+<hr>
+<h4>New Blog Posts</h4>
+    {% for post in updated %}
+    <div>
+        {{post.get_type_display}}: <a href="https://{{site.domain}}{{post.get_absolute_url}}">{{post.title}}</a>
+        written by <a href="https://{{site.domain}}{{post.author.get_absolute_url}}">{{post.author.name}}</a>
+    </div>
+    {% endfor %}
+{% endif %}
+
+Biostars, home of {{post_count}} posts.

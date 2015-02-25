@@ -1,0 +1,57 @@
+{% extends "starbase.html" %}
+{% load server_tags %}
+{% load humanize %}
+
+{% block page_title %}
+    RSS Feeds
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">RSS Feeds</h3>
+                </div>
+                <div class="panel-body">
+
+                    <p>
+                        Standard feeds:
+                    </p>
+
+
+                    <ul>
+                        <li><a href="{% url "latest-feed" %}">Latest Posts</a> - latest posts (all posts)</li>
+                        <li><a href="{% url "post-type" "question" %}">New Questions</a> - latest questions</li>
+                        <li><a href="{% url "post-type" "job" %}">New Job postings</a> - latest jobs</li>
+                        <li><a href="{% url "planet-feed" %}">Planet Feed</a> - latest blog entries</li>
+                    </ul>
+
+
+                    <p>
+                        Advanced usage, multiple sources can be added to a feed.
+
+                    <p>
+
+                    <ul>
+                        <li><a href="{% url "post-type" "blog+job" %}">Follow posts of different types</a>, posts of certain types:
+                            <code>/feeds/type/job+blog</code>
+                        </li>
+                        <li><a href="{% url "post-feed" "2+4+6" %}">Follow multiple posts</a>, answers and comments attached to the
+                            specified posts: <code>/feeds/post/2+8+10</code>
+                        </li>
+                        <li><a href="{% url "tag-feed" 'galaxy+bwa+tutorial' %}">Follow multiple tags</a>, posts that are tagged with one or more
+                            tags:
+                            <code>/feeds/tag/galaxy+bwa+tutorial</code>
+                        </li>
+                        <li><a href="{% url "user-feed" "2+4+6" %}">Follow multiple users</a> a feed to posts by these users:
+                            <code>/feeds/user/2+8+10</code>
+                        </li>
+                    </ul>
+
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

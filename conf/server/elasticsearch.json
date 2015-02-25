@@ -1,0 +1,20 @@
+{
+   "index" : {
+      "analysis" : {
+         "analyzer" : {
+            "default" : {
+               "filter" : [
+                  "standard",
+                  "lowercase",
+                  "stop",
+                  "asciifolding"
+               ],
+               "char_filter" : [
+                  "html_strip"
+               ],
+               "tokenizer" : "standard"
+            }
+         }
+      }
+   }
+}

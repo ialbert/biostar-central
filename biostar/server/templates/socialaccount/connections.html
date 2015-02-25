@@ -1,0 +1,68 @@
+{% extends "starbase.html" %}
+{% load socialaccount %}
+
+{% block page_title %}
+    Social Accounts
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-8 col-md-offset-1">
+
+            <h3>Connect account </h3>
+
+            <div>
+                You can connect a social account to this site account.
+                This will allow you to log in more quickly from all of your devices.
+            </div>
+
+            <div>
+                Our access is for authentication only. We can't access your timeline, see your friends or post on your
+                behalf.
+            </div>
+
+            <div> Click a link to connect that provider to your account</div>
+            <div class="socialaccount_ballot">
+                <ul class="socialaccount_providers">
+                    {% include "socialaccount/snippets/provider_list.html" with process="connect" %}
+                </ul>
+                {% include "socialaccount/snippets/login_extra.html" %}
+            </div>
+
+            <h3>Disconnect accounts </h3>
+            <p>To disconnect an account select the account from below then click the remove button </p>
+            <form method="post" action="{% url 'socialaccount_connections' %}">
+                {% csrf_token %}
+
+                <fieldset>
+                    {% if form.non_field_errors %}
+                        <div id="errorMsg">{{ form.non_field_errors }}</div>
+                    {% endif %}
+
+                    <div style="padding:10px">
+                        {% for base_account in form.accounts %}
+
+                            {% with base_account.get_provider_account as account %}
+                                <div>
+                                    <label for="id_account_{{ base_account.id }}">
+                                        <input id="id_account_{{ base_account.id }}" type="radio" name="account"
+                                               value="{{ base_account.id }}"/>
+                    <span
+                    class="socialaccount_provider {{ base_account.provider }} {{ account.get_brand.id }}">{{ account.get_brand.name }}</span>
+                                        {{ account }}
+                                    </label>
+                                </div>
+                            {% endwith %}
+
+                        {% endfor %}
+                    </div>
+
+                    <div>
+                        <button type="submit">Disconnect</button>
+                    </div>
+                </fieldset>
+            </form>
+        </div>
+    </div>
+
+{% endblock %}

@@ -1,0 +1,9 @@
+{{user.name}} posted the {{post.get_type_display}}: "{{ post.root.get_title|safe }}":
+
+{{post.as_text|safe|truncatewords:150}}
+
+---
+See the full post at: http://{{site.domain}}{{ post.get_absolute_url }}
+{% if post.is_toplevel %}Replying to this email will post an answer to the question above.
+{% else %}Replying to this email will post a comment to the answer above.
+{% endif %}

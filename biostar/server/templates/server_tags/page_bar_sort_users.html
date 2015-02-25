@@ -1,0 +1,56 @@
+{% load humanize %}
+
+<div class="row pagebar">
+    <div class="col-sm-3 visible-lg visible-md">
+
+
+        <div class="btn-group">
+            <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">
+                Limit to: {{ limit }} <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" role="menu">
+                {% for field in date_fields %}
+                    <li><a href="?sort={{ sort }}&limit={{ field }}&q={{ q }}">{{ field }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+
+    </div>
+
+    <div class="col-xs-12 col-md-6 text-center pagination">
+
+        <span class="step-links">
+        {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}&sort={{ sort }}&limit={{ limit }}&q={{ q }}">&lt;prev</a>
+        {% else %}
+            &lt;prev
+        {% endif %}
+
+            <span class="current">
+              &bull; {{ page_obj.paginator.count|intcomma }} users &bull;
+                page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }} &bull;
+        </span>
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}&sort={{ sort }}&limit={{ limit }}&q={{ q }}">next &gt;</a>
+            {% else %}
+                next &gt;
+            {% endif %}
+        </span>
+    </div>
+
+    <div class="col-sm-3 visible-lg visible-md">
+        <div class="btn-group pull-right">
+            <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">
+                Sort by: {{ sort }} <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" role="menu">
+                {% for field in sort_fields %}
+                    <li><a href="?sort={{ field }}&limit={{ limit }}&q={{ q }}">{{ field }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+
+    </div>
+
+</div>

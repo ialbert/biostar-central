@@ -1,0 +1,47 @@
+{% load server_tags %}
+{% load humanize %}
+<div class="post-action">
+
+    <span class="label label-default add-comment" data-value="{{ post.id }}" id="C{{ post.id }}">ADD {{ label }}</span>
+
+    &bull; <a href="{{ post.get_absolute_url }}">link</a>
+    {% if post.is_editable %}
+        &bull; <a href="{% url 'post-edit' post.id %}" id="E{{ post.id }}">edit</a>
+        &bull; <a class="mod-post" data-value="{{ post.id }}" id="M{{ post.id }}">moderate</a>
+        {% if post.book_count %} &bull; {{ post.book_count }} bookmark{{ post.book_count|pluralize }}{% endif %}
+    {% endif %}
+
+    {% if post.is_toplevel %}
+        {#  Produce the Follow button #}
+        &bull;
+
+        <div class="btn-group">
+            <button type="button" class="btn btn-default btn-xs dropdown-toggle" id="F{{ post.id }}" data-toggle="dropdown">
+                {% if post.sub %}
+                    Follow via {{ post.sub.get_type_display }}
+                {% else %}
+                    Not following
+                {% endif %}
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu dropup" role="menu">
+
+                <li><a href="{% url 'change-sub' pk=post.id type='local' %}">Follow via messages</a></li>
+                <li><a href="{% url 'change-sub' pk=post.id type='email' %}">Follow via email</a></li>
+                <li><a href="{% url 'change-sub' pk=post.id type='nofollow' %}">Do not follow</a></li>
+            </ul>
+        </div>
+    {% endif %}
+
+    <span class="userlink muted">
+            {% if post.creation_date != post.lastedit_date %}
+            modified {{ post.lastedit_date|time_ago }}
+            {%  if post.author != post.lastedit_user %}
+                by {% userlink post.lastedit_user %}
+            {%  endif %}
+            &bull;
+        {% endif %}
+        written <span itemprop="dateCreated" content="{{ post.creation_date|date:'c' }}">
+        {{ post.creation_date|time_ago }}</span> by {% userlink post.author %}
+    </span>
+</div>

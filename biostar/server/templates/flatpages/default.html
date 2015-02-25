@@ -1,0 +1,63 @@
+{% extends "starbase.html" %}
+{% load server_tags %}
+{% load humanize %}
+
+{% block page_title %}
+    {{ flatpage.title }} {{ SITE_NAME }}
+{% endblock %}
+
+{% block content %}
+
+    <div class="row">
+        <div class="col-xs-9">
+            {{ flatpage.content|safe }}
+        </div>
+        <div class="col-xs-3">
+
+            <div class="user-sidebar">
+
+                <div class="well">
+
+                    <h4>Server Stats</h4>
+
+                    <p>Traffic: <b>{{ TRAFFIC|intcomma }}</b> users visited in the last hour.</p>
+
+
+                    <p>The site has <b>{{ user_count|intcomma }}</b> registered users that created
+                        <b>{{ post_count|intcomma }}</b> posts</li>
+                    </p>
+                    <p>
+                        These are distributed as <b>{{ question_count|intcomma }}</b>
+                        questions,<b> {{ answer_count|intcomma }}</b> answers
+                        and <b>{{ comment_count|intcomma }}</b> comments.
+                    </p>
+
+
+                </div>
+
+                <h4>Site Admins</h4>
+                <ul>
+                    {% for user in admins %}
+                        <li>{% gravatar user 30 %} {% userlink user %}</li>
+                    {% endfor %}
+                </ul>
+
+                <h4>Site Moderators</h4>
+                <ul>
+                    {% for user in mods %}
+                        <li>{% gravatar user 30 %} {% userlink user %} </li>
+                    {% endfor %}
+                </ul>
+
+            </div>
+        </div>
+    </div>
+
+
+    {% if user.is_admin %}
+        Administrator access:
+        <a role="button" class="btn btn-primary"
+           href="{% url 'flatpage-update' flatpage.id %}">Edit {{ flatpage.title }}</a>
+    {% endif %}
+
+{% endblock %}

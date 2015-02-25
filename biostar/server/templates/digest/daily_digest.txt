@@ -1,0 +1,36 @@
+{% load humanize %}
+Biostar Daily Digest for {{start}}
+-------------------------------------
+{% if hard_worker %}
+Top posters: {% for user in hard_worker %}{{user.name}} ({{user.total}}), {% endfor %}
+{% endif %}
+{% if top_posts %}
+Most Viewed New Posts
+---------------------
+{% for post in top_posts %}
+- {{post.title}} by {{post.author.name}}, tagged: {{post.tag_val}}, https://{{site.domain}}{{post.get_absolute_url}}
+{% endfor %}
+{% endif %}
+{% if upd_posts %}
+Highest Rated Answers
+---------------------
+{% for post in upd_posts %}
+- {{post.title}} by {{post.author.name}}, https://{{site.domain}}{{post.get_absolute_url}}
+{% endfor %}
+{% endif %}
+{% if blogs %}
+Bioinformatics Planet
+---------------------
+{% for post in blogs %}
+- {{post.title}} by {{post.author.name}}, https://{{site.domain}}{{post.get_absolute_url}}
+{% endfor %}
+{% endif %}
+Biostars, https://{{site.domain}}, {{total_user_count|intcomma}} users, {{total_post_count|intcomma}} posts.
+
+---
+You've received this because your Biostar profile has the digest option turned on.
+
+To set your options click here: https://{{site.domain}}%(digest_manage)s
+
+To un-subscribe click here: https://{{site.domain}}%(digest_unsubscribe)s
+---
