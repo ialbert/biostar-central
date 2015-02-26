@@ -13,6 +13,7 @@ DEFAULT_GROUP = Group.objects.filter(name=settings.DEFAULT_GROUP_NAME).first()
 def recent_votes():
     votes = Vote.objects.filter(post__status=Post.OPEN).select_related("post").order_by("-date")[
             :settings.RECENT_VOTE_COUNT]
+
     return votes
 
 
@@ -28,7 +29,7 @@ def get_toplevel_posts(user, group):
     if not user.is_moderator:
         posts = posts.exclude(status=Post.DELETED)
 
-    posts = posts.select_related("root", "author", "lastedit_user").prefetch_related("tags").defer("content", "html")
+    posts = posts.select_related("root", "author", "lastedit_user", "group").prefetch_related("tags").defer("content", "html")
 
     return posts
 
@@ -46,7 +47,8 @@ def get_thread(root, user):
     if not user.is_moderator:
         posts = posts.exclude(status=Post.DELETED)
 
-    posts = posts.select_related("root", "author", "lastedit_user", "author__profile")
+    posts = posts.select_related("root", "author", "lastedit_user", "author__profile", "lastedit_user__profile", "group", "group__info")
     posts = posts.order_by("type", "-has_accepted", "-vote_count", "creation_date")
 
+    posts = posts.defer("content")
     return posts

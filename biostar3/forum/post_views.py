@@ -13,7 +13,7 @@ from django.contrib import messages
 from django.core.urlresolvers import reverse
 
 # Biostar specific local modules.
-from . import models, query, search
+from . import models, query, search, auth
 
 # Get custom user model.
 User = get_user_model()
@@ -117,14 +117,22 @@ class PostView(ExtraContext, DetailView):
 
         # This will redirect to top level and scroll the page to the right anchor.
         if not self.object.is_toplevel:
-            print (self.object.is_toplevel)
             return redirect(self.object.get_absolute_url())
 
         # Gets all objects in a thread. Moderators get deleted objects as well.
         thread = [p for p in query.get_thread(self.object, user)]
 
+        # Set up additional attributes on each post
+        write_access = auth.thread_write_access(user=user, root=self.object)
+        def decorator(p):
+            p.editable = write_access(user=user, post=p)
+            return p
+
+        thread = map(decorator, thread)
+
         # Store answers in a separate list for simpler access.
         self.object.answers = filter(lambda p: p.type == models.Post.ANSWER, thread)
+        self.object = decorator(self.object)
 
         # Comments will be stored in a dictionary for fast access.
         comment_list = filter(lambda p: p.type == models.Post.COMMENT, thread)

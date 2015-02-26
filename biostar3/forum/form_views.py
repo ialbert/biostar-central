@@ -69,13 +69,13 @@ class PostForm(ContentForm):
     ])
 
 
-def redirect(name):
-    return HttpResponseRedirect(reverse(name))
-
+def redirect(name, **kwargs):
+    return HttpResponseRedirect(reverse(name, kwargs=kwargs))
 
 class BaseNode(LoginRequiredMixin, FormView):
     form_class = ContentForm
     template_name = "edit_node.html"
+    edit_access_required = True
 
     def get_post(self, user):
         """
@@ -90,6 +90,10 @@ class BaseNode(LoginRequiredMixin, FormView):
 
         if not auth.read_access_post(user=user, post=post):
             messages.error(self.request, "This post may not be accessed by this user!")
+            raise auth.AccessDenied()
+
+        if self.edit_access_required and not auth.write_access_post(user, post):
+            messages.error(self.request, "This post may not be edited by this user!")
             raise auth.AccessDenied()
 
         return post
@@ -134,6 +138,8 @@ class BaseNode(LoginRequiredMixin, FormView):
 
 
 class NewNode(BaseNode):
+    edit_access_required = False
+
     def action(self, post, user, form):
         # The incoming post is the parent in this case.
         content = form.cleaned_data.get('content', '')
@@ -142,6 +148,20 @@ class NewNode(BaseNode):
 
 
 class EditNode(BaseNode):
+
+    def get(self, *args, **kwargs):
+
+        try:
+            post = self.get_post(user=self.request.user)
+            if post.is_toplevel:
+                return redirect("edit_post", pk=post.id)
+
+        except auth.AccessDenied, exc:
+            logger.error(exc)
+            return redirect("home")
+
+        return super(EditNode, self).get(*args, **kwargs)
+
     def get_initial(self):
         try:
             post = self.get_post(user=self.request.user)
@@ -163,6 +183,7 @@ class EditNode(BaseNode):
 class NewPost(BaseNode):
     form_class = PostForm
     template_name = "edit_post.html"
+    edit_access_required = False
 
     def get_post(self, user):
         return None
@@ -182,11 +203,10 @@ class NewPost(BaseNode):
         # Set the tags on the post
         obj.tags.set(*tags)
 
-        # S elf referential ForeignKeys need to be updated explicitly!
+        # Self referential ForeignKeys need to be updated explicitly!
         Post.objects.filter(pk=obj.pk).update(root_id=obj.id, parent_id=obj.id)
 
         return obj
-
 
 class EditPost(BaseNode):
     form_class = PostForm
@@ -205,7 +225,6 @@ class EditPost(BaseNode):
         return initial
 
     def action(self, post, user, form):
-
         get = form.cleaned_data.get
         post.content = get('content', '')
         post.title = get('title', '').strip()

@@ -26,3 +26,21 @@ def read_access_post(user, post):
     the user is part of the group that the post was made in.
     """
     return post.root.group.groupinfo.public or user.groups.filter(name=post.root.group.name).exists()
+
+def write_access_post(user, post):
+    """
+    A user may write the post if the post is readable and
+    the user is the author of the post or is a moderator
+    """
+    write_cond = (user == post.author) or user.is_moderator
+    return write_cond and read_access_post(user=user, post=post)
+
+def thread_write_access(user, root):
+
+    read_cond = read_access_post(post=root, user=user)
+
+    def validator(user, post):
+        write_cond = (user == post.author) or user.is_moderator
+        return read_cond and write_cond
+
+    return validator

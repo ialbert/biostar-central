@@ -312,7 +312,7 @@ class Post(models.Model):
         return self.type in Post.TOP_LEVEL
 
     def get_absolute_url(self):
-        url = reverse("post_view", kwargs=dict(pk=self.root.id))
+        url = reverse("post_view", kwargs=dict(pk=self.root_id))
         if self.is_toplevel:
             return url
         else:
