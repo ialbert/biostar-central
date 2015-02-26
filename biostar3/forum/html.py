@@ -32,6 +32,7 @@ YOUTUBE_PATTERN = r"http(s)?://www.youtube.com/watch\?v=(?P<uid>(\w+))(/)?"
 # Twitter: tweets to embed.
 TWITTER_PATTERN = r"http(s)?://twitter.com/\w+/status(es)?/(?P<uid>([\d]+))"
 
+
 def get_embedded_youtube(uid):
     return '<iframe width="420" height="315" src="//www.youtube.com/embed/%s" frameborder="0" allowfullscreen></iframe>' % uid
 
@@ -66,10 +67,12 @@ GIST_RE = re.compile(GIST_PATTERN)
 YOUTUBE_RE = re.compile(YOUTUBE_PATTERN)
 TWITTER_RE = re.compile(TWITTER_PATTERN)
 
+
 def strip_tags(text):
     "Strip html tags from text"
     clean = bleach.clean(text, tags=[], attributes=[], styles={}, strip=True)
     return clean
+
 
 def clean(text):
     "Sanitize text with no other substitutions"
@@ -84,30 +87,50 @@ def sanitize(text, user):
     from biostar3.forum.models import User, Post
 
     def internal_links(attrs, new=False):
-        """Matches a user"""
+        """Creates links to internal content"""
         try:
-            href = attrs['href']
-            # Post match patterns
+
+            # Don't resolve the link if a user has already specified a text for it.
+            href, _text = attrs['href'], attrs['_text']
+            if href != _text:
+                return attrs
+
+            # Find and match post URL patterns
             post_patt = POST_RE1.search(href) or POST_RE2.search(href)
             if post_patt:
                 uid = post_patt.group("uid")
                 attrs['_text'] = Post.objects.get(id=uid).title
 
-            # User patterns.
+            # Find an match user URL patterns.
             user_patt = USER_RE.search(href)
             if user_patt:
                 uid = user_patt.group("uid")
                 attrs['_text'] = User.objects.get(id=uid).name
+
         except Exception, exc:
-            # We don't want this to fail and crash the whole post parsing.
+            # This function is a convenience feature.
+            # Let's not let it crash the whole post parsing.
             logger.error(exc)
+
         return attrs
 
-    collect = []
+    def require_protocol(attrs, new=False):
+        "Linkify only if protocols are present"
 
+        if new:
+            href, _text = attrs['href'], attrs['_text']
+            if href != _text:
+                # This has already been linkified.
+                return attrs
+
+            # Don't linkify links with no protocols.
+            if href[:4] not in ('http', 'ftp:'):
+                return None
+
+        return attrs
 
     # The functions that will be applied when linkifying
-    callbacks = [internal_links]
+    callbacks = [internal_links, require_protocol]
 
     if user.is_moderator:
         tags, attrs, styles = TRUSTED_TAGS, TRUSTED_ATTRIBUTES, TRUSTED_STYLES
