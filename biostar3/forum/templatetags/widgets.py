@@ -41,6 +41,10 @@ def recent_votes(votes):
 def visual_editor(user, content=''):
     return dict(content=content, user=user)
 
+@register.inclusion_tag('widgets/post_unit.html')
+def post_unit(post):
+    return dict(post=post)
+
 @register.inclusion_tag('widgets/user_link.html')
 def user_link(user):
     return dict(user=user)
@@ -68,10 +72,6 @@ def action_bar(post):
 @register.inclusion_tag('widgets/update_bar.html')
 def update_bar(post):
     return dict(post=post)
-
-@register.inclusion_tag('widgets/post_user_box.html')
-def post_user_box(post):
-    return dict(post=post, author=post.author)
 
 @register.inclusion_tag('widgets/tag_bar.html')
 def tag_bar(post):

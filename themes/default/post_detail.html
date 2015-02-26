@@ -3,59 +3,33 @@
 
 {% block body %}
     <div class="row" id="post_detail">
-        <div class="nine columns">
+    <div class="nine columns">
 
-            {%  user_bar user %}
+        {% user_bar user %}
 
-            {% search_bar %}
+        {% search_bar %}
 
-        	{#  This is the top level post #}
-            <div itemscope itemtype="http://schema.org/Question">
+        {#  This is the top level post #}
+        <div itemscope itemtype="http://schema.org/Question" class="question">
+            {% post_unit post %}
+        </div>
 
-            	<div class="row post_title">
-                    {{ post.get_type_display }}: {{ post.title }}
-                </div>
-
-                <div class="row">
-                	{% post_user_box post %}
-                    {{ post.html|safe }}
-                </div>
-
-                <div class="row">
-                    {% tag_bar post %}
-                </div>
-
-                <div class="row">
-                    {% action_bar post %}
-                    {% update_bar post %}
-                </div>
-
+        {#  Answers follow #}
+        {% for answer in post.answers %}
+            <div itemscope itemtype="http://schema.org/Answer" class="answer">
+                {% post_unit answer %}
             </div>
+        {% endfor %}
 
-            {#  Answers follow #}
-            {% for answer in post.answers %}
-                <div itemscope itemtype="http://schema.org/Answer">
-                    <div class="row answer">
-                        <a name="{{ answer.id }}"></a>
-                        {% post_user_box answer %}
-                        {{ answer.html|safe }}
-                    </div>
-
-                    <div class="row">
-                        {% action_bar answer %}
-                        {% update_bar answer %}
-                    </div>
-                </div>
-            {% endfor %}
-
-        	{#  Visual editor here #}
-            <div class="row">
-                <div class="nav-sep"></div>
-                <form method="post" action="{% url "new_node" pk=post.id %}">
-                    {% visual_editor user %}
-                </form>
+        {#  Visual editor here #}
+        <div class="row">
+            <div class="nav-sep"></div>
+            <div style="padding:5px">
+                Add your answer below.
             </div>
-
+            <form method="post" action="{% url "new_node" pk=post.id %}">
+                {% visual_editor user %}
+            </form>
         </div>
         <div class="three columns">
             Similar Posts

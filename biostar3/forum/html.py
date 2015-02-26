@@ -4,6 +4,7 @@ Handles the output formatting and conversions
 import bleach, re, logging, requests
 from django.conf import settings
 from markdown2 import markdown
+from html5lib.tokenizer import HTMLTokenizer
 
 logger = logging.getLogger('biostar')
 
@@ -132,22 +133,33 @@ def sanitize(text, user):
     # The functions that will be applied when linkifying
     callbacks = [internal_links, require_protocol]
 
+    # Moderators may use more dangerous HTML objects.
     if user.is_moderator:
         tags, attrs, styles = TRUSTED_TAGS, TRUSTED_ATTRIBUTES, TRUSTED_STYLES
     else:
         tags, attrs, styles = ALLOWED_TAGS, ALLOWED_ATTRIBUTES, ALLOWED_STYLES
 
-    # Clean the content of dangeours html constructs.
+    # Sanitize html input.
     html = bleach.clean(text, tags=tags, attributes=attrs, styles=styles)
 
-    # Apply the markdown transformation.
-    html = markdown(html, extras=["fenced-code-blocks", "code-friendly", "nofollow", "spoiler"])
-
-    # Turn links into urls.
-    html = bleach.linkify(html, callbacks=callbacks, skip_pre=True)
+    try:
+        # Apply the markdown transformation.
+        # We'll protect against library crashes by a generic Exception catch.
+        html = markdown(html, extras=["fenced-code-blocks", "code-friendly", "nofollow", "spoiler"])
+    except Exception, exc:
+        logger.error('crash during markdown conversion: %s' % exc)
+        html = html
 
     # Find embeddable patterns.
     html = embed_links(html)
+
+    try:
+        # Turn links into urls. We had bleach.linkify crash very rarely so we'll trap that.
+        # We use a more lenient tokenizer since the content is already cleaned.
+        html = bleach.linkify(html, callbacks=callbacks, skip_pre=True, tokenizer=HTMLTokenizer)
+    except Exception, exc:
+        logger.error('crash during bleach linkify: %s' % exc)
+        html = html
 
     # Strip whitespace.
     html = html.strip()
