@@ -177,6 +177,6 @@ def traverse_comments(request, post, tree):
         collect.append(END_TAG)
 
     collect = []
-    for node in tree[post.id]:
+    for node in tree.get(post.id, []):
         traverse(node, collect=collect)
     return '\n'.join(collect)

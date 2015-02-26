@@ -115,9 +115,6 @@ class PostView(ExtraContext, DetailView):
         user = self.request.user
         self.object = self.get_object()
 
-        # This is for testing only. Keep adding comments to benchmark.
-        comment = models.Post.objects.create(type=models.Post.COMMENT, parent=self.object, content="OK commment", author=user)
-
         # This will redirect to top level and scroll the page to the right anchor.
         if not self.object.is_toplevel:
             return redirect(self.object.get_absolute_url())
@@ -145,6 +142,12 @@ class PostView(ExtraContext, DetailView):
         self.object.comments = OrderedDict()
         for post in comment_list:
             self.object.comments.setdefault(post.parent.id, []).append(post)
+
+        # This is for testing only. Keep adding comments to benchmark.
+        import random, faker
+        f = faker.Factory.create()
+        parent = random.choice( thread + [ self.object ])
+        comment = models.Post.objects.create(type=models.Post.COMMENT, parent=parent, content=f.name(), author=user)
 
         # Add oject to the context.
         context = self.get_context_data(object=self.object)
