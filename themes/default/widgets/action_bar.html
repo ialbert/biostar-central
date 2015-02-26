@@ -5,7 +5,12 @@
 
     &bull; <a href="{{ post.get_absolute_url }}">link</a>
 
-    &bull; <a href="{%  url "edit_node"  pk=post.id %}">edit</a>
+	{%  if post.is_toplevel %}
+        &bull; <a href="{%  url "edit_post"  pk=post.id %}">edit</a>
+	{%  else %}
+        &bull; <a href="{%  url "edit_node"  pk=post.id %}">edit</a>
+	{%  endif %}
+
 
 	&bull; <a href="{{ post.get_absolute_url }}"> actions <i class="fa fa-caret-down"></i></a>
 

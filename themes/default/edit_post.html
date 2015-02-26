@@ -5,28 +5,33 @@
 
 {% block body %}
 
-    <div class="row">
+    <div class="row" id="edit_post">
 
-        <div class="nine columns form">
-            <div></div>
+        <div class="nine columns ">
+
+        	<h5>Current group: {{ group.name }}</h5>
             {% if form.errors %}
                 <div>{{ form.errors }}</div>
             {% endif %}
 
             <form method="post" action="{{ request.path }}">
-                <div>
+                <div class="twelve columns">
                     <label for="{{ form.title.id_for_label }}">Title</label>
-                    <input type="text" name="{{ form.title.name }}" value="{{ form.title.value }}"/>
+                    <input type="text" class="u-full-width" name="{{ form.title.name }}"
+                           value="{{ form.title.value }}"/>
                 </div>
 
-                <div>
-                    <label for="{{ form.tags.id_for_label }}">Tags</label>
-                	<input type="text" name="{{ form.tags.name }}" value="{{ form.tags.value }}"/>
+                <div class="twelve columns">
+                    <div class="six columns">
+                        <label for="{{ form.tags.id_for_label }}">Tags</label>
+                        <input type="text" class="u-full-width" name="{{ form.tags.name }}"
+                               value="{{ form.tags.value }}"/>
+                    </div>
                 </div>
 
                 <div>
                     <label for="{{ form.tags.id_for_label }}">Type</label>
-                	{{ form.type }}
+                    {{ form.type }}
                 </div>
 
                 <div>

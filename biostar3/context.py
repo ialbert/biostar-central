@@ -9,7 +9,8 @@ def shortcuts(request):
 
     context = {
         "BIOSTAR_VERSION": VERSION,
-        "user": request.user
+        "user": request.user,
+        "group": request.group,
     }
 
     return context

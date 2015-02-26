@@ -23,6 +23,30 @@ logger = logging.getLogger('biostar')
 User = get_user_model()
 
 
+def title_validator(text):
+    "Validates form input for tags"
+    text = text.strip()
+    MIN_LEN, MIN_WORDS = 15, 3
+    if not text:
+        raise ValidationError('Please enter a title')
+
+    if len(text) < MIN_LEN:
+        raise ValidationError('Title is too short! Needs to have at least %s characters' % MIN_LEN)
+
+    words = text.split()
+    if len(words) < MIN_WORDS:
+        raise ValidationError('Title too simple! Needs more than %s words please.' % MIN_WORDS)
+
+
+def tag_validator(text):
+    MAX_TAGS = 10
+    parts = auth.tag_split(text)
+    if len(parts) > MAX_TAGS:
+        raise ValidationError('Too many tags! Have no more than %s tags please.' % MAX_TAGS)
+
+    if len(parts) < 1:
+        raise ValidationError('Please enter at least one tag!')
+
 class ContentForm(forms.Form):
     """
     Edit or create content: answers, comments
@@ -37,11 +61,13 @@ class PostForm(ContentForm):
     """
     Edit or create top level posts: question, news, forum posts,
     """
-    title = forms.CharField(widget=forms.TextInput, initial='', max_length=200)
-    tags = forms.CharField(max_length=100, initial='')
+    title = forms.CharField(widget=forms.TextInput, initial='', max_length=200,
+                            validators=[title_validator])
+    tags = forms.CharField(max_length=100, initial='', validators=[tag_validator])
     type = forms.TypedChoiceField(coerce=int, choices=[
-        (Post.QUESTION, "Question"), (Post.NEWS, "News"), (Post.FORUM, "Forum"),(Post.JOB, "Job Ad"),
+        (Post.QUESTION, "Question"), (Post.NEWS, "News"), (Post.FORUM, "Forum"), (Post.JOB, "Job Ad"),
     ])
+
 
 def redirect(name):
     return HttpResponseRedirect(reverse(name))
@@ -109,6 +135,7 @@ class BaseNode(LoginRequiredMixin, FormView):
 
 class NewNode(BaseNode):
     def action(self, post, user, form):
+        # The incoming post is the parent in this case.
         content = form.cleaned_data.get('content', '')
         obj = Post.objects.create(parent=post, content=content, author=user)
         return obj
@@ -141,15 +168,55 @@ class NewPost(BaseNode):
         return None
 
     def action(self, post, user, form):
-        title = form.cleaned_data.get('title', '')
+        # The incoming post is None in this case.
+
+        title = form.cleaned_data.get('title', '').strip()
         type = form.cleaned_data.get('type', '')
         tags = form.cleaned_data.get('tags', '')
+        tags = auth.tag_split(tags)
         content = form.cleaned_data.get('content', '')
 
         obj = Post.objects.create(content=content, title=title,
                                   author=user, type=type, group=self.request.group)
 
-        # Here we need to save root and parent ids explicitly!
+        # Set the tags on the post
+        obj.tags.set(*tags)
+
+        # S elf referential ForeignKeys need to be updated explicitly!
         Post.objects.filter(pk=obj.pk).update(root_id=obj.id, parent_id=obj.id)
 
         return obj
+
+
+class EditPost(BaseNode):
+    form_class = PostForm
+    template_name = "edit_post.html"
+
+    def get_initial(self):
+
+        try:
+            post = self.get_post(user=self.request.user)
+        except auth.AccessDenied, exc:
+            logger.error(exc)
+            return redirect("home")
+
+        tags = ", ".join(post.tags.names())
+        initial = dict(content=post.content, title=post.title, tags=tags, type=post.type)
+        return initial
+
+    def action(self, post, user, form):
+
+        get = form.cleaned_data.get
+        post.content = get('content', '')
+        post.title = get('title', '').strip()
+        post.type = get('type', '')
+        tags = get('tags', '')
+        tags = auth.tag_split(tags)
+        post.lastedit_user = user
+        post.lastedit_date = auth.now()
+        post.save()
+
+        # Set the new tags.
+        post.tags.set(*tags)
+
+        return post
