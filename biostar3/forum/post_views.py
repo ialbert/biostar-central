@@ -115,12 +115,15 @@ class PostView(ExtraContext, DetailView):
         user = self.request.user
         self.object = self.get_object()
 
+        # This is for testing only. Keep adding comments to benchmark.
+        comment = models.Post.objects.create(type=models.Post.COMMENT, parent=self.object, content="OK commment", author=user)
+
         # This will redirect to top level and scroll the page to the right anchor.
         if not self.object.is_toplevel:
             return redirect(self.object.get_absolute_url())
 
         # Gets all objects in a thread. Moderators get deleted objects as well.
-        thread = [p for p in query.get_thread(self.object, user)]
+        thread = [ px for px in query.get_thread(self.object, user)]
 
         # Set up additional attributes on each post
         write_access = auth.thread_write_access(user=user, root=self.object)
@@ -135,15 +138,17 @@ class PostView(ExtraContext, DetailView):
         self.object = decorator(self.object)
 
         # Comments will be stored in a dictionary for fast access.
-        comment_list = filter(lambda p: p.type == models.Post.COMMENT, thread)
+        comment_list = filter(lambda pc: pc.type == models.Post.COMMENT, thread)
 
-        # Collect comments into a dictionary keyed by the parent with the posts as list.
+        # Collect comments into a dictionary keyed by the parent id with
+        # comments as a value list
         self.object.comments = OrderedDict()
         for post in comment_list:
             self.object.comments.setdefault(post.parent.id, []).append(post)
 
         # Add oject to the context.
         context = self.get_context_data(object=self.object)
+
 
         return self.render_to_response(context)
 

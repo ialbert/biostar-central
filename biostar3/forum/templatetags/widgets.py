@@ -5,10 +5,10 @@ import hashlib, urllib, random
 from datetime import timedelta, datetime
 from django.utils.timezone import utc
 from biostar3.forum.models import Post
-
+from django.template import loader
+from django.core.context_processors import csrf
 
 register = Library()
-
 
 def now():
     return datetime.utcnow().replace(tzinfo=utc)
@@ -41,9 +41,10 @@ def recent_votes(votes):
 def visual_editor(user, content=''):
     return dict(content=content, user=user)
 
-@register.inclusion_tag('widgets/post_unit.html')
-def post_unit(post):
-    return dict(post=post)
+@register.inclusion_tag('widgets/post_unit.html', takes_context=True)
+def post_unit(context, post):
+    request = context['request']
+    return dict(post=post, request=request)
 
 @register.inclusion_tag('widgets/user_link.html')
 def user_link(user):
@@ -141,3 +142,41 @@ def gravatar(user, size=80):
     gravatar_url += urllib.urlencode(dict(s=str(size), d='identicon'))
 
     return """<img src="%s" alt="gravatar for %s"/>""" % (gravatar_url, name)
+
+
+# this contains the body of each comment
+COMMENT_TEMPLATE = 'widgets/comment.html'
+COMMENT_BODY = loader.get_template(COMMENT_TEMPLATE)
+START_TAG = '<div class="indent">'
+END_TAG = "</div>"
+
+@register.simple_tag
+def render_comments(request, post, tree):
+    global COMMENT_BODY, COMMENT_TEMPLATE
+    if settings.DEBUG:
+        # Reload the template on each request
+        COMMENT_BODY = loader.get_template(COMMENT_TEMPLATE)
+    if post.id in tree:
+        text = traverse_comments(request=request, post=post, tree=tree)
+    else:
+        text = ''
+    return text
+
+def traverse_comments(request, post, tree):
+    "Traverses the tree and generates the page"
+    global COMMENT_BODY, START_TAG, END_TAG
+
+    def traverse(node, collect=[]):
+        cont = Context({"post": node, 'user': request.user})
+        #cont.update(csrf(request))
+        html = COMMENT_BODY.render(cont)
+        collect.append(START_TAG)
+        collect.append(html)
+        for child in tree.get(node.id, []):
+            traverse(child, collect=collect)
+        collect.append(END_TAG)
+
+    collect = []
+    for node in tree[post.id]:
+        traverse(node, collect=collect)
+    return '\n'.join(collect)

@@ -11,6 +11,7 @@ def shortcuts(request):
         "BIOSTAR_VERSION": VERSION,
         "user": request.user,
         "group": request.group,
+        "request": request,
     }
 
     return context
