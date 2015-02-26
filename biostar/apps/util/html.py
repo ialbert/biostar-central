@@ -53,6 +53,11 @@ def parse_html(text):
         try:
             href = attrs['href']
 
+            # Don't resolve links if a user has already
+            # specified a text
+            if attrs['href'] != attrs['_text']:
+                return attrs
+
             # Try the patterns
             patt1 = POST_RE1.search(href)
             patt2 = POST_RE2.search(href)
