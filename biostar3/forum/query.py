@@ -30,7 +30,7 @@ def get_toplevel_posts(user, group):
         posts = posts.exclude(status=Post.DELETED)
 
     posts = posts.select_related("root", "author", "lastedit_user", "group").prefetch_related("tags").defer("content", "html")
-
+    posts = posts.defer("content")
     return posts
 
 
@@ -47,8 +47,7 @@ def get_thread(root, user):
     if not user.is_moderator:
         posts = posts.exclude(status=Post.DELETED)
 
-    posts = posts.select_related("root", "author", "lastedit_user", "author__profile", "lastedit_user__profile", "group", "group__info")
+    posts = posts.select_related("root", "author", "lastedit_user", "author__profile", "lastedit_user__profile")
     posts = posts.order_by("type", "-has_accepted", "-vote_count", "creation_date")
-
     posts = posts.defer("content")
     return posts

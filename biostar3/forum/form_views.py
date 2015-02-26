@@ -51,16 +51,18 @@ class ContentForm(forms.Form):
     """
     Edit or create content: answers, comments
     """
-
+    # The is_toplevel field is used to distinguish between subclasses inside templates
+    is_toplevel = False
     content = forms.CharField(widget=forms.Textarea,
                               min_length=settings.MIN_POST_SIZE, max_length=settings.MAX_POST_SIZE,
                               initial="", required=True)
-
 
 class PostForm(ContentForm):
     """
     Edit or create top level posts: question, news, forum posts,
     """
+    is_toplevel = True
+
     title = forms.CharField(widget=forms.TextInput, initial='', max_length=200,
                             validators=[title_validator])
     tags = forms.CharField(max_length=100, initial='', validators=[tag_validator])
@@ -68,18 +70,26 @@ class PostForm(ContentForm):
         (Post.QUESTION, "Question"), (Post.NEWS, "News"), (Post.FORUM, "Forum"), (Post.JOB, "Job Ad"),
     ])
 
-
 def redirect(name, **kwargs):
     return HttpResponseRedirect(reverse(name, kwargs=kwargs))
 
 class BaseNode(LoginRequiredMixin, FormView):
+    """
+    Baseclass for all post edit views.
+
+    There is a different view for top level (questions, etc) and
+    content (answers, comments) level posts. Handling these in one view
+    ends up with overly complicated code.
+
+    The root post must have read access for the user.
+    """
     form_class = ContentForm
     template_name = "edit_node.html"
     edit_access_required = True
 
     def get_post(self, user):
         """
-        Will authenticate user access to
+        Authenticates access to a post.
         """
         pk = self.kwargs.get('pk')
         post = Post.objects.filter(pk=pk).select_related("group", "group__groupinfo").first()
@@ -122,9 +132,8 @@ class BaseNode(LoginRequiredMixin, FormView):
         # Create the new post.
         user = self.request.user
         post = self.get_post(user=user)
-        content = form.cleaned_data['content']
         try:
-            # Apply the action using the content and post
+            # Apply the action of the subclass
             self.post = self.action(post=post, user=user, form=form)
         except Exception, exc:
             logger.error(exc)
@@ -138,6 +147,9 @@ class BaseNode(LoginRequiredMixin, FormView):
 
 
 class NewNode(BaseNode):
+    """
+    Creating a new answer or comment.
+    """
     edit_access_required = False
 
     def action(self, post, user, form):
@@ -146,9 +158,11 @@ class NewNode(BaseNode):
         obj = Post.objects.create(parent=post, content=content, author=user)
         return obj
 
-
 class EditNode(BaseNode):
-
+    """
+    Editing an answer or a comment. The root post must have read access
+    the post itself must have write access.
+    """
     def get(self, *args, **kwargs):
 
         try:
@@ -181,22 +195,26 @@ class EditNode(BaseNode):
 
 
 class NewPost(BaseNode):
+    """
+    Creates a top level post.
+    """
     form_class = PostForm
-    template_name = "edit_post.html"
     edit_access_required = False
 
     def get_post(self, user):
+        # A new post will not have a root.
         return None
 
     def action(self, post, user, form):
-        # The incoming post is None in this case.
 
+        # The incoming post is None in this case.
         title = form.cleaned_data.get('title', '').strip()
         type = form.cleaned_data.get('type', '')
         tags = form.cleaned_data.get('tags', '')
         tags = auth.tag_split(tags)
         content = form.cleaned_data.get('content', '')
 
+        # Create the post.
         obj = Post.objects.create(content=content, title=title,
                                   author=user, type=type, group=self.request.group)
 
@@ -209,8 +227,10 @@ class NewPost(BaseNode):
         return obj
 
 class EditPost(BaseNode):
+    """
+    Edits a top level post.
+    """
     form_class = PostForm
-    template_name = "edit_post.html"
 
     def get_initial(self):
 
