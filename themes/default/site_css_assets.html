@@ -1,0 +1,28 @@
+{#  Contains the CSS  assets #}
+{% load compress%}
+{% load static%}
+
+{% compress css %}
+
+    {#  The Skeleton CSS Framework #}
+    <link rel="stylesheet" href={% static "lib/skeleton/normalize.css" %}>
+    <link rel="stylesheet" href={% static "lib/skeleton/skeleton.css" %}>
+
+    {#  Markdown editor style #}
+    <link rel="stylesheet" href={% static "lib/pagedown/markdown.css" %}>
+
+    {#  Sytnax highlighting style #}
+    <link rel="stylesheet" href="{% static "lib/highlight/styles/github.css" %}">
+
+    {#  Font awesome style #}
+	<link rel="stylesheet" href="{% static "lib/font-awesome-4.3.0/css/font-awesome.min.css" %}">
+
+    {#  Site specific css  #}
+    <link rel="stylesheet/less" type="text/less" href="{% static "site.less" %}">
+
+{% endcompress %}
+
+<script src="{% static "lib/less.min.js" %}" type="text/javascript"></script>
+
+{# Favicon specification #}
+<link rel="icon" type="image/png" href={% static "images/favicon.ico" %}/>

@@ -7,9 +7,15 @@
     <title>
         {% block title %}{{ html_title }}{% endblock %}
     </title>
+
+	{% block css_assets %}
+         {%  include "site_css_assets.html" %}
+	{% endblock %}
+
     {% block head %}
         {# Content in the head tags. #}
     {% endblock %}
+
 </head>
 <body>
 
@@ -37,6 +43,10 @@
 
 {% block bottom %}
     {#  Content that must be below page. #}
+{% endblock %}
+
+{% block js_assets %}
+    {%  include "site_js_assets.html" %}
 {% endblock %}
 
 </body>

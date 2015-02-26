@@ -1,0 +1,25 @@
+{#  Contains the Javascript assets #}
+
+{% load compress %}
+{% load static %}
+
+{% compress js %}
+
+    {#  JQuery library #}
+    <script src={% static "lib/jquery-1.11.2.min.js" %}></script>
+
+    {# Inline piechart library http://benpickles.github.io/peity/  #}
+    <script src={% static "lib/jquery.peity.min.js" %}></script>
+
+    {#  The Markdown editor library #}
+    <script type="text/javascript" src="{% static "lib/pagedown/Markdown.Converter.js" %}"></script>
+    <script type="text/javascript" src="{% static "lib/pagedown/Markdown.Sanitizer.js" %}"></script>
+    <script type="text/javascript" src="{% static "lib/pagedown/Markdown.Editor.js" %}"></script>
+
+    {#  Syntax highlighting library #}
+    <script src="{% static "lib/highlight/highlight.pack.js" %}"></script>
+
+    {#  Site specific scripts #}
+    <script src={% static "site.js" %}></script>
+
+{% endcompress %}
