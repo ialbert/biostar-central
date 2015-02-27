@@ -1,5 +1,6 @@
 
 import json, traceback, logging
+from django.conf import settings
 from django.http import HttpResponse
 from functools import partial
 from django.db import transaction
@@ -45,10 +46,20 @@ class ajax_error_wrapper(object):
                 return ajax_error('POST method must be used.')
 
             if not request.user.is_authenticated():
-                return ajax_error('You must be logged in to do that')
+                return ajax_error('You must be logged in to access the site')
 
             value = self.f(request)
             return value
         except Exception, exc:
-            traceback.print_exc()
+            if settings.DEBUG:
+                traceback.print_exc()
+            logger.error(exc)
             return ajax_error('Error: %s' % exc)
+
+@ajax_error_wrapper
+def vote_handler(request):
+    """
+    Handles voting on posts
+    """
+    msg = "Success!"
+    return ajax_success(msg)

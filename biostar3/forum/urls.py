@@ -5,6 +5,7 @@ from django.contrib import admin
 from biostar3.forum.user_views import MeView
 from biostar3.forum.post_views import PostList, UserList, SearchResults, PostView
 from biostar3.forum.form_views import EditNode, NewNode, NewPost, EditPost
+from biostar3.forum import ajax
 
 urlpatterns = patterns('',
 
@@ -29,5 +30,8 @@ urlpatterns = patterns('',
 
     url(r'^new/post/$', NewPost.as_view(), name="new_post"),
     url(r'^edit/post/(?P<pk>\d+)/$', EditPost.as_view(), name="edit_post"),
+
+    # Vote submission handler.
+    url(r'^x/vote/$', ajax.vote_handler, name="vote_submit"),
 
 )
