@@ -1,7 +1,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 import random, hashlib
 from django.db import models, transaction
-from django.contrib.auth.models import UserManager, AbstractBaseUser, UserManager, PermissionsMixin, Group, GroupManager
+from django.contrib.auth.models import UserManager, AbstractBaseUser, PermissionsMixin
 from django.contrib.sites.models import Site
 from django.conf import settings
 from django.core.urlresolvers import reverse
@@ -51,10 +51,6 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     class Meta:
         db_table = "users_user"
-        permissions = (
-            (MODERATE_USER_PERMISSION, "Can moderate a user"),
-            (BAN_USER_PERMISSION, "Can ban a user"),
-        )
 
     # Required by Django.
     USERNAME_FIELD = 'email'
@@ -122,22 +118,26 @@ class User(AbstractBaseUser, PermissionsMixin):
     def __unicode__(self):
         return "User: %s (%s)" % (self.id, self.email)
 
-class GroupInfo(models.Model):
-    "Extra group information"
-    author = models.ForeignKey(settings.AUTH_USER_MODEL)
-    group = models.OneToOneField(Group)
-    creation_date = models.DateTimeField(auto_now_add=True)
-    public = models.BooleanField(default=True)
 
-@transaction.atomic
-def get_or_create_group(name, user):
-    """
-    Group objects also carry a group info. We reuse the groups as defined in Django.
-    """
-    group, flag = Group.objects.get_or_create(name=name)
-    if flag:
-        GroupInfo.objects.create(group=group, author=user)
-    return group, flag
+class UserGroup(models.Model):
+    "Represents a group"
+    name = models.CharField(max_length=15)
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="author", null=True)
+    users = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="usergroups")
+
+    public = models.BooleanField(default=True)
+    visible = models.BooleanField(default=True)
+    creation_date = models.DateTimeField(auto_now_add=True)
+
+
+class GroupPerm(models.Model):
+    "Represents a special permission of a user for a group that goes beyond membership"
+    MODERATE, ADMIN = range(2)
+    TYPE_CHOICES = [(MODERATE, "Write"), (ADMIN, "Admin")]
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, db_index=True)
+    group = models.ForeignKey(UserGroup)
+    type = models.IntegerField(choices=TYPE_CHOICES, default=MODERATE)
+
 
 class Profile(models.Model):
     """
@@ -238,7 +238,7 @@ class Post(models.Model):
     author = models.ForeignKey(settings.AUTH_USER_MODEL)
 
     # The group that this post belongs to.
-    group = models.ForeignKey(Group, null=True, blank=True)
+    group = models.ForeignKey(UserGroup, null=True, blank=True)
 
     # The user that edited the post most recently.
     lastedit_user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='editor', null=True)

@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.http import HttpResponsePermanentRedirect as Redirect
-from biostar3.forum.models import Group
+from biostar3.forum.models import UserGroup
 from django.contrib.sites.models import Site
 from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
 
@@ -17,7 +17,7 @@ logger = logging.getLogger("biostar")
 SITE = Site.objects.get_current()
 
 # Loads this group when none are specified.
-DEFAULT_GROUP = Group.objects.filter(name=settings.DEFAULT_GROUP_NAME).first()
+DEFAULT_GROUP = UserGroup.objects.filter(name=settings.DEFAULT_GROUP_NAME).first()
 
 def full_url(request, url):
     if request.is_secure():
@@ -76,7 +76,7 @@ class GlobalMiddleware(object):
         if subdomain in settings.DEFAULT_SUBDOMAINS:
             group = DEFAULT_GROUP
         else:
-            group = Group.objects.filter(name__iexact=subdomain).first()
+            group = UserGroup.objects.filter(name__iexact=subdomain).first()
             if not group:
                 return Redirect(full_url(request, SITE.domain))
 

@@ -2,13 +2,13 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 from django.conf import settings
 from biostar3.forum import models
-from biostar3.forum.models import Post, Vote, Group
+from biostar3.forum.models import Post, Vote, UserGroup
 from django.contrib.auth import get_user_model
 from django.contrib import messages
 
 User = get_user_model()
 
-DEFAULT_GROUP = Group.objects.filter(name=settings.DEFAULT_GROUP_NAME).first()
+DEFAULT_GROUP = UserGroup.objects.filter(name=settings.DEFAULT_GROUP_NAME).first()
 
 def recent_votes():
     votes = Vote.objects.filter(post__status=Post.OPEN).select_related("post").order_by("-date")[
