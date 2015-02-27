@@ -1,7 +1,7 @@
 {% load widgets %}
 {#  The actions rendered under each post #}
 <div class="action_bar">
-    <span class="label">ADD COMMENT</span>
+    <span class="label reply" id="R{{ post.id }}">{{ label }}</span>
 
     &bull; <a href="{{ post.get_absolute_url }}">link</a>
 

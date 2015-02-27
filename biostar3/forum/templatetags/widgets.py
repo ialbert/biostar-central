@@ -20,6 +20,7 @@ def scoreline(user, size=5):
     values = map(lambda x: random.randint(0, 10), range(size))
     #values = [0,1,0,0,0]
     values = map(str, values)
+    random.seed()
     return ",".join(values)
 
 @register.simple_tag
@@ -42,9 +43,9 @@ def visual_editor(user, content=''):
     return dict(content=content, user=user)
 
 @register.inclusion_tag('widgets/post_unit.html', takes_context=True)
-def post_unit(context, post):
+def post_unit(context, post, comments):
     request = context['request']
-    return dict(post=post, request=request)
+    return dict(post=post, comments=comments, request=request)
 
 @register.inclusion_tag('widgets/user_link.html')
 def user_link(user):
@@ -59,6 +60,15 @@ def page_bar(context):
         page = None
     return dict(page=page, context=context)
 
+@register.filter
+def on_value(value):
+    "Turn a truth value into an on/off string"
+    return "on" if value else 'off'
+
+@register.filter
+def nicer_value(value):
+    "Show the value if exists or an empty string"
+    return value if value else '0'
 
 @register.inclusion_tag('widgets/search_bar.html', takes_context=True)
 def search_bar(context, action='search'):
@@ -67,8 +77,8 @@ def search_bar(context, action='search'):
     return dict(q=q, posts=posts, action=action)
 
 @register.inclusion_tag('widgets/action_bar.html')
-def action_bar(post):
-    return dict(post=post)
+def action_bar(post, label="ADD COMMENT"):
+    return dict(post=post, label=label)
 
 @register.inclusion_tag('widgets/update_bar.html')
 def update_bar(post):

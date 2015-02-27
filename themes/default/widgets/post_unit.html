@@ -45,8 +45,8 @@
     {% update_bar post %}
 </div>
 
-{%  if post.comments %}
+{%  if comments %}
 <div class="row">
-    {%  render_comments request=request post=post tree=post.comments %}
+    {%  render_comments request=request post=post tree=comments %}
 </div>
 {%  endif %}

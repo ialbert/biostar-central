@@ -1,5 +1,17 @@
 {% load widgets %}
 <a name="{{ post.id }}"></a>
-<div class="row">
-   {{ post.html|safe }}
+<div class="row comment">
+    <a name="{{ post.id }}"></a>
+
+    <div class="vote_box" id="C{{ post.id }}">
+        <div class="mark off">
+            <i class="fa fa-arrow-circle-up fa-1x"></i> <span>{{ post.vote_count|nicer_value }}</span>
+        </div>
+    </div>
+
+    {{ post.html|safe }}
+
+    {% action_bar post "REPLY" %}
+    {% update_bar post %}
+
 </div>

@@ -11,13 +11,13 @@
 
         {#  This is the top level post #}
         <div itemscope itemtype="http://schema.org/Question" class="question">
-            {% post_unit post %}
+            {% post_unit post post.comments %}
         </div>
 
         {#  Answers follow #}
         {% for answer in post.answers %}
             <div itemscope itemtype="http://schema.org/Answer" class="answer">
-                {% post_unit answer %}
+                {% post_unit answer post.comments %}
             </div>
         {% endfor %}
 
