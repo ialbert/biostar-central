@@ -72,7 +72,6 @@ body {
   color: #999999;
 }
 
-
 .popover {
   position: absolute;
   background-color: #ECECEC;
@@ -82,6 +81,10 @@ body {
   margin-bottom: 20px;
   border: 1px solid transparent;
   border-radius: 4px;
+}
+
+.popover.error {
+  color: red;
 }
 
 .page_bar {
@@ -94,23 +97,33 @@ body {
   padding-bottom: 1em;
 }
 
-.comment {
-  .vote_box {
-    float: left;
-    margin-right: 0.5em;
-
-    .mark {
-      margin-top:1px;
-      cursor: pointer;
-      color: #2F5B14;
-      opacity: 0.9;
-    }
-
-    .off {
-      opacity: 0.3;
-    }
-
+.post {
+  .count {
+    font-size: 200%;
+    font-weight: bold;
+    margin: 5px 0px 5px 0px;
   }
+}
+
+.vote_box {
+  float: left;
+  text-align: center;
+  margin-right: 0.5em;
+
+  .mark {
+    margin-top: 1px;
+    cursor: pointer;
+    color: #2F5B14;
+    opacity: 0.9;
+  }
+
+  .off {
+    opacity: 0.4;
+  }
+}
+
+.comment {
+
 }
 
 .indent {

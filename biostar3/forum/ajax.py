@@ -46,7 +46,7 @@ class ajax_error_wrapper(object):
                 return ajax_error('POST method must be used.')
 
             if not request.user.is_authenticated():
-                return ajax_error('You must be logged in to access the site')
+                return ajax_error('You must be logged to do that!')
 
             value = self.f(request)
             return value
@@ -65,6 +65,9 @@ def perform_vote(post, user, vote_type):
     # Normally one should never end up with more than one vote per user/post but
     # some databases don't enforce this and/or concurrency problems may lead to this.
     votes = Vote.objects.filter(author=user, post=post, type=vote_type)
+
+    print votes, vote_type
+
     if votes:
         vote = votes[0]
         msg = "%s removed" % vote.get_type_display()
@@ -73,6 +76,8 @@ def perform_vote(post, user, vote_type):
         change = +1
         vote = Vote.objects.create(author=user, post=post, type=vote_type)
         msg = "%s added" % vote.get_type_display()
+
+    print change
 
     if post.author != user:
         # Update the user reputation only if the author is different.

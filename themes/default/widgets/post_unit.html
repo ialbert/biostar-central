@@ -28,6 +28,16 @@
         </div>
     </div>
 
+    <div class="post vote_box">
+        <div>
+            <div class="tooltip vote mark off" title="Click to vote!"  data-post_id="{{ post.id }}" data-type="upvote"><i class="fa fa-thumbs-o-up fa-2x"></i></div>
+            <div class="count">{{ post.vote_count|nicer_value }}</div>
+        </div>
+        <div class="tooltip vote mark off" title="Click to bookmark!" data-post_id="{{ post.id }}" data-type="bookmark"><i class="fa fa-bookmark fa-1x"></i></div>
+    </div>
+
+
+
     {#  This is the body of the post #}
     {{ post.html|safe }}
 </div>

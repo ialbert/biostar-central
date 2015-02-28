@@ -3,8 +3,8 @@
 <div class="row comment">
     <a name="{{ post.id }}"></a>
 
-    <div class="vote_box off" data-post_id="{{ post.id }}" data-type="upvote">
-        <span class="mark" ><i class="fa fa-arrow-circle-up fa-1x"></i></span>
+    <div class="vote_box">
+        <span class="vote mark off" data-post_id="{{ post.id }}" data-type="upvote"><i class="fa fa-thumbs-o-up"></i></span>
         <span class="count">{{ post.vote_count|nicer_value }}</span>
     </div>
 

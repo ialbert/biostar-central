@@ -33,14 +33,9 @@ $.ajaxSetup({
     }
 });
 
-function change_votecount(elem, change) {
-    // modifies the votecount value
-    var value = parseInt(elem.children('.count').text()) || 0
-    elem.children('.count').text(value + change)
-}
 
 function toggle_state(elem, vote_type) {
-    // Toggles the state of the buttons and updates the label messages
+    // Toggles the state of the buttons and updates the label
     if (elem.hasClass('off')) {
         elem.removeClass('off');
         change = 1
@@ -48,7 +43,9 @@ function toggle_state(elem, vote_type) {
         elem.addClass('off');
         change = -1
     }
-    change_votecount(elem, change)
+    // Counts stored in a sibling with class=count.
+    var value = parseInt(elem.siblings('.count').text()) || 0
+    elem.siblings('.count').text(value + change)
 }
 
 function pop_over(elem, msg, cls) {
@@ -111,8 +108,7 @@ $(document).ready(function () {
     editor.run();
 
     // Register vote submission function.
-    $('.vote_box').each(function () {
-
+    $('.vote').each(function () {
         $($(this)).click(function () {
             var elem = $(this);
             var post_id = elem.attr('data-post_id');

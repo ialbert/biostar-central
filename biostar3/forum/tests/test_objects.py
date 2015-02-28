@@ -35,7 +35,6 @@ class SimpleTests(TestCase):
             user = User.objects.create(name=f.name(), email=f.email())
             group = UserGroup.objects.create(name=f.domain_word()[:15])
             group.users.add(user)
-            #group.permission_set.add(user)
 
         self.assertTrue(UserGroup.objects.all().count() == start_group_count + count)
 
