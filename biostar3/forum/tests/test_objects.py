@@ -33,7 +33,7 @@ class SimpleTests(TestCase):
 
         for i in range(count):
             user = User.objects.create(name=f.name(), email=f.email())
-            group = UserGroup.objects.create(name=f.domain()[:15])
+            group = UserGroup.objects.create(name=f.domain_word()[:15])
             group.users.add(user)
             #group.permission_set.add(user)
 
