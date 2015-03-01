@@ -4,7 +4,7 @@
     <a name="{{ post.id }}"></a>
 
     <div class="vote_box">
-        <span class="vote mark off" data-post_id="{{ post.id }}" data-type="upvote"><i class="fa fa-thumbs-o-up"></i></span>
+        <span class="vote mark {{ post.has_vote|on_value }}" data-post_id="{{ post.id }}" data-type="upvote"><i class="fa fa-thumbs-o-up"></i></span>
         <span class="count">{{ post.vote_count|nicer_value }}</span>
     </div>
 

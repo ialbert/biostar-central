@@ -66,18 +66,14 @@ def perform_vote(post, user, vote_type):
     # some databases don't enforce this and/or concurrency problems may lead to this.
     votes = Vote.objects.filter(author=user, post=post, type=vote_type)
 
-    print votes, vote_type
-
     if votes:
         vote = votes[0]
         msg = "%s removed" % vote.get_type_display()
-        change = len(votes)
+        change = -len(votes)
     else:
         change = +1
         vote = Vote.objects.create(author=user, post=post, type=vote_type)
         msg = "%s added" % vote.get_type_display()
-
-    print change
 
     if post.author != user:
         # Update the user reputation only if the author is different.

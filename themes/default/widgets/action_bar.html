@@ -2,15 +2,17 @@
 {#  The actions rendered under each post #}
 <div class="action_bar">
     <span class="label reply" id="R{{ post.id }}">{{ label }}</span>
-
+    &bull; {{ post.view_count|bignum }} views
     &bull; <a href="{{ post.get_absolute_url }}">link</a>
 
     {% if post.editable %}
         &bull; <a href="{% url "edit_node" pk=post.id %}">edit</a>
         &bull; <a href="{{ post.get_absolute_url }}">actions</a>
+
     {% endif %}
 
     {% if post.is_toplevel %}
+
         &bull; <a href="{{ post.get_absolute_url }}">follow <i class="fa fa-envelope"></i></a>
     {% endif %}
 

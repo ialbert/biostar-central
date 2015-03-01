@@ -68,7 +68,7 @@ def on_value(value):
 @register.filter
 def nicer_value(value):
     "Show the value if exists or an empty string"
-    return value if value else '0'
+    return value if value else ''
 
 @register.inclusion_tag('widgets/search_bar.html', takes_context=True)
 def search_bar(context, action='search'):

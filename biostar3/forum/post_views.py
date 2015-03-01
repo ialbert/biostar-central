@@ -14,6 +14,7 @@ from django.core.urlresolvers import reverse
 
 # Biostar specific local modules.
 from . import models, query, search, auth
+from .models import Vote, Post, PostView
 
 # Get custom user model.
 User = get_user_model()
@@ -123,10 +124,24 @@ class PostView(ExtraContext, DetailView):
         # Gets all objects in a thread. Moderators get deleted objects as well.
         thread = [ px for px in query.get_thread(self.object, user)]
 
+        # Collect votes for authenticated users
+        store = {Vote.UP: set(), Vote.BOOKMARK: set()}
+
+        if user.is_authenticated():
+            pids = [p.id for p in thread]
+            votes = Vote.objects.filter(post_id__in=pids, author=user).values_list("post_id", "type")
+            for post_id, vote_type in votes:
+                store.setdefault(vote_type, set()).add(post_id)
+
+        self.object.upvotes = store[Vote.UP]
+        self.object.bookmarks = store[Vote.BOOKMARK]
+
         # Set up additional attributes on each post
         write_access = auth.thread_write_access(user=user, root=self.object)
         def decorator(p):
             p.editable = write_access(user=user, post=p)
+            p.has_vote = p.id in self.object.upvotes
+            p.has_bookmark = p.id in self.object.bookmarks
             return p
 
         thread = map(decorator, thread)
@@ -144,13 +159,15 @@ class PostView(ExtraContext, DetailView):
         for post in comment_list:
             self.object.comments.setdefault(post.parent.id, []).append(post)
 
+
         # This is for testing only. Keeps adding comments to posts on the page.
         if user.is_authenticated():
             import random, faker
             f = faker.Factory.create()
+            u = random.choice(User.objects.all())
             parent = random.choice( thread + [ self.object ])
             text = f.bs()
-            comment = models.Post.objects.create(type=models.Post.COMMENT, parent=parent, content=text, author=user)
+            comment = models.Post.objects.create(type=models.Post.COMMENT, parent=parent, content=text, author=u)
 
         # Add oject to the context.
         context = self.get_context_data(object=self.object)

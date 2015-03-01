@@ -73,7 +73,7 @@ function vote_handler(elem, post_id, vote_type) {
                 toggle_state(elem, vote_type) // Untoggle the button if there was an error
             } else {
                 // Uncomment the line below to produce a popover on success as well.
-                pop_over(elem, data.msg, data.status)
+                //pop_over(elem, data.msg, data.status)
             }
 
         },
