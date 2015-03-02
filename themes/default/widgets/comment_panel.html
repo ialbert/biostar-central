@@ -1,7 +1,7 @@
 {# The comment editor template. Loaded from the server via an AJAX request #}
 
 <div class="row" id="comment_form">
-    <form action="{% url "new_comment" pk=pk %}" method="post">
+    <form action="{% url "new_comment" parent_id=pk %}" method="post">
         {% csrf_token %}
         <div class="twelve columns">
 

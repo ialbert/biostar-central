@@ -15,7 +15,7 @@
                 <div>{{ form.errors }}</div>
             {% endif %}
 
-            <form method="post" action="{{ request.path }}">
+            <form method="post" action="{{ action }}">
 
                 {% if form.is_toplevel %}
                     <div class="twelve columns">

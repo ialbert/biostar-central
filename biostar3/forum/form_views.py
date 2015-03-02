@@ -3,7 +3,7 @@ __author__ = 'ialbert'
 from django import forms
 from django.conf import settings
 from django.contrib import messages
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, reverse_lazy
 from django.core.exceptions import ValidationError
 from braces.views import LoginRequiredMixin
 from django.views.generic import FormView
@@ -13,6 +13,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from .models import Post
 from django.http import HttpResponseRedirect
 from . import auth
+from django.shortcuts import render, redirect
 
 import logging
 from django.contrib.auth import get_user_model
@@ -47,6 +48,7 @@ def tag_validator(text):
     if len(parts) < 1:
         raise ValidationError('Please enter at least one tag!')
 
+
 class ContentForm(forms.Form):
     """
     Edit or create content: answers, comments
@@ -57,6 +59,7 @@ class ContentForm(forms.Form):
     content = forms.CharField(widget=forms.Textarea,
                               min_length=min_lenght, max_length=settings.MAX_POST_SIZE,
                               initial="", required=True)
+
 
 class PostForm(ContentForm):
     """
@@ -72,207 +75,157 @@ class PostForm(ContentForm):
         (Post.QUESTION, "Question"), (Post.NEWS, "News"), (Post.FORUM, "Forum"), (Post.JOB, "Job Ad"),
     ])
 
-def redirect(name, **kwargs):
-    return HttpResponseRedirect(reverse(name, kwargs=kwargs))
 
-class BaseNode(LoginRequiredMixin, FormView):
+def get_post(request, user, pk, edit_access_required=True):
     """
-    Baseclass for all post edit views.
-
-    There is a different view for top level (questions, etc) and
-    content (answers, comments) level posts. Handling these in one view
-    ends up with overly complicated code.
-
-    The root post must have read access for the user.
+    Authenticates access to a post.
     """
-    form_class = ContentForm
-    template_name = "edit_node.html"
-    edit_access_required = True
+    post = Post.objects.filter(pk=pk).select_related("group", "group__groupinfo").first()
 
-    def get_post(self, user):
-        """
-        Authenticates access to a post.
-        """
-        pk = self.kwargs.get('pk')
-        post = Post.objects.filter(pk=pk).select_related("group", "group__groupinfo").first()
+    if not post:
+        messages.error(request, "Post does not exist. Perhaps it has been deleted.")
+        raise auth.AccessDenied()
 
-        if not post:
-            messages.error(self.request, "Post does not exist. Perhaps it has been deleted.")
-            raise auth.AccessDenied()
+    if not auth.read_access_post(user=user, post=post):
+        messages.error(request, "This post may not be accessed by this user!")
+        raise auth.AccessDenied()
 
-        if not auth.read_access_post(user=user, post=post):
-            messages.error(self.request, "This post may not be accessed by this user!")
-            raise auth.AccessDenied()
+    if edit_access_required and not auth.write_access_post(user, post):
+        messages.error(request, "This post may not be edited by this user!")
+        raise auth.AccessDenied()
 
-        if self.edit_access_required and not auth.write_access_post(user, post):
-            messages.error(self.request, "This post may not be edited by this user!")
-            raise auth.AccessDenied()
-
-        return post
-
-    def action(self, post, user, form):
-        raise NotImplementedError()
-
-    def get(self, *args, **kwargs):
-        try:
-            self.get_post(user=self.request.user)
-        except auth.AccessDenied, exc:
-            logger.error(exc)
-            return redirect("home")
-
-        return super(BaseNode, self).get(*args, **kwargs)
-
-    def post(self, *args, **kwargs):
-        try:
-            self.get_post(user=self.request.user)
-        except auth.AccessDenied, exc:
-            logger.error(exc)
-            return redirect("home")
-        return super(BaseNode, self).post(*args, **kwargs)
-
-    def form_valid(self, form):
-        # Create the new post.
-        user = self.request.user
-        post = self.get_post(user=user)
-        try:
-            # Apply the action of the subclass
-            self.post = self.action(post=post, user=user, form=form)
-        except Exception, exc:
-            logger.error(exc)
-            messages.error(self.request, "Unable to create the post!")
-            return redirect("home")
-
-        return super(BaseNode, self).form_valid(form)
-
-    def get_success_url(self):
-        return self.post.get_absolute_url()
+    return post
 
 
-class NewAnswer(BaseNode):
+@login_required
+def create_node(request, parent_id=None, post_type=None):
     """
-    Creating a new answer.
+    This view creates nodes. Is not called directly from the web only through
+    other functions that prefill parameters.
     """
-    edit_access_required = False
+    user = request.user
+    group = request.group
+    template_name = "edit_post.html"
+    redirect_home = redirect(reverse_lazy("home"))
 
-    def action(self, post, user, form):
-        # The incoming post is the parent in this case.
-        content = form.cleaned_data.get('content', '')
-        obj = Post.objects.create(parent=post, content=content, type=Post.ANSWER, author=user)
-        return obj
+    # No post type means a top level post to be created.
+    if post_type is None:
+        form_class = PostForm
+        action = reverse("new_post")
+    else:
+        form_class = ContentForm
+        if post_type == Post.ANSWER:
+            action = reverse("new_answer", kwargs=dict(parent_id=parent_id))
+        else:
+            action = reverse("new_comment",  kwargs=dict(parent_id=parent_id))
 
-class NewComment(BaseNode):
+    if request.method == "GET":
+        # This will render the initial form for the user.
+        if parent_id is not None:
+            try:
+                # Need to make sure that the parent post is readable to the user.
+                parent = get_post(request=request, user=user, pk=parent_id, edit_access_required=False)
+            except auth.AccessDenied:
+                return redirect_home
+
+        form = form_class()
+        context = dict(form=form, action=action)
+        return render(request, template_name, context)
+
+    if request.method == "POST":
+        # Data is being submitted
+        form = form_class(request.POST)
+
+        if parent_id is not None:
+            # Need to make sure that the parent post is readable to the user.
+            try:
+                parent = get_post(request=request, user=user, pk=parent_id, edit_access_required=False)
+            except auth.AccessDenied:
+                return redirect_home
+
+        if not form.is_valid():
+            # Form data came but not valid.
+            context = dict(form=form, action=action)
+            return render(request, template_name, context)
+
+        # The form is valid create the post based on the form.
+        if post_type is None:
+            post = auth.create_toplevel_post(user=user, group=group, data=form.cleaned_data)
+        else:
+            post = auth.create_content_post(data=form.cleaned_data, post_type=post_type, user=user, parent=parent)
+
+        return redirect(post.get_absolute_url())
+
+
+def create_toplevel_post(request):
+    "A new toplevel post"
+    return create_node(request=request, parent_id=None, post_type=None)
+
+
+def create_answer(request, parent_id):
+    return create_node(request=request, parent_id=parent_id, post_type=Post.ANSWER)
+
+
+def create_comment(request, parent_id):
+    return create_node(request=request, parent_id=parent_id, post_type=Post.COMMENT)
+
+
+
+@login_required
+def edit_post(request, post_id):
     """
-    Creating a new comment.
+    This view updates posts.
     """
-    edit_access_required = False
+    user = request.user
+    template_name = "edit_post.html"
+    action = reverse("edit_post", kwargs=dict(post_id=post_id))
+    redirect_home = redirect(reverse_lazy("home"))
 
-    def action(self, post, user, form):
-        # The incoming post is the parent in this case.
-        content = form.cleaned_data.get('content', '')
-        obj = Post.objects.create(parent=post, content=content, type=Post.COMMENT, author=user)
-        return obj
+    try:
+        # Need to make sure that the parent post is readable to the user.
+        post = get_post(request=request, user=user, pk=post_id, edit_access_required=True)
+    except auth.AccessDenied:
+        return redirect_home
 
-class EditNode(BaseNode):
-    """
-    Editing an answer or a comment. The root post must have read access
-    the post itself must have write access.
-    """
-    def get(self, *args, **kwargs):
-
-        try:
-            post = self.get_post(user=self.request.user)
-            if post.is_toplevel:
-                return redirect("edit_post", pk=post.id)
-
-        except auth.AccessDenied, exc:
-            logger.error(exc)
-            return redirect("home")
-
-        return super(EditNode, self).get(*args, **kwargs)
-
-    def get_initial(self):
-        try:
-            post = self.get_post(user=self.request.user)
-        except auth.AccessDenied, exc:
-            logger.error(exc)
-            return redirect("home")
-        initial = dict(content=post.content)
-        return initial
-
-    def action(self, post, user, form):
-        # Update the post
-        post.content = form.cleaned_data.get('content', '')
-        post.lastedit_user = user
-        post.lastedit_date = auth.now()
-        post.save()
-        return post
-
-
-class NewPost(BaseNode):
-    """
-    Creates a top level post.
-    """
-    form_class = PostForm
-    edit_access_required = False
-
-    def get_post(self, user):
-        # A new post will not have a root.
-        return None
-
-    def action(self, post, user, form):
-
-        # The incoming post is None in this case.
-        title = form.cleaned_data.get('title', '').strip()
-        type = form.cleaned_data.get('type', '')
-        tags = form.cleaned_data.get('tags', '')
-        tags = auth.tag_split(tags)
-        content = form.cleaned_data.get('content', '')
-
-        # Create the post.
-        obj = Post.objects.create(content=content, title=title,
-                                  author=user, type=type, group=self.request.group)
-
-        # Set the tags on the post
-        obj.tags.set(*tags)
-
-        # Self referential ForeignKeys need to be updated explicitly!
-        Post.objects.filter(pk=obj.pk).update(root_id=obj.id, parent_id=obj.id)
-
-        # Return the updated object, othewise the foreign keys are not set.
-        obj = Post.objects.get(pk=obj.id)
-
-        return obj
-
-class EditPost(BaseNode):
-    """
-    Edits a top level post.
-    """
-    form_class = PostForm
-
-    def get_initial(self):
-
-        try:
-            post = self.get_post(user=self.request.user)
-        except auth.AccessDenied, exc:
-            logger.error(exc)
-            return redirect("home")
-
+    # Different forms chosen based on post type.
+    if post.is_toplevel:
+        form_class = PostForm
         tags = ", ".join(post.tags.names())
         initial = dict(content=post.content, title=post.title, tags=tags, type=post.type)
-        return initial
+    else:
+        form_class = ContentForm
+        initial = dict(content=post.content)
 
-    def action(self, post, user, form):
-        get = form.cleaned_data.get
-        post.content = get('content', '')
-        post.title = get('title', '').strip()
-        post.type = get('type', '')
-        tags = get('tags', '')
-        tags = auth.tag_split(tags)
+
+    if request.method == "GET":
+        form = form_class(initial=initial)
+        context = dict(form=form, action=action)
+        return render(request, template_name, context)
+
+    if request.method == "POST":
+        form = form_class(request.POST)
+
+        # Invalid form, bail out with error messaged.
+        if not form.is_valid():
+            context = dict(form=form, action=action)
+            return render(request, template_name, context)
+
+        # The data is valid update the post and return the view to it.
+        get = lambda word: form.cleaned_data.get(word, '')
+
+        post.content = get('content')
         post.lastedit_user = user
         post.lastedit_date = auth.now()
+
+        # Extra information to be saved for toplevel posts.
+        if post.is_toplevel:
+            post.title = get('title')
+            post.type = get('type')
+            tags = get('tags')
+            tags = auth.tag_split(tags)
+            # Must explicitly set the new tags.
+            post.tags.set(*tags)
+
         post.save()
 
-        # Set the new tags.
-        post.tags.set(*tags)
-
-        return post
+    return redirect(post.get_absolute_url())

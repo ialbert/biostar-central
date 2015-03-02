@@ -27,7 +27,7 @@
             <div style="padding:5px">
                 Add your answer below.
             </div>
-            <form method="post" action="{% url "new_answer" pk=post.id %}">
+            <form method="post" action="{% url "new_answer" parent_id=post.id %}">
                 {% visual_editor user %}
             </form>
         </div>
