@@ -34,6 +34,21 @@ $.ajaxSetup({
 });
 
 
+// Comments by authenticated users.
+function add_comment(elem) {
+    // Remove the panel if it already exists.
+    var panel = $('#comment_panel')
+
+    if (panel.length) {
+        panel.remove()
+        return;
+    }
+    var post_id = elem.attr('data-post_id')
+    var container = elem.parent().parent()
+    var panel = $( '<div class="row" id="comment_panel"></div>' ).load( "/x/load/comment_panel/" + post_id + "/" );
+    container.after(panel);
+}
+
 function toggle_state(elem, vote_type) {
     // Toggles the state of the buttons and updates the label
     if (elem.hasClass('off')) {
@@ -114,6 +129,13 @@ $(document).ready(function () {
             var post_id = elem.attr('data-post_id');
             var vote_type = elem.attr('data-type');
             vote_handler(elem, post_id, vote_type);
+        });
+    });
+
+    // Authenticated user actions.
+    $('.reply').each(function () {
+        $(this).click(function () {
+            add_comment($(this));
         });
     });
 

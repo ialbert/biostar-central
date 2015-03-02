@@ -1,14 +1,17 @@
 {% load widgets %}
 {#  The actions rendered under each post #}
 <div class="action_bar">
-    <span class="label reply" id="R{{ post.id }}">{{ label }}</span>
-    &bull; {{ post.view_count|bignum }} views
+    <span class="label reply" data-post_id="{{ post.id }}">{{ label }}</span>
+
+    {% if post.is_toplevel %}
+        &bull; {{ post.view_count|bignum }} views
+    {% endif %}
+
     &bull; <a href="{{ post.get_absolute_url }}">link</a>
 
     {% if post.editable %}
         &bull; <a href="{% url "edit_node" pk=post.id %}">edit</a>
         &bull; <a href="{{ post.get_absolute_url }}">actions</a>
-
     {% endif %}
 
     {% if post.is_toplevel %}

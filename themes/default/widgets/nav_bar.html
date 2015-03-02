@@ -9,6 +9,23 @@
     </div>
 
     <div id="navbar">
+         {# This gets show for anonymous users #}
+        {% if user.is_anonymous %}
+            <div class="item">
+                <a href="{% url 'account_login' %}" class="signin">
+                    <div class="icon"><i class="fa fa-sign-in"></i></div>
+                    <div class="navlabel">Sign&nbsp;in</div>
+                </a>
+            </div>
+        {% else %}
+            <div class="item ">
+                <a href="{% url 'account_logout' %}" class="signout">
+                    <div class="icon"><i class="fa fa-sign-out"></i></div>
+                    <div class="navlabel">Sign&nbsp;Out</div>
+                </a>
+            </div>
+        {% endif %}
+
         <div class="item">
             <a href="{%  url "new_post" %}">
                 <div class="icon"><i class="fa fa-plus-circle"></i></div>
@@ -36,22 +53,7 @@
             </a>
         </div>
 
-        {# This gets show for anonymous users #}
-        {% if user.is_anonymous %}
-            <div class="item">
-                <a href="{% url 'account_login' %}" class="signin">
-                    <div class="icon"><i class="fa fa-sign-in"></i></div>
-                    <div class="navlabel">Sign&nbsp;in</div>
-                </a>
-            </div>
-        {% else %}
-            <div class="item ">
-                <a href="{% url 'account_logout' %}" class="signout">
-                    <div class="icon"><i class="fa fa-sign-out"></i></div>
-                    <div class="navlabel">Sign&nbsp;Out</div>
-                </a>
-            </div>
-        {% endif %}
+
 
     </div>
     <div class="nav-sep"></div>

@@ -53,8 +53,9 @@ class ContentForm(forms.Form):
     """
     # The is_toplevel field is used to distinguish between subclasses inside templates
     is_toplevel = False
+    min_lenght = 5
     content = forms.CharField(widget=forms.Textarea,
-                              min_length=settings.MIN_POST_SIZE, max_length=settings.MAX_POST_SIZE,
+                              min_length=min_lenght, max_length=settings.MAX_POST_SIZE,
                               initial="", required=True)
 
 class PostForm(ContentForm):
@@ -62,6 +63,7 @@ class PostForm(ContentForm):
     Edit or create top level posts: question, news, forum posts,
     """
     is_toplevel = True
+    min_lenght = 50
 
     title = forms.CharField(widget=forms.TextInput, initial='', max_length=200,
                             validators=[title_validator])
@@ -146,16 +148,28 @@ class BaseNode(LoginRequiredMixin, FormView):
         return self.post.get_absolute_url()
 
 
-class NewNode(BaseNode):
+class NewAnswer(BaseNode):
     """
-    Creating a new answer or comment.
+    Creating a new answer.
     """
     edit_access_required = False
 
     def action(self, post, user, form):
         # The incoming post is the parent in this case.
         content = form.cleaned_data.get('content', '')
-        obj = Post.objects.create(parent=post, content=content, author=user)
+        obj = Post.objects.create(parent=post, content=content, type=Post.ANSWER, author=user)
+        return obj
+
+class NewComment(BaseNode):
+    """
+    Creating a new comment.
+    """
+    edit_access_required = False
+
+    def action(self, post, user, form):
+        # The incoming post is the parent in this case.
+        content = form.cleaned_data.get('content', '')
+        obj = Post.objects.create(parent=post, content=content, type=Post.COMMENT, author=user)
         return obj
 
 class EditNode(BaseNode):
@@ -223,6 +237,9 @@ class NewPost(BaseNode):
 
         # Self referential ForeignKeys need to be updated explicitly!
         Post.objects.filter(pk=obj.pk).update(root_id=obj.id, parent_id=obj.id)
+
+        # Return the updated object, othewise the foreign keys are not set.
+        obj = Post.objects.get(pk=obj.id)
 
         return obj
 

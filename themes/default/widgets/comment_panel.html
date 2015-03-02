@@ -1,0 +1,18 @@
+{# The comment editor template. Loaded from the server via an AJAX request #}
+
+<div class="row" id="comment_form">
+    <form action="{% url "new_comment" pk=pk %}" method="post">
+        {% csrf_token %}
+        <div class="twelve columns">
+
+            <textarea class="u-full-width" name="content"></textarea>
+
+            <div class="submit">
+                <input type="submit" value="Submit">
+            </div>
+            <div class="cancel">
+                <input type="button" value="Cancel" class="cancel" onclick="javascript:obj=$('#comment_panel').remove();">
+            </div>
+        </div>
+    </form>
+</div>

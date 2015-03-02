@@ -10,12 +10,15 @@ from django.utils.timezone import utc
 from datetime import datetime
 from . import html
 
+
 class MyTaggableManager(TaggableManager):
     def get_internal_type(self):
         return 'ManyToManyField'
 
+
 def now():
     return datetime.utcnow().replace(tzinfo=utc)
+
 
 def make_uuid(size=None):
     "Returns a unique id"
@@ -44,7 +47,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     TYPE_CHOICES = [(USER, "User"), (MODERATOR, "Moderator"), (ADMIN, "Admin"), (BLOG, "Blog")]
 
     # Moderator types.
-    MODERATOR_TYPES = { MODERATOR, ADMIN }
+    MODERATOR_TYPES = {MODERATOR, ADMIN}
 
     NEW_USER, TRUSTED, SUSPENDED, BANNED = range(4)
     STATUS_CHOICES = ((NEW_USER, 'New User'), (TRUSTED, 'Trusted'), (SUSPENDED, 'Suspended'), (BANNED, 'Banned'))
@@ -98,7 +101,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         return (self.status == self.SUSPENDED) or (self.status == self.BANNED)
 
     def get_absolute_url(self):
-        #url = reverse("user_view", kwargs=dict(pk=self.id))
+        # url = reverse("user_view", kwargs=dict(pk=self.id))
         url = "/u/view/%s" % self.id
         return url
 
@@ -202,6 +205,7 @@ class Profile(models.Model):
     def save(self, *args, **kwargs):
         self.uuid = self.uuid or make_uuid()
         super(Profile, self).save(*args, **kwargs)
+
 
 class Post(models.Model):
     """Represents a post."""
@@ -333,19 +337,27 @@ class Post(models.Model):
 
         # Attempt to sensibly set the post type if not specified.
         if self.type is None:
-            if self.parent.type == Post.ANSWER:
+            if self.parent.type in (Post.ANSWER, Post.COMMENT):
                 self.type = Post.COMMENT
             elif self.parent.type in Post.TOP_LEVEL:
                 self.type = Post.ANSWER
             else:
                 self.type = Post.QUESTION
 
+        # Set the types of the object
         if self.is_toplevel:
             self.root = self.parent = self
         else:
             if not self.parent:
                 raise Exception("non toplevel posts must have a parent")
+            if not self.parent.root:
+                raise Exception("post parent root not set")
+
             self.root = self.parent.root
+
+        # Set the title for the object.
+        if not self.title:
+            self.title = "%s: %s" % (self.get_type_display()[0], self.parent.title)
 
         self.creation_date = self.creation_date or now()
         self.lastedit_date = self.lastedit_date or self.creation_date
@@ -353,6 +365,7 @@ class Post(models.Model):
         self.html = html.sanitize(self.content, user=self.lastedit_user)
 
         super(Post, self).save(*args, **kwargs)
+
 
 class PostView(models.Model):
     """Represents a post vote"""

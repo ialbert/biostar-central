@@ -295,27 +295,27 @@ body {
 }
 
 .alert-danger {
-  color: #a94442;
-  background-color: #f2dede;
-  border-color: #ebccd1;
+  color: darken(@ALERT_DANGER, 60%);
+  background-color: @ALERT_DANGER;
+  border-color: darken(@ALERT_DANGER, 30%);
 }
 
 .alert-info {
-  color: #31708f;
-  background-color: #d9edf7;
-  border-color: #bce8f1;
+  color: darken(@ALERT_INFO, 60%);
+  background-color: @ALERT_INFO;
+  border-color: darken(@ALERT_INFO, 30%);
 }
 
 .alert-warning {
-  color: #8a6d3b;
-  background-color: #fcf8e3;
-  border-color: #faebcc;
+  color: darken(@ALERT_WARNING, 60%);
+  background-color: @ALERT_WARNING;
+  border-color: darken(@ALERT_WARNING, 30%);
 }
 
 .alert-success {
-  color: #3c763d;
-  background-color: #dff0d8;
-  border-color: #d6e9c6;
+  color: darken(@ALERT_SUCCESS, 60%);
+  background-color: @ALERT_SUCCESS;
+  border-color: darken(@ALERT_SUCCESS, 30%);
 }
 
 /* Navigation */
@@ -338,8 +338,20 @@ body {
   }
 
   .signin {
-    border: 1px solid #5b8c3e;
+    border: 1px solid #d6e9c6;
     border-radius: 4px;
+    color: #3c763d;
+    background-color: #dff0d8;
+
+    &:hover {
+      color: #5b8c3e;
+      //color: red;
+      //background-color: #EFEFEF;
+      background-color: red;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+
   }
 
   .signout {
@@ -366,6 +378,38 @@ body {
 
   .last {
     float: right;
+  }
+}
+
+#comment_form {
+
+  input {
+    margin: 0px;
+  }
+  textarea {
+    margin: 0px;
+    padding: 0px;
+  }
+  form {
+
+    margin: 0px;
+  }
+  .cancel {
+    float: right;
+  }
+  .submit {
+    float: left;
+  }
+}
+
+.reply {
+  cursor: pointer;
+  box-shadow: inset 0px -1px 1px rgba(0, 0, 0, 0.25), 0px 1px 1px rgba(0, 0, 0, 0.15);
+  border-radius: 3px;
+  text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.5);
+
+  &:hover {
+    background-color: @ANSWERED_COLOR;
   }
 }
 

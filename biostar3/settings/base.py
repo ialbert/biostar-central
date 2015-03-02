@@ -254,7 +254,6 @@ SOCIALACCOUNT_PROVIDERS = {
 EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
 
 # Minimal and maximal post size in characters
-MIN_POST_SIZE = 50
 MAX_POST_SIZE = 150000
 
 # Allowed html content.

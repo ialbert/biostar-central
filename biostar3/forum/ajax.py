@@ -1,6 +1,7 @@
 
 import json, traceback, logging
 from django.conf import settings
+from django.shortcuts import render, redirect, render_to_response
 from django.http import HttpResponse
 from functools import partial
 from django.db import transaction
@@ -129,3 +130,13 @@ def vote_handler(request):
     msg = perform_vote(post=post, user=user, vote_type=vote_type)
 
     return ajax_success(msg)
+
+TEMPLATE_MAPPER = dict(
+    comment_panel='widgets/comment_panel.html',
+)
+def load_html(request, name, pk):
+    global TEMPLATE_MAPPER
+    default = TEMPLATE_MAPPER['comment_panel']
+    template_name = TEMPLATE_MAPPER.get(name, default)
+    context = dict(pk=pk)
+    return render(request, template_name, context)

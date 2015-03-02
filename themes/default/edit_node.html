@@ -16,6 +16,7 @@
             {% endif %}
 
             <form method="post" action="{{ request.path }}">
+
                 {% if form.is_toplevel %}
                     <div class="twelve columns">
                         <label for="{{ form.title.id_for_label }}">Title</label>
@@ -36,9 +37,11 @@
                         {{ form.type }}
                     </div>
                 {% endif %}
+
                 <div>
                     {% visual_editor user=user content=form.content.value %}
                 </div>
+
             </form>
         </div>
         <div class="three columns">
