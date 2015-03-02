@@ -45,7 +45,36 @@
             </form>
         </div>
         <div class="three columns">
-            Side Bar with instructions
+            <h5>Formatting instructions</h5>
+            {% if form.is_toplevel %}
+                <div>
+
+                </div>
+            {% endif %}
+            <div>
+                <p>
+                    The edit box will use Markdown to format your post.
+                </p>
+
+                <p>
+                    The editor supports fenced codeblocks. To format
+                    a section as code enclose it with three backticks <code>```</code>. Example:
+                </p>
+
+            </div>
+
+            <div>
+<pre>```
+for value in range(10):
+    print value
+```</pre>
+                <p> will render as </p>
+<pre>
+<code>for value in range(10):
+    print value
+</code>
+</pre>
+            </div>
         </div>
     </div>
 
