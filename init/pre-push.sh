@@ -1,4 +1,6 @@
-# to be linked into git hooks to fire off tests before push
+#!/bin/bash
+
+# to be linked into .git/hooks/pre-push to fire off tests before push
 # to bypass tests run
 # git push --no-verify
 
