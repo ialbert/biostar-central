@@ -18,6 +18,7 @@ Sphinx
 pyzmail
 chardet
 feedparser
+python-magic
 
 #django-secure
 #python-dateutil

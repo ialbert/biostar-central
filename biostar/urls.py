@@ -7,7 +7,7 @@ admin.autodiscover()
 
 from django.views.generic import TemplateView
 from biostar.server import views, ajax, search, moderate, api, orcid
-from biostar.apps.posts.views import NewAnswer, NewPost, EditPost, external_post_handler
+from biostar.apps.posts.views import NewAnswer, NewPost, EditPost, external_post_handler, download
 from biostar.apps.users.views import external_logout, external_login, CaptchaView, DigestManager, unsubscribe
 from biostar.apps.planet.views import BlogPostList
 
@@ -54,6 +54,9 @@ urlpatterns = patterns('',
 
     # Edit an existing post.
     url(r'^p/edit/(?P<pk>\d+)/$', EditPost.as_view(), name="post-edit"),
+
+    # File download from Post.
+    url(r'^p/download/(?P<param>\d+)/$', download, name="download-file"),
 
     # Message display.
     url(r'^local/messages/$', views.MessageList.as_view(), name="user-messages"),

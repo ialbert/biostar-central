@@ -216,6 +216,9 @@ class Post(models.Model):
     # What site does the post belong to.
     site = models.ForeignKey(Site, null=True)
 
+    #Uploaded files
+    files = models.FileField(upload_to='/files/', blank=True, null=True)
+
     def parse_tags(self):
         return util.split_tags(self.tag_val)
 

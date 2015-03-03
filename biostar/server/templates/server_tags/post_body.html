@@ -52,6 +52,11 @@
 
             <span itemprop="text">{{ post.html|safe }}</span>
 
+            {% if post.files %}
+            <div style="height:20px">
+            <a href="/p/download/{{post.id}}">Download File</a>
+            </div>
+            {% endif %}
 
             <div class="clearfix">
                 {% if post.is_toplevel %}

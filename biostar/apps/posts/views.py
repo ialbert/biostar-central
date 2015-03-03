@@ -20,9 +20,26 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 import logging
+from django.core.files.base import ContentFile
+import os
+import magic
+from django.core.servers.basehttp import FileWrapper
+from django.http import HttpResponse
 
 logger = logging.getLogger(__name__)
 
+#Helper to save uploaded file
+def save_file(file):
+    wd = os.path.dirname(os.path.abspath(__file__))
+    wd = wd[:-10]
+    wd = wd + 'static/uploaded_files/'
+    filename = file.name
+    path = wd + filename
+    fd = open(path, 'wb')
+    for chunk in file.chunks():
+        fd.write(chunk)
+    fd.close()
+    return path
 
 def valid_title(text):
     "Validates form input for tags"
@@ -78,6 +95,10 @@ class LongForm(forms.Form):
                               min_length=80, max_length=15000,
                               label="Enter your post below")
 
+    files = forms.FileField(
+	required=False,
+	label="Upload Files (if any)")
+
     def __init__(self, *args, **kwargs):
         super(LongForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
@@ -89,6 +110,7 @@ class LongForm(forms.Form):
                 Field('post_type'),
                 Field('tag_val'),
                 Field('content'),
+		Field('files'),
             ),
             ButtonHolder(
                 Submit('submit', 'Submit')
@@ -197,9 +219,15 @@ class NewPost(LoginRequiredMixin, FormView):
 
     def post(self, request, *args, **kwargs):
         # Validating the form.
-        form = self.form_class(request.POST)
+        form = self.form_class(request.POST, request.FILES)
+
         if not form.is_valid():
             return render(request, self.template_name, {'form': form})
+
+	#Saving files if any
+	if request.FILES:
+	    files = request.FILES['files']
+	    path = save_file(files)
 
         # Valid forms start here.
         data = form.cleaned_data.get
@@ -213,6 +241,12 @@ class NewPost(LoginRequiredMixin, FormView):
             title=title, content=content, tag_val=tag_val,
             author=request.user, type=post_type,
         )
+
+	try:	
+	    post.files=path
+	except:
+	    pass	
+	
         post.save()
 
         # Triggers a new post save.
@@ -322,12 +356,18 @@ class EditPost(LoginRequiredMixin, FormView):
         # Posts with a parent are not toplevel
         form_class = LongForm if post.is_toplevel else ShortForm
 
-        form = form_class(request.POST)
+        form = form_class(request.POST, request.FILES)
         if not form.is_valid():
             # Invalid form submission.
             return render(request, self.template_name, {'form': form})
 
         # Valid forms start here.
+
+	#Saving files if any
+	if request.FILES:
+	    files = request.FILES['files']
+	    path = save_file(files)
+
         data = form.cleaned_data
 
         # Set the form attributes.
@@ -336,6 +376,12 @@ class EditPost(LoginRequiredMixin, FormView):
 
         # TODO: fix this oversight!
         post.type = int(data.get('post_type', post.type))
+
+
+	try:	
+	    post.files=path
+	except:
+	    pass
 
         # This is needed to validate some fields.
         post.save()
@@ -353,4 +399,22 @@ class EditPost(LoginRequiredMixin, FormView):
 
     def get_success_url(self):
         return reverse("user_details", kwargs=dict(pk=self.kwargs['pk']))
+
+def download(request, param):
+    #Serves the uploaded file for download
+    post = Post.objects.get(id=param)
+    filepath = str(post.files)
+    print post.files
+    if (filepath):
+        mime = magic.Magic(mime=True)
+        mimetype = mime.from_file(filepath)
+	print mimetype
+	wrapper = FileWrapper(file(filepath))
+	response = HttpResponse(wrapper, content_type = mimetype)
+	string = 'attachment; filename='+ "file"
+	response['Content-Disposition'] = string
+	response['Content-Length'] = os.path.getsize(filepath)
+	return response
+    else:
+	return HttpResponseRedirect(post.get_absolute_url())
 
