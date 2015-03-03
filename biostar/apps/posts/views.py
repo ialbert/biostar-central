@@ -117,6 +117,15 @@ class LongForm(forms.Form):
             )
         )
 
+    def clean_files(self):
+        files = self.cleaned_data.get('files',False)
+        if files:
+            if files._size > 20*1024*1024:
+                  raise ValidationError("File is too large. Please restrict the filesize to 20mb.")
+            return files
+        else:
+            raise ValidationError("Couldn't read uploaded file")
+
 
 class ShortForm(forms.Form):
     FIELDS = ["content"]
