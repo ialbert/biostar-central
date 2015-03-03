@@ -72,3 +72,9 @@ def thread_write_access(user, root):
         return read_cond and write_cond
 
     return validator
+
+def remote_ip(request):
+    ip1 = request.META.get('REMOTE_ADDR', '')
+    ip2 = request.META.get('HTTP_X_FORWARDED_FOR', '').split(",")[0].strip()
+    ip = ip1 or ip2 or '0.0.0.0'
+    return ip

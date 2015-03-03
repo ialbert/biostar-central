@@ -5,13 +5,8 @@ from django.conf import settings
 from django.contrib import messages
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.core.exceptions import ValidationError
-from braces.views import LoginRequiredMixin
-from django.views.generic import FormView
 from django.contrib.auth.decorators import login_required
-from django.views.decorators.csrf import csrf_exempt
-from django.core.exceptions import ObjectDoesNotExist
 from .models import Post
-from django.http import HttpResponseRedirect
 from . import auth
 from django.shortcuts import render, redirect
 

@@ -361,7 +361,7 @@ class Post(models.Model):
 
         # Remove whitespace from the title.
         self.title = self.title.strip()
-        
+
         self.creation_date = self.creation_date or now()
         self.lastedit_date = self.lastedit_date or self.creation_date
         self.lastedit_user = self.lastedit_user or self.author

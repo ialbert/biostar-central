@@ -17,31 +17,36 @@ class SimpleTests(TestCase):
         """
         Test admin user creation.
         """
+        TRUE = self.assertTrue
+
+        TRUE(len(settings.ADMINS)>0)
         for user, email in settings.ADMINS:
             user = User.objects.get(email=email)
+            TRUE(user.is_admin)
 
     def test_user_gen(self):
         """
-        Test normal user creation
+        Tests user creation.
         """
         EQ = self.assertEqual
 
         f = Factory.create()
         count = 10
 
-        start_group_count = UserGroup.objects.all().count()
+        start = UserGroup.objects.all().count()
 
         for i in range(count):
             user = User.objects.create(name=f.name(), email=f.email())
             group = UserGroup.objects.create(name=f.domain_word()[:15])
             group.users.add(user)
 
-        self.assertTrue(UserGroup.objects.all().count() == start_group_count + count)
+        self.assertTrue(UserGroup.objects.all().count() == start + count)
 
         # Test sending automated emails.
         EQ(len(mail.outbox), count)
 
     def test_local_links(self):
+        "Links to local content are reformatted"
         EQ = self.assertEqual
         f = Factory.create()
         site = Site.objects.get_current()
@@ -53,6 +58,7 @@ class SimpleTests(TestCase):
         EQ(expect, result)
 
     def test_embed_links(self):
+        "Links to gist and youtube are embedded"
         EQ = self.assertEqual
         pairs = [
             # input, expected

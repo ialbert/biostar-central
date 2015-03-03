@@ -250,11 +250,15 @@ SOCIALACCOUNT_PROVIDERS = {
     }
 }
 
-#EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
 
 # Minimal and maximal post size in characters
 MAX_POST_SIZE = 150000
+
+# When set the captcha forms will be active.
+RECAPTCHA_PUBLIC_KEY = ""
+RECAPTCHA_PRIVATE_KEY = ""
 
 # Allowed html content.
 ALLOWED_TAGS = "p div br code pre h1 h2 h3 h4 hr span s sub sup b i img strong \
@@ -272,6 +276,7 @@ ALLOWED_ATTRIBUTES = {
 
 }
 TRUSTED_ATTRIBUTES = ''.split()
+
 
 def GET_SUBDOMAIN(request):
     "Used to extract the subdomain. Override if deployed under multilevel subdomains."

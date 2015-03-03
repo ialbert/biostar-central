@@ -5,6 +5,7 @@ from django.core import mail
 # Create your tests here.
 class EmailTests(TestCase):
     def test_emailtemplate(self):
+        "Test processing email templates"
         EQ = self.assertEqual
         data = dict(name="World", content="content")
         em = EmailTemplate("mailer_test.html", data=data)

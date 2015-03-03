@@ -12,6 +12,7 @@ def shortcuts(request):
         "user": request.user,
         "group": request.group,
         "request": request,
+        "recaptcha": settings.RECAPTCHA_PUBLIC_KEY,
     }
 
     return context

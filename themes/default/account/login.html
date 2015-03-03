@@ -1,6 +1,7 @@
 {% extends "site_layout.html" %}
 {% load socialaccount %}
 {% load widgets %}
+{% load i18n %}
 
 {% block title %}
     Sign In.
@@ -8,31 +9,69 @@
 
 {% block body %}
     <div class="row">
-    	<div class="three columns">
+        <div class="three columns">
             &nbsp;
         </div>
         <div class="six columns">
+            <div class="row">
+                <h4 align="center">{% trans 'Social Authentication' %}</h4>
 
-            {% if socialaccount.providers %}
-                <div>
-                    Click the name of a provider to log in.
-                </div>
+                {% if socialaccount.providers %}
+                    <div>
+                        A simplest way to log into the site is to click the name of an authentication provider.
+                        This is for authentication/email only. We don't access any other information.
+                    </div>
 
-                <div style="margin-top:1em; font-size: larger;">
-                    <ul style="margin-left:2em;">
-                        {% for provider in socialaccount.providers %}
-                            <li>
-                                <a title="{{ provider.name }}"
-                                   href="{% provider_login_url provider.id process='login'  %}">{{ provider.name }}</a>
-                            </li>
-                        {% endfor %}
-                    </ul>
+                    <div style="margin-top:1em; font-size: larger;">
+                        <ul style="margin-left:2em;">
+                            {% for provider in socialaccount.providers %}
+                                <li>
+                                    <a title="{{ provider.name }}"
+                                       href="{% provider_login_url provider.id process='login' %}">{{ provider.name }}</a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="row">
+
+                <h4 align="center">{% trans 'Email Authentication' %}</h4>
+                Users may also create an account and log in via email.
+                <b>Sign In</b> or <b>Sign Up</b> via the form below. You may also
+            	<a href="{% url 'account_reset_password' %}">reset your password.</a>
+
+                <div style="margin:1em; text-align: center">
+                    <form action="{% url 'sign_up' %}" method="POST">
+                        {% csrf_token %}
+
+                        <div>
+                            <input type="email" name="email" placeholder="Your email"/>
+                        </div>
+
+                        <div>
+                            <input type="password" name="password" placeholder="Your password"/>
+                        </div>
+                        {% if recaptcha %}
+                            <div class="g-recaptcha" align="center" style="margin:1em" data-sitekey="{{ recaptcha }}"></div>
+                        {% endif %}
+                        <div class="submit">
+                            <input type="submit" value="Submit">
+                        </div>
+
+
+                    </form>
                 </div>
-            {% endif %}
+            </div>
+
         </div>
     </div>
 
-    {% providers_media_js %}
 
+    {% providers_media_js %}
+    {% block bottom %}
+        <script src='https://www.google.com/recaptcha/api.js'></script>
+    {% endblock %}
 {% endblock %}
 
