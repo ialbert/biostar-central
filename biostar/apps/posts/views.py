@@ -28,6 +28,8 @@ from django.http import HttpResponse
 
 logger = logging.getLogger(__name__)
 
+extres = ['php','asp','aspx','js','exe','sh']
+
 #Helper to save uploaded file
 def save_file(file):
     wd = os.path.dirname(os.path.abspath(__file__))
@@ -122,6 +124,10 @@ class LongForm(forms.Form):
         if files:
             if files._size > 20*1024*1024:
                   raise ValidationError("File is too large. Please restrict the filesize to 20mb.")
+	    names = files.name.split('.')
+	    ext=names[1]
+	    if ext in extres:
+		raise ValidationError("File extension not allowed.")
             return files
         else:
             raise ValidationError("Couldn't read uploaded file")
