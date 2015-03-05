@@ -1,6 +1,10 @@
 {% extends "site_layout.html" %}
 {% load widgets %}
 
+{%  block title %}
+	User List
+{%  endblock %}
+
 {% block body %}
 
     <div class="row">
@@ -8,7 +12,7 @@
 
             {% search_bar action='user_list' %}
 
-            {% page_bar %}
+            {% page_bar page %}
 
             <table class="u-full-width">
                 {% for user in users %}

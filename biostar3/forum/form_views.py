@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.core.exceptions import ValidationError
 from django.contrib.auth.decorators import login_required
+from django.views.generic import ListView
 from .models import Post
 from . import auth
 from django.shortcuts import render, redirect
@@ -17,7 +18,6 @@ logger = logging.getLogger('biostar')
 
 # Get custom user model.
 User = get_user_model()
-
 
 def title_validator(text):
     "Validates form input for tags"

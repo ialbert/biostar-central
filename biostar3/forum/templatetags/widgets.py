@@ -52,13 +52,9 @@ def user_link(user):
     return dict(user=user)
 
 
-@register.inclusion_tag('widgets/page_bar.html', takes_context=True)
-def page_bar(context):
-    if context.get('is_paginated'):
-        page = context['page_obj']
-    else:
-        page = None
-    return dict(page=page, context=context)
+@register.inclusion_tag('widgets/page_bar.html')
+def page_bar(page=None):
+    return dict(page=page)
 
 @register.filter
 def on_value(value):

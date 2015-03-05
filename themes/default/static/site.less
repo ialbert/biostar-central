@@ -249,10 +249,12 @@ body {
 
 /* Search bar */
 #search_bar {
-  padding-top: 1ex;
-  form {
+  padding: 1ex;
+  form, input {
     margin: 0px;
   }
+  border-radius: 4px;
+  background-color: #EFEFEF;
   //margin: 0.5em 0em 0em 0em;
 }
 
@@ -383,23 +385,27 @@ body {
 }
 
 #comment_form {
-
+  padding:0.5ex 0em 1ex 0ex;
   input {
     margin: 0px;
   }
   textarea {
     margin: 0px;
-    padding: 0px;
+    //padding: 0px;
+    background-color: #EFEFEF;
   }
-  form {
 
+  form {
     margin: 0px;
   }
+
   .cancel {
     float: right;
+    background-color: white;
   }
   .submit {
     float: left;
+    background-color: white;
   }
 }
 

@@ -2,19 +2,19 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
 
-from biostar3.forum.post_views import PostList, UserList, SearchResults, PostView
+from biostar3.forum.post_views import PostView
 
-from biostar3.forum import form_views, user_views
+from biostar3.forum import form_views, user_views, post_views
 
 from biostar3.forum import ajax
 
 urlpatterns = patterns('',
 
     # List of posts.
-    url(r'^$', PostList.as_view(), name='home'),
+    url(r'^$', post_views.post_list, name='home'),
 
     # Renders search results.
-    url(r'^site/search/$', SearchResults.as_view(), name='search'),
+    url(r'^site/search/$', post_views.search_list, name='search'),
 
     # A shortcut to a user's account.
     url(r'^site/me/$', user_views.me_view, name='me'),
@@ -29,7 +29,7 @@ urlpatterns = patterns('',
     url(r'^p/(?P<pk>\d+)/$', PostView.as_view(), name="post_view"),
 
     # The list of users.
-    url(r'^user/list/$', UserList.as_view(), name="user_list"),
+    url(r'^user/list/$', user_views.user_list, name="user_list"),
 
 
     # Create new content: answer, comments

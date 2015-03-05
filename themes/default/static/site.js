@@ -45,7 +45,11 @@ function add_comment(elem) {
     }
     var post_id = elem.attr('data-post_id')
     var container = elem.parent().parent()
-    var panel = $( '<div class="row" id="comment_panel"></div>' ).load( "/x/load/comment_panel/" + post_id + "/" );
+    var panel = $('<div class="row" id="comment_panel"></div>').load("/x/load/comment_panel/" + post_id + "/",
+        function () {
+            $('#comment_area').focus();
+        }
+    );
     container.after(panel);
 }
 

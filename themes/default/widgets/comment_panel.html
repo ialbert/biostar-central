@@ -1,18 +1,24 @@
 {# The comment editor template. Loaded from the server via an AJAX request #}
 
 <div class="row" id="comment_form">
-    <form action="{% url "new_comment" parent_id=pk %}" method="post">
-        {% csrf_token %}
-        <div class="twelve columns">
+    {% if user.is_authenticated %}
+        <form action="{% url "new_comment" parent_id=pk %}" method="post">
+            {% csrf_token %}
+            <div class="twelve columns">
 
-            <textarea class="u-full-width" name="content"></textarea>
+                <textarea class="u-full-width" name="content" id="comment_area" placeholder="Type your content here."></textarea>
 
-            <div class="submit">
-                <input type="submit" value="Submit">
+                <div class="submit">
+                    <input type="submit" value="Submit">
+                </div>
+                <div class="cancel">
+                    <input type="button" value="Cancel" class="cancel"
+                           onclick="javascript:obj=$('#comment_panel').remove();">
+                </div>
             </div>
-            <div class="cancel">
-                <input type="button" value="Cancel" class="cancel" onclick="javascript:obj=$('#comment_panel').remove();">
-            </div>
-        </div>
-    </form>
+        </form>
+	{%  else %}
+        <div class="alert alert-warning">Please <a href="{%  url "account_login" %}">log in</a> to use this feature!</div>
+    {% endif %}
+
 </div>

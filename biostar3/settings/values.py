@@ -27,7 +27,7 @@ RECENT_VOTE_COUNT = 10
 RECENT_USER_COUNT = 10
 
 # How many posts per page.
-POST_PAGINATE_BY = 10
+POSTS_PER_PAGE = 10
 
 # The CSS classes associated with the Django messages framework.
 MESSAGE_TAGS = {

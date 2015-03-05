@@ -14,13 +14,21 @@ from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login
-
 from ratelimit.decorators import ratelimit, is_ratelimited
+from . import query
 
 logger = logging.getLogger('biostar')
 
 # Get custom user model.
 User = get_user_model()
+
+
+def user_list(request):
+    template_name = "user_list.html"
+    users = User.objects.all()
+    page = query.get_page(request, users, 20)
+    context = dict(page=page, users=page.object_list)
+    return render(request, template_name, context)
 
 @login_required
 def me_view(request):
@@ -31,6 +39,7 @@ def me_view(request):
 
 
 CAPTCHA_VERIFY_URL = "https://www.google.com/recaptcha/api/siteverify"
+
 
 @ratelimit(key='ip', rate=settings.SIGNUP_RATELIMIT)
 def sign_up(request):
@@ -77,9 +86,9 @@ def sign_up(request):
         # Verfiying the captcha response.
 
         data = {
-            'secret' : settings.RECAPTCHA_SECRET_KEY,
-            'response' : recaptcha_response,
-            'remoteip' : auth.remote_ip(request),
+            'secret': settings.RECAPTCHA_SECRET_KEY,
+            'response': recaptcha_response,
+            'remoteip': auth.remote_ip(request),
         }
 
         try:

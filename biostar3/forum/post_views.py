@@ -31,7 +31,6 @@ class ExtraContext(object):
     page_title = "Welcome to Biostar!"
 
     def get_context_data(self, **kwargs):
-
         context = super(ExtraContext, self).get_context_data(**kwargs)
         context['recent_votes'] = query.recent_votes()
         context['html_title'] = self.html_title
@@ -56,50 +55,37 @@ class ExtraContext(object):
     def q(self):
         return self.request.GET.get('q', '')[:150]
 
-class UserList(ExtraContext, ListView):
-    """
-    Generates user listing.
-    """
-    html_title = "Users"
-    model = User
-    template_name = "user_list.html"
-    context_object_name = "users"
-    paginate_by = 20
 
-
-class PostList(ExtraContext, ListView):
-    """
-    Generates post lists from a web request.
-    Handles filtering by tags, users and post types.
-    """
-    model = models.Post
+def post_list(request):
     template_name = "post_list.html"
-    context_object_name = "posts"
-    paginate_by = settings.POST_PAGINATE_BY
-    html_title = "Posts"
+    posts = query.get_toplevel_posts(user=request.user, group=request.group)
+    page = query.get_page(request, posts, per_page=settings.POSTS_PER_PAGE)
 
-    def get_queryset(self):
-        results = query.get_toplevel_posts(user=self.request.user, group=self.request.group)
-        return results
+    # Add the recent votes
+    recent_votes = query.recent_votes()
+    html_title = "Post List"
+    context = dict(page=page, posts=page.object_list, recent_votes=recent_votes, html_title=html_title)
+
+    return render(request, template_name, context)
 
 
-class SearchResults(PostList):
-    """
-    Handles search requests.
-    """
+def search_list(request):
     template_name = "post_search_results.html"
-    html_title = "Search Results"
+    q = request.GET.get('q', '')
 
-    def get_queryset(self, **kwargs):
-        posts = search.plain(self.q)
-        return posts
+    if not q:
+        return redirect(reverse("home"))
 
-    def dispatch(self, request, *args, **kwargs):
-        # check if there is some video onsite
-        if not self.q:
-            return redirect(reverse("home"))
-        else:
-            return super(SearchResults, self).dispatch(request, *args, **kwargs)
+    posts = search.plain(q)
+
+    page = query.get_page(request, posts, per_page=settings.POSTS_PER_PAGE)
+
+    # Add the recent votes
+    recent_votes = query.recent_votes()
+    html_title = "Post List"
+    context = dict(page=page, posts=page.object_list, recent_votes=recent_votes, html_title=html_title)
+
+    return render(request, template_name, context)
 
 
 
@@ -122,7 +108,7 @@ class PostView(ExtraContext, DetailView):
             return redirect(self.object.get_absolute_url())
 
         # Gets all objects in a thread. Moderators get deleted objects as well.
-        thread = [ px for px in query.get_thread(self.object, user)]
+        thread = [px for px in query.get_thread(self.object, user)]
 
         # Collect votes for authenticated users
         store = {Vote.UP: set(), Vote.BOOKMARK: set()}
@@ -138,6 +124,7 @@ class PostView(ExtraContext, DetailView):
 
         # Set up additional attributes on each post
         write_access = auth.thread_write_access(user=user, root=self.object)
+
         def decorator(p):
             p.editable = write_access(user=user, post=p)
             p.has_vote = p.id in self.object.upvotes
@@ -163,20 +150,15 @@ class PostView(ExtraContext, DetailView):
         # This is for testing only. Keeps adding comments to posts on the page.
         if user.is_authenticated():
             import random, faker
+
             f = faker.Factory.create()
             u = random.choice(User.objects.all())
-            parent = random.choice( thread + [ self.object ])
+            parent = random.choice(thread + [self.object])
             text = f.bs()
             comment = models.Post.objects.create(type=models.Post.COMMENT, parent=parent, content=text, author=u)
 
         # Add oject to the context.
         context = self.get_context_data(object=self.object)
 
-
         return self.render_to_response(context)
 
-
-def ratelimited(request, exc):
-    data = dict()
-    context_instance = RequestContext(request)
-    return render_to_response("ratelimit_info.html", data, context_instance)
