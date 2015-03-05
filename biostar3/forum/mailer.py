@@ -10,12 +10,17 @@ Extracts all information from a single template like so. All three blocks must b
     {% block html %} declares text/html
 
 """
+import logging, smtplib
+
 from django.conf import settings
 from django.template.loader import get_template
 from django.template.loader_tags import BlockNode
 from django.core.mail import EmailMultiAlternatives
 from django.template import Context
-import logging
+from django.core.mail.utils import DNS_NAME
+from django.core.mail.backends import smtp
+from django.core.mail.backends.base import BaseEmailBackend
+from django.core.mail import get_connection
 
 logger = logging.getLogger("biostar")
 
@@ -47,7 +52,7 @@ class EmailTemplate(object):
 
         # Support address in the `to` parameter.
         if type(to) != list:
-            to = [ to ]
+            to = [to]
 
         # Fall back to defaults
         from_email = from_email or settings.DEFAULT_FROM_EMAIL
@@ -59,3 +64,28 @@ class EmailTemplate(object):
             msg.attach_alternative(self.html, 'text/html')
 
         msg.send()
+
+
+class SSLEmailBackend(smtp.EmailBackend):
+    """
+    Required for Amazon SES
+    """
+
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault('timeout', 5)
+        super(SSLEmailBackend, self).__init__(*args, **kwargs)
+
+    def open(self):
+        if self.connection:
+            return False
+        try:
+            logger.debug("sending email via %s" % self.host)
+            self.connection = smtplib.SMTP_SSL(self.host, self.port,
+                                               local_hostname=DNS_NAME.get_fqdn())
+            if self.username and self.password:
+                self.connection.login(self.username, self.password)
+            return True
+        except Exception, exc:
+            logger.error(exc)
+            if not self.fail_silently:
+                raise

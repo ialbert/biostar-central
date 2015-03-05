@@ -1,5 +1,7 @@
 from __future__ import absolute_import, division, unicode_literals
 
+import logging
+
 from django.test import TestCase
 from django.conf import settings
 from django.core import mail
@@ -12,6 +14,8 @@ from biostar3.forum import html
 from faker import Factory
 from django.contrib.sites.models import Site
 
+logging.disable(logging.ERROR)
+
 class SimpleTests(TestCase):
     def test_admin_user(self):
         """
@@ -19,7 +23,7 @@ class SimpleTests(TestCase):
         """
         TRUE = self.assertTrue
 
-        TRUE(len(settings.ADMINS)>0)
+        TRUE(len(settings.ADMINS) > 0)
         for user, email in settings.ADMINS:
             user = User.objects.get(email=email)
             TRUE(user.is_admin)

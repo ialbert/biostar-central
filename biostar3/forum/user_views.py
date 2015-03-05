@@ -15,6 +15,8 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login
 
+from ratelimit.decorators import ratelimit, is_ratelimited
+
 logger = logging.getLogger('biostar')
 
 # Get custom user model.
@@ -30,22 +32,44 @@ def me_view(request):
 
 CAPTCHA_VERIFY_URL = "https://www.google.com/recaptcha/api/siteverify"
 
+@ratelimit(key='ip', rate=settings.SIGNUP_RATELIMIT)
 def sign_up(request):
+    """
+    Log In and Sign up is integrated into the same action.
 
+    Performs a series of checks:
+
+    - If the email/password is correct logs the user in.
+    - If email exists but password incorrect asks for retry.
+    - If no email exists and user provides a password then creates a new user.
+    - If Google Recaptcha is active then requires that to pass.
+
+    There are no nested conditionals. As soon as an error is seen we bail out.
+    """
     email = request.POST.get('email', '').strip()
     password = request.POST.get('password')
     recaptcha_response = request.POST.get('g-recaptcha-response')
 
     login_redirect = redirect(reverse("account_login"))
 
+    was_limited = getattr(request, 'limited', False)
+
+    if was_limited:
+        # Rate limits apply to signups.
+        messages.error(request, "Access denied! Too many similar requests from the same IP address. Please try later!")
+        return login_redirect
+
     if request.method == 'GET':
+        # Get requests go to login page.
         return login_redirect
 
     if not email and password:
+        # The form requires both email and password.
         messages.error(request, "Please enter an email and a password!")
         return login_redirect
 
     if settings.RECAPTCHA_PUBLIC_KEY and not recaptcha_response:
+        # The capthca is active but the user has not solved it.
         messages.error(request, "Please solve the captcha!")
         return login_redirect
 
@@ -53,30 +77,33 @@ def sign_up(request):
         # Verfiying the captcha response.
 
         data = {
-            'secret' : settings.RECAPTCHA_PRIVATE_KEY,
+            'secret' : settings.RECAPTCHA_SECRET_KEY,
             'response' : recaptcha_response,
             'remoteip' : auth.remote_ip(request),
         }
 
         try:
+            # Validate the captcha.
             data = urllib.urlencode(data)
             conn = urllib2.Request(CAPTCHA_VERIFY_URL, data)
             response = urllib2.urlopen(conn).read()
             result = json.loads(response)
             if not result.get('success'):
+                # User failed at solving the capthca.
                 messages.error(request, "Failed at the captcha authentication. Please try again!")
                 return login_redirect
         except Exception, exc:
+            # This here is triggered on unexpected errors while solving the capthca.
             logger.error(exc)
             messages.error(request, "Unable to complete captcha challenge: %s" % exc)
             return login_redirect
-
 
     # At this point the parameters are correct, try to authenticate
     user = authenticate(username=email, password=password)
     if user is not None:
         if user.is_active:
             login(request, user)
+            messages.success(request, "Succesfully signed in as %s" % user.name)
             return redirect(reverse("home"))
         else:
             messages.error(request, "This user account has been disabled")
@@ -97,6 +124,7 @@ def sign_up(request):
         user.save()
         user = authenticate(username=email, password=password)
         login(request, user)
+        messages.success(request, "Succesfully signed up as %s" % user.name)
         return redirect(reverse("home"))
     except Exception, exc:
         logger.error(exc)

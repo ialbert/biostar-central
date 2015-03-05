@@ -108,21 +108,7 @@ INSTALLED_APPS = (
     # 'allauth.socialaccount.providers.xing',
 )
 
-SOCIALACCOUNT_ADAPTER = 'biostar3.middleware.AutoSignupAdapter'
 
-ACCOUNT_AUTHENTICATION_METHOD = "email"
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_UNIQUE_EMAIL = True
-ACCOUNT_USERNAME_REQUIRED = False
-ACCOUNT_EMAIL_VERIFICATION = "optional"
-ACCOUNT_EMAIL_SUBJECT_PREFIX = "[biostar] "
-ACCOUNT_PASSWORD_MIN_LENGHT = 6
-ACCOUNT_USER_MODEL_USERNAME_FIELD = None
-ACCOUNT_USER_MODEL_EMAIL_FIELD = "email"
-ACCOUNT_DEFAULT_HTTP_PROTOCOL = "http"
-ACCOUNT_CONFIRM_EMAIL_ON_GET = True
-LOGIN_REDIRECT_URL = "/"
-ACCOUNT_SESSION_COOKIE_AGE = 3600 * 24 * 60
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -133,14 +119,9 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'biostar3.middleware.GlobalMiddleware',
-    'ratelimit.middleware.RatelimitMiddleware',
 )
 
-# Rate limit view to return.
-RATELIMIT_VIEW = "biostar3.forum.views.ratelimited"
 
-# Enable rate limiting.
-RATELIMIT_ENABLE = True
 
 ROOT_URLCONF = 'biostar3.urls'
 
@@ -256,9 +237,6 @@ EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
 # Minimal and maximal post size in characters
 MAX_POST_SIZE = 150000
 
-# When set the captcha forms will be active.
-RECAPTCHA_PUBLIC_KEY = ""
-RECAPTCHA_PRIVATE_KEY = ""
 
 # Allowed html content.
 ALLOWED_TAGS = "p div br code pre h1 h2 h3 h4 hr span s sub sup b i img strong \

@@ -1,7 +1,24 @@
 #
-# Site specic behaviors.
+# Site specic behaviors. These values are loaded first even before the base settings module.
 #
 from collections import OrderedDict
+
+# Should the site send a welcome email.
+SEND_WELCOME_EMAIL = True
+
+
+# Google ReCaptcha No-Captcha settings
+# When set the captcha forms will be active.
+RECAPTCHA_PUBLIC_KEY = ""
+RECAPTCHA_SECRET_KEY = ""
+
+# Enable rate limiting.
+RATELIMIT_ENABLE = True
+
+# How many maximum signup accesses per minute.
+# See django-ratelimit for rates and keys.
+# Does not include signups via social authentication.
+SIGNUP_RATELIMIT = "3/m"
 
 # How many recent votes to show.
 RECENT_VOTE_COUNT = 10
@@ -47,3 +64,23 @@ MESSAGING_MAP = OrderedDict([
 ])
 
 MESSAGE_DEFAULT = SMART_MESSAGES
+
+#
+# Django allauth configuration
+#
+SOCIALACCOUNT_ADAPTER = 'biostar3.middleware.AutoSignupAdapter'
+
+ACCOUNT_AUTHENTICATION_METHOD = "email"
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_UNIQUE_EMAIL = True
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_EMAIL_VERIFICATION = "optional"
+ACCOUNT_EMAIL_SUBJECT_PREFIX = "[biostar]"
+ACCOUNT_USER_DISPLAY = lambda user: user.name
+ACCOUNT_PASSWORD_MIN_LENGHT = 6
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+ACCOUNT_USER_MODEL_EMAIL_FIELD = "email"
+ACCOUNT_DEFAULT_HTTP_PROTOCOL = "http"
+ACCOUNT_CONFIRM_EMAIL_ON_GET = True
+LOGIN_REDIRECT_URL = "/"
+ACCOUNT_SESSION_COOKIE_AGE = 3600 * 24 * 60

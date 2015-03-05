@@ -4,16 +4,22 @@
 #
 from biostar3.settings.base import *
 
+# Turn this off during deployment.
+DEBUG = True
+TEMPLATE_DEBUG = True
+
 # Site administrators. Make sure to override this.
 ADMINS = (
     ("Biostar Community", "1@localhost.com"),
 )
 
+DEFAULT_FROM_EMAIL = "Site Admin <1@localhost.com>"
+
 MANAGERS = ADMINS
 
-# Default secret key is the admin email.
+# The secret key can be used to log into the admin email!
 # Make sure to change it in production.
-SECRET_KEY = ADMINS[0][1]
+SECRET_KEY = 'secret_key'
 
 DATABASE_NAME = get_env('DATABASE_NAME')
 DATABASE_USER = get_env('DATABASE_USER')

@@ -1,20 +1,22 @@
 # Import all values from the base then override site specific settings.
 from biostar3.settings.base import *
 
+# Turn this off during deployment.
+DEBUG = True
+TEMPLATE_DEBUG = True
+
 # Site administrators. Make sure to override this.
 ADMINS = (
     ("Biostar Community", "1@localhost.com"),
 )
 
+DEFAULT_FROM_EMAIL = "Site Admin <1@localhost.com>"
+
 MANAGERS = ADMINS
 
-# Default secret key is the admin email.
+# The secret key can be used to log into the admin email!
 # Make sure to change it in production.
-SECRET_KEY = ADMINS[0][1]
-
-# Sqlite specific settings.
-DEBUG = True
-TEMPLATE_DEBUG = True
+SECRET_KEY = 'secret_key'
 
 # The database name must be present.
 DATABASE_NAME = get_env('DATABASE_NAME')

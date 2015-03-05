@@ -32,9 +32,10 @@ def user_update(sender, instance, created, **kwargs):
             user=instance, last_login=right_now, date_joined=right_now
         )
 
-        # Send a welcome email to the user.
-        data = dict(user=instance)
-        em = EmailTemplate("user_creation.html", data=data)
-        em.send(to=[instance.email])
+        if settings.SEND_WELCOME_EMAIL:
+            # Send a welcome email to the user.
+            data = dict(user=instance)
+            em = EmailTemplate("user_welcome_email.html", data=data)
+            em.send(to=[instance.email])
 
 post_save.connect(user_update, sender=User)
