@@ -1,32 +1,47 @@
 {% extends "site_layout.html" %}
 {% load widgets %}
 
-{%  block title %}
-	User List
-{%  endblock %}
+{% block title %}
+    User List
+{% endblock %}
 
 {% block body %}
 
     <div class="row">
-        <div class="nine columns">
+        <div class="twelve columns">
 
-            {% search_bar action='user_list' %}
+            {% search_bar action='user_list' placeholder="Search for users" %}
 
             {% page_bar page %}
 
-            <table class="u-full-width">
+            <div class="row">
                 {% for user in users %}
-                    <tr>
-                        <td>
-                            <div class="post_title">
-                                {{ user.name }}
-                            </div>
-                        </td>
-                    </tr>
-                {% endfor %}
-            </table>
 
-            {% page_bar %}
+                    <div class="user_list_box">
+                        <div>
+                            <a href="{{ user.get_absolute_url }}">{% gravatar user 82 %}</a>
+                        </div>
+
+                        <div>
+                            <a href="{{ user.get_absolute_url }}">{{ user.name }}</a>
+                        </div>
+
+                        <div class="visited">
+                            visited {{ user.profile.last_login|time_ago }}
+                        </div>
+
+                        <div class="visited">
+                            {{ user.profile.location }}
+                        </div>
+
+
+                    </div>
+
+
+                {% endfor %}
+            </div>
+
+            {% page_bar page %}
         </div>
 
     </div>

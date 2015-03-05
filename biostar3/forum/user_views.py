@@ -25,8 +25,13 @@ User = get_user_model()
 
 def user_list(request):
     template_name = "user_list.html"
-    users = User.objects.all()
-    page = query.get_page(request, users, 20)
+
+    q = request.GET.get('q','')
+    if q:
+        users = User.objects.filter(name__icontains=q)
+    else:
+        users = User.objects.all()
+    page = query.get_page(request, users, 24)
     context = dict(page=page, users=page.object_list)
     return render(request, template_name, context)
 
