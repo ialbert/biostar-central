@@ -6,7 +6,6 @@ from django.contrib import messages
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.core.exceptions import ValidationError
 from django.contrib.auth.decorators import login_required
-from django.views.generic import ListView
 from .models import Post
 from . import auth
 from django.shortcuts import render, redirect

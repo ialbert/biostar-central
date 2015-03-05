@@ -2,8 +2,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
 
-from biostar3.forum.post_views import PostView
-
 from biostar3.forum import form_views, user_views, post_views
 
 from biostar3.forum import ajax
@@ -14,7 +12,7 @@ urlpatterns = patterns('',
     url(r'^$', post_views.post_list, name='home'),
 
     # Renders search results.
-    url(r'^site/search/$', post_views.search_list, name='search'),
+    url(r'^site/search/$', post_views.search_results, name='search'),
 
     # A shortcut to a user's account.
     url(r'^site/me/$', user_views.me_view, name='me'),
@@ -26,7 +24,7 @@ urlpatterns = patterns('',
     url(r'^accounts/signup/$', user_views.sign_up, name='account_signup'),
 
     # Post details.
-    url(r'^p/(?P<pk>\d+)/$', PostView.as_view(), name="post_view"),
+    url(r'^p/(?P<pk>\d+)/$', post_views.post_view, name="post_view"),
 
     # The list of users.
     url(r'^user/list/$', user_views.user_list, name="user_list"),
