@@ -29,6 +29,8 @@ urlpatterns = patterns('',
     # The list of users.
     url(r'^user/list/$', user_views.user_list, name="user_list"),
 
+    # Post details.
+    url(r'^u/(?P<pk>\d+)/$', user_views.user_view, name="user_view"),
 
     # Create new content: answer, comments
     url(r'^new/post/$', form_views.create_toplevel_post, name="new_post"),

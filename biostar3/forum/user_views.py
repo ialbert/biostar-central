@@ -24,6 +24,9 @@ User = get_user_model()
 
 
 def user_list(request):
+    """
+    Generates the user listing.
+    """
     template_name = "user_list.html"
 
     q = request.GET.get('q','')
@@ -33,6 +36,14 @@ def user_list(request):
         users = User.objects.all()
     page = query.get_page(request, users, 24)
     context = dict(page=page, users=page.object_list)
+    return render(request, template_name, context)
+
+def user_view(request, pk):
+    """
+    Generates a single user view
+    """
+    template_name = "user_view.html"
+    context = dict()
     return render(request, template_name, context)
 
 @login_required

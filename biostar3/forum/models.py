@@ -102,7 +102,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def get_absolute_url(self):
         # url = reverse("user_view", kwargs=dict(pk=self.id))
-        url = "/u/view/%s" % self.id
+        url = reverse("user_view", kwargs=dict(pk=self.id))
         return url
 
     def get_short_name(self):
