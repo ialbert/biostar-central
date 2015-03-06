@@ -1,0 +1,29 @@
+{% extends "site_layout.html" %}
+{% load widgets %}
+
+{% block title %}
+    Tags
+{% endblock %}
+
+{% block body %}
+
+    <div class="row">
+        <div class="nine columns">
+
+            {% search_bar page=page action='tag_list' placeholder="Search for tags" %}
+
+            <div class="row" id="tag_list">
+                {% for tag in tags %}
+
+                    <a href="/t/{{ tag.name }}/" class="tag">{{ tag.name }}</a>
+
+
+                {% endfor %}
+            </div>
+
+            {% page_bar page %}
+        </div>
+
+    </div>
+
+{% endblock %}

@@ -34,8 +34,8 @@ def user_list(request):
         users = User.objects.filter(name__icontains=q)
     else:
         users = User.objects.all()
-    page = query.get_page(request, users, 24)
-    context = dict(page=page, users=page.object_list)
+    page = query.get_page(request, users, 25)
+    context = dict(page=page, users=page.object_list, q=q)
     return render(request, template_name, context)
 
 def user_view(request, pk):

@@ -74,12 +74,12 @@ body {
 
 .user_list_box {
   float: left;
-  width: 13%;
-  height: 160px;
+  width: 15%;
+  height: 180px;
   padding: 1ex;
   text-align: center;
   margin: 1em;
-  overflow: scroll;
+  overflow: hidden;
   .visited {
     color: @MUTED_TEXT_COLOR;
     font-size: smaller;
@@ -201,6 +201,13 @@ body {
 }
 
 /* Tags */
+#tag_list {
+  .tag{
+    margin: 1ex;
+    font-size: larger;
+  }
+}
+
 .tag_bar {
   margin: 0ex 0ex 0.5ex 0ex;
 }
@@ -215,7 +222,7 @@ body {
   -webkit-border-radius: 3px;
   -moz-border-radius: 3px;
   border-radius: 3px;
-
+  display: inline-block;
   &:hover {
     color: white;
     background-color: @TAG_BG_HOVER_COLOR;

@@ -67,10 +67,9 @@ def nicer_value(value):
     return value if value else ''
 
 @register.inclusion_tag('widgets/search_bar.html', takes_context=True)
-def search_bar(context, action='search', placeholder="Search"):
+def search_bar(context, page=None, action='search', placeholder="Search"):
     q = context.get('q', '')
-    posts = context.get('posts', '')
-    return dict(q=q, posts=posts, action=action, placeholder=placeholder)
+    return dict(page=page, q=q, action=action, placeholder=placeholder)
 
 @register.inclusion_tag('widgets/action_bar.html')
 def action_bar(post, label="ADD COMMENT"):

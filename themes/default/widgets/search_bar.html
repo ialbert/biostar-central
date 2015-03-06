@@ -1,7 +1,7 @@
 {% load humanize %}
 {% load widgets %}
 
-{#  Search bar on top of the page #}
+{#  Search bar under the paging widget #}
 <div class="row">
     <div class="twelve columns" id="search_bar">
         <form action="{% url action %}" method="get">
@@ -15,12 +15,14 @@
 {% if q %}
 <div class="row">
     <div class="search-info">
-        {% if posts %}
+        {% if page.object_list %}
         Searching for
         {% else %}
         Nothing matches
         {% endif %}
-        <span class="highlighted">&nbsp;{{ q }}&nbsp;</span> &bull; <a href="{% url 'home' %}">Clear Search</a>
+        <span class="highlighted">&nbsp;{{ page.q }}&nbsp;</span> &bull; <a href="{% url action %}">Clear Search</a>
     </div>
 </div>
 {% endif %}
+
+{%  page_bar page %}
