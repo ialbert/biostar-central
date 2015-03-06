@@ -79,6 +79,11 @@ def action_bar(post, label="ADD COMMENT"):
 def update_bar(post):
     return dict(post=post)
 
+@register.inclusion_tag('widgets/message_bar.html', takes_context=True)
+def message_bar(context):
+    messages = context.get("messages", '')
+    return dict(messages=messages)
+
 @register.inclusion_tag('widgets/tag_bar.html')
 def tag_bar(post):
     return dict(post=post)

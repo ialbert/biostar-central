@@ -9,6 +9,8 @@
 
             {% search_bar page=page%}
 
+
+
             <table class="u-full-width">
                 {% for post in posts %}
                     <tr>
@@ -43,6 +45,8 @@
         </div>
 
         <div class="three columns recent_votes">
+            {%  message_bar %}
+
             {% recent_votes recent_votes %}
         </div>
 

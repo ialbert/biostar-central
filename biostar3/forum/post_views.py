@@ -45,7 +45,7 @@ def tag_filter(request, name):
     posts = query.get_toplevel_posts(user=request.user, group=request.group)
     names = name.split("+")
     posts = posts.filter(tags__name__in=names)
-    messages.info(request, 'Filtering for tags: %s' % name)
+    messages.warning(request, 'Filtering for tags: %s' % name)
     return post_list(request, posts=posts)
 
 def post_list(request, posts=None):
