@@ -77,11 +77,15 @@ def thread_write_access(user, root):
 
     return validator
 
-def remote_ip(request):
+def remote_ip(request, key='REMOTE_ADDR'):
     """
-    Attempts to retrieve the IP address from the request. Does not validate the result.
+    Retrieve the IP address from the request.
+    Does not validate the result.
     """
-    ip1 = request.META.get('REMOTE_ADDR', '')
-    ip2 = request.META.get('HTTP_X_FORWARDED_FOR', '').split(",")[0].strip()
-    ip = ip1 or ip2 or '0.0.0.0'
+    # Frontend must set the header correctly.
+    ip = request.META.get(key, '0.0.0.0')
+
+    #ip2 = request.META.get('HTTP_X_FORWARDED_FOR', '').split(",")[0].strip()
+    #ip = ip1 or ip2 or '0.0.0.0'
+
     return ip
