@@ -67,10 +67,9 @@ def nicer_value(value):
     return value if value else ''
 
 @register.inclusion_tag('widgets/search_bar.html', takes_context=True)
-def search_bar(context, action='search', placeholder="Search"):
+def search_bar(context, page=None, action='search', placeholder="Search"):
     q = context.get('q', '')
-    posts = context.get('posts', '')
-    return dict(q=q, posts=posts, action=action, placeholder=placeholder)
+    return dict(page=page, q=q, action=action, placeholder=placeholder)
 
 @register.inclusion_tag('widgets/action_bar.html')
 def action_bar(post, label="ADD COMMENT"):
@@ -79,6 +78,11 @@ def action_bar(post, label="ADD COMMENT"):
 @register.inclusion_tag('widgets/update_bar.html')
 def update_bar(post):
     return dict(post=post)
+
+@register.inclusion_tag('widgets/message_bar.html', takes_context=True)
+def message_bar(context):
+    messages = context.get("messages", '')
+    return dict(messages=messages)
 
 @register.inclusion_tag('widgets/tag_bar.html')
 def tag_bar(post):

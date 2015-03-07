@@ -26,6 +26,10 @@ urlpatterns = patterns('',
     # Post details.
     url(r'^p/(?P<pk>\d+)/$', post_views.post_view, name="post_view"),
 
+    # Tag list.
+    url(r'^t/$', post_views.tag_list, name="tag_list"),
+    url(r'^t/(?P<name>\S+)/$', post_views.tag_filter, name="tag_filter"),
+
     # The list of users.
     url(r'^user/list/$', user_views.user_list, name="user_list"),
 

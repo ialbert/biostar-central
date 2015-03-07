@@ -29,6 +29,9 @@ RECENT_USER_COUNT = 10
 # How many posts per page.
 POSTS_PER_PAGE = 10
 
+# How many minutes until a post view from an IP is counted again.
+POST_VIEW_INTERVAL = 5
+
 # The CSS classes associated with the Django messages framework.
 MESSAGE_TAGS = {
     10: 'alert-info', 20: 'alert-info', 25: 'alert-success', 30: 'alert-warning', 40: 'alert-danger',

@@ -4,13 +4,17 @@ Access authorizations are performed here
 from string import strip
 from .models import *
 from django.utils.timezone import utc
-from datetime import datetime
+from datetime import datetime, timedelta
 
 class AccessDenied(BaseException):
     pass
 
 def now():
     return datetime.utcnow().replace(tzinfo=utc)
+
+def ago(hours=0, minutes=0):
+    since = now() - timedelta(hours=hours, minutes=minutes)
+    return since
 
 def tag_split(text):
     lower = lambda x: x.lower() if len(x) > 1 else x
@@ -73,8 +77,15 @@ def thread_write_access(user, root):
 
     return validator
 
-def remote_ip(request):
-    ip1 = request.META.get('REMOTE_ADDR', '')
-    ip2 = request.META.get('HTTP_X_FORWARDED_FOR', '').split(",")[0].strip()
-    ip = ip1 or ip2 or '0.0.0.0'
+def remote_ip(request, key='REMOTE_ADDR'):
+    """
+    Retrieve the IP address from the request.
+    Does not validate the result.
+    """
+    # Frontend must set the header correctly.
+    ip = request.META.get(key, '0.0.0.0')
+
+    #ip2 = request.META.get('HTTP_X_FORWARDED_FOR', '').split(",")[0].strip()
+    #ip = ip1 or ip2 or '0.0.0.0'
+
     return ip

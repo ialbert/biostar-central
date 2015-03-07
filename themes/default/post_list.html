@@ -7,9 +7,9 @@
 
             {%  user_bar user %}
 
-            {%  search_bar %}
+            {% search_bar page=page%}
 
-            {% page_bar page %}
+
 
             <table class="u-full-width">
                 {% for post in posts %}
@@ -45,6 +45,8 @@
         </div>
 
         <div class="three columns recent_votes">
+            {%  message_bar %}
+
             {% recent_votes recent_votes %}
         </div>
 
