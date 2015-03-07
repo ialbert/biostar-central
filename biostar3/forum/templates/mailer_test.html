@@ -1,18 +1,9 @@
+RawBlameHistory
 {# Test template for sending user emails #}
-{%  block subject %}{{ subject }}{%  endblock %}
+{%  block subject %}Hello {{ name }}!{%  endblock %}
 
-{% block text %}
-    Email check for {{ backend }}!
-    Sent on {{ now }}
+{% block text %}Hello {{ content }}!{%  endblock %}
 
-{%  endblock %}
-
-{% block html %}
-    <div style="border-bottom: 1px solid grey; padding-bottom:1em">
-        Email check for {{ domain }} via <b>{{ backend }}</b>!</div>
-    <div>
-        Sent on <i style="color:red">{{ now }}</i>
-    </div>
-{%  endblock %}
+{% block html %}Hello <b>{{ content }}!</b>{%  endblock %}
 
 

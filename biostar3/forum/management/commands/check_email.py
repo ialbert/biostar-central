@@ -33,7 +33,7 @@ class Command(BaseCommand):
             backend=settings.EMAIL_BACKEND,
         )
 
-        em = EmailTemplate("mailer_test.html", data=data)
+        em = EmailTemplate("check_email.html", data=data)
 
         recp = ", ".join(to)
 

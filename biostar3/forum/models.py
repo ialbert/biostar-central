@@ -1,5 +1,5 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
-import random, hashlib
+import random, hashlib, uuid
 from django.db import models, transaction
 from django.contrib.auth.models import UserManager, AbstractBaseUser, PermissionsMixin
 from django.contrib.sites.models import Site
@@ -20,11 +20,9 @@ def now():
     return datetime.utcnow().replace(tzinfo=utc)
 
 
-def make_uuid(size=None):
-    "Returns a unique id"
-    x = random.getrandbits(256)
-    u = hashlib.md5(str(x)).hexdigest()
-    u = u[:size]
+def make_uuid(size=8):
+    u = uuid.uuid4()
+    u = str(u)[:size]
     return u
 
 # Default groups.
@@ -380,6 +378,23 @@ class PostView(models.Model):
     post = models.ForeignKey(Post, related_name="post_views")
     date = models.DateTimeField(auto_now=True)
 
+
+
+class ReplyToken(models.Model):
+    """
+    Connects a user and a post to a unique token.
+    Sending back the token identifies
+    both the user and the post that they are replying to.
+    """
+    user = models.ForeignKey(settings.AUTH_USER_MODEL)
+    post = models.ForeignKey(Post)
+    token = models.CharField(max_length=256)
+    date = models.DateTimeField(auto_created=True)
+
+    def save(self, *args, **kwargs):
+        if not self.id:
+            self.token = make_uuid()
+        super(ReplyToken, self).save(*args, **kwargs)
 
 class FederatedContent(models.Model):
     """
