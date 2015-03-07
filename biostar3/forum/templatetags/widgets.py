@@ -61,7 +61,7 @@ def user_link(user):
 
 @register.inclusion_tag('widgets/page_bar.html', takes_context=True)
 def page_bar(context, page=None, sort=[], limit=[]):
-    sort = SortForm()
+    sort = settings.POST_SORT_CHOICES
     limit = TimeLimit()
     return dict(page=page, sort=sort, limit=limit)
 

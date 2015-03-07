@@ -62,7 +62,7 @@ SORT_BY_SUBS, SORT_BY_ANSWERS, SORT_BY_BOOKMARKS = "followers", "replies", "book
 SORT_BY_VOTES, SORT_BY_RANK, SORT_BY_CREATION = "votes", "rank", "creation"
 
 POST_SORT_CHOICES = [
-    (SORT_BY_UPDATE, "Latest",),
+    (SORT_BY_UPDATE, "By activity",),
     (SORT_BY_VIEWS, "By views"),
     (SORT_BY_SUBS, "By followers"),
     (SORT_BY_ANSWERS, "By answers"),
@@ -75,8 +75,15 @@ POST_SORT_CHOICES = [
 # Default sort order.
 POST_SORT_DEFAULT = SORT_BY_UPDATE
 
+# Quicker lookup of value to label.
+POST_SORT_MAP = dict(POST_SORT_CHOICES)
+
+# No sort parameter will display with the default label.
+POST_SORT_MAP[''] = POST_SORT_MAP[POST_SORT_DEFAULT]
+
+
 # Connects a sort value to an order_by attribute in the database.
-POST_SORT_MAP = {
+POST_SORT_ORDER = {
     SORT_BY_UPDATE: "-lastedit_date",
     SORT_BY_VIEWS: "-view_count",
     SORT_BY_SUBS: "-subs_count",
@@ -86,6 +93,7 @@ POST_SORT_MAP = {
     SORT_BY_RANK: "-rank",
     SORT_BY_CREATION: "-creation_date"
 }
+
 
 # The messages show when the sort is not valid.
 POST_SORT_INVALID_MSG = "Invalid sort parameter in URL."

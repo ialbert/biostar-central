@@ -23,7 +23,6 @@ logger = logging.getLogger('biostar')
 # Get custom user model.
 User = get_user_model()
 
-
 def tag_list(request):
     template_name = "tag_list.html"
 

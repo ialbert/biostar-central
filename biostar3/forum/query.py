@@ -11,36 +11,40 @@ User = get_user_model()
 
 DEFAULT_GROUP = UserGroup.objects.filter(name=settings.DEFAULT_GROUP_NAME).first()
 
-
 class ExtendedPaginator(Paginator):
     def __init__(self, request, *args, **kwds):
         self.request = request
         self.curr_page = request.GET.get('page', '1')
-        self.sort = request.GET.get('sort', '')
+        self.sort_val = request.GET.get('sort', '')
         self.q = request.GET.get('q', '')
-        self.limit = request.GET.get('limit', '')
+        self.limit_val = request.GET.get('limit', '')
+        self.limit_lab = ''
 
-        if self.sort and self.sort not in settings.POST_SORT_MAP:
+        if self.sort_val and self.sort_val not in settings.POST_SORT_MAP:
             messages.warning(self.request, settings.POST_SORT_INVALID_MSG)
-            self.sort = ''
+            self.sort_val = ''
+
+        # The label that the users sees for the sort.
+        self.sort_lab = settings.POST_SORT_MAP.get(self.sort_val, "*** missing ***")
 
         super(ExtendedPaginator, self).__init__(*args, **kwds)
 
     def get_page(self):
 
         try:
-            page_obj = self.page(self.curr_page)
+            pa = self.page(self.curr_page)
         except PageNotAnInteger:
             # If page is not an integer, deliver first page.
-            page_obj = self.page(1)
+            pa = self.page(1)
         except EmptyPage:
             # If page is out of range (e.g. 9999), deliver last page of results.
-            page_obj = self.page(self.num_pages)
+            pa = self.page(self.num_pages)
 
         # Add extra attributes to paging to keep the correct context.
-        page_obj.sort, page_obj.q, page_obj.limit = self.sort, self.q, self.limit
+        pa.sort_val, pa.sort_lab = self.sort_val, self.sort_lab
+        pa.q, pa.limit_val, pa.limit_lab = self.q, self.limit_val, self.limit_lab
 
-        return page_obj
+        return pa
 
 
 def get_page(request, object_list, per_page):
