@@ -7,12 +7,19 @@ from django.utils.timezone import utc
 from biostar3.forum.models import Post
 from django.template import loader
 from django.core.context_processors import csrf
+from django import forms
 
 register = Library()
 
+class SortForm(forms.Form):
+    fields = forms.TypedChoiceField(coerce=int, choices=settings.POST_SORT_CHOICES)
+
+class TimeLimit(forms.Form):
+    fields = forms.TypedChoiceField(coerce=int, choices=settings.TIME_LIMIT_CHOICES)
+
+
 def now():
     return datetime.utcnow().replace(tzinfo=utc)
-
 
 @register.simple_tag
 def scoreline(user, size=5):
@@ -52,9 +59,11 @@ def user_link(user):
     return dict(user=user)
 
 
-@register.inclusion_tag('widgets/page_bar.html')
-def page_bar(page=None):
-    return dict(page=page)
+@register.inclusion_tag('widgets/page_bar.html', takes_context=True)
+def page_bar(context, page=None, sort=[], limit=[]):
+    sort = SortForm()
+    limit = TimeLimit()
+    return dict(page=page, sort=sort, limit=limit)
 
 @register.filter
 def on_value(value):

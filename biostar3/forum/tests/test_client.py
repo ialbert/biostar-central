@@ -59,7 +59,7 @@ class ClientTests(TestCase):
 
         data = dict(email=ADMIN_EMAIL, password=settings.SECRET_KEY)
 
-        r = self.post(c, "sign_up", data=data, follow=True, pattern="alert-success")
+        r = self.post(c, "sign_up", data=data, follow=True, pattern="success")
 
 
 

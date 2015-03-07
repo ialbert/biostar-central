@@ -1,11 +1,13 @@
 #
-# Site specic behaviors. These values are loaded first even before the base settings module.
+# Site specic behaviors.
+# These values are loaded first even before the base settings module.
+#
+# These are located in settings to allow overriding them.
 #
 from collections import OrderedDict
 
 # Should the site send a welcome email.
 SEND_WELCOME_EMAIL = True
-
 
 # Google ReCaptcha No-Captcha settings
 # When set the captcha forms will be active.
@@ -34,24 +36,56 @@ POST_VIEW_INTERVAL = 5
 
 # The CSS classes associated with the Django messages framework.
 MESSAGE_TAGS = {
-    10: 'alert-info', 20: 'alert-info', 25: 'alert-success', 30: 'alert-warning', 40: 'alert-danger',
+    10: 'info', 20: 'info', 25: 'success', 30: 'warning', 40: 'error',
 }
 
-# Connects a word in post sort to a queryset sort attribute of the data model.
-POST_SORT_MAP = OrderedDict([
-    ("update", "-lastedit_date"),
-    ("views", "-view_count"),
-    ("followers", "-subs_count"),
-    ("answers", "-reply_count"),
-    ("bookmarks", "-book_count"),
-    ("votes", "-vote_count"),
-    ("rank", "-rank"),
-    ("creation", "-creation_date"),
+# Connects a user sort dropdown word to a data model field.
+USER_SORT_CHOICES = OrderedDict([
+    ("recent visit", "-profile__last_login"),
+    ("reputation", "-score"),
+    ("date joined", "profile__date_joined"),
+    ("activity level", "-activity"),
 ])
 
-# These are the fields rendered in the post sort order drop down.
-POST_SORT_FIELDS = POST_SORT_MAP.keys()
-POST_SORT_DEFAULT = POST_SORT_FIELDS[0]
+# These are the fields rendered in the user sort order drop down.
+USER_SORT_FIELDS = USER_SORT_CHOICES.keys()
+
+# The default sort order for a user.
+USER_SORT_DEFAULT = USER_SORT_FIELDS[0]
+
+# Error message when passing an incorrect sort parameter.
+USER_SORT_INVALID_MSG = "Invalid sort parameter received"
+
+# Used to generate the sort dropdown.
+SORT_BY_UPDATE, SORT_BY_VIEWS = "update", "views"
+SORT_BY_SUBS, SORT_BY_ANSWERS, SORT_BY_BOOKMARKS = "followers", "replies", "bookmarks"
+SORT_BY_VOTES, SORT_BY_RANK, SORT_BY_CREATION = "votes", "rank", "creation"
+
+POST_SORT_CHOICES = [
+    (SORT_BY_UPDATE, "Latest",),
+    (SORT_BY_VIEWS, "By views"),
+    (SORT_BY_SUBS, "By followers"),
+    (SORT_BY_ANSWERS, "By answers"),
+    (SORT_BY_BOOKMARKS, "By bookmarks"),
+    (SORT_BY_VOTES, "By votes"),
+    (SORT_BY_RANK, "By rank"),
+    (SORT_BY_CREATION, "By creation"),
+]
+
+# Default sort order.
+POST_SORT_DEFAULT = SORT_BY_UPDATE
+
+# Connects a sort value to an order_by attribute in the database.
+POST_SORT_MAP = {
+    SORT_BY_UPDATE: "-lastedit_date",
+    SORT_BY_VIEWS: "-view_count",
+    SORT_BY_SUBS: "-subs_count",
+    SORT_BY_ANSWERS: "-reply_count",
+    SORT_BY_BOOKMARKS: "-book_count",
+    SORT_BY_VOTES: "-vote_count",
+    SORT_BY_RANK: "-rank",
+    SORT_BY_CREATION: "-creation_date"
+}
 
 # The messages show when the sort is not valid.
 POST_SORT_INVALID_MSG = "Invalid sort parameter in URL."
@@ -59,20 +93,55 @@ POST_SORT_INVALID_MSG = "Invalid sort parameter in URL."
 # Messaging related settings.
 LOCAL_MESSAGE, EMAIL_MESSAGE, NO_MESSAGES, SMART_MESSAGES, ALL_MESSAGES = range(5)
 
-MESSAGING_MAP = OrderedDict([
-    (SMART_MESSAGES, "smart mode",),
-    (LOCAL_MESSAGE, "local messages",),
-    (EMAIL_MESSAGE, "emails",),
-    (ALL_MESSAGES, "email for every new thread (mailing list mode)",),
-])
+# The mapping from a messaging type to a readable word.
+MESSAGE_CHOICES = [
+    (SMART_MESSAGES, "Smart mode"),
+    (LOCAL_MESSAGE, "Local messages"),
+    (EMAIL_MESSAGE, "Email messages"),
+    (ALL_MESSAGES, "Mail List mode"),
+    (NO_MESSAGES, "No Messages"),
+]
 
+# Default messaging value for a new user.
 MESSAGE_DEFAULT = SMART_MESSAGES
 
-#
+# Connects a word to a number of days. 0 indicates no limit.
+ALL_TIME, THIS_DAY, THIS_WEEK, THIS_MONTH, THIS_YEAR = 0, 1, 7, 36, 365
+
+TIME_LIMIT_CHOICES = [
+    (ALL_TIME, "all time"),
+    (THIS_DAY, "today"),
+    (THIS_WEEK, "this week"),
+    (THIS_MONTH, "this month"),
+    (THIS_YEAR, "this year"),
+]
+
+# The default time limit value.
+TIME_LIMIT_DEFAULT = ALL_TIME
+
+# Error message for invalid time limit.
+TIME_LIMIT_INVALID_MSG = "Invalid time limit received"
+
+# Digest choices.
+NO_DIGEST, DAILY_DIGEST, WEEKLY_DIGEST, MONTHLY_DIGEST = range(4)
+
+# Digest options.
+DIGEST_MAP = OrderedDict([
+    (NO_DIGEST, 'Never'),
+    (DAILY_DIGEST, 'Daily'),
+    (WEEKLY_DIGEST, 'Weekly'),
+    (MONTHLY_DIGEST, 'Monthly')
+])
+
+DIGEST_CHOICES = DIGEST_MAP.items()
+
+# Default digest option.
+DEFAULT_DIGEST = WEEKLY_DIGEST
+
 # Django allauth configuration
-#
 SOCIALACCOUNT_ADAPTER = 'biostar3.middleware.AutoSignupAdapter'
 
+# See the django_allauth docs for what the fields mean.
 ACCOUNT_AUTHENTICATION_METHOD = "email"
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_UNIQUE_EMAIL = True

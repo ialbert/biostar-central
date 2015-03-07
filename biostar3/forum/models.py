@@ -148,15 +148,6 @@ class Profile(models.Model):
     class Meta:
         db_table = "users_profile"
 
-    # Message type selector.
-    TYPE_CHOICES = settings.MESSAGING_MAP.items()
-
-    # Digest choices.
-    NO_DIGEST, DAILY_DIGEST, WEEKLY_DIGEST, MONTHLY_DIGEST = range(4)
-
-    DIGEST_CHOICES = [(NO_DIGEST, 'Never'), (DAILY_DIGEST, 'Daily'),
-                      (WEEKLY_DIGEST, 'Weekly'), (MONTHLY_DIGEST, 'Monthly')]
-
     # The user that this profile is for.
     user = models.OneToOneField(settings.AUTH_USER_MODEL)
 
@@ -188,10 +179,10 @@ class Profile(models.Model):
     info = models.TextField(default="", null=True, blank=True)
 
     # The default notification preferences.
-    message_prefs = models.IntegerField(choices=TYPE_CHOICES, default=settings.MESSAGE_DEFAULT)
+    message_prefs = models.IntegerField(choices=settings.MESSAGE_CHOICES, default=settings.MESSAGE_DEFAULT)
 
     # Subscription to daily and weekly digests.
-    digest_prefs = models.IntegerField(choices=DIGEST_CHOICES, default=WEEKLY_DIGEST)
+    digest_prefs = models.IntegerField(choices=settings.DIGEST_CHOICES, default=settings.DEFAULT_DIGEST)
 
     # This stores binary flags on users. Their usage is to
     # allow easy subselection of various subsets of users.
