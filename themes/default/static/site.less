@@ -153,6 +153,10 @@ body {
   float: left;
 }
 
+.right {
+  float: right;
+}
+
 .answer {
   border-top: 1px solid #D1D1D1;
   margin: 0.5em 0em 0.5em 0em;
@@ -344,34 +348,44 @@ body {
 ul.dropdown:hover {
   ul.items {
       display: block;
+
     }
 }
 
 ul.dropdown {
-  float: left;
   margin:0px;
-  padding:4px;
+  padding:0px;
+  z-index: 99;
   ul.items {
-    margin: 0;
-    padding: 0;
-    list-style-type: none;
     position: absolute;
+    margin: 0ex;
+    padding: 0ex;
+    list-style-type: none;
     display: none;
+    background-color: white;
+    z-index: 99;
     li {
-      margin: 0px;
-      padding: 0px;
+      margin: 0ex 0ex 0ex 0ex;
+
+      border-top: 1px solid #d3d3d3;
       float: left;
-      border: 1px black solid;
-      background-color: #05B2D2;
+      min-width: 150px;
+      text-align: left;
       clear: both;
+      a {
+        padding: 1ex 1em 1ex 1em;
+        display: inline-block;
+        width: 100%;
+        height: 100%;
+      }
+      :hover {
+        background-color: #efefef;
+      }
     }
   }
 
-  :hover {
-    background: red;
-
-  }
 }
+
 
 /* Navigation */
 #logo {

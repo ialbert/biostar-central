@@ -1,5 +1,5 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
-
+import sys
 from django.conf import settings
 from biostar3.forum import models
 from biostar3.forum.models import Post, Vote, UserGroup
@@ -11,21 +11,35 @@ User = get_user_model()
 
 DEFAULT_GROUP = UserGroup.objects.filter(name=settings.DEFAULT_GROUP_NAME).first()
 
+def positve_integer(text, upper=sys.maxint):
+    try:
+        value = int(text)
+        value = 0 if (value < 0 or value > upper) else value
+        return value
+
+    except ValueError, exc:
+        return 0
+
 class ExtendedPaginator(Paginator):
     def __init__(self, request, *args, **kwds):
         self.request = request
         self.curr_page = request.GET.get('page', '1')
         self.sort_val = request.GET.get('sort', '')
         self.q = request.GET.get('q', '')
-        self.limit_val = request.GET.get('limit', '')
-        self.limit_lab = ''
+        self.days_val = request.GET.get('days', '')
+
+        # Protect against nonsensically la
+        self.days_val = positve_integer(self.days_val, upper=10000)
+        self.days_lab = ''
 
         if self.sort_val and self.sort_val not in settings.POST_SORT_MAP:
             messages.warning(self.request, settings.POST_SORT_INVALID_MSG)
             self.sort_val = ''
 
         # The label that the users sees for the sort.
-        self.sort_lab = settings.POST_SORT_MAP.get(self.sort_val, "*** missing ***")
+        self.sort_lab = settings.POST_SORT_MAP.get(self.sort_val, "???")
+
+        self.days_lab = settings.TIME_LIMIT_MAP.get(self.days_val, "%s days" % self.days_val)
 
         super(ExtendedPaginator, self).__init__(*args, **kwds)
 
@@ -42,7 +56,7 @@ class ExtendedPaginator(Paginator):
 
         # Add extra attributes to paging to keep the correct context.
         pa.sort_val, pa.sort_lab = self.sort_val, self.sort_lab
-        pa.q, pa.limit_val, pa.limit_lab = self.q, self.limit_val, self.limit_lab
+        pa.q, pa.days_val, pa.days_lab = self.q, self.days_val, self.days_lab
 
         return pa
 

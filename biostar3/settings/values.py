@@ -127,6 +127,9 @@ TIME_LIMIT_CHOICES = [
 # The default time limit value.
 TIME_LIMIT_DEFAULT = ALL_TIME
 
+TIME_LIMIT_MAP = dict(TIME_LIMIT_CHOICES)
+TIME_LIMIT_MAP[''] = TIME_LIMIT_MAP[TIME_LIMIT_DEFAULT]
+
 # Error message for invalid time limit.
 TIME_LIMIT_INVALID_MSG = "Invalid time limit received"
 
