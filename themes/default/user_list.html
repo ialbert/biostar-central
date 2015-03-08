@@ -12,7 +12,7 @@
 
             {% search_bar page=page action='user_list' placeholder="Search for users" %}
 
-            <div class="row">
+            <div class="row" style="padding-top:1em">
                 {% for user in users %}
 
                     <div class="user_list_box">
@@ -21,7 +21,7 @@
                         </div>
 
                         <div>
-                            <a href="{{ user.get_absolute_url }}">{{ user.name }}</a>
+                            <a href="{{ user.get_absolute_url }}">{{ user.name }}</a> &bull; {{ user.score|bignum }}
                         </div>
 
                         <div class="visited">

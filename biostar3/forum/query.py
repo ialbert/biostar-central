@@ -11,7 +11,7 @@ User = get_user_model()
 
 DEFAULT_GROUP = UserGroup.objects.filter(name=settings.DEFAULT_GROUP_NAME).first()
 
-def positve_integer(text, upper=sys.maxint):
+def positive_integer(text, upper=sys.maxint):
     try:
         value = int(text)
         value = 0 if (value < 0 or value > upper) else value
@@ -20,33 +20,71 @@ def positve_integer(text, upper=sys.maxint):
     except ValueError, exc:
         return 0
 
-class ExtendedPaginator(Paginator):
+class DropDown(object):
+    """
+    Represents a dropdown menu with a current value and label.
+    """
+    choices = [] # Pairs of value/display.
+    lookup = {}  # A dictionary to look up a display for a value
+    default = '' # The default value for the widget.
+    order = {} # The mapping to the order_by clause
+
+    def __init__(self, request, value):
+        # Current selection of the drop down.
+        self.value = value if (value in self.lookup) else self.default
+        # The label displayed in the interface.
+        self.label = self.lookup.get(self.value, '???')
+
+class PostSortValidator(DropDown):
+    choices = settings.POST_SORT_CHOICES
+    lookup = settings.POST_SORT_MAP
+    default = settings.POST_SORT_DEFAULT
+    order = settings.POST_SORT_ORDER
+
+class UserSortValidator(DropDown):
+    choices = settings.USER_SORT_CHOICES
+    lookup = settings.USER_SORT_MAP
+    default = settings.USER_SORT_DEFAULT
+    order = settings.USER_SORT_ORDER
+
+class TimeLimitValidator(DropDown):
+    choices = settings.TIME_LIMIT_CHOICES
+    lookup = settings.TIME_LIMIT_MAP
+    default = settings.TIME_LIMIT_DEFAULT
+
+    def __init__(self, request, value):
+        self.value = positive_integer(value, upper=10000)
+        self.label = self.lookup.get(self.value, "%s days" % self.value)
+
+class PostPaginator(Paginator):
+
     def __init__(self, request, *args, **kwds):
         self.request = request
-        self.curr_page = request.GET.get('page', '1')
-        self.sort_val = request.GET.get('sort', '')
+        self.page_num = request.GET.get('page', '1')
+
+        sort = request.GET.get('sort', '')
+        days = request.GET.get('days', '')
         self.q = request.GET.get('q', '')
-        self.days_val = request.GET.get('days', '')
 
-        # Protect against nonsensically la
-        self.days_val = positve_integer(self.days_val, upper=10000)
-        self.days_lab = ''
+        # Add the dropdowns
+        self.sort = PostSortValidator(request, value=sort)
+        self.days = TimeLimitValidator(request, value=days)
 
-        if self.sort_val and self.sort_val not in settings.POST_SORT_MAP:
-            messages.warning(self.request, settings.POST_SORT_INVALID_MSG)
-            self.sort_val = ''
+        super(PostPaginator, self).__init__(*args, **kwds)
 
-        # The label that the users sees for the sort.
-        self.sort_lab = settings.POST_SORT_MAP.get(self.sort_val, "???")
+    def curr_page(self):
 
-        self.days_lab = settings.TIME_LIMIT_MAP.get(self.days_val, "%s days" % self.days_val)
+        order_by = self.sort.order.get(self.sort.value, '?')
 
-        super(ExtendedPaginator, self).__init__(*args, **kwds)
+        # Apply the order to the object list.
+        self.object_list = self.object_list.order_by(order_by)
 
-    def get_page(self):
+        # Apply the time limit to the object list
+        if self.days.value != self.days.default:
+            pass
 
         try:
-            pa = self.page(self.curr_page)
+            pa = self.page(self.page_num)
         except PageNotAnInteger:
             # If page is not an integer, deliver first page.
             pa = self.page(1)
@@ -54,24 +92,24 @@ class ExtendedPaginator(Paginator):
             # If page is out of range (e.g. 9999), deliver last page of results.
             pa = self.page(self.num_pages)
 
-        # Add extra attributes to paging to keep the correct context.
-        pa.sort_val, pa.sort_lab = self.sort_val, self.sort_lab
-        pa.q, pa.days_val, pa.days_lab = self.q, self.days_val, self.days_lab
+        # Add extra attributes to page.
+        pa.q = self.q
+        pa.sort = self.sort
+        pa.days = self.days
 
         return pa
 
-
-def get_page(request, object_list, per_page):
-    paginator = ExtendedPaginator(request, object_list, per_page, orphans=False)
-    return paginator.get_page()
+class UserPaginator(PostPaginator):
+    def __init__(self, request, *args, **kwds):
+        super(UserPaginator, self).__init__(request, *args, **kwds)
+        sort = request.GET.get('sort', '')
+        self.sort = UserSortValidator(request, sort)
 
 
 def recent_votes():
     votes = Vote.objects.filter(post__status=Post.OPEN).select_related("post").order_by("-date")[
             :settings.RECENT_VOTE_COUNT]
-
     return votes
-
 
 def get_recent_users():
     users = User.objects.all().select_related("profile").order_by("-profile__last_login")[:settings.RECENT_USER_COUNT]

@@ -8,10 +8,10 @@
 
             <div class="left">
                 <ul class="dropdown">
-                    <a href="#"><i class="fa fa-caret-down"></i> {{ page.sort_lab }}</a>
+                    <a href="#"><i class="fa fa-caret-down"></i> {{ page.sort.label }}</a>
                     <ul class="items">
-                        {% for value, word  in sort %}
-                            <li><a href="?sort={{ value }}"> {{ word }}</a></li>
+                        {% for value, word  in page.sort.choices %}
+                            <li><a href="?sort={{ value }}&days={{ page.days.value }}&q={{ page.q }}"> {{ word }}</a></li>
                         {% endfor %}
                     </ul>
                 </ul>
@@ -19,10 +19,10 @@
 
             <div class="right">
                 <ul class="dropdown">
-                    <a href="#"><i class="fa fa-caret-down"></i> {{ page.days_lab }}</a>
+                    <a href="#"><i class="fa fa-caret-down"></i> {{ page.days.label }}</a>
                     <ul class="items">
-                        {% for value, word in limit %}
-                            <li><a href="?sort={{ page.sort_val }}&days={{ value }}"> {{ word }}</a></li>
+                        {% for value, word in page.days.choices %}
+                            <li><a href="?sort={{ page.sort.value }}&days={{ value }}&q={{ page.q }}"> {{ word }}</a></li>
                         {% endfor %}
                     </ul>
                 </ul>
@@ -30,7 +30,7 @@
 
             <div>
                 {% if page.has_previous %}
-                    <a href="?page={{ page.previous_page_number }}&sort={{ page.sort_val }}&limit={{ page.limit_val }}&q={{ page.q }}">
+                    <a href="?page={{ page.previous_page_number }}&sort={{ page.sort.value }}&days={{ page.days.value }}&q={{ page.q }}">
                         &lt;prev</a>
                 {% else %}
                     &lt;prev
@@ -40,7 +40,7 @@
                 of {{ page.paginator.num_pages }} &bull;
 
                 {% if page.has_next %}
-                    <a href="?page={{ page.next_page_number }}&sort={{ page.sort_val }}&limit={{ page.limit_val }}&q={{ page.q }}">next&gt;</a>
+                    <a href="?page={{ page.next_page_number }}&sort={{ page.sort.value }}&days={{ page.days.value }}&q={{ page.q }}">next&gt;</a>
                 {% else %}
                     next&gt;
                 {% endif %}

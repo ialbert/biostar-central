@@ -74,15 +74,16 @@ body {
 
 .user_list_box {
   float: left;
-  width: 15%;
+  width: 20%;
   height: 180px;
   padding: 1ex;
   text-align: center;
-  margin: 1em;
+  margin: 0em;
   overflow: hidden;
+  font-size: smaller;
+  color: @MUTED_TEXT_COLOR;
   .visited {
-    color: @MUTED_TEXT_COLOR;
-    font-size: smaller;
+
   }
 }
 
@@ -356,6 +357,7 @@ ul.dropdown {
   margin:0px;
   padding:0px;
   z-index: 99;
+
   ul.items {
     position: absolute;
     margin: 0ex;
@@ -363,11 +365,15 @@ ul.dropdown {
     list-style-type: none;
     display: none;
     background-color: white;
+    border-radius: 4px;
+    border: 3px solid #efefef;
     z-index: 99;
+    li:last-child{
+      border-bottom: 0px solid #d3d3d3;
+    }
     li {
       margin: 0ex 0ex 0ex 0ex;
-
-      border-top: 1px solid #d3d3d3;
+      border-bottom: 1px solid #d3d3d3;
       float: left;
       min-width: 150px;
       text-align: left;

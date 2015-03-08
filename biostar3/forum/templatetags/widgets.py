@@ -59,11 +59,6 @@ def user_link(user):
     return dict(user=user)
 
 
-@register.inclusion_tag('widgets/page_bar.html', takes_context=True)
-def page_bar(context, page=None, sort=[], limit=[]):
-    sort = settings.POST_SORT_CHOICES
-    limit = settings.TIME_LIMIT_CHOICES
-    return dict(page=page, sort=sort, limit=limit)
 
 @register.filter
 def on_value(value):
@@ -79,6 +74,10 @@ def nicer_value(value):
 def search_bar(context, page=None, action='search', placeholder="Search"):
     q = context.get('q', '')
     return dict(page=page, q=q, action=action, placeholder=placeholder)
+
+@register.inclusion_tag('widgets/page_bar.html', takes_context=True)
+def page_bar(context, page=None):
+    return dict(page=page)
 
 @register.inclusion_tag('widgets/action_bar.html')
 def action_bar(post, label="ADD COMMENT"):

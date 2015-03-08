@@ -39,37 +39,50 @@ MESSAGE_TAGS = {
     10: 'info', 20: 'info', 25: 'success', 30: 'warning', 40: 'error',
 }
 
-# Connects a user sort dropdown word to a data model field.
-USER_SORT_CHOICES = OrderedDict([
-    ("recent visit", "-profile__last_login"),
-    ("reputation", "-score"),
-    ("date joined", "profile__date_joined"),
-    ("activity level", "-activity"),
-])
+# Sort values for userlist.
+USER_SORT_BY_VISIT, USER_SORT_BY_REP = "visit", "reputation"
+USER_SORT_BY_JOIN, USER_SORT_BY_ACTIVITY = "join", "activity"
 
-# These are the fields rendered in the user sort order drop down.
-USER_SORT_FIELDS = USER_SORT_CHOICES.keys()
+# Interface representation for user list sort values.
+USER_SORT_CHOICES = [
+    (USER_SORT_BY_VISIT, "recent visit"),
+    (USER_SORT_BY_REP, "reputation"),
+    (USER_SORT_BY_JOIN, "date joined"),
+    (USER_SORT_BY_ACTIVITY, "activity level"),
+]
 
-# The default sort order for a user.
-USER_SORT_DEFAULT = USER_SORT_FIELDS[0]
+# Connecting a value to a order by clause on the database.
+USER_SORT_ORDER = {
+    USER_SORT_BY_VISIT: "-profile__last_login",
+    USER_SORT_BY_REP: "-score",
+    USER_SORT_BY_JOIN: "profile__date_joined",
+    USER_SORT_BY_ACTIVITY: "-activity",
+}
+
+# Quick lookup for valid values.
+USER_SORT_MAP = dict(USER_SORT_CHOICES)
+
+# The default user sort order.
+USER_SORT_DEFAULT = USER_SORT_BY_VISIT
 
 # Error message when passing an incorrect sort parameter.
-USER_SORT_INVALID_MSG = "Invalid sort parameter received"
+USER_SORT_INVALID_MSG = "Invalid user sort parameter received"
 
 # Used to generate the sort dropdown.
 SORT_BY_UPDATE, SORT_BY_VIEWS = "update", "views"
 SORT_BY_SUBS, SORT_BY_ANSWERS, SORT_BY_BOOKMARKS = "followers", "replies", "bookmarks"
 SORT_BY_VOTES, SORT_BY_RANK, SORT_BY_CREATION = "votes", "rank", "creation"
 
+# User interface elements for post sort choices.
 POST_SORT_CHOICES = [
-    (SORT_BY_UPDATE, "By activity",),
-    (SORT_BY_VIEWS, "By views"),
-    (SORT_BY_SUBS, "By followers"),
-    (SORT_BY_ANSWERS, "By answers"),
-    (SORT_BY_BOOKMARKS, "By bookmarks"),
-    (SORT_BY_VOTES, "By votes"),
-    (SORT_BY_RANK, "By rank"),
-    (SORT_BY_CREATION, "By creation"),
+    (SORT_BY_UPDATE, "by activity",),
+    (SORT_BY_VIEWS, "by views"),
+    (SORT_BY_SUBS, "by followers"),
+    (SORT_BY_ANSWERS, "by answers"),
+    (SORT_BY_BOOKMARKS, "by bookmarks"),
+    (SORT_BY_VOTES, "by votes"),
+    (SORT_BY_RANK, "by rank"),
+    (SORT_BY_CREATION, "by creation"),
 ]
 
 # Default sort order.
@@ -77,10 +90,6 @@ POST_SORT_DEFAULT = SORT_BY_UPDATE
 
 # Quicker lookup of value to label.
 POST_SORT_MAP = dict(POST_SORT_CHOICES)
-
-# No sort parameter will display with the default label.
-POST_SORT_MAP[''] = POST_SORT_MAP[POST_SORT_DEFAULT]
-
 
 # Connects a sort value to an order_by attribute in the database.
 POST_SORT_ORDER = {
@@ -93,7 +102,6 @@ POST_SORT_ORDER = {
     SORT_BY_RANK: "-rank",
     SORT_BY_CREATION: "-creation_date"
 }
-
 
 # The messages show when the sort is not valid.
 POST_SORT_INVALID_MSG = "Invalid sort parameter in URL."
@@ -128,7 +136,6 @@ TIME_LIMIT_CHOICES = [
 TIME_LIMIT_DEFAULT = ALL_TIME
 
 TIME_LIMIT_MAP = dict(TIME_LIMIT_CHOICES)
-TIME_LIMIT_MAP[''] = TIME_LIMIT_MAP[TIME_LIMIT_DEFAULT]
 
 # Error message for invalid time limit.
 TIME_LIMIT_INVALID_MSG = "Invalid time limit received"

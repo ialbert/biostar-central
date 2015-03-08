@@ -54,7 +54,8 @@ def post_list(request, posts=None):
         # The view is generic and could be called prefilled with posts.
         posts = query.get_toplevel_posts(user=request.user, group=request.group)
 
-    page = query.get_page(request, posts, per_page=settings.POSTS_PER_PAGE)
+    paginator = query.PostPaginator(request, posts, per_page=settings.POSTS_PER_PAGE, orphans=False)
+    page = paginator.curr_page()
 
     # Add the recent votes
     recent_votes = query.recent_votes()
@@ -76,7 +77,8 @@ def search_results(request):
 
     posts = search.plain(q)
 
-    page = query.get_page(request, posts, per_page=settings.POSTS_PER_PAGE)
+    paginator = query.PostPaginator(request, posts, per_page=settings.POSTS_PER_PAGE, orphans=False)
+    page = paginator.curr_page()
 
     # Add the recent votes
     recent_votes = query.recent_votes()

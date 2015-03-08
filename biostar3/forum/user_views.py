@@ -34,7 +34,10 @@ def user_list(request):
         users = User.objects.filter(name__icontains=q)
     else:
         users = User.objects.all()
-    page = query.get_page(request, users, 25)
+
+    paginator = query.UserPaginator(request, users, per_page=25, orphans=False)
+    page = paginator.curr_page()
+
     context = dict(page=page, users=page.object_list, q=q)
     return render(request, template_name, context)
 
