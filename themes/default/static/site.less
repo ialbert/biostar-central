@@ -22,6 +22,7 @@ body {
   font-family: @BODY_FONT;
   color: @BODY_TEXT_COLOR;
   line-height: 1.4em;
+  font-size: 14px;
 
   p {
     margin-bottom: 1ex;
@@ -80,7 +81,7 @@ body {
   text-align: center;
   margin: 0em;
   overflow: hidden;
-  font-size: smaller;
+  //font-size: smaller;
   color: @MUTED_TEXT_COLOR;
   .visited {
 
@@ -178,6 +179,7 @@ body {
   line-height: 1.6em;
 
   .post_title {
+
     font-size: 1.1em;
     font-weight: bold;
     margin-bottom: 0.2em;
@@ -214,11 +216,12 @@ body {
 }
 
 .tag_bar {
-  margin: 0ex 0ex 0.5ex 0ex;
+  margin: 0ex 0ex 0.2ex 0ex;
+  margin-left:12em;
 }
 
 .tag {
-  padding: 0.3em 0.3em 0.3em 0.3em;
+  padding: 0.3ex 0.3em 0.3ex 0.3em;
   text-decoration: none;
   background-color: @TAG_BG_COLOR;
   border-bottom: 1px solid #BBB;
@@ -235,11 +238,34 @@ body {
 }
 
 /* Count boxes */
-.box {
+.post_row {
+  margin: 0.2em 0em 0em 0em;
+}
 
+.box.vote_count {
+  background-color: #eeeeee;
+}
+
+.box.Unanswered {
+  background-color: #8f2c47;
+  color: white;
+}
+
+.box.Answered {
+  background-color: #5b8c3e;
+  color: white;
+}
+
+.box:last-child {
+  margin-right:0px;
+}
+
+.box {
+  float: left;
   width: 4em;
   text-align: center;
-
+  min-height: 100%;
+  margin: 0em 0.2em 0em 0em;
   .c {
     font-size: 1.4em;
     font-weight: bold;
@@ -258,19 +284,6 @@ body {
     padding: 0.1em;
   }
 
-  .vote {
-    background-color: #eeeeee;
-  }
-
-  .Unanswered {
-    background-color: #8f2c47;
-    color: white;
-  }
-
-  .Answered {
-    background-color: #5b8c3e;
-    color: white;
-  }
 }
 
 /* Search bar */
@@ -348,14 +361,14 @@ body {
 
 ul.dropdown:hover {
   ul.items {
-      display: block;
+    display: block;
 
-    }
+  }
 }
 
 ul.dropdown {
-  margin:0px;
-  padding:0px;
+  margin: 0px;
+  padding: 0px;
   z-index: 99;
 
   ul.items {
@@ -368,7 +381,7 @@ ul.dropdown {
     border-radius: 4px;
     border: 3px solid #efefef;
     z-index: 99;
-    li:last-child{
+    li:last-child {
       border-bottom: 0px solid #d3d3d3;
     }
     li {
@@ -391,7 +404,6 @@ ul.dropdown {
   }
 
 }
-
 
 /* Navigation */
 #logo {

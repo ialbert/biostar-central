@@ -6,10 +6,20 @@ from biostar3.forum.models import Post, Vote, UserGroup
 from django.contrib.auth import get_user_model
 from django.contrib import messages
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.utils.timezone import utc
+from datetime import datetime, timedelta
 
 User = get_user_model()
 
 DEFAULT_GROUP = UserGroup.objects.filter(name=settings.DEFAULT_GROUP_NAME).first()
+
+def now():
+    return datetime.utcnow().replace(tzinfo=utc)
+
+def ago(hours=0, minutes=0, days=0):
+    since = now() - timedelta(days=days, hours=hours, minutes=minutes)
+    return since
+
 
 def positive_integer(text, upper=sys.maxint):
     try:
@@ -34,6 +44,8 @@ class DropDown(object):
         self.value = value if (value in self.lookup) else self.default
         # The label displayed in the interface.
         self.label = self.lookup.get(self.value, '???')
+        if self.value != self.default:
+            messages.info(request, "Sorting by: %s" % self.label)
 
 class PostSortValidator(DropDown):
     choices = settings.POST_SORT_CHOICES
@@ -55,6 +67,8 @@ class TimeLimitValidator(DropDown):
     def __init__(self, request, value):
         self.value = positive_integer(value, upper=10000)
         self.label = self.lookup.get(self.value, "%s days" % self.value)
+        if self.value != self.default:
+            messages.info(request, "Limiting to: %s" % self.label)
 
 class PostPaginator(Paginator):
 
@@ -81,7 +95,13 @@ class PostPaginator(Paginator):
 
         # Apply the time limit to the object list
         if self.days.value != self.days.default:
-            pass
+            # The field to look up depends on the object type
+            # This should be refactored and made uniform.
+            since = ago(days=self.days.value)
+            if isinstance(self.sort, UserSortValidator):
+                self.object_list = self.object_list.filter(profile__date_joined__gt=since)
+            elif isinstance(self.sort, PostSortValidator):
+                self.object_list = self.object_list.filter(creation_date__gt=since)
 
         try:
             pa = self.page(self.page_num)

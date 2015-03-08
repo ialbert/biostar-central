@@ -2,7 +2,7 @@
 {% load widgets %}
 
 {#  Renders the tags under a post #}
-<div class="tag_bar left">
+<div class="tag_bar">
     {% for tag in post.tags.all %}
         <a class="tag" href="/t/{{ tag.name }}/">{{ tag.name }}</a>
     {% endfor %}
