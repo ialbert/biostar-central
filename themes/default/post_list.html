@@ -11,6 +11,7 @@
 
             {% for post in posts %}
                 <div class="row post_row">
+
                     <div class="box vote_count">
                         <div class="c">{{ post.thread_score }}</div>
                         <div class="t">votes</div>
@@ -25,9 +26,7 @@
                         <div class="c">{{ post.view_count }}</div>
                         <div class="t">views</div>
                     </div>
-                    <div>
 
-                    </div>
                     <div class="post_title">
                         <a href="{{ post.get_absolute_url }}">{{ post.title }}</a>
                     </div>
@@ -35,7 +34,7 @@
                     {% update_bar post %}
                 </div>
             {% endfor %}
-        
+
             {% page_bar page %}
         </div>
 
