@@ -174,6 +174,11 @@ def get_posts_by_vote(user, group, vote_types):
     posts = posts.distinct()
     return posts
 
+def get_my_bookmarks(user, group):
+    posts = Post.objects.filter(votes__type=Vote.BOOKMARK, votes__author=user)
+    posts = posts.distinct()
+    return posts
+
 def group_filter(self, name):
     "Performs a query to return posts that belong to a group"
     posts = Post.objects.filter(type__in=Post.TOP_LEVEL, group__name=name)

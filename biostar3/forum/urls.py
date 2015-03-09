@@ -35,6 +35,10 @@ urlpatterns = patterns('',
     # Upvoted posts created by a user
     url(r'^site/upvoted/posts/created/by/(?P<pk>\d+)/$', post_views.upvoted_posts, name="upvoted_posts"),
 
+    # Posts created by a user.
+    url(r'^site/my/bookmarks/$', post_views.my_bookmarks, name="my_bookmarks"),
+
+
     # Tag list.
     url(r'^t/$', post_views.tag_list, name="tag_list"),
 

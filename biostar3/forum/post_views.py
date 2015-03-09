@@ -11,6 +11,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.db.models import Q, F
+from django.contrib.auth.decorators import login_required
 
 from taggit.models import TaggedItem, Tag
 
@@ -70,6 +71,17 @@ def upvoted_posts(request, pk, user=None):
     """
     posts = query.get_posts_by_vote(user=user, group=request.group, vote_types=[Vote.BOOKMARK, Vote.UP])
     messages.info(request, 'Upvoted posts by: %s' % user.name)
+    return post_list(request, posts=posts)
+
+
+@login_required
+def my_bookmarks(request):
+    """
+    Returns the bookmarks by a user.
+    """
+    user = request.user
+    posts = query.get_my_bookmarks(user=user, group=request.group)
+    messages.info(request, 'Bookmarks for: %s' % user.name)
     return post_list(request, posts=posts)
 
 
