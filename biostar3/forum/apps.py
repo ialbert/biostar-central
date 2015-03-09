@@ -50,7 +50,7 @@ def post_migrate_tasks(sender, **kwargs):
 
     # Associate the default group with the site admin.
     if default_flag:
-        default_group.author = admin
+        default_group.owner = admin
         default_group.save()
 
     # Update all toplevel posts with no groups to have the default group.

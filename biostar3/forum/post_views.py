@@ -12,6 +12,7 @@ from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.db.models import Q, F
 from django.contrib.auth.decorators import login_required
+from django.contrib.sites.models import Site
 
 from taggit.models import TaggedItem, Tag
 
@@ -119,9 +120,18 @@ def group_list(request):
     paginator = query.ExtendedPaginator(request, sort_class=query.GroupSortValidator, object_list=public, per_page=100)
     page = paginator.curr_page()
 
+    site = Site.objects.get_current()
+
+    print (request.scheme)
+
+    for group in page.object_list:
+        group.url = models.group_url(group=group, scheme=request.scheme, site=site)
+
     context = dict(page=page, public=page.object_list)
 
     return render(request, template_name, context)
+
+
 
 def search_results(request):
     """
@@ -162,7 +172,7 @@ def update_post_views(request, post, minutes=settings.POST_VIEW_INTERVAL):
         logger.error(exc)
 
 
-@auth.valid_post
+@auth.read_post
 def post_view(request, pk, post=None, user=None):
     """
     Generates the page that contains a full thread.

@@ -6,9 +6,10 @@ from django.contrib import messages
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.core.exceptions import ValidationError
 from django.contrib.auth.decorators import login_required
-from .models import Post
+from .models import Post, UserGroup
 from . import auth
 from django.shortcuts import render, redirect
+from django.contrib.sites.models import Site
 
 import logging
 from django.contrib.auth import get_user_model
@@ -164,43 +165,40 @@ def create_comment(request, parent_id):
     return create_node(request=request, parent_id=parent_id, post_type=Post.COMMENT)
 
 
-
 @login_required
-def edit_post(request, post_id):
+@auth.read_post
+def edit_post(request, pk, post=None, user=None):
     """
     This view updates posts.
     """
     user = request.user
     template_name = "edit_post.html"
-    action = reverse("edit_post", kwargs=dict(post_id=post_id))
-    redirect_home = redirect(reverse_lazy("home"))
+    action = reverse("edit_post", kwargs=dict(pk=pk))
 
-    try:
-        # Need to make sure that the parent post is readable to the user.
-        post = get_post(request=request, user=user, pk=post_id, edit_access_required=True)
-    except auth.AccessDenied:
-        return redirect_home
-
-    # Different forms chosen based on post type.
     if post.is_toplevel:
+        # Different forms are chosen based on post type.
+        # A form with title, type and tags.
         form_class = PostForm
         tags = ", ".join(post.tags.names())
         initial = dict(content=post.content, title=post.title, tags=tags, type=post.type)
     else:
+        # Content only: answers and comments.
         form_class = ContentForm
         initial = dict(content=post.content)
 
 
     if request.method == "GET":
+        # Get methods get the form and return.
         form = form_class(initial=initial)
         context = dict(form=form, action=action)
         return render(request, template_name, context)
 
     if request.method == "POST":
+        # This is a form submission with incoming parameters.
         form = form_class(request.POST)
 
-        # Invalid form, bail out with error messaged.
         if not form.is_valid():
+            # Invalid form, bail out with error messaged.
             context = dict(form=form, action=action)
             return render(request, template_name, context)
 
@@ -223,3 +221,42 @@ def edit_post(request, post_id):
         post.save()
 
     return redirect(post.get_absolute_url())
+
+
+class GroupForm(forms.Form):
+    """
+    Edit or create content: answers, comments
+    """
+    # The is_toplevel field is used to distinguish between subclasses inside templates
+    name = forms.CharField(min_length=3, max_length=25, label="Group Name")
+    domain = forms.CharField(min_length=3, max_length=15, label="Subdomain")
+    public = forms.BooleanField(initial=True, label="Public access")
+    description = forms.CharField(widget=forms.Textarea, min_length=10, max_length=100,
+                              required=True)
+
+
+@login_required
+def group_edit(request, pk):
+    template_name = "group_edit.html"
+
+
+    if request.method == "GET":
+        # Get methods get the form and return.
+        form = GroupForm()
+        context = dict(form=form, pk=pk)
+        return render(request, template_name, context)
+
+    if request.method == "POST":
+        user = request.user
+        form = GroupForm(request.POST)
+        context = dict(form=form, pk=pk)
+        if not form.is_valid():
+            return render(request, template_name, context)
+        get = lambda x: form.cleaned_data.get(x, '')
+        name, description, public = get('name'), get('description'), get('public')
+        domain = get('domain')
+        UserGroup.objects.create(name=name, domain=domain, public=public, description=description, owner=user)
+        return redirect(reverse("group_list"))
+
+    context = dict(pk=pk)
+    return render(request, template_name, context)

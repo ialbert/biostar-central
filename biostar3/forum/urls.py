@@ -41,6 +41,9 @@ urlpatterns = patterns('',
     # Group list.
     url(r'^g/$', post_views.group_list, name="group_list"),
 
+    # Group edit.
+    url(r'^g/edit/(?P<pk>\d+)/$', form_views.group_edit, name="group_edit"),
+
     # Tag list.
     url(r'^t/$', post_views.tag_list, name="tag_list"),
 
@@ -58,7 +61,7 @@ urlpatterns = patterns('',
     url(r'^new/comment/(?P<parent_id>\d+)/$', form_views.create_comment, name="new_comment"),
 
     # Edit existing posts.
-    url(r'^edit/post/(?P<post_id>\d+)/$', form_views.edit_post, name="edit_post"),
+    url(r'^edit/post/(?P<pk>\d+)/$', form_views.edit_post, name="edit_post"),
 
     # Vote submission handler.
     url(r'^x/vote/$', ajax.vote_handler, name="vote_submit"),

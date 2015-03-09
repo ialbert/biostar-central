@@ -9,7 +9,7 @@ from taggit.managers import TaggableManager
 from django.utils.timezone import utc
 from datetime import datetime
 from . import html
-
+from urlparse import urlparse
 
 class MyTaggableManager(TaggableManager):
     def get_internal_type(self):
@@ -124,13 +124,28 @@ class UserGroup(models.Model):
     """
     Represents a group
     """
-    name = models.CharField(max_length=15)
-    author = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="author", null=True)
+    name = models.CharField(max_length=25, unique=True, db_index=True)
+    domain = models.CharField(max_length=15, unique=True, db_index=True, default="www")
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="owners", null=True)
     users = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="usergroups")
     description = models.TextField(default="default group");
     public = models.BooleanField(default=True)
     visible = models.BooleanField(default=True)
     creation_date = models.DateTimeField(auto_now_add=True)
+
+
+def group_url(group, scheme, site):
+    """"
+    The url for the group can be obtained from the request path.
+    """
+    netloc = site.domain.split(".")
+
+    netloc[0] = group.domain
+    netloc = ".".join(netloc)
+
+    print (netloc, scheme)
+
+    return "%s://%s" % (scheme, netloc)
 
 
 class GroupPerm(models.Model):

@@ -97,7 +97,7 @@ def valid_user(function=None):
 
     return decorator
 
-def valid_post(function=None):
+def read_post(function=None):
     """
     Decorator for views that checks that the userid in the pk field is a valid
     user for the current state.
@@ -106,14 +106,47 @@ def valid_post(function=None):
     def decorator(request, pk, *args, **kwargs):
         user = request.user
         post = Post.objects.filter(pk=pk).first()
+        home = redirect(reverse("home"))
+
         if not post:
+            # Post does not exists.
             messages.error(request, "Post with id=%s not found" % pk)
-            return redirect(reverse("home"))
+            return home
 
         if not read_access_post(user=user, post=post):
             # Post exists but may not be read by the user.
             messages.error(request, "This post my not be accessed by this user.")
-            return redirect("home")
+            return home
+
+        return function(request, pk, post=post, user=user)
+
+    return decorator
+
+def edit_post(function=None):
+    """
+    Decorator for views that checks that the userid in the pk field is a valid
+    user for the current state.
+    """
+
+    def decorator(request, pk, *args, **kwargs):
+        user = request.user
+        post = Post.objects.filter(pk=pk).first()
+        home = redirect(reverse("home"))
+
+        if not post:
+            # Post does not exists.
+            messages.error(request, "Post with id=%s not found" % pk)
+            return home
+
+        if not read_access_post(user=user, post=post):
+            # Post exists but may not be read by the user.
+            messages.error(request, "This post my not be accessed by this user.")
+            return home
+
+        if not write_access_post(user, post):
+            # Post exists but it is not writeable by the user.
+            messages.error(request, "This post may not be edited by this user!")
+            return home
 
         return function(request, pk, post=post, user=user)
 

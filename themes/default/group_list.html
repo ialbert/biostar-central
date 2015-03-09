@@ -16,6 +16,9 @@
                 <table>
                 <tr>
                     <th>Group Name</th>
+                    <th>Domain</th>
+                    <th>Action</th>
+
                     <th>Owner</th>
                     <th>Public</th>
                     <th>Description</th>
@@ -23,11 +26,18 @@
                     {% for group in public %}
                         <tr>
                             <td>
+								<a href="{{ group.url }}">{{ group.name }}</a>
 
-                                {{ group.name }}
+                            </td>
+
+                            <td>
+                               {{ group.domain }}
+                            </td>
+                            <td>
+                                <a href="{%  url "group_edit" group.id %}">edit</a>
                             </td>
                           	<td>
-                                {{ group.author.name }}
+                               {{ group.owner.name }}
                             </td>
                             <td>
                                 {{ group.public }}
