@@ -5,6 +5,8 @@ from string import strip
 from .models import *
 from django.utils.timezone import utc
 from datetime import datetime, timedelta
+from django.shortcuts import redirect
+from django.contrib import messages
 
 class AccessDenied(BaseException):
     pass
@@ -76,6 +78,46 @@ def thread_write_access(user, root):
         return read_cond and write_cond
 
     return validator
+
+
+def valid_user(function=None):
+    """
+    Decorator for views that checks that the userid in the pk field is a valid
+    user for the current state.
+    """
+
+    def decorator(request, pk, *args, **kwargs):
+        user = User.objects.filter(pk=pk).first()
+
+        if not user:
+            messages.error(request, "User with id=%s not found" % pk)
+            return redirect(reverse("home"))
+
+        return function(request, pk, user=user)
+
+    return decorator
+
+def valid_post(function=None):
+    """
+    Decorator for views that checks that the userid in the pk field is a valid
+    user for the current state.
+    """
+
+    def decorator(request, pk, *args, **kwargs):
+        user = request.user
+        post = Post.objects.filter(pk=pk).first()
+        if not post:
+            messages.error(request, "Post with id=%s not found" % pk)
+            return redirect(reverse("home"))
+
+        if not read_access_post(user=user, post=post):
+            # Post exists but may not be read by the user.
+            messages.error(request, "This post my not be accessed by this user.")
+            return redirect("home")
+
+        return function(request, pk, post=post, user=user)
+
+    return decorator
 
 def remote_ip(request, key='REMOTE_ADDR'):
     """

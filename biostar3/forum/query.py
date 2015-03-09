@@ -13,8 +13,10 @@ User = get_user_model()
 
 DEFAULT_GROUP = UserGroup.objects.filter(name=settings.DEFAULT_GROUP_NAME).first()
 
+
 def now():
     return datetime.utcnow().replace(tzinfo=utc)
+
 
 def ago(hours=0, minutes=0, days=0):
     since = now() - timedelta(days=days, hours=hours, minutes=minutes)
@@ -30,14 +32,15 @@ def positive_integer(text, upper=sys.maxint):
     except ValueError, exc:
         return 0
 
+
 class DropDown(object):
     """
     Represents a dropdown menu with a current value and label.
     """
-    choices = [] # Pairs of value/display.
+    choices = []  # Pairs of value/display.
     lookup = {}  # A dictionary to look up a display for a value
-    default = '' # The default value for the widget.
-    order = {} # The mapping to the order_by clause
+    default = ''  # The default value for the widget.
+    order = {}  # The mapping to the order_by clause
 
     def __init__(self, request, value):
         # Current selection of the drop down.
@@ -47,17 +50,20 @@ class DropDown(object):
         if self.value != self.default:
             messages.info(request, "Sorting by: %s" % self.label)
 
+
 class PostSortValidator(DropDown):
     choices = settings.POST_SORT_CHOICES
     lookup = settings.POST_SORT_MAP
     default = settings.POST_SORT_DEFAULT
     order = settings.POST_SORT_ORDER
 
+
 class UserSortValidator(DropDown):
     choices = settings.USER_SORT_CHOICES
     lookup = settings.USER_SORT_MAP
     default = settings.USER_SORT_DEFAULT
     order = settings.USER_SORT_ORDER
+
 
 class TimeLimitValidator(DropDown):
     choices = settings.TIME_LIMIT_CHOICES
@@ -70,8 +76,8 @@ class TimeLimitValidator(DropDown):
         if self.value != self.default:
             messages.info(request, "Limiting to: %s" % self.label)
 
-class PostPaginator(Paginator):
 
+class PostPaginator(Paginator):
     def __init__(self, request, *args, **kwds):
         self.request = request
         self.page_num = request.GET.get('page', '1')
@@ -119,6 +125,7 @@ class PostPaginator(Paginator):
 
         return pa
 
+
 class UserPaginator(PostPaginator):
     def __init__(self, request, *args, **kwds):
         super(UserPaginator, self).__init__(request, *args, **kwds)
@@ -130,6 +137,7 @@ def recent_votes():
     votes = Vote.objects.filter(post__status=Post.OPEN).select_related("post").order_by("-date")[
             :settings.RECENT_VOTE_COUNT]
     return votes
+
 
 def get_recent_users():
     users = User.objects.all().select_related("profile").order_by("-profile__last_login")[:settings.RECENT_USER_COUNT]
@@ -143,9 +151,22 @@ def get_toplevel_posts(user, group):
     if not user.is_moderator:
         posts = posts.exclude(status=Post.DELETED)
 
-    posts = posts.select_related("root", "author", "lastedit_user", "group").prefetch_related("tags").defer("content",
-                                                                                                            "html")
-    posts = posts.defer("content")
+    posts = posts.select_related("root", "author", "lastedit_user", "group").prefetch_related("tags")
+    posts = posts.defer("content", "html")
+    return posts
+
+
+def get_all_posts(user, group):
+    "Returns all posts by a user"
+
+    posts = Post.objects.filter(author=user)
+
+    if not user.is_moderator:
+        posts = posts.exclude(status=Post.DELETED)
+
+    posts = posts.select_related("root", "author", "lastedit_user", "group").prefetch_related("tags")
+    posts = posts.defer("content", "html")
+
     return posts
 
 

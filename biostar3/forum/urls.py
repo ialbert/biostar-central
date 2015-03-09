@@ -20,21 +20,28 @@ urlpatterns = patterns('',
     # The signin/signup view.
     url(r'^site/sign_up/$', user_views.sign_up, name='sign_up'),
 
-    # This is to disable the url from django allauth.
+    # This is to retarget the url from django allauth.
     url(r'^accounts/signup/$', user_views.sign_up, name='account_signup'),
 
-    # Post details.
+    # Post (thread) view.
     url(r'^p/(?P<pk>\d+)/$', post_views.post_view, name="post_view"),
+
+    # User view.
+    url(r'^u/(?P<pk>\d+)/$', user_views.user_view, name="user_view"),
+
+    # Site specific content.
+    url(r'^site/u/posts/(?P<pk>\d+)/$', post_views.posts_by_user, name="posts_by_user"),
 
     # Tag list.
     url(r'^t/$', post_views.tag_list, name="tag_list"),
+
+    # Filter posts by tag.
     url(r'^t/(?P<name>\S+)/$', post_views.tag_filter, name="tag_filter"),
+
 
     # The list of users.
     url(r'^user/list/$', user_views.user_list, name="user_list"),
 
-    # Post details.
-    url(r'^u/(?P<pk>\d+)/$', user_views.user_view, name="user_view"),
 
     # Create new content: answer, comments
     url(r'^new/post/$', form_views.create_toplevel_post, name="new_post"),

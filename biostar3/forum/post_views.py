@@ -47,6 +47,12 @@ def tag_filter(request, name):
     messages.info(request, 'Filtering for tags: %s' % name)
     return post_list(request, posts=posts)
 
+@auth.valid_user
+def posts_by_user(request, pk, user=None):
+    posts = query.get_all_posts(user=user, group=request.group)
+    messages.info(request, 'Filtering for user: %s' % user.name)
+    return post_list(request, posts=posts)
+
 def post_list(request, posts=None):
     template_name = "post_list.html"
 
@@ -103,26 +109,13 @@ def update_post_views(request, post, minutes=settings.POST_VIEW_INTERVAL):
         # Triggers if the IP address is spoofed and/or malformed.
         logger.error(exc)
 
-
-def post_view(request, pk):
+@auth.valid_post
+def post_view(request, pk, post=None, user=None):
     """
     Generates the page that contains a full thread.
     """
-    user = request.user
+
     template_name = "post_detail.html"
-
-    # Tries to get the post.
-    post = Post.objects.filter(pk=pk).first()
-
-    if not post:
-        # Post does not exist.
-        messages.error(request, "This post does not exist. Perhaps it has been deleted.")
-        return redirect("home")
-
-    if not auth.read_access_post(user=user, post=post):
-        # Post exists but may not be read by the user.
-        messages.error(request, "This post my not be accessed by this user.")
-        return redirect("home")
 
     if not post.is_toplevel:
         # Post is not at top level. Redirect and and scroll the page to the right anchor.

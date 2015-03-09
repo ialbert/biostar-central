@@ -13,11 +13,11 @@
                     <a href="#"><i class="fa fa-question-circle"></i> OPEN</a>
                 </div>
 
-                <div class="item">
+                <div class="item" title="Messages">
                     <a href="#"><i class="fa fa-envelope"></i> 30</a>
                 </div>
 
-                <div class="item">
+                <div class="item" title="Votes">
                     <a href="#"><i class="fa fa-heart"></i> 20</a>
                 </div>
 
@@ -29,8 +29,12 @@
                     <a href="#"><i class="fa fa-bookmark"></i> 10</a>
                 </div>
 
+                <div class="item" title="Your posts">
+                    <a href="{% url "posts_by_user" pk=user.id %}"><i class="fa fa-list"></i> 100</a>
+                </div>
+
                 <div class="item">
-                    <a href="#"><i class="fa fa-user">
+                    <a href="{%  url "user_view" pk=user.id %}"><i class="fa fa-user">
                         <span class="line">{% scoreline user %}</span></i> {{ user.name }}
                     </a>
                 </div>
