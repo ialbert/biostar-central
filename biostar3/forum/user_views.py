@@ -62,9 +62,16 @@ def me_view(request):
     return request.user.get_absolute_url()
 
 
+from allauth.account.views import LoginView
+class Login(LoginView):
+    """
+    This is required to intercept signups from different subdomains.
+    Authentication only works for the same domain.
+    """
+    def dispatch(self, request, *args, **kwargs):
+        return super(Login, self).dispatch(request, *args, **kwargs)
+
 CAPTCHA_VERIFY_URL = "https://www.google.com/recaptcha/api/siteverify"
-
-
 @ratelimit(key='ip', rate=settings.SIGNUP_RATELIMIT)
 def sign_up(request):
     """

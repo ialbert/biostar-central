@@ -23,6 +23,9 @@ urlpatterns = patterns('',
     # This is to retarget the url from django allauth.
     url(r'^accounts/signup/$', user_views.sign_up, name='account_signup'),
 
+    #This is to retarget the url from django allauth.
+    url(r'^accounts/login/$', user_views.Login.as_view(), name='account_signup'),
+
     # Post (thread) view.
     url(r'^p/(?P<pk>\d+)/$', post_views.post_view, name="post_view"),
 
