@@ -13,15 +13,30 @@
             {% search_bar page=page action='group_list' placeholder="Search for groups" %}
 
             <div class="row" style="padding-top:1em">
-                {% for group in public_groups %}
-					<div>
+                <table>
+                <tr>
+                    <th>Group Name</th>
+                    <th>Owner</th>
+                    <th>Public</th>
+                    <th>Description</th>
+                </tr>
+                    {% for group in public %}
+                        <tr>
+                            <td>
 
-                    {{ group.name }}
+                                {{ group.name }}
+                            </td>
+                          	<td>
+                                {{ group.author.name }}
+                            </td>
+                            <td>
+                                {{ group.public }}
+                            </td>
 
-                    </div>
-
-
-                {% endfor %}
+                        	<td>{{ group.description }}</td>
+                        </tr>
+                    {% endfor %}
+                </table>
             </div>
 
             {% page_bar page %}

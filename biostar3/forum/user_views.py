@@ -35,7 +35,9 @@ def user_list(request):
     else:
         users = User.objects.all()
 
-    paginator = query.UserPaginator(request, users, per_page=25, orphans=False)
+    paginator = query.ExtendedPaginator(request, object_list=users,
+                                         time_class=query.TimeLimitValidator,
+                                        sort_class=query.UserSortValidator, per_page=25, orphans=False)
     page = paginator.curr_page()
 
     context = dict(page=page, users=page.object_list, q=q)

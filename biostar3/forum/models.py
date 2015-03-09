@@ -127,7 +127,7 @@ class UserGroup(models.Model):
     name = models.CharField(max_length=15)
     author = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="author", null=True)
     users = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="usergroups")
-
+    description = models.TextField(default="default group");
     public = models.BooleanField(default=True)
     visible = models.BooleanField(default=True)
     creation_date = models.DateTimeField(auto_now_add=True)

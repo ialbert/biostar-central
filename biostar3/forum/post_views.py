@@ -37,7 +37,8 @@ def tag_list(request):
 
     tags = tags.order_by("name")
 
-    paginator = query.TagPaginator(request, tags, per_page=100)
+    paginator = query.ExtendedPaginator(request, object_list=tags, time_class=query.DropDown,
+                                        sort_class=query.TagSortValidator, per_page=100)
     page = paginator.curr_page()
 
     html_title = "Tags"
@@ -95,7 +96,10 @@ def post_list(request, posts=None):
         # The view is generic and could be called prefilled with posts.
         posts = query.get_toplevel_posts(user=request.user, group=request.group)
 
-    paginator = query.PostPaginator(request, posts, per_page=settings.POSTS_PER_PAGE, orphans=False)
+    paginator = query.ExtendedPaginator(request,
+                                        sort_class=query.PostSortValidator,
+                                        time_class=query.TimeLimitValidator,
+                                        object_list=posts, per_page=settings.POSTS_PER_PAGE)
     page = paginator.curr_page()
 
     # Add the recent votes
@@ -106,10 +110,17 @@ def post_list(request, posts=None):
     return render(request, template_name, context)
 
 def group_list(request):
-    template_name = "post_list.html"
-    public_groups = UserGroup.objects.filter(public=True)
+    """
+    Generates the list of groups.
+    """
+    template_name = "group_list.html"
+    public = UserGroup.objects.filter(public=True)
 
-    context = dict(public_groups=public_groups)
+    paginator = query.ExtendedPaginator(request, sort_class=query.GroupSortValidator, object_list=public, per_page=100)
+    page = paginator.curr_page()
+
+    context = dict(page=page, public=page.object_list)
+
     return render(request, template_name, context)
 
 def search_results(request):
@@ -124,7 +135,7 @@ def search_results(request):
 
     posts = search.plain(q)
 
-    paginator = query.PostPaginator(request, posts, per_page=settings.POSTS_PER_PAGE, orphans=False)
+    paginator = query.ExtendedPaginator(request, posts, per_page=settings.POSTS_PER_PAGE, orphans=False)
     page = paginator.curr_page()
 
     # Add the recent votes

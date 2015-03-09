@@ -50,12 +50,13 @@ class DropDown(object):
         # Current selection of the drop down.
         self.value = value if (value in self.lookup) else self.default
         # The label displayed in the interface.
-        self.label = self.lookup.get(self.value, '???')
+        self.label = self.lookup.get(self.value, '')
         if self.value != self.default:
             messages.info(request, "Sorting by: %s" % self.label)
 
     def time_filter(self, queryset, value):
         return queryset
+
 
 class PostSortValidator(DropDown):
     choices = settings.POST_SORT_CHOICES
@@ -66,6 +67,7 @@ class PostSortValidator(DropDown):
     def time_filter(self, queryset, value):
         return queryset.filter(creation_date__gt=value)
 
+
 class UserSortValidator(DropDown):
     choices = settings.USER_SORT_CHOICES
     lookup = settings.USER_SORT_MAP
@@ -75,11 +77,19 @@ class UserSortValidator(DropDown):
     def time_filter(self, queryset, value):
         return queryset.filter(profile__date_joined__gt=value)
 
+
 class TagSortValidator(DropDown):
-    choices = [("name", "Name")]
+    choices = [("asc", "Alphabetical"), ("desc", "Reversed")]
     lookup = dict(choices)
-    default = "name"
-    order = dict(name="name")
+    default = "asc"
+    order = dict(asc="name", desc="-name")
+
+
+class GroupSortValidator(DropDown):
+    choices = [("asc", "Alphabetical"), ("desc", "Reversed")]
+    lookup = dict(choices)
+    default = "asc"
+    order = dict(asc="name", desc="-name")
 
 
 class TimeLimitValidator(DropDown):
@@ -93,8 +103,10 @@ class TimeLimitValidator(DropDown):
         if self.value != self.default:
             messages.info(request, "Limiting to: %s" % self.label)
 
-class PostPaginator(Paginator):
-    def __init__(self, request, *args, **kwds):
+
+class ExtendedPaginator(Paginator):
+    def __init__(self, request, sort_class=DropDown, time_class=DropDown, *args, **kwds):
+
         self.request = request
         self.page_num = request.GET.get('page', '1')
 
@@ -103,24 +115,24 @@ class PostPaginator(Paginator):
         self.q = request.GET.get('q', '')
 
         # Add the dropdowns
-        self.sort = PostSortValidator(request, value=sort)
-        self.days = TimeLimitValidator(request, value=days)
+        self.sort = sort_class(request, value=sort)
+        self.days = time_class(request, value=days)
 
-        super(PostPaginator, self).__init__(*args, **kwds)
+        super(ExtendedPaginator, self).__init__(*args, **kwds)
 
     def curr_page(self):
 
         order_by = self.sort.order.get(self.sort.value, '')
 
         # Apply the order to the object list.
-        self.object_list = self.object_list.order_by(order_by)
+        #self.object_list = self.object_list.order_by(order_by)
 
         # Apply the time limit to the object list
         if self.days.value != self.days.default:
             # The field to look up depends on the object type
             # This should be refactored and made uniform.
             since = ago(days=self.days.value)
-            self.object_list = self.sort.time_filter(self.object_list, since)
+            #self.object_list = self.sort.time_filter(self.object_list, since)
         try:
             pa = self.page(self.page_num)
         except PageNotAnInteger:
@@ -136,21 +148,6 @@ class PostPaginator(Paginator):
         pa.days = self.days
 
         return pa
-
-
-class UserPaginator(PostPaginator):
-    def __init__(self, request, *args, **kwds):
-        super(UserPaginator, self).__init__(request, *args, **kwds)
-        sort = request.GET.get('sort', '')
-        self.sort = UserSortValidator(request, sort)
-
-
-class TagPaginator(PostPaginator):
-    def __init__(self, request, *args, **kwds):
-        super(TagPaginator, self).__init__(request, *args, **kwds)
-        sort = request.GET.get('sort', '')
-        self.sort = TagSortValidator(request, sort)
-
 
 
 def recent_votes():
@@ -189,15 +186,18 @@ def get_all_posts(user, group):
 
     return posts
 
+
 def get_posts_by_vote(user, group, vote_types):
     posts = Post.objects.filter(votes__type__in=vote_types, votes__post__author=user)
     posts = posts.distinct()
     return posts
 
+
 def get_my_bookmarks(user, group):
     posts = Post.objects.filter(votes__type=Vote.BOOKMARK, votes__author=user)
     posts = posts.distinct()
     return posts
+
 
 def group_filter(self, name):
     "Performs a query to return posts that belong to a group"
