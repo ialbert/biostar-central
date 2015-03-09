@@ -38,6 +38,8 @@ urlpatterns = patterns('',
     # Posts created by a user.
     url(r'^site/my/bookmarks/$', post_views.my_bookmarks, name="my_bookmarks"),
 
+    # Group list.
+    url(r'^g/$', post_views.group_list, name="group_list"),
 
     # Tag list.
     url(r'^t/$', post_views.tag_list, name="tag_list"),

@@ -1,0 +1,33 @@
+{% extends "site_layout.html" %}
+{% load widgets %}
+
+{% block title %}
+    User List
+{% endblock %}
+
+{% block body %}
+
+    <div class="row">
+        <div class="nine columns">
+
+            {% search_bar page=page action='group_list' placeholder="Search for groups" %}
+
+            <div class="row" style="padding-top:1em">
+                {% for group in public_groups %}
+					<div>
+
+                    {{ group.name }}
+
+                    </div>
+
+
+                {% endfor %}
+            </div>
+
+            {% page_bar page %}
+
+        </div>
+
+    </div>
+
+{% endblock %}

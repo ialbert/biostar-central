@@ -37,10 +37,14 @@ class DropDown(object):
     """
     Represents a dropdown menu with a current value and label.
     """
-    choices = []  # Pairs of value/display.
-    lookup = {}  # A dictionary to look up a display for a value
-    default = ''  # The default value for the widget.
-    order = {}  # The mapping to the order_by clause
+    # Pairs of value/display.
+    choices = []
+    # A dictionary to look up a display for a value
+    lookup = {}
+    # The default value for the widget.
+    default = ''
+    # The mapping to the order_by clause
+    order = {}
 
     def __init__(self, request, value):
         # Current selection of the drop down.
@@ -50,6 +54,8 @@ class DropDown(object):
         if self.value != self.default:
             messages.info(request, "Sorting by: %s" % self.label)
 
+    def time_filter(self, queryset, value):
+        return queryset
 
 class PostSortValidator(DropDown):
     choices = settings.POST_SORT_CHOICES
@@ -57,12 +63,23 @@ class PostSortValidator(DropDown):
     default = settings.POST_SORT_DEFAULT
     order = settings.POST_SORT_ORDER
 
+    def time_filter(self, queryset, value):
+        return queryset.filter(creation_date__gt=value)
 
 class UserSortValidator(DropDown):
     choices = settings.USER_SORT_CHOICES
     lookup = settings.USER_SORT_MAP
     default = settings.USER_SORT_DEFAULT
     order = settings.USER_SORT_ORDER
+
+    def time_filter(self, queryset, value):
+        return queryset.filter(profile__date_joined__gt=value)
+
+class TagSortValidator(DropDown):
+    choices = [("name", "Name")]
+    lookup = dict(choices)
+    default = "name"
+    order = dict(name="name")
 
 
 class TimeLimitValidator(DropDown):
@@ -75,7 +92,6 @@ class TimeLimitValidator(DropDown):
         self.label = self.lookup.get(self.value, "%s days" % self.value)
         if self.value != self.default:
             messages.info(request, "Limiting to: %s" % self.label)
-
 
 class PostPaginator(Paginator):
     def __init__(self, request, *args, **kwds):
@@ -94,7 +110,7 @@ class PostPaginator(Paginator):
 
     def curr_page(self):
 
-        order_by = self.sort.order.get(self.sort.value, '?')
+        order_by = self.sort.order.get(self.sort.value, '')
 
         # Apply the order to the object list.
         self.object_list = self.object_list.order_by(order_by)
@@ -104,11 +120,7 @@ class PostPaginator(Paginator):
             # The field to look up depends on the object type
             # This should be refactored and made uniform.
             since = ago(days=self.days.value)
-            if isinstance(self.sort, UserSortValidator):
-                self.object_list = self.object_list.filter(profile__date_joined__gt=since)
-            elif isinstance(self.sort, PostSortValidator):
-                self.object_list = self.object_list.filter(creation_date__gt=since)
-
+            self.object_list = self.sort.time_filter(self.object_list, since)
         try:
             pa = self.page(self.page_num)
         except PageNotAnInteger:
@@ -131,6 +143,14 @@ class UserPaginator(PostPaginator):
         super(UserPaginator, self).__init__(request, *args, **kwds)
         sort = request.GET.get('sort', '')
         self.sort = UserSortValidator(request, sort)
+
+
+class TagPaginator(PostPaginator):
+    def __init__(self, request, *args, **kwds):
+        super(TagPaginator, self).__init__(request, *args, **kwds)
+        sort = request.GET.get('sort', '')
+        self.sort = TagSortValidator(request, sort)
+
 
 
 def recent_votes():

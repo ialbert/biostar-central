@@ -121,7 +121,9 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 
 class UserGroup(models.Model):
-    "Represents a group"
+    """
+    Represents a group
+    """
     name = models.CharField(max_length=15)
     author = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="author", null=True)
     users = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="usergroups")
@@ -132,7 +134,10 @@ class UserGroup(models.Model):
 
 
 class GroupPerm(models.Model):
-    "Represents a special permission of a user for a group that goes beyond membership"
+    """
+    Represents a special permission for a user on a group.
+    """
+
     MODERATE, ADMIN = range(2)
     TYPE_CHOICES = [(MODERATE, "Write"), (ADMIN, "Admin")]
     user = models.ForeignKey(settings.AUTH_USER_MODEL, db_index=True)

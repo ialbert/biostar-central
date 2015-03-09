@@ -17,7 +17,7 @@ from taggit.models import TaggedItem, Tag
 
 # Biostar specific local modules.
 from . import models, query, search, auth
-from .models import Vote, Post, PostView
+from .models import Vote, Post, PostView, UserGroup
 
 logger = logging.getLogger('biostar')
 
@@ -36,7 +36,10 @@ def tag_list(request):
         tags = Tag.objects.all()
 
     tags = tags.order_by("name")
-    page = query.get_page(request, tags, per_page=100)
+
+    paginator = query.TagPaginator(request, tags, per_page=100)
+    page = paginator.curr_page()
+
     html_title = "Tags"
 
     context = dict(page=page, tags=page.object_list, html_title=html_title, q=q)
@@ -102,6 +105,12 @@ def post_list(request, posts=None):
 
     return render(request, template_name, context)
 
+def group_list(request):
+    template_name = "post_list.html"
+    public_groups = UserGroup.objects.filter(public=True)
+
+    context = dict(public_groups=public_groups)
+    return render(request, template_name, context)
 
 def search_results(request):
     """
