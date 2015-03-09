@@ -34,6 +34,7 @@ class ClientTests(TestCase):
             self.assertEqual(r.status_code, 200)
         else:
             self.assertEqual(r.status_code, 302)
+
         if pattern:
             self.assertTrue(re.search(pattern, r.content, re.IGNORECASE))
 

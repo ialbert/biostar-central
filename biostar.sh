@@ -94,7 +94,7 @@ while (( "$#" )); do
  	# Produce the environment variables recognized by Biostar.
     if [ "$1" = "test" ]; then
         echo "*** Running all tests"
-        $PYTHON manage.py test biostar3 --noinput --failfast -v $VERBOSITY --settings=$DJANGO_SETTINGS_MODULE
+        $PYTHON manage.py test biostar3 --noinput --failfast -v $VERBOSITY --settings=run.sqlite
     fi
 
     if [ "$1" = "pg_drop" ]; then

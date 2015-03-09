@@ -18,19 +18,19 @@
                 </div>
 
                 <div class="item" title="Votes">
-                    <a href="#"><i class="fa fa-heart"></i> 20</a>
+                    <a href="{%  url "upvoted_posts" pk=user.id %}"><i class="fa fa-heart"></i> {{ context.counts.vote_count|bignum }}</a>
                 </div>
 
                 <div class="item">
-                    <a href="#"><i class="fa fa-star"></i> 4</a>
+                    <a href="#"><i class="fa fa-star"></i> 1</a>
                 </div>
 
                 <div class="item">
-                    <a href="#"><i class="fa fa-bookmark"></i> 10</a>
+                    <a href="#"><i class="fa fa-bookmark"></i> {{ context.counts.book_count|bignum }}</a>
                 </div>
 
                 <div class="item" title="Your posts">
-                    <a href="{% url "posts_by_user" pk=user.id %}"><i class="fa fa-list"></i> 100</a>
+                    <a href="{% url "posts_by_user" pk=user.id %}"><i class="fa fa-list"></i> {{ context.counts.post_count|bignum }}</a>
                 </div>
 
                 <div class="item">

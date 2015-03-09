@@ -23,6 +23,7 @@ logger = logging.getLogger('biostar')
 # Get custom user model.
 User = get_user_model()
 
+
 def tag_list(request):
     template_name = "tag_list.html"
 
@@ -40,18 +41,37 @@ def tag_list(request):
     context = dict(page=page, tags=page.object_list, html_title=html_title, q=q)
     return render(request, template_name, context)
 
+
 def tag_filter(request, name):
+    """
+    Returns a list of posts filtered by a tag name.
+    """
     posts = query.get_toplevel_posts(user=request.user, group=request.group)
     names = name.split("+")
     posts = posts.filter(tags__name__in=names)
     messages.info(request, 'Filtering for tags: %s' % name)
     return post_list(request, posts=posts)
 
+
 @auth.valid_user
 def posts_by_user(request, pk, user=None):
+    """
+    Returns the posts created by a user.
+    """
     posts = query.get_all_posts(user=user, group=request.group)
-    messages.info(request, 'Filtering for user: %s' % user.name)
+    messages.info(request, 'Posts by: %s' % user.name)
     return post_list(request, posts=posts)
+
+
+@auth.valid_user
+def upvoted_posts(request, pk, user=None):
+    """
+    Returns the upvoted posts created by a user.
+    """
+    posts = query.get_posts_by_vote(user=user, group=request.group, vote_types=[Vote.BOOKMARK, Vote.UP])
+    messages.info(request, 'Upvoted posts by: %s' % user.name)
+    return post_list(request, posts=posts)
+
 
 def post_list(request, posts=None):
     template_name = "post_list.html"
@@ -108,6 +128,7 @@ def update_post_views(request, post, minutes=settings.POST_VIEW_INTERVAL):
     except Exception, exc:
         # Triggers if the IP address is spoofed and/or malformed.
         logger.error(exc)
+
 
 @auth.valid_post
 def post_view(request, pk, post=None, user=None):

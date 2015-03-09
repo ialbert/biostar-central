@@ -169,6 +169,10 @@ def get_all_posts(user, group):
 
     return posts
 
+def get_posts_by_vote(user, group, vote_types):
+    posts = Post.objects.filter(votes__type__in=vote_types, votes__post__author=user)
+    posts = posts.distinct()
+    return posts
 
 def group_filter(self, name):
     "Performs a query to return posts that belong to a group"

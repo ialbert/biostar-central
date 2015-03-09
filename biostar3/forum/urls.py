@@ -29,8 +29,11 @@ urlpatterns = patterns('',
     # User view.
     url(r'^u/(?P<pk>\d+)/$', user_views.user_view, name="user_view"),
 
-    # Site specific content.
-    url(r'^site/u/posts/(?P<pk>\d+)/$', post_views.posts_by_user, name="posts_by_user"),
+    # Posts created by a user.
+    url(r'^site/all/posts/created/by/user/(?P<pk>\d+)/$', post_views.posts_by_user, name="posts_by_user"),
+
+    # Upvoted posts created by a user
+    url(r'^site/upvoted/posts/created/by/(?P<pk>\d+)/$', post_views.upvoted_posts, name="upvoted_posts"),
 
     # Tag list.
     url(r'^t/$', post_views.tag_list, name="tag_list"),
