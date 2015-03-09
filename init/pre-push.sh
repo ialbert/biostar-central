@@ -4,7 +4,7 @@
 # to bypass tests run
 # git push --no-verify
 
-CMD="python manage.py test"
+CMD="python manage.py test --settings=run.sqlite"
 
 # Check if we actually have commits to push
 commits=`git log @{u}..`
@@ -15,7 +15,17 @@ fi
 $CMD
 RESULT=$?
 if [ $RESULT -ne 0 ]; then
-    echo "failed $CMD"
+	# Make it visible. Easy to miss.
+	echo "***"
+	echo "***"
+    echo "*** Failed: $CMD"
+    echo "***"
+    echo "*** Push ERROR!"
+    echo "***"
+    echo "***"
+    echo "***"
+	# Try some beeps too.
+	echo -ne '\a' '\a'
     exit 1
 fi
 exit 0
