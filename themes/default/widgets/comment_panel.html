@@ -2,7 +2,7 @@
 
 <div class="row" id="comment_form">
     {% if user.is_authenticated %}
-        <form action="{% url "new_comment" parent_id=pk %}" method="post">
+        <form action="{% url "new_comment" pk=pk %}" method="post">
             {% csrf_token %}
             <div class="twelve columns">
 

@@ -71,7 +71,9 @@ def write_access_post(user, post):
     return write_cond and read_access_post(user=user, post=post)
 
 def thread_write_access(user, root):
-
+    """
+    Thread write access check.
+    """
     read_cond = read_access_post(post=root, user=user)
 
     def validator(user, post):
@@ -83,10 +85,10 @@ def thread_write_access(user, root):
 
 def valid_user(function=None):
     """
-    Decorator for views that checks that the userid in the pk field is a valid
-    user for the current state.
+    Valid user check.
     """
 
+    @wraps(function)
     def decorator(request, pk, *args, **kwargs):
         user = User.objects.filter(pk=pk).first()
 
@@ -98,10 +100,9 @@ def valid_user(function=None):
 
     return decorator
 
-def post_read(function=None):
+def post_read(function):
     """
-    Decorator for views that checks that the post id in the pk field
-    is a valid read target for the current user.
+    Post read check.
     """
 
     @wraps(function)
@@ -120,26 +121,30 @@ def post_read(function=None):
             messages.error(request, "This post my not be accessed by this user.")
             return home
 
-        return function(request, post=post, user=user)
+        return function(request, post=post, user=user, *args, **kwargs)
 
     return decorator
 
-def post_edit(function=None):
+def post_edit(function):
     """
-    Decorator for views that checks that the post id in the pk field
-    is a valid edit target for the current user.
+    Post edit check.
     """
 
     @wraps(function)
     def decorator(request, pk, *args, **kwargs):
         user = request.user
         post = Post.objects.filter(pk=pk).first()
-        back = redirect(post.get_absolute_url())
+        home = redirect(reverse("home"))
+
+        if not post:
+            # Post does not exists.
+            messages.error(request, "Post with id=%s not found" % pk)
+            return home
 
         if not write_access_post(user, post):
             # Post exists but it is not writeable by the user.
             messages.error(request, "Post may not be edited by this user!")
-            return back
+            return home
 
         return function(request, post=post, user=user)
 
@@ -147,9 +152,10 @@ def post_edit(function=None):
 
 def content_create(function=None):
     """
-    Decorator to check content creation on a parent post.
+    Content create check.
     """
 
+    @wraps(function)
     def decorator(request, pk, *args, **kwargs):
         user = request.user
         error = redirect(reverse("home"))
@@ -171,9 +177,10 @@ def content_create(function=None):
 
 def content_write(function=None):
     """
-    Decorator to check content creation on a parent post.
+    Content write check.
     """
 
+    @wraps(function)
     def decorator(request, parent,  **kwargs):
         user = request.user
         error = redirect(reverse("home"))
@@ -189,10 +196,10 @@ def content_write(function=None):
 
 def group_access(function=None):
     """
-    Decorator for views that checks that the group id the pk field is
-    a valid user for the current request.
+    Group access check.
     """
 
+    @wraps(function)
     def decorator(request, pk, *args, **kwargs):
         user = request.user
         group = UserGroup.objects.filter(pk=pk).first()
@@ -207,17 +214,21 @@ def group_access(function=None):
 
     return decorator
 
-@group_access
 def group_edit(function=None):
     """
-    Decorator for views that checks that the group id  the pk field is
-    a valid user for the current request.
+    Group edit check.
     """
 
+    @wraps(function)
     def decorator(request, pk, *args, **kwargs):
         user = request.user
         group = UserGroup.objects.filter(pk=pk).first()
         error = redirect(reverse("group_list"))
+
+        if not group:
+            # Group does not exists.
+            messages.error(request, "Group with id=%s not found" % pk)
+            return error
 
         if group.owner != user:
             # Only group owners may edit a group.
@@ -230,10 +241,10 @@ def group_edit(function=None):
 
 def group_create(function=None):
     """
-    Decorator for views that checks that the group id  the pk field is
-    a valid user for the current state.
+    Group create check.
     """
 
+    @wraps(function)
     def decorator(request, *args, **kwargs):
         user = request.user
         error = redirect(reverse("group_list"))
@@ -257,8 +268,7 @@ def group_create(function=None):
 
 def remote_ip(request, key='REMOTE_ADDR'):
     """
-    Retrieve the IP address from the request.
-    Does not validate the result.
+    Retrieve the IP address from the request. Does not validate the result.
     """
     # Frontend must set the header correctly.
     ip = request.META.get(key, '0.0.0.0')
