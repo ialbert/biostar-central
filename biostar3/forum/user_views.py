@@ -15,13 +15,16 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login
 from ratelimit.decorators import ratelimit, is_ratelimited
-from . import query
+from django.contrib.sites.models import Site
+from . import query, models
 
 logger = logging.getLogger('biostar')
 
 # Get custom user model.
 User = get_user_model()
 
+# Loads this group when none are specified.
+DEFAULT_GROUP = models.UserGroup.objects.filter(name=settings.DEFAULT_GROUP_NAME).first()
 
 def user_list(request):
     """
@@ -69,6 +72,23 @@ class Login(LoginView):
     Authentication only works for the same domain.
     """
     def dispatch(self, request, *args, **kwargs):
+        # Override the next parameter if the user is visiting a different group.
+        # This is necessary as OAuth will only work for a single domain.
+        # After log in the user is redirected to the group site.
+        group = request.group
+        if group.domain != DEFAULT_GROUP.domain:
+            site = Site.objects.get_current()
+            login_url = reverse("account_login")
+            next_url = reverse("group_redirect", kwargs=dict(domain=group.domain))
+            params = dict(
+                scheme=request.scheme,
+                next_url=next_url,
+                domain=site.domain,
+                login_url=login_url,
+            )
+            site_url = "%(scheme)s://%(domain)s%(login_url)s?next=%(next_url)s" % params
+            return redirect(site_url)
+
         return super(Login, self).dispatch(request, *args, **kwargs)
 
 CAPTCHA_VERIFY_URL = "https://www.google.com/recaptcha/api/siteverify"
