@@ -19,12 +19,6 @@ SITE = Site.objects.get_current()
 # Loads this group when none are specified.
 DEFAULT_GROUP = UserGroup.objects.filter(name=settings.DEFAULT_GROUP_NAME).first()
 
-def full_url(request, url):
-    if request.is_secure():
-        return "https://%s" % url
-    else:
-        return "http://%s" % url
-
 class AutoSignupAdapter(DefaultSocialAccountAdapter):
 
     def pre_social_login(self, request, sociallogin):
@@ -76,9 +70,10 @@ class GlobalMiddleware(object):
         if subdomain in settings.DEFAULT_SUBDOMAINS:
             group = DEFAULT_GROUP
         else:
-            group = UserGroup.objects.filter(name__iexact=subdomain).first()
+            group = UserGroup.objects.filter(domain__iexact=subdomain).first()
             if not group:
-                return Redirect(full_url(request, SITE.domain))
+                url = "%s://%s" % (request.scheme, SITE.domain)
+                return Redirect(url)
 
         # Groups need to be set on each request.
         request.group = group

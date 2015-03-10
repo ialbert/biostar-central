@@ -100,9 +100,9 @@ def tag_bar(post):
 def nav_bar(user):
     return dict(user=user)
 
-@register.inclusion_tag('widgets/user_bar.html')
-def user_bar(user):
-    return dict(user=user)
+@register.inclusion_tag('widgets/user_bar.html', takes_context=True)
+def user_bar(context, user):
+    return dict(user=user, context=context)
 
 @register.filter
 def bignum(number):

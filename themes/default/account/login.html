@@ -36,11 +36,11 @@
             </div>
 
             <div class="row">
-
+				{%  message_bar %}
                 <h4 align="center">{% trans 'Email Authentication' %}</h4>
-                Users may also create an account and log in via email.
+                Users may create an account and log with with email.
                 <b>Sign In</b> or <b>Sign Up</b> via the form below. You may also
-            	<a href="{% url 'account_reset_password' %}">reset your password.</a>
+            	<a href="{% url 'account_reset_password' %}">reset your password</a> if you have forgotten it.
 
                 <div style="margin:1em; text-align: center">
                     <form action="{% url 'sign_up' %}" method="POST">
@@ -53,6 +53,11 @@
                         <div>
                             <input type="password" name="password" placeholder="Your password"/>
                         </div>
+
+                    	<div>
+                            <input type="checkbox" name="signup"> Create an account.
+                        </div>
+
                         {% if recaptcha %}
                             <div class="g-recaptcha" align="center" style="margin:1em" data-sitekey="{{ recaptcha }}"></div>
                         {% endif %}

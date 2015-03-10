@@ -1,12 +1,12 @@
 {% load humanize %}
 {#  Renders the paging widget #}
 
-
 <div class="row">
 
     <div class="page_bar">
 
-        {% if page.sort %}
+        {% if page.sort.choices %}
+
             <div class="left">
                 <ul class="dropdown">
                     <a href="#"><i class="fa fa-caret-down"></i> {{ page.sort.label }}</a>
@@ -20,7 +20,7 @@
             </div>
         {% endif %}
 
-        {% if page.days %}
+        {% if page.days.choices %}
             <div class="right">
                 <ul class="dropdown">
                     <a href="#"><i class="fa fa-caret-down"></i> {{ page.days.label }}</a>
@@ -36,7 +36,8 @@
 
         <div>
             {% if page.has_previous %}
-                <a href="?page={{ page.previous_page_number }}&sort={{ page.sort.value }}&days={{ page.days.value }}&q={{ page.q }}">
+                <a
+                href="?page={{ page.previous_page_number }}&sort={{ page.sort.value }}&days={{ page.days.value }}&q={{ page.q }}">
                     &lt;prev</a>
             {% else %}
                 &lt;prev
@@ -46,7 +47,8 @@
             of {{ page.paginator.num_pages }} &bull;
 
             {% if page.has_next %}
-                <a href="?page={{ page.next_page_number }}&sort={{ page.sort.value }}&days={{ page.days.value }}&q={{ page.q }}">next&gt;</a>
+                <a
+                href="?page={{ page.next_page_number }}&sort={{ page.sort.value }}&days={{ page.days.value }}&q={{ page.q }}">next&gt;</a>
             {% else %}
                 next&gt;
             {% endif %}
@@ -54,4 +56,7 @@
     </div>
 </div>
 
+{% if not page.object_list %}
+    <div class="alert info">No results were found!</div>
+{% endif %}
 

@@ -7,10 +7,15 @@
 
 {% block body %}
 
-<div class="row">
-    <div class="twelve columns">
-    	User view
-    </div>
-</div>
+    <div class="row">
+        <div class="twelve columns">
+            User {{ target.name }}, {{ target.email }}view
 
-{%  endblock %}
+            <div class="item">
+                Posts by <a href="{% url "posts_by_user" pk=target.id %}"><i class="fa fa-list"></i> {{target.name }}</a>
+            </div>
+
+        </div>
+    </div>
+
+{% endblock %}

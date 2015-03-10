@@ -8,7 +8,7 @@
 {% block body %}
 
     <div class="row">
-        <div class="twelve columns">
+        <div class="nine columns">
 
             {% search_bar page=page action='user_list' placeholder="Search for users" %}
 
@@ -40,6 +40,10 @@
             </div>
 
             {% page_bar page %}
+        </div>
+
+    	<div class="three columns recent_votes">
+            {% message_bar %}
         </div>
 
     </div>

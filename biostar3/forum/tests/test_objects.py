@@ -41,7 +41,9 @@ class SimpleTests(TestCase):
 
         for i in range(count):
             user = User.objects.create(name=f.name(), email=f.email())
-            group = UserGroup.objects.create(name=f.domain_word()[:15])
+            domain = f.domain_word()[:15]
+            name = domain
+            group = UserGroup.objects.create(domain=domain, name=name)
             group.users.add(user)
 
         self.assertTrue(UserGroup.objects.all().count() == start + count)

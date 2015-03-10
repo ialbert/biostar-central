@@ -35,18 +35,23 @@ def user_list(request):
     else:
         users = User.objects.all()
 
-    paginator = query.UserPaginator(request, users, per_page=25, orphans=False)
+    paginator = query.ExtendedPaginator(request, object_list=users,
+                                         time_class=query.TimeLimitValidator,
+                                        sort_class=query.UserSortValidator, per_page=25, orphans=False)
     page = paginator.curr_page()
 
     context = dict(page=page, users=page.object_list, q=q)
     return render(request, template_name, context)
 
-def user_view(request, pk):
+@auth.valid_user
+def user_view(request, pk, user=None):
     """
-    Generates a single user view
+    Generates a single user view.
+    The decorator will set the user parameter.
     """
+
     template_name = "user_view.html"
-    context = dict()
+    context = dict(target=user)
     return render(request, template_name, context)
 
 @login_required
@@ -57,9 +62,16 @@ def me_view(request):
     return request.user.get_absolute_url()
 
 
+from allauth.account.views import LoginView
+class Login(LoginView):
+    """
+    This is required to intercept signups from different subdomains.
+    Authentication only works for the same domain.
+    """
+    def dispatch(self, request, *args, **kwargs):
+        return super(Login, self).dispatch(request, *args, **kwargs)
+
 CAPTCHA_VERIFY_URL = "https://www.google.com/recaptcha/api/siteverify"
-
-
 @ratelimit(key='ip', rate=settings.SIGNUP_RATELIMIT)
 def sign_up(request):
     """
@@ -75,7 +87,9 @@ def sign_up(request):
     There are no nested conditionals. As soon as an error is seen we bail out.
     """
     email = request.POST.get('email', '').strip()
-    password = request.POST.get('password')
+    password = request.POST.get('password', '')
+    signup = request.POST.get('signup', '')
+
     recaptcha_response = request.POST.get('g-recaptcha-response')
 
     login_redirect = redirect(reverse("account_login"))
@@ -84,16 +98,16 @@ def sign_up(request):
 
     if was_limited:
         # Rate limits apply to signups.
-        messages.error(request, "Access denied! Too many similar requests from the same IP address. Please try later!")
+        messages.error(request, "Access denied! Too many login attempts from the same IP address. Please try later!")
         return login_redirect
 
     if request.method == 'GET':
         # Get requests go to login page.
         return login_redirect
 
-    if not email and password:
+    if not (email and password):
         # The form requires both email and password.
-        messages.error(request, "Please enter an email and a password!")
+        messages.error(request, "Form requires an email and a password!")
         return login_redirect
 
     if settings.RECAPTCHA_PUBLIC_KEY and not recaptcha_response:
@@ -137,7 +151,16 @@ def sign_up(request):
             messages.error(request, "This user account has been disabled")
             return login_redirect
 
-    # If we are here then authentication was not successful.
+    if User.objects.filter(email=email).first():
+        # See if the email actually exists.
+        messages.error(request, "Incorrect user password.")
+        return login_redirect
+
+    if not signup:
+        # The user has not requested a sigup.
+        messages.error(request, "If you want to create an account check the signup checkbox.")
+        return login_redirect
+
     # Try to sign up the user
     user = User.objects.filter(email=email).first()
     if user:

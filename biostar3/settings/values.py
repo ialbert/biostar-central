@@ -20,7 +20,7 @@ RATELIMIT_ENABLE = True
 # How many maximum signup accesses per minute.
 # See django-ratelimit for rates and keys.
 # Does not include signups via social authentication.
-SIGNUP_RATELIMIT = "3/m"
+SIGNUP_RATELIMIT = "30/h"
 
 # How many recent votes to show.
 RECENT_VOTE_COUNT = 10

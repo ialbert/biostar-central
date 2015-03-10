@@ -13,24 +13,28 @@
                     <a href="#"><i class="fa fa-question-circle"></i> OPEN</a>
                 </div>
 
-                <div class="item">
+                <div class="item tooltip" title="Messages" data-tooltip-direction="top">
                     <a href="#"><i class="fa fa-envelope"></i> 30</a>
                 </div>
 
-                <div class="item">
-                    <a href="#"><i class="fa fa-heart"></i> 20</a>
+                <div class="item tooltip" title="Your upvoted posts" data-tooltip-direction="top">
+                    <a href="{%  url "upvoted_posts" pk=user.id %}"><i class="fa fa-heart"></i> {{ context.counts.vote_count|bignum }}</a>
+                </div>
+
+                <div class="item tooltip" title="Your awards" data-tooltip-direction="top">
+                    <a href="#"><i class="fa fa-star"></i> 1</a>
+                </div>
+
+                <div class="item tooltip" title="Your Bookmarks" data-tooltip-direction="top">
+                    <a href="{%  url "my_bookmarks" %}"><i class="fa fa-bookmark"></i> {{ context.counts.book_count|bignum }}</a>
+                </div>
+
+                <div class="item tooltip" title="Your posts" data-tooltip-direction="top">
+                    <a href="{% url "posts_by_user" pk=user.id %}"><i class="fa fa-list"></i> {{ context.counts.post_count|bignum }}</a>
                 </div>
 
                 <div class="item">
-                    <a href="#"><i class="fa fa-star"></i> 4</a>
-                </div>
-
-                <div class="item">
-                    <a href="#"><i class="fa fa-bookmark"></i> 10</a>
-                </div>
-
-                <div class="item">
-                    <a href="#"><i class="fa fa-user">
+                    <a href="{%  url "user_view" pk=user.id %}"><i class="fa fa-user">
                         <span class="line">{% scoreline user %}</span></i> {{ user.name }}
                     </a>
                 </div>

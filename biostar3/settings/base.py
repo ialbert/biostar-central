@@ -22,6 +22,7 @@ def get_env(name, default=''):
         raise ImproperlyConfigured(msg)
     return value
 
+SESSION_COOKIE_DOMAIN=".lvh.me"
 
 BIOSTAR_HOME = get_env('BIOSTAR_HOME')
 DEFAULT_SUBDOMAINS = {'www', '127', 'localhost:8080'}

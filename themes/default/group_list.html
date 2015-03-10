@@ -1,0 +1,58 @@
+{% extends "site_layout.html" %}
+{% load widgets %}
+
+{% block title %}
+    User List
+{% endblock %}
+
+{% block body %}
+
+    <div class="row">
+        <div class="nine columns">
+
+            {% search_bar page=page action='group_list' placeholder="Search for groups" %}
+
+            <div class="row" style="padding-top:1em">
+                <table>
+                <tr>
+                    <th>Group Name</th>
+                    <th>Domain</th>
+                    <th>Action</th>
+
+                    <th>Owner</th>
+                    <th>Public</th>
+                    <th>Description</th>
+                </tr>
+                    {% for group in public %}
+                        <tr>
+                            <td>
+								<a href="{{ group.url }}">{{ group.name }}</a>
+
+                            </td>
+
+                            <td>
+                               {{ group.domain }}
+                            </td>
+                            <td>
+                                <a href="{%  url "group_edit" group.id %}">edit</a>
+                            </td>
+                          	<td>
+                               {{ group.owner.name }}
+                            </td>
+                            <td>
+                                {{ group.public }}
+                            </td>
+
+                        	<td>{{ group.description }}</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+
+            {% page_bar page %}
+
+        </div>
+
+    </div>
+
+{% endblock %}

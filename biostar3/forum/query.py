@@ -13,8 +13,10 @@ User = get_user_model()
 
 DEFAULT_GROUP = UserGroup.objects.filter(name=settings.DEFAULT_GROUP_NAME).first()
 
+
 def now():
     return datetime.utcnow().replace(tzinfo=utc)
+
 
 def ago(hours=0, minutes=0, days=0):
     since = now() - timedelta(days=days, hours=hours, minutes=minutes)
@@ -30,22 +32,31 @@ def positive_integer(text, upper=sys.maxint):
     except ValueError, exc:
         return 0
 
+
 class DropDown(object):
     """
     Represents a dropdown menu with a current value and label.
     """
-    choices = [] # Pairs of value/display.
-    lookup = {}  # A dictionary to look up a display for a value
-    default = '' # The default value for the widget.
-    order = {} # The mapping to the order_by clause
+    # Pairs of value/display.
+    choices = []
+    # A dictionary to look up a display for a value
+    lookup = {}
+    # The default value for the widget.
+    default = ''
+    # The mapping to the order_by clause
+    order = {}
 
     def __init__(self, request, value):
         # Current selection of the drop down.
         self.value = value if (value in self.lookup) else self.default
         # The label displayed in the interface.
-        self.label = self.lookup.get(self.value, '???')
+        self.label = self.lookup.get(self.value, '')
         if self.value != self.default:
             messages.info(request, "Sorting by: %s" % self.label)
+
+    def time_filter(self, queryset, value):
+        return queryset
+
 
 class PostSortValidator(DropDown):
     choices = settings.POST_SORT_CHOICES
@@ -53,11 +64,33 @@ class PostSortValidator(DropDown):
     default = settings.POST_SORT_DEFAULT
     order = settings.POST_SORT_ORDER
 
+    def time_filter(self, queryset, value):
+        return queryset.filter(creation_date__gt=value)
+
+
 class UserSortValidator(DropDown):
     choices = settings.USER_SORT_CHOICES
     lookup = settings.USER_SORT_MAP
     default = settings.USER_SORT_DEFAULT
     order = settings.USER_SORT_ORDER
+
+    def time_filter(self, queryset, value):
+        return queryset.filter(profile__date_joined__gt=value)
+
+
+class TagSortValidator(DropDown):
+    choices = [("asc", "Alphabetical"), ("desc", "Reversed")]
+    lookup = dict(choices)
+    default = "asc"
+    order = dict(asc="name", desc="-name")
+
+
+class GroupSortValidator(DropDown):
+    choices = [("asc", "Alphabetical"), ("desc", "Reversed")]
+    lookup = dict(choices)
+    default = "asc"
+    order = dict(asc="name", desc="-name")
+
 
 class TimeLimitValidator(DropDown):
     choices = settings.TIME_LIMIT_CHOICES
@@ -70,9 +103,10 @@ class TimeLimitValidator(DropDown):
         if self.value != self.default:
             messages.info(request, "Limiting to: %s" % self.label)
 
-class PostPaginator(Paginator):
 
-    def __init__(self, request, *args, **kwds):
+class ExtendedPaginator(Paginator):
+    def __init__(self, request, sort_class=DropDown, time_class=DropDown, *args, **kwds):
+
         self.request = request
         self.page_num = request.GET.get('page', '1')
 
@@ -81,28 +115,24 @@ class PostPaginator(Paginator):
         self.q = request.GET.get('q', '')
 
         # Add the dropdowns
-        self.sort = PostSortValidator(request, value=sort)
-        self.days = TimeLimitValidator(request, value=days)
+        self.sort = sort_class(request, value=sort)
+        self.days = time_class(request, value=days)
 
-        super(PostPaginator, self).__init__(*args, **kwds)
+        super(ExtendedPaginator, self).__init__(*args, **kwds)
 
     def curr_page(self):
 
-        order_by = self.sort.order.get(self.sort.value, '?')
+        order_by = self.sort.order.get(self.sort.value, '')
 
         # Apply the order to the object list.
-        self.object_list = self.object_list.order_by(order_by)
+        #self.object_list = self.object_list.order_by(order_by)
 
         # Apply the time limit to the object list
         if self.days.value != self.days.default:
             # The field to look up depends on the object type
             # This should be refactored and made uniform.
             since = ago(days=self.days.value)
-            if isinstance(self.sort, UserSortValidator):
-                self.object_list = self.object_list.filter(profile__date_joined__gt=since)
-            elif isinstance(self.sort, PostSortValidator):
-                self.object_list = self.object_list.filter(creation_date__gt=since)
-
+            #self.object_list = self.sort.time_filter(self.object_list, since)
         try:
             pa = self.page(self.page_num)
         except PageNotAnInteger:
@@ -119,17 +149,12 @@ class PostPaginator(Paginator):
 
         return pa
 
-class UserPaginator(PostPaginator):
-    def __init__(self, request, *args, **kwds):
-        super(UserPaginator, self).__init__(request, *args, **kwds)
-        sort = request.GET.get('sort', '')
-        self.sort = UserSortValidator(request, sort)
-
 
 def recent_votes():
     votes = Vote.objects.filter(post__status=Post.OPEN).select_related("post").order_by("-date")[
             :settings.RECENT_VOTE_COUNT]
     return votes
+
 
 def get_recent_users():
     users = User.objects.all().select_related("profile").order_by("-profile__last_login")[:settings.RECENT_USER_COUNT]
@@ -143,9 +168,34 @@ def get_toplevel_posts(user, group):
     if not user.is_moderator:
         posts = posts.exclude(status=Post.DELETED)
 
-    posts = posts.select_related("root", "author", "lastedit_user", "group").prefetch_related("tags").defer("content",
-                                                                                                            "html")
-    posts = posts.defer("content")
+    posts = posts.select_related("root", "author", "lastedit_user", "group").prefetch_related("tags")
+    posts = posts.defer("content", "html")
+    return posts
+
+
+def get_all_posts(user, group):
+    "Returns all posts by a user"
+
+    posts = Post.objects.filter(author=user)
+
+    if not user.is_moderator:
+        posts = posts.exclude(status=Post.DELETED)
+
+    posts = posts.select_related("root", "author", "lastedit_user", "group").prefetch_related("tags")
+    posts = posts.defer("content", "html")
+
+    return posts
+
+
+def get_posts_by_vote(user, group, vote_types):
+    posts = Post.objects.filter(votes__type__in=vote_types, votes__post__author=user)
+    posts = posts.distinct()
+    return posts
+
+
+def get_my_bookmarks(user, group):
+    posts = Post.objects.filter(votes__type=Vote.BOOKMARK, votes__author=user)
+    posts = posts.distinct()
     return posts
 
 

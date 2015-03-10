@@ -20,21 +20,43 @@ urlpatterns = patterns('',
     # The signin/signup view.
     url(r'^site/sign_up/$', user_views.sign_up, name='sign_up'),
 
-    # This is to disable the url from django allauth.
+    # This is to retarget the url from django allauth.
     url(r'^accounts/signup/$', user_views.sign_up, name='account_signup'),
 
-    # Post details.
+    #This is to retarget the url from django allauth.
+    url(r'^accounts/login/$', user_views.Login.as_view(), name='account_signup'),
+
+    # Post (thread) view.
     url(r'^p/(?P<pk>\d+)/$', post_views.post_view, name="post_view"),
+
+    # User view.
+    url(r'^u/(?P<pk>\d+)/$', user_views.user_view, name="user_view"),
+
+    # Posts created by a user.
+    url(r'^site/all/posts/created/by/user/(?P<pk>\d+)/$', post_views.posts_by_user, name="posts_by_user"),
+
+    # Upvoted posts created by a user
+    url(r'^site/upvoted/posts/created/by/(?P<pk>\d+)/$', post_views.upvoted_posts, name="upvoted_posts"),
+
+    # Posts created by a user.
+    url(r'^site/my/bookmarks/$', post_views.my_bookmarks, name="my_bookmarks"),
+
+    # Group list.
+    url(r'^g/$', post_views.group_list, name="group_list"),
+
+    # Group edit.
+    url(r'^g/edit/(?P<pk>\d+)/$', form_views.group_edit, name="group_edit"),
 
     # Tag list.
     url(r'^t/$', post_views.tag_list, name="tag_list"),
+
+    # Filter posts by tag.
     url(r'^t/(?P<name>\S+)/$', post_views.tag_filter, name="tag_filter"),
+
 
     # The list of users.
     url(r'^user/list/$', user_views.user_list, name="user_list"),
 
-    # Post details.
-    url(r'^u/(?P<pk>\d+)/$', user_views.user_view, name="user_view"),
 
     # Create new content: answer, comments
     url(r'^new/post/$', form_views.create_toplevel_post, name="new_post"),
@@ -42,7 +64,7 @@ urlpatterns = patterns('',
     url(r'^new/comment/(?P<parent_id>\d+)/$', form_views.create_comment, name="new_comment"),
 
     # Edit existing posts.
-    url(r'^edit/post/(?P<post_id>\d+)/$', form_views.edit_post, name="edit_post"),
+    url(r'^edit/post/(?P<pk>\d+)/$', form_views.edit_post, name="edit_post"),
 
     # Vote submission handler.
     url(r'^x/vote/$', ajax.vote_handler, name="vote_submit"),

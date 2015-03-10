@@ -11,18 +11,21 @@ from django.conf import settings
 from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.db.models import Q, F
-from django.core.paginator import Paginator
+from django.contrib.auth.decorators import login_required
+from django.contrib.sites.models import Site
+
 
 from taggit.models import TaggedItem, Tag
 
 # Biostar specific local modules.
 from . import models, query, search, auth
-from .models import Vote, Post, PostView
+from .models import Vote, Post, PostView, UserGroup
 
 logger = logging.getLogger('biostar')
 
 # Get custom user model.
 User = get_user_model()
+
 
 def tag_list(request):
     template_name = "tag_list.html"
@@ -35,18 +38,58 @@ def tag_list(request):
         tags = Tag.objects.all()
 
     tags = tags.order_by("name")
-    page = query.get_page(request, tags, per_page=100)
+
+    paginator = query.ExtendedPaginator(request, object_list=tags, time_class=query.DropDown,
+                                        sort_class=query.TagSortValidator, per_page=100)
+    page = paginator.curr_page()
+
     html_title = "Tags"
 
     context = dict(page=page, tags=page.object_list, html_title=html_title, q=q)
     return render(request, template_name, context)
 
+
 def tag_filter(request, name):
+    """
+    Returns a list of posts filtered by a tag name.
+    """
     posts = query.get_toplevel_posts(user=request.user, group=request.group)
     names = name.split("+")
     posts = posts.filter(tags__name__in=names)
     messages.info(request, 'Filtering for tags: %s' % name)
     return post_list(request, posts=posts)
+
+
+@auth.valid_user
+def posts_by_user(request, pk, user=None):
+    """
+    Returns the posts created by a user.
+    """
+    posts = query.get_all_posts(user=user, group=request.group)
+    messages.info(request, 'Posts by: %s' % user.name)
+    return post_list(request, posts=posts)
+
+
+@auth.valid_user
+def upvoted_posts(request, pk, user=None):
+    """
+    Returns the upvoted posts created by a user.
+    """
+    posts = query.get_posts_by_vote(user=user, group=request.group, vote_types=[Vote.BOOKMARK, Vote.UP])
+    messages.info(request, 'Upvoted posts by: %s' % user.name)
+    return post_list(request, posts=posts)
+
+
+@login_required
+def my_bookmarks(request):
+    """
+    Returns the bookmarks by a user.
+    """
+    user = request.user
+    posts = query.get_my_bookmarks(user=user, group=request.group)
+    messages.info(request, 'Bookmarks for: %s' % user.name)
+    return post_list(request, posts=posts)
+
 
 def post_list(request, posts=None):
     template_name = "post_list.html"
@@ -55,13 +98,38 @@ def post_list(request, posts=None):
         # The view is generic and could be called prefilled with posts.
         posts = query.get_toplevel_posts(user=request.user, group=request.group)
 
-    paginator = query.PostPaginator(request, posts, per_page=settings.POSTS_PER_PAGE, orphans=False)
+    paginator = query.ExtendedPaginator(request,
+                                        sort_class=query.PostSortValidator,
+                                        time_class=query.TimeLimitValidator,
+                                        object_list=posts, per_page=settings.POSTS_PER_PAGE)
     page = paginator.curr_page()
 
     # Add the recent votes
     recent_votes = query.recent_votes()
     html_title = "Post List"
     context = dict(page=page, posts=page.object_list, recent_votes=recent_votes, html_title=html_title)
+
+    return render(request, template_name, context)
+
+
+def group_list(request):
+    """
+    Generates the list of groups.
+    """
+    template_name = "group_list.html"
+    public = UserGroup.objects.filter(public=True)
+
+    paginator = query.ExtendedPaginator(request, sort_class=query.GroupSortValidator, object_list=public, per_page=100)
+    page = paginator.curr_page()
+
+    site = Site.objects.get_current()
+
+    print(request.scheme)
+
+    for group in page.object_list:
+        group.url = models.group_url(group=group, scheme=request.scheme, site=site)
+
+    context = dict(page=page, public=page.object_list)
 
     return render(request, template_name, context)
 
@@ -77,9 +145,10 @@ def search_results(request):
         return redirect(reverse("home"))
 
     posts = search.plain(q)
-    paginator = Paginator(posts[:100], 100)
-    page = paginator.page(1)
-    page.q = q
+
+    paginator = query.ExtendedPaginator(request, posts,
+                                        per_page=settings.POSTS_PER_PAGE, orphans=False)
+    page = paginator.curr_page()
 
     # Add the recent votes
     recent_votes = query.recent_votes()
@@ -106,25 +175,13 @@ def update_post_views(request, post, minutes=settings.POST_VIEW_INTERVAL):
         logger.error(exc)
 
 
-def post_view(request, pk):
+@auth.read_post
+def post_view(request, pk, post=None, user=None):
     """
     Generates the page that contains a full thread.
     """
-    user = request.user
+
     template_name = "post_detail.html"
-
-    # Tries to get the post.
-    post = Post.objects.filter(pk=pk).first()
-
-    if not post:
-        # Post does not exist.
-        messages.error(request, "This post does not exist. Perhaps it has been deleted.")
-        return redirect("home")
-
-    if not auth.read_access_post(user=user, post=post):
-        # Post exists but may not be read by the user.
-        messages.error(request, "This post my not be accessed by this user.")
-        return redirect("home")
 
     if not post.is_toplevel:
         # Post is not at top level. Redirect and and scroll the page to the right anchor.
