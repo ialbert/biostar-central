@@ -7,6 +7,7 @@ from django.utils.timezone import utc
 from datetime import datetime, timedelta
 from django.shortcuts import redirect
 from django.contrib import messages
+from functools import wraps
 
 class AccessDenied(BaseException):
     pass
@@ -103,6 +104,7 @@ def post_read(function=None):
     is a valid read target for the current user.
     """
 
+    @wraps(function)
     def decorator(request, pk, *args, **kwargs):
         user = request.user
         post = Post.objects.filter(pk=pk).first()
@@ -128,15 +130,15 @@ def post_edit(function=None):
     is a valid edit target for the current user.
     """
 
+    @wraps(function)
     def decorator(request, pk, *args, **kwargs):
         user = request.user
         post = Post.objects.filter(pk=pk).first()
         back = redirect(post.get_absolute_url())
 
-        print post, write_access_post(user, post)
         if not write_access_post(user, post):
             # Post exists but it is not writeable by the user.
-            messages.error(request, "This post may not be edited by this user!")
+            messages.error(request, "Post may not be edited by this user!")
             return back
 
         return function(request, post=post, user=user)

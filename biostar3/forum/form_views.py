@@ -10,6 +10,7 @@ from .models import Post, UserGroup
 from . import auth
 from django.shortcuts import render, redirect
 from django.contrib.sites.models import Site
+from functools import wraps
 
 import logging
 from django.contrib.auth import get_user_model
