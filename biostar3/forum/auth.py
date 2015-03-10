@@ -152,6 +152,7 @@ def edit_post(function=None):
 
     return decorator
 
+
 def remote_ip(request, key='REMOTE_ADDR'):
     """
     Retrieve the IP address from the request.

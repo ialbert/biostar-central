@@ -228,7 +228,7 @@ class GroupForm(forms.Form):
     Edit or create content: answers, comments
     """
     # The is_toplevel field is used to distinguish between subclasses inside templates
-    name = forms.CharField(min_length=3, max_length=25, label="Group Name")
+    name = forms.CharField(min_length=3, max_length=25, label="Group Name. ")
     domain = forms.CharField(min_length=3, max_length=15, label="Subdomain")
     public = forms.BooleanField(initial=True, label="Public access")
     description = forms.CharField(widget=forms.Textarea, min_length=10, max_length=100,

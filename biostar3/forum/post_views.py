@@ -109,6 +109,21 @@ def post_list(request, posts=None):
 
     return render(request, template_name, context)
 
+def group_redirect(request, domain):
+
+    try:
+        site = Site.objects.get_current()
+        group = UserGroup.objects.get(domain=domain)
+        netloc = site.domain.split(".")
+        netloc[0] = group.domain
+        netloc = ".".join(netloc)
+        target = "%s://%s" % (request.scheme, netloc)
+        return redirect(target)
+
+    except Exception, exc:
+        messages.error("Group error: %s" % exc)
+        return redirect(reverse("home"))
+
 
 def group_list(request):
     """
@@ -117,15 +132,9 @@ def group_list(request):
     template_name = "group_list.html"
     public = UserGroup.objects.filter(public=True)
 
-    paginator = query.ExtendedPaginator(request, sort_class=query.GroupSortValidator, object_list=public, per_page=100)
+    paginator = query.ExtendedPaginator(request, sort_class=query.GroupSortValidator,
+                                        object_list=public, per_page=100)
     page = paginator.curr_page()
-
-    site = Site.objects.get_current()
-
-    print(request.scheme)
-
-    for group in page.object_list:
-        group.url = models.group_url(group=group, scheme=request.scheme, site=site)
 
     context = dict(page=page, public=page.object_list)
 

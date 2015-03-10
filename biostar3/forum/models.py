@@ -1,5 +1,5 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
-import random, hashlib, uuid
+import random, hashlib, uuid, logging
 from django.db import models, transaction
 from django.contrib.auth.models import UserManager, AbstractBaseUser, PermissionsMixin
 from django.contrib.sites.models import Site
@@ -10,6 +10,8 @@ from django.utils.timezone import utc
 from datetime import datetime
 from . import html
 from urlparse import urlparse
+
+logger = logging.getLogger('biostar')
 
 class MyTaggableManager(TaggableManager):
     def get_internal_type(self):
@@ -133,20 +135,10 @@ class UserGroup(models.Model):
     visible = models.BooleanField(default=True)
     creation_date = models.DateTimeField(auto_now_add=True)
 
-
-def group_url(group, scheme, site):
-    """"
-    The url for the group can be obtained from the request path.
-    """
-    netloc = site.domain.split(".")
-
-    netloc[0] = group.domain
-    netloc = ".".join(netloc)
-
-    print (netloc, scheme)
-
-    return "%s://%s" % (scheme, netloc)
-
+    def save(self, *args, **kwargs):
+        "Actions that need to be performed on every user save."
+        self.domain = self.domain.lower()
+        super(UserGroup, self).save(*args, **kwargs)
 
 class GroupPerm(models.Model):
     """

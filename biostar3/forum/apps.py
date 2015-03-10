@@ -53,6 +53,15 @@ def post_migrate_tasks(sender, **kwargs):
         default_group.owner = admin
         default_group.save()
 
+    # Create the meta group, talk about the site
+    meta_name, meta_domain, meta_description = "Meta Group", "meta", "Discussions about the site itself"
+    meta_group, meta_flag = UserGroup.objects.get_or_create(domain=meta_domain)
+    if meta_flag:
+        meta_group.name = meta_name
+        meta_group.description = meta_description
+        meta_group.owner = admin
+        meta_group.save()
+
     # Update all toplevel posts with no groups to have the default group.
     logger.info("adding groups to posts")
     Post.objects.filter(type__in=Post.TOP_LEVEL, group=None).update(group=default_group)

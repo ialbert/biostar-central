@@ -44,6 +44,9 @@ urlpatterns = patterns('',
     # Group list.
     url(r'^g/$', post_views.group_list, name="group_list"),
 
+    # Group redirect.
+    url(r'^g/(?P<domain>\S+)$', post_views.group_redirect, name="group_redirect"),
+
     # Group edit.
     url(r'^g/edit/(?P<pk>\d+)/$', form_views.group_edit, name="group_edit"),
 
