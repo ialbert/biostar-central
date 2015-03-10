@@ -10,7 +10,7 @@
     &bull; <a href="{{ post.get_absolute_url }}">link</a>
 
     {% if post.editable %}
-        &bull; <a href="{% url "edit_post" pk=post.id %}">edit</a>
+        &bull; <a href="{% url "post_edit" pk=post.id %}">edit</a>
         &bull; <a href="{{ post.get_absolute_url }}">actions</a>
     {% endif %}
 

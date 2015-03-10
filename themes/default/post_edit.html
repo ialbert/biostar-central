@@ -9,7 +9,7 @@
 
         <div class="nine columns ">
 
-            <h5>Posting in the {{ group.name }} group</h5>
+            <h3>Post</h3>
 
             {% if form.errors %}
                 <div>{{ form.errors }}</div>
@@ -31,11 +31,24 @@
                                    value="{{ form.tags.value }}"/>
                         </div>
                     </div>
+                    <div>
+                        <label for="x">
+                            Posting in
+                            {% if post.group %}
+                                <b>{{ post.group.name }}</b>
+                            {% else %}
+                                <b>{{ group.name }}</b>
+                            {% endif %}
+                        </label>
+                    </div>
 
                     <div>
                         <label for="{{ form.type.id_for_label }}">Type</label>
                         {{ form.type }}
                     </div>
+
+
+
                 {% endif %}
 
                 <div>

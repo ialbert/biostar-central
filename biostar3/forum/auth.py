@@ -97,7 +97,7 @@ def valid_user(function=None):
 
     return decorator
 
-def read_post(function=None):
+def post_read(function=None):
     """
     Decorator for views that checks that the post id in the pk field
     is a valid read target for the current user.
@@ -118,12 +118,11 @@ def read_post(function=None):
             messages.error(request, "This post my not be accessed by this user.")
             return home
 
-        return function(request, pk, post=post, user=user)
+        return function(request, post=post, user=user)
 
     return decorator
 
-@read_post
-def edit_post(function=None):
+def post_edit(function=None):
     """
     Decorator for views that checks that the post id in the pk field
     is a valid edit target for the current user.
@@ -132,18 +131,61 @@ def edit_post(function=None):
     def decorator(request, pk, *args, **kwargs):
         user = request.user
         post = Post.objects.filter(pk=pk).first()
-        home = redirect(reverse("home"))
+        back = redirect(post.get_absolute_url())
 
+        print post, write_access_post(user, post)
         if not write_access_post(user, post):
             # Post exists but it is not writeable by the user.
             messages.error(request, "This post may not be edited by this user!")
-            return home
+            return back
 
-        return function(request, pk, post=post, user=user)
+        return function(request, post=post, user=user)
 
     return decorator
 
-def group_access(function):
+def content_create(function=None):
+    """
+    Decorator to check content creation on a parent post.
+    """
+
+    def decorator(request, pk, *args, **kwargs):
+        user = request.user
+        error = redirect(reverse("home"))
+
+        parent = Post.objects.filter(pk=pk).select_related("group", "group__groupinfo").first()
+
+        if not parent:
+            messages.error(request, "Parent post does not exist. Perhaps it has been deleted.")
+            return error
+
+        if not read_access_post(user=user, post=parent):
+            messages.error(request, "The thread may not not be accessed by this user!")
+            return error
+
+        return function(request, parent=parent,  **kwargs)
+
+    return decorator
+
+
+def content_write(function=None):
+    """
+    Decorator to check content creation on a parent post.
+    """
+
+    def decorator(request, parent,  **kwargs):
+        user = request.user
+        error = redirect(reverse("home"))
+
+        if not write_access_post(user=user, post=parent):
+            messages.error(request, "This post may not be edited by this user!")
+            return error
+
+        return function(request, parent=parent, **kwargs)
+
+    return decorator
+
+
+def group_access(function=None):
     """
     Decorator for views that checks that the group id the pk field is
     a valid user for the current request.
@@ -164,7 +206,7 @@ def group_access(function):
     return decorator
 
 @group_access
-def group_edit(function):
+def group_edit(function=None):
     """
     Decorator for views that checks that the group id  the pk field is
     a valid user for the current request.

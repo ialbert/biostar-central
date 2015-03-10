@@ -66,7 +66,7 @@ def post_migrate_tasks(sender, **kwargs):
         default_group.save()
 
     # Create the meta group, talk about the site
-    meta_name, meta_domain, meta_description = "Meta Group", "meta", "Discussions about the site itself"
+    meta_name, meta_domain, meta_description = "Meta Talk", "meta", "Discussions about the site itself"
     meta_group, meta_flag = UserGroup.objects.get_or_create(domain=meta_domain)
     if meta_flag:
         logo_path = finders.find("images/logo-meta.png")

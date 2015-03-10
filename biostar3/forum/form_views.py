@@ -92,38 +92,16 @@ def get_post(request, user, pk, edit_access_required=True):
 
     return post
 
-
-@login_required
-def create_node(request, parent_id=None, post_type=None):
+def post_create(request, parent=None, post_type=None, action='', form_class=ContentForm):
     """
     This view creates nodes. Is not called directly from the web only through
     other functions that prefill parameters.
     """
-    user = request.user
-    group = request.group
-    template_name = "edit_post.html"
-    redirect_home = redirect(reverse_lazy("home"))
-
-    # No post type means a top level post to be created.
-    if post_type is None:
-        form_class = PostForm
-        action = reverse("new_post")
-    else:
-        form_class = ContentForm
-        if post_type == Post.ANSWER:
-            action = reverse("new_answer", kwargs=dict(parent_id=parent_id))
-        else:
-            action = reverse("new_comment", kwargs=dict(parent_id=parent_id))
+    user, group = request.user, request.group
+    template_name = "post_edit.html"
 
     if request.method == "GET":
         # This will render the initial form for the user.
-        if parent_id is not None:
-            try:
-                # Need to make sure that the parent post is readable to the user.
-                parent = get_post(request=request, user=user, pk=parent_id, edit_access_required=False)
-            except auth.AccessDenied:
-                return redirect_home
-
         form = form_class()
         context = dict(form=form, action=action)
         return render(request, template_name, context)
@@ -131,13 +109,6 @@ def create_node(request, parent_id=None, post_type=None):
     if request.method == "POST":
         # Data is being submitted
         form = form_class(request.POST)
-
-        if parent_id is not None:
-            # Need to make sure that the parent post is readable to the user.
-            try:
-                parent = get_post(request=request, user=user, pk=parent_id, edit_access_required=False)
-            except auth.AccessDenied:
-                return redirect_home
 
         if not form.is_valid():
             # Form data came but not valid.
@@ -153,28 +124,36 @@ def create_node(request, parent_id=None, post_type=None):
         return redirect(post.get_absolute_url())
 
 
+@login_required
 def create_toplevel_post(request):
     "A new toplevel post"
-    return create_node(request=request, parent_id=None, post_type=None)
-
-
-def create_answer(request, parent_id):
-    return create_node(request=request, parent_id=parent_id, post_type=Post.ANSWER)
-
-
-def create_comment(request, parent_id):
-    return create_node(request=request, parent_id=parent_id, post_type=Post.COMMENT)
+    action = reverse("new_post")
+    return post_create(request=request, parent=None, post_type=None, action=action, form_class=PostForm)
 
 
 @login_required
-@auth.read_post
-def edit_post(request, pk, post=None, user=None):
+@auth.content_create
+def create_answer(request, parent):
+    action = reverse("new_answer", kwargs=dict(pk=parent.id))
+    return post_create(request=request, parent=parent, post_type=Post.ANSWER, action=action)
+
+
+@login_required
+@auth.content_create
+def create_comment(request, parent):
+    action = reverse("new_comment", kwargs=dict(pk=parent.id))
+    return post_create(request=request, parent=parent, post_type=Post.COMMENT, action=action)
+
+
+@login_required
+@auth.post_edit
+def post_edit(request, post=None, user=None):
     """
     This view updates posts.
     """
     user = request.user
-    template_name = "edit_post.html"
-    action = reverse("edit_post", kwargs=dict(pk=pk))
+    template_name = "post_edit.html"
+    action = reverse("post_edit", kwargs=dict(pk=post.id))
 
     if post.is_toplevel:
         # Different forms are chosen based on post type.

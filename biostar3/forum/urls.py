@@ -70,11 +70,11 @@ urlpatterns = patterns('',
 
     # Create new content: answer, comments
     url(r'^new/post/$', form_views.create_toplevel_post, name="new_post"),
-    url(r'^new/answer/(?P<parent_id>\d+)/$', form_views.create_answer, name="new_answer"),
-    url(r'^new/comment/(?P<parent_id>\d+)/$', form_views.create_comment, name="new_comment"),
+    url(r'^new/answer/(?P<pk>\d+)/$', form_views.create_answer, name="new_answer"),
+    url(r'^new/comment/(?P<pk>\d+)/$', form_views.create_comment, name="new_comment"),
 
     # Edit existing posts.
-    url(r'^edit/post/(?P<pk>\d+)/$', form_views.edit_post, name="edit_post"),
+    url(r'^edit/post/(?P<pk>\d+)/$', form_views.post_edit, name="post_edit"),
 
     # Vote submission handler.
     url(r'^x/vote/$', ajax.vote_handler, name="vote_submit"),

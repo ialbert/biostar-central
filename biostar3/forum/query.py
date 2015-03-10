@@ -124,14 +124,15 @@ class ExtendedPaginator(Paginator):
         order_by = self.sort.order.get(self.sort.value, '')
 
         # Apply the order to the object list.
-        self.object_list = self.object_list.order_by(order_by)
+        if self.sort.order:
+            self.object_list = self.object_list.order_by(order_by)
 
         # Apply the time limit to the object list
         if self.days.value != self.days.default:
             # The field to look up depends on the object type
-            # This should be refactored and made uniform.
             since = ago(days=self.days.value)
-            #self.object_list = self.sort.time_filter(self.object_list, since)
+            self.object_list = self.sort.time_filter(self.object_list, since)
+
         try:
             pa = self.page(self.page_num)
         except PageNotAnInteger:

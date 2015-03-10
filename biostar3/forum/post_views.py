@@ -125,7 +125,6 @@ def group_redirect(request, group, user, autoadd=None):
         target = "%s://%s" % (request.scheme, netloc)
         if user.is_authenticated() and autoadd:
             user.usergroups.add(group)
-
         return redirect(target)
 
     except Exception, exc:
@@ -191,8 +190,8 @@ def update_post_views(request, post, minutes=settings.POST_VIEW_INTERVAL):
         logger.error(exc)
 
 
-@auth.read_post
-def post_view(request, pk, post=None, user=None):
+@auth.post_read
+def post_view(request, post=None, user=None):
     """
     Generates the page that contains a full thread.
     """
