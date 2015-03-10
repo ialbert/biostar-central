@@ -10,39 +10,59 @@
     <div class="row">
         <div class="nine columns">
 
-            {% search_bar page=page action='group_list' placeholder="Search for groups" %}
+        	{% user_bar user %}
 
             <div class="row" style="padding-top:1em">
-                <table>
-                <tr>
-                    <th>Group Name</th>
-                    <th>Domain</th>
-                    <th>Action</th>
 
-                    <th>Owner</th>
-                    <th>Public</th>
-                    <th>Description</th>
-                </tr>
+                <h3>Groups</h3>
+
+                <div>
+                    <p>Groups are subsections of the site dedicated to a particular topic. Some groups
+                    are public (visible to everyone) others may be private (visible to subscribed users only).
+                    To gain membership to a private group the moderators of that group will need to add members
+                    to their group.</p>
+                    <p>
+                        Users with 500 reputation points or higher may
+                        <a href="{% url "group_create" %}">create a group</a>.
+                        Only a limited number of groups may be created by each user.
+                        Site admins may also create groups both public and private.
+                    </p>
+                </div>
+                <div>
+
+                </div>
+                <table>
+                    <tr>
+                        <th>Group Name</th>
+                        <th>Sub&nbsp;domain</th>
+                        <th>Action</th>
+
+                        <th>Owner</th>
+                        <th>Public</th>
+                        <th>Description</th>
+                    </tr>
                     {% for group in public %}
                         <tr>
                             <td>
-								<a href="{%  url "group_redirect" domain=group.domain %}">{{ group.name }}</a>
+                                <a href="{% url "group_redirect" domain=group.domain %}">{{ group.name }}</a>
                             </td>
 
                             <td>
-                               {{ group.domain }}
+                                {{ group.domain }}
                             </td>
                             <td>
-                                <a href="{%  url "group_edit" group.id %}">edit</a>
+                                <a href="{% url "group_edit" group.id %}">Edit</a>
                             </td>
-                          	<td>
-                               {{ group.owner.name }}
+                            <td>
+                                <a href="{{ group.owner.get_absolute_url }}">
+                                    {{ group.owner.name }}
+                                </a>
                             </td>
                             <td>
                                 {{ group.public }}
                             </td>
 
-                        	<td>{{ group.description }}</td>
+                            <td>{{ group.description }}</td>
                         </tr>
                     {% endfor %}
                 </table>
@@ -52,6 +72,12 @@
 
         </div>
 
+        <div class="three columns recent_votes">
+            {% message_bar %}
+        </div>
+
     </div>
+
+
 
 {% endblock %}

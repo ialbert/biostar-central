@@ -91,7 +91,6 @@ class GroupSortValidator(DropDown):
     default = "asc"
     order = dict(asc="name", desc="-name")
 
-
 class TimeLimitValidator(DropDown):
     choices = settings.TIME_LIMIT_CHOICES
     lookup = settings.TIME_LIMIT_MAP
@@ -125,7 +124,7 @@ class ExtendedPaginator(Paginator):
         order_by = self.sort.order.get(self.sort.value, '')
 
         # Apply the order to the object list.
-        #self.object_list = self.object_list.order_by(order_by)
+        self.object_list = self.object_list.order_by(order_by)
 
         # Apply the time limit to the object list
         if self.days.value != self.days.default:

@@ -99,8 +99,8 @@ def valid_user(function=None):
 
 def read_post(function=None):
     """
-    Decorator for views that checks that the userid in the pk field is a valid
-    user for the current state.
+    Decorator for views that checks that the post id in the pk field
+    is a valid read target for the current user.
     """
 
     def decorator(request, pk, *args, **kwargs):
@@ -122,26 +122,17 @@ def read_post(function=None):
 
     return decorator
 
+@read_post
 def edit_post(function=None):
     """
-    Decorator for views that checks that the userid in the pk field is a valid
-    user for the current state.
+    Decorator for views that checks that the post id in the pk field
+    is a valid edit target for the current user.
     """
 
     def decorator(request, pk, *args, **kwargs):
         user = request.user
         post = Post.objects.filter(pk=pk).first()
         home = redirect(reverse("home"))
-
-        if not post:
-            # Post does not exists.
-            messages.error(request, "Post with id=%s not found" % pk)
-            return home
-
-        if not read_access_post(user=user, post=post):
-            # Post exists but may not be read by the user.
-            messages.error(request, "This post my not be accessed by this user.")
-            return home
 
         if not write_access_post(user, post):
             # Post exists but it is not writeable by the user.
@@ -152,6 +143,57 @@ def edit_post(function=None):
 
     return decorator
 
+def edit_group(function=None):
+    """
+    Decorator for views that checks that the group id  the pk field is
+    a valid user for the current state.
+    """
+
+    def decorator(request, pk, *args, **kwargs):
+        user = request.user
+        group = UserGroup.objects.filter(pk=pk).first()
+        error = redirect(reverse("group_list"))
+
+        if not group:
+            # Group does not exists.
+            messages.error(request, "Group with id=%s not found" % pk)
+            return error
+
+        if group.owner != user:
+            # Only group owners may edit a group.
+            messages.error(request, "Only the group owner may edit a group")
+            return error
+
+        return function(request, group=group, user=user)
+
+    return decorator
+
+
+def create_group(function=None):
+    """
+    Decorator for views that checks that the group id  the pk field is
+    a valid user for the current state.
+    """
+
+    def decorator(request, *args, **kwargs):
+        user = request.user
+        error = redirect(reverse("group_list"))
+        group_count = UserGroup.objects.filter(owner=user).count()
+
+
+        if user.score < settings.GROUP_MIN_SCORE:
+            # Only users above a treshold in score may create a group.
+            messages.error(request, "You need %s reputation to create a group" % (settings.GROUP_MIN_SCORE * 10))
+            return error
+
+        if group_count >= settings.GROUP_COUNT_PER_USER:
+            # Only group owners may edit a group.
+            messages.error(request, "Only %s groups may be created by each user" % settings.GROUP_COUNT_PER_USER)
+            return error
+
+        return function(request, user=user)
+
+    return decorator
 
 def remote_ip(request, key='REMOTE_ADDR'):
     """

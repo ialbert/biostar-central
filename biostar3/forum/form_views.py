@@ -230,45 +230,81 @@ class GroupForm(forms.Form):
     # The is_toplevel field is used to distinguish between subclasses inside templates
     name = forms.CharField(min_length=3, max_length=25, label="Group Name. ")
     domain = forms.CharField(min_length=3, max_length=15, label="Subdomain")
-    public = forms.BooleanField(initial=True, label="Public access")
+    public = forms.BooleanField(initial=True, label="Public access", required=False)
     description = forms.CharField(widget=forms.Textarea, min_length=10, max_length=100,
                                   required=True)
 
-    logo = forms.FileField(required=False)
-
+    logo = forms.FileField(required=False, label="Logo (image)")
 
 @login_required
-def group_edit(request, pk):
+@auth.create_group
+def group_create(request, user):
+    title = "Create a group"
     template_name = "group_edit.html"
+    action = reverse("group_create")
 
     if request.method == "GET":
         # Get methods get the form and return.
         form = GroupForm()
-        context = dict(form=form, pk=pk)
+        context = dict(form=form, action=action, title=title)
         return render(request, template_name, context)
 
     if request.method == "POST":
-        user = request.user
+        # Process form submission.
         form = GroupForm(request.POST, request.FILES)
-        context = dict(form=form, pk=pk)
+        context = dict(form=form, action=action, title=title)
         if not form.is_valid():
             return render(request, template_name, context)
 
+        # The form is valid at this point.
+        get = lambda x: form.cleaned_data.get(x, '')
+
+        UserGroup.objects.create(
+            name=get('name'),
+            domain=get('domain'),
+            public=get('public'),
+            description=get('description'),
+            owner=user,
+            logo=request.FILES.get('logo'),
+        )
+
+    return redirect("group_list")
+
+
+@login_required
+@auth.edit_group
+def group_edit(request, group=None, user=None):
+    title = "Edit group"
+    template_name = "group_edit.html"
+    action = reverse("group_edit", kwargs=dict(pk=group.id))
+
+    if request.method == "GET":
+        # Get methods get the form and return.
+        initial = dict(
+            name = group.name, public=group.public, description=group.description,
+            domain=group.domain,
+        )
+        form = GroupForm(initial=initial)
+        context = dict(form=form, action=action, title=title)
+        return render(request, template_name, context)
+
+    if request.method == "POST":
+        form = GroupForm(request.POST, request.FILES)
+        if not form.is_valid():
+            context = dict(form=form, action=action, title=title)
+            return render(request, template_name, context)
 
         # The form is valid at this point.
         get = lambda x: form.cleaned_data.get(x, '')
-        name, description, public = get('name'), get('description'), get('public')
-        domain = get('domain')
 
-        logo = request.FILES['logo']
+        group.name = get('name')
+        group.domain = get('domain')
+        group.public = get('public')
+        group.description = get('description')
+        group.logo = request.FILES.get('logo')
+        group.save()
 
-        UserGroup.objects.create(
-            name=name, domain=domain, public=public,
-            description=description, owner=user,
-            logo=logo,
-        )
-
-        return redirect(reverse("group_list"))
+    return redirect(reverse("group_list"))
 
     context = dict(pk=pk)
     return render(request, template_name, context)

@@ -10,11 +10,18 @@
         <div class="nine columns">
             <div class="row" style="padding-top:1em">
                 <div>
-                    <h3>Edit Group</h3>
+                    <h3>{{ title }}</h3>
 
-                    <form action="{% url "group_edit" pk %}" method="post" enctype="multipart/form-data">
+
+                    <form action="{{ action }}" method="post" enctype="multipart/form-data">
                         {% csrf_token %}
                         <div>{{ form }}</div>
+                        <div>
+                            <p>
+                                You may upload a logo file that will displayed on top.
+                                If no logo is provided the main site logo will be used.
+                            </p>
+                        </div>
                         <div>
                             <input type="submit" value="Submit">
                         </div>

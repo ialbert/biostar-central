@@ -42,10 +42,13 @@ urlpatterns = patterns('',
     url(r'^site/my/bookmarks/$', post_views.my_bookmarks, name="my_bookmarks"),
 
     # Group list.
-    url(r'^g/$', post_views.group_list, name="group_list"),
+    url(r'^g/list/$', post_views.group_list, name="group_list"),
 
     # Group redirect.
     url(r'^g/redirect/(?P<domain>\S+)$', post_views.group_redirect, name="group_redirect"),
+
+    # Group create.
+    url(r'^g/create/$', form_views.group_create, name="group_create"),
 
     # Group edit.
     url(r'^g/edit/(?P<pk>\d+)/$', form_views.group_edit, name="group_edit"),

@@ -39,6 +39,12 @@ MESSAGE_TAGS = {
     10: 'info', 20: 'info', 25: 'success', 30: 'warning', 40: 'error',
 }
 
+# How many groups can a regular user create.
+GROUP_COUNT_PER_USER = 3
+
+# Minimum reputation to create a group.
+GROUP_MIN_SCORE = 0
+
 # Sort values for userlist.
 USER_SORT_BY_VISIT, USER_SORT_BY_REP = "visit", "reputation"
 USER_SORT_BY_JOIN, USER_SORT_BY_ACTIVITY = "join", "activity"

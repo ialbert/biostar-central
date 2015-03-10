@@ -7,6 +7,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.contrib.sites.models import Site
 from django.db import transaction
 from django.contrib.staticfiles import finders
+from django.core.files.base import File
 
 import logging
 
@@ -66,10 +67,14 @@ def post_migrate_tasks(sender, **kwargs):
     meta_name, meta_domain, meta_description = "Meta Group", "meta", "Discussions about the site itself"
     meta_group, meta_flag = UserGroup.objects.get_or_create(domain=meta_domain)
     if meta_flag:
+        logo_path = finders.find("images/logo-meta.png")
         meta_group.name = meta_name
         meta_group.description = meta_description
         meta_group.owner = admin
+        meta_group.logo = File(open(logo_path, 'rb'))
         meta_group.save()
+
+
 
     # Update all toplevel posts with no groups to have the default group.
     logger.info("adding groups to posts")

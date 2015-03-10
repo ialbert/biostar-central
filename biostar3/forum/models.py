@@ -122,7 +122,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     def __unicode__(self):
         return "User: %s (%s)" % (self.id, self.email)
 
-
 class UserGroup(models.Model):
     """
     Represents a group
@@ -141,9 +140,12 @@ class UserGroup(models.Model):
         "Actions that need to be performed on every user save."
         self.domain = self.domain.lower()
         super(UserGroup, self).save(*args, **kwargs)
+
         if not self.logo:
+            # Substitute the default logo if missing.
             logo_path = finders.find(settings.DEFAULT_GROUP_LOGO)
             self.logo.save(logo_path, File(open(logo_path, 'rb')))
+
 
 class GroupPerm(models.Model):
     """
