@@ -44,14 +44,14 @@
                     {% for group in public %}
                         <tr>
                             <td>
-                                <a href="{% url "group_redirect" domain=group.domain %}">{{ group.name }}</a>
+                                <a href="{% url "group_redirect" pk=group.id %}">{{ group.name }}</a>
                             </td>
 
                             <td>
                                 {{ group.domain }}
                             </td>
                             <td>
-                                <a href="{% url "group_edit" group.id %}">Edit</a>
+                                <a href="{% url "group_edit" pk=group.id %}">Edit</a>
                             </td>
                             <td>
                                 <a href="{{ group.owner.get_absolute_url }}">

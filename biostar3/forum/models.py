@@ -141,6 +141,10 @@ class UserGroup(models.Model):
         self.domain = self.domain.lower()
         super(UserGroup, self).save(*args, **kwargs)
 
+        # Add the owner to the group.
+        if self.owner:
+            self.owner.usergroups.add(self)
+
         if not self.logo:
             # Substitute the default logo if missing.
             logo_path = finders.find(settings.DEFAULT_GROUP_LOGO)

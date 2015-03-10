@@ -109,15 +109,23 @@ def post_list(request, posts=None):
 
     return render(request, template_name, context)
 
-def group_redirect(request, domain):
+@auth.group_access
+def group_login(request, group, user):
+    # Required to aut add users
+    return group_redirect(request, pk=group.id, autoadd=True)
 
+@auth.group_access
+def group_redirect(request, group, user, autoadd=None):
+    # Redirects to a group.
     try:
         site = Site.objects.get_current()
-        group = UserGroup.objects.get(domain=domain)
         netloc = site.domain.split(".")
         netloc[0] = group.domain
         netloc = ".".join(netloc)
         target = "%s://%s" % (request.scheme, netloc)
+        if user.is_authenticated() and autoadd:
+            user.usergroups.add(group)
+
         return redirect(target)
 
     except Exception, exc:

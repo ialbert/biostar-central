@@ -237,7 +237,7 @@ class GroupForm(forms.Form):
     logo = forms.FileField(required=False, label="Logo (image)")
 
 @login_required
-@auth.create_group
+@auth.group_create
 def group_create(request, user):
     title = "Create a group"
     template_name = "group_edit.html"
@@ -272,7 +272,7 @@ def group_create(request, user):
 
 
 @login_required
-@auth.edit_group
+@auth.group_access
 def group_edit(request, group=None, user=None):
     title = "Edit group"
     template_name = "group_edit.html"

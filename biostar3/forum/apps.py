@@ -9,6 +9,7 @@ from django.db import transaction
 from django.contrib.staticfiles import finders
 from django.core.files.base import File
 
+
 import logging
 
 logger = logging.getLogger('biostar')
@@ -26,6 +27,7 @@ class BiostarAppConfig(AppConfig):
     @property
     def app_label(self):
         return self.name.split(".")[-1]
+
 
 def post_migrate_tasks(sender, **kwargs):
     """

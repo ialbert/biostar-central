@@ -38,6 +38,8 @@ def user_list(request):
     else:
         users = User.objects.all()
 
+    users = users.filter(usergroups=request.group)
+
     paginator = query.ExtendedPaginator(request, object_list=users,
                                          time_class=query.TimeLimitValidator,
                                         sort_class=query.UserSortValidator, per_page=25, orphans=False)
@@ -79,7 +81,7 @@ class Login(LoginView):
         if group.domain != DEFAULT_GROUP.domain:
             site = Site.objects.get_current()
             login_url = reverse("account_login")
-            next_url = reverse("group_redirect", kwargs=dict(domain=group.domain))
+            next_url = reverse("group_login", kwargs=dict(pk=group.id))
             params = dict(
                 scheme=request.scheme,
                 next_url=next_url,

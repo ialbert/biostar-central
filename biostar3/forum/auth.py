@@ -143,10 +143,31 @@ def edit_post(function=None):
 
     return decorator
 
-def edit_group(function=None):
+def group_access(function):
+    """
+    Decorator for views that checks that the group id the pk field is
+    a valid user for the current request.
+    """
+
+    def decorator(request, pk, *args, **kwargs):
+        user = request.user
+        group = UserGroup.objects.filter(pk=pk).first()
+        error = redirect(reverse("home"))
+
+        if not group:
+            # Group does not exists.
+            messages.error(request, "Group with id=%s not found" % pk)
+            return error
+
+        return function(request, group=group, user=user, **kwargs)
+
+    return decorator
+
+@group_access
+def group_edit(function):
     """
     Decorator for views that checks that the group id  the pk field is
-    a valid user for the current state.
+    a valid user for the current request.
     """
 
     def decorator(request, pk, *args, **kwargs):
@@ -154,22 +175,16 @@ def edit_group(function=None):
         group = UserGroup.objects.filter(pk=pk).first()
         error = redirect(reverse("group_list"))
 
-        if not group:
-            # Group does not exists.
-            messages.error(request, "Group with id=%s not found" % pk)
-            return error
-
         if group.owner != user:
             # Only group owners may edit a group.
             messages.error(request, "Only the group owner may edit a group")
             return error
 
-        return function(request, group=group, user=user)
+        return function(request, group=group, user=user, **kwargs)
 
     return decorator
 
-
-def create_group(function=None):
+def group_create(function=None):
     """
     Decorator for views that checks that the group id  the pk field is
     a valid user for the current state.
@@ -194,6 +209,7 @@ def create_group(function=None):
         return function(request, user=user)
 
     return decorator
+
 
 def remote_ip(request, key='REMOTE_ADDR'):
     """
