@@ -39,7 +39,6 @@ def cachebuster():
 @register.simple_tag
 def group_logo_img(request):
     group = request.group
-    print (group.logo.url)
     return group.logo.url
 
 @register.inclusion_tag('widgets/recent_votes.html')

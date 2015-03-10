@@ -41,8 +41,6 @@ def post_migrate_tasks(sender, **kwargs):
     default_group, default_flag = UserGroup.objects.get_or_create(
         name=settings.DEFAULT_GROUP_NAME)
 
-
-
     # Create the default admin user.
     for name, email in settings.ADMINS:
         admin, created = User.objects.get_or_create(email=email)

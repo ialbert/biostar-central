@@ -5,11 +5,12 @@
 <div class="row">
 
     <div id="logo">
-        <a href="{% url 'home' %}"><img src="{% group_logo_img request %}"></a>
+        <a href="{% url 'home' %}"><img src="{{ request.group.logo.url }}"></a>
     </div>
 
+
     <div id="navbar">
-         {# This gets show for anonymous users #}
+        {# This gets show for anonymous users #}
         {% if user.is_anonymous %}
             <div class="item">
                 <a href="{% url 'account_login' %}" class="signin">
@@ -27,20 +28,20 @@
         {% endif %}
 
         <div class="item">
-            <a href="{%  url "new_post" %}">
+            <a href="{% url "new_post" %}">
                 <div class="icon"><i class="fa fa-plus-circle"></i></div>
                 <div class="navlabel">New&nbsp;Post</div>
             </a>
         </div>
         <div class="item">
-            <a href="{%  url "user_list" %}">
+            <a href="{% url "user_list" %}">
                 <div class="icon"><i class="fa fa-globe"></i></div>
                 <div class="navlabel">Users</div>
             </a>
         </div>
 
         <div class="item">
-            <a href="{%  url "group_list" %}">
+            <a href="{% url "group_list" %}">
                 <div class="icon"><i class="fa fa-group"></i></div>
                 <div class="navlabel">Groups</div>
             </a>
@@ -54,9 +55,8 @@
         </div>
 
 
-
     </div>
-    <div class="nav-sep"></div>
+
 </div>
 
 
