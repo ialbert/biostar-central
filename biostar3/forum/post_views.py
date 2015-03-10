@@ -14,7 +14,6 @@ from django.db.models import Q, F
 from django.contrib.auth.decorators import login_required
 from django.contrib.sites.models import Site
 
-
 from taggit.models import TaggedItem, Tag
 
 # Biostar specific local modules.
@@ -25,7 +24,6 @@ logger = logging.getLogger('biostar')
 
 # Get custom user model.
 User = get_user_model()
-
 
 def tag_list(request):
     template_name = "tag_list.html"
@@ -146,15 +144,16 @@ def search_results(request):
 
     posts = search.plain(q)
 
-    paginator = query.ExtendedPaginator(request, posts,
+    paginator = query.ExtendedPaginator(request, object_list=posts,
                                         per_page=settings.POSTS_PER_PAGE, orphans=False)
+
     page = paginator.curr_page()
 
     # Add the recent votes
     recent_votes = query.recent_votes()
-    html_title = "Post List"
+
     context = dict(page=page, posts=page.object_list,
-                   recent_votes=recent_votes, html_title=html_title, q=q)
+                   recent_votes=recent_votes, q=q)
 
     return render(request, template_name, context)
 
