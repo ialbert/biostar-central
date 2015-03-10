@@ -176,9 +176,15 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.7/howto/static-files/
-
 STATIC_URL = '/static/'
-STATIC_ROOT = abspath(BIOSTAR_HOME, "export")
+STATIC_ROOT = abspath(BIOSTAR_HOME, "export", "static")
+
+# User uploaded media files
+MEDIA_URL = '/media/'
+MEDIA_ROOT = abspath(BIOSTAR_HOME, "export", "media")
+
+# The default logo for all groups
+DEFAULT_GROUP_LOGO = "images/logo.png"
 
 STATICFILES_DIRS = (
     abspath(TEMPLATE_PATH, "static"),

@@ -12,7 +12,7 @@
                 <div>
                     <h3>Edit Group</h3>
 
-                    <form action="{% url "group_edit" pk %}" method="post">
+                    <form action="{% url "group_edit" pk %}" method="post" enctype="multipart/form-data">
                         {% csrf_token %}
                         <div>{{ form }}</div>
                         <div>

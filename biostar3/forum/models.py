@@ -9,7 +9,8 @@ from taggit.managers import TaggableManager
 from django.utils.timezone import utc
 from datetime import datetime
 from . import html
-from urlparse import urlparse
+from django.contrib.staticfiles import finders
+from django.core.files.base import File
 
 logger = logging.getLogger('biostar')
 
@@ -134,11 +135,15 @@ class UserGroup(models.Model):
     public = models.BooleanField(default=True)
     visible = models.BooleanField(default=True)
     creation_date = models.DateTimeField(auto_now_add=True)
+    logo = models.FileField(upload_to="group_logo", null=True, blank=True)
 
     def save(self, *args, **kwargs):
         "Actions that need to be performed on every user save."
         self.domain = self.domain.lower()
         super(UserGroup, self).save(*args, **kwargs)
+        if not self.logo:
+            logo_path = finders.find(settings.DEFAULT_GROUP_LOGO)
+            self.logo.save(logo_path, File(open(logo_path, 'rb')))
 
 class GroupPerm(models.Model):
     """

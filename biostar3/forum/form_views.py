@@ -19,6 +19,7 @@ logger = logging.getLogger('biostar')
 # Get custom user model.
 User = get_user_model()
 
+
 def title_validator(text):
     "Validates form input for tags"
     text = text.strip()
@@ -112,7 +113,7 @@ def create_node(request, parent_id=None, post_type=None):
         if post_type == Post.ANSWER:
             action = reverse("new_answer", kwargs=dict(parent_id=parent_id))
         else:
-            action = reverse("new_comment",  kwargs=dict(parent_id=parent_id))
+            action = reverse("new_comment", kwargs=dict(parent_id=parent_id))
 
     if request.method == "GET":
         # This will render the initial form for the user.
@@ -186,7 +187,6 @@ def edit_post(request, pk, post=None, user=None):
         form_class = ContentForm
         initial = dict(content=post.content)
 
-
     if request.method == "GET":
         # Get methods get the form and return.
         form = form_class(initial=initial)
@@ -232,13 +232,14 @@ class GroupForm(forms.Form):
     domain = forms.CharField(min_length=3, max_length=15, label="Subdomain")
     public = forms.BooleanField(initial=True, label="Public access")
     description = forms.CharField(widget=forms.Textarea, min_length=10, max_length=100,
-                              required=True)
+                                  required=True)
+
+    logo = forms.FileField(required=False)
 
 
 @login_required
 def group_edit(request, pk):
     template_name = "group_edit.html"
-
 
     if request.method == "GET":
         # Get methods get the form and return.
@@ -248,14 +249,25 @@ def group_edit(request, pk):
 
     if request.method == "POST":
         user = request.user
-        form = GroupForm(request.POST)
+        form = GroupForm(request.POST, request.FILES)
         context = dict(form=form, pk=pk)
         if not form.is_valid():
             return render(request, template_name, context)
+
+
+        # The form is valid at this point.
         get = lambda x: form.cleaned_data.get(x, '')
         name, description, public = get('name'), get('description'), get('public')
         domain = get('domain')
-        UserGroup.objects.create(name=name, domain=domain, public=public, description=description, owner=user)
+
+        logo = request.FILES['logo']
+
+        UserGroup.objects.create(
+            name=name, domain=domain, public=public,
+            description=description, owner=user,
+            logo=logo,
+        )
+
         return redirect(reverse("group_list"))
 
     context = dict(pk=pk)

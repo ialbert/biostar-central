@@ -37,9 +37,10 @@ def cachebuster():
     return param
 
 @register.simple_tag
-def group_logo_img():
-    src = "/static/images/logo.png"
-    return src
+def group_logo_img(request):
+    group = request.group
+    print (group.logo.url)
+    return group.logo.url
 
 @register.inclusion_tag('widgets/recent_votes.html')
 def recent_votes(votes):
@@ -57,8 +58,6 @@ def post_unit(context, post, comments):
 @register.inclusion_tag('widgets/user_link.html')
 def user_link(user):
     return dict(user=user)
-
-
 
 @register.filter
 def on_value(value):
@@ -96,9 +95,10 @@ def message_bar(context):
 def tag_bar(post):
     return dict(post=post)
 
-@register.inclusion_tag('widgets/nav_bar.html')
-def nav_bar(user):
-    return dict(user=user)
+@register.inclusion_tag('widgets/nav_bar.html', takes_context=True)
+def nav_bar(context, user):
+    request = context['request']
+    return dict(user=user,request=request)
 
 @register.inclusion_tag('widgets/user_bar.html', takes_context=True)
 def user_bar(context, user):

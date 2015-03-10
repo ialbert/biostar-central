@@ -6,6 +6,7 @@ from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.contrib.sites.models import Site
 from django.db import transaction
+from django.contrib.staticfiles import finders
 
 import logging
 
@@ -29,8 +30,18 @@ def post_migrate_tasks(sender, **kwargs):
     """
     Sets up data post migration. The site will rely on data set up via this function.
     """
+
+    # Check that the default logo exists.
+    default_logo = finders.find(settings.DEFAULT_GROUP_LOGO)
+    if not default_logo:
+        raise ImproperlyConfigured("Cannot find default group logo at %s" % settings.DEFAULT_GROUP_LOGO)
+
+
     # Chicken and egg problem. Default group needs to be created before the first user.
-    default_group, default_flag = UserGroup.objects.get_or_create(name=settings.DEFAULT_GROUP_NAME)
+    default_group, default_flag = UserGroup.objects.get_or_create(
+        name=settings.DEFAULT_GROUP_NAME)
+
+
 
     # Create the default admin user.
     for name, email in settings.ADMINS:

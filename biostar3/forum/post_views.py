@@ -121,7 +121,7 @@ def group_redirect(request, domain):
         return redirect(target)
 
     except Exception, exc:
-        messages.error("Group error: %s" % exc)
+        messages.error(request, "Group error: %s" % exc)
         return redirect(reverse("home"))
 
 
