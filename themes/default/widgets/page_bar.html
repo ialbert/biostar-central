@@ -6,27 +6,33 @@
 
     <div class="page_bar">
 
-        <div class="left">
-            <ul class="dropdown">
-                <a href="#"><i class="fa fa-caret-down"></i> {{ page.sort.label }}</a>
-                <ul class="items">
-                    {% for value, word  in page.sort.choices %}
-                        <li><a href="?sort={{ value }}&days={{ page.days.value }}&q={{ page.q }}"> {{ word }}</a></li>
-                    {% endfor %}
+        {% if page.sort %}
+            <div class="left">
+                <ul class="dropdown">
+                    <a href="#"><i class="fa fa-caret-down"></i> {{ page.sort.label }}</a>
+                    <ul class="items">
+                        {% for value, word  in page.sort.choices %}
+                            <li><a href="?sort={{ value }}&days={{ page.days.value }}&q={{ page.q }}"> {{ word }}</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
                 </ul>
-            </ul>
-        </div>
+            </div>
+        {% endif %}
 
-        <div class="right">
-            <ul class="dropdown">
-                <a href="#"><i class="fa fa-caret-down"></i> {{ page.days.label }}</a>
-                <ul class="items">
-                    {% for value, word in page.days.choices %}
-                        <li><a href="?sort={{ page.sort.value }}&days={{ value }}&q={{ page.q }}"> {{ word }}</a></li>
-                    {% endfor %}
+        {% if page.days %}
+            <div class="right">
+                <ul class="dropdown">
+                    <a href="#"><i class="fa fa-caret-down"></i> {{ page.days.label }}</a>
+                    <ul class="items">
+                        {% for value, word in page.days.choices %}
+                            <li><a href="?sort={{ page.sort.value }}&days={{ value }}&q={{ page.q }}"> {{ word }}</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
                 </ul>
-            </ul>
-        </div>
+            </div>
+        {% endif %}
 
         <div>
             {% if page.has_previous %}

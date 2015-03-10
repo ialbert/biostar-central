@@ -30,15 +30,19 @@ class ClientTests(TestCase):
 
     def post(self, client, url, data, pattern=None, follow=False):
         r = client.post(reverse(url), data, follow=follow)
+
         if follow:
             self.assertEqual(r.status_code, 200)
         else:
             self.assertEqual(r.status_code, 302)
+
         if pattern:
-            self.assertTrue(re.search(pattern, r.content, re.IGNORECASE))
+            result = re.search(pattern, r.content, re.IGNORECASE)
+            if not result:
+                print "Unable to find %s pattern in %s" % (pattern, r.content)
+                self.assertTrue(result)
 
         return r
-
 
     def test_navigation(self):
         """
@@ -47,11 +51,13 @@ class ClientTests(TestCase):
 
         c = Client(HTTP_HOST=HOST)
         r = self.get(c, "home")
-
-        r = self.post(c, "search", data={'q': 'blast'})
+        r = self.post(c, "search", data={'q': 'blast'}, follow=True)
 
 
     def test_user_signup(self):
+        """
+        Test user signup
+        """
         EQ = self.assertEqual
 
         c = Client(HTTP_HOST=HOST)

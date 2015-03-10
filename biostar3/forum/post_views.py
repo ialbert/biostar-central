@@ -11,6 +11,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.db.models import Q, F
+from django.core.paginator import Paginator
 
 from taggit.models import TaggedItem, Tag
 
@@ -76,14 +77,15 @@ def search_results(request):
         return redirect(reverse("home"))
 
     posts = search.plain(q)
-
-    paginator = query.PostPaginator(request, posts, per_page=settings.POSTS_PER_PAGE, orphans=False)
-    page = paginator.curr_page()
+    paginator = Paginator(posts[:100], 100)
+    page = paginator.page(1)
+    page.q = q
 
     # Add the recent votes
     recent_votes = query.recent_votes()
     html_title = "Post List"
-    context = dict(page=page, posts=page.object_list, recent_votes=recent_votes, html_title=html_title, q=q)
+    context = dict(page=page, posts=page.object_list,
+                   recent_votes=recent_votes, html_title=html_title, q=q)
 
     return render(request, template_name, context)
 

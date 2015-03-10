@@ -10,43 +10,42 @@
 
             {% search_bar page %}
 
-            <table class="u-full-width">
-                {% for post in posts %}
-                    <tr>
-                        <td class="box">
-                            <div class="vote">
-                                <div class="c">{{ post.vote_count }}</div>
-                                <div class="t">votes</div>
-                            </div>
-                        </td>
-                        <td class="box">
-                            <div class="vote {{ post.subtype }}">
-                                <div class="c">{{ post.reply_count }}</div>
-                                {% if post.subtype == "Answer" %}
-                                    <div class="t">notes</div>
-                                {% else %}
-                                    <div class="t">answers</div>
-                                {% endif %}
-                            </div>
-                        </td>
-                        <td class="box">
-                            <div class="c">{{ post.view_count }}</div>
-                            <div class="t">views</div>
-                        </td>
-                        <td>
-                            <div class="post_title">
-                                {{ post.domain }} <a href="{{ post.url }}">{{ post.title }}</a>
-                            </div>
-                            {{ post.domain }}
-                            <div class="content" class="u-full-width">
-                                {{ post.context|safe }}
-                            </div>
-                        </td>
-                    </tr>
-                {% endfor %}
-            </table>
+            {% for post in posts %}
+                <div class="row post_row" style="margin-bottom:1em;">
 
-            {% page_bar %}
+                    <div class="box vote_count">
+                        <div class="c">{{ post.vote_count }}</div>
+                        <div class="t">votes</div>
+                    </div>
+
+                    <div class="box {{ post.subtype }}">
+                        <div class="c">{{ post.reply_count }}</div>
+                        {% if post.subtype == "Answer" %}
+                            <div class="t">comments</div>
+                        {% else %}
+                            <div class="t">answers</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="box view_count">
+                        <div class="c">{{ post.view_count }}</div>
+                        <div class="t">views</div>
+                    </div>
+
+                    <div class="post_title">
+                        {{ post.domain }} <a href="{{ post.url }}">{{ post.title }}</a>
+                    </div>
+                    {{ post.domain }}
+                    <div class="content" class="u-full-width">
+                        {{ post.context|safe }}
+                    </div>
+
+                </div>
+            {% endfor %}
+
+
+
+            {% page_bar page %}
 
         </div>
 
