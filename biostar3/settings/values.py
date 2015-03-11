@@ -113,19 +113,18 @@ POST_SORT_ORDER = {
 POST_SORT_INVALID_MSG = "Invalid sort parameter in URL."
 
 # Messaging related settings.
-LOCAL_MESSAGE, EMAIL_MESSAGE, NO_MESSAGES, SMART_MESSAGES, ALL_MESSAGES = range(5)
+LOCAL_MESSAGE, EMAIL_MESSAGE, NO_EMAIL_MESSAGES, DEFAULT_MESSAGES, MAILING_LIST_MESSAGES = range(5)
 
 # The mapping from a messaging type to a readable word.
 MESSAGE_CHOICES = [
-    (SMART_MESSAGES, "Smart mode"),
-    (LOCAL_MESSAGE, "Local messages"),
-    (EMAIL_MESSAGE, "Email messages"),
-    (ALL_MESSAGES, "Mail List mode"),
-    (NO_MESSAGES, "No Messages"),
+    (DEFAULT_MESSAGES, "Default mode"),
+    (EMAIL_MESSAGE, "Email mode"),
+    (MAILING_LIST_MESSAGES, "Mailing list"),
+    (NO_EMAIL_MESSAGES, "No Emails"),
 ]
 
 # Default messaging value for a new user.
-MESSAGE_DEFAULT = SMART_MESSAGES
+MESSAGE_DEFAULT = DEFAULT_MESSAGES
 
 # Connects a word to a number of days. 0 indicates no limit.
 ALL_TIME, THIS_DAY, THIS_WEEK, THIS_MONTH, THIS_YEAR = 0, 1, 7, 36, 365

@@ -19,7 +19,7 @@
                 <div>
                     <p>
                         Groups are subsections of the site dedicated to a particular topic. Post made in group are
-                        visible only when accessing that group
+                        visible only when accessing that group. Only members of a group may post to that group.
                     </p>
 
                     <p>
@@ -42,6 +42,7 @@
                 <div>
 
                 </div>
+
                 <table class="u-full-width" id="group_list">
                     <tr>
                         <th>Group Name</th>
@@ -60,18 +61,15 @@
                                 </div>
                                 <div>
                                     Owner: <a href="{{ group.owner.get_absolute_url }}">{{ group.owner.name }} </a>
+                                    {% if group.editable %}
+                                           &bull; <a href="{% url "group_edit" pk=group.id %}">Edit Your Group</a></li>
+                                    {% endif %}
                                 </div>
 
-                                <div>
-                                    <ul>
-                                        Actions: {% if group.editable %}
-                                            <li><a href="{% url "group_edit" pk=group.id %}">edit</a></li>
-                                        {% endif %}
-                                        <li>subscribe</li>
-                                        <li>get&nbsp;messages</li>
-                                        <li>get&nbsp;messages</li>
-                                    </ul>
+                            	<div>
+                                    Current subscription: None | <a href="{% url "group_subscribe" pk=group.id %}">Change Subscription</a>
                                 </div>
+
 
                             </td>
 

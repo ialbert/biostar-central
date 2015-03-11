@@ -1,0 +1,61 @@
+{% extends "site_layout.html" %}
+{% load widgets %}
+
+{% block title %}
+    Group Subscription
+{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="nine columns">
+            <div class="row" style="padding-top:1em">
+                <div>
+                    <h3>Change subscription to: {{ group.name }}</h3>
+
+                    <p>
+                        {{ group.description }}
+                    </p>
+
+
+                    <form action="{% url "group_subscribe" pk=group.id %}" method="post">
+                        {% csrf_token %}
+                        <div>{{ form }}</div>
+						<p>
+                            These will be your default subscription settings for the group. They
+                            apply to each post. You may also change your subscription on each post
+                            individually.
+                        </p>
+                        <p>
+                            <b>Default mode</b>: get an email when you receive an answer or a comment on a
+                            question that you have posted. This is the recommended default for new users as
+                            it lets you know immediately when you get an answer.
+                        </p>
+
+                        <p>
+                            <b>Email mode</b>: get an email when there is activity on any thread
+                            that your have contributed to with an answer or comment.
+                            This allows you to keep track of discussions
+                            you have contributed to.
+                        </p>
+
+                        <p>
+                            <b>Mailing list</b>: get an email for every post on the site.
+                            This allows you use the site as if it were a mailing list.
+                        </p>
+
+                        <p>
+                            <b>No Email</b>: Do not send emails at all. Local messages will be still set.
+                        </p>
+
+
+                        <div>
+                            <input type="submit" value="Submit">
+                        </div>
+                    </form>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

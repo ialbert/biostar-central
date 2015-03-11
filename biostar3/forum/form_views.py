@@ -230,10 +230,10 @@ class GroupCreateForm(forms.Form):
 
     remove_logo = forms.BooleanField(initial=False, label="Remove logo if exists.", required=False)
 
+
 class GroupEditForm(GroupCreateForm):
     name = forms.CharField(min_length=3, max_length=25, label="Group Name")
     domain = forms.CharField(min_length=3, max_length=15, label="Subdomain")
-
 
 
 @login_required
@@ -326,3 +326,35 @@ def group_edit(request, pk=None, group=None, user=None):
         group.save()
 
     return redirect(reverse("group_list"))
+
+
+class GroupSubscription(forms.Form):
+    choices = settings.MESSAGE_CHOICES
+    type = forms.TypedChoiceField(choices=choices, coerce=int)
+
+
+@login_required
+@auth.group_access
+def group_subscribe(request, pk, group=None, user=None):
+    """
+    The decorator will fill the group parameter.
+    """
+    template_name = "group_subscribe.html"
+
+    if request.method == "GET":
+        # Get methods get the form and return.
+        form = GroupSubscription()
+        context = dict(form=form, group=group)
+        return render(request, template_name, context)
+
+    if request.method == "POST":
+        # Process form submission.
+        form = GroupSubscription(request.POST)
+        if not form.is_valid():
+            # Form not valid. Return with an error message.
+            context = dict(form=form, group=group)
+            return render(request, template_name, context)
+
+        messages.info(request, "You have subscribed to the %s group." % group.name)
+
+    return redirect("group_list")
