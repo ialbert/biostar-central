@@ -39,9 +39,8 @@
                         need assistance).
                     </p>
                 </div>
-                <div>
 
-                </div>
+                {% page_bar page %}
 
                 <table class="u-full-width" id="group_list">
                     <tr>
@@ -62,12 +61,13 @@
                                 <div>
                                     Owner: <a href="{{ group.owner.get_absolute_url }}">{{ group.owner.name }} </a>
                                     {% if group.editable %}
-                                           &bull; <a href="{% url "group_edit" pk=group.id %}">Edit Your Group</a></li>
+                                        &bull; <a href="{% url "group_edit" pk=group.id %}">Edit Your Group</a></li>
                                     {% endif %}
                                 </div>
 
-                            	<div>
-                                    Current subscription: {{ group.subscription }} | <a href="{% url "group_subscribe" pk=group.id %}">Change Subscription</a>
+                                <div>
+                                    Current subscription: {{ group.subscription }} | <a
+                                href="{% url "group_subscribe" pk=group.id %}">Change Subscription</a>
                                 </div>
 
 

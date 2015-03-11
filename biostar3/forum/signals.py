@@ -18,6 +18,7 @@ logger = logging.getLogger("biostar")
 def now():
     return datetime.utcnow().replace(tzinfo=utc)
 
+
 def user_update(sender, instance, created, **kwargs):
 
     if created:
@@ -42,4 +43,10 @@ def user_update(sender, instance, created, **kwargs):
             em.send(to=[instance.email])
 
 
+def post_created(sender, instance, created, **kwargs):
+    # This is where messages are sent
+    if created:
+        logger.info("created %s" % instance)
+
 post_save.connect(user_update, sender=User)
+post_save.connect(post_created, sender=models.Post)

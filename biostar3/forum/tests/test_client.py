@@ -4,13 +4,15 @@ from django.test import TestCase
 from django.conf import settings
 
 from biostar3.forum import apps, models
+from biostar3.forum.models import Post
+
 from biostar3.forum.models import User
 from django.core.urlresolvers import reverse
 
 from faker import Factory
 
 from django.test import Client
-
+import random, faker
 HOST = "www.localhost.com"
 
 ADMIN_NAME, ADMIN_EMAIL = settings.ADMINS[0]
@@ -39,7 +41,7 @@ class ClientTests(TestCase):
         if pattern:
             result = re.search(pattern, r.content, re.IGNORECASE)
             if not result:
-                print "Unable to find %s pattern in %s" % (pattern, r.content)
+                print "Unable to find %s pattern in content." % (pattern)
                 self.assertTrue(result)
 
         return r
@@ -54,7 +56,7 @@ class ClientTests(TestCase):
         r = self.post(c, "search", data={'q': 'blast'}, follow=True)
 
 
-    def test_user_signup(self):
+    def test_user_posting(self):
         """
         Test user signup
         """
@@ -63,12 +65,26 @@ class ClientTests(TestCase):
         c = Client(HTTP_HOST=HOST)
         r = self.get(c, "account_login", pattern='social authentication')
 
-        data = dict(email=ADMIN_EMAIL, password=settings.SECRET_KEY)
+        f = faker.Factory.create()
+        email =  f.email()
+
+        data = dict(email=email , password=email, signup="1")
 
         r = self.post(c, "sign_up", data=data, follow=True, pattern="success")
 
+        r = self.get(c, "new_post")
 
+        title = f.sentence()[:100]
+        content = f.text()
+        tags = "hello, world"
 
+        post_type = models.Post.QUESTION
+
+        data = dict(title=title , tags=tags, content=content, type=post_type)
+
+        r = self.post(c, "new_post", data=data, follow=True, pattern=title)
+
+        self.assertTrue(Post.objects.filter(title=title))
 
 
 

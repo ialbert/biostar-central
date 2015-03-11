@@ -70,12 +70,12 @@ def posts_by_user(request, pk, target=None):
 
 
 @auth.valid_user
-def upvoted_posts(request, pk, user=None):
+def upvoted_posts(request, pk, target=None):
     """
     Returns the upvoted posts created by a user.
     """
-    posts = query.get_posts_by_vote(user=user, group=request.group, vote_types=[Vote.BOOKMARK, Vote.UP])
-    messages.info(request, 'Upvoted posts by: %s' % user.name)
+    posts = query.get_posts_by_vote(user=target, group=request.group, vote_types=[Vote.BOOKMARK, Vote.UP])
+    messages.info(request, 'Upvoted posts created by %s' % target.name)
     return post_list(request, posts=posts)
 
 
@@ -166,7 +166,7 @@ def group_list(request):
     groups = UserGroup.objects.filter(cond).select_related("owner")
 
     paginator = query.ExtendedPaginator(request, sort_class=query.GroupSortValidator,
-                                        object_list=groups, per_page=100)
+                                        object_list=groups, per_page=25)
     page = paginator.curr_page()
 
     for group in page.object_list:
