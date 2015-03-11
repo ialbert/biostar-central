@@ -435,6 +435,13 @@ class GroupSub(models.Model):
     def __unicode__(self):
         return "GroupSub of %s to %s" % (self.user_id, self.usergroup_id)
 
+
+def add_groupsub(user, usergroup, pref=None):
+    # Adds a groupsub if it does not exist already.
+    if not GroupSub.objects.filter(user=user, usergroup=usergroup):
+        GroupSub.objects.create(user=user, usergroup=usergroup)
+
+
 class PostSub(models.Model):
     """
     Keeps track of subscriptions by users to posts.
