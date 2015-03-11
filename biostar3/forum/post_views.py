@@ -59,12 +59,12 @@ def tag_filter(request, name):
 
 
 @auth.valid_user
-def posts_by_user(request, pk, user=None):
+def posts_by_user(request, pk, target=None):
     """
     Returns the posts created by a user.
     """
-    posts = query.get_all_posts(user=user, group=request.group)
-    messages.info(request, 'Posts by: %s' % user.name)
+    posts = query.get_all_posts(user=target, group=request.group)
+    messages.info(request, 'Posts by: %s' % target.name)
     return post_list(request, posts=posts)
 
 
@@ -110,12 +110,18 @@ def post_list(request, posts=None):
     return render(request, template_name, context)
 
 @auth.group_access
-def group_login(request, group, user):
-    # Required to aut add users
-    return group_redirect(request, pk=group.id, autoadd=True)
+def group_login(request, pk, group=None, user=None):
+    # Handler fired on signup redirect when logging in from subdomain.
+    # It auto adds user to the group that initiated the login process.
+    return group_redirect_handler(request=request, group=group, user=user, autoadd=True)
 
 @auth.group_access
-def group_redirect(request, group, user, autoadd=None):
+def group_redirect(request, pk, group=None, user=None):
+    # Handler when redirecting to a group view.
+    # Permissions to check if the user may view the group at all is at middleware level.
+    return group_redirect_handler(request=request, group=group, user=user, autoadd=False)
+
+def group_redirect_handler(request, group, user, autoadd=None):
     # Redirects to a group.
     try:
         site = Site.objects.get_current()
@@ -123,8 +129,10 @@ def group_redirect(request, group, user, autoadd=None):
         netloc[0] = group.domain
         netloc = ".".join(netloc)
         target = "%s://%s" % (request.scheme, netloc)
-        if user.is_authenticated() and autoadd:
+        if group.public and user.is_authenticated() and autoadd:
+            # Only public groups may be automatically joined.
             user.usergroups.add(group)
+
         return redirect(target)
 
     except Exception, exc:
@@ -190,8 +198,8 @@ def update_post_views(request, post, minutes=settings.POST_VIEW_INTERVAL):
         logger.error(exc)
 
 
-@auth.post_read
-def post_view(request, post=None, user=None):
+@auth.post_view
+def post_view(request, pk, post=None, user=None):
     """
     Generates the page that contains a full thread.
     """

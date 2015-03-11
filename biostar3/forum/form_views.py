@@ -134,25 +134,25 @@ def create_toplevel_post(request):
 
 @login_required
 @auth.content_create
-def create_answer(request, parent):
+def create_answer(request, pk, parent=None):
     action = reverse("new_answer", kwargs=dict(pk=parent.id))
     return post_create(request=request, parent=parent, post_type=Post.ANSWER, action=action)
 
 
 @login_required
 @auth.content_create
-def create_comment(request, parent):
+def create_comment(request, pk, parent=None):
     action = reverse("new_comment", kwargs=dict(pk=parent.id))
     return post_create(request=request, parent=parent, post_type=Post.COMMENT, action=action)
 
 
 @login_required
 @auth.post_edit
-def post_edit(request, post=None, user=None):
+def post_edit(request, pk, post=None, user=None):
     """
     This view updates posts.
     """
-    user = request.user
+
     template_name = "post_edit.html"
     action = reverse("post_edit", kwargs=dict(pk=post.id))
 
@@ -218,7 +218,10 @@ class GroupForm(forms.Form):
 
 @login_required
 @auth.group_create
-def group_create(request, user):
+def group_create(request, user=None):
+    """
+    The decorator will fill the user parameter.
+    """
     title = "Create a group"
     template_name = "group_edit.html"
     action = reverse("group_create")
@@ -232,11 +235,12 @@ def group_create(request, user):
     if request.method == "POST":
         # Process form submission.
         form = GroupForm(request.POST, request.FILES)
-        context = dict(form=form, action=action, title=title)
         if not form.is_valid():
+            # Form not valid. Return with an error message.
+            context = dict(form=form, action=action, title=title)
             return render(request, template_name, context)
 
-        # The form is valid at this point.
+        # Create the group from the submission data.
         get = lambda x: form.cleaned_data.get(x, '')
 
         UserGroup.objects.create(
@@ -252,8 +256,11 @@ def group_create(request, user):
 
 
 @login_required
-@auth.group_access
-def group_edit(request, group=None, user=None):
+@auth.group_edit
+def group_edit(request, pk=None, group=None, user=None):
+    """
+    The decorator will fill the group and user parameters.
+    """
     title = "Edit group"
     template_name = "group_edit.html"
     action = reverse("group_edit", kwargs=dict(pk=group.id))
@@ -269,12 +276,15 @@ def group_edit(request, group=None, user=None):
         return render(request, template_name, context)
 
     if request.method == "POST":
+        # Post request received.
         form = GroupForm(request.POST, request.FILES)
+
         if not form.is_valid():
+            # Invalid form, return with errors.
             context = dict(form=form, action=action, title=title)
             return render(request, template_name, context)
 
-        # The form is valid at this point.
+        # Process the group edit.
         get = lambda x: form.cleaned_data.get(x, '')
 
         group.name = get('name')
@@ -285,6 +295,3 @@ def group_edit(request, group=None, user=None):
         group.save()
 
     return redirect(reverse("group_list"))
-
-    context = dict(pk=pk)
-    return render(request, template_name, context)

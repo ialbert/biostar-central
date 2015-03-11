@@ -39,14 +39,19 @@ class SimpleTests(TestCase):
 
         start = UserGroup.objects.all().count()
 
+        uuid = lambda x: models.make_uuid(x)
         for i in range(count):
             user = User.objects.create(name=f.name(), email=f.email())
-            domain = f.domain_word()[:15]
-            name = domain
-            group = UserGroup.objects.create(domain=domain, name=name)
-            group.users.add(user)
+            # Create groups
+            group = UserGroup.objects.create(domain=uuid(8), name=uuid(8), owner=user)
+
+            # Each user now belongs to the default and group and
+            # the group they have created.
+            self.assertEqual(len(user.usergroups.all()), 2)
+
 
         self.assertTrue(UserGroup.objects.all().count() == start + count)
+
 
         # Test sending automated emails.
         EQ(len(mail.outbox), count)

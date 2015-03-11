@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='usergroup',
             name='logo',
-            field=models.FileField(null=True, upload_to='group_logo', blank=True),
+            field=models.FileField(null=True, upload_to='groups', blank=True),
             preserve_default=True,
         ),
     ]

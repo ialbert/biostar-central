@@ -8,16 +8,21 @@ from datetime import datetime, timedelta
 from django.shortcuts import redirect
 from django.contrib import messages
 from functools import wraps
+from decorator import decorator
+
 
 class AccessDenied(BaseException):
     pass
 
+
 def now():
     return datetime.utcnow().replace(tzinfo=utc)
+
 
 def ago(hours=0, minutes=0, days=0):
     since = now() - timedelta(days=days, hours=hours, minutes=minutes)
     return since
+
 
 def tag_split(text):
     lower = lambda x: x.lower() if len(x) > 1 else x
@@ -26,6 +31,7 @@ def tag_split(text):
     parts = filter(None, parts)
     parts = map(lower, parts)
     return parts
+
 
 def create_toplevel_post(data, user, group):
     # Creating a top level post from  data
@@ -37,10 +43,10 @@ def create_toplevel_post(data, user, group):
 
     # Create the post.
     post = Post.objects.create(content=content, title=title,
-                              author=user, type=type, group=group)
+                               author=user, type=type, group=group)
     # Set the tags on the post
     post.tags.set(*tags)
-    
+
     # Self referential ForeignKeys need to be updated explicitly!
     Post.objects.filter(pk=post.pk).update(root_id=post.id, parent_id=post.id)
 
@@ -49,11 +55,13 @@ def create_toplevel_post(data, user, group):
 
     return post
 
+
 def create_content_post(data, parent, post_type, user):
     # Creating a content level post from data
     content = data.get('content', '')
     post = Post.objects.create(parent=parent, content=content, type=post_type, author=user)
     return post
+
 
 def read_access_post(user, post):
     """
@@ -62,6 +70,7 @@ def read_access_post(user, post):
     """
     return post.root.group.public or user.usergroups.filter(name=post.root.group.name).exists()
 
+
 def write_access_post(user, post):
     """
     A user may write the post if the post is readable and
@@ -69,6 +78,7 @@ def write_access_post(user, post):
     """
     write_cond = (user == post.author) or user.is_moderator
     return write_cond and read_access_post(user=user, post=post)
+
 
 def thread_write_access(user, root):
     """
@@ -83,187 +93,153 @@ def thread_write_access(user, root):
     return validator
 
 
-def valid_user(function=None):
+@decorator
+def valid_user(func, request, pk, target=None):
     """
     Valid user check.
     """
 
-    @wraps(function)
-    def decorator(request, pk, *args, **kwargs):
-        user = User.objects.filter(pk=pk).first()
+    target = User.objects.filter(pk=pk).first()
 
-        if not user:
-            messages.error(request, "User with id=%s not found" % pk)
-            return redirect(reverse("home"))
+    if not target:
+        messages.error(request, "User with id=%s does not exist." % pk)
+        return redirect(reverse("home"))
 
-        return function(request, pk, user=user)
+    return func(request=request, pk=None, target=target)
 
-    return decorator
 
-def post_read(function):
+@decorator
+def post_view(func, request, pk, post=None, user=None):
     """
     Post read check.
     """
 
-    @wraps(function)
-    def decorator(request, pk, *args, **kwargs):
-        user = request.user
-        post = Post.objects.filter(pk=pk).first()
-        home = redirect(reverse("home"))
+    user = request.user
+    post = Post.objects.filter(pk=pk).first()
+    home = redirect(reverse("home"))
 
-        if not post:
-            # Post does not exists.
-            messages.error(request, "Post with id=%s not found" % pk)
-            return home
+    if not post:
+        # Post does not exists.
+        messages.error(request, "Post with id=%s not found." % pk)
+        return home
 
-        if not read_access_post(user=user, post=post):
-            # Post exists but may not be read by the user.
-            messages.error(request, "This post my not be accessed by this user.")
-            return home
+    if not read_access_post(user=user, post=post):
+        # Post exists but may not be read by the user.
+        messages.error(request, "This post my not be accessed by this user.")
+        return home
 
-        return function(request, post=post, user=user, *args, **kwargs)
+    return func(request, pk=None, post=post, user=user)
 
-    return decorator
 
-def post_edit(function):
+@decorator
+def post_edit(func, request, pk, post=None, user=None):
     """
     Post edit check.
     """
 
-    @wraps(function)
-    def decorator(request, pk, *args, **kwargs):
-        user = request.user
-        post = Post.objects.filter(pk=pk).first()
-        home = redirect(reverse("home"))
+    user = request.user
+    post = Post.objects.filter(pk=pk).first()
+    home = redirect(reverse("home"))
 
-        if not post:
-            # Post does not exists.
-            messages.error(request, "Post with id=%s not found" % pk)
-            return home
+    if not post:
+        # Post does not exists.
+        messages.error(request, "Post with id=%s not found" % pk)
+        return home
 
-        if not write_access_post(user, post):
-            # Post exists but it is not writeable by the user.
-            messages.error(request, "Post may not be edited by this user!")
-            return home
+    if not write_access_post(user, post):
+        # Post exists but it is not writeable by the user.
+        messages.error(request, "Post may not be edited by this user!")
+        return home
 
-        return function(request, post=post, user=user)
+    return func(request, pk=None, post=post, user=user)
 
-    return decorator
 
-def content_create(function=None):
+@decorator
+def content_create(func, request, pk, parent=None):
     """
     Content create check.
     """
 
-    @wraps(function)
-    def decorator(request, pk, *args, **kwargs):
-        user = request.user
-        error = redirect(reverse("home"))
+    user = request.user
+    error = redirect(reverse("home"))
 
-        parent = Post.objects.filter(pk=pk).select_related("group", "group__groupinfo").first()
+    parent = Post.objects.filter(pk=pk).select_related("group", "group__groupinfo").first()
 
-        if not parent:
-            messages.error(request, "Parent post does not exist. Perhaps it has been deleted.")
-            return error
+    if not parent:
+        messages.error(request, "Parent post does not exist. Perhaps it has been deleted.")
+        return error
 
-        if not read_access_post(user=user, post=parent):
-            messages.error(request, "The thread may not not be accessed by this user!")
-            return error
+    if not read_access_post(user=user, post=parent):
+        messages.error(request, "The thread may not not be accessed by this user!")
+        return error
 
-        return function(request, parent=parent,  **kwargs)
-
-    return decorator
+    return func(request, pk=None, parent=parent)
 
 
-def content_write(function=None):
-    """
-    Content write check.
-    """
-
-    @wraps(function)
-    def decorator(request, parent,  **kwargs):
-        user = request.user
-        error = redirect(reverse("home"))
-
-        if not write_access_post(user=user, post=parent):
-            messages.error(request, "This post may not be edited by this user!")
-            return error
-
-        return function(request, parent=parent, **kwargs)
-
-    return decorator
-
-
-def group_access(function=None):
+@decorator
+def group_access(func, request, pk, group=None, user=None):
     """
     Group access check.
     """
 
-    @wraps(function)
-    def decorator(request, pk, *args, **kwargs):
-        user = request.user
-        group = UserGroup.objects.filter(pk=pk).first()
-        error = redirect(reverse("home"))
+    user = request.user
+    group = UserGroup.objects.filter(pk=pk).first()
+    error = redirect(reverse("home"))
 
-        if not group:
-            # Group does not exists.
-            messages.error(request, "Group with id=%s not found" % pk)
-            return error
+    if not group:
+        # Group does not exists.
+        messages.error(request, "Group with id=%s does not exist." % pk)
+        return error
 
-        return function(request, group=group, user=user, **kwargs)
+    return func(request, pk, group=group, user=user)
 
-    return decorator
 
-def group_edit(function=None):
+@decorator
+def group_edit(func, request, pk, group=None, user=None):
     """
     Group edit check.
     """
 
-    @wraps(function)
-    def decorator(request, pk, *args, **kwargs):
-        user = request.user
-        group = UserGroup.objects.filter(pk=pk).first()
-        error = redirect(reverse("group_list"))
+    user = request.user
+    group = UserGroup.objects.filter(pk=pk).first()
+    error = redirect(reverse("group_list"))
 
-        if not group:
-            # Group does not exists.
-            messages.error(request, "Group with id=%s not found" % pk)
-            return error
+    if not group:
+        # Group does not exists.
+        messages.error(request, "Group with id=%s does not exist." % pk)
+        return error
 
-        if group.owner != user:
-            # Only group owners may edit a group.
-            messages.error(request, "Only the group owner may edit a group")
-            return error
+    if group.owner != user:
+        # Only group owners may edit a group.
+        messages.error(request, "Only the group owner may edit a group.")
+        return error
 
-        return function(request, group=group, user=user, **kwargs)
+    return func(request=request, pk=None, group=group, user=user)
 
-    return decorator
 
-def group_create(function=None):
+@decorator
+def group_create(func, request, user=None):
     """
     Group create check.
     """
 
-    @wraps(function)
-    def decorator(request, *args, **kwargs):
-        user = request.user
-        error = redirect(reverse("group_list"))
-        group_count = UserGroup.objects.filter(owner=user).count()
+    user = request.user
+    error = redirect(reverse("group_list"))
 
+    # How many groups has the user created.
+    group_count = UserGroup.objects.filter(owner=user).count()
 
-        if user.score < settings.GROUP_MIN_SCORE:
-            # Only users above a treshold in score may create a group.
-            messages.error(request, "You need %s reputation to create a group" % (settings.GROUP_MIN_SCORE * 10))
-            return error
+    if user.score < settings.GROUP_MIN_SCORE:
+        # Only users above a treshold in score may create a group.
+        messages.error(request, "You need %s reputation to create a group." % (settings.GROUP_MIN_SCORE * 10))
+        return error
 
-        if group_count >= settings.GROUP_COUNT_PER_USER:
-            # Only group owners may edit a group.
-            messages.error(request, "Only %s groups may be created by each user" % settings.GROUP_COUNT_PER_USER)
-            return error
+    if group_count >= settings.GROUP_COUNT_PER_USER:
+        # Too many groups created by this user.
+        messages.error(request, "Only %s groups may be created by each user." % settings.GROUP_COUNT_PER_USER)
+        return error
 
-        return function(request, user=user)
-
-    return decorator
+    return func(request=request, user=user)
 
 
 def remote_ip(request, key='REMOTE_ADDR'):
@@ -273,7 +249,7 @@ def remote_ip(request, key='REMOTE_ADDR'):
     # Frontend must set the header correctly.
     ip = request.META.get(key, '0.0.0.0')
 
-    #ip2 = request.META.get('HTTP_X_FORWARDED_FOR', '').split(",")[0].strip()
+    # ip2 = request.META.get('HTTP_X_FORWARDED_FOR', '').split(",")[0].strip()
     #ip = ip1 or ip2 or '0.0.0.0'
 
     return ip

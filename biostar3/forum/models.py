@@ -134,7 +134,7 @@ class UserGroup(models.Model):
     public = models.BooleanField(default=True)
     visible = models.BooleanField(default=True)
     creation_date = models.DateTimeField(auto_now_add=True)
-    logo = models.FileField(upload_to="group_logo", null=True, blank=True)
+    logo = models.FileField(upload_to="groups", null=True, blank=True)
 
     def save(self, *args, **kwargs):
         "Actions that need to be performed on every user save."
@@ -150,6 +150,8 @@ class UserGroup(models.Model):
             logo_path = finders.find(settings.DEFAULT_GROUP_LOGO)
             self.logo.save(logo_path, File(open(logo_path, 'rb')))
 
+    def __unicode__(self):
+        return "Usergroup: %s" % self.name
 
 class GroupPerm(models.Model):
     """

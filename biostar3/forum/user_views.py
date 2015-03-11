@@ -49,14 +49,13 @@ def user_list(request):
     return render(request, template_name, context)
 
 @auth.valid_user
-def user_view(request, pk, user=None):
+def user_view(request, pk, target=None):
     """
     Generates a single user view.
     The decorator will set the user parameter.
     """
-
     template_name = "user_view.html"
-    context = dict(target=user)
+    context = dict(target=target)
     return render(request, template_name, context)
 
 @login_required

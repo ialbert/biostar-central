@@ -22,7 +22,7 @@ def user_update(sender, instance, created, **kwargs):
     if created:
         logger.info("created %s" % instance)
 
-        # Every user is a member of the default group.
+        # Every user will be a member of the default group.
         group = models.UserGroup.objects.filter(name=settings.DEFAULT_GROUP_NAME).first()
         instance.usergroups.add(group)
 
