@@ -9,10 +9,10 @@ from django.db import transaction
 from django.contrib.staticfiles import finders
 from django.core.files.base import File
 
-
 import logging
 
 logger = logging.getLogger('biostar')
+
 
 class BiostarAppConfig(AppConfig):
     name = 'biostar3.forum'
@@ -45,10 +45,11 @@ def post_migrate_tasks(sender, **kwargs):
 
     # Chicken and egg problem. Default group needs to be created before the first user.
     default_group, default_flag = UserGroup.objects.get_or_create(
-        name=settings.DEFAULT_GROUP_NAME)
+        domain=settings.DEFAULT_GROUP_DOMAIN)
 
     # Set the logo for the default group.
     if default_flag:
+        default_group.name = settings.DEFAULT_GROUP_NAME
         default_group.logo = File(open(default_logo, "rb"))
         default_group.save()
 
@@ -96,6 +97,7 @@ def post_migrate_tasks(sender, **kwargs):
 
     # Add group info to every user.
     logger.info("adding groups to users")
+
     def add_groups():
         for user in models.User.objects.all().exclude(pk=admin.id):
             yield GroupSub(user=user, usergroup=default_group)

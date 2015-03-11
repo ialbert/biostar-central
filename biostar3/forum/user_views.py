@@ -23,8 +23,6 @@ logger = logging.getLogger('biostar')
 # Get custom user model.
 User = get_user_model()
 
-# Loads this group when none are specified.
-DEFAULT_GROUP = models.UserGroup.objects.filter(name=settings.DEFAULT_GROUP_NAME).first()
 
 def user_list(request):
     """
@@ -77,7 +75,8 @@ class Login(LoginView):
         # This is necessary as OAuth will only work for a single domain.
         # After log in the user is redirected to the group site.
         group = request.group
-        if group.domain != DEFAULT_GROUP.domain:
+        default = models.UserGroup.objects.filter(domain=settings.DEFAULT_GROUP_DOMAIN).first()
+        if group.domain != default.domain:
             site = Site.objects.get_current()
             login_url = reverse("account_login")
             next_url = reverse("group_login", kwargs=dict(pk=group.id))

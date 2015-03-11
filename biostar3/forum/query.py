@@ -11,7 +11,6 @@ from datetime import datetime, timedelta
 
 User = get_user_model()
 
-DEFAULT_GROUP = UserGroup.objects.filter(name=settings.DEFAULT_GROUP_NAME).first()
 
 
 def now():

@@ -8,19 +8,36 @@ from django.http import HttpResponsePermanentRedirect as Redirect
 from biostar3.forum.models import UserGroup
 from django.contrib.sites.models import Site
 from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
+from django.core.cache import cache
 
 # Get current site
 User = get_user_model()
 
 logger = logging.getLogger("biostar")
 
-SITE = Site.objects.get_current()
+GROUP_PATTERN = "group-%s"
 
-# Loads this group when none are specified.
-DEFAULT_GROUP = UserGroup.objects.filter(name=settings.DEFAULT_GROUP_NAME).first()
+def get_group(domain):
+    # This is called on every request. Needs to be fast.
+    key = GROUP_PATTERN % domain
+    group = cache.get(key)
+    if group:
+        # Found the group in the cache
+        return group
+
+    # Is this it a default group
+    if domain in settings.DEFAULT_SUBDOMAINS:
+        domain = settings.DEFAULT_GROUP_DOMAIN
+
+    # Get the group and put it in the cache.
+    group = UserGroup.objects.filter(domain__iexact=domain).first()
+
+    # Put the value on into the cache.
+    cache.set(key, group, timeout=600)
+
+    return group
 
 class AutoSignupAdapter(DefaultSocialAccountAdapter):
-
     def pre_social_login(self, request, sociallogin):
 
         # This social login already exists.
@@ -55,6 +72,7 @@ class AutoSignupAdapter(DefaultSocialAccountAdapter):
         except User.DoesNotExist:
             pass
 
+
 class GlobalMiddleware(object):
     """Performs tasks that are applied on every request"""
 
@@ -65,16 +83,14 @@ class GlobalMiddleware(object):
         if not user.is_authenticated():
             user.is_moderator = user.is_admin = False
 
-        # Set the group based on subdomain on the current request
+        # Set the group based on subdomain on the current request.
         subdomain = settings.GET_SUBDOMAIN(request)
-        if subdomain in settings.DEFAULT_SUBDOMAINS:
-            group = DEFAULT_GROUP
-        else:
-            group = UserGroup.objects.filter(domain__iexact=subdomain).first()
-            if not group:
-                url = "%s://%s" % (request.scheme, SITE.domain)
-                return Redirect(url)
 
-        # Groups need to be set on each request.
-        request.group = group
+        # Set the group on the request.
+        request.group = get_group(subdomain)
+
+        if not request.group:
+            site = Site.objects.get_current()
+            url = "%s://%s" % (request.scheme, site.domain)
+            return Redirect(url)
 

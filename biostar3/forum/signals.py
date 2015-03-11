@@ -24,10 +24,10 @@ def user_update(sender, instance, created, **kwargs):
         logger.info("created %s" % instance)
 
         # Every user will be a member of the default group.
-        group = models.UserGroup.objects.get(name=settings.DEFAULT_GROUP_NAME)
+        usergroup = models.UserGroup.objects.get(domain=settings.DEFAULT_GROUP_DOMAIN)
 
         # Create a subscription of the user to the default group.
-        models.GroupSub.objects.create(user=instance, usergroup=group)
+        models.GroupSub.objects.create(user=instance, usergroup=usergroup)
 
         # Add a user profile on creation.
         right_now = now()

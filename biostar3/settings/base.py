@@ -27,6 +27,7 @@ SESSION_COOKIE_DOMAIN=".lvh.me"
 BIOSTAR_HOME = get_env('BIOSTAR_HOME')
 DEFAULT_SUBDOMAINS = {'www', '127', 'localhost:8080'}
 DEFAULT_GROUP_NAME = "General"
+DEFAULT_GROUP_DOMAIN = "www"
 
 # Site administrators. Make sure to override this.
 ADMINS = (
