@@ -130,7 +130,7 @@ class UserGroup(models.Model):
     domain = models.CharField(max_length=15, unique=True, db_index=True, default="www")
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="owners", null=True)
     users = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="usergroups")
-    description = models.TextField(default="default group");
+    description = models.TextField(default="default group")
     public = models.BooleanField(default=True)
     visible = models.BooleanField(default=True)
     creation_date = models.DateTimeField(auto_now_add=True)
@@ -139,16 +139,12 @@ class UserGroup(models.Model):
     def save(self, *args, **kwargs):
         "Actions that need to be performed on every user save."
         self.domain = self.domain.lower()
+
         super(UserGroup, self).save(*args, **kwargs)
 
         # Add the owner to the group.
         if self.owner:
             self.owner.usergroups.add(self)
-
-        if not self.logo:
-            # Substitute the default logo if missing.
-            logo_path = finders.find(settings.DEFAULT_GROUP_LOGO)
-            self.logo.save(logo_path, File(open(logo_path, 'rb')))
 
     def __unicode__(self):
         return "Usergroup: %s" % self.name

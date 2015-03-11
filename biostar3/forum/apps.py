@@ -39,10 +39,15 @@ def post_migrate_tasks(sender, **kwargs):
     if not default_logo:
         raise ImproperlyConfigured("Cannot find default group logo at %s" % settings.DEFAULT_GROUP_LOGO)
 
-
     # Chicken and egg problem. Default group needs to be created before the first user.
     default_group, default_flag = UserGroup.objects.get_or_create(
         name=settings.DEFAULT_GROUP_NAME)
+
+    # Set the logo for the default group.
+    if default_flag:
+        default_group.logo = File(open(default_logo, "rb"))
+        default_group.save()
+
 
     # Create the default admin user.
     for name, email in settings.ADMINS:
@@ -69,14 +74,10 @@ def post_migrate_tasks(sender, **kwargs):
     meta_name, meta_domain, meta_description = "Meta Talk", "meta", "Discussions about the site itself"
     meta_group, meta_flag = UserGroup.objects.get_or_create(domain=meta_domain)
     if meta_flag:
-        logo_path = finders.find("images/logo-meta.png")
         meta_group.name = meta_name
         meta_group.description = meta_description
         meta_group.owner = admin
-        meta_group.logo = File(open(logo_path, 'rb'))
         meta_group.save()
-
-
 
     # Update all toplevel posts with no groups to have the default group.
     logger.info("adding groups to posts")
@@ -84,10 +85,12 @@ def post_migrate_tasks(sender, **kwargs):
 
     # All admin users need to have admin group level permissions.
     for user in models.User.objects.filter(type=User.ADMIN):
+        user.usergroups.add(meta_group)
         GroupPerm.objects.get_or_create(group=default_group, user=user, type=GroupPerm.ADMIN)
 
     # All moderator users need to have moderator level permissions.
     for user in models.User.objects.filter(type=User.MODERATOR):
+        user.usergroups.add(meta_group)
         GroupPerm.objects.get_or_create(group=default_group, user=user, type=GroupPerm.MODERATE)
 
     logger.info("adding groups to users")

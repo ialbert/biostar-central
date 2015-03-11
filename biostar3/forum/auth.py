@@ -1,6 +1,7 @@
 """
 Access authorizations are performed here
 """
+import os
 from string import strip
 from .models import *
 from django.utils.timezone import utc
@@ -9,7 +10,7 @@ from django.shortcuts import redirect
 from django.contrib import messages
 from functools import wraps
 from decorator import decorator
-
+from django.contrib.staticfiles import finders
 
 class AccessDenied(BaseException):
     pass
@@ -253,3 +254,9 @@ def remote_ip(request, key='REMOTE_ADDR'):
     #ip = ip1 or ip2 or '0.0.0.0'
 
     return ip
+
+def safe_remove(path):
+    path = os.path.abspath(path)
+    path = finders.find(path)
+    if path and os.path.isfile(path):
+        os.remove(path)

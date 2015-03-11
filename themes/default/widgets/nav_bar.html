@@ -5,7 +5,14 @@
 <div class="row">
 
     <div id="logo">
-        <a href="{% url 'home' %}"><img src="{{ request.group.logo.url }}"></a>
+        {% if request.group.logo %}
+            <a href="{% url 'home' %}"><img src="{{ request.group.logo.url }}"></a>
+        {% else %}
+            <div class="text">
+            	<div>Group</div>
+                <div><h5><a href="{% url 'home' %}">{{ request.group.name }}</a></h5></div>
+            </div>
+        {% endif %}
     </div>
 
 

@@ -2,7 +2,7 @@
 {% load widgets %}
 
 {% block title %}
-    User List
+    Group List
 {% endblock %}
 
 {% block body %}
@@ -10,56 +10,69 @@
     <div class="row">
         <div class="nine columns">
 
-        	{% user_bar user %}
+            {% user_bar user %}
 
             <div class="row" style="padding-top:1em">
 
                 <h3>Groups</h3>
 
                 <div>
-                    <p>Groups are subsections of the site dedicated to a particular topic. Some groups
-                    are public (visible to everyone) others may be private (visible to subscribed users only).
-                    To gain membership to a private group the moderators of that group will need to add members
-                    to their group.</p>
                     <p>
-                        Users with 500 reputation points or higher may
-                        <a href="{% url "group_create" %}">create a group</a>.
-                        Only a limited number of groups may be created by each user.
-                        Site admins may also create groups both public and private.
+                        Groups are subsections of the site dedicated to a particular topic. Post made in group are
+                        visible only when accessing that group
+                    </p>
+
+                    <p>
+                        Groups may be public (visible to everyone) others may be private (visible to subscribed users
+                        only).To gain membership to a private group the moderators of that group will need to add
+                        members to their group.
+                    </p>
+
+                    <p>
+                        Users with sufficient reputation points may
+                        <a href="{% url "group_create" %}">create a new group</a>.
+                    </p>
+
+                    <p>
+                        Note that only a limited number of groups may be created by each user.
+                        Site admins may also create groups both public and private (contact us if you
+                        need assistance).
                     </p>
                 </div>
                 <div>
 
                 </div>
-                <table>
+                <table class="u-full-width" id="group_list">
                     <tr>
                         <th>Group Name</th>
-                        <th>Sub&nbsp;domain</th>
-                        <th>Action</th>
-
-                        <th>Owner</th>
-                        <th>Public</th>
                         <th>Description</th>
                     </tr>
                     {% for group in public %}
                         <tr>
                             <td>
-                                <a href="{% url "group_redirect" pk=group.id %}">{{ group.name }}</a>
-                            </td>
+                                <div>
+                                    <h5>
+                                        <a href="{% url "group_redirect" pk=group.id %}">{{ group.name }}</a>
+                                    </h5>
+                                </div>
+                                <div>
+                                    Domain: <code>{{ group.domain }}</code>
+                                </div>
+                                <div>
+                                    Owner: <a href="{{ group.owner.get_absolute_url }}">{{ group.owner.name }} </a>
+                                </div>
 
-                            <td>
-                                {{ group.domain }}
-                            </td>
-                            <td>
-                                <a href="{% url "group_edit" pk=group.id %}">Edit</a>
-                            </td>
-                            <td>
-                                <a href="{{ group.owner.get_absolute_url }}">
-                                    {{ group.owner.name }}
-                                </a>
-                            </td>
-                            <td>
-                                {{ group.public }}
+                                <div>
+                                    <ul>
+                                        Actions: {% if group.editable %}
+                                            <li><a href="{% url "group_edit" pk=group.id %}">edit</a></li>
+                                        {% endif %}
+                                        <li>subscribe</li>
+                                        <li>get&nbsp;messages</li>
+                                        <li>get&nbsp;messages</li>
+                                    </ul>
+                                </div>
+
                             </td>
 
                             <td>{{ group.description }}</td>

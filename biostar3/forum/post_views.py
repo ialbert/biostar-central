@@ -144,12 +144,30 @@ def group_list(request):
     """
     Generates the list of groups.
     """
+    user = request.user
+
     template_name = "group_list.html"
-    public = UserGroup.objects.filter(public=True)
+
+    cond = Q(public=True)
+
+    if user.is_authenticated():
+        usergroups = user.usergroups.all()
+        cond = cond | Q(id__in=usergroups)
+    else:
+        usergroups = []
+
+
+    public = UserGroup.objects.filter(cond)
 
     paginator = query.ExtendedPaginator(request, sort_class=query.GroupSortValidator,
                                         object_list=public, per_page=100)
     page = paginator.curr_page()
+
+    groupset = set(usergroups)
+
+    for group in page.object_list:
+        group.editable = (group.owner == user)
+        group.subscribed = (group in usergroups)
 
     context = dict(page=page, public=page.object_list)
 

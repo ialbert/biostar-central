@@ -329,13 +329,24 @@ body {
   padding: 1em;
 }
 
+#group_list {
+  div {
+    margin-top: 0.5ex;
+  }
+  * > li {
+    display: inline;
+    margin-right: 1em;
+    //list-style-type: disc;
+  }
+}
+
 /* Alert styles */
 .alert {
   padding: 0.5em;
   margin: 0.5em 0em 0.5em 0em;
   border: 1px solid transparent;
   border-radius: 4px;
-  text-align: center;
+  //text-align: center;
 }
 
 .error, .errorlist {
@@ -411,7 +422,9 @@ ul.dropdown {
 /* Navigation */
 #logo {
   float: left;
-
+  .text {
+    padding-top: 1ex;
+  }
 }
 
 #userbar, #navbar, #topics {

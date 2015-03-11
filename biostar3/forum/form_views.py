@@ -93,6 +93,7 @@ def get_post(request, user, pk, edit_access_required=True):
 
     return post
 
+
 def post_create(request, parent=None, post_type=None, action='', form_class=ContentForm):
     """
     This view creates nodes. Is not called directly from the web only through
@@ -203,18 +204,37 @@ def post_edit(request, pk, post=None, user=None):
     return redirect(post.get_absolute_url())
 
 
-class GroupForm(forms.Form):
+def group_name_validator(text):
+    if UserGroup.objects.filter(name=text).first():
+        raise ValidationError('This group name already exists')
+
+
+def group_domain_validator(text):
+    if UserGroup.objects.filter(domain=text).first():
+        raise ValidationError('This group domain already exists')
+
+
+class GroupCreateForm(forms.Form):
     """
     Edit or create content: answers, comments
     """
+
     # The is_toplevel field is used to distinguish between subclasses inside templates
-    name = forms.CharField(min_length=3, max_length=25, label="Group Name. ")
-    domain = forms.CharField(min_length=3, max_length=15, label="Subdomain")
+    name = forms.CharField(min_length=3, max_length=25, label="Group Name", validators=[group_name_validator])
+    domain = forms.CharField(min_length=3, max_length=15, label="Subdomain", validators=[group_domain_validator])
     public = forms.BooleanField(initial=True, label="Public access", required=False)
-    description = forms.CharField(widget=forms.Textarea, min_length=10, max_length=100,
+    description = forms.CharField(widget=forms.Textarea, min_length=10, max_length=1000,
                                   required=True)
 
     logo = forms.FileField(required=False, label="Logo (image)")
+
+    remove_logo = forms.BooleanField(initial=False, label="Remove logo if exists.", required=False)
+
+class GroupEditForm(GroupCreateForm):
+    name = forms.CharField(min_length=3, max_length=25, label="Group Name")
+    domain = forms.CharField(min_length=3, max_length=15, label="Subdomain")
+
+
 
 @login_required
 @auth.group_create
@@ -228,13 +248,13 @@ def group_create(request, user=None):
 
     if request.method == "GET":
         # Get methods get the form and return.
-        form = GroupForm()
+        form = GroupCreateForm()
         context = dict(form=form, action=action, title=title)
         return render(request, template_name, context)
 
     if request.method == "POST":
         # Process form submission.
-        form = GroupForm(request.POST, request.FILES)
+        form = GroupCreateForm(request.POST, request.FILES)
         if not form.is_valid():
             # Form not valid. Return with an error message.
             context = dict(form=form, action=action, title=title)
@@ -243,7 +263,7 @@ def group_create(request, user=None):
         # Create the group from the submission data.
         get = lambda x: form.cleaned_data.get(x, '')
 
-        UserGroup.objects.create(
+        group = UserGroup.objects.create(
             name=get('name'),
             domain=get('domain'),
             public=get('public'),
@@ -251,6 +271,9 @@ def group_create(request, user=None):
             owner=user,
             logo=request.FILES.get('logo'),
         )
+
+        messages.info(request, "You have created the %s group." % group.name)
+        return redirect(reverse("group_redirect", kwargs=dict(pk=group.id)))
 
     return redirect("group_list")
 
@@ -268,16 +291,16 @@ def group_edit(request, pk=None, group=None, user=None):
     if request.method == "GET":
         # Get methods get the form and return.
         initial = dict(
-            name = group.name, public=group.public, description=group.description,
+            name=group.name, public=group.public, description=group.description,
             domain=group.domain,
         )
-        form = GroupForm(initial=initial)
+        form = GroupEditForm(initial=initial)
         context = dict(form=form, action=action, title=title)
         return render(request, template_name, context)
 
     if request.method == "POST":
         # Post request received.
-        form = GroupForm(request.POST, request.FILES)
+        form = GroupEditForm(request.POST, request.FILES)
 
         if not form.is_valid():
             # Invalid form, return with errors.
@@ -291,7 +314,15 @@ def group_edit(request, pk=None, group=None, user=None):
         group.domain = get('domain')
         group.public = get('public')
         group.description = get('description')
-        group.logo = request.FILES.get('logo')
+
+        logo = request.FILES.get('logo')
+
+        if logo or get("remove_logo"):
+            # Incoming data. Remove old data.
+            if group.logo:
+                group.logo.delete()
+            group.logo = logo
+
         group.save()
 
     return redirect(reverse("group_list"))
