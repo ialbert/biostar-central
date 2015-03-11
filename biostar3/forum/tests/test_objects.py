@@ -47,7 +47,7 @@ class SimpleTests(TestCase):
 
             # Each user now belongs to the default and group and
             # the group they have created.
-            self.assertEqual(len(user.usergroups.all()), 2)
+            self.assertEqual(len(user.groupsub_set.all()), 2)
 
 
         self.assertTrue(UserGroup.objects.all().count() == start + count)

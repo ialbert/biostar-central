@@ -38,7 +38,7 @@ def user_list(request):
     else:
         users = User.objects.all()
 
-    users = users.filter(usergroups=request.group)
+    users = users.filter(groupsub__usergroup=request.group)
 
     paginator = query.ExtendedPaginator(request, object_list=users,
                                          time_class=query.TimeLimitValidator,

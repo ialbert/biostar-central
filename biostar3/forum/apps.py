@@ -1,7 +1,7 @@
 from django.apps import AppConfig
 from django.db.models.signals import post_migrate
 from biostar3.forum import models
-from biostar3.forum.models import User, UserGroup, GroupPerm, Post
+from biostar3.forum.models import User, UserGroup, GroupPerm, Post, GroupSub
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.contrib.sites.models import Site
@@ -34,6 +34,10 @@ def post_migrate_tasks(sender, **kwargs):
     Sets up data post migration. The site will rely on data set up via this function.
     """
 
+    # Needs ADMINS settings.
+    if not settings.ADMINS:
+        raise ImproperlyConfigured("settings must include ADMINS attribute.")
+
     # Check that the default logo exists.
     default_logo = finders.find(settings.DEFAULT_GROUP_LOGO)
     if not default_logo:
@@ -48,7 +52,6 @@ def post_migrate_tasks(sender, **kwargs):
         default_group.logo = File(open(default_logo, "rb"))
         default_group.save()
 
-
     # Create the default admin user.
     for name, email in settings.ADMINS:
         admin, created = User.objects.get_or_create(email=email)
@@ -61,9 +64,7 @@ def post_migrate_tasks(sender, **kwargs):
             logger.info("added admin user with email=%s, password=SECRET_KEY, name=%s" % (admin.email, admin.name))
 
     # Get the first admin user
-    admin = models.User.objects.filter(type=User.ADMIN).first()
-    if not admin:
-        raise ImproperlyConfigured("settings must include ADMINS attribute.")
+    admin = User.objects.get(email=settings.ADMINS[0][1])
 
     # Associate the default group with the site admin.
     if default_flag:
@@ -84,19 +85,22 @@ def post_migrate_tasks(sender, **kwargs):
     Post.objects.filter(type__in=Post.TOP_LEVEL, group=None).update(group=default_group)
 
     # All admin users need to have admin group level permissions.
-    for user in models.User.objects.filter(type=User.ADMIN):
-        user.usergroups.add(meta_group)
+    for user in models.User.objects.filter(type=User.ADMIN).exclude(pk=admin.id):
+        GroupSub.objects.create(user=user, usergroup=meta_group)
         GroupPerm.objects.get_or_create(group=default_group, user=user, type=GroupPerm.ADMIN)
 
     # All moderator users need to have moderator level permissions.
-    for user in models.User.objects.filter(type=User.MODERATOR):
-        user.usergroups.add(meta_group)
+    for user in models.User.objects.filter(type=User.MODERATOR).exclude(pk=admin.id):
+        GroupSub.objects.create(user=user, usergroup=meta_group)
         GroupPerm.objects.get_or_create(group=default_group, user=user, type=GroupPerm.MODERATE)
 
-    logger.info("adding groups to users")
     # Add group info to every user.
-    for user in models.User.objects.all():
-        user.usergroups.add(default_group)
+    logger.info("adding groups to users")
+    def add_groups():
+        for user in models.User.objects.all().exclude(pk=admin.id):
+            yield GroupSub(user=user, usergroup=default_group)
+
+    GroupSub.objects.bulk_create(add_groups())
 
     # Sets up the default domain
     site = Site.objects.get_current()

@@ -69,7 +69,7 @@ def read_access_post(user, post):
     A user may read the post if the post is in a public group or
     the user is part of the group that the post was made in.
     """
-    return post.root.group.public or user.usergroups.filter(name=post.root.group.name).exists()
+    return post.root.group.public or user.groupsubs.filter(id=post.root.group.id).exists()
 
 
 def write_access_post(user, post):

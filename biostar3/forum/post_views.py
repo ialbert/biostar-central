@@ -18,12 +18,13 @@ from taggit.models import TaggedItem, Tag
 
 # Biostar specific local modules.
 from . import models, query, search, auth
-from .models import Vote, Post, PostView, UserGroup
+from .models import Vote, Post, PostView, UserGroup, GroupSub
 
 logger = logging.getLogger('biostar')
 
 # Get custom user model.
 User = get_user_model()
+
 
 def tag_list(request):
     template_name = "tag_list.html"
@@ -109,17 +110,20 @@ def post_list(request, posts=None):
 
     return render(request, template_name, context)
 
+
 @auth.group_access
 def group_login(request, pk, group=None, user=None):
     # Handler fired on signup redirect when logging in from subdomain.
     # It auto adds user to the group that initiated the login process.
     return group_redirect_handler(request=request, group=group, user=user, autoadd=True)
 
+
 @auth.group_access
 def group_redirect(request, pk, group=None, user=None):
     # Handler when redirecting to a group view.
     # Permissions to check if the user may view the group at all is at middleware level.
     return group_redirect_handler(request=request, group=group, user=user, autoadd=False)
+
 
 def group_redirect_handler(request, group, user, autoadd=None):
     # Redirects to a group.
@@ -149,25 +153,23 @@ def group_list(request):
     template_name = "group_list.html"
 
     cond = Q(public=True)
-
+    sub_map = {}
     if user.is_authenticated():
-        usergroups = user.usergroups.all()
-        cond = cond | Q(id__in=usergroups)
-    else:
-        usergroups = []
+        # I wonder if this could be done in one annotated query
+        subs = GroupSub.objects.filter(user=user)
+        for sub in subs:
+            sub_map[sub.usergroup] = sub.get_pref_display()
+        ids = [sub.usergroup_id for sub in subs]
+        cond = cond | Q(id__in=ids)
 
-
-    public = UserGroup.objects.filter(cond)
+    groups = UserGroup.objects.filter(cond).select_related("owner")
 
     paginator = query.ExtendedPaginator(request, sort_class=query.GroupSortValidator,
-                                        object_list=public, per_page=100)
+                                        object_list=groups, per_page=100)
     page = paginator.curr_page()
 
-    groupset = set(usergroups)
-
     for group in page.object_list:
-        group.editable = (group.owner == user)
-        group.subscribed = (group in usergroups)
+        group.subscription = sub_map.get(group, "None")
 
     context = dict(page=page, public=page.object_list)
 

@@ -113,7 +113,7 @@ POST_SORT_ORDER = {
 POST_SORT_INVALID_MSG = "Invalid sort parameter in URL."
 
 # Messaging related settings.
-LOCAL_MESSAGE, EMAIL_MESSAGE, NO_EMAIL_MESSAGES, DEFAULT_MESSAGES, MAILING_LIST_MESSAGES = range(5)
+LOCAL_MESSAGE, EMAIL_MESSAGE, NO_EMAIL_MESSAGES, DEFAULT_MESSAGES, MAILING_LIST_MESSAGES, LEAVE_GROUP = range(6)
 
 # The mapping from a messaging type to a readable word.
 MESSAGE_CHOICES = [
@@ -121,10 +121,16 @@ MESSAGE_CHOICES = [
     (EMAIL_MESSAGE, "Email mode"),
     (MAILING_LIST_MESSAGES, "Mailing list"),
     (NO_EMAIL_MESSAGES, "No Emails"),
+    (LEAVE_GROUP, "Leave Group"),
 ]
+
 
 # Default messaging value for a new user.
 MESSAGE_DEFAULT = DEFAULT_MESSAGES
+
+# TODO refactoring here
+SUBSCRIPTION_CHOICES = MESSAGE_CHOICES
+SUBSCRIPTION_DEFAULT = DEFAULT_MESSAGES
 
 # Connects a word to a number of days. 0 indicates no limit.
 ALL_TIME, THIS_DAY, THIS_WEEK, THIS_MONTH, THIS_YEAR = 0, 1, 7, 36, 365

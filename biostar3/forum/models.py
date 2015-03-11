@@ -9,8 +9,7 @@ from taggit.managers import TaggableManager
 from django.utils.timezone import utc
 from datetime import datetime
 from . import html
-from django.contrib.staticfiles import finders
-from django.core.files.base import File
+
 
 logger = logging.getLogger('biostar')
 
@@ -129,7 +128,6 @@ class UserGroup(models.Model):
     name = models.CharField(max_length=25, unique=True, db_index=True)
     domain = models.CharField(max_length=15, unique=True, db_index=True, default="www")
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="owners", null=True)
-    users = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="usergroups")
     description = models.TextField(default="default group")
     public = models.BooleanField(default=True)
     visible = models.BooleanField(default=True)
@@ -142,9 +140,11 @@ class UserGroup(models.Model):
 
         super(UserGroup, self).save(*args, **kwargs)
 
-        # Add the owner to the group.
         if self.owner:
-            self.owner.usergroups.add(self)
+            # This is required since there is a chicken and egg problem with
+            # the first usergroup.
+            if not GroupSub.objects.filter(user=self.owner, usergroup=self):
+                GroupSub.objects.create(user=self.owner, usergroup=self)
 
     def __unicode__(self):
         return "Usergroup: %s" % self.name
@@ -420,6 +420,28 @@ class FederatedContent(models.Model):
     content = models.TextField(default='', null=False, blank=False)
     changed = models.BooleanField(default=False, blank=True)
     creation_date = models.DateTimeField(db_index=True, auto_now=True)
+
+class GroupSub(models.Model):
+    """
+    Keeps track of the subscription of a user to a group.
+    """
+    class Meta:
+        unique_together = (("user", "usergroup"),)
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL)
+    pref = models.IntegerField(choices=settings.SUBSCRIPTION_CHOICES, default=settings.SUBSCRIPTION_DEFAULT)
+    usergroup = models.ForeignKey(UserGroup)
+
+    def __unicode__(self):
+        return "GroupSub of %s to %s" % (self.user_id, self.usergroup_id)
+
+class PostSub(models.Model):
+    """
+    Keeps track of subscriptions by users to posts.
+    """
+    user = models.ForeignKey(settings.AUTH_USER_MODEL)
+    pref = models.IntegerField(choices=settings.SUBSCRIPTION_CHOICES, default=settings.SUBSCRIPTION_DEFAULT)
+    post = models.ForeignKey(Post)
 
 
 class Vote(models.Model):

@@ -14,6 +14,7 @@ User = models.User
 
 logger = logging.getLogger("biostar")
 
+
 def now():
     return datetime.utcnow().replace(tzinfo=utc)
 
@@ -23,8 +24,10 @@ def user_update(sender, instance, created, **kwargs):
         logger.info("created %s" % instance)
 
         # Every user will be a member of the default group.
-        group = models.UserGroup.objects.filter(name=settings.DEFAULT_GROUP_NAME).first()
-        instance.usergroups.add(group)
+        group = models.UserGroup.objects.get(name=settings.DEFAULT_GROUP_NAME)
+
+        # Create a subscription of the user to the default group.
+        models.GroupSub.objects.create(user=instance, usergroup=group)
 
         # Add a user profile on creation.
         right_now = now()
@@ -37,5 +40,6 @@ def user_update(sender, instance, created, **kwargs):
             data = dict(user=instance)
             em = EmailTemplate("user_welcome_email.html", data=data)
             em.send(to=[instance.email])
+
 
 post_save.connect(user_update, sender=User)

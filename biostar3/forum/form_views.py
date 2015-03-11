@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.core.exceptions import ValidationError
 from django.contrib.auth.decorators import login_required
-from .models import Post, UserGroup
+from .models import Post, UserGroup, GroupSub
 from . import auth
 from django.shortcuts import render, redirect
 from django.contrib.sites.models import Site
@@ -330,7 +330,7 @@ def group_edit(request, pk=None, group=None, user=None):
 
 class GroupSubscription(forms.Form):
     choices = settings.MESSAGE_CHOICES
-    type = forms.TypedChoiceField(choices=choices, coerce=int)
+    pref = forms.TypedChoiceField(choices=choices, coerce=int)
 
 
 @login_required
@@ -343,7 +343,9 @@ def group_subscribe(request, pk, group=None, user=None):
 
     if request.method == "GET":
         # Get methods get the form and return.
-        form = GroupSubscription()
+        sub = GroupSub.objects.filter(usergroup=group, user=user).first()
+        initial = dict(pref=sub.pref) if sub else dict()
+        form = GroupSubscription(initial=initial)
         context = dict(form=form, group=group)
         return render(request, template_name, context)
 
@@ -355,6 +357,17 @@ def group_subscribe(request, pk, group=None, user=None):
             context = dict(form=form, group=group)
             return render(request, template_name, context)
 
-        messages.info(request, "You have subscribed to the %s group." % group.name)
+        pref = form.cleaned_data['pref']
+
+        # Remove prior subscriptions if these exist.
+        GroupSub.objects.filter(user=user, usergroup=group).delete()
+        if pref == settings.LEAVE_GROUP:
+           messages.info(request, "You have left to the %s group." % group.name)
+        else:
+            # Create a new subscription.
+            messages.info(request, "You have subscribed to the %s group." % group.name)
+            GroupSub.objects.create(user=user, usergroup=group, pref=pref)
+
+
 
     return redirect("group_list")

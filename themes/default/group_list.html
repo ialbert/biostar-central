@@ -67,7 +67,7 @@
                                 </div>
 
                             	<div>
-                                    Current subscription: None | <a href="{% url "group_subscribe" pk=group.id %}">Change Subscription</a>
+                                    Current subscription: {{ group.subscription }} | <a href="{% url "group_subscribe" pk=group.id %}">Change Subscription</a>
                                 </div>
 
 
