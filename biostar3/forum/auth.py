@@ -12,9 +12,6 @@ from functools import wraps
 from decorator import decorator
 from django.contrib.staticfiles import finders
 
-class AccessDenied(BaseException):
-    pass
-
 
 def now():
     return datetime.utcnow().replace(tzinfo=utc)
@@ -51,15 +48,32 @@ def create_toplevel_post(data, user, group):
     # Self referential ForeignKeys need to be updated explicitly!
     Post.objects.filter(pk=post.pk).update(root_id=post.id, parent_id=post.id)
 
-    # Return the updated object, othewise the foreign keys are not set.
+    # Return the updated object, otherwise the foreign keys are unset.
     post = Post.objects.get(pk=post.id)
 
     return post
 
 
-def create_content_post(data, parent, post_type, user):
+def add_groupsub(user, usergroup, pref=settings.MESSAGE_DEFAULT):
+    # Adds a groupsub if it does not exist already.
+
+    if pref == settings.LEAVE_GROUP:
+        # Remove the group subscription on leaving the group.
+        GroupSub.objects.filter(user=user, usergroup=usergroup).delete()
+        return
+
+    # Check if any subscription exists
+    sub = GroupSub.objects.filter(user=user, usergroup=usergroup).first()
+
+    if sub:
+        sub.pref = pref
+        sub.save()
+    else:
+        GroupSub.objects.create(user=user, usergroup=usergroup, pref=pref)
+
+
+def create_content_post(content, parent, post_type, user):
     # Creating a content level post from data
-    content = data.get('content', '')
     post = Post.objects.create(parent=parent, content=content, type=post_type, author=user)
     return post
 
@@ -251,9 +265,10 @@ def remote_ip(request, key='REMOTE_ADDR'):
     ip = request.META.get(key, '0.0.0.0')
 
     # ip2 = request.META.get('HTTP_X_FORWARDED_FOR', '').split(",")[0].strip()
-    #ip = ip1 or ip2 or '0.0.0.0'
+    # ip = ip1 or ip2 or '0.0.0.0'
 
     return ip
+
 
 def safe_remove(path):
     path = os.path.abspath(path)

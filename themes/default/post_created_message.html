@@ -1,0 +1,12 @@
+{%  block subject %}
+    [{{slug}}] {{ post.author.name }} replied to: {{ post.root.title }}
+{%  endblock %}
+
+{% block text %}
+text body
+{%  endblock %}
+
+{% block html %}
+    {{ post.html }}
+<p>You may reply to this post from your email client.</p>
+{%  endblock %}

@@ -135,8 +135,7 @@ def group_redirect_handler(request, group, user, autoadd=None):
         target = "%s://%s" % (request.scheme, netloc)
         if group.public and user.is_authenticated() and autoadd:
             # Only public groups may be automatically joined.
-            models.add_groupsub(user=user, usergroup=group)
-
+            auth.add_groupsub(user=user, usergroup=group)
 
         return redirect(target)
 
@@ -287,7 +286,8 @@ def post_view(request, pk, post=None, user=None):
         u = random.choice(User.objects.all())
         parent = random.choice(thread + [post])
         text = f.bs()
-        comment = models.Post.objects.create(type=models.Post.COMMENT, parent=parent, content=text, author=u)
+        comment = models.Post.objects.create(type=models.Post.COMMENT, group=request.group,
+                                             parent=parent, content=text, author=u)
 
     # Add object to the context.
     html_title = post.title

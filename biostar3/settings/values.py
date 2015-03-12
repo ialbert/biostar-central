@@ -113,14 +113,15 @@ POST_SORT_ORDER = {
 POST_SORT_INVALID_MSG = "Invalid sort parameter in URL."
 
 # Messaging related settings.
-LOCAL_MESSAGE, EMAIL_MESSAGE, NO_EMAIL_MESSAGES, DEFAULT_MESSAGES, MAILING_LIST_MESSAGES, LEAVE_GROUP = range(6)
+LOCAL_TRACKER, EMAIL_TRACKER, LOCAL_MESSAGES, DEFAULT_MESSAGES, MAILING_LIST_MESSAGES, LEAVE_GROUP = range(6)
 
 # The mapping from a messaging type to a readable word.
 MESSAGE_CHOICES = [
-    (DEFAULT_MESSAGES, "Default mode"),
-    (EMAIL_MESSAGE, "Email mode"),
+    (DEFAULT_MESSAGES, "Smart mode"),
+    (LOCAL_MESSAGES, "Local messages"),
+    (LOCAL_TRACKER, "Local tracker"),
+    (EMAIL_TRACKER, "Email tracker"),
     (MAILING_LIST_MESSAGES, "Mailing list"),
-    (NO_EMAIL_MESSAGES, "No Emails"),
     (LEAVE_GROUP, "Leave Group"),
 ]
 

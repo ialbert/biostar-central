@@ -121,7 +121,8 @@ def post_create(request, parent=None, post_type=None, action='', form_class=Cont
         if post_type is None:
             post = auth.create_toplevel_post(user=user, group=group, data=form.cleaned_data)
         else:
-            post = auth.create_content_post(data=form.cleaned_data, post_type=post_type, user=user, parent=parent)
+            content = form.cleaned_data['content']
+            post = auth.create_content_post(content=content, post_type=post_type, user=user, parent=parent)
 
         return redirect(post.get_absolute_url())
 
@@ -359,15 +360,7 @@ def group_subscribe(request, pk, group=None, user=None):
 
         pref = form.cleaned_data['pref']
 
-        # Remove prior subscriptions if these exist.
-        GroupSub.objects.filter(user=user, usergroup=group).delete()
-        if pref == settings.LEAVE_GROUP:
-           messages.info(request, "You have left to the %s group." % group.name)
-        else:
-            # Create a new subscription.
-            messages.info(request, "You have subscribed to the %s group." % group.name)
-            GroupSub.objects.create(user=user, usergroup=group, pref=pref)
-
-
+        # Update group subscription.
+        auth.add_groupsub(user=user, usergroup=group, pref=pref)
 
     return redirect("group_list")

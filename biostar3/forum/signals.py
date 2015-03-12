@@ -7,8 +7,8 @@ from .mailer import EmailTemplate
 from django.conf import settings
 from django.utils.timezone import utc
 from datetime import datetime
+from . import auth, models, mailer
 
-from . import models
 
 User = models.User
 
@@ -20,7 +20,6 @@ def now():
 
 
 def user_update(sender, instance, created, **kwargs):
-
     if created:
         logger.info("created %s" % instance)
 
@@ -47,6 +46,19 @@ def post_created(sender, instance, created, **kwargs):
     # This is where messages are sent
     if created:
         logger.info("created %s" % instance)
+        if instance.is_toplevel:
+            auth.add_groupsub(user=instance.author, usergroup=instance.group)
+
+        # Add a message body for the new post.
+        context = dict(post=instance, slug=instance.group.domain)
+
+        em = mailer.EmailTemplate("post_created_message.html", data=context)
+        body = models.MessageBody.objects.create(
+            author=instance.author,
+            subject=em.subj,
+            content=em.text,
+            html=em.html,
+        )
 
 post_save.connect(user_update, sender=User)
 post_save.connect(post_created, sender=models.Post)

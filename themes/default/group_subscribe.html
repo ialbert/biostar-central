@@ -10,46 +10,52 @@
         <div class="nine columns">
             <div class="row" style="padding-top:1em">
                 <div>
-                    <h3>Change subscription to: {{ group.name }}</h3>
+                    <h3>Change subscription</h3>
 
                     <p>
-                        {{ group.description }}
-                    </p>
+                            These will be your default subscription settings for the <b>{{ group.name }}</b> group. They
+                            apply for new posts created in this group.
+                            You may change your subscription on each post
+                            individually.
+                        </p>
 
 
                     <form action="{% url "group_subscribe" pk=group.id %}" method="post">
                         {% csrf_token %}
                         <div>{{ form }}</div>
-						<p>
-                            These will be your default subscription settings for the group. They
-                            apply to each post. You may also change your subscription on each post
-                            individually.
-                        </p>
+
                         <p>
-                            <b>Default mode</b>: get an email when you receive an answer or a comment on a
-                            question that you have posted. This is the recommended default for new users as
-                            it lets you know immediately when you get an answer.
+                            <b>Smart mode</b>: sends an email when a user receives an answer or a comment on a
+                            question that they have posted. This is the recommended default for most users as
+                            it notifies them immediately when they get an answer.
                         </p>
 
                         <p>
-                            <b>Email mode</b>: get an email when there is activity on any thread
-                            that your have contributed to with an answer or comment.
-                            This allows you to keep track of discussions
-                            you have contributed to.
+                            <b>Local messages</b>: no emails. Local messages will be sent.
                         </p>
 
                         <p>
-                            <b>Mailing list</b>: get an email for every post on the site.
+                            <b>Local tracker</b>: no emails. Generates a local message when there
+                            is activity on any thread
+                            that a user has contributed to with an answer or comment.
+                            This allows users to keep track of discussions
+                            they have contributed to.
+                        </p>
+
+                        <p>
+                            <b>Email tracker</b> works like <b>Local Tracker</b> but also generates an email.
+                        </p>
+
+                        <p>
+                            <b>Mailing list</b>: Generates an email
+                            for every post on the site.
                             This allows you use the site as if it were a mailing list.
                         </p>
 
-                        <p>
-                            <b>No Email</b>: no emails sent by the system. Local messages will be still set.
-                        </p>
 
                         <p>
-                            <b>Leave Group</b>: removes you from the group. You cannot post to the group
-                            unless you become member of the group. If this is a private group you cannot
+                            <b>Leave Group</b>: Removes the user from the group.
+                            When leaving a private group the user cannot
                             rejoin unless added by the owner of the group.
                         </p>
 
