@@ -18,7 +18,8 @@ from taggit.models import TaggedItem, Tag
 
 # Biostar specific local modules.
 from . import models, query, search, auth
-from .models import Vote, Post, PostView, UserGroup, GroupSub
+from .models import Vote, Post, PostView, UserGroup, GroupSub, Message
+from biostar3.context import get_counts
 
 logger = logging.getLogger('biostar')
 
@@ -88,6 +89,35 @@ def my_bookmarks(request):
     posts = query.get_my_bookmarks(user=user, group=request.group)
     messages.info(request, 'Bookmarks for: %s' % user.name)
     return post_list(request, posts=posts)
+
+
+@login_required
+def my_messages(request):
+    """
+    Returns the messages for a user.
+    """
+    template_name = "message_list.html"
+    user = request.user
+
+    posts = Message.objects.filter(user=user).select_related("body").order_by('-date')
+
+    paginator = query.ExtendedPaginator(request,
+                                        object_list=posts, per_page=25)
+    page = paginator.curr_page()
+
+
+    # Force into list before the update takes place.
+    context = dict(page=page, notes=list(page.object_list))
+
+    # Set all messages to read.
+    posts.update(unread=False)
+
+    # Reset the cache. The count key  is hardcoded. Should be fixed.
+    counts = get_counts(request)
+    counts['mesg_count'] = 0
+    get_counts(request, counts=counts)
+
+    return render(request, template_name, context)
 
 
 def post_list(request, posts=None):

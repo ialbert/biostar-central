@@ -428,13 +428,25 @@ ul.dropdown {
   }
 }
 
-.glow {
-  color: white;
-  background-color: @ANSWERED_COLOR;
-  border-radius: 4px;
-  &:hover{
-    color:@ANSWERED_COLOR;
+#userbar {
+  *.glow {
+    color: white;
+    background-color: @ANSWERED_COLOR;
+    border-radius: 4px;
+    &:hover {
+      color: @ANSWERED_COLOR;
+    }
   }
+}
+
+.message.glow {
+  background-color: @ALERT_SUCCESS;
+}
+
+.message {
+  padding: 1ex;
+  margin-bottom: 0.5ex;
+  border-bottom: 1px solid lighten(@MUTED_TEXT_COLOR, 30);
 }
 
 #userbar, #navbar, #topics {

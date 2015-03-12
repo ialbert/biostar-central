@@ -1,0 +1,28 @@
+{% extends "site_layout.html" %}
+{% load widgets %}
+
+{% block title %}
+    Site Messages
+{% endblock %}
+
+{% block body %}
+    <div class="row" id="post_list">
+        <div class="nine columns">
+            {% user_bar user %}
+
+            {% search_bar page=page %}
+
+            {% for message in notes %}
+                <div class="message {% glow message.unread %}">
+                    {{ message.body.content|safe }} {{ message.date }}
+                </div>
+
+            {% endfor %}
+        </div>
+
+        <div class="three columns recent_votes">
+            {% message_bar %}
+        </div>
+
+    </div>
+{% endblock %}

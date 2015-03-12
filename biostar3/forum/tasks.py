@@ -46,8 +46,9 @@ def create_messages(post):
     def message_generator(mb):
         # Authors will not get a message when they post.
         subs = select(post=root).exclude(user=post.author).select_related("user").all()
+        date = now()
         for sub in subs:
-            yield Message(user=sub.user, body=mb)
+            yield Message(user=sub.user, body=mb, date=date)
 
     # Bulk insert for all messages.
     Message.objects.bulk_create(message_generator(body), batch_size=100)

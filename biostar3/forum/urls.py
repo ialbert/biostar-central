@@ -41,6 +41,9 @@ urlpatterns = patterns('',
     # Posts created by a user.
     url(r'^site/my/bookmarks/$', post_views.my_bookmarks, name="my_bookmarks"),
 
+    # User messages.
+    url(r'^site/my/messages/$', post_views.my_messages, name="my_messages"),
+
     # Group list.
     url(r'^g/list/$', post_views.group_list, name="group_list"),
 

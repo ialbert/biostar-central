@@ -26,7 +26,7 @@ def ago(hours=0, minutes=0, days=0):
     return since
 
 
-def get_counts(request):
+def get_counts(request, counts=None):
     """
     Returns a dictionary with
     """
@@ -36,9 +36,15 @@ def get_counts(request):
     user = request.user
     count_key = COUNT_KEY_PATT % user.id
 
-    counts = cache.get(count_key)
-    if not counts:
+    if counts:
+        # Allows updating the cache as well.
+        # This will restart the expiration timer so make it shorter.
+        cache.set(count_key, counts, USER_SESSION_TIMEOUT)
 
+    counts = cache.get(count_key)
+
+    if not counts:
+        # Counts not found need to be recreated.
         logger.info("hitting the cache %s" % count_key)
 
         # Save the last login time. Counts are computed relative to that.
@@ -50,7 +56,7 @@ def get_counts(request):
 
         post_count = Post.objects.filter(author=user).count()
         book_count = Vote.objects.filter(author=user, type=Vote.BOOKMARK).count()
-        vote_count = Vote.objects.filter(author=user, type__in=(Vote.BOOKMARK, Vote.UP), date__gt=last_login).count()
+        vote_count = Vote.objects.filter(post__author=user, type__in=(Vote.BOOKMARK, Vote.UP), date__gt=last_login).count()
         mesg_count = Message.objects.filter(user=user, unread=True).count()
 
         counts = dict(
