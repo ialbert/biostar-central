@@ -167,9 +167,9 @@ class ClientTests(TestCase):
         last = mail.outbox[-1]
         TRUE(jane.email in last.to)
 
-        print last.to
-        print last.subject
-        print last.from_email
+        #print last.to
+        #print last.subject
+        #print last.from_email
 
         # Change notification.
 

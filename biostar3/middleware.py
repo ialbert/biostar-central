@@ -15,17 +15,19 @@ User = get_user_model()
 
 logger = logging.getLogger("biostar")
 
+# Each group is stored in the cache
 GROUP_PATTERN = "group-%s"
 
 def get_group(domain):
     # This is called on every request. Needs to be fast.
     key = GROUP_PATTERN % domain
     group = cache.get(key)
+
+    # Found the group in the cache
     if group:
-        # Found the group in the cache
         return group
 
-    # Is this it a default group
+    # Domain has an alias to default group
     if domain in settings.DEFAULT_SUBDOMAINS:
         domain = settings.DEFAULT_GROUP_DOMAIN
 
@@ -90,6 +92,8 @@ class GlobalMiddleware(object):
         request.group = get_group(subdomain)
 
         if not request.group:
+            # Unable to find the domain redirect.
+            # This can cause endless redirects if the DEFAULT_SUBDOMAINS are not set properly.
             site = Site.objects.get_current()
             url = "%s://%s" % (request.scheme, site.domain)
             return Redirect(url)

@@ -1,18 +1,22 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import logging
+
 from django.conf import settings
 from django.core.cache import cache
 from biostar3 import VERSION
 from django.core.cache import caches
-from biostar3.forum.models import Post, Vote
+from biostar3.forum.models import Post, Vote, Message
 from django.utils.timezone import utc
 from datetime import datetime, timedelta
 
-COUNT_KEY_PATT = "count_key_%s"
+# The count keys are stored in the cache for the user.
+COUNT_KEY_PATT = "count-%s"
 
 # When to refresh user data
-USER_SESSION_TIMEOUT = 60 * 15
+USER_SESSION_TIMEOUT = 60 * 10
 
+logger = logging.getLogger('biostar')
 
 def now():
     return datetime.utcnow().replace(tzinfo=utc)
@@ -34,7 +38,12 @@ def get_counts(request):
 
     counts = cache.get(count_key)
     if not counts:
+
+        logger.info("hitting the cache %s" % count_key)
+
+        # Save the last login time. Counts are computed relative to that.
         last_login = user.profile.last_login
+
         # Update the last login field.
         user.profile.last_login = now()
         user.profile.save()
@@ -42,11 +51,14 @@ def get_counts(request):
         post_count = Post.objects.filter(author=user).count()
         book_count = Vote.objects.filter(author=user, type=Vote.BOOKMARK).count()
         vote_count = Vote.objects.filter(author=user, type__in=(Vote.BOOKMARK, Vote.UP), date__gt=last_login).count()
+        mesg_count = Message.objects.filter(user=user, unread=True).count()
 
         counts = dict(
             post_count=post_count,
             book_count=book_count,
             vote_count=vote_count,
+            mesg_count=mesg_count,
+            badge_count=0,
         )
         cache.set(count_key, counts, USER_SESSION_TIMEOUT)
 

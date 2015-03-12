@@ -144,6 +144,9 @@ def time_ago(date):
         unit = '%0.1f years' % diff
     return "%s ago" % unit
 
+@register.simple_tag
+def glow(value):
+    return "glow" if value else ""
 
 @register.simple_tag
 def gravatar(user, size=80):
