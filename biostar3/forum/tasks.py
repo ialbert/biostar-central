@@ -17,13 +17,26 @@ def create_messages(post):
     # Add a message body for the new post.
     site = Site.objects.get_current()
 
-    context = dict(post=post, site=site,
+    # Full url to the post
+    post_url = "%s://%s%s" % (settings.SITE_SCHEME, site.domain, reverse("post_view", kwargs=dict(pk=post.id)))
+
+    # Full url to the user
+    user_url = "%s://%s%s" % (settings.SITE_SCHEME, site.domain, reverse("user_view", kwargs=dict(pk=post.author.id)))
+
+    # The context that will be passed to the post create template.
+    context = dict(post=post, site=site, scheme=settings.SITE_SCHEME,
+                   post_url=post_url, user_url=user_url,
                    slug=post.root.group.domain)
 
     # This is the body of the message that gets created.
     em = mailer.EmailTemplate("post_created_message.html", data=context)
+
+    # The message content on the site is different from the email.
+    # Email must contain the correct block
+    content = mailer.render_node(template=em.template, data=context, name="message")
+
     body = MessageBody.objects.create(
-        author=post.author, subject=em.subj, content=em.text, html=em.html,
+        author=post.author, subject=em.subj, content=content, html=em.html,
     )
 
     # Shortcut
@@ -48,7 +61,8 @@ def create_messages(post):
 
         # Find everyone that could get an email.
         # This could (probably) be done in a query but the logic gets a little complicated.
-        subs = select(post=root, pref__in=settings.MESSAGE_EMAIL_PREFS).exclude(user=root.author).select_related("user").all()
+        subs = select(post=root, pref__in=settings.MESSAGE_EMAIL_PREFS).exclude(user=root.author).select_related(
+            "user").all()
 
         # Check if author has default messaging.
         smart_sub = select(post=root, user=root.author, pref=settings.DEFAULT_MESSAGES).select_related("user").first()

@@ -1,11 +1,17 @@
+{% load humanize %}
+{% load widgets %}
+
 {% block subject %}
     {% if not post.is_toplevel %}
-        Re: 
+        Re:
     {% endif %}
     [{{ slug }}] {{ post.root.title }}
 {% endblock %}
 
-
+{% block message %}
+    {{ post.creation_date|time_ago }} <a href="{{ user_url }}">{{ post.author.name }} </a> wrote on
+    <a href="{{ post_url }}">{{ post.root.title }}</a>: {{ post.content|truncatewords:80 }}
+{% endblock %}
 
 {# Text version of the email #}
 {% block text %}
@@ -13,10 +19,24 @@
 
     {{ post.content }}
 
+    View post at: {{ post_url }}
 {% endblock %}
 
 {#  Html version of the email #}
 {% block html %}
+    <p>
+       <a href="{{ user_url }}">{{ post.author.name }} </a> wrote on <a href="{{ post_url }}">{{ post.root.title }}</a>:
+    </p>
+
     {{ post.html }}
-    <p>You may reply to this post from your email client.</p>
+
+    <p>
+        View post at: {{ post_url }}
+    </p>
+
+    <p style="font-size: smaller; color:#999999">
+        You may reply to this post with email. <br>
+        The email will be formatted as markdown.<br>
+        Use three back ticks (```) to mark multi line code (fenced codeblocks).
+    </p>
 {% endblock %}

@@ -8,12 +8,11 @@
 CELERY_ENABLED = False
 
 # The serializer format.
-CELERY_TASK_SERIALIZER = 'json'
+CELERY_TASK_SERIALIZER = 'pickle'
 
 # Ignore other content
-CELERY_ACCEPT_CONTENT = ['json']
+CELERY_ACCEPT_CONTENT = ['pickle']
 
-
-CELERY_RESULT_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'pickle'
 
 CELERY_ENABLE_UTC = True

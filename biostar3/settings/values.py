@@ -7,6 +7,7 @@
 from .celeryconfig import *
 from collections import OrderedDict
 
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 TEMPLATE_DEBUG = True
@@ -26,6 +27,7 @@ MANAGERS = ADMINS
 SITE_ID = 1
 SITE_NAME = "Site Name"
 SITE_DOMAIN = "www.lvh.me:8080"
+SITE_SCHEME = "http"
 
 # Which subdomains lead to the main site.
 DEFAULT_SUBDOMAINS = {'www', '127', 'localhost:8080' }

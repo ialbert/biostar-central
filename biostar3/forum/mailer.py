@@ -10,7 +10,7 @@ Extracts all information from a single template like so. All three blocks must b
     {% block html %} declares text/html
 
 """
-import logging, smtplib, string
+import logging, smtplib, string, textwrap
 
 from django.conf import settings
 from django.template.loader import get_template
@@ -29,8 +29,20 @@ def get_node(template, name):
     for node in template:
         if isinstance(node, BlockNode) and node.name == name:
             return node
-    raise Exception("Node '%s' could not be found in template." % name)
+    # Missing nodes are ok.
+    return ""
 
+def render_node(template, name, data):
+    """
+    Renders a node of a template
+    """
+    try:
+        context = Context(data, autoescape=False)
+        result = get_node(template, name=name).render(context)
+    except Exception, exc:
+        logger.error(exc)
+        result = "internal error, render_node=%s" % exc
+    return result
 
 class EmailTemplate(object):
     """
@@ -38,21 +50,23 @@ class EmailTemplate(object):
     """
     SUBJECT, TEXT, HTML = "subject", "text", "html"
 
-    def __init__(self, template_name, data={}, **kwargs):
-        data.update(kwargs)
-        context = Context(data, autoescape=False)
-        template = get_template(template_name)
+    def __init__(self, template_name, data={}):
+
+        # Get the base template.
+        self.template = get_template(template_name)
 
         # Extract the blocks for each part of the email.
-        subj = get_node(template, name=self.SUBJECT).render(context)
+        subj = render_node(self.template, name=self.SUBJECT, data=data)
+        text = render_node(self.template, name=self.TEXT, data=data)
+        html = render_node(self.template, name=self.HTML, data=data)
+
         # Email subject may not contain newlines
-        lines = subj.splitlines()
-        lines = map(string.strip, lines)
-
+        lines = map(string.strip, subj.splitlines())
         self.subj = "".join(lines)
-        self.text = get_node(template, name=self.TEXT).render(context)
-        self.html = get_node(template, name=self.HTML).render(context)
 
+        # Text node may be indented in templates. Remove common whitespace.
+        self.text = textwrap.dedent(text)
+        self.html = html
 
     def send(self, to, from_email=None, cc=None, bcc=None, headers={}, token=None):
 
@@ -67,10 +81,14 @@ class EmailTemplate(object):
 
         # Fall back to defaults
         from_email = from_email or settings.DEFAULT_FROM_EMAIL
+
+        # Create the email.
         msg = EmailMultiAlternatives(
             subject=self.subj, body=self.text, from_email=from_email, to=to,
             cc=cc, bcc=bcc, headers=headers,
         )
+
+        # Attach html if exists.
         if self.html:
             msg.attach_alternative(self.html, 'text/html')
 

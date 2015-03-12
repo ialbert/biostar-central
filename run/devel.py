@@ -11,7 +11,14 @@ INSTALLED_APPS = list(INSTALLED_APPS)
 INSTALLED_APPS.append( "debug_toolbar")
 
 # Enable celery.
-CELERY_ENABLED = True
+CELERY_ENABLED = False
+
+# Must set a broker
+BROKER_URL = 'django://'
+
+# Add django transport agent.
+# The site must be initialized again.
+#INSTALLED_APPS = list(INSTALLED_APPS) +  [ 'kombu.transport.django' ]
 
 # Send a welcome email.
 SEND_WELCOME_EMAIL = True

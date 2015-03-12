@@ -1,7 +1,7 @@
 from django.apps import AppConfig
 from django.db.models.signals import post_migrate
 from biostar3.forum import models
-from biostar3.forum.models import User, UserGroup, GroupPerm, Post, GroupSub
+from biostar3.forum.models import User, UserGroup, GroupPerm, Post, GroupSub, PostSub
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.contrib.sites.models import Site
@@ -118,6 +118,7 @@ def post_migrate_tasks(sender, **kwargs):
     for post in Post.objects.filter(type__in=Post.TOP_LEVEL).exclude(tag_val=''):
         tags = post.tag_val.split(",")
         post.tags.set(*tags)
+        PostSub.objects.create(post=post, user=post.author)
 
     # Reset tag_val field. This attribute will be dropped on a second migration.
     logger.info('resetting tag_val')
