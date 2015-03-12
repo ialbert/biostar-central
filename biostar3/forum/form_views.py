@@ -361,6 +361,6 @@ def group_subscribe(request, pk, group=None, user=None):
         pref = form.cleaned_data['pref']
 
         # Update group subscription.
-        auth.add_groupsub(user=user, usergroup=group, pref=pref)
+        auth.groupsub_get_or_create(user=user, usergroup=group, pref=pref)
 
     return redirect("group_list")

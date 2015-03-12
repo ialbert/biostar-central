@@ -125,6 +125,9 @@ MESSAGE_CHOICES = [
     (LEAVE_GROUP, "Leave Group"),
 ]
 
+MESSAGE_EMAIL_PREFS = {
+    DEFAULT_MESSAGES, EMAIL_TRACKER, MAILING_LIST_MESSAGES,
+    }
 
 # Default messaging value for a new user.
 MESSAGE_DEFAULT = DEFAULT_MESSAGES

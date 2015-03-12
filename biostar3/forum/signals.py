@@ -6,11 +6,10 @@ from django.contrib.auth import get_user_model
 from .mailer import EmailTemplate
 from django.conf import settings
 from django.utils.timezone import utc
+from django.contrib.sites.models import Site
+
 from datetime import datetime
 from . import auth, models, mailer
-
-
-User = models.User
 
 logger = logging.getLogger("biostar")
 
@@ -46,19 +45,45 @@ def post_created(sender, instance, created, **kwargs):
     # This is where messages are sent
     if created:
         logger.info("created %s" % instance)
-        if instance.is_toplevel:
-            auth.add_groupsub(user=instance.author, usergroup=instance.group)
+
+        # Get or add a group subscription for the user.
+        groupsub = auth.groupsub_get_or_create(user=instance.author, usergroup=instance.group)
+
+        # Get or add a post subscription for the user
+        postsub =  auth.postsub_get_or_create(user=instance.author, post=instance, groupsub=groupsub)
 
         # Add a message body for the new post.
-        context = dict(post=instance, slug=instance.group.domain)
+        site = Site.objects.get_current()
 
+        context = dict(post=instance, site=site,
+                       slug=instance.group.domain)
+
+        # This is the body of the message that gets created.
         em = mailer.EmailTemplate("post_created_message.html", data=context)
         body = models.MessageBody.objects.create(
-            author=instance.author,
-            subject=em.subj,
-            content=em.text,
-            html=em.html,
+            author=instance.author, subject=em.subj, content=em.text, html=em.html,
         )
+        #em.send(to="localhost")
 
-post_save.connect(user_update, sender=User)
+        sub_select = models.PostSub.objects.filter
+
+        # ALl subscribers get local messages.
+        def message_generator(mb):
+            subs = sub_select(post=instance).select_related("user").all()
+            for sub in subs:
+                yield models.Message(user=sub.user, body=mb)
+
+        # Bulk insert for all messages.
+        models.Message.objects.bulk_create(message_generator(body),)
+
+        # Some message preferences qualify for an email.
+        email_targets = sub_select(post=instance, pref__in=settings.MESSAGE_EMAIL_PREFS).\
+            select_related("user").all()
+
+        # Collect all reply tokens
+
+        #models.ReplyToken.objects.bulk_create(tokens, batch_size=100)
+
+
+post_save.connect(user_update, sender=models.User)
 post_save.connect(post_created, sender=models.Post)

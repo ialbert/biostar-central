@@ -135,7 +135,7 @@ def group_redirect_handler(request, group, user, autoadd=None):
         target = "%s://%s" % (request.scheme, netloc)
         if group.public and user.is_authenticated() and autoadd:
             # Only public groups may be automatically joined.
-            auth.add_groupsub(user=user, usergroup=group)
+            auth.groupsub_get_or_create(user=user, usergroup=group)
 
         return redirect(target)
 

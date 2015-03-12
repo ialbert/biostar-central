@@ -10,7 +10,7 @@ Extracts all information from a single template like so. All three blocks must b
     {% block html %} declares text/html
 
 """
-import logging, smtplib
+import logging, smtplib, string
 
 from django.conf import settings
 from django.template.loader import get_template
@@ -44,9 +44,16 @@ class EmailTemplate(object):
         template = get_template(template_name)
 
         # Extract the blocks for each part of the email.
-        self.subj = get_node(template, name=self.SUBJECT).render(context)
+        subj = get_node(template, name=self.SUBJECT).render(context)
+        # Email subject may not contain newlines
+        lines = subj.splitlines()
+        lines = map(string.strip, lines)
+
+        self.subj = "".join(lines)
         self.text = get_node(template, name=self.TEXT).render(context)
         self.html = get_node(template, name=self.HTML).render(context)
+
+
 
     def send(self, to, from_email=None, cc=None, bcc=None, headers=None):
 

@@ -53,23 +53,49 @@ def create_toplevel_post(data, user, group):
 
     return post
 
+def postsub_get_or_create(user, post, groupsub):
+    """
+    Gets or creates a postsub for the user
+    """
+    # Shortcuts.
+    select, create = PostSub.objects.filter, PostSub.objects.create
 
-def add_groupsub(user, usergroup, pref=settings.MESSAGE_DEFAULT):
-    # Adds a groupsub if it does not exist already.
 
-    if pref == settings.LEAVE_GROUP:
-        # Remove the group subscription on leaving the group.
-        GroupSub.objects.filter(user=user, usergroup=usergroup).delete()
-        return
-
-    # Check if any subscription exists
-    sub = GroupSub.objects.filter(user=user, usergroup=usergroup).first()
-
-    if sub:
-        sub.pref = pref
-        sub.save()
+    anysub = select(user=user, post=post).first()
+    if anysub:
+        # There is already
+        return anysub
     else:
-        GroupSub.objects.create(user=user, usergroup=usergroup, pref=pref)
+        return create(user=user, post=post, pref=groupsub.pref)
+
+def groupsub_get_or_create(user, usergroup, pref=None):
+    """
+    Adds a group sub if it does not exist already.
+    """
+
+    # Shortcuts.
+    select, create = GroupSub.objects.filter, GroupSub.objects.create
+
+    # Remove the group subscription.
+    if pref == settings.LEAVE_GROUP:
+        return select(user=user, usergroup=usergroup).delete()
+
+    # Is there any subscription for the user and group.
+    anysub = select(user=user, usergroup=usergroup).first()
+
+    # Check for any subscription or found the specific preference.
+    if (anysub and not pref) or (anysub and anysub.pref==pref):
+        return anysub
+
+    if anysub:
+        # There is a subscription but needs changing.
+        anysub.pref = pref
+        anysub.save()
+        return anysub
+    else:
+        # Create a new subscription
+        newsub = create(user=user, usergroup=usergroup, pref=settings.DEFAULT_MESSAGES)
+        return newsub
 
 
 def create_content_post(content, parent, post_type, user):

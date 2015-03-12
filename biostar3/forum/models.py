@@ -448,6 +448,8 @@ class PostSub(models.Model):
     pref = models.IntegerField(choices=settings.SUBSCRIPTION_CHOICES, default=settings.SUBSCRIPTION_DEFAULT)
     post = models.ForeignKey(Post)
 
+    def __unicode__(self):
+        return "PostSub: %s, %s" % (self.user_id, self.post_id)
 
 class Vote(models.Model):
     class Meta:
@@ -495,6 +497,7 @@ class Message(models.Model):
     unread = models.BooleanField(default=True)
     date = models.DateTimeField(db_index=True, null=True)
 
-    def send(self, pref):
-        # Performs extra action on sending the message.
-        pass
+    def save(self, **kwargs):
+        self.date = self.date or now()
+        super(Message, self).save(**kwargs)
+
