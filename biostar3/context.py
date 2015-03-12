@@ -25,6 +25,11 @@ def ago(hours=0, minutes=0, days=0):
     since = now() - timedelta(days=days, hours=hours, minutes=minutes)
     return since
 
+def reset_cache(request, key):
+    counts = get_counts(request)
+    counts[key] = 0
+    get_counts(request, counts=counts)
+
 
 def get_counts(request, counts=None):
     """

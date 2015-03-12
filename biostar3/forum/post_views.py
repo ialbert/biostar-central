@@ -19,7 +19,7 @@ from taggit.models import TaggedItem, Tag
 # Biostar specific local modules.
 from . import models, query, search, auth
 from .models import Vote, Post, PostView, UserGroup, GroupSub, Message
-from biostar3.context import get_counts
+from biostar3.context import reset_cache
 
 logger = logging.getLogger('biostar')
 
@@ -105,17 +105,34 @@ def my_messages(request):
                                         object_list=posts, per_page=25)
     page = paginator.curr_page()
 
-
     # Force into list before the update takes place.
     context = dict(page=page, notes=list(page.object_list))
 
     # Set all messages to read.
     posts.update(unread=False)
 
-    # Reset the cache. The count key  is hardcoded. Should be fixed.
-    counts = get_counts(request)
-    counts['mesg_count'] = 0
-    get_counts(request, counts=counts)
+    # Reset the cache key for messages.
+    reset_cache(request, 'mesg_count')
+
+    return render(request, template_name, context)
+
+
+
+@login_required
+@auth.valid_user
+def vote_list(request, pk, target=None):
+    template_name = "vote_list.html"
+
+    votes = Vote.objects.filter(post__author=target).select_related("post", "author").order_by("-date")
+
+    paginator = query.ExtendedPaginator(request,
+                                        object_list=votes, per_page=50)
+    page = paginator.curr_page()
+
+    context = dict(page=page, votes=page.object_list, target=target)
+
+    # Reset the cache for votes.
+    reset_cache(request, "vote_count")
 
     return render(request, template_name, context)
 

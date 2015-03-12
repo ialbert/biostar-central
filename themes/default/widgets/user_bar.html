@@ -22,7 +22,7 @@
                     </div>
 
                     <div class="item tooltip" title="Your upvoted posts" data-tooltip-direction="top">
-                        <a class="{% glow c.vote_count %}" href="{% url "upvoted_posts" pk=user.id %}"><i
+                        <a class="{% glow c.vote_count %}" href="{% url "vote_list" pk=user.id %}"><i
                         class="fa fa-heart"></i> {{ c.vote_count }}</a>
                     </div>
 

@@ -1,0 +1,55 @@
+{% extends "site_layout.html" %}
+{% load widgets %}
+
+{% block title %}
+    Votes
+{% endblock %}
+
+{% block body %}
+
+    <div class="row">
+        {% user_bar user %}
+
+        {% page_bar page %}
+
+    </div>
+    <div class="row">
+
+
+        <div class="six columns">
+
+            <h5 class="title">Votes for <a href="{{ target.get_absolute_url }}">{{ target.name }}</a></h5> </h5>
+
+            <div id="post_list">
+                {% for vote in votes %}
+                    <div class="post_title">
+                        {% vote_symbol vote %}
+                        <a href="{{ vote.post.get_absolute_url }}">{{ vote.post.title }}</a>
+                    </div>
+                {% endfor %}
+            </div>
+
+        </div>
+
+        <div class="six columns">
+            <h5 class="title">People voting for <a href="{{ target.get_absolute_url }}">{{ target.name }}</a></h5>
+             {% for vote in votes %}
+
+
+                 <div class="user_list_box">
+                        <div>
+                            <a href="{{ vote.author.get_absolute_url }}">{% gravatar vote.author 82 %}</a>
+                        </div>
+
+                        <div>
+                            <a href="{{ vote.author.get_absolute_url }}">{{ vote.author.name }}</a>
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+        </div>
+
+
+    </div>
+{% endblock %}

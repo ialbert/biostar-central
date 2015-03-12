@@ -11,6 +11,9 @@ urlpatterns = patterns('',
     # List of posts.
     url(r'^$', post_views.post_list, name='home'),
 
+    # List of posts.
+    url(r'^p/list/$', post_views.post_list, name='post_list'),
+
     # Renders search results.
     url(r'^site/search/$', post_views.search_results, name='search'),
 
@@ -38,6 +41,9 @@ urlpatterns = patterns('',
     # Upvoted posts created by a user
     url(r'^site/upvoted/posts/created/by/(?P<pk>\d+)/$', post_views.upvoted_posts, name="upvoted_posts"),
 
+    # A list of votes for a user.
+    url(r'^site/votes/for/(?P<pk>\d+)/$', post_views.vote_list, name="vote_list"),
+
     # Posts created by a user.
     url(r'^site/my/bookmarks/$', post_views.my_bookmarks, name="my_bookmarks"),
 
@@ -55,7 +61,6 @@ urlpatterns = patterns('',
 
     # Group redirect.
     url(r'^g/login/(?P<pk>\S+)$', post_views.group_login, name="group_login"),
-
 
     # Group create.
     url(r'^g/create/$', form_views.group_create, name="group_create"),
