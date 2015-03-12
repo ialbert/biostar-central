@@ -1,12 +1,22 @@
-{%  block subject %}
-    [{{slug}}] {{ post.author.name }} replied to: {{ post.root.title }}
-{%  endblock %}
+{% block subject %}
+    {% if not post.is_toplevel %}
+        Re: 
+    {% endif %}
+    [{{ slug }}] {{ post.root.title }}
+{% endblock %}
 
+
+
+{# Text version of the email #}
 {% block text %}
-text body
-{%  endblock %}
+    {{ post.author.name }} wrote on: {{ post.root.title }}
 
+    {{ post.content }}
+
+{% endblock %}
+
+{#  Html version of the email #}
 {% block html %}
     {{ post.html }}
-<p>You may reply to this post from your email client.</p>
-{%  endblock %}
+    <p>You may reply to this post from your email client.</p>
+{% endblock %}
