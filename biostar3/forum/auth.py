@@ -53,7 +53,7 @@ def create_toplevel_post(data, user, group):
 
     return post
 
-def postsub_get_or_create(user, post, groupsub):
+def postsub_get_or_create(user, post, pref):
     """
     Gets or creates a postsub for the user
     """
@@ -66,7 +66,7 @@ def postsub_get_or_create(user, post, groupsub):
         # There is already
         return anysub
     else:
-        return create(user=user, post=post, pref=groupsub.pref)
+        return create(user=user, post=post, pref=pref)
 
 def groupsub_get_or_create(user, usergroup, pref=None):
     """

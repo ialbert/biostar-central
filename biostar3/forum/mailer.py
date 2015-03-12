@@ -54,12 +54,16 @@ class EmailTemplate(object):
         self.html = get_node(template, name=self.HTML).render(context)
 
 
-
-    def send(self, to, from_email=None, cc=None, bcc=None, headers=None):
+    def send(self, to, from_email=None, cc=None, bcc=None, headers={}, token=None):
 
         # Support address in the `to` parameter.
         if type(to) != list:
             to = [to]
+
+        if token:
+            # Add reply to token to header.
+            reply_to = settings.REPLY_TO_PATTERN % token
+            headers.update({'Reply-To': reply_to})
 
         # Fall back to defaults
         from_email = from_email or settings.DEFAULT_FROM_EMAIL

@@ -9,6 +9,9 @@ from collections import OrderedDict
 # Should the site send a welcome email.
 SEND_WELCOME_EMAIL = True
 
+# The email pattern to reply to.
+REPLY_TO_PATTERN = "reply-%s@lvh.me"
+
 # Google ReCaptcha No-Captcha settings
 # When set the captcha forms will be active.
 RECAPTCHA_PUBLIC_KEY = ""
@@ -126,7 +129,7 @@ MESSAGE_CHOICES = [
 ]
 
 MESSAGE_EMAIL_PREFS = {
-    DEFAULT_MESSAGES, EMAIL_TRACKER, MAILING_LIST_MESSAGES,
+    EMAIL_TRACKER, MAILING_LIST_MESSAGES,
     }
 
 # Default messaging value for a new user.

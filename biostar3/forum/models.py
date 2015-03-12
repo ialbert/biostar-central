@@ -408,8 +408,8 @@ class ReplyToken(models.Model):
     date = models.DateTimeField(auto_created=True)
 
     def save(self, *args, **kwargs):
-        if not self.id:
-            self.token = make_uuid()
+        self.token = self.token or make_uuid()
+        self.date = self.date or now()
         super(ReplyToken, self).save(*args, **kwargs)
 
 class FederatedContent(models.Model):

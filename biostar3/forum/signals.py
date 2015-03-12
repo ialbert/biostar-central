@@ -9,7 +9,8 @@ from django.utils.timezone import utc
 from django.contrib.sites.models import Site
 
 from datetime import datetime
-from . import auth, models, mailer
+from . import auth, mailer
+from models import *
 
 logger = logging.getLogger("biostar")
 
@@ -23,14 +24,14 @@ def user_update(sender, instance, created, **kwargs):
         logger.info("created %s" % instance)
 
         # Every user will be a member of the default group.
-        usergroup = models.UserGroup.objects.get(domain=settings.DEFAULT_GROUP_DOMAIN)
+        usergroup = UserGroup.objects.get(domain=settings.DEFAULT_GROUP_DOMAIN)
 
         # Create a subscription of the user to the default group.
-        models.GroupSub.objects.create(user=instance, usergroup=usergroup)
+        GroupSub.objects.create(user=instance, usergroup=usergroup)
 
         # Add a user profile on creation.
         right_now = now()
-        profile = models.Profile.objects.create(
+        profile = Profile.objects.create(
             user=instance, last_login=right_now, date_joined=right_now
         )
 
@@ -49,8 +50,14 @@ def post_created(sender, instance, created, **kwargs):
         # Get or add a group subscription for the user.
         groupsub = auth.groupsub_get_or_create(user=instance.author, usergroup=instance.group)
 
+        # Default mode is Email for toplevel posts and local message otherwise.
+        if instance.is_toplevel and groupsub.pref == settings.DEFAULT_MESSAGES:
+            pref = settings.EMAIL_TRACKER
+        else:
+            pref = groupsub.pref
+
         # Get or add a post subscription for the user
-        postsub =  auth.postsub_get_or_create(user=instance.author, post=instance, groupsub=groupsub)
+        postsub = auth.postsub_get_or_create(user=instance.author, post=instance, pref=pref)
 
         # Add a message body for the new post.
         site = Site.objects.get_current()
@@ -60,30 +67,34 @@ def post_created(sender, instance, created, **kwargs):
 
         # This is the body of the message that gets created.
         em = mailer.EmailTemplate("post_created_message.html", data=context)
-        body = models.MessageBody.objects.create(
+        body = MessageBody.objects.create(
             author=instance.author, subject=em.subj, content=em.text, html=em.html,
         )
-        #em.send(to="localhost")
+        # em.send(to="localhost")
 
-        sub_select = models.PostSub.objects.filter
+        sub_select = PostSub.objects.filter
 
         # ALl subscribers get local messages.
         def message_generator(mb):
             subs = sub_select(post=instance).select_related("user").all()
             for sub in subs:
-                yield models.Message(user=sub.user, body=mb)
+                yield Message(user=sub.user, body=mb)
 
         # Bulk insert for all messages.
-        models.Message.objects.bulk_create(message_generator(body),)
+        Message.objects.bulk_create(message_generator(body), batch_size=100)
 
         # Some message preferences qualify for an email.
-        email_targets = sub_select(post=instance, pref__in=settings.MESSAGE_EMAIL_PREFS).\
-            select_related("user").all()
+        def token_generator(obj):
+            date = now()
+            subs = sub_select(post=instance, pref__in=settings.MESSAGE_EMAIL_PREFS).select_related("user").all()
+            for sub in subs:
+                token = auth.make_uuid(size=8)
+                em.send(to=[sub.user.email], token=token)
+                yield ReplyToken(user=sub.user, post=obj, token=token, date=date)
 
-        # Collect all reply tokens
+        # Insert the reply tokens into the database.
+        ReplyToken.objects.bulk_create(token_generator(instance), batch_size=100)
 
-        #models.ReplyToken.objects.bulk_create(tokens, batch_size=100)
 
-
-post_save.connect(user_update, sender=models.User)
-post_save.connect(post_created, sender=models.Post)
+post_save.connect(user_update, sender=User)
+post_save.connect(post_created, sender=Post)
