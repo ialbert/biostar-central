@@ -278,17 +278,6 @@ def post_view(request, pk, post=None, user=None):
     for comment in comment_list:
         post.comments.setdefault(comment.parent.id, []).append(comment)
 
-    if user.is_authenticated():
-        # This is for testing only. Keeps adding comments to posts on the page.
-        import random, faker
-
-        f = faker.Factory.create()
-        u = random.choice(User.objects.all())
-        parent = random.choice(thread + [post])
-        text = f.bs()
-        comment = models.Post.objects.create(type=models.Post.COMMENT, group=request.group,
-                                             parent=parent, content=text, author=u)
-
     # Add object to the context.
     html_title = post.title
     context = dict(post=post, html_title=html_title)

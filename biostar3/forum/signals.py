@@ -9,7 +9,7 @@ from django.utils.timezone import utc
 from django.contrib.sites.models import Site
 
 from datetime import datetime
-from . import auth, mailer
+from . import auth, mailer, tasks
 from models import *
 
 logger = logging.getLogger("biostar")
@@ -17,7 +17,6 @@ logger = logging.getLogger("biostar")
 
 def now():
     return datetime.utcnow().replace(tzinfo=utc)
-
 
 def user_update(sender, instance, created, **kwargs):
     if created:
@@ -47,54 +46,18 @@ def post_created(sender, instance, created, **kwargs):
     if created:
         logger.info("created %s" % instance)
 
-        # Get or add a group subscription for the user.
-        groupsub = auth.groupsub_get_or_create(user=instance.author, usergroup=instance.group)
+        # Subscriptions will apply relative to the root.
+        # Get or add the group subscription for the user.
+        groupsub = auth.groupsub_get_or_create(user=instance.author, usergroup=instance.root.group)
 
-        # Default mode is Email for toplevel posts and local message otherwise.
-        if instance.is_toplevel and groupsub.pref == settings.DEFAULT_MESSAGES:
-            pref = settings.EMAIL_TRACKER
+        # Get or add the post subscription for the user.
+        postsub = auth.postsub_get_or_create(user=instance.author, post=instance.root, pref=groupsub.pref)
+
+        # Route the message creation via celery if necessary.
+        if settings.CELERY_ENABLED:
+            tasks.create_messages.delay(instance)
         else:
-            pref = groupsub.pref
-
-        # Get or add a post subscription for the user
-        postsub = auth.postsub_get_or_create(user=instance.author, post=instance, pref=pref)
-
-        # Add a message body for the new post.
-        site = Site.objects.get_current()
-
-        context = dict(post=instance, site=site,
-                       slug=instance.group.domain)
-
-        # This is the body of the message that gets created.
-        em = mailer.EmailTemplate("post_created_message.html", data=context)
-        body = MessageBody.objects.create(
-            author=instance.author, subject=em.subj, content=em.text, html=em.html,
-        )
-        # em.send(to="localhost")
-
-        sub_select = PostSub.objects.filter
-
-        # ALl subscribers get local messages.
-        def message_generator(mb):
-            subs = sub_select(post=instance).select_related("user").all()
-            for sub in subs:
-                yield Message(user=sub.user, body=mb)
-
-        # Bulk insert for all messages.
-        Message.objects.bulk_create(message_generator(body), batch_size=100)
-
-        # Some message preferences qualify for an email.
-        def token_generator(obj):
-            date = now()
-            subs = sub_select(post=instance, pref__in=settings.MESSAGE_EMAIL_PREFS).select_related("user").all()
-            for sub in subs:
-                token = auth.make_uuid(size=8)
-                em.send(to=[sub.user.email], token=token)
-                yield ReplyToken(user=sub.user, post=obj, token=token, date=date)
-
-        # Insert the reply tokens into the database.
-        ReplyToken.objects.bulk_create(token_generator(instance), batch_size=100)
-
+            tasks.create_messages(instance)
 
 post_save.connect(user_update, sender=User)
 post_save.connect(post_created, sender=Post)

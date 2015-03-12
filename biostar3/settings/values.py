@@ -4,7 +4,43 @@
 #
 # These are located in settings to allow overriding them.
 #
+from .celeryconfig import *
 from collections import OrderedDict
+
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = True
+TEMPLATE_DEBUG = True
+
+# What domain to set the cookies for.
+SESSION_COOKIE_DOMAIN=".lvh.me"
+
+# Site administrators. Make sure to override this.
+ADMINS = (
+    ("Biostar Community", "1@localhost.com"),
+)
+
+MANAGERS = ADMINS
+
+# Site setup.
+# lvh.me resolves to localhost and contains dotted domain name.
+SITE_ID = 1
+SITE_NAME = "Site Name"
+SITE_DOMAIN = "www.lvh.me:8080"
+
+# Which subdomains lead to the main site.
+DEFAULT_SUBDOMAINS = {'www', '127', 'localhost:8080' }
+
+# Default group name.
+DEFAULT_GROUP_NAME = "Biostar"
+
+# Default group domain. Don't change it after the site is deployed.
+DEFAULT_GROUP_DOMAIN = "www"
+
+# SECURITY WARNING: make this private.
+SECRET_KEY = "secret_key"
+
+# This must be set correctly in production.
+ALLOWED_HOSTS = ["localhost"]
 
 # Should the site send a welcome email.
 SEND_WELCOME_EMAIL = True
@@ -19,6 +55,13 @@ RECAPTCHA_SECRET_KEY = ""
 
 # Enable rate limiting.
 RATELIMIT_ENABLE = True
+
+# Which email backend to use.
+# Backends may require extra parameters.
+EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
+
+# Maximal post size in characters
+MAX_POST_SIZE = 150000
 
 # How many maximum signup accesses per minute.
 # See django-ratelimit for rates and keys.
@@ -37,10 +80,46 @@ POSTS_PER_PAGE = 10
 # How many minutes until a post view from an IP is counted again.
 POST_VIEW_INTERVAL = 5
 
-# The CSS classes associated with the Django messages framework.
-MESSAGE_TAGS = {
-    10: 'info', 20: 'info', 25: 'success', 30: 'warning', 40: 'error',
+# Html sanitization. Whitelisting the allowed html content for bleach.sanitize
+# Moderators will be allowed to use ALLOWED + TRUSTED settings.
+ALLOWED_TAGS = "p div br code pre h1 h2 h3 h4 hr span s sub sup b i img strong \
+    strike em underline super table thead tr th td tbody".split()
+TRUSTED_TAGS = "embed".split()
+
+ALLOWED_STYLES = 'color font-weight background-color width height'.split()
+TRUSTED_STYLES = 'div'.split()
+
+ALLOWED_ATTRIBUTES = {
+    '*': ['class', 'style'],
+    'a': ['href', 'rel'],
+    'img': ['src', 'alt', 'width', 'height'],
+    'table': ['border', 'cellpadding', 'cellspacing'],
+
 }
+TRUSTED_ATTRIBUTES = {
+
+}
+
+# Secret keys that allows other sites to submit content
+FEDERATION_SECRET_KEYS = {
+    "foo": ("http://www.foo.com", "Foo Site", "foo-secret"),
+    "bar": ("http://www.bar.com", "Bar Site", "bar-secret"),
+}
+
+# Which social account provider to trust with sending the correct email.
+TRUSTED_SOCIALACCOUNT_PROVIDERS = {
+    'google',
+    'github',
+    'persona',
+}
+
+def GET_SUBDOMAIN(request):
+    """
+    Used to extract the subdomain. Override if deployed under multilevel subdomains.
+    """
+    domain = request.META.get('HTTP_HOST', 'www')
+    subdomain = domain.split('.')[0]
+    return subdomain.lower()
 
 # How many groups can a regular user create.
 GROUP_COUNT_PER_USER = 3

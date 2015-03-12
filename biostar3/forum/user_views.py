@@ -61,7 +61,7 @@ def me_view(request):
     """
     A shortcut that redirects user to their account.
     """
-    return request.user.get_absolute_url()
+    return redirect(request.user.get_absolute_url())
 
 
 from allauth.account.views import LoginView

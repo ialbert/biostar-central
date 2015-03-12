@@ -57,16 +57,8 @@ def postsub_get_or_create(user, post, pref):
     """
     Gets or creates a postsub for the user
     """
-    # Shortcuts.
-    select, create = PostSub.objects.filter, PostSub.objects.create
-
-
-    anysub = select(user=user, post=post).first()
-    if anysub:
-        # There is already
-        return anysub
-    else:
-        return create(user=user, post=post, pref=pref)
+    select, create =  PostSub.objects.filter, PostSub.objects.create
+    return select(user=user, post=post).first() or create(user=user, post=post, pref=pref)
 
 def groupsub_get_or_create(user, usergroup, pref=None):
     """

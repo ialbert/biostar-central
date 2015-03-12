@@ -449,7 +449,7 @@ class PostSub(models.Model):
     post = models.ForeignKey(Post)
 
     def __unicode__(self):
-        return "PostSub: %s, %s" % (self.user_id, self.post_id)
+        return "PostSub: %s, %s: %s" % (self.user_id, self.post_id, self.get_pref_display())
 
 class Vote(models.Model):
     class Meta:
@@ -500,4 +500,7 @@ class Message(models.Model):
     def save(self, **kwargs):
         self.date = self.date or now()
         super(Message, self).save(**kwargs)
+
+    def __unicode__(self):
+        return "Message for user %s" % self.user_id
 

@@ -8,11 +8,9 @@ from .logger import LOGGING
 # This pulls in various site specific settings.
 from .values import *
 
-
 def abspath(*args):
     "Generates absolute paths."
     return os.path.abspath(os.path.join(*args))
-
 
 def get_env(name, default=''):
     "Gets values from environment variables."
@@ -22,38 +20,7 @@ def get_env(name, default=''):
         raise ImproperlyConfigured(msg)
     return value
 
-SESSION_COOKIE_DOMAIN=".lvh.me"
-
-BIOSTAR_HOME = get_env('BIOSTAR_HOME')
-DEFAULT_SUBDOMAINS = {'www', '127', 'localhost:8080', 'biostar'}
-DEFAULT_GROUP_NAME = "Biostar"
-DEFAULT_GROUP_DOMAIN = "biostar"
-
-# Site administrators. Make sure to override this.
-ADMINS = (
-    ("Biostar Community", "1@localhost.com"),
-)
-
-# SECURITY WARNING: make this private.
-# By default we use the Admin Email as secret key.
-SECRET_KEY = ADMINS[0][1]
-
-MANAGERS = ADMINS
-
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
-
-SITE_ID = 1
-SITE_NAME = "Site Name"
-
-# This resolves to localhost yet contains dotted domain name.
-SITE_DOMAIN = "www.lvh.me:8080"
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-TEMPLATE_DEBUG = True
-
-ALLOWED_HOSTS = ["localhost"]
 
 # Application definition
 INSTALLED_APPS = (
@@ -110,8 +77,6 @@ INSTALLED_APPS = (
     # 'allauth.socialaccount.providers.xing',
 )
 
-
-
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -123,13 +88,13 @@ MIDDLEWARE_CLASSES = (
     'biostar3.middleware.GlobalMiddleware',
 )
 
-
-
 ROOT_URLCONF = 'biostar3.urls'
 
 WSGI_APPLICATION = 'biostar3.wsgi.application'
 
 AUTH_USER_MODEL = 'forum.User'
+
+BIOSTAR_HOME = get_env('BIOSTAR_HOME')
 
 TEMPLATE_PATH = abspath(get_env('THEME_PATH'))
 DEFAULT_PATH = abspath(BIOSTAR_HOME, "themes", "default")
@@ -197,10 +162,9 @@ STATICFILES_FINDERS = (
     'compressor.finders.CompressorFinder',
 )
 
-# Secret keys that allow sites to submit content
-FEDERATION_SECRET_KEYS = {
-    "foo": ("http://www.foo.com", "Foo Site", "foo-secret"),
-    "bar": ("http://www.bar.com", "Bar Site", "bar-secret"),
+# The CSS classes associated with the Django messages framework.
+MESSAGE_TAGS = {
+    10: 'info', 20: 'info', 25: 'success', 30: 'warning', 40: 'error',
 }
 
 # Haystack data connection.
@@ -226,11 +190,6 @@ CACHES = {
     }
 }
 
-TRUSTED_SOCIALACCOUNT_PROVIDERS = {
-    'google',
-    'github',
-    'persona',
-}
 
 SOCIALACCOUNT_PROVIDERS = {
     'persona': {
@@ -239,33 +198,3 @@ SOCIALACCOUNT_PROVIDERS = {
     }
 }
 
-# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
-
-# Minimal and maximal post size in characters
-MAX_POST_SIZE = 150000
-
-
-# Allowed html content.
-ALLOWED_TAGS = "p div br code pre h1 h2 h3 h4 hr span s sub sup b i img strong \
-    strike em underline super table thead tr th td tbody".split()
-TRUSTED_TAGS = "embed".split()
-
-ALLOWED_STYLES = 'color font-weight background-color width height'.split()
-TRUSTED_STYLES = ''.split()
-
-ALLOWED_ATTRIBUTES = {
-    '*': ['class', 'style'],
-    'a': ['href', 'rel'],
-    'img': ['src', 'alt', 'width', 'height'],
-    'table': ['border', 'cellpadding', 'cellspacing'],
-
-}
-TRUSTED_ATTRIBUTES = ''.split()
-
-
-def GET_SUBDOMAIN(request):
-    "Used to extract the subdomain. Override if deployed under multilevel subdomains."
-    domain = request.META.get('HTTP_HOST', 'www')
-    subdomain = domain.split('.')[0]
-    return subdomain.lower()
