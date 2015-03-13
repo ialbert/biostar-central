@@ -242,9 +242,11 @@ def group_edit(func, request, pk, group=None, user=None):
         messages.error(request, "Group with id=%s does not exist." % pk)
         return error
 
-    if group.owner != user:
-        # Only group owners may edit a group.
-        messages.error(request, "Only the group owner may edit a group.")
+    perm = GroupPerm.objects.filter(user=user, usergroup=group, role=GroupPerm.ADMIN).first()
+
+    if not perm:
+        # Admin users may edit a group.
+        messages.error(request, "Only admin users may edit the group")
         return error
 
     return func(request=request, pk=None, group=group, user=user)

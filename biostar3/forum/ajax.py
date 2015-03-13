@@ -132,7 +132,7 @@ def vote_handler(request):
     return ajax_success(msg)
 
 TEMPLATE_MAPPER = dict(
-    comment_panel='widgets/comment_panel.html',
+    comment_panel='post_comment_add.html',
 )
 def load_html(request, name, pk):
     global TEMPLATE_MAPPER

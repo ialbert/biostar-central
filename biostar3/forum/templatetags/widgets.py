@@ -47,23 +47,23 @@ def group_logo_img(request):
     return group.logo.url
 
 
-@register.inclusion_tag('widgets/recent_votes.html')
+@register.inclusion_tag('recent_votes.html')
 def recent_votes(votes):
     return dict(votes=votes)
 
 
-@register.inclusion_tag('widgets/visual_editor.html')
+@register.inclusion_tag('post_visual_editor.html')
 def visual_editor(user, content=''):
     return dict(content=content, user=user)
 
 
-@register.inclusion_tag('widgets/post_unit.html', takes_context=True)
+@register.inclusion_tag('post_unit.html', takes_context=True)
 def post_unit(context, post, comments):
     request = context['request']
     return dict(post=post, comments=comments, request=request)
 
 
-@register.inclusion_tag('widgets/user_link.html')
+@register.inclusion_tag('user_link.html')
 def user_link(user):
     return dict(user=user)
 
@@ -80,45 +80,45 @@ def nicer_value(value):
     return value if value else ''
 
 
-@register.inclusion_tag('widgets/search_bar.html', takes_context=True)
+@register.inclusion_tag('search_bar.html', takes_context=True)
 def search_bar(context, page=None, action='search', placeholder="Search"):
     q = context.get('q', '')
     return dict(page=page, q=q, action=action, placeholder=placeholder)
 
 
-@register.inclusion_tag('widgets/page_bar.html', takes_context=True)
+@register.inclusion_tag('page_bar.html', takes_context=True)
 def page_bar(context, page=None):
     return dict(page=page)
 
 
-@register.inclusion_tag('widgets/action_bar.html')
+@register.inclusion_tag('post_action_bar.html')
 def action_bar(post, label="ADD COMMENT"):
     return dict(post=post, label=label)
 
 
-@register.inclusion_tag('widgets/update_bar.html')
+@register.inclusion_tag('post_update_bar.html')
 def update_bar(post):
     return dict(post=post)
 
 
-@register.inclusion_tag('widgets/message_bar.html', takes_context=True)
+@register.inclusion_tag('message_bar.html', takes_context=True)
 def message_bar(context):
     messages = context.get("messages", '')
     return dict(messages=messages)
 
 
-@register.inclusion_tag('widgets/tag_bar.html')
+@register.inclusion_tag('tag_bar.html')
 def tag_bar(post):
     return dict(post=post)
 
 
-@register.inclusion_tag('widgets/nav_bar.html', takes_context=True)
+@register.inclusion_tag('nav_bar.html', takes_context=True)
 def nav_bar(context, user):
     request = context['request']
     return dict(user=user, request=request)
 
 
-@register.inclusion_tag('widgets/user_bar.html', takes_context=True)
+@register.inclusion_tag('user_bar.html', takes_context=True)
 def user_bar(context, user):
     return dict(user=user, context=context)
 
@@ -199,7 +199,7 @@ def gravatar(user, size=80):
 
 
 # this contains the body of each comment
-COMMENT_TEMPLATE = 'widgets/comment.html'
+COMMENT_TEMPLATE = 'post_comment.html'
 COMMENT_BODY = loader.get_template(COMMENT_TEMPLATE)
 START_TAG = '<div class="indent">'
 END_TAG = "</div>"

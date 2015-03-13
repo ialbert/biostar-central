@@ -18,7 +18,7 @@ from taggit.models import TaggedItem, Tag
 
 # Biostar specific local modules.
 from . import models, query, search, auth
-from .models import Vote, Post, PostView, UserGroup, GroupSub, Message
+from .models import Vote, Post, PostView, UserGroup, GroupSub, Message, GroupPerm
 from biostar3.context import reset_cache
 
 logger = logging.getLogger('biostar')
@@ -196,6 +196,8 @@ def group_list(request):
     Generates the list of groups.
     """
     user = request.user
+    group = request.group
+    group.role = GroupPerm.objects.filter(user=user, usergroup=group, role=GroupPerm.ADMIN)
 
     template_name = "group_list.html"
 
@@ -215,10 +217,14 @@ def group_list(request):
                                         object_list=groups, per_page=25)
     page = paginator.curr_page()
 
-    for group in page.object_list:
-        group.subscription = sub_map.get(group, "None")
+    for g in page.object_list:
+        g.editable = (group.owner == user)
+        g.subscription = sub_map.get(group, "None")
 
-    context = dict(page=page, public=page.object_list)
+    # Current group permissions
+    perms = GroupPerm.objects.filter(usergroup=group).select_related("user")
+
+    context = dict(page=page, public=page.object_list, group=group, perms=perms)
 
     return render(request, template_name, context)
 

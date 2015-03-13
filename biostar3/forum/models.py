@@ -145,6 +145,7 @@ class UserGroup(models.Model):
             # the first usergroup.
             if not GroupSub.objects.filter(user=self.owner, usergroup=self):
                 GroupSub.objects.create(user=self.owner, usergroup=self)
+                GroupPerm.objects.create(user=self.owner, usergroup=self, role=GroupPerm.ADMIN)
 
     def __unicode__(self):
         return "Usergroup: %s" % self.name
@@ -154,11 +155,14 @@ class GroupPerm(models.Model):
     Represents a special permission for a user on a group.
     """
 
+    class Meta:
+        unique_together = (("user", "usergroup"),)
+
     MODERATE, ADMIN = range(2)
-    TYPE_CHOICES = [(MODERATE, "Write"), (ADMIN, "Admin")]
+    ROLES = [(MODERATE, "Moderator"), (ADMIN, "Admin")]
     user = models.ForeignKey(settings.AUTH_USER_MODEL, db_index=True)
-    group = models.ForeignKey(UserGroup)
-    type = models.IntegerField(choices=TYPE_CHOICES, default=MODERATE)
+    usergroup = models.ForeignKey(UserGroup)
+    role = models.IntegerField(choices=ROLES, default=MODERATE)
 
 
 class Profile(models.Model):
@@ -447,6 +451,9 @@ class PostSub(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL)
     pref = models.IntegerField(choices=settings.SUBSCRIPTION_CHOICES, default=settings.SUBSCRIPTION_DEFAULT)
     post = models.ForeignKey(Post)
+
+    class Meta:
+        unique_together = (("user", "post"),)
 
     def __unicode__(self):
         return "PostSub: %s, %s: %s" % (self.user_id, self.post_id, self.get_pref_display())

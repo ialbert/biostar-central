@@ -45,7 +45,7 @@ function add_comment(elem) {
     }
     var post_id = elem.attr('data-post_id')
     var container = elem.parent().parent()
-    var panel = $('<div class="row" id="comment_panel"></div>').load("/x/load/comment_panel/" + post_id + "/",
+    var panel = $('<div class="row" id="comment_panel"></div>').load("/site/x/load/comment_panel/" + post_id + "/",
         function () {
             $('#comment_area').focus();
         }
@@ -82,7 +82,7 @@ function vote_handler(elem, post_id, vote_type) {
     // Pre-emptitively toggle the button to provide feedback
     toggle_state(elem, vote_type)
 
-    $.ajax('/x/vote/', {
+    $.ajax('/site/x/vote/', {
         type: 'POST',
         dataType: 'json',
         data: {post_id: post_id, vote_type: vote_type},

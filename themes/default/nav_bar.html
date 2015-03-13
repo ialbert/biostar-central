@@ -8,9 +8,8 @@
         {% if request.group.logo %}
             <a href="{% url 'home' %}"><img src="{{ request.group.logo.url }}"></a>
         {% else %}
-            <div class="text">
-            	<div>Group</div>
-                <div><h5><a href="{% url 'home' %}">{{ request.group.name }}</a></h5></div>
+            <div class="text_logo">
+                <a href="{% url 'home' %}"><i class="fa fa-group"></i> {{ request.group.name }}</a>
             </div>
         {% endif %}
     </div>

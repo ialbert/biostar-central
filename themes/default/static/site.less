@@ -187,10 +187,6 @@ body {
 
 }
 
-h5 {
-  text-align: center;
-}
-
 /* Post detail */
 #post_detail {
 
@@ -314,6 +310,24 @@ h5 {
   background-color: #999
 }
 
+.modbox {
+  padding: 1ex;
+  float: left;
+  margin: 0ex 1ex 1ex 0ex;
+  background-color: #ECECEC;
+  border-radius: 4px;
+
+}
+
+.title {
+  font-size: 2.4rem;
+  line-height: 1.5;
+  letter-spacing: -.05rem;
+  font-weight: 300;
+  margin-bottom: 1ex;
+  margin-top: 1ex;
+}
+
 #page_title {
   float: left;
   padding: 5px 10px 0px 0px;
@@ -421,8 +435,16 @@ ul.dropdown {
 /* Navigation */
 #logo {
   float: left;
-  .text {
-    padding-top: 1ex;
+
+  .text_logo {
+    //width: 100%;
+    background-color: @ALERT_SUCCESS;
+    margin-top: 1ex;
+    padding: 1em;
+    display: inline-block;
+    border-radius: 4px;
+    font-size: 1.2em;
+    //font-weight: 300;
   }
 }
 
@@ -439,10 +461,11 @@ ul.dropdown {
 
 #votelist {
   .item {
-    padding:1ex;
+    padding: 1ex;
     font-size: larger;
   }
 }
+
 .message.glow {
   background-color: @ALERT_SUCCESS;
 }

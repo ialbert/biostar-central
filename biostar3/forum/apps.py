@@ -88,12 +88,12 @@ def post_migrate_tasks(sender, **kwargs):
     # All admin users need to have admin group level permissions.
     for user in models.User.objects.filter(type=User.ADMIN).exclude(pk=admin.id):
         GroupSub.objects.create(user=user, usergroup=meta_group)
-        GroupPerm.objects.get_or_create(group=default_group, user=user, type=GroupPerm.ADMIN)
+        GroupPerm.objects.get_or_create(usergroup=default_group, user=user, role=GroupPerm.ADMIN)
 
     # All moderator users need to have moderator level permissions.
     for user in models.User.objects.filter(type=User.MODERATOR).exclude(pk=admin.id):
         GroupSub.objects.create(user=user, usergroup=meta_group)
-        GroupPerm.objects.get_or_create(group=default_group, user=user, type=GroupPerm.MODERATE)
+        GroupPerm.objects.get_or_create(usergroup=default_group, user=user, role=GroupPerm.MODERATE)
 
     # Add group info to every user.
     logger.info("adding groups to users")

@@ -8,13 +8,21 @@
 {% block body %}
 
     <div class="row">
+        {% user_bar user %}
+    </div>
+    <div class="row">
         <div class="nine columns">
 
-            {% user_bar user %}
 
-            <div class="row" style="padding-top:1em">
+            <div class="row">
 
-                <h3>Groups</h3>
+                <div class="title">
+                    Current group: <b>{{ group.name }}</b>
+                    {% if group.role %}
+                        | <a href="{% url "group_edit" pk=group.id %}">edit</a>
+                        | <a href="{% url "group_manage" pk=group.id %}">manage</a>
+                    {% endif %}
+                </div>
 
                 <div>
                     <p>
@@ -60,14 +68,12 @@
                                 </div>
                                 <div>
                                     Owner: <a href="{{ group.owner.get_absolute_url }}">{{ group.owner.name }} </a>
-                                    {% if group.editable %}
-                                        &bull; <a href="{% url "group_edit" pk=group.id %}">Edit Your Group</a></li>
-                                    {% endif %}
+
                                 </div>
 
                                 <div>
                                     Current subscription: {{ group.subscription }} | <a
-                                href="{% url "group_subscribe" pk=group.id %}">Change Subscription</a>
+                                href="{% url "group_subscribe" pk=group.id %}">Change subscription</a>
                                 </div>
 
 
@@ -85,6 +91,18 @@
 
         <div class="three columns recent_votes">
             {% message_bar %}
+
+            <div class="title">
+                Current Group Roles
+            </div>
+
+            {% for perm in perms %}
+                <div style="padding-bottom:1ex;">
+                    <a href="{{ user.get_absolute_url }}">
+                        {{ perm.user.name }}</a> &bull;  {{ perm.user.score|bignum }}
+                    <div>{{ perm.get_role_display }}</div>
+                </div>
+            {% endfor %}
         </div>
 
     </div>

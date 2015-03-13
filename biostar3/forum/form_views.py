@@ -3,14 +3,14 @@ __author__ = 'ialbert'
 from django import forms
 from django.conf import settings
 from django.contrib import messages
-from django.core.urlresolvers import reverse, reverse_lazy
+from django.core.urlresolvers import reverse
 from django.core.exceptions import ValidationError
 from django.contrib.auth.decorators import login_required
-from .models import Post, UserGroup, GroupSub
+from .models import Post, UserGroup, GroupSub, GroupPerm
 from . import auth
 from django.shortcuts import render, redirect
 from django.contrib.sites.models import Site
-from functools import wraps
+from django.db.models import Q, F
 
 import logging
 from django.contrib.auth import get_user_model
@@ -327,6 +327,107 @@ def group_edit(request, pk=None, group=None, user=None):
         group.save()
 
     return redirect(reverse("group_list"))
+
+
+class GroupManager(forms.Form):
+    MODERATE, ADMIN, REVOKE, KEEP = range(4)
+    roles = [
+        (KEEP, "Keep current"),
+        (MODERATE, "Moderator"),
+        (ADMIN, "Admin"),
+        (REVOKE, "Revoke"),
+    ]
+    role = forms.TypedChoiceField(choices=roles, coerce=int)
+    user_id = forms.IntegerField(widget=forms.HiddenInput)
+
+@login_required
+@auth.group_edit
+def group_permission(request, pk=None, group=None, user=None):
+
+    back = redirect("group_manage",pk=group.id)
+
+    form = GroupManager(request.POST)
+
+    if not form.is_valid():
+        messages.error(request, "Invalid form submission")
+        return back
+
+    user_id = form.cleaned_data.get('user_id', '')
+    role = form.cleaned_data.get('role', '')
+
+    target = User.objects.filter(pk=user_id).first()
+
+    if not target:
+        messages.error(request, "User does not exists")
+        return back
+
+    if target == group.owner:
+        messages.error(request, "Cannot modify group owner")
+        return back
+
+    perm = GroupPerm.objects.filter(user=target, usergroup=group).first()
+
+    # Admin related changes.
+    deny1 = (perm and perm.role == GroupPerm.ADMIN) and (user != group.owner)
+    deny2 = (role == GroupManager.ADMIN) and (user != group.owner)
+
+    if deny1 or deny2:
+        messages.error(request, "Only group owners can modify Admin roles")
+        return back
+
+    create = GroupPerm.objects.create
+    select = GroupPerm.objects.filter(user=target, usergroup=group)
+
+    if role == GroupManager.REVOKE:
+        select.delete()
+        messages.info(request, "Revoked roles from %s" % target.name)
+        return back
+
+    if role == GroupManager.MODERATE:
+        select.delete()
+        perm = create(user=target, usergroup=group, role=GroupPerm.MODERATE)
+        messages.info(request, "Addeded Moderator role to %s" % target.name)
+        return back
+
+    if role == GroupManager.ADMIN:
+        select.delete()
+        perm = create(user=target, usergroup=group, role=GroupPerm.ADMIN)
+        messages.info(request, "Addeded Admin role to %s" % target.name)
+        return back
+
+    return back
+
+
+@login_required
+@auth.group_edit
+def group_manage(request, pk=None, group=None, user=None):
+    """
+    Add moderators and admins to a group.
+    This form works differently. On submission it stays on the same page to support the main use case.
+    """
+    template_name = "group_manage.html"
+
+    # Get methods get the form and return.
+
+    query = request.REQUEST.get("query", '')
+    users = []
+
+    if query:
+        # Find users matching the query
+        cond = Q(name__icontains=query) | Q(email__icontains=query)
+        users = User.objects.filter(cond)[:10]
+        for u in users:
+            # Add a form field to each user.
+            initial = dict(user_id=u.id, query=query)
+            u.form = GroupManager(initial=initial)
+
+    # Get all the group permissions
+    perms = GroupPerm.objects.filter(usergroup=group).order_by("-user__last_login")
+    context = dict(query=query, group=group, users=users, perms=perms)
+
+    group.curr_role = GroupPerm.objects.filter(usergroup=group, user=user).first().get_role_display()
+
+    return render(request, template_name, context)
 
 
 class GroupSubscription(forms.Form):

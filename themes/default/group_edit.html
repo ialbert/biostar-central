@@ -10,7 +10,10 @@
         <div class="nine columns">
             <div class="row" style="padding-top:1em">
                 <div>
-                    <h3>{{ title }}</h3>
+                    <div class="title">Edit Group</div>
+                    <p>
+                        Create or edit your group.
+                    </p>
 
 
                     <form action="{{ action }}" method="post" enctype="multipart/form-data">
@@ -31,5 +34,10 @@
                 </div>
             </div>
         </div>
+
+        <div class="three columns recent_votes">
+            {% message_bar %}
+        </div>
+
     </div>
 {% endblock %}

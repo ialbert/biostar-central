@@ -35,14 +35,34 @@ urlpatterns = patterns('',
     # User view.
     url(r'^u/(?P<pk>\d+)/$', user_views.user_view, name="user_view"),
 
+    # The list of users.
+    url(r'^u/list/$', user_views.user_list, name="user_list"),
+
+    #
+    # Site specific urls. The may be blocked via robots.txt
+    #
+    # Create new content: answer, comments
+    url(r'^site/new/post/$', form_views.create_toplevel_post, name="new_post"),
+    url(r'^site/new/answer/(?P<pk>\d+)/$', form_views.create_answer, name="new_answer"),
+    url(r'^site/new/comment/(?P<pk>\d+)/$', form_views.create_comment, name="new_comment"),
+
+    # Edit existing posts.
+    url(r'^site/edit/post/(?P<pk>\d+)/$', form_views.post_edit, name="post_edit"),
+
+    # Vote submission handler.
+    url(r'^site/x/vote/$', ajax.vote_handler, name="vote_submit"),
+
+    # Loads a template via ajax.
+    url(r'^site/x/load/(?P<name>\w+)/(?P<pk>\d+)/$', ajax.load_html, name="load_html"),
+
     # Posts created by a user.
-    url(r'^site/all/posts/created/by/user/(?P<pk>\d+)/$', post_views.posts_by_user, name="posts_by_user"),
+    url(r'^site/all/posts/created/by/u/(?P<pk>\d+)/$', post_views.posts_by_user, name="posts_by_user"),
 
     # Upvoted posts created by a user
-    url(r'^site/upvoted/posts/created/by/(?P<pk>\d+)/$', post_views.upvoted_posts, name="upvoted_posts"),
+    url(r'^site/upvoted/posts/created/by/u/(?P<pk>\d+)/$', post_views.upvoted_posts, name="upvoted_posts"),
 
     # A list of votes for a user.
-    url(r'^site/votes/for/(?P<pk>\d+)/$', post_views.vote_list, name="vote_list"),
+    url(r'^site/all/votes/for/u/(?P<pk>\d+)/$', post_views.vote_list, name="vote_list"),
 
     # Posts created by a user.
     url(r'^site/my/bookmarks/$', post_views.my_bookmarks, name="my_bookmarks"),
@@ -50,6 +70,9 @@ urlpatterns = patterns('',
     # User messages.
     url(r'^site/my/messages/$', post_views.my_messages, name="my_messages"),
 
+    #
+    # Group related handlers
+    #
     # Group list.
     url(r'^g/list/$', post_views.group_list, name="group_list"),
 
@@ -59,7 +82,7 @@ urlpatterns = patterns('',
     # Group subscriptions
     url(r'^g/subscribe/(?P<pk>\S+)/$', form_views.group_subscribe, name="group_subscribe"),
 
-    # Group redirect.
+    # Group login redirect. Used when redirecting subdomain login.
     url(r'^g/login/(?P<pk>\S+)$', post_views.group_login, name="group_login"),
 
     # Group create.
@@ -68,30 +91,20 @@ urlpatterns = patterns('',
     # Group edit.
     url(r'^g/edit/(?P<pk>\d+)/$', form_views.group_edit, name="group_edit"),
 
+    # Group manage.
+    url(r'^g/manage/(?P<pk>\d+)/$', form_views.group_manage, name="group_manage"),
+
+    # Group change premissions
+    url(r'^g/permission/(?P<pk>\d+)/$', form_views.group_permission, name="group_permission"),
+
+
+    #
+    # Tag specific handlers
+    #
     # Tag list.
     url(r'^t/$', post_views.tag_list, name="tag_list"),
 
     # Filter posts by tag.
     url(r'^t/(?P<name>\S+)/$', post_views.tag_filter, name="tag_filter"),
-
-
-    # The list of users.
-    url(r'^user/list/$', user_views.user_list, name="user_list"),
-
-
-    # Create new content: answer, comments
-    url(r'^new/post/$', form_views.create_toplevel_post, name="new_post"),
-    url(r'^new/answer/(?P<pk>\d+)/$', form_views.create_answer, name="new_answer"),
-    url(r'^new/comment/(?P<pk>\d+)/$', form_views.create_comment, name="new_comment"),
-
-    # Edit existing posts.
-    url(r'^edit/post/(?P<pk>\d+)/$', form_views.post_edit, name="post_edit"),
-
-    # Vote submission handler.
-    url(r'^x/vote/$', ajax.vote_handler, name="vote_submit"),
-
-    # Loads a template via ajax.
-    url(r'^x/load/(?P<name>\w+)/(?P<pk>\d+)/$', ajax.load_html, name="load_html"),
-
 
 )
