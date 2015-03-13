@@ -10,15 +10,24 @@
                 <div id="userbar">
 
                     <div class="item">
-                        <a href="#"><i class="fa fa-caret-down"></i> ALL</a>
+                        <ul class="dropdown">
+                            <a href="{% url "home" %}"><i class="fa fa-caret-down"></i> ALL</a>
+                            <ul class="items">
+                                <li>
+                                    <a href="#">First menu itme</a>
+                                </li>
+                            </ul>
+                        </ul>
+
                     </div>
 
                     <div class="item lg">
-                        <a href="#"><i class="fa fa-question-circle"></i> OPEN</a>
+                        <a href="{% url "unanswered" %}"><i class="fa fa-question-circle"></i> OPEN</a>
                     </div>
 
                     <div class="item tooltip" title="Messages" data-tooltip-direction="top">
-                        <a class="{% glow c.mesg_count %}" href="{%  url "my_messages" %}"><i class="fa fa-envelope"></i> {{ c.mesg_count }}</a>
+                        <a class="{% glow c.mesg_count %}" href="{% url "my_messages" %}"><i
+                        class="fa fa-envelope"></i> {{ c.mesg_count }}</a>
                     </div>
 
                     <div class="item tooltip" title="Your upvoted posts" data-tooltip-direction="top">

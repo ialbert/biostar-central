@@ -14,6 +14,9 @@ urlpatterns = patterns('',
     # List of posts.
     url(r'^p/list/$', post_views.post_list, name='post_list'),
 
+    # List of unanswered questions.
+    url(r'^p/unanswered/$', post_views.unanswered, name='unanswered'),
+
     # Renders search results.
     url(r'^site/search/$', post_views.search_results, name='search'),
 

@@ -59,6 +59,13 @@ def tag_filter(request, name):
     messages.info(request, 'Filtering for tags: %s' % name)
     return post_list(request, posts=posts)
 
+def unanswered(request):
+    """
+    Returns a list of posts filtered by a tag name.
+    """
+    posts = query.get_toplevel_posts(user=request.user, group=request.group).filter(type=Post.QUESTION, reply_count=0)
+    messages.info(request, 'Unanswered questions')
+    return post_list(request, posts=posts)
 
 @auth.valid_user
 def posts_by_user(request, pk, target=None):
