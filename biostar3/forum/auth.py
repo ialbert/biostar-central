@@ -41,7 +41,7 @@ def create_toplevel_post(data, user, group):
 
     # Create the post.
     post = Post.objects.create(content=content, title=title,
-                               author=user, type=type, group=group)
+                               author=user, type=type, usergroup=group)
     # Set the tags on the post
     post.tags.set(*tags)
 
@@ -53,14 +53,16 @@ def create_toplevel_post(data, user, group):
 
     return post
 
-def postsub_get_or_create(user, post, pref):
+
+def postsub_get_or_create(user, post, sub_type):
     """
     Gets or creates a postsub for the user
     """
-    select, create =  PostSub.objects.filter, PostSub.objects.create
-    return select(user=user, post=post).first() or create(user=user, post=post, pref=pref)
+    select, create = PostSub.objects.filter, PostSub.objects.create
+    return select(user=user, post=post).first() or create(user=user, post=post, type=sub_type)
 
-def groupsub_get_or_create(user, usergroup, pref=None):
+
+def groupsub_get_or_create(user, usergroup, sub_type=None):
     """
     Adds a group sub if it does not exist already.
     """
@@ -69,24 +71,28 @@ def groupsub_get_or_create(user, usergroup, pref=None):
     select, create = GroupSub.objects.filter, GroupSub.objects.create
 
     # Remove the group subscription.
-    if pref == settings.LEAVE_GROUP:
+    if sub_type == settings.LEAVE_GROUP:
         return select(user=user, usergroup=usergroup).delete()
 
     # Is there any subscription for the user and group.
-    anysub = select(user=user, usergroup=usergroup).first()
+    exists = select(user=user, usergroup=usergroup).first()
 
-    # Check for any subscription or found the specific preference.
-    if (anysub and not pref) or (anysub and anysub.pref==pref):
-        return anysub
+    # If there is a subscription and any type will do.
+    if exists and not sub_type:
+        return exists
 
-    if anysub:
+    # If exists and it is of the requested type.
+    if exists and exists.type == sub_type:
+        return exists
+
+    if exists:
         # There is a subscription but needs changing.
-        anysub.pref = pref
-        anysub.save()
-        return anysub
+        exists.type = sub_type
+        exists.save()
+        return exists
     else:
         # Create a new subscription
-        newsub = create(user=user, usergroup=usergroup, pref=settings.DEFAULT_MESSAGES)
+        newsub = create(user=user, usergroup=usergroup, type=settings.DEFAULT_MESSAGES)
         return newsub
 
 
@@ -101,7 +107,7 @@ def read_access_post(user, post):
     A user may read the post if the post is in a public group or
     the user is part of the group that the post was made in.
     """
-    return post.root.group.public or user.groupsubs.filter(id=post.root.group.id).exists()
+    return post.root.usergroup.public or user.groupsubs.filter(id=post.userroot.group.id).exists()
 
 
 def write_access_post(user, post):
@@ -131,6 +137,9 @@ def valid_user(func, request, pk, target=None):
     """
     Valid user check.
     """
+
+    if int(pk) == 0:
+        return redirect(reverse("account_login"))
 
     target = User.objects.filter(pk=pk).first()
 

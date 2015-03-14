@@ -51,22 +51,12 @@ class ClientTests(TestCase):
         if pattern:
             result = re.search(pattern, r.content, re.IGNORECASE)
             if not result:
-                print "Unable to find %s pattern in content." % (pattern)
+                print "*** unable to find %s in content." % (pattern)
                 self.assertTrue(result)
 
         return r
 
-    def test_navigation(self):
-        """
-        Tests client navigation.
-        """
-
-        c = Client(HTTP_HOST=HOST)
-        r = self.get(c, "home")
-        r = self.post(c, "search", data={'q': 'blast'}, follow=True)
-
-
-    def make_post(self, client, user, parent=None, post_type=None):
+    def create_post(self, client, user, parent=None, post_type=None):
 
         post_type = Post.QUESTION
 
@@ -104,6 +94,51 @@ class ClientTests(TestCase):
         self.assertTrue(user)
         return user
 
+    def test_anonymous_navigation(self):
+        """
+        Tests client navigation.
+        """
+
+        c = Client(HTTP_HOST=HOST)
+
+        urls = "home user_list tag_list group_list unanswered".split()
+        for url in urls:
+            r = self.get(c, url)
+
+        r = self.post(c, "search", data={'q': 'blast'}, follow=True)
+
+    def test_user_navigation(self):
+        c = Client(HTTP_HOST=HOST)
+
+        user = self.make_user(c)
+
+        # Check a few access pages.
+        urls = "home me group_list my_bookmarks my_messages".split()
+        for url in urls:
+            r = self.get(c, url, follow=True, pattern=user.name)
+
+    def test_groups(self):
+        equal = self.assertEqual
+        true = self.assertTrue
+
+
+        c = Client(HTTP_HOST=HOST)
+        user = self.make_user(c)
+        self.get(c, "group_list", follow=True)
+
+        name = faker.domain_name()
+        domain = faker.domain_word()
+        info = faker.sentence()
+
+        data = dict(name=name, domain=domain, description=info, public=True)
+
+        r = self.post(c, "group_create", data=data, pattern=name, follow=True)
+
+        # Creating a group redirects to it.
+        final_url = r.redirect_chain[1][0]
+        true(domain in final_url)
+
+
 
     def test_content(self):
         """
@@ -116,9 +151,9 @@ class ClientTests(TestCase):
         # Sign up some users. Each makes a post.
         for step in range(10):
             user = self.make_user(c)
-            post = self.make_post(c, user=user)
+            post = self.create_post(c, user=user)
 
-        for step in range(10):
+        for step in range(25):
             post = add_random_content()
             self.get(c, "post_view", kwargs=dict(pk=post.id), follow=True)
 
@@ -129,7 +164,7 @@ class ClientTests(TestCase):
         EQ, TRUE = self.assertEqual, self.assertTrue
 
         c = Client(HTTP_HOST=HOST)
-        r = self.get(c, "account_login", pattern='social authentication')
+        r = self.get(c, "account_login", pattern='simple login')
 
         # Sign up a user.
         jane = self.make_user(c)
@@ -137,14 +172,12 @@ class ClientTests(TestCase):
         # User gets a welcome email.
         EQ(len(mail.outbox), 1)
 
-        # Check a few access pages.
-        for patt in "new_post home me".split():
-            r = self.get(c, patt, follow=True)
+
 
         before = after = len(mail.outbox)
 
         # Create a question.
-        question = self.make_post(client=c, user=jane, parent=None)
+        question = self.create_post(client=c, user=jane, parent=None)
 
         # No emails should be sent at this point.
         EQ(before, after)
@@ -156,7 +189,7 @@ class ClientTests(TestCase):
         joe = self.make_user(c)
 
         before = len(mail.outbox)
-        answer = self.make_post(client=c, user=joe, parent=question)
+        answer = self.create_post(client=c, user=joe, parent=question)
 
         # Jane gets a message.
         EQ(Message.objects.all().count(), 1)

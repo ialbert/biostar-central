@@ -117,11 +117,26 @@ TRUSTED_SOCIALACCOUNT_PROVIDERS = {
 
 def GET_SUBDOMAIN(request):
     """
-    Used to extract the subdomain. Override if deployed under multilevel subdomains.
+    Used to extract the subdomain.
+    The front end server must correctly forward the HTTP_HOST header.
     """
     domain = request.META.get('HTTP_HOST', 'www')
     subdomain = domain.split('.')[0]
     return subdomain.lower()
+
+# The value, url pairs that show up
+# in the shortcuts widget. The name may
+# contain html.
+DEFAULT_SHORTCUTS = [
+    # Item name, Item URL
+    ("News", "/t/news/"),
+    ("Jobs", "/t/jobs/"),
+    ("RNA-Seq", "/t/rnaseq/"),
+    ("Assembly", "/t/assembly/"),
+    ("All tags", "/t/"),
+    ("<b>Your Account</b>", "/site/me/"),
+    ("<b>Edit Account</b>", "/site/me/edit/"),
+    ]
 
 # How many groups can a regular user create.
 GROUP_COUNT_PER_USER = 3
@@ -209,7 +224,7 @@ MESSAGE_CHOICES = [
     (LEAVE_GROUP, "Leave Group"),
 ]
 
-MESSAGE_EMAIL_PREFS = {
+EMAIL_MESSAGE_TYPES = {
     EMAIL_TRACKER, MAILING_LIST_MESSAGES,
     }
 

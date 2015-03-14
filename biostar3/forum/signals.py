@@ -48,10 +48,10 @@ def post_created(sender, instance, created, **kwargs):
 
         # Subscriptions will apply relative to the root.
         # Get or add the group subscription for the user.
-        groupsub = auth.groupsub_get_or_create(user=instance.author, usergroup=instance.root.group)
+        groupsub = auth.groupsub_get_or_create(user=instance.author, usergroup=instance.root.usergroup)
 
         # Get or add the post subscription for the user.
-        postsub = auth.postsub_get_or_create(user=instance.author, post=instance.root, pref=groupsub.pref)
+        postsub = auth.postsub_get_or_create(user=instance.author, post=instance.root, sub_type=groupsub.type)
 
         # Route the message creation via celery if necessary.
         if settings.CELERY_ENABLED:

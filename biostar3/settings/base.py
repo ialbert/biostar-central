@@ -124,7 +124,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "allauth.socialaccount.context_processors.socialaccount",
 
     # Biostar specific context.
-    'biostar3.context.shortcuts',
+    'biostar3.context.extras',
 )
 
 # Internationalization

@@ -83,7 +83,7 @@ def post_migrate_tasks(sender, **kwargs):
 
     # Update all toplevel posts with no groups to have the default group.
     logger.info("adding groups to posts")
-    Post.objects.filter(type__in=Post.TOP_LEVEL, group=None).update(group=default_group)
+    Post.objects.filter(type__in=Post.TOP_LEVEL, usergroup=None).update(usergroup=default_group)
 
     # All admin users need to have admin group level permissions.
     for user in models.User.objects.filter(type=User.ADMIN).exclude(pk=admin.id):
@@ -97,7 +97,6 @@ def post_migrate_tasks(sender, **kwargs):
 
     # Add group info to every user.
     logger.info("adding groups to users")
-
     def add_groups():
         for user in models.User.objects.all().exclude(pk=admin.id):
             yield GroupSub(user=user, usergroup=default_group)

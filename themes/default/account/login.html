@@ -14,12 +14,14 @@
         </div>
         <div class="six columns">
             <div class="row">
-                <h4 align="center">{% trans 'Social Authentication' %}</h4>
+                <div class="title" align="center">{% trans 'Simple Login' %}</div>
 
                 {% if socialaccount.providers %}
                     <div>
-                        A simplest way to log into the site is to click the name of an authentication provider.
-                        This is for authentication/email only. We don't access any other information.
+                        A simplest way to log into the site is to click
+                        the name of an authentication provider. We only
+                        use the provider to log you in.
+                        We don't ask for any other permission.
                     </div>
 
                     <div style="margin-top:1em; font-size: larger;">
@@ -37,7 +39,7 @@
 
             <div class="row">
 				{%  message_bar %}
-                <h4 align="center">{% trans 'Email Authentication' %}</h4>
+                <div class="title" align="center">{% trans 'Email Login' %}</div>
                 Users may create an account and log with with email.
                 <b>Sign In</b> or <b>Sign Up</b> via the form below. You may also
             	<a href="{% url 'account_reset_password' %}">reset your password</a> if you have forgotten it.

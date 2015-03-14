@@ -83,6 +83,8 @@ class GlobalMiddleware(object):
         # Ensures that requests have all the information needed.
         user = request.user
         if not user.is_authenticated():
+            user.id = 0
+            user.name = "Anonymous"
             user.is_moderator = user.is_admin = False
 
         # Set the group based on subdomain on the current request.

@@ -202,21 +202,33 @@ def group_list(request):
     """
     Generates the list of groups.
     """
-    user = request.user
-    group = request.group
-    group.role = GroupPerm.objects.filter(user=user, usergroup=group, role=GroupPerm.ADMIN)
-
     template_name = "group_list.html"
 
-    cond = Q(public=True)
-    sub_map = {}
+    user, group = request.user, request.group
+
+
+
+
     if user.is_authenticated():
-        # I wonder if this could be done in one annotated query
-        subs = GroupSub.objects.filter(user=user)
-        for sub in subs:
-            sub_map[sub.usergroup] = sub.get_pref_display()
-        ids = [sub.usergroup_id for sub in subs]
-        cond = cond | Q(id__in=ids)
+        # See if the user has permission to the current group.
+        curr_perm = GroupPerm.objects.filter(user=user, usergroup=group, role=GroupPerm.ADMIN).first()
+
+        # Find all group subscriptions for the user.
+        sub_list = GroupSub.objects.filter(user=user)
+
+        # Turn into a dictionary for fast lookup
+        sub_map = dict( (s.usergroup, s) for s in sub_list)
+
+        # Add all groups to the filtering condition
+        ids = [sub.usergroup_id for sub in sub_list]
+        cond = Q(public=True) | Q(id__in=ids)
+    else:
+        curr_perm = None
+        sub_map = {}
+        cond = Q(public=True)
+
+    # Decorate the current group with a role attribute.
+    group.curr_perm = curr_perm
 
     groups = UserGroup.objects.filter(cond).select_related("owner")
 
@@ -225,8 +237,9 @@ def group_list(request):
     page = paginator.curr_page()
 
     for g in page.object_list:
-        g.editable = (group.owner == user)
-        g.subscription = sub_map.get(group, "None")
+        g.editable = (g.owner == user)
+        sub = sub_map.get(g)
+        g.subscription = sub.get_type_display() if sub else "None"
 
     # Current group permissions
     perms = GroupPerm.objects.filter(usergroup=group).select_related("user")

@@ -256,7 +256,7 @@ class Post(models.Model):
     author = models.ForeignKey(settings.AUTH_USER_MODEL)
 
     # The group that this post belongs to.
-    group = models.ForeignKey(UserGroup, null=True, blank=True)
+    usergroup = models.ForeignKey(UserGroup, null=True, blank=True)
 
     # The user that edited the post most recently.
     lastedit_user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='editor', null=True)
@@ -399,7 +399,6 @@ class PostView(models.Model):
     date = models.DateTimeField(auto_now=True)
 
 
-
 class ReplyToken(models.Model):
     """
     Connects a user and a post to a unique token.
@@ -437,8 +436,8 @@ class GroupSub(models.Model):
         unique_together = (("user", "usergroup"),)
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL)
-    pref = models.IntegerField(choices=settings.SUBSCRIPTION_CHOICES, default=settings.SUBSCRIPTION_DEFAULT)
     usergroup = models.ForeignKey(UserGroup)
+    type = models.IntegerField(choices=settings.SUBSCRIPTION_CHOICES, default=settings.SUBSCRIPTION_DEFAULT)
 
     def __unicode__(self):
         return "GroupSub of %s to %s" % (self.user_id, self.usergroup_id)
@@ -449,8 +448,8 @@ class PostSub(models.Model):
     Keeps track of subscriptions by users to posts.
     """
     user = models.ForeignKey(settings.AUTH_USER_MODEL)
-    pref = models.IntegerField(choices=settings.SUBSCRIPTION_CHOICES, default=settings.SUBSCRIPTION_DEFAULT)
     post = models.ForeignKey(Post)
+    type = models.IntegerField(choices=settings.SUBSCRIPTION_CHOICES, default=settings.SUBSCRIPTION_DEFAULT)
 
     class Meta:
         unique_together = (("user", "post"),)

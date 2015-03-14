@@ -432,7 +432,7 @@ def group_manage(request, pk=None, group=None, user=None):
 
 class GroupSubscription(forms.Form):
     choices = settings.MESSAGE_CHOICES
-    pref = forms.TypedChoiceField(choices=choices, coerce=int)
+    type = forms.TypedChoiceField(choices=choices, coerce=int)
 
 
 @login_required
@@ -446,7 +446,7 @@ def group_subscribe(request, pk, group=None, user=None):
     if request.method == "GET":
         # Get methods get the form and return.
         sub = GroupSub.objects.filter(usergroup=group, user=user).first()
-        initial = dict(pref=sub.pref) if sub else dict()
+        initial = dict(type=sub.type) if sub else dict()
         form = GroupSubscription(initial=initial)
         context = dict(form=form, group=group)
         return render(request, template_name, context)
@@ -459,9 +459,9 @@ def group_subscribe(request, pk, group=None, user=None):
             context = dict(form=form, group=group)
             return render(request, template_name, context)
 
-        pref = form.cleaned_data['pref']
+        sub_type = form.cleaned_data['type']
 
         # Update group subscription.
-        auth.groupsub_get_or_create(user=user, usergroup=group, pref=pref)
+        auth.groupsub_get_or_create(user=user, usergroup=group, sub_type=sub_type)
 
     return redirect("group_list")

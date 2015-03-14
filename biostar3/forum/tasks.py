@@ -26,7 +26,7 @@ def create_messages(post):
     # The context that will be passed to the post create template.
     context = dict(post=post, site=site, scheme=settings.SITE_SCHEME,
                    post_url=post_url, user_url=user_url,
-                   slug=post.root.group.domain)
+                   slug=post.root.usergroup.domain)
 
     # This is the body of the message that gets created.
     em = mailer.EmailTemplate("post_created_message.html", data=context)
@@ -62,11 +62,11 @@ def create_messages(post):
 
         # Find everyone that could get an email.
         # This could (probably) be done in a query but the logic gets a little complicated.
-        subs = select(post=root, pref__in=settings.MESSAGE_EMAIL_PREFS).exclude(user=root.author).select_related(
+        subs = select(post=root, type__in=settings.EMAIL_MESSAGE_TYPES).exclude(user=root.author).select_related(
             "user").all()
 
         # Check if author has default messaging.
-        smart_sub = select(post=root, user=root.author, pref=settings.DEFAULT_MESSAGES).select_related("user").first()
+        smart_sub = select(post=root, user=root.author, type=settings.DEFAULT_MESSAGES).select_related("user").first()
 
         # The author has default subscription and is not the author of the current post.
         if smart_sub and post.author != root.author:

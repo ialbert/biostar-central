@@ -2,10 +2,11 @@
 {% load widgets %}
 
 {% block body %}
+
+    {% user_bar user %}
+
     <div class="row" id="post_detail">
         <div class="nine columns">
-
-            {% user_bar user %}
 
             {% search_bar %}
 
@@ -34,8 +35,8 @@
 
         </div>
         <div class="three columns">
-            Similar Posts!
             {% message_bar %}
+            <div class="title">Similar Posts</div>
         </div>
     </div>
 {% endblock %}

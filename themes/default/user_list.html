@@ -7,12 +7,17 @@
 
 {% block body %}
 
+    {% user_bar user %}
+
     <div class="row">
-        <div class="nine columns">
+        <div class="twelve columns">
 
             {% search_bar page=page action='user_list' placeholder="Search for users" %}
 
+            {% message_bar %}
+
             <div class="row" style="padding-top:1em">
+
                 {% for user in users %}
 
                     <div class="user_list_box">
@@ -43,7 +48,7 @@
         </div>
 
     	<div class="three columns recent_votes">
-            {% message_bar %}
+
         </div>
 
     </div>

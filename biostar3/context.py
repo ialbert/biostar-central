@@ -18,12 +18,15 @@ USER_SESSION_TIMEOUT = 60 * 10
 
 logger = logging.getLogger('biostar')
 
+
 def now():
     return datetime.utcnow().replace(tzinfo=utc)
+
 
 def ago(hours=0, minutes=0, days=0):
     since = now() - timedelta(days=days, hours=hours, minutes=minutes)
     return since
+
 
 def reset_cache(request, key):
     counts = get_counts(request)
@@ -31,12 +34,21 @@ def reset_cache(request, key):
     get_counts(request, counts=counts)
 
 
+def get_shortcuts(request):
+    return settings.DEFAULT_SHORTCUTS
+
+ANON_COUNTS = dict(
+    post_count=0, book_count=0,
+    vote_count=0, mesg_count=0, badge_count=0,
+)
+
+
 def get_counts(request, counts=None):
     """
     Returns a dictionary with
     """
     if request.user.is_anonymous():
-        return {}
+        return ANON_COUNTS
 
     user = request.user
     count_key = COUNT_KEY_PATT % user.id
@@ -61,7 +73,8 @@ def get_counts(request, counts=None):
 
         post_count = Post.objects.filter(author=user).count()
         book_count = Vote.objects.filter(author=user, type=Vote.BOOKMARK).count()
-        vote_count = Vote.objects.filter(post__author=user, type__in=(Vote.BOOKMARK, Vote.UP), date__gt=last_login).count()
+        vote_count = Vote.objects.filter(post__author=user, type__in=(Vote.BOOKMARK, Vote.UP),
+                                         date__gt=last_login).count()
         mesg_count = Message.objects.filter(user=user, unread=True).count()
 
         counts = dict(
@@ -76,7 +89,7 @@ def get_counts(request, counts=None):
     return counts
 
 
-def shortcuts(request):
+def extras(request):
     # These values will be added to each context
 
     context = {
@@ -86,6 +99,7 @@ def shortcuts(request):
         "request": request,
         "recaptcha": settings.RECAPTCHA_PUBLIC_KEY,
         "counts": get_counts(request),
+        "shortcuts": get_shortcuts(request),
     }
 
     return context
