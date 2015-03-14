@@ -340,11 +340,12 @@ class GroupManager(forms.Form):
     role = forms.TypedChoiceField(choices=roles, coerce=int)
     user_id = forms.IntegerField(widget=forms.HiddenInput)
 
+
 @login_required
 @auth.group_edit
 def group_permission(request, pk=None, group=None, user=None):
 
-    back = redirect("group_manage",pk=group.id)
+    back = redirect("group_manage", pk=group.id)
 
     form = GroupManager(request.POST)
 

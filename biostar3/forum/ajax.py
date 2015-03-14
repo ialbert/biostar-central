@@ -7,6 +7,7 @@ from functools import partial
 from django.db import transaction
 from django.db.models import Q, F
 from .models import Post, User, Vote
+from . import auth
 
 logger = logging.getLogger("biostar")
 
@@ -131,12 +132,22 @@ def vote_handler(request):
 
     return ajax_success(msg)
 
-TEMPLATE_MAPPER = dict(
-    comment_panel='post_comment_add.html',
-)
-def load_html(request, name, pk):
-    global TEMPLATE_MAPPER
-    default = TEMPLATE_MAPPER['comment_panel']
-    template_name = TEMPLATE_MAPPER.get(name, default)
+def add_comment(request, pk):
+    template_name = "post_comment_add.html"
     context = dict(pk=pk)
     return render(request, template_name, context)
+
+@auth.post_view
+def post_moderate(request, pk, post=None, user=None):
+    template_name = "post_moderate.html"
+    if request.method == "GET":
+        context = dict(post=post)
+        return render(request, template_name, context)
+
+@auth.valid_user
+def user_moderate(request, pk, target=None):
+    template_name = "user_moderate.html"
+
+    if request.method == "GET":
+        context = dict(target=target)
+        return render(request, template_name, context)

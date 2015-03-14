@@ -34,24 +34,37 @@ $.ajaxSetup({
 });
 
 
-// Comments by authenticated users.
-function add_comment(elem) {
+// Create the comment panel.
+function create_panel(elem, url) {
     // Remove the panel if it already exists.
-    var panel = $('#comment_panel')
+    var panel = $('#panel')
 
     if (panel.length) {
-        panel.remove()
-        return;
+        panel.remove();
     }
-    var post_id = elem.attr('data-post_id')
+    var pk = elem.attr('data-pk')
     var container = elem.parent().parent()
-    var panel = $('<div class="row" id="comment_panel"></div>').load("/site/x/load/comment_panel/" + post_id + "/",
-        function () {
-            $('#comment_area').focus();
+    var panel = $('<div class="row" id="panel"></div>').load(url + pk + "/",
+        function (response, status, xhr) {
+            if (status == "error") {
+                var msg = "Sorry but there was an error: ";
+                alert(msg + xhr.status + " " + xhr.statusText);
+            } else {
+                $('#focus').focus();
+            };
         }
     );
     container.after(panel);
 }
+
+function add_comment(elem) {
+    return create_panel(elem, "/site/x/add_comment/")
+}
+
+function post_moderate(elem) {
+    return create_panel(elem, "/site/x/post_moderate/")
+}
+
 
 function toggle_state(elem, vote_type) {
     // Toggles the state of the buttons and updates the label
@@ -141,8 +154,16 @@ $(document).ready(function () {
 
     // Authenticated user actions.
     $('.reply').each(function () {
-        $(this).click(function () {
+        $(this).click(function (event) {
+            event.preventDefault();
             add_comment($(this));
+        });
+    });
+
+    $('.post_moderate').each(function () {
+        $(this).click(function (event) {
+            event.preventDefault();
+            post_moderate($(this));
         });
     });
 

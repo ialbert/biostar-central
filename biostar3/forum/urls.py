@@ -29,7 +29,7 @@ urlpatterns = patterns('',
     # This is to retarget the url from django allauth.
     url(r'^accounts/signup/$', user_views.sign_up, name='account_signup'),
 
-    #This is to retarget the url from django allauth.
+    # This is to retarget the url from django allauth.
     url(r'^accounts/login/$', user_views.Login.as_view(), name='account_login'),
 
     # Post (thread) view.
@@ -55,8 +55,14 @@ urlpatterns = patterns('',
     # Vote submission handler.
     url(r'^site/x/vote/$', ajax.vote_handler, name="vote_submit"),
 
-    # Loads a template via ajax.
-    url(r'^site/x/load/(?P<name>\w+)/(?P<pk>\d+)/$', ajax.load_html, name="load_html"),
+    # Loads the comment template via ajax.
+    url(r'^site/x/add_comment/(?P<pk>\d+)/$', ajax.add_comment, name="add_comment"),
+
+    # Loads the post moderation template via ajax.
+    url(r'^site/x/post_moderate/(?P<pk>\d+)/$', ajax.post_moderate, name="post_moderate"),
+
+    # Loads the user moderation template via ajax.
+    url(r'^site/x/user_moderate/(?P<pk>\d+)/$', ajax.user_moderate, name="user_moderate"),
 
     # Posts created by a user.
     url(r'^site/all/posts/created/by/u/(?P<pk>\d+)/$', post_views.posts_by_user, name="posts_by_user"),
@@ -94,10 +100,10 @@ urlpatterns = patterns('',
     # Group edit.
     url(r'^g/edit/(?P<pk>\d+)/$', form_views.group_edit, name="group_edit"),
 
-    # Group manage.
+    # Group management.
     url(r'^g/manage/(?P<pk>\d+)/$', form_views.group_manage, name="group_manage"),
 
-    # Group change premissions
+    # Group premission change.
     url(r'^g/permission/(?P<pk>\d+)/$', form_views.group_permission, name="group_permission"),
 
 

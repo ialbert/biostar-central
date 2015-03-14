@@ -1,0 +1,75 @@
+{% load widgets %}
+{#  Post moderation actions #}
+
+<div class="row" id="panel" xmlns="http://www.w3.org/1999/html">
+    <div class="moderate">
+        <form action="{% url "post_moderate" pk=post.id %}" method="post">
+            {% csrf_token %}
+            <div class="row">
+
+                <div align="center">
+                    Moderating <b>{{ post.get_type_display }}: {{ post.title }}</b>
+                    written by <b>{{post.author.name}}</b>
+                </div>
+                <div>
+                    <input type="checkbox" name="delete"> Delete post.
+                </div>
+
+                <div>
+                    <textarea class="u-full-width" type="text" size="50" name="delete_reason"
+                              placeholder="State the reason for deleting"></textarea>
+                </div>
+
+
+                <div>
+                    <input type="checkbox" name="close"> Close post.
+                </div>
+
+                <div>
+                <textarea class="u-full-width" type="text" size="50" name="delete_reason"
+                          placeholder="State the reason for closing"></textarea>
+                </div>
+
+                <div>
+                    <input type="checkbox" name="close"> Duplicated posts.
+                </div>
+
+                <div>
+                <textarea class="u-full-width" type="text" size="50" name="duplicate_reason"
+                          placeholder="Enter duplicate post ids. Space or comma separated"></textarea>
+                </div>
+
+                <div>
+                    <input type="checkbox" name="restore"> Restore deleted/closed post.
+                </div>
+
+                <div>
+                    <input type="checkbox" name="move_to_question"> Move post to a new question.
+                </div>
+
+                <div>
+                    <input type="checkbox" name="move_to_answer"> Move post to an answer.
+                </div>
+
+                <div>
+                    <input type="checkbox" name="move_to_top_comment"> Move post to a top level comment.
+                </div>
+
+                 <div>
+                    <input type="checkbox" name="move_to"> Relocate post to parent id: <input type="text" size="4" name="parent_id" placeholder="ID">
+                </div>
+
+                <div class="row">
+                    <div class="submit">
+                        <input type="submit" value="Submit">
+                    </div>
+                    <div class="cancel">
+                        <input type="button" value="Cancel" class="cancel"
+                               onclick="javascript:obj=$('#panel').remove();">
+                    </div>
+                </div>
+            </div>
+
+        </form>
+    </div>
+</div>

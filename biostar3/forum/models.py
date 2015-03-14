@@ -362,8 +362,6 @@ class Post(models.Model):
         if self.is_toplevel:
             self.root = self.parent = self
         else:
-            # Titles are set automatically for content.
-            self.title = "%s: %s" % (self.get_type_display()[0], self.title)
 
             if not self.parent:
                 raise Exception("non toplevel posts must have a parent")
@@ -372,6 +370,9 @@ class Post(models.Model):
                 raise Exception("post parent root not set")
 
             self.root = self.parent.root
+
+            # Titles are set automatically for content.
+            self.title = "%s: %s" % (self.get_type_display()[0], self.root.title)
 
         # Set the title for the object.
         if not self.title:
