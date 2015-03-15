@@ -93,10 +93,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     site = models.ForeignKey(Site, null=True, blank=True)
 
     @property
-    def is_moderator(self):
-        return (self.type in self.MODERATOR_TYPES)
-
-    @property
     def is_suspended(self):
         return (self.status == self.SUSPENDED) or (self.status == self.BANNED)
 

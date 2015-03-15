@@ -134,10 +134,11 @@ def sanitize(text, user):
     callbacks = [internal_links, require_protocol]
 
     # Moderators may use more dangerous HTML objects.
-    if user.is_moderator:
-        tags, attrs, styles = TRUSTED_TAGS, TRUSTED_ATTRIBUTES, TRUSTED_STYLES
-    else:
-        tags, attrs, styles = ALLOWED_TAGS, ALLOWED_ATTRIBUTES, ALLOWED_STYLES
+    #if user.is_moderator:
+    #    tags, attrs, styles = TRUSTED_TAGS, TRUSTED_ATTRIBUTES, TRUSTED_STYLES
+    #else:
+
+    tags, attrs, styles = ALLOWED_TAGS, ALLOWED_ATTRIBUTES, ALLOWED_STYLES
 
     # Sanitize html input.
     html = bleach.clean(text, tags=tags, attributes=attrs, styles=styles)
