@@ -284,15 +284,29 @@ body {
 
 }
 
+#shortcuts {
+  float:left;
+}
+
 /* Search bar */
 #search_bar {
+  float:left;
   padding: 1ex;
+  width:100%;
   form, input {
     margin: 0px;
   }
   border-radius: 4px;
   background-color: #EFEFEF;
   //margin: 0.5em 0em 0em 0em;
+  input {
+    //width:80%;
+  }
+}
+
+#search_input {
+  width:70%;
+  float:left;
 }
 
 /* Labels */
@@ -394,6 +408,8 @@ body {
   border-color: darken(@ALERT_SUCCESS, 30%);
 }
 
+
+
 ul.dropdown:hover {
   ul.items {
     display: block;
@@ -443,7 +459,6 @@ ul.dropdown {
 /* Navigation */
 #logo {
   float: left;
-  text-align: center;
   * img {
     width: 200px;
   }
@@ -525,7 +540,7 @@ ul.dropdown {
   }
 
   .item {
-    margin-top: 1ex;
+    margin-top: 0.5ex;
     float: left;
     text-align: center;
 
@@ -585,7 +600,7 @@ ul.dropdown {
 
 .nav-sep {
   //height: 10px;
-  margin: 0.3em 0em 0.3em 0em;
+  margin: 0.2em 0em 0.2em 0em;
   border-bottom: 1px solid #ddd;
   box-shadow: 0 3px 2px -2px rgba(200, 200, 200, 0.3);
 }

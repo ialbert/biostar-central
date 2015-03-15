@@ -83,7 +83,7 @@ def nicer_value(value):
 @register.inclusion_tag('search_bar.html', takes_context=True)
 def search_bar(context, page=None, action='search', placeholder="Search"):
     q = context.get('q', '')
-    return dict(page=page, q=q, action=action, placeholder=placeholder)
+    return dict(page=page, q=q, action=action, placeholder=placeholder, context=context)
 
 
 @register.inclusion_tag('page_bar.html', takes_context=True)

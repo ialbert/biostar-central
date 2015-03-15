@@ -11,7 +11,7 @@
 
                 <div class="item">
                     <ul class="dropdown">
-                        <a href="{% url "home" %}"><i class="fa fa-caret-down"></i> ALL</a>
+                        <a href="{% url "home" %}"><i class="fa fa-caret-down"></i> Shortcuts</a>
                         <ul class="items">
                             {% for name, url in context.shortcuts %}
                                 <li>
@@ -23,40 +23,39 @@
 
                 </div>
 
-                <div class="item lg">
-                    <a href="{% url "unanswered" %}"><i class="fa fa-question-circle"></i> OPEN</a>
-                </div>
+                {% if user.is_authenticated %}
 
-                <div class="item tooltip" title="Messages" data-tooltip-direction="top">
-                    <a class="{% glow c.mesg_count %}" href="{% url "my_messages" %}"><i
-                            class="fa fa-envelope"></i> {{ c.mesg_count }}</a>
-                </div>
+                    <div class="item tooltip" title="Messages" data-tooltip-direction="top">
+                        <a class="{% glow c.mesg_count %}" href="{% url "my_messages" %}"><i
+                                class="fa fa-envelope"></i> {{ c.mesg_count }}</a>
+                    </div>
 
-                <div class="item tooltip lg" title="Your upvoted posts" data-tooltip-direction="top">
-                    <a class="{% glow c.vote_count %}" href="{% url "vote_list" pk=user.id %}"><i
-                            class="fa fa-heart"></i> {{ c.vote_count }}</a>
-                </div>
 
-                <div class="item tooltip lg" title="Your awards" data-tooltip-direction="top">
-                    <a class="{% glow c.badge_count %}" href="#"><i class="fa fa-star"></i> {{ c.badge_count }}</a>
-                </div>
+                    <div class="item tooltip lg" title="Your upvoted posts" data-tooltip-direction="top">
+                        <a class="{% glow c.vote_count %}" href="{% url "vote_list" pk=user.id %}"><i
+                                class="fa fa-heart"></i> {{ c.vote_count }}</a>
+                    </div>
 
-                <div class="item tooltip lg" title="Your Bookmarks" data-tooltip-direction="top">
-                    <a href="{% url "my_bookmarks" %}"><i
-                            class="fa fa-bookmark"></i> {{ c.book_count }}</a>
-                </div>
+                    <div class="item tooltip lg" title="Your awards" data-tooltip-direction="top">
+                        <a class="{% glow c.badge_count %}" href="#"><i class="fa fa-star"></i> {{ c.badge_count }}</a>
+                    </div>
 
-                <div class="item tooltip" title="Your posts" data-tooltip-direction="top">
-                    <a href="{% url "posts_by_user" pk=user.id %}"><i
-                            class="fa fa-list"></i> {{ c.post_count }}</a>
-                </div>
+                    <div class="item tooltip lg" title="Your Bookmarks" data-tooltip-direction="top">
+                        <a href="{% url "my_bookmarks" %}"><i
+                                class="fa fa-bookmark"></i> {{ c.book_count }}</a>
+                    </div>
 
-                <div class="item tooltip" title="Your Account" data-tooltip-direction="top">
-                    <a href="{% url "user_view" pk=user.id %}"><i class="fa fa-user">
-                        <span class="line">{% scoreline user %}</span></i> {{ user.name }}
-                    </a>
-                </div>
+                    <div class="item tooltip" title="Your posts" data-tooltip-direction="top">
+                        <a href="{% url "posts_by_user" pk=user.id %}"><i
+                                class="fa fa-list"></i> {{ c.post_count }}</a>
+                    </div>
 
+                    <div class="item tooltip" title="Your Account" data-tooltip-direction="top">
+                        <a href="{% url "user_view" pk=user.id %}"><i class="fa fa-user">
+                            <span class="line">{% scoreline user %}</span></i> {{ user.name }}
+                        </a>
+                    </div>
+                {% endif %}
             </div>
         </div>
     </div>

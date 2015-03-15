@@ -129,6 +129,8 @@ def GET_SUBDOMAIN(request):
 # contain html.
 DEFAULT_SHORTCUTS = [
     # Item name, Item URL
+    ("Home", "/"),
+    ("Unanswered", "/p/unanswered/"),
     ("News", "/t/news/"),
     ("Jobs", "/t/jobs/"),
     ("RNA-Seq", "/t/rnaseq/"),
@@ -150,10 +152,10 @@ USER_SORT_BY_JOIN, USER_SORT_BY_ACTIVITY = "join", "activity"
 
 # Interface representation for user list sort values.
 USER_SORT_CHOICES = [
-    (USER_SORT_BY_VISIT, "recent visit"),
-    (USER_SORT_BY_REP, "reputation"),
-    (USER_SORT_BY_JOIN, "date joined"),
-    (USER_SORT_BY_ACTIVITY, "activity level"),
+    (USER_SORT_BY_VISIT, "sort by recent visit"),
+    (USER_SORT_BY_REP, "sort reputation"),
+    (USER_SORT_BY_JOIN, "sort date joined"),
+    (USER_SORT_BY_ACTIVITY, "sort activity level"),
 ]
 
 # Connecting a value to a order by clause on the database.
@@ -180,14 +182,14 @@ SORT_BY_VOTES, SORT_BY_RANK, SORT_BY_CREATION = "votes", "rank", "creation"
 
 # User interface elements for post sort choices.
 POST_SORT_CHOICES = [
-    (SORT_BY_UPDATE, "by activity",),
-    (SORT_BY_VIEWS, "by views"),
-    (SORT_BY_SUBS, "by followers"),
-    (SORT_BY_ANSWERS, "by answers"),
-    (SORT_BY_BOOKMARKS, "by bookmarks"),
-    (SORT_BY_VOTES, "by votes"),
-    (SORT_BY_RANK, "by rank"),
-    (SORT_BY_CREATION, "by creation"),
+    (SORT_BY_UPDATE, "sort by activity",),
+    (SORT_BY_VIEWS, "sort by views"),
+    (SORT_BY_SUBS, "sort by followers"),
+    (SORT_BY_ANSWERS, "sort by answers"),
+    (SORT_BY_BOOKMARKS, "sort by bookmarks"),
+    (SORT_BY_VOTES, "sort by votes"),
+    (SORT_BY_RANK, "sort by rank"),
+    (SORT_BY_CREATION, "sort by creation"),
 ]
 
 # Default sort order.

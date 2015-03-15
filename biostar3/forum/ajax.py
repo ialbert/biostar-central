@@ -268,6 +268,17 @@ def post_moderate(request, pk, post=None, user=None):
 def user_moderate(request, pk, target=None):
     template_name = "user_moderate.html"
 
-    if request.method == "GET":
+    back = redirect(target.get_absolute_url())
+
+    # Simplify a few functions
+    error = partial(messages.error, request)
+    info = partial(messages.info, request)
+    select = User.objects.filter(pk=target.id)
+
+    if request.method != "POST":
         context = dict(target=target)
         return render(request, template_name, context)
+
+    info("Moderation completed")
+
+    return back

@@ -65,6 +65,9 @@ function post_moderate(elem) {
     return create_panel(elem, "/site/x/post_moderate/")
 }
 
+function user_moderate(elem) {
+    return create_panel(elem, "/site/x/user_moderate/")
+}
 
 function toggle_state(elem, vote_type) {
     // Toggles the state of the buttons and updates the label
@@ -164,6 +167,13 @@ $(document).ready(function () {
         $(this).click(function (event) {
             event.preventDefault();
             post_moderate($(this));
+        });
+    });
+
+    $('.user_moderate').each(function () {
+        $(this).click(function (event) {
+            event.preventDefault();
+            user_moderate($(this));
         });
     });
 

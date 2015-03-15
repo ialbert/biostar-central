@@ -1,2 +1,38 @@
 {%  load widgets %}
 {#  User moderation actions #}
+
+<div class="row" id="panel" xmlns="http://www.w3.org/1999/html">
+    <div class="moderate">
+        <form action="{% url "user_moderate" pk=target.id %}" method="post">
+            {% csrf_token %}
+            <div class="row">
+
+                <div align="center">
+                    Moderating user <b>{{ target.name }}</b>
+                </div>
+                <div>
+                    <input type="radio" name="action" value="Suspend"> Suspend user.
+                </div>
+
+                <div>
+                    <input type="radio" name="action" value="Ban user"> Ban user.
+                </div>
+
+                <div>
+                    <input type="radio" name="action" value="Reinstate user"> Reinstate user.
+                </div>
+
+                <div class="row">
+                    <div class="submit">
+                        <input type="submit" value="Submit">
+                    </div>
+                    <div class="cancel">
+                        <input type="button" value="Cancel" class="cancel"
+                               onclick="javascript:obj=$('#panel').remove();">
+                    </div>
+                </div>
+            </div>
+
+        </form>
+    </div>
+</div>
