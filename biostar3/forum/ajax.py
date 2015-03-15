@@ -266,6 +266,7 @@ def post_moderate(request, pk, post=None, user=None):
 
 @auth.valid_user
 def user_moderate(request, pk, target=None):
+    user = request.user
     template_name = "user_moderate.html"
 
     back = redirect(target.get_absolute_url())
@@ -278,6 +279,39 @@ def user_moderate(request, pk, target=None):
     if request.method != "POST":
         context = dict(target=target)
         return render(request, template_name, context)
+
+    if not auth.can_moderate_user(user=request.user, target=target):
+        error("You may not moderate that user")
+        return back
+
+    if user == target:
+        error("You may not moderate yourself")
+        return back
+
+    action = request.POST.get("action")
+
+    if not action:
+        error("You must select a moderation action")
+        return back
+
+    SUSPEND, BAN, REINSTATE, MERGE = "suspend", "ban", "reinstate", "merge"
+
+    if action == SUSPEND:
+        select.update(status=User.SUSPENDED)
+        info("User suspended")
+        return back
+
+    # Only staff may ban a user.
+    if action == BAN and user.is_staff:
+        select.update(status=User.BANNED, html="", content="")
+        Post.objects.filter(author=target).delete()
+        info("User banned")
+        return back
+
+    if action == REINSTATE:
+        select.update(status=User.NEW_USER)
+        info("User reinstated")
+        return back
 
     info("Moderation completed")
 

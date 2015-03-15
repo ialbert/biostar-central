@@ -57,6 +57,8 @@ def create_toplevel_post(data, user, group):
 def can_moderate_post(user, post):
     return True
 
+def can_moderate_user(user, target):
+    return True
 
 def postsub_get_or_create(user, post, sub_type):
     """

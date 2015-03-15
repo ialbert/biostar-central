@@ -11,15 +11,19 @@
                     Moderating user <b>{{ target.name }}</b>
                 </div>
                 <div>
-                    <input type="radio" name="action" value="Suspend"> Suspend user.
+                    <input type="radio" name="action" value="suspend"> Suspend user.
                 </div>
 
                 <div>
-                    <input type="radio" name="action" value="Ban user"> Ban user.
+                    <input type="radio" name="action" value="ban"> Ban user.
                 </div>
 
                 <div>
-                    <input type="radio" name="action" value="Reinstate user"> Reinstate user.
+                    <input type="radio" name="action" value="reinstate"> Reinstate user.
+                </div>
+
+                <div>
+                    <input type="radio" name="action" value="merge"> Merge this user into user id <input type="text" name="master_id" style="height:1.5em" size="5" value="">
                 </div>
 
                 <div class="row">

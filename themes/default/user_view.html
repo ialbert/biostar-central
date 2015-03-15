@@ -8,17 +8,20 @@
 {% block body %}
 
     <div class="row">
-        <div class="twelve columns">
+        <div class="nine columns">
             User {{ target.name }}, {{ target.email }}view
 
             <div class="item">
-                Posts by <a href="{% url "posts_by_user" pk=target.id %}"><i class="fa fa-list"></i> {{target.name }}</a>
+                Posts by <a href="{% url "posts_by_user" pk=target.id %}"><i class="fa fa-list"></i> {{ target.name }}
+            </a>
             </div>
 
-            <a class="button user_moderate" href="#" data-pk="{{ 0 }}">moderate</a>
+            <a class="button user_moderate" href="#" data-pk="{{ target.id }}">moderate</a>
 
         </div>
-
+        <div class="three columns">
+            {% message_bar %}
+        </div>
     </div>
 
 {% endblock %}
