@@ -325,6 +325,16 @@ class Post(models.Model):
     def __unicode__(self):
         return "Post (id=%s)" % self.id
 
+    def set_reply_count(self):
+        reply_count = Post.objects.filter(parent=self, type=Post.ANSWER).count()
+        Post.objects.filter(pk=self.id).update(reply_count=reply_count)
+
+    def get_title(self):
+        if self.status == Post.OPEN:
+            return self.title
+        else:
+            return "(%s) %s" % (self.get_status_display(), self.title)
+
     @property
     def is_toplevel(self):
         return self.type in Post.TOP_LEVEL

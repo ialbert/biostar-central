@@ -12,52 +12,54 @@
                     written by <b>{{post.author.name}}</b>
                 </div>
                 <div>
-                    <input type="checkbox" name="delete"> Delete post.
+                    <input type="radio" name="action" value="delete"> Delete post.
                 </div>
 
                 <div>
-                    <textarea class="u-full-width" type="text" size="50" name="delete_reason"
-                              placeholder="State the reason for deleting"></textarea>
+                    <textarea class="u-full-width" type="text" size="50"
+                              name="reason" placeholder="State the reason for deleting"></textarea>
                 </div>
 
 
                 <div>
-                    <input type="checkbox" name="close"> Close post.
+                    <input type="radio" name="action" value="close"> Close post.
                 </div>
 
                 <div>
-                <textarea class="u-full-width" type="text" size="50" name="delete_reason"
-                          placeholder="State the reason for closing"></textarea>
+                <textarea class="u-full-width" type="text" size="50"
+                          name="reason" placeholder="State the reason for closing"></textarea>
                 </div>
 
                 <div>
-                    <input type="checkbox" name="close"> Duplicated posts.
+                    <input type="radio" name="action" value="close"> Close as duplicate.
                 </div>
 
                 <div>
-                <textarea class="u-full-width" type="text" size="50" name="duplicate_reason"
-                          placeholder="Enter duplicate post ids. Space or comma separated"></textarea>
+                <textarea class="u-full-width" type="text" size="50" name="reason"
+                          placeholder="Enter urls to duplicates"></textarea>
                 </div>
 
                 <div>
-                    <input type="checkbox" name="restore"> Restore deleted/closed post.
+                    <input type="radio" name="action" value="restore"> Restore deleted/closed post.
+                </div>
+
+
+                <div>
+                    <input type="radio" name="action" value="move_to_answer"> Move to an answer.
                 </div>
 
                 <div>
-                    <input type="checkbox" name="move_to_question"> Move post to a new question.
-                </div>
-
-                <div>
-                    <input type="checkbox" name="move_to_answer"> Move post to an answer.
-                </div>
-
-                <div>
-                    <input type="checkbox" name="move_to_top_comment"> Move post to a top level comment.
+                    <input type="radio" name="action" value="move_to_comment"> Move to a top level comment.
                 </div>
 
                  <div>
-                    <input type="checkbox" name="move_to"> Relocate post to parent id: <input type="text" size="4" name="parent_id" placeholder="ID">
+                    <input type="radio" name="action" value="reparent"> Move to parent id: <input type="text" size="4" name="parent_id" style="height:1.5em" value="">
                 </div>
+
+                <div>
+                    <input type="radio" name="action" value="move_to_question"> Move to a new question. Tags: <input type="text" name="tags" style="height:1.5em" value="">
+                </div>
+
 
                 <div class="row">
                     <div class="submit">

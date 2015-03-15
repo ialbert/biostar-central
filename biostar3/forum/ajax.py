@@ -6,8 +6,10 @@ from django.http import HttpResponse
 from functools import partial
 from django.db import transaction
 from django.db.models import Q, F
-from .models import Post, User, Vote
+from .models import Post, User, Vote, GroupPerm
 from . import auth
+from django.contrib import messages
+from functools import partial
 
 logger = logging.getLogger("biostar")
 
@@ -137,12 +139,130 @@ def add_comment(request, pk):
     context = dict(pk=pk)
     return render(request, template_name, context)
 
-@auth.post_view
+@auth.post_edit
 def post_moderate(request, pk, post=None, user=None):
+    """
+    Authorization can get complicated due to its branching nature.
+
+    To simply the paths we do not nest conditionals or
+    write if/elif constructs.
+
+    Instead match conditions and return from them as soon as possible.
+    """
     template_name = "post_moderate.html"
-    if request.method == "GET":
+    back = redirect(post.get_absolute_url())
+
+    # These actions need to match the templates.
+    CLOSE, DELETE, DUPLICATE, REPARENT, RESTORE = "close", "delete", "duplicate", "reparent", "restore"
+    MOVE_TO_ANSWER, MOVE_TO_COMMENT, MOVE_TO_QUESTION = "move_to_answer", "move_to_comment",  "move_to_question"
+
+    # Simplify a few functions
+    error = partial(messages.error, request)
+    info = partial(messages.info, request)
+    select = Post.objects.filter(pk=post.id)
+
+    if request.method != "POST":
+        # Any other request gets a template.
         context = dict(post=post)
         return render(request, template_name, context)
+
+    # Get the requested actions.
+    action = request.POST.get("action")
+    fields = request.POST.getlist("reason")
+    reason = ''.join(fields)
+
+    is_author = (post.author == user)
+
+    # Get the parent id.
+    parent_id = request.POST.get("parent_id", "0")
+    parent_id = auth.safe_int(parent_id)
+    parent = Post.objects.filter(pk=parent_id).first()
+
+    if not auth.can_moderate_post(user=user, post=post):
+        error("You have insufficient permissions to moderate that post")
+        return back
+
+    if parent_id and not parent:
+        error("Invalid parent id.")
+        return back
+
+    if parent == post:
+        error("Re-parenting to the same post.")
+        return back
+
+    if parent and parent.root != post.root:
+        error("May only reparent in the same thread.")
+        return back
+
+    if action in (CLOSE, DELETE, DUPLICATE) and not reason:
+        error("Must specify a reason for a close/delete.")
+        return back
+
+    if action == RESTORE and not user.is_moderator:
+        error("Only moderators may restore posts")
+        return back
+
+    if not post.is_toplevel and action in (CLOSE, DUPLICATE):
+        error("Only top level posts may be closed")
+        return back
+
+    if post.is_toplevel and action in (MOVE_TO_ANSWER, MOVE_TO_COMMENT, MOVE_TO_QUESTION):
+        error("Top level post may not be moved around.")
+        return back
+
+    # At this point the parameters are correct.
+
+    # Post creation shortcut
+    create = partial(auth.create_content_post,
+                     content=reason, parent=post, user=user)
+
+    if action == CLOSE:
+        info("Post closed")
+        select.update(status=Post.CLOSED)
+        create(post_type=Post.COMMENT)
+        return back
+
+    if action == RESTORE:
+        info("Post restored")
+        select.update(status=Post.OPEN)
+        return back
+
+    if action == DUPLICATE:
+        info("Post closed as duplicate")
+        select.update(status=Post.CLOSED)
+        create(post_type=Post.ANSWER)
+        return back
+
+    if action == DELETE:
+        info("Post deleted")
+        select.update(status=Post.DELETED)
+        create(post_type=Post.COMMENT)
+        if is_author and (post.reply_count == 0):
+            post.delete()
+        return back
+
+    if action == MOVE_TO_ANSWER:
+        info("Post moved to an answer")
+        select.update(post_type=Post.ANSWER)
+        post.root.set_reply_count()
+        return back
+
+    if action == MOVE_TO_COMMENT:
+        info("Post moved to a comment")
+        select.update(type=Post.COMMENT)
+        post.root.set_reply_count()
+        return back
+
+    if action == MOVE_TO_QUESTION:
+        info("Post moved to a new question")
+        pass
+
+    if action == REPARENT:
+        info("Post reparented")
+        select.update(parent=parent)
+        return back
+
+    return back
 
 @auth.valid_user
 def user_moderate(request, pk, target=None):

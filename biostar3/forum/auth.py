@@ -54,6 +54,10 @@ def create_toplevel_post(data, user, group):
     return post
 
 
+def can_moderate_post(user, post):
+    return True
+
+
 def postsub_get_or_create(user, post, sub_type):
     """
     Gets or creates a postsub for the user
@@ -298,6 +302,13 @@ def remote_ip(request, key='REMOTE_ADDR'):
 
     return ip
 
+
+def safe_int(text, default=0, maxval=10000):
+    try:
+        value = int(text)
+        return min(value, maxval)
+    except ValueError:
+        return default
 
 def safe_remove(path):
     path = os.path.abspath(path)

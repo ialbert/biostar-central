@@ -5,7 +5,7 @@
 {#  Show title if toplevel post #}
 {% if post.is_toplevel %}
     <div class="row post_title">
-        {{ post.get_type_display }}: {{ post.title }}
+        {{ post.get_type_display }}: {{ post.get_title }}
     </div>
 {% endif %}
 
