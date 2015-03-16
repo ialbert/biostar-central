@@ -113,10 +113,10 @@
         </div>
     </div>
     {% if user.is_authenticated %}
-        <script src="/static/ckeditor/ckeditor.js"></script>
+        <script src="{{ STATIC_URL }}ckeditor/ckeditor.js"></script>
         <script type="application/javascript">
             CKEDITOR.replace('answerbox', {
-                customConfig: '/static/ck_config-v2.js'
+                customConfig: '{{ STATIC_URL }}ck_config-v2.js'
             });
         </script>
     {% endif %}
