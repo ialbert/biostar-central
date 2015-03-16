@@ -96,6 +96,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     def is_suspended(self):
         return (self.status == self.SUSPENDED) or (self.status == self.BANNED)
 
+    @property
+    def scaled_score(self):
+        # Turns out people prefer scores to go by 10.
+        return self.score * 10
+
     def get_absolute_url(self):
         # url = reverse("user_view", kwargs=dict(pk=self.id))
         url = reverse("user_view", kwargs=dict(pk=self.id))
@@ -196,8 +201,11 @@ class Profile(models.Model):
     # This field is used to select content for the user.
     my_tags = models.TextField(default="", max_length=255, blank=True)
 
-    # Description provided by the user html.
-    info = models.TextField(default="", null=True, blank=True)
+    # Description provided by the user as markdown.
+    info = models.TextField(default="", null=True, blank=True, max_length=5000)
+
+    # The info field turned into html.
+    html = models.TextField(default="", null=True, blank=True)
 
     # The default notification preferences.
     message_prefs = models.IntegerField(choices=settings.MESSAGE_CHOICES, default=settings.MESSAGE_DEFAULT)
@@ -212,8 +220,15 @@ class Profile(models.Model):
     # The tag value is the canonical form of the post's tags
     watched_tags = models.CharField(max_length=250, default="", blank=True)
 
+    # The text input for the shortcuts.
+    shortcuts_text = models.TextField(default="", null=True, blank=True, max_length=1000)
+
+    # Json formatted shortcuts.
+    shortcuts_json = models.TextField(default="", null=True, blank=True)
+
     def save(self, *args, **kwargs):
         self.uuid = self.uuid or make_uuid()
+        self.html = html.sanitize(self.info, user=self.user)
         super(Profile, self).save(*args, **kwargs)
 
 

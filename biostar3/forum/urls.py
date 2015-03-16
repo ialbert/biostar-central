@@ -23,6 +23,9 @@ urlpatterns = patterns('',
     # A shortcut to a user's account.
     url(r'^site/me/$', user_views.me_view, name='me'),
 
+    # A shortcut to a user's profile edit
+    url(r'^site/edit/my/profile/$', user_views.edit_my_profile, name='edit_my_profile'),
+
     # The signin/signup view.
     url(r'^site/sign_up/$', user_views.sign_up, name='sign_up'),
 
@@ -40,6 +43,10 @@ urlpatterns = patterns('',
 
     # The list of users.
     url(r'^u/list/$', user_views.user_list, name="user_list"),
+
+    # The list of users.
+    url(r'^u/edit/(?P<pk>\d+)/$', form_views.user_edit, name="user_edit"),
+
 
     #
     # Site specific urls. The may be blocked via robots.txt

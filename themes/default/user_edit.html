@@ -1,0 +1,145 @@
+{% extends "site_layout.html" %}
+{% load widgets %}
+{% load humanize %}
+
+{% block title %}
+    Edit {{ target.name }}
+{% endblock %}
+
+{% block body %}
+
+    {% user_bar user %}
+
+    <form action="{% url "user_edit" pk=target.id %}" method="post">
+
+        {% csrf_token %}
+
+
+        <div class="row">
+            <div class="title {{ target.get_status_display }} center">
+                Edit User: {{ target.name }}
+            </div>
+            {% if form.errors %}
+                <div>{{ form.errors }}</div>
+            {% endif %}
+        </div>
+
+        <div class="row" id="user_edit">
+
+
+            {% message_bar %}
+
+            <div class="two columns">
+                &nbsp;
+            </div>
+
+            <div class="three columns">
+
+                <div>
+                    <label>Name (required):</label> {{ form.name }}
+                </div>
+                <div>
+                    <label> Location:</label> {{ form.location }}
+                </div>
+                <div>
+                    <label> Email (required):</label> {{ form.email }}
+                </div>
+                <div>
+                    <label> Web site:</label> {{ form.website }}
+                </div>
+                <div>
+                    <label>Twitter:</label> {{ form.twitter_id }}
+                </div>
+                <div>
+                    <label>Google Scholar ID:</label> {{ form.scholar }}
+                </div>
+
+
+            </div>
+            <div class="five columns">
+                <label>About me</label>
+                <textarea name="info" class="u-full-width" style="height:20em; background-color: #ECECEC;"
+                          placeholder="Information about you. Markdown ok to use.">{{form.info.value }}</textarea>
+                <div align="center">
+                    <i>You may use Markdown in the INFO field above.</i>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="row">
+
+            <div class="two columns">
+                &nbsp;
+            </div>
+
+            <div class="eight columns">
+
+                <div class="row">
+                    <hr>
+                </div>
+
+                <div class="row">
+                    <div class="submit" , style="float: left">
+                        <input type="submit" class="buttton button-primary" value="Submit">
+                    </div>
+
+                    <div class="cancel" style="float:right">
+                        <input type="button" value="Cancel" class="cancel"
+                               onclick="javascript:window.location.assign('{{ target.get_absolute_url }}')">
+                    </div>
+                </div>
+
+                <div class="row">
+                    <hr>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="title {{ target.get_status_display }} center">
+                Optional Advanced Settings
+            </div>
+        </div>
+
+        <div class="row">
+
+            <div class="two columns">
+                &nbsp;
+            </div>
+
+            <div class="eight columns">
+
+                <p>
+                    Users may customize the content of the shortcuts drop down menu on the top left.
+                    Enter comma
+                    separated pairs in <code>name, url</code> format. URLs may be relative or absolute. You may add
+                    multiple tags with <code>+</code>. To negate a tag add a <code>!</code> for it.
+
+                    Example:
+                </p>
+<pre>
+News, /t/news/
+Interesting, /t/assembly+blast+ncbi!
+My Account, /site/me
+Galaxy Support, https://biostar.usegalaxy.org
+</pre>
+
+
+                <div>
+                    <label> Custom shortcuts</label>
+                <textarea name="shortcuts" class="u-full-width" style="height:20em"
+                          placeholder="Add shortcuts as name, url pairs.">{{form.shortcuts_text.value }}</textarea>
+                </div>
+
+
+            </div>
+
+
+        </div>
+
+    </form>
+
+{% endblock %}

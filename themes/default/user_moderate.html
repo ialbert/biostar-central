@@ -1,42 +1,42 @@
-{%  load widgets %}
+{% load widgets %}
 {#  User moderation actions #}
 
-<div class="row" id="panel" xmlns="http://www.w3.org/1999/html">
-    <div class="moderate">
-        <form action="{% url "user_moderate" pk=target.id %}" method="post">
-            {% csrf_token %}
-            <div class="row">
+<div class="moderate" xmlns="http://www.w3.org/1999/html">
 
-                <div align="center">
-                    Moderating user <b>{{ target.name }}</b>
-                </div>
-                <div>
-                    <input type="radio" name="action" value="suspend"> Suspend user.
-                </div>
+    <form action="{% url "user_moderate" pk=target.id %}" method="post">
+        {% csrf_token %}
 
-                <div>
-                    <input type="radio" name="action" value="ban"> Ban user.
-                </div>
+        <div align="center" style="padding-bottom:1ex">
+            Moderating user <b>{{ target.name }}</b>
+        </div>
+        <div>
+            <input type="radio" name="action" value="suspend"> Suspend user.
+        </div>
 
-                <div>
-                    <input type="radio" name="action" value="reinstate"> Reinstate user.
-                </div>
+        <div>
+            <input type="radio" name="action" value="ban"> Ban user.
+        </div>
 
-                <div>
-                    <input type="radio" name="action" value="merge"> Merge this user into user id <input type="text" name="master_id" style="height:1.5em" size="5" value="">
-                </div>
+        <div>
+            <input type="radio" name="action" value="reinstate"> Reinstate user.
+        </div>
 
-                <div class="row">
-                    <div class="submit">
-                        <input type="submit" value="Submit">
-                    </div>
-                    <div class="cancel">
-                        <input type="button" value="Cancel" class="cancel"
-                               onclick="javascript:obj=$('#panel').remove();">
-                    </div>
-                </div>
+        <div>
+            <input type="radio" name="action" value="merge">
+            Merge into id <input type="text"
+                                                name="master_id" style="height:1.5em" size="5" value="">
+        </div>
+
+        <div class="row" style="padding-top: 1ex">
+            <div class="submit">
+                <input type="submit" value="Submit">
             </div>
+            <div class="cancel">
+                <input type="button" value="Cancel" class="cancel"
+                       onclick="javascript:obj=$('#panel').remove();">
+            </div>
+        </div>
 
-        </form>
-    </div>
+    </form>
+
 </div>

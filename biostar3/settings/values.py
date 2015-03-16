@@ -137,7 +137,7 @@ DEFAULT_SHORTCUTS = [
     ("Assembly", "/t/assembly/"),
     ("All tags", "/t/"),
     ("<b>Your Account</b>", "/site/me/"),
-    ("<b>Edit Profile</b>", "/site/me/edit/"),
+    ("<b>Edit Profile</b>", "/site/edit/my/profile/"),
     ]
 
 # How many groups can a regular user create.

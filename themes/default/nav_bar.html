@@ -33,23 +33,24 @@
             </div>
         {% endif %}
 
-        <div class="item">
-            <a href="{% url "group_list" %}">
-                <div class="icon"><i class="fa fa-group"></i></div>
-                <div class="navlabel">Groups</div>
-            </a>
-        </div>
-
-        <div class="item">
+    	<div class="item">
             <a href="{% url "new_post" %}">
                 <div class="icon"><i class="fa fa-plus-circle"></i></div>
                 <div class="navlabel">New&nbsp;Post</div>
             </a>
         </div>
-        <div class="item">
+
+    	 <div class="item">
             <a href="{% url "user_list" %}">
                 <div class="icon"><i class="fa fa-globe"></i></div>
                 <div class="navlabel">Users</div>
+            </a>
+        </div>
+
+        <div class="item">
+            <a href="{% url "group_list" %}">
+                <div class="icon"><i class="fa fa-group"></i></div>
+                <div class="navlabel">Groups</div>
             </a>
         </div>
 

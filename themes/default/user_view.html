@@ -1,27 +1,139 @@
 {% extends "site_layout.html" %}
 {% load widgets %}
+{% load humanize %}
 
 {% block title %}
     User List
 {% endblock %}
 
 {% block body %}
+    {% user_bar user %}
+    <div class="row" id="user_view">
 
-    <div class="row">
-        <div class="nine columns">
-            User {{ target.name }}, {{ target.email }}view
+        <div class="row">
+            <div class="title {{ target.get_status_display }} center">
+                User: {{ target.name }}
+            </div>
+        </div>
 
-            <div class="item">
-                Posts by <a href="{% url "posts_by_user" pk=target.id %}"><i class="fa fa-list"></i> {{ target.name }}
-            </a>
+        <div class="row">
+
+            <div class="eight columns">
+                <div class="six columns">
+                    {#  User portrait #}
+                    <div class="center">{% gravatar target 200 %}</div>
+                    {% if 1 %}
+                        <div class="center">
+                            {# Needs two parents for the panel popover to work properly #}
+                            <div>
+                                <a class="button user_moderate" href="#" data-pk="{{ target.id }}">moderate</a>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+
+
+                <div class="six columns">
+
+                    {% message_bar %}
+
+                    <div id="user_attr">
+
+                        <div>
+                            Location: <b>{{ target.profile.location }}</b>
+                        </div>
+
+                        <div>
+                            Reputation: <b>{{ target.scaled_score |intcomma }}</b>
+                        </div>
+
+                        <div>
+                            Email: <b>{{ target.email|hide_email }}</b>
+                        </div>
+
+                        {% if target.profile.twitter_id %}
+                            <div>Twitter:
+                                <i class="fa fa-twitter"></i> <a
+                                href="http://twitter.com/{{ target.profile.twitter_id }}">
+                                    {{ target.profile.twitter_id|truncatechars:25 }}</a>
+                            </div>
+                        {% endif %}
+
+                        {% if target.profile.website %}
+                            <div>
+                                Web: <a href="{{ target.profile.website }}">
+                                {{ target.profile.website|truncatechars:25 }}</a>
+                            </div>
+                        {% endif %}
+
+                        {% if target.profile.scholar %}
+                            <div>
+                                Google scholar: <a
+                            href="http://scholar.google.com/citations?user={{ target.profile.scholar }}">
+                                view page</a>
+                            </div>
+                        {% endif %}
+
+                        <div>
+                            Status: <b>{{ target.get_status_display }}</b>
+                        </div>
+
+                        <div>
+                            Last seen: <b>{{ target.profile.last_login | naturaltime }}</b>
+                        </div>
+                        <div>
+                            Date joined: <b>{{ target.profile.date_joined | naturaltime }}</b>
+                        </div>
+
+
+                    </div>
+
+                    <ul style="padding-top:1em">
+
+                        {% if 1 or target.has_ownership %}
+                            <li>
+                                Action: <a href="{% url "user_edit" target.id %}">
+                                <b><i class="fa fa-user"></i> Edit Profile</b></a>
+                            </li>
+                            <li>
+                                Action: <a href="{% url "user_edit" target.id %}">
+                                <b><i class="fa fa-user"></i> Connect Other Social Accounts</b></a>
+                            </li>
+                        {% endif %}
+
+                        <li>
+                            <a href="{% url "posts_by_user" pk=target.id %}"><i
+                            class="fa fa-list"></i> View all posts by {{ target.name }}</a>
+                        </li>
+
+                        <li>
+                            <a href="{% url "posts_by_user" pk=target.id %}"><i
+                            class="fa fa-heart"></i> View all votes for {{ target.name }}</a>
+                        </li>
+
+                        <li>
+                            <a href="{% url "posts_by_user" pk=target.id %}"><i
+                            class="fa fa-star"></i> View all awards to {{ target.name }}</a>
+                        </li>
+
+                    </ul>
+
+                </div>
+
+
             </div>
 
-            <a class="button user_moderate" href="#" data-pk="{{ target.id }}">moderate</a>
+
+            <div class="four columns">
+                {#  Profile information goes here #}
+                {{ target.profile.html|safe }}
+
+            </div>
+
 
         </div>
-        <div class="three columns">
-            {% message_bar %}
-        </div>
+
+
     </div>
 
 {% endblock %}

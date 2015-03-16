@@ -63,6 +63,13 @@ def me_view(request):
     """
     return redirect(request.user.get_absolute_url())
 
+@login_required
+def edit_my_profile(request):
+    """
+    A shortcut that redirects user to their profile edit.
+    """
+    return redirect("user_edit", pk=request.user.id)
+
 
 from allauth.account.views import LoginView
 class Login(LoginView):

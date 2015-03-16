@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.core.exceptions import ValidationError
 from django.contrib.auth.decorators import login_required
-from .models import Post, UserGroup, GroupSub, GroupPerm
+from .models import Post, UserGroup, GroupSub, GroupPerm, Profile
 from . import auth
 from django.shortcuts import render, redirect
 from django.contrib.sites.models import Site
@@ -344,7 +344,6 @@ class GroupManager(forms.Form):
 @login_required
 @auth.group_edit
 def group_permission(request, pk=None, group=None, user=None):
-
     back = redirect("group_manage", pk=group.id)
 
     form = GroupManager(request.POST)
@@ -466,3 +465,81 @@ def group_subscribe(request, pk, group=None, user=None):
         auth.groupsub_get_or_create(user=user, usergroup=group, sub_type=sub_type)
 
     return redirect("group_list")
+
+
+class UserProfileForm(forms.Form):
+    name = forms.CharField(max_length=100)
+    email = forms.CharField(max_length=150)
+    website = forms.CharField(max_length=150, required=False)
+    twitter_id = forms.CharField(max_length=150, label="Twitter ID", required=False)
+    scholar = forms.CharField(max_length=150, label="Google Scholar ID", required=False)
+    location = forms.CharField(max_length=150, required=False)
+    info = forms.CharField(widget=forms.Textarea, required=False, max_length=3000)
+    shortcuts_text = forms.CharField(widget=forms.Textarea, required=False, max_length=500)
+
+    def clean_email(self):
+        """
+        Can only set email to one that does not already exists for a different user
+        """
+        email = self.cleaned_data['email']
+        user = User.objects.filter(email=email).first()
+        if user and user != self.target:
+            raise forms.ValidationError("This email already exists in the system for a different user!\
+                    Contact us if you need to merge accounts.")
+        return email
+
+    def __init__(self, target, *args, **kwargs):
+        self.target = target
+        super(UserProfileForm, self).__init__(*args, **kwargs)
+
+
+@login_required
+@auth.valid_user
+def user_edit(request, pk, target=None):
+    template_name = "user_edit.html"
+
+    if request.method not in ("GET", "POST"):
+        messages.error(request, "Invalid request method")
+        return redirect(target.get_absolute_url())
+
+    if request.method == "GET":
+        initial = dict(
+            name=target.name,
+            email=target.email,
+            location=target.profile.location,
+            website=target.profile.website,
+            twitter_id=target.profile.twitter_id,
+            scholar=target.profile.scholar,
+            info=target.profile.info,
+            shortcuts_text=target.profile.shortcuts_text,
+
+        )
+        form = UserProfileForm(target, initial=initial)
+        context = dict(form=form, target=target)
+        return render(request, template_name, context)
+
+    form = UserProfileForm(target, data=request.POST)
+
+    if not form.is_valid():
+        context = dict(form=form, target=target)
+        return render(request, template_name, context)
+
+    # The form is valid. Process it.
+    get = lambda key: form.cleaned_data.get(key, '')
+
+    shortcuts_json = ''
+
+    # Need to update both the user and the profile.
+    User.objects.filter(pk=target.id).update(
+        name=get("name"), email=get("email")
+    )
+
+    profile = Profile.objects.filter(user__id=target.id).first()
+    for field in "info website scholar location twitter_id shortcuts_text scholar".split():
+        setattr(profile, field, get(field))
+
+    # Trigger save.
+    profile.save()
+
+    return redirect(target.get_absolute_url())
+

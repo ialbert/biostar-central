@@ -84,6 +84,10 @@ def clean(text):
 def sanitize(text, user):
     "Sanitize text and expand links to match content"
 
+    if not text.strip():
+        # No content there.
+        return ""
+
     # Avoid circular imports.
     from biostar3.forum.models import User, Post
 
@@ -133,12 +137,11 @@ def sanitize(text, user):
     # The functions that will be applied when linkifying
     callbacks = [internal_links, require_protocol]
 
-    # Moderators may use more dangerous HTML objects.
-    #if user.is_moderator:
-    #    tags, attrs, styles = TRUSTED_TAGS, TRUSTED_ATTRIBUTES, TRUSTED_STYLES
-    #else:
-
-    tags, attrs, styles = ALLOWED_TAGS, ALLOWED_ATTRIBUTES, ALLOWED_STYLES
+    # Staff may use more dangerous HTML objects.
+    if user.is_staff:
+        tags, attrs, styles = TRUSTED_TAGS, TRUSTED_ATTRIBUTES, TRUSTED_STYLES
+    else:
+        tags, attrs, styles = ALLOWED_TAGS, ALLOWED_ATTRIBUTES, ALLOWED_STYLES
 
     # Sanitize html input.
     html = bleach.clean(text, tags=tags, attributes=attrs, styles=styles)

@@ -103,6 +103,11 @@ def post_migrate_tasks(sender, **kwargs):
 
     GroupSub.objects.bulk_create(add_groups())
 
+    # Save all users to trigger their html method.
+    logger.info("resaving all user profiles")
+    for prof in models.Profile.objects.all().exclude(info__isnull=True):
+        prof.save()
+
     # Sets up the default domain
     site = Site.objects.get_current()
     if site.domain != settings.SITE_DOMAIN:

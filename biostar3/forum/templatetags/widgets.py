@@ -73,6 +73,16 @@ def on_value(value):
     "Turn a truth value into an on/off string"
     return "on" if value else 'off'
 
+@register.filter
+def hide_email(value):
+    "Hides parts of an email"
+    try:
+        addr, host = value.split('@')
+        hide = '*' * (len(addr) - 1)
+        email = addr[0] + hide + '@' + host
+        return email
+    except Exception, exc:
+        return value
 
 @register.filter
 def nicer_value(value):
