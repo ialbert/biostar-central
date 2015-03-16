@@ -30,7 +30,7 @@ def user_list(request):
     """
     template_name = "user_list.html"
 
-    q = request.GET.get('q','')
+    q = request.GET.get('q', '')
     if q:
         users = User.objects.filter(name__icontains=q)
     else:
@@ -39,12 +39,13 @@ def user_list(request):
     users = users.filter(groupsub__usergroup=request.group)
 
     paginator = query.ExtendedPaginator(request, object_list=users,
-                                         time_class=query.TimeLimitValidator,
+                                        time_class=query.TimeLimitValidator,
                                         sort_class=query.UserSortValidator, per_page=25, orphans=False)
     page = paginator.curr_page()
 
     context = dict(page=page, users=page.object_list, q=q)
     return render(request, template_name, context)
+
 
 @auth.valid_user
 def user_view(request, pk, target=None):
@@ -53,7 +54,19 @@ def user_view(request, pk, target=None):
     The decorator will set the user parameter.
     """
     template_name = "user_view.html"
-    context = dict(target=target)
+    # Latest posts
+    posts = models.Post.objects.filter(author=target).order_by("-creation_date")[:10]
+
+    target.editable = (request.user == target)
+
+    target.can_be_moderated = auth.can_moderate_user(target=target, user=request.user)
+
+    top_count = target.post_count(types=models.Post.TOP_LEVEL)
+    answer_count = target.post_count(types=[models.Post.ANSWER])
+    comment_count = target.post_count(types=[models.Post.COMMENT])
+
+    context = dict(target=target, posts=posts, top_count=top_count,
+                   answer_count=answer_count, comment_count=comment_count)
     return render(request, template_name, context)
 
 @login_required
@@ -62,6 +75,7 @@ def me_view(request):
     A shortcut that redirects user to their account.
     """
     return redirect(request.user.get_absolute_url())
+
 
 @login_required
 def edit_my_profile(request):
@@ -72,11 +86,14 @@ def edit_my_profile(request):
 
 
 from allauth.account.views import LoginView
+
+
 class Login(LoginView):
     """
     This is required to intercept signups from different subdomains.
     Authentication only works for the same domain.
     """
+
     def dispatch(self, request, *args, **kwargs):
         # Override the next parameter if the user is visiting a different group.
         # This is necessary as OAuth will only work for a single domain.
@@ -98,7 +115,10 @@ class Login(LoginView):
 
         return super(Login, self).dispatch(request, *args, **kwargs)
 
+
 CAPTCHA_VERIFY_URL = "https://www.google.com/recaptcha/api/siteverify"
+
+
 @ratelimit(key='ip', rate=settings.SIGNUP_RATELIMIT)
 def sign_up(request):
     """

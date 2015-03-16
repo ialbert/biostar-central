@@ -22,7 +22,7 @@
                 <div class="six columns">
                     {#  User portrait #}
                     <div class="center">{% gravatar target 200 %}</div>
-                    {% if 1 %}
+                    {% if target.can_be_moderated %}
                         <div class="center">
                             {# Needs two parents for the panel popover to work properly #}
                             <div>
@@ -38,7 +38,12 @@
                     {% message_bar %}
 
                     <div id="user_attr">
-
+                        <div>
+                            Activity:
+                            <b>{{ top_count|intcomma }}</b> top post{{ top_count|pluralize }},
+                            <b>{{ answer_count|intcomma }}</b> answer{{ answer_count|pluralize }},
+                            <b>{{ comment_count|intcomma }}</b> comment{{ comment_count|pluralize }}
+                        </div>
                         <div>
                             Location: <b>{{ target.profile.location }}</b>
                         </div>
@@ -90,7 +95,7 @@
 
                     <ul style="padding-top:1em">
 
-                        {% if 1 or target.has_ownership %}
+                        {% if target.editable %}
                             <li>
                                 Action: <a href="{% url "user_edit" target.id %}">
                                 <b><i class="fa fa-user"></i> Edit Profile</b></a>
@@ -120,7 +125,18 @@
 
                 </div>
 
-
+                <div class="row">
+                    <div class="title">Recent Posts by {{ target.name }}</div>
+                    <div id="post_list">
+                        {% for post in posts %}
+                            <div class="post_title">
+                                <a
+                                href="{{ post.get_absolute_url }}">{{ post.get_type_display }} {{ post.get_title }}</a>
+                            </div>
+                            <div>{{ post.content | truncatewords:80 }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
             </div>
 
 

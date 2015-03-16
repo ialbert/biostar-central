@@ -109,6 +109,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     def get_short_name(self):
         return self.name
 
+    def post_count(self, types):
+        return Post.objects.filter(type__in=types, author=self).count()
+
     def save(self, *args, **kwargs):
         "Actions that need to be performed on every user save."
 
@@ -121,6 +124,8 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __unicode__(self):
         return "User: %s (%s)" % (self.id, self.email)
+
+
 
 class UserGroup(models.Model):
     """
