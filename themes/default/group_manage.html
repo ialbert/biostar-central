@@ -53,7 +53,7 @@
 
             {% for perm in perms %}
                 <div class="modbox">
-                    <a href="{{ user.get_absolute_url }}">
+                    <a href="{{ perm.user.get_absolute_url }}">
                         {{ perm.user.name }}</a> &bull; {{ perm.user.score|bignum }}
                     <div>{{ perm.get_role_display }}</div>
                     <div>Last seen: {{ perm.user.last_login|time_ago }}</div>

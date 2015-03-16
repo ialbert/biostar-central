@@ -18,7 +18,7 @@
 
                 <div class="title">
                     Current group: <b>{{ group.name }}</b>
-                    {% if group.role %}
+                    {% if group.owner == user %}
                         | <a href="{% url "group_edit" pk=group.id %}">edit</a>
                         | <a href="{% url "group_manage" pk=group.id %}">manage</a>
                     {% endif %}
@@ -98,7 +98,7 @@
 
             {% for perm in perms %}
                 <div style="padding-bottom:1ex;">
-                    <a href="{{ user.get_absolute_url }}">
+                    <a href="{{ perm.user.get_absolute_url }}">
                         {{ perm.user.name }}</a> &bull;  {{ perm.user.score|bignum }}
                     <div>{{ perm.get_role_display }}</div>
                 </div>

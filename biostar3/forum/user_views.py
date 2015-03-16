@@ -59,13 +59,15 @@ def user_view(request, pk, target=None):
 
     target.editable = (request.user == target)
 
-    target.can_be_moderated = auth.can_moderate_user(target=target, user=request.user)
+    target.can_be_moderated = auth.can_moderate_user(request=request, target=target, user=request.user)
+
+    perms = models.GroupPerm.objects.filter(user=target).select_related("usergroup")
 
     top_count = target.post_count(types=models.Post.TOP_LEVEL)
     answer_count = target.post_count(types=[models.Post.ANSWER])
     comment_count = target.post_count(types=[models.Post.COMMENT])
 
-    context = dict(target=target, posts=posts, top_count=top_count,
+    context = dict(target=target, posts=posts, top_count=top_count, perms=perms,
                    answer_count=answer_count, comment_count=comment_count)
     return render(request, template_name, context)
 

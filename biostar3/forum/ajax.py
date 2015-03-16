@@ -178,7 +178,7 @@ def post_moderate(request, pk, post=None, user=None):
     parent_id = auth.safe_int(parent_id)
     parent = Post.objects.filter(pk=parent_id).first()
 
-    if not auth.can_moderate_post(user=user, post=post):
+    if not auth.can_moderate_post(request=request, user=user, post=post):
         error("You have insufficient permissions to moderate that post")
         return back
 
@@ -280,7 +280,7 @@ def user_moderate(request, pk, target=None):
         context = dict(target=target)
         return render(request, template_name, context)
 
-    if not auth.can_moderate_user(user=request.user, target=target):
+    if not auth.can_moderate_user(request=request, user=request.user, target=target):
         error("You may not moderate that user")
         return back
 

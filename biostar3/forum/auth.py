@@ -54,11 +54,35 @@ def create_toplevel_post(data, user, group):
     return post
 
 
-def can_moderate_post(user, post):
-    return True
+def can_moderate_post(request, user, post):
 
-def can_moderate_user(user, target):
-    return True
+    if post.author.is_staff:
+        return False
+
+    if user.is_staff:
+        return True
+
+    if user.is_moderator:
+        perm = GroupPerm.objects.filter(user=post.author, usergroup=request.group).first()
+        return bool(perm)
+
+    return False
+
+def can_moderate_user(request, user, target):
+
+    if target.is_staff:
+        return False
+
+    if user.is_staff:
+        return True
+
+    if user.is_moderator:
+        # User requests moderation and the target is not a moderator for
+        # the current group.
+        perm = GroupPerm.objects.filter(user=target, usergroup=request.group).first()
+        return bool(perm)
+
+    return False
 
 def postsub_get_or_create(user, post, sub_type):
     """

@@ -153,6 +153,9 @@ class UserGroup(models.Model):
                 GroupSub.objects.create(user=self.owner, usergroup=self)
                 GroupPerm.objects.create(user=self.owner, usergroup=self, role=GroupPerm.ADMIN)
 
+    def get_absolute_url(self):
+        return reverse("group_redirect", kwargs=dict(pk=self.id))
+
     def __unicode__(self):
         return "Usergroup: %s" % self.name
 

@@ -89,6 +89,12 @@
                             Date joined: <b>{{ target.profile.date_joined | naturaltime }}</b>
                         </div>
 
+                    	<div>
+                        	Permissions:
+                            {%  for perm in perms %}
+                                {{ perm.get_role_display }} on <a href="{{ perm.usergroup.get_absolute_url}}">{{ perm.usergroup.name }}</a>,
+                            {%  endfor %}
+                        </div>
 
                     </div>
 
