@@ -20,3 +20,4 @@ whitenoise
 waitress
 pygments
 fake-factory
+html2text

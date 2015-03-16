@@ -8,6 +8,7 @@ from django.contrib.sites.models import Site
 from django.db import transaction
 from django.contrib.staticfiles import finders
 from django.core.files.base import File
+import html2text
 
 import logging
 
@@ -106,7 +107,11 @@ def post_migrate_tasks(sender, **kwargs):
     # Save all users to trigger their html method.
     logger.info("resaving all user profiles")
     for prof in models.Profile.objects.all().exclude(info__isnull=True):
-        prof.save()
+        try:
+            prof.info = html2text.html2text(prof.info)
+            prof.save()
+        except Exception, exc:
+            logger.error("error parsing profile %s" % prof.id)
 
     # Sets up the default domain
     site = Site.objects.get_current()
@@ -123,6 +128,7 @@ def post_migrate_tasks(sender, **kwargs):
         tags = post.tag_val.split(",")
         post.tags.set(*tags)
         PostSub.objects.create(post=post, user=post.author)
+
 
     # Reset tag_val field. This attribute will be dropped on a second migration.
     logger.info('resetting tag_val')
