@@ -172,12 +172,12 @@ def get_toplevel_posts(user, group):
     return posts
 
 
-def get_all_posts(user, group):
+def get_all_posts(request, target, group):
     "Returns all posts by a user"
 
-    posts = Post.objects.filter(author=user)
+    posts = Post.objects.filter(author=target)
 
-    if not user.is_moderator:
+    if not request.user.is_moderator:
         posts = posts.exclude(status=Post.DELETED)
 
     posts = posts.select_related("root", "author", "lastedit_user", "group").prefetch_related("tags")

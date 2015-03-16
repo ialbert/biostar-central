@@ -32,7 +32,6 @@
                     {% endif %}
                 </div>
 
-
                 <div class="six columns">
 
                     {% message_bar %}
@@ -98,7 +97,7 @@
                         {% if target.editable %}
                             <li>
                                 Action: <a href="{% url "user_edit" target.id %}">
-                                <b><i class="fa fa-user"></i> Edit Profile</b></a>
+                                <b><i class="fa fa-user"></i> Edit Your Profile</b></a>
                             </li>
                             <li>
                                 Action: <a href="{% url "user_edit" target.id %}">
@@ -112,7 +111,7 @@
                         </li>
 
                         <li>
-                            <a href="{% url "posts_by_user" pk=target.id %}"><i
+                            <a href="{% url "vote_list" pk=target.id %}"><i
                             class="fa fa-heart"></i> View all votes for {{ target.name }}</a>
                         </li>
 

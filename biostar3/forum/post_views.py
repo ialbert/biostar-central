@@ -72,7 +72,7 @@ def posts_by_user(request, pk, target=None):
     """
     Returns the posts created by a user.
     """
-    posts = query.get_all_posts(user=target, group=request.group)
+    posts = query.get_all_posts(request, target=target, group=request.group)
     messages.info(request, 'Posts by: %s' % target.name)
     return post_list(request, posts=posts)
 
