@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 from django.db.models.signals import post_migrate
-from biostar3.forum import models
+from biostar3.forum import models, awards
 from biostar3.forum.models import User, UserGroup, GroupPerm, Post, GroupSub, PostSub
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
@@ -34,6 +34,8 @@ def post_migrate_tasks(sender, **kwargs):
     """
     Sets up data post migration. The site will rely on data set up via this function.
     """
+
+
 
     # Needs ADMINS settings.
     if not settings.ADMINS:
@@ -133,3 +135,6 @@ def post_migrate_tasks(sender, **kwargs):
     # Reset tag_val field. This attribute will be dropped on a second migration.
     logger.info('resetting tag_val')
     Post.objects.filter(type__in=Post.TOP_LEVEL).exclude(tag_val='').update(tag_val='')
+
+    # Initialize the awards
+    awards.init_awards()

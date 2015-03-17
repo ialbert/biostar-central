@@ -655,6 +655,9 @@ class Badge(models.Model):
     BRONZE, SILVER, GOLD = range(3)
     STYLE_CHOICES = ((BRONZE, 'Bronze'), (SILVER, 'Silver'), (GOLD, 'Gold'))
 
+    # This is used to uniquely identify badges when initializing them.
+    uuid = models.CharField(unique=True, default='', blank=True, max_length=100)
+
     # The name of the badge.
     name = models.CharField(max_length=50)
 
@@ -683,6 +686,9 @@ class Badge(models.Model):
     def __unicode__(self):
         return self.name
 
+    def save(self, *args, **kwargs):
+        self.uuid = self.uuid or make_uuid()
+        super(Badge, self).save(*args, **kwargs)
 
 class Award(models.Model):
     '''

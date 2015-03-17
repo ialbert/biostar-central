@@ -11,6 +11,12 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.AddField(
+            model_name='badge',
+            name='uuid',
+            field=models.CharField(default='', unique=True, max_length=100, blank=True),
+            preserve_default=True,
+        ),
         migrations.AlterField(
             model_name='usergroup',
             name='domain',
