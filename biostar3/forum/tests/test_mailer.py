@@ -3,7 +3,7 @@ from biostar3.forum.mailer import EmailTemplate
 from django.core import mail
 import logging
 
-logging.disable(logging.ERROR)
+logging.disable(logging.INFO)
 
 # Create your tests here.
 class EmailTests(TestCase):

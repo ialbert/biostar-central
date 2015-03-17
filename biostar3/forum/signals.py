@@ -11,14 +11,16 @@ from django.contrib.sites.models import Site
 from datetime import datetime
 from . import auth, mailer, tasks
 from models import *
+from allauth.account.signals import user_logged_in
 
 logger = logging.getLogger("biostar")
 
+def user_login(sender, request, user, **kwargs):
+    # Actions performed on user login
+    tasks.add_user_location.delay(request, user)
 
-def now():
-    return datetime.utcnow().replace(tzinfo=utc)
 
-def user_update(sender, instance, created, **kwargs):
+def user_create(sender, instance, created, **kwargs):
     if created:
         logger.info("created %s" % instance)
 
@@ -27,11 +29,10 @@ def user_update(sender, instance, created, **kwargs):
 
         # Create a subscription of the user to the default group.
         GroupSub.objects.create(user=instance, usergroup=usergroup)
-
+        now = right_now()
         # Add a user profile on creation.
-        right_now = now()
         profile = Profile.objects.create(
-            user=instance, last_login=right_now, date_joined=right_now
+            user=instance, last_login=now, date_joined=now,
         )
 
         if settings.SEND_WELCOME_EMAIL:
@@ -59,5 +60,6 @@ def post_created(sender, instance, created, **kwargs):
         else:
             tasks.create_messages(instance)
 
-post_save.connect(user_update, sender=User)
+post_save.connect(user_create, sender=User)
 post_save.connect(post_created, sender=Post)
+user_logged_in.connect(user_login)

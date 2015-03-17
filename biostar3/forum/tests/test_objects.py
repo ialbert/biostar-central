@@ -14,7 +14,7 @@ from biostar3.forum import html
 from faker import Factory
 from django.contrib.sites.models import Site
 
-logging.disable(logging.ERROR)
+logging.disable(logging.INFO)
 
 class SimpleTests(TestCase):
     def test_admin_user(self):

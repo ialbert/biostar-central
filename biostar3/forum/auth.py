@@ -18,7 +18,7 @@ def now():
 
 
 def ago(hours=0, minutes=0, days=0):
-    since = now() - timedelta(days=days, hours=hours, minutes=minutes)
+    since = right_now() - timedelta(days=days, hours=hours, minutes=minutes)
     return since
 
 

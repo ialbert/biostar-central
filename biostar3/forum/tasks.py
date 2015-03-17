@@ -3,12 +3,36 @@ from celery import shared_task
 
 from .models import *
 from . import auth, mailer
+from itertools import *
+from functools import *
+import urllib2, json
 
+@shared_task
+def add_user_location(request, user):
+    """
+    Attempts to fill in missing user location.
+    """
+
+    if not user.profile.location:
+        try:
+            ip = auth.remote_ip(request)
+            url = "http://api.hostip.info/get_json.php?ip=%s" % ip
+            logger.info("%s, %s, %s" % (ip, user, url))
+            f = urllib2.urlopen(url, timeout=3)
+            data = json.loads(f.read())
+            f.close()
+            location = data.get('country_name', '').title()
+            if "unknown" not in location.lower():
+                user.profile.location = location
+                user.profile.save()
+        except Exception, exc:
+            logger.error(exc)
 
 @shared_task
 def create_messages(post):
     """
-    Generates messages and emails on a post. Invoked on post creation.
+    Generates messages and emails on a post.
+    Invoked on each post creation.
     """
 
     # Subscriptions are relative to the root post.
@@ -31,53 +55,54 @@ def create_messages(post):
     # This is the body of the message that gets created.
     em = mailer.EmailTemplate("post_created_message.html", data=context)
 
-    # The message content on the site is different from the email.
-    # Email must contain the correct block
+    # The template must contain the blocks subject, message, text and html.
     content = mailer.render_node(template=em.template, data=context, name="message")
 
+    # This is the main message body that will be shown for each message.
     body = MessageBody.objects.create(
         author=post.author, subject=em.subj, content=content, html=em.html,
     )
 
-    # Shortcut
-    select = PostSub.objects.filter
+    # Shortcut to filter post subscriptions
+    def select(**kwargs):
+        return PostSub.objects.filter(post=root, **kwargs).select_related("user")
+
+    now = right_now()
 
     # All subscribers get local messages.
     def message_generator(mb):
         # Authors will not get a message when they post.
-        subs = select(post=root).exclude(user=post.author).select_related("user").all()
-        date = now()
+        subs = select().exclude(user=post.author)
+
         for sub in subs:
-            yield Message(user=sub.user, body=mb, date=date)
+            yield Message(user=sub.user, body=mb, date=now)
 
     # Bulk insert for all messages.
     Message.objects.bulk_create(message_generator(body), batch_size=100)
 
     #
     # Generate the email messages.
-    # DEFAULT_MESSAGES will only send email to root author on other people's contributions.
+    #
+    # The DEFAULT_MESSAGES setting will only send email to root author.
     #
     def token_generator(obj):
-        date = now()
 
         # Find everyone that could get an email.
         # This could (probably) be done in a query but the logic gets a little complicated.
-        subs = select(post=root, type__in=settings.EMAIL_MESSAGE_TYPES).exclude(user=root.author).select_related(
-            "user").all()
+        subs = select(type__in=settings.EMAIL_MESSAGE_TYPES).exclude(user=root.author)
 
         # Check if author has default messaging.
-        smart_sub = select(post=root, user=root.author, type=settings.DEFAULT_MESSAGES).select_related("user").first()
+        default_sub = select(user=root.author, type=settings.DEFAULT_MESSAGES)\
+            .exclude(user=post.author)
 
-        # The author has default subscription and is not the author of the current post.
-        if smart_sub and post.author != root.author:
-            # We need to flatten to be able to append to it.
-            subs = list(subs) + [smart_sub]
+        # Chain the results into one.
+        subs = chain(subs, default_sub)
 
         # Generate an email for all candidate.
         for sub in subs:
             token = auth.make_uuid(size=8)
             em.send(to=[sub.user.email], token=token)
-            yield ReplyToken(user=sub.user, post=obj, token=token, date=date)
+            yield ReplyToken(user=sub.user, post=obj, token=token, date=now)
 
     # Insert the reply tokens into the database.
     ReplyToken.objects.bulk_create(token_generator(post), batch_size=100)

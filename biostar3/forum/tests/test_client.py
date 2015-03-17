@@ -17,7 +17,7 @@ HOST = "www.lvh.me:8080"
 
 ADMIN_NAME, ADMIN_EMAIL = settings.ADMINS[0]
 
-logging.disable(logging.ERROR)
+logging.disable(logging.INFO)
 
 faker = Factory.create()
 
@@ -31,7 +31,6 @@ def add_random_content():
 
 
 class ClientTests(TestCase):
-
     def get(self, client, url, code=200, kwargs={}, follow=False, pattern=None):
 
         r = client.get(reverse(url, kwargs=kwargs), follow=follow)
@@ -118,26 +117,36 @@ class ClientTests(TestCase):
             r = self.get(c, url, follow=True, pattern=user.name)
 
     def test_groups(self):
+        """
+        Test group creation.
+        """
         equal = self.assertEqual
         true = self.assertTrue
 
-
         c = Client(HTTP_HOST=HOST)
-        user = self.make_user(c)
-        self.get(c, "group_list", follow=True)
 
-        name = faker.domain_name()
-        domain = faker.domain_word()
-        info = faker.sentence()
+        for step in range(10):
+            user = self.make_user(c)
+            self.get(c, "group_list", follow=True)
 
-        data = dict(name=name, domain=domain, description=info, public=True)
+            name = faker.domain_name()
+            domain = make_uuid(size=8)
+            info = faker.sentence()
 
-        r = self.post(c, "group_create", data=data, pattern=name, follow=True)
+            data = dict(name=name, domain=domain, description=info, public=True)
 
-        # Creating a group redirects to it.
-        final_url = r.redirect_chain[1][0]
-        true(domain in final_url)
+            r = self.post(c, "group_create", data=data, pattern=name, follow=True)
 
+            # Creating a group redirects to it.
+            rlen = len(r.redirect_chain)
+            if rlen != 2:
+                #print r.content
+                logger.error("error creating domain %s" % domain)
+                logger.error(r.redirect_chain)
+                true(rlen == 2)
+
+            final_url = r.redirect_chain[1][0]
+            true(domain in final_url)
 
 
     def test_content(self):
@@ -172,8 +181,6 @@ class ClientTests(TestCase):
         # User gets a welcome email.
         EQ(len(mail.outbox), 1)
 
-
-
         before = after = len(mail.outbox)
 
         # Create a question.
@@ -200,7 +207,7 @@ class ClientTests(TestCase):
         last = mail.outbox[-1]
         TRUE(jane.email in last.to)
 
-        #print last.to
+        # print last.to
         #print last.subject
         #print last.from_email
 

@@ -222,7 +222,7 @@ class GroupCreateForm(forms.Form):
 
     # The is_toplevel field is used to distinguish between subclasses inside templates
     name = forms.CharField(min_length=3, max_length=25, label="Group Name", validators=[group_name_validator])
-    domain = forms.CharField(min_length=3, max_length=15, label="Subdomain", validators=[group_domain_validator])
+    domain = forms.CharField(min_length=3, max_length=50, label="Subdomain", validators=[group_domain_validator])
     public = forms.BooleanField(initial=True, label="Public access", required=False)
     description = forms.CharField(widget=forms.Textarea, min_length=10, max_length=1000,
                                   required=True)
@@ -233,8 +233,9 @@ class GroupCreateForm(forms.Form):
 
 
 class GroupEditForm(GroupCreateForm):
+    # A subclass with different field validation.
     name = forms.CharField(min_length=3, max_length=25, label="Group Name")
-    domain = forms.CharField(min_length=3, max_length=15, label="Subdomain")
+    domain = forms.CharField(min_length=3, max_length=50, label="Subdomain")
 
 
 @login_required

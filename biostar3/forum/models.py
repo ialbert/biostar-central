@@ -20,7 +20,7 @@ class MyTaggableManager(TaggableManager):
         return 'ManyToManyField'
 
 
-def now():
+def right_now():
     return datetime.utcnow().replace(tzinfo=utc)
 
 
@@ -138,7 +138,7 @@ class UserGroup(models.Model):
     Represents a group
     """
     name = models.CharField(max_length=25, unique=True, db_index=True)
-    domain = models.CharField(max_length=15, unique=True, db_index=True, default="www")
+    domain = models.CharField(max_length=50, unique=True, db_index=True, default="www")
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="owners", null=True)
     description = models.TextField(default="default group")
     public = models.BooleanField(default=True)
@@ -148,7 +148,12 @@ class UserGroup(models.Model):
 
     def save(self, *args, **kwargs):
         "Actions that need to be performed on every user save."
+
+        # A few sanity checks performed.
         self.domain = self.domain.lower()
+        self.domain = self.domain.strip()
+        self.domain = "".join(self.domain.splitlines())
+        self.domain = '-'.join(self.domain.split())
 
         super(UserGroup, self).save(*args, **kwargs)
 
@@ -417,7 +422,7 @@ class Post(models.Model):
         # Remove whitespace from the title.
         self.title = self.title.strip()
 
-        self.creation_date = self.creation_date or now()
+        self.creation_date = self.creation_date or right_now()
         self.lastedit_date = self.lastedit_date or self.creation_date
         self.lastedit_user = self.lastedit_user or self.author
         self.html = html.sanitize(self.content, user=self.lastedit_user)
@@ -449,7 +454,7 @@ class ReplyToken(models.Model):
 
     def save(self, *args, **kwargs):
         self.token = self.token or make_uuid()
-        self.date = self.date or now()
+        self.date = self.date or right_now()
         super(ReplyToken, self).save(*args, **kwargs)
 
 
@@ -511,7 +516,7 @@ class Vote(models.Model):
     date = models.DateTimeField(db_index=True)
 
     def save(self, **kwargs):
-        self.date = self.date or now()
+        self.date = self.date or right_now()
         super(Vote, self).save(**kwargs)
 
     def __unicode__(self):
@@ -531,7 +536,7 @@ class MessageBody(models.Model):
 
     def save(self, **kwargs):
         self.subject = self.subject[:self.MAX_LEN]
-        self.date = self.date or now()
+        self.date = self.date or right_now()
         super(MessageBody, self).save(**kwargs)
 
 
@@ -545,7 +550,7 @@ class Message(models.Model):
     date = models.DateTimeField(db_index=True, null=True)
 
     def save(self, **kwargs):
-        self.date = self.date or now()
+        self.date = self.date or right_now()
         super(Message, self).save(**kwargs)
 
     def __unicode__(self):
@@ -635,7 +640,7 @@ class BlogPost(models.Model):
     def save(self, *args, **kwargs):
         if not self.id:
             # Set the date to current time if missing.
-            self.insert_date = self.insert_date or now()
+            self.insert_date = self.insert_date or right_now()
 
         super(BlogPost, self).save(*args, **kwargs)
 
