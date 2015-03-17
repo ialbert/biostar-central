@@ -152,4 +152,39 @@ class Migration(migrations.Migration):
             field=models.ManyToManyField(to='forum.Tag', blank=True),
             preserve_default=True,
         ),
+        migrations.CreateModel(
+            name='Blog',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('title', models.CharField(default='', max_length=255, verbose_name='Blog Name')),
+                ('desc', models.TextField(default='', blank=True)),
+                ('feed', models.URLField()),
+                ('link', models.URLField()),
+                ('active', models.BooleanField(default=True)),
+                ('list_order', models.IntegerField(default=0)),
+            ],
+            options={
+                'db_table': 'planet_blog',
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='BlogPost',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('uid', models.CharField(default='', max_length=200)),
+                ('title', models.CharField(max_length=200)),
+                ('content', models.TextField(default='', max_length=20000)),
+                ('html', models.TextField(default='')),
+                ('creation_date', models.DateTimeField(db_index=True)),
+                ('insert_date', models.DateTimeField(null=True, db_index=True)),
+                ('published', models.BooleanField(default=False)),
+                ('link', models.URLField()),
+                ('blog', models.ForeignKey(to='forum.Blog')),
+            ],
+            options={
+                'db_table': 'planet_blogpost',
+            },
+            bases=(models.Model,),
+        ),
     ]

@@ -1,5 +1,6 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 import random, hashlib, uuid, logging
+import os, urllib, feedparser
 from django.db import models, transaction
 from django.contrib.auth.models import UserManager, AbstractBaseUser, PermissionsMixin
 from django.contrib.sites.models import Site
@@ -13,6 +14,7 @@ from . import html
 
 logger = logging.getLogger('biostar')
 
+
 class MyTaggableManager(TaggableManager):
     def get_internal_type(self):
         return 'ManyToManyField'
@@ -20,6 +22,11 @@ class MyTaggableManager(TaggableManager):
 
 def now():
     return datetime.utcnow().replace(tzinfo=utc)
+
+
+def abspath(*args):
+    """Generates absolute paths"""
+    return os.path.abspath(os.path.join(*args))
 
 
 def make_uuid(size=8):
@@ -126,7 +133,6 @@ class User(AbstractBaseUser, PermissionsMixin):
         return "User: %s (%s)" % (self.id, self.email)
 
 
-
 class UserGroup(models.Model):
     """
     Represents a group
@@ -158,6 +164,7 @@ class UserGroup(models.Model):
 
     def __unicode__(self):
         return "Usergroup: %s" % self.name
+
 
 class GroupPerm(models.Model):
     """
@@ -445,6 +452,7 @@ class ReplyToken(models.Model):
         self.date = self.date or now()
         super(ReplyToken, self).save(*args, **kwargs)
 
+
 class FederatedContent(models.Model):
     """
     Represents a searchable text sent over from another site.
@@ -458,10 +466,12 @@ class FederatedContent(models.Model):
     changed = models.BooleanField(default=False, blank=True)
     creation_date = models.DateTimeField(db_index=True, auto_now=True)
 
+
 class GroupSub(models.Model):
     """
     Keeps track of the subscription of a user to a group.
     """
+
     class Meta:
         unique_together = (("user", "usergroup"),)
 
@@ -487,6 +497,7 @@ class PostSub(models.Model):
     def __unicode__(self):
         return "PostSub: %s, %s: %s" % (self.user_id, self.post_id, self.get_pref_display())
 
+
 class Vote(models.Model):
     class Meta:
         db_table = "posts_vote"
@@ -505,6 +516,7 @@ class Vote(models.Model):
 
     def __unicode__(self):
         return u"Vote: %s, %s, %s" % (self.post_id, self.author_id, self.get_type_display())
+
 
 class MessageBody(models.Model):
     """
@@ -539,3 +551,142 @@ class Message(models.Model):
     def __unicode__(self):
         return "Message for user %s" % self.user_id
 
+
+class Blog(models.Model):
+    "Represents a blog"
+    title = models.CharField(verbose_name='Blog Name', max_length=255, default="", blank=False)
+    desc = models.TextField(default='', blank=True)
+    feed = models.URLField()
+    link = models.URLField()
+    active = models.BooleanField(default=True)
+    list_order = models.IntegerField(default=0)
+
+
+    class Meta:
+        db_table = "planet_blog"
+
+    @property
+    def fname(self):
+        fname = abspath(settings.PLANET_DIR, '%s.xml' % self.id)
+        return fname
+
+    def parse(self):
+        try:
+            doc = feedparser.parse(self.fname)
+        except Exception, exc:
+            logger.error("error %s parsing blog %s", (exc, self.id))
+            doc = None
+        return doc
+
+    def download(self):
+        try:
+            text = urllib.urlopen(self.feed).read()
+            stream = file(self.fname, 'wt')
+            stream.write(text)
+            stream.close()
+        except Exception, exc:
+            logger.error("error %s downloading %s", (exc, self.feed))
+
+    def __unicode__(self):
+        return self.title
+
+
+class BlogPost(models.Model):
+    "Represents an entry of a Blog"
+
+    # The blog that generated the entry
+    blog = models.ForeignKey(Blog)
+
+    # A unique id for this entry
+    uid = models.CharField(max_length=200, default="", null=False)
+
+    # The title of the entry
+    title = models.CharField(max_length=200, null=False)
+
+    # The content of the feed
+    content = models.TextField(default='', max_length=20000)
+
+    # Santizied HTML
+    html = models.TextField(default='')
+
+    # Date related fields.
+    creation_date = models.DateTimeField(db_index=True)
+
+    # Date at which the post has been inserted into the database
+    insert_date = models.DateTimeField(db_index=True, null=True)
+
+    # Has the entry been published
+    published = models.BooleanField(default=False)
+
+    # The link to the entry
+    link = models.URLField()
+
+
+    class Meta:
+        db_table = "planet_blogpost"
+
+    @property
+    def get_title(self):
+        return u"BLOG: %s" % self.title
+
+    def get_absolute_url(self):
+        return self.link
+
+    def save(self, *args, **kwargs):
+        if not self.id:
+            # Set the date to current time if missing.
+            self.insert_date = self.insert_date or now()
+
+        super(BlogPost, self).save(*args, **kwargs)
+
+    def __unicode__(self):
+        return self.title
+
+
+class Badge(models.Model):
+    USER, POST = range(2)
+    TARGET_CHOICES = [ (USER, "User badge"), (POST, "Post badge") ]
+
+    BRONZE, SILVER, GOLD = range(3)
+    STYLE_CHOICES = ((BRONZE, 'Bronze'), (SILVER, 'Silver'), (GOLD, 'Gold'))
+
+    # The name of the badge.
+    name = models.CharField(max_length=50)
+
+    # The description of the badge.
+    desc = models.CharField(max_length=200, default='')
+
+    # What type of content is it awarded for.
+    type = models.IntegerField(choices=TARGET_CHOICES, default=USER)
+
+    # The rarity of the badge.
+    style = models.IntegerField(choices=STYLE_CHOICES, default=BRONZE)
+
+    # Unique badges may be earned only once
+    unique = models.BooleanField(default=False)
+
+    # Total number of times awarded
+    count = models.IntegerField(default=0)
+
+    # The icon to display for the badge.
+    icon = models.CharField(default='<i class="fa fa-asterisk"></i>', max_length=250)
+
+    def get_absolute_url(self):
+        url = reverse("badge-details", kwargs=dict(pk=self.id))
+        return url
+
+    def __unicode__(self):
+        return self.name
+
+
+class Award(models.Model):
+    '''
+    A badge being awarded to a user.
+    '''
+    badge = models.ForeignKey(Badge)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL)
+
+    # Keep track of the post if applicable.
+    post = models.ForeignKey(Post, null=True, blank=True)
+    date = models.DateTimeField()
+    context = models.CharField(max_length=1000, default='')
