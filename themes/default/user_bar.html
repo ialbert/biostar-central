@@ -27,10 +27,17 @@
 
                 {% if user.is_authenticated %}
 
+                    <div class="item tooltip" title="Your Account" data-tooltip-direction="top">
+                        <a href="{% url "user_view" pk=user.id %}"><i class="fa fa-user">
+                            <span class="line">{% scoreline user %}</span></i> {{ user.name }}
+                        </a>
+                    </div>
+
                     <div class="item tooltip" title="Messages" data-tooltip-direction="top">
                         <a class="{% glow c.mesg_count %}" href="{% url "my_messages" %}"><i
                         class="fa fa-envelope"></i> {{ c.mesg_count }}</a>
                     </div>
+
 
 
                     <div class="item tooltip lg" title="Your upvoted posts" data-tooltip-direction="top">
@@ -57,11 +64,7 @@
                         class="fa fa-list"></i> {{ c.post_count|bignum }}</a>
                     </div>
 
-                    <div class="item tooltip" title="Your Account" data-tooltip-direction="top">
-                        <a href="{% url "user_view" pk=user.id %}"><i class="fa fa-user">
-                            <span class="line">{% scoreline user %}</span></i> {{ user.name }}
-                        </a>
-                    </div>
+
                 {% endif %}
             </div>
         </div>
