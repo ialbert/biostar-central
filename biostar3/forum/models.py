@@ -514,6 +514,7 @@ class Vote(models.Model):
     author = models.ForeignKey(settings.AUTH_USER_MODEL, db_index=True)
     post = models.ForeignKey(Post, related_name='votes', db_index=True)
     type = models.IntegerField(choices=TYPE_CHOICES)
+    unread = models.BooleanField(default=True)
     date = models.DateTimeField(db_index=True)
 
     def save(self, **kwargs):

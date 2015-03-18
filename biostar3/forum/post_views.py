@@ -19,7 +19,7 @@ from taggit.models import TaggedItem, Tag
 # Biostar specific local modules.
 from . import models, query, search, auth
 from .models import Vote, Post, PostView, UserGroup, GroupSub, Message, GroupPerm
-from biostar3.context import reset_cache
+from biostar3.context import SESSION_COUNT_KEY
 
 logger = logging.getLogger('biostar')
 
@@ -118,8 +118,10 @@ def my_messages(request):
     # Set all messages to read.
     posts.update(unread=False)
 
-    # Reset the cache key for messages.
-    reset_cache(request, 'mesg_count')
+    # Reset the value for for messages.
+    counts = request.session.get(SESSION_COUNT_KEY, {})
+    counts['mesg_count']= 0 # Hardcoded key must match that set in contex.py
+    request.session[SESSION_COUNT_KEY] = counts
 
     return render(request, template_name, context)
 
@@ -132,14 +134,19 @@ def vote_list(request, pk, target=None):
 
     votes = Vote.objects.filter(post__author=target).select_related("post", "author").order_by("-date")
 
+    # Set all votes to seen.
+    votes.update(unread=False)
+
     paginator = query.ExtendedPaginator(request,
                                         object_list=votes, per_page=50)
     page = paginator.curr_page()
 
     context = dict(page=page, votes=page.object_list, target=target)
 
-    # Reset the cache for votes.
-    reset_cache(request, "vote_count")
+    # Reset the value for for messages.
+    counts = request.session.get(SESSION_COUNT_KEY, {})
+    counts['new_vote_count'] = 0 # Hardcoded key must match that set in contex.py
+    request.session[SESSION_COUNT_KEY] = counts
 
     return render(request, template_name, context)
 

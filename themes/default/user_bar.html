@@ -1,4 +1,6 @@
 {% load widgets %}
+{%  load humanize %}
+
 {% with c=context.counts %}
 
     {#  A second navigation bar for authenticated users #}
@@ -27,27 +29,32 @@
 
                     <div class="item tooltip" title="Messages" data-tooltip-direction="top">
                         <a class="{% glow c.mesg_count %}" href="{% url "my_messages" %}"><i
-                                class="fa fa-envelope"></i> {{ c.mesg_count }}</a>
+                        class="fa fa-envelope"></i> {{ c.mesg_count }}</a>
                     </div>
 
 
                     <div class="item tooltip lg" title="Your upvoted posts" data-tooltip-direction="top">
-                        <a class="{% glow c.vote_count %}" href="{% url "vote_list" pk=user.id %}"><i
-                                class="fa fa-heart"></i> {{ c.vote_count }}</a>
+                        {% if c.new_vote_count %}
+                            <a class="{% glow c.new_vote_count %}" href="{% url "vote_list" pk=user.id %}"><i
+                            class="fa fa-heart"></i> {{ c.new_vote_count }}</a>
+                        {% else %}
+                             <a href="{% url "vote_list" pk=user.id %}"><i
+                            class="fa fa-heart"></i> {{ c.vote_count|bignum }}</a>
+                        {% endif %}
                     </div>
 
                     <div class="item tooltip lg" title="Your awards" data-tooltip-direction="top">
-                        <a href="{%  url "award_list" user.id %}"><i class="fa fa-star"></i> {{ c.award_count }}</a>
+                        <a href="{% url "award_list" user.id %}"><i class="fa fa-star"></i> {{ c.award_count }}</a>
                     </div>
 
                     <div class="item tooltip lg" title="Your Bookmarks" data-tooltip-direction="top">
                         <a href="{% url "my_bookmarks" %}"><i
-                                class="fa fa-bookmark"></i> {{ c.book_count }}</a>
+                        class="fa fa-bookmark"></i> {{ c.book_count }}</a>
                     </div>
 
                     <div class="item tooltip" title="Your posts" data-tooltip-direction="top">
                         <a href="{% url "posts_by_user" pk=user.id %}"><i
-                                class="fa fa-list"></i> {{ c.post_count }}</a>
+                        class="fa fa-list"></i> {{ c.post_count|bignum }}</a>
                     </div>
 
                     <div class="item tooltip" title="Your Account" data-tooltip-direction="top">

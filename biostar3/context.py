@@ -28,19 +28,16 @@ def ago(hours=0, minutes=0, days=0):
     return since
 
 
-def reset_cache(request, key):
-    counts = get_counts(request)
-    counts[key] = 0
-    get_counts(request, counts=counts)
-
-
 def get_shortcuts(request):
     return settings.DEFAULT_SHORTCUTS
+
 
 ANON_COUNTS = dict(
     post_count=0, book_count=0,
     vote_count=0, mesg_count=0, badge_count=0,
 )
+
+SESSION_COUNT_KEY = "counts"
 
 
 def get_counts(request, counts=None):
@@ -50,44 +47,38 @@ def get_counts(request, counts=None):
     if request.user.is_anonymous():
         return ANON_COUNTS
 
+    sess = request.session
+
     user = request.user
     count_key = COUNT_KEY_PATT % user.id
 
-    if counts:
-        # Allows updating the cache as well.
-        # This will restart the expiration timer so make it shorter.
-        cache.set(count_key, counts, USER_SESSION_TIMEOUT)
+    last_login = user.profile.last_login
 
-    counts = cache.get(count_key)
+    # Time has passed.
+    elapsed = (now() - last_login).seconds
 
-    if not counts:
-        # Counts not found need to be recreated.
-        logger.info("hitting the cache %s" % count_key)
+    # The sessions has not been set yet.
+    missing = SESSION_COUNT_KEY not in sess
 
-        # Save the last login time. Counts are computed relative to that.
-        last_login = user.profile.last_login
+    # The user session will be updated.
+    if elapsed > settings.SESSION_UPDATE_SECONDS or missing:
+        counts = dict(
+            mesg_count=Message.objects.filter(user=user, unread=True).count(),
 
-        # Update the last login field.
+            vote_count=Vote.objects.filter(post__author=user, type__in=(Vote.BOOKMARK, Vote.UP)).count(),
+
+            new_vote_count=Vote.objects.filter(post__author=user, type__in=(Vote.BOOKMARK, Vote.UP),
+                                               unread=True).count() + 1,
+
+            post_count=Post.objects.filter(author=user).count(),
+            book_count=Vote.objects.filter(author=user, type=Vote.BOOKMARK).count(),
+            award_count=Award.objects.filter(user=user).count(),
+        )
+        sess[SESSION_COUNT_KEY] = counts
         user.profile.last_login = now()
         user.profile.save()
 
-        post_count = Post.objects.filter(author=user).count()
-        book_count = Vote.objects.filter(author=user, type=Vote.BOOKMARK).count()
-        vote_count = Vote.objects.filter(post__author=user, type__in=(Vote.BOOKMARK, Vote.UP),
-                                         date__gt=last_login).count()
-
-        mesg_count = Message.objects.filter(user=user, unread=True).count()
-        award_count = Award.objects.filter(user=user).count()
-
-        counts = dict(
-            post_count=post_count,
-            book_count=book_count,
-            vote_count=vote_count,
-            mesg_count=mesg_count,
-            award_count=award_count,
-        )
-        cache.set(count_key, counts, USER_SESSION_TIMEOUT)
-
+    counts = sess.get(SESSION_COUNT_KEY, {})
     return counts
 
 
