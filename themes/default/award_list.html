@@ -1,0 +1,37 @@
+{% extends "site_layout.html" %}
+{% load widgets %}
+
+{% block title %}
+    Award list for {{ target.name }}
+{% endblock %}
+
+{% block body %}
+
+    {% user_bar user %}
+
+    <div class="row">
+
+        <div class="nine columns" id="badge_list">
+
+            <div class="title">Awards for {{ target.name }}</div>
+
+        	{% page_bar page %}
+
+            {% for award in awards %}
+                <div class="award">
+                    {{ award.date|time_ago }} to
+
+                    <a href="{{ award.user.get_absolute_url }}">{{ award.badge.name }} {{ award.badge.icon|safe }}</a>
+
+                    {% if award.post %}
+                        for <a href="{{ award.post.get_absolute_url }}">{{ award.post.title }}</a>
+                    {% endif %}
+
+                </div>
+            {% endfor %}
+
+
+        </div>
+    </div>
+
+{% endblock %}

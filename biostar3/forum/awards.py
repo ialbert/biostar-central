@@ -15,17 +15,8 @@ logger = logging.getLogger('biostar')
 
 default_selector = lambda: []
 default_date_func = lambda obj: right_now()
-
-
-def find_vote_date(post, N=1):
-    """
-    Finds the date of the nth vote by date.
-    """
-    vote = Vote.objects.all().order_by("date")[N:N + 1].first()
-    if not vote:
-        return right_now()
-    else:
-        return vote.date
+default_user_date_func = lambda obj: obj.profile.date_joined
+default_post_date_func = lambda obj: obj.creation_date
 
 # How many posts to qualify for centurion.
 CENTURION_COUNT = 100
@@ -47,7 +38,7 @@ class AwardDef(object):
     def __init__(self, uuid, name, desc, icon,
                  type=Badge.BRONZE,
                  selector=default_selector,
-                 date_func=default_date_func):
+                 date_func=None):
 
         self.uuid = uuid
         self.name = name
@@ -76,25 +67,33 @@ class AwardDef(object):
 
             for obj in targets:
 
-                date = self.date_func(obj)
-
                 if isinstance(obj, User):
                     # Object is a user.
                     user, post = obj, None
+                    date = default_user_date_func(user)
                 else:
                     # Object must be a post.
                     user, post = obj.author, obj
+                    date = default_post_date_func(post)
+
+                # Overrride the date function if necessary.
+                if self.date_func:
+                    date = self.date_func(obj)
 
                 # Create the award
                 award = Award.objects.create(badge=self.badge, user=user, post=post, date=date)
 
                 # Generate the message for the award.
-                em = mailer.EmailTemplate("award_created_message.html")
+                data = dict(award=award, badge=award.badge, post=post, user=user)
+                em = mailer.EmailTemplate("award_created_message.html", data=data)
 
                 # Create a local message
                 em.create_messages(author=user, targets=[award])
 
                 # TODO: Send an email message if the user is tracking group via email.
+
+            self.badge.count = Award.objects.filter(badge=self.badge).count()
+            self.badge.save()
 
         except KeyError, exc:
             logger.error("award %s error %s" % (self.uuid, exc))
@@ -128,7 +127,7 @@ def get_awards():
     AUTOBIO = AwardDef(
         uuid='autobio',
         name="Autobiographer",
-        desc="has more than 80 characters in the information field of the user's profile",
+        desc="Has more than 80 characters in the information field of the user's profile.",
         selector=autobio_selector,
         icon='<i class="fa fa-bullhorn"></i>'
     )
@@ -141,9 +140,8 @@ def get_awards():
     GOOD_QUESTION = AwardDef(
         uuid="goodquestion",
         name="Good Question",
-        desc="asked a question that was upvoted at least 5 times",
+        desc="Asked a question that was upvoted at least 5 times.",
         selector=good_question_selector,
-        date_func=lambda post: find_vote_date(post, 5),
         icon='<i class="fa fa-question"></i>',
     )
 
@@ -155,9 +153,8 @@ def get_awards():
     GOOD_ANSWER = AwardDef(
         uuid="goodanswer",
         name="Good Answer",
-        desc="created an answer that was upvoted at least 5 times",
+        desc="Created an answer that was upvoted at least 5 times.",
         selector=good_answer_selector,
-        date_func=lambda post: find_vote_date(post, 5),
         icon='<i class="fa fa-pencil-square-o"></i>'
     )
 
@@ -169,7 +166,7 @@ def get_awards():
     STUDENT = AwardDef(
         uuid="student",
         name="Student",
-        desc="asked a question with at least 3 up-votes",
+        desc="Asked a question with at least 3 up-votes.",
         selector=student_selector,
         icon='<i class="fa fa-certificate"></i>'
     )
@@ -182,7 +179,7 @@ def get_awards():
     TEACHER = AwardDef(
         uuid='teacher',
         name="Teacher",
-        desc="created an answer with at least 3 up-votes",
+        desc="Created an answer with at least 3 up-votes.",
         selector=teacher_selector,
         icon='<i class="fa fa-smile-o"></i>'
     )
@@ -196,7 +193,7 @@ def get_awards():
     COMMENTATOR = AwardDef(
         uuid="commentator",
         name="Commentator",
-        desc="created a comment with at least 3 up-votes",
+        desc="Created a comment with at least 3 up-votes.",
         selector=commentator_selector,
         icon='<i class="fa fa-comment-o"></i>'
     )
@@ -209,7 +206,7 @@ def get_awards():
     CENTURION = AwardDef(
         uuid="centurion",
         name="Centurion",
-        desc="created more than 100 posts",
+        desc="Created more than 100 posts.",
         selector=centurion_selector,
         icon='<i class="fa fa-bolt"></i>',
         type=Badge.SILVER,
@@ -223,7 +220,7 @@ def get_awards():
     EPIC_QUESTION = AwardDef(
         uuid="epic-question",
         name="Epic Question",
-        desc="created a question with more than 10,000 views",
+        desc="Created a question with more than 10,000 views.",
         selector=epic_selector,
         icon='<i class="fa fa-bullseye"></i>',
         type=Badge.GOLD,
@@ -237,7 +234,7 @@ def get_awards():
     POPULAR_QUESTION = AwardDef(
         uuid="popular-question",
         name="Popular Question",
-        desc="created a question with more than 1,000 views",
+        desc="Created a question with more than 1,000 views.",
         selector=popular_selector,
         icon='<i class="fa fa-eye"></i>',
         type=Badge.GOLD,
@@ -251,7 +248,7 @@ def get_awards():
     ORACLE = AwardDef(
         uuid="oracle",
         name="Oracle",
-        desc="created more than 1,000 posts (questions + answers + comments)",
+        desc="Created more than 1,000 posts (questions + answers + comments).",
         selector=oracle_selector,
         icon='<i class="fa fa-sun-o"></i>',
         type=Badge.GOLD,
@@ -259,13 +256,13 @@ def get_awards():
 
     def pundit_selector(uuid):
         cond = Q(award__badge__uuid=uuid)
-        query = Post.objects.exclude(cond).filter(reply_count__gte=PUNDIT_COUNT, type=Post.COMMENT).distinct()
+        query = Post.objects.exclude(cond).filter(vote_count__gte=PUNDIT_COUNT, type=Post.COMMENT).distinct()
         return query
 
     PUNDIT = AwardDef(
         uuid="pundit",
         name="Pundit",
-        desc="created a comment with more than 10 votes",
+        desc="Created a comment with more than 10 votes.",
         selector=pundit_selector,
         icon='<i class="fa fa-comments-o"></i>',
         type=Badge.SILVER,
@@ -279,7 +276,7 @@ def get_awards():
     GURU = AwardDef(
         uuid="guru",
         name="Guru",
-        desc="received more than 100 upvotes",
+        desc="Received more than 100 upvotes.",
         selector=guru_selector,
         icon='<i class="fa fa-beer"></i>',
         type=Badge.SILVER,
@@ -293,7 +290,7 @@ def get_awards():
     CYLON = AwardDef(
         uuid="cylon",
         name="Cylon",
-        desc="received more than 1,000 up votes",
+        desc="Received more than 1,000 up votes.",
         selector=cylon_selector,
         icon='<i class="fa fa-rocket"></i>',
         type=Badge.GOLD,
@@ -307,9 +304,8 @@ def get_awards():
     VOTER = AwardDef(
         uuid="voter",
         name="Voter",
-        desc="voted more than 100 times",
+        desc="Voted more than 100 times.",
         selector=voter_selector,
-
         icon='<i class="fa fa-thumbs-o"></i>',
     )
 
@@ -321,7 +317,7 @@ def get_awards():
     SUPPORTER = AwardDef(
         uuid="supporter",
         name="Supporter",
-        desc="voted at least 25 times",
+        desc="Voted at least 25 times.",
         selector=supporter_selector,
         icon='<i class="fa fa-thumbs-up"></i>',
         type=Badge.SILVER,
@@ -336,7 +332,7 @@ def get_awards():
     SCHOLAR = AwardDef(
         uuid="scholar",
         name="Scholar",
-        desc="created an answer that has been accepted",
+        desc="Created an answer that has been accepted.",
         selector=scholar_selector,
         icon='<i class="fa fa-check-circle-o"></i>',
     )
@@ -349,7 +345,7 @@ def get_awards():
     PROPHET = AwardDef(
         uuid="prophet",
         name="Prophet",
-        desc="created a post with more than 20 followers",
+        desc="Created a post with more than 20 followers.",
         selector=prophet_selector,
         icon='<i class="fa fa-pagelines"></i>',
     )
@@ -362,7 +358,7 @@ def get_awards():
     LIBRARIAN = AwardDef(
         uuid="librarian",
         name="Librarian",
-        desc="created a post with more than 10 bookmarks",
+        desc="Created a post with more than 10 bookmarks.",
         selector=librarian_selector,
         icon='<i class="fa fa-bookmark-o"></i>',
     )

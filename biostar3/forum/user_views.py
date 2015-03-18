@@ -93,7 +93,7 @@ def badge_view(request, pk):
     awards = models.Award.objects.filter(badge=badge).select_related("user", "post").order_by("-date")
 
     paginator = query.ExtendedPaginator(request,
-                                        object_list=awards, per_page=25)
+                                        object_list=awards, per_page=50)
 
     page = paginator.curr_page()
 
@@ -115,9 +115,14 @@ def award_list(request, pk, target=None):
     """
     Show all the awards for a user
     """
-    template_name = "badge_list.html"
-    badges = models.Badge.objects.all().order_by("-count")
-    context = dict(badges=badges)
+    template_name = "award_list.html"
+    awards = models.Award.objects.filter(user=target).select_related("badge").order_by("-date")
+    paginator = query.ExtendedPaginator(request,
+                                        object_list=awards, per_page=50)
+
+    page = paginator.curr_page()
+
+    context = dict(page=page, awards=page.object_list, target=target)
     return render(request, template_name, context)
 
 @login_required

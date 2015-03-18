@@ -32,11 +32,13 @@ class Command(BaseCommand):
 
         if options['all']:
 
+            #models.Award.objects.all().delete()
+            #models.MessageBody.objects.all().delete()
+
             for award in awards.get_awards():
-                logger.info("award %s" % award.uuid)
                 start = time.time()
                 award.check()
                 end = time.time()
                 at = int(end - start)
                 ac = models.Award.objects.filter(badge__uuid=award.uuid).count()
-                logger.info("%s %s awards, took %d seconds" % (ac, award.uuid, at))
+                logger.info("processed %s of the %s awards in %d seconds" % (ac, award.uuid, at))

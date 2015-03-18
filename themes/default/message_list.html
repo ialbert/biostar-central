@@ -17,7 +17,7 @@
 
             {% for message in notes %}
                 <div class="message {% glow message.unread %}">
-                    {{ message.body.content|safe }} {{ message.date }}
+                    {{ message.date }} {{ message.body.content|safe }}
                 </div>
 
             {% endfor %}

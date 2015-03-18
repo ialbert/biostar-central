@@ -7,9 +7,13 @@
 
 {#  This is the content of the local message  #}
 {% block message %}
-    You have won the award: {{ award.badge.name }}
-
-    View your awards at: {{ award_url }}
+    <b>Congratulations!</b> You have won the
+	<b><a href="{% url "badge_view" award.badge.id %}">{{ award.badge.name }} {{award.badge.icon|safe}}</a></b>
+	badge for the notable accomplishment of: <em>{{ award.badge.desc }}</em>.
+	{% if award.post %}
+		You have earned this honor for: <a href="{{ award.post.get_absolute_url }}">{{ award.post.title }}</a>
+        created {{ award.post.creation_date|time_ago }}
+	{% endif %}
 {% endblock %}
 
 {#  This is the subject of the email message  #}

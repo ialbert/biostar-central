@@ -37,7 +37,7 @@
                     </div>
 
                     <div class="item tooltip lg" title="Your awards" data-tooltip-direction="top">
-                        <a class="{% glow c.badge_count %}" href="#"><i class="fa fa-star"></i> {{ c.award_count }}</a>
+                        <a href="{%  url "award_list" user.id %}"><i class="fa fa-star"></i> {{ c.award_count }}</a>
                     </div>
 
                     <div class="item tooltip lg" title="Your Bookmarks" data-tooltip-direction="top">
