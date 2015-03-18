@@ -6,7 +6,7 @@ from django.conf import settings
 from django.core.cache import cache
 from biostar3 import VERSION
 from django.core.cache import caches
-from biostar3.forum.models import Post, Vote, Message
+from biostar3.forum.models import Post, Vote, Message, Award
 from django.utils.timezone import utc
 from datetime import datetime, timedelta
 
@@ -75,14 +75,16 @@ def get_counts(request, counts=None):
         book_count = Vote.objects.filter(author=user, type=Vote.BOOKMARK).count()
         vote_count = Vote.objects.filter(post__author=user, type__in=(Vote.BOOKMARK, Vote.UP),
                                          date__gt=last_login).count()
+
         mesg_count = Message.objects.filter(user=user, unread=True).count()
+        award_count = Award.objects.filter(user=user).count()
 
         counts = dict(
             post_count=post_count,
             book_count=book_count,
             vote_count=vote_count,
             mesg_count=mesg_count,
-            badge_count=0,
+            award_count=award_count,
         )
         cache.set(count_key, counts, USER_SESSION_TIMEOUT)
 

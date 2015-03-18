@@ -8,14 +8,13 @@ from functools import *
 import urllib2, json
 
 @shared_task
-def add_user_location(request, user):
+def add_user_location(ip, user):
     """
     Attempts to fill in missing user location.
     """
 
     if not user.profile.location:
         try:
-            ip = auth.remote_ip(request)
             url = "http://api.hostip.info/get_json.php?ip=%s" % ip
             logger.info("%s, %s, %s" % (ip, user, url))
             f = urllib2.urlopen(url, timeout=3)

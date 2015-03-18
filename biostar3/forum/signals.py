@@ -12,13 +12,16 @@ from datetime import datetime
 from . import auth, mailer, tasks
 from models import *
 from allauth.account.signals import user_logged_in
+from django.dispatch import receiver
 
 logger = logging.getLogger("biostar")
 
+@receiver(user_logged_in)
 def user_login(sender, request, user, **kwargs):
     # Actions performed on user login
-    tasks.add_user_location.delay(request, user)
-
+    ip = auth.remote_ip(request)
+    func = tasks.add_user_location
+    func.delay(ip, user) if settings.CELERY_ENABLED else func(ip, user)
 
 def user_create(sender, instance, created, **kwargs):
     if created:
@@ -55,11 +58,8 @@ def post_created(sender, instance, created, **kwargs):
         postsub = auth.postsub_get_or_create(user=instance.author, post=instance.root, sub_type=groupsub.type)
 
         # Route the message creation via celery if necessary.
-        if settings.CELERY_ENABLED:
-            tasks.create_messages.delay(instance)
-        else:
-            tasks.create_messages(instance)
+        func = tasks.create_messages
+        func.delay(instance) if settings.CELERY_ENABLED else func(instance)
 
 post_save.connect(user_create, sender=User)
 post_save.connect(post_created, sender=Post)
-user_logged_in.connect(user_login)

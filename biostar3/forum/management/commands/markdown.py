@@ -32,7 +32,7 @@ class Command(BaseCommand):
 
             post_count = Post.objects.all().count()
 
-            logger.info("Resaving %s posts" % post_count)
+            logger.info("resaving %s posts" % post_count)
             last = current = -1
             for index, post in enumerate(Post.objects.all().select_related("author")):
                 try:
