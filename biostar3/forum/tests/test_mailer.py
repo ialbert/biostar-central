@@ -17,7 +17,7 @@ class EmailTests(TestCase):
         EQ(em.text, "Hello world!")
         EQ(em.html, "Hello <b>world!</b>")
 
-        em.send(from_email="foo@com", to=["bar@com"])
+        em.send_email(from_email="foo@com", to=["bar@com"])
 
         # Test that the message has been sent
         EQ(len(mail.outbox), 1)

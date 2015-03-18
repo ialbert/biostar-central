@@ -55,30 +55,15 @@ def create_messages(post):
     # This is the body of the message that gets created.
     em = mailer.EmailTemplate("post_created_message.html", data=context)
 
-    # The template must contain the blocks subject, message, text and html.
-    content = mailer.render_node(template=em.template, data=context, name="message")
-
-    # This is the main message body that will be shown for each message.
-    body = MessageBody.objects.create(
-        author=post.author, subject=em.subj, content=content, html=em.html,
-    )
-
     # Shortcut to filter post subscriptions
     def select(**kwargs):
         return PostSub.objects.filter(post=root, **kwargs).select_related("user")
 
-    now = right_now()
+    # Users with subscription to the post other than post authors.
+    targets = select().exclude(user=post.author)
 
-    # All subscribers get local messages.
-    def message_generator(mb):
-        # Authors will not get a message when they post.
-        subs = select().exclude(user=post.author)
-
-        for sub in subs:
-            yield Message(user=sub.user, body=mb, date=now)
-
-    # Bulk insert for all messages.
-    Message.objects.bulk_create(message_generator(body), batch_size=100)
+    # Create local messages to all targets
+    em.create_messages(author=post.author, targets=targets)
 
     #
     # Generate the email messages.
@@ -86,7 +71,7 @@ def create_messages(post):
     # The DEFAULT_MESSAGES setting will only send email to root author.
     #
     def token_generator(obj):
-
+        now = right_now()
         # Find everyone that could get an email.
         # This could (probably) be done in a query but the logic gets a little complicated.
         subs = select(type__in=settings.EMAIL_MESSAGE_TYPES).exclude(user=root.author)
@@ -101,7 +86,7 @@ def create_messages(post):
         # Generate an email for all candidate.
         for sub in subs:
             token = auth.make_uuid(size=8)
-            em.send(to=[sub.user.email], token=token)
+            em.send_email(to=[sub.user.email], token=token)
             yield ReplyToken(user=sub.user, post=obj, token=token, date=now)
 
     # Insert the reply tokens into the database.

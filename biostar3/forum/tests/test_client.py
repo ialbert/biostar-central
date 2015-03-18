@@ -140,8 +140,8 @@ class ClientTests(TestCase):
             # Creating a group redirects to it.
             rlen = len(r.redirect_chain)
             if rlen != 2:
-                #print r.content
-                logger.error("error creating domain %s" % domain)
+                print r.content
+                logger.error("error creating domain: %s" % domain)
                 logger.error(r.redirect_chain)
                 true(rlen == 2)
 
@@ -212,6 +212,41 @@ class ClientTests(TestCase):
         #print last.from_email
 
         # Change notification.
+
+
+    def test_awards(self):
+        """
+        Tests user award creation.
+        """
+        from biostar3.forum import awards
+
+        c = Client(HTTP_HOST=HOST)
+        r = self.get(c, "account_login", pattern='simple login')
+        jane = self.make_user(c)
+
+        jane.profile.info = faker.text()
+        jane.profile.save()
+
+        # Create a question.
+        question = self.create_post(client=c, user=jane, parent=None)
+        question.vote_count = 10
+        question.save()
+
+        all_awards = awards.init_awards()
+
+        message_before = Message.objects.all().count()
+
+        for award in all_awards:
+            award.check(user=jane, override=True)
+
+        award_count = Award.objects.all().count()
+
+        message_count = Message.objects.all().count()
+
+        # User gets one message for each award
+        self.assertEqual(award_count, len(all_awards)   )
+        self.assertEqual(message_count, message_before + award_count)
+
 
 
 

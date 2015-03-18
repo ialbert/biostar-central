@@ -1,6 +1,17 @@
 {% load humanize %}
 {% load widgets %}
 
+{# Notifications sent when the a post is created #}
+
+{# A single file contains the messages sent for each form of communication #}
+
+{#  This is the content of the local message  #}
+{% block message %}
+    {{ post.creation_date|time_ago }} <a href="{{ user_url }}">{{ post.author.name }} </a> wrote on
+    <a href="{{ post_url }}">{{ post.root.title }}</a>: {{ post.content|truncatewords:80 }}
+{% endblock %}
+
+{#  This is the subject of the email message  #}
 {% block subject %}
     {% if not post.is_toplevel %}
         Re:
@@ -8,12 +19,7 @@
     [{{ slug }}] {{ post.root.title }}
 {% endblock %}
 
-{% block message %}
-    {{ post.creation_date|time_ago }} <a href="{{ user_url }}">{{ post.author.name }} </a> wrote on
-    <a href="{{ post_url }}">{{ post.root.title }}</a>: {{ post.content|truncatewords:80 }}
-{% endblock %}
-
-{# Text version of the email #}
+{# Plain text version of the email #}
 {% block text %}
     {{ post.author.name }} wrote on: {{ post.root.title }}
 
@@ -22,7 +28,7 @@
     View post at: {{ post_url }}
 {% endblock %}
 
-{#  Html version of the email #}
+{#  HTML version of the email #}
 {% block html %}
     <p>
        <a href="{{ user_url }}">{{ post.author.name }} </a> wrote on <a href="{{ post_url }}">{{ post.root.title }}</a>:

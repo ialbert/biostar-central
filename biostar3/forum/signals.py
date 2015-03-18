@@ -39,7 +39,7 @@ def user_create(sender, instance, created, **kwargs):
             # Send a welcome email to the user.
             data = dict(user=instance)
             em = EmailTemplate("user_welcome_email.html", data=data)
-            em.send(to=[instance.email])
+            em.send_email(to=[instance.email])
 
 
 def post_created(sender, instance, created, **kwargs):

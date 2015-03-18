@@ -248,6 +248,7 @@ class Profile(models.Model):
 
     def save(self, *args, **kwargs):
         self.uuid = self.uuid or make_uuid()
+        self.info = self.info.strip()
         self.html = html.sanitize(self.info, user=self.user)
         super(Profile, self).save(*args, **kwargs)
 

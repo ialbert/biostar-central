@@ -21,6 +21,7 @@ from django.core.mail.utils import DNS_NAME
 from django.core.mail.backends import smtp
 from django.core.mail.backends.base import BaseEmailBackend
 from django.core.mail import get_connection
+from models import Message, MessageBody, right_now
 
 logger = logging.getLogger("biostar")
 
@@ -38,17 +39,21 @@ def render_node(template, name, data):
     """
     try:
         context = Context(data, autoescape=False)
-        result = get_node(template, name=name).render(context)
+        node = get_node(template, name=name)
+        if node:
+            return node.render(context)
+        else:
+            return ""
     except Exception, exc:
         logger.error(exc)
         result = "internal error, render_node=%s" % exc
-    return result
+        return result
 
 class EmailTemplate(object):
     """
 
     """
-    SUBJECT, TEXT, HTML = "subject", "text", "html"
+    MESG, SUBJECT, TEXT, HTML = "message", "subject", "text", "html"
 
     def __init__(self, template_name, data={}):
 
@@ -59,6 +64,7 @@ class EmailTemplate(object):
         subj = render_node(self.template, name=self.SUBJECT, data=data)
         text = render_node(self.template, name=self.TEXT, data=data)
         html = render_node(self.template, name=self.HTML, data=data)
+        mesg = render_node(self.template, name=self.MESG, data=data)
 
         # Email subject may not contain newlines
         lines = map(string.strip, subj.splitlines())
@@ -67,8 +73,39 @@ class EmailTemplate(object):
         # Text node may be indented in templates. Remove common whitespace.
         self.text = textwrap.dedent(text)
         self.html = html
+        self.mesg = mesg
 
-    def send(self, to, from_email=None, cc=None, bcc=None, headers={}, token=None):
+    def create_messages(self, author, targets=[]):
+        """
+        Creates all the local messages based on the template.
+        """
+
+        if not targets:
+            # There is nobody to send the message to.
+            return
+
+        if not self.mesg:
+            logger.error("message body empty")
+            return
+
+        # This is the main message body that will be shown for each message.
+        body = MessageBody.objects.create(
+            author=author, subject=self.subj, content=self.mesg, html=self.html,
+        )
+
+        # This generates the messages for the targets
+        def message_generator(body):
+            now = right_now()
+            for target in targets:
+                yield Message(user=target.user, body=body, date=now)
+
+        # Bulk insert for all messages
+        Message.objects.bulk_create(message_generator(body), batch_size=100)
+
+    def send_email(self, to, from_email=None, cc=None, bcc=None, headers={}, token=None):
+        """
+        Sends the emails corresponding to this message.
+        """
 
         # Support address in the `to` parameter.
         if type(to) != list:

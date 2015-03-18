@@ -1,0 +1,34 @@
+{% load humanize %}
+{% load widgets %}
+
+{# Notifications sent when the user gets an award #}
+
+{# A single file contains the messages sent for each form of communication #}
+
+{#  This is the content of the local message  #}
+{% block message %}
+    You have won the award: {{ award.badge.name }}
+
+    View your awards at: {{ award_url }}
+{% endblock %}
+
+{#  This is the subject of the email message  #}
+
+{% block subject %}
+    [{{ slug }}] you have won the award: {{ award.badge.name }}
+{% endblock %}
+
+
+{# Plain text version of the email #}
+{% block text %}
+    You have won the award: {{ award.badge.name }}
+
+    View your awards at: {{ award_url }}
+{% endblock %}
+
+{#  HTML version of the email #}
+{% block html %}
+    You have won the award: {{ award.badge.name }}
+
+    View your awards at: {{ award_url }}
+{% endblock %}
