@@ -3,7 +3,7 @@ Award specifications
 """
 import logging
 
-from django.db.models import Q, F
+from django.db.models import Q, F, Count, Avg
 
 from .models import *
 from . import mailer
@@ -13,8 +13,7 @@ from itertools import *
 
 logger = logging.getLogger('biostar')
 
-default_select_func = lambda: []
-default_cond_func = lambda obj: True
+default_selector = lambda: []
 default_date_func = lambda obj: right_now()
 
 
@@ -28,14 +27,16 @@ def find_vote_date(post, N=1):
     else:
         return vote.date
 
+# How many posts to qualify for centurion.
+CENTURION_COUNT = 100
+
 
 class AwardDef(object):
     cache = dict()
 
     def __init__(self, uuid, name, desc, icon,
                  type=Badge.BRONZE,
-                 selector=default_select_func,
-                 cond_func=default_cond_func,
+                 selector=default_selector,
                  date_func=default_date_func):
 
         self.uuid = uuid
@@ -49,9 +50,6 @@ class AwardDef(object):
         # The function that selects candidates for the badge.
         self.selector = selector
 
-        # The function that determines the condition to award the badge
-        self.cond_func = cond_func
-
         # The function that determines the date of the badge
         self.date_func = date_func
 
@@ -64,8 +62,7 @@ class AwardDef(object):
         """
         try:
 
-            # Find qualifying targets
-            targets = ifilter(self.cond_func, self.selector)
+            targets = self.selector(self.uuid)
 
             for obj in targets:
 
@@ -80,6 +77,8 @@ class AwardDef(object):
 
                 # Create the award
                 award = Award.objects.create(badge=self.badge, user=user, post=post, date=date)
+
+                print "creating award %s" % award.badge.uuid
 
                 # Generate the message for the award.
                 em = mailer.EmailTemplate("award_created_message.html")
@@ -116,81 +115,107 @@ def init_awards():
     #
     def autobio_selector(uuid):
         cond = Q(profile__info='') | Q(award__badge__uuid=uuid)
-        query = User.objects.exclude(cond).select_related("profile")
+        query = User.objects.exclude(cond).select_related("profile").distinct()
+        query = ifilter(lambda user: len(user.profile.info) > 80, query)
         return query
 
     AUTOBIO = AwardDef(
         uuid='autobio',
         name="Autobiographer",
         desc="has more than 80 characters in the information field of the user's profile",
-        selector=autobio_selector(uuid),
-        cond_func=lambda user: len(user.profile.info) > 80,
+        selector=autobio_selector,
         icon='<i class="fa fa-bullhorn"></i>'
     )
 
     def good_question_selector(uuid):
         cond = Q(vote_count__lt=5) | Q(award__badge__uuid=uuid)
-        query = Post.objects.exclude(cond).select_related("author")
+        query = Post.objects.filter(type=Post.QUESTION).exclude(cond).select_related("author").distinct()
         return query
 
     GOOD_QUESTION = AwardDef(
         uuid="goodquestion",
         name="Good Question",
         desc="asked a question that was upvoted at least 5 times",
-        selector = good_question_selector(uuid),
+        selector=good_question_selector,
         date_func=lambda post: find_vote_date(post, 5),
         icon='<i class="fa fa-question"></i>',
     )
 
-    '''
+    def good_answer_selector(uuid):
+        cond = Q(vote_count__lt=5) | Q(award__badge__uuid=uuid)
+        query = Post.objects.filter(type=Post.ANSWER).exclude(cond).select_related("author")
+        return query
+
     GOOD_ANSWER = AwardDef(
         uuid="goodanswer",
         name="Good Answer",
         desc="created an answer that was upvoted at least 5 times",
-        cond_func=lambda user, post: Post.objects.filter(vote_count__gt=5, author=user, type=Post.ANSWER),
-        date_func=lambda user, post: find_vote_date(post, 5),
-        icon="fa fa-pencil-square-o"
+        selector=good_answer_selector,
+        date_func=lambda post: find_vote_date(post, 5),
+        icon='<i class="fa fa-pencil-square-o"></i>'
     )
+
+    def student_selector(uuid):
+        cond = Q(vote_count__lt=3) | Q(award__badge__uuid=uuid)
+        query = Post.objects.filter(type=Post.QUESTION).exclude(cond).distinct()
+        return query
 
     STUDENT = AwardDef(
         uuid="student",
         name="Student",
         desc="asked a question with at least 3 up-votes",
-        # func=lambda user: Post.objects.filter(vote_count__gt=2, author=user, type=Post.QUESTION),
-        icon="fa fa-certificate"
+        selector=student_selector,
+        icon='<i class="fa fa-certificate"></i>'
     )
+
+    def teacher_selector(uuid):
+        cond = Q(vote_count__lt=3) | Q(award__badge__uuid=uuid)
+        query = Post.objects.filter(type=Post.ANSWER).exclude(cond).distinct()
+        return query
 
     TEACHER = AwardDef(
         uuid='teacher',
         name="Teacher",
         desc="created an answer with at least 3 up-votes",
-        # func=lambda user: Post.objects.filter(vote_count__gt=2, author=user, type=Post.ANSWER),
-        icon="fa fa-smile-o"
+        selector=teacher_selector,
+        icon='<i class="fa fa-smile-o"></i>'
     )
+
+    def commentator_selector(uuid):
+        cond = Q(vote_count__lt=3) | Q(award__badge__uuid=uuid)
+        query = Post.objects.filter(type=Post.COMMENT).exclude(cond).distinct()
+        return query
+
 
     COMMENTATOR = AwardDef(
         uuid="commentator",
         name="Commentator",
         desc="created a comment with at least 3 up-votes",
-        # func=lambda user: Post.objects.filter(vote_count__gt=2, author=user, type=Post.COMMENT),
-        icon="fa fa-comment"
+        selector=commentator_selector,
+        icon='<i class="fa fa-comment-o"></i>'
     )
+
+    def centurion_selector(uuid):
+        cond = Q(award__badge__uuid=uuid)
+        query = User.objects.exclude(cond).annotate(count=Count('post')).filter(count__gte=CENTURION_COUNT).distinct()
+        return query
 
     CENTURION = AwardDef(
         uuid="centurion",
         name="Centurion",
-        desc="created 100 posts",
-        # func=lambda user: wrap_list(user, Post.objects.filter(author=user).count() > 100),
-        icon="fa fa-bolt",
+        desc="created more than 100 posts",
+        selector=centurion_selector,
+        icon='<i class="fa fa-bolt"></i>',
         type=Badge.SILVER,
     )
 
+    '''
     EPIC_QUESTION = AwardDef(
         uuid="epic-question",
         name="Epic Question",
         desc="created a question with more than 10,000 views",
         # func=lambda user: Post.objects.filter(author=user, view_count__gt=10000),
-        icon="fa fa-bullseye",
+        icon='<i class="fa fa-bullseye"></i>'
         type=Badge.GOLD,
     )
 
@@ -199,7 +224,7 @@ def init_awards():
         name="Popular Question",
         desc="created a question with more than 1,000 views",
         # func=lambda user: Post.objects.filter(author=user, view_count__gt=1000),
-        icon="fa fa-eye",
+        icon='<i class="fa fa-eye"></i>'
         type=Badge.GOLD,
     )
 
@@ -208,7 +233,7 @@ def init_awards():
         name="Oracle",
         desc="created more than 1,000 posts (questions + answers + comments)",
         # func=lambda user: wrap_list(user, Post.objects.filter(author=user).count() > 1000),
-        icon="fa fa-sun-o",
+        icon='<i class="fa fa-sun-o"></i>'
         type=Badge.GOLD,
     )
 
@@ -217,7 +242,7 @@ def init_awards():
         name="Pundit",
         desc="created a comment with more than 10 votes",
         # func=lambda user: Post.objects.filter(author=user, type=Post.COMMENT, vote_count__gt=10),
-        icon="fa fa-comments-o",
+        icon='<i class="fa fa-comments-o"></i>'
         type=Badge.SILVER,
     )
 
@@ -226,7 +251,7 @@ def init_awards():
         name="Guru",
         desc="received more than 100 upvotes",
         # func=lambda user: wrap_list(user, Vote.objects.filter(post__author=user).count() > 100),
-        icon="fa fa-beer",
+        icon='<i class="fa fa-beer"></i>'
         type=Badge.SILVER,
     )
 
@@ -235,7 +260,7 @@ def init_awards():
         name="Cylon",
         desc="received 1,000 up votes",
         # func=lambda user: wrap_list(user, Vote.objects.filter(post__author=user).count() > 1000),
-        icon="fa fa-rocket",
+        icon='<i class="fa fa-rocket"></i>',
         type=Badge.GOLD,
     )
 
@@ -244,7 +269,7 @@ def init_awards():
         name="Voter",
         desc="voted more than 100 times",
         # func=lambda user: wrap_list(user, Vote.objects.filter(author=user).count() > 100),
-        icon="fa fa-thumbs-o-up"
+        icon='<i class="fa fa-thumbs-o"></i>',
     )
 
     SUPPORTER = AwardDef(
@@ -252,7 +277,7 @@ def init_awards():
         name="Supporter",
         desc="voted at least 25 times",
         # func=lambda user: wrap_list(user, Vote.objects.filter(author=user).count() > 25),
-        icon="fa fa-thumbs-up",
+        icon='<i class="fa fa-thumbs-up"></i>',
         type=Badge.SILVER,
     )
 
@@ -261,7 +286,7 @@ def init_awards():
         name="Scholar",
         desc="created an answer that has been accepted",
         # func=lambda user: Post.objects.filter(author=user, type=Post.ANSWER, has_accepted=True),
-        icon="fa fa-check-circle-o"
+        icon='<i class="fa fa-check-circle-o"></i>',
     )
 
     PROPHET = AwardDef(
@@ -269,7 +294,7 @@ def init_awards():
         name="Prophet",
         desc="created a post with more than 20 followers",
         # func=lambda user: Post.objects.filter(author=user, type__in=Post.TOP_LEVEL, subs_count__gt=20),
-        icon="fa fa-pagelines"
+        icon='<i class="fa fa-pagelines"></i>',
     )
 
     LIBRARIAN = AwardDef(
@@ -277,12 +302,17 @@ def init_awards():
         name="Librarian",
         desc="created a post with more than 10 bookmarks",
         # func=lambda user: Post.objects.filter(author=user, type__in=Post.TOP_LEVEL, book_count__gt=10),
-        icon="fa fa-bookmark-o"
+        icon='<i class="fa fa-bookmark-o"></i>',
     )
     '''
     awards = [
         AUTOBIO,
         GOOD_QUESTION,
+        GOOD_ANSWER,
+        STUDENT,
+        TEACHER,
+        COMMENTATOR,
+        CENTURION,
     ]
 
     return awards

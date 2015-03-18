@@ -57,7 +57,7 @@ class ClientTests(TestCase):
 
     def create_post(self, client, user, parent=None, post_type=None):
 
-        post_type = Post.QUESTION
+        post_type = post_type or Post.QUESTION
 
         title = faker.sentence()[:100]
         content = faker.text()
@@ -208,7 +208,7 @@ class ClientTests(TestCase):
         TRUE(jane.email in last.to)
 
         # print last.to
-        #print last.subject
+        # print last.subject
         #print last.from_email
 
         # Change notification.
@@ -220,6 +220,9 @@ class ClientTests(TestCase):
         """
         from biostar3.forum import awards
 
+        # Override constants to allow testing them.
+        awards.CENTURION_COUNT = 1
+
         c = Client(HTTP_HOST=HOST)
         r = self.get(c, "account_login", pattern='simple login')
         jane = self.make_user(c)
@@ -227,11 +230,22 @@ class ClientTests(TestCase):
         jane.profile.info = faker.text()
         jane.profile.save()
 
-        # Create a question.
+        # Create an upvoted question
         question = self.create_post(client=c, user=jane, parent=None)
         question.vote_count = 10
         question.save()
 
+        # Create an upvoted answer.
+        answ = self.create_post(client=c, user=jane, parent=question, post_type=Post.ANSWER)
+        answ.vote_count = 10
+        answ.save()
+
+        # Create an upvoted comment.
+        comm = self.create_post(client=c, user=jane, parent=question, post_type=Post.COMMENT)
+        comm.vote_count = 10
+        comm.save()
+
+        # Set it up to award each once.
         all_awards = awards.init_awards()
 
         message_before = Message.objects.all().count()
@@ -239,13 +253,21 @@ class ClientTests(TestCase):
         for award in all_awards:
             award.check(user=jane, override=True)
 
+        # Each award generated once.
         award_count = Award.objects.all().count()
-
         message_count = Message.objects.all().count()
 
         # User gets one message for each award
-        self.assertEqual(award_count, len(all_awards)   )
+        self.assertEqual(award_count, len(all_awards))
         self.assertEqual(message_count, message_before + award_count)
+
+        # Award run the second time around.
+        for award in all_awards:
+            award.check(user=jane, override=True)
+
+        # No awards should be generated.
+        award_count = Award.objects.all().count()
+        self.assertEqual(award_count, len(all_awards))
 
 
 
