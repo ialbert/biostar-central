@@ -30,22 +30,18 @@ User = get_user_model()
 def tag_list(request):
     template_name = "tag_list.html"
 
-    # Takes a search parameter
+    # Handle tag search parameter.
     q = request.GET.get('q', '')
-    if q:
-        tags = Tag.objects.filter(name__icontains=q)
-    else:
-        tags = Tag.objects.all()
 
+    tags = Tag.objects
+    tags = tags.filter(name__icontains=q) if q else tags.all()
     tags = tags.order_by("name")
 
     paginator = query.ExtendedPaginator(request, object_list=tags, time_class=query.DropDown,
                                         sort_class=query.TagSortValidator, per_page=100)
     page = paginator.curr_page()
 
-    html_title = "Tags"
-
-    context = dict(page=page, tags=page.object_list, html_title=html_title, q=q)
+    context = dict(page=page, tags=page.object_list, q=q)
     return render(request, template_name, context)
 
 

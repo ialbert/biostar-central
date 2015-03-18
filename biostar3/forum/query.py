@@ -2,7 +2,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import sys
 from django.conf import settings
 from biostar3.forum import models
-from biostar3.forum.models import Post, Vote, UserGroup
+from biostar3.forum.models import Post, Vote, UserGroup, Award
 from django.contrib.auth import get_user_model
 from django.contrib import messages
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -10,7 +10,6 @@ from django.utils.timezone import utc
 from datetime import datetime, timedelta
 
 User = get_user_model()
-
 
 
 def now():
@@ -90,6 +89,7 @@ class GroupSortValidator(DropDown):
     default = "asc"
     order = dict(asc="name", desc="-name")
 
+
 class TimeLimitValidator(DropDown):
     choices = settings.TIME_LIMIT_CHOICES
     lookup = settings.TIME_LIMIT_MAP
@@ -150,13 +150,20 @@ class ExtendedPaginator(Paginator):
 
 
 def recent_votes():
-    votes = Vote.objects.filter(post__status=Post.OPEN).select_related("post").order_by("-date")[
-            :settings.RECENT_VOTE_COUNT]
+    votes = Vote.objects.filter(post__status=Post.OPEN) \
+                .select_related("post").order_by("-date")[:settings.RECENT_VOTE_COUNT]
     return votes
 
 
 def get_recent_users():
-    users = User.objects.all().select_related("profile").order_by("-profile__last_login")[:settings.RECENT_USER_COUNT]
+    users = User.objects.all().select_related("profile") \
+                .order_by("-profile__last_login")[:settings.RECENT_USER_COUNT]
+    return users
+
+
+def get_recent_awards():
+    users = Award.objects.all().select_related("post", "user") \
+                .order_by("-date")[:settings.RECENT_AWARD_COUNT]
     return users
 
 

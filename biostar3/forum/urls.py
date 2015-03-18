@@ -3,7 +3,7 @@ from django.conf.urls import patterns, include, url
 from django.contrib import admin
 
 from biostar3.forum import form_views, user_views, post_views
-
+from biostar3.forum import feeds
 from biostar3.forum import ajax
 
 urlpatterns = patterns('',
@@ -130,5 +130,17 @@ urlpatterns = patterns('',
 
     # Filter posts by tag.
     url(r'^t/(?P<name>\S+)/$', post_views.tag_filter, name="tag_filter"),
+
+
+    #
+    # RSS feed handlers.
+    #
+    url(r'^feeds/latest/$', feeds.LatestFeed(), name='latest_feed'),
+    url(r'^feeds/planet/$', feeds.PlanetFeed(), name='planet_feed'),
+    url(r'^feeds/tag/(?P<text>\S+)/$', feeds.TagFeed(), name='tag_feed'),
+    url(r'^feeds/user/(?P<text>\S+)/$', feeds.UserFeed(), name='user_feed'),
+    url(r'^feeds/post/(?P<text>\S+)/$', feeds.PostFeed(), name='post_feed' ),
+    url(r'^feeds/type/(?P<text>\S+)/$', feeds.PostTypeFeed(), name='post_type_feed'),
+
 
 )

@@ -76,6 +76,9 @@ RECENT_VOTE_COUNT = 10
 # How many recent users to show.
 RECENT_USER_COUNT = 10
 
+# How many recent awards to show.
+RECENT_AWARD_COUNT = 10
+
 # How frequently to check for updates.
 SESSION_UPDATE_SECONDS = 600
 
