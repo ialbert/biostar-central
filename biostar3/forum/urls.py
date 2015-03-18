@@ -47,6 +47,14 @@ urlpatterns = patterns('',
     # The list of users.
     url(r'^u/edit/(?P<pk>\d+)/$', form_views.user_edit, name="user_edit"),
 
+    # The list of badges.
+    url(r'^b/list/$', user_views.badge_list, name="badge_list"),
+
+    # The list of badges.
+    url(r'^b/(?P<pk>\d+)/$', user_views.badge_view, name="badge_view"),
+
+    # The list of users.
+    url(r'^b/awards/for/(?P<pk>\d+)/$', user_views.award_list, name="award_list"),
 
     #
     # Site specific urls. The may be blocked via robots.txt

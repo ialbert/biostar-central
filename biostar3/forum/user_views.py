@@ -79,6 +79,47 @@ def me_view(request):
     return redirect(request.user.get_absolute_url())
 
 
+def badge_view(request, pk):
+    """
+    Shows awards of one badge.
+    """
+    template_name = "badge_view.html"
+    badge = models.Badge.objects.filter(pk=pk).first()
+    if not badge:
+        messages.error(request, "Invalid badge selected")
+        return redirect("badge_list")
+
+
+    awards = models.Award.objects.filter(badge=badge).select_related("user", "post").order_by("-date")
+
+    paginator = query.ExtendedPaginator(request,
+                                        object_list=awards, per_page=25)
+
+    page = paginator.curr_page()
+
+    context = dict(badge=badge, page=page, awards=page.object_list)
+
+    return render(request, template_name, context)
+
+def badge_list(request):
+    """
+    Show all the badges
+    """
+    template_name = "badge_list.html"
+    badges = models.Badge.objects.all().order_by("-count")
+    context = dict(badges=badges)
+    return render(request, template_name, context)
+
+@auth.valid_user
+def award_list(request, pk, target=None):
+    """
+    Show all the awards for a user
+    """
+    template_name = "badge_list.html"
+    badges = models.Badge.objects.all().order_by("-count")
+    context = dict(badges=badges)
+    return render(request, template_name, context)
+
 @login_required
 def edit_my_profile(request):
     """

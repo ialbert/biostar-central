@@ -1,0 +1,39 @@
+{% extends "site_layout.html" %}
+{% load widgets %}
+
+{% block title %}
+    Badges
+{% endblock %}
+
+{% block body %}
+
+    {% user_bar user %}
+
+    <div class="row">
+
+        <div class="nine columns" id="badge_list">
+
+            <div class="title">Badges</div>
+
+        	<table>
+            {% for badge in badges %}
+
+                    <tr>
+
+                        <td>
+                            <a href="{%  url "badge_view" pk=badge.id %}">
+                                {{ badge.name }} {{ badge.icon|safe }}  &times; {{ badge.count }}</a>
+                        </td>
+                    	<td>{{ badge.desc }}</td>
+
+
+                    </tr>
+
+            {% endfor %}
+            </table>
+
+
+        </div>
+    </div>
+
+{% endblock %}
