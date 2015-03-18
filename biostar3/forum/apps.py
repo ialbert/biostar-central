@@ -123,6 +123,7 @@ def post_migrate_tasks(sender, **kwargs):
         site.save()
         logger.info("adding site=%s, name=%s, domain=%s" % (site.id, site.name, site.domain))
 
+
     # This is only needed when migrating the database.
     # Migrate tags if these exist.
     logger.info('migrating tags')
@@ -137,4 +138,4 @@ def post_migrate_tasks(sender, **kwargs):
     Post.objects.filter(type__in=Post.TOP_LEVEL).exclude(tag_val='').update(tag_val='')
 
     # Initialize the awards
-    awards.init_awards()
+    awards.get_awards()

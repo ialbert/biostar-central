@@ -222,36 +222,57 @@ class ClientTests(TestCase):
 
         # Override constants to allow testing them.
         awards.CENTURION_COUNT = 1
+        awards.ORACLE_COUNT = 1
+        awards.VOTER_COUNT = 1
+        awards.SUPPORTER_COUNT = 1
 
         c = Client(HTTP_HOST=HOST)
         r = self.get(c, "account_login", pattern='simple login')
+
         jane = self.make_user(c)
+        jane.score = awards.CYLON_COUNT
+        jane.save()
 
         jane.profile.info = faker.text()
         jane.profile.save()
 
         # Create an upvoted question
         question = self.create_post(client=c, user=jane, parent=None)
-        question.vote_count = 10
+        question.vote_count = awards.CYLON_COUNT
+        question.view_count = awards.EPIC_COUNT
+        question.subs_count = awards.PROPHET_COUNT
+
         question.save()
 
         # Create an upvoted answer.
         answ = self.create_post(client=c, user=jane, parent=question, post_type=Post.ANSWER)
-        answ.vote_count = 10
+        answ.vote_count = awards.CYLON_COUNT
+        answ.has_accepted = True
+        answ.book_count = awards.BOOKMARK_COUNT
         answ.save()
 
         # Create an upvoted comment.
         comm = self.create_post(client=c, user=jane, parent=question, post_type=Post.COMMENT)
-        comm.vote_count = 10
+        comm.vote_count = awards.CYLON_COUNT
+        comm.reply_count = awards.PUNDIT_COUNT
         comm.save()
 
+        john = self.make_user(c)
+        data = dict(post_id=question.id, vote_type="upvote")
+        self.post(c, "vote_submit", data=data, follow=True)
+
+        # The vote has been created.
+        self.assertTrue(
+            Vote.objects.filter(author=john, type=Vote.UP, post=question).first()
+        )
+
         # Set it up to award each once.
-        all_awards = awards.init_awards()
+        all_awards = awards.get_awards()
 
         message_before = Message.objects.all().count()
 
         for award in all_awards:
-            award.check(user=jane, override=True)
+            award.check()
 
         # Each award generated once.
         award_count = Award.objects.all().count()
@@ -263,7 +284,7 @@ class ClientTests(TestCase):
 
         # Award run the second time around.
         for award in all_awards:
-            award.check(user=jane, override=True)
+            award.check()
 
         # No awards should be generated.
         award_count = Award.objects.all().count()

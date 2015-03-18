@@ -29,6 +29,16 @@ def find_vote_date(post, N=1):
 
 # How many posts to qualify for centurion.
 CENTURION_COUNT = 100
+EPIC_COUNT = 10000
+POPULAR_COUNT = 1000
+ORACLE_COUNT = 1000
+PUNDIT_COUNT = 10
+GURU_COUNT = 100
+CYLON_COUNT = 1000
+VOTER_COUNT = 100
+SUPPORTER_COUNT = 25
+PROPHET_COUNT = 20
+BOOKMARK_COUNT = 20
 
 
 class AwardDef(object):
@@ -56,7 +66,7 @@ class AwardDef(object):
         # Initialize the corresponding badge.
         self.init_badge()
 
-    def check(self, user, post=None, cache={}, override=False):
+    def check(self, cache={}):
         """
         Attempts to create all awards based on the selector.
         """
@@ -78,8 +88,6 @@ class AwardDef(object):
                 # Create the award
                 award = Award.objects.create(badge=self.badge, user=user, post=post, date=date)
 
-                print "creating award %s" % award.badge.uuid
-
                 # Generate the message for the award.
                 em = mailer.EmailTemplate("award_created_message.html")
 
@@ -87,12 +95,10 @@ class AwardDef(object):
                 em.create_messages(author=user, targets=[award])
 
                 # TODO: Send an email message if the user is tracking group via email.
-                return award
 
         except KeyError, exc:
             logger.error("award %s error %s" % (self.uuid, exc))
 
-        return None
 
     def init_badge(self):
         """
@@ -108,7 +114,7 @@ def wrap_list(obj, cond, func=lambda x: x):
     return func(obj) if cond else func()
 
 
-def init_awards():
+def get_awards():
     #
     # Award definitions.
     # Do not change the uuids below after initializing the site! Doing so will create a new badge.
@@ -209,102 +215,158 @@ def init_awards():
         type=Badge.SILVER,
     )
 
-    '''
+    def epic_selector(uuid):
+        cond = Q(award__badge__uuid=uuid)
+        query = Post.objects.exclude(cond).filter(type=Post.QUESTION, view_count__gte=EPIC_COUNT).distinct()
+        return query
+
     EPIC_QUESTION = AwardDef(
         uuid="epic-question",
         name="Epic Question",
         desc="created a question with more than 10,000 views",
-        # func=lambda user: Post.objects.filter(author=user, view_count__gt=10000),
-        icon='<i class="fa fa-bullseye"></i>'
+        selector=epic_selector,
+        icon='<i class="fa fa-bullseye"></i>',
         type=Badge.GOLD,
     )
 
-    POPULAR = AwardDef(
+    def popular_selector(uuid):
+        cond = Q(award__badge__uuid=uuid)
+        query = Post.objects.exclude(cond).filter(type=Post.QUESTION, view_count__gte=POPULAR_COUNT).distinct()
+        return query
+
+    POPULAR_QUESTION = AwardDef(
         uuid="popular-question",
         name="Popular Question",
         desc="created a question with more than 1,000 views",
-        # func=lambda user: Post.objects.filter(author=user, view_count__gt=1000),
-        icon='<i class="fa fa-eye"></i>'
+        selector=popular_selector,
+        icon='<i class="fa fa-eye"></i>',
         type=Badge.GOLD,
     )
+
+    def oracle_selector(uuid):
+        cond = Q(award__badge__uuid=uuid)
+        query = User.objects.exclude(cond).annotate(count=Count('post')).filter(count__gte=ORACLE_COUNT).distinct()
+        return query
 
     ORACLE = AwardDef(
         uuid="oracle",
         name="Oracle",
         desc="created more than 1,000 posts (questions + answers + comments)",
-        # func=lambda user: wrap_list(user, Post.objects.filter(author=user).count() > 1000),
-        icon='<i class="fa fa-sun-o"></i>'
+        selector=oracle_selector,
+        icon='<i class="fa fa-sun-o"></i>',
         type=Badge.GOLD,
     )
+
+    def pundit_selector(uuid):
+        cond = Q(award__badge__uuid=uuid)
+        query = Post.objects.exclude(cond).filter(reply_count__gte=PUNDIT_COUNT, type=Post.COMMENT).distinct()
+        return query
 
     PUNDIT = AwardDef(
         uuid="pundit",
         name="Pundit",
         desc="created a comment with more than 10 votes",
-        # func=lambda user: Post.objects.filter(author=user, type=Post.COMMENT, vote_count__gt=10),
-        icon='<i class="fa fa-comments-o"></i>'
+        selector=pundit_selector,
+        icon='<i class="fa fa-comments-o"></i>',
         type=Badge.SILVER,
     )
+
+    def guru_selector(uuid):
+        cond = Q(award__badge__uuid=uuid)
+        query = User.objects.exclude(cond).filter(score__gte=GURU_COUNT).distinct()
+        return query
 
     GURU = AwardDef(
         uuid="guru",
         name="Guru",
         desc="received more than 100 upvotes",
-        # func=lambda user: wrap_list(user, Vote.objects.filter(post__author=user).count() > 100),
-        icon='<i class="fa fa-beer"></i>'
+        selector=guru_selector,
+        icon='<i class="fa fa-beer"></i>',
         type=Badge.SILVER,
     )
+
+    def cylon_selector(uuid):
+        cond = Q(award__badge__uuid=uuid)
+        query = User.objects.exclude(cond).filter(score__gte=CYLON_COUNT).distinct()
+        return query
 
     CYLON = AwardDef(
         uuid="cylon",
         name="Cylon",
-        desc="received 1,000 up votes",
-        # func=lambda user: wrap_list(user, Vote.objects.filter(post__author=user).count() > 1000),
+        desc="received more than 1,000 up votes",
+        selector=cylon_selector,
         icon='<i class="fa fa-rocket"></i>',
         type=Badge.GOLD,
     )
+
+    def voter_selector(uuid):
+        cond = Q(award__badge__uuid=uuid)
+        query = User.objects.exclude(cond).annotate(count=Count("vote")).filter(count__gte=VOTER_COUNT).distinct()
+        return query
 
     VOTER = AwardDef(
         uuid="voter",
         name="Voter",
         desc="voted more than 100 times",
-        # func=lambda user: wrap_list(user, Vote.objects.filter(author=user).count() > 100),
+        selector=voter_selector,
+
         icon='<i class="fa fa-thumbs-o"></i>',
     )
+
+    def supporter_selector(uuid):
+        cond = Q(award__badge__uuid=uuid)
+        query = User.objects.exclude(cond).annotate(count=Count("vote")).filter(count__gte=SUPPORTER_COUNT).distinct()
+        return query
 
     SUPPORTER = AwardDef(
         uuid="supporter",
         name="Supporter",
         desc="voted at least 25 times",
-        # func=lambda user: wrap_list(user, Vote.objects.filter(author=user).count() > 25),
+        selector=supporter_selector,
         icon='<i class="fa fa-thumbs-up"></i>',
         type=Badge.SILVER,
     )
+
+
+    def scholar_selector(uuid):
+        cond = Q(award__badge__uuid=uuid)
+        query = Post.objects.exclude(cond).filter(has_accepted=True, type=Post.ANSWER).distinct()
+        return query
 
     SCHOLAR = AwardDef(
         uuid="scholar",
         name="Scholar",
         desc="created an answer that has been accepted",
-        # func=lambda user: Post.objects.filter(author=user, type=Post.ANSWER, has_accepted=True),
+        selector=scholar_selector,
         icon='<i class="fa fa-check-circle-o"></i>',
     )
+
+    def prophet_selector(uuid):
+        cond = Q(award__badge__uuid=uuid)
+        query = Post.objects.exclude(cond).filter(type__in=Post.TOP_LEVEL, subs_count__gte=PROPHET_COUNT).distinct()
+        return query
 
     PROPHET = AwardDef(
         uuid="prophet",
         name="Prophet",
         desc="created a post with more than 20 followers",
-        # func=lambda user: Post.objects.filter(author=user, type__in=Post.TOP_LEVEL, subs_count__gt=20),
+        selector=prophet_selector,
         icon='<i class="fa fa-pagelines"></i>',
     )
+
+    def librarian_selector(uuid):
+        cond = Q(award__badge__uuid=uuid)
+        query = Post.objects.exclude(cond).filter(book_count__gte=BOOKMARK_COUNT).distinct()
+        return query
 
     LIBRARIAN = AwardDef(
         uuid="librarian",
         name="Librarian",
         desc="created a post with more than 10 bookmarks",
-        # func=lambda user: Post.objects.filter(author=user, type__in=Post.TOP_LEVEL, book_count__gt=10),
+        selector=librarian_selector,
         icon='<i class="fa fa-bookmark-o"></i>',
     )
-    '''
+
     awards = [
         AUTOBIO,
         GOOD_QUESTION,
@@ -313,6 +375,17 @@ def init_awards():
         TEACHER,
         COMMENTATOR,
         CENTURION,
+        EPIC_QUESTION,
+        POPULAR_QUESTION,
+        ORACLE,
+        PUNDIT,
+        GURU,
+        CYLON,
+        VOTER,
+        SUPPORTER,
+        SCHOLAR,
+        PROPHET,
+        LIBRARIAN,
     ]
 
     return awards
