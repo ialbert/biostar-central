@@ -1,6 +1,8 @@
 {% extends "site_layout.html" %}
 {% load widgets %}
-
+{%  block title %}
+    Search Results
+{%  endblock %}
 {% block body %}
     <div class="row" id="post_list">
 
@@ -33,12 +35,13 @@
                     </div>
 
                     <div class="post_title">
-                        {{ post.domain }} <a href="{{ post.url }}">{{ post.title }}</a>
+                        <a href="{{ post.url }}">{{ post.title }}</a>
                     </div>
-                    {{ post.domain }}
+
                     <div class="content" class="u-full-width">
                         {{ post.context|safe }}
                     </div>
+                <div><i>Created on: {{ post.date }} by {{ post.author }}</i></div>
 
                 </div>
             {% endfor %}

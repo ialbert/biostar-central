@@ -2,13 +2,15 @@
 from biostar3.forum.models import Post, FederatedContent
 from django.db.models import Q
 from haystack import indexes
-import json
+import json, time
 
 # Create the search indices.
 class PostIndex(indexes.SearchIndex, indexes.Indexable):
     text = indexes.CharField(document=True, use_template=True)
     title = indexes.CharField(model_attr='title')
     type = indexes.CharField(model_attr='type')
+    date = indexes.CharField()
+    author = indexes.CharField()
     content = indexes.CharField(model_attr='content')
     vote_count = indexes.IntegerField(model_attr='vote_count')
     view_count = indexes.IntegerField()
@@ -24,9 +26,11 @@ class PostIndex(indexes.SearchIndex, indexes.Indexable):
         data = super(PostIndex, self).prepare(obj)
         data['boost'] = 1.0
         data['url'] = obj.get_absolute_url()
-        data['domain'] = ''
+        data['domain'] = obj.root.usergroup.domain
         data['type'] = obj.get_type_display()
         data['view_count'] = obj.root.view_count
+        data['date'] = obj.creation_date.strftime("%B %d %Y")
+        data['author'] = obj.author.name
         return data
 
     def index_queryset(self, using=None):
@@ -34,10 +38,11 @@ class PostIndex(indexes.SearchIndex, indexes.Indexable):
         Used when the entire index for model is updated.
         """
         cond = Q(type=Post.COMMENT) | Q(status=Post.DELETED)
-        return self.get_model().objects.all().exclude(cond).select_related('root')
+        return self.get_model().objects.all().exclude(cond).select_related('root', "usergroup", "author")
 
     def get_updated_field(self):
         return "lastedit_date"
+
 
 # Create the search indices for federated content.
 class FederatedContentIndex(indexes.SearchIndex, indexes.Indexable):
@@ -47,9 +52,12 @@ class FederatedContentIndex(indexes.SearchIndex, indexes.Indexable):
     title = indexes.CharField()
     type = indexes.CharField()
     url = indexes.CharField()
+    date = indexes.CharField()
     content = indexes.CharField()
     vote_count = indexes.IntegerField()
     domain = indexes.CharField()
+    date = indexes.CharField()
+    author = indexes.CharField()
 
     def prepare(self, obj):
         self.prepared_data = super(FederatedContentIndex, self).prepare(obj)
