@@ -7,9 +7,15 @@ if [ -z "$BIOSTAR_HOME" ]; then
     exit 1
 fi
 
-# Optionall override the python executable.
+# Optionally override the python executable.
 PYTHON=${PYTHON:=python}
+
+# The default level of verbosity.
 VERBOSITY=${VERBOSITY:=1}
+
+# Where to load the social authentication data from.
+# Do not add this file to the git repository!
+SAVED_SOCIAL_AUTH=${SAVED_SOCIAL_AUTH:=init/saved_social_auth.json}
 
 # Stop on errors or missing environment variables.
 set -ue
@@ -22,23 +28,24 @@ if [ $# == 0 ]; then
     echo ''
     echo 'Multiple commands may be used on the same line:'
     echo ''
-    echo "  $ $(basename $0) init import run"
+    echo "  $ $(basename $0) init index run"
     echo ''
     echo 'Commands:'
     echo ''
     echo '  init      - initializes the database'
     echo '  run       - runs the development server'
+    echo '  waitress  - runs the site via the waitress server'
     echo "  index     - initializes the search index"
     echo '  test      - runs all tests'
-    echo '  env       - shows all customizable environment variables'
-    echo ' '
-    #echo "  import    - imports the data fixture JSON_DATA_FIXTURE=$JSON_DATA_FIXTURE"
-    #echo "  dump      - dumps data as JSON_DATA_FIXTURE=$JSON_DATA_FIXTURE"
-    echo "  delete    - removes the sqlite database DATABASE_NAME=$DATABASE_NAME"
     echo ''
-    echo "  pg_drop   - drops postgres DATABASE_NAME"
-    echo "  pg_create - creates postgres DATABASE_NAME"
-    echo "  pg_import file.gz - imports the gzipped file into postgres DATABASE_NAME"
+    echo "  pg_drop   - drops postgres database=DATABASE_NAME"
+    echo "  pg_create - creates postgres database=DATABASE_NAME"
+    echo "  pg_dump   - dumps postgres database=DATABASE_NAME to standard output"
+    echo "  pg_import file.gz - imports the gzipped file into postgres database=DATABASE_NAME"
+    echo ''
+    echo "  import    - imports with DATA_IMPORT_COMMAND=$DATA_IMPORT_COMMAND"
+    echo "  migrate   - migrates the site from version 2 to 3"
+    echo "  delete    - removes the sqlite database DATABASE_NAME"
     echo ''
     echo "Use environment variables to customize settings. See the docs."
     echo ' '
@@ -51,24 +58,15 @@ while (( "$#" )); do
 
      if [ "$1" = "init" ]; then
         echo "*** Initializing server on $BIOSTAR_HOSTNAME with $DJANGO_SETTINGS_MODULE"
-
         $PYTHON manage.py migrate --settings=$DJANGO_SETTINGS_MODULE
-
-        #echo "*** Running all tests"
-        #$PYTHON manage.py test --noinput -v $VERBOSITY --settings=$DJANGO_SETTINGS_MODULE
-        #$PYTHON manage.py syncdb -v $VERBOSITY --noinput --settings=$DJANGO_SETTINGS_MODULE
-
-        #$PYTHON manage.py migrate  biostar.apps.users --settings=$DJANGO_SETTINGS_MODULE
-        #$PYTHON manage.py migrate  biostar.apps.posts --settings=$DJANGO_SETTINGS_MODULE
-        #$PYTHON manage.py migrate  --settings=$DJANGO_SETTINGS_MODULE
-        #$PYTHON manage.py initialize_site --settings=$DJANGO_SETTINGS_MODULE
-
-        #$PYTHON manage.py collectstatic -v $VERBOSITY --noinput --settings=$DJANGO_SETTINGS_MODULE
+        $PYTHON manage.py collectstatic -v $VERBOSITY --noinput --settings=$DJANGO_SETTINGS_MODULE
     fi
 
 	if [ "$1" = "quick" ]; then
-		# Used during development only.
-        echo "*** Quick init: delete import init loaddata"
+
+		# Used during development only. A quick reset and migration of the entire site.
+
+        echo "*** Quick: delete import init migrate2to3 load_social_auth"
 		$PYTHON manage.py patch --delete_sqlite --settings=$DJANGO_SETTINGS_MODULE
 
  		# Load the database dump into sqlite.
@@ -77,8 +75,12 @@ while (( "$#" )); do
 		# Migrate the database.
         $PYTHON manage.py migrate --settings=$DJANGO_SETTINGS_MODULE
 
-		# You will need to create this file - a dump of social authentication data - see docs.
-		$PYTHON manage.py loaddata init/socialapp.json
+		# Collect static files.
+		$PYTHON manage.py collectstatic -v $VERBOSITY --noinput --settings=$DJANGO_SETTINGS_MODULE
+
+		# Load saved social authentication.
+		$PYTHON manage.py loaddata $SAVED_SOCIAL_AUTH
+
     fi
 
     if [ "$1" = "run" ]; then
@@ -109,7 +111,7 @@ while (( "$#" )); do
     fi
 
  	if [ "$1" = "import" ]; then
-        echo "*** Importing data with DATA_IMPORT_COMMAND"
+        echo "*** Importing data with DATA_IMPORT_COMMAND=$DATA_IMPORT_COMMAND"
         eval $DATA_IMPORT_COMMAND
     fi
 
@@ -137,17 +139,7 @@ while (( "$#" )); do
     if [ "$1" = "env" ]; then
         echo "*** Biostar specific environment variables"
         echo BIOSTAR_HOME=$BIOSTAR_HOME
-        echo BIOSTAR_ADMIN_EMAIL=$BIOSTAR_ADMIN_EMAIL
-        echo BIOSTAR_ADMIN_NAME=$BIOSTAR_ADMIN_NAME
-        echo "-"
         echo DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE
-        echo DATABASE_NAME=$DATABASE_NAME
-        echo DEFAULT_FROM_EMAIL=$DEFAULT_FROM_EMAIL
-    fi
-
-    if [ "$1" = "dump" ]; then
-        echo "*** Dumping json data into $JSON_DATA_FIXTURE"
-        $PYTHON manage.py dumpdata users posts messages badges planet --settings=$DJANGO_SETTINGS_MODULE | gzip > $JSON_DATA_FIXTURE
     fi
 
     if [ "$1" = "index" ]; then
@@ -160,12 +152,24 @@ while (( "$#" )); do
         $PYTHON manage.py update_index --age 1 --settings=$DJANGO_SETTINGS_MODULE
     fi
 
-    if [ "$1" = "import_biostar1" ]; then
-        echo "*** Migrating from Biostar 1"
-        echo "*** BIOSTAR_MIGRATE_DIR=$BIOSTAR_MIGRATE_DIR"
-        $PYTHON manage.py import_biostar1 -u -p -x
+    if [ "$1" = "migrate" ]; then
+        echo "*** Migrating from Biostar 2 into Biostar 3."
+        echo "*** Importing with DATA_IMPORT_COMMAND=$DATA_IMPORT_COMMAND"
+        eval $DATA_IMPORT_COMMAND
+        $PYTHON manage.py migrate --settings=$DJANGO_SETTINGS_MODULE
+        $PYTHON manage.py migrate2to3 --all --settings=$DJANGO_SETTINGS_MODULE
+        $PYTHON manage.py collectstatic -v $VERBOSITY --noinput --settings=$DJANGO_SETTINGS_MODULE
     fi
 
+    if [ "$1" = "load_social_auth" ]; then
+        echo "*** Loading social authentication data from: SAVED_SOCIAL_AUTH=$SAVED_SOCIAL_AUTH"
+		$PYTHON manage.py loaddata $SAVED_SOCIAL_AUTH
+    fi
+
+	if [ "$1" = "save_social_auth" ]; then
+        echo "*** Saving social authentication to: SAVED_SOCIAL_AUTH=$SAVED_SOCIAL_AUTH"
+		$PYTHON manage.py dumpdata socialaccount.socialapp > $SAVED_SOCIAL_AUTH
+    fi
 
 shift
 done
