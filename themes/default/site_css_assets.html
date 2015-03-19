@@ -20,12 +20,10 @@
     {#  Font awesome style #}
 	<link rel="stylesheet" href="{% static "lib/font-awesome-4.3.0/css/font-awesome.min.css" %}">
 
-    {#  Site specific css  #}
-    <link rel="stylesheet/less" type="text/less" href="{% static "site.less" %}">
+    {#  Site specific css compiled live from site.less  #}
+    <link rel="stylesheet" href="{% static "site.css" %}">
 
 {% endcompress %}
-
-<script src="{% static "lib/less.min.js" %}" type="text/javascript"></script>
 
 {# Favicon specification #}
 <link rel="icon" type="image/png" href={% static "images/favicon.ico" %}/>
