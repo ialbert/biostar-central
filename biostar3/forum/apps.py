@@ -41,7 +41,7 @@ def post_migrate_tasks(sender, **kwargs):
     # Check that the default logo exists.
     default_logo = finders.find(settings.DEFAULT_GROUP_LOGO)
     if not default_logo:
-        raise ImproperlyConfigured("Cannot find default group logo at %s" % settings.DEFAULT_GROUP_LOGO)
+        raise ImproperlyConfigured("Cannot find default group logo at %s." % settings.DEFAULT_GROUP_LOGO)
 
     # Ensure that the default group exists.
     default_group, default_flag = UserGroup.objects.get_or_create(domain=settings.DEFAULT_GROUP_DOMAIN)
@@ -55,7 +55,7 @@ def post_migrate_tasks(sender, **kwargs):
                 is_staff=True, is_admin=True, is_superuser=True)
             user.set_password(settings.SECRET_KEY)
             user.save()
-            logger.info("added admin user with email=%s, password=SECRET_KEY, name=%s" % (user.email, user.name))
+            logger.info("Added admin user with email=%s, password=SECRET_KEY, name=%s." % (user.email, user.name))
 
     # Get the first admin on the list.
     admin = User.objects.get(email=settings.ADMINS[0][1])
@@ -64,9 +64,10 @@ def post_migrate_tasks(sender, **kwargs):
     # when initializing the default group the owner may not exist yet.
     # Hence if created it needs to updated once the admin is known to exist.
     if default_flag:
-        default_group.name = settings.DEFAULT_GROUP_NAME,
+        default_group.name = settings.DEFAULT_GROUP_NAME
         default_group.logo = File(open(default_logo, "rb"))
         default_group.owner = admin
+        logger.info("Creating default group %s on the %s subdomain." % (default_group.name, default_group.domain))
         default_group.save()
 
     # Set up the default domain.
@@ -75,7 +76,7 @@ def post_migrate_tasks(sender, **kwargs):
         site.name = settings.SITE_NAME
         site.domain = settings.SITE_DOMAIN
         site.save()
-        logger.info("adding site=%s, name=%s, domain=%s" % (site.id, site.name, site.domain))
+        logger.info("Adding site=%s, name=%s, domain=%s." % (site.id, site.name, site.domain))
 
     # Initialize the awards.
     awards.get_awards()

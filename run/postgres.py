@@ -17,9 +17,15 @@ DEFAULT_FROM_EMAIL = "Site Admin <1@localhost.com>"
 
 MANAGERS = ADMINS
 
-# The secret key can be used to log into the admin email!
+# The secret key can be used to log into the admin account!
 # Make sure to change it in production.
-SECRET_KEY = 'secret_key'
+SECRET_KEY = '1@localhost.com'
+
+# Needs to match the server domain.
+SESSION_COOKIE_DOMAIN = ".lvh.me"
+
+# This must be set correctly in production.
+ALLOWED_HOSTS = [".lvh.me"]
 
 DATABASE_NAME = get_env('DATABASE_NAME')
 DATABASE_USER = get_env('DATABASE_USER')
@@ -36,8 +42,6 @@ DATABASES = {
      }
 }
 
-# What hosts may connect to the site.
-ALLOWED_HOSTS = ["localhost"]
 
 # Haystack data connection.
 HAYSTACK_CONNECTIONS = {

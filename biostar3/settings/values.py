@@ -13,12 +13,16 @@ DEBUG = True
 TEMPLATE_DEBUG = True
 
 # What domain to set the cookies for.
-SESSION_COOKIE_DOMAIN=".lvh.me"
+SESSION_COOKIE_DOMAIN = ".lvh.me"
 
 # Site administrators. Make sure to override this.
 ADMINS = (
     ("Biostar Community", "1@localhost.com"),
 )
+
+# SECURITY WARNING: make this private.
+# By default same as the email.
+SECRET_KEY = "1@localhost.com"
 
 MANAGERS = ADMINS
 
@@ -30,7 +34,7 @@ SITE_DOMAIN = "www.lvh.me:8080"
 SITE_SCHEME = "http"
 
 # Which subdomains lead to the main site.
-DEFAULT_SUBDOMAINS = {'www', '127', 'localhost:8080' }
+DEFAULT_SUBDOMAINS = {'www', '127', 'localhost:8080'}
 
 # Default group name.
 DEFAULT_GROUP_NAME = "Biostar"
@@ -38,11 +42,8 @@ DEFAULT_GROUP_NAME = "Biostar"
 # Default group domain. Don't change it after the site is deployed.
 DEFAULT_GROUP_DOMAIN = "www"
 
-# SECURITY WARNING: make this private.
-SECRET_KEY = "secret_key"
-
 # This must be set correctly in production.
-ALLOWED_HOSTS = ["localhost"]
+ALLOWED_HOSTS = [".lvh.me"]
 
 # Should the site send a welcome email.
 SEND_WELCOME_EMAIL = True
@@ -121,6 +122,7 @@ TRUSTED_SOCIALACCOUNT_PROVIDERS = {
     'persona',
 }
 
+
 def GET_SUBDOMAIN(request):
     """
     Used to extract the subdomain.
@@ -144,7 +146,7 @@ DEFAULT_SHORTCUTS = [
     ("All tags", "/t/"),
     ("<b>Your Account</b>", "/site/me/"),
     ("<b>Edit Profile</b>", "/site/edit/my/profile/"),
-    ]
+]
 
 # How many groups can a regular user create.
 GROUP_COUNT_PER_USER = 3
@@ -234,7 +236,7 @@ MESSAGE_CHOICES = [
 
 EMAIL_MESSAGE_TYPES = {
     EMAIL_TRACKER, MAILING_LIST_MESSAGES,
-    }
+}
 
 # Default messaging value for a new user.
 MESSAGE_DEFAULT = DEFAULT_MESSAGES
