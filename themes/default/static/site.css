@@ -31,7 +31,7 @@ body .container {
   max-width: 1200px;
 }
 body .highlighted {
-  background-color: yellow;
+  background-color: #ffff00;
 }
 .recent_votes > ul {
   list-style-type: none;

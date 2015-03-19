@@ -63,24 +63,9 @@ while (( "$#" )); do
     fi
 
 	if [ "$1" = "quick" ]; then
-
 		# Used during development only. A quick reset and migration of the entire site.
-
-        echo "*** Quick: delete import init migrate2to3 load_social_auth"
-		$PYTHON manage.py patch --delete_sqlite --settings=$DJANGO_SETTINGS_MODULE
-
- 		# Load the database dump into sqlite.
- 		sqlite3 $DATABASE_NAME < init/biostar2/biostar2-sqlite3.sql
-
-		# Migrate the database.
-        $PYTHON manage.py migrate --settings=$DJANGO_SETTINGS_MODULE
-
-		# Collect static files.
-		$PYTHON manage.py collectstatic -v $VERBOSITY --noinput --settings=$DJANGO_SETTINGS_MODULE
-
-		# Load saved social authentication.
-		$PYTHON manage.py loaddata $SAVED_SOCIAL_AUTH
-
+		echo "*** Quick: delete import init migrate2to3 load_social_auth"
+		./biostar.sh delete migrate load_social_auth
     fi
 
     if [ "$1" = "run" ]; then
