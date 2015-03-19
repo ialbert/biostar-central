@@ -22,6 +22,25 @@ def ago(hours=0, minutes=0, days=0):
     return since
 
 
+def get_group_url(group):
+    """
+    Find the fully qualified url to a group
+    """
+    site = Site.objects.get(id=settings.SITE_ID)
+    if group.domain == settings.DEFAULT_GROUP_DOMAIN:
+        netloc = site.domain
+    else:
+        netloc = site.domain.split(".")
+        if settings.SITE_PREPEND_SUBDOMAIN:
+            netloc = [group.domain] + netloc
+        else:
+            netloc[0] = group.domain
+        netloc = ".".join(netloc)
+
+    url = "%s://%s" % (settings.SITE_SCHEME, netloc)
+    return url
+
+
 def tag_split(text):
     lower = lambda x: x.lower() if len(x) > 1 else x
     parts = text.split(",")
@@ -55,7 +74,6 @@ def create_toplevel_post(data, user, group):
 
 
 def can_moderate_post(request, user, post):
-
     if post.author.is_staff:
         return False
 
@@ -68,8 +86,8 @@ def can_moderate_post(request, user, post):
 
     return False
 
-def can_moderate_user(request, user, target):
 
+def can_moderate_user(request, user, target):
     if target.is_staff:
         return False
 
@@ -83,6 +101,7 @@ def can_moderate_user(request, user, target):
         return bool(perm)
 
     return False
+
 
 def postsub_get_or_create(user, post, sub_type):
     """
@@ -335,6 +354,7 @@ def safe_int(text, default=0, maxval=10000):
         return min(value, maxval)
     except ValueError:
         return default
+
 
 def safe_remove(path):
     path = os.path.abspath(path)

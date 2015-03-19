@@ -33,6 +33,9 @@ SITE_NAME = "Site Name"
 SITE_DOMAIN = "www.lvh.me:8080"
 SITE_SCHEME = "http"
 
+# Subdomain relative to site domain.
+SITE_PREPEND_SUBDOMAIN = False
+
 # Which subdomains lead to the main site.
 DEFAULT_SUBDOMAINS = {'www', '127', 'localhost:8080'}
 

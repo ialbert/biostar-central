@@ -185,15 +185,7 @@ def group_redirect(request, pk, group=None, user=None):
 def group_redirect_handler(request, group, user, autoadd=None):
     # Redirects to a group.
     try:
-        site = Site.objects.get(id=settings.SITE_ID)
-        if group.domain == settings.DEFAULT_GROUP_DOMAIN:
-            netloc = site.domain
-        else:
-            netloc = site.domain.split(".")
-            netloc[0] = group.domain
-            netloc = ".".join(netloc)
-
-        target = "%s://%s" % (request.scheme, netloc)
+        target = auth.get_group_url(group)
 
         if group.public and user.is_authenticated() and autoadd:
             # Only public groups may be automatically joined.

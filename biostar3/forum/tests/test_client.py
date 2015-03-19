@@ -146,6 +146,7 @@ class ClientTests(TestCase):
                 true(rlen == 2)
 
             final_url = r.redirect_chain[1][0]
+
             true(domain in final_url)
 
 
