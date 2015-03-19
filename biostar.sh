@@ -123,10 +123,9 @@ while (( "$#" )); do
         $PYTHON manage.py biostar_pg_dump -v $VERBOSITY --settings=$DJANGO_SETTINGS_MODULE
     fi
 
-
 	if [ "$1" = "waitress" ]; then
         echo "*** Run a waitress server with $DJANGO_SETTINGS_MODULE and DATABASE_NAME=$DATABASE_NAME"
-        waitress-serve --port=8080 --call biostar.wsgi:white
+        waitress-serve --port=8080 biostar3.wsgi_whitenoise:application
     fi
 
    	if [ "$1" = "testdeploy" ]; then
