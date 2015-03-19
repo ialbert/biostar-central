@@ -186,6 +186,7 @@ class GroupPerm(models.Model):
     role = models.IntegerField(choices=ROLES, default=MODERATE)
 
 
+
 class Profile(models.Model):
     """
     Maintains information that does not always need to be retreived whe a user is accessed.

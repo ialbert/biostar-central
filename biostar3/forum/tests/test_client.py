@@ -278,6 +278,11 @@ class ClientTests(TestCase):
         award_count = Award.objects.all().count()
         message_count = Message.objects.all().count()
 
+        if award_count != len(all_awards):
+            # See what is missing.
+            for award in Award.objects.all():
+                print award.uuid
+
         # User gets one message for each award
         self.assertEqual(award_count, len(all_awards))
         self.assertEqual(message_count, message_before + award_count)
