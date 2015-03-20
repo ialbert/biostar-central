@@ -13,6 +13,8 @@ from django.core.urlresolvers import reverse
 from django.db.models import Q, F
 from django.contrib.auth.decorators import login_required
 from django.contrib.sites.models import Site
+from haystack.query import SearchQuerySet
+from itertools import *
 
 from taggit.models import TaggedItem, Tag
 
@@ -55,6 +57,7 @@ def tag_filter(request, name):
     messages.info(request, 'Filtering for tags: %s' % name)
     return post_list(request, posts=posts)
 
+
 def unanswered(request):
     """
     Returns a list of posts filtered by a tag name.
@@ -62,6 +65,7 @@ def unanswered(request):
     posts = query.get_toplevel_posts(user=request.user, group=request.group).filter(type=Post.QUESTION, reply_count=0)
     messages.info(request, 'Unanswered questions')
     return post_list(request, posts=posts)
+
 
 @auth.valid_user
 def posts_by_user(request, pk, target=None):
@@ -116,11 +120,10 @@ def my_messages(request):
 
     # Reset the value for for messages.
     counts = request.session.get(SESSION_COUNT_KEY, {})
-    counts['mesg_count']= 0 # Hardcoded key must match that set in contex.py
+    counts['mesg_count'] = 0  # Hardcoded key must match that set in contex.py
     request.session[SESSION_COUNT_KEY] = counts
 
     return render(request, template_name, context)
-
 
 
 @login_required
@@ -141,7 +144,7 @@ def vote_list(request, pk, target=None):
 
     # Reset the value for for messages.
     counts = request.session.get(SESSION_COUNT_KEY, {})
-    counts['new_vote_count'] = 0 # Hardcoded key must match that set in contex.py
+    counts['new_vote_count'] = 0  # Hardcoded key must match that set in contex.py
     request.session[SESSION_COUNT_KEY] = counts
 
     return render(request, template_name, context)
@@ -206,9 +209,6 @@ def group_list(request):
 
     user, group = request.user, request.group
 
-
-
-
     if user.is_authenticated():
         # See if the user has permission to the current group.
         curr_perm = GroupPerm.objects.filter(user=user, usergroup=group, role=GroupPerm.ADMIN).first()
@@ -217,7 +217,7 @@ def group_list(request):
         sub_list = GroupSub.objects.filter(user=user)
 
         # Turn into a dictionary for fast lookup
-        sub_map = dict( (s.usergroup, s) for s in sub_list)
+        sub_map = dict((s.usergroup, s) for s in sub_list)
 
         # Add all groups to the filtering condition
         ids = [sub.usergroup_id for sub in sub_list]
@@ -351,9 +351,12 @@ def post_view(request, pk, post=None, user=None):
     for comment in comment_list:
         post.comments.setdefault(comment.parent.id, []).append(comment)
 
+    # Get related objects
+    related = SearchQuerySet().more_like_this(post)[:25]
+    related = ifilter(lambda x: x.object.is_toplevel, related)
+
     # Add object to the context.
-    html_title = post.title
-    context = dict(post=post, html_title=html_title)
+    context = dict(post=post, related=related)
 
     return render(request, template_name, context)
 

@@ -129,8 +129,7 @@ urlpatterns = patterns('',
     url(r'^t/$', post_views.tag_list, name="tag_list"),
 
     # Filter posts by tag.
-    url(r'^t/(?P<name>\S+)/$', post_views.tag_filter, name="tag_filter"),
-
+    url(r'^t/(?P<name>.+)/$', post_views.tag_filter, name="tag_filter"),
 
     #
     # RSS feed handlers.

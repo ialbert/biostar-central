@@ -1,6 +1,10 @@
 {% extends "site_layout.html" %}
 {% load widgets %}
+{% load cache %}
 
+{% block title %}
+    {{ post.title }}
+{% endblock %}
 {% block body %}
 
     {% user_bar user %}
@@ -37,6 +41,21 @@
         <div class="three columns">
             {% message_bar %}
             <div class="title">Similar Posts</div>
+            {% cache 600 "similar" post.id %}
+                <div id="more_like_this">
+                    <ul>
+                        {% for p in related %}
+                            <li>
+                                <a href="{{ p.object.get_absolute_url }}">
+                                    {{ p.title }}
+                                </a>
+
+                                <div class="peek">{{ p.content|truncatechars:100 }}</div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endcache %}
         </div>
     </div>
 {% endblock %}

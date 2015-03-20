@@ -3,6 +3,7 @@ from biostar3.forum.models import Post, FederatedContent
 from django.db.models import Q
 from haystack import indexes
 import json, time
+from . import html
 
 # Create the search indices.
 class PostIndex(indexes.SearchIndex, indexes.Indexable):
@@ -11,7 +12,7 @@ class PostIndex(indexes.SearchIndex, indexes.Indexable):
     type = indexes.CharField(model_attr='type')
     date = indexes.CharField()
     author = indexes.CharField()
-    content = indexes.CharField(model_attr='content')
+    content = indexes.CharField()
     vote_count = indexes.IntegerField(model_attr='vote_count')
     view_count = indexes.IntegerField()
     reply_count = indexes.IntegerField(model_attr='reply_count')
@@ -29,8 +30,9 @@ class PostIndex(indexes.SearchIndex, indexes.Indexable):
         data['domain'] = obj.root.usergroup.domain
         data['type'] = obj.get_type_display()
         data['view_count'] = obj.root.view_count
-        data['date'] = obj.creation_date.strftime("%B %d %Y")
+        data['date'] = obj.creation_date.strftime("%B %d, %Y")
         data['author'] = obj.author.name
+        data['content'] = html.strip_tags(obj.content)
         return data
 
     def index_queryset(self, using=None):
@@ -56,7 +58,6 @@ class FederatedContentIndex(indexes.SearchIndex, indexes.Indexable):
     content = indexes.CharField()
     vote_count = indexes.IntegerField()
     domain = indexes.CharField()
-    date = indexes.CharField()
     author = indexes.CharField()
 
     def prepare(self, obj):

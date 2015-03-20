@@ -71,8 +71,8 @@ TWITTER_RE = re.compile(TWITTER_PATTERN)
 
 def strip_tags(text):
     "Strip html tags from text"
-    clean = bleach.clean(text, tags=[], attributes=[], styles={}, strip=True)
-    return clean
+    result = bleach.clean(text, tags=[], attributes=[], styles={}, strip=True)
+    return result
 
 
 def clean(text):
