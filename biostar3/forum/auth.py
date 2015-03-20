@@ -3,14 +3,18 @@ Access authorizations are performed here
 """
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from .models import *
-from django.utils.timezone import utc
 from datetime import datetime, timedelta
+
+from django.utils.timezone import utc
 from django.shortcuts import redirect
 from django.contrib import messages
 from decorator import decorator
+
 from django.contrib.staticfiles import finders
-from .compat import *
+
+from .models import *
+from biostar3.compat import *
+
 
 def now():
     return datetime.utcnow().replace(tzinfo=utc)

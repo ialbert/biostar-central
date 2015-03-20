@@ -1,9 +1,10 @@
 from __future__ import absolute_import
-import os, string
+import os, string, logging
 from django.core.exceptions import ImproperlyConfigured
+from django.utils import six
 
 # Logging configuration.
-from .logger import LOGGING
+from .logconf import LOGGING
 
 # This pulls in various site specific settings.
 from .values import *
@@ -12,9 +13,9 @@ def abspath(*args):
     "Generates absolute paths."
     return os.path.abspath(os.path.join(*args))
 
-def get_env(name, default=''):
+def get_env(name, default=None):
     "Gets values from environment variables."
-    value = os.environ.get(name, default)
+    value = os.environ.get(name) or default
     if not value:
         msg = "*** Required environment variable %s not set. See README.md " % name
         raise ImproperlyConfigured(msg)
@@ -140,14 +141,17 @@ USE_L10N = True
 
 USE_TZ = True
 
+# The default export directory.
+EXPORT_DIR = get_env('EXPORT_DIR', abspath(BIOSTAR_HOME, "export"))
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.7/howto/static-files/
 STATIC_URL = '/static/'
-STATIC_ROOT = abspath(BIOSTAR_HOME, "export", "static")
+STATIC_ROOT = abspath(EXPORT_DIR, "static")
 
 # User uploaded media files
 MEDIA_URL = '/media/'
-MEDIA_ROOT = abspath(BIOSTAR_HOME, "export", "media")
+MEDIA_ROOT = abspath(EXPORT_DIR, "media")
 
 # The default logo for all groups
 DEFAULT_GROUP_LOGO = "images/logo.png"
@@ -167,11 +171,19 @@ MESSAGE_TAGS = {
     10: 'info', 20: 'info', 25: 'success', 30: 'warning', 40: 'error',
 }
 
+# Set up the export directories.
+SEARCH_INDEX = get_env('SEARCH_INDEX', abspath(EXPORT_DIR, "whoosh_index"))
+if six.PY3:
+    # The search indices need to be kept separate
+    SEARCH_INDEX = "{0}_PY3".format(SEARCH_INDEX)
+else:
+    SEARCH_INDEX = "{0}_PY2".format(SEARCH_INDEX)
+
 # Haystack data connection.
 HAYSTACK_CONNECTIONS = {
     'default': {
         'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
-        'PATH': get_env('SEARCH_INDEX'),
+        'PATH': SEARCH_INDEX
     },
 }
 

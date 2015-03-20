@@ -2,7 +2,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 # Python modules.
 import logging
-from collections import OrderedDict, defaultdict
+from collections import OrderedDict
 
 # Django specific modules.
 from django.shortcuts import render, redirect
@@ -12,17 +12,16 @@ from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.db.models import Q, F
 from django.contrib.auth.decorators import login_required
-from django.contrib.sites.models import Site
 from haystack.query import SearchQuerySet
 
-from taggit.models import TaggedItem, Tag
+from taggit.models import Tag
 
 # Biostar specific local modules.
 from . import models, query, search, auth
 from .models import Vote, Post, PostView, UserGroup, GroupSub, Message, GroupPerm
 from biostar3.context import SESSION_COUNT_KEY
 
-from .compat import *
+from biostar3.compat import *
 
 logger = logging.getLogger('biostar')
 

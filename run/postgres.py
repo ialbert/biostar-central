@@ -42,14 +42,5 @@ DATABASES = {
      }
 }
 
-
-# Haystack data connection.
-HAYSTACK_CONNECTIONS = {
-    'default': {
-        'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
-        'PATH': get_env('SEARCH_INDEX'),
-    },
-}
-
 # How many posts per page.
 POSTS_PER_PAGE = 35

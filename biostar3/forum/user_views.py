@@ -1,9 +1,9 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import json, logging
+import json
+import logging
 
 # Python modules.
-from collections import OrderedDict, defaultdict
 from . import auth
 
 # Django specific modules.
@@ -14,10 +14,10 @@ from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login
-from ratelimit.decorators import ratelimit, is_ratelimited
+from ratelimit.decorators import ratelimit
 from django.contrib.sites.models import Site
 from . import query, models
-from .compat import *
+from biostar3.compat import *
 
 logger = logging.getLogger('biostar')
 

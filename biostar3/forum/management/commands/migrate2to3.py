@@ -64,7 +64,7 @@ def perform_migration():
         try:
             prof.info = html2text.html2text(prof.info)
             prof.save()
-        except Exception, exc:
+        except Exception as exc:
             logger.error("error parsing profile %s" % prof.id)
 
     # Migrate old style tags to new style tags.

@@ -36,7 +36,7 @@ LOGGING = {
         },
 
         'ratelimit': {
-            '()': 'biostar3.settings.logger.LogRateLimit',
+            '()': 'biostar3.settings.logconf.LogRateLimit',
         }
     },
 

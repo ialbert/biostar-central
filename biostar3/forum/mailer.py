@@ -24,6 +24,7 @@ from django.core.mail.backends import smtp
 from django.core.mail.backends.base import BaseEmailBackend
 from django.core.mail import get_connection
 from .models import Message, MessageBody, right_now
+from biostar3.compat import *
 
 logger = logging.getLogger("biostar")
 
@@ -69,7 +70,7 @@ class EmailTemplate(object):
         mesg = render_node(self.template, name=self.MESG, data=data)
 
         # Email subject may not contain newlines
-        lines = map(string.strip, subj.splitlines())
+        lines = map(strip, subj.splitlines())
         self.subj = "".join(lines)
 
         # Text node may be indented in templates. Remove common whitespace.

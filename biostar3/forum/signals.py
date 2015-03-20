@@ -10,11 +10,12 @@ from django.contrib.sites.models import Site
 
 from datetime import datetime
 from . import auth, mailer, tasks
-from models import *
+from .models import *
 from allauth.account.signals import user_logged_in
 from django.dispatch import receiver
 
 logger = logging.getLogger("biostar")
+
 
 @receiver(user_logged_in)
 def user_login(sender, request, user, **kwargs):
@@ -22,6 +23,7 @@ def user_login(sender, request, user, **kwargs):
     ip = auth.remote_ip(request)
     func = tasks.add_user_location
     func.delay(ip, user) if settings.CELERY_ENABLED else func(ip, user)
+
 
 def user_create(sender, instance, created, **kwargs):
     if created:
@@ -61,5 +63,7 @@ def post_created(sender, instance, created, **kwargs):
         func = tasks.create_messages
         func.delay(instance) if settings.CELERY_ENABLED else func(instance)
 
-post_save.connect(user_create, sender=User)
-post_save.connect(post_created, sender=Post)
+
+def register():
+    post_save.connect(user_create, sender=User, dispatch_uid="user_create")
+    post_save.connect(post_created, sender=Post, dispatch_uid="post_create")

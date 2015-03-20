@@ -1,13 +1,14 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 from django.conf import settings
 from django.template import Context, Template, Library
-import hashlib, urllib, random
+import hashlib, random
 from datetime import timedelta, datetime
 from django.utils.timezone import utc
 from biostar3.forum.models import Post, Vote
 from django.template import loader
 from django.core.context_processors import csrf
 from django import forms
+from biostar3.compat import *
 
 register = Library()
 
@@ -203,7 +204,7 @@ def gravatar(user, size=80):
     hash = hashlib.md5(email).hexdigest(),
 
     gravatar_url = "https://secure.gravatar.com/avatar/%s?" % hash
-    gravatar_url += urllib.urlencode(dict(s=str(size), d='identicon'))
+    gravatar_url += urlencode(dict(s=str(size), d='identicon'))
 
     return """<img src="%s" alt="gravatar for %s"/>""" % (gravatar_url, name)
 

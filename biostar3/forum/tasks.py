@@ -1,11 +1,12 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
-from celery import shared_task
 
+import json
+from celery import shared_task
 from .models import *
 from . import auth, mailer
 from itertools import *
 from functools import *
-import urllib2, json
+from biostar3.compat import *
 
 @shared_task
 def add_user_location(ip, user):
@@ -17,14 +18,15 @@ def add_user_location(ip, user):
         try:
             url = "http://api.hostip.info/get_json.php?ip=%s" % ip
             logger.info("%s, %s, %s" % (ip, user, url))
-            f = urllib2.urlopen(url, timeout=3)
-            data = json.loads(f.read())
-            f.close()
+            fp = urlopen(url, timeout=3)
+            data = fp.read().decode("utf-8")
+            data = json.loads(data)
+            fp.close()
             location = data.get('country_name', '').title()
             if "unknown" not in location.lower():
                 user.profile.location = location
                 user.profile.save()
-        except Exception as exc:
+        except KeyError as exc:
             logger.error(exc)
 
 @shared_task

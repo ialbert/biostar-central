@@ -23,6 +23,13 @@ class BiostarAppConfig(AppConfig):
         """
         Triggers when the application configuration is ready.
         """
+        # This registers the signals
+        from . import signals
+
+        # Register the extra signals
+        signals.register()
+
+        # Add the post migration signal.
         post_migrate.connect(post_migrate_tasks, sender=self)
 
     @property

@@ -11,7 +11,6 @@ from django.utils.timezone import utc
 from datetime import datetime
 from . import html
 
-
 logger = logging.getLogger('biostar')
 
 

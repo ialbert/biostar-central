@@ -49,6 +49,7 @@ if [ $# == 0 ]; then
     echo ''
     echo "Use environment variables to customize settings. See the docs."
     echo ' '
+    echo "PYTHON=`which $PYTHON`"
     echo "DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE"
     echo "DATABASE_NAME=$DATABASE_NAME"
     echo ''
