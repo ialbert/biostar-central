@@ -14,7 +14,6 @@ from django.db.models import Q, F
 from django.contrib.auth.decorators import login_required
 from django.contrib.sites.models import Site
 from haystack.query import SearchQuerySet
-from itertools import *
 
 from taggit.models import TaggedItem, Tag
 
@@ -22,6 +21,8 @@ from taggit.models import TaggedItem, Tag
 from . import models, query, search, auth
 from .models import Vote, Post, PostView, UserGroup, GroupSub, Message, GroupPerm
 from biostar3.context import SESSION_COUNT_KEY
+
+from .compat import *
 
 logger = logging.getLogger('biostar')
 
@@ -353,7 +354,7 @@ def post_view(request, pk, post=None, user=None):
 
     # Get related objects
     related = SearchQuerySet().more_like_this(post)[:25]
-    related = ifilter(lambda x: x.object and x.object.is_toplevel, related)
+    related = filter(lambda x: x.object and x.object.is_toplevel, related)
 
     # Add object to the context.
     context = dict(post=post, related=related)

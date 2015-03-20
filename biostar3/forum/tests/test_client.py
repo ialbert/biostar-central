@@ -21,7 +21,6 @@ logging.disable(logging.INFO)
 
 faker = Factory.create()
 
-
 def add_random_content():
     user = random.choice(User.objects.all())
     parent = random.choice(Post.objects.all())
