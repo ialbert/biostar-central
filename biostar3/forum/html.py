@@ -112,7 +112,7 @@ def sanitize(text, user):
                 uid = user_patt.group("uid")
                 attrs['_text'] = User.objects.get(id=uid).name
 
-        except Exception, exc:
+        except Exception as exc:
             # This function is a convenience feature.
             # Let's not let it crash the whole post parsing.
             logger.error(exc)
@@ -150,7 +150,7 @@ def sanitize(text, user):
         # Apply the markdown transformation.
         # We'll protect against library crashes by a generic Exception catch.
         html = markdown(html, extras=["fenced-code-blocks", "code-friendly", "nofollow", "spoiler"])
-    except Exception, exc:
+    except Exception as exc:
         logger.error('crash during markdown conversion: %s' % exc)
         html = html
 
@@ -161,7 +161,7 @@ def sanitize(text, user):
         # Turn links into urls. We had bleach.linkify crash very rarely so we'll trap that.
         # We use a more lenient tokenizer since the content is already cleaned.
         html = bleach.linkify(html, callbacks=callbacks, skip_pre=True, tokenizer=HTMLTokenizer)
-    except Exception, exc:
+    except Exception as exc:
         logger.error('crash during bleach linkify: %s' % exc)
         html = html
 

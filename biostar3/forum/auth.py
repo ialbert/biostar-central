@@ -1,17 +1,16 @@
 """
 Access authorizations are performed here
 """
-import os
-from string import strip
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 from .models import *
 from django.utils.timezone import utc
 from datetime import datetime, timedelta
 from django.shortcuts import redirect
 from django.contrib import messages
-from functools import wraps
 from decorator import decorator
 from django.contrib.staticfiles import finders
-
+from .compat import *
 
 def now():
     return datetime.utcnow().replace(tzinfo=utc)

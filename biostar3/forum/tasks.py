@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function, unicode_literals
 from celery import shared_task
 
 from .models import *
@@ -24,7 +24,7 @@ def add_user_location(ip, user):
             if "unknown" not in location.lower():
                 user.profile.location = location
                 user.profile.save()
-        except Exception, exc:
+        except Exception as exc:
             logger.error(exc)
 
 @shared_task

@@ -10,6 +10,8 @@ Extracts all information from a single template like so. All three blocks must b
     {% block html %} declares text/html
 
 """
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 import logging, smtplib, string, textwrap
 
 from django.conf import settings
@@ -21,7 +23,7 @@ from django.core.mail.utils import DNS_NAME
 from django.core.mail.backends import smtp
 from django.core.mail.backends.base import BaseEmailBackend
 from django.core.mail import get_connection
-from models import Message, MessageBody, right_now
+from .models import Message, MessageBody, right_now
 
 logger = logging.getLogger("biostar")
 
@@ -44,7 +46,7 @@ def render_node(template, name, data):
             return node.render(context)
         else:
             return ""
-    except Exception, exc:
+    except Exception as exc:
         logger.error(exc)
         result = "internal error, render_node=%s" % exc
         return result
@@ -151,7 +153,7 @@ class SSLEmailBackend(smtp.EmailBackend):
             if self.username and self.password:
                 self.connection.login(self.username, self.password)
             return True
-        except Exception, exc:
+        except Exception as exc:
             logger.error(exc)
             if not self.fail_silently:
                 raise
