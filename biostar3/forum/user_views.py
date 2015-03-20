@@ -1,6 +1,6 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import urllib, urllib2, json, logging
+import json, logging
 
 # Python modules.
 from collections import OrderedDict, defaultdict
@@ -17,6 +17,7 @@ from django.contrib.auth import authenticate, login
 from ratelimit.decorators import ratelimit, is_ratelimited
 from django.contrib.sites.models import Site
 from . import query, models
+from .compat import *
 
 logger = logging.getLogger('biostar')
 
@@ -221,15 +222,15 @@ def sign_up(request):
 
         try:
             # Validate the captcha.
-            data = urllib.urlencode(data)
-            conn = urllib2.Request(CAPTCHA_VERIFY_URL, data)
-            response = urllib2.urlopen(conn).read()
+            data = urlencode(data)
+            conn = Request(CAPTCHA_VERIFY_URL, data)
+            response = urlopen(conn).read()
             result = json.loads(response)
             if not result.get('success'):
                 # User failed at solving the capthca.
                 messages.error(request, "Failed at the captcha authentication. Please try again!")
                 return login_redirect
-        except Exception, exc:
+        except Exception as exc:
             # This here is triggered on unexpected errors while solving the capthca.
             logger.error(exc)
             messages.error(request, "Unable to complete captcha challenge: %s" % exc)
@@ -272,7 +273,7 @@ def sign_up(request):
         login(request, user)
         messages.success(request, "Succesfully signed up as %s" % user.name)
         return redirect(reverse("home"))
-    except Exception, exc:
+    except Exception as exc:
         logger.error(exc)
         messages.error(request, "Unable to create user")
         return login_redirect

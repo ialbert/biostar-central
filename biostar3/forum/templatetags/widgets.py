@@ -81,7 +81,7 @@ def hide_email(value):
         hide = '*' * (len(addr) - 1)
         email = addr[0] + hide + '@' + host
         return email
-    except Exception, exc:
+    except Exception as exc:
         return value
 
 @register.filter
@@ -142,7 +142,7 @@ def bignum(number):
             return "%0.fk" % value
         elif value > 1:
             return "%0.1fk" % value
-    except ValueError, exc:
+    except ValueError as exc:
         pass
     return str(number)
 

@@ -40,7 +40,7 @@ class PlanetFeed(Feed):
     def item_title(self, item):
         try:
             title = u"%s (%s)" % (item.title, item.blog.title)
-        except Exception, exc:
+        except Exception as exc:
             title = item.title
         return title
 

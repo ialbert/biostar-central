@@ -95,7 +95,7 @@ class AwardDef(object):
             self.badge.count = Award.objects.filter(badge=self.badge).count()
             self.badge.save()
 
-        except KeyError, exc:
+        except KeyError as exc:
             logger.error("award %s error %s" % (self.uuid, exc))
 
 

@@ -54,7 +54,7 @@ class ajax_error_wrapper(object):
 
             value = self.f(request)
             return value
-        except Exception, exc:
+        except Exception as exc:
             if settings.DEBUG:
                 traceback.print_exc()
             logger.error(exc)

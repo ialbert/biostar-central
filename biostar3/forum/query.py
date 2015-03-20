@@ -21,13 +21,13 @@ def ago(hours=0, minutes=0, days=0):
     return since
 
 
-def positive_integer(text, upper=sys.maxint):
+def positive_integer(text, upper=10 ^ 9):
     try:
         value = int(text)
         value = 0 if (value < 0 or value > upper) else value
         return value
 
-    except ValueError, exc:
+    except ValueError as exc:
         return 0
 
 

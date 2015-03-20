@@ -197,7 +197,7 @@ def group_redirect_handler(request, group, user, autoadd=None):
 
         return redirect(target)
 
-    except Exception, exc:
+    except Exception as exc:
         messages.error(request, "Group error: %s" % exc)
         return redirect(reverse("home"))
 
@@ -287,7 +287,7 @@ def update_post_views(request, post, minutes=settings.POST_VIEW_INTERVAL):
         if not PostView.objects.filter(ip=ip, post=post, date__gt=since):
             PostView.objects.create(ip=ip, post=post, date=auth.now())
             Post.objects.filter(id=post.id).update(view_count=F('view_count') + 1)
-    except Exception, exc:
+    except Exception as exc:
         # Triggers if the IP address is spoofed and/or malformed.
         logger.error(exc)
 
