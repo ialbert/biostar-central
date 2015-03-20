@@ -102,12 +102,12 @@
 
                         {% if target.editable %}
                             <li>
-                                Action: <a href="{% url "user_edit" target.id %}">
-                                <b><i class="fa fa-user"></i> Edit Your Profile</b></a>
+                                <a href="{% url "user_edit" target.id %}">
+                                <b><i class="fa fa-edit"></i> Edit Your Profile</b></a>
                             </li>
                             <li>
-                                Action: <a href="{% url "user_edit" target.id %}">
-                                <b><i class="fa fa-user"></i> Connect Other Social Accounts</b></a>
+                                <a href="{% url "user_edit" target.id %}">
+                                <b><i class="fa fa-connectdevelop"></i> Connect other Social Accounts</b></a>
                             </li>
                         {% endif %}
 

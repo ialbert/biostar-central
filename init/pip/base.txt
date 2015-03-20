@@ -8,6 +8,7 @@ django-celery
 django-celery-email
 django-taggit
 django-ratelimit
+six
 decorator
 bleach
 whoosh

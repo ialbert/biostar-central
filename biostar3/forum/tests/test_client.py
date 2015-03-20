@@ -31,6 +31,16 @@ def add_random_content():
 
 
 class ClientTests(TestCase):
+    haystack = logging.getLogger("haystack")
+
+    def setUp(self):
+        # Need to disable the haystack logger
+        self.haystack.setLevel(logging.CRITICAL)
+
+    def tearDown(self):
+        self.haystack.setLevel(logging.WARNING)
+
+
     def get(self, client, url, code=200, kwargs={}, follow=False, pattern=None):
 
         r = client.get(reverse(url, kwargs=kwargs), follow=follow)
@@ -210,7 +220,7 @@ class ClientTests(TestCase):
 
         # print last.to
         # print last.subject
-        #print last.from_email
+        # print last.from_email
 
         # Change notification.
 

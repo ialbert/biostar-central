@@ -1,12 +1,13 @@
 __author__ = 'ialbert'
 
+from datetime import timedelta
 from django import forms
 from django.conf import settings
 from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.core.exceptions import ValidationError
 from django.contrib.auth.decorators import login_required
-from .models import Post, UserGroup, GroupSub, GroupPerm, Profile
+from .models import Post, UserGroup, GroupSub, GroupPerm, Profile, right_now
 from . import auth
 from django.shortcuts import render, redirect
 from django.contrib.sites.models import Site
@@ -73,27 +74,6 @@ class PostForm(ContentForm):
     ])
 
 
-def get_post(request, user, pk, edit_access_required=True):
-    """
-    Authenticates access to a post.
-    """
-    post = Post.objects.filter(pk=pk).select_related("group", "group__groupinfo").first()
-
-    if not post:
-        messages.error(request, "Post does not exist. Perhaps it has been deleted.")
-        raise auth.AccessDenied()
-
-    if not auth.read_access_post(user=user, post=post):
-        messages.error(request, "This post may not be accessed by this user!")
-        raise auth.AccessDenied()
-
-    if edit_access_required and not auth.write_access_post(user, post):
-        messages.error(request, "This post may not be edited by this user!")
-        raise auth.AccessDenied()
-
-    return post
-
-
 def post_create(request, parent=None, post_type=None, action='', form_class=ContentForm):
     """
     This view creates nodes. Is not called directly from the web only through
@@ -111,6 +91,12 @@ def post_create(request, parent=None, post_type=None, action='', form_class=Cont
     if request.method == "POST":
         # Data is being submitted
         form = form_class(request.POST)
+
+        # Attempt to detect duplicated submissions
+        title = request.POST.get("title")
+        recently = right_now() - timedelta(minutes=5)
+        if Post.objects.filter(title=title, creation_date__gt=recently):
+            form.add_error("title", "Duplicated submission? There is a recent post with identical title!")
 
         if not form.is_valid():
             # Form data came but not valid.
