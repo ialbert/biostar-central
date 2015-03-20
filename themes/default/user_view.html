@@ -51,9 +51,20 @@
                             Reputation: <b>{{ target.scaled_score |intcomma }}</b>
                         </div>
 
-                        <div>
-                            Email: <b>{{ target.email|hide_email }}</b>
-                        </div>
+                        {% if target.editable %}
+                            <div>
+                                Email: <b>{{ target.email }}</b>
+                            </div>
+                            <div>
+                                New post <a href="mailto: new-{{ target.profile.uuid }}-{{ group.domain }}@biostars.io">
+                                via this email.
+                            </a>
+                            </div>
+                        {% else %}
+                            <div>
+                                Email: <b>{{ target.email|hide_email }}</b>
+                            </div>
+                        {% endif %}
 
                         {% if target.profile.twitter_id %}
                             <div>Twitter:
@@ -89,11 +100,12 @@
                             Date joined: <b>{{ target.profile.date_joined | naturaltime }}</b>
                         </div>
 
-                    	<div>
-                        	Permissions:
-                            {%  for perm in perms %}
-                                {{ perm.get_role_display }} on <a href="{{ perm.usergroup.get_absolute_url}}">{{ perm.usergroup.name }}</a>,
-                            {%  endfor %}
+                        <div>
+                            Permissions:
+                            {% for perm in perms %}
+                                {{ perm.get_role_display }} on
+                                <a href="{{ perm.usergroup.get_absolute_url }}">{{ perm.usergroup.name }}</a>,
+                            {% endfor %}
                         </div>
 
                     </div>
@@ -103,11 +115,11 @@
                         {% if target.editable %}
                             <li>
                                 <a href="{% url "user_edit" target.id %}">
-                                <b><i class="fa fa-edit"></i> Edit Your Profile</b></a>
+                                    <b><i class="fa fa-edit"></i> Edit Your Profile</b></a>
                             </li>
                             <li>
                                 <a href="{% url "user_edit" target.id %}">
-                                <b><i class="fa fa-connectdevelop"></i> Connect other Social Accounts</b></a>
+                                    <b><i class="fa fa-connectdevelop"></i> Connect other Social Accounts</b></a>
                             </li>
                         {% endif %}
 

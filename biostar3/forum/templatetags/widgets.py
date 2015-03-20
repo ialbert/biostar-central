@@ -1,14 +1,17 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
-from django.conf import settings
-from django.template import Context, Template, Library
-import hashlib, random
+import hashlib
+import random
 from datetime import timedelta, datetime
+
+from django.conf import settings
+from django.template import Context, Library
 from django.utils.timezone import utc
-from biostar3.forum.models import Post, Vote
 from django.template import loader
-from django.core.context_processors import csrf
 from django import forms
-from biostar3.compat import *
+
+from biostar3.forum.models import Vote
+from biostar3.utils.compat import *
+
 
 register = Library()
 

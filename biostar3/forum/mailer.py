@@ -12,7 +12,9 @@ Extracts all information from a single template like so. All three blocks must b
 """
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import logging, smtplib, string, textwrap
+import logging
+import smtplib
+import textwrap
 
 from django.conf import settings
 from django.template.loader import get_template
@@ -21,10 +23,9 @@ from django.core.mail import EmailMultiAlternatives
 from django.template import Context
 from django.core.mail.utils import DNS_NAME
 from django.core.mail.backends import smtp
-from django.core.mail.backends.base import BaseEmailBackend
-from django.core.mail import get_connection
+
 from .models import Message, MessageBody, right_now
-from biostar3.compat import *
+from biostar3.utils.compat import *
 
 logger = logging.getLogger("biostar")
 
@@ -116,7 +117,7 @@ class EmailTemplate(object):
 
         if token:
             # Add reply to token to header.
-            reply_to = settings.REPLY_TO_PATTERN % token
+            reply_to = settings.EMAIL_ADDRESS_PATTERN.format("reply", token, "submit")
             headers.update({'Reply-To': reply_to})
 
         # Fall back to defaults

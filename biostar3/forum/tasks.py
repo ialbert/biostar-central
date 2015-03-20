@@ -1,12 +1,14 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import json
+from itertools import *
+
 from celery import shared_task
+
 from .models import *
 from . import auth, mailer
-from itertools import *
-from functools import *
-from biostar3.compat import *
+from biostar3.utils.compat import *
+
 
 @shared_task
 def add_user_location(ip, user):

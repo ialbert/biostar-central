@@ -52,7 +52,13 @@ ALLOWED_HOSTS = [".lvh.me"]
 SEND_WELCOME_EMAIL = True
 
 # The email pattern to reply to.
-REPLY_TO_PATTERN = "reply-%s@lvh.me"
+EMAIL_ADDRESS_PATTERN = "{}+{}+{}@lvh.me"
+
+# The email secret key required to process the incoming emails.
+EMAIL_HANDLER_SECRET_KEY = "foo"
+
+# Should we remove the quoted text.
+EMAIL_REPLY_REMOVE_QUOTED_TEXT = True
 
 # Google ReCaptcha No-Captcha settings
 # When set the captcha forms will be active.

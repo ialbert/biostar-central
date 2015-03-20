@@ -1,20 +1,21 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import logging
 from datetime import timedelta
+
 from django import forms
 from django.conf import settings
 from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.core.exceptions import ValidationError
 from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect
+from django.db.models import Q
+from django.contrib.auth import get_user_model
+
 from .models import Post, UserGroup, GroupSub, GroupPerm, Profile, right_now
 from . import auth
-from django.shortcuts import render, redirect
-from django.contrib.sites.models import Site
-from django.db.models import Q, F
 
-import logging
-from django.contrib.auth import get_user_model
 
 logger = logging.getLogger('biostar')
 
@@ -532,4 +533,5 @@ def user_edit(request, pk, target=None):
     profile.save()
 
     return redirect(target.get_absolute_url())
+
 

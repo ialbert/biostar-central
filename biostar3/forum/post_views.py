@@ -21,7 +21,7 @@ from . import models, query, search, auth
 from .models import Vote, Post, PostView, UserGroup, GroupSub, Message, GroupPerm
 from biostar3.context import SESSION_COUNT_KEY
 
-from biostar3.compat import *
+from biostar3.utils.compat import *
 
 logger = logging.getLogger('biostar')
 

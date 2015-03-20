@@ -1,13 +1,12 @@
 """
 Award specifications
 """
-import logging
 
-from django.db.models import Q, F, Count, Avg
+from django.db.models import Q, Count
 
 from .models import *
 from . import mailer
-from biostar3.compat import *
+from biostar3.utils.compat import *
 
 logger = logging.getLogger('biostar')
 

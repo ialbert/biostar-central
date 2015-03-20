@@ -17,7 +17,7 @@ from django.contrib.auth import authenticate, login
 from ratelimit.decorators import ratelimit
 from django.contrib.sites.models import Site
 from . import query, models
-from biostar3.compat import *
+from biostar3.utils.compat import *
 
 logger = logging.getLogger('biostar')
 
@@ -70,6 +70,7 @@ def user_view(request, pk, target=None):
 
     context = dict(target=target, posts=posts, top_count=top_count, perms=perms,
                    answer_count=answer_count, comment_count=comment_count)
+
     return render(request, template_name, context)
 
 @login_required

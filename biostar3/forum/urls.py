@@ -94,6 +94,9 @@ urlpatterns = patterns('',
     # User messages.
     url(r'^site/my/messages/$', post_views.my_messages, name="my_messages"),
 
+    # Email handlers.
+    url(r'^site/incoming/email/', ajax.email_handler, name="email_handler"),
+
     #
     # Group related handlers
     #

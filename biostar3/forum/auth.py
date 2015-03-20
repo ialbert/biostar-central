@@ -3,9 +3,8 @@ Access authorizations are performed here
 """
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from datetime import datetime, timedelta
+from datetime import timedelta
 
-from django.utils.timezone import utc
 from django.shortcuts import redirect
 from django.contrib import messages
 from decorator import decorator
@@ -13,7 +12,7 @@ from decorator import decorator
 from django.contrib.staticfiles import finders
 
 from .models import *
-from biostar3.compat import *
+from biostar3.utils.compat import *
 
 
 def now():
@@ -56,7 +55,7 @@ def tag_split(text):
 def create_toplevel_post(data, user, group):
     # Creating a top level post from  data
     title = data.get('title', '').strip()
-    type = data.get('type', '')
+    type = data.get('type', '') or Post.QUESTION
     tags = data.get('tags', '')
     tags = tag_split(tags)
     content = data.get('content', '')
