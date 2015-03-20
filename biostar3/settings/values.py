@@ -60,6 +60,9 @@ EMAIL_HANDLER_SECRET_KEY = "foo"
 # Should we remove the quoted text.
 EMAIL_REPLY_REMOVE_QUOTED_TEXT = True
 
+# Should the site allow interacting via email.
+ALLOW_EMAIL_REPLY = True
+
 # Google ReCaptcha No-Captcha settings
 # When set the captcha forms will be active.
 RECAPTCHA_PUBLIC_KEY = ""

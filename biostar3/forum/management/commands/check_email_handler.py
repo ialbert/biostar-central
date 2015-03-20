@@ -14,14 +14,17 @@ from faker import Factory
 
 faker = Factory.create()
 
-def compose_new(user):
+def create_payload(user, token=None):
 
-    target = settings.EMAIL_ADDRESS_PATTERN.format("new", user.profile.uuid, settings.DEFAULT_GROUP_DOMAIN)
+    if not token:
+        target = settings.EMAIL_ADDRESS_PATTERN.format("new", user.profile.uuid, settings.DEFAULT_GROUP_DOMAIN)
+    else:
+        target = settings.EMAIL_ADDRESS_PATTERN.format("reply", token, "foo")
 
     sender = (u'Me', 'me@foo.com')
     recipients = [ target ]
     subject = faker.bs()
-    text_content = u'Bonjour aux *Fran\xe7ais*!'
+    text_content = u'Bonjour aux *Fran\xe7ais*! \n\n' + "\n".join(faker.sentences())
     prefered_encoding = 'iso-8859-1'
     text_encoding = 'iso-8859-1'
     html = None
@@ -32,6 +35,7 @@ def compose_new(user):
     )
 
     return payload
+
 
 class Command(BaseCommand):
     help = 'Checks the email handler'
@@ -46,14 +50,23 @@ class Command(BaseCommand):
 
         models.Post.objects.filter(root=None).delete()
 
-        content = compose_new(admin)
+        content = create_payload(admin)
 
         print(content)
-
         data = dict(key=settings.EMAIL_HANDLER_SECRET_KEY, content=content)
-
         r = requests.post(email_handler, data=data)
-
         print('-' * 10)
         print(r.text)
+
+        post = models.Post.objects.order_by("-creation_date").first()
+
+        reply = models.ReplyToken.objects.create(post=post, user=admin)
+        content = create_payload(admin, token=reply.token)
+
+        print(content)
+        data = dict(key=settings.EMAIL_HANDLER_SECRET_KEY, content=content)
+        r = requests.post(email_handler, data=data)
+        print('-' * 10)
+        print(r.text)
+
 

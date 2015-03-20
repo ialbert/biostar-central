@@ -64,6 +64,9 @@ def post_created(sender, instance, created, **kwargs):
         func = tasks.create_messages
         func.delay(instance) if settings.CELERY_ENABLED else func(instance)
 
+    # Update the reply count on the post.
+    instance.update_reply_count()
+
 
 def register():
     post_save.connect(user_create, sender=User, dispatch_uid="user_create")

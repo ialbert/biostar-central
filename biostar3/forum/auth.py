@@ -52,6 +52,7 @@ def tag_split(text):
     return list(parts)
 
 
+@transaction.atomic
 def create_toplevel_post(data, user, group):
     # Creating a top level post from  data
     title = data.get('title', '').strip()
@@ -105,6 +106,7 @@ def can_moderate_user(request, user, target):
     return False
 
 
+@transaction.atomic
 def postsub_get_or_create(user, post, sub_type):
     """
     Gets or creates a postsub for the user
@@ -113,6 +115,7 @@ def postsub_get_or_create(user, post, sub_type):
     return select(user=user, post=post).first() or create(user=user, post=post, type=sub_type)
 
 
+@transaction.atomic
 def groupsub_get_or_create(user, usergroup, sub_type=None):
     """
     Adds a group sub if it does not exist already.
@@ -146,8 +149,8 @@ def groupsub_get_or_create(user, usergroup, sub_type=None):
         newsub = create(user=user, usergroup=usergroup, type=settings.DEFAULT_MESSAGES)
         return newsub
 
-
-def create_content_post(content, parent, post_type, user):
+@transaction.atomic
+def create_content_post(content, parent,  user, post_type=None):
     # Creating a content level post from data
     post = Post.objects.create(parent=parent, content=content, type=post_type, author=user)
     return post

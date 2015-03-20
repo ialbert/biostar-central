@@ -372,7 +372,16 @@ class Post(models.Model):
         return self.type in Post.TOP_LEVEL
 
     def get_absolute_url(self):
-        url = reverse("post_view", kwargs=dict(pk=self.root_id))
+
+        if self.root:
+            url = reverse("post_view", kwargs=dict(pk=self.root_id))
+        else:
+            # This normally should never happen. It may occur if
+            # the object is not updated after creating it. It has self referential Foreign keys.
+            # One bad post may make the whole page fail so better protect against it.
+            logger.error("missing self.root for id={}".format(self.id))
+            url = reverse("post_view", kwargs=dict(pk=self.id))
+
         if self.is_toplevel:
             return url
         else:
@@ -387,6 +396,12 @@ class Post(models.Model):
                 return "Answered"
             return "Unanswered"
         return self.get_type_display()
+
+    def update_reply_count(self):
+        "This can be used to set the answer count."
+        if self.type == Post.ANSWER:
+            reply_count = Post.objects.filter(parent=self.parent, type=Post.ANSWER, status=Post.OPEN).count()
+            Post.objects.filter(pk=self.parent_id).update(reply_count=reply_count)
 
     def save(self, *args, **kwargs):
         "Actions that need to be performed on every post save."
@@ -420,6 +435,9 @@ class Post(models.Model):
         if not self.title:
             self.title = "%s: %s" % (self.get_type_display()[0], self.parent.title)
 
+        # Update the reply count.
+        self.set_reply_count()
+
         # Remove whitespace from the title.
         self.title = self.title.strip()
 
@@ -429,6 +447,7 @@ class Post(models.Model):
         self.html = html.sanitize(self.content, user=self.lastedit_user)
         self.changed = True
         super(Post, self).save(*args, **kwargs)
+
 
 
 class PostView(models.Model):

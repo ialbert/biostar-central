@@ -6,7 +6,7 @@ from django.http import HttpResponse
 from functools import partial
 from django.db import transaction
 from django.db.models import Q, F
-from .models import Post, User, Vote, GroupPerm, UserGroup
+from .models import Post, User, Vote, GroupPerm, UserGroup, ReplyToken
 from . import auth
 from django.contrib import messages
 from functools import partial
@@ -26,8 +26,7 @@ def json_response(data, **kwd):
     return HttpResponse(json.dumps(data), **kwd)
 
 
-NEW_POST = "new"
-
+NEW_POST, REPLY_POST = "new", "reply"
 
 @csrf_exempt
 def email_handler(request):
@@ -36,6 +35,12 @@ def email_handler(request):
     in mbox type format.
     """
 
+    # The feature may be turned off.
+    if not settings.ALLOW_EMAIL_REPLY:
+        resp = dict(status="error", msg="email reply not allowed")
+        return json_response(resp)
+
+    # The key to validate the post.
     key = request.POST.get("key")
 
     if key != settings.EMAIL_HANDLER_SECRET_KEY:
@@ -52,7 +57,6 @@ def email_handler(request):
         content = content.encode('utf8', errors='ignore')
         msg = pyzmail.PyzMessage.factory(content)
 
-
     # Extract the address from the address tuples.
     # The expected format is: action+token+group@site.com
     try:
@@ -62,7 +66,6 @@ def email_handler(request):
     except Exception as exc:
         resp = dict(status="error", msg="Invalid address={}".format(exc))
         return json_response(resp)
-
 
     # Parse the email address.
     parts = target.split('+')
@@ -78,15 +81,20 @@ def email_handler(request):
     enc = part.charset
     text = part.get_payload().decode(enc)
 
+    # Should we remove quote text.
     if settings.EMAIL_REPLY_REMOVE_QUOTED_TEXT:
         text = email_reply_parser.EmailReplyParser.parse_reply(text)
 
+    # A new post is to be generated.
     if action == NEW_POST:
+
+        # Which group to post to.
         usergroup = UserGroup.objects.filter(domain=pattern).first()
         if not usergroup:
             resp = dict(status="error", msg="Group={} does not exist".format(pattern))
             return json_response(resp)
 
+        # The token must match a users uuid.
         author = User.objects.filter(profile__uuid=token).first()
         if not author:
             resp = dict(status="error", msg="Author uuid={} does not exist".format(token))
@@ -95,8 +103,21 @@ def email_handler(request):
         # Create the post in the usergroup
         data = dict(title=subject, content=text, tags="via email")
         auth.create_toplevel_post(data=data, user=author, group=usergroup)
-        resp = dict(status="ok", msg="message created".format(token))
+        resp = dict(status="ok", msg="question created".format(token))
         return json_response(resp)
+
+    # Post a reply to a reply token.
+    if action == REPLY_POST:
+        replytok = ReplyToken.objects.filter(token=token).first()
+        if not replytok:
+            resp = dict(status="ok", msg="invalid reply token={}".format(token))
+            return json_response(resp)
+        auth.create_content_post(content=text, parent=replytok.post, user=replytok.user)
+        resp = dict(status="error", msg="post created")
+        return json_response(resp)
+
+    resp = dict(status="error", msg="action not recognized")
+    return json_response(resp)
 
 def ajax_msg(msg, status, **kwargs):
     """
