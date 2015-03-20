@@ -353,7 +353,7 @@ def post_view(request, pk, post=None, user=None):
 
     # Get related objects
     related = SearchQuerySet().more_like_this(post)[:25]
-    related = ifilter(lambda x: x.object.is_toplevel, related)
+    related = ifilter(lambda x: x.object and x.object.is_toplevel, related)
 
     # Add object to the context.
     context = dict(post=post, related=related)
