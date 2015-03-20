@@ -27,7 +27,8 @@ def user_login(sender, request, user, **kwargs):
 
 def user_create(sender, instance, created, **kwargs):
     if created:
-        logger.info("created %s" % instance)
+
+        logger.info("%s" % instance)
 
         # Every user will be a member of the default group.
         usergroup = UserGroup.objects.get(domain=settings.DEFAULT_GROUP_DOMAIN)
@@ -50,7 +51,7 @@ def user_create(sender, instance, created, **kwargs):
 def post_created(sender, instance, created, **kwargs):
     # This is where messages are sent
     if created:
-        logger.info("created %s" % instance)
+        logger.info("%s" % instance)
 
         # Subscriptions will apply relative to the root.
         # Get or add the group subscription for the user.

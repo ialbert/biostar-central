@@ -334,13 +334,14 @@ def post_view(request, pk, post=None, user=None):
         return p
 
     # Decorate all posts in the thread.
-    thread = map(decorator, thread)
+    thread = list(map(decorator, thread))
 
     # Decorate the main post as well.
     post = decorator(post)
 
     # Store answers in a separate list for simpler access.
     post.answers = filter(lambda p: p.type == models.Post.ANSWER, thread)
+    post.answers = list(post.answers)
 
     # Comments will be stored in a dictionary for fast access.
     comment_list = filter(lambda pc: pc.type == models.Post.COMMENT, thread)

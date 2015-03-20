@@ -7,9 +7,7 @@ from django.db.models import Q, F, Count, Avg
 
 from .models import *
 from . import mailer
-
-from functools import *
-from itertools import *
+from biostar3.compat import *
 
 logger = logging.getLogger('biostar')
 
@@ -121,7 +119,7 @@ def get_awards():
     def autobio_selector(uuid):
         cond = Q(profile__info='') | Q(award__badge__uuid=uuid)
         query = User.objects.exclude(cond).select_related("profile").distinct()
-        query = ifilter(lambda user: len(user.profile.info) > 80, query)
+        query = filter(lambda user: len(user.profile.info) > 80, query)
         return query
 
     AUTOBIO = AwardDef(

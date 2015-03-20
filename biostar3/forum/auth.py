@@ -50,7 +50,7 @@ def tag_split(text):
     parts = map(strip, parts)
     parts = filter(None, parts)
     parts = map(lower, parts)
-    return parts
+    return list(parts)
 
 
 def create_toplevel_post(data, user, group):

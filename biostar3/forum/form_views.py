@@ -1,4 +1,4 @@
-__author__ = 'ialbert'
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 from datetime import timedelta
 from django import forms
@@ -93,10 +93,11 @@ def post_create(request, parent=None, post_type=None, action='', form_class=Cont
         form = form_class(request.POST)
 
         # Attempt to detect duplicated submissions
-        title = request.POST.get("title")
-        recently = right_now() - timedelta(minutes=5)
-        if Post.objects.filter(title=title, creation_date__gt=recently):
-            form.add_error("title", "Duplicated submission? There is a recent post with identical title!")
+        content = request.POST.get("content")
+
+        recently = right_now() - timedelta(minutes=10)
+        if Post.objects.filter(content=content, creation_date__gt=recently):
+            form.add_error("content", "Duplicated submission? There is a recent post with identical content!")
 
         if not form.is_valid():
             # Form data came but not valid.
@@ -112,6 +113,8 @@ def post_create(request, parent=None, post_type=None, action='', form_class=Cont
 
         return redirect(post.get_absolute_url())
 
+    messages.error(request, "Unsupported request type")
+    return redirect("home")
 
 @login_required
 def create_toplevel_post(request):

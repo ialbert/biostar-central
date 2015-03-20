@@ -1,4 +1,4 @@
-from __future__ import absolute_import, division, unicode_literals
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import logging, random, re
 
@@ -21,6 +21,7 @@ logging.disable(logging.INFO)
 
 faker = Factory.create()
 
+
 def add_random_content():
     user = random.choice(User.objects.all())
     parent = random.choice(Post.objects.all())
@@ -39,13 +40,12 @@ class ClientTests(TestCase):
     def tearDown(self):
         self.haystack.setLevel(logging.WARNING)
 
-
     def get(self, client, url, code=200, kwargs={}, follow=False, pattern=None):
-
         r = client.get(reverse(url, kwargs=kwargs), follow=follow)
         self.assertEqual(r.status_code, code)
         if pattern:
-            self.assertTrue(re.search(pattern, r.content, re.IGNORECASE))
+            content = r.content.decode("utf-8")
+            self.assertTrue(re.search(pattern, content, re.IGNORECASE))
         return r
 
     def post(self, client, url, kwargs={}, data={}, pattern=None, follow=False):
@@ -57,9 +57,11 @@ class ClientTests(TestCase):
             self.assertEqual(r.status_code, 302)
 
         if pattern:
-            result = re.search(pattern, r.content, re.IGNORECASE)
+            content = r.content.decode("utf-8")
+            result = re.search(pattern, content, re.IGNORECASE)
             if not result:
-                print "*** unable to find %s in content." % (pattern)
+                print (content)
+                print("*** unable to find pattern: {0} in content.".format(pattern))
                 self.assertTrue(result)
 
         return r
@@ -149,7 +151,7 @@ class ClientTests(TestCase):
             # Creating a group redirects to it.
             rlen = len(r.redirect_chain)
             if rlen != 2:
-                print r.content
+                print(r.content)
                 logger.error("error creating domain: %s" % domain)
                 logger.error(r.redirect_chain)
                 true(rlen == 2)
@@ -291,7 +293,7 @@ class ClientTests(TestCase):
         if award_count != len(all_awards):
             # See what is missing.
             for award in Award.objects.all():
-                print award.uuid
+                print(award.uuid)
 
         # User gets one message for each award
         self.assertEqual(award_count, len(all_awards))
