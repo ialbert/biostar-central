@@ -1,0 +1,70 @@
+{% extends "site_layout.html" %}
+{% load widgets %}
+
+{% block title %}
+    Group {{ target.name }}
+{% endblock %}
+
+{% block body %}
+
+    {% user_bar user %}
+
+    <div class="row">
+        <div class="twelve columns">
+
+
+            <div class="title">
+                Group: <b>{{ target.name }}</b>
+            </div>
+
+            <div class="sub_title">
+                Domain: <b>{{ target.domain }}</b>
+            </div>
+
+            <div class="sub_title">
+                Visit group: <b><a href="{{ target.url }}">{{ target.url }}</a></b>
+            </div>
+
+            {% if 1 or target.owner == user %}
+                <div style="margin-top:1em">
+                   <a class="button" href="{% url "group_edit" pk=group.id %}">edit group</a>
+                    <a class="button" href="{% url "group_manage" pk=group.id %}">manage access</a>
+                </div>
+            {% endif %}
+
+            <div>
+                <div class="title">
+                Group info
+            </div>
+                <p>{{ group.html|safe }}</p>
+            </div>
+            <div class="title">
+                Users with special roles in: <b>{{ target.name }}</b>
+            </div>
+
+            {% for perm in perms %}
+                {% with user=perm.user %}
+                    <div class="user_list_box">
+
+                        <div>
+                            <a href="{{ user.get_absolute_url }}">{% gravatar user 82 %}</a>
+                        </div>
+
+                        <div>
+                            <a href="{{ user.get_absolute_url }}">{{ user.name }}</a> &bull; {{ user.score|bignum }}
+                        </div>
+
+                        <div class="visited">
+                            visited {{ user.profile.last_login|time_ago }}
+                        </div>
+
+                        <div>{{ perm.get_role_display }}</div>
+                    </div>
+                {% endwith %}
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+{% endblock %}

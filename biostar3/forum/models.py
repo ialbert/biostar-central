@@ -14,6 +14,25 @@ from . import html
 logger = logging.getLogger('biostar')
 
 
+def get_group_url(group):
+    """
+    Find the fully qualified url to a group
+    """
+    site = Site.objects.get(id=settings.SITE_ID)
+    if group.domain == settings.DEFAULT_GROUP_DOMAIN:
+        netloc = site.domain
+    else:
+        netloc = site.domain.split(".")
+        if settings.SITE_PREPEND_SUBDOMAIN:
+            netloc = [group.domain] + netloc
+        else:
+            netloc[0] = group.domain
+        netloc = ".".join(netloc)
+
+    url = "%s://%s" % (settings.SITE_SCHEME, netloc)
+    return url
+
+
 class MyTaggableManager(TaggableManager):
     def get_internal_type(self):
         return 'ManyToManyField'
@@ -98,6 +117,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     # The site this users belongs to.
     site = models.ForeignKey(Site, null=True, blank=True)
 
+    # The user portrait.
+    portrait = models.FileField(upload_to="users/img/%Y/%m/%d", null=True, blank=True)
+
     @property
     def is_suspended(self):
         return (self.status == self.SUSPENDED) or (self.status == self.BANNED)
@@ -139,11 +161,22 @@ class UserGroup(models.Model):
     name = models.CharField(max_length=25, unique=True, db_index=True)
     domain = models.CharField(max_length=50, unique=True, db_index=True, default="www")
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="owners", null=True)
-    description = models.TextField(default="default group")
+    info = models.TextField(default="default group info")
+    html = models.TextField(default="group info turned into html")
+
+    url = models.CharField(default="full url to the group home", max_length=255)
     public = models.BooleanField(default=True)
     visible = models.BooleanField(default=True)
-    creation_date = models.DateTimeField(auto_now_add=True)
-    logo = models.FileField(upload_to="groups", null=True, blank=True)
+    user_count = models.IntegerField(default=1)
+    post_count = models.IntegerField(default=0)
+    last_activity = models.DateTimeField()
+    creation_date = models.DateTimeField()
+
+    # The logo for the model.
+    logo = models.FileField(upload_to="groups/img/%Y/%m/%d", null=True, blank=True)
+
+    # A stylysheet that will be loaded for the group.
+    css_file = models.FileField(upload_to="groups/css/%Y/%m/%d", null=True, blank=True)
 
     def save(self, *args, **kwargs):
         "Actions that need to be performed on every user save."
@@ -153,6 +186,15 @@ class UserGroup(models.Model):
         self.domain = self.domain.strip()
         self.domain = "".join(self.domain.splitlines())
         self.domain = '-'.join(self.domain.split())
+
+        # The group url is set relative to the current site.
+        self.url = get_group_url(self)
+
+        # Set the dates.
+        self.creation_date = self.creation_date or right_now()
+        self.last_activity = self.last_activity or self.creation_date
+
+        self.html = html.sanitize(self.info, user=self.owner)
 
         super(UserGroup, self).save(*args, **kwargs)
 
@@ -183,7 +225,6 @@ class GroupPerm(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, db_index=True)
     usergroup = models.ForeignKey(UserGroup)
     role = models.IntegerField(choices=ROLES, default=MODERATE)
-
 
 
 class Profile(models.Model):
@@ -329,6 +370,7 @@ class Post(models.Model):
     # Date related fields.
     creation_date = models.DateTimeField(db_index=True)
     lastedit_date = models.DateTimeField(db_index=True)
+    last_activity = models.DateTimeField(db_index=True)
 
     # Stickiness of the post.
     sticky = models.BooleanField(default=False, db_index=True)
@@ -353,6 +395,9 @@ class Post(models.Model):
 
     # What site does the post belong to.
     site = models.ForeignKey(Site, null=True)
+
+    # The post may have an uploaded file.
+    file = models.FileField(upload_to="files/%Y/%m/%d", null=True, blank=True)
 
     def __unicode__(self):
         return "Post (id=%s)" % self.id
@@ -443,11 +488,11 @@ class Post(models.Model):
 
         self.creation_date = self.creation_date or right_now()
         self.lastedit_date = self.lastedit_date or self.creation_date
+        self.last_activity = self.last_activity or self.lastedit_date
         self.lastedit_user = self.lastedit_user or self.author
         self.html = html.sanitize(self.content, user=self.lastedit_user)
         self.changed = True
         super(Post, self).save(*args, **kwargs)
-
 
 
 class PostView(models.Model):
@@ -671,7 +716,7 @@ class BlogPost(models.Model):
 
 class Badge(models.Model):
     USER, POST = range(2)
-    TARGET_CHOICES = [ (USER, "User badge"), (POST, "Post badge") ]
+    TARGET_CHOICES = [(USER, "User badge"), (POST, "Post badge")]
 
     BRONZE, SILVER, GOLD = range(3)
     STYLE_CHOICES = ((BRONZE, 'Bronze'), (SILVER, 'Silver'), (GOLD, 'Gold'))
@@ -710,6 +755,7 @@ class Badge(models.Model):
     def save(self, *args, **kwargs):
         self.uuid = self.uuid or make_uuid()
         super(Badge, self).save(*args, **kwargs)
+
 
 class Award(models.Model):
     '''

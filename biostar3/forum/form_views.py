@@ -14,8 +14,7 @@ from django.db.models import Q
 from django.contrib.auth import get_user_model
 
 from .models import Post, UserGroup, GroupSub, GroupPerm, Profile, right_now
-from . import auth
-
+from . import auth, cache
 
 logger = logging.getLogger('biostar')
 
@@ -117,6 +116,7 @@ def post_create(request, parent=None, post_type=None, action='', form_class=Cont
     messages.error(request, "Unsupported request type")
     return redirect("home")
 
+
 @login_required
 def create_toplevel_post(request):
     "A new toplevel post"
@@ -214,12 +214,10 @@ class GroupCreateForm(forms.Form):
     name = forms.CharField(min_length=3, max_length=25, label="Group Name", validators=[group_name_validator])
     domain = forms.CharField(min_length=3, max_length=50, label="Subdomain", validators=[group_domain_validator])
     public = forms.BooleanField(initial=True, label="Public access", required=False)
-    description = forms.CharField(widget=forms.Textarea, min_length=10, max_length=1000,
+    info = forms.CharField(widget=forms.Textarea, min_length=10, max_length=1000,
                                   required=True)
 
-    logo = forms.FileField(required=False, label="Logo (image)")
-
-    remove_logo = forms.BooleanField(initial=False, label="Remove logo if exists.", required=False)
+    logo = forms.FileField(widget=forms.ClearableFileInput, required=False, label="Logo (image)")
 
 
 class GroupEditForm(GroupCreateForm):
@@ -259,7 +257,7 @@ def group_create(request, user=None):
             name=get('name'),
             domain=get('domain'),
             public=get('public'),
-            description=get('description'),
+            info=get('info'),
             owner=user,
             logo=request.FILES.get('logo'),
         )
@@ -284,7 +282,7 @@ def group_edit(request, pk=None, group=None, user=None):
         # Get methods get the form and return.
         initial = dict(
             name=group.name, public=group.public, description=group.description,
-            domain=group.domain,
+            domain=group.domain, logo=group.logo,
         )
         form = GroupEditForm(initial=initial)
         context = dict(form=form, action=action, title=title)
@@ -305,17 +303,22 @@ def group_edit(request, pk=None, group=None, user=None):
         group.name = get('name')
         group.domain = get('domain')
         group.public = get('public')
-        group.description = get('description')
+        group.info = get('info')
 
-        logo = request.FILES.get('logo')
-
-        if logo or get("remove_logo"):
-            # Incoming data. Remove old data.
+        if request.POST.get("logo-clear"):
+            # User wants to delete the existing logo.
             if group.logo:
                 group.logo.delete()
-            group.logo = logo
+            group.logo = None
+
+        # User wants to upload a new logo or keep the existing value.
+        logo = request.FILES.get('logo')
+        group.logo = logo if logo else group.logo
 
         group.save()
+
+        # Reset the group cache
+        cache.bust_group_cache(group)
 
     return redirect(reverse("group_list"))
 

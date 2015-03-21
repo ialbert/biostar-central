@@ -33,4 +33,4 @@ def get_group(domain):
     return group
 
 # Delete the cache
-delete_group = lambda group: cache.delete(GROUP_CACHE % group.domain)
+bust_group_cache = lambda group: cache.delete(GROUP_CACHE % group.domain)

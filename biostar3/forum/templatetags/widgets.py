@@ -109,7 +109,6 @@ def page_bar(context, page=None):
 def action_bar(post, label="ADD COMMENT"):
     return dict(post=post, label=label)
 
-
 @register.inclusion_tag('post_update_bar.html')
 def update_bar(post):
     return dict(post=post)

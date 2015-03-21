@@ -103,14 +103,17 @@ urlpatterns = patterns('',
     # Group list.
     url(r'^g/list/$', post_views.group_list, name="group_list"),
 
-    # Group redirect.
-    url(r'^g/redirect/(?P<pk>\S+)/$', post_views.group_redirect, name="group_redirect"),
-
-    # Group subscriptions
-    url(r'^g/subscribe/(?P<pk>\S+)/$', form_views.group_subscribe, name="group_subscribe"),
+    # Group information.
+    url(r'^g/info/(?P<pk>\d+)/$', post_views.group_info, name="group_info"),
 
     # Group login redirect. Used when redirecting subdomain login.
-    url(r'^g/login/(?P<pk>\S+)$', post_views.group_login, name="group_login"),
+    url(r'^g/login/(?P<pk>\d+)/$', post_views.group_login, name="group_login"),
+
+    # Group redirect.
+    url(r'^g/redirect/(?P<pk>\d+)/$', post_views.group_redirect, name="group_redirect"),
+
+    # Group subscriptions
+    url(r'^g/subscribe/(?P<pk>\d+)/$', form_views.group_subscribe, name="group_subscribe"),
 
     # Group create.
     url(r'^g/create/$', form_views.group_create, name="group_create"),
@@ -123,7 +126,6 @@ urlpatterns = patterns('',
 
     # Group premission change.
     url(r'^g/permission/(?P<pk>\d+)/$', form_views.group_permission, name="group_permission"),
-
 
     #
     # Tag specific handlers

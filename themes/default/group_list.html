@@ -24,29 +24,6 @@
                     {% endif %}
                 </div>
 
-                <div>
-                    <p>
-                        Groups are subsections of the site dedicated to a particular topic. Post made in group are
-                        visible only when accessing that group. Only members of a group may post to that group.
-                    </p>
-
-                    <p>
-                        Groups may be public (visible to everyone) others may be private (visible to subscribed users
-                        only).To gain membership to a private group the moderators of that group will need to add
-                        members to their group.
-                    </p>
-
-                    <p>
-                        Users with sufficient reputation points may
-                        <a href="{% url "group_create" %}">create a new group</a>.
-                    </p>
-
-                    <p>
-                        Note that only a limited number of groups may be created by each user.
-                        Site admins may also create groups both public and private (contact us if you
-                        need assistance).
-                    </p>
-                </div>
 
                 {% page_bar page %}
 
@@ -63,23 +40,30 @@
                                         <a href="{% url "group_redirect" pk=group.id %}">{{ group.name }}</a>
                                     </h5>
                                 </div>
-                                <div>
-                                    Domain: <code>{{ group.domain }}</code>
-                                </div>
-                                <div>
-                                    Owner: <a href="{{ group.owner.get_absolute_url }}">{{ group.owner.name }} </a>
 
+                                <div>
+                                    Subscribers: {{ group.user_count }} &bull; Posts: {{ group.post_count }}
                                 </div>
 
                                 <div>
-                                    Current subscription: {{ group.subscription }} | <a
-                                href="{% url "group_subscribe" pk=group.id %}">Change subscription</a>
+                                    Domain: <code>{{ group.domain }}</code> &bull;
+
+                                    Owner:
+                                    <code><a href="{{ group.owner.get_absolute_url }}">{{ group.owner.name }}</a></code> &bull;
+
+                                    <a href="{% url "group_info" group.id %}">More info</a>
+                                </div>
+
+
+                                <div>
+                                    Current subscription: {{ group.subscription }} &bull; <a
+                                        href="{% url "group_subscribe" pk=group.id %}">Change subscription</a>
                                 </div>
 
 
                             </td>
 
-                            <td>{{ group.description }}</td>
+                            <td>{{ group.info|truncatewords:100 }}</td>
                         </tr>
                     {% endfor %}
                 </table>
@@ -91,18 +75,35 @@
 
         <div class="three columns recent_votes">
             {% message_bar %}
-
             <div class="title">
-                Current Roles
+                About Groups
+            </div>
+            <div>
+                <p>
+                    Groups are subsections of the site
+                    dedicated to a particular topic. Post made in group are
+                    visible only when accessing that group.
+                    Only members of a group may post to that group.
+                </p>
+
+                <p>
+                    To gain membership to a private group the
+                    moderators of that group will need to add
+                    members to their group.
+                </p>
+
+                <p>
+                    Users with sufficient reputation points may create a new group
+
+                <div>
+                    <a class="button" href="{% url "group_create" %}">create a new group
+                    </a>.
+                </div>
+                </p>
+
+
             </div>
 
-            {% for perm in perms %}
-                <div style="padding-bottom:1ex;">
-                    <a href="{{ perm.user.get_absolute_url }}">
-                        {{ perm.user.name }}</a> &bull;  {{ perm.user.score|bignum }}
-                    <div>{{ perm.get_role_display }}</div>
-                </div>
-            {% endfor %}
         </div>
 
     </div>

@@ -41,6 +41,14 @@ def post_migrate_tasks(sender, **kwargs):
     Sets up minimally required site content post migration.
     """
 
+    # Set up the default domain.
+    site = Site.objects.get_current()
+    if site.domain != settings.SITE_DOMAIN:
+        site.name = settings.SITE_NAME
+        site.domain = settings.SITE_DOMAIN
+        site.save()
+        logger.info("Adding site=%s, name=%s, domain=%s." % (site.id, site.name, site.domain))
+
     # Needs ADMINS settings.
     if not settings.ADMINS:
         raise ImproperlyConfigured("settings must include ADMINS attribute.")
@@ -77,13 +85,6 @@ def post_migrate_tasks(sender, **kwargs):
         logger.info("Creating default group %s on the %s subdomain." % (default_group.name, default_group.domain))
         default_group.save()
 
-    # Set up the default domain.
-    site = Site.objects.get_current()
-    if site.domain != settings.SITE_DOMAIN:
-        site.name = settings.SITE_NAME
-        site.domain = settings.SITE_DOMAIN
-        site.save()
-        logger.info("Adding site=%s, name=%s, domain=%s." % (site.id, site.name, site.domain))
 
     # Initialize the awards.
     awards.get_awards()

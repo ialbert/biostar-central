@@ -37,7 +37,7 @@ SITE_SCHEME = "http"
 SITE_PREPEND_SUBDOMAIN = False
 
 # Which subdomains lead to the main site.
-DEFAULT_SUBDOMAINS = {'www', '127', 'localhost:8080'}
+DEFAULT_SUBDOMAINS = { 'www', '127' }
 
 # Default group name.
 DEFAULT_GROUP_NAME = "Biostar"

@@ -144,7 +144,7 @@ class ClientTests(TestCase):
             domain = make_uuid(size=8)
             info = faker.sentence()
 
-            data = dict(name=name, domain=domain, description=info, public=True)
+            data = dict(name=name, domain=domain, info=info, public=True)
 
             r = self.post(c, "group_create", data=data, pattern=name, follow=True)
 

@@ -200,6 +200,19 @@ def group_redirect_handler(request, group, user, autoadd=None):
         messages.error(request, "Group error: %s" % exc)
         return redirect(reverse("home"))
 
+@auth.group_access
+def group_info(request, pk, group=None, user=None):
+    template_name = "group_info.html"
+
+    site = models.Site.objects.get(id=settings.SITE_ID)
+
+    print (site.domain)
+    # Current group permissions
+    perms = GroupPerm.objects.filter(usergroup=group).select_related("user")
+
+    context = dict(perms=perms, target=group)
+    return render(request, template_name, context)
+
 
 def group_list(request):
     """
@@ -232,7 +245,7 @@ def group_list(request):
 
     groups = UserGroup.objects.filter(cond).select_related("owner")
 
-    paginator = query.ExtendedPaginator(request, sort_class=query.GroupSortValidator,
+    paginator = query.ExtendedPaginator(request,
                                         object_list=groups, per_page=25)
     page = paginator.curr_page()
 
@@ -241,10 +254,7 @@ def group_list(request):
         sub = sub_map.get(g)
         g.subscription = sub.get_type_display() if sub else "None"
 
-    # Current group permissions
-    perms = GroupPerm.objects.filter(usergroup=group).select_related("user")
-
-    context = dict(page=page, public=page.object_list, group=group, perms=perms)
+    context = dict(page=page, public=page.object_list, group=group)
 
     return render(request, template_name, context)
 

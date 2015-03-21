@@ -138,7 +138,7 @@ def sanitize(text, user):
     callbacks = [internal_links, require_protocol]
 
     # Staff may use more dangerous HTML objects.
-    if user.is_staff:
+    if user and user.is_staff:
         tags, attrs, styles = TRUSTED_TAGS, TRUSTED_ATTRIBUTES, TRUSTED_STYLES
     else:
         tags, attrs, styles = ALLOWED_TAGS, ALLOWED_ATTRIBUTES, ALLOWED_STYLES
