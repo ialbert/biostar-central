@@ -9,6 +9,12 @@ from .models import *
 from . import auth, mailer
 from biostar3.utils.compat import *
 
+@shared_task
+def compute_user_flair(user):
+    """
+    This is a fairly compute intensive task. Also the
+    flair does not change noticably in short periods of time.
+    """
 
 @shared_task
 def add_user_location(ip, user):

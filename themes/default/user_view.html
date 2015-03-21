@@ -48,7 +48,7 @@
                         </div>
 
                         <div>
-                            Reputation: <b>{{ target.scaled_score |intcomma }}</b>
+                            Reputation: <b>{{ target.scaled_score|bignum }}</b>
                         </div>
 
                         {% if target.editable %}
@@ -56,9 +56,11 @@
                                 Email: <b>{{ target.email }}</b>
                             </div>
                             <div>
-                                New post <a href="mailto: new-{{ target.profile.uuid }}-{{ group.domain }}@biostars.io">
+                                New post: <a
+                                    href="mailto: new-{{ target.profile.uuid }}-{{ group.domain }}@biostars.io">
                                 via this email.
                             </a>
+                                <i class="fa fa-question-circle"></i>
                             </div>
                         {% else %}
                             <div>
@@ -69,7 +71,7 @@
                         {% if target.profile.twitter_id %}
                             <div>Twitter:
                                 <i class="fa fa-twitter"></i> <a
-                                href="http://twitter.com/{{ target.profile.twitter_id }}">
+                                        href="http://twitter.com/{{ target.profile.twitter_id }}">
                                     {{ target.profile.twitter_id|truncatechars:25 }}</a>
                             </div>
                         {% endif %}
@@ -84,13 +86,13 @@
                         {% if target.profile.scholar %}
                             <div>
                                 Google scholar: <a
-                            href="http://scholar.google.com/citations?user={{ target.profile.scholar }}">
+                                    href="http://scholar.google.com/citations?user={{ target.profile.scholar }}">
                                 view page</a>
                             </div>
                         {% endif %}
 
                         <div>
-                            Status: <b>{{ target.get_status_display }}</b>
+                            Status: <b>{{ target.get_status_display }}</b> <i class="fa fa-question-circle"></i>
                         </div>
 
                         <div>
@@ -98,6 +100,11 @@
                         </div>
                         <div>
                             Date joined: <b>{{ target.profile.date_joined | naturaltime }}</b>
+                        </div>
+
+                        <div>
+                            User flair: {{ user.flair }} <span class="line">{% scoreline target %}</span>
+                            <i class="fa fa-question-circle"></i>
                         </div>
 
                         <div>
@@ -125,17 +132,17 @@
 
                         <li>
                             <a href="{% url "posts_by_user" pk=target.id %}"><i
-                            class="fa fa-list"></i> View all posts by {{ target.name }}</a>
+                                    class="fa fa-list"></i> View all posts by {{ target.name }}</a>
                         </li>
 
                         <li>
                             <a href="{% url "vote_list" pk=target.id %}"><i
-                            class="fa fa-heart"></i> View all votes for {{ target.name }}</a>
+                                    class="fa fa-heart"></i> View all votes for {{ target.name }}</a>
                         </li>
 
                         <li>
                             <a href="{% url "posts_by_user" pk=target.id %}"><i
-                            class="fa fa-star"></i> View all awards to {{ target.name }}</a>
+                                    class="fa fa-star"></i> View all awards to {{ target.name }}</a>
                         </li>
 
                     </ul>
@@ -148,7 +155,7 @@
                         {% for post in posts %}
                             <div class="post_title">
                                 <a
-                                href="{{ post.get_absolute_url }}">{{ post.get_type_display }} {{ post.get_title }}</a>
+                                        href="{{ post.get_absolute_url }}">{{ post.get_type_display }} {{ post.get_title }}</a>
                             </div>
                             <div>{{ post.content | truncatewords:80 }}</div>
                         {% endfor %}

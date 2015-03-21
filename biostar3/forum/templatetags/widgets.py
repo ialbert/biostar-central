@@ -29,14 +29,8 @@ def now():
 
 
 @register.simple_tag
-def scoreline(user, size=5):
-    random.seed(user.id)
-    values = map(lambda x: random.randint(0, 10), range(size))
-    # values = [0,1,0,0,0]
-    values = map(str, values)
-    random.seed()
-    return ",".join(values)
-
+def scoreline(user):
+    return user.flair
 
 @register.simple_tag
 def cachebuster():

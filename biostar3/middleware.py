@@ -8,8 +8,7 @@ from django.http import HttpResponsePermanentRedirect as Redirect
 from biostar3.forum.models import UserGroup, GroupPerm
 from django.contrib.sites.models import Site
 from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
-from django.core.cache import cache
-from biostar3.forum import cache
+from biostar3.forum import cache, models
 
 # Get current site
 User = get_user_model()
@@ -85,3 +84,7 @@ class GlobalMiddleware(object):
             # Check for group permissions.
             perm = GroupPerm.objects.filter(user=user, usergroup=request.group).first()
             user.is_moderator = bool(perm)
+            user.is_admin = perm and (perm.role == GroupPerm.ADMIN)
+
+            #user.flair = models.compute_flair(user)
+            #print ("user flair", user.flair)

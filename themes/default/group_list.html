@@ -18,10 +18,6 @@
 
                 <div class="title">
                     Current group: <b>{{ group.name }}</b>
-                    {% if group.owner == user %}
-                        | <a href="{% url "group_edit" pk=group.id %}">edit</a>
-                        | <a href="{% url "group_manage" pk=group.id %}">manage</a>
-                    {% endif %}
                 </div>
 
 

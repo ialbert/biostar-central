@@ -206,7 +206,6 @@ def group_info(request, pk, group=None, user=None):
 
     site = models.Site.objects.get(id=settings.SITE_ID)
 
-    print (site.domain)
     # Current group permissions
     perms = GroupPerm.objects.filter(usergroup=group).select_related("user")
 
@@ -250,7 +249,6 @@ def group_list(request):
     page = paginator.curr_page()
 
     for g in page.object_list:
-        g.editable = (g.owner == user)
         sub = sub_map.get(g)
         g.subscription = sub.get_type_display() if sub else "None"
 

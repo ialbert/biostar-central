@@ -8,7 +8,7 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from taggit.managers import TaggableManager
 from django.utils.timezone import utc
-from datetime import datetime
+from datetime import datetime, timedelta
 from . import html
 
 logger = logging.getLogger('biostar')
@@ -112,7 +112,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     activity = models.IntegerField(default=0)
 
     # Display next to a user name.
-    flair = models.CharField(verbose_name='Flair', max_length=15, default="", blank=True)
+    flair = models.CharField(verbose_name='Flair', max_length=255, default="0,0,0,1", blank=True)
 
     # The site this users belongs to.
     site = models.ForeignKey(Site, null=True, blank=True)
@@ -768,3 +768,42 @@ class Award(models.Model):
     post = models.ForeignKey(Post, null=True, blank=True)
     date = models.DateTimeField()
     context = models.CharField(max_length=1000, default='')
+
+
+def compute_user_score(user, start=None, end=None):
+    """
+    Computes the score
+    """
+    now = right_now()
+
+    if start is None:
+        start = user.profile.date_joined
+    else:
+        start = now - timedelta(days=start)
+
+    if end is None:
+        end = now
+    else:
+        end = now - timedelta(days=end)
+
+    vote_count = Vote.objects.filter(post__author=user,
+                                     type=Vote.UP, date__gt=start, date__lt=end).count()
+    book_count = Vote.objects.filter(post__author=user, type=Vote.BOOKMARK,
+                                     date__gt=start, date__lt=end).count()
+    post_count = Post.objects.filter(author=user,
+                                     creation_date__gt=start, creation_date__lt=end).count()
+    answer_count = Post.objects.filter(author=user, type=Post.ANSWER,
+                                       creation_date__gt=start, creation_date__lt=end).count()
+
+    score = vote_count * 10 + book_count * 20 + post_count * 1 + answer_count * 5
+
+    return int(score)
+
+
+def compute_flair(user):
+    s1 = compute_user_score(user, start=360, end=90)
+    s2 = compute_user_score(user, start=270, end=90)
+    s3 = compute_user_score(user, start=180, end=90)
+    s4 = compute_user_score(user, start=90, end=0)
+
+    return "{},{},{},{}".format(s1, s2, s3, s4)

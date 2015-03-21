@@ -80,6 +80,7 @@ def post_migrate_tasks(sender, **kwargs):
     # Hence if created it needs to updated once the admin is known to exist.
     if default_flag:
         default_group.name = settings.DEFAULT_GROUP_NAME
+        default_group.info ="This is the default group."
         default_group.logo = File(open(default_logo, "rb"))
         default_group.owner = admin
         logger.info("Creating default group %s on the %s subdomain." % (default_group.name, default_group.domain))

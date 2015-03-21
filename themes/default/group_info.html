@@ -14,7 +14,7 @@
 
 
             <div class="title">
-                Group: <b>{{ target.name }}</b>
+                <a href="{%  url "group_list" %}">All Groups</a> &gt; Group: <b>{{ target.name }}</b>
             </div>
 
             <div class="sub_title">
@@ -25,7 +25,7 @@
                 Visit group: <b><a href="{{ target.url }}">{{ target.url }}</a></b>
             </div>
 
-            {% if 1 or target.owner == user %}
+            {% if user.is_admin %}
                 <div style="margin-top:1em">
                    <a class="button" href="{% url "group_edit" pk=group.id %}">edit group</a>
                     <a class="button" href="{% url "group_manage" pk=group.id %}">manage access</a>
@@ -36,7 +36,7 @@
                 <div class="title">
                 Group info
             </div>
-                <p>{{ group.html|safe }}</p>
+                <p>{{ target.html|safe }}</p>
             </div>
             <div class="title">
                 Users with special roles in: <b>{{ target.name }}</b>

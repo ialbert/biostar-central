@@ -10,23 +10,27 @@
         <div class="nine columns">
             <div class="row" style="padding-top:1em">
                 <div>
-                    <h3>Change subscription</h3>
+                    <div class="title">Change notifications on group: <b>{{ target.name }}</b></div>
 
                     <p>
-                            These will be your default subscription settings for the <b>{{ group.name }}</b> group. They
+                            These notification settings will
                             apply for new posts created in this group.
-                            You may change your subscription on each post
-                            individually.
+                            You may also change your notification settings for each thread.
                         </p>
 
 
-                    <form action="{% url "group_subscribe" pk=group.id %}" method="post">
+                    <form action="{% url "group_subscribe" pk=target.id %}" method="post">
                         {% csrf_token %}
-                        <div>{{ form }}</div>
+                        <div style="margin-top:2.5rem;">
+                             {{ form.type }}
+                            <input type="submit" value="Submit">
+                        </div>
+                    </form>
 
-                        <p>
-                            <b>Smart mode</b>: sends an email when a user receives an answer or a comment on a
-                            question that they have posted. This is the recommended default for most users as
+                    <p>
+                            <b>Smart mode</b>: sends an email when a
+                            user receives an answer or a comment on a
+                            question that they have created. This is the recommended default for most users as
                             it notifies them immediately when they get an answer.
                         </p>
 
@@ -58,11 +62,6 @@
                             When leaving a private group the user cannot
                             rejoin unless added by the owner of the group.
                         </p>
-
-                        <div>
-                            <input type="submit" value="Submit">
-                        </div>
-                    </form>
 
 
                 </div>

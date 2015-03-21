@@ -205,25 +205,29 @@ def group_domain_validator(text):
         raise ValidationError('This group domain already exists')
 
 
-class GroupCreateForm(forms.Form):
+class GroupDomainForm(forms.Form):
+    domain = forms.CharField(min_length=3, max_length=50, label="Subdomain (cannot be changed)", validators=[group_domain_validator])
+
+class GroupFieldForm(forms.Form):
     """
     Edit or create content: answers, comments
     """
 
     # The is_toplevel field is used to distinguish between subclasses inside templates
     name = forms.CharField(min_length=3, max_length=25, label="Group Name", validators=[group_name_validator])
-    domain = forms.CharField(min_length=3, max_length=50, label="Subdomain", validators=[group_domain_validator])
     public = forms.BooleanField(initial=True, label="Public access", required=False)
     info = forms.CharField(widget=forms.Textarea, min_length=10, max_length=1000,
                                   required=True)
-
     logo = forms.FileField(widget=forms.ClearableFileInput, required=False, label="Logo (image)")
 
+class GroupCreateForm(GroupFieldForm, GroupDomainForm):
+    # Inherits from both.
+    pass
 
-class GroupEditForm(GroupCreateForm):
+class GroupEditForm(GroupFieldForm):
+    # Inherits from fields only and has a different field validator.
     # A subclass with different field validation.
     name = forms.CharField(min_length=3, max_length=25, label="Group Name")
-    domain = forms.CharField(min_length=3, max_length=50, label="Subdomain")
 
 
 @login_required
@@ -281,7 +285,8 @@ def group_edit(request, pk=None, group=None, user=None):
     if request.method == "GET":
         # Get methods get the form and return.
         initial = dict(
-            name=group.name, public=group.public, description=group.description,
+            name=group.name, public=group.public,
+            info=group.info,
             domain=group.domain, logo=group.logo,
         )
         form = GroupEditForm(initial=initial)
@@ -301,7 +306,6 @@ def group_edit(request, pk=None, group=None, user=None):
         get = lambda x: form.cleaned_data.get(x, '')
 
         group.name = get('name')
-        group.domain = get('domain')
         group.public = get('public')
         group.info = get('info')
 
@@ -320,7 +324,7 @@ def group_edit(request, pk=None, group=None, user=None):
         # Reset the group cache
         cache.bust_group_cache(group)
 
-    return redirect(reverse("group_list"))
+    return redirect("group_info", pk=group.id)
 
 
 class GroupManager(forms.Form):
@@ -442,7 +446,7 @@ def group_subscribe(request, pk, group=None, user=None):
         sub = GroupSub.objects.filter(usergroup=group, user=user).first()
         initial = dict(type=sub.type) if sub else dict()
         form = GroupSubscription(initial=initial)
-        context = dict(form=form, group=group)
+        context = dict(form=form, target=group)
         return render(request, template_name, context)
 
     if request.method == "POST":
@@ -450,7 +454,7 @@ def group_subscribe(request, pk, group=None, user=None):
         form = GroupSubscription(request.POST)
         if not form.is_valid():
             # Form not valid. Return with an error message.
-            context = dict(form=form, group=group)
+            context = dict(form=form, target=group)
             return render(request, template_name, context)
 
         sub_type = form.cleaned_data['type']
