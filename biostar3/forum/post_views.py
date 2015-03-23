@@ -18,7 +18,7 @@ from taggit.models import Tag
 
 # Biostar specific local modules.
 from . import models, query, search, auth
-from .models import Vote, Post, PostView, UserGroup, GroupSub, Message, GroupPerm
+from .models import Vote, Post, PostView, UserGroup, GroupSub, Message, GroupPerm, FlatPage
 from biostar3.context import SESSION_COUNT_KEY
 
 from biostar3.utils.compat import *
@@ -208,8 +208,8 @@ def group_info(request, pk, group=None, user=None):
 
     # Current group permissions
     perms = GroupPerm.objects.filter(usergroup=group).select_related("user")
-
-    context = dict(perms=perms, target=group)
+    pages = FlatPage.objects.filter(post__usergroup=group)
+    context = dict(perms=perms, target=group, pages=pages)
     return render(request, template_name, context)
 
 
@@ -369,3 +369,15 @@ def post_view(request, pk, post=None, user=None):
 
     return render(request, template_name, context)
 
+
+from django.http import Http404
+def flatpage_view(request, domain, slug, flatpage=None, user=None):
+    template_name = "page_view.html"
+    flatpage = models.FlatPage.objects.filter(slug=slug).select_related("post", "author").first()
+
+    if not flatpage:
+        msg = "The page {}/{} does not seem to exists".format(domain, slug)
+        raise Http404(msg)
+
+    context = dict(flatpage=flatpage)
+    return render(request, template_name, context)

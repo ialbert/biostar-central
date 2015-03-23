@@ -309,6 +309,7 @@ class Post(models.Model):
     STATUS_CHOICES = [(PENDING, "Pending"), (OPEN, "Open"), (CLOSED, "Closed"), (DELETED, "Deleted")]
 
     # Question types. Answers should be listed before comments.
+    # Some types are not used anymore but are kept for compatibility.
     QUESTION, ANSWER, JOB, FORUM, PAGE, BLOG, COMMENT, DATA, TUTORIAL, BOARD, TOOL, NEWS = range(12)
 
     TYPE_CHOICES = [
@@ -318,7 +319,11 @@ class Post(models.Model):
         (BLOG, "Blog"), (BOARD, "Bulletin Board")
     ]
 
-    TOP_LEVEL = {QUESTION, JOB, FORUM, PAGE, BLOG, DATA, TUTORIAL, TOOL, NEWS, BOARD}
+    # Posts for which the root=self.
+    TOP_LEVEL = {QUESTION, JOB, FORUM, DATA, TUTORIAL, TOOL, NEWS, PAGE}
+
+    # The types of posts that show up in queries.
+    QUERY_TYPES = {QUESTION, JOB, FORUM, TUTORIAL, TOOL, NEWS}
 
     # Maintains post tags.
     tags = MyTaggableManager()
@@ -775,6 +780,12 @@ class Award(models.Model):
     context = models.CharField(max_length=1000, default='')
 
 
+class FlatPage(models.Model):
+    # This is the path that the page is accessed under
+    slug = models.SlugField(default='slug', db_index=True)
+    post = models.ForeignKey(Post)
+
+
 def compute_user_score(user, start=None, end=None):
     """
     Computes the score
@@ -812,3 +823,4 @@ def compute_flair(user):
     s4 = compute_user_score(user, start=90, end=0)
 
     return "{},{},{},{}".format(s1, s2, s3, s4)
+

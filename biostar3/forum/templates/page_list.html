@@ -1,0 +1,25 @@
+{% extends "site_layout.html" %}
+{% load widgets %}
+
+{% block body %}
+
+    {% user_bar user %}
+
+    <div class="row" id="post_list">
+
+        <div class="nine columns">
+
+            {% search_bar page=page %}
+
+        </div>
+
+        <div class="three columns recent_votes">
+            {% message_bar %}
+
+            {% recent_votes recent_votes %}
+        </div>
+
+    </div>
+
+{% endblock %}
+

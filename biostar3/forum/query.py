@@ -169,7 +169,7 @@ def get_recent_awards():
 
 def get_toplevel_posts(user, group):
     "Returns posts"
-    posts = Post.objects.filter(type__in=Post.TOP_LEVEL, usergroup=group)
+    posts = Post.objects.filter(type__in=Post.QUERY_TYPES, usergroup=group)
 
     if not user.is_moderator:
         posts = posts.exclude(status=Post.DELETED)

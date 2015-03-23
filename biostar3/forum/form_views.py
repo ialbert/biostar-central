@@ -13,7 +13,7 @@ from django.shortcuts import render, redirect
 from django.db.models import Q
 from django.contrib.auth import get_user_model
 
-from .models import Post, UserGroup, GroupSub, GroupPerm, Profile, right_now
+from .models import Post, UserGroup, GroupSub, GroupPerm, Profile, right_now, FlatPage
 from . import auth, cache
 
 logger = logging.getLogger('biostar')
@@ -73,6 +73,18 @@ class PostForm(ContentForm):
         (Post.QUESTION, "Question"), (Post.NEWS, "News"), (Post.FORUM, "Forum"), (Post.JOB, "Job Ad"),
     ])
 
+class PageForm(PostForm):
+    """
+    Edit or create top level posts: question, news, forum posts,
+    """
+    is_toplevel = True
+    title = forms.CharField(widget=forms.TextInput, initial='', max_length=200,
+                            validators=[title_validator])
+    tags = forms.CharField(max_length=100, initial='', validators=[tag_validator])
+    type = forms.TypedChoiceField(coerce=int, choices=[
+        (Post.PAGE, "Page")
+    ])
+    slug = forms.CharField(widget=forms.TextInput, initial='', max_length=200)
 
 def post_create(request, parent=None, post_type=None, action='', form_class=ContentForm):
     """
@@ -111,10 +123,22 @@ def post_create(request, parent=None, post_type=None, action='', form_class=Cont
             content = form.cleaned_data['content']
             post = auth.create_content_post(content=content, post_type=post_type, user=user, parent=parent)
 
+        # Connect the post to a slug (shortcut).
+        slug = form.cleaned_data.get("slug")
+        if slug:
+            FlatPage.objects.create(slug=slug, post=post)
+
         return redirect(post.get_absolute_url())
 
     messages.error(request, "Unsupported request type")
     return redirect("home")
+
+
+@login_required
+def create_page_post(request):
+    "A new toplevel post"
+    action = reverse("new_page")
+    return post_create(request=request, parent=None, post_type=None, action=action, form_class=PageForm)
 
 
 @login_required
@@ -151,7 +175,10 @@ def post_edit(request, pk, post=None, user=None):
     if post.is_toplevel:
         # Different forms are chosen based on post type.
         # A form with title, type and tags.
-        form_class = PostForm
+        if post.type == Post.PAGE:
+            form_class = PageForm
+        else:
+            form_class = PostForm
         tags = ", ".join(post.tags.names())
         initial = dict(content=post.content, title=post.title, tags=tags, type=post.type)
     else:
@@ -540,5 +567,4 @@ def user_edit(request, pk, target=None):
     profile.save()
 
     return redirect(target.get_absolute_url())
-
 

@@ -24,6 +24,9 @@ ADMINS = (
 # By default same as the email.
 SECRET_KEY = "1@localhost.com"
 
+# The password that needs to be sent to update flat pages.
+FLATPAGE_SECRET_KEY = "foo"
+
 MANAGERS = ADMINS
 
 # Site setup.
@@ -62,6 +65,8 @@ EMAIL_REPLY_REMOVE_QUOTED_TEXT = True
 
 # Should the site allow interacting via email.
 ALLOW_EMAIL_REPLY = True
+
+
 
 # Google ReCaptcha No-Captcha settings
 # When set the captcha forms will be active.

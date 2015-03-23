@@ -1,0 +1,33 @@
+{% extends "site_layout.html" %}
+{% load widgets %}
+{%  block title %}
+	{{ flatpage.post.title }}
+{%  endblock %}
+{% block body %}
+
+    {% user_bar user %}
+
+    <div class="row" id="post_list">
+
+        <div class="nine columns">
+         	{% message_bar %}
+            {%  if flatpage %}
+                <div class="title">{{ flatpage.post.title }}</div>
+                {{ flatpage.post.html|safe }}
+            {%  endif %}
+        	<p>
+                See <a href="{%  url "post_view" pk=flatpage.post.id%}">the discussions</a> on this page
+            </p>
+        	<p>
+                See <a class="button" href="{%  url "post_edit" pk=flatpage.post.id%}">edit this page</a>
+            </p>
+        </div>
+
+        <div class="three columns recent_votes">
+
+        </div>
+
+    </div>
+
+{% endblock %}
+
