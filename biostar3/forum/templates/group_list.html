@@ -38,28 +38,29 @@
                                 </div>
 
                                 <div>
-                                    Subscribers: {{ group.user_count }} &bull; Posts: {{ group.post_count }}
+                                    Subscribers: {{ group.user_count }}
+                                    &diam; Posts: {{ group.post_count }}
+                                    &diam; <a href="{% url "group_info" group.id %}">Group Info</a>
                                 </div>
 
                                 <div>
-                                    Domain: <code>{{ group.domain }}</code> &bull;
+                                    Domain: <code>{{ group.domain }}</code>
+                                    &diam; Owner: <a href="{{ group.owner.get_absolute_url }}">{{ group.owner.name }}</a>
 
-                                    Owner:
-                                    <code><a href="{{ group.owner.get_absolute_url }}">{{ group.owner.name }}</a></code> &bull;
 
-                                    <a href="{% url "group_info" group.id %}">More info</a>
                                 </div>
 
 
                                 <div>
-                                    Current subscription: {{ group.subscription }} &bull; <a
-                                        href="{% url "group_subscribe" pk=group.id %}">Change subscription</a>
+                                    Your subscription: <b>{{ group.subscription }} </b>
+                                    &diam; <a
+                                        href="{% url "group_subscribe" pk=group.id %}">Change Subscription</a>
                                 </div>
 
 
                             </td>
 
-                            <td>{{ group.info|truncatewords:100 }}</td>
+                            <td>{{ group.info|truncatewords:100}}</td>
                         </tr>
                     {% endfor %}
                 </table>
@@ -91,9 +92,9 @@
                 <p>
                     Users with sufficient reputation points may create a new group
 
-                <div>
+                <div align="center">
                     <a class="button" href="{% url "group_create" %}">create a new group
-                    </a>.
+                    </a>
                 </div>
                 </p>
 
