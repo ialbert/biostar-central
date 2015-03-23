@@ -121,8 +121,8 @@ def tag_bar(post):
 
 @register.inclusion_tag('nav_bar.html', takes_context=True)
 def nav_bar(context, user):
-    request = context['request']
-    return dict(user=user, request=request)
+    group = context.get('group')
+    return dict(user=user, context=context, group=group)
 
 
 @register.inclusion_tag('user_bar.html', takes_context=True)

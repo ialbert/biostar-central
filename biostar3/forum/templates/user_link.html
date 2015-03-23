@@ -2,4 +2,4 @@
 {#  Renders a user link #}
 <a href="{{ user.get_absolute_url }}">{{ user.name }}</a>
 
-&diam; {{ user.score|bignum }} <span class="line">{%  scoreline user %}</span>
+&bull; {{ user.score|bignum }} <span class="line">{%  scoreline user %}</span>

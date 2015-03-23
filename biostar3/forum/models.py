@@ -634,14 +634,16 @@ class Message(models.Model):
 
 
 class Blog(models.Model):
-    "Represents a blog"
+    """
+    Represents a blog
+    """
     title = models.CharField(verbose_name='Blog Name', max_length=255, default="", blank=False)
     desc = models.TextField(default='', blank=True)
     feed = models.URLField()
     link = models.URLField()
     active = models.BooleanField(default=True)
     list_order = models.IntegerField(default=0)
-
+    usergroup = models.ForeignKey(UserGroup, null=True)
 
     class Meta:
         db_table = "planet_blog"

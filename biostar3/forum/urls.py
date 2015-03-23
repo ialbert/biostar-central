@@ -134,8 +134,8 @@ urlpatterns = patterns('',
     # Tag list.
     url(r'^t/$', post_views.tag_list, name="tag_list"),
 
-    # Filter posts by tag.
-    url(r'^t/planet/$', post_views.planet_list, name="planet_list"),
+    # Planet link.
+    url(r'^v/planet/$', post_views.planet_list, name="planet_list"),
 
 
     # Filter posts by tag.

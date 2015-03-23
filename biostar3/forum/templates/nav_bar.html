@@ -5,11 +5,11 @@
 <div class="row">
 
     <div id="logo">
-        {% if request.group.logo %}
-            <a href="{% url 'home' %}"><img src="{{ request.group.logo.url }}"></a>
+        {% if group.logo %}
+            <a href="{% url 'home' %}"><img src="{{group.logo.url }}"></a>
         {% else %}
             <div class="text_logo">
-                <a href="{% url 'home' %}"><i class="fa fa-group"></i> {{ request.group.name }}</a>
+                <a href="{% url 'home' %}"><i class="fa fa-group"></i> {{ group.name }}</a>
             </div>
         {% endif %}
     </div>
@@ -42,7 +42,7 @@
 
     	 <div class="item">
             <a href="{% url "user_list" %}">
-                <div class="icon"><i class="fa fa-globe"></i></div>
+                <div class="icon"><i class="fa fa-user"></i></div>
                 <div class="navlabel">Users</div>
             </a>
         </div>
@@ -55,7 +55,14 @@
         </div>
 
         <div class="item">
-            <a href="{%  url "page_view" domain="www" slug="info" %}">
+            <a href="{% url "planet_list" %}">
+                <div class="icon"><i class="fa fa-globe"></i></div>
+                <div class="navlabel">Planet</div>
+            </a>
+        </div>
+
+        <div class="item">
+            <a href="{%  url "page_view" domain=group.domain slug="info" %}">
                 <div class="icon"><i class="fa fa-info-circle"></i></div>
                 <div class="navlabel">About</div>
             </a>

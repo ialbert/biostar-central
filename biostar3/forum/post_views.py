@@ -371,13 +371,14 @@ def post_view(request, pk, post=None, user=None):
 
 
 def planet_list(request):
-    template_name = "planet_view.html"
+    template_name = "planet_list.html"
     posts = models.BlogPost.objects.order_by("creation_date")
     blogs = models.Blog.objects.all()
 
     paginator = query.ExtendedPaginator(request,
                                         object_list=posts, per_page=settings.POSTS_PER_PAGE)
     page = paginator.curr_page()
+
     context = dict(posts=posts, page=page, blogs=blogs)
     return render(request, template_name, context)
 
