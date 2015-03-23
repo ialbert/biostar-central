@@ -491,6 +491,7 @@ class Post(models.Model):
         self.last_activity = self.last_activity or self.lastedit_date
         self.lastedit_user = self.lastedit_user or self.author
         self.html = html.sanitize(self.content, user=self.lastedit_user)
+
         self.changed = True
         super(Post, self).save(*args, **kwargs)
 

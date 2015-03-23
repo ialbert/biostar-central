@@ -1,6 +1,8 @@
 """
 Handles the output formatting and conversions
 """
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 import bleach, re, logging, requests
 from django.conf import settings
 from markdown2 import markdown
@@ -143,16 +145,16 @@ def sanitize(text, user):
     else:
         tags, attrs, styles = ALLOWED_TAGS, ALLOWED_ATTRIBUTES, ALLOWED_STYLES
 
-    # Sanitize html input.
-    html = bleach.clean(text, tags=tags, attributes=attrs, styles=styles)
-
     try:
         # Apply the markdown transformation.
         # We'll protect against library crashes by a generic Exception catch.
-        html = markdown(html, extras=["fenced-code-blocks", "code-friendly", "nofollow", "spoiler"])
+        html = markdown(text, extras=["fenced-code-blocks", "code-friendly", "nofollow", "spoiler"])
     except Exception as exc:
         logger.error('crash during markdown conversion: %s' % exc)
         html = html
+
+    # Sanitize the resulting html.
+    html = bleach.clean(html, tags=tags, attributes=attrs, styles=styles)
 
     # Find embeddable patterns.
     html = embed_links(html)
