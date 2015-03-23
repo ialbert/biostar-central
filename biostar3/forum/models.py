@@ -112,7 +112,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     activity = models.IntegerField(default=0)
 
     # Display next to a user name.
-    flair = models.CharField(verbose_name='Flair', max_length=255, default="0,0,0,1", blank=True)
+    flair = models.CharField(verbose_name='Flair', max_length=255, default="0,0,0,0", blank=True)
 
     # The site this users belongs to.
     site = models.ForeignKey(Site, null=True, blank=True)
@@ -411,6 +411,10 @@ class Post(models.Model):
             return self.title
         else:
             return "(%s) %s" % (self.get_status_display(), self.title)
+
+    @property
+    def can_accept(self):
+        return self.type == Post.ANSWER
 
     @property
     def is_toplevel(self):

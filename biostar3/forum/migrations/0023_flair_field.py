@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='user',
             name='flair',
-            field=models.CharField(default='0,0,0,1', max_length=255, verbose_name='Flair', blank=True),
+            field=models.CharField(default='0,0,0,0', max_length=255, verbose_name='Flair', blank=True),
             preserve_default=True,
         ),
     ]

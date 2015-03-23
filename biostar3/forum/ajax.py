@@ -197,7 +197,6 @@ def perform_vote(post, user, vote_type):
         # There does not seem to be a negation operator for F objects hence
         # this ends up a little more complicated than it should be.
         if change > 0:
-
             Post.objects.filter(pk=post.id).update(vote_count=F('vote_count') + change, has_accepted=True)
             Post.objects.filter(pk=post.root_id).update(has_accepted=True)
         else:
@@ -230,6 +229,14 @@ def vote_handler(request):
 
     if post.author == user and vote_type == Vote.UP:
         return ajax_error("You can't upvote your own post.")
+
+    if vote_type == Vote.ACCEPT:
+        if post.type != Post.ANSWER:
+            return ajax_error("Only answers may be accepted.")
+
+        if post.root.author != user:
+            return ajax_error("Only the author of the top post may accept the answer.")
+
 
     msg = perform_vote(post=post, user=user, vote_type=vote_type)
 

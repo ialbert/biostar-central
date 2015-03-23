@@ -1,4 +1,5 @@
 {%  load widgets %}
 {#  Renders a user link #}
 <a href="{{ user.get_absolute_url }}">{{ user.name }}</a>
+&bull; {{ user.score|bignum }}
 &bull; <span class="line">{%  scoreline user %}</span>
