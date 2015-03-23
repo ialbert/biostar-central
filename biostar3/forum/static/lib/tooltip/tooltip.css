@@ -23,7 +23,7 @@
   width: 11px;
   height: 11px;
   position: absolute;
-  background-image: url('./tooltip.png');
+  background-image: url('tooltip.png');
   background-repeat: no-repeat;
 }
 

@@ -9,9 +9,11 @@ from .logconf import LOGGING
 # This pulls in various site specific settings.
 from .values import *
 
+
 def abspath(*args):
     "Generates absolute paths."
     return os.path.abspath(os.path.join(*args))
+
 
 def get_env(name, default=None):
     "Gets values from environment variables."
@@ -20,6 +22,7 @@ def get_env(name, default=None):
         msg = "*** Required environment variable %s not set. See README.md " % name
         raise ImproperlyConfigured(msg)
     return value
+
 
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
@@ -97,12 +100,18 @@ AUTH_USER_MODEL = 'forum.User'
 
 BIOSTAR_HOME = get_env('BIOSTAR_HOME')
 
-TEMPLATE_PATH = abspath(get_env('THEME_PATH'))
-DEFAULT_PATH = abspath(BIOSTAR_HOME, "themes", "default")
+# This is the directory that will be searched first.
+THEME_PATH = abspath(get_env('THEME_PATH'))
+THEME_STATIC_PATH = abspath(THEME_PATH, "static", )
+THEME_TEMPLATE_PATH = abspath(THEME_PATH, "templates", )
+
+# Default template and static directories.
+DEFAULT_TEMPLATE_PATH = abspath(BIOSTAR_HOME, "biostar3", "forum", "templates")
+DEFAULT_STATIC_PATH = abspath(BIOSTAR_HOME, "biostar3", "forum", "static")
 
 TEMPLATE_DIRS = (
-    TEMPLATE_PATH,
-    DEFAULT_PATH,
+    THEME_TEMPLATE_PATH,
+    DEFAULT_TEMPLATE_PATH,
 )
 
 TEMPLATE_LOADERS = (
@@ -157,7 +166,8 @@ MEDIA_ROOT = abspath(EXPORT_DIR, "media")
 DEFAULT_GROUP_LOGO = "images/logo.png"
 
 STATICFILES_DIRS = (
-    abspath(TEMPLATE_PATH, "static"),
+    abspath(THEME_STATIC_PATH),
+    abspath(DEFAULT_STATIC_PATH),
 )
 
 STATICFILES_FINDERS = (
@@ -201,7 +211,6 @@ CACHES = {
         'LOCATION': 'unique-snowflake'
     }
 }
-
 
 SOCIALACCOUNT_PROVIDERS = {
     'persona': {

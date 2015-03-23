@@ -1,0 +1,61 @@
+/* Override this in the themes for custom color schemes */
+@import "colors.less";
+
+.box.Answered {
+  background-color: @ANSWERED_COLOR;
+  color: white;
+}
+
+.box.Unanswered {
+  background-color: @UNANSWERED_COLOR;
+  color: white;
+}
+
+.box.Forum {
+  background-color: @FORUM_COLOR;
+  color: white;
+}
+
+.box.Job {
+  background-color: @JOB_COLOR;
+  color: white;
+}
+
+.box.News {
+  background-color: @NEWS_COLOR;
+  color: white;
+}
+
+.box.Tool {
+  background-color: @TOOL_COLOR;
+  color: white;
+}
+
+.box.Tutorial {
+  background-color: @TUTORIAL_COLOR;
+  color: white;
+}
+
+.error, .errorlist {
+  color: darken(@ALERT_DANGER, 60%);
+  background-color: @ALERT_DANGER;
+  border-color: darken(@ALERT_DANGER, 30%);
+}
+
+.info {
+  color: darken(@ALERT_INFO, 60%);
+  background-color: @ALERT_INFO;
+  border-color: darken(@ALERT_INFO, 30%);
+}
+
+.warning {
+  color: darken(@ALERT_WARNING, 60%);
+  background-color: @ALERT_WARNING;
+  border-color: darken(@ALERT_WARNING, 30%);
+}
+
+.success {
+  color: darken(@ALERT_SUCCESS, 60%);
+  background-color: @ALERT_SUCCESS;
+  border-color: darken(@ALERT_SUCCESS, 30%);
+}

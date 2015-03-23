@@ -2,7 +2,7 @@
 This file uses LESS: http://lesscss.org/
 */
 /* Import the default styles */
-@import "style.less";
+@import "colors.less";
 
 .vertical-align {
   position: relative;
@@ -243,15 +243,6 @@ body {
   background-color: #eeeeee;
 }
 
-.box.Unanswered {
-  background-color: #8f2c47;
-  color: white;
-}
-
-.box.Answered {
-  background-color: #5b8c3e;
-  color: white;
-}
 
 .box:last-child {
   margin-right: 0px;
@@ -391,29 +382,6 @@ body {
   //text-align: center;
 }
 
-.error, .errorlist {
-  color: darken(@ALERT_DANGER, 60%);
-  background-color: @ALERT_DANGER;
-  border-color: darken(@ALERT_DANGER, 30%);
-}
-
-.info {
-  color: darken(@ALERT_INFO, 60%);
-  background-color: @ALERT_INFO;
-  border-color: darken(@ALERT_INFO, 30%);
-}
-
-.warning {
-  color: darken(@ALERT_WARNING, 60%);
-  background-color: @ALERT_WARNING;
-  border-color: darken(@ALERT_WARNING, 30%);
-}
-
-.success {
-  color: darken(@ALERT_SUCCESS, 60%);
-  background-color: @ALERT_SUCCESS;
-  border-color: darken(@ALERT_SUCCESS, 30%);
-}
 
 ul.dropdown:hover {
   ul.items {

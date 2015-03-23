@@ -11,7 +11,7 @@ class EmailTests(TestCase):
         "Test processing email templates"
         EQ = self.assertEqual
         data = dict(name="John Doe", content="world")
-        em = EmailTemplate("mailer_test.html", data=data)
+        em = EmailTemplate("mailer/mailer_test.html", data=data)
 
         EQ(em.subj, "Hello John Doe!")
         EQ(em.text, "Hello world!")

@@ -33,12 +33,12 @@ class Command(BaseCommand):
             backend=settings.EMAIL_BACKEND,
         )
 
-        em = EmailTemplate("check_email.html", data=data)
+        em = EmailTemplate("mailer/check_email.html", data=data)
 
         recp = ", ".join(to)
 
         try:
-            em.send(from_email=from_email, to=to)
+            em.send_email(from_email=from_email, to=to)
             logger.info("email sent to %s via %s " % (recp, settings.EMAIL_BACKEND))
         except Exception, exc:
             logger.error("email error %s when sending to %s via %s " % (exc, recp, settings.EMAIL_BACKEND))

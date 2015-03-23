@@ -191,14 +191,6 @@ body .highlighted {
 .box.vote_count {
   background-color: #eeeeee;
 }
-.box.Unanswered {
-  background-color: #8f2c47;
-  color: white;
-}
-.box.Answered {
-  background-color: #5b8c3e;
-  color: white;
-}
 .box:last-child {
   margin-right: 0px;
 }
@@ -303,27 +295,6 @@ body .highlighted {
   margin: 0.5em 0em 0.5em 0em;
   border: 1px solid transparent;
   border-radius: 4px;
-}
-.error,
-.errorlist {
-  color: #712d2d;
-  background-color: #f2dede;
-  border-color: #c77070;
-}
-.info {
-  color: #9c8611;
-  background-color: #fcf8e3;
-  border-color: #edd559;
-}
-.warning {
-  color: #1b6083;
-  background-color: #d9edf7;
-  border-color: #5bb1dc;
-}
-.success {
-  color: #3d6c2a;
-  background-color: #dff0d8;
-  border-color: #84c569;
 }
 ul.dropdown:hover ul.items {
   display: block;
