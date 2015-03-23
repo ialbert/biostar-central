@@ -687,7 +687,7 @@ class BlogPost(models.Model):
     # The content of the feed
     content = models.TextField(default='', max_length=20000)
 
-    # Santizied HTML
+    # Sanitized HTML
     html = models.TextField(default='')
 
     # Date related fields.

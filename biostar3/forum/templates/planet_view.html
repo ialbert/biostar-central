@@ -1,0 +1,43 @@
+{% extends "site_layout.html" %}
+{% load widgets %}
+{%  block title %}
+	Planet
+{%  endblock %}
+
+{% block body %}
+
+    {% user_bar user %}
+
+    <div class="row" id="post_list">
+
+        <div class="nine columns">
+
+            {% search_bar page=page %}
+			<div align="center" class="title">The Biostar Planet</div>
+            {% for post in posts %}
+                <div class="blogpost">
+                    <div class="title">
+                       <a href="{{ post.link|safe }}"> {{ post.title }}</a>
+                    </div>
+                    <div>{{ post.html|safe }}</div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="three columns recent_votes">
+            {% message_bar %}
+
+            {% for blog in blogs %}
+                <div class="blog">
+                    <div class="title">
+                        <a href="{{ blog.link }}">{{ blog.title }}</a>
+                    </div>
+                    <div>{{ blog.desc|safe }}</div>
+                </div>
+            {% endfor %}
+        </div>
+
+    </div>
+
+{% endblock %}
+

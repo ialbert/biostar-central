@@ -370,6 +370,17 @@ def post_view(request, pk, post=None, user=None):
     return render(request, template_name, context)
 
 
+def planet_list(request):
+    template_name = "planet_view.html"
+    posts = models.BlogPost.objects.order_by("creation_date")
+    blogs = models.Blog.objects.all()
+
+    paginator = query.ExtendedPaginator(request,
+                                        object_list=posts, per_page=settings.POSTS_PER_PAGE)
+    page = paginator.curr_page()
+    context = dict(posts=posts, page=page, blogs=blogs)
+    return render(request, template_name, context)
+
 from django.http import Http404
 def flatpage_view(request, domain, slug, flatpage=None, user=None):
     template_name = "page_view.html"
