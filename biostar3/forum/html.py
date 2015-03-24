@@ -19,7 +19,8 @@ ALLOWED_ATTRIBUTES.update(settings.ALLOWED_ATTRIBUTES)
 # Moderators may use more tags and styles
 TRUSTED_TAGS = ALLOWED_TAGS + settings.TRUSTED_TAGS
 TRUSTED_STYLES = ALLOWED_STYLES + settings.TRUSTED_STYLES
-TRUSTED_ATTRIBUTES = dict(ALLOWED_ATTRIBUTES).update(settings.TRUSTED_ATTRIBUTES)
+TRUSTED_ATTRIBUTES = dict(ALLOWED_ATTRIBUTES)
+TRUSTED_ATTRIBUTES.update(settings.TRUSTED_ATTRIBUTES)
 
 # Patterns that will be recognized and embedded into the posts as links.
 USER_PATTERN = r"http(s)?://%s/u/(?P<uid>(\d+))(/)?" % settings.SITE_DOMAIN
@@ -83,7 +84,7 @@ def clean(text):
     return result
 
 
-def sanitize(text, user):
+def sanitize(text, user, safe=False):
     "Sanitize text and expand links to match content"
 
     if not text.strip():
@@ -151,10 +152,11 @@ def sanitize(text, user):
         html = markdown(text, extras=["fenced-code-blocks", "code-friendly", "nofollow", "spoiler"])
     except Exception as exc:
         logger.error('crash during markdown conversion: %s' % exc)
-        html = html
+        html = text
 
     # Sanitize the resulting html.
-    html = bleach.clean(html, tags=tags, attributes=attrs, styles=styles)
+    if not safe:
+        html = bleach.clean(html, tags=tags, attributes=attrs, styles=styles)
 
     # Find embeddable patterns.
     html = embed_links(html)

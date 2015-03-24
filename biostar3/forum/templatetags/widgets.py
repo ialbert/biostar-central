@@ -2,6 +2,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import hashlib
 import random
 from datetime import timedelta, datetime
+from django import template
 
 from django.conf import settings
 from django.template import Context, Library
@@ -11,7 +12,7 @@ from django import forms
 
 from biostar3.forum.models import Vote
 from biostar3.utils.compat import *
-
+from biostar3.forum import html
 
 register = Library()
 
@@ -31,6 +32,7 @@ def now():
 @register.simple_tag
 def scoreline(user):
     return user.flair
+
 
 @register.simple_tag
 def cachebuster():
@@ -71,6 +73,7 @@ def on_value(value):
     "Turn a truth value into an on/off string"
     return "on" if value else 'off'
 
+
 @register.filter
 def hide_email(value):
     "Hides parts of an email"
@@ -81,6 +84,7 @@ def hide_email(value):
         return email
     except Exception as exc:
         return value
+
 
 @register.filter
 def nicer_value(value):
@@ -102,6 +106,7 @@ def page_bar(context, page=None):
 @register.inclusion_tag('post_action_bar.html')
 def action_bar(post, label="ADD COMMENT"):
     return dict(post=post, label=label)
+
 
 @register.inclusion_tag('post_update_bar.html')
 def update_bar(post):
@@ -243,3 +248,37 @@ def traverse_comments(request, post, tree):
     for node in tree.get(post.id, []):
         traverse(node, collect=collect)
     return '\n'.join(collect)
+
+
+class MarkDownNode(template.Node):
+    def __init__(self, nodelist):
+        self.nodelist = nodelist
+
+
+    def render(self, context):
+        text = self.nodelist.render(context)
+        text = html.sanitize(text, safe=True)
+        return text
+
+
+@register.tag('markdown')
+def markdown_tag(parser, token):
+    """
+    Enables a block of markdown text to be used in a template.
+
+    Syntax::
+
+            {% markdown %}
+            ## Markdown
+
+            Now you can write markdown in your templates. This is good because:
+
+            * markdown is awesome
+            * markdown is less verbose than writing html by hand
+
+            {% endmarkdown %}
+    """
+    nodelist = parser.parse(('endmarkdown',))
+    # Need to do this otherwise we get big fail.
+    parser.delete_first_token()
+    return MarkDownNode(nodelist)
