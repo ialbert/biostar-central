@@ -1,0 +1,3 @@
+{{ object.title }}
+{{ object.content }}
+{{ object.blog.title }}

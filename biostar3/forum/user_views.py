@@ -165,10 +165,6 @@ class Login(LoginView):
 
         return super(Login, self).dispatch(request, *args, **kwargs)
 
-
-CAPTCHA_VERIFY_URL = "https://www.google.com/recaptcha/api/siteverify"
-
-
 @ratelimit(key='ip', rate=settings.SIGNUP_RATELIMIT)
 def sign_up(request):
     """
@@ -207,35 +203,9 @@ def sign_up(request):
         messages.error(request, "Form requires an email and a password!")
         return login_redirect
 
-    if settings.RECAPTCHA_PUBLIC_KEY and not recaptcha_response:
-        # The capthca is active but the user has not solved it.
-        messages.error(request, "Please solve the captcha!")
+    if not auth.valid_captcha(request):
+        # Captcha validation failed.
         return login_redirect
-
-    if settings.RECAPTCHA_PUBLIC_KEY:
-        # Verfiying the captcha response.
-
-        data = {
-            'secret': settings.RECAPTCHA_SECRET_KEY,
-            'response': recaptcha_response,
-            'remoteip': auth.remote_ip(request),
-        }
-
-        try:
-            # Validate the captcha.
-            data = urlencode(data)
-            conn = Request(CAPTCHA_VERIFY_URL, data)
-            response = urlopen(conn).read()
-            result = json.loads(response)
-            if not result.get('success'):
-                # User failed at solving the capthca.
-                messages.error(request, "Failed at the captcha authentication. Please try again!")
-                return login_redirect
-        except Exception as exc:
-            # This here is triggered on unexpected errors while solving the capthca.
-            logger.error(exc)
-            messages.error(request, "Unable to complete captcha challenge: %s" % exc)
-            return login_redirect
 
     # At this point the parameters are correct, try to authenticate
     user = authenticate(username=email, password=password)

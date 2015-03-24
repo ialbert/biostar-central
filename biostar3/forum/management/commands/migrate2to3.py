@@ -78,6 +78,8 @@ def perform_migration():
     logger.info('resetting tag_val')
     Post.objects.filter(type__in=Post.TOP_LEVEL).exclude(tag_val='').update(tag_val='')
 
+    # Add group to all blogs that don't have one.
+    Blog.objects.filter(usergroup=None).update(usergroup=default_group)
 
 class Command(BaseCommand):
     help = '''Migrates data from version 2 to 3'''

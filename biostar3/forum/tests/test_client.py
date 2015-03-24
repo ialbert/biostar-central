@@ -140,7 +140,7 @@ class ClientTests(TestCase):
             user = self.make_user(c)
             self.get(c, "group_list", follow=True)
 
-            name = faker.domain_name()[:25]
+            name = make_uuid(size=8)
             domain = make_uuid(size=8)
             info = faker.sentence()[:100]
 

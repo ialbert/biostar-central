@@ -719,7 +719,7 @@ class BlogPost(models.Model):
         if not self.id:
             # Set the date to current time if missing.
             self.insert_date = self.insert_date or right_now()
-
+        self.html = html.sanitize(self.content, user=None)
         super(BlogPost, self).save(*args, **kwargs)
 
     def __unicode__(self):

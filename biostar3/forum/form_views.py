@@ -568,3 +568,26 @@ def user_edit(request, pk, target=None):
 
     return redirect(target.get_absolute_url())
 
+
+def suggest_feed(request):
+    """
+    Small form to suggest an RSS feed.
+    """
+    template_name = "planet_addfeed.html"
+
+    add_feed = redirect("planet_addfeed")
+
+    if request.method == "GET":
+        context = dict()
+        return render(request, template_name, context)
+    else:
+        feed = request.POST.get('feed', '').strip()
+        recaptcha_response = request.POST.get('g-recaptcha-response')
+
+        if not auth.valid_captcha(request):
+            # Captcha not valid.
+            return add_feed
+
+    messages.info("Suggestion has been recorded. An admin will review the feed.")
+    context = dict()
+    return add_feed

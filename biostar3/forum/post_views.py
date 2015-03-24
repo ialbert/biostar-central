@@ -3,6 +3,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 # Python modules.
 import logging
 from collections import OrderedDict
+from django.db.models import Max, Count
 
 # Django specific modules.
 from django.shortcuts import render, redirect
@@ -372,14 +373,25 @@ def post_view(request, pk, post=None, user=None):
 
 def planet_list(request):
     template_name = "planet_list.html"
-    posts = models.BlogPost.objects.order_by("creation_date")
+
+    q = request.GET.get('q', '')
+
+    if q:
+        posts = search.plain(q, "forum.blogpost")
+    else:
+        posts = models.BlogPost.objects.order_by("creation_date")
+
+    # Get the blogs in updated order.
     blogs = models.Blog.objects.all()
+    blogs = blogs.annotate(updated_date=Max("blogpost__creation_date"),
+        count=Count("blogpost__id")).order_by("-updated_date", "-list_order")
 
     paginator = query.ExtendedPaginator(request,
                                         object_list=posts, per_page=settings.POSTS_PER_PAGE)
     page = paginator.curr_page()
 
-    context = dict(posts=posts, page=page, blogs=blogs)
+    context = dict(posts=posts, page=page, blogs=blogs, q=q)
+
     return render(request, template_name, context)
 
 from django.http import Http404

@@ -1,4 +1,9 @@
-/* Override this in the themes for custom color schemes */
+/*
+This file is included in site.less.
+*/
+/*
+Set up colors fo various widgets.
+*/
 .box.Answered {
   background-color: #5b8c3e;
   color: white;

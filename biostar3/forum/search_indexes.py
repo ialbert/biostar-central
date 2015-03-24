@@ -1,5 +1,5 @@
 # Haystack search indices.
-from biostar3.forum.models import Post, FederatedContent
+from biostar3.forum.models import Post, FederatedContent, BlogPost
 from django.db.models import Q
 from haystack import indexes
 import json, time
@@ -80,3 +80,32 @@ class FederatedContentIndex(indexes.SearchIndex, indexes.Indexable):
 
     def get_updated_field(self):
         return "changed"
+
+# Create the search indices for federated content.
+class BlogPostIndex(indexes.SearchIndex, indexes.Indexable):
+    FIELDS = "title type vote_count domain url content".split()
+
+    text = indexes.CharField(document=True, use_template=True)
+    title = indexes.CharField(model_attr='title')
+    link = indexes.CharField(model_attr='link')
+    creation_date = indexes.CharField(model_attr='creation_date')
+    content = indexes.CharField()
+    domain = indexes.CharField()
+
+    def get_model(self):
+        return BlogPost
+
+    def prepare(self, obj):
+        data = super(BlogPostIndex, self).prepare(obj)
+        data['domain'] = obj.blog.usergroup.domain
+        data['creation_date'] = obj.creation_date.strftime("%B %d, %Y")
+        data['content'] = html.strip_tags(obj.content)
+        return data
+
+    def index_queryset(self, using=None):
+        """Used when the entire index for model is updated."""
+        query = self.get_model().objects.all().select_related("blog")
+        return query
+
+    def get_updated_field(self):
+        return "date"

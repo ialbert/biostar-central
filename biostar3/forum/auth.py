@@ -3,6 +3,7 @@ Access authorizations are performed here
 """
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import json
 from datetime import timedelta
 
 from django.shortcuts import redirect
@@ -149,8 +150,9 @@ def groupsub_get_or_create(user, usergroup, sub_type=None):
         newsub = create(user=user, usergroup=usergroup, type=settings.DEFAULT_MESSAGES)
         return newsub
 
+
 @transaction.atomic
-def create_content_post(content, parent,  user, post_type=None):
+def create_content_post(content, parent, user, post_type=None):
     # Creating a content level post from data
     post = Post.objects.create(parent=parent, content=content, type=post_type, author=user)
     return post
@@ -338,6 +340,45 @@ def group_create(func, request, user=None):
         return error
 
     return func(request=request, user=user)
+
+
+CAPTCHA_VERIFY_URL = "https://www.google.com/recaptcha/api/siteverify"
+
+def valid_captcha(request):
+
+    if not settings.RECAPTCHA_PUBLIC_KEY:
+        # Captcha validation is not set up.
+        return True
+
+    recaptcha_response = request.POST.get('g-recaptcha-response')
+
+    if not recaptcha_response:
+        messages.error(request, "Please solve the captcha!")
+        return False
+
+    data = {
+        'secret': settings.RECAPTCHA_SECRET_KEY,
+        'response': recaptcha_response,
+        'remoteip': remote_ip(request),
+    }
+
+    try:
+        # Validate the captcha.
+        data = urlencode(data)
+        conn = Request(CAPTCHA_VERIFY_URL, data)
+        response = urlopen(conn).read()
+        result = json.loads(response)
+        if not result.get('success'):
+            # User failed at solving the capthca.
+            messages.error(request, "Failed at the captcha authentication. Please try again!")
+            return False
+    except Exception as exc:
+        # This here is triggered on unexpected errors while solving the capthca.
+        logger.error(exc)
+        messages.error(request, "Unable to complete captcha challenge: %s" % exc)
+        return False
+
+    return True
 
 
 def remote_ip(request, key='REMOTE_ADDR'):

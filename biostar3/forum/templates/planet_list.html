@@ -1,8 +1,10 @@
 {% extends "site_layout.html" %}
 {% load widgets %}
-{%  block title %}
-	Planet
-{%  endblock %}
+{% load cache %}
+
+{% block title %}
+    Planet
+{% endblock %}
 
 {% block body %}
 
@@ -12,14 +14,33 @@
 
         <div class="nine columns">
 
-            {% search_bar page=page action="planet_list" placeholder="Search blog posts" %}
+            {% search_bar page=page action="planet_list" placeholder="Search planet posts" %}
 
             {% for post in posts %}
                 <div class="blog">
+
                     <div class="title">
-                       <a href="{{ post.link|safe }}"> {{ post.title }}</a>
+                        <a href="{{ post.link|safe }}"> {{ post.title }}</a>
                     </div>
-                    <div>{{ post.html|safe }}</div>
+
+                    {% if post.content_type == "forum.blogpost" %}
+
+                        <div class="muted">
+                            Written {{ post.object.creation_date|time_ago }} by <a
+                        href="{{ post.object.blog.link }}">{{ post.object.blog.title }}</a>
+                        </div>
+
+                        <div>{{ post.context|safe }} </div>
+
+                    {% else %}
+                        <div class="muted">
+                            Written {{ post.creation_date|time_ago }} by <a
+                        href="{{ post.blog.link }}">{{ post.blog.title }}</a>
+                        </div>
+                        <div>{{ post.html|safe }} </div>
+                    {% endif %}
+
+
                 </div>
             {% endfor %}
         </div>
@@ -29,21 +50,22 @@
 
             <div class="title">Feed Sources</div>
 
-            {% for blog in blogs %}
-                <div class="blog">
-                    <div class="title">
-                        <a href="{{ blog.link }}">{{ blog.title }}</a>
+            {% cache 600 "planet-feeds" %}
+                {% for blog in blogs %}
+                    <div class="blog">
+                        <div class="title">
+                            <a href="{{ blog.link }}">{{ blog.title }}</a>
+                        </div>
+                        <div>{{ blog.desc|safe }} </div>
+                        <div class="muted">{{ blog.count }} posts, last updated {{ blog.updated_date|time_ago }} </div>
                     </div>
-                    <div>{{ blog.desc|safe }}</div>
+                {% endfor %}
+
+                <div align="center">
+                    <a href="#" class="button">Suggest Feed</a>
                 </div>
-            {% endfor %}
-
-            <hr>
-
-            <div align="center">
-                <a href="#" class="button">Add Feed</a>
-            </div>
-        </div>
+                </div>
+            {% endcache %}
 
     </div>
 

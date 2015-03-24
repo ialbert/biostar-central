@@ -1,4 +1,5 @@
 __author__ = 'ialbert'
+from biostar3.utils.compat import *
 from haystack.query import SearchQuerySet, AutoQuery
 from haystack.utils import Highlighter
 import logging
@@ -24,15 +25,20 @@ def join_highlights(row):
     return '<br>'.join(x for x in row.highlighted)
 
 
-def plain(query):
+def plain(query, content_type=None):
     """
     Simplest search query.
     """
     content = AutoQuery(query)
     results = SearchQuerySet().filter(content=content).highlight()[:100]
 
+    if content_type:
+        results = filter(lambda x: x.content_type() == content_type, results)
+
     for row in results:
         try:
+            if not row:
+                continue
             context = join_highlights(row)
             context = context or slow_highlight(query=query, text=row.content)
             row.context = context
