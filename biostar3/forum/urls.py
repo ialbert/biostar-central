@@ -2,9 +2,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
 
-from biostar3.forum import form_views, user_views, post_views
-from biostar3.forum import feeds
-from biostar3.forum import ajax
+from biostar3.forum import form_views, user_views, post_views, api, feeds, ajax
 
 urlpatterns = patterns('',
 
@@ -144,7 +142,8 @@ urlpatterns = patterns('',
     #
     # Flatpage viewers
     #
-    url(r'^page/(?P<domain>\S+)/(?P<slug>\S+)/$', post_views.flatpage_view, name='page_view'),
+    url(r'^page/(?P<slug>[-\w]+)/$', post_views.flatpage_view, name='page_view_main'),
+    url(r'^page/(?P<domain>\w+)/(?P<slug>[-\w]+)/$', post_views.flatpage_view, name='page_view'),
 
     #
     # RSS feed handlers.
@@ -155,5 +154,14 @@ urlpatterns = patterns('',
     url(r'^feeds/user/(?P<text>\S+)/$', feeds.UserFeed(), name='user_feed'),
     url(r'^feeds/post/(?P<text>\S+)/$', feeds.PostFeed(), name='post_feed' ),
     url(r'^feeds/type/(?P<text>\S+)/$', feeds.PostTypeFeed(), name='post_type_feed'),
+
+    # Api related handler.
+    url(r'^api/traffic/$', api.traffic, name='api_traffic'),
+    url(r'^api/user/(?P<id>\d+)/$', api.user_details, name='api_user'),
+    url(r'^api/post/(?P<id>\d+)/$', api.post_details, name='api_post'),
+    url(r'^api/vote/(?P<id>\d+)/$', api.vote_details, name='api_vote'),
+    url(r'^api/stats/day/(?P<day>\d+)/$', api.daily_stats_on_day, name='api_stats_on_day'),
+    url(r'^api/stats/date/(?P<year>\d{4})/(?P<month>\d{2})/(?P<day>\d{2})/$',
+        api.daily_stats_on_date, name='api_stats_on_date'),
 
 )

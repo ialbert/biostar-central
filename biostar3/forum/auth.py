@@ -16,10 +16,6 @@ from .models import *
 from biostar3.utils.compat import *
 
 
-def now():
-    return datetime.utcnow().replace(tzinfo=utc)
-
-
 def ago(hours=0, minutes=0, days=0):
     since = right_now() - timedelta(days=days, hours=hours, minutes=minutes)
     return since

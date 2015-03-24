@@ -3,10 +3,9 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import logging
 
 from django.conf import settings
-from django.core.cache import cache
+from biostar3.forum.cache import get_traffic
 from biostar3 import VERSION
-from django.core.cache import caches
-from biostar3.forum.models import Post, Vote, Message, Award
+from biostar3.forum.models import Post, PostView, Vote, Message, Award
 from django.utils.timezone import utc
 from datetime import datetime, timedelta
 
@@ -30,6 +29,7 @@ def ago(hours=0, minutes=0, days=0):
 
 def get_shortcuts(request):
     return settings.DEFAULT_SHORTCUTS
+
 
 
 ANON_COUNTS = dict(
@@ -93,6 +93,7 @@ def extras(request):
         "recaptcha": settings.RECAPTCHA_PUBLIC_KEY,
         "counts": get_counts(request),
         "shortcuts": get_shortcuts(request),
+        "TRAFFIC": get_traffic(request),
     }
 
     return context

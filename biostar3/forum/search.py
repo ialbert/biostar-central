@@ -1,4 +1,4 @@
-__author__ = 'ialbert'
+from __future__ import absolute_import, division, print_function, unicode_literals
 from biostar3.utils.compat import *
 from haystack.query import SearchQuerySet, AutoQuery
 from haystack.utils import Highlighter

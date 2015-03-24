@@ -32,8 +32,9 @@ def parse_metadata(path):
             meta[name] = value
     return meta
 
+
 def get_group(meta):
-    domain=meta.get("domain")
+    domain = meta.get("domain")
     usergroup = UserGroup.objects.filter(domain=domain).first()
     if not usergroup:
         logger.info("default usergroup")
@@ -41,8 +42,15 @@ def get_group(meta):
     return usergroup
 
 
+def render_page(path, params={}):
+    content = open(path).read()
+    templ = Template(content)
+    context = Context(params)
+    content = templ.render(context)
+    return content
+
 def crawl(path, update=False):
-    valid_exts = { ".html" }
+    valid_exts = {".html", ".md"}
 
     admin = User.objects.filter(email=settings.ADMINS[0][1]).first()
 
@@ -50,7 +58,6 @@ def crawl(path, update=False):
         for name in sorted(filenames):
             start, ext = os.path.splitext(name)
             if ext not in valid_exts:
-
                 continue
 
             path = os.path.join(dirpath, name)
@@ -65,27 +72,20 @@ def crawl(path, update=False):
             if not title:
                 logger.error("title field is missing from {}".format(path))
 
-            FlatPage.objects.filter(post__usergroup=usergroup, slug=slug).delete()
 
             page = FlatPage.objects.filter(post__usergroup=usergroup, slug=slug).first()
+
             if not page:
                 with transaction.atomic():
-                    logger.info("creating {}".format(slug))
-                    content = open(path).read()
-                    templ = Template(content)
-                    params = dict()
-                    context = Context(params)
-                    content = templ.render(context)
+                    logger.info("creating: {}".format(slug))
+                    content = render_page(path)
                     data = dict(
                         title=title, type=Post.PAGE, content=content
                     )
-
-                    post = auth.create_toplevel_post(data=data, user=admin,group=usergroup)
+                    post = auth.create_toplevel_post(data=data, user=admin, group=usergroup)
                     page = FlatPage.objects.create(post=post, slug=slug)
 
                 continue
-
-
 
 
 if __name__ == '__main__':

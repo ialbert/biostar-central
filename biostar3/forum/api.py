@@ -9,6 +9,9 @@ from django.http import HttpResponse
 from django.contrib.sites.models import get_current_site
 from django.conf import settings
 from django.core.cache import get_cache
+from django.utils import timezone
+
+
 
 from .models import User, Vote, Post, PostView
 
@@ -199,6 +202,8 @@ def compute_stats(date):
     """
 
     start = date.date()
+    start = timezone.datetime(year=start.year, month=start.month, day=start.day)
+    start = timezone.make_aware(start, timezone.get_current_timezone())
     end = start + timedelta(days=1)
 
     try:
@@ -239,8 +244,8 @@ def compute_stats(date):
         'new_votes': new_votes_ids,
     }
 
-    if not settings.DEBUG:
-        dump_stats_to_file(start, data)
+    # Save data to a file
+    dump_stats_to_file(start, data)
     return data
 
 

@@ -61,12 +61,14 @@ while (( "$#" )); do
         echo "*** Initializing server on $BIOSTAR_HOSTNAME with $DJANGO_SETTINGS_MODULE"
         $PYTHON manage.py migrate --settings=$DJANGO_SETTINGS_MODULE
         $PYTHON manage.py collectstatic -v $VERBOSITY --noinput --settings=$DJANGO_SETTINGS_MODULE
+        $PYTHON manage.py add_pages --dir themes/default/pages/
     fi
 
 	if [ "$1" = "quick" ]; then
 		# Used during development only. A quick reset and migration of the entire site.
 		echo "*** Quick: delete import init migrate2to3 load_social_auth"
 		./biostar.sh delete migrate load_social_auth
+		$PYTHON manage.py add_pages --dir themes/default/pages/
     fi
 
     if [ "$1" = "run" ]; then

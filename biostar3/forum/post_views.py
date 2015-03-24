@@ -18,8 +18,8 @@ from haystack.query import SearchQuerySet
 from taggit.models import Tag
 
 # Biostar specific local modules.
-from . import models, query, search, auth
-from .models import Vote, Post, PostView, UserGroup, GroupSub, Message, GroupPerm, FlatPage
+from . import query, search, auth
+from .models import *
 from biostar3.context import SESSION_COUNT_KEY
 
 from biostar3.utils.compat import *
@@ -205,7 +205,7 @@ def group_redirect_handler(request, group, user, autoadd=None):
 def group_info(request, pk, group=None, user=None):
     template_name = "group_info.html"
 
-    site = models.Site.objects.get(id=settings.SITE_ID)
+    site = Site.objects.get(id=settings.SITE_ID)
 
     # Current group permissions
     perms = GroupPerm.objects.filter(usergroup=group).select_related("user")
@@ -293,7 +293,7 @@ def update_post_views(request, post, minutes=settings.POST_VIEW_INTERVAL):
     try:
         # One view per time interval from each IP address.
         if not PostView.objects.filter(ip=ip, post=post, date__gt=since):
-            PostView.objects.create(ip=ip, post=post, date=auth.now())
+            PostView.objects.create(ip=ip, post=post, date=right_now())
             Post.objects.filter(id=post.id).update(view_count=F('view_count') + 1)
     except Exception as exc:
         # Triggers if the IP address is spoofed and/or malformed.
@@ -349,11 +349,11 @@ def post_view(request, pk, post=None, user=None):
     post = decorator(post)
 
     # Store answers in a separate list for simpler access.
-    post.answers = filter(lambda p: p.type == models.Post.ANSWER, thread)
+    post.answers = filter(lambda p: p.type == Post.ANSWER, thread)
     post.answers = list(post.answers)
 
     # Comments will be stored in a dictionary for fast access.
-    comment_list = filter(lambda pc: pc.type == models.Post.COMMENT, thread)
+    comment_list = filter(lambda pc: pc.type == Post.COMMENT, thread)
 
     # Collect comments into a dictionary keyed by the parent id with
     # comments as a value list
@@ -379,10 +379,10 @@ def planet_list(request):
     if q:
         posts = search.plain(q, "forum.blogpost")
     else:
-        posts = models.BlogPost.objects.order_by("creation_date")
+        posts = BlogPost.objects.order_by("creation_date")
 
     # Get the blogs in updated order.
-    blogs = models.Blog.objects.all()
+    blogs = Blog.objects.all()
     blogs = blogs.annotate(updated_date=Max("blogpost__creation_date"),
         count=Count("blogpost__id")).order_by("-updated_date", "-list_order")
 
@@ -395,9 +395,14 @@ def planet_list(request):
     return render(request, template_name, context)
 
 from django.http import Http404
-def flatpage_view(request, domain, slug, flatpage=None, user=None):
+def flatpage_view(request, slug, domain=None, flatpage=None, user=None):
+
+    domain = domain or settings.DEFAULT_GROUP_DOMAIN
+
+    usergroup = UserGroup.objects.filter(domain=domain).first()
     template_name = "page_view.html"
-    flatpage = models.FlatPage.objects.filter(slug=slug).select_related("post", "author").first()
+
+    flatpage = FlatPage.objects.filter(slug=slug, post__usergroup=usergroup).select_related("post", "author").first()
 
     if not flatpage:
         msg = "The page {}/{} does not seem to exists".format(domain, slug)

@@ -337,6 +337,20 @@ body .highlighted {
   text-align: center;
   padding: 1em;
 }
+#footer div {
+  margin-bottom: 1ex;
+}
+#traffic {
+  position: fixed;
+  font-size: smaller;
+  bottom: 0px;
+  left: 0px;
+  color: #999999;
+  background-color: white;
+  padding: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+}
 #group_list div {
   margin-top: 0.5ex;
 }

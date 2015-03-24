@@ -2,21 +2,20 @@
 {#  domain=default #}
 {#  title=About the site #}
 
-<p>This site&#39;s focus is&nbsp;<strong>bioinformatics</strong>,&nbsp;<strong>computational genomics</strong>&nbsp;and&nbsp;<strong>biological
-    data analysis</strong>. We welcome posts that are:</p>
+This site's focus is **bioinformatics**
+**computational genomics** and **biological
+data analysis**. We welcome posts that are:
+reasonably short, detailed, specific, written clearly and in plain language.
 
-<ul>
-    <li>detailed and specific, written clearly and simply</li>
-</ul>
+No question is too trivial or too"newbie".
 
-<p>No question is too trivial or too &quot;newbie&quot;.</p>
-<p>But we recommend that you make use of the search services to see if your question has already been asked (perhaps
-    even answered!) before you ask. But if you end up asking a question that has been asked before, that is fine too.
-    Other users will hopefully edit in links to related or similar questions to help future visitors find their way.</p>
+But we recommend that you make use of the search services to see if your question has already been asked (perhaps
+even answered!) before you ask. But if you end up asking a question that has been asked before, that is fine too.
+Other users will hopefully edit in links to related or similar questions to help future visitors find their way.
 
 <div class="title">Contact</div>
 
-<p>To contact the site managers please email&nbsp;<a href="mailto:admin@biostars.org">admin@biostars.org</a>.</p>
+To contact the site managers please email <a href="mailto:admin@biostars.org">admin@biostars.org</a>.
 
 <div class="title">Licensing</div>
 
@@ -38,12 +37,12 @@
 
 <div class="title">Citing Biostar</div>
 
-<p>Parnell LD, Lindenbaum P, Shameer K, Dall&#39;Olio GM, Swan DC, et al. 2011&nbsp;<strong>BioStar: An Online Question
-    &amp; Answer Resource for the Bioinformatics Community.</strong>&nbsp;<em>PLoS Comput Biol 7(10)</em>:&nbsp;<a
-href="http://www.ploscompbiol.org/article/info%3Adoi%2F10.1371%2Fjournal.pcbi.1002216">e1002216.
-    doi:10.1371/journal.pcbi.1002216</a></p>
-
-
+<p>
+	Parnell LD, Lindenbaum P, Shameer K, Dall&#39;Olio GM, Swan DC, et al. 2011&nbsp;<strong>BioStar: An Online Question
+    &amp; Answer Resource for the Bioinformatics Community.</strong> <em>PLoS Comput Biol 7(10)</em>:
+    <a href="http://www.ploscompbiol.org/article/info%3Adoi%2F10.1371%2Fjournal.pcbi.1002216">e1002216.
+    doi:10.1371/journal.pcbi.1002216</a>
+</p>
 
 <div class="title">Source Code</div>
 

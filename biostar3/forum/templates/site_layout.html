@@ -1,6 +1,6 @@
 {% extends "site_base.html" %}
 {% load staticfiles %}
-{% load compress%}
+{% load compress %}
 {% load widgets %}
 
 {% block header %}
@@ -13,5 +13,17 @@
 {% endblock %}
 
 {% block footer %}
-    Powered by <a href="https://github.com/ialbert/biostar-central">Biostars</a> &bull; version {{ BIOSTAR_VERSION }}
+    <div>
+        <a href="{% url "page_view_main" "info" %}"><i class="fa fa-question-circle"></i> About</a>
+        &bull; <a href="{% url "page_view_main" "rss" %}"><i class="fa fa-rss"></i> RSS</a>
+        &bull; <a href="{% url "page_view_main" "faq" %}"><i class="fa fa-bell"></i> FAQ</a>
+        &bull; <a href="{% url "page_view_main" "api" %}"><i class="fa fa-tasks"></i> API</a>
+        &bull; <a href="{% url "page_view_main" "policy" %}"><i class="fa fa-user"></i> Terms of Use</a>
+    </div>
+    <div>
+        Powered by <a href="https://github.com/ialbert/biostar-central">Biostars</a> &bull;
+        version {{ BIOSTAR_VERSION }}
+    </div>
+    {# This information is cached and updated periodically via the context. #}
+    <div id="traffic">Traffic: {{ TRAFFIC }} users visited in the last hour</div>
 {% endblock %}

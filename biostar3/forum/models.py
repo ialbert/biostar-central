@@ -7,7 +7,7 @@ from django.contrib.sites.models import Site
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from taggit.managers import TaggableManager
-from django.utils.timezone import utc
+from django.utils import timezone
 from datetime import datetime, timedelta
 from . import html
 
@@ -39,8 +39,7 @@ class MyTaggableManager(TaggableManager):
 
 
 def right_now():
-    return datetime.utcnow().replace(tzinfo=utc)
-
+    return timezone.now()
 
 def abspath(*args):
     """Generates absolute paths"""

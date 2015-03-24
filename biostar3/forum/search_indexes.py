@@ -1,4 +1,5 @@
 # Haystack search indices.
+from __future__ import absolute_import, division, print_function, unicode_literals
 from biostar3.forum.models import Post, FederatedContent, BlogPost
 from django.db.models import Q
 from haystack import indexes
