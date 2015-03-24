@@ -782,7 +782,7 @@ class Award(models.Model):
 
 
 class FlatPage(models.Model):
-    # This is the path that the page is accessed under
+    # Flatpage is a post that connects to a slug.
     slug = models.SlugField(default='slug', db_index=True)
     post = models.ForeignKey(Post)
 

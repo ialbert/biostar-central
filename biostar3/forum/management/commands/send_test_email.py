@@ -8,6 +8,7 @@ from biostar3.forum.mailer import EmailTemplate
 from biostar3.forum import auth
 from django.contrib.sites.models import Site
 from django.contrib.sites.shortcuts import get_current_site
+from django.utils import timezone
 
 logger = logging.getLogger('biostar')
 
@@ -29,7 +30,7 @@ class Command(BaseCommand):
         data = dict(
             subject="email check for %s" % site.domain,
             domain = site.domain,
-            now=auth.now(),
+            now=timezone.now(),
             backend=settings.EMAIL_BACKEND,
         )
 
@@ -40,7 +41,7 @@ class Command(BaseCommand):
         try:
             em.send_email(from_email=from_email, to=to)
             logger.info("email sent to %s via %s " % (recp, settings.EMAIL_BACKEND))
-        except Exception, exc:
+        except Exception as exc:
             logger.error("email error %s when sending to %s via %s " % (exc, recp, settings.EMAIL_BACKEND))
 
 

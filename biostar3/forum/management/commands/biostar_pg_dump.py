@@ -1,7 +1,7 @@
 """
 Dumps a postgresql database into a file
 """
-
+from __future__ import print_function, unicode_literals, absolute_import, division
 import os
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError

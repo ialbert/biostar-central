@@ -11,6 +11,7 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.db.models import Q
+from django.db import transaction
 from django.contrib.auth import get_user_model
 
 from .models import Post, UserGroup, GroupSub, GroupPerm, Profile, right_now, FlatPage
@@ -73,7 +74,8 @@ class PostForm(ContentForm):
         (Post.QUESTION, "Question"), (Post.NEWS, "News"), (Post.FORUM, "Forum"), (Post.JOB, "Job Ad"),
     ])
 
-class PageForm(PostForm):
+
+class PageEditForm(PostForm):
     """
     Edit or create top level posts: question, news, forum posts,
     """
@@ -84,8 +86,16 @@ class PageForm(PostForm):
     type = forms.TypedChoiceField(coerce=int, choices=[
         (Post.PAGE, "Page")
     ])
+
+
+class PageCreateForm(PageEditForm):
+    """
+    Edit or create top level posts: question, news, forum posts,
+    """
     slug = forms.CharField(widget=forms.TextInput, initial='', max_length=200)
 
+
+@transaction.atomic
 def post_create(request, parent=None, post_type=None, action='', form_class=ContentForm):
     """
     This view creates nodes. Is not called directly from the web only through
@@ -111,6 +121,11 @@ def post_create(request, parent=None, post_type=None, action='', form_class=Cont
         if Post.objects.filter(content=content, creation_date__gt=recently):
             form.add_error("content", "Duplicated submission? There is a recent post with identical content!")
 
+        # Connect the post to a slug (shortcut).
+        slug = request.POST.get("slug", '')
+        if FlatPage.objects.filter(slug=slug, post__usergroup=group).first():
+            form.add_error("slug", "Slug already exists")
+
         if not form.is_valid():
             # Form data came but not valid.
             context = dict(form=form, action=action)
@@ -123,8 +138,7 @@ def post_create(request, parent=None, post_type=None, action='', form_class=Cont
             content = form.cleaned_data['content']
             post = auth.create_content_post(content=content, post_type=post_type, user=user, parent=parent)
 
-        # Connect the post to a slug (shortcut).
-        slug = form.cleaned_data.get("slug")
+        # Add the slug field.
         if slug:
             FlatPage.objects.create(slug=slug, post=post)
 
@@ -138,7 +152,7 @@ def post_create(request, parent=None, post_type=None, action='', form_class=Cont
 def create_page_post(request):
     "A new toplevel post"
     action = reverse("new_page")
-    return post_create(request=request, parent=None, post_type=None, action=action, form_class=PageForm)
+    return post_create(request=request, parent=None, post_type=None, action=action, form_class=PageCreateForm)
 
 
 @login_required
@@ -164,6 +178,7 @@ def create_comment(request, pk, parent=None):
 
 @login_required
 @auth.post_edit
+@transaction.atomic
 def post_edit(request, pk, post=None, user=None):
     """
     This view updates posts.
@@ -176,7 +191,7 @@ def post_edit(request, pk, post=None, user=None):
         # Different forms are chosen based on post type.
         # A form with title, type and tags.
         if post.type == Post.PAGE:
-            form_class = PageForm
+            form_class = PageEditForm
         else:
             form_class = PostForm
         tags = ", ".join(post.tags.names())
@@ -206,7 +221,7 @@ def post_edit(request, pk, post=None, user=None):
 
         post.content = get('content')
         post.lastedit_user = user
-        post.lastedit_date = auth.now()
+        post.lastedit_date = right_now()
 
         # Extra information to be saved for toplevel posts.
         if post.is_toplevel:
