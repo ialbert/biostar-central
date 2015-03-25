@@ -329,6 +329,9 @@ class Post(models.Model):
 
     title = models.CharField(max_length=250, null=False)
 
+    # A unique id for the post.
+    uuid = models.CharField(max_length=256, null=True)
+
     # The user that originally created the post.
     author = models.ForeignKey(settings.AUTH_USER_MODEL)
 

@@ -158,7 +158,7 @@ urlpatterns = patterns('',
     # Api related handler.
     url(r'^api/traffic/$', api.traffic, name='api_traffic'),
     url(r'^api/user/(?P<id>\d+)/$', api.user_details, name='api_user'),
-    url(r'^api/post/(?P<id>\d+)/$', api.post_details, name='api_post'),
+    url(r'^api/post/(?P<id>[-\w]+)/$', api.post_details, name='api_post'),
     url(r'^api/vote/(?P<id>\d+)/$', api.vote_details, name='api_vote'),
     url(r'^api/stats/day/(?P<day>\d+)/$', api.daily_stats_on_day, name='api_stats_on_day'),
     url(r'^api/stats/date/(?P<year>\d{4})/(?P<month>\d{2})/(?P<day>\d{2})/$',

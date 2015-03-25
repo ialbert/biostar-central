@@ -64,9 +64,6 @@ def create_toplevel_post(data, user, group):
     # Set the tags on the post
     post.tags.set(*tags)
 
-    # Self referential ForeignKeys need to be updated explicitly!
-    Post.objects.filter(pk=post.pk).update(root_id=post.id, parent_id=post.id)
-
     # Return the updated object, otherwise the foreign keys are unset.
     post = Post.objects.get(pk=post.id)
 

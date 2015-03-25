@@ -22,3 +22,4 @@ waitress
 pygments
 fake-factory
 html2text
+pyblue >=2.0

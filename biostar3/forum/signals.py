@@ -64,6 +64,15 @@ def post_created(sender, instance, created, **kwargs):
         func = tasks.create_messages
         func.delay(instance) if settings.CELERY_ENABLED else func(instance)
 
+        if not instance.uuid:
+            # If the unique id not set then make it the primary key.
+            Post.objects.filter(pk=instance.pk).update(uuid=instance.pk)
+
+        if instance.is_toplevel:
+            # Top level posts need a resave to set the root and self.
+            # Self referential ForeignKeys will not be set otherwise.
+            Post.objects.filter(pk=instance.pk).update(root_id=instance.pk, parent_id=instance.pk)
+
     # Update the reply count on the post.
     instance.update_reply_count()
 

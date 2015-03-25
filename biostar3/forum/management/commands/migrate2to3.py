@@ -4,6 +4,7 @@ from django.conf import settings
 from optparse import make_option
 import os, logging, glob, json, html2text
 from biostar3.forum.models import *
+from django.db.models import F, Q
 
 
 def abspath(*args):
@@ -78,8 +79,13 @@ def perform_migration():
     logger.info('resetting tag_val')
     Post.objects.filter(type__in=Post.TOP_LEVEL).exclude(tag_val='').update(tag_val='')
 
+    # All existing post will have the uuid be equal to their primary keys.
+    logger.info("Add 'uuid' field to posts")
+    Post.objects.all().update(uuid=F('pk'))
+
     # Add group to all blogs that don't have one.
     Blog.objects.filter(usergroup=None).update(usergroup=default_group)
+
 
 class Command(BaseCommand):
     help = '''Migrates data from version 2 to 3'''

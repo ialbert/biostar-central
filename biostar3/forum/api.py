@@ -10,8 +10,7 @@ from django.contrib.sites.models import get_current_site
 from django.conf import settings
 from django.core.cache import get_cache
 from django.utils import timezone
-
-
+from django.db.models import Q, F
 
 from .models import User, Vote, Post, PostView
 
@@ -92,15 +91,22 @@ def post_details(request, id):
     Parameters:
     id -- the id of the `Post`.
     """
-    try:
-        post = Post.objects.get(pk=id)
-    except Post.DoesNotExist:
+
+    post = Post.objects.filter(Q(pk=id) | Q(uuid=id))
+
+    if not post:
         return {}
 
+    post = post.select_related("author", "root", "root__usergroup").first()
+    tags = [t.name for t in post.tags.all()]
     data = {
         'id': post.id,
+        'uuid': post.uuid,
         'title': post.title,
         'type': post.get_type_display(),
+        'group_id': post.root.usergroup_id,
+        'domain': post.root.usergroup.domain,
+        'group_name': post.root.usergroup.name,
         'type_id': post.type,
         'creation_date': datetime_to_iso(post.creation_date),
         'lastedit_date': datetime_to_iso(post.lastedit_date),
@@ -122,7 +128,8 @@ def post_details(request, id):
         'parent_id': post.parent.id,
         'root_id': post.root_id,
         'xhtml': post.html,
-        'tag_val': post.tag_val,
+        'content': post.content,
+        'tag_val': ",".join(tags),
         'url': 'http://{}{}'.format(get_current_site(request).domain, post.get_absolute_url()),
     }
     return data
@@ -290,7 +297,7 @@ def _build_stats_file_path(date):
     Params:
     date -- a `datetime` instance.
     """
-    file_name = '{}-{}-{}.json'.format(date.year, date.month, date.day)
+    file_name = 'cache-{}-{}-{}.json'.format(date.year, date.month, date.day)
     return normpath(join(STATS_FOLDER, file_name))
 
 

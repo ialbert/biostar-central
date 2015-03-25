@@ -6,6 +6,7 @@ from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.contrib.sites.models import Site
 from django.db import transaction
+from django.db.models import Q, F
 from django.contrib.staticfiles import finders
 from django.core.files.base import File
 import html2text
