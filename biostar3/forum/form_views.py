@@ -77,12 +77,8 @@ class PostForm(ContentForm):
 
 class PageEditForm(PostForm):
     """
-    Edit or create top level posts: question, news, forum posts,
+    Edit top level pages only.
     """
-    is_toplevel = True
-    title = forms.CharField(widget=forms.TextInput, initial='', max_length=200,
-                            validators=[title_validator])
-    tags = forms.CharField(max_length=100, initial='', validators=[tag_validator])
     type = forms.TypedChoiceField(coerce=int, choices=[
         (Post.PAGE, "Page")
     ])
@@ -90,7 +86,7 @@ class PageEditForm(PostForm):
 
 class PageCreateForm(PageEditForm):
     """
-    Edit or create top level posts: question, news, forum posts,
+    Create top level pages.
     """
     slug = forms.CharField(widget=forms.TextInput, initial='', max_length=200)
 
@@ -248,7 +244,9 @@ def group_domain_validator(text):
 
 
 class GroupDomainForm(forms.Form):
-    domain = forms.CharField(min_length=3, max_length=50, label="Subdomain (cannot be changed)", validators=[group_domain_validator])
+    domain = forms.CharField(min_length=3, max_length=50, label="Subdomain (cannot be changed)",
+                             validators=[group_domain_validator])
+
 
 class GroupFieldForm(forms.Form):
     """
@@ -259,12 +257,14 @@ class GroupFieldForm(forms.Form):
     name = forms.CharField(min_length=3, max_length=25, label="Group Name", validators=[group_name_validator])
     public = forms.BooleanField(initial=True, label="Public access", required=False)
     info = forms.CharField(widget=forms.Textarea, min_length=10, max_length=1000,
-                                  required=True)
+                           required=True)
     logo = forms.FileField(widget=forms.ClearableFileInput, required=False, label="Logo (image)")
+
 
 class GroupCreateForm(GroupFieldForm, GroupDomainForm):
     # Inherits from both.
     pass
+
 
 class GroupEditForm(GroupFieldForm):
     # Inherits from fields only and has a different field validator.

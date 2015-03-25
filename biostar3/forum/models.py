@@ -407,7 +407,8 @@ class Post(models.Model):
     file = models.FileField(upload_to="files/%Y/%m/%d", null=True, blank=True)
 
     def __unicode__(self):
-        return "Post (id=%s)" % self.id
+        display = self.get_type_display()
+        return "Post (id={}, type={}, title={})".format(self.id, display, self.title)
 
     def set_reply_count(self):
         reply_count = Post.objects.filter(parent=self, type=Post.ANSWER).count()

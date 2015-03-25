@@ -325,6 +325,12 @@ body .highlighted {
   font-weight: 300;
   margin-bottom: 1ex;
 }
+#page_view h2 {
+  font-size: 2em;
+}
+#page_view h3 {
+  font-size: 1.4em;
+}
 #page_title {
   float: left;
   padding: 5px 10px 0px 0px;

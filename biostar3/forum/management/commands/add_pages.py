@@ -4,7 +4,7 @@ from django.conf import settings
 from optparse import make_option
 import os, logging, glob, json
 from biostar3.forum.models import FederatedContent
-from biostar3.utils import pagecrawl
+from biostar3.utils import flatpage
 
 def abspath(*args):
     "Generates absolute paths."
@@ -22,5 +22,5 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         dirname = options.get("dirname")
         if dirname:
-            pagecrawl.crawl(dirname)
+            flatpage.add_all(dirname)
 

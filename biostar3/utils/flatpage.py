@@ -37,7 +37,7 @@ def get_group(meta):
     domain = meta.get("domain")
     usergroup = UserGroup.objects.filter(domain=domain).first()
     if not usergroup:
-        logger.info("default usergroup")
+        #logger.info("default usergroup")
         usergroup = UserGroup.objects.filter(domain=settings.DEFAULT_GROUP_DOMAIN).first()
     return usergroup
 
@@ -49,7 +49,7 @@ def render_page(path, params={}):
     content = templ.render(context)
     return content
 
-def crawl(path, update=False):
+def add_all(path, update=False):
     valid_exts = {".html", ".md"}
 
     admin = User.objects.filter(email=settings.ADMINS[0][1]).first()
@@ -61,7 +61,7 @@ def crawl(path, update=False):
                 continue
 
             path = os.path.join(dirpath, name)
-            logger.info("processing {}".format(path))
+
             meta = parse_metadata(path)
             slug = meta.get("slug")
             title = meta.get("title")
@@ -71,7 +71,6 @@ def crawl(path, update=False):
                 logger.error("slug field is missing from {}".format(path))
             if not title:
                 logger.error("title field is missing from {}".format(path))
-
 
             page = FlatPage.objects.filter(post__usergroup=usergroup, slug=slug).first()
 
