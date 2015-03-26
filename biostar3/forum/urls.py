@@ -2,7 +2,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
 
-from biostar3.forum import form_views, user_views, post_views, api, feeds, ajax
+from biostar3.forum import form_views, user_views, charm_views, post_views, api, feeds, ajax
 
 urlpatterns = patterns('',
 
@@ -95,6 +95,12 @@ urlpatterns = patterns('',
 
     # Email handlers.
     url(r'^site/incoming/email/', ajax.email_handler, name="email_handler"),
+
+    # Biostar charms.
+    url(r'^site/charms/$', charm_views.charms, name="charm_view"),
+
+    # Biostar charm function calls.
+    url(r'^site/charms/rpc/$', charm_views.charms_rpc, name="charm_rpc"),
 
     #
     # Group related handlers
