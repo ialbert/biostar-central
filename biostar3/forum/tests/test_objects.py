@@ -74,10 +74,10 @@ class SimpleTests(TestCase):
         pairs = [
             # input, expected
             ("abcd", "abcd"),
-            ("ABC https://gist.github.com/123 ABC", "ABC %s ABC" % html.get_embedded_gist(123)),
-            ("ABC https://www.youtube.com/watch?v=123 ABC", "ABC %s ABC" % html.get_embedded_youtube(123)),
+            ("https://gist.github.com/123", "%s" % html.get_embedded_gist(123)),
+            ("https://www.youtube.com/watch?v=123", "%s" % html.get_embedded_youtube(123)),
         ]
-        for text, expect in pairs:
+        for text, expected in pairs:
             result = html.embed_links(text)
-            EQ(expect, result)
+            EQ(result, expected)
 

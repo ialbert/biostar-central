@@ -28,21 +28,23 @@ POST_PATTERN1 = r"http(s)?://%s/p/(?P<uid>(\d+))(/)?" % settings.SITE_DOMAIN
 POST_PATTERN2 = r"http(s)?://%s/p/\d+/\#(?P<uid>(\d+))(/)?" % settings.SITE_DOMAIN
 
 # Matches gists that may be embeded.
-GIST_PATTERN = r"https://gist.github.com/(?P<uid>([\w/]+))"
+GIST_PATTERN = r"^https://gist.github.com/(?P<uid>([\w/]+))"
 
-# Matches Youtube video links.
-YOUTUBE_PATTERN = r"http(s)?://www.youtube.com/watch\?v=(?P<uid>(\w+))(/)?"
+# Youtube can be embedded with different patterns
+YOUTUBE_PATTERN1 = r"^http(s)?://www.youtube.com/watch\?v=(?P<uid>([-_\w]+))(/)?"
+YOUTUBE_PATTERN2 = r"^http(s)?://www.youtube.com/embed/(?P<uid>([-_\w]+))(/)?"
+YOUTUBE_PATTERN3 = r"^http(s)?://youtu.be/(?P<uid>([-_\w]+))(/)?"
 
 # Twitter: tweets to embed.
-TWITTER_PATTERN = r"http(s)?://twitter.com/\w+/status(es)?/(?P<uid>([\d]+))"
-
+TWITTER_PATTERN = r"^http(s)?://twitter.com/\w+/status(es)?/(?P<uid>([\d]+))"
 
 def get_embedded_youtube(uid):
-    return '<iframe width="420" height="315" src="//www.youtube.com/embed/%s" frameborder="0" allowfullscreen></iframe>' % uid
+    return '<iframe width="420" height="315" src="//www.youtube.com/embed/{}" frameborder="0" allowfullscreen></iframe>'.format(
+        uid)
 
 
 def get_embedded_gist(uid):
-    return '<script src="https://gist.github.com/%s.js"></script>' % uid
+    return '<script src="https://gist.github.com/{}.js"></script>'.format(uid)
 
 
 def get_embedded_tweet(tweet_id):
@@ -67,9 +69,11 @@ def get_embedded_tweet(tweet_id):
 USER_RE = re.compile(USER_PATTERN)
 POST_RE1 = re.compile(POST_PATTERN1)
 POST_RE2 = re.compile(POST_PATTERN2)
-GIST_RE = re.compile(GIST_PATTERN)
-YOUTUBE_RE = re.compile(YOUTUBE_PATTERN)
-TWITTER_RE = re.compile(TWITTER_PATTERN)
+GIST_RE = re.compile(GIST_PATTERN, re.MULTILINE|re.IGNORECASE)
+YOUTUBE_RE1 = re.compile(YOUTUBE_PATTERN1, re.MULTILINE|re.IGNORECASE)
+YOUTUBE_RE2 = re.compile(YOUTUBE_PATTERN2, re.MULTILINE|re.IGNORECASE)
+YOUTUBE_RE3 = re.compile(YOUTUBE_PATTERN3, re.MULTILINE|re.IGNORECASE)
+TWITTER_RE = re.compile(TWITTER_PATTERN, re.MULTILINE|re.IGNORECASE)
 
 
 def strip_tags(text):
@@ -97,6 +101,7 @@ def sanitize(text, user, safe=False):
     def internal_links(attrs, new=False):
         """Creates links to internal content"""
         try:
+
 
             # Don't resolve the link if a user has already specified a text for it.
             href, _text = attrs['href'], attrs['_text']
@@ -137,6 +142,7 @@ def sanitize(text, user, safe=False):
 
         return attrs
 
+
     # The functions that will be applied when linkifying
     callbacks = [internal_links, require_protocol]
 
@@ -146,6 +152,13 @@ def sanitize(text, user, safe=False):
     else:
         tags, attrs, styles = ALLOWED_TAGS, ALLOWED_ATTRIBUTES, ALLOWED_STYLES
 
+    # First sanitize the text.
+    if not safe:
+        text = bleach.clean(text, tags=tags, attributes=attrs, styles=styles)
+
+    # Now embed the links.
+    text = embed_links(text)
+
     try:
         # Apply the markdown transformation.
         # We'll protect against library crashes by a generic Exception catch.
@@ -154,17 +167,11 @@ def sanitize(text, user, safe=False):
         logger.error('crash during markdown conversion: %s' % exc)
         html = text
 
-    # Sanitize the resulting html.
-    if not safe:
-        html = bleach.clean(html, tags=tags, attributes=attrs, styles=styles)
-
-    # Find embeddable patterns.
-    html = embed_links(html)
-
     try:
         # Turn links into urls. We had bleach.linkify crash very rarely so we'll trap that.
         # We use a more lenient tokenizer since the content is already cleaned.
         html = bleach.linkify(html, callbacks=callbacks, skip_pre=True, tokenizer=HTMLTokenizer)
+
     except Exception as exc:
         logger.error('crash during bleach linkify: %s' % exc)
         html = html
@@ -178,7 +185,9 @@ def sanitize(text, user, safe=False):
 def embed_links(text):
     targets = [
         (GIST_RE, get_embedded_gist),
-        (YOUTUBE_RE, get_embedded_youtube),
+        (YOUTUBE_RE1, get_embedded_youtube),
+        (YOUTUBE_RE2, get_embedded_youtube),
+        (YOUTUBE_RE3, get_embedded_youtube),
         (TWITTER_RE, get_embedded_tweet),
     ]
 
