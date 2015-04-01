@@ -8,6 +8,10 @@ Set up colors fo various widgets.
   background-color: #5b8c3e;
   color: white;
 }
+.box.Accepted {
+  background-color: #5b8c3e;
+  color: yellow;
+}
 .box.Unanswered {
   background-color: #8f2c47;
   color: white;
