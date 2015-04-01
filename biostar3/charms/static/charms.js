@@ -1,6 +1,10 @@
-function rev_comp(s) {
+function reverse_complement(s) {
     var seq = (new Nt.Seq()).read(s);
     return seq.complement().sequence();
+}
+
+function rc(s) {
+    return reverse_complement(s);
 }
 
 function translate(s, offset) {
@@ -45,6 +49,7 @@ function dir(obj) {
     for (var key in obj) {
         keys.push(key);
     }
+    print("Name=", obj.constructor.name," attributes:",  keys);
     return keys;
 }
 
@@ -96,31 +101,68 @@ function print_result(term, result) {
     }
 }
 
-function print_error(term, e) {
-    term.error(new String(e));
+OUTPUT = $('#charm_output')
+
+function __concat(args) {
+    var value = ''
+    for (var i = 0; i < args.length; i++) {
+        value += ' ' + args[i]
+    }
+    return value
 }
 
-TERMINAL = 0
+function __append_output(value) {
+    OUTPUT.html(OUTPUT.html() + value)
+}
+
+function __reset_output() {
+    OUTPUT.html("")
+}
+
+function clear() {
+    __reset_output()
+}
+
+function print() {
+    __append_output('<div>' + __concat(arguments) + '</div>')
+}
+
+function error() {
+    __append_output('<div class="error">' + __concat(arguments) + '</div>')
+}
+
+function __run(value) {
+    try {
+        var result = eval(value)
+    } catch (e) {
+        error(e);
+    }
+}
+
+function __reset() {
+    clear()
+    print("<code>Click RUN PROGRAM to run</code>")
+}
+
 
 $(document).ready(function () {
-        $('#charm').terminal(function (command, term) {
-            TERMINAL = term;
-            if (command !== '') {
-                try {
-                    var output = window.eval(command);
-                    print_result(term, output)
-                } catch (e) {
-                    term.error(new String(e));
-                }
-            }
-            else {
-                term.echo('');
-            }
-        }, {
-            greetings: 'Biostar Charms',
-            name: 'charm_terminal',
-            height: 500,
-            prompt: 'charm> '
+
+        var editor = ace.edit("editor");
+        editor.setTheme("ace/theme/github");
+        editor.getSession().setMode("ace/mode/javascript");
+        __reset()
+
+        $('#run_charm').click(function () {
+            clear();
+            var input = editor.getValue();
+            __run(input)
         });
+
+        $('.run_me').click(function () {
+            var value = $(this).parent().parent().children("pre").text()
+            __reset()
+            editor.setValue(value)
+        });
+
     }
 );

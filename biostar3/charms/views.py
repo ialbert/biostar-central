@@ -39,4 +39,3 @@ def charms_rpc(request):
     print (data)
 
     return data
-

@@ -1,0 +1,176 @@
+{% extends "site_layout.html" %}
+{% load widgets %}
+{% load static %}
+
+{% block title %}
+    Charms
+{% endblock %}
+
+{% block head %}
+    <script src="{% static "lib/ace.js" %}" type="text/javascript" charset="utf-8"></script>
+    <style type="text/css" media="screen">
+        #editor {
+            position: relative;
+
+            height: 320px;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="row">
+
+        <div id="charm_input" class="six columns">
+<pre id="editor">
+// Charms are small programs written in a javascript based language.
+// Works with any valid javascript construct and it has
+// bioinformatics specific extensions. It can also perform
+// calls to external programs.
+
+// The print() function will generate output.
+print("1 + 2 = ", 1 + 2)
+
+// Sequence processing functions.
+seq = "CAGATGAAATAA"
+
+// Reverse complement sequence.
+rev = reverse_complement(seq)
+
+// Print the result
+print("The reverse complement of", seq, "is", rev)
+
+// Press the RUN PROGRAM button to see the result.
+</pre>
+            <div>
+                <input type="button" value="Run Program" id="run_charm">
+            </div>
+        </div>
+
+    </div>
+
+    <div class="row">
+        <hr>
+        <div id="charm_output">
+
+        </div>
+        <hr>
+    </div>
+    <div class="row">
+
+        <div>
+            Users will be able to load other users' javascript libraries and execute commands in them.
+            These commands will be able to connect to web services and submit and download results from them.
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="six columns">
+            <div class="title">Simple Demo
+                &gt; <a href="#" class="run_me"><i class="fa fa-laptop"></i> click to run</a>
+            </div>
+
+<pre class="code" id="init">
+// Charms are small programs written in a javascript based language.
+// Works with any valid javascript construct and it has
+// bioinformatics specific extensions. It can also perform
+// calls to external programs.
+
+// The print() function will generate output.
+print("1 + 2 = ", 1 + 2)
+
+// Sequence processing functions.
+seq = "CAGATGAAATAA"
+
+// Reverse complement sequence.
+rev = reverse_complement(seq)
+
+// Print the result
+print("The reverse complement of", seq, "is", rev)
+
+</pre>
+        </div>
+
+        <div class="six columns">
+            <div class="title">Translate sequences
+                &gt; <a href="#" class="run_me"><i class="fa fa-laptop"></i> click to run</a>
+            </div>
+
+<pre class="code" id="2">
+// Protein translations
+seq = "ATGCAGATGAAATAATAGGAGGATAA"
+
+// Translate the sequence with different offsets
+prot1 = translate(seq)
+prot2 = translate(seq, 1)
+prot3 = translate(seq, 2)
+
+// Print the translated offsets
+print ("Three translations:", prot1, prot2, prot3)
+</pre>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="six columns">
+            <div class="title">Sequence Alingment
+                &gt; <a href="#" class="run_me"><i class="fa fa-laptop"></i> click to run</a>
+            </div>
+<pre>
+// Query sequences
+target = "AAAACAGATGAAATAA"
+query = "AACAATAA"
+
+// Perform the search
+res = best_match(target, query)
+
+// What attributes does the result have
+dir(res)
+
+// The position of the match: 7
+print("Position:", res.pos)
+
+// The alignment mask: AA-AA
+print("Mask:", res.mask)
+
+// The aligned sequence: AATAA
+print ("Aligned:", res.aligned)
+</pre>
+        </div>
+
+        <div class="six columns">
+            <div class="title">NT.Seq objects
+                &gt; <a href="#" class="run_me"><i class="fa fa-laptop"></i> click to run</a>
+            </div>
+<pre>
+// See the NT.Seq documentation for what can be done with them
+// http://keithwhor.github.io/NtSeq/
+
+// Sequence objects
+s = Seq("AAAAAATGGGCCCC")
+
+// What type of attributes does s have?
+dir(s)
+
+// How many As in the sequence
+acount = s.contentATGC()['A']
+print (acount)
+
+// Loop over all bases.
+bases = ["A", "T", "G", "C"]
+
+bases.forEach( function(base){
+    print(base, s.contentATGC()[base])
+}
+</pre>
+        </div>
+
+    </div>
+
+{% endblock %}
+
+{% block bottom %}
+    <script type="text/javascript" src="{% static "ntseq.js" %}"></script>
+
+    <script type="text/javascript" src="{% static "charms.js" %}"></script>
+
+{% endblock %}

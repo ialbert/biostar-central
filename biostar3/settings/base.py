@@ -41,6 +41,7 @@ INSTALLED_APPS = (
     'haystack',
     'taggit',
     'biostar3.forum',
+    'biostar3.charms',
 
     # Authentication apps
     'allauth',
@@ -107,7 +108,10 @@ THEME_TEMPLATE_PATH = abspath(THEME_PATH, "templates", )
 
 # Default template and static directories.
 DEFAULT_TEMPLATE_PATH = abspath(BIOSTAR_HOME, "biostar3", "forum", "templates")
-DEFAULT_STATIC_PATH = abspath(BIOSTAR_HOME, "biostar3", "forum", "static")
+DEFAULT_STATIC_PATHS = [
+    abspath(BIOSTAR_HOME, "biostar3", "forum", "static"),
+    abspath(BIOSTAR_HOME, "biostar3", "charms", "static")
+]
 
 TEMPLATE_DIRS = (
     THEME_TEMPLATE_PATH,
@@ -165,11 +169,9 @@ MEDIA_ROOT = abspath(EXPORT_DIR, "media")
 # The default logo for all groups
 DEFAULT_GROUP_LOGO = "images/logo.png"
 
-STATICFILES_DIRS = (
-    abspath(THEME_STATIC_PATH),
-    abspath(DEFAULT_STATIC_PATH),
-)
+STATICFILES_DIRS = [ abspath(THEME_STATIC_PATH) ]
 
+# Will also add the static directories in the AppDirectory
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
@@ -216,6 +218,10 @@ SOCIALACCOUNT_PROVIDERS = {
     'persona': {
         'AUDIENCE': 'http://www.lvh.me:8080/',
         'REQUEST_PARAMETERS': {'siteName': 'Biostars'}
+    },
+    'google': {
+        'SCOPE': ['email'],
+        'AUTH_PARAMS': {'access_type': 'online'}
     }
 }
 

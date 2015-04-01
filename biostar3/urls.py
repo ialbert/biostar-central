@@ -9,6 +9,9 @@ urlpatterns = patterns('',
     # The main forum.
     url(r'^', include('biostar3.forum.urls')),
 
+    # The charm urls.
+    url(r'^charms/', include('biostar3.charms.urls')),
+
     # The authentication backend.
     (r'^accounts/', include('allauth.urls')),
 
