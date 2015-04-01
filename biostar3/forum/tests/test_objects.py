@@ -62,11 +62,19 @@ class SimpleTests(TestCase):
         f = Factory.create()
         site = Site.objects.get_current()
         user = User.objects.create(email=f.email(), name=f.name())
-        link = "http://%s/u/%s" % (site.domain, user.id)
-        text = "ABC %s ABC" % link
-        result = html.sanitize(text, user).strip()
-        expect = '<p>ABC <a href="%s">%s</a> ABC</p>' % (link, user.name)
-        EQ(expect, result)
+
+        user_link = "http://%s/u/%s" % (site.domain, user.id)
+        user_text = "ABC %s ABC" % user_link
+        user_html = '<p>ABC <a href="%s">%s</a> ABC</p>' % (user_link, user.name)
+
+        pairs = [
+            (user_text, user_html),
+            ("a > b and `a > b`", "<p>a &gt; b and <code>a &gt; b</code></p>")
+        ]
+
+        for text, expect in pairs:
+            result = html.sanitize(text, user).strip()
+            EQ(expect, result)
 
     def test_embed_links(self):
         "Links to gist and youtube are embedded"

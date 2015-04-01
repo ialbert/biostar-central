@@ -102,9 +102,9 @@ def sanitize(text, user, safe=False):
         """Creates links to internal content"""
         try:
 
-
             # Don't resolve the link if a user has already specified a text for it.
             href, _text = attrs['href'], attrs['_text']
+
             if href != _text:
                 return attrs
 
@@ -153,11 +153,6 @@ def sanitize(text, user, safe=False):
         tags, attrs, styles = ALLOWED_TAGS, ALLOWED_ATTRIBUTES, ALLOWED_STYLES
 
     # First sanitize the text.
-    if not safe:
-        text = bleach.clean(text, tags=tags, attributes=attrs, styles=styles)
-
-    # Now embed the links.
-    text = embed_links(text)
 
     try:
         # Apply the markdown transformation.
@@ -167,11 +162,16 @@ def sanitize(text, user, safe=False):
         logger.error('crash during markdown conversion: %s' % exc)
         html = text
 
+    if not safe:
+        html = bleach.clean(html, tags=tags, attributes=attrs, styles=styles)
+
+    # Now embed the links.
+    html = embed_links(html)
+
     try:
         # Turn links into urls. We had bleach.linkify crash very rarely so we'll trap that.
         # We use a more lenient tokenizer since the content is already cleaned.
         html = bleach.linkify(html, callbacks=callbacks, skip_pre=True, tokenizer=HTMLTokenizer)
-
     except Exception as exc:
         logger.error('crash during bleach linkify: %s' % exc)
         html = html
