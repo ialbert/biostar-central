@@ -90,7 +90,37 @@ print("The reverse complement of", seq, "is", rev)
 </pre>
         </div>
 
-        <div class="six columns">
+               <div class="six columns">
+            <div class="title">Sequence Alignment
+                &gt; <a href="#" class="run_me"><i class="fa fa-laptop"></i> click to run</a>
+            </div>
+<pre>
+// See the bioseq-js documentation for what the library can do
+// https://github.com/lh3/bioseq-js
+
+// Sequences that are to be aligned.
+target = "ATAGCTAGCTAGCATAAGC"
+query = "AGCTAcCGCAT"
+
+//Align the  query to the target
+print("*** Global alignment")
+result = align(query, target);
+format(result)
+
+// The alignment process may be tuned via dictionary parameters.
+// Valid parameters: isLocal, match, misMatch, gapOpen, gapExt
+print("*** Local alignment")
+params = { isLocal:true }
+result = align(query, target, params);
+format(result)
+</pre>
+        </div>
+
+    </div>
+
+    <div class="row">
+
+    <div class="six columns">
             <div class="title">Translate sequences
                 &gt; <a href="#" class="run_me"><i class="fa fa-laptop"></i> click to run</a>
             </div>
@@ -106,34 +136,6 @@ prot3 = translate(seq, 2)
 
 // Print the translated offsets
 print ("Three translations:", prot1, prot2, prot3)
-</pre>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="six columns">
-            <div class="title">Sequence Alingment
-                &gt; <a href="#" class="run_me"><i class="fa fa-laptop"></i> click to run</a>
-            </div>
-<pre>
-// Query sequences
-target = "AAAACAGATGAAATAA"
-query = "AACAATAA"
-
-// Perform the search
-res = best_match(target, query)
-
-// What attributes does the result have
-dir(res)
-
-// The position of the match: 7
-print("Position:", res.pos)
-
-// The alignment mask: AA-AA
-print("Mask:", res.mask)
-
-// The aligned sequence: AATAA
-print ("Aligned:", res.aligned)
 </pre>
         </div>
 
@@ -170,7 +172,7 @@ bases.forEach( function(base){
 
 {% block bottom %}
     <script type="text/javascript" src="{% static "ntseq.js" %}"></script>
-
+	<script type="text/javascript" src="{% static "bioseq.js" %}"></script>
     <script type="text/javascript" src="{% static "charms.js" %}"></script>
 
 {% endblock %}

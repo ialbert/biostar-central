@@ -30,6 +30,38 @@ function best_match(a, b) {
     return obj;
 }
 
+function __get_default(param, name, default_value) {
+    if (typeof param === 'undefined'){
+        return default_value
+    }
+    if (typeof param[name] === 'undefined' ){
+        return default_value
+    }
+
+    return param[name]
+}
+
+function align(query, target, scoring) {
+    isLocal = __get_default(scoring, "isLocal", false)
+    match = __get_default(scoring, "match",  1)
+    misMatch = __get_default(scoring, "misMatch", -1)
+    gapOpen = __get_default(scoring, "gapOpen", -1)
+    gapExt = __get_default(scoring, "gapExt", -1)
+    var aln = bsa_align(isLocal, target, query, [match, misMatch], [gapOpen, gapExt])
+    aln['__name'] = 'bsa_align';
+    return aln
+}
+function format(aln){
+    var cigar = bsa_cigar2str(aln[2])
+
+    print ('<b>Scores:</b>')
+    print('score='+aln[0]+'; pos='+aln[1])
+    print('cigar='+ cigar)
+    print ('<b>Alignment:</b>')
+    var fmt = bsa_cigar2gaps(target, query, aln[1], aln[2])
+    print('<code>' + fmt[0] + '</code>')
+    print('<code>' + fmt[1] + '</code>')
+}
 
 function all_matches(a, b) {
     var aseq = (new Nt.Seq()).read(a);
@@ -49,7 +81,7 @@ function dir(obj) {
     for (var key in obj) {
         keys.push(key);
     }
-    print("Name=", obj.constructor.name," attributes:",  keys);
+    print("Name=", obj.constructor.name, " attributes:", keys);
     return keys;
 }
 
