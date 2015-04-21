@@ -54,7 +54,8 @@ def post_created(sender, instance, created, **kwargs):
         logger.info("%s" % instance)
 
         # Subscriptions will apply relative to the root.
-        # Get or add the group subscription for the user.
+        # Posting to a user group will automatically subscribe the user to that group
+        # with the default setting.
         groupsub = auth.groupsub_get_or_create(user=instance.author, usergroup=instance.root.usergroup)
 
         # Get or add the post subscription for the user.
@@ -65,11 +66,11 @@ def post_created(sender, instance, created, **kwargs):
         func.delay(instance) if settings.CELERY_ENABLED else func(instance)
 
         if not instance.uuid:
-            # If the unique id not set then make it the primary key.
+            # If the unique id not set then set it to the primary key.
             Post.objects.filter(pk=instance.pk).update(uuid=instance.pk)
 
         if instance.is_toplevel:
-            # Top level posts need a resave to set the root and self.
+            # Top level posts need to fill the root and parent ids.
             # Self referential ForeignKeys will not be set otherwise.
             Post.objects.filter(pk=instance.pk).update(root_id=instance.pk, parent_id=instance.pk)
 

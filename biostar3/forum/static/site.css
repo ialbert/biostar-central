@@ -90,7 +90,7 @@ body .container {
   max-width: 1200px;
 }
 body .highlighted {
-  background-color: yellow;
+  background-color: #ffff00;
 }
 .recent_votes > ul {
   list-style-type: none;
@@ -307,6 +307,12 @@ body .highlighted {
   vertical-align: baseline;
   border-radius: .25em;
   background-color: #999999;
+}
+.upload {
+  margin-bottom: 1ex;
+}
+.upload label {
+  display: inline;
 }
 .moderate {
   background-color: #EDF3FE;

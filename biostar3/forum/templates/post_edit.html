@@ -15,25 +15,12 @@
                 <div>{{ form.errors }}</div>
             {% endif %}
 
-            <form method="post" action="{{ action }}">
+            <form method="post" action="{{ action }}" enctype="multipart/form-data">
 
                 {% if form.is_toplevel %}
-                    <div class="twelve columns">
-                        <label for="{{ form.title.id_for_label }}">Title</label>
-                        <input type="text" class="u-full-width" name="{{ form.title.name }}"
-                               value="{{ form.title.value }}"/>
-                    </div>
-
-                    <div class="twelve columns">
-                        <div class="six columns">
-                            <label for="{{ form.tags.id_for_label }}">Tags</label>
-                            <input type="text" class="u-full-width" name="{{ form.tags.name }}"
-                                   value="{{ form.tags.value }}"/>
-                        </div>
-                    </div>
-                    <div>
+					<div class="row">
                         <label for="x">
-                            Posting in
+                            Posting in group:
                             {% if post.group %}
                                 <b>{{ post.group.name }}</b>
                             {% else %}
@@ -42,11 +29,26 @@
                         </label>
                     </div>
 
-                    {% if form.slug %}
-                        <div>
-                        <label for="{{ form.type.id_for_label }}">Slug</label>
-                        {{ form.slug }}
+                    <div class="row">
+                        <label for="{{ form.title.id_for_label }}">Title</label>
+                        <input type="text" class="u-full-width" name="{{ form.title.name }}"
+                               value="{{ form.title.value }}"/>
                     </div>
+
+                    <div class="row">
+                        <div class="six columns">
+                            <label for="{{ form.tags.id_for_label }}">Tags</label>
+                            <input type="text" class="u-full-width" name="{{ form.tags.name }}"
+                                   value="{{ form.tags.value }}"/>
+                        </div>
+                    </div>
+
+
+                    {% if form.slug %}
+                        <div class="row">
+                            <label for="{{ form.type.id_for_label }}">Slug</label>
+                            {{ form.slug }}
+                        </div>
                     {% endif %}
                     <div>
                         <label for="{{ form.type.id_for_label }}">Type</label>
@@ -54,6 +56,10 @@
                     </div>
 
                 {% endif %}
+
+                <div class="upload">
+                    {{ form.file }}
+                </div>
 
                 <div>
                     {% visual_editor user=user content=form.content.value %}

@@ -88,10 +88,12 @@ class BlogPostIndex(indexes.SearchIndex, indexes.Indexable):
 
     text = indexes.CharField(document=True, use_template=True)
     title = indexes.CharField(model_attr='title')
-    link = indexes.CharField(model_attr='link')
-    creation_date = indexes.CharField(model_attr='creation_date')
+    url = indexes.CharField(model_attr='link')
+    date = indexes.CharField(model_attr='creation_date')
     content = indexes.CharField()
     domain = indexes.CharField()
+    type = indexes.CharField()
+    author = indexes.CharField()
 
     def get_model(self):
         return BlogPost
@@ -99,8 +101,10 @@ class BlogPostIndex(indexes.SearchIndex, indexes.Indexable):
     def prepare(self, obj):
         data = super(BlogPostIndex, self).prepare(obj)
         data['domain'] = obj.blog.usergroup.domain
-        data['creation_date'] = obj.creation_date.strftime("%B %d, %Y")
+        data['date'] = obj.creation_date.strftime("%B %d, %Y")
         data['content'] = html.strip_tags(obj.content)
+        data['type'] = "Blog"
+        data['author'] = obj.blog.title
         return data
 
     def index_queryset(self, using=None):

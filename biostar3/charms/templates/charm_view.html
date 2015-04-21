@@ -110,7 +110,7 @@ format(result)
 // The alignment process may be tuned via dictionary parameters.
 // Valid parameters: isLocal, match, misMatch, gapOpen, gapExt
 print("*** Local alignment")
-params = { isLocal:true }
+params = { isLocal:true, match:2 }
 result = align(query, target, params);
 format(result)
 </pre>

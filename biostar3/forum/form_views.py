@@ -13,7 +13,6 @@ from django.shortcuts import render, redirect
 from django.db.models import Q
 from django.db import transaction
 from django.contrib.auth import get_user_model
-
 from .models import Post, UserGroup, GroupSub, GroupPerm, Profile, right_now, FlatPage
 from . import auth, cache
 
@@ -21,7 +20,6 @@ logger = logging.getLogger('biostar')
 
 # Get custom user model.
 User = get_user_model()
-
 
 def title_validator(text):
     "Validates form input for tags"
@@ -58,6 +56,8 @@ class ContentForm(forms.Form):
     content = forms.CharField(widget=forms.Textarea,
                               min_length=min_lenght, max_length=settings.MAX_POST_SIZE,
                               initial="", required=True)
+
+    file = forms.FileField(widget=forms.ClearableFileInput, required=False, label="File")
 
 
 class PostForm(ContentForm):
@@ -96,6 +96,8 @@ def post_create(request, parent=None, post_type=None, action='', form_class=Cont
     """
     This view creates nodes. Is not called directly from the web only through
     other functions that prefill parameters.
+
+    Getting a slug parameter also creates a FlatPage entry.
     """
     user, group = request.user, request.group
     template_name = "post_edit.html"
@@ -122,17 +124,23 @@ def post_create(request, parent=None, post_type=None, action='', form_class=Cont
         if FlatPage.objects.filter(slug=slug, post__usergroup=group).first():
             form.add_error("slug", "Slug already exists")
 
+        if post_type is not None and parent is None:
+            form.add_error("type", "Top level post may not have a parent.")
+
         if not form.is_valid():
             # Form data came but not valid.
             context = dict(form=form, action=action)
             return render(request, template_name, context)
 
+        # Handle the file upload
+        file = request.FILES.get('file')
+
         # The form is valid create the post based on the form.
         if post_type is None:
-            post = auth.create_toplevel_post(user=user, group=group, data=form.cleaned_data)
+            post = auth.create_toplevel_post(user=user, group=group, data=form.cleaned_data, file=file)
         else:
             content = form.cleaned_data['content']
-            post = auth.create_content_post(content=content, post_type=post_type, user=user, parent=parent)
+            post = auth.create_content_post(content=content, post_type=post_type, user=user, parent=parent, file=file)
 
         # Add the slug field.
         if slug:
@@ -191,11 +199,11 @@ def post_edit(request, pk, post=None, user=None):
         else:
             form_class = PostForm
         tags = ", ".join(post.tags.names())
-        initial = dict(content=post.content, title=post.title, tags=tags, type=post.type)
+        initial = dict(content=post.content, title=post.title, tags=tags, type=post.type, file=post.file)
     else:
         # Content only: answers and comments.
         form_class = ContentForm
-        initial = dict(content=post.content)
+        initial = dict(content=post.content, file=post.file)
 
     if request.method == "GET":
         # Get methods get the form and return.
@@ -218,6 +226,13 @@ def post_edit(request, pk, post=None, user=None):
         post.content = get('content')
         post.lastedit_user = user
         post.lastedit_date = right_now()
+
+        # Handle the file upload allowing file removal.
+        file = request.FILES.get('file')
+        clear = request.POST.get("file-clear")
+
+        if file or clear:
+            post.file = file
 
         # Extra information to be saved for toplevel posts.
         if post.is_toplevel:

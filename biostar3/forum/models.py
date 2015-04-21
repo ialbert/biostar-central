@@ -172,10 +172,10 @@ class UserGroup(models.Model):
     creation_date = models.DateTimeField()
 
     # The logo for the model.
-    logo = models.FileField(upload_to="groups/img/%Y/%m/%d", null=True, blank=True)
+    logo = models.FileField(upload_to="groups/img", null=True, blank=True)
 
     # A stylysheet that will be loaded for the group.
-    css_file = models.FileField(upload_to="groups/css/%Y/%m/%d", null=True, blank=True)
+    css_file = models.FileField(upload_to="groups/css", null=True, blank=True)
 
     def save(self, *args, **kwargs):
         "Actions that need to be performed on every user save."
@@ -676,6 +676,10 @@ class Blog(models.Model):
     def __unicode__(self):
         return self.title
 
+    def get_absolute_url(self):
+        return self.link
+
+
 
 class BlogPost(models.Model):
     "Represents an entry of a Blog"
@@ -714,6 +718,10 @@ class BlogPost(models.Model):
     @property
     def get_title(self):
         return u"BLOG: %s" % self.title
+
+    @property
+    def is_toplevel(self):
+        return True
 
     def get_absolute_url(self):
         return self.link

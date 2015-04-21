@@ -15,33 +15,17 @@
             {% for post in posts %}
                 <div class="row post_row" style="margin-bottom:1em;">
 
-                    <div class="box vote_count">
-                        <div class="c">{{ post.vote_count }}</div>
-                        <div class="t">votes</div>
-                    </div>
-
-                    <div class="box {{ post.subtype }}">
-                        <div class="c">{{ post.reply_count }}</div>
-                        {% if post.subtype == "Answer" %}
-                            <div class="t">comments</div>
-                        {% else %}
-                            <div class="t">answers</div>
-                        {% endif %}
-                    </div>
-
-                    <div class="box view_count">
-                        <div class="c">{{ post.view_count }}</div>
-                        <div class="t">views</div>
-                    </div>
-
                     <div class="post_title">
-                        <a href="{{ post.url }}">{{ post.title }}</a>
+                       {{ post.type}} <a href="{{ post.url }}">{{ post.title }}</a>
                     </div>
 
                     <div class="content" class="u-full-width">
                         {{ post.context|safe }}
                     </div>
-                <div><i>Created on: {{ post.date }} by {{ post.author }}</i></div>
+
+                <div class="row">
+                    <i>Created on: {{ post.date }} by {{ post.author }}</i>
+                </div>
 
                 </div>
             {% endfor %}

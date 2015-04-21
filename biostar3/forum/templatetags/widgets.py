@@ -53,8 +53,8 @@ def recent_votes(votes):
 
 
 @register.inclusion_tag('post_visual_editor.html')
-def visual_editor(user, content=''):
-    return dict(content=content, user=user)
+def visual_editor(user, content='', show_upload=False):
+    return dict(content=content, user=user, show_upload=show_upload)
 
 
 @register.inclusion_tag('post_unit.html', takes_context=True)

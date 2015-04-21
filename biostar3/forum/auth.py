@@ -50,7 +50,7 @@ def tag_split(text):
 
 
 @transaction.atomic
-def create_toplevel_post(data, user, group):
+def create_toplevel_post(data, user, group, file=None):
     # Creating a top level post from  data
     title = data.get('title', '').strip()
     type = data.get('type', '') or Post.QUESTION
@@ -60,7 +60,7 @@ def create_toplevel_post(data, user, group):
 
     # Create the post.
     post = Post.objects.create(content=content, title=title,
-                               author=user, type=type, usergroup=group)
+                               author=user, type=type, usergroup=group, file=file)
     # Set the tags on the post
     post.tags.set(*tags)
 
@@ -145,9 +145,9 @@ def groupsub_get_or_create(user, usergroup, sub_type=None):
 
 
 @transaction.atomic
-def create_content_post(content, parent, user, post_type=None):
+def create_content_post(content, parent, user, post_type=None, file=None):
     # Creating a content level post from data
-    post = Post.objects.create(parent=parent, content=content, type=post_type, author=user)
+    post = Post.objects.create(parent=parent, content=content, type=post_type, author=user, file=file)
     return post
 
 

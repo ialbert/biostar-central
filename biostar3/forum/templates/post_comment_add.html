@@ -3,11 +3,16 @@
 <div class="row" id="panel">
 
     {% if user.is_authenticated %}
-        <form action="{% url "new_comment" pk=pk %}" method="post">
+        <form action="{% url "new_comment" pk=pk %}" method="post" enctype="multipart/form-data">
             {% csrf_token %}
             <div class="twelve columns">
 
-                <textarea class="u-full-width" name="content" id="focus" placeholder="Type your comment here."></textarea>
+                <textarea class="u-full-width" name="content" id="focus"
+                          placeholder="Type your comment here."></textarea>
+
+                <div class="row upload">
+                    Attach file: <input id="id_file" name="file" type="file">
+                </div>
 
                 <div class="submit">
                     <input type="submit" value="Submit">
@@ -18,8 +23,9 @@
                 </div>
             </div>
         </form>
-	{%  else %}
-        <div class="alert alert-warning">Please <a href="{%  url "account_login" %}">log in</a> to use this feature!</div>
+    {% else %}
+        <div class="alert alert-warning">Please <a href="{% url "account_login" %}">log in</a> to use this feature!
+        </div>
     {% endif %}
 
 </div>

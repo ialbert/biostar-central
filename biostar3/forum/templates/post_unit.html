@@ -39,17 +39,26 @@
              data-post_id="{{ post.id }}" data-type="bookmark"><i class="fa fa-bookmark fa-2x"></i>
         </div>
 
-        {%  if post.can_accept %}
-        <div class="tooltip vote mark {{ post.has_accepted|on_value }}" title="Click to accept!"
-             data-post_id="{{ post.id }}" data-type="accept"><i class="fa fa-check-circle-o fa-2x"></i>
-        </div>
-        {%  endif %}
+        {% if post.can_accept %}
+            <div class="tooltip vote mark {{ post.has_accepted|on_value }}" title="Click to accept!"
+                 data-post_id="{{ post.id }}" data-type="accept"><i class="fa fa-check-circle-o fa-2x"></i>
+            </div>
+        {% endif %}
 
     </div>
 
     {#  This is the body of the post #}
     {{ post.html|safe }}
+
+
 </div>
+
+{% if post.file %}
+    <div class="row upload">
+        <b>File:</b> <a href="{{ post.file.url }}">{{ post.file }}</a>
+    </div>
+{% endif %}
+
 
 {% if post.is_toplevel %}
     {#  Produce a tagbar for top level posts #}
