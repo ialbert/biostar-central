@@ -3,21 +3,27 @@
 Biostar: Software for Building Scientific Communities
 =====================================================
 
-Branch 3.0 rewrite, under heavy development. See: https://github.com/ialbert/biostar-central/issues/291
+Branch 3.0 rewrite. Under heavy development. See: https://github.com/ialbert/biostar-central/issues/291
+
+Features may not always work. Docs may be out of sync. We'll clean it up by the first release.
 
 Quick Start
 -----------
 
-Install requirements. The site needs [Python 2.7][python] installed:
+Install requirements. The site works with versions of Python 2.7 as 3.0 and above.
 
 	pip install -r init/pip/base.txt
 
 Run the site with default data over an `sqlite` database:
 
 	source run/sqlite.env
-	./biostar.sh delete import init index run
+	./biostar.sh delete migrate index run
 
-Visit http://localhost:8080 to interact with your site. To log in as any user note their user id.
+Visit `http://www.lvh.me:8080/` to interact with your site. It is important that even
+for your localhost you use a fully qualified domain name as the group 
+feature will identify groups based on the subdomain of the site.
+
+To log in as any user note their user id.
 For each user you may log in with their user id as  `email=1@foo.bar` and `password=1@foo.bar`
 
 To run a postgresql based site use:
