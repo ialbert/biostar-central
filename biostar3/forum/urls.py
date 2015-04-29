@@ -54,6 +54,7 @@ urlpatterns = patterns('',
     # The list of users.
     url(r'^b/awards/for/(?P<pk>\d+)/$', user_views.award_list, name="award_list"),
 
+
     #
     # Site specific urls. The may be blocked via robots.txt
     #

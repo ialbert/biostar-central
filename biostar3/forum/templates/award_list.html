@@ -11,23 +11,40 @@
 
     <div class="row">
 
-        <div class="nine columns" id="badge_list">
+        <div class="twelve columns" id="badge_list">
 
             <div class="title">Awards for {{ target.name }}</div>
 
-        	{% page_bar page %}
+            <div>{% gravatar target 150 %}</div>
+
+            {% page_bar page %}
 
             {% for award in awards %}
-                <div class="award">
-                    {{ award.date|time_ago }} to
 
-                    <a href="{{ award.user.get_absolute_url }}">{{ award.badge.name }} {{ award.badge.icon|safe }}</a>
+                <div class="award_row">
 
+
+                	<div><h5><a
+                    href="{%  url "badge_view" award.badge.id %}">{{ award.badge.name }} {{ award.badge.icon|safe }}</a></h5>
+                    </div>
+
+                    <div>
+                        {{ award.date|time_ago }}
+                    </div>
+
+
+
+
+                    <div>
+                       <i> {{ award.badge.desc }}</i>
+                    </div>
                     {% if award.post %}
-                        for <a href="{{ award.post.get_absolute_url }}">{{ award.post.title }}</a>
+                        <div><a href="{{ award.post.get_absolute_url }}">{{ award.post.title }}</a>
+</div>
                     {% endif %}
 
                 </div>
+
             {% endfor %}
 
 

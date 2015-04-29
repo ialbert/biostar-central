@@ -1,9 +1,10 @@
 {#  Creates the recent vote box #}
-<div class="subtitle">Recent Awards</div>
+<div class="subtitle">Recent Awards &raquo; <a href="{% url "badge_list" %}">All</a></div>
 <ul>
     {% for award in awards %}
         <li>
-            <a href="{{ vote.post.get_absolute_url }}">{{ vote.post.title }}</a>
+            <a href="{%  url "badge_view" award.badge.id %}">{{ award.badge.icon|safe }} {{ award.badge.name }} </a>
+        to <a href="{{award.user.get_absolute_url}}">{{ award.user.name }}</a>
         </li>
     {% endfor %}
 </ul>

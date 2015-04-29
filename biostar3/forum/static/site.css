@@ -102,6 +102,16 @@ body .highlighted {
   font-weight: bold;
   margin-bottom: 1ex;
 }
+.award_row {
+  padding-bottom: 1ex;
+  width: 200px;
+  height: 300px;
+  float: left;
+  margin-right: 1em;
+}
+.award_row div {
+  text-align: center;
+}
 .content {
   word-wrap: break-word;
 }

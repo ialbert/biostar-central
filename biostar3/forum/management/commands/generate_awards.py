@@ -25,7 +25,7 @@ class Command(BaseCommand):
 
     option_list = BaseCommand.option_list + (
         make_option('--all', action='store_true', default=False,
-                    help='deletes sqlite database'),
+                    help='generate all awards'),
     )
 
     def handle(self, *args, **options):
