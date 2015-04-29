@@ -156,10 +156,7 @@ DEFAULT_SHORTCUTS = [
     # Item name, Item URL
     ("Home", "/"),
     ("Unanswered", "/p/unanswered/"),
-    ("News", "/t/news/"),
     ("Jobs", "/t/jobs/"),
-    ("RNA-Seq", "/t/rnaseq/"),
-    ("Assembly", "/t/assembly/"),
     ("All tags", "/t/"),
     ("<b>Your Account</b>", "/site/me/"),
     ("<b>Edit Profile</b>", "/site/edit/my/profile/"),

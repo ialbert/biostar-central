@@ -13,7 +13,7 @@ from django.shortcuts import render, redirect
 from django.db.models import Q
 from django.db import transaction
 from django.contrib.auth import get_user_model
-from .models import Post, UserGroup, GroupSub, GroupPerm, Profile, right_now, FlatPage
+from .models import Post, UserGroup, GroupSub, GroupPerm, Profile, right_now
 from . import auth, cache
 
 logger = logging.getLogger('biostar')
@@ -69,26 +69,16 @@ class PostForm(ContentForm):
 
     title = forms.CharField(widget=forms.TextInput, initial='', max_length=200,
                             validators=[title_validator])
+
     tags = forms.CharField(max_length=100, initial='', validators=[tag_validator])
+
     type = forms.TypedChoiceField(coerce=int, choices=[
-        (Post.QUESTION, "Question"), (Post.NEWS, "News"), (Post.FORUM, "Forum"), (Post.JOB, "Job Ad"),
+        (Post.QUESTION, "Question"),
+        (Post.NEWS, "News"),
+        (Post.FORUM, "Forum"),
+        (Post.JOB, "Job Ad"),
+         (Post.PAGE, "Page"),
     ])
-
-
-class PageEditForm(PostForm):
-    """
-    Edit top level pages only.
-    """
-    type = forms.TypedChoiceField(coerce=int, choices=[
-        (Post.PAGE, "Page")
-    ])
-
-
-class PageCreateForm(PageEditForm):
-    """
-    Create top level pages.
-    """
-    slug = forms.CharField(widget=forms.TextInput, initial='', max_length=200)
 
 
 @transaction.atomic
@@ -96,8 +86,6 @@ def post_create(request, parent=None, post_type=None, action='', form_class=Cont
     """
     This view creates nodes. Is not called directly from the web only through
     other functions that prefill parameters.
-
-    Getting a slug parameter also creates a FlatPage entry.
     """
     user, group = request.user, request.group
     template_name = "post_edit.html"
@@ -119,11 +107,6 @@ def post_create(request, parent=None, post_type=None, action='', form_class=Cont
         if Post.objects.filter(content=content, creation_date__gt=recently):
             form.add_error("content", "Duplicated submission? There is a recent post with identical content!")
 
-        # Connect the post to a slug (shortcut).
-        slug = request.POST.get("slug", '')
-        if FlatPage.objects.filter(slug=slug, post__usergroup=group).first():
-            form.add_error("slug", "Slug already exists")
-
         if post_type is not None and parent is None:
             form.add_error("type", "Top level post may not have a parent.")
 
@@ -142,21 +125,11 @@ def post_create(request, parent=None, post_type=None, action='', form_class=Cont
             content = form.cleaned_data['content']
             post = auth.create_content_post(content=content, post_type=post_type, user=user, parent=parent, file=file)
 
-        # Add the slug field.
-        if slug:
-            FlatPage.objects.create(slug=slug, post=post)
 
         return redirect(post.get_absolute_url())
 
     messages.error(request, "Unsupported request type")
     return redirect("home")
-
-
-@login_required
-def create_page_post(request):
-    "A new toplevel post"
-    action = reverse("new_page")
-    return post_create(request=request, parent=None, post_type=None, action=action, form_class=PageCreateForm)
 
 
 @login_required
@@ -194,10 +167,7 @@ def post_edit(request, pk, post=None, user=None):
     if post.is_toplevel:
         # Different forms are chosen based on post type.
         # A form with title, type and tags.
-        if post.type == Post.PAGE:
-            form_class = PageEditForm
-        else:
-            form_class = PostForm
+        form_class = PostForm
         tags = ", ".join(post.tags.names())
         initial = dict(content=post.content, title=post.title, tags=tags, type=post.type, file=post.file)
     else:

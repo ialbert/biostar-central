@@ -20,6 +20,15 @@ def ago(hours=0, minutes=0, days=0):
     since = right_now() - timedelta(days=days, hours=hours, minutes=minutes)
     return since
 
+def add_user_attributes(user, group):
+    """
+    Mutates the user in the request  to fill in required attributes.
+    """
+    user.is_moderator = user.is_admin = False
+    if user.is_authenticated():
+        perm = GroupPerm.objects.filter(user=user, usergroup=group).first()
+        user.is_moderator = bool(perm)
+        user.is_admin = perm and (perm.role == GroupPerm.ADMIN)
 
 def get_group_url(group):
     """

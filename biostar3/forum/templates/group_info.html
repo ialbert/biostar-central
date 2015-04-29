@@ -14,37 +14,42 @@
 
 
             <div class="title">
-                <a href="{%  url "group_list" %}">All Groups</a> &gt; Group: <b>{{ target.name }}</b>
+                <a href="{% url "group_list" %}">All Groups</a> &gt; Group: <b>{{ target.name }}</b>
             </div>
 
             <div class="sub_title">
-                Domain: <b>{{ target.domain }}</b>
-            </div>
-
-            <div class="sub_title">
-                Visit group: <b><a href="{{ target.url }}">{{ target.url }}</a></b>
+                Domain: <code>{{ target.domain }}</code>
+                Url: <a href="{{ target.url }}">{{ target.url }}</a>
             </div>
 
             {% if user.is_admin %}
                 <div style="margin-top:1em">
-                   	<a class="button" href="{% url "group_edit" pk=group.id %}">edit group</a>
+                    <a class="button" href="{% url "group_edit" pk=group.id %}">edit group</a>
                     <a class="button" href="{% url "group_manage" pk=group.id %}">manage access</a>
-                	<a class="button" href="{% url "new_page" %}">add page</a>
-                </div>
-                <div>
-                	Pages:
-                	{%  for page in pages %}
-                        <a href="{%  url "page_view" domain=page.post.usergroup.domain slug=page.slug %}">{{ page.post.title }}</a>,
-                	{%  endfor %}
                 </div>
             {% endif %}
 
             <div>
                 <div class="title">
-                Group info
-            </div>
+                    Group info
+                </div>
                 <p>{{ target.html|safe }}</p>
             </div>
+
+            <div>
+                <div class="title">Group Pages</div>
+                <ul>
+                    {% for page in pages %}
+
+
+                        <li><a
+                        href="{% url "page_view" domain=page.post.usergroup.domain slug=page.slug %}">{{ page.post.title }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+
             <div class="title">
                 Users with special roles in: <b>{{ target.name }}</b>
             </div>

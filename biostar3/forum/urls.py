@@ -59,7 +59,6 @@ urlpatterns = patterns('',
     #
     # Create new content: answer, comments
     url(r'^site/new/post/$', form_views.create_toplevel_post, name="new_post"),
-    url(r'^site/new/page/$', form_views.create_page_post, name="new_page"),
     url(r'^site/new/answer/(?P<pk>\d+)/$', form_views.create_answer, name="new_answer"),
     url(r'^site/new/comment/(?P<pk>\d+)/$', form_views.create_comment, name="new_comment"),
 
@@ -147,8 +146,7 @@ urlpatterns = patterns('',
     #
     # Flatpage viewers
     #
-    url(r'^page/(?P<slug>[-\w]+)/$', post_views.flatpage_view, name='page_view_main'),
-    url(r'^page/(?P<domain>\w+)/(?P<slug>[-\w]+)/$', post_views.flatpage_view, name='page_view'),
+    url(r'^page/(?P<slug>[-\w]+)/$', post_views.flatpage_view, name='page_view'),
 
     #
     # RSS feed handlers.

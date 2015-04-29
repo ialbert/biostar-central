@@ -32,16 +32,6 @@ def parse_metadata(path):
             meta[name] = value
     return meta
 
-
-def get_group(meta):
-    domain = meta.get("domain")
-    usergroup = UserGroup.objects.filter(domain=domain).first()
-    if not usergroup:
-        #logger.info("default usergroup")
-        usergroup = UserGroup.objects.filter(domain=settings.DEFAULT_GROUP_DOMAIN).first()
-    return usergroup
-
-
 def render_page(path, params={}):
     content = open(path).read()
     templ = Template(content)
@@ -51,6 +41,8 @@ def render_page(path, params={}):
 
 def add_all(path, update=False):
     valid_exts = {".html", ".md"}
+
+    usergroup = UserGroup.objects.filter(domain=settings.DEFAULT_GROUP_DOMAIN).first()
 
     admin = User.objects.filter(email=settings.ADMINS[0][1]).first()
 
@@ -65,16 +57,20 @@ def add_all(path, update=False):
             meta = parse_metadata(path)
             slug = meta.get("slug")
             title = meta.get("title")
-            usergroup = get_group(meta)
 
             if not slug:
                 logger.error("slug field is missing from {}".format(path))
+                continue
+
             if not title:
                 logger.error("title field is missing from {}".format(path))
+                continue
 
-            page = FlatPage.objects.filter(post__usergroup=usergroup, slug=slug).first()
 
-            if not page:
+            # Check for the slug.
+            page = FlatPage.objects.filter(slug=slug).first()
+
+            if not page or update:
                 with transaction.atomic():
                     logger.info("creating: {}".format(slug))
                     content = render_page(path)
@@ -84,8 +80,6 @@ def add_all(path, update=False):
                     post = auth.create_toplevel_post(data=data, user=admin, group=usergroup)
                     page = FlatPage.objects.create(post=post, slug=slug)
 
-                continue
-
 
 if __name__ == '__main__':
-    crawl(sys.argv[1])
+    add_all(sys.argv[1])

@@ -211,6 +211,10 @@ def group_info(request, pk, group=None, user=None):
     perms = GroupPerm.objects.filter(usergroup=group).select_related("user")
     pages = FlatPage.objects.filter(post__usergroup=group)
     context = dict(perms=perms, target=group, pages=pages)
+
+    # Decorate the user according to the group that is being displayed.
+    auth.add_user_attributes(user=request.user, group=group)
+
     return render(request, template_name, context)
 
 

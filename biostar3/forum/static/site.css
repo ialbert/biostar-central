@@ -420,6 +420,27 @@ ul.dropdown ul.items li a {
 ul.dropdown ul.items li :hover {
   background-color: #efefef;
 }
+.group_info {
+  border-top: 1px solid #ECECEC;
+  margin-top: 1ex;
+  padding-top: 1ex;
+}
+#footer_navbar {
+  list-style-type: none;
+}
+#footer_navbar li {
+  display: inline;
+  padding-right: 1em;
+  margin: 0;
+}
+#footer_navbar li a {
+  padding: 1em;
+}
+#footer_navbar li a:hover {
+  background-color: #EFEFEF;
+  cursor: pointer;
+  border-radius: 4px;
+}
 /* Navigation */
 #logo {
   float: left;

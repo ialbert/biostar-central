@@ -8,7 +8,7 @@ from django.http import HttpResponsePermanentRedirect as Redirect
 from biostar3.forum.models import UserGroup, GroupPerm
 from django.contrib.sites.models import Site
 from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
-from biostar3.forum import cache, models
+from biostar3.forum import cache, models, auth
 
 # Get current site
 User = get_user_model()
@@ -70,21 +70,8 @@ class GlobalMiddleware(object):
             url = "%s://%s" % (request.scheme, site.domain)
             return Redirect(url)
 
-        # Ensures that requests have all the information needed.
-        user = request.user
+        # Ensures that request data have all the information needed.
+        auth.add_user_attributes(request.user, group=request.group)
 
-        # Group level access rights.
-        request.user.is_moderator = False
-
-        if not user.is_authenticated():
-            # Add minimal user attributes to anonymous users
-            user.id = 0
-            user.name = "Anonymous"
-        else:
-            # Check for group permissions.
-            perm = GroupPerm.objects.filter(user=user, usergroup=request.group).first()
-            user.is_moderator = bool(perm)
-            user.is_admin = perm and (perm.role == GroupPerm.ADMIN)
-
-            #user.flair = models.compute_flair(user)
-            #print ("user flair", user.flair)
+        #user.flair = models.compute_flair(user)
+        #print ("user flair", user.flair)

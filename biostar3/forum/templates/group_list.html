@@ -23,52 +23,41 @@
 
                 {% page_bar page %}
 
-                <table class="u-full-width" id="group_list">
-                    <tr>
-                        <th>Group Name</th>
-                        <th>Description</th>
-                    </tr>
+                <div class="u-full-width" id="group_list">
+
                     {% for group in public %}
-                        <tr>
-                            <td>
-                                <div>
-                                    <h5>
-                                        <a href="{% url "group_redirect" pk=group.id %}">{{ group.name }}</a>
-                                    </h5>
-                                </div>
+                        <div class="group_info">
+                            <div style="font-size: larger;">
 
-                                <div>
-                                    Subscribers: {{ group.user_count }}
-                                    &diam; Posts: {{ group.post_count }}
-                                    &diam; <a href="{% url "group_info" group.id %}">Group Info</a>
-                                </div>
+                                    {{ group.name }}
+                                    &bull; <a href="{% url "group_redirect" pk=group.id %}">Visit {{ group.name }}</a>
+                                    &bull; <a href="{% url "group_info" group.id %}">Group Info</a>
+                            </div>
 
-                                <div>
-                                    Domain: <code>{{ group.domain }}</code>
-                                    &diam; Owner: <a href="{{ group.owner.get_absolute_url }}">{{ group.owner.name }}</a>
+                            <div>
+                                <p>{{ group.info|truncatewords:1000}}</p>
+                            </div>
 
+                            <div>
+                                Subscribers: {{ group.user_count }}
+                                &diam; Posts: {{ group.post_count }}
+                                &diam;  Domain: <code>{{ group.domain }}</code>
+                                &diam; Owner: <a href="{{ group.owner.get_absolute_url }}">{{ group.owner.name }}</a>
 
-                                </div>
-
-
-                                <div>
-                                    Your subscription: <b>{{ group.subscription }} </b>
-                                    &diam; <a
-                                        href="{% url "group_subscribe" pk=group.id %}">Change Subscription</a>
-                                </div>
-
-
-                            </td>
-
-                            <td>{{ group.info|truncatewords:100}}</td>
-                        </tr>
+                                &diam; Your subscription:
+                                <b>{{ group.subscription }} </b>
+                                &raquo; <a
+                            href="{% url "group_subscribe" pk=group.id %}">Modify</a>
+                            </div>
+                        </div>
                     {% endfor %}
-                </table>
+
+                </div>
+
+                {% page_bar page %}
             </div>
-
-            {% page_bar page %}
-
         </div>
+
 
         <div class="three columns recent_votes">
             {% message_bar %}
