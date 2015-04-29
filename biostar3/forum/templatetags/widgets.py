@@ -56,6 +56,14 @@ def recent_votes(votes):
 def recent_users(users):
     return dict(users=users)
 
+@register.inclusion_tag('recent_awards.html')
+def recent_awards(awards):
+    return dict(awards=awards)
+
+@register.inclusion_tag('recent_replies.html')
+def recent_replies(posts):
+    return dict(posts=posts)
+
 @register.inclusion_tag('post_visual_editor.html')
 def visual_editor(user, content='', show_upload=False):
     return dict(content=content, user=user, show_upload=show_upload)

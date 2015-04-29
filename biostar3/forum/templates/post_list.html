@@ -41,14 +41,18 @@
             {% page_bar page %}
         </div>
 
-        <div class="three columns recent_votes">
+        <div class="three columns recent_list">
             {% message_bar %}
 
-            {% cache 500 "recent" %}
+            {% cache 0 "recent" %}
+
+                {% recent_votes recent_votes %}
 
             	{% recent_users recent_users %}
 
-            	{% recent_votes recent_votes %}
+                {% recent_awards recent_awards %}
+
+                {% recent_replies recent_replies %}
 
             {%  endcache %}
 

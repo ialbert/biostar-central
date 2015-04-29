@@ -92,10 +92,15 @@ body .container {
 body .highlighted {
   background-color: #ffff00;
 }
-.recent_votes > ul {
+.recent_list > ul {
   list-style-type: none;
   opacity: 0.8;
   line-height: 1;
+}
+.recent_list > .subtitle {
+  font-size: larger;
+  font-weight: bold;
+  margin-bottom: 1ex;
 }
 .content {
   word-wrap: break-word;

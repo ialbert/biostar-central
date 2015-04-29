@@ -1,6 +1,7 @@
 {#  Creates the recent vote box #}
 {% load widgets %}
-<h5>Recent Visitors &raquo; <a href="{% url "user_list" %}">All</a></h5>
+
+<div class="subtitle">Recent Visitors &raquo; <a href="{% url "user_list" %}">All</a></div>
 <ul>
     {% for user in users %}
         <li>

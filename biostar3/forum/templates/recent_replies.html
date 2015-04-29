@@ -1,0 +1,9 @@
+{#  Creates the recent vote box #}
+<div class="subtitle">Recent replies</div>
+<ul>
+    {% for post in posts %}
+        <li>
+            <a href="{{ post.get_absolute_url }}">{{ post.title}}</a>
+        </li>
+    {% endfor %}
+</ul>

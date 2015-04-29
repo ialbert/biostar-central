@@ -172,7 +172,7 @@ DEFAULT_SHORTCUTS = [
 GROUP_COUNT_PER_USER = 2
 
 # Minimum reputation to create a group.
-GROUP_MIN_SCORE = 10000
+GROUP_MIN_SCORE = 0
 
 # Sort values for userlist.
 USER_SORT_BY_VISIT, USER_SORT_BY_REP = "visit", "reputation"

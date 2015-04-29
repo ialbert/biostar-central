@@ -167,6 +167,13 @@ def recent_awards():
     return users
 
 
+def recent_replies():
+    posts = Post.objects.all().select_related("author").exclude(type__in=Post.TOP_LEVEL) \
+                .order_by("-creation_date")[:settings.RECENT_USER_COUNT]
+    return posts
+
+
+
 def get_toplevel_posts(user, group):
     "Returns posts"
     posts = Post.objects.filter(type__in=Post.QUERY_TYPES, usergroup=group)

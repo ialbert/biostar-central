@@ -1,7 +1,7 @@
 {#  Creates the recent vote box #}
-<div class="subtitle">Recent Votes</div>
+<div class="subtitle">Recent Awards</div>
 <ul>
-    {% for vote in votes %}
+    {% for award in awards %}
         <li>
             <a href="{{ vote.post.get_absolute_url }}">{{ vote.post.title }}</a>
         </li>

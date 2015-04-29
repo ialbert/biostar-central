@@ -141,7 +141,7 @@ class ClientTests(TestCase):
             self.get(c, "group_list", follow=True)
 
             name = make_uuid(size=8)
-            domain = make_uuid(size=8)
+            domain = name
             info = faker.sentence()[:100]
 
             data = dict(name=name, domain=domain, info=info, public=True)
