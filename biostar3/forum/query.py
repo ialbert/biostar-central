@@ -155,13 +155,13 @@ def recent_votes():
     return votes
 
 
-def get_recent_users():
+def recent_users():
     users = User.objects.all().select_related("profile") \
                 .order_by("-profile__last_login")[:settings.RECENT_USER_COUNT]
     return users
 
 
-def get_recent_awards():
+def recent_awards():
     users = Award.objects.all().select_related("post", "user") \
                 .order_by("-date")[:settings.RECENT_AWARD_COUNT]
     return users

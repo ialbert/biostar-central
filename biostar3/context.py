@@ -5,6 +5,7 @@ import logging
 from django.conf import settings
 from biostar3.forum.cache import get_traffic
 from biostar3 import VERSION
+from biostar3.forum import query
 from biostar3.forum.models import Post, PostView, Vote, Message, Award
 from django.utils.timezone import utc
 from datetime import datetime, timedelta
@@ -29,7 +30,6 @@ def ago(hours=0, minutes=0, days=0):
 
 def get_shortcuts(request):
     return settings.DEFAULT_SHORTCUTS
-
 
 
 ANON_COUNTS = dict(
@@ -94,6 +94,8 @@ def extras(request):
         "counts": get_counts(request),
         "shortcuts": get_shortcuts(request),
         "TRAFFIC": get_traffic(request),
+        "recent_votes" : query.recent_votes(),
+        "recent_users":query.recent_users(),
     }
 
     return context

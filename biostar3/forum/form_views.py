@@ -110,13 +110,18 @@ def post_create(request, parent=None, post_type=None, action='', form_class=Cont
         if post_type is not None and parent is None:
             form.add_error("type", "Top level post may not have a parent.")
 
+        # Handle the file upload
+        file = request.FILES.get('file')
+
+        if file and file.size > settings.MAX_UPLOAD_SIZE:
+            maxsize = settings.MAX_UPLOAD_SIZE / 1024.0/1024
+            form.add_error("content", "The uploaded file is too large! only %4.1f MB allowed" % maxsize)
+
         if not form.is_valid():
             # Form data came but not valid.
             context = dict(form=form, action=action)
             return render(request, template_name, context)
 
-        # Handle the file upload
-        file = request.FILES.get('file')
 
         # The form is valid create the post based on the form.
         if post_type is None:
@@ -185,6 +190,13 @@ def post_edit(request, pk, post=None, user=None):
         # This is a form submission with incoming parameters.
         form = form_class(request.POST)
 
+         # Handle the file upload allowing file removal.
+        file = request.FILES.get('file')
+
+        if file and file.size > settings.MAX_UPLOAD_SIZE:
+            maxsize = settings.MAX_UPLOAD_SIZE / 1024.0/1024
+            form.add_error("content", "The uploaded file is too large! only %4.1f MB allowed" % maxsize)
+
         if not form.is_valid():
             # Invalid form, bail out with error messaged.
             context = dict(form=form, action=action)
@@ -197,8 +209,7 @@ def post_edit(request, pk, post=None, user=None):
         post.lastedit_user = user
         post.lastedit_date = right_now()
 
-        # Handle the file upload allowing file removal.
-        file = request.FILES.get('file')
+
         clear = request.POST.get("file-clear")
 
         if file or clear:

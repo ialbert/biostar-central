@@ -1,5 +1,6 @@
 {% extends "site_layout.html" %}
 {% load widgets %}
+{% load cache %}
 
 {% block body %}
 
@@ -43,7 +44,14 @@
         <div class="three columns recent_votes">
             {% message_bar %}
 
-            {% recent_votes recent_votes %}
+            {% cache 500 "recent" %}
+
+            	{% recent_users recent_users %}
+
+            	{% recent_votes recent_votes %}
+
+            {%  endcache %}
+
         </div>
 
     </div>

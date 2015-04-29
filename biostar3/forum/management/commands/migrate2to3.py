@@ -59,6 +59,11 @@ def perform_migration():
     # Bulk insert the groups.
     GroupSub.objects.bulk_create(group_generator())
 
+
+    # Update user scores
+    logger.info("update user score")
+    User.objects.all().update(score=F('score') * 10)
+
     # Save all users to trigger their html method.
     logger.info("resaving all user profiles")
     for prof in Profile.objects.all().exclude(info__isnull=True):

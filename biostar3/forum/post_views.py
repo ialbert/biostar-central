@@ -279,11 +279,7 @@ def search_results(request):
 
     page = paginator.curr_page()
 
-    # Add the recent votes
-    recent_votes = query.recent_votes()
-
-    context = dict(page=page, posts=page.object_list,
-                   recent_votes=recent_votes, q=q)
+    context = dict(page=page, posts=page.object_list, q=q)
 
     return render(request, template_name, context)
 

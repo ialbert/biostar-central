@@ -89,13 +89,13 @@ MAX_POST_SIZE = 150000
 SIGNUP_RATELIMIT = "30/h"
 
 # How many recent votes to show.
-RECENT_VOTE_COUNT = 10
+RECENT_VOTE_COUNT = 7
 
 # How many recent users to show.
-RECENT_USER_COUNT = 10
+RECENT_USER_COUNT = 7
 
 # How many recent awards to show.
-RECENT_AWARD_COUNT = 10
+RECENT_AWARD_COUNT = 7
 
 # How frequently to check for updates.
 SESSION_UPDATE_SECONDS = 600
@@ -105,6 +105,12 @@ POSTS_PER_PAGE = 10
 
 # How many minutes until a post view from an IP is counted again.
 POST_VIEW_INTERVAL = 5
+
+
+# 10MB -> 10 * 1024 * 1024
+MAX_UPLOAD_SIZE = 15 * 1024 * 1024
+
+
 
 # Html sanitization. Whitelisting the allowed html content for bleach.sanitize
 # Moderators will be allowed to use ALLOWED + TRUSTED settings.
@@ -163,10 +169,10 @@ DEFAULT_SHORTCUTS = [
 ]
 
 # How many groups can a regular user create.
-GROUP_COUNT_PER_USER = 3
+GROUP_COUNT_PER_USER = 2
 
 # Minimum reputation to create a group.
-GROUP_MIN_SCORE = 0
+GROUP_MIN_SCORE = 10000
 
 # Sort values for userlist.
 USER_SORT_BY_VISIT, USER_SORT_BY_REP = "visit", "reputation"

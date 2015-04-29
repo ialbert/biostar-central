@@ -1,28 +1,34 @@
 {% csrf_token %}
 <div class="row">
-    <div class="row">
-        <div class="wmd-panel">
-            <div id="wmd-button-bar"></div>
-        <textarea class="wmd-input" id="wmd-input" name="content"
-                  placeholder="Type your post here">{{ content }}</textarea>
-        </div>
-    </div>
-
-	{% if show_upload %}
-		<div class="row upload">
-			Attach file: <input id="id_file" name="file" type="file">
-		</div>
-	{%  endif %}
-
-    <div class="row">
-        <div id="wmd-preview" class="wmd-panel wmd-preview"></div>
-    </div>
-
-
 
     {% if user.is_anonymous %}
-        <a href="{% url "account_login" %}">Please log in</a> to submit!
+
+        <div class="row">
+            <a href="{% url "account_login" %}">Please log in</a> to add your content.
+        </div>
+
     {% else %}
+
+        <div class="row">
+            <div class="wmd-panel">
+                <div id="wmd-button-bar"></div>
+        <textarea class="wmd-input" id="wmd-input" name="content"
+                  placeholder="Type your post here">{{ content }}</textarea>
+            </div>
+        </div>
+
+        {% if show_upload %}
+            <div class="row upload">
+                Attach file (10MB max): <input id="id_file" name="file" type="file">
+            </div>
+        {% endif %}
+
+        <div class="row">
+            <div id="wmd-preview" class="wmd-panel wmd-preview"></div>
+        </div>
+
+
+
         <input type="submit" value="Submit">
     {% endif %}
 

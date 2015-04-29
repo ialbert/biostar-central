@@ -52,6 +52,10 @@ def recent_votes(votes):
     return dict(votes=votes)
 
 
+@register.inclusion_tag('recent_users.html')
+def recent_users(users):
+    return dict(users=users)
+
 @register.inclusion_tag('post_visual_editor.html')
 def visual_editor(user, content='', show_upload=False):
     return dict(content=content, user=user, show_upload=show_upload)
