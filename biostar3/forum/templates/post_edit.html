@@ -9,7 +9,13 @@
 
         <div class="nine columns ">
 
-            <h3>Post</h3>
+            <h5>Posting in
+                {% if post.group %}
+                    <b>{{ post.group.name }}</b>
+                {% else %}
+                    <b>{{ group.name }}</b>
+                {% endif %}
+            </h5>
 
             {% if form.errors %}
                 <div>{{ form.errors }}</div>
@@ -18,16 +24,7 @@
             <form method="post" action="{{ action }}" enctype="multipart/form-data">
 
                 {% if form.is_toplevel %}
-					<div class="row">
-                        <label for="x">
-                            Posting in group:
-                            {% if post.group %}
-                                <b>{{ post.group.name }}</b>
-                            {% else %}
-                                <b>{{ group.name }}</b>
-                            {% endif %}
-                        </label>
-                    </div>
+
 
                     <div class="row">
                         <label for="{{ form.title.id_for_label }}">Title</label>
