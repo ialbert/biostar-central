@@ -94,10 +94,10 @@ def extras(request):
         "counts": get_counts(request),
         "shortcuts": get_shortcuts(request),
         "TRAFFIC": get_traffic(request),
-        "recent_votes": query.recent_votes(),
-        "recent_users": query.recent_users(),
-        "recent_awards": query.recent_awards(),
-        "recent_replies": query.recent_replies(),
+        "recent_votes": query.recent_votes(request),
+        "recent_users": query.recent_users(request),
+        "recent_awards": query.recent_awards(request),
+        "recent_replies": query.recent_replies(request),
     }
 
     return context

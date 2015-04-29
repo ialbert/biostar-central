@@ -164,10 +164,8 @@ def post_list(request, posts=None):
                                         object_list=posts, per_page=settings.POSTS_PER_PAGE)
     page = paginator.curr_page()
 
-    # Add the recent votes
-    recent_votes = query.recent_votes()
     html_title = "Post List"
-    context = dict(page=page, posts=page.object_list, recent_votes=recent_votes, html_title=html_title)
+    context = dict(page=page, posts=page.object_list, html_title=html_title)
 
     return render(request, template_name, context)
 

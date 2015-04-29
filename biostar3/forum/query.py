@@ -149,26 +149,26 @@ class ExtendedPaginator(Paginator):
         return pa
 
 
-def recent_votes():
-    votes = Vote.objects.filter(post__status=Post.OPEN) \
+def recent_votes(request):
+    votes = Vote.objects.filter(post__status=Post.OPEN, post__usergroup=request.group) \
                 .select_related("post").order_by("-date")[:settings.RECENT_VOTE_COUNT]
     return votes
 
 
-def recent_users():
-    users = User.objects.all().select_related("profile") \
+def recent_users(request):
+    users = User.objects.filter(groupsub__usergroup=request.group).select_related("profile") \
                 .order_by("-profile__last_login")[:settings.RECENT_USER_COUNT]
     return users
 
 
-def recent_awards():
-    users = Award.objects.all().select_related("post", "user") \
+def recent_awards(request):
+    users = Award.objects.filter(user__groupsub__usergroup=request.group).select_related("post", "user") \
                 .order_by("-date")[:settings.RECENT_AWARD_COUNT]
     return users
 
 
-def recent_replies():
-    posts = Post.objects.all().select_related("author").exclude(type__in=Post.TOP_LEVEL) \
+def recent_replies(request):
+    posts = Post.objects.filter(usergroup=request.group).select_related("author").exclude(type__in=Post.TOP_LEVEL) \
                 .order_by("-creation_date")[:settings.RECENT_USER_COUNT]
     return posts
 
