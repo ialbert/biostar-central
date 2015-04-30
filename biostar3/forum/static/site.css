@@ -340,6 +340,9 @@ body .highlighted {
   background-color: #ECECEC;
   border-radius: 4px;
 }
+#user_attr div {
+  margin-top: 1ex;
+}
 .center {
   text-align: center;
 }
