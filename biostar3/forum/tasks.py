@@ -38,6 +38,11 @@ def add_user_location(ip, user):
             logger.error(exc)
 
 @shared_task
+def notify_user(user, post):
+    pass
+
+
+@shared_task
 def create_messages(post):
     """
     Generates messages and emails on a post.

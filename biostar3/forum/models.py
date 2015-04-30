@@ -646,6 +646,14 @@ class Message(models.Model):
         return "Message for user %s" % self.user_id
 
 
+class TaggedUser(models.Model):
+    """
+    Connects a tagged user to a post
+    """
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, db_index=True)
+    post = models.ForeignKey(Post, db_index=True)
+
+
 class Blog(models.Model):
     """
     Represents a blog

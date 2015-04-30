@@ -26,6 +26,7 @@ TRUSTED_ATTRIBUTES.update(settings.TRUSTED_ATTRIBUTES)
 USER_PATTERN = r"http(s)?://%s/u/(?P<uid>(\d+))(/)?" % settings.SITE_DOMAIN
 POST_PATTERN1 = r"http(s)?://%s/p/(?P<uid>(\d+))(/)?" % settings.SITE_DOMAIN
 POST_PATTERN2 = r"http(s)?://%s/p/\d+/\#(?P<uid>(\d+))(/)?" % settings.SITE_DOMAIN
+HANDLE_PATTERN = r"@(?P<uid>(\S+))"
 
 # Matches gists that may be embeded.
 GIST_PATTERN = r"^https://gist.github.com/(?P<uid>([\w/]+))"
@@ -46,6 +47,8 @@ def get_embedded_youtube(uid):
 def get_embedded_gist(uid):
     return '<script src="https://gist.github.com/{}.js"></script>'.format(uid)
 
+def get_user_by_handle(uid):
+    return '@<b>{}</b>'.format(uid)
 
 def get_embedded_tweet(tweet_id):
     """
@@ -74,7 +77,7 @@ YOUTUBE_RE1 = re.compile(YOUTUBE_PATTERN1, re.MULTILINE|re.IGNORECASE)
 YOUTUBE_RE2 = re.compile(YOUTUBE_PATTERN2, re.MULTILINE|re.IGNORECASE)
 YOUTUBE_RE3 = re.compile(YOUTUBE_PATTERN3, re.MULTILINE|re.IGNORECASE)
 TWITTER_RE = re.compile(TWITTER_PATTERN, re.MULTILINE|re.IGNORECASE)
-
+HANDLE_RE = re.compile(HANDLE_PATTERN)
 
 def strip_tags(text):
     "Strip html tags from text"
@@ -119,6 +122,8 @@ def sanitize(text, user, safe=False):
             if user_patt:
                 uid = user_patt.group("uid")
                 attrs['_text'] = User.objects.get(id=uid).name
+
+
 
         except Exception as exc:
             # This function is a convenience feature.
@@ -189,6 +194,7 @@ def embed_links(text):
         (YOUTUBE_RE2, get_embedded_youtube),
         (YOUTUBE_RE3, get_embedded_youtube),
         (TWITTER_RE, get_embedded_tweet),
+        (HANDLE_RE, get_user_by_handle),
     ]
 
     for regex, func in targets:
