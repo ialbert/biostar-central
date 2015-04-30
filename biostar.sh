@@ -69,6 +69,8 @@ while (( "$#" )); do
 		echo "*** Quick: delete import init migrate2to3 load_social_auth"
 		./biostar.sh delete migrate load_social_auth
 		$PYTHON manage.py add_pages --dir themes/default/pages/
+		$PYTHON manage.py generate_awards --all
+
     fi
 
     if [ "$1" = "run" ]; then

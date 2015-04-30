@@ -10,7 +10,7 @@ from django.utils.timezone import utc
 from django.template import loader
 from django import forms
 
-from biostar3.forum.models import Vote
+from biostar3.forum.models import Vote, Post
 from biostar3.utils.compat import *
 from biostar3.forum import html
 
@@ -205,15 +205,24 @@ VOTE_SYMBOLS = {
 def vote_symbol(vote):
     return VOTE_SYMBOLS.get(vote.type, '')
 
+@register.simple_tag
+def user_status_css(user):
+    return "user_suspended" if user.is_suspended else ""
+
+@register.simple_tag
+def post_status_css(post):
+    return "post_deleted" if post.status == Post.DELETED else ""
+
 
 @register.simple_tag
 def gravatar(user, size=80):
     name = user.name
     if user.is_suspended:
         # Removes spammy images for suspended users
-        email = 'suspended@biostars.org'
+        email = 'suspended@biostars.org'.encode("utf-8")
     else:
-        email = user.email.encode('utf8')
+        email = user.email.encode('utf-8')
+
     hash = hashlib.md5(email).hexdigest(),
 
     gravatar_url = "https://secure.gravatar.com/avatar/%s?" % hash

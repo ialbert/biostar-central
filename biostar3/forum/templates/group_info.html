@@ -18,8 +18,11 @@
             </div>
 
             <div class="sub_title">
-                Domain: <code>{{ target.domain }}</code>
-                Url: <a href="{{ target.url }}">{{ target.url }}</a>
+                Subscribers: {{ group.user_count }}
+                &diam; Posts: {{ group.post_count }}
+                &diam; Domain: <code>{{ target.domain }}</code>
+                &diam; Url: <a href="{{ target.url }}">{{ target.url }}</a>
+                &diam; Owner: <a href="{{ group.owner.get_absolute_url }}">{{ group.owner.name }}</a>
             </div>
 
             {% if user.is_admin %}
@@ -30,25 +33,8 @@
             {% endif %}
 
             <div>
-                <div class="title">
-                    Group info
-                </div>
                 <p>{{ target.html|safe }}</p>
             </div>
-
-            <div>
-                <div class="title">Group Pages</div>
-                <ul>
-                    {% for page in pages %}
-
-
-                        <li><a
-                        href="{% url "page_view" domain=page.post.usergroup.domain slug=page.slug %}">{{ page.post.title }}</a>
-                        </li>
-                    {% endfor %}
-                </ul>
-            </div>
-
 
             <div class="title">
                 Users with special roles in: <b>{{ target.name }}</b>

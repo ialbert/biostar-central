@@ -10,6 +10,7 @@ from taggit.managers import TaggableManager
 from django.utils import timezone
 from datetime import datetime, timedelta
 from . import html
+from biostar3.utils.compat import *
 
 logger = logging.getLogger('biostar')
 
@@ -85,6 +86,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     # Default information on every user.
     email = models.EmailField(verbose_name='Email', db_index=True, max_length=255, unique=True, blank=False)
     name = models.CharField(verbose_name='Name', max_length=255, default="", blank=False)
+
+    # Unique handle. Allow empty for now.
+    handle = models.CharField(verbose_name='Handle', max_length=25, default='', blank=True )
 
     # Fields used by the Django admin.
     # These are different from the Biostar user types even though Django also calls them admin.
@@ -210,6 +214,12 @@ class UserGroup(models.Model):
     def __unicode__(self):
         return "Usergroup: %s" % self.name
 
+def update_usergroups():
+    # Move this to a signal. Not done that way because of migrations would be slow.
+    for group in UserGroup.objects.all():
+        group.user_count = GroupSub.objects.filter(usergroup=group).count()
+        group.post_count = Post.objects.filter(usergroup=group).count()
+        group.save()
 
 class GroupPerm(models.Model):
     """
@@ -666,8 +676,8 @@ class Blog(models.Model):
 
     def download(self):
         try:
-            text = urllib.urlopen(self.feed).read()
-            stream = file(self.fname, 'wt')
+            text = urlopen(self.feed).read()
+            stream = open(self.fname, 'wt')
             stream.write(text)
             stream.close()
         except Exception as exc:
@@ -792,6 +802,9 @@ class Award(models.Model):
     date = models.DateTimeField()
     context = models.CharField(max_length=1000, default='')
 
+    def save(self, *args, **kwargs):
+        User.objects.filter(pk=self.user_id).update(score=models.F('score') + 10)
+        super(Award, self).save(*args, **kwargs)
 
 class FlatPage(models.Model):
     # Flatpage is a post that connects to a slug.

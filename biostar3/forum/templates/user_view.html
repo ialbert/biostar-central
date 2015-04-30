@@ -11,8 +11,11 @@
     <div class="row" id="user_view">
 
         <div class="row">
-            <div class="title {{ target.get_status_display }} center">
-                User: {{ target.name }}
+            <div class="title center {%  user_status_css target %}">
+                User: {{ target.name }} (@{{ user.handle }})
+				{%  if target.is_suspended %}
+                    (<i class="fa fa-exclamation-triangle"></i> {{ target.get_status_display|lower }})
+                {%  endif %}
             </div>
         </div>
 
@@ -39,6 +42,10 @@
                         {% message_bar %}
 
                         <div id="user_attr">
+                            <div>
+                                Status: <b>{{ target.get_status_display }}</b> <i class="fa fa-question-circle"></i>
+                            </div>
+
                             <div>
                                 Activity:
                                 <b>{{ top_count|intcomma }}</b> top post{{ top_count|pluralize }},
@@ -93,9 +100,7 @@
                                 </div>
                             {% endif %}
 
-                            <div>
-                                Status: <b>{{ target.get_status_display }}</b> <i class="fa fa-question-circle"></i>
-                            </div>
+
 
                             <div>
                                 Last seen: <b>{{ target.profile.last_login | naturaltime }}</b>
@@ -122,39 +127,39 @@
 
                     </div>
                 </div>
-            	<div class="row">
+                <div class="row">
                     <div>
-                            <ul style="padding-top:1em">
+                        <ul class="simple_navbar">
 
-                                {% if target.editable %}
-                                    <li>
-                                        <a href="{% url "user_edit" target.id %}">
-                                            <b><i class="fa fa-edit"></i> Edit profile</b></a>
-                                    </li>
-                                    <li>
-                                        <a href="{% url "user_edit" target.id %}">
-                                            <b><i class="fa fa-connectdevelop"></i> Add social
-                                                accounts</b></a>
-                                    </li>
-                                {% endif %}
-
+                            {% if target.editable %}
                                 <li>
-                                    <a href="{% url "posts_by_user" pk=target.id %}"><i
-                                    class="fa fa-list"></i> View posts</a>
+                                    <a href="{% url "user_edit" target.id %}">
+                                        <b><i class="fa fa-edit"></i> Edit profile</b></a>
                                 </li>
-
                                 <li>
-                                    <a href="{% url "vote_list" pk=target.id %}"><i
-                                    class="fa fa-heart"></i> View votes </a>
+                                    <a href="{% url "user_edit" target.id %}">
+                                        <b><i class="fa fa-connectdevelop"></i> Add social
+                                            accounts</b></a>
                                 </li>
+                            {% endif %}
 
-                                <li>
-                                    <a href="{% url "award_list" pk=target.id %}"><i
-                                    class="fa fa-star"></i> View awards</a>
-                                </li>
+                            <li>
+                                <a href="{% url "posts_by_user" pk=target.id %}"><i
+                                class="fa fa-list"></i> View posts</a>
+                            </li>
 
-                            </ul>
-                        </div>
+                            <li>
+                                <a href="{% url "vote_list" pk=target.id %}"><i
+                                class="fa fa-heart"></i> View votes </a>
+                            </li>
+
+                            <li>
+                                <a href="{% url "award_list" pk=target.id %}"><i
+                                class="fa fa-star"></i> View awards</a>
+                            </li>
+
+                        </ul>
+                    </div>
                 </div>
                 <div class="row">
                     <div class="title">Recent Posts by {{ target.name }}</div>

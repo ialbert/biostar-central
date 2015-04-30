@@ -443,18 +443,22 @@ ul.dropdown ul.items li :hover {
   margin-top: 1ex;
   padding-top: 1ex;
 }
-#footer_navbar {
+.user_suspended {
+  background-color: #f2dede;
+}
+.simple_navbar {
   list-style-type: none;
 }
-#footer_navbar li {
+.simple_navbar li {
   display: inline;
   padding-right: 1em;
   margin: 0;
 }
-#footer_navbar li a {
-  padding: 1em;
+.simple_navbar li a {
+  display: inline-block;
+  padding: 1ex;
 }
-#footer_navbar li a:hover {
+.simple_navbar li a:hover {
   background-color: #EFEFEF;
   cursor: pointer;
   border-radius: 4px;
@@ -588,6 +592,9 @@ ul.dropdown ul.items li :hover {
   margin: 0.2em 0em 0.2em 0em;
   border-bottom: 1px solid #ddd;
   box-shadow: 0 3px 2px -2px rgba(200, 200, 200, 0.3);
+}
+.muted {
+  color: #808080;
 }
 .blog {
   padding-bottom: 1ex;

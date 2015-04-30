@@ -29,9 +29,10 @@
                         <div class="group_info">
                             <div style="font-size: larger;">
 
-                                    {{ group.name }}
-                                    &bull; <a href="{% url "group_redirect" pk=group.id %}">Visit {{ group.name }}</a>
-                                    &bull; <a href="{% url "group_info" group.id %}">Group Info</a>
+                                <b>{{ group.name }} Subscribers: {{ group.user_count }}
+                                    &diam; Posts: {{ group.post_count }}</b>
+                                &bull; <a href="{% url "group_redirect" pk=group.id %}">Visit {{ group.name }}</a>
+                                &bull; <a href="{% url "group_info" group.id %}">more info &raquo;</a>
                             </div>
 
                             <div>
@@ -39,11 +40,8 @@
                             </div>
 
                             <div>
-                                Subscribers: {{ group.user_count }}
-                                &diam; Posts: {{ group.post_count }}
-                                &diam;  Domain: <code>{{ group.domain }}</code>
-                                &diam; Owner: <a href="{{ group.owner.get_absolute_url }}">{{ group.owner.name }}</a>
-
+                                Subscribers: <b>{{ group.user_count }}</b>
+                                &diam; Posts: <b>{{ group.post_count }}</b>
                                 &diam; Your subscription:
                                 <b>{{ group.subscription }} </b>
                                 &raquo; <a

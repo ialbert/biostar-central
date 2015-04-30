@@ -92,7 +92,7 @@ SIGNUP_RATELIMIT = "30/h"
 RECENT_VOTE_COUNT = 7
 
 # How many recent users to show.
-RECENT_USER_COUNT = 7
+RECENT_USER_COUNT = 8
 
 # How many recent awards to show.
 RECENT_AWARD_COUNT = 7

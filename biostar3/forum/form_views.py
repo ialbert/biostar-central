@@ -502,14 +502,17 @@ def group_subscribe(request, pk, group=None, user=None):
 
     return redirect("group_list")
 
+# Full lenght text input widget.
+text_input = lambda: forms.TextInput(attrs={"class":"u-full-width"})
 
 class UserProfileForm(forms.Form):
-    name = forms.CharField(max_length=100)
-    email = forms.CharField(max_length=150)
-    website = forms.CharField(max_length=150, required=False)
-    twitter_id = forms.CharField(max_length=150, label="Twitter ID", required=False)
-    scholar = forms.CharField(max_length=150, label="Google Scholar ID", required=False)
-    location = forms.CharField(max_length=150, required=False)
+    name = forms.CharField(max_length=100, widget=text_input())
+    handle = forms.CharField(max_length=100, widget=text_input())
+    email = forms.CharField(max_length=150, widget=text_input())
+    website = forms.CharField(max_length=150, required=False, widget=text_input())
+    twitter_id = forms.CharField(max_length=150, label="Twitter ID", required=False, widget=text_input())
+    scholar = forms.CharField(max_length=150, label="Google Scholar ID", required=False, widget=text_input())
+    location = forms.CharField(max_length=150, required=False, widget=text_input())
     info = forms.CharField(widget=forms.Textarea, required=False, max_length=3000)
     shortcuts_text = forms.CharField(widget=forms.Textarea, required=False, max_length=500)
 
@@ -541,6 +544,7 @@ def user_edit(request, pk, target=None):
     if request.method == "GET":
         initial = dict(
             name=target.name,
+            handle=target.handle,
             email=target.email,
             location=target.profile.location,
             website=target.profile.website,
@@ -563,11 +567,9 @@ def user_edit(request, pk, target=None):
     # The form is valid. Process it.
     get = lambda key: form.cleaned_data.get(key, '')
 
-    shortcuts_json = ''
-
     # Need to update both the user and the profile.
     User.objects.filter(pk=target.id).update(
-        name=get("name"), email=get("email")
+        name=get("name"), email=get("email"), handle=get('handle'),
     )
 
     profile = Profile.objects.filter(user__id=target.id).first()

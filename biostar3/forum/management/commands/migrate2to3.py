@@ -25,8 +25,8 @@ def perform_migration():
     admin = User.objects.get(email=settings.ADMINS[0][1])
 
     # Create the meta group, talk about the site
-    logger.info("creating meta group for admin")
-    meta_name, meta_domain, meta_description = "Meta Talk", "meta", "Discussions about the site itself"
+    logger.info("creating moderators group for admin")
+    meta_name, meta_domain, meta_description = "Mod Talk", "mods", "A forum to discuss site moderation and other features."
     meta_group, meta_flag = UserGroup.objects.get_or_create(domain=meta_domain)
 
     if meta_flag:
@@ -64,6 +64,7 @@ def perform_migration():
     logger.info("update user score")
     User.objects.all().update(score=F('score') * 10)
 
+
     # Save all users to trigger their html method.
     logger.info("resaving all user profiles")
     for prof in Profile.objects.all().exclude(info__isnull=True):
@@ -91,6 +92,8 @@ def perform_migration():
     # Add group to all blogs that don't have one.
     Blog.objects.filter(usergroup=None).update(usergroup=default_group)
 
+    # Update usergroups
+    update_usergroups()
 
 class Command(BaseCommand):
     help = '''Migrates data from version 2 to 3'''

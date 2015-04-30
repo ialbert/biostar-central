@@ -29,21 +29,28 @@
 
             {% message_bar %}
 
-            <div class="two columns">
-                &nbsp;
-            </div>
-
-            <div class="three columns">
+            <div class="five columns">
 
                 <div>
-                    <label>Name (required):</label> {{ form.name }}
+                    <label>Biostar Handle (required, 15 char max, no spaces):</label>
+
+                    <div class="muted">Used when tagging with @handle</div>
+                    {{ form.handle }}
+
                 </div>
+
                 <div>
-                    <label> Location:</label> {{ form.location }}
+                    <label>Display Name (required):</label> {{ form.name }}
                 </div>
+
                 <div>
                     <label> Email (required):</label> {{ form.email }}
                 </div>
+
+                <div>
+                    <label> Location:</label> {{ form.location }}
+                </div>
+
                 <div>
                     <label> Web site:</label> {{ form.website }}
                 </div>
@@ -56,13 +63,24 @@
 
 
             </div>
-            <div class="five columns">
+            <div class="seven columns">
                 <label>About me</label>
-                <textarea name="info" class="u-full-width" style="height:20em; background-color: #ECECEC;"
-                          placeholder="Information about you. Markdown ok to use.">{{form.info.value }}</textarea>
+
+                <div class="wmd-panel">
+                <div id="wmd-button-bar"></div>
+        		<textarea class="wmd-input" id="wmd-input" name="info"
+                  placeholder="Type your post here">{{ form.info.value }}</textarea>
+            </div>
+
+
                 <div align="center">
-                    <i>You may use Markdown in the INFO field above.</i>
+                    <i>Preview appears below</i>
                 </div>
+
+                <div class="row">
+                    <div id="wmd-preview" class="wmd-panel wmd-preview"></div>
+                </div>
+
 
             </div>
 
@@ -70,11 +88,8 @@
 
         <div class="row">
 
-            <div class="two columns">
-                &nbsp;
-            </div>
 
-            <div class="eight columns">
+            <div class="twelve columns">
 
                 <div class="row">
                     <hr>
@@ -96,48 +111,6 @@
                 </div>
 
             </div>
-        </div>
-
-        <div class="row">
-            <div class="title {{ target.get_status_display }} center">
-                Optional Advanced Settings
-            </div>
-        </div>
-
-        <div class="row">
-
-            <div class="two columns">
-                &nbsp;
-            </div>
-
-            <div class="eight columns">
-
-                <p>
-                    Users may customize the content of the shortcuts drop down menu on the top left.
-                    Enter comma
-                    separated pairs in <code>name, url</code> format. URLs may be relative or absolute. You may add
-                    multiple tags with <code>+</code>. To negate a tag add a <code>!</code> for it.
-
-                    Example:
-                </p>
-<pre>
-News, /t/news/
-Interesting, /t/assembly+blast+ncbi!
-My Account, /site/me
-Galaxy Support, https://biostar.usegalaxy.org
-</pre>
-
-
-                <div>
-                    <label> Custom shortcuts</label>
-                <textarea name="shortcuts" class="u-full-width" style="height:20em"
-                          placeholder="Add shortcuts as name, url pairs.">{{form.shortcuts_text.value }}</textarea>
-                </div>
-
-
-            </div>
-
-
         </div>
 
     </form>
