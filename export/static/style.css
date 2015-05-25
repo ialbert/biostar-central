@@ -1,0 +1,59 @@
+/*
+This file is included in site.less.
+*/
+/*
+Set up colors fo various widgets.
+*/
+.box.Answered {
+  background-color: #5b8c3e;
+  color: white;
+}
+.box.Accepted {
+  background-color: #5b8c3e;
+  color: yellow;
+}
+.box.Unanswered {
+  background-color: #8f2c47;
+  color: white;
+}
+.box.Forum {
+  background-color: #b79538;
+  color: white;
+}
+.box.Job {
+  background-color: #e9530f;
+  color: white;
+}
+.box.News {
+  background-color: #762c90;
+  color: white;
+}
+.box.Tool {
+  background-color: #e26504 0;
+  color: white;
+}
+.box.Tutorial {
+  background-color: #2c7990;
+  color: white;
+}
+.error,
+.errorlist {
+  color: #712d2d;
+  background-color: #f2dede;
+  border-color: #c77070;
+}
+.info {
+  color: #9c8611;
+  background-color: #fcf8e3;
+  border-color: #edd559;
+}
+.warning {
+  color: #1b6083;
+  background-color: #d9edf7;
+  border-color: #5bb1dc;
+}
+.success {
+  color: #3d6c2a;
+  background-color: #dff0d8;
+  border-color: #84c569;
+}
