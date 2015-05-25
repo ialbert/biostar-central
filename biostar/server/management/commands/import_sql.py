@@ -4,6 +4,7 @@ import sys, logging, os
 import MySQLdb as mdb 
 from django.core.exceptions import ImproperlyConfigured
 from datetime import date
+from django.utils import timezone
 
 logger = logging.getLogger('simple-logger')
 
@@ -104,8 +105,8 @@ def import_posts(host, user, password):
 	except:
 		u = User(email=email, name='sqlimport')
 		u.save()
-		u.profile.date_joined = date.today()
-		u.profile.last_login = date.today()
+		u.profile.date_joined = timezone.now()
+		u.profile.last_login = timezone.now()
 		u.profile.save()
 
 	conn = mdb.connect(host,user,password,'import_temp')
@@ -123,20 +124,20 @@ def import_posts(host, user, password):
 	for result in results:
 		title = result[14]
 		body = result[15]
-		html = '<p>' + body + '</p>'
+		logger.info('Fetched post : %s' % title)
 		if title.startswith('Re:'):
 			ptitle = title[4:]
 			try:
 				parent = Post(title=ptitle)
-				post = Post(title=title, html=html, author=u)
-				post.parent=parent
-				post.root=parent
+				post = Post(title=title, content=body, author=u)
+				post.parent=parent.id
+				post.root=parent.id
 				post.save()
 				post_count+=1
 			except:
 				pass
 		else:
-			post = Post(title=title, html=html, author=u)
+			post = Post(title=title, content=body, author=u)
 			post.save()
 			post_count+=1
 	logger.info('%d posts created' % post_count)
