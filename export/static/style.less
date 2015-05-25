@@ -1,0 +1,97 @@
+/*
+This file is included in site.less.
+*/
+@BODY_FONT: "Helvetica Neue", Helvetica, Arial, sans-serif;
+@BODY_TEXT_COLOR: #333333;
+@CONTAINER_WIDTH: 1200px;
+@LINK_COLOR: #428bca;
+@HIGHLIGHT_COLOR: yellow;
+@MUTED_TEXT_COLOR: #808080;
+@LIGHT_BORDER_COLOR: #ECECEC;
+
+//Tag colors.
+@TAG_TEXT_COLOR: #6B3E4A;
+@TAG_BG_COLOR: #ECECEC;
+@TAG_BG_HOVER_COLOR: #6B3E4A;
+
+// Post colors.
+@ANSWERED_COLOR: #5b8c3e;
+@UNANSWERED_COLOR: #8f2c47;
+@FORUM_COLOR: #b79538;
+@JOB_COLOR: #e9530f;
+@TOOL_COLOR: #e265040;
+@NEWS_COLOR: #762C90;
+@TUTORIAL_COLOR: #2C7990;
+
+// Message colors.
+@ALERT_DANGER: #f2dede;
+@ALERT_INFO: #fcf8e3;;
+@ALERT_WARNING: #d9edf7;
+@ALERT_SUCCESS: #dff0d8;
+
+/*
+Set up colors fo various widgets.
+*/
+.box.Answered {
+  background-color: @ANSWERED_COLOR;
+  color: white;
+}
+
+.box.Accepted {
+  background-color: @ANSWERED_COLOR;
+  color: yellow;
+}
+
+.box.Unanswered {
+  background-color: @UNANSWERED_COLOR;
+  color: white;
+}
+
+.box.Forum {
+  background-color: @FORUM_COLOR;
+  color: white;
+}
+
+.box.Job {
+  background-color: @JOB_COLOR;
+  color: white;
+}
+
+.box.News {
+  background-color: @NEWS_COLOR;
+  color: white;
+}
+
+.box.Tool {
+  background-color: @TOOL_COLOR;
+  color: white;
+}
+
+.box.Tutorial {
+  background-color: @TUTORIAL_COLOR;
+  color: white;
+}
+
+.error, .errorlist {
+  color: darken(@ALERT_DANGER, 60%);
+  background-color: @ALERT_DANGER;
+  border-color: darken(@ALERT_DANGER, 30%);
+}
+
+.info {
+  color: darken(@ALERT_INFO, 60%);
+  background-color: @ALERT_INFO;
+  border-color: darken(@ALERT_INFO, 30%);
+}
+
+.warning {
+  color: darken(@ALERT_WARNING, 60%);
+  background-color: @ALERT_WARNING;
+  border-color: darken(@ALERT_WARNING, 30%);
+}
+
+.success {
+  color: darken(@ALERT_SUCCESS, 60%);
+  background-color: @ALERT_SUCCESS;
+  border-color: darken(@ALERT_SUCCESS, 30%);
+}
