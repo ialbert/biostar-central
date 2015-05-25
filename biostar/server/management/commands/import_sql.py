@@ -25,7 +25,7 @@ class Command(BaseCommand):
         password = options['pass']
 
         if fname and password:
-            init_import(fname, host, user, password)
+            import_sql_file(fname, host, user, password)
         else:
         	if not fname:
         		logger.error('No file name supplied')
@@ -128,22 +128,24 @@ def import_posts(host, user, password):
 		if title.startswith('Re:'):
 			ptitle = title[4:]
 			try:
-				parent = Post(title=ptitle)
-				post = Post(title=title, content=body, author=u)
-				post.parent=parent.id
-				post.root=parent.id
+				parent = Post.objects.get(title=ptitle)
+				post = Post(title=title, content=body, author=u, type= Post.ANSWER)
+				post.parent=parent
+				post.root=parent
 				post.save()
 				post_count+=1
 			except:
 				pass
 		else:
-			post = Post(title=title, content=body, author=u)
+			post = Post(title=title, content=body, author=u, type = Post.QUESTION)
 			post.save()
 			post_count+=1
 	logger.info('%d posts created' % post_count)
 
 	conn.close()
 
+
+#Governs the import process
 def import_sql_file(filename, host, user, password):
 	temp_db(host, user, password, 'c')
 	logger.info('Created temporary database')
@@ -159,9 +161,6 @@ def import_sql_file(filename, host, user, password):
 
 	temp_db(host, user, password, 'd')
 	logger.info('Deleted temporary database')
-
-def init_import(fname, host, user, password):
-	import_sql_file(fname, host, user, password)
 
 
 if __name__ == '__main__':
