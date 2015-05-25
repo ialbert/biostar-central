@@ -1,7 +1,9 @@
 from django.core.management.base import BaseCommand, CommandError
 from optparse import make_option
-import sys, logging
+import sys, logging, os
 import MySQLdb as mdb 
+from django.core.exceptions import ImproperlyConfigured
+from datetime import date
 
 logger = logging.getLogger('simple-logger')
 
@@ -31,6 +33,20 @@ class Command(BaseCommand):
         	logger.info('try -h for more help')
 
 
+#Fetches the environment variable
+def get_env(name, func=None):
+    """Get the environment variable or return exception"""
+    try:
+        if func:
+            return func(os.environ[name])
+        else:
+            return unicode(os.environ[name], encoding="utf-8")
+    except KeyError:
+        msg = "*** Required environment variable %s not set." % name
+        raise ImproperlyConfigured(msg)
+
+
+#Removes unwanted lines from sql file
 def sanitize(filename):
 	f = open(filename,'r')
 	sqltemp=[]
@@ -51,6 +67,8 @@ def sanitize(filename):
 			temp.append(i)
 	return sql
 
+
+#Creates/Delets the temporary mysql database
 def temp_db(host, user, password, cmd):
 	if cmd == 'c':
 		sql = 'CREATE DATABASE import_temp'
@@ -62,6 +80,8 @@ def temp_db(host, user, password, cmd):
 	conn.commit()
 	conn.close()
 
+
+#Imports the sql file to the temporary database
 def import_to_temp(sql, host, user, password):
 	conn = mdb.connect(host,user,password,'import_temp')
 	cursor = conn.cursor()
@@ -69,6 +89,58 @@ def import_to_temp(sql, host, user, password):
 	for i in sql:
 		cursor.execute(i)
 	conn.commit()
+	conn.close()
+
+
+#Imports the posts into django models
+def import_posts(host, user, password):
+	from biostar.apps.users.models import User
+	from biostar.apps.posts.models import Post
+
+	emailhost=get_env('EMAIL_HOST')
+	email = 'sqlimport@' + emailhost + '.com'
+	try:
+		u = User.objects.get(email=email)
+	except:
+		u = User(email=email, name='sqlimport')
+		u.save()
+		u.profile.date_joined = date.today()
+		u.profile.last_login = date.today()
+		u.profile.save()
+
+	conn = mdb.connect(host,user,password,'import_temp')
+	cursor = conn.cursor()
+	cursor._defer_warnings = True
+	sql = 'select * from phpbb_posts;'
+	try:
+		cursor.execute(sql)
+		results = cursor.fetchall()
+	except:
+		logger.error('Unable to fetch posts from temp_db')
+		sys.exit()
+
+	post_count=0
+	for result in results:
+		title = result[14]
+		body = result[15]
+		html = '<p>' + body + '</p>'
+		if title.startswith('Re:'):
+			ptitle = title[4:]
+			try:
+				parent = Post(title=ptitle)
+				post = Post(title=title, html=html, author=u)
+				post.parent=parent
+				post.root=parent
+				post.save()
+				post_count+=1
+			except:
+				pass
+		else:
+			post = Post(title=title, html=html, author=u)
+			post.save()
+			post_count+=1
+	logger.info('%d posts created' % post_count)
+
 	conn.close()
 
 def import_sql_file(filename, host, user, password):
@@ -80,6 +152,9 @@ def import_sql_file(filename, host, user, password):
 
 	logger.info('Importing to temp db...')
 	import_to_temp(sql, host, user, password)
+
+	logger.info('Importing posts...')
+	import_posts(host, user, password)
 
 	temp_db(host, user, password, 'd')
 	logger.info('Deleted temporary database')
