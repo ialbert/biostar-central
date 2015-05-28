@@ -6,6 +6,8 @@ from datetime import date
 from django.utils import timezone
 from django.conf import settings
 from biostar3.forum.models import *
+import csv
+
 
 logger = logging.getLogger('simple-logger')
 
@@ -20,54 +22,31 @@ class Command(BaseCommand):
         fname = options['file']
 
         if fname:
-        	if fname.endswith('.sql'):
+        	if fname.endswith('.csv'):
         		import_bb_file(fname)
         	else:
-        		logger.error('Wrong format! Please provide and sql file (.sql)')
+        		logger.error('Wrong format! Please provide a csv file (.csv)')
         else:
         	if not fname:
         		logger.error('No file name supplied')
         	logger.info('try -h for more help')
 
 
-#Removes unwanted lines from sql file
-def sanitize(filename):
-    f = open(filename,'r')
-    sqltemp=[]
-    for i in f.readlines():
-        if i[0]!='-' and i[0]!='/' and i[0]!='\n':
-            if i[-1:] == '\n':
-                i=i[:-1]
-            sqltemp.append(i)
-    sql=[]
-    temp=[]
-    for i in sqltemp:
-        if i[-1:]==';':
-            temp.append(i)
-            temp = ''.join(temp)
-            sql.append(temp)
-            temp=[]
-        else:
-            temp.append(i)
-    return sql
+#Extracts and returns posts from the csv
+def extract(fname):
+	f = open(fname, 'rb')
+	rows = csv.reader(f)
 
+	allposts = []
+	for row in rows:
+		title = row[14]
+		body = row[15]
+		temp=[title,body]
+		allposts.append(temp)
 
-#Returns the post title and body from the INSERT instance
-def spliting(string):
-    lt = []
-    for i in range(len(string)-1):
-        if string[i]=="," and string[i+1]=="'":
-            start=i+2
-            for j in range(i+1,len(string)-1):
-                if string[j]=="'" and string[j+1]==",":
-                    end=j
-                    break
-            temp=string[start:end]
-            lt.append(temp)
-            i=j+1
+	allposts.pop(0)
+	return allposts
 
-    tb=[lt[2],lt[3]]
-    return tb
 
 #Imports the posts into django models
 def import_posts(allposts):
@@ -103,31 +82,11 @@ def import_posts(allposts):
 
 #Governs the improt process
 def import_bb_file(fname):
-	logger.info('Sanitizing file')
-	sql = sanitize(fname)
+	logger.info('Extracting posts from file...')
+	allposts = extract(fname)
 
-    #Retrieves index line with post table
-	logger.info('Parsing file...')
-	for i in range(0,len(sql)):
-		if sql[i].startswith('INSERT INTO `phpbb_posts`'):
-			index = i
-			break
-
-	sql = sql[index]
-	#Retrieves all posts
-	sql = sql[33:]
-
-	#Split posts into different INSERT instances
-	sql = sql.split('),(')
-
-	#Gettings all post title and body as list
-	logger.info('Retrieving posts...')
-	posts=[]
-	for i in sql:
-		post=spliting(i)
-		posts.append(post)
-
-	import_posts(posts)
+	logger.info('Importing posts...')
+	import_posts(allposts)
 	logger.info('DONE!')
 
 
