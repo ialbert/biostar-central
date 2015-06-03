@@ -5,7 +5,7 @@ from django.core.exceptions import ImproperlyConfigured
 from datetime import date
 from django.utils import timezone
 from django.conf import settings
-import csv
+import csv, re
 from biostar.apps.users.models import User
 from biostar.apps.posts.models import Post
 
