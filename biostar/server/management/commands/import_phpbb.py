@@ -36,22 +36,31 @@ class Command(BaseCommand):
             logger.info('try -h for more help')
 
 
+#Returns the filteres body content
+def bfilter(body):
+	body = body.replace('\\n','\n')
+	body = re.sub(r'\[url:\w+\]','URL: ',body)
+	body = re.sub(r'\[url=','URL: ',body)
+	body = re.sub(r'\[/url:\w+\]','',body)
+	return body
+
+
 #Extracts and returns all the posts
 def get_posts(fname):
-    f = open(fname,'rb')
-    rows = csv.reader(f)
-    rows.next()
+	f = open(fname,'rb')
+	rows = csv.reader(f)
+	rows.next()
 
-    allposts = []
-    for row in rows:
-        uid = row[3]
-        title = row[14]
-        body = row[15]
-        temp = [uid,title,body]
-        allposts.append(temp)
+	allposts = []
+	for row in rows:
+		uid = row[3]
+		title = row[14]
+		body = bfilter(row[15])
+		temp = [uid,title,body]
+		allposts.append(temp)
 
-    f.close()
-    return allposts
+	f.close()
+	return allposts
 
 
 #Returns all users from file
