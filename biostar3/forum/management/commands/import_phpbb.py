@@ -6,7 +6,7 @@ from datetime import date
 from django.utils import timezone
 from django.conf import settings
 from biostar3.forum.models import *
-import csv
+import csv, re
 
 
 logger = logging.getLogger('simple-logger')
