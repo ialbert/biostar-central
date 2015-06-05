@@ -1,3 +1,22 @@
+# import_phpbb v1.0
+# This script imports the a PHPBB based forum into the Biostars instance
+#
+# 
+# The script uses the backup of the database in 'csv' format
+# Required tables - 'phpbb_posts' & 'phpbb_users'
+# 
+#
+# Example Backup - MySQL:
+#	mysql -B -u $USERNAME -p"$PASSWORD" $DBNAME  --execute="SELECT * FROM $TABLENAMEW;" |sed "s/'/\'/;s/\t/\",\"/g;s/^/\"/;s/$/\"/;s/\n//g" > $TABLENAME.csv
+#
+#
+# Script Usage:
+#
+#	python manage.py import_phpbb -p /path/to/posts/table.csv -u /path/to/users/table.csv
+#
+#	Example: pyhton manage.py import_phpbb -p ./phpbb_posts.csv -u ./phpbb_users.csv
+#
+
 from django.core.management.base import BaseCommand, CommandError
 from optparse import make_option
 import sys, logging, os
@@ -12,11 +31,11 @@ from biostar.apps.posts.models import Post
 logger = logging.getLogger('simple-logger')
 
 class Command(BaseCommand):
-    help = 'Import phpbb posts from csv backup'
+    help = 'Import phpbb posts from csv backup\nUsage: python manage.py import_phpbb -p /path/to/posts/table.csv -u /path/to/users/table.csv'
 
     option_list = BaseCommand.option_list + (
-        make_option("-p", '--post', dest='post', default=False, help='posts file'),
-        make_option("-u", '--user', dest='user', default=False, help='users file'),
+        make_option("-p", '--post', dest='post', default=False, help='path to posts table csv'),
+        make_option("-u", '--user', dest='user', default=False, help='path to users table csv'),
     )
 
     def handle(self, *args, **options):
