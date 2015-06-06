@@ -19,7 +19,7 @@
 
 from django.core.management.base import BaseCommand, CommandError
 from optparse import make_option
-import sys, logging, os
+import sys, logging, os, datetime, pytz
 from django.core.exceptions import ImproperlyConfigured
 from datetime import date
 from django.utils import timezone
@@ -57,29 +57,30 @@ class Command(BaseCommand):
 
 #Returns the filteres body content
 def bfilter(body):
-	body = body.replace('\\n','\n')
-	body = re.sub(r'\[url:\w+\]','URL: ',body)
-	body = re.sub(r'\[url=','URL: ',body)
-	body = re.sub(r'\[/url:\w+\]','',body)
-	return body
+    body = body.replace('\\n','\n')
+    body = re.sub(r'\[url:\w+\]','URL: ',body)
+    body = re.sub(r'\[url=','URL: ',body)
+    body = re.sub(r'\[/url:\w+\]','',body)
+    return body
 
 
 #Extracts and returns all the posts
 def get_posts(fname):
-	f = open(fname,'rb')
-	rows = csv.reader(f)
-	rows.next()
+    f = open(fname,'rb')
+    rows = csv.reader(f)
+    rows.next()
 
-	allposts = []
-	for row in rows:
-		uid = row[3]
-		title = row[14]
-		body = bfilter(row[15])
-		temp = [uid,title,body]
-		allposts.append(temp)
+    allposts = []
+    for row in rows:
+        uid = row[3]
+        title = row[14]
+        body = bfilter(row[15])
+        date = datetime.datetime.fromtimestamp(int(row[6]), tz=pytz.utc)
+        temp = [uid,title,body,date]
+        allposts.append(temp)
 
-	f.close()
-	return allposts
+    f.close()
+    return allposts
 
 
 #Returns all users from file
@@ -136,6 +137,7 @@ def import_posts(fname, uname):
         uid = int(single[0])
         title = single[1]
         body = single[2]
+        date = single[3]
         logger.info('Fetched post : %s' % title)
 
         #Getting the post user
@@ -148,16 +150,16 @@ def import_posts(fname, uname):
             try:
                 ptitle = title[4:]
                 parent = Post.objects.get(title=ptitle)
-                post = Post(title=title, content=body, author=user, type= Post.ANSWER)
+                post = Post(title=title, content=body, author=user, type= Post.ANSWER, creation_date=date)
                 post.parent=parent
                 post.root=parent
                 post.save()
                 post_count+=1
             except:
-                post = Post(title=title, author=user, type= Post.ANSWER, content=body)
+                post = Post(title=title, author=user, type= Post.ANSWER, content=body, creation_date=date)
                 orphans.append(post)
         else:
-            post = Post(title=title, content=body, author=user, type = Post.QUESTION)
+            post = Post(title=title, content=body, author=user, type = Post.QUESTION, creation_date=date)
             post.save()
             post_count+=1
 
