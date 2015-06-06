@@ -17,11 +17,12 @@
 #	Example: pyhton manage.py import_phpbb -p ./phpbb_posts.csv -u ./phpbb_users.csv
 #
 
+
 from django.core.management.base import BaseCommand, CommandError
 from optparse import make_option
-import sys, logging, os
+import sys, logging, os, pytz
 from django.core.exceptions import ImproperlyConfigured
-from datetime import date
+from datetime import date, datetime
 from django.utils import timezone
 from django.conf import settings
 from biostar3.forum.models import *
@@ -75,11 +76,13 @@ def get_posts(fname):
 		uid = row[3]
 		title = row[14]
 		body = bfilter(row[15])
-		temp = [uid,title,body]
+		date = datetime.fromtimestamp(int(row[6]), tz=pytz.utc)
+		temp = [uid,title,body,date]
 		allposts.append(temp)
 
 	f.close()
 	return allposts
+
 
 #Returns all users from file
 def get_all_users(uname):
@@ -138,7 +141,8 @@ def import_posts(fname,uname):
 		uid = int(single[0])
 		title = single[1]
 		body = single[2]
-		logger.info('Fetched post : %s' % title)
+		date = single[3]
+		logger.info('\nFetched post : %s' % title)
 
 		#Getting the post user
 		user = get_user(uid,allusers)
@@ -150,16 +154,16 @@ def import_posts(fname,uname):
 			try:
 				ptitle = title[4:]
 				parent = Post.objects.get(title__startswith=ptitle)
-				post = Post(title=title, author=user, type= Post.ANSWER, content=body, usergroup=default_group)
+				post = Post(title=title, author=user, type= Post.ANSWER, content=body, usergroup=default_group, creation_date=date)
 				post.parent=parent
 				post.root=parent
 				post.save()
 				post_count+=1
 			except:
-				post = Post(title=title, author=user, type= Post.ANSWER, content=body, usergroup=default_group)
+				post = Post(title=title, author=user, type= Post.ANSWER, content=body, usergroup=default_group, creation_date=date)
 				orphans.append(post)
 		else:	
-			post = Post(title=title, author=user, type = Post.QUESTION, content=body, usergroup=default_group)
+			post = Post(title=title, author=user, type = Post.QUESTION, content=body, usergroup=default_group, creation_date=date)
 			post.save()
 			post_count+=1
 
