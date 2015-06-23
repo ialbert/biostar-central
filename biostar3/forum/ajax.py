@@ -6,7 +6,7 @@ from django.http import HttpResponse
 from functools import partial
 from django.db import transaction
 from django.db.models import Q, F
-from .models import Post, User, Vote, GroupPerm, UserGroup, ReplyToken
+from .models import Post, User, Vote, ReplyToken
 from . import auth
 from django.contrib import messages
 from functools import partial

@@ -5,15 +5,8 @@
 <div class="row">
 
     <div id="logo">
-        {% if group.logo %}
-            <a href="{% url 'home' %}"><img src="{{ group.logo.url }}"></a>
-        {% else %}
-            <div class="text_logo">
-                <a href="{% url 'home' %}"><i class="fa fa-group"></i> {{ group.name }}</a>
-            </div>
-        {% endif %}
+		<a href="{% url 'home' %}"><img src="{% static context.SITE_LOGO %}"></a>
     </div>
-
 
     <div id="navbar">
         {# This gets show for anonymous users #}
@@ -33,9 +26,9 @@
         </div> -->
 
         <div class="item">
-            <a href="{% url "group_list" %}">
+            <a href="#">
                 <div class="icon"><i class="fa fa-group"></i></div>
-                <div class="navlabel">Groups</div>
+                <div class="navlabel">Sites</div>
             </a>
         </div>
 

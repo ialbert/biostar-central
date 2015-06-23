@@ -18,47 +18,8 @@ def perform_migration():
     Must be run when migrating a database from 2 to 3.
     """
 
-    # Get the default group.
-    default_group = UserGroup.objects.get(domain=settings.DEFAULT_GROUP_DOMAIN)
-
     # Get the first admin user
     admin = User.objects.get(email=settings.ADMINS[0][1])
-
-    # Create the meta group, talk about the site
-    logger.info("creating moderators group for admin")
-    meta_name, meta_domain, meta_description = "Mod Talk", "mods", "A forum to discuss site moderation and other features."
-    meta_group, meta_flag = UserGroup.objects.get_or_create(domain=meta_domain)
-
-    if meta_flag:
-        meta_group.name = meta_name
-        meta_group.description = meta_description
-        meta_group.owner = admin
-        meta_group.save()
-
-    # Update all toplevel posts with no groups to have the default group.
-    logger.info("adding groups to posts")
-    Post.objects.filter(type__in=Post.TOP_LEVEL, usergroup=None).update(usergroup=default_group)
-
-    # All admin users belong to the meta group and need to have admin group level permissions.
-    for user in User.objects.filter(type=User.ADMIN).exclude(pk=admin.id):
-        GroupSub.objects.get_or_create(user=user, usergroup=meta_group)
-        GroupPerm.objects.get_or_create(usergroup=default_group, user=user, role=GroupPerm.ADMIN)
-
-        # All moderator users need to have moderator level permissions.
-    for user in User.objects.filter(type=User.MODERATOR).exclude(pk=admin.id):
-        GroupSub.objects.get_or_create(user=user, usergroup=meta_group)
-        GroupPerm.objects.get_or_create(usergroup=default_group, user=user, role=GroupPerm.MODERATE)
-
-    # Add group info to every user.
-    logger.info("adding groups to users")
-
-    def group_generator():
-        for user in User.objects.all().exclude(pk=admin.id):
-            yield GroupSub(user=user, usergroup=default_group)
-
-    # Bulk insert the groups.
-    GroupSub.objects.bulk_create(group_generator())
-
 
     # Update user scores
     logger.info("update user score")
@@ -88,12 +49,6 @@ def perform_migration():
     # All existing post will have the uuid be equal to their primary keys.
     logger.info("Add 'uuid' field to posts")
     Post.objects.all().update(uuid=F('pk'))
-
-    # Add group to all blogs that don't have one.
-    Blog.objects.filter(usergroup=None).update(usergroup=default_group)
-
-    # Update usergroups
-    update_usergroups()
 
 class Command(BaseCommand):
     help = '''Migrates data from version 2 to 3'''

@@ -241,29 +241,24 @@ POST_SORT_ORDER = {
 # The messages show when the sort is not valid.
 POST_SORT_INVALID_MSG = "Invalid sort parameter in URL."
 
-# Messaging related settings.
-LOCAL_TRACKER, EMAIL_TRACKER, LOCAL_MESSAGES, DEFAULT_MESSAGES, MAILING_LIST_MESSAGES, LEAVE_GROUP = range(6)
+#
+# Group subscription settings.
+# Describes the values that a group subscription may take.
+#
+SMART_MODE, LOCAL_TRACKER, EMAIL_TRACKER, MAILING_LIST, LEAVE_GROUP = range(5)
 
 # The mapping from a messaging type to a readable word.
-MESSAGE_CHOICES = [
-    (DEFAULT_MESSAGES, "Smart mode"),
-    (LOCAL_MESSAGES, "Local messages"),
-    (LOCAL_TRACKER, "Local tracker"),
-    (EMAIL_TRACKER, "Email tracker"),
-    (MAILING_LIST_MESSAGES, "Mailing list"),
+SUBSCRIPTION_CHOICES = [
+    (SMART_MODE, "Smart Mode"),
+    (LOCAL_TRACKER, "Local Tracker"),
+    (EMAIL_TRACKER, "Email Tracker"),
+    (MAILING_LIST, "Mailing List"),
     (LEAVE_GROUP, "Leave Group"),
 ]
 
-EMAIL_MESSAGE_TYPES = {
-    EMAIL_TRACKER, MAILING_LIST_MESSAGES,
-}
+SUBSCRIPTION_DEFAULT = SMART_MODE
 
-# Default messaging value for a new user.
-MESSAGE_DEFAULT = DEFAULT_MESSAGES
-
-# TODO refactoring here
-SUBSCRIPTION_CHOICES = MESSAGE_CHOICES
-SUBSCRIPTION_DEFAULT = DEFAULT_MESSAGES
+SITE_LOGO = "images/logo.png"
 
 # Connects a word to a number of days. 0 indicates no limit.
 ALL_TIME, THIS_DAY, THIS_WEEK, THIS_MONTH, THIS_YEAR = 0, 1, 7, 36, 365

@@ -36,28 +36,3 @@ def get_traffic(request, minutes=60):
     return count
 
 
-def get_group(domain):
-    global GROUP_CACHE
-
-    # This is called on every request. Needs to be fast.
-    key = GROUP_CACHE % domain
-    group = cache.get(key)
-
-    # Found the group in the cache
-    if group:
-        return group
-
-    # Domain has an alias to default group
-    if domain in settings.DEFAULT_SUBDOMAINS:
-        domain = settings.DEFAULT_GROUP_DOMAIN
-
-    # Get the group and put it in the cache.
-    group = UserGroup.objects.filter(domain__iexact=domain).first()
-
-    # Put the value on into the cache.
-    cache.set(key, group, timeout=600)
-
-    return group
-
-# Delete the cache
-bust_group_cache = lambda group: cache.delete(GROUP_CACHE % group.domain)

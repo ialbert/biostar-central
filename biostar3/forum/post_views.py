@@ -156,7 +156,7 @@ def post_list(request, posts=None):
 
     if posts is None:
         # The view is generic and could be called prefilled with posts.
-        posts = query.get_toplevel_posts(user=request.user, group=request.group)
+        posts = query.get_toplevel_posts(user=request.user)
 
     paginator = query.ExtendedPaginator(request,
                                         sort_class=query.PostSortValidator,
@@ -168,97 +168,6 @@ def post_list(request, posts=None):
     context = dict(page=page, posts=page.object_list, html_title=html_title)
 
     return render(request, template_name, context)
-
-
-@auth.group_access
-def group_login(request, pk, group=None, user=None):
-    # Handler fired on signup redirect when logging in from subdomain.
-    # It auto adds user to the group that initiated the login process.
-    return group_redirect_handler(request=request, group=group, user=user, autoadd=True)
-
-
-@auth.group_access
-def group_redirect(request, pk, group=None, user=None):
-    # Handler when redirecting to a group view.
-    # Permissions to check if the user may view the group at all is at middleware level.
-    return group_redirect_handler(request=request, group=group, user=user, autoadd=False)
-
-
-def group_redirect_handler(request, group, user, autoadd=None):
-    # Redirects to a group.
-    try:
-        target = auth.get_group_url(group)
-
-        if group.public and user.is_authenticated() and autoadd:
-            # Only public groups may be automatically joined.
-            auth.groupsub_get_or_create(user=user, usergroup=group)
-
-        return redirect(target)
-
-    except Exception as exc:
-        messages.error(request, "Group error: %s" % exc)
-        return redirect(reverse("home"))
-
-@auth.group_access
-def group_info(request, pk, group=None, user=None):
-    template_name = "group_info.html"
-
-    site = Site.objects.get(id=settings.SITE_ID)
-
-    # Current group permissions
-    perms = GroupPerm.objects.filter(usergroup=group).select_related("user")
-    pages = FlatPage.objects.filter(post__usergroup=group)
-    context = dict(perms=perms, target=group, pages=pages)
-
-    # Decorate the user according to the group that is being displayed.
-    auth.add_user_attributes(user=request.user, group=group)
-
-    return render(request, template_name, context)
-
-
-def group_list(request):
-    """
-    Generates the list of groups.
-    """
-    template_name = "group_list.html"
-
-    user, group = request.user, request.group
-
-    if user.is_authenticated():
-        # See if the user has permission to the current group.
-        curr_perm = GroupPerm.objects.filter(user=user, usergroup=group, role=GroupPerm.ADMIN).first()
-
-        # Find all group subscriptions for the user.
-        sub_list = GroupSub.objects.filter(user=user)
-
-        # Turn into a dictionary for fast lookup
-        sub_map = dict((s.usergroup, s) for s in sub_list)
-
-        # Add all groups to the filtering condition
-        ids = [sub.usergroup_id for sub in sub_list]
-        cond = Q(public=True) | Q(id__in=ids)
-    else:
-        curr_perm = None
-        sub_map = {}
-        cond = Q(public=True)
-
-    # Decorate the current group with a role attribute.
-    group.curr_perm = curr_perm
-
-    groups = UserGroup.objects.filter(cond).select_related("owner")
-
-    paginator = query.ExtendedPaginator(request,
-                                        object_list=groups, per_page=25)
-    page = paginator.curr_page()
-
-    for g in page.object_list:
-        sub = sub_map.get(g)
-        g.subscription = sub.get_type_display() if sub else "None"
-
-    context = dict(page=page, public=page.object_list, group=group)
-
-    return render(request, template_name, context)
-
 
 def search_results(request):
     """
@@ -331,11 +240,11 @@ def post_view(request, pk, post=None, user=None):
     post.bookmarks = store[Vote.BOOKMARK]
 
     # Set up additional attributes on each post
-    write_access_check = auth.thread_write_access(user=user, root=post)
+    write_access_check = auth.write_access_func(user=user)
 
     def decorator(p):
         # Each post needs to carry information on its status relative to the user.
-        p.editable = write_access_check(user=user, post=p)
+        p.editable = write_access_check(post=p)
         p.has_vote = p.id in post.upvotes
         p.has_bookmark = p.id in post.bookmarks
         return p
@@ -397,10 +306,9 @@ def flatpage_view(request, slug, domain=None, flatpage=None, user=None):
 
     domain = domain or settings.DEFAULT_GROUP_DOMAIN
 
-    usergroup = UserGroup.objects.filter(domain=domain).first()
     template_name = "page_view.html"
 
-    flatpage = FlatPage.objects.filter(slug=slug, post__usergroup=usergroup).select_related("post", "author").first()
+    flatpage = FlatPage.objects.filter(slug=slug).select_related("post", "author").first()
 
     if not flatpage:
         msg = "The page {}/{} does not seem to exists".format(domain, slug)

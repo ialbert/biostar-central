@@ -1,15 +1,39 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 from django.contrib import admin
-from .models import User, Post, Blog, BlogPost, FlatPage
+from . import models
 
-admin.site.register(User)
+class ProfileInline(admin.StackedInline):
+    model = models.Profile
+    fields = [ "info", "scholar", "twitter_id", "website" ]
 
-admin.site.register(Post)
+class FlatPageInline(admin.StackedInline):
+    model = models.FlatPage
 
-admin.site.register(Blog)
 
-admin.site.register(BlogPost)
+@admin.register(models.User)
+class UserAdmin(admin.ModelAdmin):
+    list_select_related = [ 'profile' ]
+    search_fields = ['email', 'name']
+    inlines = [
+     ProfileInline
+    ]
+    fields = ('email', 'name', 'status')
 
-admin.site.register(FlatPage)
+@admin.register(models.Post)
+class PostAdmin(admin.ModelAdmin):
+    list_select_related = [ 'author' ]
+    search_fields = ['title', 'id']
 
+    inlines = [
+        FlatPageInline
+    ]
+
+    #fields = ('email', 'name', 'status')
+
+
+admin.site.register(models.Blog)
+
+admin.site.register(models.BlogPost)
+
+admin.site.register(models.FlatPage)

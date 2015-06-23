@@ -20,15 +20,12 @@ def ago(hours=0, minutes=0, days=0):
     since = right_now() - timedelta(days=days, hours=hours, minutes=minutes)
     return since
 
-def add_user_attributes(user, group):
+def add_user_attributes(user):
     """
     Mutates the user in the request  to fill in required attributes.
     """
-    user.is_moderator = user.is_admin = False
-    if user.is_authenticated():
-        perm = GroupPerm.objects.filter(user=user, usergroup=group).first()
-        user.is_moderator = bool(perm)
-        user.is_admin = perm and (perm.role == GroupPerm.ADMIN)
+    if not user.is_authenticated():
+        user.is_moderator = user.is_admin = False
 
 def get_group_url(group):
     """
@@ -59,7 +56,7 @@ def tag_split(text):
 
 
 @transaction.atomic
-def create_toplevel_post(data, user, group, file=None):
+def create_toplevel_post(data, user, file=None):
     # Creating a top level post from  data
     title = data.get('title', '').strip()
     type = data.get('type', '') or Post.QUESTION
@@ -69,7 +66,7 @@ def create_toplevel_post(data, user, group, file=None):
 
     # Create the post.
     post = Post.objects.create(content=content, title=title,
-                               author=user, type=type, usergroup=group, file=file)
+                               author=user, type=type, file=file)
     # Set the tags on the post
     post.tags.set(*tags)
 
@@ -80,77 +77,28 @@ def create_toplevel_post(data, user, group, file=None):
 
 
 def can_moderate_post(request, user, post):
-    if post.author.is_staff:
-        return False
 
-    if user.is_staff:
+    if user.is_superuser:
         return True
 
-    if user.is_moderator:
-        perm = GroupPerm.objects.filter(user=post.author, usergroup=request.group).first()
-        return bool(perm)
+    if user.is_staff or user.is_moderator:
+        return True
 
     return False
 
 
 def can_moderate_user(request, user, target):
+
     if target.is_staff:
         return False
 
-    if user.is_staff:
+    if target.is_admin:
+        return False
+
+    if user.is_staff or user.is_moderator:
         return True
 
-    if user.is_moderator:
-        # User requests moderation and the target is not a moderator for
-        # the current group.
-        perm = GroupPerm.objects.filter(user=target, usergroup=request.group).first()
-        return bool(perm)
-
     return False
-
-
-@transaction.atomic
-def postsub_get_or_create(user, post, sub_type):
-    """
-    Gets or creates a postsub for the user
-    """
-    select, create = PostSub.objects.filter, PostSub.objects.create
-    return select(user=user, post=post).first() or create(user=user, post=post, type=sub_type)
-
-
-@transaction.atomic
-def groupsub_get_or_create(user, usergroup, sub_type=None):
-    """
-    Adds a group sub if it does not exist already.
-    """
-
-    # Shortcuts.
-    select, create = GroupSub.objects.filter, GroupSub.objects.create
-
-    # Remove the group subscription.
-    if sub_type == settings.LEAVE_GROUP:
-        return select(user=user, usergroup=usergroup).delete()
-
-    # Is there any subscription for the user and group.
-    exists = select(user=user, usergroup=usergroup).first()
-
-    # If there is a subscription and any type will do.
-    if exists and not sub_type:
-        return exists
-
-    # If exists and it is of the requested type.
-    if exists and exists.type == sub_type:
-        return exists
-
-    if exists:
-        # There is a subscription but needs changing.
-        exists.type = sub_type
-        exists.save()
-        return exists
-    else:
-        # Create a new subscription
-        newsub = create(user=user, usergroup=usergroup, type=settings.DEFAULT_MESSAGES)
-        return newsub
 
 
 @transaction.atomic
@@ -160,35 +108,23 @@ def create_content_post(content, parent, user, post_type=None, file=None):
     return post
 
 
-def read_access_post(user, post):
-    """
-    A user may read the post if the post is in a public group or
-    the user is part of the group that the post was made in.
-    """
-    return post.root.usergroup.public or user.groupsubs.filter(id=post.userroot.group.id).exists()
-
-
 def write_access_post(user, post):
     """
     A user may write the post if the post is readable and
     the user is the author of the post or is a moderator
     """
-    write_cond = (user == post.author) or user.is_moderator
-    return write_cond and read_access_post(user=user, post=post)
+    cond = (user == post.author) or user.is_moderator
+    return cond
 
-
-def thread_write_access(user, root):
+def write_access_func(user):
     """
-    Thread write access check.
+    Returns a function that can check a post for
+    write access.
     """
-    read_cond = read_access_post(post=root, user=user)
+    def func(post):
+        return write_access_post(user, post)
 
-    def validator(user, post):
-        write_cond = (user == post.author) or user.is_moderator
-        return read_cond and write_cond
-
-    return validator
-
+    return func
 
 @decorator
 def valid_user(func, request, pk, target=None):
@@ -221,11 +157,6 @@ def post_view(func, request, pk, post=None, user=None):
     if not post:
         # Post does not exists.
         messages.error(request, "Post with id=%s not found." % pk)
-        return home
-
-    if not read_access_post(user=user, post=post):
-        # Post exists but may not be read by the user.
-        messages.error(request, "This post my not be accessed by this user.")
         return home
 
     return func(request, pk=None, post=post, user=user)
@@ -269,79 +200,7 @@ def content_create(func, request, pk, parent=None):
         messages.error(request, "Parent post does not exist. Perhaps it has been deleted.")
         return error
 
-    if not read_access_post(user=user, post=parent):
-        messages.error(request, "The thread may not not be accessed by this user!")
-        return error
-
     return func(request, pk=None, parent=parent)
-
-
-@decorator
-def group_access(func, request, pk, group=None, user=None):
-    """
-    Group access check.
-    """
-
-    user = request.user
-    group = UserGroup.objects.filter(pk=pk).first()
-    error = redirect(reverse("home"))
-
-    if not group:
-        # Group does not exists.
-        messages.error(request, "Group with id=%s does not exist." % pk)
-        return error
-
-    return func(request, pk, group=group, user=user)
-
-
-@decorator
-def group_edit(func, request, pk, group=None, user=None):
-    """
-    Group edit check.
-    """
-
-    user = request.user
-    group = UserGroup.objects.filter(pk=pk).first()
-    error = redirect(reverse("group_list"))
-
-    if not group:
-        # Group does not exists.
-        messages.error(request, "Group with id=%s does not exist." % pk)
-        return error
-
-    perm = GroupPerm.objects.filter(user=user, usergroup=group, role=GroupPerm.ADMIN).first()
-
-    if not perm:
-        # Admin users may edit a group.
-        messages.error(request, "Only admin users may edit the group")
-        return error
-
-    return func(request=request, pk=None, group=group, user=user)
-
-
-@decorator
-def group_create(func, request, user=None):
-    """
-    Group create check.
-    """
-
-    user = request.user
-    error = redirect(reverse("group_list"))
-
-    # How many groups has the user created.
-    group_count = UserGroup.objects.filter(owner=user).count()
-
-    if user.score < settings.GROUP_MIN_SCORE:
-        # Only users above a treshold in score may create a group.
-        messages.error(request, "You need %s reputation to create a group." % (settings.GROUP_MIN_SCORE * 10))
-        return error
-
-    if group_count >= settings.GROUP_COUNT_PER_USER:
-        # Too many groups created by this user.
-        messages.error(request, "Only %s groups may be created by each user." % settings.GROUP_COUNT_PER_USER)
-        return error
-
-    return func(request=request, user=user)
 
 
 CAPTCHA_VERIFY_URL = "https://www.google.com/recaptcha/api/siteverify"

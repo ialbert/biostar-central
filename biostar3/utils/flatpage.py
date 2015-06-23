@@ -7,7 +7,7 @@ import os, logging, sys, re
 from .compat import *
 from django.db import transaction
 from biostar3.forum import auth
-from biostar3.forum.models import UserGroup, FlatPage, User, Post
+from biostar3.forum.models import FlatPage, User, Post
 from django.template.loader import get_template
 from django.template import Context, Template
 
@@ -42,8 +42,6 @@ def render_page(path, params={}):
 def add_all(path, update=False):
     valid_exts = {".html", ".md"}
 
-    usergroup = UserGroup.objects.filter(domain=settings.DEFAULT_GROUP_DOMAIN).first()
-
     admin = User.objects.filter(email=settings.ADMINS[0][1]).first()
 
     for dirpath, dirnames, filenames in os.walk(path):
@@ -66,7 +64,6 @@ def add_all(path, update=False):
                 logger.error("title field is missing from {}".format(path))
                 continue
 
-
             # Check for the slug.
             page = FlatPage.objects.filter(slug=slug).first()
 
@@ -77,9 +74,8 @@ def add_all(path, update=False):
                     data = dict(
                         title=title, type=Post.PAGE, content=content
                     )
-                    post = auth.create_toplevel_post(data=data, user=admin, group=usergroup)
+                    post = auth.create_toplevel_post(data=data, user=admin)
                     page = FlatPage.objects.create(post=post, slug=slug)
-
 
 if __name__ == '__main__':
     add_all(sys.argv[1])

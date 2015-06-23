@@ -147,7 +147,6 @@ def sanitize(text, user, safe=False):
 
         return attrs
 
-
     # The functions that will be applied when linkifying
     callbacks = [internal_links, require_protocol]
 

@@ -30,11 +30,6 @@ def user_create(sender, instance, created, **kwargs):
 
         logger.info("%s" % instance)
 
-        # Every user will be a member of the default group.
-        usergroup = UserGroup.objects.get(domain=settings.DEFAULT_GROUP_DOMAIN)
-
-        # Create a subscription of the user to the default group.
-        GroupSub.objects.create(user=instance, usergroup=usergroup)
         now = right_now()
         # Add a user profile on creation.
         profile = Profile.objects.create(
@@ -53,13 +48,15 @@ def post_created(sender, instance, created, **kwargs):
     if created:
         logger.info("%s" % instance)
 
-        # Subscriptions will apply relative to the root.
-        # Posting to a user group will automatically subscribe the user to that group
-        # with the default setting.
-        groupsub = auth.groupsub_get_or_create(user=instance.author, usergroup=instance.root.usergroup)
+        # Create the post subscription for the user.
+        if instance.is_toplevel:
+            # Top level posts need to fill the root and parent ids.
+            # Self referential ForeignKeys will not be set otherwise.
+            Post.objects.filter(pk=instance.pk).update(root_id=instance.pk, parent_id=instance.pk)
 
-        # Get or add the post subscription for the user.
-        postsub = auth.postsub_get_or_create(user=instance.author, post=instance.root, sub_type=groupsub.type)
+            # Create a subscription for the author on this post.
+            if instance.author.subs_type in [settings.SMART_MODE, settings.EMAIL_TRACKER]:
+                PostSub.objects.create(post=instance, user=instance.author)
 
         # Route the message creation via celery if necessary.
         func = tasks.create_messages
@@ -68,11 +65,6 @@ def post_created(sender, instance, created, **kwargs):
         if not instance.uuid:
             # If the unique id not set then set it to the primary key.
             Post.objects.filter(pk=instance.pk).update(uuid=instance.pk)
-
-        if instance.is_toplevel:
-            # Top level posts need to fill the root and parent ids.
-            # Self referential ForeignKeys will not be set otherwise.
-            Post.objects.filter(pk=instance.pk).update(root_id=instance.pk, parent_id=instance.pk)
 
     # Update the reply count on the post.
     instance.update_reply_count()

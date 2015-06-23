@@ -1,7 +1,7 @@
 from django.apps import AppConfig
 from django.db.models.signals import post_migrate
 from biostar3.forum import models, awards
-from biostar3.forum.models import User, UserGroup, GroupPerm, Post, GroupSub, PostSub
+from biostar3.forum.models import User, Post, PostSub
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.contrib.sites.models import Site
@@ -59,9 +59,6 @@ def post_migrate_tasks(sender, **kwargs):
     if not default_logo:
         raise ImproperlyConfigured("Cannot find default group logo at %s." % settings.DEFAULT_GROUP_LOGO)
 
-    # Ensure that the default group exists.
-    default_group, default_flag = UserGroup.objects.get_or_create(domain=settings.DEFAULT_GROUP_DOMAIN)
-
     # Create the admin users if necessary.
     for name, email in settings.ADMINS:
         user = User.objects.filter(email=email).first()
@@ -75,18 +72,6 @@ def post_migrate_tasks(sender, **kwargs):
 
     # Get the first admin on the list.
     admin = User.objects.get(email=settings.ADMINS[0][1])
-
-    # There is a chicken and egg problem with groups/owners as
-    # when initializing the default group the owner may not exist yet.
-    # Hence if created it needs to updated once the admin is known to exist.
-    if default_flag:
-        default_group.name = settings.DEFAULT_GROUP_NAME
-        default_group.info ="The default group for the site"
-        default_group.logo = File(open(default_logo, "rb"))
-        default_group.owner = admin
-        logger.info("Creating default group %s on the %s subdomain." % (default_group.name, default_group.domain))
-        default_group.save()
-
 
     # Initialize the awards.
     awards.get_awards()

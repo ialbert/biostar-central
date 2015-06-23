@@ -46,13 +46,13 @@ urlpatterns = patterns('',
     url(r'^u/edit/(?P<pk>\d+)/$', form_views.user_edit, name="user_edit"),
 
     # The list of badges.
-    url(r'^b/list/$', user_views.badge_list, name="badge_list"),
+    url(r'^badge/list/$', user_views.badge_list, name="badge_list"),
 
     # The list of badges.
-    url(r'^b/(?P<pk>\d+)/$', user_views.badge_view, name="badge_view"),
+    url(r'^badge/(?P<pk>\d+)/$', user_views.badge_view, name="badge_view"),
 
     # The list of users.
-    url(r'^b/awards/for/(?P<pk>\d+)/$', user_views.award_list, name="award_list"),
+    url(r'^badge/for/(?P<pk>\d+)/$', user_views.award_list, name="award_list"),
 
 
     #
@@ -102,50 +102,19 @@ urlpatterns = patterns('',
     #url(r'^site/charms/rpc/$', charm.views.charms_rpc, name="charm_rpc"),
 
     #
-    # Group related handlers
-    #
-    # Group list.
-    url(r'^g/list/$', post_views.group_list, name="group_list"),
-
-    # Group information.
-    url(r'^g/info/(?P<pk>\d+)/$', post_views.group_info, name="group_info"),
-
-    # Group login redirect. Used when redirecting subdomain login.
-    url(r'^g/login/(?P<pk>\d+)/$', post_views.group_login, name="group_login"),
-
-    # Group redirect.
-    url(r'^g/redirect/(?P<pk>\d+)/$', post_views.group_redirect, name="group_redirect"),
-
-    # Group subscriptions
-    url(r'^g/subscribe/(?P<pk>\d+)/$', form_views.group_subscribe, name="group_subscribe"),
-
-    # Group create.
-    url(r'^g/create/$', form_views.group_create, name="group_create"),
-
-    # Group edit.
-    url(r'^g/edit/(?P<pk>\d+)/$', form_views.group_edit, name="group_edit"),
-
-    # Group management.
-    url(r'^g/manage/(?P<pk>\d+)/$', form_views.group_manage, name="group_manage"),
-
-    # Group premission change.
-    url(r'^g/permission/(?P<pk>\d+)/$', form_views.group_permission, name="group_permission"),
-
-    #
     # Tag specific handlers
     #
     # Tag list.
-    url(r'^t/$', post_views.tag_list, name="tag_list"),
+    url(r'^t/list/$', post_views.tag_list, name="tag_list"),
 
     # Planet link.
-    url(r'^v/planet/$', post_views.planet_list, name="planet_list"),
-
+    url(r'^planet/$', post_views.planet_list, name="planet_list"),
 
     # Filter posts by tag.
     url(r'^t/(?P<name>.+)/$', post_views.tag_filter, name="tag_filter"),
 
     #
-    # Flatpage viewers
+    # Flatpage viewers.
     #
     url(r'^page/(?P<slug>[-\w]+)/$', post_views.flatpage_view, name='page_view'),
 

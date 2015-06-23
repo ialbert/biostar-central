@@ -2,7 +2,7 @@ from __future__ import unicode_literals, absolute_import, print_function
 
 from django.contrib.syndication.views import Feed
 from django.shortcuts import get_object_or_404
-from .models import Post, UserGroup, User, BlogPost, Message
+from .models import Post,  User, BlogPost, Message
 from . import auth
 from django.conf import settings
 from django.contrib.sites.models import Site
@@ -75,10 +75,6 @@ class PostBase(Feed):
 
     def item_pubdate(self, item):
         return item.creation_date
-
-# This is default group
-DEFAULT_GROUP = UserGroup.objects.filter(domain=settings.DEFAULT_GROUP_DOMAIN).first()
-
 
 class LatestFeed(PostBase):
     "Latest posts"

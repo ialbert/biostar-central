@@ -5,7 +5,6 @@ from django.contrib import messages
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.http import HttpResponsePermanentRedirect as Redirect
-from biostar3.forum.models import UserGroup, GroupPerm
 from django.contrib.sites.models import Site
 from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
 from biostar3.forum import cache, models, auth
@@ -56,22 +55,8 @@ class GlobalMiddleware(object):
 
     def process_request(self, request):
 
-        # Set the group based on subdomain on the current request.
-        subdomain = settings.GET_SUBDOMAIN(request)
-
-        # Get the group on each request.
-        request.group = cache.get_group(subdomain)
-
-        if not request.group:
-            # Unable to find the domain redirect.
-            # This can cause endless redirects if
-            # the DEFAULT_SUBDOMAINS are not set properly.
-            site = Site.objects.get_current()
-            url = "%s://%s" % (request.scheme, site.domain)
-            return Redirect(url)
-
         # Ensures that request data have all the information needed.
-        auth.add_user_attributes(request.user, group=request.group)
+        auth.add_user_attributes(request.user)
 
         #user.flair = models.compute_flair(user)
         #print ("user flair", user.flair)

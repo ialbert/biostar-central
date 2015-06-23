@@ -2,7 +2,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import sys
 from django.conf import settings
 from biostar3.forum import models
-from biostar3.forum.models import Post, Vote, UserGroup, Award
+from biostar3.forum.models import Post, Vote, Award
 from django.contrib.auth import get_user_model
 from django.contrib import messages
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -150,33 +150,33 @@ class ExtendedPaginator(Paginator):
 
 
 def recent_votes(request):
-    votes = Vote.objects.filter(post__status=Post.OPEN, post__usergroup=request.group) \
+    votes = Vote.objects.filter(post__status=Post.OPEN) \
                 .select_related("post", "post__author").order_by("-date")[:settings.RECENT_VOTE_COUNT]
     return votes
 
 
 def recent_users(request):
-    users = User.objects.filter(groupsub__usergroup=request.group).select_related("profile") \
+    users = User.objects.exclude(status=User.BANNED).select_related("profile") \
                 .order_by("-profile__last_login")[:settings.RECENT_USER_COUNT]
     return users
 
 
 def recent_awards(request):
-    users = Award.objects.filter(user__groupsub__usergroup=request.group).select_related("post", "user") \
+    users = Award.objects.filter().select_related("post", "user") \
                 .order_by("-date")[:settings.RECENT_AWARD_COUNT]
     return users
 
 
 def recent_replies(request):
-    posts = Post.objects.filter(root__usergroup=request.group).select_related("author").exclude(type__in=Post.TOP_LEVEL) \
+    posts = Post.objects.filter().select_related("author").exclude(type__in=Post.TOP_LEVEL) \
                 .order_by("-creation_date")[:settings.RECENT_USER_COUNT]
     return posts
 
 
 
-def get_toplevel_posts(user, group):
+def get_toplevel_posts(user):
     "Returns posts"
-    posts = Post.objects.filter(type__in=Post.QUERY_TYPES, usergroup=group)
+    posts = Post.objects.filter(type__in=Post.QUERY_TYPES)
 
     if not user.is_moderator:
         posts = posts.exclude(status=Post.DELETED)

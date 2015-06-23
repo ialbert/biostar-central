@@ -102,6 +102,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     # This designates a user status on whether they are allowed to log in.
     status = models.IntegerField(choices=STATUS_CHOICES, default=NEW_USER)
 
+    # This designates a user types and with that permissions.
+    subs_type = models.IntegerField(choices=settings.SUBSCRIPTION_CHOICES,
+                                      default=settings.SUBSCRIPTION_DEFAULT)
+
     # The number of new messages for the user.
     new_messages = models.IntegerField(default=0)
 
@@ -154,86 +158,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         super(User, self).save(*args, **kwargs)
 
     def __unicode__(self):
-        return "User: %s (%s)" % (self.id, self.email)
-
-
-class UserGroup(models.Model):
-    """
-    Represents a group
-    """
-    name = models.CharField(max_length=25, unique=True, db_index=True)
-    domain = models.CharField(max_length=50, unique=True, db_index=True, default="www")
-    owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="owners", null=True)
-    info = models.TextField(default="default group info")
-    html = models.TextField(default="group info turned into html")
-
-    url = models.CharField(default="full url to the group home", max_length=255)
-    public = models.BooleanField(default=True)
-    visible = models.BooleanField(default=True)
-    user_count = models.IntegerField(default=1)
-    post_count = models.IntegerField(default=0)
-    last_activity = models.DateTimeField()
-    creation_date = models.DateTimeField()
-
-    # The logo for the model.
-    logo = models.FileField(upload_to="groups/img", null=True, blank=True)
-
-    # A stylysheet that will be loaded for the group.
-    css_file = models.FileField(upload_to="groups/css", null=True, blank=True)
-
-    def save(self, *args, **kwargs):
-        "Actions that need to be performed on every user save."
-
-        # A few sanity checks performed.
-        self.domain = self.domain.lower()
-        self.domain = self.domain.strip()
-        self.domain = "".join(self.domain.splitlines())
-        self.domain = '-'.join(self.domain.split())
-
-        # The group url is set relative to the current site.
-        self.url = get_group_url(self)
-
-        # Set the dates.
-        self.creation_date = self.creation_date or right_now()
-        self.last_activity = self.last_activity or self.creation_date
-
-        self.html = html.sanitize(self.info, user=self.owner)
-
-        super(UserGroup, self).save(*args, **kwargs)
-
-        if self.owner:
-            # This is required since there is a chicken and egg problem with
-            # the first usergroup.
-            if not GroupSub.objects.filter(user=self.owner, usergroup=self):
-                GroupSub.objects.create(user=self.owner, usergroup=self)
-                GroupPerm.objects.create(user=self.owner, usergroup=self, role=GroupPerm.ADMIN)
-
-    def get_absolute_url(self):
-        return reverse("group_redirect", kwargs=dict(pk=self.id))
-
-    def __unicode__(self):
-        return "Usergroup: %s" % self.name
-
-def update_usergroups():
-    # Move this to a signal. Not done that way because of migrations would be slow.
-    for group in UserGroup.objects.all():
-        group.user_count = GroupSub.objects.filter(usergroup=group).count()
-        group.post_count = Post.objects.filter(usergroup=group).count()
-        group.save()
-
-class GroupPerm(models.Model):
-    """
-    Represents a special permission for a user on a group.
-    """
-
-    class Meta:
-        unique_together = (("user", "usergroup"),)
-
-    MODERATE, ADMIN = range(2)
-    ROLES = [(MODERATE, "Moderator"), (ADMIN, "Admin")]
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, db_index=True)
-    usergroup = models.ForeignKey(UserGroup)
-    role = models.IntegerField(choices=ROLES, default=MODERATE)
+        return "{0}({1}): {2}" .format(self.name, self.id, self.email)
 
 
 class Profile(models.Model):
@@ -278,7 +203,7 @@ class Profile(models.Model):
     html = models.TextField(default="", null=True, blank=True)
 
     # The default notification preferences.
-    message_prefs = models.IntegerField(choices=settings.MESSAGE_CHOICES, default=settings.MESSAGE_DEFAULT)
+    message_prefs = models.IntegerField(choices=settings.SUBSCRIPTION_CHOICES, default=settings.SUBSCRIPTION_DEFAULT)
 
     # Subscription to daily and weekly digests.
     digest_prefs = models.IntegerField(choices=settings.DIGEST_CHOICES, default=settings.DEFAULT_DIGEST)
@@ -344,9 +269,6 @@ class Post(models.Model):
 
     # The user that originally created the post.
     author = models.ForeignKey(settings.AUTH_USER_MODEL)
-
-    # The group that this post belongs to.
-    usergroup = models.ForeignKey(UserGroup, null=True, blank=True)
 
     # The user that edited the post most recently.
     lastedit_user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='editor', null=True)
@@ -418,7 +340,7 @@ class Post(models.Model):
 
     def __unicode__(self):
         display = self.get_type_display()
-        return "Post (id={}, type={}, title={})".format(self.id, display, self.title)
+        return "{}: {}({})".format(display, self.title, self.id)
 
     def set_reply_count(self):
         reply_count = Post.objects.filter(parent=self, type=Post.ANSWER).count()
@@ -523,6 +445,7 @@ class PostView(models.Model):
 
     class Meta:
         db_table = "posts_postview"
+        verbose_name = "Post View"
 
     ip = models.GenericIPAddressField(default='', null=True, blank=True)
     post = models.ForeignKey(Post, related_name="post_views")
@@ -560,22 +483,6 @@ class FederatedContent(models.Model):
     creation_date = models.DateTimeField(db_index=True, auto_now=True)
 
 
-class GroupSub(models.Model):
-    """
-    Keeps track of the subscription of a user to a group.
-    """
-
-    class Meta:
-        unique_together = (("user", "usergroup"),)
-
-    user = models.ForeignKey(settings.AUTH_USER_MODEL)
-    usergroup = models.ForeignKey(UserGroup)
-    type = models.IntegerField(choices=settings.SUBSCRIPTION_CHOICES, default=settings.SUBSCRIPTION_DEFAULT)
-
-    def __unicode__(self):
-        return "GroupSub of %s to %s" % (self.user_id, self.usergroup_id)
-
-
 class PostSub(models.Model):
     """
     Keeps track of subscriptions by users to posts.
@@ -586,6 +493,7 @@ class PostSub(models.Model):
 
     class Meta:
         unique_together = (("user", "post"),)
+        verbose_name = "Post Subscription"
 
     def __unicode__(self):
         return "PostSub: %s, %s: %s" % (self.user_id, self.post_id, self.get_pref_display())
@@ -664,7 +572,6 @@ class Blog(models.Model):
     link = models.URLField()
     active = models.BooleanField(default=True)
     list_order = models.IntegerField(default=0)
-    usergroup = models.ForeignKey(UserGroup, null=True)
 
     class Meta:
         db_table = "planet_blog"
