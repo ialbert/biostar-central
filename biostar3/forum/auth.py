@@ -72,7 +72,6 @@ def get_group_url(group):
 
 
 def tag_split(text):
-    lower = lambda x: x.lower() if len(x) > 1 else x
     parts = text.split(",")
     parts = map(strip, parts)
     parts = filter(None, parts)

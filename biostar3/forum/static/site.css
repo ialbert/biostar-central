@@ -94,8 +94,11 @@ body .highlighted {
 }
 .recent_list > ul {
   list-style-type: none;
-  opacity: 0.8;
-  line-height: 1;
+  opacity: 0.9;
+  line-height: 1.2;
+}
+.recent_list > .muted {
+  color: #808080;
 }
 .recent_list > .subtitle {
   font-size: larger;
