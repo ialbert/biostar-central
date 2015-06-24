@@ -98,6 +98,7 @@ def extras(request):
         "recent_awards": query.recent_awards(request),
         "recent_replies": query.recent_replies(request),
         "SITE_LOGO": settings.SITE_LOGO,
+        "SUBDOMAIN_FLAG": request.site.id != settings.SITE_ID
     }
 
     return context

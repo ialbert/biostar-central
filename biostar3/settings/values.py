@@ -40,18 +40,6 @@ SITE_SCHEME = "http"
 MODERATOR_SITE_NAME = "Biostars Moderators"
 MODERATORS_SITE_DOMAIN = "moderators.lvh.me:8080"
 
-# Subdomain relative to site domain.
-SITE_PREPEND_SUBDOMAIN = False
-
-# Which subdomains lead to the main site.
-DEFAULT_SUBDOMAINS = { 'www', '127' }
-
-# Default group name.
-DEFAULT_GROUP_NAME = "Biostar"
-
-# Default group domain. Don't change it after the site is deployed.
-DEFAULT_GROUP_DOMAIN = "www"
-
 # This must be set correctly in production.
 ALLOWED_HOSTS = [".lvh.me"]
 
@@ -69,8 +57,6 @@ EMAIL_REPLY_REMOVE_QUOTED_TEXT = True
 
 # Should the site allow interacting via email.
 ALLOW_EMAIL_REPLY = True
-
-
 
 # Google ReCaptcha No-Captcha settings
 # When set the captcha forms will be active.
@@ -109,7 +95,6 @@ POSTS_PER_PAGE = 10
 
 # How many minutes until a post view from an IP is counted again.
 POST_VIEW_INTERVAL = 5
-
 
 # 10MB -> 10 * 1024 * 1024
 MAX_UPLOAD_SIZE = 15 * 1024 * 1024

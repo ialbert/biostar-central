@@ -4,6 +4,11 @@
 {% load widgets %}
 
 {% block header %}
+    {% if  SUBDOMAIN_FLAG %}
+        <div class="subdomain">
+        {{ request.site.name }}
+        </div>
+    {% endif %}
     {#  Logo and user information #}
     {% nav_bar user %}
 {% endblock %}

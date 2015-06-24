@@ -330,7 +330,7 @@ def post_view(request, pk, post=None, user=None):
     related = filter(lambda x: x.object and x.object.is_toplevel, related)
 
     # Add object to the context.
-    context = dict(post=post, related=related)
+    context = dict(post=post, related=related, site=request.site)
 
     return render(request, template_name, context)
 

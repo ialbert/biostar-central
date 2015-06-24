@@ -62,9 +62,15 @@
 
 {% if post.is_toplevel %}
     {#  Produce a tagbar for top level posts #}
+     {% if post.site != request.site %}
+         <div class="row">
+    		Posted in: <a href="//{{ post.site.domain }}">{{ post.site.name }}</a>
+         </div>
+    {% endif %}
     <div class="row">
         {% tag_bar post %}
     </div>
+
 {% endif %}
 
 {#  Actionbar for the post #}

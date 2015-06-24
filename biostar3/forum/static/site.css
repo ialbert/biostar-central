@@ -257,6 +257,12 @@ body .highlighted {
   color: white;
   background-color: #6b3e4a;
 }
+.subdomain {
+  font-size: small;
+  background-color: #efefef;
+  border-radius: 3px;
+  text-align: center;
+}
 /* Count boxes */
 .post_row {
   margin: 0.2em 0em 0em 0em;
