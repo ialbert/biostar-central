@@ -45,7 +45,6 @@ def user_create(sender, instance, created, **kwargs):
 
 def post_created(sender, instance, created, **kwargs):
 
-
     # This is where messages are sent
     if created:
         logger.info("%s" % instance)

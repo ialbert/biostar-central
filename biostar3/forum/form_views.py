@@ -81,6 +81,7 @@ def get_post_form(request):
             (Post.QUESTION, "Question"),
             (Post.NEWS, "News"),
             (Post.FORUM, "Forum"),
+            (Post.TUTORIAL, "Tutorial"),
             (Post.JOB, "Job Ad"),
             (Post.PAGE, "Page"),
         ])
@@ -186,7 +187,7 @@ def post_edit(request, pk, post=None, user=None):
     if post.is_toplevel:
         # Different forms are chosen based on post type.
         # A form with title, type and tags.
-        form_class = get_post_form()
+        form_class = get_post_form(request)
         tags = ", ".join(post.tags.names())
         initial = dict(content=post.content, title=post.title, tags=tags, site=post.site.id, type=post.type,
                        file=post.file)
@@ -236,6 +237,11 @@ def post_edit(request, pk, post=None, user=None):
             post.type = get('type')
             tags = get('tags')
             tags = auth.tag_split(tags)
+
+            # Add extra tag information when saving a post.
+            if post.type != Post.QUESTION:
+                tags.append(post.get_type_display().lower())
+
             # Must explicitly set the new tags.
             post.tags.set(*tags)
 

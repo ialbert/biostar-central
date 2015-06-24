@@ -20,6 +20,7 @@ def ago(hours=0, minutes=0, days=0):
     since = right_now() - timedelta(days=days, hours=hours, minutes=minutes)
     return since
 
+
 def create_post_subscription(post):
     "Creates a post subscription for the author of a post"
     exists = PostSub.objects.filter(post=post.root, user=post.author).first()
@@ -38,7 +39,6 @@ def create_post_subscription(post):
 
     # Create the post subscription.
     PostSub.objects.create(post=post.root, user=post.author, type=subs_type)
-
 
 
 def add_user_attributes(user):
@@ -93,6 +93,10 @@ def create_toplevel_post(data, user, file=None):
     # Create the post.
     post = Post.objects.create(content=content, title=title,
                                author=user, type=type, file=file, site_id=site)
+
+    if post.type != Post.QUESTION:
+        tags.append(post.get_type_display().lower())
+
     # Set the tags on the post
     post.tags.set(*tags)
 
