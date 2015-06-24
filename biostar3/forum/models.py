@@ -163,7 +163,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 class Profile(models.Model):
     """
-    Maintains information that does not always need to be retreived whe a user is accessed.
+    Maintains information that does not always need to be retreived when a user is accessed.
     """
 
     class Meta:
