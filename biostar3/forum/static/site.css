@@ -479,6 +479,9 @@ ul.dropdown ul.items li :hover {
   border-radius: 4px;
   font-size: 1.2em;
 }
+#userbar {
+  border-top: 1px solid #efefef;
+}
 #userbar *.glow {
   color: white;
   background-color: #5b8c3e;

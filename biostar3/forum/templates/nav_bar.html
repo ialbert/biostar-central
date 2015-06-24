@@ -10,6 +10,22 @@
 
     <div id="navbar">
         {# This gets show for anonymous users #}
+        <div class="item">
+            <ul class="dropdown">
+                <a href="#">
+                    <div class="icon"><i class="fa fa-bars"></i></div>
+                    <div class="navlabel">Shortcuts</div>
+                </a>
+                <ul class="items">
+                    {% for name, url in context.shortcuts %}
+                        <li>
+                            <a href="{{ url }}">{{ name|safe }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </ul>
+
+        </div>
 
         {% if user.is_anonymous %}
             <div class="item">
@@ -19,6 +35,8 @@
                 </a>
             </div>
         {% endif %}
+
+
 
         <div class="item">
             <a href="{% url "new_post" %}">
@@ -34,12 +52,6 @@
             </a>
         </div> -->
 
-        <div class="item">
-            <a href="#">
-                <div class="icon"><i class="fa fa-sitemap"></i></div>
-                <div class="navlabel">Sites</div>
-            </a>
-        </div>
 
         <div class="item">
             <a href="{% url "planet_list" %}">
@@ -48,14 +60,12 @@
             </a>
         </div>
 
-
         <div class="item">
-            <a href="{% url "page_view" slug="info" %}">
-                <div class="icon"><i class="fa fa-info-circle"></i></div>
-                <div class="navlabel">About</div>
+            <a href="#">
+                <div class="icon"><i class="fa fa-sitemap"></i></div>
+                <div class="navlabel">Sites</div>
             </a>
         </div>
-
 
 
         {% if user.is_authenticated %}

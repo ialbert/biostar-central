@@ -5,25 +5,14 @@
 
     {#  A second navigation bar for authenticated users #}
     <div class="row">
-        <div class="twelve columns">
 
-            <div class="nav-sep"></div>
+
+
+        <div class="twelve columns">
 
             <div id="userbar">
 
-                <div class="item">
-                    <ul class="dropdown">
-                        <a href="{% url "home" %}"><i class="fa fa-caret-down"></i> Shortcuts</a>
-                        <ul class="items">
-                            {% for name, url in context.shortcuts %}
-                                <li>
-                                    <a href="{{ url }}">{{ name|safe }}</a>
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    </ul>
 
-                </div>
 
                 {% if user.is_authenticated %}
 
@@ -40,7 +29,7 @@
 
 
 
-                    <div class="item tooltip lg" title="Your upvoted posts" data-tooltip-direction="top">
+                    <div class="item tooltip lg" title="Upvotes you got" data-tooltip-direction="top">
                         {% if c.new_vote_count %}
                             <a class="{% glow c.new_vote_count %}" href="{% url "vote_list" pk=user.id %}"><i
                             class="fa fa-heart"></i> {{ c.new_vote_count }}</a>
@@ -50,7 +39,7 @@
                         {% endif %}
                     </div>
 
-                    <div class="item tooltip lg" title="Your awards" data-tooltip-direction="top">
+                    <div class="item tooltip lg" title="Your Awards" data-tooltip-direction="top">
                         <a href="{% url "award_list" user.id %}"><i class="fa fa-star"></i> {{ c.award_count }}</a>
                     </div>
 
@@ -59,7 +48,7 @@
                         class="fa fa-bookmark"></i> {{ c.book_count }}</a>
                     </div>
 
-                    <div class="item tooltip" title="Your posts" data-tooltip-direction="top">
+                    <div class="item tooltip" title="Your Posts" data-tooltip-direction="top">
                         <a href="{% url "posts_by_user" pk=user.id %}"><i
                         class="fa fa-list"></i> {{ c.post_count|bignum }}</a>
                     </div>

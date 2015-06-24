@@ -162,8 +162,10 @@ DEFAULT_SHORTCUTS = [
     # Item name, Item URL
     ("Home", "/"),
     ("Unanswered", "/p/unanswered/"),
+    ("News", "/t/news/"),
+    ("Tutorials", "/t/tutorials/"),
     ("Jobs", "/t/jobs/"),
-    ("All tags", "/t/"),
+    ("All Tags", "/t/list/"),
     ("<b>Your Account</b>", "/site/me/"),
     ("<b>Edit Profile</b>", "/site/edit/my/profile/"),
 ]

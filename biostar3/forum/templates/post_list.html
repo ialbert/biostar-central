@@ -10,7 +10,10 @@
 
         <div class="nine columns">
 
+
             {% search_bar page=page %}
+
+            {% message_bar %}
 
             {% for post in posts %}
                 <div class="row post_row">
@@ -36,13 +39,15 @@
                     {% tag_bar post %}
                     {% update_bar post %}
                 </div>
-            {% endfor %} 
+            {% endfor %}
+
 
             {% page_bar page %}
+           
         </div>
 
         <div class="three columns recent_list">
-            {% message_bar %}
+
 
             {% cache 0 "recent" %}
 
@@ -54,7 +59,7 @@
 
                 {% recent_replies recent_replies %}
 
-            {%  endcache %}
+            {% endcache %}
 
         </div>
 
