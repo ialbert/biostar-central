@@ -9,13 +9,6 @@
 
         <div class="nine columns ">
 
-            <h5>Posting in
-                {% if post.group %}
-                    <b>{{ post.group.name }}</b>
-                {% else %}
-                    <b>{{ group.name }}</b>
-                {% endif %}
-            </h5>
 
             {% if form.errors %}
                 <div>{{ form.errors }}</div>

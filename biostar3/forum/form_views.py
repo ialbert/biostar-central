@@ -87,7 +87,7 @@ def post_create(request, parent=None, post_type=None, action='', form_class=Cont
     This view creates nodes. Is not called directly from the web only through
     other functions that prefill parameters.
     """
-    user, group = request.user, request.group
+    user = request.user
     template_name = "post_edit.html"
 
     if request.method == "GET":
@@ -125,7 +125,7 @@ def post_create(request, parent=None, post_type=None, action='', form_class=Cont
 
         # The form is valid create the post based on the form.
         if post_type is None:
-            post = auth.create_toplevel_post(user=user, group=group, data=form.cleaned_data, file=file)
+            post = auth.create_toplevel_post(user=user,  data=form.cleaned_data, file=file)
         else:
             content = form.cleaned_data['content']
             post = auth.create_content_post(content=content, post_type=post_type, user=user, parent=parent, file=file)

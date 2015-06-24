@@ -75,9 +75,9 @@ Set up colors fo various widgets.
 }
 body {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  color: #333333;
-  line-height: 1.4em;
-  font-size: 14px;
+  color: #111111;
+  font-size: 13px;
+  line-height: 19px;
 }
 body p {
   margin-bottom: 1ex;
@@ -184,8 +184,9 @@ body .highlighted {
   opacity: 0.4;
 }
 .comment {
-  border-top: 1px solid #E1E1E1;
-  padding-top: 1ex;
+  padding: 1ex;
+  background-color: #EFEFEF;
+  margin-bottom: 0.5ex;
 }
 .indent {
   margin-left: 4%;
@@ -218,7 +219,7 @@ body .highlighted {
   line-height: 1.6em;
 }
 #post_list .post_title {
-  font-size: 1.1em;
+  font-size: 1.2em;
   font-weight: bold;
   margin-bottom: 0.2em;
 }

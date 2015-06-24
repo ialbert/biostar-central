@@ -5,14 +5,23 @@
 <div class="row">
 
     <div id="logo">
-		<a href="{% url 'home' %}"><img src="{% static context.SITE_LOGO %}"></a>
+        <a href="{% url 'home' %}"><img src="{% static context.SITE_LOGO %}"></a>
     </div>
 
     <div id="navbar">
         {# This gets show for anonymous users #}
 
+        {% if user.is_anonymous %}
+            <div class="item">
+                <a href="{% url 'account_login' %}">
+                    <div class="icon"><i class="fa fa-sign-in"></i></div>
+                    <div class="navlabel">Sign&nbsp;in</div>
+                </a>
+            </div>
+        {% endif %}
+
         <div class="item">
-            <a href="{% url "new_post" %}" class="signin">
+            <a href="{% url "new_post" %}">
                 <div class="icon"><i class="fa fa-plus-circle"></i></div>
                 <div class="navlabel">New&nbsp;Post</div>
             </a>
@@ -27,7 +36,7 @@
 
         <div class="item">
             <a href="#">
-                <div class="icon"><i class="fa fa-group"></i></div>
+                <div class="icon"><i class="fa fa-sitemap"></i></div>
                 <div class="navlabel">Sites</div>
             </a>
         </div>
@@ -47,14 +56,9 @@
             </a>
         </div>
 
-        {% if user.is_anonymous %}
-            <div class="item">
-                <a href="{% url 'account_login' %}">
-                    <div class="icon"><i class="fa fa-sign-in"></i></div>
-                    <div class="navlabel">Sign&nbsp;in</div>
-                </a>
-            </div>
-        {% else %}
+
+
+        {% if user.is_authenticated %}
             <div class="item ">
                 <a href="{% url 'account_logout' %}">
                     <div class="icon"><i class="fa fa-sign-out"></i></div>

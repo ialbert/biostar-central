@@ -181,12 +181,12 @@ def get_toplevel_posts(user):
     if not user.is_moderator:
         posts = posts.exclude(status=Post.DELETED)
 
-    posts = posts.select_related("root", "author", "lastedit_user", "usergroup").prefetch_related("tags")
+    posts = posts.select_related("root", "author", "lastedit_user").prefetch_related("tags")
     posts = posts.defer("content", "html")
     return posts
 
 
-def get_all_posts(request, target, group):
+def get_all_posts(request, target):
     "Returns all posts by a user"
 
     posts = Post.objects.filter(author=target)
@@ -194,27 +194,27 @@ def get_all_posts(request, target, group):
     if not request.user.is_moderator:
         posts = posts.exclude(status=Post.DELETED)
 
-    posts = posts.select_related("root", "author", "lastedit_user", "group").prefetch_related("tags")
+    posts = posts.select_related("root", "author", "lastedit_user").prefetch_related("tags")
     posts = posts.defer("content", "html")
 
     return posts
 
 
-def get_posts_by_vote(user, group, vote_types):
+def get_posts_by_vote(user,  vote_types):
     posts = Post.objects.filter(votes__type__in=vote_types, votes__post__author=user)
     posts = posts.distinct()
     return posts
 
 
-def get_my_bookmarks(user, group):
+def get_my_bookmarks(user):
     posts = Post.objects.filter(votes__type=Vote.BOOKMARK, votes__author=user)
     posts = posts.distinct()
     return posts
 
 
-def group_filter(self, name):
+def site_filter(self, sites=[]):
     "Performs a query to return posts that belong to a group"
-    posts = Post.objects.filter(type__in=Post.TOP_LEVEL, group__name=name)
+    posts = Post.objects.filter(type__in=Post.TOP_LEVEL, site_id__in=sites)
     posts = posts.select_related("root", "author", "lastedit_user").prefetch_related("tag_set")
     return posts
 

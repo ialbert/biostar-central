@@ -55,13 +55,17 @@ def post_created(sender, instance, created, **kwargs):
             Post.objects.filter(pk=instance.pk).update(root_id=instance.pk, parent_id=instance.pk)
 
             # Create a subscription for the author on this post.
-            if instance.author.subs_type in [settings.SMART_MODE, settings.EMAIL_TRACKER]:
+            if instance.author.subs_type == settings.EMAIL_TRACKER:
                 PostSub.objects.create(post=instance, user=instance.author)
 
         # Route the message creation via celery if necessary.
-        func = tasks.create_messages
-        func.delay(instance) if settings.CELERY_ENABLED else func(instance)
+        if settings.CELERY_ENABLED:
+            tasks.create_messages.delay(instance)
+        else:
+            tasks.create_messages(instance)
 
+
+        #
         if not instance.uuid:
             # If the unique id not set then set it to the primary key.
             Post.objects.filter(pk=instance.pk).update(uuid=instance.pk)

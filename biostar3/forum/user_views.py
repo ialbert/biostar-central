@@ -37,8 +37,6 @@ def user_list(request):
     else:
         users = User.objects.all()
 
-    users = users.filter(groupsub__usergroup=request.group)
-
     paginator = query.ExtendedPaginator(request, object_list=users,
                                         time_class=query.TimeLimitValidator,
                                         sort_class=query.UserSortValidator, per_page=25, orphans=False)
@@ -62,13 +60,12 @@ def user_view(request, pk, target=None):
 
     target.can_be_moderated = auth.can_moderate_user(request=request, target=target, user=request.user)
 
-    perms = models.GroupPerm.objects.filter(user=target).select_related("usergroup")
 
     top_count = target.post_count(types=models.Post.TOP_LEVEL)
     answer_count = target.post_count(types=[models.Post.ANSWER])
     comment_count = target.post_count(types=[models.Post.COMMENT])
 
-    context = dict(target=target, posts=posts, top_count=top_count, perms=perms,
+    context = dict(target=target, posts=posts, top_count=top_count,
                    answer_count=answer_count, comment_count=comment_count)
 
     return render(request, template_name, context)
@@ -145,24 +142,7 @@ class Login(LoginView):
     """
 
     def dispatch(self, request, *args, **kwargs):
-        # Override the next parameter if the user is visiting a different group.
-        # This is necessary as OAuth will only work for a single domain.
-        # After log in the user is redirected to the group site.
-        group = request.group
-        default = models.UserGroup.objects.filter(domain=settings.DEFAULT_GROUP_DOMAIN).first()
-        if group.domain != default.domain:
-            site = Site.objects.get_current()
-            login_url = reverse("account_login")
-            next_url = reverse("group_login", kwargs=dict(pk=group.id))
-            params = dict(
-                scheme=request.scheme,
-                next_url=next_url,
-                domain=site.domain,
-                login_url=login_url,
-            )
-            site_url = "%(scheme)s://%(domain)s%(login_url)s?next=%(next_url)s" % params
-            return redirect(site_url)
-
+        # This is not used anymore.
         return super(Login, self).dispatch(request, *args, **kwargs)
 
 @ratelimit(key='ip', rate=settings.SIGNUP_RATELIMIT)

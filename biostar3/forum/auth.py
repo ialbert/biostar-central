@@ -20,12 +20,17 @@ def ago(hours=0, minutes=0, days=0):
     since = right_now() - timedelta(days=days, hours=hours, minutes=minutes)
     return since
 
+
 def add_user_attributes(user):
     """
     Mutates the user in the request  to fill in required attributes.
     """
     if not user.is_authenticated():
         user.is_moderator = user.is_admin = False
+    else:
+        user.is_admin = (user.type == User.ADMIN)
+        user.is_moderator = user.is_admin or (user.type == User.MODERATOR)
+
 
 def get_group_url(group):
     """
@@ -77,7 +82,6 @@ def create_toplevel_post(data, user, file=None):
 
 
 def can_moderate_post(request, user, post):
-
     if user.is_superuser:
         return True
 
@@ -88,7 +92,6 @@ def can_moderate_post(request, user, post):
 
 
 def can_moderate_user(request, user, target):
-
     if target.is_staff:
         return False
 
@@ -116,15 +119,18 @@ def write_access_post(user, post):
     cond = (user == post.author) or user.is_moderator
     return cond
 
+
 def write_access_func(user):
     """
     Returns a function that can check a post for
     write access.
     """
+
     def func(post):
         return write_access_post(user, post)
 
     return func
+
 
 @decorator
 def valid_user(func, request, pk, target=None):
@@ -205,8 +211,8 @@ def content_create(func, request, pk, parent=None):
 
 CAPTCHA_VERIFY_URL = "https://www.google.com/recaptcha/api/siteverify"
 
-def valid_captcha(request):
 
+def valid_captcha(request):
     if not settings.RECAPTCHA_PUBLIC_KEY:
         # Captcha validation is not set up.
         return True

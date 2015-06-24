@@ -52,7 +52,7 @@ def tag_filter(request, name):
     """
     Returns a list of posts filtered by a tag name.
     """
-    posts = query.get_toplevel_posts(user=request.user, group=request.group)
+    posts = query.get_toplevel_posts(user=request.user)
     names = name.split("+")
     posts = posts.filter(tags__name__in=names)
     messages.info(request, 'Filtering for tags: %s' % name)
@@ -63,7 +63,7 @@ def unanswered(request):
     """
     Returns a list of posts filtered by a tag name.
     """
-    posts = query.get_toplevel_posts(user=request.user, group=request.group).filter(type=Post.QUESTION, reply_count=0)
+    posts = query.get_toplevel_posts(user=request.user).filter(type=Post.QUESTION, reply_count=0)
     messages.info(request, 'Unanswered questions')
     return post_list(request, posts=posts)
 
@@ -73,7 +73,7 @@ def posts_by_user(request, pk, target=None):
     """
     Returns the posts created by a user.
     """
-    posts = query.get_all_posts(request, target=target, group=request.group)
+    posts = query.get_all_posts(request, target=target)
     messages.info(request, 'Posts by: %s' % target.name)
     return post_list(request, posts=posts)
 
@@ -83,7 +83,7 @@ def upvoted_posts(request, pk, target=None):
     """
     Returns the upvoted posts created by a user.
     """
-    posts = query.get_posts_by_vote(user=target, group=request.group, vote_types=[Vote.BOOKMARK, Vote.UP])
+    posts = query.get_posts_by_vote(user=target, vote_types=[Vote.BOOKMARK, Vote.UP])
     messages.info(request, 'Upvoted posts created by %s' % target.name)
     return post_list(request, posts=posts)
 
@@ -94,7 +94,7 @@ def my_bookmarks(request):
     Returns the bookmarks by a user.
     """
     user = request.user
-    posts = query.get_my_bookmarks(user=user, group=request.group)
+    posts = query.get_my_bookmarks(user=user)
     messages.info(request, 'Bookmarks for: %s' % user.name)
     return post_list(request, posts=posts)
 

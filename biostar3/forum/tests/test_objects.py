@@ -7,7 +7,7 @@ from django.conf import settings
 from django.core import mail
 
 from biostar3.forum import apps, models
-from biostar3.forum.models import User, UserGroup, GroupPerm, Post
+from biostar3.forum.models import User, Post
 
 from biostar3.forum import html
 

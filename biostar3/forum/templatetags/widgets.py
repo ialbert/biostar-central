@@ -40,13 +40,6 @@ def cachebuster():
     param = "?x=%f" % value
     return param
 
-
-@register.simple_tag
-def group_logo_img(request):
-    group = request.group
-    return group.logo.url
-
-
 @register.inclusion_tag('recent_votes.html')
 def recent_votes(votes):
     return dict(votes=votes)

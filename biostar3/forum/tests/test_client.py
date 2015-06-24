@@ -111,7 +111,7 @@ class ClientTests(TestCase):
 
         c = Client(HTTP_HOST=HOST)
 
-        urls = "home user_list tag_list group_list unanswered".split()
+        urls = "home user_list tag_list unanswered".split()
         for url in urls:
             r = self.get(c, url)
 
@@ -123,42 +123,10 @@ class ClientTests(TestCase):
         user = self.make_user(c)
 
         # Check a few access pages.
-        urls = "home me group_list my_bookmarks my_messages".split()
+        urls = "home me my_bookmarks my_messages".split()
         for url in urls:
             r = self.get(c, url, follow=True, pattern=user.name)
 
-    def test_groups(self):
-        """
-        Test group creation.
-        """
-        equal = self.assertEqual
-        true = self.assertTrue
-
-        c = Client(HTTP_HOST=HOST)
-
-        for step in range(10):
-            user = self.make_user(c)
-            self.get(c, "group_list", follow=True)
-
-            name = make_uuid(size=8)
-            domain = name
-            info = faker.sentence()[:100]
-
-            data = dict(name=name, domain=domain, info=info, public=True)
-
-            r = self.post(c, "group_create", data=data, pattern=name, follow=True)
-
-            # Creating a group redirects to it.
-            rlen = len(r.redirect_chain)
-            if rlen != 2:
-                print(r.content)
-                logger.error("error creating domain: %s" % domain)
-                logger.error(r.redirect_chain)
-                true(rlen == 2)
-
-            final_url = r.redirect_chain[1][0]
-
-            true(domain in final_url)
 
 
     def test_content(self):
