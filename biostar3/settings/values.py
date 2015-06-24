@@ -245,7 +245,7 @@ POST_SORT_INVALID_MSG = "Invalid sort parameter in URL."
 # Group subscription settings.
 # Describes the values that a group subscription may take.
 #
-SMART_MODE, LOCAL_TRACKER, EMAIL_TRACKER, MAILING_LIST, LEAVE_GROUP = range(5)
+SMART_MODE, LOCAL_TRACKER, EMAIL_TRACKER, MAILING_LIST = range(4)
 
 # The mapping from a messaging type to a readable word.
 SUBSCRIPTION_CHOICES = [
@@ -253,7 +253,6 @@ SUBSCRIPTION_CHOICES = [
     (LOCAL_TRACKER, "Local Tracker"),
     (EMAIL_TRACKER, "Email Tracker"),
     (MAILING_LIST, "Mailing List"),
-    (LEAVE_GROUP, "Leave Group"),
 ]
 
 SUBSCRIPTION_DEFAULT = SMART_MODE

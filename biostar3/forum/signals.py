@@ -44,9 +44,13 @@ def user_create(sender, instance, created, **kwargs):
 
 
 def post_created(sender, instance, created, **kwargs):
+
+
     # This is where messages are sent
     if created:
         logger.info("%s" % instance)
+
+        subs_type = instance.author.profile.message_prefs
 
         # Create the post subscription for the user.
         if instance.is_toplevel:
@@ -54,18 +58,22 @@ def post_created(sender, instance, created, **kwargs):
             # Self referential ForeignKeys will not be set otherwise.
             Post.objects.filter(pk=instance.pk).update(root_id=instance.pk, parent_id=instance.pk)
 
-            # Create a subscription for the author on this post.
-            if instance.author.subs_type == settings.EMAIL_TRACKER:
-                PostSub.objects.create(post=instance, user=instance.author)
+            # When author is on email tracking they need to get a subscription before
+            # the notifications are sent.
+            if subs_type == settings.EMAIL_TRACKER:
 
+                auth.create_post_subscription(instance)
+
+        # Create the notifications both email and as messages.
         # Route the message creation via celery if necessary.
         if settings.CELERY_ENABLED:
             tasks.create_messages.delay(instance)
         else:
             tasks.create_messages(instance)
 
+        # Create the post subscription. Will detect if this aready exists.
+        auth.create_post_subscription(instance)
 
-        #
         if not instance.uuid:
             # If the unique id not set then set it to the primary key.
             Post.objects.filter(pk=instance.pk).update(uuid=instance.pk)

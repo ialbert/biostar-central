@@ -495,8 +495,11 @@ class PostSub(models.Model):
         unique_together = (("user", "post"),)
         verbose_name = "Post Subscription"
 
+    def __repr__(self):
+        return self.__unicode__()
+
     def __unicode__(self):
-        return "PostSub: %s, %s: %s" % (self.user_id, self.post_id, self.get_pref_display())
+        return "PostSub: %s, %s: %s" % (self.user_id, self.post_id, self.get_type_display())
 
 
 class Vote(models.Model):

@@ -20,6 +20,26 @@ def ago(hours=0, minutes=0, days=0):
     since = right_now() - timedelta(days=days, hours=hours, minutes=minutes)
     return since
 
+def create_post_subscription(post):
+    "Creates a post subscription for the author of a post"
+    exists = PostSub.objects.filter(post=post.root, user=post.author).first()
+    if exists:
+        # The subscription for the post already exists.
+        return
+
+    # Find the notification preferences.
+    subs_type = post.author.profile.message_prefs
+
+    if subs_type == settings.SMART_MODE:
+        if post.is_toplevel:
+            subs_type = settings.EMAIL_TRACKER
+        else:
+            subs_type = settings.LOCAL_TRACKER
+
+    # Create the post subscription.
+    PostSub.objects.create(post=post.root, user=post.author, type=subs_type)
+
+
 
 def add_user_attributes(user):
     """
