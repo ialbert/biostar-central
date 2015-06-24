@@ -1,0 +1,50 @@
+{% extends "site_layout.html" %}
+{% load widgets %}
+
+{% block body %}
+
+    {% user_bar user %}
+
+    <div class="row" id="post_list">
+
+        <div class="nine columns">
+            <div>
+                <p>
+                    You are currently on the <b>{{ site.name }}</b> site.
+                </p>
+                <p>
+                    Different sites may be goverend by different communities. Contact the admins (or post on the moderator list)
+                    to request the creation of new sites.
+                </p>
+                <p>
+                	Check the boxes for the sites that you want to see you main page.
+                </p>
+            </div>
+
+            {% for site in sites %}
+                <div class="row post_row">
+                    <div class="post_title">
+                        <input type="checkbox">
+
+                        <a href="//{{ site.domain }}"> {{ site.name }}</a>
+                        at
+                        <a href="//{{ site.domain }}">
+                            {{ site_scheme }}://{{ site.domain }}</a>
+
+                    </div>
+
+
+                </div>
+            {% endfor %}
+
+        </div>
+
+        <div class="three columns recent_votes">
+            {% message_bar %}
+
+        </div>
+
+    </div>
+
+{% endblock %}
+

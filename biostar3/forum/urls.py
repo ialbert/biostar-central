@@ -96,7 +96,8 @@ urlpatterns = patterns('',
     # Email handlers.
     url(r'^site/incoming/email/', ajax.email_handler, name="email_handler"),
 
-
+    # Site list.
+    url(r'^sites/$', post_views.site_list, name="site_list"),
 
     # Biostar charm function calls.
     #url(r'^site/charms/rpc/$', charm.views.charms_rpc, name="charm_rpc"),

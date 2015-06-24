@@ -158,6 +158,8 @@ def post_list(request, posts=None):
         # The view is generic and could be called prefilled with posts.
         posts = query.get_toplevel_posts(user=request.user)
 
+    posts = posts.filter(site=request.site)
+
     paginator = query.ExtendedPaginator(request,
                                         sort_class=query.PostSortValidator,
                                         time_class=query.TimeLimitValidator,
@@ -168,6 +170,18 @@ def post_list(request, posts=None):
     context = dict(page=page, posts=page.object_list, html_title=html_title)
 
     return render(request, template_name, context)
+
+def site_list(request):
+    template_name = "site_list.html"
+
+    sites = Site.objects.all().order_by("id")
+    html_title = "Site List"
+
+    context = dict(sites=sites, html_title=html_title, site=request.site,
+                   site_scheme=settings.SITE_SCHEME)
+
+    return render(request, template_name, context)
+
 
 def search_results(request):
     """

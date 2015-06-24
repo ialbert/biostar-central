@@ -50,6 +50,9 @@ def post_migrate_tasks(sender, **kwargs):
         site.save()
         logger.info("Adding site=%s, name=%s, domain=%s." % (site.id, site.name, site.domain))
 
+    # Create moderator sites.
+    Site.objects.get_or_create(domain=settings.MODERATORS_SITE_DOMAIN, name=settings.MODERATOR_SITE_NAME)
+
     # Needs ADMINS settings.
     if not settings.ADMINS:
         raise ImproperlyConfigured("settings must include ADMINS attribute.")

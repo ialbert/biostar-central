@@ -49,14 +49,29 @@ class AutoSignupAdapter(DefaultSocialAccountAdapter):
         except User.DoesNotExist:
             pass
 
+SUBDOMAIN_CACHE = dict()
 
 class GlobalMiddleware(object):
     """Performs tasks that are applied on every request"""
 
     def process_request(self, request):
+        global SUBDOMAIN_CACHE
 
         # Ensures that request data have all the information needed.
         auth.add_user_attributes(request.user)
+
+        # Find the subdomain
+        domain = settings.GET_DOMAIN(request)
+
+        site = SUBDOMAIN_CACHE.get(domain)
+        if not site:
+            site = Site.objects.filter(domain=domain).first()
+            if site:
+                SUBDOMAIN_CACHE[domain] = site
+            else:
+                site = Site.objects.get_current()
+
+        request.site = site
 
         #user.flair = models.compute_flair(user)
         #print ("user flair", user.flair)

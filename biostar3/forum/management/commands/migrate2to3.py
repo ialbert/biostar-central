@@ -48,7 +48,10 @@ def perform_migration():
 
     # All existing post will have the uuid be equal to their primary keys.
     logger.info("Add 'uuid' field to posts")
-    Post.objects.all().update(uuid=F('pk'))
+
+    site = Site.objects.get_current()
+
+    Post.objects.all().update(uuid=F('pk'), site=site)
 
 class Command(BaseCommand):
     help = '''Migrates data from version 2 to 3'''

@@ -4,9 +4,13 @@
 <ul>
     {% for post in posts %}
         <li>
-            <a href="{{ post.get_absolute_url }}">{{ post.title}}</a>
+            {{ post.lastedit_date|time_ago }} <a href="{{ post.get_absolute_url }}">{{ post.title}}</a>
             by
-            <a href="{{post.author.get_absolute_url}}">{{ post.author.name }}</a> &bull; {{ post.author.score|bignum }}
+            <a href="{{post.author.get_absolute_url}}">{{ post.author.name }}</a>
+            &bull; {{ post.author.score|bignum }}
+        	<em>
+                {{ post.content|truncatewords:25 }}
+            </em>
         </li>
     {% endfor %}
 </ul>

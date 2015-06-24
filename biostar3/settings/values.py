@@ -32,9 +32,13 @@ MANAGERS = ADMINS
 # Site setup.
 # lvh.me resolves to localhost and contains dotted domain name.
 SITE_ID = 1
-SITE_NAME = "Site Name"
+SITE_NAME = "Biostars Q&A"
 SITE_DOMAIN = "www.lvh.me:8080"
 SITE_SCHEME = "http"
+
+# Set up the moderator site.
+MODERATOR_SITE_NAME = "Biostars Moderators"
+MODERATORS_SITE_DOMAIN = "moderators.lvh.me:8080"
 
 # Subdomain relative to site domain.
 SITE_PREPEND_SUBDOMAIN = False
@@ -145,15 +149,12 @@ TRUSTED_SOCIALACCOUNT_PROVIDERS = {
     'persona',
 }
 
-
-def GET_SUBDOMAIN(request):
+def GET_DOMAIN(request, key="HTTP_HOST"):
     """
-    Used to extract the subdomain.
-    The front end server must correctly forward the HTTP_HOST header.
+    The front end server must correctly forward the header.
     """
-    domain = request.META.get('HTTP_HOST', 'www')
-    subdomain = domain.split('.')[0]
-    return subdomain.lower()
+    domain = request.META.get(key, SITE_DOMAIN)
+    return domain
 
 # The value, url pairs that show up
 # in the shortcuts widget. The name may
