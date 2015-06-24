@@ -86,12 +86,13 @@ def create_toplevel_post(data, user, file=None):
     title = data.get('title', '').strip()
     type = data.get('type', '') or Post.QUESTION
     tags = data.get('tags', '')
+    site = data.get('site', settings.SITE_ID)
     tags = tag_split(tags)
     content = data.get('content', '')
 
     # Create the post.
     post = Post.objects.create(content=content, title=title,
-                               author=user, type=type, file=file)
+                               author=user, type=type, file=file, site_id=site)
     # Set the tags on the post
     post.tags.set(*tags)
 

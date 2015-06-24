@@ -33,16 +33,14 @@
                         </div>
                     </div>
 
-
-                    {% if form.slug %}
-                        <div class="row">
-                            <label for="{{ form.type.id_for_label }}">Slug</label>
-                            {{ form.slug }}
-                        </div>
-                    {% endif %}
-                    <div>
+                     <div>
                         <label for="{{ form.type.id_for_label }}">Type</label>
                         {{ form.type }}
+                    </div>
+
+                    <div>
+                        <label for="{{ form.site.id_for_label }}">Site</label>
+                        {{ form.site }}
                     </div>
 
                 {% endif %}

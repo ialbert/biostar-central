@@ -13,13 +13,14 @@ from django.shortcuts import render, redirect
 from django.db.models import Q
 from django.db import transaction
 from django.contrib.auth import get_user_model
-from .models import Post, Profile, right_now
+from .models import Post, Profile, right_now, Site
 from . import auth, cache
 
 logger = logging.getLogger('biostar')
 
 # Get custom user model.
 User = get_user_model()
+
 
 def title_validator(text):
     "Validates form input for tags"
@@ -60,29 +61,37 @@ class ContentForm(forms.Form):
     file = forms.FileField(widget=forms.ClearableFileInput, required=False, label="File")
 
 
-class PostForm(ContentForm):
-    """
-    Edit or create top level posts: question, news, forum posts,
-    """
-    is_toplevel = True
-    min_lenght = 50
+def get_post_form(request):
+    sites = Site.objects.all().order_by("id")
+    site_choices = [(site.id, site.name) for site in sites]
 
-    title = forms.CharField(widget=forms.TextInput, initial='', max_length=200,
-                            validators=[title_validator])
+    class PostForm(ContentForm):
+        """
+        Edit or create top level posts: question, news, forum posts,
+        """
+        is_toplevel = True
+        min_lenght = 50
 
-    tags = forms.CharField(max_length=100, initial='', validators=[tag_validator])
+        title = forms.CharField(widget=forms.TextInput, initial='', max_length=200,
+                                validators=[title_validator])
 
-    type = forms.TypedChoiceField(coerce=int, choices=[
-        (Post.QUESTION, "Question"),
-        (Post.NEWS, "News"),
-        (Post.FORUM, "Forum"),
-        (Post.JOB, "Job Ad"),
-         (Post.PAGE, "Page"),
-    ])
+        tags = forms.CharField(max_length=100, initial='', validators=[tag_validator])
+
+        type = forms.TypedChoiceField(coerce=int, choices=[
+            (Post.QUESTION, "Question"),
+            (Post.NEWS, "News"),
+            (Post.FORUM, "Forum"),
+            (Post.JOB, "Job Ad"),
+            (Post.PAGE, "Page"),
+        ])
+
+        site = forms.TypedChoiceField(coerce=int, choices=site_choices, initial=request.site.id)
+
+    return PostForm
 
 
 @transaction.atomic
-def post_create(request, parent=None, post_type=None, action='', form_class=ContentForm):
+def post_create(request, parent=None, post_type=None, action='', top_level=False):
     """
     This view creates nodes. Is not called directly from the web only through
     other functions that prefill parameters.
@@ -90,9 +99,15 @@ def post_create(request, parent=None, post_type=None, action='', form_class=Cont
     user = request.user
     template_name = "post_edit.html"
 
+    # Pick the right form to operate on.
+    if top_level:
+        form_class = get_post_form(request)
+    else:
+        form_class = ContentForm
+
     if request.method == "GET":
         # This will render the initial form for the user.
-        form = form_class()
+        form = form_class
         context = dict(form=form, action=action)
         return render(request, template_name, context)
 
@@ -114,7 +129,7 @@ def post_create(request, parent=None, post_type=None, action='', form_class=Cont
         file = request.FILES.get('file')
 
         if file and file.size > settings.MAX_UPLOAD_SIZE:
-            maxsize = settings.MAX_UPLOAD_SIZE / 1024.0/1024
+            maxsize = settings.MAX_UPLOAD_SIZE / 1024.0 / 1024
             form.add_error("content", "The uploaded file is too large! only %4.1f MB allowed" % maxsize)
 
         if not form.is_valid():
@@ -125,11 +140,10 @@ def post_create(request, parent=None, post_type=None, action='', form_class=Cont
 
         # The form is valid create the post based on the form.
         if post_type is None:
-            post = auth.create_toplevel_post(user=user,  data=form.cleaned_data, file=file)
+            post = auth.create_toplevel_post(user=user, data=form.cleaned_data, file=file)
         else:
             content = form.cleaned_data['content']
             post = auth.create_content_post(content=content, post_type=post_type, user=user, parent=parent, file=file)
-
 
         return redirect(post.get_absolute_url())
 
@@ -141,21 +155,21 @@ def post_create(request, parent=None, post_type=None, action='', form_class=Cont
 def create_toplevel_post(request):
     "A new toplevel post"
     action = reverse("new_post")
-    return post_create(request=request, parent=None, post_type=None, action=action, form_class=PostForm)
+    return post_create(request=request, parent=None, post_type=None, action=action, top_level=True)
 
 
 @login_required
 @auth.content_create
 def create_answer(request, pk, parent=None):
     action = reverse("new_answer", kwargs=dict(pk=parent.id))
-    return post_create(request=request, parent=parent, post_type=Post.ANSWER, action=action)
+    return post_create(request=request, parent=parent, post_type=Post.ANSWER, action=action, top_level=False)
 
 
 @login_required
 @auth.content_create
 def create_comment(request, pk, parent=None):
     action = reverse("new_comment", kwargs=dict(pk=parent.id))
-    return post_create(request=request, parent=parent, post_type=Post.COMMENT, action=action)
+    return post_create(request=request, parent=parent, post_type=Post.COMMENT, action=action, top_level=False)
 
 
 @login_required
@@ -172,9 +186,10 @@ def post_edit(request, pk, post=None, user=None):
     if post.is_toplevel:
         # Different forms are chosen based on post type.
         # A form with title, type and tags.
-        form_class = PostForm
+        form_class = get_post_form()
         tags = ", ".join(post.tags.names())
-        initial = dict(content=post.content, title=post.title, tags=tags, type=post.type, file=post.file)
+        initial = dict(content=post.content, title=post.title, tags=tags, site=post.site.id, type=post.type,
+                       file=post.file)
     else:
         # Content only: answers and comments.
         form_class = ContentForm
@@ -190,11 +205,11 @@ def post_edit(request, pk, post=None, user=None):
         # This is a form submission with incoming parameters.
         form = form_class(request.POST)
 
-         # Handle the file upload allowing file removal.
+        # Handle the file upload allowing file removal.
         file = request.FILES.get('file')
 
         if file and file.size > settings.MAX_UPLOAD_SIZE:
-            maxsize = settings.MAX_UPLOAD_SIZE / 1024.0/1024
+            maxsize = settings.MAX_UPLOAD_SIZE / 1024.0 / 1024
             form.add_error("content", "The uploaded file is too large! only %4.1f MB allowed" % maxsize)
 
         if not form.is_valid():
@@ -209,7 +224,6 @@ def post_edit(request, pk, post=None, user=None):
         post.lastedit_user = user
         post.lastedit_date = right_now()
 
-
         clear = request.POST.get("file-clear")
 
         if file or clear:
@@ -217,6 +231,7 @@ def post_edit(request, pk, post=None, user=None):
 
         # Extra information to be saved for toplevel posts.
         if post.is_toplevel:
+            post.site_id = get('site')
             post.title = get('title')
             post.type = get('type')
             tags = get('tags')
@@ -229,11 +244,9 @@ def post_edit(request, pk, post=None, user=None):
     return redirect(post.get_absolute_url())
 
 
-
-
-
 # Full lenght text input widget.
-text_input = lambda: forms.TextInput(attrs={"class":"u-full-width"})
+text_input = lambda: forms.TextInput(attrs={"class": "u-full-width"})
+
 
 class UserProfileForm(forms.Form):
     name = forms.CharField(max_length=100, widget=text_input())

@@ -9,6 +9,7 @@ from django.contrib.sites.models import Site
 from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
 from biostar3.forum import cache, models, auth
 
+
 # Get current site
 User = get_user_model()
 
@@ -75,7 +76,7 @@ class GlobalMiddleware(object):
                 # This is an invalid site, redirect to main.
                 site = Site.objects.get_current()
                 url = "%s://%s" % (request.scheme, site.domain)
-                messages.error("Invalid site requested")
+                messages.error(request, "Invalid site requested")
                 return Redirect(url)
 
             # Existing site goes into the cache.

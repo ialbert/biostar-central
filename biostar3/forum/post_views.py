@@ -151,18 +151,16 @@ def vote_list(request, pk, target=None):
 
     return render(request, template_name, context)
 
+
 def site_filter(request, posts):
     user = request.user
 
-    # On any other subdomain filter by subdomain.
-    if request.site.id != settings.SITE_ID:
-        return posts.filter(site=request.site)
-
-    # We are on the main site. Filter if there are subscriptions.
-    if request.subs:
+    # Authenticated users on the main site filter by subscription.
+    if request.site.id == settings.SITE_ID and request.subs:
         return posts.filter(site_id__in=request.subs)
-    
-    return posts
+
+    # Default is to filter by site.
+    return posts.filter(site=request.site)
 
 
 def post_list(request, posts=None):
@@ -175,10 +173,12 @@ def post_list(request, posts=None):
     # Filter posts by the site the user is accessing.
     posts = site_filter(request, posts=posts)
 
+    # Add the paginator.
     paginator = query.ExtendedPaginator(request,
                                         sort_class=query.PostSortValidator,
                                         time_class=query.TimeLimitValidator,
                                         object_list=posts, per_page=settings.POSTS_PER_PAGE)
+
     page = paginator.curr_page()
 
     html_title = "Post List"
@@ -191,9 +191,15 @@ def site_list(request):
     template_name = "site_list.html"
 
     user = request.user
+    # Get the subscriptions for the user.
+    if user.is_anonymous():
+        subs = []
+    else:
+        subs = set([sub.site.id for sub in SiteSub.objects.filter(user=user)])
+
     if request.method == "POST":
         if user.is_anonymous():
-            messages.error(request, "Please log in")
+            messages.error(request, "Please log in to use this feature!")
         else:
             # Handles site subscription
             site_ids = request.POST.getlist('site_id')
@@ -204,17 +210,13 @@ def site_list(request):
             for site in sites:
                 SiteSub.objects.create(user=user, site=site)
 
-    # Get the subscriptions for the user
-    subs = set([sub.site.id for sub in SiteSub.objects.filter(user=user)])
-    if not subs:
-        messages.error(request, "At least one site must be selected")
-        subs = [ settings.SITE_ID ]
-
-    # Delete the session if exists.
-    del request.session[settings.SUBSCRIPTION_CACHE_NAME]
+            subs = set([sub.site.id for sub in SiteSub.objects.filter(user=user)])
+            # Delete the session if exists.
+            del request.session[settings.SUBSCRIPTION_CACHE_NAME]
 
     sites = Site.objects.all().order_by("id")
     for site in sites:
+
         site.checked = site.id in subs
 
     html_title = "Site List"
