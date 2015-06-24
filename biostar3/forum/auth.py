@@ -76,7 +76,6 @@ def tag_split(text):
     parts = text.split(",")
     parts = map(strip, parts)
     parts = filter(None, parts)
-    parts = map(lower, parts)
     return list(parts)
 
 
@@ -95,7 +94,7 @@ def create_toplevel_post(data, user, file=None):
                                author=user, type=type, file=file, site_id=site)
 
     if post.type != Post.QUESTION:
-        tags.append(post.get_type_display().lower())
+        tags.append(post.get_type_display())
 
     # Set the tags on the post
     post.tags.set(*tags)

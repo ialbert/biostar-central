@@ -37,6 +37,8 @@ def user_list(request):
     else:
         users = User.objects.all()
 
+    users = users.select_related("profile")
+
     paginator = query.ExtendedPaginator(request, object_list=users,
                                         time_class=query.TimeLimitValidator,
                                         sort_class=query.UserSortValidator, per_page=25, orphans=False)
@@ -89,7 +91,7 @@ def badge_view(request, pk):
         return redirect("badge_list")
 
 
-    awards = models.Award.objects.filter(badge=badge).select_related("user", "post").order_by("-date")
+    awards = models.Award.objects.filter(badge=badge).select_related("user", "post", "user__profile").order_by("-date")
 
     paginator = query.ExtendedPaginator(request,
                                         object_list=awards, per_page=50)
@@ -115,7 +117,7 @@ def award_list(request, pk, target=None):
     Show all the awards for a user
     """
     template_name = "award_list.html"
-    awards = models.Award.objects.filter(user=target).select_related("badge").order_by("-date")
+    awards = models.Award.objects.filter(user=target).select_related("badge", "user", "user__profile").order_by("-date")
     paginator = query.ExtendedPaginator(request,
                                         object_list=awards, per_page=50)
 

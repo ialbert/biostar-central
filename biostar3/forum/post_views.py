@@ -343,7 +343,7 @@ def planet_list(request):
     if q:
         posts = search.plain(q, "forum.blogpost")
     else:
-        posts = BlogPost.objects.order_by("creation_date")
+        posts = BlogPost.objects.select_related("blog").order_by("-creation_date")
 
     # Get the blogs in updated order.
     blogs = Blog.objects.all()

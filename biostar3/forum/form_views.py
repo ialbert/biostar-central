@@ -240,7 +240,7 @@ def post_edit(request, pk, post=None, user=None):
 
             # Add extra tag information when saving a post.
             if post.type != Post.QUESTION:
-                tags.append(post.get_type_display().lower())
+                tags.append(post.get_type_display())
 
             # Must explicitly set the new tags.
             post.tags.set(*tags)
