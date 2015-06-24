@@ -348,9 +348,12 @@ class Post(models.Model):
 
     def get_title(self):
         if self.status == Post.OPEN:
-            return self.title
+            if self.type == Post.QUESTION:
+                return self.title
+            else:
+                return "{0}: {1}".format(self.get_type_display(), self.title)
         else:
-            return "(%s) %s" % (self.get_status_display(), self.title)
+            return "({0}) {1}".format(self.get_status_display(), self.title)
 
     @property
     def can_accept(self):
