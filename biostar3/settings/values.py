@@ -149,6 +149,7 @@ TRUSTED_SOCIALACCOUNT_PROVIDERS = {
     'persona',
 }
 
+
 def GET_DOMAIN(request, key="HTTP_HOST"):
     """
     The front end server must correctly forward the header.

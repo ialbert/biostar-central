@@ -3,15 +3,16 @@ from __future__ import unicode_literals
 
 from django.db import models, migrations
 from django.utils.timezone import utc
-import datetime
 from django.conf import settings
 import biostar3.forum.models
+import datetime
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
         ('taggit', '0001_initial'),
+        ('sites', '0001_initial'),
         ('auth', '0001_initial'),
         ('forum', '0001_initial'),
     ]
@@ -20,9 +21,9 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Award',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('id', models.AutoField(serialize=False, verbose_name='ID', auto_created=True, primary_key=True)),
                 ('date', models.DateTimeField()),
-                ('context', models.CharField(default='', max_length=1000)),
+                ('context', models.CharField(max_length=1000, default='')),
             ],
             options={
             },
@@ -31,15 +32,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Badge',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('uuid', models.CharField(default='', unique=True, max_length=100, blank=True)),
+                ('id', models.AutoField(serialize=False, verbose_name='ID', auto_created=True, primary_key=True)),
+                ('uuid', models.CharField(max_length=100, unique=True, blank=True, default='')),
                 ('name', models.CharField(max_length=50)),
-                ('desc', models.CharField(default='', max_length=200)),
+                ('desc', models.CharField(max_length=200, default='')),
                 ('type', models.IntegerField(default=0, choices=[(0, 'User badge'), (1, 'Post badge')])),
                 ('style', models.IntegerField(default=0, choices=[(0, 'Bronze'), (1, 'Silver'), (2, 'Gold')])),
                 ('unique', models.BooleanField(default=False)),
                 ('count', models.IntegerField(default=0)),
-                ('icon', models.CharField(default='<i class="fa fa-asterisk"></i>', max_length=250)),
+                ('icon', models.CharField(max_length=250, default='<i class="fa fa-asterisk"></i>')),
             ],
             options={
             },
@@ -48,12 +49,12 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='FederatedContent',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('obj_id', models.IntegerField(default=0, db_index=True)),
+                ('id', models.AutoField(serialize=False, verbose_name='ID', auto_created=True, primary_key=True)),
+                ('obj_id', models.IntegerField(db_index=True, default=0)),
                 ('domain', models.TextField(default='')),
                 ('content', models.TextField(default='')),
                 ('changed', models.BooleanField(default=False)),
-                ('creation_date', models.DateTimeField(auto_now=True, db_index=True)),
+                ('creation_date', models.DateTimeField(db_index=True, auto_now=True)),
             ],
             options={
             },
@@ -62,7 +63,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='FlatPage',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('id', models.AutoField(serialize=False, verbose_name='ID', auto_created=True, primary_key=True)),
                 ('slug', models.SlugField(default='slug')),
                 ('post', models.ForeignKey(to='forum.Post')),
             ],
@@ -73,9 +74,9 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Message',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('id', models.AutoField(serialize=False, verbose_name='ID', auto_created=True, primary_key=True)),
                 ('unread', models.BooleanField(default=True)),
-                ('date', models.DateTimeField(null=True, db_index=True)),
+                ('date', models.DateTimeField(db_index=True, null=True)),
             ],
             options={
             },
@@ -84,7 +85,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='MessageBody',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('id', models.AutoField(serialize=False, verbose_name='ID', auto_created=True, primary_key=True)),
                 ('subject', models.CharField(max_length=500)),
                 ('html', models.TextField()),
                 ('content', models.TextField()),
@@ -98,8 +99,8 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='PostSub',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('type', models.IntegerField(default=0, choices=[(0, b'Smart Mode'), (1, b'Local Tracker'), (2, b'Email Tracker'), (3, b'Mailing List'), (4, b'Leave Group')])),
+                ('id', models.AutoField(serialize=False, verbose_name='ID', auto_created=True, primary_key=True)),
+                ('type', models.IntegerField(default=0, choices=[(0, 'Smart Mode'), (1, 'Local Tracker'), (2, 'Email Tracker'), (3, 'Mailing List')])),
                 ('post', models.ForeignKey(to='forum.Post')),
                 ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
             ],
@@ -111,7 +112,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='ReplyToken',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('id', models.AutoField(serialize=False, verbose_name='ID', auto_created=True, primary_key=True)),
                 ('date', models.DateTimeField(auto_created=True)),
                 ('token', models.CharField(max_length=256)),
                 ('post', models.ForeignKey(to='forum.Post')),
@@ -122,9 +123,20 @@ class Migration(migrations.Migration):
             bases=(models.Model,),
         ),
         migrations.CreateModel(
+            name='SiteSub',
+            fields=[
+                ('id', models.AutoField(serialize=False, verbose_name='ID', auto_created=True, primary_key=True)),
+                ('site', models.ForeignKey(to='sites.Site')),
+                ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
             name='TaggedUser',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('id', models.AutoField(serialize=False, verbose_name='ID', auto_created=True, primary_key=True)),
                 ('post', models.ForeignKey(to='forum.Post')),
                 ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
             ],
@@ -157,7 +169,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='award',
             name='post',
-            field=models.ForeignKey(blank=True, to='forum.Post', null=True),
+            field=models.ForeignKey(blank=True, null=True, to='forum.Post'),
             preserve_default=True,
         ),
         migrations.AddField(
@@ -194,61 +206,61 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='post',
             name='last_activity',
-            field=models.DateTimeField(default=datetime.datetime(2015, 6, 24, 12, 52, 36, 220302, tzinfo=utc), db_index=True),
+            field=models.DateTimeField(db_index=True, default=datetime.datetime(2015, 6, 24, 17, 0, 48, 517473, tzinfo=utc)),
             preserve_default=False,
         ),
         migrations.AddField(
             model_name='post',
             name='tags',
-            field=biostar3.forum.models.MyTaggableManager(to='taggit.Tag', through='taggit.TaggedItem', help_text='A comma-separated list of tags.', verbose_name='Tags'),
+            field=biostar3.forum.models.MyTaggableManager(verbose_name='Tags', help_text='A comma-separated list of tags.', through='taggit.TaggedItem', to='taggit.Tag'),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='post',
             name='uuid',
-            field=models.CharField(max_length=256, null=True),
+            field=models.CharField(null=True, max_length=256),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='profile',
             name='digest_prefs',
-            field=models.IntegerField(default=2, choices=[(0, b'Never'), (1, b'Daily'), (2, b'Weekly'), (3, b'Monthly')]),
+            field=models.IntegerField(default=2, choices=[(0, 'Never'), (1, 'Daily'), (2, 'Weekly'), (3, 'Monthly')]),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='profile',
             name='html',
-            field=models.TextField(default='', null=True, blank=True),
+            field=models.TextField(null=True, default='', blank=True),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='profile',
             name='shortcuts_json',
-            field=models.TextField(default='', null=True, blank=True),
+            field=models.TextField(null=True, default='', blank=True),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='profile',
             name='shortcuts_text',
-            field=models.TextField(default='', max_length=1000, null=True, blank=True),
+            field=models.TextField(null=True, max_length=1000, blank=True, default=''),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='user',
             name='groups',
-            field=models.ManyToManyField(related_query_name='user', related_name='user_set', to='auth.Group', blank=True, help_text='The groups this user belongs to. A user will get all permissions granted to each of his/her group.', verbose_name='groups'),
+            field=models.ManyToManyField(related_query_name='user', verbose_name='groups', help_text='The groups this user belongs to. A user will get all permissions granted to each of his/her group.', blank=True, related_name='user_set', to='auth.Group'),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='user',
             name='handle',
-            field=models.CharField(default='', max_length=25, verbose_name='Handle', blank=True),
+            field=models.CharField(max_length=25, verbose_name='Handle', blank=True, default=''),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='user',
             name='is_superuser',
-            field=models.BooleanField(default=False, help_text='Designates that this user has all permissions without explicitly assigning them.', verbose_name='superuser status'),
+            field=models.BooleanField(default=False, verbose_name='superuser status', help_text='Designates that this user has all permissions without explicitly assigning them.'),
             preserve_default=True,
         ),
         migrations.AddField(
@@ -260,13 +272,13 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='user',
             name='subs_type',
-            field=models.IntegerField(default=0, choices=[(0, b'Smart Mode'), (1, b'Local Tracker'), (2, b'Email Tracker'), (3, b'Mailing List'), (4, b'Leave Group')]),
+            field=models.IntegerField(default=0, choices=[(0, 'Smart Mode'), (1, 'Local Tracker'), (2, 'Email Tracker'), (3, 'Mailing List')]),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='user',
             name='user_permissions',
-            field=models.ManyToManyField(related_query_name='user', related_name='user_set', to='auth.Permission', blank=True, help_text='Specific permissions for this user.', verbose_name='user permissions'),
+            field=models.ManyToManyField(related_query_name='user', verbose_name='user permissions', help_text='Specific permissions for this user.', blank=True, related_name='user_set', to='auth.Permission'),
             preserve_default=True,
         ),
         migrations.AddField(
@@ -278,37 +290,37 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='post',
             name='lastedit_user',
-            field=models.ForeignKey(related_name='editor', to=settings.AUTH_USER_MODEL, null=True),
+            field=models.ForeignKey(null=True, related_name='editor', to=settings.AUTH_USER_MODEL),
             preserve_default=True,
         ),
         migrations.AlterField(
             model_name='profile',
             name='info',
-            field=models.TextField(default='', max_length=5000, null=True, blank=True),
+            field=models.TextField(null=True, max_length=5000, blank=True, default=''),
             preserve_default=True,
         ),
         migrations.AlterField(
             model_name='profile',
             name='message_prefs',
-            field=models.IntegerField(default=0, choices=[(0, b'Smart Mode'), (1, b'Local Tracker'), (2, b'Email Tracker'), (3, b'Mailing List'), (4, b'Leave Group')]),
+            field=models.IntegerField(default=0, choices=[(0, 'Smart Mode'), (1, 'Local Tracker'), (2, 'Email Tracker'), (3, 'Mailing List')]),
             preserve_default=True,
         ),
         migrations.AlterField(
             model_name='user',
             name='flair',
-            field=models.CharField(default='0,0,0,0', max_length=255, verbose_name='Flair', blank=True),
+            field=models.CharField(max_length=255, verbose_name='Flair', blank=True, default='0,0,0,0'),
             preserve_default=True,
         ),
         migrations.AlterField(
             model_name='user',
             name='name',
-            field=models.CharField(default='', max_length=255, verbose_name='Name'),
+            field=models.CharField(max_length=255, verbose_name='Name', default=''),
             preserve_default=True,
         ),
         migrations.AlterField(
             model_name='user',
             name='site',
-            field=models.ForeignKey(blank=True, to='sites.Site', null=True),
+            field=models.ForeignKey(blank=True, null=True, to='sites.Site'),
             preserve_default=True,
         ),
         migrations.AlterField(

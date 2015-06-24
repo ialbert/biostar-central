@@ -49,29 +49,50 @@ class AutoSignupAdapter(DefaultSocialAccountAdapter):
         except User.DoesNotExist:
             pass
 
-SUBDOMAIN_CACHE = dict()
+DOMAIN_CACHE = dict()
 
 class GlobalMiddleware(object):
     """Performs tasks that are applied on every request"""
 
     def process_request(self, request):
-        global SUBDOMAIN_CACHE
+        global DOMAIN_CACHE
+        user = request.user
 
         # Ensures that request data have all the information needed.
-        auth.add_user_attributes(request.user)
+        auth.add_user_attributes(user)
 
-        # Find the subdomain
+        # Find the domain
         domain = settings.GET_DOMAIN(request)
+        site = DOMAIN_CACHE.get(domain)
 
-        site = SUBDOMAIN_CACHE.get(domain)
+        # The site not found in the domain cache.
         if not site:
+
+            # Try to find the site among the existin ones.
             site = Site.objects.filter(domain=domain).first()
-            if site:
-                SUBDOMAIN_CACHE[domain] = site
-            else:
+
+            if not site:
+                # This is an invalid site, redirect to main.
                 site = Site.objects.get_current()
+                url = "%s://%s" % (request.scheme, site.domain)
+                messages.error("Invalid site requested")
+                return Redirect(url)
+
+            # Existing site goes into the cache.
+            DOMAIN_CACHE[domain] = site
+
+        # Add the subscription information to each request.
+        subs = []
+        if user.is_authenticated():
+            subs = request.session.get(settings.SUBSCRIPTION_CACHE_NAME)
+
+            # Set the subscriptions into the session.
+            if not subs:
+                subs = [s.site.id for s in models.SiteSub.objects.filter(user=user)]
+                request.session[settings.SUBSCRIPTION_CACHE_NAME] = subs
 
         request.site = site
+        request.subs = subs
 
         #user.flair = models.compute_flair(user)
         #print ("user flair", user.flair)

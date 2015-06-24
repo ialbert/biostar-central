@@ -502,6 +502,13 @@ class PostSub(models.Model):
         return "PostSub: %s, %s: %s" % (self.user_id, self.post_id, self.get_type_display())
 
 
+class SiteSub(models.Model):
+    """
+    Connects users to site subscriptions
+    """
+    user = models.ForeignKey(settings.AUTH_USER_MODEL)
+    site = models.ForeignKey(Site)
+
 class Vote(models.Model):
     class Meta:
         db_table = "posts_vote"

@@ -9,38 +9,58 @@
 
         <div class="nine columns">
             <div>
+            	{% message_bar %}
                 <p>
                     You are currently on the <b>{{ site.name }}</b> site.
                 </p>
+
                 <p>
-                    Different sites may be goverend by different communities. Contact the admins (or post on the moderator list)
+                    Different sites may be goverend by different communities. Contact the admins (or post on the
+                    moderator list)
                     to request the creation of new sites.
                 </p>
+
                 <p>
-                	Check the boxes for the sites that you want to see you main page.
+                    Check the boxes for the sites that you want to see you main page.
+                    {% if user.is_anonymous %}
+                        You will need to <a href="{% url 'account_login' %}">Sign In</a> to use this feature.
+                    {% endif %}
                 </p>
+
             </div>
+            <div>&nbsp;</div>
+            <form method="post" action="{% url "site_list" %}">
+            	{% csrf_token %}
+                {% for site in sites %}
 
-            {% for site in sites %}
-                <div class="row post_row">
-                    <div class="post_title">
-                        <input type="checkbox">
+                    <div class="row post_row">
+                        <div class="post_title">
 
-                        <a href="//{{ site.domain }}"> {{ site.name }}</a>
-                        at
-                        <a href="//{{ site.domain }}">
-                            {{ site_scheme }}://{{ site.domain }}</a>
+                            <input type="checkbox" name="site_id" value="{{ site.id }}"
+                            {% if site.checked %}
+                                   checked
+                            {% endif %}
+                            >
+                            &nbsp;
+                            <a href="//{{ site.domain }}"> {{ site.name }}</a>
+                            at
+                            <a href="//{{ site.domain }}">
+                                {{ site_scheme }}://{{ site.domain }}</a>
 
+                        </div>
                     </div>
 
 
+                {% endfor %}
+                <div class="row" style="margin-top:1ex">
+                    <input type="submit" name="Submit" value="Submit">
                 </div>
-            {% endfor %}
+            </form>
 
         </div>
 
         <div class="three columns recent_votes">
-            {% message_bar %}
+
 
         </div>
 

@@ -178,6 +178,9 @@ STATICFILES_FINDERS = (
     'compressor.finders.CompressorFinder',
 )
 
+
+SUBSCRIPTION_CACHE_NAME = "subs-cache"
+
 # The CSS classes associated with the Django messages framework.
 MESSAGE_TAGS = {
     10: 'info', 20: 'info', 25: 'success', 30: 'warning', 40: 'error',

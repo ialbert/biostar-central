@@ -14,6 +14,7 @@ from django.core.urlresolvers import reverse
 from django.db.models import Q, F
 from django.contrib.auth.decorators import login_required
 from haystack.query import SearchQuerySet
+from django.core.cache import cache
 
 from taggit.models import Tag
 
@@ -150,6 +151,19 @@ def vote_list(request, pk, target=None):
 
     return render(request, template_name, context)
 
+def site_filter(request, posts):
+    user = request.user
+
+    # On any other subdomain filter by subdomain.
+    if request.site.id != settings.SITE_ID:
+        return posts.filter(site=request.site)
+
+    # We are on the main site. Filter if there are subscriptions.
+    if request.subs:
+        return posts.filter(site_id__in=request.subs)
+    
+    return posts
+
 
 def post_list(request, posts=None):
     template_name = "post_list.html"
@@ -158,7 +172,8 @@ def post_list(request, posts=None):
         # The view is generic and could be called prefilled with posts.
         posts = query.get_toplevel_posts(user=request.user)
 
-    posts = posts.filter(site=request.site)
+    # Filter posts by the site the user is accessing.
+    posts = site_filter(request, posts=posts)
 
     paginator = query.ExtendedPaginator(request,
                                         sort_class=query.PostSortValidator,
@@ -171,12 +186,38 @@ def post_list(request, posts=None):
 
     return render(request, template_name, context)
 
+
 def site_list(request):
     template_name = "site_list.html"
 
-    sites = Site.objects.all().order_by("id")
-    html_title = "Site List"
+    user = request.user
+    if request.method == "POST":
+        if user.is_anonymous():
+            messages.error(request, "Please log in")
+        else:
+            # Handles site subscription
+            site_ids = request.POST.getlist('site_id')
+            # A simple sanity check
+            site_ids = site_ids[:50]
+            sites = Site.objects.filter(id__in=site_ids)
+            SiteSub.objects.filter(user=user).delete()
+            for site in sites:
+                SiteSub.objects.create(user=user, site=site)
 
+    # Get the subscriptions for the user
+    subs = set([sub.site.id for sub in SiteSub.objects.filter(user=user)])
+    if not subs:
+        messages.error(request, "At least one site must be selected")
+        subs = [ settings.SITE_ID ]
+
+    # Delete the session if exists.
+    del request.session[settings.SUBSCRIPTION_CACHE_NAME]
+
+    sites = Site.objects.all().order_by("id")
+    for site in sites:
+        site.checked = site.id in subs
+
+    html_title = "Site List"
     context = dict(sites=sites, html_title=html_title, site=request.site,
                    site_scheme=settings.SITE_SCHEME)
 
@@ -305,7 +346,7 @@ def planet_list(request):
     # Get the blogs in updated order.
     blogs = Blog.objects.all()
     blogs = blogs.annotate(updated_date=Max("blogpost__creation_date"),
-        count=Count("blogpost__id")).order_by("-updated_date", "-list_order")
+                           count=Count("blogpost__id")).order_by("-updated_date", "-list_order")
 
     paginator = query.ExtendedPaginator(request,
                                         object_list=posts, per_page=settings.POSTS_PER_PAGE)
@@ -315,9 +356,11 @@ def planet_list(request):
 
     return render(request, template_name, context)
 
-from django.http import Http404
-def flatpage_view(request, slug, domain=None, flatpage=None, user=None):
 
+from django.http import Http404
+
+
+def flatpage_view(request, slug, domain=None, flatpage=None, user=None):
     domain = domain or settings.DEFAULT_GROUP_DOMAIN
 
     template_name = "page_view.html"
