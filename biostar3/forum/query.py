@@ -162,8 +162,9 @@ def recent_users(request):
 
 
 def recent_awards(request):
-    users = Award.objects.filter().select_related("post", "user") \
+    users = Award.objects.filter().select_related("post", "user", "badge") \
                 .order_by("-date")[:settings.RECENT_AWARD_COUNT]
+
     return users
 
 

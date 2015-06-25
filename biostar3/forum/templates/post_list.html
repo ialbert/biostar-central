@@ -48,17 +48,15 @@
 
         <div class="three columns recent_list">
 
-            {% cache 120 "recent" %}
+            {% cache 5 "recent" %}
 
+                {% recent_votes recent_votes %}
 
-                    {% recent_votes recent_votes %}
+                {% recent_users recent_users %}
 
-                    {% recent_users recent_users %}
+                {% recent_awards recent_awards %}
 
-                    {% recent_awards recent_awards %}
-
-                    {% recent_replies recent_replies %}
-
+                {% recent_replies recent_replies %}
 
             {% endcache %}
 

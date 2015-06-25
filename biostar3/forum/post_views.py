@@ -171,8 +171,8 @@ def post_list(request, posts=None):
         # The view is generic and could be called prefilled with posts.
         posts = query.get_toplevel_posts(user=request.user)
 
-    # Filter posts by the site the user is accessing.
-    posts = site_filter(request, posts=posts)
+        # Filter posts by the site the user is accessing.
+        posts = site_filter(request, posts=posts)
 
     # Add the paginator.
     paginator = query.ExtendedPaginator(request,

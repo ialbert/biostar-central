@@ -567,13 +567,13 @@ class Message(models.Model):
         return "Message for user %s" % self.user_id
 
 
-class TaggedUser(models.Model):
+class SiteLog(models.Model):
     """
-    Connects a tagged user to a post
+    Messages logged by the site and visible to the public.
     """
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, db_index=True)
-    post = models.ForeignKey(Post, db_index=True)
-
+    date = models.DateTimeField(db_index=True, null=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, db_index=True, null=True)
+    text = models.TextField()
 
 class Blog(models.Model):
     """

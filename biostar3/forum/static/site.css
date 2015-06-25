@@ -99,7 +99,7 @@ ul {
 }
 .recent_list ul {
   opacity: 0.9;
-  line-height: 1.2;
+  line-height: 1.4;
 }
 .recent_list ul li {
   margin-bottom: 2px;
@@ -493,7 +493,7 @@ ul.dropdown ul.items li :hover {
 #userbar *.glow {
   color: white;
   background-color: #5b8c3e;
-  border-radius: 4px;
+  border-radius: 25px;
 }
 #userbar *.glow:hover {
   color: #5b8c3e;
