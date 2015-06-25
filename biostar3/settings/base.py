@@ -223,9 +223,11 @@ SOCIALACCOUNT_PROVIDERS = {
         'AUDIENCE': 'http://www.lvh.me:8080/',
         'REQUEST_PARAMETERS': {'siteName': 'Biostars'}
     },
+
     'google': {
-        'SCOPE': ['email'],
+        'SCOPE': ['profile', 'email'],
         'AUTH_PARAMS': {'access_type': 'online'}
     }
+
 }
 

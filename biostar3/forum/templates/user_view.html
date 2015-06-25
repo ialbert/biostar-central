@@ -5,6 +5,13 @@
 {% block title %}
     User List
 {% endblock %}
+{% block head %}
+    <style>
+        .pad {
+            padding-top: 1ex;
+        }
+    </style>
+{% endblock %}
 
 {% block body %}
     {% user_bar user %}
@@ -17,15 +24,32 @@
                     (<i class="fa fa-exclamation-triangle"></i> {{ target.get_status_display|lower }})
                 {% endif %}
             </div>
+         	{% message_bar %}
         </div>
 
         <div class="row">
+
 
             <div class="eight columns">
                 <div class="row">
                     <div class="six columns">
                         {#  User portrait #}
                         <div class="center">{% gravatar target 200 %}</div>
+
+                        {% if target.editable %}
+
+                            <div class="center pad">
+                                <a class="button" href="{% url "user_edit" target.id %}">
+                                    <b><i class="fa fa-edit"></i> Edit profile</b></a>
+                            </div>
+                            <div class="center pad">
+                                <a class="button" href="{% url 'socialaccount_connections' %}">
+                                    <b><i class="fa fa-connectdevelop"></i> Add social
+                                        accounts</b></a>
+                            </div>
+
+                        {% endif %}
+
                         {% if target.can_be_moderated %}
                             <div class="center">
                                 {# Needs two parents for the panel popover to work properly #}
@@ -39,11 +63,16 @@
 
                     <div class="six columns">
 
-                        {% message_bar %}
+
 
                         <div id="user_attr">
+
                             <div>
-                                Status: <b>{{ target.get_status_display }}</b> <i class="fa fa-question-circle"></i>
+                                Username: <b>@{{ target.handle }}</b></i>
+                            </div>
+
+                            <div>
+                                Status: <b>{{ target.get_status_display }}</b>
                             </div>
 
                             <div>
@@ -116,6 +145,7 @@
                                 <b>{{ comment_count|intcomma }}</b> comment{{ comment_count|pluralize }}
                             </div>
 
+
                         </div>
 
 
@@ -123,19 +153,10 @@
                 </div>
                 <div class="row">
                     <div>
+
+
                         <ul class="simple_navbar">
 
-                            {% if target.editable %}
-                                <li>
-                                    <a href="{% url "user_edit" target.id %}">
-                                        <b><i class="fa fa-edit"></i> Edit profile</b></a>
-                                </li>
-                                <li>
-                                    <a href="{% url "user_edit" target.id %}">
-                                        <b><i class="fa fa-connectdevelop"></i> Add social
-                                            accounts</b></a>
-                                </li>
-                            {% endif %}
 
                             <li>
                                 <a href="{% url "posts_by_user" pk=target.id %}"><i
@@ -159,11 +180,14 @@
                     <div class="title">Most Recent Posts by {{ target.name }}</div>
                     <div id="post_list">
                         {% for post in posts %}
-                            <div class="post_title">
-                                <a
-                                href="{{ post.get_absolute_url }}">{{ post.title }}</a>
+                            <div class="post_row">
+                                <div class="post_title">
+                                    <a
+                                    href="{{ post.get_absolute_url }}">{{ post.title }}</a>
+                                </div>
+                                <div>{{ post.content | truncatewords:80 }}</div>
                             </div>
-                            <div>{{ post.content | truncatewords:80 }}</div>
+
                         {% endfor %}
                     </div>
                 </div>

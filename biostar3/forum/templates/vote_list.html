@@ -4,6 +4,21 @@
 {% block title %}
     Votes
 {% endblock %}
+{% block head %}
+
+    <style>
+		.intro {
+            padding: 1em 0em 1em 0em;
+            font-size: larger;
+        }
+    	.line_item {
+            padding: 1em;
+            margin-bottom: 2px;
+        }
+
+    </style>
+
+{% endblock %}
 
 {% block body %}
 
@@ -15,21 +30,22 @@
     </div>
     <div class="row">
 
+		{% message_bar %}
 
         <div class="eight columns">
 
-            <h5 class="title">
+            <div class="intro">
                 <i class="fa fa-thumbs-o-up"></i> Upvoted,
                 <i class="fa fa-bookmark"></i> Bookmarked,
                 <i class="fa fa-heart"></i> Followed
-                posts by <a href="{{ target.get_absolute_url }}">{{ target.name }}</a>
-            </h5>
+                posts created by <a href="{{ target.get_absolute_url }}">{{ target.name }}</a>
+            </div>
 
             <div id="post_list">
                 {% for vote in votes %}
-                    <div class="post_title">
+                    <div class="post_title line_item {% glow vote.unread %}">
                         {% vote_symbol vote %}
-                        <a href="{{ vote.post.get_absolute_url }}">{{ vote.post.title }}</a>
+                        <a href="{{ vote.post.get_absolute_url }}">{{ vote.post.get_title }}</a>
                     </div>
                 {% endfor %}
             </div>
@@ -37,22 +53,24 @@
         </div>
 
         <div class="four columns">
-            <h5 class="title">People voting for <a href="{{ target.get_absolute_url }}">{{ target.name }}</a></h5>
-             {% for vote in votes %}
+            <div class="intro">
+                Users voting for <a href="{{ target.get_absolute_url }}">{{ target.name }}</a>
+            </div>
+            {% for vote in votes %}
 
+                <div class="user_list_box">
 
-                 <div class="user_list_box">
-                        <div>
-                            <a href="{{ vote.author.get_absolute_url }}">{% gravatar vote.author 82 %}</a>
-                        </div>
-
-                        <div>
-                            <a href="{{ vote.author.get_absolute_url }}">{{ vote.author.name }}</a>
-                        </div>
-
+                    <div>
+                        <a href="{{ vote.author.get_absolute_url }}">{% gravatar vote.author 82 %}</a>
                     </div>
 
-                {% endfor %}
+                    <div>
+                        <a href="{{ vote.author.get_absolute_url }}">{{ vote.author.name }}</a>
+                    </div>
+
+                </div>
+
+            {% endfor %}
         </div>
 
 

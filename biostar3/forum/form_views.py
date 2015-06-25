@@ -263,7 +263,10 @@ class UserProfileForm(forms.Form):
     scholar = forms.CharField(max_length=150, label="Google Scholar ID", required=False, widget=text_input())
     location = forms.CharField(max_length=150, required=False, widget=text_input())
     info = forms.CharField(widget=forms.Textarea, required=False, max_length=3000)
-    shortcuts_text = forms.CharField(widget=forms.Textarea, required=False, max_length=500)
+
+    message_prefs = forms.ChoiceField(
+        choices=settings.SUBSCRIPTION_CHOICES, initial=settings.SUBSCRIPTION_DEFAULT,
+    )
 
     def clean_email(self):
         """
@@ -300,7 +303,7 @@ def user_edit(request, pk, target=None):
             twitter_id=target.profile.twitter_id,
             scholar=target.profile.scholar,
             info=target.profile.info,
-            shortcuts_text=target.profile.shortcuts_text,
+            message_prefs=target.profile.message_prefs,
 
         )
         form = UserProfileForm(target, initial=initial)
@@ -322,12 +325,13 @@ def user_edit(request, pk, target=None):
     )
 
     profile = Profile.objects.filter(user__id=target.id).first()
-    for field in "info website scholar location twitter_id shortcuts_text scholar".split():
+    for field in "info website scholar location twitter_id message_prefs scholar".split():
         setattr(profile, field, get(field))
 
     # Trigger save.
     profile.save()
 
+    messages.info(request, "Your profile has been updated")
     return redirect(target.get_absolute_url())
 
 

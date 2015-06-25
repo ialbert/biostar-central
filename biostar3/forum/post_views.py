@@ -135,14 +135,15 @@ def vote_list(request, pk, target=None):
 
     votes = Vote.objects.filter(post__author=target).select_related("post", "author", "post__root", "author__profile").order_by("-date")
 
-    # Set all votes to seen.
-    votes.update(unread=False)
-
     paginator = query.ExtendedPaginator(request,
                                         object_list=votes, per_page=50)
     page = paginator.curr_page()
 
-    context = dict(page=page, votes=page.object_list, target=target)
+    # Serialize to a list to keep the unread status.
+    context = dict(page=page, votes=list(page.object_list), target=target)
+
+    # Set all votes to seen.
+    votes.update(unread=False)
 
     # Reset the value for for messages.
     counts = request.session.get(SESSION_COUNT_KEY, {})

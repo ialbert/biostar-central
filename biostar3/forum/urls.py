@@ -91,7 +91,7 @@ urlpatterns = patterns('',
     url(r'^site/my/bookmarks/$', post_views.my_bookmarks, name="my_bookmarks"),
 
     # User messages.
-    url(r'^site/my/messages/$', post_views.my_messages, name="my_messages"),
+    url(r'^site/notifications/$', post_views.my_messages, name="my_messages"),
 
     # Email handlers.
     url(r'^site/incoming/email/', ajax.email_handler, name="email_handler"),

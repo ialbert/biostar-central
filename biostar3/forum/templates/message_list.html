@@ -5,16 +5,29 @@
     Site Messages
 {% endblock %}
 
+{% block head %}
+    <style>
+        .notify_title {
+            font-size: larger;
+            font-weight: bold;
+            line-height: 1.5;
+            margin-bottom: 1ex;
+            margin-top: 1ex;
+        }
+    </style>
+{% endblock %}
+
+
+
 {% block body %}
 
     {% user_bar user %}
 
     <div class="row" id="post_list">
         <div class="nine columns">
-
-
-            {% search_bar page=page %}
-
+            <div class="notify_title">
+                <i class="fa fa-envelope"></i> Your Notifications
+            </div>
             {% for message in notes %}
                 <div class="message {% glow message.unread %}">
                     {{ message.date }} {{ message.body.content|safe }}

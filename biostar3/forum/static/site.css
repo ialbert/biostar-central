@@ -502,7 +502,7 @@ ul.dropdown ul.items li :hover {
   padding: 1ex;
   font-size: larger;
 }
-.message.glow {
+.glow {
   background-color: #dff0d8;
 }
 .message {

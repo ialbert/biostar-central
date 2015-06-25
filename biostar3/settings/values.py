@@ -88,7 +88,7 @@ RECENT_USER_COUNT = 8
 RECENT_AWARD_COUNT = 7
 
 # How frequently to check for updates.
-SESSION_UPDATE_SECONDS = 600
+SESSION_UPDATE_SECONDS = 10
 
 # How many posts per page.
 POSTS_PER_PAGE = 10
@@ -240,8 +240,8 @@ SMART_MODE, LOCAL_TRACKER, EMAIL_TRACKER, MAILING_LIST = range(4)
 # The mapping from a messaging type to a readable word.
 SUBSCRIPTION_CHOICES = [
     (SMART_MODE, "Smart Mode"),
-    (LOCAL_TRACKER, "Local Tracker"),
-    (EMAIL_TRACKER, "Email Tracker"),
+    (LOCAL_TRACKER, "Local Notifications"),
+    (EMAIL_TRACKER, "Email Notifications"),
     (MAILING_LIST, "Mailing List"),
 ]
 
