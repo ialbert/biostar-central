@@ -1,13 +1,13 @@
 {% load widgets %}
 {#  Creates the recent vote box #}
+
 <div class="subtitle">Recent Votes</div>
+
 <ul>
     {% for vote in votes %}
         <li>
             <a href="{{ vote.post.get_absolute_url }}">{{ vote.post.title }}</a>
-        by
-            <a href="{{vote.post.author.get_absolute_url}}">{{ vote.post.author.name }}</a> &bull; {{ vote.post.author.score|bignum }}
-
         </li>
     {% endfor %}
 </ul>
+

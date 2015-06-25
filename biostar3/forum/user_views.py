@@ -56,7 +56,7 @@ def user_view(request, pk, target=None):
     """
     template_name = "user_view.html"
     # Latest posts
-    posts = models.Post.objects.filter(author=target).order_by("-creation_date")[:10]
+    posts = models.Post.objects.filter(author=target).select_related("root").order_by("-creation_date")[:10]
 
     target.editable = (request.user == target)
 

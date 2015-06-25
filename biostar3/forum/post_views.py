@@ -133,7 +133,7 @@ def my_messages(request):
 def vote_list(request, pk, target=None):
     template_name = "vote_list.html"
 
-    votes = Vote.objects.filter(post__author=target).select_related("post", "author").order_by("-date")
+    votes = Vote.objects.filter(post__author=target).select_related("post", "author", "post__root", "author__profile").order_by("-date")
 
     # Set all votes to seen.
     votes.update(unread=False)

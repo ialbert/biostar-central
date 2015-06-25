@@ -11,11 +11,11 @@
     <div class="row" id="user_view">
 
         <div class="row">
-            <div class="title center {%  user_status_css target %}">
+            <div class="title center {% user_status_css target %}">
                 User: {{ target.name }} (@{{ target.handle }})
-				{%  if target.is_suspended %}
+                {% if target.is_suspended %}
                     (<i class="fa fa-exclamation-triangle"></i> {{ target.get_status_display|lower }})
-                {%  endif %}
+                {% endif %}
             </div>
         </div>
 
@@ -47,17 +47,16 @@
                             </div>
 
                             <div>
-                                Activity:
-                                <b>{{ top_count|intcomma }}</b> top post{{ top_count|pluralize }},
-                                <b>{{ answer_count|intcomma }}</b> answer{{ answer_count|pluralize }},
-                                <b>{{ comment_count|intcomma }}</b> comment{{ comment_count|pluralize }}
-                            </div>
-                            <div>
-                                Location: <b>{{ target.profile.location }}</b>
+                                Reputation: <b>{{ target.score|bignum }}</b>
                             </div>
 
                             <div>
-                                Reputation: <b>{{ target.score|bignum }}</b>
+                                User flair: {{ target.flair }} <span class="line">{% scoreline target %}</span>
+                                <a href="/page/faq#user-flair"><i class="fa fa-question-circle"></i></a>
+                            </div>
+
+                            <div>
+                                Location: <b>{{ target.profile.location }}</b>
                             </div>
 
                             {% if target.editable %}
@@ -109,12 +108,13 @@
                                 Date joined: <b>{{ target.profile.date_joined | naturaltime }}</b>
                             </div>
 
+
                             <div>
-                                User flair: {{ target.flair }} <span class="line">{% scoreline target %}</span>
-                                <a href="/page/faq#user-flair"><i class="fa fa-question-circle"></i></a>
+                                Activity:
+                                <b>{{ top_count|intcomma }}</b> top post{{ top_count|pluralize }},
+                                <b>{{ answer_count|intcomma }}</b> answer{{ answer_count|pluralize }},
+                                <b>{{ comment_count|intcomma }}</b> comment{{ comment_count|pluralize }}
                             </div>
-
-
 
                         </div>
 
@@ -139,29 +139,29 @@
 
                             <li>
                                 <a href="{% url "posts_by_user" pk=target.id %}"><i
-                                class="fa fa-list"></i> View posts</a>
+                                class="fa fa-list"></i> All posts by {{ target.name }}</a>
                             </li>
 
                             <li>
                                 <a href="{% url "vote_list" pk=target.id %}"><i
-                                class="fa fa-heart"></i> View votes </a>
+                                class="fa fa-heart"></i> Votes for {{ target.name }}</a>
                             </li>
 
                             <li>
                                 <a href="{% url "award_list" pk=target.id %}"><i
-                                class="fa fa-star"></i> View awards</a>
+                                class="fa fa-star"></i> Awards to {{ target.name }} </a>
                             </li>
 
                         </ul>
                     </div>
                 </div>
                 <div class="row">
-                    <div class="title">Recent Posts by {{ target.name }}</div>
+                    <div class="title">Most Recent Posts by {{ target.name }}</div>
                     <div id="post_list">
                         {% for post in posts %}
                             <div class="post_title">
                                 <a
-                                href="{{ post.get_absolute_url }}">{{ post.get_type_display }} {{ post.get_title }}</a>
+                                href="{{ post.get_absolute_url }}">{{ post.title }}</a>
                             </div>
                             <div>{{ post.content | truncatewords:80 }}</div>
                         {% endfor %}

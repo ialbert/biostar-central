@@ -16,9 +16,14 @@
     <div class="row">
 
 
-        <div class="six columns">
+        <div class="eight columns">
 
-            <h5 class="title">Upvoted posts by <a href="{{ target.get_absolute_url }}">{{ target.name }}</a></h5> </h5>
+            <h5 class="title">
+                <i class="fa fa-thumbs-o-up"></i> Upvoted,
+                <i class="fa fa-bookmark"></i> Bookmarked,
+                <i class="fa fa-heart"></i> Followed
+                posts by <a href="{{ target.get_absolute_url }}">{{ target.name }}</a>
+            </h5>
 
             <div id="post_list">
                 {% for vote in votes %}
@@ -31,7 +36,7 @@
 
         </div>
 
-        <div class="six columns">
+        <div class="four columns">
             <h5 class="title">People voting for <a href="{{ target.get_absolute_url }}">{{ target.name }}</a></h5>
              {% for vote in votes %}
 

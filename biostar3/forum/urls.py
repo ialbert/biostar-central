@@ -79,13 +79,13 @@ urlpatterns = patterns('',
     url(r'^site/x/user_moderate/(?P<pk>\d+)/$', ajax.user_moderate, name="user_moderate"),
 
     # Posts created by a user.
-    url(r'^site/all/posts/created/by/u/(?P<pk>\d+)/$', post_views.posts_by_user, name="posts_by_user"),
+    url(r'^site/posts/by/(?P<pk>\d+)/$', post_views.posts_by_user, name="posts_by_user"),
 
     # Upvoted posts created by a user
-    url(r'^site/upvoted/posts/created/by/u/(?P<pk>\d+)/$', post_views.upvoted_posts, name="upvoted_posts"),
+    url(r'^site/upvoted/posts/by/(?P<pk>\d+)/$', post_views.upvoted_posts, name="upvoted_posts"),
 
     # A list of votes for a user.
-    url(r'^site/all/votes/for/u/(?P<pk>\d+)/$', post_views.vote_list, name="vote_list"),
+    url(r'^site/votes/for/(?P<pk>\d+)/$', post_views.vote_list, name="vote_list"),
 
     # Posts created by a user.
     url(r'^site/my/bookmarks/$', post_views.my_bookmarks, name="my_bookmarks"),

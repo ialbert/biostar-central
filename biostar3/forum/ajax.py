@@ -174,7 +174,7 @@ def perform_vote(post, user, vote_type):
     if votes:
         vote = votes[0]
         msg = "%s removed" % vote.get_type_display()
-        change = -len(votes)
+        change = -1
     else:
         change = +1
         vote = Vote.objects.create(author=user, post=post, type=vote_type)
@@ -182,7 +182,7 @@ def perform_vote(post, user, vote_type):
 
     if post.author != user:
         # Update the user reputation only if the author is different.
-        User.objects.filter(pk=post.author.id).update(score=F('score') + change)
+        User.objects.filter(pk=post.author.id).update(score=F('score') + change * 10)
 
     # The thread score represents all votes in a thread.
     Post.objects.filter(pk=post.root_id).update(thread_score=F('thread_score') + change)

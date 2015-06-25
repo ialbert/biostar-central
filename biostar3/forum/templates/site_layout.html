@@ -6,7 +6,7 @@
 {% block header %}
     {% if  SUBDOMAIN_FLAG %}
         <div class="subdomain">
-        {{ request.site.name }}
+        Subdomain: {{ request.site.name }}
         </div>
     {% endif %}
     {#  Logo and user information #}

@@ -43,18 +43,26 @@ body {
 
 }
 
+ul {
+  list-style: disc;
+  list-style-position: inside;
+  margin-bottom: 5px;
+}
+
 .recent_list {
 
-  > ul {
-    list-style-type: none;
+  ul {
     opacity: 0.9;
     line-height: 1.2;
-    //list-style: disc;
+    li {
+      margin-bottom: 2px;
+    }
   }
+
   > .muted {
       color: #808080;
   }
-  > .subtitle {
+  .subtitle {
     font-size: larger;
     font-weight: bold;
     margin-bottom: 1ex;
@@ -259,12 +267,10 @@ body {
 }
 
 .subdomain {
-  font-size: small;
-  background-color:#efefef;
   border-radius: 3px;
-  text-align: center
+  text-align: center;
+  background-color: @ALERT_INFO;
 }
-
 /* Count boxes */
 .post_row {
   margin: 0.2em 0em 0em 0em;
@@ -525,18 +531,8 @@ ul.dropdown {
 #logo {
   float: left;
   * img {
-    width: 200px;
-  }
-
-  .text_logo {
-    //width: 100%;
-    background-color: @ALERT_SUCCESS;
-    margin-top: 1ex;
-    padding: 1em;
-    display: inline-block;
-    border-radius: 4px;
-    font-size: 1.2em;
-    //font-weight: 300;
+    margin-top: 5px;
+    width: 299px;
   }
 }
 
@@ -572,7 +568,9 @@ ul.dropdown {
 #userbar, #navbar, #topics {
   width: 100%;
   display: flex;
+  display:-webkit-flex;
   justify-content: space-between;
+  -webkit-justify-content: space-between;
   margin-bottom: 2px;
   //min-width:4em;
   .icon {
@@ -711,11 +709,16 @@ there.
     margin: 0em 0.2em 0.5em 0em;
   }
 
+  #navbar {
+    padding-top:0.5ex;
+  }
   #logo {
     * img {
       margin-top: 5px;
       width: 230px;
     }
+    margin-right:2em;
+
   }
 
   .lg {
@@ -726,27 +729,6 @@ there.
     width: auto;
   }
 }
-
-@media (min-width: 1024px) {
-
-  .lg {
-    display: block;
-  }
-
-  #navbar {
-    width: auto;
-
-    i {
-      font-size: 1em;
-    }
-  }
-
-  #logo {
-    width: 330px;
-  }
-
-}
-
 
 
 

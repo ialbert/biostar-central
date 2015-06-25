@@ -1,14 +1,15 @@
 {#  Creates the recent vote box #}
 {% load widgets %}
 
-<div class="subtitle">Recent Locations &raquo; <a href="{% url "user_list" %}">Community</a></div>
+<div class="subtitle">Recent Users &raquo; <a href="{% url "user_list" %}">Community</a></div>
 <ul>
     {% for user in users %}
         <li>
+            <a href="{{user.get_absolute_url}}">{{ user.name }}</a>
             {% if user.profile.location %}
-                {{ user.profile.location }},
+                &bull; {{ user.profile.location }}
             {% endif %}
-        	{{ user.profile.last_login|time_ago }}
+        	&bull; {{ user.profile.last_login|time_ago }}
         </li>
     {% endfor %}
 </ul>

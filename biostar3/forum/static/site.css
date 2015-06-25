@@ -92,15 +92,22 @@ body .container {
 body .highlighted {
   background-color: #ffff00;
 }
-.recent_list > ul {
-  list-style-type: none;
+ul {
+  list-style: disc;
+  list-style-position: inside;
+  margin-bottom: 5px;
+}
+.recent_list ul {
   opacity: 0.9;
   line-height: 1.2;
+}
+.recent_list ul li {
+  margin-bottom: 2px;
 }
 .recent_list > .muted {
   color: #808080;
 }
-.recent_list > .subtitle {
+.recent_list .subtitle {
   font-size: larger;
   font-weight: bold;
   margin-bottom: 1ex;
@@ -261,10 +268,9 @@ body .highlighted {
   background-color: #6b3e4a;
 }
 .subdomain {
-  font-size: small;
-  background-color: #efefef;
   border-radius: 3px;
   text-align: center;
+  background-color: #fcf8e3;
 }
 /* Count boxes */
 .post_row {
@@ -478,15 +484,8 @@ ul.dropdown ul.items li :hover {
   float: left;
 }
 #logo * img {
-  width: 200px;
-}
-#logo .text_logo {
-  background-color: #dff0d8;
-  margin-top: 1ex;
-  padding: 1em;
-  display: inline-block;
-  border-radius: 4px;
-  font-size: 1.2em;
+  margin-top: 5px;
+  width: 299px;
 }
 #userbar {
   border-top: 1px solid #efefef;
@@ -516,7 +515,9 @@ ul.dropdown ul.items li :hover {
 #topics {
   width: 100%;
   display: flex;
+  display: -webkit-flex;
   justify-content: space-between;
+  -webkit-justify-content: space-between;
   margin-bottom: 2px;
 }
 #userbar .icon,
@@ -636,6 +637,12 @@ there.
   .box {
     margin: 0em 0.2em 0.5em 0em;
   }
+  #navbar {
+    padding-top: 0.5ex;
+  }
+  #logo {
+    margin-right: 2em;
+  }
   #logo * img {
     margin-top: 5px;
     width: 230px;
@@ -645,19 +652,5 @@ there.
   }
   #navbar {
     width: auto;
-  }
-}
-@media (min-width: 1024px) {
-  .lg {
-    display: block;
-  }
-  #navbar {
-    width: auto;
-  }
-  #navbar i {
-    font-size: 1em;
-  }
-  #logo {
-    width: 330px;
   }
 }
