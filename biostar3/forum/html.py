@@ -190,17 +190,12 @@ def sanitize(text, user, safe=False):
     return html
 
 
-def find_users_by_handle(post):
+def find_tagged_names(post):
     """
     Returns the users mentioned in a post by handle.
     """
-    # Avoid circular imports.
-    from biostar3.forum.models import User
-
-    hits = [patt.group("uid") for patt in HANDLE_RE.finditer(post.content)]
-    #users = User.objects.filter(profile__tags__names__in=hits)
-
-    return []
+    tags = [patt.group("uid") for patt in HANDLE_RE.finditer(post.content)]
+    return tags
 
 def embed_links(text):
     targets = [

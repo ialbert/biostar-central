@@ -44,49 +44,59 @@ def add_user_location(ip, user):
 def notify_user(user, post):
     pass
 
+@shared_task
+def update_post_subscriptions(post):
+    """
+    Creates post subscriptions for everyone that should have one
+    """
+    root = post.root
 
+    if post.is_toplevel:
+        # Post tags only exists at top level.
+        # Subscribe everyone that watches the tag and does not already have a subscription.
+        followers = User.objects.filter(profile__tags__name__in=post.tags.names, postsub__isnull=True)
+        PostSub.bulk_insert(post=root, users=followers)
+
+    # Find everyone that has been tagged in the body of the post
+    # and does not already have a subscription.
+    tagged_names = html.find_tagged_names(post)
+    if tagged_names:
+        tagged_users = User.objects.filter(profile__tags__name__in=post.tags.names, postsub__isnull=True)
+        PostSub.bulk_insert(post=root, users=tagged_users)
+
+    # Manage author subscription.
+    exists = PostSub.objects.filter(post=root, user=post.author)
+    if not exists:
+        prefs = post.author.profile.message_prefs
+        if prefs == settings.SMART_MODE:
+            if post.is_toplevel:
+                prefs = settings.EMAIL_TRACKER
+            else:
+                prefs = settings.LOCAL_TRACKER
+        if prefs in (settings.EMAIL_TRACKER, settings.LOCAL_TRACKER):
+            PostSub.objects.create(post=root, user=post.author)
 
 @shared_task
-def create_messages(post):
+def send_notifications(post):
     """
     Generates messages and emails on a post.
     Invoked on each post creation. Will send emails in an internal loop.
     """
 
-    def select_subs(**kwargs):
-        # Shortcut to filter post subscriptions.
-        subs = PostSub.objects.filter(post=post.root, **kwargs).select_related("user")
-        return subs
-
-    def get_user(sub):
-        # Returns the user from a subscription.
-        return sub.user
-
     def wants_email(user):
         # Selects users that have chosen email notifications.
-        return not (user.profile.message_prefs == settings.LOCAL_TRACKER)
+        return not (user.profile.message_prefs in settings.LOCAL_TRACKER)
 
-    # All subscribed users that subscribe to the post.
-    all_subs = select_subs()
-    all_subs = map(get_user, all_subs)
+    # Find all users that have any subscription to a post.
+    local_tracker = User.objects.filter(postsub__post=post.root).exclude(postsub__type=settings.NO_MESSAGES).select_related("user")
+    local_targets = set(local_tracker)
 
-    # Find the users mentioned by handle.
-    handler = html.find_users_by_handle(post)
+    # Some of these users will also need to get an email.
+    email_tracker = User.objects.filter(postsub__post=post.root, postsub__type=settings.EMAIL_TRACKER).select_related("user")
+    email_tracker = chain(email_tracker, User.objects.filter(profile__message_prefs=settings.MAILING_LIST))
+    email_targets = set(email_tracker)
 
-    # Find users that watch this tag.
-    watchers = map(get_user, [])
-
-    # The list of all users that will get notifications.
-    all_targets = chain(all_subs, handler, all_subs, watchers)
-    all_targets = list(all_targets)
-
-    # Find users that want email.
-    email_targets = filter(wants_email, all_targets)
-
-    # No need to send notifications to post creator.
-    local_targets = set(all_targets)
-    email_targets = set(email_targets)
-
+    # We never want a local message for the post author.
     if post.author in local_targets:
         local_targets.remove(post.author)
 

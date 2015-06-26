@@ -78,7 +78,7 @@ def post_notifications(post, local_targets=[], email_targets=[]):
     em = EmailTemplate("post_created_message.html", data=context)
 
     # Create local messages to all targets.
-    em.create_messages(author=post.author, users=local_targets)
+    em.create_messages(author=post.author, post=post, users=local_targets)
 
     # Generate the email messages. Will be bulk inserted.
     def token_generator(obj):
@@ -120,7 +120,7 @@ class EmailTemplate(object):
         self.html = html
         self.mesg = mesg
 
-    def create_messages(self, author, users=[]):
+    def create_messages(self, author, post=None, users=[]):
         """
         Creates all the local messages based on the template.
         """
@@ -142,7 +142,7 @@ class EmailTemplate(object):
         def message_generator(body):
             now = right_now()
             for user in users:
-                yield Message(user=user, body=body, date=now)
+                yield Message(user=user, body=body, post=post, date=now)
 
         # Bulk insert for all messages
         Message.objects.bulk_create(message_generator(body), batch_size=100)

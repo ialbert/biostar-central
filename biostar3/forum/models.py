@@ -501,22 +501,11 @@ class PostSub(models.Model):
         return "PostSub: %s, %s: %s" % (self.user_id, self.post_id, self.get_type_display())
 
     @staticmethod
-    def bulk_insert(post, users):
+    def bulk_insert(post, users, pref_type=settings.EMAIL_TRACKER):
         def create(user):
-            return PostSub(post=post, user=user, type=settings.EMAIL_TRACKER)
+            return PostSub(post=post, user=user, type=pref_type)
         stream = map(create, users)
         PostSub.objects.bulk_create(stream, batch_size=100)
-
-    @staticmethod
-    def sub_from_tags(post, tags):
-        users = User.objects.filter(profile__tags__name__in=tags)
-        PostSub.objects.filter(user__in=users).delete()
-        PostSub.bulk_insert(post=post, users=users)
-
-    @staticmethod
-    def mailing_list_subs(post):
-        users = User.objects.filter(profile__message_prefs=settings.MAILING_LIST)
-        PostSub.bulk_insert(post=post, users=users)
 
     @staticmethod
     def smart_sub(post, user=None):

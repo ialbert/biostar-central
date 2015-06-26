@@ -43,34 +43,29 @@ def user_create(sender, instance, created, **kwargs):
             em.send_email(to=[instance.email])
 
 
-def post_created(sender, instance, created, **kwargs):
+def post_saved(sender, instance, created, **kwargs):
+
+    if created and instance.is_toplevel:
+        # Top level posts need to fill the root and parent ids.
+        # Self referential ForeignKeys will not be set otherwise.
+        Post.objects.filter(pk=instance.pk).update(root_id=instance.pk, parent_id=instance.pk)
+
+    # Update the subscriptions upon post save.
+    if settings.CELERY_ENABLED:
+        tasks.update_post_subscriptions.delay(instance)
+    else:
+        tasks.update_post_subscriptions(instance)
 
     # This is where messages are sent
     if created:
         logger.info("%s" % instance)
 
-        subs_type = instance.author.profile.message_prefs
-
-        # Create the post subscription for the user.
-        if instance.is_toplevel:
-            # Top level posts need to fill the root and parent ids.
-            # Self referential ForeignKeys will not be set otherwise.
-            Post.objects.filter(pk=instance.pk).update(root_id=instance.pk, parent_id=instance.pk)
-
-            # When author is on email tracking they need to get a subscription before
-            # the notifications are sent.
-            if subs_type == settings.EMAIL_TRACKER:
-                PostSub.smart_sub(post=instance)
-
-            # Insert subscription for mailing list mode.
-            PostSub.mailing_list_subs(instance)
-
         # Create the notifications both email and as messages.
         # Route the message creation via celery if necessary.
         if settings.CELERY_ENABLED:
-            tasks.create_messages.delay(instance)
+            tasks.send_notifications.delay(instance)
         else:
-            tasks.create_messages(instance)
+            tasks.send_notifications(instance)
 
         # Create the post subscription.
         # Will ignore if the subscription already exists.
@@ -86,4 +81,4 @@ def post_created(sender, instance, created, **kwargs):
 
 def register():
     post_save.connect(user_create, sender=User, dispatch_uid="user_create")
-    post_save.connect(post_created, sender=Post, dispatch_uid="post_create")
+    post_save.connect(post_saved, sender=Post, dispatch_uid="post_saved")
