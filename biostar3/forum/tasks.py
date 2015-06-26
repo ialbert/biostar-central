@@ -70,11 +70,11 @@ def create_messages(post):
 
     # Users with subscription to the post other than post authors.
     local_targets = map(get_user, select_subs().exclude(user=post.author))
-    local_targets += targets
+    local_targets = chain(local_targets, targets)
 
     # All subscriptions that should get an email.
     email_targets = map(get_user, select_subs(type=settings.EMAIL_TRACKER))
-    email_targets += filter(wants_email, targets)
+    email_targets = chain(email_targets, filter(wants_email, targets))
 
     # Send the notifications to unique users.
     local_targets = set(local_targets)
