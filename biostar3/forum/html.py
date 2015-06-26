@@ -198,9 +198,9 @@ def find_users_by_handle(post):
     from biostar3.forum.models import User
 
     hits = [patt.group("uid") for patt in HANDLE_RE.finditer(post.content)]
-    users = User.objects.filter(handle__in=hits).select_related("profile")
+    #users = User.objects.filter(profile__tags__names__in=hits)
 
-    return users
+    return []
 
 def embed_links(text):
     targets = [
