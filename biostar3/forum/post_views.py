@@ -364,7 +364,6 @@ from django.http import Http404
 
 
 def flatpage_view(request, slug, domain=None, flatpage=None, user=None):
-    domain = domain or settings.DEFAULT_GROUP_DOMAIN
 
     template_name = "page_view.html"
 

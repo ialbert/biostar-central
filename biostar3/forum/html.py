@@ -26,7 +26,7 @@ TRUSTED_ATTRIBUTES.update(settings.TRUSTED_ATTRIBUTES)
 USER_PATTERN = r"http(s)?://%s/u/(?P<uid>(\d+))(/)?" % settings.SITE_DOMAIN
 POST_PATTERN1 = r"http(s)?://%s/p/(?P<uid>(\d+))(/)?" % settings.SITE_DOMAIN
 POST_PATTERN2 = r"http(s)?://%s/p/\d+/\#(?P<uid>(\d+))(/)?" % settings.SITE_DOMAIN
-HANDLE_PATTERN = r"@(?P<uid>(\S+))"
+HANDLE_PATTERN = r"\W@(?P<uid>(\S+))"
 
 # Matches gists that may be embeded.
 GIST_PATTERN = r"^https://gist.github.com/(?P<uid>([\w/]+))"
@@ -47,8 +47,8 @@ def get_embedded_youtube(uid):
 def get_embedded_gist(uid):
     return '<script src="https://gist.github.com/{}.js"></script>'.format(uid)
 
-def get_user_by_handle(uid):
-    return '@<b>{}</b>'.format(uid)
+def highlight_handle(uid):
+    return ' @<b>{}</b>'.format(uid)
 
 def get_embedded_tweet(tweet_id):
     """
@@ -193,7 +193,7 @@ def embed_links(text):
         (YOUTUBE_RE2, get_embedded_youtube),
         (YOUTUBE_RE3, get_embedded_youtube),
         (TWITTER_RE, get_embedded_tweet),
-        (HANDLE_RE, get_user_by_handle),
+        (HANDLE_RE, highlight_handle),
     ]
 
     for regex, func in targets:
