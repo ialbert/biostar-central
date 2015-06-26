@@ -60,7 +60,6 @@ def post_created(sender, instance, created, **kwargs):
             # When author is on email tracking they need to get a subscription before
             # the notifications are sent.
             if subs_type == settings.EMAIL_TRACKER:
-
                 auth.create_post_subscription(instance)
 
         # Create the notifications both email and as messages.
@@ -70,7 +69,8 @@ def post_created(sender, instance, created, **kwargs):
         else:
             tasks.create_messages(instance)
 
-        # Create the post subscription. Will detect if this aready exists.
+        # Create the post subscription.
+        # Will ignore if the subscription already exists.
         auth.create_post_subscription(instance)
 
         if not instance.uuid:

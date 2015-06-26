@@ -9,12 +9,14 @@ from .models import *
 from . import auth, mailer
 from biostar3.utils.compat import *
 
+
 @shared_task
 def compute_user_flair(user):
     """
     This is a fairly compute intensive task. Also the
     flair does not change noticably in short periods of time.
     """
+
 
 @shared_task
 def add_user_location(ip, user):
@@ -37,9 +39,11 @@ def add_user_location(ip, user):
         except KeyError as exc:
             logger.error(exc)
 
+
 @shared_task
 def notify_user(user, post):
     pass
+
 
 
 @shared_task
@@ -49,54 +53,35 @@ def create_messages(post):
     Invoked on each post creation. Will send emails in an internal loop.
     """
 
-    # Subscriptions are relative to the root post.
-    root = post.root
-
-    # Add a message body for the new post.
-    site = Site.objects.get_current()
-
-    # Full url to the post.
-    post_url = "%s://%s%s" % (settings.SITE_SCHEME, site.domain, reverse("post_view", kwargs=dict(pk=post.id)))
-
-    # Full url to the user.
-    user_url = "%s://%s%s" % (settings.SITE_SCHEME, site.domain, reverse("user_view", kwargs=dict(pk=post.author.id)))
-
-    # The context that will be passed to the post create template.
-    context = dict(post=post, site=site, scheme=settings.SITE_SCHEME,
-                   post_url=post_url, user_url=user_url,
-                   slug=site.domain)
-
-    # This is the body of the message that gets created.
-    em = mailer.EmailTemplate("post_created_message.html", data=context)
-
-    # Shortcut to filter post subscriptions.
     def select_subs(**kwargs):
-        return PostSub.objects.filter(post=root, **kwargs).select_related("user")
+        # Shortcut to filter post subscriptions.
+        return PostSub.objects.filter(post=post.root, **kwargs).select_related("user")
+
+    def get_user(sub):
+        # Returns the user from a subscription.
+        return sub.user
+
+    def wants_email(user):
+        # Selects users that have chosen email notifications.
+        return not (user.profile.message_prefs == settings.LOCAL_TRACKER)
+
+    # Find the users mentioned by handle.
+    targets = html.find_users_by_handle(post)
 
     # Users with subscription to the post other than post authors.
-    targets = select_subs().exclude(user=post.author)
+    local_targets = map(get_user, select_subs().exclude(user=post.author))
+    local_targets += targets
 
-    # Create local messages to all targets.
-    em.create_messages(author=post.author, targets=targets)
+    # All subscriptions that should get an email.
+    email_targets = map(get_user, select_subs(type=settings.EMAIL_TRACKER))
+    email_targets += filter(wants_email, targets)
 
-    #
-    # Generate the email messages. Will be bulk inserted.
-    #
-    def token_generator(obj):
-        now = right_now()
+    # Send the notifications to unique users.
+    local_targets = set(local_targets)
+    email_targets = set(email_targets)
 
-        # All subscriptions that should get an email.
-        subs = select_subs(type=settings.EMAIL_TRACKER)
-
-        # Generate an email for all candidates.
-        for sub in subs:
-            token = auth.make_uuid(size=8)
-            em.send_email(to=[sub.user.email], token=token)
-            yield ReplyToken(user=sub.user, post=obj, token=token, date=now)
-
-    # Insert the reply tokens into the database.
-    ReplyToken.objects.bulk_create(token_generator(post), batch_size=100)
-
+    mailer.post_notifications(post, local_targets=local_targets,
+                              email_targets=email_targets)
 
 @shared_task
 def add(x, y):

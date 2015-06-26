@@ -24,7 +24,8 @@ from django.template import Context
 from django.core.mail.utils import DNS_NAME
 from django.core.mail.backends import smtp
 
-from .models import Message, MessageBody, right_now
+from .models import *
+from . import auth
 from biostar3.utils.compat import *
 
 logger = logging.getLogger("biostar")
@@ -53,9 +54,49 @@ def render_node(template, name, data):
         result = "internal error, render_node=%s" % exc
         return result
 
+def post_notifications(post, local_targets=[], email_targets=[]):
+    """
+    Generates notifications on a post.
+    """
+    # Used in the template context.
+    site = Site.objects.get_current()
+
+    # Full url to the post.
+    post_url = "%s://%s%s" % (settings.SITE_SCHEME, site.domain,
+                              reverse("post_view", kwargs=dict(pk=post.id)))
+
+    # Full url to the author of the post.
+    user_url = "%s://%s%s" % (settings.SITE_SCHEME, site.domain,
+                              reverse("user_view", kwargs=dict(pk=post.author.id)))
+
+    # The context that will be passed to the template.
+    context = dict(post=post, site=site, scheme=settings.SITE_SCHEME,
+                   post_url=post_url, user_url=user_url,
+                   slug=site.domain)
+
+    # This is the body of the message that gets created.
+    em = EmailTemplate("post_created_message.html", data=context)
+
+    # Create local messages to all targets.
+    em.create_messages(author=post.author, users=local_targets)
+
+    # Generate the email messages. Will be bulk inserted.
+    def token_generator(obj):
+        now = right_now()
+
+        # Generate an email for all candidates.
+        for user in email_targets:
+            token = auth.make_uuid(size=8)
+            em.send_email(to=[user.email], token=token)
+            yield ReplyToken(user=user, post=obj, token=token, date=now)
+
+    # Insert the reply tokens into the database.
+    ReplyToken.objects.bulk_create(token_generator(post), batch_size=100)
+
+
 class EmailTemplate(object):
     """
-
+    Represents a Django Template that can be sent as a local message or as an email.
     """
     MESG, SUBJECT, TEXT, HTML = "message", "subject", "text", "html"
 
@@ -79,12 +120,12 @@ class EmailTemplate(object):
         self.html = html
         self.mesg = mesg
 
-    def create_messages(self, author, targets=[]):
+    def create_messages(self, author, users=[]):
         """
         Creates all the local messages based on the template.
         """
 
-        if not targets:
+        if not users:
             # There is nobody to send the message to.
             return
 
@@ -100,8 +141,8 @@ class EmailTemplate(object):
         # This generates the messages for the targets
         def message_generator(body):
             now = right_now()
-            for target in targets:
-                yield Message(user=target.user, body=body, date=now)
+            for user in users:
+                yield Message(user=user, body=body, date=now)
 
         # Bulk insert for all messages
         Message.objects.bulk_create(message_generator(body), batch_size=100)

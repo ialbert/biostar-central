@@ -85,9 +85,7 @@ class AwardDef(object):
                 em = mailer.EmailTemplate("award_created_message.html", data=data)
 
                 # Create a local message
-                em.create_messages(author=user, targets=[award])
-
-                # TODO: Send an email message if the user is tracking group via email.
+                em.create_messages(author=user, users=[award.user])
 
             self.badge.count = Award.objects.filter(badge=self.badge).count()
             self.badge.save()

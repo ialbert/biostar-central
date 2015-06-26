@@ -39,6 +39,7 @@ YOUTUBE_PATTERN3 = r"^http(s)?://youtu.be/(?P<uid>([-_\w]+))(/)?"
 # Twitter: tweets to embed.
 TWITTER_PATTERN = r"^http(s)?://twitter.com/\w+/status(es)?/(?P<uid>([\d]+))"
 
+
 def get_embedded_youtube(uid):
     return '<iframe width="420" height="315" src="//www.youtube.com/embed/{}" frameborder="0" allowfullscreen></iframe>'.format(
         uid)
@@ -47,8 +48,10 @@ def get_embedded_youtube(uid):
 def get_embedded_gist(uid):
     return '<script src="https://gist.github.com/{}.js"></script>'.format(uid)
 
+
 def highlight_handle(uid):
     return ' @<b>{}</b>'.format(uid)
+
 
 def get_embedded_tweet(tweet_id):
     """
@@ -72,12 +75,13 @@ def get_embedded_tweet(tweet_id):
 USER_RE = re.compile(USER_PATTERN)
 POST_RE1 = re.compile(POST_PATTERN1)
 POST_RE2 = re.compile(POST_PATTERN2)
-GIST_RE = re.compile(GIST_PATTERN, re.MULTILINE|re.IGNORECASE)
-YOUTUBE_RE1 = re.compile(YOUTUBE_PATTERN1, re.MULTILINE|re.IGNORECASE)
-YOUTUBE_RE2 = re.compile(YOUTUBE_PATTERN2, re.MULTILINE|re.IGNORECASE)
-YOUTUBE_RE3 = re.compile(YOUTUBE_PATTERN3, re.MULTILINE|re.IGNORECASE)
-TWITTER_RE = re.compile(TWITTER_PATTERN, re.MULTILINE|re.IGNORECASE)
+GIST_RE = re.compile(GIST_PATTERN, re.MULTILINE | re.IGNORECASE)
+YOUTUBE_RE1 = re.compile(YOUTUBE_PATTERN1, re.MULTILINE | re.IGNORECASE)
+YOUTUBE_RE2 = re.compile(YOUTUBE_PATTERN2, re.MULTILINE | re.IGNORECASE)
+YOUTUBE_RE3 = re.compile(YOUTUBE_PATTERN3, re.MULTILINE | re.IGNORECASE)
+TWITTER_RE = re.compile(TWITTER_PATTERN, re.MULTILINE | re.IGNORECASE)
 HANDLE_RE = re.compile(HANDLE_PATTERN)
+
 
 def strip_tags(text):
     "Strip html tags from text"
@@ -185,6 +189,18 @@ def sanitize(text, user, safe=False):
 
     return html
 
+
+def find_users_by_handle(post):
+    """
+    Returns the users mentioned in a post by handle.
+    """
+    # Avoid circular imports.
+    from biostar3.forum.models import User
+
+    hits = [patt.group("uid") for patt in HANDLE_RE.finditer(post.content)]
+    users = User.objects.filter(handle__in=hits).select_related("profile")
+
+    return users
 
 def embed_links(text):
     targets = [
