@@ -7,7 +7,7 @@ from .mailer import EmailTemplate
 from django.conf import settings
 from django.utils.timezone import utc
 from django.contrib.sites.models import Site
-
+from django.db.models import Q
 from datetime import datetime
 from . import auth, mailer, tasks
 from .models import *
@@ -60,7 +60,10 @@ def post_created(sender, instance, created, **kwargs):
             # When author is on email tracking they need to get a subscription before
             # the notifications are sent.
             if subs_type == settings.EMAIL_TRACKER:
-                auth.create_post_subscription(instance)
+                PostSub.smart_sub(post=instance)
+
+            # Insert subscription for mailing list mode.
+            PostSub.mailing_list_subs(instance)
 
         # Create the notifications both email and as messages.
         # Route the message creation via celery if necessary.
@@ -71,7 +74,7 @@ def post_created(sender, instance, created, **kwargs):
 
         # Create the post subscription.
         # Will ignore if the subscription already exists.
-        auth.create_post_subscription(instance)
+        PostSub.smart_sub(post=instance)
 
         if not instance.uuid:
             # If the unique id not set then set it to the primary key.

@@ -42,6 +42,7 @@ class MyTaggableManager(TaggableManager):
 def right_now():
     return timezone.now()
 
+
 def abspath(*args):
     """Generates absolute paths"""
     return os.path.abspath(os.path.join(*args))
@@ -88,7 +89,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     name = models.CharField(verbose_name='Name', max_length=255, default="", blank=False)
 
     # Unique handle. Allow empty for now.
-    handle = models.CharField(verbose_name='Handle', max_length=25, default='', blank=True )
+    handle = models.CharField(verbose_name='Handle', max_length=25, default='', blank=True)
 
     # Fields used by the Django admin.
     # These are different from the Biostar user types even though Django also calls them admin.
@@ -104,7 +105,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     # This designates a user types and with that permissions.
     subs_type = models.IntegerField(choices=settings.SUBSCRIPTION_CHOICES,
-                                      default=settings.SUBSCRIPTION_DEFAULT)
+                                    default=settings.SUBSCRIPTION_DEFAULT)
 
     # The number of new messages for the user.
     new_messages = models.IntegerField(default=0)
@@ -158,7 +159,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         super(User, self).save(*args, **kwargs)
 
     def __unicode__(self):
-        return "{0}({1}): {2}" .format(self.name, self.id, self.email)
+        return "{0}({1}): {2}".format(self.name, self.id, self.email)
 
 
 class Profile(models.Model):
@@ -504,6 +505,41 @@ class PostSub(models.Model):
     def __unicode__(self):
         return "PostSub: %s, %s: %s" % (self.user_id, self.post_id, self.get_type_display())
 
+    @staticmethod
+    def bulk_insert(post, users):
+        stream = [PostSub(post=post, user=user, type=settings.EMAIL_TRACKER) for user in users]
+        PostSub.objects.bulk_create(stream, batch_size=100)
+
+    @staticmethod
+    def sub_from_tags(post, tags):
+        users = User.objects.filter(profile__tags__name__in=tags)
+        PostSub.bulk_insert(post=post, users=users)
+
+    @staticmethod
+    def mailing_list_subs(post):
+        users = User.objects.filter(profile__message_prefs=settings.MAILING_LIST)
+        PostSub.bulk_insert(post=post, users=users)
+
+    @staticmethod
+    def smart_sub(post, user=None):
+        root = post.root
+        user = user or post.author
+        exists = PostSub.objects.filter(post=root, user=post.author).first()
+        if exists:
+            # The subscription for the post already exists.
+            return
+
+        # Find the notification preferences.
+        prefs = user.profile.message_prefs
+
+        if prefs == settings.SMART_MODE:
+            if post.is_toplevel:
+                prefs = settings.EMAIL_TRACKER
+            else:
+                prefs = settings.LOCAL_TRACKER
+
+        # Create the post subscription.
+        PostSub.objects.create(post=root, user=post.author, type=prefs)
 
 class SiteSub(models.Model):
     """
@@ -511,6 +547,7 @@ class SiteSub(models.Model):
     """
     user = models.ForeignKey(settings.AUTH_USER_MODEL)
     site = models.ForeignKey(Site)
+
 
 class Vote(models.Model):
     class Meta:
@@ -575,6 +612,7 @@ class SiteLog(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, db_index=True, null=True)
     text = models.TextField()
 
+
 class Blog(models.Model):
     """
     Represents a blog
@@ -616,7 +654,6 @@ class Blog(models.Model):
 
     def get_absolute_url(self):
         return self.link
-
 
 
 class BlogPost(models.Model):
@@ -733,6 +770,7 @@ class Award(models.Model):
     def save(self, *args, **kwargs):
         User.objects.filter(pk=self.user_id).update(score=models.F('score') + 10)
         super(Award, self).save(*args, **kwargs)
+
 
 class FlatPage(models.Model):
     # Flatpage is a post that connects to a slug.
