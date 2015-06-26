@@ -176,14 +176,15 @@ class SimpleTests(TestCase):
         EQ(star1.msg_count + 1, end3.msg_count)
 
         # Jane's watched tags need to get triggered.
-        #jane.profile.message_prefs = settings.SMART_MODE
-        #jane.profile.tags.set("hello world".split())
-        #jane.profile.save()
+        jane.profile.message_prefs = settings.SMART_MODE
+        jane.profile.tags.set("hello", "jane")
+        jane.profile.save()
 
-        #start4 = snapshot()
-        #post = create_post(user=jane, tags="hello")
-        #end4 = snapshot()
+        start4 = snapshot()
+        post = create_post(user=jane, tags="hello, world")
+        end4 = snapshot()
 
-        # Users will get an email watched posts as well.
+        # Jane should get an email because it is matching her
+        # followed tags.
         #EQ(start4.email_count, end4.email_count)
 

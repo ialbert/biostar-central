@@ -74,6 +74,7 @@ def create_toplevel_post(data, user, file=None):
         tags.append(Post.TYPE_CHOICES_MAP.get(type, ''))
 
     tag_val = ",".join(tags)
+
     # Create the post.
     post = Post.objects.create(content=content, title=title, tag_val=tag_val,
                                author=user, type=type, file=file, site_id=site)

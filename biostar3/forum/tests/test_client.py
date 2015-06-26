@@ -73,7 +73,7 @@ class ClientTests(TestCase):
         title = faker.sentence()[:100]
         content = faker.text()
         tag1, tag2 = faker.word(), faker.word()
-        tags = "%s, %s" % (tag1, tag2)
+        tag_val = "%s, %s" % (tag1, tag2)
 
         if parent:
             data = dict(content=content)
@@ -83,7 +83,7 @@ class ClientTests(TestCase):
                 r = self.post(client, "new_comment", kwargs=dict(pk=parent.id), data=data, follow=True, pattern=content)
             post = Post.objects.filter(content=content).first()
         else:
-            data = dict(title=title, tags=tags, content=content, type=post_type, site=settings.SITE_ID)
+            data = dict(title=title, tag_val=tag_val, content=content, type=post_type, site=settings.SITE_ID)
             r = self.post(client, "new_post", data=data, follow=True, pattern=title)
             post = Post.objects.filter(title=title).first()
 
