@@ -53,23 +53,14 @@ def post_saved(sender, instance, created, **kwargs):
     # Update the subscriptions upon post save.
     if settings.CELERY_ENABLED:
         tasks.update_post_subscriptions.delay(instance)
+        tasks.send_notifications.delay(instance)
     else:
         tasks.update_post_subscriptions(instance)
+        tasks.send_notifications(instance)
 
     # This is where messages are sent
     if created:
         logger.info("%s" % instance)
-
-        # Create the notifications both email and as messages.
-        # Route the message creation via celery if necessary.
-        if settings.CELERY_ENABLED:
-            tasks.send_notifications.delay(instance)
-        else:
-            tasks.send_notifications(instance)
-
-        # Create the post subscription.
-        # Will ignore if the subscription already exists.
-        PostSub.smart_sub(post=instance)
 
         if not instance.uuid:
             # If the unique id not set then set it to the primary key.
@@ -77,7 +68,6 @@ def post_saved(sender, instance, created, **kwargs):
 
     # Update the reply count on the post.
     instance.update_reply_count()
-
 
 def register():
     post_save.connect(user_create, sender=User, dispatch_uid="user_create")

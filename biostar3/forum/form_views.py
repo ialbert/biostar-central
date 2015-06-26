@@ -75,7 +75,7 @@ def get_post_form(request):
         title = forms.CharField(widget=forms.TextInput, initial='', max_length=200,
                                 validators=[title_validator])
 
-        tags = forms.CharField(max_length=100, initial='', validators=[tag_validator])
+        tag_val = forms.CharField(max_length=100, initial='', validators=[tag_validator])
 
         type = forms.TypedChoiceField(coerce=int, choices=[
             (Post.QUESTION, "Question"),
@@ -188,8 +188,8 @@ def post_edit(request, pk, post=None, user=None):
         # Different forms are chosen based on post type.
         # A form with title, type and tags.
         form_class = get_post_form(request)
-        tags = ", ".join(post.tags.names())
-        initial = dict(content=post.content, title=post.title, tags=tags, site=post.site.id, type=post.type,
+        initial = dict(content=post.content, title=post.title,
+                       tag_val=post.tag_val, site=post.site.id, type=post.type,
                        file=post.file)
     else:
         # Content only: answers and comments.
@@ -235,8 +235,8 @@ def post_edit(request, pk, post=None, user=None):
             post.site_id = get('site')
             post.title = get('title')
             post.type = get('type')
-            tags = get('tags')
-            tags = auth.tag_split(tags)
+            tag_val = get('tag_val')
+            tags = auth.tag_split(tag_val)
 
             # Add extra tag information when saving a post.
             if post.type != Post.QUESTION:
@@ -256,7 +256,7 @@ text_input = lambda: forms.TextInput(attrs={"class": "u-full-width"})
 
 class UserProfileForm(forms.Form):
     name = forms.CharField(max_length=100, widget=text_input())
-    tags = forms.CharField(max_length=500, widget=text_input())
+    tag = forms.CharField(max_length=500, widget=text_input())
     email = forms.CharField(max_length=150, widget=text_input())
     website = forms.CharField(max_length=150, required=False, widget=text_input())
     twitter_id = forms.CharField(max_length=150, label="Twitter ID", required=False, widget=text_input())

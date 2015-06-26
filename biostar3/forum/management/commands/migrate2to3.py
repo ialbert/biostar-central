@@ -42,10 +42,6 @@ def perform_migration():
         post.tags.set(*tags)
         PostSub.objects.create(post=post, user=post.author)
 
-    # Reset tag_val field.
-    logger.info('resetting tag_val')
-    Post.objects.filter(type__in=Post.TOP_LEVEL).exclude(tag_val='').update(tag_val='')
-
     # All existing post will have the uuid be equal to their primary keys.
     logger.info("Add 'uuid' field to posts")
 

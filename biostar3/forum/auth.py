@@ -63,23 +63,27 @@ def create_toplevel_post(data, user, file=None):
     # Creating a top level post from  data
     title = data.get('title', '').strip()
     type = data.get('type', '') or Post.QUESTION
-    tags = data.get('tags', '')
+    tag_val = data.get('tag_val', '')
     site = data.get('site', settings.SITE_ID)
-    tags = tag_split(tags)
     content = data.get('content', '')
 
+    tags = tag_split(tag_val)
+
+    # Add an extra tag if no a question.
+    if type != Post.QUESTION:
+        tags.append(Post.TYPE_CHOICES_MAP.get(type, ''))
+
+    tag_val = ",".join(tags)
     # Create the post.
-    post = Post.objects.create(content=content, title=title,
+    post = Post.objects.create(content=content, title=title, tag_val=tag_val,
                                author=user, type=type, file=file, site_id=site)
 
-    if post.type != Post.QUESTION:
-        tags.append(post.get_type_display())
-
-    # Set the tags on the post
-    post.tags.set(*tags)
 
     # Return the updated object, otherwise the foreign keys are unset.
     post = Post.objects.get(pk=post.id)
+
+    # Set the tags on the post
+    post.tags.set(*tags)
 
     return post
 

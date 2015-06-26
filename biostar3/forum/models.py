@@ -249,6 +249,8 @@ class Post(models.Model):
         (BLOG, "Blog"), (BOARD, "Bulletin Board")
     ]
 
+    TYPE_CHOICES_MAP = dict(TYPE_CHOICES)
+
     # Posts for which the root=self.
     TOP_LEVEL = {QUESTION, JOB, FORUM, DATA, TUTORIAL, TOOL, NEWS, PAGE}
 

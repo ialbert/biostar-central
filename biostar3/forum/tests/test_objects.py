@@ -16,9 +16,40 @@ from django.contrib.sites.models import Site
 
 logging.disable(logging.INFO)
 
+
 class Bunch(object):
     def __init__(self):
         self.sub_count, self.msg_count, self.email_count = -1, -1, -1
+
+
+def create_user():
+    f = Factory.create()
+    user = User.objects.create(email=f.email(), name=f.name())
+    user.profile.message_prefs = settings.SMART_MODE
+    user.profile.save()
+    return user
+
+
+def create_post(user, parent=None, type=Post.QUESTION, title=None, tags=None, content=None):
+    f = Factory.create()
+    title = title or f.sentence()
+    tags = tags or ", ".join(f.words())
+    content = content or f.text()
+
+    data = dict(
+        title=title,
+        content=content,
+        tags=tags,
+        type=type,
+    )
+
+    if not parent:
+        post = auth.create_toplevel_post(user=user, data=data)
+    else:
+        post = auth.create_content_post(user=user, parent=parent, content=f.sentence())
+
+    return post
+
 
 def snapshot(user=None):
     b = Bunch()
@@ -35,6 +66,7 @@ def snapshot(user=None):
     b.msg_count = msg_count
 
     return b
+
 
 class SimpleTests(TestCase):
     def test_admin_user(self):
@@ -101,54 +133,57 @@ class SimpleTests(TestCase):
             EQ(result, expected)
 
 
-
     def test_user_content_creation(self):
         "Creating a post subscribes the user to the post."
 
         EQ, TRUE = self.assertEqual, self.assertTrue
 
-        f = Factory.create()
-        jane = User.objects.create(email=f.email(), name=f.name())
-        jane.profile.message_prefs = settings.SMART_MODE
-        jane.profile.save()
+        jane = create_user()
 
-        data = dict(
-            title = f.sentence(),
-            content= f.text(),
-            tags = "hello world, goodbye",
-        )
-
-        before = snapshot()
+        star1 = snapshot()
         # Jane creates a post.
-        post = auth.create_toplevel_post(user=jane, data=data)
-        after1 = snapshot()
+        post = create_post(user=jane)
+        end1 = snapshot()
 
         # User has an EMAIL subscription but in SMART mode no email sent for this post.
         TRUE(PostSub.objects.filter(user=jane, post=post, type=settings.EMAIL_TRACKER))
-        EQ(before.sub_count + 1, after1.sub_count)
-        EQ(before.email_count, after1.email_count)
-        EQ(before.msg_count, after1.msg_count)
+        EQ(star1.sub_count + 1, end1.sub_count)
+        EQ(star1.email_count, end1.email_count)
+        EQ(star1.msg_count, end1.msg_count)
 
         # Users on EMAIL_TRACKER will get emails.
         jane.profile.message_prefs = settings.EMAIL_TRACKER
         jane.profile.save()
 
         # User creates another toplevel post.
-        post = auth.create_toplevel_post(user=jane, data=data)
-        after2 = snapshot()
+        post = create_post(user=jane)
+        end2 = snapshot()
 
         # User has an EMAIL subscription but and an email was sent.
         TRUE(PostSub.objects.filter(user=jane, post=post, type=settings.EMAIL_TRACKER))
-        EQ(before.sub_count + 2, after2.sub_count)
-        EQ(before.email_count + 1, after2.email_count)
-        EQ(before.msg_count, after2.msg_count)
+        EQ(star1.sub_count + 2, end2.sub_count)
+        EQ(star1.email_count + 1, end2.email_count)
+        EQ(star1.msg_count, end2.msg_count)
 
         # A second user posts a followup to last post.
-        joe = User.objects.create(email=f.email(), name=f.name())
-        reply = auth.create_content_post(user=joe, parent=post, content=f.sentence())
-        after3 = snapshot()
+        joe = create_user()
+        reply = create_post(user=joe, parent=post)
+        end3 = snapshot()
 
         # A new subscription but no email sent.
-        EQ(before.sub_count + 3, after3.sub_count)
-        EQ(before.email_count + 3, after3.email_count) # Also created a welcome email
-        EQ(before.msg_count + 1, after3.msg_count)
+        EQ(star1.sub_count + 3, end3.sub_count)
+        EQ(star1.email_count + 3, end3.email_count)  # Also created a welcome email
+        EQ(star1.msg_count + 1, end3.msg_count)
+
+        # Jane's watched tags need to get triggered.
+        #jane.profile.message_prefs = settings.SMART_MODE
+        #jane.profile.tags.set("hello world".split())
+        #jane.profile.save()
+
+        #start4 = snapshot()
+        #post = create_post(user=jane, tags="hello")
+        #end4 = snapshot()
+
+        # Users will get an email watched posts as well.
+        #EQ(start4.email_count, end4.email_count)
+
