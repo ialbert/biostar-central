@@ -175,24 +175,15 @@ class ClientTests(TestCase):
         # A different user adds content.
         joe = self.make_user(c)
 
+        # Joe gets an email
+        EQ(len(mail.outbox), before + 1)
+
         before = len(mail.outbox)
         answer = self.create_post(client=c, user=joe, parent=question)
 
         # Jane gets a message.
         EQ(Message.objects.all().count(), 1)
         TRUE(Message.objects.filter(user=jane).first())
-
-        # Jane gets an email
-        EQ(len(mail.outbox), before + 1)
-        last = mail.outbox[-1]
-        TRUE(jane.email in last.to)
-
-        # print last.to
-        # print last.subject
-        # print last.from_email
-
-        # Change notification.
-
 
     def test_awards(self):
         """

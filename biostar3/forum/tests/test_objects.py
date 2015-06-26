@@ -16,6 +16,26 @@ from django.contrib.sites.models import Site
 
 logging.disable(logging.INFO)
 
+class Bunch(object):
+    def __init__(self):
+        self.sub_count, self.msg_count, self.email_count = -1, -1, -1
+
+def snapshot(user=None):
+    b = Bunch()
+
+    if user:
+        sub_count = PostSub.objects.filter(user=user).count()
+        msg_count = Message.objects.filter(user=user).count()
+    else:
+        sub_count = PostSub.objects.count()
+        msg_count = Message.objects.count()
+
+    b.email_count = len(mail.outbox)
+    b.sub_count = sub_count
+    b.msg_count = msg_count
+
+    return b
+
 class SimpleTests(TestCase):
     def test_admin_user(self):
         """
@@ -80,6 +100,8 @@ class SimpleTests(TestCase):
             result = html.embed_links(text)
             EQ(result, expected)
 
+
+
     def test_user_content_creation(self):
         "Creating a post subscribes the user to the post."
 
@@ -87,33 +109,25 @@ class SimpleTests(TestCase):
 
         f = Factory.create()
         jane = User.objects.create(email=f.email(), name=f.name())
-
+        jane.profile.message_prefs = settings.SMART_MODE
+        jane.profile.save()
 
         data = dict(
             title = f.sentence(),
             content= f.text(),
             tags = "hello world, goodbye",
-
         )
 
-        # The initial counts for subscriptions and outbox.
-        before_sub = PostSub.objects.count()
-        before_mail = len(mail.outbox)
-        before_msg = Message.objects.filter(user=jane).count()
-
-
+        before = snapshot()
         # Jane creates a post.
         post = auth.create_toplevel_post(user=jane, data=data)
-        after_sub = PostSub.objects.count()
-        after_mail = len(mail.outbox)
-        after_msg = Message.objects.filter(user=jane).count()
+        after1 = snapshot()
 
-        # User has an EMAIL subscription but no email sent for this post in SMART mode.
+        # User has an EMAIL subscription but in SMART mode no email sent for this post.
         TRUE(PostSub.objects.filter(user=jane, post=post, type=settings.EMAIL_TRACKER))
-        EQ(before_sub + 1, after_sub)
-        EQ(before_mail, after_mail)
-        EQ(before_msg, after_msg)
-
+        EQ(before.sub_count + 1, after1.sub_count)
+        EQ(before.email_count, after1.email_count)
+        EQ(before.msg_count, after1.msg_count)
 
         # Users on EMAIL_TRACKER will get emails.
         jane.profile.message_prefs = settings.EMAIL_TRACKER
@@ -121,24 +135,20 @@ class SimpleTests(TestCase):
 
         # User creates another toplevel post.
         post = auth.create_toplevel_post(user=jane, data=data)
-        after_sub = PostSub.objects.count()
-        after_mail = len(mail.outbox)
-        after_msg = Message.objects.filter(user=jane).count()
+        after2 = snapshot()
 
         # User has an EMAIL subscription but and an email was sent.
         TRUE(PostSub.objects.filter(user=jane, post=post, type=settings.EMAIL_TRACKER))
-        EQ(before_sub + 2, after_sub)
-        EQ(before_mail + 1, after_mail)
-        EQ(before_msg, after_msg)
+        EQ(before.sub_count + 2, after2.sub_count)
+        EQ(before.email_count + 1, after2.email_count)
+        EQ(before.msg_count, after2.msg_count)
 
         # A second user posts a followup to last post.
         joe = User.objects.create(email=f.email(), name=f.name())
         reply = auth.create_content_post(user=joe, parent=post, content=f.sentence())
-        after_sub = PostSub.objects.count()
-        after_mail = len(mail.outbox)
-        after_msg = Message.objects.filter(user=jane).count()
+        after3 = snapshot()
 
         # A new subscription but no email sent.
-        EQ(before_sub + 3, after_sub)
-        EQ(before_mail + 3, after_mail) # Also created a welcome email
-        EQ(before_msg + 1, after_msg)
+        EQ(before.sub_count + 3, after3.sub_count)
+        EQ(before.email_count + 3, after3.email_count) # Also created a welcome email
+        EQ(before.msg_count + 1, after3.msg_count)

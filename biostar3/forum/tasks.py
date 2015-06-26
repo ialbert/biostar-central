@@ -54,18 +54,19 @@ def update_post_subscriptions(post):
     if post.is_toplevel:
         # Post tags only exists at top level.
         # Subscribe everyone that watches the tag and does not already have a subscription.
-        followers = User.objects.filter(profile__tags__name__in=post.tags.names, postsub__isnull=True)
+        followers = User.objects.filter(profile__tags__name__in=post.tags.names, postsub__isnull=True).distinct()
         PostSub.bulk_insert(post=root, users=followers)
 
     # Find everyone that has been tagged in the body of the post
     # and does not already have a subscription.
     tagged_names = html.find_tagged_names(post)
     if tagged_names:
-        tagged_users = User.objects.filter(profile__tags__name__in=post.tags.names, postsub__isnull=True)
+        tagged_users = User.objects.filter(profile__tags__name__in=post.tags.names, postsub__isnull=True).distinct()
         PostSub.bulk_insert(post=root, users=tagged_users)
 
     # Manage author subscription.
     exists = PostSub.objects.filter(post=root, user=post.author)
+
     if not exists:
         prefs = post.author.profile.message_prefs
         if prefs == settings.SMART_MODE:
@@ -73,8 +74,9 @@ def update_post_subscriptions(post):
                 prefs = settings.EMAIL_TRACKER
             else:
                 prefs = settings.LOCAL_TRACKER
+
         if prefs in (settings.EMAIL_TRACKER, settings.LOCAL_TRACKER):
-            PostSub.objects.create(post=root, user=post.author)
+            PostSub.objects.create(post=root, user=post.author, type=prefs)
 
 @shared_task
 def send_notifications(post):
@@ -96,9 +98,14 @@ def send_notifications(post):
     email_tracker = chain(email_tracker, User.objects.filter(profile__message_prefs=settings.MAILING_LIST))
     email_targets = set(email_tracker)
 
-    # We never want a local message for the post author.
+    # Never send local messages for the post author.
     if post.author in local_targets:
         local_targets.remove(post.author)
+
+    # Emails should not be  sent to author in SMART_mode.
+    if post.author.profile.message_prefs == settings.SMART_MODE:
+        if post.author in email_targets:
+            email_targets.remove(post.author)
 
     mailer.post_notifications(post, local_targets=local_targets,
                               email_targets=email_targets)
