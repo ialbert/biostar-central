@@ -216,11 +216,8 @@ class Profile(models.Model):
     # The tag value is the canonical form of the post's tags
     watched_tags = models.CharField(max_length=250, default="", blank=True)
 
-    # The text input for the shortcuts.
-    shortcuts_text = models.TextField(default="", null=True, blank=True, max_length=1000)
-
-    # Json formatted shortcuts.
-    shortcuts_json = models.TextField(default="", null=True, blank=True)
+    # Maintains post tags.
+    tags = MyTaggableManager()
 
     def save(self, *args, **kwargs):
         self.uuid = self.uuid or make_uuid()
@@ -507,12 +504,15 @@ class PostSub(models.Model):
 
     @staticmethod
     def bulk_insert(post, users):
-        stream = [PostSub(post=post, user=user, type=settings.EMAIL_TRACKER) for user in users]
+        def create(user):
+            return PostSub(post=post, user=user, type=settings.EMAIL_TRACKER)
+        stream = map(create, users)
         PostSub.objects.bulk_create(stream, batch_size=100)
 
     @staticmethod
     def sub_from_tags(post, tags):
         users = User.objects.filter(profile__tags__name__in=tags)
+        PostSub.objects.filter(user__in=users).delete()
         PostSub.bulk_insert(post=post, users=users)
 
     @staticmethod
