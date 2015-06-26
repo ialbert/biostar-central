@@ -256,7 +256,7 @@ text_input = lambda: forms.TextInput(attrs={"class": "u-full-width"})
 
 class UserProfileForm(forms.Form):
     name = forms.CharField(max_length=100, widget=text_input())
-    handle = forms.CharField(max_length=100, widget=text_input())
+    tags = forms.CharField(max_length=500, widget=text_input())
     email = forms.CharField(max_length=150, widget=text_input())
     website = forms.CharField(max_length=150, required=False, widget=text_input())
     twitter_id = forms.CharField(max_length=150, label="Twitter ID", required=False, widget=text_input())
@@ -296,7 +296,7 @@ def user_edit(request, pk, target=None):
     if request.method == "GET":
         initial = dict(
             name=target.name,
-            handle=target.handle,
+            tags=", ".join(target.profile.tags.names()),
             email=target.email,
             location=target.profile.location,
             website=target.profile.website,
@@ -321,13 +321,15 @@ def user_edit(request, pk, target=None):
 
     # Need to update both the user and the profile.
     User.objects.filter(pk=target.id).update(
-        name=get("name"), email=get("email"), handle=get('handle'),
+        name=get("name"), email=get("email")
     )
 
     profile = Profile.objects.filter(user__id=target.id).first()
     for field in "info website scholar location twitter_id message_prefs scholar".split():
         setattr(profile, field, get(field))
 
+    tags = auth.tag_split(get('tags').lower())
+    profile.tags.set(*tags)
     # Trigger save.
     profile.save()
 

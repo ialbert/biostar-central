@@ -31,12 +31,6 @@
 
             <div class="five columns">
 
-                <div>
-                    <label>Biostar Handle (required, 15 char max, no spaces):</label>
-                    <div class="muted">Used when tagging with @handle</div>
-                    {{ form.handle }}
-
-                </div>
 
                 <div>
                     <label>Display Name (required):</label> {{ form.name }}
@@ -61,6 +55,23 @@
                 </div>
 
                 <div>
+                    <label>Tags (comma separated):</label>
+
+                    <div class="muted">
+
+                        <p>
+                            Example: <code>samtools, janedoe</code>
+
+                        Get notified when any of these words are listed either
+                        in post tags <code>samtools</code> or in the body of the
+                        post as <code>@janedoe</code></p>
+                    </div>
+                      {{ form.tags }}
+
+
+                </div>
+
+                <div>
                     <label>Notification Preferences:</label>
                     {{ form.message_prefs }}
                 </div>
@@ -71,10 +82,10 @@
                 <label>About me</label>
 
                 <div class="wmd-panel">
-                <div id="wmd-button-bar"></div>
+                    <div id="wmd-button-bar"></div>
         		<textarea class="wmd-input" id="wmd-input" name="info"
-                  placeholder="Type your post here">{{ form.info.value }}</textarea>
-            </div>
+                          placeholder="Type your post here">{{ form.info.value }}</textarea>
+                </div>
 
 
                 <div align="center">

@@ -19,7 +19,7 @@
 
         <div class="row">
             <div class="title center {% user_status_css target %}">
-                User: {{ target.name }} (@{{ target.handle }})
+                User: {{ target.name }}
                 {% if target.is_suspended %}
                     (<i class="fa fa-exclamation-triangle"></i> {{ target.get_status_display|lower }})
                 {% endif %}
@@ -145,6 +145,9 @@
                                 <b>{{ comment_count|intcomma }}</b> comment{{ comment_count|pluralize }}
                             </div>
 
+                         <div>
+                                Following tags: <b>{{ target.profile.tags.names|join:", " }}</b>
+                            </div>
 
                         </div>
 

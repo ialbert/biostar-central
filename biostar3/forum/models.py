@@ -88,8 +88,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(verbose_name='Email', db_index=True, max_length=255, unique=True, blank=False)
     name = models.CharField(verbose_name='Name', max_length=255, default="", blank=False)
 
-    # Unique handle. Allow empty for now.
-    handle = models.CharField(verbose_name='Handle', max_length=25, default='', blank=True)
 
     # Fields used by the Django admin.
     # These are different from the Biostar user types even though Django also calls them admin.
@@ -592,6 +590,7 @@ class Message(models.Model):
     Connects users to messages
     """
     user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='messages')
+    post = models.ForeignKey(Post, related_name='messages', null=True)
     body = models.ForeignKey(MessageBody, related_name='messages')
     unread = models.BooleanField(default=True)
     date = models.DateTimeField(db_index=True, null=True)
