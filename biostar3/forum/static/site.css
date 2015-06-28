@@ -40,6 +40,9 @@ Set up colors fo various widgets.
   background-color: #2c7990;
   color: white;
 }
+.box > .mark {
+  color: #2f5b14;
+}
 .error,
 .errorlist {
   color: #712d2d;

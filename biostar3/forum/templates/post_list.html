@@ -19,13 +19,29 @@
                 <div class="row post_row">
 
                     <div class="box vote_count">
-                        <div class="c">{{ post.thread_score }}</div>
+                        <div class="c">
+                          {% if post.is_toplevel %}
+                            {{ post.thread_score }}
+                          {% else %}
+                            {{ post.vote_count }}
+                          {% endif %}
+                        </div>
                         <div class="t">votes</div>
                     </div>
 
                     <div class="box {{ post.subtype }}">
-                        <div class="c">{{ post.reply_count }}</div>
-                        <div class="t">answers</div>
+                        {% if post.is_toplevel %}
+                          <div class="c">
+                            {{ post.reply_count }}
+                          </div>
+                          <div class="t">answers</div>
+                        {% else %}
+                          {% if post.has_accepted %}
+                            <div class="c mark">
+                              <i class="fa fa-check-circle-o fa-2x"></i>
+                            </div>
+                          {% endif %}
+                        {% endif %}
                     </div>
 
                     <div class="box view_count lg">
