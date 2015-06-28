@@ -266,6 +266,8 @@ def post_moderate(request, pk, post=None, user=None):
     CLOSE, DELETE, DUPLICATE, REPARENT, RESTORE = "close", "delete", "duplicate", "reparent", "restore"
     MOVE_TO_ANSWER, MOVE_TO_COMMENT, MOVE_TO_QUESTION = "move_to_answer", "move_to_comment", "move_to_question"
 
+    moderation_actions = post.moderation_actions(user)
+
     # Simplify a few functions
     error = partial(messages.error, request)
     info = partial(messages.info, request)
@@ -273,7 +275,7 @@ def post_moderate(request, pk, post=None, user=None):
 
     if request.method != "POST":
         # Any other request gets a template.
-        context = dict(post=post)
+        context = dict(post=post, moderation_actions=moderation_actions)
         return render(request, template_name, context)
 
     # Get the requested actions.
@@ -292,6 +294,10 @@ def post_moderate(request, pk, post=None, user=None):
         error("You have insufficient permissions to moderate that post")
         return back
 
+    if not action in moderation_actions:
+        error("Invalid moderation action for this post")
+        return back
+
     if parent_id and not parent:
         error("Invalid parent id.")
         return back
@@ -306,18 +312,6 @@ def post_moderate(request, pk, post=None, user=None):
 
     if action in (CLOSE, DELETE, DUPLICATE) and not reason:
         error("Must specify a reason for a close/delete.")
-        return back
-
-    if action == RESTORE and not user.is_moderator:
-        error("Only moderators may restore posts")
-        return back
-
-    if not post.is_toplevel and action in (CLOSE, DUPLICATE):
-        error("Only top level posts may be closed")
-        return back
-
-    if post.is_toplevel and action in (MOVE_TO_ANSWER, MOVE_TO_COMMENT, MOVE_TO_QUESTION):
-        error("Top level post may not be moved around.")
         return back
 
     # At this point the parameters are correct.
