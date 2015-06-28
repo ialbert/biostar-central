@@ -136,3 +136,64 @@ class VotingTests(TestCase):
         self.assertTrue(question.has_accepted)
         self.assertTrue(answer1.has_accepted)
         self.assertTrue(answer2.has_accepted)
+
+    def test_unaccepting_unsets_has_accepted(self):
+        "Un-accepting the only accepted answer unsets has_accepted on the answer and question"
+
+        asker, question = create_post()
+        answerer = User.objects.create(name=f.name(), email=f.email())
+        answer1 = auth.create_content_post(user=answerer, parent=question, content=f.sentence())
+        answer2 = auth.create_content_post(user=answerer, parent=question, content=f.sentence())
+
+        ajax.perform_vote(answer1, asker, Vote.ACCEPT)
+
+        # Reload posts from database
+        question = Post.objects.get(id=question.id)
+        answer1 = Post.objects.get(id=answer1.id)
+        answer2 = Post.objects.get(id=answer2.id)
+
+        self.assertTrue(question.has_accepted)
+        self.assertTrue(answer1.has_accepted)
+        self.assertFalse(answer2.has_accepted)
+
+        ajax.perform_vote(answer1, asker, Vote.ACCEPT)
+
+        # Reload posts from database
+        question = Post.objects.get(id=question.id)
+        answer1 = Post.objects.get(id=answer1.id)
+        answer2 = Post.objects.get(id=answer2.id)
+
+        self.assertFalse(question.has_accepted)
+        self.assertFalse(answer1.has_accepted)
+        self.assertFalse(answer2.has_accepted)
+
+    def test_unaccept_only_one_answer(self):
+        "Un-accepting only one answer does not mark the question as not accepted"
+
+        asker, question = create_post()
+        answerer = User.objects.create(name=f.name(), email=f.email())
+        answer1 = auth.create_content_post(user=answerer, parent=question, content=f.sentence())
+        answer2 = auth.create_content_post(user=answerer, parent=question, content=f.sentence())
+
+        ajax.perform_vote(answer1, asker, Vote.ACCEPT)
+        ajax.perform_vote(answer2, asker, Vote.ACCEPT)
+
+        # Reload posts from database
+        question = Post.objects.get(id=question.id)
+        answer1 = Post.objects.get(id=answer1.id)
+        answer2 = Post.objects.get(id=answer2.id)
+
+        self.assertTrue(question.has_accepted)
+        self.assertTrue(answer1.has_accepted)
+        self.assertTrue(answer2.has_accepted)
+
+        ajax.perform_vote(answer2, asker, Vote.ACCEPT)
+
+        # Reload posts from database
+        question = Post.objects.get(id=question.id)
+        answer1 = Post.objects.get(id=answer1.id)
+        answer2 = Post.objects.get(id=answer2.id)
+
+        self.assertTrue(question.has_accepted)
+        self.assertTrue(answer1.has_accepted)
+        self.assertFalse(answer2.has_accepted)
