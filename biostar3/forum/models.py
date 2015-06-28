@@ -137,6 +137,15 @@ class User(AbstractBaseUser, PermissionsMixin):
         # Turns out people prefer scores to go by 10.
         return self.score * 10
 
+    def can_moderate_post(self, post):
+        if self.is_superuser:
+            return True
+
+        if self.is_staff or self.is_moderator:
+            return True
+
+        return False
+
     def get_absolute_url(self):
         # url = reverse("user_view", kwargs=dict(pk=self.id))
         url = reverse("user_view", kwargs=dict(pk=self.id))
@@ -257,6 +266,18 @@ class Post(models.Model):
     # The types of posts that show up in queries.
     QUERY_TYPES = {QUESTION, JOB, FORUM, TUTORIAL, TOOL, NEWS}
 
+    # Moderation actions and the permissions checks for each
+    MODERATION_ACTIONS = [
+        ("close", (lambda u,p: p.is_toplevel)),
+        ("delete", (lambda u,p: True)),
+        ("duplicate", (lambda u,p: p.is_toplevel)),
+        ("reparent", (lambda u,p: True)),
+        ("restore", (lambda u,p: u.is_moderator)),
+        ("move_to_answer", (lambda u,p: not p.is_toplevel)),
+        ("move_to_comment", (lambda u,p: not p.is_toplevel)),
+        ("move_to_question", (lambda u,p: not p.is_toplevel))
+    ]
+
     # Maintains post tags.
     tags = MyTaggableManager()
 
@@ -360,6 +381,12 @@ class Post(models.Model):
     @property
     def is_toplevel(self):
         return self.type in Post.TOP_LEVEL
+
+    def moderation_actions(self, user):
+        if user.can_moderate_post(self):
+            return [action for (action, allowed) in Post.MODERATION_ACTIONS if allowed(user, self)]
+        else:
+            return []
 
     def get_absolute_url(self):
 

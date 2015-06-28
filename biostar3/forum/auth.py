@@ -85,13 +85,7 @@ def create_toplevel_post(data, user, file=None):
 
 
 def can_moderate_post(request, user, post):
-    if user.is_superuser:
-        return True
-
-    if user.is_staff or user.is_moderator:
-        return True
-
-    return False
+    return user.can_moderate_post(post)
 
 
 def can_moderate_user(request, user, target):

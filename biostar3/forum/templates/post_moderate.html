@@ -12,10 +12,7 @@
                     written by <b>{{post.author.name}}</b>
                 </div>
 
-                 <div align="center" style="padding-bottom:1ex">
-            Actions with <i class="fa fa-exclamation-triangle"></i> require moderator access.
-        </div>
-
+                {% if "delete" in moderation_actions %}
                 <div>
                     <input type="radio" name="action" value="delete"> Delete post.
                 </div>
@@ -24,8 +21,9 @@
                     <textarea class="u-full-width" type="text" size="50"
                               name="reason" placeholder="State the reason for deleting"></textarea>
                 </div>
+                {% endif %}
 
-
+                {% if "close" in moderation_actions %}
                 <div>
                     <input type="radio" name="action" value="close"> Close post.
                 </div>
@@ -34,7 +32,9 @@
                 <textarea class="u-full-width" type="text" size="50"
                           name="reason" placeholder="State the reason for closing"></textarea>
                 </div>
+                {% endif %}
 
+                {% if "duplicate" in moderation_actions %}
                 <div>
                     <input type="radio" name="action" value="close"> Close as duplicate.
                 </div>
@@ -43,28 +43,37 @@
                 <textarea class="u-full-width" type="text" size="50" name="reason"
                           placeholder="Enter urls to duplicates"></textarea>
                 </div>
+                {% endif %}
 
+                {% if "restore" in moderation_actions %}
                 <div>
-                    <input type="radio" name="action" value="restore"> <i class="fa fa-exclamation-triangle"></i>  Restore deleted/closed post.
+                    <input type="radio" name="action" value="restore"> Restore deleted/closed post.
                 </div>
+                {% endif %}
 
-
+                {% if "move_to_answer" in moderation_actions %}
                 <div>
                     <input type="radio" name="action" value="move_to_answer"> Move to an answer.
                 </div>
+                {% endif %}
 
+                {% if "move_to_comment" in moderation_actions %}
                 <div>
                     <input type="radio" name="action" value="move_to_comment"> Move to a top level comment.
                 </div>
+                {% endif %}
 
+                {% if "reparent" in moderation_actions %}
                  <div>
                     <input type="radio" name="action" value="reparent"> Move to parent id: <input type="text" size="4" name="parent_id" style="height:1.5em" value="">
                 </div>
+                {% endif %}
 
+                {% if "move_to_question" in moderation_actions %}
                 <div>
                     <input type="radio" name="action" value="move_to_question"> Move to a new question. Tags: <input type="text" name="tags" style="height:1.5em" value="">
                 </div>
-
+                {% endif %}
 
                 <div class="row">
                     <div class="submit">
