@@ -52,17 +52,19 @@ def update_post_subscriptions(post):
     root = post.root
 
     if post.is_toplevel:
-        # Post tags only exists at top level.
+        # Post tags only exist at top level.
         # Subscribe everyone that watches the tag and does not already have a subscription.
         tag_names = auth.tag_split(post.tag_val)
-        followers = User.objects.filter(profile__tags__name__in=tag_names, postsub__isnull=True).distinct()
+
+        # All users that are watching the tags but have no subscription yet.
+        followers = User.objects.filter(profile__tags__name__in=tag_names).exclude(postsub__post=post)
         PostSub.bulk_insert(post=root, users=followers)
 
     # Find everyone that has been tagged in the body of the post
     # and does not already have a subscription.
     tagged_names = html.find_tagged_names(post)
     if tagged_names:
-        tagged_users = User.objects.filter(profile__tags__name__in=tagged_names, postsub__isnull=True).distinct()
+        tagged_users = User.objects.filter(profile__tags__name__in=tagged_names).exclude(postsub__post=post)
         PostSub.bulk_insert(post=root, users=tagged_users)
 
     # Manage author subscription.

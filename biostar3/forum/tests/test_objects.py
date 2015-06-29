@@ -30,16 +30,16 @@ def create_user():
     return user
 
 
-def create_post(user, parent=None, type=Post.QUESTION, title=None, tags=None, content=None):
+def create_post(user, parent=None, type=Post.QUESTION, title=None, tag_val=None, content=None):
     f = Factory.create()
     title = title or f.sentence()
-    tags = tags or ", ".join(f.words())
+    tag_val = tag_val or ", ".join(f.words())
     content = content or f.text()
 
     data = dict(
         title=title,
         content=content,
-        tags=tags,
+        tag_val=tag_val,
         type=type,
     )
 
@@ -177,14 +177,27 @@ class SimpleTests(TestCase):
 
         # Jane's watched tags need to get triggered.
         jane.profile.message_prefs = settings.SMART_MODE
+
+        # Jane sets up watched tags.
         jane.profile.tags.set("hello", "jane")
         jane.profile.save()
 
         start4 = snapshot()
-        post = create_post(user=jane, tags="hello, world")
+        # Another user creates a post that matches Jane's watched tags.
+        post = create_post(user=joe, tag_val="hello, world")
         end4 = snapshot()
 
         # Jane should get an email because it is matching her
         # followed tags.
-        #EQ(start4.email_count, end4.email_count)
+        EQ(start4.email_count + 1, end4.email_count)
+
+        # Jane will not get an email even when she creates a post that
+        # matches her own watched tags because she is using SMART_MODE.
+        start5 = snapshot()
+        post = create_post(user=jane, tag_val="hello, world")
+        end5 = snapshot()
+
+        # Jane should get an email because it is matching her
+        # followed tags.
+        EQ(start5.email_count, end5.email_count)
 
