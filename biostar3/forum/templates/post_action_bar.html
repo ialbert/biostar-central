@@ -11,7 +11,7 @@
 
     {% if post.editable %}
         &bull; <a href="{% url "post_edit" pk=post.id %}">edit</a>
-        &bull; <a class="post_moderate" href="#" data-pk="{{ post.id }}">actions</a>
+        &bull; <a class="post_moderate" href="#" data-pk="{{ post.id }}">moderate</a>
     {% endif %}
 
     {% if post.is_toplevel %}

@@ -16,7 +16,7 @@
             {% message_bar %}
 
             {% for post in posts %}
-                <div class="row post_row">
+                <div class="row post_row {{ post.get_status_display }}">
 
                     <div class="box vote_count">
                         <div class="c">

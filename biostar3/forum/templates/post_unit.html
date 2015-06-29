@@ -9,7 +9,7 @@
     </div>
 {% endif %}
 
-<div class="row">
+<div class="row {{ post.get_status_display }}">
     <a name="{{ post.id }}"></a>
 
     {#  This is the user box with author information #}

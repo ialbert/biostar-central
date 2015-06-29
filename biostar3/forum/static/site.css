@@ -275,6 +275,10 @@ ul {
   text-align: center;
   background-color: #fcf8e3;
 }
+.Deleted {
+  background-color: #f2dede;
+  opacity: 0.4;
+}
 /* Count boxes */
 .post_row {
   margin: 0.2em 0em 0em 0em;
