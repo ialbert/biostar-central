@@ -10,27 +10,30 @@
             Moderating user <b>{{ target.name }}</b>
         </div>
 
-        <div align="center" style="padding-bottom:1ex">
-            Actions with <i class="fa fa-exclamation-triangle"></i> require superuser access.
-        </div>
+        {% if "suspend" in moderation_actions %}
+          <div>
+              <input type="radio" name="action" value="suspend"> Suspend user.
+          </div>
+        {% endif %}
 
-        <div>
-            <input type="radio" name="action" value="suspend"> Suspend user.
-        </div>
+        {% if "reinstate" in moderation_actions %}
+          <div>
+              <input type="radio" name="action" value="reinstate"> Reinstate user.
+          </div>
+        {% endif %}
 
-        <div>
-            <input type="radio" name="action" value="reinstate"> Reinstate user.
-        </div>
+        {% if "ban" in moderation_actions %}
+          <div>
+              <input type="radio" name="action" value="ban"> Ban user.
+          </div>
+        {% endif %}
 
-        <div>
-            <input type="radio" name="action" value="ban"> <i class="fa fa-exclamation-triangle"></i> Ban user.
-        </div>
-
-        <div>
-            <input type="radio" name="action" value="merge">
-            <i class="fa fa-exclamation-triangle"></i> Merge this user into id <input type="text"
-                                                name="master_id" style="height:1.5em" size="5" value="">
-        </div>
+        {% if "merge" in moderation_actions %}
+          <div>
+              <input type="radio" name="action" value="merge"> Merge this user into id <input type="text"
+                                                  name="master_id" style="height:1.5em" size="5" value="">
+          </div>
+        {% endif %}
 
         <div class="row" style="padding-top: 1ex">
             <div class="submit">

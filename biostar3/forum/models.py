@@ -84,6 +84,14 @@ class User(AbstractBaseUser, PermissionsMixin):
     # Required by Django.
     USERNAME_FIELD = 'email'
 
+    # Moderation actions and the permissions checks for each
+    MODERATION_ACTIONS = [
+        ("suspend", (lambda u,t: True)),
+        ("ban", (lambda u,t: u.is_staff)),
+        ("reinstate", (lambda u,t: (t.status == User.SUSPENDED) or ((t.status == User.BANNED) and (u.is_staff)) )),
+        ("merge", (lambda u,t: u.is_staff))
+    ]
+
     # Default information on every user.
     email = models.EmailField(verbose_name='Email', db_index=True, max_length=255, unique=True, blank=False)
     name = models.CharField(verbose_name='Name', max_length=255, default="", blank=False)
@@ -134,6 +142,24 @@ class User(AbstractBaseUser, PermissionsMixin):
     def scaled_score(self):
         # Turns out people prefer scores to go by 10.
         return self.score * 10
+
+    def moderation_actions(self, user):
+        if user.can_moderate_user(self):
+            return [action for (action, allowed) in User.MODERATION_ACTIONS if allowed(user, self)]
+        else:
+            return []
+
+    def can_moderate_user(self, target):
+        if target.is_staff:
+            return False
+
+        if target.is_admin:
+            return False
+
+        if self.is_staff or self.is_moderator:
+            return True
+
+        return False
 
     def can_moderate_post(self, post):
         if self.is_superuser:

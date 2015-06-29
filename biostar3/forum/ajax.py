@@ -379,13 +379,17 @@ def user_moderate(request, pk, target=None):
 
     back = redirect(target.get_absolute_url())
 
+    SUSPEND, BAN, REINSTATE, MERGE = "suspend", "ban", "reinstate", "merge"
+
+    moderation_actions = target.moderation_actions(user)
+
     # Simplify a few functions
     error = partial(messages.error, request)
     info = partial(messages.info, request)
     select = User.objects.filter(pk=target.id)
 
     if request.method != "POST":
-        context = dict(target=target)
+        context = dict(target=target, moderation_actions=moderation_actions)
         return render(request, template_name, context)
 
     if not auth.can_moderate_user(request=request, user=request.user, target=target):
@@ -398,11 +402,9 @@ def user_moderate(request, pk, target=None):
 
     action = request.POST.get("action")
 
-    if not action:
-        error("You must select a moderation action")
+    if not action in moderation_actions:
+        error("Invalid moderation action for this user")
         return back
-
-    SUSPEND, BAN, REINSTATE, MERGE = "suspend", "ban", "reinstate", "merge"
 
     if action == SUSPEND:
         select.update(status=User.SUSPENDED)
@@ -410,7 +412,7 @@ def user_moderate(request, pk, target=None):
         return back
 
     # Only staff may ban a user.
-    if action == BAN and user.is_staff:
+    if action == BAN:
         select.update(status=User.BANNED, html="", content="")
         Post.objects.filter(author=target).delete()
         info("User banned")

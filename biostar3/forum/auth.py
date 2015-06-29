@@ -94,16 +94,7 @@ def can_moderate_post(request, user, post):
 
 
 def can_moderate_user(request, user, target):
-    if target.is_staff:
-        return False
-
-    if target.is_admin:
-        return False
-
-    if user.is_staff or user.is_moderator:
-        return True
-
-    return False
+    return user.can_moderate_user(target)
 
 
 @transaction.atomic
