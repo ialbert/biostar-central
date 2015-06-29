@@ -88,7 +88,10 @@ def perform_vote(post, user, vote_type):
             Post.objects.filter(pk=post.root_id).update(has_accepted=True)
         else:
             Post.objects.filter(pk=post.id).update(vote_count=F('vote_count') + change, has_accepted=False)
-            Post.objects.filter(pk=post.root_id).update(has_accepted=False)
+
+            # Only set root as not accepted if there are no accepted siblings
+            if Post.objects.exclude(pk=post.root_id).filter(root_id=post.root_id, has_accepted=True).count() == 0:
+                Post.objects.filter(pk=post.root_id).update(has_accepted=False)
     else:
         Post.objects.filter(pk=post.id).update(vote_count=F('vote_count') + change)
 
