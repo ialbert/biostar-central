@@ -90,10 +90,14 @@ def create_toplevel_post(data, user, file=None):
 
 
 def can_moderate_post(request, user, post):
+    if user.is_anonymous():
+        return False
     return user.can_moderate_post(post)
 
 
 def can_moderate_user(request, user, target):
+    if user.is_anonymous():
+        return False
     return user.can_moderate_user(target)
 
 

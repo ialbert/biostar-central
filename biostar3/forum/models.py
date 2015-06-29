@@ -150,6 +150,7 @@ class User(AbstractBaseUser, PermissionsMixin):
             return []
 
     def can_moderate_user(self, target):
+
         if target.is_staff:
             return False
 

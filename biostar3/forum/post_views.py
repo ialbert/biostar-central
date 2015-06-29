@@ -283,11 +283,14 @@ def post_view(request, pk, post=None, user=None):
     # Gets all objects in a thread. Moderators get deleted objects as well.
     thread = [px for px in query.get_thread(post, user)]
 
-    # Collect votes for authenticated users
+    # This will collect votes for authenticated users.
     store = {Vote.UP: set(), Vote.BOOKMARK: set()}
 
     if user.is_authenticated():
-        # Authenticated users have votes only.
+        # Does the user have a subscription to the post
+        post.sub = PostSub.objects.filter(post=post, user=user).first()
+
+        # Only authenticated users may have votes.
         pids = [p.id for p in thread]
         votes = Vote.objects.filter(post_id__in=pids, author=user).values_list("post_id", "type")
         for post_id, vote_type in votes:

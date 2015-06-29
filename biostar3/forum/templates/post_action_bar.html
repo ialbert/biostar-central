@@ -16,7 +16,12 @@
 
     {% if post.is_toplevel %}
 
-        &bull; <a href="{{ post.get_absolute_url }}">follow <i class="fa fa-envelope"></i></a>
+        &bull;
+        {% if post.sub %}
+			notifications: <a href="{{ post.get_absolute_url }}"> {{ post.sub.get_type_display|lower }} <i class="fa fa-envelope"></i></a>
+        {% else %}
+            <a href="{{ post.get_absolute_url }}">follow <i class="fa fa-envelope"></i></a>
+        {% endif %}
     {% endif %}
 
 </div>
