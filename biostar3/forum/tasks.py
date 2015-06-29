@@ -63,6 +63,7 @@ def update_post_subscriptions(post):
     # Find everyone that has been tagged in the body of the post
     # and does not already have a subscription.
     tagged_names = html.find_tagged_names(post)
+
     if tagged_names:
         tagged_users = User.objects.filter(profile__tags__name__in=tagged_names).exclude(postsub__post=post)
         PostSub.bulk_insert(post=root, users=tagged_users)

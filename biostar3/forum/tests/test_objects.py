@@ -121,16 +121,25 @@ class SimpleTests(TestCase):
 
     def test_embed_links(self):
         "Links to gist and youtube are embedded properly"
-        EQ = self.assertEqual
+        EQ, TRUE = self.assertEqual, self.assertTrue
+
+        # Bleach linkify will rewrite the html attributes.
+        # So some outputs we cannot easily test for.
+
+        # input, expected
         pairs = [
-            # input, expected
-            ("abcd", "abcd"),
-            ("https://gist.github.com/123", "%s" % html.get_embedded_gist(123)),
-            ("https://www.youtube.com/watch?v=123", "%s" % html.get_embedded_youtube(123)),
+            ("https://gist.github.com/123", html.GIST_HTML.format(123)),
+
+            # Bleach.linkfy rewrites attribute order.
+            # Youtube embedding is tested only via a small fragment.for
+            ('https://www.youtube.com/watch?v=1-2-3', 'src="//www.youtube.com/embed/1-2-3'),
+            ('https://www.youtube.com/embed/X_Y-Z', 'src="//www.youtube.com/embed/X_Y-Z'),
+            ('https://youtu.be/xyz', 'src="//www.youtube.com/embed/xyz'),
+
         ]
         for text, expected in pairs:
-            result = html.embed_links(text)
-            EQ(result, expected)
+            result = html.sanitize(text, user=None)
+            TRUE(expected in result)
 
 
     def test_user_content_creation(self):
@@ -201,3 +210,11 @@ class SimpleTests(TestCase):
         # followed tags.
         EQ(start5.email_count, end5.email_count)
 
+
+        # Joe creates a post where he tags jane
+        start6 = snapshot()
+        post = create_post(user=joe, content="Hello @jane!")
+        end6 = snapshot()
+        # Jane should get an email because it is matching her
+        # followed tags.
+        EQ(start6.email_count + 1, end6.email_count)

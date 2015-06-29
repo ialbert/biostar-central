@@ -26,34 +26,36 @@ TRUSTED_ATTRIBUTES.update(settings.TRUSTED_ATTRIBUTES)
 USER_PATTERN = r"http(s)?://%s/u/(?P<uid>(\d+))(/)?" % settings.SITE_DOMAIN
 POST_PATTERN1 = r"http(s)?://%s/p/(?P<uid>(\d+))(/)?" % settings.SITE_DOMAIN
 POST_PATTERN2 = r"http(s)?://%s/p/\d+/\#(?P<uid>(\d+))(/)?" % settings.SITE_DOMAIN
-HANDLE_PATTERN = r"\W@(?P<uid>(\S+))"
+HANDLE_PATTERN = r"(?P<start>(^|\s|\())@(?P<uid>(\w+))"
 
 # Matches gists that may be embeded.
-GIST_PATTERN = r"^https://gist.github.com/(?P<uid>([\w/]+))"
+GIST_PATTERN = r"https://gist.github.com/(?P<uid>([\w/]+))"
 
 # Youtube can be embedded with different patterns
-YOUTUBE_PATTERN1 = r"^http(s)?://www.youtube.com/watch\?v=(?P<uid>([-_\w]+))(/)?"
-YOUTUBE_PATTERN2 = r"^http(s)?://www.youtube.com/embed/(?P<uid>([-_\w]+))(/)?"
-YOUTUBE_PATTERN3 = r"^http(s)?://youtu.be/(?P<uid>([-_\w]+))(/)?"
+YOUTUBE_PATTERN1 = r"http(s)?://www.youtube.com/watch\?v=(?P<uid>([-_\w]+))(/)?"
+YOUTUBE_PATTERN2 = r"http(s)?://www.youtube.com/embed/(?P<uid>([-_\w]+))(/)?"
+YOUTUBE_PATTERN3 = r"http(s)?://youtu.be/(?P<uid>([-_\w]+))(/)?"
 
 # Twitter: tweets to embed.
-TWITTER_PATTERN = r"^http(s)?://twitter.com/\w+/status(es)?/(?P<uid>([\d]+))"
+TWITTER_PATTERN = r"http(s)?://twitter.com/\w+/status(es)?/(?P<uid>([\d]+))"
+
+YOUTUBE_HTML = '<iframe width="420" height="315" src="//www.youtube.com/embed/{}" frameborder="0" allowfullscreen></iframe>'
+def get_embedded_youtube(patt):
+    uid = patt.group("uid")
+    return YOUTUBE_HTML.format(uid)
+
+GIST_HTML = '<script src="https://gist.github.com/{}.js"></script>'
+def get_embedded_gist(patt):
+    uid = patt.group("uid")
+    return GIST_HTML.format(uid)
 
 
-def get_embedded_youtube(uid):
-    return '<iframe width="420" height="315" src="//www.youtube.com/embed/{}" frameborder="0" allowfullscreen></iframe>'.format(
-        uid)
-
-
-def get_embedded_gist(uid):
-    return '<script src="https://gist.github.com/{}.js"></script>'.format(uid)
-
-
-def highlight_handle(uid):
+def highlight_handle(patt):
+    uid = patt.group("uid")
     return ' @<b>{}</b>'.format(uid)
 
 
-def get_embedded_tweet(tweet_id):
+def get_embedded_tweet(patt):
     """
     Get the HTML code with the embedded tweet.
     It requires an API call at https://api.twitter.com/1/statuses/oembed.json as documented here:
@@ -64,6 +66,7 @@ def get_embedded_tweet(tweet_id):
     tweet_id -- a tweet's numeric id like 2311234267 for the tweet at
     https://twitter.com/Linux/status/2311234267
     """
+    tweet_id = patt.group("tweet_id")
     try:
         response = requests.get("https://api.twitter.com/1/statuses/oembed.json?id={}".format(
             tweet_id))
@@ -210,8 +213,8 @@ def embed_links(text):
     for regex, func in targets:
         patt = regex.search(text)
         if patt:
-            uid = patt.group("uid")
-            new_value = func(uid)
+
+            new_value = func(patt)
             text = regex.sub(new_value, text)
 
     return text
