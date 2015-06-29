@@ -169,6 +169,9 @@ class User(AbstractBaseUser, PermissionsMixin):
         if self.is_staff or self.is_moderator:
             return True
 
+        if self == post.author:
+            return True
+
         return False
 
     def get_absolute_url(self):
