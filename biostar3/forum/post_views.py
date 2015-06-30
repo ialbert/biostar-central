@@ -271,7 +271,7 @@ def post_view(request, pk, post=None, user=None):
     Generates the page that contains a full thread.
     """
 
-    template_name = "post_detail.html"
+    template_name = "post_view.html"
 
     if not post.is_toplevel:
         # Post is not at top level. Redirect and and scroll the page to the right anchor.

@@ -3,8 +3,8 @@
 
     {% if user.is_anonymous %}
 
-        <div class="row">
-            <a href="{% url "account_login" %}">Please log in</a> to add your content.
+        <div class="row" style="padding-top:1em">
+            Please <a class="button" href="{% url "account_login" %}">Log In</a> to add your answer.
         </div>
 
     {% else %}
@@ -26,8 +26,6 @@
         <div class="row">
             <div id="wmd-preview" class="wmd-panel wmd-preview"></div>
         </div>
-
-
 
         <input type="submit" value="Submit">
     {% endif %}
