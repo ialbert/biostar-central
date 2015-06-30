@@ -1,0 +1,57 @@
+{% load widgets %}
+{#  Post moderation actions #}
+
+<div class="row" id="panel" xmlns="http://www.w3.org/1999/html">
+    <div class="moderate">
+
+        <div class="row">
+
+            <div align="center">
+                Manage subscriptions to <b>{{ post.get_type_display }}: {{ post.title }}</b>
+                written by <b>{{ post.author.name }}</b>
+            </div>
+
+            {% if user.is_authenticated %}
+                <form action="{% url "post_follow" pk=post.id %}" method="post">
+                    {% csrf_token %}
+                    <div>
+                        <input type="radio" name="action" value="email"> Follow via Email Messages
+                    </div>
+
+                    <div>
+                        <input type="radio" name="action" value="messages"> Follow via Local Messages
+                    </div>
+
+                    <div>
+                        <input type="radio" name="action" value="unfollow"> Unfollow post.
+                    </div>
+
+
+                    <div class="row" style="margin-top:1em">
+                        <div class="submit" >
+                            <input type="submit" value="Submit">
+                        </div>
+                        <div class="cancel">
+                            <input type="button" value="Cancel" class="cancel"
+                                   onclick="javascript:obj=$('#panel').remove();">
+                        </div>
+                    </div>
+                </form>
+
+            {% else %}
+                <div class="row">
+                    <div style="margin-top:1em">
+                        You will need to <a class="button button-primary" href="{% url 'account_login' %}">Log In</a> to use
+                        this feature.
+
+                        <input type="button" value="Cancel" class="cancel"
+                               onclick="javascript:obj=$('#panel').remove();">
+                    </div>
+                </div>
+            {% endif %}
+
+        </div>
+
+
+    </div>
+</div>

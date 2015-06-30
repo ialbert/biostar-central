@@ -41,6 +41,7 @@ function create_panel(elem, url) {
 
     if (panel.length) {
         panel.remove();
+        return;
     }
     var pk = elem.attr('data-pk')
     var container = elem.parent().parent()
@@ -63,6 +64,10 @@ function add_comment(elem) {
 
 function post_moderate(elem) {
     return create_panel(elem, "/site/x/post_moderate/")
+}
+
+function post_follow(elem) {
+    return create_panel(elem, "/site/x/follow/")
 }
 
 function user_moderate(elem) {
@@ -174,6 +179,13 @@ $(document).ready(function () {
         $(this).click(function (event) {
             event.preventDefault();
             user_moderate($(this));
+        });
+    });
+
+    $('.post_follow').each(function () {
+        $(this).click(function (event) {
+            event.preventDefault();
+            post_follow($(this));
         });
     });
 

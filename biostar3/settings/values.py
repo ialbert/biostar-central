@@ -240,9 +240,10 @@ LOCAL_TRACKER, EMAIL_TRACKER, NO_MESSAGES, SMART_MODE, MAILING_LIST = 1, 2, 3, 4
 # The mapping from a messaging type to a readable word.
 SUBSCRIPTION_CHOICES = [
     (SMART_MODE, "Smart Mode"),
-    (LOCAL_TRACKER, "Local Notifications"),
-    (EMAIL_TRACKER, "Email Notifications"),
+    (LOCAL_TRACKER, "Local Messages"),
+    (EMAIL_TRACKER, "Email Messages"),
     (MAILING_LIST, "Mailing List"),
+    (NO_MESSAGES, "No Messages"),
 ]
 
 SUBSCRIPTION_DEFAULT = SMART_MODE

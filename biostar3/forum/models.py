@@ -545,9 +545,12 @@ class PostSub(models.Model):
     """
     Keeps track of subscriptions by users to posts.
     """
+    CHOICES = settings.SUBSCRIPTION_CHOICES
+    DEFAULT = settings.SUBSCRIPTION_DEFAULT
     user = models.ForeignKey(settings.AUTH_USER_MODEL)
     post = models.ForeignKey(Post)
-    type = models.IntegerField(choices=settings.SUBSCRIPTION_CHOICES, default=settings.SUBSCRIPTION_DEFAULT)
+    type = models.IntegerField(choices=CHOICES, default=DEFAULT)
+
 
     class Meta:
         unique_together = (("user", "post"),)

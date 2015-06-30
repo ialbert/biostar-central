@@ -11,17 +11,19 @@
 
     {% if post.editable %}
         &bull; <a href="{% url "post_edit" pk=post.id %}">edit</a>
-        &bull; <a class="post_moderate" href="#" data-pk="{{ post.id }}">moderate</a>
+        &bull; <a class="post_moderate" href="#" data-pk="{{ post.id }}"> <i class="fa fa-caret-down"></i> moderate</a>
     {% endif %}
 
     {% if post.is_toplevel %}
 
-        &bull;
+        &bull; notifications:
         {% if post.sub %}
-			notifications: <a href="{{ post.get_absolute_url }}"> {{ post.sub.get_type_display|lower }} <i class="fa fa-envelope"></i></a>
+            <a class="post_follow" href="#" data-pk="{{ post.id }}">{{ post.sub.get_type_display|lower }} <i class="fa fa-caret-down"></i></a>
         {% else %}
-            <a href="{{ post.get_absolute_url }}">follow <i class="fa fa-envelope"></i></a>
+             <a class="post_follow" href="#" data-pk="{{ post.id }}"> none <i class="fa fa-caret-down"></i></a>
         {% endif %}
+
+
     {% endif %}
 
 </div>

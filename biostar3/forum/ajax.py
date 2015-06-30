@@ -6,7 +6,7 @@ from django.http import HttpResponse
 from functools import partial
 from django.db import transaction
 from django.db.models import Q, F
-from .models import Post, User, Vote, ReplyToken
+from .models import Post, User, Vote, ReplyToken, PostSub
 from . import auth
 from django.contrib import messages
 from functools import partial
@@ -245,6 +245,38 @@ def vote_handler(request):
 
     return ajax_success(msg)
 
+@auth.post_view
+def post_follow(request, pk, post=None, user=None):
+    """
+    Handles post subscriptions.
+    """
+    template_name = "post_follow.html"
+
+    context = dict(pk=pk, post=post)
+
+    if request.method != "POST":
+        # Any other request gets a template.
+        context = dict(post=post, user=user)
+        return render(request, template_name, context)
+
+    # Unsubscribe from all
+    PostSub.objects.filter(user=user, post=post).delete()
+
+    # Figure out the new subscription requirements.
+    action = request.POST.get("action")
+    SUB_MAP = dict(
+        messages=settings.LOCAL_TRACKER, email=settings.EMAIL_TRACKER, unfollow=settings.NO_MESSAGES
+    )
+
+    # Create the subscription.
+    subtype = SUB_MAP.get(action, settings.LOCAL_TRACKER)
+    PostSub.objects.create(user=user, post=post, type=subtype)
+
+    print (subtype)
+
+    # Redirect to post view.
+    back = redirect(post.get_absolute_url())
+    return back
 
 def add_comment(request, pk):
     template_name = "post_comment_add.html"

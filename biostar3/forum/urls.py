@@ -56,8 +56,14 @@ urlpatterns = patterns('',
 
 
     #
-    # Site specific urls. The may be blocked via robots.txt
+    # Site specific urls start with /site/.
     #
+    # Will NOT contain information relevant to the search engines.
+    # These may be blocked via robots.txt
+    #
+    # Urls of the form /site/x/ urls are handling AJAX requests.
+    #
+
     # Create new content: answer, comments
     url(r'^site/new/post/$', form_views.create_toplevel_post, name="new_post"),
     url(r'^site/new/answer/(?P<pk>\d+)/$', form_views.create_answer, name="new_answer"),
@@ -68,6 +74,9 @@ urlpatterns = patterns('',
 
     # Vote submission handler.
     url(r'^site/x/vote/$', ajax.vote_handler, name="vote_submit"),
+
+    # Post follow handler.
+    url(r'^site/x/follow/(?P<pk>\d+)/$', ajax.post_follow, name="post_follow"),
 
     # Loads the comment template via ajax.
     url(r'^site/x/add_comment/(?P<pk>\d+)/$', ajax.add_comment, name="add_comment"),
