@@ -14,7 +14,7 @@ from django.db.models import Q
 from django.db import transaction
 from django.contrib.auth import get_user_model
 from .models import Post, Profile, right_now, Site
-from . import auth, cache
+from . import auth, cache, models
 
 logger = logging.getLogger('biostar')
 
@@ -39,7 +39,7 @@ def title_validator(text):
 
 def tag_validator(text):
     MAX_TAGS = 10
-    parts = auth.tag_split(text)
+    parts = models.tag_split(text)
     if len(parts) > MAX_TAGS:
         raise ValidationError('Too many tags! Have no more than %s tags please.' % MAX_TAGS)
 
@@ -339,9 +339,7 @@ def user_edit(request, pk, target=None):
     profile.save()
 
     # Set the user profile tags.
-    tags = auth.tag_split(get('watched_tags'))
-    if tags:
-        profile.tags.set(*tags)
+    profile.set_tags()
 
     messages.info(request, "Your profile has been updated")
     return redirect(target.get_absolute_url())

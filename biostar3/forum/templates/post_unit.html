@@ -23,7 +23,7 @@
         </div>
         <div>
             <a href="{{ post.author.get_absolute_url }}">{{ post.author.name }}</a>
-            &bull; {{ post.author.score|bignum }}
+            {% user_marker post.author %} {{ post.author.score|bignum }}
         </div>
         <div>
             {{ post.author.profile.location }}

@@ -53,6 +53,14 @@ def make_uuid(size=8):
     u = str(u)[:size]
     return u
 
+
+def tag_split(text, sep=","):
+    "Used to format tags"
+    parts = text.split(sep)
+    parts = map(strip, parts)
+    parts = filter(None, parts)
+    return list(parts)
+
 # Default groups.
 ADMIN_GROUP_NAME = "Admins"
 MODERATOR_GROUP_NAME = "Moderators"
@@ -257,6 +265,10 @@ class Profile(models.Model):
 
     # Maintains post tags.
     tags = MyTaggableManager()
+
+    def set_tags(self):
+        names = tag_split(self.watched_tags)
+        self.tags.set(*names)
 
     def save(self, *args, **kwargs):
         self.uuid = self.uuid or make_uuid()

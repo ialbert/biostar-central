@@ -46,7 +46,7 @@ def create_post(user, parent=None, type=Post.QUESTION, title=None, tag_val=None,
     if not parent:
         post = auth.create_toplevel_post(user=user, data=data)
     else:
-        post = auth.create_content_post(user=user, parent=parent, content=f.sentence())
+        post = auth.create_content_post(user=user, parent=parent, content=content)
 
     return post
 
@@ -69,6 +69,12 @@ def snapshot(user=None):
 
 
 class SimpleTests(TestCase):
+
+    def setUp(self):
+        self.jane = create_user()
+        self.joe = create_user()
+        self.EQ, self.TRUE = self.assertEqual, self.assertTrue
+
     def test_admin_user(self):
         """
         Test that admin users are created.
@@ -141,80 +147,89 @@ class SimpleTests(TestCase):
             result = html.sanitize(text, user=None)
             TRUE(expected in result)
 
+    def test_smart_mode(self):
+        """
+        Testing SMART_MODE notifications.
+        """
+        # Set settings to SMART_MODE
+        self.jane.profile.message_prefs = settings.SMART_MODE
+        self.jane.profile.save()
 
-    def test_user_content_creation(self):
-        "Creating a post subscribes the user to the post."
-
-        EQ, TRUE = self.assertEqual, self.assertTrue
-
-        jane = create_user()
-
-        star1 = snapshot()
-        # Jane creates a post.
-        post = create_post(user=jane)
+        start1 = snapshot()
+        # Jane creates a post and a reply.
+        post = create_post(user=self.jane)
+        reply = create_post(user=self.jane, parent=post)
         end1 = snapshot()
 
-        # User has an EMAIL subscription but in SMART mode no email sent for this post.
-        TRUE(PostSub.objects.filter(user=jane, post=post, type=settings.EMAIL_TRACKER))
-        EQ(star1.sub_count + 1, end1.sub_count)
-        EQ(star1.email_count, end1.email_count)
-        EQ(star1.msg_count, end1.msg_count)
+        # Jane has an EMAIL subscription but in SMART mode no emails are
+        # for posts that the users creates.
+        self.TRUE(PostSub.objects.filter(user=self.jane, post=post, type=settings.EMAIL_TRACKER))
+        self.EQ(start1.sub_count + 1, end1.sub_count)
+        self.EQ(start1.email_count, end1.email_count)
+        self.EQ(start1.msg_count, end1.msg_count)
 
-        # Users on EMAIL_TRACKER will get emails.
-        jane.profile.message_prefs = settings.EMAIL_TRACKER
-        jane.profile.save()
+    def test_email_tracker(self):
+        """
+        Testing EMAIL_TRACKER notifications.
+        """
+        # Set settings to SMART_MODE
+        self.jane.profile.message_prefs = settings.EMAIL_TRACKER
+        self.jane.profile.save()
 
-        # User creates another toplevel post.
-        post = create_post(user=jane)
-        end2 = snapshot()
+        start1 = snapshot()
+        # Jane creates a post and a reply.
+        post = create_post(user=self.jane)
+        reply = create_post(user=self.jane, parent=post)
+        end1 = snapshot()
 
-        # User has an EMAIL subscription but and an email was sent.
-        TRUE(PostSub.objects.filter(user=jane, post=post, type=settings.EMAIL_TRACKER))
-        EQ(star1.sub_count + 2, end2.sub_count)
-        EQ(star1.email_count + 1, end2.email_count)
-        EQ(star1.msg_count, end2.msg_count)
+        # When EMAIL__TRACKER is enabled a user receives email on their own posts as well.
+        self.TRUE(PostSub.objects.filter(user=self.jane, post=post, type=settings.EMAIL_TRACKER))
+        self.EQ(start1.sub_count + 1, end1.sub_count)
+        self.EQ(start1.email_count + 2, end1.email_count)
+        self.EQ(start1.msg_count, end1.msg_count)
 
-        # A second user posts a followup to last post.
-        joe = create_user()
-        reply = create_post(user=joe, parent=post)
-        end3 = snapshot()
+    def test_email_on_followups(self):
+        """
+        Testing email and message notifications on getting an answer or comment.
+        """
+         # Set settings to SMART_MODE
+        self.jane.profile.message_prefs = settings.SMART_MODE
+        self.jane.profile.save()
 
-        # A new subscription but no email sent.
-        EQ(star1.sub_count + 3, end3.sub_count)
-        EQ(star1.email_count + 3, end3.email_count)  # Also created a welcome email
-        EQ(star1.msg_count + 1, end3.msg_count)
+        start1 = snapshot()
+        # Jane creates a post.
+        post = create_post(user=self.jane)
+        reply = create_post(user=self.joe, parent=post)
+        comment = create_post(user=self.joe, parent=reply)
+        end1 = snapshot()
 
-        # Jane's watched tags need to get triggered.
-        jane.profile.message_prefs = settings.SMART_MODE
+        # When EMAIL__TRACKER is enabled a user receives email on their own posts as well.
+        self.TRUE(PostSub.objects.filter(user=self.jane, post=post, type=settings.EMAIL_TRACKER))
 
-        # Jane sets up watched tags.
-        jane.profile.tags.set("hello", "jane")
-        jane.profile.save()
+        # Both users now have subscriptions.
+        self.EQ(start1.sub_count + 2, end1.sub_count)
 
-        start4 = snapshot()
-        # Another user creates a post that matches Jane's watched tags.
-        post = create_post(user=joe, tag_val="hello, world")
-        end4 = snapshot()
+        # Janes gets emails and messages.
+        self.EQ(start1.email_count + 2, end1.email_count)
+        self.EQ(start1.msg_count + 2, end1.msg_count)
+        self.EQ(Message.objects.filter(user=self.jane).count(), 2)
 
-        # Jane should get an email because it is matching her
-        # followed tags.
-        EQ(start4.email_count + 1, end4.email_count)
+    def test_user_tagging(self):
+        """
+        Testing email notification on watched tags.
+        """
+        # Joe creates two posts where he tags jane
+        self.jane.profile.watched_tags = "hello, jane"
+        self.jane.profile.set_tags()
 
-        # Jane will not get an email even when she creates a post that
-        # matches her own watched tags because she is using SMART_MODE.
-        start5 = snapshot()
-        post = create_post(user=jane, tag_val="hello, world")
-        end5 = snapshot()
+        start1 = snapshot()
+        post = create_post(user=self.joe)
+        answ = create_post(user=self.joe, parent=post, content="@jane ok")
+        comm = create_post(user=self.joe, parent=answ, content="Hello @jane!")
+        end1 = snapshot()
 
-        # Jane should get an email because it is matching her
-        # followed tags.
-        EQ(start5.email_count, end5.email_count)
+        # User should get only one subscription.
+        self.EQ(PostSub.objects.filter(post=answ.root, user=self.jane).count(), 1)
 
-
-        # Joe creates a post where he tags jane
-        start6 = snapshot()
-        post = create_post(user=joe, content="Hello @jane!")
-        end6 = snapshot()
-        # Jane should get an email because it is matching her
-        # followed tags.
-        EQ(start6.email_count + 1, end6.email_count)
+        # Jane should get emails because the posts are matching her followed tags
+        self.EQ(start1.email_count + 2, end1.email_count)

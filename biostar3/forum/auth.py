@@ -51,13 +51,6 @@ def get_group_url(group):
     return url
 
 
-def tag_split(text):
-    parts = text.split(",")
-    parts = map(strip, parts)
-    parts = filter(None, parts)
-    return list(parts)
-
-
 @transaction.atomic
 def create_toplevel_post(data, user, file=None):
     # Creating a top level post from  data

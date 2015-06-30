@@ -6,6 +6,7 @@ from itertools import *
 from celery import shared_task
 
 from .models import *
+from .models import tag_split
 from . import auth, mailer
 from biostar3.utils.compat import *
 
@@ -47,10 +48,10 @@ def update_post_subscriptions(post):
     if post.is_toplevel:
         # Post tags only exist at top level.
         # Subscribe everyone that watches the tag and does not already have a subscription.
-        tag_names = auth.tag_split(post.tag_val)
+        tag_names = tag_split(post.tag_val)
 
         # All users that are watching the tags but have no subscription yet.
-        followers = User.objects.filter(profile__tags__name__in=tag_names).exclude(postsub__post=post)
+        followers = User.objects.filter(profile__tags__name__in=tag_names).exclude(postsub__post=root)
         PostSub.bulk_insert(post=root, users=followers)
 
     # Find everyone that has been tagged in the body of the post
@@ -58,7 +59,7 @@ def update_post_subscriptions(post):
     tagged_names = html.find_tagged_names(post)
 
     if tagged_names:
-        tagged_users = User.objects.filter(profile__tags__name__in=tagged_names).exclude(postsub__post=post)
+        tagged_users = User.objects.filter(profile__tags__name__in=tagged_names).exclude(postsub__post=root)
         PostSub.bulk_insert(post=root, users=tagged_users)
 
     # Manage author subscription.
