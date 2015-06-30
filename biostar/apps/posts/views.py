@@ -7,7 +7,7 @@ from django.core.urlresolvers import reverse
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field, Fieldset, Div, Submit, ButtonHolder
 from django.shortcuts import render
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpRequest
 from django.contrib import messages
 from . import auth
 from braces.views import LoginRequiredMixin
@@ -19,6 +19,7 @@ from biostar.const import OrderedDict
 from django.core.exceptions import ValidationError
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
+import re
 import logging
 
 logger = logging.getLogger(__name__)
@@ -190,6 +191,12 @@ class NewPost(LoginRequiredMixin, FormView):
             for field in settings.EXTERNAL_SESSION_FIELDS:
                 initial[field] = sess[settings.EXTERNAL_SESSION_KEY].get(field)
             del sess[settings.EXTERNAL_SESSION_KEY]
+
+	prev_url = str(request.META['HTTP_REFERER'])
+        if re.search('/t/\w+/',prev_url):
+	    tags = prev_url.split('/')
+	    tag = tags[-2]
+	    initial['tag_val'] = tag
 
         form = self.form_class(initial=initial)
         return render(request, self.template_name, {'form': form})
