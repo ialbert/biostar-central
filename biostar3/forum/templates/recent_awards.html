@@ -5,7 +5,7 @@
     {% for award in awards %}
         <li>
             <a href="{%  url "badge_view" award.badge.id %}">{{ award.badge.icon|safe }} {{ award.badge.name }} </a>
-        to <a href="{{award.user.get_absolute_url}}">{{ award.user.name }}</a> {%  user_marker award.user %}  <b>{{ award.user.score|bignum }}</b>
+        to <a href="{{award.user.get_absolute_url}}">{{ award.user.name }}</a>
         </li>
     {% endfor %}
 </ul>

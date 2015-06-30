@@ -16,7 +16,6 @@ def charms(request):
     This view creates nodes. Is not called directly from the web only through
     other functions that prefill parameters.
     """
-    user, group = request.user, request.group
     template_name = "charm_view.html"
     context = dict()
     return render(request, template_name, context)
