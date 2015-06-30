@@ -100,7 +100,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     # Fields used by the Django admin.
     # These are different from the Biostar user types even though Django also calls them admin.
     is_active = models.BooleanField(default=True)
-    is_admin = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
 
     # This designates a user types and with that permissions.
@@ -139,9 +138,12 @@ class User(AbstractBaseUser, PermissionsMixin):
         return (self.status == self.SUSPENDED) or (self.status == self.BANNED)
 
     @property
-    def scaled_score(self):
-        # Turns out people prefer scores to go by 10.
-        return self.score * 10
+    def is_admin(self):
+        return self.type == self.ADMIN
+
+    @property
+    def is_moderator(self):
+        return (self.type == self.MODERATOR) or self.is_admin
 
     def moderation_actions(self, user):
         if user.can_moderate_user(self):
@@ -250,7 +252,7 @@ class Profile(models.Model):
     # allow easy subselection of various subsets of users.
     flag = models.IntegerField(default=0)
 
-    # The tag value is the canonical form of the post's tags
+    # This is the canonical form of the post's tags
     watched_tags = models.CharField(max_length=250, default="", blank=True)
 
     # Maintains post tags.
@@ -826,43 +828,4 @@ class FlatPage(models.Model):
     # Flatpage is a post that connects to a slug.
     slug = models.SlugField(default='slug', db_index=True)
     post = models.ForeignKey(Post)
-
-
-def compute_user_score(user, start=None, end=None):
-    """
-    Computes the score
-    """
-    now = right_now()
-
-    if start is None:
-        start = user.profile.date_joined
-    else:
-        start = now - timedelta(days=start)
-
-    if end is None:
-        end = now
-    else:
-        end = now - timedelta(days=end)
-
-    vote_count = Vote.objects.filter(post__author=user,
-                                     type=Vote.UP, date__gt=start, date__lt=end).count()
-    book_count = Vote.objects.filter(post__author=user, type=Vote.BOOKMARK,
-                                     date__gt=start, date__lt=end).count()
-    post_count = Post.objects.filter(author=user,
-                                     creation_date__gt=start, creation_date__lt=end).count()
-    answer_count = Post.objects.filter(author=user, type=Post.ANSWER,
-                                       creation_date__gt=start, creation_date__lt=end).count()
-
-    score = vote_count * 10 + book_count * 20 + post_count * 1 + answer_count * 5
-
-    return int(score)
-
-
-def compute_flair(user):
-    s1 = compute_user_score(user, start=360, end=90)
-    s2 = compute_user_score(user, start=270, end=90)
-    s3 = compute_user_score(user, start=180, end=90)
-    s4 = compute_user_score(user, start=90, end=0)
-
-    return "{},{},{},{}".format(s1, s2, s3, s4)
 

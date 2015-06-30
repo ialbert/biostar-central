@@ -78,6 +78,8 @@ def get_counts(request, counts=None):
         user.profile.last_login = now()
         user.profile.save()
 
+
+
     counts = sess.get(SESSION_COUNT_KEY, {})
     return counts
 

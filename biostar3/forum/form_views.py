@@ -256,7 +256,7 @@ text_input = lambda: forms.TextInput(attrs={"class": "u-full-width"})
 
 class UserProfileForm(forms.Form):
     name = forms.CharField(max_length=100, widget=text_input())
-    tag = forms.CharField(max_length=500, widget=text_input())
+    watched_tags = forms.CharField(max_length=500, widget=text_input(), required=False)
     email = forms.CharField(max_length=150, widget=text_input())
     website = forms.CharField(max_length=150, required=False, widget=text_input())
     twitter_id = forms.CharField(max_length=150, label="Twitter ID", required=False, widget=text_input())
@@ -267,6 +267,13 @@ class UserProfileForm(forms.Form):
     message_prefs = forms.ChoiceField(
         choices=settings.SUBSCRIPTION_CHOICES, initial=settings.SUBSCRIPTION_DEFAULT,
     )
+
+    def clean_watched_tags(self):
+        # Remove often mistyped characters
+        text = self.cleaned_data['watched_tags']
+        text = text.replace("#", '')
+        text = text.replace('@', '')
+        return text
 
     def clean_email(self):
         """
@@ -296,7 +303,7 @@ def user_edit(request, pk, target=None):
     if request.method == "GET":
         initial = dict(
             name=target.name,
-            tags=", ".join(target.profile.tags.names()),
+            watched_tags=target.profile.watched_tags,
             email=target.email,
             location=target.profile.location,
             website=target.profile.website,
@@ -325,13 +332,16 @@ def user_edit(request, pk, target=None):
     )
 
     profile = Profile.objects.filter(user__id=target.id).first()
-    for field in "info website scholar location twitter_id message_prefs scholar".split():
+    for field in "info website scholar location twitter_id message_prefs scholar watched_tags".split():
         setattr(profile, field, get(field))
 
-    tags = auth.tag_split(get('tags').lower())
-    profile.tags.set(*tags)
-    # Trigger save.
+    # Save the user profile.
     profile.save()
+
+    # Set the user profile tags.
+    tags = auth.tag_split(get('watched_tags'))
+    if tags:
+        profile.tags.set(*tags)
 
     messages.info(request, "Your profile has been updated")
     return redirect(target.get_absolute_url())

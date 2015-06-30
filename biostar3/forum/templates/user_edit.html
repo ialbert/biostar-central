@@ -36,12 +36,12 @@
                     <label>Display Name (required):</label> {{ form.name }}
                 </div>
 
-                <div>
-                    <label> Email (required):</label> {{ form.email }}
+                 <div>
+                    <label> Location:</label> {{ form.location }}
                 </div>
 
                 <div>
-                    <label> Location:</label> {{ form.location }}
+                    <label> Email (required):</label> {{ form.email }}
                 </div>
 
                 <div>
@@ -66,9 +66,7 @@
                         in post tags <code>samtools</code> or in the body of the
                         post as <code>@janedoe</code></p>
                     </div>
-                      {{ form.tags }}
-
-
+                      {{ form.watched_tags}}
                 </div>
 
                 <div>

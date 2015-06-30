@@ -25,11 +25,11 @@ def add_user_attributes(user):
     """
     Mutates the user in the request  to fill in required attributes.
     """
+
     if not user.is_authenticated():
+        # Authenticated users have these attributes but anonymous users do not.
         user.is_moderator = user.is_admin = False
-    else:
-        user.is_admin = (user.type == User.ADMIN)
-        user.is_moderator = user.is_admin or (user.type == User.MODERATOR)
+
 
 
 def get_group_url(group):

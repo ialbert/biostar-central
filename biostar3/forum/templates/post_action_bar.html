@@ -18,9 +18,9 @@
 
         &bull; notifications:
         {% if post.sub %}
-            <a class="post_follow" href="#" data-pk="{{ post.id }}">{{ post.sub.get_type_display|lower }} <i class="fa fa-caret-down"></i></a>
+            <a class="post_follow" href="#" data-pk="{{ post.id }}"><i class="fa fa-caret-down"></i> {{ post.sub.get_type_display|lower }} </a>
         {% else %}
-             <a class="post_follow" href="#" data-pk="{{ post.id }}"> none <i class="fa fa-caret-down"></i></a>
+             <a class="post_follow" href="#" data-pk="{{ post.id }}"><i class="fa fa-caret-down"></i> none </a>
         {% endif %}
 
 

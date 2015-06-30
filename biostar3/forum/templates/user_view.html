@@ -19,7 +19,7 @@
 
         <div class="row">
             <div class="title center {% user_status_css target %}">
-                User: {{ target.name }}
+                User: {{ target.name }} {%  user_marker target %}
                 {% if target.is_suspended %}
                     (<i class="fa fa-exclamation-triangle"></i> {{ target.get_status_display|lower }})
                 {% endif %}
@@ -76,24 +76,12 @@
                             </div>
 
                             <div>
-                                User flair: {{ target.flair }} <span class="line">{% scoreline target %}</span>
-                                <a href="/page/faq#user-flair"><i class="fa fa-question-circle"></i></a>
-                            </div>
-
-                            <div>
                                 Location: <b>{{ target.profile.location }}</b>
                             </div>
 
                             {% if target.editable %}
                                 <div>
                                     Email: <b>{{ target.email }}</b>
-                                </div>
-                                <div>
-                                    New post: <a
-                                href="mailto: new-{{ target.profile.uuid }}-{{ group.domain }}@biostars.io">
-                                    via this email.
-                                </a>
-                                    <a href="/page/faq#new-post-email"><i class="fa fa-question-circle"></i></a>
                                 </div>
                             {% else %}
                                 <div>

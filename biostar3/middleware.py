@@ -94,6 +94,3 @@ class GlobalMiddleware(object):
 
         request.site = site
         request.subs = subs
-
-        #user.flair = models.compute_flair(user)
-        #print ("user flair", user.flair)
