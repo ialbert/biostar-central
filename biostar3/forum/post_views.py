@@ -54,8 +54,12 @@ def tag_filter(request, name):
     Returns a list of posts filtered by a tag name.
     """
     posts = query.get_toplevel_posts(user=request.user)
-    names = name.split("+")
-    posts = posts.filter(tags__name__in=names)
+    # Search with a case insensitive
+    # regular expression with the first five tags.
+    names = name.split("+")[:5]
+    names = [ r"^{}$".format(n) for n in names]
+    names = "|".join(names)
+    posts = posts.filter(tags__name__iregex=names).distinct()
     messages.info(request, 'Filtering for tags: %s' % name)
     return post_list(request, posts=posts)
 
