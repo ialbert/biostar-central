@@ -9,7 +9,7 @@
             <a href="{{post.author.get_absolute_url}}">{{ post.author.name }}</a>
             &bull; {{ post.author.score|bignum }}
         	<em>
-                {{ post.content|truncatewords:25 }}
+                {{ post.content|striptags|truncatewords:25 }}
             </em>
         </li>
     {% endfor %}
