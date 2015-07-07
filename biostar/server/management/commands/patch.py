@@ -6,15 +6,17 @@ from django.db import connection, transaction
 from django.db.models.loading import get_app
 from StringIO import StringIO
 from django.core.management.base import BaseCommand, CommandError
-import os, re
+import os, re, urllib2
 from optparse import make_option
 import random
 import logging
-from datetime import timedelta
+from datetime import timedelta, datetime
 from django.db.models import signals, Q
 import string
 
+
 logger = logging.getLogger(__name__)
+
 
 class Command(BaseCommand):
     help = "Runs quick patches over the data. Use it only if you know what you're doing."
@@ -22,11 +24,14 @@ class Command(BaseCommand):
     option_list = BaseCommand.option_list + (
         make_option('--users', dest='users', action='store_true', default=False, help='patches_users'),
         make_option('--bump', dest='bump', action='store_true', default=False, help='bumps a random post'),
+        make_option('--logfile', dest='logfile', action='store_true', default=False, help='creates gource logfile'),
+
         make_option('--bump_id', dest='bump_id', type=int, help='bumps a specific post'),
         make_option('--stuff', dest='stuff', action='store_true', default=False, help='runs stuff ...'),
         make_option('--tag', dest='tag', default="", help='tags post by matching a regex.Format regex:name'),
         make_option('--dry', dest='dry', action='store_true', default=False, help='dry run, sometimes applies ;-)'),
-        make_option('--merge_users', dest='merge', metavar="FILE", default=False, help='merges users listed in a file, on per row: master alias1 alias2 ...'),
+        make_option('--merge_users', dest='merge', metavar="FILE", default=False,
+                    help='merges users listed in a file, on per row: master alias1 alias2 ...'),
     )
 
     def handle(self, *args, **options):
@@ -84,7 +89,6 @@ def stuff():
 
 
 def tagger(pattern, dry):
-
     "One off tasks go here that just need a quick access to the data"
     from biostar.apps.posts.models import Post
     from biostar.apps.users.models import User
@@ -94,7 +98,7 @@ def tagger(pattern, dry):
 
     logger.info('%s -> %s' % (patt, name))
 
-    patt = re.compile(patt, re.MULTILINE | re.IGNORECASE| re.DOTALL)
+    patt = re.compile(patt, re.MULTILINE | re.IGNORECASE | re.DOTALL)
     for post in posts:
         try:
             hits = patt.search(post.content)
@@ -108,6 +112,7 @@ def tagger(pattern, dry):
         except Exception, exc:
             logger.error("exception:'%s' while tagging %s: %s" % (exc, post.id, post.title))
 
+
 def merge_users(fname):
     from biostar.apps.posts.models import Post, Subscription, ReplyToken
     from biostar.apps.posts.models import Vote
@@ -117,6 +122,7 @@ def merge_users(fname):
     from allauth.account.models import EmailAddress
 
     print ("Merging users from %s" % fname)
+
     def create_pairs(line):
         elems = line.split()
         elems = map(string.strip, elems)
@@ -157,7 +163,7 @@ def merge_users(fname):
         EmailAddress.objects.filter(user__in=aliases).update(user=master)
 
         # New score for the master
-        score = sum( u.score for u in aliases ) + master.score
+        score = sum(u.score for u in aliases) + master.score
         User.objects.filter(pk=master.pk).update(score=score)
 
         # Update tokens
@@ -180,8 +186,9 @@ def merge_users(fname):
 def patch_users():
     from biostar.apps.users.models import User, Profile
     from biostar.const import DEFAULT_MESSAGES
-    #users = Profile.objects.all()
+    # users = Profile.objects.all()
     #users.update(message_prefs=DEFAULT_MESSAGES)
+
 
 def bump(pk=None):
     from biostar.apps.posts.models import Post
@@ -200,7 +207,7 @@ def bump(pk=None):
 
         query = query.values_list("id")
 
-        ids = [ p[0] for p in query ]
+        ids = [p[0] for p in query]
 
         pk = random.choice(ids)
 
