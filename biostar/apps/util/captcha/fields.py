@@ -11,7 +11,7 @@ from .utils import hash_answer
 
 class MathCaptchaField(forms.MultiValueField):
     default_error_messages = {
-        'invalid': _('Please check your math and try again.'),
+        'invalid': _('Web based signup disabled because of spam.'),
         'invalid_number': _('Enter a whole number.'),
     }
 
@@ -28,7 +28,7 @@ class MathCaptchaField(forms.MultiValueField):
             answer = data_list[0]
             real_hashed_answer = data_list[1]
             hashed_answer = hash_answer(answer)
-            if hashed_answer != real_hashed_answer:
+            if True or hashed_answer != real_hashed_answer:
                 raise ValidationError(self.error_messages['invalid'])
         return None
 
