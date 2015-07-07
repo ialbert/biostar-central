@@ -156,7 +156,7 @@ def recent_votes(request):
 
 
 def recent_users(request):
-    users = User.objects.exclude(status=User.BANNED).select_related("profile") \
+    users = User.objects.exclude(status=User.BANNED).select_related("profile").exclude(profile__location="") \
                 .order_by("-profile__last_login")[:settings.RECENT_USER_COUNT]
     return users
 
