@@ -83,7 +83,7 @@ class LatestFeed(PostBase):
 
     def items(self):
         posts = Post.objects.filter(type__in=Post.TOP_LEVEL,
-                                    usergroup=DEFAULT_GROUP).exclude(type=Post.BLOG).order_by('-creation_date')
+                                   ).exclude(type=Post.BLOG).order_by('-creation_date')
         return posts[:FEED_COUNT]
 
 
@@ -110,7 +110,7 @@ class PostTypeFeed(PostBase):
     def items(self, obj):
         codes, words = obj
         posts = Post.objects.filter(type__in=codes,
-                                    root__usergroup=DEFAULT_GROUP).order_by('-creation_date')
+                                    ).order_by('-creation_date')
         return posts[:FEED_COUNT]
 
 
@@ -127,7 +127,7 @@ class PostFeed(PostBase):
 
     def items(self, obj):
         posts = Post.objects.filter(root_id__in=obj,
-                                    root__usergroup=DEFAULT_GROUP).order_by('-creation_date')
+                                    ).order_by('-creation_date')
         return posts[:FEED_COUNT]
 
 

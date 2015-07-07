@@ -19,6 +19,10 @@ Run the site with default data over an `sqlite` database:
 	source run/sqlite.env
 	./biostar.sh delete migrate index run
 
+To add the static pages run:
+
+	python manage.py add_pages --dir themes/default/pages/
+
 Visit `http://www.lvh.me:8080/` to interact with your site. It is important that even
 for your localhost you use a fully qualified domain name as the group 
 feature will identify groups based on the subdomain of the site.

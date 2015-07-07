@@ -88,11 +88,7 @@ def email_handler(request):
     # A new post is to be generated.
     if action == NEW_POST:
 
-        # Which group to post to.
-        usergroup = UserGroup.objects.filter(domain=pattern).first()
-        if not usergroup:
-            resp = dict(status="error", msg="Group={} does not exist".format(pattern))
-            return json_response(resp)
+
 
         # The token must match a users uuid.
         author = User.objects.filter(profile__uuid=token).first()
@@ -102,7 +98,7 @@ def email_handler(request):
 
         # Create the post in the usergroup
         data = dict(title=subject, content=text, tags="via email")
-        auth.create_toplevel_post(data=data, user=author, group=usergroup)
+        auth.create_toplevel_post(data=data, user=author)
         resp = dict(status="ok", msg="question created".format(token))
         return json_response(resp)
 

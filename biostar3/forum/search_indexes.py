@@ -28,7 +28,7 @@ class PostIndex(indexes.SearchIndex, indexes.Indexable):
         data = super(PostIndex, self).prepare(obj)
         data['boost'] = 1.0
         data['url'] = obj.get_absolute_url()
-        data['domain'] = obj.root.usergroup.domain
+        data['domain'] = ''
         data['type'] = obj.get_type_display()
         data['view_count'] = obj.root.view_count
         data['date'] = obj.creation_date.strftime("%B %d, %Y")
@@ -41,7 +41,7 @@ class PostIndex(indexes.SearchIndex, indexes.Indexable):
         Used when the entire index for model is updated.
         """
         cond = Q(type=Post.COMMENT) | Q(status=Post.DELETED)
-        return self.get_model().objects.all().exclude(cond).select_related('root', "usergroup", "author")
+        return self.get_model().objects.all().exclude(cond).select_related('root', "author")
 
     def get_updated_field(self):
         return "lastedit_date"
@@ -100,7 +100,7 @@ class BlogPostIndex(indexes.SearchIndex, indexes.Indexable):
 
     def prepare(self, obj):
         data = super(BlogPostIndex, self).prepare(obj)
-        data['domain'] = obj.blog.usergroup.domain
+        data['domain'] = ''
         data['date'] = obj.creation_date.strftime("%B %d, %Y")
         data['content'] = html.strip_tags(obj.content)
         data['type'] = "Blog"

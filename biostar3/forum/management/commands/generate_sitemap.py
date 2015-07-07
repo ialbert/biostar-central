@@ -27,8 +27,7 @@ class Command(BaseCommand):
 
 def generate_sitemap():
     sitemap = GenericSitemap({
-        'queryset': Post.objects.filter(type__in=Post.TOP_LEVEL,
-                                        usergroup__public=True).order_by("creation_date")
+        'queryset': Post.objects.filter(type__in=Post.TOP_LEVEL).order_by("creation_date")
     })
     urlset = sitemap.get_urls()
     text = loader.render_to_string('sitemap.xml', {'urlset': urlset})

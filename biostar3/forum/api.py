@@ -97,16 +97,13 @@ def post_details(request, id):
     if not post:
         return {}
 
-    post = post.select_related("author", "root", "root__usergroup").first()
+    post = post.select_related("author", "root").first()
     tags = [t.name for t in post.tags.all()]
     data = {
         'id': post.id,
         'uuid': post.uuid,
         'title': post.title,
         'type': post.get_type_display(),
-        'group_id': post.root.usergroup_id,
-        'domain': post.root.usergroup.domain,
-        'group_name': post.root.usergroup.name,
         'type_id': post.type,
         'creation_date': datetime_to_iso(post.creation_date),
         'lastedit_date': datetime_to_iso(post.lastedit_date),
