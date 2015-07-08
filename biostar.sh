@@ -1,5 +1,21 @@
 #!/bin/bash
 
+while getopts ":e:" opt; do
+  case $opt in
+    e)
+      CONFIG="run/$OPTARG.env"
+      echo "Using configuration from $CONFIG" >&2
+      source $CONFIG
+      ;;
+    \?)
+      echo "Invalid option: -$OPTARG" >&2
+      ;;
+    :)
+      echo "-$OPTARG requires an argument" >&2
+      ;;
+  esac
+done
+
 # Environment variables must be set externally.
 if [ -z "$BIOSTAR_HOME" ]; then
     echo "(!) Environment variables not set. See the README.md."
