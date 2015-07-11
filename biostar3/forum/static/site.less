@@ -543,18 +543,6 @@ ul.dropdown {
   }
 }
 
-#userbar {
-  border-top:1px solid #efefef;
-  *.glow {
-    color: white;
-    background-color: @ANSWERED_COLOR;
-    border-radius: 25px;
-    &:hover {
-      color: @ANSWERED_COLOR;
-    }
-  }
-}
-
 #votelist {
   .item {
     padding: 1ex;
@@ -573,6 +561,7 @@ ul.dropdown {
 }
 
 #userbar {
+  border-top:1px solid #efefef;
   width: 100%;
   display: flex;
   display:-webkit-flex;
@@ -580,6 +569,15 @@ ul.dropdown {
   -webkit-justify-content: space-between;
   margin-bottom: 2px;
   //min-width:4em;
+  *.glow {
+    color: white;
+    background-color: @ANSWERED_COLOR;
+    border-radius: 25px;
+    &:hover {
+      color: @ANSWERED_COLOR;
+    }
+  }
+
   .icon {
     font-size: 2em;
   }
