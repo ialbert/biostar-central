@@ -524,24 +524,6 @@ ul.dropdown ul.items li :hover {
 #userbar *.glow:hover {
   color: #5b8c3e;
 }
-#userbar .icon {
-  font-size: 2em;
-}
-#userbar .navlabel {
-  font-size: small;
-}
-#userbar .signin {
-  border: 1px solid #d6e9c6;
-  border-radius: 4px;
-  color: #3c763d;
-  background-color: #dff0d8;
-}
-#userbar .signin:hover {
-  color: #5b8c3e;
-  background-color: red;
-  cursor: pointer;
-  border-radius: 4px;
-}
 #userbar .item {
   margin-top: 0.5ex;
   float: left;
@@ -555,9 +537,6 @@ ul.dropdown ul.items li :hover {
   background-color: #EFEFEF;
   cursor: pointer;
   border-radius: 4px;
-}
-#userbar .last {
-  float: right;
 }
 #navbar {
   width: 100%;
@@ -573,18 +552,6 @@ ul.dropdown ul.items li :hover {
 #navbar .navlabel {
   font-size: small;
 }
-#navbar .signin {
-  border: 1px solid #d6e9c6;
-  border-radius: 4px;
-  color: #3c763d;
-  background-color: #dff0d8;
-}
-#navbar .signin:hover {
-  color: #5b8c3e;
-  background-color: red;
-  cursor: pointer;
-  border-radius: 4px;
-}
 #navbar .item {
   margin-top: 0.5ex;
   float: left;
@@ -598,9 +565,6 @@ ul.dropdown ul.items li :hover {
   background-color: #EFEFEF;
   cursor: pointer;
   border-radius: 4px;
-}
-#navbar .last {
-  float: right;
 }
 #panel {
   padding: 0.5ex 0em 1ex 0ex;
