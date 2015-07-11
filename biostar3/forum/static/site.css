@@ -514,7 +514,7 @@ ul.dropdown ul.items li :hover {
   display: -webkit-flex;
   justify-content: space-between;
   -webkit-justify-content: space-between;
-  margin-bottom: 2px;
+  margin-bottom: 10px;
 }
 #userbar *.glow {
   color: white;
