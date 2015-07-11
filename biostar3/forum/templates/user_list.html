@@ -27,7 +27,7 @@
                         </div>
 
                         <div>
-                            <a href="{{ user.get_absolute_url }}">{{ user.name }}</a> {%  user_marker user %} <b>{{ user.score|bignum }}</b>
+                            {% user_link user %}
                         </div>
 
                         <div class="visited">

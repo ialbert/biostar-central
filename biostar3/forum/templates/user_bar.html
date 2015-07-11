@@ -17,7 +17,7 @@
                 {% if user.is_authenticated %}
 
                     <div class="item tooltip" title="Your Account" data-tooltip-direction="top">
-                        <a href="{% url "user_view" pk=user.id %}"><i class="fa fa-user"></i> {{ user.name }}  {%  user_marker user %}
+                        <a href="{% url "user_view" pk=user.id %}"><i class="fa fa-user"></i> {% user_link user show_score=False unwrap=True %}
                         </a>
                     </div>
 

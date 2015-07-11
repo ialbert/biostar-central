@@ -69,16 +69,8 @@ def post_unit(context, post, comments):
 
 
 @register.inclusion_tag('templatetags/user_link.html')
-def user_link(user):
-    return dict(user=user)
-
-@register.simple_tag
-def user_marker(user):
-    if user.is_admin:
-        return "&diams;&diams;"
-    elif user.is_moderator:
-        return "&diams;"
-    return "&bull;"
+def user_link(user, show_score=True, unwrap=False):
+    return dict(user=user, show_score=show_score, unwrap=unwrap)
 
 @register.filter
 def on_value(value):

@@ -5,9 +5,7 @@
     {% for post in posts %}
         <li>
             {{ post.lastedit_date|time_ago }} <a href="{{ post.get_absolute_url }}">{{ post.title}}</a>
-            by
-            <a href="{{post.author.get_absolute_url}}">{{ post.author.name }}</a>
-            &bull; {{ post.author.score|bignum }}
+            by {% user_link post.author %}
         	<em>
                 {{ post.content|striptags|truncatewords:25 }}
             </em>
