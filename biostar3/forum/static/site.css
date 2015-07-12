@@ -246,6 +246,11 @@ ul {
   border-bottom: 1px solid #E1E1E1;
   text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1);
 }
+/* Edit Post */
+#edit_post input[type=text],
+#edit_post select {
+  width: 100%;
+}
 /* Tags */
 #tag_list .tag {
   margin: 1ex;
