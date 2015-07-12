@@ -6,3 +6,4 @@
 /init/*
 /export/*
 fabfile.py
+.coverage
