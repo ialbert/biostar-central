@@ -1,0 +1,121 @@
+{
+  "name": "Biostar-Central",
+  "description": "BioStar is a Python and Django based Q&A software. It is a simple, generic, flexible and extensible Q&A framework.",
+  "repository": "https://github.com/Lohit13/biostar-central/tree/heroku",
+  "env": {
+    "BIOSTAR_ADMIN_NAME": {
+      "description": "Administrator's Name",
+      "value": "Admin",
+      "required": true
+    },
+    "BIOSTAR_ADMIN_EMAIL": {
+      "description": "Administrator's Email",
+      "value": "user@foobar.com",
+      "required": true
+    },
+    "DEFAULT_FROM_EMAIL": {
+      "description": "Default Email for mails from Biostar",
+      "value": "user@foobar.com",
+      "required": true
+    },
+    "SECRET_KEY": {
+      "description": "Secret Key: this will be the default password of admin email",
+      "value": "foobar",
+      "required": true
+    },
+    "DJANGO_SETTINGS_MODULE": "biostar.settings.heroku",
+    "DATABASE_NAME": {
+      "description": "Name of Database",
+      "value": "biostar.db",
+      "required": true
+    },
+    "VERBOSITY": "1",
+    "PYTHON": "python",
+    "DJANGO_ADMIN": "manage.py",
+    "JSON_DATA_FIXTURE": "import/default-fixture.json.gz",
+    "EMAIL_HOST": {
+      "description": "Email Host Addr.",
+      "value": "foobar",
+      "required": false
+    },
+    "EMAIL_PORT": {
+      "description": "Email Host Addr. PORT",
+      "value": "25",
+      "required": false
+    },
+    "EMAIL_HOST_USER": {
+      "description": "Email Host User",
+      "value": "foobar",
+      "required": false
+    },
+    "EMAIL_HOST_PASSWORD": {
+      "description": "Email Host Password",
+      "value": "foobar",
+      "required": false
+    },
+    "GOOGLE_PROVIDER_KEY": {
+      "description": "Google Provider's Client ID",
+      "value": "foobar",
+      "required": true
+    },
+    "GOOGLE_PROVIDER_SECRET_KEY": {
+      "description": "Google Provider's Secret Key",
+      "value": "foobar",
+      "required": true
+    },
+    "FACEBOOK_PROVIDER_KEY": {
+      "description": "Facebook Provider's Client ID",
+      "value": "foobar",
+      "required": true
+    },
+    "FACEBOOK_PROVIDER_SECRET_KEY": {
+      "description": "Facebook Provider's Secret Key",
+      "value": "foobar",
+      "required": true
+    },
+    "TWITTER_PROVIDER_KEY": {
+      "description": "Twitter Provider's Client ID",
+      "value": "foobar",
+      "required": true
+    },
+    "TWITTER_PROVIDER_SECRET_KEY": {
+      "description": "Twitter Provider's Secret Key",
+      "value": "foobar",
+      "required": true
+    },
+    "GITHUB_PROVIDER_KEY": {
+      "description": "Github Provider's Client ID",
+      "value": "foobar",
+      "required": true
+    },
+    "GITHUB_PROVIDER_SECRET_KEY": {
+      "description": "Github Provider's Secret Key",
+      "value": "foobar",
+      "required": true
+    },
+    "ORCID_PROVIDER_KEY": {
+      "description": "Orcid Provider's Client ID",
+      "value": "foobar",
+      "required": true
+    },
+    "ORCID_PROVIDER_SECRET_KEY": {
+      "description": "Orcid Provider's Secret Key",
+      "value": "foobar",
+      "required": true
+    },
+    "BIOSTAR_MIGRATE_DIR": {
+      "description": "Migrate directory",
+      "value": "~/tmp/biostar-migrate",
+      "required": false
+    },
+    "BIOSTAR_HOME": {
+    	"description": "This is a required variable. Leave it as it is",
+    	"value": "`pwd`",
+    	"required": true
+    },
+    "BIOSTAR_HOSTNAME": "$PORT"
+  },
+  "addons": [
+    "heroku-postgresql:hobby-dev"
+  ]
+}

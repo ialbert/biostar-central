@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/ialbert/biostar-central.svg?branch=master)](https://travis-ci.org/ialbert/biostar-central)
+[![Build Status](https://travis-ci.org/ialbert/biostar-central.svg?branch=master)](https://travis-ci.org/ialbert/biostar-central)  [![Deploy](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy)
 
 Biostar: Software for building Scientific Communities
 =====================================================
