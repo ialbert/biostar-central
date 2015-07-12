@@ -1,4 +1,11 @@
 {%  load widgets %}
 {#  Renders a user link #}
-<a href="{{ user.get_absolute_url }}">{{ user.name }}</a> {%  user_marker user %}
-<b>{{ user.score|bignum }}</b>
+{% if unwrap %}
+  {{ user.name }}
+{% else %}
+  <a href="{{ user.get_absolute_url }}">{{ user.name }}</a>
+{% endif %}
+{{ user.marker }}
+{% if show_score %}
+  <b>{{ user.score|bignum }}</b>
+{% endif %}

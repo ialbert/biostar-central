@@ -192,6 +192,14 @@ class User(AbstractBaseUser, PermissionsMixin):
     def get_short_name(self):
         return self.name
 
+    @property
+    def marker(self):
+        if self.is_admin:
+            return "\u2666\u2666" # double diamond
+        elif self.is_moderator:
+            return "\u2666" # single diamond
+        return "\u2022" # single bullet
+
     def post_count(self, types):
         return Post.objects.filter(type__in=types, author=self).count()
 

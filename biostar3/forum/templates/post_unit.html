@@ -22,8 +22,7 @@
             {{ post.creation_date|time_ago }}
         </div>
         <div>
-            <a href="{{ post.author.get_absolute_url }}">{{ post.author.name }}</a>
-            {% user_marker post.author %} {{ post.author.score|bignum }}
+            {% user_link post.author %}
         </div>
         <div>
             {{ post.author.profile.location }}
