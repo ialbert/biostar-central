@@ -495,17 +495,6 @@ ul.dropdown ul.items li :hover {
   margin-top: 5px;
   width: 299px;
 }
-#userbar {
-  border-top: 1px solid #efefef;
-}
-#userbar *.glow {
-  color: white;
-  background-color: #5b8c3e;
-  border-radius: 25px;
-}
-#userbar *.glow:hover {
-  color: #5b8c3e;
-}
 #votelist .item {
   padding: 1ex;
   font-size: larger;
@@ -518,9 +507,38 @@ ul.dropdown ul.items li :hover {
   margin-bottom: 0.5ex;
   border-bottom: 1px solid #cdcdcd;
 }
-#userbar,
-#navbar,
-#topics {
+#userbar {
+  border-top: 1px solid #efefef;
+  width: 100%;
+  display: flex;
+  display: -webkit-flex;
+  justify-content: space-between;
+  -webkit-justify-content: space-between;
+  margin-bottom: 10px;
+}
+#userbar *.glow {
+  color: white;
+  background-color: #5b8c3e;
+  border-radius: 25px;
+}
+#userbar *.glow:hover {
+  color: #5b8c3e;
+}
+#userbar .item {
+  margin-top: 0.5ex;
+  float: left;
+  text-align: center;
+}
+#userbar .item a {
+  display: inline-block;
+  padding: 1ex;
+}
+#userbar .item a:hover {
+  background-color: #EFEFEF;
+  cursor: pointer;
+  border-radius: 4px;
+}
+#navbar {
   width: 100%;
   display: flex;
   display: -webkit-flex;
@@ -528,56 +546,25 @@ ul.dropdown ul.items li :hover {
   -webkit-justify-content: space-between;
   margin-bottom: 2px;
 }
-#userbar .icon,
-#navbar .icon,
-#topics .icon {
+#navbar .icon {
   font-size: 2em;
 }
-#userbar .navlabel,
-#navbar .navlabel,
-#topics .navlabel {
+#navbar .navlabel {
   font-size: small;
 }
-#userbar .signin,
-#navbar .signin,
-#topics .signin {
-  border: 1px solid #d6e9c6;
-  border-radius: 4px;
-  color: #3c763d;
-  background-color: #dff0d8;
-}
-#userbar .signin:hover,
-#navbar .signin:hover,
-#topics .signin:hover {
-  color: #5b8c3e;
-  background-color: red;
-  cursor: pointer;
-  border-radius: 4px;
-}
-#userbar .item,
-#navbar .item,
-#topics .item {
+#navbar .item {
   margin-top: 0.5ex;
   float: left;
   text-align: center;
 }
-#userbar .item a,
-#navbar .item a,
-#topics .item a {
+#navbar .item a {
   display: inline-block;
   padding: 1ex;
 }
-#userbar .item a:hover,
-#navbar .item a:hover,
-#topics .item a:hover {
+#navbar .item a:hover {
   background-color: #EFEFEF;
   cursor: pointer;
   border-radius: 4px;
-}
-#userbar .last,
-#navbar .last,
-#topics .last {
-  float: right;
 }
 #panel {
   padding: 0.5ex 0em 1ex 0ex;
