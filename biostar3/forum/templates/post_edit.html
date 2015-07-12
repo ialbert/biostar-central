@@ -20,32 +20,35 @@
 
 
                     <div class="row">
+                      <div class="twelve columns">
                         <label for="{{ form.title.id_for_label }}">Title</label>
-                        <input type="text" class="u-full-width" name="{{ form.title.name }}"
-                               value="{{ form.title.value }}"/>
+                        {{ form.title }}
+                      </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="twelve columns">
+                            <label for="{{ form.tag_val.id_for_label }}">Tags</label>
+                            {{ form.tag_val }}
+                        </div>
                     </div>
 
                     <div class="row">
                         <div class="six columns">
-                            <label for="{{ form.tag_val.id_for_label }}">Tags</label>
-                            <input type="text" class="u-full-width" name="{{ form.tag_val.name }}"
-                                   value="{{ form.tag_val.value }}"/>
+                          <label for="{{ form.type.id_for_label }}">Type</label>
+                          {{ form.type }}
                         </div>
-                    </div>
 
-                     <div>
-                        <label for="{{ form.type.id_for_label }}">Type</label>
-                        {{ form.type }}
-                    </div>
-
-                    <div>
-                        <label for="{{ form.site.id_for_label }}">Site</label>
-                        {{ form.site }}
+                        <div class="six columns">
+                          <label for="{{ form.site.id_for_label }}">Site</label>
+                          {{ form.site }}
+                        </div>
                     </div>
 
                 {% endif %}
 
-                <div class="upload">
+                <div class="row upload">
+                    <label for="{{ form.file.id_for_label }}">Attach file to post:</label>&nbsp;
                     {{ form.file }}
                 </div>
 
