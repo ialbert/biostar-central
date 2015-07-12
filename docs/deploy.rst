@@ -74,7 +74,7 @@ While not required to be turned on the site supports compressing and precompilin
 To make use of this functionality you will need to have ``lessc`` to be installed and you will
 need to set the ``USE_COMPRESSOR=True`` in your settings file.
 
-To deply the site with ``postgresql`` and ``elasticsearch`` install the requirements::
+To deploy the site with ``postgresql`` and ``elasticsearch`` install the requirements::
 
     pip install --upgrade -r conf/requirements/all.txt
 
