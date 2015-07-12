@@ -3,7 +3,7 @@
 while getopts ":e:" opt; do
   case $opt in
     e)
-      CONFIG="run/$OPTARG.env"
+      CONFIG="$OPTARG"
       echo "Using configuration from $CONFIG" >&2
       source $CONFIG
       ;;
@@ -19,7 +19,7 @@ done
 # Environment variables must be set externally.
 if [ -z "$BIOSTAR_HOME" ]; then
     echo "(!) Environment variables not set. See the README.md."
-    echo "(!) Try: source run/sqlite.env"
+    echo "(!) Try: $(basename $0) -e run/sqlite.env"
     exit 1
 fi
 
