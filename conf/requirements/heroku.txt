@@ -1,0 +1,28 @@
+django >=1.6, <1.7
+django-allauth <=0.18.0
+django-debug-toolbar
+django-compressor
+django-crispy-forms
+django-braces
+django-haystack
+django-reversion
+django-celery
+django-celery-email
+bleach
+whoosh
+South
+ordereddict
+pyparsing
+markdown
+Sphinx
+pyzmail
+chardet
+feedparser
+redis
+pyelasticsearch
+psycopg2
+gunicorn
+whitenoise
+waitress
+dj-database-url==0.3.0
+
