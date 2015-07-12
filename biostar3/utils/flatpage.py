@@ -19,9 +19,9 @@ logger = logging.getLogger('biostar')
 PATTERN = re.compile(r'^{#\s+(?P<name>\w+)\s?=\s?(?P<value>[\S\s]+) #}')
 
 
-def parse_metadata(path):
+def parse_metadata(raw_content):
     "Attempts to parse out metadata from django comments"
-    lines = open(path).read().splitlines()[:20]
+    lines = raw_content.splitlines()[:20]
     meta = dict()
     lines = map(strip, lines)
     for line in lines:
@@ -32,12 +32,40 @@ def parse_metadata(path):
             meta[name] = value
     return meta
 
-def render_page(path, params={}):
-    content = open(path).read()
-    templ = Template(content)
-    context = Context(params)
-    content = templ.render(context)
-    return content
+def render_page(raw_content, params={}):
+    return Template(raw_content).render(Context(params))
+
+def add_one(user, raw_content, path, update=False):
+    errors = []
+
+    if not raw_content:
+        errors.append("no content in {}".format(path))
+
+    meta = parse_metadata(raw_content)
+    slug = meta.get("slug")
+    if not slug:
+        errors.append("slug field is missing from {}".format(path))
+    title = meta.get("title")
+    if not title:
+        errors.append("title field is missing from {}".format(path))
+
+    # Check for the slug.
+    page = FlatPage.objects.filter(slug=slug).first()
+    if page and (not update):
+        errors.append("slug {} already exists from {}".format(slug, path))
+
+    if errors:
+        return errors
+    else:
+        with transaction.atomic():
+            logger.info("creating: {}".format(slug))
+            rendered_content = render_page(raw_content)
+            data = dict(
+                title=title, type=Post.PAGE, content=rendered_content
+            )
+            post = auth.create_toplevel_post(data=data, user=user)
+            page = FlatPage.objects.create(post=post, slug=slug)
+            return []
 
 def add_all(path, update=False):
     valid_exts = {".html", ".md"}
@@ -51,31 +79,12 @@ def add_all(path, update=False):
                 continue
 
             path = os.path.join(dirpath, name)
+            content = open(path).read()
 
-            meta = parse_metadata(path)
-            slug = meta.get("slug")
-            title = meta.get("title")
+            errors = add_one(admin, content, path)
 
-            if not slug:
-                logger.error("slug field is missing from {}".format(path))
-                continue
-
-            if not title:
-                logger.error("title field is missing from {}".format(path))
-                continue
-
-            # Check for the slug.
-            page = FlatPage.objects.filter(slug=slug).first()
-
-            if not page or update:
-                with transaction.atomic():
-                    logger.info("creating: {}".format(slug))
-                    content = render_page(path)
-                    data = dict(
-                        title=title, type=Post.PAGE, content=content
-                    )
-                    post = auth.create_toplevel_post(data=data, user=admin)
-                    page = FlatPage.objects.create(post=post, slug=slug)
+            for error in errors:
+                logger.error(error)
 
 if __name__ == '__main__':
     add_all(sys.argv[1])
