@@ -1,7 +1,7 @@
 {
   "name": "Biostar-Central",
   "description": "BioStar is a Python and Django based Q&A software. It is a simple, generic, flexible and extensible Q&A framework.",
-  "repository": "https://github.com/Lohit13/biostar-central/tree/heroku",
+  "repository": "https://github.com/Lohit13/biostar-central",
   "env": {
     "BIOSTAR_ADMIN_NAME": {
       "description": "Administrator's Name",
