@@ -200,14 +200,8 @@ def sign_up(request):
             messages.error(request, "This user account has been disabled")
             return login_redirect
 
-    if User.objects.filter(email=email).first():
-        # See if the email actually exists.
-        messages.error(request, "Incorrect user password.")
-        return login_redirect
-
     if not signup:
-        # The user has not requested a sigup.
-        messages.error(request, "If you want to create an account check the signup checkbox.")
+        messages.error(request, "Incorrect email address or password.")
         return login_redirect
 
     try:
