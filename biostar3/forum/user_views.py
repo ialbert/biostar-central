@@ -210,13 +210,6 @@ def sign_up(request):
         messages.error(request, "If you want to create an account check the signup checkbox.")
         return login_redirect
 
-    # Try to sign up the user
-    user = User.objects.filter(email=email).first()
-    if user:
-        # The email exists so the password must not match
-        messages.error(request, "User password is not correct")
-        return login_redirect
-
     try:
         # Now sign up and log in the user.
         user = User.objects.create(email=email)
