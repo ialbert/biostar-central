@@ -44,3 +44,7 @@ DATABASES = {
 
 # How many posts per page.
 POSTS_PER_PAGE = 35
+
+# Google Analytics Property ID.
+# Please remove the "False" and add your key in between "".
+GOOGLE_ANALYTICS_PROPERTY_ID = False

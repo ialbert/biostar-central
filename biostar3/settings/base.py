@@ -139,6 +139,9 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 
     # Biostar specific context.
     'biostar3.context.extras',
+	
+	# Google Analytics.
+	'biostar3.context.google_analytics'
 )
 
 # Internationalization

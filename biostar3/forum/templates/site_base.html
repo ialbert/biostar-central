@@ -16,6 +16,10 @@
         {# More content in the head tags. #}
     {% endblock %}
 
+{% if GOOGLE_ANALYTICS_PROPERTY_ID %}
+{% include "ga.html" %}
+{% endif %}
+
 </head>
 <body>
 

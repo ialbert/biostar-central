@@ -63,6 +63,9 @@ ALLOW_EMAIL_REPLY = True
 RECAPTCHA_PUBLIC_KEY = ""
 RECAPTCHA_SECRET_KEY = ""
 
+# Google Analytics Property ID.
+GOOGLE_ANALYTICS_PROPERTY_ID = False
+
 # Enable rate limiting.
 RATELIMIT_ENABLE = True
 

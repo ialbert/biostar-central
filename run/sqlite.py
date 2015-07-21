@@ -35,3 +35,6 @@ DATABASES = {
     }
 }
 
+# Google Analytics Property ID.
+# Please remove the "False" and add your key in between "".
+GOOGLE_ANALYTICS_PROPERTY_ID = False

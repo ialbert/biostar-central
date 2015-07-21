@@ -25,3 +25,6 @@ SEND_WELCOME_EMAIL = True
 
 # Send emails via the console.
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# Google Analytics Property ID.
+GOOGLE_ANALYTICS_PROPERTY_ID = False
