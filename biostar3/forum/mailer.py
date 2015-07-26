@@ -27,6 +27,7 @@ from django.core.mail.backends import smtp
 from .models import *
 from . import auth
 from biostar3.utils.compat import *
+from biostar3.utils.incoming_mail import IncomingMail
 
 logger = logging.getLogger("biostar")
 
@@ -158,7 +159,7 @@ class EmailTemplate(object):
 
         if token:
             # Add reply to token to header.
-            reply_to = settings.EMAIL_ADDRESS_PATTERN.format("reply", token, "submit")
+            reply_to = settings.EMAIL_ADDRESS_PATTERN.format(IncomingMail.REPLY, token, "submit")
             headers.update({'Reply-To': reply_to})
 
         # Fall back to defaults

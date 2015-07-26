@@ -1,5 +1,5 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
-import json, traceback, logging, pyzmail, ftfy
+import json, traceback, logging, ftfy
 from django.conf import settings
 from django.shortcuts import render, redirect, render_to_response
 from django.http import HttpResponse
@@ -11,10 +11,10 @@ from . import auth
 from django.contrib import messages
 from functools import partial
 from django.views.decorators.csrf import csrf_exempt
-from biostar3.utils import email_reply_parser
 from biostar3.utils.compat import *
 from django.http import HttpResponse
 from django.utils.encoding import smart_text
+from biostar3.utils.incoming_mail import IncomingMail, IncomingMailException
 
 logger = logging.getLogger("biostar")
 
@@ -25,8 +25,6 @@ def json_response(data, **kwd):
     """
     return HttpResponse(json.dumps(data), **kwd)
 
-
-NEW_POST, REPLY_POST = "new", "reply"
 
 @csrf_exempt
 def email_handler(request):
@@ -41,9 +39,7 @@ def email_handler(request):
         return json_response(resp)
 
     # The key to validate the post.
-    key = request.POST.get("key")
-
-    if key != settings.EMAIL_HANDLER_SECRET_KEY:
+    if request.POST.get("key") != settings.EMAIL_HANDLER_SECRET_KEY:
         resp = dict(status="error", msg="key does not match")
         return json_response(resp)
 
@@ -51,69 +47,26 @@ def email_handler(request):
     content = request.POST.get("content")
 
     try:
-        msg = pyzmail.PyzMessage.factory(content)
-    except Exception as exc:
-        logger.error(exc)
-        content = content.encode('utf8', errors='ignore')
-        msg = pyzmail.PyzMessage.factory(content)
-
-    # Extract the address from the address tuples.
-    # The expected format is: action+token+group@site.com
-    try:
-        subject = msg.get_subject()
-        address = msg.get_addresses('to')[0][1]
-        target, site = address.split('@')
-    except Exception as exc:
-        resp = dict(status="error", msg="Invalid address={}".format(exc))
+        mail = IncomingMail.from_raw(content)
+    except IncomingMailException as ime:
+        logger.error(ime)
+        resp = dict(status="error", msg="Email parsing failed: {}".format(ime))
         return json_response(resp)
-
-    # Parse the email address.
-    parts = target.split('+')
-    if len(parts) != 3:
-        resp = dict(status="error", msg="Target address={} has incorrect format.".format(address))
-        return json_response(resp)
-
-    # Assign the various parts of the address.
-    action, token, pattern = parts
-
-    # Find the email content and its encoding
-    part = msg.text_part or msg.html_part
-    enc = part.charset
-    text = part.get_payload().decode(enc)
 
     # Should we remove quote text.
     if settings.EMAIL_REPLY_REMOVE_QUOTED_TEXT:
-        text = email_reply_parser.EmailReplyParser.parse_reply(text)
+        mail.remove_quoted_text()
 
-    # A new post is to be generated.
-    if action == NEW_POST:
-
-
-
-        # The token must match a users uuid.
-        author = User.objects.filter(profile__uuid=token).first()
-        if not author:
-            resp = dict(status="error", msg="Author uuid={} does not exist".format(token))
-            return json_response(resp)
-
-        # Create the post in the usergroup
-        data = dict(title=subject, content=text, tags="via email")
-        auth.create_toplevel_post(data=data, user=author)
-        resp = dict(status="ok", msg="question created".format(token))
+    try:
+        post = mail.perform_action()
+    except IncomingMailException as ime:
+        logger.error(ime)
+        resp = dict(status="error", msg="Could not perform action: {}".format(ime))
         return json_response(resp)
 
-    # Post a reply to a reply token.
-    if action == REPLY_POST:
-        replytok = ReplyToken.objects.filter(token=token).first()
-        if not replytok:
-            resp = dict(status="ok", msg="invalid reply token={}".format(token))
-            return json_response(resp)
-        auth.create_content_post(content=text, parent=replytok.post, user=replytok.user)
-        resp = dict(status="error", msg="post created")
-        return json_response(resp)
-
-    resp = dict(status="error", msg="action not recognized")
+    resp = dict(status="ok", msg="post created: {}".format(post.get_absolute_url))
     return json_response(resp)
+
 
 def ajax_msg(msg, status, **kwargs):
     """
