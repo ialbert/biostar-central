@@ -2,18 +2,15 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import logging, random, re
 
-from django.test import TestCase
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.core import mail
-from django.test import Client
 
 from biostar3.forum.models import *
 from biostar3.forum import auth
+from biostar3.tests.client_test_case import ClientTestCase
 
 from faker import Factory
-
-HOST = "www.lvh.me:8080"
 
 ADMIN_NAME, ADMIN_EMAIL = settings.ADMINS[0]
 
@@ -30,43 +27,8 @@ def add_random_content():
     return post
 
 
-class ClientTests(TestCase):
-    haystack = logging.getLogger("haystack")
-
-    def setUp(self):
-        # Need to disable the haystack logger
-        self.haystack.setLevel(logging.CRITICAL)
-
-    def tearDown(self):
-        self.haystack.setLevel(logging.WARNING)
-
-    def get(self, client, url, code=200, kwargs={}, follow=False, pattern=None):
-        r = client.get(reverse(url, kwargs=kwargs), follow=follow)
-        self.assertEqual(r.status_code, code)
-        if pattern:
-            content = r.content.decode("utf-8")
-            self.assertTrue(re.search(pattern, content, re.IGNORECASE))
-        return r
-
-    def post(self, client, url, kwargs={}, data={}, pattern=None, follow=False):
-        r = client.post(reverse(url, kwargs=kwargs), data, follow=follow)
-
-        if follow:
-            self.assertEqual(r.status_code, 200)
-        else:
-            self.assertEqual(r.status_code, 302)
-
-        if pattern:
-            content = r.content.decode("utf-8")
-            result = re.search(pattern, content, re.IGNORECASE)
-            if not result:
-                print (content)
-                print("*** unable to find pattern: {0} in content.".format(pattern))
-                self.assertTrue(result)
-
-        return r
-
-    def create_post(self, client, user, parent=None, post_type=None):
+class ClientTests(ClientTestCase):
+    def create_post(self, user, parent=None, post_type=None):
 
         post_type = post_type or Post.QUESTION
 
@@ -78,13 +40,13 @@ class ClientTests(TestCase):
         if parent:
             data = dict(content=content)
             if post_type == Post.ANSWER:
-                r = self.post(client, "new_answer", kwargs=dict(pk=parent.id), data=data, follow=True, pattern=content)
+                r = self.post("new_answer", kwargs=dict(pk=parent.id), data=data, follow=True, pattern=content)
             else:
-                r = self.post(client, "new_comment", kwargs=dict(pk=parent.id), data=data, follow=True, pattern=content)
+                r = self.post("new_comment", kwargs=dict(pk=parent.id), data=data, follow=True, pattern=content)
             post = Post.objects.filter(content=content).first()
         else:
             data = dict(title=title, tag_val=tag_val, content=content, type=post_type, site=settings.SITE_ID)
-            r = self.post(client, "new_post", data=data, follow=True, pattern=title)
+            r = self.post("new_post", data=data, follow=True, pattern=title)
             post = Post.objects.filter(title=title).first()
 
         # Post must exists.
@@ -96,10 +58,10 @@ class ClientTests(TestCase):
 
         return post
 
-    def make_user(self, client):
+    def make_user(self):
         email = faker.email()
         data = dict(email=email, password=email, signup="1")
-        r = self.post(client, "sign_up", data=data, follow=True, pattern="success")
+        r = self.post("sign_up", data=data, follow=True, pattern="success")
         user = User.objects.filter(email=email).first()
         self.assertTrue(user)
         return user
@@ -109,23 +71,19 @@ class ClientTests(TestCase):
         Tests client navigation.
         """
 
-        c = Client(HTTP_HOST=HOST)
-
         urls = "home user_list tag_list unanswered".split()
         for url in urls:
-            r = self.get(c, url)
+            r = self.get(url)
 
-        r = self.post(c, "search", data={'q': 'blast'}, follow=True)
+        r = self.post("search", data={'q': 'blast'}, follow=True)
 
     def test_user_navigation(self):
-        c = Client(HTTP_HOST=HOST)
-
-        user = self.make_user(c)
+        user = self.make_user()
 
         # Check a few access pages.
         urls = "home me my_bookmarks my_messages".split()
         for url in urls:
-            r = self.get(c, url, follow=True, pattern=user.name)
+            r = self.get(url, follow=True, pattern=user.name)
 
 
 
@@ -135,16 +93,14 @@ class ClientTests(TestCase):
         """
         EQ = self.assertEqual
 
-        c = Client(HTTP_HOST=HOST)
-
         # Sign up some users. Each makes a post.
         for step in range(10):
-            user = self.make_user(c)
-            post = self.create_post(c, user=user)
+            user = self.make_user()
+            post = self.create_post(user=user)
 
         for step in range(25):
             post = add_random_content()
-            self.get(c, "post_view", kwargs=dict(pk=post.id), follow=True)
+            self.get("post_view", kwargs=dict(pk=post.id), follow=True)
 
     def test_user_posting(self):
         """
@@ -152,11 +108,10 @@ class ClientTests(TestCase):
         """
         EQ, TRUE = self.assertEqual, self.assertTrue
 
-        c = Client(HTTP_HOST=HOST)
-        r = self.get(c, "account_login", pattern='simple login')
+        r = self.get("account_login", pattern='simple login')
 
         # Sign up a user.
-        jane = self.make_user(c)
+        jane = self.make_user()
 
         # User gets a welcome email.
         EQ(len(mail.outbox), 1)
@@ -164,7 +119,7 @@ class ClientTests(TestCase):
         before = after = len(mail.outbox)
 
         # Create a question.
-        question = self.create_post(client=c, user=jane, parent=None)
+        question = self.create_post(user=jane, parent=None)
 
         # No emails should be sent at this point.
         EQ(before, after)
@@ -173,13 +128,13 @@ class ClientTests(TestCase):
         EQ(Message.objects.all().count(), 0)
 
         # A different user adds content.
-        joe = self.make_user(c)
+        joe = self.make_user()
 
         # Joe gets an email
         EQ(len(mail.outbox), before + 1)
 
         before = len(mail.outbox)
-        answer = self.create_post(client=c, user=joe, parent=question)
+        answer = self.create_post(user=joe, parent=question)
 
         # Jane gets a message.
         EQ(Message.objects.all().count(), 1)
@@ -197,10 +152,9 @@ class ClientTests(TestCase):
         awards.VOTER_COUNT = 1
         awards.SUPPORTER_COUNT = 1
 
-        c = Client(HTTP_HOST=HOST)
-        r = self.get(c, "account_login", pattern='simple login')
+        r = self.get("account_login", pattern='simple login')
 
-        jane = self.make_user(c)
+        jane = self.make_user()
         jane.score = awards.CYLON_COUNT
         jane.save()
 
@@ -208,7 +162,7 @@ class ClientTests(TestCase):
         jane.profile.save()
 
         # Create an upvoted question
-        question = self.create_post(client=c, user=jane, parent=None)
+        question = self.create_post(user=jane, parent=None)
         question.vote_count = awards.CYLON_COUNT
         question.view_count = awards.EPIC_COUNT
         question.subs_count = awards.PROPHET_COUNT
@@ -216,21 +170,21 @@ class ClientTests(TestCase):
         question.save()
 
         # Create an upvoted answer.
-        answ = self.create_post(client=c, user=jane, parent=question, post_type=Post.ANSWER)
+        answ = self.create_post(user=jane, parent=question, post_type=Post.ANSWER)
         answ.vote_count = awards.CYLON_COUNT
         answ.has_accepted = True
         answ.book_count = awards.BOOKMARK_COUNT
         answ.save()
 
         # Create an upvoted comment.
-        comm = self.create_post(client=c, user=jane, parent=question, post_type=Post.COMMENT)
+        comm = self.create_post(user=jane, parent=question, post_type=Post.COMMENT)
         comm.vote_count = awards.CYLON_COUNT
         comm.reply_count = awards.PUNDIT_COUNT
         comm.save()
 
-        john = self.make_user(c)
+        john = self.make_user()
         data = dict(post_id=question.id, vote_type="upvote")
-        self.post(c, "vote_submit", data=data, follow=True)
+        self.post("vote_submit", data=data, follow=True)
 
         # The vote has been created.
         self.assertTrue(
