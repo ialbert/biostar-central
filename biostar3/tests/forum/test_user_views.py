@@ -1,7 +1,7 @@
 from django.core.urlresolvers import reverse
 
 from biostar3.tests.client_test_case import ClientTestCase
-from biostar3.forum.models import User
+from biostar3.forum.models import User, Badge
 
 import logging
 logging.disable(logging.INFO)
@@ -96,3 +96,11 @@ class UserListTests(ClientTestCase):
 
         self.assertRegexpMatches(response.content, user1.name)
         self.assertNotRegexpMatches(response.content, user2.name)
+
+class BadgeListTests(ClientTestCase):
+    def test_badge_is_shown(self):
+        badge = Badge.objects.create(name=f.word())
+
+        response = self.get("badge_list")
+
+        self.assertRegexpMatches(response.content, badge.name)
