@@ -16,8 +16,8 @@ class ClientTestCase(TestCase):
     def tearDown(self):
         self.haystack.setLevel(logging.WARNING)
 
-    def get(self, url, code=200, kwargs={}, follow=False, pattern=None):
-        r = self._client.get(reverse(url, kwargs=kwargs), follow=follow)
+    def get(self, url, code=200, kwargs={}, data={}, follow=False, pattern=None):
+        r = self._client.get(reverse(url, kwargs=kwargs), data, follow=follow)
         self.assertEqual(r.status_code, code)
         if pattern:
             content = r.content.decode("utf-8")
