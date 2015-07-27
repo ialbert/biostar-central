@@ -79,3 +79,20 @@ class SignUpTests(ClientTestCase):
         # Successfully login and user exists
         self.assertRedirects(response, reverse('home'), host=self.HOST)
         self.assertEqual(User.objects.filter(email=email).count(), 1)
+
+class UserListTests(ClientTestCase):
+    def test_user_is_shown(self):
+        user = User.objects.create(name=f.name(), email=f.email())
+
+        response = self.get("user_list")
+
+        self.assertRegexpMatches(response.content, user.name)
+
+    def test_filtering(self):
+        user1 = User.objects.create(name="Fooasdfbar", email=f.email())
+        user2 = User.objects.create(name="Barasdffoo", email=f.email())
+
+        response = self.get("user_list", data=dict(q=user1.name))
+
+        self.assertRegexpMatches(response.content, user1.name)
+        self.assertNotRegexpMatches(response.content, user2.name)
