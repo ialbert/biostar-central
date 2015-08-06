@@ -10,6 +10,7 @@ from biostar.server import views, ajax, search, moderate, api, orcid
 from biostar.apps.posts.views import NewAnswer, NewPost, EditPost, external_post_handler
 from biostar.apps.users.views import external_logout, external_login, CaptchaView, DigestManager, unsubscribe
 from biostar.apps.planet.views import BlogPostList
+from biostar.apps.webhook.views import webhookupdate
 
 urlpatterns = patterns('',
 
@@ -98,6 +99,9 @@ urlpatterns = patterns('',
     # Social login pages.
     url(r'^accounts/social/orcid/import/$', orcid.import_bio, name="orcid-import"),
     (r'^accounts/', include('allauth.urls')),
+
+    # Github Webhook continuous deployment url
+    url(r'^webhook/github/update/', webhookupdate, name="webhook-update"),
 
     # Redirecting old posts urls from previous versions of Biostar
     url(r'^post/redirect/(?P<pid>\d+)/$', views.post_redirect),

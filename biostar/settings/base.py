@@ -272,6 +272,7 @@ INSTALLED_APPS = [
     'biostar.apps.messages',
     'biostar.apps.badges',
     'biostar.apps.planet',
+    'biostar.apps.webhook',
 
     # The main Biostar server.
     'biostar.server',
@@ -494,3 +495,6 @@ EMAIL_HOST = get_env("EMAIL_HOST")
 EMAIL_PORT = get_env("EMAIL_PORT", func=int)
 EMAIL_HOST_USER = get_env("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = get_env("EMAIL_HOST_PASSWORD")
+
+# Github handle for Github Webhook Continuous Deployment
+GITHUB_HANDLE = "GITHUB_HANDLE_HERE"
