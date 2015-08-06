@@ -1,0 +1,14 @@
+Biostar-Central Continuous Deployment
+=====================================
+
+Configure continuous deployment with the biostar-central instance. Uses Github Webhooks to send a payload everytime you push to your repo. The payload is recieved at the server and biostars is updated automatically.
+
+STEPS TO CONFIGURE
+==================
+
+1. A template to the update script (update.sh) is given in the project root dir. Edit the sciprt to suit your deployment model.
+2. Add a webhook service to you Github fork of biostar-central
+3. Direct the payload to http://biostarURL.com/webhook/github/update/
+4. ALL DONE!
+
+
