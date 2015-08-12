@@ -54,7 +54,7 @@ def get_counts(request):
                                            type__in=(Vote.BOOKMARK, Vote.UP)).count(),
             new_vote_count=Vote.objects.filter(post__author=user,
                                                type__in=(Vote.BOOKMARK, Vote.UP),
-                                               unread=True).count(),
+                                               unread=True).exclude(author=user).count(),
             post_count=Post.objects.filter(author=user).count(),
             book_count=Vote.objects.filter(author=user, type=Vote.BOOKMARK).count(),
             award_count=Award.objects.filter(user=user).count(),

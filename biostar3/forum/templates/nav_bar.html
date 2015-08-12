@@ -3,14 +3,17 @@
 {% load staticfiles %}
 
 {% include "nav_row.html" %}
-
 <div class="row">
-
 	<div id="logo">
 		<a href="{% url 'home' %}"><img src="{% static context.SITE_LOGO %}"></a>
 	</div>
+	qqq
+</div>
+<div class="row">
+
 
 	<div>
+
 		<div id="navbar">
             {# This gets show for anonymous users #}
 
@@ -37,17 +40,25 @@
 				</a>
 			</div>
 
+		
 
 			<div class="item lg">
 				<a href="{% url "user_list" %}">
 					<div class="icon"><i class="fa fa-globe"></i></div>
-					<div class="navlabel">Community</div>
+					<div class="navlabel">People</div>
+				</a>
+			</div>
+
+		<div class="item">
+				<a href="/t/job/">
+					<div class="icon"><i class="fa fa-newspaper-o"></i></div>
+					<div class="navlabel">Jobs</div>
 				</a>
 			</div>
 
 			<div class="item">
 				<a href="{% url "planet_list" %}">
-					<div class="icon"><i class="fa fa-newspaper-o"></i></div>
+					<div class="icon"><i class="fa fa-rss-square"></i></div>
 					<div class="navlabel">Planet</div>
 				</a>
 			</div>
@@ -64,7 +75,7 @@
 				<div class="item ">
 					<a href="{% url 'account_logout' %}">
 						<div class="icon"><i class="fa fa-sign-out"></i></div>
-						<div class="navlabel">Sign&nbsp;Out</div>
+						<div class="navlabel">Log&nbsp;Out</div>
 					</a>
 				</div>
             {% endif %}

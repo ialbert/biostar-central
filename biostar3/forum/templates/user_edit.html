@@ -55,22 +55,31 @@
                 </div>
 
                 <div>
-                    <label>Tags (comma separated):</label>
+                    <label>Watched Tags (comma separated):</label>
 
                     <div class="muted">
 
                         <p>
-                            Example: <code>samtools, janedoe</code>
+                            Example: <code>samtools, galaxydev</code>
 
                         Get notified when any of these words are listed either
-                        in post tags <code>samtools</code> or in the body of the
-                        post as <code>@janedoe</code></p>
+                        as post tags for example <code>samtools</code> or <code>galaxydev</code> or when these words are present in the body of the
+                        post/comment as <code>@samtools</code> or <code>@galaxydev</code></p>
                     </div>
                       {{ form.watched_tags}}
                 </div>
 
                 <div>
                     <label>Notification Preferences:</label>
+                    <div class="muted">
+                        <p>
+                        <code>Smart mode</code> sends an email when you get a response
+                            to a top level post that you have created and for tags that you are watching.
+                        </p>
+                        <p>
+                        <code>Mailing list</code> sends an email on every post.
+                        </p>
+                    </div>
                     {{ form.message_prefs }}
                 </div>
 
