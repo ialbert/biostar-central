@@ -18,7 +18,7 @@
             {% for post in posts %}
                 <div class="row post_row {{ post.get_status_display }}">
 
-                    <div class="box vote_count">
+                    <div class="box vote_count lg">
                         <div class="c">
                           {% if post.is_toplevel %}
                             {{ post.thread_score }}

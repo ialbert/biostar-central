@@ -13,10 +13,9 @@
     <a name="{{ post.id }}"></a>
 
     {#  This is the user box with author information #}
-    <div class="user_box">
+    <div class="user_box lg">
         <div>
             <a href="{{ post.author.get_absolute_url }}">{% gravatar post.author 82 %}</a>
-
         </div>
         <div>
             {{ post.creation_date|time_ago }}

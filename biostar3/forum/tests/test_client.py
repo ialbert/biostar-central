@@ -108,7 +108,7 @@ class ClientTests(ClientTestCase):
         """
         EQ, TRUE = self.assertEqual, self.assertTrue
 
-        r = self.get("account_login", pattern='simple login')
+        r = self.get("account_login", pattern='login')
 
         # Sign up a user.
         jane = self.make_user()
@@ -152,7 +152,7 @@ class ClientTests(ClientTestCase):
         awards.VOTER_COUNT = 1
         awards.SUPPORTER_COUNT = 1
 
-        r = self.get("account_login", pattern='simple login')
+        r = self.get("account_login", pattern='login')
 
         jane = self.make_user()
         jane.score = awards.CYLON_COUNT
