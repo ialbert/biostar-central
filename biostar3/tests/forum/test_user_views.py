@@ -86,7 +86,7 @@ class UserListTests(ClientTestCase):
 
         response = self.get("user_list")
 
-        self.assertRegexpMatches(response.content, user.name)
+        self.assertRegexpMatches(response.content.decode(), user.name)
 
     def test_filtering(self):
         user1 = User.objects.create(name="Fooasdfbar", email=f.email())

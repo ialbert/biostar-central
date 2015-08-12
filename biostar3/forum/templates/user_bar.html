@@ -24,7 +24,7 @@
                         class="fa fa-envelope"></i> {{ c.mesg_count }}</a>
                     </div>
 
-                    <div class="item tooltip lg" title="Upvotes for you" data-tooltip-direction="top">
+                    <div class="item tooltip" title="Upvotes for you" data-tooltip-direction="top">
                         {% if c.new_vote_count %}
                             <a class="{% glow c.new_vote_count %}" href="{% url "vote_list" pk=user.id %}"><i
                             class="fa fa-heart"></i> {{ c.new_vote_count }}</a>

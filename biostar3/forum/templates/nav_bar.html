@@ -2,15 +2,18 @@
 {% load widgets %}
 {% load staticfiles %}
 
+
 {% include "nav_row.html" %}
+
 <div class="row">
-	<div id="logo">
-		<a href="{% url 'home' %}"><img src="{% static context.SITE_LOGO %}"></a>
-	</div>
-	qqq
+
+
 </div>
 <div class="row">
 
+	<div id="logo">
+		<a href="{% url 'home' %}"><img src="{% static context.SITE_LOGO %}"></a>
+	</div>
 
 	<div>
 
@@ -40,7 +43,7 @@
 				</a>
 			</div>
 
-		
+
 
 			<div class="item lg">
 				<a href="{% url "user_list" %}">

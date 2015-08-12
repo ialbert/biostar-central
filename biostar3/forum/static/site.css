@@ -548,7 +548,7 @@ ul.dropdown ul.items li :hover {
 #userbar *.glow {
   color: white;
   background-color: #5b8c3e;
-  border-radius: 25px;
+  border-radius: 5px;
 }
 #userbar *.glow:hover {
   color: #5b8c3e;
