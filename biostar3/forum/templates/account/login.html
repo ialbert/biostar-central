@@ -16,7 +16,9 @@
 			<div class="row">
 				<div class="title" align="center">{% trans 'Login or Sign Up with a Provider' %}</div>
 
-                {% if socialaccount.providers %}
+				{% get_providers as socialaccount_providers %}
+
+                {% if socialaccount_providers %}
 					<div>
 						A simplest way to log into the site is to click
 						the name of an authentication provider. We only
@@ -26,7 +28,7 @@
 
 					<div style="margin-top:1em; font-size: larger;">
 						<ul style="margin-left:2em;">
-                            {% for provider in socialaccount.providers %}
+                            {% for provider in socialaccount_providers %}
 								<li>
 									<a title="{{ provider.name }}"
 									   href="{% provider_login_url provider.id process='login' %}">{{ provider.name }}</a>
@@ -39,11 +41,9 @@
 
 			<div class="row">
                 {% message_bar %}
-				<div class="title" align="center">{% trans 'Login ir Sign Up with Email' %}</div>
+				<div class="title" align="center">{% trans 'Log In or Sign Up with Email' %}</div>
 
 				<div align="center">
-					<p><b>Log In</b> or <b>Sign Up</b> via the form below!
-					</p>
 
 					<p>
 

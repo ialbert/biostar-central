@@ -5,91 +5,96 @@
 
 {% block body %}
     {% user_bar user %}
-    <div class="row" id="edit_post">
+	<div class="row" id="edit_post">
 
-        <div class="nine columns ">
+		<div class="nine columns ">
 
 
             {% if form.errors %}
-                <div>{{ form.errors }}</div>
+				<div>{{ form.errors }}</div>
             {% endif %}
 
-            <form method="post" action="{{ action }}" enctype="multipart/form-data">
+			<form method="post" action="{{ action }}" enctype="multipart/form-data">
 
                 {% if form.is_toplevel %}
 
 
-                    <div class="row">
-                      <div class="twelve columns">
-                        <label for="{{ form.title.id_for_label }}">Title</label>
-                        {{ form.title }}
-                      </div>
-                    </div>
+					<div class="row">
+						<div class="six columns">
+							<label for="{{ form.title.id_for_label }}">Post Title</label>
+                            {{ form.title }}
+						</div>
+					</div>
 
-                    <div class="row">
-                        <div class="twelve columns">
-                            <label for="{{ form.tag_val.id_for_label }}">Tags</label>
+					<div class="row">
+						<div class="six columns">
+							<label for="{{ form.tag_val.id_for_label }}">Post Tags (comma separated)</label>
                             {{ form.tag_val }}
-                        </div>
-                    </div>
+						</div>
+					</div>
 
-                    <div class="row">
-                        <div class="six columns">
-                          <label for="{{ form.type.id_for_label }}">Type</label>
-                          {{ form.type }}
-                        </div>
-
-                        <div class="six columns">
-                          <label for="{{ form.site.id_for_label }}">Site</label>
-                          {{ form.site }}
-                        </div>
-                    </div>
+					<div class="row">
+						<div class="six columns">
+							<label for="{{ form.type.id_for_label }}">Post Type</label>
+                            {{ form.type }}
+						</div>
+					</div>
+					<div class="row">
+						<div class="six columns">
+							<label for="{{ form.site.id_for_label }}">Site</label>
+                            {{ form.site }}
+						</div>
+					</div>
 
                 {% endif %}
 
-                <div class="row upload">
-                    <label for="{{ form.file.id_for_label }}">Attach file to post:</label>&nbsp;
+				<div class="row upload">
+					<label for="{{ form.file.id_for_label }}">Attach file to post:</label>&nbsp;
                     {{ form.file }}
-                </div>
+				</div>
 
-                <div>
+				<div>
                     {% visual_editor user=user content=form.content.value %}
-                </div>
+				</div>
 
-            </form>
-        </div>
-        <div class="three columns">
-            <h5>Formatting instructions</h5>
+			</form>
+		</div>
+		<div class="three columns">
+			<h5>Formatting instructions</h5>
             {% if form.is_toplevel %}
-                <div>
+				<div>
 
-                </div>
+				</div>
             {% endif %}
-            <div>
-                <p>
-                    The edit box will use Markdown to format your post.
-                </p>
+			<div>
+				<p>
+					The edit box will use Markdown to format your post.
+				</p>
 
-                <p>
-                    The editor supports fenced codeblocks. To format
-                    a section as code enclose it with three backticks <code>```</code>. Example:
-                </p>
+				<p>
+					The editor supports fenced codeblocks. To format
+					a section as code enclose it with three backticks <code>```</code>. Example:
+				</p>
 
-            </div>
+			</div>
 
-            <div>
-<pre>```
+			<div>
+<pre>
+Hello **World**!
+```
 for value in range(10):
     print value
 ```</pre>
-                <p> will render as </p>
+				<p> will render as </p>
+
+				Hello <b>World</b>!
 <pre>
 <code>for value in range(10):
-    print value
+	print value
 </code>
 </pre>
-            </div>
-        </div>
-    </div>
+			</div>
+		</div>
+	</div>
 
 {% endblock %}

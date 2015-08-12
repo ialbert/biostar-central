@@ -43,7 +43,9 @@
             <div class="socialaccount_ballot">
                 <ul class="socialaccount_providers">
 
-                    {% for provider in socialaccount.providers %}
+                    {% get_providers as socialaccount_providers %}
+
+                    {% for provider in socialaccount_providers %}
                         <li>
                             <a title="{{ provider.name }}" class="socialaccount_provider {{ provider.id }}"
                                href="{% provider_login_url provider.id process='connect' %}">{{ provider.name }}</a>
