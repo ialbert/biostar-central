@@ -8,77 +8,86 @@
 {% endblock %}
 
 {% block body %}
-    <div class="row">
-        <div class="three columns">
-            &nbsp;
-        </div>
-        <div class="six columns">
-            <div class="row">
-                <div class="title" align="center">{% trans 'Simple Login' %}</div>
+	<div class="row">
+		<div class="three columns">
+			&nbsp;
+		</div>
+		<div class="six columns">
+			<div class="row">
+				<div class="title" align="center">{% trans 'Login or Sign Up with a Provider' %}</div>
 
                 {% if socialaccount.providers %}
-                    <div>
-                        A simplest way to log into the site is to click
-                        the name of an authentication provider. We only
-                        use the provider to log you in.
-                        We don't ask for any other permission.
-                    </div>
+					<div>
+						A simplest way to log into the site is to click
+						the name of an authentication provider. We only
+						use the provider to log you in.
+						We don't ask for any other permission.
+					</div>
 
-                    <div style="margin-top:1em; font-size: larger;">
-                        <ul style="margin-left:2em;">
+					<div style="margin-top:1em; font-size: larger;">
+						<ul style="margin-left:2em;">
                             {% for provider in socialaccount.providers %}
-                                <li>
-                                    <a title="{{ provider.name }}"
-                                       href="{% provider_login_url provider.id process='login' %}">{{ provider.name }}</a>
-                                </li>
+								<li>
+									<a title="{{ provider.name }}"
+									   href="{% provider_login_url provider.id process='login' %}">{{ provider.name }}</a>
+								</li>
                             {% endfor %}
-                        </ul>
-                    </div>
+						</ul>
+					</div>
                 {% endif %}
-            </div>
+			</div>
 
-            <div class="row">
-				{%  message_bar %}
-                <div class="title" align="center">{% trans 'Email Login' %}</div>
-                Users may create an account and log with with email.
-                <b>Sign In</b> or <b>Sign Up</b> via the form below. You may also
-            	<a href="{% url 'account_reset_password' %}">reset your password</a> if you have forgotten it.
+			<div class="row">
+                {% message_bar %}
+				<div class="title" align="center">{% trans 'Login ir Sign Up with Email' %}</div>
 
-                <div style="margin:1em; text-align: center">
-                    <form action="{% url 'sign_up' %}" method="POST">
+				<div align="center">
+					<p><b>Log In</b> or <b>Sign Up</b> via the form below!
+					</p>
+
+					<p>
+
+
+						<a href="{% url 'account_reset_password' %}">Click here to reset your password</a> if you have forgotten it.
+					</p>
+				</div>
+
+				<div style="margin:1em; text-align: center">
+					<form action="{% url 'sign_up' %}" method="POST">
                         {% csrf_token %}
 
-                        <div>
-                            <input type="email" name="email" placeholder="Your email"/>
-                        </div>
+						<div>
+							<input type="email" name="email" placeholder="Your email"/>
+						</div>
 
-                        <div>
-                            <input type="password" name="password" placeholder="Your password"/>
-                        </div>
+						<div>
+							<input type="password" name="password" placeholder="Your password"/>
+						</div>
 
-                    	<div>
-                            <input type="checkbox" name="signup"> Create an account.
-                        </div>
+						<div>
+							<input type="checkbox" name="signup"> Check this box if you want to create an account.
+						</div>
 
                         {% if recaptcha %}
-                            <div class="g-recaptcha" align="center" style="margin:1em" data-sitekey="{{ recaptcha }}"></div>
+							<div class="g-recaptcha" align="center" style="margin:1em"
+								 data-sitekey="{{ recaptcha }}"></div>
                         {% endif %}
-                        <div class="submit">
-                            <input type="submit" value="Submit">
-                        </div>
+						<div class="submit">
+							<input type="submit" value="Log In / Sign Up">
+						</div>
 
 
-                    </form>
-                </div>
-            </div>
+					</form>
+				</div>
+			</div>
 
-        </div>
-    </div>
+		</div>
+	</div>
 
 
     {% providers_media_js %}
     {% block bottom %}
-        <script src='https://www.google.com/recaptcha/api.js'></script>
+		<script src='https://www.google.com/recaptcha/api.js'></script>
     {% endblock %}
 {% endblock %}
 

@@ -94,7 +94,7 @@ body .container {
   max-width: 1200px;
 }
 body .highlighted {
-  background-color: yellow;
+  background-color: #ffff00;
 }
 ul {
   list-style: disc;
@@ -431,6 +431,25 @@ ul {
   padding: 0.5em;
   margin: 0.5em 0em 0.5em 0em;
   border: 1px solid transparent;
+  border-radius: 4px;
+}
+ul.navrow {
+  list-style-type: none;
+  margin-top: 1ex;
+  font-size: 1.1em;
+}
+ul.navrow li {
+  display: inline;
+  padding-right: 1em;
+  margin: 0;
+}
+ul.navrow li a {
+  display: inline-block;
+  padding: 1ex;
+}
+ul.navrow li a:hover {
+  background-color: #EFEFEF;
+  cursor: pointer;
   border-radius: 4px;
 }
 ul.dropdown:hover ul.items {

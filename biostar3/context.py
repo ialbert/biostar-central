@@ -6,6 +6,7 @@ from django.conf import settings
 from biostar3.forum.cache import get_traffic
 from biostar3 import VERSION
 from biostar3.forum import query
+from biostar3.utils import utils
 from biostar3.forum.models import Post, PostView, Vote, Message, Award
 from django.utils.timezone import utc
 from datetime import datetime, timedelta
@@ -18,69 +19,57 @@ USER_SESSION_TIMEOUT = 60 * 10
 
 logger = logging.getLogger('biostar')
 
-
-def now():
-    return datetime.utcnow().replace(tzinfo=utc)
-
-
-def ago(hours=0, minutes=0, days=0):
-    since = now() - timedelta(days=days, hours=hours, minutes=minutes)
-    return since
-
-
-def get_shortcuts(request):
-    return settings.DEFAULT_SHORTCUTS
-
-
-ANON_COUNTS = dict(
-    post_count=0, book_count=0,
-    vote_count=0, mesg_count=0, badge_count=0,
+ZERO_COUNTS = dict(
+    post_count=0, book_count=0, vote_count=0, mesg_count=0, badge_count=0,
 )
 
 SESSION_COUNT_KEY = "counts"
 
-
-def get_counts(request, counts=None):
+def get_counts(request):
     """
-    Returns a dictionary with
+    Returns a populated count object.
     """
-    if request.user.is_anonymous():
-        return ANON_COUNTS
-
-    sess = request.session
+    global ZERO_COUNTS
 
     user = request.user
-    count_key = COUNT_KEY_PATT % user.id
 
-    last_login = user.profile.last_login
+    if user.is_anonymous():
+        # Anonymous users get empty counts.
+        return ZERO_COUNTS
 
-    # Time has passed.
-    elapsed = (now() - last_login).seconds
+    # Authenticated users at this point.
+    profile = user.profile
 
-    # The sessions has not been set yet.
-    missing = SESSION_COUNT_KEY not in sess
+    # No counts found in session.
+    missing = SESSION_COUNT_KEY not in request.session
 
-    # The user session will be updated.
-    if elapsed > settings.SESSION_UPDATE_SECONDS or missing:
-        counts = dict(
+    # How much time has passed since last login.
+    elapsed = (utils.now() - profile.last_login).seconds
+
+    # Compute the new counts if necessary.
+    if missing or elapsed > settings.SESSION_UPDATE_SECONDS:
+        data = dict(
             mesg_count=Message.objects.filter(user=user, unread=True).count(),
-
-            vote_count=Vote.objects.filter(post__author=user, type__in=(Vote.BOOKMARK, Vote.UP)).count(),
-
-            new_vote_count=Vote.objects.filter(post__author=user, type__in=(Vote.BOOKMARK, Vote.UP),
+            vote_count=Vote.objects.filter(post__author=user,
+                                           type__in=(Vote.BOOKMARK, Vote.UP)).count(),
+            new_vote_count=Vote.objects.filter(post__author=user,
+                                               type__in=(Vote.BOOKMARK, Vote.UP),
                                                unread=True).count(),
-
             post_count=Post.objects.filter(author=user).count(),
             book_count=Vote.objects.filter(author=user, type=Vote.BOOKMARK).count(),
             award_count=Award.objects.filter(user=user).count(),
         )
-        sess[SESSION_COUNT_KEY] = counts
-        user.profile.last_login = now()
-        user.profile.save()
 
+        # Store the new counts.
+        request.session[SESSION_COUNT_KEY] = data
 
+        # Update last login date.
+        profile.last_login = utils.now()
+        profile.save()
 
-    counts = sess.get(SESSION_COUNT_KEY, {})
+    # Obtain the latest counts.
+    counts = request.session.get(SESSION_COUNT_KEY) or ZERO_COUNTS
+
     return counts
 
 
@@ -93,7 +82,6 @@ def extras(request):
         "request": request,
         "recaptcha": settings.RECAPTCHA_PUBLIC_KEY,
         "counts": get_counts(request),
-        "shortcuts": get_shortcuts(request),
         "TRAFFIC": get_traffic(request),
         "recent_votes": query.recent_votes(request),
         "recent_users": query.recent_users(request),
@@ -104,5 +92,3 @@ def extras(request):
     }
 
     return context
-
-

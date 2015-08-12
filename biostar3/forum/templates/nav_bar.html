@@ -2,51 +2,42 @@
 {% load widgets %}
 {% load staticfiles %}
 
+{% include "nav_row.html" %}
+
 <div class="row">
 
-    <div id="logo">
-        <a href="{% url 'home' %}"><img src="{% static context.SITE_LOGO %}"></a>
-    </div>
+	<div id="logo">
+		<a href="{% url 'home' %}"><img src="{% static context.SITE_LOGO %}"></a>
+	</div>
 
-    <div>
-        <div id="navbar">
+	<div>
+		<div id="navbar">
             {# This gets show for anonymous users #}
-            <div class="item">
-                <ul class="dropdown">
-                    <a href="#">
-                        <div class="icon"><i class="fa fa-bars"></i></div>
-                        <div class="navlabel">Shortcuts</div>
-                    </a>
-                    <ul class="items">
-                        {% for name, url in context.shortcuts %}
-                            <li>
-                                <a href="{{ url }}">{{ name|safe }}</a>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                </ul>
-
-            </div>
 
             {% if user.is_anonymous %}
-                <div class="item">
-                    <a href="{% url 'account_login' %}">
-                        <div class="icon"><i class="fa fa-sign-in"></i></div>
-                        <div class="navlabel">Sign&nbsp;in</div>
-                    </a>
-                </div>
+				<div class="item">
+					<a href="{% url 'account_login' %}">
+						<div class="icon"><i class="fa fa-sign-in"></i></div>
+						<div class="navlabel">Log &nbsp;In</div>
+					</a>
+				</div>
+
+				<div class="item">
+					<a href="{% url 'account_login' %}">
+						<div class="icon"><i class="fa fa-arrow-circle-up"></i></div>
+						<div class="navlabel">Sign &nbsp;Up</div>
+					</a>
+				</div>
             {% endif %}
 
+			<div class="item">
+				<a href="{% url "new_post" %}">
+					<div class="icon"><i class="fa fa-plus-circle"></i></div>
+					<div class="navlabel">New&nbsp;Post</div>
+				</a>
+			</div>
 
-
-            <div class="item">
-                <a href="{% url "new_post" %}">
-                    <div class="icon"><i class="fa fa-plus-circle"></i></div>
-                    <div class="navlabel">New&nbsp;Post</div>
-                </a>
-            </div>
-
-            <!-- <div class="item">
+			<!-- <div class="item">
             <a href="{% url "user_list" %}">
                 <div class="icon"><i class="fa fa-user"></i></div>
                 <div class="navlabel">Users</div>
@@ -54,34 +45,34 @@
         </div> -->
 
 
-            <div class="item">
-                <a href="{% url "planet_list" %}">
-                    <div class="icon"><i class="fa fa-globe"></i></div>
-                    <div class="navlabel">Planet</div>
-                </a>
-            </div>
+			<div class="item">
+				<a href="{% url "planet_list" %}">
+					<div class="icon"><i class="fa fa-globe"></i></div>
+					<div class="navlabel">Planet</div>
+				</a>
+			</div>
 
-            <div class="item">
-                <a href="{% url "site_list" %}">
-                    <div class="icon"><i class="fa fa-sitemap"></i></div>
-                    <div class="navlabel">Sites</div>
-                </a>
-            </div>
+			<div class="item">
+				<a href="{% url "site_list" %}">
+					<div class="icon"><i class="fa fa-sitemap"></i></div>
+					<div class="navlabel">Sites</div>
+				</a>
+			</div>
 
 
             {% if user.is_authenticated %}
-                <div class="item ">
-                    <a href="{% url 'account_logout' %}">
-                        <div class="icon"><i class="fa fa-sign-out"></i></div>
-                        <div class="navlabel">Sign&nbsp;Out</div>
-                    </a>
-                </div>
+				<div class="item ">
+					<a href="{% url 'account_logout' %}">
+						<div class="icon"><i class="fa fa-sign-out"></i></div>
+						<div class="navlabel">Sign&nbsp;Out</div>
+					</a>
+				</div>
             {% endif %}
 
 
-        </div>
+		</div>
 
-    </div>
+	</div>
 </div>
 
 

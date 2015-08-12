@@ -207,7 +207,7 @@ def sign_up(request):
 
     if not signup:
         # The user has not requested a sigup.
-        messages.error(request, "If you want to create an account check the signup checkbox.")
+        messages.error(request, "The email does not exist. If you want to use this email to create an account check the signup checkbox.")
         return login_redirect
 
     # Try to sign up the user

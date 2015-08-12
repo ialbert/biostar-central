@@ -147,15 +147,7 @@ def GET_DOMAIN(request, key="HTTP_HOST"):
 # contain html.
 DEFAULT_SHORTCUTS = [
     # Item name, Item URL
-    ("Home", "/"),
-    ("Unanswered", "/p/unanswered/"),
-    ("News", "/t/News/"),
-    ("Forum", "/t/Forum/"),
-    ("Tutorials", "/t/Tutorial/"),
-    ("Jobs", "/t/Job/"),
-    ("All Tags", "/t/list/"),
-    ("<b>Your Account</b>", "/site/me/"),
-    ("<b>Edit Profile</b>", "/site/edit/my/profile/"),
+
 ]
 
 # How many groups can a regular user create.
