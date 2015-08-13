@@ -22,6 +22,21 @@ from django.views.decorators.csrf import csrf_exempt
 import re
 import logging
 
+import langdetect
+
+
+def english_only(text):
+    try:
+        text.decode('ascii')
+    except Exception:
+        raise ValidationError('Title may only contain plain text (ASCII) characters')
+
+
+def valid_language(text):
+    lang = langdetect.detect(text)
+    if lang != 'en':
+        raise ValidationError('Not recognized as English Language!')
+
 logger = logging.getLogger(__name__)
 
 
@@ -62,7 +77,7 @@ class LongForm(forms.Form):
 
     title = forms.CharField(
         label="Post Title",
-        max_length=200, min_length=10, validators=[valid_title],
+        max_length=200, min_length=10, validators=[valid_title, english_only],
         help_text="Descriptive titles promote better answers.")
 
     post_type = forms.ChoiceField(
@@ -75,7 +90,7 @@ class LongForm(forms.Form):
         help_text="Choose one or more tags to match the topic. To create a new tag just type it in and press ENTER.",
     )
 
-    content = forms.CharField(widget=forms.Textarea,
+    content = forms.CharField(widget=forms.Textarea,validators=[valid_language],
                               min_length=80, max_length=15000,
                               label="Enter your post below")
 

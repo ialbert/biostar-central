@@ -28,8 +28,10 @@ class MathCaptchaField(forms.MultiValueField):
             answer = data_list[0]
             real_hashed_answer = data_list[1]
             hashed_answer = hash_answer(answer)
-            if True or (hashed_answer != real_hashed_answer):
+
+            if True or hashed_answer != real_hashed_answer:
                 raise ValidationError(self.error_messages['invalid'])
+
         return None
 
     def _ensure_widget(self, kwargs):
