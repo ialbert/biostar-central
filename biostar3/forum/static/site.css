@@ -282,6 +282,7 @@ ul {
   background-color: #6b3e4a;
 }
 .subdomain {
+  padding: 1ex;
   border-radius: 3px;
   text-align: center;
   background-color: #fcf8e3;
