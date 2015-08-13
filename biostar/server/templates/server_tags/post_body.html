@@ -12,16 +12,7 @@
 
     <div class="post vote-box visible-lg visible-md" data-post_id="{{ post.id }}">
 
-	    {% if post.is_toplevel %}
-	    <div style="border:1px black solid;
-	    			border-radius:10px;
-	    			opacity:0.7;
-	    			width:41px;
-	    			margin:0 auto;">
-	    <div class="c">{{ post.root.view_count|bignum }}</div>
-	    <div class="t">views</div>
-	    </div>
-	    {% endif %}
+
 
         <div class="vote mark {{ post.has_upvote|on }} tip" data-toggle="tooltip" data-placement="top"
              data-type="vote" title="Upvote!">
@@ -40,6 +31,9 @@
                 <i class="fa fa-check-circle-o fa-2x"></i>
             </div>
         {% endif %}
+
+
+
     </div>
 
     <div>
@@ -59,6 +53,9 @@
                         {% for tag in post.tag_set.all %}
                             <a class="tag" href="/t/{{ tag.name }}/">{{ tag.name }}</a>
                         {% endfor %}
+
+                    &bull; {{ post.root.view_count|bignum }} views
+
                     </div>
                 {% endif %}
 

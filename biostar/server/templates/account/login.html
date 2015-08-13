@@ -18,7 +18,7 @@
                 <div class="panel-body">
                     {% if socialaccount.providers %}
                         <p>{% blocktrans with site.name as site_name %}
-                            Click the name of a provider to log in.{% endblocktrans %}</p>
+                            Click the name of a provider to log in or sign up.{% endblocktrans %}</p>
                         <div class="socialaccount_ballot">
                             <ul class="socialaccount_providers" style="font-size:1.6em;">
                                 {% include "socialaccount/snippets/provider_list.html" with process="login" %}
@@ -29,7 +29,7 @@
 
 
                     <div>
-                        Our connection is used for authentication only.
+                        This is used for authentication only.
                         We can't access your timeline, see your friends or post on your behalf.
                     </div>
                     <div class="login-or" style="margin-top:1em">Don't want to use social logins?
