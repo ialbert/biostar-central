@@ -63,8 +63,8 @@
         </div>
 
         <div class="three columns recent_list">
-
-            {% cache 5 "recent" %}
+           
+            {% cache 5 "recent" request.site %}
 
                 {% recent_votes recent_votes %}
 

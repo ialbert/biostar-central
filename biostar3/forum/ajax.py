@@ -6,7 +6,7 @@ from django.http import HttpResponse
 from functools import partial
 from django.db import transaction
 from django.db.models import Q, F
-from .models import Post, User, Vote, ReplyToken, PostSub
+from .models import Post, User, Profile, Vote, ReplyToken, PostSub
 from . import auth
 from django.contrib import messages
 from functools import partial
@@ -394,7 +394,8 @@ def user_moderate(request, pk, target=None):
 
     # Only staff may ban a user.
     if action == BAN:
-        select.update(status=User.BANNED, html="", content="")
+        select.update(status=User.BANNED)
+        Profile.objects.filter(pk=target.id).update(info="", html="")
         Post.objects.filter(author=target).delete()
         info("User banned")
         return back

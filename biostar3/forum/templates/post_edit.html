@@ -20,7 +20,7 @@
 
 
 					<div class="row">
-						<div class="six columns">
+						<div class="twelve columns">
 							<label for="{{ form.title.id_for_label }}">Post Title</label>
                             {{ form.title }}
 						</div>
@@ -28,19 +28,19 @@
 
 					<div class="row">
 						<div class="six columns">
-							<label for="{{ form.tag_val.id_for_label }}">Post Tags (comma separated)</label>
+							<label for="{{ form.tag_val.id_for_label }}">Post Tags (separate with commas, 5 max)</label>
                             {{ form.tag_val }}
 						</div>
 					</div>
 
 					<div class="row">
-						<div class="six columns">
+						<div class="three columns">
 							<label for="{{ form.type.id_for_label }}">Post Type</label>
                             {{ form.type }}
 						</div>
 					</div>
 					<div class="row">
-						<div class="six columns">
+						<div class="three columns">
 							<label for="{{ form.site.id_for_label }}">Site</label>
                             {{ form.site }}
 						</div>

@@ -5,64 +5,64 @@
 
     {% user_bar user %}
 
-    <div class="row" id="post_list">
+	<div class="row" id="post_list">
 
-        <div class="nine columns">
-            <div>
-            	{% message_bar %}
-                <p>
-                    You are currently on the <b>{{ site.name }}</b> site.
-                </p>
+		<div class="nine columns">
+			<div>
+                {% message_bar %}
+				<p>
+					You are currently on the <b>{{ site.name }}</b> site.
+				</p>
 
-                <p>
-                    Different sites may be goverend by different communities. Contact the admins (or post on the
-                    moderator list)
-                    to request the creation of new sites.
-                </p>
+				<p>
+					Different sites may be governed by different rules.
+					Contact the admins (or post on the
+					moderator list) to request the creation of new sites.
+				</p>
 
-                <p>
-                    Check the boxes for the sites that you want to see you main page.
+				<p>
+					Check the boxes for posts that you want to see when you visit the main domain.
                     {% if user.is_anonymous %}
-                        You will need to <a href="{% url 'account_login' %}">Sign In</a> to use this feature.
+						You will need to <a href="{% url 'account_login' %}">Sign In</a> to use this feature.
                     {% endif %}
-                </p>
+				</p>
 
-            </div>
-            <div>&nbsp;</div>
-            <form method="post" action="{% url "site_list" %}">
-            	{% csrf_token %}
+			</div>
+			<div>&nbsp;</div>
+			<form method="post" action="{% url "site_list" %}">
+                {% csrf_token %}
                 {% for site in sites %}
 
-                    <div class="row post_row">
-                        <div class="post_title">
+					<div class="row post_row">
+						<div class="post_title">
 
-                            <input type="checkbox" name="site_id" value="{{ site.id }}"
+							<input type="checkbox" name="site_id" value="{{ site.id }}"
                             {% if site.checked %}
-                                   checked
+								   checked
                             {% endif %}
-                            >
-                            &nbsp;
-                            <a href="//{{ site.domain }}"> {{ site.name }}</a>
+									>
+							&nbsp;
+							<a href="//{{ site.domain }}"> {{ site.name }}</a>
 
 
-                        </div>
-                    </div>
+						</div>
+					</div>
 
 
                 {% endfor %}
-                <div class="row" style="margin-top:1ex">
-                    <input type="submit" name="Submit" value="Submit">
-                </div>
-            </form>
+				<div class="row" style="margin-top:1ex">
+					<input type="submit" name="Submit" value="Submit">
+				</div>
+			</form>
 
-        </div>
+		</div>
 
-        <div class="three columns recent_votes">
+		<div class="three columns recent_votes">
 
 
-        </div>
+		</div>
 
-    </div>
+	</div>
 
 {% endblock %}
 
