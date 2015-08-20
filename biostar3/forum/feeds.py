@@ -9,8 +9,6 @@ from django.contrib.sites.models import Site
 from datetime import datetime, timedelta
 import bleach
 
-SITE = Site.objects.get(id=settings.SITE_ID)
-SITE_NAME = settings.SITE_NAME
 
 FEED_COUNT = 25
 
@@ -32,9 +30,10 @@ class PlanetFeed(Feed):
     """
     Latest posts from the planet"
     """
+    site = Site.objects.get(id=settings.SITE_ID)
     link = "/"
     FEED_COUNT = 50
-    title = "%s Planet!" % SITE_NAME
+    title = "%s Planet!" % site.name
     description = "Latest 50 posts of the %s" % title
 
     def item_title(self, item):
@@ -78,7 +77,7 @@ class PostBase(Feed):
 
 class LatestFeed(PostBase):
     "Latest posts"
-    title = "%s latest!" % SITE_NAME
+    title = "%s latest!" % Site.objects.get_current().name
     description = "Latest 25 posts from the %s" % title
 
     def items(self):
