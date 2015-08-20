@@ -5,7 +5,6 @@ from django.shortcuts import get_object_or_404
 from .models import Post,  User, BlogPost, Message
 from . import auth
 from django.conf import settings
-from django.contrib.sites.models import Site
 from datetime import datetime, timedelta
 import bleach
 
@@ -30,10 +29,9 @@ class PlanetFeed(Feed):
     """
     Latest posts from the planet"
     """
-    site = Site.objects.get(id=settings.SITE_ID)
     link = "/"
     FEED_COUNT = 50
-    title = "%s Planet!" % site.name
+    title = "%s Planet!" % settings.SITE_NAME
     description = "Latest 50 posts of the %s" % title
 
     def item_title(self, item):
@@ -77,7 +75,7 @@ class PostBase(Feed):
 
 class LatestFeed(PostBase):
     "Latest posts"
-    title = "%s latest!" % Site.objects.get_current().name
+    title = "%s latest!" % settings.SITE_NAME
     description = "Latest 25 posts from the %s" % title
 
     def items(self):
