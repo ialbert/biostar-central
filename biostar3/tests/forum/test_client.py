@@ -158,7 +158,8 @@ class ClientTests(ClientTestCase):
         jane.score = awards.CYLON_COUNT
         jane.save()
 
-        jane.profile.info = faker.text()
+        # This will generate the autobiography award.
+        jane.profile.info = "OK " * 80
         jane.profile.save()
 
         # Create an upvoted question
@@ -198,15 +199,12 @@ class ClientTests(ClientTestCase):
 
         for award in all_awards:
             award.check()
+            if not Award.objects.filter(badge=award.badge):
+                print("*** missing award {}".format(award.badge.uuid))
 
         # Each award generated once.
         award_count = Award.objects.all().count()
         message_count = Message.objects.all().count()
-
-        if award_count != len(all_awards):
-            # See what is missing.
-            for award in Award.objects.all():
-                print(award.uuid)
 
         # User gets one message for each award
         self.assertEqual(award_count, len(all_awards))
