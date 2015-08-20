@@ -261,7 +261,7 @@ def invalid_site(request, domain):
     sites = Site.objects.all()
     default = Site.objects.filter(id=settings.SITE_ID).first()
     context = dict(domain=domain, sites=sites, default=default)
-    return render(request, template_name, context)
+    return render(request, template_name, context, status=500)
 
 
 def update_post_views(request, post, minutes=settings.POST_VIEW_INTERVAL):
