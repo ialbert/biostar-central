@@ -33,9 +33,6 @@ class BiostarAppConfig(AppConfig):
         # Add the post migration signal.
         post_migrate.connect(post_migrate_tasks, sender=self)
 
-        # Run when the application is ready.
-        set_domain()
-
     @property
     def app_label(self):
         return self.name.split(".")[-1]
