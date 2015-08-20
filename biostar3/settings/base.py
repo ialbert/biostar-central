@@ -95,7 +95,7 @@ MIDDLEWARE_CLASSES = (
 
 ROOT_URLCONF = 'biostar3.urls'
 
-WSGI_APPLICATION = 'biostar3.wsgi_default.application'
+WSGI_APPLICATION = 'biostar3.wsgi.app'
 
 AUTH_USER_MODEL = 'forum.User'
 

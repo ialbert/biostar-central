@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+</head>
+<body>
+
+<h3>Site misconfiguration</h3>
+
+<p>The domain: <code>{{ domain }}</code> is not valid.</p>
+
+<p>Valid site domains are:
+
+<ul>
+	 {% for site in sites %}
+	<li>
+        <code>{{ site }}</code>
+	</li>
+	{%  endfor %}
+</ul>
+
+<p>
+	Current default <code>SITE_DOMAIN={{ default.domain }}</code>
+</p>
+<p>
+	At the very least the <code>SITE_DOMAIN</code> settings
+	must match the domain that the server binds to.
+	Typically  you must restart the server
+	if you alter the SITE_DOMAIN setting.
+</p>
+</body>
+</html>

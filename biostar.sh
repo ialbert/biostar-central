@@ -132,8 +132,8 @@ while (( "$#" )); do
     fi
 
 	if [ "$1" = "waitress" ]; then
-        echo "*** Run a waitress server with $DJANGO_SETTINGS_MODULE and DATABASE_NAME=$DATABASE_NAME"
-        waitress-serve --port=8080 biostar3.wsgi_whitenoise:application
+        echo "*** Waitress server with DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE"
+        waitress-serve --port=8080 --call biostar3.wsgi:whitenoise
     fi
 
    	if [ "$1" = "testdeploy" ]; then

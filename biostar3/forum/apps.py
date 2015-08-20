@@ -33,25 +33,33 @@ class BiostarAppConfig(AppConfig):
         # Add the post migration signal.
         post_migrate.connect(post_migrate_tasks, sender=self)
 
+        # Run when the application is ready.
+        set_domain()
+
     @property
     def app_label(self):
         return self.name.split(".")[-1]
+
+
+def set_domain():
+    # Ensure that the default domain works.
+    site = Site.objects.filter(id=settings.SITE_ID).first()
+    if site.domain != settings.SITE_DOMAIN:
+        site.name = settings.SITE_NAME
+        site.domain = settings.SITE_DOMAIN
+        site.save()
+        print("Updating site=%s, name=%s, domain=%s." % (site.id, site.name, site.domain))
+
+    # Create moderator sites.
+    Site.objects.get_or_create(domain=settings.MODERATORS_SITE_DOMAIN, name=settings.MODERATOR_SITE_NAME)
+
 
 def post_migrate_tasks(sender, **kwargs):
     """
     Sets up minimally required site content post migration.
     """
 
-    # Set up the default domain.
-    site = Site.objects.get_current()
-    if site.domain != settings.SITE_DOMAIN:
-        site.name = settings.SITE_NAME
-        site.domain = settings.SITE_DOMAIN
-        site.save()
-        logger.info("Adding site=%s, name=%s, domain=%s." % (site.id, site.name, site.domain))
-
-    # Create moderator sites.
-    Site.objects.get_or_create(domain=settings.MODERATORS_SITE_DOMAIN, name=settings.MODERATOR_SITE_NAME)
+    set_domain()
 
     # Needs ADMINS settings.
     if not settings.ADMINS:

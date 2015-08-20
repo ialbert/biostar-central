@@ -14,5 +14,23 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "biostar3.settings.base")
 
 from django.core.wsgi import get_wsgi_application
 
-application = get_wsgi_application()
+def default():
+    """
+    Default WSGI application.
+    """
+    app = get_wsgi_application()
+    return app
+
+app = default()
+
+def whitenoise():
+    """
+    Static content served via DjangoWhiteNoise.
+    """
+    from whitenoise.django import DjangoWhiteNoise
+    app = get_wsgi_application()
+    app = DjangoWhiteNoise(app)
+    app.add_files('./export/media/', prefix='media/')
+    return app
+
 

@@ -108,7 +108,7 @@ class ClientTests(ClientTestCase):
         """
         EQ, TRUE = self.assertEqual, self.assertTrue
 
-        r = self.get("account_login", pattern='login')
+        r = self.get("account_login", pattern='Login')
 
         # Sign up a user.
         jane = self.make_user()

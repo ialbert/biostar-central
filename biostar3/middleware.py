@@ -73,11 +73,9 @@ class GlobalMiddleware(object):
             site = Site.objects.filter(domain=domain).first()
 
             if not site:
-                # This is an invalid site, redirect to main.
-                site = Site.objects.get_current()
-                url = "%s://%s" % (request.scheme, site.domain)
-                messages.error(request, "Invalid site requested")
-                return Redirect(url)
+                request.site = None
+                from biostar3.forum.post_views import invalid_site
+                return invalid_site(request, domain)
 
             # Existing site goes into the cache.
             DOMAIN_CACHE[domain] = site

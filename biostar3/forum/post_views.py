@@ -253,6 +253,17 @@ def search_results(request):
     return render(request, template_name, context)
 
 
+def invalid_site(request, domain):
+    """
+    Produces the search results
+    """
+    template_name = "invalid_site.html"
+    sites = Site.objects.all()
+    default = Site.objects.filter(id=settings.SITE_ID).first()
+    context = dict(domain=domain, sites=sites, default=default)
+    return render(request, template_name, context)
+
+
 def update_post_views(request, post, minutes=settings.POST_VIEW_INTERVAL):
     """
     Views are updated per user session"

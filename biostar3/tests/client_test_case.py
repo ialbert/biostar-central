@@ -2,6 +2,9 @@ import logging, re
 
 from django.test import TestCase, Client
 from django.core.urlresolvers import reverse
+from django.conf import settings
+
+VERBOSE = True
 
 class ClientTestCase(TestCase):
     HOST = "www.lvh.me:8080"
@@ -21,7 +24,13 @@ class ClientTestCase(TestCase):
         self.assertEqual(r.status_code, code)
         if pattern:
             content = r.content.decode("utf-8")
-            self.assertTrue(re.search(pattern, content, re.IGNORECASE))
+            found  = re.search(pattern, content, re.IGNORECASE)
+            if not found and VERBOSE:
+                print(pattern)
+                print ("---")
+                print (content)
+                print ("---")
+            self.assertTrue(found)
         return r
 
     def post(self, url, kwargs={}, data={}, pattern=None, follow=False):
