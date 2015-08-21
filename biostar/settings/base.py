@@ -294,6 +294,7 @@ INSTALLED_APPS = [
     'djcelery',
     'kombu.transport.django',
     'south',
+    'captcha',
 ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
@@ -481,6 +482,13 @@ ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_USER_MODEL_EMAIL_FIELD = "email"
 ACCOUNT_DEFAULT_HTTP_PROTOCOL = "http"
 #ACCOUNT_LOGOUT_ON_GET = True
+
+# Google ReCaptcha No-Captcha settings
+# When set the captcha forms will be active.
+RECAPTCHA_PUBLIC_KEY = ""
+RECAPTCHA_PRIVATE_KEY = ""
+RECAPTCHA_USE_SSL = True     # Defaults to False
+NOCAPTCHA = True
 
 # Session specific settings.
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'

@@ -242,22 +242,23 @@ def external_login(request):
     response = redirect(url)
     return response
 
-
 # Adding a captcha enabled form
 from allauth.account.views import SignupForm, SignupView
 from biostar.apps.util.captcha.fields import MathCaptchaField
+from captcha.fields import ReCaptchaField
 
 
 class CaptchaForm(SignupForm):
-    captcha = MathCaptchaField()
+    captcha = ReCaptchaField()
 
 
 class CaptchaView(SignupView):
     form_class = CaptchaForm
 
     def get_form_class(self):
+
         # This is to allow tests to override the form class during testing.
-        if settings.CAPTCHA:
+        if settings.RECAPTCHA_PRIVATE_KEY:
             return CaptchaForm
         else:
             return SignupForm
