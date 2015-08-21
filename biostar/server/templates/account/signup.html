@@ -7,35 +7,67 @@
 {% endblock %}
 {% block content %}
     <div class="row">
-        <div class="col-md-9 col-md-offset-3">
 
-            <div class="panel panel-default">
+        <div class="col-md-6 col-md-offset-3">
+
+            <div class="panel panel-default" style="margin-top:2em">
+
                 <div class="panel-heading">
-                    <h3 class="panel-title">{% trans "Create Account" %}</h3>
+                    <h3 class="panel-title">{% trans "Social Signup" %}</h3>
                 </div>
                 <div class="panel-body">
-                    <div>Do you want to use social logins?
-                        Go to the <a href="{{ login_url }}">Login page &raquo;</a>
+                    {% if socialaccount.providers %}
+                        <p>{% blocktrans with site.name as site_name %}
+                            Click the name of a provider to sign up.{% endblocktrans %}</p>
+                        <div class="socialaccount_ballot">
+                            <ul class="socialaccount_providers" style="font-size:1.6em;">
+                                {% include "socialaccount/snippets/provider_list.html" with process="login" %}
+                            </ul>
+                        </div>
+                        {% include "socialaccount/snippets/login_extra.html" %}
+                    {% endif %}
+
+
+                    <div>
+                        This is used for authentication only.
+                        We can't access your timeline, see your friends or post on your behalf.
                     </div>
+
+                </div>
+            </div>
+
+            <div class="panel panel-default">
+
+                <div class="panel-heading">
+                    <h3 class="panel-title">{% trans "Sign Up with Email" %}</h3>
+                </div>
+
+                <div class="panel-body">
+
                     <form role="form" class="signup" id="signup_form" method="post" action="{% url 'account_signup' %}">
                         {% csrf_token %}
-                        <div class="form-group">
 
-                            {{ form|crispy }}
-                        </div>
+
+                        {{ form|crispy }}
+
+
                         {% if redirect_field_value %}
                             <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}"/>
                         {% endif %}
 
-                        <button type="submit" class="btn btn-success">{% trans "Sign Up" %} &raquo;</button>
+                        <div>
+                            <button type="submit" class="btn btn-success">{% trans "Sign Up" %} &raquo;</button>
 
-                <span class="btn btn-default pull-right">
-                    <a class="button" href="{% url 'account_login' %}">{% trans "Back to login" %} &raquo;</a>
-                </span>
+                            <span class="btn btn-default pull-right">
+                                <a class="button" href="{% url 'account_login' %}">{% trans "Back to login" %} &raquo;</a>
+                            </span>
+                        </div>
 
                     </form>
                 </div>
             </div>
         </div>
+
     </div>
+
 {% endblock %}

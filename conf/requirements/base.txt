@@ -1,4 +1,4 @@
-Django==1.6.5
+Django>1.6,<1.7
 Jinja2==2.7.3
 Markdown==2.4.1
 MarkupSafe==0.23
