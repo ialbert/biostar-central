@@ -146,6 +146,9 @@ TIME_ZONE = 'America/Chicago'
 # http://www.i18nguy.com/unicode/language-identifiers.html
 LANGUAGE_CODE = 'en-us'
 
+# Configure language detection
+LANGUAGE_DETECTION = ['en']
+
 # These parameters will be inserted into the database automatically.
 SITE_ID = 1
 SITE_NAME = "Site Name"
