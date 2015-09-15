@@ -33,9 +33,12 @@ def english_only(text):
 
 
 def valid_language(text):
-    lang = langdetect.detect(text)
-    if lang != 'en':
-        raise ValidationError('Not recognized as English Language!')
+    supported_languages = settings.LANGUAGE_DETECTION
+    if supported_languages:
+        lang = langdetect.detect(text)
+        if lang not in supported_languages:
+            raise ValidationError(
+                    'Language "{0}" is not one of the supported languages {1}!'.format(lang, supported_languages))
 
 logger = logging.getLogger(__name__)
 
