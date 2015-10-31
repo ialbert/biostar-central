@@ -19,3 +19,4 @@ install:
     - pip install -q -r conf/requirements_travis.txt
 
 script: python -m biostar4.manage test
+
