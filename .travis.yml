@@ -1,22 +1,24 @@
 language: python
 
+sudo: false
+
 python:
-  - "2.7"
-  #- "3.3"
+  - "3.4"
 
 addons:
-  postgresql: "9.3"
+  postgresql: "9.4"
 
 before_script:
   - psql -c 'create database travis_ci_test;' -U postgres
 
+branches:
+  only:
+    - 4.0
 env:
-  - DJANGO_VERSION=1.6
-  #- DJANGO_VERSION=1.7
+  - DJANGO_SETTINGS_MODULE=biostar.settings.travis
 
 install:
-    - pip install -q -r conf/requirements/test.txt
-    - pip install -q -I Django==$DJANGO_VERSION
+    - pip install -q -r conf/requirements_travis.txt
 
-script: source conf/test_travis.env && python manage.py test
+script: python -m biostar4.manage test
 
