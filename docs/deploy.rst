@@ -76,7 +76,7 @@ need to set the ``USE_COMPRESSOR=True`` in your settings file.
 
 To deploy the site with ``postgresql`` and ``elasticsearch`` install the requirements::
 
-    pip install --upgrade -r conf/requirements/all.txt
+    pip install --upgrade -r conf/requirements/deploy.txt
 
 Start with the ``conf/defaults.env`` and files unde ``conf/deploy/*`` and customize them.
 We typically copy these into the ``live`` folder. Rember to add an ``__init__.py`` file in
