@@ -72,7 +72,7 @@ def apply_sort(request, query):
     # Apply sort order
     sort = request.GET.get('sort', const.POST_SORT_DEFAULT)
     field = const.POST_SORT_MAP.get(sort, "-lastedit_date")
-    query = query.order_by(field)
+    query = query.order_by("-sticky", field)
 
     # Apply time limit.
     limit = request.GET.get('limit', const.POST_LIMIT_DEFAULT)
