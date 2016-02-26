@@ -128,7 +128,7 @@ class LongForm(forms.Form):
 class ShortForm(forms.Form):
     FIELDS = ["content"]
 
-    content = forms.CharField(widget=PagedownWidget, min_length=20)
+    content = forms.CharField(widget=PagedownWidget, min_length=20, max_length=5000,)
 
     def __init__(self, *args, **kwargs):
         super(ShortForm, self).__init__(*args, **kwargs)

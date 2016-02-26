@@ -14,6 +14,7 @@ from datetime import timedelta, datetime
 from django.db.models import signals, Q
 import string
 import json
+from itertools import *
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +39,9 @@ class Command(BaseCommand):
                     help='dry run, sometimes applies ;-)'),
         make_option('--merge_users', dest='merge', metavar="FILE", default=False,
                     help='merges users listed in a file, on per row: master alias1 alias2 ...'),
+
         make_option('--export', dest='export', help='exports data into a directory'),
+        make_option('--limit', dest='limit', default=None, help='limits things, occasionally :-)'),
     )
 
     def handle(self, *args, **options):
@@ -47,6 +50,7 @@ class Command(BaseCommand):
         dry = options['dry']
         merge = options['merge']
         export_path = options['export']
+        limit = options['limit']
 
         if tag:
             tagger(tag, dry)
@@ -64,14 +68,14 @@ class Command(BaseCommand):
             merge_users(merge)
 
         if export_path:
-            export_data(export_path)
+            export_data(export_path, limit=limit)
 
         pk = options['bump_id']
         if pk:
             bump(pk)
 
 
-def export_data(path):
+def export_data(path, limit):
     from biostar.apps.posts.models import Post
     from biostar.apps.users.models import User, Profile
 
@@ -105,9 +109,9 @@ def export_data(path):
         )
 
     uname = os.path.join(path, "users.json")
-    logger.info('saving users to -> %s' % uname)
-    users = map(serialize_user, User.objects.all().select_related('profile'))
-    save(uname, users)
+    logger.info('saving users: %s' % uname)
+    users = imap(serialize_user, User.objects.all().select_related('profile').order_by('id')[:limit])
+    save(uname, list(users))
 
     def serialize_post(post):
         return dict(
@@ -138,16 +142,16 @@ def export_data(path):
         )
 
     ids = []
-    posts = Post.objects.all()[:10]
+    posts = Post.objects.all().order_by('id')[:limit]
     for post in posts:
         ids.append(post.id)
         pname = os.path.join(path, "%s" % post.id)
-        logger.info('saving post %s' % pname)
+        logger.info('saving post: %s' % pname)
         data = serialize_post(post)
         save(pname, data)
 
     iname = os.path.join(path, "posts.json")
-    logger.info('saving post ids %s' % iname)
+    logger.info('saving post ids: %s' % iname)
     save(iname, ids)
 
 
