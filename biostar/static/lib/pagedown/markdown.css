@@ -27,7 +27,7 @@ blockquote {
 .wmd-input 
 { 
 	height: 300px;
-	width: 100%;
+	width: 98%;
 	background-color: white;
 	border: 1px solid DarkGray;
 }
@@ -35,14 +35,18 @@ blockquote {
 .wmd-input-2
 {
 	height: 150px;
-	width: 100%;
+	width: 98%;
 	background-color: white;
 	border: 1px solid DarkGray;
+	margin: 1ex;
 }
 
 .wmd-preview 
-{ 
-	//background-color: #c0e0ff;
+{
+	width: 98%;
+	margin:1ex;
+	padding:1ex;
+	background-color: white;
 }
 
 .wmd-button-row 

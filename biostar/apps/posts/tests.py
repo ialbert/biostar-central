@@ -27,7 +27,9 @@ Linkify urls in the test post http://www.biostars.org
 
 Do not linkify posts in code:
 
-    http://www.biostars.org
+    ls *
+    cat data.fq | grep "HWUS" | wc -l
+    curl http://www.biostars.org
 
 Reformat links to internal content:
 

@@ -2,7 +2,7 @@ import re
 import bleach
 import logging
 import requests
-from markdown2 import markdown
+import markdown2
 from html5lib.tokenizer import HTMLTokenizer
 
 from django.conf import settings
@@ -38,11 +38,13 @@ YOUTUBE_RE1 = re.compile(YOUTUBE_PATTERN1)
 YOUTUBE_RE2 = re.compile(YOUTUBE_PATTERN2)
 TWITTER_RE = re.compile(TWITTER_PATTERN)
 
+
 def clean(text):
     "Sanitize text with no other substitutions"
     html = bleach.clean(text, tags=ALLOWED_TAGS,
-        attributes=ALLOWED_ATTRIBUTES, styles=ALLOWED_STYLES)
+                        attributes=ALLOWED_ATTRIBUTES, styles=ALLOWED_STYLES)
     return html
+
 
 def parse_html(text):
     "Sanitize text and expand links to match content"
@@ -51,7 +53,6 @@ def parse_html(text):
 
     # This will collect the objects that could be embedded
     embed = []
-
 
     def internal_links(attrs, new=False):
         "Matches a user"
@@ -96,8 +97,10 @@ def parse_html(text):
         # Try the gist embedding patterns
         targets = [
             (GIST_RE, lambda x: '<script src="https://gist.github.com/%s.js"></script>' % x),
-            (YOUTUBE_RE1, lambda x: '<iframe width="420" height="315" src="//www.youtube.com/embed/%s" frameborder="0" allowfullscreen></iframe>' % x),
-            (YOUTUBE_RE2, lambda x: '<iframe width="420" height="315" src="//www.youtube.com/embed/%s" frameborder="0" allowfullscreen></iframe>' % x),
+            (YOUTUBE_RE1, lambda
+                x: '<iframe width="420" height="315" src="//www.youtube.com/embed/%s" frameborder="0" allowfullscreen></iframe>' % x),
+            (YOUTUBE_RE2, lambda
+                x: '<iframe width="420" height="315" src="//www.youtube.com/embed/%s" frameborder="0" allowfullscreen></iframe>' % x),
             (TWITTER_RE, get_embedded_tweet),
         ]
 
@@ -107,7 +110,7 @@ def parse_html(text):
             if patt:
                 uid = patt.group("uid")
                 obj = get_text(uid)
-                embed.append( (uid, obj) )
+                embed.append((uid, obj))
                 attrs['_text'] = uid
                 attrs['href'] = uid
                 if 'rel' in attrs:
@@ -119,12 +122,15 @@ def parse_html(text):
 
     # Apply a markdown transformation last.
     try:
-        html = markdown(text, extras=["fenced-code-blocks", "code-friendly", "nofollow", "spoiler"])
+        html_classes = dict(code="language-bash", pre="pre")
+        html = markdown2.markdown(text,
+                                  extras={"fenced-code-blocks":{},
+                                          "code-friendly":{}, "nofollow":{}, "spoiler":{}, "html-classes":html_classes})
     except Exception as exc:
         logger.error('crash during markdown conversion: %s' % exc)
 
     html = bleach.clean(html, tags=ALLOWED_TAGS,
-        attributes=ALLOWED_ATTRIBUTES, styles=ALLOWED_STYLES)
+                        attributes=ALLOWED_ATTRIBUTES, styles=ALLOWED_STYLES)
 
     try:
         html = bleach.linkify(html, callbacks=CALLBACKS, skip_pre=True)
@@ -136,6 +142,7 @@ def parse_html(text):
         logger.error("*** %s" % exc)
 
     return html
+
 
 def get_embedded_tweet(tweet_id):
     """
@@ -155,10 +162,12 @@ def get_embedded_tweet(tweet_id):
     except:
         return ''
 
+
 def strip_tags(text):
     "Strip html tags from text"
     text = bleach.clean(text, tags=[], attributes=[], styles={}, strip=True)
     return text
+
 
 def render(name, **kwds):
     "Helper function to render a template"
@@ -167,8 +176,10 @@ def render(name, **kwds):
     page = tmpl.render(cont)
     return page
 
+
 def test():
     pass
+
 
 if __name__ == '__main__':
     test()
