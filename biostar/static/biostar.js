@@ -73,9 +73,8 @@ function add_comment(elem) {
         <div class="form-group">\
         <div class="wmd-panel">\
             <div id="wmd-button-bar-2"></div>\
-            <textarea class="wmd-input-2" id="wmd-input-2"  name="content" rows="3" style="width:100%"></textarea></div> \
+            <textarea class="wmd-input-2" id="wmd-input-2"  name="content" rows="3"></textarea></div> \
         </div>\
-        <div id="wmd-preview-2" class="wmd-panel wmd-preview"></div>\
         <div><a class="btn btn-success" href=\'javascript:document.forms["comment-form"].submit()\'><i class="icon-comment"></i> Add comment</a>          \
         <a class="btn btn-warning pull-right" onclick="javascript:obj=$(\'#comment-row\').remove();"><i class="icon-remove"></i> Cancel</a>   </div>       \
     </form>            \
