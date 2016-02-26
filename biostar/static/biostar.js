@@ -71,15 +71,12 @@ function add_comment(elem) {
     container.after('<div id="comment-row">\
     <form id="comment-form" role="form" action="/p/new/comment/' + post_id + '/" method="post">' + csrf_html + '\
         <div class="form-group">\
-        <textarea class="input-xlarge span8" id="comment-box" name="content" rows="3"></textarea></div> \
+        <textarea id="comment-box" name="content" rows="3" style="width:100%"></textarea></div> \
         <div><a class="btn btn-success" href=\'javascript:document.forms["comment-form"].submit()\'><i class="icon-comment"></i> Add comment</a>          \
         <a class="btn btn-warning pull-right" onclick="javascript:obj=$(\'#comment-row\').remove();"><i class="icon-remove"></i> Cancel</a>   </div>       \
     </form>            \
     </div>'
     )
-    CKEDITOR.replace('comment-box', {
-        customConfig: '/static/ck_comment_config-v2.js'
-    });
 }
 
 // modifies the votecount value
@@ -153,6 +150,14 @@ function title_format(row) {
 
 $(document).ready(function () {
     var tooltip_options = {};
+
+
+    var wmd = $('#wmd-input')
+    if (wmd.length) {
+        var converter = new Markdown.Converter();
+        var editor = new Markdown.Editor(converter);
+        editor.run();
+    }
 
 
     var searchform = $("#searchform")

@@ -2,10 +2,27 @@
 {% load server_tags %}
 {% load cache %}
 {% load more_like_this %}
+{% load crispy_forms_tags %}
+{% load static %}
 
 {% block page_title %}
     {{ post.title }}
 {% endblock %}
+
+{% block extras %}
+
+    <script type="text/javascript"
+            src="{% static "lib/pagedown/Markdown.Converter.js" %}"></script>
+    <script type="text/javascript"
+            src="{% static "lib/pagedown/Markdown.Sanitizer.js" %}"></script>
+    <script type="text/javascript"
+            src="{% static "lib/pagedown/Markdown.Editor.js" %}"></script>
+
+    {#  Markdown editor style #}
+    <link rel="stylesheet" href={% static "lib/pagedown/markdown.css" %}>
+
+{% endblock %}
+
 {% block content %}
 
     {#  {% search_bar %} #}
@@ -70,11 +87,8 @@
                         <form role="form" id="answer-form" method="post"
                               action="{% url 'new-answer' post.id %}">
                             {% csrf_token %}
-                            <div class="form-group">
-                                <textarea class="textarea form-control" cols="40" id="answerbox" name="content"
-                                          rows="10"></textarea>
-                            </div>
-                            <button type="submit" class="btn btn-success">Add Answer</button>
+                            {{  form.content }}
+                            <input type="submit" name="submit" value="Submit Answer" class="btn btn-primary" id="submit-id-submit">
 
                         </form>
                     {% endif %}
@@ -112,13 +126,6 @@
             {% endcache %}
         </div>
     </div>
-    {% if user.is_authenticated %}
-        <script src="{{ STATIC_URL }}ckeditor/ckeditor.js"></script>
-        <script type="application/javascript">
-            CKEDITOR.replace('answerbox', {
-                customConfig: '{{ STATIC_URL }}ck_config-v2.js'
-            });
-        </script>
-    {% endif %}
+
 
 {% endblock %}

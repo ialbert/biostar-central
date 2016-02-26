@@ -2,6 +2,8 @@ import re
 import bleach
 import logging
 import requests
+from markdown2 import markdown
+from html5lib.tokenizer import HTMLTokenizer
 
 from django.conf import settings
 from django.template import loader, Context
@@ -48,6 +50,7 @@ def parse_html(text):
     # This will collect the objects that could be embedded
     embed = []
 
+
     def internal_links(attrs, new=False):
         "Matches a user"
         try:
@@ -61,6 +64,7 @@ def parse_html(text):
             # Try the patterns
             patt1 = POST_RE1.search(href)
             patt2 = POST_RE2.search(href)
+
             patt = patt1 or patt2
             if patt:
                 uid = patt.group("uid")
@@ -110,7 +114,13 @@ def parse_html(text):
 
     CALLBACKS = bleach.DEFAULT_CALLBACKS + [embedder, internal_links]
 
-    html = bleach.clean(text, tags=ALLOWED_TAGS,
+    # Apply a markdown transformation last.
+    try:
+        html = markdown(text, extras=["fenced-code-blocks", "code-friendly", "nofollow", "spoiler"])
+    except Exception as exc:
+        logger.error('crash during markdown conversion: %s' % exc)
+
+    html = bleach.clean(html, tags=ALLOWED_TAGS,
         attributes=ALLOWED_ATTRIBUTES, styles=ALLOWED_STYLES)
 
     try:
