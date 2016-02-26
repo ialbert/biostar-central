@@ -28,7 +28,15 @@ blockquote {
 { 
 	height: 300px;
 	width: 100%;
-	background-color: #ECECEC;
+	background-color: white;
+	border: 1px solid DarkGray;
+}
+
+.wmd-input-2
+{
+	height: 150px;
+	width: 100%;
+	background-color: white;
 	border: 1px solid DarkGray;
 }
 

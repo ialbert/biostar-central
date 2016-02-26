@@ -71,12 +71,21 @@ function add_comment(elem) {
     container.after('<div id="comment-row">\
     <form id="comment-form" role="form" action="/p/new/comment/' + post_id + '/" method="post">' + csrf_html + '\
         <div class="form-group">\
-        <textarea id="comment-box" name="content" rows="3" style="width:100%"></textarea></div> \
+        <div class="wmd-panel">\
+            <div id="wmd-button-bar-2"></div>\
+            <textarea class="wmd-input-2" id="wmd-input-2"  name="content" rows="3" style="width:100%"></textarea></div> \
+        </div>\
+        <div id="wmd-preview-2" class="wmd-panel wmd-preview"></div>\
         <div><a class="btn btn-success" href=\'javascript:document.forms["comment-form"].submit()\'><i class="icon-comment"></i> Add comment</a>          \
         <a class="btn btn-warning pull-right" onclick="javascript:obj=$(\'#comment-row\').remove();"><i class="icon-remove"></i> Cancel</a>   </div>       \
     </form>            \
     </div>'
     )
+
+    var converter = new Markdown.Converter();
+    var editor = new Markdown.Editor(converter, '-2');
+    editor.run();
+
 }
 
 // modifies the votecount value
