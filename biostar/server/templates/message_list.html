@@ -12,7 +12,7 @@
         <div class="col-md-9">
 
             {% for message in objects %}
-                <div class="stripe unread {{ message.unread }}">
+                <div class="stripe unread wrapped {{ message.unread }}">
                     {{ message.sent_at|timesince }} ago: {{ message.body.text|safe }}
                 </div>
 
