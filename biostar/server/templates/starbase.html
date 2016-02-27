@@ -22,7 +22,7 @@
 
         {# Requires the lessc compiler. #}
         {% compress css %}
-            <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}/lib/prism/prism.css">
+            <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}lib/prism/prism.css">
             <link href="{{ STATIC_URL }}lib/select2-3.4.5/select2.css" rel="stylesheet">
             <link rel="stylesheet" type="text/less" href="{{ STATIC_URL }}{{ SITE_STYLE_CSS }}">
         {% endcompress %}
@@ -35,7 +35,7 @@
     {% else %}
 
         {#  No asset compression. #}
-        <link rel="stylesheet" type="text/css" href="/static/lib/prism/prism.css">
+        <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}/lib/prism/prism.css">
         <link href="{{ STATIC_URL }}lib/select2-3.4.5/select2.css" rel="stylesheet">
 
         {# Random numbers added to bypass potential browser caching. #}
