@@ -69,7 +69,17 @@ From the biostar source directory:
     # Initialize database, import test data, index for searching and run the server.
     ./biostar.sh init import index run
 
-Visit `http://locahost:8080` to see the site loaded with default settings.
+Visit `http://www.lvh.me:8080` to see the site loaded with default data.
+The `www.lvh.me` domain resolves to `127.0.0.0` and is your local host
+with a nicer domain name. You may just as well 
+use `http://localhost:8080` or `http://127.0.0.0`.
+
+In the default site user emails are built from database ids like so :
+`1@lvh.me`, `2@lvh.me`. User passwords are identical to the email. 
+You may then use these to log into your test site as any of the users. 
+
+Note that the first user always has staff level permissions and  
+can access the admin interface at `http://www.lvh.me:8080/admin/`
 
 Enjoy.
 

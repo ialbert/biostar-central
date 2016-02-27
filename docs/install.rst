@@ -22,7 +22,7 @@ recommended installation is via ``virtualenv`` and ``pip``::
 
 Visit ``http://locahost:8080`` to see the site loaded with default settings.
 
-The default admin is ``foo@bar.com`` password ``foobar``. The default email
+The default admin is ``1@lvh.me`` password ``1@lvh.me``. The default email
 handler will print to the console. You can reset the password
 for any user then copy paste the password reset url into the browser.
 

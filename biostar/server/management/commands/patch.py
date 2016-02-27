@@ -282,9 +282,12 @@ def merge_users(fname):
 def patch_users():
     from biostar.apps.users.models import User, Profile
     from biostar.const import DEFAULT_MESSAGES
-    # users = Profile.objects.all()
+    users = User.objects.all()
     # users.update(message_prefs=DEFAULT_MESSAGES)
-
+    for user in users:
+        user.email = "%s@lvh.me" % user.id
+        user.set_password(user.email)
+        user.save()
 
 def bump(pk=None):
     from biostar.apps.posts.models import Post
