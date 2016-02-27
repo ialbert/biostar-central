@@ -40,3 +40,4 @@ requests-oauthlib==0.4.1
 six==1.7.2
 sqlparse==0.1.11
 wsgiref==0.1.2
+markdown2

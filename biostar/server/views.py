@@ -7,7 +7,7 @@ from django.core.cache import cache
 from biostar.apps.messages.models import Message
 from biostar.apps.users.models import User
 from biostar.apps.posts.models import Post, Vote, Tag, Subscription, ReplyToken
-from biostar.apps.posts.views import NewPost, NewAnswer
+from biostar.apps.posts.views import NewPost, NewAnswer, ShortForm
 from biostar.apps.badges.models import Badge, Award
 from biostar.apps.posts.auth import post_permissions
 from biostar.apps.util import html
@@ -444,8 +444,10 @@ class PostDetails(DetailView):
         return obj
 
     def get_context_data(self, **kwargs):
+
         context = super(PostDetails, self).get_context_data(**kwargs)
         context['request'] = self.request
+        context['form'] = ShortForm()
         return context
 
 

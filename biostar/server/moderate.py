@@ -24,7 +24,8 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-OPEN, CLOSE_OFFTOPIC, CLOSE_SPAM, DELETE, DUPLICATE, MOVE_TO_COMMENT, MOVE_TO_ANSWER, CROSSPOST = map(str, range(8))
+OPEN, CLOSE_OFFTOPIC, CLOSE_SPAM, DELETE, \
+    DUPLICATE, MOVE_TO_COMMENT, MOVE_TO_ANSWER, CROSSPOST, TOGGLE_ACCEPT = map(str, range(9))
 
 from biostar.apps.util import now
 
@@ -87,6 +88,7 @@ def user_exceeds_limits(request, top_level=False):
 class PostModForm(forms.Form):
     CHOICES = [
         (OPEN, "Open a closed or deleted post"),
+        (TOGGLE_ACCEPT, "Toggle accepted status"),
         (MOVE_TO_ANSWER, "Move post to an answer"),
         (MOVE_TO_COMMENT, "Move post to a comment on the top level post"),
         (DUPLICATE, "Duplicated post (top level)"),
@@ -198,8 +200,16 @@ class PostModeration(LoginRequiredMixin, FormView):
         root  = Post.objects.filter(pk=post.root_id)
 
         action = get('action')
-        if action == OPEN and not user.is_moderator:
-            messages.error(request, "Only a moderator may open a post")
+        if action == (OPEN, TOGGLE_ACCEPT) and not user.is_moderator:
+            messages.error(request, "Only a moderator may open or toggle a post")
+            return response
+
+        if action == TOGGLE_ACCEPT and post.type == Post.ANSWER:
+            # Toggle post acceptance.
+            post.has_accepted=not post.has_accepted
+            post.save()
+            has_accepted = Post.objects.filter(root=post.root, type=Post.ANSWER, has_accepted=True).count()
+            root.update(has_accepted=has_accepted)
             return response
 
         if action == MOVE_TO_ANSWER and post.type == Post.COMMENT:

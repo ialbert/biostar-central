@@ -23,7 +23,7 @@ import re
 import logging
 
 import langdetect
-
+from django.template.loader import render_to_string
 
 def english_only(text):
     try:
@@ -68,6 +68,16 @@ def valid_tag(text):
     if len(words) > 5:
         raise ValidationError('You have too many tags (5 allowed)')
 
+class PagedownWidget(forms.Textarea):
+    TEMPLATE = "pagedown_widget.html"
+
+    def render(self, name, value, attrs=None):
+        value = value or ''
+        rows = attrs.get('rows', 15)
+        klass = attrs.get('class', '')
+        params = dict(value=value, rows=rows, klass=klass)
+        return render_to_string(self.TEMPLATE, params)
+
 
 class LongForm(forms.Form):
     FIELDS = "title content post_type tag_val".split()
@@ -93,7 +103,7 @@ class LongForm(forms.Form):
         help_text="Choose one or more tags to match the topic. To create a new tag just type it in and press ENTER.",
     )
 
-    content = forms.CharField(widget=forms.Textarea,validators=[valid_language],
+    content = forms.CharField(widget=PagedownWidget, validators=[valid_language],
                               min_length=80, max_length=15000,
                               label="Enter your post below")
 
@@ -118,7 +128,7 @@ class LongForm(forms.Form):
 class ShortForm(forms.Form):
     FIELDS = ["content"]
 
-    content = forms.CharField(widget=forms.Textarea, min_length=20)
+    content = forms.CharField(widget=PagedownWidget, min_length=20, max_length=5000,)
 
     def __init__(self, *args, **kwargs):
         super(ShortForm, self).__init__(*args, **kwargs)
@@ -203,18 +213,13 @@ class NewPost(LoginRequiredMixin, FormView):
             if value:
                 initial[key] = value
 
+
         # Attempt to prefill from external session
         sess = request.session
         if settings.EXTERNAL_SESSION_KEY in sess:
             for field in settings.EXTERNAL_SESSION_FIELDS:
                 initial[field] = sess[settings.EXTERNAL_SESSION_KEY].get(field)
             del sess[settings.EXTERNAL_SESSION_KEY]
-
-	prev_url = str(request.META['HTTP_REFERER'])
-        if re.search('/t/\w+/',prev_url):
-	    tags = prev_url.split('/')
-	    tag = tags[-2]
-	    initial['tag_val'] = tag
 
         form = self.form_class(initial=initial)
         return render(request, self.template_name, {'form': form})

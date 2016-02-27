@@ -22,6 +22,7 @@
 
         {# Requires the lessc compiler. #}
         {% compress css %}
+            <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}lib/prism/prism.css">
             <link href="{{ STATIC_URL }}lib/select2-3.4.5/select2.css" rel="stylesheet">
             <link rel="stylesheet" type="text/less" href="{{ STATIC_URL }}{{ SITE_STYLE_CSS }}">
         {% endcompress %}
@@ -34,12 +35,14 @@
     {% else %}
 
         {#  No asset compression. #}
+        <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}/lib/prism/prism.css">
         <link href="{{ STATIC_URL }}lib/select2-3.4.5/select2.css" rel="stylesheet">
 
         {# Random numbers added to bypass potential browser caching. #}
         <link rel="stylesheet/less" type="text/less" href="{{ STATIC_URL }}{{ SITE_STYLE_CSS }}?x={% rand_num %}">
         <script src="{{ STATIC_URL }}lib/less-1.6.1.min.js" type="text/javascript"></script>
 
+        <script src="{{ STATIC_URL }}lib/prism/prism.js" type="text/javascript"></script>
         <script src="{{ STATIC_URL }}lib/select2-3.4.5/select2.min.js" type="text/javascript"></script>
         <script src="{{ STATIC_URL }}biostar.js?x={% rand_num %}" type="text/javascript"></script>
 

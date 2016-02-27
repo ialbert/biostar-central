@@ -2,10 +2,27 @@
 {% load server_tags %}
 {% load cache %}
 {% load more_like_this %}
+{% load crispy_forms_tags %}
+{% load static %}
 
 {% block page_title %}
     {{ post.title }}
 {% endblock %}
+
+{% block extras %}
+
+    <script type="text/javascript"
+            src="{% static "lib/pagedown/Markdown.Converter.js" %}"></script>
+    <script type="text/javascript"
+            src="{% static "lib/pagedown/Markdown.Sanitizer.js" %}"></script>
+    <script type="text/javascript"
+            src="{% static "lib/pagedown/Markdown.Editor.js" %}"></script>
+
+    {#  Markdown editor style #}
+    <link rel="stylesheet" href={% static "lib/pagedown/markdown.css" %}>
+
+{% endblock %}
+
 {% block content %}
 
     {#  {% search_bar %} #}
@@ -52,31 +69,30 @@
 
                     {#  Authenticated users on an open post #}
                     {% if user.is_authenticated and post.is_open %}
-
+                        <div class="form-group">
                         <h3>Add your answer</h3>
 
                         <div class="alert alert-success">
 
-                            <p><strong>Note:</strong> Answers should respond to the original question on the
-                                top!
+                            <p><strong>Note:</strong> Answers should ONLY be used to respond to the original question at the
+                                top of this page!
                             </p>
 
                             <p>
-                                Use the comments
-                                to discuss an answer, ask for clarifications, request more details, etc.
-                            </p>
+                                Use the <span class="label label-default add-comment">ADD COMMENT</span> or
+                                <span class="label label-default add-comment">ADD REPLY</span> buttons above to
+                                respond to someone, ask for clarifications, request more details etc,
+                                </p>
                         </div>
 
                         <form role="form" id="answer-form" method="post"
                               action="{% url 'new-answer' post.id %}">
                             {% csrf_token %}
-                            <div class="form-group">
-                                <textarea class="textarea form-control" cols="40" id="answerbox" name="content"
-                                          rows="10"></textarea>
-                            </div>
-                            <button type="submit" class="btn btn-success">Add Answer</button>
+                            {{  form.content }}
+                            <input type="submit" name="submit" value="Submit Answer" class="btn btn-primary" id="submit-id-submit">
 
                         </form>
+                        </div>
                     {% endif %}
                 </div>
             </div>
@@ -112,13 +128,6 @@
             {% endcache %}
         </div>
     </div>
-    {% if user.is_authenticated %}
-        <script src="{{ STATIC_URL }}ckeditor/ckeditor.js"></script>
-        <script type="application/javascript">
-            CKEDITOR.replace('answerbox', {
-                customConfig: '{{ STATIC_URL }}ck_config-v2.js'
-            });
-        </script>
-    {% endif %}
+    <script src="/static/lib/prism/prism.js" type="text/javascript"></script>
 
 {% endblock %}

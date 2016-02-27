@@ -15,6 +15,40 @@ from django.test import TestCase
 
 logging.disable(logging.INFO)
 
+TEST_POST = '''
+# Hello world
+
+
+Linkify urls in the test post http://www.biostars.org
+
+1. One
+2. Two
+3. Three
+
+Do not linkify posts in code:
+
+    ls *
+    cat data.fq | grep "HWUS" | wc -l
+    curl http://www.biostars.org
+
+Reformat links to internal content:
+
+* Post: http://www.lvh.me:8080/p/22/
+* User: http://www.lvh.me:8080/u/56/
+
+Embed tweets:
+
+https://twitter.com/Linux/status/2311234267
+
+Embed youtube:
+
+https://www.youtube.com/watch?v=kfvxmEuC7bU
+
+Embed gist:
+
+https://gist.github.com/ialbert/ae46c5f51d63cdf2d0d2
+
+'''
 
 class PostTest(TestCase):
 
