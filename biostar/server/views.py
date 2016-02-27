@@ -380,6 +380,10 @@ class PostDetails(DetailView):
 
         obj = super(PostDetails, self).get_object()
 
+        # Raise 404 if a deleted post is viewed by an anonymous user
+        if (obj.status == Post.DELETED) and not self.request.user.is_moderator:
+            raise Http404()
+
         # Update the post views.
         Post.update_post_views(obj, request=self.request)
 

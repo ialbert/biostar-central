@@ -1,6 +1,9 @@
 Biostar: Software for building Scientific Communities
 =====================================================
 
+![Build Status](https://travis-ci.org/ialbert/biostar-central.svg?branch=4.0)
+
+
 Detailed documentation: http://docs.biostars.org/
 
 BioStar is a [Python][python] and [Django][django] based Q&A software.
