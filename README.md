@@ -78,8 +78,8 @@ In the default site user emails are built from database ids like so :
 `1@lvh.me`, `2@lvh.me`. User passwords are identical to the email. 
 You may then use these to log into your test site as any of the users. 
 
-Note that the first user always has staff level permissions and  
-can access the admin interface at `http://www.lvh.me:8080/admin/`
+Note that the first user always has staff level permissions and can 
+access the admin interface at `http://www.lvh.me:8080/admin/`
 
 Enjoy.
 
