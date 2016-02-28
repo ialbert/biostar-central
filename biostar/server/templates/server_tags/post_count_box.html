@@ -4,14 +4,18 @@
 <div class="post-row {{ post.get_type_display }} {{ post.get_status_display }}">
 
     <div class="count-box visible-lg visible-md">
-
         <div class="box vote">
-            <div class="c">{{ post.thread_score }}</div>
-            <div class="t">vote{{ post.thread_score|pluralize }}</div>
+            {% if post.is_toplevel %}
+                <div class="c">{{ post.thread_score }}</div>
+                <div class="t">vote{{ post.thread_score|pluralize }}</div>
+            {% else %}
+                <div class="c">{{ post.vote_count }}</div>
+                <div class="t">vote{{ post.vote_count|pluralize }}</div>
+            {% endif %}
         </div>
         <div class="box {% boxclass post.root %}">
             <div class="c">{{ post.root.reply_count }}</div>
-            <div class="t">answer{{ post.reply_count|pluralize }}</div>
+            <div class="t">answer{{ post.root.reply_count|pluralize }}</div>
         </div>
         <div class="box view">
             <div class="c">{{ post.root.view_count|bignum }}</div>
@@ -36,9 +40,9 @@
 
     <div class="title-box clearfix">
         <div class="post-title">
-            {%  if post.type != 0 %}
+            {% if post.type != 0 %}
                 {{ post.get_type_display }}:
-            {%  endif %}
+            {% endif %}
             <a href="{{ post.get_absolute_url }}">{{ post.get_title }}</a>
         </div>
 
@@ -56,7 +60,8 @@
             <span class="userlink text-right muted">
             written {{ post.creation_date|time_ago }} by {% userlink post.author %}
                 {% if post.author != post.lastedit_user %}
-                    &bull; updated <span class="ago2">{{ post.lastedit_date|time_ago }}</span> by
+                    &bull; updated
+                    <span class="ago2">{{ post.lastedit_date|time_ago }}</span> by
                     {% userlink post.lastedit_user %}
                 {% endif %}
             </span>
