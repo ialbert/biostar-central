@@ -6,7 +6,7 @@ from getpass import getpass
 BIOSTAR_HOME = "/home/www/sites/biostar-central"
 VIRTUALENV_WRAPPER = "source /usr/local/bin/virtualenvwrapper.sh"
 CLONE_URL = "https://github.com/ialbert/biostar-central.git"
-BRANCH = "master"
+BRANCH = "production"
 
 def setenv():
     # The python environment that the system needs.
@@ -82,7 +82,7 @@ def copy_config():
             sudo("ln -fs %(biostar_live)s/biostar.supervisor.conf /etc/supervisor/conf.d/" % env)
 
 
-def create_biostar():
+def create_directories():
     "Create the biostar directories"
 
     # Create directories.
@@ -98,31 +98,53 @@ def create_biostar():
             run("mkvirtualenv biostar")
             run("workon biostar && pip install -r %(biostar_home)s/conf/requirements/all.txt" % env)
 
+
 def restart():
+    """A full restart"""
     sudo("service nginx restart")
     sudo("supervisorctl restart biostar")
     sudo("supervisorctl restart worker beat")
 
-def init_biostar():
+
+def init():
+    """Initialize the website"""
     with prefix(env.workon):
         run("./biostar.sh init")
+
+
+def index():
+    """Index the content"""
+    with prefix(env.workon):
         run("./biostar.sh index")
 
+
 def test():
+    """Run test"""
     with prefix(env.workon):
         run("./biostar.sh test")
 
+
 def migrate():
-    # Clone from repository.
+    """Migrate from main"""
     with prefix(env.workon):
-        run("git pull")
         run("python manage.py migrate")
 
+
 def pull():
-    # Perform a pull.
+    """Perform a pull on remote"""
     with prefix(env.workon):
         run("git pull")
-        #run("./biostar.sh test")
-        run("python manage.py collectstatic --noinput")
+
+def pip():
+     """Reinstall requirments"""
+     with prefix(env.workon):
+        run("pip install -r conf/requirements/base.txt")
 
 
+def deploy():
+    """A full deploy"""
+    pull()
+    pip()
+    init()
+    restart()
+    
