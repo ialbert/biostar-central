@@ -7,7 +7,9 @@ there is a priority of the search order. Any file with the same name that is fou
 the original file will override it. Using the site this way will allow changes from the 
 main trunk to be more easily incorporated.
 
-### Customizing settings [django]: https://www.djangoproject.com/
+### Customizing settings 
+
+[django]: https://www.djangoproject.com/
 
 Biostar is a [Django][django] based application and follows the Django conventions for loading
 settings. Upon starting up the value of the `DJANGO_SETTINGS_MODULE` environment variable determines
