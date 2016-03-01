@@ -1,8 +1,25 @@
-Customize
-=========
+## Customize
 
-Getting started
----------------
+**Note:** when customizing any part of Biostar users do not typically need to modify the original files. 
+
+Typically one would create a new folder or settings file and instruct Biostar to load those instead of the origina file. This way changes are easier to pull.
+
+### Customizing settings
+[django]: https://www.djangoproject.com/
+
+Biostar is a [Django][django] based application and follows the Django conventions for loading settings. Upon starting up the value of the `DJANGO_SETTINGS_MODULE` environment variable determines which settings module will be imported.
+
+To more easily change these settings the default Biostar configuration will also read more environment variables.
+
+
+- - -
+
+The section below is changing
+
+- - - 
+ 
+### Getting started
+
 
 To customize Biostar you will need to overwrite the settings.
 
