@@ -1,4 +1,4 @@
-## Biostar: Software for building Scientific Communities
+## Biostar: Building Scientific Communities
 
 [![Build Status][build-image]][build-url] 
 [![License](http://img.shields.io/:license-mit-blue.svg)](http://doge.mit-license.org)
@@ -19,6 +19,8 @@ Biostar is the software that runs several science oriented Q&A sites:
  * Bioconductor User Support: https://support.bioconductor.org/
  * Neuroinformatics Q&A: http://www.neurostars.org
 
+The software is open source and free to use under the MIT License.
+
 ### Features
 
 * Q&A: questions, answers, comments, user moderation, voting, reputation, badges, threaded discussions
@@ -26,10 +28,6 @@ Biostar is the software that runs several science oriented Q&A sites:
 * External authentication: authenticate users with a different web service
 * Email integration: import previous posts from mailing lists 
 * Low resource utilization and easy deployment. 
-
-### License 
-
-The software is open source and free to use the MIT License.
 
 Requirements: `Python 2.7`
 
@@ -51,21 +49,22 @@ From the biostar source directory:
     # Install the requirements.
     pip install --upgrade -r conf/requirements/base.txt
 
-    # Load the environment variables.
-    source conf/defaults.env
+    # See the current environment
+    ./biostar.sh env
 
     # Initialize database, import test data, index for searching and run the server.
     ./biostar.sh init import index run
 
-Visit `http://www.lvh.me:8080` to see the site loaded with default data.
-The `www.lvh.me` domain resolves to `127.0.0.0` and is your local host
-with a proper domain name. You may just as well use `http://localhost:8080` or `http://127.0.0.0`.
+Visit `http://www.lvh.me:8080` to see the site loaded with demo data.
 
-In the default site the user emails are built from database ids like so :
-`1@lvh.me`, `2@lvh.me`. User passwords are identical to the emails. 
-You may use these to log into your test site as any of the users. 
-The first user always has staff level permissions and can 
-also access the admin interface at `http://www.lvh.me:8080/admin/`
+The `www.lvh.me` domain resolves to `127.0.0.1` and is your local host
+with a proper domain name. You may just as well use `http://localhost:8080` or `http://127.0.0.1`.
+
+In the demo site the user emails are built from the database ids like so: `1@lvh.me`, `2@lvh.me`.
+The demo user passwords are also identical to the emails
+and you may use these to log into your test site as any of the users.
+In the demo data user with the email `1@lvh.me` has staff level permissions and
+can  also access the admin interface at `http://www.lvh.me:8080/admin/`.
 
 Enjoy.
 
