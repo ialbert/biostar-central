@@ -1,10 +1,8 @@
-Manage
-======
+##Manage
 
 There are a number of data management commands that come with Biostar.
 
-The biostar.sh manager
-----------------------
+### The biostar.sh manager
 
 The **biostar.sh** shell command automatizes a number of commonly used tasks. Run it
 with no parameters to get help on a typical usage::
@@ -37,8 +35,7 @@ with no parameters to get help on a typical usage::
 
     DJANGO_SETTINGS_MODULE=biostar.settings.base
 
-Subcommands
------------
+### Subcommands
 
 In addition there are a  number of data management commands that are implemented for the each app.
 Run::
@@ -64,8 +61,7 @@ And look for the output for the app ``[server]``, these commands will look like:
 
 You can run each of these subcommands with the `-h` flag to get more information on them.
 
-Command line tagging
---------------------
+### Command line tagging
 
 There is a command line tool to perform content tagging based on a regular expression. The
 invocation is::
@@ -86,8 +82,7 @@ In that case only the post titles will be listed::
 
 This command will navigate through all questions in the database.
 
-Example commands
-----------------
+### Example commands
 
 Frequently used commands::
 
@@ -109,8 +104,7 @@ Frequently used commands::
     # Create a postgres database dump
     python manage.py biostar_pg_dump
 
-Merging Users
--------------
+### Merging Users
 
 Create a space separated text file that contains the emails in the form::
 

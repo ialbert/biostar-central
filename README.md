@@ -69,20 +69,15 @@ also access the admin interface at `http://www.lvh.me:8080/admin/`
 
 Enjoy.
 
----
-
-### Upgrades
+### Upgrade path
 
 Biostar versions and upgrade path: https://github.com/ialbert/biostar-central/issues/400
-
----
 
 ### Citing Biostar
 
 * Parnell LD, Lindenbaum P, Shameer K, Dall'Olio GM, Swan DC, et al.
-  `2011 BioStar: An Online Question & Answer Resource for the Bioinformatics Community. <http://www.ploscompbiol.org/article/info%3Adoi%2F10.1371%2Fjournal.pcbi.1002216>`_
+  [2011 BioStar: An Online Question & Answer Resource for the Bioinformatics Community.] (http://www.ploscompbiol.org/article/info%3Adoi%2F10.1371%2Fjournal.pcbi.1002216)
   PLoS Comput Biol 7(10): e1002216. doi:10.1371/journal.pcbi.1002216
-
 
 ### Commercial Support
 
