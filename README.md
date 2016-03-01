@@ -11,8 +11,7 @@ It is a simple, generic, flexible and extensible Q&A framework.
 
 The site has been developed by **scientists and for scientists**. It aims
 to address the requirements and needs that scientific communities have.
-
-Biostar is the software that runs several science oriented Q&A sites:
+Biostar is used to run several science oriented Q&A sites:
 
  * Biostars Bioinformatics Q&A at: https://www.biostars.org
  * Galaxy User Support: https://biostar.usegalaxy.org
@@ -57,34 +56,35 @@ From the biostar source directory:
 
 Visit `http://www.lvh.me:8080` to see the site loaded with demo data.
 
-The `www.lvh.me` domain resolves to `127.0.0.1` and is your local host
+The `www.lvh.me` domain resolves to `127.0.0.1` your local host 
 with a proper domain name. You may just as well use `http://localhost:8080` or `http://127.0.0.1`.
 
 In the demo site the user emails are built from the database ids like so: `1@lvh.me`, `2@lvh.me`.
-The demo user passwords are also identical to the emails
+The demo user passwords are identical to the emails
 and you may use these to log into your test site as any of the users.
-In the demo data user with the email `1@lvh.me` has staff level permissions and
-can  also access the admin interface at `http://www.lvh.me:8080/admin/`.
+
+The user with the email `1@lvh.me` has staff level permissions and
+can also access the admin interface at `http://www.lvh.me:8080/admin/`.
 
 Enjoy.
 
-### Upgrade path
+### Development
 
 Biostar versions and upgrade path: https://github.com/ialbert/biostar-central/issues/400
 
-### Citing Biostar
-
-* Parnell LD, Lindenbaum P, Shameer K, Dall'Olio GM, Swan DC, et al.
-  [2011 BioStar: An Online Question & Answer Resource for the Bioinformatics Community.] (http://www.ploscompbiol.org/article/info%3Adoi%2F10.1371%2Fjournal.pcbi.1002216)
-  PLoS Comput Biol 7(10): e1002216. doi:10.1371/journal.pcbi.1002216
-
-### Commercial Support
+### Support
 
 We may be able to provide support for organizations or institutions. 
 For more information contact **admin@biostars.org**
 
 [django]: http://www.djangoproject.com/
 [python]: http://www.python.org/
+
+### Citing
+
+* Parnell LD, Lindenbaum P, Shameer K, Dall'Olio GM, Swan DC, et al.
+  [2011 BioStar: An Online Question & Answer Resource for the Bioinformatics Community.] (http://www.ploscompbiol.org/article/info%3Adoi%2F10.1371%2Fjournal.pcbi.1002216)
+  PLoS Comput Biol 7(10): e1002216. doi:10.1371/journal.pcbi.1002216
 
 ### Contributors
 
