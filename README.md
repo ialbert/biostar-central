@@ -36,8 +36,8 @@ The documentation:
 
 * [Install](docs/install.md)
 * [Manage](docs/manage.md)
-* [Customize](docs/customize.md)
 * [Deploy](docs/deploy.md)
+* [Customize](org/bioconductor/README.md)
 
 The source for the documentation can be found in  the [docs](./docs) folder.
 
@@ -47,9 +47,6 @@ From the biostar source directory:
 
     # Install the requirements.
     pip install --upgrade -r conf/requirements/base.txt
-
-    # See the current environment
-    ./biostar.sh env
 
     # Initialize database, import test data, index for searching and run the server.
     ./biostar.sh init import index run

@@ -14,13 +14,10 @@ recommended installation is via ``virtualenv`` and ``pip``::
 	# Install the requirements.
     pip install --upgrade -r conf/requirements/base.txt
 
-	# Load the environment variables.
-    source conf/defaults.env
-
 	# Initialize, import test data and run the site.
     ./biostar.sh init import run
 
-Visit ``http://locahost:8080`` to see the site loaded with default settings.
+Visit ``http://localhost:8080`` to see the site loaded with default settings.
 
 The default admin is ``1@lvh.me`` password ``1@lvh.me``. The default email
 handler will print to the console. You can reset the password

@@ -18,7 +18,7 @@ USE_COMPRESSOR = False
 
 # The start categories. These tags have special meaning internally.
 START_CATEGORIES = [
-    "Latest",  "Open",
+    "Latest", "Open",
 ]
 
 # These should be the most frequent (or special) tags on the site.
@@ -28,7 +28,7 @@ NAVBAR_TAGS = [
 
 # The last categories. These tags have special meaning internally.
 END_CATEGORIES = [
-    "Tutorials", "Tools",  "Jobs", "Forum",
+    "Tutorials", "Tools", "Jobs", "Forum",
 ]
 
 # These are the tags that always show up in the tag recommendation dropdown.
@@ -41,31 +41,52 @@ CATEGORIES = START_CATEGORIES + NAVBAR_TAGS + END_CATEGORIES
 # It should point to a template that will be included.
 TOP_BANNER = ""
 
-#TOP_BANNER = "test-banner.html"
 
-def get_env(name, func=None):
+# TOP_BANNER = "test-banner.html"
+
+def get_env(name, default=None, strict=False, func=None):
     """Get the environment variable or return exception"""
-    try:
-        if func:
-            return func(os.environ[name])
-        else:
-            return unicode(os.environ[name], encoding="utf-8")
-    except KeyError:
-        msg = "*** Required environment variable %s not set." % name
+
+    if strict and name not in os.environ:
+        msg = "*** Required environment variable '{}' not set.".format(name)
         raise ImproperlyConfigured(msg)
+
+    value = os.environ.get(name, default)
+
+    if not value:
+        msg = "*** Required environment variable '{}' not set and has no default value".format(
+            name)
+        raise ImproperlyConfigured(msg)
+
+    if func:
+        return func(value)
+    else:
+        return unicode(value, encoding="utf-8")
+
 
 def abspath(*args):
     """Generates absolute paths"""
     return os.path.abspath(os.path.join(*args))
 
+
+# Current directory
+__THIS_DIR = os.path.split(__file__)[0]
+__DEFAULT_HOME = abspath(__THIS_DIR, "..", "..")
+__DEFAULT_DATABASE_NAME = 'default.db'
+__DEFAULT_BIOSTAR_ADMIN_NAME = "Biostar Admin"
+__DEFAULT_BIOSTAR_ADMIN_EMAIL = "admin@lvh.me"
+__DEFAULT_SECRET_KEY = 'admin@lvh.me'
+__DEFAULT_SITE_DOMAIN = 'www.lvh.me'
+__DEFAULT_FROM_EMAIL = 'noreply@lvh.me'
+
 # Displays debug comments when the server is run from this IP.
-INTERNAL_IPS = ('127.0.0.1', )
+INTERNAL_IPS = ('127.0.0.1',)
 
 # Set location relative to the current file directory.
-HOME_DIR = get_env("BIOSTAR_HOME")
+HOME_DIR = get_env("BIOSTAR_HOME", __DEFAULT_HOME)
 LIVE_DIR = abspath(HOME_DIR, 'live')
 
-DATABASE_NAME = abspath(LIVE_DIR, get_env("DATABASE_NAME"))
+DATABASE_NAME = abspath(LIVE_DIR, get_env("DATABASE_NAME", __DEFAULT_DATABASE_NAME))
 STATIC_DIR = abspath(HOME_DIR, 'biostar', 'static')
 TEMPLATE_DIR = abspath(HOME_DIR, 'biostar', 'server', 'templates')
 
@@ -91,15 +112,15 @@ WHOOSH_INDEX = abspath(LIVE_DIR, "whoosh_index")
 
 # These settings create an admin user.
 # The default password is the SECRET_KEY.
-ADMIN_NAME = get_env("BIOSTAR_ADMIN_NAME")
-ADMIN_EMAIL = get_env("BIOSTAR_ADMIN_EMAIL")
-ADMIN_LOCATION = "State College, USA"
+ADMIN_NAME = get_env("BIOSTAR_ADMIN_NAME", __DEFAULT_BIOSTAR_ADMIN_NAME)
+ADMIN_EMAIL = get_env("BIOSTAR_ADMIN_EMAIL", __DEFAULT_BIOSTAR_ADMIN_EMAIL)
+ADMIN_LOCATION = "Anytown, USA"
 ADMINS = (
     (ADMIN_NAME, ADMIN_EMAIL),
 )
 
 # Get the secret key from the environment.
-SECRET_KEY = get_env("SECRET_KEY")
+SECRET_KEY = get_env("SECRET_KEY", __DEFAULT_SECRET_KEY)
 
 MANAGERS = ADMINS
 
@@ -118,9 +139,15 @@ DATABASES = {
 # admin site may fail if this setting is active
 TEMPLATE_STRING_IF_INVALID = "*** MISSING ***"
 
+SITE_ID = 1
+SITE_NAME = "Site Name"
+SITE_DOMAIN = get_env("SITE_DOMAIN", __DEFAULT_SITE_DOMAIN)
+
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = ["localhost", "www.lvh.me", get_env("BIOSTAR_HOSTNAME")]
+
+# These parameters will be inserted into the database automatically.
+ALLOWED_HOSTS = ["localhost", "www.lvh.me", SITE_DOMAIN]
 
 ATOMIC_REQUESTS = True
 CONN_MAX_AGE = 10;
@@ -149,12 +176,7 @@ LANGUAGE_CODE = 'en-us'
 # Configure language detection
 LANGUAGE_DETECTION = ['en']
 
-# These parameters will be inserted into the database automatically.
-SITE_ID = 1
-SITE_NAME = "Site Name"
-SITE_DOMAIN = get_env("BIOSTAR_HOSTNAME")
-
-SERVER_EMAIL = DEFAULT_FROM_EMAIL = get_env("DEFAULT_FROM_EMAIL")
+SERVER_EMAIL = DEFAULT_FROM_EMAIL = get_env("DEFAULT_FROM_EMAIL", __DEFAULT_FROM_EMAIL)
 
 # What domain will handle the replies.
 EMAIL_REPLY_PATTERN = "reply+%s+code@biostars.io"
@@ -181,7 +203,6 @@ USE_L10N = True
 
 # If you set this to False, Django will not use timezone-aware datetimes.
 USE_TZ = True
-
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
@@ -249,7 +270,6 @@ INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
 
-
     # 'django.contrib.sessions',
 
     'django.contrib.sites',
@@ -284,12 +304,12 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.persona',
-    'allauth.socialaccount.providers.google',
-    'allauth.socialaccount.providers.github',
-    #'allauth.socialaccount.providers.facebook',
-    #'allauth.socialaccount.providers.orcid',
-    #'allauth.socialaccount.providers.linkedin',
-    #'allauth.socialaccount.providers.weibo',
+    #'allauth.socialaccount.providers.google',
+    #'allauth.socialaccount.providers.github',
+    # 'allauth.socialaccount.providers.facebook',
+    # 'allauth.socialaccount.providers.orcid',
+    # 'allauth.socialaccount.providers.linkedin',
+    # 'allauth.socialaccount.providers.weibo',
 
     # External apps.
     'haystack',
@@ -361,36 +381,36 @@ SOCIALACCOUNT_ADAPTER = 'biostar.server.middleware.AutoSignupAdapter'
 # Customize this to match the providers listed in the APPs
 SOCIALACCOUNT_PROVIDERS = {
 
-    #'facebook': {
+    # 'facebook': {
     #    'SCOPE': ['email'],
     #    'AUTH_PARAMS': {'auth_type': 'reauthenticate'},
     #    'METHOD': 'oauth2',
     #    'LOCALE_FUNC': lambda x: 'en_US',
     #    'PROVIDER_KEY': get_env("FACEBOOK_PROVIDER_KEY"),
     #    'PROVIDER_SECRET_KEY': get_env("FACEBOOK_PROVIDER_SECRET_KEY"),
-    #},
+    # },
 
     'persona': {
         'REQUEST_PARAMETERS': {'siteName': 'Biostar'}
     },
 
-    'github': {
-        'SCOPE': ['email'],
-        'PROVIDER_KEY': get_env("GITHUB_PROVIDER_KEY"),
-        'PROVIDER_SECRET_KEY': get_env("GITHUB_PROVIDER_SECRET_KEY"),
-    },
+    # 'github': {
+    #    'SCOPE': ['email'],
+    #    'PROVIDER_KEY': get_env("GITHUB_PROVIDER_KEY"),
+    #     'PROVIDER_SECRET_KEY': get_env("GITHUB_PROVIDER_SECRET_KEY"),
+    #    },
 
-    'google': {
-        'SCOPE': ['email', 'https://www.googleapis.com/auth/userinfo.profile'],
-        'AUTH_PARAMS': {'access_type': 'online'},
-        'PROVIDER_KEY': get_env("GOOGLE_PROVIDER_KEY"),
-        'PROVIDER_SECRET_KEY': get_env("GOOGLE_PROVIDER_SECRET_KEY"),
-    },
+    # 'google': {
+    #    'SCOPE': ['email', 'https://www.googleapis.com/auth/userinfo.profile'],
+    #    'AUTH_PARAMS': {'access_type': 'online'},
+    #    'PROVIDER_KEY': get_env("GOOGLE_PROVIDER_KEY"),
+    #    'PROVIDER_SECRET_KEY': get_env("GOOGLE_PROVIDER_SECRET_KEY"),
+    # },
 
-    #'orcid': {
+    # 'orcid': {
     #    'PROVIDER_KEY': get_env("ORCID_PROVIDER_KEY"),
     #    'PROVIDER_SECRET_KEY': get_env("ORCID_PROVIDER_SECRET_KEY"),
-    #},
+    # },
 }
 
 # The google id will injected as a template variable.
@@ -403,7 +423,6 @@ SITE_LOGO = "biostar2.logo.png"
 # Digest title
 DAILY_DIGEST_TITLE = '[biostar daily digest] %s'
 WEEKLY_DIGEST_TITLE = '[biostar weekly digest] %s'
-
 
 # The default CSS file to load.
 SITE_STYLE_CSS = "biostar.style.less"
@@ -472,7 +491,7 @@ SESSION_COOKIE_NAME = "biostar2"
 PAGINATE_BY = 25
 
 # Used by crispyforms.
-#CRISPY_FAIL_SILENTLY = not DEBUG
+# CRISPY_FAIL_SILENTLY = not DEBUG
 
 ACCOUNT_AUTHENTICATION_METHOD = "email"
 ACCOUNT_EMAIL_REQUIRED = True
@@ -484,13 +503,13 @@ ACCOUNT_PASSWORD_MIN_LENGHT = 6
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_USER_MODEL_EMAIL_FIELD = "email"
 ACCOUNT_DEFAULT_HTTP_PROTOCOL = "http"
-#ACCOUNT_LOGOUT_ON_GET = True
+# ACCOUNT_LOGOUT_ON_GET = True
 
 # Google ReCaptcha No-Captcha settings
 # When set the captcha forms will be active.
 RECAPTCHA_PUBLIC_KEY = ""
 RECAPTCHA_PRIVATE_KEY = ""
-RECAPTCHA_USE_SSL = True     # Defaults to False
+RECAPTCHA_USE_SSL = True  # Defaults to False
 NOCAPTCHA = True
 
 # Session specific settings.
@@ -501,7 +520,24 @@ SESSION_KEY = "session"
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # On deployed servers the following must be set.
-EMAIL_HOST = get_env("EMAIL_HOST")
-EMAIL_PORT = get_env("EMAIL_PORT", func=int)
-EMAIL_HOST_USER = get_env("EMAIL_HOST_USER")
-EMAIL_HOST_PASSWORD = get_env("EMAIL_HOST_PASSWORD")
+EMAIL_HOST = get_env("EMAIL_HOST", "localhost")
+EMAIL_PORT = get_env("EMAIL_PORT", default=25, func=int)
+EMAIL_HOST_USER = get_env("EMAIL_HOST_USER", "postmaster")
+EMAIL_HOST_PASSWORD = get_env("EMAIL_HOST_PASSWORD", "password")
+
+DJANGO_SETTINGS_MODULE = get_env('DJANGO_SETTINGS_MODULE', 'biostar.settings.base')
+
+if __name__ == '__main__':
+    """
+    When run from command line report the environment
+    """
+    print("")
+    print("Biostar environment:")
+    print("")
+    print("BIOSTAR_HOME={}".format(HOME_DIR))
+    print("BIOSTAR_ADMIN_EMAIL={}".format(ADMIN_EMAIL))
+    print("BIOSTAR_ADMIN_NAME={}".format(ADMIN_NAME))
+    print("")
+    print("DJANGO_SETTINGS_MODULE={}".format(DJANGO_SETTINGS_MODULE))
+    print("DATABASE_NAME={}".format(DATABASE_NAME))
+    print("DEFAULT_FROM_EMAIL={}".format(DEFAULT_FROM_EMAIL))
