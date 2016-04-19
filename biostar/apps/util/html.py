@@ -24,8 +24,9 @@ POST_PATTERN2 = r"^http(s)?://%s/p/\d+/\#(?P<uid>(\d+))(/)?$" % settings.SITE_DO
 GIST_PATTERN = r"^https://gist.github.com/(?P<uid>([\w/]+))"
 
 # Matches Youtube video links.
-YOUTUBE_PATTERN1 = r"^http(s)?://www.youtube.com/watch\?v=(?P<uid>(\w+))(/)?"
-YOUTUBE_PATTERN2 = r"https://www.youtube.com/embed/(?P<uid>(\w+))(/)?"
+YOUTUBE_PATTERN1 = r"^http(s)?://www.youtube.com/watch\?v=(?P<uid>([\w-]+))(/)?"
+YOUTUBE_PATTERN2 = r"https://www.youtube.com/embed/(?P<uid>([\w-]+))(/)?"
+YOUTUBE_PATTERN3 = r"https://youtu.be/(?P<uid>([\w-]+))(/)?"
 
 # Twitter: tweets to embed.
 TWITTER_PATTERN = r"http(s)?://twitter.com/\w+/status(es)?/(?P<uid>([\d]+))"
@@ -36,6 +37,8 @@ POST_RE2 = re.compile(POST_PATTERN2)
 GIST_RE = re.compile(GIST_PATTERN)
 YOUTUBE_RE1 = re.compile(YOUTUBE_PATTERN1)
 YOUTUBE_RE2 = re.compile(YOUTUBE_PATTERN2)
+YOUTUBE_RE3 = re.compile(YOUTUBE_PATTERN3)
+
 TWITTER_RE = re.compile(TWITTER_PATTERN)
 
 
@@ -100,6 +103,8 @@ def parse_html(text):
             (YOUTUBE_RE1, lambda
                 x: '<iframe width="420" height="315" src="//www.youtube.com/embed/%s" frameborder="0" allowfullscreen></iframe>' % x),
             (YOUTUBE_RE2, lambda
+                x: '<iframe width="420" height="315" src="//www.youtube.com/embed/%s" frameborder="0" allowfullscreen></iframe>' % x),
+            (YOUTUBE_RE3, lambda
                 x: '<iframe width="420" height="315" src="//www.youtube.com/embed/%s" frameborder="0" allowfullscreen></iframe>' % x),
             (TWITTER_RE, get_embedded_tweet),
         ]
