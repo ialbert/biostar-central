@@ -104,7 +104,7 @@ def render_digest(days, text_tmpl, html_tmpl, send, options, limit=10, verbosity
                     msg.attach_alternative(html_content, "text/html")
                     msg.send()
                     time.sleep(0.3) # Throttle on Amazon.
-                except Exception, exc:
+                except Exception as exc:
                     logger.error('error %s sending email to %s' % (exc, user.email))
 
 

@@ -56,7 +56,7 @@ def bignum(number):
             return "%0.fk" % value
         elif value > 1:
             return "%0.1fk" % value
-    except ValueError, exc:
+    except ValueError as exc:
         pass
     return str(number)
 
@@ -70,7 +70,7 @@ def on(value):
 @register.filter
 def latest(value):
     "Attempts to hide parts of the email"
-    print "-" * 10, value
+    print("-" * 10, value)
     return value if value else "Latest"
 
 
@@ -82,7 +82,7 @@ def hide_email(value):
         hide = '*' * (len(addr) - 1)
         email = addr[0] + hide + '@' + host
         return email
-    except Exception, exc:
+    except Exception as exc:
         return value
 
 
@@ -103,7 +103,7 @@ def gravatar(user, size=80):
     hash = hashlib.md5(email).hexdigest(),
 
     gravatar_url = "https://secure.gravatar.com/avatar/%s?" % hash
-    gravatar_url += urllib.urlencode({
+    gravatar_url += urllib.parse.urlencode({
         's': str(size),
         'd': 'identicon',
     }
@@ -119,9 +119,9 @@ def pluralize(value, word):
 
 
 @register.filter
-def time_ago(date):
+def time_ago(date = None):
     # Rare bug. TODO: Need to investigate why this can happen.
-    if not date:
+    if not date or type(date) is str:
         return ''
     delta = const.now() - date
     if delta < timedelta(minutes=1):

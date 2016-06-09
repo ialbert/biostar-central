@@ -47,7 +47,7 @@ class ajax_error_wrapper(object):
 
             value = self.f(request)
             return value
-        except Exception, exc:
+        except Exception as exc:
             traceback.print_exc()
             return ajax_error('Error: %s' % exc)
 

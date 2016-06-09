@@ -33,7 +33,7 @@ class Blog(models.Model):
     def parse(self):
         try:
             doc = feedparser.parse(self.fname)
-        except Exception, exc:
+        except Exception as exc:
             logger.error("error %s parsing blog %s", (exc, self.id))
             doc = None
         return doc
@@ -44,7 +44,7 @@ class Blog(models.Model):
             stream = file(self.fname, 'wt')
             stream.write(text)
             stream.close()
-        except Exception, exc:
+        except Exception as exc:
             logger.error("error %s downloading %s", (exc, self.feed))
 
     def __unicode__(self):

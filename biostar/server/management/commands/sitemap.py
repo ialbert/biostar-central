@@ -28,7 +28,7 @@ def path(*args):
 def ping_google():
     try:
         sitemaps.ping_google('/sitemap.xml')
-    except Exception, exc:
+    except Exception as exc:
         # Bare 'except' because we could get a variety
         # of HTTP-related exceptions.
         logger.error(exc)

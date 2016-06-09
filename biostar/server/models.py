@@ -94,7 +94,7 @@ def post_create_messages(sender, instance, created, *args, **kwargs):
                         email.attach_alternative(email_html, "text/html")
                         emails.append(email)
                         tokens.append(token)
-                    except Exception, exc:
+                    except Exception as exc:
                         # This here can crash the post submission hence the catchall
                         logger.error(exc)
 
@@ -108,7 +108,7 @@ def post_create_messages(sender, instance, created, *args, **kwargs):
             # Bulk sending email messages.
             conn = mail.get_connection()
             conn.send_messages(emails)
-        except Exception, exc:
+        except Exception as exc:
             logger.error("email error %s" % exc)
 
 

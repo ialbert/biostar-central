@@ -82,7 +82,7 @@ def parse_html(text):
                 uid = patt3.group("uid")
                 attrs['_text'] = User.objects.get(id=uid).name
 
-        except Exception, exc:
+        except Exception as exc:
             logger.error(exc)
         return attrs
 
@@ -143,7 +143,7 @@ def parse_html(text):
         for uid, obj in embed:
             emb_patt = '<a href="%s">%s</a>' % (uid, uid)
             html = html.replace(emb_patt, obj)
-    except Exception, exc:
+    except Exception as exc:
         logger.error("*** %s" % exc)
 
     return html

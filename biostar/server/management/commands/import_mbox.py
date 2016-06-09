@@ -173,7 +173,7 @@ def bioc_remote_body(body):
                     enc = params.get('charset', 'utf-8')
                     text = req.read().decode(enc, "replace")
                     text = to_unicode_or_bust(text)
-                except Exception, exc:
+                except Exception as exc:
                     logger.error(exc)
                     text = r'''
                     Unable to decode %s
@@ -229,7 +229,7 @@ def unpack_message(data):
     try:
         body = body.decode(charset, "replace")
         body = fix_accents(body)
-    except Exception, exc:
+    except Exception as exc:
         logger.error("error decoding message %s" % b.id )
         raise exc
     # Checks for remote body for bioconductor import
@@ -240,7 +240,7 @@ def unpack_message(data):
 
     try:
         b.body = to_unicode_or_bust(body)
-    except UnicodeDecodeError, exc:
+    except UnicodeDecodeError as exc:
         # Ignore this post
         return None
 

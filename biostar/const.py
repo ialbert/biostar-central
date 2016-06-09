@@ -3,7 +3,7 @@ Constants that may be used in multiple packages
 """
 try:
     from collections import OrderedDict
-except ImportError, exc:
+except ImportError as exc:
     # Python 2.6.
     from ordereddict import OrderedDict
 
@@ -33,7 +33,7 @@ USER_SORT_MAP = OrderedDict([
 
 # These are the fields rendered in the user sort order drop down.
 USER_SORT_FIELDS = USER_SORT_MAP.keys()
-USER_SORT_DEFAULT = USER_SORT_FIELDS[0]
+USER_SORT_DEFAULT = list(USER_SORT_FIELDS)[0]
 
 USER_SORT_INVALID_MSG = "Invalid sort parameter received"
 
@@ -51,7 +51,7 @@ POST_SORT_MAP = OrderedDict([
 
 # These are the fields rendered in the post sort order drop down.
 POST_SORT_FIELDS = POST_SORT_MAP.keys()
-POST_SORT_DEFAULT = POST_SORT_FIELDS[0]
+POST_SORT_DEFAULT = list(POST_SORT_FIELDS)[0]
 
 POST_SORT_INVALID_MSG = "Invalid sort parameter received"
 
@@ -67,7 +67,7 @@ POST_LIMIT_MAP = OrderedDict([
 
 # These are the fields rendered in the time limit drop down.
 POST_LIMIT_FIELDS = POST_LIMIT_MAP.keys()
-POST_LIMIT_DEFAULT = POST_LIMIT_FIELDS[0]
+POST_LIMIT_DEFAULT = list(POST_LIMIT_FIELDS)[0]
 
 POST_LIMIT_INVALID_MSG = "Invalid limit parameter received"
 

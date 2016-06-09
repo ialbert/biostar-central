@@ -332,7 +332,7 @@ class UserDetails(BaseDetailMixin):
         try:
             page = int(self.request.GET.get("page", 1))
             page_obj = paginator.page(page)
-        except Exception, exc:
+        except Exception as exc:
             messages.error(self.request, "Invalid page number")
             page_obj = paginator.page(1)
         context['page_obj'] = page_obj
@@ -418,14 +418,15 @@ class PostDetails(DetailView):
 
             for post_id, vote_type in votes:
                 store.setdefault(vote_type, set()).add(post_id)
-
+        
+        
         # Shortcuts to each storage.
         bookmarks = store[Vote.BOOKMARK]
         upvotes = store[Vote.UP]
-
+        
         # Can the current user accept answers
         can_accept = obj.author == user
-
+        
         def decorate(post):
             post.has_bookmark = post.id in bookmarks
             post.has_upvote = post.id in upvotes
@@ -521,7 +522,7 @@ class FlatPageView(DetailView):
         url = "/info/%s/" % slug
         try:
             query = FlatPage.objects.get(url=url)
-        except FlatPage.DoesNotExist, exc:
+        except FlatPage.DoesNotExist as exc:
             raise Http404
         return query
 
@@ -643,8 +644,11 @@ class BadgeList(BaseListMixin):
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 from django.utils.encoding import smart_text
-import json, StringIO, traceback
-
+import json, traceback
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 
 @csrf_exempt
 def email_handler(request):
@@ -667,7 +671,7 @@ def email_handler(request):
             # Emails can be malformed in which case we will force utf8 on them before parsing
             try:
                 msg = pyzmail.PyzMessage.factory(body)
-            except Exception, exc:
+            except Exception as exc:
                 body = body.encode('utf8', errors='ignore')
                 msg = pyzmail.PyzMessage.factory(body)
 
@@ -716,7 +720,7 @@ def email_handler(request):
             # Form the return message.
             data = dict(status="ok", id=obj.id)
 
-        except Exception, exc:
+        except Exception as exc:
             output = StringIO.StringIO()
             traceback.print_exc(file=output)
             data = dict(status="error", msg=str(output.getvalue()))
@@ -750,7 +754,7 @@ def post_remap_redirect(request, pid):
         nid = REMAP[pid]
         post = Post.objects.get(id=nid)
         return shortcuts.redirect(post.get_absolute_url(), permanent=True)
-    except Exception, exc:
+    except Exception as exc:
         messages.error(request, "Unable to redirect: %s" % exc)
         return shortcuts.redirect("/")
 
@@ -758,6 +762,6 @@ def post_remap_redirect(request, pid):
 def tag_redirect(request, tag):
     try:
         return shortcuts.redirect("/t/%s/" % tag, permanent=True)
-    except Exception, exc:
+    except Exception as exc:
         messages.error(request, "Unable to redirect: %s" % exc)
         return shortcuts.redirect("/")

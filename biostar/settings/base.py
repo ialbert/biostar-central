@@ -61,7 +61,7 @@ def get_env(name, default=None, strict=False, func=None):
     if func:
         return func(value)
     else:
-        return unicode(value, encoding="utf-8")
+        return value
 
 
 def abspath(*args):

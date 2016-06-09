@@ -45,7 +45,7 @@ def check_user_profile(ip, user):
             if "unknown" not in location.lower():
                 user.profile.location = location
                 user.profile.save()
-        except Exception, exc:
+        except Exception as exc:
             logger.error(exc)
 
 @app.task

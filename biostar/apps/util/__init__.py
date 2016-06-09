@@ -27,7 +27,7 @@ def split_tags(text):
 def make_uuid(size=None):
     "Returns a unique id"
     x = random.getrandbits(256)
-    u = hashlib.md5(str(x)).hexdigest()
+    u = hashlib.md5(str(x).encode('utf-8')).hexdigest()
     u = u[:size]
     return u
 

@@ -49,7 +49,7 @@ def get_traffic(minutes=60):
         recent = const.now() - timedelta(minutes=minutes)
         try:
             traffic = PostView.objects.filter(date__gt=recent).distinct('ip').count()
-        except NotImplementedError, exc:
+        except NotImplementedError as exc:
             traffic = PostView.objects.filter(date__gt=recent).values_list('ip')
             traffic = [t[0] for t in traffic]
             traffic = len(set(traffic))

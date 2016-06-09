@@ -6,7 +6,7 @@ Pygments==1.6
 South==0.8.4
 Sphinx==1.2.2
 Whoosh==2.6.0
-akismet==0.2.0
+#akismet==0.2.0
 amqp==1.4.5
 anyjson==0.3.3
 billiard==3.3.0.17
@@ -39,5 +39,5 @@ requests==2.3.0
 requests-oauthlib==0.4.1
 six==1.7.2
 sqlparse==0.1.11
-wsgiref==0.1.2
+#wsgiref==0.1.2
 markdown2

@@ -27,8 +27,8 @@ from django.template.loader import render_to_string
 
 def english_only(text):
     try:
-        text.decode('ascii')
-    except Exception:
+        text.encode('ascii')
+    except UnicodeEncodeError:
         raise ValidationError('Title may only contain plain text (ASCII) characters')
 
 
@@ -164,7 +164,7 @@ def external_post_handler(request):
 
     try:
         secret = dict(settings.EXTERNAL_AUTH).get(name)
-    except Exception, exc:
+    except Exception as exc:
         logger.error(exc)
         messages.error(request, "Incorrect EXTERNAL_AUTH settings, internal exception")
         return HttpResponseRedirect(home)
@@ -277,7 +277,7 @@ class NewAnswer(LoginRequiredMixin, FormView):
         # Find the parent.
         try:
             parent = Post.objects.get(pk=pid)
-        except ObjectDoesNotExist, exc:
+        except ObjectDoesNotExist as exc:
             messages.error(request, "The post does not exist. Perhaps it was deleted")
             return HttpResponseRedirect("/")
 

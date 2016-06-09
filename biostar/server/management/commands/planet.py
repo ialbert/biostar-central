@@ -70,7 +70,7 @@ def add_blog(feed):
         logger.info("adding %s" % blog.title)
         logger.info("link: %s" % blog.link)
         logger.info(blog.desc)
-    except Exception, exc:
+    except Exception as exc:
         logger.error("error %s parsing %s" % (exc, feed))
         blog = None
 
@@ -125,13 +125,13 @@ def update_entries(count=3):
                 content = html.strip_tags(body)
                 try:
                     post = BlogPost.objects.create(title=r.title, blog=blog, uid=r.id, content=content, html=body, creation_date=date, link=r.link)
-                except Exception, exc:
+                except Exception as exc:
                     logger.error(r.title)
                     logger.error("database error %s" % exc)
                 else:
                     logger.info("added: %s" % post.title)
 
-        except KeyError, exc:
+        except KeyError as exc:
             logger.error("%s" % exc)
 
 

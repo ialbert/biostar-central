@@ -39,7 +39,7 @@ def init_flatpages():
             if not os.path.isfile(path):
                 logger.error("cannot find flatpage %s" % path)
                 continue
-            content = file(path).read()
+            content = open(path).read()
             page = FlatPage.objects.create(url=url, content=content, title=name.capitalize())
             page.sites.add(site)
             page.save()
@@ -112,7 +112,7 @@ def init_social_providers():
                 app.save()
                 logger.info("initializing social provider %s" % name)
 
-        except Exception, exc:
+        except Exception as exc:
             raise ImproperlyConfigured("error setting provider %s, %s" % (name, exc))
 
 

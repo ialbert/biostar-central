@@ -40,7 +40,7 @@ def get(data, attr, func=encoding.smart_unicode):
     value = data.get(attr, '').strip()
     try:
         value = func(value)
-    except Exception, exc:
+    except Exception as exc:
         raise Exception(value)
     return value
 
@@ -188,7 +188,7 @@ class Command(BaseCommand):
 
             try:
                 post.save()
-            except Exception, exc:
+            except Exception as exc:
                 log('*** error inserting post %s' % post.id)
                 log("*** %s" % exc)
                 continue
@@ -277,7 +277,7 @@ class Command(BaseCommand):
                         "updated user %s with email=%s, name=%s, password=SECRET_KEY," % (bot.id, bot.email, bot.name))
                     bot.set_password(settings.SECRET_KEY)
                     bot.save()
-                except Exception, exc:
+                except Exception as exc:
                     pass
 
         log("migrated %s users" % User.objects.all().count())

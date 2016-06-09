@@ -55,7 +55,7 @@ class ExternalAuth(object):
         if valid:
             user = User.objects.get(email=email)
             user.backend = "%s.%s" % (__name__, self.__class__.__name__)
-            print user.backend
+            print(user.backend)
             return user
         else:
             return None
@@ -78,7 +78,7 @@ def valid_external_login(request):
                 valid = (digest1 == digest2)
                 if not valid:
                     raise Exception("digests do not match")
-            except Exception, exc:
+            except Exception as exc:
                 logger.error(exc)
                 return False
 

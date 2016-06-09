@@ -529,7 +529,7 @@ class Subscription(models.Model):
         if user.is_authenticated():
             try:
                 return Subscription.objects.get(post=post, user=user)
-            except ObjectDoesNotExist, exc:
+            except ObjectDoesNotExist as exc:
                 return None
 
         return None

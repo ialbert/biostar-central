@@ -7,7 +7,7 @@ from haystack.utils import Highlighter
 
 from django.conf import settings
 from biostar.server.views import BaseListMixin
-from ajax import ajax_error, ajax_success, ajax_error_wrapper, json_response
+from biostar.server.ajax import ajax_error, ajax_success, ajax_error_wrapper, json_response
 from django.conf.urls import patterns
 from django.contrib.sitemaps import FlatPageSitemap, GenericSitemap
 from biostar.apps.posts.models import Post, Tag
@@ -109,7 +109,7 @@ def search_title(request):
                 dict(id=ob.get_absolute_url(), text=text, context=context, author=row.author,
                      url=ob.get_absolute_url()),
             )
-        except Exception, exc:
+        except Exception as exc:
             logger.error(content)
             logger.error(exc)
             pass

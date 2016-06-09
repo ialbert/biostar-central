@@ -61,7 +61,7 @@ class AwardDef(object):
         try:
             value = self.fun(*args, **kwargs)
             return value
-        except Exception, exc:
+        except Exception as exc:
             logger.error("validator error %s" % exc)
         return 0
 

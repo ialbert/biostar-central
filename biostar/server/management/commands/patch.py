@@ -203,7 +203,7 @@ def tagger(pattern, dry):
                     post.tag_val = tag_val
                     post.save()
                     post.add_tags(tag_val)
-        except Exception, exc:
+        except Exception as exc:
             logger.error(
                 "exception:'%s' while tagging %s: %s" % (exc, post.id, post.title))
 
