@@ -375,7 +375,11 @@ class EditPost(LoginRequiredMixin, FormView):
 
         # Update the last editing user.
         post.lastedit_user = request.user
-        post.lastedit_date = datetime.utcnow().replace(tzinfo=utc)
+
+        # Only editing by author bumps the post.
+        if request.user == post.author:
+            post.lastedit_date = datetime.utcnow().replace(tzinfo=utc)
+
         post.save()
         messages.success(request, "Post updated")
 
