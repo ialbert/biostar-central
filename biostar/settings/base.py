@@ -6,6 +6,8 @@ from __future__ import absolute_import
 import os
 from django.core.exceptions import ImproperlyConfigured
 from .logger import LOGGING
+import uuid
+uuid._uuid_generate_random = None
 
 # Turn off debug mode on deployed servers.
 DEBUG = True
