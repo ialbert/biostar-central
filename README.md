@@ -16,7 +16,6 @@ Biostar is used to run several science oriented Q&A sites:
  * Biostars Bioinformatics Q&A at: https://www.biostars.org
  * Galaxy User Support: https://biostar.usegalaxy.org
  * Bioconductor User Support: https://support.bioconductor.org/
- * Neuroinformatics Q&A: http://www.neurostars.org
 
 The software is open source and free to use under the MIT License.
 
