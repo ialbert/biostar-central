@@ -37,6 +37,7 @@ class PlanetFeed(Feed):
     FEED_COUNT = 50
     title = "%s Planet!" % SITE_NAME
     description = "Latest 50 posts of the %s" % title
+    item_guid_is_permalink = False
 
     def item_title(self, item):
         try:
