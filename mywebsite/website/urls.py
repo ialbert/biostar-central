@@ -1,4 +1,4 @@
-"""natayblog URL Configuration
+"""website URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/1.11/topics/http/urls/
@@ -18,5 +18,7 @@ from django.contrib import admin
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^mainblog/', include('mainblog.urls'))
+    url(r'^blog/', include('blog.urls')),
+    url(r'^forum/', include('forum.urls')),
+    url(r'^data/', include('data.urls')),
 ]
