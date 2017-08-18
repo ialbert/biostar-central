@@ -2,5 +2,5 @@ from django.shortcuts import render
 
 
 def index(request):
-    return render(request, 'forum/header.html')
+    return render(request, 'forum/home.html')
 
