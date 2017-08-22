@@ -7,19 +7,21 @@ def signup(request):
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
 
- 
         if form.is_valid():
 
             form.save()
             username = form.cleaned_data.get('username')
-            # how the fuck does it check if password1 == password2 ???
+
+            # where the fuck does it check if password1 == password2 ???
             raw_password = form.cleaned_data.get('password1')
+
+            #print(raw_password)
             user = authenticate(username=username, password=raw_password)
             login(request, user)
             
             return redirect('/')
     else:
-        # New account form ? or what is the use of this part?
+        
         form = UserCreationForm()
     return render(request, 'forum/signup.html', {'form': form})
 

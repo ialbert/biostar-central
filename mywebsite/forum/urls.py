@@ -3,7 +3,6 @@ from django.contrib.auth import views as auth_views
 from django.views.generic import RedirectView
 from . import views
 
-#url(r'^$', RedirectView.as_view(permanent=False, url='login/'), name='login'),
 urlpatterns = [
 
     url(r'^signup/$', views.signup, name='signup'),
