@@ -1,0 +1,10 @@
+django >=1.11, <1.12
+django-ratelimit
+django-recaptcha==1.0.5
+pytz
+commonmark
+bleach
+django-mailer
+django_compressor
+mistune
+django_pagedown
