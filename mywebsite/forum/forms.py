@@ -1,13 +1,11 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import AuthenticationForm
 from django.utils.translation import gettext, gettext_lazy as helpers
 from .models import User
 
 
-class SignUpForm(UserCreationForm):
+class SignUpForm(forms.ModelForm):
 
-    #self = super()
-    #super().__init__.self.instance.username =  super().__init__.self.cleaned_data.get('email')
 
     email = forms.EmailField(max_length=254, help_text='Required.')
 
@@ -23,17 +21,11 @@ class SignUpForm(UserCreationForm):
         widget=forms.PasswordInput,
         strip=False,
         help_text=helpers("Enter the same password as before."),
-    )
-    
+    )    
 
 
     class Meta:
         model = User
         fields = ('email', 'password1', 'password2' )
-
-
-
-
-
 
 
