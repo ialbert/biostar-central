@@ -1,5 +1,5 @@
 from django.conf.urls import url
-from django.views.generic import ListView, DetailView, RedirectView
+from django.views.generic import ListView, DetailView
 from .models import Post
 #from . import views
 
