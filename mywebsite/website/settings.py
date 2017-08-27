@@ -89,14 +89,12 @@ ACCOUNT_AUTHENTICATION_METHOD = 'email'
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_UNIQUE_EMAIL = True
 ACCOUNT_USERNAME_REQUIRED = False
+#AUTH_USER_MODEL = "forum.models.User"
 #ACCOUNT_SIGNUP_FORM_CLASS = 'forum.forms.SignUpForm'
 #LOGIN_REDIRECT_URL = '/'
-AUTH_USER_MODEL = "forumm.models.User"
 
-AUTHENTICATION_BACKENDS = [
-    'project.backends.UserModelEmailBackend',    # Login w/ email
-    'django.contrib.auth.backends.ModelBackend',    # Login w/ username
-]
+
+
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
 
