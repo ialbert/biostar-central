@@ -39,7 +39,7 @@ class SignUpForm(forms.ModelForm):
 
     def save(self):
 
-        user = super().save(commit=False)
+        user = super().save()
         user.set_password(self.cleaned_data["password1"])
         user.save()
 
