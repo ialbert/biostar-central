@@ -7,27 +7,24 @@ def signup(request):
 
     if request.method == 'POST':
         form = SignUpForm(request.POST)
+
         # valid input at this point
         if form.is_valid():
 
-            form.save()
-            username = form.cleaned_data.get('username')
-
+            #form.save()
+            email = form.cleaned_data.get('email')
             raw_password = form.cleaned_data.get('password1')
+            user = authenticate(email=email, password=raw_password)
+            form.save()
 
-            user = authenticate(username=username, password=raw_password)
             login(request, user)
             
-            return redirect('/')
+            return redirect('/forum')
     else:
         
         form = SignUpForm()
     return render(request, 'forum/signup.html', {'form': form})
 
-
-
-def login():
-  return None
 
 
 
