@@ -6,13 +6,12 @@ from .models import User
 
 class SignUpForm(forms.ModelForm):
  
-    error_messages = {
-        'password_mismatch': helpers("The two password fields didn't match."),
-    }
     password1 = forms.CharField(
         label=helpers("Password"),
         strip=False,
         widget=forms.PasswordInput,
+        max_length=254,
+        min_length=2,
     )
     password2 = forms.CharField(
         label=helpers("Password confirmation"),
@@ -38,7 +37,7 @@ class SignUpForm(forms.ModelForm):
         password2 = self.cleaned_data.get("password2")
         if password1 and password2 and password1 != password2:
             raise forms.ValidationError(
-                helpers("The two password fields didn't match."))
+                helpers("Passwords given do not match."))
         return password2
 
     def save(self, commit=True):
