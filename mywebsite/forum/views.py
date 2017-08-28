@@ -13,14 +13,13 @@ def signup(request):
         if form.is_valid():
 
             form.save()
-            #username = form.cleaned_data.get('username')
             email = form.clean_data.get('email')
             raw_password = form.cleaned_data.get('password1')
-            # check here
             user = authenticate(email=email, password=raw_password)
+      
             login(request, user)
             
-            return redirect('/')
+            return redirect('/forum')
     else:
         
         form = SignUpForm()
