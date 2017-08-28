@@ -3,6 +3,7 @@ from django.contrib.auth.models import AbstractBaseUser
 
 
 class User(AbstractBaseUser):
+    # Cutsom user class based on email 
 
     email = models.EmailField(verbose_name='email',
         max_length=254, unique=True, db_index=True,
