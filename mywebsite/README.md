@@ -1,5 +1,18 @@
 # biostar-engine
 
+## How to connect
+
+    ssh www@planktontow.com
+    
+    ssh nba@planktontow.com
+    
+    ssh aswathy@planktontow.com
+    
+    
+## Server location
+
+    /export/www
+    
 ## Install
 
 Create a virtual environment:
