@@ -49,7 +49,7 @@ def signup(request):
 
             login(request, user)
             
-            return redirect('/login')
+            return redirect('/forum/login')
     else:
         
         form = SignUpForm()
