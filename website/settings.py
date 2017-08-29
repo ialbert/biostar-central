@@ -12,8 +12,11 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 
 import os
 
+def join(*args):
+    return os.path.abspath(os.path.join(*args))
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.path.dirname(join(__file__))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
@@ -23,9 +26,6 @@ SECRET_KEY = '7(_d5r)h%ml3*&!d(6u&)u_i&m^*#fz#*0i&8ile)l30)9k(#7'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
-ALLOWED_HOSTS = []
-
 
 # Application definition
 
@@ -76,10 +76,12 @@ ACCOUNT_EMAIL_REQUIRED =True
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
+DATABASE_NAME = join(BASE_DIR, '..', 'export', 'engine.db')
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'NAME': DATABASE_NAME,
     }
 }
 
