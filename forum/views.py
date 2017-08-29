@@ -8,6 +8,7 @@ from django.contrib.auth import get_user_model
 
 
 def already_used(username):
+
     usermodel = get_user_model()
     try:
         usermodel.objects.get(username=username)
@@ -24,7 +25,7 @@ def hash_username(length=16):
         username += choice(chars)
 
     if already_used(username):
-        hash_username(username)
+        hash_username()
     else:
         return username 
 
@@ -38,18 +39,17 @@ def signup(request):
         if form.is_valid():
 
             email = form.cleaned_data.get('email')
-            username = hash_username()
             raw_password = form.cleaned_data.get('password1')
 
             user = form.save(commit=False)
-            user.username = username
+            user.username = hash_username()
             user.set_password(raw_password)
             user.email = email
             user.save()
 
             login(request, user)
             
-            return redirect('/forum')
+            return redirect('/forum/login')
     else:
         
         form = SignUpForm()
