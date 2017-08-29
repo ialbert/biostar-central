@@ -15,19 +15,16 @@ import os
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'n8jpyn0*j)xg&1dq=8+lkhxa2)f^17j49jx=k#)6l6**t7ua6h'
+SECRET_KEY = '7(_d5r)h%ml3*&!d(6u&)u_i&m^*#fz#*0i&8ile)l30)9k(#7'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
-LOGIN_REDIRECT_URL = '/'
 
 
 # Application definition
@@ -73,7 +70,8 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'website.wsgi.application'
-
+ACCOUNT_EMAIL_REQUIRED =True
+#ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION= True
 
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
@@ -85,11 +83,6 @@ DATABASES = {
     }
 }
 
-ACCOUNT_AUTHENTICATION_METHOD = 'email'
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_UNIQUE_EMAIL = True
-ACCOUNT_USERNAME_REQUIRED = False
-
 
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
@@ -98,11 +91,10 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
     },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+  
 ]
 
+AUTHENTICATION_BACKENDS = ["forum.backends.DualLoginModelBackend"]
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
