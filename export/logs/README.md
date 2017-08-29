@@ -1,1 +1,1 @@
-# Contains log files
+Server logs.
