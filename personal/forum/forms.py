@@ -1,10 +1,10 @@
 from django import forms
 from django.utils.translation import gettext, gettext_lazy as helpers
-from .models import User
+from django.contrib.auth.models import User
 
 
 class SignUpForm(forms.ModelForm):
- 
+    
     password1 = forms.CharField(
         label=helpers("Password"),
         strip=False,
@@ -28,6 +28,7 @@ class SignUpForm(forms.ModelForm):
 
         super().__init__(*args, **kwargs)
 
+
     def clean_password2(self):
 
         password1 = self.cleaned_data.get("password1")
@@ -37,11 +38,21 @@ class SignUpForm(forms.ModelForm):
                 helpers("Passwords given do not match."))
         return password2
 
-    def save(self):
+    def clean_email(self):
 
-        user = super().save()
-        user.set_password(self.cleaned_data["password1"])
-        user.save()
+        data = self.cleaned_data['email']
+        if User.objects.filter(email=data).exists():
+            raise forms.ValidationError("This email is already being used.")
+        return data
+
+    def save(self, commit=True):
+
+        user = super().save(commit=False)
+        
+        if commit:
+            user.save()
+            return
+        return user 
 
 
     def cleaned_data(self, *args):

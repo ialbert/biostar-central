@@ -1,17 +1,31 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.backends import ModelBackend
 
-User = get_user_model()
 
-
-class EmailModelBackend(ModelBackend):
-   
-
+class DualLoginModelBackend(ModelBackend):
+    
     def authenticate(self, username=None, password=None):
-         return NotImplemented 
+        usermodel = get_user_model()
 
-    def get_user(self, user_id=None):
+        if '@' in username:
+            kwargs = {'email': username}
+        else:
+            kwargs = {'username': username}
+
         try:
-            return User.objects.get(pk=user_id)
-        except User.DoesNotExist:
+            user = usermodel.objects.get(**kwargs)
+            if user.check_password(password):
+                return user
+        except usermodel.DoesNotExist:
             return None
+
+    def get_user(self, user_id):
+        usermodel = get_user_model()
+        try:
+            return usermodel.objects.get(pk=user_id)
+        except usermodel.DoesNotExist:
+            return None
+
+
+
+
