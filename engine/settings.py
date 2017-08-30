@@ -30,9 +30,7 @@ DEBUG = True
 # Application definition
 
 INSTALLED_APPS = [
-    'blog',
-    'forum',
-    'data',
+    'engine.blog',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -51,7 +49,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'website.urls'
+ROOT_URLCONF = 'engine.urls'
 
 TEMPLATES = [
     {
@@ -69,7 +67,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'website.wsgi.application'
+WSGI_APPLICATION = 'engine.wsgi.application'
 ACCOUNT_EMAIL_REQUIRED =True
 #ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION= True
 

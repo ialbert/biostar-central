@@ -20,4 +20,17 @@ Create a virtual environment:
     conda create -y --name engine python=3.6
     source activate engine
     pip install -r requirements.txt
-    
+
+## Usage
+
+Creates a brand new database
+
+    make reset
+
+Migrate and initialize the data:
+
+    make init
+   
+Server local development:
+   
+    make serve

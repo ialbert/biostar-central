@@ -1,6 +1,9 @@
 all:
 	python manage.py runserver
 
+reset:
+	rm -f export/engine.db
+
 init:
 	python manage.py migrate
 
