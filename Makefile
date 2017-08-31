@@ -5,6 +5,7 @@ reset:
 	rm -f export/engine.db
 
 init:
+	python manage.py collectstatic --noinput
 	python manage.py migrate
 
 push:

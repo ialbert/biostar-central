@@ -1,0 +1,1 @@
+Static files are copied here automatically. Don't add files here.
