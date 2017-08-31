@@ -1,4 +1,4 @@
-all:
+serve:
 	python manage.py runserver
 
 reset:

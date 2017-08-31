@@ -10,6 +10,5 @@ def blog(request):
 def data(request):
     return render(request, 'data.html')
 
-
 def forum(request):
     return render(request, 'forum.html')

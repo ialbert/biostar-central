@@ -19,9 +19,9 @@ from django.contrib import admin
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
 
-    url(r'^', include('engine.blog.urls')),
+    url(r'^', include('engine.web.urls')),
 
-    #url(r'^blog/', include('engine.blog.urls')),
+    #url(r'^web/', include('engine.web.urls')),
     #url(r'^forum/', include('engine.forum.urls')),
     #url(r'^data/', include('engine.data.urls')),
 ]
