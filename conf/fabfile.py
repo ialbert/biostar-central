@@ -17,3 +17,6 @@ def main_pull():
 
 def restart_nginx():
     sudo("service nginx restart")
+
+def restart_uwsgi():
+    sudo("supervisorctl restart all")
