@@ -94,6 +94,8 @@ AUTH_PASSWORD_VALIDATORS = [
   
 ]
 
+ALLOWED_HOSTS = [ 'www.lvh.me', 'localhost' ]
+
 AUTHENTICATION_BACKENDS = ["forum.backends.DualLoginModelBackend"]
 
 # Internationalization
