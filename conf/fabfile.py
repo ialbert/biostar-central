@@ -14,3 +14,6 @@ def test_pull():
 
 def main_pull():
     remote_pull(main_path)
+
+def restart_nginx():
+    sudo("service nginx restart")
