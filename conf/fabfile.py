@@ -1,7 +1,7 @@
 from fabric.api import *
 import sys
 
-if sys.version_info > (2, 7):
+if tuple(sys.version_info) > (2, 7):
     print("Error: Fabric requires Python 2.7")
     sys.exit(-1)
 

@@ -28,4 +28,4 @@ restart_uwsgi:
 	fab -f conf/fabfile.py -H ${USER}@${SERVER} restart_uwsgi
 
 
-deploy_all: push deploy_test deploy_main restart_uwsgi
+deploy_all: deploy_test deploy_main restart_uwsgi
