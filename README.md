@@ -8,7 +8,7 @@
     
     ssh aswathy@planktontow.com
     
-    
+ 
 ## Server location
 
     /export/www
