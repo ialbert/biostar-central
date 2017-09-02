@@ -5,17 +5,17 @@ test_path = '/export/sites/test_engine'
 
 env_prefix = ('source ~/miniconda3/envs/engine/bin/activate engine')
 
-def remote_pull(path):
+def deploy_remote(path):
     with cd(path), prefix(env_prefix):
         run('git pull')
         run('python manage.py migrate')
         run('python manage.py collectstatic --noinput -v 0')
 
-def test_pull():
-    remote_pull(test_path)
+def deploy_test():
+    deploy_remote(test_path)
 
-def main_pull():
-    remote_pull(main_path)
+def deploy_main():
+    deploy_remote(main_path)
 
 def restart_nginx():
     sudo("service nginx restart")
