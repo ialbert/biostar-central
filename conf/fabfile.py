@@ -1,4 +1,9 @@
 from fabric.api import *
+import sys
+
+if tuple(sys.version_info) > (2, 8):
+    print("Error: Fabric requires Python 2.7")
+    sys.exit(-1)
 
 main_path = '/export/sites/main_engine'
 test_path = '/export/sites/test_engine'
