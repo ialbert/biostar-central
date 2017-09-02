@@ -12,8 +12,10 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 
 import os
 
+
 def join(*args):
     return os.path.abspath(os.path.join(*args))
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(join(__file__))
@@ -37,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'compressor',
 ]
 
 MIDDLEWARE = [
@@ -68,8 +71,8 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'engine.wsgi.application'
-ACCOUNT_EMAIL_REQUIRED =True
-#ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION= True
+ACCOUNT_EMAIL_REQUIRED = True
+# ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION= True
 
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
@@ -83,7 +86,6 @@ DATABASES = {
     }
 }
 
-
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
 
@@ -91,10 +93,10 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
     },
-  
+
 ]
 
-ALLOWED_HOSTS = [ 'www.lvh.me', 'localhost' ]
+ALLOWED_HOSTS = ['www.lvh.me', 'localhost']
 
 AUTHENTICATION_BACKENDS = ["forum.backends.DualLoginModelBackend"]
 
@@ -111,7 +113,6 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
@@ -120,3 +121,9 @@ STATIC_ROOT = join(BASE_DIR, '..', 'export', 'static')
 STATICFILES_DIRS = [
     join(BASE_DIR, "web", "static"),
 ]
+
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    'compressor.finders.CompressorFinder',
+)
