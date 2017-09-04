@@ -1,6 +1,11 @@
 from django.shortcuts import render
 
 
+#TEMPERORY 
+def login(request):
+    return render (request, 'login.html')
+
+
 def index(request):
     return render(request, 'index.html')
 

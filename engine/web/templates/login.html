@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Metabarcode
+{% endblock %}
+
+{{% block header %}
+    <i class="barcode icon"></i> Metagenomics Barcode Data Repository
+{% endblock %}
+
+{% block body %}
+
+	<style type="text/css">
+	    body > .grid {
+	      height: 100%;
+	    }
+	    .image {
+	      margin-top: -100px;
+	    }
+	    .column {
+	      max-width: 350px;
+	    }
+    
+	  </style>
+
+	<div class="ui middle aligned center aligned grid">
+
+	  <div class="column">
+
+	    <form class="ui form">
+	      <div class="ui stacked segment">
+		<div class="field">
+		  <div class="ui left icon input">
+		    <i class="user icon"></i>
+		    <input type="text" name="email" placeholder="E-mail address">
+		  </div>
+		</div>
+		<div class="field">
+		  <div class="ui left icon input">
+		    <i class="lock icon"></i>
+		    <input type="password" name="password" placeholder="Password">
+		  </div>
+		</div>
+		<div class="ui button">Login</div>
+	      </div>
+
+	      <div class="ui error message"></div>
+	    </form>
+
+	    <div class="ui message">
+	      New User? <a href="/signup">Sign Up</a>
+
+	    </div>
+	  </div>
+	</div>
+
+
+
+
+
+{% endblock %}

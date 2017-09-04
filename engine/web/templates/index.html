@@ -11,20 +11,12 @@
 {% block body %}
 
 
-    <div class="ui dropdown">
-             
-        <i class="user icon"></i> Log In
-         <div class="menu">
-              <form class="form" id="formLogin"> 
-      
-                <input name="username" id="username" type="text" placeholder="Username"> 
-                <input name="password" id="password" type="password" placeholder="Password"><br>
-                <button type="button" id="btnLogin" class="btn">Login</button>
-              </form>
-          </div>
 
-    </div>
-</div>
+     <form action="/login" >
+        <i class="user icon" ></i>
+        <input type="submit" value="Log in" class="ui button"/>
+     </form>
+       
 
     <div class="ui text container">
 
