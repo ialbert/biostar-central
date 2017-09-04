@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Metabarcode
+{% endblock %}
+
+{{% block header %}
+    <i class="barcode icon"></i> Metagenomics Barcode Data Repository
+{% endblock %}
+
+{% block body %}
+
+  	<style type="text/css">
+	    body > .grid {
+	      height: 100%;
+	    }
+	    .image {
+	      margin-top: -100px;
+	    }
+	    .column {
+	      max-width: 500px;
+	    }
+    
+	  </style>
+
+  <div class="ui middle aligned right grid">
+
+	 <div class="column">
+
+	  <h2>Sign up</h2>
+	  <form method="post" class="ui form">
+	    {% csrf_token %}
+	    {{ form.as_p }}
+	    <button type="submit" class="ui button">Sign Up</button>
+	  </form>
+     </div>
+   </div>
+{% endblock %}
+
+
+
