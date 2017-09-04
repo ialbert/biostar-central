@@ -6,6 +6,5 @@ pytz
 commonmark
 bleach
 django-mailer
-django_compressor
 mistune
-django_pagedown
+django-pagedown
