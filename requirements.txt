@@ -1,6 +1,7 @@
 django >=1.11, <1.12
 django-ratelimit
 django-recaptcha==1.0.5
+django-compressor
 pytz
 commonmark
 bleach
