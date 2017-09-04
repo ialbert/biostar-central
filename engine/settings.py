@@ -28,7 +28,7 @@ SECRET_KEY = '7(_d5r)h%ml3*&!d(6u&)u_i&m^*#fz#*0i&8ile)l30)9k(#7'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
+COMPRESS_ENABLED=True
 # Application definition
 
 INSTALLED_APPS = [
@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'compressor',
+  
 ]
 
 MIDDLEWARE = [
@@ -96,7 +97,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 ]
 
-ALLOWED_HOSTS = ['www.lvh.me', 'localhost']
+ALLOWED_HOSTS = ['www.lvh.me', 'localhost', '127.0.0.1']
 
 AUTHENTICATION_BACKENDS = ["forum.backends.DualLoginModelBackend"]
 
@@ -122,8 +123,10 @@ STATICFILES_DIRS = [
     join(BASE_DIR, "web", "static"),
 ]
 
+
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
     'compressor.finders.CompressorFinder',
 )
+
