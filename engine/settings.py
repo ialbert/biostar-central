@@ -29,6 +29,7 @@ SECRET_KEY = '7(_d5r)h%ml3*&!d(6u&)u_i&m^*#fz#*0i&8ile)l30)9k(#7'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 COMPRESS_ENABLED=True
+
 # Application definition
 
 INSTALLED_APPS = [

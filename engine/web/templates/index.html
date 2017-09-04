@@ -7,13 +7,31 @@
 {% block header %}
     <i class="barcode icon"></i> Metagenomics Barcode Data Repository
 {% endblock %}
+
 {% block body %}
+
+
+    <div class="ui dropdown">
+             
+        <i class="user icon"></i> Log In
+         <div class="menu">
+              <form class="form" id="formLogin"> 
+      
+                <input name="username" id="username" type="text" placeholder="Username"> 
+                <input name="password" id="password" type="password" placeholder="Password"><br>
+                <button type="button" id="btnLogin" class="btn">Login</button>
+              </form>
+          </div>
+
+    </div>
+</div>
 
     <div class="ui text container">
 
         <div class="ui vertical center aligned segment">
             <p>This site stores data and analysis results for metagenomics barcode data.</p>
         </div>
+
 
         <div class="ui vertical segment">
             <h3 class="ui header"><i class="database icon"></i>Projects</h3>
@@ -28,7 +46,9 @@
         <div class="ui vertical center aligned segment">
             <p>2017</p>
         </div>
-
+        
+   
     </div>
+
 
 {% endblock %}
