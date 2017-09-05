@@ -45,10 +45,9 @@ Fabric works with python 2 only.
     
 Make rules:
  
-    make test_pull
-    make main_pull
+    make deploy_test
+    make deploy_main
     make restart_nginx
     make restart_uwsgi
-    
     
     
