@@ -25,7 +25,7 @@ Create a virtual environment both on your system and on the remote site:
 
 Creates a brand new database
 
-    make reset
+    make reset 
 
 Migrate and initialize the data:
 
