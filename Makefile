@@ -28,7 +28,7 @@ restart_nginx:
 	fab -f conf/fabfile.py -H ${USER}@${SERVER} restart_nginx
 
 restart_django:
-	fab -f conf/fabfile.py -H ${USER}@${SERVER} restart_django
+	fab -f conf/fabfile.py -H ${USER}@${SERVER} restart_uwsgi
 
 
 deploy_all: deploy_test deploy_main restart_django

@@ -2,13 +2,13 @@
 
 ## How to connect
 
-    ssh www@planktontow.com
+    ssh www@metabarcode.com
     
-    ssh nba@planktontow.com
+    ssh nba@metabarcode.com
     
-    ssh aswathy@planktontow.com
+    ssh aswathy@metabarcode.com
     
- 
+
 ## Server location
 
     /export/www
@@ -44,10 +44,17 @@ Fabric works with python 2 only.
     pip install fabric
     
 Make rules:
- 
+
+    # example
+    CURRENT=nba
+
     make deploy_test
     make deploy_main
     make restart_nginx
-    make restart_django
+    
+    # Needs sudo privi for this command 
+    make USER=$CURRENT restart_django
+
+
     
     
