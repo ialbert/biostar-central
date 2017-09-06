@@ -62,8 +62,7 @@ class SignUpForm(forms.ModelForm):
 
 class CustomLoginForm(AuthenticationForm):
     def confirm_login_allowed(self, user):
-        print( user.is_validated)
-        if not user.is_active or not user.is_validated:
+        if not user.is_active or not user.username_validator:
             raise forms.ValidationError('There was a problem with your login.', 
                         code='invalid_login')
 

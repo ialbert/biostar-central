@@ -27,7 +27,7 @@
 
 	 <div class="column">
 	 <form id="login-form" method="post" 
-                  action="/" class="ui form">
+                  action="{% url 'login' %}" class="ui form">
 
                 {% csrf_token %}
                 <div class="ui stacked segment">
@@ -48,6 +48,7 @@
  
                            <input type="submit" value="Login" 
                        class="ui button" />
+
 	{% if form.errors %}
 	    {% for field in form %}
 		{% for error in field.errors %}

@@ -52,7 +52,7 @@ Make rules:
     make deploy_main
     make restart_nginx
     
-    # Needs sudo privi for this command 
+    # Needs sudo privi for this command thats why www does not work
     make USER=$CURRENT restart_django
 
 
