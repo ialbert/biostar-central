@@ -20,7 +20,6 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
 
     url(r'^', include('engine.web.urls')),
-    url(r'^login/', include('engine.web.urls')),
     #url(r'^web/', include('engine.web.urls')),
     #url(r'^forum/', include('engine.forum.urls')),
     #url(r'^data/', include('engine.data.urls')),

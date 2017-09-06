@@ -3,6 +3,7 @@ from string import ascii_lowercase, digits
 import uuid
 from django.contrib import auth
 from django.contrib.auth import login, authenticate
+from django.contrib.auth import views as auth_views
 from django.shortcuts import render, redirect
 from .forms import SignUpForm
 from django.contrib.auth import get_user_model
@@ -83,7 +84,6 @@ def signup(request):
     if request.method == 'POST':
         form = SignUpForm(request.POST)
 
-        # valid input at this point
         if form.is_valid():
 
             email = form.cleaned_data.get('email')
@@ -105,17 +105,10 @@ def signup(request):
     return render(request, 'signup.html', {'form': form})
 
 
+
 def index(request):
     return render(request, 'index.html')
 
-
-#TEMPERORY ( not valid forms with csrf_tokens)
-def login(request):
-    return render (request, 'login.html')
-
-
-def logout(request):
-    return render(request, 'logout.html')
-
+   
 
 
