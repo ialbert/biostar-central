@@ -18,43 +18,63 @@
 	      margin-top: -100px;
 	    }
 	    .column {
-	      max-width: 350px;
+	      max-width: 380px;
 	    }
     
 	  </style>
 
 	<div class="ui middle aligned center aligned grid">
 
-	  <div class="column">
+	 <div class="column">
+	 <form id="login-form" method="post" 
+                  action="/" class="ui form">
 
-	    <form class="ui form">
-	      <div class="ui stacked segment">
-		<div class="field">
-		  <div class="ui left icon input">
-		    <i class="user icon"></i>
-		    <input type="text" name="email" placeholder="E-mail / Username">
-		  </div>
+                {% csrf_token %}
+                <div class="ui stacked segment">
+                <table class="ui table">
+                    <tr>
+                       <td><label for="id_username"><i class="user icon" ></i></label></td>
+                        <td><input id="id_username"
+                           name="username" type="text" class="form-control" 
+                           placeholder="Email / Username"></td>
+                    </tr>
+                    <tr>
+                        <td><label for="id_password"><i class="lock icon" ></i></label></td>
+                        <td><input id="id_password" 
+                               name="password" type="password" class="form-control" 
+                                placeholder="Password" ></td>
+                    </tr>
+                </table>
+ 
+                           <input type="submit" value="Login" 
+                       class="ui button" />
+	{% if form.errors %}
+	    {% for field in form %}
+		{% for error in field.errors %}
+		    <div class="alert alert-error">
+		        <strong>{{ error|escape }}</strong>
+		    </div>
+		{% endfor %}
+	    {% endfor %}
+	    {% for error in form.non_field_errors %}
+		<div class="alert alert-error">
+		    <strong>{{ error|escape }}</strong>
 		</div>
-		<div class="field">
-		  <div class="ui left icon input">
-		    <i class="lock icon"></i>
-		    <input type="password" name="password" placeholder="Password">
-		  </div>
-		</div>
-		<button class="ui button">Login</button>
-	      </div>
+	    {% endfor %}
+	{% endif %}
 
-	      <div class="ui error message"></div>
-	    </form>
+                <input type="hidden" name="next" value="{{ next }}" />
+
+
+
+                </div>
+            </form>
 
 	    <div class="ui message">
 	      New User? <a href="/signup">Sign Up</a>
-
 	    </div>
-	  </div>
-	</div>
-
-
+       </div>
+     </div>
 
 
 

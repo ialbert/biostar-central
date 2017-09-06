@@ -48,6 +48,6 @@ Make rules:
     make deploy_test
     make deploy_main
     make restart_nginx
-    make restart_uwsgi
+    make restart_django
     
     
