@@ -10,9 +10,7 @@ from .forms import SignUpForm, LoginForm
 
 from ratelimit.decorators import ratelimit
 
-
 logger = logging.getLogger('engine')
-
 
 def get_uuid(limit=32):
     return str(uuid.uuid4())[:limit]

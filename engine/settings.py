@@ -13,6 +13,10 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 import os
 from .logging import LOGGING
 
+SITE_ID = 1
+SITE_DOMAIN = "localhost"
+SITE_NAME = "Biostar Engine"
+
 def join(*args):
     return os.path.abspath(os.path.join(*args))
 
@@ -33,15 +37,15 @@ COMPRESS_ENABLED=True
 # Application definition
 
 INSTALLED_APPS = [
-    'engine.web.apps.EngineConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
+    'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'compressor',
-  
+    'engine.apps.EngineConfig',
 ]
 
 MIDDLEWARE = [
@@ -100,8 +104,6 @@ AUTH_PASSWORD_VALIDATORS = [
 
 ALLOWED_HOSTS = ['www.lvh.me', 'localhost', '127.0.0.1']
 
-AUTHENTICATION_BACKENDS = ["engine.web.backends.DualLoginModelBackend"]
-
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
 
@@ -121,7 +123,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = join(BASE_DIR, '..', 'export', 'static')
 STATICFILES_DIRS = [
-    join(BASE_DIR, "web", "static"),
+    join(BASE_DIR, "static"),
 ]
 
 
