@@ -1,27 +1,32 @@
 from random import choice
 from string import ascii_lowercase, digits
 import uuid
-from django.contrib import auth
+import logging
+
 from django.contrib.auth import login, authenticate
-from django.contrib.auth import views as auth_views
 from django.shortcuts import render, redirect
-from .forms import SignUpForm
-from django.contrib.auth import get_user_model
+from .forms import SignUpForm, LoginForm
+
+
 from ratelimit.decorators import ratelimit
 
-class LoginForm(forms.Form):
-    email = forms.CharField(label='Email', max_length=100)
-    password = forms.CharField(label='Password', max_length=100, widget=forms.PasswordInput)
+
+logger = logging.getLogger('engine')
+
 
 def get_uuid(limit=32):
     return str(uuid.uuid4())[:limit]
 
 
 @ratelimit(key='ip', rate='10/m', block=True, method=ratelimit.UNSAFE)
-def login(request):
-    if request.method == "POST":
-        form = forms.LoginForm(request.POST)
+def custom_login(request):
 
+    if request.method == "POST":
+        form = LoginForm(data=request.POST)
+        username = request.POST['username']
+        password = request.POST['password']
+        print(username, password)
+ 
         if form.is_valid():
             email = form.cleaned_data['email']
             password = form.cleaned_data['password']
@@ -32,54 +37,35 @@ def login(request):
             if not user:
                 form.add_error(None, "This email does not exist.")
                 context = dict(form=form)
-                return render(request, "registration/user_login.html", context=context)
+                return render(request, "registration/login.html", context=context)
 
-            user = auth.authenticate(username=user.username, password=password)
-
+            user = authenticate(username=user.username, password=password)
+            print(user)
             if not user:
                 form.add_error(None, "Invalid password.")
             elif user and not user.is_active:
                 form.add_error(None, "This user may not log in.")
             elif user and user.is_active:
-                auth.login(request, user)
+                login(request, user)
                 logger.info("logged in user.id={}, user.email={}".format(user.id, user.email))
                 return redirect("/")
             else:
                 # This should not happen normally.
                 form.add_error(None, "Invalid form processing.")
+        else:
+            print(form, form.is_valid())
     else:
         initial = dict(nexturl=request.GET.get('next', '/'))
-        form = forms.LoginForm(initial=initial)
+        form = LoginForm()
 
     context = dict(form=form)
-    return render(request, "registration/user_login.html", context=context)
+    return render(request, "registration/login.html", context=context)
 
-
-
-def already_used(username):
-
-    usermodel = get_user_model()
-    try:
-        usermodel.objects.get(username=username)
-        return True
-    except usermodel.DoesNotExist:
-        return False
-
-
-def hash_username(length=16):
-
-    chars=ascii_lowercase+digits
-    username = ''
-    for token in range(length):
-        username += choice(chars)
-
-    if already_used(username):
-        hash_username()
-    else:
-        return username 
 
 
 def signup(request):
+
+    from django.contrib.auth.models import User
 
     if request.method == 'POST':
         form = SignUpForm(request.POST)
@@ -87,13 +73,11 @@ def signup(request):
         if form.is_valid():
 
             email = form.cleaned_data.get('email')
-            raw_password = form.cleaned_data.get('password1')
-
-            user = User.objects.create(username=hash_username(), email=)
-            user = form.save(commit=False)
-            user.username = hash_username()
-            user.set_password(raw_password)
-            user.email = email
+            password = form.cleaned_data.get('password1')
+            name = email.split("@")[0]
+            
+            user = User.objects.create(username=get_uuid(), email=email, 
+                                       first_name=name, password=password)
             user.save()
 
             login(request, user)
@@ -102,7 +86,7 @@ def signup(request):
     else:
         
         form = SignUpForm()
-    return render(request, 'signup.html', {'form': form})
+    return render(request, 'registration/signup.html', {'form': form})
 
 
 
@@ -110,5 +94,7 @@ def index(request):
     return render(request, 'index.html')
 
    
+def logout(request):
+    return None
 
 

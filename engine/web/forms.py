@@ -1,7 +1,7 @@
 from django import forms
+from django.contrib.auth.forms import AuthenticationForm
 from django.utils.translation import gettext, gettext_lazy as helpers
 from django.contrib.auth.models import User
-from django.contrib.auth.forms import AuthenticationForm
 
 
 class SignUpForm(forms.ModelForm):
@@ -60,12 +60,11 @@ class SignUpForm(forms.ModelForm):
         return self.cleaned_data
 
 
-class CustomLoginForm(AuthenticationForm):
-    def confirm_login_allowed(self, user):
-        if not user.is_active or not user.username_validator:
-            raise forms.ValidationError('There was a problem with your login.', 
-                        code='invalid_login')
+class LoginForm(forms.Form):
 
+    email = forms.CharField(label='Email', max_length=100)
+    password = forms.CharField(label='Password', max_length=100, 
+                              widget=forms.PasswordInput)
 
 
 
