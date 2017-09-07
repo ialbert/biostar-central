@@ -6,20 +6,12 @@ import logging, uuid
 logger = logging.getLogger('engine')
 
 
-'''
- if not user:
-        # This user needs to be created/
-        created = True
-        user = User.objects.create(email=email, username=get_uuid())
-        user.set_password(get_uuid())
-        user.save()
-        user.profile.name = name
-'''
 
 def get_uuid(limit=None):
     return str(uuid.uuid4())[:limit]
 
 
+# Scaffold? 
 def init_users(sender, **kwargs):
     """
     Creates admin users if these are not present.
@@ -70,3 +62,7 @@ class EngineConfig(AppConfig):
         # Triggered upon app initialization.
         post_migrate.connect(init_site, sender=self)
         post_migrate.connect(init_users, sender=self)
+
+
+
+

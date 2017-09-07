@@ -31,8 +31,11 @@
 
 <div class="ui container">
 
+
     <h2 class="ui center aligned header">
+
         {% block header %}Header{% endblock %}
+
     </h2>
 
     {#  This will show error messages #}
@@ -46,9 +49,17 @@
     {% endif %}
 
     {#  Main body #}
+
+     <form action="/" >
+        <i class="home icon" ></i>
+        <input type="submit" value="Home" class="ui button"/>
+     </form>
+
     {% block body %}
+
         BODY
     {% endblock %}
+
 
 </div>
 

@@ -45,15 +45,12 @@ Fabric works with python 2 only.
     
 Make rules:
 
-    # example
-    CURRENT=nba
-
     make deploy_test
     make deploy_main
     make restart_nginx
     
     # Needs sudo privi for this command thats why www does not work
-    make USER=$CURRENT restart_django
+    make USER=nba restart_django
 
 
     

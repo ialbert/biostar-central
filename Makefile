@@ -18,6 +18,10 @@ push:
 	git commit -am "Update by `whoami` on `date` from `hostname`"
 	git push
 
+test_push:test_all
+	git commit -am "Update by `whoami` on `date` from `hostname`"
+	git push
+
 deploy_test:
 	fab -f conf/fabfile.py -H ${USER}@${SERVER} deploy_test
 
