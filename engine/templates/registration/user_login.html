@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %} Log In {% endblock %}
+
+{% block header %}Welcome{% endblock %}
+
+{% block body %}
+
+    <div class="ui center aligned basic segment">
+
+        Please enter your email and password below.
+
+    </div>
+
+    <div class="ui raised centered card">
+
+        <div class="ui attached message">
+            Log in to access the book.
+        </div>
+
+        <form class="ui form attached fluid segment" method="post" action="{% url "user_login" %}">
+            {% csrf_token %}
+            {{ form.errors }}
+            <div class="field">
+                <label>Email</label>
+                {{ form.email }}
+            </div>
+            <div class="field">
+                <label>Password</label>
+                {{ form.password }}
+            </div>
+            <button class="ui primary button" type="submit">Log In</button>
+            <a class="ui right floated button" href="/">Cancel</a>
+        </form>
+
+        <div class="ui bottom attached warning  message">
+            <p>
+                <a class="ui " href="{% url 'user_login' %}">Forgot your password?</a>
+            </p>
+        </div>
+
+    </div>
+
+
+{% endblock %}

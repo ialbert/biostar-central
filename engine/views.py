@@ -17,7 +17,7 @@ def get_uuid(limit=32):
 
 
 @ratelimit(key='ip', rate='10/m', block=True, method=ratelimit.UNSAFE)
-def custom_login(request):
+def user_login(request):
 
     if request.method == "POST":
         form = LoginForm(data=request.POST)
@@ -57,7 +57,7 @@ def custom_login(request):
         form = LoginForm()
 
     context = dict(form=form)
-    return render(request, "registration/login.html", context=context)
+    return render(request, "registration/user_login.html", context=context)
 
 
 
