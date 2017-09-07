@@ -28,6 +28,7 @@ class AuthTestCase(TestCase):
         c = Client()
         response = c.post('/login/', {'username': 'test@test.come', 'password': 'test'})
         print(response.status_code, 'login')
+    
 
 
 
