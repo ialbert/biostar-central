@@ -6,12 +6,18 @@ import logging, uuid
 logger = logging.getLogger('engine')
 
 
-
 def get_uuid(limit=None):
     return str(uuid.uuid4())[:limit]
 
 
-# Scaffold? 
+def init_projects(sender, **kwargs):
+    """
+    Populate initial projects
+    """
+    from engine.web.models import Project
+    titles = ['Project 1', 'Project 2']
+
+
 def init_users(sender, **kwargs):
     """
     Creates admin users if these are not present.
@@ -34,8 +40,8 @@ def init_site(sender, **kwargs):
     """
     Updates site domain and name.
     """
+    print (sender)
     from django.contrib.sites.models import Site
-    from engine.web.models import *
 
     # Print information on the database.
     db = settings.DATABASES['default']
@@ -53,8 +59,6 @@ def init_site(sender, **kwargs):
     site = Site.objects.get(id=settings.SITE_ID)
     logger.info("site.name={}, site.domain={}".format(site.name, site.domain))
 
-
-
 class EngineConfig(AppConfig):
     name = 'engine'
 
@@ -62,7 +66,7 @@ class EngineConfig(AppConfig):
         # Triggered upon app initialization.
         post_migrate.connect(init_site, sender=self)
         post_migrate.connect(init_users, sender=self)
-
+        logger.debug("EngineConfig done")
 
 
 

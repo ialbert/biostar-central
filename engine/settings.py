@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
-
+from .logging import LOGGING
 
 def join(*args):
     return os.path.abspath(os.path.join(*args))
@@ -33,7 +33,7 @@ COMPRESS_ENABLED=True
 # Application definition
 
 INSTALLED_APPS = [
-    'engine.web',
+    'engine.web.apps.EngineConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
