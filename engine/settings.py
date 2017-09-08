@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
-from .logging import LOGGING
+from .log import LOGGING
 
 SITE_ID = 1
 SITE_DOMAIN = "localhost"
@@ -19,6 +19,10 @@ SITE_NAME = "Biostar Engine"
 
 def join(*args):
     return os.path.abspath(os.path.join(*args))
+
+
+ADMINS = [("Admin User", "foo@bar.com")]
+
 
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)

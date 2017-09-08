@@ -1,6 +1,5 @@
 from django import forms
-from django.contrib.auth.forms import AuthenticationForm
-from django.utils.translation import gettext, gettext_lazy as helpers
+from django.utils.translation import gettext_lazy as helpers
 from django.contrib.auth.models import User
 
 
@@ -45,16 +44,6 @@ class SignUpForm(forms.ModelForm):
         if User.objects.filter(email=data).exists():
             raise forms.ValidationError("This email is already being used.")
         return data
-
-    def save(self, commit=True):
-
-        user = super().save(commit=False)
-        
-        if commit:
-            user.save()
-            return
-        return user 
-
 
     def cleaned_data(self, *args):
         return self.cleaned_data
