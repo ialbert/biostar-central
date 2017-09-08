@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 from django.conf import settings
-from django.db.models.signals import post_migrate, pre_migrate
+from django.db.models.signals import post_migrate
 import logging, uuid
 
 logger = logging.getLogger('engine')
@@ -10,32 +10,36 @@ def get_uuid(limit=None):
     return str(uuid.uuid4())[:limit]
 
 
+
 def init_proj(sender, **kwargs):
     """
-    Populate initial projects
+    Populate initial projects with some data and analysis
     """
+    from engine.models import Project, Data, Analysis
     from engine.models import User
-    from engine.models import Project
     titles = ['Project 1', 'Project 2']
 
     owner = User.objects.all().first()
     for title in titles:
+        #data =
         proj, flag = Project.objects.get_or_create(title=title, owner=owner)
         logger.info(f'creating: {proj.title}')
+
 
 def init_users(sender, **kwargs):
     """
     Creates admin users if these are not present.
     """
     from engine.models import User
+    logger.info("Setting up users")
 
-    # Create the super users according to the settings.
     for name, email in settings.ADMINS:
+        
         if not User.objects.filter(email=email):
-            logger.info(f"creating admin user.name={user.name}, user.email={user.email}")
             user = User(email=email, username=get_uuid(16), is_superuser=True, is_staff=True)
             user.set_password(settings.SECRET_KEY)
             user.save()
+            logger.info(f"creating admin: user.id={user.id}, user.email={user.email}")
 
     # Create a regular test user.
     test_user = User.objects.get_or_create(email="foo@bar.com", password="foobar221")
@@ -62,6 +66,7 @@ def init_site(sender, **kwargs):
     # Get the current site
     site = Site.objects.get(id=settings.SITE_ID)
     logger.info("site.name={}, site.domain={}".format(site.name, site.domain))
+
 
 class EngineConfig(AppConfig):
     name = 'engine'
