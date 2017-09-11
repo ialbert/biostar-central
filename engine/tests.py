@@ -12,22 +12,25 @@ from django.test import Client
 '''
 
 
+ALL_PAGES = ["/", "/projects", "/login", "/signup"]
 
-class AuthTestCase(TestCase):
+
+class SimplePageResponses(TestCase):
+
+    # Test given pages ( with new client for every page )
+    def test_pages(self):
+
+        for page in ALL_PAGES:
+            client = Client()
+            response = client.get(page)
+            try:
+                self.assertEqual(response.status_code, 200)
+            except AssertionError:
+                # signup has a redirect response
+                self.assertEqual(response.status_code, 301)
 
 
-    def test_signup(self):
 
-        c = Client()
-        response = c.post('/signup/', {'email': 'test2@test.come', 'password1': 'test',
-                   'password2':'test'})
-        print(response.status_code, 'signup')
-
-    def test_login(self):
-
-        c = Client()
-        response = c.post('/login/', {'username': 'test2@test.come', 'password': 'test'})
-        print(response.status_code, 'login')
     
 
 

@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 
+def make_html(text):
+    return text
 
 class Base(models.Model):
 
@@ -17,6 +19,7 @@ class Base(models.Model):
     def save(self, *args, **kwargs):
         now = timezone.now()
         self.date = self.date or now
+        self.html = make_html(self.text)
         super(Base, self).save(*args, **kwargs)
 
     class Meta:
