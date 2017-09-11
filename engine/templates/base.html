@@ -19,7 +19,6 @@
     <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon"/>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 
-
     {% compress css %}
         <link href="{% static 'semantic.min.css' %}" rel="stylesheet">
         <link href="{% static 'style.css' %}" rel="stylesheet">
@@ -49,18 +48,6 @@
     {% endif %}
 
     {#  Main body #}
-
-    <div class="ui menu">
-      <a class="item" href="/"><i class="home icon" ></i>Home</a>
-
-      <a class="item" href="/login"><i class="user icon"></i>Login</a>
-
-      <div class="right menu">
-        <a class="item" href="/signup"><i class="add user icon"></i>Sign Up</a>
-        <a class="item"><i class="help icon"></i>Help</a>
-      </div>
-    </div>
-
 
 
     {% block body %}

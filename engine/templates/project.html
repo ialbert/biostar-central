@@ -1,0 +1,55 @@
+{% extends "index.html" %}
+
+{% block title %}
+    Projects
+{% endblock %}
+
+
+{% block body %}
+
+    {% include "includes/menu.html" %}
+
+    <div class="ui vertical center aligned segment">
+       <h1>Projects</h1>
+    </div>
+
+    <div class="ui text container">
+
+    {% for proj in object_list %}
+
+        <div class="ui vertical segment">
+            <i class="folder icon"></i>{{ proj.title }}
+            <p>{{ proj.date }}</p>
+        </div>
+
+
+            <div class="ui text container">
+
+                Data
+
+                <div class="ui vertical menu">
+                    {% for data in proj.data.all %}
+                      <a class="item">
+                        {{ data.title }}
+                      </a>
+
+                    {% endfor %}
+
+                </div>
+
+                Analysis
+
+                  <div class="ui vertical menu">
+                    {% for analysis in proj.analysis.all %}
+                      <a class="item">
+                        {{ analysis.title }}
+                      </a>
+
+                    {% endfor %}
+
+                </div>
+
+            </div>
+    {% endfor %}
+        </div>
+{% endblock %}

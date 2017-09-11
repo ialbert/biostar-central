@@ -4,7 +4,7 @@ import logging
 from django.contrib.auth import login, authenticate
 from django.shortcuts import render, redirect
 from .forms import SignUpForm, LoginForm
-from .models import User
+from .models import User, Project
 
 from ratelimit.decorators import ratelimit
 
@@ -19,6 +19,7 @@ def get_uuid(limit=32):
     return str(uuid.uuid4())[:limit]
 
 
+@ratelimit(key='ip', rate='10/m', block=True, method=ratelimit.UNSAFE)
 def signup(request):
 
     if request.method == 'POST':
@@ -31,7 +32,8 @@ def signup(request):
             name = email.split("@")[0]
             
             user = User.objects.create(username=get_uuid(), email=email, 
-                                       first_name=name, password=password)
+                                       first_name=name)
+            user.set_password(password)
             user.save()
 
             login(request, user)
@@ -41,6 +43,10 @@ def signup(request):
         
         form = SignUpForm()
     return render(request, 'registration/user_signup.html', {'form': form})
+
+
+def user_logout(request):
+    return None
 
 
 @ratelimit(key='ip', rate='10/m', block=True, method=ratelimit.UNSAFE)
@@ -61,7 +67,7 @@ def user_login(request):
                 return render(request, "registration/user_login.html", context=context)
 
             user = authenticate(username=user.username, password=password)
-            print(user)
+
             if not user:
                 form.add_error(None, "Invalid password.")
             elif user and not user.is_active:
@@ -83,13 +89,21 @@ def user_login(request):
     return render(request, "registration/user_login.html", context=context)
 
 
-def user_logout(request):
-    return None
-
-
 def project(request):
 
+    projects = Project.objects.all()
+    data = dict(object_list=projects)
 
-    return None
+    # print(projects)
+    #
+    # for proj in projects:
+    #     print(proj.title, proj.owner)
+    #     print(proj.data.all())
+    #     print(proj.analysis.all())
+    #     print(proj.data.all()[0].owner)
+    #     print('----')
+
+
+    return render(request, "project.html", data)
 
 
