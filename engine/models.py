@@ -21,17 +21,9 @@ class Base(models.Model):
 
     class Meta:
         abstract = True
+
         
-
-class Project(Base):
-
-    def save(self, *args, **kwargs):
-        super(Project, self).save(*args, **kwargs)
-
-
 class Data(Base):
-
-    project = models.ForeignKey(Project)
 
     def save(self, *args, **kwargs):
         super(Data, self).save(*args, **kwargs)
@@ -39,10 +31,19 @@ class Data(Base):
 
 class Analysis(Base):
 
-    project = models.ForeignKey(Project)
-
     def save(self, *args, **kwargs):
         super(Analysis, self).save(*args, **kwargs)
+
+
+class Project(Base):
+
+    data = models.ManyToManyField(Data)
+    analysis = models.ManyToManyField(Analysis)
+
+    def save(self, *args, **kwargs):
+        super(Project, self).save(*args, **kwargs)
+
+
 
 
 

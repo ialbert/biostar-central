@@ -2,6 +2,7 @@ from django.apps import AppConfig
 from django.conf import settings
 from django.db.models.signals import post_migrate
 import logging, uuid
+import random
 
 logger = logging.getLogger('engine')
 
@@ -10,20 +11,35 @@ def get_uuid(limit=None):
     return str(uuid.uuid4())[:limit]
 
 
-
 def init_proj(sender, **kwargs):
     """
-    Populate initial projects with some data and analysis
+    Populate initial projects with N number data and analysis models
     """
     from engine.models import Project, Data, Analysis
     from engine.models import User
-    titles = ['Project 1', 'Project 2']
 
+    N = 3
     owner = User.objects.all().first()
-    for title in titles:
-        #data =
+    projects = [f"Project {x}" for x in range(0, 3)]
+    data_analysis = [(f"Data {x}",f"Analysis {x}") for x in range(0, 5)]
+
+    for title in projects:
+
+        test_set = random.sample(data_analysis, N)
         proj, flag = Project.objects.get_or_create(title=title, owner=owner)
-        logger.info(f'creating: {proj.title}')
+        proj.save()
+
+        for data_title, analysis_title in test_set:
+
+            datainput, flag = Data.objects.get_or_create(title=data_title, owner=owner, text="test")
+            datainput.save()
+            result, flag = Analysis.objects.get_or_create(title=analysis_title, owner=owner, text="test")
+            result.save()
+
+            proj.data.add(datainput)
+            proj.analysis.add(result)
+
+        logger.info(f'creating: {proj.title} with: {len(test_set)} data and analysis files (models).')
 
 
 def init_users(sender, **kwargs):

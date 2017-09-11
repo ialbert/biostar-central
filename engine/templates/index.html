@@ -10,6 +10,7 @@
 
 {% block body %}
 
+    {% include "includes/menu.html" %}
 
     <div class="ui text container">
 
@@ -18,14 +19,17 @@
         </div>
 
         <div class="ui vertical segment">
-                <h3 class="ui header"><i class="database icon"></i>Projects</h3>
-               <p>List of projects.</p>
+                <a href="/projects">
+                    <h3 class="ui header"><i class="database icon"></i>Projects</h3>
+                </a>
+               <p>View list of projects.</p>
 
         </div>
 
         <div class="ui vertical segment">
-
-             <h3 class="ui  vertical header"><i class="info circle icon"></i>Information</h3>
+            <a>
+            <h3 class="ui  vertical header"><i class="info circle icon"></i>Information</h3>
+            </a>
              <p>About this site.</p>
 
         </div>
