@@ -18,10 +18,10 @@ def init_proj(sender, **kwargs):
     from engine.models import Project, Data, Analysis
     from engine.models import User
 
-    N = 3
+    N = 2
     owner = User.objects.all().first()
-    projects = [f"Project {x}" for x in range(0, 3)]
-    data_analysis = [(f"Data {x}",f"Analysis {x}") for x in range(0, 5)]
+    projects = [f"Project {x}" for x in range(0, 5)]
+    data_analysis = [(f"Data {x}",f"Analysis {x}") for x in range(0, 10)]
 
     for title in projects:
 
