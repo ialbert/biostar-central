@@ -1,33 +1,20 @@
 from django.test import TestCase
 from django.test import Client
 
-'''
- if not user:
-        # This user needs to be created/
-        created = True
-        user = User.objects.create(email=email, username=get_uuid())
-        user.set_password(get_uuid())
-        user.save()
-        user.profile.name = name
-'''
+# 302 is temporary move and 301 is permanent
 
-
-ALL_PAGES = ["/", "/projects", "/login", "/signup"]
+ALL_PAGES = [("/", 200), ("/projects", 301), ("/login", 301), ("/signup", 301)]
 
 
 class SimplePageResponses(TestCase):
 
-    # Test given pages ( with new client for every page )
     def test_pages(self):
+        client = Client()
 
-        for page in ALL_PAGES:
-            client = Client()
-            response = client.get(page)
-            try:
-                self.assertEqual(response.status_code, 200)
-            except AssertionError:
-                # signup has a redirect response
-                self.assertEqual(response.status_code, 301)
+        for url, status in ALL_PAGES:
+            response = client.get(url)
+            self.assertEqual(response.status_code, status)
+
 
 
 

@@ -89,21 +89,23 @@ def user_login(request):
     return render(request, "registration/user_login.html", context=context)
 
 
-def project(request):
+def list_projects(request):
 
     projects = Project.objects.all()
     data = dict(object_list=projects)
 
-    # print(projects)
-    #
+    print(projects)
+
     # for proj in projects:
     #     print(proj.title, proj.owner)
-    #     print(proj.data.all())
-    #     print(proj.analysis.all())
-    #     print(proj.data.all()[0].owner)
+    #     print(proj.data_set.all())
+    #     print(proj.analysis_set.all())
+    #     print(proj.data_set.all()[0].owner)
     #     print('----')
-
+    # print(1/0)
 
     return render(request, "project.html", data)
 
 
+def detail_projects(request, project_id):
+    return None

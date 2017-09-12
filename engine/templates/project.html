@@ -18,37 +18,13 @@
     {% for proj in object_list %}
 
         <div class="ui vertical segment">
+            <a href></a>
             <i class="folder icon"></i>{{ proj.title }}
-            <p>{{ proj.date }}</p>
+
+            <p>{{ proj.text}}</p>
         </div>
 
-            <div class="ui text container">
 
-                Data
-
-                <div class="ui vertical menu">
-                    {% for data in proj.data.all %}
-                      <a class="item">
-                        {{ data.title }}
-                      </a>
-
-                    {% endfor %}
-
-                </div>
-
-                Analysis
-
-                  <div class="ui vertical menu">
-                    {% for analysis in proj.analysis.all %}
-                      <a class="item">
-                        {{ analysis.title }}
-                      </a>
-
-                    {% endfor %}
-
-                </div>
-
-            </div>
     {% endfor %}
         </div>
 {% endblock %}

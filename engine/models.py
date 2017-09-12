@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 
+
 def make_html(text):
     return text
 
@@ -16,17 +17,26 @@ class Base(models.Model):
     def __str__(self):
         return self.title
 
+
     def save(self, *args, **kwargs):
         now = timezone.now()
         self.date = self.date or now
-        self.html = make_html(self.text)
+        #self.html = make_html(self.text)
         super(Base, self).save(*args, **kwargs)
 
     class Meta:
         abstract = True
 
-        
+
+class Project(Base):
+
+    def save(self, *args, **kwargs):
+        super(Project, self).save(*args, **kwargs)
+
+
 class Data(Base):
+
+    project = models.ForeignKey(Project)
 
     def save(self, *args, **kwargs):
         super(Data, self).save(*args, **kwargs)
@@ -34,17 +44,11 @@ class Data(Base):
 
 class Analysis(Base):
 
+    project = models.ForeignKey(Project)
+
     def save(self, *args, **kwargs):
         super(Analysis, self).save(*args, **kwargs)
 
-
-class Project(Base):
-
-    data = models.ManyToManyField(Data)
-    analysis = models.ManyToManyField(Analysis)
-
-    def save(self, *args, **kwargs):
-        super(Project, self).save(*args, **kwargs)
 
 
 
