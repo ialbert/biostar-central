@@ -63,13 +63,13 @@ def init_users(sender, **kwargs):
     for name, email in settings.ADMINS:
         
         if not User.objects.filter(email=email):
-            user = User(first_name="foo", email=email, username=get_uuid(16), is_superuser=True, is_staff=True)
+            user = User(email=email, username=get_uuid(16), is_superuser=True, is_staff=True)
             user.set_password(settings.SECRET_KEY)
             user.save()
             logger.info(f"creating admin: user.id={user.id}, user.email={user.email}")
 
     # Create a regular test user.
-    test_user = User.objects.get_or_create(first_name="bar", email="foo@bar.com", password="foobar221")
+    test_user = User.objects.get_or_create(email="foo@bar.com", password="foobar221")
 
 
 def init_site(sender, **kwargs):
