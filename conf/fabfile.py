@@ -12,12 +12,20 @@ env_prefix = ('source ~/miniconda3/envs/engine/bin/activate engine')
 
 def deploy_remote(path):
     with cd(path), prefix(env_prefix):
+
         run('git pull')
         run('python manage.py migrate')
         run('python manage.py collectstatic --noinput -v 0')
 
+def deploy_from_local(path):
+    with cd(path), prefix(env_prefix):
+        run('git pull https://github.com/Natay/biostar-engine.git')
+        run('python manage.py migrate')
+        run('python manage.py collectstatic --noinput -v 0')
+    #deploy_remote(test_path)
+
 def deploy_test():
-    deploy_remote(test_path)
+    deploy_from_local(test_path)
 
 def deploy_main():
     deploy_remote(main_path)
