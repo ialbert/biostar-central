@@ -1,0 +1,28 @@
+{% extends "index.html" %}
+
+{% block title %}
+    {{object_list.title}}
+{% endblock %}
+
+
+{% block body %}
+
+    {% include "includes/menu.html" %}
+
+    <div class="ui vertical center aligned segment">
+       <h2 class="ui header">{{object_list.project.title}}</h2>
+
+    </div>
+
+    <div class="ui text container">
+
+    <h3>{{object_list.title}}</h3>
+        <p>{{object_list.date.date}}</p>
+    </div>
+
+    <div class="ui horizontal center aligned segment">
+       <p>{{object_list.text}}</p>
+
+    </div>
+
+{% endblock %}

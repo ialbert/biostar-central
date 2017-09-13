@@ -1,0 +1,28 @@
+{% extends "index.html" %}
+
+{% block title %}
+    Projects
+{% endblock %}
+
+
+{% block body %}
+
+    {% include "includes/menu.html" %}
+
+    <div class="ui vertical center aligned segment">
+       <h2 class="ui header">{{object_list.title}}</h2>
+    </div>
+
+    <div class="ui text container">
+    <h3>Analysis</h3>
+    {% for analysis in object_list.analysis_set.all %}
+        <div class="ui vertical segment">
+            <li><a href="/projects/{{object_list.id}}/allanalysis/{{analysis.id}}/">
+                <i class="folder icon"></i>{{ analysis.title }}
+            </a></li>
+            {{analysis.date.date}}
+        </div>
+
+    {% endfor %}
+        </div>
+{% endblock %}

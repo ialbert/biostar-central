@@ -8,7 +8,7 @@ reset:
 	rm -f export/engine.db
 
 init:
-	python manage.py collectstatic --noinput
+	python manage.py collectstatic --noinput -v 0
 	python manage.py migrate
 
 test_all:

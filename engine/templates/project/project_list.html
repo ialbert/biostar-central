@@ -1,0 +1,30 @@
+{% extends "index.html" %}
+
+{% block title %}
+    Projects
+{% endblock %}
+
+
+{% block body %}
+
+    {% include "includes/menu.html" %}
+
+    <div class="ui vertical center aligned segment">
+       <h2 class="ui header">Projects</h2>
+    </div>
+
+    <div class="ui text container">
+
+    {% for proj in object_list %}
+
+        <div class="ui vertical segment">
+            <li><a href="/projects/{{ proj.id }}/">
+                <i class="folder icon"></i>{{ proj.title }}
+            </a></li>
+            {{proj.date.date}}
+
+        </div>
+
+    {% endfor %}
+        </div>
+{% endblock %}

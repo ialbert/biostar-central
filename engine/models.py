@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
+import mistune
 
 
 def make_html(text):
@@ -16,7 +17,6 @@ class Base(models.Model):
 
     def __str__(self):
         return self.title
-
 
     def save(self, *args, **kwargs):
         now = timezone.now()

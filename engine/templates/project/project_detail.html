@@ -1,0 +1,53 @@
+{% extends "index.html" %}
+
+{% block title %}
+    {{object_list.title}}
+{% endblock %}
+
+
+{% block body %}
+
+    {% include "includes/menu.html" %}
+
+    <div class="ui vertical center aligned segment">
+       <h2 class="ui header">{{object_list.title}}</h2>
+    </div>
+
+    <div class="ui text container">
+
+        <div class="ui vertical segment">
+            <a href="/projects/{{object_list.id}}/alldata/">
+                <h3><i class="folder icon"></i>Data</h3>
+            </a>
+            <h5>Data collection.</h5>
+
+        </div>
+
+        <div class="ui vertical segment">
+            <a href="/projects/{{object_list.id}}/allanalysis/">
+                <h3><i class="options icon"></i>Analysis</h3>
+            </a>
+            <h5>Modify parameters for pipelines and add to queue.</h5>
+
+        </div>
+
+        <div class="ui vertical segment">
+            <a href="/projects/{{object_list.id}}/">
+                <h3><i class="cloud upload icon"></i>Run</h3>
+            </a>
+            <h5>Run queued pipelines.</h5>
+
+        </div>
+
+        <div class="ui vertical segment">
+            <a href="/projects/{{object_list.id}}/">
+                <h3><i class="bar chart icon"></i>Results</h3>
+            </a>
+            <h5>Results from pipelines.</h5>
+
+        </div>
+
+
+    </div>
+
+{% endblock %}

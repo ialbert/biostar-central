@@ -1,7 +1,7 @@
 {% extends "index.html" %}
 
 {% block title %}
-    Projects
+    {{object_list.title}}
 {% endblock %}
 
 
@@ -10,20 +10,19 @@
     {% include "includes/menu.html" %}
 
     <div class="ui vertical center aligned segment">
-       <h1>Projects</h1>
+       <h2 class="ui header">{{object_list.title}}</h2>
     </div>
 
     <div class="ui text container">
-
-    {% for proj in object_list %}
+    <h3>Data</h3>
+    {% for data in object_list.data_set.all %}
 
         <div class="ui vertical segment">
-            <a href></a>
-            <i class="folder icon"></i>{{ proj.title }}
-
-            <p>{{ proj.text}}</p>
+            <li><a href="/projects/{{object_list.id}}/alldata/{{ data.id }}/">
+                <i class="folder icon"></i>{{ data.title }}
+            </a></li>
+            {{data.date.date}}
         </div>
-
 
     {% endfor %}
         </div>

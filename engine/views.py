@@ -2,9 +2,10 @@ import uuid
 import logging
 
 from django.contrib.auth import login, authenticate
+from django.contrib import messages
 from django.shortcuts import render, redirect
 from .forms import SignUpForm, LoginForm
-from .models import User, Project
+from .models import User, Project, Data, Analysis
 
 from ratelimit.decorators import ratelimit
 
@@ -20,7 +21,7 @@ def get_uuid(limit=32):
 
 
 @ratelimit(key='ip', rate='10/m', block=True, method=ratelimit.UNSAFE)
-def signup(request):
+def user_signup(request):
 
     if request.method == 'POST':
         form = SignUpForm(request.POST)
@@ -79,8 +80,6 @@ def user_login(request):
             else:
                 # This should not happen normally.
                 form.add_error(None, "Invalid form processing.")
-        else:
-            print(form, form.is_valid())
     else:
         initial = dict(nexturl=request.GET.get('next', '/'))
         form = LoginForm(initial)
@@ -89,23 +88,70 @@ def user_login(request):
     return render(request, "registration/user_login.html", context=context)
 
 
-def list_projects(request):
+def project_list(request):
 
     projects = Project.objects.all()
+    if not projects:
+        messages.error(request, "No project found.")
+        return redirect("/")
+
     data = dict(object_list=projects)
 
-    print(projects)
-
-    # for proj in projects:
-    #     print(proj.title, proj.owner)
-    #     print(proj.data_set.all())
-    #     print(proj.analysis_set.all())
-    #     print(proj.data_set.all()[0].owner)
-    #     print('----')
-    # print(1/0)
-
-    return render(request, "project.html", data)
+    return render(request, "project/project_list.html", data)
 
 
-def detail_projects(request, project_id):
-    return None
+def project_detail(request, id):
+
+    project = Project.objects.filter(id=id).first()
+    if not project:
+        messages.error(request, f"Project{id} not found.")
+
+    data = dict(object_list=project)
+
+    return render(request, "project/project_detail.html", data)
+
+
+def data_list(request, id):
+
+    project = Project.objects.filter(id=id).first()
+    if not project:
+        messages.error(request, "No data found for this project.")
+        #return redirect("/")
+
+    data = dict(object_list=project)
+
+    return render(request, "project/data_list.html", data)
+
+def data_detail(request, id, id2):
+
+    current_data = Data.objects.filter(id=id2).first()
+    if not current_data:
+        messages.error(request, f"Data{id} not found.")
+
+    data = dict(object_list=current_data)
+
+    return render(request, "project/data_analysis_detail.html", data)
+
+
+def analysis_list(request, id):
+
+    project = Project.objects.filter(id=id).first()
+    if not project:
+        messages.error(request, "No data found for this project.")
+        #return redirect("/")
+
+    data = dict(object_list=project)
+
+    return render(request, "project/analysis_list.html", data)
+
+
+def analysis_detail(request, id, id2):
+
+    current_data = Analysis.objects.filter(id=id2).first()
+    if not current_data:
+        messages.error(request, f"Data{id} not found.")
+
+    data = dict(object_list=current_data)
+
+    return render(request, "project/data_analysis_detail.html", data)
+
