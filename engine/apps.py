@@ -5,15 +5,10 @@ import logging, uuid
 import random
 
 
-# Random block of latin text (lorem ipsum)
-TEXT = """
+# Random block of latin text (lorem ipsum) to populate text feild
+TEXT = """#TEST
         Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque 
-       laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae 
-       dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia
-        consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem
-       ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut
-        labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem
-       ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur?
+       laudantium, totam rem aperiam, eaque ipsa quae ab illo
        """
 
 logger = logging.getLogger('engine')
@@ -27,13 +22,14 @@ def init_proj(sender, **kwargs):
     """
     Populate initial projects with N number data and analysis models
     """
-    from engine.models import Project, Data, Analysis
+    from engine.models import Project, Data, Analysis, Pipeline
     from engine.models import User
 
     N = 2
     owner = User.objects.all().first()
     projects = [f"Project {x}" for x in range(0, 5)]
-    data_analysis = [(f"Data {x}",f"Analysis {x}") for x in range(0, 10)]
+    data_analysis = [(f"Data {x}",f"Analysis {x}", f"Pipeline {x}")
+                     for x in range(0, 10)]
 
     for title in projects:
 
@@ -41,16 +37,25 @@ def init_proj(sender, **kwargs):
         proj, flag = Project.objects.get_or_create(title=title, owner=owner, text=TEXT)
         proj.save()
 
-        for data_title, analysis_title in test_set:
+        for data_title, analysis_title, pipeline_title in test_set:
 
-            datainput, flag = Data.objects.get_or_create(title=data_title, owner=owner,
+            datainput, flag = Data.objects.get_or_create(title=data_title,
+                                                         owner=owner,
                                                          text=TEXT, project=proj)
             datainput.save()
-            result, flag = Analysis.objects.get_or_create(title=analysis_title, owner=owner,
+            params, flag = Analysis.objects.get_or_create(title=analysis_title,
+                                                          owner=owner,
                                                           text=TEXT, project=proj)
-            result.save()
+            params.save()
 
-        logger.info(f'creating: {proj.title} with: {len(test_set)} data and analysis files (models).')
+            pipeline, flag = Pipeline.objects.get_or_create(title=pipeline_title,
+                                                            owner=owner,
+                                                            text=TEXT, analysis=params)
+
+            pipeline.save()
+        logger.info(f'creating: {proj.title}')
+    logger.info(f' with: {len(test_set)} data, analysis, and pipelines.')
+
 
 
 def init_users(sender, **kwargs):

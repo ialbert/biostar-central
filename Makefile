@@ -9,6 +9,7 @@ reset:
 
 init:
 	python manage.py collectstatic --noinput -v 0
+	python manage.py makemigrations
 	python manage.py migrate
 
 test_all:
