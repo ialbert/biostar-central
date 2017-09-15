@@ -20,7 +20,7 @@ def deploy_remote(path):
 def deploy_from_local(path):
     with cd(path), prefix(env_prefix):
 
-        #run("rm -f export/engine.db")
+        run("rm -f export/engine.db")
         run('git pull https://github.com/Natay/biostar-engine.git')
         run('python manage.py migrate')
         run('python manage.py collectstatic --noinput -v 0')
