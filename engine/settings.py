@@ -48,7 +48,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'compressor',
     'engine.apps.EngineConfig',
-    'django_tables2'
 ]
 
 MIDDLEWARE = [
