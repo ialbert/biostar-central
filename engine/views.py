@@ -6,10 +6,9 @@ from django.contrib import messages
 from django.shortcuts import render, redirect
 from .forms import SignUpForm, LoginForm
 from .models import (User, Project, Data,
-                     Analysis, Pipeline, PipelineTable)
+                     Analysis)
 
 from ratelimit.decorators import ratelimit
-from django_tables2 import RequestConfig
 
 logger = logging.getLogger('engine')
 
@@ -124,6 +123,7 @@ def data_list(request, id):
 
     return render(request, "project/data_list.html", data)
 
+
 def data_detail(request, id, id2):
 
     current_data = Data.objects.filter(id=id2).first()
@@ -132,7 +132,7 @@ def data_detail(request, id, id2):
 
     data = dict(object_list=current_data)
 
-    return render(request, "project/data_analysis_detail.html", data)
+    return render(request, "project/data_detail.html", data)
 
 
 def analysis_list(request, id):
@@ -155,10 +155,5 @@ def analysis_detail(request, id, id2):
 
     data = dict(object_list=current_data)
 
-    return render(request, "project/data_analysis_detail.html", data)
+    return render(request, "project/analysis_detail.html", data)
 
-def pipelines(request):
-    table = PipelineTable(Pipeline.objects.all())
-    RequestConfig(request).configure(table)
-
-    return render(request, "project/pipelines.html", {"pipelines": table})

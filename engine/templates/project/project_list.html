@@ -11,6 +11,14 @@
 
     <div class="ui vertical center aligned segment">
        <h2 class="ui header">Projects</h2>
+
+    </div>
+    <div class="ui vertical aligned segment">
+        <div class="ui tiny breadcrumb">
+          <a class="section" href="{% url 'home' %}">Home</a>
+          <i class="right chevron icon divider"></i>
+          <div class="active section">Projects</div>
+        </div>
     </div>
 
     <div class="ui text container">
@@ -18,10 +26,10 @@
     {% for proj in object_list %}
 
         <div class="ui vertical segment">
-            <li><a href="/projects/{{ proj.id }}/">
+            <a href="{% url 'project' proj.id %}">
                 <i class="folder icon"></i>{{ proj.title }}
-            </a></li>
-            {{proj.date.date}}
+            </a>
+            <p>{{proj.date.date}}</p>
 
         </div>
 

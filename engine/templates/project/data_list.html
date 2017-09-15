@@ -12,16 +12,27 @@
     <div class="ui vertical center aligned segment">
        <h2 class="ui header">{{object_list.title}}</h2>
     </div>
+    <div class="ui vertical aligned segment">
+        <div class="ui tiny breadcrumb">
+          <a class="section" href="{% url 'home' %}">Home</a>
+          <i class="right chevron icon divider"></i>
+          <a class="section" href="{% url 'allprojects' %}">Projects</a>
+          <i class="right chevron icon divider"></i>
+          <a class="section" href="{% url 'project' object_list.id %}">{{object_list.title}}</a>
+          <i class="right chevron icon divider"></i>
+          <div class="active section">Data</div>
 
+        </div>
+    </div>
     <div class="ui text container">
-    <h3>Data</h3>
+
     {% for data in object_list.data_set.all %}
 
         <div class="ui vertical segment">
-            <li><a href="/projects/{{object_list.id}}/alldata/{{ data.id }}/">
+            <a href="{% url 'data' object_list.id data.id %}">
                 <i class="folder icon"></i>{{ data.title }}
-            </a></li>
-            {{data.date.date}}
+            </a>
+            <p>{{data.date.date}}</p>
         </div>
 
     {% endfor %}

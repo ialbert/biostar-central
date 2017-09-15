@@ -12,27 +12,35 @@
     <div class="ui vertical center aligned segment">
        <h2 class="ui header">{{object_list.title}}</h2>
     </div>
-
+    <div class="ui vertical aligned segment">
+        <div class="ui tiny breadcrumb">
+          <a class="section" href="{% url 'home' %}">Home</a>
+          <i class="right chevron icon divider"></i>
+          <a class="section" href="{% url 'allprojects' %}">Projects</a>
+          <i class="right chevron icon divider"></i>
+          <div class="active section">{{object_list.title}}</div>
+        </div>
+    </div>
     <div class="ui text container">
 
         <div class="ui vertical segment">
-            <a href="/projects/{{object_list.id}}/alldata/">
-                <h3><i class="folder icon"></i>Data</h3>
+            <a href="{% url 'alldata' object_list.id %}">
+                <h3><i class="archive icon"></i>Data</h3>
             </a>
             <h5>Data collection.</h5>
 
         </div>
 
         <div class="ui vertical segment">
-            <a href="/projects/{{object_list.id}}/allanalysis/">
+            <a href="{% url 'allanalysis' object_list.id %}">
                 <h3><i class="options icon"></i>Analysis</h3>
             </a>
-            <h5>Modify parameters for pipelines and add to queue.</h5>
+            <h5>Modify pipelines and add to jobs queue.</h5>
 
         </div>
 
         <div class="ui vertical segment">
-            <a href="/projects/{{object_list.id}}/">
+            <a href="{% url 'project' object_list.id %}">
                 <h3><i class="bar chart icon"></i>Results</h3>
             </a>
             <h5>Results from pipelines.</h5>

@@ -6,7 +6,7 @@ import random
 
 
 # Random block of latin text (lorem ipsum) to populate text feild
-TEXT = """#TEST
+TEXT = """#TEST\n
         Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque 
        laudantium, totam rem aperiam, eaque ipsa quae ab illo
        """
@@ -22,13 +22,13 @@ def init_proj(sender, **kwargs):
     """
     Populate initial projects with N number data and analysis models
     """
-    from engine.models import Project, Data, Analysis, Pipeline
+    from engine.models import Project, Data, Analysis, Result
     from engine.models import User
 
     N = 2
     owner = User.objects.all().first()
     projects = [f"Project {x}" for x in range(0, 5)]
-    data_analysis = [(f"Data {x}",f"Analysis {x}", f"Pipeline {x}")
+    data_analysis = [(f"Data {x}",f"Analysis {x}", f"Job {x}")
                      for x in range(0, 10)]
 
     for title in projects:
@@ -37,7 +37,7 @@ def init_proj(sender, **kwargs):
         proj, flag = Project.objects.get_or_create(title=title, owner=owner, text=TEXT)
         proj.save()
 
-        for data_title, analysis_title, pipeline_title in test_set:
+        for data_title, analysis_title, job_title in test_set:
 
             datainput, flag = Data.objects.get_or_create(title=data_title,
                                                          owner=owner,
@@ -48,14 +48,13 @@ def init_proj(sender, **kwargs):
                                                           text=TEXT, project=proj)
             params.save()
 
-            pipeline, flag = Pipeline.objects.get_or_create(title=pipeline_title,
-                                                            owner=owner,
-                                                            text=TEXT, analysis=params)
+            res, flag = Result.objects.get_or_create(title=job_title,
+                                                    owner=owner,
+                                                    text=TEXT, analysis=params)
+            res.save()
 
-            pipeline.save()
         logger.info(f'creating: {proj.title}')
     logger.info(f' with: {len(test_set)} data, analysis, and pipelines.')
-
 
 
 def init_users(sender, **kwargs):

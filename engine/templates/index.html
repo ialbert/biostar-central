@@ -5,7 +5,9 @@
 {% endblock %}
 
 {% block header %}
-    <i class="barcode icon"></i> Metagenomics Barcode Data Repository
+    <a href="{% url 'home' %}">
+        <i class="barcode icon"></i> Metagenomics Barcode Data Repository
+    </a>
 {% endblock %}
 
 {% block body %}
@@ -18,27 +20,15 @@
             <p>This site stores data and analysis results for metagenomics barcode data.</p>
         </div>
 
-        <div class="ui vertical segment">
-                <a href="/">
-                    <h3><i class="write square icon"></i>Create Project</h3>
-                </a>
-               <h5>Enter data and run pipeline.</h5>
 
-        </div>
         <div class="ui vertical segment">
-                <a href="/projects">
+                <a href="{% url 'allprojects' %}">
                     <h3><i class="database icon"></i>Projects</h3>
                 </a>
                <h5>View list of projects.</h5>
 
         </div>
-        <div class="ui vertical segment">
-            <a href="/pipelines">
-                <h3><i class="cloud upload icon"></i>Run Jobs</h3>
-            </a>
-            <h5>Run queued pipelines.</h5>
 
-        </div>
         <div class="ui vertical segment">
             <a>
             <h3><i class="info circle icon"></i>Information</h3>

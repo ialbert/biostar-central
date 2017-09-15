@@ -1,5 +1,4 @@
 from django.db import models
-import django_tables2 as tables
 from django.contrib.auth.models import User
 from django.utils import timezone
 import mistune
@@ -24,7 +23,7 @@ class Base(models.Model):
     def save(self, *args, **kwargs):
         now = timezone.now()
         self.date = self.date or now
-        #self.html = make_html(self.text)
+        self.html = make_html(self.text)
         super(Base, self).save(*args, **kwargs)
 
     class Meta:
@@ -40,15 +39,7 @@ class Project(Base):
 class Data(Base):
 
     project = models.ForeignKey(Project)
-    #upload = ""
-    # what type of file
-    #filetypes = ""
-
-    # number of files
-    #nfiles = 2
-    #
-    #for x in range(nfiles):
-    #   make a file feild
+    #file = models.FileField()
 
     def save(self, *args, **kwargs):
         super(Data, self).save(*args, **kwargs)
@@ -57,35 +48,23 @@ class Data(Base):
 class Analysis(Base):
 
     project = models.ForeignKey(Project)
+    #pipeline = ""
 
     def save(self, *args, **kwargs):
         super(Analysis, self).save(*args, **kwargs)
 
 
-class Pipeline(Base):
-
-    analysis = models.ForeignKey(Analysis)
-
-    #status = ""
-    def save(self, *args, **kwargs):
-        super(Pipeline, self).save(*args, **kwargs)
-
-
 class Result(Base):
 
-    pipeline = models.ForeignKey(Pipeline)
-
+    QUEUED, RUNNING, FINISHED, ERROR = 1,2,3,4
+    CHOICES = [("Queued", QUEUED), ("Running", RUNNING),
+               ("Finished", FINISHED), ("Error", ERROR)]
+    analysis = models.ForeignKey(Analysis)
+    state =  models.IntegerField(default=1, choices=CHOICES)
+    directory = models.FilePathField(default="media")
+    commands = models.TextField(default="commands")
 
     def save(self, *args, **kwargs):
         super(Result, self).save(*args, **kwargs)
 
     
-class PipelineTable(tables.Table):
-
-    class Meta:
-        model = Pipeline
-        #attrs = {"class": "table-striped table-bordered"}
-        #project = Pipeline.objects.all().analysis.project.title
-        fields = ("title", "date", "text",
-                   "analysis", "project")
-
