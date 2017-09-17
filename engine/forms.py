@@ -1,6 +1,7 @@
 from django import forms
 from django.utils.translation import gettext_lazy as helpers
 from django.contrib.auth.models import User
+from .models import Project, Data, Analysis, Result
 
 
 class SignUpForm(forms.ModelForm):
@@ -56,8 +57,32 @@ class LoginForm(forms.Form):
                               widget=forms.PasswordInput)
 
 
+class ProjectForm(forms.ModelForm):
+
+    class Meta:
+        model = Project
+        fields = ['title', 'text', 'date', 'owner']
 
 
+class DataForm(forms.ModelForm):
+
+    class Meta:
+        model = Data
+        fields = ['title', 'text', 'date', 'owner']
+
+
+class AnalysisForm(forms.ModelForm):
+
+    class Meta:
+        model = Analysis
+        fields = ['title', 'text', 'date', 'owner']
+
+
+class ResultForm(forms.ModelForm):
+
+    class Meta:
+        model = Result
+        fields = ['title', 'text', 'date', 'owner']
 
 
 

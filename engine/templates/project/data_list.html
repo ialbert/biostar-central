@@ -10,11 +10,11 @@
     {% include "includes/menu.html" %}
 
     <div class="ui vertical center aligned segment">
-       <h2 class="ui header">{{object_list.title}}</h2>
+       <b class="header">{{object_list.title}}</b>
     </div>
-    <div class="ui vertical aligned segment">
-        <div class="ui tiny breadcrumb">
-          <a class="section" href="{% url 'home' %}">Home</a>
+    <p>
+        <div class="ui small breadcrumb">
+          <a class="section" href="{% url 'home' user.id%}">Home</a>
           <i class="right chevron icon divider"></i>
           <a class="section" href="{% url 'allprojects' %}">Projects</a>
           <i class="right chevron icon divider"></i>
@@ -23,12 +23,17 @@
           <div class="active section">Data</div>
 
         </div>
-    </div>
+    <p>
     <div class="ui text container">
 
     {% for data in object_list.data_set.all %}
 
         <div class="ui vertical segment">
+           <div class="ui right floated button">
+               <a href="{% url 'allprojects' %}">
+                <i class="write icon"></i>Edit
+               </a>
+            </div>
             <a href="{% url 'data' object_list.id data.id %}">
                 <i class="folder icon"></i>{{ data.title }}
             </a>
@@ -36,5 +41,5 @@
         </div>
 
     {% endfor %}
-        </div>
+
 {% endblock %}

@@ -7,8 +7,9 @@ import random
 
 # Random block of latin text (lorem ipsum) to populate text feild
 TEXT = """#TEST\n
-        Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque 
-       laudantium, totam rem aperiam, eaque ipsa quae ab illo
+        Sed ut perspiciatis unde omnis iste natus error \n
+        sit voluptatem accusantium doloremque\n 
+       laudantium, totam rem aperiam, eaque ipsa quae ab illo\n
        """
 
 logger = logging.getLogger('engine')
@@ -67,10 +68,11 @@ def init_users(sender, **kwargs):
     for name, email in settings.ADMINS:
         
         if not User.objects.filter(email=email):
-            user = User(email=email, username=get_uuid(16), is_superuser=True, is_staff=True)
+            user = User(first_name="foo", email=email, username=get_uuid(16),
+                        is_superuser=True, is_staff=True)
             user.set_password(settings.SECRET_KEY)
             user.save()
-            logger.info(f"creating admin: user.id={user.id}, user.email={user.email}")
+            logger.info(f"creating admin: user.username = {user.username}, user.email={user.email}")
 
     # Create a regular test user.
     test_user = User.objects.get_or_create(email="foo@bar.com", password="foobar221")

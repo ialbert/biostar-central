@@ -10,12 +10,13 @@
     {% include "includes/menu.html" %}
 
     <div class="ui vertical center aligned segment">
-       <h2 class="ui header">{{object_list.project.title}}</h2>
+       <b class="header">{{object_list.project.title}}</b>
 
     </div>
-    <div class="ui vertical aligned segment">
-        <div class="ui tiny breadcrumb">
-          <a class="section" href="{% url 'home' %}">Home</a>
+<p>
+
+        <div class="ui small breadcrumb">
+          <a class="section" href="{% url 'home' user.id %}">Home</a>
           <i class="right chevron icon divider"></i>
           <a class="section" href="{% url 'allprojects' %}">Projects</a>
           <i class="right chevron icon divider"></i>
@@ -28,24 +29,12 @@
           <div class="active section">{{object_list.title}}</div>
 
         </div>
-    </div>
+</p>
+<div class="ui vertical center aligned segment">
 
-    <div class="ui text container">
-
-    <h3>{{object_list.title}}</h3>
         <p>{{object_list.date.date}}</p>
 
-
-
-       <div class="ui two column divided grid">
-          <div class="row">
-            <div class="column">
               <p>{{object_list.text}}</p>
-            </div>
-            <div class="column">
-              <p>{{object_list.html | safe }}</p>
-            </div>
-          </div>
 
         </div>
 

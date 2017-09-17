@@ -80,7 +80,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'engine.wsgi.application'
 ACCOUNT_EMAIL_REQUIRED = True
-# ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION= True
+ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION= True
 
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
@@ -135,4 +135,3 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
     'compressor.finders.CompressorFinder',
 )
-

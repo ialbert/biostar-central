@@ -10,28 +10,39 @@
     {% include "includes/menu.html" %}
 
     <div class="ui vertical center aligned segment">
-       <h2 class="ui header">{{object_list.title}}</h2>
+       <b class="header">{{object_list.title}}</b>
     </div>
-    <div class="ui vertical aligned segment">
-        <div class="ui tiny breadcrumb">
-          <a class="section" href="{% url 'home' %}">Home</a>
+    <p>
+        <div class="ui small breadcrumb">
+          <a class="section" href="{% url 'home' user.id %}">Home</a>
           <i class="right chevron icon divider"></i>
           <a class="section" href="{% url 'allprojects' %}">Projects</a>
           <i class="right chevron icon divider"></i>
           <div class="active section">{{object_list.title}}</div>
         </div>
-    </div>
+    </p>
+
     <div class="ui text container">
 
         <div class="ui vertical segment">
+               <div class="ui right floated button">
+                   <a href="{% url 'allprojects' %}">
+                    <i class="cloud upload icon"></i>Upload
+                   </a>
+                </div>
             <a href="{% url 'alldata' object_list.id %}">
                 <h3><i class="archive icon"></i>Data</h3>
             </a>
-            <h5>Data collection.</h5>
+            <h5>View data associated with project.</h5>
 
         </div>
 
         <div class="ui vertical segment">
+               <div class="ui right floated button">
+                   <a href="{% url 'allprojects' %}">
+                    <i class="exchange icon"></i>Run
+                   </a>
+                </div>
             <a href="{% url 'allanalysis' object_list.id %}">
                 <h3><i class="options icon"></i>Analysis</h3>
             </a>

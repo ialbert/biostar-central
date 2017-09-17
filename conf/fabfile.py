@@ -10,6 +10,7 @@ test_path = '/export/sites/test_engine'
 
 env_prefix = ('source ~/miniconda3/envs/engine/bin/activate engine')
 
+
 def deploy_remote(path):
     with cd(path), prefix(env_prefix):
 
@@ -17,7 +18,8 @@ def deploy_remote(path):
         run('python manage.py migrate')
         run('python manage.py collectstatic --noinput -v 0')
 
-def deploy_from_local(path):
+
+def deploy_latest(path):
     with cd(path), prefix(env_prefix):
 
         #run("rm -f export/engine.db")
@@ -27,7 +29,7 @@ def deploy_from_local(path):
 
 
 def deploy_test():
-    deploy_from_local(test_path)
+    deploy_latest(test_path)
 
 def deploy_main():
     deploy_remote(main_path)

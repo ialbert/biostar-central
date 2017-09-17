@@ -1,0 +1,15 @@
+
+{% block body %}
+
+        <div class="ui menu">
+
+          <a class="item" href="{% url 'index' %}"><i class="home icon"></i>Home</a>
+            <a class="item" href="{% url 'login' %}"><i class="sign in icon"></i>Login</a>
+          <div class="right menu">
+
+            <a class="item"  href="{% url 'signup' %}"><i class="add user icon"></i>Sign Up</a>
+            <a class="item"><i class="help icon"></i>Help</a>
+          </div>
+        </div>
+
+{% endblock %}

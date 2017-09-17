@@ -10,24 +10,43 @@
 {% endblock %}
 
 
+
 {% block body %}
 
-    {% include "includes/nonuser_menu.html" %}
+    {% include "includes/menu.html" %}
 
         <div class="ui vertical center aligned segment">
             <b class="header">
                 Store data and analysis results for metagenomics barcode data.
             </b>
+
         </div>
 
-        <p>
+    {% if user.first_name %}
+      <p>
         <div class="ui small breadcrumb">
-          <div class="active section">{{ object_list.user }}</div>
+          <div class=" active section">
+              Hello, {{user.first_name}}
+          </div>
         </div>
-        </p>
+      </p>
+    {% else %}
+      <p>
+        <div class="ui small breadcrumb">
+          <div class=" active section">
+              Hello, {{user.username}}
+          </div>
+        </div>
+      </p>
+    {% endif %}
 
     <div class="ui text container">
         <div class="ui vertical segment">
+               <div class="ui right floated button">
+                   <a href="{% url 'allprojects' %}">
+                    <i class="write square icon"></i>Create
+                   </a>
+                </div>
                 <a href="{% url 'allprojects' %}">
                     <h3><i class="database icon"></i>Projects</h3>
                 </a>
