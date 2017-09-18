@@ -27,13 +27,13 @@
         <div class="ui small breadcrumb">
           <a class="section" href="{% url 'index' %}">Home</a>
           <i class="right chevron icon divider"></i>
-          <a class="section" href="{% url 'allprojects' %}">Projects</a>
+          <a class="section" href="{% url 'allprojects' %}">Projects List</a>
           <i class="right chevron icon divider"></i>
           <a class="section" href="{% url 'project' object_list.project.id %}">
               {{object_list.project.title}}
           </a>
           <i class="right chevron icon divider"></i>
-          <a class="section" href="{% url 'allanalysis' object_list.project.id %}">Analysis</a>
+          <a class="section" href="{% url 'allanalysis' object_list.project.id %}">Analysis List</a>
           <i class="right chevron icon divider"></i>
           <div class="active section">{{object_list.title}}</div>
 

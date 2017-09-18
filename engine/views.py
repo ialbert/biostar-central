@@ -180,20 +180,20 @@ def data_detail(request, id, id2):
     return render(request, "project/data_detail.html", data)
 
 
-def data_upload(request, id):
+def data_create(request, id):
 
     if request.method == "POST":
 
         proj = Project.objects.filter(id=id).first()
         print(dir(request))
-        #data = Data.objects.get_or_create(project=proj)
+        data = Data.objects.get_or_create(project=proj)
 
         form = DataForm(request.POST, instance=data)
 
         if form.is_valid():
             form.save()
 
-            return render(request, 'project/data_upload.html',
+            return render(request, 'project/data_create.html',
                           {'form': form, 'object_list': proj})
 
     else:
@@ -203,7 +203,7 @@ def data_upload(request, id):
         data.save()
         form = DataForm(instance=data)
 
-        return render(request, 'project/data_upload.html',
+        return render(request, 'project/data_create.html',
                       {'form': form, 'object_list': proj})
 
 
