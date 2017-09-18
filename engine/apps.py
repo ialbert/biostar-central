@@ -28,7 +28,7 @@ def init_proj(sender, **kwargs):
 
     N = 2
     owner = User.objects.all().first()
-    projects = [f"Project {x}" for x in range(0, 5)]
+    projects = [f"Project {x}" for x in range(1, 6)]
     data_analysis = [(f"Data {x}",f"Analysis {x}", f"Job {x}")
                      for x in range(0, 10)]
 

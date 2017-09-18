@@ -1,0 +1,64 @@
+{% extends "index.html" %}
+
+{% block title %}
+    Projects
+{% endblock %}
+
+
+{% block body %}
+
+    {% include "includes/menu.html" %}
+
+    <div class="ui vertical center aligned segment">
+       <b class="header">{{object_list.title}}</b>
+
+    </div>
+    <p>
+        <div class="ui small breadcrumb">
+          <a class="section" href="{% url 'index' %}">Home</a>
+          <i class="right chevron icon divider"></i>
+          <a class="section" href="{% url 'allprojects' %}">Projects</a>
+          <i class="right chevron icon divider"></i>
+          <div class="active section">{{object_list.title}}</div>
+        </div>
+    </p>
+
+    <div class="ui text container">
+
+        <form method="post" class="ui form attached fluid segment" >
+
+            {% csrf_token %}
+             <div class="field">
+                  <label>Title</label>
+                  {{ form.title }}
+             </div>
+
+             <div class="field">
+                  <label>Date</label>
+                  {{ form.date }}
+             </div>
+
+             <div class="field">
+                  <label>Owner</label>
+                  {{ form.owner }}
+             </div>
+
+            <div class="field">
+                  <label>Text</label>
+                  {{ form.text }}
+             </div>
+
+            {{ form.errors }}
+
+            <button type="submit" class="ui primary button">Save</button>
+            <a class="ui right floated button" href="{% url 'allprojects' %}">
+                Exit
+            </a>
+
+        </form>
+
+    </div>
+
+
+
+{% endblock %}

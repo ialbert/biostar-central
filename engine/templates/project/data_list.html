@@ -14,24 +14,28 @@
     </div>
     <p>
         <div class="ui small breadcrumb">
-          <a class="section" href="{% url 'home' user.id%}">Home</a>
+          <a class="section" href="{% url 'index' %}">Home</a>
           <i class="right chevron icon divider"></i>
-          <a class="section" href="{% url 'allprojects' %}">Projects</a>
+          <a class="section" href="{% url 'allprojects' %}">Projects List</a>
           <i class="right chevron icon divider"></i>
           <a class="section" href="{% url 'project' object_list.id %}">{{object_list.title}}</a>
           <i class="right chevron icon divider"></i>
-          <div class="active section">Data</div>
+          <div class="active section">Data List</div>
 
         </div>
-    <p>
-    <div class="ui text container">
-
+    </p>
+    <div class="ui container">
+    <div class="ui vertical center aligned segment">
+        <button class="ui primary basic button">
+            <i class="write square icon"></i>Create Data
+        </button>
+    </div>
     {% for data in object_list.data_set.all %}
 
         <div class="ui vertical segment">
-           <div class="ui right floated button">
+           <div class="ui right floated basic button">
                <a href="{% url 'allprojects' %}">
-                <i class="write icon"></i>Edit
+                <i class="write icon"></i>Edit Data
                </a>
             </div>
             <a href="{% url 'data' object_list.id data.id %}">

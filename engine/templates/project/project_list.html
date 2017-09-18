@@ -15,23 +15,23 @@
     </div>
     <p>
         <div class="ui small breadcrumb">
-          <a class="section" href="{% url 'home' user.id %}">Home</a>
+          <a class="section" href="{% url 'index' %}">Home</a>
           <i class="right chevron icon divider"></i>
-          <div class="active section">Projects</div>
+          <div class="active section">Projects List</div>
         </div>
     </p>
 
-    <div class="ui text container">
+    <div class="ui container">
 
+    <div class="ui vertical center aligned segment">
+        <button class="ui primary basic button">
+            <i class="write square icon"></i>Create Project
+        </button>
+    </div>
     {% for proj in object_list %}
 
         <div class="ui vertical segment">
 
-               <div class="ui right floated button">
-                   <a href="{% url 'editproject' proj.id %}">
-                    <i class="write icon"></i>Edit
-                   </a>
-                </div>
 
                 <a href="{% url 'project' proj.id %}">
                     <i class="folder icon"></i>{{ proj.title }}

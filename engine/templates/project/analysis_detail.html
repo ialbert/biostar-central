@@ -14,8 +14,18 @@
 
     </div>
 <p>
+       <div class="ui right floated basic button">
+           <a href="#">
+            <i class="write icon"></i>Edit Analysis
+           </a>
+        </div>
+       <div class="ui right floated green basic button">
+           <a href="#">
+            <i class="checkmark icon"></i>Run
+           </a>
+        </div>
         <div class="ui small breadcrumb">
-          <a class="section" href="{% url 'home' user.id%}">Home</a>
+          <a class="section" href="{% url 'index' %}">Home</a>
           <i class="right chevron icon divider"></i>
           <a class="section" href="{% url 'allprojects' %}">Projects</a>
           <i class="right chevron icon divider"></i>
@@ -29,11 +39,11 @@
 
         </div>
  </p>
-<div class="ui vertical center aligned segment">
+    <p>Created : {{object_list.date.date}}</p>
+    <div class="ui vertical center aligned segment">
 
-           <p>{{object_list.date.date}}</p>
-
-              <p>{{object_list.text}}</p>
+        <b>Text</b>
+          <p>{{object_list.text}}</p>
 
     </div>
 

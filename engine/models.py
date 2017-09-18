@@ -41,7 +41,7 @@ class Project(Base):
 class Data(Base):
 
     project = models.ForeignKey(Project)
-    #file = models.FileField()
+    file = models.FileField(null=True)
 
     def save(self, *args, **kwargs):
         super(Data, self).save(*args, **kwargs)

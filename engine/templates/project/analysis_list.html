@@ -14,30 +14,41 @@
     </div>
     <p>
         <div class="ui small breadcrumb">
-          <a class="section" href="{% url 'home' user.id%}">Home</a>
+          <a class="section" href="{% url 'index' %}">Home</a>
           <i class="right chevron icon divider"></i>
-          <a class="section" href="{% url 'allprojects' %}">Projects</a>
+          <a class="section" href="{% url 'allprojects' %}">Projects List</a>
           <i class="right chevron icon divider"></i>
-          <a class="section" href="{% url 'project' object_list.id %}">
-              {{object_list.title}}
-          </a>
+          <a class="section" href="{% url 'project' object_list.id %}">{{object_list.title}}</a>
           <i class="right chevron icon divider"></i>
-          <div class="active section">Analysis</div>
+          <div class="active section">Analysis List</div>
 
         </div>
     </p>
 
-    <div class="ui text container">
+    <div class="ui container">
+    <div class="ui vertical center aligned segment">
+        <button class="ui primary basic button">
+            <i class="write square icon"></i>Create Analysis
+        </button>
+    </div>
+
     {% for analysis in object_list.analysis_set.all %}
         <div class="ui vertical segment">
-           <div class="ui right floated button">
-               <a href="{% url 'allprojects' %}">
-                <i class="write icon"></i>Edit
+
+           <div class="ui right floated basic button">
+               <a href="#">
+                <i class="write icon"></i>Edit Analysis
+               </a>
+            </div>
+           <div class="ui right floated green basic button">
+               <a href="#">
+                <i class="checkmark icon"></i>Run
                </a>
             </div>
             <a href="{% url 'analysis' object_list.id analysis.id %}">
                 <i class="folder icon"></i>{{ analysis.title }}
             </a>
+
             <p>{{analysis.date.date}}</p>
         </div>
 

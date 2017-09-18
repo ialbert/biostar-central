@@ -12,37 +12,40 @@
     <div class="ui vertical center aligned segment">
        <b class="header">{{object_list.title}}</b>
     </div>
-    <p>
+<p>
+   <div class="ui right floated basic button">
+       <a href="{% url 'editproject' object_list.id %}">
+        <i class="write icon"></i>Edit Project
+       </a>
+    </div>
+
         <div class="ui small breadcrumb">
-          <a class="section" href="{% url 'home' user.id %}">Home</a>
+          <a class="section" href="{{% url 'index' %}">Home</a>
           <i class="right chevron icon divider"></i>
-          <a class="section" href="{% url 'allprojects' %}">Projects</a>
+          <a class="section" href="{% url 'allprojects' %}">Projects List</a>
           <i class="right chevron icon divider"></i>
           <div class="active section">{{object_list.title}}</div>
+
         </div>
+
     </p>
+
+    <p>Created : {{object_list.date.date}}</p>
+
 
     <div class="ui text container">
 
         <div class="ui vertical segment">
-               <div class="ui right floated button">
-                   <a href="{% url 'allprojects' %}">
-                    <i class="cloud upload icon"></i>Upload
-                   </a>
-                </div>
+
             <a href="{% url 'alldata' object_list.id %}">
-                <h3><i class="archive icon"></i>Data</h3>
+                <h3><i class="archive icon"></i>Data List</h3>
             </a>
             <h5>View data associated with project.</h5>
 
         </div>
 
         <div class="ui vertical segment">
-               <div class="ui right floated button">
-                   <a href="{% url 'allprojects' %}">
-                    <i class="exchange icon"></i>Run
-                   </a>
-                </div>
+
             <a href="{% url 'allanalysis' object_list.id %}">
                 <h3><i class="options icon"></i>Analysis</h3>
             </a>

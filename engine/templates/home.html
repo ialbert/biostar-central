@@ -10,10 +10,9 @@
 {% endblock %}
 
 
-
 {% block body %}
 
-    {% include "includes/menu.html" %}
+    {% include "includes/nonuser_menu.html" %}
 
         <div class="ui vertical center aligned segment">
             <b class="header">
@@ -21,6 +20,7 @@
             </b>
 
         </div>
+
 
     {% if user.first_name %}
       <p>
@@ -42,13 +42,9 @@
 
     <div class="ui text container">
         <div class="ui vertical segment">
-               <div class="ui right floated button">
-                   <a href="{% url 'allprojects' %}">
-                    <i class="write square icon"></i>Create
-                   </a>
-                </div>
+
                 <a href="{% url 'allprojects' %}">
-                    <h3><i class="database icon"></i>Projects</h3>
+                    <h3><i class="database icon"></i>Projects List</h3>
                 </a>
                <h5>View list of projects.</h5>
 

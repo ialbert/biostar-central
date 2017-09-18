@@ -58,17 +58,18 @@ class LoginForm(forms.Form):
 
 
 class ProjectForm(forms.ModelForm):
-
+    # data = forms.FileField()
     class Meta:
         model = Project
         fields = ['title', 'text', 'date', 'owner']
+
 
 
 class DataForm(forms.ModelForm):
 
     class Meta:
         model = Data
-        fields = ['title', 'text', 'date', 'owner']
+        fields = ['title', 'text', 'date', 'owner', 'file']
 
 
 class AnalysisForm(forms.ModelForm):

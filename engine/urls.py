@@ -28,10 +28,10 @@ urlpatterns = [
     url(r'^allprojects/(?P<id>\d+)/$', views.project_detail, name='project'),
     url(r'^allprojects/(?P<id>\d+)/edit/$', views.project_edit, name='editproject'),
     url(r'^allprojects/(?P<id>\d+)/alldata/$', views.data_list, name='alldata'),
+    url(r'^allprojects/(?P<id>\d+)/alldata/upload/$', views.data_upload, name='data_upload'),
     url(r'^allprojects/(?P<id>\d+)/allanalysis/$', views.analysis_list, name='allanalysis'),
     url(r'^allprojects/(?P<id>\d+)/alldata/(?P<id2>\d+)/$', views.data_detail, name='data'),
     url(r'^allprojects/(?P<id>\d+)/allanalysis/(?P<id2>\d+)/$', views.analysis_detail, name='analysis'),
-
 
 ]
 
