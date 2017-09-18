@@ -10,18 +10,34 @@
     {% include "includes/menu.html" %}
 
     <div class="ui vertical center aligned segment">
-       <h2 class="ui header">Projects</h2>
+       <b class="header">Projects</b>
+
     </div>
+    <p>
+        <div class="ui small breadcrumb">
+          <a class="section" href="{% url 'index' %}">Home</a>
+          <i class="right chevron icon divider"></i>
+          <div class="active section">Projects List</div>
+        </div>
+    </p>
 
-    <div class="ui text container">
+    <div class="ui container">
 
+    <div class="ui vertical center aligned segment">
+        <button class="ui primary basic button">
+            <i class="write square icon"></i>Create Project
+        </button>
+    </div>
     {% for proj in object_list %}
 
         <div class="ui vertical segment">
-            <li><a href="/projects/{{ proj.id }}/">
-                <i class="folder icon"></i>{{ proj.title }}
-            </a></li>
-            {{proj.date.date}}
+
+
+                <a href="{% url 'project' proj.id %}">
+                    <i class="folder icon"></i>{{ proj.title }}
+                </a>
+                <p>{{proj.date.date}}</p>
+
 
         </div>
 

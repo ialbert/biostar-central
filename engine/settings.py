@@ -23,8 +23,6 @@ def join(*args):
 
 ADMINS = [("Admin User", "foo@bar.com")]
 
-
-
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(join(__file__))
 
@@ -81,8 +79,8 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'engine.wsgi.application'
-#ACCOUNT_EMAIL_REQUIRED = True
-# ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION= True
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION= True
 
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
@@ -124,6 +122,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
+MEDIA_ROOT = join(BASE_DIR, '..', 'media')
 STATIC_URL = '/static/'
 STATIC_ROOT = join(BASE_DIR, '..', 'export', 'static')
 STATICFILES_DIRS = [
@@ -136,4 +135,3 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
     'compressor.finders.CompressorFinder',
 )
-

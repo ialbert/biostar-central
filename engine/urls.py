@@ -19,15 +19,19 @@ from . import views
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^$', views.index, name="home"),
-    url(r'^login/$', views.user_login, name="login"),
+    url(r'^accounts/login/', views.user_login, name="login"),
     url(r'^signup/$', views.user_signup, name="signup"),
+    url(r'^$', views.index, name="index"),
     url(r'^logout/$', views.user_logout, name="logout"),
-    url(r'^projects/$', views.project_list, name='allprojects'),
-    url(r'^projects/(?P<id>\d+)/$', views.project_detail, name='project'),
-    url(r'^projects/(?P<id>\d+)/alldata/$', views.data_list, name='alldata'),
-    url(r'^projects/(?P<id>\d+)/alldata/(?P<id2>\d+)/$', views.data_detail, name='data'),
-    url(r'^projects/(?P<id>\d+)/allanalysis/$', views.analysis_list, name='allanalysis'),
-    url(r'^projects/(?P<id>\d+)/allanalysis/(?P<id2>\d+)/$', views.analysis_detail, name='analysis'),
+    url(r'^(?P<id>\d+)/$', views.home, name="home"),
+    url(r'^allprojects/$', views.project_list, name='allprojects'),
+    url(r'^allprojects/(?P<id>\d+)/$', views.project_detail, name='project'),
+    url(r'^allprojects/(?P<id>\d+)/edit/$', views.project_edit, name='editproject'),
+    url(r'^allprojects/(?P<id>\d+)/alldata/$', views.data_list, name='alldata'),
+    url(r'^allprojects/(?P<id>\d+)/alldata/create/$', views.data_create, name='data_create'),
+    url(r'^allprojects/(?P<id>\d+)/allanalysis/$', views.analysis_list, name='allanalysis'),
+    url(r'^allprojects/(?P<id>\d+)/alldata/(?P<id2>\d+)/$', views.data_detail, name='data'),
+    url(r'^allprojects/(?P<id>\d+)/allanalysis/(?P<id2>\d+)/$', views.analysis_detail, name='analysis'),
+
 ]
 

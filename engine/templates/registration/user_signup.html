@@ -6,26 +6,33 @@
 
 {% block body %}
 
-<div class="ui raised centered card">
-<form method="post" class="ui form attached fluid segment" >
+    <div class="ui raised centered card">
 
-    {% csrf_token %}
-     <div class="field">
-          <label>Email</label>
-          {{ form.email }}
-     </div>
-     <div class="field">
-          <label>Password</label>
-          {{ form.password1 }}
-     </div>
-     <div class="field">
-          <label>Password Confirmation</label>
-          {{ form.password2 }}
-     </div>
-    {{ form.errors }}
-    <button type="submit" class="ui primary button">Sign up</button>
-    <a class="ui right floated button" href="/">Cancel</a>
-</form>
-</div>
+        <form method="post" class="ui form attached fluid segment" >
+
+            {% csrf_token %}
+             <div class="field">
+                  <label>Email</label>
+                  {{ form.email }}
+             </div>
+
+             <div class="field">
+                  <label>Password</label>
+                  {{ form.password1 }}
+             </div>
+
+             <div class="field">
+                  <label>Password Confirmation</label>
+                  {{ form.password2 }}
+             </div>
+
+            {{ form.errors }}
+
+            <button type="submit" class="ui primary button">Sign up</button>
+            <a class="ui right floated button" href="/">Cancel</a>
+
+        </form>
+
+    </div>
 
 {% endblock %}

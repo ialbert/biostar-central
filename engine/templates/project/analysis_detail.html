@@ -1,0 +1,50 @@
+{% extends "index.html" %}
+
+{% block title %}
+    {{object_list.title}}
+{% endblock %}
+
+
+{% block body %}
+
+    {% include "includes/menu.html" %}
+
+    <div class="ui vertical center aligned segment">
+       <b class="header">{{object_list.project.title}}</b>
+
+    </div>
+<p>
+       <div class="ui right floated basic button">
+           <a href="#">
+            <i class="write icon"></i>Edit Analysis
+           </a>
+        </div>
+       <div class="ui right floated green basic button">
+           <a href="#">
+            <i class="checkmark icon"></i>Run
+           </a>
+        </div>
+        <div class="ui small breadcrumb">
+          <a class="section" href="{% url 'index' %}">Home</a>
+          <i class="right chevron icon divider"></i>
+          <a class="section" href="{% url 'allprojects' %}">Projects List</a>
+          <i class="right chevron icon divider"></i>
+          <a class="section" href="{% url 'project' object_list.project.id %}">
+              {{object_list.project.title}}
+          </a>
+          <i class="right chevron icon divider"></i>
+          <a class="section" href="{% url 'allanalysis' object_list.project.id %}">Analysis List</a>
+          <i class="right chevron icon divider"></i>
+          <div class="active section">{{object_list.title}}</div>
+
+        </div>
+ </p>
+    <p>Created : {{object_list.date.date}}</p>
+    <div class="ui vertical center aligned segment">
+
+        <b>Text</b>
+          <p>{{object_list.text}}</p>
+
+    </div>
+
+{% endblock %}

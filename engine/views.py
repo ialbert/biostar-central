@@ -1,19 +1,22 @@
 import uuid
 import logging
 
-from django.contrib.auth import login, authenticate
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
 from django.shortcuts import render, redirect
-from .forms import SignUpForm, LoginForm
-from .models import User, Project, Data, Analysis
 
+from .forms import SignUpForm, LoginForm, ProjectForm, DataForm
+
+from .models import (User, Project, Data,
+                     Analysis)
 from ratelimit.decorators import ratelimit
 
 logger = logging.getLogger('engine')
 
 
 def index(request):
-    return render(request, 'index.html')
+    return render(request,'index.html')
 
 
 def get_uuid(limit=32):
@@ -38,8 +41,8 @@ def user_signup(request):
             user.save()
 
             login(request, user)
-            
-            return redirect('/login')
+            logger.info(f"Signed up and logged in user.id={user.id}, user.email={user.email}")
+            return redirect(f"/{user.id}")
     else:
         
         form = SignUpForm()
@@ -47,11 +50,16 @@ def user_signup(request):
 
 
 def user_logout(request):
-    return None
+
+    logout(request)
+
+    return redirect("/")
+
 
 
 @ratelimit(key='ip', rate='10/m', block=True, method=ratelimit.UNSAFE)
 def user_login(request):
+
     if request.method == "POST":
         form = LoginForm(data=request.POST)
 
@@ -75,8 +83,9 @@ def user_login(request):
                 form.add_error(None, "This user may not log in.")
             elif user and user.is_active:
                 login(request, user)
-                logger.info("logged in user.id={}, user.email={}".format(user.id, user.email))
-                return redirect("/")
+                logger.info(f"logged in user.id={user.id}, user.email={user.email}")
+
+                return redirect(f"/{user.id}")
             else:
                 # This should not happen normally.
                 form.add_error(None, "Invalid form processing.")
@@ -88,6 +97,12 @@ def user_login(request):
     return render(request, "registration/user_login.html", context=context)
 
 
+@login_required
+def home(request, id):
+    return render(request, 'home.html')
+
+
+#@login_required
 def project_list(request):
 
     projects = Project.objects.all()
@@ -100,6 +115,7 @@ def project_list(request):
     return render(request, "project/project_list.html", data)
 
 
+#@login_required
 def project_detail(request, id):
 
     project = Project.objects.filter(id=id).first()
@@ -111,6 +127,35 @@ def project_detail(request, id):
     return render(request, "project/project_detail.html", data)
 
 
+def project_create(request):
+
+    #else:
+    #form = ProjectForm()
+    return
+
+
+def project_edit(request, id):
+
+    if request.method == "POST":
+
+        proj = Project.objects.filter(id=id).first()
+        form = ProjectForm(request.POST, instance=proj)
+
+        if form.is_valid():
+            form.save()
+
+            return render(request, 'project/project_edit.html',
+                          {'form': form, 'object_list': proj})
+
+    else:
+        proj = Project.objects.filter(id=id).first()
+        form = ProjectForm(instance=proj)
+
+        return render(request, 'project/project_edit.html',
+                      {'form': form, 'object_list': proj})
+
+
+#@login_required
 def data_list(request, id):
 
     project = Project.objects.filter(id=id).first()
@@ -122,6 +167,8 @@ def data_list(request, id):
 
     return render(request, "project/data_list.html", data)
 
+
+#@login_required
 def data_detail(request, id, id2):
 
     current_data = Data.objects.filter(id=id2).first()
@@ -130,9 +177,47 @@ def data_detail(request, id, id2):
 
     data = dict(object_list=current_data)
 
-    return render(request, "project/data_analysis_detail.html", data)
+    return render(request, "project/data_detail.html", data)
 
 
+def data_create(request, id):
+
+    if request.method == "POST":
+
+        proj = Project.objects.filter(id=id).first()
+        print(dir(request))
+        data = Data.objects.get_or_create(project=proj)
+
+        form = DataForm(request.POST, instance=data)
+
+        if form.is_valid():
+            form.save()
+
+            return render(request, 'project/data_create.html',
+                          {'form': form, 'object_list': proj})
+
+    else:
+        proj = Project.objects.filter(id=id).first()
+        data = Data.objects.create(owner=User.objects.all().first(),
+                                   project=proj)
+        data.save()
+        form = DataForm(instance=data)
+
+        return render(request, 'project/data_create.html',
+                      {'form': form, 'object_list': proj})
+
+
+def data_list_edit(request, id):
+
+    return None
+
+
+def data_detail_edit(request, id):
+
+    return None
+
+
+#@login_required
 def analysis_list(request, id):
 
     project = Project.objects.filter(id=id).first()
@@ -145,6 +230,7 @@ def analysis_list(request, id):
     return render(request, "project/analysis_list.html", data)
 
 
+#@login_required
 def analysis_detail(request, id, id2):
 
     current_data = Analysis.objects.filter(id=id2).first()
@@ -153,5 +239,14 @@ def analysis_detail(request, id, id2):
 
     data = dict(object_list=current_data)
 
-    return render(request, "project/data_analysis_detail.html", data)
+    return render(request, "project/analysis_detail.html", data)
 
+
+def analysis_list_edit(request, id):
+
+    return None
+
+
+def analysis_detail_edit(request, id):
+
+    return None
