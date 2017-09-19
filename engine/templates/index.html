@@ -5,39 +5,19 @@
 {% endblock %}
 
 {% block header %}
-    <i class="barcode icon"></i> Metagenomics Barcode Data Repository
 
 {% endblock %}
 
-
 {% block body %}
 
-    {% include "includes/nonuser_menu.html" %}
 
-        <div class="ui vertical center aligned segment">
-            <b class="header">
-                Store data and analysis results for metagenomics barcode data.
-            </b>
-        </div>
-        <p>
-            <div class="ui small breadcrumb">
-              <div class=" active section">
-                  Hello
-              </div>
-            </div>
-        </p>
-        <p>
-        <div class="ui small breadcrumb">
-          <div class="active section">{{ object_list.user }}</div>
-        </div>
-        </p>
 
     <div class="ui text container">
         <div class="ui vertical segment">
-                <a href="{% url 'allprojects' %}">
-                    <h3><i class="database icon"></i>Projects List</h3>
+                <a href="{% url 'project_list' %}">
+                    <h3><i class="database icon"></i>Project List</h3>
                 </a>
-               <h5>View list of projects.</h5>
+               <p>List of projects.</p>
 
         </div>
 
@@ -45,7 +25,7 @@
             <a>
             <h3><i class="info circle icon"></i>Information</h3>
             </a>
-             <h5>About this site.</h5>
+             <p>About this site.</p>
 
         </div>
 

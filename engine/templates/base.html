@@ -1,6 +1,6 @@
 {% load staticfiles %}
 {% load compress %}
-
+{% load engine_tags %}
 
 <html>
 <head>
@@ -20,38 +20,46 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 
     {% compress css %}
-        <link href="{% static 'semantic.min.css' %}" rel="stylesheet">
-        <link href="{% static 'style.css' %}" rel="stylesheet">
+    <link href="{% static 'semantic.min.css' %}" rel="stylesheet">
+    <link href="{% static 'style.css' %}" rel="stylesheet">
     {% endcompress %}
 
 
 </head>
 <body>
 
-<div class="ui container">
-
+<div class="ui text container">
 
     <h2 class="ui center aligned header">
-
-        {% block header %}Header{% endblock %}
-
+        <i class="barcode icon"></i> Metagenomics Barcode Data Repository
     </h2>
 
-    {#  This will show error messages #}
+    {% block menu %}
+        {% menubar action='1' %}
+    {% endblock %}
+
+    <div class="ui basic segment">
+    {% block breadcrumb %}
+        {% breadcrumb steps=steps %}
+    {% endblock %}
+    </div>
+
+    {# This will show error messages #}
+    {% block message %}
+
     {% if messages %}
-
-        {% for message in messages %}
-            <div class="ui {{ message.tags }} message">
-                <p>{{ message|safe }}</p>
-            </div>
-        {% endfor %}
+    {% for message in messages %}
+    <div class="ui {{ message.tags }} message">
+        <p>{{ message|safe }}</p>
+    </div>
+    {% endfor %}
     {% endif %}
-
-    {#  Main body #}
+    {% endblock %}
 
 
     {% block body %}
-        BODY
+    {# Main body #}
+    BODY
     {% endblock %}
 
 

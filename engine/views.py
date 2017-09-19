@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
 from django.shortcuts import render, redirect
+from django.urls import reverse
 
 from .forms import SignUpForm, LoginForm, ProjectForm, DataForm
 
@@ -110,13 +111,18 @@ def project_list(request):
         messages.error(request, "No project found.")
         return redirect("/")
 
-    data = dict(object_list=projects)
+    steps = [
+        (reverse("project_list"), "Project List")
+    ]
+    is_project_list = True
 
-    return render(request, "project/project_list.html", data)
+    context = dict(projects=projects, steps=steps, is_project_list=is_project_list)
+
+    return render(request, "project_list.html", context)
 
 
 #@login_required
-def project_detail(request, id):
+def project_view(request, id):
 
     project = Project.objects.filter(id=id).first()
     if not project:
@@ -124,7 +130,7 @@ def project_detail(request, id):
 
     data = dict(object_list=project)
 
-    return render(request, "project/project_detail.html", data)
+    return render(request, "project_view.html", data)
 
 
 def project_create(request):

@@ -1,18 +1,18 @@
 USER=www
 SERVER=metabarcode.com
 
-serve:
+serve: init
 	python manage.py runserver
 
 reset:
 	rm -f export/engine.db
+	python manage.py migrate
 
 init:
 	python manage.py collectstatic --noinput -v 0
-	python manage.py makemigrations
 	python manage.py migrate
 
-test_all:
+test:
 	python manage.py test
 
 push:
