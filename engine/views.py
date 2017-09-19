@@ -182,26 +182,32 @@ def data_detail(request, id, id2):
 
 def data_create(request, id):
 
+    proj = Project.objects.filter(id=id).first()
+    created_data_id = Data.objects.filter(project=proj).values_list('id', flat=True)
+
     if request.method == "POST":
 
-        proj = Project.objects.filter(id=id).first()
-        print(dir(request))
-        data = Data.objects.get_or_create(project=proj)
+        current_data = created_data_id[len(created_data_id)-1]
+        data = Data.objects.filter(id=current_data).first()
 
-        form = DataForm(request.POST, instance=data)
+        form = DataForm(data=request.POST, instance=data)
 
         if form.is_valid():
             form.save()
 
             return render(request, 'project/data_create.html',
                           {'form': form, 'object_list': proj})
+        else:
+            print(form.is_valid)
+            print(form.cleaned_data["title"])
+            print(form.cleaned_data["owner"])
 
+
+            return render(request, 'project/data_create.html',
+                          {'form': form, 'object_list': proj})
     else:
-        proj = Project.objects.filter(id=id).first()
-        data = Data.objects.create(owner=User.objects.all().first(),
-                                   project=proj)
-        data.save()
-        form = DataForm(instance=data)
+
+        form = DataForm()
 
         return render(request, 'project/data_create.html',
                       {'form': form, 'object_list': proj})
