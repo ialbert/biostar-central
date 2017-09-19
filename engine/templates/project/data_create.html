@@ -11,56 +11,41 @@
 
     <div class="ui vertical center aligned segment">
        <b class="header">{{object_list.title}}</b>
-
     </div>
     <p>
-                <div class="ui small breadcrumb">
+        <div class="ui small breadcrumb">
           <a class="section" href="{% url 'index' %}">Home</a>
           <i class="right chevron icon divider"></i>
-          <a class="section" href="{% url 'allprojects' %}">Projects</a>
+          <a class="section" href="{% url 'allprojects' %}">Projects List</a>
           <i class="right chevron icon divider"></i>
           <a class="section" href="{% url 'project' object_list.id %}">
               {{object_list.title}}
           </a>
           <i class="right chevron icon divider"></i>
-          <a class="section" href="{% url 'alldata' object_list.id %}">Data</a>
+          <a class="section" href="{% url 'alldata' object_list.id %}">Data List</a>
         </div>
     </p>
 
     <div class="ui text container">
+        <div class="ui vertical center aligned segment">
+            <b>Create Data</b>
+        </div>
 
         <form method="post" class="ui form attached fluid segment" >
 
             {% csrf_token %}
-             <div class="field">
-                  <label>Title</label>
-                  {{ form.title }}
-             </div>
 
-             <div class="field">
-                  <label>Date</label>
-                  {{ form.date }}
-             </div>
+            {% for field in form %}
+                <div class="fieldWrapper">
+                    {{ field.errors }}
+                    {{ field.label_tag }} {{ field }}
 
-             <div class="field">
-                  <label>Owner</label>
-                  {{ form.owner }}
-             </div>
-
-            <div class="field">
-                  <label>Text</label>
-                  {{ form.text }}
-             </div>
-            <div class="field">
-                  <label>File</label>
-                  {{ form.file }}
-             </div>
-
-            {{ form.errors }}
-
-            <button type="submit" class="ui primary button">Upload</button>
-            <a class="ui right floated button" href="{% url 'allprojects' %}">
-                Exit
+                </div>
+            {% endfor %}
+            
+            <button type="submit" class="ui primary button">Create Data</button>
+            <a class="ui right floated button" href="{% url 'alldata' object_list.id %}">
+                Cancel
             </a>
 
         </form>
