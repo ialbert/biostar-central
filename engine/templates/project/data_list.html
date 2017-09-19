@@ -28,7 +28,9 @@
 
     <div class="ui vertical center aligned segment">
         <button class="ui primary basic button">
+            <a href="{% url 'data_create' object_list.id %}">
             <i class="write square icon"></i>Create Data
+            </a>
         </button>
     </div>
     {% for data in object_list.data_set.all %}

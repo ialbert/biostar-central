@@ -71,6 +71,9 @@ class DataForm(forms.ModelForm):
         model = Data
         fields = ['title', 'text', 'date', 'owner', 'file']
 
+    def cleaned_data(self, *args):
+        return self.cleaned_data
+
 
 class AnalysisForm(forms.ModelForm):
 
