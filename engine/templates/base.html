@@ -35,7 +35,7 @@
     </h2>
 
     {% block menu %}
-        {% menubar action='1' %}
+        {% menubar is_project_list is_data_list is_analysis_list %}
     {% endblock %}
 
     <div class="ui basic segment">

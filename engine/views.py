@@ -17,7 +17,12 @@ logger = logging.getLogger('engine')
 
 
 def index(request):
-    return render(request,'index.html')
+
+    steps = [
+        (reverse("index"), "Home", True)
+    ]
+    context = dict(steps=steps)
+    return render(request,'index.html', context)
 
 
 def get_uuid(limit=32):
@@ -111,8 +116,10 @@ def project_list(request):
         messages.error(request, "No project found.")
         return redirect("/")
 
+    # True for the active section at the moment
     steps = [
-        (reverse("project_list"), "Project List")
+        (reverse("index"), "Home", False),
+        (reverse("project_list"), "Project List", True)
     ]
     is_project_list = True
 
@@ -128,9 +135,16 @@ def project_view(request, id):
     if not project:
         messages.error(request, f"Project{id} not found.")
 
-    data = dict(object_list=project)
+    steps = [
+        (reverse("index"), "Home", False),
+        (reverse("project_list"), "Project List", False),
+        (reverse("project_view", kwargs={'id':project.id}), f"{project.title}", True)
+    ]
+    is_project_list = True
 
-    return render(request, "project_view.html", data)
+    context = dict(projects=project, steps=steps, is_project_list=is_project_list)
+
+    return render(request, "project_view.html", context)
 
 
 def project_create(request):
@@ -167,23 +181,43 @@ def data_list(request, id):
     project = Project.objects.filter(id=id).first()
     if not project:
         messages.error(request, "No data found for this project.")
-        #return redirect("/")
 
-    data = dict(object_list=project)
+    steps = [
+        (reverse("index"), "Home", False),
+        (reverse("project_list"), "Project List", False),
+        (reverse("project_view",kwargs={'id':project.id}), f"{project.title}", False),
+        (reverse("data_list", kwargs={'id':project.id}),"Data List", True),
+    ]
+    is_data_list = True
 
-    return render(request, "project/data_list.html", data)
+    context = dict(projects=project, steps=steps, is_data_list=is_data_list)
+
+    return render(request, "data_list.html", context)
 
 
 #@login_required
-def data_detail(request, id, id2):
+def data_view(request, id):
 
-    current_data = Data.objects.filter(id=id2).first()
-    if not current_data:
+    data = Data.objects.filter(id=id).first()
+    project = data.project
+
+    if not data:
         messages.error(request, f"Data{id} not found.")
 
-    data = dict(object_list=current_data)
+    steps = [
+        (reverse("index"), "Home", False),
+        (reverse("project_list"), "Project List", False),
+        (reverse("project_view",kwargs={'id':project.id}), f"{project.title}", False),
+        (reverse("data_list", kwargs={'id':project.id}),"Data List", False),
+        (reverse("data_view", kwargs={'id': data.id}), f"{data.title}", True)
+    ]
 
-    return render(request, "project/data_detail.html", data)
+    # You can create data from inside another data view
+    can_create = True
+
+    context = dict(data=data, steps=steps, is_data_list=can_create)
+
+    return render(request, "data_view.html", context)
 
 
 def data_create(request, id):
@@ -219,40 +253,48 @@ def data_create(request, id):
                       {'form': form, 'object_list': proj})
 
 
-def data_list_edit(request, id):
-
-    return None
-
-
-def data_detail_edit(request, id):
-
-    return None
-
-
 #@login_required
 def analysis_list(request, id):
 
     project = Project.objects.filter(id=id).first()
     if not project:
         messages.error(request, "No data found for this project.")
-        #return redirect("/")
 
-    data = dict(object_list=project)
+    steps = [
+        (reverse("index"), "Home", False),
+        (reverse("project_list"), "Project List", False),
+        (reverse("project_view",kwargs={'id':project.id}), f"{project.title}", False),
+        (reverse("analysis_list", kwargs={'id':project.id}),"Analysis List", True),
+    ]
+    is_analysis_list = True
 
-    return render(request, "project/analysis_list.html", data)
+    context = dict(projects=project, steps=steps, is_analysis_list=is_analysis_list)
+
+    return render(request, "analysis_list.html", context)
 
 
 #@login_required
-def analysis_detail(request, id, id2):
+def analysis_view(request, id):
 
-    current_data = Analysis.objects.filter(id=id2).first()
-    if not current_data:
+    analysis = Analysis.objects.filter(id=id).first()
+    project = analysis.project
+
+    if not analysis:
         messages.error(request, f"Data{id} not found.")
 
-    data = dict(object_list=current_data)
+    steps = [
+        (reverse("index"), "Home", False),
+        (reverse("project_list"), "Project List", False),
+        (reverse("project_view",kwargs={'id':project.id}), f"{project.title}", False),
+        (reverse("analysis_list", kwargs={'id':project.id}),"Analysis List", False),
+        (reverse("analysis_view", kwargs={'id': analysis.id}), f"{analysis.title}", True)
+    ]
 
-    return render(request, "project/analysis_detail.html", data)
+    can_create = True
 
+    context = dict(analysis=analysis, steps=steps, is_analysis_list=can_create)
+
+    return render(request, "analysis_view.html", context)
 
 def analysis_list_edit(request, id):
 
