@@ -1,3 +1,16 @@
 h2.ui.center.header {
     margin-top: 1em;
 }
+
+.title {
+    font-size: 1.1em;
+}
+
+.info {
+    font-size: .9547em;
+    padding-top: 10px
+}
+
+.date {
+    font-size: .795em;
+}

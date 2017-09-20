@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% load engine_tags %}
+
+{% block title %}
+    {{object_list.title}}
+{% endblock %}
+
+
+{% block body %}
+
+
+    <div class="ui vertical center aligned segment">
+        <div class="ui right green mini basic button">
+        <a href="#">
+        <i class="checkmark icon"></i>Run
+        </a>
+        </div>
+       <div class="header">{{analysis.project.title}}</div>
+    </div>
+
+
+<div class="ui vertical center aligned segment">
+
+    <b>Text</b>
+          <p>{{analysis.text}}</p>
+
+        </div>
+
+
+{% endblock %}

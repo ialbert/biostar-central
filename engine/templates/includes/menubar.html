@@ -9,13 +9,22 @@
         <a class="item" href="{% url 'index' %}"><i class="sign in icon"></i>Login</a>
     {% endif %}
 
-    {% if action %}
-             <a class="item" href="{% url 'index' %}"><i class="sign in icon"></i>Create Project</a>
+    {% if is_project_list %}
+             <a class="item" href="{% url 'index' %}"><i class="write square icon"></i>Create Project</a>
+    {% endif %}
+
+   {% if is_data_list %}
+             <a class="item" href="{% url 'index' %}"><i class="write square icon"></i>Create Data</a>
+    {% endif %}
+
+   {% if is_analysis_list %}
+             <a class="item" href="{% url 'index' %}"><i class="write square icon"></i>Create Analysis</a>
     {% endif %}
 
     <div class="right menu">
 
         {% if use.is_authenticated %}
+            {# add menu later #}
              <a class="item" href="{% url 'index' %}"><i class="sign in icon"></i>Create Project</a>
         {% else %}
             <a class="item" href="{% url 'index' %}"><i class="add user icon"></i>Sign Up</a>

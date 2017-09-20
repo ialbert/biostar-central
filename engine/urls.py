@@ -26,12 +26,12 @@ urlpatterns = [
     url(r'^(?P<id>\d+)/$', views.home, name="home"),
     url(r'^project/list/$', views.project_list, name='project_list'),
     url(r'^project/view/(?P<id>\d+)/$', views.project_view, name='project_view'),
-    url(r'^project/edit/(?P<id>\d+)/edit/$', views.project_edit, name='editproject'),
-    url(r'^allprojects/(?P<id>\d+)/alldata/$', views.data_list, name='alldata'),
+    url(r'^project/edit/(?P<id>\d+)/$', views.project_edit, name='project_edit'),
+    url(r'^data/list/(?P<id>\d+)/$', views.data_list, name='data_list'),
+    url(r'^data/view/(?P<id>\d+)/$', views.data_view, name='data_view'),
     url(r'^allprojects/(?P<id>\d+)/alldata/create/$', views.data_create, name='data_create'),
-    url(r'^allprojects/(?P<id>\d+)/allanalysis/$', views.analysis_list, name='allanalysis'),
-    url(r'^allprojects/(?P<id>\d+)/alldata/(?P<id2>\d+)/$', views.data_detail, name='data'),
-    url(r'^allprojects/(?P<id>\d+)/allanalysis/(?P<id2>\d+)/$', views.analysis_detail, name='analysis'),
+    url(r'^analysis/list/(?P<id>\d+)/$', views.analysis_list, name='analysis_list'),
+    url(r'^analysis/view/(?P<id>\d+)/$', views.analysis_view, name='analysis_view'),
 
 ]
 

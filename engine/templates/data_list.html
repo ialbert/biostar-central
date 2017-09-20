@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {{projects.title}}
+{% endblock %}
+
+
+{% block body %}
+
+
+{% for data in projects.data_set.all %}
+
+    <div class="ui vertical segment">
+
+        <div class="title">
+           <div class="ui right floated mini basic button">
+           <a href="{% url 'project_list' %}">
+           <i class="write icon"></i>Edit Data
+           </a>
+           </div>
+            <a href="{% url 'data_view' data.id %}">
+            <i class="folder icon"></i>{{ data.title }}
+            </a>
+        </div>
+        <div class="date">{{data.date.date}}</div>
+    </div>
+
+{% endfor %}
+
+{% endblock %}

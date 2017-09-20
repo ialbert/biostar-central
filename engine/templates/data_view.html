@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {{object_list.title}}
+{% endblock %}
+
+
+{% block body %}
+
+    <div class="ui vertical center aligned segment">
+       <div class="header">{{data.project.title}}</div>
+    </div>
+
+<div class="ui vertical center aligned segment">
+
+    <b>Text</b>
+          <p>{{data.text}}</p>
+
+        </div>
+
+
+{% endblock %}
