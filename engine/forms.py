@@ -2,7 +2,9 @@ from django import forms
 from django.utils.translation import gettext_lazy as helpers
 from django.contrib.auth.models import User
 from .models import Project, Data, Analysis, Result
+from django.forms.extras.widgets import SelectDateWidget
 
+from pagedown.widgets import PagedownWidget
 
 class SignUpForm(forms.ModelForm):
     
@@ -58,18 +60,24 @@ class LoginForm(forms.Form):
 
 
 class ProjectForm(forms.ModelForm):
-    # data = forms.FileField()
-    class Meta:
-        model = Project
-        fields = ['title', 'text', 'date', 'owner']
 
+    # data = forms.FileField()
+
+    text = forms.CharField(widget=PagedownWidget(template="widgets/pagedownwidget.html"))
+
+    class Meta:
+
+        model = Project
+        fields = ['title', 'text']
 
 
 class DataForm(forms.ModelForm):
 
+    text = forms.CharField(widget=PagedownWidget(template="widgets/pagedownwidget.html"))
     class Meta:
         model = Data
-        fields = ['title', 'text', 'date', 'owner', 'file']
+        fields = ['title', 'text']
+
 
     def cleaned_data(self, *args):
         return self.cleaned_data
@@ -77,16 +85,17 @@ class DataForm(forms.ModelForm):
 
 class AnalysisForm(forms.ModelForm):
 
+    text = forms.CharField(widget=PagedownWidget(template="widgets/pagedownwidget.html"))
     class Meta:
         model = Analysis
-        fields = ['title', 'text', 'date', 'owner']
+        fields = ['title', 'text']
 
 
 class ResultForm(forms.ModelForm):
-
+    date = forms.DateField(widget=SelectDateWidget)
     class Meta:
         model = Result
-        fields = ['title', 'text', 'date', 'owner']
+        fields = ['title', 'text', 'date']
 
 
 

@@ -8,14 +8,23 @@
 
 {% endblock %}
 
+{% block breadcrumb %}
+
+{% endblock %}
+
 {% block body %}
 
     <div class="ui text container">
         <div class="ui vertical segment">
-                <a href="{% url 'project_list' %}">
-                    <div class="title"><i class="database icon"></i>Project List</div>
-                </a>
-               <div class="info">List of projects.</div>
+           <div class="ui right floated mini basic button">
+           <a href="{% url 'project_create' %}">
+           <i class="write square icon"></i>Create Project
+           </a>
+           </div>
+            <a href="{% url 'project_list' %}">
+                <div class="title"><i class="database icon"></i>Project List</div>
+            </a>
+           <div class="info">List of projects.</div>
 
         </div>
 

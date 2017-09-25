@@ -35,10 +35,10 @@
     </h2>
 
     {% block menu %}
-        {% menubar is_project_list is_data_list is_analysis_list %}
+        {% menubar can_create_project can_create_data can_create_analysis %}
     {% endblock %}
 
-    <div class="ui basic segment">
+    <div class="breadcrumb">
     {% block breadcrumb %}
         {% breadcrumb steps=steps %}
     {% endblock %}

@@ -22,7 +22,9 @@ Projects
 <div class="ui vertical segment">
 
 
-    <div class="title"><a href="{% url 'project_view' project.id %}">
+    <div class="title">
+
+    <a href="{% url 'project_view' project.id %}">
         <i class="folder icon"></i>{{ project.title }}
     </a></div>
     <div class="date">{{project.date.date}}</div>

@@ -1,23 +1,20 @@
 {% extends "base.html" %}
+{% load engine_tags %}
 
 {% block title %}
-    {{projects.title}}
+    {{project.title}} | Data List
 {% endblock %}
 
 
 {% block body %}
 
 
-{% for data in projects.data_set.all %}
+{% for data in project.data_set|date_sort %}
 
     <div class="ui vertical segment">
 
         <div class="title">
-           <div class="ui right floated mini basic button">
-           <a href="{% url 'project_list' %}">
-           <i class="write icon"></i>Edit Data
-           </a>
-           </div>
+
             <a href="{% url 'data_view' data.id %}">
             <i class="folder icon"></i>{{ data.title }}
             </a>

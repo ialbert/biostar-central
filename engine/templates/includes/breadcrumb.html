@@ -3,16 +3,18 @@
 
   {% for url, name, active  in steps %}
 
-
         {% if active %}
-            <div class="active section">{{name}}</div>
+
+            <div class="active section">
+                {{name}}
+            </div>
+
         {% else %}
             <a href="{{url}}">
             <div class="section">{{name}}</div>
             </a>
             <i class="right chevron icon divider"></i>
         {% endif %}
-
 
   {% endfor %}
 

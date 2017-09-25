@@ -1,0 +1,17 @@
+
+
+<div  id="{{ id }}-wmd-wrapper" class="ui two column grid">
+
+        <div class="column">
+            <div id="{{ id|safe }}_wmd_button_bar"></div>
+
+        <textarea {{attrs|safe}}>{{ body }}</textarea>
+        </div>
+
+    {% if show_preview %}
+      <div class="column">
+        <!--<div class="editinfo">Preview</div>-->
+    <div id="{{ id|safe }}_wmd_preview" class="htmlpreview"></div>
+      </div>
+    {% endif %}
+</div>

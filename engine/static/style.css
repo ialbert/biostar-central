@@ -2,15 +2,33 @@ h2.ui.center.header {
     margin-top: 1em;
 }
 
+.breadcrumb {
+    margin-top: 1.3em;
+    margin-bottom: 1em;
+}
+
+.createform {
+   padding-top: 13px;
+}
 .title {
     font-size: 1.1em;
 }
 
 .info {
     font-size: .9547em;
-    padding-top: 10px
+    padding-top: 10px;
+}
+
+.textbody {
+   padding-top: 13px;
 }
 
 .date {
     font-size: .795em;
+}
+
+.htmlpreview {
+    margin-top: 3em;
+    margin-left: 1em;
+
 }
