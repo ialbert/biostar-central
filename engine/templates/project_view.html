@@ -1,20 +1,39 @@
 {% extends "base.html" %}
+{% load engine_tags %}
+
 
 {% block title %}
-    {{object_list.title}}
+    {{projects.title}}
+{% endblock %}
+
+
+{% block breadcrumb %}
+    {% breadcrumb steps=steps %}
+    <div class="ui right floated mini basic button">
+       <a href="{% url 'project_edit' projects.id %}">
+       <i class="write icon"></i>Edit Project
+       </a>
+    </div>
 {% endblock %}
 
 
 {% block body %}
 
     <div class="ui vertical center aligned segment">
-       <div class="header">{{projects.title}}</div>
+
+       <div class="header">{{projects.title}}
+       </div>
+
     </div>
 
     <div class="ui text container">
 
         <div class="ui vertical segment">
-
+           <div class="ui right floated mini basic button">
+               <a href="{% url 'data_create' projects.id %}">
+               <i class="write square icon"></i>Create Data
+               </a>
+           </div>
             <a href="{% url 'data_list' projects.id %}">
                 <div class="title"><i class="archive icon"></i>Data List</div>
             </a>
@@ -23,7 +42,11 @@
         </div>
 
         <div class="ui vertical segment">
-
+           <div class="ui right floated mini basic button">
+               <a href="{% url 'analysis_create' projects.id %}">
+               <i class="write square icon"></i>Create Analysis
+               </a>
+           </div>
             <a href="{% url 'analysis_list' projects.id %}">
                 <div class="title"><i class="options icon"></i>Analysis</div>
             </a>
@@ -32,7 +55,12 @@
         </div>
 
         <div class="ui vertical segment">
-            <a href="{% url 'project_view' projects.id %}">
+           <div class="ui right floated mini basic button">
+               <a href="#">
+               <i class="write square icon"></i>Create Results
+               </a>
+           </div>
+            <a href="{% url 'results_list' projects.id %}">
                 <div class="title"><i class="bar chart icon"></i>Results</div>
             </a>
             <div class="info">Results from pipelines.</div>

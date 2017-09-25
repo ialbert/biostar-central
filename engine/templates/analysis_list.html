@@ -1,13 +1,14 @@
 {% extends "base.html" %}
+{% load engine_tags %}
 
 {% block title %}
-    {{projects.title}}
+    {{projects.title}} | Analysis List
 {% endblock %}
 
 
 {% block body %}
 
-{% for analysis in projects.analysis_set.all %}
+{% for analysis in projects.analysis_set|date_sort %}
 
     <div class="ui vertical segment">
 
@@ -18,7 +19,7 @@
            </a>
            </div>
            <div class="ui right floated mini basic button">
-           <a href="{% url 'project_list' %}">
+           <a href="{% url 'analysis_edit' analysis.id %}">
            <i class="write icon"></i>Edit Analysis
            </a>
            </div>

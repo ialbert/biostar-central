@@ -6,11 +6,9 @@ import random
 
 
 # Random block of latin text (lorem ipsum) to populate text feild
-TEXT = """#TEST\n
-        Sed ut perspiciatis unde omnis iste natus error \n
-        sit voluptatem accusantium doloremque\n 
-       laudantium, totam rem aperiam, eaque ipsa quae ab illo\n
-       """
+TEXT = """#TEST\nSed ut perspiciatis unde omnis iste natus error\n
+sit voluptatem accusantium doloremque\nlaudantium, totam rem aperiam, eaque ipsa quae ab illo
+"""
 
 logger = logging.getLogger('engine')
 

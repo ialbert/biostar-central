@@ -6,7 +6,6 @@ serve: init
 
 reset:
 	rm -f export/engine.db
-	python manage.py migrate
 
 init:
 	python manage.py collectstatic --noinput -v 0
