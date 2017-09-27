@@ -8,9 +8,8 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 from ratelimit.decorators import ratelimit
 
-from .forms import (SignUpForm, LoginForm,
-                    ProjectForm, DataForm, AnalysisForm)
 
+from.forms import *
 from .models import (User, Project, Data,
                      Analysis, Result)
 
@@ -388,6 +387,7 @@ def analysis_edit(request, id):
 
         form = AnalysisForm(request.POST, instance=analysis)
         if form.is_valid():
+            # Redo the dates here to update everytime edited.
             form.save()
 
     else:
@@ -434,8 +434,32 @@ def analysis_create(request, id):
         return render(request, 'analysis_create.html', context)
 
 
+# also can be seen as results_create
 def analysis_run(request, id):
-    return None
+
+    analysis = Analysis.objects.filter(id=id).first()
+    project = analysis.project
+    active  = True
+    owner = User.objects.all().first()
+
+    steps = [
+        (reverse("index"), "Home", not active),
+        (reverse("project_list"), "Project List", not active),
+        (reverse("project_view", kwargs={'id': project.id}), f"{project.title}", not active),
+        (reverse("analysis_list", kwargs={'id': project.id}), "Analysis List", not active),
+        (reverse("analysis_view", kwargs={'id': analysis.id}), f"{analysis.title}", active),
+    ]
+
+    if request.method == "POST":
+
+        result = Result.objects.get_or_create(owner=owner,
+                                            analysis=analysis)
+
+    else:
+        form = RunForm(id=id)
+        context = dict(analysis=analysis, project=project, steps=steps, form=form)
+        return render(request, 'analysis_run.html', context)
+
 
 
 def results_list(request, id):
@@ -452,7 +476,7 @@ def results_list(request, id):
          for result in analysis.result_set.order_by("-id"):
              results.append(result.id)
 
-    # Results to a project
+    # Results belonging to a project
     results = Result.objects.filter(id__in=results)
 
     steps = [
@@ -488,9 +512,39 @@ def results_view(request, id):
     return render(request, "results_view.html", context)
 
 
+def results_edit(request, id):
+
+    result = Result.objects.filter(id=id).first()
+    project = result.analysis.project
+
+    active = True
+
+    steps = [
+        (reverse("index"), "Home", not active),
+        (reverse("project_list"), "Project List", not active),
+        (reverse("project_view", kwargs={'id': project.id}), f"{project.title}", not active),
+        (reverse("results_list", kwargs={'id': project.id}), "Results List", not active),
+        (reverse("results_view", kwargs={'id': result.id}), f"{result.title}", active)
+    ]
+
+    if request.method == "POST":
+
+        form = ResultForm(request.POST, instance=result)
+        if form.is_valid():
+            # Redo the dates here to update everytime edited.
+            form.save()
+
+    else:
+        form = ResultForm(instance=result)
+
+    context = dict(result=result, steps=steps, form=form)
+
+    return render(request, 'results_edit.html', context)
 
 
+def results_create(request, id):
 
+    return
 
 
 

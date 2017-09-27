@@ -50,7 +50,8 @@ class Data(Base):
 class Analysis(Base):
 
     project = models.ForeignKey(Project)
-    #pipeline = ""
+    commands = models.TextField(default="commands")
+
 
     def save(self, *args, **kwargs):
         super(Analysis, self).save(*args, **kwargs)
@@ -58,11 +59,13 @@ class Analysis(Base):
 
 class Result(Base):
 
+    # file path to media
     QUEUED, RUNNING, FINISHED, ERROR = 1,2,3,4
-    CHOICES = [("Queued", QUEUED), ("Running", RUNNING),
-               ("Finished", FINISHED), ("Error", ERROR)]
+    CHOICES = [(QUEUED, "Queued"), (RUNNING, "Running"),
+               (FINISHED, "Finished"), (ERROR, "Error")]
     analysis = models.ForeignKey(Analysis)
-    state =  models.IntegerField(default=1, choices=CHOICES)
+
+    state = models.IntegerField(default=1, choices=CHOICES)
     directory = models.FilePathField(default="media")
     commands = models.TextField(default="commands")
 
