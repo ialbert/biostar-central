@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {{result.title}}
+{% endblock %}
+
+{% block body %}
+
+<div class="createform">
+
+        <form method="post" class="ui form" >
+
+            {% csrf_token %}
+            {{ form.media }}
+             <div class="nine wide field segment">
+                  <label>Title</label>
+                  {{ form.title }}
+             </div>
+
+            <div class="field segment">
+                  <label>Description</label>
+                  {{ form.text }}
+             </div>
+
+            {{ form.errors }}
+
+            <button type="submit" class="ui primary button">
+                <i class="save icon"></i>Save
+            </button>
+            <a class="ui right floated button" href="{% url 'results_view' result.id %}">
+                Exit
+            </a>
+
+        </form>
+
+</div>
+{% endblock %}

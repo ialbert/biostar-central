@@ -35,7 +35,9 @@ urlpatterns = [
     url(r'^analysis/view/(?P<id>\d+)/$', views.analysis_view, name='analysis_view'),
     url(r'^analysis/edit/(?P<id>\d+)/$', views.analysis_edit, name='analysis_edit'),
     url(r'^analysis/create/(?P<id>\d+)/$', views.analysis_create, name='analysis_create'),
+    url(r'^analysis/run/(?P<id>\d+)/$', views.analysis_run, name='analysis_run'),
     url(r'^results/list/(?P<id>\d+)/$', views.results_list, name='results_list'),
-    url(r'^results/view/(?P<id>\d+)/$', views.results_view, name='results_view')
+    url(r'^results/view/(?P<id>\d+)/$', views.results_view, name='results_view'),
+    url(r'^results/edit/(?P<id>\d+)/$', views.results_edit, name='results_edit'),
 ]
 

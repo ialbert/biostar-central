@@ -13,7 +13,7 @@
            </a>
            </div>
     <div class="ui right floated green mini basic button"">
-        <a href="#">
+        <a href="{% url 'analysis_run' analysis.id %}">
         <i class="checkmark icon"></i>Run
         </a>
     </div>
@@ -26,7 +26,7 @@
 <div class="ui vertical center aligned segment">
 
 
-      <p>{{analysis.text}}</p>
+    <div class="textbody">{{analysis.text}}</div>
 
         </div>
 

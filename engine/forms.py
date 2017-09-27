@@ -15,6 +15,7 @@ class SignUpForm(forms.ModelForm):
         max_length=254,
         min_length=2,
     )
+
     password2 = forms.CharField(
         label=helpers("Password confirmation"),
         widget=forms.PasswordInput,
@@ -61,8 +62,6 @@ class LoginForm(forms.Form):
 
 class ProjectForm(forms.ModelForm):
 
-    # data = forms.FileField()
-
     text = forms.CharField(widget=PagedownWidget(template="widgets/pagedownwidget.html"))
 
     class Meta:
@@ -91,11 +90,44 @@ class AnalysisForm(forms.ModelForm):
         fields = ['title', 'text']
 
 
+class RunForm(forms.Form):
+    # reads from json file here?
+
+    QUEUED, RUNNING, FINISHED, ERROR = 1,2,3,4
+
+    CHOICES = [(QUEUED, "Queued"), (RUNNING, "Running"),
+               (FINISHED, "Finished"), (ERROR, "Error")]
+
+    COMMANDS = [(1, "setup_dir"),
+                (2, "check_input"),
+                (3, "create_multiqc")]
+
+    state = forms.IntegerField(label="State", widget=forms.Select(choices=CHOICES) )
+    commands = forms.IntegerField(label="Commands", widget=forms.Select(choices=COMMANDS))
+
+    def __init__(self, *args, **kwargs):
+
+        analysis_id = kwargs.pop("id")
+        super().__init__(*args, **kwargs)
+
+        analysis = Analysis.objects.filter(id=analysis_id).first()
+        data = analysis.project.data_set.all()
+
+        CHOICES = []
+
+        for i,d in enumerate(data):
+            CHOICES.append((i, d))
+
+        self.fields["data"] = forms.CharField(label="Pick Data",
+                                              widget=forms.Select(choices=CHOICES) )
+
 class ResultForm(forms.ModelForm):
-    date = forms.DateField(widget=SelectDateWidget)
+
+    text = forms.CharField(widget=PagedownWidget(template="widgets/pagedownwidget.html"))
+
     class Meta:
         model = Result
-        fields = ['title', 'text', 'date']
+        fields = ['title', 'text', 'commands', 'state', 'directory']
 
 
 

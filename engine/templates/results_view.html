@@ -8,7 +8,7 @@
 {% block breadcrumb %}
     {% breadcrumb steps=steps %}
     <div class="ui right floated mini basic button">
-       <a href="#">
+       <a href="{% url 'results_edit' result.id %}">
        <i class="write icon"></i>Edit Result
        </a>
     </div>
