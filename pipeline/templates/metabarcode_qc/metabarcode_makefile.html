@@ -1,0 +1,53 @@
+RESULTS_DIR={{constant_params.resdir|default:"./res"}}
+WORKDIR={{constant_params.workdir|default:"./work"}}
+DATADIR={{constant_params.datadir|default:"./work/data"}}
+SCRIPTS={{constant_params.scripts|default:"./scripts" }}
+CHECK_INPUT={{constant_params.check_input|default:"check_input.py"}}
+JOBID={{jobid}}
+
+{%  for config in configs %}
+{%  if config.name == "sampleinfo" %}
+METADATA={{ config.value }}
+{% endif %}
+{%  if config.name == "data" %}
+INPUTDATA={{ config.value }}
+INPUT_TYPE={{ config.type }}
+{% endif %}
+{%  endfor %}
+
+all: {{ constant_params.command_list|join:" "}}
+        # execute all commands
+
+setup_dir:
+	#
+	# set up directories
+	#
+	mkdir -p $(RESULTS_DIR) $(WORK_DIR)
+
+check_input:
+	#
+	# checks to see if all samples specified in the metadata are present in the input data.
+	# And extracts them into $(WORKDIR)/data folder.
+	#
+	python $(SCRIPTS)/$(CHECK_INPUT) -m $(METADATA) -i $(INPUTDATA) -w $(WORKDIR)
+{% if rule == "qc" %}
+QCDIR=$(WORKDIR)/multiQC
+create_multiqc:
+	#
+	# run fastqc on all files
+	#
+	if [ -d "$(QCDIR)" ]; then rm -rf $(QCDIR); fi
+
+	mkdir -p $(QCDIR)
+	ls $(DATADIR)/*gz | parallel --verbose --progress -j 8 fastqc --nogroup {} -o $(QCDIR)
+	#
+	# run multiqc to create an aggregate report
+	#
+	multiqc -f -n multiqc $(QCDIR)
+	cp multiqc.html $(RESULTS_DIR)
+	mv multiqc* $(QCDIR)
+	#
+	# clean
+	#
+	rm -f $(QCDIR)/*fastqc.html $(QCDIR)/*fastqc.zip
+{% endif %}

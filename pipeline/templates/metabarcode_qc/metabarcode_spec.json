@@ -1,0 +1,66 @@
+[
+  {
+    "name" : "sampleinfo",
+    "value" : "test/samples.txt",
+    "widget" : "FileInput",
+    "label" : "Specify the sample file",
+    "css": "red",
+    "visible": 1
+  },
+  
+  {
+    "name": "data",
+    "value": "test/input.fq",
+    "widget" : "DropDown",
+    "origin": "PROJECT",
+    "valid_types": [ "FASTQ", "FASTQ_GZ" ],
+    "visible": 1
+  },
+  
+  {
+    "name": "library_type",
+    "choices" : [ ["single-end", "Single End Reads"], ["paired-end" , "Paired end"] ],
+    "value":  "paired-end",
+    "widget": "RadioSelect",
+    "visible": 1
+ },
+  
+  {
+    "name": "trim_param",
+    "label": "Specify average value for trimming",
+    "default" : 0,
+    "help": "Enter 0 for not trimming",
+    "value":  "6",
+    "widget": "Integertype",
+    "range" : [1,10],
+    "visible": 1
+ },
+
+  {
+    "name": "action",
+    "choices": [ ["fastqc",  "Create fastqc report"],
+                 ["merge",  " Merge paired end dataset"]
+               ],
+    "selected": "merge",
+    "widget": "RadioSelect",
+    "visible": 1
+  },
+
+  
+  {
+    "name": "analysis_spec",
+    "title": "Quality control of sequencing data",
+    "description": [
+      "# Purpose \n",
+      " This analysis takes as input a sample information sheet and sequence data.\n",
+      "It creates an agrregated fastqc report of the dataset and a new merged, improved  dataset if the input was paired end.\n",
+      "It optionally applies trimming before merging reads.\n",
+      "# Parameters \n",
+      " Input : \n 1. Sample information as a text file\n 2. Sequence data as a fastq or gzipped fastq file.\n",
+      "# Results \n",
+      "This analysis produces \n",
+      " 1. MultiQC report - an aggregate fastqc report of the input dataset.\n ",
+      "2. Creates a new merged improved dataset after applying trimming if specified.\n"
+    ]
+  }
+]
