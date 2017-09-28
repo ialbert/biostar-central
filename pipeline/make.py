@@ -2,7 +2,7 @@ import django
 from django.conf import settings
 from django.template.loader import get_template
 import sys, os, json, hjson
-
+from const import *
 
 def set_env():
     '''
@@ -68,7 +68,8 @@ def render():
     #config = sys.argv[1]
     #template = sys.argv[2]
 
-
+    print(DIR_INFO)
+    1/0
     config = "./templates/metabarcode_qc/metabarcode_spec.hjson"
     #template = "./templates/metabarcode_qc/metabarcode_makefile.html"
     template = "test.html"
