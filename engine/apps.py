@@ -47,10 +47,10 @@ def init_proj(sender, **kwargs):
                                                           text=TEXT, project=proj)
             params.save()
 
-            res, flag = Result.objects.get_or_create(title=job_title,
-                                                    owner=owner,
-                                                    text=TEXT, analysis=params)
-            res.save()
+            # res, flag = Result.objects.get_or_create(title=job_title,
+            #                                         owner=owner,
+            #                                         text=TEXT, analysis=params)
+            # res.save()
 
         logger.info(f'creating: {proj.title}')
     logger.info(f' with: {len(test_set)} data, analysis, and pipelines.')
