@@ -47,11 +47,15 @@ def create_workflow():
 
     metadata = "./templates/metabarcode_qc/metabarcode_spec.json"
     template = "./templates/metabarcode_qc/metabarcode_makefile.html"
+    
     # loads data
     configs = metadata_loader(metadata)
 
+    print(configs)
+
+    '''
     parse_configs(configs)
-    1/0
+    
 
     rule = get_rule(configs)
 
@@ -71,7 +75,8 @@ def create_workflow():
 
     with open(outfile, 'w') as fh:
         fh.write(html)
-
+    
+    '''
 
 if __name__ == "__main__":
     create_workflow()
