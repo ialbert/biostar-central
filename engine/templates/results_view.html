@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load engine_tags %}
+
+{% block title %}
+    {{result.title}}
+{% endblock %}
+
+{% block breadcrumb %}
+    {% breadcrumb steps=steps %}
+    <div class="ui right floated mini basic button">
+       <a href="{% url 'results_edit' result.id %}">
+       <i class="write icon"></i>Edit Result
+       </a>
+    </div>
+{% endblock %}
+
+{% block body %}
+
+    <div class="ui vertical center aligned segment">
+       <div class="header">{{result.title}}</div>
+    </div>
+
+<div class="ui vertical segment">
+    <div>From: {{result.analysis.title}}</div>
+Date: {{result.date.date}}
+
+<div class="textbody">{{result.text}}</div>
+
+</div>
+
+
+{% endblock %}

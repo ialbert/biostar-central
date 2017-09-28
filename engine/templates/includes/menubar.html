@@ -9,14 +9,11 @@
         <a class="item" href="{% url 'index' %}"><i class="sign in icon"></i>Login</a>
     {% endif %}
 
-    {% if action %}
-             <a class="item" href="{% url 'index' %}"><i class="sign in icon"></i>Create Project</a>
-    {% endif %}
 
     <div class="right menu">
 
         {% if use.is_authenticated %}
-             <a class="item" href="{% url 'index' %}"><i class="sign in icon"></i>Create Project</a>
+
         {% else %}
             <a class="item" href="{% url 'index' %}"><i class="add user icon"></i>Sign Up</a>
         {% endif %}

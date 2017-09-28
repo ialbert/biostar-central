@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% load engine_tags %}
+
+{% block title %}
+    {{analysis.title}}
+{% endblock %}
+
+
+{% block body %}
+   <div class="ui mini basic button">
+           <a href="{% url 'analysis_edit' analysis.id %}">
+           <i class="write icon"></i>Edit Analysis
+           </a>
+           </div>
+    <div class="ui right floated green mini basic button"">
+        <a href="{% url 'analysis_run' analysis.id %}">
+        <i class="checkmark icon"></i>Run
+        </a>
+    </div>
+    <div class="ui vertical center aligned segment">
+
+       <div class="header">{{analysis.title}}</div>
+    </div>
+
+
+<div class="ui vertical center aligned segment">
+
+
+    <div class="textbody">{{analysis.text}}</div>
+
+        </div>
+
+
+{% endblock %}

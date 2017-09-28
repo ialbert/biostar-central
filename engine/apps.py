@@ -6,11 +6,9 @@ import random
 
 
 # Random block of latin text (lorem ipsum) to populate text feild
-TEXT = """#TEST\n
-        Sed ut perspiciatis unde omnis iste natus error \n
-        sit voluptatem accusantium doloremque\n 
-       laudantium, totam rem aperiam, eaque ipsa quae ab illo\n
-       """
+TEXT = """#TEST\nSed ut perspiciatis unde omnis iste natus error\n
+sit voluptatem accusantium doloremque\nlaudantium, totam rem aperiam, eaque ipsa quae ab illo
+"""
 
 logger = logging.getLogger('engine')
 
@@ -49,10 +47,10 @@ def init_proj(sender, **kwargs):
                                                           text=TEXT, project=proj)
             params.save()
 
-            res, flag = Result.objects.get_or_create(title=job_title,
-                                                    owner=owner,
-                                                    text=TEXT, analysis=params)
-            res.save()
+            # res, flag = Result.objects.get_or_create(title=job_title,
+            #                                         owner=owner,
+            #                                         text=TEXT, analysis=params)
+            # res.save()
 
         logger.info(f'creating: {proj.title}')
     logger.info(f' with: {len(test_set)} data, analysis, and pipelines.')

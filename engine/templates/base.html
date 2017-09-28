@@ -17,7 +17,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon"/>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js">
+    </script>
 
     {% compress css %}
     <link href="{% static 'semantic.min.css' %}" rel="stylesheet">
@@ -35,10 +36,10 @@
     </h2>
 
     {% block menu %}
-        {% menubar action='1' %}
+        {% menubar can_create_project can_create_data can_create_analysis %}
     {% endblock %}
 
-    <div class="ui basic segment">
+    <div class="breadcrumb">
     {% block breadcrumb %}
         {% breadcrumb steps=steps %}
     {% endblock %}

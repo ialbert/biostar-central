@@ -6,18 +6,29 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.urls import reverse
-
-from .forms import SignUpForm, LoginForm, ProjectForm, DataForm
-
-from .models import (User, Project, Data,
-                     Analysis)
 from ratelimit.decorators import ratelimit
+
+
+from.forms import *
+from .models import (User, Project, Data,
+                     Analysis, Result, Job)
+
 
 logger = logging.getLogger('engine')
 
 
 def index(request):
-    return render(request,'index.html')
+
+    active = True
+
+
+    steps = [
+        (reverse("index"), "Home", active )
+    ]
+    can_create_project = True
+    context = dict(steps=steps, can_create_project=can_create_project)
+
+    return render(request,'index.html', context)
 
 
 def get_uuid(limit=32):
@@ -55,7 +66,6 @@ def user_logout(request):
     logout(request)
 
     return redirect("/")
-
 
 
 @ratelimit(key='ip', rate='10/m', block=True, method=ratelimit.UNSAFE)
@@ -98,25 +108,25 @@ def user_login(request):
     return render(request, "registration/user_login.html", context=context)
 
 
-@login_required
-def home(request, id):
-    return render(request, 'home.html')
-
-
 #@login_required
 def project_list(request):
 
-    projects = Project.objects.all()
+    projects = Project.objects.order_by("-id")
     if not projects:
         messages.error(request, "No project found.")
         return redirect("/")
 
-    steps = [
-        (reverse("project_list"), "Project List")
-    ]
-    is_project_list = True
+    # True for the active section at the moment
+    active = True
 
-    context = dict(projects=projects, steps=steps, is_project_list=is_project_list)
+
+    steps = [
+        (reverse("index"), "Home", not active),
+        (reverse("project_list"), "Project List", active)
+    ]
+    can_create_project = True
+
+    context = dict(projects=projects, steps=steps, can_create_project=can_create_project)
 
     return render(request, "project_list.html", context)
 
@@ -125,40 +135,82 @@ def project_list(request):
 def project_view(request, id):
 
     project = Project.objects.filter(id=id).first()
+
     if not project:
         messages.error(request, f"Project{id} not found.")
 
-    data = dict(object_list=project)
+    active = True
 
-    return render(request, "project_view.html", data)
+    steps = [
+        (reverse("index"), "Home", not active),
+        (reverse("project_list"), "Project List", not active),
+        (reverse("project_view", kwargs={'id':project.id}), f"{project.title}", active)
+    ]
 
+    can_create_project = True
 
-def project_create(request):
+    context = dict(projects=project, steps=steps, can_create_project=can_create_project)
 
-    #else:
-    #form = ProjectForm()
-    return
+    return render(request, "project_view.html", context)
 
 
 def project_edit(request, id):
 
+    project = Project.objects.filter(id=id).first()
+    active = True
+
+    steps = [
+        (reverse("index"), "Home", not active),
+        (reverse("project_list"), "Project List", not active),
+        (reverse("project_view", kwargs={'id':project.id}), f"{project.title}", active)
+    ]
+
     if request.method == "POST":
 
-        proj = Project.objects.filter(id=id).first()
-        form = ProjectForm(request.POST, instance=proj)
-
+        form = ProjectForm(request.POST, instance=project)
         if form.is_valid():
             form.save()
 
-            return render(request, 'project/project_edit.html',
-                          {'form': form, 'object_list': proj})
-
     else:
-        proj = Project.objects.filter(id=id).first()
-        form = ProjectForm(instance=proj)
+        form = ProjectForm(instance=project)
 
-        return render(request, 'project/project_edit.html',
-                      {'form': form, 'object_list': proj})
+    can_create_project = True
+
+    context = dict(projects=project, steps=steps, can_create_project=can_create_project,
+                   form=form)
+    return render(request, 'project_edit.html',
+                      context)
+
+
+def project_create(request):
+
+    active = True
+    steps = [
+        (reverse("index"), "Home", not active),
+        (reverse("project_list"), "Project List", not active),
+        (reverse("project_create"), "Create Project", active)
+    ]
+    if request.method == "POST":
+        # create new projects here ( just populate metadata ).
+
+        form = ProjectForm(data=request.POST)
+
+        if form.is_valid():
+
+            title = form.cleaned_data["title"]
+            text = form.cleaned_data["text"]
+            owner = User.objects.all().first()
+            project = Project.objects.create(title=title, text=text, owner=owner)
+            project.save()
+            return redirect(reverse("project_list"))
+        else:
+            form.add_error(None, "Invalid form processing.")
+    else:
+
+        form = ProjectForm()
+        context = dict(steps=steps, form=form)
+        return render(request, 'project_create.html',
+                      context)
 
 
 #@login_required
@@ -167,66 +219,111 @@ def data_list(request, id):
     project = Project.objects.filter(id=id).first()
     if not project:
         messages.error(request, "No data found for this project.")
-        #return redirect("/")
 
-    data = dict(object_list=project)
+    active = True
+    steps = [
+        (reverse("index"), "Home", not active),
+        (reverse("project_list"), "Project List", not active),
+        (reverse("project_view",kwargs={'id':project.id}), f"{project.title}", not active),
+        (reverse("data_list", kwargs={'id':project.id}),"Data List", active),
+    ]
+    can_create_data = True
 
-    return render(request, "project/data_list.html", data)
+    context = dict(project=project, steps=steps, can_create_data=can_create_data)
+
+    return render(request, "data_list.html", context)
 
 
 #@login_required
-def data_detail(request, id, id2):
+def data_view(request, id):
 
-    current_data = Data.objects.filter(id=id2).first()
-    if not current_data:
+    data = Data.objects.filter(id=id).first()
+    project = data.project
+
+    if not data:
         messages.error(request, f"Data{id} not found.")
 
-    data = dict(object_list=current_data)
+    active = True
 
-    return render(request, "project/data_detail.html", data)
+    steps = [
+        (reverse("index"), "Home", not active),
+        (reverse("project_list"), "Project List", not active),
+        (reverse("project_view",kwargs={'id':project.id}), f"{project.title}", not active),
+        (reverse("data_list", kwargs={'id':project.id}),"Data List", not active),
+        (reverse("data_view", kwargs={'id': data.id}), f"{data.title}", active)
+    ]
+
+    # You can create data from inside another data view
+    can_create_data = True
+
+    context = dict(data=data, steps=steps, can_create_data=can_create_data)
+
+    return render(request, "data_view.html", context)
+
+
+def data_edit(request, id):
+
+    data = Data.objects.filter(id=id).first()
+    project = data.project
+
+    active = True
+
+    steps = [
+        (reverse("index"), "Home", not active),
+        (reverse("project_list"), "Project List", not active),
+        (reverse("project_view",kwargs={'id':project.id}), f"{project.title}", not active),
+        (reverse("data_list", kwargs={'id':project.id}),"Data List", not active),
+        (reverse("data_view", kwargs={'id': data.id}), f"{data.title}", active)
+    ]
+
+    if request.method == "POST":
+
+        form = DataForm(request.POST, instance=data)
+        if form.is_valid():
+            form.save()
+
+    else:
+        form = DataForm(instance=data)
+
+    context = dict(data=data, steps=steps, form=form)
+
+    return render(request, 'data_edit.html', context)
 
 
 def data_create(request, id):
 
-    proj = Project.objects.filter(id=id).first()
-    created_data_id = Data.objects.filter(project=proj).values_list('id', flat=True)
+    project = Project.objects.filter(id=id).first()
+    active = True
+
+    steps = [
+        (reverse("index"), "Home", not active),
+        (reverse("project_list"), "Project List", not active),
+        (reverse("project_view",kwargs={'id':project.id}), f"{project.title}", not active),
+        (reverse("data_list", kwargs={'id':project.id}),"Data List", not active),
+        (reverse("data_create", kwargs={'id': project.id}), "Create Data", active)
+    ]
 
     if request.method == "POST":
 
-        current_data = created_data_id[len(created_data_id)-1]
-        data = Data.objects.filter(id=current_data).first()
-
-        form = DataForm(data=request.POST, instance=data)
+        form = DataForm(data=request.POST)
 
         if form.is_valid():
-            form.save()
 
-            return render(request, 'project/data_create.html',
-                          {'form': form, 'object_list': proj})
+            title = form.cleaned_data["title"]
+            text = form.cleaned_data["text"]
+            owner = User.objects.all().first()
+            new_data = Data.objects.create(title=title, text=text,
+                                           owner=owner, project=project)
+            new_data.save()
+            return redirect(reverse("data_list", kwargs={'id':project.id}))
+
         else:
-            print(form.is_valid)
-            print(form.cleaned_data["title"])
-            print(form.cleaned_data["owner"])
-
-
-            return render(request, 'project/data_create.html',
-                          {'form': form, 'object_list': proj})
+            form.add_error(None, "Invalid form processing.")
     else:
 
         form = DataForm()
-
-        return render(request, 'project/data_create.html',
-                      {'form': form, 'object_list': proj})
-
-
-def data_list_edit(request, id):
-
-    return None
-
-
-def data_detail_edit(request, id):
-
-    return None
+        context = dict(project=project, steps=steps, form=form)
+        return render(request, 'data_create.html', context )
 
 
 #@login_required
@@ -235,30 +332,268 @@ def analysis_list(request, id):
     project = Project.objects.filter(id=id).first()
     if not project:
         messages.error(request, "No data found for this project.")
-        #return redirect("/")
 
-    data = dict(object_list=project)
+    steps = [
+        (reverse("index"), "Home", False),
+        (reverse("project_list"), "Project List", False),
+        (reverse("project_view",kwargs={'id':project.id}), f"{project.title}", False),
+        (reverse("analysis_list", kwargs={'id':project.id}),"Analysis List", True),
+    ]
+    can_create_analysis = True
 
-    return render(request, "project/analysis_list.html", data)
+    context = dict(projects=project, steps=steps, can_create_analysis=can_create_analysis)
+
+    return render(request, "analysis_list.html", context)
 
 
 #@login_required
-def analysis_detail(request, id, id2):
+def analysis_view(request, id):
 
-    current_data = Analysis.objects.filter(id=id2).first()
-    if not current_data:
+    analysis = Analysis.objects.filter(id=id).first()
+    project = analysis.project
+
+    if not analysis:
         messages.error(request, f"Data{id} not found.")
 
-    data = dict(object_list=current_data)
+    steps = [
+        (reverse("index"), "Home", False),
+        (reverse("project_list"), "Project List", False),
+        (reverse("project_view",kwargs={'id':project.id}), f"{project.title}", False),
+        (reverse("analysis_list", kwargs={'id':project.id}),"Analysis List", False),
+        (reverse("analysis_view", kwargs={'id': analysis.id}), f"{analysis.title}", True)
+    ]
 
-    return render(request, "project/analysis_detail.html", data)
+    context = dict(analysis=analysis, steps=steps)
+
+    return render(request, "analysis_view.html", context)
 
 
-def analysis_list_edit(request, id):
+def analysis_edit(request, id):
 
-    return None
+    analysis = Analysis.objects.filter(id=id).first()
+    project = analysis.project
+
+    active = True
+
+    steps = [
+        (reverse("index"), "Home", not active),
+        (reverse("project_list"), "Project List", not active),
+        (reverse("project_view",kwargs={'id':project.id}), f"{project.title}", not active),
+        (reverse("analysis_list", kwargs={'id':project.id}),"Analysis List", not active),
+        (reverse("analysis_view", kwargs={'id': analysis.id}), f"{analysis.title}", active)
+    ]
+
+    if request.method == "POST":
+
+        form = AnalysisForm(request.POST, instance=analysis)
+        if form.is_valid():
+            # Redo the dates here to update everytime edited.
+            form.save()
+
+    else:
+        form = AnalysisForm(instance=analysis)
+
+    context = dict(analysis=analysis, steps=steps, form=form)
+
+    return render(request, 'analysis_edit.html', context)
 
 
-def analysis_detail_edit(request, id):
+def analysis_create(request, id):
 
-    return None
+    project = Project.objects.filter(id=id).first()
+    active = True
+
+    steps = [
+        (reverse("index"), "Home", not active),
+        (reverse("project_list"), "Project List", not active),
+        (reverse("project_view", kwargs={'id': project.id}), f"{project.title}", not active),
+        (reverse("analysis_list", kwargs={'id': project.id}), "Analysis List", not active),
+        (reverse("analysis_create", kwargs={'id': project.id}), "Create analysis", active)
+    ]
+
+    if request.method == "POST":
+
+        form = AnalysisForm(data=request.POST)
+
+        if form.is_valid():
+
+            title = form.cleaned_data["title"]
+            text = form.cleaned_data["text"]
+            owner = User.objects.all().first()
+            new_analysis = Analysis.objects.create(title=title, text=text,
+                                           owner=owner, project=project)
+            new_analysis.save()
+            return redirect(reverse("analysis_list", kwargs={'id': project.id}))
+
+        else:
+            form.add_error(None, "Invalid form processing.")
+    else:
+
+        form = AnalysisForm()
+        context = dict(project=project, steps=steps, form=form)
+        return render(request, 'analysis_create.html', context)
+
+
+# also can be seen as results_create
+def analysis_run(request, id):
+
+    analysis = Analysis.objects.filter(id=id).first()
+    project = analysis.project
+    # name and label are exepcted in json_file,
+    # anything empty will be left
+    # Pulls Sequencing Data from needed Project
+    #
+    json_file = r"""
+                [
+                {
+                    "name": "samples", 
+                    "label": "Fastq Samples List", 
+                    "selected": "", 
+                    "widget": "Select",
+                    "form_type": "CharField", 
+                    "choices" : {"SE": "single-end", "PE" : "paired-end"}
+                },
+                {
+                    "name": "merge", 
+                    "label": "Merge Reads", 
+                    "selected": "", 
+                    "widget": "Select",
+                    "form_type": "CharField",
+                    "choices" : {"SE": "single-end", "PE" : "paired-end"}
+                },
+                ]"""
+
+    active  = True
+    owner = User.objects.all().first()
+
+    steps = [
+        (reverse("index"), "Home", not active),
+        (reverse("project_list"), "Project List", not active),
+        (reverse("project_view", kwargs={'id': project.id}), f"{project.title}", not active),
+        (reverse("analysis_list", kwargs={'id': project.id}), "Analysis List", not active),
+        (reverse("analysis_view", kwargs={'id': analysis.id}), f"{analysis.title}", active),
+    ]
+
+    if request.method == "POST":
+        # loads the json file into the analysis
+        #analysis.load(request.POST.json_file)
+        form = RunForm(data=request.POST)
+        if form.is_valid:
+
+            form.save()
+            filled_json = form.json_spec
+            filled_makefile = form.makefile
+
+            job = Job.objects.get_or_create(json_data= filled_json,
+                                            owner=owner,
+                                            analysis=analysis,
+                                            makefile=filled_makefile)
+
+            context = dict(job=job, analysis=analysis, steps=steps)
+            1/0
+            return render(request, "results_list.html", context)
+
+    else:
+        # Set json_file in setting.py to avoid loading a file every time a view is served
+        analysis.load(json_file)
+        print(analysis.json_spec)
+        #1/0
+        form = RunForm(id=id, json_spec=json_file, makefile=analysis.makefile_template)
+        context = dict(analysis=analysis, project=project, steps=steps, form=form)
+        return render(request, 'analysis_run.html', context)
+
+
+def results_list(request, id):
+
+    project = Project.objects.filter(id=id).first()
+    analysis_set = project.analysis_set.order_by("-id")
+
+    # Can't populate an empty queryset so populate a list with ids
+    # then Results model for those ids
+    results = []
+
+    for analysis in analysis_set:
+
+         for result in analysis.result_set.order_by("-id"):
+             results.append(result.id)
+
+    # Results belonging to a project
+    results = Result.objects.filter(id__in=results)
+
+    steps = [
+        (reverse("index"), "Home", False),
+        (reverse("project_list"), "Project List", False),
+        (reverse("project_view", kwargs={'id': project.id}), f"{project.title}", False),
+        (reverse("results_list", kwargs={'id': project.id}), "Results List", True),
+    ]
+
+    context = dict(project=project, steps=steps, results=results)
+
+    return render(request, "results_list.html", context)
+
+
+def results_view(request, id):
+
+    result = Result.objects.filter(id=id).first()
+    project = result.analysis.project
+
+    if not result:
+        messages.error(request, f"Data{id} not found.")
+
+    steps = [
+        (reverse("index"), "Home", False),
+        (reverse("project_list"), "Project List", False),
+        (reverse("project_view",kwargs={'id':project.id}), f"{project.title}", False),
+        (reverse("results_list", kwargs={'id':project.id}),"Results List", False),
+        (reverse("results_view", kwargs={'id': result.id}), f"{result.title}", True)
+    ]
+
+    context = dict(result=result, steps=steps)
+
+    return render(request, "results_view.html", context)
+
+
+def results_edit(request, id):
+
+    result = Result.objects.filter(id=id).first()
+    project = result.analysis.project
+
+    active = True
+
+    steps = [
+        (reverse("index"), "Home", not active),
+        (reverse("project_list"), "Project List", not active),
+        (reverse("project_view", kwargs={'id': project.id}), f"{project.title}", not active),
+        (reverse("results_list", kwargs={'id': project.id}), "Results List", not active),
+        (reverse("results_view", kwargs={'id': result.id}), f"{result.title}", active)
+    ]
+
+    if request.method == "POST":
+
+        form = ResultForm(request.POST, instance=result)
+        if form.is_valid():
+            # Redo the dates here to update everytime edited.
+            form.save()
+
+    else:
+        form = ResultForm(instance=result)
+
+    context = dict(result=result, steps=steps, form=form)
+
+    return render(request, 'results_edit.html', context)
+
+
+def results_create(request, id):
+
+    return
+
+
+
+
+
+
+
+
+
+
+

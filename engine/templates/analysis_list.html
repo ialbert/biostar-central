@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% load engine_tags %}
+
+{% block title %}
+    {{projects.title}} | Analysis List
+{% endblock %}
+
+
+{% block body %}
+
+{% for analysis in projects.analysis_set|date_sort %}
+
+    <div class="ui vertical segment">
+
+        <div class="title">
+           <div class="ui right floated green mini basic button">
+           <a href="{% url 'analysis_run' analysis.id %}">
+            <i class="checkmark icon"></i>Run
+           </a>
+           </div>
+           <div class="ui right floated mini basic button">
+           <a href="{% url 'analysis_edit' analysis.id %}">
+           <i class="write icon"></i>Edit Analysis
+           </a>
+           </div>
+
+            <a href="{% url 'analysis_view' analysis.id %}">
+            <i class="folder icon"></i>{{ analysis.title }}
+            </a>
+        </div>
+        <div class="date">{{analysis.date.date}}</div>
+    </div>
+
+{% endfor %}
+
+
+{% endblock %}

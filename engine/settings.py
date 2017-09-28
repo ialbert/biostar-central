@@ -23,6 +23,9 @@ def join(*args):
 
 ADMINS = [("Admin User", "foo@bar.com")]
 
+VALID_DATA_TYPES = [ ("fastq", "Fastq Sequencing Data"),
+                    ]
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(join(__file__))
 
@@ -48,6 +51,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'compressor',
     'engine.apps.EngineConfig',
+    'pagedown'
 ]
 
 MIDDLEWARE = [

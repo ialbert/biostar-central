@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% load engine_tags %}
+
+{% block title %}
+    {{project.title}} | Results List
+{% endblock %}
+
+
+{% block body %}
+
+
+{% for result in results|date_sort %}
+
+    <div class="ui vertical segment">
+
+        <div class="title">
+
+            <a href="{% url 'results_view' result.id %}">
+            <i class="folder icon"></i>{{ result.title }}
+            </a>
+        </div>
+        <div class="date">{{result.analysis.title}}</div>
+        <div class="date">{{result.date.date}}</div>
+
+    </div>
+
+{% endfor %}
+
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load engine_tags %}
+
+{% block title %}
+    {{data.title}}
+{% endblock %}
+
+{% block breadcrumb %}
+    {% breadcrumb steps=steps %}
+    <div class="ui right floated mini basic button">
+       <a href="{% url 'data_edit' data.id %}">
+       <i class="write icon"></i>Edit Data
+       </a>
+    </div>
+{% endblock %}
+
+{% block body %}
+
+    <div class="ui vertical center aligned segment">
+       <div class="header">{{data.title}}</div>
+    </div>
+
+<div class="ui vertical segment">
+
+
+<div class="textbody">{{data.text}}</div>
+
+        </div>
+
+
+{% endblock %}

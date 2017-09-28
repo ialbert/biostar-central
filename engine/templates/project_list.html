@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-{% load engine_tags %}
 
 {% block title %}
 Projects
@@ -7,7 +6,7 @@ Projects
 
 {% block header %}
 
-<i class="database icon"></i> Project List
+<i class="database icon"></i>Project List
 
 <button class="ui mini button">
     <i class="write square icon"></i>Create Project
@@ -23,10 +22,12 @@ Projects
 <div class="ui vertical segment">
 
 
-    <h3><a href="{% url 'project_view' project.id %}">
+    <div class="title">
+
+    <a href="{% url 'project_view' project.id %}">
         <i class="folder icon"></i>{{ project.title }}
-    </a></h3>
-    <p>{{project.date.date}}</p>
+    </a></div>
+    <div class="date">{{project.date.date}}</div>
 
 
 </div>
