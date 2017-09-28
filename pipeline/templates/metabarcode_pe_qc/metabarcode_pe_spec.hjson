@@ -1,0 +1,100 @@
+[
+  {
+    name: sampleinfo
+    value: test/samples.txt
+    help: " Enter a tab delimited text file"
+    widget: FileInput
+    label: Specify the sample file
+    css: red
+    visible: 1
+  }
+  {
+    name: data
+    value: test/input.fq
+    widget: DropDown
+    origin: PROJECT
+    valid_types:
+    [
+      FASTQ
+      FASTQ_GZ
+    ]
+    visible: 1
+  }
+  {
+    name: library_type
+    choices:
+    [
+      [
+        single-end
+        Single End Reads
+      ]
+      [
+        paired-end
+        Paired end
+      ]
+    ]
+    value: paired-end
+    widget: RadioSelect
+    visible: 1
+  }
+  {
+    name: trim_param
+    label: Specify average value for trimming
+    default: 0
+    help: Enter 0 for not trimming
+    value: "6"
+    widget: Integertype
+    range:
+    [
+      1
+      10
+    ]
+    visible: 1
+  }
+  {
+    name: action
+    choices:
+    [
+      [
+        fastqc
+        Create fastqc report
+      ]
+      [
+        merge
+        Merge paired end dataset
+      ]
+    ]
+    value: fastqc
+    widget: RadioSelect
+    visible: 1
+  }
+  {
+    name: analysis_spec
+    title: Quality control of sequencing data
+    description:
+                '''
+# Purpose
+
+This analysis takes as input a sample information sheet and sequence data.
+It creates an agrregated fastqc report of the dataset and a new merged, improved  dataset if the input was paired end.
+It optionally applies trimming before merging reads.
+
+# Parameters
+
+**Input:**
+
+1. Sample information as a text file
+
+2. Sequence data as a fastq or gzipped fastq file.
+
+# Results
+
+This analysis produces
+
+1. MultiQC report - an aggregate fastqc report of the input dataset.
+
+2. Creates a new merged improved dataset after applying trimming if specified.
+
+        '''
+  }
+]
