@@ -45,11 +45,13 @@ def create_workflow():
     #metadata = sys.argv[1]  # metadata as a json string or json file
     #template = sys.argv[2]
 
-    metadata = 
-
+    metadata = "./templates/metabarcode_qc/metabarcode_spec.json"
+    template = "./templates/metabarcode_qc/metabarcode_makefile.html"
     # loads data
     configs = metadata_loader(metadata)
 
+    parse_configs(configs)
+    1/0
 
     rule = get_rule(configs)
 
