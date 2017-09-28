@@ -42,11 +42,14 @@ def get_rule(configs):
 
 
 def create_workflow():
-    metadata = sys.argv[1]  # metadata as a json string or json file
-    template = sys.argv[2]
+    #metadata = sys.argv[1]  # metadata as a json string or json file
+    #template = sys.argv[2]
+
+    metadata = 
 
     # loads data
     configs = metadata_loader(metadata)
+
 
     rule = get_rule(configs)
 

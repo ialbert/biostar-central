@@ -3,6 +3,7 @@ WORKDIR={{constant_params.workdir|default:"./work"}}
 DATADIR={{constant_params.datadir|default:"./work/data"}}
 SCRIPTS={{constant_params.scripts|default:"./scripts" }}
 CHECK_INPUT={{constant_params.check_input|default:"check_input.py"}}
+JOBID={{jobid}}
 
 {%  for config in configs %}
 {%  if config.name == "sampleinfo" %}
