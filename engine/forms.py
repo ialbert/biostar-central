@@ -113,8 +113,6 @@ class RunForm(forms.Form):
 
         self.fields["data"] = forms.CharField(label="Sequencing Data",
                                               widget=forms.Select(choices=CHOICES))
-        # json_spec is already a charfeild
-
 
         json_spec = json.loads(json_spec)
 
