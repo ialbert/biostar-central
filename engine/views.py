@@ -11,7 +11,7 @@ from ratelimit.decorators import ratelimit
 
 from.forms import *
 from .models import (User, Project, Data,
-                     Analysis, Result)
+                     Analysis, Result, Job)
 
 
 logger = logging.getLogger('engine')
@@ -439,6 +439,30 @@ def analysis_run(request, id):
 
     analysis = Analysis.objects.filter(id=id).first()
     project = analysis.project
+    # name and label are exepcted in json_file,
+    # anything empty will be left
+    # Pulls Sequencing Data from needed Project
+    #
+    json_file = r"""
+                [
+                {
+                    "name": "samples", 
+                    "label": "Fastq Samples List", 
+                    "selected": "", 
+                    "widget": "Select",
+                    "form_type": "CharField", 
+                    "choices" : {"SE": "single-end", "PE" : "paired-end"}
+                },
+                {
+                    "name": "merge", 
+                    "label": "Merge Reads", 
+                    "selected": "", 
+                    "widget": "Select",
+                    "form_type": "CharField",
+                    "choices" : {"SE": "single-end", "PE" : "paired-end"}
+                },
+                ]"""
+
     active  = True
     owner = User.objects.all().first()
 
@@ -451,15 +475,32 @@ def analysis_run(request, id):
     ]
 
     if request.method == "POST":
+        # loads the json file into the analysis
+        #analysis.load(request.POST.json_file)
+        form = RunForm(data=request.POST)
+        if form.is_valid:
 
-        result = Result.objects.get_or_create(owner=owner,
-                                            analysis=analysis)
+            form.save()
+            filled_json = form.json_spec
+            filled_makefile = form.makefile
+
+            job = Job.objects.get_or_create(json_data= filled_json,
+                                            owner=owner,
+                                            analysis=analysis,
+                                            makefile=filled_makefile)
+
+            context = dict(job=job, analysis=analysis, steps=steps)
+            1/0
+            return render(request, "results_list.html", context)
 
     else:
-        form = RunForm(id=id)
+        # Set json_file in setting.py to avoid loading a file every time a view is served
+        analysis.load(json_file)
+        print(analysis.json_spec)
+        #1/0
+        form = RunForm(id=id, json_spec=json_file, makefile=analysis.makefile_template)
         context = dict(analysis=analysis, project=project, steps=steps, form=form)
         return render(request, 'analysis_run.html', context)
-
 
 
 def results_list(request, id):

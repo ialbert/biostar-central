@@ -1,3 +1,5 @@
+import json
+
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
@@ -50,29 +52,61 @@ class Data(Base):
 class Analysis(Base):
 
     project = models.ForeignKey(Project)
-    commands = models.TextField(default="commands")
+    json_spec = models.TextField(default="commands")
+    # = models.FileField(default="media")
 
+    makefile_template = models.TextField(default="media")
 
     def save(self, *args, **kwargs):
         super(Analysis, self).save(*args, **kwargs)
+
+    # set json_spec from json_file
+    # assumes json_file is already a json file
+    def set_json(self, json_file):
+
+        if json_file.endswith(".json"):
+            json_file = json.load(json_file)
+            pass
+            # load using json here and put into python string.
+
+        self.json_spec = models.TextField(json_file)
+        return
+
+
+
+class Job(Base):
+
+    # file path to media
+    QUEUED, RUNNING, FINISHED, ERROR = 1, 2, 3, 4
+    CHOICES = [(QUEUED, "Queued"), (RUNNING, "Running"),
+               (FINISHED, "Finished"), (ERROR, "Error")]
+
+    analysis = models.ForeignKey(Analysis)
+    json_data = models.TextField(default="commands")
+    #makefile_template = models.TextField(default="media")
+    makefile = models.TextField(default="media")
+
+    state = models.IntegerField(default=1, choices=CHOICES)
+
+    def save(self, *args, **kwargs):
+        super(Job, self).save(*args, **kwargs)
+
+    def change_state(self):
+        return NotImplemented
+
 
 
 class Result(Base):
 
     # file path to media
-    QUEUED, RUNNING, FINISHED, ERROR = 1,2,3,4
-    CHOICES = [(QUEUED, "Queued"), (RUNNING, "Running"),
-               (FINISHED, "Finished"), (ERROR, "Error")]
-    analysis = models.ForeignKey(Analysis)
 
-    state = models.IntegerField(default=1, choices=CHOICES)
+    job = models.ForeignKey(Job)
     directory = models.FilePathField(default="media")
-    commands = models.TextField(default="commands")
 
     def save(self, *args, **kwargs):
         super(Result, self).save(*args, **kwargs)
 
-    
+
 class Profile(models.Model):
 
     user = models.ForeignKey(User)
