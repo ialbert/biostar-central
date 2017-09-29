@@ -6,6 +6,8 @@ SCRIPTS := {{dirinfo.SCRIPT_DIR|default:"./scripts" }}
 CHECK_INPUT := {{scripts.CHECK_INPUT|default:"check_input.py"}}
 JOBID := {{jobid}}
 
+{{specs.action}}
+
 fname := $(notdir $(INPUTDATA))
 SAMPLEINFO := {{specs.sampleinfo}}
 INPUTDATA := {{specs.data}}
@@ -15,8 +17,10 @@ untrimmed_out := $(WORKDIR)/multiqc_untrimmed/$(wildcard *.html)
 all: setup_dir check_input $(untrimmed_out)
 {% elif specs.action == "trim" %}
 trimmed_out := $(WORKDIR)/multiqc_trimmed/$(wildcard *.html)
-all :
+all : setup_dir check_input $(untrimmed_out) $(trimmed_out)
 {% endif %}
+
+.PHONY: all clean
 
 setup_dir:
 	#
@@ -27,18 +31,13 @@ setup_dir:
 extract_data:
 	#
 	# extract tar archive and move data to workdir
-	python extract.py $(INPUTDATA) | mv :wq
-
-
-check_input:
-	#
-	# checks to see if all samples specified in the metadata are present in the input data.
-	# And extracts them into $(WORKDIR)/data folder.
-	#
-	python $(SCRIPTS)/$(CHECK_INPUT) -s $(SAMPLEINFO) -i $(INPUTDATA) -w $(WORKDIR)
-
-QCDIR=$(WORKDIR)/multiQC
-create_multiqc:
+	tar -C $(WORKDIR) -xzvf data.tar.gz
+	mkdir -p $(DATADIR)
+	mv $(WORKDIR)/*.* $(DATADIR)
+{% if specs.action in "fastqc trim" %}
+{% if specs.action == "fastqc" %}
+QCDIR=$(WORKDIR)/multiqc_untrimmed
+untrimmed_out:
 	#
 	# run fastqc on all files
 	#
@@ -56,5 +55,30 @@ create_multiqc:
 	# clean
 	#
 	rm -f $(QCDIR)/*fastqc.html $(QCDIR)/*fastqc.zip
+{% endif %}
+{% if specs.action == "trim" %}
+trim:
+	# trim command
 
-.PHONY: all clean
+QCDIR=$(WORKDIR)/multiqc_trimmed
+trimmed_out:
+	#
+	# run fastqc on all files
+	#
+	if [ -d "$(QCDIR)" ]; then rm -rf $(QCDIR); fi
+
+	mkdir -p $(QCDIR)
+	ls $(WORKDIR)/trim/*gz | parallel --verbose --progress -j 8 fastqc --nogroup {} -o $(QCDIR)
+	#
+	# run multiqc to create an aggregate report
+	#
+	multiqc -f -n multiqc $(QCDIR)
+	cp multiqc.html $(RESULTS_DIR)
+	mv multiqc* $(QCDIR)
+	#
+	# clean
+	#
+	rm -f $(QCDIR)/*fastqc.html $(QCDIR)/*fastqc.zip
+
+{%endif %}
+{%endif%}

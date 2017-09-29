@@ -19,13 +19,15 @@ setup_dir:
 	#
 	# set up directories
 	#
-	mkdir -p $(RESDIR) $(WORKDIR) $(DATADIR)
+	mkdir -p $(RESDIR) $(WORKDIR)
 
 extract_data:
 	#
 	# extract tar archive and move data to workdir
-	ln -s $(INPUTDATA) $(DATADIR)/$(fname)
-	tar -xzvf $(DATADIR)/$(fname)
+	tar -C $(WORKDIR) -xzvf data.tar.gz
+	mkdir -p $(DATADIR)
+	mv $(WORKDIR)/*.* $(DATADIR)
+
 
 check_input:
 	#
