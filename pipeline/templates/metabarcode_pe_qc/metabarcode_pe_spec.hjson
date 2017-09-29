@@ -2,9 +2,9 @@
   {
     name: sampleinfo
     value: test/samples.txt
-    help: " Enter a tab delimited text file"
-    widget: FileInput
     label: Specify the sample file
+    help: " Sample information file should be a tab delimited text file"
+    widget: FileInput
     css: red
     visible: 1
   }
@@ -14,10 +14,12 @@
     origin: PROJECT
     valid_type: TAR_FASTQ_GZ
     widget: Checkbox
+    visible : 1
   }
   {
     name: library_type
     value: paired-end
+    label : Paired end data
     valid_type: paired-end
     widget : Checkbox
     visible: 1
