@@ -5,6 +5,15 @@ import sys, os, json, hjson
 from const import *
 
 
+def path_join(*args):
+    return os.path.abspath(os.path.join(*args))
+
+
+CURR_DIR = os.path.dirname(os.path.realpath(__file__))
+TEMPLATE_DIR = CURR_DIR
+#TEMPLATE_DIR = path_join(CURR_DIR, "templates")
+
+
 def set_env():
     '''
     Specify template engine and template directory.
@@ -14,14 +23,14 @@ def set_env():
     TEMPLATES = [
         {
             'BACKEND': 'django.template.backends.django.DjangoTemplates',
-            'DIRS': ['./'],
+            'DIRS': [TEMPLATE_DIR],
         }
     ]
     settings.configure(TEMPLATES=TEMPLATES)
     return
 
 
-def render(data,template):
+def render(data, template):
     set_env()
     django.setup()
     temp = get_template(template)

@@ -1,16 +1,8 @@
-analysis_name="metabarcode_qc"
-spec="metabarcode_spec.hjson"
-template="metabarcode_makefile.html"
-report="metabarcode_report.html"
+set -ue
 
-outdir=templates/${analysis_name}
+WORKDIR=templates/metabarcode_qc
+SPEC=templates/metabarcode_qc/metabarcode_spec.hjson
+TEMPLATE=templates/metabarcode_qc/metabarcode_makefile.html
 
-# create make
-python make.py  $outdir/$spec $outdir/$template >$outdir/Makefile
 
-# run make
-cd $outdir
-make all
-
-#create report
-python metabarcode_results.py $report >index.html
+bash run.sh $WORKDIR $SPEC $TEMPLATE
