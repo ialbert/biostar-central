@@ -2,7 +2,6 @@ import django
 from django.conf import settings
 from django.template.loader import get_template
 import sys, os, json, hjson
-from const import *
 
 
 def path_join(*args):
@@ -88,7 +87,7 @@ def run():
     # parse configs to render in template.
     specs = parse_configs(configs)
 
-    context = {'specs': specs, 'dirinfo': DIR_INFO, 'jobid': 'job0' }
+    context = {'specs': specs, 'jobid': 'job0' }
 
     # render template.
     html = render(context, template)

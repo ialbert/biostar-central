@@ -1,7 +1,4 @@
-BASEDIR := test
-RESDIR := test/res
-WORKDIR := test/work
-DATADIR := test/work/data
+WORKDIR=./work
 
 JOBID := job0
 
@@ -14,7 +11,7 @@ setup_dir:
 	#
 	# set up directories
 	#
-	mkdir -p $(RESDIR) $(WORKDIR)
+	mkdir -p $(WORKDIR)
 
 
 extract_data:
@@ -29,6 +26,7 @@ extract_data:
 
 MQCDIR := $(WORKDIR)/multiqc
 QCDIR := $(WORKDIR)/fastqc
+RESDIR := $(WORKDIR)/res
 
 fastqc:
 	#
