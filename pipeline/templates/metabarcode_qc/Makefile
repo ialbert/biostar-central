@@ -1,50 +1,58 @@
-RESULTS_DIR=./res
-WORKDIR=./work
-DATADIR=./work/data
-SCRIPTS=./scripts
-CHECK_INPUT=check_input.py
-JOBID=0
+BASEDIR := test
+RESDIR := test/res
+WORKDIR := test/work
+DATADIR := test/work/data
 
-METADATA=sampleinfo.txt
+JOBID := job0
 
-INPUTDATA=data.tar.gz
-INPUT_TYPE=gzipped_fastq
+fname := $(notdir $(INPUTDATA))
+INPUTDATA := test/data.tar.gz
 
-
-
-all: setup_dir check_input create_multiqc
-        # execute all commands
+all : setup_dir extract_data fastqc multiqc
 
 setup_dir:
 	#
 	# set up directories
 	#
-	mkdir -p $(RESULTS_DIR) $(WORK_DIR)
+	mkdir -p $(RESDIR) $(WORKDIR)
 
-check_input:
-	#
-	# checks to see if all samples specified in the metadata are present in the input data.
-	# And extracts them into $(WORKDIR)/data folder.
-	#
-	python $(SCRIPTS)/$(CHECK_INPUT) -m $(METADATA) -i $(INPUTDATA) -w $(WORKDIR) --jobid $JOBID
 
-QCDIR=$(WORKDIR)/multiQC
-create_multiqc:
+extract_data:
+	#
+	# extract tar archive and move data to workdir
+	tar -C $(WORKDIR) -xzvf $(INPUTDATA)
+	#mkdir -p $(DATADIR)
+	#mv $(WORKDIR)/*.* $(DATADIR)
+
+
+
+
+MQCDIR := $(WORKDIR)/multiqc
+QCDIR := $(WORKDIR)/fastqc
+
+fastqc:
 	#
 	# run fastqc on all files
 	#
-	if [ -d "$(QCDIR)" ]; then rm -rf $(QCDIR); fi
-
 	mkdir -p $(QCDIR)
 	ls $(DATADIR)/*gz | parallel --verbose --progress -j 8 fastqc --nogroup {} -o $(QCDIR)
+
+multiqc:
 	#
 	# run multiqc to create an aggregate report
 	#
+	if [ -d "$(MQCDIR)"   ]; then rm -rf $(MQCDIR); fi
+
+	mkdir -p $(MQCDIR)
+
 	multiqc -f -n multiqc $(QCDIR)
-	cp multiqc.html $(RESULTS_DIR)
-	mv multiqc* $(QCDIR)
+	cp multiqc.html $(RESDIR)
+	mv multiqc* $(MQCDIR)
 	#
 	# clean
 	#
-	rm -f $(QCDIR)/*fastqc.html $(QCDIR)/*fastqc.zip
+	#rm -f $(QCDIR)/*fastqc.html
+	rm -f $(QCDIR)/*fastqc.zip
+
+ 
 

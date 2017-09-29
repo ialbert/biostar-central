@@ -66,12 +66,12 @@ def load_specs(fname):
 
 
 def run():
-    #config = sys.argv[1]
-    #template = sys.argv[2]
+    config = sys.argv[1]
+    template = sys.argv[2]
 
-    config = "./templates/metabarcode_pe_qc/metabarcode_pe_spec.hjson"
-    template = "./templates/metabarcode_pe_qc/metabarcode_pe_makefile.html"
-    #template = "test.html"
+    #config = "./templates/metabarcode_qc/metabarcode_spec.hjson"
+    #template = "./templates/metabarcode_qc/metabarcode_makefile.html"
+
 
     # loads sepc file.
     configs = load_specs(config)
@@ -79,8 +79,7 @@ def run():
     # parse configs to render in template.
     specs = parse_configs(configs)
 
-
-    context = {'specs': specs, 'dirinfo': DIR_INFO, 'scrips': SCRIPT_INFO, 'jobid': 'job0' }
+    context = {'specs': specs, 'dirinfo': DIR_INFO, 'jobid': 'job0' }
 
     # render template.
     html = render(context, template)

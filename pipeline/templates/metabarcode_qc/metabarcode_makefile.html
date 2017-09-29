@@ -1,53 +1,57 @@
-RESULTS_DIR={{constant_params.resdir|default:"./res"}}
-WORKDIR={{constant_params.workdir|default:"./work"}}
-DATADIR={{constant_params.datadir|default:"./work/data"}}
-SCRIPTS={{constant_params.scripts|default:"./scripts" }}
-CHECK_INPUT={{constant_params.check_input|default:"check_input.py"}}
-JOBID={{jobid}}
+BASEDIR := {{dirinfo.BASE_DIR|default:"./"}}
+RESDIR := {{dirinfo.RES_DIR|default:"./res"}}
+WORKDIR := {{dirinfo.WORK_DIR|default:"./work"}}
+DATADIR := {{dirinfo.DATA_DIR|default:"./work/data"}}
 
-{%  for config in configs %}
-{%  if config.name == "sampleinfo" %}
-METADATA={{ config.value }}
-{% endif %}
-{%  if config.name == "data" %}
-INPUTDATA={{ config.value }}
-INPUT_TYPE={{ config.type }}
-{% endif %}
-{%  endfor %}
+JOBID := {{jobid}}
 
-all: {{ constant_params.command_list|join:" "}}
-        # execute all commands
+fname := $(notdir $(INPUTDATA))
+INPUTDATA := {{specs.data}}
+
+all : setup_dir extract_data fastqc multiqc
 
 setup_dir:
 	#
 	# set up directories
 	#
-	mkdir -p $(RESULTS_DIR) $(WORK_DIR)
+	mkdir -p $(RESDIR) $(WORKDIR)
 
-check_input:
+
+extract_data:
 	#
-	# checks to see if all samples specified in the metadata are present in the input data.
-	# And extracts them into $(WORKDIR)/data folder.
-	#
-	python $(SCRIPTS)/$(CHECK_INPUT) -m $(METADATA) -i $(INPUTDATA) -w $(WORKDIR)
-{% if rule == "qc" %}
-QCDIR=$(WORKDIR)/multiQC
-create_multiqc:
+	# extract tar archive and move data to workdir
+	tar -C $(WORKDIR) -xzvf $(INPUTDATA)
+	#mkdir -p $(DATADIR)
+	#mv $(WORKDIR)/*.* $(DATADIR)
+
+{% if specs.action == "fastqc" %}
+
+
+MQCDIR := $(WORKDIR)/multiqc
+QCDIR := $(WORKDIR)/fastqc
+
+fastqc:
 	#
 	# run fastqc on all files
 	#
-	if [ -d "$(QCDIR)" ]; then rm -rf $(QCDIR); fi
-
 	mkdir -p $(QCDIR)
 	ls $(DATADIR)/*gz | parallel --verbose --progress -j 8 fastqc --nogroup {} -o $(QCDIR)
+
+multiqc:
 	#
 	# run multiqc to create an aggregate report
 	#
+	if [ -d "$(MQCDIR)"   ]; then rm -rf $(MQCDIR); fi
+
+	mkdir -p $(MQCDIR)
+
 	multiqc -f -n multiqc $(QCDIR)
-	cp multiqc.html $(RESULTS_DIR)
-	mv multiqc* $(QCDIR)
+	cp multiqc.html $(RESDIR)
+	mv multiqc* $(MQCDIR)
 	#
 	# clean
 	#
-	rm -f $(QCDIR)/*fastqc.html $(QCDIR)/*fastqc.zip
-{% endif %}
+	#rm -f $(QCDIR)/*fastqc.html
+	rm -f $(QCDIR)/*fastqc.zip
+
+ {% endif  %}
