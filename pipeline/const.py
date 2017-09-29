@@ -1,17 +1,18 @@
 import os
 # Datatypes
 
-FASTQ_TYPE = "TAR.FASTQ.GZ"
+
+PE_DATA_TYPE = ".tar.gz"
 
 DIR_INFO = {
-    "BASE_DIR" : "./templates/metabarcode_pe_qc/test",
-    "WORK_DIR" : "./templates/metabarcode_pe_qc/test/work",
-    "RES_DIR" : "./templates/metabarcode_pe_qc/test/res",
-    "SCRIPT_DIR"  : "./scripts"
+    "BASE_DIR" : "test",
+    "WORK_DIR" : "test/work",
+    "RES_DIR" : "test/res",
+    "DATA_DIR" : "test/work/data",
+    "SCRIPT_DIR" : "../../scripts"
 }
 
 SCRIPT_INFO = {
     "CHECK_INPUT" : "check_input.py"
 
 }
-

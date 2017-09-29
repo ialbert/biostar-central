@@ -10,31 +10,16 @@
   }
   {
     name: data
-    value: test/input.fq
-    widget: DropDown
+    value: test/data.tar.gz
     origin: PROJECT
-    valid_types:
-    [
-      FASTQ
-      FASTQ_GZ
-    ]
-    visible: 1
+    valid_type: TAR_FASTQ_GZ
+    widget: Checkbox
   }
   {
     name: library_type
-    choices:
-    [
-      [
-        single-end
-        Single End Reads
-      ]
-      [
-        paired-end
-        Paired end
-      ]
-    ]
     value: paired-end
-    widget: RadioSelect
+    valid_type: paired-end
+    widget : Checkbox
     visible: 1
   }
   {

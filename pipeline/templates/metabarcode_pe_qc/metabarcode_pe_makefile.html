@@ -1,19 +1,22 @@
-BASE_DIR := test
-RESDIR := test/res
-WORKDIR := test/work
-DATADIR := test/work/data
-SCRIPTS := scripts
-CHECK_INPUT := check_input.py
-JOBID := job0
+BASE_DIR := {{dirinfo.BASE_DIR|default:"./"}}
+RESDIR := {{dirinfo.RES_DIR|default:"./res"}}
+WORKDIR := {{dirinfo.WORK_DIR|default:"./work"}}
+DATADIR := {{dirinfo.DATA_DIR|default:"./work/data"}}
+SCRIPTS := {{dirinfo.SCRIPT_DIR|default:"./scripts" }}
+CHECK_INPUT := {{scripts.CHECK_INPUT|default:"check_input.py"}}
+JOBID := {{jobid}}
 
-
-SAMPLEINFO := test/samples.txt
-INPUTDATA := test/data.tar.gz
 fname := $(notdir $(INPUTDATA))
+SAMPLEINFO := {{specs.sampleinfo}}
+INPUTDATA := {{specs.data}}
 
+{% if  specs.action == "fastqc" %}
 untrimmed_out := $(WORKDIR)/multiqc_untrimmed/$(wildcard *.html)
 all: setup_dir check_input $(untrimmed_out)
-
+{% elif specs.action == "trim" %}
+trimmed_out := $(WORKDIR)/multiqc_trimmed/$(wildcard *.html)
+all :
+{% endif %}
 
 setup_dir:
 	#
@@ -24,8 +27,8 @@ setup_dir:
 extract_data:
 	#
 	# extract tar archive and move data to workdir
-	ln -s $(INPUTDATA) $(DATADIR)/$(fname)
-	tar -xzvf $(DATADIR)/$(fname)
+	python extract.py $(INPUTDATA) | mv :wq
+
 
 check_input:
 	#

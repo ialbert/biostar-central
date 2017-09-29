@@ -4,6 +4,7 @@ from django.template.loader import get_template
 import sys, os, json, hjson
 from const import *
 
+
 def set_env():
     '''
     Specify template engine and template directory.
@@ -13,14 +14,14 @@ def set_env():
     TEMPLATES = [
         {
             'BACKEND': 'django.template.backends.django.DjangoTemplates',
-            'DIRS': ['./templates'],
+            'DIRS': ['./'],
         }
     ]
     settings.configure(TEMPLATES=TEMPLATES)
     return
 
 
-def render_template(data,template):
+def render(data,template):
     set_env()
     django.setup()
     temp = get_template(template)
@@ -30,7 +31,7 @@ def render_template(data,template):
 
 def name_val_pair(element):
     '''
-    input ia a dictionary object and it returns a name, value pair.
+    input is a dictionary object and it returns a name, value pair.
     '''
 
     try:
@@ -64,28 +65,27 @@ def load_specs(fname):
     return data
 
 
-def render():
+def run():
     #config = sys.argv[1]
     #template = sys.argv[2]
 
-    print(DIR_INFO)
-    1/0
-    config = "./templates/metabarcode_qc/metabarcode_spec.hjson"
-    #template = "./templates/metabarcode_qc/metabarcode_makefile.html"
-    template = "test.html"
+    config = "./templates/metabarcode_pe_qc/metabarcode_pe_spec.hjson"
+    template = "./templates/metabarcode_pe_qc/metabarcode_pe_makefile.html"
+    #template = "test.html"
 
     # loads sepc file.
     configs = load_specs(config)
+
     # parse configs to render in template.
     specs = parse_configs(configs)
-    print(specs)
-    1/0
+
+
+    context = {'specs': specs, 'dirinfo': DIR_INFO, 'scrips': SCRIPT_INFO, 'jobid': 'job0' }
+
     # render template.
-    html = render_template(specs, template)
+    html = render(context, template)
     print(html)
 
 
 if __name__ == "__main__":
-
-
-    render()
+    run()
