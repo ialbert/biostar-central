@@ -27,9 +27,10 @@ fi
 python make.py $SPEC $TEMPLATE > $WORKDIR/Makefile
 cd $WORKDIR
 
-exit
+#exit
 # run make
 make $COMMAND
 
+exit
 #create report
 #python metabarcode_results.py $report >index.html
