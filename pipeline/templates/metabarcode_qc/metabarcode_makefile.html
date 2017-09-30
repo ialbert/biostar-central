@@ -1,55 +1,58 @@
 WORKDIR=./work
-
 JOBID := {{jobid}}
 
-fname := $(notdir $(INPUTDATA))
 INPUTDATA := {{specs.data}}
+fname := $(notdir $(INPUTDATA))
 
-all : setup_dir extract_data fastqc multiqc
+all : setup extract fastqc multiqc report
 
-setup_dir:
-	#
-	# set up directories
-	#
+setup:
 	mkdir -p $(WORKDIR)
 
+extracted:=$(shell tar -tvzf $(INPUTDATA) | head -1 )
+file_extracted:=$(lastword $(extracted))
+DNAME=$(dir $(file_extracted))
 
-extract_data:
+extract:
 	#
-	# extract tar archive and move data to workdir
+	# extract tar archive
 	tar -C $(WORKDIR) -xzvf $(INPUTDATA)
-	#mkdir -p $(DATADIR)
-	#mv $(WORKDIR)/*.* $(DATADIR)
 
-{% if specs.action == "fastqc" %}
+	# move extracted to ./work/data
+	if [ $(DNAME) == "./" ];  then \
+		mkdir -p $(WORKDIR)/data; \
+		mv $(WORKDIR)/*.* $(WORKDIR)/data ; \
+	else \
+		if [ $(DNAME) != "data/" ] ; then \
+			mv $(WORKDIR)/* $(WORKDIR)/data ; \
+		fi ; \
+	fi;
 
-
-MQCDIR := $(WORKDIR)/multiqc
-QCDIR := $(WORKDIR)/fastqc
+DATADIR:=$(WORKDIR)/data
 RESDIR := $(WORKDIR)/res
-
+{% if specs.action == "fastqc" %}
 fastqc:
 	#
 	# run fastqc on all files
 	#
-	mkdir -p $(QCDIR)
-	ls $(DATADIR)/*gz | parallel --verbose --progress -j 8 fastqc --nogroup {} -o $(QCDIR)
+	ls $(DATADIR)/*gz | parallel --verbose --progress -j 8 fastqc --nogroup {} -o $(DATADIR)
 
 multiqc:
 	#
 	# run multiqc to create an aggregate report
 	#
-	if [ -d "$(MQCDIR)"   ]; then rm -rf $(MQCDIR); fi
-
-	mkdir -p $(MQCDIR)
-
-	multiqc -f -n multiqc $(QCDIR)
-	cp multiqc.html $(RESDIR)
-	mv multiqc* $(MQCDIR)
+	multiqc -f -n multiqc -o $(DATADIR) $(DATADIR)
+	cp $(DATADIR)/multiqc.html $(RESDIR)
 	#
 	# clean
 	#
-	#rm -f $(QCDIR)/*fastqc.html
-	rm -f $(QCDIR)/*fastqc.zip
+	#rm -f $(DATADIR)/*fastqc.zip
 
- {% endif  %}
+report:
+	#
+	# create html report of result.
+	# inputs are result dir and template
+	#
+	python {{specs.report_script}} $(RESDIR) {{specs.report_template}} > index.html
+
+{% endif  %}

@@ -18,6 +18,14 @@
     visible: 1
   }
   {
+     name : report_template
+     value : metabarcode_report.html
+  }
+  {
+     name : report_script
+     value : metabarcode_results.py
+  }
+  {
     name: analysis_spec
     title: Quality control of sequencing data
     description:

@@ -1,9 +1,11 @@
+#from ...make import render
 import django
 from django.conf import settings
 from django.template.loader import get_template
 import sys, os
 
-RESDIR = "./test/res"
+CURR_DIR = os.path.dirname(os.path.realpath(__file__))
+TEMPLATE_DIR = CURR_DIR
 
 
 def set_env():
@@ -30,13 +32,13 @@ def render(data,template):
     return html
 
 
-def collect_res():
+def collect_res(resdir):
 
     resdict={}
-    for file in os.listdir(RESDIR):
+    for file in os.listdir(resdir):
         if file.endswith(".html"):
             fname = os.path.splitext(file)[0]
-            fpath =os.path.join(RESDIR, file)
+            fpath =os.path.join(resdir, file)
             resdict[fname] = fpath
 
     return resdict
@@ -44,8 +46,9 @@ def collect_res():
 
 if __name__  == "__main__":
 
-    resdict =collect_res()
-    template = sys.argv[1]
+    resdir = sys.argv[1]
+    template = sys.argv[2]
+    resdict =collect_res(resdir)
 
     html = render(resdict, template)
     print(html)
