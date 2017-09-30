@@ -1,7 +1,8 @@
 **To run**
 
-# specify workdir,spec file and template in test.sh and run
+Specify workdir,spec file and template in test.sh and run
+
 bash test.sh
 
-Result report is in index.html
+Result report is in templates/metabarcode_qc/index.html
 
