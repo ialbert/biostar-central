@@ -1,5 +1,4 @@
 WORKDIR=./work
-RESDIR := $(WORKDIR)/res
 JOBID := {{jobid}}
 
 INPUTDATA := {{specs.data}}
@@ -8,7 +7,7 @@ fname := $(notdir $(INPUTDATA))
 all : setup extract fastqc multiqc report
 
 setup:
-	mkdir -p $(WORKDIR) $(RESDIR)
+	mkdir -p $(WORKDIR)
 
 extracted:=$(shell tar -tvzf $(INPUTDATA) | head -1 )
 file_extracted:=$(lastword $(extracted))
@@ -30,6 +29,7 @@ extract:
 	fi;
 
 DATADIR:=$(WORKDIR)/data
+RESDIR := $(WORKDIR)/res
 {% if specs.action == "fastqc" %}
 fastqc:
 	#

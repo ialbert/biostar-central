@@ -1,50 +1,59 @@
-RESULTS_DIR=./res
 WORKDIR=./work
-DATADIR=./work/data
-SCRIPTS=./scripts
-CHECK_INPUT=check_input.py
-JOBID=0
+RESDIR := $(WORKDIR)/res
+JOBID := job0
 
-METADATA=sampleinfo.txt
+INPUTDATA := test/data.tar.gz
+fname := $(notdir $(INPUTDATA))
 
-INPUTDATA=data.tar.gz
-INPUT_TYPE=gzipped_fastq
+all : setup extract fastqc multiqc report
 
+setup:
+	mkdir -p $(WORKDIR) $(RESDIR)
 
+extracted:=$(shell tar -tvzf $(INPUTDATA) | head -1 )
+file_extracted:=$(lastword $(extracted))
+DNAME=$(dir $(file_extracted))
 
-all: setup_dir check_input create_multiqc
-        # execute all commands
-
-setup_dir:
+extract:
 	#
-	# set up directories
-	#
-	mkdir -p $(RESULTS_DIR) $(WORK_DIR)
+	# extract tar archive
+	tar -C $(WORKDIR) -xzvf $(INPUTDATA)
 
-check_input:
-	#
-	# checks to see if all samples specified in the metadata are present in the input data.
-	# And extracts them into $(WORKDIR)/data folder.
-	#
-	python $(SCRIPTS)/$(CHECK_INPUT) -m $(METADATA) -i $(INPUTDATA) -w $(WORKDIR) --jobid $JOBID
+	# move extracted to ./work/data
+	if [ $(DNAME) == "./" ];  then \
+		mkdir -p $(WORKDIR)/data; \
+		mv $(WORKDIR)/*.* $(WORKDIR)/data ; \
+	else \
+		if [ $(DNAME) != "data/" ] ; then \
+			mv $(WORKDIR)/* $(WORKDIR)/data ; \
+		fi ; \
+	fi;
 
-QCDIR=$(WORKDIR)/multiQC
-create_multiqc:
+DATADIR:=$(WORKDIR)/data
+
+fastqc:
 	#
 	# run fastqc on all files
 	#
-	if [ -d "$(QCDIR)" ]; then rm -rf $(QCDIR); fi
+	ls $(DATADIR)/*gz | parallel --verbose --progress -j 8 fastqc --nogroup {} -o $(DATADIR)
 
-	mkdir -p $(QCDIR)
-	ls $(DATADIR)/*gz | parallel --verbose --progress -j 8 fastqc --nogroup {} -o $(QCDIR)
+multiqc:
 	#
 	# run multiqc to create an aggregate report
 	#
-	multiqc -f -n multiqc $(QCDIR)
-	cp multiqc.html $(RESULTS_DIR)
-	mv multiqc* $(QCDIR)
+	multiqc -f -n multiqc -o $(DATADIR) $(DATADIR)
+	cp $(DATADIR)/multiqc.html $(RESDIR)
 	#
 	# clean
 	#
-	rm -f $(QCDIR)/*fastqc.html $(QCDIR)/*fastqc.zip
+	#rm -f $(DATADIR)/*fastqc.zip
+
+report:
+	#
+	# create html report of result.
+	# inputs are result dir and template
+	#
+	python metabarcode_results.py $(RESDIR) metabarcode_report.html > index.html
+
+
 

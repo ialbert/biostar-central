@@ -1,0 +1,51 @@
+[
+  {
+    name: data
+    value: test/data.tar.gz
+    widget: checkbox
+    origin: PROJECT
+    valid_type: TAR_FASTQ_GZ
+  }
+  {
+    name : library_type
+    value : paired-end
+  }
+  {
+    name: action
+    value: fastqc
+    label : Create Multiqc report of the data.
+    widget: checkbox
+    visible: 1
+  }
+  {
+     name : report_template
+     value : metabarcode_report.html
+  }
+  {
+     name : report_script
+     value : metabarcode_results.py
+  }
+  {
+    name: analysis_spec
+    title: Quality control of sequencing data
+    description:
+                '''
+# Purpose
+
+This analysis creates a multiqc report of all the samples in the input dataset..
+
+# Parameters
+
+**Input:**
+
+1. Sequence data as a  tar archived gzip file.
+
+# Results
+
+This analysis produces
+
+1. MultiQC report - an aggregate fastqc report of the input dataset.
+
+        '''
+  }
+]

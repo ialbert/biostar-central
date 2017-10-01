@@ -1,0 +1,100 @@
+[
+  {
+    name : sampleinfo
+    value : test/sampleinfo.txt
+    help :
+           '''
+Enter a tab delimited text file. Order of the fields should be
+sample name, sample group, barcode, forward primer sequence, reverse primer sequence, target gene.
+
+    '''
+    widget : FileInput
+    label : Specify the sample file.
+    css: red
+    visible: 1
+  }
+
+  {
+    name: data
+    value: test/data.tar.gz
+    widget: checkbox
+    origin: PROJECT
+    valid_type: TAR_FASTQ_GZ
+  }
+  {
+    name : library_type
+    value : true
+    label : Data entered is paired end.
+    widget : checkbox
+    visible : 1
+  }
+
+  {
+    name : trim_quality
+    label : Specify average quality value for trimming.
+    default : 0
+    help : Enter 0 for not trimming
+    value :  6
+    widget : Integertype
+    range  : [1,10]
+    visible : 1
+ }
+
+ {
+    name : trim_adapter
+    label : Trims adapters and primers.
+    default : false
+    value : true
+    help : Adapter and primer sequences should be in the sample sheet.
+    widget : checkbox
+    visible : 1
+
+ }
+
+ {
+    name : action
+    choices : [ (fastqc, Create fastqc report),
+                (merge, Merge paired end dataset)
+               ]
+
+    value : fastqc
+    widget : RadioSelect
+    visible : 1
+  }
+  {
+     name : report_template
+     value : metabarcode_report.html
+  }
+  {
+     name : report_script
+     value : metabarcode_results.py
+  }
+  {
+    name: analysis_spec
+    title: Quality control of sequencing data
+    description:
+                '''
+# Purpose
+
+This analysis takes a pired end dataset and produces a merged improved dataset.
+It can optionally trimmed the data before merging.
+MultiQC quality reports of each step are also produced.
+
+# Parameters
+
+**Input:**
+
+1. Paired end sequence data as a  tar archived gzip file.
+2. Sample information sheet as a tab delimited text file.
+
+# Results
+
+This analysis produces
+
+1. MultiQC report - an aggregate fastqc report of the input data.
+2. Trimmed dataset and its quality report (optional).
+3. Merged dataset and its quality report.
+
+        '''
+  }
+]

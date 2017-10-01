@@ -2,6 +2,7 @@
   {
     "name" : "sampleinfo",
     "value" : "test/samples.txt",
+    "help" : " Enter a tab delimited text file",
     "widget" : "FileInput",
     "label" : "Specify the sample file",
     "css": "red",
@@ -40,7 +41,7 @@
     "choices": [ ["fastqc",  "Create fastqc report"],
                  ["merge",  " Merge paired end dataset"]
                ],
-    "value": "merge",
+    "value": "fastqc",
     "widget": "RadioSelect",
     "visible": 1
   },
