@@ -23,6 +23,16 @@ def join(*args):
 
 ADMINS = [("Admin User", "foo@bar.com")]
 
+# Map a widget to a form(s)
+ALLOWED_WIDGETS = {
+                   "FileInput" : "FileField",
+                   "Select": "CharField",
+                   "RadioSelect": "CharField",
+                   "NumberInput":"IntegerField",
+
+                   }
+
+
 VALID_DATA_TYPES = [ ("fastq", "Fastq Sequencing Data"),
                     ]
 

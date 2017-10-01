@@ -51,26 +51,17 @@ class Data(Base):
 
 class Analysis(Base):
 
-    project = models.ForeignKey(Project)
+    #project = models.ForeignKey(Project)
     json_spec = models.TextField(default="commands")
     # = models.FileField(default="media")
 
-    makefile_template = models.TextField(default="media")
+    #makefile_template = models.TextField(default="media")
 
     def save(self, *args, **kwargs):
         super(Analysis, self).save(*args, **kwargs)
 
     # set json_spec from json_file
     # assumes json_file is already a json file
-    def set_json(self, json_file):
-
-        if json_file.endswith(".json"):
-            json_file = json.load(json_file)
-            pass
-            # load using json here and put into python string.
-
-        self.json_spec = models.TextField(json_file)
-        return
 
 
 
@@ -82,7 +73,9 @@ class Job(Base):
                (FINISHED, "Finished"), (ERROR, "Error")]
 
     analysis = models.ForeignKey(Analysis)
+    project = models.ForeignKey(Project)
     json_data = models.TextField(default="commands")
+
     #makefile_template = models.TextField(default="media")
     makefile = models.TextField(default="media")
 

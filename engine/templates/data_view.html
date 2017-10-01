@@ -7,7 +7,7 @@
 
 {% block breadcrumb %}
     {% breadcrumb steps=steps %}
-    <div class="ui right floated mini basic button">
+    <div class="ui right mini basic button">
        <a href="{% url 'data_edit' data.id %}">
        <i class="write icon"></i>Edit Data
        </a>
@@ -23,7 +23,7 @@
 <div class="ui vertical segment">
 
 
-<div class="textbody">{{data.text}}</div>
+<div class="textbody">{{data.html|safe}}</div>
 
         </div>
 

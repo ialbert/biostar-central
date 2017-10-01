@@ -9,7 +9,7 @@
 
 {% block breadcrumb %}
     {% breadcrumb steps=steps %}
-    <div class="ui right floated mini basic button">
+    <div class="ui right mini basic button">
        <a href="{% url 'project_edit' projects.id %}">
        <i class="write icon"></i>Edit Project
        </a>
@@ -40,29 +40,6 @@
             <div class="info">View data associated with project.</div>
 
         </div>
-
-        <div class="ui vertical segment">
-           <div class="ui right floated mini basic button">
-               <a href="{% url 'analysis_create' projects.id %}">
-               <i class="write square icon"></i>Create Analysis
-               </a>
-           </div>
-            <a href="{% url 'analysis_list' projects.id %}">
-                <div class="title"><i class="options icon"></i>Analysis</div>
-            </a>
-            <div class="info">Modify pipelines and add to jobs queue.</div>
-
-        </div>
-
-        <div class="ui vertical segment">
-
-            <a href="{% url 'results_list' projects.id %}">
-                <div class="title"><i class="bar chart icon"></i>Results</div>
-            </a>
-            <div class="info">Results from pipelines.</div>
-
-        </div>
-
     </div>
 
 {% endblock %}

@@ -1,13 +1,13 @@
 import json
+from string import Template
 
 from django import forms
 from django.utils.translation import gettext_lazy as helpers
 from django.contrib.auth.models import User
-from .models import Project, Data, Analysis, Result
-from django.forms.extras.widgets import SelectDateWidget
-from .util import *
+from .models import Project, Data, Analysis
 
 from pagedown.widgets import PagedownWidget
+
 
 class SignUpForm(forms.ModelForm):
     
@@ -80,66 +80,81 @@ class DataForm(forms.ModelForm):
         model = Data
         fields = ['title', 'text']
 
-
     def cleaned_data(self, *args):
         return self.cleaned_data
 
 
 class AnalysisForm(forms.ModelForm):
 
-    text = forms.CharField(widget=PagedownWidget(template="widgets/pagedownwidget.html"))
+    json_spec = forms.CharField(widget=PagedownWidget(template="widgets/pagedownwidget.html"))
     class Meta:
         model = Analysis
-        fields = ['title', 'text']
+        fields = ['title', "json_spec"]
 
 
 class RunForm(forms.Form):
 
+
     def __init__(self, *args, **kwargs):
 
-        analysis_id = kwargs.pop("id")
         json_spec = kwargs.pop("json_spec")
-        self.makefile = kwargs.pop("makefile")
-
+        #self.makefile = kwargs.pop("makefile")
         super().__init__(*args, **kwargs)
-
-        analysis = Analysis.objects.filter(id=analysis_id).first()
-        DATA = analysis.project.data_set.all()
-
-        CHOICES = []
-
-        for i,d in enumerate(DATA):
-            CHOICES.append((i, d))
-
-        self.fields["data"] = forms.CharField(label="Sequencing Data",
-                                              widget=forms.Select(choices=CHOICES))
-
         json_spec = json.loads(json_spec)
 
         for f in json_spec:
-            print(f)
-            widget = f["widget"]
-            form_type = f["form_type"]
-            label = f["label"]
-            choices = list(f["choices"].items())
 
-            # Name is given json_ prefix to make repopulating json_specs easier.
-            exec(f"""
-                self.fields['json_'+'{f['name']}'] = forms.{form_type}(
-                                                            widget=foms.{widget}(choices={choices}),
-                                                            label={label})                                                                                                                       
-                 """)
+            choices = f.get("choices")
+            min_value, max_value = f.get("min_value"), f.get("max_value")
+
+            # View data already in database
+            if f["name"] == "data" and f.get("origin") == "PROJECT":
+                # Just loads all data for now ( not project specific ).
+                data = Data.objects.all()
+                choices = []
+                for d in data:
+                    choices.append((d.id, d.title))
+
+            # Template used to make that every field.
+
+            template = r"""self.fields['json_'+ '$name']= forms.$form_type(
+                                                         widget=forms.$widget(choices=$choices),
+                                                         initial='$value',
+                                                         label='$label',
+                                                         min_value=$min_value,
+                                                         max_value=$max_value )""".strip()
+            if f.get("visible") == 1:
+
+                data = {"name": f["name"], "form_type": f["form_type"],
+                        "label": f["label"], "value": f["value"],
+                        "widget": f["widget"]}
+                # Some widgets do not have choices
+                if choices:
+                    data.update(dict(choices=choices))
+                else:
+                    template = template.replace("choices=$choices", "")
+
+                if min_value and max_value:
+                    data.update(dict(min_value=min_value, max_value=max_value))
+                else:
+                    template = template.replace("min_value=$min_value,", "")
+                    template = template.replace("max_value=$max_value", "").strip()
+
+                field_template = Template(template).safe_substitute(data)
+
+                print(field_template)
+                #1/0
+                exec(field_template)
+
 
     def save(self, *args, **kwargs):
-        # self.fields["json_spec"] = json_spec
 
         json_spec = {}
         for f in self.fields:
             if "json_" in f:
                 json_spec[f] = self.fields[f]
 
-        self.fields["json_spec"] = repr(json_spec)
-        self.fields["makefile"] = fill_makefile(repr(json_spec), self.makefile)
+        self.fields["json_spec"] = json.dumps(json_spec)
 
         super(RunForm, self).save(*args, **kwargs)
 
