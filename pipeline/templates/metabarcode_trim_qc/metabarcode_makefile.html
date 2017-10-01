@@ -1,0 +1,58 @@
+WORKDIR=./work
+JOBID := {{jobid}}
+
+INPUTDATA := {{specs.data}}
+fname := $(notdir $(INPUTDATA))
+
+all : setup extract fastqc multiqc report
+
+setup:
+	mkdir -p $(WORKDIR)
+
+extracted:=$(shell tar -tvzf $(INPUTDATA) | head -1 )
+file_extracted:=$(lastword $(extracted))
+DNAME=$(dir $(file_extracted))
+
+extract:
+	#
+	# extract tar archive
+	tar -C $(WORKDIR) -xzvf $(INPUTDATA)
+
+	# move extracted to ./work/data
+	if [ $(DNAME) == "./" ];  then \
+		mkdir -p $(WORKDIR)/data; \
+		mv $(WORKDIR)/*.* $(WORKDIR)/data ; \
+	else \
+		if [ $(DNAME) != "data/" ] ; then \
+			mv $(WORKDIR)/* $(WORKDIR)/data ; \
+		fi ; \
+	fi;
+
+DATADIR:=$(WORKDIR)/data
+RESDIR := $(WORKDIR)/res
+{% if specs.action == "fastqc" %}
+fastqc:
+	#
+	# run fastqc on all files
+	#
+	ls $(DATADIR)/*gz | parallel --verbose --progress -j 8 fastqc --nogroup {} -o $(DATADIR)
+
+multiqc:
+	#
+	# run multiqc to create an aggregate report
+	#
+	multiqc -f -n multiqc -o $(DATADIR) $(DATADIR)
+	cp $(DATADIR)/multiqc.html $(RESDIR)
+	#
+	# clean
+	#
+	#rm -f $(DATADIR)/*fastqc.zip
+
+report:
+	#
+	# create html report of result.
+	# inputs are result dir and template
+	#
+	python {{specs.report_script}} $(RESDIR) {{specs.report_template}} > index.html
+
+{% endif  %}
