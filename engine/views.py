@@ -20,7 +20,7 @@ def join(*args):
 logger = logging.getLogger('engine')
 
 JSON_SPECFILE =join(BASE_DIR, '..', 'pipeline',
-                'templates','metabarcode_qc', 'metabarcode_spec.json' )
+                'templates','metabarcode_qc', 'metabarcode_spec.org.json' )
 
 def index(request):
 
