@@ -9,21 +9,15 @@
         <form method="post" class="ui form" >
 
             {% csrf_token %}
-            {{ form.media }}
 
+            {% for field in form %}
             <div class="field segment">
-                  {{form.data.label_tag}}
-                  {{ form.data }}
-             </div>
-            <div class="five wide field segment">
-                  {{form.state.label_tag}}
-                  {{ form.state}}
-             </div>
-            <div class="five wide field segment">
-                  {{form.commands.label_tag}}
-                  {{form.commands}}
-             </div>
+                {{ field.label_tag }}
+                {{ field }}
+            </div>
+            {% endfor %}
             {{ form.errors }}
+
 
             <button type="submit" class="ui green button">
                 <i class="save icon"></i>Run

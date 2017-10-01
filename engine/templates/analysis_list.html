@@ -1,34 +1,28 @@
 {% extends "base.html" %}
-{% load engine_tags %}
 
 {% block title %}
-    {{projects.title}} | Analysis List
+    Analysis List
 {% endblock %}
 
 
 {% block body %}
 
-{% for analysis in projects.analysis_set|date_sort %}
+{% for res in analysis %}
 
     <div class="ui vertical segment">
 
         <div class="title">
            <div class="ui right floated green mini basic button">
-           <a href="{% url 'analysis_run' analysis.id %}">
+           <a href="{% url 'analysis_run' res.id %}">
             <i class="checkmark icon"></i>Run
            </a>
            </div>
-           <div class="ui right floated mini basic button">
-           <a href="{% url 'analysis_edit' analysis.id %}">
-           <i class="write icon"></i>Edit Analysis
-           </a>
-           </div>
 
-            <a href="{% url 'analysis_view' analysis.id %}">
-            <i class="folder icon"></i>{{ analysis.title }}
+            <a href="{% url 'analysis_view' res.id %}">
+            <i class="folder icon"></i>{{ res.title }}
             </a>
         </div>
-        <div class="date">{{analysis.date.date}}</div>
+        <div class="date">{{res.date.date}}</div>
     </div>
 
 {% endfor %}

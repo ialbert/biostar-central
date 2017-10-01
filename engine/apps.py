@@ -3,14 +3,22 @@ from django.conf import settings
 from django.db.models.signals import post_migrate
 import logging, uuid
 import random
-
+from .settings import BASE_DIR
+import os
+import json
 
 # Random block of latin text (lorem ipsum) to populate text feild
-TEXT = """#TEST\nSed ut perspiciatis unde omnis iste natus error\n
-sit voluptatem accusantium doloremque\nlaudantium, totam rem aperiam, eaque ipsa quae ab illo
-"""
+TEXT = "#TEST\nSed ut perspiciatis unde omnis iste natus error\n\
+sit voluptatem accusantium doloremque\nlaudantium, totam rem aperiam, eaque ipsa quae ab illo"
+
+
+def join(*args):
+    return os.path.abspath(os.path.join(*args))
+
 
 logger = logging.getLogger('engine')
+JSON_SPECFILE =join(BASE_DIR, '..', 'pipeline',
+                'templates','metabarcode_qc', 'metabarcode_spec.json' )
 
 
 def get_uuid(limit=None):
@@ -19,40 +27,41 @@ def get_uuid(limit=None):
 
 def init_proj(sender, **kwargs):
     """
-    Populate initial projects with N number data and analysis models
+    Populate initial projects with N number data
+    Creates one analysis model to allow for jobs to be run
     """
-    from engine.models import Project, Data, Analysis, Result
+    from engine.models import Project, Data, Analysis
     from engine.models import User
 
     N = 2
+    Y = 2
     owner = User.objects.all().first()
-    projects = [f"Project {x}" for x in range(1, 6)]
-    data_analysis = [(f"Data {x}",f"Analysis {x}", f"Job {x}")
-                     for x in range(0, 10)]
+    projects = [f"Project {x}" for x in range(1, 10)][:Y]
+    data= [f"Data {x}" for x in range(1, 10)]
 
+    # Make a project
     for title in projects:
 
-        test_set = random.sample(data_analysis, N)
-        proj, flag = Project.objects.get_or_create(title=title, owner=owner, text=TEXT)
-        proj.save()
+        test_set = random.sample(data, N)
+        project, flag = Project.objects.get_or_create(title=title, owner=owner, text=TEXT)
+        project.save()
 
-        for data_title, analysis_title, job_title in test_set:
+        # add some data to the project
+        for data_title in test_set:
 
             datainput, flag = Data.objects.get_or_create(title=data_title,
                                                          owner=owner,
-                                                         text=TEXT, project=proj)
+                                                         text=TEXT, project=project)
             datainput.save()
-            params, flag = Analysis.objects.get_or_create(title=analysis_title,
-                                                          owner=owner,
-                                                          text=TEXT, project=proj)
-            params.save()
 
-            # res, flag = Result.objects.get_or_create(title=job_title,
-            #                                         owner=owner,
-            #                                         text=TEXT, analysis=params)
-            # res.save()
 
-        logger.info(f'creating: {proj.title}')
+        logger.info(f'creating or getting: {project.title} with {len(test_set)} data.')
+
+    analysis, flag = Analysis.objects.get_or_create(title="Analysis 1",
+                                                    owner=owner,
+                                                    text=TEXT)
+    analysis.save()
+
     logger.info(f' with: {len(test_set)} data, analysis, and pipelines.')
 
 

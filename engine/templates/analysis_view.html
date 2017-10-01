@@ -5,14 +5,19 @@
     {{analysis.title}}
 {% endblock %}
 
+{% block breadcrumb %}
+
+    {% breadcrumb steps=steps %}
+    <div class="ui right mini basic button">
+       <a href="{% url 'analysis_edit' analysis.id %}">
+       <i class="write icon"></i>Edit Analysis
+       </a>
+    </div>
+{% endblock %}
 
 {% block body %}
-   <div class="ui mini basic button">
-           <a href="{% url 'analysis_edit' analysis.id %}">
-           <i class="write icon"></i>Edit Analysis
-           </a>
-           </div>
-    <div class="ui right floated green mini basic button"">
+
+    <div class="ui right green mini basic button">
         <a href="{% url 'analysis_run' analysis.id %}">
         <i class="checkmark icon"></i>Run
         </a>
@@ -23,10 +28,10 @@
     </div>
 
 
-<div class="ui vertical center aligned segment">
+<div class="ui vertical aligned segment">
 
 
-    <div class="textbody">{{analysis.text}}</div>
+    <div class="textbody">{{analysis.html|safe}}</div>
 
         </div>
 
