@@ -1,3 +1,13 @@
 <h3>Analysis Results </h3>
 
-<b>Quality report: <a href= "{{ multiqc}}"> MultiQC</b>
+{% if results.multiqc %}
+<li><b>Data quality report: <a href= "{{results.multiqc}}"> MultiQC </a></b></li>
+{% endif %}
+{%if results.qtrim_multiqc %}
+<li><b> Trimmed data quality report: <a href ="{{results.qtrim_multiqc}}"> Trimmed-MultiQC</a></b></li>
+{% endif %}
+{% if results.merge_multiqc %}
+<li><b> Merged data quality report: <a href ="{{results.merge_multiqc}}"> Merged-MultiQC</a></b></li>
+{% endif %}
+
+

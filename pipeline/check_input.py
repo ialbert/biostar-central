@@ -125,8 +125,6 @@ if __name__ == "__main__":
 
     sampleinfo = read_sampleinfo(sampleinfo)
 
-    sampledir = extract_files(inputdata,workdir)
-
     # change sampledir to workdir/data
     data_dir = os.path.join(os.path.realpath(workdir),'data')
 
@@ -134,10 +132,14 @@ if __name__ == "__main__":
         print("data directory exists. Removing..")
         os.system('rm -rf {0}'.format(data_dir))
 
+    sampledir = extract_files(inputdata,workdir)
+
     if sampledir == workdir:
         setup_dir(os.path.join(sampledir,"data"))
         sampledir = os.path.join(sampledir,"data")
         os.system('mv {0}/*.* {1}'.format(workdir,sampledir))
+    elif sampledir == "data":
+        pass
     else:
         sampledir = os.path.join(workdir,sampledir)
         os.system('mv {0} {1}'.format(sampledir, data_dir))
