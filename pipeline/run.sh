@@ -27,7 +27,7 @@ fi
 python make.py $SPEC $TEMPLATE > $WORKDIR/Makefile
 cd $WORKDIR
 
-#exit
+exit
 # run make
 make $COMMAND
 
