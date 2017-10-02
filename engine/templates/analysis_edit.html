@@ -7,29 +7,36 @@
 {% block body %}
 
 <div class="createform">
+
+<div   class="ui two column grid">
+
+        <div class="column">
+
+        <textarea rows="30" cols="55" class="specs">{{ specs }}</textarea>
+        </div>
+        <div class="column">
         <form method="post" class="ui form" >
 
-            {% csrf_token %}
-            {{ form.media }}
-             <div class="nine wide field segment">
-                  <label>Title</label>
-                  {{ form.title }}
-             </div>
+                {% csrf_token %}
 
-            <div class="field segment">
-                  <label>Description</label>
-                  {{ form.text }}
-             </div>
+                {% for field in form %}
+                <div class="field segment">
+                    {{ field.label_tag }}
+                    {{ field }}
+                </div>
+                {% endfor %}
+                {{ form.errors }}
 
-            {{ form.errors }}
 
-            <button type="submit" class="ui primary button">
-                <i class="save icon"></i>Save
-            </button>
-            <a class="ui right floated button" href="{% url 'analysis_view' analysis.id %}">
-                Exit
-            </a>
+                <button type="submit" class="ui primary button">
+                    <i class="save icon"></i>Save
+                </button>
+                <a class="ui right floated button" href="{% url 'analysis_view' analysis.id %}">
+                    Exit
+                </a>
 
         </form>
+        </div>
+</div>
 </div>
 {% endblock %}

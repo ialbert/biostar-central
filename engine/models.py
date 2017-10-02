@@ -52,7 +52,7 @@ class Data(Base):
 class Analysis(Base):
 
     #project = models.ForeignKey(Project)
-    json_spec = models.TextField(default="commands")
+    json_spec = models.TextField(default="# Enter json commands")
     # = models.FileField(default="media")
 
     #makefile_template = models.TextField(default="media")
