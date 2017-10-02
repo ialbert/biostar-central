@@ -16,7 +16,7 @@ def safe_load(json_file):
 
     required_keys = ["name", "value" ]
 
-    json_file = json.load(json_file)
+    json_file = json.load(open(json_file))
 
     for check in json_file:
 

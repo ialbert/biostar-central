@@ -8,7 +8,7 @@ from .settings import BASE_DIR
 import os
 from.forms import *
 from .models import (User, Project, Data,
-                     Analysis, Result, Job)
+                     Analysis, Job)
 
 from .util import safe_load
 
@@ -302,9 +302,8 @@ def analysis_run(request, id):
     if request.method == "POST":
         # loads the json file into the analysis
         #analysis.load(request.POST.json_file)
-        form = RunForm(data=request.POST)
+        form = RunForm(json_spec=request.POST)
         if form.is_valid:
-
             form.save()
             filled_json = form.json_spec
             # get the analysis_spec there
@@ -321,40 +320,74 @@ def analysis_run(request, id):
             return render(request, "results_list.html", context)
 
     else:
-        specsfile = open(JSON_SPECFILE)
+        #specsfile = open(JSON_SPECFILE)
         # Set json_file in setting.py to avoid loading a file every time a view is served
-        analysis.json_spec = safe_load(specsfile)
-        specsfile.close()
+        analysis.json_spec = JSON_SPECFILE
+        analysis.save()
+        #specsfile.close()
 
-        form = RunForm(json_spec=json.dumps(analysis.json_spec))
+        form = RunForm(json_spec=json.dumps(safe_load(analysis.json_spec)))
         context = dict(analysis=analysis, steps=steps, form=form)
         return render(request, 'analysis_run.html', context)
+
+
+def analysis_create(request):
+
+    #analysis = Analysis.objects.filter(id=id).first()
+
+    active  = True
+    owner = User.objects.all().first()
+    steps = [
+        (reverse("index"), "Home", not active),
+        (reverse("analysis_list"), "Project List", active),
+    ]
+    analysis = Analysis.objects.create(owner=owner)
+    #analysis.text = analysis.json_spec
+    analysis.save()
+    if request.method == "POST":
+
+        #json_spec =
+        form = EditForm(data=request.POST)
+        if form.is_valid():
+            # Text field is the json.spec ?
+            1/0
+            form.save()
+    else:
+
+        form = EditForm(json_spec=analysis.json_spec)
+
+    context ={}
+    return render(request, 'analysis_create.html', context)
 
 
 def analysis_edit(request, id):
 
     analysis = Analysis.objects.filter(id=id).first()
-
+    #analysis.text = analysis.json_spec
     active = True
 
     steps = [
         (reverse("index"), "Home", not active),
         (reverse("analysis_list"), "Project List", not active),
-        (reverse("analysis_view", kwargs={'id': analysis.id}), f"{project.title}", active)
+        (reverse("analysis_view", kwargs={'id': analysis.id}), f"{analysis.title}", active)
     ]
 
     if request.method == "POST":
 
-        form = AnalysisForm(request.POST, instance=data)
+        #form = EditForm(data=request.POST)
+        print( request.POST)
+        1/0
         if form.is_valid():
+            # rewrtite specs file here and save model again.
+            1/0
             form.save()
 
     else:
-        form = AnalysisForm(instance=data)
-
-    context = dict(data=data, steps=steps, form=form)
-
-    return render(request, 'data_edit.html', context)
+        #specsfile =
+        specs = json.dumps(safe_load(analysis.json_spec), indent=4)
+        form = EditForm(json_spec=json.dumps(safe_load(analysis.json_spec)))
+        context = dict(analysis=analysis, steps=steps, specs=specs, form=form)
+        return render(request, 'analysis_edit.html', context)
 
 
 
