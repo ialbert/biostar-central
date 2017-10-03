@@ -48,9 +48,8 @@ if __name__  == "__main__":
 
     resdir = sys.argv[1]
     template = sys.argv[2]
-    resdict =collect_res(resdir)
-
-    html = render(resdict, template)
-    print(html)
+    results =collect_res(resdir)
+    context={'results' : results}
+    html = render(context, template)
 
 
