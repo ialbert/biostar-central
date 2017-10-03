@@ -1,10 +1,10 @@
 import json
-from string import Template
 
 from django import forms
 from django.utils.translation import gettext_lazy as helpers
 from django.contrib.auth.models import User
 from .models import Project, Data, Analysis
+from .util import safe_load, TYPE2FUNC, handle_no_type
 
 from pagedown.widgets import PagedownWidget
 
@@ -98,52 +98,16 @@ class RunForm(forms.Form):
     def __init__(self, *args, **kwargs):
 
         json_spec = kwargs.pop("json_spec")
-        #self.makefile = kwargs.pop("makefile")
+
         super().__init__(*args, **kwargs)
-        json_spec = json.loads(json_spec)
 
-        print(json_spec)
-       # 1/0
-        # Create a form field from json_spec dictionary
-        for f in json_spec:
+        json_spec = safe_load(json_spec)
 
-            choices = f.get("choices")
-            min_value, max_value = f.get("min_value"), f.get("max_value")
+        for field in json_spec:
 
-            # View data already in database
-            if f["name"] == "data" and f.get("origin") == "PROJECT":
-                # Just loads all data for now ( not project specific ).
-                data = Data.objects.all()
-                choices = []
-                for d in data:
-                    choices.append((d.id, d.title))
+            field_template = TYPE2FUNC.get(field["type"], handle_no_type)(field)
 
-            # Template used to make that every field.
-
-            template = r"""self.fields['json_'+ '$name']= forms.$form_type(
-                                                         widget=forms.$widget(choices=$choices),
-                                                         initial='$value',
-                                                         label='$label',
-                                                         min_value=$min_value,
-                                                         max_value=$max_value )"""
-            if f.get("visible") == 1:
-
-                data = {"name": f["name"], "form_type": f["form_type"],
-                        "label": f["label"], "value": f["value"],
-                        "widget": f["widget"]}
-
-                if choices:
-                    data.update(dict(choices=choices))
-                else:
-                    template = template.replace("choices=$choices", "")
-
-                if min_value and max_value:
-                    data.update(dict(min_value=min_value, max_value=max_value))
-                else:
-                    template = template.replace("min_value=$min_value,", "")
-                    template = template.replace("max_value=$max_value", "")
-
-                field_template = Template(template).safe_substitute(data)
+            if field.get("visible") == 1:
                 exec(field_template)
 
 
@@ -161,61 +125,30 @@ class RunForm(forms.Form):
 
 class EditForm(forms.Form):
 
-    #text = forms.CharField(widget=PagedownWidget(template="widgets/pagedownwidget.html"))
+
     def __init__(self, *args, **kwargs):
 
         json_spec = kwargs.pop("json_spec")
-        #analysis_id = kwargs.pop("id")
 
-        #self.makefile = kwargs.pop("makefile")
         super().__init__(*args, **kwargs)
-        json_spec = json.loads(json_spec)
 
+        self.json_spec = json_spec
 
-        # Create a form field from json_spec dictionary
-        for f in json_spec:
-            choices = f.get("choices")
-            min_value, max_value = f.get("min_value"), f.get("max_value")
+        json_spec = safe_load(json_spec)
+        self.fields["text"] = forms.CharField(initial=json.dumps(json_spec, indent=4))
 
-            # View data already in database
-            if f["name"] == "data" and f.get("origin") == "PROJECT":
-                # Just loads all data for now ( not project specific ).
-                data = Data.objects.all()
-                choices = []
-                for d in data:
-                    choices.append((d.id, d.title))
+        for field in json_spec:
 
-            # Template used to make that every field.
-            template = r"""self.fields['json_'+ '$name']= forms.$form_type(
-                                                         widget=forms.$widget(choices=$choices),
-                                                         initial='$value',
-                                                         label='$label',
-                                                         min_value=$min_value,
-                                                         max_value=$max_value )"""
-            if f.get("visible") == 1:
+            field_template = TYPE2FUNC.get(field["type"], handle_no_type)(field)
 
-                data = {"name": f["name"], "form_type": f["form_type"],
-                        "label": f["label"], "value": f["value"],
-                        "widget": f["widget"]}
-
-                if choices:
-                    data.update(dict(choices=choices))
-                else:
-                    template = template.replace("choices=$choices", "")
-
-                if min_value and max_value:
-                    data.update(dict(min_value=min_value, max_value=max_value))
-                else:
-                    template = template.replace("min_value=$min_value,", "")
-                    template = template.replace("max_value=$max_value", "")
-
-                field_template = Template(template).safe_substitute(data)
+            if field.get("visible") == 1:
                 exec(field_template)
 
 
     def save(self, *args, **kwargs):
 
         json_spec = {}
+        # write the text feild into the json_spec file ( thats the update).
         for f in self.fields:
             if "json_" in f:
                 json_spec[f] = self.fields[f]
@@ -223,6 +156,11 @@ class EditForm(forms.Form):
         self.fields["json_spec"] = json.dumps(json_spec)
 
         super(EditForm, self).save(*args, **kwargs)
+
+
+    def preview(self):
+        # change the
+        return
 
 
 

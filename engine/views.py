@@ -323,10 +323,11 @@ def analysis_run(request, id):
         #specsfile = open(JSON_SPECFILE)
         # Set json_file in setting.py to avoid loading a file every time a view is served
         analysis.json_spec = JSON_SPECFILE
+        ### GET RID OF THIS EVENTUALLY!!, should only save in analysis_create!
         analysis.save()
         #specsfile.close()
 
-        form = RunForm(json_spec=json.dumps(safe_load(analysis.json_spec)))
+        form = RunForm(json_spec=analysis.json_spec)
         context = dict(analysis=analysis, steps=steps, form=form)
         return render(request, 'analysis_run.html', context)
 
@@ -382,11 +383,21 @@ def analysis_edit(request, id):
             1/0
             form.save()
 
+    elif request.method == "GET":
+        # make a tmp file; store text in there and set the editofrn(json_spec) to that.
+        # do that.
+        print("AAAAAA")
+        print(request.GET)
+        1/0
+
     else:
-        #specsfile =
-        specs = json.dumps(safe_load(analysis.json_spec), indent=4)
-        form = EditForm(json_spec=json.dumps(safe_load(analysis.json_spec)))
-        context = dict(analysis=analysis, steps=steps, specs=specs, form=form)
+        #specs = json.dumps(safe_load(analysis.json_spec), indent=4)
+        # Safe_load it in here then populate a text field with it.
+        # every "Save" post changes the spec file and preview just changes the shown form.
+
+        #f = EditForm(json_spec=analysis.json_spec)
+        form = EditForm(json_spec=analysis.json_spec)#, text=specs)
+        context = dict(analysis=analysis, steps=steps, form=form)
         return render(request, 'analysis_edit.html', context)
 
 

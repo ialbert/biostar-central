@@ -63,8 +63,6 @@ class Analysis(Base):
     # set json_spec from json_file
     # assumes json_file is already a json file
 
-
-
 class Job(Base):
 
     # file path to media
