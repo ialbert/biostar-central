@@ -8,9 +8,9 @@ This will create ./test and runs everything in there.
 
 To run in a different location
 
-	make WORKDIR=./path/to/location
+	make WORKDIR=./path/to/location run
 
-Currently it can run only inside pipeline.
+Note: Currently it can run only inside pipeline.
 
 ### Variables in Makefile
 
