@@ -1,8 +1,17 @@
 import json
 from .settings import ALLOWED_WIDGETS
+from .factory import *
 
 
-#FORM_TYPES = []
+TYPE2FUNC = {
+
+    "RADIO": radiofield,
+    "SELECT": selectfield,
+    "NUMBER": numberfield,
+    "FILE" : filefield,
+    "EMPTY":"",
+
+}
 
 
 def fill_makefile(filled_json, makefile_template):
@@ -11,10 +20,19 @@ def fill_makefile(filled_json, makefile_template):
     return NotImplemented
 
 
+def handle_no_type(field):
+
+    # "Invisibile" fields are handled more downstream
+    if field.get("visible") != 1:
+        return
+
+    # do nothing when "type" is not a field key.
+    return
+
 
 def safe_load(json_file):
 
-    required_keys = ["name", "value" ]
+    required_keys = ["name", "value" , "type"]
 
     json_file = json.load(open(json_file))
 
@@ -24,12 +42,14 @@ def safe_load(json_file):
         for key in required_keys:
 
             if check.get(key)== None :
-                raise KeyError(f"{check} missing required key {key}")
+                raise KeyError(f"{check} missing required key <'{key}'>")
 
         # Verify widget
         if check.get("widget"):
-            assert check["widget"] in ALLOWED_WIDGETS
-            # Get correct from type from widget
+            if not (check["widget"] in ALLOWED_WIDGETS):
+                raise Exception(f"{check['widget']} is not part of allowed widgets ({ALLOWED_WIDGETS.keys()})")
+
+            # Map a form to the given widget
             check["form_type"] = ALLOWED_WIDGETS[check["widget"]]
 
             if check["form_type"] == "IntegerField":
