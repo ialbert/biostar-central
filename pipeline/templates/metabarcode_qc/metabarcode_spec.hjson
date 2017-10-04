@@ -8,7 +8,7 @@ Enter a tab delimited text file. Order of the fields should be
 sample name, sample group, barcode, forward primer sequence, reverse primer sequence, target gene.
     '''
     widget : FileInput
-    label : Specify the sample file.
+    label : Specify sample file.
     css: red
     visible: 1
   }
