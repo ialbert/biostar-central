@@ -2,6 +2,10 @@ h2.ui.center.header {
     margin-top: 1em;
 }
 
+.specs {
+    font-size: 0.8em;
+}
+
 .breadcrumb {
     margin-top: 1.3em;
     margin-bottom: 1em;
