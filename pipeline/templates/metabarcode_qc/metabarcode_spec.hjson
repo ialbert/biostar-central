@@ -8,94 +8,96 @@ Enter a tab delimited text file. Order of the fields should be
 sample name, sample group, barcode, forward primer sequence, reverse primer sequence, target gene.
 Sample name should match the sample name in the dataset.
     '''
-    widget : FileInput
     label : Specify the sample file.
     css: red
     visible: 1
+    display_type: UPLOAD
   }
 
   {
     name: data
     value: test/data.tar.gz
-    widget: checkbox
+    visible: 1
     origin: PROJECT
-    valid_type: TAR_FASTQ_GZ
+    data_type: TAR_FASTQ_GZ
+    display_type: DROPDOWN
+
   }
   {
     name : library_type
     value : true
     label : Data entered is paired end.
-    widget : checkbox
-    visible : 1
+    visible: 1
+    display_type: CHECKBOX
   }
 
  {
     name : trim_primer
     label : Trims barcode and primer sequences.
-    default : false
     value : true
     help : Barcode and primer sequences should be in the sample sheet.
-    widget : checkbox
-    visible : 1
+    visible: 1
+    display_type: CHECKBOX
 
  }
  {
     name : trim_quality
     label : Specify average quality value for trimming.
-    default : 0
-    help : Enter 0 for not trimming
+    help : Leave empty for not trimming
     value :  30
-    widget : Integertype
     range  : [20,32]
     visible : 1
+    display_type : INTEGER
  }
 
   {
   name : merge_mismatch
-  label : Maximum mismatch allowed. Default is 3.
-  default : 3
-  value : 3
-  widget : Integertype
-  range : [1,5]
+  label : Maximum mismatch allowed. Default is 3.0.
+  value : 3.0
+  range : [0.9,5.1]
   visible : 1
+  display_type : FLOAT
   }
 
   {
   name : merge_overlap
   label : Minimum number of overlapping bases to allow merging. Default is 12.
-  default : 12
   value :12
-  widget : Integertype
   range : [8,16]
   visible : 1
+  display_type : INTEGER
   }
 
  {
     name : action
-    choices : [ (fastqc, Create fastqc report),
-                (merge, Merge paired end dataset)
-               ]
+    choices : {
+            fastqc : Create fastqc report
+            merge : Merge paired end dataset
+               }
 
     value : merge
-    widget : RadioSelect
     visible : 1
+    display_type: RADIO
   }
   // scripts info
   {
     name : input_check
     value : ../../check_input.py
+    display_type : SCRIPT
   }
   {
      name : report_template
      value : metabarcode_report.html
+     display_type : SCRIPT
   }
   {
      name : report_script
      value : metabarcode_results.py
+     display_type: SCRIPT
   }
   {
     name: analysis_spec
-    title: Quality control of sequencing data
+    value: Quality control of sequencing data
     description:
                 '''
 # Purpose
@@ -120,5 +122,6 @@ This analysis produces
 3. Merged dataset and its quality report.
 
         '''
+       display_type:MODEL
   }
 ]

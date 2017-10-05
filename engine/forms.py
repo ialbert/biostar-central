@@ -1,10 +1,10 @@
-import json
+import hjson as json
 
 from django import forms
 from django.utils.translation import gettext_lazy as helpers
 from django.contrib.auth.models import User
 from .models import Project, Data, Analysis
-from .util import safe_load, TYPE2FUNC, handle_no_type
+from .util import safe_load, TYPE2FUNC
 
 from pagedown.widgets import PagedownWidget
 
@@ -80,7 +80,7 @@ class DataForm(forms.ModelForm):
         model = Data
         fields = ['title', 'text']
 
-    def cleaned_data(self, *args):
+    def cleaned_data(self):
         return self.cleaned_data
 
 
@@ -105,20 +105,15 @@ class RunForm(forms.Form):
 
         for field in json_spec:
 
-            field_template = TYPE2FUNC.get(field["type"], handle_no_type)(field)
+            field_type = field["display_type"]
+            name = field["name"]
 
             if field.get("visible") == 1:
-                exec(field_template)
+
+                self.fields[name] = TYPE2FUNC[field_type](field)
 
 
     def save(self, *args, **kwargs):
-
-        json_spec = {}
-        for f in self.fields:
-            if "json_" in f:
-                json_spec[f] = self.fields[f]
-
-        self.fields["json_spec"] = json.dumps(json_spec)
 
         super(RunForm, self).save(*args, **kwargs)
 
@@ -135,37 +130,25 @@ class EditForm(forms.Form):
         self.json_spec = json_spec
 
         json_spec = safe_load(json_spec)
+
         self.fields["text"] = forms.CharField(initial=json.dumps(json_spec, indent=4))
+        self.fields["save_or_preview"] = forms.CharField(initial="preview")
 
         for field in json_spec:
 
-            field_template = TYPE2FUNC.get(field["type"], handle_no_type)(field)
+            # Required fields that will be in feild after safe_loading.
+            # and makes sure the field_type is in TYPE2FUNC
+            field_type = field["display_type"]
+            name = field["name"]
 
             if field.get("visible") == 1:
-                exec(field_template)
+
+                self.fields[name] = TYPE2FUNC[field_type](field)
 
 
     def save(self, *args, **kwargs):
 
-        json_spec = {}
-        # write the text feild into the json_spec file ( thats the update).
-        for f in self.fields:
-            if "json_" in f:
-                json_spec[f] = self.fields[f]
-
-        self.fields["json_spec"] = json.dumps(json_spec)
-
         super(EditForm, self).save(*args, **kwargs)
-
-
-    def preview(self):
-        # change the
-        return
-
-
-
-
-
 
 
 

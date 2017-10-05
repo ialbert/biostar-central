@@ -10,7 +10,7 @@ from.forms import *
 from .models import (User, Project, Data,
                      Analysis, Job)
 
-from .util import safe_load
+from .util import make_tmp_jsonfile, rewrite_jsonspecs
 
 
 def join(*args):
@@ -20,7 +20,7 @@ def join(*args):
 logger = logging.getLogger('engine')
 
 JSON_SPECFILE =join(BASE_DIR, '..', 'pipeline',
-                'templates','metabarcode_qc', 'metabarcode_spec.org.json' )
+                'templates','metabarcode_qc', 'metabarcode_spec.hjson' )
 
 def index(request):
 
@@ -302,12 +302,14 @@ def analysis_run(request, id):
     if request.method == "POST":
         # loads the json file into the analysis
         #analysis.load(request.POST.json_file)
+
         form = RunForm(json_spec=request.POST)
         if form.is_valid:
             form.save()
             filled_json = form.json_spec
             # get the analysis_spec there
             #filled_makefile = form.makefile
+            1/0
 
             # job makes makefile
             job = Job.objects.get_or_create(json_data= filled_json,
@@ -323,9 +325,7 @@ def analysis_run(request, id):
         #specsfile = open(JSON_SPECFILE)
         # Set json_file in setting.py to avoid loading a file every time a view is served
         analysis.json_spec = JSON_SPECFILE
-        ### GET RID OF THIS EVENTUALLY!!, should only save in analysis_create!
         analysis.save()
-        #specsfile.close()
 
         form = RunForm(json_spec=analysis.json_spec)
         context = dict(analysis=analysis, steps=steps, form=form)
@@ -365,44 +365,56 @@ def analysis_edit(request, id):
 
     analysis = Analysis.objects.filter(id=id).first()
     #analysis.text = analysis.json_spec
+    # there needs to be a place to load the spec file.
+    analysis.json_spec = JSON_SPECFILE
+    # should only save in analysis_create!
+    analysis.save()
     active = True
 
     steps = [
         (reverse("index"), "Home", not active),
-        (reverse("analysis_list"), "Project List", not active),
+        (reverse("analysis_list"), "Analysis List", not active),
         (reverse("analysis_view", kwargs={'id': analysis.id}), f"{analysis.title}", active)
     ]
 
     if request.method == "POST":
 
-        #form = EditForm(data=request.POST)
-        print( request.POST)
-        1/0
-        if form.is_valid():
-            # rewrtite specs file here and save model again.
-            1/0
-            form.save()
+        if request.POST.get("save_or_preview") == "save":
 
-    elif request.method == "GET":
-        # make a tmp file; store text in there and set the editofrn(json_spec) to that.
-        # do that.
-        print("AAAAAA")
-        print(request.GET)
-        1/0
+            rewrite_jsonspecs(request.POST.get("text"), JSON_SPECFILE)
+            form = EditForm(json_spec=analysis.json_spec)
+
+        elif request.POST.get("save_or_preview") == "preview":
+
+            tmp_specs = make_tmp_jsonfile(request.POST.get("text"), analysis.id)
+            form = EditForm(json_spec=tmp_specs)
 
     else:
-        #specs = json.dumps(safe_load(analysis.json_spec), indent=4)
-        # Safe_load it in here then populate a text field with it.
-        # every "Save" post changes the spec file and preview just changes the shown form.
+        form = EditForm(json_spec=analysis.json_spec)
 
-        #f = EditForm(json_spec=analysis.json_spec)
-        form = EditForm(json_spec=analysis.json_spec)#, text=specs)
-        context = dict(analysis=analysis, steps=steps, form=form)
-        return render(request, 'analysis_edit.html', context)
+    context = dict(analysis=analysis, steps=steps, form=form)
+    return render(request, 'analysis_edit.html', context)
 
 
+def results_list(request):
 
+    jobs = Job.objects.order_by("-id")
 
+    if not jobs:
+        messages.error(request, "No Jobs found.")
+        return redirect("/")
+
+    # True for the active section at the moment
+    active = True
+
+    steps = [
+        (reverse("index"), "Home", not active),
+        (reverse("results_list"), "Results List", active)
+    ]
+
+    context = dict(results=jobs, steps=steps)
+
+    return render(request, "results_list.html", context)
 
 
 

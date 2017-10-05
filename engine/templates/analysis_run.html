@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load engine_tags %}
 
 {% block title %}
    Run {{analysis.title}}
@@ -11,13 +12,24 @@
             {% csrf_token %}
 
             {% for field in form %}
-            <div class="field segment">
-                {{ field.label_tag }}
-                {{ field }}
-            </div>
-            {% endfor %}
-            {{ form.errors }}
 
+                    {% if field.field|is_checkbox %}
+                        {# Handle checkboxes diffrenly #}
+                        <div class="field segment">
+                        <label class="checkbox" for="{{ field.id_for_label }}">
+                            {{ field }} {{ field.label_tag }}
+                        </label>
+                        {{ form.field.errors }}
+                        </div>
+                    {% else %}
+                        <div class="field segment">
+                        {{ field.label_tag }}
+                        {{ field }}
+                        </div>
+                    {% endif %}
+
+            {% endfor %}
+                {{ form.errors }}
             <button type="submit" class="ui green button">
                 <i class="check icon"></i>Run
             </button>

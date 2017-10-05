@@ -76,6 +76,7 @@ class Job(Base):
 
     #makefile_template = models.TextField(default="media")
     makefile = models.TextField(default="media")
+    # integrating the makefile part of things? 
 
     state = models.IntegerField(default=1, choices=CHOICES)
 

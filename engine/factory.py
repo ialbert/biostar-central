@@ -1,85 +1,129 @@
-
-from string import Template
+from django import forms
 from .models import Data
 
 
-FULL_TEMPLATE = r"""self.fields['json_'+ '$name']= forms.$form_type(
-                                             widget=forms.$widget(choices=$choices),
-                                             initial='$value',
-                                             label='$label',
-                                             min_value=$min_value,
-                                             max_value=$max_value )"""
-def selectfield(field):
 
-    global FULL_TEMPLATE
+def float_field(field):
+
+    numrange = field.get("range", [1.0,1000.0])
+    min_value, max_value = numrange[0], numrange[1]
+
+    label = field.get("label")
+    widget = forms.NumberInput()
+    help_text = field.get("help", f"Enter number between {min_value} and {max_value}")
+    initial = field.get("value", 1)
+
+    field = forms.FloatField(widget=widget,
+                               initial=initial,
+                               min_value=min_value,
+                               max_value=max_value,
+                               help_text=help_text,
+                               label=label,
+                               required=False)
+
+    return field
+
+
+def select_field(field):
+
+    choices = get_choices(field)
+    initial = field.get("value")
+    label = field.get("label")
+    help_text = field.get("help", "Enter values for a dropdown menu")
+
+    widget = forms.Select(choices=choices)
+
+    field = forms.CharField(widget=widget,
+                            initial=initial,
+                            label=label,
+                            help_text=help_text)
+
+    return field
+
+
+def radioselect_field(field):
 
     choices = get_choices(field)
 
-    data = {"name": field["name"], "form_type": field["form_type"],
-            "label": field["label"], "value": field["value"],
-            "widget": field["widget"], "choices":choices}
+    initial = field.get("value")
+    label = field.get("label")
+    help_text = field.get("help", "Enter one of more option to display")
 
-    template = FULL_TEMPLATE.replace("min_value=$min_value,", "")
-    template = template.replace("max_value=$max_value", "")
-    field_template = Template(template).safe_substitute(data)
+    widget = forms.RadioSelect(choices=choices)
 
-    return field_template
+    field = forms.CharField(widget=widget,
+                            initial=initial,
+                            label=label,
+                            help_text=help_text)
 
-
-def radiofield(field):
-
-    global FULL_TEMPLATE
-
-    choices = get_choices(field)
-
-    data = {"name": field["name"], "form_type": field["form_type"],
-            "label": field["label"], "value": field["value"],
-            "widget": field["widget"], "choices": choices}
-
-    template = FULL_TEMPLATE.replace("min_value=$min_value,", "")
-    template = template.replace("max_value=$max_value", "")
-    field_template = Template(template).safe_substitute(data)
-
-    return field_template
+    return field
 
 
+def number_field(field):
+
+    numrange = field.get("range", [1,1000])
+
+    min_value, max_value = numrange[0], numrange[1]
+    label = field.get("label")
+    widget = forms.NumberInput()
+    help_text = field.get("help", f"Enter number between {min_value} and {max_value}")
+    initial = field.get("value", 1)
+
+    field = forms.IntegerField(widget=widget,
+                               initial=initial,
+                               min_value=min_value,
+                               max_value=max_value,
+                               help_text=help_text,
+                               label=label)
+
+    return field
 
 
-def numberfield(field):
+def file_field(field):
 
-    global FULL_TEMPLATE
+    widget = forms.FileInput()
+    label = field.get("label")
+    initial = field.get("value")
 
-    data = {"name": field["name"], "form_type": field["form_type"],
-            "label": field["label"], "value": field["value"],
-            "widget": field["widget"], "max_value":field["max_value"],
-            "min_value":field["min_value"]}
+    field = forms.FileField(widget=widget,
+                            label=label,
+                            required=False,
+                            initial=initial)
 
-    template = FULL_TEMPLATE.replace("choices=$choices", "")
-    field_template = Template(template).safe_substitute(data)
-
-    return field_template
+    return field
 
 
-def filefield(field):
+def checkbox_field(field):
 
-    global FULL_TEMPLATE
+    boolmap = {'true':True, 'false':False}
 
-    data = {"name": field["name"], "form_type": field["form_type"],
-            "label": field["label"], "value": field["value"],
-            "widget": field["widget"]}
+    label = field.get("label")
+    help_text = field.get("help", "Check option for true.")
 
-    template = FULL_TEMPLATE.replace("choices=$choices", "")
-    template = template.replace("min_value=$min_value,", "")
-    template = template.replace("max_value=$max_value", "")
-    field_template = Template(template).safe_substitute(data)
+    inital = boolmap.get(field.get("value", "false"))
+    widget = forms.CheckboxInput
 
-    return field_template
+    field = forms.BooleanField(initial=inital,
+                               widget=widget,
+                               label=label,
+                               help_text=help_text,
+                               required=False)
+    return field
 
+
+
+def model_specs(field):
+    return
+
+def handle_scripts(field):
+    return
 
 def get_choices(feild):
 
     # View data already in database
     choices = feild.get("choices")
+    if choices:
+        choices = list(choices.items())
 
     if feild["name"] == "data" and feild.get("origin") == "PROJECT":
         # Just loads all data for now ( not project specific ).

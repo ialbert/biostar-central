@@ -17,6 +17,7 @@ def join(*args):
 
 
 logger = logging.getLogger('engine')
+
 JSON_SPECFILE =join(BASE_DIR, '..', 'pipeline',
                 'templates','metabarcode_qc', 'metabarcode_spec.json' )
 
@@ -30,7 +31,7 @@ def init_proj(sender, **kwargs):
     Populate initial projects with N number data
     Creates one analysis model to allow for jobs to be run
     """
-    from engine.models import Project, Data, Analysis
+    from engine.models import Project, Data, Analysis, Job
     from engine.models import User
 
     N = 2
@@ -38,6 +39,7 @@ def init_proj(sender, **kwargs):
     owner = User.objects.all().first()
     projects = [f"Project {x}" for x in range(1, 10)][:Y]
     data= [f"Data {x}" for x in range(1, 10)]
+    inital_state = "Queued"
 
     # Make a project
     for title in projects:
@@ -54,7 +56,6 @@ def init_proj(sender, **kwargs):
                                                          text=TEXT, project=project)
             datainput.save()
 
-
         logger.info(f'creating or getting: {project.title} with {len(test_set)} data.')
 
     analysis, flag = Analysis.objects.get_or_create(title="Analysis 1",
@@ -62,7 +63,14 @@ def init_proj(sender, **kwargs):
                                                     text=TEXT)
     analysis.save()
 
-    logger.info(f' with: {len(test_set)} data, analysis, and pipelines.')
+    jproject = Project.objects.order_by("-id").first()
+    job, flag = Job.objects.get_or_create(title="Result 1",
+                                    text=TEXT,
+                                    project=jproject,
+                                    analysis=analysis,
+                                    owner=owner)
+    job.save()
+    logger.info(f' job={job.id} for project={jproject.id} made in {inital_state} state')
 
 
 def init_users(sender, **kwargs):
