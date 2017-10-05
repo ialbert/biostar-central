@@ -1,69 +1,126 @@
 [
   {
     name : sampleinfo
-    value : sampleinfo.txt
+    value : test/sampleinfo.txt
     help :
            '''
 Enter a tab delimited text file. Order of the fields should be
 sample name, sample group, barcode, forward primer sequence, reverse primer sequence, target gene.
+Sample name should match the sample name in the dataset.
     '''
-    widget : FileInput
-    label : Specify sample file.
+    label : Specify the sample file.
     css: red
     visible: 1
+    display_type: UPLOAD
   }
-
   {
     name: data
-    value: data.tar.gz
-    widget: checkbox
+    value: test/data.tar.gz
+    visible: 1
     origin: PROJECT
-    valid_type: TAR_FASTQ_GZ
+    data_type: TAR_FASTQ_GZ
+    display_type: DROPDOWN
+
   }
   {
     name : library_type
     value : true
     label : Data entered is paired end.
-    widget : checkbox
-    visible : 1
+    visible: 1
+    display_type: CHECKBOX
   }
-  {
+
+ {
+    name : trim_primer
+    label : Trims barcode and primer sequences.
+    value : true
+    help : Barcode and primer sequences should be in the sample sheet.
+    visible: 1
+    display_type: CHECKBOX
+
+ }
+ {
     name : trim_quality
     label : Specify average quality value for trimming.
-    default : 30
+    help : Leave empty for not trimming
     value :  30
-    widget : Integertype
     range  : [20,32]
     visible : 1
+    display_type : INTEGER
+ }
+
+  {
+  name : merge_mismatch
+  label : Maximum mismatch allowed. Default is 3.0.
+  value : 3.0
+  range : [0.9,5.1]
+  visible : 1
+  display_type : FLOAT
+  }
+
+  {
+  name : merge_overlap
+  label : Minimum number of overlapping bases to allow merging. Default is 12.
+  value :12
+  range : [8,16]
+  visible : 1
+  display_type : INTEGER
+  }
+
+ {
+    name : action
+    choices : {
+            fastqc : Create fastqc report
+            merge : Merge paired end dataset
+               }
+
+    value : merge
+    visible : 1
+    display_type: RADIO
+  }
+  // scripts info
+  {
+    name : input_check
+    value : ../../check_input.py
+    display_type : SCRIPT
+  }
+  {
+     name : report_template
+     value : metabarcode_report.html
+     display_type : SCRIPT
+  }
+  {
+     name : report_script
+     value : metabarcode_results.py
+     display_type: SCRIPT
   }
   {
     name: analysis_spec
-    title: Quality control of paired end sequencing data
+    value: Quality control of sequencing data
     description:
                 '''
+# Purpose
 
-**Purpose**
+This analysis takes a pired end dataset and produces a merged improved dataset.
+It can optionally trimmed the data before merging.
+MultiQC quality reports of each step are also produced.
 
-This analysis trim primer and barcode sequences specified in the sample sheet and
-also quality trim the dataset to a user specified threshold.
-MultiQC quality reports before and after trimming are produced.
+# Parameters
 
-**Input files**
+**Input:**
 
 1. Paired end sequence data as a  tar archived gzip file.
 2. Sample information sheet as a tab delimited text file.
 
-**Input parameters**
-
-1. Quality threshold.
-
-**Results**
+# Results
 
 This analysis produces
 
-1. MultiQC report of the input data
-2. MultiQc report of the trimmed dataset.
+1. MultiQC report - an aggregate fastqc report of the input data.
+2. Trimmed dataset and its quality report (optional).
+3. Merged dataset and its quality report.
 
         '''
+       display_type:MODEL
   }
 ]
