@@ -13,7 +13,6 @@ Sample name should match the sample name in the dataset.
     visible: 1
     display_type: UPLOAD
   }
-
   {
     name: data
     value: test/data.tar.gz

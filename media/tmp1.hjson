@@ -53,7 +53,7 @@
   {
     name: merge_mismatch
     label: Maximum mismatch allowed. Default is 3.0.
-    value: 3.8
+    value: 3
     range:
     [
       0.9
