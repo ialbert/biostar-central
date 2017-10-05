@@ -1,4 +1,4 @@
-import subprocess,os
+import subprocess, os
 import urllib.request
 #from engine.models import Job
 
@@ -9,7 +9,7 @@ SINFO="http://iris.bx.psu.edu/projects/metabarcode-data/sampleinfo.txt"
 
 def run(job):
     '''
-    takes a job object, runs the job and return job status
+    takes job object, runs the job and return job status
     '''
 
     spec = job.spec
