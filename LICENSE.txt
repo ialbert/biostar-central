@@ -11,7 +11,7 @@ Contributors
 ------------
 Paolo Coffetti, https://github.com/nimiq
 Pindi Albert, https://github.com/pindia
-Alexandr Levchuck, https://github.com/alevchuk
+Aleksandr Levchuk, https://github.com/alevchuk
 Eric Normandeau
 Egon Willingham
 
