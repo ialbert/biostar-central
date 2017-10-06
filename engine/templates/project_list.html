@@ -24,7 +24,7 @@ Projects
 
     <div class="title">
 
-    <a href="{% url 'project_view' project.id %}">
+    <a href="{{project.url}}">
         <i class="folder icon"></i>{{ project.title }}
     </a></div>
     <div class="date">{{project.date.date}}</div>

@@ -1,6 +1,7 @@
 from django import forms
 from .models import Data
-
+from pipeline.const import *
+from . import util
 
 
 def float_field(field):
@@ -133,3 +134,17 @@ def get_choices(feild):
             choices.append((d.id, d.title))
 
     return choices
+
+
+TYPE2FUNC = {
+
+    RADIO: radioselect_field,
+    DROPDOWN: select_field,
+    INTEGER: number_field,
+    FLOAT : float_field,
+    UPLOAD : file_field,
+    CHECKBOX :checkbox_field,
+    MODEL: model_specs,
+    SCRIPT : handle_scripts,
+
+}

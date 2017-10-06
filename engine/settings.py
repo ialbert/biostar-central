@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'compressor',
     'engine.apps.EngineConfig',
     'pagedown',
+    'pipeline',
 ]
 
 MIDDLEWARE = [

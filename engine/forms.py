@@ -4,7 +4,8 @@ from django import forms
 from django.utils.translation import gettext_lazy as helpers
 from django.contrib.auth.models import User
 from .models import Project, Data, Analysis
-from .util import safe_load, TYPE2FUNC
+from .util import safe_load
+from .factory import TYPE2FUNC
 
 from pagedown.widgets import PagedownWidget
 
