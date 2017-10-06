@@ -104,7 +104,7 @@ class RunForm(forms.Form):
 
         for field in json_spec:
 
-            data = self.json_spec[field]
+            data = json_spec[field]
             display_type = data["display_type"]
 
             if data.get("visible") == 1:

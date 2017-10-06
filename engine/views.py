@@ -309,18 +309,26 @@ def analysis_run(request, id, id2):
         (reverse("analysis_view", kwargs={'id': project.id, 'id2': analysis.id}),
          f"{analysis.title}", active)
     ]
-
     if request.method == "POST":
 
+        steps = [
+            (reverse("index"), "Home", not active),
+            (reverse("project_list"), "Project List", not active),
+            (reverse("project_view", kwargs={'id': project.id}), f"{project.title}", not active),
+            (reverse("jobs_list", kwargs={'id': project.id}), "Results List", active),
+        ]
+
         form = RunForm(data=request.POST, json_spec=analysis.json_spec)
+
         if form.is_valid():
 
             # Fill "value" with what the user picked.
             filled_json = safe_load(analysis.json_spec)
 
             for field in filled_json:
-                if field["name"] in form.cleaned_data:
-                    field["value"] = form.cleaned_data[field["name"]]
+                if field in form.cleaned_data:
+                    data = filled_json[field]
+                    data["value"] = form.cleaned_data[field]
 
             job = Job.objects.get_or_create(json_data= filled_json,
                                             owner=owner,
