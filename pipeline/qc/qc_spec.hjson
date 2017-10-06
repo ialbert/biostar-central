@@ -48,51 +48,6 @@ trim_quality:
     visible : 1
     display_type : INTEGER
  }
-merge_mismatch:
-  {
-  label : Maximum mismatch allowed. Default is 3.0.
-  value : 3.0
-  range : [0.9,5.1]
-  visible : 1
-  display_type : FLOAT
-  }
-merge_overlap:
-  {
-  label : Minimum number of overlapping bases to allow merging. Default is 12.
-  value :12
-  range : [8,16]
-  visible : 1
-  display_type : INTEGER
-  }
-action :
- {
-    choices : {
-            fastqc : Create fastqc report
-            merge : Merge paired end dataset
-               }
-
-    value : merge
-    visible : 1
-    display_type: RADIO
-  }
-  // scripts info
-input_check :
-  {
-
-    value : ../../check_input.py
-    display_type : SCRIPT
-  }
-report_template :
-  {
-     value : metabarcode_report.html
-     display_type : SCRIPT
-  }
-report_script :
-  {
-     value : metabarcode_results.py
-     display_type: SCRIPT
-  }
-
   template_name : qc/templates/qc_makefile.html
 
 analysis_spec :

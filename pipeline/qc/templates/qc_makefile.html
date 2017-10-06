@@ -2,13 +2,13 @@
 INPUT_DATA = {{data.value}}
 INPUT_SAMPLE_INFO := {{sampleinfo.value}}
 
-
 #
 # Internal parameters after this.
 #
 
 DATA_DIR = data
 RESULT_DIR  = results
+ERR_LOG = stderr.txt
 
 PTRIM_DIR = $(DATA_DIR)/trim/trimp
 QTRIM_DIR = $(DATA_DIR)/trim/trimq
@@ -16,27 +16,28 @@ UPDATED_SAMPLE_INFO = updated_sampleinfo.txt
 
 UNPACKED_FASTQ = $(DATA_DIR)/*.fastq.gz
 FASTQC_REPORT = $(DATA_DIR)/*_fastqc.html
+MULTIQC_REPORT =$(DATA_DIR)/*_multiqc.html
 TRIMMED_PRIMER = $(PTRIM_DIR)/*.gz
 TRIMMED_QUALITY =$(QTRIM_DIR)/*.gz
 
-all: $(FASTQC_REPORT)
+all: $(TRIMMED_QUALITY)
 	@echo "executes all commands"
 
+$(UNPACKED_FASTQ) : $(INPUT_DATA)
+	 tar -xvzmf $(INPUT_DATA)
 
 $(FASTQC_REPORT): $(UNPACKED_FASTQ)
- 	fastqc --nogroup $@ -o $(DATA_DIR)
-	#ls $(DATA_DIR)/*.gz | parallel --verbose --progress -j 8 fastqc --nogroup {} -o $(DATA_DIR)
+	ls $(DATA_DIR)/*.gz | parallel --verbose --progress -j 8 fastqc --nogroup {} -o $(DATA_DIR)
 
-ERR_LOG = stderr.txt
 
-$(UPDATED_SAMPLE_INFO): $(INPUT_SAMPLE_INFO)
+$(UPDATED_SAMPLE_INFO): $(INPUT_SAMPLE_INFO) $(UNPACKED_FASTQ)
 	#	
 	# Make new sample sheet named $(UPDATED_SAMPLE_INFO)
 	#
 	python -m pipeline.data.samplesheet $(INPUT_SAMPLE_INFO) $(DATA_DIR) > $(UPDATED_SAMPLE_INFO)
 
 
-multiqc: fastqc $(RESDIR)
+$(MULTIQC_REPORT): $(FASTQC_REPORT)
 	#
 	# run multiqc to create an aggregate report
 	#
