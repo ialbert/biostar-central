@@ -39,7 +39,6 @@ def init_proj(sender, **kwargs):
     owner = User.objects.all().first()
     projects = [f"Project {x}" for x in range(1, 10)][:Y]
     data= [f"Data {x}" for x in range(1, 10)]
-    inital_state = "Queued"
 
     # Make a project
     for title in projects:
@@ -63,14 +62,22 @@ def init_proj(sender, **kwargs):
                                                     text=TEXT)
     analysis.save()
 
+    # Pick most recent project to make a job out of
     jproject = Project.objects.order_by("-id").first()
-    job, flag = Job.objects.get_or_create(title="Result 1",
-                                    text=TEXT,
-                                    project=jproject,
-                                    analysis=analysis,
-                                    owner=owner)
-    job.save()
-    logger.info(f' job={job.id} for project={jproject.id} made in {inital_state} state')
+
+    # Make a job in each state( 3 jobs to one project and analysis)
+    states = ["Queued", "Running", "Finished", "Error"]
+
+    for state in states:
+
+        job, flag = Job.objects.get_or_create(title="Result 1",
+                                        text=TEXT,
+                                        project=jproject,
+                                        analysis=analysis,
+                                        owner=owner,
+                                        state=state)
+        job.save()
+        logger.info(f' job={job.id} made in {state} state')
 
 
 def init_users(sender, **kwargs):

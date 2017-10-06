@@ -1,6 +1,6 @@
-[
-  {
-    name : sampleinfo
+{
+sampleinfo :
+    {
     value : test/sampleinfo.txt
     help :
            '''
@@ -12,9 +12,9 @@ Sample name should match the sample name in the dataset.
     css: red
     visible: 1
     display_type: UPLOAD
-  }
+    }
+data :
   {
-    name: data
     value: test/data.tar.gz
     visible: 1
     origin: PROJECT
@@ -22,16 +22,15 @@ Sample name should match the sample name in the dataset.
     display_type: DROPDOWN
 
   }
+library_type :
   {
-    name : library_type
     value : true
     label : Data entered is paired end.
     visible: 1
     display_type: CHECKBOX
   }
-
+trim_primer:
  {
-    name : trim_primer
     label : Trims barcode and primer sequences.
     value : true
     help : Barcode and primer sequences should be in the sample sheet.
@@ -39,8 +38,9 @@ Sample name should match the sample name in the dataset.
     display_type: CHECKBOX
 
  }
+trim_quality:
  {
-    name : trim_quality
+
     label : Specify average quality value for trimming.
     help : Leave empty for not trimming
     value :  30
@@ -48,27 +48,24 @@ Sample name should match the sample name in the dataset.
     visible : 1
     display_type : INTEGER
  }
-
+merge_mismatch:
   {
-  name : merge_mismatch
   label : Maximum mismatch allowed. Default is 3.0.
   value : 3.0
   range : [0.9,5.1]
   visible : 1
   display_type : FLOAT
   }
-
+merge_overlap:
   {
-  name : merge_overlap
   label : Minimum number of overlapping bases to allow merging. Default is 12.
   value :12
   range : [8,16]
   visible : 1
   display_type : INTEGER
   }
-
+action :
  {
-    name : action
     choices : {
             fastqc : Create fastqc report
             merge : Merge paired end dataset
@@ -79,23 +76,24 @@ Sample name should match the sample name in the dataset.
     display_type: RADIO
   }
   // scripts info
+input_check :
   {
-    name : input_check
+
     value : ../../check_input.py
     display_type : SCRIPT
   }
+report_template :
   {
-     name : report_template
      value : metabarcode_report.html
      display_type : SCRIPT
   }
+report_script :
   {
-     name : report_script
      value : metabarcode_results.py
      display_type: SCRIPT
   }
+analysis_spec :
   {
-    name: analysis_spec
     value: Quality control of sequencing data
     description:
                 '''
@@ -123,4 +121,4 @@ This analysis produces
         '''
        display_type:MODEL
   }
-]
+}

@@ -29,7 +29,7 @@ def select_field(field):
     choices = get_choices(field)
     initial = field.get("value")
     label = field.get("label")
-    help_text = field.get("help", "Enter values for a dropdown menu")
+    help_text = field.get("help", "Pick values from a dropdown menu")
 
     widget = forms.Select(choices=choices)
 
@@ -125,7 +125,7 @@ def get_choices(feild):
     if choices:
         choices = list(choices.items())
 
-    if feild["name"] == "data" and feild.get("origin") == "PROJECT":
+    if feild.get("origin") == "PROJECT":
         # Just loads all data for now ( not project specific ).
         data = Data.objects.all()
         choices = []

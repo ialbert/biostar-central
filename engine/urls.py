@@ -25,16 +25,16 @@ urlpatterns = [
     url(r'^logout/$', user_views.user_logout, name="logout"),
     url(r'^project/create/$', views.project_create, name='project_create'),
     url(r'^project/list/$', views.project_list, name='project_list'),
-    url(r'^analysis/list/$', views.analysis_list, name='analysis_list'),
+    url(r'^analysis/list/(?P<id>\d+)/$', views.analysis_list, name='analysis_list'),
     url(r'^project/view/(?P<id>\d+)/$', views.project_view, name='project_view'),
     url(r'^project/edit/(?P<id>\d+)/$', views.project_edit, name='project_edit'),
     url(r'^data/list/(?P<id>\d+)/$', views.data_list, name='data_list'),
     url(r'^data/view/(?P<id>\d+)/$', views.data_view, name='data_view'),
     url(r'^data/edit/(?P<id>\d+)/$', views.data_edit, name='data_edit'),
     url(r'^data/create/(?P<id>\d+)/$', views.data_create, name='data_create'),
-    url(r'^analysis/view/(?P<id>\d+)/$', views.analysis_view, name='analysis_view'),
-    url(r'^analysis/run/(?P<id>\d+)/$', views.analysis_run, name='analysis_run'),
-    url(r'^analysis/edit/(?P<id>\d+)/$', views.analysis_edit, name='analysis_edit'),
-    url(r'^results/list/$', views.results_list, name='results_list')
+    url(r'^analysis/view/(?P<id>\d+)/(?P<id2>\d+)/$', views.analysis_view, name='analysis_view'),
+    url(r'^analysis/run/(?P<id>\d+)/(?P<id2>\d+)/$', views.analysis_run, name='analysis_run'),
+    url(r'^analysis/edit/(?P<id>\d+)/(?P<id2>\d+)/$', views.analysis_edit, name='analysis_edit'),
+    url(r'^jobs/list/(?P<id>\d+)/$', views.jobs_list, name='jobs_list')
 ]
 
