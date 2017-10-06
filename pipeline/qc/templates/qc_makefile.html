@@ -24,8 +24,7 @@ all: $(FASTQC_REPORT)
 
 
 $(FASTQC_REPORT): $(UNPACKED_FASTQ)
- 	fastqc --nogroup $@ -o $(DATA_DIR)
-	#ls $(DATA_DIR)/*.gz | parallel --verbose --progress -j 8 fastqc --nogroup {} -o $(DATA_DIR)
+	ls $(DATA_DIR)/*.gz | parallel --verbose --progress -j 8 fastqc --nogroup {} -o $(DATA_DIR)
 
 ERR_LOG = stderr.txt
 
