@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% load engine_tags %}
+
+{% block title %}
+    Results List
+{% endblock %}
+
+
+{% block body %}
+
+<div class="ui top attached header">
+  Queued
+</div>
+<div class="ui attached segment">
+  <p>Queued jobs</p>
+</div>
+<div class="ui attached header">
+  Running
+</div>
+<div class="ui attached segment">
+  <p>Running jobs</p>
+</div>
+<div class="ui attached header">
+  Finished
+</div>
+<div class="ui attached segment">
+  <p>Finished jobs</p>
+</div>
+<div class="ui attached header">
+  Error
+</div>
+
+<div class="ui attached segment">
+  <p>Stopped jobs</p>
+</div>
+
+{% for result in results %}
+
+    <div class="ui vertical segment">
+
+        <div class="title">
+
+            <a href="{#}">
+            <i class="folder icon"></i>{{ result.title }}
+            </a>
+
+        </div>
+        <div class="date">{{result.analysis.title}}</div>
+        <div class="date">{{result.date.date}}</div>
+
+    </div>
+
+{% endfor %}
+
+{% endblock %}

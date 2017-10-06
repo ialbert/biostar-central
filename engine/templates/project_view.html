@@ -40,6 +40,19 @@
             <div class="info">View data associated with project.</div>
 
         </div>
+         <div class="ui vertical segment">
+
+            <a href="{% url 'analysis_list' projects.id %}">
+                <div class="title"><i class="options icon"></i>Analysis List</div>
+            </a>
+           <div class="info">Pipeline options.</div>
+        </div>
+        <div class="ui vertical segment">
+        <a href="{% url 'jobs_list' projects.id %}">
+                <div class="title"><i class="bar chart icon"></i>Results List</div>
+            </a>
+           <div class="info">Queued, running, and finished jobs.</div>
+        </div>
     </div>
 
 {% endblock %}

@@ -1,4 +1,5 @@
 from django import template
+from django import forms
 
 register = template.Library()
 
@@ -24,3 +25,6 @@ def menubar(can_create_project=False, can_create_data=False,
                 can_create_data=can_create_data,
                 can_create_analysis=can_create_analysis)
 
+@register.filter(name='is_checkbox')
+def is_checkbox(value):
+    return isinstance(value, forms.BooleanField)

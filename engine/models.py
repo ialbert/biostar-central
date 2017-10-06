@@ -1,12 +1,13 @@
-import json
 
+import os
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 import mistune
-
+from .util import get_uuid
+from django.urls import reverse
 
 def make_html(text):
 
@@ -39,6 +40,9 @@ class Project(Base):
     def save(self, *args, **kwargs):
         super(Project, self).save(*args, **kwargs)
 
+    def url(self):
+        return reverse("project_view", kwargs=dict(id=self.id))
+
 
 class Data(Base):
 
@@ -54,7 +58,6 @@ class Analysis(Base):
     #project = models.ForeignKey(Project)
     json_spec = models.TextField(default="# Enter json commands")
     # = models.FileField(default="media")
-
     #makefile_template = models.TextField(default="media")
 
     def save(self, *args, **kwargs):
@@ -73,29 +76,27 @@ class Job(Base):
     analysis = models.ForeignKey(Analysis)
     project = models.ForeignKey(Project)
     json_data = models.TextField(default="commands")
-
+    uid = models.CharField(default="", max_length=32)
     #makefile_template = models.TextField(default="media")
-    makefile = models.TextField(default="media")
+    makefile_template = models.TextField(default="makefile")
+    log = models.TextField(default="log")
 
     state = models.IntegerField(default=1, choices=CHOICES)
-
-    def save(self, *args, **kwargs):
-        super(Job, self).save(*args, **kwargs)
-
-    def change_state(self):
-        return NotImplemented
-
-
-
-class Result(Base):
-
-    # file path to media
-
-    job = models.ForeignKey(Job)
     directory = models.FilePathField(default="media")
 
+
     def save(self, *args, **kwargs):
-        super(Result, self).save(*args, **kwargs)
+        # create
+        self.uid = self.uid or get_uuid()
+        if not os.path.isdir(self.directory):
+            path = os.path.abspath(os.path.join(settings.MEDIA_DIR, uuid))
+            os.mkdir(path)
+            self.directory = path
+        super(Job, self).save(*args, **kwargs)
+
+    def url(self):
+        return reverse("job_view", kwargs=dict(id=self.id))
+
 
 
 class Profile(models.Model):

@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load engine_tags %}
 
 {% block title %}
     {{analysis.title}}
@@ -7,39 +8,54 @@
 {% block body %}
 
 <div class="createform">
-<form method="post" class="ui form" >
+<form class="ui form" >
 {% csrf_token %}
 
     <div   class="ui two column grid">
 
         <div class="column specs">
-        <textarea rows="30" cols="55">{{ form.text.value }}</textarea>
+        <textarea rows="30" cols="55" name="text">{{form.text.value}}
+        </textarea>
 
-                 <button formmethod="get" type="submit" class="ui green mini button">
-        <i class="edit icon"></i>Preview
+         <button type="submit" name="save_or_preview" formmethod="post" value="preview" class="ui green mini button">
+            <i class="edit icon"></i>Preview
+         </button>
 
-             <button type="submit" class="ui primary mini button">
+         <button type="submit" name="save_or_preview" formmethod="post" value="save" class="ui mini primary button">
             <i class="save icon"></i>Save
-        </button>
-        <a class="ui right floated mini button" href="{% url 'analysis_view' analysis.id %}">
+         </button>
+
+        <a class="ui right floated mini button" href="{% url 'analysis_view' project.id analysis.id %}">
             Exit
         </a>
 
-    </button>
         </div>
         <div class="column specs">
                 {% for field in form %}
-                    {% if field != form.text %}
-                    <div class="field segment">
-                        {{ field.label_tag }}
-                        {{ field }}
-                    </div>
+                    {% if field != form.text and field != form.save_or_preview %}
+                        {% if field.field|is_checkbox %}
+                            {# Handle checkboxes diffrenly #}
+                            <div class="field segment">
+                            <label class="checkbox" for="{{ field.id_for_label }}">
+                                {{ field }} {{ field.label_tag }}
+                            </label>
+                            {{ form.field.errors }}
+                            </div>
+                        {% else %}
+                            <div class="field segment">
+                            {{ field.label_tag }}
+                            {{ field }}
+                            </div>
+                        {% endif %}
+
                     {% endif %}
                 {% endfor %}
                 {{ form.errors }}
-
-
+           <a class="ui green mini button" href="#">
+            <i class="check icon"></i>Run
+         </a>
         </div>
+
 
     </div>
 </form>

@@ -23,15 +23,6 @@ def join(*args):
 
 ADMINS = [("Admin User", "foo@bar.com")]
 
-# Map a widget to a form(s)
-ALLOWED_WIDGETS = {
-                   "FileInput" : "FileField",
-                   "Select": "CharField",
-                   "RadioSelect": "CharField",
-                   "NumberInput":"IntegerField",
-
-                   }
-
 
 VALID_DATA_TYPES = [ ("fastq", "Fastq Sequencing Data"),
                     ]
@@ -61,7 +52,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'compressor',
     'engine.apps.EngineConfig',
-    'pagedown'
+    'pagedown',
+    'pipeline',
 ]
 
 MIDDLEWARE = [
