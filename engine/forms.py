@@ -94,7 +94,6 @@ class AnalysisForm(forms.ModelForm):
 
 class RunForm(forms.Form):
 
-
     def __init__(self, *args, **kwargs):
 
         json_spec = kwargs.pop("json_spec")
@@ -105,13 +104,12 @@ class RunForm(forms.Form):
 
         for field in json_spec:
 
-            field_type = field["display_type"]
-            name = field["name"]
+            data = self.json_spec[field]
+            display_type = data["display_type"]
 
-            if field.get("visible") == 1:
+            if data.get("visible") == 1:
 
-                self.fields[name] = TYPE2FUNC[field_type](field)
-
+                self.fields[field] = TYPE2FUNC[display_type](data)
 
     def save(self, *args, **kwargs):
 
@@ -127,7 +125,6 @@ class EditForm(forms.Form):
 
         super().__init__(*args, **kwargs)
 
-        self.json_spec = json_spec
 
         json_spec = safe_load(json_spec)
 
@@ -136,14 +133,13 @@ class EditForm(forms.Form):
 
         for field in json_spec:
 
-            # Required fields that will be in feild after safe_loading.
-            # and makes sure the field_type is in TYPE2FUNC
-            field_type = field["display_type"]
-            name = field["name"]
+            data = json_spec[field]
+            display_type = data["display_type"]
 
-            if field.get("visible") == 1:
+            if data.get("visible") == 1:
 
-                self.fields[name] = TYPE2FUNC[field_type](field)
+                self.fields[field] = TYPE2FUNC[display_type](data)
+
 
 
     def save(self, *args, **kwargs):

@@ -9,7 +9,7 @@
 
     {% breadcrumb steps=steps %}
     <div class="ui right mini basic button">
-       <a href="{% url 'analysis_edit' analysis.id %}">
+       <a href="{% url 'analysis_edit' project.id analysis.id %}">
        <i class="write icon"></i>Edit Analysis
        </a>
     </div>
@@ -18,7 +18,7 @@
 {% block body %}
 
     <div class="ui right green mini basic button">
-        <a href="{% url 'analysis_run' analysis.id %}">
+        <a href="{% url 'analysis_run' project.id analysis.id %}">
         <i class="checkmark icon"></i>Run
         </a>
     </div>

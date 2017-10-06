@@ -1,5 +1,4 @@
 import hjson as json
-import os
 from .settings import BASE_DIR
 from .factory import *
 from pipeline.const import *
@@ -55,23 +54,22 @@ def make_tmp_jsonfile(json_text, analysis_id):
 
 def safe_load(json_file):
 
-    required_keys = ["name", "value" , "display_type"]
+    required_keys = ["value" , "display_type"]
 
     json_file = json.load(open(json_file))
 
     for check in json_file:
-
+        data = json_file[check]
         # Check Required keys
         for key in required_keys:
 
-            if check.get(key)== None :
-                raise KeyError(f"missing required key '{key}' in input: {check}")
+            if data.get(key)== None :
+                raise KeyError(f"missing required key '{key}' in input: {data}")
 
-        if not (check["display_type"] in TYPE2FUNC):
-            print(check["display_type"])
+        if not (data["display_type"] in TYPE2FUNC):
             raise Exception(f"Incorrect value for display_type. Options are:{TYPE2FUNC.keys()}")
 
-        if check.get("label")==None:
-            check["label"] = check["name"][0].upper() + check["name"][1:]
+        if data.get("label")==None:
+            data["label"] = check[0].upper() + check[1:]
 
     return json_file

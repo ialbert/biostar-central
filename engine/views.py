@@ -6,7 +6,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 from .settings import BASE_DIR
 import os
-from.forms import *
+from .forms import *
 from .models import (User, Project, Data,
                      Analysis, Job)
 
@@ -243,9 +243,11 @@ def data_create(request, id):
 
 
 #@login_required
-def analysis_list(request):
+def analysis_list(request, id):
 
     analysis = Analysis.objects.order_by("-id")
+    project = Project.objects.filter(id=id).first()
+
     if not analysis:
         messages.error(request, "No project found.")
         return redirect("/")
@@ -255,117 +257,93 @@ def analysis_list(request):
 
     steps = [
         (reverse("index"), "Home", not active),
-        (reverse("analysis_list"), "Analysis List", active)
+        (reverse("project_list"), "Project List", not active),
+        (reverse("project_view", kwargs={'id': project.id}), f"{project.title}", not active),
+        (reverse("analysis_list", kwargs={'id':project.id}), "Analysis List", active)
     ]
 
-    context = dict(analysis=analysis, steps=steps)
+    context = dict(project=project, analysis=analysis, steps=steps)
 
     return render(request, "analysis_list.html", context)
 
 
 #@login_required
-def analysis_view(request, id):
+def analysis_view(request, id, id2):
 
-    analysis = Analysis.objects.filter(id=id).first()
+    analysis = Analysis.objects.filter(id=id2).first()
+    project = Project.objects.filter(id=id).first()
    # project = analysis.project
 
     if not analysis:
-        messages.error(request, f"Data{id} not found.")
+        messages.error(request, "Analysis not found.")
 
     active = True
 
     steps = [
         (reverse("index"), "Home", not active),
-        (reverse("analysis_list"),"Analysis List", not active),
-        (reverse("analysis_view", kwargs={'id': analysis.id}), f"{analysis.title}", active)
+        (reverse("project_list"), "Project List", not active),
+        (reverse("project_view", kwargs={'id': project.id}), f"{project.title}", not active),
+        (reverse("analysis_list", kwargs={'id':project.id}), "Analysis List", not active),
+        (reverse("analysis_view", kwargs={'id': project.id, 'id2':analysis.id}),
+         f"{analysis.title}", active)
     ]
 
-    context = dict(analysis=analysis, steps=steps)
+    context = dict(project=project, analysis=analysis, steps=steps)
 
     return render(request, "analysis_view.html", context)
 
 
-# also can be seen as results_create
-def analysis_run(request, id):
+def analysis_run(request, id, id2):
 
-    analysis = Analysis.objects.filter(id=id).first()
+    analysis = Analysis.objects.filter(id=id2).first()
+    project = Project.objects.filter(id=id).first()
+    owner = User.objects.all().first()
 
     active  = True
-    owner = User.objects.all().first()
 
     steps = [
         (reverse("index"), "Home", not active),
-        (reverse("analysis_list"), "Analysis List", not active),
-        (reverse("analysis_run", kwargs={'id': analysis.id}), f"{analysis.title}", active),
+        (reverse("project_list"), "Project List", not active),
+        (reverse("project_view", kwargs={'id': project.id}), f"{project.title}", not active),
+        (reverse("analysis_list", kwargs={'id': project.id}), "Analysis List", not active),
+        (reverse("analysis_view", kwargs={'id': project.id, 'id2': analysis.id}),
+         f"{analysis.title}", active)
     ]
 
     if request.method == "POST":
-        # loads the json file into the analysis
-        #analysis.load(request.POST.json_file)
 
-        form = RunForm(json_spec=request.POST)
-        if form.is_valid:
-            form.save()
-            filled_json = form.json_spec
-            # get the analysis_spec there
-            #filled_makefile = form.makefile
-            1/0
+        form = RunForm(data=request.POST, json_spec=analysis.json_spec)
+        if form.is_valid():
 
-            # job makes makefile
+            # Fill "value" with what the user picked.
+            filled_json = safe_load(analysis.json_spec)
+
+            for field in filled_json:
+                if field["name"] in form.cleaned_data:
+                    field["value"] = form.cleaned_data[field["name"]]
+
             job = Job.objects.get_or_create(json_data= filled_json,
                                             owner=owner,
-                                            analysis=analysis)
-                                           # makefile=filled_makefile)
+                                            analysis=analysis,
+                                            project=project)
 
-            context = dict(job=job, analysis=analysis, steps=steps)
-            1/0
+            context = dict(jobs=project.job_set, job=job, steps=steps)
             return render(request, "results_list.html", context)
 
     else:
-        #specsfile = open(JSON_SPECFILE)
-        # Set json_file in setting.py to avoid loading a file every time a view is served
+
         analysis.json_spec = JSON_SPECFILE
         analysis.save()
-
         form = RunForm(json_spec=analysis.json_spec)
-        context = dict(analysis=analysis, steps=steps, form=form)
+        context = dict(project=project, analysis=analysis, steps=steps, form=form)
         return render(request, 'analysis_run.html', context)
 
 
-def analysis_create(request):
+def analysis_edit(request, id, id2):
 
-    #analysis = Analysis.objects.filter(id=id).first()
+    analysis = Analysis.objects.filter(id=id2).first()
+    project = Project.objects.filter(id=id).first()
 
-    active  = True
-    owner = User.objects.all().first()
-    steps = [
-        (reverse("index"), "Home", not active),
-        (reverse("analysis_list"), "Project List", active),
-    ]
-    analysis = Analysis.objects.create(owner=owner)
-    #analysis.text = analysis.json_spec
-    analysis.save()
-    if request.method == "POST":
-
-        #json_spec =
-        form = EditForm(data=request.POST)
-        if form.is_valid():
-            # Text field is the json.spec ?
-            1/0
-            form.save()
-    else:
-
-        form = EditForm(json_spec=analysis.json_spec)
-
-    context ={}
-    return render(request, 'analysis_create.html', context)
-
-
-def analysis_edit(request, id):
-
-    analysis = Analysis.objects.filter(id=id).first()
-    #analysis.text = analysis.json_spec
-    # there needs to be a place to load the spec file.
     analysis.json_spec = JSON_SPECFILE
     # should only save in analysis_create!
     analysis.save()
@@ -373,16 +351,20 @@ def analysis_edit(request, id):
 
     steps = [
         (reverse("index"), "Home", not active),
-        (reverse("analysis_list"), "Analysis List", not active),
-        (reverse("analysis_view", kwargs={'id': analysis.id}), f"{analysis.title}", active)
+        (reverse("project_list"), "Project List", not active),
+        (reverse("project_view", kwargs={'id': project.id}), f"{project.title}", not active),
+        (reverse("analysis_list", kwargs={'id': project.id}), "Analysis List", not active),
+        (reverse("analysis_view", kwargs={'id': project.id, 'id2': analysis.id}),
+         f"{analysis.title}", active)
     ]
 
     if request.method == "POST":
 
         if request.POST.get("save_or_preview") == "save":
+            specs = analysis.json_spec
 
-            rewrite_jsonspecs(request.POST.get("text"), JSON_SPECFILE)
-            form = EditForm(json_spec=analysis.json_spec)
+            rewrite_jsonspecs(request.POST.get("text"), specs)
+            form = EditForm(json_spec=specs)
 
         elif request.POST.get("save_or_preview") == "preview":
 
@@ -392,27 +374,29 @@ def analysis_edit(request, id):
     else:
         form = EditForm(json_spec=analysis.json_spec)
 
-    context = dict(analysis=analysis, steps=steps, form=form)
+    context = dict(project=project, analysis=analysis, steps=steps, form=form)
     return render(request, 'analysis_edit.html', context)
 
 
-def results_list(request):
+def jobs_list(request, id):
 
+    project = Project.objects.filter(id=id).first()
     jobs = Job.objects.order_by("-id")
 
     if not jobs:
         messages.error(request, "No Jobs found.")
-        return redirect("/")
+        return redirect(reverse("project_view", kwargs={'id': project.id}))
 
-    # True for the active section at the moment
     active = True
 
     steps = [
         (reverse("index"), "Home", not active),
-        (reverse("results_list"), "Results List", active)
+        (reverse("project_list"), "Project List", not active),
+        (reverse("project_view", kwargs={'id': project.id}), f"{project.title}", not active),
+        (reverse("jobs_list", kwargs={'id': project.id}), "Results List", active),
     ]
 
-    context = dict(results=jobs, steps=steps)
+    context = dict(jobs=project.job_set, steps=steps)
 
     return render(request, "results_list.html", context)
 

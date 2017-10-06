@@ -1,4 +1,4 @@
-import json
+
 
 from django.db import models
 from django.contrib.auth.models import User
@@ -54,7 +54,6 @@ class Analysis(Base):
     #project = models.ForeignKey(Project)
     json_spec = models.TextField(default="# Enter json commands")
     # = models.FileField(default="media")
-
     #makefile_template = models.TextField(default="media")
 
     def save(self, *args, **kwargs):
@@ -75,28 +74,14 @@ class Job(Base):
     json_data = models.TextField(default="commands")
 
     #makefile_template = models.TextField(default="media")
-    makefile = models.TextField(default="media")
-    # integrating the makefile part of things?
+    makefile_template = models.TextField(default="media")
 
     state = models.IntegerField(default=1, choices=CHOICES)
+    directory = ""
 
     def save(self, *args, **kwargs):
         super(Job, self).save(*args, **kwargs)
 
-    def change_state(self):
-        return NotImplemented
-
-
-
-class Result(Base):
-
-    # file path to media
-
-    job = models.ForeignKey(Job)
-    directory = models.FilePathField(default="media")
-
-    def save(self, *args, **kwargs):
-        super(Result, self).save(*args, **kwargs)
 
 
 class Profile(models.Model):
