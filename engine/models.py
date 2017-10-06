@@ -74,10 +74,10 @@ class Job(Base):
     json_data = models.TextField(default="commands")
 
     #makefile_template = models.TextField(default="media")
-    makefile_template = models.TextField(default="media")
+    makefile_template = models.TextField(default="makefile")
 
     state = models.IntegerField(default=1, choices=CHOICES)
-    directory = ""
+    directory = models.FilePathField(default="media")
 
     def save(self, *args, **kwargs):
         super(Job, self).save(*args, **kwargs)

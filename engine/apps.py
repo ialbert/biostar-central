@@ -66,7 +66,7 @@ def init_proj(sender, **kwargs):
     jproject = Project.objects.order_by("-id").first()
 
     # Make a job in each state( 3 jobs to one project and analysis)
-    states = ["Queued", "Running", "Finished", "Error"]
+    states = {"Queued":1, "Running":2, "Finished":3, "Error":4}
 
     for state in states:
 
@@ -75,7 +75,7 @@ def init_proj(sender, **kwargs):
                                         project=jproject,
                                         analysis=analysis,
                                         owner=owner,
-                                        state=state)
+                                        state=states[state])
         job.save()
         logger.info(f' job={job.id} made in {state} state')
 
