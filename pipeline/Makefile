@@ -1,35 +1,25 @@
-# set the working directory where the makefile will be created and analysis will be done.
+TEMP_DIR = ~/tmp/qc_test
+SAMPLE_DATA = $(TEMP_DIR)/sampleinfo.txt
+TEST_DATA = $(TEMP_DIR)/data.tar.gz
 
-TEMP_DIR = ~/tmp
+RUNDIR=~/tmp
 
-# analysis-specific files.
 
-SPEC=templates/qc/qc_spec.hjson
-TEMPLATE=templates/qc/qc_makefile.html
-COMMAND=all
-
-TEST_DATA=$(TEMP_DIR)/data.tar.gz
-SAMPLE_DATA=$(TEMP_DIR)/sampleinfo.txt
-
-run: setup
+all: run
 	@echo runs all commands to setup the pipeline and then runs it.
 
 $(TEMP_DIR):
 	mkdir -p $(TEMP_DIR)
 
 $(TEST_DATA): $(TEMP_DIR)
-	curl -o $(TEST_DATA) -O http://iris.bx.psu.edu/projects/metabarcode-data/data.tar.gz
+	curl  http://iris.bx.psu.edu/projects/metabarcode-data/data.tar.gz > $(TEST_DATA)
+	(cd $(TEMP_DIR) && tar -xzvmf data.tar.gz)
 
 $(SAMPLE_DATA): $(TEMP_DIR)
-	 curl -o $(SAMPLE_DATA) -O http://iris.bx.psu.edu/projects/metabarcode-data/sampleinfo.txt
+	 curl http://iris.bx.psu.edu/projects/metabarcode-data/sampleinfo.txt > $(SAMPLE_DATA)
 
-setup: $(TEST_DATA) $(SAMPLE_DATA)
-	#
-	# creates the makefile and runs the pipeline.
-	#
-	#python make.py $(SPEC) $(TEMPLATE) > $(WORKDIR)/Makefile
-	#
-	# runs make
-	#
-	#cd $(WORKDIR); make $(COMMAND)
+getdata: $(TEST_DATA) $(SAMPLE_DATA)
 
+run: getdata
+	python -m pipeline.qc.test > $(RUNDIR)/Makefile
+	cd $(RUNDIR); make
