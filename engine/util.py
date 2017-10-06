@@ -1,21 +1,12 @@
 import hjson as json
-from .settings import BASE_DIR
-from .factory import *
+#from .settings import BASE_DIR
 from pipeline.const import *
+import uuid
 
 
-TYPE2FUNC = {
 
-    RADIO: radioselect_field,
-    DROPDOWN: select_field,
-    INTEGER: number_field,
-    FLOAT : float_field,
-    UPLOAD : file_field,
-    CHECKBOX :checkbox_field,
-    MODEL: model_specs,
-    SCRIPT : handle_scripts,
-
-}
+def get_uuid(limit=32):
+    return str(uuid.uuid4())[:limit]
 
 
 def join(*args):
@@ -34,6 +25,14 @@ def rewrite_jsonspecs(new_specs, file):
 
 
 def remove_tmp_files():
+
+    return
+
+
+def group_by_state(jobs_list):
+
+    # return a dictionary with keys being
+    # a state and value is a list of jobs in that state.
     return
 
 
@@ -51,7 +50,6 @@ def make_tmp_jsonfile(json_text, analysis_id):
     return tmp_jsonfile
 
 
-
 def safe_load(json_file):
 
     required_keys = ["value" , "display_type"]
@@ -66,8 +64,8 @@ def safe_load(json_file):
             if data.get(key)== None :
                 raise KeyError(f"missing required key '{key}' in input: {data}")
 
-        if not (data["display_type"] in TYPE2FUNC):
-            raise Exception(f"Incorrect value for display_type. Options are:{TYPE2FUNC.keys()}")
+        #if not (data["display_type"] in TYPE2FUNC):
+        #    raise Exception(f"Incorrect value for display_type. Options are:{TYPE2FUNC.keys()}")
 
         if data.get("label")==None:
             data["label"] = check[0].upper() + check[1:]

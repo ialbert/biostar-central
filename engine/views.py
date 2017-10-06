@@ -1,6 +1,6 @@
 import logging
 #from django.contrib.auth.decorators import login_required
-
+from django.template.loader import get_template
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.urls import reverse
@@ -20,7 +20,7 @@ def join(*args):
 logger = logging.getLogger('engine')
 
 JSON_SPECFILE =join(BASE_DIR, '..', 'pipeline',
-                'templates','metabarcode_qc', 'metabarcode_spec.hjson' )
+                'templates','qc', 'qc_spec.hjson' )
 
 def index(request):
 
@@ -249,8 +249,8 @@ def analysis_list(request, id):
     project = Project.objects.filter(id=id).first()
 
     if not analysis:
-        messages.error(request, "No project found.")
-        return redirect("/")
+        messages.error(request, "No Analysis found.")
+        return redirect(reverse("project_view", kwargs={'id': project.id}))
 
     # True for the active section at the moment
     active = True
@@ -276,6 +276,7 @@ def analysis_view(request, id, id2):
 
     if not analysis:
         messages.error(request, "Analysis not found.")
+        return redirect(reverse("analysis_list", kwargs={'id':project.id}))
 
     active = True
 
@@ -295,8 +296,8 @@ def analysis_view(request, id, id2):
 
 def analysis_run(request, id, id2):
 
-    analysis = Analysis.objects.filter(id=id2).first()
     project = Project.objects.filter(id=id).first()
+    analysis = Analysis.objects.filter(id=id2).first()
     owner = User.objects.all().first()
 
     active  = True
@@ -309,6 +310,7 @@ def analysis_run(request, id, id2):
         (reverse("analysis_view", kwargs={'id': project.id, 'id2': analysis.id}),
          f"{analysis.title}", active)
     ]
+
     if request.method == "POST":
 
         steps = [
@@ -324,24 +326,31 @@ def analysis_run(request, id, id2):
 
             # Fill "value" with what the user picked.
             filled_json = safe_load(analysis.json_spec)
-
+            # add template to spec
             for field in filled_json:
                 if field in form.cleaned_data:
+                    # Mutates field value in spec
                     data = filled_json[field]
                     data["value"] = form.cleaned_data[field]
 
-            job = Job.objects.get_or_create(json_data= filled_json,
+            # path comes from spec
+            makefile_template = get_template("qc/qc_makefile.html").template.source
+
+            job = Job.objects.get_or_create(json_data=filled_json,
                                             owner=owner,
                                             analysis=analysis,
-                                            project=project)
+                                            project=project,
+                                            makefile_template=makefile_template)
 
             context = dict(jobs=project.job_set, job=job, steps=steps)
-            return render(request, "results_list.html", context)
+            # return redirect(reverse(jobs_list))
+            return render(request, "jobs_list.html", context)
 
     else:
 
         analysis.json_spec = JSON_SPECFILE
         analysis.save()
+        # RunAnalysis(analysis=analysis)
         form = RunForm(json_spec=analysis.json_spec)
         context = dict(project=project, analysis=analysis, steps=steps, form=form)
         return render(request, 'analysis_run.html', context)
@@ -389,9 +398,8 @@ def analysis_edit(request, id, id2):
 def jobs_list(request, id):
 
     project = Project.objects.filter(id=id).first()
-    jobs = Job.objects.order_by("-id")
 
-    if not jobs:
+    if not project.job_set:
         messages.error(request, "No Jobs found.")
         return redirect(reverse("project_view", kwargs={'id': project.id}))
 
@@ -406,11 +414,11 @@ def jobs_list(request, id):
 
     context = dict(jobs=project.job_set, steps=steps)
 
-    return render(request, "results_list.html", context)
+    return render(request, "jobs_list.html", context)
 
 
-
-
+def job_view(request):
+    return
 
 
 
