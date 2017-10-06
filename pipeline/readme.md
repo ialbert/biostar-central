@@ -12,7 +12,7 @@ To run in a different location
 
 ### Make rules
 	
-	make get_data ( get test data and samplesheet )
+	make getdata ( get test data and samplesheet )
 	make run      ( runs pipeline)
 
 
