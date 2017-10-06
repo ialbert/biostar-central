@@ -7,10 +7,6 @@ from .settings import BASE_DIR
 import os
 import json
 
-# Random block of latin text (lorem ipsum) to populate text feild
-TEXT = "#TEST\nSed ut perspiciatis unde omnis iste natus error\n\
-sit voluptatem accusantium doloremque\nlaudantium, totam rem aperiam, eaque ipsa quae ab illo"
-
 
 def join(*args):
     return os.path.abspath(os.path.join(*args))
@@ -25,6 +21,18 @@ JSON_SPECFILE =join(BASE_DIR, '..', 'pipeline',
 def get_uuid(limit=None):
     return str(uuid.uuid4())[:limit]
 
+# This is a temporary data structure.
+TEST_PROJECTS = [
+    # title, info pairs
+    ("Sequencing run 1", "Lamar sequencing center"),
+    ("Sequencing run 2", "Lamar sequencing center"),
+    ("Sequencing run 3", "Lamar sequencing center"),
+]
+
+TEST_DATA = [
+    ("Compressed data directory", "This directory contains all datasets for the run"),
+    ("Sample sheet", "This file contains a sample sheet describing the data in the directory"),
+]
 
 def init_proj(sender, **kwargs):
     """
@@ -34,32 +42,24 @@ def init_proj(sender, **kwargs):
     from engine.models import Project, Data, Analysis, Job
     from engine.models import User
 
-    N = 2
-    Y = 2
     owner = User.objects.all().first()
-    projects = [f"Project {x}" for x in range(1, 10)][:Y]
-    data= [f"Data {x}" for x in range(1, 10)]
 
     # Make a project
-    for title in projects:
+    for title, description in TEST_PROJECTS:
 
-        test_set = random.sample(data, N)
-        project, flag = Project.objects.get_or_create(title=title, owner=owner, text=TEXT)
-        project.save()
+        project, flag = Project.objects.get_or_create(title=title, owner=owner, text=description)
 
         # add some data to the project
-        for data_title in test_set:
-
-            datainput, flag = Data.objects.get_or_create(title=data_title,
+        for data_title, data_desc in TEST_DATA:
+            data, flag = Data.objects.get_or_create(title=data_title,
                                                          owner=owner,
-                                                         text=TEXT, project=project)
-            datainput.save()
+                                                         text=data_desc, project=project)
 
-        logger.info(f'creating or getting: {project.title} with {len(test_set)} data.')
+        logger.info(f'creating or getting: {project.title}')
 
     analysis, flag = Analysis.objects.get_or_create(title="Analysis 1",
                                                     owner=owner,
-                                                    text=TEXT)
+                                                    text="analysis description")
     analysis.save()
 
     # Pick most recent project to make a job out of
@@ -71,7 +71,7 @@ def init_proj(sender, **kwargs):
     for state in states:
 
         job, flag = Job.objects.get_or_create(title="Result 1",
-                                        text=TEXT,
+                                        text="job description",
                                         project=jproject,
                                         analysis=analysis,
                                         owner=owner,
