@@ -1,9 +1,8 @@
-JOBID = {{jobid}}
 DATADIR = data
 RESDIR  = results
 
-INPUTDATA = {{specs.data}}
-INPUT_SAMPLEINFO := {{specs.sampleinfo}}
+INPUTDATA = {{data.value}}
+INPUT_SAMPLEINFO = {{sampleinfo.value}}
 
 PTRIM_DIR = $(DATADIR)/trim/trimp
 QTRIM_DIR = $(DATADIR)/trim/trimq
@@ -32,13 +31,13 @@ update_samplesheet: extract
 	#	
 	# Make new sample sheet named $(UPDATED_SAMPLE_SHEET)
 	#
-	python ../samplesheet.py $(INPUT_SAMPLEINFO) $(DATADIR) 2>>$(ERR_LOG)
+	python -m pipeline.qc.samplesheet.py $(INPUT_SAMPLEINFO) $(DATADIR)
 
 fastqc: extract
 	#
 	# run fastqc on all files
 	#
-	ls $(DATADIR)/*gz | parallel --verbose --progress -j 8 fastqc --nogroup {} -o $(DATADIR) 2>>$(ERR_LOG)
+	ls $(DATADIR)/*gz | parallel --verbose --progress -j 8 fastqc --nogroup {} -o $(DATADIR)
 
 multiqc: fastqc $(RESDIR)
 	#
@@ -63,7 +62,7 @@ trim_primer: multiqc
 	out1=$(PTRIM_DIR)/{sample_name}_fwd1_trim.fq.gz \
 	out2=$(PTRIM_DIR)/{sample_name}_fwd2_trim.fq.gz \
 	literal={barcode}{fwd_primer} ktrim=l k=23 hdist=1 tpe tbo \
-	overwrite=t skipr2=t stats=$(PTRIM_DIR)/logs/{sample_name}_fwd_stats.txt 2>>$(ERR_LOG)
+	overwrite=t skipr2=t stats=$(PTRIM_DIR)/logs/{sample_name}_fwd_stats.txt
 
 	#
 	# trim right primer
@@ -74,7 +73,7 @@ trim_primer: multiqc
 	out1=$(PTRIM_DIR)/{sample_name}_R1_trimp.fq.gz \
 	out2=$(PTRIM_DIR)/{sample_name}_R2_trimp.fq.gz  \
 	literal={barcode}{rev_primer} ktrim=l k=28 hdist=1 tpe tbo \
-	skipr1=t stats=$(PTRIM_DIR)/logs/{sample_name}_rev_stats.txt 2>>$(ERR_LOG)
+	skipr1=t stats=$(PTRIM_DIR)/logs/{sample_name}_rev_stats.txt
 	#
 	# clean
 	#
@@ -88,7 +87,7 @@ trim_quality: trim_primer $(RESDIR)
 	in1=$(PTRIM_DIR)/{sample_name}_R1_trimp.fq.gz in2=$(PTRIM_DIR)/{sample_name}_R2_trimp.fq.gz \
 	qtrim=rl trimq={{specs.trim_quality}}  minlength=35  \
 	out1=$(QTRIM_DIR)/{sample_name}_R1_trim.fq.gz \
-	out2=$(QTRIM_DIR)/{sample_name}_R2_trim.fq.gz stats=$(QTRIM_DIR)/logs/{sample_name}_stats.txt 2>>$(ERR_LOG)
+	out2=$(QTRIM_DIR)/{sample_name}_R2_trim.fq.gz stats=$(QTRIM_DIR)/logs/{sample_name}_stats.txt
 	cat $(QTRIM_DIR)/logs/*stats.txt > $(RESDIR)/trimq_stats.txt 
 	#
 	# quality report
