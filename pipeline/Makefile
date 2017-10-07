@@ -13,7 +13,7 @@ $(TEMP_DIR):
 
 $(TEST_DATA): $(TEMP_DIR)
 	curl  http://iris.bx.psu.edu/projects/metabarcode-data/data.tar.gz > $(TEST_DATA)
-	(cd $(TEMP_DIR) && tar -xzvmf data.tar.gz)
+	#(cd $(TEMP_DIR) && tar -xzvmf data.tar.gz)
 
 $(SAMPLE_DATA): $(TEMP_DIR)
 	 curl http://iris.bx.psu.edu/projects/metabarcode-data/sampleinfo.txt > $(SAMPLE_DATA)

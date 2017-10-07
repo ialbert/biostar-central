@@ -29,27 +29,25 @@ $(UNPACKED_FASTQ) : $(INPUT_DATA)
 $(FASTQC_REPORT): $(UNPACKED_FASTQ)
 	ls $(DATA_DIR)/*.gz | parallel --verbose --progress -j 8 fastqc --nogroup {} -o $(DATA_DIR)
 
-
-$(UPDATED_SAMPLE_INFO): $(INPUT_SAMPLE_INFO) $(UNPACKED_FASTQ)
-	#	
-	# Make new sample sheet named $(UPDATED_SAMPLE_INFO)
-	#
-	python -m pipeline.data.samplesheet $(INPUT_SAMPLE_INFO) $(DATA_DIR) > $(UPDATED_SAMPLE_INFO)
-
-
 $(MULTIQC_REPORT): $(FASTQC_REPORT)
 	#
 	# run multiqc to create an aggregate report
 	#
-	mkdir -p $(RESDIR)
-	multiqc -f -n input_multiqc -o $(DATADIR) $(DATADIR)
-	cp $(DATADIR)/input_multiqc.html $(RESDIR)
+	mkdir -p $(RESULT_DIR)
+	multiqc -f -n input_multiqc -o $(DATA_DIR) $(DATA_DIR)
+	cp $(DATA_DIR)/input_multiqc.html $(RESULT_DIR)
 	#
 	# clean
 	#
-	#rm -f $(DATADIR)/*fastqc.zip
+	#rm -f $(DATA_DIR)/*fastqc.zip
 
-$(TRIMMED_PRIMER): $(UPDATED_SAMPLE_INFO) $(INPUT_DATA)
+$(UPDATED_SAMPLE_INFO): $(INPUT_SAMPLE_INFO) $(UNPACKED_FASTQ)
+	#
+	# Make new sample sheet named $(UPDATED_SAMPLE_INFO)
+	#
+	python -m pipeline.data.samplesheet $(INPUT_SAMPLE_INFO) $(DATA_DIR) > $(UPDATED_SAMPLE_INFO)
+
+$(TRIMMED_PRIMER): $(UPDATED_SAMPLE_INFO) $(UNPACKED_FASTQ) $(MULTIQC_REPORT)
 	#
 	mkdir -p $(PTRIM_DIR)/logs
 	#

@@ -71,9 +71,6 @@ if __name__ == "__main__":
     samplesheet = sys.argv[1]
     datadir = sys.argv[2]
 
-    #samplesheet ="./test/sampleinfo.txt"
-    #datadir ="test/data"
-
     data = update_sampleinfo(samplesheet, datadir)
 
     outfile = sys.stdout
@@ -86,9 +83,3 @@ if __name__ == "__main__":
         #outfile.write("\n")
 
     outfile.close
-
-    #if ERR_LIST:
-    #    for e in ERR_LIST:
-    #        print(e)
-
-

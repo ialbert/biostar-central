@@ -1,9 +1,12 @@
 import subprocess, os
 import sys, json, hjson
-from pipeline.render import render_file,render_string
+#from pipeline.render import render_file,render_string
+from pipeline import render, read_template, read_spec
+
+import os
 
 CURR_DIR = os.path.dirname(os.path.realpath(__file__))
-
+SPEC_FILE = os.path.join(CURR_DIR, 'qc_spec.hjson' )
 
 def run(job):
     ''''
@@ -13,13 +16,13 @@ def run(job):
     spec = job.spec
     template = job.template
     outdir = job.outdir
-    #jobid = job.jobid
+    jobid = job.jobid
 
     errorlog = []
 
     try:
 
-        mtext = render_string(spec,template)
+        mtext = render.render_data(spec,template)
 
         if not os.path.isdir(outdir):
             os.mkdir(outdir)
@@ -48,30 +51,6 @@ def run(job):
     return job
 
 
-def get_spec(specfile='spec'):
-    spec = hjson.load(open(specfile))
-    return spec
-
-
-def test_job(data='data', sinfo='sinfo'):
-
-    spec_file = "templates/qc/qc_spec.hjson"
-    template_file = "templates/qc/qc_makefile.html"
-
-
-    spec = get_spec(specfile=spec_file)
-
-    spec['data']['value'] = data
-    spec['sampleinfo']['value'] = sinfo
-
-    new_spec = hjson.dumps(spec)
-    template_txt = open(template_file).read()
-
-    #html=render_string(new_spec,template_txt)
-    #print(html)
-    #1/0
-
-    job = Job()
     job.jobid= "job0"
     job.spec = new_spec
     job.template = template_txt
@@ -90,12 +69,17 @@ class Job:
 
 
 if __name__ == "__main__":
+    spec = read_spec(SPEC_FILE)
+    tmpl = read_template(spec.get("template_name", "missing"))
 
-    test_job(data="~/work/web-dev/biostar-engine/pipeline/testdata/data.tar.gz",sinfo="~/work/web-dev/biostar-engine/pipeline/testdata/sampleinfo.txt")
-    #run(job)
-
-
-
+    job = Job()
+    job.spec  = spec
+    job.template = tmpl
+    job.outdir = "./"
+    job.jobid= "job0" 	
+    job.status = None
+    
+    run(job)
 
 
 
