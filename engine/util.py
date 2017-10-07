@@ -1,5 +1,4 @@
 import hjson as json
-#from .settings import BASE_DIR
 from pipeline.const import *
 import uuid
 
@@ -8,66 +7,53 @@ import uuid
 def get_uuid(limit=32):
     return str(uuid.uuid4())[:limit]
 
-
 def join(*args):
     return os.path.abspath(os.path.join(*args))
 
 
-def fill_makefile(filled_json, makefile_template):
+def rewrite_specs(new_specs, file):
 
-    # will return a string.
-    return NotImplemented
-
-
-def rewrite_jsonspecs(new_specs, file):
-
-    return
-
-
-def remove_tmp_files():
-
-    return
-
-
-def group_by_state(jobs_list):
-
-    # return a dictionary with keys being
-    # a state and value is a list of jobs in that state.
     return
 
 
 def make_tmp_jsonfile(json_text, analysis_id):
 
+    return
 
-    tmp_jsonfile = join(BASE_DIR, '..', 'media',
-                        f"tmp{analysis_id}.hjson")
 
-    json_obj = json.loads(json_text)
+def check_fields(json_obj):
 
-    # write to tmp file
-    json.dump(json_obj, open(tmp_jsonfile, "w"))
+    required_keys = ["value", "display_type"]
+    required_fields = ["template"]
 
-    return tmp_jsonfile
+    for field in required_fields:
+        if field not in json_obj:
+            raise Exception(f"'{field}' field is required in the json spec file.")
+
+    for check in json_obj:
+        data = json_obj[check]
+
+        # Check Required keys
+        for key in required_keys:
+            if data.get(key) == None:
+                raise KeyError(f"missing required key '{key}' in input: {data}")
+
+        if data.get("label") == None and data.get("visible") == 1:
+            data["label"] = check[0].upper() + check[1:]
+
+    return json_obj
 
 
 def safe_load(json_file):
 
-    required_keys = ["value" , "display_type"]
-
-    json_file = json.load(open(json_file))
-
-    for check in json_file:
-        data = json_file[check]
-        # Check Required keys
-        for key in required_keys:
-
-            if data.get(key)== None :
-                raise KeyError(f"missing required key '{key}' in input: {data}")
-
-        #if not (data["display_type"] in TYPE2FUNC):
-        #    raise Exception(f"Incorrect value for display_type. Options are:{TYPE2FUNC.keys()}")
-
-        if data.get("label")==None:
-            data["label"] = check[0].upper() + check[1:]
+    json_file = check_fields(json.load(open(json_file)))
 
     return json_file
+
+
+def safe_loads(json_string):
+
+
+    json_string = check_fields(json.loads(json_string))
+
+    return json_string

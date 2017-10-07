@@ -1,7 +1,6 @@
 from django import forms
 from .models import Data
 from pipeline.const import *
-from . import util
 
 
 def float_field(field):
@@ -90,7 +89,6 @@ def file_field(field):
                             label=label,
                             required=False,
                             initial=initial)
-
     return field
 
 
@@ -112,12 +110,13 @@ def checkbox_field(field):
     return field
 
 
-
 def model_specs(field):
     return
 
+
 def handle_scripts(field):
     return
+
 
 def get_choices(feild):
 
@@ -148,3 +147,10 @@ TYPE2FUNC = {
     SCRIPT : handle_scripts,
 
 }
+
+def check_display(display_type):
+
+    if not (display_type in TYPE2FUNC):
+        raise Exception(f"Incorrect value for display_type. Options are:{TYPE2FUNC.keys()}")
+
+    return

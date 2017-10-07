@@ -2,24 +2,9 @@ from django.apps import AppConfig
 from django.conf import settings
 from django.db.models.signals import post_migrate
 import logging, uuid
-import random
 from .settings import BASE_DIR
 import os
-import json
 
-
-def join(*args):
-    return os.path.abspath(os.path.join(*args))
-
-
-logger = logging.getLogger('engine')
-
-JSON_SPECFILE =join(BASE_DIR, '..', 'pipeline',
-                'templates','metabarcode_qc', 'metabarcode_spec.json' )
-
-
-def get_uuid(limit=None):
-    return str(uuid.uuid4())[:limit]
 
 # This is a temporary data structure.
 TEST_PROJECTS = [
@@ -29,10 +14,28 @@ TEST_PROJECTS = [
     ("Sequencing run 3", "Lamar sequencing center"),
 ]
 
+
 TEST_DATA = [
     ("Compressed data directory", "This directory contains all datasets for the run"),
     ("Sample sheet", "This file contains a sample sheet describing the data in the directory"),
 ]
+
+
+
+logger = logging.getLogger('engine')
+
+
+def join(*args):
+    return os.path.abspath(os.path.join(*args))
+
+
+JSON_SPECFILE =join(BASE_DIR, '..', 'pipeline',
+                'templates','qc', 'qc_spec.hjson' )
+
+
+def get_uuid(limit=None):
+    return str(uuid.uuid4())[:limit]
+
 
 def init_proj(sender, **kwargs):
     """
@@ -54,13 +57,17 @@ def init_proj(sender, **kwargs):
             data, flag = Data.objects.get_or_create(title=data_title,
                                                          owner=owner,
                                                          text=data_desc, project=project)
+            data.save()
 
         logger.info(f'creating or getting: {project.title}')
 
     analysis, flag = Analysis.objects.get_or_create(title="Analysis 1",
                                                     owner=owner,
-                                                    text="analysis description")
+                                                    text="analysis description",
+                                                    spec_origin=JSON_SPECFILE)
+    #print(analysis.spec_source)
     analysis.save()
+    #print(analysis.spec_source)
 
     # Pick most recent project to make a job out of
     jproject = Project.objects.order_by("-id").first()
