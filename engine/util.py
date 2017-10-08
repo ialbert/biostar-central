@@ -53,7 +53,6 @@ def safe_load(json_file):
 
 def safe_loads(json_string):
 
-
     json_string = check_fields(json.loads(json_string))
 
     return json_string

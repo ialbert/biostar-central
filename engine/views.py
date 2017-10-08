@@ -324,6 +324,7 @@ def analysis_run(request, id, id2):
                     data["value"] = form.cleaned_data[field]
 
             template_path = filled_json["template"]["value"]
+            title = form.cleaned_data.get("title", "Job title")
 
             # do not have to load file every time.
             makefile_template = get_template(template_path).template.source
@@ -332,7 +333,8 @@ def analysis_run(request, id, id2):
                                             owner=owner,
                                             analysis=analysis,
                                             project=project,
-                                            makefile_template=makefile_template)
+                                            makefile_template=makefile_template,
+                                            title=title)
 
             return redirect(reverse("jobs_list", kwargs=dict(id=project.id)))
 

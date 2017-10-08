@@ -102,6 +102,8 @@ class RunAnalysis(forms.Form):
         super().__init__(*args, **kwargs)
 
         analysis = json.loads(analysis)
+        # Job needs a title
+        self.fields["title"] = forms.CharField(max_length=256, initial="Job Title")
 
         for field in analysis:
 

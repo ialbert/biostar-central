@@ -87,14 +87,14 @@ class Job(Base):
     # file path to media
     QUEUED, RUNNING, FINISHED, ERROR = 1, 2, 3, 4
     CHOICES = [(QUEUED, "Queued"), (RUNNING, "Running"),
-               (FINISHED, "Finished"), (ERROR, "Error")]
+               (FINISHED, "Finished"), (ERROR, "Stopped")]
 
     analysis = models.ForeignKey(Analysis)
     project = models.ForeignKey(Project)
     json_data = models.TextField(default="commands")
+
     # uniqe directory creation
     uid = models.CharField(default="", max_length=32)
-    #makefile_template = models.TextField(default="media")
     makefile_template = models.TextField(default="makefile")
     log = models.TextField(default="log")
 

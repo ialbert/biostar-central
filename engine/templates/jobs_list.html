@@ -15,14 +15,16 @@
         <div class="title">
 
             <a href="{#}">
-            <i class="folder icon"></i>{{ job.title }}
+                <i class="folder icon"></i>{{ job.title }}
             </a>
+            <div class="ui right floated {{job.state|state_color}} segment">
+                <div class="date">{{job.state|int2state}}</div>
+            </div>
 
         </div>
-        {# "date" just styles them the same way (not related to any datetime things) #}
+
         <div class="date">{{job.analysis.title}}</div>
         <div class="date">{{job.date.date}}</div>
-        <div class="date">{{job.state}}</div>
 
     </div>
 

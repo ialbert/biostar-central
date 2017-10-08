@@ -73,7 +73,7 @@ def init_proj(sender, **kwargs):
     jproject = Project.objects.order_by("-id").first()
 
     # Make a job in each state( 3 jobs to one project and analysis)
-    states = {"Queued":1, "Running":2, "Finished":3, "Error":4}
+    states = {"Queued":1, "Running":2, "Finished":3, "Stopped":4}
 
     for state in states:
 
