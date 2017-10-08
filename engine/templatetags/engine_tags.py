@@ -12,6 +12,36 @@ def upper(value):
 def date_sort(instance):
     return instance.order_by("-id")
 
+@register.filter(name='state_color')
+def state_color(instance):
+
+    states = {
+              1:{"color":"black",
+                 "state": "Queued"},
+              2:{"color":"yellow",
+                 "state": "Running"},
+              3:{"color":"green",
+                 "state":"Finished"},
+              4:{"color":"red",
+                 "state":"Stopped"},
+              }
+
+    return states[instance]["color"]
+
+
+@register.filter(name='int2state')
+def int2state(instance):
+
+    states = {
+              1:"Queued",
+              2:"Running",
+              3:"Finished",
+              4:"Stopped"
+              }
+
+    return states[instance]
+
+
 @register.inclusion_tag('includes/breadcrumb.html')
 def breadcrumb(steps):
     return dict(steps=steps)

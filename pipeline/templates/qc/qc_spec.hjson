@@ -92,6 +92,11 @@ report_script :
      value : metabarcode_results.py
      display_type: SCRIPT
   }
+template :
+  {
+    value : qc/qc_makefile.html
+    display_type : SCRIPT
+  }
 analysis_spec :
   {
     value: Quality control of sequencing data
