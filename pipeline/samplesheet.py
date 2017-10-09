@@ -85,7 +85,7 @@ if __name__ == "__main__":
         outfile.write(row + "\n")
         #outfile.write("\n")
 
-    outfile.close
+    outfile.close()
 
     #if ERR_LIST:
     #    for e in ERR_LIST:

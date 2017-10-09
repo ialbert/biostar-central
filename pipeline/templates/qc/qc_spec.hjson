@@ -99,8 +99,8 @@ template :
   }
 analysis_spec :
   {
-    value: Quality control of sequencing data
-    description:
+    title: Quality control of sequencing data
+    value:
                 '''
 # Purpose
 

@@ -94,7 +94,7 @@ class Job(Base):
     json_data = models.TextField(default="commands")
 
     # uniqe directory creation
-    uid = models.CharField(default="", max_length=32)
+    uid = models.CharField(max_length=32)
     makefile_template = models.TextField(default="makefile")
     log = models.TextField(default="log")
 
