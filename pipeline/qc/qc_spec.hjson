@@ -48,7 +48,7 @@ trim_quality:
     visible : 1
     display_type : INTEGER
  }
-  template_name : qc/templates/qc_makefile.html
+  template_name : qc/templates/qc_name_rule_make.html
 
 analysis_spec :
   {

@@ -13,26 +13,21 @@ PTRIM_DIR = $(DATA_DIR)/trim/trimp
 QTRIM_DIR = $(DATA_DIR)/trim/trimq
 UPDATED_SAMPLE_INFO = updated_sampleinfo.txt
 
-UNPACKED_FASTQ = $(DATA_DIR)/*.fastq.gz
-FASTQC_REPORT = $(DATA_DIR)/*_fastqc.html
-MULTIQC_REPORT =$(DATA_DIR)/*_multiqc.html
-TRIMMED_PRIMER = $(PTRIM_DIR)/*.gz
-TRIMMED_QUALITY =$(QTRIM_DIR)/*.gz
 
-all: $(TRIMMED_QUALITY)
+all: extract update_sample_info multiqc trim_quality
 	@echo "executes all commands"
 #
 # =========== Unpacking ==================
 #
-$(UNPACKED_FASTQ) : $(INPUT_DATA)
-	 tar -xvzmf $(INPUT_DATA)
+extract : $(INPUT_DATA)
+	 tar -xvzf $(INPUT_DATA)
 #
 # =========== Quality report =============
 #
-$(FASTQC_REPORT): $(UNPACKED_FASTQ)
+fastqc: extract
 	ls $(DATA_DIR)/*.gz | parallel --verbose --progress -j 8 fastqc --nogroup {} -o $(DATA_DIR)
 
-$(MULTIQC_REPORT): $(FASTQC_REPORT)
+multiqc: fastqc
 	#
 	# run multiqc to create an aggregate report
 	#
@@ -47,7 +42,7 @@ $(MULTIQC_REPORT): $(FASTQC_REPORT)
 # ============== Update sample sheet ==============
 # Read1 and Read2 file names will be added to updated samplesheet.
 #
-$(UPDATED_SAMPLE_INFO): $(INPUT_SAMPLE_INFO) $(UNPACKED_FASTQ)
+update_sample_info: extract $(INPUT_SAMPLE_INFO)
 	#
 	# Make new sample sheet named $(UPDATED_SAMPLE_INFO)
 	#
@@ -57,7 +52,7 @@ $(UPDATED_SAMPLE_INFO): $(INPUT_SAMPLE_INFO) $(UNPACKED_FASTQ)
 # =============== Primer and Barcode trimming =============
 # Trim primer and barcode sequence included in the samplesheet.
 #
-$(TRIMMED_PRIMER): $(UPDATED_SAMPLE_INFO) $(UNPACKED_FASTQ) $(MULTIQC_REPORT)
+trim_primer: multiqc
 	#
 	mkdir -p $(PTRIM_DIR)/logs
 	#
@@ -92,7 +87,7 @@ $(TRIMMED_PRIMER): $(UPDATED_SAMPLE_INFO) $(UNPACKED_FASTQ) $(MULTIQC_REPORT)
 # Trim reads to user specified threshold value.
 #
 
-$(TRIMMED_QUALITY): $(TRIMMED_PRIMER)
+trim_quality: trim_primer
 	mkdir -p $(QTRIM_DIR)/logs
 	cat  $(UPDATED_SAMPLE_INFO) |parallel --verbose --progress  --header : --colsep '\t' bbduk.sh \
 	in1=$(PTRIM_DIR)/{sample_name}_R1_trimp.fq.gz in2=$(PTRIM_DIR)/{sample_name}_R2_trimp.fq.gz \
