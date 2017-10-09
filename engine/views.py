@@ -4,6 +4,7 @@ from django.template.loader import get_template
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.urls import reverse
+#from django.template import Context, loader
 from .settings import BASE_DIR
 import os
 from .forms import *
@@ -39,9 +40,9 @@ def project_list(request):
 
     projects = Project.objects.order_by("-id")
 
-    if not projects:
-        messages.error(request, "No project found.")
-        return redirect("/")
+    if not projects.all():
+        messages.error(request, "No projects found.")
+        return redirect(reverse("index"))
 
     # True for the active section at the moment
     active = True
@@ -62,7 +63,7 @@ def project_view(request, id):
     project = Project.objects.filter(id=id).first()
 
     if not project:
-        messages.error(request, f"Project{id} not found.")
+        messages.error(request, "Project not found.")
 
     active = True
 
@@ -137,8 +138,10 @@ def project_create(request):
 def data_list(request, id):
 
     project = Project.objects.filter(id=id).first()
-    if not project:
+
+    if not project.data_set.all():
         messages.error(request, "No data found for this project.")
+        return redirect(reverse("project_view", kwargs={'id': project.id}))
 
     active = True
     steps = [
@@ -160,7 +163,8 @@ def data_view(request, id):
     project = data.project
 
     if not data:
-        messages.error(request, f"Data{id} not found.")
+        messages.error(request, "Data not found.")
+        return redirect(reverse("data_view", kwargs={'id': data.id}))
 
     active = True
 
@@ -318,9 +322,9 @@ def analysis_run(request, id, id2):
             filled_json = util.safe_loads(analysis.spec_source)
 
             for field in filled_json:
+                data = filled_json[field]
                 if field in form.cleaned_data:
                     # Mutates field value in spec_source
-                    data = filled_json[field]
                     data["value"] = form.cleaned_data[field]
 
             template_path = filled_json["template"]["value"]
@@ -335,7 +339,7 @@ def analysis_run(request, id, id2):
                                             project=project,
                                             makefile_template=makefile_template,
                                             title=title)
-
+            job.save()
             return redirect(reverse("jobs_list", kwargs=dict(id=project.id)))
 
     else:
@@ -379,8 +383,14 @@ def analysis_edit(request, id, id2):
         elif request.POST.get("save_or_preview") == "save":
 
             form = EditAnalysis(analysis=request.POST.get("text"))
-            analysis.save(spec_source=request.POST.get("text"))
+            spec = util.safe_loads(analysis.spec_source)
+            filler = dict(display_type='')
 
+            if spec.get("analysis_spec", filler)["display_type"] == "MODEL":
+                analysis.title = spec["analysis_spec"].get("title", analysis.title)
+                analysis.text = spec["analysis_spec"]["value"]
+
+            analysis.save(spec_source=request.POST.get("text"))
     else:
 
         form = EditAnalysis(analysis=analysis.spec_source)
@@ -393,8 +403,8 @@ def jobs_list(request, id):
 
     project = Project.objects.filter(id=id).first()
 
-    if not project.job_set:
-        messages.error(request, "No Jobs found for this project.")
+    if not project.job_set.all():
+        messages.error(request, "No jobs found for this project.")
         return redirect(reverse("project_view", kwargs={'id': project.id}))
 
     active = True

@@ -80,7 +80,6 @@ def run():
     #config = "./templates/metabarcode_qc/metabarcode_spec.hjson"
     #template = "./templates/metabarcode_qc/metabarcode_makefile.html"
 
-
     # loads sepc file.
     configs = load_specs(config)
 
