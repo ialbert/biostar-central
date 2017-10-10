@@ -24,9 +24,6 @@ def join(*args):
 ADMINS = [("Admin User", "foo@bar.com")]
 
 
-VALID_DATA_TYPES = [ ("fastq", "Fastq Sequencing Data"),
-                    ]
-
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(join(__file__))
 
@@ -142,3 +139,6 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
     'compressor.finders.CompressorFinder',
 )
+
+# Location where project data is saved.
+DATA_ROOT = join(MEDIA_ROOT , "project")

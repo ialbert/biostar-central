@@ -48,8 +48,14 @@ trim_quality:
     visible : 1
     display_type : INTEGER
  }
-  template_name : qc/templates/qc_makefile.html
-  threads : 4
+template : {
+        value:qc/templates/qc_makefile.html
+        display_type:SCRIPT
+}
+threads : {
+        value: 4
+        display_type:SCRIPT
+}
 analysis_spec :
   {
     title: Quality control of sequencing data

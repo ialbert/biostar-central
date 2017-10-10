@@ -17,8 +17,8 @@
             <a href="{% url 'job_view' job.id %}">
                 <i class="folder icon"></i>{{ job.title }}
             </a>
-            <div class="ui right floated {{job.state|state_color}} segment">
-                <div class="date">{{job.state|int2state}}</div>
+            <div class="ui right floated segment">
+                <div class="{{job.get_state_display}}">{{job.get_state_display}}</div>
             </div>
 
         </div>
