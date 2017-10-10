@@ -10,8 +10,10 @@ from . import settings
 from . import util
 from django.urls import reverse
 
+
 def join(*args):
     return os.path.abspath(os.path.join(*args))
+
 
 def make_html(text):
 

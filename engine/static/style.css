@@ -15,6 +15,7 @@ h2.ui.center.header {
 .Queued {
     color: red;
     font-weight: bold;
+    font-size: .795em;
 }
 
 .createform {
