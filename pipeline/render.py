@@ -1,6 +1,5 @@
 import django
 from django.conf import settings
-from django.template.loader import get_template
 from django.template import Template,Context
 import os, hjson
 
@@ -29,9 +28,11 @@ def render_file(data, template_file):
     template_txt = open(template_file).read()
     return render_string(data, template_txt)
 
+
 def render_string(data, template_txt):
     spec = hjson.loads(data)
     return render_data(spec, template_txt)
+
 
 def render_data(spec, template_txt):
     set_env()

@@ -8,45 +8,23 @@
 
 {% block body %}
 
-<div class="ui top attached header">
-  Queued
-</div>
-<div class="ui attached segment">
-  <p>Queued jobs</p>
-</div>
-<div class="ui attached header">
-  Running
-</div>
-<div class="ui attached segment">
-  <p>Running jobs</p>
-</div>
-<div class="ui attached header">
-  Finished
-</div>
-<div class="ui attached segment">
-  <p>Finished jobs</p>
-</div>
-<div class="ui attached header">
-  Error
-</div>
-
-<div class="ui attached segment">
-  <p>Stopped jobs</p>
-</div>
-
-{% for result in results %}
+{% for job in jobs %}
 
     <div class="ui vertical segment">
 
         <div class="title">
 
-            <a href="{#}">
-            <i class="folder icon"></i>{{ result.title }}
+            <a href=#>
+                <i class="folder icon"></i>{{ job.title }}
             </a>
+            <div class="ui right floated {{job.state|state_color}} segment">
+                <div class="date">{{job.state|int2state}}</div>
+            </div>
 
         </div>
-        <div class="date">{{result.analysis.title}}</div>
-        <div class="date">{{result.date.date}}</div>
+
+        <div class="date">{{job.analysis.title}}</div>
+        <div class="date">{{job.date.date}}</div>
 
     </div>
 

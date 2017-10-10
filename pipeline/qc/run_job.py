@@ -1,6 +1,5 @@
 import subprocess, os
 import sys, json, hjson
-#from pipeline.render import render_file,render_string
 from pipeline import render, read_template, read_spec
 
 import os

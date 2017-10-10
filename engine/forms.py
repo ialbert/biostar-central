@@ -4,8 +4,8 @@ from django import forms
 from django.utils.translation import gettext_lazy as helpers
 from django.contrib.auth.models import User
 from .models import Project, Data, Analysis
-from .util import safe_load
-from .factory import TYPE2FUNC
+from . import util
+from . import factory
 
 from pagedown.widgets import PagedownWidget
 
@@ -93,59 +93,61 @@ class AnalysisForm(forms.ModelForm):
         fields = ['title', "json_spec"]
 
 
-class RunForm(forms.Form):
+class RunAnalysis(forms.Form):
 
     def __init__(self, *args, **kwargs):
 
-        json_spec = kwargs.pop("json_spec")
+        analysis = kwargs.pop("analysis")
 
         super().__init__(*args, **kwargs)
 
-        json_spec = safe_load(json_spec)
+        analysis = json.loads(analysis)
+        # Job needs a title
+        self.fields["title"] = forms.CharField(max_length=256, initial="Job Title")
 
-        for field in json_spec:
+        for field in analysis:
 
-            data = json_spec[field]
+            data = analysis[field]
             display_type = data["display_type"]
+            factory.check_display(display_type)
 
             if data.get("visible") == 1:
 
-                self.fields[field] = TYPE2FUNC[display_type](data)
+                self.fields[field] = factory.TYPE2FUNC[display_type](data)
 
     def save(self, *args, **kwargs):
 
-        super(RunForm, self).save(*args, **kwargs)
+        super(RunAnalysis, self).save(*args, **kwargs)
 
 
-class EditForm(forms.Form):
-
+class EditAnalysis(forms.Form):
 
     def __init__(self, *args, **kwargs):
 
-        json_spec = kwargs.pop("json_spec")
+        analysis = kwargs.pop("analysis")
 
         super().__init__(*args, **kwargs)
 
+        analysis = util.safe_loads(analysis)
+        initial = json.dumps(analysis, indent=4)
 
-        json_spec = safe_load(json_spec)
-
-        self.fields["text"] = forms.CharField(initial=json.dumps(json_spec, indent=4))
+        self.fields["text"] = forms.CharField(initial=initial)
         self.fields["save_or_preview"] = forms.CharField(initial="preview")
 
-        for field in json_spec:
+        for field in analysis:
 
-            data = json_spec[field]
+            data = analysis[field]
             display_type = data["display_type"]
+            factory.check_display(display_type)
 
             if data.get("visible") == 1:
 
-                self.fields[field] = TYPE2FUNC[display_type](data)
-
+                self.fields[field] = factory.TYPE2FUNC[display_type](data)
 
 
     def save(self, *args, **kwargs):
 
-        super(EditForm, self).save(*args, **kwargs)
+        super(EditAnalysis, self).save(*args, **kwargs)
 
 
 

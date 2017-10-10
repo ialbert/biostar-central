@@ -50,23 +50,21 @@ trim_quality:
  }
   template_name : qc/templates/qc_makefile.html
   threads : 4
-
 analysis_spec :
   {
-    value: Quality control of sequencing data
-    description:
+    title: Quality control of sequencing data
+    value:
                 '''
 # Purpose
 
-This analysis takes a pired end dataset and produces a merged improved dataset.
-It can optionally trimmed the data before merging.
+This analysis takes a paired end dataset and produces a primer/barcode removed, quality trimmed dataset.
 MultiQC quality reports of each step are also produced.
 
 # Parameters
 
 **Input:**
 
-1. Paired end sequence data as a  tar archived gzip file.
+1. Paired end sequence data folder.
 2. Sample information sheet as a tab delimited text file.
 
 # Results
@@ -74,8 +72,8 @@ MultiQC quality reports of each step are also produced.
 This analysis produces
 
 1. MultiQC report - an aggregate fastqc report of the input data.
-2. Trimmed dataset and its quality report (optional).
-3. Merged dataset and its quality report.
+2. Trimmed dataset and its quality report.
+
 
         '''
        display_type:MODEL

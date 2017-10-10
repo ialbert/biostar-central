@@ -82,4 +82,3 @@ if __name__ == "__main__":
         outfile.write(row + "\n")
         #outfile.write("\n")
 
-    outfile.close

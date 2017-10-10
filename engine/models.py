@@ -1,4 +1,4 @@
-
+import hjson as json
 import os
 from django.db import models
 from django.contrib.auth.models import User
@@ -6,8 +6,9 @@ from django.utils import timezone
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 import mistune
-from .util import get_uuid
+from . import util
 from django.urls import reverse
+
 
 def make_html(text):
 
@@ -55,48 +56,62 @@ class Data(Base):
 
 class Analysis(Base):
 
-    #project = models.ForeignKey(Project)
-    json_spec = models.TextField(default="# Enter json commands")
-    # = models.FileField(default="media")
-    #makefile_template = models.TextField(default="media")
+    spec_origin = models.TextField(default="media")
+    spec_source = models.TextField(default=r"""{ 
+                                                field1_name: 
+                                                    {
+                                                    value:field_value, 
+                                                    type:FIELD_TYPE
+                                                    }
+                                                field2_name:
+                                                    {
+                                                    value:field_value, 
+                                                    type:FIELD_TYPE
+                                                    }
+                                                }""")
 
     def save(self, *args, **kwargs):
+
+        # Save source from a string if one is given.
+        if kwargs.get("spec_source"):
+            source = kwargs.pop("spec_source")
+            self.spec_source = source
+        else:
+            self.spec_source = json.dumps(util.safe_load(self.spec_origin))
+
         super(Analysis, self).save(*args, **kwargs)
 
-    # set json_spec from json_file
-    # assumes json_file is already a json file
 
 class Job(Base):
 
     # file path to media
     QUEUED, RUNNING, FINISHED, ERROR = 1, 2, 3, 4
     CHOICES = [(QUEUED, "Queued"), (RUNNING, "Running"),
-               (FINISHED, "Finished"), (ERROR, "Error")]
+               (FINISHED, "Finished"), (ERROR, "Stopped")]
 
     analysis = models.ForeignKey(Analysis)
     project = models.ForeignKey(Project)
     json_data = models.TextField(default="commands")
-    uid = models.CharField(default="", max_length=32)
-    #makefile_template = models.TextField(default="media")
+
+    # uniqe directory creation
+    uid = models.CharField(max_length=32)
     makefile_template = models.TextField(default="makefile")
     log = models.TextField(default="log")
 
     state = models.IntegerField(default=1, choices=CHOICES)
     directory = models.FilePathField(default="media")
 
-
     def save(self, *args, **kwargs):
         # create
-        self.uid = self.uid or get_uuid()
-        if not os.path.isdir(self.directory):
-            path = os.path.abspath(os.path.join(settings.MEDIA_DIR, uuid))
-            os.mkdir(path)
-            self.directory = path
+        # self.uid = self.uid or util.get_uuid()
+        # if not os.path.isdir(self.directory):
+        #     path = os.path.abspath(os.path.join(settings.MEDIA_DIR, self.uid))
+        #     os.mkdir(path)
+        #     self.directory = path
         super(Job, self).save(*args, **kwargs)
 
     def url(self):
         return reverse("job_view", kwargs=dict(id=self.id))
-
 
 
 class Profile(models.Model):

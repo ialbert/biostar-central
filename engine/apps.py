@@ -2,24 +2,35 @@ from django.apps import AppConfig
 from django.conf import settings
 from django.db.models.signals import post_migrate
 import logging, uuid
-import random
 from .settings import BASE_DIR
 import os
-import json
 
-# Random block of latin text (lorem ipsum) to populate text feild
-TEXT = "#TEST\nSed ut perspiciatis unde omnis iste natus error\n\
-sit voluptatem accusantium doloremque\nlaudantium, totam rem aperiam, eaque ipsa quae ab illo"
+
+# This is a temporary data structure.
+TEST_PROJECTS = [
+    # title, info pairs
+    ("Sequencing run 1", "Lamar sequencing center"),
+    ("Sequencing run 2", "Lamar sequencing center"),
+    ("Sequencing run 3", "Lamar sequencing center"),
+]
+
+
+TEST_DATA = [
+    ("Compressed data directory", "This directory contains all datasets for the run"),
+    ("Sample sheet", "This file contains a sample sheet describing the data in the directory"),
+]
+
+
+
+logger = logging.getLogger('engine')
 
 
 def join(*args):
     return os.path.abspath(os.path.join(*args))
 
 
-logger = logging.getLogger('engine')
-
 JSON_SPECFILE =join(BASE_DIR, '..', 'pipeline',
-                'templates','metabarcode_qc', 'metabarcode_spec.json' )
+                'templates','qc', 'qc_spec.hjson' )
 
 
 def get_uuid(limit=None):
@@ -34,44 +45,40 @@ def init_proj(sender, **kwargs):
     from engine.models import Project, Data, Analysis, Job
     from engine.models import User
 
-    N = 2
-    Y = 2
     owner = User.objects.all().first()
-    projects = [f"Project {x}" for x in range(1, 10)][:Y]
-    data= [f"Data {x}" for x in range(1, 10)]
 
     # Make a project
-    for title in projects:
+    for title, description in TEST_PROJECTS:
 
-        test_set = random.sample(data, N)
-        project, flag = Project.objects.get_or_create(title=title, owner=owner, text=TEXT)
-        project.save()
+        project, flag = Project.objects.get_or_create(title=title, owner=owner, text=description)
 
         # add some data to the project
-        for data_title in test_set:
-
-            datainput, flag = Data.objects.get_or_create(title=data_title,
+        for data_title, data_desc in TEST_DATA:
+            data, flag = Data.objects.get_or_create(title=data_title,
                                                          owner=owner,
-                                                         text=TEXT, project=project)
-            datainput.save()
+                                                         text=data_desc, project=project)
+            data.save()
 
-        logger.info(f'creating or getting: {project.title} with {len(test_set)} data.')
+        logger.info(f'creating or getting: {project.title}')
 
     analysis, flag = Analysis.objects.get_or_create(title="Analysis 1",
                                                     owner=owner,
-                                                    text=TEXT)
+                                                    text="analysis description",
+                                                    spec_origin=JSON_SPECFILE)
+    #print(analysis.spec_source)
     analysis.save()
+    #print(analysis.spec_source)
 
     # Pick most recent project to make a job out of
     jproject = Project.objects.order_by("-id").first()
 
     # Make a job in each state( 3 jobs to one project and analysis)
-    states = {"Queued":1, "Running":2, "Finished":3, "Error":4}
+    states = {"Queued":1, "Running":2, "Finished":3, "Stopped":4}
 
     for state in states:
 
         job, flag = Job.objects.get_or_create(title="Result 1",
-                                        text=TEXT,
+                                        text="job description",
                                         project=jproject,
                                         analysis=analysis,
                                         owner=owner,

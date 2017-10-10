@@ -4,13 +4,14 @@ from django.template.loader import get_template
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.urls import reverse
+#from django.template import Context, loader
 from .settings import BASE_DIR
 import os
 from .forms import *
 from .models import (User, Project, Data,
                      Analysis, Job)
 
-from .util import make_tmp_jsonfile, rewrite_jsonspecs
+from . import util
 
 
 def join(*args):
@@ -39,9 +40,9 @@ def project_list(request):
 
     projects = Project.objects.order_by("-id")
 
-    if not projects:
-        messages.error(request, "No project found.")
-        return redirect("/")
+    if not projects.all():
+        messages.error(request, "No projects found.")
+        return redirect(reverse("index"))
 
     # True for the active section at the moment
     active = True
@@ -62,7 +63,7 @@ def project_view(request, id):
     project = Project.objects.filter(id=id).first()
 
     if not project:
-        messages.error(request, f"Project{id} not found.")
+        messages.error(request, "Project not found.")
 
     active = True
 
@@ -111,7 +112,7 @@ def project_create(request):
         (reverse("project_create"), "Create Project", active)
     ]
     if request.method == "POST":
-        # create new projects here ( just populate metadata ).
+        # create new projects here ( just populates metadata ).
 
         form = ProjectForm(data=request.POST)
 
@@ -137,8 +138,10 @@ def project_create(request):
 def data_list(request, id):
 
     project = Project.objects.filter(id=id).first()
-    if not project:
+
+    if not project.data_set.all():
         messages.error(request, "No data found for this project.")
+        return redirect(reverse("project_view", kwargs={'id': project.id}))
 
     active = True
     steps = [
@@ -160,7 +163,8 @@ def data_view(request, id):
     project = data.project
 
     if not data:
-        messages.error(request, f"Data{id} not found.")
+        messages.error(request, "Data not found.")
+        return redirect(reverse("data_view", kwargs={'id': data.id}))
 
     active = True
 
@@ -272,7 +276,6 @@ def analysis_view(request, id, id2):
 
     analysis = Analysis.objects.filter(id=id2).first()
     project = Project.objects.filter(id=id).first()
-   # project = analysis.project
 
     if not analysis:
         messages.error(request, "Analysis not found.")
@@ -313,45 +316,34 @@ def analysis_run(request, id, id2):
 
     if request.method == "POST":
 
-        steps = [
-            (reverse("index"), "Home", not active),
-            (reverse("project_list"), "Project List", not active),
-            (reverse("project_view", kwargs={'id': project.id}), f"{project.title}", not active),
-            (reverse("jobs_list", kwargs={'id': project.id}), "Results List", active),
-        ]
-
-        form = RunForm(data=request.POST, json_spec=analysis.json_spec)
+        form = RunAnalysis(data=request.POST, analysis=analysis.spec_source)
 
         if form.is_valid():
+            filled_json = util.safe_loads(analysis.spec_source)
 
-            # Fill "value" with what the user picked.
-            filled_json = safe_load(analysis.json_spec)
-            # add template to spec
             for field in filled_json:
+                data = filled_json[field]
                 if field in form.cleaned_data:
-                    # Mutates field value in spec
-                    data = filled_json[field]
+                    # Mutates field value in spec_source
                     data["value"] = form.cleaned_data[field]
 
-            # path comes from spec
-            makefile_template = get_template("qc/qc_makefile.html").template.source
+            template_path = filled_json["template"]["value"]
+            title = form.cleaned_data.get("title", "Job title")
+
+            # do not have to load file every time.
+            makefile_template = get_template(template_path).template.source
 
             job = Job.objects.get_or_create(json_data=filled_json,
                                             owner=owner,
                                             analysis=analysis,
                                             project=project,
-                                            makefile_template=makefile_template)
-
-            context = dict(jobs=project.job_set, job=job, steps=steps)
-            # return redirect(reverse(jobs_list))
-            return render(request, "jobs_list.html", context)
+                                            makefile_template=makefile_template,
+                                            title=title)
+            job.save()
+            return redirect(reverse("jobs_list", kwargs=dict(id=project.id)))
 
     else:
-
-        analysis.json_spec = JSON_SPECFILE
-        analysis.save()
-        # RunAnalysis(analysis=analysis)
-        form = RunForm(json_spec=analysis.json_spec)
+        form = RunAnalysis(analysis=analysis.spec_source)
         context = dict(project=project, analysis=analysis, steps=steps, form=form)
         return render(request, 'analysis_run.html', context)
 
@@ -361,9 +353,6 @@ def analysis_edit(request, id, id2):
     analysis = Analysis.objects.filter(id=id2).first()
     project = Project.objects.filter(id=id).first()
 
-    analysis.json_spec = JSON_SPECFILE
-    # should only save in analysis_create!
-    analysis.save()
     active = True
 
     steps = [
@@ -377,19 +366,34 @@ def analysis_edit(request, id, id2):
 
     if request.method == "POST":
 
-        if request.POST.get("save_or_preview") == "save":
-            specs = analysis.json_spec
+        if request.POST.get("save_or_preview") == "save_to_file":
 
-            rewrite_jsonspecs(request.POST.get("text"), specs)
-            form = EditForm(json_spec=specs)
+            # NEED TO VALIDATE BEFORE OVERRIDING FILE
+            spec_file = analysis.spec_origin
+            util.rewrite_specs(request.POST.get("text"), spec_file)
+            # Save the rewriteen spec_file into spec_origin field
+            analysis.save()
+
+            form = EditAnalysis(analysis=analysis.spec_origin)
 
         elif request.POST.get("save_or_preview") == "preview":
 
-            tmp_specs = make_tmp_jsonfile(request.POST.get("text"), analysis.id)
-            form = EditForm(json_spec=tmp_specs)
+            form = EditAnalysis(analysis=request.POST.get("text"))
 
+        elif request.POST.get("save_or_preview") == "save":
+
+            form = EditAnalysis(analysis=request.POST.get("text"))
+            spec = util.safe_loads(analysis.spec_source)
+            filler = dict(display_type='')
+
+            if spec.get("analysis_spec", filler)["display_type"] == "MODEL":
+                analysis.title = spec["analysis_spec"].get("title", analysis.title)
+                analysis.text = spec["analysis_spec"]["value"]
+
+            analysis.save(spec_source=request.POST.get("text"))
     else:
-        form = EditForm(json_spec=analysis.json_spec)
+
+        form = EditAnalysis(analysis=analysis.spec_source)
 
     context = dict(project=project, analysis=analysis, steps=steps, form=form)
     return render(request, 'analysis_edit.html', context)
@@ -399,8 +403,8 @@ def jobs_list(request, id):
 
     project = Project.objects.filter(id=id).first()
 
-    if not project.job_set:
-        messages.error(request, "No Jobs found.")
+    if not project.job_set.all():
+        messages.error(request, "No jobs found for this project.")
         return redirect(reverse("project_view", kwargs={'id': project.id}))
 
     active = True
@@ -412,12 +416,16 @@ def jobs_list(request, id):
         (reverse("jobs_list", kwargs={'id': project.id}), "Results List", active),
     ]
 
-    context = dict(jobs=project.job_set, steps=steps)
+    jobs = project.job_set.order_by("-id")
+
+    context = dict(jobs=jobs, steps=steps)
 
     return render(request, "jobs_list.html", context)
 
 
 def job_view(request):
+
+    # create a directory when clicked.
     return
 
 
