@@ -15,6 +15,8 @@ Including another URLconf
 """
 from django.conf.urls import url
 from django.contrib import admin
+from django.conf.urls.static import static
+from django.conf import settings
 from . import views, user_views
 
 urlpatterns = [
@@ -35,6 +37,9 @@ urlpatterns = [
     url(r'^analysis/view/(?P<id>\d+)/(?P<id2>\d+)/$', views.analysis_view, name='analysis_view'),
     url(r'^analysis/run/(?P<id>\d+)/(?P<id2>\d+)/$', views.analysis_run, name='analysis_run'),
     url(r'^analysis/edit/(?P<id>\d+)/(?P<id2>\d+)/$', views.analysis_edit, name='analysis_edit'),
-    url(r'^jobs/list/(?P<id>\d+)/$', views.jobs_list, name='jobs_list')
+    url(r'^jobs/list/(?P<id>\d+)/$', views.jobs_list, name='jobs_list'),
+    url(r'^job/view/(?P<id>\d+)/$', views.job_view, name='job_view')
 ]
 
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT, show_indexes=True)

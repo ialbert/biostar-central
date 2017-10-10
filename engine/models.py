@@ -6,6 +6,7 @@ from django.utils import timezone
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 import mistune
+from . import settings
 from . import util
 from django.urls import reverse
 
@@ -94,20 +95,23 @@ class Job(Base):
     json_data = models.TextField(default="commands")
 
     # uniqe directory creation
-    uid = models.CharField(max_length=32)
+    uid = models.CharField(max_length=4)
     makefile_template = models.TextField(default="makefile")
     log = models.TextField(default="log")
 
     state = models.IntegerField(default=1, choices=CHOICES)
-    directory = models.FilePathField(default="media")
+    # rename to path
+    path = models.FilePathField(default="")
 
     def save(self, *args, **kwargs):
-        # create
-        # self.uid = self.uid or util.get_uuid()
-        # if not os.path.isdir(self.directory):
-        #     path = os.path.abspath(os.path.join(settings.MEDIA_DIR, self.uid))
-        #     os.mkdir(path)
-        #     self.directory = path
+
+        self.uid = self.uid or util.get_uuid(4)
+        # write an index.html to the file
+        if not os.path.isdir(self.path):
+            path = os.path.abspath(os.path.join(settings.MEDIA_ROOT, self.uid))
+            os.mkdir(path)
+            self.path = path
+
         super(Job, self).save(*args, **kwargs)
 
     def url(self):
