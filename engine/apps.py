@@ -28,7 +28,7 @@ def join(*args):
 
 
 JSON_SPECFILE =join(settings.BASE_DIR, '..', 'pipeline',
-                'templates','qc', 'qc_spec.hjson' )
+                'qc', 'qc_spec.hjson' )
 
 
 def get_uuid(limit=None):

@@ -1,5 +1,6 @@
 from django import template
 from django import forms
+from engine import models
 
 register = template.Library()
 
@@ -12,11 +13,12 @@ def upper(value):
 def date_sort(instance):
     return instance.order_by("-id")
 
+
 @register.filter(name='state_color')
 def state_color(instance):
 
     states = {
-              1:{"color":"black",
+              models.Job.QUEUED:{"color":"black",
                  "state": "Queued"},
               2:{"color":"yellow",
                  "state": "Running"},
@@ -28,7 +30,7 @@ def state_color(instance):
 
     return states[instance]["color"]
 
-
+# get rid of oth
 @register.filter(name='int2state')
 def int2state(instance):
 

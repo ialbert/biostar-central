@@ -299,6 +299,7 @@ def analysis_run(request, id, id2):
 
     project = Project.objects.filter(id=id).first()
     analysis = Analysis.objects.filter(id=id2).first()
+    analysis.save()
     owner = User.objects.all().first()
 
     active  = True
@@ -326,6 +327,7 @@ def analysis_run(request, id, id2):
                     data["value"] = form.cleaned_data[field]
 
             template_path = filled_json["template"]["value"]
+
             title = form.cleaned_data["title"]
             if form.cleaned_data["title"] == "Title":
                 title = analysis.title
@@ -423,18 +425,21 @@ def jobs_list(request, id):
     return render(request, "jobs_list.html", context)
 
 
+def media_files(request, path):
+
+    return serve(request, path=path, document_root=settings.MEDIA_DIR, show_indexes=True)
 def job_view(request, id):
 
     # create a directory when clicked.
     job = Job.objects.filter(id=id).first()
     path = job.uid
-    url = settings.MEDIA_URL + path
+    url = settings.MEDIA_URL + path+"/"
     dir_root = join(job.path, "..", "..")
 
-    return serve(request, path=url, document_root=dir_root, show_indexes=True)
+    #return serve(request, path=url, document_root=dir_root, show_indexes=True)
 
-    #print(url)
-    #return redirect(url)
+    print(url)
+    return redirect(url)
 
 
 

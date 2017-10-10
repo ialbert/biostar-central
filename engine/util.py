@@ -29,7 +29,6 @@ def check_fields(json_obj):
     for field in required_fields:
         if field not in json_obj:
             raise Exception(f"'{field}' field is required in the json spec file.")
-
     for check in json_obj:
         data = json_obj[check]
 

@@ -12,6 +12,10 @@ h2.ui.center.header {
     margin-bottom: 1em;
 }
 
+.Queued {
+    color: red;
+    font-weight: bold;
+}
 
 .createform {
    padding-top: 13px;

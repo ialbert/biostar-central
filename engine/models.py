@@ -10,6 +10,8 @@ from . import settings
 from . import util
 from django.urls import reverse
 
+def join(*args):
+    return os.path.abspath(os.path.join(*args))
 
 def make_html(text):
 
@@ -37,21 +39,37 @@ class Base(models.Model):
         abstract = True
 
 
+
 class Project(Base):
 
+    uid = models.CharField(max_length=32)
+
     def save(self, *args, **kwargs):
+        self.uid = self.uid or util.get_uuid(8)
+        if not os.path.isdir(self.get_path()):
+            os.makedirs(self.get_path(), exist_ok=True)
+
         super(Project, self).save(*args, **kwargs)
 
     def url(self):
         return reverse("project_view", kwargs=dict(id=self.id))
 
+    def get_path(self):
+        return join(settings.DATA_ROOT, self.uid)
+
 
 class Data(Base):
+    FILE, COLLECTION = 1, 2
+    TYPE_CHOICES =[(FILE, "File"),(COLLECTION ,"Collection")]
+    type = models.IntegerField(default=FILE, choices=TYPE_CHOICES)
 
     project = models.ForeignKey(Project)
     file = models.FileField(null=True)
+    path = models.FilePathField(null=True)
+
 
     def save(self, *args, **kwargs):
+        # chack if file or path is set or raise error
         super(Data, self).save(*args, **kwargs)
 
 
@@ -87,25 +105,26 @@ class Job(Base):
 
     # file path to media
     QUEUED, RUNNING, FINISHED, ERROR = 1, 2, 3, 4
-    CHOICES = [(QUEUED, "Queued"), (RUNNING, "Running"),
+    STATE_CHOICES = [(QUEUED, "Queued"), (RUNNING, "Running"),
                (FINISHED, "Finished"), (ERROR, "Stopped")]
+    STATE_MAP = dict(STATE_CHOICES)
 
     analysis = models.ForeignKey(Analysis)
     project = models.ForeignKey(Project)
     json_data = models.TextField(default="commands")
 
     # uniqe directory creation
-    uid = models.CharField(max_length=4)
+    uid = models.CharField(max_length=32)
     makefile_template = models.TextField(default="makefile")
     log = models.TextField(default="log")
 
-    state = models.IntegerField(default=1, choices=CHOICES)
+    state = models.IntegerField(default=1, choices=STATE_CHOICES)
     # rename to path
     path = models.FilePathField(default="")
 
     def save(self, *args, **kwargs):
 
-        self.uid = self.uid or util.get_uuid(4)
+        self.uid = self.uid or util.get_uuid(8)
         # write an index.html to the file
         if not os.path.isdir(self.path):
             path = os.path.abspath(os.path.join(settings.MEDIA_ROOT, self.uid))
