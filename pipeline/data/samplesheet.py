@@ -69,14 +69,11 @@ def get_fnames(sname , datadir):
 if __name__ == "__main__":
 
     samplesheet = sys.argv[1]
-    datadir =sys.argv[2]
-
-    #samplesheet ="./test/sampleinfo.txt"
-    #datadir ="test/data"
+    datadir = sys.argv[2]
 
     data = update_sampleinfo(samplesheet, datadir)
 
-    outfile = open("updated_sampleinfo.txt", "w")
+    outfile = sys.stdout
     header ="\t".join(['sample_name','sample_group','target_gene','barcode','fwd_primer','rev_primer','file1','file2'])
     outfile.write(header + "\n")
 
@@ -84,11 +81,4 @@ if __name__ == "__main__":
         row = "\t".join([bunch.sname,bunch.sgroup,bunch.tgene,bunch.barcode,bunch.fwdprimer,bunch.revprimer,bunch.file1,bunch.file2])
         outfile.write(row + "\n")
         #outfile.write("\n")
-
-    outfile.close()
-
-    #if ERR_LIST:
-    #    for e in ERR_LIST:
-    #        print(e)
-
 
