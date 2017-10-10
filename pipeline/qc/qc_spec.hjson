@@ -1,7 +1,7 @@
 {
 sampleinfo :
     {
-    value : test/sampleinfo.txt
+    value : ~/tmp/qc_test/sampleinfo.txt
     help :
            '''
 Enter a tab delimited text file. Order of the fields should be
@@ -15,7 +15,7 @@ Sample name should match the sample name in the dataset.
     }
 data :
   {
-    value: test/data.tar.gz
+    value: ~/tmp/qc_test/data
     visible: 1
     origin: PROJECT
     data_type: TAR_FASTQ_GZ
@@ -48,55 +48,8 @@ trim_quality:
     visible : 1
     display_type : INTEGER
  }
-merge_mismatch:
-  {
-  label : Maximum mismatch allowed. Default is 3.0.
-  value : 3.0
-  range : [0.9,5.1]
-  visible : 1
-  display_type : FLOAT
-  }
-merge_overlap:
-  {
-  label : Minimum number of overlapping bases to allow merging. Default is 12.
-  value :12
-  range : [8,16]
-  visible : 1
-  display_type : INTEGER
-  }
-action :
- {
-    choices : {
-            fastqc : Create fastqc report
-            merge : Merge paired end dataset
-               }
-
-    value : merge
-    visible : 1
-    display_type: RADIO
-  }
-  // scripts info
-input_check :
-  {
-
-    value : ../../check_input.py
-    display_type : SCRIPT
-  }
-report_template :
-  {
-     value : metabarcode_report.html
-     display_type : SCRIPT
-  }
-report_script :
-  {
-     value : metabarcode_results.py
-     display_type: SCRIPT
-  }
-template :
-  {
-    value : qc/qc_makefile.html
-    display_type : SCRIPT
-  }
+  template_name : qc/templates/qc_makefile.html
+  threads : 4
 analysis_spec :
   {
     title: Quality control of sequencing data
@@ -104,15 +57,14 @@ analysis_spec :
                 '''
 # Purpose
 
-This analysis takes a pired end dataset and produces a merged improved dataset.
-It can optionally trimmed the data before merging.
+This analysis takes a paired end dataset and produces a primer/barcode removed, quality trimmed dataset.
 MultiQC quality reports of each step are also produced.
 
 # Parameters
 
 **Input:**
 
-1. Paired end sequence data as a  tar archived gzip file.
+1. Paired end sequence data folder.
 2. Sample information sheet as a tab delimited text file.
 
 # Results
@@ -120,8 +72,8 @@ MultiQC quality reports of each step are also produced.
 This analysis produces
 
 1. MultiQC report - an aggregate fastqc report of the input data.
-2. Trimmed dataset and its quality report (optional).
-3. Merged dataset and its quality report.
+2. Trimmed dataset and its quality report.
+
 
         '''
        display_type:MODEL
