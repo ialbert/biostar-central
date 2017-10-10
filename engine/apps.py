@@ -2,7 +2,6 @@ from django.apps import AppConfig
 from django.conf import settings
 from django.db.models.signals import post_migrate
 import logging, uuid
-from .settings import BASE_DIR
 import os
 
 
@@ -21,7 +20,6 @@ TEST_DATA = [
 ]
 
 
-
 logger = logging.getLogger('engine')
 
 
@@ -29,7 +27,7 @@ def join(*args):
     return os.path.abspath(os.path.join(*args))
 
 
-JSON_SPECFILE =join(BASE_DIR, '..', 'pipeline',
+JSON_SPECFILE =join(settings.BASE_DIR, '..', 'pipeline',
                 'templates','qc', 'qc_spec.hjson' )
 
 
@@ -50,24 +48,28 @@ def init_proj(sender, **kwargs):
     # Make a project
     for title, description in TEST_PROJECTS:
 
-        project, flag = Project.objects.get_or_create(title=title, owner=owner, text=description)
+        project, new = Project.objects.get_or_create(title=title, owner=owner, text=description)
+        if not new:
+            return
 
         # add some data to the project
         for data_title, data_desc in TEST_DATA:
             data, flag = Data.objects.get_or_create(title=data_title,
                                                          owner=owner,
-                                                         text=data_desc, project=project)
+                                                         text=data_desc,
+                                                    project=project)
             data.save()
 
         logger.info(f'creating or getting: {project.title}')
 
-    analysis, flag = Analysis.objects.get_or_create(title="Analysis 1",
+    # Origin file loaded once and source from that lives in database
+    # Source is changed and not the origin file.
+    analysis, new = Analysis.objects.get_or_create(title="Analysis 1",
                                                     owner=owner,
                                                     text="analysis description",
                                                     spec_origin=JSON_SPECFILE)
-    #print(analysis.spec_source)
-    analysis.save()
-    #print(analysis.spec_source)
+    if new:
+        analysis.save()
 
     # Pick most recent project to make a job out of
     jproject = Project.objects.order_by("-id").first()
@@ -77,14 +79,15 @@ def init_proj(sender, **kwargs):
 
     for state in states:
 
-        job, flag = Job.objects.get_or_create(title="Result 1",
+        job, flag = Job.objects.get_or_create(title=f"Result {state}",
                                         text="job description",
                                         project=jproject,
                                         analysis=analysis,
                                         owner=owner,
                                         state=states[state])
-        job.save()
-        logger.info(f' job={job.id} made in {state} state')
+        if new:
+            job.save()
+            logger.info(f' job={job.id} made in {state} state')
 
 
 def init_users(sender, **kwargs):

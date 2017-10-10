@@ -5,7 +5,8 @@ from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.urls import reverse
 #from django.template import Context, loader
-from .settings import BASE_DIR
+from django.conf import settings
+from django.conf.urls.static import serve
 import os
 from .forms import *
 from .models import (User, Project, Data,
@@ -19,9 +20,6 @@ def join(*args):
 
 
 logger = logging.getLogger('engine')
-
-JSON_SPECFILE =join(BASE_DIR, '..', 'pipeline',
-                'templates','qc', 'qc_spec.hjson' )
 
 def index(request):
 
@@ -328,12 +326,14 @@ def analysis_run(request, id, id2):
                     data["value"] = form.cleaned_data[field]
 
             template_path = filled_json["template"]["value"]
-            title = form.cleaned_data.get("title", "Job title")
+            title = form.cleaned_data["title"]
+            if form.cleaned_data["title"] == "Title":
+                title = analysis.title
 
             # do not have to load file every time.
             makefile_template = get_template(template_path).template.source
 
-            job = Job.objects.get_or_create(json_data=filled_json,
+            job = Job.objects.create(json_data=filled_json,
                                             owner=owner,
                                             analysis=analysis,
                                             project=project,
@@ -423,10 +423,18 @@ def jobs_list(request, id):
     return render(request, "jobs_list.html", context)
 
 
-def job_view(request):
+def job_view(request, id):
 
     # create a directory when clicked.
-    return
+    job = Job.objects.filter(id=id).first()
+    path = job.uid
+    url = settings.MEDIA_URL + path
+    dir_root = join(job.path, "..", "..")
+
+    return serve(request, path=url, document_root=dir_root, show_indexes=True)
+
+    #print(url)
+    #return redirect(url)
 
 
 
