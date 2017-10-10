@@ -18,15 +18,22 @@ UPDATED_SAMPLE_INFO = updated_sampleinfo.txt
 
 all: trim_quality
 	@echo "executes all commands"
+
 #
 # ============== Update sample sheet ==============
 # Read1 and Read2 file names will be added to updated samplesheet.
 #
+
 updated_sample_info: $(INPUT_SAMPLE_INFO) $(INPUT_DATA)
 	#
 	# Make new sample sheet named $(UPDATED_SAMPLE_INFO)
 	#
 	python -m pipeline.data.samplesheet $(INPUT_SAMPLE_INFO) $(INPUT_DATA) > $(UPDATED_SAMPLE_INFO)
+
+#
+# ============== Quality reports ==============
+#
+
 
 fastqc: updated_sample_info
 	#
@@ -52,11 +59,11 @@ multiqc: fastqc
 # =============== Primer and Barcode trimming =============
 # Trim primer and barcode sequence included in the samplesheet.
 #
+
 trim_primer: multiqc
 	#
 	mkdir -p $(PTRIM_DIR)/logs
 	mkdir -p $(RESULT_DIR)
-	#
 	#
 	# trim left primer
 	mkdir -p $(RESULT_DIR)
