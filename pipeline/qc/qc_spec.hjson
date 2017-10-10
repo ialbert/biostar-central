@@ -15,7 +15,7 @@ Sample name should match the sample name in the dataset.
     }
 data :
   {
-    value: ~/tmp/qc_test/data.tar.gz
+    value: ~/tmp/qc_test/data
     visible: 1
     origin: PROJECT
     data_type: TAR_FASTQ_GZ
@@ -48,7 +48,8 @@ trim_quality:
     visible : 1
     display_type : INTEGER
  }
-  template_name : qc/templates/qc_name_rule_make.html
+  template_name : qc/templates/qc_makefile.html
+  threads : 4
 
 analysis_spec :
   {

@@ -8,6 +8,7 @@ import os
 CURR_DIR = os.path.dirname(os.path.realpath(__file__))
 SPEC_FILE = os.path.join(CURR_DIR, 'qc_spec.hjson' )
 
+
 def run(job):
     ''''
     takes job object, runs the job and return job status
@@ -36,18 +37,16 @@ def run(job):
     except subprocess.CalledProcessError as err:
         print("ERROR!!")
         errorlog.append(err.stderr.decode('utf-8'))
-        print("***",err.returncode)
+        if len(errorlog) > 100:
+            sys.exit(1)
         job.status = err.returncode
 
     finally:
         print(CURR_DIR)
-        #errorlog.append(process.stderr.decode('utf-8'))
         job.log = "\n".join(errorlog)
         print("printing errlog")
         print(job.log)
         #job.save()
-        #print("Job Done")
-
     return job
 
 

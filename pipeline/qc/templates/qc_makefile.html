@@ -1,71 +1,67 @@
 INPUT_DATA = {{data.value}}
 INPUT_SAMPLE_INFO = {{sampleinfo.value}}
+THREADS ={{ threads}}
 
 #
 # Internal parameters after this.
 #
 
-DATA_DIR = data
+ANALYSIS_DIR = analysis
 RESULT_DIR  = results
 ERR_LOG = stderr.txt
 
-PTRIM_DIR = $(DATA_DIR)/trim/trimp
-QTRIM_DIR = $(DATA_DIR)/trim/trimq
+FASTQC_DIR =$(ANALYSIS_DIR)/fastqc
+PTRIM_DIR = $(ANALYSIS_DIR)/trim/trimp
+QTRIM_DIR = $(ANALYSIS_DIR)/trim/trimq
 UPDATED_SAMPLE_INFO = updated_sampleinfo.txt
 
-UNPACKED_FASTQ = $(DATA_DIR)/*.fastq.gz
-FASTQC_REPORT = $(DATA_DIR)/*_fastqc.html
-MULTIQC_REPORT =$(DATA_DIR)/*_multiqc.html
-TRIMMED_PRIMER = $(PTRIM_DIR)/*.gz
-TRIMMED_QUALITY =$(QTRIM_DIR)/*.gz
 
-all: $(TRIMMED_QUALITY)
+all: trim_quality
 	@echo "executes all commands"
-#
-# =========== Unpacking ==================
-#
-$(UNPACKED_FASTQ) : $(INPUT_DATA)
-	 tar -xvzmf $(INPUT_DATA)
-#
-# =========== Quality report =============
-#
-$(FASTQC_REPORT): $(UNPACKED_FASTQ)
-	ls $(DATA_DIR)/*.gz | parallel --verbose --progress -j 8 fastqc --nogroup {} -o $(DATA_DIR)
-
-$(MULTIQC_REPORT): $(FASTQC_REPORT)
-	#
-	# run multiqc to create an aggregate report
-	#
-	mkdir -p $(RESULT_DIR)
-	multiqc -f -n input_multiqc -o $(DATA_DIR) $(DATA_DIR)
-	cp $(DATA_DIR)/input_multiqc.html $(RESULT_DIR)
-	#
-	# clean
-	#
-	#rm -f $(DATA_DIR)/*fastqc.zip
 #
 # ============== Update sample sheet ==============
 # Read1 and Read2 file names will be added to updated samplesheet.
 #
-$(UPDATED_SAMPLE_INFO): $(INPUT_SAMPLE_INFO) $(UNPACKED_FASTQ)
+updated_sample_info: $(INPUT_SAMPLE_INFO) $(INPUT_DATA)
 	#
 	# Make new sample sheet named $(UPDATED_SAMPLE_INFO)
 	#
-	python -m pipeline.data.samplesheet $(INPUT_SAMPLE_INFO) $(DATA_DIR) > $(UPDATED_SAMPLE_INFO)
+	python -m pipeline.data.samplesheet $(INPUT_SAMPLE_INFO) $(INPUT_DATA) > $(UPDATED_SAMPLE_INFO)
+
+fastqc: updated_sample_info
+	#
+	# create fastqc reports of all samples.
+	#
+	mkdir -p $(FASTQC_DIR)
+	cat $(UPDATED_SAMPLE_INFO) | parallel --verbose --progress -j $(THREADS) --header : --colsep '\t' fastqc \
+	--nogroup -o $(FASTQC_DIR) $(INPUT_DATA)/{file1} $(INPUT_DATA)/{file2}
+
+multiqc: fastqc
+	#
+	# run multiqc to create an aggregate report
+	#
+	mkdir -p $(RESULT_DIR)
+	multiqc -f -n input_multiqc -o $(FASTQC_DIR) $(FASTQC_DIR)
+	cp $(FASTQC_DIR)/input_multiqc.html $(RESULT_DIR)
+	#
+	# clean
+	#
+	#rm -f $(FASTQC_DIR)/*fastqc.zip
 
 #
 # =============== Primer and Barcode trimming =============
 # Trim primer and barcode sequence included in the samplesheet.
 #
-$(TRIMMED_PRIMER): $(UPDATED_SAMPLE_INFO) $(UNPACKED_FASTQ) $(MULTIQC_REPORT)
+trim_primer: multiqc
 	#
 	mkdir -p $(PTRIM_DIR)/logs
+	mkdir -p $(RESULT_DIR)
 	#
 	#
 	# trim left primer
 	mkdir -p $(RESULT_DIR)
-	cat $(UPDATED_SAMPLE_INFO) |parallel --verbose --progress  --header : --colsep '\t' bbduk.sh \
-	in1=$(DATA_DIR)/{file1} in2=$(DATA_DIR)/{file2} \
+	cat $(UPDATED_SAMPLE_INFO) |parallel --verbose --progress -j $(THREADS)  --header : --colsep '\t' bbduk.sh \
+	in1=$(INPUT_DATA)/{file1} in2=$(INPUT_DATA)/{file2} \
 	out1=$(PTRIM_DIR)/{sample_name}_fwd1_trim.fq.gz \
 	out2=$(PTRIM_DIR)/{sample_name}_fwd2_trim.fq.gz \
 	literal={barcode}{fwd_primer} ktrim=l k=23 hdist=1 tpe tbo overwrite=true \
@@ -74,7 +70,7 @@ $(TRIMMED_PRIMER): $(UPDATED_SAMPLE_INFO) $(UNPACKED_FASTQ) $(MULTIQC_REPORT)
 	#
 	# trim right primer
 	#
-	cat $(UPDATED_SAMPLE_INFO) | parallel --verbose --progress --header : --colsep '\t' bbduk.sh  \
+	cat $(UPDATED_SAMPLE_INFO) | parallel --verbose --progress -j $(THREADS) --header : --colsep '\t' bbduk.sh  \
 	in1=$(PTRIM_DIR)/{sample_name}_fwd1_trim.fq.gz \
 	in2=$(PTRIM_DIR)/{sample_name}_fwd2_trim.fq.gz \
 	out1=$(PTRIM_DIR)/{sample_name}_R1_trimp.fq.gz \
@@ -92,9 +88,9 @@ $(TRIMMED_PRIMER): $(UPDATED_SAMPLE_INFO) $(UNPACKED_FASTQ) $(MULTIQC_REPORT)
 # Trim reads to user specified threshold value.
 #
 
-$(TRIMMED_QUALITY): $(TRIMMED_PRIMER)
+trim_quality: trim_primer
 	mkdir -p $(QTRIM_DIR)/logs
-	cat  $(UPDATED_SAMPLE_INFO) |parallel --verbose --progress  --header : --colsep '\t' bbduk.sh \
+	cat  $(UPDATED_SAMPLE_INFO) |parallel --verbose --progress -j $(THREADS) --header : --colsep '\t' bbduk.sh \
 	in1=$(PTRIM_DIR)/{sample_name}_R1_trimp.fq.gz in2=$(PTRIM_DIR)/{sample_name}_R2_trimp.fq.gz \
 	qtrim=rl trimq={{trim_quality.value}}  minlength=35 overwrite=true \
 	out1=$(QTRIM_DIR)/{sample_name}_R1_trim.fq.gz \
