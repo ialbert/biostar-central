@@ -84,7 +84,7 @@ def init_proj(sender, **kwargs):
                                         project=jproject,
                                         analysis=analysis,
                                         owner=owner,
-                                        state=states[state])
+                               state=states[state])
         if new:
             job.save()
             logger.info(f' job={job.id} made in {state} state')

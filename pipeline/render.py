@@ -13,7 +13,7 @@ def set_env():
     TEMPLATES = [
         {
             'BACKEND': 'django.template.backends.django.DjangoTemplates',
-            'DIRS': 'foo',
+            'DIRS': '',
             'OPTIONS': {
                 'string_if_invalid': "***MISSING**"
             },
@@ -35,14 +35,11 @@ def render_string(data, template_txt):
 
 
 def render_data(spec, template_txt):
-    set_env()
+    #set_env()
     template = Template(template_txt)
     context = Context(spec)
     html = template.render(context)
     return html
-
-
-
 
 
 if __name__ == "__main__":
