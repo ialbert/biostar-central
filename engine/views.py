@@ -223,16 +223,22 @@ def data_create(request, id):
 
     if request.method == "POST":
 
-        form = DataForm(data=request.POST)
+        form = DataForm(request.POST, request.FILES)
 
         if form.is_valid():
 
             title = form.cleaned_data["title"]
             text = form.cleaned_data["text"]
             owner = User.objects.all().first()
+            type = form.cleaned_data["type"]
+
+            # maybe specifiy path here instead of in save method
             new_data = Data.objects.create(title=title, text=text,
-                                           owner=owner, project=project)
+                                           owner=owner, project=project,
+                                           file=request.FILES["file"],
+                                           type=type)
             new_data.save()
+
             return redirect(reverse("data_list", kwargs={'id':project.id}))
 
         else:
@@ -332,7 +338,6 @@ def analysis_run(request, id, id2):
             if form.cleaned_data["title"] == "Title":
                 title = analysis.title
 
-            # do not have to load file every time.
             makefile_template = get_template(template_path).template.source
 
             job = Job.objects.create(json_data=filled_json,
@@ -341,6 +346,7 @@ def analysis_run(request, id, id2):
                                             project=project,
                                             makefile_template=makefile_template,
                                             title=title)
+
             job.save()
             return redirect(reverse("jobs_list", kwargs=dict(id=project.id)))
 

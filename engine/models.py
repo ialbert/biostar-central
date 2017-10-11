@@ -61,17 +61,27 @@ class Project(Base):
 
 
 class Data(Base):
+
     FILE, COLLECTION = 1, 2
     TYPE_CHOICES =[(FILE, "File"),(COLLECTION ,"Collection")]
     type = models.IntegerField(default=FILE, choices=TYPE_CHOICES)
-
     project = models.ForeignKey(Project)
+
+    # File is the actual file
     file = models.FileField(null=True)
+    # path is where is is saving the data
     path = models.FilePathField(null=True)
 
+    def __init__(self, *args, **kwargs):
+
+        super().__init__(*args, **kwargs)
 
     def save(self, *args, **kwargs):
-        # chack if file or path is set or raise error
+        # File needs to be set( cant really be null)
+        self.path = self.project.get_path()
+        self.file.upload_to = self.path
+
+        # check if its a collection(gzip) or single file and raise error if its none.
         super(Data, self).save(*args, **kwargs)
 
 
@@ -109,7 +119,6 @@ class Job(Base):
     QUEUED, RUNNING, FINISHED, ERROR = 1, 2, 3, 4
     STATE_CHOICES = [(QUEUED, "Queued"), (RUNNING, "Running"),
                (FINISHED, "Finished"), (ERROR, "Stopped")]
-    STATE_MAP = dict(STATE_CHOICES)
 
     analysis = models.ForeignKey(Analysis)
     project = models.ForeignKey(Project)
@@ -121,7 +130,6 @@ class Job(Base):
     log = models.TextField(default="log")
 
     state = models.IntegerField(default=1, choices=STATE_CHOICES)
-    # rename to path
     path = models.FilePathField(default="")
 
     def save(self, *args, **kwargs):

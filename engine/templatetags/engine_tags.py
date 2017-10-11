@@ -14,7 +14,6 @@ def date_sort(instance):
     return instance.order_by("-id")
 
 
-
 @register.inclusion_tag('includes/breadcrumb.html')
 def breadcrumb(steps):
     return dict(steps=steps)

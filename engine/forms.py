@@ -74,23 +74,16 @@ class ProjectForm(forms.ModelForm):
         fields = ['title', 'text']
 
 
-class DataForm(forms.ModelForm):
+class DataForm(forms.Form):
 
+    title = forms.CharField(max_length=256)
     text = forms.CharField(widget=PagedownWidget(template="widgets/pagedownwidget.html"))
-    class Meta:
-        model = Data
-        fields = ['title', 'text']
+    file = forms.FileField(label="Upload data file")
+    type = forms.IntegerField(widget=forms.Select(choices=Data.TYPE_CHOICES),
+                              initial=Data.FILE)
+    def save(self, *args, **kwargs):
 
-    def cleaned_data(self):
-        return self.cleaned_data
-
-
-class AnalysisForm(forms.ModelForm):
-
-    json_spec = forms.CharField(widget=PagedownWidget(template="widgets/pagedownwidget.html"))
-    class Meta:
-        model = Analysis
-        fields = ['title', "json_spec"]
+        super(DataForm, self).save(*args, **kwargs)
 
 
 class RunAnalysis(forms.Form):
@@ -103,7 +96,7 @@ class RunAnalysis(forms.Form):
 
         analysis = json.loads(analysis)
         # Job needs a title
-        self.fields["title"] = forms.CharField(max_length=256, initial="Title")
+        self.fields["title"] = forms.CharField(max_length=256, initial="itle")
 
         for field in analysis:
 
@@ -143,7 +136,6 @@ class EditAnalysis(forms.Form):
             if data.get("visible") == 1:
 
                 self.fields[field] = factory.TYPE2FUNC[display_type](data)
-
 
     def save(self, *args, **kwargs):
 
