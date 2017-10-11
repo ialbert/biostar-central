@@ -54,10 +54,9 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         limit = options['limit']
-        jobs = Job.objects.filter(state=Job.QUEUED)[:limit]
+        jobs = Job.objects.filter(state=Job.QUEUED).order_by("-id")[:limit]
         for job in jobs:
-            print(job.makefile_template)
-            print(job.json_data)
+            run(job)
 
 
 
