@@ -6,6 +6,7 @@ serve: init
 
 reset:
 	rm -f export/engine.db
+	rm -rf media/*
 
 init:
 	python manage.py collectstatic --noinput -v 0

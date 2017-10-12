@@ -68,7 +68,7 @@ ROOT_URLCONF = 'engine.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': ["/pipeline/templates"],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

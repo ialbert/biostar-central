@@ -195,12 +195,13 @@ def data_edit(request, id):
     ]
 
     if request.method == "POST":
-
+        1/0
         form = DataForm(request.POST, instance=data)
         if form.is_valid():
             form.save()
 
     else:
+        1/0
         form = DataForm(instance=data)
 
     context = dict(data=data, steps=steps, form=form)
@@ -223,16 +224,22 @@ def data_create(request, id):
 
     if request.method == "POST":
 
-        form = DataForm(data=request.POST)
+        form = DataForm(request.POST, request.FILES)
 
         if form.is_valid():
 
             title = form.cleaned_data["title"]
             text = form.cleaned_data["text"]
             owner = User.objects.all().first()
+            type = form.cleaned_data["type"]
+
+            # maybe specifiy path here instead of in save method
             new_data = Data.objects.create(title=title, text=text,
-                                           owner=owner, project=project)
+                                           owner=owner, project=project,
+                                           file=request.FILES["file"],
+                                           type=type)
             new_data.save()
+
             return redirect(reverse("data_list", kwargs={'id':project.id}))
 
         else:
@@ -315,10 +322,10 @@ def analysis_run(request, id, id2):
 
     if request.method == "POST":
 
-        form = RunAnalysis(data=request.POST, analysis=analysis.spec_source)
+        form = RunAnalysis(data=request.POST, analysis=analysis.json_str)
 
         if form.is_valid():
-            filled_json = util.safe_loads(analysis.spec_source)
+            filled_json = util.safe_loads(analysis.json_str)
 
             for field in filled_json:
                 data = filled_json[field]
@@ -332,20 +339,20 @@ def analysis_run(request, id, id2):
             if form.cleaned_data["title"] == "Title":
                 title = analysis.title
 
-            # do not have to load file every time.
             makefile_template = get_template(template_path).template.source
 
-            job = Job.objects.create(json_data=filled_json,
-                                            owner=owner,
-                                            analysis=analysis,
-                                            project=project,
-                                            makefile_template=makefile_template,
-                                            title=title)
+            job = Job.objects.create(json_str=json.dumps(filled_json),
+                                     owner=owner,
+                                     analysis=analysis,
+                                     project=project,
+                                     makefile_template=makefile_template,
+                                     title=title)
+
             job.save()
             return redirect(reverse("jobs_list", kwargs=dict(id=project.id)))
 
     else:
-        form = RunAnalysis(analysis=analysis.spec_source)
+        form = RunAnalysis(analysis=analysis.json_str)
         context = dict(project=project, analysis=analysis, steps=steps, form=form)
         return render(request, 'analysis_run.html', context)
 
@@ -371,7 +378,7 @@ def analysis_edit(request, id, id2):
         if request.POST.get("save_or_preview") == "save_to_file":
 
             # NEED TO VALIDATE BEFORE OVERRIDING FILE
-            spec_file = analysis.spec_origin
+            spec_file = analysis.json_file
             util.rewrite_specs(request.POST.get("text"), spec_file)
             # Save the rewriteen spec_file into spec_origin field
             analysis.save()
@@ -385,17 +392,17 @@ def analysis_edit(request, id, id2):
         elif request.POST.get("save_or_preview") == "save":
 
             form = EditAnalysis(analysis=request.POST.get("text"))
-            spec = util.safe_loads(analysis.spec_source)
+            spec = util.safe_loads(analysis.json_str)
             filler = dict(display_type='')
 
             if spec.get("analysis_spec", filler)["display_type"] == "MODEL":
                 analysis.title = spec["analysis_spec"].get("title", analysis.title)
                 analysis.text = spec["analysis_spec"]["value"]
 
-            analysis.save(spec_source=request.POST.get("text"))
+            analysis.save(json_str=request.POST.get("text"))
     else:
 
-        form = EditAnalysis(analysis=analysis.spec_source)
+        form = EditAnalysis(analysis=analysis.json_str)
 
     context = dict(project=project, analysis=analysis, steps=steps, form=form)
     return render(request, 'analysis_edit.html', context)
