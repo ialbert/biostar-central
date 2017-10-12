@@ -20,6 +20,7 @@ Create a virtual environment both on your system and on the remote site:
     conda create -y --name engine python=3.6
     source activate engine
     pip install -r requirements.txt
+    python setup.py develop
 
 ## Usage
 
