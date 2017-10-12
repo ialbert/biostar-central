@@ -99,7 +99,8 @@ class Command(BaseCommand):
             sys.exit(1)
 
         for job in jobs:
-            run(job)
+            if job.id ==1:
+                run(job)
 
 
 
