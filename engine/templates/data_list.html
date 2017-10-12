@@ -5,6 +5,9 @@
     {{project.title}} | Data List
 {% endblock %}
 
+{% block menu %}
+    {% menubar project=project upload_data=True %}
+{% endblock %}
 
 {% block body %}
 
@@ -16,7 +19,7 @@
         <div class="title">
 
             <a href="{% url 'data_view' data.id %}">
-            <i class="folder icon"></i>{{ data.title }}
+            <i class="file icon"></i>{{ data.title }}
             </a>
         </div>
         <div class="date">{{data.date.date}}</div>

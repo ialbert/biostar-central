@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{%  load engine_tags %}
 
 {% block title %}
 Projects
@@ -14,6 +15,10 @@ Projects
 
 {% endblock %}
 
+{% block menu %}
+    {% menubar create_project=True %}
+{% endblock %}
+
 {% block body %}
 
 
@@ -22,9 +27,9 @@ Projects
 <div class="ui vertical segment">
 
     <a href="{{project.url}}">
-        <i class="folder icon"></i>{{ project.title }}
+        <i class="archive icon"></i>{{ project.title }}
     </a>
-    <div class="date">{{project.date.date}}</div>
+    <div class="info">Created: {{project.date.date}}</div>
 </div>
 
 {% endfor %}

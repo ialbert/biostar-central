@@ -13,7 +13,7 @@ def run(job):
     takes job object, runs the job and return job status
     '''
 
-    spec = job.json_data
+    spec = job.json_str
     template = job.makefile_template
     outdir = job.path
     errorlog = []
@@ -32,22 +32,24 @@ def run(job):
             fp.write(mtext)
 
         process = subprocess.run(['make', 'all'], cwd=outdir, stderr=subprocess.PIPE, check=True)
-        job.status = process.returncode
+        return_code = process.returncode
 
     except subprocess.CalledProcessError as err:
-        print("ERROR!!")
         errorlog.append(err.stderr.decode('utf-8'))
         if len(errorlog) > 100:
             sys.exit(1)
-        err_code  = err.returncode
+        #err_code  = err.returncode
         job.state = job.ERROR
 
     finally:
         job.log = "\n".join(errorlog)
         with open(os.path.join(outdir, "run_log.txt"), 'wt') as fp:
             fp.write(job.log)
-        job.save()
+        if job.state != job.ERROR:
+            job.state = job.FINISHED
         print(job.state)
+        job.save()
+
     return job
 
 
@@ -80,19 +82,19 @@ class Command(BaseCommand):
 
         if options['show_make']:
             for job in jobs:
-                print ("Makefile for job {0}".format(job.uid))
-                print (job.makefile_template)
+                print("Makefile for job {0}".format(job.id))
+                print(job.makefile_template)
             sys.exit(1)
 
         if options['show_spec']:
             for job in jobs:
-                print ("Makefile for job {0}".format(job.uid))
-                print (job.json_data)
+                print("Makefile for job {0}".format(job.id))
+                print(job.json_data)
             sys.exit(1)
         if options['show_queued']:
             jobs = Job.objects.filter(state=Job.QUEUED).order_by("-id")[:10]
             for job in jobs:
-                print(job.uid)
+                print(job.id)
 
         for job in jobs:
             run(job)

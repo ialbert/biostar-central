@@ -6,52 +6,39 @@
     {{projects.title}}
 {% endblock %}
 
+{% block menu %}
+    {% menubar project=project edit_project=True %}
+{% endblock %}
 
 {% block breadcrumb %}
     {% breadcrumb steps=steps %}
-    <div class="ui right mini basic button">
-       <a href="{% url 'project_edit' projects.id %}">
-       <i class="write icon"></i>Edit Project
-       </a>
-    </div>
 {% endblock %}
 
 
 {% block body %}
 
-    <div class="ui vertical center aligned segment">
-
-       <div class="header">{{projects.title}}
-       </div>
-
-    </div>
-
     <div class="ui text container">
 
         <div class="ui vertical segment">
-           <div class="ui right floated mini basic button">
-               <a href="{% url 'data_create' projects.id %}">
-               <i class="write square icon"></i>Create Data
-               </a>
-           </div>
-            <a href="{% url 'data_list' projects.id %}">
-                <div class="title"><i class="archive icon"></i>Data List</div>
+
+            <a href="{% url 'data_list' project.id %}">
+                <div class="title"><i class="file text icon"></i>Data List</div>
             </a>
             <div class="info">View data associated with project.</div>
 
         </div>
          <div class="ui vertical segment">
 
-            <a href="{% url 'analysis_list' projects.id %}">
-                <div class="title"><i class="options icon"></i>Analysis List</div>
+            <a href="{% url 'analysis_list' project.id %}">
+                <div class="title"><i class="settings icon"></i>Analyses</div>
             </a>
-           <div class="info">Pipeline options.</div>
+           <div class="info">View the analyses that can be run in this project.</div>
         </div>
         <div class="ui vertical segment">
-        <a href="{% url 'jobs_list' projects.id %}">
-                <div class="title"><i class="bar chart icon"></i>Results List</div>
+        <a href="{% url 'jobs_list' project.id %}">
+                <div class="title"><i class="bar chart icon"></i>Results</div>
             </a>
-           <div class="info">Queued, running, and finished jobs.</div>
+           <div class="info">View the results of your analyses.</div>
         </div>
     </div>
 

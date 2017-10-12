@@ -1,0 +1,22 @@
+<div class="ui breadcrumb">
+
+    {% for url, icon, name, active  in steps %}
+
+        {% if active %}
+
+            <div class="active section">
+                <i class="{{ icon }} icon"></i> {{ name }}
+            </div>
+
+        {% else %}
+            <a href="{{ url }}">
+                <div class="section"><i class="{{ icon }} icon"></i>  {{ name }}</div>
+            </a>
+            <i class="right chevron icon divider"></i>
+        {% endif %}
+
+    {% endfor %}
+
+</div>
+
+<div class="ui divider"></div>
