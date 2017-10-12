@@ -1,7 +1,7 @@
 {
 
 sampleinfo : {
-    value : ~/tmp/qc_test/sampleinfo.txt
+    path : ~/tmp/qc_test/sampleinfo.txt
     help : '''
 Enter a tab delimited text file. Order of the fields should be
 sample name, sample group, barcode, forward primer sequence, reverse primer sequence, target gene.
@@ -10,11 +10,12 @@ Sample name should match the sample name in the dataset.
     label : Specify the sample file.
     css: red
     visible: 1
-    display_type: UPLOAD
+    display_type: DROPDOWN
+    origin: PROJECT
     }
 
 data : {
-    value: ~/tmp/qc_test/data
+    path: ~/tmp/qc_test/data
     visible: 1
     origin: PROJECT
     data_type: TAR_FASTQ_GZ
@@ -42,7 +43,7 @@ trim_quality: {
     label : Specify average quality value for trimming.
     help : Leave empty for not trimming
     value :  30
-    range  : [20,32]
+    range  : [1,40]
     visible : 1
     display_type : INTEGER
     }

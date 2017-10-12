@@ -130,12 +130,14 @@ class RunAnalysis(forms.Form):
             if obj.get(FIELD_ORIGIN) == PROJECT_ORIGIN:
                 data_id = self.cleaned_data.get(field, 0)
                 data = get_data(data_id)
-                obj["value"] = data.get_path().path
-                #print (obj)
-
+                obj["path"] = data.get_path().path
+                print (obj)
             if field in self.cleaned_data:
                 # Mutates the value key.
                 obj["value"] = self.cleaned_data[field]
+
+
+        print (json.dumps(self.json_data))
 
         return self.json_data
 
