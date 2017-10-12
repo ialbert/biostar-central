@@ -20,6 +20,12 @@
         </a>
     {% endif %}
 
+    {% if edit_data and data %}
+        <a class="item" href="{% url 'data_edit' data.id %}">
+            <i class="write icon"></i>Edit Data
+        </a>
+    {% endif %}
+
     <div class="right menu">
         {% if user.is_authenticated %}
             <a class="item" href="{% url 'index' %}"><i class="sign in icon"></i>Logout</a>

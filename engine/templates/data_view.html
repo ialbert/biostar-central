@@ -2,30 +2,21 @@
 {% load engine_tags %}
 
 {% block title %}
-    {{data.title}}
+    {{ data.title }}
+{% endblock %}
+
+{% block menu %}
+    {% menubar data=data edit_data=True %}
 {% endblock %}
 
 {% block breadcrumb %}
     {% breadcrumb steps=steps %}
-    <div class="ui right mini basic button">
-       <a href="{% url 'data_edit' data.id %}">
-       <i class="write icon"></i>Edit Data
-       </a>
-    </div>
 {% endblock %}
 
 {% block body %}
 
-    <div class="ui vertical center aligned segment">
-       <div class="header">{{data.title}}</div>
+    <div class="ui vertical segment">
+        <div class="textbody">{{ data.html|safe }}</div>
     </div>
-
-<div class="ui vertical segment">
-
-
-<div class="textbody">{{data.html|safe}}</div>
-
-        </div>
-
 
 {% endblock %}
