@@ -21,8 +21,8 @@
     </script>
 
     {% compress css %}
-    <link href="{% static 'semantic.min.css' %}" rel="stylesheet">
-    <link href="{% static 'style.css' %}" rel="stylesheet">
+        <link href="{% static 'semantic.min.css' %}" rel="stylesheet">
+        <link href="{% static 'style.css' %}" rel="stylesheet">
     {% endcompress %}
 
 
@@ -40,29 +40,26 @@
     {% endblock %}
 
     <div class="breadcrumb">
-    {% block breadcrumb %}
-        {% breadcrumb steps=steps %}
-    {% endblock %}
+        {% block breadcrumb %}
+            {% breadcrumb steps=steps %}
+        {% endblock %}
     </div>
 
     {# This will show error messages #}
     {% block message %}
-
-    {% if messages %}
-    {% for message in messages %}
-    <div class="ui {{ message.tags }} message">
-        <p>{{ message|safe }}</p>
-    </div>
-    {% endfor %}
-    {% endif %}
+        {% if messages %}
+            {% for message in messages %}
+                <div class="ui {{ message.tags }} message">
+                    <p>{{ message|safe }}</p>
+                </div>
+            {% endfor %}
+        {% endif %}
     {% endblock %}
-
 
     {% block body %}
-    {# Main body #}
-    BODY
+        {# Main body #}
+        BODY
     {% endblock %}
-
 
 </div>
 

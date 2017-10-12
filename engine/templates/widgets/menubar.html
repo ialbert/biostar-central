@@ -26,6 +26,12 @@
         </a>
     {% endif %}
 
+    {% if edit_analysis and project and analysis %}
+        <a class="item" href="{% url 'analysis_edit' project.id analysis.id %}">
+            <i class="write icon"></i>Edit Analysis
+       </a>
+    {% endif %}
+
     <div class="right menu">
         {% if user.is_authenticated %}
             <a class="item" href="{% url 'index' %}"><i class="sign in icon"></i>Logout</a>

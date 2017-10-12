@@ -12,17 +12,13 @@
     <div class="ui vertical segment">
 
         <div class="title">
-           <div class="ui right floated green mini basic button">
-           <a href="{% url 'analysis_run' project.id res.id %}">
-            <i class="checkmark icon"></i>Run
-           </a>
-           </div>
+
 
             <a href="{% url 'analysis_view' project.id res.id %}">
-            <i class="folder icon"></i>{{ res.title }}
+            <i class="settings icon"></i>{{ res.title }}
             </a>
         </div>
-        <div class="date">{{res.date.date}}</div>
+        <div class="info">{{res.date.date}}</div>
     </div>
 
 {% endfor %}

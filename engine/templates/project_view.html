@@ -20,11 +20,9 @@
     <div class="ui text container">
 
         <div class="ui vertical segment">
-           <div class="ui right floated mini basic button">
-
-           </div>
+           
             <a href="{% url 'data_list' project.id %}">
-                <div class="title"><i class="archive icon"></i>Data</div>
+                <div class="title"><i class="file icon"></i>Data</div>
             </a>
             <div class="info">View data associated with project.</div>
 
@@ -32,7 +30,7 @@
          <div class="ui vertical segment">
 
             <a href="{% url 'analysis_list' project.id %}">
-                <div class="title"><i class="options icon"></i>Analyses</div>
+                <div class="title"><i class="settings icon"></i>Analyses</div>
             </a>
            <div class="info">View the analyses that can be run in this project.</div>
         </div>

@@ -2,38 +2,33 @@
 {% load engine_tags %}
 
 {% block title %}
-    {{analysis.title}}
+    {{ analysis.title }}
+{% endblock %}
+
+{% block menu %}
+    {% menubar project=project edit_analysis=True analysis=analysis %}
 {% endblock %}
 
 {% block breadcrumb %}
-
     {% breadcrumb steps=steps %}
-    <div class="ui right mini basic button">
-       <a href="{% url 'analysis_edit' project.id analysis.id %}">
-       <i class="write icon"></i>Edit Analysis
-       </a>
-    </div>
 {% endblock %}
 
 {% block body %}
 
-    <div class="ui right green mini basic button">
-        <a href="{% url 'analysis_run' project.id analysis.id %}">
-        <i class="checkmark icon"></i>Run
-        </a>
+    <div class="ui vertical center aligned segment">
     </div>
+
     <div class="ui vertical center aligned segment">
 
-       <div class="header">{{analysis.title}}</div>
+            <a class="ui green button" href="{% url 'analysis_run' project.id analysis.id %}">
+                <i class="checkmark icon"></i>Run Analysis
+            </a>
+
     </div>
 
-
-<div class="ui vertical aligned segment">
-
-
-    <div class="textbody">{{analysis.html|safe}}</div>
-
-        </div>
+    <div class="ui vertical aligned segment">
+        <div class="textbody">{{ analysis.html|safe }}</div>
+    </div>
 
 
 {% endblock %}

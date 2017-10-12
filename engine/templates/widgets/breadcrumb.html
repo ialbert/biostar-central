@@ -1,21 +1,21 @@
-
 <div class="ui breadcrumb">
 
-  {% for url, name, active  in steps %}
+    {% for url, name, active  in steps %}
 
         {% if active %}
 
             <div class="active section">
-                {{name}}
+                {{ name }}
             </div>
 
         {% else %}
-            <a href="{{url}}">
-            <div class="section">{{name}}</div>
+            <a href="{{ url }}">
+                <div class="section">{{ name }}</div>
             </a>
             <i class="right chevron icon divider"></i>
         {% endif %}
 
-  {% endfor %}
+    {% endfor %}
 
 </div>
+

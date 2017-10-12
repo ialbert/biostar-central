@@ -20,12 +20,15 @@ def breadcrumb(steps):
 
 
 @register.inclusion_tag('widgets/menubar.html')
-def menubar(project=None, edit_project=False, edit_data=False, data=None,
-            create_project=False, upload_data=False):
+def menubar(project=None, edit_project=False, create_project=False,
+            data=None, edit_data=False, upload_data=False,
+            analysis=None, edit_analysis=False
+            ):
 
     return dict(
         project=project, edit_project=edit_project, create_project=create_project,
-        data=data, edit_data=edit_data, upload_data=upload_data
+        data=data, edit_data=edit_data, upload_data=upload_data,
+        analysis=analysis, edit_analysis=edit_analysis,
     )
 
 
