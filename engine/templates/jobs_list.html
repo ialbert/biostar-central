@@ -15,7 +15,7 @@
         <div class="title">
 
             <a href="{% url 'job_view' job.id %}">
-                <i class="folder icon"></i>{{ job.title }}
+                <i class="area chart icon"></i>{{ job.title }}
             </a>
             <div class="ui right floated segment">
                 <div class="ui {{job.get_state_display}}">{{job.get_state_display}}</div>

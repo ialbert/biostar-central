@@ -8,7 +8,8 @@ from . import util
 from . import factory
 
 from pagedown.widgets import PagedownWidget
-
+from engine.const import *
+from engine.web.auth import get_data
 
 class SignUpForm(forms.ModelForm):
     
@@ -90,27 +91,53 @@ class RunAnalysis(forms.Form):
 
     def __init__(self, *args, **kwargs):
 
-        analysis = kwargs.pop("analysis")
+        self.json_data = kwargs.pop("json_data")
+        self.json_data = json.loads(self.json_data)
 
         super().__init__(*args, **kwargs)
 
-        analysis = json.loads(analysis)
         # Job needs a title
         self.fields["title"] = forms.CharField(max_length=256, initial="Title")
 
-        for field in analysis:
+        for field, value in self.json_data.items():
+            visible = value.get("visible")
+            display_type = value.get("display_type", '')
 
-            data = analysis[field]
-            display_type = data["display_type"]
+            if not display_type:
+                continue
+
             factory.check_display(display_type)
 
-            if data.get("visible") == 1:
-
-                self.fields[field] = factory.TYPE2FUNC[display_type](data)
+            if visible == 1:
+                self.fields[field] = factory.TYPE2FUNC[display_type](value)
 
     def save(self, *args, **kwargs):
 
         super(RunAnalysis, self).save(*args, **kwargs)
+
+    def process(self):
+        '''
+        Replaces the value of data fields with the path to the data.
+        Should be called after the form has been filled and is valid.
+        '''
+
+        # Should make a copy of the json
+        for field, obj in self.json_data.items():
+            # No need to read fields that were not set.
+            if not obj.get(FIELD_VISIBLE):
+                continue
+
+            if obj.get(FIELD_ORIGIN) == PROJECT_ORIGIN:
+                data_id = self.cleaned_data.get(field, 0)
+                data = get_data(data_id)
+                obj["value"] = data.get_path().path
+                #print (obj)
+
+            if field in self.cleaned_data:
+                # Mutates the value key.
+                obj["value"] = self.cleaned_data[field]
+
+        return self.json_data
 
 
 class EditAnalysis(forms.Form):
@@ -133,7 +160,7 @@ class EditAnalysis(forms.Form):
             display_type = data["display_type"]
             factory.check_display(display_type)
 
-            if data.get("visible") == 1:
+            if data.get(FIELD_VISIBLE):
 
                 self.fields[field] = factory.TYPE2FUNC[display_type](data)
 

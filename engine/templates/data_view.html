@@ -17,6 +17,8 @@
 
     <div class="ui vertical segment">
         <div class="textbody">{{ data.html|safe }}</div>
+        <div class="textbody">File: {{ data.file }}</div>
+        <div class="textbody">Path: {{ data.path }}</div>
     </div>
 
 {% endblock %}

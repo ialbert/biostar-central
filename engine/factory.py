@@ -117,15 +117,17 @@ def model_specs(field):
 def handle_scripts(field):
     return
 
+def ignore(field):
+    pass
 
-def get_choices(feild):
+def get_choices(field):
 
     # View data already in database
-    choices = feild.get("choices")
+    choices = field.get("choices")
     if choices:
         choices = list(choices.items())
 
-    if feild.get("origin") == "PROJECT":
+    if field.get("origin") == "PROJECT":
         # Just loads all data for now ( not project specific ).
         data = Data.objects.all()
         choices = []
@@ -145,12 +147,13 @@ TYPE2FUNC = {
     CHECKBOX :checkbox_field,
     MODEL: model_specs,
     SCRIPT : handle_scripts,
-
+    TEMPLATE: ignore
 }
 
 def check_display(display_type):
 
+    # this check is too soon
     if not (display_type in TYPE2FUNC):
-        raise Exception(f"Incorrect value for display_type. Options are:{TYPE2FUNC.keys()}")
+        raise Exception(f"Incorrect value for display_type={display_type}. Options are:{TYPE2FUNC.keys()}")
 
     return
