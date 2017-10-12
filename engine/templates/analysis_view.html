@@ -15,16 +15,15 @@
 
 {% block body %}
 
-    <div class="ui vertical center aligned segment">
-    </div>
-
-    <div class="ui vertical center aligned segment">
+    <div class="ui vertical center aligned basic segment">
 
             <a class="ui green button" href="{% url 'analysis_run' project.id analysis.id %}">
                 <i class="checkmark icon"></i>Run Analysis
             </a>
 
     </div>
+
+    <div class="ui divider"></div>
 
     <div class="ui vertical aligned segment">
         <div class="textbody">{{ analysis.html|safe }}</div>
