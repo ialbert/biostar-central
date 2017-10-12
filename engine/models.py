@@ -16,7 +16,6 @@ def join(*args):
 
 
 def make_html(text):
-
     return mistune.markdown(text)
 
 
@@ -100,7 +99,7 @@ class Analysis(Base):
                                             }""")
 
     makefile_template = models.TextField(default="makefile")
-
+    project = models.ForeignKey(Project)
     def save(self, *args, **kwargs):
         super(Analysis, self).save(*args, **kwargs)
 

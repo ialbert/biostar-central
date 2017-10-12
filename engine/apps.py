@@ -18,7 +18,7 @@ def join(*args):
 def get_uuid(limit=None):
     return str(uuid.uuid4())[:limit]
 
-def make_analysis_from_spec(path, user):
+def make_analysis_from_spec(path, user, project):
     from engine.models import Analysis
     json_data = open(path).read()
     json_obj = json.loads(json_data)
@@ -27,7 +27,7 @@ def make_analysis_from_spec(path, user):
     template_path = json_obj["template"]["path"]
     makefile_template = get_template(template_path).template.source
     analysis = Analysis(json_data=json_data, owner=user, title=title, text=text,
-             makefile_template=makefile_template)
+             makefile_template=makefile_template, project=project)
     analysis.save()
 
     return analysis
@@ -59,18 +59,18 @@ def init_proj(sender, **kwargs):
             data = Data(title=data_title, owner=owner, text=data_desc, project=project, file=data_file)
             data.save()
 
-    # Initialize the analyses.
-    for test_spec in TEST_SPECS:
-        analysis = make_analysis_from_spec(test_spec, user=owner)
+        # Initialize the analyses.
+        for test_spec in TEST_SPECS:
+            analysis = make_analysis_from_spec(test_spec, user=owner, project=project)
 
-        # Create four jobs for each project.
-        for project in Project.objects.all():
-            for state in (Job.RUNNING, Job.ERROR, Job.QUEUED):
-                title = analysis.title
+            # Create four jobs for each project.
+            for project in Project.objects.all():
+                for state in (Job.RUNNING, Job.ERROR, Job.QUEUED):
+                    title = analysis.title
 
-                job = Job(title=title, state=state,
-                          project=project, analysis=analysis, owner=owner, makefile_template=analysis.makefile_template)
-                job.save()
+                    job = Job(title=title, state=state,
+                              project=project, analysis=analysis, owner=owner, makefile_template=analysis.makefile_template)
+                    job.save()
 
     return
 

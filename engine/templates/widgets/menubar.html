@@ -25,8 +25,8 @@
         </a>
     {% endif %}
 
-    {% if edit_analysis and project and analysis %}
-        <a class="item" href="{% url 'analysis_edit' project.id analysis.id %}">
+    {% if edit_analysis and analysis %}
+        <a class="item" href="{% url 'analysis_edit' analysis.id %}">
             <i class="write icon"></i>Edit Analysis
        </a>
     {% endif %}

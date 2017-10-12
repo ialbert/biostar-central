@@ -121,7 +121,7 @@ class RunAnalysis(forms.Form):
         Should be called after the form has been filled and is valid.
         '''
 
-        # Should make a copy of the json
+        # TODO: should make a copy of the json rather than mutated it.
         for field, obj in self.json_data.items():
             # No need to read fields that were not set.
             if not obj.get(FIELD_VISIBLE):
@@ -131,13 +131,9 @@ class RunAnalysis(forms.Form):
                 data_id = self.cleaned_data.get(field, 0)
                 data = get_data(data_id)
                 obj["path"] = data.get_path().path
-                print (obj)
             if field in self.cleaned_data:
                 # Mutates the value key.
                 obj["value"] = self.cleaned_data[field]
-
-
-        print (json.dumps(self.json_data))
 
         return self.json_data
 

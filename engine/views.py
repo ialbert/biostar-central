@@ -53,7 +53,7 @@ def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=Non
         elif icon == ANALYSIS_LIST_ICON:
             step = (reverse("analysis_list", kwargs={'id': project.id}), ANALYSIS_LIST_ICON, "Analysis List", is_active )
         elif icon == ANALYSIS_ICON:
-            step = (reverse("analysis_view", kwargs={'id': project.id, 'id2': analysis.id}), ANALYSIS_ICON, f"{analysis.title}", is_active )
+            step = (reverse("analysis_view", kwargs={'id': analysis.id}), ANALYSIS_ICON, f"{analysis.title}", is_active )
         elif icon == RESULT_LIST_ICON:
             step = (reverse("job_list", kwargs={'id': project.id,}), RESULT_LIST_ICON, "Result List",is_active)
         elif icon == RESULT_ICON:
@@ -256,10 +256,10 @@ def analysis_list(request, id):
 
 
 #@login_required
-def analysis_view(request, id, id2):
+def analysis_view(request, id):
 
-    analysis = Analysis.objects.filter(id=id2).first()
-    project = Project.objects.filter(id=id).first()
+    analysis = Analysis.objects.filter(id=id).first()
+    project = analysis.project
 
     if not analysis:
         messages.error(request, "Analysis not found.")
@@ -273,11 +273,11 @@ def analysis_view(request, id, id2):
     return render(request, "analysis_view.html", context)
 
 
-def analysis_run(request, id, id2):
+def analysis_run(request, id):
 
-    project = Project.objects.filter(id=id).first()
-    analysis = Analysis.objects.filter(id=id2).first()
-    analysis.save()
+    analysis = Analysis.objects.filter(id=id).first()
+    project = analysis.project
+
     owner = User.objects.all().first()
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_ICON,  ANALYSIS_ICON],
@@ -307,10 +307,10 @@ def analysis_run(request, id, id2):
         return render(request, 'analysis_run.html', context)
 
 
-def analysis_edit(request, id, id2):
+def analysis_edit(request, id):
 
-    analysis = Analysis.objects.filter(id=id2).first()
-    project = Project.objects.filter(id=id).first()
+    analysis = Analysis.objects.filter(id=id).first()
+    project = analysis.project
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_ICON, ANALYSIS_LIST_ICON, ANALYSIS_ICON],
                                project=project, analysis=analysis)
