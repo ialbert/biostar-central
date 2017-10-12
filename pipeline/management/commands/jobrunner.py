@@ -13,7 +13,7 @@ def run(job):
     takes job object, runs the job and return job status
     '''
 
-    spec = job.json_str
+    spec = job.json_data
     template = job.makefile_template
     outdir = job.path
     errorlog = []
@@ -31,15 +31,16 @@ def run(job):
         with open(os.path.join(outdir, "Makefile"), 'wt') as fp:
             fp.write(mtext)
 
+        # run makefile.
         process = subprocess.run(['make', 'all'], cwd=outdir, stderr=subprocess.PIPE, check=True)
         return_code = process.returncode
 
     except subprocess.CalledProcessError as err:
+
+        job.state = job.ERROR
         errorlog.append(err.stderr.decode('utf-8'))
         if len(errorlog) > 100:
             sys.exit(1)
-        #err_code  = err.returncode
-        job.state = job.ERROR
 
     finally:
         job.log = "\n".join(errorlog)
@@ -49,7 +50,6 @@ def run(job):
             job.state = job.FINISHED
         print(job.state)
         job.save()
-
     return job
 
 
@@ -65,15 +65,15 @@ class Command(BaseCommand):
         parser.add_argument('--show_queued',
                             action='store_true',
                              dest='show_queued',
-                            default=False, help="List recent ten queued jobs.")
+                            default=False, help="List tem most recent queued jobs.")
         parser.add_argument('--show_make',
                             action='store_true',
                              dest='show_make',
-                            default=False, help="Show makefile of the queued jobs and exit.")
+                            default=False, help="Show makefile of the queued jobs.")
         parser.add_argument('--show_spec',
                             action='store_true',
                              dest='show_spec',
-                            default=False, help="Show analysis specs of the queued jobs and exit.")
+                            default=False, help="Show analysis spec of the queued jobs.")
 
     def handle(self, *args, **options):
 
@@ -91,13 +91,17 @@ class Command(BaseCommand):
                 print("Makefile for job {0}".format(job.id))
                 print(job.json_data)
             sys.exit(1)
+
         if options['show_queued']:
             jobs = Job.objects.filter(state=Job.QUEUED).order_by("-id")[:10]
             for job in jobs:
                 print(job.id)
+            sys.exit(1)
 
         for job in jobs:
-            run(job)
+            if job.id == 1:
+                run(job)
+
 
 
 
