@@ -1,7 +1,7 @@
 {
 sampleinfo :
     {
-    value : ~/tmp/qc_test/sampleinfo.txt
+    value : ~/tmp/qc_test/data
     help :
            '''
 Enter a tab delimited text file. Order of the fields should be
@@ -15,7 +15,7 @@ Sample name should match the sample name in the dataset.
     }
 data :
   {
-    value: ~/tmp/qc_test/data
+    value: ~/tmp/qc_test/sampleinfo.txt
     visible: 1
     origin: PROJECT
     data_type: TAR_FASTQ_GZ

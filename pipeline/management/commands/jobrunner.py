@@ -2,7 +2,7 @@ from django.core.management.base import BaseCommand
 from django.template import Template,Context
 from engine.models import Job
 from pipeline import render
-import subprocess, os, sys
+import subprocess, os, sys,hjson
 
 
 CURR_DIR = os.path.dirname(os.path.realpath(__file__))
@@ -19,8 +19,12 @@ def run(job):
     errorlog = []
 
     try:
+        # render makefile.
+        spec = hjson.loads(spec)
+        template = Template(template)
+        context = Context(spec)
+        mtext = template.render(context)
 
-        mtext = render.render_data(spec,template)
         if not os.path.isdir(outdir):
             os.mkdir(outdir)
 
@@ -35,14 +39,15 @@ def run(job):
         errorlog.append(err.stderr.decode('utf-8'))
         if len(errorlog) > 100:
             sys.exit(1)
-        job.status = err.returncode
+        err_code  = err.returncode
+        job.state = job.ERROR
 
     finally:
-        print(CURR_DIR)
         job.log = "\n".join(errorlog)
-        print("printing errlog")
-        print(job.log)
-        #job.save()
+        with open(os.path.join(outdir, "run_log.txt"), 'wt') as fp:
+            fp.write(job.log)
+        job.save()
+        print(job.state)
     return job
 
 
@@ -50,11 +55,45 @@ class Command(BaseCommand):
     help = 'Run jobs that are queued.'
 
     def add_arguments(self, parser):
-        parser.add_argument('limit', default=1, type=int)
+
+        # positional arguments.
+        parser.add_argument('limit',type=int,default=1,help="Enter the number of jobs to run. Default is 1.")
+
+        # Named (optional) arguments
+        parser.add_argument('--show_queued',
+                            action='store_true',
+                             dest='show_queued',
+                            default=False, help="List recent ten queued jobs.")
+        parser.add_argument('--show_make',
+                            action='store_true',
+                             dest='show_make',
+                            default=False, help="Show makefile of the queued jobs and exit.")
+        parser.add_argument('--show_spec',
+                            action='store_true',
+                             dest='show_spec',
+                            default=False, help="Show analysis specs of the queued jobs and exit.")
 
     def handle(self, *args, **options):
+
         limit = options['limit']
         jobs = Job.objects.filter(state=Job.QUEUED).order_by("-id")[:limit]
+
+        if options['show_make']:
+            for job in jobs:
+                print ("Makefile for job {0}".format(job.uid))
+                print (job.makefile_template)
+            sys.exit(1)
+
+        if options['show_spec']:
+            for job in jobs:
+                print ("Makefile for job {0}".format(job.uid))
+                print (job.json_data)
+            sys.exit(1)
+        if options['show_queued']:
+            jobs = Job.objects.filter(state=Job.QUEUED).order_by("-id")[:10]
+            for job in jobs:
+                print(job.uid)
+
         for job in jobs:
             run(job)
 
