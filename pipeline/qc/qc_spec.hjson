@@ -49,7 +49,7 @@ trim_quality:
     display_type : INTEGER
  }
 template : {
-        value:qc/templates/qc_makefile.html
+        value:qc_makefile.html
         display_type:SCRIPT
 }
 threads : {

@@ -1,8 +1,12 @@
+import logging, uuid
+import os
+import hjson as json
 from django.apps import AppConfig
 from django.conf import settings
 from django.db.models.signals import post_migrate
-import logging, uuid
-import os
+from django.template.loader import get_template
+from . import util
+
 
 
 # This is a temporary data structure.
@@ -62,29 +66,32 @@ def init_proj(sender, **kwargs):
 
         logger.info(f'creating or getting: {project.title}')
 
-    # Origin file loaded once and source from that lives in database
-    # Source is changed and not the origin file.
     analysis, new = Analysis.objects.get_or_create(title="Analysis 1",
                                                     owner=owner,
                                                     text="analysis description",
-                                                    spec_origin=JSON_SPECFILE)
+                                                    json_file=JSON_SPECFILE)
     if new:
         analysis.save()
 
     # Pick most recent project to make a job out of
     jproject = Project.objects.order_by("-id").first()
 
-    # Make a job in each state( 3 jobs to one project and analysis)
-    states = {"Queued":1, "Running":2, "Finished":3, "Stopped":4}
+    filled_json = util.safe_loads(analysis.json_str)
 
-    for state in states:
+    template_path = filled_json["template"]["value"]
+    makefile_template = get_template(template_path).template.source
+    state_map = dict(Job.STATE_CHOICES)
+
+    for state in state_map:
 
         job, flag = Job.objects.get_or_create(title=f"Result {state}",
                                         text="job description",
                                         project=jproject,
                                         analysis=analysis,
                                         owner=owner,
-                                        state=states[state])
+                                        state=state,
+                                        json_str=json.dumps(filled_json),
+                                        makefile_template=makefile_template)
         if new:
             job.save()
             logger.info(f' job={job.id} made in {state} state')

@@ -10,8 +10,10 @@ from . import settings
 from . import util
 from django.urls import reverse
 
+
 def join(*args):
     return os.path.abspath(os.path.join(*args))
+
 
 def make_html(text):
 
@@ -39,7 +41,6 @@ class Base(models.Model):
         abstract = True
 
 
-
 class Project(Base):
 
     uid = models.CharField(max_length=32)
@@ -58,45 +59,66 @@ class Project(Base):
         return join(settings.DATA_ROOT, self.uid)
 
 
+def check_filetype(instance):
+
+    #
+    if instance == Data.FILE:
+        return Data.FILE
+    else:
+        # unpack collection with gzip and put it into directory?
+        return instance
+
+
+def directory_path(instance, filename):
+
+    return f'{instance.project.get_path()}/{filename}'
+
+
 class Data(Base):
+
     FILE, COLLECTION = 1, 2
     TYPE_CHOICES =[(FILE, "File"),(COLLECTION ,"Collection")]
     type = models.IntegerField(default=FILE, choices=TYPE_CHOICES)
-
     project = models.ForeignKey(Project)
-    file = models.FileField(null=True)
+
+    file = models.FileField(null=True, upload_to=directory_path)
+
     path = models.FilePathField(null=True)
 
+    def __init__(self, *args, **kwargs):
+
+        super().__init__(*args, **kwargs)
 
     def save(self, *args, **kwargs):
-        # chack if file or path is set or raise error
+        check_filetype(self.type)
+
         super(Data, self).save(*args, **kwargs)
 
 
 class Analysis(Base):
 
-    spec_origin = models.TextField(default="media")
-    spec_source = models.TextField(default=r"""{ 
-                                                field1_name: 
-                                                    {
-                                                    value:field_value, 
-                                                    type:FIELD_TYPE
-                                                    }
-                                                field2_name:
-                                                    {
-                                                    value:field_value, 
-                                                    type:FIELD_TYPE
-                                                    }
-                                                }""")
+    json_file = models.TextField(default="media")
+    json_str = models.TextField(default=r"""{ 
+                                            field1_name: 
+                                            {
+                                            value:field_value, 
+                                            type:FIELD_TYPE
+                                            }
+                                            field2_name:
+                                            {
+                                            value:field_value, 
+                                            type:FIELD_TYPE
+                                            }
+                                            }""")
 
     def save(self, *args, **kwargs):
 
         # Save source from a string if one is given.
-        if kwargs.get("spec_source"):
-            source = kwargs.pop("spec_source")
-            self.spec_source = source
+        if kwargs.get("json_str"):
+            source = kwargs.pop("json_str")
+            self.json_str= source
         else:
-            self.spec_source = json.dumps(util.safe_load(self.spec_origin))
+            self.json_str = json.dumps(util.safe_load(self.json_file))
 
         super(Analysis, self).save(*args, **kwargs)
 
@@ -107,19 +129,18 @@ class Job(Base):
     QUEUED, RUNNING, FINISHED, ERROR = 1, 2, 3, 4
     STATE_CHOICES = [(QUEUED, "Queued"), (RUNNING, "Running"),
                (FINISHED, "Finished"), (ERROR, "Stopped")]
-    STATE_MAP = dict(STATE_CHOICES)
 
     analysis = models.ForeignKey(Analysis)
     project = models.ForeignKey(Project)
-    json_data = models.TextField(default="commands")
+    json_str = models.TextField(default="commands")
 
-    # uniqe directory creation
     uid = models.CharField(max_length=32)
     makefile_template = models.TextField(default="makefile")
+
+    # how should i correcly use the log?
     log = models.TextField(default="log")
 
     state = models.IntegerField(default=1, choices=STATE_CHOICES)
-    # rename to path
     path = models.FilePathField(default="")
 
     def save(self, *args, **kwargs):
