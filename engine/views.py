@@ -288,27 +288,18 @@ def analysis_run(request, id, id2):
 
         if form.is_valid():
 
-            #filled_json = util.safe_loads(analysis.json_data)
             filled_json = form.process()
-
-
-            template_path = filled_json["template"]["value"]
-
-            title = form.cleaned_data["title"]
-            if form.cleaned_data["title"] == "Title":
-                title = analysis.title
-
-            makefile_template = get_template(template_path).template.source
+            title = analysis.title
 
             job = Job.objects.create(json_data=json.dumps(filled_json),
                                      owner=owner,
                                      analysis=analysis,
                                      project=project,
-                                     makefile_template=makefile_template,
+                                     makefile_template=analysis.makefile_template,
                                      title=title)
 
             job.save()
-            return redirect(reverse("jobs_list", kwargs=dict(id=project.id)))
+            return redirect(reverse("job_list", kwargs=dict(id=project.id)))
 
     else:
         form = RunAnalysis(json_data=analysis.json_data)

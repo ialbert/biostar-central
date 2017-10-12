@@ -8,18 +8,6 @@ from django.template.loader import get_template
 from . import util
 from engine.const import *
 
-
-# This is a temporary data structure.
-TEST_PROJECTS = [
-    # title, info pairs
-    ("Sequencing run 1", "Lamar sequencing center"),
-    ("Sequencing run 2", "Lamar sequencing center"),
-    ("Sequencing run 3", "Lamar sequencing center"),
-]
-
-
-
-
 logger = logging.getLogger('engine')
 
 
@@ -27,10 +15,22 @@ def join(*args):
     return os.path.abspath(os.path.join(*args))
 
 
-
 def get_uuid(limit=None):
     return str(uuid.uuid4())[:limit]
 
+def make_analysis_from_spec(path, user):
+    from engine.models import Analysis
+    json_data = open(path).read()
+    json_obj = json.loads(json_data)
+    title = json_obj["analysis_spec"]["title"]
+    text = json_obj["analysis_spec"]["text"]
+    template_path = json_obj["template"]["path"]
+    makefile_template = get_template(template_path).template.source
+    analysis = Analysis(json_data=json_data, owner=user, title=title, text=text,
+             makefile_template=makefile_template)
+    analysis.save()
+
+    return analysis
 
 def init_proj(sender, **kwargs):
     """
@@ -59,49 +59,20 @@ def init_proj(sender, **kwargs):
             data = Data(title=data_title, owner=owner, text=data_desc, project=project, file=data_file)
             data.save()
 
-
     # Initialize the analyses.
     for test_spec in TEST_SPECS:
-        json_data = open(test_spec).read()
-        json_obj = json.loads(json_data)
-        title = json_obj["analysis_spec"]["title"]
-        text = json_obj["analysis_spec"]["text"]
-        analysis = Analysis(json_data=json_data, owner=owner, title=title, text=text)
-        analysis.save()
+        analysis = make_analysis_from_spec(test_spec, user=owner)
 
         # Create four jobs for each project.
         for project in Project.objects.all():
             for state in (Job.RUNNING, Job.ERROR, Job.QUEUED):
                 title = analysis.title
-                template_path = json_obj["template"]["path"]
-                makefile_template = get_template(template_path).template.source
+
                 job = Job(title=title, state=state,
-                          project=project, analysis=analysis, owner=owner, makefile_template=makefile_template)
+                          project=project, analysis=analysis, owner=owner, makefile_template=analysis.makefile_template)
                 job.save()
 
     return
-
-    # Pick most recent project to make a job out of
-    jproject = Project.objects.order_by("-id").first()
-
-    filled_json = util.safe_loads(analysis.json_data)
-
-
-    state_map = dict(Job.STATE_CHOICES)
-
-    for state in state_map:
-
-        job, new = Job.objects.get_or_create(title=f"Result {state}",
-                                        text="job description",
-                                        project=jproject,
-                                        analysis=analysis,
-                                        owner=owner,
-                                        state=state,
-                                        json_data=json.dumps(filled_json),
-                                        makefile_template=makefile_template)
-        if new:
-            job.save()
-            logger.info(f' job={job.id} made in {state} state')
 
 
 def init_users(sender, **kwargs):

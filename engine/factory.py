@@ -117,6 +117,8 @@ def model_specs(field):
 def handle_scripts(field):
     return
 
+def ignore(field):
+    pass
 
 def get_choices(field):
 
@@ -145,12 +147,13 @@ TYPE2FUNC = {
     CHECKBOX :checkbox_field,
     MODEL: model_specs,
     SCRIPT : handle_scripts,
-
+    TEMPLATE: ignore
 }
 
 def check_display(display_type):
 
+    # this check is too soon
     if not (display_type in TYPE2FUNC):
-        raise Exception(f"Incorrect value for display_type. Options are:{TYPE2FUNC.keys()}")
+        raise Exception(f"Incorrect value for display_type={display_type}. Options are:{TYPE2FUNC.keys()}")
 
     return

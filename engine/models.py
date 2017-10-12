@@ -99,6 +99,8 @@ class Analysis(Base):
                                             }
                                             }""")
 
+    makefile_template = models.TextField(default="makefile")
+
     def save(self, *args, **kwargs):
         super(Analysis, self).save(*args, **kwargs)
 

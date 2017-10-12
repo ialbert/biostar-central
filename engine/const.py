@@ -21,10 +21,17 @@ FIELD_ORIGIN = "origin"
 PROJECT_ORIGIN = "PROJECT"
 
 #
-# Run to initialize test files.
+# To initialize test files run:
 #
 # make testfile
 #
+
+TEST_PROJECTS = [
+    ("Sequencing run 1", "Lamar sequencing center"),
+    ("Sequencing run 2", "Lamar sequencing center"),
+    ("Sequencing run 3", "Lamar sequencing center"),
+]
+
 TEST_FILE = os.path.expandvars('tmp/sampleinfo.txt')
 TEST_COLL = os.path.expandvars('tmp/data.tar.gz')
 TEST_DATA = [
