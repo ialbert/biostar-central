@@ -8,12 +8,10 @@
 
 {% endblock %}
 
-{% block breadcrumb %}
-    {# No breadcrumbs on main page. #}
-{% endblock %}
+
 
 {% block menu %}
-    {% menubar %}
+    {% menubar create_project=True%}
 {% endblock %}
 
 {% block body %}
