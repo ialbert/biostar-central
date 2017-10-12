@@ -290,9 +290,8 @@ def analysis_run(request, id, id2):
 
             filled_json = form.process()
             title = analysis.title
-
-            job = Job.objects.create(json_data=json.dumps(filled_json),
-                                     owner=owner,
+            json_data = json.dumps(filled_json, indent=4)
+            job = Job(json_data=json_data, owner=owner,
                                      analysis=analysis,
                                      project=project,
                                      makefile_template=analysis.makefile_template,
