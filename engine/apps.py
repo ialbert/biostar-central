@@ -84,7 +84,7 @@ def init_proj(sender, **kwargs):
 
     for state in state_map:
 
-        job, flag = Job.objects.get_or_create(title=f"Result {state}",
+        job, new = Job.objects.get_or_create(title=f"Result {state}",
                                         text="job description",
                                         project=jproject,
                                         analysis=analysis,
