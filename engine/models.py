@@ -80,6 +80,8 @@ class Data(Base):
     TYPE_CHOICES =[(FILE, "File"),(COLLECTION ,"Collection")]
     type = models.IntegerField(default=FILE, choices=TYPE_CHOICES)
     project = models.ForeignKey(Project)
+    size = ''
+    # file and press upload
 
     file = models.FileField(null=True, upload_to=directory_path)
 
@@ -98,7 +100,7 @@ class Data(Base):
 class Analysis(Base):
 
     json_file = models.TextField(default="media")
-    json_str = models.TextField(default=r"""{ 
+    json_data = models.TextField(default=r"""{ 
                                             field1_name: 
                                             {
                                             value:field_value, 
@@ -114,11 +116,11 @@ class Analysis(Base):
     def save(self, *args, **kwargs):
 
         # Save source from a string if one is given.
-        if kwargs.get("json_str"):
-            source = kwargs.pop("json_str")
-            self.json_str= source
+        if kwargs.get("json_data"):
+            source = kwargs.pop("json_data")
+            self.json_data= source
         else:
-            self.json_str = json.dumps(util.safe_load(self.json_file))
+            self.json_data = json.dumps(util.safe_load(self.json_file))
 
         super(Analysis, self).save(*args, **kwargs)
 
@@ -132,14 +134,13 @@ class Job(Base):
 
     analysis = models.ForeignKey(Analysis)
     project = models.ForeignKey(Project)
-    json_str = models.TextField(default="commands")
+    json_data = models.TextField(default="commands")
 
     uid = models.CharField(max_length=32)
     makefile_template = models.TextField(default="makefile")
 
-    # how should i correcly use the log?
     log = models.TextField(default="log")
-
+    # jobstart and job_end fields.
     state = models.IntegerField(default=1, choices=STATE_CHOICES)
     path = models.FilePathField(default="")
 
