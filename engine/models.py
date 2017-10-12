@@ -41,7 +41,6 @@ class Base(models.Model):
         abstract = True
 
 
-
 class Project(Base):
 
     uid = models.CharField(max_length=32)
@@ -60,6 +59,21 @@ class Project(Base):
         return join(settings.DATA_ROOT, self.uid)
 
 
+def check_filetype(instance):
+
+    #
+    if instance == Data.FILE:
+        return Data.FILE
+    else:
+        # unpack collection with gzip and put it into directory?
+        return instance
+
+
+def directory_path(instance, filename):
+
+    return f'{instance.project.get_path()}/{filename}'
+
+
 class Data(Base):
 
     FILE, COLLECTION = 1, 2
@@ -67,9 +81,8 @@ class Data(Base):
     type = models.IntegerField(default=FILE, choices=TYPE_CHOICES)
     project = models.ForeignKey(Project)
 
-    # File is the actual file
-    file = models.FileField(null=True)
-    # path is where is is saving the data
+    file = models.FileField(null=True, upload_to=directory_path)
+
     path = models.FilePathField(null=True)
 
     def __init__(self, *args, **kwargs):
@@ -77,38 +90,35 @@ class Data(Base):
         super().__init__(*args, **kwargs)
 
     def save(self, *args, **kwargs):
-        # File needs to be set( cant really be null)
-        self.path = self.project.get_path()
-        self.file.upload_to = self.path
+        check_filetype(self.type)
 
-        # check if its a collection(gzip) or single file and raise error if its none.
         super(Data, self).save(*args, **kwargs)
 
 
 class Analysis(Base):
 
-    spec_origin = models.TextField(default="media")
-    spec_source = models.TextField(default=r"""{ 
-                                                field1_name: 
-                                                    {
-                                                    value:field_value, 
-                                                    type:FIELD_TYPE
-                                                    }
-                                                field2_name:
-                                                    {
-                                                    value:field_value, 
-                                                    type:FIELD_TYPE
-                                                    }
-                                                }""")
+    json_file = models.TextField(default="media")
+    json_str = models.TextField(default=r"""{ 
+                                            field1_name: 
+                                            {
+                                            value:field_value, 
+                                            type:FIELD_TYPE
+                                            }
+                                            field2_name:
+                                            {
+                                            value:field_value, 
+                                            type:FIELD_TYPE
+                                            }
+                                            }""")
 
     def save(self, *args, **kwargs):
 
         # Save source from a string if one is given.
-        if kwargs.get("spec_source"):
-            source = kwargs.pop("spec_source")
-            self.spec_source = source
+        if kwargs.get("json_str"):
+            source = kwargs.pop("json_str")
+            self.json_str= source
         else:
-            self.spec_source = json.dumps(util.safe_load(self.spec_origin))
+            self.json_str = json.dumps(util.safe_load(self.json_file))
 
         super(Analysis, self).save(*args, **kwargs)
 
@@ -122,11 +132,12 @@ class Job(Base):
 
     analysis = models.ForeignKey(Analysis)
     project = models.ForeignKey(Project)
-    json_data = models.TextField(default="commands")
+    json_str = models.TextField(default="commands")
 
-    # uniqe directory creation
     uid = models.CharField(max_length=32)
     makefile_template = models.TextField(default="makefile")
+
+    # how should i correcly use the log?
     log = models.TextField(default="log")
 
     state = models.IntegerField(default=1, choices=STATE_CHOICES)

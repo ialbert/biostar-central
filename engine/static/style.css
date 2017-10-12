@@ -13,7 +13,26 @@ h2.ui.center.header {
 }
 
 .Queued {
+    color: blue;
+    font-weight: bold;
+    font-size: .795em;
+}
+
+.Running {
+    color: yellow;
+    text-shadow: #000 0px 0px 1px,   #000 0px 0px 1px,   #000 0px 0px 1px;
+    font-weight: bold;
+    font-size: .795em;
+}
+
+.Stopped{
     color: red;
+    font-weight: bold;
+    font-size: .795em;
+}
+
+.Finished{
+    color: green;
     font-weight: bold;
     font-size: .795em;
 }
