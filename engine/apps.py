@@ -6,7 +6,7 @@ from django.conf import settings
 from django.db.models.signals import post_migrate
 from django.template.loader import get_template
 from . import util
-
+from engine.const import *
 
 
 # This is a temporary data structure.
@@ -18,10 +18,6 @@ TEST_PROJECTS = [
 ]
 
 
-TEST_DATA = [
-    ("Compressed data directory", "This directory contains all datasets for the run"),
-    ("Sample sheet", "This file contains a sample sheet describing the data in the directory"),
-]
 
 
 logger = logging.getLogger('engine')
@@ -30,9 +26,6 @@ logger = logging.getLogger('engine')
 def join(*args):
     return os.path.abspath(os.path.join(*args))
 
-
-JSON_SPECFILE =join(settings.BASE_DIR, '..', 'pipeline',
-                'qc', 'qc_spec.hjson' )
 
 
 def get_uuid(limit=None):
@@ -49,37 +42,51 @@ def init_proj(sender, **kwargs):
 
     owner = User.objects.all().first()
 
-    # Make a project
+    # Needs to run only if there are no projects.
+    if Project.objects.filter().all():
+        return
+
+    # Make the test projects.
     for title, description in TEST_PROJECTS:
 
-        project, new = Project.objects.get_or_create(title=title, owner=owner, text=description)
-        if not new:
-            return
+        project = Project(title=title, owner=owner, text=description)
+        project.save()
 
-        # add some data to the project
-        for data_title, data_desc in TEST_DATA:
-            data, flag = Data.objects.get_or_create(title=data_title,
-                                                         owner=owner,
-                                                         text=data_desc,
-                                                    project=project)
+        logger.info(f'Created project: {project.title}')
+
+        # Add data to each project.
+        for data_title, data_desc, data_file in TEST_DATA:
+            data = Data(title=data_title, owner=owner, text=data_desc, project=project, file=data_file)
             data.save()
 
-        logger.info(f'creating or getting: {project.title}')
 
-    analysis, new = Analysis.objects.get_or_create(title="Analysis 1",
-                                                    owner=owner,
-                                                    text="analysis description",
-                                                    json_file=JSON_SPECFILE)
-    if new:
+    # Initialize the analyses.
+    for test_spec in TEST_SPECS:
+        json_data = open(test_spec).read()
+        json_obj = json.loads(json_data)
+        title = json_obj["analysis_spec"]["title"]
+        text = json_obj["analysis_spec"]["text"]
+        analysis = Analysis(json_data=json_data, owner=owner, title=title, text=text)
         analysis.save()
+
+        # Create four jobs for each project.
+        for project in Project.objects.all():
+            for state in (Job.RUNNING, Job.ERROR, Job.QUEUED):
+                title = analysis.title
+                template_path = json_obj["template"]["path"]
+                makefile_template = get_template(template_path).template.source
+                job = Job(title=title, state=state,
+                          project=project, analysis=analysis, owner=owner, makefile_template=makefile_template)
+                job.save()
+
+    return
 
     # Pick most recent project to make a job out of
     jproject = Project.objects.order_by("-id").first()
 
     filled_json = util.safe_loads(analysis.json_data)
 
-    template_path = filled_json["template"]["value"]
-    makefile_template = get_template(template_path).template.source
+
     state_map = dict(Job.STATE_CHOICES)
 
     for state in state_map:

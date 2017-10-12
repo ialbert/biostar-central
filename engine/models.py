@@ -58,17 +58,6 @@ class Project(Base):
     def get_path(self):
         return join(settings.DATA_ROOT, self.uid)
 
-
-def check_filetype(instance):
-
-    #
-    if instance == Data.FILE:
-        return Data.FILE
-    else:
-        # unpack collection with gzip and put it into directory?
-        return instance
-
-
 def directory_path(instance, filename):
 
     return f'{instance.project.get_path()}/{filename}'
@@ -81,21 +70,18 @@ class Data(Base):
     type = models.IntegerField(default=FILE, choices=TYPE_CHOICES)
     project = models.ForeignKey(Project)
     size = ''
-    # file and press upload
 
     file = models.FileField(null=True, upload_to=directory_path)
-
     path = models.FilePathField(null=True)
 
     def __init__(self, *args, **kwargs):
-
         super().__init__(*args, **kwargs)
 
     def save(self, *args, **kwargs):
-        check_filetype(self.type)
-
         super(Data, self).save(*args, **kwargs)
 
+    def get_path(self):
+        return self.file if self.type == Data.FILE else self.path
 
 class Analysis(Base):
 
@@ -114,14 +100,6 @@ class Analysis(Base):
                                             }""")
 
     def save(self, *args, **kwargs):
-
-        # Save source from a string if one is given.
-        if kwargs.get("json_data"):
-            source = kwargs.pop("json_data")
-            self.json_data= source
-        else:
-            self.json_data = json.dumps(util.safe_load(self.json_file))
-
         super(Analysis, self).save(*args, **kwargs)
 
 

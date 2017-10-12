@@ -13,7 +13,7 @@ from .models import (User, Project, Data,
                      Analysis, Job)
 
 from . import util
-from engine.consts import *
+from engine.const import *
 
 def join(*args):
     return os.path.abspath(os.path.join(*args))
@@ -164,7 +164,7 @@ def data_view(request, id):
         messages.error(request, "Data not found.")
         return redirect(reverse("data_view", kwargs={'id': data.id}))
 
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON, DATA_ICON],
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_ICON],
                                project=project, data=data)
 
     context = dict(data=data, steps=steps)
@@ -199,7 +199,7 @@ def data_create(request, id):
 
     project = Project.objects.filter(id=id).first()
 
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON],
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON],
                                project=project)
 
 
@@ -260,7 +260,7 @@ def analysis_view(request, id, id2):
         messages.error(request, "Analysis not found.")
         return redirect(reverse("analysis_list", kwargs={'id':project.id}))
 
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ANALYSIS_LIST_ICON, ANALYSIS_ICON],
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_ICON, ANALYSIS_ICON],
                                project=project, analysis=analysis)
 
     context = dict(project=project, analysis=analysis, steps=steps)
@@ -275,21 +275,18 @@ def analysis_run(request, id, id2):
     analysis.save()
     owner = User.objects.all().first()
 
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ANALYSIS_LIST_ICON, ANALYSIS_ICON],
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_ICON,  ANALYSIS_ICON],
                                project=project, analysis=analysis)
 
     if request.method == "POST":
 
-        form = RunAnalysis(data=request.POST, analysis=analysis.json_data)
+        form = RunAnalysis(data=request.POST, json_data=analysis.json_data)
 
         if form.is_valid():
-            filled_json = util.safe_loads(analysis.json_data)
 
-            for field in filled_json:
-                data = filled_json[field]
-                if field in form.cleaned_data:
-                    # Mutates field value in spec_source
-                    data["value"] = form.cleaned_data[field]
+            #filled_json = util.safe_loads(analysis.json_data)
+            filled_json = form.process()
+
 
             template_path = filled_json["template"]["value"]
 
@@ -310,7 +307,7 @@ def analysis_run(request, id, id2):
             return redirect(reverse("jobs_list", kwargs=dict(id=project.id)))
 
     else:
-        form = RunAnalysis(analysis=analysis.json_data)
+        form = RunAnalysis(json_data=analysis.json_data)
         context = dict(project=project, analysis=analysis, steps=steps, form=form)
         return render(request, 'analysis_run.html', context)
 
@@ -320,7 +317,7 @@ def analysis_edit(request, id, id2):
     analysis = Analysis.objects.filter(id=id2).first()
     project = Project.objects.filter(id=id).first()
 
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ANALYSIS_LIST_ICON, ANALYSIS_ICON],
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_ICON, ANALYSIS_LIST_ICON, ANALYSIS_ICON],
                                project=project, analysis=analysis)
 
     if request.method == "POST":

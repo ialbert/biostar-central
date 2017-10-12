@@ -118,14 +118,14 @@ def handle_scripts(field):
     return
 
 
-def get_choices(feild):
+def get_choices(field):
 
     # View data already in database
-    choices = feild.get("choices")
+    choices = field.get("choices")
     if choices:
         choices = list(choices.items())
 
-    if feild.get("origin") == "PROJECT":
+    if field.get("origin") == "PROJECT":
         # Just loads all data for now ( not project specific ).
         data = Data.objects.all()
         choices = []
