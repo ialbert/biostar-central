@@ -1,7 +1,6 @@
 from django.core.management.base import BaseCommand
 from django.template import Template,Context
 from engine.models import Job
-from pipeline import render
 import subprocess, os, sys,hjson
 
 
@@ -32,6 +31,8 @@ def run(job):
             fp.write(mtext)
 
         # run makefile.
+        job.state = job.RUNNING
+        job.save()
         process = subprocess.run(['make', 'all'], cwd=outdir, stderr=subprocess.PIPE, check=True)
         return_code = process.returncode
 
@@ -43,7 +44,10 @@ def run(job):
             sys.exit(1)
 
     finally:
-        job.log = "\n".join(errorlog)
+        if errorlog:
+            job.log = "\n".join(errorlog)
+        else:
+            job.log = "Analysis completed sucessfully. Results are in results folder. "
         with open(os.path.join(outdir, "run_log.txt"), 'wt') as fp:
             fp.write(job.log)
         if job.state != job.ERROR:
@@ -88,7 +92,7 @@ class Command(BaseCommand):
 
         if options['show_spec']:
             for job in jobs:
-                print("Makefile for job {0}".format(job.id))
+                print("Specs for job {0}".format(job.id))
                 print(job.json_data)
             sys.exit(1)
 
@@ -99,8 +103,7 @@ class Command(BaseCommand):
             sys.exit(1)
 
         for job in jobs:
-            if job.id ==1:
-                run(job)
+            run(job)
 
 
 
