@@ -432,9 +432,15 @@ def jobs_list(request, id):
     return render(request, "jobs_list.html", context)
 
 
-def media_files(request, path):
+def media_index(request):
 
-    return serve(request, path=path, document_root=settings.MEDIA_DIR, show_indexes=True)
+    context = dict()
+
+    return render(request, "media_index.html", context)
+
+
+
+
 def job_view(request, id):
 
     # create a directory when clicked.

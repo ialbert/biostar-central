@@ -126,7 +126,7 @@ class EditAnalysis(forms.Form):
 
         self.fields["text"] = forms.CharField(initial=initial)
         self.fields["save_or_preview"] = forms.CharField(initial="preview")
-
+        # put in function.
         for field in analysis:
 
             data = analysis[field]
