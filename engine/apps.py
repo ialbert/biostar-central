@@ -76,7 +76,7 @@ def init_proj(sender, **kwargs):
     # Pick most recent project to make a job out of
     jproject = Project.objects.order_by("-id").first()
 
-    filled_json = util.safe_loads(analysis.json_str)
+    filled_json = util.safe_loads(analysis.json_data)
 
     template_path = filled_json["template"]["value"]
     makefile_template = get_template(template_path).template.source
@@ -90,7 +90,7 @@ def init_proj(sender, **kwargs):
                                         analysis=analysis,
                                         owner=owner,
                                         state=state,
-                                        json_str=json.dumps(filled_json),
+                                        json_data=json.dumps(filled_json),
                                         makefile_template=makefile_template)
         if new:
             job.save()

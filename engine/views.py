@@ -322,10 +322,10 @@ def analysis_run(request, id, id2):
 
     if request.method == "POST":
 
-        form = RunAnalysis(data=request.POST, analysis=analysis.json_str)
+        form = RunAnalysis(data=request.POST, analysis=analysis.json_data)
 
         if form.is_valid():
-            filled_json = util.safe_loads(analysis.json_str)
+            filled_json = util.safe_loads(analysis.json_data)
 
             for field in filled_json:
                 data = filled_json[field]
@@ -341,7 +341,7 @@ def analysis_run(request, id, id2):
 
             makefile_template = get_template(template_path).template.source
 
-            job = Job.objects.create(json_str=json.dumps(filled_json),
+            job = Job.objects.create(json_data=json.dumps(filled_json),
                                      owner=owner,
                                      analysis=analysis,
                                      project=project,
@@ -352,7 +352,7 @@ def analysis_run(request, id, id2):
             return redirect(reverse("jobs_list", kwargs=dict(id=project.id)))
 
     else:
-        form = RunAnalysis(analysis=analysis.json_str)
+        form = RunAnalysis(analysis=analysis.json_data)
         context = dict(project=project, analysis=analysis, steps=steps, form=form)
         return render(request, 'analysis_run.html', context)
 
@@ -392,17 +392,17 @@ def analysis_edit(request, id, id2):
         elif request.POST.get("save_or_preview") == "save":
 
             form = EditAnalysis(analysis=request.POST.get("text"))
-            spec = util.safe_loads(analysis.json_str)
+            spec = util.safe_loads(analysis.json_data)
             filler = dict(display_type='')
 
             if spec.get("analysis_spec", filler)["display_type"] == "MODEL":
                 analysis.title = spec["analysis_spec"].get("title", analysis.title)
                 analysis.text = spec["analysis_spec"]["value"]
 
-            analysis.save(json_str=request.POST.get("text"))
+            analysis.save(json_data=request.POST.get("text"))
     else:
 
-        form = EditAnalysis(analysis=analysis.json_str)
+        form = EditAnalysis(analysis=analysis.json_data)
 
     context = dict(project=project, analysis=analysis, steps=steps, form=form)
     return render(request, 'analysis_edit.html', context)
