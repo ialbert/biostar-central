@@ -81,7 +81,6 @@ class Data(Base):
     type = models.IntegerField(default=FILE, choices=TYPE_CHOICES)
     project = models.ForeignKey(Project)
     size = ''
-    # file and press upload
 
     file = models.FileField(null=True, upload_to=directory_path)
 
@@ -97,9 +96,17 @@ class Data(Base):
         super(Data, self).save(*args, **kwargs)
 
 
+def make_analysis(user, json_file):
+    # return a created and saved analysis object
+    return
+
+def make_job(user, analysis, project):
+    return
+
+
 class Analysis(Base):
 
-    json_file = models.TextField(default="media")
+    #json_file = models.TextField(default="media")
     json_data = models.TextField(default=r"""{ 
                                             field1_name: 
                                             {
@@ -113,14 +120,13 @@ class Analysis(Base):
                                             }
                                             }""")
 
+    makefile_template = models.TextField(default="media")
+
     def save(self, *args, **kwargs):
 
         # Save source from a string if one is given.
         if kwargs.get("json_data"):
-            source = kwargs.pop("json_data")
-            self.json_data= source
-        else:
-            self.json_data = json.dumps(util.safe_load(self.json_file))
+            self.json_data= kwargs.pop("json_data")
 
         super(Analysis, self).save(*args, **kwargs)
 

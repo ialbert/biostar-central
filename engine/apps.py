@@ -66,10 +66,11 @@ def init_proj(sender, **kwargs):
 
         logger.info(f'creating or getting: {project.title}')
 
+    json_data = json.dumps(util.safe_load(JSON_SPECFILE))
     analysis, new = Analysis.objects.get_or_create(title="Analysis 1",
                                                     owner=owner,
                                                     text="analysis description",
-                                                    json_file=JSON_SPECFILE)
+                                                    json_data=json_data)
     if new:
         analysis.save()
 
