@@ -14,6 +14,7 @@ from .models import (User, Project, Data,
 
 from . import util
 from engine.const import *
+import hjson as json
 
 def join(*args):
     return os.path.abspath(os.path.join(*args))
@@ -362,7 +363,7 @@ def jobs_list(request, id):
 
     jobs = project.job_set.order_by("-id")
 
-    context = dict(jobs=jobs, steps=steps)
+    context = dict(jobs=jobs, steps=steps, project=project)
 
     return render(request, "jobs_list.html", context)
 

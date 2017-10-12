@@ -1,8 +1,12 @@
 {% extends "base.html" %}
 {% load engine_tags %}
 
+{% block headtitle %}
+    Data: {{ data.title }}
+{% endblock %}
+
 {% block title %}
-    {{ data.title }}
+    Data: {{ data.title }}
 {% endblock %}
 
 {% block menu %}
