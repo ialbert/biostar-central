@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-
+{%  load engine_tags %}
 {% block title %}
     Metabarcode
 {% endblock %}
@@ -9,18 +9,18 @@
 {% endblock %}
 
 {% block breadcrumb %}
+    {# No breadcrumbs on main page. #}
+{% endblock %}
 
+{% block menu %}
+    {% menubar %}
 {% endblock %}
 
 {% block body %}
 
     <div class="ui text container">
         <div class="ui vertical segment">
-           <div class="ui right floated mini basic button">
-           <a href="{% url 'project_create' %}">
-           <i class="write square icon"></i>Create Project
-           </a>
-           </div>
+
             <a href="{% url 'project_list' %}">
                 <div class="title"><i class="database icon"></i>Project List</div>
             </a>

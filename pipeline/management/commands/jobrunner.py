@@ -13,7 +13,7 @@ def run(job):
     takes job object, runs the job and return job status
     '''
 
-    spec = job.json_data
+    spec = job.json_str
     template = job.makefile_template
     outdir = job.path
     errorlog = []
@@ -42,7 +42,7 @@ def run(job):
         job.log = "\n".join(errorlog)
         print("printing errlog")
         print(job.log)
-        #job.save()
+        job.save()
     return job
 
 

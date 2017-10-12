@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{%  load engine_tags %}
 
 {% block title %}
 Projects
@@ -12,6 +13,10 @@ Projects
     <i class="write square icon"></i>Create Project
 </button>
 
+{% endblock %}
+
+{% block menu %}
+    {% menubar create_project=True %}
 {% endblock %}
 
 {% block body %}

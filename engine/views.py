@@ -71,7 +71,7 @@ def project_view(request, id):
         (reverse("project_view", kwargs={'id':project.id}), f"{project.title}", active)
     ]
 
-    context = dict(projects=project, steps=steps)
+    context = dict(project=project, steps=steps)
 
     return render(request, "project_view.html", context)
 
