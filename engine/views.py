@@ -30,7 +30,7 @@ def index(request):
     return render(request, 'index.html', context)
 
 
-def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, results=None):
+def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=None):
     # Works off of icon names
     if not icons:
         return []
@@ -53,6 +53,10 @@ def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, results
             step = (reverse("analysis_list", kwargs={'id': project.id}), ANALYSIS_LIST_ICON, "Analysis List", is_active )
         elif icon == ANALYSIS_ICON:
             step = (reverse("analysis_view", kwargs={'id': project.id, 'id2': analysis.id}), ANALYSIS_ICON, f"{analysis.title}", is_active )
+        elif icon == RESULT_LIST_ICON:
+            step = (reverse("job_list", kwargs={'id': project.id,}), RESULT_LIST_ICON, "Result List",is_active)
+        elif icon == RESULT_ICON:
+            step = (reverse("job_view", kwargs={'id': job.id}), RESULT_ICON, f"{job.title}", is_active)
         else:
             continue
 
@@ -147,7 +151,7 @@ def data_list(request, id):
         messages.error(request, "No data found for this project.")
         return redirect(reverse("project_view", kwargs={'id': project.id}))
 
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON], project=project)
+    steps = breadcrumb_builder([HOME_ICON,  PROJECT_ICON, DATA_LIST_ICON], project=project)
 
     context = dict(project=project, steps=steps)
 
@@ -164,7 +168,7 @@ def data_view(request, id):
         messages.error(request, "Data not found.")
         return redirect(reverse("data_view", kwargs={'id': data.id}))
 
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_ICON],
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_ICON, DATA_LIST_ICON, DATA_ICON],
                                project=project, data=data)
 
     context = dict(data=data, steps=steps)
@@ -242,7 +246,7 @@ def analysis_list(request, id):
         messages.error(request, "No Analysis found.")
         return redirect(reverse("project_view", kwargs={'id': project.id}))
 
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ANALYSIS_LIST_ICON],
+    steps = breadcrumb_builder([HOME_ICON,  PROJECT_ICON, ANALYSIS_LIST_ICON],
                                project=project)
 
     context = dict(project=project, analysis=analysis, steps=steps)
@@ -363,7 +367,7 @@ def jobs_list(request, id):
         messages.error(request, "No jobs found for this project.")
         return redirect(reverse("project_view", kwargs={'id': project.id}))
 
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, RESULT_LIST_ICON],
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, RESULT_LIST_ICON ],
                                project=project)
 
     jobs = project.job_set.order_by("-id")
