@@ -240,8 +240,8 @@ def data_create(request, id):
 #@login_required
 def analysis_list(request, id):
 
-    analysis = Analysis.objects.order_by("-id")
     project = Project.objects.filter(id=id).first()
+    analysis = Analysis.objects.filter(project=project).order_by("-id")
 
     if not analysis:
         messages.error(request, "No Analysis found.")
@@ -285,7 +285,7 @@ def analysis_run(request, id):
 
     if request.method == "POST":
 
-        form = RunAnalysis(data=request.POST, json_data=analysis.json_data)
+        form = RunAnalysis(data=request.POST, analysis=analysis)
 
         if form.is_valid():
 
@@ -302,7 +302,8 @@ def analysis_run(request, id):
             return redirect(reverse("job_list", kwargs=dict(id=project.id)))
 
     else:
-        form = RunAnalysis(json_data=analysis.json_data)
+        initial = dict(title=analysis.title)
+        form = RunAnalysis(analysis=analysis, initial=initial)
         context = dict(project=project, analysis=analysis, steps=steps, form=form)
         return render(request, 'analysis_run.html', context)
 

@@ -9,7 +9,7 @@ import mistune
 from . import settings
 from . import util
 from django.urls import reverse
-
+from .const import *
 
 def join(*args):
     return os.path.abspath(os.path.join(*args))
@@ -67,6 +67,7 @@ class Data(Base):
     FILE, COLLECTION = 1, 2
     TYPE_CHOICES =[(FILE, "File"),(COLLECTION ,"Collection")]
     type = models.IntegerField(default=FILE, choices=TYPE_CHOICES)
+    data_type = models.IntegerField(default=GENERIC_TYPE)
     project = models.ForeignKey(Project)
     size = ''
 
@@ -84,20 +85,7 @@ class Data(Base):
 
 class Analysis(Base):
 
-    json_file = models.TextField(default="media")
-    json_data = models.TextField(default=r"""{ 
-                                            field1_name: 
-                                            {
-                                            value:field_value, 
-                                            type:FIELD_TYPE
-                                            }
-                                            field2_name:
-                                            {
-                                            value:field_value, 
-                                            type:FIELD_TYPE
-                                            }
-                                            }""")
-
+    json_data = models.TextField(default="{}")
     makefile_template = models.TextField(default="makefile")
     project = models.ForeignKey(Project)
     def save(self, *args, **kwargs):

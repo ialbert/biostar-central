@@ -89,27 +89,35 @@ class DataForm(forms.Form):
 
 class RunAnalysis(forms.Form):
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, analysis, *args, **kwargs):
 
-        self.json_data = kwargs.pop("json_data")
-        self.json_data = json.loads(self.json_data)
+        self.analysis = analysis
+        self.json_data = json.loads(self.analysis.json_data)
 
         super().__init__(*args, **kwargs)
 
         # Job needs a title
         self.fields["title"] = forms.CharField(max_length=256, initial="Title")
 
-        for field, value in self.json_data.items():
-            visible = value.get("visible")
-            display_type = value.get("display_type", '')
+        for name, obj in self.json_data.items():
+            visible = obj.get("visible")
+            origin = obj.get(FIELD_ORIGIN)
+            display_type = obj.get("display_type", '')
 
             if not display_type:
                 continue
 
             factory.check_display(display_type)
 
-            if visible == 1:
-                self.fields[field] = factory.TYPE2FUNC[display_type](value)
+            if visible:
+                if origin == PROJECT_ORIGIN:
+                    data_type = obj.get("data_type")
+                    field  = factory.data_generator(obj, project=self.analysis.project, data_type=data_type)
+                else:
+                    field = factory.TYPE2FUNC[display_type](obj)
+
+
+                self.fields[name] = field
 
     def save(self, *args, **kwargs):
 

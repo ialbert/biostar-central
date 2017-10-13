@@ -11,6 +11,7 @@ Sample name should match the sample name in the dataset.
     css: red
     visible: 1
     display_type: DROPDOWN
+    data_type: SAMPLE_TYPE
     origin: PROJECT
     }
 
@@ -20,7 +21,6 @@ data : {
     origin: PROJECT
     data_type: TAR_FASTQ_GZ
     display_type: DROPDOWN
-
     }
 
 library_type : {

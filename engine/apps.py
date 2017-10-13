@@ -55,14 +55,13 @@ def init_proj(sender, **kwargs):
         logger.info(f'Created project: {project.title}')
 
         # Add data to each project.
-        for data_title, data_desc, data_file in TEST_DATA:
-            data = Data(title=data_title, owner=owner, text=data_desc, project=project, file=data_file)
+        for data_title, data_desc, data_file, data_type in TEST_DATA:
+            data = Data(title=data_title, owner=owner, text=data_desc, project=project, file=data_file, data_type=data_type)
             data.save()
 
         # Initialize the analyses.
         for test_spec in TEST_SPECS:
             analysis = make_analysis_from_spec(test_spec, user=owner, project=project)
-
             # Create four jobs for each project.
             for project in Project.objects.all():
                 for state in (Job.RUNNING, Job.ERROR, Job.QUEUED):
