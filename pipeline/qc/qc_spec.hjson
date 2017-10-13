@@ -1,7 +1,7 @@
 {
 
 sampleinfo : {
-    path : ~/tmp/qc_test/sampleinfo.txt
+    value : ~/tmp/qc_test/sampleinfo.txt
     help : '''
 Enter a tab delimited text file. Order of the fields should be
 sample name, sample group, barcode, forward primer sequence, reverse primer sequence, target gene.
@@ -16,7 +16,7 @@ Sample name should match the sample name in the dataset.
     }
 
 data : {
-    path: ~/tmp/qc_test/data
+    value: ~/tmp/qc_test/data
     visible: 1
     origin: PROJECT
     data_type: TAR_FASTQ_GZ

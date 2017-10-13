@@ -67,7 +67,7 @@ class LoginForm(forms.Form):
 
 class ProjectForm(forms.ModelForm):
 
-    text = forms.CharField(widget=PagedownWidget(template="widgets/pagedownwidget.html"))
+    #text = forms.CharField(widget=PagedownWidget(template="widgets/pagedownwidget.html"))
 
     class Meta:
 
@@ -77,14 +77,34 @@ class ProjectForm(forms.ModelForm):
 
 class DataForm(forms.Form):
 
-    title = forms.CharField(max_length=256)
-    text = forms.CharField(widget=PagedownWidget(template="widgets/pagedownwidget.html"))
-    file = forms.FileField(label="Upload data file")
+    text = forms.CharField(widget=forms.Textarea(), max_length=512)
+    file = forms.FileField(label="Upload Data File")
     type = forms.IntegerField(widget=forms.Select(choices=Data.TYPE_CHOICES),
                               initial=Data.FILE)
+
     def save(self, *args, **kwargs):
 
         super(DataForm, self).save(*args, **kwargs)
+
+
+def make_field(obj, project):
+
+    field = ''
+    visible = obj.get("visible")
+    origin = obj.get(FIELD_ORIGIN)
+    display_type = obj.get("display_type", '')
+
+    if not display_type:
+        return field
+
+    if visible:
+        if origin == PROJECT_ORIGIN:
+            data_type = obj.get("data_type")
+            field = factory.data_generator(obj, project=project, data_type=data_type)
+        else:
+            field = factory.TYPE2FUNC[display_type](obj)
+
+    return field
 
 
 class RunAnalysis(forms.Form):
@@ -97,31 +117,21 @@ class RunAnalysis(forms.Form):
         super().__init__(*args, **kwargs)
 
         # Job needs a title
-        self.fields["title"] = forms.CharField(max_length=256, initial="Title")
+        self.fields["title"] = forms.CharField(max_length=256,
+                                               help_text="Leave Empty to fill with Analysis name.",
+                                               required=False)
 
         for name, obj in self.json_data.items():
-            visible = obj.get("visible")
-            origin = obj.get(FIELD_ORIGIN)
-            display_type = obj.get("display_type", '')
+            field = make_field(obj, analysis.project)
 
-            if not display_type:
-                continue
-
-            factory.check_display(display_type)
-
-            if visible:
-                if origin == PROJECT_ORIGIN:
-                    data_type = obj.get("data_type")
-                    field  = factory.data_generator(obj, project=self.analysis.project, data_type=data_type)
-                else:
-                    field = factory.TYPE2FUNC[display_type](obj)
-
-
+            if field:
                 self.fields[name] = field
+
 
     def save(self, *args, **kwargs):
 
         super(RunAnalysis, self).save(*args, **kwargs)
+
 
     def process(self):
         '''
@@ -138,7 +148,10 @@ class RunAnalysis(forms.Form):
             if obj.get(FIELD_ORIGIN) == PROJECT_ORIGIN:
                 data_id = self.cleaned_data.get(field, 0)
                 data = get_data(data_id)
-                obj["path"] = data.get_path().path
+
+                obj["value"] = data.get_path().path
+                continue
+
             if field in self.cleaned_data:
                 # Mutates the value key.
                 obj["value"] = self.cleaned_data[field]
@@ -148,27 +161,27 @@ class RunAnalysis(forms.Form):
 
 class EditAnalysis(forms.Form):
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, analysis, *args, **kwargs):
 
-        analysis = kwargs.pop("analysis")
+        self.analysis = analysis
+        self.json_data =  kwargs.get('json_data') or self.analysis.json_data
+        self.json_data = util.safe_loads(self.json_data)
+
+        if kwargs.get("json_data"):
+            kwargs.pop('json_data')
 
         super().__init__(*args, **kwargs)
 
-        analysis = util.safe_loads(analysis)
-        initial = json.dumps(analysis, indent=4)
+        initial = json.dumps(self.json_data, indent=4)
 
         self.fields["text"] = forms.CharField(initial=initial)
         self.fields["save_or_preview"] = forms.CharField(initial="preview")
-        # put in function.
-        for field in analysis:
 
-            data = analysis[field]
-            display_type = data["display_type"]
-            factory.check_display(display_type)
+        for name, obj in self.json_data.items():
+            field = make_field(obj, analysis.project)
 
-            if data.get(FIELD_VISIBLE):
-
-                self.fields[field] = factory.TYPE2FUNC[display_type](data)
+            if field:
+                self.fields[name] = field
 
     def save(self, *args, **kwargs):
 

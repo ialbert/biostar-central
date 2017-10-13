@@ -19,6 +19,7 @@ def float_field(field):
 
 
 def select_field(field, choicefunc=None):
+
     if choicefunc:
         choices = choicefunc()
     else:
@@ -58,9 +59,14 @@ def number_field(field):
     help_text = field.get("help", f"Enter number between {min_value} and {max_value}")
     initial = field.get("value", 1)
 
-    field = forms.IntegerField(widget=widget, initial=initial,
-                               min_value=min_value, max_value=max_value,
-                               help_text=help_text, label=label)
+    field = forms.IntegerField(widget=widget,
+                               initial=initial,
+                               min_value=min_value,
+                               max_value=max_value,
+                               help_text=help_text,
+                               label=label,
+                               required=False)
+
 
     return field
 
@@ -91,9 +97,6 @@ def checkbox_field(field):
     return field
 
 
-def model_specs(field):
-    return
-
 
 def handle_scripts(field):
     return
@@ -101,6 +104,7 @@ def handle_scripts(field):
 
 def ignore(field):
     pass
+
 
 
 def data_generator(field, project, data_type=None):
@@ -121,11 +125,11 @@ TYPE2FUNC = {
     RADIO: radioselect_field,
     DROPDOWN: select_field,
     INTEGER: number_field,
-    FLOAT: float_field,
-    UPLOAD: file_field,
-    CHECKBOX: checkbox_field,
-    MODEL: model_specs,
-    SCRIPT: handle_scripts,
+    FLOAT : float_field,
+    UPLOAD : file_field,
+    CHECKBOX :checkbox_field,
+    MODEL: ignore,
+    SCRIPT : handle_scripts,
     TEMPLATE: ignore
 }
 
