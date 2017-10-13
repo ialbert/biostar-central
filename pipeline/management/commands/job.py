@@ -63,21 +63,36 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
 
         # positional arguments.
-        parser.add_argument('limit',type=int,default=1,help="Enter the number of jobs to run. Default is 1.")
+        #parser.add_argument('limit',type=int,default=1,help="Enter the number of jobs to run. Default is 1.")
 
         # Named (optional) arguments
-        parser.add_argument('--show_queued',
+        parser.add_argument('--run',
                             action='store_true',
-                             dest='show_queued',
-                            default=False, help="List tem most recent queued jobs.")
-        parser.add_argument('--show_make',
+                             dest='run',
+                             default =False,
+                             help="Runs job. Job should be specified by jobid or limit.")
+
+        parser.add_argument('--limit',
                             action='store_true',
-                             dest='show_make',
-                            default=False, help="Show makefile of the queued jobs.")
-        parser.add_argument('--show_spec',
+                             dest='limit',
+                            default=1, help="Enter the number of jobs to run.")
+        parser.add_argument('--jobid',
                             action='store_true',
-                             dest='show_spec',
-                            default=False, help="Show analysis spec of the queued jobs.")
+                             dest='jobid',
+                             help="Specifies job id.")
+
+        parser.add_argument('--queued',
+                            action='store_true',
+                             dest='queued',
+                             help="List ten most recent queued jobs.")
+        parser.add_argument('--template',
+                            action='store_true',
+                             dest='template',
+                            help="Show template.")
+        parser.add_argument('--spec',
+                            action='store_true',
+                             dest='pec',
+                            help="Show analysis spec.")
 
     def handle(self, *args, **options):
 

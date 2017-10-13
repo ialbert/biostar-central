@@ -9,15 +9,17 @@ data : {
 
 template : {
         path: fastqc_makefile.html
-        display_type: SCRIPT
+
 }
 threads : {
         value: 4
-        display_type:SCRIPT
+
 }
-analysis_spec :
+command : make all
+settings :
   {
     title: Fastqc report of input data file.
+
     text:'''
 # Purpose
 
