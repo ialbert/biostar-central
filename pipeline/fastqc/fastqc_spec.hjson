@@ -25,7 +25,7 @@ Produce fastqc report of the input file.
 
 # Parameters
 
-1. Fastq or fatsq.gz file as input.
+Fastq or fatsq.gz file as input.
 
 # Results
 
