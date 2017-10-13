@@ -1,5 +1,7 @@
-<div class="ui menu">
-
+<div class="ui large menu">
+    <a class="item" href="{% url 'index' %}">
+        <i class="home icon"></i> Home
+    </a>
     {% if user.is_authenticated %}
         <a class="item"><i class="user icon"></i> {{ user.email }}</a>
 

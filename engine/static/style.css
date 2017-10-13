@@ -11,6 +11,11 @@ h1 {
     font-size: 1.4rem;
 }
 
+.title {
+    font-size: 1.14285714rem;
+    font-weight: 400;
+}
+
 .specs {
     font-size: 0.85em;
     margin-bottom: 1em;

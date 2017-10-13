@@ -1,17 +1,17 @@
 {% extends "base.html" %}
-{%  load engine_tags %}
+{% load engine_tags %}
 
 {% block headtitle %}
-Project List
+    Project List
 {% endblock %}
 
 {% block header %}
 
-<i class="database icon"></i>Project List
+    <i class="database icon"></i>Project List
 
-<button class="ui mini button">
-    <i class="write square icon"></i>Create Project
-</button>
+    <button class="ui mini button">
+        <i class="write square icon"></i>Create Project
+    </button>
 
 {% endblock %}
 
@@ -22,16 +22,17 @@ Project List
 {% block body %}
 
 
-{% for project in projects %}
+    {% for project in projects %}
 
-<div class="ui vertical segment">
+        <div class="ui vertical segment">
+            <div class="title">
+                <a href="{{ project.url }}">
+                    <i class="archive icon"></i>{{ project.title }}
+                </a>
+            </div>
+            <div class="info">Created: {{ project.date.date }}</div>
+        </div>
 
-    <a href="{{project.url}}">
-        <i class="archive icon"></i>{{ project.title }}
-    </a>
-    <div class="info">Created: {{project.date.date}}</div>
-</div>
-
-{% endfor %}
+    {% endfor %}
 
 {% endblock %}
