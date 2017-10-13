@@ -60,7 +60,7 @@ threads : {
 
 analysis_spec : {
     title: Quality control of sequencing data
-    text:
+    help:
                 '''
 # Purpose
 

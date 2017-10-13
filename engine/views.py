@@ -33,6 +33,7 @@ def index(request):
 
 def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=None):
     # Works off of icon names
+
     if not icons:
         return []
 
@@ -58,6 +59,10 @@ def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=Non
             step = (reverse("job_list", kwargs={'id': project.id,}), RESULT_LIST_ICON, "Result List",is_active)
         elif icon == RESULT_ICON:
             step = (reverse("job_view", kwargs={'id': job.id}), RESULT_ICON, f"{job.title}", is_active)
+        elif icon == LOGIN_ICON:
+            step = (reverse("login"), LOGIN_ICON, "Login", is_active)
+        elif icon == LOGOUT_ICON:
+            step = (reverse("login"), LOGOUT_ICON, "Logout", is_active)
         else:
             continue
 
@@ -179,7 +184,7 @@ def data_view(request, id):
     return render(request, "data_view.html", context)
 
 
-@login_required(login_url=LOGIN_URL)
+@login_required
 def data_edit(request, id):
 
     data = Data.objects.filter(id=id).first()
@@ -202,7 +207,7 @@ def data_edit(request, id):
 
     return render(request, 'data_edit.html', context)
 
-@login_required(login_url=LOGIN_URL)
+@login_required
 def data_create(request, id):
 
     project = Project.objects.filter(id=id).first()
