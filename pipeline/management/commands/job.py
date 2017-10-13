@@ -1,17 +1,20 @@
 from django.core.management.base import BaseCommand
 from django.template import Template,Context
 from engine.models import Job
-import subprocess, os, sys,hjson
+import subprocess, os, sys,hjson,logging
 
+
+logger = logging.getLogger('engine')
 
 CURR_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
-def run(job):
+def run(job,show=False):
     ''''
     takes job object, runs the job and return job status
     '''
 
+    logger.info(f'job {job.id} started')
     spec = job.json_data
     template = job.makefile_template
     outdir = job.path
@@ -19,8 +22,6 @@ def run(job):
     stdout_log =[]
     stderr_log = []
 
-    print("hello")
-    1/0
 
     try:
         # render makefile.
@@ -33,31 +34,43 @@ def run(job):
         context = Context(spec)
         mtext = template.render(context)
 
+
         if not os.path.isdir(outdir):
             os.mkdir(outdir)
 
+        logger.info(f'job output dir {outdir}')
         with open(os.path.join(outdir, filename), 'wt') as fp:
             fp.write(mtext)
 
+        print(show)
+
+        21/0
+        if show:
+            print(mtext)
+            return
+
         # Run the command.
         job.state = job.RUNNING
+        logger.info(f'job commands {commands}')
         process = subprocess.run(commands, cwd=outdir, stderr=subprocess.PIPE, stdout=subprocess.PIPE, check=True)
         job.state = job.FINISHED
 
     except subprocess.CalledProcessError as err:
         error_log.append(err.stderr.decode('utf-8'))
         job.state = job.ERROR
+        logger.info(f'job error: {err}')
 
     except Exception as exc:
         error_log.append(str(exc))
         job.state = job.ERROR
+        logger.info(f'job exception: {exc}')
 
     finally:
-        stdout_log.append(process.stdout.read())
-        stderr_log.append(process.stderr.read())
+        #stdout_log.append(process.stdout.read())
+        #stderr_log.append(process.stderr.read())
         job.log = "\n".join(stdout_log + error_log)
         job.save()
-
+        logger.info(f'job {job.id} completed')
     return job
 
 
@@ -71,10 +84,13 @@ class Command(BaseCommand):
 
         # Named (optional) arguments
         parser.add_argument('--run',
-                             action='store_true',
-                             dest='run',
-                             help="Runs job. Job should be specified by jobid or limit.")
+                            type =int,
+                            help="Runs job specified by id.")
 
+        parser.add_argument('--show',
+                            action='store_true',
+                            help="")
+        '''
         parser.add_argument('--limit',
                             dest='limit',
                             type =int,
@@ -96,18 +112,28 @@ class Command(BaseCommand):
                             dest='spec',
                             action='store_true',
                             help="Show analysis spec.")
-
+        '''
     def handle(self, *args, **options):
 
-        limit = options['limit']
-        jobid = options['jobid']
-        queued = options['queued']
-        spec = options['spec']
-        template = options['template']
-        run = options['run']
+        #limit = options['limit']
+        #jobid = options['jobid']
+        #queued = options['queued']
+        #spec = options['spec']
+        #template = options['template']
+        runid = options['run']
+        show = options['show']
 
+        if run:
+            job = Job.objects.filter(id=runid).first()
+            if not job:
+                logger.error(f'job id {runid} missing')
+                sys.exit()
+
+            run(job,show=show)
+            return
          #jobs = Job.objects.filter(state=Job.QUEUED).order_by("-id")[:limit]
 
+        '''
         if queued:
             jobs = Job.objects.filter(state=Job.QUEUED).order_by("-id")[:10]
             for job in jobs:
@@ -134,7 +160,7 @@ class Command(BaseCommand):
                 return
             if run:
                 print("runs job")
-                # run(job)
+                run(job)
                 return
 
         if limit:
@@ -144,4 +170,4 @@ class Command(BaseCommand):
                 print("running job")
             return
 
-
+        '''
