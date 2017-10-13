@@ -1,9 +1,14 @@
 {% extends "base.html" %}
 {% load engine_tags %}
 
-{% block title %}
-    {{project.title}} | Data List
+{% block headtitle %}
+    Data List
 {% endblock %}
+
+{% block title %}
+    Data list for: {{project.title}}
+{% endblock %}
+
 
 {% block menu %}
     {% menubar project=project upload_data=True %}

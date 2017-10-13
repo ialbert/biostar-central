@@ -2,8 +2,12 @@
 {% load engine_tags %}
 
 
+{% block headtitle %}
+    {{project.title}}
+{% endblock %}
+
 {% block title %}
-    {{projects.title}}
+    Project: {{project.title}}
 {% endblock %}
 
 {% block menu %}

@@ -2,6 +2,15 @@ h2.ui.center.header {
     margin-top: 1em;
 }
 
+h2.ui.header {
+    font-size: 1.2rem;
+}
+
+h1 {
+    min-height: 1rem;
+    font-size: 1.4rem;
+}
+
 .specs {
     font-size: 0.85em;
     margin-bottom: 1em;

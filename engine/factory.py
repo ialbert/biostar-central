@@ -1,11 +1,10 @@
 from django import forms
 from .models import Data
-from pipeline.const import *
+from engine.const import *
 
 
 def float_field(field):
-
-    numrange = field.get("range", [1.0,1000.0])
+    numrange = field.get("range", [1.0, 1000.0])
     min_value, max_value = numrange[0], numrange[1]
 
     label = field.get("label")
@@ -13,37 +12,31 @@ def float_field(field):
     help_text = field.get("help", f"Enter number between {min_value} and {max_value}")
     initial = field.get("value", 1)
 
-    field = forms.FloatField(widget=widget,
-                               initial=initial,
-                               min_value=min_value,
-                               max_value=max_value,
-                               help_text=help_text,
-                               label=label,
-                               required=False)
+    field = forms.FloatField(widget=widget, initial=initial, min_value=min_value, max_value=max_value,
+                             help_text=help_text, label=label, required=False)
 
     return field
 
 
-def select_field(field):
+def select_field(field, choicefunc=None):
+    if choicefunc:
+        choices = choicefunc()
+    else:
+        choices = field.get("choices")
 
-    choices = get_choices(field)
     initial = field.get("value")
     label = field.get("label")
     help_text = field.get("help", "Pick values from a dropdown menu")
 
     widget = forms.Select(choices=choices)
 
-    field = forms.CharField(widget=widget,
-                            initial=initial,
-                            label=label,
-                            help_text=help_text)
+    field = forms.CharField(widget=widget, initial=initial, label=label, help_text=help_text)
 
     return field
 
 
 def radioselect_field(field):
-
-    choices = get_choices(field)
+    choices = field.get("choices")
 
     initial = field.get("value")
     label = field.get("label")
@@ -51,17 +44,13 @@ def radioselect_field(field):
 
     widget = forms.RadioSelect(choices=choices)
 
-    field = forms.CharField(widget=widget,
-                            initial=initial,
-                            label=label,
-                            help_text=help_text)
+    field = forms.CharField(widget=widget, initial=initial, label=label, help_text=help_text)
 
     return field
 
 
 def number_field(field):
-
-    numrange = field.get("range", [1,1000])
+    numrange = field.get("range", [1, 10])
 
     min_value, max_value = numrange[0], numrange[1]
     label = field.get("label")
@@ -77,25 +66,21 @@ def number_field(field):
                                label=label,
                                required=False)
 
+
     return field
 
 
 def file_field(field):
-
     widget = forms.FileInput()
     label = field.get("label")
     initial = field.get("value")
 
-    field = forms.FileField(widget=widget,
-                            label=label,
-                            required=False,
-                            initial=initial)
+    field = forms.FileField(widget=widget, label=label, required=False, initial=initial)
     return field
 
 
 def checkbox_field(field):
-
-    boolmap = {'true':True, 'false':False}
+    boolmap = {'true': True, 'false': False}
 
     label = field.get("label")
     help_text = field.get("help", "Check option for true.")
@@ -115,25 +100,23 @@ def checkbox_field(field):
 def handle_scripts(field):
     return
 
+
 def ignore(field):
     pass
 
 
-def get_choices(field):
 
-    # View data already in database
-    choices = field.get("choices")
-    if choices:
-        choices = list(choices.items())
+def data_generator(field, project, data_type=None):
+    valid_type = DATA_TYPES.get(data_type, GENERIC_TYPE)
 
-    if field.get("origin") == "PROJECT":
-        # Just loads all data for now ( not project specific ).
-        data = Data.objects.all()
-        choices = []
-        for d in data:
-            choices.append((d.id, d.title))
+    def choice_func():
+        query = Data.objects.filter(project=project)
+        if valid_type != GENERIC_TYPE:
+            query = query.filter(data_type=valid_type)
+        choices = [(d.id, d.title) for d in query]
+        return choices
 
-    return choices
+    return select_field(field, choicefunc=choice_func)
 
 
 TYPE2FUNC = {
@@ -149,8 +132,8 @@ TYPE2FUNC = {
     TEMPLATE: ignore
 }
 
-def check_display(display_type):
 
+def check_display(display_type):
     # this check is too soon
     if not (display_type in TYPE2FUNC):
         raise Exception(f"Incorrect value for display_type={display_type}. Options are:{TYPE2FUNC.keys()}")

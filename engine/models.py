@@ -10,14 +10,13 @@ import mistune
 from . import settings
 from . import util
 from django.urls import reverse
-
+from .const import *
 
 def join(*args):
     return os.path.abspath(os.path.join(*args))
 
 
 def make_html(text):
-
     return mistune.markdown(text)
 
 
@@ -69,7 +68,9 @@ class Data(Base):
     FILE, COLLECTION = 1, 2
     TYPE_CHOICES =[(FILE, "File"),(COLLECTION ,"Collection")]
     type = models.IntegerField(default=FILE, choices=TYPE_CHOICES)
+    data_type = models.IntegerField(default=GENERIC_TYPE)
     project = models.ForeignKey(Project)
+
     size = models.CharField(null=True, max_length=256)
 
     file = models.FileField(null=True, upload_to=directory_path)
@@ -79,14 +80,14 @@ class Data(Base):
         super().__init__(*args, **kwargs)
 
     def save(self, *args, **kwargs):
-        self.size = f"{models.FileField.__sizeof__(self.file)}"
+        #self.size = f"{models.FileField.__sizeof__(self.file)}"
         super(Data, self).save(*args, **kwargs)
 
     def get_path(self):
         return self.file if self.type == Data.FILE else self.path
 
 
-def make_analysis_from_spec(path, user):
+def make_analysis_from_spec(path, user, project):
 
     json_obj = util.safe_load(path)
     title = json_obj["analysis_spec"]["title"]
@@ -96,7 +97,7 @@ def make_analysis_from_spec(path, user):
     makefile_template = get_template(template_path).template.source
 
     analysis = Analysis(json_data=json.dumps(json_obj), owner=user, title=title, text=text,
-                        makefile_template=makefile_template)
+                        makefile_template=makefile_template, project=project)
     analysis.save()
 
     return analysis
@@ -105,21 +106,9 @@ def make_analysis_from_spec(path, user):
 
 class Analysis(Base):
 
-    json_data = models.TextField(default=r"""{ 
-                                            field1_name: 
-                                            {
-                                            value:field_value, 
-                                            type:FIELD_TYPE
-                                            }
-                                            field2_name:
-                                            {
-                                            value:field_value, 
-                                            type:FIELD_TYPE
-                                            }
-                                            }""")
-
+    json_data = models.TextField(default="{}")
     makefile_template = models.TextField(default="makefile")
-
+    project = models.ForeignKey(Project)
 
     def save(self, *args, **kwargs):
         super(Analysis, self).save(*args, **kwargs)

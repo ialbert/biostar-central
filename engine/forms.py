@@ -87,28 +87,12 @@ class DataForm(forms.Form):
         super(DataForm, self).save(*args, **kwargs)
 
 
-def make_form_field(value):
-
-    visible = value.get("visible")
-    display_type = value.get("display_type", '')
-
-    if not display_type:
-        return ""
-
-    factory.check_display(display_type)
-
-    if visible == 1:
-        return factory.TYPE2FUNC[display_type](value)
-
-    return  ""
-
-
 class RunAnalysis(forms.Form):
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, analysis, *args, **kwargs):
 
-        self.json_data = kwargs.pop("json_data")
-        self.json_data = json.loads(self.json_data)
+        self.analysis = analysis
+        self.json_data = json.loads(self.analysis.json_data)
 
         super().__init__(*args, **kwargs)
 
@@ -117,11 +101,23 @@ class RunAnalysis(forms.Form):
                                                help_text="Leave Empty to fill with Analysis name.",
                                                required=False)
 
-        for field, value in self.json_data.items():
-            form_field = make_form_field(value)
 
-            if form_field :
-                self.fields[field] = form_field
+        for name, obj in self.json_data.items():
+            visible = obj.get("visible")
+            origin = obj.get(FIELD_ORIGIN)
+            display_type = obj.get("display_type", '')
+
+            if not display_type:
+                continue
+
+            if visible:
+                if origin == PROJECT_ORIGIN:
+                    data_type = obj.get("data_type")
+                    field  = factory.data_generator(obj, project=self.analysis.project, data_type=data_type)
+                else:
+                    field = factory.TYPE2FUNC[display_type](obj)
+
+                self.fields[name] = field
 
 
     def save(self, *args, **kwargs):
@@ -135,7 +131,7 @@ class RunAnalysis(forms.Form):
         Should be called after the form has been filled and is valid.
         '''
 
-        # Should make a copy of the json
+        # TODO: should make a copy of the json rather than mutated it.
         for field, obj in self.json_data.items():
             # No need to read fields that were not set.
             if not obj.get(FIELD_VISIBLE):
@@ -144,14 +140,13 @@ class RunAnalysis(forms.Form):
             if obj.get(FIELD_ORIGIN) == PROJECT_ORIGIN:
                 data_id = self.cleaned_data.get(field, 0)
                 data = get_data(data_id)
+
                 obj["value"] = data.get_path().path
                 continue
+
             if field in self.cleaned_data:
                 # Mutates the value key.
                 obj["value"] = self.cleaned_data[field]
-
-
-        print (json.dumps(self.json_data))
 
         return self.json_data
 
@@ -172,10 +167,19 @@ class EditAnalysis(forms.Form):
 
 
         for field, value in analysis.items():
-            form_field = make_form_field(value)
 
-            if form_field:
-                self.fields[field] = form_field
+            visible = value.get("visible")
+            display_type = value.get("display_type", '')
+
+            if not display_type:
+                continue
+
+            factory.check_display(display_type)
+
+            if visible == 1:
+                self.fields[field] = factory.TYPE2FUNC[display_type](value)
+
+
 
     def save(self, *args, **kwargs):
 

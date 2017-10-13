@@ -13,6 +13,7 @@ from .models import (User, Project, Data,
 
 from . import util
 from engine.const import *
+import hjson as json
 
 def join(*args):
     return os.path.abspath(os.path.join(*args))
@@ -52,7 +53,7 @@ def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=Non
         elif icon == ANALYSIS_LIST_ICON:
             step = (reverse("analysis_list", kwargs={'id': project.id}), ANALYSIS_LIST_ICON, "Analysis List", is_active )
         elif icon == ANALYSIS_ICON:
-            step = (reverse("analysis_view", kwargs={'id': project.id, 'id2': analysis.id}), ANALYSIS_ICON, f"{analysis.title}", is_active )
+            step = (reverse("analysis_view", kwargs={'id': analysis.id}), ANALYSIS_ICON, f"{analysis.title}", is_active )
         elif icon == RESULT_LIST_ICON:
             step = (reverse("job_list", kwargs={'id': project.id,}), RESULT_LIST_ICON, "Result List",is_active)
         elif icon == RESULT_ICON:
@@ -222,7 +223,7 @@ def data_create(request, id):
                                            file=request.FILES["file"],
                                            type=type)
             new_data.save()
-
+            #the
             return redirect(reverse("data_list", kwargs={'id':project.id}))
 
         else:
@@ -237,8 +238,8 @@ def data_create(request, id):
 #@login_required
 def analysis_list(request, id):
 
-    analysis = Analysis.objects.order_by("-id")
     project = Project.objects.filter(id=id).first()
+    analysis = Analysis.objects.filter(project=project).order_by("-id")
 
     if not analysis:
         messages.error(request, "No Analysis found.")
@@ -253,10 +254,10 @@ def analysis_list(request, id):
 
 
 #@login_required
-def analysis_view(request, id, id2):
+def analysis_view(request, id):
 
-    analysis = Analysis.objects.filter(id=id2).first()
-    project = Project.objects.filter(id=id).first()
+    analysis = Analysis.objects.filter(id=id).first()
+    project = analysis.project
 
     if not analysis:
         messages.error(request, "Analysis not found.")
@@ -270,18 +271,20 @@ def analysis_view(request, id, id2):
     return render(request, "analysis_view.html", context)
 
 
-def analysis_run(request, id, id2):
+def analysis_run(request, id):
 
-    project = Project.objects.filter(id=id).first()
-    analysis = Analysis.objects.filter(id=id2).first()
+    analysis = Analysis.objects.filter(id=id).first()
+    project = analysis.project
+
     owner = analysis.owner
+
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_ICON,  ANALYSIS_ICON],
                                project=project, analysis=analysis)
 
     if request.method == "POST":
 
-        form = RunAnalysis(data=request.POST, json_data=analysis.json_data)
+        form = RunAnalysis(data=request.POST, analysis=analysis)
 
         if form.is_valid():
 
@@ -295,15 +298,16 @@ def analysis_run(request, id, id2):
             return redirect(reverse("job_list", kwargs=dict(id=project.id)))
 
     else:
-        form = RunAnalysis(json_data=analysis.json_data)
+        initial = dict(title=analysis.title)
+        form = RunAnalysis(analysis=analysis, initial=initial)
         context = dict(project=project, analysis=analysis, steps=steps, form=form)
         return render(request, 'analysis_run.html', context)
 
 
-def analysis_edit(request, id, id2):
+def analysis_edit(request, id):
 
-    analysis = Analysis.objects.filter(id=id2).first()
-    project = Project.objects.filter(id=id).first()
+    analysis = Analysis.objects.filter(id=id).first()
+    project = analysis.project
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_ICON, ANALYSIS_LIST_ICON, ANALYSIS_ICON],
                                project=project, analysis=analysis)
@@ -356,7 +360,7 @@ def jobs_list(request, id):
 
     jobs = project.job_set.order_by("-id")
 
-    context = dict(jobs=jobs, steps=steps)
+    context = dict(jobs=jobs, steps=steps, project=project)
 
     return render(request, "jobs_list.html", context)
 
@@ -374,9 +378,6 @@ def job_view(request, id):
     job = Job.objects.filter(id=id).first()
     path = job.uid
     url = settings.MEDIA_URL + path+"/"
-    dir_root = join(job.path, "..", "..")
-
-    #return serve(request, path=url, document_root=dir_root, show_indexes=True)
 
     print(url)
     return redirect(url)

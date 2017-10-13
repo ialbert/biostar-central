@@ -16,7 +16,6 @@ def get_uuid(limit=None):
     return str(uuid.uuid4())[:limit]
 
 
-
 def init_proj(sender, **kwargs):
     """
     Populate initial projects with N number data
@@ -40,13 +39,14 @@ def init_proj(sender, **kwargs):
         logger.info(f'Created project: {project.title}')
 
         # Add data to each project.
-        for data_title, data_desc, data_file in TEST_DATA:
-            data = Data(title=data_title, owner=owner, text=data_desc, project=project, file=data_file)
+        for data_title, data_desc, data_file, data_type in TEST_DATA:
+            data = Data(title=data_title, owner=owner, text=data_desc, project=project, file=data_file, data_type=data_type)
             data.save()
+
 
     # Initialize the analyses.
     for test_spec in TEST_SPECS:
-        analysis = make_analysis_from_spec(test_spec, user=owner)
+        analysis = make_analysis_from_spec(test_spec, user=owner, project=project)
 
         # Create four jobs for each project.
         for project in Project.objects.all():
@@ -55,6 +55,7 @@ def init_proj(sender, **kwargs):
                 job = make_job(owner=owner, analysis=analysis, project=project, state=state)
                 job.save()
                 logger.info(f'Created job: {job.title} in project : {project.title} with state : {job.get_state_display()}')
+
     return
 
 

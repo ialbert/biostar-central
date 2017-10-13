@@ -1,8 +1,12 @@
 {% extends "base.html" %}
 {% load engine_tags %}
 
+{% block headtitle %}
+    Data: {{ data.title }}
+{% endblock %}
+
 {% block title %}
-    {{ data.title }}
+    Data: {{ data.title }}
 {% endblock %}
 
 {% block menu %}
@@ -19,6 +23,7 @@
         <div class="textbody">{{ data.html|safe }}</div>
         <div class="textbody">File: {{ data.file }}</div>
         <div class="textbody">Path: {{ data.path }}</div>
+        <div class="textbody">Size: {{ data.size }} bytes</div>
     </div>
 
 {% endblock %}
