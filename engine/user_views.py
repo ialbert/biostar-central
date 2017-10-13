@@ -54,7 +54,7 @@ def user_logout(request):
             messages.info(request, "You have been logged out")
             return redirect("/")
 
-    steps = breadcrumb_builder([HOME_ICON])
+    steps = breadcrumb_builder([HOME_ICON, LOGOUT_ICON])
 
     form = LogoutForm()
 
@@ -99,7 +99,7 @@ def user_login(request):
         initial = dict(nexturl=request.GET.get('next', '/'))
         form = LoginForm(initial=initial)
 
-    steps = breadcrumb_builder([HOME_ICON])
+    steps = breadcrumb_builder([HOME_ICON, LOGIN_ICON])
 
     context = dict(form=form, steps=steps)
     return render(request, "registration/user_login.html", context=context)

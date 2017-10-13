@@ -59,6 +59,10 @@ def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=Non
             step = (reverse("job_list", kwargs={'id': project.id,}), RESULT_LIST_ICON, "Result List",is_active)
         elif icon == RESULT_ICON:
             step = (reverse("job_view", kwargs={'id': job.id}), RESULT_ICON, f"{job.title}", is_active)
+        elif icon == LOGIN_ICON:
+            step = (reverse("login"), LOGIN_ICON, "Login", is_active)
+        elif icon == LOGOUT_ICON:
+            step = (reverse("login"), LOGOUT_ICON, "Logout", is_active)
         else:
             continue
 
