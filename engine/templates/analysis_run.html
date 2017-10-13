@@ -14,10 +14,11 @@
             {% for field in form %}
 
                     {% if field.field|is_checkbox %}
-                        {# Handle checkboxes diffrenly #}
+                        {# Display checkboxes a bit diffrenly #}
                         <div class="field segment">
                         <label class="checkbox" for="{{ field.id_for_label }}">
                             {{ field }} {{ field.label_tag }}
+                            {{field.help_text}}
                         </label>
                         {{ form.field.errors }}
                         </div>
@@ -25,6 +26,7 @@
                         <div class="field segment">
                         {{ field.label_tag }}
                         {{ field }}
+                        {{field.help_text}}
                         </div>
                     {% endif %}
 

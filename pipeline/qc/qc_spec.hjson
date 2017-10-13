@@ -1,9 +1,8 @@
 {
-sampleinfo :
-    {
+
+sampleinfo : {
     value : ~/tmp/qc_test/sampleinfo.txt
-    help :
-           '''
+    help : '''
 Enter a tab delimited text file. Order of the fields should be
 sample name, sample group, barcode, forward primer sequence, reverse primer sequence, target gene.
 Sample name should match the sample name in the dataset.
@@ -11,55 +10,57 @@ Sample name should match the sample name in the dataset.
     label : Specify the sample file.
     css: red
     visible: 1
-    display_type: UPLOAD
+    display_type: DROPDOWN
+    origin: PROJECT
     }
-data :
-  {
+
+data : {
     value: ~/tmp/qc_test/data
     visible: 1
     origin: PROJECT
     data_type: TAR_FASTQ_GZ
     display_type: DROPDOWN
 
-  }
-library_type :
-  {
+    }
+
+library_type : {
     value : true
     label : Data entered is paired end.
     visible: 1
     display_type: CHECKBOX
-  }
-trim_primer:
- {
+}
+
+trim_primer: {
     label : Trims barcode and primer sequences.
     value : true
     help : Barcode and primer sequences should be in the sample sheet.
     visible: 1
     display_type: CHECKBOX
+    }
 
- }
-trim_quality:
- {
+trim_quality: {
 
     label : Specify average quality value for trimming.
     help : Leave empty for not trimming
     value :  30
-    range  : [20,32]
+    range  : [1,40]
     visible : 1
     display_type : INTEGER
- }
+    }
+
 template : {
-        value:qc_makefile.html
-        display_type:SCRIPT
-}
+        path: qc_makefile.html
+        display_type: TEMPLATE
+    }
+
 threads : {
         value: 4
         display_type:SCRIPT
-}
-analysis_spec :
-  {
+    }
+
+analysis_spec : {
     title: Quality control of sequencing data
-    value:
+    text:
                 '''
 # Purpose
 
@@ -83,5 +84,6 @@ This analysis produces
 
         '''
        display_type:MODEL
-  }
+    }
+
 }

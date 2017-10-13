@@ -1,0 +1,41 @@
+
+data :
+  {
+    value: ""
+    visible: 1
+    origin: PROJECT
+    data_type: [fastq, fastq.gz]
+    display_type: DROPDOWN
+
+  }
+template : {
+        value:fastqc_makefile.html
+        display_type:SCRIPT
+}
+threads : {
+        value: 4
+        display_type:SCRIPT
+}
+analysis_spec :
+  {
+    title: Fastqc report of input data file.
+    value:
+                '''
+# Purpose
+
+This analysis produce fastqc report of the input file.
+
+# Parameters
+
+**Input:**
+
+1. Data.
+
+# Results
+
+This analysis produces fastqc report of the input data.
+
+        '''
+       display_type:MODEL
+  }
+}

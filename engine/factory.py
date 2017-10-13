@@ -74,7 +74,8 @@ def number_field(field):
                                min_value=min_value,
                                max_value=max_value,
                                help_text=help_text,
-                               label=label)
+                               label=label,
+                               required=False)
 
     return field
 
@@ -110,22 +111,22 @@ def checkbox_field(field):
     return field
 
 
-def model_specs(field):
-    return
-
 
 def handle_scripts(field):
     return
 
+def ignore(field):
+    pass
 
-def get_choices(feild):
+
+def get_choices(field):
 
     # View data already in database
-    choices = feild.get("choices")
+    choices = field.get("choices")
     if choices:
         choices = list(choices.items())
 
-    if feild.get("origin") == "PROJECT":
+    if field.get("origin") == "PROJECT":
         # Just loads all data for now ( not project specific ).
         data = Data.objects.all()
         choices = []
@@ -143,14 +144,15 @@ TYPE2FUNC = {
     FLOAT : float_field,
     UPLOAD : file_field,
     CHECKBOX :checkbox_field,
-    MODEL: model_specs,
+    MODEL: ignore,
     SCRIPT : handle_scripts,
-
+    TEMPLATE: ignore
 }
 
 def check_display(display_type):
 
+    # this check is too soon
     if not (display_type in TYPE2FUNC):
-        raise Exception(f"Incorrect value for display_type. Options are:{TYPE2FUNC.keys()}")
+        raise Exception(f"Incorrect value for display_type={display_type}. Options are:{TYPE2FUNC.keys()}")
 
     return

@@ -18,7 +18,7 @@ $(TEST_DATA): $(TEMP_DIR)
 $(SAMPLE_DATA): $(TEMP_DIR)
 	 curl http://iris.bx.psu.edu/projects/metabarcode-data/sampleinfo.txt > $(SAMPLE_DATA)
 
-getdata: $(TEST_DATA) $(SAMPLE_DATA)
+testdata: $(TEST_DATA) $(SAMPLE_DATA)
 
 run: getdata
 	python -m pipeline.qc.test > $(RUNDIR)/Makefile

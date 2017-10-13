@@ -19,6 +19,11 @@ push:
 	git commit -am "Update by `whoami` on `date` from `hostname`"
 	git push
 
+testdata:
+	mkdir -p tmp
+	curl  http://iris.bx.psu.edu/projects/metabarcode-data/data.tar.gz > tmp/data.tar.gz
+	curl http://iris.bx.psu.edu/projects/metabarcode-data/sampleinfo.txt > tmp/sampleinfo.txt
+
 test_push:test
 	git commit -am "Update by `whoami` on `date` from `hostname`"
 	git push

@@ -6,20 +6,20 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 #from django.template import Context, loader
 from django.conf import settings
-from django.conf.urls.static import serve
 import os
 from .forms import *
 from .models import (User, Project, Data,
-                     Analysis, Job)
+                     Analysis, Job, make_job)
 
 from . import util
-from engine.consts import *
+from engine.const import *
 
 def join(*args):
     return os.path.abspath(os.path.join(*args))
 
 
 logger = logging.getLogger('engine')
+
 
 def index(request):
 
@@ -30,7 +30,7 @@ def index(request):
     return render(request, 'index.html', context)
 
 
-def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, results=None):
+def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=None):
     # Works off of icon names
     if not icons:
         return []
@@ -53,6 +53,10 @@ def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, results
             step = (reverse("analysis_list", kwargs={'id': project.id}), ANALYSIS_LIST_ICON, "Analysis List", is_active )
         elif icon == ANALYSIS_ICON:
             step = (reverse("analysis_view", kwargs={'id': project.id, 'id2': analysis.id}), ANALYSIS_ICON, f"{analysis.title}", is_active )
+        elif icon == RESULT_LIST_ICON:
+            step = (reverse("job_list", kwargs={'id': project.id,}), RESULT_LIST_ICON, "Result List",is_active)
+        elif icon == RESULT_ICON:
+            step = (reverse("job_view", kwargs={'id': job.id}), RESULT_ICON, f"{job.title}", is_active)
         else:
             continue
 
@@ -90,7 +94,7 @@ def project_view(request, id):
 
     return render(request, "project_view.html", context)
 
-
+#@login_required
 def project_edit(request, id):
 
     project = Project.objects.filter(id=id).first()
@@ -147,7 +151,7 @@ def data_list(request, id):
         messages.error(request, "No data found for this project.")
         return redirect(reverse("project_view", kwargs={'id': project.id}))
 
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON], project=project)
+    steps = breadcrumb_builder([HOME_ICON,  PROJECT_ICON, DATA_LIST_ICON], project=project)
 
     context = dict(project=project, steps=steps)
 
@@ -164,7 +168,7 @@ def data_view(request, id):
         messages.error(request, "Data not found.")
         return redirect(reverse("data_view", kwargs={'id': data.id}))
 
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON, DATA_ICON],
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_ICON, DATA_LIST_ICON, DATA_ICON],
                                project=project, data=data)
 
     context = dict(data=data, steps=steps)
@@ -199,9 +203,8 @@ def data_create(request, id):
 
     project = Project.objects.filter(id=id).first()
 
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON],
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON],
                                project=project)
-
 
     if request.method == "POST":
 
@@ -209,12 +212,11 @@ def data_create(request, id):
 
         if form.is_valid():
 
-            title = form.cleaned_data["title"]
+            title = form.cleaned_data["file"]
             text = form.cleaned_data["text"]
-            owner = User.objects.all().first()
+            owner = project.owner
             type = form.cleaned_data["type"]
 
-            # maybe specifiy path here instead of in save method
             new_data = Data.objects.create(title=title, text=text,
                                            owner=owner, project=project,
                                            file=request.FILES["file"],
@@ -242,7 +244,7 @@ def analysis_list(request, id):
         messages.error(request, "No Analysis found.")
         return redirect(reverse("project_view", kwargs={'id': project.id}))
 
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ANALYSIS_LIST_ICON],
+    steps = breadcrumb_builder([HOME_ICON,  PROJECT_ICON, ANALYSIS_LIST_ICON],
                                project=project)
 
     context = dict(project=project, analysis=analysis, steps=steps)
@@ -260,7 +262,7 @@ def analysis_view(request, id, id2):
         messages.error(request, "Analysis not found.")
         return redirect(reverse("analysis_list", kwargs={'id':project.id}))
 
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ANALYSIS_LIST_ICON, ANALYSIS_ICON],
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_ICON, ANALYSIS_ICON],
                                project=project, analysis=analysis)
 
     context = dict(project=project, analysis=analysis, steps=steps)
@@ -272,45 +274,28 @@ def analysis_run(request, id, id2):
 
     project = Project.objects.filter(id=id).first()
     analysis = Analysis.objects.filter(id=id2).first()
-    analysis.save()
-    owner = User.objects.all().first()
+    owner = analysis.owner
 
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ANALYSIS_LIST_ICON, ANALYSIS_ICON],
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_ICON,  ANALYSIS_ICON],
                                project=project, analysis=analysis)
 
     if request.method == "POST":
 
-        form = RunAnalysis(data=request.POST, analysis=analysis.json_data)
+        form = RunAnalysis(data=request.POST, json_data=analysis.json_data)
 
         if form.is_valid():
-            filled_json = util.safe_loads(analysis.json_data)
 
-            for field in filled_json:
-                data = filled_json[field]
-                if field in form.cleaned_data:
-                    # Mutates field value in spec_source
-                    data["value"] = form.cleaned_data[field]
-
-            template_path = filled_json["template"]["value"]
-
-            title = form.cleaned_data["title"]
-            if form.cleaned_data["title"] == "Title":
-                title = analysis.title
-
-            makefile_template = get_template(template_path).template.source
-
-            job = Job.objects.create(json_data=json.dumps(filled_json),
-                                     owner=owner,
-                                     analysis=analysis,
-                                     project=project,
-                                     makefile_template=makefile_template,
-                                     title=title)
+            filled_json = form.process()
+            json_data = json.dumps(filled_json)
+            title = form.cleaned_data.get("title")
+            job = make_job(owner=owner, analysis=analysis, project=project,
+                           json_data=json_data, title=title)
 
             job.save()
-            return redirect(reverse("jobs_list", kwargs=dict(id=project.id)))
+            return redirect(reverse("job_list", kwargs=dict(id=project.id)))
 
     else:
-        form = RunAnalysis(analysis=analysis.json_data)
+        form = RunAnalysis(json_data=analysis.json_data)
         context = dict(project=project, analysis=analysis, steps=steps, form=form)
         return render(request, 'analysis_run.html', context)
 
@@ -320,7 +305,7 @@ def analysis_edit(request, id, id2):
     analysis = Analysis.objects.filter(id=id2).first()
     project = Project.objects.filter(id=id).first()
 
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ANALYSIS_LIST_ICON, ANALYSIS_ICON],
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_ICON, ANALYSIS_LIST_ICON, ANALYSIS_ICON],
                                project=project, analysis=analysis)
 
     if request.method == "POST":
@@ -366,7 +351,7 @@ def jobs_list(request, id):
         messages.error(request, "No jobs found for this project.")
         return redirect(reverse("project_view", kwargs={'id': project.id}))
 
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, RESULT_LIST_ICON],
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, RESULT_LIST_ICON ],
                                project=project)
 
     jobs = project.job_set.order_by("-id")

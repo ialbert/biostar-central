@@ -8,7 +8,8 @@ from . import util
 from . import factory
 
 from pagedown.widgets import PagedownWidget
-
+from engine.const import *
+from engine.web.auth import get_data
 
 class SignUpForm(forms.ModelForm):
     
@@ -66,7 +67,7 @@ class LoginForm(forms.Form):
 
 class ProjectForm(forms.ModelForm):
 
-    text = forms.CharField(widget=PagedownWidget(template="widgets/pagedownwidget.html"))
+    #text = forms.CharField(widget=PagedownWidget(template="widgets/pagedownwidget.html"))
 
     class Meta:
 
@@ -76,41 +77,83 @@ class ProjectForm(forms.ModelForm):
 
 class DataForm(forms.Form):
 
-    title = forms.CharField(max_length=256)
-    text = forms.CharField(widget=PagedownWidget(template="widgets/pagedownwidget.html"))
-    file = forms.FileField(label="Upload data file")
+    text = forms.CharField(widget=forms.Textarea(), max_length=512)
+    file = forms.FileField(label="Upload Data File")
     type = forms.IntegerField(widget=forms.Select(choices=Data.TYPE_CHOICES),
                               initial=Data.FILE)
+
     def save(self, *args, **kwargs):
 
         super(DataForm, self).save(*args, **kwargs)
+
+
+def make_form_field(value):
+
+    visible = value.get("visible")
+    display_type = value.get("display_type", '')
+
+    if not display_type:
+        return ""
+
+    factory.check_display(display_type)
+
+    if visible == 1:
+        return factory.TYPE2FUNC[display_type](value)
+
+    return  ""
 
 
 class RunAnalysis(forms.Form):
 
     def __init__(self, *args, **kwargs):
 
-        analysis = kwargs.pop("analysis")
+        self.json_data = kwargs.pop("json_data")
+        self.json_data = json.loads(self.json_data)
 
         super().__init__(*args, **kwargs)
 
-        analysis = json.loads(analysis)
         # Job needs a title
-        self.fields["title"] = forms.CharField(max_length=256, initial="Title")
+        self.fields["title"] = forms.CharField(max_length=256,
+                                               help_text="Leave Empty to fill with Analysis name.",
+                                               required=False)
 
-        for field in analysis:
+        for field, value in self.json_data.items():
+            form_field = make_form_field(value)
 
-            data = analysis[field]
-            display_type = data["display_type"]
-            factory.check_display(display_type)
+            if form_field :
+                self.fields[field] = form_field
 
-            if data.get("visible") == 1:
-
-                self.fields[field] = factory.TYPE2FUNC[display_type](data)
 
     def save(self, *args, **kwargs):
 
         super(RunAnalysis, self).save(*args, **kwargs)
+
+
+    def process(self):
+        '''
+        Replaces the value of data fields with the path to the data.
+        Should be called after the form has been filled and is valid.
+        '''
+
+        # Should make a copy of the json
+        for field, obj in self.json_data.items():
+            # No need to read fields that were not set.
+            if not obj.get(FIELD_VISIBLE):
+                continue
+
+            if obj.get(FIELD_ORIGIN) == PROJECT_ORIGIN:
+                data_id = self.cleaned_data.get(field, 0)
+                data = get_data(data_id)
+                obj["value"] = data.get_path().path
+                continue
+            if field in self.cleaned_data:
+                # Mutates the value key.
+                obj["value"] = self.cleaned_data[field]
+
+
+        print (json.dumps(self.json_data))
+
+        return self.json_data
 
 
 class EditAnalysis(forms.Form):
@@ -126,16 +169,13 @@ class EditAnalysis(forms.Form):
 
         self.fields["text"] = forms.CharField(initial=initial)
         self.fields["save_or_preview"] = forms.CharField(initial="preview")
-        # put in function.
-        for field in analysis:
 
-            data = analysis[field]
-            display_type = data["display_type"]
-            factory.check_display(display_type)
 
-            if data.get("visible") == 1:
+        for field, value in analysis.items():
+            form_field = make_form_field(value)
 
-                self.fields[field] = factory.TYPE2FUNC[display_type](data)
+            if form_field:
+                self.fields[field] = form_field
 
     def save(self, *args, **kwargs):
 
