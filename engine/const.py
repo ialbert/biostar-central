@@ -22,16 +22,6 @@ FIELD_ORIGIN = "origin"
 PROJECT_ORIGIN = "PROJECT"
 
 
-GENERIC_TYPE = 0
-SAMPLE_TYPE = 1
-COLLECTION_TYPE = 2
-TAR_FASTQ_GZ = 3
-
-DATA_TYPES = dict(
-    GENERIC_TYPE=GENERIC_TYPE, SAMPLE_TYPE=SAMPLE_TYPE, COLLECTION_TYPE=SAMPLE_TYPE,
-    TAR_FASTQ_GZ=TAR_FASTQ_GZ
-)
-
 #
 # To initialize test files run:
 #
@@ -44,6 +34,7 @@ TEST_PROJECTS = [
     ("Sequencing run 3", "Lamar sequencing center"),
 ]
 
+TEST_FASTQ_PATH = os.path.expandvars('tmp/1-SarriPal_S9_L001_R1_001.fastq.gz')
 TEST_FILE_PATH = os.path.expandvars('tmp/sampleinfo.txt')
 TEST_COLL_PATH = os.path.expandvars('tmp/data.tar.gz')
 TEST_DATA = [
@@ -53,7 +44,11 @@ TEST_DATA = [
      SAMPLE_TYPE),
     ("Sample sheet 2", "This file contains a sample sheet describing the data in the directory", TEST_FILE_PATH,
      SAMPLE_TYPE),
+    ("Fastq file 1", "This is a fastq file", TEST_FASTQ_PATH, FASTQ_TYPE),
+    ("Fastq file 2", "This is a fastq file", TEST_FASTQ_PATH, FASTQ_TYPE),
+
 ]
+
 
 PIPELINE_DIR = join(__THIS, '..', 'pipeline')
 

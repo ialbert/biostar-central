@@ -1,33 +1,33 @@
 {
 data : {
-    value: "abc"
-    visible: 1
+    path: ""
+    visible: true
     origin: PROJECT
-    data_type: GENERIC
+    data_type: FASTQ_TYPE
     display_type: DROPDOWN
   }
 
 template : {
         path: fastqc_makefile.html
-        display_type: SCRIPT
+
 }
 threads : {
         value: 4
-        display_type:SCRIPT
+
 }
-analysis_spec :
+command : make all
+settings :
   {
     title: Fastqc report of input data file.
+
     text:'''
 # Purpose
 
-This analysis produce fastqc report of the input file.
+Produce fastqc report of the input file.
 
 # Parameters
 
-**Input:**
-
-1. Data.
+Fastq or fatsq.gz file as input.
 
 # Results
 
