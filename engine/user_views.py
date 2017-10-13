@@ -51,6 +51,7 @@ def user_logout(request):
         form = LogoutForm(request.POST)
         if form.is_valid():
             auth.logout(request)
+            messages.info(request, "You have been logged out")
             return redirect("/")
 
     steps = breadcrumb_builder([HOME_ICON])
