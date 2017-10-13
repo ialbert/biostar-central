@@ -179,7 +179,7 @@ def data_view(request, id):
     return render(request, "data_view.html", context)
 
 
-@login_required(login_url=LOGIN_URL)
+@login_required
 def data_edit(request, id):
 
     data = Data.objects.filter(id=id).first()
@@ -202,7 +202,7 @@ def data_edit(request, id):
 
     return render(request, 'data_edit.html', context)
 
-@login_required(login_url=LOGIN_URL)
+@login_required
 def data_create(request, id):
 
     project = Project.objects.filter(id=id).first()

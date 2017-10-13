@@ -55,12 +55,19 @@ class Command(BaseCommand):
             if not os.path.isfile(template):
                 stop(f'No file found for --template={template}')
 
-            json_data = open(spec).read()
-            makefile_template = open(template).read()
+            try:
+                json_data = open(spec).read()
+                json_data = hjson.loads(json_data)
+            except Exception as exc:
+                stop(f"error reading out the spec: {exc}")
 
-            analysis = Analysis(owner=admin, project=project,
-                        json_data=json_data, makefile_template=makefile_template)
+            template = open(template).read()
+
+            title = json_data.get("settings", {}).get("title", "No title set")
+            text = json_data.get("settings", {}).get("help", "No help set")
+            analysis = Analysis(owner=admin, project=project, title=title, text=text,
+                        json_data=json_data, makefile_template=template)
             analysis.save()
-            logger.info(f"added analysis {analysis.title} to project {project.title}")
+            logger.info(f"added analysis {analysis.title} in project {project.title}")
 
 
