@@ -154,6 +154,7 @@ class Job(Base):
         self.uid = self.uid or util.get_uuid(8)
         self.makefile_template = self.analysis.makefile_template
 
+        self.title = self.title or self.analysis.title
         # write an index.html to the file
         if not os.path.isdir(self.path):
             path = os.path.abspath(os.path.join(settings.MEDIA_ROOT, self.uid))

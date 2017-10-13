@@ -31,21 +31,23 @@ class Command(BaseCommand):
 
         add = options['add']
         spec = options['spec']
-        project_id = options['pid']
+        pid = options['pid']
         template = options['template']
 
         admin = User.objects.filter(is_staff=True).first()
         if not admin:
             stop("site has no admin users")
 
+        if not add or 0:
+            stop("command requires at least one action: --add --delete")
         if add:
 
-            if not (project_id and spec and template):
-                stop("the command requires --project_id --spec --template to be set")
+            if not (pid and spec and template):
+                stop("the command requires --pid --spec --template to be set")
 
-            project = Project.objects.filter(id=project_id).first()
+            project = Project.objects.filter(id=pid).first()
             if not project:
-                stop(f'No project with id={project_id}')
+                stop(f'No project with id={pid}')
 
             if not os.path.isfile(spec):
                 stop(f'No file found for --spec={spec}')
