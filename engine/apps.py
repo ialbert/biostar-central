@@ -54,7 +54,7 @@ def init_proj(sender, **kwargs):
                 # user, analysis, and project are the only necessary things
                 job = make_job(owner=owner, analysis=analysis, project=project, state=state)
                 job.save()
-                logger.info(f'Created job: {job.title} in project : {project.title} with state : {job.get_state_display()}')
+                #logger.info(f'Created job: {job.title} in project : {project.title} with state : {job.get_state_display()}')
 
     return
 
@@ -67,20 +67,20 @@ def init_users(sender, **kwargs):
     logger.info("Setting up users")
 
     for name, email in settings.ADMINS:
-        
         if not User.objects.filter(email=email):
-            user = User(first_name="foo", email=email, username=get_uuid(16),
+            user = User(first_name=name, email=email, username=get_uuid(16),
                         is_superuser=True, is_staff=True)
             user.set_password(settings.SECRET_KEY)
             user.save()
-            logger.info(f"creating admin user: user.username = {user.username}, user.email={user.email}, user.id={user.id}")
+            logger.info(f"creating admin user: user.email={user.email}, user.id={user.id}")
 
     # Create a regular test user.
     #testbuddy @ lvh.me
-    test_user, new = User.objects.get_or_create(email="testbuddy@lvh.me", password="testbuddy@lvh.me")
+    test_buddy, new = User.objects.get_or_create(email="testbuddy@lvh.me")
+    test_buddy.set_password("testbuddy@lvh.me")
+    test_buddy.save()
 
-    test_user.save()
-    logger.info(f"creating normal user : email = {test_user.email}, password = {test_user.email}")
+    logger.info(f"creating user: {test_buddy.email}")
 
 
 def init_site(sender, **kwargs):

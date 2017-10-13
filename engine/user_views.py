@@ -1,6 +1,7 @@
 
 import uuid
 import logging
+from django.contrib import messages
 
 from ratelimit.decorators import ratelimit
 from django.shortcuts import render, redirect
@@ -15,7 +16,6 @@ logger = logging.getLogger('engine')
 
 def get_uuid(limit=32):
     return str(uuid.uuid4())[:limit]
-
 
 
 @ratelimit(key='ip', rate='10/m', block=True, method=ratelimit.UNSAFE)
@@ -44,12 +44,23 @@ def user_signup(request):
 
 def user_logout(request):
     logout(request)
-
     return redirect("/")
+
+def logout(request):
+
+
+    if request.method == "POST":
+        form = forms.LogoutForm(request.POST)
+        if form.is_valid():
+            auth.logout(request)
+            return redirect("/")
+    context = dict(navtab='logout')
+    return render(request, "registration/user_logout.html", context=context)
 
 
 @ratelimit(key='ip', rate='10/m', block=True, method=ratelimit.UNSAFE)
 def user_login(request):
+
     if request.method == "POST":
         form = LoginForm(data=request.POST)
 
@@ -74,15 +85,17 @@ def user_login(request):
             elif user and user.is_active:
                 login(request, user)
                 logger.info(f"logged in user.id={user.id}, user.email={user.email}")
-
+                messages.info(request, "Login successful!")
                 return redirect(reverse("index"))
             else:
                 # This should not happen normally.
                 form.add_error(None, "Invalid form processing.")
     else:
         initial = dict(nexturl=request.GET.get('next', '/'))
-        form = LoginForm(initial)
+        form = LoginForm(initial=initial)
 
-    context = dict(form=form)
+    steps = []
+
+    context = dict(form=form, steps=steps)
     return render(request, "registration/user_login.html", context=context)
 

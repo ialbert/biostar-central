@@ -24,7 +24,9 @@ def make_tmp_jsonfile(json_text, analysis_id):
 
 def check_fields(json_obj):
 
-    required_keys = ["value", "display_type"]
+    return json_obj
+
+    required_keys = []
     required_fields = ["template"]
 
     for field in required_fields:

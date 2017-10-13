@@ -58,6 +58,10 @@ class SignUpForm(forms.ModelForm):
         return self.cleaned_data
 
 
+class LogoutForm(forms.Form):
+    pass
+
+
 class LoginForm(forms.Form):
 
     email = forms.CharField(label='Email', max_length=100)

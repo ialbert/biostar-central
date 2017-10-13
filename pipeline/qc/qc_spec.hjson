@@ -40,7 +40,6 @@ trim_primer: {
     }
 
 trim_quality: {
-
     label : Specify average quality value for trimming.
     help : Leave empty for not trimming
     value :  30
