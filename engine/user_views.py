@@ -44,6 +44,7 @@ def user_signup(request):
 
 def user_logout(request):
     logout(request)
+    logger.info(f"logged out user.id={request.user.id}, user.email={request.user.email}")
 
     return redirect("/")
 
@@ -65,7 +66,9 @@ def user_login(request):
                 context = dict(form=form)
                 return render(request, "registration/user_login.html", context=context)
 
+            print(user)
             user = authenticate(username=user.username, password=password)
+            print(email)
 
             if not user:
                 form.add_error(None, "Invalid password.")

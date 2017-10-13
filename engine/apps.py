@@ -69,7 +69,7 @@ def init_users(sender, **kwargs):
     for name, email in settings.ADMINS:
         
         if not User.objects.filter(email=email):
-            user = User(first_name="foo", email=email, username=get_uuid(16),
+            user = User(first_name="foo", email=email, username="foo",
                         is_superuser=True, is_staff=True)
             user.set_password(settings.SECRET_KEY)
             user.save()
@@ -77,10 +77,14 @@ def init_users(sender, **kwargs):
 
     # Create a regular test user.
     #testbuddy @ lvh.me
-    test_user, new = User.objects.get_or_create(email="testbuddy@lvh.me", password="testbuddy@lvh.me")
+    test_email = "testbuddy@lvh.me"
 
-    test_user.save()
-    logger.info(f"creating normal user : email = {test_user.email}, password = {test_user.email}")
+    if not User.objects.filter(email=test_email):
+
+        test_user, new = User.objects.get_or_create(email="testbuddy@lvh.me", password="testbuddy@lvh.me",
+                                                    is_staff=True)
+        test_user.save()
+        logger.info(f"creating normal user : email = {test_user.email}, password = {test_user.email}")
 
 
 def init_site(sender, **kwargs):

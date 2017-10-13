@@ -1,7 +1,7 @@
 {
 data : {
     value: "abc"
-    visible: 1
+    visible: true
     origin: PROJECT
     data_type: GENERIC
     display_type: DROPDOWN
