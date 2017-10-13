@@ -22,7 +22,7 @@ execute : {
 settings :
   {
     title: Fastqc report of input data file.
-
+    summary: Produce fastqc report of the input file.
     help:'''
 # Purpose
 
