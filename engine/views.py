@@ -1,5 +1,5 @@
 import logging
-#from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required
 from django.template.loader import get_template
 from django.contrib import messages
 from django.shortcuts import render, redirect
@@ -95,7 +95,8 @@ def project_view(request, id):
 
     return render(request, "project_view.html", context)
 
-#@login_required
+
+@login_required(login_url=LOGIN_URL)
 def project_edit(request, id):
 
     project = Project.objects.filter(id=id).first()
@@ -116,6 +117,7 @@ def project_edit(request, id):
                       context)
 
 
+@login_required(login_url=LOGIN_URL)
 def project_create(request):
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON])
@@ -177,6 +179,7 @@ def data_view(request, id):
     return render(request, "data_view.html", context)
 
 
+@login_required(login_url=LOGIN_URL)
 def data_edit(request, id):
 
     data = Data.objects.filter(id=id).first()
@@ -199,7 +202,7 @@ def data_edit(request, id):
 
     return render(request, 'data_edit.html', context)
 
-
+@login_required(login_url=LOGIN_URL)
 def data_create(request, id):
 
     project = Project.objects.filter(id=id).first()
@@ -221,9 +224,11 @@ def data_create(request, id):
             new_data = Data.objects.create(title=title, text=text,
                                            owner=owner, project=project,
                                            file=request.FILES["file"],
-                                           type=type)
+                                           type=type,
+                                           )
+            new_data.size = f"{os.path.getsize(new_data.file.path)}"
             new_data.save()
-            #the
+
             return redirect(reverse("data_list", kwargs={'id':project.id}))
 
         else:
@@ -253,7 +258,7 @@ def analysis_list(request, id):
     return render(request, "analysis_list.html", context)
 
 
-#@login_required
+
 def analysis_view(request, id):
 
     analysis = Analysis.objects.filter(id=id).first()
@@ -270,7 +275,7 @@ def analysis_view(request, id):
 
     return render(request, "analysis_view.html", context)
 
-
+@login_required
 def analysis_run(request, id):
 
     analysis = Analysis.objects.filter(id=id).first()
@@ -303,7 +308,7 @@ def analysis_run(request, id):
         context = dict(project=project, analysis=analysis, steps=steps, form=form)
         return render(request, 'analysis_run.html', context)
 
-
+@login_required(login_url=LOGIN_URL)
 def analysis_edit(request, id):
 
     analysis = Analysis.objects.filter(id=id).first()
@@ -322,26 +327,27 @@ def analysis_edit(request, id):
             # Save the rewriteen spec_file into spec_origin field
             analysis.save()
 
-            form = EditAnalysis(analysis=analysis.spec_origin)
+            form = EditAnalysis(analysis=analysis)
 
         elif request.POST.get("save_or_preview") == "preview":
 
-            form = EditAnalysis(analysis=request.POST.get("text"))
+            form = EditAnalysis(analysis=analysis, json_data=request.POST.get("text"))
 
         elif request.POST.get("save_or_preview") == "save":
 
-            form = EditAnalysis(analysis=request.POST.get("text"))
-            spec = util.safe_loads(analysis.json_data)
+            form = EditAnalysis(analysis=analysis, json_data=request.POST.get("text"))
+            spec = util.safe_loads(request.POST.get("text"))
             filler = dict(display_type='')
 
             if spec.get("analysis_spec", filler)["display_type"] == "MODEL":
                 analysis.title = spec["analysis_spec"].get("title", analysis.title)
-                analysis.text = spec["analysis_spec"]["value"]
+                analysis.text = spec["analysis_spec"]["text"]
 
-            analysis.save(json_data=request.POST.get("text"))
+            analysis.json_data = request.POST.get("text")
+            analysis.save()
     else:
 
-        form = EditAnalysis(analysis=analysis.json_data)
+        form = EditAnalysis(analysis=analysis)
 
     context = dict(project=project, analysis=analysis, steps=steps, form=form)
     return render(request, 'analysis_edit.html', context)

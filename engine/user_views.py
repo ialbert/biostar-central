@@ -8,7 +8,7 @@ from django.contrib.auth import login, authenticate, logout
 
 from.forms import SignUpForm, LoginForm
 from .models import User
-
+from django.urls import reverse
 
 logger = logging.getLogger('engine')
 
@@ -75,7 +75,7 @@ def user_login(request):
                 login(request, user)
                 logger.info(f"logged in user.id={user.id}, user.email={user.email}")
 
-                return redirect(f"/{user.id}")
+                return redirect(reverse("index"))
             else:
                 # This should not happen normally.
                 form.add_error(None, "Invalid form processing.")

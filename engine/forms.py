@@ -87,6 +87,26 @@ class DataForm(forms.Form):
         super(DataForm, self).save(*args, **kwargs)
 
 
+def make_field(obj, project):
+
+    field = ''
+    visible = obj.get("visible")
+    origin = obj.get(FIELD_ORIGIN)
+    display_type = obj.get("display_type", '')
+
+    if not display_type:
+        return field
+
+    if visible:
+        if origin == PROJECT_ORIGIN:
+            data_type = obj.get("data_type")
+            field = factory.data_generator(obj, project=project, data_type=data_type)
+        else:
+            field = factory.TYPE2FUNC[display_type](obj)
+
+    return field
+
+
 class RunAnalysis(forms.Form):
 
     def __init__(self, analysis, *args, **kwargs):
@@ -101,22 +121,10 @@ class RunAnalysis(forms.Form):
                                                help_text="Leave Empty to fill with Analysis name.",
                                                required=False)
 
-
         for name, obj in self.json_data.items():
-            visible = obj.get("visible")
-            origin = obj.get(FIELD_ORIGIN)
-            display_type = obj.get("display_type", '')
+            field = make_field(obj, analysis.project)
 
-            if not display_type:
-                continue
-
-            if visible:
-                if origin == PROJECT_ORIGIN:
-                    data_type = obj.get("data_type")
-                    field  = factory.data_generator(obj, project=self.analysis.project, data_type=data_type)
-                else:
-                    field = factory.TYPE2FUNC[display_type](obj)
-
+            if field:
                 self.fields[name] = field
 
 
@@ -153,33 +161,27 @@ class RunAnalysis(forms.Form):
 
 class EditAnalysis(forms.Form):
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, analysis, *args, **kwargs):
 
-        analysis = kwargs.pop("analysis")
+        self.analysis = analysis
+        self.json_data =  kwargs.get('json_data') or self.analysis.json_data
+        self.json_data = util.safe_loads(self.json_data)
+
+        if kwargs.get("json_data"):
+            kwargs.pop('json_data')
 
         super().__init__(*args, **kwargs)
 
-        analysis = util.safe_loads(analysis)
-        initial = json.dumps(analysis, indent=4)
+        initial = json.dumps(self.json_data, indent=4)
 
         self.fields["text"] = forms.CharField(initial=initial)
         self.fields["save_or_preview"] = forms.CharField(initial="preview")
 
+        for name, obj in self.json_data.items():
+            field = make_field(obj, analysis.project)
 
-        for field, value in analysis.items():
-
-            visible = value.get("visible")
-            display_type = value.get("display_type", '')
-
-            if not display_type:
-                continue
-
-            factory.check_display(display_type)
-
-            if visible == 1:
-                self.fields[field] = factory.TYPE2FUNC[display_type](value)
-
-
+            if field:
+                self.fields[name] = field
 
     def save(self, *args, **kwargs):
 

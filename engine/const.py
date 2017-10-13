@@ -21,6 +21,7 @@ FIELD_VISIBLE = "visible"
 FIELD_ORIGIN = "origin"
 PROJECT_ORIGIN = "PROJECT"
 
+
 GENERIC_TYPE = 0
 SAMPLE_TYPE = 1
 COLLECTION_TYPE = 2
@@ -58,3 +59,8 @@ TEST_SPECS = [
     join(__THIS, '..', 'pipeline', 'qc', 'qc_spec.hjson'),
     join(__THIS, '..', 'pipeline', 'fastqc', 'fastqc_spec.hjson')
 ]
+
+
+# User information
+
+LOGIN_URL = "/login/"

@@ -78,9 +78,9 @@ def init_users(sender, **kwargs):
     # Create a regular test user.
     #testbuddy @ lvh.me
     test_user, new = User.objects.get_or_create(email="testbuddy@lvh.me", password="testbuddy@lvh.me")
-    if new:
-        test_user.save()
-        logger.info(f"creating normal user : email = {test_user.email}, password = {test_user.email}")
+
+    test_user.save()
+    logger.info(f"creating normal user : email = {test_user.email}, password = {test_user.email}")
 
 
 def init_site(sender, **kwargs):

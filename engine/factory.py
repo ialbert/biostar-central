@@ -19,6 +19,7 @@ def float_field(field):
 
 
 def select_field(field, choicefunc=None):
+
     if choicefunc:
         choices = choicefunc()
     else:
