@@ -4,6 +4,7 @@ from django.apps import AppConfig
 from django.conf import settings
 from django.db.models.signals import post_migrate
 from engine.const import *
+from django.core import management
 
 logger = logging.getLogger('engine')
 
@@ -21,7 +22,7 @@ def init_proj(sender, **kwargs):
     Populate initial projects with N number data
     Creates one analysis model to allow for jobs to be run
     """
-    from engine.models import Project, Data, make_analysis_from_spec, make_job, Job
+    from engine.models import Project, Data, Analysis, make_analysis_from_spec, make_job, Job
     from engine.models import User
 
     owner = User.objects.all().first()
@@ -43,18 +44,17 @@ def init_proj(sender, **kwargs):
             data = Data(title=data_title, owner=owner, text=data_desc, project=project, file=data_file, data_type=data_type)
             data.save()
 
+        # Initialize the same analyses for each project.
+        for spec_path, tmpl_path in TEST_ANALYSES:
+            management.call_command("analysis", add=True, pid=project.id,spec=spec_path, template=tmpl_path)
 
-    # Initialize the analyses.
-    for test_spec in TEST_SPECS:
-        analysis = make_analysis_from_spec(test_spec, user=owner, project=project)
+        # Get first analysis.
+        first = Analysis.objects.all().first()
 
         # Create four jobs for each project.
         for project in Project.objects.all():
             for state in (Job.RUNNING, Job.ERROR, Job.QUEUED, Job.FINISHED):
-                # user, analysis, and project are the only necessary things
-                job = make_job(owner=owner, analysis=analysis, project=project, state=state)
-                job.save()
-                #logger.info(f'Created job: {job.title} in project : {project.title} with state : {job.get_state_display()}')
+                make_job(owner=owner, analysis=first, project=project, state=state)
 
     return
 

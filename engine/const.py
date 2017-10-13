@@ -49,9 +49,13 @@ TEST_DATA = [
 
 ]
 
-TEST_SPECS = [
-    join(__THIS, '..', 'pipeline', 'qc', 'qc.hjson'),
-    join(__THIS, '..', 'pipeline', 'fastqc', 'fastqc.hjson')
+
+PIPELINE_DIR = join(__THIS, '..', 'pipeline')
+
+TEST_ANALYSES = [
+    # Spec, Template pairs.
+    #(join(PIPELINE_DIR, 'qc', 'qc_spec.hjson'), join(PIPELINE_DIR, 'qc', 'qc.hjson' )
+    (join(PIPELINE_DIR, 'fastqc/fastqc.hjson'), join(PIPELINE_DIR, 'fastqc/fastqc_template.html'))
 ]
 
 
