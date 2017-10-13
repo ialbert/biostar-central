@@ -20,10 +20,10 @@ push:
 	git push
 
 testdata:
-	mkdir -p media/tmp
-	curl  http://iris.bx.psu.edu/projects/metabarcode-data/data.tar.gz > media/tmp/data.tar.gz
-	curl http://iris.bx.psu.edu/projects/metabarcode-data/sampleinfo.txt > media/tmp/sampleinfo.txt
-	curl http://iris.bx.psu.edu/projects/metabarcode-data/data/1-SarriPal_S9_L001_R1_001.fastq.gz > media/tmp/1-SarriPal_S9_L001_R1_001.fastq.gz
+	mkdir -p tmp
+	curl  http://iris.bx.psu.edu/projects/metabarcode-data/data.tar.gz > tmp/data.tar.gz
+	curl http://iris.bx.psu.edu/projects/metabarcode-data/sampleinfo.txt > tmp/sampleinfo.txt
+	curl http://iris.bx.psu.edu/projects/metabarcode-data/data/1-SarriPal_S9_L001_R1_001.fastq.gz > tmp/1-SarriPal_S9_L001_R1_001.fastq.gz
 
 
 test_push:test

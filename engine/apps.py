@@ -54,7 +54,9 @@ def init_proj(sender, **kwargs):
         # Create four jobs for each project.
         for project in Project.objects.all():
             for state in (Job.RUNNING, Job.ERROR, Job.QUEUED, Job.FINISHED):
-                make_job(owner=owner, analysis=first, project=project, state=state)
+                
+                job = make_job(owner=owner, analysis=first, project=project, state=state)
+
 
     return
 

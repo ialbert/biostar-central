@@ -2,7 +2,7 @@ from django.core.management.base import BaseCommand
 from django.template import Template,Context
 from engine.models import Job
 import subprocess, os, sys,hjson,logging
-
+from django.utils.text import force_text
 
 logger = logging.getLogger('engine')
 
@@ -15,25 +15,24 @@ def run(job,show=False):
     '''
 
     logger.info(f'job {job.id} started')
-    spec = job.json_data
+    json_text = job.json_data
     template = job.makefile_template
     outdir = job.path
     error_log = []
     stdout_log =[]
     stderr_log = []
 
-
     try:
         # render makefile.
-        spec = hjson.loads(spec)
-        execute = spec.get('execute',{})
+        json_data = hjson.loads(json_text)
+        execute = json_data.get('execute',{})
         commands = execute.get("command", "make all").split()
         filename = execute.get("filename", "Makefile")
 
         template = Template(template)
-        context = Context(spec)
-        mtext = template.render(context)
+        context = Context(json_data)
 
+        mtext = template.render(context)
 
         if not os.path.isdir(outdir):
             os.mkdir(outdir)
@@ -42,17 +41,14 @@ def run(job,show=False):
         with open(os.path.join(outdir, filename), 'wt') as fp:
             fp.write(mtext)
 
-        print(show)
-
-        21/0
         if show:
-            print(mtext)
+            print(f'\n\n{mtext}\n\n')
             return
 
         # Run the command.
         job.state = job.RUNNING
         logger.info(f'job commands {commands}')
-        process = subprocess.run(commands, cwd=outdir, stderr=subprocess.PIPE, stdout=subprocess.PIPE, check=True)
+        process = subprocess.run(commands, cwd=outdir, stderr=subprocess.PIPE, stdout=subprocess.PIPE, shell=True, check=True)
         job.state = job.FINISHED
 
     except subprocess.CalledProcessError as err:
@@ -65,12 +61,15 @@ def run(job,show=False):
         job.state = job.ERROR
         logger.info(f'job exception: {exc}')
 
-    finally:
-        #stdout_log.append(process.stdout.read())
-        #stderr_log.append(process.stderr.read())
-        job.log = "\n".join(stdout_log + error_log)
-        job.save()
-        logger.info(f'job {job.id} completed')
+
+    print ( force_text(process.stdout) )
+    print(force_text(process.stderr))
+    #stdout_log.append(process.stdout.read())
+    #stderr_log.append(process.stderr.read())
+    job.log = "\n".join(stdout_log + error_log)
+    job.save()
+    logger.info(f'job {job.id} completed')
+
     return job
 
 
@@ -85,6 +84,7 @@ class Command(BaseCommand):
         # Named (optional) arguments
         parser.add_argument('--run',
                             type =int,
+                            default=0,
                             help="Runs job specified by id.")
 
         parser.add_argument('--show',
@@ -126,7 +126,7 @@ class Command(BaseCommand):
         if run:
             job = Job.objects.filter(id=runid).first()
             if not job:
-                logger.error(f'job id {runid} missing')
+                logger.error(f'job for id={runid} missing')
                 sys.exit()
 
             run(job,show=show)

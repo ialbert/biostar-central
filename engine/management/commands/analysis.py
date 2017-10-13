@@ -57,14 +57,15 @@ class Command(BaseCommand):
 
             try:
                 json_data = open(spec).read()
-                json_data = hjson.loads(json_data)
+                json_dict = hjson.loads(json_data)
             except Exception as exc:
                 stop(f"error reading out the spec: {exc}")
+                json_dict = dict()
 
             template = open(template).read()
 
-            title = json_data.get("settings", {}).get("title", "No title set")
-            text = json_data.get("settings", {}).get("help", "No help set")
+            title = json_dict.get("settings", {}).get("title", "No title set")
+            text = json_dict.get("settings", {}).get("help", "No help set")
             analysis = Analysis(owner=admin, project=project, title=title, text=text,
                         json_data=json_data, makefile_template=template)
             analysis.save()
