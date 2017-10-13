@@ -55,5 +55,6 @@ TEST_DATA = [
 ]
 
 TEST_SPECS = [
-    join(__THIS, '..', 'pipeline', 'qc', 'qc_spec.hjson')
+    join(__THIS, '..', 'pipeline', 'qc', 'qc_spec.hjson'),
+    join(__THIS, '..', 'pipeline', 'fastqc', 'fastqc_spec.hjson')
 ]
