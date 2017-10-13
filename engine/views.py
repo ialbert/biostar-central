@@ -33,6 +33,7 @@ def index(request):
 
 def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=None):
     # Works off of icon names
+
     if not icons:
         return []
 

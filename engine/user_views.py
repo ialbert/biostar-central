@@ -7,9 +7,12 @@ from ratelimit.decorators import ratelimit
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate, logout
 
-from.forms import SignUpForm, LoginForm
+from .forms import SignUpForm, LoginForm, LogoutForm
 from .models import User
 from django.urls import reverse
+from engine.const import *
+from engine.views import breadcrumb_builder
+from django.contrib import auth
 
 logger = logging.getLogger('engine')
 
@@ -43,18 +46,19 @@ def user_signup(request):
 
 
 def user_logout(request):
-    logout(request)
-    return redirect("/")
-
-def logout(request):
-
 
     if request.method == "POST":
-        form = forms.LogoutForm(request.POST)
+        form = LogoutForm(request.POST)
         if form.is_valid():
             auth.logout(request)
             return redirect("/")
-    context = dict(navtab='logout')
+
+    steps = breadcrumb_builder([HOME_ICON])
+
+    form = LogoutForm()
+
+    context = dict(steps=steps, form=form)
+
     return render(request, "registration/user_logout.html", context=context)
 
 
@@ -94,7 +98,7 @@ def user_login(request):
         initial = dict(nexturl=request.GET.get('next', '/'))
         form = LoginForm(initial=initial)
 
-    steps = []
+    steps = breadcrumb_builder([HOME_ICON])
 
     context = dict(form=form, steps=steps)
     return render(request, "registration/user_login.html", context=context)
