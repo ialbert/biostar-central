@@ -15,7 +15,10 @@ threads : {
         value: 4
 
 }
-command : make all
+execute : {
+    file : Makefile
+    command : make all
+}
 settings :
   {
     title: Fastqc report of input data file.

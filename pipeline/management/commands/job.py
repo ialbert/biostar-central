@@ -15,11 +15,18 @@ def run(job):
     spec = job.json_data
     template = job.makefile_template
     outdir = job.path
-    errorlog = []
+    error_log = []
+    stdout_log =[]
+    stderr_log = []
 
     try:
         # render makefile.
         spec = hjson.loads(spec)
+        execute = spec.get('execute',{})
+        commands = execute.get("command", "make all").split()
+        filename = execute.get("filename", "Makefile")
+
+
         template = Template(template)
         context = Context(spec)
         mtext = template.render(context)
@@ -27,33 +34,29 @@ def run(job):
         if not os.path.isdir(outdir):
             os.mkdir(outdir)
 
-        with open(os.path.join(outdir, "Makefile"), 'wt') as fp:
+        with open(os.path.join(outdir, filename), 'wt') as fp:
             fp.write(mtext)
 
-        # run makefile.
+        # Run the command.
         job.state = job.RUNNING
-        job.save()
-        process = subprocess.run(['make', 'all'], cwd=outdir, stderr=subprocess.PIPE, check=True)
-        return_code = process.returncode
+        process = subprocess.run(commands, cwd=outdir, stderr=subprocess.PIPE, stdout=subprocess.PIPE, check=True)
+        job.state = job.FINISHED
+
 
     except subprocess.CalledProcessError as err:
-
+        error_log.append(err.stderr.decode('utf-8'))
         job.state = job.ERROR
-        errorlog.append(err.stderr.decode('utf-8'))
-        if len(errorlog) > 100:
-            sys.exit(1)
+
+    except Exception as exc:
+        error_log.append(str(exc))
+        job.state = job.ERROR
 
     finally:
-        if errorlog:
-            job.log = "\n".join(errorlog)
-        else:
-            job.log = "Analysis completed sucessfully. Results are in results folder. "
-        with open(os.path.join(outdir, "run_log.txt"), 'wt') as fp:
-            fp.write(job.log)
-        if job.state != job.ERROR:
-            job.state = job.FINISHED
-        print(job.state)
+        stdout_log.append(process.stdout.read())
+        stderr_log.append(process.stderr.read())
+        job.log = "\n".join(stdout_log + error_log)
         job.save()
+
     return job
 
 
