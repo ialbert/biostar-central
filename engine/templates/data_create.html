@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block title %}
-    Create Data
+    Upload Data
 {% endblock %}
 
 
@@ -12,9 +12,10 @@
 
         {% csrf_token %}
         {{ form.media }}
-         <div class="nine wide field segment">
-              <label>Title</label>
-              {{ form.title }}
+
+        <div class="field segment">
+              <label>{{ form.file.label_tag }}</label>
+              {{ form.file }}
          </div>
 
         <div class="field segment">
@@ -27,17 +28,13 @@
               {{ form.type }}
          </div>
 
-        <div class="field segment">
-              <label>File Upload</label>
-              {{ form.file }}
-         </div>
         {{ form.errors }}
 
         <button type="submit" class="ui primary button">
             <i class="write square icon"></i>Create Data
         </button>
         <a class="ui right floated button" href="{% url 'project_view' project.id %}">
-            Exit
+            Back
         </a>
 
     </form>

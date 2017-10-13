@@ -5,18 +5,18 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.template.loader import get_template
 import mistune
 from . import settings
 from . import util
 from django.urls import reverse
-
+from .const import *
 
 def join(*args):
     return os.path.abspath(os.path.join(*args))
 
 
 def make_html(text):
-
     return mistune.markdown(text)
 
 
@@ -26,7 +26,7 @@ class Base(models.Model):
     owner = models.ForeignKey(User)
     text = models.TextField(default='text')
     html = models.TextField(default='html')
-    date = models.DateTimeField()
+    date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.title
@@ -68,8 +68,10 @@ class Data(Base):
     FILE, COLLECTION = 1, 2
     TYPE_CHOICES =[(FILE, "File"),(COLLECTION ,"Collection")]
     type = models.IntegerField(default=FILE, choices=TYPE_CHOICES)
+    data_type = models.IntegerField(default=GENERIC_TYPE)
     project = models.ForeignKey(Project)
-    size = ''
+
+    size = models.CharField(null=True, max_length=256)
 
     file = models.FileField(null=True, upload_to=directory_path)
     path = models.FilePathField(null=True)
@@ -78,31 +80,52 @@ class Data(Base):
         super().__init__(*args, **kwargs)
 
     def save(self, *args, **kwargs):
+        #self.size = f"{models.FileField.__sizeof__(self.file)}"
         super(Data, self).save(*args, **kwargs)
 
     def get_path(self):
         return self.file if self.type == Data.FILE else self.path
 
+
+def make_analysis_from_spec(path, user, project):
+
+    json_obj = util.safe_load(path)
+    title = json_obj["analysis_spec"]["title"]
+    text = json_obj["analysis_spec"]["text"]
+    template_path = json_obj["template"]["path"]
+
+    makefile_template = get_template(template_path).template.source
+
+    analysis = Analysis(json_data=json.dumps(json_obj), owner=user, title=title, text=text,
+                        makefile_template=makefile_template, project=project)
+    analysis.save()
+
+    return analysis
+
+
+
 class Analysis(Base):
 
-    json_file = models.TextField(default="media")
-    json_data = models.TextField(default=r"""{ 
-                                            field1_name: 
-                                            {
-                                            value:field_value, 
-                                            type:FIELD_TYPE
-                                            }
-                                            field2_name:
-                                            {
-                                            value:field_value, 
-                                            type:FIELD_TYPE
-                                            }
-                                            }""")
-
+    json_data = models.TextField(default="{}")
     makefile_template = models.TextField(default="makefile")
+    project = models.ForeignKey(Project)
 
     def save(self, *args, **kwargs):
         super(Analysis, self).save(*args, **kwargs)
+
+
+def make_job(owner, analysis, project, json_data=None, title=None, state=None):
+
+    title = title or analysis.title
+    state = state or Job.QUEUED
+    filled_json = json_data or analysis.json_data
+
+    job = Job(title=title, state=state, json_data=filled_json,
+              project=project, analysis=analysis, owner=owner,
+              makefile_template=analysis.makefile_template)
+    job.save()
+
+    return job
 
 
 class Job(Base):
@@ -120,13 +143,17 @@ class Job(Base):
     makefile_template = models.TextField(default="makefile")
 
     log = models.TextField(default="log")
-    # jobstart and job_end fields.
+
+    #job_start = models.DateField(auto_now_add=True)
+    #job_killed = models.DateField()
     state = models.IntegerField(default=1, choices=STATE_CHOICES)
     path = models.FilePathField(default="")
 
     def save(self, *args, **kwargs):
 
         self.uid = self.uid or util.get_uuid(8)
+        self.makefile_template = self.analysis.makefile_template
+
         # write an index.html to the file
         if not os.path.isdir(self.path):
             path = os.path.abspath(os.path.join(settings.MEDIA_ROOT, self.uid))

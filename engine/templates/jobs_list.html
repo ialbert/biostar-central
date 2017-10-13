@@ -1,10 +1,13 @@
 {% extends "base.html" %}
 {% load engine_tags %}
 
-{% block title %}
-    Results List
+{% block headtitle %}
+    Result List
 {% endblock %}
 
+{% block title %}
+    Results for: {{project.title}}
+{% endblock %}
 
 {% block body %}
 

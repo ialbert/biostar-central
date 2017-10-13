@@ -1,16 +1,15 @@
-
-data :
-  {
-    value: ""
+{
+data : {
+    value: "abc"
     visible: 1
     origin: PROJECT
-    data_type: [fastq, fastq.gz]
+    data_type: GENERIC
     display_type: DROPDOWN
-
   }
+
 template : {
-        value:fastqc_makefile.html
-        display_type:SCRIPT
+        path: fastqc_makefile.html
+        display_type: SCRIPT
 }
 threads : {
         value: 4
@@ -19,8 +18,7 @@ threads : {
 analysis_spec :
   {
     title: Fastqc report of input data file.
-    value:
-                '''
+    text:'''
 # Purpose
 
 This analysis produce fastqc report of the input file.

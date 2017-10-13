@@ -1,5 +1,6 @@
 <div class="ui menu">
 
+
     {% if create_project %}
         <a class="item" href="{% url 'project_create' %}">
             <i class="plus icon"></i>Create Project
@@ -24,18 +25,22 @@
         </a>
     {% endif %}
 
-    {% if edit_analysis and project and analysis %}
-        <a class="item" href="{% url 'analysis_edit' project.id analysis.id %}">
+    {% if edit_analysis and analysis %}
+        <a class="item" href="{% url 'analysis_edit' analysis.id %}">
             <i class="write icon"></i>Edit Analysis
        </a>
     {% endif %}
 
     <div class="right menu">
+
         {% if user.is_authenticated %}
-            <a class="item" href="{% url 'index' %}"><i class="sign in icon"></i>Logout</a>
+            <a class="item" href="{% url 'logout' %}"><i class="sign in icon"></i>Logout</a>
         {% else %}
-            <a class="item" href="{% url 'index' %}"><i class="sign in icon"></i>Login</a>
-            <a class="item" href="{% url 'index' %}"><i class="add user icon"></i>Sign Up</a>
+            <a class="item" href="{% url 'login' %}"><i class="sign in icon"></i>Login</a>
+
+            <a class="item" href="{% url 'logout' %}"><i class="sign in icon"></i>Logout</a>
+            <a class="item" href="{% url 'signup' %}"><i class="add user icon"></i>Sign Up</a>
+
         {% endif %}
 
         <a class="item"><i class="help icon"></i>Help</a>

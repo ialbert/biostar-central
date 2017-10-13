@@ -1,25 +1,26 @@
 import logging
-#from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required
 from django.template.loader import get_template
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.urls import reverse
 #from django.template import Context, loader
 from django.conf import settings
-from django.conf.urls.static import serve
 import os
 from .forms import *
 from .models import (User, Project, Data,
-                     Analysis, Job)
+                     Analysis, Job, make_job)
 
 from . import util
 from engine.const import *
+import hjson as json
 
 def join(*args):
     return os.path.abspath(os.path.join(*args))
 
 
 logger = logging.getLogger('engine')
+
 
 def index(request):
 
@@ -52,7 +53,7 @@ def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=Non
         elif icon == ANALYSIS_LIST_ICON:
             step = (reverse("analysis_list", kwargs={'id': project.id}), ANALYSIS_LIST_ICON, "Analysis List", is_active )
         elif icon == ANALYSIS_ICON:
-            step = (reverse("analysis_view", kwargs={'id': project.id, 'id2': analysis.id}), ANALYSIS_ICON, f"{analysis.title}", is_active )
+            step = (reverse("analysis_view", kwargs={'id': analysis.id}), ANALYSIS_ICON, f"{analysis.title}", is_active )
         elif icon == RESULT_LIST_ICON:
             step = (reverse("job_list", kwargs={'id': project.id,}), RESULT_LIST_ICON, "Result List",is_active)
         elif icon == RESULT_ICON:
@@ -95,6 +96,7 @@ def project_view(request, id):
     return render(request, "project_view.html", context)
 
 
+@login_required(login_url=LOGIN_URL)
 def project_edit(request, id):
 
     project = Project.objects.filter(id=id).first()
@@ -115,6 +117,7 @@ def project_edit(request, id):
                       context)
 
 
+@login_required(login_url=LOGIN_URL)
 def project_create(request):
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON])
@@ -176,6 +179,7 @@ def data_view(request, id):
     return render(request, "data_view.html", context)
 
 
+@login_required(login_url=LOGIN_URL)
 def data_edit(request, id):
 
     data = Data.objects.filter(id=id).first()
@@ -198,7 +202,7 @@ def data_edit(request, id):
 
     return render(request, 'data_edit.html', context)
 
-
+@login_required(login_url=LOGIN_URL)
 def data_create(request, id):
 
     project = Project.objects.filter(id=id).first()
@@ -206,23 +210,23 @@ def data_create(request, id):
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON],
                                project=project)
 
-
     if request.method == "POST":
 
         form = DataForm(request.POST, request.FILES)
 
         if form.is_valid():
 
-            title = form.cleaned_data["title"]
+            title = form.cleaned_data["file"]
             text = form.cleaned_data["text"]
-            owner = User.objects.all().first()
+            owner = project.owner
             type = form.cleaned_data["type"]
 
-            # maybe specifiy path here instead of in save method
             new_data = Data.objects.create(title=title, text=text,
                                            owner=owner, project=project,
                                            file=request.FILES["file"],
-                                           type=type)
+                                           type=type,
+                                           )
+            new_data.size = f"{os.path.getsize(new_data.file.path)}"
             new_data.save()
 
             return redirect(reverse("data_list", kwargs={'id':project.id}))
@@ -239,8 +243,8 @@ def data_create(request, id):
 #@login_required
 def analysis_list(request, id):
 
-    analysis = Analysis.objects.order_by("-id")
     project = Project.objects.filter(id=id).first()
+    analysis = Analysis.objects.filter(project=project).order_by("-id")
 
     if not analysis:
         messages.error(request, "No Analysis found.")
@@ -254,11 +258,11 @@ def analysis_list(request, id):
     return render(request, "analysis_list.html", context)
 
 
-#@login_required
-def analysis_view(request, id, id2):
 
-    analysis = Analysis.objects.filter(id=id2).first()
-    project = Project.objects.filter(id=id).first()
+def analysis_view(request, id):
+
+    analysis = Analysis.objects.filter(id=id).first()
+    project = analysis.project
 
     if not analysis:
         messages.error(request, "Analysis not found.")
@@ -271,45 +275,44 @@ def analysis_view(request, id, id2):
 
     return render(request, "analysis_view.html", context)
 
+@login_required
+def analysis_run(request, id):
 
-def analysis_run(request, id, id2):
+    analysis = Analysis.objects.filter(id=id).first()
+    project = analysis.project
 
-    project = Project.objects.filter(id=id).first()
-    analysis = Analysis.objects.filter(id=id2).first()
-    analysis.save()
-    owner = User.objects.all().first()
+    owner = analysis.owner
+
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_ICON,  ANALYSIS_ICON],
                                project=project, analysis=analysis)
 
     if request.method == "POST":
 
-        form = RunAnalysis(data=request.POST, json_data=analysis.json_data)
+        form = RunAnalysis(data=request.POST, analysis=analysis)
 
         if form.is_valid():
 
             filled_json = form.process()
-            title = analysis.title
-            json_data = json.dumps(filled_json, indent=4)
-            job = Job(json_data=json_data, owner=owner,
-                                     analysis=analysis,
-                                     project=project,
-                                     makefile_template=analysis.makefile_template,
-                                     title=title)
+            json_data = json.dumps(filled_json)
+            title = form.cleaned_data.get("title")
+            job = make_job(owner=owner, analysis=analysis, project=project,
+                           json_data=json_data, title=title)
 
             job.save()
             return redirect(reverse("job_list", kwargs=dict(id=project.id)))
 
     else:
-        form = RunAnalysis(json_data=analysis.json_data)
+        initial = dict(title=analysis.title)
+        form = RunAnalysis(analysis=analysis, initial=initial)
         context = dict(project=project, analysis=analysis, steps=steps, form=form)
         return render(request, 'analysis_run.html', context)
 
+@login_required(login_url=LOGIN_URL)
+def analysis_edit(request, id):
 
-def analysis_edit(request, id, id2):
-
-    analysis = Analysis.objects.filter(id=id2).first()
-    project = Project.objects.filter(id=id).first()
+    analysis = Analysis.objects.filter(id=id).first()
+    project = analysis.project
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_ICON, ANALYSIS_LIST_ICON, ANALYSIS_ICON],
                                project=project, analysis=analysis)
@@ -324,26 +327,27 @@ def analysis_edit(request, id, id2):
             # Save the rewriteen spec_file into spec_origin field
             analysis.save()
 
-            form = EditAnalysis(analysis=analysis.spec_origin)
+            form = EditAnalysis(analysis=analysis)
 
         elif request.POST.get("save_or_preview") == "preview":
 
-            form = EditAnalysis(analysis=request.POST.get("text"))
+            form = EditAnalysis(analysis=analysis, json_data=request.POST.get("text"))
 
         elif request.POST.get("save_or_preview") == "save":
 
-            form = EditAnalysis(analysis=request.POST.get("text"))
-            spec = util.safe_loads(analysis.json_data)
+            form = EditAnalysis(analysis=analysis, json_data=request.POST.get("text"))
+            spec = util.safe_loads(request.POST.get("text"))
             filler = dict(display_type='')
 
             if spec.get("analysis_spec", filler)["display_type"] == "MODEL":
                 analysis.title = spec["analysis_spec"].get("title", analysis.title)
-                analysis.text = spec["analysis_spec"]["value"]
+                analysis.text = spec["analysis_spec"]["text"]
 
-            analysis.save(json_data=request.POST.get("text"))
+            analysis.json_data = request.POST.get("text")
+            analysis.save()
     else:
 
-        form = EditAnalysis(analysis=analysis.json_data)
+        form = EditAnalysis(analysis=analysis)
 
     context = dict(project=project, analysis=analysis, steps=steps, form=form)
     return render(request, 'analysis_edit.html', context)
@@ -362,7 +366,7 @@ def jobs_list(request, id):
 
     jobs = project.job_set.order_by("-id")
 
-    context = dict(jobs=jobs, steps=steps)
+    context = dict(jobs=jobs, steps=steps, project=project)
 
     return render(request, "jobs_list.html", context)
 
@@ -380,9 +384,6 @@ def job_view(request, id):
     job = Job.objects.filter(id=id).first()
     path = job.uid
     url = settings.MEDIA_URL + path+"/"
-    dir_root = join(job.path, "..", "..")
-
-    #return serve(request, path=url, document_root=dir_root, show_indexes=True)
 
     print(url)
     return redirect(url)

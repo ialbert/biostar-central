@@ -1,11 +1,8 @@
 import logging, uuid
 import os
-import hjson as json
 from django.apps import AppConfig
 from django.conf import settings
 from django.db.models.signals import post_migrate
-from django.template.loader import get_template
-from . import util
 from engine.const import *
 
 logger = logging.getLogger('engine')
@@ -18,26 +15,13 @@ def join(*args):
 def get_uuid(limit=None):
     return str(uuid.uuid4())[:limit]
 
-def make_analysis_from_spec(path, user):
-    from engine.models import Analysis
-    json_data = open(path).read()
-    json_obj = json.loads(json_data)
-    title = json_obj["analysis_spec"]["title"]
-    text = json_obj["analysis_spec"]["text"]
-    template_path = json_obj["template"]["path"]
-    makefile_template = get_template(template_path).template.source
-    analysis = Analysis(json_data=json_data, owner=user, title=title, text=text,
-             makefile_template=makefile_template)
-    analysis.save()
-
-    return analysis
 
 def init_proj(sender, **kwargs):
     """
     Populate initial projects with N number data
     Creates one analysis model to allow for jobs to be run
     """
-    from engine.models import Project, Data, Analysis, Job
+    from engine.models import Project, Data, make_analysis_from_spec, make_job, Job
     from engine.models import User
 
     owner = User.objects.all().first()
@@ -55,22 +39,22 @@ def init_proj(sender, **kwargs):
         logger.info(f'Created project: {project.title}')
 
         # Add data to each project.
-        for data_title, data_desc, data_file in TEST_DATA:
-            data = Data(title=data_title, owner=owner, text=data_desc, project=project, file=data_file)
+        for data_title, data_desc, data_file, data_type in TEST_DATA:
+            data = Data(title=data_title, owner=owner, text=data_desc, project=project, file=data_file, data_type=data_type)
             data.save()
+
 
     # Initialize the analyses.
     for test_spec in TEST_SPECS:
-        analysis = make_analysis_from_spec(test_spec, user=owner)
+        analysis = make_analysis_from_spec(test_spec, user=owner, project=project)
 
         # Create four jobs for each project.
         for project in Project.objects.all():
-            for state in (Job.RUNNING, Job.ERROR, Job.QUEUED):
-                title = analysis.title
-
-                job = Job(title=title, state=state,
-                          project=project, analysis=analysis, owner=owner, makefile_template=analysis.makefile_template)
+            for state in (Job.RUNNING, Job.ERROR, Job.QUEUED, Job.FINISHED):
+                # user, analysis, and project are the only necessary things
+                job = make_job(owner=owner, analysis=analysis, project=project, state=state)
                 job.save()
+                logger.info(f'Created job: {job.title} in project : {project.title} with state : {job.get_state_display()}')
 
     return
 
@@ -89,10 +73,14 @@ def init_users(sender, **kwargs):
                         is_superuser=True, is_staff=True)
             user.set_password(settings.SECRET_KEY)
             user.save()
-            logger.info(f"creating admin: user.username = {user.username}, user.email={user.email}")
+            logger.info(f"creating admin user: user.username = {user.username}, user.email={user.email}, user.id={user.id}")
 
     # Create a regular test user.
-    test_user = User.objects.get_or_create(email="foo@bar.com", password="foobar221")
+    #testbuddy @ lvh.me
+    test_user, new = User.objects.get_or_create(email="testbuddy@lvh.me", password="testbuddy@lvh.me")
+
+    test_user.save()
+    logger.info(f"creating normal user : email = {test_user.email}, password = {test_user.email}")
 
 
 def init_site(sender, **kwargs):

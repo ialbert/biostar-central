@@ -2,41 +2,49 @@
 {% load engine_tags %}
 
 {% block title %}
-   Run {{analysis.title}}
+    Run {{ analysis.title }}
 {% endblock %}
 
 {% block body %}
-<div class="createform">
-        <form method="post" class="ui form" >
+    <div class="ui stackable grid">
+        <div class="three wide column"></div>
+        <div class="ten wide column">
 
-            {% csrf_token %}
+            <div class="ui raised segment">
+                <div class="createform">
+                    <form method="post" class="ui form" action="{% url 'analysis_run' analysis.id %}">
 
-            {% for field in form %}
+                        {% csrf_token %}
 
-                    {% if field.field|is_checkbox %}
-                        {# Handle checkboxes diffrenly #}
-                        <div class="field segment">
-                        <label class="checkbox" for="{{ field.id_for_label }}">
-                            {{ field }} {{ field.label_tag }}
-                        </label>
-                        {{ form.field.errors }}
-                        </div>
-                    {% else %}
-                        <div class="field segment">
-                        {{ field.label_tag }}
-                        {{ field }}
-                        </div>
-                    {% endif %}
+                        {% for field in form %}
 
-            {% endfor %}
-                {{ form.errors }}
-            <button type="submit" class="ui green button">
-                <i class="check icon"></i>Run
-            </button>
-            <a class="ui right floated button" href="{% url 'analysis_list' project.id %}">
-                Exit
-            </a>
+                            {% if field.field|is_checkbox %}
+                                {# Handle checkboxes diffrenly #}
+                                <div class="field segment">
+                                    <label class="checkbox" for="{{ field.id_for_label }}">
+                                        {{ field }} {{ field.label_tag }}
+                                    </label>
+                                    {{ form.field.errors }}
+                                </div>
+                            {% else %}
+                                <div class="field segment">
+                                    {{ field.label_tag }}
+                                    {{ field }}
+                                </div>
+                            {% endif %}
 
-        </form>
-</div>
+                        {% endfor %}
+                        {{ form.errors }}
+                        <button type="submit" class="ui green button">
+                            <i class="check icon"></i>Run
+                        </button>
+                        <a class="ui right floated button" href="{% url 'analysis_view' analysis.id %}">
+                            Cancel
+                        </a>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}

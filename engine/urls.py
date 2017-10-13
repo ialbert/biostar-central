@@ -21,7 +21,7 @@ from . import views, user_views
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^accounts/login/', user_views.user_login, name="login"),
+    url(r'^login/', user_views.user_login, name="login"),
     url(r'^signup/$', user_views.user_signup, name="signup"),
     url(r'^$', views.index, name="index"),
     url(r'^logout/$', user_views.user_logout, name="logout"),
@@ -34,9 +34,9 @@ urlpatterns = [
     url(r'^data/view/(?P<id>\d+)/$', views.data_view, name='data_view'),
     url(r'^data/edit/(?P<id>\d+)/$', views.data_edit, name='data_edit'),
     url(r'^data/create/(?P<id>\d+)/$', views.data_create, name='data_create'),
-    url(r'^analysis/view/(?P<id>\d+)/(?P<id2>\d+)/$', views.analysis_view, name='analysis_view'),
-    url(r'^analysis/run/(?P<id>\d+)/(?P<id2>\d+)/$', views.analysis_run, name='analysis_run'),
-    url(r'^analysis/edit/(?P<id>\d+)/(?P<id2>\d+)/$', views.analysis_edit, name='analysis_edit'),
+    url(r'^analysis/view/(?P<id>\d+)$', views.analysis_view, name='analysis_view'),
+    url(r'^analysis/run/(?P<id>\d+)/$', views.analysis_run, name='analysis_run'),
+    url(r'^analysis/edit/(?P<id>\d+)$', views.analysis_edit, name='analysis_edit'),
     url(r'^jobs/list/(?P<id>\d+)/$', views.jobs_list, name='job_list'),
     url(r'^job/view/(?P<id>\d+)/$', views.job_view, name='job_view'),
     url(r'^media/$', views.media_index, name='media_index'),

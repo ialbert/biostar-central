@@ -1,24 +1,24 @@
 {% extends "base.html" %}
 
-{% block title %}
+{% block headtitle %}
     Analysis List
 {% endblock %}
 
+{% block title %}
+    Analysis list for: {{project.title}}
+{% endblock %}
 
 {% block body %}
 
-{% for res in analysis %}
+{% for obj in analysis %}
 
     <div class="ui vertical segment">
-
         <div class="title">
-
-
-            <a href="{% url 'analysis_view' project.id res.id %}">
-            <i class="setting icon"></i>{{ res.title }}
+            <a href="{% url 'analysis_view' obj.id %}">
+            <i class="setting icon"></i>{{ obj.title }}
             </a>
         </div>
-        <div class="info">{{res.date.date}}</div>
+        <div class="info">{{obj.date.date}}</div>
     </div>
 
 {% endfor %}
