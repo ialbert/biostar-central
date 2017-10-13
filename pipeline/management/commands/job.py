@@ -19,13 +19,15 @@ def run(job):
     stdout_log =[]
     stderr_log = []
 
+    print("hello")
+    1/0
+
     try:
         # render makefile.
         spec = hjson.loads(spec)
         execute = spec.get('execute',{})
         commands = execute.get("command", "make all").split()
         filename = execute.get("filename", "Makefile")
-
 
         template = Template(template)
         context = Context(spec)
@@ -41,7 +43,6 @@ def run(job):
         job.state = job.RUNNING
         process = subprocess.run(commands, cwd=outdir, stderr=subprocess.PIPE, stdout=subprocess.PIPE, check=True)
         job.state = job.FINISHED
-
 
     except subprocess.CalledProcessError as err:
         error_log.append(err.stderr.decode('utf-8'))
@@ -70,61 +71,77 @@ class Command(BaseCommand):
 
         # Named (optional) arguments
         parser.add_argument('--run',
-                            action='store_true',
+                             action='store_true',
                              dest='run',
-                             default =False,
                              help="Runs job. Job should be specified by jobid or limit.")
 
         parser.add_argument('--limit',
-                            action='store_true',
-                             dest='limit',
+                            dest='limit',
+                            type =int,
                             default=1, help="Enter the number of jobs to run.")
+
         parser.add_argument('--jobid',
-                            action='store_true',
                              dest='jobid',
                              help="Specifies job id.")
 
         parser.add_argument('--queued',
-                            action='store_true',
                              dest='queued',
+                             action='store_true',
                              help="List ten most recent queued jobs.")
         parser.add_argument('--template',
+                            dest='template',
                             action='store_true',
-                             dest='template',
                             help="Show template.")
         parser.add_argument('--spec',
+                            dest='spec',
                             action='store_true',
-                             dest='pec',
                             help="Show analysis spec.")
 
     def handle(self, *args, **options):
 
         limit = options['limit']
-        jobs = Job.objects.filter(state=Job.QUEUED).order_by("-id")[:limit]
+        jobid = options['jobid']
+        queued = options['queued']
+        spec = options['spec']
+        template = options['template']
+        run = options['run']
 
-        if options['show_make']:
-            for job in jobs:
-                print("Makefile for job {0}".format(job.id))
-                print(job.makefile_template)
-            sys.exit(1)
+         #jobs = Job.objects.filter(state=Job.QUEUED).order_by("-id")[:limit]
 
-        if options['show_spec']:
-            for job in jobs:
-                print("Specs for job {0}".format(job.id))
-                print(job.json_data)
-            sys.exit(1)
-
-        if options['show_queued']:
+        if queued:
             jobs = Job.objects.filter(state=Job.QUEUED).order_by("-id")[:10]
             for job in jobs:
                 print(job.id)
-            sys.exit(1)
+            return
 
-        for job in jobs:
-            run(job)
+        if not (jobid or limit) and run:
+            print("command requires --jobid or --limit")
+            return
 
+        if not jobid and (template or spec):
+            print ("command requires --jobid")
+            return
 
+        if jobid:
+            job = Job.objects.get(id=jobid)
 
+            if template:
+                print(job.makefile_template)
+                return
 
+            if spec:
+                print(job.json_data)
+                return
+            if run:
+                print("runs job")
+                # run(job)
+                return
+
+        if limit:
+            jobs = Job.objects.filter(state=Job.QUEUED).order_by("id")[:limit]
+            for job in jobs:
+                #run(job)
+                print("running job")
+            return
 
 
