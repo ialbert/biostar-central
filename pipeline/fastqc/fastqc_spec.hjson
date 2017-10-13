@@ -1,9 +1,9 @@
 {
 data : {
-    value: "abc"
-    visible: 1
+    path: ""
+    visible: true
     origin: PROJECT
-    data_type: GENERIC
+    data_type: FASTQ_TYPE
     display_type: DROPDOWN
   }
 
@@ -21,13 +21,11 @@ analysis_spec :
     text:'''
 # Purpose
 
-This analysis produce fastqc report of the input file.
+Produce fastqc report of the input file.
 
 # Parameters
 
-**Input:**
-
-1. Data.
+1. Fastq or fatsq.gz file as input.
 
 # Results
 
