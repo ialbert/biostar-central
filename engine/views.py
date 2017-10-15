@@ -347,9 +347,7 @@ def analysis_run(request, id):
 
 def preview_specs(spec, analysis):
 
-    filler = dict(display_type="")
-
-    if spec.get("settings", filler).get("display_type") == "MODEL":
+    if spec.get("settings"):
         title = spec["settings"].get("title", analysis.title)
         help = spec["settings"].get("help", analysis.text)
         #summary = spec["settings"].get("summary", analysis.text)
