@@ -8,7 +8,7 @@ from django.core import management
 from copy import copy
 import hjson as json
 from django.core.files import File
-
+from . import util
 logger = logging.getLogger('engine')
 
 
@@ -80,7 +80,7 @@ def init_users(sender, **kwargs):
 
     for name, email in settings.ADMINS:
         if not User.objects.filter(email=email):
-            user = User(first_name="foo", email=email, username="foo",
+            user = User(first_name=name, email=email, username=util.get_uuid(),
                         is_superuser=True, is_staff=True)
             user.set_password(settings.SECRET_KEY)
             user.save()
@@ -92,7 +92,6 @@ def init_users(sender, **kwargs):
     test_buddy.save()
 
     logger.info(f"creating user: {test_buddy.email}")
-
 
 
 def init_site(sender, **kwargs):

@@ -26,11 +26,9 @@ def run(job, options={}):
     stderr_log = []
 
     try:
-        logger.info(f'job id={job.id} started.')
-
         # Find the json and the template.
         json_data = hjson.loads(job.json_data)
-        template = job.makefile_template
+        template = job.template
 
         # This is the work directory.
         workdir = job.path
@@ -67,6 +65,9 @@ def run(job, options={}):
         if show_script:
             print(f'{script}')
             return
+
+        # Logging should start after the early returns.
+        logger.info(f'job id={job.id} started.')
 
         # Make the output directory
         logger.info(f'job id={job.id} workdir: {workdir}')
@@ -120,6 +121,10 @@ def run(job, options={}):
         print (job.log)
         print("-" * 40)
 
+def error(msg):
+    logger.error(msg)
+    sys.exit()
+
 class Command(BaseCommand):
     help = 'Job manager.'
 
@@ -130,7 +135,7 @@ class Command(BaseCommand):
                         default=False,
                         help="Runs the oldest queued job")
 
-        parser.add_argument('--run',
+        parser.add_argument('--id',
                             type=int,
                             default=0,
                             help="Runs job specified by id.")
@@ -154,18 +159,20 @@ class Command(BaseCommand):
                             help="Override the TEMPLATE with this file.")
 
 
-
     def handle(self, *args, **options):
 
-        runid = options['run']
+        jobid = options['id']
         next = options['next']
 
         if next:
             job = Job.objects.filter(state=Job.QUEUED).order_by('-id').first()
-        else:
-            job = Job.objects.filter(id=runid).first()
+            if not job:
+                error(f'there are no queued jobs')
+            run(job, options=options)
 
-        if not job:
-            logger.error(f'job for id={runid} missing')
+        if jobid:
+            job = Job.objects.filter(id=jobid).first()
+            if not job:
+                error(f'job for id={jobid} missing')
+            run(job, options=options)
 
-        run(job, options=options)
