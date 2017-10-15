@@ -5,6 +5,8 @@ import uuid
 
 
 
+
+
 def get_uuid(limit=32):
     return str(uuid.uuid4())[:limit]
 
@@ -23,27 +25,6 @@ def make_tmp_jsonfile(json_text, analysis_id):
 
 
 def check_fields(json_obj):
-
-    required_keys = ["value", "display_type"]
-    required_fields = ["template"]
-
-    for field in required_fields:
-        if field not in json_obj:
-            raise Exception(f"'{field}' field is required in the json spec file.")
-
-    for check in json_obj:
-
-        data = json_obj[check]
-
-        # Check Required keys if the field is being displayed
-        if data.get("display_type") not in [MODEL, SCRIPT, TEMPLATE]:
-
-            for key in required_keys:
-                if data.get(key) == None:
-                    raise KeyError(f"missing required key '{key}' in input: {data}")
-
-        if data.get("label") == None and data.get("visible") == 1:
-            data["label"] = check[0].upper() + check[1:]
 
     return json_obj
 

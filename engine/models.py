@@ -94,10 +94,10 @@ def make_analysis_from_spec(path, user, project):
     text = json_obj["analysis_spec"]["text"]
     template_path = json_obj["template"]["path"]
 
-    makefile_template = get_template(template_path).template.source
+    template = get_template(template_path).template.source
 
     analysis = Analysis(json_data=json.dumps(json_obj), owner=user, title=title, text=text,
-                        makefile_template=makefile_template, project=project)
+                        template=template, project=project)
     analysis.save()
 
     return analysis
@@ -107,7 +107,7 @@ def make_analysis_from_spec(path, user, project):
 class Analysis(Base):
 
     json_data = models.TextField(default="{}")
-    makefile_template = models.TextField(default="makefile")
+    template = models.TextField(default="makefile")
     project = models.ForeignKey(Project)
 
     def save(self, *args, **kwargs):
@@ -122,7 +122,7 @@ def make_job(owner, analysis, project, json_data=None, title=None, state=None):
 
     job = Job(title=title, state=state, json_data=filled_json,
               project=project, analysis=analysis, owner=owner,
-              makefile_template=analysis.makefile_template)
+              template=analysis.template)
     job.save()
 
     return job
@@ -140,20 +140,19 @@ class Job(Base):
     json_data = models.TextField(default="commands")
 
     uid = models.CharField(max_length=32)
-    makefile_template = models.TextField(default="makefile")
-
+    template = models.TextField(default="makefile")
     log = models.TextField(default="log")
 
-    #job_start = models.DateField(auto_now_add=True)
-    #job_killed = models.DateField()
+
     state = models.IntegerField(default=1, choices=STATE_CHOICES)
     path = models.FilePathField(default="")
 
     def save(self, *args, **kwargs):
 
         self.uid = self.uid or util.get_uuid(8)
-        self.makefile_template = self.analysis.makefile_template
+        self.template = self.analysis.template
 
+        self.title = self.title or self.analysis.title
         # write an index.html to the file
         if not os.path.isdir(self.path):
             path = os.path.abspath(os.path.join(settings.MEDIA_ROOT, self.uid))

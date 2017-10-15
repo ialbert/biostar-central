@@ -1,11 +1,11 @@
-INPUT_DATA = {{data.value}}
-INPUT_SAMPLE_INFO = {{sampleinfo.value}}
+INPUT_DATA = {{data.path}}
+INPUT_SAMPLE_INFO = {{sampleinfo.path}}
 THREADS ={{ threads.value}}
 
 #
 # Internal parameters after this.
 #
-
+DATA_DIR = data
 ANALYSIS_DIR = analysis
 RESULT_DIR  = results
 ERR_LOG = stderr.txt
@@ -19,16 +19,22 @@ UPDATED_SAMPLE_INFO = updated_sampleinfo.txt
 all: trim_quality
 	@echo "executes all commands"
 
+extract:
+	#
+	# extract data	
+	#
+	tar -xzvf $(INPUT_DATA)
+
 #
 # ============== Update sample sheet ==============
 # Read1 and Read2 file names will be added to updated samplesheet.
 #
 
-updated_sample_info:
+updated_sample_info: extract
 	#
 	# Make new sample sheet named $(UPDATED_SAMPLE_INFO)
 	#
-	python -m pipeline.data.samplesheet $(INPUT_SAMPLE_INFO) $(INPUT_DATA) > $(UPDATED_SAMPLE_INFO)
+	python -m pipeline.data.samplesheet $(INPUT_SAMPLE_INFO) $(DATA_DIR) > $(UPDATED_SAMPLE_INFO)
 
 #
 # ============== Quality reports ==============
@@ -41,7 +47,7 @@ fastqc: updated_sample_info
 	#
 	mkdir -p $(FASTQC_DIR)
 	cat $(UPDATED_SAMPLE_INFO) | parallel --verbose --progress -j $(THREADS) --header : --colsep '\t' fastqc \
-	--nogroup -o $(FASTQC_DIR) $(INPUT_DATA)/{file1} $(INPUT_DATA)/{file2}
+	--nogroup -o $(FASTQC_DIR) $(DATA_DIR)/{file1} $(DATA_DIR)/{file2}
 
 multiqc: fastqc
 	#
@@ -68,7 +74,7 @@ trim_primer: multiqc
 	# trim left primer
 	mkdir -p $(RESULT_DIR)
 	cat $(UPDATED_SAMPLE_INFO) |parallel --verbose --progress -j $(THREADS)  --header : --colsep '\t' bbduk.sh \
-	in1=$(INPUT_DATA)/{file1} in2=$(INPUT_DATA)/{file2} \
+	in1=$(DATA_DIR)/{file1} in2=$(DATA_DIR)/{file2} \
 	out1=$(PTRIM_DIR)/{sample_name}_fwd1_trim.fq.gz \
 	out2=$(PTRIM_DIR)/{sample_name}_fwd2_trim.fq.gz \
 	literal={barcode}{fwd_primer} ktrim=l k=23 hdist=1 tpe tbo overwrite=true \

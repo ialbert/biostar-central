@@ -5,7 +5,7 @@ import os
 CURR_DIR = os.path.dirname(os.path.realpath(__file__))
 
 TEMPLATE_DIR = os.path.join(CURR_DIR,"../templates")
-SPEC_FILE = os.path.join(CURR_DIR, 'qc_spec.hjson' )
+SPEC_FILE = os.path.join(CURR_DIR, 'qc.hjson')
 
 if __name__ =="__main__":
     spec = read_spec(SPEC_FILE)

@@ -7,7 +7,6 @@ from .models import Project, Data, Analysis
 from . import util
 from . import factory
 
-from pagedown.widgets import PagedownWidget
 from engine.const import *
 from engine.web.auth import get_data
 
@@ -56,6 +55,10 @@ class SignUpForm(forms.ModelForm):
 
     def cleaned_data(self, *args):
         return self.cleaned_data
+
+
+class LogoutForm(forms.Form):
+    pass
 
 
 class LoginForm(forms.Form):
@@ -116,9 +119,8 @@ class RunAnalysis(forms.Form):
 
         super().__init__(*args, **kwargs)
 
-        # Job needs a title
         self.fields["title"] = forms.CharField(max_length=256,
-                                               help_text="Leave Empty to fill with Analysis name.",
+                                               help_text="Results Title",
                                                required=False)
 
         for name, obj in self.json_data.items():
@@ -164,40 +166,49 @@ class EditAnalysis(forms.Form):
     def __init__(self, analysis, *args, **kwargs):
 
         self.analysis = analysis
-        self.json_data =  kwargs.get('json_data') or self.analysis.json_data
-        self.json_data = util.safe_loads(self.json_data)
-
-        if kwargs.get("json_data"):
-            kwargs.pop('json_data')
 
         super().__init__(*args, **kwargs)
 
-        initial = json.dumps(self.json_data, indent=4)
+        json_data = json.loads(self.analysis.json_data)
+        initial = json.dumps(json_data, indent=4)
 
         self.fields["text"] = forms.CharField(initial=initial)
         self.fields["save_or_preview"] = forms.CharField(initial="preview")
 
-        for name, obj in self.json_data.items():
-            field = make_field(obj, analysis.project)
+        self.generate_form(json_data)
+
+    def preview(self):
+
+        cleaned_data = super(EditAnalysis, self).clean()
+        json_data = json.loads(cleaned_data["text"])
+
+        self.generate_form(json_data)
+
+
+    def save(self):
+
+        cleaned_data = super(EditAnalysis, self).clean()
+        json_data = json.loads(cleaned_data["text"])
+
+        self.generate_form(json_data)
+
+        spec = json.loads(self.cleaned_data["text"])
+        filler = dict(display_type='')
+
+        if spec.get("settings", filler).get("display_type") == "MODEL":
+            self.analysis.title = spec["settings"].get("title", self.analysis.title)
+            self.analysis.text = spec["settings"].get("text", self.analysis.text)
+
+        self.analysis.json_data = self.cleaned_data["text"]
+        self.analysis.save()
+
+        return self.analysis
+
+
+    def generate_form(self, json_obj):
+
+        for name, obj in json_obj.items():
+            field = make_field(obj, self.analysis.project)
 
             if field:
                 self.fields[name] = field
-
-    def save(self, *args, **kwargs):
-
-        super(EditAnalysis, self).save(*args, **kwargs)
-
-
-
-
-# class ResultForm(forms.ModelForm):
-#
-#     text = forms.CharField(widget=PagedownWidget(template="widgets/pagedownwidget.html"))
-#
-#     class Meta:
-#         model = Result
-#         fields = ['title', 'text', 'commands', 'state', 'directory']
-#
-#
-
-

@@ -1,4 +1,4 @@
-INPUT_DATA = {{data.value}}
+INPUT_DATA = {{data.path}}
 THREADS ={{ threads.value}}
 
 #
@@ -21,4 +21,5 @@ fastqc:
 	#
 	# create fastqc reports of input data.
 	#
+	mkdir -p $(RESULT_DIR)
 	fastqc --nogroup -t $(THREADS) -o $(RESULT_DIR) $(INPUT_DATA)

@@ -5,8 +5,9 @@ from pipeline import render, read_template, read_spec
 import os
 
 CURR_DIR = os.path.dirname(os.path.realpath(__file__))
-SPEC_FILE = os.path.join(CURR_DIR, 'qc_spec.hjson' )
+SPEC_FILE = os.path.join(CURR_DIR, 'qc.hjson')
 TEMPLATE_DIR = os.path.join(CURR_DIR,"../templates")
+
 
 def run(job):
     ''''

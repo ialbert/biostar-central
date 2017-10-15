@@ -21,8 +21,7 @@ def join(*args):
     return os.path.abspath(os.path.join(*args))
 
 
-ADMINS = [("Admin User", "foo@bar.com")]
-
+ADMINS = [("Admin User", "1@lvh.me")]
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(join(__file__))
@@ -31,7 +30,7 @@ BASE_DIR = os.path.dirname(join(__file__))
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '7(_d5r)h%ml3*&!d(6u&)u_i&m^*#fz#*0i&8ile)l30)9k(#7'
+SECRET_KEY = '1@lvh.me'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -71,11 +70,13 @@ TEMPLATES = [
         'DIRS': ["/pipeline/templates"],
         'APP_DIRS': True,
         'OPTIONS': {
+            'string_if_invalid': "**MISSING**",
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'engine.context.engine'
             ],
         },
     },
@@ -84,6 +85,9 @@ TEMPLATES = [
 WSGI_APPLICATION = 'engine.wsgi.application'
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION= True
+
+LOGIN_URL  = '/login/'
+LOGOUT_URL = '/logout/'
 
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases

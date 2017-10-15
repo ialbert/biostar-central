@@ -1,21 +1,24 @@
 
 import uuid
 import logging
+from django.contrib import messages
 
 from ratelimit.decorators import ratelimit
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate, logout
 
-from.forms import SignUpForm, LoginForm
+from .forms import SignUpForm, LoginForm, LogoutForm
 from .models import User
 from django.urls import reverse
+from engine.const import *
+from engine.views import breadcrumb_builder
+from django.contrib import auth
 
 logger = logging.getLogger('engine')
 
 
 def get_uuid(limit=32):
     return str(uuid.uuid4())[:limit]
-
 
 
 @ratelimit(key='ip', rate='10/m', block=True, method=ratelimit.UNSAFE)
@@ -43,14 +46,26 @@ def user_signup(request):
 
 
 def user_logout(request):
-    logout(request)
-    logger.info(f"logged out user.id={request.user.id}, user.email={request.user.email}")
 
-    return redirect("/")
+    if request.method == "POST":
+        form = LogoutForm(request.POST)
+        if form.is_valid():
+            auth.logout(request)
+            messages.info(request, "You have been logged out")
+            return redirect("/")
+
+    steps = breadcrumb_builder([HOME_ICON, LOGOUT_ICON])
+
+    form = LogoutForm()
+
+    context = dict(steps=steps, form=form)
+
+    return render(request, "registration/user_logout.html", context=context)
 
 
 @ratelimit(key='ip', rate='10/m', block=True, method=ratelimit.UNSAFE)
 def user_login(request):
+
     if request.method == "POST":
         form = LoginForm(data=request.POST)
 
@@ -77,15 +92,17 @@ def user_login(request):
             elif user and user.is_active:
                 login(request, user)
                 logger.info(f"logged in user.id={user.id}, user.email={user.email}")
-
+                messages.info(request, "Login successful!")
                 return redirect(reverse("index"))
             else:
                 # This should not happen normally.
                 form.add_error(None, "Invalid form processing.")
     else:
         initial = dict(nexturl=request.GET.get('next', '/'))
-        form = LoginForm(initial)
+        form = LoginForm(initial=initial)
 
-    context = dict(form=form)
+    steps = breadcrumb_builder([HOME_ICON, LOGIN_ICON])
+
+    context = dict(form=form, steps=steps)
     return render(request, "registration/user_login.html", context=context)
 

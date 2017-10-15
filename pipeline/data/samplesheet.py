@@ -1,5 +1,6 @@
 import sys,csv
 import os,fnmatch
+
 '''
 creates a modified samplesheet by adding filename fields.
 '''

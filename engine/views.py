@@ -1,25 +1,28 @@
+import os
+import hjson as json
 import logging
 from django.contrib.auth.decorators import login_required
 from django.template.loader import get_template
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.urls import reverse
-#from django.template import Context, loader
 from django.conf import settings
-import os
 from .forms import *
 from .models import (User, Project, Data,
                      Analysis, Job, make_job)
 
-from . import util
 from engine.const import *
-import hjson as json
+import mistune
 
 def join(*args):
     return os.path.abspath(os.path.join(*args))
 
 
 logger = logging.getLogger('engine')
+
+
+def make_html(text):
+    return mistune.markdown(text)
 
 
 def index(request):
@@ -33,6 +36,7 @@ def index(request):
 
 def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=None):
     # Works off of icon names
+
     if not icons:
         return []
 
@@ -58,6 +62,10 @@ def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=Non
             step = (reverse("job_list", kwargs={'id': project.id,}), RESULT_LIST_ICON, "Result List",is_active)
         elif icon == RESULT_ICON:
             step = (reverse("job_view", kwargs={'id': job.id}), RESULT_ICON, f"{job.title}", is_active)
+        elif icon == LOGIN_ICON:
+            step = (reverse("login"), LOGIN_ICON, "Login", is_active)
+        elif icon == LOGOUT_ICON:
+            step = (reverse("login"), LOGOUT_ICON, "Logout", is_active)
         else:
             continue
 
@@ -179,7 +187,7 @@ def data_view(request, id):
     return render(request, "data_view.html", context)
 
 
-@login_required(login_url=LOGIN_URL)
+@login_required
 def data_edit(request, id):
 
     data = Data.objects.filter(id=id).first()
@@ -202,7 +210,7 @@ def data_edit(request, id):
 
     return render(request, 'data_edit.html', context)
 
-@login_required(login_url=LOGIN_URL)
+@login_required
 def data_create(request, id):
 
     project = Project.objects.filter(id=id).first()
@@ -276,7 +284,7 @@ def analysis_view(request, id):
     return render(request, "analysis_view.html", context)
 
 
-@login_required(login_url=LOGIN_URL)
+@login_required
 def analysis_run(request, id):
 
     analysis = Analysis.objects.filter(id=id).first()
@@ -309,8 +317,21 @@ def analysis_run(request, id):
         context = dict(project=project, analysis=analysis, steps=steps, form=form)
         return render(request, 'analysis_run.html', context)
 
+def preview_specs(spec, analysis):
 
-@login_required(login_url=LOGIN_URL)
+    filler = dict(display_type="")
+
+    if spec.get("settings", filler).get("display_type") == "MODEL":
+        title = spec["settings"].get("title", analysis.title)
+        text = spec["settings"].get("text", analysis.text)
+        html = make_html(text)
+
+        return dict(title=title, html=html)
+    else:
+        return dict()
+
+
+@login_required
 def analysis_edit(request, id):
 
     analysis = Analysis.objects.filter(id=id).first()
@@ -318,40 +339,44 @@ def analysis_edit(request, id):
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_ICON, ANALYSIS_LIST_ICON, ANALYSIS_ICON],
                                project=project, analysis=analysis)
+    context = dict()
 
     if request.method == "POST":
-
+        # get the request.txt and
+        # set the mistune
         if request.POST.get("save_or_preview") == "save_to_file":
 
-            # NEED TO VALIDATE BEFORE OVERRIDING FILE
-            spec_file = analysis.json_file
-            util.rewrite_specs(request.POST.get("text"), spec_file)
-            # Save the rewriteen spec_file into spec_origin field
-            analysis.save()
-
-            form = EditAnalysis(analysis=analysis)
+            form = EditAnalysis(analysis=analysis, data=request.POST)
+            if form.is_valid():
+                1/0
+                return
 
         elif request.POST.get("save_or_preview") == "preview":
 
-            form = EditAnalysis(analysis=analysis, json_data=request.POST.get("text"))
+            form = EditAnalysis(analysis=analysis, data=request.POST)
+
+            if form.is_valid():
+                form.preview()
+                spec = json.loads(form.cleaned_data["text"])
+                context = preview_specs(spec, analysis)
+
 
         elif request.POST.get("save_or_preview") == "save":
 
-            form = EditAnalysis(analysis=analysis, json_data=request.POST.get("text"))
-            spec = util.safe_loads(request.POST.get("text"))
-            filler = dict(display_type='')
+            form = EditAnalysis(analysis=analysis, data=request.POST)
 
-            if spec.get("analysis_spec", filler)["display_type"] == "MODEL":
-                analysis.title = spec["analysis_spec"].get("title", analysis.title)
-                analysis.text = spec["analysis_spec"]["text"]
-
-            analysis.json_data = request.POST.get("text")
-            analysis.save()
+            if form.is_valid():
+                form.save()
+                spec = json.loads(form.cleaned_data["text"])
+                context = preview_specs(spec, analysis)
     else:
 
         form = EditAnalysis(analysis=analysis)
+        spec = json.loads(analysis.json_data)
+        context = preview_specs(spec, analysis)
 
-    context = dict(project=project, analysis=analysis, steps=steps, form=form)
+    context.update(dict(project=project, analysis=analysis, steps=steps, form=form))
+    print(context["title"])
     return render(request, 'analysis_edit.html', context)
 
 
@@ -387,7 +412,6 @@ def job_view(request, id):
     path = job.uid
     url = settings.MEDIA_URL + path+"/"
 
-    print(url)
     return redirect(url)
 
 

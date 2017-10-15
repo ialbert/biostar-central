@@ -1,0 +1,41 @@
+{
+
+data : {
+    path: "tmp/1-SarriPal_S9_L001_R1_001.fastq.gz"
+    visible: true
+    origin: PROJECT
+    data_type: FASTQ_TYPE
+    display_type: DROPDOWN
+  }
+
+threads : {
+        value: 4
+}
+
+execute : {
+    file : Makefile
+    command : make all
+}
+
+settings : {
+    title: Fastqc report of input data file.
+    summary: Produce fastqc report of the input file.
+    help:'''
+# Purpose
+
+Produce fastqc report of the input file.
+
+# Parameters
+
+Fastq or fatsq.gz file as input.
+
+# Results
+
+This analysis produces fastqc report of the input data.
+
+        '''
+       display_type:MODEL
+
+}
+
+}

@@ -9,24 +9,25 @@ Sample name should match the sample name in the dataset.
     '''
     label : Specify the sample file.
     css: red
-    visible: 1
+    visible: true
+    data_type : LAMAR_SAMPLE_SHEET
     display_type: DROPDOWN
     data_type: SAMPLE_TYPE
     origin: PROJECT
     }
 
 data : {
-    value: ~/tmp/qc_test/data
-    visible: 1
+    path: ~/tmp/qc_test/data
+    visible: true
     origin: PROJECT
-    data_type: TAR_FASTQ_GZ
+    data_type: TAR_GZ
     display_type: DROPDOWN
     }
 
 library_type : {
     value : true
     label : Data entered is paired end.
-    visible: 1
+    visible: true
     display_type: CHECKBOX
 }
 
@@ -34,17 +35,16 @@ trim_primer: {
     label : Trims barcode and primer sequences.
     value : true
     help : Barcode and primer sequences should be in the sample sheet.
-    visible: 1
+    visible: true
     display_type: CHECKBOX
     }
 
 trim_quality: {
-
     label : Specify average quality value for trimming.
     help : Leave empty for not trimming
     value :  30
     range  : [1,40]
-    visible : 1
+    visible : true
     display_type : INTEGER
     }
 
@@ -60,7 +60,7 @@ threads : {
 
 analysis_spec : {
     title: Quality control of sequencing data
-    text:
+    help:
                 '''
 # Purpose
 
@@ -83,7 +83,6 @@ This analysis produces
 
 
         '''
-       display_type:MODEL
     }
 
 }
