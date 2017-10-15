@@ -158,7 +158,6 @@ class Command(BaseCommand):
         parser.add_argument('--use_template',
                             help="Override the TEMPLATE with this file.")
 
-
     def handle(self, *args, **options):
 
         jobid = options['id']

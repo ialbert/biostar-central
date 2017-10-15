@@ -1,3 +1,4 @@
 fastqc
 #multiqc
 bbmap
+centrifuge
