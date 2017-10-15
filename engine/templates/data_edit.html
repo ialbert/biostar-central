@@ -7,13 +7,13 @@
 {% block body %}
 
 <div class="createform">
-        <form method="post" class="ui form" >
+        <form method="post" class="ui form" action="{% url 'data_edit' data.id %}" enctype="multipart/form-data">
 
             {% csrf_token %}
-            {{ form.media }}
+
              <div class="nine wide field segment">
-                  <label>Title</label>
-                  {{ form.title }}
+                  <label>{{form.file.label_tag}}</label>
+                  {{ form.file }}
              </div>
 
             <div class="field segment">

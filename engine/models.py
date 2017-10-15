@@ -63,6 +63,9 @@ def directory_path(instance, filename):
     return f'{instance.project.get_path()}/{filename}'
 
 
+def get_datatype(file):
+    return Data.FILE
+
 class Data(Base):
 
     FILE, COLLECTION = 1, 2

@@ -9,7 +9,7 @@ from django.urls import reverse
 from django.conf import settings
 from .forms import *
 from .models import (User, Project, Data,
-                     Analysis, Job, make_job)
+                     Analysis, Job, make_job, get_datatype)
 
 from engine.const import *
 import mistune
@@ -152,6 +152,7 @@ def project_create(request):
             owner = User.objects.all().first()
             project = Project.objects.create(title=title, text=text, owner=owner)
             project.save()
+
             return redirect(reverse("project_list"))
         else:
             form.add_error(None, "Invalid form processing.")
@@ -197,24 +198,41 @@ def data_view(request, id):
     return render(request, "data_view.html", context)
 
 
+def remove_file(file):
+    os.remove(file.path)
+    return
+
+
 @login_required
 def data_edit(request, id):
 
     data = Data.objects.filter(id=id).first()
     project = data.project
-
+    initial = dict(text=data.text, file=data.file)
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON, DATA_ICON],
                                project=project, data=data)
 
     if request.method == "POST":
-        1/0
-        form = DataEditForm(current_data=data)
+
+        form = DataUploadForm(request.POST, request.FILES, initial=initial)
+
         if form.is_valid():
-            form.save()
+
+            data.title = form.cleaned_data["file"]
+            data.text = form.cleaned_data["text"]
+
+            # Remove current data before uploading another one
+            remove_file(data.file)
+            file = request.FILES["file"]
+            data.type = get_datatype(file)
+            data.file = file
+            data.save()
+
+            #form.save()
 
     else:
-        form = DataEditForm(current_data=data)
+        form = DataUploadForm(initial=initial)
 
     context = dict(data=data, steps=steps, form=form)
 
@@ -238,11 +256,12 @@ def data_upload(request, id):
             title = form.cleaned_data["file"]
             text = form.cleaned_data["text"]
             owner = project.owner
-            type = form.cleaned_data["type"]
+            file = request.FILES["file"]
+            type = get_datatype(file)
 
             new_data = Data.objects.create(title=title, text=text,
                                            owner=owner, project=project,
-                                           file=request.FILES["file"],
+                                           file=file,
                                            type=type
                                            )
             new_data.size = f"{os.path.getsize(new_data.file.path)}"
@@ -253,7 +272,6 @@ def data_upload(request, id):
         else:
             form.add_error(None, "Invalid form processing.")
     else:
-
         form = DataUploadForm()
         context = dict(project=project, steps=steps, form=form)
         return render(request, 'data_upload.html', context )

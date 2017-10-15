@@ -82,21 +82,10 @@ class DataUploadForm(forms.Form):
 
     text = forms.CharField(widget=forms.Textarea(), max_length=512)
     file = forms.FileField(label="Upload Data File")
+
     def save(self, *args, **kwargs):
 
         super(DataUploadForm, self).save(*args, **kwargs)
-
-
-class DataEditForm(forms.Form):
-
-    def __init__(self, current_data, *args, **kwargs):
-
-        self.current_data = current_data
-        # current_data.project.get_path
-        super().__init__(*args, **kwargs)
-
-        #reupload the data file in the current_data_form.path
-        self.fields["file"] = forms.FileField() # file field for the data
 
 
 def make_field(obj, project):
@@ -140,6 +129,7 @@ class RunAnalysis(forms.Form):
 
 
     def save(self, *args, **kwargs):
+
 
         super(RunAnalysis, self).save(*args, **kwargs)
 
