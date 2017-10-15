@@ -317,14 +317,16 @@ def analysis_run(request, id):
         context = dict(project=project, analysis=analysis, steps=steps, form=form)
         return render(request, 'analysis_run.html', context)
 
+
 def preview_specs(spec, analysis):
 
     filler = dict(display_type="")
 
     if spec.get("settings", filler).get("display_type") == "MODEL":
         title = spec["settings"].get("title", analysis.title)
-        text = spec["settings"].get("text", analysis.text)
-        html = make_html(text)
+        help = spec["settings"].get("help", analysis.text)
+        #summary = spec["settings"].get("summary", analysis.text)
+        html = make_html(help)
 
         return dict(title=title, html=html)
     else:
@@ -356,6 +358,7 @@ def analysis_edit(request, id):
             form = EditAnalysis(analysis=analysis, data=request.POST)
 
             if form.is_valid():
+
                 form.preview()
                 spec = json.loads(form.cleaned_data["text"])
                 context = preview_specs(spec, analysis)
@@ -369,6 +372,7 @@ def analysis_edit(request, id):
                 form.save()
                 spec = json.loads(form.cleaned_data["text"])
                 context = preview_specs(spec, analysis)
+
     else:
 
         form = EditAnalysis(analysis=analysis)
@@ -376,7 +380,6 @@ def analysis_edit(request, id):
         context = preview_specs(spec, analysis)
 
     context.update(dict(project=project, analysis=analysis, steps=steps, form=form))
-    print(context["title"])
     return render(request, 'analysis_edit.html', context)
 
 
