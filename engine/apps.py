@@ -25,7 +25,7 @@ def init_proj(sender, **kwargs):
     Populate initial projects with N number data
     Creates one analysis model to allow for jobs to be run
     """
-    from engine.models import Project, Data, Analysis, make_analysis_from_spec, make_job, Job
+    from engine.models import Project, Data, Analysis, make_job, Job
     from engine.models import User
 
     owner = User.objects.all().first()
@@ -80,19 +80,19 @@ def init_users(sender, **kwargs):
 
     for name, email in settings.ADMINS:
         if not User.objects.filter(email=email):
-            user = User(first_name=name, email=email, username=get_uuid(16),
+            user = User(first_name="foo", email=email, username="foo",
                         is_superuser=True, is_staff=True)
             user.set_password(settings.SECRET_KEY)
             user.save()
             logger.info(f"creating admin user: user.email={user.email}, user.id={user.id}")
 
     # Create a regular test user.
-    #testbuddy @ lvh.me
     test_buddy, new = User.objects.get_or_create(email="testbuddy@lvh.me")
     test_buddy.set_password("testbuddy@lvh.me")
     test_buddy.save()
 
     logger.info(f"creating user: {test_buddy.email}")
+
 
 
 def init_site(sender, **kwargs):
