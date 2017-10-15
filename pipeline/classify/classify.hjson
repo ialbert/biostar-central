@@ -1,0 +1,92 @@
+{
+
+data : {
+    path: "tmp/data.tar.gz"
+    visible: true
+    origin: PROJECT
+    data_type: TAR_FASTQ_GZ
+    display_type: DROPDOWN
+  }
+
+library_type : {
+    value : paired end
+    label : Library type
+    visible: true
+    display_type: DROPDOWN
+    options : [ [ "SE" , "single end"],
+                ["PE", "paired end "],
+               ]
+}
+
+sequence_type : {
+    value : "fastq"
+    label : Select sequence type.
+    visible : true
+    display_type : DROPDOWN
+    options : [ [ "fasta", "FASTA"],
+                ["fastq", "FASTQ"]
+               ]
+}
+
+sampleinfo : {
+    path : ~/tmp/sampleinfo.txt
+    help : '''
+Enter a tab delimited text file. Order of the fields should be
+sample name, sample group, barcode, forward primer sequence, reverse primer sequence, target gene.
+Sample name should match the sample name in the dataset.
+    '''
+    label : Specify the sample file.
+    css: red
+    visible: true
+    data_type : LAMAR_SAMPLE_SHEET
+    display_type: DROPDOWN
+    data_type: SAMPLE_TYPE
+    origin: PROJECT
+    }
+
+reference : {
+    path: "tmp/refs/centrifuge_fish_idx/fish_genomes17"
+    visible: true
+    data_type: REFERENCE_TYPE
+    options : [ [ "tmp/centrifuge_fish_idx/fish_genomes17", "fish_genomes"],
+                 ["tmp/centrifuge_nt/nt", "nt"]
+               ]
+    display_type: DROPDOWN
+}
+
+threads : {
+        value: 4
+        visible : false
+    }
+
+execute : {
+    filename : Makefile
+    command : make all
+}
+
+settings : {
+    title: Classify and label input data.
+    summary: Produce quantification and classification of input data.
+    help:'''
+# Purpose
+
+Classify and label reds.
+
+# Parameters
+
+1. Fasta or Fastq (compressed or uncompressed) file as input.
+2. Reference to be used for classification.
+3. Library type.
+
+# Results
+
+This analysis produces 
+
+1. Classification assignments for each read.
+2. Summary report  showing the abundance of each species or taxonomic unit in the data.
+
+'''
+
+    }
+
+}

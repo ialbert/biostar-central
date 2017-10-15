@@ -20,7 +20,7 @@ data : {
     path: ~/tmp/qc_test/data
     visible: true
     origin: PROJECT
-    data_type: TAR_GZ
+    data_type: TAR_FASTQ_GZ
     display_type: DROPDOWN
     }
 

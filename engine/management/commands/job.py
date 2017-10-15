@@ -111,9 +111,6 @@ def run(job, options={}):
         print("-" * 40)
 
 
-
-
-
 class Command(BaseCommand):
     help = 'Run jobs that are queued.'
 
@@ -146,6 +143,10 @@ class Command(BaseCommand):
         parser.add_argument('--use_template',
                             help="Use the specified TEMPLATE to render the data.")
 
+        parser.add_argument('--queued',
+                            action='store_true',
+                            help="List ten most recent queued jobs.")
+
         '''
         parser.add_argument('--limit',
                             dest='limit',
@@ -174,9 +175,9 @@ class Command(BaseCommand):
 
         # limit = options['limit']
         # jobid = options['jobid']
-        # queued = options['queued']
         # spec = options['spec']
         # template = options['template']
+        queued = options['queued']
         runid = options['run']
 
         if runid:
@@ -190,13 +191,12 @@ class Command(BaseCommand):
 
         # jobs = Job.objects.filter(state=Job.QUEUED).order_by("-id")[:limit]
 
-        '''
         if queued:
             jobs = Job.objects.filter(state=Job.QUEUED).order_by("-id")[:10]
             for job in jobs:
                 print(job.id)
             return
-
+        '''
         if not (jobid or limit) and run:
             print("command requires --jobid or --limit")
             return
