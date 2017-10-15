@@ -9,7 +9,7 @@ from django.urls import reverse
 from django.conf import settings
 from .forms import *
 from .models import (User, Project, Data,
-                     Analysis, Job, make_job)
+                     Analysis, Job, make_job, get_datatype)
 
 from engine.const import *
 import mistune
@@ -25,6 +25,15 @@ def make_html(text):
     return mistune.markdown(text)
 
 
+def info(request):
+
+    steps = breadcrumb_builder([HOME_ICON, INFO_ICON])
+
+    context = dict(steps=steps, info=make_html(INFO))
+
+    return render(request, 'info.html', context=context)
+
+
 def index(request):
 
     steps = breadcrumb_builder([HOME_ICON])
@@ -35,7 +44,6 @@ def index(request):
 
 
 def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=None):
-    # Works off of icon names
 
     if not icons:
         return []
@@ -66,6 +74,8 @@ def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=Non
             step = (reverse("login"), LOGIN_ICON, "Login", is_active)
         elif icon == LOGOUT_ICON:
             step = (reverse("login"), LOGOUT_ICON, "Logout", is_active)
+        elif icon == INFO_ICON:
+            step = (reverse("login"), INFO_ICON, "Information", is_active)
         else:
             continue
 
@@ -104,7 +114,7 @@ def project_view(request, id):
     return render(request, "project_view.html", context)
 
 
-@login_required(login_url=LOGIN_URL)
+@login_required
 def project_edit(request, id):
 
     project = Project.objects.filter(id=id).first()
@@ -125,7 +135,7 @@ def project_edit(request, id):
                       context)
 
 
-@login_required(login_url=LOGIN_URL)
+@login_required
 def project_create(request):
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON])
@@ -142,6 +152,7 @@ def project_create(request):
             owner = User.objects.all().first()
             project = Project.objects.create(title=title, text=text, owner=owner)
             project.save()
+
             return redirect(reverse("project_list"))
         else:
             form.add_error(None, "Invalid form processing.")
@@ -187,31 +198,49 @@ def data_view(request, id):
     return render(request, "data_view.html", context)
 
 
+def remove_file(file):
+    os.remove(file.path)
+    return
+
+
 @login_required
 def data_edit(request, id):
 
     data = Data.objects.filter(id=id).first()
     project = data.project
+    initial = dict(text=data.text, file=data.file)
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON, DATA_ICON],
                                project=project, data=data)
 
     if request.method == "POST":
-        1/0
-        form = DataForm(request.POST, instance=data)
+
+        form = DataUploadForm(request.POST, request.FILES, initial=initial)
+
         if form.is_valid():
-            form.save()
+
+            data.title = form.cleaned_data["file"]
+            data.text = form.cleaned_data["text"]
+
+            # Remove current data before uploading another one
+            remove_file(data.file)
+            file = request.FILES["file"]
+            data.type = get_datatype(file)
+            data.file = file
+            data.save()
+
+            #form.save()
 
     else:
-        1/0
-        form = DataForm(instance=data)
+        form = DataUploadForm(initial=initial)
 
     context = dict(data=data, steps=steps, form=form)
 
     return render(request, 'data_edit.html', context)
 
+
 @login_required
-def data_create(request, id):
+def data_upload(request, id):
 
     project = Project.objects.filter(id=id).first()
 
@@ -220,19 +249,20 @@ def data_create(request, id):
 
     if request.method == "POST":
 
-        form = DataForm(request.POST, request.FILES)
+        form = DataUploadForm(request.POST, request.FILES)
 
         if form.is_valid():
 
             title = form.cleaned_data["file"]
             text = form.cleaned_data["text"]
             owner = project.owner
-            type = form.cleaned_data["type"]
+            file = request.FILES["file"]
+            type = get_datatype(file)
 
             new_data = Data.objects.create(title=title, text=text,
                                            owner=owner, project=project,
-                                           file=request.FILES["file"],
-                                           type=type,
+                                           file=file,
+                                           type=type
                                            )
             new_data.size = f"{os.path.getsize(new_data.file.path)}"
             new_data.save()
@@ -242,11 +272,9 @@ def data_create(request, id):
         else:
             form.add_error(None, "Invalid form processing.")
     else:
-
-        form = DataForm()
+        form = DataUploadForm()
         context = dict(project=project, steps=steps, form=form)
-        return render(request, 'data_create.html', context )
-
+        return render(request, 'data_upload.html', context )
 
 #@login_required
 def analysis_list(request, id):
@@ -291,8 +319,6 @@ def analysis_run(request, id):
     project = analysis.project
 
     owner = analysis.owner
-
-
     steps = breadcrumb_builder([HOME_ICON, PROJECT_ICON,  ANALYSIS_ICON],
                                project=project, analysis=analysis)
 
@@ -317,18 +343,34 @@ def analysis_run(request, id):
         context = dict(project=project, analysis=analysis, steps=steps, form=form)
         return render(request, 'analysis_run.html', context)
 
+
 def preview_specs(spec, analysis):
 
     filler = dict(display_type="")
 
     if spec.get("settings", filler).get("display_type") == "MODEL":
         title = spec["settings"].get("title", analysis.title)
-        text = spec["settings"].get("text", analysis.text)
-        html = make_html(text)
+        help = spec["settings"].get("help", analysis.text)
+        #summary = spec["settings"].get("summary", analysis.text)
+        html = make_html(help)
 
         return dict(title=title, html=html)
     else:
         return dict()
+
+
+def process_analysis_edit(method, analysis, form):
+
+    form_method_map = {'preview':form.preview,
+                       'save':form.save,
+                       'save_to_file': form.save_to_file}
+    spec = dict()
+    if form.is_valid():
+
+        form_method_map[method]()
+        spec = json.loads(form.cleaned_data["text"])
+
+    return preview_specs(spec, analysis)
 
 
 @login_required
@@ -339,44 +381,20 @@ def analysis_edit(request, id):
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_ICON, ANALYSIS_LIST_ICON, ANALYSIS_ICON],
                                project=project, analysis=analysis)
-    context = dict()
 
     if request.method == "POST":
-        # get the request.txt and
-        # set the mistune
-        if request.POST.get("save_or_preview") == "save_to_file":
 
-            form = EditAnalysis(analysis=analysis, data=request.POST)
-            if form.is_valid():
-                1/0
-                return
+        form = EditAnalysisForm(analysis=analysis, data=request.POST)
+        method = request.POST.get("save_or_preview")
+        context = process_analysis_edit(method, analysis, form)
 
-        elif request.POST.get("save_or_preview") == "preview":
-
-            form = EditAnalysis(analysis=analysis, data=request.POST)
-
-            if form.is_valid():
-                form.preview()
-                spec = json.loads(form.cleaned_data["text"])
-                context = preview_specs(spec, analysis)
-
-
-        elif request.POST.get("save_or_preview") == "save":
-
-            form = EditAnalysis(analysis=analysis, data=request.POST)
-
-            if form.is_valid():
-                form.save()
-                spec = json.loads(form.cleaned_data["text"])
-                context = preview_specs(spec, analysis)
     else:
 
-        form = EditAnalysis(analysis=analysis)
+        form = EditAnalysisForm(analysis=analysis)
         spec = json.loads(analysis.json_data)
         context = preview_specs(spec, analysis)
 
     context.update(dict(project=project, analysis=analysis, steps=steps, form=form))
-    print(context["title"])
     return render(request, 'analysis_edit.html', context)
 
 

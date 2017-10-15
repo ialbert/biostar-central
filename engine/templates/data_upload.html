@@ -23,15 +23,10 @@
               {{ form.text }}
          </div>
 
-        <div class="four wide field segment">
-              <label>File Type</label>
-              {{ form.type }}
-         </div>
-
         {{ form.errors }}
 
         <button type="submit" class="ui primary button">
-            <i class="write square icon"></i>Create Data
+            <i class="write square icon"></i>Upload Data
         </button>
         <a class="ui right floated button" href="{% url 'project_view' project.id %}">
             Back

@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from .models import Project, Data, Analysis
 from . import util
 from . import factory
-
+from pagedown.widgets import PagedownWidget
 from engine.const import *
 from engine.web.auth import get_data
 
@@ -70,7 +70,7 @@ class LoginForm(forms.Form):
 
 class ProjectForm(forms.ModelForm):
 
-    #text = forms.CharField(widget=PagedownWidget(template="widgets/pagedownwidget.html"))
+    text = forms.CharField(widget=PagedownWidget(template="widgets/pagedownwidget.html"))
 
     class Meta:
 
@@ -78,16 +78,14 @@ class ProjectForm(forms.ModelForm):
         fields = ['title', 'text']
 
 
-class DataForm(forms.Form):
+class DataUploadForm(forms.Form):
 
     text = forms.CharField(widget=forms.Textarea(), max_length=512)
     file = forms.FileField(label="Upload Data File")
-    type = forms.IntegerField(widget=forms.Select(choices=Data.TYPE_CHOICES),
-                              initial=Data.FILE)
 
     def save(self, *args, **kwargs):
 
-        super(DataForm, self).save(*args, **kwargs)
+        super(DataUploadForm, self).save(*args, **kwargs)
 
 
 def make_field(obj, project):
@@ -132,6 +130,7 @@ class RunAnalysis(forms.Form):
 
     def save(self, *args, **kwargs):
 
+
         super(RunAnalysis, self).save(*args, **kwargs)
 
 
@@ -161,7 +160,8 @@ class RunAnalysis(forms.Form):
         return self.json_data
 
 
-class EditAnalysis(forms.Form):
+class EditAnalysisForm(forms.Form):
+
 
     def __init__(self, analysis, *args, **kwargs):
 
@@ -179,7 +179,7 @@ class EditAnalysis(forms.Form):
 
     def preview(self):
 
-        cleaned_data = super(EditAnalysis, self).clean()
+        cleaned_data = super(EditAnalysisForm, self).clean()
         json_data = json.loads(cleaned_data["text"])
 
         self.generate_form(json_data)
@@ -187,7 +187,7 @@ class EditAnalysis(forms.Form):
 
     def save(self):
 
-        cleaned_data = super(EditAnalysis, self).clean()
+        cleaned_data = super(EditAnalysisForm, self).clean()
         json_data = json.loads(cleaned_data["text"])
 
         self.generate_form(json_data)
@@ -204,6 +204,8 @@ class EditAnalysis(forms.Form):
 
         return self.analysis
 
+    def save_to_file(self, file):
+        return
 
     def generate_form(self, json_obj):
 
@@ -212,3 +214,4 @@ class EditAnalysis(forms.Form):
 
             if field:
                 self.fields[name] = field
+
