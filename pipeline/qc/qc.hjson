@@ -1,23 +1,22 @@
 {
 
 sampleinfo : {
-    value : ~/tmp/qc_test/sampleinfo.txt
+    path : tmp/sampleinfo.txt
     help : '''
 Enter a tab delimited text file. Order of the fields should be
 sample name, sample group, barcode, forward primer sequence, reverse primer sequence, target gene.
 Sample name should match the sample name in the dataset.
     '''
-    label : Specify the sample file.
+    label : Specify the sample file
     css: red
     visible: true
     data_type : LAMAR_SAMPLE_SHEET
     display_type: DROPDOWN
-    data_type: SAMPLE_TYPE
     origin: PROJECT
     }
 
 data : {
-    path: ~/tmp/qc_test/data
+    path: tmp/data.tar.gz
     visible: true
     origin: PROJECT
     data_type: TAR_FASTQ_GZ
@@ -48,18 +47,19 @@ trim_quality: {
     display_type : INTEGER
     }
 
-template : {
-        path: qc_makefile.html
-        display_type: TEMPLATE
-    }
-
 threads : {
         value: 4
-        display_type:SCRIPT
+        visible : false
     }
 
-analysis_spec : {
+execute : {
+    filename : Makefile
+    command : make all
+}
+
+settings : {
     title: Quality control of sequencing data
+    label: Primer and barcode removal followed by quality trimming of input data.
     help:
                 '''
 # Purpose

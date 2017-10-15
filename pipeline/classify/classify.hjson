@@ -9,20 +9,19 @@ data : {
   }
 
 library_type : {
-    value : paired end
-    label : Library type
+    value : true
+    label : Data entered is paired end.
     visible: true
-    display_type: DROPDOWN
-    options : [ [ "SE" , "single end"],
-                ["PE", "paired end "],
-               ]
+    display_type: CHECKBOX
 }
+
 
 sequence_type : {
     value : "fastq"
-    label : Select sequence type.
+    label : Select sequence type
     visible : true
     display_type : DROPDOWN
+    data_type: SEQUENCE_TYPES
     options : [ [ "fasta", "FASTA"],
                 ["fastq", "FASTQ"]
                ]
@@ -40,7 +39,6 @@ Sample name should match the sample name in the dataset.
     visible: true
     data_type : LAMAR_SAMPLE_SHEET
     display_type: DROPDOWN
-    data_type: SAMPLE_TYPE
     origin: PROJECT
     }
 
@@ -65,12 +63,12 @@ execute : {
 }
 
 settings : {
-    title: Classify and label input data.
-    summary: Produce quantification and classification of input data.
+    title: Data classification.
+    summary: Produce taxonomic classification of input data and quantify them.
     help:'''
 # Purpose
 
-Classify and label reds.
+Assign taxonomic labels to input reads and quantify them.
 
 # Parameters
 
@@ -82,8 +80,8 @@ Classify and label reds.
 
 This analysis produces 
 
-1. Classification assignments for each read.
-2. Summary report  showing the abundance of each species or taxonomic unit in the data.
+1. Taxonomic assignments for each read.
+2. Summary report  showing the abundance of each species in the data.
 
 '''
 
