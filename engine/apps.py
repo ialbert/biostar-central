@@ -5,6 +5,9 @@ from django.conf import settings
 from django.db.models.signals import post_migrate
 from engine.const import *
 from django.core import management
+from copy import copy
+import hjson as json
+from django.core.files import File
 
 logger = logging.getLogger('engine')
 
@@ -41,21 +44,29 @@ def init_proj(sender, **kwargs):
 
         # Add data to each project.
         for data_title, data_desc, data_file, data_type in TEST_DATA:
-            data = Data(title=data_title, owner=owner, text=data_desc, project=project, file=data_file, data_type=data_type)
+            stream = File(open(data_file, 'rb'))
+            data = Data(title=data_title, owner=owner, text=data_desc, project=project, data_type=data_type)
+            data.file.save(data_file, stream, save=True)
             data.save()
 
         # Initialize the same analyses for each project.
         for spec_path, tmpl_path in TEST_ANALYSES:
             management.call_command("analysis", add=True, pid=project.id,spec=spec_path, template=tmpl_path)
 
-        # Get first analysis.
-        first = Analysis.objects.all().first()
+        # Get the fastqc analysis.
+        fastq_analysis = Analysis.objects.filter(title__startswith="Fastqc report").first()
+
+        # Get a FASTQ data
+        fastq_data = Data.objects.filter(data_type=FASTQ_TYPE).first()
+
+        filled_json = json.loads(fastq_analysis.json_data)
+        filled_json['data']['path'] = fastq_data.file.path
+        json_data = json.dumps(filled_json)
 
         # Create four jobs for each project.
         for project in Project.objects.all():
             for state in (Job.RUNNING, Job.ERROR, Job.QUEUED, Job.FINISHED):
-                
-                job = make_job(owner=owner, analysis=first, project=project, state=state)
+                job = make_job(owner=owner, analysis=fastq_analysis, project=project, state=state, json_data=json_data)
 
 
     return
@@ -116,7 +127,7 @@ class EngineConfig(AppConfig):
         post_migrate.connect(init_site, sender=self)
         post_migrate.connect(init_users, sender=self)
         post_migrate.connect(init_proj, sender=self)
-        logger.debug("EngineConfig done")
+        #logger.debug("EngineConfig done")
 
 
 

@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
-from django.template import Template,Context
+from django.template import Template, Context
 from engine.models import Job
-import subprocess, os, sys,hjson,logging
+import subprocess, os, sys, hjson, logging
 from django.utils.text import force_text
 
 logger = logging.getLogger('engine')
@@ -9,68 +9,109 @@ logger = logging.getLogger('engine')
 CURR_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
-def run(job,show=False):
+def run(job, options={}):
     ''''
-    takes job object, runs the job and return job status
+    Runs a json
     '''
 
-    logger.info(f'job {job.id} started')
-    json_text = job.json_data
-    template = job.makefile_template
-    outdir = job.path
-    error_log = []
-    stdout_log =[]
+    # Options that cause early termination.
+    show_json = options.get('show_json')
+    show_template = options.get('show_template')
+    show_script = options.get('show_script')
+    use_template = options.get('use_template')
+    use_json = options.get('use_json')
+    verbosity = options.get('verbosity')
+
+    stdout_log = []
     stderr_log = []
 
     try:
-        # render makefile.
-        json_data = hjson.loads(json_text)
-        execute = json_data.get('execute',{})
-        commands = execute.get("command", "make all").split()
+        logger.info(f'job id={job.id} started.')
+
+        # Extract the used data.
+        json_data = hjson.loads(job.json_data)
+        template = job.makefile_template
+        workdir = job.path
+
+        if use_template:
+            template = open(use_template).read()
+
+        if use_json:
+            json_data = hjson.loads(open(use_json).read())
+
+        if show_json:
+            print(hjson.dumps(json_data, indent=4))
+            return
+
+        if show_template:
+            print(template)
+            return
+
+        # Extract the execute commands from the spec.
+        execute = json_data.get('execute', {})
         filename = execute.get("filename", "Makefile")
+        command = execute.get("command", "make all")
 
         template = Template(template)
         context = Context(json_data)
+        script = template.render(context)
 
-        mtext = template.render(context)
-
-        if not os.path.isdir(outdir):
-            os.mkdir(outdir)
-
-        logger.info(f'job output dir {outdir}')
-        with open(os.path.join(outdir, filename), 'wt') as fp:
-            fp.write(mtext)
-
-        if show:
-            print(f'\n\n{mtext}\n\n')
+        # Show the script.
+        if show_script:
+            print(f'{script}')
             return
 
-        # Run the command.
-        job.state = job.RUNNING
-        logger.info(f'job commands {commands}')
-        process = subprocess.run(commands, cwd=outdir, stderr=subprocess.PIPE, stdout=subprocess.PIPE, shell=True, check=True)
-        job.state = job.FINISHED
+        # Make the output directory
+        logger.info(f'job id={job.id} workdir: {workdir}')
+        if not os.path.isdir(workdir):
+            os.mkdir(workdir)
 
-    except subprocess.CalledProcessError as err:
-        error_log.append(err.stderr.decode('utf-8'))
-        job.state = job.ERROR
-        logger.info(f'job error: {err}')
+        # Create the script in the output directory.
+        with open(os.path.join(workdir, filename), 'wt') as fp:
+            fp.write(script)
+
+        # Show the command that is executed.
+        logger.info(f'job id={job.id} executing: (cd {workdir} && {command})')
+
+        # Update the job state.
+        job.state = job.RUNNING
+        job.save()
+
+        # Run the command.
+        proc = subprocess.run(command, cwd=workdir, shell=True,
+                              stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+        job.state = job.FINISHED
+        job.save()
+
+        # Return code indicates an error.
+        if (proc.returncode != 0):
+            raise Exception(f"error when executing: {command}")
 
     except Exception as exc:
-        error_log.append(str(exc))
         job.state = job.ERROR
-        logger.info(f'job exception: {exc}')
+        job.save()
+        stderr_log.append(f'{exc}')
+        logger.info(f'job id={job.id} {exc}')
 
+    # Collect the output.
+    stdout_log.extend(force_text(proc.stdout).splitlines())
+    stderr_log.extend(force_text(proc.stderr).splitlines())
 
-    print ( force_text(process.stdout) )
-    print(force_text(process.stderr))
-    #stdout_log.append(process.stdout.read())
-    #stderr_log.append(process.stderr.read())
-    job.log = "\n".join(stdout_log + error_log)
+    # For now keep it in one location.
+    output_log = stdout_log + stderr_log
+    job.log = "\n".join(output_log)
     job.save()
-    logger.info(f'job {job.id} completed')
+    logger.info(f'job id={job.id} finished, status={job.get_state_display()}')
 
-    return job
+    if verbosity > 1:
+        job = Job.objects.get(id=job.id)
+        print ("-" * 40)
+        print (job.log)
+        print("-" * 40)
+
+
+
 
 
 class Command(BaseCommand):
@@ -79,17 +120,32 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
 
         # positional arguments.
-        #parser.add_argument('limit',type=int,default=1,help="Enter the number of jobs to run. Default is 1.")
+        # parser.add_argument('limit',type=int,default=1,help="Enter the number of jobs to run. Default is 1.")
 
         # Named (optional) arguments
         parser.add_argument('--run',
-                            type =int,
+                            type=int,
                             default=0,
                             help="Runs job specified by id.")
 
-        parser.add_argument('--show',
+        parser.add_argument('--show_script',
                             action='store_true',
                             help="")
+
+        parser.add_argument('--show_json',
+                            action='store_true',
+                            help="")
+
+        parser.add_argument('--show_template',
+                            action='store_true',
+                            help="")
+
+        parser.add_argument('--use_json',
+                            help="Use the specified file as JSON data.")
+
+        parser.add_argument('--use_template',
+                            help="Use the specified TEMPLATE to render the data.")
+
         '''
         parser.add_argument('--limit',
                             dest='limit',
@@ -113,25 +169,26 @@ class Command(BaseCommand):
                             action='store_true',
                             help="Show analysis spec.")
         '''
+
     def handle(self, *args, **options):
 
-        #limit = options['limit']
-        #jobid = options['jobid']
-        #queued = options['queued']
-        #spec = options['spec']
-        #template = options['template']
+        # limit = options['limit']
+        # jobid = options['jobid']
+        # queued = options['queued']
+        # spec = options['spec']
+        # template = options['template']
         runid = options['run']
-        show = options['show']
 
-        if run:
+        if runid:
             job = Job.objects.filter(id=runid).first()
+
             if not job:
                 logger.error(f'job for id={runid} missing')
-                sys.exit()
+            run(job, options=options)
 
-            run(job,show=show)
             return
-         #jobs = Job.objects.filter(state=Job.QUEUED).order_by("-id")[:limit]
+
+        # jobs = Job.objects.filter(state=Job.QUEUED).order_by("-id")[:limit]
 
         '''
         if queued:

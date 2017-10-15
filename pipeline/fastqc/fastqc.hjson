@@ -8,13 +8,10 @@ data : {
     display_type: DROPDOWN
   }
 
-threads : {
-        value: 4
-}
 
 execute : {
-    file : Makefile
-    command : make all
+    filename : run.sh
+    command : bash run.sh
 }
 
 settings : {
@@ -32,10 +29,8 @@ Fastq or fatsq.gz file as input.
 # Results
 
 This analysis produces fastqc report of the input data.
+'''
 
-        '''
-       display_type:MODEL
-
-}
+    }
 
 }
