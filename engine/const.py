@@ -19,6 +19,7 @@ RESULT_LIST_ICON = "bar chart"
 RESULT_ICON = "line chart"
 LOGIN_ICON = "sign in"
 LOGOUT_ICON = "sign out"
+INFO_ICON = "info circle icon"
 
 FIELD_VISIBLE = "visible"
 FIELD_ORIGIN = "origin"
@@ -61,7 +62,9 @@ TEST_ANALYSES = [
     (join(PIPELINE_DIR, 'fastqc/fastqc.hjson'), join(PIPELINE_DIR, 'fastqc/fastqc_template.sh'))
 ]
 
+# Site information
 
-# User information
+INFO = """
 
-LOGIN_URL = "/login/"
+Store and analyze metagenomic barcode data 
+    """

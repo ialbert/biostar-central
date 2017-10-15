@@ -1,6 +1,10 @@
 {% extends "base.html" %}
 {% load engine_tags %}
 
+{% block headtitle %}
+     {{ analysis.title }}
+{% endblock %}
+
 {% block title %}
     {{ analysis.title }}
 {% endblock %}

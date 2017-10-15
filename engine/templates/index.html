@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {%  load engine_tags %}
+
 {% block headtitle %}
     Metabarcode Home
 {% endblock %}
@@ -24,11 +25,10 @@
 
            <div class="info">View the list of projects.</div>
 
-
         </div>
 
         <div class="ui vertical segment">
-            <a>
+            <a href="{% url 'info' %}">
             <div class="title"><i class="info circle icon"></i>Information</div>
             </a>
              <div class="info">About this site.</div>

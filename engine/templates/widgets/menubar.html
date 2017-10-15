@@ -19,7 +19,7 @@
         {% endif %}
 
         {% if upload_data and project %}
-            <a class="item" href="{% url 'data_create' project.id %}">
+            <a class="item" href="{% url 'data_upload' project.id %}">
                 <i class="write square icon"></i>Upload Data
             </a>
         {% endif %}
@@ -38,7 +38,7 @@
 
         <div class="right menu">
             <a class="item" href="{% url 'logout' %}"><i class="sign in icon"></i>Logout</a>
-            <a class="item"><i class="help icon"></i>Help</a>
+            <a class="item" href="{% url 'info' %}"><i class="help icon"></i>Help</a>
         </div>
 
     {% else %}
@@ -46,7 +46,7 @@
         <a class="item" href="{% url 'login' %}"><i class="sign in icon"></i>Login</a>
         <a class="item" href="{% url 'signup' %}"><i class="add user icon"></i>Sign Up</a>
         <div class="right menu">
-            <a class="item"><i class="help icon"></i>Help</a>
+            <a class="item" href="{% url 'info' %}"><i class="help icon"></i>Help</a>
         </div>
 
     {% endif %}

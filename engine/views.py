@@ -25,6 +25,15 @@ def make_html(text):
     return mistune.markdown(text)
 
 
+def info(request):
+
+    steps = breadcrumb_builder([HOME_ICON, INFO_ICON])
+
+    context = dict(steps=steps, info=make_html(INFO))
+
+    return render(request, 'info.html', context=context)
+
+
 def index(request):
 
     steps = breadcrumb_builder([HOME_ICON])
@@ -35,7 +44,6 @@ def index(request):
 
 
 def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=None):
-    # Works off of icon names
 
     if not icons:
         return []
@@ -66,6 +74,8 @@ def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=Non
             step = (reverse("login"), LOGIN_ICON, "Login", is_active)
         elif icon == LOGOUT_ICON:
             step = (reverse("login"), LOGOUT_ICON, "Logout", is_active)
+        elif icon == INFO_ICON:
+            step = (reverse("login"), INFO_ICON, "Information", is_active)
         else:
             continue
 
@@ -104,7 +114,7 @@ def project_view(request, id):
     return render(request, "project_view.html", context)
 
 
-@login_required(login_url=LOGIN_URL)
+@login_required
 def project_edit(request, id):
 
     project = Project.objects.filter(id=id).first()
@@ -125,7 +135,7 @@ def project_edit(request, id):
                       context)
 
 
-@login_required(login_url=LOGIN_URL)
+@login_required
 def project_create(request):
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON])
@@ -193,25 +203,26 @@ def data_edit(request, id):
     data = Data.objects.filter(id=id).first()
     project = data.project
 
+
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON, DATA_ICON],
                                project=project, data=data)
 
     if request.method == "POST":
         1/0
-        form = DataForm(request.POST, instance=data)
+        form = DataEditForm(current_data=data)
         if form.is_valid():
             form.save()
 
     else:
-        1/0
-        form = DataForm(instance=data)
+        form = DataEditForm(current_data=data)
 
     context = dict(data=data, steps=steps, form=form)
 
     return render(request, 'data_edit.html', context)
 
+
 @login_required
-def data_create(request, id):
+def data_upload(request, id):
 
     project = Project.objects.filter(id=id).first()
 
@@ -220,7 +231,7 @@ def data_create(request, id):
 
     if request.method == "POST":
 
-        form = DataForm(request.POST, request.FILES)
+        form = DataUploadForm(request.POST, request.FILES)
 
         if form.is_valid():
 
@@ -232,7 +243,7 @@ def data_create(request, id):
             new_data = Data.objects.create(title=title, text=text,
                                            owner=owner, project=project,
                                            file=request.FILES["file"],
-                                           type=type,
+                                           type=type
                                            )
             new_data.size = f"{os.path.getsize(new_data.file.path)}"
             new_data.save()
@@ -243,10 +254,9 @@ def data_create(request, id):
             form.add_error(None, "Invalid form processing.")
     else:
 
-        form = DataForm()
+        form = DataUploadForm()
         context = dict(project=project, steps=steps, form=form)
-        return render(request, 'data_create.html', context )
-
+        return render(request, 'data_upload.html', context )
 
 #@login_required
 def analysis_list(request, id):
@@ -356,13 +366,13 @@ def analysis_edit(request, id):
 
     if request.method == "POST":
 
-        form = EditAnalysis(analysis=analysis, data=request.POST)
+        form = EditAnalysisForm(analysis=analysis, data=request.POST)
         method = request.POST.get("save_or_preview")
         context = process_analysis_edit(method, analysis, form)
 
     else:
 
-        form = EditAnalysis(analysis=analysis)
+        form = EditAnalysisForm(analysis=analysis)
         spec = json.loads(analysis.json_data)
         context = preview_specs(spec, analysis)
 
