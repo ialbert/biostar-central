@@ -51,13 +51,19 @@
                     {% endif %}
                 {% endfor %}
                 {{ form.errors }}
-           <a class="ui green mini button" href="#">
+           <a class="ui green mini button">
             <i class="check icon"></i>Run
          </a>
         </div>
 
-
     </div>
+
+    <div class="ui divider"></div>
+    <div class="ui vertical aligned segment">
+        <h2> {{ title }}</h2>
+            <div class="textbody">{{ html|safe }}</div>
+    </div>
+
 </form>
 </div>
 {% endblock %}

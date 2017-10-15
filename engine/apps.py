@@ -8,7 +8,7 @@ from django.core import management
 from copy import copy
 import hjson as json
 from django.core.files import File
-
+from . import util
 logger = logging.getLogger('engine')
 
 
@@ -25,7 +25,7 @@ def init_proj(sender, **kwargs):
     Populate initial projects with N number data
     Creates one analysis model to allow for jobs to be run
     """
-    from engine.models import Project, Data, Analysis, make_analysis_from_spec, make_job, Job
+    from engine.models import Project, Data, Analysis, make_job, Job
     from engine.models import User
 
     owner = User.objects.all().first()
@@ -64,9 +64,8 @@ def init_proj(sender, **kwargs):
         json_data = json.dumps(filled_json)
 
         # Create four jobs for each project.
-        for project in Project.objects.all():
-            for state in (Job.RUNNING, Job.ERROR, Job.QUEUED, Job.FINISHED):
-                job = make_job(owner=owner, analysis=fastq_analysis, project=project, state=state, json_data=json_data)
+        for state in (Job.RUNNING, Job.ERROR, Job.QUEUED, Job.FINISHED):
+            job = make_job(owner=owner, analysis=fastq_analysis, project=project, state=state, json_data=json_data)
 
 
     return
@@ -81,14 +80,13 @@ def init_users(sender, **kwargs):
 
     for name, email in settings.ADMINS:
         if not User.objects.filter(email=email):
-            user = User(first_name=name, email=email, username=get_uuid(16),
+            user = User(first_name=name, email=email, username=util.get_uuid(),
                         is_superuser=True, is_staff=True)
             user.set_password(settings.SECRET_KEY)
             user.save()
             logger.info(f"creating admin user: user.email={user.email}, user.id={user.id}")
 
     # Create a regular test user.
-    #testbuddy @ lvh.me
     test_buddy, new = User.objects.get_or_create(email="testbuddy@lvh.me")
     test_buddy.set_password("testbuddy@lvh.me")
     test_buddy.save()
