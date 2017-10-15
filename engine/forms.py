@@ -212,3 +212,6 @@ class EditAnalysis(forms.Form):
 
             if field:
                 self.fields[name] = field
+
+    def save_to_file(self):
+        return

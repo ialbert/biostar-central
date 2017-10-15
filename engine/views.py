@@ -291,8 +291,6 @@ def analysis_run(request, id):
     project = analysis.project
 
     owner = analysis.owner
-
-
     steps = breadcrumb_builder([HOME_ICON, PROJECT_ICON,  ANALYSIS_ICON],
                                project=project, analysis=analysis)
 
@@ -333,6 +331,20 @@ def preview_specs(spec, analysis):
         return dict()
 
 
+def process_analysis_edit(method, analysis, form):
+
+    form_method_map = {'preview':form.preview,
+                       'save':form.save,
+                       'save_to_file': form.save_to_file}
+    spec = dict()
+    if form.is_valid():
+
+        form_method_map[method]()
+        spec = json.loads(form.cleaned_data["text"])
+
+    return preview_specs(spec, analysis)
+
+
 @login_required
 def analysis_edit(request, id):
 
@@ -341,37 +353,12 @@ def analysis_edit(request, id):
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_ICON, ANALYSIS_LIST_ICON, ANALYSIS_ICON],
                                project=project, analysis=analysis)
-    context = dict()
 
     if request.method == "POST":
-        # get the request.txt and
-        # set the mistune
-        if request.POST.get("save_or_preview") == "save_to_file":
 
-            form = EditAnalysis(analysis=analysis, data=request.POST)
-            if form.is_valid():
-                1/0
-                return
-
-        elif request.POST.get("save_or_preview") == "preview":
-
-            form = EditAnalysis(analysis=analysis, data=request.POST)
-
-            if form.is_valid():
-
-                form.preview()
-                spec = json.loads(form.cleaned_data["text"])
-                context = preview_specs(spec, analysis)
-
-
-        elif request.POST.get("save_or_preview") == "save":
-
-            form = EditAnalysis(analysis=analysis, data=request.POST)
-
-            if form.is_valid():
-                form.save()
-                spec = json.loads(form.cleaned_data["text"])
-                context = preview_specs(spec, analysis)
+        form = EditAnalysis(analysis=analysis, data=request.POST)
+        method = request.POST.get("save_or_preview")
+        context = process_analysis_edit(method, analysis, form)
 
     else:
 
