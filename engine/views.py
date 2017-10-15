@@ -75,7 +75,9 @@ def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=Non
         elif icon == LOGOUT_ICON:
             step = (reverse("login"), LOGOUT_ICON, "Logout", is_active)
         elif icon == INFO_ICON:
-            step = (reverse("login"), INFO_ICON, "Information", is_active)
+            step = (reverse("info"), INFO_ICON, "Information", is_active)
+        elif icon == SIGNUP_ICON:
+            step = (reverse("signup"), SIGNUP_ICON, "Sign up", is_active)
         else:
             continue
 
@@ -292,7 +294,6 @@ def analysis_list(request, id):
     context = dict(project=project, analysis=analysis, steps=steps)
 
     return render(request, "analysis_list.html", context)
-
 
 
 def analysis_view(request, id):

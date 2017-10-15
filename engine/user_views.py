@@ -23,6 +23,9 @@ def get_uuid(limit=32):
 
 @ratelimit(key='ip', rate='10/m', block=True, method=ratelimit.UNSAFE)
 def user_signup(request):
+
+    steps = breadcrumb_builder([HOME_ICON, SIGNUP_ICON])
+
     if request.method == 'POST':
         form = SignUpForm(request.POST)
 
@@ -38,11 +41,13 @@ def user_signup(request):
 
             login(request, user)
             logger.info(f"Signed up and logged in user.id={user.id}, user.email={user.email}")
-            return redirect(f"/{user.id}")
+            messages.info(request, "Signup successful!")
+            return redirect(reverse('login'))
     else:
 
         form = SignUpForm()
-    return render(request, 'registration/user_signup.html', {'form': form})
+    context = dict(form=form, steps=steps)
+    return render(request, 'registration/user_signup.html', context=context)
 
 
 def user_logout(request):
