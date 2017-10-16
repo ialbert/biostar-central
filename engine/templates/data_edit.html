@@ -10,11 +10,7 @@
         <form method="post" class="ui form" action="{% url 'data_edit' data.id %}" enctype="multipart/form-data">
 
             {% csrf_token %}
-
-             <div class="nine wide field segment">
-                  <label>{{form.file.label_tag}}</label>
-                  {{ form.file }}
-             </div>
+            
 
             <div class="field segment">
                   <label>Description</label>
