@@ -4,7 +4,7 @@ SERVER=metabarcode.com
 serve: init
 	python manage.py runserver
 
-reset:
+reset:init
 	rm -f export/engine.db
 	rm -rf media/*
 

@@ -4,11 +4,6 @@ from django import template
 register = template.Library()
 
 
-@register.filter(name='upper')
-def upper(value):
-    return value.upper()
-
-
 @register.filter(name='date_sort')
 def date_sort(instance):
     return instance.order_by("-id")

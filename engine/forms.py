@@ -141,8 +141,9 @@ class RunAnalysis(forms.Form):
         Should be called after the form has been filled and is valid.
         '''
 
-        # TODO: should make a copy of the json rather than mutated it.
-        for field, obj in self.json_data.items():
+        json_data = self.json_data.copy()
+
+        for field, obj in json_data.items():
             # No need to read fields that were not set.
             if not obj.get(FIELD_VISIBLE):
                 continue
@@ -150,18 +151,15 @@ class RunAnalysis(forms.Form):
             if obj.get(FIELD_ORIGIN) == PROJECT_ORIGIN:
                 data_id = self.cleaned_data.get(field, 0)
                 data = get_data(data_id)
-                #TODO: quick fix because there are no files associted with scaffolding data.
-                #TODO: fix this dude
-                #TODO: seirously
-                #TODO: again so i wont forget
-                obj["value"] = data.project.get_path()
+
+                obj["value"] = data.get_path().path
                 continue
 
             if field in self.cleaned_data:
                 # Mutates the value key.
                 obj["value"] = self.cleaned_data[field]
 
-        return self.json_data
+        return json_data
 
 
 class EditAnalysisForm(forms.Form):

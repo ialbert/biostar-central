@@ -231,6 +231,7 @@ def data_edit(request, id):
             file = File(form.cleaned_data["file"])
             data.text = form.cleaned_data["text"]
             data.type = get_datatype(file)
+            # May not be neccessary? 
             remove_file(data.file)
 
             data.file.save(data_file, file, save=True)
