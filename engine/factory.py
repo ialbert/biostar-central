@@ -26,6 +26,8 @@ def select_field(field, choicefunc=None):
         choices = field.get("choices")
 
     initial = field.get("value")
+    print(field)
+
     label = field.get("label")
     help_text = field.get("help", "Pick values from a dropdown menu")
 
@@ -97,7 +99,6 @@ def checkbox_field(field):
     return field
 
 
-
 def handle_scripts(field):
     return
 
@@ -112,6 +113,7 @@ def data_generator(field, project, data_type=None):
 
     def choice_func():
         query = Data.objects.filter(project=project)
+
         if valid_type != GENERIC_TYPE:
             query = query.filter(data_type=valid_type)
         choices = [(d.id, d.title) for d in query]

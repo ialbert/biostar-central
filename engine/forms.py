@@ -100,6 +100,7 @@ def make_field(obj, project):
 
     if visible:
         if origin == PROJECT_ORIGIN:
+
             data_type = obj.get("data_type")
             field = factory.data_generator(obj, project=project, data_type=data_type)
         else:
@@ -123,7 +124,7 @@ class RunAnalysis(forms.Form):
 
         for name, obj in self.json_data.items():
             field = make_field(obj, analysis.project)
-
+            #print(name, obj)
             if field:
                 self.fields[name] = field
 
@@ -149,8 +150,11 @@ class RunAnalysis(forms.Form):
             if obj.get(FIELD_ORIGIN) == PROJECT_ORIGIN:
                 data_id = self.cleaned_data.get(field, 0)
                 data = get_data(data_id)
-
-                obj["value"] = data.get_path().path
+                #TODO: quick fix because there are no files associted with scaffolding data.
+                #TODO: fix this dude
+                #TODO: seirously
+                #TODO: again so i wont forget
+                obj["value"] = data.project.get_path()
                 continue
 
             if field in self.cleaned_data:
