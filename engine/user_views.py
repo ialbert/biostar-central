@@ -27,8 +27,12 @@ def user_signup(request):
     steps = breadcrumb_builder([HOME_ICON, SIGNUP_ICON])
 
     if request.method == 'POST':
-        form = SignUpForm(request.POST)
 
+        form = SignUpForm(request.POST)
+        messages.info(request, "Signup not permitted yet.")
+        context = dict(form=form, steps=steps)
+        return render(request, 'registration/user_signup.html', context=context)
+        
         if form.is_valid():
             email = form.cleaned_data.get('email')
             password = form.cleaned_data.get('password1')
@@ -51,15 +55,17 @@ def user_signup(request):
 
 
 def user_logout(request):
+    steps = breadcrumb_builder([HOME_ICON, LOGOUT_ICON])
 
     if request.method == "POST":
+
         form = LogoutForm(request.POST)
+
         if form.is_valid():
             auth.logout(request)
             messages.info(request, "You have been logged out")
             return redirect("/")
 
-    steps = breadcrumb_builder([HOME_ICON, LOGOUT_ICON])
 
     form = LogoutForm()
 
@@ -75,6 +81,7 @@ def user_login(request):
         form = LoginForm(data=request.POST)
 
         if form.is_valid():
+
             email = form.cleaned_data['email']
             password = form.cleaned_data['password']
 
@@ -86,9 +93,7 @@ def user_login(request):
                 context = dict(form=form)
                 return render(request, "registration/user_login.html", context=context)
 
-            print(user)
             user = authenticate(username=user.username, password=password)
-            print(email)
 
             if not user:
                 form.add_error(None, "Invalid password.")

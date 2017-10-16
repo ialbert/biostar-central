@@ -420,7 +420,7 @@ def media_index(request):
 
     return render(request, "media_index.html", context)
 
-
+@login_required
 def job_view(request, id):
 
     # create a directory when clicked.

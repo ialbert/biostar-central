@@ -27,12 +27,7 @@ FIELD_VISIBLE = "visible"
 FIELD_ORIGIN = "origin"
 PROJECT_ORIGIN = "PROJECT"
 
-ACTIVE = 1
-DELETED = 2
 
-STATE_MAP = dict(
-    ACTIVE=ACTIVE, DELETED=DELETED
-)
 #
 # To initialize test files run:
 #

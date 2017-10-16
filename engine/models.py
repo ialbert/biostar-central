@@ -22,15 +22,12 @@ def make_html(text):
 
 
 class Base(models.Model):
-    # states: deleted
-    #       : normal
 
     title = models.CharField(max_length=256)
     owner = models.ForeignKey(User)
     text = models.TextField(default='text')
     html = models.TextField(default='html')
     date = models.DateTimeField(auto_now_add=True)
-    base_state = models.IntegerField(default=ACTIVE)
 
     def __str__(self):
         return self.title
@@ -48,6 +45,8 @@ class Base(models.Model):
 class Project(Base):
 
     uid = models.CharField(max_length=32)
+    ACTIVE, DELETED = 1, 2
+    state = models.IntegerField(default=ACTIVE)
 
     def save(self, *args, **kwargs):
         self.uid = self.uid or util.get_uuid(8)
@@ -79,8 +78,13 @@ class Data(Base):
 
     FILE, COLLECTION = 1, 2
     TYPE_CHOICES =[(FILE, "File"),(COLLECTION ,"Collection")]
+
+    ACTIVE, DELETED = 1, 2
+
     type = models.IntegerField(default=FILE, choices=TYPE_CHOICES)
     data_type = models.IntegerField(default=GENERIC_TYPE)
+    state = models.IntegerField(default=ACTIVE)
+
     project = models.ForeignKey(Project)
 
     size = models.CharField(null=True, max_length=256)
@@ -119,9 +123,12 @@ def make_analysis_from_spec(path, user, project):
 
 class Analysis(Base):
 
+    ACTIVE, DELETED = 1, 2
+    state = models.IntegerField(default=ACTIVE)
     json_data = models.TextField(default="{}")
     template = models.TextField(default="makefile")
     project = models.ForeignKey(Project)
+
 
     def save(self, *args, **kwargs):
         super(Analysis, self).save(*args, **kwargs)
@@ -142,6 +149,10 @@ def make_job(owner, analysis, project, json_data=None, title=None, state=None):
 
 
 class Job(Base):
+
+    ACTIVE, DELETED = 1, 2
+    # Might need to rename later on.
+    job_state = models.IntegerField(default=ACTIVE)
 
     # file path to media
     QUEUED, RUNNING, FINISHED, ERROR = 1, 2, 3, 4
