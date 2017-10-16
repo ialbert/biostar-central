@@ -19,6 +19,8 @@ def run(job):
     outdir = job.outdir
     jobid = job.jobid
 
+    print(job.id)
+
     errorlog = []
 
     try:

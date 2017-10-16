@@ -44,8 +44,12 @@ def init_proj(sender, **kwargs):
 
         # Add data to each project.
         for data_title, data_desc, data_file, data_type in TEST_DATA:
+            # data naming is a bit weired.
             stream = File(open(data_file, 'rb'))
-            data = Data(title=data_title, owner=owner, text=data_desc, project=project, data_type=data_type)
+
+            data_file = os.path.split(data_file)[-1]
+            size = f"{stream.size}"
+            data = Data(title=data_title, owner=owner, text=data_desc, project=project, data_type=data_type, size=size)
             data.file.save(data_file, stream, save=True)
             data.save()
 
@@ -66,7 +70,6 @@ def init_proj(sender, **kwargs):
         # Create four jobs for each project.
         for state in (Job.RUNNING, Job.ERROR, Job.QUEUED, Job.FINISHED):
             job = make_job(owner=owner, analysis=fastq_analysis, project=project, state=state, json_data=json_data)
-
 
     return
 
