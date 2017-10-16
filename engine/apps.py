@@ -44,9 +44,9 @@ def init_proj(sender, **kwargs):
 
         # Add data to each project.
         for data_title, data_desc, data_file, data_type in TEST_DATA:
-            stream = File(open(data_file, 'rb'))
+            #stream = File(open(data_file, 'rb'))
             data = Data(title=data_title, owner=owner, text=data_desc, project=project, data_type=data_type)
-            data.file.save(data_file, stream, save=True)
+            #data.file.save(data_file, stream, save=True)
             data.save()
 
         # Initialize the same analyses for each project.
