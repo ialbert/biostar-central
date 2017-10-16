@@ -44,9 +44,9 @@ def init_proj(sender, **kwargs):
 
         # Add data to each project.
         for data_title, data_desc, data_file, data_type in TEST_DATA:
-            #stream = File(open(data_file, 'rb'))
+            stream = File(open(data_file, 'rb'))
             data = Data(title=data_title, owner=owner, text=data_desc, project=project, data_type=data_type)
-            #data.file.save(data_file, stream, save=True)
+            data.file.save(data_file, stream, save=True)
             data.save()
 
         # Initialize the same analyses for each project.
@@ -60,7 +60,7 @@ def init_proj(sender, **kwargs):
         fastq_data = Data.objects.filter(data_type=FASTQ_TYPE).first()
 
         filled_json = json.loads(fastq_analysis.json_data)
-        #filled_json['data']['path'] = fastq_data.file.path
+        filled_json['data']['path'] = fastq_data.file.path
         json_data = json.dumps(filled_json)
 
         # Create four jobs for each project.
