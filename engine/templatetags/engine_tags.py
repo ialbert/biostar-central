@@ -33,3 +33,13 @@ def menubar(context, project=None, edit_project=False, create_project=False,
 @register.filter(name='is_checkbox')
 def is_checkbox(value):
     return isinstance(value, forms.BooleanField)
+
+@register.filter(name='convert_bytes')
+def convert_bytes_to(bytes, to="mega"):
+
+    a = {'kilo' : 1, 'mega': 2, 'giga' : 3, 'tera' : 4, 'penta' : 5 }
+    r = float(bytes)
+    for i in range(a[to]):
+        r = r / 1024
+
+    return f"{r:.2f}"

@@ -260,8 +260,8 @@ def data_upload(request, id):
             owner = User.objects.filter(email=request.user).first() or project.owner
             text = form.cleaned_data["text"]
             data_type = get_datatype(file)
-
-            data = Data(title=title, owner=owner, text=text, project=project, data_type=data_type)
+            size = f"{file.size}"
+            data = Data(title=title, owner=owner, text=text, project=project, data_type=data_type, size=size)
             data.file.save(data_file, file, save=True)
             data.save()
 

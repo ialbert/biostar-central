@@ -48,8 +48,8 @@ def init_proj(sender, **kwargs):
             stream = File(open(data_file, 'rb'))
 
             data_file = os.path.split(data_file)[-1]
-
-            data = Data(title=data_title, owner=owner, text=data_desc, project=project, data_type=data_type)
+            size = f"{stream.size}"
+            data = Data(title=data_title, owner=owner, text=data_desc, project=project, data_type=data_type, size=size)
             data.file.save(data_file, stream, save=True)
             data.save()
 
