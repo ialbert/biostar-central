@@ -104,11 +104,11 @@ trim_primer: fastqc
 
 trim_quality: trim_primer
 	mkdir -p $(QTRIM_DIR)/logs
-	cat  $(UPDATED_SAMPLE_INFO) |parallel --verbose --progress -j $(THREADS) --header : --colsep '\t' 'bbduk.sh \
+	cat  $(UPDATED_SAMPLE_INFO) |parallel --verbose --progress -j $(THREADS) --header : --colsep '\t' bbduk.sh \
 	in1=$(PTRIM_DIR)/{sample_name}_R1_trimp.fq.gz in2=$(PTRIM_DIR)/{sample_name}_R2_trimp.fq.gz \
 	qtrim=rl trimq=$(TRIM_QUALITY)  minlength=35 overwrite=true \
 	out1=$(QTRIM_DIR)/{sample_name}_R1_trim.fq.gz \
-	out2=$(QTRIM_DIR)/{sample_name}_R2_trim.fq.gz 2>$(QTRIM_DIR)/logs/{sample_name}_stats.txt'
+	out2=$(QTRIM_DIR)/{sample_name}_R2_trim.fq.gz stats=$(QTRIM_DIR)/logs/{sample_name}_stats.txt
 	cat $(QTRIM_DIR)/logs/*stats.txt > $(RESULT_DIR)/trimq_stats.txt
 	#
 	# quality report
