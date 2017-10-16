@@ -27,28 +27,15 @@ h1 {
 }
 
 .Queued {
-    color: blue;
-    font-weight: bold;
-    font-size: 1.0em;
 }
 
 .Running {
-    color: yellow;
-    text-shadow: #000 0px 0px 1px,   #000 0px 0px 1px,   #000 0px 0px 1px;
-    font-weight: bold;
-    font-size: 1.0em;
 }
 
 .Error{
-    color: red;
-    font-weight: bold;
-    font-size: 1.0em;
 }
 
 .Finished{
-    color: green;
-    font-weight: bold;
-    font-size: 1.0em;
 }
 
 .createform {

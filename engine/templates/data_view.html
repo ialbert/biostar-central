@@ -20,14 +20,11 @@
 {% block body %}
 
     <div class="ui vertical segment">
-
         <div class="textbody">File: {{ data.file }}</div>
-        {% if data.size %}
-        <div class="textbody">Size: {{ data.size|convert_bytes }} megabytes</div>
-        {% else %}
-        <div class="textbody">Size: 0 bytes</div>
-        {% endif %}
+        <div class="textbody">Size: {{ data.size|filesizeformat}}</div>
         <div class="textbody">{{ data.html|safe }}</div>
+<pre>{{ data.peek }}
+</pre>
     </div>
 
 {% endblock %}

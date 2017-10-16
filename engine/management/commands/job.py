@@ -184,7 +184,7 @@ class Command(BaseCommand):
         if queued:
             jobs = Job.objects.filter(state=Job.QUEUED).order_by('-id')[:10]
             for job in jobs:
-                print(job.id)
+                print(f'{job.id} {job.title}')
             return
 
 

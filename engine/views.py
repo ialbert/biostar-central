@@ -11,6 +11,7 @@ from .forms import *
 from .models import (User, Project, Data,
                      Analysis, Job, make_job, get_datatype)
 from django.core.files import File
+import mimetypes
 
 from engine.const import *
 import mistune
@@ -200,6 +201,7 @@ def data_view(request, id):
     steps = breadcrumb_builder([HOME_ICON, PROJECT_ICON, DATA_LIST_ICON, DATA_ICON],
                                project=project, data=data)
 
+
     context = dict(data=data, steps=steps)
 
     return render(request, "data_view.html", context)
@@ -303,7 +305,7 @@ def analysis_view(request, id):
         messages.error(request, "Analysis not found.")
         return redirect(reverse("analysis_list", kwargs={'id':project.id}))
 
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_ICON, ANALYSIS_ICON],
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_ICON, ANALYSIS_LIST_ICON, ANALYSIS_ICON],
                                project=project, analysis=analysis)
 
     context = dict(project=project, analysis=analysis, steps=steps)
@@ -425,8 +427,8 @@ def job_view(request, id):
 
     # create a directory when clicked.
     job = Job.objects.filter(id=id).first()
-    path = f"JOB{job.uid}"
-    url = settings.MEDIA_URL + path+"/"
+    path = f"job-{job.uid}"
+    url = settings.MEDIA_URL + path + "/"
 
     return redirect(url)
 

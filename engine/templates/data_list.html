@@ -24,7 +24,7 @@
         <div class="title">
             <a href="{% url 'data_view' data.id %}">
             <i class="file icon"></i>{{ data.title }}
-            </a>
+            </a> &bull; {{ data.size|filesizeformat }}
         </div>
 
     </div>

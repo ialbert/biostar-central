@@ -1,7 +1,17 @@
 from django import forms
 from django import template
+from engine.models import Job
 
 register = template.Library()
+
+JOB_SEGMENT_COLORS = {
+    Job.ERROR: "red", Job.QUEUED: "blue", Job.RUNNING: "orange", Job.FINISHED:"green"
+}
+
+
+@register.simple_tag
+def job_color(job):
+    return JOB_SEGMENT_COLORS.get(job.state, "")
 
 
 @register.filter(name='date_sort')
@@ -19,7 +29,6 @@ def menubar(context, project=None, edit_project=False, create_project=False,
             data=None, edit_data=False, upload_data=False,
             analysis=None, edit_analysis=False
             ):
-
     user = context.request.user
 
     return dict(
@@ -34,10 +43,10 @@ def menubar(context, project=None, edit_project=False, create_project=False,
 def is_checkbox(value):
     return isinstance(value, forms.BooleanField)
 
+
 @register.filter(name='convert_bytes')
 def convert_bytes_to(bytes, to="mega"):
-
-    a = {'kilo' : 1, 'mega': 2, 'giga' : 3, 'tera' : 4, 'penta' : 5 }
+    a = {'kilo': 1, 'mega': 2, 'giga': 3, 'tera': 4, 'penta': 5}
     r = float(bytes)
     for i in range(a[to]):
         r = r / 1024

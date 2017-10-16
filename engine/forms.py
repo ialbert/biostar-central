@@ -132,10 +132,7 @@ class RunAnalysis(forms.Form):
             if field:
                 self.fields[name] = field
 
-
     def save(self, *args, **kwargs):
-
-
         super(RunAnalysis, self).save(*args, **kwargs)
 
 
