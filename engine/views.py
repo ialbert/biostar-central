@@ -10,6 +10,7 @@ from django.conf import settings
 from .forms import *
 from .models import (User, Project, Data,
                      Analysis, Job, make_job, get_datatype)
+from django.core.files import File
 
 from engine.const import *
 import mistune
@@ -201,7 +202,10 @@ def data_view(request, id):
 
 
 def remove_file(file):
-    os.remove(file.path)
+    try:
+        os.remove(file.path)
+    except FileNotFoundError:
+        pass
     return
 
 
@@ -222,16 +226,15 @@ def data_edit(request, id):
         if form.is_valid():
 
             data.title = form.cleaned_data["file"]
+            data_file = str(form.cleaned_data["file"])
+
+            file = File(form.cleaned_data["file"])
             data.text = form.cleaned_data["text"]
-
-            # Remove current data before uploading another one
-            remove_file(data.file)
-            file = request.FILES["file"]
             data.type = get_datatype(file)
-            data.file = file
-            data.save()
+            remove_file(data.file)
 
-            #form.save()
+            data.file.save(data_file, file, save=True)
+            data.save()
 
     else:
         form = DataUploadForm(initial=initial)
@@ -256,18 +259,15 @@ def data_upload(request, id):
         if form.is_valid():
 
             title = form.cleaned_data["file"]
+            data_file = str(form.cleaned_data["file"])
+            file = File(form.cleaned_data["file"])
+            owner = User.objects.filter(email=request.user).first() or project.owner
             text = form.cleaned_data["text"]
-            owner = project.owner
-            file = request.FILES["file"]
-            type = get_datatype(file)
+            data_type = get_datatype(file)
 
-            new_data = Data.objects.create(title=title, text=text,
-                                           owner=owner, project=project,
-                                           file=file,
-                                           type=type
-                                           )
-            new_data.size = f"{os.path.getsize(new_data.file.path)}"
-            new_data.save()
+            data = Data(title=title, owner=owner, text=text, project=project, data_type=data_type)
+            data.file.save(data_file, file, save=True)
+            data.save()
 
             return redirect(reverse("data_list", kwargs={'id':project.id}))
 
