@@ -46,9 +46,9 @@ def init_proj(sender, **kwargs):
         for data_title, data_desc, data_file, data_type in TEST_DATA:
             # data naming is a bit weired.
             stream = File(open(data_file, 'rb'))
-            # need to create new name without tmp in it.
-            data_file = ""
-            # the data given is a folder full of files and not a signle file.
+
+            data_file = os.path.split(data_file)[-1]
+
             data = Data(title=data_title, owner=owner, text=data_desc, project=project, data_type=data_type)
             data.file.save(data_file, stream, save=True)
             data.save()
