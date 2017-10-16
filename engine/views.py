@@ -226,16 +226,15 @@ def data_edit(request, id):
         if form.is_valid():
 
             data.title = form.cleaned_data["file"]
+            data_file = str(form.cleaned_data["file"])
+
+            file = File(form.cleaned_data["file"])
             data.text = form.cleaned_data["text"]
-
-            # Remove current data before uploading another one
-            remove_file(data.file)
-            file = request.FILES["file"]
             data.type = get_datatype(file)
-            data.file = file
-            data.save()
+            remove_file(data.file)
 
-            #form.save()
+            data.file.save(data_file, file, save=True)
+            data.save()
 
     else:
         form = DataUploadForm(initial=initial)
