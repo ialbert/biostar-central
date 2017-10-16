@@ -11,6 +11,7 @@ from . import settings
 from . import util
 from django.urls import reverse
 from .const import *
+from django.utils.text import slugify
 
 def join(*args):
     return os.path.abspath(os.path.join(*args))
@@ -21,12 +22,14 @@ def make_html(text):
 
 
 class Base(models.Model):
-
+    # states: deleted
+    #       : normal
     title = models.CharField(max_length=256)
     owner = models.ForeignKey(User)
     text = models.TextField(default='text')
     html = models.TextField(default='html')
     date = models.DateTimeField(auto_now_add=True)
+    #state = models.IntegerField()
 
     def __str__(self):
         return self.title
@@ -48,7 +51,7 @@ class Project(Base):
     def save(self, *args, **kwargs):
         self.uid = self.uid or util.get_uuid(8)
         if not os.path.isdir(self.get_path()):
-            os.makedirs(self.get_path(), exist_ok=True)
+            os.mkdir(self.get_path())
 
         super(Project, self).save(*args, **kwargs)
 
@@ -56,15 +59,20 @@ class Project(Base):
         return reverse("project_view", kwargs=dict(id=self.id))
 
     def get_path(self):
-        return join(settings.DATA_ROOT, self.uid)
+        return join(settings.MEDIA_ROOT, f"PROJ{self.uid}")
+
 
 def directory_path(instance, filename):
 
+    uid = util.get_uuid(8)
+    filename = f"DATA{uid}{slugify(filename)}"
+    # redo the file uploadin this.
     return f'{instance.project.get_path()}/{filename}'
 
 
 def get_datatype(file):
     return Data.FILE
+
 
 class Data(Base):
 
@@ -147,8 +155,8 @@ class Job(Base):
     template = models.TextField(default="makefile")
     log = models.TextField(default="log")
 
-
     state = models.IntegerField(default=1, choices=STATE_CHOICES)
+
     path = models.FilePathField(default="")
 
     def save(self, *args, **kwargs):
@@ -159,7 +167,7 @@ class Job(Base):
         self.title = self.title or self.analysis.title
         # write an index.html to the file
         if not os.path.isdir(self.path):
-            path = os.path.abspath(os.path.join(settings.MEDIA_ROOT, self.uid))
+            path = os.path.abspath(os.path.join(settings.MEDIA_ROOT, f"JOB{self.uid}"))
             os.mkdir(path)
             self.path = path
 

@@ -15,6 +15,7 @@ from django.core.files import File
 from engine.const import *
 import mistune
 
+
 def join(*args):
     return os.path.abspath(os.path.join(*args))
 
@@ -85,6 +86,7 @@ def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=Non
         path.append(step)
 
     return path
+
 
 #@login_required
 def project_list(request):
@@ -202,6 +204,7 @@ def data_view(request, id):
 
 
 def remove_file(file):
+
     try:
         os.remove(file.path)
     except FileNotFoundError:
@@ -214,31 +217,23 @@ def data_edit(request, id):
 
     data = Data.objects.filter(id=id).first()
     project = data.project
-    initial = dict(text=data.text, file=data.file)
+    initial = dict(text=data.text)
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON, DATA_ICON],
                                project=project, data=data)
 
     if request.method == "POST":
 
-        form = DataUploadForm(request.POST, request.FILES, initial=initial)
+        form = DataEditForm(request.POST, initial=initial)
 
         if form.is_valid():
 
-            data.title = form.cleaned_data["file"]
-            data_file = str(form.cleaned_data["file"])
-
-            file = File(form.cleaned_data["file"])
             data.text = form.cleaned_data["text"]
-            data.type = get_datatype(file)
-            # May not be neccessary? 
-            remove_file(data.file)
 
-            data.file.save(data_file, file, save=True)
             data.save()
 
     else:
-        form = DataUploadForm(initial=initial)
+        form = DataEditForm(initial=initial)
 
     context = dict(data=data, steps=steps, form=form)
 
@@ -337,6 +332,7 @@ def analysis_run(request, id):
                            json_data=json_data, title=title)
 
             job.save()
+
             return redirect(reverse("job_list", kwargs=dict(id=project.id)))
 
     else:
@@ -427,12 +423,14 @@ def job_view(request, id):
 
     # create a directory when clicked.
     job = Job.objects.filter(id=id).first()
-    path = job.uid
+    path = f"JOB{job.uid}"
     url = settings.MEDIA_URL + path+"/"
 
     return redirect(url)
 
+def job_detail_view(request, id):
 
+    return
 
 
 

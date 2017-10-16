@@ -26,7 +26,6 @@ def select_field(field, choicefunc=None):
         choices = field.get("choices")
 
     initial = field.get("value")
-    print(field)
 
     label = field.get("label")
     help_text = field.get("help", "Pick values from a dropdown menu")

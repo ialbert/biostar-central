@@ -4,9 +4,12 @@ SERVER=metabarcode.com
 serve: init
 	python manage.py runserver
 
-reset:init
+delete:
 	rm -f export/engine.db
 	rm -rf media/*
+
+reset:delete init
+
 
 init:
 	python manage.py collectstatic --noinput -v 0

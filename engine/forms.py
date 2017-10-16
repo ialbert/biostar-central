@@ -87,6 +87,10 @@ class DataUploadForm(forms.Form):
 
         super(DataUploadForm, self).save(*args, **kwargs)
 
+class DataEditForm(forms.Form):
+
+    text = forms.CharField(widget=forms.Textarea(), max_length=512)
+
 
 def make_field(obj, project):
 
@@ -152,12 +156,15 @@ class RunAnalysis(forms.Form):
                 data_id = self.cleaned_data.get(field, 0)
                 data = get_data(data_id)
 
-                obj["value"] = data.get_path().path
+                obj["value"] = os.path.abspath(data.get_path().path)
                 continue
 
             if field in self.cleaned_data:
                 # Mutates the value key.
                 obj["value"] = self.cleaned_data[field]
+
+            if obj.get("path"):
+                obj["path"] = os.path.abspath(obj.get("path"))
 
         return json_data
 
