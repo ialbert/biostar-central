@@ -40,6 +40,7 @@ urlpatterns = [
     url(r'^analysis/edit/(?P<id>\d+)$', views.analysis_edit, name='analysis_edit'),
     url(r'^jobs/list/(?P<id>\d+)/$', views.jobs_list, name='job_list'),
     url(r'^job/view/(?P<id>\d+)/$', views.job_view, name='job_view'),
+    url(r'^job/detail/view/(?P<id>\d+)/$', views.job_detail_view, name='job_detail_view'),
     url(r'^media/$', views.media_index, name='media_index'),
 ]
 

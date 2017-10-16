@@ -25,6 +25,10 @@ Create a virtual environment both on your system and on the remote site:
 
 ## Usage
 
+import data into local machine
+
+    make testdata
+
 Creates a brand new database
 
     make reset 

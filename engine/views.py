@@ -80,6 +80,8 @@ def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=Non
             step = (reverse("info"), INFO_ICON, "Information", is_active)
         elif icon == SIGNUP_ICON:
             step = (reverse("signup"), SIGNUP_ICON, "Sign up", is_active)
+        elif icon == RESULT_VIEW_ICON:
+            step = (reverse("job_detail_view", kwargs={'id': job.id,}), RESULT_ICON, f"{job.title}", is_active)
         else:
             continue
 
@@ -430,7 +432,14 @@ def job_view(request, id):
 
 def job_detail_view(request, id):
 
-    return
+    job = Job.objects.filter(id=id).first()
+    project = job.project
+
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_ICON, RESULT_LIST_ICON, RESULT_VIEW_ICON ],
+                               job=job, project=project)
+
+    context = dict(job=job, steps=steps)
+    return render(request, "job_view.html", context=context)
 
 
 
