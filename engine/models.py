@@ -77,6 +77,7 @@ class Data(Base):
     size = models.CharField(null=True, max_length=256)
 
     file = models.FileField(null=True, upload_to=directory_path)
+    path = models.FilePathField(null=True)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -86,9 +87,8 @@ class Data(Base):
         super(Data, self).save(*args, **kwargs)
 
     def get_path(self):
-        self.save()
 
-        return self.project.get_path()
+        return self.file if self.type == Data.FILE else self.path
 
 
 def make_analysis_from_spec(path, user, project):

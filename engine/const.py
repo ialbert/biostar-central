@@ -42,6 +42,7 @@ TEST_PROJECTS = [
 TEST_FASTQ_PATH = os.path.expandvars('tmp/1-SarriPal_S9_L001_R1_001.fastq.gz')
 TEST_FILE_PATH = os.path.expandvars('tmp/sampleinfo.txt')
 TEST_COLL_PATH = os.path.expandvars('tmp/data.tar.gz')
+TEST_REF_PATH = os.path.expandvars('tmp/data.tar.gz')
 TEST_DATA = [
     ("Data Collection 1", "This file contains a collection of data", TEST_COLL_PATH, TAR_FASTQ_GZ),
     ("Data Collection 2", "This file contains a collection of data", TEST_COLL_PATH, TAR_FASTQ_GZ),
@@ -51,7 +52,6 @@ TEST_DATA = [
      SAMPLE_TYPE),
     ("Fastq file 1", "This is a fastq file", TEST_FASTQ_PATH, FASTQ_TYPE),
     ("Fastq file 2", "This is a fastq file", TEST_FASTQ_PATH, FASTQ_TYPE),
-
 ]
 
 
@@ -60,7 +60,7 @@ PIPELINE_DIR = join(__THIS, '..', 'pipeline')
 TEST_ANALYSES = [
     # Spec, Template pairs.
     #(join(PIPELINE_DIR, 'qc/qc.hjson'), join(PIPELINE_DIR, 'qc/qc_template.html' ))
-    (join(PIPELINE_DIR, 'fastqc/fastqc.hjson'), join(PIPELINE_DIR, 'fastqc/fastqc_template.sh'))
+    (join(PIPELINE_DIR, 'fastqc/fastqc.hjson'), join(PIPELINE_DIR, 'fastqc/fastqc_template.sh')),
 ]
 
 # Site information
