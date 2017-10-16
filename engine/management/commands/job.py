@@ -170,7 +170,7 @@ class Command(BaseCommand):
         queued = options['queued']
 
         if next:
-            job = Job.objects.filter(state=Job.QUEUED).order_by('id').first()
+            job = Job.objects.filter(state=Job.QUEUED).order_by('-id').first()
             if not job:
                 error(f'there are no queued jobs')
             run(job, options=options)
