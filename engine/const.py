@@ -17,6 +17,7 @@ ANALYSIS_LIST_ICON = "settings"
 ANALYSIS_ICON = "setting"
 RESULT_LIST_ICON = "bar chart"
 RESULT_ICON = "line chart"
+RESULT_VIEW_ICON = "line chart"
 LOGIN_ICON = "sign in"
 LOGOUT_ICON = "sign out"
 INFO_ICON = "info circle icon"
@@ -26,7 +27,12 @@ FIELD_VISIBLE = "visible"
 FIELD_ORIGIN = "origin"
 PROJECT_ORIGIN = "PROJECT"
 
+ACTIVE = 1
+DELETED = 2
 
+STATE_MAP = dict(
+    ACTIVE=ACTIVE, DELETED=DELETED
+)
 #
 # To initialize test files run:
 #

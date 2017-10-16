@@ -24,12 +24,13 @@ def make_html(text):
 class Base(models.Model):
     # states: deleted
     #       : normal
+
     title = models.CharField(max_length=256)
     owner = models.ForeignKey(User)
     text = models.TextField(default='text')
     html = models.TextField(default='html')
     date = models.DateTimeField(auto_now_add=True)
-    #state = models.IntegerField()
+    base_state = models.IntegerField(default=ACTIVE)
 
     def __str__(self):
         return self.title
@@ -66,7 +67,7 @@ def directory_path(instance, filename):
 
     uid = util.get_uuid(8)
     filename = f"DATA{uid}{slugify(filename)}"
-    # redo the file uploadin this.
+
     return f'{instance.project.get_path()}/{filename}'
 
 
@@ -145,7 +146,7 @@ class Job(Base):
     # file path to media
     QUEUED, RUNNING, FINISHED, ERROR = 1, 2, 3, 4
     STATE_CHOICES = [(QUEUED, "Queued"), (RUNNING, "Running"),
-               (FINISHED, "Finished"), (ERROR, "Stopped")]
+               (FINISHED, "Finished"), (ERROR, "Error")]
 
     analysis = models.ForeignKey(Analysis)
     project = models.ForeignKey(Project)

@@ -163,6 +163,7 @@ class RunAnalysis(forms.Form):
                 # Mutates the value key.
                 obj["value"] = self.cleaned_data[field]
 
+            #TODO CHANGE
             if obj.get("path"):
                 obj["path"] = os.path.abspath(obj.get("path"))
 
