@@ -165,7 +165,7 @@ class Job(Base):
 
     uid = models.CharField(max_length=32)
     template = models.TextField(default="makefile")
-    log = models.TextField(default="log")
+    log = models.TextField(default="No data logged for current job")
 
     state = models.IntegerField(default=1, choices=STATE_CHOICES)
 
