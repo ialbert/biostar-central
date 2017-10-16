@@ -59,8 +59,9 @@ PIPELINE_DIR = join(__THIS, '..', 'pipeline')
 
 TEST_ANALYSES = [
     # Spec, Template pairs.
-    #(join(PIPELINE_DIR, 'qc/qc.hjson'), join(PIPELINE_DIR, 'qc/qc_template.html' ))
     (join(PIPELINE_DIR, 'fastqc/fastqc.hjson'), join(PIPELINE_DIR, 'fastqc/fastqc_template.sh')),
+    (join(PIPELINE_DIR, 'qc/qc.hjson'), join(PIPELINE_DIR, 'qc/qc_template.html')),
+    (join(PIPELINE_DIR, 'classify/classify.hjson'), join(PIPELINE_DIR, 'classify/classify_template.html'))
 ]
 
 # Site information
