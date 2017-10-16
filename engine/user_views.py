@@ -32,7 +32,7 @@ def user_signup(request):
         messages.info(request, "Signup not permitted yet.")
         context = dict(form=form, steps=steps)
         return render(request, 'registration/user_signup.html', context=context)
-        
+
         if form.is_valid():
             email = form.cleaned_data.get('email')
             password = form.cleaned_data.get('password1')
