@@ -60,7 +60,7 @@ def init_proj(sender, **kwargs):
         fastq_data = Data.objects.filter(data_type=FASTQ_TYPE).first()
 
         filled_json = json.loads(fastq_analysis.json_data)
-        filled_json['data']['path'] = fastq_data.file.path
+        #filled_json['data']['path'] = fastq_data.file.path
         json_data = json.dumps(filled_json)
 
         # Create four jobs for each project.
