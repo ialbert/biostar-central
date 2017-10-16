@@ -1,7 +1,7 @@
 {
 
 data : {
-    path: "tmp/data.tar.gz"
+    path: tmp/data.tar.gz
     visible: true
     origin: PROJECT
     data_type: TAR_FASTQ_GZ
@@ -16,7 +16,7 @@ library_type : {
 }
 
 sequence_type : {
-    value : "fastq"
+    value : fastq
     label : Select sequence type
     visible : true
     display_type : DROPDOWN
@@ -27,7 +27,7 @@ sequence_type : {
 }
 
 sampleinfo : {
-    path : ~/tmp/sampleinfo.txt
+    path : tmp/sampleinfo.txt
     help : '''
 Enter a tab delimited text file. Order of the fields should be
 sample name, sample group, barcode, forward primer sequence, reverse primer sequence, target gene.
@@ -44,8 +44,8 @@ Sample name should match the sample name in the dataset.
 reference : {
     path: "tmp/refs/centrifuge_fish_idx/fish_genomes17"
     visible: true
-    choices : [ [ "tmp/centrifuge_fish_idx/fish_genomes17", "fish_genomes"],
-                 ["tmp/centrifuge_nt/nt", "nt"]
+    choices : [ [ "tmp/refs/centrifuge_fish_idx/fish_genomes17", "fish_genomes"],
+                 ["tmp/refs/centrifuge_nt/nt", "nt"]
                ]
     data_type: REFERENCE_TYPE
     display_type: DROPDOWN
@@ -70,9 +70,9 @@ Assign taxonomic labels to input reads and quantify them.
 
 # Parameters
 
-1. Fasta or Fastq (compressed or uncompressed) file as input.
+1. Paired end data in fasta or fastq (compressed or uncompressed) format.
 2. Reference to be used for classification.
-3. Library type.
+
 
 # Results
 

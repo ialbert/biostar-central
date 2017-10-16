@@ -158,10 +158,16 @@ class Command(BaseCommand):
         parser.add_argument('--use_template',
                             help="Override the TEMPLATE with this file.")
 
+        parser.add_argument('--queued',
+                            action='store_true',
+                            help="Show most recent 10 queued.")
+
+
     def handle(self, *args, **options):
 
         jobid = options['id']
         next = options['next']
+        queued = options['queued']
 
         if next:
             job = Job.objects.filter(state=Job.QUEUED).order_by('-id').first()
@@ -174,4 +180,11 @@ class Command(BaseCommand):
             if not job:
                 error(f'job for id={jobid} missing')
             run(job, options=options)
+
+        if queued:
+            jobs = Job.objects.filter(state=Job.QUEUED).order_by('-id')[:10]
+            for job in jobs:
+                print(job.id)
+            return
+
 
