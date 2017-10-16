@@ -23,6 +23,10 @@
             <div class="ui right floated segment">
                 <div class="ui {{job.get_state_display}}">{{job.get_state_display}}</div>
             </div>
+            <a href="{% url 'job_detail_view' job.id%}">
+            <div class="ui mini button">Status</div>
+            </a>
+
 
         </div>
 

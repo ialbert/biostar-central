@@ -42,7 +42,7 @@ Sample name should match the sample name in the dataset.
     }
 
 reference : {
-    value: tmp/refs/centrifuge_fish_idx/fish_genomes17
+    path: "tmp/refs/centrifuge_fish_idx/fish_genomes17"
     visible: true
     choices : [ [ "tmp/refs/centrifuge_fish_idx/fish_genomes17", "fish_genomes"],
                  ["tmp/refs/centrifuge_nt/nt", "nt"]

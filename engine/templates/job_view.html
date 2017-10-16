@@ -2,15 +2,12 @@
 {% load engine_tags %}
 
 {% block title %}
-    {{result.title}}
+    {{job.title}}
 {% endblock %}
 
 
 {% block body %}
 
-{% for a,b,c in files %}
-
-<p>{{a}}, {{b}}, {{c}}</p>
-{% endfor %}
+{{job.log}}
 
 {% endblock %}

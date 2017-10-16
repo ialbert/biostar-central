@@ -11,6 +11,7 @@ from . import settings
 from . import util
 from django.urls import reverse
 from .const import *
+from django.utils.text import slugify
 
 def join(*args):
     return os.path.abspath(os.path.join(*args))
@@ -44,11 +45,13 @@ class Base(models.Model):
 class Project(Base):
 
     uid = models.CharField(max_length=32)
+    ACTIVE, DELETED = 1, 2
+    state = models.IntegerField(default=ACTIVE)
 
     def save(self, *args, **kwargs):
         self.uid = self.uid or util.get_uuid(8)
         if not os.path.isdir(self.get_path()):
-            os.makedirs(self.get_path(), exist_ok=True)
+            os.mkdir(self.get_path())
 
         super(Project, self).save(*args, **kwargs)
 
@@ -56,9 +59,13 @@ class Project(Base):
         return reverse("project_view", kwargs=dict(id=self.id))
 
     def get_path(self):
-        return join(settings.DATA_ROOT, self.uid)
+        return join(settings.MEDIA_ROOT, f"PROJ{self.uid}")
+
 
 def directory_path(instance, filename):
+
+    uid = util.get_uuid(8)
+    filename = f"DATA{uid}{slugify(filename)}"
 
     return f'{instance.project.get_path()}/{filename}'
 
@@ -66,12 +73,18 @@ def directory_path(instance, filename):
 def get_datatype(file):
     return Data.FILE
 
+
 class Data(Base):
 
     FILE, COLLECTION = 1, 2
     TYPE_CHOICES =[(FILE, "File"),(COLLECTION ,"Collection")]
+
+    ACTIVE, DELETED = 1, 2
+
     type = models.IntegerField(default=FILE, choices=TYPE_CHOICES)
     data_type = models.IntegerField(default=GENERIC_TYPE)
+    state = models.IntegerField(default=ACTIVE)
+
     project = models.ForeignKey(Project)
 
     size = models.CharField(null=True, max_length=256)
@@ -110,9 +123,12 @@ def make_analysis_from_spec(path, user, project):
 
 class Analysis(Base):
 
+    ACTIVE, DELETED = 1, 2
+    state = models.IntegerField(default=ACTIVE)
     json_data = models.TextField(default="{}")
     template = models.TextField(default="makefile")
     project = models.ForeignKey(Project)
+
 
     def save(self, *args, **kwargs):
         super(Analysis, self).save(*args, **kwargs)
@@ -134,10 +150,14 @@ def make_job(owner, analysis, project, json_data=None, title=None, state=None):
 
 class Job(Base):
 
+    ACTIVE, DELETED = 1, 2
+    # Might need to rename later on.
+    job_state = models.IntegerField(default=ACTIVE)
+
     # file path to media
     QUEUED, RUNNING, FINISHED, ERROR = 1, 2, 3, 4
     STATE_CHOICES = [(QUEUED, "Queued"), (RUNNING, "Running"),
-               (FINISHED, "Finished"), (ERROR, "Stopped")]
+               (FINISHED, "Finished"), (ERROR, "Error")]
 
     analysis = models.ForeignKey(Analysis)
     project = models.ForeignKey(Project)
@@ -147,8 +167,8 @@ class Job(Base):
     template = models.TextField(default="makefile")
     log = models.TextField(default="log")
 
-
     state = models.IntegerField(default=1, choices=STATE_CHOICES)
+
     path = models.FilePathField(default="")
 
     def save(self, *args, **kwargs):
@@ -159,7 +179,7 @@ class Job(Base):
         self.title = self.title or self.analysis.title
         # write an index.html to the file
         if not os.path.isdir(self.path):
-            path = os.path.abspath(os.path.join(settings.MEDIA_ROOT, self.uid))
+            path = os.path.abspath(os.path.join(settings.MEDIA_ROOT, f"JOB{self.uid}"))
             os.mkdir(path)
             self.path = path
 

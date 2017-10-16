@@ -145,4 +145,4 @@ STATICFILES_FINDERS = (
 )
 
 # Location where project data is saved.
-DATA_ROOT = join(MEDIA_ROOT , "project")
+#DATA_ROOT = join(MEDIA_ROOT , "project")

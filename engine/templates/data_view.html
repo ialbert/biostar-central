@@ -23,7 +23,7 @@
 
         <div class="textbody">File: {{ data.file }}</div>
         {% if data.size %}
-        <div class="textbody">Size: {{ data.size }} bytes</div>
+        <div class="textbody">Size: {{ data.size|convert_bytes }} megabytes</div>
         {% else %}
         <div class="textbody">Size: 0 bytes</div>
         {% endif %}
