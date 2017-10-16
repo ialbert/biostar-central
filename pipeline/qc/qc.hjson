@@ -71,7 +71,7 @@ MultiQC quality reports of each step are also produced.
 
 **Input:**
 
-1. Paired end sequence data folder.
+1. Paired end sequence data.
 2. Sample information sheet as a tab delimited text file.
 
 # Results
