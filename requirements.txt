@@ -9,3 +9,4 @@ bleach
 django-mailer
 mistune
 django-pagedown
+uwsgi

@@ -14,6 +14,8 @@ from django.core.files import File
 import mimetypes
 
 from engine.const import *
+from . import tasks
+
 import mistune
 
 
@@ -336,7 +338,9 @@ def analysis_run(request, id):
                            json_data=json_data, title=title)
 
             job.save()
-
+            logger.info(tasks.HAS_UWSGI)
+            if tasks.HAS_UWSGI:
+                tasks.execute.spool(jobid=bytes(job.id))
             return redirect(reverse("job_list", kwargs=dict(id=project.id)))
 
     else:

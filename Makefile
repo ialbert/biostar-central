@@ -4,6 +4,10 @@ SERVER=metabarcode.com
 serve: init
 	python manage.py runserver
 
+uwsgi: init
+	uwsgi  --ini live/devel_uwsgi.ini
+
+
 delete:
 	rm -f export/engine.db
 	rm -rf media/*
