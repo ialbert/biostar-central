@@ -339,8 +339,12 @@ def analysis_run(request, id):
 
             job.save()
             logger.info(tasks.HAS_UWSGI)
+
             if tasks.HAS_UWSGI:
-                tasks.execute.spool(jobid=bytes(job.id))
+                print(job.id, "SSSSS")
+                jobid = (job.id).to_bytes(5, byteorder='big')
+                tasks.execute.spool(jobid=jobid)
+
             return redirect(reverse("job_list", kwargs=dict(id=project.id)))
 
     else:

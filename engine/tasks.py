@@ -18,9 +18,13 @@ try:
 
     @spool
     def execute(args):
-        print (args)
+        #return
+
+        job_id = int.from_bytes(args["jobid"].encode(), byteorder="big")
+
+
         #job = args['job']
-        #call_command('job', id=job.id)
+        call_command('job', id=job_id)
 
 except ImportError as exc:
 

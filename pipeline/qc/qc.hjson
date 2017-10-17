@@ -55,6 +55,7 @@ threads : {
 execute : {
     filename : Makefile
     command : make all
+    view : results/index.html
 }
 
 settings : {
