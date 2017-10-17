@@ -9,14 +9,12 @@
 {% block body %}
 
 
-
 <div class="ui vertical segment">
 
     <div class="textbody {{job.get_state_display}}">{{job.get_state_display}}</div>
     <a href="{% url 'job_view' job.id %}">View Results</a>
     <div class="textbody">Start Date: {{job.date.date}}</div>
     <div class="textbody">Job Log: {{ job.log }}</div>
-
 
 </div>
 
