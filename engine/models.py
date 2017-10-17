@@ -12,8 +12,8 @@ from . import settings
 from . import util
 from django.urls import reverse
 from .const import *
-from django.utils.text import slugify
 import mimetypes
+
 
 def join(*args):
     return os.path.abspath(os.path.join(*args))
@@ -23,45 +23,8 @@ def make_html(text):
     return mistune.markdown(text)
 
 
-class Base(models.Model):
-
-    title = models.CharField(max_length=256)
-    owner = models.ForeignKey(User)
-    text = models.TextField(default='text')
-    html = models.TextField(default='html')
-    date = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return self.title
-
-    def save(self, *args, **kwargs):
-        now = timezone.now()
-        self.date = self.date or now
-        self.html = make_html(self.text)
-        super(Base, self).save(*args, **kwargs)
-
-    class Meta:
-        abstract = True
-
-
-class Project(Base):
-
-    uid = models.CharField(max_length=32)
-    ACTIVE, DELETED = 1, 2
-    state = models.IntegerField(default=ACTIVE)
-
-    def save(self, *args, **kwargs):
-        self.uid = self.uid or util.get_uuid(8)
-        if not os.path.isdir(self.get_path()):
-            os.mkdir(self.get_path())
-
-        super(Project, self).save(*args, **kwargs)
-
-    def url(self):
-        return reverse("project_view", kwargs=dict(id=self.id))
-
-    def get_path(self):
-        return join(settings.MEDIA_ROOT, f"proj-{self.uid}")
+def get_datatype(file):
+    return Data.FILE
 
 
 def directory_path(instance, filename):
@@ -75,11 +38,76 @@ def directory_path(instance, filename):
     return f'{instance.project.get_path()}/{filename}'
 
 
-def get_datatype(file):
-    return Data.FILE
+def make_analysis_from_spec(path, user, project):
+
+    json_obj = util.safe_load(path)
+    title = json_obj["analysis_spec"]["title"]
+    text = json_obj["analysis_spec"]["text"]
+    template_path = json_obj["template"]["path"]
+
+    template = get_template(template_path).template.source
+
+    analysis = Analysis(json_data=json.dumps(json_obj), owner=user, title=title, text=text,
+                        template=template, project=project)
+    analysis.save()
+
+    return analysis
 
 
-class Data(Base):
+def make_job(owner, analysis, project, json_data=None, title=None, state=None):
+
+    title = title or analysis.title
+    state = state or Job.QUEUED
+    filled_json = json_data or analysis.json_data
+
+    job = Job(title=title, state=state, json_data=filled_json,
+              project=project, analysis=analysis, owner=owner,
+              template=analysis.template)
+    job.save()
+
+    return job
+
+class Project(models.Model):
+
+    title = models.CharField(max_length=256)
+    owner = models.ForeignKey(User)
+    text = models.TextField(default='text')
+    html = models.TextField(default='html')
+    date = models.DateTimeField(auto_now_add=True)
+
+    uid = models.CharField(max_length=32)
+    ACTIVE, DELETED = 1, 2
+    state = models.IntegerField(default=ACTIVE)
+
+    def save(self, *args, **kwargs):
+
+        now = timezone.now()
+        self.date = self.date or now
+        self.html = make_html(self.text)
+
+        self.uid = self.uid or util.get_uuid(8)
+        if not os.path.isdir(self.get_path()):
+            os.mkdir(self.get_path())
+
+        super(Project, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return self.title
+
+    def url(self):
+        return reverse("project_view", kwargs=dict(id=self.id))
+
+    def get_path(self):
+        return join(settings.MEDIA_ROOT, f"proj-{self.uid}")
+
+
+class Data(models.Model):
+
+    title = models.CharField(max_length=256)
+    owner = models.ForeignKey(User)
+    text = models.TextField(default='text')
+    html = models.TextField(default='html')
+    date = models.DateTimeField(auto_now_add=True)
 
     FILE, COLLECTION = 1, 2
     TYPE_CHOICES =[(FILE, "File"),(COLLECTION ,"Collection")]
@@ -102,7 +130,11 @@ class Data(Base):
 
     def save(self, *args, **kwargs):
 
+        now = timezone.now()
+        self.date = self.date or now
+        self.html = make_html(self.text)
         super(Data, self).save(*args, **kwargs)
+
 
     def peek(self):
         """Peeks at the data if it is text"""
@@ -115,29 +147,21 @@ class Data(Base):
 
         return "*** Binary file ***"
 
+    def __str__(self):
+        return self.title
+
     def get_path(self):
 
         return self.file if self.type == Data.FILE else self.path
 
 
-def make_analysis_from_spec(path, user, project):
+class Analysis(models.Model):
 
-    json_obj = util.safe_load(path)
-    title = json_obj["analysis_spec"]["title"]
-    text = json_obj["analysis_spec"]["text"]
-    template_path = json_obj["template"]["path"]
-
-    template = get_template(template_path).template.source
-
-    analysis = Analysis(json_data=json.dumps(json_obj), owner=user, title=title, text=text,
-                        template=template, project=project)
-    analysis.save()
-
-    return analysis
-
-
-
-class Analysis(Base):
+    title = models.CharField(max_length=256)
+    owner = models.ForeignKey(User)
+    text = models.TextField(default='text')
+    html = models.TextField(default='html')
+    date = models.DateTimeField(auto_now_add=True)
 
     ACTIVE, DELETED = 1, 2
     state = models.IntegerField(default=ACTIVE)
@@ -145,26 +169,22 @@ class Analysis(Base):
     template = models.TextField(default="makefile")
     project = models.ForeignKey(Project)
 
+    def __str__(self):
+        return self.title
 
     def save(self, *args, **kwargs):
+        now = timezone.now()
+        self.date = self.date or now
+        self.html = make_html(self.text)
         super(Analysis, self).save(*args, **kwargs)
 
 
-def make_job(owner, analysis, project, json_data=None, title=None, state=None):
-
-    title = title or analysis.title
-    state = state or Job.QUEUED
-    filled_json = json_data or analysis.json_data
-
-    job = Job(title=title, state=state, json_data=filled_json,
-              project=project, analysis=analysis, owner=owner,
-              template=analysis.template)
-    job.save()
-
-    return job
-
-
-class Job(Base):
+class Job(models.Model):
+    title = models.CharField(max_length=256)
+    owner = models.ForeignKey(User)
+    text = models.TextField(default='text')
+    html = models.TextField(default='html')
+    date = models.DateTimeField(auto_now_add=True)
 
     ACTIVE, DELETED = 1, 2
     # Might need to rename later on.
@@ -190,7 +210,13 @@ class Job(Base):
     def is_running(self):
         return self.state == Job.RUNNING
 
+    def __str__(self):
+        return self.title
+
     def save(self, *args, **kwargs):
+        now = timezone.now()
+        self.date = self.date or now
+        self.html = make_html(self.text)
 
         self.uid = self.uid or util.get_uuid(8)
         self.template = self.analysis.template
@@ -208,6 +234,7 @@ class Job(Base):
         return reverse("job_view", kwargs=dict(id=self.id))
 
 
+
 class Profile(models.Model):
 
     user = models.ForeignKey(User)
@@ -219,4 +246,4 @@ def create_profile(sender, instance, created, **kwargs):
         Profile.objects.create(user=instance)
 
 
-#post_save.connect(create_profile, sender=User)
+post_save.connect(create_profile, sender=User)
