@@ -24,12 +24,13 @@
                                     <label class="checkbox" for="{{ field.id_for_label }}">
                                         {{ field }} {{ field.label_tag }}
                                     </label>
-                                    {{ form.field.errors }}
+
                                 </div>
                             {% else %}
                                 <div class="field segment">
                                     {{ field.label_tag }}
                                     {{ field }}
+
                                 </div>
                             {% endif %}
 

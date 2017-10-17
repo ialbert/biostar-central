@@ -6,35 +6,41 @@
 {% endblock %}
 
 {% block title %}
-    Results for: {{project.title}}
+    Results for: {{ project.title }}
 {% endblock %}
 
 {% block body %}
 
-{% for job in jobs %}
+    {% for job in jobs %}
 
-    <div class="ui vertical segment">
+        <div class="ui raised {% job_color job %} segment ">
 
-        <div class="title">
+
+            <div class="ui {% job_color job %} horizontal  label">{{ job.get_state_display }}</div>
 
             <a href="{% url 'job_view' job.id %}">
                 <i class="area chart icon"></i>{{ job.title }}
             </a>
-            <div class="ui right floated segment">
-                <div class="ui {{job.get_state_display}}">{{job.get_state_display}}</div>
+
+            {% if job.is_running %}
+                <div class="ui segment">
+                    <div class="ui active loader"></div>
+                    <p>&nbsp;</p>
+                </div>
+
+
+            {% endif %}
+
+
+
+            <div>{{ job.date.date }} &bull; {{ job.analysis.title }}
+                &bull; <a href="{% url 'job_detail_view' job.id %}"> job details
+                </a>
             </div>
-            <a href="{% url 'job_detail_view' job.id%}">
-            <div class="ui mini button">Status</div>
-            </a>
 
 
         </div>
 
-        <div class="date">{{job.analysis.title}}</div>
-        <div class="date">{{job.date.date}}</div>
-
-    </div>
-
-{% endfor %}
+    {% endfor %}
 
 {% endblock %}

@@ -68,7 +68,7 @@ def init_proj(sender, **kwargs):
         json_data = json.dumps(filled_json)
 
         # Create four jobs for each project.
-        for state in (Job.RUNNING, Job.ERROR, Job.QUEUED, Job.FINISHED):
+        for state in [Job.ERROR, Job.QUEUED]:
             job = make_job(owner=owner, analysis=fastq_analysis, project=project, state=state, json_data=json_data)
 
     return

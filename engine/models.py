@@ -1,5 +1,6 @@
 import hjson as json
 import os
+from itertools import islice
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
@@ -12,6 +13,7 @@ from . import util
 from django.urls import reverse
 from .const import *
 from django.utils.text import slugify
+import mimetypes
 
 def join(*args):
     return os.path.abspath(os.path.join(*args))
@@ -59,13 +61,16 @@ class Project(Base):
         return reverse("project_view", kwargs=dict(id=self.id))
 
     def get_path(self):
-        return join(settings.MEDIA_ROOT, f"PROJ{self.uid}")
+        return join(settings.MEDIA_ROOT, f"proj-{self.uid}")
 
 
 def directory_path(instance, filename):
 
+    pieces = os.path.basename(filename).split(".")
+    # May have multiple extensions
+    exts = ".".join(pieces[1:]) or "data"
     uid = util.get_uuid(8)
-    filename = f"DATA{uid}{slugify(filename)}"
+    filename = f"data-{uid}.{exts}"
 
     return f'{instance.project.get_path()}/{filename}'
 
@@ -98,6 +103,17 @@ class Data(Base):
     def save(self, *args, **kwargs):
 
         super(Data, self).save(*args, **kwargs)
+
+    def peek(self):
+        """Peeks at the data if it is text"""
+        mimetype, mimecode = mimetypes.guess_type(self.file.path)
+        if mimetype == 'text/plain':
+            stream = open(self.file.path)
+            lines = [ line for line in islice(stream, 10) ]
+            content = "\n".join(lines)
+            return content
+
+        return "*** Binary file ***"
 
     def get_path(self):
 
@@ -171,6 +187,9 @@ class Job(Base):
 
     path = models.FilePathField(default="")
 
+    def is_running(self):
+        return self.state == Job.RUNNING
+
     def save(self, *args, **kwargs):
 
         self.uid = self.uid or util.get_uuid(8)
@@ -179,7 +198,7 @@ class Job(Base):
         self.title = self.title or self.analysis.title
         # write an index.html to the file
         if not os.path.isdir(self.path):
-            path = os.path.abspath(os.path.join(settings.MEDIA_ROOT, f"JOB{self.uid}"))
+            path = os.path.abspath(os.path.join(settings.MEDIA_ROOT, f"job-{self.uid}"))
             os.mkdir(path)
             self.path = path
 
