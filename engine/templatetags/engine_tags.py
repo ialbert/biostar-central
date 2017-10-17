@@ -49,6 +49,6 @@ def convert_bytes_to(bytes, to="mega"):
     a = {'kilo': 1, 'mega': 2, 'giga': 3, 'tera': 4, 'penta': 5}
     r = float(bytes)
     for i in range(a[to]):
-        r = r / 1024
+        r = r / 1000
 
     return f"{r:.2f}"
