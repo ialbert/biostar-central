@@ -94,6 +94,10 @@ def init_users(sender, **kwargs):
     test_buddy.set_password("testbuddy@lvh.me")
     test_buddy.save()
 
+    # create multiple 3 users and put them in groups.
+    # assign a diffrent project to each group and allow one user to add others to groups.
+
+
     logger.info(f"creating user: {test_buddy.email}")
 
 

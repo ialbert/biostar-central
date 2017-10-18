@@ -342,8 +342,9 @@ def analysis_run(request, id):
 
             if tasks.HAS_UWSGI:
 
-                jobid = (job.id).to_bytes(5, byteorder='big')
-                tasks.execute.spool(jobid=jobid)
+                #jobid = (job.id).to_bytes(5, byteorder='big')
+
+                tasks.execute(job_id=job.id)
 
             return redirect(reverse("job_list", kwargs=dict(id=project.id)))
 
