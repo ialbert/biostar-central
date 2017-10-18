@@ -16,25 +16,21 @@ try:
 
     HAS_UWSGI = True
 
-    # run every 3 seconds
     @timer(3)
     def execute(job_id):
 
-        from .management.commands import job
-        from .models import Job
-        #from django.core import management
-
+        #from .management.commands import job
+        from django.core import management
 
         #job_id = int.from_bytes(args["jobid"].encode(), byteorder="big")
 
         #job = args['job']
         #print(management.get_commands())
         #print(job_id)
-        current_job = Job.objects.filter(id=job_id).first()
+                #job.run(queued_job)
+        management.call_command('job', id=job_id)
+            #job.run(current_job)
 
-        if current_job:
-            job.run(current_job)
-        #management.call_command('job', id=job_id)
 
 except ImportError as exc:
 

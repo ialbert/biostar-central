@@ -180,6 +180,7 @@ class Analysis(models.Model):
 
 
 class Job(models.Model):
+
     title = models.CharField(max_length=256)
     owner = models.ForeignKey(User)
     text = models.TextField(default='text')
