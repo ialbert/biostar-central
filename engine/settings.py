@@ -47,9 +47,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'compressor',
-    'engine.apps.EngineConfig',
     'pagedown',
-    'pipeline',
+    'engine.apps.EngineConfig'
 ]
 
 MIDDLEWARE = [

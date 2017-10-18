@@ -332,16 +332,16 @@ def analysis_run(request, id):
         if form.is_valid():
 
             filled_json = form.process()
-            json_data = json.dumps(filled_json)
+            json_text = json.dumps(filled_json)
             title = form.cleaned_data.get("title")
             job = make_job(owner=owner, analysis=analysis, project=project,
-                           json_data=json_data, title=title)
+                           json_text=json_text, title=title)
 
             job.save()
             logger.info(tasks.HAS_UWSGI)
 
             if tasks.HAS_UWSGI:
-                print(job.id, "SSSSS")
+
                 jobid = (job.id).to_bytes(5, byteorder='big')
                 tasks.execute.spool(jobid=jobid)
 
@@ -399,7 +399,7 @@ def analysis_edit(request, id):
     else:
 
         form = EditAnalysisForm(analysis=analysis)
-        spec = json.loads(analysis.json_data)
+        spec = json.loads(analysis.json_text)
         context = preview_specs(spec, analysis)
 
     context.update(dict(project=project, analysis=analysis, steps=steps, form=form))

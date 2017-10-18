@@ -47,20 +47,20 @@ def make_analysis_from_spec(path, user, project):
 
     template = get_template(template_path).template.source
 
-    analysis = Analysis(json_data=json.dumps(json_obj), owner=user, title=title, text=text,
+    analysis = Analysis(json_text=json.dumps(json_obj), owner=user, title=title, text=text,
                         template=template, project=project)
     analysis.save()
 
     return analysis
 
 
-def make_job(owner, analysis, project, json_data=None, title=None, state=None):
+def make_job(owner, analysis, project, json_text=None, title=None, state=None):
 
     title = title or analysis.title
     state = state or Job.QUEUED
-    filled_json = json_data or analysis.json_data
+    filled_json = json_text or analysis.json_text
 
-    job = Job(title=title, state=state, json_data=filled_json,
+    job = Job(title=title, state=state, json_text=filled_json,
               project=project, analysis=analysis, owner=owner,
               template=analysis.template)
     job.save()
@@ -165,7 +165,7 @@ class Analysis(models.Model):
 
     ACTIVE, DELETED = 1, 2
     state = models.IntegerField(default=ACTIVE)
-    json_data = models.TextField(default="{}")
+    json_text = models.TextField(default="{}")
     template = models.TextField(default="makefile")
     project = models.ForeignKey(Project)
 
@@ -197,7 +197,7 @@ class Job(models.Model):
 
     analysis = models.ForeignKey(Analysis)
     project = models.ForeignKey(Project)
-    json_data = models.TextField(default="commands")
+    json_text = models.TextField(default="commands")
 
     uid = models.CharField(max_length=32)
     template = models.TextField(default="makefile")

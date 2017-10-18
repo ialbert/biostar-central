@@ -27,7 +27,7 @@ def run(job, options={}):
 
     try:
         # Find the json and the template.
-        json_data = hjson.loads(job.json_data)
+        json_data = hjson.loads(job.json_text)
         template = job.template
 
         # This is the work directory.
