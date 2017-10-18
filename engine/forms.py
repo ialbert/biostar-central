@@ -104,7 +104,6 @@ def make_field(obj, project):
 
     if visible:
         if origin == PROJECT_ORIGIN:
-
             data_type = obj.get("data_type")
             field = factory.data_generator(obj, project=project, data_type=data_type)
         else:
@@ -118,7 +117,7 @@ class RunAnalysis(forms.Form):
     def __init__(self, analysis, *args, **kwargs):
 
         self.analysis = analysis
-        self.json_data = json.loads(self.analysis.json_data)
+        self.json_data = json.loads(self.analysis.json_text)
 
         super().__init__(*args, **kwargs)
 
@@ -176,7 +175,7 @@ class EditAnalysisForm(forms.Form):
 
         super().__init__(*args, **kwargs)
 
-        json_data = json.loads(self.analysis.json_data)
+        json_data = json.loads(self.analysis.json_text)
         initial = json.dumps(json_data, indent=4)
 
         self.fields["text"] = forms.CharField(initial=initial)
@@ -206,7 +205,7 @@ class EditAnalysisForm(forms.Form):
             self.analysis.title = spec["settings"].get("title", self.analysis.title)
             self.analysis.text = spec["settings"].get("text", self.analysis.text)
 
-        self.analysis.json_data = self.cleaned_data["text"]
+        self.analysis.json_text = self.cleaned_data["text"]
         self.analysis.save()
 
         return self.analysis
