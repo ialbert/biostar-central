@@ -20,7 +20,7 @@ def run(job, options={}):
     show_script = options.get('show_script')
     use_template = options.get('use_template')
     use_json = options.get('use_json')
-    verbosity = options.get('verbosity')
+    verbosity = options.get('verbosity', 0)
 
     stdout_log = []
     stderr_log = []
