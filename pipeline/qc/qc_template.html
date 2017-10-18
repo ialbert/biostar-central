@@ -17,9 +17,6 @@ QTRIM_DIR = $(ANALYSIS_DIR)/trim/trimq
 UPDATED_SAMPLE_INFO = updated_sampleinfo.txt
 
 
-
-all: trim_barcode trim
-
 all: trim_quality
 	@echo "executes all commands"
 
@@ -70,7 +67,6 @@ multiqc: fastqc
 # Trim primer and barcode sequence included in the samplesheet.
 #
 
-{ %}
 trim_primer: fastqc
 	#
 	mkdir -p $(PTRIM_DIR)/logs

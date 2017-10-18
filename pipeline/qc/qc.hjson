@@ -63,12 +63,11 @@ execute : {
 
 settings : {
     title: Quality trimming and primer removal of sequencing data
-    images : ["/static/images/trim.png"]
+    images : ["/static/pipelines/images/trim.png"]
     index : results/index.html
     summary: '''
-
 This analysis takes a paired end dataset and produces a primer/barcode removed, quality trimmed dataset.
-MultiQC quality reports of each step are also produced.
+MultiQC quality reports  before and after trimming are also produced.
 
     '''
 
@@ -78,13 +77,13 @@ MultiQC quality reports of each step are also produced.
 
 This analysis requires samplesheet as a tab delimited text file. Order of the fields should be
 sample name, sample group, barcode, forward primer sequence, reverse primer sequence, target gene.
-Sample name should match the sample name in input data.
+Sample names should match the sample names in input data.
 
 Input data is a data collection in tar.gz format.
 
 # Parameters
 
-1. Paired end sequence data (collection)
+1. Sequence data collection in tar.gz format
 2. Sample information sheet as a tab delimited text file.
 
 # Results
