@@ -16,11 +16,13 @@ execute : {
 
 settings : {
     title: Fastqc report of input data file.
+    images : ["/static/pipelines/images/fastqc.png"]
+    index : results/index.html
     summary: Produce fastqc report of the input file.
     help:'''
-# Purpose
+# Detailed description
 
-Produce fastqc report of the input file.
+This analysis requires a single data file in fastq or fastq.gz format.
 
 # Parameters
 

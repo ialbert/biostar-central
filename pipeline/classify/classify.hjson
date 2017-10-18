@@ -28,11 +28,6 @@ sequence_type : {
 
 sampleinfo : {
     path : tmp/sampleinfo.txt
-    help : '''
-Enter a tab delimited text file. Order of the fields should be
-sample name, sample group, barcode, forward primer sequence, reverse primer sequence, target gene.
-Sample name should match the sample name in the dataset.
-    '''
     label : Specify the sample file.
     css: red
     visible: true
@@ -62,11 +57,16 @@ execute : {
 
 settings : {
     title: Data classification.
-    summary: Produce taxonomic classification of input data and quantify them.
+    images : ["/static/pipelines/images/classify.png","/static/pipelines/images/classify_table.png"]
+    index : results/index.html
+    summary: '''
+Taxonomic classification of input data. Classification table with species abundance is produced.
+    '''
     help:'''
-# Purpose
 
-Assign taxonomic labels to input reads and quantify them.
+# Detailed description.
+
+This analysis assigns taxonomic labels to input reads and quantify them.
 
 # Parameters
 

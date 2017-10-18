@@ -2,11 +2,6 @@
 
 sampleinfo : {
     path : tmp/sampleinfo.txt
-    help : '''
-Enter a tab delimited text file. Order of the fields should be
-sample name, sample group, barcode, forward primer sequence, reverse primer sequence, target gene.
-Sample name should match the sample name in the dataset.
-    '''
     label : Specify the sample file
     css: red
     visible: true
@@ -30,10 +25,18 @@ library_type : {
     display_type: CHECKBOX
 }
 
-trim_primer: {
-    label : Trims barcode and primer sequences.
+trim_barcode: {
+    label : Trim barcode sequences.
     value : true
-    help : Barcode and primer sequences should be in the sample sheet.
+    help : Barcode sequences should be in the sample sheet.
+    visible: true
+    display_type: CHECKBOX
+    }
+
+trim_primer: {
+    label : Trim primer sequences.
+    value : true
+    help : Primer sequences should be in the sample sheet.
     visible: true
     display_type: CHECKBOX
     }
@@ -59,20 +62,28 @@ execute : {
 }
 
 settings : {
-    title: Quality control of sequencing data
-    label: Primer and barcode removal followed by quality trimming of input data.
-    help:
-                '''
-# Purpose
-
+    title: Quality trimming and primer removal of sequencing data
+    images : ["/static/pipelines/images/trim.png"]
+    index : results/index.html
+    summary: '''
 This analysis takes a paired end dataset and produces a primer/barcode removed, quality trimmed dataset.
-MultiQC quality reports of each step are also produced.
+MultiQC quality reports  before and after trimming are also produced.
+
+    '''
+
+    help: '''
+    
+# Detailed description
+
+This analysis requires samplesheet as a tab delimited text file. Order of the fields should be
+sample name, sample group, barcode, forward primer sequence, reverse primer sequence, target gene.
+Sample names should match the sample names in input data.
+
+Input data is a data collection in tar.gz format.
 
 # Parameters
 
-**Input:**
-
-1. Paired end sequence data.
+1. Sequence data collection in tar.gz format
 2. Sample information sheet as a tab delimited text file.
 
 # Results
