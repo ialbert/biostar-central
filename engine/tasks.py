@@ -2,7 +2,7 @@
 This is active only when deployed via UWSGI
 '''
 from django.conf import settings
-from django.core.management import call_command
+
 
 
 import logging, time
@@ -18,13 +18,15 @@ try:
 
     @spool
     def execute(args):
+        from django.core import management
         #return
 
         job_id = int.from_bytes(args["jobid"].encode(), byteorder="big")
 
-
         #job = args['job']
-        call_command('job', id=job_id)
+        #print(management.get_commands())
+        print(job_id)
+        #management.call_command('job', id=job_id)
 
 except ImportError as exc:
 

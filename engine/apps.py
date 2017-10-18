@@ -63,13 +63,13 @@ def init_proj(sender, **kwargs):
         # Get a FASTQ data
         fastq_data = Data.objects.filter(data_type=FASTQ_TYPE).first()
 
-        filled_json = json.loads(fastq_analysis.json_data)
+        filled_json = json.loads(fastq_analysis.json_text)
         filled_json['data']['path'] = fastq_data.file.path
-        json_data = json.dumps(filled_json)
+        json_text = json.dumps(filled_json)
 
         # Create four jobs for each project.
         for state in [Job.ERROR, Job.QUEUED]:
-            job = make_job(owner=owner, analysis=fastq_analysis, project=project, state=state, json_data=json_data)
+            job = make_job(owner=owner, analysis=fastq_analysis, project=project, state=state, json_text=json_text)
 
     return
 

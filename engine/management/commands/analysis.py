@@ -66,8 +66,9 @@ class Command(BaseCommand):
 
             title = json_dict.get("settings", {}).get("title", "No title set")
             text = json_dict.get("settings", {}).get("help", "No help set")
+            json_text = hjson.dumps(json_dict)
             analysis = Analysis(owner=admin, project=project, title=title, text=text,
-                        json_data=json_data, template=template)
+                        json_text=json_text, template=template)
             analysis.save()
             logger.info(f"added analysis {analysis.title} in project {project.title}")
 
