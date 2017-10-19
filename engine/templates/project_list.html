@@ -21,7 +21,6 @@
 
 {% block body %}
 
-
     {% for project in projects %}
 
         <div class="ui vertical segment">
@@ -31,6 +30,7 @@
                 </a>
             </div>
             <div class="info">Created: {{ project.date.date }}</div>
+            <div>Creator: {{ project.owner.email }}</div>
             <div>Group: {{ project.group }}</div>
         </div>
 

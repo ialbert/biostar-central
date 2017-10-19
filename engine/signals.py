@@ -30,8 +30,9 @@ def init_proj(sender, **kwargs):
     owner = User.objects.all().first()
 
     # Give Lamar group but project inherits the group from owner so
-    # this is overridden
+    # this is overridden anyways
     group = owner.groups.first()
+    # Change the owner on the last iteration
 
     # Needs to run only if there are no projects.
     if Project.objects.filter().all():
@@ -40,8 +41,10 @@ def init_proj(sender, **kwargs):
     # Make the test projects.
     from biostar.tools.testdata import TEST_PROJECTS, TEST_DATA, TEST_ANALYSES
 
+
     for title, description in TEST_PROJECTS:
 
+        # A project gets a random owner
         project = Project(title=title, owner=owner, text=description,
                           group=group)
         project.save()
