@@ -3,8 +3,8 @@
         <i class="home icon"></i> Home
     </a>
     {% if user.is_authenticated %}
-        <a class="item"><i class="user icon"></i> {{ user.email }}</a>
-
+        <a class="item" href="{% url 'profile' user.id %}">
+            <i class="user icon"></i> {{ user.email }}</a>
 
         {% if create_project %}
             <a class="item" href="{% url 'project_create' %}">

@@ -25,7 +25,7 @@ def init_proj(sender, **kwargs):
     Populate initial projects with N number data
     Creates one analysis model to allow for jobs to be run
     """
-    from engine.models import User, Project, Data, Analysis, Job, Group
+    from engine.models import User, Project, Data, Analysis, Job
 
     owner = User.objects.all().first()
 

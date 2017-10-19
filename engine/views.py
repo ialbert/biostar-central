@@ -62,7 +62,7 @@ def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=Non
         if icon == HOME_ICON:
             step = (reverse("index"), HOME_ICON, "Home", is_active )
         elif icon == PROJECT_LIST_ICON:
-            step = (reverse("project_list"), PROJECT_LIST_ICON, "Project List", is_active)
+            step = (reverse("project_list",kwargs={'id': project.owner.id}), PROJECT_LIST_ICON, "Project List", is_active)
         elif icon == PROJECT_ICON:
             step = (reverse("project_view", kwargs={'id': project.id}), PROJECT_ICON, f"{project.title}", is_active )
         elif icon == DATA_LIST_ICON:
@@ -95,13 +95,14 @@ def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=Non
     return path
 
 
-#@login_required
-def project_list(request):
+def public_project_list(request):
 
-    projects = Project.objects.order_by("-id")
+    group = Group.objects.filter(name="Public")
+
+    projects = Project.objects.order_by("-id").filter(group=group)
 
     if not projects.all():
-        messages.error(request, "No projects found.")
+        messages.error(request, "No public projects found.")
         return redirect(reverse("index"))
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON])
@@ -109,6 +110,25 @@ def project_list(request):
     context = dict(projects=projects, steps=steps)
 
     return render(request, "project_list.html", context)
+
+
+
+@login_required
+def project_list(request, id):
+
+    groups = User.objects.filter(id=id).first().groups.all()
+
+    projects = Project.objects.order_by("-id").filter(group__in=groups)
+
+    if not projects.all():
+        messages.error(request, "No projects associated with your groups.")
+        return redirect(reverse("index"))
+
+    print(projects)
+
+    1/0
+    #user = User.objects.filter(id=id)
+
 
 
 #@login_required
@@ -124,6 +144,7 @@ def project_view(request, id):
     context = dict(project=project, steps=steps)
 
     return render(request, "project_view.html", context)
+
 
 
 @login_required
