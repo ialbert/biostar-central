@@ -97,27 +97,16 @@ def init_users(sender, **kwargs):
                 group.user_set.add(user)
                 group.save()
                 logger.info(f"\tadding user to {group} group.")
-    # Create a regular test user.
 
     for email, groups in settings.REGULAR_TEST_USERS:
 
-    1/0
-    test_buddy, new = User.objects.get_or_create(email="testbuddy@lvh.me")
-    test_buddy.set_password("testbuddy@lvh.me")
+        test_user, new = User.objects.get_or_create(email=email)
+        test_user.set_password(email)
+        test_user.groups.add(groups)
 
-    logger.info(f"creating user: {test_buddy.email}")
-    test_buddy.save()
+        logger.info(f"creating user: {test_user.email} in {groups} groups")
+        test_user.save()
 
-    print(test_buddy.groups)
-
-    # make a new user that only in a public group
-    test_dude, new = User.objects.get_or_create(email="5@lvh.me")
-    test_dude.set_password("5@lvh.me")
-    # Set group before saving
-    test_dude.save()
-
-    # ensure all users alteast belong to a public group.
-    public_group = groups.filter(name="Public")
 
 def init_groups(sender, **kwargs):
 

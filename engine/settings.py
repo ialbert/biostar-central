@@ -25,7 +25,11 @@ def join(*args):
 
 ADMINS = [("Admin User", "1@lvh.me")]
 
-REGULAR_TEST_USERS = [("testbuddy@lvh.me",)]
+REGULAR_TEST_USERS = {
+                      # User email  : [group1, group2..]
+                      "testbuddy@lvh.me": ["Public", "Lamar"],
+                      "5@lvh.me":["Public"]
+                      }
 
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
