@@ -1,5 +1,5 @@
-INPUT_DATA = {{data.value}}
-INPUT_SAMPLE_INFO = {{sampleinfo.value}}
+INPUT_DATA = {{data.path}}
+INPUT_SAMPLE_INFO = {{sampleinfo.path}}
 TRIM_QUALITY = {{quality_threshold.value}}
 TRIM_PRIMER = {{ trim_primer.value }}
 THREADS = {{ threads.value}}
