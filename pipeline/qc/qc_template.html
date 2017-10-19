@@ -20,8 +20,26 @@ BARCODES = barcodes.fa
 CONTAMINANTS = contaminants.fa
 
 
-all: trim_quality
-	@echo "executes all commands"
+{%  comment %}
+{%  if trim_quality != None and trim_primer == True and trim_barcode == True  %}
+all: updated_sample_info contaminant_file multiqc trim_barcode_primer trim_quality
+{%  elif trim_quality != None and trim_barcode == True %}
+all: updated_sample_info contaminant_file multiqc trim_barcode trim_quality
+{%  elif trim_quality != None and trim_primer == True %}
+all: updated_sample_info contaminant_file multiqc trim_primer trim_quality
+{%  elif trim_quality != None  %}
+all : updated_sample_info contaminant_file multiqc trim_quality
+{%  elif trim_quality == None and trim_primer == True and trim_barcode == True %}
+all: updated_sample_info contaminant_file multiqc trim_barcode_primer
+{%  elif trim_quality == None  and trim_barcode  == True %}
+all:updated_sample_info contaminant_file multiqc trim_barcode
+{%  elif trim_quality == None and trim_primer == True %}
+all: updated_sample_info contaminant_file multiqc trim_primer
+{%  endif %}
+{%  endcomment %}
+
+#all: trim_quality
+#	@echo "executes all commands"
 
 extract:
 	#
@@ -63,11 +81,14 @@ fastqc: updated_sample_info
 	cat $(UPDATED_SAMPLE_INFO) | parallel --verbose --progress -j $(THREADS) --header : --colsep '\t' fastqc \
 	--nogroup -o $(FASTQC_DIR) $(DATA_DIR)/{file1} $(DATA_DIR)/{file2}
 
-multiqc: fastqc
+$(RESULT_DIR):
+	mkdir -p $(RESULT_DIR)
+
+
+multiqc: fastqc $(RESULT_DIR)
 	#
 	# run multiqc to create an aggregate report
 	#
-	mkdir -p $(RESULT_DIR)
 	multiqc -f -n input_multiqc -o $(FASTQC_DIR) $(FASTQC_DIR)
 	cp $(FASTQC_DIR)/input_multiqc.html $(RESULT_DIR)
 	#
@@ -80,10 +101,10 @@ multiqc: fastqc
 # Trim primer and barcode sequence included in the samplesheet.
 #
 
-trim_barcode: contaminant_file
+trim_barcode: contaminant_file $(RESULT_DIR)
 	#
+	echo "trimming barcodes"
 	mkdir -p $(PTRIM_DIR)/logs
-	mkdir -p $(RESULT_DIR)
 	#
 	# trim left primer
 	mkdir -p $(RESULT_DIR)
@@ -98,10 +119,10 @@ trim_barcode: contaminant_file
 	#
 	cat $(PTRIM_DIR)/logs/*stats.txt > $(RESULT_DIR)/trimp_stats.txt
 
-trim_primer: contaminant_file
+trim_primer: contaminant_file $(RESULT_DIR)
+	echo "trimming primer"
 	#
 	mkdir -p $(PTRIM_DIR)/logs
-	mkdir -p $(RESULT_DIR)
 	#
 	# trim left primer
 	mkdir -p $(RESULT_DIR)
@@ -116,15 +137,12 @@ trim_primer: contaminant_file
 	#
 	cat $(PTRIM_DIR)/logs/*stats.txt > $(RESULT_DIR)/trimp_stats.txt
 
-
-
-trim_barcode_primer: contaminant_file
+trim_barcode_primer: contaminant_file $(RESULT_DIR)
+	echo "trimming barcodes  and primers"
 	#
 	mkdir -p $(PTRIM_DIR)/logs
-	mkdir -p $(RESULT_DIR)
 	#
-	# trim left primer
-	mkdir -p $(RESULT_DIR)
+	# trim primers and barcodes
 	cat $(UPDATED_SAMPLE_INFO) |parallel --verbose --progress -j $(THREADS)  --header : --colsep '\t' bbduk.sh \
 	in1=$(DATA_DIR)/{file1} in2=$(DATA_DIR)/{file2} \
 	out1=$(PTRIM_DIR)/{sample_name}_R1_trimp.fq.gz \
@@ -140,11 +158,20 @@ trim_barcode_primer: contaminant_file
 # =============== Quality trimming ===================
 # Trim reads to user specified threshold value.
 #
+ifeq ($(wildcard $(PTRIM_DIR)),)
+INDIR=$(DATA_DIR)
+R1={file1}
+R2={file2}
+else
+INDIR=$(PTRIM_DIR)
+R1={sample_name}_R1_trim.fq.gz
+R2={sample_name}_R2_trim.fq.gz
+endif
 
-trim_quality:
-	mkdir -p $(QTRIM_DIR)/logs
+trim_quality: trim_quality != None
+	echo $(INDIR),$(R1)
 	cat  $(UPDATED_SAMPLE_INFO) |parallel --verbose --progress -j $(THREADS) --header : --colsep '\t' bbduk.sh \
-	in1=$(PTRIM_DIR)/{sample_name}_R1_trimp.fq.gz in2=$(PTRIM_DIR)/{sample_name}_R2_trimp.fq.gz \
+	in1=$(INDIR)/$(R1) in2=$(INDIR)/$(R2) \
 	qtrim=rl trimq=$(TRIM_QUALITY)  minlength=35 overwrite=true \
 	out1=$(QTRIM_DIR)/{sample_name}_R1_trim.fq.gz \
 	out2=$(QTRIM_DIR)/{sample_name}_R2_trim.fq.gz stats=$(QTRIM_DIR)/logs/{sample_name}_stats.txt

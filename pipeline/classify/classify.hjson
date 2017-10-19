@@ -8,28 +8,9 @@ data : {
     display_type: DROPDOWN
   }
 
-library_type : {
-    value : true
-    label : Data entered is paired end.
-    visible: true
-    display_type: CHECKBOX
-}
-
-sequence_type : {
-    value : fastq
-    label : Select sequence type
-    visible : true
-    display_type : DROPDOWN
-    data_type: SEQUENCE_TYPES
-    choices : [ [ "fasta", "FASTA"],
-                ["fastq", "FASTQ"]
-               ]
-}
-
 sampleinfo : {
     path : tmp/sampleinfo.txt
-    label : Specify the sample file.
-    css: red
+    label : Sample file
     visible: true
     data_type : LAMAR_SAMPLE_SHEET
     display_type: DROPDOWN
@@ -39,8 +20,7 @@ sampleinfo : {
 reference : {
     path: "tmp/refs/centrifuge_fish_idx/fish_genomes17"
     visible: true
-    choices : [ [ "tmp/refs/centrifuge_fish_idx/fish_genomes17", "fish_genomes"],
-                 ["tmp/refs/centrifuge_nt/nt", "nt"]
+    choices : [ [ "tmp/refs/centrifuge_fish_idx/fish_genomes17", "Lamar fishes"],
                ]
     data_type: REFERENCE_TYPE
     display_type: DROPDOWN
@@ -56,32 +36,31 @@ execute : {
 }
 
 settings : {
-    title: Perform a taxonomical classification
+    title: Perform custom taxonomical classification
     images : ["/static/pipelines/images/classify.png","/static/pipelines/images/classify_table.png"]
     index : results/index.html
     summary: '''
 ## Summary
 
-Performs a taxonomic classification of sequences.Produces a classification table with species abundance.
-Classification is performed agains preselected fish species.
+Performs taxonomic classification of sequences. Classification is performed against preselected fish species.
+It produces a classification table with species abundance.
     '''
     help:'''
 
 ## Details
 
-This analysis assigns taxonomic labels and abundances to input reads .
+This analysis assigns taxonomic labels to input reads using a custom database.
+It requires paired end data collection with individual files in fastq format.
 
 ## Parameters
 
-1. Paired end data in fasta or fastq (compressed or uncompressed) format.
-2. Reference to be used for classification.
+1. Paired end sequence data collection.
+2. Custom reference database.
 
 ## Output
 
-This analysis produces 
-
 1. Taxonomic assignments for each read.
-2. Summary reports showing the abundance of each species in the data.
+2. Summary report showing the abundance of each species in the data.
 
 '''
 

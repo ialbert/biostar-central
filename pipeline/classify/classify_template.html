@@ -2,8 +2,6 @@ INPUT_DATA = {{data.value}}
 INPUT_SAMPLE_INFO = {{sampleinfo.value}}
 REFERENCE= {{ reference.path }}
 THREADS ={{ threads.value}}
-SEQ_TYPE ={{ sequence_type.value }}
-
 
 #
 # Internal parameters after this.
@@ -12,13 +10,8 @@ DATA_DIR = data
 RESULT_DIR  = results
 UPDATED_SAMPLE_INFO = updated_sampleinfo.txt
 
-READ_TYPE = "q"
 
-ifeq ($(SEQ_TYPE), "fasta")
-READ_TYPE = "f"
-endif
-
-all:classify_PE
+all:classify
 
 
 extract:
@@ -39,13 +32,13 @@ updated_sample_info: extract
 	python -m pipeline.data.samplesheet $(INPUT_SAMPLE_INFO) $(DATA_DIR) > $(UPDATED_SAMPLE_INFO)
 
 
-classify_PE: updated_sample_info
+classify: updated_sample_info
 	#
 	# classify data
 	#
 	mkdir -p $(RESULT_DIR)
 	cat $(UPDATED_SAMPLE_INFO) |parallel --verbose --progress -j $(THREADS)  --header : --colsep '\t' centrifuge \
-	-x $(REFERENCE) -$(READ_TYPE) -1 $(DATA_DIR)/{file1} -2 $(DATA_DIR)/{file2} --report-file \
+	-x $(REFERENCE) -q -1 $(DATA_DIR)/{file1} -2 $(DATA_DIR)/{file2} --report-file \
 	$(RESULT_DIR)/{sample_name}_report.txt -S $(RESULT_DIR)/{sample_name}_classify.txt
 
 
