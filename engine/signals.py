@@ -25,10 +25,13 @@ def init_proj(sender, **kwargs):
     Populate initial projects with N number data
     Creates one analysis model to allow for jobs to be run
     """
-    from engine.models import User, Project, Data, Analysis, Job
+    from engine.models import User, Project, Data, Analysis, Job, Group
 
     owner = User.objects.all().first()
-    group = owner.groups
+
+    # Give Lamar group but project inherits the group from owner so
+    # this is overridden
+    group = Group.objects.filter(name="Lamar").first()
 
     # Needs to run only if there are no projects.
     if Project.objects.filter().all():
@@ -87,7 +90,7 @@ def init_users(sender, **kwargs):
 
     for name, email in settings.ADMINS:
         if not User.objects.filter(email=email):
-            user = User(first_name=name, email=email, username=util.get_uuid(),
+            user = User(first_name=name, email=email,
                         is_superuser=True, is_staff=True)
             user.set_password(settings.SECRET_KEY)
             user.save()
@@ -98,20 +101,23 @@ def init_users(sender, **kwargs):
 
                 group.user_set.add(user)
                 group.save()
-                logger.info(f"\tadding admin user to {group} group.")
+                logger.info(f"adding {user.email} to {group} group.")
 
     for email, user_groups in settings.REGULAR_TEST_USERS.items():
 
-        test_user, new = User.objects.get_or_create(email=email)
-        test_user.set_password(email)
-        logger.info(f"creating user: {test_user.email}")
+        if not User.objects.filter(email=email):
 
-        for gr in user_groups:
-            user_group = Group.objects.filter(name=gr).first()
-            test_user.groups.add(user_group)
-            logger.info(f"\tadding user to {user_group} group.")
+            test_user = User(email=email, username=util.get_uuid())
+            test_user.set_password(email)
+            logger.info(f"creating user: {test_user.email}")
+            test_user.save()
 
-        test_user.save()
+            for gr in user_groups:
+                user_group = Group.objects.filter(name=gr).first()
+                test_user.groups.add(user_group)
+                user_group.save()
+                logger.info(f"adding {test_user.email} to {user_group} group.")
+
 
 
 def init_groups(sender, **kwargs):

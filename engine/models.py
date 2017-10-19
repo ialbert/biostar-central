@@ -60,8 +60,8 @@ class Project(models.Model):
         self.date = self.date or now
         self.html = make_html(self.text)
 
-        # need to recheck first
-        self.group = self.owner.group
+        # Takes first user group for now
+        self.group = self.owner.groups.first()
 
         self.uid = self.uid or util.get_uuid(8)
         if not os.path.isdir(self.get_path()):
