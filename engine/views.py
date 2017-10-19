@@ -307,10 +307,11 @@ def analysis_view(request, id):
         messages.error(request, "Analysis not found.")
         return redirect(reverse("analysis_list", kwargs={'id':project.id}))
 
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_ICON, ANALYSIS_LIST_ICON, ANALYSIS_ICON],
+    steps = breadcrumb_builder([PROJECT_ICON, ANALYSIS_LIST_ICON, ANALYSIS_ICON],
                                project=project, analysis=analysis)
 
-    context = dict(project=project, analysis=analysis, steps=steps)
+
+    context = dict(project=project, analysis=analysis, steps=steps, json_data=analysis.json_data)
 
     return render(request, "analysis_view.html", context)
 

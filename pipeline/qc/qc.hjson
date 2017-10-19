@@ -62,7 +62,7 @@ execute : {
 }
 
 settings : {
-    title: Quality trimming and primer removal of sequencing data
+    title: Trim primers and low quality bases
     images : ["/static/pipelines/images/trim.png"]
     index : results/index.html
     summary: '''

@@ -1,6 +1,7 @@
 from django import forms
 from django import template
-from engine.models import Job
+from engine.models import Job, make_html
+from django.utils.safestring import mark_safe
 
 register = template.Library()
 
@@ -12,6 +13,14 @@ JOB_SEGMENT_COLORS = {
 @register.simple_tag
 def job_color(job):
     return JOB_SEGMENT_COLORS.get(job.state, "")
+
+
+@register.filter
+def markdown(text):
+    if not text:
+        return ''
+    html = make_html(text)
+    return mark_safe(html)
 
 
 @register.filter(name='date_sort')
