@@ -74,8 +74,8 @@ Sample names should match the sample names in input data.
 
 # Results
 
-1. MultiQC report - an aggregate fastqc report of the input data.
-2. Trimmed dataset and its quality report.
+1. MultiQC report - before and after trimming.
+2. Trimmed dataset.
 
 
         '''
