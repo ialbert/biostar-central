@@ -3,7 +3,8 @@ from django.core.management.base import BaseCommand
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.contrib.auth import get_user_model
-from biostar.mailer import sender
+from biostar.emailer import sender
+from mailer.engine import send_all
 
 logger = logging.getLogger("biostar")
 
@@ -11,6 +12,7 @@ class Command(BaseCommand):
     help = 'tests email settings'
 
     def add_arguments(self, parser):
+        
         parser.add_argument('--to', type=str, required=False,
                             default="1@lvh.me", help="The target email")
         parser.add_argument('--template', type=str, required=False,
@@ -34,11 +36,15 @@ class Command(BaseCommand):
         site = Site.objects.get_current()
         context = dict(site=site, user=admin, protocol=settings.PROTOCOL, target_email=target_email)
 
-        # Sending the email.
+        # Generate a log message.
         logger.info(f"generating email from template {template_name}")
 
-        #
+        # Set up email parameters.
         from_email = admin.email
-        # Takes a list of addresss.
         recipient_list = [ target_email ]
+
+        # Queues the email into the database.
         email.send(context=context, from_email=from_email, recipient_list=recipient_list)
+
+        # This sends the accumulated email.
+        send_all()

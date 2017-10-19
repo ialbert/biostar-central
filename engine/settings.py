@@ -47,9 +47,10 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'mailer',
     'compressor',
     'pagedown',
-    'biostar.mailer',
+    'biostar.emailer',
     'engine.apps.EngineConfig'
 ]
 
@@ -145,7 +146,8 @@ STATICFILES_FINDERS = (
     'compressor.finders.CompressorFinder',
 )
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_BACKEND = "mailer.backend.DbBackend"
+MAILER_EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # Location where project data is saved.
 #DATA_ROOT = join(MEDIA_ROOT , "project")
