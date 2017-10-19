@@ -11,11 +11,13 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
+
 from .log import LOGGING
 
 SITE_ID = 1
 SITE_DOMAIN = "localhost"
 SITE_NAME = "Biostar Engine"
+
 
 def join(*args):
     return os.path.abspath(os.path.join(*args))
@@ -34,7 +36,7 @@ SECRET_KEY = '1@lvh.me'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-COMPRESS_ENABLED=True
+COMPRESS_ENABLED = True
 
 # Application definition
 PROTOCOL = "http"
@@ -51,7 +53,7 @@ INSTALLED_APPS = [
     'compressor',
     'pagedown',
     'biostar.emailer',
-    'engine.apps.EngineConfig'
+    'engine.apps.EngineConfig',
 ]
 
 MIDDLEWARE = [
@@ -85,9 +87,9 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'engine.wsgi.application'
 ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION= True
+ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
 
-LOGIN_URL  = '/login/'
+LOGIN_URL = '/login/'
 LOGOUT_URL = '/logout/'
 
 # Database
@@ -144,9 +146,10 @@ STATICFILES_FINDERS = (
     'compressor.finders.CompressorFinder',
 )
 
+LOGGER_NAME = "biostar.engine"
+
 # We are using django-mailer to store emails in the database.
-#EMAIL_BACKEND = "mailer.backend.DbBackend"
+# EMAIL_BACKEND = "mailer.backend.DbBackend"
 
 # The email delivery engine.
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-

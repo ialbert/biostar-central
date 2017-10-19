@@ -35,6 +35,8 @@ def init_proj(sender, **kwargs):
         return
 
     # Make the test projects.
+    from biostar.tools.testdata import TEST_PROJECTS, TEST_DATA, TEST_ANALYSES
+
     for title, description in TEST_PROJECTS:
 
         project = Project(title=title, owner=owner, text=description)
@@ -94,11 +96,14 @@ def init_users(sender, **kwargs):
     test_buddy.set_password("testbuddy@lvh.me")
     test_buddy.save()
 
+    print(test_buddy.groups)
+
     # create multiple 3 users and put them in groups.
     # assign a diffrent project to each group and allow one user to add others to groups.
 
 
     logger.info(f"creating user: {test_buddy.email}")
+
 
 
 def init_site(sender, **kwargs):
@@ -124,6 +129,7 @@ def init_site(sender, **kwargs):
     logger.info("site.name={}, site.domain={}".format(site.name, site.domain))
 
 
+
 class EngineConfig(AppConfig):
     name = 'engine'
 
@@ -132,7 +138,7 @@ class EngineConfig(AppConfig):
         post_migrate.connect(init_site, sender=self)
         post_migrate.connect(init_users, sender=self)
         post_migrate.connect(init_proj, sender=self)
-        #logger.debug("EngineConfig done")
+
 
 
 
