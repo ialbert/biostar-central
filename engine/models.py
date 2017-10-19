@@ -39,37 +39,9 @@ def directory_path(instance, filename):
 
     return f'{instance.project.get_path()}/{filename}'
 
-def make_analysis_from_spec(path, user, project):
-
-    json_obj = util.safe_load(path)
-    title = json_obj["analysis_spec"]["title"]
-    text = json_obj["analysis_spec"]["text"]
-    template_path = json_obj["template"]["path"]
-
-    template = get_template(template_path).template.source
-
-    analysis = Analysis(json_text=json.dumps(json_obj), owner=user, title=title, text=text,
-                        template=template, project=project)
-    analysis.save()
-
-    return analysis
-
-
-def make_job(owner, analysis, project, json_text=None, title=None, state=None):
-
-    title = title or analysis.title
-    state = state or Job.QUEUED
-    filled_json = json_text or analysis.json_text
-
-    job = Job(title=title, state=state, json_text=filled_json,
-              project=project, analysis=analysis, owner=owner,
-              template=analysis.template)
-    job.save()
-
-    return job
-
 
 class Project(models.Model):
+
     title = models.CharField(max_length=256)
     owner = models.ForeignKey(User)
     text = models.TextField(default='text')
@@ -93,7 +65,7 @@ class Project(models.Model):
 
         self.uid = self.uid or util.get_uuid(8)
         if not os.path.isdir(self.get_path()):
-            os.mkdir(self.get_path())
+            os.makedirs(self.get_path())
 
         super(Project, self).save(*args, **kwargs)
 
@@ -104,7 +76,7 @@ class Project(models.Model):
         return reverse("project_view", kwargs=dict(id=self.id))
 
     def get_path(self):
-        return join(settings.MEDIA_ROOT, f"proj-{self.uid}")
+        return join(settings.MEDIA_ROOT, "projects", f"proj-{self.uid}")
 
     def create_analysis(self, json_text, template, owner=None, title='', text=''):
         """
@@ -264,8 +236,9 @@ class Job(models.Model):
         self.title = self.title or self.analysis.title
         # write an index.html to the file
         if not os.path.isdir(self.path):
-            path = os.path.abspath(os.path.join(settings.MEDIA_ROOT, f"job-{self.uid}"))
-            os.mkdir(path)
+
+            path = join(settings.MEDIA_ROOT, "jobs", f"job-{self.uid}")
+            os.makedirs(path)
             self.path = path
 
         super(Job, self).save(*args, **kwargs)

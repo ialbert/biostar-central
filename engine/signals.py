@@ -25,21 +25,17 @@ def init_proj(sender, **kwargs):
     Populate initial projects with N number data
     Creates one analysis model to allow for jobs to be run
     """
-    from engine.models import Project, Data, Analysis, make_job, Job
-    from engine.models import User
-    from biostar.tools.testdata import TEST_ANALYSES, TEST_DATA, TEST_PROJECTS
+    from engine.models import User, Project, Data, Analysis, Job
 
-    # Filter owner by the lamar group.
     owner = User.objects.all().first()
 
-    # get the group of owner here
-    # set to group of project here
     # Needs to run only if there are no projects.
-
     if Project.objects.filter().all():
         return
 
     # Make the test projects.
+    from biostar.tools.testdata import TEST_PROJECTS, TEST_DATA, TEST_ANALYSES
+
     for title, description in TEST_PROJECTS:
 
         project = Project(title=title, owner=owner, text=description)
@@ -49,6 +45,7 @@ def init_proj(sender, **kwargs):
 
         # Add data to each project.
         for data_title, data_desc, data_file, data_type in TEST_DATA:
+            # data naming is a bit weired.
             stream = File(open(data_file, 'rb'))
 
             data_file = os.path.split(data_file)[-1]
@@ -59,7 +56,7 @@ def init_proj(sender, **kwargs):
 
         # Initialize the same analyses for each project.
         for spec_path, tmpl_path in TEST_ANALYSES:
-            management.call_command("analysis", add=True, pid=project.id,spec=spec_path, template=tmpl_path)
+            management.call_command("analysis", add=True, pid=project.id, spec=spec_path, template=tmpl_path)
 
         # Get the fastqc analysis.
         analysis = Analysis.objects.filter(title__startswith="Generate FastQC").first()
@@ -67,15 +64,14 @@ def init_proj(sender, **kwargs):
         # Get a FASTQ data
         fastq_data = Data.objects.filter(data_type=FASTQ_TYPE).first()
 
-        filled_json = json.loads(analysis.json_text)
-        filled_json['data']['path'] = fastq_data.file.path
-        json_text = json.dumps(filled_json)
+        # This work for this analysis only.
+        json_data = json.loads(analysis.json_text)
+        json_data['data']['path'] = fastq_data.get_path()
+        json_text = json.dumps(json_data)
 
         # Create four jobs for each project.
         for state in [Job.ERROR, Job.QUEUED]:
-            job = make_job(owner=owner, analysis=analysis, project=project, state=state, json_text=json_text)
-
-    return
+            analysis.create_job(state=state, json_text=json_text)
 
 
 def init_users(sender, **kwargs):
@@ -163,3 +159,5 @@ def init_site(sender, **kwargs):
     # Get the current site
     site = Site.objects.get(id=settings.SITE_ID)
     logger.info("site.name={}, site.domain={}".format(site.name, site.domain))
+
+
