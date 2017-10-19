@@ -57,7 +57,7 @@ def init_proj(sender, **kwargs):
 
         # Initialize the same analyses for each project.
         for spec_path, tmpl_path in TEST_ANALYSES:
-            management.call_command("analysis", add=True, pid=project.id,spec=spec_path, template=tmpl_path)
+            management.call_command("analysis", add=True, pid=project.id, spec=spec_path, template=tmpl_path)
 
         # Get the fastqc analysis.
         analysis = Analysis.objects.filter(title__startswith="Generate FastQC").first()
@@ -71,7 +71,7 @@ def init_proj(sender, **kwargs):
 
         # Create four jobs for each project.
         for state in [Job.ERROR, Job.QUEUED]:
-            job = make_job(owner=owner, analysis=analysis, project=project, state=state, json_text=json_text)
+            analysis.create_job(state=state, json_text=json_text)
 
     return
 
