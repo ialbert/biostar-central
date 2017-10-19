@@ -65,6 +65,16 @@ TEST_ANALYSES = [
     (join(PIPELINE_DIR, 'classify/classify.hjson'), join(PIPELINE_DIR, 'classify/classify_template.html'))
 ]
 
+
+REGULAR_TEST_USERS = [("testbuddy@lvh.me",)]
+
+INITIAL_GROUPS = [
+
+    "Admin",
+    "Lamar",
+    "Public"
+]
+
 # Site information
 
 INFO = """

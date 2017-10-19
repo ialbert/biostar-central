@@ -78,7 +78,7 @@ class Project(models.Model):
     date = models.DateTimeField(auto_now_add=True)
 
     # Project restircted to one group
-    #group = models.ForeignKey(Group)
+    group = models.ForeignKey(Group)
 
     uid = models.CharField(max_length=32)
     ACTIVE, DELETED = 1, 2

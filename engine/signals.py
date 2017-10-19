@@ -28,11 +28,14 @@ def init_proj(sender, **kwargs):
     from engine.models import Project, Data, Analysis, make_job, Job
     from engine.models import User
 
+    # Filter owner by the lamar group.
     owner = User.objects.all().first()
 
-    # get group of owner.
 
+    # get the group of owner here
+    # set to group of project here
     # Needs to run only if there are no projects.
+
     if Project.objects.filter().all():
         return
 
@@ -79,7 +82,9 @@ def init_users(sender, **kwargs):
     """
     Creates admin users if these are not present.
     """
-    from engine.models import User
+    from engine.models import User, Group
+
+    groups = Group.objects.all()
     logger.info("Setting up users")
 
     for name, email in settings.ADMINS:
@@ -88,28 +93,54 @@ def init_users(sender, **kwargs):
                         is_superuser=True, is_staff=True)
             user.set_password(settings.SECRET_KEY)
             user.save()
-            logger.info(f"creating admin user: user.email={user.email}, user.id={user.id}")
+            logger.info(f"created admin user: user.email={user.email}")
 
+            # add admin to all groups ( for now atleast )
+            for group in groups:
+
+                group.user_set.add(user)
+                group.save()
+                logger.info(f"\tadding user to {group} group.")
     # Create a regular test user.
+
+    for email, groups in REGULAR_TEST_USERS:
+
+    1/0
     test_buddy, new = User.objects.get_or_create(email="testbuddy@lvh.me")
     test_buddy.set_password("testbuddy@lvh.me")
+
+    logger.info(f"creating user: {test_buddy.email}")
     test_buddy.save()
 
     print(test_buddy.groups)
 
+    # make a new user that only in a public group
+    test_dude, new = User.objects.get_or_create(email="5@lvh.me")
+    test_dude.set_password("5@lvh.me")
+    # Set group before saving
+    test_dude.save()
 
-    # create multiple 3 users and put them in groups.
-    # assign a diffrent project to each group and allow one user to add others to groups.
+    # ensure all users alteast belong to a public group.
+    public_group = groups.filter(name="Public")
 
 
-    logger.info(f"creating user: {test_buddy.email}")
 
 
 def init_groups(sender, **kwargs):
 
-    #public group (include everyone)
-    # lamar group ( include 1 user)
-    # admin group (Add any admin users)
+    from engine.models import Group
+
+    logger.info("Setting up Groups")
+
+    if Group.objects.filter().all():
+        return
+
+    for name in INITIAL_GROUPS:
+
+        group = Group.objects.create(name=name)
+        group.save()
+
+        logger.info(f"{name} group made.")
 
     return
 
