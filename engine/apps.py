@@ -136,7 +136,7 @@ class EngineConfig(AppConfig):
         post_migrate.connect(init_site, sender=self)
         post_migrate.connect(init_users, sender=self)
         post_migrate.connect(init_proj, sender=self)
-        #logger.debug("EngineConfig done")
+
 
 
 

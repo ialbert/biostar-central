@@ -1,5 +1,5 @@
 import os
-from pipeline.const import *
+from biostar.tools.const import *
 
 __THIS = os.path.dirname(__file__)
 
@@ -34,26 +34,8 @@ PROJECT_ORIGIN = "PROJECT"
 # make testfile
 #
 
-TEST_PROJECTS = [
-    ("Sequencing run 3", "Lamar sequencing center"),
-    ("Sequencing run 2", "Lamar sequencing center"),
-    ("Sequencing run 1", "Lamar sequencing center"),
-]
 
-TEST_FASTQ_PATH = os.path.expandvars('tmp/1-SarriPal_S9_L001_R1_001.fastq.gz')
-TEST_FILE_PATH = os.path.expandvars('tmp/sampleinfo.txt')
-TEST_COLL_PATH = os.path.expandvars('tmp/data.tar.gz')
-TEST_REF_PATH = os.path.expandvars('tmp/data.tar.gz')
-TEST_DATA = [
-    ("Data Collection 1.tar.gz", "This file contains a collection of data", TEST_COLL_PATH, TAR_FASTQ_GZ),
-    ("Data Collection 2.tar.gz", "This file contains a collection of data", TEST_COLL_PATH, TAR_FASTQ_GZ),
-    ("Sample sheet 1.txt", "This file contains a sample sheet describing the data in the directory", TEST_FILE_PATH,
-     SAMPLE_TYPE),
-    ("Sample sheet 2.txt", "This file contains a sample sheet describing the data in the directory", TEST_FILE_PATH,
-     SAMPLE_TYPE),
-    ("FASTQ file 2.fq", "This is a fastq file", TEST_FASTQ_PATH, FASTQ_TYPE),
-    ("FASTQ file 2.fq", "This is a fastq file", TEST_FASTQ_PATH, FASTQ_TYPE),
-]
+
 
 
 PIPELINE_DIR = join(__THIS, '..', 'pipeline')
