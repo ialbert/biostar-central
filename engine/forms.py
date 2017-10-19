@@ -2,7 +2,7 @@ import hjson as json
 
 from django import forms
 from django.utils.translation import gettext_lazy as helpers
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from .models import Project, Data, Analysis
 from . import util
 from . import factory
@@ -66,6 +66,24 @@ class LoginForm(forms.Form):
     email = forms.CharField(label='Email', max_length=100)
     password = forms.CharField(label='Password', max_length=100, 
                               widget=forms.PasswordInput)
+
+
+class AddToGroup(forms.Form):
+
+    allusers = [(user.id, user) for user in User.objects.all()]
+    allgroups = [(group.id, group) for group in Group.objects.all()]
+
+    user_toadd = forms.IntegerField(widget=forms.Select(choices=allusers))
+    group = forms.IntegerField(widget=forms.Select(choices=allgroups))
+
+
+class CreateGroup(forms.Form):
+
+
+    allusers = [(user.id, user) for user in User.objects.all()]
+    group_name = forms.CharField(max_length=32)
+    user_toadd = forms.IntegerField(widget=forms.Select(choices=allusers))
+
 
 
 class ProjectForm(forms.ModelForm):

@@ -3,6 +3,9 @@ import hjson as json
 import logging
 from django.contrib.auth.decorators import login_required
 from django.template.loader import get_template
+from django.contrib.auth.models import Group
+from django.contrib.auth.models import Permission
+from django.contrib.contenttypes.models import ContentType
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.urls import reverse
@@ -46,6 +49,52 @@ def index(request):
     context = dict(steps=steps)
 
     return render(request, 'index.html', context)
+
+
+@login_required
+def add_to_group(request, id):
+
+    # id = user.id
+    # request comes from a project probably
+    # add to group form
+    return
+
+
+@login_required
+def create_group(request, userid, projid):
+    # create a group form
+    # set permissoins for the groups.
+    #user = re
+    current_user = User.objects.filter(id=userid).first()
+    current_project = Project.object.filter(id=projid).first()
+
+    #User.is_superuser
+    if current_user.is_superuser():
+        messages.error(request, "Not allowed to create groups")
+        return
+
+    if request.method == "POST":
+
+        form = CreateGroup(request.POST)
+
+        if form.is_valid():
+
+            name = form.cleaned_data.get("name")
+            new_group, created = Group.objects.get_or_create(name=name)
+
+            ct = ContentType.objects.get_for_model(Project)
+
+            permission = Permission.objects.filter(codename='can_add_project',
+                                                   name='Can add project',
+                                                   content_type=ct)
+            new_group.permissions.add(permission)
+
+    else:
+        form = CreateGroup()
+
+    context = dict()
+    return render(request, )
+
 
 
 def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=None):

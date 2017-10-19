@@ -19,17 +19,10 @@ try:
     @timer(3)
     def execute(job_id):
 
-        #from .management.commands import job
         from django.core import management
 
-        #job_id = int.from_bytes(args["jobid"].encode(), byteorder="big")
-
-        #job = args['job']
-        #print(management.get_commands())
-        #print(job_id)
-                #job.run(queued_job)
         management.call_command('job', id=job_id)
-            #job.run(current_job)
+
 
 
 except ImportError as exc:
