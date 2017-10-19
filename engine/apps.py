@@ -70,8 +70,7 @@ def init_proj(sender, **kwargs):
 
         # Create four jobs for each project.
         for state in [Job.ERROR, Job.QUEUED]:
-            pass
-            #analysis.create_job(state=state, json_text=json_text)
+            analysis.create_job(state=state, json_text=json_text)
 
     return
 

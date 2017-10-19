@@ -55,7 +55,7 @@ class Project(models.Model):
 
         self.uid = self.uid or util.get_uuid(8)
         if not os.path.isdir(self.get_path()):
-            os.mkdir(self.get_path())
+            os.makedirs(self.get_path())
 
         super(Project, self).save(*args, **kwargs)
 
@@ -66,7 +66,7 @@ class Project(models.Model):
         return reverse("project_view", kwargs=dict(id=self.id))
 
     def get_path(self):
-        return join(settings.MEDIA_ROOT, f"proj-{self.uid}")
+        return join(settings.MEDIA_ROOT, "projects", f"proj-{self.uid}")
 
     def create_analysis(self, json_text, template, owner=None, title='', text=''):
         """
@@ -226,8 +226,8 @@ class Job(models.Model):
         self.title = self.title or self.analysis.title
         # write an index.html to the file
         if not os.path.isdir(self.path):
-            path = os.path.abspath(os.path.join(settings.MEDIA_ROOT, f"job-{self.uid}"))
-            os.mkdir(path)
+            path = os.path.abspath(os.path.join(settings.MEDIA_ROOT, "jobs", f"job-{self.uid}"))
+            os.makedirs(path)
             self.path = path
 
         super(Job, self).save(*args, **kwargs)
