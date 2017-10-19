@@ -37,6 +37,7 @@ DEBUG = True
 COMPRESS_ENABLED=True
 
 # Application definition
+PROTOCOL = "http"
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -48,6 +49,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'compressor',
     'pagedown',
+    'biostar.mailer',
     'engine.apps.EngineConfig'
 ]
 
@@ -142,6 +144,8 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
     'compressor.finders.CompressorFinder',
 )
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # Location where project data is saved.
 #DATA_ROOT = join(MEDIA_ROOT , "project")

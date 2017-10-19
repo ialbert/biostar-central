@@ -2,7 +2,7 @@ from django import forms
 from django import template
 from engine.models import Job, make_html
 from django.utils.safestring import mark_safe
-
+from textwrap import dedent
 register = template.Library()
 
 JOB_SEGMENT_COLORS = {
@@ -17,8 +17,12 @@ def job_color(job):
 
 @register.filter
 def markdown(text):
+    """
+    Generates HTML from a markdown value.
+    """
     if not text:
         return ''
+    text = dedent(text)
     html = make_html(text)
     return mark_safe(html)
 
