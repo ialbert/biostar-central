@@ -19,19 +19,9 @@
     <div class="ui text container">
         <div class="ui vertical segment">
 
-            {% if user.is_authenticated %}
-
-                <a href="{% url 'project_list' user.id %}">
-                    <div class="title"><i class="database icon"></i>Project List</div>
-                </a>
-
-            {% else %}
-
-                <a href="{% url 'public_project_list' %}">
-                    <div class="title"><i class="database icon"></i>Project List</div>
-                </a>
-
-            {% endif %}
+            <a href="{% url 'project_list' %}">
+                <div class="title"><i class="database icon"></i>Project List</div>
+            </a>
 
 
            <div class="info">View the list of projects.</div>
