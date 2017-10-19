@@ -1,4 +1,4 @@
-<div class="ui large menu">
+<div class="ui menu">
     <a class="item" href="{% url 'index' %}">
         <i class="home icon"></i> Home
     </a>
@@ -43,9 +43,11 @@
 
     {% else %}
 
-        <a class="item" href="{% url 'login' %}"><i class="sign in icon"></i>Login</a>
-        <a class="item" href="{% url 'signup' %}"><i class="add user icon"></i>Sign Up</a>
+
+
         <div class="right menu">
+        <a class="item" href="{% url 'login' %}"><i class="sign in icon"></i>Login</a>
+            <a class="item" href="{% url 'signup' %}"><i class="add user icon"></i>Sign Up</a>
             <a class="item" href="{% url 'info' %}"><i class="help icon"></i>Help</a>
         </div>
 

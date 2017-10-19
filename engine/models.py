@@ -210,6 +210,10 @@ class Job(models.Model):
     def __str__(self):
         return self.title
 
+    def get_url(self, path=''):
+        "Return the url to the job directory"
+        return f"jobs/job-{self.uid}/" + path
+
     @property
     def json_data(self):
         "Returns the json_text as parsed json_data"

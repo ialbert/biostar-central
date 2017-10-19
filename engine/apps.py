@@ -58,7 +58,7 @@ def init_proj(sender, **kwargs):
             management.call_command("analysis", add=True, pid=project.id, spec=spec_path, template=tmpl_path)
 
         # Get the fastqc analysis.
-        analysis = Analysis.objects.filter(title__startswith="Generate FastQC").first()
+        analysis = Analysis.objects.filter(project=project, title__startswith="Generate FastQC").first()
 
         # Get a FASTQ data
         fastq_data = Data.objects.filter(data_type=FASTQ_TYPE).first()
@@ -69,7 +69,7 @@ def init_proj(sender, **kwargs):
         json_text = json.dumps(json_data)
 
         # Create four jobs for each project.
-        for state in [Job.ERROR, Job.QUEUED]:
+        for state in [Job.QUEUED]:
             analysis.create_job(state=state, json_text=json_text)
 
     return
