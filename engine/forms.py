@@ -2,7 +2,7 @@ import hjson as json
 
 from django import forms
 from django.utils.translation import gettext_lazy as helpers
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from .models import Project, Data, Analysis
 from . import util
 from . import factory
@@ -64,7 +64,7 @@ class LogoutForm(forms.Form):
 class LoginForm(forms.Form):
 
     email = forms.CharField(label='Email', max_length=100)
-    password = forms.CharField(label='Password', max_length=100, 
+    password = forms.CharField(label='Password', max_length=100,
                               widget=forms.PasswordInput)
 
 

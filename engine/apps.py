@@ -94,11 +94,14 @@ def init_users(sender, **kwargs):
     test_buddy.set_password("testbuddy@lvh.me")
     test_buddy.save()
 
+    print(test_buddy.groups)
+
     # create multiple 3 users and put them in groups.
     # assign a diffrent project to each group and allow one user to add others to groups.
 
 
     logger.info(f"creating user: {test_buddy.email}")
+
 
 
 def init_site(sender, **kwargs):
@@ -122,6 +125,7 @@ def init_site(sender, **kwargs):
     # Get the current site
     site = Site.objects.get(id=settings.SITE_ID)
     logger.info("site.name={}, site.domain={}".format(site.name, site.domain))
+
 
 
 class EngineConfig(AppConfig):

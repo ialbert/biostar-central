@@ -1,8 +1,10 @@
-import os
-import hjson as json
+#import os
+#import hjson as json
 import logging
 from django.contrib.auth.decorators import login_required
-from django.template.loader import get_template
+#from django.template.loader import get_template
+#from django.contrib.auth.models import Group
+
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.urls import reverse
@@ -342,10 +344,10 @@ def analysis_run(request, id):
             logger.info(tasks.HAS_UWSGI)
 
             if tasks.HAS_UWSGI:
+                print(job.id)
+                jobid = (job.id).to_bytes(5, byteorder='big')
 
-                #jobid = (job.id).to_bytes(5, byteorder='big')
-
-                tasks.execute(job_id=job.id)
+                tasks.execute_spooler.spool(job_id=jobid)
 
             return redirect(reverse("job_list", kwargs=dict(id=project.id)))
 
