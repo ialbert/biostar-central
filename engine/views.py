@@ -183,7 +183,7 @@ def data_list(request, id):
         messages.error(request, "No data found for this project.")
         return redirect(reverse("project_view", kwargs={'id': project.id}))
 
-    steps = breadcrumb_builder([HOME_ICON,  PROJECT_ICON, DATA_LIST_ICON], project=project)
+    steps = breadcrumb_builder([PROJECT_LIST_ICON,  PROJECT_ICON, DATA_LIST_ICON], project=project)
 
     context = dict(project=project, steps=steps)
 
@@ -200,7 +200,7 @@ def data_view(request, id):
         messages.error(request, "Data not found.")
         return redirect(reverse("data_view", kwargs={'id': data.id}))
 
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_ICON, DATA_LIST_ICON, DATA_ICON],
+    steps = breadcrumb_builder([PROJECT_ICON, DATA_LIST_ICON, DATA_ICON],
                                project=project, data=data)
 
 
@@ -225,7 +225,7 @@ def data_edit(request, id):
     project = data.project
     initial = dict(text=data.text)
 
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON, DATA_ICON],
+    steps = breadcrumb_builder([PROJECT_ICON, DATA_LIST_ICON, DATA_ICON],
                                project=project, data=data)
 
     if request.method == "POST":
@@ -290,7 +290,7 @@ def analysis_list(request, id):
         messages.error(request, "No Analysis found.")
         return redirect(reverse("project_view", kwargs={'id': project.id}))
 
-    steps = breadcrumb_builder([HOME_ICON,  PROJECT_ICON, ANALYSIS_LIST_ICON],
+    steps = breadcrumb_builder([PROJECT_LIST_ICON,  PROJECT_ICON, ANALYSIS_LIST_ICON],
                                project=project)
 
     context = dict(project=project, analysis=analysis, steps=steps)
@@ -389,7 +389,7 @@ def analysis_edit(request, id):
     analysis = Analysis.objects.filter(id=id).first()
     project = analysis.project
 
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_ICON, ANALYSIS_LIST_ICON, ANALYSIS_ICON],
+    steps = breadcrumb_builder([PROJECT_ICON, ANALYSIS_LIST_ICON, ANALYSIS_ICON],
                                project=project, analysis=analysis)
 
     if request.method == "POST":
@@ -416,7 +416,7 @@ def jobs_list(request, id):
         messages.error(request, "No jobs found for this project.")
         return redirect(reverse("project_view", kwargs={'id': project.id}))
 
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, RESULT_LIST_ICON ],
+    steps = breadcrumb_builder([PROJECT_LIST_ICON, PROJECT_ICON, RESULT_LIST_ICON ],
                                project=project)
 
     jobs = project.job_set.order_by("-id")
@@ -447,7 +447,7 @@ def job_detail_view(request, id):
     job = Job.objects.filter(id=id).first()
     project = job.project
 
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_ICON, RESULT_LIST_ICON, RESULT_VIEW_ICON ],
+    steps = breadcrumb_builder([PROJECT_ICON, RESULT_LIST_ICON, RESULT_VIEW_ICON ],
                                job=job, project=project)
 
     context = dict(job=job, steps=steps)
