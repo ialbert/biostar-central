@@ -15,7 +15,7 @@ execute : {
 }
 
 settings : {
-    title: Fastqc report of input data file.
+    title: Generate FastQC report
     images : ["/static/pipelines/images/fastqc.png"]
     index : results/index.html
     summary: Produce fastqc report of the input file.

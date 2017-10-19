@@ -37,6 +37,7 @@ DEBUG = True
 COMPRESS_ENABLED=True
 
 # Application definition
+PROTOCOL = "http"
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -46,8 +47,10 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'mailer',
     'compressor',
     'pagedown',
+    'biostar.emailer',
     'engine.apps.EngineConfig'
 ]
 
@@ -66,7 +69,6 @@ ROOT_URLCONF = 'engine.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ["/pipeline/templates"],
         'APP_DIRS': True,
         'OPTIONS': {
             'string_if_invalid': "**MISSING**",
@@ -136,12 +138,15 @@ STATICFILES_DIRS = [
     join(BASE_DIR, "static"),
 ]
 
-
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
     'compressor.finders.CompressorFinder',
 )
 
-# Location where project data is saved.
-#DATA_ROOT = join(MEDIA_ROOT , "project")
+# We are using django-mailer to store emails in the database.
+#EMAIL_BACKEND = "mailer.backend.DbBackend"
+
+# The email delivery engine.
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+

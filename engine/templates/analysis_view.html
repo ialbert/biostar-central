@@ -19,15 +19,18 @@
 
 {% block body %}
 
-    <div class="ui vertical center aligned basic segment">
+    <div class="ui vertical segment">
+        {{ json_data.settings.summary|markdown }}
+    </div>
+
+    <div class="ui center aligned vertical segment">
 
             <a class="ui green button" href="{% url 'analysis_run' analysis.id %}">
-                <i class="options icon"></i>Setup Analysis
+                Setup and Run Analysis
             </a>
 
     </div>
 
-    <div class="ui divider"></div>
 
     <div class="ui vertical aligned segment">
         <div class="textbody">{{ analysis.html|safe }}</div>

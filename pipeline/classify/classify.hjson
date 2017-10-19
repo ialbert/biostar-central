@@ -56,30 +56,32 @@ execute : {
 }
 
 settings : {
-    title: Data classification.
+    title: Perform a taxonomical classification
     images : ["/static/pipelines/images/classify.png","/static/pipelines/images/classify_table.png"]
     index : results/index.html
     summary: '''
-Taxonomic classification of input data. Classification table with species abundance is produced.
+## Summary
+
+Performs a taxonomic classification of sequences.Produces a classification table with species abundance.
+Classification is performed agains preselected fish species.
     '''
     help:'''
 
-# Detailed description.
+## Details
 
-This analysis assigns taxonomic labels to input reads and quantify them.
+This analysis assigns taxonomic labels and abundances to input reads .
 
-# Parameters
+## Parameters
 
 1. Paired end data in fasta or fastq (compressed or uncompressed) format.
 2. Reference to be used for classification.
 
-
-# Results
+## Output
 
 This analysis produces 
 
 1. Taxonomic assignments for each read.
-2. Summary report  showing the abundance of each species in the data.
+2. Summary reports showing the abundance of each species in the data.
 
 '''
 
