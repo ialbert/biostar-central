@@ -8,11 +8,11 @@ from mailer.engine import send_all
 
 logger = logging.getLogger("biostar")
 
+
 class Command(BaseCommand):
     help = 'tests email settings'
 
     def add_arguments(self, parser):
-
         parser.add_argument('--to', type=str, required=False,
                             default="2@lvh.me", help="The target email")
 
@@ -23,10 +23,12 @@ class Command(BaseCommand):
                             default="test_email.html", help="The template to use.")
 
     def handle(self, *args, **options):
-
         template_name = options['template']
-        from_email= options['from']
+        from_email = options['from']
         target_email = options['to']
+
+        # Sender requires a list.
+        recipient_list =  target_email.split(",")
 
         # The object that parsers the template.
         email = sender.EmailTemplate(template_name)
@@ -36,10 +38,7 @@ class Command(BaseCommand):
         context = dict(site=site, protocol=settings.PROTOCOL, target_email=target_email)
 
         # Generate a log message.
-        logger.info(f"generating email from template {template_name}")
-
-        # Set up email parameters.
-        recipient_list = [ target_email ]
+        logger.info(f"generating email from:{from_email} to:{target_email} using template:{template_name}")
 
         # Queues the email into the database.
         email.send(context=context, from_email=from_email, recipient_list=recipient_list)
