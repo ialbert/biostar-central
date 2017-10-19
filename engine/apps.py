@@ -35,6 +35,8 @@ def init_proj(sender, **kwargs):
         return
 
     # Make the test projects.
+    from biostar.tools.testdata import TEST_PROJECTS, TEST_DATA, TEST_ANALYSES
+
     for title, description in TEST_PROJECTS:
 
         project = Project(title=title, owner=owner, text=description)

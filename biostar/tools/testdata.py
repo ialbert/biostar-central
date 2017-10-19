@@ -33,3 +33,11 @@ TEST_DATA = [
     ("FASTQ file 2.fq", "This is a fastq file", TEST_FASTQ, const.FASTQ_TYPE),
     ("FASTQ file 2.fq", "This is a fastq file", TEST_FASTQ, const.FASTQ_TYPE),
 ]
+
+TEST_ANALYSES = [
+    # (spec, template)
+    (join(__THIS, 'fastqc/fastqc.hjson'), join(__THIS, 'fastqc/fastqc_template.sh')),
+    (join(__THIS, 'qc/qc.hjson'), join(__THIS, 'qc/qc_template.html')),
+    (join(__THIS, 'classify/classify.hjson'), join(__THIS, 'classify/classify_template.html'))
+]
+
