@@ -238,6 +238,7 @@ class Job(models.Model):
         if not os.path.isdir(self.path):
 
             path = join(settings.MEDIA_ROOT, "jobs", f"job-{self.uid}")
+
             os.makedirs(path)
             self.path = path
 
