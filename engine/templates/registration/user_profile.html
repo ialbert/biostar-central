@@ -1,10 +1,21 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends "base.html" %}
 
-</body>
-</html>
+
+{% block title %} Profile {% endblock %}
+
+{% block body %}
+
+    <div class="ui  attached center aligned message">
+        <div class="info">{{user.email}}</div>
+        <div>Groups you belong to </div>
+
+        {% for group in user.groups.all %}
+            
+        {% endfor %}
+
+
+    </div>
+
+
+
+{% endblock %}

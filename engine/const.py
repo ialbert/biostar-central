@@ -22,6 +22,7 @@ LOGIN_ICON = "sign in"
 LOGOUT_ICON = "sign out"
 INFO_ICON = "info circle icon"
 SIGNUP_ICON = "add user icon"
+USER_ICON = "user icon"
 
 FIELD_VISIBLE = "visible"
 FIELD_ORIGIN = "origin"

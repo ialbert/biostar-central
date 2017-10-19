@@ -50,7 +50,7 @@ def index(request):
     return render(request, 'index.html', context)
 
 
-def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=None):
+def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=None, user=None):
 
     if not icons:
         return []
@@ -77,6 +77,10 @@ def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=Non
             step = (reverse("job_list", kwargs={'id': project.id,}), RESULT_LIST_ICON, "Result List",is_active)
         elif icon == RESULT_ICON:
             step = (reverse("job_view", kwargs={'id': job.id}), RESULT_ICON, f"{job.title}", is_active)
+        elif icon == RESULT_VIEW_ICON:
+            step = (reverse("job_detail_view", kwargs={'id': job.id, }), RESULT_ICON, f"{job.title}", is_active)
+        elif icon == USER_ICON:
+            step = (reverse("profile", kwargs={'id': user.id, }), USER_ICON, f"Profile", is_active)
         elif icon == LOGIN_ICON:
             step = (reverse("login"), LOGIN_ICON, "Login", is_active)
         elif icon == LOGOUT_ICON:
@@ -85,8 +89,7 @@ def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=Non
             step = (reverse("info"), INFO_ICON, "Information", is_active)
         elif icon == SIGNUP_ICON:
             step = (reverse("signup"), SIGNUP_ICON, "Sign up", is_active)
-        elif icon == RESULT_VIEW_ICON:
-            step = (reverse("job_detail_view", kwargs={'id': job.id,}), RESULT_ICON, f"{job.title}", is_active)
+
         else:
             continue
 
@@ -126,6 +129,11 @@ def project_list(request, id):
 
     print(projects)
 
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON])
+
+    context = dict(projects=projects, steps=steps)
+
+    return render(request, "project_list.html", context)
     1/0
     #user = User.objects.filter(id=id)
 
