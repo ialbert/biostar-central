@@ -8,9 +8,12 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.template.loader import get_template
+
+from django.contrib.auth.models import Group
+import mistune
+
 from django.urls import reverse
 from django.utils import timezone
-
 from . import settings
 from . import util
 from .const import *
@@ -38,11 +41,15 @@ def directory_path(instance, filename):
 
 
 class Project(models.Model):
+
     title = models.CharField(max_length=256)
     owner = models.ForeignKey(User)
     text = models.TextField(default='text')
     html = models.TextField(default='html')
     date = models.DateTimeField(auto_now_add=True)
+
+    # Project restircted to one group
+    group = models.ForeignKey(Group)
 
     uid = models.CharField(max_length=32)
 
@@ -53,6 +60,9 @@ class Project(models.Model):
         now = timezone.now()
         self.date = self.date or now
         self.html = make_html(self.text)
+
+        # Takes first user group for now
+        self.group = self.owner.groups.first()
 
         self.uid = self.uid or util.get_uuid(8)
         if not os.path.isdir(self.get_path()):
@@ -234,7 +244,9 @@ class Job(models.Model):
         self.title = self.title or self.analysis.title
         # write an index.html to the file
         if not os.path.isdir(self.path):
-            path = os.path.abspath(os.path.join(settings.MEDIA_ROOT, "jobs", f"job-{self.uid}"))
+
+            path = join(settings.MEDIA_ROOT, "jobs", f"job-{self.uid}")
+
             os.makedirs(path)
             self.path = path
 
@@ -250,8 +262,13 @@ class Profile(models.Model):
 
 @receiver(post_save, sender=User)
 def create_profile(sender, instance, created, **kwargs):
+
     if created:
+        # Create a profile for user
         Profile.objects.create(user=instance)
+
+        # Add every user to "public group"
+        instance.groups.add(Group.objects.get(name='Public'))
 
 
 post_save.connect(create_profile, sender=User)

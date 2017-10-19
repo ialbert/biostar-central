@@ -21,6 +21,18 @@ def get_uuid(limit=32):
     return str(uuid.uuid4())[:limit]
 
 
+
+def user_profile(request, id):
+
+    user = User.objects.filter(id=id).first()
+    steps = breadcrumb_builder([HOME_ICON, USER_ICON], user=user)
+
+    context = dict(user=user, steps=steps)
+
+    return render(request, 'registration/user_profile.html', context)
+
+
+
 @ratelimit(key='ip', rate='10/m', block=True, method=ratelimit.UNSAFE)
 def user_signup(request):
 
@@ -29,9 +41,6 @@ def user_signup(request):
     if request.method == 'POST':
 
         form = SignUpForm(request.POST)
-        messages.info(request, "Signup not permitted yet.")
-        context = dict(form=form, steps=steps)
-        return render(request, 'registration/user_signup.html', context=context)
 
         if form.is_valid():
             email = form.cleaned_data.get('email')

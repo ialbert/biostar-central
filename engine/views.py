@@ -3,8 +3,6 @@
 import logging
 from django.contrib.auth.decorators import login_required
 #from django.template.loader import get_template
-#from django.contrib.auth.models import Group
-
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.urls import reverse
@@ -50,7 +48,7 @@ def index(request):
     return render(request, 'index.html', context)
 
 
-def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=None):
+def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=None, user=None):
 
     if not icons:
         return []
@@ -77,6 +75,10 @@ def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=Non
             step = (reverse("job_list", kwargs={'id': project.id,}), RESULT_LIST_ICON, "Result List",is_active)
         elif icon == RESULT_ICON:
             step = (reverse("job_view", kwargs={'id': job.id}), RESULT_ICON, f"{job.title}", is_active)
+        elif icon == RESULT_VIEW_ICON:
+            step = (reverse("job_detail_view", kwargs={'id': job.id, }), RESULT_ICON, f"{job.title}", is_active)
+        elif icon == USER_ICON:
+            step = (reverse("profile", kwargs={'id': user.id, }), USER_ICON, f"Profile", is_active)
         elif icon == LOGIN_ICON:
             step = (reverse("login"), LOGIN_ICON, "Login", is_active)
         elif icon == LOGOUT_ICON:
@@ -85,8 +87,7 @@ def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=Non
             step = (reverse("info"), INFO_ICON, "Information", is_active)
         elif icon == SIGNUP_ICON:
             step = (reverse("signup"), SIGNUP_ICON, "Sign up", is_active)
-        elif icon == RESULT_VIEW_ICON:
-            step = (reverse("job_detail_view", kwargs={'id': job.id,}), RESULT_ICON, f"{job.title}", is_active)
+
         else:
             continue
 
@@ -95,13 +96,18 @@ def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=Non
     return path
 
 
-#@login_required
 def project_list(request):
 
-    projects = Project.objects.order_by("-id")
+    groups = Group.objects.filter(name="Public")
+
+    if request.user.is_authenticated:
+        user = User.objects.filter(id=request.user.id).first()
+        groups = user.groups.all()
+
+    projects = Project.objects.order_by("-id").filter(group__in=groups)
 
     if not projects.all():
-        messages.error(request, "No projects found.")
+        messages.error(request, "No projects associated with your groups.")
         return redirect(reverse("index"))
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON])
@@ -111,6 +117,8 @@ def project_list(request):
     return render(request, "project_list.html", context)
 
 
+
+#TODO: fix for public projects
 #@login_required
 def project_view(request, id):
 
@@ -119,7 +127,8 @@ def project_view(request, id):
     if not project:
         messages.error(request, "Project not found.")
 
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON], project=project)
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON],
+                               project=project)
 
     context = dict(project=project, steps=steps)
 
@@ -148,7 +157,7 @@ def project_edit(request, id):
 
 
 @login_required
-def project_create(request):
+def project_create(request, id):
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON])
 
@@ -181,11 +190,13 @@ def data_list(request, id):
 
     project = Project.objects.filter(id=id).first()
 
+
     if not project.data_set.all():
         messages.error(request, "No data found for this project.")
         return redirect(reverse("project_view", kwargs={'id': project.id}))
 
-    steps = breadcrumb_builder([PROJECT_LIST_ICON,  PROJECT_ICON, DATA_LIST_ICON], project=project)
+    steps = breadcrumb_builder([PROJECT_LIST_ICON,  PROJECT_ICON, DATA_LIST_ICON],
+                               project=project)
 
     context = dict(project=project, steps=steps)
 
@@ -252,7 +263,6 @@ def data_edit(request, id):
 def data_upload(request, id):
 
     project = Project.objects.filter(id=id).first()
-
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON],
                                project=project)
 
@@ -324,7 +334,6 @@ def analysis_run(request, id):
     analysis = Analysis.objects.filter(id=id).first()
     project = analysis.project
 
-    owner = analysis.owner
     steps = breadcrumb_builder([HOME_ICON, PROJECT_ICON,  ANALYSIS_ICON],
                                project=project, analysis=analysis)
 
@@ -337,11 +346,11 @@ def analysis_run(request, id):
 
             filled_json = form.process()
             json_text = json.dumps(filled_json)
-            job = analysis.create_job(owner=owner, json_text=json_text, title=title)
+            job = analysis.create_job(owner=analysis.owner, json_text=json_text, title=title)
             logger.info(tasks.HAS_UWSGI)
 
             if tasks.HAS_UWSGI:
-                print(job.id)
+
                 jobid = (job.id).to_bytes(5, byteorder='big')
 
                 tasks.execute_job.spool(job_id=jobid)
@@ -387,7 +396,6 @@ def analysis_edit(request, id):
 
     analysis = Analysis.objects.filter(id=id).first()
     project = analysis.project
-
     steps = breadcrumb_builder([PROJECT_ICON, ANALYSIS_LIST_ICON, ANALYSIS_ICON],
                                project=project, analysis=analysis)
 

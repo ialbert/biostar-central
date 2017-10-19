@@ -25,6 +25,13 @@ def join(*args):
 
 ADMINS = [("Admin User", "1@lvh.me")]
 
+REGULAR_TEST_USERS = {
+                      # User email  : [group1, group2..]
+                      "testbuddy@lvh.me": ["Public", "Lamar"],
+                      "5@lvh.me":["Public"]
+                      }
+
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(join(__file__))
 
@@ -53,6 +60,7 @@ INSTALLED_APPS = [
     'compressor',
     'pagedown',
     'biostar.emailer',
+    'biostar.accounts',
     'engine.apps.EngineConfig',
 ]
 

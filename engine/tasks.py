@@ -32,3 +32,4 @@ try:
 except ModuleNotFoundError as exc:
     # logger.warning("uwsgidecorators not found, tasks not enabled!")
     pass
+
