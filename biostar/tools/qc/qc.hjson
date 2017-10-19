@@ -27,8 +27,15 @@ trim_primer: {
     }
 
 trim_quality: {
+    label : Quality trimming.
+    value :  true
+    visible : true
+    display_type : CHECKBOX
+    }
+
+quality_threshold: {
     label : Specify average quality value for trimming.
-    help : Leave empty for not trimming
+    help : Quality value should be between 1 and 40.
     value :  30
     range  : [1,40]
     visible : true
@@ -58,7 +65,7 @@ MultiQC quality reports  before and after trimming are also produced.
 
     help: '''
     
-# Detailed description
+# Help
 
 This analysis requires  a data collection and a samplesheet.
 
@@ -74,7 +81,7 @@ Sample names should match the sample names in input data.
 
 # Results
 
-1. MultiQC report - before and after trimming.
+1. Quality report - before and after trimming.
 2. Trimmed dataset.
 
 

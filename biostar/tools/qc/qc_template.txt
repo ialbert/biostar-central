@@ -1,6 +1,6 @@
 INPUT_DATA = {{data.value}}
 INPUT_SAMPLE_INFO = {{sampleinfo.value}}
-TRIM_QUALITY = {{trim_quality.value}}
+TRIM_QUALITY = {{quality_threshold.value}}
 TRIM_PRIMER = {{ trim_primer.value }}
 THREADS = {{ threads.value}}
 
@@ -19,7 +19,7 @@ UPDATED_SAMPLE_INFO = updated_sampleinfo.txt
 #
 # commands to run
 #
-{%  if trim_primer.value == True  and  trim_quality.value != None  %}
+{%  if trim_primer.value == True  and  trim_quality.value == True  %}
 all : multiqc trim_primer trim_quality
 {%  elif trim_primer.value == True %}
 all: multiqc trim_primer

@@ -41,22 +41,22 @@ settings : {
     index : results/index.html
     summary: '''
 
-Performs taxonomic classification of sequences. Classification is performed against preselected fish species.
+Performs taxonomic classification of data. Classification is performed against preselected fish species.
 It produces a classification table with species abundance.
     '''
     help:'''
 
-## Detailed description
+# Help
 
 This analysis assigns taxonomic labels to sequence data using a custom database.
 It requires paired end data collection with individual files in fastq format.
 
-## Parameters
+# Parameters
 
 1. Paired end sequence data collection.
 2. Custom reference database.
 
-## Output
+# Results
 
 1. Taxonomic assignments for each read.
 2. Summary report showing the abundance of each species in the data.
