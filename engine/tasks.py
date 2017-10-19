@@ -14,15 +14,23 @@ try:
 
     HAS_UWSGI = True
 
-    @timer(3)
-    def execute_timer(job_id):
+    @timer(60)
+    def execute_timer():
 
+        # Run oldest queued job every minute
         from django.core import management
+        from .models import Job
 
-        management.call_command('job', id=job_id)
+        job = Job.objects.filter(state=Job.QUEUED).first()
+
+        management.call_command('job', id=job.id)
 
     @spool
     def execute_spooler(args):
+
+        import django
+        # duh lol
+        django.setup()
 
         jobid = int.from_bytes(args["job_id"].encode(), byteorder='big')
 

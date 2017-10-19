@@ -7,6 +7,7 @@ from django.utils import timezone
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.template.loader import get_template
+from django.contrib.auth.models import Group
 import mistune
 from . import settings
 from . import util
@@ -67,6 +68,7 @@ def make_job(owner, analysis, project, json_text=None, title=None, state=None):
 
     return job
 
+
 class Project(models.Model):
 
     title = models.CharField(max_length=256)
@@ -74,6 +76,9 @@ class Project(models.Model):
     text = models.TextField(default='text')
     html = models.TextField(default='html')
     date = models.DateTimeField(auto_now_add=True)
+
+    # Project restircted to one group
+    group = models.ForeignKey(Group)
 
     uid = models.CharField(max_length=32)
     ACTIVE, DELETED = 1, 2
@@ -84,6 +89,9 @@ class Project(models.Model):
         now = timezone.now()
         self.date = self.date or now
         self.html = make_html(self.text)
+
+        # need to recheck first
+        self.group = self.owner.group
 
         self.uid = self.uid or util.get_uuid(8)
         if not os.path.isdir(self.get_path()):

@@ -3,7 +3,7 @@
 import logging
 from django.contrib.auth.decorators import login_required
 #from django.template.loader import get_template
-#from django.contrib.auth.models import Group
+
 
 from django.contrib import messages
 from django.shortcuts import render, redirect
@@ -344,6 +344,7 @@ def analysis_run(request, id):
             logger.info(tasks.HAS_UWSGI)
 
             if tasks.HAS_UWSGI:
+
                 print(job.id)
                 jobid = (job.id).to_bytes(5, byteorder='big')
 
