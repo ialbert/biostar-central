@@ -313,7 +313,7 @@ def analysis_view(request, id):
                                project=project, analysis=analysis)
 
 
-    context = dict(project=project, analysis=analysis, steps=steps, json_data=analysis.json_data)
+    context = dict(project=project, analysis=analysis, steps=steps)
 
     return render(request, "analysis_view.html", context)
 
