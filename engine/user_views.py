@@ -24,7 +24,7 @@ def get_uuid(limit=32):
 
 def user_profile(request, id):
 
-    user = User.objects.filter(id=id)
+    user = User.objects.filter(id=id).first()
     steps = breadcrumb_builder([HOME_ICON, USER_ICON], user=user)
 
     context = dict(user=user, steps=steps)
