@@ -46,7 +46,7 @@ It produces a classification table with species abundance.
     '''
     help:'''
 
-## Details
+## Detailed description
 
 This analysis assigns taxonomic labels to input reads using a custom database.
 It requires paired end data collection with individual files in fastq format.
