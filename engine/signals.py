@@ -27,10 +27,10 @@ def init_proj(sender, **kwargs):
     """
     from engine.models import Project, Data, Analysis, make_job, Job
     from engine.models import User
+    from biostar.tools.testdata import TEST_ANALYSES, TEST_DATA, TEST_PROJECTS
 
     # Filter owner by the lamar group.
     owner = User.objects.all().first()
-
 
     # get the group of owner here
     # set to group of project here
@@ -103,7 +103,7 @@ def init_users(sender, **kwargs):
                 logger.info(f"\tadding user to {group} group.")
     # Create a regular test user.
 
-    for email, groups in REGULAR_TEST_USERS:
+    for email, groups in settings.REGULAR_TEST_USERS:
 
     1/0
     test_buddy, new = User.objects.get_or_create(email="testbuddy@lvh.me")
@@ -122,9 +122,6 @@ def init_users(sender, **kwargs):
 
     # ensure all users alteast belong to a public group.
     public_group = groups.filter(name="Public")
-
-
-
 
 def init_groups(sender, **kwargs):
 

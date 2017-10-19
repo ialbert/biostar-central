@@ -1,10 +1,7 @@
 import hjson as json
 import os
-from pipeline.const import *
+from biostar.tools.const import *
 import uuid
-
-
-
 
 
 def get_uuid(limit=32):

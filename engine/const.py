@@ -1,5 +1,5 @@
 import os
-from pipeline.const import *
+from biostar.tools.const import *
 
 __THIS = os.path.dirname(__file__)
 
@@ -26,47 +26,6 @@ SIGNUP_ICON = "add user icon"
 FIELD_VISIBLE = "visible"
 FIELD_ORIGIN = "origin"
 PROJECT_ORIGIN = "PROJECT"
-
-
-#
-# To initialize test files run:
-#
-# make testfile
-#
-
-TEST_PROJECTS = [
-    ("Sequencing run 3", "Lamar sequencing center"),
-    ("Sequencing run 2", "Lamar sequencing center"),
-    ("Sequencing run 1", "Lamar sequencing center"),
-]
-
-TEST_FASTQ_PATH = os.path.expandvars('tmp/1-SarriPal_S9_L001_R1_001.fastq.gz')
-TEST_FILE_PATH = os.path.expandvars('tmp/sampleinfo.txt')
-TEST_COLL_PATH = os.path.expandvars('tmp/data.tar.gz')
-TEST_REF_PATH = os.path.expandvars('tmp/data.tar.gz')
-TEST_DATA = [
-    ("Data Collection 1.tar.gz", "This file contains a collection of data", TEST_COLL_PATH, TAR_FASTQ_GZ),
-    ("Data Collection 2.tar.gz", "This file contains a collection of data", TEST_COLL_PATH, TAR_FASTQ_GZ),
-    ("Sample sheet 1.txt", "This file contains a sample sheet describing the data in the directory", TEST_FILE_PATH,
-     SAMPLE_TYPE),
-    ("Sample sheet 2.txt", "This file contains a sample sheet describing the data in the directory", TEST_FILE_PATH,
-     SAMPLE_TYPE),
-    ("FASTQ file 2.fq", "This is a fastq file", TEST_FASTQ_PATH, FASTQ_TYPE),
-    ("FASTQ file 2.fq", "This is a fastq file", TEST_FASTQ_PATH, FASTQ_TYPE),
-]
-
-
-PIPELINE_DIR = join(__THIS, '..', 'pipeline')
-
-TEST_ANALYSES = [
-    # Spec, Template pairs.
-    (join(PIPELINE_DIR, 'fastqc/fastqc.hjson'), join(PIPELINE_DIR, 'fastqc/fastqc_template.sh')),
-    (join(PIPELINE_DIR, 'qc/qc.hjson'), join(PIPELINE_DIR, 'qc/qc_template.html')),
-    (join(PIPELINE_DIR, 'classify/classify.hjson'), join(PIPELINE_DIR, 'classify/classify_template.html'))
-]
-
-
-REGULAR_TEST_USERS = [("testbuddy@lvh.me",)]
 
 INITIAL_GROUPS = [
 
