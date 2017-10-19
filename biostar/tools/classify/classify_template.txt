@@ -1,5 +1,5 @@
-INPUT_DATA = {{data.value}}
-INPUT_SAMPLE_INFO = {{sampleinfo.value}}
+INPUT_DATA = {{data.path}
+INPUT_SAMPLE_INFO = {{sampleinfo.path}}
 REFERENCE= {{ reference.path }}
 THREADS ={{ threads.value}}
 
