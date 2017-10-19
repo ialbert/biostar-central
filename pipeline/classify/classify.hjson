@@ -40,7 +40,6 @@ settings : {
     images : ["/static/pipelines/images/classify.png","/static/pipelines/images/classify_table.png"]
     index : results/index.html
     summary: '''
-## Summary
 
 Performs taxonomic classification of sequences. Classification is performed against preselected fish species.
 It produces a classification table with species abundance.
