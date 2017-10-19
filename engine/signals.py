@@ -28,6 +28,7 @@ def init_proj(sender, **kwargs):
     from engine.models import User, Project, Data, Analysis, Job
 
     owner = User.objects.all().first()
+    group = owner.groups
 
     # Needs to run only if there are no projects.
     if Project.objects.filter().all():
@@ -38,7 +39,8 @@ def init_proj(sender, **kwargs):
 
     for title, description in TEST_PROJECTS:
 
-        project = Project(title=title, owner=owner, text=description)
+        project = Project(title=title, owner=owner, text=description,
+                          group=group)
         project.save()
 
         logger.info(f'Created project: {project.title}')
@@ -89,22 +91,26 @@ def init_users(sender, **kwargs):
                         is_superuser=True, is_staff=True)
             user.set_password(settings.SECRET_KEY)
             user.save()
-            logger.info(f"created admin user: user.email={user.email}")
+            logger.info(f"created admin user: {user.email}")
 
             # add admin to all groups ( for now atleast )
             for group in groups:
 
                 group.user_set.add(user)
                 group.save()
-                logger.info(f"\tadding user to {group} group.")
+                logger.info(f"\tadding admin user to {group} group.")
 
-    for email, groups in settings.REGULAR_TEST_USERS:
+    for email, user_groups in settings.REGULAR_TEST_USERS.items():
 
         test_user, new = User.objects.get_or_create(email=email)
         test_user.set_password(email)
-        test_user.groups.add(groups)
+        logger.info(f"creating user: {test_user.email}")
 
-        logger.info(f"creating user: {test_user.email} in {groups} groups")
+        for gr in user_groups:
+            user_group = Group.objects.filter(name=gr).first()
+            test_user.groups.add(user_group)
+            logger.info(f"\tadding user to {user_group} group.")
+
         test_user.save()
 
 
@@ -121,8 +127,6 @@ def init_groups(sender, **kwargs):
 
         group = Group.objects.create(name=name)
         group.save()
-
-        logger.info(f"{name} group made.")
 
     return
 

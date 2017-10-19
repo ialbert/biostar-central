@@ -254,8 +254,13 @@ class Profile(models.Model):
 
 @receiver(post_save, sender=User)
 def create_profile(sender, instance, created, **kwargs):
+
     if created:
+        # Create a profile for user
         Profile.objects.create(user=instance)
+
+        # Add every user to "public group"
+        instance.groups.add(Group.objects.get(name='Public'))
 
 
 post_save.connect(create_profile, sender=User)
