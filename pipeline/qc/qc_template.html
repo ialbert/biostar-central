@@ -1,6 +1,7 @@
 INPUT_DATA = {{data.value}}
 INPUT_SAMPLE_INFO = {{sampleinfo.value}}
 TRIM_QUALITY={{trim_quality.value}}
+TRIM_PRIMER ={{ trim_primer.value }}
 THREADS ={{ threads.value}}
 
 #
@@ -17,8 +18,11 @@ QTRIM_DIR = $(ANALYSIS_DIR)/trim/trimq
 UPDATED_SAMPLE_INFO = updated_sampleinfo.txt
 
 
-#all: trim_quality
-#	@echo "executes all commands"
+all : trim_primer trim_quality
+
+all: trim_primer
+
+all : trim_quality
 
 extract:
 	#
@@ -71,7 +75,7 @@ multiqc: fastqc $(RESULT_DIR)
 #
 
 
-trim_primer: $(RESULT_DIR)
+trim_primer: $(RESULT_DIR) updated_sample_info
 	echo "trimming primer"
 	#
 	mkdir -p $(PTRIM_DIR)/logs
@@ -103,7 +107,7 @@ R1={sample_name}_R1_trimp.fq.gz
 R2={sample_name}_R2_trimp.fq.gz
 endif
 
-trim_quality: trim_quality != None
+trim_quality: $(RESULT_DIR) updated_sample_info
 	echo $(INDIR),$(R1)
 	cat  $(UPDATED_SAMPLE_INFO) |parallel --verbose --progress -j $(THREADS) --header : --colsep '\t' bbduk.sh \
 	in1=$(INDIR)/$(R1) in2=$(INDIR)/$(R2) \
