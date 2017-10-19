@@ -30,6 +30,8 @@ def init_proj(sender, **kwargs):
 
     owner = User.objects.all().first()
 
+    # get group of owner.
+
     # Needs to run only if there are no projects.
     if Project.objects.filter().all():
         return
@@ -44,7 +46,6 @@ def init_proj(sender, **kwargs):
 
         # Add data to each project.
         for data_title, data_desc, data_file, data_type in TEST_DATA:
-            # data naming is a bit weired.
             stream = File(open(data_file, 'rb'))
 
             data_file = os.path.split(data_file)[-1]
@@ -95,6 +96,7 @@ def init_users(sender, **kwargs):
     test_buddy.save()
 
     print(test_buddy.groups)
+
 
     # create multiple 3 users and put them in groups.
     # assign a diffrent project to each group and allow one user to add others to groups.

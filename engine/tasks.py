@@ -2,10 +2,10 @@
 This is active only when deployed via UWSGI
 '''
 
-from django.conf import settings
 import logging, time
+from django.core import management
 
-logger = logging.getLogger('engine')
+logger = logging.getLogger("biostar.tasks")
 
 HAS_UWSGI = False
 
@@ -14,27 +14,17 @@ try:
 
     HAS_UWSGI = True
 
-    @timer(60)
-    def execute_timer():
+    @timer(30)
+    def execute_timer(job_id):
+        logger.info("executing timer")
 
-        # Run oldest queued job every minute
-        from django.core import management
-        from .models import Job
-
-        job = Job.objects.filter(state=Job.QUEUED).first()
-
-        management.call_command('job', id=job.id)
 
     @spool
-    def execute_spooler(args):
+    def execute_job(args):
 
-        import django
-        # duh lol
-        django.setup()
+        job_id = int.from_bytes(args["job_id"].encode(), byteorder='big')
+        management.call_command('job', id=job_id)
 
-        jobid = int.from_bytes(args["job_id"].encode(), byteorder='big')
-
-        print(jobid)
 
 
 except ImportError as exc:
