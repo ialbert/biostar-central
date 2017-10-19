@@ -18,15 +18,12 @@ try:
     def execute_timer(job_id):
         logger.info("executing timer")
 
-
     @spool
     def execute_job(args):
-
         job_id = int.from_bytes(args["job_id"].encode(), byteorder='big')
         management.call_command('job', id=job_id)
 
 
-except ImportError as exc:
-
-
-    logger.warning("uwsgidecorators not found, tasks not enabled!")
+except ModuleNotFoundError as exc:
+    # logger.warning("uwsgidecorators not found, tasks not enabled!")
+    pass

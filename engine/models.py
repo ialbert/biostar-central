@@ -15,7 +15,6 @@ from . import settings
 from . import util
 from .const import *
 
-
 def join(*args):
     return os.path.abspath(os.path.join(*args))
 
@@ -36,34 +35,6 @@ def directory_path(instance, filename):
     filename = f"data-{uid}.{exts}"
 
     return f'{instance.project.get_path()}/{filename}'
-
-
-def make_analysis_from_spec(path, user, project):
-    json_obj = util.safe_load(path)
-    title = json_obj["analysis_spec"]["title"]
-    text = json_obj["analysis_spec"]["text"]
-    template_path = json_obj["template"]["path"]
-
-    template = get_template(template_path).template.source
-
-    analysis = Analysis(json_text=json.dumps(json_obj), owner=user, title=title, text=text,
-                        template=template, project=project)
-    analysis.save()
-
-    return analysis
-
-
-def make_job(owner, analysis, project, json_text=None, title=None, state=None):
-    title = title or analysis.title
-    state = state or Job.QUEUED
-    filled_json = json_text or analysis.json_text
-
-    job = Job(title=title, state=state, json_text=filled_json,
-              project=project, analysis=analysis, owner=owner,
-              template=analysis.template)
-    job.save()
-
-    return job
 
 
 class Project(models.Model):
@@ -125,9 +96,7 @@ class Data(models.Model):
     type = models.IntegerField(default=FILE, choices=TYPE_CHOICES)
     data_type = models.IntegerField(default=GENERIC_TYPE)
     state = models.IntegerField(default=ACTIVE)
-
     project = models.ForeignKey(Project)
-
     size = models.CharField(null=True, max_length=256)
 
     file = models.FileField(null=True, upload_to=directory_path)
@@ -144,7 +113,7 @@ class Data(models.Model):
 
     def peek(self):
         """Peeks at the data if it is text"""
-        mimetype, mimecode = mimetypes.guess_type(self.file.path)
+        mimetype, mimecode = mimetypes.guess_type(self.get_path())
         if mimetype == 'text/plain':
             stream = open(self.file.path)
             lines = [line for line in islice(stream, 10)]
@@ -157,7 +126,7 @@ class Data(models.Model):
         return self.title
 
     def get_path(self):
-        return self.file if self.type == Data.FILE else self.path
+        return self.file.path
 
 
 class Analysis(models.Model):

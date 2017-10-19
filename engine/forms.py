@@ -151,8 +151,7 @@ class RunAnalysis(forms.Form):
             if obj.get(FIELD_ORIGIN) == PROJECT_ORIGIN:
                 data_id = self.cleaned_data.get(field, 0)
                 data = get_data(data_id)
-
-                obj["value"] = os.path.abspath(data.get_path().path)
+                obj["path"] = data.get_path()
                 continue
 
             if field in self.cleaned_data:

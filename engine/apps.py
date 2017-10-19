@@ -5,7 +5,6 @@ from django.conf import settings
 from django.db.models.signals import post_migrate
 from engine.const import *
 from django.core import management
-from copy import copy
 import hjson as json
 from django.core.files import File
 from . import util
@@ -25,8 +24,7 @@ def init_proj(sender, **kwargs):
     Populate initial projects with N number data
     Creates one analysis model to allow for jobs to be run
     """
-    from engine.models import Project, Data, Analysis, make_job, Job
-    from engine.models import User
+    from engine.models import User, Project, Data, Analysis, Job
 
     owner = User.objects.all().first()
 
@@ -65,13 +63,15 @@ def init_proj(sender, **kwargs):
         # Get a FASTQ data
         fastq_data = Data.objects.filter(data_type=FASTQ_TYPE).first()
 
-        filled_json = json.loads(analysis.json_text)
-        filled_json['data']['path'] = fastq_data.file.path
-        json_text = json.dumps(filled_json)
+        # This work for this analysis only.
+        json_data = json.loads(analysis.json_text)
+        json_data['data']['path'] = fastq_data.get_path()
+        json_text = json.dumps(json_data)
 
         # Create four jobs for each project.
         for state in [Job.ERROR, Job.QUEUED]:
-            analysis.create_job(state=state, json_text=json_text)
+            pass
+            #analysis.create_job(state=state, json_text=json_text)
 
     return
 
