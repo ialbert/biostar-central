@@ -433,13 +433,24 @@ def media_index(request):
 
 @login_required
 def job_view(request, id):
-
-    # create a directory when clicked.
+    """
+    Returns the primary result file for the job.
+    """
     job = Job.objects.filter(id=id).first()
-    path = f"job-{job.uid}"
-    url = settings.MEDIA_URL + path + "/"
+    path = job.json_data.get("settings", {}).get("index", "")
+    url = settings.MEDIA_URL + job.get_url(path=path)
 
     return redirect(url)
+
+@login_required
+def job_directory_view(request, id):
+    """
+    Returns the directory view of the job.
+    """
+    job = Job.objects.filter(id=id).first()
+    url = settings.MEDIA_URL + job.get_url()
+    return redirect(url)
+
 
 def job_detail_view(request, id):
 

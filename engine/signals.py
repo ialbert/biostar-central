@@ -31,7 +31,7 @@ def init_proj(sender, **kwargs):
 
     # Give Lamar group but project inherits the group from owner so
     # this is overridden
-    group = Group.objects.filter(name="Lamar").first()
+    group = owner.groups.first()
 
     # Needs to run only if there are no projects.
     if Project.objects.filter().all():
@@ -46,7 +46,7 @@ def init_proj(sender, **kwargs):
                           group=group)
         project.save()
 
-        logger.info(f'Created project: {project.title}')
+        logger.info(f'Created project: {project.title} belonging to {group} group.')
 
         # Add data to each project.
         for data_title, data_desc, data_file, data_type in TEST_DATA:

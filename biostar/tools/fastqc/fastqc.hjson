@@ -20,7 +20,7 @@ settings : {
     index : results/index.html
     summary: Produce fastqc report of the input file.
     help:'''
-# Detailed description
+# Help
 
 This analysis requires a single data file in fastq or fastq.gz format.
 

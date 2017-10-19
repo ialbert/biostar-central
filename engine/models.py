@@ -52,8 +52,9 @@ class Project(models.Model):
     group = models.ForeignKey(Group)
 
     uid = models.CharField(max_length=32)
-    ACTIVE, DELETED = 1, 2
-    state = models.IntegerField(default=ACTIVE)
+
+    # Will be false if the objects is to be deleted.
+    valid = models.BooleanField(default=True)
 
     def save(self, *args, **kwargs):
         now = timezone.now()
@@ -92,25 +93,24 @@ class Project(models.Model):
 
 
 class Data(models.Model):
+    FILE, COLLECTION = 1, 2
+    TYPE_CHOICES = [(FILE, "File"), (COLLECTION, "Collection")]
+
     title = models.CharField(max_length=256)
     owner = models.ForeignKey(User)
     text = models.TextField(default='text')
     html = models.TextField(default='html')
     date = models.DateTimeField(auto_now_add=True)
-
-    FILE, COLLECTION = 1, 2
-    TYPE_CHOICES = [(FILE, "File"), (COLLECTION, "Collection")]
-
-    ACTIVE, DELETED = 1, 2
-
     type = models.IntegerField(default=FILE, choices=TYPE_CHOICES)
     data_type = models.IntegerField(default=GENERIC_TYPE)
-    state = models.IntegerField(default=ACTIVE)
     project = models.ForeignKey(Project)
     size = models.CharField(null=True, max_length=256)
 
     file = models.FileField(null=True, upload_to=directory_path)
     path = models.FilePathField(null=True)
+
+    # Will be false if the objects is to be deleted.
+    valid = models.BooleanField(default=True)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -140,17 +140,19 @@ class Data(models.Model):
 
 
 class Analysis(models.Model):
+
+    project = models.ForeignKey(Project)
     title = models.CharField(max_length=256)
     owner = models.ForeignKey(User)
     text = models.TextField(default='text')
+    summary = models.TextField(default='summary')
     html = models.TextField(default='html')
     date = models.DateTimeField(auto_now_add=True)
-
-    ACTIVE, DELETED = 1, 2
-    state = models.IntegerField(default=ACTIVE)
     json_text = models.TextField(default="{}")
     template = models.TextField(default="makefile")
-    project = models.ForeignKey(Project)
+
+    # Will be false if the objects is to be deleted.
+    valid = models.BooleanField(default=True)
 
     def __str__(self):
         return self.title
@@ -187,20 +189,19 @@ class Analysis(models.Model):
 
 
 class Job(models.Model):
+    # file path to media
+    QUEUED, RUNNING, FINISHED, ERROR = 1, 2, 3, 4
+
+    STATE_CHOICES = [(QUEUED, "Queued"), (RUNNING, "Running"),
+                     (FINISHED, "Finished"), (ERROR, "Error")]
+
+
     title = models.CharField(max_length=256)
     owner = models.ForeignKey(User)
     text = models.TextField(default='text')
+    summary = models.TextField(default='summary')
     html = models.TextField(default='html')
     date = models.DateTimeField(auto_now_add=True)
-
-    ACTIVE, DELETED = 1, 2
-    # Might need to rename later on.
-    job_state = models.IntegerField(default=ACTIVE)
-
-    # file path to media
-    QUEUED, RUNNING, FINISHED, ERROR = 1, 2, 3, 4
-    STATE_CHOICES = [(QUEUED, "Queued"), (RUNNING, "Running"),
-                     (FINISHED, "Finished"), (ERROR, "Error")]
 
     analysis = models.ForeignKey(Analysis)
     project = models.ForeignKey(Project)
@@ -209,6 +210,9 @@ class Job(models.Model):
     uid = models.CharField(max_length=32)
     template = models.TextField(default="makefile")
     log = models.TextField(default="No data logged for current job")
+
+    # Will be false if the objects is to be deleted.
+    valid = models.BooleanField(default=True)
 
     state = models.IntegerField(default=1, choices=STATE_CHOICES)
 
@@ -219,6 +223,10 @@ class Job(models.Model):
 
     def __str__(self):
         return self.title
+
+    def get_url(self, path=''):
+        "Return the url to the job directory"
+        return f"jobs/job-{self.uid}/" + path
 
     @property
     def json_data(self):

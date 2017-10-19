@@ -128,9 +128,6 @@ def run(job, options={}):
         print (job.log)
         print("-" * 40)
 
-def error(msg):
-    logger.error(msg)
-    sys.exit()
 
 class Command(BaseCommand):
     help = 'Job manager.'
@@ -180,17 +177,22 @@ class Command(BaseCommand):
         next = options['next']
         queued = options['queued']
 
+        # This code is also run insider tasks.
         if next:
             job = Job.objects.filter(state=Job.QUEUED).order_by('-id').first()
             if not job:
-                error(f'there are no queued jobs')
-            run(job, options=options)
+                logger.info(f'there are no queued jobs')
+            else:
+                run(job, options=options)
+            return
 
         if jobid:
             job = Job.objects.filter(id=jobid).first()
             if not job:
-                error(f'job for id={jobid} missing')
-            run(job, options=options)
+                logger.info(f'job for id={jobid} missing')
+            else:
+                run(job, options=options)
+            return
 
         if queued:
             jobs = Job.objects.filter(state=Job.QUEUED).order_by('-id')[:10]

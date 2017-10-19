@@ -1,15 +1,5 @@
 {
 
-sampleinfo : {
-    path : tmp/sampleinfo.txt
-    label : Specify the sample file
-    css: red
-    visible: true
-    data_type : LAMAR_SAMPLE_SHEET
-    display_type: DROPDOWN
-    origin: PROJECT
-    }
-
 data : {
     path: tmp/data.tar.gz
     visible: true
@@ -18,19 +8,14 @@ data : {
     display_type: DROPDOWN
     }
 
-library_type : {
-    value : true
-    label : Data entered is paired end.
+sampleinfo : {
+    path : tmp/sampleinfo.txt
+    label : Sample file
+    css: red
     visible: true
-    display_type: CHECKBOX
-}
-
-trim_barcode: {
-    label : Trim barcode sequences.
-    value : true
-    help : Barcode sequences should be in the sample sheet.
-    visible: true
-    display_type: CHECKBOX
+    data_type : LAMAR_SAMPLE_SHEET
+    display_type: DROPDOWN
+    origin: PROJECT
     }
 
 trim_primer: {
@@ -42,8 +27,15 @@ trim_primer: {
     }
 
 trim_quality: {
+    label : Quality trimming.
+    value :  true
+    visible : true
+    display_type : CHECKBOX
+    }
+
+quality_threshold: {
     label : Specify average quality value for trimming.
-    help : Leave empty for not trimming
+    help : Quality value should be between 1 and 40.
     value :  30
     range  : [1,40]
     visible : true
@@ -66,20 +58,21 @@ settings : {
     images : ["/static/pipelines/images/trim.png"]
     index : results/index.html
     summary: '''
-This analysis takes a paired end dataset and produces a primer/barcode removed, quality trimmed dataset.
+This analysis takes a paired end dataset and produces primer, quality trimmed dataset.
 MultiQC quality reports  before and after trimming are also produced.
 
     '''
 
     help: '''
     
-# Detailed description
+# Help
 
-This analysis requires samplesheet as a tab delimited text file. Order of the fields should be
-sample name, sample group, barcode, forward primer sequence, reverse primer sequence, target gene.
+This analysis requires  a data collection and a samplesheet.
+
+Data collection should be in tar.gz format. Samplesheet is a tab delimited text file.
+Order of the fields should be sample name, sample group, barcode, forward primer sequence, reverse primer sequence, target gene.
 Sample names should match the sample names in input data.
 
-Input data is a data collection in tar.gz format.
 
 # Parameters
 
@@ -88,10 +81,8 @@ Input data is a data collection in tar.gz format.
 
 # Results
 
-This analysis produces
-
-1. MultiQC report - an aggregate fastqc report of the input data.
-2. Trimmed dataset and its quality report.
+1. Quality report - before and after trimming.
+2. Trimmed dataset.
 
 
         '''
