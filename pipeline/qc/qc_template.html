@@ -1,8 +1,8 @@
 INPUT_DATA = {{data.value}}
 INPUT_SAMPLE_INFO = {{sampleinfo.value}}
-TRIM_QUALITY={{trim_quality.value}}
-TRIM_PRIMER ={{ trim_primer.value }}
-THREADS ={{ threads.value}}
+TRIM_QUALITY = {{trim_quality.value}}
+TRIM_PRIMER = {{ trim_primer.value }}
+THREADS = {{ threads.value}}
 
 #
 # Internal parameters after this.
@@ -16,13 +16,18 @@ FASTQC_DIR =$(ANALYSIS_DIR)/fastqc
 PTRIM_DIR = $(ANALYSIS_DIR)/trim/trimp
 QTRIM_DIR = $(ANALYSIS_DIR)/trim/trimq
 UPDATED_SAMPLE_INFO = updated_sampleinfo.txt
-
-
+#
+# commands to run
+#
+{%  if trim_primer.value == True  and  trim_quality.value != None  %}
 all : trim_primer trim_quality
-
+{%  elif trim_primer.value == True %}
 all: trim_primer
-
+{%  else %}
 all : trim_quality
+{%  endif %}
+
+
 
 extract:
 	#
