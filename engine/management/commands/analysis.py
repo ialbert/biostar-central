@@ -1,14 +1,21 @@
+import logging
+import os
+import sys
+
+import hjson
 from django.core.management.base import BaseCommand
-from engine.models import Analysis, Project, User
-import os, sys,hjson, logging
+
+from engine.models import Project, User
 
 logger = logging.getLogger('engine')
 
 __CURR_DIR = os.path.dirname(os.path.realpath(__file__))
 
+
 def stop(msg):
     logger.error(msg)
     sys.exit()
+
 
 class Command(BaseCommand):
     help = 'Manages analyses.'
@@ -56,20 +63,18 @@ class Command(BaseCommand):
                 stop(f'No file found for --template={template}')
 
             try:
-                json_data = open(spec).read()
-                json_dict = hjson.loads(json_data)
+                json_text = open(spec).read()
+                json_data = hjson.loads(json_text)
             except Exception as exc:
                 stop(f"error reading out the spec: {exc}")
-                json_dict = dict()
+                json_text = ''
+                json_data = {}
 
             template = open(template).read()
 
-            title = json_dict.get("settings", {}).get("title", "No title set")
-            text = json_dict.get("settings", {}).get("help", "No help set")
-            json_text = hjson.dumps(json_dict)
-            analysis = Analysis(owner=admin, project=project, title=title, text=text,
-                        json_text=json_text, template=template)
-            analysis.save()
+            title = json_data.get("settings", {}).get("title", "No title set")
+            text = json_data.get("settings", {}).get("help", "No help set")
+
+            analysis = project.create_analysis(json_text=json_text,
+                                               template=template, title=title, text=text)
             logger.info(f"added analysis {analysis.title} in project {project.title}")
-
-

@@ -1,20 +1,22 @@
-import hjson as json
-import os
+import mimetypes
 from itertools import islice
-from django.db import models
+
+import hjson as json
+import mistune
 from django.contrib.auth.models import User
-from django.utils import timezone
+from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.template.loader import get_template
+
 from django.contrib.auth.models import Group
 import mistune
+
+from django.urls import reverse
+from django.utils import timezone
 from . import settings
 from . import util
-from django.urls import reverse
 from .const import *
-import mimetypes
-
 
 def join(*args):
     return os.path.abspath(os.path.join(*args))
@@ -29,7 +31,6 @@ def get_datatype(file):
 
 
 def directory_path(instance, filename):
-
     pieces = os.path.basename(filename).split(".")
     # May have multiple extensions
     exts = ".".join(pieces[1:]) or "data"
@@ -37,7 +38,6 @@ def directory_path(instance, filename):
     filename = f"data-{uid}.{exts}"
 
     return f'{instance.project.get_path()}/{filename}'
-
 
 def make_analysis_from_spec(path, user, project):
 
@@ -70,7 +70,6 @@ def make_job(owner, analysis, project, json_text=None, title=None, state=None):
 
 
 class Project(models.Model):
-
     title = models.CharField(max_length=256)
     owner = models.ForeignKey(User)
     text = models.TextField(default='text')
@@ -85,7 +84,6 @@ class Project(models.Model):
     state = models.IntegerField(default=ACTIVE)
 
     def save(self, *args, **kwargs):
-
         now = timezone.now()
         self.date = self.date or now
         self.html = make_html(self.text)
@@ -108,9 +106,20 @@ class Project(models.Model):
     def get_path(self):
         return join(settings.MEDIA_ROOT, f"proj-{self.uid}")
 
+    def create_analysis(self, json_text, template, owner=None, title='', text=''):
+        """
+        Creates analysis from a spec and template
+        """
+        owner = owner or self.owner
+        title = title or 'Analysis Title'
+        text = text or 'Analysis Text'
+        analysis = Analysis.objects.create(project=self, json_text=json_text,
+                                           owner=owner, title=title, text=text,
+                                           template=template, )
+        return analysis
+
 
 class Data(models.Model):
-
     title = models.CharField(max_length=256)
     owner = models.ForeignKey(User)
     text = models.TextField(default='text')
@@ -118,16 +127,14 @@ class Data(models.Model):
     date = models.DateTimeField(auto_now_add=True)
 
     FILE, COLLECTION = 1, 2
-    TYPE_CHOICES =[(FILE, "File"),(COLLECTION ,"Collection")]
+    TYPE_CHOICES = [(FILE, "File"), (COLLECTION, "Collection")]
 
     ACTIVE, DELETED = 1, 2
 
     type = models.IntegerField(default=FILE, choices=TYPE_CHOICES)
     data_type = models.IntegerField(default=GENERIC_TYPE)
     state = models.IntegerField(default=ACTIVE)
-
     project = models.ForeignKey(Project)
-
     size = models.CharField(null=True, max_length=256)
 
     file = models.FileField(null=True, upload_to=directory_path)
@@ -137,19 +144,17 @@ class Data(models.Model):
         super().__init__(*args, **kwargs)
 
     def save(self, *args, **kwargs):
-
         now = timezone.now()
         self.date = self.date or now
         self.html = make_html(self.text)
         super(Data, self).save(*args, **kwargs)
 
-
     def peek(self):
         """Peeks at the data if it is text"""
-        mimetype, mimecode = mimetypes.guess_type(self.file.path)
+        mimetype, mimecode = mimetypes.guess_type(self.get_path())
         if mimetype == 'text/plain':
             stream = open(self.file.path)
-            lines = [ line for line in islice(stream, 10) ]
+            lines = [line for line in islice(stream, 10)]
             content = "\n".join(lines)
             return content
 
@@ -159,12 +164,10 @@ class Data(models.Model):
         return self.title
 
     def get_path(self):
-
-        return self.file if self.type == Data.FILE else self.path
+        return self.file.path
 
 
 class Analysis(models.Model):
-
     title = models.CharField(max_length=256)
     owner = models.ForeignKey(User)
     text = models.TextField(default='text')
@@ -191,9 +194,27 @@ class Analysis(models.Model):
         self.html = make_html(self.text)
         super(Analysis, self).save(*args, **kwargs)
 
+    def create_job(self, json_text='', json_data={}, owner=None, title=None, state=None):
+        """
+        Creates a job from an analysis.
+        """
+        title = title or self.title
+        state = state or Job.QUEUED
+        owner = owner or self.project.owner
+
+        if json_data:
+            json_text = json.dumps(json_data)
+        else:
+            json_text = json_text or self.json_text
+
+        job = Job.objects.create(title=title, state=state, json_text=json_text,
+                                 project=self.project, analysis=self, owner=owner,
+                                 template=self.template)
+
+        return job
+
 
 class Job(models.Model):
-
     title = models.CharField(max_length=256)
     owner = models.ForeignKey(User)
     text = models.TextField(default='text')
@@ -207,7 +228,7 @@ class Job(models.Model):
     # file path to media
     QUEUED, RUNNING, FINISHED, ERROR = 1, 2, 3, 4
     STATE_CHOICES = [(QUEUED, "Queued"), (RUNNING, "Running"),
-               (FINISHED, "Finished"), (ERROR, "Error")]
+                     (FINISHED, "Finished"), (ERROR, "Error")]
 
     analysis = models.ForeignKey(Analysis)
     project = models.ForeignKey(Project)
@@ -253,9 +274,7 @@ class Job(models.Model):
         return reverse("job_view", kwargs=dict(id=self.id))
 
 
-
 class Profile(models.Model):
-
     user = models.ForeignKey(User)
 
 

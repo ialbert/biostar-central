@@ -11,7 +11,7 @@ from django.urls import reverse
 from django.conf import settings
 from .forms import *
 from .models import (User, Project, Data,
-                     Analysis, Job, make_job, get_datatype)
+                     Analysis, Job, get_datatype)
 from django.core.files import File
 import mimetypes
 
@@ -333,14 +333,11 @@ def analysis_run(request, id):
         form = RunAnalysis(data=request.POST, analysis=analysis)
 
         if form.is_valid():
+            title = form.cleaned_data.get("title")
 
             filled_json = form.process()
             json_text = json.dumps(filled_json)
-            title = form.cleaned_data.get("title")
-            job = make_job(owner=owner, analysis=analysis, project=project,
-                           json_text=json_text, title=title)
-
-            job.save()
+            job = analysis.create_job(owner=owner, json_text=json_text, title=title)
             logger.info(tasks.HAS_UWSGI)
 
             if tasks.HAS_UWSGI:

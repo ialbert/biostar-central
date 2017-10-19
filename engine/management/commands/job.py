@@ -18,6 +18,7 @@ def run(job, options={}):
     show_json = options.get('show_json')
     show_template = options.get('show_template')
     show_script = options.get('show_script')
+    show_command = options.get('show_command')
     use_template = options.get('use_template')
     use_json = options.get('use_json')
     verbosity = options.get('verbosity', 0)
@@ -56,6 +57,12 @@ def run(job, options={}):
         filename = execute.get("filename", "Makefile")
         command = execute.get("command", "make all")
 
+        # This is the full command that will be executed.
+        full_command = f'(cd {workdir} & {command})'
+        if show_command:
+            print(full_command)
+            return
+
         # Render the script.
         template = Template(template)
         context = Context(json_data)
@@ -79,7 +86,7 @@ def run(job, options={}):
             fp.write(script)
 
         # Show the command that is executed.
-        logger.info(f'job id={job.id} executing: (cd {workdir} && {command})')
+        logger.info(f'job id={job.id} executing: {full_command}')
 
         # Switch the job state to RUNNING.
         job.state = job.RUNNING
@@ -151,6 +158,10 @@ class Command(BaseCommand):
         parser.add_argument('--show_template',
                             action='store_true',
                             help="Shows the template for the job.")
+
+        parser.add_argument('--show_command',
+                            action='store_true',
+                            help="Shows the command executed for the job.")
 
         parser.add_argument('--use_json',
                             help="Override the JSON with this file.")
