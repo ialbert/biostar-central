@@ -347,7 +347,7 @@ def analysis_run(request, id):
                 print(job.id)
                 jobid = (job.id).to_bytes(5, byteorder='big')
 
-                tasks.execute_spooler.spool(job_id=jobid)
+                tasks.execute_job.spool(job_id=jobid)
 
             return redirect(reverse("job_list", kwargs=dict(id=project.id)))
 
