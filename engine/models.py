@@ -172,6 +172,11 @@ class Analysis(models.Model):
     def __str__(self):
         return self.title
 
+    @property
+    def json_data(self):
+        "Returns the json_text as parsed json_data"
+        return json.loads(self.json_text)
+
     def save(self, *args, **kwargs):
         now = timezone.now()
         self.date = self.date or now
@@ -213,6 +218,11 @@ class Job(models.Model):
 
     def __str__(self):
         return self.title
+
+    @property
+    def json_data(self):
+        "Returns the json_text as parsed json_data"
+        return json.loads(self.json_text)
 
     def save(self, *args, **kwargs):
         now = timezone.now()

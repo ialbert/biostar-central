@@ -28,11 +28,6 @@ sequence_type : {
 
 sampleinfo : {
     path : tmp/sampleinfo.txt
-    help : '''
-Enter a tab delimited text file. Order of the fields should be
-sample name, sample group, barcode, forward primer sequence, reverse primer sequence, target gene.
-Sample name should match the sample name in the dataset.
-    '''
     label : Specify the sample file.
     css: red
     visible: true
@@ -61,25 +56,32 @@ execute : {
 }
 
 settings : {
-    title: Data classification.
-    summary: Produce taxonomic classification of input data and quantify them.
+    title: Perform a taxonomical classification
+    images : ["/static/pipelines/images/classify.png","/static/pipelines/images/classify_table.png"]
+    index : results/index.html
+    summary: '''
+## Summary
+
+Performs a taxonomic classification of sequences.Produces a classification table with species abundance.
+Classification is performed agains preselected fish species.
+    '''
     help:'''
-# Purpose
 
-Assign taxonomic labels to input reads and quantify them.
+## Details
 
-# Parameters
+This analysis assigns taxonomic labels and abundances to input reads .
+
+## Parameters
 
 1. Paired end data in fasta or fastq (compressed or uncompressed) format.
 2. Reference to be used for classification.
 
-
-# Results
+## Output
 
 This analysis produces 
 
 1. Taxonomic assignments for each read.
-2. Summary report  showing the abundance of each species in the data.
+2. Summary reports showing the abundance of each species in the data.
 
 '''
 
