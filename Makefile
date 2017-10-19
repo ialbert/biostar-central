@@ -9,11 +9,14 @@ uwsgi: init
 
 
 delete:
+	# Ensure the files that could hold secrets exist.
+	touch live/main_secrets.py
+	touch live/test_secrets.py
+	# Remove the database and old media.
 	rm -f export/engine.db
 	rm -rf media/*
 
 reset:delete init
-
 
 init:
 	python manage.py collectstatic --noinput -v 0

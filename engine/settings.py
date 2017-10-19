@@ -146,8 +146,9 @@ STATICFILES_FINDERS = (
     'compressor.finders.CompressorFinder',
 )
 
+# We are using django-mailer to store emails in the database.
 EMAIL_BACKEND = "mailer.backend.DbBackend"
+
+# The email delivery engine.
 MAILER_EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-# Location where project data is saved.
-#DATA_ROOT = join(MEDIA_ROOT , "project")
