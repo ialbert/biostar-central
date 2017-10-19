@@ -69,14 +69,14 @@ class Project(models.Model):
     def get_path(self):
         return join(settings.MEDIA_ROOT, "projects", f"proj-{self.uid}")
 
-    def create_analysis(self, json_text, template, owner=None, title='', text=''):
+    def create_analysis(self, json_text, template, owner=None, summary='', title='', text=''):
         """
         Creates analysis from a spec and template
         """
         owner = owner or self.owner
         title = title or 'Analysis Title'
         text = text or 'Analysis Text'
-        analysis = Analysis.objects.create(project=self, json_text=json_text,
+        analysis = Analysis.objects.create(project=self, summary=summary, json_text=json_text,
                                            owner=owner, title=title, text=text,
                                            template=template, )
         return analysis
@@ -171,7 +171,7 @@ class Analysis(models.Model):
         else:
             json_text = json_text or self.json_text
 
-        job = Job.objects.create(title=title, state=state, json_text=json_text,
+        job = Job.objects.create(title=title, summary=self.summary, state=state, json_text=json_text,
                                  project=self.project, analysis=self, owner=owner,
                                  template=self.template)
 

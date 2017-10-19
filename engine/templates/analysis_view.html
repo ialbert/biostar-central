@@ -2,7 +2,7 @@
 {% load engine_tags %}
 
 {% block headtitle %}
-     {{ analysis.title }}
+    {{ analysis.title }}
 {% endblock %}
 
 {% block title %}
@@ -20,14 +20,15 @@
 {% block body %}
 
     <div class="ui vertical segment">
-        {{ json_data.settings.summary|markdown }}
+        <h1>Summary</h1>
+        <p>{{ analysis.summary|safe }}</p>
     </div>
 
     <div class="ui center aligned vertical segment">
 
-            <a class="ui green button" href="{% url 'analysis_run' analysis.id %}">
-                Setup and Run Analysis
-            </a>
+        <a class="ui green button" href="{% url 'analysis_run' analysis.id %}">
+            Execute Analysis
+        </a>
 
     </div>
 
