@@ -1,5 +1,6 @@
 
 import logging, uuid
+import random
 from engine.const import *
 import os
 from django.conf import settings
@@ -27,11 +28,7 @@ def init_proj(sender, **kwargs):
     """
     from engine.models import User, Project, Data, Analysis, Job
 
-    owner = User.objects.all().first()
 
-    # Give Lamar group but project inherits the group from owner so
-    # this is overridden anyways
-    group = owner.groups.first()
     # Change the owner on the last iteration
 
     # Needs to run only if there are no projects.
@@ -41,10 +38,13 @@ def init_proj(sender, **kwargs):
     # Make the test projects.
     from biostar.tools.testdata import TEST_PROJECTS, TEST_DATA, TEST_ANALYSES
 
-
     for title, description in TEST_PROJECTS:
+        # A project gets a random owner/ group
+        owner = User.objects.all()
+        owner = random.choice(owner)
+        group = owner.groups.first()
 
-        # A project gets a random owner
+
         project = Project(title=title, owner=owner, text=description,
                           group=group)
         project.save()
