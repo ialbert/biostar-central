@@ -295,7 +295,6 @@ def analysis_run(request, id):
 
         if form.is_valid():
             title = form.cleaned_data.get("title")
-
             filled_json = form.process()
             json_text = hjson.dumps(filled_json)
             job = analysis.create_job(owner=analysis.owner, json_text=json_text, title=title)

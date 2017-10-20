@@ -82,6 +82,16 @@ class Project(models.Model):
     def get_path(self):
         return join(settings.MEDIA_ROOT, "projects", f"proj-{self.uid}")
 
+    def get_data(self, data_type=None):
+        """
+        Returns a dictionary keyed by data stored in the project.
+        """
+        query = Data.objects.filter(project=self)
+        if data_type:
+            query = query.filter(data_type=data_type)
+        datamap = dict( (obj.id, obj) for obj in query )
+        return datamap
+
     def create_analysis(self, json_text, template, owner=None, summary='', title='', text=''):
         """
         Creates analysis from a spec and template
@@ -117,6 +127,7 @@ class Project(models.Model):
         # Updates its own size.
         data.set_size()
 
+        logger.info(f"Added data id={data.id} of type={data.data_type}")
         return data
 
 
@@ -178,6 +189,13 @@ class Data(models.Model):
     def get_path(self):
         return self.file.path
 
+    def fill_dict(self, obj):
+        """
+        Mutates a dictionary to add more information.
+        """
+        obj['path'] = self.get_path()
+        obj['value'] = self.id
+        obj['name'] = self.title
 
 class Analysis(models.Model):
 

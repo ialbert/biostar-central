@@ -5,7 +5,7 @@ import os
 CURR_DIR = os.path.dirname(os.path.realpath(__file__))
 
 SPEC_FILE = os.path.join(CURR_DIR, 'classify.hjson')
-TEMPLATE_FILE = os.path.join(CURR_DIR, 'classify_template.txt')
+TEMPLATE_FILE = os.path.join(CURR_DIR, 'classify_makefile.txt')
 
 
 if __name__ =="__main__":

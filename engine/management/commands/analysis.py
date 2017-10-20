@@ -1,6 +1,7 @@
 import os, sys, logging, hjson
 from engine.models import Project, User, make_html
 from django.core.management.base import BaseCommand
+from biostar.tools.const import DATA_TYPES
 
 logger = logging.getLogger('engine')
 
@@ -88,9 +89,11 @@ class Command(BaseCommand):
                     # Find all objects that have a path attribute
                     for key, value in json_data.items():
                         path = value.get("path")
+                        data_type = value.get("data_type")
+                        data_type = DATA_TYPES.get(data_type)
                         if path:
-                            data = project.create_data(fname=path)
-                            json_data[key]['path'] = data.get_path()
+                            data = project.create_data(fname=path, data_type=data_type)
+                            data.fill_dict(value)
                     analysis.create_job(json_data=json_data)
 
             except KeyError as exc:
