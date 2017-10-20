@@ -5,13 +5,13 @@ serve: init
 	python manage.py runserver
 
 uwsgi: init
-	uwsgi  --ini live/devel_uwsgi.ini
+	uwsgi  --ini conf/devel/devel_uwsgi.ini
 
 
 delete:
 	# Ensure the files that could hold secrets exist.
-	touch live/main_secrets.py
-	touch live/test_secrets.py
+	touch conf/main/main_secrets.py
+	touch conf/test/test_secrets.py
 	# Remove the database and old media.
 	rm -f export/engine.db
 	rm -rf media/*
@@ -39,12 +39,12 @@ push:
 	git push
 
 testdata:
-	mkdir -p tmp/refs/
-	curl  http://iris.bx.psu.edu/projects/metabarcode-data/data.tar.gz > tmp/data.tar.gz
-	curl http://iris.bx.psu.edu/projects/metabarcode-data/sampleinfo.txt > tmp/sampleinfo.txt
-	curl http://iris.bx.psu.edu/projects/metabarcode-data/data/1-SarriPal_S9_L001_R1_001.fastq.gz > tmp/1-SarriPal_S9_L001_R1_001.fastq.gz
-	curl http://iris.bx.psu.edu/projects/metabarcode-data/centrifuge_fish_idx.tar.gz >tmp/refs/centrifuge_fish_idx.tar.gz
-	(cd tmp/refs  && tar -xzvf centrifuge_fish_idx.tar.gz) 
+	mkdir -p export/local
+	curl  http://iris.bx.psu.edu/projects/metabarcode-data/data.tar.gz > export/local/data.tar.gz
+	curl http://iris.bx.psu.edu/projects/metabarcode-data/sampleinfo.txt > export/local/sampleinfo.txt
+	curl http://iris.bx.psu.edu/projects/metabarcode-data/data/1-SarriPal_S9_L001_R1_001.fastq.gz > export/local/1-SarriPal_S9_L001_R1_001.fastq.gz
+	curl http://iris.bx.psu.edu/projects/metabarcode-data/centrifuge_fish_idx.tar.gz > export/local/centrifuge_fish_idx.tar.gz
+	(cd export/local  && tar -xzvf centrifuge_fish_idx.tar.gz)
 
 test_push:test
 	git commit -am "Update by `whoami` on `date` from `hostname`"

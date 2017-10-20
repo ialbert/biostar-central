@@ -1,7 +1,7 @@
 {
 
 data : {
-    path: "tmp/1-SarriPal_S9_L001_R1_001.fastq.gz"
+    path: "export/local/1-SarriPal_S9_L001_R1_001.fastq.gz"
     visible: true
     origin: PROJECT
     data_type: FASTQ_TYPE
