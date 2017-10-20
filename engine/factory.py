@@ -111,7 +111,7 @@ def data_generator(field, project, data_type=None):
     datamap = project.get_data(data_type=valid_type)
 
     def choice_func():
-        choices = [(d.id, d.title) for d in datamap.values()]
+        choices = [(d.id, d.name) for d in datamap.values()]
         return choices
 
     return select_field(field, choicefunc=choice_func)

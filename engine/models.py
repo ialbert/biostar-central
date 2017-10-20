@@ -301,7 +301,7 @@ class Job(models.Model):
     @property
     def json_data(self):
         "Returns the json_text as parsed json_data"
-        return json.loads(self.json_text)
+        return hjson.loads(self.json_text)
 
     def save(self, *args, **kwargs):
         now = timezone.now()
