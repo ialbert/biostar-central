@@ -48,8 +48,8 @@ threads : {
     }
 
 execute : {
-    filename : Makefile
-    command : make all
+    filename : trim.sh
+    command : bash trim.sh
     view : results/index.html
 }
 
