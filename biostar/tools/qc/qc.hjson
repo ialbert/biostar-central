@@ -26,6 +26,16 @@ trim_primer: {
     display_type: CHECKBOX
     }
 
+kmer_length: {
+    label : Specify kmer length primer trimming.
+    value : 15
+    help : Default value is 15.
+    visible: true
+    range : [5,30]
+    display_type: INTEGER
+    }
+
+
 trim_quality: {
     label : Quality trimming.
     value :  true
@@ -41,6 +51,16 @@ quality_threshold: {
     visible : true
     display_type : INTEGER
     }
+
+read_length: {
+    label : Minimum read length after trimming.
+    help : Default is 35.
+    value :  35
+    range : [10, 50]
+    visible : true
+    display_type : INTEGER
+    }
+
 
 threads : {
         value: 4

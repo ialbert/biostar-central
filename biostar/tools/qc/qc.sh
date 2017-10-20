@@ -3,6 +3,8 @@ INPUT_SAMPLE_INFO={{sampleinfo.path}}
 TRIM_QUALITY={{quality_threshold.value}}
 TRIM_PRIMER={{trim_primer.value}}
 THREADS={{threads.value}}
+KMER_LENGTH={{kmer_length.value}
+MIN_LENGTH={{read_length.value}}
 
 
 # Set up files and folders.
@@ -51,7 +53,7 @@ cat $SAMPLE_INFO | parallel --header : --colsep '\t' cp {file2} {result2}
     # Trim primer.
     cat $SAMPLE_INFO | parallel --verbose --progress --header : --colsep '\t' bbduk.sh \
     in1={result1} in2={result2}  out1={temp1} out2={temp2} \
-    literal={fwd_primer},{rev_primer} ktrim=l k=15 hdist=1 tpe tbo  \
+    literal={fwd_primer},{rev_primer} ktrim=l k=$KMER_LENGTH hdist=1 tpe tbo minlength=$MIN_LENGTH  \
     overwrite=t stats=work/{sample_name}_primer_stats.txt
 
     # copy output to input
