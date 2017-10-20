@@ -387,7 +387,6 @@ def media_index(request):
 
     return render(request, "media_index.html", context)
 
-@login_required
 def job_view(request, id):
     """
     Returns the primary result file for the job.
@@ -398,7 +397,6 @@ def job_view(request, id):
 
     return redirect(url)
 
-@login_required
 def job_directory_view(request, id):
     """
     Returns the directory view of the job.

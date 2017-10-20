@@ -6,13 +6,13 @@ TRIM_PRIMER = {{ trim_primer.value }}
 THREADS = {{ threads.value}}
 
 DATA_DIR = data
-ANALYSIS_DIR = analysis
+WORK_DIR = work
 RESULT_DIR  = results
 ERR_LOG = stderr.txt
 
 FASTQC_DIR =$(ANALYSIS_DIR)/fastqc
-PTRIM_DIR = $(ANALYSIS_DIR)/trim/trimp
-QTRIM_DIR = $(ANALYSIS_DIR)/trim/trimq
+PTRIM_DIR = $(ANALYSIS_DIR)/trim_primer
+QTRIM_DIR = $(ANALYSIS_DIR)/trim_quality
 
 # Stores the updated sample information.
 SAMPLE_INFO = updated_sampleinfo.txt
@@ -45,7 +45,7 @@ all:
 	# Run bbduk with primer trimming.
 	cat $(SAMPLE_INFO) | parallel --verbose --progress -j $(THREADS)  --header : --colsep '\t' bbduk.sh \
 	in1=$(DATA_DIR)/{file1} in2=$(DATA_DIR)/{file2} \
-	out1=$(PTRIM_DIR)/{sample_name}_R1_trimp.fq.gz \
+	out1=${sample_name}_R1_trimp.fq.gz \
 	out2=$(PTRIM_DIR)/{sample_name}_R2_trimp.fq.gz \
 	literal={fwd_primer},{rev_primer} ktrim=l k=15 hdist=1 tpe tbo  \
 	overwrite=t stats=$(PTRIM_DIR)/logs/{sample_name}_trimp_stats.txt
@@ -58,6 +58,7 @@ all:
 	multiqc -n primmer_trimmed_multiqc --force -o $(PTRIM_DIR) $(PTRIM_DIR)
 	cp $(PTRIM_DIR)/primmer_trimmed_multiqc.html $(RESULT_DIR)
 
+    OUTPUT2 > INPUT
 {% endif %}
 
 {%  if trim_quality.value  %}
@@ -66,7 +67,7 @@ all:
 
 {% endif %}
 
-
+ INPUT
 
 	#
 	# quality report
@@ -79,6 +80,7 @@ all:
 #
 
 # This here makes no sense
+
 
 ifeq ($(wildcard $(PTRIM_DIR)),)
 INDIR=$(DATA_DIR)
