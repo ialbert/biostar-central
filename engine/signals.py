@@ -59,12 +59,17 @@ def init_users(sender, **kwargs):
     for name, email in settings.ADMINS:
         if not User.objects.filter(email=email):
             user = User(first_name=name, email=email,
-                        is_superuser=True, is_staff=True)
+                    is_superuser=True, is_staff=True)
             user.set_password(settings.SECRET_KEY)
             user.save()
             logger.info(f"Created admin user: {user.email}")
             group.user_set.add(user)
 
+    # TODO: remove later
+    testbuddy = 'testbuddy@lvh.me'
+    user, flag = User.objects.get_or_create(email=testbuddy, username=testbuddy)
+    user.set_password(testbuddy)
+    user.save()
 
 def init_site(sender, **kwargs):
     """

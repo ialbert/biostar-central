@@ -94,28 +94,17 @@ def user_login(request):
             email = form.cleaned_data['email']
             password = form.cleaned_data['password']
 
-            # Due to an early bug emails may not be unique. Last subscription wins.
-            user = User.objects.filter(email__iexact=email).order_by('-id').first()
+            user = User.objects.filter(email=email).order_by('-id').first()
 
             if not user:
                 form.add_error(None, "This email does not exist.")
-                context = dict(form=form)
-                return render(request, "registration/user_login.html", context=context)
-
-            user = authenticate(username=user.username, password=password)
-
-            if not user:
-                form.add_error(None, "Invalid password.")
-            elif user and not user.is_active:
-                form.add_error(None, "This user may not log in.")
-            elif user and user.is_active:
+            else:
+                user = authenticate(username=user.username, password=password)
                 login(request, user)
                 logger.info(f"logged in user.id={user.id}, user.email={user.email}")
                 messages.info(request, "Login successful!")
                 return redirect(reverse("index"))
-            else:
-                # This should not happen normally.
-                form.add_error(None, "Invalid form processing.")
+
     else:
         initial = dict(nexturl=request.GET.get('next', '/'))
         form = LoginForm(initial=initial)
