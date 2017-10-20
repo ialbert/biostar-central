@@ -115,8 +115,6 @@ def run(job, options={}):
         job.state = job.ERROR
         job.save()
         stderr_log.append(f'{exc}')
-        stderr_log.append("-" * 40)
-        stderr_log.append(script)
         logger.info(f'job id={job.id} error {exc}')
 
     # Collect the output.
