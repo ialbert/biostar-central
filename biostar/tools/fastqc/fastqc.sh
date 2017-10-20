@@ -8,5 +8,4 @@ RESULT_DIR=results
 mkdir -p $RESULT_DIR
 fastqc -o $RESULT_DIR $INPUT_DATA
 
-
 mv $RESULT_DIR/${SAMPLE}_fastqc.html {{settings.index}}

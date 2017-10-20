@@ -10,8 +10,8 @@ from pagedown.widgets import PagedownWidget
 from engine.const import *
 from engine.web.auth import get_data
 
+
 class SignUpForm(forms.ModelForm):
-    
     password1 = forms.CharField(
         label=helpers("Password"),
         strip=False,
@@ -35,7 +35,6 @@ class SignUpForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
 
         super().__init__(*args, **kwargs)
-
 
     def clean_password2(self):
 
@@ -62,48 +61,42 @@ class LogoutForm(forms.Form):
 
 
 class LoginForm(forms.Form):
-
     email = forms.CharField(label='Email', max_length=100)
     password = forms.CharField(label='Password', max_length=100,
-                              widget=forms.PasswordInput)
+                               widget=forms.PasswordInput)
 
 
 class ProjectForm(forms.ModelForm):
-
     text = forms.CharField(widget=PagedownWidget(template="widgets/pagedownwidget.html"))
 
     class Meta:
-
         model = Project
         fields = ['title', 'text']
 
 
 class DataUploadForm(forms.Form):
-
     text = forms.CharField(widget=forms.Textarea(), max_length=512)
     file = forms.FileField(label="Upload Data File")
 
     def save(self, *args, **kwargs):
-
         super(DataUploadForm, self).save(*args, **kwargs)
 
-class DataEditForm(forms.Form):
 
+class DataEditForm(forms.Form):
     text = forms.CharField(widget=forms.Textarea(), max_length=512)
 
 
 def make_field(obj, project):
-
     field = ''
     visible = obj.get("visible")
-    origin = obj.get(FIELD_ORIGIN)
+    path = obj.get("path")
     display_type = obj.get("display_type", '')
 
     if not display_type:
         return field
 
     if visible:
-        if origin == PROJECT_ORIGIN:
+        if path:
             data_type = obj.get("data_type")
             field = factory.data_generator(obj, project=project, data_type=data_type)
         else:
@@ -113,7 +106,6 @@ def make_field(obj, project):
 
 
 class RunAnalysis(forms.Form):
-
     def __init__(self, analysis, *args, **kwargs):
 
         self.analysis = analysis
@@ -127,19 +119,24 @@ class RunAnalysis(forms.Form):
 
         for name, obj in self.json_data.items():
             field = make_field(obj, analysis.project)
-            #print(name, obj)
+            # print(name, obj)
             if field:
                 self.fields[name] = field
 
     def save(self, *args, **kwargs):
         super(RunAnalysis, self).save(*args, **kwargs)
 
-
     def process(self):
         '''
         Replaces the value of data fields with the path to the data.
         Should be called after the form has been filled and is valid.
         '''
+        project = self.analysis.project
+
+        # Gets all data for the project
+        datamap = project.get_data()
+
+        print ( type(list(datamap.keys())[0]) )
 
         json_data = self.json_data.copy()
 
@@ -148,17 +145,19 @@ class RunAnalysis(forms.Form):
             if not obj.get(FIELD_VISIBLE):
                 continue
 
-            if obj.get(FIELD_ORIGIN) == PROJECT_ORIGIN:
-                data_id = self.cleaned_data.get(field, 0)
-                data = get_data(data_id)
-                obj["path"] = data.get_path()
+            # If it has a path it is an uploaded file.
+            if obj.get("path"):
+                data_id = self.cleaned_data.get(field, '')
+                data_id = int(data_id)
+                data = datamap.get(data_id)
+                data.fill_dict(obj)
                 continue
 
             if field in self.cleaned_data:
                 # Mutates the value key.
                 obj["value"] = self.cleaned_data[field]
 
-            #TODO CHANGE
+            # TODO CHANGE
             if obj.get("path"):
                 obj["path"] = os.path.abspath(obj.get("path"))
 
@@ -166,8 +165,6 @@ class RunAnalysis(forms.Form):
 
 
 class EditAnalysisForm(forms.Form):
-
-
     def __init__(self, analysis, *args, **kwargs):
 
         self.analysis = analysis
@@ -188,7 +185,6 @@ class EditAnalysisForm(forms.Form):
         json_data = json.loads(cleaned_data["text"])
 
         self.generate_form(json_data)
-
 
     def save(self):
 
@@ -219,4 +215,3 @@ class EditAnalysisForm(forms.Form):
 
             if field:
                 self.fields[name] = field
-

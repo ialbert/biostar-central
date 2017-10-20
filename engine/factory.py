@@ -106,16 +106,12 @@ def ignore(field):
     pass
 
 
-
 def data_generator(field, project, data_type=None):
-    valid_type = DATA_TYPES.get(data_type, GENERIC_TYPE)
+    valid_type = DATA_TYPES.get(data_type, None)
+    datamap = project.get_data(data_type=valid_type)
 
     def choice_func():
-        query = Data.objects.filter(project=project)
-
-        if valid_type != GENERIC_TYPE:
-            query = query.filter(data_type=valid_type)
-        choices = [(d.id, d.title) for d in query]
+        choices = [(d.id, d.title) for d in datamap.values()]
         return choices
 
     return select_field(field, choicefunc=choice_func)

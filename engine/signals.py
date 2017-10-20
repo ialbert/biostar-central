@@ -1,6 +1,4 @@
-
 import logging, uuid
-import random
 from engine.const import *
 import os
 from django.conf import settings
@@ -8,7 +6,6 @@ from django.core import management
 import hjson as json
 from django.core.files import File
 from . import util
-
 
 logger = logging.getLogger('engine')
 
@@ -23,71 +20,39 @@ def get_uuid(limit=None):
 
 def init_proj(sender, **kwargs):
     """
-    Populate initial projects with N number data
-    Creates one analysis model to allow for jobs to be run
+    Project 1 must exist. It will store existing analyses.
+    We also create one job for each registered analysis.
     """
-    from engine.models import User, Project, Data, Analysis, Job
+    from engine.models import User, Group, Project, Data, Analysis, Job
 
+    # Get the first admin user.
+    admin = User.objects.filter(is_superuser=True).first()
+    group = Group.objects.get(name=settings.ADMIN_GROUP_NAME)
 
-    # Change the owner on the last iteration
+    # The first project is admin project.
+    project = Project.objects.filter(id=1).first()
 
-    # Needs to run only if there are no projects.
-    if Project.objects.filter().all():
-        return
-
-    # Make the test projects.
-    from biostar.tools.testdata import TEST_PROJECTS, TEST_DATA, TEST_ANALYSES
-
-    for title, description in TEST_PROJECTS:
-        # A project gets a random owner/ group
-        owner = User.objects.all()
-        owner = random.choice(owner)
-        group = owner.groups.first()
-
-        project = Project(title=title, owner=owner, text=description,
-                          group=group)
-        project.save()
-
-        logger.info(f'Created project: {project.title} belonging to {group} group.')
-
-        # Add data to each project.
-        for data_title, data_desc, data_file, data_type in TEST_DATA:
-            # data naming is a bit weired.
-            stream = File(open(data_file, 'rb'))
-
-            data_file = os.path.split(data_file)[-1]
-            size = f"{stream.size}"
-            data = Data(title=data_title, owner=owner, text=data_desc, project=project, data_type=data_type, size=size)
-            data.file.save(data_file, stream, save=True)
-            data.save()
-
-        # Initialize the same analyses for each project.
-        for spec_path, tmpl_path in TEST_ANALYSES:
-            management.call_command("analysis", add=True, pid=project.id, spec=spec_path, template=tmpl_path)
-
-        # Get the fastqc analysis.
-        analysis = Analysis.objects.filter(title__startswith="Generate FastQC").first()
-
-        # Get a FASTQ data
-        fastq_data = Data.objects.filter(data_type=FASTQ_TYPE).first()
-
-        # This work for this analysis only.
-        json_data = json.loads(analysis.json_text)
-        json_data['data']['path'] = fastq_data.get_path()
-        json_text = json.dumps(json_data)
-
-        # Create four jobs for each project.
-        for state in [Job.ERROR, Job.QUEUED]:
-            analysis.create_job(state=state, json_text=json_text)
+    # Set it up first time around.
+    if not project:
+        project = Project.objects.create(
+            title="Analysis demonstrations",
+            summary="Contains an example of each existing data analysis.",
+            text="Contains analyses",
+            owner=admin,
+            group=group
+        )
+        group.project_set.add(project)
 
 
 def init_users(sender, **kwargs):
     """
-    Creates admin users if these are not present.
+    Creates admin users and groups if needed.
     """
     from engine.models import User, Group
 
-    groups = Group.objects.all()
+    # Get the admin group.
+    group, created = Group.objects.get_or_create(name=settings.ADMIN_GROUP_NAME)
+
     logger.info("Setting up users")
 
     for name, email in settings.ADMINS:
@@ -96,46 +61,8 @@ def init_users(sender, **kwargs):
                         is_superuser=True, is_staff=True)
             user.set_password(settings.SECRET_KEY)
             user.save()
-            logger.info(f"created admin user: {user.email}")
-
-            # add admin to all groups ( for now atleast )
-            for group in groups:
-
-                group.user_set.add(user)
-                group.save()
-                logger.info(f"adding {user.email} to {group} group.")
-
-    for email, user_groups in settings.REGULAR_TEST_USERS.items():
-
-        if not User.objects.filter(email=email):
-
-            test_user = User(email=email, username=util.get_uuid())
-            test_user.set_password(email)
-            logger.info(f"creating user: {test_user.email}")
-            test_user.save()
-
-            for gr in user_groups:
-                user_group = Group.objects.filter(name=gr).first()
-                test_user.groups.add(user_group)
-                user_group.save()
-                logger.info(f"adding {test_user.email} to {user_group} group.")
-
-
-def init_groups(sender, **kwargs):
-
-    from engine.models import Group
-
-    logger.info("Setting up Groups")
-
-    if Group.objects.filter().all():
-        return
-
-    for name in INITIAL_GROUPS:
-
-        group = Group.objects.create(name=name)
-        group.save()
-
-    return
+            logger.info(f"Created admin user: {user.email}")
+            group.user_set.add(user)
 
 
 def init_site(sender, **kwargs):
@@ -159,5 +86,3 @@ def init_site(sender, **kwargs):
     # Get the current site
     site = Site.objects.get(id=settings.SITE_ID)
     logger.info("site.name={}, site.domain={}".format(site.name, site.domain))
-
-
