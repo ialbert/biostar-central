@@ -44,7 +44,6 @@ def init_proj(sender, **kwargs):
         owner = random.choice(owner)
         group = owner.groups.first()
 
-
         project = Project(title=title, owner=owner, text=description,
                           group=group)
         project.save()
@@ -120,7 +119,6 @@ def init_users(sender, **kwargs):
                 test_user.groups.add(user_group)
                 user_group.save()
                 logger.info(f"adding {test_user.email} to {user_group} group.")
-
 
 
 def init_groups(sender, **kwargs):
