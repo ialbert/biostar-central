@@ -23,6 +23,9 @@ def run(job, options={}):
     use_json = options.get('use_json')
     verbosity = options.get('verbosity', 0)
 
+    # Defined in case we bail on errors before setting it.
+    script = command = proc = None
+
     stdout_log = []
     stderr_log = []
 
@@ -68,6 +71,9 @@ def run(job, options={}):
         context = Context(json_data)
         script = template.render(context)
 
+        # Store the script for the job.
+        job.script = script
+
         # Show the script.
         if show_script:
             print(f'{script}')
@@ -109,6 +115,8 @@ def run(job, options={}):
         job.state = job.ERROR
         job.save()
         stderr_log.append(f'{exc}')
+        stderr_log.append("-" * 40)
+        stderr_log.append(script)
         logger.info(f'job id={job.id} error {exc}')
 
     # Collect the output.

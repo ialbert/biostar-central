@@ -2,23 +2,28 @@
 {% load engine_tags %}
 
 {% block title %}
-    {{job.title}}
+    {{ job.title }}
 {% endblock %}
 
 
 {% block body %}
 
 
-<div class="ui vertical segment">
+    <div class="ui vertical segment">
 
-    <div class="textbody {{job.get_state_display}}">{{job.get_state_display}}</div>
-    <a href="{% url 'job_view' job.id %}">View Results</a>
-    <div class="textbody">Start Date: {{job.date.date}}</div>
-    <div class="textbody">Job Log
-<pre>{{ job.log }}</pre>
+        <div class="textbody {{ job.get_state_display }}">{{ job.get_state_display }}</div>
+        <a href="{% url 'job_view' job.id %}">View Results</a>
+        <div class="textbody">Start Date: {{ job.date.date }}</div>
     </div>
 
-</div>
+    <div class="ui vertical segment">
+        <div class="ui center aligned header">Job Log</div>
+        <pre>{{ job.log }}</pre>
+    </div>
 
+    <div class="ui vertical segment">
+        <div class="ui center aligned header">Script</div>
+        <pre>{{ job.script }}</pre>
+    </div>
 
 {% endblock %}
