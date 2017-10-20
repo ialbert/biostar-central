@@ -108,25 +108,25 @@ class Project(models.Model):
                                            template=template, )
         return analysis
 
-    def create_data(self,  stream=None, fname=None, title="data.bin", owner=None, text='', data_type=None):
+    def create_data(self,  stream=None, fname=None, name="data.bin", owner=None, text='', data_type=None):
         """
         Creates a data for the project from filename or a stream.
         """
 
         if fname:
             stream = File(open(fname, 'rb'))
-            title = os.path.basename(fname)
+            name = os.path.basename(fname)
         owner = owner or self.owner
         text = text or "No description"
         data_type = data_type or GENERIC_TYPE
-        data = Data(title=title, owner=owner,
+        data = Data(name=name, owner=owner,
                     text=text, project=self, data_type=data_type)
 
         # Need to save before uid gets triggered.
         data.save()
 
         # This saves the into the
-        data.file.save(title, stream, save=True)
+        data.file.save(name, stream, save=True)
 
         # Updates its own size.
         data.set_size()
@@ -141,9 +141,6 @@ class Data(models.Model):
 
     name = models.CharField(max_length=256)
     summary = models.TextField(default='text')
-
-    # TODO: title needs to go away.
-    title = models.CharField(max_length=256)
 
     owner = models.ForeignKey(User)
     text = models.TextField(default='text')
@@ -204,7 +201,7 @@ class Data(models.Model):
         """
         obj['path'] = self.get_path()
         obj['value'] = self.id
-        obj['name'] = self.title
+        obj['name'] = self.name
 
 class Analysis(models.Model):
 
