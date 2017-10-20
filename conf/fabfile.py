@@ -22,6 +22,7 @@ def deploy_latest(path):
     with cd(path), prefix(env_prefix):
         run("rm -f export/engine.db")
         run('git pull')
+        run('make reset')
         run('python manage.py migrate')
         run('python manage.py collectstatic --noinput -v 0')
         restart_uwsgi()
