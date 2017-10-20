@@ -30,16 +30,19 @@
 <body>
 
 <div class="ui text container">
-    <div class="ui horizontal divider"></div>
-    {% block menu %}
-        {% menubar %}
-    {% endblock %}
 
     <h2 class="ui center aligned header">
         {%  block title %}
         <i class="barcode icon"></i> Metagenomics Barcode Data Repository
         {%  endblock %}
     </h2>
+
+    <div class="ui horizontal divider"></div>
+    {% block menu %}
+        {% menubar %}
+    {% endblock %}
+
+
 
 
     <div class="breadcrumb">

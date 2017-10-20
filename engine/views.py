@@ -200,22 +200,17 @@ def data_edit(request, id):
 
     data = Data.objects.filter(id=id).first()
     project = data.project
-    initial = dict(text=data.text, name=data.name)
 
     steps = breadcrumb_builder([PROJECT_ICON, DATA_LIST_ICON, DATA_ICON],
                                project=project, data=data)
 
     if request.method == "POST":
-
-        form = DataEditForm(request.POST, initial=initial)
-
+        form = DataEditForm(request.POST, instance=data)
         if form.is_valid():
-            data.name = form.cleaned_data["name"]
-            data.text = form.cleaned_data["text"]
-            data.save()
+            form.save()
             return redirect(reverse("data_view", kwargs=dict(id=data.id)))
     else:
-        form = DataEditForm(initial=initial)
+        form = DataEditForm(instance=data)
 
     context = dict(data=data, steps=steps, form=form)
 
@@ -224,6 +219,8 @@ def data_edit(request, id):
 
 @login_required
 def data_upload(request, id):
+
+    owner = request.user
 
     project = Project.objects.filter(id=id).first()
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON],
@@ -234,17 +231,12 @@ def data_upload(request, id):
         form = DataUploadForm(request.POST, request.FILES)
 
         if form.is_valid():
-
-            title = form.cleaned_data["file"]
-            data_file = str(form.cleaned_data["file"])
-            file = File(form.cleaned_data["file"])
-            owner = User.objects.filter(email=request.user).first() or project.owner
             text = form.cleaned_data["text"]
-            data_type = get_datatype(file)
-            size = f"{file.size}"
-            data = Data(title=title, owner=owner, text=text, project=project, data_type=data_type, size=size)
-            data.file.save(data_file, file, save=True)
-            data.save()
+
+            stream = form.cleaned_data["file"]
+            name = stream.name
+            data_type = get_datatype(name)
+            project.create_data(stream=stream, name=name, data_type=data_type, text=text)
 
             return redirect(reverse("data_list", kwargs={'id':project.id}))
 

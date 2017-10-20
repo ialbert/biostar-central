@@ -7,7 +7,7 @@
 
 {% block body %}
 
-<div class="createform">
+<div class="ui inverted olive segment">
     <form method="post" class="ui form" enctype="multipart/form-data">
 
         {% csrf_token %}
@@ -18,17 +18,22 @@
               {{ form.file }}
          </div>
 
+        <div class="field">
+            <label>Summary</label>
+            <textarea name="{{ form.summary.name }}" rows="2">{{ form.summary.value }}</textarea>
+        </div>
+
         <div class="field segment">
-              <label>Description</label>
+              <label>Data Description</label>
               {{ form.text }}
          </div>
 
         {{ form.errors }}
 
-        <button type="submit" class="ui primary button">
+        <button type="submit" class="ui button">
             <i class="write square icon"></i>Upload Data
         </button>
-        <a class="ui right floated button" href="{% url 'project_view' project.id %}">
+        <a class="ui right floated button" href="{% url 'data_list' project.id %}">
             Back
         </a>
 

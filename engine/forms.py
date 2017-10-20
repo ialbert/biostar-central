@@ -72,18 +72,15 @@ class ProjectForm(forms.ModelForm):
         fields = ['title', 'summary', 'text']
 
 
-class DataUploadForm(forms.Form):
-    text = forms.CharField(widget=forms.Textarea(), max_length=20000)
-    file = forms.FileField(label="Upload Data File")
+class DataUploadForm(forms.ModelForm):
+    class Meta:
+        model = Data
+        fields = ['file', 'summary', 'text']
 
-    def save(self, *args, **kwargs):
-        super(DataUploadForm, self).save(*args, **kwargs)
-
-
-class DataEditForm(forms.Form):
-    name = forms.CharField(max_length=256)
-    text = forms.CharField(widget=forms.Textarea(), max_length=1024)
-
+class DataEditForm(forms.ModelForm):
+    class Meta:
+        model = Data
+        fields = ['name', 'summary', 'text']
 
 def make_field(obj, project):
     field = ''

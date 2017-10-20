@@ -1,24 +1,26 @@
 {% extends "base.html" %}
-
+{%  load engine_tags %}
 {% block headtitle %}
     Analysis List
 {% endblock %}
 
-{% block title %}
-    Analysis list for: {{project.title}}
-{% endblock %}
-
 {% block body %}
+
+     <div class="ui vertical segment">
+        <div class="ui center aligned header">
+            Available analyses in project: {{ project.title }}
+        </div>
+    </div>
 
 {% for obj in analysis %}
 
     <div class="ui vertical segment">
-        <div class="title">
+        <div class="ui header">
             <a href="{% url 'analysis_view' obj.id %}">
             <i class="setting icon"></i>{{ obj.title }}
             </a>
         </div>
-        <div class="info">{{obj.date.date}}</div>
+        <span>{{ obj.summary|markdown|safe }}</span>
     </div>
 
 {% endfor %}

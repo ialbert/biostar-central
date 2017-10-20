@@ -1,4 +1,5 @@
-import mimetypes, logging
+import mimetypes, logging, quopri
+
 from itertools import islice
 
 import hjson as json
@@ -18,7 +19,6 @@ from . import settings
 from . import util
 from .const import *
 from django.core.files import File
-
 logger = logging.getLogger("engine")
 
 # The maximum length in characters for a typical name and text field.
@@ -50,8 +50,7 @@ def upload_path(instance, filename):
 class Project(models.Model):
 
     name = models.CharField(max_length=256)
-    summary = models.TextField(default='summ'
-                                       'ary')
+    summary = models.TextField(default='summary')
     # TODO: title needs to go away.
     title = models.CharField(max_length=256)
     owner = models.ForeignKey(User)
@@ -175,12 +174,18 @@ class Data(models.Model):
         """
         Peeks at the data if it is text
         """
+
+
         mimetype, mimecode = mimetypes.guess_type(self.get_path())
+        stream = open(self.file.path, 'rb')
         if mimetype == 'text/plain':
-            stream = open(self.file.path)
-            lines = [line for line in islice(stream, 10)]
-            content = "\n".join(lines)
-            return content
+            lines = [ next(stream) for x in range(10) ]
+            data = '\n'.join(lines)
+        else:
+            data = open(self.file.path, 'rb').read(512)
+            data = quopri.encodestring(data)
+
+        return data
 
         return "*** Binary file ***"
 

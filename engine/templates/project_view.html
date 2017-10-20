@@ -6,9 +6,7 @@
     {{ project.title }}
 {% endblock %}
 
-{% block title %}
-    Project: {{ project.title }}
-{% endblock %}
+
 
 {% block menu %}
     {% menubar project=project edit_project=True %}
@@ -18,13 +16,16 @@
     {% breadcrumb steps=steps %}
 {% endblock %}
 
-
 {% block body %}
 
     <div class="ui text container">
 
         <div class="ui vertical segment">
-            {{ project.summary }}
+            <div class="ui center aligned header">
+                Project: {{ project.title }}
+            </div>
+            <div>{{ project.summary|markdown|safe }}</div>
+
         </div>
 
         <div class="ui vertical segment">
@@ -56,10 +57,14 @@
         </div>
 
         <div class="ui vertical segment">
-            <div class="ui header">
-                <span><i class="help circle icon"></i>Project Details</span>
-            </div>
+             <div class="ui center aligned header">Detailed Description</div>
             {{ project.html|safe }}
+        </div>
+
+        <div class="ui center aligned vertical segment">
+            <a class="ui button" href="{% url 'project_edit' project.id %}">
+                <i class="write icon"></i>Edit Project
+            </a>
         </div>
 
     </div>

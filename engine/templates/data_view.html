@@ -1,10 +1,6 @@
 {% extends "base.html" %}
 {% load engine_tags %}
 
-{% block headtitle %}
-    Data: {{ data.name }}
-{% endblock %}
-
 {% block title %}
     Data: {{ data.name }}
 {% endblock %}
@@ -20,11 +16,29 @@
 {% block body %}
 
     <div class="ui vertical segment">
-        <div class="textbody">File: {{ data.file }}</div>
-        <div class="textbody">Size: {{ data.size|filesizeformat}}</div>
-        <div class="textbody">{{ data.html|safe }}</div>
-<pre>{{ data.peek }}
-</pre>
+        <div class="ui center aligned header">
+            Data: {{ data.name }}
+        </div>
+        {{ data.summary|markdown|safe }}
+        <div>Size: {{ data.size|filesizeformat }}</div>
+        <div>Path: {{ data.file }}</div>
+
+    </div>
+
+    <div class="ui vertical segment">
+        <div class="ui center aligned header">Description</div>
+        <div>{{ data.html|safe }}</div>
+    </div>
+
+    <div class="ui vertical segment">
+        <div class="ui center aligned header">Content</div>
+        <pre>{{ data.peek }}</pre>
+    </div>
+
+    <div class="ui center aligned vertical segment">
+        <a class="ui button" href="{% url 'data_edit' data.id %}">
+            <i class="write icon"></i>Edit Data
+        </a>
     </div>
 
 {% endblock %}

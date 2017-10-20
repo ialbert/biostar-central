@@ -9,7 +9,7 @@
 
 <div class="ui olive inverted secondary raised segment">
 
-    <form method="post" class="ui form" >
+    <form method="post" class="ui form" action="{% url 'project_create' %}">
 
             {% csrf_token %}
 
@@ -19,7 +19,7 @@
              </div>
 
             <div class="field">
-                  <label>Short Summary</label>
+                  <label>Summary</label>
                   {{ form.summary}}
              </div>
 
@@ -33,7 +33,7 @@
             <button type="submit" class="ui submit button">
                 <i class="save icon"></i>Save
             </button>
-            <a class="ui right floated button" href="{% url 'project_create' %}">
+            <a class="ui right floated button" href="{% url 'project_list' %}">
                 Back
             </a>
 

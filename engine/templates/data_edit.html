@@ -1,28 +1,33 @@
 {% extends "base.html" %}
 
 {% block title %}
-    {{data.name}}
+    {{ data.name }}
 {% endblock %}
 
 {% block body %}
 
 
 
-<div class="ui olive inverted secondary raised segment">
+    <div class="ui olive inverted secondary raised segment">
 
-    <form method="post" class="ui form" action="{% url 'data_edit' data.id %}" enctype="multipart/form-data">
+        <form method="post" class="ui form" action="{% url 'data_edit' data.id %}" enctype="multipart/form-data">
 
             {% csrf_token %}
 
             <div class="field segment">
-                  <label>Data Name</label>
-                  {{ form.name }}
-             </div>
+                <label>Data Name</label>
+                {{ form.name }}
+            </div>
+
+            <div class="field">
+                <label>Summary</label>
+                <textarea name="{{ form.summary.name }}" rows="2">{{ form.summary.value }}</textarea>
+            </div>
 
             <div class="field segment">
-                  <label>Data description</label>
-                  {{ form.text }}
-             </div>
+                <label>Data description</label>
+                {{ form.text }}
+            </div>
 
             {{ form.errors }}
 
@@ -34,6 +39,6 @@
             </a>
 
         </form>
-</div>
+    </div>
 
 {% endblock %}
