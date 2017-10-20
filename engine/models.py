@@ -1,14 +1,10 @@
-import mimetypes, logging, quopri
+import logging, hjson
 
-from itertools import islice
-
-import hjson as json
-import mistune
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.template.loader import get_template
+
 
 from django.contrib.auth.models import Group
 import mistune
@@ -172,22 +168,9 @@ class Data(models.Model):
 
     def peek(self):
         """
-        Peeks at the data if it is text
+        Returns a preview of the data
         """
-
-
-        mimetype, mimecode = mimetypes.guess_type(self.get_path())
-        stream = open(self.file.path, 'rb')
-        if mimetype == 'text/plain':
-            lines = [ next(stream) for x in range(10) ]
-            data = '\n'.join(lines)
-        else:
-            data = open(self.file.path, 'rb').read(512)
-            data = quopri.encodestring(data)
-
-        return data
-
-        return "*** Binary file ***"
+        return util.smart_preview(self.get_path())
 
     def set_size(self):
         """
@@ -242,7 +225,7 @@ class Analysis(models.Model):
     @property
     def json_data(self):
         "Returns the json_text as parsed json_data"
-        return json.loads(self.json_text)
+        return hjson.loads(self.json_text)
 
     def save(self, *args, **kwargs):
         now = timezone.now()
@@ -261,7 +244,7 @@ class Analysis(models.Model):
         owner = owner or self.project.owner
 
         if json_data:
-            json_text = json.dumps(json_data)
+            json_text = hjson.dumps(json_data)
         else:
             json_text = json_text or self.json_text
 
