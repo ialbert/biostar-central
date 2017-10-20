@@ -101,7 +101,6 @@ def project_list(request):
     return render(request, "project_list.html", context)
 
 
-
 #@login_required
 def project_view(request, id):
 
@@ -233,7 +232,7 @@ def data_upload(request, id):
         form = DataUploadForm(request.POST, request.FILES)
 
         if form.is_valid():
-
+            # make work off
             title = form.cleaned_data["file"]
             data_file = str(form.cleaned_data["file"])
             file = File(form.cleaned_data["file"])
