@@ -6,6 +6,7 @@ from django.core import management
 import hjson as json
 from django.core.files import File
 from . import util
+from biostar.tools import defaults
 
 logger = logging.getLogger('engine')
 
@@ -35,9 +36,9 @@ def init_proj(sender, **kwargs):
     # Set it up first time around.
     if not project:
         project = Project.objects.create(
-            title="Analysis demonstrations",
-            summary="Contains an example of each existing data analysis.",
-            text="Contains analyses",
+            title=defaults.PROJECT_TITLE,
+            summary=defaults.PROJECT_SUMMARY,
+            text=defaults.PROJECT_TEXT,
             owner=admin,
             group=group
         )
