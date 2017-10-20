@@ -25,6 +25,8 @@ def join(*args):
 
 ADMINS = [("Admin User", "1@lvh.me")]
 
+ADMIN_GROUP_NAME = "Admins"
+
 REGULAR_TEST_USERS = {
                       # User email  : [group1, group2..]
                       "testbuddy@lvh.me": ["Public", "Lamar"],

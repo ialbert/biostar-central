@@ -16,11 +16,18 @@ delete:
 	rm -f export/engine.db
 	rm -rf media/*
 
-reset:delete init
+reset:delete init jobs
+
+next:
+	python manage.py job --next
+
+jobs:
+	python manage.py analysis --add --json biostar/tools/fastqc/fastqc.hjson  --template biostar/tools/fastqc/fastqc.sh --create_job
 
 init:
 	python manage.py collectstatic --noinput -v 0
 	python manage.py migrate
+
 
 test:
 	python manage.py test

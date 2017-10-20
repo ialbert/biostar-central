@@ -1,5 +1,4 @@
 #import os
-#import hjson as json
 import logging
 from django.contrib.auth.decorators import login_required
 #from django.template.loader import get_template
@@ -12,6 +11,7 @@ from .models import (User, Project, Data,
                      Analysis, Job, get_datatype)
 from django.core.files import File
 import mimetypes
+import hjson
 
 from engine.const import *
 from . import tasks
@@ -31,20 +31,14 @@ def make_html(text):
 
 
 def info(request):
-
     steps = breadcrumb_builder([HOME_ICON, INFO_ICON])
-
     context = dict(steps=steps, info=make_html(INFO))
-
     return render(request, 'info.html', context=context)
 
 
 def index(request):
-
     steps = breadcrumb_builder([HOME_ICON])
-
     context = dict(steps=steps)
-
     return render(request, 'index.html', context)
 
 
@@ -98,17 +92,7 @@ def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=Non
 
 def project_list(request):
 
-    groups = Group.objects.filter(name="Public")
-
-    if request.user.is_authenticated:
-        user = User.objects.filter(id=request.user.id).first()
-        groups = user.groups.all()
-
-    projects = Project.objects.order_by("-id").filter(group__in=groups)
-
-    if not projects.all():
-        messages.error(request, "No projects associated with your groups.")
-        return redirect(reverse("index"))
+    projects = Project.objects.order_by("-id")
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON])
 
@@ -118,14 +102,15 @@ def project_list(request):
 
 
 
-#TODO: fix for public projects
 #@login_required
 def project_view(request, id):
 
     project = Project.objects.filter(id=id).first()
 
+    # Project not found.
     if not project:
         messages.error(request, "Project not found.")
+        return redirect(reverse("project_list"))
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON],
                                project=project)
@@ -143,7 +128,6 @@ def project_edit(request, id):
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON], project=project)
 
     if request.method == "POST":
-
         form = ProjectForm(request.POST, instance=project)
         if form.is_valid():
             form.save()
@@ -163,22 +147,17 @@ def project_create(request, id):
 
     if request.method == "POST":
         # create new projects here ( just populates metadata ).
-
         form = ProjectForm(data=request.POST)
-
         if form.is_valid():
-
             title = form.cleaned_data["title"]
             text = form.cleaned_data["text"]
             owner = User.objects.all().first()
             project = Project.objects.create(title=title, text=text, owner=owner)
             project.save()
-
             return redirect(reverse("project_list"))
         else:
             form.add_error(None, "Invalid form processing.")
     else:
-
         form = ProjectForm()
         context = dict(steps=steps, form=form)
         return render(request, 'project_create.html',
@@ -187,19 +166,10 @@ def project_create(request, id):
 
 #@login_required
 def data_list(request, id):
-
     project = Project.objects.filter(id=id).first()
-
-
-    if not project.data_set.all():
-        messages.error(request, "No data found for this project.")
-        return redirect(reverse("project_view", kwargs={'id': project.id}))
-
     steps = breadcrumb_builder([PROJECT_LIST_ICON,  PROJECT_ICON, DATA_LIST_ICON],
                                project=project)
-
     context = dict(project=project, steps=steps)
-
     return render(request, "data_list.html", context)
 
 
@@ -207,16 +177,8 @@ def data_list(request, id):
 def data_view(request, id):
 
     data = Data.objects.filter(id=id).first()
-    project = data.project
-
-    if not data:
-        messages.error(request, "Data not found.")
-        return redirect(reverse("data_view", kwargs={'id': data.id}))
-
     steps = breadcrumb_builder([PROJECT_ICON, DATA_LIST_ICON, DATA_ICON],
-                               project=project, data=data)
-
-
+                               project=data.project, data=data)
     context = dict(data=data, steps=steps)
 
     return render(request, "data_view.html", context)
@@ -294,36 +256,26 @@ def data_upload(request, id):
 
 #@login_required
 def analysis_list(request, id):
-
+    """
+    Returns the list of analyses for a project id.
+    """
     project = Project.objects.filter(id=id).first()
     analysis = Analysis.objects.filter(project=project).order_by("-id")
-
-    if not analysis:
-        messages.error(request, "No Analysis found.")
-        return redirect(reverse("project_view", kwargs={'id': project.id}))
-
     steps = breadcrumb_builder([PROJECT_LIST_ICON,  PROJECT_ICON, ANALYSIS_LIST_ICON],
                                project=project)
-
     context = dict(project=project, analysis=analysis, steps=steps)
 
     return render(request, "analysis_list.html", context)
 
 
 def analysis_view(request, id):
-
+    """
+    Returns an analysis view based on its id.
+    """
     analysis = Analysis.objects.filter(id=id).first()
-    project = analysis.project
-
-    if not analysis:
-        messages.error(request, "Analysis not found.")
-        return redirect(reverse("analysis_list", kwargs={'id':project.id}))
-
     steps = breadcrumb_builder([PROJECT_ICON, ANALYSIS_LIST_ICON, ANALYSIS_ICON],
-                               project=project, analysis=analysis)
-
-
-    context = dict(project=project, analysis=analysis, steps=steps)
+                               project=analysis.project, analysis=analysis)
+    context = dict(project=analysis.project, analysis=analysis, steps=steps)
 
     return render(request, "analysis_view.html", context)
 
@@ -345,7 +297,7 @@ def analysis_run(request, id):
             title = form.cleaned_data.get("title")
 
             filled_json = form.process()
-            json_text = json.dumps(filled_json)
+            json_text = hjson.dumps(filled_json)
             job = analysis.create_job(owner=analysis.owner, json_text=json_text, title=title)
             logger.info(tasks.HAS_UWSGI)
 
@@ -408,26 +360,23 @@ def analysis_edit(request, id):
     else:
 
         form = EditAnalysisForm(analysis=analysis)
-        spec = json.loads(analysis.json_text)
+        spec = hjson.loads(analysis.json_text)
         context = preview_specs(spec, analysis)
 
     context.update(dict(project=project, analysis=analysis, steps=steps, form=form))
     return render(request, 'analysis_edit.html', context)
 
 
-def jobs_list(request, id):
-
+def job_list(request, id):
+    """
+    Returns the list of jobs for a project id.
+    """
     project = Project.objects.filter(id=id).first()
-
-    if not project.job_set.all():
-        messages.error(request, "No jobs found for this project.")
-        return redirect(reverse("project_view", kwargs={'id': project.id}))
-
     steps = breadcrumb_builder([PROJECT_LIST_ICON, PROJECT_ICON, RESULT_LIST_ICON ],
                                project=project)
 
-    jobs = project.job_set.order_by("-id")
 
+    jobs = project.job_set.order_by("-id")
     context = dict(jobs=jobs, steps=steps, project=project)
 
     return render(request, "jobs_list.html", context)

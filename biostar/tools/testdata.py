@@ -36,7 +36,7 @@ TEST_DATA = [
 
 TEST_ANALYSES = [
     # (spec, template)
-    (join(__THIS, 'fastqc/fastqc.hjson'), join(__THIS, 'fastqc/fastqc_template.sh')),
+    (join(__THIS, 'fastqc/fastqc.hjson'), join(__THIS, 'fastqc/fastqc.sh')),
     (join(__THIS, 'qc/qc.hjson'), join(__THIS, 'qc/qc_template.txt')),
     (join(__THIS, 'classify/classify.hjson'), join(__THIS, 'classify/classify_template.txt'))
 ]

@@ -1,4 +1,4 @@
-import mimetypes
+import mimetypes, logging
 from itertools import islice
 
 import hjson as json
@@ -17,6 +17,9 @@ from django.utils import timezone
 from . import settings
 from . import util
 from .const import *
+from django.core.files import File
+
+logger = logging.getLogger("engine")
 
 def join(*args):
     return os.path.abspath(os.path.join(*args))
@@ -30,14 +33,14 @@ def get_datatype(file):
     return Data.FILE
 
 
-def directory_path(instance, filename):
+def upload_path(instance, filename):
+    # Name the data by the filename.
+    #instance.title = instance.title or os.path.basename(filename)
     pieces = os.path.basename(filename).split(".")
-    # May have multiple extensions
+    # File may have multiple extensions
     exts = ".".join(pieces[1:]) or "data"
-    uid = util.get_uuid(8)
-    filename = f"data-{uid}.{exts}"
-
-    return f'{instance.project.get_path()}/{filename}'
+    dataname = f"data-{instance.uid}.{exts}"
+    return f'{instance.project.get_path()}/{dataname}'
 
 
 class Project(models.Model):
@@ -45,12 +48,12 @@ class Project(models.Model):
     title = models.CharField(max_length=256)
     owner = models.ForeignKey(User)
     text = models.TextField(default='text')
+    summary =  models.TextField(default='summary')
     html = models.TextField(default='html')
     date = models.DateTimeField(auto_now_add=True)
 
     # Project restircted to one group
     group = models.ForeignKey(Group)
-
     uid = models.CharField(max_length=32)
 
     # Will be false if the objects is to be deleted.
@@ -91,6 +94,23 @@ class Project(models.Model):
                                            template=template, )
         return analysis
 
+    def create_data(self,  stream=None, fname=None, title="data.bin", owner=None, text='', data_type=None):
+        """
+        Creates a data for the project from filename or a stream.
+        """
+
+        if fname:
+            stream = File(open(fname, 'rb'))
+            title = fname
+        owner = owner or self.owner
+        text = text or "No description"
+        data_type = data_type or GENERIC_TYPE
+        data = Data(title=title, owner=owner,
+                    text=text, project=self, data_type=data_type)
+        data.save()
+        data.file.save(title, stream, save=True)
+        return data
+
 
 class Data(models.Model):
     FILE, COLLECTION = 1, 2
@@ -106,8 +126,8 @@ class Data(models.Model):
     project = models.ForeignKey(Project)
     size = models.CharField(null=True, max_length=256)
 
-    file = models.FileField(null=True, upload_to=directory_path)
-    path = models.FilePathField(null=True)
+    file = models.FileField(null=True, upload_to=upload_path, max_length=500)
+    uid = models.CharField(max_length=32)
 
     # Will be false if the objects is to be deleted.
     valid = models.BooleanField(default=True)
@@ -117,6 +137,7 @@ class Data(models.Model):
 
     def save(self, *args, **kwargs):
         now = timezone.now()
+        self.uid = self.uid or util.get_uuid(8)
         self.date = self.date or now
         self.html = make_html(self.text)
         super(Data, self).save(*args, **kwargs)
@@ -184,7 +205,7 @@ class Analysis(models.Model):
         job = Job.objects.create(title=title, summary=self.summary, state=state, json_text=json_text,
                                  project=self.project, analysis=self, owner=owner,
                                  template=self.template)
-
+        logger.info(f"Queued job: '{job.title}'")
         return job
 
 
@@ -268,7 +289,7 @@ def create_profile(sender, instance, created, **kwargs):
         Profile.objects.create(user=instance)
 
         # Add every user to "public group"
-        instance.groups.add(Group.objects.get(name='Public'))
+        # instance.groups.add(Group.objects.get(name='Public'))
 
 
 post_save.connect(create_profile, sender=User)
