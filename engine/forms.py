@@ -9,7 +9,7 @@ from . import factory
 from pagedown.widgets import PagedownWidget
 from engine.const import *
 from engine.web.auth import get_data
-
+from . import models
 
 class SignUpForm(forms.ModelForm):
     password1 = forms.CharField(
@@ -67,15 +67,13 @@ class LoginForm(forms.Form):
 
 
 class ProjectForm(forms.ModelForm):
-    text = forms.CharField(widget=PagedownWidget(template="widgets/pagedownwidget.html"))
-
     class Meta:
         model = Project
-        fields = ['title', 'text']
+        fields = ['title', 'summary', 'text']
 
 
 class DataUploadForm(forms.Form):
-    text = forms.CharField(widget=forms.Textarea(), max_length=512)
+    text = forms.CharField(widget=forms.Textarea(), max_length=20000)
     file = forms.FileField(label="Upload Data File")
 
     def save(self, *args, **kwargs):
@@ -83,7 +81,8 @@ class DataUploadForm(forms.Form):
 
 
 class DataEditForm(forms.Form):
-    text = forms.CharField(widget=forms.Textarea(), max_length=512)
+    name = forms.CharField(max_length=256)
+    text = forms.CharField(widget=forms.Textarea(), max_length=1024)
 
 
 def make_field(obj, project):

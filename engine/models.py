@@ -21,6 +21,10 @@ from django.core.files import File
 
 logger = logging.getLogger("engine")
 
+# The maximum length in characters for a typical name and text field.
+MAX_NAME_LEN = 256
+MAX_TEXT_LEN = 10000
+
 def join(*args):
     return os.path.abspath(os.path.join(*args))
 
@@ -51,7 +55,7 @@ class Project(models.Model):
     # TODO: title needs to go away.
     title = models.CharField(max_length=256)
     owner = models.ForeignKey(User)
-    text = models.TextField(default='text')
+    text = models.TextField(default='text', max_length=MAX_TEXT_LEN)
 
     html = models.TextField(default='html')
     date = models.DateTimeField(auto_now_add=True)
@@ -69,7 +73,7 @@ class Project(models.Model):
         self.html = make_html(self.text)
 
         # Takes first user group for now
-        self.group = self.group or self.owner.groups.first()
+        self.group = self.owner.groups.first()
 
         self.uid = self.uid or util.get_uuid(8)
         if not os.path.isdir(self.get_path()):
@@ -143,7 +147,7 @@ class Data(models.Model):
     summary = models.TextField(default='text')
 
     owner = models.ForeignKey(User)
-    text = models.TextField(default='text')
+    text = models.TextField(default='text', max_length=MAX_TEXT_LEN)
     html = models.TextField(default='html')
     date = models.DateTimeField(auto_now_add=True)
     type = models.IntegerField(default=FILE, choices=TYPE_CHOICES)
@@ -207,7 +211,7 @@ class Analysis(models.Model):
 
     name = models.CharField(max_length=256)
     summary = models.TextField(default='text')
-    text = models.TextField(default='text')
+    text = models.TextField(default='text', max_length=MAX_TEXT_LEN)
     html = models.TextField(default='html')
     owner = models.ForeignKey(User)
     # TODO: title needs to go away.
@@ -277,7 +281,7 @@ class Job(models.Model):
     title = models.CharField(max_length=256)
 
     owner = models.ForeignKey(User)
-    text = models.TextField(default='text')
+    text = models.TextField(default='text', max_length=MAX_TEXT_LEN)
     html = models.TextField(default='html')
     date = models.DateTimeField(auto_now_add=True)
 
@@ -287,7 +291,7 @@ class Job(models.Model):
 
     uid = models.CharField(max_length=32)
     template = models.TextField(default="makefile")
-    log = models.TextField(default="No data logged for current job")
+    log = models.TextField(default="No data logged for current job", max_length=10 * MAX_TEXT_LEN)
 
     # Will be false if the objects is to be deleted.
     valid = models.BooleanField(default=True)

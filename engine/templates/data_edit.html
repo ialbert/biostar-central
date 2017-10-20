@@ -6,18 +6,27 @@
 
 {% block body %}
 
-<div class="createform">
-        <form method="post" class="ui form" action="{% url 'data_edit' data.id %}" enctype="multipart/form-data">
+
+
+<div class="ui olive inverted secondary raised segment">
+
+    <form method="post" class="ui form" action="{% url 'data_edit' data.id %}" enctype="multipart/form-data">
 
             {% csrf_token %}
+
             <div class="field segment">
-                  <label>Description</label>
+                  <label>Data Name</label>
+                  {{ form.name }}
+             </div>
+
+            <div class="field segment">
+                  <label>Data description</label>
                   {{ form.text }}
              </div>
 
             {{ form.errors }}
 
-            <button type="submit" class="ui primary button">
+            <button type="submit" class="ui submit button">
                 <i class="save icon"></i>Save
             </button>
             <a class="ui right floated button" href="{% url 'data_view' data.id %}">
@@ -26,4 +35,5 @@
 
         </form>
 </div>
+
 {% endblock %}

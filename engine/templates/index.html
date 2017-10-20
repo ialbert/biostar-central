@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{%  load engine_tags %}
+{% load engine_tags %}
 
 {% block headtitle %}
     Metabarcode Home
@@ -16,31 +16,35 @@
 
 {% block body %}
 
-    <div class="ui text container">
-        <div class="ui vertical segment">
 
+
+    <div class="ui vertical segment">
+
+        <div class="ui header">
             <a href="{% url 'project_list' %}">
-                <div class="title"><i class="database icon"></i>Project List</div>
+                <i class="database icon"></i>Project List
             </a>
-
-
-           <div class="info">View the list of projects.</div>
-
         </div>
-
-        <div class="ui vertical segment">
-            <a href="{% url 'info' %}">
-            <div class="title"><i class="info circle icon"></i>Information</div>
-            </a>
-             <div class="info">About this site.</div>
-
-        </div>
-
-        <div class="ui vertical center aligned segment">
-            <p>2017</p>
-        </div>
+        <p>View the list of projects.</p>
 
     </div>
+
+    <div class="ui vertical segment">
+
+        <div class="ui header">
+            <a href="{% url 'info' %}">
+                <i class="info circle icon"></i>Information
+            </a>
+        </div>
+        <p>About this site.</p>
+
+    </div>
+
+    <div class="ui vertical center aligned segment">
+        <p>2017</p>
+    </div>
+
+
 
 
 {% endblock %}

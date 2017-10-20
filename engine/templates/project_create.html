@@ -7,32 +7,36 @@
 
 {% block body %}
 
+<div class="ui olive inverted secondary raised segment">
 
-<div class="createform">
     <form method="post" class="ui form" >
 
-        {% csrf_token %}
-        {{ form.media }}
-         <div class="nine wide field segment">
-              <label>Title</label>
-              {{ form.title }}
-         </div>
+            {% csrf_token %}
 
-        <div class="field segment">
-              <label>Description</label>
-              {{ form.text }}
-         </div>
+             <div class="field">
+                  <label>Project Title</label>
+                  {{ form.title }}
+             </div>
 
-        {{ form.errors }}
+            <div class="field">
+                  <label>Short Summary</label>
+                  {{ form.summary}}
+             </div>
 
-        <button type="submit" class="ui primary button">
-            <i class="write square icon"></i>Create Project
-        </button>
-        <a class="ui right floated button" href="{% url 'index' %}">
-            Exit
-        </a>
+            <div class="field">
+                  <label>Full Description</label>
+                  {{ form.text }}
+             </div>
 
-    </form>
+            {{ form.errors }}
+
+            <button type="submit" class="ui submit button">
+                <i class="save icon"></i>Save
+            </button>
+            <a class="ui right floated button" href="{% url 'project_create' %}">
+                Back
+            </a>
+
+        </form>
 </div>
-
 {% endblock %}

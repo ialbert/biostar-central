@@ -131,17 +131,18 @@ def project_edit(request, id):
         form = ProjectForm(request.POST, instance=project)
         if form.is_valid():
             form.save()
+            return redirect(project.url())
 
     else:
         form = ProjectForm(instance=project)
 
-    context = dict(projects=project, steps=steps, form=form)
+    context = dict(project=project, steps=steps, form=form)
     return render(request, 'project_edit.html',
                       context)
 
 
 @login_required
-def project_create(request, id):
+def project_create(request):
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON])
 
@@ -158,7 +159,8 @@ def project_create(request, id):
         else:
             form.add_error(None, "Invalid form processing.")
     else:
-        form = ProjectForm()
+        initial = dict(title="Title", text="Description")
+        form = ProjectForm(initial=initial)
         context = dict(steps=steps, form=form)
         return render(request, 'project_create.html',
                       context)
@@ -198,7 +200,7 @@ def data_edit(request, id):
 
     data = Data.objects.filter(id=id).first()
     project = data.project
-    initial = dict(text=data.text)
+    initial = dict(text=data.text, name=data.name)
 
     steps = breadcrumb_builder([PROJECT_ICON, DATA_LIST_ICON, DATA_ICON],
                                project=project, data=data)
@@ -208,11 +210,10 @@ def data_edit(request, id):
         form = DataEditForm(request.POST, initial=initial)
 
         if form.is_valid():
-
+            data.name = form.cleaned_data["name"]
             data.text = form.cleaned_data["text"]
-
             data.save()
-
+            return redirect(reverse("data_view", kwargs=dict(id=data.id)))
     else:
         form = DataEditForm(initial=initial)
 
