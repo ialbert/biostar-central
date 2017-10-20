@@ -101,14 +101,22 @@ class Project(models.Model):
 
         if fname:
             stream = File(open(fname, 'rb'))
-            title = fname
+            title = os.path.basename(fname)
         owner = owner or self.owner
         text = text or "No description"
         data_type = data_type or GENERIC_TYPE
         data = Data(title=title, owner=owner,
                     text=text, project=self, data_type=data_type)
+
+        # Need to save before uid gets triggered.
         data.save()
+
+        # This saves the into the
         data.file.save(title, stream, save=True)
+
+        # Updates its own size.
+        data.set_size()
+
         return data
 
 
@@ -143,7 +151,9 @@ class Data(models.Model):
         super(Data, self).save(*args, **kwargs)
 
     def peek(self):
-        """Peeks at the data if it is text"""
+        """
+        Peeks at the data if it is text
+        """
         mimetype, mimecode = mimetypes.guess_type(self.get_path())
         if mimetype == 'text/plain':
             stream = open(self.file.path)
@@ -153,6 +163,15 @@ class Data(models.Model):
 
         return "*** Binary file ***"
 
+    def set_size(self):
+        """
+        Sets the size of the data.
+        """
+        try:
+            size = os.path.getsize(self.get_path())
+        except:
+            size = 0
+        Data.objects.filter(id=self.id).update(size=size)
     def __str__(self):
         return self.title
 
