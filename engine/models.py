@@ -45,10 +45,14 @@ def upload_path(instance, filename):
 
 class Project(models.Model):
 
+    name = models.CharField(max_length=256)
+    summary = models.TextField(default='summ'
+                                       'ary')
+    # TODO: title needs to go away.
     title = models.CharField(max_length=256)
     owner = models.ForeignKey(User)
     text = models.TextField(default='text')
-    summary =  models.TextField(default='summary')
+
     html = models.TextField(default='html')
     date = models.DateTimeField(auto_now_add=True)
 
@@ -65,7 +69,7 @@ class Project(models.Model):
         self.html = make_html(self.text)
 
         # Takes first user group for now
-        self.group = self.owner.groups.first()
+        self.group = self.group or self.owner.groups.first()
 
         self.uid = self.uid or util.get_uuid(8)
         if not os.path.isdir(self.get_path()):
@@ -135,7 +139,12 @@ class Data(models.Model):
     FILE, COLLECTION = 1, 2
     TYPE_CHOICES = [(FILE, "File"), (COLLECTION, "Collection")]
 
+    name = models.CharField(max_length=256)
+    summary = models.TextField(default='text')
+
+    # TODO: title needs to go away.
     title = models.CharField(max_length=256)
+
     owner = models.ForeignKey(User)
     text = models.TextField(default='text')
     html = models.TextField(default='html')
@@ -199,17 +208,26 @@ class Data(models.Model):
 
 class Analysis(models.Model):
 
-    project = models.ForeignKey(Project)
-    title = models.CharField(max_length=256)
-    owner = models.ForeignKey(User)
+    name = models.CharField(max_length=256)
+    summary = models.TextField(default='text')
     text = models.TextField(default='text')
-    summary = models.TextField(default='summary')
     html = models.TextField(default='html')
-    date = models.DateTimeField(auto_now_add=True)
+    owner = models.ForeignKey(User)
+    # TODO: title needs to go away.
+    title = models.CharField(max_length=256)
+    project = models.ForeignKey(Project)
+
     json_text = models.TextField(default="{}")
     template = models.TextField(default="makefile")
+    uid = models.CharField(max_length=32)
 
-    # Will be false if the objects is to be deleted.
+    date = models.DateTimeField(auto_now_add=True, blank=True)
+
+    # Job start and end.
+    start_date = models.DateTimeField(null=True, blank=True)
+    end_date = models.DateTimeField(null=True, blank=True)
+
+    # Will be false if the object is deleted.
     valid = models.BooleanField(default=True)
 
     def __str__(self):
@@ -222,7 +240,9 @@ class Analysis(models.Model):
 
     def save(self, *args, **kwargs):
         now = timezone.now()
+        self.uid = self.uid or util.get_uuid(8)
         self.date = self.date or now
+
         self.html = make_html(self.text)
         super(Analysis, self).save(*args, **kwargs)
 
@@ -253,11 +273,14 @@ class Job(models.Model):
     STATE_CHOICES = [(QUEUED, "Queued"), (RUNNING, "Running"),
                      (FINISHED, "Finished"), (ERROR, "Error")]
 
+    name = models.CharField(max_length=256)
+    summary = models.TextField(default='text')
 
+    # TODO: title to be deleted.
     title = models.CharField(max_length=256)
+
     owner = models.ForeignKey(User)
     text = models.TextField(default='text')
-    summary = models.TextField(default='summary')
     html = models.TextField(default='html')
     date = models.DateTimeField(auto_now_add=True)
 
