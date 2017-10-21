@@ -150,16 +150,16 @@ def project_create(request):
         # create new projects here ( just populates metadata ).
         form = ProjectForm(data=request.POST)
         if form.is_valid():
-            title = form.cleaned_data["title"]
+            name = form.cleaned_data["name"]
             text = form.cleaned_data["text"]
             owner = User.objects.all().first()
-            project = Project.objects.create(title=title, text=text, owner=owner)
+            project = Project.objects.create(name=name, text=text, owner=owner)
             project.save()
             return redirect(reverse("project_list"))
         else:
             form.add_error(None, "Invalid form processing.")
     else:
-        initial = dict(title="Title", text="Description")
+        initial = dict(name="Project Name", text="project description", summary="project summary")
         form = ProjectForm(initial=initial)
         context = dict(steps=steps, form=form)
         return render(request, 'project_create.html',
@@ -287,10 +287,10 @@ def analysis_run(request, id):
         form = RunAnalysis(data=request.POST, analysis=analysis)
 
         if form.is_valid():
-            title = form.cleaned_data.get("title")
+            name = form.cleaned_data.get("name")
             filled_json = form.process()
             json_text = hjson.dumps(filled_json)
-            job = analysis.create_job(owner=analysis.owner, json_text=json_text, title=title)
+            job = analysis.create_job(owner=analysis.owner, json_text=json_text, name=name)
             logger.info(tasks.HAS_UWSGI)
 
             if tasks.HAS_UWSGI:
@@ -302,7 +302,7 @@ def analysis_run(request, id):
             return redirect(reverse("job_list", kwargs=dict(id=project.id)))
 
     else:
-        initial = dict(title=analysis.title)
+        initial = dict(name=analysis.name)
         form = RunAnalysis(analysis=analysis, initial=initial)
         context = dict(project=project, analysis=analysis, steps=steps, form=form)
         return render(request, 'analysis_run.html', context)
@@ -311,12 +311,12 @@ def analysis_run(request, id):
 def preview_specs(spec, analysis):
 
     if spec.get("settings"):
-        title = spec["settings"].get("title", analysis.title)
+        name = spec["settings"].get("name", analysis.name)
         help = spec["settings"].get("help", analysis.text)
         #summary = spec["settings"].get("summary", analysis.text)
         html = make_html(help)
 
-        return dict(title=title, html=html)
+        return dict(name=name, html=html)
     else:
         return dict()
 

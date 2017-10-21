@@ -12,7 +12,7 @@
 
         <div class="ui vertical segment">
             <div class="ui center aligned header">
-                Job View: {{ job.title }}
+                Job View: {{ job.name }}
             </div>
             <div class="three ui buttons">
                 <a class="ui {% job_color job %} button" href="{% url 'job_result_view' job.id %}"><i class="line chart icon"></i> Job Result</a>

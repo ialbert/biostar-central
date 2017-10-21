@@ -35,7 +35,6 @@ def get_datatype(file):
 
 def upload_path(instance, filename):
     # Name the data by the filename.
-    #instance.title = instance.title or os.path.basename(filename)
     pieces = os.path.basename(filename).split(".")
     # File may have multiple extensions
     exts = ".".join(pieces[1:]) or "data"
@@ -46,11 +45,10 @@ def upload_path(instance, filename):
 class Project(models.Model):
 
     name = models.CharField(max_length=256)
-    summary = models.TextField(default='summary')
-    # TODO: title needs to go away.
-    title = models.CharField(max_length=256)
+    summary = models.TextField(default='no summary')
+
     owner = models.ForeignKey(User)
-    text = models.TextField(default='text', max_length=MAX_TEXT_LEN)
+    text = models.TextField(default='no description', max_length=MAX_TEXT_LEN)
 
     html = models.TextField(default='html')
     date = models.DateTimeField(auto_now_add=True)
@@ -77,7 +75,7 @@ class Project(models.Model):
         super(Project, self).save(*args, **kwargs)
 
     def __str__(self):
-        return self.title
+        return self.name
 
     def url(self):
         return reverse("project_view", kwargs=dict(id=self.id))
@@ -95,15 +93,15 @@ class Project(models.Model):
         datamap = dict( (obj.id, obj) for obj in query )
         return datamap
 
-    def create_analysis(self, json_text, template, owner=None, summary='', title='', text=''):
+    def create_analysis(self, json_text, template, owner=None, summary='', name='', text=''):
         """
         Creates analysis from a spec and template
         """
         owner = owner or self.owner
-        title = title or 'Analysis Title'
-        text = text or 'Analysis Text'
+        name = name or 'Analysis name'
+        text = text or 'Analysis text'
         analysis = Analysis.objects.create(project=self, summary=summary, json_text=json_text,
-                                           owner=owner, title=title, text=text,
+                                           owner=owner, name=name, text=text,
                                            template=template, )
         return analysis
 
@@ -139,10 +137,10 @@ class Data(models.Model):
     TYPE_CHOICES = [(FILE, "File"), (COLLECTION, "Collection")]
 
     name = models.CharField(max_length=256)
-    summary = models.TextField(default='text')
+    summary = models.TextField(default='no summary')
 
     owner = models.ForeignKey(User)
-    text = models.TextField(default='text', max_length=MAX_TEXT_LEN)
+    text = models.TextField(default='no description', max_length=MAX_TEXT_LEN)
     html = models.TextField(default='html')
     date = models.DateTimeField(auto_now_add=True)
     type = models.IntegerField(default=FILE, choices=TYPE_CHOICES)
@@ -182,7 +180,7 @@ class Data(models.Model):
             size = 0
         Data.objects.filter(id=self.id).update(size=size)
     def __str__(self):
-        return self.title
+        return self.name
 
     def get_path(self):
         return self.file.path
@@ -198,12 +196,11 @@ class Data(models.Model):
 class Analysis(models.Model):
 
     name = models.CharField(max_length=256)
-    summary = models.TextField(default='text')
-    text = models.TextField(default='text', max_length=MAX_TEXT_LEN)
+    summary = models.TextField(default='no summary')
+    text = models.TextField(default='no description', max_length=MAX_TEXT_LEN)
     html = models.TextField(default='html')
     owner = models.ForeignKey(User)
-    # TODO: title needs to go away.
-    title = models.CharField(max_length=256)
+
     project = models.ForeignKey(Project)
 
     json_text = models.TextField(default="{}")
@@ -220,7 +217,7 @@ class Analysis(models.Model):
     valid = models.BooleanField(default=True)
 
     def __str__(self):
-        return self.title
+        return self.name
 
     @property
     def json_data(self):
@@ -235,11 +232,11 @@ class Analysis(models.Model):
         self.html = make_html(self.text)
         super(Analysis, self).save(*args, **kwargs)
 
-    def create_job(self, json_text='', json_data={}, owner=None, title=None, state=None):
+    def create_job(self, json_text='', json_data={}, owner=None, name=None, state=None):
         """
         Creates a job from an analysis.
         """
-        title = title or self.title
+        name = name or self.name
         state = state or Job.QUEUED
         owner = owner or self.project.owner
 
@@ -248,10 +245,10 @@ class Analysis(models.Model):
         else:
             json_text = json_text or self.json_text
 
-        job = Job.objects.create(title=title, summary=self.summary, state=state, json_text=json_text,
+        job = Job.objects.create(name=name, summary=self.summary, state=state, json_text=json_text,
                                  project=self.project, analysis=self, owner=owner,
                                  template=self.template)
-        logger.info(f"Queued job: '{job.title}'")
+        logger.info(f"Queued job: '{job.name}'")
         return job
 
 
@@ -263,13 +260,10 @@ class Job(models.Model):
                      (FINISHED, "Finished"), (ERROR, "Error")]
 
     name = models.CharField(max_length=256)
-    summary = models.TextField(default='text')
-
-    # TODO: title to be deleted.
-    title = models.CharField(max_length=256)
+    summary = models.TextField(default='no summary')
 
     owner = models.ForeignKey(User)
-    text = models.TextField(default='text', max_length=MAX_TEXT_LEN)
+    text = models.TextField(default='no description', max_length=MAX_TEXT_LEN)
     html = models.TextField(default='html')
     date = models.DateTimeField(auto_now_add=True)
 
@@ -297,7 +291,7 @@ class Job(models.Model):
         return self.state == Job.RUNNING
 
     def __str__(self):
-        return self.title
+        return self.name
 
     def get_url(self, path=''):
         "Return the url to the job directory"
@@ -316,7 +310,7 @@ class Job(models.Model):
         self.uid = self.uid or util.get_uuid(8)
         self.template = self.analysis.template
 
-        self.title = self.title or self.analysis.title
+        self.name = self.name or self.analysis.name
         # write an index.html to the file
         if not os.path.isdir(self.path):
 

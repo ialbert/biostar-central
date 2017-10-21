@@ -69,7 +69,7 @@ class LoginForm(forms.Form):
 class ProjectForm(forms.ModelForm):
     class Meta:
         model = Project
-        fields = ['title', 'summary', 'text']
+        fields = ['name', 'summary', 'text']
 
 
 class DataUploadForm(forms.ModelForm):
@@ -109,7 +109,7 @@ class RunAnalysis(forms.Form):
 
         super().__init__(*args, **kwargs)
 
-        self.fields["title"] = forms.CharField(max_length=256,
+        self.fields["name"] = forms.CharField(max_length=256,
                                                help_text="Results Title",
                                                required=False)
 
@@ -132,7 +132,7 @@ class RunAnalysis(forms.Form):
         # Gets all data for the project
         datamap = project.get_data()
 
-        print ( type(list(datamap.keys())[0]) )
+        #print ( type(list(datamap.keys())[0]) )
 
         json_data = self.json_data.copy()
 
@@ -193,7 +193,7 @@ class EditAnalysisForm(forms.Form):
         filler = dict(display_type='')
 
         if spec.get("settings", filler).get("display_type") == "MODEL":
-            self.analysis.title = spec["settings"].get("title", self.analysis.title)
+            self.analysis.name = spec["settings"].get("name", self.analysis.name)
             self.analysis.text = spec["settings"].get("text", self.analysis.text)
 
         self.analysis.json_text = self.cleaned_data["text"]

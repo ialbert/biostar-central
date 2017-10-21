@@ -36,7 +36,7 @@ def init_proj(sender, **kwargs):
     # Set it up first time around.
     if not project:
         project = Project.objects.create(
-            title=defaults.PROJECT_TITLE,
+            name=defaults.PROJECT_NAME,
             summary=defaults.PROJECT_SUMMARY,
             text=defaults.PROJECT_TEXT,
             owner=admin,
