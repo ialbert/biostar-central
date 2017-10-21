@@ -34,6 +34,7 @@ def init_proj(sender, **kwargs):
     project = Project.objects.filter(id=1).first()
 
     # Set it up first time around.
+
     if not project:
         project = Project.objects.create(
             name=defaults.PROJECT_NAME,

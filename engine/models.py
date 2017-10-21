@@ -44,7 +44,7 @@ def upload_path(instance, filename):
 
 class Project(models.Model):
 
-    name = models.CharField(max_length=256)
+    name = models.CharField(max_length=256, default="no name")
     summary = models.TextField(default='no summary')
 
     owner = models.ForeignKey(User)
@@ -136,7 +136,7 @@ class Data(models.Model):
     FILE, COLLECTION = 1, 2
     TYPE_CHOICES = [(FILE, "File"), (COLLECTION, "Collection")]
 
-    name = models.CharField(max_length=256)
+    name = models.CharField(max_length=256, default="no name")
     summary = models.TextField(default='no summary')
 
     owner = models.ForeignKey(User)
@@ -195,7 +195,7 @@ class Data(models.Model):
 
 class Analysis(models.Model):
 
-    name = models.CharField(max_length=256)
+    name = models.CharField(max_length=256, default="no name")
     summary = models.TextField(default='no summary')
     text = models.TextField(default='no description', max_length=MAX_TEXT_LEN)
     html = models.TextField(default='html')
@@ -259,7 +259,7 @@ class Job(models.Model):
     STATE_CHOICES = [(QUEUED, "Queued"), (RUNNING, "Running"),
                      (FINISHED, "Finished"), (ERROR, "Error")]
 
-    name = models.CharField(max_length=256)
+    name = models.CharField(max_length=256, default="no name")
     summary = models.TextField(default='no summary')
 
     owner = models.ForeignKey(User)

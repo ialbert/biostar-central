@@ -45,8 +45,8 @@ urlpatterns = [
     url(r'^job/view/files/(?P<id>\d+)/$', views.job_file_view, name='job_file_view'),
 
     url(r'^media/$', views.media_index, name='media_index'),
-    #url(r'^media/jobs/job-b44deec5/$', views.media_index, name='media_index'),
-    #url(r'^media/jobs/job-b44deec5/results/$', views.media_index, name='media_index'),
+    url(r'^media/jobs/((job-)\w+)/$', views.media_index, name='media_index'),
+    #url(r'^media/jobs/(job-b44deec5)/results/$', views.media_index, name='media_index'),
 
 ]
 
