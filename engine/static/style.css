@@ -47,22 +47,6 @@ h1 {
 .Finished{
 }
 
-
-.info {
-    font-size: .9547em;
-    padding-top: 10px;
-}
-
-.textbody {
-   padding-top: 13px;
-}
-
-.date {
-    font-size: .795em;
-}
-
-.htmlpreview {
-    margin-top: 3em;
-    margin-left: 1em;
-
+.smaller {
+    font-size:smaller;
 }
