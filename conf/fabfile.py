@@ -8,18 +8,19 @@ if tuple(sys.version_info) > (2, 8):
 main_path = '/export/sites/main_engine'
 test_path = '/export/sites/test_engine'
 
-env_prefix = ('source ~/miniconda3/envs/engine/bin/activate engine')
+test_env = ('source ~/miniconda3/envs/engine/bin/activate test_env')
+main_env = ('source ~/miniconda3/envs/engine/bin/activate main_env')
 
 
-def deploy_remote(path):
-    with cd(path), prefix(env_prefix):
+def deploy_remote(path, env):
+    with cd(path), prefix(env):
         run('git pull')
         run('python manage.py migrate')
         run('python manage.py collectstatic --noinput -v 0')
         restart_uwsgi()
 
-def deploy_latest(path):
-    with cd(path), prefix(env_prefix):
+def deploy_latest(path, env):
+    with cd(path), prefix(env):
         run("rm -f export/engine.db")
         run('git pull')
         run('make reset')
@@ -28,10 +29,10 @@ def deploy_latest(path):
         restart_uwsgi()
 
 def deploy_test():
-    deploy_latest(test_path)
+    deploy_latest(test_path, test_env)
 
 def deploy_main():
-    deploy_remote(main_path)
+    deploy_remote(main_path, main_env)
 
 def restart_nginx():
     sudo("service nginx restart")

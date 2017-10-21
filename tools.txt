@@ -1,4 +1,4 @@
 fastqc
-#multiqc
+multiqc
 bbmap
 centrifuge
