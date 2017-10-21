@@ -56,6 +56,10 @@ def menubar(context, project=None, edit_project=False, create_project=False,
 def is_checkbox(value):
     return isinstance(value, forms.BooleanField)
 
+@register.filter(name='is_folder_icon')
+def is_folder_icon(file):
+    return file['icon'] =="folder icon"
+
 
 @register.filter(name='convert_bytes')
 def convert_bytes_to(bytes, to="mega"):

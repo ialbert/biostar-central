@@ -85,6 +85,8 @@ class DataEditForm(forms.ModelForm):
 
 
 def make_field(obj, project):
+
+
     field = ''
     visible = obj.get("visible")
     path = obj.get("path")
@@ -101,6 +103,20 @@ def make_field(obj, project):
             field = factory.TYPE2FUNC[display_type](obj)
 
     return field
+
+
+
+class ExportData(forms.Form):
+
+    def __init__(self, fname, *args, **kwargs):
+
+
+
+        super().__init__(*args, **kwargs)
+
+
+    pass
+
 
 
 
@@ -126,6 +142,7 @@ class ExportAnalysis(forms.Form):
         analysis = project.create_analysis(json_text, template, owner, summary, name=name, text=text)
         analysis.save()
         return project, analysis
+
 
 
 class RunAnalysis(forms.Form):

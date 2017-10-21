@@ -1,5 +1,6 @@
 #import os
 import logging
+from collections import OrderedDict
 from django.contrib.auth.decorators import login_required
 #from django.template.loader import get_template
 from django.contrib import messages
@@ -9,7 +10,6 @@ from django.conf import settings
 from .forms import *
 from .models import (User, Project, Data,
                      Analysis, Job, get_datatype)
-from django.core.files import File
 import mimetypes
 import hjson
 
@@ -370,13 +370,7 @@ def job_list(request, id):
     jobs = project.job_set.order_by("-id")
     context = dict(jobs=jobs, steps=steps, project=project)
 
-    return render(request, "jobs_list.html", context)
-
-
-def media_index(request):
-
-    context = dict()
-    return render(request, "media_index.html", context)
+    return render(request, "job_list.html", context)
 
 
 def job_result_view(request, id):
@@ -400,22 +394,54 @@ def job_file_view(request, id):
     """
     job = Job.objects.filter(id=id).first()
     url = settings.MEDIA_URL + job.get_url()
-    results_root = join(settings.MEDIA_ROOT, job.get_url(path="results"))
-
-    # Some jobs error out after producing things.
-    if os.path.exists(results_root):
-        url = settings.MEDIA_URL + job.get_url(path="results/")
 
     return redirect(url)
 
 
-def file_list_view(request, id):
+def get_filecontext(root, url):
 
-    job = Job.objects.filter(id=id).first()
+    files = []
+    for file in os.listdir(root):
+
+        fileinfo = OrderedDict()
+        fileinfo['name'] = file
+        fileinfo['url'] = url + f"{file}/"
+        fileinfo["icon"] = "file icon"
+        fileinfo["results_dir"] = False
+
+        if os.path.isdir(join(root, file)):
+            fileinfo["icon"] = "folder icon"
+        files.append(fileinfo)
+
+    return files
 
 
-    return
+def results_dir_view(request, jobdir):
 
+    root = join(settings.MEDIA_ROOT, "jobs", jobdir)
+    results = join(root, "results")
+    resultsurl = settings.MEDIA_URL + f"jobs/{jobdir}/results/"
+    backurl = settings.MEDIA_URL + f"jobs/{jobdir}/"
+    job = Job.objects.filter(path=root).first()
+
+    files = get_filecontext(results, resultsurl)
+
+    context = dict(files=files, job=job, back_url=backurl)
+
+    return render(request, "job_dir_view.html", context)
+
+
+def job_dir_view(request, jobdir):
+
+    root = join(settings.MEDIA_ROOT, "jobs", jobdir)
+    rooturl = settings.MEDIA_URL + f"jobs/{jobdir}/"
+    job = Job.objects.filter(path=root).first()
+
+    backurl = reverse('job_view', kwargs={'id':job.id})
+    files = get_filecontext(root, rooturl)
+
+    context = dict(files=files, job=job, back_url=backurl)
+    return render(request, "job_dir_view.html", context)
 
 
 def job_view(request, id):

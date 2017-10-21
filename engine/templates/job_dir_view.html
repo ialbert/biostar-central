@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% load engine_tags %}
+
+{% block headtitle %}
+Index view : {{job.name}}
+{% endblock %}
+
+{% block menu %}
+{% endblock %}
+
+{% block breadcrumb %}
+{% endblock %}
+
+{% block body %}
+
+ <div class="ui center aligned header">
+    Index view : {{job.name}}
+ </div>
+
+ <div class="ui relaxed divided list">
+  <div class="item">
+   <a href="{{back_url}}">../</a>
+  </div>
+    {% for file in files %}
+      <div class="item">
+         {% if file|is_folder_icon %}
+             <a href="{{file.url}}"><i class="{{file.icon}}"></i>{{ file.name }}</a>/
+         {% else %}
+            <a href="{{file.url}}"><i class="{{file.icon}}"></i>{{ file.name }}</a>
+         {% endif %}
+
+      </div>
+    {% endfor %}
+ </div>
+
+{% endblock %}

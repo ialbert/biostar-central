@@ -43,10 +43,9 @@ urlpatterns = [
     url(r'^job/view/(?P<id>\d+)/$', views.job_view, name='job_view'),
     url(r'^job/view/result/(?P<id>\d+)/$', views.job_result_view, name='job_result_view'),
     url(r'^job/view/files/(?P<id>\d+)/$', views.job_file_view, name='job_file_view'),
+    url(r'^media/jobs/(job-\w+)/$', views.job_dir_view, name='job_dir_view'),
+    url(r'^media/jobs/(job-\w+)/results/$', views.results_dir_view, name='results_dir_view'),
 
-    url(r'^media/$', views.media_index, name='media_index'),
-    url(r'^media/jobs/((job-)\w+)/$', views.media_index, name='media_index'),
-    #url(r'^media/jobs/(job-b44deec5)/results/$', views.media_index, name='media_index'),
 
 ]
 
