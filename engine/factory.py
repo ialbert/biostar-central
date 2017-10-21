@@ -82,7 +82,7 @@ def file_field(field):
 
 
 def checkbox_field(field):
- 
+
     label = field.get("label")
     help_text = field.get("help", "Check option for true.")
 
