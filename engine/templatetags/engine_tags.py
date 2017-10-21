@@ -6,7 +6,7 @@ from textwrap import dedent
 register = template.Library()
 
 JOB_SEGMENT_COLORS = {
-    Job.ERROR: "red", Job.QUEUED: "blue", Job.RUNNING: "orange", Job.FINISHED:"green"
+    Job.ERROR: "orange", Job.QUEUED: "blue", Job.RUNNING: "teal", Job.FINISHED: "green"
 }
 
 

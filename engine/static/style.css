@@ -1,3 +1,7 @@
+body {
+    background-color: #f8f8f9;
+}
+
 h2.ui.center.header {
     margin-top: 1em;
 }
@@ -17,18 +21,8 @@ h1 {
 }
 
 .title {
-    font-size: 1.14285714rem;
-    font-weight: 400;
-}
-
-.specs {
-    font-size: 0.85em;
-    margin-bottom: 1em;
-}
-
-.breadcrumb {
-    margin-top: 1.3em;
-    margin-bottom: 1em;
+//font-size: 1.14285714 rem;
+//font-weight: 400;
 }
 
 .muted {
@@ -36,7 +30,7 @@ h1 {
 }
 
 pre {
-  overflow-x: auto;
+    overflow-x: auto;
     padding: 1em;
     background-color: #EEEEEE;
 }
@@ -47,12 +41,12 @@ pre {
 .Running {
 }
 
-.Error{
+.Error {
 }
 
-.Finished{
+.Finished {
 }
 
 .smaller {
-    font-size:smaller;
+    font-size: smaller;
 }
