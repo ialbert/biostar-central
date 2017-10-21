@@ -11,7 +11,6 @@ data : {
 sampleinfo : {
     path : export/local/sampleinfo.txt
     label : Sample file
-    css: red
     visible: true
     data_type : LAMAR_SAMPLE_SHEET
     display_type: DROPDOWN
@@ -25,6 +24,16 @@ trim_primer: {
     visible: true
     display_type: CHECKBOX
     }
+
+kmer_length: {
+    label : Specify kmer length for primer trimming.
+    value : 15
+    help : Kmer length range should be between 5 and 30.
+    visible: true
+    range : [5,30]
+    display_type: INTEGER
+    }
+
 
 trim_quality: {
     label : Quality trimming.
@@ -42,14 +51,23 @@ quality_threshold: {
     display_type : INTEGER
     }
 
+read_length: {
+    label : Minimum read length after trimming.
+    help : Minimun read length range should be between 10 and 50.
+    value :  35
+    range : [10, 50]
+    visible : true
+    display_type : INTEGER
+    }
+
 threads : {
         value: 4
         visible : false
     }
 
 execute : {
-    filename : Makefile
-    command : make all
+    filename : trim.sh
+    command : bash trim.sh
     view : results/index.html
 }
 
