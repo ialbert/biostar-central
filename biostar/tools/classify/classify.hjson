@@ -18,7 +18,7 @@ sampleinfo : {
     }
 
 reference : {
-    path: tmp/refs/centrifuge_fish_idx/fish_genomes17
+    path: ""
     label: Reference
     visible: true
     data_type: REFERENCE_TYPE
