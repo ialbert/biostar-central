@@ -15,9 +15,9 @@
                 Job View: {{ job.title }}
             </div>
             <div class="three ui buttons">
-                <a class="ui button" href="{% url 'job_result_view' job.id %}"><i class="line chart icon"></i> Job Result</a>
-                <a class="ui button" href="{% url 'job_file_view' job.id %}"><i class="file icon"></i>Job Files</a>
-                <a class="ui button" href="{% url 'analysis_view' job.analysis.id %}"><i class="setting icon"></i>Analysis
+                <a class="ui {% job_color job %} button" href="{% url 'job_result_view' job.id %}"><i class="line chart icon"></i> Job Result</a>
+                <a class="ui {% job_color job %} button" href="{% url 'job_file_view' job.id %}"><i class="file icon"></i>Job Files</a>
+                <a class="ui {% job_color job %} button" href="{% url 'analysis_view' job.analysis.id %}"><i class="setting icon"></i>Analysis
                     View</a>
             </div>
         </div>
