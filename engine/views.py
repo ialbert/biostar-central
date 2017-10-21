@@ -388,7 +388,12 @@ def job_view(request, id):
     path = job.json_data.get("settings", {}).get("index", "")
     url = settings.MEDIA_URL + job.get_url(path=path)
 
-    return redirect(url)
+    if job.state == Job.FINISHED:
+        url = settings.MEDIA_URL + job.get_url(path=path)
+        return redirect(url)
+    else:
+        return job_detail_view(request, job.id)
+
 
 def job_directory_view(request, id):
     """
