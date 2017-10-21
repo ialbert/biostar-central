@@ -1,3 +1,7 @@
+body {
+    background-color: #f8f8f9;
+}
+
 h2.ui.center.header {
     margin-top: 1em;
 }
@@ -17,22 +21,18 @@ h1 {
 }
 
 .title {
-    font-size: 1.14285714rem;
-    font-weight: 400;
-}
-
-.specs {
-    font-size: 0.85em;
-    margin-bottom: 1em;
-}
-
-.breadcrumb {
-    margin-top: 1.3em;
-    margin-bottom: 1em;
+//font-size: 1.14285714 rem;
+//font-weight: 400;
 }
 
 .muted {
     color: #999999;
+}
+
+pre {
+    overflow-x: auto;
+    padding: 1em;
+    background-color: #EEEEEE;
 }
 
 .Queued {
@@ -41,28 +41,12 @@ h1 {
 .Running {
 }
 
-.Error{
+.Error {
 }
 
-.Finished{
+.Finished {
 }
 
-
-.info {
-    font-size: .9547em;
-    padding-top: 10px;
-}
-
-.textbody {
-   padding-top: 13px;
-}
-
-.date {
-    font-size: .795em;
-}
-
-.htmlpreview {
-    margin-top: 3em;
-    margin-left: 1em;
-
+.smaller {
+    font-size: smaller;
 }

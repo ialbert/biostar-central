@@ -14,10 +14,10 @@ try:
 
     HAS_UWSGI = True
 
-    @timer(3)
+    @timer(60)
     def execute_timer(args):
         from engine.models import Job
-        logger.info(f"executing timer with {args}")
+        # logger.info(f"executing timer with {args}")
         # It is faster to check here
         first = Job.objects.filter(state=Job.QUEUED).first()
         if first:

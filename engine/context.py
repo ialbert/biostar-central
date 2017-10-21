@@ -1,3 +1,4 @@
+from biostar import VERSION
 
 def engine(request):
     '''
@@ -5,6 +6,6 @@ def engine(request):
     Note: This function is critically important!
     The site will not load up without it.
     '''
-    params = dict(user=request.user)
+    params = dict(user=request.user, VERSION=VERSION)
 
     return params

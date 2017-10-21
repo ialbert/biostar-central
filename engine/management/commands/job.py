@@ -23,6 +23,9 @@ def run(job, options={}):
     use_json = options.get('use_json')
     verbosity = options.get('verbosity', 0)
 
+    # Defined in case we bail on errors before setting it.
+    script = command = proc = None
+
     stdout_log = []
     stderr_log = []
 
@@ -67,6 +70,9 @@ def run(job, options={}):
         template = Template(template)
         context = Context(json_data)
         script = template.render(context)
+
+        # Store the script for the job.
+        job.script = script
 
         # Show the script.
         if show_script:

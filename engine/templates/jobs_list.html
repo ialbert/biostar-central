@@ -7,40 +7,41 @@
 
 {% block body %}
 
-         <div class="ui basic segment">
+    <div class="ui raised segment">
         <div class="ui center aligned header">
-            Results produced for project: {{ project.title }}
+            Results for project: {{ project.title }}
         </div>
-    </div>
-
-    {% for job in jobs %}
-
-        <div class="ui raised {% job_color job %} segment ">
 
 
-            <div class="ui {% job_color job %} horizontal  label">{{ job.get_state_display }}</div>
 
-            <a href="{% url 'job_view' job.id %}">
-                <i class="area chart icon"></i>{{ job.title }}
-            </a>
+        {% for job in jobs %}
 
-            {% if job.is_running %}
-                <div class="ui segment">
-                    <div class="ui active loader"></div>
-                    <p>&nbsp;</p>
+            <div class="ui {% job_color job %} segment ">
+
+
+                <div class="ui {% job_color job %} horizontal  label">{{ job.get_state_display }}</div>
+
+                <a href="{% url 'job_result_view' job.id %}">
+                    <i class="area chart icon"></i>{{ job.title }}
+                </a>
+
+                {% if job.is_running %}
+                    <div class="ui segment">
+                        <div class="ui active loader"></div>
+                        <p>&nbsp;</p>
+                    </div>
+
+
+                {% endif %}
+
+                <div>{{ job.date.date }} &bull; {{ job.analysis.title }}
+                    &bull; <a href="{% url 'job_view' job.id %}"> job details
+                    </a>
                 </div>
 
 
-            {% endif %}
-
-            <div>{{ job.date.date }} &bull; {{ job.analysis.title }}
-                &bull; <a href="{% url 'job_detail_view' job.id %}"> job details
-                </a>
             </div>
 
-
-        </div>
-
-    {% endfor %}
-
+        {% endfor %}
+    </div>
 {% endblock %}

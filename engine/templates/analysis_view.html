@@ -16,29 +16,32 @@
 
 {% block body %}
 
-     <div class="ui vertical segment">
-            <div class="ui center aligned header">
-                Analysis: {{ analysis.title }}
-            </div>
-            {{ analysis.summary|markdown|safe }}
+    <div class="ui raised segment">
+        <div class="ui center aligned header">
+            Analysis: {{ analysis.title }}
+        </div>
+        {{ analysis.summary|markdown|safe }}
+
+        <div class="ui center aligned basic segment">
+            <a class="ui green button" href="{% url 'analysis_run' analysis.id %}">
+                Execute Analysis
+            </a>
+        </div>
+    </div>
+
+    <div class="ui raised segment">
+        <div class="ui center aligned header">
+            Analysis Description
         </div>
 
-    <div class="ui center aligned vertical segment">
+        <div class="ui vertical segment">{{ analysis.html|safe }}</div>
 
-        <a class="ui green button" href="{% url 'analysis_run' analysis.id %}">
-            Execute Analysis
-        </a>
+        <div class="ui center aligned basic segment">
+            <a class="ui button" href="{% url 'analysis_edit' analysis.id %}">
+                <i class="write icon"></i>Edit Analysis
+            </a>
+        </div>
 
-    </div>
-
-    <div class="ui vertical aligned segment">
-        <div>{{ analysis.html|safe }}</div>
-    </div>
-
-    <div class="ui center aligned vertical segment">
-        <a class="ui button" href="{% url 'analysis_edit' analysis.id %}">
-            <i class="write icon"></i>Edit Analysis
-        </a>
     </div>
 
     <form method="post" class="ui form" action="{% url 'analysis_view' analysis.id %}">
@@ -67,6 +70,8 @@
 
 
     </form>
+
+
 
 
 

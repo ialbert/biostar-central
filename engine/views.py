@@ -56,21 +56,21 @@ def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=Non
         elif icon == PROJECT_LIST_ICON:
             step = (reverse("project_list"), PROJECT_LIST_ICON, "Project List", is_active)
         elif icon == PROJECT_ICON:
-            step = (reverse("project_view", kwargs={'id': project.id}), PROJECT_ICON, f"{project.title}", is_active )
+            step = (reverse("project_view", kwargs={'id': project.id}), PROJECT_ICON, "Project View", is_active )
         elif icon == DATA_LIST_ICON:
             step = (reverse("data_list", kwargs={'id': project.id}), DATA_LIST_ICON, "Data List", is_active )
         elif icon == DATA_ICON:
-            step = (reverse("data_view", kwargs={'id': data.id}), DATA_ICON, f"{data.name}", is_active )
+            step = (reverse("data_view", kwargs={'id': data.id}), DATA_ICON, f"Data View", is_active )
         elif icon == ANALYSIS_LIST_ICON:
             step = (reverse("analysis_list", kwargs={'id': project.id}), ANALYSIS_LIST_ICON, "Analysis List", is_active )
         elif icon == ANALYSIS_ICON:
-            step = (reverse("analysis_view", kwargs={'id': analysis.id}), ANALYSIS_ICON, f"{analysis.title}", is_active )
+            step = (reverse("analysis_view", kwargs={'id': analysis.id}), ANALYSIS_ICON, "Analysis View", is_active )
         elif icon == RESULT_LIST_ICON:
             step = (reverse("job_list", kwargs={'id': project.id,}), RESULT_LIST_ICON, "Result List",is_active)
         elif icon == RESULT_ICON:
-            step = (reverse("job_view", kwargs={'id': job.id}), RESULT_ICON, f"{job.title}", is_active)
+            step = (reverse("job_view", kwargs={'id': job.id}), RESULT_ICON, "Job View", is_active)
         elif icon == RESULT_VIEW_ICON:
-            step = (reverse("job_detail_view", kwargs={'id': job.id, }), RESULT_ICON, f"{job.title}", is_active)
+            step = (reverse("job_detail_view", kwargs={'id': job.id, }), RESULT_ICON, "Job Status", is_active)
         elif icon == USER_ICON:
             step = (reverse("profile", kwargs={'id': user.id, }), USER_ICON, f"Profile", is_active)
         elif icon == LOGIN_ICON:
@@ -168,7 +168,7 @@ def project_create(request):
 #@login_required
 def data_list(request, id):
     project = Project.objects.filter(id=id).first()
-    steps = breadcrumb_builder([PROJECT_LIST_ICON,  PROJECT_ICON, DATA_LIST_ICON],
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON,  PROJECT_ICON, DATA_LIST_ICON],
                                project=project)
     context = dict(project=project, steps=steps)
     return render(request, "data_list.html", context)
@@ -178,7 +178,7 @@ def data_list(request, id):
 def data_view(request, id):
 
     data = Data.objects.filter(id=id).first()
-    steps = breadcrumb_builder([PROJECT_ICON, DATA_LIST_ICON, DATA_ICON],
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON, DATA_ICON],
                                project=data.project, data=data)
     context = dict(data=data, steps=steps)
 
@@ -200,7 +200,7 @@ def data_edit(request, id):
     data = Data.objects.filter(id=id).first()
     project = data.project
 
-    steps = breadcrumb_builder([PROJECT_ICON, DATA_LIST_ICON, DATA_ICON],
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON, DATA_ICON],
                                project=project, data=data)
 
     if request.method == "POST":
@@ -251,7 +251,7 @@ def analysis_list(request, id):
     """
     project = Project.objects.filter(id=id).first()
     analysis = Analysis.objects.filter(project=project).order_by("-id")
-    steps = breadcrumb_builder([PROJECT_LIST_ICON,  PROJECT_ICON, ANALYSIS_LIST_ICON],
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON,  PROJECT_ICON, ANALYSIS_LIST_ICON],
                                project=project)
     context = dict(project=project, analysis=analysis, steps=steps)
 
@@ -264,8 +264,8 @@ def analysis_view(request, id):
     """
     analysis = Analysis.objects.filter(id=id).first()
     project = analysis.project
-    steps = breadcrumb_builder([PROJECT_ICON, ANALYSIS_LIST_ICON, ANALYSIS_ICON],
-                               project=analysis.project, analysis=analysis)
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ANALYSIS_LIST_ICON, ANALYSIS_ICON],
+                           project=project, analysis=analysis)
     if request.method == "POST":
         form = ExportAnalysis(data=request.POST, analysis=analysis)
         if form.is_valid():
@@ -284,7 +284,7 @@ def analysis_run(request, id):
     analysis = Analysis.objects.filter(id=id).first()
     project = analysis.project
 
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_ICON,  ANALYSIS_ICON],
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON,  ANALYSIS_ICON],
                                project=project, analysis=analysis)
 
     if request.method == "POST":
@@ -364,7 +364,7 @@ def job_list(request, id):
     Returns the list of jobs for a project id.
     """
     project = Project.objects.filter(id=id).first()
-    steps = breadcrumb_builder([PROJECT_LIST_ICON, PROJECT_ICON, RESULT_LIST_ICON ],
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, RESULT_LIST_ICON ],
                                project=project)
 
     jobs = project.job_set.order_by("-id")
@@ -378,7 +378,7 @@ def media_index(request):
     context = dict()
     return render(request, "media_index.html", context)
 
-def job_view(request, id):
+def job_result_view(request, id):
     """
     Returns the primary result file for the job.
     """
@@ -386,9 +386,14 @@ def job_view(request, id):
     path = job.json_data.get("settings", {}).get("index", "")
     url = settings.MEDIA_URL + job.get_url(path=path)
 
-    return redirect(url)
+    if job.state == Job.FINISHED:
+        url = settings.MEDIA_URL + job.get_url(path=path)
+        return redirect(url)
+    else:
+        return job_view(request, job.id)
 
-def job_directory_view(request, id):
+
+def job_file_view(request, id):
     """
     Returns the directory view of the job.
     """
@@ -396,14 +401,19 @@ def job_directory_view(request, id):
     url = settings.MEDIA_URL + job.get_url()
     return redirect(url)
 
-def job_detail_view(request, id):
+
+def job_view(request, id):
 
     job = Job.objects.filter(id=id).first()
     project = job.project
-    steps = breadcrumb_builder([PROJECT_ICON, RESULT_LIST_ICON, RESULT_VIEW_ICON ],
+
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, RESULT_LIST_ICON, RESULT_VIEW_ICON ],
                                job=job, project=project)
+
     context = dict(job=job, steps=steps)
     return render(request, "job_view.html", context=context)
+
+
 
 
 

@@ -1,29 +1,29 @@
 {% extends "base.html" %}
-{%  load engine_tags %}
+{% load engine_tags %}
 {% block headtitle %}
     Analysis List
 {% endblock %}
 
 {% block body %}
 
-     <div class="ui vertical segment">
+    <div class="ui raised segment">
         <div class="ui center aligned header">
-            Analysis List for {{ project.title }}
+            Analysis List for project: {{ project.title }}
         </div>
+
+
+        {% for obj in analysis %}
+
+            <div class="ui vertical segment">
+                <div class="ui header">
+                    <a href="{% url 'analysis_view' obj.id %}">
+                        <i class="setting icon"></i>{{ obj.title }}
+                    </a>
+                </div>
+                <span>{{ obj.summary|markdown|safe }}</span>
+            </div>
+
+        {% endfor %}
+
     </div>
-
-{% for obj in analysis %}
-
-    <div class="ui vertical segment">
-        <div class="ui header">
-            <a href="{% url 'analysis_view' obj.id %}">
-            <i class="setting icon"></i>{{ obj.title }}
-            </a>
-        </div>
-        <span>{{ obj.summary|markdown|safe }}</span>
-    </div>
-
-{% endfor %}
-
-
 {% endblock %}

@@ -42,9 +42,6 @@
         {% menubar %}
     {% endblock %}
 
-
-
-
     <div class="breadcrumb">
         {% block breadcrumb %}
             {% breadcrumb steps=steps %}
@@ -66,6 +63,10 @@
         {# Main body #}
         BODY
     {% endblock %}
+
+    <div class="ui vertical center aligned segment">
+        <span class="muted smaller">Software version: {{ VERSION }}</span>
+    </div>
 
 </div>
 

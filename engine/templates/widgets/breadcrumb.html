@@ -1,22 +1,19 @@
-<div class="ui large breadcrumb">
+<div class="ui  basic segment">
+    <div class="ui large breadcrumb">
+        {% for url, icon, name, active  in steps %}
 
-    {% for url, icon, name, active  in steps %}
+            {% if active %}
 
-        {% if active %}
+                <div class="active section">
+                    <i class="{{ icon }} icon"></i> {{ name }}
+                </div>
 
-            <div class="active section">
-                <i class="{{ icon }} icon"></i> {{ name }}
-            </div>
-
-        {% else %}
-            <a href="{{ url }}">
-                <div class="section"><i class="{{ icon }} icon"></i>  {{ name }}</div>
-            </a>
-            <i class="right chevron icon divider"></i>
-        {% endif %}
-
-    {% endfor %}
-
+            {% else %}
+                <a href="{{ url }}">
+                    <div class="section"><i class="{{ icon }} icon"></i> {{ name }}</div>
+                </a>
+                <i class="right chevron icon divider"></i>
+            {% endif %}
+        {% endfor %}
+    </div>
 </div>
-
-<div class="ui divider"></div>

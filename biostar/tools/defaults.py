@@ -1,8 +1,8 @@
 # This project will store all analyses
 
-PROJECT_TITLE = "Analysis demonstrations"
+PROJECT_TITLE = "Analysis Demonstration Project"
 PROJECT_SUMMARY = '''
-This project contains one instance of each existing data analyses on the site.
+This project contains a copy of each data analysis and a corresponding result. Use the report and analysis descriptions to familiarize yourself what each analysis produces and what the input and output files are.
 '''
 
 PROJECT_TEXT = '''

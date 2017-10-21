@@ -279,6 +279,11 @@ class Job(models.Model):
 
     uid = models.CharField(max_length=32)
     template = models.TextField(default="makefile")
+
+    # This will be set when the job attempts to run.
+    script = models.TextField(default="")
+
+    # Keeps track of errors.
     log = models.TextField(default="No data logged for current job", max_length=10 * MAX_TEXT_LEN)
 
     # Will be false if the objects is to be deleted.

@@ -8,32 +8,43 @@ if tuple(sys.version_info) > (2, 8):
 main_path = '/export/sites/main_engine'
 test_path = '/export/sites/test_engine'
 
-env_prefix = ('source ~/miniconda3/envs/engine/bin/activate engine')
+test_env = ('source ~/miniconda3/envs/engine/bin/activate test_env')
+main_env = ('source ~/miniconda3/envs/engine/bin/activate main_env')
 
 
-def deploy_remote(path):
-    with cd(path), prefix(env_prefix):
+def deploy_latest(path, env, name='main'):
+    with cd(path), prefix(env):
         run('git pull')
         run('python manage.py migrate')
         run('python manage.py collectstatic --noinput -v 0')
-        restart_uwsgi()
+        sudo("supervisorctl restart %s" % name)
 
-def deploy_latest(path):
-    with cd(path), prefix(env_prefix):
+def deploy_reset(path, env, name='test'):
+    with cd(path), prefix(env):
         run("rm -f export/engine.db")
         run('git pull')
+        run('make reset')
         run('python manage.py migrate')
         run('python manage.py collectstatic --noinput -v 0')
-        restart_uwsgi()
+        sudo('supervisorctl restart %s' % name)
+
+
+def deploy_reset_test():
+    deploy_reset(test_path, test_env, name='test')
+
+
+def deploy_reset_main():
+    deploy_reset(main_path, main_env, name='main')
+
 
 def deploy_test():
-    deploy_latest(test_path)
+    deploy_latest(test_path, test_env, name='test')
 
 def deploy_main():
-    deploy_remote(main_path)
+    deploy_latest(main_path, main_env, name='main')
 
 def restart_nginx():
     sudo("service nginx restart")
 
-def restart_uwsgi():
+def restart_all():
     sudo("supervisorctl restart all")

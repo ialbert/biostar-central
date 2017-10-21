@@ -1,7 +1,7 @@
 {
 
 data : {
-    path: tmp/data.tar.gz
+    path: export/local/data.tar.gz
     visible: true
     origin: PROJECT
     data_type: TAR_FASTQ_GZ
@@ -9,7 +9,7 @@ data : {
     }
 
 sampleinfo : {
-    path : tmp/sampleinfo.txt
+    path : export/local/sampleinfo.txt
     label : Sample file
     css: red
     visible: true
