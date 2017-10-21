@@ -1,0 +1,12 @@
+#
+# Analysis settings.
+#
+settings : {
+    name: Hello World Analysis 4
+    summary: Demonstrates access to a broader context.
+    help: '''
+        # Help
+
+        The data passed to this script has access to a broader context.
+    '''
+    }

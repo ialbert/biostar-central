@@ -14,12 +14,19 @@ delete:
 	touch conf/test/test_secrets.py
 	# Remove the database and old media.
 	rm -f export/engine.db
-	rm -rf media/*
+	rm -rf export/media/*
 
 reset:delete init jobs
 
 next:
 	python manage.py job --next
+
+hello:
+	python manage.py analysis --add --json biostar/tools/hello/hello4.hjson  --template biostar/tools/hello/hello4.sh --create_job
+	python manage.py analysis --add --json biostar/tools/hello/hello3.hjson  --template biostar/tools/hello/hello3.sh --create_job
+	python manage.py analysis --add --json biostar/tools/hello/hello2.hjson  --template biostar/tools/hello/hello2.sh --create_job
+	python manage.py analysis --add --json biostar/tools/hello/hello1.hjson  --template biostar/tools/hello/hello1.sh --create_job
+
 
 jobs:
 	python manage.py analysis --add --json biostar/tools/fastqc/fastqc.hjson  --template biostar/tools/fastqc/fastqc.sh --create_job
@@ -40,6 +47,7 @@ push:
 
 testdata:
 	mkdir -p export/local
+	(cd export/local/ && centrifuge-download -o taxonomy taxonomy)
 	curl  http://iris.bx.psu.edu/projects/metabarcode-data/data.tar.gz > export/local/data.tar.gz
 	curl http://iris.bx.psu.edu/projects/metabarcode-data/sampleinfo.txt > export/local/sampleinfo.txt
 	curl http://iris.bx.psu.edu/projects/metabarcode-data/data/1-SarriPal_S9_L001_R1_001.fastq.gz > export/local/1-SarriPal_S9_L001_R1_001.fastq.gz

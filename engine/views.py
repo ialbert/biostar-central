@@ -372,13 +372,6 @@ def job_list(request, id):
 
     return render(request, "jobs_list.html", context)
 
-
-def media_index(request):
-
-    context = dict()
-    return render(request, "media_index.html", context)
-
-
 def job_result_view(request, id):
     """
     Returns the primary result file for the job.
