@@ -28,8 +28,17 @@ def deploy_reset(path, env, name='test'):
         run('python manage.py collectstatic --noinput -v 0')
         sudo('supervisorctl restart %s' % name)
 
-def deploy_test():
+
+def deploy_reset_test():
     deploy_reset(test_path, test_env, name='test')
+
+
+def deploy_reset_main():
+    deploy_reset(main_path, main_env, name='main')
+
+
+def deploy_test():
+    deploy_latest(test_path, test_env, name='test')
 
 def deploy_main():
     deploy_latest(main_path, main_env, name='main')

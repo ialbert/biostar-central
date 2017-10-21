@@ -32,7 +32,7 @@
                     <i class="file text icon"></i>Data List
                 </a>
             </div>
-            <p>View data associated with project.</p>
+            <p>View data associated with this project.</p>
         </div>
 
         <div class="ui vertical segment">
@@ -41,7 +41,7 @@
                     <i class="settings icon"></i>Analyses
                 </a>
             </div>
-            <p>View the analyses that can be run in this project.</p>
+            <p>View the analyses that can be run for this project.</p>
         </div>
 
 
@@ -51,14 +51,16 @@
                     <i class="bar chart icon"></i>Results
                 </a>
             </div>
-            <p>View the results of your analyses.</p>
+            <p>View the results of analyses.</p>
         </div>
 
     </div>
 
     <div class="ui raised segment">
         <div class="ui center aligned header">Project Description</div>
+        <div class="ui vertical segment">
         {{ project.html|safe }}
+        </div>
         <div class="ui center aligned basic segment">
             <a class="ui button" href="{% url 'project_edit' project.id %}">
                 <i class="write icon"></i>Edit Project
