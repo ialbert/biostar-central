@@ -303,12 +303,12 @@ def analysis_run(request, id):
                 tasks.execute_job.spool(job_id=jobid)
 
             return redirect(reverse("job_list", kwargs=dict(id=project.id)))
-
     else:
         initial = dict(name=analysis.name)
         form = RunAnalysis(analysis=analysis, initial=initial)
-        context = dict(project=project, analysis=analysis, steps=steps, form=form)
-        return render(request, 'analysis_run.html', context)
+
+    context = dict(project=project, analysis=analysis, steps=steps, form=form)
+    return render(request, 'analysis_run.html', context)
 
 
 def preview_specs(spec, analysis):
