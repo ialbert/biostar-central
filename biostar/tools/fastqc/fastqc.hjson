@@ -15,7 +15,7 @@ execute : {
 }
 
 settings : {
-    title: Generates a FastQC report
+    name: Generates a FastQC report
     images : ["/static/pipelines/images/fastqc.png"]
     index : results/index.html
     summary: This analysis produces fastqc report for FASTQ file.

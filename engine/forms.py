@@ -69,7 +69,7 @@ class LoginForm(forms.Form):
 class ProjectForm(forms.ModelForm):
     class Meta:
         model = Project
-        fields = ['title', 'summary', 'text']
+        fields = ['name', 'summary', 'text']
 
 
 class DataUploadForm(forms.ModelForm):
@@ -112,7 +112,7 @@ class ExportAnalysis(forms.Form):
         self.analysis = analysis
         # Was told to include all projects
         #projects = [(proj.id, proj.title) for proj in Project.objects.all() if proj.id!=self.analysis.project.id]
-        projects = [(proj.id, proj.title) for proj in Project.objects.all()]
+        projects = [(proj.id, proj.name) for proj in Project.objects.all()]
         super().__init__(*args, **kwargs)
         self.fields["project"] = forms.IntegerField(widget=forms.Select(choices=projects))
 
@@ -123,9 +123,9 @@ class ExportAnalysis(forms.Form):
 
         json_text, template = self.analysis.json_text, self.analysis.template
         owner, summary = self.analysis.owner, self.analysis.summary
-        title, text = self.analysis.title, self.analysis.text
+        name, text = self.analysis.name, self.analysis.text
 
-        analysis = project.create_analysis(json_text, template, owner, summary, title, text)
+        analysis = project.create_analysis(json_text, template, owner, summary, name=name, text=text)
         analysis.save()
         return project, analysis
 
@@ -138,7 +138,7 @@ class RunAnalysis(forms.Form):
 
         super().__init__(*args, **kwargs)
 
-        self.fields["title"] = forms.CharField(max_length=256,
+        self.fields["name"] = forms.CharField(max_length=256,
                                                help_text="Results Title",
                                                required=False)
 
@@ -161,7 +161,7 @@ class RunAnalysis(forms.Form):
         # Gets all data for the project
         datamap = project.get_data()
 
-        print ( type(list(datamap.keys())[0]) )
+        #print ( type(list(datamap.keys())[0]) )
 
         json_data = self.json_data.copy()
 
@@ -222,7 +222,7 @@ class EditAnalysisForm(forms.Form):
         filler = dict(display_type='')
 
         if spec.get("settings", filler).get("display_type") == "MODEL":
-            self.analysis.title = spec["settings"].get("title", self.analysis.title)
+            self.analysis.name = spec["settings"].get("name", self.analysis.name)
             self.analysis.text = spec["settings"].get("text", self.analysis.text)
 
         self.analysis.json_text = self.cleaned_data["text"]

@@ -8,7 +8,7 @@
 
     <div class="ui raised segment">
         <div class="ui center aligned header">
-            Analysis List for project: {{ project.title }}
+            Analysis List for project: {{ project.name }}
         </div>
 
 
@@ -17,7 +17,7 @@
             <div class="ui vertical segment">
                 <div class="ui header">
                     <a href="{% url 'analysis_view' obj.id %}">
-                        <i class="setting icon"></i>{{ obj.title }}
+                        <i class="setting icon"></i>{{ obj.name }}
                     </a>
                 </div>
                 <span>{{ obj.summary|markdown|safe }}</span>

@@ -9,7 +9,7 @@
 
     <div class="ui raised segment">
         <div class="ui center aligned header">
-            Results for project: {{ project.title }}
+            Results for project: {{ project.name }}
         </div>
 
 
@@ -22,7 +22,7 @@
                 <div class="ui {% job_color job %} horizontal  label">{{ job.get_state_display }}</div>
 
                 <a href="{% url 'job_result_view' job.id %}">
-                    <i class="area chart icon"></i>{{ job.title }}
+                    <i class="area chart icon"></i>{{ job.name }}
                 </a>
 
                 {% if job.is_running %}
@@ -34,7 +34,7 @@
 
                 {% endif %}
 
-                <div>{{ job.date.date }} &bull; {{ job.analysis.title }}
+                <div>{{ job.date.date }} &bull; {{ job.analysis.name }}
                     &bull; <a href="{% url 'job_view' job.id %}"> job details
                     </a>
                 </div>
