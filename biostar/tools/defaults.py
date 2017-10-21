@@ -2,8 +2,7 @@
 
 PROJECT_TITLE = "Analysis Demonstration Project"
 PROJECT_SUMMARY = '''
-This project contains one instance of each data analysis with a report. 
-Use it to familiarize yourself what each analysis produces and what the input and output files are.
+This project contains a copy of each data analysis and a corresponding result. Use the report and analysis descriptions to familiarize yourself what each analysis produces and what the input and output files are.
 '''
 
 PROJECT_TEXT = '''
