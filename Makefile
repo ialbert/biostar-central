@@ -23,8 +23,8 @@ next:
 
 jobs:
 	python manage.py analysis --add --json biostar/tools/fastqc/fastqc.hjson  --template biostar/tools/fastqc/fastqc.sh --create_job
-	python manage.py analysis --add --json biostar/tools/qc/qc.hjson  --template biostar/tools/qc/qc_makefile.txt --create_job
-	#python manage.py analysis --add --json biostar/tools/classify/classify.hjson  --template biostar/tools/classify/classify_makefile.txt --create_job
+	#python manage.py analysis --add --json biostar/tools/qc/qc.hjson  --template biostar/tools/qc/qc.sh --create_job
+	#python manage.py analysis --add --json biostar/tools/classify/classify.hjson  --template biostar/tools/classify/classify.sh --create_job
 
 init:
 	python manage.py collectstatic --noinput -v 0

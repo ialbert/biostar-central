@@ -3,12 +3,17 @@ h2.ui.center.header {
 }
 
 h2.ui.header {
-    font-size: 1.2rem;
+    font-size: 1.3rem;
+    font-weight: bold;
 }
 
 h1 {
     min-height: 1rem;
     font-size: 1.4rem;
+}
+
+.ui.header {
+    font-weight: 400;
 }
 
 .title {
@@ -24,6 +29,10 @@ h1 {
 .breadcrumb {
     margin-top: 1.3em;
     margin-bottom: 1em;
+}
+
+.muted {
+    color: #999999;
 }
 
 .Queued {

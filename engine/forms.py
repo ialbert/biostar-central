@@ -9,7 +9,7 @@ from . import factory
 from pagedown.widgets import PagedownWidget
 from engine.const import *
 from engine.web.auth import get_data
-
+from . import models
 
 class SignUpForm(forms.ModelForm):
     password1 = forms.CharField(
@@ -67,23 +67,21 @@ class LoginForm(forms.Form):
 
 
 class ProjectForm(forms.ModelForm):
-    text = forms.CharField(widget=PagedownWidget(template="widgets/pagedownwidget.html"))
-
     class Meta:
         model = Project
-        fields = ['title', 'text']
+        fields = ['title', 'summary', 'text']
 
 
-class DataUploadForm(forms.Form):
-    text = forms.CharField(widget=forms.Textarea(), max_length=512)
-    file = forms.FileField(label="Upload Data File")
-
-    def save(self, *args, **kwargs):
-        super(DataUploadForm, self).save(*args, **kwargs)
+class DataUploadForm(forms.ModelForm):
+    class Meta:
+        model = Data
+        fields = ['file', 'summary', 'text']
 
 
-class DataEditForm(forms.Form):
-    text = forms.CharField(widget=forms.Textarea(), max_length=512)
+class DataEditForm(forms.ModelForm):
+    class Meta:
+        model = Data
+        fields = ['name', 'summary', 'text']
 
 
 def make_field(obj, project):
@@ -103,6 +101,33 @@ def make_field(obj, project):
             field = factory.TYPE2FUNC[display_type](obj)
 
     return field
+
+
+
+class ExportAnalysis(forms.Form):
+
+
+    def __init__(self, analysis, *args, **kwargs):
+
+        self.analysis = analysis
+        # Was told to include all projects
+        #projects = [(proj.id, proj.title) for proj in Project.objects.all() if proj.id!=self.analysis.project.id]
+        projects = [(proj.id, proj.title) for proj in Project.objects.all()]
+        super().__init__(*args, **kwargs)
+        self.fields["project"] = forms.IntegerField(widget=forms.Select(choices=projects))
+
+
+    def export(self):
+        exported_to = self.cleaned_data.get("project")
+        project = Project.objects.filter(id=exported_to).first()
+
+        json_text, template = self.analysis.json_text, self.analysis.template
+        owner, summary = self.analysis.owner, self.analysis.summary
+        title, text = self.analysis.title, self.analysis.text
+
+        analysis = project.create_analysis(json_text, template, owner, summary, title, text)
+        analysis.save()
+        return project, analysis
 
 
 class RunAnalysis(forms.Form):

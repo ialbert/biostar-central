@@ -5,11 +5,13 @@
     Result List
 {% endblock %}
 
-{% block title %}
-    Results for: {{ project.title }}
-{% endblock %}
-
 {% block body %}
+
+         <div class="ui basic segment">
+        <div class="ui center aligned header">
+            Results produced for project: {{ project.title }}
+        </div>
+    </div>
 
     {% for job in jobs %}
 
@@ -30,8 +32,6 @@
 
 
             {% endif %}
-
-
 
             <div>{{ job.date.date }} &bull; {{ job.analysis.title }}
                 &bull; <a href="{% url 'job_detail_view' job.id %}"> job details

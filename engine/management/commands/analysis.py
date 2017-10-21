@@ -78,7 +78,6 @@ class Command(BaseCommand):
                 title = json_data.get("settings", {}).get("title", "No title set")
                 text = json_data.get("settings", {}).get("help", "No help set")
                 summary = json_data.get("settings", {}).get("summary", "No summary set")
-                summary = make_html(summary)
                 analysis = project.create_analysis(json_text=json_text, summary=summary,
                                                    template=template, title=title, text=text)
                 logger.info(f"Added analysis '{analysis.title}' to project id={project.id}")

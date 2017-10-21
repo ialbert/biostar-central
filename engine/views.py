@@ -60,7 +60,7 @@ def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=Non
         elif icon == DATA_LIST_ICON:
             step = (reverse("data_list", kwargs={'id': project.id}), DATA_LIST_ICON, "Data List", is_active )
         elif icon == DATA_ICON:
-            step = (reverse("data_view", kwargs={'id': data.id}), DATA_ICON, f"{data.title}", is_active )
+            step = (reverse("data_view", kwargs={'id': data.id}), DATA_ICON, f"{data.name}", is_active )
         elif icon == ANALYSIS_LIST_ICON:
             step = (reverse("analysis_list", kwargs={'id': project.id}), ANALYSIS_LIST_ICON, "Analysis List", is_active )
         elif icon == ANALYSIS_ICON:
@@ -130,17 +130,18 @@ def project_edit(request, id):
         form = ProjectForm(request.POST, instance=project)
         if form.is_valid():
             form.save()
+            return redirect(project.url())
 
     else:
         form = ProjectForm(instance=project)
 
-    context = dict(projects=project, steps=steps, form=form)
+    context = dict(project=project, steps=steps, form=form)
     return render(request, 'project_edit.html',
                       context)
 
 
 @login_required
-def project_create(request, id):
+def project_create(request):
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON])
 
@@ -157,7 +158,8 @@ def project_create(request, id):
         else:
             form.add_error(None, "Invalid form processing.")
     else:
-        form = ProjectForm()
+        initial = dict(title="Title", text="Description")
+        form = ProjectForm(initial=initial)
         context = dict(steps=steps, form=form)
         return render(request, 'project_create.html',
                       context)
@@ -197,23 +199,17 @@ def data_edit(request, id):
 
     data = Data.objects.filter(id=id).first()
     project = data.project
-    initial = dict(text=data.text)
 
     steps = breadcrumb_builder([PROJECT_ICON, DATA_LIST_ICON, DATA_ICON],
                                project=project, data=data)
 
     if request.method == "POST":
-
-        form = DataEditForm(request.POST, initial=initial)
-
+        form = DataEditForm(request.POST, instance=data)
         if form.is_valid():
-
-            data.text = form.cleaned_data["text"]
-
-            data.save()
-
+            form.save()
+            return redirect(reverse("data_view", kwargs=dict(id=data.id)))
     else:
-        form = DataEditForm(initial=initial)
+        form = DataEditForm(instance=data)
 
     context = dict(data=data, steps=steps, form=form)
 
@@ -223,27 +219,22 @@ def data_edit(request, id):
 @login_required
 def data_upload(request, id):
 
+    owner = request.user
+
     project = Project.objects.filter(id=id).first()
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON],
                                project=project)
 
     if request.method == "POST":
-
         form = DataUploadForm(request.POST, request.FILES)
 
         if form.is_valid():
-            # make work off
-            title = form.cleaned_data["file"]
-            data_file = str(form.cleaned_data["file"])
-            file = File(form.cleaned_data["file"])
-            owner = User.objects.filter(email=request.user).first() or project.owner
             text = form.cleaned_data["text"]
-            data_type = get_datatype(file)
-            size = f"{file.size}"
-            data = Data(title=title, owner=owner, text=text, project=project, data_type=data_type, size=size)
-            data.file.save(data_file, file, save=True)
-            data.save()
-
+            stream = form.cleaned_data["file"]
+            name = stream.name
+            data_type = get_datatype(name)
+            project.create_data(stream=stream, name=name, data_type=data_type, text=text,
+                                owner=owner)
             return redirect(reverse("data_list", kwargs={'id':project.id}))
 
         else:
@@ -272,16 +263,24 @@ def analysis_view(request, id):
     Returns an analysis view based on its id.
     """
     analysis = Analysis.objects.filter(id=id).first()
+    project = analysis.project
     steps = breadcrumb_builder([PROJECT_ICON, ANALYSIS_LIST_ICON, ANALYSIS_ICON],
                                project=analysis.project, analysis=analysis)
-    context = dict(project=analysis.project, analysis=analysis, steps=steps)
+    if request.method == "POST":
+        form = ExportAnalysis(data=request.POST, analysis=analysis)
+        if form.is_valid():
+            project, analysis = form.export()
+            return redirect(reverse("analysis_list", kwargs={"id":project.id}))
+    else:
+        form = ExportAnalysis(analysis=analysis)
+    context = dict(project=project, analysis=analysis, steps=steps,
+                   form=form)
 
     return render(request, "analysis_view.html", context)
 
 
 @login_required
 def analysis_run(request, id):
-
     analysis = Analysis.objects.filter(id=id).first()
     project = analysis.project
 
@@ -289,7 +288,6 @@ def analysis_run(request, id):
                                project=project, analysis=analysis)
 
     if request.method == "POST":
-
         form = RunAnalysis(data=request.POST, analysis=analysis)
 
         if form.is_valid():
@@ -302,7 +300,6 @@ def analysis_run(request, id):
             if tasks.HAS_UWSGI:
 
                 jobid = (job.id).to_bytes(5, byteorder='big')
-
                 tasks.execute_job.spool(job_id=jobid)
 
             return redirect(reverse("job_list", kwargs=dict(id=project.id)))
@@ -334,7 +331,6 @@ def process_analysis_edit(method, analysis, form):
                        'save_to_file': form.save_to_file}
     spec = dict()
     if form.is_valid():
-
         form_method_map[method]()
         spec = json.loads(form.cleaned_data["text"])
 
@@ -350,13 +346,11 @@ def analysis_edit(request, id):
                                project=project, analysis=analysis)
 
     if request.method == "POST":
-
         form = EditAnalysisForm(analysis=analysis, data=request.POST)
         method = request.POST.get("save_or_preview")
         context = process_analysis_edit(method, analysis, form)
 
     else:
-
         form = EditAnalysisForm(analysis=analysis)
         spec = hjson.loads(analysis.json_text)
         context = preview_specs(spec, analysis)
@@ -373,7 +367,6 @@ def job_list(request, id):
     steps = breadcrumb_builder([PROJECT_LIST_ICON, PROJECT_ICON, RESULT_LIST_ICON ],
                                project=project)
 
-
     jobs = project.job_set.order_by("-id")
     context = dict(jobs=jobs, steps=steps, project=project)
 
@@ -383,7 +376,6 @@ def job_list(request, id):
 def media_index(request):
 
     context = dict()
-
     return render(request, "media_index.html", context)
 
 def job_view(request, id):
@@ -404,15 +396,12 @@ def job_directory_view(request, id):
     url = settings.MEDIA_URL + job.get_url()
     return redirect(url)
 
-
 def job_detail_view(request, id):
 
     job = Job.objects.filter(id=id).first()
     project = job.project
-
     steps = breadcrumb_builder([PROJECT_ICON, RESULT_LIST_ICON, RESULT_VIEW_ICON ],
                                job=job, project=project)
-
     context = dict(job=job, steps=steps)
     return render(request, "job_view.html", context=context)
 

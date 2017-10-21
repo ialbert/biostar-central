@@ -1,13 +1,10 @@
-import mimetypes, logging
-from itertools import islice
+import logging, hjson
 
-import hjson as json
-import mistune
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.template.loader import get_template
+
 
 from django.contrib.auth.models import Group
 import mistune
@@ -18,8 +15,11 @@ from . import settings
 from . import util
 from .const import *
 from django.core.files import File
-
 logger = logging.getLogger("engine")
+
+# The maximum length in characters for a typical name and text field.
+MAX_NAME_LEN = 256
+MAX_TEXT_LEN = 10000
 
 def join(*args):
     return os.path.abspath(os.path.join(*args))
@@ -46,12 +46,11 @@ def upload_path(instance, filename):
 class Project(models.Model):
 
     name = models.CharField(max_length=256)
-    summary = models.TextField(default='summ'
-                                       'ary')
+    summary = models.TextField(default='summary')
     # TODO: title needs to go away.
     title = models.CharField(max_length=256)
     owner = models.ForeignKey(User)
-    text = models.TextField(default='text')
+    text = models.TextField(default='text', max_length=MAX_TEXT_LEN)
 
     html = models.TextField(default='html')
     date = models.DateTimeField(auto_now_add=True)
@@ -69,7 +68,7 @@ class Project(models.Model):
         self.html = make_html(self.text)
 
         # Takes first user group for now
-        self.group = self.group or self.owner.groups.first()
+        self.group = self.owner.groups.first()
 
         self.uid = self.uid or util.get_uuid(8)
         if not os.path.isdir(self.get_path()):
@@ -108,25 +107,25 @@ class Project(models.Model):
                                            template=template, )
         return analysis
 
-    def create_data(self,  stream=None, fname=None, title="data.bin", owner=None, text='', data_type=None):
+    def create_data(self,  stream=None, fname=None, name="data.bin", owner=None, text='', data_type=None):
         """
         Creates a data for the project from filename or a stream.
         """
 
         if fname:
             stream = File(open(fname, 'rb'))
-            title = os.path.basename(fname)
+            name = os.path.basename(fname)
         owner = owner or self.owner
         text = text or "No description"
         data_type = data_type or GENERIC_TYPE
-        data = Data(title=title, owner=owner,
+        data = Data(name=name, owner=owner,
                     text=text, project=self, data_type=data_type)
 
         # Need to save before uid gets triggered.
         data.save()
 
         # This saves the into the
-        data.file.save(title, stream, save=True)
+        data.file.save(name, stream, save=True)
 
         # Updates its own size.
         data.set_size()
@@ -142,11 +141,8 @@ class Data(models.Model):
     name = models.CharField(max_length=256)
     summary = models.TextField(default='text')
 
-    # TODO: title needs to go away.
-    title = models.CharField(max_length=256)
-
     owner = models.ForeignKey(User)
-    text = models.TextField(default='text')
+    text = models.TextField(default='text', max_length=MAX_TEXT_LEN)
     html = models.TextField(default='html')
     date = models.DateTimeField(auto_now_add=True)
     type = models.IntegerField(default=FILE, choices=TYPE_CHOICES)
@@ -172,16 +168,9 @@ class Data(models.Model):
 
     def peek(self):
         """
-        Peeks at the data if it is text
+        Returns a preview of the data
         """
-        mimetype, mimecode = mimetypes.guess_type(self.get_path())
-        if mimetype == 'text/plain':
-            stream = open(self.file.path)
-            lines = [line for line in islice(stream, 10)]
-            content = "\n".join(lines)
-            return content
-
-        return "*** Binary file ***"
+        return util.smart_preview(self.get_path())
 
     def set_size(self):
         """
@@ -204,13 +193,13 @@ class Data(models.Model):
         """
         obj['path'] = self.get_path()
         obj['value'] = self.id
-        obj['name'] = self.title
+        obj['name'] = self.name
 
 class Analysis(models.Model):
 
     name = models.CharField(max_length=256)
     summary = models.TextField(default='text')
-    text = models.TextField(default='text')
+    text = models.TextField(default='text', max_length=MAX_TEXT_LEN)
     html = models.TextField(default='html')
     owner = models.ForeignKey(User)
     # TODO: title needs to go away.
@@ -236,7 +225,7 @@ class Analysis(models.Model):
     @property
     def json_data(self):
         "Returns the json_text as parsed json_data"
-        return json.loads(self.json_text)
+        return hjson.loads(self.json_text)
 
     def save(self, *args, **kwargs):
         now = timezone.now()
@@ -255,7 +244,7 @@ class Analysis(models.Model):
         owner = owner or self.project.owner
 
         if json_data:
-            json_text = json.dumps(json_data)
+            json_text = hjson.dumps(json_data)
         else:
             json_text = json_text or self.json_text
 
@@ -280,7 +269,7 @@ class Job(models.Model):
     title = models.CharField(max_length=256)
 
     owner = models.ForeignKey(User)
-    text = models.TextField(default='text')
+    text = models.TextField(default='text', max_length=MAX_TEXT_LEN)
     html = models.TextField(default='html')
     date = models.DateTimeField(auto_now_add=True)
 
@@ -290,7 +279,7 @@ class Job(models.Model):
 
     uid = models.CharField(max_length=32)
     template = models.TextField(default="makefile")
-    log = models.TextField(default="No data logged for current job")
+    log = models.TextField(default="No data logged for current job", max_length=10 * MAX_TEXT_LEN)
 
     # Will be false if the objects is to be deleted.
     valid = models.BooleanField(default=True)
@@ -312,7 +301,7 @@ class Job(models.Model):
     @property
     def json_data(self):
         "Returns the json_text as parsed json_data"
-        return json.loads(self.json_text)
+        return hjson.loads(self.json_text)
 
     def save(self, *args, **kwargs):
         now = timezone.now()

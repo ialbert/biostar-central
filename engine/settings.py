@@ -23,16 +23,11 @@ def join(*args):
     return os.path.abspath(os.path.join(*args))
 
 
-ADMINS = [("Admin User", "1@lvh.me")]
+ADMINS = [
+    ("Admin User", "1@lvh.me")
+]
 
 ADMIN_GROUP_NAME = "Admins"
-
-REGULAR_TEST_USERS = {
-                      # User email  : [group1, group2..]
-                      "testbuddy@lvh.me": ["Public", "Lamar"],
-                      "5@lvh.me":["Public"]
-                      }
-
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(join(__file__))

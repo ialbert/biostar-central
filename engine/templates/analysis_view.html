@@ -5,9 +5,6 @@
     {{ analysis.title }}
 {% endblock %}
 
-{% block title %}
-    {{ analysis.title }}
-{% endblock %}
 
 {% block menu %}
     {% menubar edit_analysis=True analysis=analysis %}
@@ -19,10 +16,12 @@
 
 {% block body %}
 
-    <div class="ui vertical segment">
-        <h1>Summary</h1>
-        <p>{{ analysis.summary|safe }}</p>
-    </div>
+     <div class="ui vertical segment">
+            <div class="ui center aligned header">
+                Analysis: {{ analysis.title }}
+            </div>
+            {{ analysis.summary|markdown|safe }}
+        </div>
 
     <div class="ui center aligned vertical segment">
 
@@ -32,10 +31,43 @@
 
     </div>
 
-
     <div class="ui vertical aligned segment">
-        <div class="textbody">{{ analysis.html|safe }}</div>
+        <div>{{ analysis.html|safe }}</div>
     </div>
+
+    <div class="ui center aligned vertical segment">
+        <a class="ui button" href="{% url 'analysis_edit' analysis.id %}">
+            <i class="write icon"></i>Edit Analysis
+        </a>
+    </div>
+
+    <form method="post" class="ui form" action="{% url 'analysis_view' analysis.id %}">
+
+        {% csrf_token %}
+        <div class="ui center aligned vertical segment">
+            <div class="ui buttons">
+
+                  <button type="submit" class="ui right floated blue button">
+                    <i class="check icon"></i>Export to
+                  </button>
+
+                  <div class="ui floating dropdown icon button">
+                        <div class="feild">
+                            {{form.project}}
+                        </div>
+                 </div>
+            </div>
+        </div>
+
+
+
+
+
+
+
+
+    </form>
+
 
 
 {% endblock %}
