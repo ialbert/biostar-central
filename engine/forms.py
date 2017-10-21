@@ -110,8 +110,6 @@ class ExportAnalysis(forms.Form):
     def __init__(self, analysis, *args, **kwargs):
 
         self.analysis = analysis
-        # Was told to include all projects
-        #projects = [(proj.id, proj.title) for proj in Project.objects.all() if proj.id!=self.analysis.project.id]
         projects = [(proj.id, proj.name) for proj in Project.objects.all()]
         super().__init__(*args, **kwargs)
         self.fields["project"] = forms.IntegerField(widget=forms.Select(choices=projects))

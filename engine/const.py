@@ -28,12 +28,6 @@ FIELD_VISIBLE = "visible"
 FIELD_ORIGIN = "origin"
 PROJECT_ORIGIN = "PROJECT"
 
-INITIAL_GROUPS = [
-
-    "Admin",
-    "Lamar",
-    "Public"
-]
 
 # Site information
 

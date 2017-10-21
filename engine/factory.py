@@ -82,12 +82,12 @@ def file_field(field):
 
 
 def checkbox_field(field):
-    boolmap = {'true': True, 'false': False}
 
     label = field.get("label")
     help_text = field.get("help", "Check option for true.")
 
-    inital = boolmap.get(field.get("value", "false"))
+    inital = field.get("value", False)
+
     widget = forms.CheckboxInput
 
     field = forms.BooleanField(initial=inital,

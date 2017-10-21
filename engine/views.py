@@ -378,6 +378,7 @@ def media_index(request):
     context = dict()
     return render(request, "media_index.html", context)
 
+
 def job_result_view(request, id):
     """
     Returns the primary result file for the job.
@@ -399,7 +400,22 @@ def job_file_view(request, id):
     """
     job = Job.objects.filter(id=id).first()
     url = settings.MEDIA_URL + job.get_url()
+    results_root = join(settings.MEDIA_ROOT, job.get_url(path="results"))
+
+    # Some jobs error out after producing things.
+    if os.path.exists(results_root):
+        url = settings.MEDIA_URL + job.get_url(path="results/")
+
     return redirect(url)
+
+
+def file_list_view(request, id):
+
+    job = Job.objects.filter(id=id).first()
+
+
+    return
+
 
 
 def job_view(request, id):
