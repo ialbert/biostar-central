@@ -56,21 +56,21 @@ def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=Non
         elif icon == PROJECT_LIST_ICON:
             step = (reverse("project_list"), PROJECT_LIST_ICON, "Project List", is_active)
         elif icon == PROJECT_ICON:
-            step = (reverse("project_view", kwargs={'id': project.id}), PROJECT_ICON, f"{project.title}", is_active )
+            step = (reverse("project_view", kwargs={'id': project.id}), PROJECT_ICON, "Project View", is_active )
         elif icon == DATA_LIST_ICON:
             step = (reverse("data_list", kwargs={'id': project.id}), DATA_LIST_ICON, "Data List", is_active )
         elif icon == DATA_ICON:
-            step = (reverse("data_view", kwargs={'id': data.id}), DATA_ICON, f"{data.name}", is_active )
+            step = (reverse("data_view", kwargs={'id': data.id}), DATA_ICON, f"Data View", is_active )
         elif icon == ANALYSIS_LIST_ICON:
             step = (reverse("analysis_list", kwargs={'id': project.id}), ANALYSIS_LIST_ICON, "Analysis List", is_active )
         elif icon == ANALYSIS_ICON:
-            step = (reverse("analysis_view", kwargs={'id': analysis.id}), ANALYSIS_ICON, f"{analysis.title}", is_active )
+            step = (reverse("analysis_view", kwargs={'id': analysis.id}), ANALYSIS_ICON, "Analysis View", is_active )
         elif icon == RESULT_LIST_ICON:
             step = (reverse("job_list", kwargs={'id': project.id,}), RESULT_LIST_ICON, "Result List",is_active)
         elif icon == RESULT_ICON:
-            step = (reverse("job_view", kwargs={'id': job.id}), RESULT_ICON, f"{job.title}", is_active)
+            step = (reverse("job_view", kwargs={'id': job.id}), RESULT_ICON, "Job View", is_active)
         elif icon == RESULT_VIEW_ICON:
-            step = (reverse("job_detail_view", kwargs={'id': job.id, }), RESULT_ICON, f"{job.title}", is_active)
+            step = (reverse("job_detail_view", kwargs={'id': job.id, }), RESULT_ICON, "Job Status", is_active)
         elif icon == USER_ICON:
             step = (reverse("profile", kwargs={'id': user.id, }), USER_ICON, f"Profile", is_active)
         elif icon == LOGIN_ICON:

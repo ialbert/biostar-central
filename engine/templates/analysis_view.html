@@ -16,19 +16,17 @@
 
 {% block body %}
 
-     <div class="ui vertical segment">
-            <div class="ui center aligned header">
-                Analysis: {{ analysis.title }}
-            </div>
-            {{ analysis.summary|markdown|safe }}
+    <div class="ui segment">
+        <div class="ui center aligned header">
+            Analysis: {{ analysis.title }}
         </div>
+        {{ analysis.summary|markdown|safe }}
 
-    <div class="ui center aligned vertical segment">
-
-        <a class="ui green button" href="{% url 'analysis_run' analysis.id %}">
-            Execute Analysis
-        </a>
-
+        <div class="ui center aligned basic segment">
+            <a class="ui green button" href="{% url 'analysis_run' analysis.id %}">
+                Execute Analysis
+            </a>
+        </div>
     </div>
 
     <div class="ui vertical aligned segment">

@@ -1,10 +1,6 @@
 {% extends "base.html" %}
 {% load engine_tags %}
 
-{% block title %}
-    Data: {{ data.name }}
-{% endblock %}
-
 {% block menu %}
     {% menubar data=data edit_data=True %}
 {% endblock %}
@@ -15,30 +11,34 @@
 
 {% block body %}
 
-    <div class="ui vertical segment">
+    <div class="ui  raised segment">
         <div class="ui center aligned header">
             Data: {{ data.name }}
         </div>
-        {{ data.summary|markdown|safe }}
-        <div>Size: {{ data.size|filesizeformat }}</div>
-        <div>Path: {{ data.file }}</div>
 
+        <div class="ui vertical segment">
+            {{ data.summary|markdown|safe }}
+        </div>
+
+        <div class="ui vertical segment">
+            <div>Size: {{ data.size|filesizeformat }}</div>
+            <div>Uploaded by: {{ data.owner.email }}</div>
+        </div>
+
+        <div class="ui vertical segment">
+            <div class="ui center aligned header">Data Description</div>
+            <div>{{ data.html|safe }}</div>
+        </div>
+
+        <div class="ui vertical segment">
+            <div class="ui center aligned header">Data Content</div>
+            <pre>{{ data.peek }}</pre>
+        </div>
+
+        <div class="ui center aligned vertical segment">
+            <a class="ui button" href="{% url 'data_edit' data.id %}">
+                <i class="write icon"></i>Edit Data
+            </a>
+        </div>
     </div>
-
-    <div class="ui vertical segment">
-        <div class="ui center aligned header">Description</div>
-        <div>{{ data.html|safe }}</div>
-    </div>
-
-    <div class="ui vertical segment">
-        <div class="ui center aligned header">Content</div>
-        <pre>{{ data.peek }}</pre>
-    </div>
-
-    <div class="ui center aligned vertical segment">
-        <a class="ui button" href="{% url 'data_edit' data.id %}">
-            <i class="write icon"></i>Edit Data
-        </a>
-    </div>
-
 {% endblock %}

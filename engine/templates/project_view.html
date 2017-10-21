@@ -18,26 +18,23 @@
 
 {% block body %}
 
-    <div class="ui text container">
 
-        <div class="ui vertical segment">
-            <div class="ui center aligned header">
-                Project: {{ project.title }}
-            </div>
-            <div>{{ project.summary|markdown|safe }}</div>
 
+    <div class="ui raised segment">
+        <div class="ui center aligned header">
+            Project: {{ project.title }}
         </div>
+        <div class="ui vertical segment">{{ project.summary|markdown|safe }}</div>
 
         <div class="ui vertical segment">
-
             <div class="ui header">
                 <a href="{% url 'data_list' project.id %}">
                     <i class="file text icon"></i>Data List
                 </a>
             </div>
             <p>View data associated with project.</p>
-
         </div>
+
         <div class="ui vertical segment">
             <div class="ui header">
                 <a href="{% url 'analysis_list' project.id %}">
@@ -46,6 +43,7 @@
             </div>
             <p>View the analyses that can be run in this project.</p>
         </div>
+
 
         <div class="ui vertical segment">
             <div class="ui header">
@@ -56,17 +54,16 @@
             <p>View the results of your analyses.</p>
         </div>
 
-        <div class="ui vertical segment">
-             <div class="ui center aligned header">Detailed Description</div>
-            {{ project.html|safe }}
-        </div>
+    </div>
 
-        <div class="ui center aligned vertical segment">
+    <div class="ui raised segment">
+        <div class="ui center aligned header">Project Description</div>
+        {{ project.html|safe }}
+        <div class="ui center aligned basic segment">
             <a class="ui button" href="{% url 'project_edit' project.id %}">
                 <i class="write icon"></i>Edit Project
             </a>
         </div>
-
     </div>
 
 {% endblock %}

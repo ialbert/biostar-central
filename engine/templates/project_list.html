@@ -21,28 +21,34 @@
 
 {% block body %}
 
-    {% for project in projects %}
-
-        <div class="ui vertical segment">
-            <div class="ui header">
-                <a href="{{ project.url }}">
-                    <i class="archive icon"></i>{{ project.title }}
-                </a>
-
-            </div>
-            <p>{{ project.summary|markdown|safe }}</p>
-            <p class="muted">
-                Created on {{ project.date.date }} by {{ project.owner.email }}
-            </p>
-
+    <div class="ui raised segment">
+        <div class="ui center aligned header">
+            Projects Listing
         </div>
 
-    {% endfor %}
 
-    <div class="ui center aligned vertical segment">
-        <a class="ui button" href="{% url 'project_create' %}">
-            <i class="write icon"></i>Create Project
-        </a>
+        {% for project in projects %}
+
+            <div class="ui vertical segment">
+                <div class="ui header">
+                    <a href="{{ project.url }}">
+                        <i class="archive icon"></i>{{ project.title }}
+                    </a>
+
+                </div>
+                <p>{{ project.summary|markdown|safe }}</p>
+                <p class="muted">
+                    Created on {{ project.date.date }} by {{ project.owner.email }}
+                </p>
+
+            </div>
+
+        {% endfor %}
+
+        <div class="ui center aligned vertical segment">
+            <a class="ui button" href="{% url 'project_create' %}">
+                <i class="write icon"></i>Create Project
+            </a>
+        </div>
     </div>
-
 {% endblock %}
