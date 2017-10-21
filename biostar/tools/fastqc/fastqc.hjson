@@ -8,12 +8,6 @@ data : {
     display_type: DROPDOWN
   }
 
-
-execute : {
-    filename : run.sh
-    command : bash run.sh
-}
-
 settings : {
     name: Generates a FastQC report
     images : ["/static/pipelines/images/fastqc.png"]

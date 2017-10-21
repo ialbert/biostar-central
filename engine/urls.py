@@ -46,7 +46,6 @@ urlpatterns = [
     url(r'^media/jobs/(job-\w+)/$', views.job_dir_view, name='job_dir_view'),
     url(r'^media/jobs/(job-\w+)/results/$', views.results_dir_view, name='results_dir_view'),
 
-
 ]
 
 if settings.DEBUG:

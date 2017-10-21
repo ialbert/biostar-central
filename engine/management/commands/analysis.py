@@ -1,7 +1,8 @@
-import os, sys, logging, hjson
+import os, sys, logging, hjson, textwrap
 from engine.models import Project, User, make_html
 from django.core.management.base import BaseCommand
 from biostar.tools.const import DATA_TYPES
+
 
 logger = logging.getLogger('engine')
 
@@ -77,6 +78,7 @@ class Command(BaseCommand):
             try:
                 name = json_data.get("settings", {}).get("name", "No name set")
                 text = json_data.get("settings", {}).get("help", "No help set")
+                text = textwrap.dedent(text)
                 summary = json_data.get("settings", {}).get("summary", "No summary set")
                 analysis = project.create_analysis(json_text=json_text, summary=summary,
                                                    template=template, name=name, text=text)

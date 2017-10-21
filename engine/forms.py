@@ -1,4 +1,4 @@
-import hjson as json
+import hjson, logging
 
 from django import forms
 from django.utils.translation import gettext_lazy as helpers
@@ -6,10 +6,13 @@ from django.contrib.auth.models import User, Group
 from .models import Project, Data, Analysis
 from . import util
 from . import factory
-from pagedown.widgets import PagedownWidget
+#from pagedown.widgets import PagedownWidget
 from engine.const import *
 from engine.web.auth import get_data
 from . import models
+
+# Share the logger with models.
+logger = models.logger
 
 class SignUpForm(forms.ModelForm):
     password1 = forms.CharField(
@@ -84,39 +87,37 @@ class DataEditForm(forms.ModelForm):
         fields = ['name', 'summary', 'text']
 
 
-def make_field(obj, project):
 
+def make_form_field(data, project):
 
-    field = ''
-    visible = obj.get("visible")
-    path = obj.get("path")
-    display_type = obj.get("display_type", '')
-
+    # Should this field be rendered?
+    display_type = data.get("display_type", '')
     if not display_type:
-        return field
+        return
 
-    if visible:
-        if path:
-            data_type = obj.get("data_type")
-            field = factory.data_generator(obj, project=project, data_type=data_type)
-        else:
-            field = factory.TYPE2FUNC[display_type](obj)
+    # Is this an existing data
+    path = data.get("path")
+    if path:
+        data_type = data.get("data_type")
+        field = factory.data_generator(data, project=project, data_type=data_type)
+    else:
+        func = factory.TYPE2FUNC.get(display_type)
+        if not func:
+            logger.error(f"Invalid display_type={display_type}")
+            return
+        field = func(data)
 
     return field
-
 
 
 class ExportData(forms.Form):
 
     def __init__(self, fname, *args, **kwargs):
 
-
-
+        self.stream = fname
+        projects = [(proj.id, proj.name) for proj in Project.objects.all()]
         super().__init__(*args, **kwargs)
-
-
-    pass
-
+        self.fields["project"] = forms.IntegerField(widget=forms.Select(choices=projects))
 
 
 
@@ -146,20 +147,19 @@ class ExportAnalysis(forms.Form):
 
 
 class RunAnalysis(forms.Form):
+
+    name = forms.CharField(max_length=256, help_text="Results Title", required=True)
+
     def __init__(self, analysis, *args, **kwargs):
 
         self.analysis = analysis
-        self.json_data = json.loads(self.analysis.json_text)
+        self.json_data = self.analysis.json_data
+        self.project = self.analysis.project
 
         super().__init__(*args, **kwargs)
 
-        self.fields["name"] = forms.CharField(max_length=256,
-                                               help_text="Results Title",
-                                               required=False)
-
-        for name, obj in self.json_data.items():
-            field = make_field(obj, analysis.project)
-            # print(name, obj)
+        for name, data in self.json_data.items():
+            field = make_form_field(data, self.project)
             if field:
                 self.fields[name] = field
 
@@ -211,8 +211,8 @@ class EditAnalysisForm(forms.Form):
 
         super().__init__(*args, **kwargs)
 
-        json_data = json.loads(self.analysis.json_text)
-        initial = json.dumps(json_data, indent=4)
+        json_data = hjson.loads(self.analysis.json_text)
+        initial = hjson.dumps(json_data, indent=4)
 
         self.fields["text"] = forms.CharField(initial=initial)
         self.fields["save_or_preview"] = forms.CharField(initial="preview")
@@ -222,18 +222,18 @@ class EditAnalysisForm(forms.Form):
     def preview(self):
 
         cleaned_data = super(EditAnalysisForm, self).clean()
-        json_data = json.loads(cleaned_data["text"])
+        json_data = hjson.loads(cleaned_data["text"])
 
         self.generate_form(json_data)
 
     def save(self):
 
         cleaned_data = super(EditAnalysisForm, self).clean()
-        json_data = json.loads(cleaned_data["text"])
+        json_data = hjson.loads(cleaned_data["text"])
 
         self.generate_form(json_data)
 
-        spec = json.loads(self.cleaned_data["text"])
+        spec = hjson.loads(self.cleaned_data["text"])
         filler = dict(display_type='')
 
         if spec.get("settings", filler).get("display_type") == "MODEL":
@@ -251,7 +251,7 @@ class EditAnalysisForm(forms.Form):
     def generate_form(self, json_obj):
 
         for name, obj in json_obj.items():
-            field = make_field(obj, self.analysis.project)
+            field = make_form_field(obj, self.analysis.project)
 
             if field:
                 self.fields[name] = field

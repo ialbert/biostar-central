@@ -1,0 +1,24 @@
+#
+# Requires a data parameter.
+#
+foo : {
+    path: export/local/data.tar.gz
+    visible: true
+    display_type: DROPDOWN
+  }
+
+#
+# Analysis settings.
+#
+settings : {
+    name: Hello World Analysis 3
+    summary: A script that takes a file and prints its name and size
+    index: results.txt
+    help: '''
+        # Help
+
+        This analysis takes a file as input and prints its size.
+
+        It also saves this information into a file that will be the main analysis result.
+    '''
+    }

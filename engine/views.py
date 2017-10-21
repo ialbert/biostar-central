@@ -303,12 +303,12 @@ def analysis_run(request, id):
                 tasks.execute_job.spool(job_id=jobid)
 
             return redirect(reverse("job_list", kwargs=dict(id=project.id)))
-
     else:
         initial = dict(name=analysis.name)
         form = RunAnalysis(analysis=analysis, initial=initial)
-        context = dict(project=project, analysis=analysis, steps=steps, form=form)
-        return render(request, 'analysis_run.html', context)
+
+    context = dict(project=project, analysis=analysis, steps=steps, form=form)
+    return render(request, 'analysis_run.html', context)
 
 
 def preview_specs(spec, analysis):
@@ -332,7 +332,7 @@ def process_analysis_edit(method, analysis, form):
     spec = dict()
     if form.is_valid():
         form_method_map[method]()
-        spec = json.loads(form.cleaned_data["text"])
+        spec = hjson.loads(form.cleaned_data["text"])
 
     return preview_specs(spec, analysis)
 
@@ -369,6 +369,7 @@ def job_list(request, id):
 
     jobs = project.job_set.order_by("-id")
     context = dict(jobs=jobs, steps=steps, project=project)
+
 
     return render(request, "job_list.html", context)
 

@@ -1,0 +1,11 @@
+settings : {
+    name: Hello World Analysis 2
+    summary: A script that prints: Hello World!
+    help: '''
+        # Help
+
+        This analysis prints **Hello World!** to the console.
+
+        Note how you can use markdown in the this section.
+    '''
+    }

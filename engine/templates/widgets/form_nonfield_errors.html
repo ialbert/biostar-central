@@ -1,0 +1,10 @@
+{%  if errorlist %}
+<div class="ui message">
+    <div class="header">We had some issues</div>
+    <ul class="list">
+        {% for message in errorlist %}
+            <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+</div>
+{%  endif %}
