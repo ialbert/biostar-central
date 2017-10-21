@@ -18,12 +18,12 @@ sampleinfo : {
     }
 
 reference : {
-    value: "tmp/refs/centrifuge_fish_idx/fish_genomes17"
+    path: ""
+    label: Reference
     visible: true
-    choices : [ [ "tmp/refs/centrifuge_fish_idx/fish_genomes17", "Lamar fishes"],
-               ]
     data_type: REFERENCE_TYPE
     display_type: DROPDOWN
+    origin: PROJECT
 }
 
 threads : {
@@ -31,8 +31,8 @@ threads : {
     }
 
 execute : {
-    filename : Makefile
-    command : make all
+    filename : classify.sh
+    command : bash classify.sh
 }
 
 settings : {
