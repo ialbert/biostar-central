@@ -18,7 +18,7 @@
 
     <div class="ui raised segment">
         <div class="ui center aligned header">
-            Analysis: {{ analysis.title }}
+            Analysis: {{ analysis.name }}
         </div>
         {{ analysis.summary|markdown|safe }}
 
@@ -43,6 +43,33 @@
         </div>
 
     </div>
+
+    <form method="post" class="ui form" action="{% url 'analysis_view' analysis.id %}">
+
+        {% csrf_token %}
+        <div class="ui center aligned vertical segment">
+            <div class="ui buttons">
+
+                  <button type="submit" class="ui right floated blue button">
+                    <i class="check icon"></i>Export to
+                  </button>
+
+                  <div class="ui floating dropdown icon button">
+                        <div class="feild">
+                            {{form.project}}
+                        </div>
+                 </div>
+            </div>
+        </div>
+
+
+
+
+
+
+
+
+    </form>
 
 
 

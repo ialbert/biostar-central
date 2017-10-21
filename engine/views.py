@@ -101,7 +101,6 @@ def project_list(request):
     return render(request, "project_list.html", context)
 
 
-
 #@login_required
 def project_view(request, id):
 
@@ -150,16 +149,16 @@ def project_create(request):
         # create new projects here ( just populates metadata ).
         form = ProjectForm(data=request.POST)
         if form.is_valid():
-            title = form.cleaned_data["title"]
+            name = form.cleaned_data["name"]
             text = form.cleaned_data["text"]
             owner = User.objects.all().first()
-            project = Project.objects.create(title=title, text=text, owner=owner)
+            project = Project.objects.create(name=name, text=text, owner=owner)
             project.save()
             return redirect(reverse("project_list"))
         else:
             form.add_error(None, "Invalid form processing.")
     else:
-        initial = dict(title="Title", text="Description")
+        initial = dict(name="Project Name", text="project description", summary="project summary")
         form = ProjectForm(initial=initial)
         context = dict(steps=steps, form=form)
         return render(request, 'project_create.html',
@@ -227,17 +226,15 @@ def data_upload(request, id):
                                project=project)
 
     if request.method == "POST":
-
         form = DataUploadForm(request.POST, request.FILES)
 
         if form.is_valid():
             text = form.cleaned_data["text"]
-
             stream = form.cleaned_data["file"]
             name = stream.name
             data_type = get_datatype(name)
-            project.create_data(stream=stream, name=name, data_type=data_type, text=text)
-
+            project.create_data(stream=stream, name=name, data_type=data_type, text=text,
+                                owner=owner)
             return redirect(reverse("data_list", kwargs={'id':project.id}))
 
         else:
@@ -266,16 +263,24 @@ def analysis_view(request, id):
     Returns an analysis view based on its id.
     """
     analysis = Analysis.objects.filter(id=id).first()
+    project = analysis.project
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ANALYSIS_LIST_ICON, ANALYSIS_ICON],
-                               project=analysis.project, analysis=analysis)
-    context = dict(project=analysis.project, analysis=analysis, steps=steps)
+                           project=project, analysis=analysis)
+    if request.method == "POST":
+        form = ExportAnalysis(data=request.POST, analysis=analysis)
+        if form.is_valid():
+            project, analysis = form.export()
+            return redirect(reverse("analysis_list", kwargs={"id":project.id}))
+    else:
+        form = ExportAnalysis(analysis=analysis)
+    context = dict(project=project, analysis=analysis, steps=steps,
+                   form=form)
 
     return render(request, "analysis_view.html", context)
 
 
 @login_required
 def analysis_run(request, id):
-
     analysis = Analysis.objects.filter(id=id).first()
     project = analysis.project
 
@@ -283,26 +288,24 @@ def analysis_run(request, id):
                                project=project, analysis=analysis)
 
     if request.method == "POST":
-
         form = RunAnalysis(data=request.POST, analysis=analysis)
 
         if form.is_valid():
-            title = form.cleaned_data.get("title")
+            name = form.cleaned_data.get("name")
             filled_json = form.process()
             json_text = hjson.dumps(filled_json)
-            job = analysis.create_job(owner=analysis.owner, json_text=json_text, title=title)
+            job = analysis.create_job(owner=analysis.owner, json_text=json_text, name=name)
             logger.info(tasks.HAS_UWSGI)
 
             if tasks.HAS_UWSGI:
 
                 jobid = (job.id).to_bytes(5, byteorder='big')
-
                 tasks.execute_job.spool(job_id=jobid)
 
             return redirect(reverse("job_list", kwargs=dict(id=project.id)))
 
     else:
-        initial = dict(title=analysis.title)
+        initial = dict(name=analysis.name)
         form = RunAnalysis(analysis=analysis, initial=initial)
         context = dict(project=project, analysis=analysis, steps=steps, form=form)
         return render(request, 'analysis_run.html', context)
@@ -311,12 +314,12 @@ def analysis_run(request, id):
 def preview_specs(spec, analysis):
 
     if spec.get("settings"):
-        title = spec["settings"].get("title", analysis.title)
+        name = spec["settings"].get("name", analysis.name)
         help = spec["settings"].get("help", analysis.text)
         #summary = spec["settings"].get("summary", analysis.text)
         html = make_html(help)
 
-        return dict(title=title, html=html)
+        return dict(name=name, html=html)
     else:
         return dict()
 
@@ -328,7 +331,6 @@ def process_analysis_edit(method, analysis, form):
                        'save_to_file': form.save_to_file}
     spec = dict()
     if form.is_valid():
-
         form_method_map[method]()
         spec = json.loads(form.cleaned_data["text"])
 
@@ -344,13 +346,11 @@ def analysis_edit(request, id):
                                project=project, analysis=analysis)
 
     if request.method == "POST":
-
         form = EditAnalysisForm(analysis=analysis, data=request.POST)
         method = request.POST.get("save_or_preview")
         context = process_analysis_edit(method, analysis, form)
 
     else:
-
         form = EditAnalysisForm(analysis=analysis)
         spec = hjson.loads(analysis.json_text)
         context = preview_specs(spec, analysis)
@@ -367,7 +367,6 @@ def job_list(request, id):
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, RESULT_LIST_ICON ],
                                project=project)
 
-
     jobs = project.job_set.order_by("-id")
     context = dict(jobs=jobs, steps=steps, project=project)
 
@@ -377,7 +376,6 @@ def job_list(request, id):
 def media_index(request):
 
     context = dict()
-
     return render(request, "media_index.html", context)
 
 def job_result_view(request, id):
@@ -414,6 +412,8 @@ def job_view(request, id):
 
     context = dict(job=job, steps=steps)
     return render(request, "job_view.html", context=context)
+
+
 
 
 

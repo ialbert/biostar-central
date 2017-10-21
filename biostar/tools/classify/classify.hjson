@@ -36,7 +36,7 @@ execute : {
 }
 
 settings : {
-    title: Perform custom taxonomical classification
+    name: Perform custom taxonomical classification
     images : ["/static/pipelines/images/classify.png","/static/pipelines/images/classify_table.png"]
     index : results/index.html
     summary: '''

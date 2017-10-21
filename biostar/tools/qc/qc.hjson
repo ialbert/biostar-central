@@ -72,7 +72,7 @@ execute : {
 }
 
 settings : {
-    title: Trim primers and low quality bases
+    name: Trim primers and low quality bases
     images : ["/static/pipelines/images/trim.png"]
     index : results/index.html
     summary: '''
