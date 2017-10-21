@@ -112,7 +112,7 @@ class ExportAnalysis(forms.Form):
         self.analysis = analysis
         # Was told to include all projects
         #projects = [(proj.id, proj.title) for proj in Project.objects.all() if proj.id!=self.analysis.project.id]
-        projects = [(proj.id, proj.title) for proj in Project.objects.all()]
+        projects = [(proj.id, proj.name) for proj in Project.objects.all()]
         super().__init__(*args, **kwargs)
         self.fields["project"] = forms.IntegerField(widget=forms.Select(choices=projects))
 
@@ -123,9 +123,9 @@ class ExportAnalysis(forms.Form):
 
         json_text, template = self.analysis.json_text, self.analysis.template
         owner, summary = self.analysis.owner, self.analysis.summary
-        title, text = self.analysis.title, self.analysis.text
+        name, text = self.analysis.name, self.analysis.text
 
-        analysis = project.create_analysis(json_text, template, owner, summary, title, text)
+        analysis = project.create_analysis(json_text, template, owner, summary, name=name, text=text)
         analysis.save()
         return project, analysis
 
