@@ -58,7 +58,9 @@
 
     <div class="ui raised segment">
         <div class="ui center aligned header">Project Description</div>
+        <div class="ui vertical segment">
         {{ project.html|safe }}
+        </div>
         <div class="ui center aligned basic segment">
             <a class="ui button" href="{% url 'project_edit' project.id %}">
                 <i class="write icon"></i>Edit Project

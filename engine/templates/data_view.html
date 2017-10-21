@@ -13,7 +13,7 @@
 
     <div class="ui  raised segment">
         <div class="ui center aligned header">
-            Data: {{ data.name }}
+            {{ data.name }}
         </div>
 
         <div class="ui vertical segment">
@@ -21,6 +21,7 @@
         </div>
 
         <div class="ui vertical segment">
+            <div>Name: {{ data.name }}</div>
             <div>Size: {{ data.size|filesizeformat }}</div>
             <div>Uploaded by: {{ data.owner.email }}</div>
         </div>
