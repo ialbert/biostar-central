@@ -18,8 +18,4 @@ class SimplePageResponses(TestCase):
 
 
 
-    
-
-
-
 
