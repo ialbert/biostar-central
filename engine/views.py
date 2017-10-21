@@ -169,7 +169,7 @@ def project_create(request):
 #@login_required
 def data_list(request, id):
     project = Project.objects.filter(id=id).first()
-    steps = breadcrumb_builder([PROJECT_LIST_ICON,  PROJECT_ICON, DATA_LIST_ICON],
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON,  PROJECT_ICON, DATA_LIST_ICON],
                                project=project)
     context = dict(project=project, steps=steps)
     return render(request, "data_list.html", context)
@@ -179,7 +179,7 @@ def data_list(request, id):
 def data_view(request, id):
 
     data = Data.objects.filter(id=id).first()
-    steps = breadcrumb_builder([PROJECT_ICON, DATA_LIST_ICON, DATA_ICON],
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON, DATA_ICON],
                                project=data.project, data=data)
     context = dict(data=data, steps=steps)
 
@@ -254,7 +254,7 @@ def analysis_list(request, id):
     """
     project = Project.objects.filter(id=id).first()
     analysis = Analysis.objects.filter(project=project).order_by("-id")
-    steps = breadcrumb_builder([PROJECT_LIST_ICON,  PROJECT_ICON, ANALYSIS_LIST_ICON],
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON,  PROJECT_ICON, ANALYSIS_LIST_ICON],
                                project=project)
     context = dict(project=project, analysis=analysis, steps=steps)
 
@@ -266,7 +266,7 @@ def analysis_view(request, id):
     Returns an analysis view based on its id.
     """
     analysis = Analysis.objects.filter(id=id).first()
-    steps = breadcrumb_builder([PROJECT_ICON, ANALYSIS_LIST_ICON, ANALYSIS_ICON],
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ANALYSIS_LIST_ICON, ANALYSIS_ICON],
                                project=analysis.project, analysis=analysis)
     context = dict(project=analysis.project, analysis=analysis, steps=steps)
 
@@ -279,7 +279,7 @@ def analysis_run(request, id):
     analysis = Analysis.objects.filter(id=id).first()
     project = analysis.project
 
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_ICON,  ANALYSIS_ICON],
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON,  ANALYSIS_ICON],
                                project=project, analysis=analysis)
 
     if request.method == "POST":
@@ -364,7 +364,7 @@ def job_list(request, id):
     Returns the list of jobs for a project id.
     """
     project = Project.objects.filter(id=id).first()
-    steps = breadcrumb_builder([PROJECT_LIST_ICON, PROJECT_ICON, RESULT_LIST_ICON ],
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, RESULT_LIST_ICON ],
                                project=project)
 
 
