@@ -35,6 +35,12 @@ h1 {
     color: #999999;
 }
 
+pre {
+  overflow-x: auto;
+    padding: 1em;
+    background-color: #EEEEEE;
+}
+
 .Queued {
 }
 

@@ -36,7 +36,7 @@ def smart_preview(fname):
         elif mimetype == 'text/plain':
             stream = open(fname, 'rt')
             stream = islice(stream, LINE_COUNT)
-            lines = [ line for line in stream]
+            lines = [ line.strip() for line in stream]
             text = '\n'.join(lines)
         else:
             stream = open(fname, 'rb')

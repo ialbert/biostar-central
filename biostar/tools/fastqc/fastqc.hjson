@@ -15,10 +15,10 @@ execute : {
 }
 
 settings : {
-    title: Generate FastQC report
+    title: Generates a FastQC report
     images : ["/static/pipelines/images/fastqc.png"]
     index : results/index.html
-    summary: Produce fastqc report of the input file.
+    summary: This analysis produces fastqc report for FASTQ file.
     help:'''
 # Help
 
@@ -26,7 +26,7 @@ This analysis requires a single data file in fastq or fastq.gz format.
 
 # Parameters
 
-Fastq or fatsq.gz file as input.
+FASTQ or a gzipped  FASTQ file.
 
 # Results
 

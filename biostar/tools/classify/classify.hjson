@@ -9,7 +9,7 @@ data : {
   }
 
 sampleinfo : {
-    path : tmp/sampleinfo.txt
+    path : export/local/sampleinfo.txt
     label : Sample file
     visible: true
     data_type : LAMAR_SAMPLE_SHEET
@@ -18,7 +18,7 @@ sampleinfo : {
     }
 
 reference : {
-    path: "tmp/refs/centrifuge_fish_idx/fish_genomes17"
+    value: "tmp/refs/centrifuge_fish_idx/fish_genomes17"
     visible: true
     choices : [ [ "tmp/refs/centrifuge_fish_idx/fish_genomes17", "Lamar fishes"],
                ]

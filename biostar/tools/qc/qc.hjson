@@ -9,7 +9,7 @@ data : {
     }
 
 sampleinfo : {
-    path : tmp/sampleinfo.txt
+    path : export/local/sampleinfo.txt
     label : Sample file
     css: red
     visible: true
