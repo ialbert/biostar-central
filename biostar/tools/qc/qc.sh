@@ -8,7 +8,6 @@ MIN_LENGTH={{read_length.value}}
 RESULT_INDEX={{settings.index}}
 
 
-
 # Set up files and folders.
 DATA_DIR=data
 RESULT_DIR=results
@@ -35,26 +34,21 @@ mkdir -p work
 mkdir -p $FASTQC_DIR
 
 # Create fastqc reports for all samples.
-cat $SAMPLE_INFO | parallel --verbose --progress --header : --colsep '\t' fastqc  --nogroup -o $FASTQC_DIR ${file1} ${file2}
-
+cat $SAMPLE_INFO | parallel --verbose --progress --header : --colsep '\t' fastqc  --nogroup -o $FASTQC_DIR {file1} {file2}
 
 # Run multiqc on the fastqc report.
 multiqc -f -n initial_multiqc -o work --no-data-dir $FASTQC_DIR
 cp work/initial_multiqc.html ${RESULT_DIR}/initial_multiqc.html
 
-
-# Copy files to input
+# Copy files to input.
 cat $SAMPLE_INFO | parallel --header : --colsep '\t' cp {file1} {result1}
 cat $SAMPLE_INFO | parallel --header : --colsep '\t' cp {file2} {result2}
-
 
 # Branching starts here.
 
 {% if trim_primer.value %}
 
     # Trim primer.
-    # TEST
-    echo "trimming primer" >>test.txt
 
     cat $SAMPLE_INFO | parallel --verbose --progress --header : --colsep '\t' bbduk.sh \
     in1={result1} in2={result2}  out1={temp1} out2={temp2} \
@@ -65,15 +59,10 @@ cat $SAMPLE_INFO | parallel --header : --colsep '\t' cp {file2} {result2}
     cat $SAMPLE_INFO | parallel --header : --colsep '\t' cp {temp1} {result1}
     cat $SAMPLE_INFO | parallel --header : --colsep '\t' cp {temp2} {result2}
 
-    # Testing
-    #cat $SAMPLE_INFO | parallel --header : --colsep '\t' cp {temp1} work/{sample_name}_primer_trimmed_R1.fq.gz
-    #cat $SAMPLE_INFO | parallel --header : --colsep '\t' cp {temp2} work/{sample_name}_primer_trimmed_R2.fq.gz
-    echo "trimming primer done" >>test.txt
-
     # Move statistic to results.
     cat work/*primer_stats.txt > ${RESULT_DIR}/primer_trim_stats.txt
 
-    # Remove previous files from $FASTQC_DIR
+    # Remove previous files from $FASTQC_DIR.
     rm -f $FASTQC_DIR/*.zip $FASTQC_DIR/*.html
 
     # Run fastqc on all trimmed samples.
@@ -83,10 +72,7 @@ cat $SAMPLE_INFO | parallel --header : --colsep '\t' cp {file2} {result2}
     multiqc -n primer_trimmed -o work --no-data-dir --force $FASTQC_DIR
     cp work/primer_trimmed.html ${RESULT_DIR}/primer_trimmed.html
 
-
-
 {% endif %}
-
 
 {% if trim_quality.value %}
 
@@ -100,10 +86,6 @@ cat $SAMPLE_INFO | parallel --header : --colsep '\t' cp {file2} {result2}
     # Copy output to input.
     cat $SAMPLE_INFO | parallel --header : --colsep '\t' cp {temp1} {result1}
     cat $SAMPLE_INFO | parallel --header : --colsep '\t' cp {temp2} {result2}
-
-    # Testing
-    cat $SAMPLE_INFO | parallel --header : --colsep '\t' cp {temp1} work/{sample_name}_quality_trimmed_R1.fq.gz
-    cat $SAMPLE_INFO | parallel --header : --colsep '\t' cp {temp2} work/{sample_name}_quality_trimmed_R2.fq.gz
 
     # Move statistic to results.
     cat work/*qual_stats.txt > ${RESULT_DIR}/quality_trim_stats.txt
@@ -119,6 +101,10 @@ cat $SAMPLE_INFO | parallel --header : --colsep '\t' cp {file2} {result2}
     cp work/quality_trimmed.html ${RESULT_DIR}/quality_trimmed.html
 
 {% endif %}
+
+# Copy trimmed data to results.
+cat $SAMPLE_INFO | parallel --header : --colsep '\t' cp {result1} ${RESULT_DIR}/{sample_name}_trim_R1.fq.gz
+cat $SAMPLE_INFO | parallel --header : --colsep '\t' cp {result2} ${RESULT_DIR}/{sample_name}_trim_R2.fq.gz
 
 # collect results in $RESULT_INDEX
 # TO DO
