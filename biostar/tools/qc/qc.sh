@@ -3,14 +3,16 @@ INPUT_SAMPLE_INFO={{sampleinfo.path}}
 TRIM_QUALITY={{quality_threshold.value}}
 TRIM_PRIMER={{trim_primer.value}}
 THREADS={{threads.value}}
-KMER_LENGTH={{kmer_length.value}
+KMER_LENGTH={{kmer_length.value}}
 MIN_LENGTH={{read_length.value}}
+RESULT_INDEX={{settings.index}}
+
 
 
 # Set up files and folders.
 DATA_DIR=data
 RESULT_DIR=results
-#ERR_LOG=stderr.txt
+LOG=stdout.txt
 FASTQC_DIR=work/fastqc
 
 
@@ -51,9 +53,12 @@ cat $SAMPLE_INFO | parallel --header : --colsep '\t' cp {file2} {result2}
 {% if trim_primer.value %}
 
     # Trim primer.
+    # TEST
+    echo "trimming primer" >>test.txt
+
     cat $SAMPLE_INFO | parallel --verbose --progress --header : --colsep '\t' bbduk.sh \
     in1={result1} in2={result2}  out1={temp1} out2={temp2} \
-    literal={fwd_primer},{rev_primer} ktrim=l k=$KMER_LENGTH hdist=1 tpe tbo minlength=$MIN_LENGTH  \
+    literal={fwd_primer},{rev_primer} ktrim=l k=$KMER_LENGTH hdist=1 tpe tbo \
     overwrite=t stats=work/{sample_name}_primer_stats.txt
 
     # copy output to input
@@ -61,8 +66,9 @@ cat $SAMPLE_INFO | parallel --header : --colsep '\t' cp {file2} {result2}
     cat $SAMPLE_INFO | parallel --header : --colsep '\t' cp {temp2} {result2}
 
     # Testing
-    cat $SAMPLE_INFO | parallel --header : --colsep '\t' cp {temp1} work/{sample_name}_primer_trimmed_R1.fq.gz
-    cat $SAMPLE_INFO | parallel --header : --colsep '\t' cp {temp2} work/{sample_name}_primer_trimmed_R2.fq.gz
+    #cat $SAMPLE_INFO | parallel --header : --colsep '\t' cp {temp1} work/{sample_name}_primer_trimmed_R1.fq.gz
+    #cat $SAMPLE_INFO | parallel --header : --colsep '\t' cp {temp2} work/{sample_name}_primer_trimmed_R2.fq.gz
+    echo "trimming primer done" >>test.txt
 
     # Move statistic to results.
     cat work/*primer_stats.txt > ${RESULT_DIR}/primer_trim_stats.txt
@@ -78,6 +84,7 @@ cat $SAMPLE_INFO | parallel --header : --colsep '\t' cp {file2} {result2}
     cp work/primer_trimmed.html ${RESULT_DIR}/primer_trimmed.html
 
 
+
 {% endif %}
 
 
@@ -87,7 +94,7 @@ cat $SAMPLE_INFO | parallel --header : --colsep '\t' cp {file2} {result2}
 
     cat  $SAMPLE_INFO |parallel --verbose --progress --header : --colsep '\t' bbduk.sh \
     in1={result1} in2={result2}  out1={temp1} out2={temp2} \
-    qtrim=rl trimq=$TRIM_QUALITY  minlength=35 overwrite=true \
+    qtrim=rl trimq=$TRIM_QUALITY  minlength=$MIN_LENGTH overwrite=true \
     stats=work/{sample_name}_qual_stats.txt
 
     # Copy output to input.
@@ -112,6 +119,13 @@ cat $SAMPLE_INFO | parallel --header : --colsep '\t' cp {file2} {result2}
     cp work/quality_trimmed.html ${RESULT_DIR}/quality_trimmed.html
 
 {% endif %}
+
+# collect results in $RESULT_INDEX
+# TO DO
+# python -m  biostar.tools.data.results $RESULT_INDEX template_file
+cp $RESULT_DIR/quality_trimmed.html $RESULT_INDEX
+
+
 
 
 

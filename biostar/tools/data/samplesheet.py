@@ -42,8 +42,8 @@ def update_sampleinfo(fname,datadir):
 
             bunch = Bunch(row)
 
-            patt1 = f'data/{bunch.sample_name}*R1*.gz'
-            patt2 = f'data/{bunch.sample_name}*R2*.gz'
+            patt1 = datadir + f'/{bunch.sample_name}*R1*.gz'
+            patt2 = datadir + f'/{bunch.sample_name}*R2*.gz'
 
             def get_one(patt):
                 files = glob.glob(patt)
