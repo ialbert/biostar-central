@@ -28,6 +28,7 @@ reference : {
     origin: PROJECT
 }
 
+/*
 tax_names : {
     path: "export/local/taxonomy/names.dmp"
     label: Taxonomy names
@@ -42,8 +43,6 @@ tax_nodes : {
     visible: false
 }
 
-
-/*
 accession : {
     path : export/local/accession_list.txt
     label : Accession list.

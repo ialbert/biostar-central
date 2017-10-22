@@ -33,10 +33,13 @@ done
 # Modify fasta header.
 sed -i .bak 's/\..*//g' $REF_FILE
 
+# Download taxonomy
+centrifuge-download -o taxonomy taxonomy
+
 # Build centrifuge index.
 echo "Building centrifuge index."
-centrifuge-build -p 4 --conversion-table $ACC_MAP --taxonomy-tree $TAX_NODES --name-table $TAX_NAMES $REF_FILE
-$REF_BASE
+centrifuge-build -p 4 --conversion-table $ACC_MAP --taxonomy-tree taxonomy/nodes.dmp \
+--name-table taxonomy/names.dmp  $REF_FILE $REF_BASE
 
 # Extract data.
 tar -xzvf $INPUT_DATA
