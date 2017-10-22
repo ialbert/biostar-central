@@ -434,7 +434,7 @@ def job_results_dir_view(request, jobdir):
 
         if form.is_valid():
             data = form.export()
-            messages.success(request, f"Exported {data.name} to {project.name}.")
+            messages.success(request, f"Copied {data.name} to {project.name}.")
     else:
         form = ExportData(project=project)
 
