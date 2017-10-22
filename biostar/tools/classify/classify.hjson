@@ -28,21 +28,21 @@ reference : {
     origin: PROJECT
 }
 
-/*
 tax_names : {
-    path: "export/local/taxonomy/names.dmp"
+    path: "/Users/aswathyseb/work/web_dev/biostar-engine/export/local/taxonomy/names.dmp"
     label: Taxonomy names
     data_type: TAXONOMY_TYPE
     visible: false
 }
 
 tax_nodes : {
-    path: "export/local/taxonomy/nodes.dmp"
+    path: "/Users/aswathyseb/work/web_dev/biostar-engine/export/local/taxonomy/nodes.dmp"
     label: Taxonomy nodes
     data_type: TAXONOMY_TYPE
     visible: false
 }
 
+/*
 accession : {
     path : export/local/accession_list.txt
     label : Accession list.
