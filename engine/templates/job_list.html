@@ -35,7 +35,7 @@
                 {% endif %}
 
                 <div>{{ job.date.date }} &bull; {{ job.analysis.name }}
-                    &bull; <a href="{% url 'job_view' job.id %}"> job details
+                    &bull; <a href="{% url 'analysis_view' job.analysis.id %}"> Analysis 
                     </a>
                 </div>
 
