@@ -52,10 +52,6 @@ threads : {
         value: 4
     }
 
-execute : {
-    filename : classify.sh
-    command : bash classify.sh
-}
 
 settings : {
     name: Perform custom taxonomical classification

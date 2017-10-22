@@ -1,8 +1,9 @@
 from django.core.management.base import BaseCommand
 from django.template import Template, Context
-from engine.models import Job
-import subprocess, os, sys, hjson, logging
+from engine.models import Job, Project, Analysis
+import subprocess, os, sys, json, hjson, logging
 from django.utils.text import force_text
+from django.conf import settings
 
 logger = logging.getLogger('engine')
 
@@ -35,7 +36,21 @@ def run(job, options={}):
         template = job.template
 
         # This is the work directory.
-        workdir = job.path
+        work_dir = job.path
+
+        # Populate extra context
+        def extra_context(job):
+            data = dict(
+                media_root=settings.MEDIA_ROOT, work_dir=work_dir,
+                user_id=job.owner.id, user_email=job.owner.email,
+                job_id=job.id, job_name=job.name,
+                project_id=job.project.id, project_name=job.project.name, analyis_name=job.analysis.name,
+                analysis_id=job.analysis.id, analysis_name=job.analysis.name,
+            )
+            return data
+
+        # Add the runtime context.
+        json_data['runtime'] = extra_context(job)
 
         # Override template.
         if use_template:
@@ -57,16 +72,17 @@ def run(job, options={}):
 
         # Extract the execute commands from the spec.
         execute = json_data.get('execute', {})
-        filename = execute.get("filename", "Makefile")
-        command = execute.get("command", "make all")
+        script_name = execute.get("filename", "run.sh")
+        json_fname = f"{script_name}.json"
+        command = execute.get("command", "bash run.sh")
 
         # This is the full command that will be executed.
-        full_command = f'(cd {workdir} & {command})'
+        full_command = f'(cd {work_dir} & {command})'
         if show_command:
             print(full_command)
             return
 
-        # Render the script.
+
         template = Template(template)
         context = Context(json_data)
         script = template.render(context)
@@ -83,13 +99,17 @@ def run(job, options={}):
         logger.info(f'job id={job.id} started.')
 
         # Make the output directory
-        logger.info(f'job id={job.id} workdir: {workdir}')
-        if not os.path.isdir(workdir):
-            os.mkdir(workdir)
+        logger.info(f'job id={job.id} work_dir: {work_dir}')
+        if not os.path.isdir(work_dir):
+            os.mkdir(work_dir)
 
         # Create the script in the output directory.
-        with open(os.path.join(workdir, filename), 'wt') as fp:
+        with open(os.path.join(work_dir, script_name), 'wt') as fp:
             fp.write(script)
+
+        # Create a file that stores the json data for reference.
+        with open(os.path.join(work_dir, json_fname), 'wt') as fp:
+            fp.write(hjson.dumps(json_data, indent=4))
 
         # Show the command that is executed.
         logger.info(f'job id={job.id} executing: {full_command}')
@@ -99,7 +119,7 @@ def run(job, options={}):
         job.save()
 
         # Run the command.
-        proc = subprocess.run(command, cwd=workdir, shell=True,
+        proc = subprocess.run(command, cwd=work_dir, shell=True,
                               stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
         # Return code indicates an error.
@@ -118,8 +138,9 @@ def run(job, options={}):
         logger.info(f'job id={job.id} error {exc}')
 
     # Collect the output.
-    stdout_log.extend(force_text(proc.stdout).splitlines())
-    stderr_log.extend(force_text(proc.stderr).splitlines())
+    if proc:
+        stdout_log.extend(force_text(proc.stdout).splitlines())
+        stderr_log.extend(force_text(proc.stderr).splitlines())
 
     # For now keep logs in one field. TODO: separate into stdin, stdout
     output_log = stdout_log + stderr_log

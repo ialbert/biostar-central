@@ -3,6 +3,8 @@ from django import template
 from engine.models import Job, make_html
 from django.utils.safestring import mark_safe
 from textwrap import dedent
+import json
+
 register = template.Library()
 
 JOB_SEGMENT_COLORS = {
@@ -13,6 +15,20 @@ JOB_SEGMENT_COLORS = {
 @register.simple_tag
 def job_color(job):
     return JOB_SEGMENT_COLORS.get(job.state, "")
+
+
+@register.inclusion_tag('widgets/form_nonfield_errors.html')
+def form_nonfield_errors(form):
+    errorlist = list(form.non_field_errors())
+    context = dict(errorlist=errorlist)
+    return context
+
+@register.simple_tag
+def field_state(field):
+    if field.errors:
+        return 'error'
+    else:
+        return ''
 
 
 @register.filter

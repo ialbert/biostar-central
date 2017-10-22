@@ -303,12 +303,12 @@ def analysis_run(request, id):
                 tasks.execute_job.spool(job_id=jobid)
 
             return redirect(reverse("job_list", kwargs=dict(id=project.id)))
-
     else:
         initial = dict(name=analysis.name)
         form = RunAnalysis(analysis=analysis, initial=initial)
-        context = dict(project=project, analysis=analysis, steps=steps, form=form)
-        return render(request, 'analysis_run.html', context)
+
+    context = dict(project=project, analysis=analysis, steps=steps, form=form)
+    return render(request, 'analysis_run.html', context)
 
 
 def preview_specs(spec, analysis):
@@ -372,12 +372,6 @@ def job_list(request, id):
 
     return render(request, "jobs_list.html", context)
 
-
-def media_index(request):
-
-    context = dict()
-    return render(request, "media_index.html", context)
-
 def job_result_view(request, id):
     """
     Returns the primary result file for the job.
@@ -399,7 +393,22 @@ def job_file_view(request, id):
     """
     job = Job.objects.filter(id=id).first()
     url = settings.MEDIA_URL + job.get_url()
+    results_root = join(settings.MEDIA_ROOT, job.get_url(path="results"))
+
+    # Some jobs error out after producing things.
+    if os.path.exists(results_root):
+        url = settings.MEDIA_URL + job.get_url(path="results/")
+
     return redirect(url)
+
+
+def file_list_view(request, id):
+
+    job = Job.objects.filter(id=id).first()
+
+
+    return
+
 
 
 def job_view(request, id):
