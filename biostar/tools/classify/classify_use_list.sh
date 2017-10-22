@@ -5,6 +5,9 @@ set -ue
 INPUT_DATA={{data.path}}
 INPUT_SAMPLE_INFO={{sampleinfo.path}}
 ACC_LIST={{accession.path}}
+TAX_NAMES={{tax_names.path}}
+TAX_NODES={{tax_nodes.path}}
+
 
 DATA_DIR=data
 RESULT_DIR=results
@@ -30,12 +33,10 @@ done
 # Modify fasta header.
 sed -i .bak 's/\..*//g' $REF_FILE
 
-# Download ncbi taxonomy.
-centrifuge-download -o taxonomy taxonomy
-
 # Build centrifuge index.
 echo "Building centrifuge index."
-centrifuge-build -p 4 --conversion-table $ACC_MAP --taxonomy-tree taxonomy/nodes.dmp --name-table taxonomy/names.dmp $REF_FILE $REF_BASE
+centrifuge-build -p 4 --conversion-table $ACC_MAP --taxonomy-tree $TAX_NODES --name-table $TAX_NAMES $REF_FILE
+$REF_BASE
 
 # Extract data.
 tar -xzvf $INPUT_DATA

@@ -28,6 +28,21 @@ reference : {
     origin: PROJECT
 }
 
+tax_names : {
+    path: "export/local/taxonomy/names.dmp"
+    label: Taxonomy names
+    data_type: REFERENCE_TYPE
+    visible: false
+}
+
+tax_nodes : {
+    path: "export/local/taxonomy/nodes.dmp"
+    label: Taxonomy nodes
+    data_type: REFERENCE_TYPE
+    visible: false
+}
+
+
 /*
 accession : {
     path : export/local/accession_list.txt

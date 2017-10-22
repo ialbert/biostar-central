@@ -3,16 +3,15 @@ INPUT_DATA={{data.path}}
 TAXA_MAP={{taxamap.path}}
 REFERENCE={{reference.path}}
 INDEX=${REFERENCE%.*}
+TAX_NAMES={{tax_names.path}}
+TAX_NODES={{tax_nodes.path}}
 
 DATA_DIR=data
 RESULT_DIR=results
 
-# Download ncbi taxonomy.
-centrifuge-download -o taxonomy taxonomy
-
 # Build centrifuge index.
-centrifuge-build -p 4 --conversion-table $TAXA_MAP --taxonomy-tree taxonomy/nodes.dmp \
---name-table taxonomy/names.dmp $REFERENCE $INDEX
+centrifuge-build -p 4 --conversion-table $TAXA_MAP --taxonomy-tree $TAX_NODES \
+--name-table $TAX_NAMES $REFERENCE $INDEX
 
 # Run classification using centrifuge.
 mkdir -p $RESULT_DIR
