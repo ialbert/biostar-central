@@ -10,8 +10,8 @@ DATA_DIR=data
 RESULT_DIR=results
 
 # Build centrifuge index.
-centrifuge-build -p 4 --conversion-table $TAXA_MAP --taxonomy-tree $TAX_NODES \
---name-table $TAX_NAMES $REFERENCE $INDEX
+#centrifuge-build -p 4 --conversion-table $TAXA_MAP --taxonomy-tree $TAX_NODES \
+#--name-table $TAX_NAMES $REFERENCE $INDEX
 
 # Run classification using centrifuge.
 mkdir -p $RESULT_DIR
