@@ -18,10 +18,30 @@ sampleinfo : {
     }
 
 reference : {
-    path: ""
+    path: "export/local/lamar_fishes_index/lamar_fishes.fa"
     label: Reference
-    visible: true
     data_type: REFERENCE_TYPE
+    visible: true
+    display_type: DROPDOWN
+    origin: PROJECT
+}
+
+/*
+accession : {
+    path : export/local/accession_list.txt
+    label : Accession list.
+    data_type: ACCESSION_MAP
+    visible: true
+    display_type: DROPDOWN
+    origin: PROJECT
+}
+*/
+
+taxamap : {
+    path : export/local/fish_accession_map.txt
+    label : Accession-taxid map
+    data_type: ACCESSION_MAP
+    visible: true
     display_type: DROPDOWN
     origin: PROJECT
 }
@@ -41,7 +61,7 @@ settings : {
     index : results/index.html
     summary: '''
 
-Performs taxonomic classification of data. Classification is performed against preselected fish species.
+Performs taxonomic classification of paired end data. Classification is performed against a custom database.
 It produces a classification table with species abundance.
     '''
     help:'''
@@ -49,12 +69,35 @@ It produces a classification table with species abundance.
 # Help
 
 This analysis assigns taxonomic labels to sequence data using a custom database.
-It requires paired end data collection with individual files in fastq format.
+The input data should be a paired end data collection.
+
+A multifasta file of sequences can be used as custom database.
+A tab-separated file mapping sequence IDs to taxonomy IDs should also be provided. Sequence IDs should match the fasta
+header.
+
+seq.fa:
+
+>Seq1
+AAAACGTACGA.....
+
+>Seq2
+AAAACGTACGA.....
+
+>Seq3
+AAAACGTACGA.....
+
+map.txt:
+
+Seq1    11
+Seq2    12
+Seq3    13
+
 
 # Parameters
 
 1. Paired end sequence data collection.
-2. Custom reference database.
+2. Custom reference sequence in fasta format.
+3. Tab delimited accession map table (See help for details).
 
 # Results
 
