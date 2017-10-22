@@ -43,6 +43,9 @@ urlpatterns = [
     url(r'^job/view/(?P<id>\d+)/$', views.job_view, name='job_view'),
     url(r'^job/view/result/(?P<id>\d+)/$', views.job_result_view, name='job_result_view'),
     url(r'^job/view/files/(?P<id>\d+)/$', views.job_file_view, name='job_file_view'),
+    url(r'^media/jobs/(job-\w+)/$', views.job_dir_view, name='job_dir_view'),
+    url(r'^media/jobs/(job-\w+)/results/$', views.job_results_dir_view, name='job_result_view'),
+
 ]
 
 if settings.DEBUG:

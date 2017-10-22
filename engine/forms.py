@@ -87,6 +87,7 @@ class DataEditForm(forms.ModelForm):
         fields = ['name', 'summary', 'text']
 
 
+
 def make_form_field(data, project):
 
     # Should this field be rendered?
@@ -108,6 +109,22 @@ def make_form_field(data, project):
 
     return field
 
+
+class ExportData(forms.Form):
+
+
+    def __init__(self, project, *args, **kwargs):
+
+        self.project = project
+        super().__init__(*args, **kwargs)
+
+        self.fields["filename"] = forms.CharField(initial="filename")
+
+    def export(self):
+
+        to_export = self.cleaned_data.get("filename")
+        data = self.project.create_data(fname=to_export)
+        return data
 
 
 class ExportAnalysis(forms.Form):
@@ -132,6 +149,7 @@ class ExportAnalysis(forms.Form):
         analysis = project.create_analysis(json_text, template, owner, summary, name=name, text=text)
         analysis.save()
         return project, analysis
+
 
 
 class RunAnalysis(forms.Form):
@@ -233,8 +251,6 @@ class EditAnalysisForm(forms.Form):
 
         return self.analysis
 
-    def save_to_file(self, file):
-        return
 
     def generate_form(self, json_obj):
 

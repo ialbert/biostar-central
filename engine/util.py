@@ -5,8 +5,7 @@ import quopri
 import tarfile
 import uuid
 from itertools import islice
-
-import hjson as json
+from collections import OrderedDict
 
 
 def get_uuid(limit=32):
@@ -47,3 +46,9 @@ def smart_preview(fname):
         text = f'Preview error: {exc}'
 
     return text
+
+
+
+
+
+
