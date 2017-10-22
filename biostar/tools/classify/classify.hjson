@@ -71,7 +71,7 @@ It produces a classification table with species abundance.
 # Help
 
 This analysis assigns taxonomic labels to sequence data using a custom database.
-The input data should be a paired end data collection.
+The input data should be in fastq format.
 
 A multifasta file of sequences can be used as custom database.
 A tab-separated file mapping sequence IDs to taxonomy IDs should also be provided. Sequence IDs should match the fasta
@@ -97,7 +97,7 @@ Seq3    13
 
 # Parameters
 
-1. Paired end sequence data collection.
+1. Input data in fastq format.
 2. Custom reference sequence in fasta format.
 3. Tab delimited accession map table (See help for details).
 
