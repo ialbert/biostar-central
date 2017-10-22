@@ -5,8 +5,6 @@ set -ue
 INPUT_DATA={{data.path}}
 INPUT_SAMPLE_INFO={{sampleinfo.path}}
 ACC_LIST={{accession.path}}
-TAX_NAMES={{tax_names.path}}
-TAX_NODES={{tax_nodes.path}}
 
 
 DATA_DIR=data
