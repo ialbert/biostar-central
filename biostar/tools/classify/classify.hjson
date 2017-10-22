@@ -31,14 +31,14 @@ reference : {
 tax_names : {
     path: "export/local/taxonomy/names.dmp"
     label: Taxonomy names
-    data_type: REFERENCE_TYPE
+    data_type: TAXONOMY_TYPE
     visible: false
 }
 
 tax_nodes : {
     path: "export/local/taxonomy/nodes.dmp"
     label: Taxonomy nodes
-    data_type: REFERENCE_TYPE
+    data_type: TAXONOMY_TYPE
     visible: false
 }
 
