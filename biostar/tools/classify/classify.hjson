@@ -74,7 +74,7 @@ settings : {
     index : results/index.html
     summary: '''
 
-Performs taxonomic classification of paired end data. Classification is performed against a custom database.
+Performs taxonomic classification of input data. Classification is performed against a custom database.
 It produces a classification table with species abundance.
     '''
     help:'''
