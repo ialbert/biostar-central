@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% load engine_tags %}
+
+{% block headtitle %}
+Index view : {{job.name}}
+{% endblock %}
+
+{% block menu %}
+{% endblock %}
+
+{% block breadcrumb %}
+{% endblock %}
+
+{% block body %}
+
+    <div class="ui center aligned header">
+    Index view : {{job.name}}
+    </div>
+    <div class="ui center aligned basic segment">
+            <a class="ui button" href="{% url 'data_list' project.id %}">
+                <i class="write icon"></i>Data List
+            </a>
+    </div>
+
+<div class="ui relaxed divided list">
+
+    <div class="item">
+    <a href="{{back_url}}">../</a>
+    </div>
+    {% for file in files %}
+    <div class="item">
+
+         {% if file|is_folder_icon %}
+
+             <a href="{{file.url}}"><i class="{{file.icon}}"></i>{{ file.name }}</a>/
+
+         {% else %}
+
+              <form class="ui form" >
+                {% csrf_token %}
+                <button type="submit" name="filename" formmethod="post" value="{{file.path}}" class="ui right floated green mini button">
+                <i class="upload icon"></i>Export to Project
+                </button>
+                   <a href="{{file.url}}"><i class="{{file.icon}}"></i>{{ file.name }}</a>
+              </form>
+
+         {% endif %}
+
+    </div>
+    {% endfor %}
+
+</div>
+
+{% endblock %}

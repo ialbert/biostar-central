@@ -408,7 +408,7 @@ def get_filecontext(root, url):
         fileinfo['name'] = file
         fileinfo['url'] = url + f"{file}/"
         fileinfo["icon"] = "file icon"
-        fileinfo["results_dir"] = False
+        fileinfo["path"] = join(root, file)
 
         if os.path.isdir(join(root, file)):
             fileinfo["icon"] = "folder icon"
@@ -417,26 +417,36 @@ def get_filecontext(root, url):
     return files
 
 
-def results_dir_view(request, jobdir):
+def job_results_dir_view(request, jobdir):
 
     root = join(settings.MEDIA_ROOT, "jobs", jobdir)
-    results = join(root, "results")
-    resultsurl = settings.MEDIA_URL + f"jobs/{jobdir}/results/"
-    backurl = settings.MEDIA_URL + f"jobs/{jobdir}/"
     job = Job.objects.filter(path=root).first()
+    project = job.project
+    results = join(root, "results")
 
+    resultsurl = settings.MEDIA_URL + job.get_url(path="results/")
+    backurl = settings.MEDIA_URL + job.get_url()
     files = get_filecontext(results, resultsurl)
 
-    context = dict(files=files, job=job, back_url=backurl)
+    if request.method == "POST":
 
-    return render(request, "job_dir_view.html", context)
+        form = ExportData(data=request.POST, project=project)
+
+        if form.is_valid():
+            data = form.export()
+            messages.success(request, f"Exported {data.name} to {project.name}.")
+    else:
+        form = ExportData(project=project)
+
+    context = dict(files=files, job=job, back_url=backurl, form=form, project=project)
+    return render(request, "job_results_dir_view.html", context)
 
 
 def job_dir_view(request, jobdir):
 
     root = join(settings.MEDIA_ROOT, "jobs", jobdir)
-    rooturl = settings.MEDIA_URL + f"jobs/{jobdir}/"
     job = Job.objects.filter(path=root).first()
+    rooturl = settings.MEDIA_URL + job.get_url()
 
     backurl = reverse('job_view', kwargs={'id':job.id})
     files = get_filecontext(root, rooturl)

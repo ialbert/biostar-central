@@ -112,13 +112,19 @@ def make_form_field(data, project):
 
 class ExportData(forms.Form):
 
-    def __init__(self, fname, *args, **kwargs):
 
-        self.stream = fname
-        projects = [(proj.id, proj.name) for proj in Project.objects.all()]
+    def __init__(self, project, *args, **kwargs):
+
+        self.project = project
         super().__init__(*args, **kwargs)
-        self.fields["project"] = forms.IntegerField(widget=forms.Select(choices=projects))
 
+        self.fields["filename"] = forms.CharField(initial="filename")
+
+    def export(self):
+
+        to_export = self.cleaned_data.get("filename")
+        data = self.project.create_data(fname=to_export)
+        return data
 
 
 class ExportAnalysis(forms.Form):
@@ -245,8 +251,6 @@ class EditAnalysisForm(forms.Form):
 
         return self.analysis
 
-    def save_to_file(self, file):
-        return
 
     def generate_form(self, json_obj):
 
