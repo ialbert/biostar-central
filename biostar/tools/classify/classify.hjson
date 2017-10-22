@@ -4,7 +4,7 @@ data : {
     path: export/local/1-SarriPal_S9_L001_R1_001.fastq.gz
     visible: true
     origin: PROJECT
-    data_type: TAR_FASTQ_GZ
+    data_type: FASTQ_TYPE
     display_type: DROPDOWN
   }
 
