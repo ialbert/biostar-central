@@ -9,9 +9,6 @@ TAX_NODES={{tax_nodes.path}}
 DATA_DIR=data
 RESULT_DIR=results
 
-# Download taxonomy
-#centrifuge-download -o taxonomy taxonomy
-
 # Build centrifuge index.
 centrifuge-build -p 4 --conversion-table $TAXA_MAP --taxonomy-tree $TAX_NODES \
 --name-table $TAX_NAMES $REFERENCE $INDEX

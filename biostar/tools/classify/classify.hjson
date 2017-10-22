@@ -20,7 +20,7 @@ sampleinfo : {
 */
 
 reference : {
-    path: "export/local/lamar_fishes_index/lamar_fishes.fa"
+    path: "export/local/lamar_fishes_16S_index/lamar_fishes_16S.fa"
     label: Reference
     data_type: REFERENCE_TYPE
     visible: true

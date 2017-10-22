@@ -56,8 +56,8 @@ testdata:
 	curl http://iris.bx.psu.edu/projects/metabarcode-data/1-SarriPal_S9_L001_R1_001.fastq.gz > export/local/1-SarriPal_S9_L001_R1_001.fastq.gz
 	curl http://iris.bx.psu.edu/projects/metabarcode-data/fish_accession_map.txt > export/local/fish_accession_map.txt
 	curl http://iris.bx.psu.edu/projects/metabarcode-data/accession_list.txt >export/local/accession_list.txt
-	curl http://iris.bx.psu.edu/projects/metabarcode-data/lamar_fishes_index.tar.gz > export/local/lamar_fishes_index.tar.gz
-	(cd export/local  && tar -xzvf lamar_fishes_index.tar.gz)
+	curl http://iris.bx.psu.edu/projects/metabarcode-data/lamar_fishes_16S_index.tar.gz > export/local/lamar_fishes_16S_index.tar.gz
+	(cd export/local  && tar -xzvf lamar_fishes_16S_index.tar.gz)
 
 test_push:test
 	git commit -am "Update by `whoami` on `date` from `hostname`"
