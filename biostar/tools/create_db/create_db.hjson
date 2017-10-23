@@ -1,0 +1,78 @@
+{
+
+data : {
+    path: "export/local/lamar_fishes_16S_index/lamar_fishes_16S.fa"
+    label: Input fasta
+    data_type: FASTA_TYPE
+    visible: true
+    display_type: DROPDOWN
+    origin: PROJECT
+}
+
+taxamap : {
+    path : export/local/fish_accession_map.txt
+    label : Accession-taxid map
+    data_type: ACCESSION_MAP
+    visible: true
+    display_type: DROPDOWN
+    origin: PROJECT
+}
+
+threads : {
+        value: 4
+    }
+
+settings : {
+    name: Create custom database for classification.
+    images : []
+    index : results/index.html
+    summary: '''
+
+Creates a custom database specific for classification using centrifuge.
+Analysis requires a multifasta file of sequences and a mapping file of sequence IDs and their taxonomic IDs.
+
+    '''
+    help:'''
+
+# Help
+
+This analysis creates a centirfuge specific custom database.
+It requires a multifasta file of sequences along with a tab-separated file mapping sequence IDs to taxonomy IDs.
+Sequence IDs should match the fasta header.
+
+Example:
+
+seq.fa:
+
+>Seq1
+AAAACGTACGA.....
+
+>Seq2
+AAAACGTACGA.....
+
+>Seq3
+AAAACGTACGA.....
+
+map.txt:
+
+Seq1    11
+
+Seq2    12
+
+Seq3    13
+
+
+# Parameters
+
+1. Custom reference sequence in multi-fasta format.
+3. Tab delimited accession map table (See help for details).
+
+# Results
+
+1. Centrifuge specific custom database.
+
+'''
+
+    }
+
+}
