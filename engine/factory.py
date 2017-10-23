@@ -3,7 +3,9 @@ from .models import Data
 from engine.const import *
 
 
+
 def float_field(data):
+
     numrange = data.get("range", [1.0, 1000.0])
     min_value, max_value = numrange[0], numrange[1]
 
@@ -19,6 +21,7 @@ def float_field(data):
 
 
 def select_field(data, choicefunc=None):
+
     if choicefunc:
         choices = choicefunc() or []
     else:
@@ -48,6 +51,7 @@ def radioselect_field(obj):
 
 
 def number_field(data):
+
     numrange = data.get("range", [0, 1])
     min_value, max_value = min(numrange), max(numrange)
     label = data.get("label", "")

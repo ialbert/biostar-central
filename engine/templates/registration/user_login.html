@@ -30,9 +30,10 @@
                 {{ form.password }}
             </div>
             {{ form.errors }}
-            <button class="ui primary button" type="submit">Log In</button>
 
-            <a class="ui right floated button" href="/">Cancel</a>
+            <button class="ui primary button" type="submit">Log In</button>
+     <input type="hidden" name="next" value="{{ request.path }}">
+            <a class="ui right floated button" href="?">Cancel</a>
 
         </form>
 

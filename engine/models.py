@@ -39,7 +39,8 @@ def upload_path(instance, filename):
     # File may have multiple extensions
     exts = ".".join(pieces[1:]) or "data"
     dataname = f"data-{instance.uid}.{exts}"
-    return f'{instance.project.get_path()}/{dataname}'
+
+    return join(instance.project.get_path(), f"data-{instance.uid}", dataname)
 
 
 class Project(models.Model):
@@ -47,6 +48,7 @@ class Project(models.Model):
     name = models.CharField(max_length=256, default="no name")
     summary = models.TextField(default='no summary')
 
+    #type = models.IntegerField
     owner = models.ForeignKey(User)
     text = models.TextField(default='no description', max_length=MAX_TEXT_LEN)
 
@@ -162,6 +164,10 @@ class Data(models.Model):
         self.uid = self.uid or util.get_uuid(8)
         self.date = self.date or now
         self.html = make_html(self.text)
+
+        if not os.path.isdir(join(self.project.get_path(), f"data-{self.uid}")):
+            os.makedirs(join(self.project.get_path(), f"data-{self.uid}"))
+
         super(Data, self).save(*args, **kwargs)
 
     def peek(self):
