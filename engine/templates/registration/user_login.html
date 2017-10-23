@@ -4,6 +4,7 @@
 
 {% block title %} Log In {% endblock %}
 
+
 {% block body %}
 
     <div class="ui center aligned basic segment">
@@ -30,10 +31,9 @@
                 {{ form.password }}
             </div>
             {{ form.errors }}
-
             <button class="ui primary button" type="submit">Log In</button>
-     <input type="hidden" name="next" value="{{ request.path }}">
-            <a class="ui right floated button" href="?">Cancel</a>
+
+            <a class="ui right floated button" href="/">Cancel</a>
 
         </form>
 

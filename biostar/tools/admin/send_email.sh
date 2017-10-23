@@ -1,2 +1,2 @@
 
-echo "test"
+python manage.py 
