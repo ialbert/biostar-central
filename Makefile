@@ -1,15 +1,7 @@
 USER=www
 SERVER=metabarcode.com
 
-FASTQ_JSON = biostar/tools/fastqc/fastqc.hjson
-FASTQ_TEMPL = biostar/tools/fastqc/fastqc.sh
-QC_JSON =  biostar/tools/qc/qc.hjson
-QC_TEMPL =  biostar/tools/qc/qc.sh
 CLASSIFY_JSON = biostar/tools/classify/classify.hjson
-CLASSIFY_TEMPL = biostar/tools/classify/classify.sh
-EMAIL_JSON = biostar/tools/admin/send_email.hjson
-EMAIL_TEMPL = biostar/tools/admin/send_email.sh
-
 
 serve: init
 	python manage.py runserver
@@ -39,16 +31,16 @@ hello:
 
 
 adminjobs:
-	python manage.py analysis --add --json $(EMAIL_JSON) --template $(EMAIL_TEMPL) --analysis_usage admin  --create_job
+	python manage.py analysis --add --json  biostar/tools/admin/send_email.hjson --template  biostar/tools/admin/send_email.sh --analysis_usage admin  --create_job
 
 
 jobs:
-	python manage.py analysis --add --json $(FASTQ_JSON) --template $(FASTQ_TEMPL) --create_job
-	python manage.py analysis --add --json $(QC_JSON)  --template $(QC_TEMPL) --create_job
-	#python manage.py analysis --add --json $(CLASSIFY_JSON)  --template $(CLASSIFY_TEMPL) --create_job
-	#python manage.py analysis --add --json $(FASTQ_JSON) --template $(FASTQ_TEMPL) --create_job
-	#python manage.py analysis --add --json $(QC_JSON)  --template $(QC_TEMPL) --create_job
-	#python manage.py analysis --add --json $(CLASSIFY_JSON)  --template $(CLASSIFY_TEMPL) --create_job
+	python manage.py analysis --add --json biostar/tools/fastqc/fastqc.hjson --template biostar/tools/fastqc/fastqc.sh --create_job
+	python manage.py analysis --add --json biostar/tools/qc/qc.hjson  --template biostar/tools/qc/qc.sh --create_job
+	#python manage.py analysis --add --json biostar/tools/classify/classify.hjson  --template $(CLASSIFY_TEMPL) --create_job
+	#python manage.py analysis --add --json biostar/tools/fastqc/fastqc.hjson --template biostar/tools/fastqc/fastqc.sh --create_job
+	#python manage.py analysis --add --json biostar/tools/qc/qc.hjson  --template biostar/tools/qc/qc.sh --create_job
+	#python manage.py analysis --add --json biostar/tools/classify/classify.hjson  --template biostar/tools/classify/classify.sh --create_job
 
 init:
 	python manage.py collectstatic --noinput -v 0
