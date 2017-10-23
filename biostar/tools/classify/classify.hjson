@@ -1,26 +1,15 @@
 {
 
 data : {
-    path: export/local/1-SarriPal_S9_L001_R1_001.fastq.gz
+    path: "export/local/1-SarriPal_S9_L001_R1_001.fastq.gz"
     visible: true
     origin: PROJECT
     data_type: FASTQ_TYPE
     display_type: DROPDOWN
   }
 
-/*
-sampleinfo : {
-    path : export/local/sampleinfo.txt
-    label : Sample file
-    visible: true
-    data_type : LAMAR_SAMPLE_SHEET
-    display_type: DROPDOWN
-    origin: PROJECT
-    }
-*/
-
 reference : {
-    path: "export/local/lamar_fishes_16S_index/lamar_fishes_16S.fa"
+    path: "export/local/lamar_fishes_16S.fa"
     label: Reference
     data_type: REFERENCE_TYPE
     visible: true
@@ -28,33 +17,8 @@ reference : {
     origin: PROJECT
 }
 
-tax_names : {
-    path: "/Users/aswathyseb/work/web_dev/biostar-engine/export/local/taxonomy/names.dmp"
-    label: Taxonomy names
-    data_type: TAXONOMY_TYPE
-    visible: false
-}
-
-tax_nodes : {
-    path: "/Users/aswathyseb/work/web_dev/biostar-engine/export/local/taxonomy/nodes.dmp"
-    label: Taxonomy nodes
-    data_type: TAXONOMY_TYPE
-    visible: false
-}
-
-/*
-accession : {
-    path : export/local/accession_list.txt
-    label : Accession list.
-    data_type: ACCESSION_MAP
-    visible: true
-    display_type: DROPDOWN
-    origin: PROJECT
-}
-*/
-
 taxamap : {
-    path : export/local/fish_accession_map.txt
+    path : "export/local/fish_accession_map.txt"
     label : Accession-taxid map
     data_type: ACCESSION_MAP
     visible: true
@@ -62,6 +26,10 @@ taxamap : {
     origin: PROJECT
 }
 
+taxonomy : {
+    dirname: taxonomy
+
+}
 
 threads : {
         value: 4
@@ -71,7 +39,7 @@ threads : {
 settings : {
     name: Perform custom taxonomical classification
     images : ["/static/pipelines/images/classify.png","/static/pipelines/images/classify_table.png"]
-    index : results/index.html
+    index : results/index.txt
     summary: '''
 
 Performs taxonomic classification of input data. Classification is performed against a custom database.
