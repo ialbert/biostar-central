@@ -336,8 +336,7 @@ def preview_specs(spec, analysis):
 def process_analysis_edit(method, analysis, form):
 
     form_method_map = {'preview':form.preview,
-                       'save':form.save,
-                       'save_to_file': form.save_to_file}
+                       'save':form.save}
     spec = dict()
     if form.is_valid():
         form_method_map[method]()
