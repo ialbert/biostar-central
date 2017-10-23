@@ -138,6 +138,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 MEDIA_ROOT = join(BASE_DIR, '..', 'export', 'media')
+
+# The location of resusable data.
+LOCAL_ROOT = join(BASE_DIR, '..', 'export', 'local')
+
 MEDIA_URL = '/media/'
 STATIC_URL = '/static/'
 STATIC_ROOT = join(BASE_DIR, '..', 'export', 'static')
