@@ -14,6 +14,7 @@ from django.utils import timezone
 from . import settings
 from . import util
 from .const import *
+from biostar.tools import defaults
 from django.core.files import File
 logger = logging.getLogger("engine")
 
@@ -103,19 +104,20 @@ class Project(models.Model):
         datamap = dict( (obj.id, obj) for obj in query )
         return datamap
 
-    def create_analysis(self, json_text, template, owner=None, summary='', name='', text=''):
+    def create_analysis(self, json_text, template, owner=None, summary='', name='', text='', usage=None):
         """
         Creates analysis from a spec and template
         """
         owner = owner or self.owner
         name = name or 'Analysis name'
         text = text or 'Analysis text'
+        usage = usage or defaults.USAGE
         analysis = Analysis.objects.create(project=self, summary=summary, json_text=json_text,
-                                           owner=owner, name=name, text=text,
+                                           owner=owner, name=name, text=text, usage=usage,
                                            template=template, )
         return analysis
 
-    def create_data(self,  stream=None, fname=None, name="data.bin", owner=None, text='', data_type=None):
+    def create_data(self,  stream=None, fname=None, name="data.bin", owner=None, text='', data_type=None, usage=None):
         """
         Creates a data for the project from filename or a stream.
         """
@@ -126,7 +128,8 @@ class Project(models.Model):
         owner = owner or self.owner
         text = text or "No description"
         data_type = data_type or GENERIC_TYPE
-        data = Data(name=name, owner=owner,
+        usage = usage or defaults.USAGE
+        data = Data(name=name, owner=owner, usage=usage,
                     text=text, project=self, data_type=data_type)
 
         # Need to save before uid gets triggered.
@@ -258,13 +261,14 @@ class Analysis(models.Model):
         self.html = make_html(self.text)
         super(Analysis, self).save(*args, **kwargs)
 
-    def create_job(self, json_text='', json_data={}, owner=None, name=None, state=None):
+    def create_job(self, json_text='', json_data={}, owner=None, name=None, state=None, usage=None):
         """
         Creates a job from an analysis.
         """
         name = name or self.name
         state = state or Job.QUEUED
         owner = owner or self.project.owner
+        usage = usage or defaults.USAGE
 
         if json_data:
             json_text = hjson.dumps(json_data)
@@ -272,7 +276,7 @@ class Analysis(models.Model):
             json_text = json_text or self.json_text
 
         job = Job.objects.create(name=name, summary=self.summary, state=state, json_text=json_text,
-                                 project=self.project, analysis=self, owner=owner,
+                                 project=self.project, analysis=self, owner=owner, usage=usage,
                                  template=self.template)
         logger.info(f"Queued job: '{job.name}'")
         return job

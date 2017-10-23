@@ -1,6 +1,17 @@
 USER=www
 SERVER=metabarcode.com
 
+FASTQ_JSON = biostar/tools/fastqc/fastqc.hjson
+FASTQ_TEMPL = biostar/tools/fastqc/fastqc.sh
+QC_JSON =  biostar/tools/qc/qc.hjson
+QC_TEMPL =  biostar/tools/qc/qc.sh
+CLASSIFY_JSON = biostar/tools/classify/classify.hjson
+CLASSIFY_TEMPL = biostar/tools/classify/classify.sh
+
+EMAIL_JSON = biostar/tools/admin/send_email.hjson
+EMAIL_TEMPL = biostar/tools/admin/send_email.sh
+
+
 serve: init
 	python manage.py runserver
 
@@ -16,7 +27,7 @@ delete:
 	rm -f export/engine.db
 	rm -rf export/media/*
 
-reset:delete init adminjobs
+reset:delete init jobs adminjobs
 
 next:
 	python manage.py job --next
@@ -29,12 +40,16 @@ hello:
 
 
 adminjobs:
-	python manage.py analysis --add --json biostar/tools/fastqc/fastqc.hjson  --template biostar/tools/fastqc/fastqc.sh --usage admin --create_job
-	python manage.py analysis --add --json biostar/tools/qc/qc.hjson  --template biostar/tools/qc/qc.sh --usage admin --create_job
-	#python manage.py analysis --add --json biostar/tools/classify/classify.hjson  --template biostar/tools/classify/classify.sh --usage admin --create_job
-	#python manage.py analysis --add --json biostar/tools/fastqc/fastqc.hjson  --template biostar/tools/fastqc/fastqc.sh --usage admin --create_job
-	#python manage.py analysis --add --json biostar/tools/qc/qc.hjson  --template biostar/tools/qc/qc.sh --create_job
-	#python manage.py analysis --add --json biostar/tools/classify/classify.hjson  --template biostar/tools/classify/classify.sh --usage admin --create_job
+	python manage.py analysis --add --json $(EMAIL_JSON) --template $(EMAIL_TEMPL) --analysis_usage admin  --create_job
+
+
+jobs:
+	python manage.py analysis --add --json $(FASTQ_JSON) --template $(FASTQ_TEMPL) --create_job
+	python manage.py analysis --add --json $(QC_JSON)  --template $(QC_TEMPL) --create_job
+	#python manage.py analysis --add --json $(CLASSIFY_JSON)  --template $(CLASSIFY_TEMPL) --create_job
+	#python manage.py analysis --add --json $(FASTQ_JSON) --template $(FASTQ_TEMPL) --create_job
+	#python manage.py analysis --add --json $(QC_JSON)  --template $(QC_TEMPL) --create_job
+	#python manage.py analysis --add --json $(CLASSIFY_JSON)  --template $(CLASSIFY_TEMPL) --create_job
 
 init:
 	python manage.py collectstatic --noinput -v 0
