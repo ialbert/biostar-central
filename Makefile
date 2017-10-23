@@ -7,7 +7,6 @@ QC_JSON =  biostar/tools/qc/qc.hjson
 QC_TEMPL =  biostar/tools/qc/qc.sh
 CLASSIFY_JSON = biostar/tools/classify/classify.hjson
 CLASSIFY_TEMPL = biostar/tools/classify/classify.sh
-
 EMAIL_JSON = biostar/tools/admin/send_email.hjson
 EMAIL_TEMPL = biostar/tools/admin/send_email.sh
 
@@ -24,7 +23,7 @@ delete:
 	touch conf/main/main_secrets.py
 	touch conf/test/test_secrets.py
 	# Remove the database and old media.
-	rm -f export/engine.db
+	rm -f export/database/engine.db
 	rm -rf export/media/*
 
 reset:delete init jobs adminjobs

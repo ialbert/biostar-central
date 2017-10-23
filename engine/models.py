@@ -57,7 +57,6 @@ class Project(models.Model):
     name = models.CharField(max_length=256, default="no name")
     summary = models.TextField(default='no summary')
 
-
     owner = models.ForeignKey(User)
     text = models.TextField(default='no description', max_length=MAX_TEXT_LEN)
 
@@ -114,7 +113,9 @@ class Project(models.Model):
         usage = usage or defaults.USAGE
         analysis = Analysis.objects.create(project=self, summary=summary, json_text=json_text,
                                            owner=owner, name=name, text=text, usage=usage,
-                                           template=template, )
+                                           template=template )
+
+        logger.info(f"Created analysis id={analysis.id} of usage_type={dict(Analysis.USAGE_CHOICES)[analysis.usage]}")
         return analysis
 
     def create_data(self,  stream=None, fname=None, name="data.bin", owner=None, text='', data_type=None, usage=None):
@@ -134,9 +135,11 @@ class Project(models.Model):
 
         # Need to save before uid gets triggered.
         data.save()
-
         # This saves the into the
         data.file.save(name, stream, save=True)
+
+        # Set the pending to ready after the file saves.
+        Data.objects.filter(id=data.id).update(state=Data.READY)
 
         # Updates its own size.
         data.set_size()
@@ -149,11 +152,13 @@ class Data(models.Model):
 
     ADMIN, USER = 1, 2
     FILE, COLLECTION = 1, 2
+    PENDING, READY = 1,2
+
     TYPE_CHOICES = [(FILE, "File"), (COLLECTION, "Collection")]
+    USAGE_CHOICES = [(ADMIN, "Admin"), (USER, "User")]
+    STATE_CHOICES = [(PENDING, "Pending"), (READY, "Ready")]
 
-    USAGE_CHOICES = [(ADMIN, "admin"), (USER, "user")]
     usage = models.IntegerField(default=USER, choices=USAGE_CHOICES)
-
     name = models.CharField(max_length=256, default="no name")
     summary = models.TextField(default='no summary')
 
@@ -167,7 +172,7 @@ class Data(models.Model):
     project = models.ForeignKey(Project)
     size = models.CharField(null=True, max_length=256)
 
-    state = models.IntegerField()
+    state = models.IntegerField(default=PENDING, choices=STATE_CHOICES)
     file = models.FileField(null=True, upload_to=upload_path, max_length=500)
     uid = models.CharField(max_length=32)
 
@@ -278,6 +283,7 @@ class Analysis(models.Model):
         job = Job.objects.create(name=name, summary=self.summary, state=state, json_text=json_text,
                                  project=self.project, analysis=self, owner=owner, usage=usage,
                                  template=self.template)
+
         logger.info(f"Queued job: '{job.name}'")
         return job
 

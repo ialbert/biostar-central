@@ -93,6 +93,8 @@ def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=Non
 def project_list(request):
 
     projects = Project.objects.order_by("-id")
+    if not request.user.is_superuser:
+        projects = projects.filter(usage=Project.USER).all()
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON])
 
@@ -167,6 +169,7 @@ def project_create(request):
 
 #@login_required
 def data_list(request, id):
+
     project = Project.objects.filter(id=id).first()
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON,  PROJECT_ICON, DATA_LIST_ICON],
                                project=project)
@@ -249,8 +252,14 @@ def analysis_list(request, id):
     """
     Returns the list of analyses for a project id.
     """
+    # filter according to user.
+
     project = Project.objects.filter(id=id).first()
     analysis = Analysis.objects.filter(project=project).order_by("-id")
+
+    if not request.user.is_superuser:
+        analysis = analysis.filter(usage=Analysis.USER).all()
+
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON,  PROJECT_ICON, ANALYSIS_LIST_ICON],
                                project=project)
     context = dict(project=project, analysis=analysis, steps=steps)
@@ -341,6 +350,7 @@ def process_analysis_edit(method, analysis, form):
 def analysis_edit(request, id):
 
     analysis = Analysis.objects.filter(id=id).first()
+    # filter according to user
     project = analysis.project
     steps = breadcrumb_builder([PROJECT_ICON, ANALYSIS_LIST_ICON, ANALYSIS_ICON],
                                project=project, analysis=analysis)
@@ -363,11 +373,15 @@ def job_list(request, id):
     """
     Returns the list of jobs for a project id.
     """
+    # filter according to usage
     project = Project.objects.filter(id=id).first()
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, RESULT_LIST_ICON ],
                                project=project)
 
     jobs = project.job_set.order_by("-id")
+    if not request.user.is_superuser:
+        jobs = jobs.filter(usage=Job.USER).all()
+
     context = dict(jobs=jobs, steps=steps, project=project)
 
 

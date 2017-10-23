@@ -1,0 +1,22 @@
+#
+# Requires a data parameter.
+#
+foo : {
+    path: export/local/data.tar.gz
+    visible: true
+    display_type: DROPDOWN
+  }
+
+#
+# Analysis settings.
+#
+settings : {
+    name: Send emails to users
+    summary: A script that takes send an emial to specified adress
+    index: test.txt
+    help: '''
+        # Help
+
+        Send an email to one user ( for now).
+    '''
+    }

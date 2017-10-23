@@ -25,9 +25,9 @@ class Command(BaseCommand):
                             help="Also creates a queued job for the analysis")
 
         # TODO: Impove the help for usage
-        parser.add_argument('--analyis_usage',
-                            help=f"Who this job/analysis meant for. choices are: {dict(Analysis.USAGE_CHOICES)}",
-                            default=defaults.USAGE)
+        parser.add_argument('--analysis_usage',
+                            help=f"Who this job/analysis meant for.",
+                            default=defaults.USAGE, choices=dict(Analysis.USAGE_CHOICES).values())
 
     def handle(self, *args, **options):
 
@@ -36,7 +36,8 @@ class Command(BaseCommand):
         pid = options['id']
         template = options['template']
         create_job = options['create_job']
-        analysis_usage = ''
+        usage_map = {y: x for x, y in dict(Analysis.USAGE_CHOICES).items()}
+        analysis_usage = usage_map.get(options['analysis_usage'], Analysis.USER)
 
         admin = User.objects.filter(is_staff=True).first()
         if not admin:
@@ -99,7 +100,7 @@ class Command(BaseCommand):
                         data_type = value.get("data_type")
                         data_type = DATA_TYPES.get(data_type)
                         if path:
-                            data = project.create_data(fname=path, data_type=data_type, data_usage=analysis_usage)
+                            data = project.create_data(fname=path, data_type=data_type)
                             data.fill_dict(value)
                     analysis.create_job(json_data=json_data, usage=analysis_usage)
 

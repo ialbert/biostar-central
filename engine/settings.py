@@ -100,7 +100,7 @@ LOGOUT_URL = '/logout/'
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
-DATABASE_NAME = join(BASE_DIR, '..', 'export', 'engine.db')
+DATABASE_NAME = join(BASE_DIR, '..', 'export', 'database', 'engine.db')
 
 DATABASES = {
     'default': {
