@@ -29,13 +29,14 @@ hello:
 
 
 jobs:
-	#python manage.py analysis --add --json biostar/tools/fastqc/fastqc.hjson  --template biostar/tools/fastqc/fastqc.sh --create_job
-	#python manage.py analysis --add --json biostar/tools/qc/qc.hjson  --template biostar/tools/qc/qc.sh --create_job
-	python manage.py analysis --add --json biostar/tools/classify/classify.hjson  --template biostar/tools/classify/classify.sh --create_job
 	python manage.py analysis --add --json biostar/tools/fastqc/fastqc.hjson  --template biostar/tools/fastqc/fastqc.sh --create_job
 	python manage.py analysis --add --json biostar/tools/qc/qc.hjson  --template biostar/tools/qc/qc.sh --create_job
 	python manage.py analysis --add --json biostar/tools/classify/classify.hjson  --template biostar/tools/classify/classify.sh --create_job
 	python manage.py analysis --add --json biostar/tools/create_db/create_db.hjson  --template biostar/tools/create_db/create_db.sh --create_job
+	#python manage.py analysis --add --json biostar/tools/classify/classify.hjson  --template biostar/tools/classify/classify.sh --create_job
+	#python manage.py analysis --add --json biostar/tools/fastqc/fastqc.hjson  --template biostar/tools/fastqc/fastqc.sh --create_job
+	#python manage.py analysis --add --json biostar/tools/qc/qc.hjson  --template biostar/tools/qc/qc.sh --create_job
+	#python manage.py analysis --add --json biostar/tools/classify/classify.hjson  --template biostar/tools/classify/classify.sh --create_job
 
 init:
 	python manage.py collectstatic --noinput -v 0
@@ -49,16 +50,6 @@ push:
 	git commit -am "Update by `whoami` on `date` from `hostname`"
 	git push
 
-testdata:
-	mkdir -p export/local
-	(cd export/local/ && centrifuge-download -o taxonomy taxonomy)
-	curl  http://iris.bx.psu.edu/projects/metabarcode-data/data.tar.gz > export/local/data.tar.gz
-	curl http://iris.bx.psu.edu/projects/metabarcode-data/sampleinfo.txt > export/local/sampleinfo.txt
-	curl http://iris.bx.psu.edu/projects/metabarcode-data/1-SarriPal_S9_L001_R1_001.fastq.gz > export/local/1-SarriPal_S9_L001_R1_001.fastq.gz
-	curl http://iris.bx.psu.edu/projects/metabarcode-data/fish_accession_map.txt > export/local/fish_accession_map.txt
-	curl http://iris.bx.psu.edu/projects/metabarcode-data/accession_list.txt >export/local/accession_list.txt
-	curl http://iris.bx.psu.edu/projects/metabarcode-data/lamar_fishes_16S_index.tar.gz > export/local/lamar_fishes_16S_index.tar.gz
-	(cd export/local  && tar -xzvf lamar_fishes_16S_index.tar.gz)
 
 test_push:test
 	git commit -am "Update by `whoami` on `date` from `hostname`"
