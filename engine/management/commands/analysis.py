@@ -1,8 +1,9 @@
 import os, sys, logging, hjson, textwrap
 from engine.models import Project, User, make_html
 from django.core.management.base import BaseCommand
+from engine.models import Job, Project, Analysis
 from biostar.tools.const import DATA_TYPES
-
+from biostar.tools import defaults
 
 logger = logging.getLogger('engine')
 
@@ -23,6 +24,15 @@ class Command(BaseCommand):
                             help="The template for the analysis")
         parser.add_argument('--create_job', action='store_true', default=False,
                             help="Also creates a queued job for the analysis")
+
+        # TODO: Impove the help for usage
+        parser.add_argument('--job_usage',
+                            help=f"Who this job/analysis meant for. choices are: {dict(Job.USAGE_CHOICES).values()}",
+                            default=defaults.USAGE)
+
+        parser.add_argument('--analyis_usage',
+                            help=f"Who this job/analysis meant for. choices are: {dict(Analysis.USAGE_CHOICES).values()}",
+                            default=defaults.USAGE)
 
     def handle(self, *args, **options):
 

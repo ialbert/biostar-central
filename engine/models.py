@@ -33,6 +33,10 @@ def get_datatype(file):
     return Data.FILE
 
 
+def filter_by_usage():
+    return
+
+
 def upload_path(instance, filename):
     # Name the data by the filename.
     pieces = os.path.basename(filename).split(".")
@@ -45,10 +49,14 @@ def upload_path(instance, filename):
 
 class Project(models.Model):
 
+    ADMIN, USER = 1, 2
+    USAGE_CHOICES = [(ADMIN, "admin"), (USER, "user")]
+    usage = models.IntegerField(default=USER, choices=USAGE_CHOICES)
+
     name = models.CharField(max_length=256, default="no name")
     summary = models.TextField(default='no summary')
 
-    #type = models.IntegerField
+
     owner = models.ForeignKey(User)
     text = models.TextField(default='no description', max_length=MAX_TEXT_LEN)
 
@@ -135,8 +143,13 @@ class Project(models.Model):
 
 
 class Data(models.Model):
+
+    ADMIN, USER = 1, 2
     FILE, COLLECTION = 1, 2
     TYPE_CHOICES = [(FILE, "File"), (COLLECTION, "Collection")]
+
+    USAGE_CHOICES = [(ADMIN, "admin"), (USER, "user")]
+    usage = models.IntegerField(default=USER, choices=USAGE_CHOICES)
 
     name = models.CharField(max_length=256, default="no name")
     summary = models.TextField(default='no summary')
@@ -146,10 +159,12 @@ class Data(models.Model):
     html = models.TextField(default='html')
     date = models.DateTimeField(auto_now_add=True)
     type = models.IntegerField(default=FILE, choices=TYPE_CHOICES)
+
     data_type = models.IntegerField(default=GENERIC_TYPE)
     project = models.ForeignKey(Project)
     size = models.CharField(null=True, max_length=256)
 
+    state = models.IntegerField()
     file = models.FileField(null=True, upload_to=upload_path, max_length=500)
     uid = models.CharField(max_length=32)
 
@@ -199,7 +214,12 @@ class Data(models.Model):
         obj['value'] = self.id
         obj['name'] = self.name
 
+
 class Analysis(models.Model):
+
+    ADMIN, USER = 1, 2
+    USAGE_CHOICES = [(ADMIN, "admin"), (USER, "user")]
+    usage = models.IntegerField(default=USER, choices=USAGE_CHOICES)
 
     name = models.CharField(max_length=256, default="no name")
     summary = models.TextField(default='no summary')
@@ -259,12 +279,14 @@ class Analysis(models.Model):
 
 
 class Job(models.Model):
-    # file path to media
-    QUEUED, RUNNING, FINISHED, ERROR = 1, 2, 3, 4
 
+    ADMIN, USER = 1, 2
+    QUEUED, RUNNING, FINISHED, ERROR = 1, 2, 3, 4
+    USAGE_CHOICES = [(ADMIN, "admin"), (USER, "user")]
     STATE_CHOICES = [(QUEUED, "Queued"), (RUNNING, "Running"),
                      (FINISHED, "Finished"), (ERROR, "Error")]
 
+    usage = models.IntegerField(default=USER, choices=USAGE_CHOICES)
     name = models.CharField(max_length=256, default="no name")
     summary = models.TextField(default='no summary')
 
@@ -292,6 +314,7 @@ class Job(models.Model):
     state = models.IntegerField(default=1, choices=STATE_CHOICES)
 
     path = models.FilePathField(default="")
+    local = models.FilePathField(default="")
 
     def is_running(self):
         return self.state == Job.RUNNING
@@ -321,8 +344,11 @@ class Job(models.Model):
         if not os.path.isdir(self.path):
 
             path = join(settings.MEDIA_ROOT, "jobs", f"job-{self.uid}")
+            local = join(settings.LOCAL_ROOT, "jobs", f"job-{self.uid}")
 
             os.makedirs(path)
+            os.makedirs(local)
+
             self.path = path
 
         super(Job, self).save(*args, **kwargs)
