@@ -18,27 +18,6 @@ accessions : {
     display_type: DROPDOWN
     }
 
-/*
-reference : {
-    path: "export/local/lamar_data/lamar_fishes_16S.fa"
-    label: Reference
-    data_type: REFERENCE_TYPE
-    visible: true
-    display_type: DROPDOWN
-    origin: PROJECT
-}
-
-taxamap : {
-    path : "export/local/lamar_data/fish_accession_map.txt"
-    label : Accession-taxid map
-    data_type: ACCESSION_MAP
-    visible: true
-    display_type: DROPDOWN
-    origin: PROJECT
-}
-
-*/
-
 taxonomy : {
     dirname: taxonomy
 
