@@ -116,7 +116,7 @@ TYPE2FUNC = {
     RADIO: radioselect_field,
     DROPDOWN: select_field,
     INTEGER: number_field,
-    CHAR: char_field,
+    TEXTBOX: char_field,
     FLOAT: float_field,
     UPLOAD: file_field,
     CHECKBOX: checkbox_field,

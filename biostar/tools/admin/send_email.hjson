@@ -4,7 +4,7 @@
 email : {
     value:testemail@lvh.me
     visible: true
-    display_type: CHAR
+    display_type: TEXTBOX
     label: Enter the email to send message to
   }
 
