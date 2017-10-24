@@ -7,7 +7,7 @@ def create(owner, name=defaults.PROJECT_NAME, summary=defaults.PROJECT_SUMMARY,
            add=False, json=None, template=None, create_job=False, usage=defaults.USAGE, analysis_usage=defaults.USAGE):
 
     project = Project.objects.create(owner=owner, name=name, summary=summary, usage=usage)
-
+    project.save()
     if add:
         assert json and template
         assert isinstance(json, str) and isinstance(template, str)
