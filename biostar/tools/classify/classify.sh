@@ -2,7 +2,8 @@
 
 INPUT_DATA={{data.path}}
 ACCESSION_LIST={{accessions.path}}
-TAXONOMY_DIR={{runtime.local_root}}/taxonomy
+FISH_DB={{runtime.local_root}}/blastdb/fish
+#TAXONOMY_DIR={{runtime.local_root}}/taxonomy
 RESULT_VIEW={{settings.index}}
 
 # Internal parameters.
@@ -16,10 +17,12 @@ RESULT_DIR=results
 
 # Create reference sequence file.
 mkdir -p $REF_DIR
-python -m biostar.tools.classify.reference --ids $ACCESSION_LIST --sequence >${REF_DIR}/$REF_SEQ
+blastdbcmd -entry 'all' -db ${FISH_DB}/fish -outfmt '%f' >${REF_DIR}/$REF_SEQ
+#python -m biostar.tools.classify.reference --ids $ACCESSION_LIST --sequence >${REF_DIR}/$REF_SEQ
 
 # Create accession-taxid map.
-python -m biostar.tools.classify.reference --ids $ACCESSION_LIST --taxid >${REF_DIR}/$TAXA_MAP
+blastdbcmd -entry 'all' -db ${FISH_DB}/fish -outfmt '%a,%T' |tr ',' '\t'  >${REF_DIR}/$TAXA_MAP
+#python -m biostar.tools.classify.reference --ids $ACCESSION_LIST --taxid >${REF_DIR}/$TAXA_MAP
 
 # Build centrifuge index.
 cd $REF_DIR
