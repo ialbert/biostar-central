@@ -52,7 +52,7 @@ def accession_details(accessions):
     return
 
 
-if __name__ =="__main__":
+if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--ids", help="File with accessions.")

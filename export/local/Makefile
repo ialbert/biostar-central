@@ -20,8 +20,48 @@ taxonkit:
 taxonomy:
 	centrifuge-download -o taxonomy taxonomy
 
-link:
-	# Link taxonomy to taxonkit.
-	mkdir -p ~/.taxonkit
-	ln -s `pwd`/taxonomy/names.dmp ~/.taxonkit/
-	ln -s `pwd`/taxonomy/nodes.dmp ~/.taxonkit/
+blast:
+	# Install blast.
+	conda install -y blast
+
+nt_db:
+	# Install nt database to export/local/blastdb/nt
+	# Ignores make error.
+	mkdir -p blastdb/nt
+	(cd bastdb/nt && update_blastdb.pl --decompress nt) || :
+
+tax_db:
+	# Install taxonomy database to export/local/blastdb/taxdb
+	# Ignores make error.
+	mkdir -p blastdb/taxdb
+	(cd blastdb/taxdb && update_blastdb.pl --decompress taxdb) || :
+
+fish_db:
+	mkdir -p blastdb/fish
+	#
+	# Get fish sequences.
+	curl http://iris.bx.psu.edu/projects/metabarcode-data/fish_genomes.fa >blastdb/fish/fish.fa
+	#
+	# Get acc2taxid table.
+	curl https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/accession2taxid/nucl_gb.accession2taxid.gz | gunzip -c >blastdb/acc2taxid.txt
+	#
+	# Get taxid map in correct format.
+	cat blastdb/acc2taxid.txt | cut -f 2,3 | tail -n+2 >blastdb/taxid_map.txt
+	#
+	# make blastdb.
+	makeblastdb -in blastdb/fish/fish.fa -dbtype nucl -out blastdb/fish/fish -parse_seqids -taxid_map blastdb/taxid_map.txt
+
+blast_env:
+	# set BLASTDB
+	export BLASTDB=`pwd`/blastdb/fish
+
+blastdbs: blast taxonomy nt_db
+fish: blast fish_db blast_env
+classify: centrifuge taxonomy
+
+
+
+
+
+
+
