@@ -2,6 +2,17 @@
 
 Classifies data against a database.
 
+Commands that should be executed before running classification.
+
+    make classify
+    make testdata
+    make fish
+
+
+# Centrifuge specific installation.
+
+    make classify.
+
 
 ## Custom fish genome.
 

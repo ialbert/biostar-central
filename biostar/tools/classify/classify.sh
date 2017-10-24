@@ -3,7 +3,7 @@
 INPUT_DATA={{data.path}}
 ACCESSION_LIST={{accessions.path}}
 FISH_DB={{runtime.local_root}}/blastdb/fish
-#TAXONOMY_DIR={{runtime.local_root}}/taxonomy
+TAXONOMY_DIR={{runtime.local_root}}/taxonomy
 RESULT_VIEW={{settings.index}}
 
 # Internal parameters.

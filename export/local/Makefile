@@ -17,6 +17,9 @@ biopython:
 taxonkit:
 	conda install -y -c bioconda taxonkit
 
+taxonomy:
+	centrifuge-download -o taxonomy taxonomy
+
 blast:
 	# Install blast.
 	conda install -y blast
@@ -27,7 +30,7 @@ nt_db:
 	mkdir -p blastdb/nt
 	(cd bastdb/nt && update_blastdb.pl --decompress nt) || :
 
-taxonomy:
+tax_db:
 	# Install taxonomy database to export/local/blastdb/taxdb
 	# Ignores make error.
 	mkdir -p blastdb/taxdb
@@ -54,6 +57,7 @@ blast_env:
 
 blastdbs: blast taxonomy nt_db
 fish: blast fish_db blast_env
+classify: centrifuge taxonomy
 
 
 
