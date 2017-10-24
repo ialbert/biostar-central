@@ -17,8 +17,13 @@ RESULT_DIR=results
 
 # Create reference sequence file.
 mkdir -p $REF_DIR
+<<<<<<< HEAD
 blastdbcmd -entry 'all' -db ${FISH_DB}/fish -outfmt '%f' >${REF_DIR}/$REF_SEQ
 #python -m biostar.tools.classify.reference --ids $ACCESSION_LIST --sequence >${REF_DIR}/$REF_SEQ
+=======
+
+python -m biostar.tools.classify.reference --ids $ACCESSION_LIST --sequence >${REF_DIR}/$REF_SEQ
+>>>>>>> cf57f0381ca6d5deafffabdf80d8cfb20e8d917d
 
 # Create accession-taxid map.
 blastdbcmd -entry 'all' -db ${FISH_DB}/fish -outfmt '%a,%T' |tr ',' '\t'  >${REF_DIR}/$TAXA_MAP
