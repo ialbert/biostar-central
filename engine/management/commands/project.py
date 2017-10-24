@@ -10,13 +10,13 @@ def create(owner, name=defaults.PROJECT_NAME, summary=defaults.PROJECT_SUMMARY,
     project = Project.objects.create(owner=owner, name=name, summary=summary, usage=usage)
     project.save()
 
+    print(project.name)
+    1/0
     if add:
         assert json and template
         assert isinstance(json, str) and isinstance(template, str)
         management.call_command('analysis', template=template, id=project.id, create_job=create_job, json=json,
                                 usage=analysis_usage)
-
-
 
 
 class Command(BaseCommand):
@@ -41,12 +41,12 @@ class Command(BaseCommand):
 
         parser.add_argument('--json',
                             help="The json specification file ( if ")
+
         parser.add_argument('--template',
                             help="The template for the analysis")
 
         parser.add_argument('--create_job', action='store_true', default=False,
                             help="Also creates a queued job for the analysis")
-
         # TODO: Impove the help for usage
 
         parser.add_argument('--project_usage',

@@ -16,7 +16,6 @@ def run(job, options={}):
     ''''
     Runs a json
     '''
-
     # Options that cause early termination.
     show_json = options.get('show_json')
     show_template = options.get('show_template')
