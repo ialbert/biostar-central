@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 from biostar.tools import defaults
-from engine.models import Project, User
+from engine.models import Project, Analysis, User
 from django.core import management
 
 
@@ -10,13 +10,15 @@ def create(owner, name=defaults.PROJECT_NAME, summary=defaults.PROJECT_SUMMARY,
     project = Project.objects.create(owner=owner, name=name, summary=summary, usage=usage)
     project.save()
 
-    print(project.name)
-    1/0
     if add:
         assert json and template
         assert isinstance(json, str) and isinstance(template, str)
         management.call_command('analysis', template=template, id=project.id, create_job=create_job, json=json,
                                 usage=analysis_usage)
+
+
+def add_data():
+    return
 
 
 class Command(BaseCommand):
@@ -53,6 +55,10 @@ class Command(BaseCommand):
                             help=f"Who this job/analysis meant for.",
                             default=defaults.USAGE, choices=dict(Project.USAGE_CHOICES).values())
 
+        parser.add_argument('--analysis_usage',
+                            help=f"Who this job/analysis meant for.",
+                            default=defaults.USAGE, choices=dict(Analysis.USAGE_CHOICES).values())
+
 
     def handle(self, *args, **options):
 
@@ -68,7 +74,7 @@ class Command(BaseCommand):
 
         owner = User.objects.filter(is_superuser=True, email=creator_email).first()
         if not owner:
-            owner = User.object.fitler(is_superuser=True).first()
+            owner = User.objects.filter(is_superuser=True).first()
 
         usage_map = lambda dictionary: {y: x for x, y in dictionary.items()}
         project_usage = usage_map(dict(Project.USAGE_CHOICES)).get(usage, Project.USER)

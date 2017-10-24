@@ -19,6 +19,8 @@ delete:
 
 reset:delete init jobs admin_projects
 
+adminreset:delete init admin_projects
+
 next:
 	python manage.py job --next
 
