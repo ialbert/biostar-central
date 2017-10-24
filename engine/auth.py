@@ -1,5 +1,6 @@
 from biostar.tools import defaults
 from django.core.files import File
+import hjson
 import logging
 from .const import *
 import os
@@ -47,13 +48,13 @@ def edit_analysis():
 
 
 
-def create_data(user, data_model, project, stream=None, fname=None, name="data.bin", owner=None, text='', data_type=None, usage=None):
+def create_data(user, data_model, project, stream=None, fname=None, name="data.bin", text='', data_type=None, usage=None):
 
     if fname:
         stream = File(open(fname, 'rb'))
         name = os.path.basename(fname)
 
-    owner = owner or project.owner
+    owner = user or project.owner
     text = text or "No description"
     data_type = data_type or GENERIC_TYPE
     usage = usage or defaults.USAGE
@@ -72,27 +73,26 @@ def create_data(user, data_model, project, stream=None, fname=None, name="data.b
     data.set_size()
     return data
 
-
-
+# Can we put stuff from views in here?
 def edit_data():
     return
 
 
+def create_job(user, analysis, job_model,project=None, json_text='', json_data={}, name=None, state=None, usage=None):
 
-def create_job(user, data):
-
-    name = name or self.name
-    state = state or Job.QUEUED
-    owner = owner or self.project.owner
+    name = name or analysis.name
+    state = state or job_model.QUEUED
+    owner = user or analysis.project.owner
     usage = usage or defaults.USAGE
+    project = project or analysis.project
 
     if json_data:
         json_text = hjson.dumps(json_data)
     else:
-        json_text = json_text or self.json_text
+        json_text = json_text or analysis.json_text
 
-    job = Job.objects.create(name=name, summary=self.summary, state=state, json_text=json_text,
-                             project=self.project, analysis=self, owner=owner, usage=usage,
-                             template=self.template)
-    pass
+    job = job_model.objects.create(name=name, summary=analysis.summary, state=state, json_text=json_text,
+                             project=project, analysis=analysis, owner=owner, usage=usage,
+                             template=analysis.template)
+    return job
 

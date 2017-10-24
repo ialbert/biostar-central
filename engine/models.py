@@ -241,20 +241,7 @@ class Analysis(models.Model):
         """
         Creates a job from an analysis.
         """
-        name = name or self.name
-        state = state or Job.QUEUED
-        owner = owner or self.project.owner
-        usage = usage or defaults.USAGE
-
-        if json_data:
-            json_text = hjson.dumps(json_data)
-        else:
-            json_text = json_text or self.json_text
-
-        job = Job.objects.create(name=name, summary=self.summary, state=state, json_text=json_text,
-                                 project=self.project, analysis=self, owner=owner, usage=usage,
-                                 template=self.template)
-
+        job = auth.create_job(owner, self, Job , self.project, json_text, json_data, name, state, usage)
         logger.info(f"Queued job: '{job.name}'")
         return job
 
