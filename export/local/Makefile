@@ -17,11 +17,20 @@ biopython:
 taxonkit:
 	conda install -y -c bioconda taxonkit
 
-taxonomy:
-	centrifuge-download -o taxonomy taxonomy
+blast:
+	# Install blast.
+	conda install -y blast
 
-link:
-	# Link taxonomy to taxonkit.
-	mkdir -p ~/.taxonkit
-	ln -s `pwd`/taxonomy/names.dmp ~/.taxonkit/
-	ln -s `pwd`/taxonomy/nodes.dmp ~/.taxonkit/
+nt_db:
+	# Install nt database to export/local/nt
+	# Ignores make error.
+	mkdir -p nt
+	(cd nt && update_blastdb.pl --decompress nt) || :
+
+taxonomy:
+	# Install taxonomy database to export/local/taxdb
+	# Ignores make error.
+	mkdir -p taxdb
+	(cd taxdb && update_blastdb.pl --decompress taxdb) || :
+
+blastdbs: blast taxonomy nt_db
