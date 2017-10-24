@@ -1,4 +1,10 @@
 
+blastdbs: blast taxonomy nt_db
+
+fish: blast fish_db blast_env
+
+classify: centrifuge taxonomy
+
 testdata:
 	mkdir -p lamar_data
 	curl http://iris.bx.psu.edu/projects/metabarcode-data/data.tar.gz >lamar_data/data.tar.gz
@@ -55,9 +61,7 @@ blast_env:
 	# set BLASTDB
 	export BLASTDB=`pwd`/blastdb/fish
 
-blastdbs: blast taxonomy nt_db
-fish: blast fish_db blast_env
-classify: centrifuge taxonomy
+
 
 
 
