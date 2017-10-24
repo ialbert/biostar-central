@@ -18,11 +18,14 @@ ANALYSIS_ICON = "setting"
 RESULT_LIST_ICON = "bar chart"
 RESULT_ICON = "line chart"
 RESULT_VIEW_ICON = "line chart"
+RESULT_INDEX_ICON = "list layout icon"
 LOGIN_ICON = "sign in"
 LOGOUT_ICON = "sign out"
 INFO_ICON = "info circle icon"
 SIGNUP_ICON = "add user icon"
 USER_ICON = "user icon"
+
+
 
 FIELD_VISIBLE = "visible"
 FIELD_ORIGIN = "origin"
