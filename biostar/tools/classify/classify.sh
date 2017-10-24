@@ -1,25 +1,35 @@
 # Get parameters.
+
 INPUT_DATA={{data.path}}
-TAXA_MAP={{taxamap.path}}
-REFERENCE={{reference.path}}
-TAX_DIR={{taxonomy.dirname}}
-LOCAL_DIR={{runtime.local_root}}
+ACCESSION_LIST={{accessions.path}}
+TAXONOMY_DIR={{runtime.local_root}}/taxonomy
 RESULT_VIEW={{settings.index}}
 
 # Internal parameters.
-INDEX=${REFERENCE%.*}
-TAX_NODES="${LOCAL_DIR}/${TAX_DIR}/nodes.dmp"
-TAX_NAMES="${LOCAL_DIR}/${TAX_DIR}/names.dmp"
 
+REF_DIR=ref
+REF_SEQ=reference.fa
+INDEX=reference
+TAXA_MAP=acc2taxa.txt
 DATA_DIR=data
 RESULT_DIR=results
 
+# Create reference sequence file.
+mkdir -p $REF_DIR
+python -m biostar.tools.classify.reference --ids $ACCESSION_LIST --sequence >${REF_DIR}/$REF_SEQ
+
+# Create accession-taxid map.
+python -m biostar.tools.classify.reference --ids $ACCESSION_LIST --taxid >${REF_DIR}/$TAXA_MAP
+
 # Build centrifuge index.
-centrifuge-build -p 4 --conversion-table $TAXA_MAP --taxonomy-tree $TAX_NODES --name-table $TAX_NAMES $REFERENCE $INDEX
+cd $REF_DIR
+centrifuge-build -p 4 --conversion-table $TAXA_MAP --taxonomy-tree $TAXONOMY_DIR/nodes.dmp --name-table $TAXONOMY_DIR/names.dmp $REF_SEQ $INDEX
+cd ..
 
 # Run classification using centrifuge.
 mkdir -p $RESULT_DIR
-centrifuge -x $INDEX -U $INPUT_DATA --report-file ${RESULT_DIR}/report.txt -S ${RESULT_DIR}/classification.txt
+centrifuge -x ${REF_DIR}/$INDEX -U $INPUT_DATA --report-file ${RESULT_DIR}/report.txt -S ${RESULT_DIR}/classification
+.txt
 
 # Register results to settings.index.
 cp ${RESULT_DIR}/report.txt ${RESULT_VIEW}

@@ -18,8 +18,9 @@ taxonkit:
 	conda install -y -c bioconda taxonkit
 
 taxonomy:
-	# Download taxonomy.
 	centrifuge-download -o taxonomy taxonomy
+
+link:
 	# Link taxonomy to taxonkit.
 	mkdir -p ~/.taxonkit
 	ln -s `pwd`/taxonomy/names.dmp ~/.taxonkit/
