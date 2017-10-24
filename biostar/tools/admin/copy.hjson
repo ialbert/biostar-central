@@ -7,6 +7,10 @@ email : {
     display_type: TEXTBOX
     label: Enter the email to send message to
   }
+copy_to : {
+
+
+}
 
 #
 # Analysis settings.

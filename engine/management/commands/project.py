@@ -17,11 +17,16 @@ def create(owner, name=defaults.PROJECT_NAME, summary=defaults.PROJECT_SUMMARY,
         assert json and template
         assert isinstance(json, str) and isinstance(template, str)
         management.call_command('analysis', template=template, id=project.id, create_job=create_job, json=json,
-                                usage=analysis_usage)
+                                usage=analysis_usage, add=True)
+
+def copy_data(fname1, fname2, project_id):
+
+    pass
 
 
 def add_data():
-    return
+
+    pass
 
 
 class Command(BaseCommand):
@@ -52,6 +57,10 @@ class Command(BaseCommand):
 
         parser.add_argument('--create_job', action='store_true', default=False,
                             help="Also creates a queued job for the analysis")
+
+        parser.add_argument('--copy_data', action='store_true', default=False,
+                            help="copy given ")
+
         # TODO: Impove the help for usage
 
         parser.add_argument('--project_usage',
@@ -73,6 +82,10 @@ class Command(BaseCommand):
         template = options.get('template')
         create_job = options['create_job']
         usage = options['project_usage']
+        fname1 = options.get("fname1")
+        fname2 = options.get("fname2")
+        pid = options.get("pid")
+        
         creator_email = options.get('creator_email', '')
 
         owner = User.objects.filter(is_superuser=True, email=creator_email).first()
@@ -85,6 +98,16 @@ class Command(BaseCommand):
         if add:
             assert json and template
 
-        create(owner, name, summary, add, json, template, create_job, project_usage)
+        if copy_data and pid:
+            assert fname1 and fname2
+            copy_data(fname1=fname1, fname2=fname2, project_id=pid)
 
+        elif add_data and pid:
+            assert fname1 or fname2
 
+        elif not pid and owner:
+            create(owner, name, summary, add, json, template, create_job, project_usage)
+
+        else:
+            logger.error("--copy_data or --add_data need to be specified with --pid.")
+            return
