@@ -30,7 +30,7 @@ hello:
 
 
 adminjobs:
-	python manage.py analysis --add --json  biostar/tools/admin/send_email.hjson --template  biostar/tools/admin/send_email.sh --analysis_usage admin  --create_job
+	#python manage.py analysis --add --json  biostar/tools/admin/send_email.hjson --template  biostar/tools/admin/send_email.sh --analysis_usage admin  --create_job
 
 
 jobs:
