@@ -16,6 +16,7 @@ RESULT_DIR=results
 
 # Create reference sequence file.
 mkdir -p $REF_DIR
+
 python -m biostar.tools.classify.reference --ids $ACCESSION_LIST --sequence >${REF_DIR}/$REF_SEQ
 
 # Create accession-taxid map.
