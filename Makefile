@@ -29,12 +29,12 @@ hello:
 	python manage.py analysis --add --json biostar/tools/hello/hello1.hjson  --template biostar/tools/hello/hello1.sh --create_job
 
 
-adminjobs:
-	#python manage.py analysis --add --json  biostar/tools/admin/send_email.hjson --template  biostar/tools/admin/send_email.sh --analysis_usage admin  --create_job
-
+admin_projects:
+    # Copy project
+	python manage.py analysis --add --json  biostar/tools/admin/copy.hjson --template  biostar/tools/copy.sh --analysis_usage admin --project_usage admin --create_job
+	python manage.py analysis --add --json  biostar/tools/admin/unpack.hjson --template  biostar/tools/unpack.sh --analysis_usage admin --project_usage admin --create_job
 
 jobs:
-
 	python manage.py analysis --add --json biostar/tools/fastqc/fastqc.hjson  --template biostar/tools/fastqc/fastqc.sh --create_job
 	python manage.py analysis --add --json biostar/tools/qc/qc.hjson  --template biostar/tools/qc/qc.sh --create_job
 	#python manage.py analysis --add --json biostar/tools/classify/classify.hjson  --template biostar/tools/classify/classify.sh --create_job

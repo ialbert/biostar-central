@@ -28,6 +28,10 @@ class Command(BaseCommand):
         parser.add_argument('--analysis_usage',
                             help=f"Who this job/analysis meant for.",
                             default=defaults.USAGE, choices=dict(Analysis.USAGE_CHOICES).values())
+        parser.add_argument('--project_usage',
+                            help=f"Who this job/analysis meant for.",
+                            default=defaults.USAGE, choices=dict(Analysis.USAGE_CHOICES).values())
+
 
     def handle(self, *args, **options):
 
@@ -36,8 +40,11 @@ class Command(BaseCommand):
         pid = options['id']
         template = options['template']
         create_job = options['create_job']
-        usage_map = {y: x for x, y in dict(Analysis.USAGE_CHOICES).items()}
-        analysis_usage = usage_map.get(options['analysis_usage'], Analysis.USER)
+
+        usage_map = lambda dictionary: {y: x for x, y in dictionary.items()}
+
+        analysis_usage = usage_map(dict(Analysis.USAGE_CHOICES)).get(options['analysis_usage'], Analysis.USER)
+        project_usage = usage_map(dict(Project.USAGE_CHOICES)).get(options['analysis_usage'], Project.USER)
 
         admin = User.objects.filter(is_staff=True).first()
         if not admin:
@@ -55,6 +62,8 @@ class Command(BaseCommand):
                 return
 
             project = Project.objects.filter(id=pid).first()
+            Project.objects.filter(id=pid).update(usage=project_usage)
+
             if not project:
                 logger.error(f'No project with id={pid}')
                 return
