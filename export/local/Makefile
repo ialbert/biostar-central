@@ -17,9 +17,6 @@ biopython:
 taxonkit:
 	conda install -y -c bioconda taxonkit
 
-taxonomy:
-	centrifuge -o taxonomy taxonomy
-
 blast:
 	# Install blast.
 	conda install -y blast
@@ -36,16 +33,14 @@ taxonomy:
 	mkdir -p blastdb/taxdb
 	(cd blastdb/taxdb && update_blastdb.pl --decompress taxdb) || :
 
-blastdbs: blast taxonomy nt_db
-
 fish_db:
 	mkdir -p blastdb/fish
 	#
 	# Get fish sequences.
-	#curl http://iris.bx.psu.edu/projects/metabarcode-data/fish_genomes.fa >blastdb/fish/fish.fa
+	curl http://iris.bx.psu.edu/projects/metabarcode-data/fish_genomes.fa >blastdb/fish/fish.fa
 	#
 	# Get acc2taxid table.
-	#curl https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/accession2taxid/nucl_gb.accession2taxid.gz | gunzip -c >blastdb/acc2taxid.txt
+	curl https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/accession2taxid/nucl_gb.accession2taxid.gz | gunzip -c >blastdb/acc2taxid.txt
 	#
 	# Get taxid map in correct format.
 	cat blastdb/acc2taxid.txt | cut -f 2,3 | tail -n+2 >blastdb/taxid_map.txt
@@ -57,7 +52,8 @@ blast_env:
 	# set BLASTDB
 	export BLASTDB=`pwd`/blastdb/fish
 
-fish: fish_db blast_env
+blastdbs: blast taxonomy nt_db
+fish: blast fish_db blast_env
 
 
 
