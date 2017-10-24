@@ -1,13 +1,17 @@
 import logging
 from django.core.management.base import BaseCommand
 from biostar.tools import defaults
-from engine.models import Project, Analysis, User
+from engine.models import Project, Analysis, Data, User
 from django.core import management
 
 logger = logging.getLogger('engine')
 
 def create(owner, name=defaults.PROJECT_NAME, summary=defaults.PROJECT_SUMMARY,
            add=False, json=None, template=None, create_job=False, usage=defaults.USAGE, analysis_usage=defaults.USAGE):
+
+    if not owner.is_superuser:
+        logger.error(f'User is not admin.')
+        return
 
     project = Project.objects.create(owner=owner, name=name, summary=summary, usage=usage)
     logger.info(f'Created project name={project.name}, id={project.id} with usage:{dict(project.USAGE_CHOICES)[usage]}')
@@ -18,15 +22,6 @@ def create(owner, name=defaults.PROJECT_NAME, summary=defaults.PROJECT_SUMMARY,
         assert isinstance(json, str) and isinstance(template, str)
         management.call_command('analysis', template=template, id=project.id, create_job=create_job, json=json,
                                 usage=analysis_usage, add=True)
-
-def copy_data(fname1, fname2, project_id):
-
-    pass
-
-
-def add_data():
-
-    pass
 
 
 class Command(BaseCommand):
@@ -44,7 +39,7 @@ class Command(BaseCommand):
                             default=defaults.PROJECT_SUMMARY)
 
         parser.add_argument('--creator_email',
-                            help=f"Name of created project ( in quotes). default = first admin user")
+                            help=f"Name of created project. default = first admin user")
 
         parser.add_argument('--add', action='store_true', default=False,
                             help="Adds an analysis to the project")
@@ -57,10 +52,6 @@ class Command(BaseCommand):
 
         parser.add_argument('--create_job', action='store_true', default=False,
                             help="Also creates a queued job for the analysis")
-
-        parser.add_argument('--copy_data', action='store_true', default=False,
-                            help="copy given ")
-
         # TODO: Impove the help for usage
 
         parser.add_argument('--project_usage',
@@ -82,32 +73,14 @@ class Command(BaseCommand):
         template = options.get('template')
         create_job = options['create_job']
         usage = options['project_usage']
-        fname1 = options.get("fname1")
-        fname2 = options.get("fname2")
-        pid = options.get("pid")
-        
         creator_email = options.get('creator_email', '')
 
         owner = User.objects.filter(is_superuser=True, email=creator_email).first()
         if not owner:
             owner = User.objects.filter(is_superuser=True).first()
-
         usage_map = lambda dictionary: {y: x for x, y in dictionary.items()}
         project_usage = usage_map(dict(Project.USAGE_CHOICES)).get(usage, Project.USER)
 
         if add:
             assert json and template
-
-        if copy_data and pid:
-            assert fname1 and fname2
-            copy_data(fname1=fname1, fname2=fname2, project_id=pid)
-
-        elif add_data and pid:
-            assert fname1 or fname2
-
-        elif not pid and owner:
-            create(owner, name, summary, add, json, template, create_job, project_usage)
-
-        else:
-            logger.error("--copy_data or --add_data need to be specified with --pid.")
-            return
+        create(owner, name, summary, add, json, template, create_job, project_usage)
