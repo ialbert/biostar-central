@@ -4,13 +4,16 @@ from engine.models import Project, User
 from django.core import management
 
 def create(owner, name=defaults.PROJECT_NAME, summary=defaults.PROJECT_SUMMARY,
-           add=False, json=None, template=None, create_job=False, usage=defaults.USAGE):
+           add=False, json=None, template=None, create_job=False, usage=defaults.USAGE, analysis_usage=defaults.USAGE):
+
+    project = Project.objects.create(owner=owner, name=name, summary=summary, usage=usage)
 
     if add:
         assert json and template
-
-    management.call_command('analysis', next=True, create_job=create_job)
-    pass
+        assert isinstance(json, str) and isinstance(template, str)
+        management.call_command('analysis', template=template, id=project.id,create_job=create_job, json=json,
+                                usage=analysis_usage)
+    return
 
 
 
@@ -48,6 +51,7 @@ class Command(BaseCommand):
         parser.add_argument('--project_usage',
                             help=f"Who this job/analysis meant for.",
                             default=defaults.USAGE, choices=dict(Project.USAGE_CHOICES).values())
+
 
     def handle(self, *args, **options):
 

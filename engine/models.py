@@ -282,7 +282,6 @@ class Job(models.Model):
     state = models.IntegerField(default=1, choices=STATE_CHOICES)
 
     path = models.FilePathField(default="")
-    local = models.FilePathField(default="")
 
     def is_running(self):
         return self.state == Job.RUNNING
@@ -312,10 +311,7 @@ class Job(models.Model):
         if not os.path.isdir(self.path):
 
             path = join(settings.MEDIA_ROOT, "jobs", f"job-{self.uid}")
-            local = join(settings.LOCAL_ROOT, "jobs", f"job-{self.uid}")
-
             os.makedirs(path)
-            os.makedirs(local)
 
             self.path = path
 
