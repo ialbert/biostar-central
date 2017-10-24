@@ -1,4 +1,4 @@
 
 
-pwd
-#python manage.py test_email {{email.value}}
+cd ../../../..
+python manage.py test_email --to {{email.value}}

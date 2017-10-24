@@ -447,9 +447,8 @@ def job_dir_view(request, jobdir, extra=''):
     rooturl = settings.MEDIA_URL + job.get_url(path=extra)
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, RESULT_LIST_ICON, RESULT_VIEW_ICON],
                                job=job, project=project)
-    print(extra, job.get_url(path=extra),"SSS" )
-    files = get_filecontext(root, rooturl)
 
+    files = get_filecontext(root, rooturl)
     if request.method == "POST":
 
         form = ExportData(data=request.POST, project=project)
