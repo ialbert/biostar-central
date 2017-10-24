@@ -46,7 +46,7 @@ fish_db:
 	curl https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/accession2taxid/nucl_gb.accession2taxid.gz | gunzip -c >blastdb/acc2taxid.txt
 	#
 	# Get taxid map in correct format.
-	cat blastdb/acc2taxid.txt | cut -f 2,3 | tail -n+2 >blastdb/taxid_map.txt
+	cat blastdb/acc2taxid.txt | cut -f 2,3 | grep -v "accession" >blastdb/taxid_map.txt
 	#
 	# make blastdb.
 	makeblastdb -in blastdb/fish/fish.fa -dbtype nucl -out blastdb/fish/fish -parse_seqids -taxid_map blastdb/taxid_map.txt
