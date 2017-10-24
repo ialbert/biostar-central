@@ -14,6 +14,7 @@ from django.utils import timezone
 from . import settings
 from . import util
 from .const import *
+from biostar.tools import defaults
 from django.core.files import File
 logger = logging.getLogger("engine")
 
@@ -33,16 +34,25 @@ def get_datatype(file):
     return Data.FILE
 
 
+def filter_by_usage():
+    return
+
+
 def upload_path(instance, filename):
     # Name the data by the filename.
     pieces = os.path.basename(filename).split(".")
     # File may have multiple extensions
     exts = ".".join(pieces[1:]) or "data"
     dataname = f"data-{instance.uid}.{exts}"
-    return f'{instance.project.get_path()}/{dataname}'
+
+    return join(instance.project.get_path(), f"data-{instance.uid}", dataname)
 
 
 class Project(models.Model):
+
+    ADMIN, USER = 1, 2
+    USAGE_CHOICES = [(ADMIN, "admin"), (USER, "user")]
+    usage = models.IntegerField(default=USER, choices=USAGE_CHOICES)
 
     name = models.CharField(max_length=256, default="no name")
     summary = models.TextField(default='no summary')
@@ -93,19 +103,22 @@ class Project(models.Model):
         datamap = dict( (obj.id, obj) for obj in query )
         return datamap
 
-    def create_analysis(self, json_text, template, owner=None, summary='', name='', text=''):
+    def create_analysis(self, json_text, template, owner=None, summary='', name='', text='', usage=None):
         """
         Creates analysis from a spec and template
         """
         owner = owner or self.owner
         name = name or 'Analysis name'
         text = text or 'Analysis text'
+        usage = usage or defaults.USAGE
         analysis = Analysis.objects.create(project=self, summary=summary, json_text=json_text,
-                                           owner=owner, name=name, text=text,
-                                           template=template, )
+                                           owner=owner, name=name, text=text, usage=usage,
+                                           template=template )
+
+        logger.info(f"Created analysis id={analysis.id} of usage_type={dict(Analysis.USAGE_CHOICES)[analysis.usage]}")
         return analysis
 
-    def create_data(self,  stream=None, fname=None, name="data.bin", owner=None, text='', data_type=None):
+    def create_data(self,  stream=None, fname=None, name="data.bin", owner=None, text='', data_type=None, usage=None):
         """
         Creates a data for the project from filename or a stream.
         """
@@ -116,14 +129,17 @@ class Project(models.Model):
         owner = owner or self.owner
         text = text or "No description"
         data_type = data_type or GENERIC_TYPE
-        data = Data(name=name, owner=owner,
+        usage = usage or defaults.USAGE
+        data = Data(name=name, owner=owner, usage=usage,
                     text=text, project=self, data_type=data_type)
 
         # Need to save before uid gets triggered.
         data.save()
-
         # This saves the into the
         data.file.save(name, stream, save=True)
+
+        # Set the pending to ready after the file saves.
+        Data.objects.filter(id=data.id).update(state=Data.READY)
 
         # Updates its own size.
         data.set_size()
@@ -133,9 +149,16 @@ class Project(models.Model):
 
 
 class Data(models.Model):
-    FILE, COLLECTION = 1, 2
-    TYPE_CHOICES = [(FILE, "File"), (COLLECTION, "Collection")]
 
+    ADMIN, USER = 1, 2
+    FILE, COLLECTION = 1, 2
+    PENDING, READY = 1,2
+
+    TYPE_CHOICES = [(FILE, "File"), (COLLECTION, "Collection")]
+    USAGE_CHOICES = [(ADMIN, "Admin"), (USER, "User")]
+    STATE_CHOICES = [(PENDING, "Pending"), (READY, "Ready")]
+
+    usage = models.IntegerField(default=USER, choices=USAGE_CHOICES)
     name = models.CharField(max_length=256, default="no name")
     summary = models.TextField(default='no summary')
 
@@ -144,10 +167,12 @@ class Data(models.Model):
     html = models.TextField(default='html')
     date = models.DateTimeField(auto_now_add=True)
     type = models.IntegerField(default=FILE, choices=TYPE_CHOICES)
+
     data_type = models.IntegerField(default=GENERIC_TYPE)
     project = models.ForeignKey(Project)
     size = models.CharField(null=True, max_length=256)
 
+    state = models.IntegerField(default=PENDING, choices=STATE_CHOICES)
     file = models.FileField(null=True, upload_to=upload_path, max_length=500)
     uid = models.CharField(max_length=32)
 
@@ -162,6 +187,10 @@ class Data(models.Model):
         self.uid = self.uid or util.get_uuid(8)
         self.date = self.date or now
         self.html = make_html(self.text)
+
+        if not os.path.isdir(join(self.project.get_path(), f"data-{self.uid}")):
+            os.makedirs(join(self.project.get_path(), f"data-{self.uid}"))
+
         super(Data, self).save(*args, **kwargs)
 
     def peek(self):
@@ -193,7 +222,12 @@ class Data(models.Model):
         obj['value'] = self.id
         obj['name'] = self.name
 
+
 class Analysis(models.Model):
+
+    ADMIN, USER = 1, 2
+    USAGE_CHOICES = [(ADMIN, "admin"), (USER, "user")]
+    usage = models.IntegerField(default=USER, choices=USAGE_CHOICES)
 
     name = models.CharField(max_length=256, default="no name")
     summary = models.TextField(default='no summary')
@@ -232,13 +266,14 @@ class Analysis(models.Model):
         self.html = make_html(self.text)
         super(Analysis, self).save(*args, **kwargs)
 
-    def create_job(self, json_text='', json_data={}, owner=None, name=None, state=None):
+    def create_job(self, json_text='', json_data={}, owner=None, name=None, state=None, usage=None):
         """
         Creates a job from an analysis.
         """
         name = name or self.name
         state = state or Job.QUEUED
         owner = owner or self.project.owner
+        usage = usage or defaults.USAGE
 
         if json_data:
             json_text = hjson.dumps(json_data)
@@ -246,19 +281,22 @@ class Analysis(models.Model):
             json_text = json_text or self.json_text
 
         job = Job.objects.create(name=name, summary=self.summary, state=state, json_text=json_text,
-                                 project=self.project, analysis=self, owner=owner,
+                                 project=self.project, analysis=self, owner=owner, usage=usage,
                                  template=self.template)
+
         logger.info(f"Queued job: '{job.name}'")
         return job
 
 
 class Job(models.Model):
-    # file path to media
-    QUEUED, RUNNING, FINISHED, ERROR = 1, 2, 3, 4
 
+    ADMIN, USER = 1, 2
+    QUEUED, RUNNING, FINISHED, ERROR = 1, 2, 3, 4
+    USAGE_CHOICES = [(ADMIN, "admin"), (USER, "user")]
     STATE_CHOICES = [(QUEUED, "Queued"), (RUNNING, "Running"),
                      (FINISHED, "Finished"), (ERROR, "Error")]
 
+    usage = models.IntegerField(default=USER, choices=USAGE_CHOICES)
     name = models.CharField(max_length=256, default="no name")
     summary = models.TextField(default='no summary')
 
@@ -286,6 +324,7 @@ class Job(models.Model):
     state = models.IntegerField(default=1, choices=STATE_CHOICES)
 
     path = models.FilePathField(default="")
+    local = models.FilePathField(default="")
 
     def is_running(self):
         return self.state == Job.RUNNING
@@ -315,8 +354,11 @@ class Job(models.Model):
         if not os.path.isdir(self.path):
 
             path = join(settings.MEDIA_ROOT, "jobs", f"job-{self.uid}")
+            local = join(settings.LOCAL_ROOT, "jobs", f"job-{self.uid}")
 
             os.makedirs(path)
+            os.makedirs(local)
+
             self.path = path
 
         super(Job, self).save(*args, **kwargs)

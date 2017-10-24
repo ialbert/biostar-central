@@ -3,7 +3,9 @@ from .models import Data
 from engine.const import *
 
 
+
 def float_field(data):
+
     numrange = data.get("range", [1.0, 1000.0])
     min_value, max_value = numrange[0], numrange[1]
 
@@ -19,6 +21,7 @@ def float_field(data):
 
 
 def select_field(data, choicefunc=None):
+
     if choicefunc:
         choices = choicefunc() or []
     else:
@@ -30,6 +33,17 @@ def select_field(data, choicefunc=None):
 
     widget = forms.Select(choices=choices)
     field = forms.CharField(widget=widget, initial=initial, label=label, help_text=help_text)
+
+    return field
+
+
+def char_field(data):
+
+    initial = data.get("value", "")
+    label = data.get("label", "")
+    help_text = data.get("help", "")
+
+    field = forms.CharField(initial=initial, label=label, help_text=help_text)
 
     return field
 
@@ -48,6 +62,7 @@ def radioselect_field(obj):
 
 
 def number_field(data):
+
     numrange = data.get("range", [0, 1])
     min_value, max_value = min(numrange), max(numrange)
     label = data.get("label", "")
@@ -101,6 +116,7 @@ TYPE2FUNC = {
     RADIO: radioselect_field,
     DROPDOWN: select_field,
     INTEGER: number_field,
+    TEXTBOX: char_field,
     FLOAT: float_field,
     UPLOAD: file_field,
     CHECKBOX: checkbox_field,

@@ -1,6 +1,7 @@
 USER=www
 SERVER=metabarcode.com
 
+
 serve: init
 	python manage.py runserver
 
@@ -13,10 +14,10 @@ delete:
 	touch conf/main/main_secrets.py
 	touch conf/test/test_secrets.py
 	# Remove the database and old media.
-	rm -f export/engine.db
+	rm -f export/database/engine.db
 	rm -rf export/media/*
 
-reset:delete init jobs
+reset:delete init jobs adminjobs
 
 next:
 	python manage.py job --next
@@ -28,10 +29,15 @@ hello:
 	python manage.py analysis --add --json biostar/tools/hello/hello1.hjson  --template biostar/tools/hello/hello1.sh --create_job
 
 
+adminjobs:
+	python manage.py analysis --add --json  biostar/tools/admin/send_email.hjson --template  biostar/tools/admin/send_email.sh --analysis_usage admin  --create_job
+
+
 jobs:
+
 	python manage.py analysis --add --json biostar/tools/fastqc/fastqc.hjson  --template biostar/tools/fastqc/fastqc.sh --create_job
-	#python manage.py analysis --add --json biostar/tools/qc/qc.hjson  --template biostar/tools/qc/qc.sh --create_job
-	python manage.py analysis --add --json biostar/tools/classify/classify.hjson  --template biostar/tools/classify/classify.sh --create_job
+	python manage.py analysis --add --json biostar/tools/qc/qc.hjson  --template biostar/tools/qc/qc.sh --create_job
+	#python manage.py analysis --add --json biostar/tools/classify/classify.hjson  --template biostar/tools/classify/classify.sh --create_job
 	#python manage.py analysis --add --json biostar/tools/fastqc/fastqc.hjson  --template biostar/tools/fastqc/fastqc.sh --create_job
 
 init:

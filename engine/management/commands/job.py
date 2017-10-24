@@ -5,6 +5,8 @@ import subprocess, os, sys, json, hjson, logging
 from django.utils.text import force_text
 from django.conf import settings
 
+
+
 logger = logging.getLogger('engine')
 
 CURR_DIR = os.path.dirname(os.path.realpath(__file__))
@@ -24,12 +26,12 @@ def run(job, options={}):
     use_json = options.get('use_json')
     verbosity = options.get('verbosity', 0)
 
+
     # Defined in case we bail on errors before setting it.
     script = command = proc = None
 
     stdout_log = []
     stderr_log = []
-
     try:
         # Find the json and the template.
         json_data = hjson.loads(job.json_text)
@@ -146,7 +148,7 @@ def run(job, options={}):
     output_log = stdout_log + stderr_log
     job.log = "\n".join(output_log)
     job.save()
-    logger.info(f'job id={job.id} finished, status={job.get_state_display()}')
+    logger.info(f'job id={job.id} finished, status={job.get_state_display()}, usage={job.usage}.')
 
     # Use -v 2 to see the output of the command.
     if verbosity > 1:
@@ -196,6 +198,7 @@ class Command(BaseCommand):
         parser.add_argument('--queued',
                             action='store_true',
                             help="Show most recent 10 queued.")
+
 
 
     def handle(self, *args, **options):

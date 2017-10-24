@@ -13,6 +13,7 @@ from django.urls import reverse
 from engine.const import *
 from engine.views import breadcrumb_builder
 from django.contrib import auth
+from django.http import HttpResponseRedirect
 
 logger = logging.getLogger('engine')
 
@@ -100,9 +101,11 @@ def user_login(request):
                 form.add_error(None, "This email does not exist.")
             else:
                 user = authenticate(username=user.username, password=password)
+
                 login(request, user)
                 logger.info(f"logged in user.id={user.id}, user.email={user.email}")
                 messages.info(request, "Login successful!")
+
                 return redirect(reverse("index"))
 
     else:

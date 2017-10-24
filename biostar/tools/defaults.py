@@ -24,3 +24,6 @@ Each analysis also comes with data that is also deposited for the project.
 Investigate the data to understand the requirements.
 
 '''
+
+
+USAGE = 2

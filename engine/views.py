@@ -93,6 +93,8 @@ def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=Non
 def project_list(request):
 
     projects = Project.objects.order_by("-id")
+    if not request.user.is_superuser:
+        projects = projects.filter(usage=Project.USER).all()
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON])
 
@@ -167,6 +169,7 @@ def project_create(request):
 
 #@login_required
 def data_list(request, id):
+
     project = Project.objects.filter(id=id).first()
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON,  PROJECT_ICON, DATA_LIST_ICON],
                                project=project)
@@ -249,8 +252,14 @@ def analysis_list(request, id):
     """
     Returns the list of analyses for a project id.
     """
+    # filter according to user.
+
     project = Project.objects.filter(id=id).first()
     analysis = Analysis.objects.filter(project=project).order_by("-id")
+
+    if not request.user.is_superuser:
+        analysis = analysis.filter(usage=Analysis.USER).all()
+
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON,  PROJECT_ICON, ANALYSIS_LIST_ICON],
                                project=project)
     context = dict(project=project, analysis=analysis, steps=steps)
@@ -327,8 +336,7 @@ def preview_specs(spec, analysis):
 def process_analysis_edit(method, analysis, form):
 
     form_method_map = {'preview':form.preview,
-                       'save':form.save,
-                       'save_to_file': form.save_to_file}
+                       'save':form.save}
     spec = dict()
     if form.is_valid():
         form_method_map[method]()
@@ -341,6 +349,7 @@ def process_analysis_edit(method, analysis, form):
 def analysis_edit(request, id):
 
     analysis = Analysis.objects.filter(id=id).first()
+    # filter according to user
     project = analysis.project
     steps = breadcrumb_builder([PROJECT_ICON, ANALYSIS_LIST_ICON, ANALYSIS_ICON],
                                project=project, analysis=analysis)
@@ -363,11 +372,15 @@ def job_list(request, id):
     """
     Returns the list of jobs for a project id.
     """
+    # filter according to usage
     project = Project.objects.filter(id=id).first()
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, RESULT_LIST_ICON ],
                                project=project)
 
     jobs = project.job_set.order_by("-id")
+    if not request.user.is_superuser:
+        jobs = jobs.filter(usage=Job.USER).all()
+
     context = dict(jobs=jobs, steps=steps, project=project)
 
 
@@ -402,6 +415,7 @@ def job_file_view(request, id):
 def get_filecontext(root, url):
 
     files = []
+
     for file in os.listdir(root):
 
         fileinfo = OrderedDict()
@@ -417,17 +431,24 @@ def get_filecontext(root, url):
     return files
 
 
-def job_results_dir_view(request, jobdir):
+def job_dir_view(request, jobdir, extra=''):
 
     root = join(settings.MEDIA_ROOT, "jobs", jobdir)
     job = Job.objects.filter(path=root).first()
+    urlpath = request.path.split('/')
+    backurl = reverse('job_view', kwargs={'id': job.id})
+
+    if len(extra):
+        root = join(settings.MEDIA_ROOT, "jobs", jobdir, extra)
+        urlpath.remove(extra)
+        backurl = '/'.join(urlpath)
+
     project = job.project
-    results = join(root, "results")
+    rooturl = settings.MEDIA_URL + job.get_url(path=extra)
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, RESULT_LIST_ICON, RESULT_VIEW_ICON],
+                               job=job, project=project)
 
-    resultsurl = settings.MEDIA_URL + job.get_url(path="results/")
-    backurl = settings.MEDIA_URL + job.get_url()
-    files = get_filecontext(results, resultsurl)
-
+    files = get_filecontext(root, rooturl)
     if request.method == "POST":
 
         form = ExportData(data=request.POST, project=project)
@@ -438,20 +459,7 @@ def job_results_dir_view(request, jobdir):
     else:
         form = ExportData(project=project)
 
-    context = dict(files=files, job=job, back_url=backurl, form=form, project=project)
-    return render(request, "job_results_dir_view.html", context)
-
-
-def job_dir_view(request, jobdir):
-
-    root = join(settings.MEDIA_ROOT, "jobs", jobdir)
-    job = Job.objects.filter(path=root).first()
-    rooturl = settings.MEDIA_URL + job.get_url()
-
-    backurl = reverse('job_view', kwargs={'id':job.id})
-    files = get_filecontext(root, rooturl)
-
-    context = dict(files=files, job=job, back_url=backurl)
+    context = dict(files=files, job=job, back_url=backurl, form=form, steps=steps, project=project)
     return render(request, "job_dir_view.html", context)
 
 

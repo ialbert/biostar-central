@@ -1,8 +1,8 @@
 import os, sys, logging, hjson, textwrap
-from engine.models import Project, User, make_html
 from django.core.management.base import BaseCommand
+from engine.models import Job, Project, Analysis, User, Data
 from biostar.tools.const import DATA_TYPES
-
+from biostar.tools import defaults
 
 logger = logging.getLogger('engine')
 
@@ -24,6 +24,11 @@ class Command(BaseCommand):
         parser.add_argument('--create_job', action='store_true', default=False,
                             help="Also creates a queued job for the analysis")
 
+        # TODO: Impove the help for usage
+        parser.add_argument('--analysis_usage',
+                            help=f"Who this job/analysis meant for.",
+                            default=defaults.USAGE, choices=dict(Analysis.USAGE_CHOICES).values())
+
     def handle(self, *args, **options):
 
         add = options['add']
@@ -31,6 +36,8 @@ class Command(BaseCommand):
         pid = options['id']
         template = options['template']
         create_job = options['create_job']
+        usage_map = {y: x for x, y in dict(Analysis.USAGE_CHOICES).items()}
+        analysis_usage = usage_map.get(options['analysis_usage'], Analysis.USER)
 
         admin = User.objects.filter(is_staff=True).first()
         if not admin:
@@ -81,7 +88,7 @@ class Command(BaseCommand):
                 text = textwrap.dedent(text)
                 summary = json_data.get("settings", {}).get("summary", "No summary set")
                 analysis = project.create_analysis(json_text=json_text, summary=summary,
-                                                   template=template, name=name, text=text)
+                                                   template=template, name=name, text=text, usage=analysis_usage)
                 logger.info(f"Added analysis '{analysis.name}' to project id={project.id}")
 
                 # Also create a queued job:
@@ -95,7 +102,7 @@ class Command(BaseCommand):
                         if path:
                             data = project.create_data(fname=path, data_type=data_type)
                             data.fill_dict(value)
-                    analysis.create_job(json_data=json_data)
+                    analysis.create_job(json_data=json_data, usage=analysis_usage)
 
             except KeyError as exc:
                 logger.error(f"processing the analysis: {exc}")

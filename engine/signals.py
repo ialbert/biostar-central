@@ -41,7 +41,8 @@ def init_proj(sender, **kwargs):
             summary=defaults.PROJECT_SUMMARY,
             text=defaults.PROJECT_TEXT,
             owner=admin,
-            group=group
+            group=group,
+            usage=Project.USER
         )
         group.project_set.add(project)
 
