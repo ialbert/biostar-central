@@ -19,8 +19,6 @@ delete:
 
 reset:delete init jobs admin_projects
 
-adminreset:delete init admin_projects
-
 next:
 	python manage.py job --next
 
@@ -32,7 +30,7 @@ hello:
 
 admin_projects:
 	python manage.py project --add --analysis_usage admin --project_usage admin  --name "Copy data" --json  biostar/tools/admin/copy.hjson --template  biostar/tools/admin/copy.sh --create_job
-	python manage.py project --add --analysis_usage admin --project_usage admin --name  "Unpack data" -json biostar/tools/admin/unpack.hjson --template  biostar/tools/admin/unpack.sh --create_job
+	python manage.py project --add --analysis_usage admin --project_usage admin --name  "Unpack data" --json biostar/tools/admin/unpack.hjson --template  biostar/tools/admin/unpack.sh --create_job
 
 jobs:
 	python manage.py analysis --add --json biostar/tools/fastqc/fastqc.hjson  --template biostar/tools/fastqc/fastqc.sh --create_job

@@ -1,13 +1,16 @@
+import logging
 from django.core.management.base import BaseCommand
 from biostar.tools import defaults
 from engine.models import Project, Analysis, User
 from django.core import management
 
+logger = logging.getLogger('engine')
 
 def create(owner, name=defaults.PROJECT_NAME, summary=defaults.PROJECT_SUMMARY,
            add=False, json=None, template=None, create_job=False, usage=defaults.USAGE, analysis_usage=defaults.USAGE):
 
     project = Project.objects.create(owner=owner, name=name, summary=summary, usage=usage)
+    logger.info(f'Created project name={project.name}, id={project.id} with usage:{dict(project.USAGE_CHOICES)[usage]}')
     project.save()
 
     if add:

@@ -91,11 +91,10 @@ def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=Non
 
     return path
 
-
+#TODO: Replace with the manager thing. 
 def project_list(request):
 
     projects = Project.objects.order_by("-id")
-    print(projects)
     if not request.user.is_superuser:
         projects = projects.filter(usage=Project.USER).all()
 
