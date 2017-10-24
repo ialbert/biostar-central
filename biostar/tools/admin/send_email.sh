@@ -1,2 +1,4 @@
 
-python manage.py test_email
+
+pwd
+#python manage.py test_email {{email.value}}

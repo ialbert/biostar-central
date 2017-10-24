@@ -415,6 +415,7 @@ def job_file_view(request, id):
 def get_filecontext(root, url):
 
     files = []
+
     for file in os.listdir(root):
 
         fileinfo = OrderedDict()
@@ -430,16 +431,24 @@ def get_filecontext(root, url):
     return files
 
 
-def job_results_dir_view(request, jobdir):
+def job_dir_view(request, jobdir, extra=''):
 
     root = join(settings.MEDIA_ROOT, "jobs", jobdir)
     job = Job.objects.filter(path=root).first()
-    project = job.project
-    results = join(root, "results")
+    urlpath = request.path.split('/')
+    backurl = reverse('job_view', kwargs={'id': job.id})
 
-    resultsurl = settings.MEDIA_URL + job.get_url(path="results/")
-    backurl = settings.MEDIA_URL + job.get_url()
-    files = get_filecontext(results, resultsurl)
+    if len(extra):
+        root = join(settings.MEDIA_ROOT, "jobs", jobdir, extra)
+        urlpath.remove(extra)
+        backurl = '/'.join(urlpath)
+
+    project = job.project
+    rooturl = settings.MEDIA_URL + job.get_url(path=extra)
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, RESULT_LIST_ICON, RESULT_VIEW_ICON],
+                               job=job, project=project)
+    print(extra, job.get_url(path=extra),"SSS" )
+    files = get_filecontext(root, rooturl)
 
     if request.method == "POST":
 
@@ -451,20 +460,7 @@ def job_results_dir_view(request, jobdir):
     else:
         form = ExportData(project=project)
 
-    context = dict(files=files, job=job, back_url=backurl, form=form, project=project)
-    return render(request, "job_results_dir_view.html", context)
-
-
-def job_dir_view(request, jobdir):
-
-    root = join(settings.MEDIA_ROOT, "jobs", jobdir)
-    job = Job.objects.filter(path=root).first()
-    rooturl = settings.MEDIA_URL + job.get_url()
-
-    backurl = reverse('job_view', kwargs={'id':job.id})
-    files = get_filecontext(root, rooturl)
-
-    context = dict(files=files, job=job, back_url=backurl)
+    context = dict(files=files, job=job, back_url=backurl, form=form, steps=steps, project=project)
     return render(request, "job_dir_view.html", context)
 
 

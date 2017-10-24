@@ -101,6 +101,7 @@ def user_login(request):
                 form.add_error(None, "This email does not exist.")
             else:
                 user = authenticate(username=user.username, password=password)
+
                 login(request, user)
                 logger.info(f"logged in user.id={user.id}, user.email={user.email}")
                 messages.info(request, "Login successful!")
