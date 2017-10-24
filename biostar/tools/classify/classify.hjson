@@ -42,37 +42,16 @@ It produces a classification table with species abundance.
 # Help
 
 This analysis assigns taxonomic labels to sequence data using a custom database.
-The input data should be in fastq format.
 
-A multifasta file of sequences can be used as custom database.
-A tab-separated file mapping sequence IDs to taxonomy IDs should also be provided. Sequence IDs should match the fasta
-header.
+The input data should be in fastq format. Accessions of sequence to be used as reference should also be provided.
 
-seq.fa:
-
->Seq1
-AAAACGTACGA.....
-
->Seq2
-AAAACGTACGA.....
-
->Seq3
-AAAACGTACGA.....
-
-map.txt:
-
-Seq1    11
-
-Seq2    12
-
-Seq3    13
-
+This analysis obtains fasta sequences of accessions, creates centrifuge indices and performs classification
+of input data using this custom database.
 
 # Parameters
 
 1. Input data in fastq format.
-2. Custom reference sequence in fasta format.
-3. Tab delimited accession map table (See help for details).
+2. Accession list of sequences to be used as reference.
 
 # Results
 
