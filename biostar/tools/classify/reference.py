@@ -5,40 +5,64 @@
 
 
 import sys,os
+import argparse
 from Bio import Entrez
 from Bio import SeqIO
 
 
-def get_fasta(accessions):
+def accession_details(accessions):
     """
-    Takes accession list as input and produce a multifasta reference file and accession-taxid table.
+    Takes accessions as a list and produce a multifasta reference file and accession-taxid table.
     Input : accession list
     outputs: sequence.fa, acc2taxa.txt
     """
-    # create a dictionary of list where 1st element is sequence and second element is taxid.
-    genome_info = dict()
+    # create a dictionary of list of the form
+    #d = { 'acc' : [species_name, sequence, taxon_id] }
+
+    accession_info = dict()
     Entrez.email = "name@abc.com"
     for accession in accessions:
-        print (f'working with {accession}')
+        accession = accession.strip()
         try:
             with Entrez.efetch(db="nucleotide", rettype="fasta", retmode="fasta", id=accession) as handle:
                 seq_record = SeqIO.read(handle, "fasta")
                 species_name = ' '.join([seq_record.description.split()[1],seq_record.description.split()[2]])
-                taxon_id = os.popen("echo {0} | taxonkit name2taxid".format(species_name)).read().split('\t')[1]
-                genome_info[accession]=[seq_record.seq,taxon_id.strip()]
-        except Exception:
-            print(f'{accession} gave error.{accession} dicarded.')
+                accession_info[accession]=[species_name,seq_record.seq]
 
-        for key, val in genome_info.items():
-            id = key
-            seq = genome_info[key][0]
-            taxid = genome_info[key][1]
-            print(id, taxid)
+        except Exception:
+            print(f'{accession} gave error.{accession} discarded.')
+
+    if args.sequence:
+        for k, v in accession_info.items():
+            header = ">" + k
+            seq = accession_info[k][1]
+            print(header)
+            print(seq)
+
+    if args.taxid:
+        for k, v in accession_info.items():
+            species = accession_info[k][0]
+            taxon_id = os.popen("echo {0} | taxonkit name2taxid".format(species)).read().split('\t')[1]
+            accession_info[k].append(taxon_id.strip())
+        for k, v in accession_info.items():
+            taxon_id = accession_info[k][2]
+            out = "\t".join([k,taxon_id])
+            print(out)
 
     return
 
 
 if __name__ =="__main__":
-    #accessions = sys.argv[1]
-    accessions=['AP013046','JN024756','NC_0008600000']
-    get_fasta(accessions)
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument("--ids", help="File with accessions.")
+    parser.add_argument("--taxid", action='store_true',help="Print accession - taxid table.")
+    parser.add_argument("--sequence", action='store_true', help="Print fasta sequences of accessions.")
+    args = parser.parse_args()
+
+    if not args.ids:
+        print("This requires a file with accessions")
+
+    if args.ids:
+        accession_list = open(args.ids).readlines()
+        accession_details(accession_list)

@@ -1,15 +1,26 @@
 {
 
 data : {
-    path: "export/local/1-SarriPal_S9_L001_R1_001.fastq.gz"
+    path: "export/local/lamar_data/1-SarriPal_S9_L001_R1_001.fastq.gz"
+    label: Data.
     visible: true
     origin: PROJECT
     data_type: FASTQ_TYPE
     display_type: DROPDOWN
   }
 
+accessions : {
+    path: "export/local/lamar_data/accession_list.txt"
+    label: Accession list.
+    visible: true
+    origin: PROJECT
+    data_type: ACCESSION_LIST
+    display_type: DROPDOWN
+    }
+
+/*
 reference : {
-    path: "export/local/lamar_fishes_16S.fa"
+    path: "export/local/lamar_data/lamar_fishes_16S.fa"
     label: Reference
     data_type: REFERENCE_TYPE
     visible: true
@@ -18,13 +29,15 @@ reference : {
 }
 
 taxamap : {
-    path : "export/local/fish_accession_map.txt"
+    path : "export/local/lamar_data/fish_accession_map.txt"
     label : Accession-taxid map
     data_type: ACCESSION_MAP
     visible: true
     display_type: DROPDOWN
     origin: PROJECT
 }
+
+*/
 
 taxonomy : {
     dirname: taxonomy
