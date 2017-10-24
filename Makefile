@@ -42,7 +42,6 @@ init:
 	python manage.py collectstatic --noinput -v 0
 	python manage.py migrate
 
-
 test:
 	python manage.py test
 
