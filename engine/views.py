@@ -81,6 +81,8 @@ def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=Non
             step = (reverse("info"), INFO_ICON, "Information", is_active)
         elif icon == SIGNUP_ICON:
             step = (reverse("signup"), SIGNUP_ICON, "Sign up", is_active)
+        elif icon == RESULT_INDEX_ICON:
+            step = (reverse("job_view", kwargs={'id': job.id}), RESULT_INDEX_ICON, "Index View", is_active)
 
         else:
             continue
@@ -445,7 +447,7 @@ def job_dir_view(request, jobdir, extra=''):
 
     project = job.project
     rooturl = settings.MEDIA_URL + job.get_url(path=extra)
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, RESULT_LIST_ICON, RESULT_VIEW_ICON],
+    steps = breadcrumb_builder([PROJECT_LIST_ICON, PROJECT_ICON, RESULT_LIST_ICON, RESULT_VIEW_ICON, RESULT_INDEX_ICON],
                                job=job, project=project)
 
     files = get_filecontext(root, rooturl)
