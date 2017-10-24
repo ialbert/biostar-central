@@ -44,7 +44,6 @@ class Command(BaseCommand):
         usage_map = lambda dictionary: {y: x for x, y in dictionary.items()}
 
         analysis_usage = usage_map(dict(Analysis.USAGE_CHOICES)).get(options['analysis_usage'], Analysis.USER)
-        project_usage = usage_map(dict(Project.USAGE_CHOICES)).get(options['analysis_usage'], Project.USER)
 
         admin = User.objects.filter(is_staff=True).first()
         if not admin:
@@ -62,7 +61,6 @@ class Command(BaseCommand):
                 return
 
             project = Project.objects.filter(id=pid).first()
-            Project.objects.filter(id=pid).update(usage=project_usage)
 
             if not project:
                 logger.error(f'No project with id={pid}')

@@ -12,7 +12,7 @@ email : {
 # Analysis settings.
 #
 settings : {
-    name: Send emails to users
+    name: unpack a file
     summary: A script that takes send an emial to specified adress
     index: test.txt
     help: '''
