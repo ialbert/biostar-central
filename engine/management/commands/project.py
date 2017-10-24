@@ -1,9 +1,15 @@
 from django.core.management.base import BaseCommand
 from biostar.tools import defaults
 from engine.models import Project, User
+from django.core import management
 
-def create(owner, name='', summary='', add=False, json='', template='', create_job=False, usage=defaults.USAGE):
+def create(owner, name=defaults.PROJECT_NAME, summary=defaults.PROJECT_SUMMARY,
+           add=False, json=None, template=None, create_job=False, usage=defaults.USAGE):
 
+    if add:
+        assert json and template
+
+    management.call_command('analysis', next=True, create_job=create_job)
     pass
 
 
@@ -62,9 +68,9 @@ class Command(BaseCommand):
         usage_map = lambda dictionary: {y: x for x, y in dictionary.items()}
         project_usage = usage_map(dict(Project.USAGE_CHOICES)).get(usage, Project.USER)
 
+        if add:
+            assert json and template
+
+        create(owner, name, summary, add, json, template, create_job, project_usage)
 
 
-        create()
-        print(project_usage, "SSSSS")
-
-        Project.objects.filter(id=pid).update(usage=project_usage)
