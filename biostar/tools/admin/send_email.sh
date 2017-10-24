@@ -1,2 +1,2 @@
 
-python manage.py
+python manage.py test_email

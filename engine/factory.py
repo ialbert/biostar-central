@@ -37,6 +37,17 @@ def select_field(data, choicefunc=None):
     return field
 
 
+def char_field(data):
+
+    initial = data.get("value", "")
+    label = data.get("label", "")
+    help_text = data.get("help", "")
+
+    field = forms.CharField(initial=initial, label=label, help_text=help_text)
+
+    return field
+
+
 def radioselect_field(obj):
 
     choices = obj.get("choices", [])
@@ -105,6 +116,7 @@ TYPE2FUNC = {
     RADIO: radioselect_field,
     DROPDOWN: select_field,
     INTEGER: number_field,
+    CHAR: char_field,
     FLOAT: float_field,
     UPLOAD: file_field,
     CHECKBOX: checkbox_field,

@@ -105,7 +105,7 @@ def user_login(request):
                 logger.info(f"logged in user.id={user.id}, user.email={user.email}")
                 messages.info(request, "Login successful!")
 
-                return HttpResponseRedirect(request.GET.get('next', reverse("index")))
+                return redirect(reverse("index"))
 
     else:
         initial = dict(nexturl=request.GET.get('next', '/'))

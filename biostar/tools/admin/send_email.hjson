@@ -1,10 +1,11 @@
 #
 # Requires a data parameter.
 #
-foo : {
-    path: export/local/data.tar.gz
+email : {
+    value:testemail@lvh.me
     visible: true
-    display_type: DROPDOWN
+    display_type: CHAR
+    label: Enter the email to send message to
   }
 
 #
