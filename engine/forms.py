@@ -104,6 +104,7 @@ def make_form_field(data, project):
         data_type = data.get("data_type")
         field = factory.data_generator(data, project=project, data_type=data_type)
 
+    # not project specific data
     elif origin == ALL_ORIGIN:
         data_type = data.get("data_type")
         field = factory.data_generator(data, data_type=data_type)
@@ -187,6 +188,7 @@ class RunAnalysis(forms.Form):
         '''
 
         # Gets all data for the project
+
         datamap = self.project.get_data()
         json_data = self.json_data.copy()
 
@@ -195,14 +197,15 @@ class RunAnalysis(forms.Form):
             if not obj.get(FIELD_VISIBLE):
                 continue
 
-            # If it has a path it is an uploaded file.
-            if obj.get("path") and obj.get("origin")== PROJECT_ORIGIN:
+            data_id = self.cleaned_data.get(field, '')
+            data_id = int(data_id)
 
-                data_id = self.cleaned_data.get(field, '')
-                data_id = int(data_id)
-                data = datamap.get(data_id)
-                data.fill_dict(obj)
-                continue
+            # If it has a path it is an uploaded file.
+            if obj.get("path") and obj.get("origin")== ALL_ORIGIN:
+                datamap = dict((obj.id, obj) for obj in Data.objects.all())
+
+            data = datamap.get(data_id)
+            data.fill_dict(obj)
 
             # check the origin here and give all the data if given origin all.
             if field in self.cleaned_data:

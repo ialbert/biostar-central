@@ -8,7 +8,7 @@ import os
 logger = logging.getLogger("engine")
 
 
-def get_data(user, project, data_type, query):
+def get_data(user, project, query, data_type=None):
     """
     Returns a dictionary keyed by data stored in the project.
     """

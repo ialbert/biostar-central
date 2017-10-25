@@ -1,8 +1,10 @@
 #
 # Requires a data parameter.
 #
-Unpack : {
-    path: "export/local/lamar_data/1-SarriPal_S9_L001_R1_001.fastq.gz"
+unpack : {
+    # Don't really have one
+    path:data.tar.gz
+    visible :true
     origin: ALL
     data_type: TAR_FASTQ_GZ
     display_type: DROPDOWN
