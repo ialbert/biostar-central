@@ -8,6 +8,9 @@ serve: init
 uwsgi: init
 	uwsgi  --ini conf/devel/devel_uwsgi.ini
 
+testdata:
+	cd export/local
+	make testdata
 
 delete:
 	# Ensure the files that could hold secrets exist.
@@ -17,7 +20,7 @@ delete:
 	rm -f export/database/engine.db
 	rm -rf export/media/*
 
-reset:delete init jobs admin_projects
+reset:delete init admin_projects jobs
 
 next:
 	python manage.py job --next
@@ -28,14 +31,18 @@ hello:
 	python manage.py analysis --add --json biostar/tools/hello/hello2.hjson  --template biostar/tools/hello/hello2.sh --create_job
 	python manage.py analysis --add --json biostar/tools/hello/hello1.hjson  --template biostar/tools/hello/hello1.sh --create_job
 
+
 admin_projects:
-	python manage.py project --add --analysis_usage admin --project_usage admin  --name "Copy data" --json  biostar/tools/admin/copy.hjson --template  biostar/tools/admin/copy.sh --create_job
-	python manage.py project --add --analysis_usage admin --project_usage admin --name  "Unpack data" --json biostar/tools/admin/unpack.hjson --template  biostar/tools/admin/unpack.sh --create_job
+	# creates the admin copy job as the job is created.
+	python manage.py project --add --analysis_type admin --project_type admin --name "Admin projects" --json  biostar/tools/admin/copy.hjson --template  biostar/tools/admin/copy.sh --create_job
+
 
 jobs:
 	python manage.py analysis --add --json biostar/tools/fastqc/fastqc.hjson  --template biostar/tools/fastqc/fastqc.sh --create_job
 	python manage.py analysis --add --json biostar/tools/qc/qc.hjson  --template biostar/tools/qc/qc.sh --create_job
 	python manage.py analysis --add --json biostar/tools/classify/classify.hjson  --template biostar/tools/classify/classify.sh --create_job
+	    python manage.py analysis --add --analysis_type admin --id 2  --json biostar/tools/admin/unpack.hjson --template  biostar/tools/admin/unpack.sh --create_job
+
 	#python manage.py analysis --add --json biostar/tools/fastqc/fastqc.hjson  --template biostar/tools/fastqc/fastqc.sh --create_job
 
 init:

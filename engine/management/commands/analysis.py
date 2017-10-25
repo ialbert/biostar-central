@@ -24,8 +24,8 @@ class Command(BaseCommand):
         parser.add_argument('--create_job', action='store_true', default=False,
                             help="Also creates a queued job for the analysis")
 
-        # TODO: Impove the help for usage
-        parser.add_argument('--analysis_usage',
+        # TODO: Impove the help for type
+        parser.add_argument('--analysis_type',
                             help=f"Who this job/analysis meant for.",
                             default=defaults.USAGE, choices=dict(Analysis.USAGE_CHOICES).values())
 
@@ -37,9 +37,9 @@ class Command(BaseCommand):
         template = options['template']
         create_job = options['create_job']
 
-        usage_map = lambda dictionary: {y: x for x, y in dictionary.items()}
+        type_map = lambda dictionary: {y: x for x, y in dictionary.items()}
 
-        analysis_usage = usage_map(dict(Analysis.USAGE_CHOICES)).get(options['analysis_usage'], Analysis.USER)
+        analysis_type = type_map(dict(Analysis.USAGE_CHOICES)).get(options['analysis_type'], Analysis.USER)
 
         admin = User.objects.filter(is_staff=True).first()
         if not admin:
@@ -91,7 +91,7 @@ class Command(BaseCommand):
                 text = textwrap.dedent(text)
                 summary = json_data.get("settings", {}).get("summary", "No summary")
                 analysis = project.create_analysis(json_text=json_text, summary=summary,
-                                                   template=template, name=name, text=text, usage=analysis_usage)
+                                                   template=template, name=name, text=text, type=analysis_type)
                 logger.info(f"Added analysis '{analysis.name}' to project id={project.id}")
 
                 # Also create a queued job:
@@ -102,10 +102,11 @@ class Command(BaseCommand):
                         path = value.get("path")
                         data_type = value.get("data_type")
                         data_type = DATA_TYPES.get(data_type)
+
                         if path:
                             data = project.create_data(fname=path, data_type=data_type)
                             data.fill_dict(value)
-                    analysis.create_job(json_data=json_data, usage=analysis_usage)
+                    analysis.create_job(json_data=json_data, type=analysis_type)
 
             except KeyError as exc:
                 logger.error(f"processing the analysis: {exc}")

@@ -96,7 +96,7 @@ def project_list(request):
 
     projects = Project.objects.order_by("-id")
     if not request.user.is_superuser:
-        projects = projects.filter(usage=Project.USER).all()
+        projects = projects.filter(type=Project.USER).all()
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON])
 
@@ -260,7 +260,7 @@ def analysis_list(request, id):
     analysis = Analysis.objects.filter(project=project).order_by("-id")
 
     if not request.user.is_superuser:
-        analysis = analysis.filter(usage=Analysis.USER).all()
+        analysis = analysis.filter(type=Analysis.USER).all()
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON,  PROJECT_ICON, ANALYSIS_LIST_ICON],
                                project=project)
@@ -307,8 +307,7 @@ def analysis_run(request, id):
             json_text = hjson.dumps(filled_json)
             job = analysis.create_job(owner=analysis.owner, json_text=json_text, name=name)
             logger.info(tasks.HAS_UWSGI)
-            print(hjson.dumps(filled_json, indent=4))
-            1/0
+
             if tasks.HAS_UWSGI:
 
                 jobid = (job.id).to_bytes(5, byteorder='big')
@@ -375,14 +374,14 @@ def job_list(request, id):
     """
     Returns the list of jobs for a project id.
     """
-    # filter according to usage
+    # filter according to type
     project = Project.objects.filter(id=id).first()
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, RESULT_LIST_ICON ],
                                project=project)
 
     jobs = project.job_set.order_by("-id")
     if not request.user.is_superuser:
-        jobs = jobs.filter(usage=Job.USER).all()
+        jobs = jobs.filter(type=Job.USER).all()
 
     context = dict(jobs=jobs, steps=steps, project=project)
 

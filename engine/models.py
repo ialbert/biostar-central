@@ -34,7 +34,7 @@ def get_datatype(file):
     return Data.FILE
 
 
-def filter_by_usage():
+def filter_by_type():
     return
 
 
@@ -52,7 +52,7 @@ class Project(models.Model):
 
     ADMIN, USER = 1, 2
     USAGE_CHOICES = [(ADMIN, "admin"), (USER, "user")]
-    usage = models.IntegerField(default=USER, choices=USAGE_CHOICES)
+    type = models.IntegerField(default=USER, choices=USAGE_CHOICES)
 
     name = models.CharField(max_length=256, default="no name")
     summary = models.TextField(default='no summary')
@@ -100,20 +100,20 @@ class Project(models.Model):
 
         return auth.get_data(user=self.owner, project=self, data_type=data_type, query=Data.objects.filter(project=self))
 
-    def create_analysis(self, json_text, template, owner=None, summary='', name='', text='', usage=None):
+    def create_analysis(self, json_text, template, owner=None, summary='', name='', text='', type=None):
         """
         Creates analysis from a spec and template
         """
-        analysis = auth.create_analysis(owner, self, Analysis, json_text, template, summary, name, text, usage)
-        logger.info(f"Created analysis id={analysis.id} of usage_type={dict(Analysis.USAGE_CHOICES)[analysis.usage]}")
+        analysis = auth.create_analysis(owner, self, Analysis, json_text, template, summary, name, text, type)
+        logger.info(f"Created analysis id={analysis.id} of type_type={dict(Analysis.USAGE_CHOICES)[analysis.type]}")
         return analysis
 
-    def create_data(self,  stream=None, fname=None, name="data.bin", owner=None, text='', data_type=None, usage=None):
+    def create_data(self,  stream=None, fname=None, name="data.bin", owner=None, text='', data_type=None, type=None):
         """
         Creates a data for the project from filename or a stream.
         """
 
-        data = auth.create_data(owner, Data, self, stream, fname, name, text, data_type, usage)
+        data = auth.create_data(owner, Data, self, stream, fname, name, text, data_type, type)
 
         logger.info(f"Added data id={data.id} of type={data.data_type}")
         return data
@@ -129,7 +129,7 @@ class Data(models.Model):
     USAGE_CHOICES = [(ADMIN, "Admin"), (USER, "User")]
     STATE_CHOICES = [(PENDING, "Pending"), (READY, "Ready")]
 
-    usage = models.IntegerField(default=USER, choices=USAGE_CHOICES)
+    type = models.IntegerField(default=USER, choices=USAGE_CHOICES)
     name = models.CharField(max_length=256, default="no name")
     summary = models.TextField(default='no summary')
 
@@ -137,7 +137,7 @@ class Data(models.Model):
     text = models.TextField(default='no description', max_length=MAX_TEXT_LEN)
     html = models.TextField(default='html')
     date = models.DateTimeField(auto_now_add=True)
-    type = models.IntegerField(default=FILE, choices=TYPE_CHOICES)
+    file_type = models.IntegerField(default=FILE, choices=TYPE_CHOICES)
 
     data_type = models.IntegerField(default=GENERIC_TYPE)
     project = models.ForeignKey(Project)
@@ -198,7 +198,7 @@ class Analysis(models.Model):
 
     ADMIN, USER = 1, 2
     USAGE_CHOICES = [(ADMIN, "admin"), (USER, "user")]
-    usage = models.IntegerField(default=USER, choices=USAGE_CHOICES)
+    type = models.IntegerField(default=USER, choices=USAGE_CHOICES)
 
     name = models.CharField(max_length=256, default="no name")
     summary = models.TextField(default='no summary')
@@ -237,11 +237,11 @@ class Analysis(models.Model):
         self.html = make_html(self.text)
         super(Analysis, self).save(*args, **kwargs)
 
-    def create_job(self, json_text='', json_data={}, owner=None, name=None, state=None, usage=None):
+    def create_job(self, json_text='', json_data={}, owner=None, name=None, state=None, type=None):
         """
         Creates a job from an analysis.
         """
-        job = auth.create_job(owner, self, Job , self.project, json_text, json_data, name, state, usage)
+        job = auth.create_job(owner, self, Job , self.project, json_text, json_data, name, state, type)
         logger.info(f"Queued job: '{job.name}'")
         return job
 
@@ -254,7 +254,7 @@ class Job(models.Model):
     STATE_CHOICES = [(QUEUED, "Queued"), (RUNNING, "Running"),
                      (FINISHED, "Finished"), (ERROR, "Error")]
 
-    usage = models.IntegerField(default=USER, choices=USAGE_CHOICES)
+    type = models.IntegerField(default=USER, choices=USAGE_CHOICES)
     name = models.CharField(max_length=256, default="no name")
     summary = models.TextField(default='no summary')
 

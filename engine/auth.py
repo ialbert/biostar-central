@@ -28,15 +28,15 @@ def create_project(user, project_model):
     pass
 
 
-def create_analysis(user, project, analysis_model, json_text, template, summary='', name='', text='', usage=None):
+def create_analysis(user, project, analysis_model, json_text, template, summary='', name='', text='', type=None):
 
     owner = user or project.owner
     name = name or 'Analysis name'
     text = text or 'Analysis text'
-    usage = usage or defaults.USAGE
+    type = type or defaults.USAGE
 
     analysis = analysis_model.objects.create(project=project, summary=summary, json_text=json_text,
-                                       owner=owner, name=name, text=text, usage=usage,
+                                       owner=owner, name=name, text=text, type=type,
                                        template=template)
     return analysis
 
@@ -46,7 +46,7 @@ def edit_analysis():
 
 
 
-def create_data(user, data_model, project, stream=None, fname=None, name="data.bin", text='', data_type=None, usage=None):
+def create_data(user, data_model, project, stream=None, fname=None, name="data.bin", text='', data_type=None, type=None):
 
     if fname:
         stream = File(open(fname, 'rb'))
@@ -55,8 +55,8 @@ def create_data(user, data_model, project, stream=None, fname=None, name="data.b
     owner = user or project.owner
     text = text or "No description"
     data_type = data_type or GENERIC_TYPE
-    usage = usage or defaults.USAGE
-    data = data_model(name=name, owner=owner, usage=usage,
+    type = type or defaults.USAGE
+    data = data_model(name=name, owner=owner, type=type,
                 text=text, project=project, data_type=data_type)
 
     # Need to save before uid gets triggered.
@@ -76,12 +76,12 @@ def edit_data():
     return
 
 
-def create_job(user, analysis, job_model,project=None, json_text='', json_data={}, name=None, state=None, usage=None):
+def create_job(user, analysis, job_model,project=None, json_text='', json_data={}, name=None, state=None, type=None):
 
     name = name or analysis.name
     state = state or job_model.QUEUED
     owner = user or analysis.project.owner
-    usage = usage or defaults.USAGE
+    type = type or defaults.USAGE
     project = project or analysis.project
 
     if json_data:
@@ -90,7 +90,7 @@ def create_job(user, analysis, job_model,project=None, json_text='', json_data={
         json_text = json_text or analysis.json_text
 
     job = job_model.objects.create(name=name, summary=analysis.summary, state=state, json_text=json_text,
-                             project=project, analysis=analysis, owner=owner, usage=usage,
+                             project=project, analysis=analysis, owner=owner, type=type,
                              template=analysis.template)
     return job
 
