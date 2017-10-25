@@ -2,7 +2,7 @@
 # Requires a data parameter.
 #
 copy_from : {
-    path: ""
+    path: export/local/lamar_data/data.tar.gz
     visible: true
     origin: ALL
     data_type: GENERIC_TYPE
@@ -10,7 +10,7 @@ copy_from : {
   }
 
 copy_to : {
-    path: ""
+    path: export/local/lamar_data/data.tar.gz
     visible: true
     origin: ALL
     data_type: GENERIC_TYPE
