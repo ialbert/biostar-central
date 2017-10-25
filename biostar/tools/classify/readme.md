@@ -11,7 +11,7 @@ Commands that should be executed before running classification.
 
 ### Centrifuge specific installation.
 
-    make classify.
+    make classify
 
 
 ### Custom fish genome.
