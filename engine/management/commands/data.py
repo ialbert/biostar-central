@@ -14,6 +14,7 @@ def copy(fname1, fname2):
     copy_to = Data.objects.filter(path=fname2).first()
 
     if copy_from and copy_to:
+        # make sure the data is "Ready"
         shutil.copyfile(fname1, fname2)
         logger.info(f"copied contents of {fname1} to {fname2}")
 
@@ -30,6 +31,8 @@ def add(fname, project_id):
 
 def unpack(fname):
     # Check if tar or gz then unpack it on the same dir
+
+    # make sure
     pass
 
 
@@ -55,6 +58,7 @@ class Command(BaseCommand):
                             help="File to add or copt to.")
 
     def handle(self, *args, **options):
+
         fname1 = options.get("fname1")
         fname2 = options.get("fname2")
         pid = options.get("pid")

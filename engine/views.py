@@ -240,6 +240,7 @@ def data_upload(request, id):
             data_type = get_datatype(name)
             project.create_data(stream=stream, name=name, data_type=data_type, text=text,
                                 owner=owner)
+            form.save()
             return redirect(reverse("data_list", kwargs={'id':project.id}))
 
         else:
@@ -293,6 +294,7 @@ def analysis_view(request, id):
 @login_required
 def analysis_run(request, id):
     analysis = Analysis.objects.filter(id=id).first()
+
     project = analysis.project
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON,  ANALYSIS_ICON],
@@ -307,7 +309,8 @@ def analysis_run(request, id):
             json_text = hjson.dumps(filled_json)
             job = analysis.create_job(owner=analysis.owner, json_text=json_text, name=name)
             logger.info(tasks.HAS_UWSGI)
-
+            print(hjson.dumps(filled_json, indent=4))
+            #1/0
             if tasks.HAS_UWSGI:
 
                 jobid = (job.id).to_bytes(5, byteorder='big')

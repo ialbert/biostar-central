@@ -51,8 +51,8 @@ def upload_path(instance, filename):
 class Project(models.Model):
 
     ADMIN, USER = 1, 2
-    USAGE_CHOICES = [(ADMIN, "admin"), (USER, "user")]
-    type = models.IntegerField(default=USER, choices=USAGE_CHOICES)
+    TYPE_CHOICES = [(ADMIN, "admin"), (USER, "user")]
+    type = models.IntegerField(default=USER, choices=TYPE_CHOICES)
 
     name = models.CharField(max_length=256, default="no name")
     summary = models.TextField(default='no summary')
@@ -105,7 +105,7 @@ class Project(models.Model):
         Creates analysis from a spec and template
         """
         analysis = auth.create_analysis(owner, self, Analysis, json_text, template, summary, name, text, type)
-        logger.info(f"Created analysis id={analysis.id} of type_type={dict(Analysis.USAGE_CHOICES)[analysis.type]}")
+        logger.info(f"Created analysis id={analysis.id} of type_type={dict(Analysis.TYPE_CHOICES)[analysis.type]}")
         return analysis
 
     def create_data(self,  stream=None, fname=None, name="data.bin", owner=None, text='', data_type=None, type=None):
@@ -125,11 +125,12 @@ class Data(models.Model):
     FILE, COLLECTION = 1, 2
     PENDING, READY = 1,2
 
-    TYPE_CHOICES = [(FILE, "File"), (COLLECTION, "Collection")]
-    USAGE_CHOICES = [(ADMIN, "Admin"), (USER, "User")]
+    FILETYPE_CHOICES = [(FILE, "File"), (COLLECTION, "Collection")]
+    TYPE_CHOICES = [(ADMIN, "Admin"), (USER, "User")]
+
     STATE_CHOICES = [(PENDING, "Pending"), (READY, "Ready")]
 
-    type = models.IntegerField(default=USER, choices=USAGE_CHOICES)
+    type = models.IntegerField(default=USER, choices=TYPE_CHOICES)
     name = models.CharField(max_length=256, default="no name")
     summary = models.TextField(default='no summary')
 
@@ -137,7 +138,7 @@ class Data(models.Model):
     text = models.TextField(default='no description', max_length=MAX_TEXT_LEN)
     html = models.TextField(default='html')
     date = models.DateTimeField(auto_now_add=True)
-    file_type = models.IntegerField(default=FILE, choices=TYPE_CHOICES)
+    file_type = models.IntegerField(default=FILE, choices=FILETYPE_CHOICES)
 
     data_type = models.IntegerField(default=GENERIC_TYPE)
     project = models.ForeignKey(Project)
@@ -179,6 +180,11 @@ class Data(models.Model):
         except:
             size = 0
         Data.objects.filter(id=self.id).update(size=size)
+    
+    def ready_state(self):
+
+        Data.objects.filter(id=self.id).update(state=self.READY)
+
     def __str__(self):
         return self.name
 
@@ -189,6 +195,8 @@ class Data(models.Model):
         """
         Mutates a dictionary to add more information.
         """
+
+        # This is where the path is filled.
         obj['path'] = self.get_path()
         obj['value'] = self.id
         obj['name'] = self.name
@@ -197,8 +205,8 @@ class Data(models.Model):
 class Analysis(models.Model):
 
     ADMIN, USER = 1, 2
-    USAGE_CHOICES = [(ADMIN, "admin"), (USER, "user")]
-    type = models.IntegerField(default=USER, choices=USAGE_CHOICES)
+    TYPE_CHOICES = [(ADMIN, "admin"), (USER, "user")]
+    type = models.IntegerField(default=USER, choices=TYPE_CHOICES)
 
     name = models.CharField(max_length=256, default="no name")
     summary = models.TextField(default='no summary')
@@ -250,11 +258,11 @@ class Job(models.Model):
 
     ADMIN, USER = 1, 2
     QUEUED, RUNNING, FINISHED, ERROR = 1, 2, 3, 4
-    USAGE_CHOICES = [(ADMIN, "admin"), (USER, "user")]
+    TYPE_CHOICES = [(ADMIN, "admin"), (USER, "user")]
     STATE_CHOICES = [(QUEUED, "Queued"), (RUNNING, "Running"),
                      (FINISHED, "Finished"), (ERROR, "Error")]
 
-    type = models.IntegerField(default=USER, choices=USAGE_CHOICES)
+    type = models.IntegerField(default=USER, choices=TYPE_CHOICES)
     name = models.CharField(max_length=256, default="no name")
     summary = models.TextField(default='no summary')
 

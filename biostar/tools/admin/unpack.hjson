@@ -3,8 +3,8 @@
 #
 Unpack : {
     path: "export/local/lamar_data/1-SarriPal_S9_L001_R1_001.fastq.gz"
-    origin: PROJECT
-    data_type: FASTQ_TYPE
+    origin: ALL
+    data_type: TAR_FASTQ_GZ
     display_type: DROPDOWN
   }
 
@@ -18,6 +18,6 @@ settings : {
     help: '''
         # Help
 
-        Send an email to one user ( for now).
+        Unpack a given tar file
     '''
     }

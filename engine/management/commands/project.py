@@ -14,7 +14,7 @@ def create(owner, name=defaults.PROJECT_NAME, summary=defaults.PROJECT_SUMMARY,
         return
 
     project = Project.objects.create(owner=owner, name=name, summary=summary, type=project_type)
-    logger.info(f'Created project name={project.name}, id={project.id} with type:{dict(project.USAGE_CHOICES)[project_type]}')
+    logger.info(f'Created project name={project.name}, id={project.id} with type:{dict(project.TYPE_CHOICES)[project_type]}')
     project.save()
 
     if add:
@@ -56,11 +56,11 @@ class Command(BaseCommand):
 
         parser.add_argument('--project_type',
                             help=f"Who this job/analysis meant for.",
-                            default=defaults.USAGE, choices=dict(Project.USAGE_CHOICES).values())
+                            default=defaults.USAGE, choices=dict(Project.TYPE_CHOICES).values())
 
         parser.add_argument('--analysis_type',
                             help=f"Who this job/analysis meant for.",
-                            default=defaults.USAGE, choices=dict(Analysis.USAGE_CHOICES).values())
+                            default=defaults.USAGE, choices=dict(Analysis.TYPE_CHOICES).values())
 
 
     def handle(self, *args, **options):
@@ -79,7 +79,7 @@ class Command(BaseCommand):
         if not owner:
             owner = User.objects.filter(is_superuser=True).first()
         type_map = lambda dictionary: {y: x for x, y in dictionary.items()}
-        project_type = type_map(dict(Project.USAGE_CHOICES)).get(type, Project.USER)
+        project_type = type_map(dict(Project.TYPE_CHOICES)).get(type, Project.USER)
 
         if add:
             assert json and template

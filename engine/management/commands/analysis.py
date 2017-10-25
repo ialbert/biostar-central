@@ -27,7 +27,7 @@ class Command(BaseCommand):
         # TODO: Impove the help for type
         parser.add_argument('--analysis_type',
                             help=f"Who this job/analysis meant for.",
-                            default=defaults.USAGE, choices=dict(Analysis.USAGE_CHOICES).values())
+                            default=defaults.USAGE, choices=dict(Analysis.TYPE_CHOICES).values())
 
     def handle(self, *args, **options):
 
@@ -39,7 +39,7 @@ class Command(BaseCommand):
 
         type_map = lambda dictionary: {y: x for x, y in dictionary.items()}
 
-        analysis_type = type_map(dict(Analysis.USAGE_CHOICES)).get(options['analysis_type'], Analysis.USER)
+        analysis_type = type_map(dict(Analysis.TYPE_CHOICES)).get(options['analysis_type'], Analysis.USER)
 
         admin = User.objects.filter(is_staff=True).first()
         if not admin:

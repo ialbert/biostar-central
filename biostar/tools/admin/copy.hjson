@@ -2,18 +2,18 @@
 # Requires a data parameter.
 #
 copy_from : {
-    path: "export/local/lamar_data/1-SarriPal_S9_L001_R1_001.fastq.gz"
+    path: ""
     visible: true
     origin: PROJECT
-    data_type: FASTQ_TYPE
+    data_type: GENERIC_TYPE
     display_type: DROPDOWN
   }
 
 copy_to : {
-    path: "export/local/lamar_data/1-SarriPal_S9_L001_R1_001.fastq.gz"
+    path: ""
     visible: true
     origin: PROJECT
-    data_type: FASTQ_TYPE
+    data_type: GENERIC_TYPE
     display_type: DROPDOWN
   }
 
@@ -23,11 +23,11 @@ copy_to : {
 #
 settings : {
     name:copy a file
-    summary: A script that takes send an emial to specified adress
+    summary: Copy one file into another
     index: test.txt
     help: '''
         # Help
 
-        Send an email to one user ( for now).
+        Copy data from file 1 to file 2
     '''
     }

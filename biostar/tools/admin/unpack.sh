@@ -1,4 +1,6 @@
 
 touch {{settings.index}}
 cd ../../../..
-python manage.py test_email --to {{email.value}}
+pwd
+echo "test"
+#python manage.py data --unpack {{unpack.path}}
