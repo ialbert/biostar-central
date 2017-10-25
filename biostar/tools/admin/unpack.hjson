@@ -3,7 +3,7 @@
 #
 unpack : {
     # Don't really have one
-    path:data.tar.gz
+    path:export/local/lamar_data/data.tar.gz
     visible :true
     origin: ALL
     data_type: TAR_FASTQ_GZ

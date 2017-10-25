@@ -14,7 +14,7 @@ def create(owner, name=defaults.PROJECT_NAME, summary=defaults.PROJECT_SUMMARY,
         return
 
     project = Project.objects.create(owner=owner, name=name, summary=summary, type=project_type)
-    logger.info(f'Created project name={project.name}, id={project.id} with type:{dict(project.TYPE_CHOICES)[project_type]}')
+    logger.info(f'Created project name={project.name}, id={project.id} with type:{project.get_type_display()}')
     project.save()
 
     if add:

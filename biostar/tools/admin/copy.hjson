@@ -4,7 +4,7 @@
 copy_from : {
     path: ""
     visible: true
-    origin: PROJECT
+    origin: ALL
     data_type: GENERIC_TYPE
     display_type: DROPDOWN
   }
@@ -12,7 +12,7 @@ copy_from : {
 copy_to : {
     path: ""
     visible: true
-    origin: PROJECT
+    origin: ALL
     data_type: GENERIC_TYPE
     display_type: DROPDOWN
   }
