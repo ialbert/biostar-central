@@ -1,18 +1,16 @@
 {
 
 data : {
-    path: "export/local/lamar_data/1-SarriPal_S9_L001_R1_001.fastq.gz"
+    path: export/local/lamar_data/1-SarriPal_S9_L001_R1_001.fastq.gz
     label: Data.
-    visible: true
     origin: PROJECT
     data_type: FASTQ_TYPE
     display_type: DROPDOWN
   }
 
 accessions : {
-    path: "export/local/lamar_data/accession_list.txt"
+    path: export/local/lamar_data/accession_list.txt
     label: Accession list.
-    visible: true
     origin: PROJECT
     data_type: ACCESSION_LIST
     display_type: DROPDOWN
@@ -22,6 +20,17 @@ threads : {
         value: 4
     }
 
+/*
+reference: {
+    label: Select reference.
+    value: ""
+    data_type: REFERENCE_TYPE
+    display_type: DROPDOWN
+    options : [[ "fish" , "lamar fishes"],
+               [ "nt", "Nucleotide collection(nt)"]
+              ]
+}
+*/
 
 settings : {
     name: Perform custom taxonomical classification

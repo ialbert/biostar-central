@@ -1,4 +1,10 @@
 
+blastdbs: blast tax_db nt_db
+
+fish: blast fish_db blast_env
+
+classify: centrifuge taxonomy
+
 testdata:
 	mkdir -p lamar_data
 	curl http://iris.bx.psu.edu/projects/metabarcode-data/data.tar.gz >lamar_data/data.tar.gz
@@ -46,7 +52,7 @@ fish_db:
 	curl https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/accession2taxid/nucl_gb.accession2taxid.gz | gunzip -c >blastdb/acc2taxid.txt
 	#
 	# Get taxid map in correct format.
-	cat blastdb/acc2taxid.txt | cut -f 2,3 | tail -n+2 >blastdb/taxid_map.txt
+	cat blastdb/acc2taxid.txt | cut -f 2,3 | grep -v "accession" >blastdb/taxid_map.txt
 	#
 	# make blastdb.
 	makeblastdb -in blastdb/fish/fish.fa -dbtype nucl -out blastdb/fish/fish -parse_seqids -taxid_map blastdb/taxid_map.txt
@@ -55,9 +61,7 @@ blast_env:
 	# set BLASTDB
 	export BLASTDB=`pwd`/blastdb/fish
 
-blastdbs: blast taxonomy nt_db
-fish: blast fish_db blast_env
-classify: centrifuge taxonomy
+
 
 
 

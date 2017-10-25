@@ -9,12 +9,12 @@ Commands that should be executed before running classification.
     make fish
 
 
-# Centrifuge specific installation.
+### Centrifuge specific installation.
 
-    make classify.
+    make classify
 
 
-## Custom fish genome.
+### Custom fish genome.
 
 To run classification using lamar fish genomes, following commands need to be executed before running classification.
 These commands will build lamar fish blast database.
