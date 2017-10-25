@@ -10,8 +10,8 @@ logger = logging.getLogger('engine')
 def copy(fname1, fname2):
     # copy content of file1 to file2
 
-    copy_from = Data.objects.filter(path=fname1).first()
-    copy_to = Data.objects.filter(path=fname2).first()
+    copy_from = Data.objects.filter(file=fname1).first()
+    copy_to = Data.objects.filter(file=fname2).first()
 
     if copy_from and copy_to:
         # make sure the data is "Ready"
@@ -32,13 +32,12 @@ def add(fname, project_id):
 def unpack(fname):
 
     # Check if tar or gz then unpack it on the same dir
-    to_unpack = Data.objects.filter(path=fname).first()
+    to_unpack = Data.objects.filter(file=fname).first()
 
     if to_unpack.state == Data.READY:
         # then unpack.
         print(to_unpack)
         1/0
-        pass
 
     # should it update the data path after unpacking ?
     pass
@@ -59,13 +58,13 @@ class Command(BaseCommand):
         parser.add_argument('--unpack', action='store_true', default=False,
                             help="Unpack a tar.gz or gzip file already in data base")
 
-        parser.add_argument('--pid',
+        parser.add_argument('--pid',default=0,
                             help="Project id to add to.")
 
-        parser.add_argument('--fname1', action='store_true',
+        parser.add_argument('--fname1',
                             help="File to add or copy from.")
 
-        parser.add_argument('--fname2', action='store_true',
+        parser.add_argument('--fname2',
                             help="File to add or copt to.")
 
     def handle(self, *args, **options):

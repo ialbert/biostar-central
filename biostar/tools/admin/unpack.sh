@@ -1,7 +1,7 @@
 
 touch {{settings.index}}
 cd ../../../..
-pwd
-echo "test"
+FNAME={{unpack.path}}
 
-python manage.py data --unpack --fname1 {{unpack.path}}
+python manage.py data --unpack --fname1=${FNAME}
+
