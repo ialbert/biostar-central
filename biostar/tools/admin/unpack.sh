@@ -4,4 +4,4 @@ cd ../../../..
 pwd
 echo "test"
 
-python manage.py data --unpack {{unpack.path}}
+python manage.py data --unpack --fname1 {{unpack.path}}

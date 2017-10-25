@@ -33,16 +33,16 @@ hello:
 
 
 admin_projects:
-	# creates the admin copy job as the job is created.
-	python manage.py project --add --analysis_type admin --project_type admin --name "Admin projects" --json  biostar/tools/admin/copy.hjson --template  biostar/tools/admin/copy.sh --create_job
+
+	python manage.py project --project_type admin --name "Admin projects"
 
 
 jobs:
 	python manage.py analysis --add --json biostar/tools/fastqc/fastqc.hjson  --template biostar/tools/fastqc/fastqc.sh --create_job
 	python manage.py analysis --add --json biostar/tools/qc/qc.hjson  --template biostar/tools/qc/qc.sh --create_job
 	python manage.py analysis --add --json biostar/tools/classify/classify.hjson  --template biostar/tools/classify/classify.sh --create_job
-	    python manage.py analysis --add --analysis_type admin --id 2  --json biostar/tools/admin/unpack.hjson --template  biostar/tools/admin/unpack.sh --create_job
-
+	python manage.py analysis --add --analysis_type admin --id 2  --json biostar/tools/admin/unpack.hjson --template  biostar/tools/admin/unpack.sh --create_job
+	python manage.py analysis --add --analysis_type admin --id 2 --json  biostar/tools/admin/copy.hjson --template  biostar/tools/admin/copy.sh --create_job
 	#python manage.py analysis --add --json biostar/tools/fastqc/fastqc.hjson  --template biostar/tools/fastqc/fastqc.sh --create_job
 
 init:

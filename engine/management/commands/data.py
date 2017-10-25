@@ -30,13 +30,14 @@ def add(fname, project_id):
 
 
 def unpack(fname):
+
     # Check if tar or gz then unpack it on the same dir
     to_unpack = Data.objects.filter(path=fname).first()
 
     if to_unpack.state == Data.READY:
         # then unpack.
         pass
-    # make sure
+
     # should it update the data path after unpacking ?
     pass
 
