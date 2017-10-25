@@ -34,11 +34,11 @@ def render_string(data, template_txt):
     return render_data(spec, template_txt)
 
 
-def render_data(spec, template_txt):
+def render_data(context, template_txt):
     set_env()
     template = Template(template_txt)
-    context = Context(spec)
-    html = template.render(context)
+    ctx = Context(context)
+    html = template.render(ctx)
     return html
 
 

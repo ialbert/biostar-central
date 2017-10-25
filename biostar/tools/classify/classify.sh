@@ -8,6 +8,7 @@ RESULT_VIEW={{settings.index}}
 
 # Internal parameters.
 
+
 REF_DIR=ref
 REF_SEQ=reference.fa
 INDEX=reference
@@ -24,15 +25,18 @@ blastdbcmd -entry 'all' -db ${FISH_DB}/fish -outfmt '%a,%T' |tr ',' '\t'  >${REF
 
 # Build centrifuge index.
 cd $REF_DIR
-centrifuge-build -p 4 --conversion-table $TAXA_MAP --taxonomy-tree $TAXONOMY_DIR/nodes.dmp --name-table $TAXONOMY_DIR/names.dmp $REF_SEQ $INDEX
+centrifuge-build -p 4 --conversion-table $TAXA_MAP --taxonomy-tree $TAXONOMY_DIR/nodes.dmp --name-table $TAXONOMY_DIR/names.dmp $REF_SEQ $INDEX >/dev/null
 cd ..
 
 # Run classification using centrifuge.
 mkdir -p $RESULT_DIR
 centrifuge -x ${REF_DIR}/$INDEX -U $INPUT_DATA --report-file ${RESULT_DIR}/report.txt -S ${RESULT_DIR}/classification.txt
 
+# Plot results.
+python -m biostar.tools.classify.plotter ${RESULT_DIR}/report.txt >${RESULT_VIEW}
+
 # Register results to settings.index.
-cp ${RESULT_DIR}/report.txt ${RESULT_VIEW}
+#cp ${RESULT_DIR}/report.txt ${RESULT_DIR}/${RESULT_VIEW}
 
 
 

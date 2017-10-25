@@ -4,6 +4,7 @@ data : {
     path: export/local/lamar_data/1-SarriPal_S9_L001_R1_001.fastq.gz
     label: Data.
     origin: PROJECT
+    visible: true
     data_type: FASTQ_TYPE
     display_type: DROPDOWN
   }
@@ -12,6 +13,7 @@ accessions : {
     path: export/local/lamar_data/accession_list.txt
     label: Accession list.
     origin: PROJECT
+    visible: true
     data_type: ACCESSION_LIST
     display_type: DROPDOWN
     }
@@ -20,25 +22,26 @@ threads : {
         value: 4
     }
 
-
+/*
 reference: {
     label: Select reference.
     value: ""
+    visible: true
     display_type: DROPDOWN
     options : [
         [ "fish" , "Prebuilt Fish Database"],
     ]
 }
-
+*/
 
 settings : {
     name: Perform custom taxonomical classification
     images : ["/static/pipelines/images/classify.png","/static/pipelines/images/classify_table.png"]
-    index : results/index.txt
+    index : results/index.html
     summary: '''
 
 Performs taxonomic classification of input data. Classification is performed against a custom database.
-It produces a classification table with species abundance.
+It produces a classification table with with species abundance.
     '''
     help:'''
 
