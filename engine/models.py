@@ -14,8 +14,8 @@ from django.utils import timezone
 from . import settings
 from . import util
 from .const import *
+from . import auth
 from biostar.tools import defaults
-from django.core.files import File
 logger = logging.getLogger("engine")
 
 # The maximum length in characters for a typical name and text field.
@@ -97,24 +97,14 @@ class Project(models.Model):
         """
         Returns a dictionary keyed by data stored in the project.
         """
-        query = Data.objects.filter(project=self)
-        if data_type:
-            query = query.filter(data_type=data_type)
-        datamap = dict( (obj.id, obj) for obj in query )
-        return datamap
+
+        return auth.get_data(user=self.owner, project=self, data_type=data_type, query=Data.objects.filter(project=self))
 
     def create_analysis(self, json_text, template, owner=None, summary='', name='', text='', usage=None):
         """
         Creates analysis from a spec and template
         """
-        owner = owner or self.owner
-        name = name or 'Analysis name'
-        text = text or 'Analysis text'
-        usage = usage or defaults.USAGE
-        analysis = Analysis.objects.create(project=self, summary=summary, json_text=json_text,
-                                           owner=owner, name=name, text=text, usage=usage,
-                                           template=template )
-
+        analysis = auth.create_analysis(owner, self, Analysis, json_text, template, summary, name, text, usage)
         logger.info(f"Created analysis id={analysis.id} of usage_type={dict(Analysis.USAGE_CHOICES)[analysis.usage]}")
         return analysis
 
@@ -123,26 +113,7 @@ class Project(models.Model):
         Creates a data for the project from filename or a stream.
         """
 
-        if fname:
-            stream = File(open(fname, 'rb'))
-            name = os.path.basename(fname)
-        owner = owner or self.owner
-        text = text or "No description"
-        data_type = data_type or GENERIC_TYPE
-        usage = usage or defaults.USAGE
-        data = Data(name=name, owner=owner, usage=usage,
-                    text=text, project=self, data_type=data_type)
-
-        # Need to save before uid gets triggered.
-        data.save()
-        # This saves the into the
-        data.file.save(name, stream, save=True)
-
-        # Set the pending to ready after the file saves.
-        Data.objects.filter(id=data.id).update(state=Data.READY)
-
-        # Updates its own size.
-        data.set_size()
+        data = auth.create_data(owner, Data, self, stream, fname, name, text, data_type, usage)
 
         logger.info(f"Added data id={data.id} of type={data.data_type}")
         return data
@@ -270,20 +241,7 @@ class Analysis(models.Model):
         """
         Creates a job from an analysis.
         """
-        name = name or self.name
-        state = state or Job.QUEUED
-        owner = owner or self.project.owner
-        usage = usage or defaults.USAGE
-
-        if json_data:
-            json_text = hjson.dumps(json_data)
-        else:
-            json_text = json_text or self.json_text
-
-        job = Job.objects.create(name=name, summary=self.summary, state=state, json_text=json_text,
-                                 project=self.project, analysis=self, owner=owner, usage=usage,
-                                 template=self.template)
-
+        job = auth.create_job(owner, self, Job , self.project, json_text, json_data, name, state, usage)
         logger.info(f"Queued job: '{job.name}'")
         return job
 
@@ -324,7 +282,6 @@ class Job(models.Model):
     state = models.IntegerField(default=1, choices=STATE_CHOICES)
 
     path = models.FilePathField(default="")
-    local = models.FilePathField(default="")
 
     def is_running(self):
         return self.state == Job.RUNNING
@@ -354,10 +311,7 @@ class Job(models.Model):
         if not os.path.isdir(self.path):
 
             path = join(settings.MEDIA_ROOT, "jobs", f"job-{self.uid}")
-            local = join(settings.LOCAL_ROOT, "jobs", f"job-{self.uid}")
-
             os.makedirs(path)
-            os.makedirs(local)
 
             self.path = path
 

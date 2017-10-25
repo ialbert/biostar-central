@@ -1,0 +1,27 @@
+#
+# Requires a data parameter.
+#
+email : {
+    value:testemail@lvh.me
+    visible: true
+    display_type: TEXTBOX
+    label: Enter the email to send message to
+  }
+copy_to : {
+
+
+}
+
+#
+# Analysis settings.
+#
+settings : {
+    name:copy a file
+    summary: A script that takes send an emial to specified adress
+    index: test.txt
+    help: '''
+        # Help
+
+        Send an email to one user ( for now).
+    '''
+    }

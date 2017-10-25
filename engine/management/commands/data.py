@@ -1,40 +1,76 @@
+import logging
+import shutil
 from django.core.management.base import BaseCommand
-from engine.models import Data, Project, get_datatype
+from engine.models import Data
 
 
-def copy_data(data_id, project_id=1, fname=None, stream=None):
+logger = logging.getLogger('engine')
 
 
-    data = Data.objects.filter(id=data_id).first()
+def copy(fname1, fname2):
+    # copy content of file1 to file2
 
-    project = Project.object.filter(id=project_id).first()
+    copy_from = Data.objects.filter(path=fname1).first()
+    copy_to = Data.objects.filter(path=fname2).first()
 
-    project.create_data(stream=stream, name=name, data_type=data_type, text=text,
-                        owner=owner)
+    if copy_from and copy_to:
+        shutil.copyfile(fname1, fname2)
+        logger.info(f"copied contents of {fname1} to {fname2}")
 
-    # get the name from the file name
-    return
+    else:
+        logger.error(f"Files {fname1} and {fname2} not in database.")
+    pass
 
 
+
+def add(fname, project_id):
+    pass
+
+
+def unpack(fname):
+    # Check if tar or gz then make it
+    pass
 
 
 class Command(BaseCommand):
-    help = 'Upload Data'
+
+    help = 'Creates a project.'
 
     def add_arguments(self, parser):
 
-        parser.add_argument('--data_id', required =True,
-                            help="Upload file to project(s).")
-        parser.add_argument('--ids', default=1,
-                            help="One or more project ids (comma separated)")
-        parser.add_argument('--path', default=False, action="store_true",
-                            help="New filepath of uploaded data.")
-        parser.add_argument('--path', default=False, action="store_true",
-                            help="New filepath of uploaded data.")
+        parser.add_argument('--copy', action='store_true', default=False,
+                            help="Copy contents of fname1 in database to fname2 (alfname1so in database).")
 
+        parser.add_argument('--add', action='store_true', default=False,
+                            help="Copy contents of fname1 in database to fname2 (alfname1so in database).")
+
+        parser.add_argument('--pid',
+                            help="Project id to add to.")
+
+        parser.add_argument('--fname1', action='store_true',
+                            help="File to add or copy from.")
+
+        parser.add_argument('--fname2', action='store_true',
+                            help="File to add or copt to.")
 
     def handle(self, *args, **options):
+        fname1 = options.get("fname1")
+        fname2 = options.get("fname2")
+        pid = options.get("pid")
+        copy_data = options.get("copy")
+        add_data = options.get("add")
+        unpack_data = options.get("unpack")
 
-            fname = options["fname"]
-            ids = options['ids']
-            data_path = options['path']
+        if not (fname1 or fname2):
+            logger.error("--fname1 or --fname2 need to be set.")
+
+        files = (fname1, fname2)
+
+        if copy_data and pid:
+            copy(fname1=fname1, fname2=fname2)
+
+        elif add_data and pid:
+            add(files, pid)
+
+        elif unpack_data:
+            unpack(files)

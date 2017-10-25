@@ -91,7 +91,7 @@ def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=Non
 
     return path
 
-
+#TODO: Replace with the manager thing.
 def project_list(request):
 
     projects = Project.objects.order_by("-id")

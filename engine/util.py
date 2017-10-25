@@ -16,6 +16,11 @@ def join(*args):
     return os.path.abspath(os.path.join(*args))
 
 
+def get_datatype(file):
+    return
+
+
+
 def smart_preview(fname):
     CHUNK_SIZE, LINE_COUNT = 1024, 10
     try:

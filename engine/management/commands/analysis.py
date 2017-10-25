@@ -36,8 +36,10 @@ class Command(BaseCommand):
         pid = options['id']
         template = options['template']
         create_job = options['create_job']
-        usage_map = {y: x for x, y in dict(Analysis.USAGE_CHOICES).items()}
-        analysis_usage = usage_map.get(options['analysis_usage'], Analysis.USER)
+
+        usage_map = lambda dictionary: {y: x for x, y in dictionary.items()}
+
+        analysis_usage = usage_map(dict(Analysis.USAGE_CHOICES)).get(options['analysis_usage'], Analysis.USER)
 
         admin = User.objects.filter(is_staff=True).first()
         if not admin:
@@ -55,6 +57,7 @@ class Command(BaseCommand):
                 return
 
             project = Project.objects.filter(id=pid).first()
+
             if not project:
                 logger.error(f'No project with id={pid}')
                 return
@@ -83,10 +86,10 @@ class Command(BaseCommand):
                 return
 
             try:
-                name = json_data.get("settings", {}).get("name", "No name set")
-                text = json_data.get("settings", {}).get("help", "No help set")
+                name = json_data.get("settings", {}).get("name", "No name")
+                text = json_data.get("settings", {}).get("help", "No help")
                 text = textwrap.dedent(text)
-                summary = json_data.get("settings", {}).get("summary", "No summary set")
+                summary = json_data.get("settings", {}).get("summary", "No summary")
                 analysis = project.create_analysis(json_text=json_text, summary=summary,
                                                    template=template, name=name, text=text, usage=analysis_usage)
                 logger.info(f"Added analysis '{analysis.name}' to project id={project.id}")
