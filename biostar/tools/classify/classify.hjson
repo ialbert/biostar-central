@@ -20,7 +20,7 @@ threads : {
         value: 4
     }
 
-
+/*
 reference: {
     label: Select reference.
     value: ""
@@ -30,6 +30,7 @@ reference: {
                [ "nt", "Nucleotide collection(nt)"]
               ]
 }
+*/
 
 settings : {
     name: Perform custom taxonomical classification

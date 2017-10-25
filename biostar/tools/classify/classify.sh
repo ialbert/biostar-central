@@ -31,8 +31,8 @@ cd ..
 
 # Run classification using centrifuge.
 mkdir -p $RESULT_DIR
-centrifuge -x ${REF_DIR}/$INDEX -U $INPUT_DATA --report-file ${RESULT_DIR}/report.txt -S ${RESULT_DIR}/classification
-.txt
+centrifuge -x ${REF_DIR}/$INDEX -U $INPUT_DATA --report-file ${RESULT_DIR}/report.txt -S ${RESULT_DIR}/classification.txt
+
 
 # Register results to settings.index.
 cp ${RESULT_DIR}/report.txt ${RESULT_VIEW}

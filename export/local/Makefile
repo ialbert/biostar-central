@@ -1,5 +1,5 @@
 
-blastdbs: blast taxonomy nt_db
+blastdbs: blast tax_db nt_db
 
 fish: blast fish_db blast_env
 
