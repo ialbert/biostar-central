@@ -309,8 +309,6 @@ def analysis_run(request, id):
             json_text = hjson.dumps(filled_json)
             job = analysis.create_job(owner=analysis.owner, json_text=json_text, name=name)
             logger.info(tasks.HAS_UWSGI)
-            print(hjson.dumps(filled_json, indent=4))
-            #1/0
             if tasks.HAS_UWSGI:
 
                 jobid = (job.id).to_bytes(5, byteorder='big')
@@ -442,14 +440,15 @@ def job_dir_view(request, jobdir, extra=''):
     job = Job.objects.filter(path=root).first()
     urlpath = request.path.split('/')
     backurl = reverse('job_view', kwargs={'id': job.id})
+    project = job.project
+    rooturl = settings.MEDIA_URL + job.get_url(path=extra)
 
     if len(extra):
         root = join(settings.MEDIA_ROOT, "jobs", jobdir, extra)
         urlpath.remove(extra)
         backurl = '/'.join(urlpath)
+        rooturl+="/"
 
-    project = job.project
-    rooturl = settings.MEDIA_URL + job.get_url(path=extra)
     steps = breadcrumb_builder([PROJECT_LIST_ICON, PROJECT_ICON, RESULT_LIST_ICON, RESULT_VIEW_ICON, RESULT_INDEX_ICON],
                                job=job, project=project)
 

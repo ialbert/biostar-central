@@ -147,7 +147,7 @@ def run(job, options={}):
     output_log = stdout_log + stderr_log
     job.log = "\n".join(output_log)
     job.save()
-    logger.info(f'job id={job.id} finished, status={job.get_state_display()}, usage={job.usage}.')
+    logger.info(f'job id={job.id} finished, status={job.get_state_display()}, usage={job.get_type_display()}.')
 
     # Use -v 2 to see the output of the command.
     if verbosity > 1:
