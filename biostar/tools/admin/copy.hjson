@@ -1,16 +1,22 @@
 #
 # Requires a data parameter.
 #
-email : {
-    value:testemail@lvh.me
+copy_from : {
+    path: "export/local/lamar_data/1-SarriPal_S9_L001_R1_001.fastq.gz"
     visible: true
-    display_type: TEXTBOX
-    label: Enter the email to send message to
+    origin: PROJECT
+    data_type: FASTQ_TYPE
+    display_type: DROPDOWN
   }
+
 copy_to : {
+    path: "export/local/lamar_data/1-SarriPal_S9_L001_R1_001.fastq.gz"
+    visible: true
+    origin: PROJECT
+    data_type: FASTQ_TYPE
+    display_type: DROPDOWN
+  }
 
-
-}
 
 #
 # Analysis settings.

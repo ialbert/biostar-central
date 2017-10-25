@@ -27,8 +27,9 @@ def add(fname, project_id):
     pass
 
 
+
 def unpack(fname):
-    # Check if tar or gz then make it
+    # Check if tar or gz then unpack it on the same dir
     pass
 
 

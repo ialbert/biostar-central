@@ -3,10 +3,12 @@
 data : {
     path: export/local/lamar_data/1-SarriPal_S9_L001_R1_001.fastq.gz
     label: Data.
+    visible: true
     origin: PROJECT
-    data_type: FASTQ_TYPE
+    data_type: TAR_FASTQ_GZ
     display_type: DROPDOWN
   }
+
 
 accessions : {
     path: export/local/lamar_data/accession_list.txt

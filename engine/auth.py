@@ -22,9 +22,7 @@ def get_data(user, project, data_type, query):
 
 def create_project(user, project_model):
 
-    #project = Project.objects.filter
-
-    print("CREATED PROJECT TESTED")
+    #project = project_model.objects.filter
 
     logger.info(f"{user.email} created project {project_model.id}")
     pass

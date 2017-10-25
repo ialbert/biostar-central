@@ -1,11 +1,11 @@
 #
 # Requires a data parameter.
 #
-email : {
-    value:testemail@lvh.me
-    visible: true
-    display_type: TEXTBOX
-    label: Enter the email to send message to
+Unpack : {
+    path: "export/local/lamar_data/1-SarriPal_S9_L001_R1_001.fastq.gz"
+    origin: PROJECT
+    data_type: FASTQ_TYPE
+    display_type: DROPDOWN
   }
 
 #

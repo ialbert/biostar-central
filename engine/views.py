@@ -307,7 +307,8 @@ def analysis_run(request, id):
             json_text = hjson.dumps(filled_json)
             job = analysis.create_job(owner=analysis.owner, json_text=json_text, name=name)
             logger.info(tasks.HAS_UWSGI)
-
+            print(hjson.dumps(filled_json, indent=4))
+            1/0
             if tasks.HAS_UWSGI:
 
                 jobid = (job.id).to_bytes(5, byteorder='big')
