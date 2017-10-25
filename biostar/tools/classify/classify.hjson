@@ -22,17 +22,16 @@ threads : {
         value: 4
     }
 
-/*
+
 reference: {
     label: Select reference.
     value: ""
-    data_type: REFERENCE_TYPE
     display_type: DROPDOWN
-    options : [[ "fish" , "lamar fishes"],
-               [ "nt", "Nucleotide collection(nt)"]
-              ]
+    options : [
+        [ "fish" , "Prebuilt Fish Database"],
+    ]
 }
-*/
+
 
 settings : {
     name: Perform custom taxonomical classification
