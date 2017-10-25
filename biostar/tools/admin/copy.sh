@@ -3,5 +3,5 @@
 touch {{settings.index}}
 
 cd ../../../..
-echo "redirected to $pwd"
+
 python manage.py data --copy --fname1 {{copy_from.path}} --fname2 {{copy_to.path}}
