@@ -1,22 +1,33 @@
 import logging
 import shutil
+import os
+from subprocess import call
+import tarfile
 from django.core.management.base import BaseCommand
 from engine.models import Data
+from biostar.tools.const import COLLECTION_TYPES
 
 
 logger = logging.getLogger('engine')
 
+def join(*args):
+    return os.path.abspath(os.path.join(*args))
 
+#TODO Test
 def copy(fname1, fname2):
     # copy content of file1 to file2
 
-    copy_from = Data.objects.filter(file=fname1).first()
-    copy_to = Data.objects.filter(file=fname2).first()
+    copy_from = Data.objects.filter(path=fname1).first()
+    copy_to = Data.objects.filter(path=fname2).first()
 
     if copy_from and copy_to:
-        # make sure the data is "Ready"
+
+        # Make sure the data is "Ready"
+        assert copy_from.state == Data.READY
         shutil.copyfile(fname1, fname2)
         logger.info(f"copied contents of {fname1} to {fname2}")
+        # Change data to ready state
+        copy_to.ready_state()
 
     else:
         logger.error(f"Files {fname1} and {fname2} not in database.")
@@ -28,19 +39,42 @@ def add(fname, project_id):
     pass
 
 
+def unzip(fname):
 
-def unpack(fname):
 
-    # Check if tar or gz then unpack it on the same dir
-    to_unpack = Data.objects.filter(file=fname).first()
+    # Current workaround
+    basedir = join(fname, "..")
+    os.system(f"cd {basedir} && tar -xvf {fname}")
 
-    if to_unpack.state == Data.READY:
-        # then unpack.
-        print(to_unpack)
-        1/0
+    # not really working
 
-    # should it update the data path after unpacking ?
-    pass
+    # if fname.endswith("tar.gz"):
+    #     tar = tarfile.open(fname, "r:gz")
+    #     tar.extractall()
+    #     tar.close()
+    #
+    # elif fname.endswith("tar"):
+    #     tar = tarfile.open(fname, "r:")
+    #     tar.extractall()
+    #     tar.close()
+    # return
+
+
+def batch_unzip(fnames=()):
+
+    for fname in fnames:
+        if not fname:
+            continue
+
+        data = Data.objects.filter(rootdir=join(fname, "..")).first()
+
+        if data and data.state == Data.READY:
+            assert data.data_type in COLLECTION_TYPES
+
+            unzip(fname)
+            logger.info(f"Finished unzipping contents of {fname}.")
+
+    return
 
 
 class Command(BaseCommand):
@@ -88,4 +122,4 @@ class Command(BaseCommand):
             add(files, pid)
 
         elif unpack_data:
-            unpack(files)
+            batch_unzip(files)

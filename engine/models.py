@@ -151,6 +151,8 @@ class Data(models.Model):
     # Will be false if the objects is to be deleted.
     valid = models.BooleanField(default=True)
 
+    rootdir = models.FilePathField(default="")
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -161,9 +163,12 @@ class Data(models.Model):
         self.html = make_html(self.text)
 
         if not os.path.isdir(join(self.project.get_path(), f"data-{self.uid}")):
-            os.makedirs(join(self.project.get_path(), f"data-{self.uid}"))
+            rootdir = join(self.project.get_path(), f"data-{self.uid}")
+            os.makedirs(rootdir)
+            self.rootdir = rootdir
 
         super(Data, self).save(*args, **kwargs)
+
 
     def peek(self):
         """

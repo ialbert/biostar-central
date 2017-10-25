@@ -307,7 +307,8 @@ def analysis_run(request, id):
             name = form.cleaned_data.get("name")
             filled_json = form.process()
             json_text = hjson.dumps(filled_json)
-            job = analysis.create_job(owner=analysis.owner, json_text=json_text, name=name)
+            job = analysis.create_job(owner=analysis.owner, json_text=json_text, name=name,
+                                      type=analysis.type)
             logger.info(tasks.HAS_UWSGI)
             if tasks.HAS_UWSGI:
 
