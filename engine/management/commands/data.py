@@ -36,6 +36,8 @@ def unpack(fname):
 
     if to_unpack.state == Data.READY:
         # then unpack.
+        print(to_unpack)
+        1/0
         pass
 
     # should it update the data path after unpacking ?

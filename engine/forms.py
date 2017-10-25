@@ -76,14 +76,19 @@ class ProjectForm(forms.ModelForm):
 
 
 class DataUploadForm(forms.ModelForm):
+
+    choices = [(y, x) for x,y in DATA_TYPES.items()]
+    data_type = forms.IntegerField(widget=forms.Select(choices=choices))
+
     class Meta:
         model = Data
-        fields = ['file', 'summary', 'text']
+        fields = ['file', 'summary', 'data_type', 'text']
 
 
 class DataEditForm(forms.ModelForm):
     choices = [(y, x) for x,y in DATA_TYPES.items()]
     data_type = forms.IntegerField(widget=forms.Select(choices=choices))
+
     class Meta:
         model = Data
         fields = ['name', 'summary', 'data_type','text']

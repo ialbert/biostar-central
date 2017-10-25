@@ -240,7 +240,7 @@ def data_upload(request, id):
             data_type = get_datatype(name)
             project.create_data(stream=stream, name=name, data_type=data_type, text=text,
                                 owner=owner)
-            form.save()
+
             return redirect(reverse("data_list", kwargs={'id':project.id}))
 
         else:
