@@ -1,10 +1,13 @@
 import django
 from django.conf import settings
 from django.template import Template,Context
+from django.template import loader
+
 import os, hjson
+__DIR = os.path.dirname(__file__)
+__TEMPLATES = os.path.join(__DIR, "templates")
 
-
-def set_env():
+def setup():
     '''
     Specify template engine and template directory.
     Pass the settings variable to configure.
@@ -13,9 +16,12 @@ def set_env():
     TEMPLATES = [
         {
             'BACKEND': 'django.template.backends.django.DjangoTemplates',
-            'DIRS': '',
+            'DIRS': [ __TEMPLATES ],
             'OPTIONS': {
-                'string_if_invalid': "***MISSING**"
+                'string_if_invalid': "** MISSING **",
+                'libraries': {
+                    'plotify': 'biostar.tools.plotify',
+                },
             },
         }
     ]
@@ -35,19 +41,29 @@ def render_string(data, template_txt):
 
 
 def render_data(context, template_txt):
-    set_env()
+    setup()
     template = Template(template_txt)
     ctx = Context(context)
     html = template.render(ctx)
     return html
 
+def render_template(data, name):
+    '''
+    Attempts to find and load a template by name from
+    via the django template loading mechanism.
+    '''
+    setup()
+    template = loader.get_template(name)
+    result = template.render(data)
+    return result
 
 if __name__ == "__main__":
 
-    config = "./templates/metabarcode_qc/metabarcode_spec.hjson"
-    template = "./templates/metabarcode_qc/metabarcode_makefile.html"
+    data = dict(name="World")
+    name = "hello.html"
 
-    html = render_file(config, template)
+    html = render_template(data, name)
+
     print(html)
 
 
