@@ -37,6 +37,8 @@ def copy(sourceid=None, targetid=None, fname=None, pid=0):
 
         # Make sure the data is "Ready"
         assert source.state == Data.READY
+
+        # Should the two data types be the same?
         shutil.copyfile(source.file.path, target.file.path)
         logger.info(f"copied contents of {source.name} to {target.name}")
         # Change copied data to ready state
@@ -52,33 +54,22 @@ def add(fname, project_id):
     pass
 
 
-def unzip(fname):
+def unzip(targetid):
 
-    try:
-        mimetype, mimecode = mimetypes.guess_type(fname)
-        if mimetype == 'application/x-tar' and mimecode == 'gzip':
-            basedir = join(fname, "..")
-            os.system(f"cd {basedir} && tar -xvf {fname}")
-    except Exception as exc:
-        logger.error(f"Error with unzipping {exc}")
+    data = Data.objects.filter(id=targetid).first()
 
+    if not data:
+        logger.error(f"data.id={targetid} does not exist")
+        return
 
+    if data.data_type not in COLLECTION_TYPES:
+        logger.error(f"{data.name} wrong data type. Allowed are : {COLLECTION_TYPES}. Bailing on unzip.")
+        return
 
-def batch_unzip(fnames=()):
-
-    for fname in fnames:
-        if not fname:
-            continue
-
-        data = Data.objects.filter(rootdir=join(fname, "..")).first()
-
-        if data and data.state == Data.READY:
-            assert data.data_type in COLLECTION_TYPES
-
-            unzip(fname)
-            logger.info(f"Finished unzipping contents of {fname}.")
-
-    return
+    fname = data.file.path
+    basedir = join(fname, "..")
+    os.system(f"cd {basedir} && tar -xvf {fname}")
+    logger.info(f"Unzipped data.id={targetid}, name={data.name} to {basedir}.")
 
 
 class Command(BaseCommand):
@@ -117,11 +108,17 @@ class Command(BaseCommand):
         copy_data = options.get("copy")
         add_data = options.get("add")
         unpack_data = options.get("unpack")
+        
+        def method(mode):
+
+            assert target or source
+            modemap = {"add":add, "unzip":unzip}
+            for data_id in (target, source):
+                if data_id:
+                    modemap[mode](data_id)
 
         if not (source or target):
             logger.error("--fname1 or --fname2 need to be set.")
-
-        files = (source, target)
 
         if copy_data:
             if fname and pid:
@@ -130,7 +127,7 @@ class Command(BaseCommand):
             copy(sourceid=source, targetid=target)
 
         elif add_data and pid:
-            add(files, pid)
+            method("add")
 
         elif unpack_data:
-            batch_unzip(files)
+            method("unzip")
