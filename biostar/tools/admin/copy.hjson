@@ -10,5 +10,7 @@ target : {
   }
 
 settings : {
+    name: Copy data
     help: Copy data from source to target.
+    summary: Copy data from source to target.
     }

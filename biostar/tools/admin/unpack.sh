@@ -1,7 +1,6 @@
 
-touch {{settings.index}}
-cd ../../../..
-FNAME={{unpack.path}}
 
-python manage.py data --unpack --fname1=${FNAME}
+
+echo {{target.value}}
+(cd ../../../.. && python manage.py admintasks --unpack --target={{target.value}})
 
