@@ -76,6 +76,7 @@ import sys, csv
 # fname = "report.txt"
 # template_file = "classify_results.html"
 # template = open(template_file).read()
+# TODO :  Move template toa different file
 
 fname = sys.argv[1]
 items = []
