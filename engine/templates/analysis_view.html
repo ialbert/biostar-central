@@ -26,6 +26,10 @@
             <a class="ui green button" href="{% url 'analysis_run' analysis.id %}">
                 Execute Analysis
             </a>
+
+            <a class="ui button" href="{% url 'job_list' project.id %}?filter={{ analysis.id }}">
+                Analysis Results
+            </a>
         </div>
     </div>
 

@@ -40,11 +40,13 @@ urlpatterns = [
     url(r'^analysis/run/(?P<id>\d+)/$', views.analysis_run, name='analysis_run'),
     url(r'^analysis/edit/(?P<id>\d+)$', views.analysis_edit, name='analysis_edit'),
     url(r'^job/list/(?P<id>\d+)/$', views.job_list, name='job_list'),
+
     url(r'^job/view/(?P<id>\d+)/$', views.job_view, name='job_view'),
+
     url(r'^job/view/result/(?P<id>\d+)/$', views.job_result_view, name='job_result_view'),
-    url(r'^job/view/files/(?P<id>\d+)/$', views.job_file_view, name='job_file_view'),
-    url(r'^media/jobs/(job-\w+)/$', views.job_dir_view, name='job_dir_view'),
-    url(r'^media/jobs/(job-\w+)/(\w+)/$', views.job_dir_view, name='job_dir_view'),
+
+    url(r'^job/view/files/(?P<id>\d+)/$', views.job_files_list, name='job_files_entry'),
+    url(r'^job/view/files/(?P<id>\d+)/(?P<path>.+)/$', views.job_files_list, name='job_files_list'),
 
 ]
 
