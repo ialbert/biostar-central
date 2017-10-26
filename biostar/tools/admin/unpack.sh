@@ -1,4 +1,7 @@
 
 touch {{settings.index}}
 cd ../../../..
-python manage.py test_email --to {{email.value}}
+FNAME={{unpack.path}}
+
+python manage.py data --unpack --fname1=${FNAME}
+

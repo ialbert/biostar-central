@@ -3,7 +3,6 @@
 #
 foo : {
     path: export/local/data.tar.gz
-    visible: true
     display_type: DROPDOWN
   }
 

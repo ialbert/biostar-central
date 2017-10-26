@@ -96,7 +96,7 @@ def project_list(request):
 
     projects = Project.objects.order_by("-id")
     if not request.user.is_superuser:
-        projects = projects.filter(usage=Project.USER).all()
+        projects = projects.filter(type=Project.USER).all()
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON])
 
@@ -240,6 +240,7 @@ def data_upload(request, id):
             data_type = get_datatype(name)
             project.create_data(stream=stream, name=name, data_type=data_type, text=text,
                                 owner=owner)
+
             return redirect(reverse("data_list", kwargs={'id':project.id}))
 
         else:
@@ -260,7 +261,7 @@ def analysis_list(request, id):
     analysis = Analysis.objects.filter(project=project).order_by("-id")
 
     if not request.user.is_superuser:
-        analysis = analysis.filter(usage=Analysis.USER).all()
+        analysis = analysis.filter(type=Analysis.USER).all()
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON,  PROJECT_ICON, ANALYSIS_LIST_ICON],
                                project=project)
@@ -293,6 +294,7 @@ def analysis_view(request, id):
 @login_required
 def analysis_run(request, id):
     analysis = Analysis.objects.filter(id=id).first()
+
     project = analysis.project
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON,  ANALYSIS_ICON],
@@ -305,9 +307,9 @@ def analysis_run(request, id):
             name = form.cleaned_data.get("name")
             filled_json = form.process()
             json_text = hjson.dumps(filled_json)
-            job = analysis.create_job(owner=analysis.owner, json_text=json_text, name=name)
+            job = analysis.create_job(owner=analysis.owner, json_text=json_text, name=name,
+                                      type=analysis.type)
             logger.info(tasks.HAS_UWSGI)
-
             if tasks.HAS_UWSGI:
 
                 jobid = (job.id).to_bytes(5, byteorder='big')
@@ -374,14 +376,14 @@ def job_list(request, id):
     """
     Returns the list of jobs for a project id.
     """
-    # filter according to usage
+    # filter according to type
     project = Project.objects.filter(id=id).first()
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, RESULT_LIST_ICON ],
                                project=project)
 
     jobs = project.job_set.order_by("-id")
     if not request.user.is_superuser:
-        jobs = jobs.filter(usage=Job.USER).all()
+        jobs = jobs.filter(type=Job.USER).all()
 
     context = dict(jobs=jobs, steps=steps, project=project)
 
@@ -439,14 +441,15 @@ def job_dir_view(request, jobdir, extra=''):
     job = Job.objects.filter(path=root).first()
     urlpath = request.path.split('/')
     backurl = reverse('job_view', kwargs={'id': job.id})
+    project = job.project
+    rooturl = settings.MEDIA_URL + job.get_url(path=extra)
 
     if len(extra):
         root = join(settings.MEDIA_ROOT, "jobs", jobdir, extra)
         urlpath.remove(extra)
         backurl = '/'.join(urlpath)
+        rooturl+="/"
 
-    project = job.project
-    rooturl = settings.MEDIA_URL + job.get_url(path=extra)
     steps = breadcrumb_builder([PROJECT_LIST_ICON, PROJECT_ICON, RESULT_LIST_ICON, RESULT_VIEW_ICON, RESULT_INDEX_ICON],
                                job=job, project=project)
 

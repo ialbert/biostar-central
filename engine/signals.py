@@ -42,7 +42,7 @@ def init_proj(sender, **kwargs):
             text=defaults.PROJECT_TEXT,
             owner=admin,
             group=group,
-            usage=Project.USER
+            type=Project.USER
         )
         group.project_set.add(project)
 
