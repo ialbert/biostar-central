@@ -2,27 +2,32 @@
 
 Classifies data against a database.
 
-Commands that should be executed before running classification.
+### Command that should be executed before running classification (in export/local).
 
-    make classify
+    make  classify_tools
+
+
+### Makefile commands in detail.
+
+#### Testdata.
+
     make testdata
-    make fish
 
-
-### Centrifuge specific installation.
+#### Centrifuge specific installations.
 
     make classify
 
 
-### Custom fish genome.
+#### Fish genome database creation.
 
-To run classification using lamar fish genomes, following commands need to be executed before running classification.
-These commands will build lamar fish blast database.
+    make fishdb
 
-In export/local  run
 
-        make testdata
-        make fish
+#### Blast nt download.
+
+    make blastdbs
+
+
 
 
 
