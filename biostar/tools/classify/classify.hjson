@@ -3,6 +3,7 @@
 data : {
     path: export/local/lamar/1-SarriPal_S9_L001_R1_001.fastq.gz
     label: Data.
+    origin: PROJECT
     data_type: FASTQ_TYPE
     display_type: DROPDOWN
   }
@@ -12,7 +13,6 @@ accessions : {
     path: export/local/lamar/accession_list.txt
     label: Accession list.
     origin: PROJECT
-    visible: true
     data_type: ACCESSION_LIST
     display_type: DROPDOWN
     }
@@ -25,7 +25,6 @@ threads : {
 reference: {
     label: Select reference.
     value: ""
-    visible: true
     display_type: DROPDOWN
     options : [
         [ "fish" , "Prebuilt Fish Database"],

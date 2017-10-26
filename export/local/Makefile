@@ -1,5 +1,10 @@
 
-all: taxonomy lamar
+all: taxonomy lamar fishdb
+
+blastdbs: taxdb nt
+
+clean:
+	rm -rf lamar taxonomy blastdb/fish
 
 # Taxonomy related files.
 taxonomy/names.dmp:
@@ -10,45 +15,18 @@ taxonomy/nodes.dmp:
 
 taxonomy: taxonomy/names.dmp taxonomy/nodes.dmp
 
-
-# Lamar fish, test data.
-lamar/data.tar.gz:
+# Lamar test data.
+lamar/sequences.tar.gz:
 	mkdir -p lamar
-	curl http://iris.bx.psu.edu/projects/metabarcode-data/data.tar.gz  > lamar/data.tar.gz
+	curl http://iris.bx.psu.edu/projects/metabarcode-data/data.tar.gz  > lamar/sequences.tar.gz
 	curl http://iris.bx.psu.edu/projects/metabarcode-data/sampleinfo.txt > lamar/sampleinfo.txt
-	curl http://iris.bx.psu.edu/projects/metabarcode-data/1-SarriPal_S9_L001_R1_001.fastq.gz > lamar/1-SarriPal_S9_L001_R1_001.fastq.gz
-	curl http://iris.bx.psu.edu/projects/metabarcode-data/lamar_fishes_16S.fa > lamar/lamar_fishes_16S.fa
-	curl http://iris.bx.psu.edu/projects/metabarcode-data/fish_accession_map.txt > lamar/fish_accession_map.txt
 	curl http://iris.bx.psu.edu/projects/metabarcode-data/accession_list.txt > lamar/accession_list.txt
-
-lamar: lamar/data.tar.gz
-
-
-clean:
-	rm -rf lamar taxonomy
-
-blastdbs: blast tax_db nt_db
-
-fishdb: blast fish_db blast_env
-
-classify: centrifuge taxonomy
-
-classify_tools: centrifuge taxonomy blast fish_db blast_env
+	curl http://iris.bx.psu.edu/projects/metabarcode-data/1-SarriPal_S9_L001_R1_001.fastq.gz > lamar/1-SarriPal_S9_L001_R1_001.fastq.gz
 
 
-nt_db:
-	# Install nt database to export/local/blastdb/nt
-	# Ignores make error.
-	mkdir -p blastdb/nt
-	mkdir -p blastdb/nt :
+lamar: lamar/sequences.tar.gz
 
-tax_db:
-	# Install taxonomy database to export/local/blastdb/taxdb
-	# Ignores make error.
-	mkdir -p blastdb/taxdb
-	(cd blastdb/taxdb && update_blastdb.pl --decompress taxdb) || :
-
-fish_db:
+blastdb/fish/fish.fa:
 	mkdir -p blastdb/fish
 	#
 	# Get fish sequences.
@@ -64,14 +42,22 @@ fish_db:
 	# make blastdb.
 	makeblastdb -in blastdb/fish/fish.fa -dbtype nucl -out blastdb/fish/fish -parse_seqids -taxid_map blastdb/taxid_map.txt
 
-blast_env:
-	# set BLASTDB
-	export BLASTDB=`pwd`/blastdb/fish
+fishdb: blastdb/fish/fish.fa
 
+blastdb/nt/*.gz:
+	# Install nt database to export/local/blastdb/nt
+	# Ignores make error.
+	mkdir -p blastdb/nt
+	(cd blastdb/nt && update_blastdb.pl --decompress nt) || :
 
+blastdb/taxdb/taxdb.bti:
+	# Install taxonomy database to export/local/blastdb/taxdb
+	# Ignores make error.
+	mkdir -p blastdb/taxdb
+	(cd blastdb/taxdb && update_blastdb.pl --decompress taxdb) || :
 
-
-
+taxdb:blastdb/taxdb/taxdb.bti
+nt:blastdb/nt/*.gz
 
 
 
