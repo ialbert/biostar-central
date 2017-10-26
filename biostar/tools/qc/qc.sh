@@ -1,3 +1,6 @@
+set -ueo pipefail
+
+#Get parameters.
 INPUT_DATA={{data.path}}
 INPUT_SAMPLE_INFO={{sampleinfo.path}}
 TRIM_QUALITY={{quality_threshold.value}}
@@ -34,10 +37,11 @@ mkdir -p work
 mkdir -p $FASTQC_DIR
 
 # Create fastqc reports for all samples.
-cat $SAMPLE_INFO | parallel --header : --colsep '\t' fastqc  --nogroup -o $FASTQC_DIR {file1} {file2}
+cat $SAMPLE_INFO | parallel --header : --colsep '\t' fastqc  --nogroup -o $FASTQC_DIR {file1} {file2}  2>/dev/null
 
 # Run multiqc on the fastqc report.
-multiqc -f -n initial_multiqc -o work --no-data-dir $FASTQC_DIR
+echo -e "\n Creating multiqc report.\n"
+multiqc -f -n initial_multiqc -o work --no-data-dir $FASTQC_DIR 2>/dev/null
 cp work/initial_multiqc.html ${RESULT_DIR}/initial_multiqc.html
 
 # Copy files to input.
@@ -66,10 +70,11 @@ cat $SAMPLE_INFO | parallel --header : --colsep '\t' cp {file2} {result2}
     rm -f $FASTQC_DIR/*.zip $FASTQC_DIR/*.html
 
     # Run fastqc on all trimmed samples.
-    cat $SAMPLE_INFO | parallel --header : --colsep '\t' fastqc --nogroup -o $FASTQC_DIR {temp1} {temp2}
+    cat $SAMPLE_INFO | parallel --header : --colsep '\t' fastqc --nogroup -o $FASTQC_DIR {temp1} {temp2}  2>/dev/null
 
     # Create multiqc report of trimmed samples.
-    multiqc -n primer_trimmed -o work --no-data-dir --force $FASTQC_DIR
+    echo -e "\n Creating multiqc report.\n"
+    multiqc -n primer_trimmed -o work --no-data-dir --force $FASTQC_DIR 2>/dev/null
     cp work/primer_trimmed.html ${RESULT_DIR}/primer_trimmed.html
 
 {% endif %}
@@ -94,10 +99,11 @@ cat $SAMPLE_INFO | parallel --header : --colsep '\t' cp {file2} {result2}
     rm -f $FASTQC_DIR/*.zip $FASTQC_DIR/*.html
 
     # Run fastqc on all trimmed samples.
-    cat $SAMPLE_INFO | parallel --header : --colsep '\t' fastqc --nogroup -o $FASTQC_DIR {temp1} {temp2}
+    cat $SAMPLE_INFO | parallel --header : --colsep '\t' fastqc --nogroup -o $FASTQC_DIR {temp1} {temp2} 2>/dev/null
 
     # Create multiqc report of trimmed samples.
-    multiqc -n quality_trimmed -o work --no-data-dir --force $FASTQC_DIR
+    echo -e "\n Creating multiqc report.\n"
+    multiqc -n quality_trimmed -o work --no-data-dir --force $FASTQC_DIR  2>/dev/null
     cp work/quality_trimmed.html ${RESULT_DIR}/quality_trimmed.html
 
 {% endif %}
