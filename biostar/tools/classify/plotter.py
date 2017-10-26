@@ -51,7 +51,7 @@ template = '''
       ]);
 
     var options = {
-      zoomLevel: 2,
+      zoomLevel: 6,
       showTooltip: true,
       showInfoWindow: true
     };

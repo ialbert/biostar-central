@@ -11,8 +11,6 @@ data : {
 accessions : {
     path: export/local/lamar/accession_list.txt
     label: Accession list.
-    origin: PROJECT
-    visible: true
     data_type: ACCESSION_LIST
     display_type: DROPDOWN
     }
@@ -25,7 +23,6 @@ threads : {
 reference: {
     label: Select reference.
     value: ""
-    visible: true
     display_type: DROPDOWN
     options : [
         [ "fish" , "Prebuilt Fish Database"],
