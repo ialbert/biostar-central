@@ -2,7 +2,7 @@
 
 Classifies data against a database.
 
-** Command that should be executed before running classification (in export/local).**
+**Command that should be executed before running classification (in export/local).**
 
     make  classify_tools
 
