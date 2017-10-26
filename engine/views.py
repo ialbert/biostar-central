@@ -247,6 +247,7 @@ def analysis_list(request, id):
     project = Project.objects.filter(id=id).first()
     analysis = Analysis.objects.filter(project=project).order_by("-id")
 
+
     if not request.user.is_superuser:
         analysis = analysis.filter(type=Analysis.USER).all()
 
@@ -365,10 +366,16 @@ def job_list(request, id):
                                project=project)
 
     jobs = project.job_set.order_by("-id")
+
+    filter = request.GET.get('filter', '')
+    if filter:
+        filter = Analysis.objects.filter(id=filter).first()
+        jobs = jobs.filter(analysis=filter)
+
     if not request.user.is_superuser:
         jobs = jobs.filter(type=Job.USER).all()
 
-    context = dict(jobs=jobs, steps=steps, project=project)
+    context = dict(jobs=jobs, steps=steps, project=project, filter=filter)
 
     return render(request, "job_list.html", context)
 
