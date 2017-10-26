@@ -14,7 +14,9 @@ def join(*args):
     return os.path.abspath(os.path.join(*args))
 
 #TODO Test
-def copy(id1, id2):
+def copy(id1, id2=None, fname=None, project=None):
+
+    # Copies 
     # copy content of file1 to file2
 
     source = Data.objects.filter(id=id1).first()
@@ -41,7 +43,7 @@ def add(fname, project_id):
 
 def unzip(fname):
 
-    CHUNK_SIZE, LINE_COUNT = 1024, 10
+
     try:
         mimetype, mimecode = mimetypes.guess_type(fname)
         if mimetype == 'application/x-tar' and mimecode == 'gzip':
@@ -50,18 +52,6 @@ def unzip(fname):
     except Exception as exc:
         logger.error(f"Error with unzipping {exc}")
 
-    # not really working
-
-    # if fname.endswith("tar.gz"):
-    #     tar = tarfile.open(fname, "r:gz")
-    #     tar.extractall()
-    #     tar.close()
-    #
-    # elif fname.endswith("tar"):
-    #     tar = tarfile.open(fname, "r:")
-    #     tar.extractall()
-    #     tar.close()
-    # return
 
 
 def batch_unzip(fnames=()):

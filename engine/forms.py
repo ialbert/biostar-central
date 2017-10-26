@@ -201,8 +201,8 @@ class RunAnalysis(forms.Form):
 
         for field, obj in json_data.items():
             # No need to read fields that were not set.
-            if not obj.get(FIELD_VISIBLE):
-                continue
+            #if not obj.get(FIELD_VISIBLE):
+            #    continue
 
             # If it has a path it is an uploaded file.
             if obj.get("path") and obj.get("origin")== PROJECT_ORIGIN:
