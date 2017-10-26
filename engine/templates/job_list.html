@@ -12,6 +12,14 @@
             Results for project: {{ project.name }}
         </div>
 
+        {% if filter %}
+            <div class="ui warning message">Filtering for analysis:
+                <a href="{%  url 'analysis_view' filter.id %}">{{ filter.name }}</a>
+                |  <a href="{%  url "job_list"  project.id  %}">
+                    <div class="ui label"><i class="close icon"></i>Remove Filter</a></div>
+            </div>
+        {%  endif %}
+
         {% for job in jobs %}
 
             <div class="ui {% job_color job %} segment ">

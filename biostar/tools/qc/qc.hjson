@@ -1,9 +1,7 @@
 {
 
 data : {
-    path: export/local/lamar/data.tar.gz
-    visible: true
-    origin: PROJECT
+    path: export/local/lamar/sequences.tar.gz
     data_type: TAR_FASTQ_GZ
     display_type: DROPDOWN
     }
@@ -11,17 +9,14 @@ data : {
 sampleinfo : {
     path : export/local/lamar/sampleinfo.txt
     label : Sample file
-    visible: true
     data_type : LAMAR_SAMPLE_SHEET
     display_type: DROPDOWN
-    origin: PROJECT
     }
 
 trim_primer: {
     label : Trim primer sequences.
     value : true
     help : Primer sequences should be in the sample sheet.
-    visible: true
     display_type: CHECKBOX
     }
 
@@ -29,16 +24,13 @@ kmer_length: {
     label : Specify kmer length for primer trimming.
     value : 15
     help : Kmer length range should be between 5 and 30.
-    visible: true
     range : [5,30]
     display_type: INTEGER
     }
 
-
 trim_quality: {
     label : Quality trimming.
     value :  true
-    visible : true
     display_type : CHECKBOX
     }
 
@@ -47,7 +39,6 @@ quality_threshold: {
     help : Quality value should be between 1 and 40.
     value :  30
     range  : [1,40]
-    visible : true
     display_type : INTEGER
     }
 
@@ -56,13 +47,11 @@ read_length: {
     help : Minimun read length range should be between 10 and 50.
     value :  35
     range : [10, 50]
-    visible : true
     display_type : INTEGER
     }
 
 threads : {
         value: 4
-        visible : false
     }
 
 

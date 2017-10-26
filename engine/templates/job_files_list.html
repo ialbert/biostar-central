@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% load engine_tags %}
+{% load staticfiles %}
+{% block headtitle %}
+    Index view : {{ job.name }}
+{% endblock %}
+
+
+{% block body %}
+
+    <div class="ui center aligned header">
+        Results view for: {{ job.name }}
+    </div>
+    <div class="ui center aligned basic segment">
+
+    </div>
+
+    <form class="ui large form" method="post">
+
+        <div class="ui relaxed divided list">
+
+            <div class="item">
+                {% if path %}
+                    <a href="../"><i class="backward icon"></i>../</a>
+                {% else %}
+                    <a href="{% url 'job_view' job.id %}"><i class="backward icon"></i>../</a></a>
+                {% endif %}
+            </div>
+
+            {% for entry in file_list %}
+                <div class="item">
+
+                    {% if entry.is_dir %}
+
+                        <a href="{% url 'job_files_list' job.id entry.name %}">
+                            <i class="folder icon"></i>{{ entry.name }}
+                        </a>
+
+                    {% else %}
+
+                        <div class="inline field">
+
+                            <input type="checkbox" name="paths" value="{{ path }}/{{ entry.name }}">
+
+                            <a href="{{ MEDIA_URL }}{{ job.get_url }}{{ path }}/{{ entry.name }}">
+                                <i class="file text outline icon"></i>{{ entry.name }}
+                            </a>
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+            {% endfor %}
+
+        </div>
+
+        {% csrf_token %}
+        <div class="field">
+            <div class="ui center aligned basic segment">
+                <button type="submit" class="ui green button">
+                    <i class="plus icon"></i>Add to Project Data
+                </button>
+                <a class="ui button" href="{% url 'data_list' project.id %}">
+                    <i class="file text icon"></i>View Project Data
+                </a>
+            </div>
+        </div>
+
+    </form>
+
+{% endblock %}

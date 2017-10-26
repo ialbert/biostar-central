@@ -17,7 +17,7 @@ from .log import LOGGING
 SITE_ID = 1
 SITE_DOMAIN = "localhost"
 SITE_NAME = "Biostar Engine"
-
+SITE_HEADER = '<i class="barcode icon"></i> Metagenomics Barcode Data Repository'
 
 def join(*args):
     return os.path.abspath(os.path.join(*args))
@@ -83,6 +83,7 @@ TEMPLATES = [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
+                'django.template.context_processors.media',
                 'django.contrib.messages.context_processors.messages',
                 'engine.context.engine'
             ],

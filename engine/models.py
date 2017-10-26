@@ -1,26 +1,26 @@
-import logging, hjson
+import hjson
+import logging
 
+import mistune
+from django.contrib.auth.models import Group
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-
-
-from django.contrib.auth.models import Group
-import mistune
-
 from django.urls import reverse
 from django.utils import timezone
+
+from . import auth
 from . import settings
 from . import util
 from .const import *
-from . import auth
-from biostar.tools import defaults
+
 logger = logging.getLogger("engine")
 
 # The maximum length in characters for a typical name and text field.
 MAX_NAME_LEN = 256
 MAX_TEXT_LEN = 10000
+
 
 def join(*args):
     return os.path.abspath(os.path.join(*args))
@@ -44,12 +44,10 @@ def upload_path(instance, filename):
     # File may have multiple extensions
     exts = ".".join(pieces[1:]) or "data"
     dataname = f"data-{instance.uid}.{exts}"
-
-    return join(instance.project.get_path(), f"data-{instance.uid}", dataname)
+    return join(instance.project.get_path(), f"{instance.data_dir}", dataname)
 
 
 class Project(models.Model):
-
     ADMIN, USER = 1, 2
     TYPE_CHOICES = [(ADMIN, "admin"), (USER, "user")]
     type = models.IntegerField(default=USER, choices=TYPE_CHOICES)
@@ -98,7 +96,8 @@ class Project(models.Model):
         Returns a dictionary keyed by data stored in the project.
         """
 
-        return auth.get_data(user=self.owner, project=self, data_type=data_type, query=Data.objects.filter(project=self))
+        return auth.get_data(user=self.owner, project=self, data_type=data_type,
+                             query=Data.objects.filter(project=self))
 
     def create_analysis(self, json_text, template, owner=None, summary='', name='', text='', type=None):
         """
@@ -108,7 +107,7 @@ class Project(models.Model):
         logger.info(f"Created analysis id={analysis.id} of type_type={dict(Analysis.TYPE_CHOICES)[analysis.type]}")
         return analysis
 
-    def create_data(self,  stream=None, fname=None, name="data.bin", owner=None, text='', data_type=None, type=None):
+    def create_data(self, stream=None, fname=None, name="data.bin", owner=None, text='', data_type=None, type=None):
         """
         Creates a data for the project from filename or a stream.
         """
@@ -120,10 +119,9 @@ class Project(models.Model):
 
 
 class Data(models.Model):
-
     ADMIN, USER = 1, 2
     FILE, COLLECTION = 1, 2
-    PENDING, READY = 1,2
+    PENDING, READY = 1, 2
 
     FILETYPE_CHOICES = [(FILE, "File"), (COLLECTION, "Collection")]
     TYPE_CHOICES = [(ADMIN, "Admin"), (USER, "User")]
@@ -151,7 +149,8 @@ class Data(models.Model):
     # Will be false if the objects is to be deleted.
     valid = models.BooleanField(default=True)
 
-    rootdir = models.FilePathField(default="")
+    # Data directory.
+    data_dir = models.FilePathField(default="")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -162,13 +161,12 @@ class Data(models.Model):
         self.date = self.date or now
         self.html = make_html(self.text)
 
-        if not os.path.isdir(join(self.project.get_path(), f"data-{self.uid}")):
-            rootdir = join(self.project.get_path(), f"data-{self.uid}")
-            os.makedirs(rootdir)
-            self.rootdir = rootdir
-
+        # Build the data directory.
+        data_dir = self.get_datadir()
+        if not os.path.isdir(data_dir):
+            os.makedirs(data_dir)
+        self.data_dir = data_dir
         super(Data, self).save(*args, **kwargs)
-
 
     def peek(self):
         """
@@ -185,12 +183,15 @@ class Data(models.Model):
         except:
             size = 0
         Data.objects.filter(id=self.id).update(size=size)
-    
+
     def set_ready(self):
         Data.objects.filter(id=self.id).update(state=self.READY)
 
     def __str__(self):
         return self.name
+
+    def get_datadir(self):
+        return join(self.project.get_path(), f"store-{self.uid}")
 
     def get_path(self):
         return self.file.path
@@ -207,7 +208,6 @@ class Data(models.Model):
 
 
 class Analysis(models.Model):
-
     ADMIN, USER = 1, 2
     TYPE_CHOICES = [(ADMIN, "admin"), (USER, "user")]
     type = models.IntegerField(default=USER, choices=TYPE_CHOICES)
@@ -253,13 +253,12 @@ class Analysis(models.Model):
         """
         Creates a job from an analysis.
         """
-        job = auth.create_job(owner, self, Job , self.project, json_text, json_data, name, state, type)
+        job = auth.create_job(owner, self, Job, self.project, json_text, json_data, name, state, type)
         logger.info(f"Queued job: '{job.name}'")
         return job
 
 
 class Job(models.Model):
-
     ADMIN, USER = 1, 2
     QUEUED, RUNNING, FINISHED, ERROR = 1, 2, 3, 4
     TYPE_CHOICES = [(ADMIN, "admin"), (USER, "user")]
@@ -321,7 +320,6 @@ class Job(models.Model):
         self.name = self.name or self.analysis.name
         # write an index.html to the file
         if not os.path.isdir(self.path):
-
             path = join(settings.MEDIA_ROOT, "jobs", f"job-{self.uid}")
             os.makedirs(path)
 
@@ -339,7 +337,6 @@ class Profile(models.Model):
 
 @receiver(post_save, sender=User)
 def create_profile(sender, instance, created, **kwargs):
-
     if created:
         # Create a profile for user
         Profile.objects.create(user=instance)

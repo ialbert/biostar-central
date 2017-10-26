@@ -14,7 +14,7 @@ try:
 
     HAS_UWSGI = True
 
-    @timer(60)
+    @timer(5)
     def execute_timer(args):
         from engine.models import Job
         # logger.info(f"executing timer with {args}")

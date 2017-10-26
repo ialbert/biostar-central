@@ -16,7 +16,7 @@
             </div>
             <div class="three ui buttons">
                 <a class="ui {% job_color job %} button" href="{% url 'job_result_view' job.id %}"><i class="line chart icon"></i>Main Result</a>
-                <a class="ui {% job_color job %} button" href="{% url 'job_file_view' job.id %}"><i class="file icon"></i>All Files</a>
+                <a class="ui {% job_color job %} button" href="{% url 'job_files_entry' job.id  %}"><i class="file icon"></i>All Files</a>
                 <a class="ui {% job_color job %} button" href="{% url 'analysis_view' job.analysis.id %}"><i class="setting icon"></i>Analysis
                     View</a>
             </div>
@@ -39,10 +39,10 @@
             <pre>{{ job.log }}</pre>
         </div>
 
-        <div class="ui vertical segment">
+        <!-- <div class="ui vertical segment">
             <div class="ui center aligned header">Job Script</div>
             <pre>{{ job.script }}</pre>
-        </div>
+        </div> -->
 
     </div>
 

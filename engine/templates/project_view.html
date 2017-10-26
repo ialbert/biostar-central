@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load engine_tags %}
-
+{% load staticfiles %}
 
 {% block headtitle %}
     {{ project.name }}
@@ -22,41 +22,59 @@
         <div class="ui center aligned header">
             Project: {{ project.name }}
         </div>
-        <div class="ui vertical segment">{{ project.summary|markdown|safe }}</div>
 
         <div class="ui vertical segment">
+
+            {{ project.summary|markdown|safe }}
+
+            <div class="ui clearing divider"></div>
+
+            <img class="ui left floated tiny circular image" src="{% static 'images/project_data_icon.jpg' %}">
+
             <div class="ui header">
+
                 <a href="{% url 'data_list' project.id %}">
                     <i class="file text icon"></i>Data List
                 </a>
             </div>
-            <p>View data associated with this project.</p>
-        </div>
 
-        <div class="ui vertical segment">
+            <p>View data associated with this project.</p>
+
+
+            <div class="ui clearing divider"></div>
+
+            <img class="ui left floated tiny circular image" src="{% static 'images/project_analysis_icon.png' %}">
+
             <div class="ui header">
                 <a href="{% url 'analysis_list' project.id %}">
                     <i class="settings icon"></i>Analyses
                 </a>
             </div>
+
             <p>View the analyses that can be run for this project.</p>
-        </div>
 
-        <div class="ui vertical segment">
-            <div class="ui header">
-                <a href="{% url 'job_list' project.id %}">
-                    <i class="bar chart icon"></i>Results
-                </a>
+
+            <div class="ui clearing divider"></div>
+
+            <img class="ui left floated tiny circular image" src="{% static 'images/project_results_icon.jpg' %}">
+
+
+            <div class="ui vertical segment">
+                <div class="ui header">
+                    <a href="{% url 'job_list' project.id %}">
+                        <i class="bar chart icon"></i>Results
+                    </a>
+                </div>
+                <p>View the results of analyses.</p>
             </div>
-            <p>View the results of analyses.</p>
-        </div>
 
+        </div>
     </div>
 
     <div class="ui raised segment">
         <div class="ui center aligned header">Project Description</div>
         <div class="ui vertical segment">
-        {{ project.html|safe }}
+            {{ project.html|safe }}
         </div>
         <div class="ui center aligned basic segment">
             <a class="ui button" href="{% url 'project_edit' project.id %}">

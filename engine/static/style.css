@@ -11,6 +11,11 @@ h2.ui.header {
     font-weight: bold;
 }
 
+
+.row:hover {
+    text-decoration: underline;
+}
+
 h1 {
     min-height: 1rem;
     font-size: 1.4rem;
