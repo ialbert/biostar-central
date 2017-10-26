@@ -57,17 +57,18 @@ def add(fname, project_id):
 def unzip(targetid):
 
     data = Data.objects.filter(id=targetid).first()
-
     if not data:
         logger.error(f"data.id={targetid} does not exist")
         return
 
     if data.data_type not in COLLECTION_TYPES:
-        logger.error(f"{data.name} wrong data type. Allowed are : {COLLECTION_TYPES}. Bailing on unzip.")
+        logger.error(f"{data.name} wrong data type. Bailing on unzip.")
         return
 
     fname = data.file.path
     basedir = join(fname, "..")
+
+    #TODO: this is a hacky way of unzipping
     os.system(f"cd {basedir} && tar -xvf {fname}")
     logger.info(f"Unzipped data.id={targetid}, name={data.name} to {basedir}.")
 
@@ -108,7 +109,7 @@ class Command(BaseCommand):
         copy_data = options.get("copy")
         add_data = options.get("add")
         unpack_data = options.get("unpack")
-        
+
         def method(mode):
 
             assert target or source
