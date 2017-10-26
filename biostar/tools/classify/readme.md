@@ -7,6 +7,8 @@ Classifies data against a database.
     make  classify_tools
 
 
+### Makefile commands in detail.
+
 #### Testdata.
 
     make testdata
