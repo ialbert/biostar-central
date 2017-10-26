@@ -1,10 +1,5 @@
 
-# Make sure Main results page doesn't fail out.
+SRC={{source.value}}
+TRG={{target.value}}
 
-touch {{settings.index}}
-
-cd ../../../..
-pwd
-echo "test"
-
-#python manage.py data --copy --fname1 {{copy_from.path}} --fname2 {{copy_to.path}}
+(cd ../../../.. && python manage.py admintasks --copy --source=${SRC} --target=${TRG})

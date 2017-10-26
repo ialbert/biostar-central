@@ -202,33 +202,19 @@ class RunAnalysis(forms.Form):
 
         for field, obj in json_data.items():
             # No need to read fields that were not set.
-            #if not obj.get(FIELD_VISIBLE):
-            #    continue
 
             # If it has a path it is an uploaded file.
             if obj.get("path") and obj.get("origin")== PROJECT_ORIGIN:
 
-                self.fill_data(field=field, datamap=datamap, obj=obj)
-                continue
-
-            elif obj.get("path") and obj.get("origin")== ALL_ORIGIN:
-
-                datamap = dict((obj.id, obj) for obj in Data.objects.all())
-                self.fill_data(field=field, datamap=datamap, obj=obj)
-                continue
+                data_id = self.cleaned_data.get(field, '')
+                data_id = int(data_id)
+                data = datamap.get(data_id)
+                data.fill_dict(obj)
 
             if field in self.cleaned_data:
                 obj["value"] = self.cleaned_data[field]
         return json_data
 
-
-    def fill_data(self, field, datamap, obj):
-
-        data_id = self.cleaned_data.get(field, '')
-        data_id = int(data_id)
-        data = datamap.get(data_id)
-        data.fill_dict(obj)
-        return
 
 
 class EditAnalysisForm(forms.Form):

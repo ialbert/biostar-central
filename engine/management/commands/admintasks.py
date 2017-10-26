@@ -10,17 +10,26 @@ from biostar.tools.const import COLLECTION_TYPES
 
 logger = logging.getLogger('engine')
 
+
 def join(*args):
     return os.path.abspath(os.path.join(*args))
 
-#TODO Test
-def copy(id1, id2=None, fname=None, project=None):
 
-    # Copies 
-    # copy content of file1 to file2
+def copy(sourceid=None, targetid=None, fname=None, project=None):
 
-    source = Data.objects.filter(id=id1).first()
-    target = Data.objects.filter(id=id2).first()
+    assert sourceid or fname
+    if not targetid:
+
+        # Copy a single file to a project and exit.
+        assert fname and project
+        project.create_data(fname = fname)
+        return
+
+    data = Data.objects.filter(id=sourceid).first()
+
+
+    source = Data.objects.filter(id=sourceid).first()
+    target = Data.objects.filter(id=targetid).first()
 
     if source and target:
 
@@ -89,28 +98,28 @@ class Command(BaseCommand):
         parser.add_argument('--pid',default=0,
                             help="Project id to add to.")
 
-        parser.add_argument('--fname1',
+        parser.add_argument('--source',
                             help="File to add or copy from.")
 
-        parser.add_argument('--fname2',
+        parser.add_argument('--target',
                             help="File to add or copt to.")
 
     def handle(self, *args, **options):
 
-        fname1 = options.get("fname1")
-        fname2 = options.get("fname2")
+        source = options.get("source")
+        target = options.get("target")
         pid = options.get("pid")
         copy_data = options.get("copy")
         add_data = options.get("add")
         unpack_data = options.get("unpack")
 
-        if not (fname1 or fname2):
+        if not (source or target):
             logger.error("--fname1 or --fname2 need to be set.")
 
-        files = (fname1, fname2)
+        files = (source, target)
 
         if copy_data:
-            copy(id1=fname1, id2=fname2)
+            copy(id1=source, id2=target)
 
         elif add_data and pid:
             add(files, pid)

@@ -1,7 +1,6 @@
 
-touch {{settings.index}}
-cd ../../../..
-FNAME={{unpack.path}}
+echo Redirecting
+ID={{target.value}}
 
-python manage.py data --unpack --fname1=${FNAME}
+(cd ../../../.. && python manage.py admintasks --unpack --target=${ID})
 
