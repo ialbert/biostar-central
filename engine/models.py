@@ -44,8 +44,7 @@ def upload_path(instance, filename):
     # File may have multiple extensions
     exts = ".".join(pieces[1:]) or "data"
     dataname = f"data-{instance.uid}.{exts}"
-
-    return join(instance.project.get_path(), f"data-{instance.uid}", dataname)
+    return join(instance.project.get_path(), f"{instance.data_dir}", dataname)
 
 
 class Project(models.Model):
@@ -162,11 +161,11 @@ class Data(models.Model):
         self.date = self.date or now
         self.html = make_html(self.text)
 
-        data_dir = self.build_path()
-        if not data_dir:
+        # Build the data directory.
+        data_dir = self.get_datadir()
+        if not os.path.isdir(data_dir):
             os.makedirs(data_dir)
-            self.data_dir = self.build_path()
-
+        self.data_dir = data_dir
         super(Data, self).save(*args, **kwargs)
 
     def peek(self):
@@ -191,8 +190,8 @@ class Data(models.Model):
     def __str__(self):
         return self.name
 
-    def build_path(self):
-        return join(self.project.get_path(), f"data-{self.uid}")
+    def get_datadir(self):
+        return join(self.project.get_path(), f"store-{self.uid}")
 
     def get_path(self):
         return self.file.path
