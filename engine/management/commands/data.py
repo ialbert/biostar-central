@@ -1,7 +1,7 @@
 import logging
 import shutil
 import os
-from subprocess import call
+import mimetypes
 import tarfile
 from django.core.management.base import BaseCommand
 from engine.models import Data
@@ -41,10 +41,14 @@ def add(fname, project_id):
 
 def unzip(fname):
 
-
-    # Current workaround
-    basedir = join(fname, "..")
-    os.system(f"cd {basedir} && tar -xvf {fname}")
+    CHUNK_SIZE, LINE_COUNT = 1024, 10
+    try:
+        mimetype, mimecode = mimetypes.guess_type(fname)
+        if mimetype == 'application/x-tar' and mimecode == 'gzip':
+            basedir = join(fname, "..")
+            os.system(f"cd {basedir} && tar -xvf {fname}")
+    except Exception as exc:
+        logger.error(f"Error with unzipping {exc}")
 
     # not really working
 
