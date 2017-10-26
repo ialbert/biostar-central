@@ -186,8 +186,7 @@ class Data(models.Model):
             size = 0
         Data.objects.filter(id=self.id).update(size=size)
     
-    def ready_state(self):
-
+    def set_ready(self):
         Data.objects.filter(id=self.id).update(state=self.READY)
 
     def __str__(self):

@@ -2,3 +2,5 @@ fastqc
 multiqc
 bbmap
 centrifuge
+biopython
+taxonkit

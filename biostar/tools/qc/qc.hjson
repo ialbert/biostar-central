@@ -1,7 +1,7 @@
 {
 
 data : {
-    path: export/local/lamar_data/data.tar.gz
+    path: export/local/lamar/data.tar.gz
     visible: true
     origin: PROJECT
     data_type: TAR_FASTQ_GZ
@@ -9,7 +9,7 @@ data : {
     }
 
 sampleinfo : {
-    path : export/local/lamar_data/sampleinfo.txt
+    path : export/local/lamar/sampleinfo.txt
     label : Sample file
     visible: true
     data_type : LAMAR_SAMPLE_SHEET

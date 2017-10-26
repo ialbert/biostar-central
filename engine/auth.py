@@ -65,7 +65,7 @@ def create_data(user, data_model, project, stream=None, fname=None, name="data.b
     data.file.save(name, stream, save=True)
 
     # Set the pending to ready after the file saves.
-    data.ready_state()
+    data.set_ready()
 
     # Updates its own size.
     data.set_size()

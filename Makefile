@@ -9,8 +9,7 @@ uwsgi: init
 	uwsgi  --ini conf/devel/devel_uwsgi.ini
 
 testdata:
-	cd export/local
-	make testdata
+	(cd export/local && make all)
 
 delete:
 	# Ensure the files that could hold secrets exist.

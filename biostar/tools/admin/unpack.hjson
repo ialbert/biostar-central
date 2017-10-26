@@ -1,25 +1,10 @@
 #
-# Requires a data parameter.
+# Admin job that unpacks files in the background.
 #
-unpack : {
-
-    path:export/local/lamar_data/data.tar.gz
-    visible :true
-    origin: ALL
-    data_type: TAR_FASTQ_GZ
-    display_type: DROPDOWN
+target : {
+    value: 1
   }
 
-#
-# Analysis settings.
-#
 settings : {
-    name: unpack a file
-    summary: A script that takes send an emial to specified adress
-    index: test.txt
-    help: '''
-        # Help
-
-        Unpack a given tar file
-    '''
+    help: Admin job that unpacks files in the background.
     }

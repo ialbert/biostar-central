@@ -14,23 +14,23 @@ def join(*args):
     return os.path.abspath(os.path.join(*args))
 
 #TODO Test
-def copy(fname1, fname2):
+def copy(id1, id2):
     # copy content of file1 to file2
 
-    copy_from = Data.objects.filter(path=fname1).first()
-    copy_to = Data.objects.filter(path=fname2).first()
+    source = Data.objects.filter(id=id1).first()
+    target = Data.objects.filter(id=id2).first()
 
-    if copy_from and copy_to:
+    if source and target:
 
         # Make sure the data is "Ready"
-        assert copy_from.state == Data.READY
-        shutil.copyfile(fname1, fname2)
-        logger.info(f"copied contents of {fname1} to {fname2}")
+        assert source.state == Data.READY
+        shutil.copyfile(id1, id2)
+        logger.info(f"copied contents of {id1} to {id2}")
         # Change data to ready state
-        copy_to.ready_state()
+        target.set_ready()
 
     else:
-        logger.error(f"Files {fname1} and {fname2} not in database.")
+        logger.error(f"Data {id1} and {id2} not in database.")
     pass
 
 
@@ -120,7 +120,7 @@ class Command(BaseCommand):
         files = (fname1, fname2)
 
         if copy_data:
-            copy(fname1=fname1, fname2=fname2)
+            copy(id1=fname1, id2=fname2)
 
         elif add_data and pid:
             add(files, pid)
