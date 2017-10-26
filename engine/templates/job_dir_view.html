@@ -1,49 +1,74 @@
 {% extends "base.html" %}
 {% load engine_tags %}
-
+{% load staticfiles %}
 {% block headtitle %}
-Index view : {{job.name}}
+    Index view : {{ job.name }}
 {% endblock %}
 
 
 {% block body %}
 
     <div class="ui center aligned header">
-    Index view : {{job.name}}
+        Results view for: {{ job.name }}
     </div>
     <div class="ui center aligned basic segment">
-            <a class="ui button" href="{% url 'data_list' project.id %}">
-                <i class="file text icon"></i>Data List
-            </a>
+
     </div>
 
-<div class="ui relaxed divided list">
+    <form class="ui large form" action="{% url 'job_files_entry' job.id %}" method="post">
 
-    <div class="item">
-    <a href="{{back_url}}">../</a>
-    </div>
-    {% for file in files %}
-    <div class="item">
+        <div class="ui relaxed divided list">
 
-         {% if file|is_folder_icon %}
+            <div class="item">
+                {% if path %}
+                    <a href="../"><i class="backward icon"></i>../</a>
+                {% else %}
+                    <a href="{% url 'job_view' job.id %}"><i class="backward icon"></i>../</a></a>
+                {% endif %}
+            </div>
 
-             <a href="{{file.url}}"><i class="{{file.icon}}"></i>{{ file.name }}</a>/
+            {% for entry in file_list %}
+                <div class="item">
 
-         {% else %}
+                    {% if entry.is_dir %}
 
-              <form class="ui form" >
-                {% csrf_token %}
-                <button type="submit" name="filename" formmethod="post" value="{{file.path}}" class="ui right floated green mini button">
-                <i class="upload icon"></i>Copy to Project
+                        <a href="{% url 'job_files_list' job.id entry.name %}">
+                            <i class="folder icon"></i>{{ entry.name }}
+                        </a>
+
+                    {% else %}
+
+                        <div class="inline field">
+
+                            <input type="checkbox" name="id">
+
+                            <a href="{{ MEDIA_URL }}{{ job.get_url }}{{ path }}/{{ entry.name }}">
+                                <i class="file text outline icon"></i>{{ entry.name }}
+                            </a>
+
+
+                        </div>
+
+
+                    {% endif %}
+
+                </div>
+            {% endfor %}
+
+        </div>
+
+        {% csrf_token %}
+        <div class="field">
+            <div class="ui center aligned basic segment">
+                <button type="submit" class="ui green button">
+                    <i class="plus icon"></i>Add to Project Data
                 </button>
-                   <a href="{{file.url}}"><i class="{{file.icon}}"></i>{{ file.name }}</a>
-              </form>
+                <a class="ui button" href="{% url 'data_list' project.id %}">
+                    <i class="file text icon"></i>View Project Data
+                </a>
+            </div>
+        </div>
 
-         {% endif %}
-
-    </div>
-    {% endfor %}
-
-</div>
+    </form>
 
 {% endblock %}

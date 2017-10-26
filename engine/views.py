@@ -1,22 +1,17 @@
-#import os
-import logging
-from collections import OrderedDict
-from django.contrib.auth.decorators import login_required
-#from django.template.loader import get_template
+# import os
+
+import mistune
+from django.conf import settings
+# from django.template.loader import get_template
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.urls import reverse
-from django.conf import settings
+
+from . import tasks
 from .forms import *
 from .models import (User, Project, Data,
                      Analysis, Job, get_datatype)
-import mimetypes
-import hjson
-
-from engine.const import *
-from . import tasks
-
-import mistune
 
 
 def join(*args):
@@ -43,7 +38,6 @@ def index(request):
 
 
 def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=None, user=None):
-
     if not icons:
         return []
 
@@ -52,21 +46,21 @@ def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=Non
     for icon in icons:
         is_active = icon is last
         if icon == HOME_ICON:
-            step = (reverse("index"), HOME_ICON, "Home", is_active )
+            step = (reverse("index"), HOME_ICON, "Home", is_active)
         elif icon == PROJECT_LIST_ICON:
             step = (reverse("project_list"), PROJECT_LIST_ICON, "Project List", is_active)
         elif icon == PROJECT_ICON:
-            step = (reverse("project_view", kwargs={'id': project.id}), PROJECT_ICON, "Project View", is_active )
+            step = (reverse("project_view", kwargs={'id': project.id}), PROJECT_ICON, "Project View", is_active)
         elif icon == DATA_LIST_ICON:
-            step = (reverse("data_list", kwargs={'id': project.id}), DATA_LIST_ICON, "Data List", is_active )
+            step = (reverse("data_list", kwargs={'id': project.id}), DATA_LIST_ICON, "Data List", is_active)
         elif icon == DATA_ICON:
-            step = (reverse("data_view", kwargs={'id': data.id}), DATA_ICON, f"Data View", is_active )
+            step = (reverse("data_view", kwargs={'id': data.id}), DATA_ICON, f"Data View", is_active)
         elif icon == ANALYSIS_LIST_ICON:
-            step = (reverse("analysis_list", kwargs={'id': project.id}), ANALYSIS_LIST_ICON, "Analysis List", is_active )
+            step = (reverse("analysis_list", kwargs={'id': project.id}), ANALYSIS_LIST_ICON, "Analysis List", is_active)
         elif icon == ANALYSIS_ICON:
-            step = (reverse("analysis_view", kwargs={'id': analysis.id}), ANALYSIS_ICON, "Analysis View", is_active )
+            step = (reverse("analysis_view", kwargs={'id': analysis.id}), ANALYSIS_ICON, "Analysis View", is_active)
         elif icon == RESULT_LIST_ICON:
-            step = (reverse("job_list", kwargs={'id': project.id,}), RESULT_LIST_ICON, "Result List",is_active)
+            step = (reverse("job_list", kwargs={'id': project.id, }), RESULT_LIST_ICON, "Result List", is_active)
         elif icon == RESULT_ICON:
             step = (reverse("job_view", kwargs={'id': job.id}), RESULT_ICON, "Job View", is_active)
         elif icon == RESULT_VIEW_ICON:
@@ -91,9 +85,9 @@ def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=Non
 
     return path
 
-#TODO: Replace with the manager thing.
-def project_list(request):
 
+# TODO: Replace with the manager thing.
+def project_list(request):
     projects = Project.objects.order_by("-id")
     if not request.user.is_superuser:
         projects = projects.filter(type=Project.USER).all()
@@ -105,9 +99,8 @@ def project_list(request):
     return render(request, "project_list.html", context)
 
 
-#@login_required
+# @login_required
 def project_view(request, id):
-
     project = Project.objects.filter(id=id).first()
 
     # Project not found.
@@ -125,7 +118,6 @@ def project_view(request, id):
 
 @login_required
 def project_edit(request, id):
-
     project = Project.objects.filter(id=id).first()
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON], project=project)
@@ -141,12 +133,11 @@ def project_edit(request, id):
 
     context = dict(project=project, steps=steps, form=form)
     return render(request, 'project_edit.html',
-                      context)
+                  context)
 
 
 @login_required
 def project_create(request):
-
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON])
 
     if request.method == "POST":
@@ -169,19 +160,17 @@ def project_create(request):
                       context)
 
 
-#@login_required
+# @login_required
 def data_list(request, id):
-
     project = Project.objects.filter(id=id).first()
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON,  PROJECT_ICON, DATA_LIST_ICON],
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON],
                                project=project)
     context = dict(project=project, steps=steps)
     return render(request, "data_list.html", context)
 
 
-#@login_required
+# @login_required
 def data_view(request, id):
-
     data = Data.objects.filter(id=id).first()
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON, DATA_ICON],
                                project=data.project, data=data)
@@ -191,7 +180,6 @@ def data_view(request, id):
 
 
 def remove_file(file):
-
     try:
         os.remove(file.path)
     except FileNotFoundError:
@@ -201,7 +189,6 @@ def remove_file(file):
 
 @login_required
 def data_edit(request, id):
-
     data = Data.objects.filter(id=id).first()
     project = data.project
 
@@ -223,7 +210,6 @@ def data_edit(request, id):
 
 @login_required
 def data_upload(request, id):
-
     owner = request.user
 
     project = Project.objects.filter(id=id).first()
@@ -241,16 +227,17 @@ def data_upload(request, id):
             project.create_data(stream=stream, name=name, data_type=data_type, text=text,
                                 owner=owner)
 
-            return redirect(reverse("data_list", kwargs={'id':project.id}))
+            return redirect(reverse("data_list", kwargs={'id': project.id}))
 
         else:
             form.add_error(None, "Invalid form processing.")
     else:
         form = DataUploadForm()
         context = dict(project=project, steps=steps, form=form)
-        return render(request, 'data_upload.html', context )
+        return render(request, 'data_upload.html', context)
 
-#@login_required
+
+# @login_required
 def analysis_list(request, id):
     """
     Returns the list of analyses for a project id.
@@ -263,7 +250,7 @@ def analysis_list(request, id):
     if not request.user.is_superuser:
         analysis = analysis.filter(type=Analysis.USER).all()
 
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON,  PROJECT_ICON, ANALYSIS_LIST_ICON],
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ANALYSIS_LIST_ICON],
                                project=project)
     context = dict(project=project, analysis=analysis, steps=steps)
 
@@ -277,12 +264,12 @@ def analysis_view(request, id):
     analysis = Analysis.objects.filter(id=id).first()
     project = analysis.project
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ANALYSIS_LIST_ICON, ANALYSIS_ICON],
-                           project=project, analysis=analysis)
+                               project=project, analysis=analysis)
     if request.method == "POST":
         form = ExportAnalysis(data=request.POST, analysis=analysis)
         if form.is_valid():
             project, analysis = form.export()
-            return redirect(reverse("analysis_list", kwargs={"id":project.id}))
+            return redirect(reverse("analysis_list", kwargs={"id": project.id}))
     else:
         form = ExportAnalysis(analysis=analysis)
     context = dict(project=project, analysis=analysis, steps=steps,
@@ -297,7 +284,7 @@ def analysis_run(request, id):
 
     project = analysis.project
 
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON,  ANALYSIS_ICON],
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ANALYSIS_ICON],
                                project=project, analysis=analysis)
 
     if request.method == "POST":
@@ -311,7 +298,6 @@ def analysis_run(request, id):
                                       type=analysis.type)
             logger.info(tasks.HAS_UWSGI)
             if tasks.HAS_UWSGI:
-
                 jobid = (job.id).to_bytes(5, byteorder='big')
                 tasks.execute_job.spool(job_id=jobid)
 
@@ -325,11 +311,10 @@ def analysis_run(request, id):
 
 
 def preview_specs(spec, analysis):
-
     if spec.get("settings"):
         name = spec["settings"].get("name", analysis.name)
         help = spec["settings"].get("help", analysis.text)
-        #summary = spec["settings"].get("summary", analysis.text)
+        # summary = spec["settings"].get("summary", analysis.text)
         html = make_html(help)
 
         return dict(name=name, html=html)
@@ -338,9 +323,8 @@ def preview_specs(spec, analysis):
 
 
 def process_analysis_edit(method, analysis, form):
-
-    form_method_map = {'preview':form.preview,
-                       'save':form.save}
+    form_method_map = {'preview': form.preview,
+                       'save': form.save}
     spec = dict()
     if form.is_valid():
         form_method_map[method]()
@@ -351,7 +335,6 @@ def process_analysis_edit(method, analysis, form):
 
 @login_required
 def analysis_edit(request, id):
-
     analysis = Analysis.objects.filter(id=id).first()
     # filter according to user
     project = analysis.project
@@ -378,7 +361,7 @@ def job_list(request, id):
     """
     # filter according to type
     project = Project.objects.filter(id=id).first()
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, RESULT_LIST_ICON ],
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, RESULT_LIST_ICON],
                                project=project)
 
     jobs = project.job_set.order_by("-id")
@@ -387,20 +370,32 @@ def job_list(request, id):
 
     context = dict(jobs=jobs, steps=steps, project=project)
 
-
     return render(request, "job_list.html", context)
+
+
+def job_view(request, id):
+    '''
+    Views the state of a single job.
+    '''
+    job = Job.objects.filter(id=id).first()
+    project = job.project
+
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, RESULT_LIST_ICON, RESULT_VIEW_ICON],
+                               job=job, project=project)
+
+    context = dict(job=job, steps=steps)
+    return render(request, "job_view.html", context=context)
 
 
 def job_result_view(request, id):
     """
-    Returns the primary result file for the job.
+    Returns the primary result of a job.
     """
     job = Job.objects.filter(id=id).first()
-    path = job.json_data.get("settings", {}).get("index", "")
-    url = settings.MEDIA_URL + job.get_url(path=path)
+    index = job.json_data.get("settings", {}).get("index", "")
 
     if job.state == Job.FINISHED:
-        url = settings.MEDIA_URL + job.get_url(path=path)
+        url = settings.MEDIA_URL + job.get_url(path=index)
         return redirect(url)
     else:
         return job_view(request, job.id)
@@ -416,71 +411,32 @@ def job_file_view(request, id):
     return redirect(url)
 
 
-def get_filecontext(root, url):
+def job_dir_view(request, id, path=''):
+    job = Job.objects.filter(id=id).first()
 
-    files = []
-
-    for file in os.listdir(root):
-
-        fileinfo = OrderedDict()
-        fileinfo['name'] = file
-        fileinfo['url'] = url + f"{file}/"
-        fileinfo["icon"] = "file icon"
-        fileinfo["path"] = join(root, file)
-
-        if os.path.isdir(join(root, file)):
-            fileinfo["icon"] = "folder icon"
-        files.append(fileinfo)
-
-    return files
-
-
-def job_dir_view(request, jobdir, extra=''):
-
-    root = join(settings.MEDIA_ROOT, "jobs", jobdir)
-    job = Job.objects.filter(path=root).first()
-    urlpath = request.path.split('/')
-    backurl = reverse('job_view', kwargs={'id': job.id})
     project = job.project
-    rooturl = settings.MEDIA_URL + job.get_url(path=extra)
 
-    if len(extra):
-        root = join(settings.MEDIA_ROOT, "jobs", jobdir, extra)
-        urlpath.remove(extra)
-        backurl = '/'.join(urlpath)
-        rooturl+="/"
+    # This is the root of where we can navigate in
+    target_path = join(job.path, path)
 
-    steps = breadcrumb_builder([PROJECT_LIST_ICON, PROJECT_ICON, RESULT_LIST_ICON, RESULT_VIEW_ICON, RESULT_INDEX_ICON],
-                               job=job, project=project)
+    if not target_path.startswith(job.path):
+        # Attempting to access a file outside of the job directory
+        raise Exception(f"target_path {target_path} not in job directory")
 
-    files = get_filecontext(root, rooturl)
+    # These are pathlike objects with attributes such as name and is_file ...
+    file_list = list(os.scandir(target_path))
+
+    steps = breadcrumb_builder(
+        [PROJECT_LIST_ICON, PROJECT_ICON, RESULT_LIST_ICON, RESULT_VIEW_ICON, RESULT_INDEX_ICON],
+        job=job, project=project)
+
     if request.method == "POST":
-
-        form = ExportData(data=request.POST, project=project)
-
+        form = DataCopyForm(data=request.POST, project=project)
         if form.is_valid():
             data = form.export()
             messages.success(request, f"Copied {data.name} to {project.name}.")
     else:
-        form = ExportData(project=project)
+        form = DataCopyForm(project=project)
 
-    context = dict(files=files, job=job, back_url=backurl, form=form, steps=steps, project=project)
+    context = dict(file_list=file_list, job=job, form=form, steps=steps, project=project, path=path)
     return render(request, "job_dir_view.html", context)
-
-
-def job_view(request, id):
-
-    job = Job.objects.filter(id=id).first()
-    project = job.project
-
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, RESULT_LIST_ICON, RESULT_VIEW_ICON ],
-                               job=job, project=project)
-
-    context = dict(job=job, steps=steps)
-    return render(request, "job_view.html", context=context)
-
-
-
-
-
-

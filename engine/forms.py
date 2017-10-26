@@ -97,25 +97,19 @@ class DataEditForm(forms.ModelForm):
 
 def make_form_field(data, project):
 
-    # Should this field be rendered?
     display_type = data.get("display_type", '')
+
+    # Fields with no display type are not visible.
     if not display_type:
         return
 
-    # Is this an existing data
+    # Uploaded data is accessed via paths.
     path = data.get("path")
-    origin = data.get('origin')
 
-    # Project specific data
-    if path and origin == PROJECT_ORIGIN:
+    if path:
+        # Project specific data needs a special field.
         data_type = data.get("data_type")
         field = factory.data_generator(data, project=project, data_type=data_type)
-
-    # not project specific data
-    elif origin == ALL_ORIGIN:
-        data_type = data.get("data_type")
-        field = factory.data_generator(data, data_type=data_type)
-
     else:
         func = factory.TYPE2FUNC.get(display_type)
         if not func:
@@ -126,7 +120,7 @@ def make_form_field(data, project):
     return field
 
 
-class ExportData(forms.Form):
+class DataCopyForm(forms.Form):
 
 
     def __init__(self, project, *args, **kwargs):
