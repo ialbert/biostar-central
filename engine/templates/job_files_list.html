@@ -15,7 +15,7 @@
 
     </div>
 
-    <form class="ui large form" action="{% url 'job_files_entry' job.id %}" method="post">
+    <form class="ui large form" method="post">
 
         <div class="ui relaxed divided list">
 
@@ -40,15 +40,13 @@
 
                         <div class="inline field">
 
-                            <input type="checkbox" name="id">
+                            <input type="checkbox" name="paths" value="{{ path }}/{{ entry.name }}">
 
                             <a href="{{ MEDIA_URL }}{{ job.get_url }}{{ path }}/{{ entry.name }}">
                                 <i class="file text outline icon"></i>{{ entry.name }}
                             </a>
 
-
                         </div>
-
 
                     {% endif %}
 

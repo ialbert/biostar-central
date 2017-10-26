@@ -411,7 +411,7 @@ def job_file_view(request, id):
     return redirect(url)
 
 
-def job_dir_view(request, id, path=''):
+def job_files_list(request, id, path=''):
     job = Job.objects.filter(id=id).first()
 
     project = job.project
@@ -423,7 +423,7 @@ def job_dir_view(request, id, path=''):
         # Attempting to access a file outside of the job directory
         raise Exception(f"target_path {target_path} not in job directory")
 
-    # These are pathlike objects with attributes such as name and is_file ...
+    # These are pathlike objects with attributes such as name, is_file
     file_list = list(os.scandir(target_path))
 
     steps = breadcrumb_builder(
@@ -431,12 +431,16 @@ def job_dir_view(request, id, path=''):
         job=job, project=project)
 
     if request.method == "POST":
+
         form = DataCopyForm(data=request.POST, project=project)
         if form.is_valid():
-            data = form.export()
-            messages.success(request, f"Copied {data.name} to {project.name}.")
+            count = form.process()
+            messages.success(request, f"Copied {count} file to {project.name}.")
+        else:
+            messages.warning(request, "Unable to copy files")
+
     else:
         form = DataCopyForm(project=project)
 
     context = dict(file_list=file_list, job=job, form=form, steps=steps, project=project, path=path)
-    return render(request, "job_dir_view.html", context)
+    return render(request, "job_files_list.html", context)

@@ -122,19 +122,26 @@ def make_form_field(data, project):
 
 class DataCopyForm(forms.Form):
 
+    paths = forms.CharField(max_length=256)
 
     def __init__(self, project, *args, **kwargs):
-
         self.project = project
         super().__init__(*args, **kwargs)
 
-        self.fields["filename"] = forms.CharField(initial="filename")
+    def process(self):
+        # More than one can be selected
+        paths = self.data.getlist('paths')
 
-    def export(self):
+        for path in paths:
+            # Figure out the full path based on existing data
+            print(f"Copy data at: {path}")
 
-        to_export = self.cleaned_data.get("filename")
-        data = self.project.create_data(fname=to_export)
-        return data
+        return len(paths)
+
+
+        #to_export = self.cleaned_data.get("filename")
+        #data = self.project.create_data(fname=to_export)
+
 
 
 class ExportAnalysis(forms.Form):
