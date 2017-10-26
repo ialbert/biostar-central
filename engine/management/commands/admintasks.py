@@ -4,7 +4,7 @@ import os
 import mimetypes
 import tarfile
 from django.core.management.base import BaseCommand
-from engine.models import Data
+from engine.models import Data, Project
 from biostar.tools.const import COLLECTION_TYPES
 
 
@@ -15,18 +15,20 @@ def join(*args):
     return os.path.abspath(os.path.join(*args))
 
 
-def copy(sourceid=None, targetid=None, fname=None, project=None):
+def copy(sourceid=None, targetid=None, fname=None, pid=0):
+
+    project = Project.objects.filter(id=pid).first()
 
     assert sourceid or fname
-    if not targetid:
 
-        # Copy a single file to a project and exit.
+    if not targetid:
+        # Copies a file to a project
         assert fname and project
         project.create_data(fname = fname)
         return
 
-    data = Data.objects.filter(id=sourceid).first()
-
+    elif sourceid:
+        assert targetid
 
     source = Data.objects.filter(id=sourceid).first()
     target = Data.objects.filter(id=targetid).first()
@@ -35,14 +37,14 @@ def copy(sourceid=None, targetid=None, fname=None, project=None):
 
         # Make sure the data is "Ready"
         assert source.state == Data.READY
-        shutil.copyfile(id1, id2)
-        logger.info(f"copied contents of {id1} to {id2}")
-        # Change data to ready state
+        shutil.copyfile(source.file.path, target.file.path)
+        logger.info(f"copied contents of {source.name} to {target.name}")
+        # Change copied data to ready state
         target.set_ready()
 
     else:
-        logger.error(f"Data {id1} and {id2} not in database.")
-    pass
+        logger.error(f"Data {sourceid} and {targetid} not in database.")
+    return
 
 
 def add(fname, project_id):
@@ -51,7 +53,6 @@ def add(fname, project_id):
 
 
 def unzip(fname):
-
 
     try:
         mimetype, mimecode = mimetypes.guess_type(fname)
@@ -99,16 +100,20 @@ class Command(BaseCommand):
                             help="Project id to add to.")
 
         parser.add_argument('--source',
-                            help="File to add or copy from.")
+                            help="Data id to copy from.")
 
         parser.add_argument('--target',
-                            help="File to add or copt to.")
+                            help="Data id to copt to.")
+
+        parser.add_argument('--fname',
+                            help="File copy to project.")
 
     def handle(self, *args, **options):
 
         source = options.get("source")
         target = options.get("target")
         pid = options.get("pid")
+        fname = options.get("fname")
         copy_data = options.get("copy")
         add_data = options.get("add")
         unpack_data = options.get("unpack")
@@ -119,7 +124,10 @@ class Command(BaseCommand):
         files = (source, target)
 
         if copy_data:
-            copy(id1=source, id2=target)
+            if fname and pid:
+                copy(fname=fname, pid=pid)
+                return
+            copy(sourceid=source, targetid=target)
 
         elif add_data and pid:
             add(files, pid)

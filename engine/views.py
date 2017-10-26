@@ -440,7 +440,7 @@ def job_files_list(request, id, path=''):
 
     if request.method == "POST":
 
-        form = DataCopyForm(data=request.POST, project=project)
+        form = DataCopyForm(data=request.POST, project=project, job=job)
         if form.is_valid():
             count = form.process()
             messages.success(request, f"Copied {count} file to {project.name}.")

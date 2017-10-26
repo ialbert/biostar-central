@@ -3,16 +3,21 @@ import hjson, logging
 from django import forms
 from django.utils.translation import gettext_lazy as helpers
 from django.contrib.auth.models import User, Group
+from django.core import management
 from .models import Project, Data, Analysis
+from engine.const import *
+import os
 from . import util
 from . import factory
 #from pagedown.widgets import PagedownWidget
-from engine.const import *
 from engine.web.auth import get_data
 from . import models
 
 # Share the logger with models.
 logger = models.logger
+
+def join(*args):
+    return os.path.abspath(os.path.join(*args))
 
 class SignUpForm(forms.ModelForm):
     password1 = forms.CharField(
@@ -124,24 +129,27 @@ class DataCopyForm(forms.Form):
 
     paths = forms.CharField(max_length=256)
 
-    def __init__(self, project, *args, **kwargs):
+    def __init__(self, project, job=None, *args, **kwargs):
         self.project = project
+        self.job = job
         super().__init__(*args, **kwargs)
 
     def process(self):
         # More than one can be selected
         paths = self.data.getlist('paths')
+        basedir = '' if not self.job else self.job.path
 
         for path in paths:
             # Figure out the full path based on existing data
+            if path.startswith("/"):
+                path = path[1:]
+            path = join(basedir, path)
+
+            management.call_command("admintasks", copy=True, fname=path, pid=self.project.id)
+
             print(f"Copy data at: {path}")
 
         return len(paths)
-
-
-        #to_export = self.cleaned_data.get("filename")
-        #data = self.project.create_data(fname=to_export)
-
 
 
 class ExportAnalysis(forms.Form):
