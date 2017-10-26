@@ -2,7 +2,6 @@
 
 data : {
     path: export/local/lamar/sequences.tar.gz
-    origin: PROJECT
     data_type: TAR_FASTQ_GZ
     display_type: DROPDOWN
     }
@@ -12,7 +11,6 @@ sampleinfo : {
     label : Sample file
     data_type : LAMAR_SAMPLE_SHEET
     display_type: DROPDOWN
-    origin: PROJECT
     }
 
 trim_primer: {
