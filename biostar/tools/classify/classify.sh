@@ -35,8 +35,3 @@ centrifuge -x ${REF_DIR}/$INDEX -U $INPUT_DATA --report-file ${RESULT_DIR}/repor
 # Plot results.
 python -m biostar.tools.classify.plotter ${RESULT_DIR}/report.txt >${RESULT_VIEW}
 
-# Register results to settings.index.
-#cp ${RESULT_DIR}/report.txt ${RESULT_DIR}/${RESULT_VIEW}
-
-
-

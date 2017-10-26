@@ -67,22 +67,16 @@ template = '''
     <div id="piechart_div" style="width: 900px; height: 500px;"></div>    
      <div id="mapchart_div" style="width: 900px; height: 500px;"></div>
     
-    <!--Table and divs that hold the pie charts
-    <table class="columns">
-      <tr>
-        <td><div id="barchart_div" style="border: 1px solid #ccc"></div></td>
-        <td><div id="piechart_div" style="border: 1px solid #ccc"></div></td>
-      </tr>
-    </table>
-    -->
   </body>
 </html>
 '''
 
-
 import sys, csv
 
-#fname = "report.txt"
+# fname = "report.txt"
+# template_file = "classify_results.html"
+# template = open(template_file).read()
+
 fname = sys.argv[1]
 items = []
 
@@ -95,7 +89,7 @@ with open(fname) as csvfile:
         items.append((species, reads))
 
 # Sort by counts.
-# items.sort(key=lambda x: x[1])
+# items.sort(key=lambda x: int(x[1]))
 
 # Sort by species name.
 items.sort(key=lambda x: x[0])
@@ -104,7 +98,3 @@ items.sort(key=lambda x: x[0])
 context = dict(items=items)
 html = render.render_data(template_txt=template, context=context)
 print(html)
-
-# with open('index.html', 'w') as fp:
-#    fp.write(html)
-
