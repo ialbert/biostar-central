@@ -3,5 +3,6 @@ multiqc
 bbmap
 centrifuge
 blast
+bwa
 
 
