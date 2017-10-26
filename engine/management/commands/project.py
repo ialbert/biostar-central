@@ -7,21 +7,21 @@ from django.core import management
 logger = logging.getLogger('engine')
 
 def create(owner, name=defaults.PROJECT_NAME, summary=defaults.PROJECT_SUMMARY,
-           add=False, json=None, template=None, create_job=False, usage=defaults.USAGE, analysis_usage=defaults.USAGE):
+           add=False, json=None, template=None, create_job=False, project_type=defaults.USAGE, analysis_type=defaults.USAGE):
 
     if not owner.is_superuser:
         logger.error(f'User is not admin.')
         return
 
-    project = Project.objects.create(owner=owner, name=name, summary=summary, usage=usage)
-    logger.info(f'Created project name={project.name}, id={project.id} with usage:{dict(project.USAGE_CHOICES)[usage]}')
+    project = Project.objects.create(owner=owner, name=name, summary=summary, type=project_type)
+    logger.info(f'Created project name={project.name}, id={project.id} with type:{project.get_type_display()}')
     project.save()
 
     if add:
         assert json and template
         assert isinstance(json, str) and isinstance(template, str)
         management.call_command('analysis', template=template, id=project.id, create_job=create_job, json=json,
-                                usage=analysis_usage, add=True)
+                                type=analysis_type, add=True)
 
 
 class Command(BaseCommand):
@@ -52,15 +52,15 @@ class Command(BaseCommand):
 
         parser.add_argument('--create_job', action='store_true', default=False,
                             help="Also creates a queued job for the analysis")
-        # TODO: Impove the help for usage
+        # TODO: Impove the help for type
 
-        parser.add_argument('--project_usage',
+        parser.add_argument('--project_type',
                             help=f"Who this job/analysis meant for.",
-                            default=defaults.USAGE, choices=dict(Project.USAGE_CHOICES).values())
+                            default=defaults.USAGE, choices=dict(Project.TYPE_CHOICES).values())
 
-        parser.add_argument('--analysis_usage',
+        parser.add_argument('--analysis_type',
                             help=f"Who this job/analysis meant for.",
-                            default=defaults.USAGE, choices=dict(Analysis.USAGE_CHOICES).values())
+                            default=defaults.USAGE, choices=dict(Analysis.TYPE_CHOICES).values())
 
 
     def handle(self, *args, **options):
@@ -72,15 +72,15 @@ class Command(BaseCommand):
         json = options.get('json')
         template = options.get('template')
         create_job = options['create_job']
-        usage = options['project_usage']
+        type = options['project_type']
         creator_email = options.get('creator_email', '')
 
         owner = User.objects.filter(is_superuser=True, email=creator_email).first()
         if not owner:
             owner = User.objects.filter(is_superuser=True).first()
-        usage_map = lambda dictionary: {y: x for x, y in dictionary.items()}
-        project_usage = usage_map(dict(Project.USAGE_CHOICES)).get(usage, Project.USER)
+        type_map = lambda dictionary: {y: x for x, y in dictionary.items()}
+        project_type = type_map(dict(Project.TYPE_CHOICES)).get(type, Project.USER)
 
         if add:
             assert json and template
-        create(owner, name, summary, add, json, template, create_job, project_usage)
+        create(owner, name, summary, add, json, template, create_job, project_type)

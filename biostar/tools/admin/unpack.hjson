@@ -1,11 +1,13 @@
 #
 # Requires a data parameter.
 #
-email : {
-    value:testemail@lvh.me
-    visible: true
-    display_type: TEXTBOX
-    label: Enter the email to send message to
+unpack : {
+
+    path:export/local/lamar_data/data.tar.gz
+    visible :true
+    origin: ALL
+    data_type: TAR_FASTQ_GZ
+    display_type: DROPDOWN
   }
 
 #
@@ -18,6 +20,6 @@ settings : {
     help: '''
         # Help
 
-        Send an email to one user ( for now).
+        Unpack a given tar file
     '''
     }

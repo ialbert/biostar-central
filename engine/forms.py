@@ -76,15 +76,22 @@ class ProjectForm(forms.ModelForm):
 
 
 class DataUploadForm(forms.ModelForm):
+
+    choices = [(y, x) for x,y in DATA_TYPES.items()]
+    data_type = forms.IntegerField(widget=forms.Select(choices=choices))
+
     class Meta:
         model = Data
-        fields = ['file', 'summary', 'text']
+        fields = ['file', 'summary', 'data_type', 'text']
 
 
 class DataEditForm(forms.ModelForm):
+    choices = [(y, x) for x,y in DATA_TYPES.items()]
+    data_type = forms.IntegerField(widget=forms.Select(choices=choices))
+
     class Meta:
         model = Data
-        fields = ['name', 'summary', 'text']
+        fields = ['name', 'summary', 'data_type','text']
 
 
 
@@ -97,9 +104,18 @@ def make_form_field(data, project):
 
     # Is this an existing data
     path = data.get("path")
-    if path:
+    origin = data.get('origin')
+
+    # Project specific data
+    if path and origin == PROJECT_ORIGIN:
         data_type = data.get("data_type")
         field = factory.data_generator(data, project=project, data_type=data_type)
+
+    # not project specific data
+    elif origin == ALL_ORIGIN:
+        data_type = data.get("data_type")
+        field = factory.data_generator(data, data_type=data_type)
+
     else:
         func = factory.TYPE2FUNC.get(display_type)
         if not func:
@@ -177,13 +193,10 @@ class RunAnalysis(forms.Form):
         Replaces the value of data fields with the path to the data.
         Should be called after the form has been filled and is valid.
         '''
-        project = self.analysis.project
 
         # Gets all data for the project
-        datamap = project.get_data()
 
-        #print ( type(list(datamap.keys())[0]) )
-
+        datamap = self.project.get_data()
         json_data = self.json_data.copy()
 
         for field, obj in json_data.items():
@@ -192,22 +205,29 @@ class RunAnalysis(forms.Form):
                 continue
 
             # If it has a path it is an uploaded file.
-            if obj.get("path"):
-                data_id = self.cleaned_data.get(field, '')
-                data_id = int(data_id)
-                data = datamap.get(data_id)
-                data.fill_dict(obj)
+            if obj.get("path") and obj.get("origin")== PROJECT_ORIGIN:
+
+                self.fill_data(field=field, datamap=datamap, obj=obj)
+                continue
+
+            elif obj.get("path") and obj.get("origin")== ALL_ORIGIN:
+
+                datamap = dict((obj.id, obj) for obj in Data.objects.all())
+                self.fill_data(field=field, datamap=datamap, obj=obj)
                 continue
 
             if field in self.cleaned_data:
-                # Mutates the value key.
                 obj["value"] = self.cleaned_data[field]
-
-            # TODO CHANGE
-            if obj.get("path"):
-                obj["path"] = os.path.abspath(obj.get("path"))
-
         return json_data
+
+
+    def fill_data(self, field, datamap, obj):
+
+        data_id = self.cleaned_data.get(field, '')
+        data_id = int(data_id)
+        data = datamap.get(data_id)
+        data.fill_dict(obj)
+        return
 
 
 class EditAnalysisForm(forms.Form):
