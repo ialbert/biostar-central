@@ -165,6 +165,9 @@ def data_list(request, id):
     project = Project.objects.filter(id=id).first()
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON],
                                project=project)
+
+    print (project.data_set.all())
+
     context = dict(project=project, steps=steps)
     return render(request, "data_list.html", context)
 
