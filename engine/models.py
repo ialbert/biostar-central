@@ -150,7 +150,8 @@ class Data(models.Model):
     # Will be false if the objects is to be deleted.
     valid = models.BooleanField(default=True)
 
-    rootdir = models.FilePathField(default="")
+    # Data directory.
+    data_dir = models.FilePathField(default="")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -161,10 +162,10 @@ class Data(models.Model):
         self.date = self.date or now
         self.html = make_html(self.text)
 
-        if not os.path.isdir(join(self.project.get_path(), f"data-{self.uid}")):
-            rootdir = join(self.project.get_path(), f"data-{self.uid}")
-            os.makedirs(rootdir)
-            self.rootdir = rootdir
+        data_dir = self.build_path()
+        if not data_dir:
+            os.makedirs(data_dir)
+            self.data_dir = self.build_path()
 
         super(Data, self).save(*args, **kwargs)
 
@@ -189,6 +190,9 @@ class Data(models.Model):
 
     def __str__(self):
         return self.name
+
+    def build_path(self):
+        return join(self.project.get_path(), f"data-{self.uid}")
 
     def get_path(self):
         return self.file.path
