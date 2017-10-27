@@ -3,6 +3,13 @@ from biostar.tools.render import render_template
 import sys, csv , re
 
 
+def parse_flagstats(fname):
+    data
+
+
+
+
+
 def make_plot():
 
     file1 = sys.argv[1]
@@ -36,22 +43,10 @@ def make_plot():
             legend: {position: 'none'},
         '''
 
+
+
+
     '''
-    #file2 = sys.argv[2]
-    #file2 = "mapping_stats.txt"
-    with open(file2) as csvfile:
-        reader = csv.DictReader(csvfile, delimiter="\t")
-        for row in reader:
-            total = row['Alignments']
-            mapped = row['Mapped']
-            mapped_fwd = row['Mapped_fwd']
-            mapped_rev = row['Mapped_rev']
-            secondary = row['Secondary']
-            chimeric = row['Chimeric']
-
-        data2.append(('total',total),('mapped'))
-
-
     p2 = ChartParams()
     p2.type = 'PieChart'
     p2.data = data2
@@ -74,5 +69,6 @@ def make_plot():
 
 
 if __name__ == '__main__':
+    parse_flagstats("alignment_stats.txt")
     make_plot()
 
