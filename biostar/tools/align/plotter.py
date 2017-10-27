@@ -4,10 +4,17 @@ import sys, csv , re
 
 
 def parse_flagstats(fname):
-    data
 
-
-
+    '''
+    data = open(fname).readlines()
+    for stat in stats:
+        arr = stat.split('+')
+        print(arr)
+        1/0
+    print(stats)
+    1/0
+    '''
+    pass
 
 
 def make_plot():
