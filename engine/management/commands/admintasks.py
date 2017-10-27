@@ -1,7 +1,6 @@
 import logging
 import shutil
 import os
-import mimetypes
 import tarfile
 from django.core.management.base import BaseCommand
 from engine.models import Data, Project
@@ -45,7 +44,7 @@ def copy(sourceid=None, targetid=None, fname=None, pid=0):
         target.set_ready()
 
     else:
-        logger.error(f"Data {sourceid} and {targetid} not in database.")
+        logger.error(f"Data {sourceid} and/or {targetid} not in database.")
     return
 
 
@@ -68,8 +67,10 @@ def unzip(targetid):
     fname = data.file.path
     basedir = join(fname, "..")
 
-    #TODO: this is a hacky way of unzipping
-    os.system(f"cd {basedir} && tar -xvf {fname}")
+    tar = tarfile.open(fname)
+    tar.extractall()
+    tar.close()
+    #os.system(f"cd {basedir} && tar -xvf {fname}")
     logger.info(f"Unzipped data.id={targetid}, name={data.name} to {basedir}.")
 
 
