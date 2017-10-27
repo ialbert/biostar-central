@@ -61,8 +61,6 @@ UNMAPPED_READS=$(($TOTAL-$MAPPED_READS))
 
 
 # Collect results.
-mkdir -p $RESULTS
-mv ${OUTPUT}* ${RESULTS}/
 echo -e "Total\tMapped\tUnmapped" >${RESULTS}/mapping_stats.txt
 echo -e "$TOTAL\t$MAPPED_READS\t$UNMAPPED_READS" >>${RESULTS}/mapping_stats.txt
 
