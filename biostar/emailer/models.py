@@ -6,10 +6,10 @@ from engine.util import get_uuid
 
 class EmailList(models.Model):
 
-    ACTIVE, DELETED, NOT_ACTIVE = 1,2,3
+    ACTIVE, DELETED, INACTIVE, OPTOUT = 1,2,3,4
 
-    STATE_CHOICES = [(ACTIVE, "Active"), (DELETED, "Deleted"), (NOT_ACTIVE, "Not active")]
+    STATE_CHOICES = [(ACTIVE, "Active"), (DELETED, "Deleted"), (INACTIVE, "In active"), (OPTOUT, "Opted out")]
 
     uid = models.CharField(max_length=16, blank=True, unique=True, default=get_uuid(16))
-
+    state = models.IntegerField(default=ACTIVE, choices=STATE_CHOICES)
 

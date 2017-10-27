@@ -35,6 +35,7 @@ def demo():
 
     p1 = ChartParams()
     p1.data = map(make, range(50))
+
     p1.xlabel = "Size 1"
     p1.ylabel = "Value 1"
 

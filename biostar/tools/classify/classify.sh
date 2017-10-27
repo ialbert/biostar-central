@@ -12,7 +12,6 @@ REF_DIR=ref
 REF_SEQ=reference.fa
 INDEX=reference
 TAXA_MAP=acc2taxa.txt
-DATA_DIR=data
 RESULT_DIR=results
 
 # Create reference sequence file.

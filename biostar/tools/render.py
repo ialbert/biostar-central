@@ -7,6 +7,7 @@ import os, hjson
 __DIR = os.path.dirname(__file__)
 __TEMPLATES = os.path.join(__DIR, "templates")
 
+
 def setup():
     '''
     Specify template engine and template directory.
@@ -47,6 +48,7 @@ def render_data(context, template_txt):
     html = template.render(ctx)
     return html
 
+
 def render_template(data, name):
     '''
     Attempts to find and load a template by name from
@@ -56,6 +58,7 @@ def render_template(data, name):
     template = loader.get_template(name)
     result = template.render(data)
     return result
+
 
 if __name__ == "__main__":
 
