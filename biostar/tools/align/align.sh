@@ -32,6 +32,9 @@ bwa mem -t 4 ${INDEX} ${INPUT}  | samtools view -b |samtools sort >${OUTPUT}
 samtools index ${OUTPUT}
 
 echo "Computing statistics."
+echo "--------------------"
+samtools flagstat ${OUTPUT}
+echo "--------------------"
 
 # Get number of reads mapped to each chromosome.
 IDX_STATS=$(samtools idxstats ${OUTPUT})
