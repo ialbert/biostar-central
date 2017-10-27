@@ -57,4 +57,4 @@ echo -e "$TOTAL\t$MAPPED_READS\t$UNMAPPED_READS" >>${RESULTS}/mapping_stats.txt
 
 
 # Plot results.
-python -m biostar.tools.align.plotter ${RESULTS}/chrom_mapping.txt ${RESULTS}/alignment_stats.txt >${RESULT_VIEW}
+python -m biostar.tools.align.plotter ${RESULTS}/chrom_mapping.txt ${RESULTS}/mapping_stats.txt >${RESULT_VIEW}
