@@ -41,14 +41,14 @@ def run(job, options={}):
 
         # Populate extra context
         def extra_context(job):
-            data = dict(
+            extras = dict(
                 media_root=settings.MEDIA_ROOT, work_dir=work_dir, local_root=settings.LOCAL_ROOT,
                 user_id=job.owner.id, user_email=job.owner.email,
                 job_id=job.id, job_name=job.name,
                 project_id=job.project.id, project_name=job.project.name, analyis_name=job.analysis.name,
                 analysis_id=job.analysis.id, analysis_name=job.analysis.name,
             )
-            return data
+            return extras
 
         # Add the runtime context.
         json_data['runtime'] = extra_context(job)

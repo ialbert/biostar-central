@@ -191,7 +191,7 @@ class Data(models.Model):
         obj['path'] = self.get_path()
         obj['value'] = self.id
         obj['name'] = self.name
-
+        obj['uid'] = self.uid
 
 class Analysis(models.Model):
     ADMIN, USER = 1, 2
