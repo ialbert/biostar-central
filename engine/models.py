@@ -1,5 +1,4 @@
-import hjson
-import logging
+import logging, hjson
 
 import mistune
 from django.contrib.auth.models import Group
@@ -10,9 +9,7 @@ from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
 
-from . import auth
-from . import settings
-from . import util
+from . import util, settings
 from .const import *
 
 logger = logging.getLogger("engine")
@@ -105,32 +102,6 @@ class Project(models.Model):
 
     def get_path(self):
         return join(settings.MEDIA_ROOT, "projects", f"proj-{self.uid}")
-
-    def get_data(self, data_type=None):
-        """
-        Returns a dictionary keyed by data stored in the project.
-        """
-
-        return auth.get_data(user=self.owner, project=self, data_type=data_type,
-                             query=Data.objects.filter(project=self))
-
-    def create_analysis(self, json_text, template, owner=None, summary='', name='', text='', type=None):
-        """
-        Creates analysis from a spec and template
-        """
-        analysis = auth.create_analysis(owner, self, Analysis, json_text, template, summary, name, text, type)
-        logger.info(f"Created analysis id={analysis.id} of type_type={dict(Analysis.TYPE_CHOICES)[analysis.type]}")
-        return analysis
-
-    def create_data(self, stream=None, fname=None, name="data.bin", owner=None, text='', data_type=None, type=None):
-        """
-        Creates a data for the project from filename or a stream.
-        """
-
-        data = auth.create_data(owner, Data, self, stream, fname, name, text, data_type, type)
-
-        logger.info(f"Added data id={data.id} of type={data.data_type}")
-        return data
 
 
 class Data(models.Model):

@@ -6,7 +6,7 @@ from django.core import management
 
 logger = logging.getLogger('engine')
 
-def create(owner, name=defaults.PROJECT_NAME, summary=defaults.PROJECT_SUMMARY,
+def create(owner, name=defaults.DEMO_PROJECT_NAME, summary=defaults.DEMO_PROJECT_SUMMARY,
            add=False, json=None, template=None, create_job=False, project_type=defaults.USAGE, analysis_type=defaults.USAGE):
 
     if not owner.is_superuser:
@@ -31,12 +31,12 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
 
         parser.add_argument('--name',
-                            help=f"Name of created project ( in quotes). default = {defaults.PROJECT_NAME}",
-                            default=defaults.PROJECT_NAME)
+                            help=f"Name of created project ( in quotes). default = {defaults.DEMO_PROJECT_NAME}",
+                            default=defaults.DEMO_PROJECT_NAME)
 
         parser.add_argument('--summary',
-                            help=f"Name of created project ( in quotes). default = {defaults.PROJECT_SUMMARY}",
-                            default=defaults.PROJECT_SUMMARY)
+                            help=f"Name of created project ( in quotes). default = {defaults.DEMO_PROJECT_SUMMARY}",
+                            default=defaults.DEMO_PROJECT_SUMMARY)
 
         parser.add_argument('--creator_email',
                             help=f"Name of created project. default = first admin user")

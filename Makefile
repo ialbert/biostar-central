@@ -22,7 +22,7 @@ delete:
 	rm -f export/database/engine.db
 	rm -rf export/media/*
 
-reset:delete init admin_projects jobs
+reset: delete init jobs
 
 next:
 	python manage.py job --next
@@ -33,10 +33,6 @@ hello:
 	python manage.py analysis --add --json biostar/tools/hello/hello2.hjson  --template biostar/tools/hello/hello2.sh --create_job
 	python manage.py analysis --add --json biostar/tools/hello/hello1.hjson  --template biostar/tools/hello/hello1.sh --create_job
 
-
-admin_projects:
-
-	python manage.py project --project_type admin --name "Admin projects"
 
 
 jobs:

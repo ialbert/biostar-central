@@ -3,6 +3,7 @@ from django.core.management.base import BaseCommand
 from engine.models import Job, Project, Analysis, User, Data
 from biostar.tools.const import DATA_TYPES
 from biostar.tools import defaults
+from engine import auth
 
 logger = logging.getLogger('engine')
 
@@ -15,7 +16,7 @@ class Command(BaseCommand):
 
         parser.add_argument('--add', action='store_true', default=False,
                             help="Adds an analysis to a project")
-        parser.add_argument('--id', default=1,
+        parser.add_argument('--id', default=2,
                             help="Specifies the project id")
         parser.add_argument('--json',
                             help="The json specification file")
@@ -26,8 +27,8 @@ class Command(BaseCommand):
 
         # TODO: Impove the help for type
         parser.add_argument('--analysis_type',
-                            help=f"Who this job/analysis meant for.",
-                            default=defaults.USAGE, choices=dict(Analysis.TYPE_CHOICES).values())
+                            help=f"Analysis type.",
+                            default=Analysis.USER, choices=dict(Analysis.TYPE_CHOICES).values())
 
     def handle(self, *args, **options):
 
@@ -90,7 +91,8 @@ class Command(BaseCommand):
                 text = json_data.get("settings", {}).get("help", "No help")
                 text = textwrap.dedent(text)
                 summary = json_data.get("settings", {}).get("summary", "No summary")
-                analysis = project.create_analysis(json_text=json_text, summary=summary,
+
+                analysis = auth.create_analysis(project=project, json_text=json_text, summary=summary,
                                                    template=template, name=name, text=text, type=analysis_type)
                 logger.info(f"Added analysis '{analysis.name}' to project id={project.id}")
 
@@ -104,9 +106,9 @@ class Command(BaseCommand):
                         data_type = DATA_TYPES.get(data_type)
 
                         if path:
-                            data = project.create_data(fname=path, data_type=data_type)
+                            data = auth.create_data(project=project, fname=path, data_type=data_type)
                             data.fill_dict(value)
-                    analysis.create_job(json_data=json_data, type=analysis_type)
+                    auth.create_job(analysis=analysis, json_data=json_data, type=analysis_type)
 
             except KeyError as exc:
                 logger.error(f"processing the analysis: {exc}")

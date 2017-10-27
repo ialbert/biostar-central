@@ -8,7 +8,7 @@ LOGGING = {
             'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
         },
         'simple': {
-            'format': '%(levelname)s\t%(module)s.%(funcName)s\t%(message)s'
+            'format': '%(levelname)s   %(module)s.%(funcName)s   %(message)s'
         },
     },
 

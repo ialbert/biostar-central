@@ -10,7 +10,7 @@ import os
 from . import util
 from . import factory
 #from pagedown.widgets import PagedownWidget
-from engine.web.auth import get_data
+
 from . import models
 
 # Share the logger with models.
