@@ -5,8 +5,8 @@ import sys, csv , re
 
 def make_plot():
 
-    #file1 = sys.argv[1]
-    file1 = "chrom_mapping.txt"
+    file1 = sys.argv[1]
+    #file1 = "chrom_mapping.txt"
     data1, data2 = [], []
 
     # Plot samtools idxstats results.
@@ -36,8 +36,9 @@ def make_plot():
             legend: {position: 'none'},
         '''
 
+    '''
     #file2 = sys.argv[2]
-    file2 = "alignment_stats.txt"
+    #file2 = "alignment_stats.txt"
     with open(file2) as csvfile:
         reader = csv.DictReader(csvfile, delimiter="\t")
         for row in reader:
@@ -58,13 +59,10 @@ def make_plot():
     p2.xlabel = "Category"
     p2.ylabel = "Percent"
 
-    p2.options = '''    
-               title: 'Mapping summary.',
-               legend: {position: 'left'},
-           '''
 
+    '''
     # This is the context.
-    data = dict(p1=p1, p2=p2)
+    data = dict(p1=p1)
 
     name = "bwa.html"
 
