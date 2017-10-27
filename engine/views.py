@@ -1,18 +1,20 @@
 # import os
 
+from operator import itemgetter
+
 import mistune
 from django.conf import settings
 # from django.template.loader import get_template
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import user_passes_test
 from django.shortcuts import render, redirect
 from django.urls import reverse
-from django.contrib.auth.decorators import user_passes_test
 
 from . import tasks, auth
 from .forms import *
 from .models import (User, Project, Data,
-                     Analysis, Job, get_datatype)
+                     Analysis, Job)
 
 
 def join(*args):
@@ -92,14 +94,13 @@ def site_admin(request):
     '''
     Administrative view. Lists the admin project and job.
     '''
-    steps = breadcrumb_builder( [HOME_ICON])
+    steps = breadcrumb_builder([HOME_ICON])
     projects = Project.admins.all()
     context = dict(steps=steps, projects=projects)
     return render(request, 'admin_index.html', context=context)
 
 
 def project_list(request):
-
     projects = Project.objects.order_by("-id")
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON])
@@ -178,7 +179,6 @@ def data_list(request, id):
 
     context = dict(project=project, steps=steps)
     return render(request, "data_list.html", context)
-
 
 
 # @login_required
@@ -261,7 +261,6 @@ def analysis_list(request, id):
     project = Project.objects.filter(id=id).first()
     analysis = Analysis.objects.filter(project=project).order_by("-id")
 
-
     if not request.user.is_superuser:
         analysis = analysis.filter(type=Analysis.USER).all()
 
@@ -310,7 +309,7 @@ def analysis_run(request, id):
             filled_json = form.process()
             json_text = hjson.dumps(filled_json)
             job = auth.create_job(analysis=analysis, user=request.user, json_text=json_text, name=name,
-                                      type=analysis.type)
+                                  type=analysis.type)
             logger.info(tasks.HAS_UWSGI)
             if tasks.HAS_UWSGI:
                 jobid = (job.id).to_bytes(5, byteorder='big')
@@ -446,6 +445,12 @@ def job_files_list(request, id, path=''):
 
     # These are pathlike objects with attributes such as name, is_file
     file_list = list(os.scandir(target_path))
+    file_list = [(elem.is_dir(), elem) for elem in file_list]
+    file_list = sorted(file_list, key=itemgetter(0), reverse=True)
+    file_list = [b for a, b in file_list]
+
+    # Sort to put the directories first
+    # file_list = sorted(file_list, key=attrgetter('is_dir'))
 
     steps = breadcrumb_builder(
         [PROJECT_LIST_ICON, PROJECT_ICON, RESULT_LIST_ICON, RESULT_VIEW_ICON, RESULT_INDEX_ICON],
