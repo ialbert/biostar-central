@@ -1,7 +1,7 @@
 all: taxonomy lamar fishdb
 
 clean:
-	rm -rf blastdb lamar
+	rm -rf blastdb lamar taxonomy
 
 # Taxonomy dependencies.
 taxonomy: taxonomy/names.dmp taxonomy/nodes.dmp
@@ -26,9 +26,9 @@ lamar/sequences.tar.gz:
 
 
 # Fish blast database.
-fishdb: blastdb/fish/fish.fa
+fishdb: blastdb/fish/fish.nin
 
-blastdb/fish/fish.fa: lamar
+blastdb/fish/fish.nin: lamar
 	mkdir -p blastdb/fish
 	#
 	# Get fish accession map
