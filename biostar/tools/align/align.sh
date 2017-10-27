@@ -26,6 +26,7 @@ samtools index ${OUTPUT}
 # Get total no. of reads in input
 TOTAL=$(bioawk -c fastx 'END{print NR}' ${INPUT})
 MAPPED_READS=$(samtools view -F 4 ${OUTPUT} | cut -f 1 | sort |uniq |wc -l)
+UNMAPPED_READS=$(($TOTAL-$MAPPED_READS))
 
 # Get number of reads mapped to each chromosome.
 IDX_STATS=$(samtools idxstats ${OUTPUT})
@@ -33,11 +34,11 @@ IDX_STATS=$(samtools idxstats ${OUTPUT})
 # Collect results.
 mkdir -p $RESULTS
 mv ${OUTPUT}* ${RESULTS}/
-echo -e "Total\tMapped" >${RESULTS}/mapping_stats.txt
-echo -e "$TOTAL\t$MAPPED_READS" >>${RESULTS}/mapping_stats.txt
+echo -e "Total\tMapped\tUnmapped" >${RESULTS}/mapping_stats.txt
+echo -e "$TOTAL\t$MAPPED_READS\t$UNMAPPED_READS" >>${RESULTS}/mapping_stats.txt
 
 echo -e "Chrom\tLength\tMapped\tUnmapped" >${RESULTS}/chrom_mapping.txt
 echo -e "$IDX_STATS" >>${RESULTS}/chrom_mapping.txt
 
 # Plot results.
-python -m biostar.tools.align.plotter ${RESULTS}/chrom_mapping.txt >${RESULT_VIEW}
+python -m biostar.tools.align.plotter ${RESULTS}/chrom_mapping.txt ${RESULTS}/mapping_stats.txt >${RESULT_VIEW}
