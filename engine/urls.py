@@ -17,13 +17,19 @@ from django.conf.urls import url
 from django.contrib import admin
 from django.conf.urls.static import static
 from django.conf import settings
-from . import views, user_views
+from . import views, user_views, auth
 
 urlpatterns = [
-    url(r'^admin/', admin.site.urls),
+    # This is the django generated admin site.
+    url(r'^django/admin/', admin.site.urls, name='django_admin'),
+    # Engine specific admin site.
+    url(r'^site/admin/', auth.site_admin, name='site_admin'),
+
     url(r'^login/', user_views.user_login, name="login"),
     url(r'^signup/$', user_views.user_signup, name="signup"),
     url(r'^$', views.index, name="index"),
+
+
     url(r'^info/$', views.info, name="info"),
     url(r'profile/(?P<id>\d+)/$', user_views.user_profile, name="profile"),
     url(r'^logout/$', user_views.user_logout, name="logout"),

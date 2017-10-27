@@ -1,6 +1,8 @@
 USER=www
 SERVER=metabarcode.com
 
+conda:
+	conda install --file conf/conda_requirements.txt
 
 serve: init
 	python manage.py runserver

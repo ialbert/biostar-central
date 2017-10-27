@@ -170,6 +170,7 @@ def data_list(request, id):
     return render(request, "data_list.html", context)
 
 
+
 # @login_required
 def data_view(request, id):
     data = Data.objects.filter(id=id).first()

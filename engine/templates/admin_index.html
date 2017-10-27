@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% load engine_tags %}
+
+{% block headtitle %}
+    Metabarcode Home
+{% endblock %}
+
+{% block header %}
+
+{% endblock %}
+
+
+{% block menu %}
+    {% menubar %}
+{% endblock %}
+
+{% block body %}
+
+<div class="ui raised segment">
+
+    <div class="ui vertical segment">
+
+        <div class="ui header">
+            <a href="{% url 'project_list' %}">
+                <i class="database icon"></i>Admin Index
+            </a>
+        </div>
+
+    </div>
+
+</div>
+
+
+{% endblock %}
