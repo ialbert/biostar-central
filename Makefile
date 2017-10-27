@@ -12,10 +12,11 @@ uwsgi: init
 	uwsgi  --ini conf/devel/devel_uwsgi.ini
 
 clean:
-	rm -rf export/local/*
+	(cd export/local && make clean)
 
 testdata:
-	(cd export/local && make -f ../Makefile all)
+	mkdir -p export/local
+	(cd export/local && make  all)
 
 delete:
 	# Ensure the files that could hold secrets exist.
