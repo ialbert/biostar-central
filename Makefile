@@ -11,8 +11,11 @@ conda:
 uwsgi: init
 	uwsgi  --ini conf/devel/devel_uwsgi.ini
 
+clean:
+	rm -rf export/local/*
+
 testdata:
-	(cd export/local && make all)
+	(cd export/local && make -f ../Makefile all)
 
 delete:
 	# Ensure the files that could hold secrets exist.

@@ -23,7 +23,7 @@ def deploy_reset(path, env, name='test'):
     with cd(path), prefix(env):
         run("rm -f export/engine.db")
         run('git pull')
-        run('make reset')
+        run('make testdata reset')
         run('python manage.py migrate')
         run('python manage.py collectstatic --noinput -v 0')
         sudo('supervisorctl restart %s' % name)
@@ -38,7 +38,7 @@ def deploy_reset_main():
 
 
 def deploy_test():
-    deploy_latest(test_path, test_env, name='test')
+    deploy_reset(test_path, test_env, name='test')
 
 def deploy_main():
     deploy_latest(main_path, main_env, name='main')
