@@ -75,12 +75,12 @@ template = '''
 '''
 
 
-fname = "report.txt"
+#fname = "report.txt"
 # template_file = "classify_results.html"
 # template = open(template_file).read()
 
 
-#fname = sys.argv[1]
+fname = sys.argv[1]
 items = []
 
 # Read centrifuge report file.
