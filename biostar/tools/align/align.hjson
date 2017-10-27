@@ -8,7 +8,7 @@ data : {
   }
 
 genome : {
-    path: export/local/genomes/fish/fish.fa
+    path: export/local/lamar/fish.fa
     label: Reference genome.
     data_type: FASTA_TYPE
     display_type: DROPDOWN

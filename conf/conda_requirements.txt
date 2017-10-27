@@ -4,5 +4,7 @@ bbmap
 centrifuge
 blast
 bwa
+samtools
+bioawk
 
 

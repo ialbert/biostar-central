@@ -1,10 +1,10 @@
 
-all: taxonomy lamar genomes fishdb
+all: taxonomy lamar fishdb
 
 blastdbs: taxdb nt
 
 clean:
-	rm -rf lamar taxonomy blastdb/fish genomes
+	rm -rf lamar taxonomy blastdb/fish
 
 # Taxonomy related files.
 taxonomy/names.dmp:
@@ -22,14 +22,14 @@ lamar/sequences.tar.gz:
 	curl http://iris.bx.psu.edu/projects/metabarcode-data/sampleinfo.txt > lamar/sampleinfo.txt
 	curl http://iris.bx.psu.edu/projects/metabarcode-data/accession_list.txt > lamar/accession_list.txt
 	curl http://iris.bx.psu.edu/projects/metabarcode-data/1-SarriPal_S9_L001_R1_001.fastq.gz > lamar/1-SarriPal_S9_L001_R1_001.fastq.gz
-
+	curl http://iris.bx.psu.edu/projects/metabarcode-data/fish_genomes.fa >lamar/fish.fa
 
 lamar: lamar/sequences.tar.gz
 
-blastdb/fish/fish.fa: fish_genome
+blastdb/fish/fish.fa: lamar
 	mkdir -p blastdb/fish
 	#
-	# Get fish accession map.
+	# Get fish accession map
 	curl http://iris.bx.psu.edu/projects/metabarcode-data/fish_accession_map.txt >blastdb/taxid_map.txt
 	#
 	# Get acc2taxid table.
@@ -39,7 +39,7 @@ blastdb/fish/fish.fa: fish_genome
 	#cat blastdb/acc2taxid.txt | cut -f 2,3 | grep -v "accession" >blastdb/taxid_map.txt
 	#
 	# Make blast database.
-	makeblastdb -in genomes/fish/fish.fa -dbtype nucl -out blastdb/fish/fish -parse_seqids -taxid_map blastdb/taxid_map.txt
+	makeblastdb -in lamar/fish.fa -dbtype nucl -out blastdb/fish/fish -parse_seqids -taxid_map blastdb/taxid_map.txt
 
 
 # Fish blast database.
@@ -65,12 +65,3 @@ blastdb/taxdb/taxdb.bti:
 
 taxdb:blastdb/taxdb/taxdb.bti
 
-
-# Fish genome.
-genomes/fish/fish.fa:
-	mkdir -p genomes/fish
-	curl http://iris.bx.psu.edu/projects/metabarcode-data/fish_genomes.fa >genomes/fish/fish.fa
-
-fish_genome:genomes/fish/fish.fa
-
-genomes: fish_genome
