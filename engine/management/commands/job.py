@@ -100,10 +100,10 @@ def run(job, options={}):
             return
 
         # Logging should start after the early returns.
-        logger.info(f'job id={job.id} started.')
+        logger.info(f'job id:{job.id} name:{job.name}')
 
         # Make the output directory
-        logger.info(f'job id={job.id} work_dir: {work_dir}')
+        logger.info(f'job id:{job.id} work_dir:{work_dir}')
         if not os.path.isdir(work_dir):
             os.mkdir(work_dir)
 
@@ -116,7 +116,7 @@ def run(job, options={}):
             fp.write(hjson.dumps(json_data, indent=4))
 
         # Show the command that is executed.
-        logger.info(f'job id={job.id} executing: {full_command}')
+        logger.info(f'job id:{job.id} executing:{full_command}')
 
         # Switch the job state to RUNNING.
         job.state = job.RUNNING
@@ -128,7 +128,7 @@ def run(job, options={}):
 
         # Return code indicates an error.
         if (proc.returncode != 0):
-            raise Exception(f"executing: {command}")
+            raise Exception(f"executing:{command}")
 
         # If we made it this far the job has finished.
         job.state = job.FINISHED
@@ -139,7 +139,7 @@ def run(job, options={}):
         job.state = job.ERROR
         job.save()
         stderr_log.append(f'{exc}')
-        logger.info(f'job id={job.id} error {exc}')
+        logger.info(f'job id:{job.id} error:{exc}')
 
     # Collect the output.
     if proc:
@@ -160,7 +160,7 @@ def run(job, options={}):
     with open(os.path.join(work_dir, stderr_fname), 'wt') as fp:
         fp.write(job.stderr_log)
 
-    logger.info(f'job id={job.id} finished, status={job.get_state_display()}, type={job.get_type_display()}.')
+    logger.info(f'job id:{job.id} status:{job.get_state_display()} type:{job.get_type_display()}.')
 
     # Use -v 2 to see the output of the command.
     if verbosity > 1:
