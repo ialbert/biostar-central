@@ -31,6 +31,9 @@ bwa mem -t 4 ${INDEX} ${INPUT}  | samtools view -b |samtools sort >${OUTPUT}
 samtools index ${OUTPUT}
 
 echo "Computing statistics."
+echo "--------------------"
+samtools flagstat ${OUTPUT}
+echo "--------------------"
 
 # Get statistics based on flags.
 ALIGNMENTS=$(samtools view -c ${OUTPUT})
