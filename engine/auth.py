@@ -2,19 +2,8 @@ from biostar.tools import defaults
 from django.core.files import File
 import os, hjson, logging
 from .const import *
-from django.contrib.auth.decorators import user_passes_test
-from django.shortcuts import render, redirect
 
 logger = logging.getLogger("engine")
-
-@user_passes_test(lambda u: u.is_superuser)
-def site_admin(request):
-    '''
-    Administrative view. Lists the admin project and job.
-    '''
-    context = dict()
-    return render(request, 'admin_index.html', context=context)
-
 
 def get_data(user, project, query, data_type=None):
     """

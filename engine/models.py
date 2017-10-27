@@ -47,6 +47,17 @@ def upload_path(instance, filename):
     return join(instance.project.get_path(), f"{instance.data_dir}", dataname)
 
 
+
+class ProjectAdminManager(models.Manager):
+    def get_queryset(self):
+        return super(ProjectAdminManager, self).get_queryset().filter(type=Project.ADMIN)
+
+
+class ProjectObjectManager(models.Manager):
+    def get_queryset(self):
+        return super(ProjectObjectManager, self).get_queryset().exclude(type=Project.ADMIN)
+
+
 class Project(models.Model):
     ADMIN, USER = 1, 2
     TYPE_CHOICES = [(ADMIN, "admin"), (USER, "user")]
@@ -67,6 +78,10 @@ class Project(models.Model):
 
     # Will be false if the objects is to be deleted.
     valid = models.BooleanField(default=True)
+
+    # Override managers.
+    objects = ProjectObjectManager()
+    admins = ProjectAdminManager()
 
     def save(self, *args, **kwargs):
         now = timezone.now()

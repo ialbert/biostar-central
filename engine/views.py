@@ -7,6 +7,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.urls import reverse
+from django.contrib.auth.decorators import user_passes_test
 
 from . import tasks
 from .forms import *
@@ -86,11 +87,20 @@ def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=Non
     return path
 
 
-# TODO: Replace with the manager thing.
+@user_passes_test(lambda u: u.is_superuser)
+def site_admin(request):
+    '''
+    Administrative view. Lists the admin project and job.
+    '''
+    steps = breadcrumb_builder( [HOME_ICON])
+    projects = Project.admins.all()
+    context = dict(steps=steps, projects=projects)
+    return render(request, 'admin_index.html', context=context)
+
+
 def project_list(request):
+
     projects = Project.objects.order_by("-id")
-    if not request.user.is_superuser:
-        projects = projects.filter(type=Project.USER).all()
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON])
 

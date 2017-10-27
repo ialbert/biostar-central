@@ -4,12 +4,17 @@
     </a>
     {% if user.is_authenticated %}
         <a class="item" href="{% url 'profile' user.id %}">
-            <i class="user icon"></i> {{ user.email }}
+            <i class="user icon"></i> Account
         </a>
 
+
         <div class="right menu">
+            {% if user.is_superuser %}
+                <a class="item" href="{% url 'site_admin' %}">
+                    <i class="dashboard icon"></i>Admin
+                </a>
+            {% endif %}
             <a class="item" href="{% url 'logout' %}"><i class="sign in icon"></i>Logout</a>
-            <a class="item" href="{% url 'info' %}"><i class="help icon"></i>Help</a>
         </div>
 
     {% else %}
@@ -17,9 +22,9 @@
 
 
         <div class="right menu">
-        <a class="item" href="{% url 'login' %}"><i class="sign in icon"></i>Login</a>
+            <a class="item" href="{% url 'login' %}"><i class="sign in icon"></i>Login</a>
             <a class="item" href="{% url 'signup' %}"><i class="add user icon"></i>Sign Up</a>
-            <a class="item" href="{% url 'info' %}"><i class="help icon"></i>Help</a>
+
         </div>
 
     {% endif %}
