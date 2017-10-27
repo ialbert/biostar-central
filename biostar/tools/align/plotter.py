@@ -5,8 +5,8 @@ import sys, csv , re
 
 def make_plot():
 
-    file1 = sys.argv[1]
-    #file1 = "chrom_mapping.txt"
+    #file1 = sys.argv[1]
+    file1 = "chrom_mapping.txt"
     data1, data2 = [], []
 
     # Plot samtools idxstats results.
@@ -36,19 +36,20 @@ def make_plot():
             legend: {position: 'none'},
         '''
 
-    file2 = sys.argv[2]
-    # file2 = "mapping_stats.txt"
+    #file2 = sys.argv[2]
+    file2 = "alignment_stats.txt"
     with open(file2) as csvfile:
         reader = csv.DictReader(csvfile, delimiter="\t")
         for row in reader:
+            total = row['Alignments']
             mapped = row['Mapped']
-            unmapped = row['Unmapped']
-            total = row['Total']
-            perc_mapped = (int(mapped)/int(total))*100
-            perc_unmapped = (int(unmapped) / int(total)) * 100
+            mapped_fwd = row['Mapped_fwd']
+            mapped_rev = row['Mapped_rev']
+            secondary = row['Secondary']
+            chimeric = row['Chimeric']
 
-        data2.append(('mapped',perc_mapped))
-        data2.append(('unmapped',perc_unmapped))
+        data2.append(('total',total),('mapped'))
+
 
     p2 = ChartParams()
     p2.type = 'PieChart'
