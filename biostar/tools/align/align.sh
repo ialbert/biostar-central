@@ -44,7 +44,7 @@ samtools idxstats ${OUTPUT} >${WORK}/chrom_mapping.txt
 
 echo "Generating plots."
 
-# Plot WORK.
+# Plot results.
 python -m biostar.tools.align.plotter ${WORK}/alignment_stats.txt ${WORK}/chrom_mapping.txt >${RESULT_VIEW}
 
 
