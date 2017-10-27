@@ -445,9 +445,9 @@ def job_files_list(request, id, path=''):
 
     # These are pathlike objects with attributes such as name, is_file
     file_list = list(os.scandir(target_path))
-    file_list = [(elem.is_dir(), elem) for elem in file_list]
-    file_list = sorted(file_list, key=itemgetter(0), reverse=True)
-    file_list = [b for a, b in file_list]
+    file_list = [(elem.is_file(), elem.name, elem) for elem in file_list]
+    file_list = sorted(file_list, key=itemgetter(0, 1))
+    file_list = [c for a, b, c in file_list]
 
     # Sort to put the directories first
     # file_list = sorted(file_list, key=attrgetter('is_dir'))

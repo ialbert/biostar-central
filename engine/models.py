@@ -17,7 +17,7 @@ logger = logging.getLogger("engine")
 # The maximum length in characters for a typical name and text field.
 MAX_NAME_LEN = 256
 MAX_TEXT_LEN = 10000
-
+MAX_LOG_LEN = 20 * MAX_TEXT_LEN
 
 def join(*args):
     return os.path.abspath(os.path.join(*args))
@@ -263,7 +263,10 @@ class Job(models.Model):
     script = models.TextField(default="")
 
     # Keeps track of errors.
-    log = models.TextField(default="No data logged for current job", max_length=10 * MAX_TEXT_LEN)
+    stdout_log = models.TextField(default="", max_length=MAX_LOG_LEN)
+
+    # Standard error.
+    stderr_log = models.TextField(default="", max_length=MAX_LOG_LEN)
 
     # Will be false if the objects is to be deleted.
     valid = models.BooleanField(default=True)
