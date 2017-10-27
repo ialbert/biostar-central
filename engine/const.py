@@ -27,15 +27,3 @@ USER_ICON = "user icon"
 
 
 
-FIELD_VISIBLE = "visible"
-FIELD_ORIGIN = "origin"
-PROJECT_ORIGIN = "PROJECT"
-ALL_ORIGIN = "ALL"
-
-
-# Site information
-
-INFO = """
-
-Store and analyze metagenomic barcode data 
-    """
