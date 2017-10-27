@@ -212,7 +212,7 @@ class RunAnalysis(forms.Form):
             # No need to read fields that were not set.
 
             # If it has a path it is an uploaded file.
-            if obj.get("path") and obj.get("origin")== PROJECT_ORIGIN:
+            if obj.get("path"):
 
                 data_id = self.cleaned_data.get(field, '')
                 data_id = int(data_id)
