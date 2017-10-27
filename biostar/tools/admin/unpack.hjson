@@ -2,7 +2,7 @@
 # Admin job that unpacks files in the background.
 #
 target : {
-    value: 1
+    value: 2
   }
 
 settings : {

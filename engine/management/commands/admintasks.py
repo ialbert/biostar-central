@@ -66,12 +66,11 @@ def unzip(targetid):
 
     fname = data.file.path
     basedir = join(fname, "..")
-
-    tar = tarfile.open(fname)
-    tar.extractall()
+    logger.info(f"Unpacking data={data.name}, data.file={fname}")
+    tar = tarfile.open(fname,"r:gz")
+    tar.extractall(path=basedir)
     tar.close()
-    #os.system(f"cd {basedir} && tar -xvf {fname}")
-    logger.info(f"Unzipped data.id={targetid}, name={data.name} to {basedir}.")
+    logger.info(f"Unzipped data.id={targetid}, name={data.name} to {basedir}")
 
 
 class Command(BaseCommand):

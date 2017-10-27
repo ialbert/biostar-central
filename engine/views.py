@@ -223,8 +223,10 @@ def data_upload(request, id):
         if form.is_valid():
             text = form.cleaned_data["text"]
             stream = form.cleaned_data["file"]
-            name = stream.name
-            data_type = get_datatype(name)
+
+            name = form.cleaned_data["text"]
+            data_type = form.cleaned_data["data_type"]
+
             project.create_data(stream=stream, name=name, data_type=data_type, text=text,
                                 owner=owner)
 
