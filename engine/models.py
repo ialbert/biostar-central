@@ -189,7 +189,7 @@ class Data(models.Model):
 
         # This is where the path is filled.
         obj['path'] = self.get_path()
-        obj['value'] = self.id
+        obj['data_id'] = self.id
         obj['name'] = self.name
         obj['uid'] = self.uid
 
