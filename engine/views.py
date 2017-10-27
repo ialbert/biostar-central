@@ -9,7 +9,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.contrib.auth.decorators import user_passes_test
 
-from . import tasks
+from . import tasks, auth
 from .forms import *
 from .models import (User, Project, Data,
                      Analysis, Job, get_datatype)
@@ -309,7 +309,7 @@ def analysis_run(request, id):
             name = form.cleaned_data.get("name")
             filled_json = form.process()
             json_text = hjson.dumps(filled_json)
-            job = analysis.create_job(owner=analysis.owner, json_text=json_text, name=name,
+            job = auth.create_job(analysis=analysis, user=request.user, json_text=json_text, name=name,
                                       type=analysis.type)
             logger.info(tasks.HAS_UWSGI)
             if tasks.HAS_UWSGI:
