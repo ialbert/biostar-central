@@ -1,0 +1,61 @@
+{
+
+data : {
+    path: export/local/lamar/1-SarriPal_S9_L001_R1_001.fastq.gz
+    label: Data.
+    data_type: FASTQ_TYPE
+    display_type: DROPDOWN
+  }
+
+genome : {
+    path: export/local/lamar/fish.fa
+    label: Reference genome.
+    data_type: FASTA_TYPE
+    display_type: DROPDOWN
+    }
+
+threads : {
+        value: 4
+    }
+
+/*
+organism: {
+    label: Select organism.
+    name: Giraffe
+    display_type: DROPDOWN
+    options : [
+        [ "giraffe" , "Giraffe"],
+        [ "human" , "Human"],
+        [ "mouse" , "Mouse"],
+    ]
+}
+*/
+
+settings : {
+    name: Align sequences to genome.
+    images : ["/static/pipelines/images/align.png","/static/pipelines/images/align_table.png"]
+    index : results/index.html
+    summary: Performs alignment of input sequences to a reference genome using bwa-mem algorithm.
+    help:'''
+
+# Help
+
+This analysis align input sequences to a reference genome. The input data should be in fastq format.
+Reference genome sequence needs to be provided unless the organism is human or mouse.
+
+
+# Parameters
+
+1. Input data in fastq format.
+2. Reference genome sequence.
+
+# Results
+
+1. Alignment summary statistics.
+2. Aligned bam files.
+
+'''
+
+    }
+
+}

@@ -75,7 +75,7 @@ template = '''
 '''
 
 
-# fname = "report.txt"
+#fname = "report.txt"
 # template_file = "classify_results.html"
 # template = open(template_file).read()
 
