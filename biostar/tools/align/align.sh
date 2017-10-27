@@ -3,6 +3,7 @@ set -ueo pipefail
 # Get parameters.
 INPUT={{data.path}}
 GENOME={{genome.path}}
+RESULT_VIEW={{settings.index}}
 #ORGANISM={{organism.name}}
 
 # Internal parameters.
@@ -34,4 +35,9 @@ mkdir -p $RESULTS
 mv ${OUTPUT}* ${RESULTS}/
 echo -e "Total\tMapped" >${RESULTS}/mapping_stats.txt
 echo -e "$TOTAL\t$MAPPED_READS" >>${RESULTS}/mapping_stats.txt
-echo -e "$IDX_STATS" >${RESULTS}/chrom_mapping.txt
+
+echo -e "Chrom\tLength\tMapped\tUnmapped" >${RESULTS}/chrom_mapping.txt
+echo -e "$IDX_STATS" >>${RESULTS}/chrom_mapping.txt
+
+# Plot results.
+python -m biostar.tools.align.plotter ${RESULTS}/chrom_mapping.txt >${RESULT_VIEW}
