@@ -3,27 +3,37 @@ set -ueo pipefail
 # Get parameters.
 INPUT={{data.path}}
 GENOME={{genome.path}}
-RESULT_VIEW={{settings.index}}
+
+INDEX=${GENOME}
 #ORGANISM={{organism.name}}
+INDEX_DIR=$(dirname ${GENOME})/bwa
+
+mkdir -p $INDEX_DIR
+INDEX=${INDEX_DIR}/{{genome.uid}}
+
+echo $INDEX
 
 # Internal parameters.
-RESULTS=results
-DATA_DIR=$(dirname "$GENOME")
-OUTPUT="mapped.bam"
+RESULTS={{runtime.work_dir}}/results
+mkdir -p $RESULTS
 
+# Main results.
+RESULT_VIEW=${RESULTS}/{{settings.index}}
+OUTPUT=${RESULTS}/aligned.bam
 
 # Build bwa index if not exist in project data folder.
-if [ ! -f "$GENOME.bwt" ]; then
-echo -e "Building bwa index.\n"
-bwa index ${GENOME}
+if [ ! -f "$INDEX.bwt" ]; then
+echo "Building bwa index $INDEX"
+bwa index -p ${INDEX} ${GENOME}
 fi
 
 
 # Align sequences
 echo -e "Mapping reads to genome.\n"
-mkdir -p ${RESULTS}
-bwa mem -t 4 ${GENOME} ${INPUT} | samtools view -b |samtools sort >${OUTPUT}
+bwa mem -t 4 ${INDEX} ${INPUT} | samtools view -b |samtools sort >${OUTPUT}
 samtools index ${OUTPUT}
+
+echo Alignment results in ${OUTPUT}
 
 
 # Get statistics based on flags.
@@ -33,8 +43,9 @@ MAPPED_FWD=$(samtools view -c -F 20 ${OUTPUT})
 MAPPED_REV=$(samtools view -c -f 16 ${OUTPUT})
 SECONDARY=$(samtools view -c -f 256 ${OUTPUT})
 CHIMERIC=$(samtools view -c -f 2048 ${OUTPUT})
-echo -e "Alignments\tMapped\tMapped_fwd\tMapped_rev\tSecondary\tChimeric" > ${RESULTS}/alignment_stats.txt
-echo -e "$ALIGNMENTS\t$MAPPED\t$MAPPED_FWD\t$MAPPED_REV\t$SECONDARY\t$CHIMERIC" >> ${RESULTS}/alignment_stats.txt
+echo -e "Category\tCounts" > ${RESULTS}/alignment_stats.txt
+echo -e "Mapped\t$MAPPED\nMapped_fwd\t$MAPPED_FWD\nMapped_rev\t$MAPPED_REV\n" >>${RESULTS}/alignment_stats.txt
+echo -e "Secondary\t$SECONDARY\nChimeric\t$CHIMERIC\n" >>${RESULTS}/alignment_stats.txt
 
 
 # Get number of reads mapped to each chromosome.

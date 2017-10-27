@@ -38,7 +38,7 @@ def make_plot():
 
     '''
     #file2 = sys.argv[2]
-    #file2 = "alignment_stats.txt"
+    #file2 = "mapping_stats.txt"
     with open(file2) as csvfile:
         reader = csv.DictReader(csvfile, delimiter="\t")
         for row in reader:
