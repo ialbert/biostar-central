@@ -235,14 +235,6 @@ class Analysis(models.Model):
         self.html = make_html(self.text)
         super(Analysis, self).save(*args, **kwargs)
 
-    def create_job(self, json_text='', json_data={}, owner=None, name=None, state=None, type=None):
-        """
-        Creates a job from an analysis.
-        """
-        job = auth.create_job(owner, self, Job, self.project, json_text, json_data, name, state, type)
-        logger.info(f"Queued job: '{job.name}'")
-        return job
-
 
 class Job(models.Model):
     ADMIN, USER = 1, 2
@@ -297,6 +289,7 @@ class Job(models.Model):
 
     def save(self, *args, **kwargs):
         now = timezone.now()
+        self.name = self.name or self.analysis.name
         self.date = self.date or now
         self.html = make_html(self.text)
 
