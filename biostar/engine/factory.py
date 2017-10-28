@@ -1,6 +1,6 @@
 from django import forms
 from .models import Data
-from engine.const import *
+from .const import *
 
 
 
@@ -101,14 +101,13 @@ def ignore(data):
     return ''
 
 
-def data_generator(field, project=None, data_type=None):
+
+def data_generator(field, project, data_type=None):
     valid_type = DATA_TYPES.get(data_type, None)
     # if there is no project then filter according to the
 
-    query = Data.objects.filter(data_type=valid_type)
+    query = Data.objects.filter(project=project, data_type=valid_type)
     datamap = dict((obj.id, obj) for obj in query)
-    if project:
-        datamap = project.get_data(data_type=valid_type)
 
     def choice_func():
         choices = [(d.id, d.name) for d in datamap.values()]

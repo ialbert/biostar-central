@@ -1,21 +1,20 @@
 # import os
 
+from operator import itemgetter
+
 import mistune
 from django.conf import settings
 # from django.template.loader import get_template
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import user_passes_test
 from django.shortcuts import render, redirect
 from django.urls import reverse
-from django.contrib.auth.decorators import user_passes_test
 
-from . import tasks
+from . import tasks, auth
 from .forms import *
 from .models import (User, Project, Data,
                      Analysis, Job)
-import logging
-
-
 
 def join(*args):
     return os.path.abspath(os.path.join(*args))
@@ -59,7 +58,7 @@ def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=Non
         elif icon == DATA_ICON:
             step = (reverse("data_view", kwargs={'id': data.id}), DATA_ICON, f"Data View", is_active)
         elif icon == ANALYSIS_LIST_ICON:
-            step = (reverse("analysis_list", kwargs={'id': project.id}), ANALYSIS_LIST_ICON, "Analysis List", is_active)
+            step = (reverse("analysis_list", kwargs={'id': project.id}), ANALYSIS_LIST_ICON, "Analysis Recipes", is_active)
         elif icon == ANALYSIS_ICON:
             step = (reverse("analysis_view", kwargs={'id': analysis.id}), ANALYSIS_ICON, "Analysis View", is_active)
         elif icon == RESULT_LIST_ICON:
@@ -94,14 +93,13 @@ def site_admin(request):
     '''
     Administrative view. Lists the admin project and job.
     '''
-    steps = breadcrumb_builder( [HOME_ICON])
+    steps = breadcrumb_builder([HOME_ICON])
     projects = Project.admins.all()
     context = dict(steps=steps, projects=projects)
     return render(request, 'admin_index.html', context=context)
 
 
 def project_list(request):
-
     projects = Project.objects.order_by("-id")
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON])
@@ -180,7 +178,6 @@ def data_list(request, id):
 
     context = dict(project=project, steps=steps)
     return render(request, "data_list.html", context)
-
 
 
 # @login_required
@@ -263,7 +260,6 @@ def analysis_list(request, id):
     project = Project.objects.filter(id=id).first()
     analysis = Analysis.objects.filter(project=project).order_by("-id")
 
-
     if not request.user.is_superuser:
         analysis = analysis.filter(type=Analysis.USER).all()
 
@@ -311,8 +307,8 @@ def analysis_run(request, id):
             name = form.cleaned_data.get("name")
             filled_json = form.process()
             json_text = hjson.dumps(filled_json)
-            job = analysis.create_job(owner=analysis.owner, json_text=json_text, name=name,
-                                      type=analysis.type)
+            job = auth.create_job(analysis=analysis, user=request.user, json_text=json_text, name=name,
+                                  type=analysis.type)
             logger.info(tasks.HAS_UWSGI)
             if tasks.HAS_UWSGI:
                 jobid = (job.id).to_bytes(5, byteorder='big')
@@ -448,6 +444,12 @@ def job_files_list(request, id, path=''):
 
     # These are pathlike objects with attributes such as name, is_file
     file_list = list(os.scandir(target_path))
+    file_list = [(elem.is_file(), elem.name, elem) for elem in file_list]
+    file_list = sorted(file_list, key=itemgetter(0, 1))
+    file_list = [c for a, b, c in file_list]
+
+    # Sort to put the directories first
+    # file_list = sorted(file_list, key=attrgetter('is_dir'))
 
     steps = breadcrumb_builder(
         [PROJECT_LIST_ICON, PROJECT_ICON, RESULT_LIST_ICON, RESULT_VIEW_ICON, RESULT_INDEX_ICON],

@@ -56,8 +56,8 @@ threads : {
 
 
 settings : {
-    name: Trim primers and low quality bases
-    images : ["/static/pipelines/images/trim.png"]
+    name: Quality control
+    image : multiqc.png
     index : results/index.html
     summary: '''
 This analysis takes a paired end dataset and produces primer, quality trimmed dataset.

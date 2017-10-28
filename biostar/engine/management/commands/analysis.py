@@ -1,6 +1,6 @@
 import os, sys, logging, hjson, textwrap
 from django.core.management.base import BaseCommand
-from engine.models import Job, Project, Analysis, User, Data
+from biostar.engine.models import Job, Project, Analysis, User, Data
 from biostar.tools.const import DATA_TYPES
 from biostar.tools import defaults
 
@@ -27,7 +27,7 @@ class Command(BaseCommand):
         # TODO: Impove the help for type
         parser.add_argument('--analysis_type',
                             help=f"Who this job/analysis meant for.",
-                            default=defaults.USAGE, choices=dict(Analysis.TYPE_CHOICES).values())
+                            choices=dict(Analysis.TYPE_CHOICES).values())
 
     def handle(self, *args, **options):
 

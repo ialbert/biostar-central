@@ -5,15 +5,14 @@ from django.contrib import messages
 
 from ratelimit.decorators import ratelimit
 from django.shortcuts import render, redirect
-from django.contrib.auth import login, authenticate, logout
+from django.contrib.auth import login, authenticate
 
 from .forms import SignUpForm, LoginForm, LogoutForm
 from .models import User
 from django.urls import reverse
-from engine.const import *
-from engine.views import breadcrumb_builder
+from .const import *
+from .views import breadcrumb_builder
 from django.contrib import auth
-from django.http import HttpResponseRedirect
 
 logger = logging.getLogger('engine')
 

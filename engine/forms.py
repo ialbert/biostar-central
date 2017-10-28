@@ -10,7 +10,7 @@ import os
 from . import util
 from . import factory
 #from pagedown.widgets import PagedownWidget
-from engine.web.auth import get_data
+
 from . import models
 
 # Share the logger with models.
@@ -205,7 +205,7 @@ class RunAnalysis(forms.Form):
 
         # Gets all data for the project
 
-        datamap = self.project.get_data()
+        datamap = dict((data.id, data) for data in self.project.data_set.all() )
         json_data = self.json_data.copy()
 
         for field, obj in json_data.items():

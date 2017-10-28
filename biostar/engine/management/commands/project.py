@@ -1,13 +1,13 @@
 import logging
 from django.core.management.base import BaseCommand
 from biostar.tools import defaults
-from engine.models import Project, Analysis, Data, User
+from biostar.engine.models import Project, Analysis, Data, User
 from django.core import management
 
 logger = logging.getLogger('engine')
 
-def create(owner, name=defaults.PROJECT_NAME, summary=defaults.PROJECT_SUMMARY,
-           add=False, json=None, template=None, create_job=False, project_type=defaults.USAGE, analysis_type=defaults.USAGE):
+def create(owner, name=defaults.DEMO_PROJECT_NAME, summary=defaults.DEMO_PROJECT_SUMMARY,
+           add=False, json=None, template=None, create_job=False, project_type=None, analysis_type=None):
 
     if not owner.is_superuser:
         logger.error(f'User is not admin.')

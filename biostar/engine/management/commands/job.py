@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 from django.template import Template, Context
-from engine.models import Job, Project, Analysis
+from biostar.engine.models import Job, Project, Analysis
 import subprocess, os, sys, json, hjson, logging
 from django.utils.text import force_text
 from django.conf import settings

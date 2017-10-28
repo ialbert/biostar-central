@@ -1,5 +1,4 @@
-import hjson
-import logging
+import logging, hjson
 
 import mistune
 from django.contrib.auth.models import Group
@@ -10,9 +9,7 @@ from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
 
-from . import auth
-from . import settings
-from . import util
+from . import util, settings
 from .const import *
 
 logger = logging.getLogger("engine")
@@ -20,7 +17,7 @@ logger = logging.getLogger("engine")
 # The maximum length in characters for a typical name and text field.
 MAX_NAME_LEN = 256
 MAX_TEXT_LEN = 10000
-
+MAX_LOG_LEN = 20 * MAX_TEXT_LEN
 
 def join(*args):
     return os.path.abspath(os.path.join(*args))
@@ -38,7 +35,7 @@ def filter_by_type():
     return
 
 
-def upload_path(instance, filename):
+def data_upload_path(instance, filename):
     # Name the data by the filename.
     pieces = os.path.basename(filename).split(".")
     # File may have multiple extensions
@@ -46,6 +43,12 @@ def upload_path(instance, filename):
     dataname = f"data-{instance.uid}.{exts}"
     return join(instance.project.get_path(), f"{instance.data_dir}", dataname)
 
+def image_path(instance, filename):
+    # Name the data by the filename.
+    name, ext = os.path.splitext(filename)
+    # File may have multiple extensions
+    imgname = f"image-{instance.uid}{ext}"
+    return  f"images/{imgname}"
 
 
 class ProjectAdminManager(models.Manager):
@@ -60,9 +63,14 @@ class ProjectObjectManager(models.Manager):
 
 class Project(models.Model):
     ADMIN, USER = 1, 2
+    PUBLIC, SHAREABLE, PRIVATE = 1,2,3
+    PRIVACY_CHOICES = [ (PRIVATE, "Private"), (SHAREABLE, "Shareable Link"),  (PUBLIC, "Public") ]
     TYPE_CHOICES = [(ADMIN, "admin"), (USER, "user")]
-    type = models.IntegerField(default=USER, choices=TYPE_CHOICES)
 
+    type = models.IntegerField(default=USER, choices=TYPE_CHOICES)
+    privacy = models.IntegerField(default=SHAREABLE, choices=PRIVACY_CHOICES)
+
+    image = models.ImageField(default=None, blank=True, upload_to=image_path)
     name = models.CharField(max_length=256, default="no name")
     summary = models.TextField(default='no summary')
 
@@ -106,32 +114,6 @@ class Project(models.Model):
     def get_path(self):
         return join(settings.MEDIA_ROOT, "projects", f"proj-{self.uid}")
 
-    def get_data(self, data_type=None):
-        """
-        Returns a dictionary keyed by data stored in the project.
-        """
-
-        return auth.get_data(user=self.owner, project=self, data_type=data_type,
-                             query=Data.objects.filter(project=self))
-
-    def create_analysis(self, json_text, template, owner=None, summary='', name='', text='', type=None):
-        """
-        Creates analysis from a spec and template
-        """
-        analysis = auth.create_analysis(owner, self, Analysis, json_text, template, summary, name, text, type)
-        logger.info(f"Created analysis id={analysis.id} of type_type={dict(Analysis.TYPE_CHOICES)[analysis.type]}")
-        return analysis
-
-    def create_data(self, stream=None, fname=None, name="data.bin", owner=None, text='', data_type=None, type=None):
-        """
-        Creates a data for the project from filename or a stream.
-        """
-
-        data = auth.create_data(owner, Data, self, stream, fname, name, text, data_type, type)
-
-        logger.info(f"Added data id={data.id} of type={data.data_type}")
-        return data
-
 
 class Data(models.Model):
     ADMIN, USER = 1, 2
@@ -146,6 +128,7 @@ class Data(models.Model):
     type = models.IntegerField(default=USER, choices=TYPE_CHOICES)
     name = models.CharField(max_length=256, default="no name")
     summary = models.TextField(default='no summary')
+    image = models.ImageField(default=None, blank=True, upload_to=image_path)
 
     owner = models.ForeignKey(User)
     text = models.TextField(default='no description', max_length=MAX_TEXT_LEN)
@@ -158,7 +141,7 @@ class Data(models.Model):
     size = models.CharField(null=True, max_length=256)
 
     state = models.IntegerField(default=PENDING, choices=STATE_CHOICES)
-    file = models.FileField(null=True, upload_to=upload_path, max_length=500)
+    file = models.FileField(null=True, upload_to=data_upload_path, max_length=500)
     uid = models.CharField(max_length=32)
 
     # Will be false if the objects is to be deleted.
@@ -218,9 +201,9 @@ class Data(models.Model):
 
         # This is where the path is filled.
         obj['path'] = self.get_path()
-        obj['value'] = self.id
+        obj['data_id'] = self.id
         obj['name'] = self.name
-
+        obj['uid'] = self.uid
 
 class Analysis(models.Model):
     ADMIN, USER = 1, 2
@@ -232,6 +215,7 @@ class Analysis(models.Model):
     text = models.TextField(default='no description', max_length=MAX_TEXT_LEN)
     html = models.TextField(default='html')
     owner = models.ForeignKey(User)
+    image = models.ImageField(default=None, blank=True, upload_to=image_path)
 
     project = models.ForeignKey(Project)
 
@@ -240,6 +224,7 @@ class Analysis(models.Model):
     uid = models.CharField(max_length=32)
 
     date = models.DateTimeField(auto_now_add=True, blank=True)
+    image = models.ImageField(default=None, blank=True, upload_to=image_path)
 
     # Job start and end.
     start_date = models.DateTimeField(null=True, blank=True)
@@ -264,14 +249,6 @@ class Analysis(models.Model):
         self.html = make_html(self.text)
         super(Analysis, self).save(*args, **kwargs)
 
-    def create_job(self, json_text='', json_data={}, owner=None, name=None, state=None, type=None):
-        """
-        Creates a job from an analysis.
-        """
-        job = auth.create_job(owner, self, Job, self.project, json_text, json_data, name, state, type)
-        logger.info(f"Queued job: '{job.name}'")
-        return job
-
 
 class Job(models.Model):
     ADMIN, USER = 1, 2
@@ -283,6 +260,7 @@ class Job(models.Model):
     type = models.IntegerField(default=USER, choices=TYPE_CHOICES)
     name = models.CharField(max_length=256, default="no name")
     summary = models.TextField(default='no summary')
+    image = models.ImageField(default=None, blank=True, upload_to=image_path)
 
     owner = models.ForeignKey(User)
     text = models.TextField(default='no description', max_length=MAX_TEXT_LEN)
@@ -300,7 +278,10 @@ class Job(models.Model):
     script = models.TextField(default="")
 
     # Keeps track of errors.
-    log = models.TextField(default="No data logged for current job", max_length=10 * MAX_TEXT_LEN)
+    stdout_log = models.TextField(default="", max_length=MAX_LOG_LEN)
+
+    # Standard error.
+    stderr_log = models.TextField(default="", max_length=MAX_LOG_LEN)
 
     # Will be false if the objects is to be deleted.
     valid = models.BooleanField(default=True)
@@ -326,6 +307,7 @@ class Job(models.Model):
 
     def save(self, *args, **kwargs):
         now = timezone.now()
+        self.name = self.name or self.analysis.name
         self.date = self.date or now
         self.html = make_html(self.text)
 

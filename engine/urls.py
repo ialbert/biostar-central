@@ -19,7 +19,7 @@ from django.conf.urls.static import static
 from django.conf import settings
 
 from . import user_views
-from biostar.engine import views
+from . import views
 
 urlpatterns = [
     # This is the django generated admin site.
