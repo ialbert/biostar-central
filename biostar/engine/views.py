@@ -100,7 +100,10 @@ def site_admin(request):
 
 def project_list(request):
 
-    projects = Project.objects.order_by("-id")
+    projects = Project.objects.get_queryset(user=request.user).order_by("-id")
+
+    if request.user.is_superuser:
+        projects = Project.admins.order_by("-id")
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON])
 
@@ -111,7 +114,7 @@ def project_list(request):
 
 # @login_required
 def project_view(request, id):
-    project = Project.objects.filter(id=id).first()
+    project = Project.objects.get_queryset(user=request.user).filter(id=id).first()
 
     # Project not found.
     if not project:
@@ -128,7 +131,7 @@ def project_view(request, id):
 
 @login_required
 def project_edit(request, id):
-    project = Project.objects.filter(id=id).first()
+    project = Project.objects.get_queryset(user=request.user).filter(id=id).first()
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON], project=project)
 
@@ -172,7 +175,7 @@ def project_create(request):
 
 # @login_required
 def data_list(request, id):
-    project = Project.objects.filter(id=id).first()
+    project = Project.objects.get_queryset(user=request.user).filter(id=id).first()
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON],
                                project=project)
 
@@ -183,7 +186,7 @@ def data_list(request, id):
 
 # @login_required
 def data_view(request, id):
-    data = Data.objects.filter(id=id).first()
+    data = Data.objects.get_queryset(user=request.user).filter(id=id).first()
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON, DATA_ICON],
                                project=data.project, data=data)
     context = dict(data=data, steps=steps)
@@ -201,7 +204,7 @@ def remove_file(file):
 
 @login_required
 def data_edit(request, id):
-    data = Data.objects.filter(id=id).first()
+    data = Data.objects.get_queryset(user=request.user).filter(id=id).first()
     project = data.project
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON, DATA_ICON],
@@ -224,7 +227,7 @@ def data_edit(request, id):
 def data_upload(request, id):
     owner = request.user
 
-    project = Project.objects.filter(id=id).first()
+    project = Project.objects.get_queryset(user=request.user).filter(id=id).first()
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON],
                                project=project)
 
@@ -258,9 +261,8 @@ def analysis_list(request, id):
     """
     # filter according to user.
 
-    project = Project.objects.filter(id=id).first()
+    project = Project.objects.get_queryset(user=request.user).filter(id=id).first()
     analysis = Analysis.objects.filter(project=project).order_by("-id")
-
 
     if not request.user.is_superuser:
         analysis = analysis.filter(type=Analysis.USER).all()
@@ -375,7 +377,7 @@ def job_list(request, id):
     Returns the list of jobs for a project id.
     """
     # filter according to type
-    project = Project.objects.filter(id=id).first()
+    project = Project.objects.get_queryset(user=request.user).filter(id=id).first()
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, RESULT_LIST_ICON],
                                project=project)
 

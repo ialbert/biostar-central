@@ -13,7 +13,12 @@ def create(owner, name=defaults.DEMO_PROJECT_NAME, summary=defaults.DEMO_PROJECT
         logger.error(f'User is not admin.')
         return
 
-    project = Project.objects.create(owner=owner, name=name, summary=summary, type=project_type)
+    objects,admins = Project.objects, Project.admins
+    manager = {Project.ADMIN:admins, Project.USER: objects}
+
+    manager = manager.get(project_type, objects).create
+
+    project = manager(owner=owner, name=name, summary=summary, type=project_type)
     logger.info(f'Created project name={project.name}, id={project.id} with type:{project.get_type_display()}')
     project.save()
 

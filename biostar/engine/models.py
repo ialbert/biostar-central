@@ -14,11 +14,19 @@ from . import util, settings
 from .const import *
 
 logger = logging.getLogger("engine")
+class Bunch(object):
+
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
 
 # The maximum length in characters for a typical name and text field.
 MAX_NAME_LEN = 256
 MAX_TEXT_LEN = 10000
 MAX_LOG_LEN = 20 * MAX_TEXT_LEN
+
+class Bunch(object):
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
 
 def join(*args):
     return os.path.abspath(os.path.join(*args))
@@ -52,14 +60,23 @@ def image_path(instance, filename):
     return  f"images/{imgname}"
 
 
-class ProjectAdminManager(models.Manager):
-    def get_queryset(self):
-        return super(ProjectAdminManager, self).get_queryset().filter(type=Project.ADMIN)
-
 
 class ProjectObjectManager(models.Manager):
-    def get_queryset(self):
+
+    def get_queryset(self, user=Bunch(is_superuser=False)):
+
+        if user.is_superuser:
+
+            return super(ProjectObjectManager, self).get_queryset().filter(type=Project.USER).filter(type=Project.ADMIN)
+
         return super(ProjectObjectManager, self).get_queryset().exclude(type=Project.ADMIN)
+
+
+class ProjectAdminManager(models.Manager):
+
+    def get_queryset(self):
+
+        return super(ProjectAdminManager, self).get_queryset().filter(type=Project.USER).filter(type=Project.ADMIN)
 
 
 class Project(models.Model):

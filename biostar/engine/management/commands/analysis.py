@@ -40,7 +40,7 @@ class Command(BaseCommand):
 
         type_map = lambda dictionary: {y: x for x, y in dictionary.items()}
 
-        analysis_type = type_map(dict(Analysis.TYPE_CHOICES)).get(options['analysis_type'], Analysis.USER)
+        analysis_type = type_map(dict(Analysis.TYPE_CHOICES)).get(options.get('analysis_type'), Analysis.USER)
 
         admin = User.objects.filter(is_staff=True).first()
         if not admin:
@@ -57,7 +57,7 @@ class Command(BaseCommand):
                 logger.error("this command requires --json --template to be set")
                 return
 
-            project = Project.objects.filter(id=pid).first()
+            project = Project.objects.get_queryset(user=admin)
 
             if not project:
                 logger.error(f'No project with id={pid}')
