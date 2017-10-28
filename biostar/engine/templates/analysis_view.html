@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% load engine_tags %}
+
+{% block headtitle %}
+    {{ analysis.name }}
+{% endblock %}
+
+
+{% block menu %}
+    {% menubar edit_analysis=True analysis=analysis %}
+{% endblock %}
+
+{% block breadcrumb %}
+    {% breadcrumb steps=steps %}
+{% endblock %}
+
+{% block body %}
+
+    <div class="ui raised segment">
+        <div class="ui center aligned header">
+            Analysis: {{ analysis.name }}
+        </div>
+        {{ analysis.summary|markdown|safe }}
+
+        <div class="ui center aligned basic segment">
+            <a class="ui green button" href="{% url 'analysis_run' analysis.id %}">
+                Execute Analysis
+            </a>
+
+            <a class="ui button" href="{% url 'job_list' project.id %}?filter={{ analysis.id }}">
+                Analysis Results
+            </a>
+        </div>
+    </div>
+
+    <div class="ui raised segment">
+        <div class="ui center aligned header">
+            Analysis Description
+        </div>
+
+        <div class="ui vertical segment">{{ analysis.html|safe }}</div>
+
+        <div class="ui center aligned basic segment">
+            <a class="ui button" href="{% url 'analysis_edit' analysis.id %}">
+                <i class="write icon"></i>Edit Analysis
+            </a>
+        </div>
+
+    </div>
+
+    <form method="post" class="ui form" action="{% url 'analysis_view' analysis.id %}">
+
+        {% csrf_token %}
+        <div class="ui center aligned vertical segment">
+            <div class="ui buttons">
+
+                  <button type="submit" class="ui right floated blue button">
+                    <i class="upload icon"></i>Export to
+                  </button>
+
+                  <div class="ui floating dropdown icon button">
+                        <div class="feild">
+                            {{form.project}}
+                        </div>
+                 </div>
+            </div>
+        </div>
+    </form>
+{% endblock %}

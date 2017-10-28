@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 
 import os
 
-from .log import LOGGING
+from biostar.engine.log import LOGGING
 
 SITE_ID = 1
 SITE_DOMAIN = "localhost"
@@ -91,7 +91,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'engine.wsgi.application'
+WSGI_APPLICATION = 'biostar.engine.wsgi.application'
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
 

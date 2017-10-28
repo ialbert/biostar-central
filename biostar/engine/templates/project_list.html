@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% load engine_tags %}
+
+{% block headtitle %}
+    Project List
+{% endblock %}
+
+{% block header %}
+
+    <i class="database icon"></i>Project List
+
+    <button class="ui mini button">
+        <i class="write square icon"></i>Create Project
+    </button>
+
+{% endblock %}
+
+{% block menu %}
+    {% menubar create_project=True %}
+{% endblock %}
+
+{% block body %}
+
+    <div class="ui raised segment">
+        <div class="ui center aligned header">
+            Project Listing
+        </div>
+
+
+        {% for project in projects %}
+
+            <div class="ui vertical segment">
+                <div class="ui header">
+                    <a href="{{ project.url }}">
+                        <i class="archive icon"></i>{{ project.name}}
+                    </a>
+
+                </div>
+                <p>{{ project.summary|markdown|safe }}</p>
+                <p class="muted">
+                    Created on {{ project.date.date }} by {{ project.owner.email }}
+                </p>
+
+            </div>
+
+        {% endfor %}
+
+        <div class="ui center aligned vertical segment">
+            <a class="ui button" href="{% url 'project_create' %}">
+                <i class="write icon"></i>Create Project
+            </a>
+        </div>
+    </div>
+{% endblock %}

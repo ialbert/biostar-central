@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Upload Data
+{% endblock %}
+
+
+{% block body %}
+
+<div class="ui segment">
+    <form method="post" class="ui form" enctype="multipart/form-data">
+
+        {% csrf_token %}
+        {{ form.media }}
+
+        <div class="field segment">
+              <label>{{ form.file.label_tag }}</label>
+              {{ form.file }}
+         </div>
+        <div class="four field segment">
+                <label>Data Type</label>
+                {{ form.data_type }}
+        </div>
+
+        <div class="field">
+            <label>Summary</label>
+            <textarea name="{{ form.summary.name }}" rows="2">{{ form.summary.value }}</textarea>
+        </div>
+
+        <div class="field segment">
+              <label>Data Description</label>
+              {{ form.text }}
+         </div>
+
+        {{ form.errors }}
+
+        <button type="submit" class="ui button">
+            <i class="write square icon"></i>Upload Data
+        </button>
+        <a class="ui right floated button" href="{% url 'data_list' project.id %}">
+            Back
+        </a>
+
+    </form>
+</div>
+{% endblock %}

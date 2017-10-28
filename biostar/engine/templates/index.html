@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% load engine_tags %}
+
+{% block headtitle %}
+    Metabarcode Home
+{% endblock %}
+
+{% block header %}
+
+{% endblock %}
+
+
+{% block menu %}
+    {% menubar %}
+{% endblock %}
+
+{% block body %}
+
+<div class="ui raised segment">
+
+    <div class="ui vertical segment">
+
+        <div class="ui header">
+            <a href="{% url 'project_list' %}">
+                <i class="database icon"></i>Project List
+            </a>
+        </div>
+        <p>View the list of projects.</p>
+
+    </div>
+
+    <div class="ui vertical segment">
+
+        <div class="ui header">
+            <a href="{% url 'info' %}">
+                <i class="info circle icon"></i>Information
+            </a>
+        </div>
+        <p>About this site.</p>
+
+    </div>
+
+    </div>
+
+
+
+
+
+
+{% endblock %}
