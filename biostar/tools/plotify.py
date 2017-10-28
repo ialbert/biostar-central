@@ -13,7 +13,14 @@ def chart_maker(params):
     context = dict(params=params)
     return context
 
+@register.inclusion_tag('charts/table_maker.js')
+def table_maker(params):
+    context = dict(params=params)
+    return context
+
+
 counter = count(100)
+
 
 class ChartParams():
     def __init__(self):
@@ -23,6 +30,16 @@ class ChartParams():
         self.options = ''
         self.count_id = next(counter)
         self.chart_id = f'chart_{self.count_id}'
+
+
+class TableParams():
+    def __init__(self):
+        self.type = 'Table'
+        self.rows = []
+        self.columns = []
+        self.options = ''
+        self.count_id = next(counter)
+        self.table_id = f'table_{self.count_id}'
 
 
 def demo():
@@ -55,13 +72,34 @@ def demo():
            legend: {position: 'none'},
        '''
 
+    # Plot table.
+
+    t1 = TableParams()
+    rows = [
+        ["'Mike'", 10000, 'true'],
+        ["'Jim'", 8000, 'false'],
+        ["'Alice'", 12500, 'true'],
+        ["'Bob'", 7000, 'false']
+    ]
+    columns = [
+        ('string', 'Name'),
+        ('number', 'Salary'),
+        ('boolean', 'Full Time Employee')
+    ]
+    t1.columns = columns
+    t1.rows = rows
+    t1.options = '''    
+            title: 'Table 1',
+            width: '50%',
+            height: '50%'
+        '''
+
     # This is the context.
-    data = dict(p1=p1, p2=p2)
+    data = dict(p1=p1, p2=p2, t1=t1)
 
     name = "chart_demo.html"
 
     html = render_template(data, name)
-
 
     with open('index.html', 'wt') as fp:
         fp.write(html)
