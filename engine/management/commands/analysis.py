@@ -74,6 +74,7 @@ class Command(BaseCommand):
             try:
                 # Parse the json_text into json_data
                 json_text = open(json).read()
+                json_path = os.path.dirname(json)
                 json_data = hjson.loads(json_text)
             except Exception as exc:
                 logger.error(f"error leading the template: {exc}")
@@ -89,11 +90,22 @@ class Command(BaseCommand):
             try:
                 name = json_data.get("settings", {}).get("name", "No name")
                 text = json_data.get("settings", {}).get("help", "No help")
+                image = json_data.get("settings", {}).get("image", "")
                 text = textwrap.dedent(text)
                 summary = json_data.get("settings", {}).get("summary", "No summary")
 
                 analysis = auth.create_analysis(project=project, json_text=json_text, summary=summary,
                                                    template=template, name=name, text=text, type=analysis_type)
+
+                if image:
+                    image_path = os.path.join(json_path, image)
+                    if os.path.isfile(image_path):
+                        stream = open(image_path, 'rb')
+                        analysis.image.save(image, stream, save=True)
+                        logger.error(f"added image path: {image_path}")
+                    else:
+                        logger.error(f"missing image path: {image_path}")
+
                 logger.info(f"Added analysis '{analysis.name}' to project id={project.id}")
 
                 # Also create a queued job:

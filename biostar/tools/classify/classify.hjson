@@ -31,8 +31,8 @@ reference: {
 */
 
 settings : {
-    name: Perform custom taxonomical classification
-    images : ["/static/pipelines/images/classify.png","/static/pipelines/images/classify_table.png"]
+    name: Taxonomical classification
+    image : classify.png
     index : results/index.html
     summary: '''
 

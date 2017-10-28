@@ -35,7 +35,7 @@ def filter_by_type():
     return
 
 
-def upload_path(instance, filename):
+def data_upload_path(instance, filename):
     # Name the data by the filename.
     pieces = os.path.basename(filename).split(".")
     # File may have multiple extensions
@@ -43,6 +43,12 @@ def upload_path(instance, filename):
     dataname = f"data-{instance.uid}.{exts}"
     return join(instance.project.get_path(), f"{instance.data_dir}", dataname)
 
+def image_path(instance, filename):
+    # Name the data by the filename.
+    name, ext = os.path.splitext(filename)
+    # File may have multiple extensions
+    imgname = f"image-{instance.uid}{ext}"
+    return  f"images/{imgname}"
 
 
 class ProjectAdminManager(models.Manager):
@@ -57,9 +63,14 @@ class ProjectObjectManager(models.Manager):
 
 class Project(models.Model):
     ADMIN, USER = 1, 2
+    PUBLIC, SHAREABLE, PRIVATE = 1,2,3
+    PRIVACY_CHOICES = [ (PRIVATE, "Private"), (SHAREABLE, "Shareable Link"),  (PUBLIC, "Public") ]
     TYPE_CHOICES = [(ADMIN, "admin"), (USER, "user")]
-    type = models.IntegerField(default=USER, choices=TYPE_CHOICES)
 
+    type = models.IntegerField(default=USER, choices=TYPE_CHOICES)
+    privacy = models.IntegerField(default=SHAREABLE, choices=PRIVACY_CHOICES)
+
+    image = models.ImageField(default=None, blank=True, upload_to=image_path)
     name = models.CharField(max_length=256, default="no name")
     summary = models.TextField(default='no summary')
 
@@ -117,6 +128,7 @@ class Data(models.Model):
     type = models.IntegerField(default=USER, choices=TYPE_CHOICES)
     name = models.CharField(max_length=256, default="no name")
     summary = models.TextField(default='no summary')
+    image = models.ImageField(default=None, blank=True, upload_to=image_path)
 
     owner = models.ForeignKey(User)
     text = models.TextField(default='no description', max_length=MAX_TEXT_LEN)
@@ -129,7 +141,7 @@ class Data(models.Model):
     size = models.CharField(null=True, max_length=256)
 
     state = models.IntegerField(default=PENDING, choices=STATE_CHOICES)
-    file = models.FileField(null=True, upload_to=upload_path, max_length=500)
+    file = models.FileField(null=True, upload_to=data_upload_path, max_length=500)
     uid = models.CharField(max_length=32)
 
     # Will be false if the objects is to be deleted.
@@ -203,6 +215,7 @@ class Analysis(models.Model):
     text = models.TextField(default='no description', max_length=MAX_TEXT_LEN)
     html = models.TextField(default='html')
     owner = models.ForeignKey(User)
+    image = models.ImageField(default=None, blank=True, upload_to=image_path)
 
     project = models.ForeignKey(Project)
 
@@ -211,6 +224,7 @@ class Analysis(models.Model):
     uid = models.CharField(max_length=32)
 
     date = models.DateTimeField(auto_now_add=True, blank=True)
+    image = models.ImageField(default=None, blank=True, upload_to=image_path)
 
     # Job start and end.
     start_date = models.DateTimeField(null=True, blank=True)
@@ -246,6 +260,7 @@ class Job(models.Model):
     type = models.IntegerField(default=USER, choices=TYPE_CHOICES)
     name = models.CharField(max_length=256, default="no name")
     summary = models.TextField(default='no summary')
+    image = models.ImageField(default=None, blank=True, upload_to=image_path)
 
     owner = models.ForeignKey(User)
     text = models.TextField(default='no description', max_length=MAX_TEXT_LEN)
