@@ -12,9 +12,7 @@ from django.contrib.auth.decorators import user_passes_test
 from . import tasks
 from .forms import *
 from .models import (User, Project, Data,
-                     Analysis, Job)
-import logging
-
+                     Analysis, Job, get_datatype)
 
 
 def join(*args):
