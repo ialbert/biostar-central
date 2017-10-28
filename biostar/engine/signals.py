@@ -36,8 +36,11 @@ def init_proj(sender, **kwargs):
     # The second project is a demo project.
     demo_project = Project.objects.filter(id=2).first()
 
+    print(admin_project,"SSSSS" )
+    print( not admin_project)
     # Set it up first time around.
     if not admin_project:
+        1/0
         admin_project = Project.objects.create(
             name=defaults.ADMIN_PROJECT_NAME,
             summary=defaults.ADMIN_PROJECT_SUMMARY,
