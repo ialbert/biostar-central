@@ -66,7 +66,7 @@ class BaseObjectManager(models.Manager):
     def get_queryset(self, user=Bunch(is_superuser=False)):
 
         if user.is_superuser:
-        
+
             return super(BaseObjectManager, self).get_queryset().filter(type=Project.ADMIN)
 
         return super(BaseObjectManager, self).get_queryset().exclude(type=Project.ADMIN)
@@ -233,7 +233,7 @@ class Analysis(models.Model):
     text = models.TextField(default='no description', max_length=MAX_TEXT_LEN)
     html = models.TextField(default='html')
     owner = models.ForeignKey(User)
-    image = models.ImageField(default=None, blank=True, upload_to=image_path)
+
 
     project = models.ForeignKey(Project)
 
