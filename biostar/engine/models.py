@@ -11,7 +11,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from . import auth
-from . import settings
+from engine import settings
 from . import util
 from .const import *
 

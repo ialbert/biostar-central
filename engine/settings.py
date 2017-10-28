@@ -58,7 +58,7 @@ INSTALLED_APPS = [
     'pagedown',
     'biostar.emailer',
     'biostar.accounts',
-    'engine.apps.EngineConfig',
+    'biostar.engine.apps.EngineConfig',
 ]
 
 MIDDLEWARE = [
