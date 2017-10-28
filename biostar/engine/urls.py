@@ -17,7 +17,9 @@ from django.conf.urls import url
 from django.contrib import admin
 from django.conf.urls.static import static
 from django.conf import settings
-from . import views, user_views
+
+from . import user_views
+from . import views
 
 urlpatterns = [
     # This is the django generated admin site.

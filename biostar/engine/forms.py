@@ -5,7 +5,7 @@ from django.utils.translation import gettext_lazy as helpers
 from django.contrib.auth.models import User, Group
 from django.core import management
 from .models import Project, Data, Analysis
-from engine.const import *
+from .const import *
 import os
 from . import util
 from . import factory

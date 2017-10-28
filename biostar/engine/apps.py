@@ -3,7 +3,7 @@ from django.apps import AppConfig
 from . import signals
 
 class EngineConfig(AppConfig):
-    name = 'engine'
+    name = 'biostar.engine'
 
     def ready(self):
         # Triggered upon app initialization.

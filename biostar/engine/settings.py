@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 
 import os
 
-from .log import LOGGING
+from biostar.engine.log import LOGGING
 
 SITE_ID = 1
 SITE_DOMAIN = "localhost"
@@ -58,7 +58,7 @@ INSTALLED_APPS = [
     'pagedown',
     'biostar.emailer',
     'biostar.accounts',
-    'engine.apps.EngineConfig',
+    'biostar.engine.apps.EngineConfig',
 ]
 
 MIDDLEWARE = [
@@ -71,7 +71,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'engine.urls'
+ROOT_URLCONF = 'biostar.engine.urls'
 
 TEMPLATES = [
     {
@@ -85,13 +85,13 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.template.context_processors.media',
                 'django.contrib.messages.context_processors.messages',
-                'engine.context.engine'
+                'biostar.engine.context.engine'
             ],
         },
     },
 ]
 
-WSGI_APPLICATION = 'engine.wsgi.application'
+WSGI_APPLICATION = 'biostar.engine.wsgi.application'
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
 
@@ -101,7 +101,7 @@ LOGOUT_URL = '/logout/'
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
-DATABASE_NAME = join(BASE_DIR, '..', 'export', 'database', 'engine.db')
+DATABASE_NAME = join(BASE_DIR, '..', '..', 'export', 'database', 'engine.db')
 
 DATABASES = {
     'default': {
@@ -138,14 +138,14 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
-MEDIA_ROOT = join(BASE_DIR, '..', 'export', 'media')
+MEDIA_ROOT = join(BASE_DIR, '..', '..', 'export', 'media')
 
 # The location of resusable data.
-LOCAL_ROOT = join(BASE_DIR, '..', 'export', 'local')
+LOCAL_ROOT = join(BASE_DIR, '..', '..', 'export', 'local')
 
 MEDIA_URL = '/media/'
 STATIC_URL = '/static/'
-STATIC_ROOT = join(BASE_DIR, '..', 'export', 'static')
+STATIC_ROOT = join(BASE_DIR, '..', '..', 'export', 'static')
 STATICFILES_DIRS = [
     join(BASE_DIR, "static"),
 ]

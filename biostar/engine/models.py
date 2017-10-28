@@ -10,14 +10,23 @@ from django.urls import reverse
 from django.utils import timezone
 
 from . import util, settings
+
 from .const import *
 
 logger = logging.getLogger("engine")
+class Bunch(object):
+
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
 
 # The maximum length in characters for a typical name and text field.
 MAX_NAME_LEN = 256
 MAX_TEXT_LEN = 10000
 MAX_LOG_LEN = 20 * MAX_TEXT_LEN
+
+class Bunch(object):
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
 
 def join(*args):
     return os.path.abspath(os.path.join(*args))
@@ -51,14 +60,23 @@ def image_path(instance, filename):
     return  f"images/{imgname}"
 
 
-class ProjectAdminManager(models.Manager):
-    def get_queryset(self):
-        return super(ProjectAdminManager, self).get_queryset().filter(type=Project.ADMIN)
+
+class BaseObjectManager(models.Manager):
+
+    def get_queryset(self, user=Bunch(is_superuser=False)):
+
+        if user.is_superuser:
+
+            return super(BaseObjectManager, self).get_queryset()
+
+        return super(BaseObjectManager, self).get_queryset().exclude(type=Project.ADMIN)
 
 
-class ProjectObjectManager(models.Manager):
+class BaseAdminManager(models.Manager):
+
     def get_queryset(self):
-        return super(ProjectObjectManager, self).get_queryset().exclude(type=Project.ADMIN)
+
+        return super(BaseAdminManager, self).get_queryset()
 
 
 class Project(models.Model):
@@ -88,10 +106,11 @@ class Project(models.Model):
     valid = models.BooleanField(default=True)
 
     # Override managers.
-    objects = ProjectObjectManager()
-    admins = ProjectAdminManager()
+    objects = BaseObjectManager()
+    admins = BaseAdminManager()
 
     def save(self, *args, **kwargs):
+
         now = timezone.now()
         self.date = self.date or now
         self.html = make_html(self.text)
@@ -116,6 +135,7 @@ class Project(models.Model):
 
 
 class Data(models.Model):
+
     ADMIN, USER = 1, 2
     FILE, COLLECTION = 1, 2
     PENDING, READY = 1, 2
@@ -205,6 +225,7 @@ class Data(models.Model):
         obj['name'] = self.name
         obj['uid'] = self.uid
 
+
 class Analysis(models.Model):
     ADMIN, USER = 1, 2
     TYPE_CHOICES = [(ADMIN, "admin"), (USER, "user")]
@@ -215,7 +236,7 @@ class Analysis(models.Model):
     text = models.TextField(default='no description', max_length=MAX_TEXT_LEN)
     html = models.TextField(default='html')
     owner = models.ForeignKey(User)
-    image = models.ImageField(default=None, blank=True, upload_to=image_path)
+
 
     project = models.ForeignKey(Project)
 
@@ -232,6 +253,7 @@ class Analysis(models.Model):
 
     # Will be false if the object is deleted.
     valid = models.BooleanField(default=True)
+
 
     def __str__(self):
         return self.name

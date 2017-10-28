@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 from django.template import Template, Context
-from engine.models import Job, Project, Analysis
+from biostar.engine.models import Job, Project, Analysis
 import subprocess, os, sys, json, hjson, logging
 from django.utils.text import force_text
 from django.conf import settings
@@ -41,14 +41,14 @@ def run(job, options={}):
 
         # Populate extra context
         def extra_context(job):
-            extras = dict(
+            data = dict(
                 media_root=settings.MEDIA_ROOT, work_dir=work_dir, local_root=settings.LOCAL_ROOT,
                 user_id=job.owner.id, user_email=job.owner.email,
                 job_id=job.id, job_name=job.name,
                 project_id=job.project.id, project_name=job.project.name, analyis_name=job.analysis.name,
                 analysis_id=job.analysis.id, analysis_name=job.analysis.name,
             )
-            return extras
+            return data
 
         # Add the runtime context.
         json_data['runtime'] = extra_context(job)
@@ -75,8 +75,7 @@ def run(job, options={}):
         execute = json_data.get('execute', {})
         script_name = execute.get("filename", "run.sh")
         json_fname = f"{script_name}.json"
-        stdout_fname = f"{script_name}.stdout.log"
-        stderr_fname = f"{script_name}.stderr.log"
+        outlog_fname = f"{script_name}.log"
 
         command = execute.get("command", "bash run.sh")
 
@@ -100,10 +99,10 @@ def run(job, options={}):
             return
 
         # Logging should start after the early returns.
-        logger.info(f'job id:{job.id} name:{job.name}')
+        logger.info(f'job id={job.id} started.')
 
         # Make the output directory
-        logger.info(f'job id:{job.id} work_dir:{work_dir}')
+        logger.info(f'job id={job.id} work_dir: {work_dir}')
         if not os.path.isdir(work_dir):
             os.mkdir(work_dir)
 
@@ -116,7 +115,7 @@ def run(job, options={}):
             fp.write(hjson.dumps(json_data, indent=4))
 
         # Show the command that is executed.
-        logger.info(f'job id:{job.id} executing:{full_command}')
+        logger.info(f'job id={job.id} executing: {full_command}')
 
         # Switch the job state to RUNNING.
         job.state = job.RUNNING
@@ -128,7 +127,7 @@ def run(job, options={}):
 
         # Return code indicates an error.
         if (proc.returncode != 0):
-            raise Exception(f"executing:{command}")
+            raise Exception(f"executing: {command}")
 
         # If we made it this far the job has finished.
         job.state = job.FINISHED
@@ -139,36 +138,31 @@ def run(job, options={}):
         job.state = job.ERROR
         job.save()
         stderr_log.append(f'{exc}')
-        logger.info(f'job id:{job.id} error:{exc}')
+        logger.info(f'job id={job.id} error {exc}')
 
     # Collect the output.
     if proc:
         stdout_log.extend(force_text(proc.stdout).splitlines())
         stderr_log.extend(force_text(proc.stderr).splitlines())
 
-    # Save the logs.
-    job.stdout_log = "\n".join(stdout_log)
-    job.stderr_log = "\n".join(stderr_log)
+    # For now keep logs in one field. TODO: separate into stdin, stdout
+    output_log = stdout_log + stderr_log
 
+    job.log = "\n".join(output_log)
     job.save()
 
     # Create a log script in the output directory as well.
-    with open(os.path.join(work_dir, stdout_fname), 'wt') as fp:
-        fp.write(job.stdout_log)
+    with open(os.path.join(work_dir, outlog_fname), 'wt') as fp:
+        fp.write(job.log)
 
-    # Create a log script in the output directory as well.
-    with open(os.path.join(work_dir, stderr_fname), 'wt') as fp:
-        fp.write(job.stderr_log)
-
-    logger.info(f'job id:{job.id} status:{job.get_state_display()} type:{job.get_type_display()}.')
+    logger.info(f'job id={job.id} finished, status={job.get_state_display()}, type={job.get_type_display()}.')
 
     # Use -v 2 to see the output of the command.
     if verbosity > 1:
         job = Job.objects.get(id=job.id)
         print ("-" * 40)
-        print (job.stdout_log)
+        print (job.log)
         print("-" * 40)
-        print(job.stderr_log)
 
 
 class Command(BaseCommand):

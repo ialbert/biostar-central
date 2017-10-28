@@ -7,11 +7,15 @@ serve: init
 conda:
 	conda install --file conf/conda_requirements.txt -y
 
+develop:
+	python setup.py develop
+
 uwsgi: init
 	uwsgi  --ini conf/devel/devel_uwsgi.ini
 
 clean:
 	(cd export/local && make clean)
+
 
 testdata:
 	mkdir -p export/local
@@ -24,8 +28,10 @@ delete:
 	# Remove the database and old media.
 	rm -f export/database/engine.db
 	rm -rf export/media/*
+	rm -rf *.egg
+	rm -rf *.egg-info
 
-reset: delete init jobs
+reset: delete init develop jobs
 
 next:
 	python manage.py job --next
@@ -39,12 +45,12 @@ hello:
 
 
 jobs:
-	python manage.py analysis --add --json biostar/tools/fastqc/fastqc.hjson  --template biostar/tools/fastqc/fastqc.sh --create_job
-	python manage.py analysis --add --json biostar/tools/qc/qc.hjson  --template biostar/tools/qc/qc.sh --create_job
-	python manage.py analysis --add --json biostar/tools/classify/classify.hjson  --template biostar/tools/classify/classify.sh --create_job
-	python manage.py analysis --add --analysis_type admin --id 2  --json biostar/tools/admin/unpack.hjson --template  biostar/tools/admin/unpack.sh --create_job
-	python manage.py analysis --add --analysis_type admin --id 2 --json  biostar/tools/admin/copy.hjson --template  biostar/tools/admin/copy.sh --create_job
-	python manage.py analysis --add --json biostar/tools/align/align.hjson  --template biostar/tools/align/align.sh --create_job
+	python manage.py analysis --add --analysis_type admin --id 1  --json biostar/tools/admin/unpack.hjson --template  biostar/tools/admin/unpack.sh --create_job
+	python manage.py analysis --add --analysis_type admin --id 1 --json  biostar/tools/admin/copy.hjson --template  biostar/tools/admin/copy.sh --create_job
+	python manage.py analysis --add --id 2 --json biostar/tools/fastqc/fastqc.hjson  --template biostar/tools/fastqc/fastqc.sh --create_job
+	python manage.py analysis --add --id 2 --json biostar/tools/qc/qc.hjson  --template biostar/tools/qc/qc.sh --create_job
+	python manage.py analysis --add --id 2 --json biostar/tools/classify/classify.hjson  --template biostar/tools/classify/classify.sh --create_job
+	#python manage.py analysis --add --id 2 --json biostar/tools/align/align.hjson  --template biostar/tools/align/align.sh --create_job
 
 init:
 	python manage.py collectstatic --noinput -v 0
