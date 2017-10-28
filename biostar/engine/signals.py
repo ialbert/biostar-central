@@ -31,17 +31,15 @@ def init_proj(sender, **kwargs):
     admin_group = Group.objects.get(name=settings.ADMIN_GROUP_NAME)
 
     # The first project is admin project.
-    admin_project = Project.objects.filter(id=1).first()
+    admin_project = Project.admins.filter(id=1).first()
 
     # The second project is a demo project.
     demo_project = Project.objects.filter(id=2).first()
 
-    print(admin_project,"SSSSS" )
-    print( not admin_project)
     # Set it up first time around.
     if not admin_project:
-        1/0
-        admin_project = Project.objects.create(
+
+        admin_project = Project.admins.create(
             name=defaults.ADMIN_PROJECT_NAME,
             summary=defaults.ADMIN_PROJECT_SUMMARY,
             text=defaults.ADMIN_PROJECT_TEXT,
@@ -59,7 +57,6 @@ def init_proj(sender, **kwargs):
             type=Project.USER
         )
         demo_project.save()
-
 
 def init_users(sender, **kwargs):
     """
