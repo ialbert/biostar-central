@@ -101,7 +101,7 @@ LOGOUT_URL = '/logout/'
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
-DATABASE_NAME = join(BASE_DIR, '..', 'export', 'database', 'engine.db')
+DATABASE_NAME = join(BASE_DIR, '..', '..', 'export', 'database', 'engine.db')
 
 DATABASES = {
     'default': {
@@ -138,14 +138,14 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
-MEDIA_ROOT = join(BASE_DIR, '..', 'export', 'media')
+MEDIA_ROOT = join(BASE_DIR, '..', '..', 'export', 'media')
 
 # The location of resusable data.
-LOCAL_ROOT = join(BASE_DIR, '..', 'export', 'local')
+LOCAL_ROOT = join(BASE_DIR, '..', '..', 'export', 'local')
 
 MEDIA_URL = '/media/'
 STATIC_URL = '/static/'
-STATIC_ROOT = join(BASE_DIR, '..', 'export', 'static')
+STATIC_ROOT = join(BASE_DIR, '..', '..', 'export', 'static')
 STATICFILES_DIRS = [
     join(BASE_DIR, "static"),
 ]

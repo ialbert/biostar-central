@@ -2,6 +2,7 @@ import os, sys, logging, hjson, textwrap
 from django.core.management.base import BaseCommand
 from biostar.engine.models import Job, Project, Analysis, User, Data
 from biostar.tools.const import DATA_TYPES
+from biostar.engine import auth
 from biostar.tools import defaults
 
 logger = logging.getLogger('engine')
@@ -90,7 +91,7 @@ class Command(BaseCommand):
                 text = json_data.get("settings", {}).get("help", "No help")
                 text = textwrap.dedent(text)
                 summary = json_data.get("settings", {}).get("summary", "No summary")
-                analysis = project.create_analysis(json_text=json_text, summary=summary,
+                analysis = auth.create_analysis(project=project,json_text=json_text, summary=summary,
                                                    template=template, name=name, text=text, type=analysis_type)
                 logger.info(f"Added analysis '{analysis.name}' to project id={project.id}")
 
@@ -104,9 +105,9 @@ class Command(BaseCommand):
                         data_type = DATA_TYPES.get(data_type)
 
                         if path:
-                            data = project.create_data(fname=path, data_type=data_type)
+                            data = auth.create_data(project=project,fname=path, data_type=data_type)
                             data.fill_dict(value)
-                    analysis.create_job(json_data=json_data, type=analysis_type)
+                    auth.create_job(analysis=analysis, json_data=json_data, type=analysis_type)
 
             except KeyError as exc:
                 logger.error(f"processing the analysis: {exc}")

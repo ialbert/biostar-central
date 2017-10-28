@@ -1,6 +1,6 @@
 
 from django.db import models
-from engine.util import get_uuid
+from biostar.engine.util import get_uuid
 
 
 
