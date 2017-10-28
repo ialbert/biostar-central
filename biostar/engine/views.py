@@ -172,7 +172,7 @@ def project_create(request):
 
 # @login_required
 def data_list(request, id):
-    project = Project.objects.filter(id=id).first()
+    project = Project.objects.get(id=id).first()
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON],
                                project=project)
 
@@ -260,7 +260,6 @@ def analysis_list(request, id):
 
     project = Project.objects.filter(id=id).first()
     analysis = Analysis.objects.filter(project=project).order_by("-id")
-
 
     if not request.user.is_superuser:
         analysis = analysis.filter(type=Analysis.USER).all()

@@ -254,9 +254,6 @@ class Analysis(models.Model):
     # Will be false if the object is deleted.
     valid = models.BooleanField(default=True)
 
-    # Override managers.
-    objects = BaseObjectManager()
-    admins = BaseAdminManager()
 
     def __str__(self):
         return self.name
@@ -314,10 +311,6 @@ class Job(models.Model):
     state = models.IntegerField(default=1, choices=STATE_CHOICES)
 
     path = models.FilePathField(default="")
-
-    # Override managers.
-    objects = BaseObjectManager()
-    admins = BaseAdminManager()
 
     def is_running(self):
         return self.state == Job.RUNNING
