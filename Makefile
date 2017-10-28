@@ -1,9 +1,12 @@
 USER=www
 SERVER=metabarcode.com
 
-
 serve: init
 	python manage.py runserver
+
+conda:
+	conda install --file conf/conda_requirements.txt
+
 
 uwsgi: init
 	uwsgi  --ini conf/devel/devel_uwsgi.ini

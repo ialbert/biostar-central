@@ -8,5 +8,5 @@ target : {
 settings : {
     name: Unpack data
     help: Admin job that unpacks files in the background.
-    summary : Admin job that unpacks files in the background.
+    summary: Admin job that unpacks files in the background.
     }

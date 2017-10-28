@@ -1,12 +1,9 @@
 from biostar.tools import defaults
 from django.core.files import File
-import hjson
-import logging
+import os, hjson, logging
 from .const import *
-import os
 
 logger = logging.getLogger("engine")
-
 
 def get_data(user, project, query, data_type=None):
     """

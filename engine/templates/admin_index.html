@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% load engine_tags %}
+
+{% block headtitle %}
+    Metabarcode Home
+{% endblock %}
+
+{% block header %}
+
+{% endblock %}
+
+
+{% block menu %}
+    {% menubar %}
+{% endblock %}
+
+{% block body %}
+
+    <div class="ui raised segment">
+
+        <div class="ui vertical segment">
+
+            <div class="ui header">
+                <a href="{% url 'admin:index' %}">
+                    <i class="desktop icon"></i>Django Admin
+                </a>
+            </div>
+
+        </div>
+
+        <div class="ui vertical segment">
+            <div class="ui header">
+                Admin jobs
+            </div>
+            <div class="ui divided list">
+                {% for project in projects %}
+                    {% for job in project.job_set.all %}
+                        <div class="item">
+                            <div class="ui label">{{ job.get_state_display }}</div> {{ job.name }}
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+            </div>
+
+        </div>
+
+    </div>
+
+
+{% endblock %}
