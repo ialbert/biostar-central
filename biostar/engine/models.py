@@ -67,7 +67,7 @@ class BaseObjectManager(models.Manager):
 
         if user.is_superuser:
 
-            return super(BaseObjectManager, self).get_queryset().filter(type=Project.ADMIN)
+            return super(BaseObjectManager, self).get_queryset()
 
         return super(BaseObjectManager, self).get_queryset().exclude(type=Project.ADMIN)
 
@@ -110,6 +110,7 @@ class Project(models.Model):
     admins = BaseAdminManager()
 
     def save(self, *args, **kwargs):
+
         now = timezone.now()
         self.date = self.date or now
         self.html = make_html(self.text)
@@ -134,6 +135,7 @@ class Project(models.Model):
 
 
 class Data(models.Model):
+
     ADMIN, USER = 1, 2
     FILE, COLLECTION = 1, 2
     PENDING, READY = 1, 2
@@ -222,6 +224,7 @@ class Data(models.Model):
         obj['data_id'] = self.id
         obj['name'] = self.name
         obj['uid'] = self.uid
+
 
 class Analysis(models.Model):
     ADMIN, USER = 1, 2

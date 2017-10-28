@@ -2,17 +2,17 @@
 
 import mistune
 from django.conf import settings
-# from django.template.loader import get_template
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.contrib.auth.decorators import user_passes_test
 
+from . import auth
 from . import tasks
 from .forms import *
 from .models import (User, Project, Data,
-                     Analysis, Job, get_datatype)
+                     Analysis, Job)
 
 
 def join(*args):
@@ -102,9 +102,6 @@ def project_list(request):
 
     projects = Project.objects.get_queryset(user=request.user).order_by("-id")
 
-    if request.user.is_superuser:
-        projects = Project.admins.order_by("-id")
-
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON])
 
     context = dict(projects=projects, steps=steps)
@@ -186,7 +183,7 @@ def data_list(request, id):
 
 # @login_required
 def data_view(request, id):
-    data = Data.objects.get_queryset(user=request.user).filter(id=id).first()
+    data = Data.objects.filter(id=id).first()
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON, DATA_ICON],
                                project=data.project, data=data)
     context = dict(data=data, steps=steps)
@@ -204,7 +201,7 @@ def remove_file(file):
 
 @login_required
 def data_edit(request, id):
-    data = Data.objects.get_queryset(user=request.user).filter(id=id).first()
+    data = Data.objects.filter(id=id).first()
     project = data.project
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON, DATA_ICON],
@@ -261,7 +258,7 @@ def analysis_list(request, id):
     """
     # filter according to user.
 
-    project = Project.objects.get_queryset(user=request.user).filter(id=id).first()
+    project = Project.objects.filter(id=id).first()
     analysis = Analysis.objects.filter(project=project).order_by("-id")
 
     if not request.user.is_superuser:
@@ -278,7 +275,7 @@ def analysis_view(request, id):
     """
     Returns an analysis view based on its id.
     """
-    analysis = Analysis.objects.filter(id=id).first()
+    analysis = Analysis.objects.get_queryset(user=request.user).filter(id=id).first()
     project = analysis.project
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ANALYSIS_LIST_ICON, ANALYSIS_ICON],
                                project=project, analysis=analysis)
@@ -297,7 +294,7 @@ def analysis_view(request, id):
 
 @login_required
 def analysis_run(request, id):
-    analysis = Analysis.objects.filter(id=id).first()
+    analysis = Analysis.objects.get_queryset(user=request.user).filter(id=id).first()
 
     project = analysis.project
 
@@ -311,7 +308,7 @@ def analysis_run(request, id):
             name = form.cleaned_data.get("name")
             filled_json = form.process()
             json_text = hjson.dumps(filled_json)
-            job = analysis.create_job(owner=analysis.owner, json_text=json_text, name=name,
+            job = auth.create_job(analysis=analysis, user=analysis.owner, json_text=json_text, name=name,
                                       type=analysis.type)
             logger.info(tasks.HAS_UWSGI)
             if tasks.HAS_UWSGI:
@@ -352,7 +349,7 @@ def process_analysis_edit(method, analysis, form):
 
 @login_required
 def analysis_edit(request, id):
-    analysis = Analysis.objects.filter(id=id).first()
+    analysis = Analysis.objects.get_queryset(user=request.user).filter(id=id).first()
     # filter according to user
     project = analysis.project
     steps = breadcrumb_builder([PROJECT_ICON, ANALYSIS_LIST_ICON, ANALYSIS_ICON],
@@ -377,7 +374,7 @@ def job_list(request, id):
     Returns the list of jobs for a project id.
     """
     # filter according to type
-    project = Project.objects.get_queryset(user=request.user).filter(id=id).first()
+    project = Project.admins.get_queryset().filter(id=id).first()
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, RESULT_LIST_ICON],
                                project=project)
 
@@ -400,7 +397,7 @@ def job_view(request, id):
     '''
     Views the state of a single job.
     '''
-    job = Job.objects.filter(id=id).first()
+    job = Job.objects.get_queryset(user=request.user).filter(id=id).first()
     project = job.project
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, RESULT_LIST_ICON, RESULT_VIEW_ICON],
@@ -414,7 +411,7 @@ def job_result_view(request, id):
     """
     Returns the primary result of a job.
     """
-    job = Job.objects.filter(id=id).first()
+    job = Job.objects.get_queryset(user=request.user).filter(id=id).first()
     index = job.json_data.get("settings", {}).get("index", "")
 
     if job.state == Job.FINISHED:
@@ -428,14 +425,14 @@ def job_file_view(request, id):
     """
     Returns the directory view of the job.
     """
-    job = Job.objects.filter(id=id).first()
+    job = Job.objects.get_queryset(user=request.user).filter(id=id).first()
     url = settings.MEDIA_URL + job.get_url()
 
     return redirect(url)
 
 
 def job_files_list(request, id, path=''):
-    job = Job.objects.filter(id=id).first()
+    job = Job.objects.get_queryset(user=request.user).filter(id=id).first()
 
     project = job.project
 
