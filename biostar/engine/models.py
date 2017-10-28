@@ -61,22 +61,22 @@ def image_path(instance, filename):
 
 
 
-class ProjectObjectManager(models.Manager):
+class BaseObjectManager(models.Manager):
 
     def get_queryset(self, user=Bunch(is_superuser=False)):
 
         if user.is_superuser:
+        
+            return super(BaseObjectManager, self).get_queryset().filter(type=Project.ADMIN)
 
-            return super(ProjectObjectManager, self).get_queryset().filter(type=Project.USER).filter(type=Project.ADMIN)
-
-        return super(ProjectObjectManager, self).get_queryset().exclude(type=Project.ADMIN)
+        return super(BaseObjectManager, self).get_queryset().exclude(type=Project.ADMIN)
 
 
-class ProjectAdminManager(models.Manager):
+class BaseAdminManager(models.Manager):
 
     def get_queryset(self):
 
-        return super(ProjectAdminManager, self).get_queryset().filter(type=Project.USER).filter(type=Project.ADMIN)
+        return super(BaseAdminManager, self).get_queryset()
 
 
 class Project(models.Model):
@@ -106,8 +106,8 @@ class Project(models.Model):
     valid = models.BooleanField(default=True)
 
     # Override managers.
-    objects = ProjectObjectManager()
-    admins = ProjectAdminManager()
+    objects = BaseObjectManager()
+    admins = BaseAdminManager()
 
     def save(self, *args, **kwargs):
         now = timezone.now()
@@ -251,6 +251,10 @@ class Analysis(models.Model):
     # Will be false if the object is deleted.
     valid = models.BooleanField(default=True)
 
+    # Override managers.
+    objects = BaseObjectManager()
+    admins = BaseAdminManager()
+
     def __str__(self):
         return self.name
 
@@ -307,6 +311,10 @@ class Job(models.Model):
     state = models.IntegerField(default=1, choices=STATE_CHOICES)
 
     path = models.FilePathField(default="")
+
+    # Override managers.
+    objects = BaseObjectManager()
+    admins = BaseAdminManager()
 
     def is_running(self):
         return self.state == Job.RUNNING

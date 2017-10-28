@@ -36,12 +36,12 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
 
         parser.add_argument('--name',
-                            help=f"Name of created project ( in quotes). default = {defaults.PROJECT_NAME}",
-                            default=defaults.PROJECT_NAME)
+                            help=f"Name of created project ( in quotes). default = {defaults.DEMO_PROJECT_NAME}",
+                            default=defaults.DEMO_PROJECT_NAME)
 
         parser.add_argument('--summary',
-                            help=f"Name of created project ( in quotes). default = {defaults.PROJECT_SUMMARY}",
-                            default=defaults.PROJECT_SUMMARY)
+                            help=f"Name of created project ( in quotes). default = {defaults.DEMO_PROJECT_SUMMARY}",
+                            default=defaults.DEMO_PROJECT_SUMMARY)
 
         parser.add_argument('--creator_email',
                             help=f"Name of created project. default = first admin user")
@@ -61,11 +61,11 @@ class Command(BaseCommand):
 
         parser.add_argument('--project_type',
                             help=f"Who this job/analysis meant for.",
-                            default=defaults.USAGE, choices=dict(Project.TYPE_CHOICES).values())
+                            default=Project.USER, choices=dict(Project.TYPE_CHOICES).values())
 
         parser.add_argument('--analysis_type',
                             help=f"Who this job/analysis meant for.",
-                            default=defaults.USAGE, choices=dict(Analysis.TYPE_CHOICES).values())
+                            default=Analysis.USER,choices=dict(Analysis.TYPE_CHOICES).values())
 
 
     def handle(self, *args, **options):

@@ -57,7 +57,7 @@ class Command(BaseCommand):
                 logger.error("this command requires --json --template to be set")
                 return
 
-            project = Project.objects.get_queryset(user=admin)
+            project = Project.objects.get_queryset(user=admin).first()
 
             if not project:
                 logger.error(f'No project with id={pid}')
