@@ -9,10 +9,12 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.contrib.auth.decorators import user_passes_test
 
+
 from . import tasks
 from .forms import *
+from .const import *
 from .models import (User, Project, Data,
-                     Analysis, Job, get_datatype)
+                     Analysis, Job)
 
 
 def join(*args):
@@ -27,8 +29,10 @@ def make_html(text):
 
 
 def info(request):
+
+    tmp = "Store and analyze metagenomic data"
     steps = breadcrumb_builder([HOME_ICON, INFO_ICON])
-    context = dict(steps=steps, info=make_html(INFO))
+    context = dict(steps=steps, info=make_html(tmp))
     return render(request, 'info.html', context=context)
 
 

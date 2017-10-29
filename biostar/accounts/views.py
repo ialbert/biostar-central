@@ -51,7 +51,7 @@ def user_signup(request):
             user.set_password(password)
             user.save()
 
-            login(request, user)
+            auth.login(request, user)
             logger.info(f"Signed up and logged in user.id={user.id}, user.email={user.email}")
             messages.info(request, "Signup successful!")
             return redirect(reverse('login'))
