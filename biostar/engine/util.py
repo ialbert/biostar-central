@@ -31,8 +31,6 @@ def get_datatype(fname):
     return text
 
 
-
-
 def smart_preview(fname):
     CHUNK_SIZE, LINE_COUNT = 1024, 10
     try:

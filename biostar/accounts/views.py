@@ -8,10 +8,10 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate
 
 from .forms import SignUpForm, LoginForm, LogoutForm
-from engine.models import User
+from biostar.engine.models import User
 from django.urls import reverse
-from engine.const import *
-from engine.views import breadcrumb_builder
+from biostar.engine.const import *
+from biostar.engine.views import breadcrumb_builder
 from django.contrib import auth
 
 logger = logging.getLogger('engine')
