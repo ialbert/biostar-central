@@ -61,22 +61,22 @@ def image_path(instance, filename):
 
 
 
-class BaseObjectManager(models.Manager):
+class ProjectObjectManager(models.Manager):
 
     def get_queryset(self, user=Bunch(is_superuser=False)):
 
         if user.is_superuser:
 
-            return super(BaseObjectManager, self).get_queryset()
+            return super(ProjectObjectManager, self).get_queryset()
 
-        return super(BaseObjectManager, self).get_queryset().exclude(type=Project.ADMIN)
+        return super(ProjectObjectManager, self).get_queryset().exclude(type=Project.ADMIN)
 
 
-class BaseAdminManager(models.Manager):
+class ProjectAdminManager(models.Manager):
 
     def get_queryset(self):
 
-        return super(BaseAdminManager, self).get_queryset()
+        return super(ProjectAdminManager, self).get_queryset()
 
 
 class Project(models.Model):
