@@ -19,7 +19,6 @@ Create a virtual environment both on your system and on the remote site:
     conda create -y --name engine python=3.6
     source activate engine
     
-    
 Switch to the server installatio directory to install conda and python dependecies:
 
     # Skip this step if you don't wish to run the tools that come with the engine.
