@@ -63,7 +63,6 @@ class ProjectObjectManager(models.Manager):
     def get_queryset(self, user=Bunch(is_superuser=False)):
 
         if user.is_superuser:
-
             return super(ProjectObjectManager, self).get_queryset()
 
         return super(ProjectObjectManager, self).get_queryset().exclude(type=Project.ADMIN)
