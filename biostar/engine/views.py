@@ -172,7 +172,7 @@ def project_create(request):
 
 # @login_required
 def data_list(request, id):
-    project = Project.objects.get(id=id).first()
+    project = Project.objects.get(id=id)
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON],
                                project=project)
 
@@ -374,7 +374,7 @@ def job_list(request, id):
     Returns the list of jobs for a project id.
     """
     # filter according to type
-    project = Project.objects.filter(id=id).first()
+    project = Project.objects.get_queryset(user=request.user).filter(id=id).first()
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, RESULT_LIST_ICON],
                                project=project)
 
