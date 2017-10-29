@@ -1,15 +1,14 @@
 
 import uuid
 import logging
-from django.contrib import messages
 
+from django.contrib import messages
 from ratelimit.decorators import ratelimit
 from django.shortcuts import render, redirect
-from django.contrib.auth import login, authenticate
+from django.contrib.auth.models import User
+from django.urls import reverse
 
 from .forms import SignUpForm, LoginForm, LogoutForm
-from biostar.engine.models import User
-from django.urls import reverse
 from biostar.engine.const import *
 from biostar.engine.views import breadcrumb_builder
 from django.contrib import auth
@@ -102,14 +101,14 @@ def user_login(request):
                 context = dict(form=form)
                 return render(request, "registration/user_login.html", context=context)
 
-            user = authenticate(username=user.username, password=password)
+            user = auth.authenticate(username=user.username, password=password)
 
             if not user:
                 form.add_error(None, "Invalid password.")
             elif user and not user.is_active:
                 form.add_error(None, "This user may not log in.")
             elif user and user.is_active:
-                login(request, user)
+                auth.login(request, user)
                 logger.info(f"logged in user.id={user.id}, user.email={user.email}")
                 messages.info(request, "Login successful!")
                 return redirect(reverse("index"))

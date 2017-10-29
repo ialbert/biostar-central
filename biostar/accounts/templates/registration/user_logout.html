@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block headtitle %} Metabarcode {% endblock %}
+{% block title %} Log out {% endblock %}
+
+{% block body %}
+
+    <div class="ui  attached center aligned message">
+            Do you want to log out?
+    </div>
+
+    <form class="ui form attached fluid segment" method="post" action="{% url 'logout' %}" >
+        {% csrf_token %}
+        <button class="ui primary button" type="submit">Log out</button>
+        <a class="ui right floated  button" href="/">Go Back</a>
+    </form>
+
+
+
+{% endblock %}

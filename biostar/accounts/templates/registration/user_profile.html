@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+
+{% block headtitle %} Profile {% endblock %}
+
+{% block body %}
+
+
+        <div class="ui label">
+        Email: {{user.email}}
+        </div>
+
+        <div>Groups you belong to: <i class="circular users icon"></i></div>
+
+        {% for group in user.groups.all %}
+            <div class="info">{{group}}</div>
+
+        {% endfor %}
+
+
+
+
+{% endblock %}
