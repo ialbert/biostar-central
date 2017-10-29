@@ -14,10 +14,7 @@ from . import util, settings
 from .const import *
 
 logger = logging.getLogger("engine")
-class Bunch(object):
 
-    def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
 
 # The maximum length in characters for a typical name and text field.
 MAX_NAME_LEN = 256
@@ -61,22 +58,21 @@ def image_path(instance, filename):
 
 
 
-class BaseObjectManager(models.Manager):
+class ProjectObjectManager(models.Manager):
 
     def get_queryset(self, user=Bunch(is_superuser=False)):
 
         if user.is_superuser:
+            return super(ProjectObjectManager, self).get_queryset()
 
-            return super(BaseObjectManager, self).get_queryset()
-
-        return super(BaseObjectManager, self).get_queryset().exclude(type=Project.ADMIN)
+        return super(ProjectObjectManager, self).get_queryset().exclude(type=Project.ADMIN)
 
 
-class BaseAdminManager(models.Manager):
+class ProjectAdminManager(models.Manager):
 
     def get_queryset(self):
 
-        return super(BaseAdminManager, self).get_queryset()
+        return super(ProjectAdminManager, self).get_queryset().filter(type=Project.ADMIN)
 
 
 class Project(models.Model):
@@ -106,8 +102,8 @@ class Project(models.Model):
     valid = models.BooleanField(default=True)
 
     # Override managers.
-    objects = BaseObjectManager()
-    admins = BaseAdminManager()
+    objects = ProjectObjectManager()
+    admins = ProjectAdminManager()
 
     def save(self, *args, **kwargs):
 

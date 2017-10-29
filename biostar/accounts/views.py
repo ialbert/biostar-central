@@ -1,17 +1,16 @@
 
 import uuid
 import logging
-from django.contrib import messages
 
+from django.contrib import messages
 from ratelimit.decorators import ratelimit
 from django.shortcuts import render, redirect
-from django.contrib.auth import login, authenticate
+from django.contrib.auth.models import User
+from django.urls import reverse
 
 from .forms import SignUpForm, LoginForm, LogoutForm
-from engine.models import User
-from django.urls import reverse
-from engine.const import *
-from engine.views import breadcrumb_builder
+from biostar.engine.const import *
+from biostar.engine.views import breadcrumb_builder
 from django.contrib import auth
 
 logger = logging.getLogger('engine')
@@ -29,7 +28,7 @@ def user_profile(request, id):
 
     context = dict(user=user, steps=steps)
 
-    return render(request, 'registration/user_profile.html', context)
+    return render(request, 'accounts_profile.html', context)
 
 
 
@@ -52,7 +51,7 @@ def user_signup(request):
             user.set_password(password)
             user.save()
 
-            login(request, user)
+            auth.login(request, user)
             logger.info(f"Signed up and logged in user.id={user.id}, user.email={user.email}")
             messages.info(request, "Signup successful!")
             return redirect(reverse('login'))
@@ -60,7 +59,7 @@ def user_signup(request):
 
         form = SignUpForm()
     context = dict(form=form, steps=steps)
-    return render(request, 'registration/user_signup.html', context=context)
+    return render(request, 'accounts_signup.html', context=context)
 
 
 def user_logout(request):
@@ -80,7 +79,7 @@ def user_logout(request):
 
     context = dict(steps=steps, form=form)
 
-    return render(request, "registration/user_logout.html", context=context)
+    return render(request, "accounts_logout.html", context=context)
 
 
 @ratelimit(key='ip', rate='10/m', block=True, method=ratelimit.UNSAFE)
@@ -102,14 +101,14 @@ def user_login(request):
                 context = dict(form=form)
                 return render(request, "registration/user_login.html", context=context)
 
-            user = authenticate(username=user.username, password=password)
+            user = auth.authenticate(username=user.username, password=password)
 
             if not user:
                 form.add_error(None, "Invalid password.")
             elif user and not user.is_active:
                 form.add_error(None, "This user may not log in.")
             elif user and user.is_active:
-                login(request, user)
+                auth.login(request, user)
                 logger.info(f"logged in user.id={user.id}, user.email={user.email}")
                 messages.info(request, "Login successful!")
                 return redirect(reverse("index"))
@@ -123,5 +122,5 @@ def user_login(request):
     steps = breadcrumb_builder([HOME_ICON, LOGIN_ICON])
 
     context = dict(form=form, steps=steps)
-    return render(request, "registration/user_login.html", context=context)
+    return render(request, "accounts_login.html", context=context)
 

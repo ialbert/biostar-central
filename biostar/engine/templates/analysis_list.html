@@ -7,21 +7,41 @@
 {% block body %}
 
     <div class="ui raised segment">
-        <div class="ui center aligned header">
-            Analysis List for project: {{ project.name }}
-        </div>
+    <div class="ui center aligned header">
+        Analysis Recipes for project: {{ project.name }}
+    </div>
 
 
+    <div class="ui two cards">
         {% for obj in analysis %}
 
-            <div class="ui vertical segment">
-                <div class="ui header">
-                    <a href="{% url 'analysis_view' obj.id %}">
-                        <i class="setting icon"></i>{{ obj.name }}
+
+            <div class="ui card">
+
+                <a class="image" href="{% url 'analysis_view' obj.id %}">
+
+
+                        <img class="ui small image" src="{% img obj %}">
+
+                </a>
+                <div class="content">
+                    <a class="header" href="{% url 'analysis_view' obj.id %}">{{ obj.name }}</a>
+                    <div class="meta">
+                        <span class="date">Joined in 2013</span>
+                    </div>
+                    <div class="description">
+                        {{ obj.summary|markdown|safe }}
+                    </div>
+                </div>
+                <div class="extra content">
+                    <a>
+                        <i class="bar chart icon"></i>
+                        <a class="" href="{% url 'job_list' project.id %}?filter={{ obj.id }}">view results
                     </a>
                 </div>
-                <span>{{ obj.summary|markdown|safe }}</span>
             </div>
+
+
 
         {% endfor %}
 
