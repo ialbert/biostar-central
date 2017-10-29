@@ -95,8 +95,8 @@ WSGI_APPLICATION = 'biostar.engine.wsgi.application'
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
 
-LOGIN_URL = 'accounts/login/'
-LOGOUT_URL = 'accounts/logout/'
+#LOGIN_URL = 'accounts/login/'
+#LOGOUT_URL = 'accounts/logout/'
 
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
