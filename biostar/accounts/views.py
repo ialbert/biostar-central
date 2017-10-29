@@ -28,7 +28,7 @@ def user_profile(request, id):
 
     context = dict(user=user, steps=steps)
 
-    return render(request, 'registration/user_profile.html', context)
+    return render(request, 'user_profile.html', context)
 
 
 
@@ -59,7 +59,7 @@ def user_signup(request):
 
         form = SignUpForm()
     context = dict(form=form, steps=steps)
-    return render(request, 'registration/user_signup.html', context=context)
+    return render(request, 'user_signup.html', context=context)
 
 
 def user_logout(request):
@@ -122,5 +122,5 @@ def user_login(request):
     steps = breadcrumb_builder([HOME_ICON, LOGIN_ICON])
 
     context = dict(form=form, steps=steps)
-    return render(request, "registration/user_login.html", context=context)
+    return render(request, "user_login.html", context=context)
 
