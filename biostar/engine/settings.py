@@ -56,9 +56,10 @@ INSTALLED_APPS = [
     'mailer',
     'compressor',
     'pagedown',
+    'biostar.engine.apps.EngineConfig',
     'biostar.emailer',
     'biostar.accounts',
-    'biostar.engine.apps.EngineConfig',
+
 ]
 
 MIDDLEWARE = [
@@ -85,7 +86,8 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.template.context_processors.media',
                 'django.contrib.messages.context_processors.messages',
-                'biostar.engine.context.engine'
+                'biostar.engine.context.engine',
+
             ],
         },
     },
