@@ -20,6 +20,10 @@ def get_uuid(limit=32):
     return str(uuid.uuid4())[:limit]
 
 
+def info(request):
+
+    return redirect("/")
+
 
 def user_profile(request, id):
 
