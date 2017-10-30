@@ -147,7 +147,7 @@ def plot(data1, data2 , data3):
     t1.columns = data3.columns
 
     t1.options = '''    
-               width : '50%',
+               width : '100%',
                height : '50%'
            '''
 
