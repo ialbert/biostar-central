@@ -6,5 +6,6 @@ blast
 bwa
 samtools
 bioawk
+pysam
 
 

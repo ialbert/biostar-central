@@ -1,0 +1,26 @@
+{%  extends 'charts/chart_base.html' %}
+
+{% load plotify %}
+
+{%  block head %}
+
+    {% chart_init %}
+
+    <script type="text/javascript">
+        {%  chart_maker p1 %}
+        {%  chart_maker p2 %}
+        {%  table_maker t1 %}
+    </script>
+
+{%  endblock %}
+
+{%  block body %}
+
+<h2>Alignment Results</h2>
+<div id="{{ p1.chart_id }}" style="width: 900px; height: 500px;"></div>
+<div id="{{ p2.chart_id }}" style="width: 900px; height: 500px;"></div>
+<div id="{{ t1.table_id }}" style="margin-bottom: 30px"></div>
+
+
+
+{%  endblock %}
