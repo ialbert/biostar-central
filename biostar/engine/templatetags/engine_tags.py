@@ -1,6 +1,6 @@
 from django import forms
 from django import template
-from engine.models import Job, make_html
+from biostar.engine.models import Job, make_html
 from django.utils.safestring import mark_safe
 from textwrap import dedent
 import json

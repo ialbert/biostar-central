@@ -7,11 +7,15 @@ serve: init
 conda:
 	conda install --file conf/conda_requirements.txt -y
 
+develop:
+	python setup.py develop
+
 uwsgi: init
 	uwsgi  --ini conf/devel/devel_uwsgi.ini
 
 clean:
 	(cd export/local && make clean)
+
 
 testdata:
 	mkdir -p export/local
@@ -24,8 +28,10 @@ delete:
 	# Remove the database and old media.
 	rm -f export/database/engine.db
 	rm -rf export/media/*
+	rm -rf *.egg
+	rm -rf *.egg-info
 
-reset: delete init jobs
+reset: delete init develop jobs
 
 next:
 	python manage.py job --next

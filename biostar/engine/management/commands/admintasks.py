@@ -3,7 +3,7 @@ import shutil
 import os
 import tarfile
 from django.core.management.base import BaseCommand
-from engine.models import Data, Project
+from biostar.engine.models import Data, Project
 from biostar.tools.const import COLLECTION_TYPES
 
 

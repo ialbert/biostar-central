@@ -1,19 +1,24 @@
 import logging
 from django.core.management.base import BaseCommand
 from biostar.tools import defaults
-from engine.models import Project, Analysis, Data, User
+from biostar.engine.models import Project, Analysis, Data, User
 from django.core import management
 
 logger = logging.getLogger('engine')
 
 def create(owner, name=defaults.DEMO_PROJECT_NAME, summary=defaults.DEMO_PROJECT_SUMMARY,
-           add=False, json=None, template=None, create_job=False, project_type=defaults.USAGE, analysis_type=defaults.USAGE):
+           add=False, json=None, template=None, create_job=False, project_type=None, analysis_type=None):
 
     if not owner.is_superuser:
         logger.error(f'User is not admin.')
         return
 
-    project = Project.objects.create(owner=owner, name=name, summary=summary, type=project_type)
+    objects,admins = Project.objects, Project.admins
+    manager = {Project.ADMIN:admins, Project.USER: objects}
+
+    manager = manager.get(project_type, objects).create
+
+    project = manager(owner=owner, name=name, summary=summary, type=project_type)
     logger.info(f'Created project name={project.name}, id={project.id} with type:{project.get_type_display()}')
     project.save()
 
@@ -56,11 +61,11 @@ class Command(BaseCommand):
 
         parser.add_argument('--project_type',
                             help=f"Who this job/analysis meant for.",
-                            default=defaults.USAGE, choices=dict(Project.TYPE_CHOICES).values())
+                            default=Project.USER, choices=dict(Project.TYPE_CHOICES).values())
 
         parser.add_argument('--analysis_type',
                             help=f"Who this job/analysis meant for.",
-                            default=defaults.USAGE, choices=dict(Analysis.TYPE_CHOICES).values())
+                            default=Analysis.USER,choices=dict(Analysis.TYPE_CHOICES).values())
 
 
     def handle(self, *args, **options):
