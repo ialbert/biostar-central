@@ -23,7 +23,7 @@ FASTQC_DIR=${WORK_DIR}/fastqc
 SAMPLE_INFO=updated_sampleinfo.txt
 
 # Make a results directory.
-mkdir -p ${RESULT_DIR}
+mkdir -p $RESULT_DIR
 
 # Extract reads from the archive.
 tar -xzvf $INPUT_DATA
@@ -42,8 +42,8 @@ cat $SAMPLE_INFO | parallel --header : --colsep '\t' fastqc  --nogroup -o $FASTQ
 
 # Run multiqc on the fastqc report.
 echo -e "\n Creating multiqc report.\n"
-multiqc -f -n initial_multiqc -o $WORK_DIR --no-data-dir $FASTQC_DIR 2>/dev/null
-cp $WORK_DIR/initial_multiqc.html ${RESULT_DIR}/initial_multiqc.html
+multiqc -f -n initial_multiqc -o ${WORK_DIR} --no-data-dir $FASTQC_DIR 2>/dev/null
+cp ${WORK_DIR}/initial_multiqc.html ${RESULT_DIR}/initial_multiqc.html
 
 # Copy files to input.
 cat $SAMPLE_INFO | parallel --header : --colsep '\t' cp {file1} {result1}
@@ -68,7 +68,7 @@ cat $SAMPLE_INFO | parallel --header : --colsep '\t' cp {file2} {result2}
     cat ${WORK_DIR}/*primer_stats.txt > ${RESULT_DIR}/primer_trim_stats.txt
 
     # Remove previous files from $FASTQC_DIR.
-    rm -f $FASTQC_DIR/*.zip $FASTQC_DIR/*.html
+    rm -f ${FASTQC_DIR}/*.zip ${FASTQC_DIR}/*.html
 
     # Run fastqc on all trimmed samples.
     cat $SAMPLE_INFO | parallel --header : --colsep '\t' fastqc --nogroup -o $FASTQC_DIR {temp1} {temp2}  2>/dev/null
@@ -97,7 +97,7 @@ cat $SAMPLE_INFO | parallel --header : --colsep '\t' cp {file2} {result2}
     cat ${WORK_DIR}/*qual_stats.txt > ${RESULT_DIR}/quality_trim_stats.txt
 
     # Remove previous files from $FASTQC_DIR
-    rm -f $FASTQC_DIR/*.zip $FASTQC_DIR/*.html
+    rm -f ${FASTQC_DIR}/*.zip ${FASTQC_DIR}/*.html
 
     # Run fastqc on all trimmed samples.
     cat $SAMPLE_INFO | parallel --header : --colsep '\t' fastqc --nogroup -o $FASTQC_DIR {temp1} {temp2} 2>/dev/null
@@ -133,4 +133,4 @@ join ${WORK_DIR}/raw_counts.s.txt  ${WORK_DIR}/trimmed_counts.s.txt >>${RESULT_D
 rm -f ${WORK_DIR}/raw_counts*.txt  ${WORK_DIR}/trimmed_counts*.txt
 
 # Copy main results to $RESULT_VIEW.
-cp $RESULT_DIR/quality_trimmed.html $RESULT_VIEW
+cp ${RESULT_DIR}/quality_trimmed.html $RESULT_VIEW
