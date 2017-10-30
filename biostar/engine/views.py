@@ -184,10 +184,14 @@ def data_list(request, id):
     return render(request, "data_list.html", context)
 
 
-
 # @login_required
 def data_view(request, id):
     data = Data.objects.filter(id=id).first()
+    if not data:
+        print(id)
+        print(Project.objects.all().first().data_set)
+        print(Data.objects.all())
+        1/0
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON, DATA_ICON],
                                project=data.project, data=data)
     context = dict(data=data, steps=steps)
