@@ -17,10 +17,29 @@
 {%  block body %}
 
 <h2>Alignment Results</h2>
-<div id="{{ p1.chart_id }}" style="width: 900px; height: 500px;"></div>
-<div id="{{ p2.chart_id }}" style="width: 900px; height: 500px;"></div>
-<div id="{{ t1.table_id }}" style="margin-bottom: 30px"></div>
 
+<div class="ui center aligned segment">
 
+    <div class="ui subheader"> <h3>Alignment details</h3> </div>
+    <div id="{{ p1.chart_id }}" style="height: 400px;"></div>
+
+</div>
+
+<div class="ui center aligned segment">
+
+    <div class="ui subheader"> <h3>Mapped counts per chromosome</h3> </div>
+    <div id="{{ p2.chart_id }}" style="height: 400px;"></div>
+
+</div>
+
+<div class="ui center aligned segment">
+
+    <div class="ui subheader"> <h3>Read count table</h3> </div>
+    <br/>
+    <div>Filtered column contain uniquely mapped, alignment length filtered reads.</div>
+    <br/>
+    <div id="{{ t1.table_id }}"></div>
+
+</div>
 
 {%  endblock %}

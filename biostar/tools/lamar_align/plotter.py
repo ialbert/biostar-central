@@ -126,7 +126,7 @@ def plot(data1, data2 , data3):
     p1.xlabel = "Flag category"
     p1.ylabel = "Read counts"
     p1.options = '''    
-            title: 'Alignment details.',
+            title: '',
             legend: {position: 'none'},
         '''
 
@@ -137,7 +137,7 @@ def plot(data1, data2 , data3):
     p2.xlabel = "Chromosomes"
     p2.ylabel = "Read counts"
     p2.options = '''    
-            title: 'Mapped counts per chromosome.',
+            title: '',
             legend: {position: 'none'},
         '''
 

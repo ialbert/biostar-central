@@ -32,7 +32,11 @@ def setup():
 
 
 def read_data(fname):
-    return hjson.load(fname)
+    return hjson.load(open(fname))
+
+
+def read_template(fname):
+    return open(fname).read()
 
 
 def render_file(data, fname):
