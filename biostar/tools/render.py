@@ -34,6 +34,7 @@ def setup():
 def read_data(fname):
     return hjson.load(fname)
 
+
 def render_file(data, fname):
     template_txt = open(fname).read()
     return render_string(data, template_txt)
