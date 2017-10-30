@@ -16,7 +16,7 @@ try:
 
     @timer(5)
     def execute_timer(args):
-        from engine.models import Job
+        from biostar.engine.models import Job
         # logger.info(f"executing timer with {args}")
         # It is faster to check here
         first = Job.objects.filter(state=Job.QUEUED).first()
