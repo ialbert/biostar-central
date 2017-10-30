@@ -10,4 +10,3 @@ except ImportError as err:
 WSGI_APPLICATION = 'conf.test.test_wsgi.application'
 
 ALLOWED_HOSTS += ['test.metabarcode.com']
-
