@@ -188,23 +188,16 @@ def data_list(request, id):
 def data_view(request, id):
     data = Data.objects.filter(id=id).first()
     if not data:
-        print(id)
-        print(Project.objects.all().first().data_set)
-        print(Data.objects.all())
-        1/0
+        messages.error(request, "Data not found.")
+        logger.error(f"data.id={id} looked for but not found.")
+        return redirect(reverse("project_list"))
+
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON, DATA_ICON],
                                project=data.project, data=data)
     context = dict(data=data, steps=steps)
 
     return render(request, "data_view.html", context)
 
-
-def remove_file(file):
-    try:
-        os.remove(file.path)
-    except FileNotFoundError:
-        pass
-    return
 
 
 @login_required
