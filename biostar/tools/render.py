@@ -31,8 +31,11 @@ def setup():
     return
 
 
-def render_file(data, template_file):
-    template_txt = open(template_file).read()
+def read_data(fname):
+    return hjson.load(fname)
+
+def render_file(data, fname):
+    template_txt = open(fname).read()
     return render_string(data, template_txt)
 
 
@@ -51,7 +54,7 @@ def render_data(context, template_txt):
 
 def render_template(data, name):
     '''
-    Attempts to find and load a template by name from
+    Attempts to find and load a template by name
     via the django template loading mechanism.
     '''
     setup()
