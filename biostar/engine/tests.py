@@ -69,10 +69,10 @@ class SiteTestCase(TestCase):
 
             if "data/view" in pattern:
                 current_id = str(self.data.id)
-            elif "analysis/view" in pattern:
-                current_id = str(self.analysis.id)
 
-            elif "job/view" in pattern:
+            elif "analysis" in pattern:
+                current_id = str(self.analysis.id)
+            elif "job" in pattern:
                 current_id = str(self.job.id)
 
             # Checks results page
