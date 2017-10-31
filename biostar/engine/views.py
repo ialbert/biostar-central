@@ -385,12 +385,19 @@ def job_list(request, id):
     """
     # filter according to type
     project = Project.objects.get_queryset(user=request.user).filter(id=id).first()
+
+    if not project:
+        messages.error(request, "Jobs not found.")
+        logger.error(f"Jobs for project.id={id} looked for but not found.")
+        return redirect(reverse("project_list"))
+
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, RESULT_LIST_ICON],
                                project=project)
 
     jobs = project.job_set.order_by("-id")
 
     filter = request.GET.get('filter', '')
+
     if filter:
         filter = Analysis.objects.filter(id=filter).first()
         jobs = jobs.filter(analysis=filter)

@@ -60,7 +60,7 @@ class SiteTestCase(TestCase):
         current_id = str(self.project.id)
 
         idpattern = "(?P<id>\d+)"
-        pathpattern = "(?P<path>.+)"
+        pathpattern = "(?P<path>.+)/"
 
         urls =[]
         for pattern in urlpatterns:
@@ -74,8 +74,7 @@ class SiteTestCase(TestCase):
             elif "job" in pattern and "job/list" not in pattern:
                 current_id = str(self.job.id)
 
-            # Checks results page
-            pattern = pattern.replace(idpattern, current_id).replace(pathpattern,"results")
+            pattern = pattern.replace(idpattern, current_id).replace(pathpattern,"")
 
             # Ignore admin stuff for now.
             if ("admin" not in pattern):
@@ -84,7 +83,6 @@ class SiteTestCase(TestCase):
         urls.append("/")
         c = Client()
         for page in urls:
-
             if page:
                 print(page)
                 resp = c.post(page)
