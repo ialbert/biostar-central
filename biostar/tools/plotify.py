@@ -18,6 +18,11 @@ def table_maker(params):
     context = dict(params=params)
     return context
 
+@register.inclusion_tag('charts/map_maker.js')
+def map_maker(params):
+    context = dict(params=params)
+    return context
+
 
 counter = count(100)
 
@@ -40,6 +45,14 @@ class TableParams():
         self.options = ''
         self.count_id = next(counter)
         self.table_id = f'table_{self.count_id}'
+
+
+class MapParams():
+    def __init__(self):
+        self.type = 'Map'
+        self.options = ''
+        self.count_id = next(counter)
+        self.table_id = f'map_{self.count_id}'
 
 
 def demo():
