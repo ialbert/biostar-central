@@ -8,6 +8,7 @@ class Table():
         self.rows =[]
         self.colums = []
 
+
 def parse_flagstats(fname):
     '''
     parse samtools flagstat results  and returns a list of (tag,value) pair.
@@ -24,6 +25,7 @@ def parse_flagstats(fname):
         tag = re.sub(patt, "", tag)
         tag = re.sub(r'\(QC-passed reads', "", tag)
         stats.append((tag.strip(), value.strip()))
+
     return stats
 
 
@@ -128,6 +130,7 @@ def plot(data1, data2 , data3):
     p1.options = '''    
             title: '',
             legend: {position: 'none'},
+            colors : ['green']
         '''
 
     # Plot 2
@@ -139,6 +142,7 @@ def plot(data1, data2 , data3):
     p2.options = '''    
             title: '',
             legend: {position: 'none'},
+            colors: ['orange']
         '''
 
     # Plot table.
@@ -159,8 +163,8 @@ def plot(data1, data2 , data3):
     html = render_template(data, name)
     print(html)
 
-    with open("index.html", "w") as fh:
-        fh. write(html)
+    #with open("index.html", "w") as fh:
+    #    fh. write(html)
 
 
 if __name__ == '__main__':
