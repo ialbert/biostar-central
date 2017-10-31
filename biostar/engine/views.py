@@ -271,7 +271,7 @@ def analysis_list(request, id):
 
     if not analysis:
         messages.error(request, "Analysis not found.")
-        logger.error(f"analysis for project.id={id} looked for but not found.")
+        #logger.error(f"analysis for project.id={id} looked for but not found.")
         return redirect(reverse("project_list"))
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ANALYSIS_LIST_ICON],
@@ -388,7 +388,7 @@ def job_list(request, id):
 
     if not project:
         messages.error(request, "Jobs not found.")
-        logger.error(f"Jobs for project.id={id} looked for but not found.")
+        #logger.error(f"Jobs for project.id={id} looked for but not found.")
         return redirect(reverse("project_list"))
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, RESULT_LIST_ICON],
