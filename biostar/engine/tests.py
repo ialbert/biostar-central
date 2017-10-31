@@ -35,8 +35,9 @@ def setup_testanalysis(project):
     analysis.save()
     return analysis
 
+
 def get_urls(current_id, idpattern, pathpattern, data=Bunch(id=1), job=Bunch(id=1),
-             analysis=Bunch(id=1)):
+             analysis=Bunch(id=1), urlpatterns=[]):
 
     urls=[]
 
@@ -64,6 +65,8 @@ class SiteTestCase(TestCase):
 
     def setUp(self):
 
+        self.idpattern = "(?P<id>\d+)"
+        self.pathpattern = "(?P<path>.+)/"
         self.project = Project.objects.filter(id=2).first()
         self.data = Data.objects.filter(id=1).first()
 
@@ -86,12 +89,8 @@ class SiteTestCase(TestCase):
         "Checking the site pages."
         # Test using demo project and/or admin project
         current_id = str(self.project.id)
-
-        idpattern = "(?P<id>\d+)"
-        pathpattern = "(?P<path>.+)/"
-
-        urls =get_urls(current_id=current_id, idpattern=idpattern, pathpattern=pathpattern,
-                       data=self.data, job=self.job, analysis=self.analysis)
+        urls =get_urls(current_id=current_id, idpattern=self.idpattern, pathpattern=self.pathpattern,
+                       data=self.data, job=self.job, analysis=self.analysis, urlpatterns=urlpatterns)
 
         c = Client()
         accepted = [200, 302]
@@ -106,4 +105,9 @@ class SiteTestCase(TestCase):
 
 
     def test_account_pages(self):
+
+        # Tests profile page for user.id=1
+        urls =get_urls(current_id="1", idpattern=self.idpattern, pathpattern=self.pathpattern,
+                       data=self.data, job=self.job, analysis=self.analysis, urlpatterns=accountsurls)
+        print(urls)
         return
