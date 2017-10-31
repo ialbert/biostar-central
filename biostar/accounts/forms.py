@@ -55,10 +55,6 @@ class LogoutForm(forms.Form):
 
 class LoginForm(forms.Form):
 
-    def __init__(self, next="/",*args, **kwargs):
-        self.next = next
-        super().__init__(*args, **kwargs)
-
     email = forms.CharField(label='Email', max_length=100)
     password = forms.CharField(label='Password', max_length=100,
                                widget=forms.PasswordInput)

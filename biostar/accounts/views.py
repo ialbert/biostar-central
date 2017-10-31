@@ -129,7 +129,7 @@ def user_login(request):
         NEXTURL = request.GET.get('next', '/')
         initial = dict(nexturl=request.GET.get('next', '/'))
         form = LoginForm(initial=initial)
-     
+
     context = dict(form=form, steps=steps)
     return render(request, "accounts/login.html", context=context)
 
