@@ -17,7 +17,6 @@ from biostar.engine.views import breadcrumb_builder
 from django.contrib import auth
 
 logger = logging.getLogger('engine')
-NEXTURL = ""
 
 def get_uuid(limit=32):
     return str(uuid.uuid4())[:limit]
@@ -93,14 +92,11 @@ def user_logout(request):
 @cache.never_cache
 def user_login(request):
 
-    #TODO: Current hacky way of redirecting
-    global NEXTURL
-    redirect_to = request.GET.get('next', '/')
+    redirect_to = request.POST.get('next', '/')
     safe = http.is_safe_url(redirect_to, request.get_host())
 
-    if (not len(NEXTURL) and safe) or ( len(NEXTURL) and safe and redirect_to != NEXTURL) :
-        NEXTURL =  redirect_to
-
+    if safe:
+        print(redirect_to)
     steps = breadcrumb_builder([HOME_ICON, LOGIN_ICON])
 
     if request.method == "POST":
@@ -108,7 +104,6 @@ def user_login(request):
         form = LoginForm(data=request.POST)
 
         if form.is_valid():
-
 
             email = form.cleaned_data['email']
             password = form.cleaned_data['password']
@@ -131,7 +126,9 @@ def user_login(request):
                 auth.login(request, user)
                 logger.info(f"logged in user.id={user.id}, user.email={user.email}")
                 messages.info(request, "Login successful!")
-                print(NEXTURL)
+                print(request)
+                1/0
+                
                 return redirect(NEXTURL)
             else:
                 # This should not happen normally.
