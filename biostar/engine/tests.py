@@ -89,6 +89,8 @@ class SiteTestCase(TestCase):
         "Checking the site pages."
         # Test using demo project and/or admin project
         current_id = str(self.project.id)
+
+        # Get List of urls ( fills ids in urls with the current_id param)
         urls =get_urls(current_id=current_id, idpattern=self.idpattern, pathpattern=self.pathpattern,
                        data=self.data, job=self.job, analysis=self.analysis, urlpatterns=urlpatterns)
 
