@@ -51,6 +51,7 @@ jobs:
 	python manage.py analysis --add --id 2 --json biostar/tools/qc/qc.hjson  --template biostar/tools/qc/qc.sh --create_job
 	python manage.py analysis --add --id 2 --json biostar/tools/classify/classify.hjson  --template biostar/tools/classify/classify.sh --create_job
 	python manage.py analysis --add --id 2 --json biostar/tools/align/align.hjson  --template biostar/tools/align/align.sh --create_job
+	python manage.py analysis --add --id 2 --json biostar/tools/lamar_align/lamar_align.hjson  --template biostar/tools/lamar_align/lamar_align.sh --create_job
 
 init:
 	python manage.py collectstatic --noinput -v 0
