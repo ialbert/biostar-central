@@ -179,28 +179,29 @@ def data_list(request, id):
     project = Project.objects.get(id=id)
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON],
                                project=project)
+    if not project:
+        messages.error(request, "Data not found.")
+        logger.error(f"data.id={id} looked for but not found.")
+        return redirect(reverse("project_list"))
 
     context = dict(project=project, steps=steps)
     return render(request, "data_list.html", context)
 
 
-
 # @login_required
 def data_view(request, id):
     data = Data.objects.filter(id=id).first()
+    if not data:
+        messages.error(request, "Data not found.")
+        logger.error(f"data.id={id} looked for but not found.")
+        return redirect(reverse("project_list"))
+
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON, DATA_ICON],
                                project=data.project, data=data)
     context = dict(data=data, steps=steps)
 
     return render(request, "data_view.html", context)
 
-
-def remove_file(file):
-    try:
-        os.remove(file.path)
-    except FileNotFoundError:
-        pass
-    return
 
 
 @login_required
@@ -267,6 +268,11 @@ def analysis_list(request, id):
 
     if not request.user.is_superuser:
         analysis = analysis.filter(type=Analysis.USER).all()
+
+    if not analysis:
+        messages.error(request, "Analysis not found.")
+        #logger.error(f"analysis for project.id={id} looked for but not found.")
+        return redirect(reverse("project_list"))
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ANALYSIS_LIST_ICON],
                                project=project)
@@ -379,12 +385,19 @@ def job_list(request, id):
     """
     # filter according to type
     project = Project.objects.get_queryset(user=request.user).filter(id=id).first()
+
+    if not project:
+        messages.error(request, "Jobs not found.")
+        #logger.error(f"Jobs for project.id={id} looked for but not found.")
+        return redirect(reverse("project_list"))
+
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, RESULT_LIST_ICON],
                                project=project)
 
     jobs = project.job_set.order_by("-id")
 
     filter = request.GET.get('filter', '')
+
     if filter:
         filter = Analysis.objects.filter(id=filter).first()
         jobs = jobs.filter(analysis=filter)

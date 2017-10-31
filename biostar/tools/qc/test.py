@@ -1,3 +1,4 @@
+
 from biostar.tools.render import render_file, read_data
 
 import os
@@ -12,5 +13,4 @@ if __name__ == "__main__":
     data = read_data(SPEC_FILE)
     html = render_file(data=data, fname=TEMPLATE_FILE)
     print(html)
-
 

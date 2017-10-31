@@ -2,9 +2,19 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Log out</title>
 </head>
 <body>
-
+<h2>Do you want to log out?</h2>
+<p>
+  <form method="post" action="{% url 'logout' %}" >
+        {% csrf_token %}
+        <button type="submit">Log out</button>
+    </form>
+</p>
 </body>
 </html>
+
+
+
+

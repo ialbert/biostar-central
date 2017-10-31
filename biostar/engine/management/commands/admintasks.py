@@ -5,7 +5,7 @@ import tarfile
 from django.core.management.base import BaseCommand
 from biostar.engine.models import Data, Project
 from biostar.tools.const import COLLECTION_TYPES
-
+from biostar.engine import auth
 
 logger = logging.getLogger('engine')
 
@@ -23,7 +23,7 @@ def copy(sourceid=None, targetid=None, fname=None, pid=0):
     if not targetid:
         # Copies a file to a project
         assert fname and project
-        project.create_data(fname = fname)
+        auth.create_data(fname = fname, project=project)
         return
 
     elif sourceid:

@@ -19,6 +19,7 @@ def job_color(job):
 
 @register.simple_tag
 def img(obj):
+
     if obj.image:
         return obj.image.url
     else:
