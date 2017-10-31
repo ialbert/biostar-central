@@ -41,7 +41,7 @@ organism: {
 */
 
 settings : {
-    name: Alignment based classification.
+    name: Alignment based classification
     image : lamar_align.png
     index : index.html
     summary: Performs classification of input sequences based on alignment to a reference genome using bwa-mem algorithm.
