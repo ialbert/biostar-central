@@ -58,7 +58,7 @@ init:
 	python manage.py migrate
 
 test:
-	python manage.py test
+	python manage.py test -v 2
 
 push:
 	git commit -am "Update by `whoami` on `date` from `hostname`"

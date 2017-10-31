@@ -25,9 +25,19 @@ try:
 
     @spool
     def execute_job(args):
+        '''
+        Spools at normal priority.
+        '''
         job_id = int.from_bytes(args["job_id"].encode(), byteorder='big')
         management.call_command('job', id=job_id)
 
+    @spool
+    def execute_admin_job(args):
+        '''
+        Spooling at higher priority.
+        '''
+        job_id = int.from_bytes(args["job_id"].encode(), byteorder='big')
+        management.call_command('job', id=job_id)
 
 except ModuleNotFoundError as exc:
     # logger.warning("uwsgidecorators not found, tasks not enabled!")
