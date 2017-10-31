@@ -2,11 +2,14 @@
 import uuid
 import logging
 
+from django.utils import http
 from django.contrib import messages
 from ratelimit.decorators import ratelimit
+from django.views.decorators import csrf, cache
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 from django.urls import reverse
+
 
 from .forms import SignUpForm, LoginForm, LogoutForm
 from biostar.engine.const import *
@@ -14,7 +17,7 @@ from biostar.engine.views import breadcrumb_builder
 from django.contrib import auth
 
 logger = logging.getLogger('engine')
-
+NEXTURL = ""
 
 def get_uuid(limit=32):
     return str(uuid.uuid4())[:limit]
@@ -78,7 +81,6 @@ def user_logout(request):
             messages.info(request, "You have been logged out")
             return redirect("/")
 
-
     form = LogoutForm()
 
     context = dict(steps=steps, form=form)
@@ -87,12 +89,26 @@ def user_logout(request):
 
 
 @ratelimit(key='ip', rate='10/m', block=True, method=ratelimit.UNSAFE)
+@csrf.csrf_protect
+@cache.never_cache
 def user_login(request):
 
+    #TODO: Current hacky way of redirecting
+    global NEXTURL
+    redirect_to = request.GET.get('next', '/')
+    safe = http.is_safe_url(redirect_to, request.get_host())
+
+    if (not len(NEXTURL) and safe) or ( len(NEXTURL) and safe and redirect_to != NEXTURL) :
+        NEXTURL =  redirect_to
+
+    steps = breadcrumb_builder([HOME_ICON, LOGIN_ICON])
+
     if request.method == "POST":
+        auth.logout(request)
         form = LoginForm(data=request.POST)
 
         if form.is_valid():
+
 
             email = form.cleaned_data['email']
             password = form.cleaned_data['password']
@@ -102,8 +118,8 @@ def user_login(request):
 
             if not user:
                 form.add_error(None, "This email does not exist.")
-                context = dict(form=form)
-                return render(request, "registration/user_login.html", context=context)
+                context = dict(form=form, steps=steps)
+                return render(request, "accounts/login.html", context=context)
 
             user = auth.authenticate(username=user.username, password=password)
 
@@ -115,16 +131,17 @@ def user_login(request):
                 auth.login(request, user)
                 logger.info(f"logged in user.id={user.id}, user.email={user.email}")
                 messages.info(request, "Login successful!")
-                return redirect(reverse("index"))
+                print(NEXTURL)
+                return redirect(NEXTURL)
             else:
                 # This should not happen normally.
                 form.add_error(None, "Invalid form processing.")
     else:
-        initial = dict(nexturl=request.GET.get('next', '/'))
+        initial = dict(next=request.GET.get('next', '/'))
         form = LoginForm(initial=initial)
 
-    steps = breadcrumb_builder([HOME_ICON, LOGIN_ICON])
 
-    context = dict(form=form, steps=steps)
+
+    context = dict(form=form, steps=steps, next=redirect_to)
     return render(request, "accounts/login.html", context=context)
 
