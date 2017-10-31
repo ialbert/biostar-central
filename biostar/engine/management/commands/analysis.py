@@ -4,6 +4,7 @@ from biostar.engine.models import Job, Project, Analysis, User, Data
 from biostar.tools.const import DATA_TYPES
 from biostar.tools import defaults
 from biostar.engine import auth
+from biostar.engine import tasks
 
 logger = logging.getLogger('engine')
 
@@ -120,7 +121,14 @@ class Command(BaseCommand):
                         if path:
                             data = auth.create_data(project=project, fname=path, data_type=data_type)
                             data.fill_dict(value)
-                    auth.create_job(analysis=analysis, json_data=json_data, type=analysis_type)
+                    job = auth.create_job(analysis=analysis, json_data=json_data, type=analysis_type)
+
+                    # Admin jobs executed when started
+                    logger.info(tasks.HAS_UWSGI)
+                    if tasks.HAS_UWSGI:
+                        jobid = (job.id).to_bytes(5, byteorder='big')
+                        tasks.execute_admin_job.spool(job_id=jobid)
+
 
             except KeyError as exc:
                 logger.error(f"processing the analysis: {exc}")
