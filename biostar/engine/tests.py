@@ -99,22 +99,30 @@ class SiteTestCase(TestCase):
             if page:
 
                 resp = c.post(page)
-                print(page, resp.status_code)
+                #print(page, resp.status_code)
                 self.assertTrue(resp.status_code in accepted)
                 #self.assertEqual(resp.status_code, 200)
 
 
     def test_account_pages(self):
-
         # Tests profile page for user.id=1
-        urls =get_urls(current_id="1", idpattern=self.idpattern, pathpattern=self.pathpattern,
+        user_profile_id='1'
+
+        urls =get_urls(current_id=user_profile_id, idpattern=self.idpattern, pathpattern=self.pathpattern,
                        urlpatterns=accountsurls)
 
         c = Client()
+        accepted = [200, 302]
+
+        accounts_map = {"/accounts/login/":{'email': 'testbuddy@lvh.me', 'password': 'testbuddy@lvh.me'},
+                        "/accounts/signup/":{'email': "3@test.com", 'password1': 'test', 'password2':'test'},
+                        "/accounts/logout/":{},
+                        f"/accounts/{user_profile_id}/": {},
+                        }
 
         for accounts_page in urls:
+
             url = f"/accounts{accounts_page}"
-
-            print(url)
-
-        return
+            resp = c.post(url, accounts_map.get(url))
+            self.assertTrue(resp.status_code in accepted)
+            #print(url, resp.status_code)
