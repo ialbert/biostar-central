@@ -67,12 +67,11 @@ class SiteTestCase(TestCase):
 
             pattern = pattern.regex.pattern.replace("^","/").replace("$",'')
 
-            if "data/view" in pattern:
+            if "data" in pattern and "data/list" not in pattern:
                 current_id = str(self.data.id)
-
-            elif "analysis" in pattern:
+            elif "analysis" in pattern and "analysis/list" not in pattern:
                 current_id = str(self.analysis.id)
-            elif "job" in pattern:
+            elif "job" in pattern and "job/list" not in pattern:
                 current_id = str(self.job.id)
 
             # Checks results page
