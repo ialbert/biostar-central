@@ -108,6 +108,13 @@ class SiteTestCase(TestCase):
 
         # Tests profile page for user.id=1
         urls =get_urls(current_id="1", idpattern=self.idpattern, pathpattern=self.pathpattern,
-                       data=self.data, job=self.job, analysis=self.analysis, urlpatterns=accountsurls)
-        print(urls)
+                       urlpatterns=accountsurls)
+
+        c = Client()
+
+        for accounts_page in urls:
+            url = f"/accounts{accounts_page}"
+
+            print(url)
+
         return
