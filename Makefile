@@ -10,12 +10,8 @@ conda:
 develop:
 	python setup.py develop
 
-uwsgi: init
+uwsgi:init
 	uwsgi  --ini conf/devel/devel_uwsgi.ini
-
-clean:
-	(cd export/local && make clean)
-
 
 testdata:
 	mkdir -p export/local

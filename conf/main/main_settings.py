@@ -1,4 +1,4 @@
-from engine.settings import *
+from biostar.engine.settings import *
 from .main_secrets import *
 
 DEBUG = False
