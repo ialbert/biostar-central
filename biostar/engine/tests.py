@@ -101,7 +101,7 @@ class SiteTestCase(TestCase):
             if page:
 
                 resp = c.post(page)
-                #print(page, resp.status_code)
+                print(page, resp.status_code)
                 self.assertTrue(resp.status_code in accepted)
                 #self.assertEqual(resp.status_code, 200)
 
@@ -127,4 +127,4 @@ class SiteTestCase(TestCase):
             url = f"/accounts{accounts_page}"
             resp = c.post(url, accounts_map.get(url))
             self.assertTrue(resp.status_code in accepted)
-            #print(url, resp.status_code)
+            print(url, resp.status_code)
