@@ -218,7 +218,11 @@ class Data(models.Model):
 
 class Analysis(models.Model):
     ADMIN, USER = 1, 2
+    AUTHORIZED, UNDER_REVIEW = 1,2
+
     TYPE_CHOICES = [(ADMIN, "admin"), (USER, "user")]
+    AUTH = [(AUTHORIZED,"authorized"), (UNDER_REVIEW, "under review")]
+
     type = models.IntegerField(default=USER, choices=TYPE_CHOICES)
 
     name = models.CharField(max_length=256, default="no name")
@@ -226,8 +230,8 @@ class Analysis(models.Model):
     text = models.TextField(default='no description', max_length=MAX_TEXT_LEN)
     html = models.TextField(default='html')
     owner = models.ForeignKey(User)
-    image = models.ImageField(default=None, blank=True, upload_to=image_path)
 
+    auth = models.IntegerField(default=UNDER_REVIEW, choices=AUTH)
     project = models.ForeignKey(Project)
 
     json_text = models.TextField(default="{}")
@@ -236,7 +240,6 @@ class Analysis(models.Model):
 
     date = models.DateTimeField(auto_now_add=True, blank=True)
     image = models.ImageField(default=None, blank=True, upload_to=image_path)
-
     # Job start and end.
     start_date = models.DateTimeField(null=True, blank=True)
     end_date = models.DateTimeField(null=True, blank=True)
@@ -263,8 +266,10 @@ class Analysis(models.Model):
 
 class Job(models.Model):
     ADMIN, USER = 1, 2
+    AUTHORIZED, UNDER_REVIEW = 1,2
     QUEUED, RUNNING, FINISHED, ERROR = 1, 2, 3, 4
     TYPE_CHOICES = [(ADMIN, "admin"), (USER, "user")]
+    AUTH = [(AUTHORIZED, "authorized"), (UNDER_REVIEW, "under review")]
     STATE_CHOICES = [(QUEUED, "Queued"), (RUNNING, "Running"),
                      (FINISHED, "Finished"), (ERROR, "Error")]
 
@@ -284,6 +289,7 @@ class Job(models.Model):
 
     uid = models.CharField(max_length=32)
     template = models.TextField(default="makefile")
+    auth = models.IntegerField(default=UNDER_REVIEW, choices=AUTH)
 
     # This will be set when the job attempts to run.
     script = models.TextField(default="")
@@ -324,13 +330,13 @@ class Job(models.Model):
 
         self.uid = self.uid or util.get_uuid(8)
         self.template = self.analysis.template
+        self.auth = self.analysis.auth
 
         self.name = self.name or self.analysis.name
         # write an index.html to the file
         if not os.path.isdir(self.path):
             path = join(settings.MEDIA_ROOT, "jobs", f"job-{self.uid}")
             os.makedirs(path)
-
             self.path = path
 
         super(Job, self).save(*args, **kwargs)

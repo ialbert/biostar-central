@@ -42,7 +42,8 @@ def get_urls(current_id, idpattern, pathpattern, data=Bunch(id=1), job=Bunch(id=
     urls=[]
 
     for pattern in urlpatterns:
-
+        print(pattern.regex.name)
+        1/0
         pattern = pattern.regex.pattern.replace("^", "/").replace("$", '')
         if "data" in pattern and "data/list" not in pattern:
             current_id = str(data.id)
