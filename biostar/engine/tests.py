@@ -1,4 +1,4 @@
-import os
+import os, logging
 from django.test import TestCase
 from django.test import Client
 from django.core.urlresolvers import get_resolver
@@ -6,6 +6,9 @@ from .urls import urlpatterns
 from .models import Project, Data, Analysis, Job
 from . import auth
 from biostar.accounts.urls import urlpatterns as accountsurls
+
+logger = logging.getLogger('engine')
+
 
 def join(*args):
     return os.path.abspath(os.path.join(*args))
@@ -66,6 +69,7 @@ class SiteTestCase(TestCase):
 
     def setUp(self):
 
+        logger.setLevel(logging.WARNING)
         self.idpattern = "(?P<id>\d+)"
         self.pathpattern = "(?P<path>.+)/"
         self.project = Project.objects.filter(id=2).first()
@@ -87,7 +91,8 @@ class SiteTestCase(TestCase):
 
 
     def test_site_pages(self):
-        "Checking the site pages."
+        "Checking the site pages"
+
         # Test using demo project and/or admin project
         current_id = str(self.project.id)
 
@@ -102,13 +107,18 @@ class SiteTestCase(TestCase):
             if page:
 
                 resp = c.post(page)
-                print(page, resp.status_code)
+                #print(page, resp.status_code)
                 self.assertTrue(resp.status_code in accepted)
                 #self.assertEqual(resp.status_code, 200)
 
 
+    def test_foo(self):
+        'Tests profile page for user.id=1'
+        pass
+
     def test_account_pages(self):
-        # Tests profile page for user.id=1
+        'Tests profile page for user.id=1'
+
         user_profile_id='1'
 
         urls =get_urls(current_id=user_profile_id, idpattern=self.idpattern, pathpattern=self.pathpattern,
@@ -128,4 +138,4 @@ class SiteTestCase(TestCase):
             url = f"/accounts{accounts_page}"
             resp = c.post(url, accounts_map.get(url))
             self.assertTrue(resp.status_code in accepted)
-            print(url, resp.status_code)
+            #print(url, resp.status_code)

@@ -1,0 +1,76 @@
+{
+
+sequence : {
+    path: export/local/lamar/1-SarriPal_S9_L001_R1_001.fastq.gz
+    label: Data.
+    data_type: FASTQ_TYPE
+    display_type: DROPDOWN
+  }
+
+genome : {
+    path: export/local/lamar/fish.fa
+    label: Reference genome.
+    data_type: FASTA_TYPE
+    display_type: DROPDOWN
+    }
+
+align_length : {
+    label : Specify length threshold to filter alignments (in base pairs).
+    help : Alignment length should be within x base pair distance of read length.
+    value :  6
+    range  : [0,15]
+    display_type : INTEGER
+
+}
+
+
+threads : {
+        value: 4
+    }
+
+/*
+organism: {
+    label: Select organism.
+    name: Giraffe
+    display_type: DROPDOWN
+    options : [
+        [ "fish1" , "Fish1"],
+        [ "fish2" , "Fish2"],
+    ]
+}
+*/
+
+settings : {
+    name: Alignment based classification
+    image : lamar_align.png
+    index : index.html
+    summary: Performs classification of input sequences based on alignment to a reference genome using bwa-mem algorithm.
+    help:'''
+
+# Help
+
+This analysis align input sequences to a reference genome. It produces an alignment based classification table after
+applying filters. The filters remove supplementary and secondary alignments and also those alignments where alignment
+length is not within the user-specified distance from read_length.
+
+The input data should be in fastq format.
+
+Reference genome sequence needs to be provided unless the organism is human or mouse.
+
+
+# Parameters
+
+1. Input data in fastq format.
+2. Reference genome sequence.
+
+# Results
+
+1. Alignment summary statistics.
+2. Alignment based classification table.
+2. Aligned bam files.
+
+'''
+
+    }
+
+}
