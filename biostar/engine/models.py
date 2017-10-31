@@ -221,7 +221,7 @@ class Analysis(models.Model):
     AUTHORIZED, UNDER_REVIEW = 1,2
 
     TYPE_CHOICES = [(ADMIN, "admin"), (USER, "user")]
-    AUTH = [(AUTHORIZED,"authorized"), (UNDER_REVIEW, "under review")]
+    AUTH_CHOICES = [(AUTHORIZED,"authorized"), (UNDER_REVIEW, "under review")]
 
     type = models.IntegerField(default=USER, choices=TYPE_CHOICES)
 
@@ -231,7 +231,7 @@ class Analysis(models.Model):
     html = models.TextField(default='html')
     owner = models.ForeignKey(User)
 
-    auth = models.IntegerField(default=UNDER_REVIEW, choices=AUTH)
+    auth = models.IntegerField(default=UNDER_REVIEW, choices=AUTH_CHOICES)
     project = models.ForeignKey(Project)
 
     json_text = models.TextField(default="{}")
