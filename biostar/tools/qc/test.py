@@ -14,4 +14,3 @@ if __name__ == "__main__":
     html = render_data(context=data, template_txt=template)
     print(html)
 
-

@@ -27,7 +27,7 @@ def create(owner, name=defaults.DEMO_PROJECT_NAME, summary=defaults.DEMO_PROJECT
         assert isinstance(json, str) and isinstance(template, str)
         management.call_command('analysis', template=template, id=project.id, create_job=create_job, json=json,
                                 type=analysis_type, add=True)
-
+    return project.id
 
 class Command(BaseCommand):
 
@@ -50,7 +50,7 @@ class Command(BaseCommand):
                             help="Adds an analysis to the project")
 
         parser.add_argument('--json',
-                            help="The json specification file ( if ")
+                            help="The json specification file ")
 
         parser.add_argument('--template',
                             help="The template for the analysis")

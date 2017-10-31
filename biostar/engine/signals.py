@@ -46,6 +46,7 @@ def init_proj(sender, **kwargs):
             owner=admin_user,
             type=Project.ADMIN
         )
+
         admin_project.save()
 
     if not demo_project:

@@ -20,6 +20,10 @@ def get_uuid(limit=32):
     return str(uuid.uuid4())[:limit]
 
 
+def info(request):
+
+    return redirect("/")
+
 
 def user_profile(request, id):
 
@@ -28,7 +32,7 @@ def user_profile(request, id):
 
     context = dict(user=user, steps=steps)
 
-    return render(request, 'accounts_profile.html', context)
+    return render(request, 'accounts/profile.html', context)
 
 
 
@@ -59,7 +63,7 @@ def user_signup(request):
 
         form = SignUpForm()
     context = dict(form=form, steps=steps)
-    return render(request, 'accounts_signup.html', context=context)
+    return render(request, 'accounts/signup.html', context=context)
 
 
 def user_logout(request):
@@ -79,7 +83,7 @@ def user_logout(request):
 
     context = dict(steps=steps, form=form)
 
-    return render(request, "accounts_logout.html", context=context)
+    return render(request, "accounts/logout.html", context=context)
 
 
 @ratelimit(key='ip', rate='10/m', block=True, method=ratelimit.UNSAFE)
@@ -122,5 +126,5 @@ def user_login(request):
     steps = breadcrumb_builder([HOME_ICON, LOGIN_ICON])
 
     context = dict(form=form, steps=steps)
-    return render(request, "accounts_login.html", context=context)
+    return render(request, "accounts/login.html", context=context)
 

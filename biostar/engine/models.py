@@ -10,23 +10,21 @@ from django.urls import reverse
 from django.utils import timezone
 
 from . import util, settings
-
 from .const import *
 
 logger = logging.getLogger("engine")
-
 
 # The maximum length in characters for a typical name and text field.
 MAX_NAME_LEN = 256
 MAX_TEXT_LEN = 10000
 MAX_LOG_LEN = 20 * MAX_TEXT_LEN
 
+def join(*args):
+    return os.path.abspath(os.path.join(*args))
+
 class Bunch(object):
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
-
-def join(*args):
-    return os.path.abspath(os.path.join(*args))
 
 
 def make_html(text):
@@ -55,7 +53,6 @@ def image_path(instance, filename):
     # File may have multiple extensions
     imgname = f"image-{instance.uid}{ext}"
     return  f"images/{imgname}"
-
 
 
 class ProjectObjectManager(models.Manager):
@@ -106,7 +103,6 @@ class Project(models.Model):
     admins = ProjectAdminManager()
 
     def save(self, *args, **kwargs):
-
         now = timezone.now()
         self.date = self.date or now
         self.html = make_html(self.text)
@@ -131,7 +127,6 @@ class Project(models.Model):
 
 
 class Data(models.Model):
-
     ADMIN, USER = 1, 2
     FILE, COLLECTION = 1, 2
     PENDING, READY = 1, 2
@@ -221,7 +216,6 @@ class Data(models.Model):
         obj['name'] = self.name
         obj['uid'] = self.uid
 
-
 class Analysis(models.Model):
     ADMIN, USER = 1, 2
     TYPE_CHOICES = [(ADMIN, "admin"), (USER, "user")]
@@ -232,7 +226,7 @@ class Analysis(models.Model):
     text = models.TextField(default='no description', max_length=MAX_TEXT_LEN)
     html = models.TextField(default='html')
     owner = models.ForeignKey(User)
-
+    image = models.ImageField(default=None, blank=True, upload_to=image_path)
 
     project = models.ForeignKey(Project)
 
@@ -249,7 +243,6 @@ class Analysis(models.Model):
 
     # Will be false if the object is deleted.
     valid = models.BooleanField(default=True)
-
 
     def __str__(self):
         return self.name

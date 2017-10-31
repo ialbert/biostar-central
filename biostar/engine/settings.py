@@ -56,9 +56,10 @@ INSTALLED_APPS = [
     'mailer',
     'compressor',
     'pagedown',
+    'biostar.engine.apps.EngineConfig',
     'biostar.emailer',
     'biostar.accounts',
-    'biostar.engine.apps.EngineConfig',
+
 ]
 
 MIDDLEWARE = [
@@ -85,7 +86,8 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.template.context_processors.media',
                 'django.contrib.messages.context_processors.messages',
-                'biostar.engine.context.engine'
+                'biostar.engine.context.engine',
+
             ],
         },
     },
@@ -95,8 +97,8 @@ WSGI_APPLICATION = 'biostar.engine.wsgi.application'
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
 
-LOGIN_URL = 'accounts/login/'
-LOGOUT_URL = 'accounts/logout/'
+#LOGIN_URL = 'accounts/login/'
+#LOGOUT_URL = 'accounts/logout/'
 
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases

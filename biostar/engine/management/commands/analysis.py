@@ -2,8 +2,8 @@ import os, sys, logging, hjson, textwrap
 from django.core.management.base import BaseCommand
 from biostar.engine.models import Job, Project, Analysis, User, Data
 from biostar.tools.const import DATA_TYPES
-from biostar.engine import auth
 from biostar.tools import defaults
+from biostar.engine import auth
 
 logger = logging.getLogger('engine')
 
@@ -16,7 +16,7 @@ class Command(BaseCommand):
 
         parser.add_argument('--add', action='store_true', default=False,
                             help="Adds an analysis to a project")
-        parser.add_argument('--id', default=1,
+        parser.add_argument('--id', default=2,
                             help="Specifies the project id")
         parser.add_argument('--json',
                             help="The json specification file")
@@ -27,8 +27,8 @@ class Command(BaseCommand):
 
         # TODO: Impove the help for type
         parser.add_argument('--analysis_type',
-                            help=f"Who this job/analysis meant for.",
-                            choices=dict(Analysis.TYPE_CHOICES).values())
+                            help=f"Analysis type.",
+                            default=Analysis.USER, choices=dict(Analysis.TYPE_CHOICES).values())
 
     def handle(self, *args, **options):
 
@@ -38,10 +38,9 @@ class Command(BaseCommand):
         template = options['template']
         create_job = options['create_job']
 
-
         type_map = lambda dictionary: {y: x for x, y in dictionary.items()}
 
-        analysis_type = type_map(dict(Analysis.TYPE_CHOICES)).get(options.get('analysis_type'), Analysis.USER)
+        analysis_type = type_map(dict(Analysis.TYPE_CHOICES)).get(options['analysis_type'], Analysis.USER)
 
         admin = User.objects.filter(is_staff=True).first()
         if not admin:
@@ -75,6 +74,7 @@ class Command(BaseCommand):
             try:
                 # Parse the json_text into json_data
                 json_text = open(json).read()
+                json_path = os.path.dirname(json)
                 json_data = hjson.loads(json_text)
             except Exception as exc:
                 logger.error(f"error leading the template: {exc}")
@@ -90,10 +90,22 @@ class Command(BaseCommand):
             try:
                 name = json_data.get("settings", {}).get("name", "No name")
                 text = json_data.get("settings", {}).get("help", "No help")
+                image = json_data.get("settings", {}).get("image", "")
                 text = textwrap.dedent(text)
                 summary = json_data.get("settings", {}).get("summary", "No summary")
-                analysis = auth.create_analysis(project=project,json_text=json_text, summary=summary,
+
+                analysis = auth.create_analysis(project=project, json_text=json_text, summary=summary,
                                                    template=template, name=name, text=text, type=analysis_type)
+
+                if image:
+                    image_path = os.path.join(json_path, image)
+                    if os.path.isfile(image_path):
+                        stream = open(image_path, 'rb')
+                        analysis.image.save(image, stream, save=True)
+                        logger.error(f"added image path: {image_path}")
+                    else:
+                        logger.error(f"missing image path: {image_path}")
+
                 logger.info(f"Added analysis '{analysis.name}' to project id={project.id}")
 
                 # Also create a queued job:
@@ -106,7 +118,7 @@ class Command(BaseCommand):
                         data_type = DATA_TYPES.get(data_type)
 
                         if path:
-                            data = auth.create_data(project=project,fname=path, data_type=data_type)
+                            data = auth.create_data(project=project, fname=path, data_type=data_type)
                             data.fill_dict(value)
                     auth.create_job(analysis=analysis, json_data=json_data, type=analysis_type)
 
