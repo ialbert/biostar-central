@@ -17,6 +17,7 @@ from biostar.engine.views import breadcrumb_builder
 from django.contrib import auth
 
 logger = logging.getLogger('engine')
+NEXTURL = "/"
 
 def get_uuid(limit=32):
     return str(uuid.uuid4())[:limit]
@@ -86,17 +87,12 @@ def user_logout(request):
 
     return render(request, "accounts/logout.html", context=context)
 
-
 @ratelimit(key='ip', rate='10/m', block=True, method=ratelimit.UNSAFE)
 @csrf.csrf_protect
 @cache.never_cache
 def user_login(request):
-
-    redirect_to = request.POST.get('next', '/')
-    safe = http.is_safe_url(redirect_to, request.get_host())
-
-    if safe:
-        print(redirect_to)
+    # TODO: Change hack way of updating nexturl
+    global NEXTURL
     steps = breadcrumb_builder([HOME_ICON, LOGIN_ICON])
 
     if request.method == "POST":
@@ -107,7 +103,6 @@ def user_login(request):
 
             email = form.cleaned_data['email']
             password = form.cleaned_data['password']
-
             # Due to an early bug emails may not be unique. Last subscription wins.
             user = User.objects.filter(email__iexact=email).order_by('-id').first()
 
@@ -126,19 +121,15 @@ def user_login(request):
                 auth.login(request, user)
                 logger.info(f"logged in user.id={user.id}, user.email={user.email}")
                 messages.info(request, "Login successful!")
-                print(request)
-                1/0
-                
                 return redirect(NEXTURL)
             else:
                 # This should not happen normally.
                 form.add_error(None, "Invalid form processing.")
     else:
-        initial = dict(next=request.GET.get('next', '/'))
+        NEXTURL = request.GET.get('next', '/')
+        initial = dict(nexturl=request.GET.get('next', '/'))
         form = LoginForm(initial=initial)
-
-
-
-    context = dict(form=form, steps=steps, next=redirect_to)
+     
+    context = dict(form=form, steps=steps)
     return render(request, "accounts/login.html", context=context)
 
