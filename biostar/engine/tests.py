@@ -82,11 +82,11 @@ class SiteTestCase(TestCase):
 
         urls.append("/")
         c = Client()
+        accepted = [200, 302]
         for page in urls:
             if page:
-                print(page)
                 resp = c.post(page)
-                print(resp.status_code)
+                self.assertTrue(resp.status_code in accepted)
                 #self.assertEqual(resp.status_code, 200)
 
 
