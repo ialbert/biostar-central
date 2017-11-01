@@ -1,103 +1,87 @@
-from biostar.tools import render
-import sys, csv
-
-# TODO :  Move template to a different file.
-
-template = '''
-<html>
-  <head>
-    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-    <script type="text/javascript">
-
-      // Load Charts and the corechart, barchart and map packages.
-      google.charts.load('current', {'packages':['corechart','map']});
-
-      // Draw the pie chart and bar chart with the same data.
-      google.charts.setOnLoadCallback(drawChart);
-      
-      // Draw map.
-      google.charts.setOnLoadCallback(drawMap);
-
-      function drawChart() {
-
-        var data = new google.visualization.DataTable();
-        data.addColumn('string', 'Species');
-        data.addColumn('number', 'Counts');
-        data.addRows([
-         {% for name, value in items %}
-            ['{{name}}' ,{{value}}],
-          {% endfor %}
-        ]);
-
-        var piechart_options = {title:'Unique reads in species',
-                       chartArea:{left:20,top:0,width:'80%',height:'75%'},
-                       legend:{position:'left'},
-                       };
-        var piechart = new google.visualization.PieChart(document.getElementById('piechart_div'));
-        piechart.draw(data, piechart_options);
-
-        var barchart_options = {title:'Unique reads in species',
-                       width :800,
-                       height:500,
-                       legend: 'none'};
-        var barchart = new google.visualization.BarChart(document.getElementById('barchart_div'));
-        barchart.draw(data, barchart_options);
-      }
-      
-      function drawMap() {
-      var data = google.visualization.arrayToDataTable([
-        ['Lat', 'Long', 'Name'],
-        [41.015908, -77.53246, 'Lamar PA']
-      ]);
-
-    var options = {
-      zoomLevel: 6,
-      showTooltip: true,
-      showInfoWindow: true
-    };
-
-    var map = new google.visualization.Map(document.getElementById('mapchart_div'));
-
-    map.draw(data, options);
-  };
-                
-      
-</script>
-<body>
-    <h2> Classification Results<h2>
-    
-    <div id="barchart_div" style="width: 900px; height: 500px;"></div> 
-    <div id="piechart_div" style="width: 900px; height: 500px;"></div>    
-     <div id="mapchart_div" style="width: 900px; height: 500px;"></div>
-    
-  </body>
-</html>
-'''
+import sys,csv
+from biostar.tools.plotify import ChartParams
+from biostar.tools.render import render_template
 
 
-#fname = "report.txt"
-# template_file = "classify_results.html"
-# template = open(template_file).read()
+def parse_classification(fname):
+    """parses centrifuge classification report file."""
+
+    items = []
+    # Read centrifuge report file.
+    with open(fname) as csvfile:
+        reader = csv.DictReader(csvfile, delimiter="\t")
+        for row in reader:
+            species = row['name']
+            reads = row['numUniqueReads']
+            items.append((species, reads))
+
+    # Sort by counts.
+    # items.sort(key=lambda x: int(x[1]))
+
+    # Sort by species name.
+    items.sort(key=lambda x: x[0])
+
+    return items
 
 
-fname = sys.argv[1]
-items = []
+def plot(data):
+    # Plot 1
 
-# Read centrifuge report file.
-with open(fname) as csvfile:
-    reader = csv.DictReader(csvfile, delimiter="\t")
-    for row in reader:
-        species = row['name']
-        reads = row['numUniqueReads']
-        items.append((species, reads))
+    p1 = ChartParams()
+    p1.type = 'BarChart'
+    p1.data = data
+    p1.xlabel = "Species"
+    p1.ylabel = "Read counts"
+    p1.options = '''    
+            title: 'Unique reads in species',
+            legend: {position: 'none'},
+        '''
 
-# Sort by counts.
-# items.sort(key=lambda x: int(x[1]))
+    # Plot 2
 
-# Sort by species name.
-items.sort(key=lambda x: x[0])
+    p2 = ChartParams()
+    p2.type = 'PieChart'
+    p2.data = data
+    p2.xlabel = "Species"
+    p2.ylabel = "Read counts"
+    p2.options = '''
+            title: 'Unique reads in species',
+            chartArea:{left:20,top:0,width:'80%',height:'75%'},
+            legend:{position:'left'}
 
-# render html
-context = dict(items=items)
-html = render.render_data(template_txt=template, context=context)
-print(html)
+        '''
+
+    # Plot3
+
+    locations = [(41.015908, -77.53246, 'Lamar PA')]
+    p3 = ChartParams()
+    p3.type = 'Map'
+    p3.data = locations
+    p3.options = '''
+            zoomLevel: 6,
+            showTooltip: true,
+            showInfoWindow: true
+
+        '''
+
+    # This is the context.
+    data = dict(p1=p1, p2=p2, p3=p3)
+
+    name = "classify.html"
+
+    html = render_template(data, name)
+
+    print(html)
+    #with open('index.html', 'wt') as fp:
+    #    fp.write(html)
+
+
+if __name__ == '__main__':
+
+    fname = sys.argv[1]
+    #fname = "report.txt"
+    results = parse_classification(fname)
+    plot(results)
+
+
+

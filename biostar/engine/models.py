@@ -271,6 +271,7 @@ class Job(models.Model):
     QUEUED, RUNNING, FINISHED, ERROR = 1, 2, 3, 4
     TYPE_CHOICES = [(ADMIN, "admin"), (USER, "user")]
     AUTH_CHOICES = [(AUTHORIZED, "authorized"), (UNDER_REVIEW, "under review")]
+
     STATE_CHOICES = [(QUEUED, "Queued"), (RUNNING, "Running"),
                      (FINISHED, "Finished"), (ERROR, "Error")]
 
@@ -290,6 +291,7 @@ class Job(models.Model):
 
     uid = models.CharField(max_length=32)
     template = models.TextField(default="makefile")
+
     auth = models.IntegerField(default=UNDER_REVIEW, choices=AUTH_CHOICES)
 
     # This will be set when the job attempts to run.

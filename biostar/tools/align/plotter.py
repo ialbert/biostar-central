@@ -82,6 +82,7 @@ def plot(data1, data2):
     html = render_template(data, name)
     print(html)
 
+
 if __name__ == '__main__':
 
     fname1 = sys.argv[1]

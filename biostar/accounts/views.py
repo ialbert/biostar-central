@@ -122,12 +122,13 @@ def user_login(request):
             elif user and user.is_active:
                 auth.login(request, user)
                 logger.info(f"logged in user.id={user.id}, user.email={user.email}")
+                messages.success(request, "Login successful!")
                 return redirect(next)
-
             else:
                 # This should not happen normally.
                 form.add_error(None, "Invalid form processing.")
     else:
+
         next = request.GET.get('next', '/')
         initial = dict(next=next)
         form = LoginForm(initial=initial)
