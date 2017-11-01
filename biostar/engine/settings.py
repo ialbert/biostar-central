@@ -81,9 +81,9 @@ TEMPLATES = [
         'OPTIONS': {
             'string_if_invalid': "**MISSING**",
             'context_processors': [
+                'django.contrib.auth.context_processors.auth',
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
                 'django.template.context_processors.media',
                 'django.contrib.messages.context_processors.messages',
                 'biostar.engine.context.engine',

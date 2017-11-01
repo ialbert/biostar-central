@@ -31,11 +31,13 @@ try:
         job_id = int.from_bytes(args["job_id"].encode(), byteorder='big')
         management.call_command('job', id=job_id)
 
+    # Where is this being ran?
     @spool
     def execute_admin_job(args):
         '''
         Spooling at higher priority.
         '''
+
         job_id = int.from_bytes(args["job_id"].encode(), byteorder='big')
         management.call_command('job', id=job_id)
 
