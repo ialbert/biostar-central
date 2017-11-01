@@ -91,13 +91,15 @@ def user_logout(request):
 @csrf.csrf_protect
 @cache.never_cache
 def user_login(request):
-    # TODO: Change hack way of updating nexturl
-    global NEXTURL
+
     steps = breadcrumb_builder([HOME_ICON, LOGIN_ICON])
 
     if request.method == "POST":
         auth.logout(request)
         form = LoginForm(data=request.POST)
+        next = request.POST.get('next', request.GET.get("next", "/"))
+        if not http.is_safe_url(next, request.get_host()):
+            next = "/"
 
         if form.is_valid():
 
@@ -120,16 +122,16 @@ def user_login(request):
             elif user and user.is_active:
                 auth.login(request, user)
                 logger.info(f"logged in user.id={user.id}, user.email={user.email}")
-                messages.info(request, "Login successful!")
-                return redirect(NEXTURL)
+                return redirect(next)
+
             else:
                 # This should not happen normally.
                 form.add_error(None, "Invalid form processing.")
     else:
-        NEXTURL = request.GET.get('next', '/')
-        initial = dict(nexturl=request.GET.get('next', '/'))
+        next = request.GET.get('next', '/')
+        initial = dict(next=next)
         form = LoginForm(initial=initial)
 
-    context = dict(form=form, steps=steps)
+    context = dict(form=form, steps=steps, next=next)
     return render(request, "accounts/login.html", context=context)
 

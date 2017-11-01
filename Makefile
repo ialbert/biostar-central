@@ -13,6 +13,9 @@ develop:
 uwsgi:init
 	uwsgi  --ini conf/devel/devel_uwsgi.ini
 
+clean:
+	(cd export/local && make clean)
+
 testdata:
 	mkdir -p export/local
 	(cd export/local && make  all)

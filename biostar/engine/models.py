@@ -267,9 +267,10 @@ class Analysis(models.Model):
 class Job(models.Model):
     ADMIN, USER = 1, 2
     AUTHORIZED, UNDER_REVIEW = 1,2
+
     QUEUED, RUNNING, FINISHED, ERROR = 1, 2, 3, 4
     TYPE_CHOICES = [(ADMIN, "admin"), (USER, "user")]
-    AUTH = [(AUTHORIZED, "authorized"), (UNDER_REVIEW, "under review")]
+    AUTH_CHOICES = [(AUTHORIZED, "authorized"), (UNDER_REVIEW, "under review")]
     STATE_CHOICES = [(QUEUED, "Queued"), (RUNNING, "Running"),
                      (FINISHED, "Finished"), (ERROR, "Error")]
 
@@ -289,7 +290,7 @@ class Job(models.Model):
 
     uid = models.CharField(max_length=32)
     template = models.TextField(default="makefile")
-    auth = models.IntegerField(default=UNDER_REVIEW, choices=AUTH)
+    auth = models.IntegerField(default=UNDER_REVIEW, choices=AUTH_CHOICES)
 
     # This will be set when the job attempts to run.
     script = models.TextField(default="")
