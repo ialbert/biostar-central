@@ -2,7 +2,7 @@ import hjson
 import logging
 from django.core.files import File
 
-from biostar.tools import defaults
+from . import tasks
 from .const import *
 from .models import Data, Analysis, Job
 
@@ -28,6 +28,11 @@ def create_project(user, project_model):
     pass
 
 
+def get_analysis(job=None,id=None, name=None, type=Analysis.USER):
+
+    pass
+
+
 def create_analysis(project, json_text, template, user=None, summary='', name='', text='', type=None):
     owner = user or project.owner
     name = name or 'Analysis name'
@@ -44,6 +49,38 @@ def create_analysis(project, json_text, template, user=None, summary='', name=''
 
 
 def edit_analysis():
+    return
+
+
+def create_job(analysis, user=None, project=None, json_text='', json_data={}, name=None, state=None, type=None):
+
+    name = name or analysis.name
+    state = state or Job.QUEUED
+    owner = user or analysis.project.owner
+    type = type or analysis.type
+    project = project or analysis.project
+
+    if json_data:
+        json_text = hjson.dumps(json_data)
+    else:
+        json_text = json_text or analysis.json_text
+
+    job = Job.objects.create(name=name, summary=analysis.summary, state=state, json_text=json_text,
+                                   project=project, analysis=analysis, owner=owner, type=type,
+                                   template=analysis.template)
+
+    logger.info(f"Created job: '{job.name}'")
+    logger.info(f"uwsgi active: {tasks.HAS_UWSGI}")
+    if tasks.HAS_UWSGI:
+        # Execute admin jobs asap
+        if type == Job.ADMIN:
+            jobid = (job.id).to_bytes(5, byteorder='big')
+            tasks.execute_admin_job.spool(job_id=jobid)
+
+    return job
+
+
+def copy_data():
     return
 
 
@@ -64,15 +101,17 @@ def create_data(project, user=None, stream=None, fname=None, name="data.bin", te
     # This saves the into the
     data.file.save(name, stream, save=True)
 
-    if data.unpack:
-        data.set_read_flag(Data.PENDING)
-        analysis = auth.get_unpack_analysis()
-        auth.create_job(analysis=analyis)
-        if tasks.HAS_UWSGI:
-            tasks.execute_admin_job.spool()
+    if data.can_unpack():
+        data.set_ready_flag(Data.PENDING)
+
+        # Gets 1st admin analysis with unpack in its name and creates a job for that
+        # can also take id.
+        analysis = get_analysis(name="unpack", type=Analysis.ADMIN)
+
+        create_job(analysis=analysis)
+
     else:
-        # Set the pending to ready after the file saves.
-            data.set_read_flag(Data.READY)
+        data.set_ready_flag(Data.READY)
 
     # Updates its own size.
     data.set_size()
@@ -80,30 +119,3 @@ def create_data(project, user=None, stream=None, fname=None, name="data.bin", te
     logger.info(f"Added data id={data.id} of type={data.get_type_display()}")
 
     return data
-
-
-# Can we put stuff from views in here?
-def edit_data():
-    return
-
-
-def create_job(analysis, user=None, project=None, json_text='', json_data={}, name=None, state=None, type=None):
-    name = name or analysis.name
-    state = state or Job.QUEUED
-    owner = user or analysis.project.owner
-    type = type or Job.USER
-    project = project or analysis.project
-
-    if json_data:
-        json_text = hjson.dumps(json_data)
-    else:
-        json_text = json_text or analysis.json_text
-
-    job = Job.objects.create(name=name, summary=analysis.summary, state=state, json_text=json_text,
-                                   project=project, analysis=analysis, owner=owner, type=type,
-                                   template=analysis.template)
-
-    logger.info(f"Created job: '{job.name}'")
-    if tasks.HAS_UWSGI:
-        tasks.execute_admin_job.spool()
-    return job

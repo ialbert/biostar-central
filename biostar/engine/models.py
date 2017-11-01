@@ -193,8 +193,11 @@ class Data(models.Model):
             size = 0
         Data.objects.filter(id=self.id).update(size=size)
 
-    def set_ready(self):
-        Data.objects.filter(id=self.id).update(state=self.READY)
+    def set_ready_flag(self, flag=None):
+
+        Data.objects.filter(id=self.id).update(state=Data.READY)
+        if flag in dict(self.STATE_CHOICES).values():
+            Data.objects.filter(id=self.id).update(state=flag)
 
     def __str__(self):
         return self.name
@@ -204,6 +207,11 @@ class Data(models.Model):
 
     def get_path(self):
         return self.file.path
+
+    def can_unpack(self):
+        if str(self.file.path).endswith("tar.gz"):
+            return True
+        return False
 
     def fill_dict(self, obj):
         """

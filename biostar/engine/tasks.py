@@ -14,7 +14,7 @@ try:
 
     HAS_UWSGI = True
 
-    @timer(5)
+    @timer(60)
     def execute_timer(args):
         from biostar.engine.models import Job
         # logger.info(f"executing timer with {args}")

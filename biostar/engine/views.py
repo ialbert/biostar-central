@@ -244,7 +244,7 @@ def data_upload(request, id):
             data_type = form.cleaned_data["data_type"]
 
             auth.create_data(stream=stream, name=name, data_type=data_type, text=text,
-                                owner=owner)
+                                user=owner, project=project)
 
             return redirect(reverse("data_list", kwargs={'id': project.id}))
 

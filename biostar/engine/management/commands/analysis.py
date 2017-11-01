@@ -122,13 +122,6 @@ class Command(BaseCommand):
                             data = auth.create_data(project=project, fname=path, data_type=data_type)
                             data.fill_dict(value)
                     job = auth.create_job(analysis=analysis, json_data=json_data, type=analysis_type)
-                    logger.info(tasks.HAS_UWSGI)
-
-                    if tasks.HAS_UWSGI:
-                        jobid = (job.id).to_bytes(5, byteorder='big')
-                        # Execute admin jobs asap
-                        if analysis_type == Analysis.ADMIN:
-                            tasks.execute_admin_job.spool(job_id=jobid)
 
             except KeyError as exc:
                 logger.error(f"processing the analysis: {exc}")
