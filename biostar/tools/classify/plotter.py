@@ -81,7 +81,6 @@ if __name__ == '__main__':
     fname = sys.argv[1]
     #fname = "report.txt"
     results = parse_classification(fname)
-    #print(results)
     plot(results)
 
 

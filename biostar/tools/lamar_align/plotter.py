@@ -142,7 +142,7 @@ def plot(data1, data2 , data3):
     p2.options = '''    
             title: '',
             legend: {position: 'none'},
-            colors: ['orange']
+            colors: ['green']
         '''
 
     # Plot table.
