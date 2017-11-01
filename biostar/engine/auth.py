@@ -104,4 +104,6 @@ def create_job(analysis, user=None, project=None, json_text='', json_data={}, na
                                    template=analysis.template)
 
     logger.info(f"Created job: '{job.name}'")
+    if tasks.HAS_UWSGI:
+        tasks.execute_admin_job.spool()
     return job
