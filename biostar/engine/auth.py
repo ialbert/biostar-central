@@ -64,8 +64,15 @@ def create_data(project, user=None, stream=None, fname=None, name="data.bin", te
     # This saves the into the
     data.file.save(name, stream, save=True)
 
-    # Set the pending to ready after the file saves.
-    data.set_ready()
+    if data.unpack:
+        data.set_read_flag(Data.PENDING)
+        analysis = auth.get_unpack_analysis()
+        auth.create_job(analysis=analyis)
+        if tasks.HAS_UWSGI:
+            tasks.execute_admin_job.spool()
+    else:
+        # Set the pending to ready after the file saves.
+            data.set_read_flag(Data.READY)
 
     # Updates its own size.
     data.set_size()
