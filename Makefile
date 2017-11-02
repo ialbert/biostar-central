@@ -59,6 +59,7 @@ init:
 	python manage.py migrate
 
 test:
+	python manage.py collectstatic --noinput -v 0
 	python manage.py test -v 2
 
 push:
