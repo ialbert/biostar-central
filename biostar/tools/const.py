@@ -24,7 +24,6 @@ ACCESSION_LIST = 9
 
 DATA_TUPLES = [
     # Numeric, Symbol, Readable English
-
     (GENERIC_TYPE, 'GENERIC_TYPE', "Generic type"),
     (SAMPLE_TYPE, 'SAMPLE_TYPE', "Sample Sheet"),
     (COLLECTION_TYPE, 'COLLECTION_TYPE', "Collection"),
@@ -43,6 +42,7 @@ DATA_TYPES = dict(
     (a, c) for (a, b, c) in DATA_TUPLES
 )
 
+# Data type to symbol.
 DATA_TYPE_SYMBOLS = dict(
     (b, a) for (a, b, c) in DATA_TUPLES
 )
