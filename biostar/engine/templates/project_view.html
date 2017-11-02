@@ -20,7 +20,7 @@
 
     <div class="ui raised segment">
 
-        <div class="ui divided items">
+        <div class="ui divided link items">
 
             <div class="item">
 
@@ -29,16 +29,15 @@
                 </div>
 
                 <div class="content">
-                    <div class="header">
+                    <a class="header" href="#">
                         Project: {{ project.name }}
-                    </div>
+                    </a>
                     <div class="description">
                         {{ project.summary|markdown|safe }}
                     </div>
                 </div>
 
             </div>
-
 
             <div class="item">
 
@@ -92,7 +91,7 @@
                 </div>
 
             </div>
-            
+
         </div>
     </div>
 

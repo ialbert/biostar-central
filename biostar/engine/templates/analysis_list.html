@@ -12,35 +12,31 @@
     </div>
 
 
-    <div class="ui two cards">
+    <div class="ui divided link items">
+
         {% for analysis in analyses %}
 
+            <div class="item">
 
-            <div class="ui card">
+                <div class="ui small image">
+                    <img src="{% img analysis %}">
+                </div>
 
-                <a class="image" href="{% url 'analysis_view' analysis.id %}">
-
-
-                        <img class="ui small image" src="{% img analysis %}">
-
-                </a>
                 <div class="content">
-                    <a class="header" href="{% url 'analysis_view' analysis.id %}">{{ analysis.name }}</a>
-                    <div class="meta">
-                        <span class="date">Joined in 2013</span>
-                    </div>
+                    <a class="header" href="{% url 'analysis_view' analysis.id %}">
+                        {{ analysis.name }}
+                    </a>
                     <div class="description">
                         {{ analysis.summary|markdown|safe }}
                     </div>
+                    <div class="meta">
+                        <a href="{% url 'job_list' project.id %}?filter={{ analysis.id }}">
+                            <i class="bar chart icon"></i> view results
+                        </a>
+                    </div>
                 </div>
-                <div class="extra content">
-                    <a>
-                        <i class="bar chart icon"></i>
-                        <a class="" href="{% url 'job_list' project.id %}?filter={{ analysis.id }}">view results
-                    </a>
-                </div>
-            </div>
 
+            </div>
 
 
         {% endfor %}
