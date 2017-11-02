@@ -18,14 +18,14 @@ lamar: lamar/sequences.tar.gz
 
 lamar/sequences.tar.gz:
 	mkdir -p input fish_species
-	curl http://iris.bx.psu.edu/projects/metabarcode-data/data.tar.gz  > input/lamar_sequences.tar.gz
+	curl http://iris.bx.psu.edu/projects/metabarcode-data/data.tar.gz  > input/fish_sequences.tar.gz
 	curl http://iris.bx.psu.edu/projects/metabarcode-data/sampleinfo.txt > input/lamar_sampleinfo.txt
 	curl http://iris.bx.psu.edu/projects/metabarcode-data/accession_list.txt > input/accession_list.txt
-	curl http://iris.bx.psu.edu/projects/metabarcode-data/1-SarriPal_S9_L001_R1_001.fastq.gz > input/fastqc_test_reads.fastq.gz
+	curl http://iris.bx.psu.edu/projects/metabarcode-data/1-SarriPal_S9_L001_R1_001.fastq.gz > input/test_reads.fastq.gz
 	curl http://iris.bx.psu.edu/projects/metabarcode-data/fish_genomes.fa > fish_species/fish_species.fa
-	cp input/fastqc_test_reads.fastq.gz input/align_test_reads.fastq.gz
-	cp input/fastqc_test_reads.fastq.gz input/classify_test_fish_metabarcode_reads.fastq.gz
-	cp input/fastqc_test_reads.fastq.gz input/align_classify_test_metabarcode_reads.fastq.gz
+	cp input/test_reads.fastq.gz input/fish_metabarcode_sample1.fastq.gz
+	cp input/test_reads.fastq.gz input/fish_metabarcode_sample2.fastq.gz
+	cp input/test_reads.fastq.gz input/fish_metabarcode_reads.fastq.gz
 
 # Fish blast database.
 fishdb: blastdb/fish_species/fish_species.nin
