@@ -58,26 +58,10 @@ def image_path(instance, filename):
     return f"images/{imgname}"
 
 
-class ProjectObjectManager(models.Manager):
-    def get_queryset(self, user=Bunch(is_superuser=False)):
-        if user.is_superuser:
-            return super(ProjectObjectManager, self).get_queryset()
-
-        return super(ProjectObjectManager, self).get_queryset().exclude(type=Project.ADMIN)
-
-
-class ProjectAdminManager(models.Manager):
-    def get_queryset(self):
-        return super(ProjectAdminManager, self).get_queryset().filter(type=Project.ADMIN)
-
-
 class Project(models.Model):
-    ADMIN, USER = 1, 2
     PUBLIC, SHAREABLE, PRIVATE = 1, 2, 3
     PRIVACY_CHOICES = [(PRIVATE, "Private"), (SHAREABLE, "Shareable Link"), (PUBLIC, "Public")]
-    TYPE_CHOICES = [(ADMIN, "admin"), (USER, "user")]
 
-    type = models.IntegerField(default=USER, choices=TYPE_CHOICES)
     privacy = models.IntegerField(default=SHAREABLE, choices=PRIVACY_CHOICES)
 
     image = models.ImageField(default=None, blank=True, upload_to=image_path)
@@ -96,10 +80,6 @@ class Project(models.Model):
 
     # Will be false if the objects is to be deleted.
     valid = models.BooleanField(default=True)
-
-    # Override managers.
-    objects = ProjectObjectManager()
-    admins = ProjectAdminManager()
 
     def save(self, *args, **kwargs):
         now = timezone.now()
@@ -125,8 +105,8 @@ class Project(models.Model):
         return join(settings.MEDIA_ROOT, "projects", f"proj-{self.uid}")
 
 
+
 class Data(models.Model):
-    ADMIN, USER = 1, 2
     FILE, COLLECTION = 1, 2
     PENDING, READY, ERROR = 1, 2, 3
 
@@ -216,7 +196,6 @@ class Data(models.Model):
 
 
 class Analysis(models.Model):
-    ADMIN, USER = 1, 2
     AUTHORIZED, UNDER_REVIEW = 1, 2
 
     AUTH_CHOICES = [(AUTHORIZED, "Authorized"), (UNDER_REVIEW, "Under Review")]

@@ -1,4 +1,5 @@
 from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand
 from django.template import Template, Context
 from biostar.engine.models import Job, Project, Analysis
 import subprocess, os, sys, json, hjson, logging

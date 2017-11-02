@@ -309,7 +309,7 @@ def analysis_run(request, id):
             filled_json = form.process()
             json_text = hjson.dumps(filled_json)
             job = auth.create_job(analysis=analysis, user=analysis.owner, json_text=json_text, name=name,
-                                      type=analysis.type)
+                                  )
             logger.info(tasks.HAS_UWSGI)
             if tasks.HAS_UWSGI:
                 jobid = (job.id).to_bytes(5, byteorder='big')
@@ -374,7 +374,7 @@ def job_list(request, id):
     Returns the list of jobs for a project id.
     """
     # filter according to type
-    project = Project.objects.get_queryset(user=request.user).filter(id=id).first()
+    project = Project.objects.filter(id=id).first()
 
     if not project:
         messages.error(request, "Jobs not found.")

@@ -13,7 +13,7 @@ HAS_UWSGI = False
 def int_to_bytes(value):
     return (value).to_bytes(8, byteorder='big')
 
-def int_form_bytes(args, name):
+def int_from_bytes(args, name):
     return int.from_bytes(args[name].encode(), byteorder='big')
 
 try:
@@ -35,12 +35,12 @@ try:
         '''
         Spools at normal priority.
         '''
-        job_id = int_form_bytes(args, "job_id")
+        job_id = int_from_bytes(args, "job_id")
         management.call_command('job', id=job_id)
 
     @spool
     def unpack(args):
-        data_id = int_form_bytes(args, "data_id")
+        data_id = int_from_bytes(args, "data_id")
         unpacker(data_id=data_id)
 
 except ModuleNotFoundError as exc:

@@ -1,11 +1,9 @@
-import hjson
-import logging
+import hjson, logging, shutil, tarfile
 from django.core.files import File
-
 from . import tasks
 from .const import *
-from .models import Data, Analysis, Job
-from django.core import management
+from .models import Data, Analysis, Job, Project
+
 
 logger = logging.getLogger("engine")
 
@@ -22,14 +20,13 @@ def get_data(user, project, query, data_type=None):
     return datamap
 
 
-def create_project(user, project_model):
-    # project = project_model.objects.filter
+def create_project(user, name, uid='', summary='', text=''):
 
-    logger.info(f"{user.email} created project {project_model.id}")
+    project = Project.objects.create(
+        name=name, uid=uid,  summary=summary, text=text, owner=user,
+    )
+    logger.info(f"Created project: {project.name} uid: {project.uid}")
     pass
-
-
-
 
 
 def create_analysis(project, json_text, template,
@@ -47,10 +44,6 @@ def create_analysis(project, json_text, template,
     return analysis
 
 
-def edit_analysis():
-    return
-
-
 def create_job(analysis, user=None, project=None, json_text='', json_data={}, name=None, state=None, type=None):
 
     name = name or analysis.name
@@ -65,18 +58,15 @@ def create_job(analysis, user=None, project=None, json_text='', json_data={}, na
         json_text = json_text or analysis.json_text
 
     job = Job.objects.create(name=name, summary=analysis.summary, state=state, json_text=json_text,
-                                   project=project, analysis=analysis, owner=owner,
-                                   template=analysis.template)
+                             project=project, analysis=analysis, owner=owner,
+                             template=analysis.template)
 
     logger.info(f"Created job: {job.name}")
 
     return job
 
-def copy_data():
-    return
+def create_data(project, user=None, stream=None, fname=None, name="data.bin", text='', data_type=None):
 
-
-def create_data(project, user=None, stream=None, fname=None, name="data.bin", text='', data_type=None, type=None):
     if fname:
         stream = File(open(fname, 'rb'))
         name = os.path.basename(fname)
@@ -85,21 +75,21 @@ def create_data(project, user=None, stream=None, fname=None, name="data.bin", te
     text = text or "No description"
     data_type = data_type or GENERIC_TYPE
 
-
     # Create the data
     data = Data.objects.create(name=name, owner=owner, state=Data.READY,
-                text=text, project=project, data_type=data_type)
+                               text=text, project=project, data_type=data_type)
 
     # This saves the into the
     data.file.save(name, stream, save=True)
 
     if data.can_unpack():
+
+        logger.info(f"uwsgi active: {tasks.HAS_UWSGI}")
         if tasks.HAS_UWSGI:
             data_id = tasks.int_to_bytes(data.id)
             tasks.unpack(data_id=data_id).spool()
         else:
             tasks.unpack(data_id=data.id)
-
 
     # Updates its own size.
     data.set_size()

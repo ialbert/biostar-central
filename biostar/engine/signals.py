@@ -24,23 +24,23 @@ def init_proj(sender, **kwargs):
     Project 1 must exist. It will store existing analyses.
     We also create one job for each registered analysis.
     """
-    from biostar.engine.models import User, Group, Project
+    from biostar.engine import models, auth
 
     # Get the first admin user.
-    admin_user = User.objects.filter(is_superuser=True).first()
-    admin_group = Group.objects.get(name=settings.ADMIN_GROUP_NAME)
+    admin_user = models.User.objects.filter(is_superuser=True).first()
 
-    # The first project is admin project.
-    demo_project = Project.admins.filter(id=1).first()
+    #admin_group = models.Group.objects.get(name=settings.ADMIN_GROUP_NAME)
 
-    if not demo_project:
-        demo_project = Project.objects.create(
-            name=defaults.DEMO_PROJECT_NAME,
-            summary=defaults.DEMO_PROJECT_SUMMARY,
-            text=defaults.DEMO_PROJECT_TEXT,
-            owner=admin_user,
-            type=Project.USER
-        )
+    # Demo projects enabled.
+
+
+    if settings.DEMO_PROJECT_UID:
+        uid = settings.DEMO_PROJECT_UID
+        demo_project = models.Project.objects.filter(uid=uid).first()
+        if not demo_project:
+            auth.create_project(user=admin_user, uid=uid,
+                                name=defaults.DEMO_PROJECT_NAME, summary=defaults.DEMO_PROJECT_SUMMARY,
+                                text=defaults.DEMO_PROJECT_TEXT)
 
 def init_users(sender, **kwargs):
     """
@@ -62,11 +62,11 @@ def init_users(sender, **kwargs):
             logger.info(f"Created admin user: {user.email}")
             group.user_set.add(user)
 
-    # TODO: remove later
-    testbuddy = 'testbuddy@lvh.me'
-    user, flag = User.objects.get_or_create(email=testbuddy, username=testbuddy)
-    user.set_password(testbuddy)
-    user.save()
+    if settings.DEBUG:
+        testbuddy = 'testbuddy@lvh.me'
+        user, flag = User.objects.get_or_create(email=testbuddy, username=testbuddy)
+        user.set_password(testbuddy)
+        user.save()
 
 def init_site(sender, **kwargs):
     """
