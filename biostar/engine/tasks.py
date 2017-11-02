@@ -21,7 +21,7 @@ try:
 
     HAS_UWSGI = True
 
-    @timer(60)
+    @timer(3)
     def execute_timer(args):
         from biostar.engine.models import Job
         # logger.info(f"executing timer with {args}")
@@ -71,4 +71,5 @@ def unpacker(data_id):
         query.update(state=Data.READY)
     except Exception as exc:
         logger.error(f"Error: f{exc}")
+        query.update(state=Data.ERROR)
 

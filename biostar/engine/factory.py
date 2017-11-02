@@ -103,8 +103,10 @@ def ignore(data):
 
 
 def data_generator(field, project, data_type=None):
-    valid_type = DATA_TYPES.get(data_type, None)
-    # if there is no project then filter according to the
+
+    valid_type = data_type if data_type in DATA_TYPES else GENERIC_TYPE
+
+    print(valid_type)
 
     query = Data.objects.filter(project=project, data_type=valid_type)
     datamap = dict((obj.id, obj) for obj in query)

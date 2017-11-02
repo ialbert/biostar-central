@@ -32,17 +32,17 @@ def create_project(user, project_model):
 
 
 
-def create_analysis(project, json_text, template, uid=None, user=None, summary='', name='', text='', type=None):
+def create_analysis(project, json_text, template,
+                    uid=None, user=None, summary='', name='', text=''):
     owner = user or project.owner
     name = name or 'Analysis name'
     text = text or 'Analysis text'
-    type = type or Analysis.USER
 
     analysis = Analysis.objects.create(project=project, uid=uid, summary=summary, json_text=json_text,
-                                       owner=owner, name=name, text=text, type=type,
+                                       owner=owner, name=name, text=text,
                                        template=template)
 
-    logger.info(f"Created analysis: uid={analysis.uid}, type={analysis.get_type_display()}")
+    logger.info(f"Created analysis: uid={analysis.uid}")
 
     return analysis
 
@@ -56,7 +56,7 @@ def create_job(analysis, user=None, project=None, json_text='', json_data={}, na
     name = name or analysis.name
     state = state or Job.QUEUED
     owner = user or analysis.project.owner
-    type = type or analysis.type
+
     project = project or analysis.project
 
     if json_data:
@@ -65,10 +65,10 @@ def create_job(analysis, user=None, project=None, json_text='', json_data={}, na
         json_text = json_text or analysis.json_text
 
     job = Job.objects.create(name=name, summary=analysis.summary, state=state, json_text=json_text,
-                                   project=project, analysis=analysis, owner=owner, type=type,
+                                   project=project, analysis=analysis, owner=owner,
                                    template=analysis.template)
 
-    logger.info(f"Created job: '{job.name}'")
+    logger.info(f"Created job: {job.name}")
 
     return job
 
@@ -84,25 +84,26 @@ def create_data(project, user=None, stream=None, fname=None, name="data.bin", te
     owner = user or project.owner
     text = text or "No description"
     data_type = data_type or GENERIC_TYPE
-    type = type or Data.USER
-    data = Data(name=name, owner=owner, type=type,
+
+
+    # Create the data
+    data = Data.objects.create(name=name, owner=owner, state=Data.READY,
                 text=text, project=project, data_type=data_type)
 
-    # Need to save before uid gets triggered.
-    data.save()
     # This saves the into the
     data.file.save(name, stream, save=True)
 
     if data.can_unpack():
         if tasks.HAS_UWSGI:
-            data_id = tasks.encode_int(data.id)
+            data_id = tasks.int_to_bytes(data.id)
             tasks.unpack(data_id=data_id).spool()
         else:
             tasks.unpack(data_id=data.id)
 
+
     # Updates its own size.
     data.set_size()
 
-    logger.info(f"Added data id={data.name} of type={data.get_type_display()}")
+    logger.info(f"Added data id={data.name}, name={data.name}")
 
     return data

@@ -19,8 +19,10 @@ MAX_NAME_LEN = 256
 MAX_TEXT_LEN = 10000
 MAX_LOG_LEN = 20 * MAX_TEXT_LEN
 
+
 def join(*args):
     return os.path.abspath(os.path.join(*args))
+
 
 class Bunch(object):
     def __init__(self, **kwargs):
@@ -47,18 +49,17 @@ def data_upload_path(instance, filename):
     dataname = f"data-{instance.uid}.{exts}"
     return join(instance.project.get_path(), f"{instance.data_dir}", dataname)
 
+
 def image_path(instance, filename):
     # Name the data by the filename.
     name, ext = os.path.splitext(filename)
     # File may have multiple extensions
     imgname = f"image-{instance.uid}{ext}"
-    return  f"images/{imgname}"
+    return f"images/{imgname}"
 
 
 class ProjectObjectManager(models.Manager):
-
     def get_queryset(self, user=Bunch(is_superuser=False)):
-
         if user.is_superuser:
             return super(ProjectObjectManager, self).get_queryset()
 
@@ -66,16 +67,14 @@ class ProjectObjectManager(models.Manager):
 
 
 class ProjectAdminManager(models.Manager):
-
     def get_queryset(self):
-
         return super(ProjectAdminManager, self).get_queryset().filter(type=Project.ADMIN)
 
 
 class Project(models.Model):
     ADMIN, USER = 1, 2
-    PUBLIC, SHAREABLE, PRIVATE = 1,2,3
-    PRIVACY_CHOICES = [ (PRIVATE, "Private"), (SHAREABLE, "Shareable Link"),  (PUBLIC, "Public") ]
+    PUBLIC, SHAREABLE, PRIVATE = 1, 2, 3
+    PRIVACY_CHOICES = [(PRIVATE, "Private"), (SHAREABLE, "Shareable Link"), (PUBLIC, "Public")]
     TYPE_CHOICES = [(ADMIN, "admin"), (USER, "user")]
 
     type = models.IntegerField(default=USER, choices=TYPE_CHOICES)
@@ -132,11 +131,9 @@ class Data(models.Model):
     PENDING, READY, ERROR = 1, 2, 3
 
     FILETYPE_CHOICES = [(FILE, "File"), (COLLECTION, "Collection")]
-    TYPE_CHOICES = [(ADMIN, "Admin"), (USER, "User")]
 
     STATE_CHOICES = [(PENDING, "Pending"), (READY, "Ready"), (ERROR, "Error")]
 
-    type = models.IntegerField(default=USER, choices=TYPE_CHOICES)
     name = models.CharField(max_length=256, default="no name")
     summary = models.TextField(default='no summary')
     image = models.ImageField(default=None, blank=True, upload_to=image_path)
@@ -203,9 +200,8 @@ class Data(models.Model):
         return self.file.path
 
     def can_unpack(self):
-        if str(self.file.path).endswith("tar.gz"):
-            return True
-        return False
+        cond = str(self.file.path).endswith("tar.gz")
+        return cond
 
     def fill_dict(self, obj):
         """
@@ -218,19 +214,18 @@ class Data(models.Model):
         obj['name'] = self.name
         obj['uid'] = self.uid
 
+
 class Analysis(models.Model):
     ADMIN, USER = 1, 2
-    AUTHORIZED, UNDER_REVIEW = 1,2
+    AUTHORIZED, UNDER_REVIEW = 1, 2
 
-    TYPE_CHOICES = [(ADMIN, "admin"), (USER, "user")]
-    AUTH_CHOICES = [(AUTHORIZED,"authorized"), (UNDER_REVIEW, "under review")]
+    AUTH_CHOICES = [(AUTHORIZED, "Authorized"), (UNDER_REVIEW, "Under Review")]
 
-    type = models.IntegerField(default=USER, choices=TYPE_CHOICES)
     uid = models.CharField(max_length=32, unique=True)
 
-    name = models.CharField(max_length=256, default="no name")
-    summary = models.TextField(default='no summary')
-    text = models.TextField(default='no description', max_length=MAX_TEXT_LEN)
+    name = models.CharField(max_length=256, default="No name")
+    summary = models.TextField(default='No summary.')
+    text = models.TextField(default='No description.', max_length=MAX_TEXT_LEN)
     html = models.TextField(default='html')
     owner = models.ForeignKey(User)
 
@@ -261,17 +256,15 @@ class Analysis(models.Model):
 
 
 class Job(models.Model):
-    ADMIN, USER = 1, 2
-    AUTHORIZED, UNDER_REVIEW = 1,2
+    AUTHORIZED, UNDER_REVIEW = 1, 2
 
     QUEUED, RUNNING, FINISHED, ERROR = 1, 2, 3, 4
-    TYPE_CHOICES = [(ADMIN, "Admin"), (USER, "User")]
+
     AUTH_CHOICES = [(AUTHORIZED, "Authorized"), (UNDER_REVIEW, "Under Review")]
 
     STATE_CHOICES = [(QUEUED, "Queued"), (RUNNING, "Running"),
                      (FINISHED, "Finished"), (ERROR, "Error")]
 
-    type = models.IntegerField(default=USER, choices=TYPE_CHOICES)
     name = models.CharField(max_length=256, default="no name")
     summary = models.TextField(default='no summary')
     image = models.ImageField(default=None, blank=True, upload_to=image_path)

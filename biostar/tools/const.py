@@ -22,18 +22,29 @@ LAMAR_SAMPLE_SHEET = 7
 ACCESSION_MAP = 8
 ACCESSION_LIST = 9
 
-# Data type lookup map.
+DATA_TUPLES = [
+    # Numeric, Symbol, Readable English
+
+    (GENERIC_TYPE, 'GENERIC_TYPE', "Generic type"),
+    (SAMPLE_TYPE, 'SAMPLE_TYPE', "Sample Sheet"),
+    (COLLECTION_TYPE, 'COLLECTION_TYPE', "Collection"),
+    (TAR_FASTQ_GZ, 'TAR_FASTQ_GZ', "TAR FASTQ GZ"),
+    (FASTQ_TYPE, 'FASTQ_TYPE', "FASTQ File"),
+    (FASTA_TYPE, 'FASTA_TYPE', "FASTA File"),
+    (REFERENCE_TYPE, 'REFERENCE_TYPE', "Reference"),
+    (LAMAR_SAMPLE_SHEET, 'LAMAR_SAMPLE_SHEET', "Lamar sample sheet"),
+    (ACCESSION_MAP, 'ACCESSION_MAP', "Accession Map"),
+    (ACCESSION_LIST, 'ACCESSION_LIST', "Accession List"),
+
+]
+
+# Data type in plain English.
 DATA_TYPES = dict(
-    GENERIC_TYPE=GENERIC_TYPE,
-    SAMPLE_TYPE=SAMPLE_TYPE,
-    COLLECTION_TYPE=SAMPLE_TYPE,
-    TAR_FASTQ_GZ=TAR_FASTQ_GZ,
-    FASTQ_TYPE=FASTQ_TYPE,
-    FASTA_TYPE=FASTA_TYPE,
-    REFERENCE_TYPE=REFERENCE_TYPE,
-    LAMAR_SAMPLE_SHEET=LAMAR_SAMPLE_SHEET,
-    ACCESSION_MAP=ACCESSION_MAP,
-    ACCESSION_LIST=ACCESSION_LIST,
+    (a, c) for (a, b, c) in DATA_TUPLES
+)
+
+DATA_TYPE_SYMBOLS = dict(
+    (b, a) for (a, b, c) in DATA_TUPLES
 )
 
 # Sequence subtype.

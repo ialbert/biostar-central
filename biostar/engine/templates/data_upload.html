@@ -8,7 +8,7 @@
 {% block body %}
 
 <div class="ui segment">
-    <form method="post" class="ui form" enctype="multipart/form-data">
+    <form method="post" class="ui form" enctype="multipart/form-data" action="{%  url 'data_upload' project.id %}">
 
         {% csrf_token %}
         {{ form.media }}

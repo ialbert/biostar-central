@@ -24,6 +24,7 @@
             <div>Name: {{ data.name }}</div>
             <div>Size: {{ data.size|filesizeformat }}</div>
             <div>Uploaded by: {{ data.owner.email }}</div>
+             <div>State: {{ data.get_state_display }}</div>
         </div>
 
         <div class="ui vertical segment">
