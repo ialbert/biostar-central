@@ -17,13 +17,12 @@ from biostar.engine.views import breadcrumb_builder
 from django.contrib import auth
 
 logger = logging.getLogger('engine')
-NEXTURL = "/"
 
 def get_uuid(limit=32):
     return str(uuid.uuid4())[:limit]
 
 
-def info(request):
+def accounts(request):
 
     return redirect("/")
 

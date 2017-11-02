@@ -309,7 +309,7 @@ def analysis_run(request, id):
             filled_json = form.process()
             json_text = hjson.dumps(filled_json)
             job = auth.create_job(analysis=analysis, user=analysis.owner, json_text=json_text, name=name,
-                                      type=analysis.type)
+                                  )
             logger.info(tasks.HAS_UWSGI)
             if tasks.HAS_UWSGI:
                 jobid = (job.id).to_bytes(5, byteorder='big')

@@ -1,11 +1,9 @@
-import logging
-
-import hjson
+import hjson, logging, shutil, tarfile
 from django.core.files import File
-
 from . import tasks
 from .const import *
 from .models import Data, Analysis, Job, Project
+
 
 logger = logging.getLogger("engine")
 
@@ -47,11 +45,8 @@ def create_analysis(project, json_text, template,
     return analysis
 
 
-def edit_analysis():
-    return
-
-
 def create_job(analysis, user=None, project=None, json_text='', json_data={}, name=None, state=None, type=None):
+
     name = name or analysis.name
     state = state or Job.QUEUED
     owner = user or analysis.project.owner
@@ -71,12 +66,8 @@ def create_job(analysis, user=None, project=None, json_text='', json_data={}, na
 
     return job
 
+def create_data(project, user=None, stream=None, fname=None, name="data.bin", text='', data_type=None):
 
-def copy_data():
-    return
-
-
-def create_data(project, user=None, stream=None, fname=None, name="data.bin", text='', data_type=None, type=None):
     if fname:
         stream = File(open(fname, 'rb'))
         name = os.path.basename(fname)
@@ -93,6 +84,8 @@ def create_data(project, user=None, stream=None, fname=None, name="data.bin", te
     data.file.save(name, stream, save=True)
 
     if data.can_unpack():
+
+        logger.info(f"uwsgi active: {tasks.HAS_UWSGI}")
         if tasks.HAS_UWSGI:
             data_id = tasks.int_to_bytes(data.id)
             tasks.unpack(data_id=data_id).spool()
