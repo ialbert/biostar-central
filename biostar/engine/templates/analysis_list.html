@@ -7,40 +7,49 @@
 {% block body %}
 
     <div class="ui raised segment">
-    <div class="ui center aligned header">
-        Analysis Recipes for project: {{ project.name }}
-    </div>
 
+    <div class="ui divided link items">
 
-    <div class="ui two cards">
-        {% for analysis in analyses %}
+     <div class="item">
 
+            <div class="ui tiny image">
+                <img src="{% img project %}">
+            </div>
 
-            <div class="ui card">
-
-                <a class="image" href="{% url 'analysis_view' analysis.id %}">
-
-
-                        <img class="ui small image" src="{% img analysis %}">
-
+            <div class="content">
+                <a class="header" href="{%  url "project_view" project.id %}">
+                    Analysis Recipes
                 </a>
-                <div class="content">
-                    <a class="header" href="{% url 'analysis_view' analysis.id %}">{{ analysis.name }}</a>
-                    <div class="meta">
-                        <span class="date">Joined in 2013</span>
-                    </div>
-                    <div class="description">
-                        {{ analysis.summary|markdown|safe }}
-                    </div>
-                </div>
-                <div class="extra content">
-                    <a>
-                        <i class="bar chart icon"></i>
-                        <a class="" href="{% url 'job_list' project.id %}?filter={{ analysis.id }}">view results
-                    </a>
+                <div class="description">
+                    A list of analyses enabled for project: <b>{{ project.name }}</b>
                 </div>
             </div>
 
+        </div>
+
+        {% for analysis in analyses %}
+
+            <div class="item">
+
+                <div class="ui tiny image">
+                    <img src="{% img analysis %}">
+                </div>
+
+                <div class="content">
+                    <a class="header" href="{% url 'analysis_view' analysis.id %}">
+                        {{ analysis.name }}
+                    </a>
+                    <div class="description">
+                        {{ analysis.summary|markdown|safe }}
+                    </div>
+                    <div class="meta">
+                        <a href="{% url 'job_list' project.id %}?filter={{ analysis.id }}">
+                            <i class="bar chart icon"></i> view results
+                        </a>
+                    </div>
+                </div>
+
+            </div>
 
 
         {% endfor %}

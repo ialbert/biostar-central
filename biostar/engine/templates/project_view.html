@@ -18,59 +18,78 @@
 {% block body %}
 
 
+
     <div class="ui raised segment">
 
-        <div class="ui vertical segment">
+        <div class="ui divided link items">
 
-            <div class="ui center aligned header">
-                Project: {{ project.name }}
+            <div class="item">
+
+                <div class="ui tiny image">
+                    <img src="{% img project %}">
+                </div>
+
+                <div class="content">
+                    <a class="header" href="#">
+                        Project: {{ project.name }}
+                    </a>
+                    <div class="description">
+                        {{ project.summary|markdown|safe }}
+                    </div>
+                </div>
+
             </div>
 
-            <div class="ui clearing divider"></div>
+            <div class="item">
 
-            <img class="ui tiny bottom aligned left floated circular image" src="{% img project %}">
+                <div class="ui tiny image">
+                    <img src="{% static 'images/project_data_icon.jpg' %}">
+                </div>
 
-            {{ project.summary|markdown|safe }}
+                <div class="content">
+                    <a class="header" href="{% url 'data_list' project.id %}">
+                        <i class="file text icon"></i>Data List
+                    </a>
+                    <div class="description">
+                        View data associated with this project.
+                    </div>
+                </div>
 
-            <div class="ui clearing divider"></div>
-
-            <img class="ui left floated tiny circular image" src="{% static 'images/project_data_icon.jpg' %}">
-
-            <div class="ui header">
-
-                <a href="{% url 'data_list' project.id %}">
-                    <i class="file text icon"></i>Data List
-                </a>
             </div>
 
-            <p>View data associated with this project.</p>
+            <div class="item">
 
+                <div class="ui tiny image">
+                    <img src="{% static 'images/project_analysis_icon.png' %}">
 
-            <div class="ui clearing divider"></div>
+                </div>
 
-            <img class="ui left floated tiny circular image" src="{% static 'images/project_analysis_icon.png' %}">
+                <div class="content">
+                    <a class="header" href="{% url 'analysis_list' project.id %}">
+                        <i class="settings icon"></i>Analysis Recipes
+                    </a>
+                    <div class="description">
+                        View the analyses that can be run for this project.
+                    </div>
+                </div>
 
-            <div class="ui header">
-                <a href="{% url 'analysis_list' project.id %}">
-                    <i class="settings icon"></i>Analysis Recipes
-                </a>
             </div>
 
-            <p>View the analyses that can be run for this project.</p>
+            <div class="item">
 
+                <div class="ui tiny image">
+                    <img src="{% static 'images/project_results_icon.jpg' %}">
+                </div>
 
-            <div class="ui clearing divider"></div>
-
-            <img class="ui left floated tiny circular image" src="{% static 'images/project_results_icon.jpg' %}">
-
-
-            <div class="ui vertical segment">
-                <div class="ui header">
-                    <a href="{% url 'job_list' project.id %}">
+                <div class="content">
+                    <a class="header" href="{% url 'job_list' project.id %}">
                         <i class="bar chart icon"></i>Analysis Results
                     </a>
+                    <div class="description">
+                        View the results of analyses run previously.
+                    </div>
                 </div>
-                <p>View the results of analyses.</p>
+
             </div>
 
         </div>

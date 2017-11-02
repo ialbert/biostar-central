@@ -1,14 +1,6 @@
 body {
     background-color: #f8f8f9;
-}
-
-h2.ui.center.header {
-    margin-top: 1em;
-}
-
-h2.ui.header {
-    font-size: 1.3rem;
-    font-weight: bold;
+    padding-top: 1rem;
 }
 
 
@@ -21,14 +13,6 @@ h1 {
     font-size: 1.4rem;
 }
 
-.ui.header {
-    font-weight: 400;
-}
-
-.title {
-//font-size: 1.14285714 rem;
-//font-weight: 400;
-}
 
 .muted {
     color: #999999;
@@ -38,18 +22,6 @@ pre {
     overflow-x: auto;
     padding: 1em;
     background-color: #EEEEEE;
-}
-
-.Queued {
-}
-
-.Running {
-}
-
-.Error {
-}
-
-.Finished {
 }
 
 .smaller {
