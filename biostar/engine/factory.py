@@ -1,6 +1,6 @@
 from django import forms
 from .models import Data
-from .const import *
+from biostar.engine import const
 
 
 
@@ -104,9 +104,7 @@ def ignore(data):
 
 def data_field_generator(field, project, data_type=None):
 
-    valid_type = data_type if data_type in DATA_TYPES else GENERIC_TYPE
-
-    print(valid_type)
+    valid_type = const.DATA_TYPE_SYMBOLS.get(data_type, -1)
 
     query = Data.objects.filter(project=project, data_type=valid_type)
     datamap = dict((obj.id, obj) for obj in query)
@@ -119,13 +117,13 @@ def data_field_generator(field, project, data_type=None):
 
 
 TYPE2FUNC = {
-    RADIO: radioselect_field,
-    DROPDOWN: select_field,
-    INTEGER: number_field,
-    TEXTBOX: char_field,
-    FLOAT: float_field,
-    UPLOAD: file_field,
-    CHECKBOX: checkbox_field,
+    const.RADIO: radioselect_field,
+    const.DROPDOWN: select_field,
+    const.INTEGER: number_field,
+    const.TEXTBOX: char_field,
+    const.FLOAT: float_field,
+    const.UPLOAD: file_field,
+    const.CHECKBOX: checkbox_field,
 }
 
 

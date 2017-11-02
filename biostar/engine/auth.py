@@ -22,7 +22,6 @@ def get_data(user, project, query, data_type=None):
 
 def create_project(user, name, uid='', summary='', text=''):
 
-    print (uid)
     project = Project.objects.create(
         name=name, uid=uid,  summary=summary, text=text, owner=user,
     )
