@@ -22,12 +22,14 @@ import biostar.accounts.urls as accounts_urls
 from . import views
 
 urlpatterns = [
-    # This is the django generated admin site.
-    url(r'^django/admin/', admin.site.urls, name='django_admin'),
-    # Engine specific admin site.
-    url(r'^site/admin/', views.site_admin, name='site_admin'),
     url(r'^$', views.index, name="index"),
     url(r'^info/$', views.info, name="info"),
+
+    # Engine specific admin site.
+    url(r'^site/admin/', views.site_admin, name='site_admin'),
+
+    # This is the django generated admin site.
+    url(r'^django/admin/', admin.site.urls, name='django_admin'),
 
     url(r'^accounts/', include(accounts_urls)),
 

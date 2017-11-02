@@ -19,8 +19,10 @@ MAX_NAME_LEN = 256
 MAX_TEXT_LEN = 10000
 MAX_LOG_LEN = 20 * MAX_TEXT_LEN
 
+
 def join(*args):
     return os.path.abspath(os.path.join(*args))
+
 
 class Bunch(object):
     def __init__(self, **kwargs):
@@ -47,18 +49,17 @@ def data_upload_path(instance, filename):
     dataname = f"data-{instance.uid}.{exts}"
     return join(instance.project.get_path(), f"{instance.data_dir}", dataname)
 
+
 def image_path(instance, filename):
     # Name the data by the filename.
     name, ext = os.path.splitext(filename)
     # File may have multiple extensions
     imgname = f"image-{instance.uid}{ext}"
-    return  f"images/{imgname}"
+    return f"images/{imgname}"
 
 
 class ProjectObjectManager(models.Manager):
-
     def get_queryset(self, user=Bunch(is_superuser=False)):
-
         if user.is_superuser:
             return super(ProjectObjectManager, self).get_queryset()
 
@@ -66,16 +67,14 @@ class ProjectObjectManager(models.Manager):
 
 
 class ProjectAdminManager(models.Manager):
-
     def get_queryset(self):
-
         return super(ProjectAdminManager, self).get_queryset().filter(type=Project.ADMIN)
 
 
 class Project(models.Model):
     ADMIN, USER = 1, 2
-    PUBLIC, SHAREABLE, PRIVATE = 1,2,3
-    PRIVACY_CHOICES = [ (PRIVATE, "Private"), (SHAREABLE, "Shareable Link"),  (PUBLIC, "Public") ]
+    PUBLIC, SHAREABLE, PRIVATE = 1, 2, 3
+    PRIVACY_CHOICES = [(PRIVATE, "Private"), (SHAREABLE, "Shareable Link"), (PUBLIC, "Public")]
     TYPE_CHOICES = [(ADMIN, "admin"), (USER, "user")]
 
     type = models.IntegerField(default=USER, choices=TYPE_CHOICES)
@@ -129,14 +128,12 @@ class Project(models.Model):
 class Data(models.Model):
     ADMIN, USER = 1, 2
     FILE, COLLECTION = 1, 2
-    PENDING, READY = 1, 2
+    PENDING, READY, ERROR = 1, 2, 3
 
     FILETYPE_CHOICES = [(FILE, "File"), (COLLECTION, "Collection")]
-    TYPE_CHOICES = [(ADMIN, "Admin"), (USER, "User")]
 
-    STATE_CHOICES = [(PENDING, "Pending"), (READY, "Ready")]
+    STATE_CHOICES = [(PENDING, "Pending"), (READY, "Ready"), (ERROR, "Error")]
 
-    type = models.IntegerField(default=USER, choices=TYPE_CHOICES)
     name = models.CharField(max_length=256, default="no name")
     summary = models.TextField(default='no summary')
     image = models.ImageField(default=None, blank=True, upload_to=image_path)
@@ -193,9 +190,6 @@ class Data(models.Model):
             size = 0
         Data.objects.filter(id=self.id).update(size=size)
 
-    def set_ready(self):
-        Data.objects.filter(id=self.id).update(state=self.READY)
-
     def __str__(self):
         return self.name
 
@@ -204,6 +198,10 @@ class Data(models.Model):
 
     def get_path(self):
         return self.file.path
+
+    def can_unpack(self):
+        cond = str(self.file.path).endswith("tar.gz")
+        return cond
 
     def fill_dict(self, obj):
         """
@@ -216,33 +214,29 @@ class Data(models.Model):
         obj['name'] = self.name
         obj['uid'] = self.uid
 
+
 class Analysis(models.Model):
     ADMIN, USER = 1, 2
-    TYPE_CHOICES = [(ADMIN, "admin"), (USER, "user")]
-    type = models.IntegerField(default=USER, choices=TYPE_CHOICES)
+    AUTHORIZED, UNDER_REVIEW = 1, 2
 
-    name = models.CharField(max_length=256, default="no name")
-    summary = models.TextField(default='no summary')
-    text = models.TextField(default='no description', max_length=MAX_TEXT_LEN)
+    AUTH_CHOICES = [(AUTHORIZED, "Authorized"), (UNDER_REVIEW, "Under Review")]
+
+    uid = models.CharField(max_length=32, unique=True)
+
+    name = models.CharField(max_length=256, default="No name")
+    summary = models.TextField(default='No summary.')
+    text = models.TextField(default='No description.', max_length=MAX_TEXT_LEN)
     html = models.TextField(default='html')
     owner = models.ForeignKey(User)
-    image = models.ImageField(default=None, blank=True, upload_to=image_path)
 
+    auth = models.IntegerField(default=UNDER_REVIEW, choices=AUTH_CHOICES)
     project = models.ForeignKey(Project)
 
     json_text = models.TextField(default="{}")
     template = models.TextField(default="makefile")
-    uid = models.CharField(max_length=32)
 
     date = models.DateTimeField(auto_now_add=True, blank=True)
     image = models.ImageField(default=None, blank=True, upload_to=image_path)
-
-    # Job start and end.
-    start_date = models.DateTimeField(null=True, blank=True)
-    end_date = models.DateTimeField(null=True, blank=True)
-
-    # Will be false if the object is deleted.
-    valid = models.BooleanField(default=True)
 
     def __str__(self):
         return self.name
@@ -262,13 +256,15 @@ class Analysis(models.Model):
 
 
 class Job(models.Model):
-    ADMIN, USER = 1, 2
+    AUTHORIZED, UNDER_REVIEW = 1, 2
+
     QUEUED, RUNNING, FINISHED, ERROR = 1, 2, 3, 4
-    TYPE_CHOICES = [(ADMIN, "admin"), (USER, "user")]
+
+    AUTH_CHOICES = [(AUTHORIZED, "Authorized"), (UNDER_REVIEW, "Under Review")]
+
     STATE_CHOICES = [(QUEUED, "Queued"), (RUNNING, "Running"),
                      (FINISHED, "Finished"), (ERROR, "Error")]
 
-    type = models.IntegerField(default=USER, choices=TYPE_CHOICES)
     name = models.CharField(max_length=256, default="no name")
     summary = models.TextField(default='no summary')
     image = models.ImageField(default=None, blank=True, upload_to=image_path)
@@ -284,6 +280,9 @@ class Job(models.Model):
 
     uid = models.CharField(max_length=32)
     template = models.TextField(default="makefile")
+
+    # Set the security level.
+    security = models.IntegerField(default=UNDER_REVIEW, choices=AUTH_CHOICES)
 
     # This will be set when the job attempts to run.
     script = models.TextField(default="")
@@ -324,13 +323,13 @@ class Job(models.Model):
 
         self.uid = self.uid or util.get_uuid(8)
         self.template = self.analysis.template
+        self.security = self.analysis.auth
 
         self.name = self.name or self.analysis.name
         # write an index.html to the file
         if not os.path.isdir(self.path):
             path = join(settings.MEDIA_ROOT, "jobs", f"job-{self.uid}")
             os.makedirs(path)
-
             self.path = path
 
         super(Job, self).save(*args, **kwargs)

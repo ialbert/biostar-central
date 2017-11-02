@@ -31,6 +31,7 @@ reference: {
 */
 
 settings : {
+    id: classify
     name: Taxonomical classification
     image : classify.png
     index : results/index.html

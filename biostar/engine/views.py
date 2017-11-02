@@ -33,7 +33,7 @@ def info(request):
     tmp = "Store and analyze metagenomic data"
     steps = breadcrumb_builder([HOME_ICON, INFO_ICON])
     context = dict(steps=steps, info=make_html(tmp))
-    return render(request, 'info.html', context=context)
+    return render(request, 'docs/info.html', context=context)
 
 
 def index(request):
@@ -183,8 +183,8 @@ def data_list(request, id):
         messages.error(request, "Data not found.")
         logger.error(f"data.id={id} looked for but not found.")
         return redirect(reverse("project_list"))
-
-    context = dict(project=project, steps=steps)
+    data_list = Data.objects.filter(project=project).order_by("-date")
+    context = dict(project=project, steps=steps, data_list=data_list)
     return render(request, "data_list.html", context)
 
 
@@ -239,21 +239,19 @@ def data_upload(request, id):
         if form.is_valid():
             text = form.cleaned_data["text"]
             stream = form.cleaned_data["file"]
-
-            name = form.cleaned_data["text"]
+            name = stream.name
             data_type = form.cleaned_data["data_type"]
 
-            project.create_data(stream=stream, name=name, data_type=data_type, text=text,
-                                owner=owner)
-
+            auth.create_data(stream=stream, name=name, data_type=data_type, text=text,
+                                user=owner, project=project)
+            messages.info(request, "Data upload complete")
             return redirect(reverse("data_list", kwargs={'id': project.id}))
 
-        else:
-            form.add_error(None, "Invalid form processing.")
     else:
         form = DataUploadForm()
-        context = dict(project=project, steps=steps, form=form)
-        return render(request, 'data_upload.html', context)
+
+    context = dict(project=project, steps=steps, form=form)
+    return render(request, 'data_upload.html', context)
 
 
 # @login_required
@@ -264,19 +262,11 @@ def analysis_list(request, id):
     # filter according to user.
 
     project = Project.objects.filter(id=id).first()
-    analysis = Analysis.objects.filter(project=project).order_by("-id")
-
-    if not request.user.is_superuser:
-        analysis = analysis.filter(type=Analysis.USER).all()
-
-    if not analysis:
-        messages.error(request, "Analysis not found.")
-        #logger.error(f"analysis for project.id={id} looked for but not found.")
-        return redirect(reverse("project_list"))
+    analyses = Analysis.objects.filter(project=project).order_by("-id")
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ANALYSIS_LIST_ICON],
                                project=project)
-    context = dict(project=project, analysis=analysis, steps=steps)
+    context = dict(project=project, analyses=analyses, steps=steps)
 
     return render(request, "analysis_list.html", context)
 
@@ -401,9 +391,6 @@ def job_list(request, id):
     if filter:
         filter = Analysis.objects.filter(id=filter).first()
         jobs = jobs.filter(analysis=filter)
-
-    if not request.user.is_superuser:
-        jobs = jobs.filter(type=Job.USER).all()
 
     context = dict(jobs=jobs, steps=steps, project=project, filter=filter)
 

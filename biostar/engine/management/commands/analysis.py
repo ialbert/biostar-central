@@ -1,9 +1,10 @@
 import os, sys, logging, hjson, textwrap
 from django.core.management.base import BaseCommand
 from biostar.engine.models import Job, Project, Analysis, User, Data
-from biostar.tools.const import DATA_TYPES
+from biostar.tools import const
 from biostar.tools import defaults
 from biostar.engine import auth
+from biostar.engine import tasks
 
 logger = logging.getLogger('engine')
 
@@ -16,7 +17,7 @@ class Command(BaseCommand):
 
         parser.add_argument('--add', action='store_true', default=False,
                             help="Adds an analysis to a project")
-        parser.add_argument('--id', default=2,
+        parser.add_argument('--id', default=1,
                             help="Specifies the project id")
         parser.add_argument('--json',
                             help="The json specification file")
@@ -25,10 +26,6 @@ class Command(BaseCommand):
         parser.add_argument('--create_job', action='store_true', default=False,
                             help="Also creates a queued job for the analysis")
 
-        # TODO: Impove the help for type
-        parser.add_argument('--analysis_type',
-                            help=f"Analysis type.",
-                            default=Analysis.USER, choices=dict(Analysis.TYPE_CHOICES).values())
 
     def handle(self, *args, **options):
 
@@ -37,10 +34,6 @@ class Command(BaseCommand):
         pid = options['id']
         template = options['template']
         create_job = options['create_job']
-
-        type_map = lambda dictionary: {y: x for x, y in dictionary.items()}
-
-        analysis_type = type_map(dict(Analysis.TYPE_CHOICES)).get(options['analysis_type'], Analysis.USER)
 
         admin = User.objects.filter(is_staff=True).first()
         if not admin:
@@ -90,23 +83,24 @@ class Command(BaseCommand):
             try:
                 name = json_data.get("settings", {}).get("name", "No name")
                 text = json_data.get("settings", {}).get("help", "No help")
+                uid = json_data.get("settings", {}).get("uid", "")
                 image = json_data.get("settings", {}).get("image", "")
                 text = textwrap.dedent(text)
                 summary = json_data.get("settings", {}).get("summary", "No summary")
 
-                analysis = auth.create_analysis(project=project, json_text=json_text, summary=summary,
-                                                   template=template, name=name, text=text, type=analysis_type)
+                analysis = auth.create_analysis(project=project, uid=uid, json_text=json_text, summary=summary,
+                                                   template=template, name=name, text=text)
 
                 if image:
                     image_path = os.path.join(json_path, image)
                     if os.path.isfile(image_path):
                         stream = open(image_path, 'rb')
                         analysis.image.save(image, stream, save=True)
-                        logger.error(f"added image path: {image_path}")
+                        logger.info(f"Added image path: {image_path}")
                     else:
-                        logger.error(f"missing image path: {image_path}")
+                        logger.error(f"Missing image path: {image_path}")
 
-                logger.info(f"Added analysis '{analysis.name}' to project id={project.id}")
+                #logger.info(f"Added analysis '{analysis.name}' to project id={project.id}")
 
                 # Also create a queued job:
                 if create_job:
@@ -115,12 +109,11 @@ class Command(BaseCommand):
                     for key, value in json_data.items():
                         path = value.get("path")
                         data_type = value.get("data_type")
-                        data_type = DATA_TYPES.get(data_type)
-
+                        data_type = const.DATA_TYPE_SYMBOLS.get(data_type)
                         if path:
                             data = auth.create_data(project=project, fname=path, data_type=data_type)
                             data.fill_dict(value)
-                    auth.create_job(analysis=analysis, json_data=json_data, type=analysis_type)
+                    job = auth.create_job(analysis=analysis, json_data=json_data)
 
             except KeyError as exc:
                 logger.error(f"processing the analysis: {exc}")

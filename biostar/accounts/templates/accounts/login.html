@@ -7,9 +7,18 @@
 <body>
 <h2>Please log in</h2>
 <p>
-    <form method="post" action="{% url 'login' %}">
+    {% if next %}
+    <form action="{% url 'login' %}?next={{next}}" method="post" >
+    {%else%}
+    <form action="{% url 'login' %}" method="post" >
+    {% endif %}
+
         {% csrf_token %}
-        {{ form }}
+
+        {{ form}}
+
+        {{ form.as_table }}
+
         <input type="submit">Log In</input>
     </form>
 </p>

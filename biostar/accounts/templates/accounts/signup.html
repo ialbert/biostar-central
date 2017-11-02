@@ -9,7 +9,7 @@
 <p>
     <form method="post">
         {% csrf_token %}
-        {{ form }}
+        {{ form.as_table }}
         <input type="submit">Sign up</input>
     </form>
 </p>

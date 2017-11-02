@@ -26,7 +26,7 @@ class ProjectForm(forms.ModelForm):
 
 class DataUploadForm(forms.ModelForm):
 
-    choices = [(y, x) for x,y in DATA_TYPES.items()]
+    choices = DATA_TYPES.items()
     data_type = forms.IntegerField(widget=forms.Select(choices=choices))
 
     class Meta:
@@ -35,7 +35,7 @@ class DataUploadForm(forms.ModelForm):
 
 
 class DataEditForm(forms.ModelForm):
-    choices = [(y, x) for x,y in DATA_TYPES.items()]
+    choices = DATA_TYPES.items()
     data_type = forms.IntegerField(widget=forms.Select(choices=choices))
 
     class Meta:

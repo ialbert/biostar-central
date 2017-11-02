@@ -2,19 +2,26 @@
 This is active only when deployed via UWSGI
 '''
 
-import logging, time
+import logging, time, shutil, subprocess
 from django.core import management
+from django.utils.text import force_text
 
 logger = logging.getLogger("engine")
 
 HAS_UWSGI = False
+
+def int_to_bytes(value):
+    return (value).to_bytes(8, byteorder='big')
+
+def int_form_bytes(args, name):
+    return int.from_bytes(args[name].encode(), byteorder='big')
 
 try:
     from uwsgidecorators import *
 
     HAS_UWSGI = True
 
-    @timer(5)
+    @timer(3)
     def execute_timer(args):
         from biostar.engine.models import Job
         # logger.info(f"executing timer with {args}")
@@ -25,11 +32,44 @@ try:
 
     @spool
     def execute_job(args):
-        job_id = int.from_bytes(args["job_id"].encode(), byteorder='big')
+        '''
+        Spools at normal priority.
+        '''
+        job_id = int_form_bytes(args, "job_id")
         management.call_command('job', id=job_id)
 
+    @spool
+    def unpack(args):
+        data_id = int_form_bytes(args, "data_id")
+        unpacker(data_id=data_id)
 
 except ModuleNotFoundError as exc:
-    # logger.warning("uwsgidecorators not found, tasks not enabled!")
-    pass
+
+    # No spooling same interface.
+    def unpack(data_id):
+        unpacker(data_id=data_id)
+
+
+def execute(command, workdir="."):
+    proc = subprocess.run(command, cwd=workdir, shell=True,
+                          stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    stdout, stderr = force_text(proc.stdout), force_text(proc.stderr)
+    return stdout, stderr
+
+def unpacker(data_id):
+    """
+    Unpacks a data and sets the status to READY.
+    """
+    from biostar.engine.models import Data
+    query = Data.objects.filter(id=data_id)
+    data = query.first()
+    query.update(state=Data.PENDING)
+    command = f'tar xzvf {data.file.path}'
+    try:
+        stdout, stderr = execute(command=command, workdir=data.get_datadir())
+        logger.info(f'Data id={data_id} has been unpacked')
+        query.update(state=Data.READY)
+    except Exception as exc:
+        logger.error(f"Error: f{exc}")
+        query.update(state=Data.ERROR)
 

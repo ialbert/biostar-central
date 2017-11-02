@@ -3,7 +3,7 @@ from django import template
 from biostar.engine.models import Job, make_html
 from django.utils.safestring import mark_safe
 from textwrap import dedent
-import json
+from biostar.engine import const
 from django.contrib.staticfiles.templatetags.staticfiles import static
 
 register = template.Library()
@@ -26,6 +26,10 @@ def img(obj):
         return static("images/placeholder.png")
 
 
+@register.simple_tag
+def type_label(data):
+    label = const.DATA_TYPES.get(data.data_type, "Generic")
+    return label
 
 @register.inclusion_tag('widgets/form_nonfield_errors.html')
 def form_nonfield_errors(form):
