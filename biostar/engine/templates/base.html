@@ -25,6 +25,12 @@
         <link href="{% static 'style.css' %}" rel="stylesheet">
     {% endcompress %}
 
+    {% compress js %}
+        <script src="{% static 'semantic.min.js' %}">
+        </script>
+        <script src="{% static 'engine.js' %}">
+        </script>
+    {% endcompress %}
 
 </head>
 <body>

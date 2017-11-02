@@ -1,4 +1,5 @@
 from django import forms
+from django.forms import widgets
 from django import template
 from biostar.engine.models import Job, make_html
 from django.utils.safestring import mark_safe
@@ -79,5 +80,12 @@ def menubar(context, project=None, edit_project=False, create_project=False,
 
 @register.filter(name='is_checkbox')
 def is_checkbox(value):
-    return isinstance(value, forms.BooleanField)
+    cond = isinstance(value, forms.BooleanField)
+    return cond
+
+@register.filter(name='is_selection')
+def is_selection(value):
+    cond = isinstance(value.widget, widgets.Select)
+    return cond
+
 
