@@ -62,11 +62,11 @@ def init_users(sender, **kwargs):
             logger.info(f"Created admin user: {user.email}")
             group.user_set.add(user)
 
-    # TODO: remove later
-    testbuddy = 'testbuddy@lvh.me'
-    user, flag = User.objects.get_or_create(email=testbuddy, username=testbuddy)
-    user.set_password(testbuddy)
-    user.save()
+    if settings.DEBUG:
+        testbuddy = 'testbuddy@lvh.me'
+        user, flag = User.objects.get_or_create(email=testbuddy, username=testbuddy)
+        user.set_password(testbuddy)
+        user.save()
 
 def init_site(sender, **kwargs):
     """
