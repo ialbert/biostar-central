@@ -94,6 +94,16 @@ class SiteNavigation(TestCase):
             self.job.save()
         '''
 
+    def visit_urls(self, urls, code):
+        c = Client()
+        for url in urls:
+            resp = c.get(url)
+            if resp.status_code != code:
+                # print (resp.content)
+                # We already know it is an error.
+                # Use this to prints the url and the code.
+                self.assertEqual(url, code)
+
     def test_public_pages(self):
         "Checking public pages"
 
@@ -109,15 +119,8 @@ class SiteNavigation(TestCase):
             reverse('job_list', kwargs=params),
         ]
 
-        c = Client()
+        self.visit_urls(urls, 200)
 
-        for url in urls:
-            resp = c.get(url)
-            code = resp.status_code
-            if code != 200:
-                # We already know it is an error.
-                # Use this to prints the url and the code.
-                self.assertEqual(url, 200)
 
     def test_page_redirect(self):
         "Testing that a redirect occurs for some pages"
@@ -127,14 +130,7 @@ class SiteNavigation(TestCase):
             reverse('data_upload', kwargs=params),
         ]
 
-        c = Client()
-        for url in urls:
-            resp = c.get(url)
-            code = resp.status_code
-            if code != 302:
-                # We already know it is an error.
-                # Use this to prints the url and the code.
-                self.assertEqual(url, 302)
+        self.visit_urls(urls, 300)
 
 
     def Xtest_account_pages(self):
