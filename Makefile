@@ -57,8 +57,10 @@ init:
 	@python manage.py collectstatic --noinput -v 0
 	@python manage.py migrate
 	@python manage.py project --json initial/demo-project.hjson
+	@python manage.py project --json initial/giraffe-project.hjson
+	@python manage.py project --json initial/fish-project.hjson
 
-test: 
+test:
 	python manage.py collectstatic --noinput -v 0
 	python manage.py test -v 2
 
