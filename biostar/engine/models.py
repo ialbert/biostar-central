@@ -86,7 +86,7 @@ class Project(models.Model):
 
     # Project restircted to one group
     group = models.ForeignKey(Group)
-    uid = models.CharField(max_length=32)
+    uid = models.CharField(max_length=32, unique=True)
 
     # Will be false if the objects is to be deleted.
     valid = models.BooleanField(default=True)

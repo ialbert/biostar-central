@@ -2,7 +2,6 @@ import os, sys, logging, hjson, textwrap
 from django.core.management.base import BaseCommand
 from biostar.engine.models import Job, Project, Analysis, User, Data
 from biostar.tools import const
-from biostar.tools import defaults
 from biostar.engine import auth
 from biostar.engine import tasks
 

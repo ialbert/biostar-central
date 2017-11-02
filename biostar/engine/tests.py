@@ -1,16 +1,16 @@
 import logging
 from django.test import TestCase
 from django.test import Client
+from biostar.engine import auth
+from biostar.engine import models
 
 from django.urls import reverse
 
 logger = logging.getLogger('engine')
 
-
 class TestLogin(TestCase):
     def setUp(self):
         return
-
 
 
 class UserNavigation(TestCase):
@@ -35,6 +35,10 @@ class UserNavigation(TestCase):
 
 class SiteNavigation(TestCase):
 
+    def setUp(self):
+        logger.setLevel(logging.WARNING)
+        user = models.User.objects.all().first()
+        self.project = auth.create_project(user=user, name="Test project")
 
     def visit_urls(self, urls, code):
         c = Client()
