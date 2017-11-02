@@ -8,6 +8,11 @@ def chart_init():
     context = dict()
     return context
 
+@register.inclusion_tag('charts/map_init.html')
+def map_init():
+    context = dict()
+    return context
+
 @register.inclusion_tag('charts/chart_maker.js')
 def chart_maker(params):
     context = dict(params=params)
