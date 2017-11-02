@@ -20,11 +20,15 @@ def get_data(user, project, query, data_type=None):
     return datamap
 
 
-def create_project(user, name, uid='', summary='', text=''):
+def create_project(user, name, uid='', summary='', text='', stream=''):
 
     project = Project.objects.create(
         name=name, uid=uid,  summary=summary, text=text, owner=user,
     )
+
+    if stream:
+        project.image.save(stream.name, stream, save=True)
+
     logger.info(f"Created project: {project.name} uid: {project.uid}")
     pass
 
