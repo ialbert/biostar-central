@@ -2,6 +2,9 @@ body {
     background-color: #f8f8f9;
 }
 
+.shim {
+    padding-top:1em;
+}
 h2.ui.center.header {
     margin-top: 1em;
 }

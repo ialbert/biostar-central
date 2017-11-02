@@ -22,37 +22,45 @@
 {% block body %}
 
     <div class="ui raised segment">
+
         <div class="ui center aligned header">
             Project Listing
         </div>
 
+        <div class="ui middle aligned relaxed selection list">
+
+            {% for project in projects %}
+
+                <div class="item">
+
+                    <div class="content">
+
+                        <img class="ui left floated small circular image" src="{% img project %}"/>
+                        <p class="shim">
+                            <a class="ui header" href="{{ project.url }}">
+                                <i class="archive icon"></i>{{ project.name }}
+                            </a>
+                        </p>
+                        <div class="description">
+                            <p>
+                                {{ project.summary|markdown|safe }}
+                            </p>
+
+                            <p class="muted">
+                                Created on {{ project.date.date }} by {{ project.owner.email }}
+                            </p>
+                        </div>
 
 
-        {% for project in projects %}
-            <div class="ui vertical segment">
-
-                <img class="ui small top aligned left floated circular image" src="{% img project %}">
+                    </div>
 
 
-                <div class="ui header">
-                    <a href="{{ project.url }}">
-                        <i class="archive icon"></i>{{ project.name }}
-                    </a>
                 </div>
 
-                <p>
 
-                    {{ project.summary|markdown|safe }}
+            {% endfor %}
 
-                </p>
-
-                <p class="muted">
-                    Created on {{ project.date.date }} by {{ project.owner.email }}
-                </p>
-
-
-            </div>
-        {% endfor %}
+        </div>
 
     </div>
 
