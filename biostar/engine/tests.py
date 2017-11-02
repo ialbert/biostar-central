@@ -130,7 +130,7 @@ class SiteNavigation(TestCase):
             reverse('data_upload', kwargs=params),
         ]
 
-        self.visit_urls(urls, 300)
+        self.visit_urls(urls, 302)
 
 
     def Xtest_account_pages(self):
