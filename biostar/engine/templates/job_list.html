@@ -8,9 +8,6 @@
 {% block body %}
 
     <div class="ui raised segment">
-        <div class="ui center aligned header">
-            Results for project: {{ project.name }}
-        </div>
 
         {% if filter %}
             <div class="ui warning message">Filtering for analysis:
@@ -23,6 +20,23 @@
 
 
     <div class="ui divided link items">
+
+        <div class="item">
+
+            <div class="ui tiny image">
+                <img src="{% img project %}">
+            </div>
+
+            <div class="content">
+                <a class="header" href="{%  url "project_view" project.id %}">
+                    Results List
+                </a>
+                <div class="description">
+                    Results for analyses started previously for  project <b>{{ project.name }}</b>.
+                </div>
+            </div>
+
+        </div>
 
         {% for job in jobs %}
 
@@ -45,7 +59,7 @@
 
                     </div>
                 </div>
-            
+
             </div>
 
         {% endfor %}

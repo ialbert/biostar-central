@@ -7,18 +7,31 @@
 {% block body %}
 
     <div class="ui raised segment">
-    <div class="ui center aligned header">
-        Analysis Recipes for project: {{ project.name }}
-    </div>
-
 
     <div class="ui divided link items">
+
+     <div class="item">
+
+            <div class="ui tiny image">
+                <img src="{% img project %}">
+            </div>
+
+            <div class="content">
+                <a class="header" href="{%  url "project_view" project.id %}">
+                    Analysis Recipes
+                </a>
+                <div class="description">
+                    A list of analyses enabled for project: <b>{{ project.name }}</b>
+                </div>
+            </div>
+
+        </div>
 
         {% for analysis in analyses %}
 
             <div class="item">
 
-                <div class="ui small image">
+                <div class="ui tiny image">
                     <img src="{% img analysis %}">
                 </div>
 
