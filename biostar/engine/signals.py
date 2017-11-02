@@ -3,8 +3,6 @@ from django.conf import settings
 from django.core.files import File
 from django.contrib.staticfiles.storage import staticfiles_storage
 
-from biostar.tools import defaults
-
 logger = logging.getLogger('engine')
 
 def join(*args):
@@ -15,30 +13,6 @@ def get_uuid(limit=None):
     return str(uuid.uuid4())[:limit]
 
 
-def init_proj(sender, **kwargs):
-    """
-    Project 1 must exist. It will store existing analyses.
-    We also create one job for each registered analysis.
-    """
-    from biostar.engine import models, auth
-
-    # Get the first admin user.
-    admin_user = models.User.objects.filter(is_superuser=True).first()
-
-    #admin_group = models.Group.objects.get(name=settings.ADMIN_GROUP_NAME)
-
-    # Demo projects enabled.
-
-
-    if settings.DEMO_PROJECT_UID:
-        uid = settings.DEMO_PROJECT_UID
-        demo_project = models.Project.objects.filter(uid=uid).first()
-        if not demo_project:
-            fname = staticfiles_storage.path('images/demo-project.jpg')
-            stream = File(open(fname, 'rb'))
-            auth.create_project(user=admin_user, uid=uid, stream=stream,
-                                name=defaults.DEMO_PROJECT_NAME, summary=defaults.DEMO_PROJECT_SUMMARY,
-                                text=defaults.DEMO_PROJECT_TEXT)
 
 def init_users(sender, **kwargs):
     """

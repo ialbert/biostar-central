@@ -30,7 +30,9 @@ def create_project(user, name, uid='', summary='', text='', stream=''):
         project.image.save(stream.name, stream, save=True)
 
     logger.info(f"Created project: {project.name} uid: {project.uid}")
-    pass
+
+    return project
+
 
 
 def create_analysis(project, json_text, template,

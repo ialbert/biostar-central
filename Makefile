@@ -35,7 +35,7 @@ delete:
 	rm -rf *.egg-info
 
 
-reset: delete init jobs
+reset: delete init
 
 next:
 	python manage.py job --next
@@ -53,12 +53,12 @@ jobs:
 	@python manage.py analysis --add --json biostar/tools/align/align.hjson  --template biostar/tools/align/align.sh --create_job
 	@python manage.py analysis --add --json biostar/tools/lamar_align/lamar_align.hjson  --template biostar/tools/lamar_align/lamar_align.sh --create_job
 
-
 init:
-	python manage.py collectstatic --noinput -v 0
-	python manage.py migrate
+	@python manage.py collectstatic --noinput -v 0
+	@python manage.py migrate
+	@python manage.py project --json initial/demo-project.hjson
 
-test:
+test: 
 	python manage.py collectstatic --noinput -v 0
 	python manage.py test -v 2
 

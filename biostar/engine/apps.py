@@ -9,7 +9,6 @@ class EngineConfig(AppConfig):
         # Triggered upon app initialization.
         post_migrate.connect(signals.init_site, sender=self)
         post_migrate.connect(signals.init_users, sender=self)
-        post_migrate.connect(signals.init_proj, sender=self)
 
 
 
