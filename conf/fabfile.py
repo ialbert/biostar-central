@@ -23,7 +23,8 @@ def deploy_reset(path, env, name='test'):
     with cd(path), prefix(env):
         run("rm -f export/engine.db")
         run('git pull')
-        run('make testdata reset')
+        #run('pip install -r conf/python_requirements.txt')
+        #run('make clean testdata reset')
         run('python manage.py migrate')
         run('python manage.py collectstatic --noinput -v 0')
         sudo('supervisorctl restart %s' % name)
