@@ -1,7 +1,7 @@
 set -ueo pipefail
 
 # Get parameters.
-INPUT={{data.path}}
+INPUT={{sequence.path}}
 GENOME={{genome.path}}
 
 INDEX=${GENOME}

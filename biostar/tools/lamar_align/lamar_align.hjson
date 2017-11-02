@@ -1,22 +1,22 @@
 {
 
 sequence : {
-    path: export/local/lamar/1-SarriPal_S9_L001_R1_001.fastq.gz
-    label: Data.
+    path: export/local/input/align_classify_test_metabarcode_reads.fastq.gz
+    label: Data
     data_type: FASTQ_TYPE
     display_type: DROPDOWN
   }
 
 genome : {
-    path: export/local/lamar/fish.fa
-    label: Reference genome.
+    path: export/local/fish_species/fish_species.fa
+    label: Reference genome
     data_type: FASTA_TYPE
     display_type: DROPDOWN
     }
 
 align_length : {
-    label : Specify length threshold to filter alignments (in base pairs).
-    help : Alignment length should be within x base pair distance of read length.
+    label : Specify length threshold to filter alignments (in base pairs)
+    help : Alignment length should be within x base pair distance of read length
     value :  6
     range  : [0,15]
     display_type : INTEGER
@@ -30,7 +30,7 @@ threads : {
 
 /*
 organism: {
-    label: Select organism.
+    label: Select organism
     name: Giraffe
     display_type: DROPDOWN
     options : [

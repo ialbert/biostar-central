@@ -1,7 +1,7 @@
 {
 
-data : {
-    path: "export/local/lamar/1-SarriPal_S9_L001_R1_001.fastq.gz"
+sequence : {
+    path: "export/local/input/fastqc_test_reads.fastq.gz"
     data_type: FASTQ_TYPE
     display_type: DROPDOWN
   }

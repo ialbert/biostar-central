@@ -1,4 +1,4 @@
-INPUT_DATA={{data.path}}
+INPUT_DATA={{sequence.path}}
 
 INPUT_FILE=$(basename "$INPUT_DATA")
 SAMPLE="${INPUT_FILE%%.*}"

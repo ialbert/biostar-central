@@ -1,15 +1,15 @@
 {
 
-data : {
-    path: export/local/lamar/1-SarriPal_S9_L001_R1_001.fastq.gz
-    label: Data.
+sequence : {
+    path: export/local/input/align_test_reads.fastq.gz
+    label: Data
     data_type: FASTQ_TYPE
     display_type: DROPDOWN
   }
 
 genome : {
-    path: export/local/lamar/fish.fa
-    label: Reference genome.
+    path: export/local/fish_species/fish_species.fa
+    label: Reference genome
     data_type: FASTA_TYPE
     display_type: DROPDOWN
     }
@@ -20,7 +20,7 @@ threads : {
 
 /*
 organism: {
-    label: Select organism.
+    label: Select organism
     name: Giraffe
     display_type: DROPDOWN
     options : [

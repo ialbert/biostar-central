@@ -1,9 +1,9 @@
 set -ueo pipefail
 
 # Get parameters.
-INPUT_DATA={{data.path}}
+INPUT_DATA={{sequence.path}}
 ACCESSION_LIST={{accessions.path}}
-FISH_DB={{runtime.local_root}}/blastdb/fish
+FISH_DB={{runtime.local_root}}/blastdb/fish_species/fish_species
 TAXONOMY_DIR={{runtime.local_root}}/taxonomy
 RESULT_VIEW={{settings.index}}
 
@@ -16,10 +16,10 @@ RESULT_DIR=results
 
 # Create reference sequence file.
 mkdir -p $REF_DIR
-blastdbcmd -entry 'all' -db ${FISH_DB}/fish -outfmt '%f' >${REF_DIR}/$REF_SEQ
+blastdbcmd -entry 'all' -db ${FISH_DB} -outfmt '%f' >${REF_DIR}/$REF_SEQ
 
 # Create accession-taxid map.
-blastdbcmd -entry 'all' -db ${FISH_DB}/fish -outfmt '%a,%T' |tr ',' '\t'  >${REF_DIR}/$TAXA_MAP
+blastdbcmd -entry 'all' -db ${FISH_DB} -outfmt '%a,%T' |tr ',' '\t'  >${REF_DIR}/$TAXA_MAP
 
 # Build centrifuge index.
 cd $REF_DIR
