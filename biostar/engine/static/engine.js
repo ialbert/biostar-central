@@ -6,7 +6,9 @@ $(document).ready(function () {
 
     $(".item").click(function (event) {
         var obj = $(this).find("a:first");
-        window.location = obj.attr("href");
+        if (typeof obj !== 'undefined') {
+            window.location = obj.attr("href");
+        }
     });
 
 });
