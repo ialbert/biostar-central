@@ -5,14 +5,14 @@ from django.conf import settings
 # from django.template.loader import get_template
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import user_passes_test
 from django.shortcuts import render, redirect
 from django.urls import reverse
-from django.contrib.auth.decorators import user_passes_test
 
 from . import auth
 from . import tasks
-from .forms import *
 from .const import *
+from .forms import *
 from .models import (User, Project, Data,
                      Analysis, Job)
 
@@ -29,7 +29,6 @@ def make_html(text):
 
 
 def info(request):
-
     tmp = "Store and analyze metagenomic data"
     steps = breadcrumb_builder([HOME_ICON, INFO_ICON])
     context = dict(steps=steps, info=make_html(tmp))
@@ -62,8 +61,12 @@ def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=Non
             step = (reverse("data_view", kwargs={'id': data.id}), DATA_ICON, f"Data View", is_active)
         elif icon == ANALYSIS_LIST_ICON:
             step = (reverse("analysis_list", kwargs={'id': project.id}), ANALYSIS_LIST_ICON, "Analysis List", is_active)
-        elif icon == ANALYSIS_ICON:
-            step = (reverse("analysis_view", kwargs={'id': analysis.id}), ANALYSIS_ICON, "Analysis View", is_active)
+        elif icon == ANALYSIS_VIEW_ICON:
+            step = (
+            reverse("analysis_view", kwargs={'id': analysis.id}), ANALYSIS_VIEW_ICON, "Analysis View", is_active)
+        elif icon == ANALYSIS_RUN_ICON:
+            step = (reverse("analysis_run", kwargs={'id': analysis.id}), ANALYSIS_RUN_ICON, "Analysis Run", is_active)
+
         elif icon == RESULT_LIST_ICON:
             step = (reverse("job_list", kwargs={'id': project.id, }), RESULT_LIST_ICON, "Result List", is_active)
         elif icon == RESULT_ICON:
@@ -96,14 +99,13 @@ def site_admin(request):
     '''
     Administrative view. Lists the admin project and job.
     '''
-    steps = breadcrumb_builder( [HOME_ICON])
+    steps = breadcrumb_builder([HOME_ICON])
     projects = Project.admins.all()
     context = dict(steps=steps, projects=projects)
     return render(request, 'admin_index.html', context=context)
 
 
 def project_list(request):
-
     projects = Project.objects.order_by("-id")
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON])
@@ -203,7 +205,6 @@ def data_view(request, id):
     return render(request, "data_view.html", context)
 
 
-
 @login_required
 def data_edit(request, id):
     data = Data.objects.filter(id=id).first()
@@ -243,7 +244,7 @@ def data_upload(request, id):
             data_type = form.cleaned_data["data_type"]
 
             auth.create_data(stream=stream, name=name, data_type=data_type, text=text,
-                                user=owner, project=project)
+                             user=owner, project=project)
             messages.info(request, "Data upload complete")
             return redirect(reverse("data_list", kwargs={'id': project.id}))
 
@@ -277,7 +278,7 @@ def analysis_view(request, id):
     """
     analysis = Analysis.objects.filter(id=id).first()
     project = analysis.project
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ANALYSIS_LIST_ICON, ANALYSIS_ICON],
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ANALYSIS_LIST_ICON, ANALYSIS_VIEW_ICON],
                                project=project, analysis=analysis)
     if request.method == "POST":
         form = ExportAnalysis(data=request.POST, analysis=analysis)
@@ -298,8 +299,9 @@ def analysis_run(request, id):
 
     project = analysis.project
 
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ANALYSIS_ICON],
-                               project=project, analysis=analysis)
+    steps = breadcrumb_builder( [HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON,
+         ANALYSIS_VIEW_ICON, ANALYSIS_RUN_ICON],
+        project=project, analysis=analysis)
 
     if request.method == "POST":
         form = RunAnalysis(data=request.POST, analysis=analysis)
@@ -352,7 +354,7 @@ def analysis_edit(request, id):
     analysis = Analysis.objects.filter(id=id).first()
     # filter according to user
     project = analysis.project
-    steps = breadcrumb_builder([PROJECT_ICON, ANALYSIS_LIST_ICON, ANALYSIS_ICON],
+    steps = breadcrumb_builder([PROJECT_ICON, ANALYSIS_LIST_ICON, ANALYSIS_VIEW_ICON],
                                project=project, analysis=analysis)
 
     if request.method == "POST":
@@ -378,7 +380,7 @@ def job_list(request, id):
 
     if not project:
         messages.error(request, "Jobs not found.")
-        #logger.error(f"Jobs for project.id={id} looked for but not found.")
+        # logger.error(f"Jobs for project.id={id} looked for but not found.")
         return redirect(reverse("project_list"))
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, RESULT_LIST_ICON],
