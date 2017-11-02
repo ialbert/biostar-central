@@ -33,7 +33,7 @@ def info(request):
     tmp = "Store and analyze metagenomic data"
     steps = breadcrumb_builder([HOME_ICON, INFO_ICON])
     context = dict(steps=steps, info=make_html(tmp))
-    return render(request, 'info.html', context=context)
+    return render(request, 'docs/info.html', context=context)
 
 
 def index(request):
