@@ -1,7 +1,7 @@
 {
 
 sequence : {
-    path: export/local/input/lamar_sequences.tar.gz
+    path: export/local/input/fish_sequences.tar.gz
     data_type: TAR_FASTQ_GZ
     display_type: DROPDOWN
     }
