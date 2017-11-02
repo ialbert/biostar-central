@@ -1,6 +1,6 @@
 {
 
-data : {
+sequence : {
     path: export/local/input/align_test_reads.fastq.gz
     label: Data
     data_type: FASTQ_TYPE
