@@ -102,7 +102,7 @@ def ignore(data):
 
 
 
-def data_generator(field, project, data_type=None):
+def data_field_generator(field, project, data_type=None):
 
     valid_type = data_type if data_type in DATA_TYPES else GENERIC_TYPE
 

@@ -57,7 +57,7 @@ def make_form_field(data, project):
     if path:
         # Project specific data needs a special field.
         data_type = data.get("data_type")
-        field = factory.data_generator(data, project=project, data_type=data_type)
+        field = factory.data_field_generator(data, project=project, data_type=data_type)
     else:
         func = factory.TYPE2FUNC.get(display_type)
         if not func:

@@ -58,18 +58,6 @@ def image_path(instance, filename):
     return f"images/{imgname}"
 
 
-class ProjectObjectManager(models.Manager):
-    def get_queryset(self, user=Bunch(is_superuser=False)):
-        if user.is_superuser:
-            return super(ProjectObjectManager, self).get_queryset()
-
-        return super(ProjectObjectManager, self).get_queryset().exclude(type=Project.ADMIN)
-
-
-class ProjectAdminManager(models.Manager):
-    def get_queryset(self):
-        return super(ProjectAdminManager, self).get_queryset().filter(type=Project.ADMIN)
-
 
 class Project(models.Model):
     ADMIN, USER = 1, 2
@@ -96,10 +84,6 @@ class Project(models.Model):
 
     # Will be false if the objects is to be deleted.
     valid = models.BooleanField(default=True)
-
-    # Override managers.
-    objects = ProjectObjectManager()
-    admins = ProjectAdminManager()
 
     def save(self, *args, **kwargs):
         now = timezone.now()

@@ -374,7 +374,7 @@ def job_list(request, id):
     Returns the list of jobs for a project id.
     """
     # filter according to type
-    project = Project.objects.get_queryset(user=request.user).filter(id=id).first()
+    project = Project.objects.filter(id=id).first()
 
     if not project:
         messages.error(request, "Jobs not found.")

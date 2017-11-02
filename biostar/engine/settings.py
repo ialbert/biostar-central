@@ -29,6 +29,9 @@ ADMINS = [
 
 ADMIN_GROUP_NAME = "Admins"
 
+# The id of the demo project.
+DEMO_PROJECT_UID = "demo"
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(join(__file__))
 

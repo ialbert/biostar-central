@@ -32,7 +32,7 @@ delete:
 	rm -rf *.egg
 	rm -rf *.egg-info
 
-reset: delete init jobs
+reset: delete init
 
 next:
 	python manage.py job --next
