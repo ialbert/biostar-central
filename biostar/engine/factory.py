@@ -20,6 +20,7 @@ def float_field(data):
     return field
 
 
+
 def select_field(data, choicefunc=None):
 
     if choicefunc:
@@ -31,7 +32,7 @@ def select_field(data, choicefunc=None):
     label = data.get("label", "")
     help_text = data.get("help", "")
 
-    widget = forms.Select(choices=choices)
+    widget = forms.Select(choices=choices, attrs={"class":"ui dropdown"})
     field = forms.CharField(widget=widget, initial=initial, label=label, help_text=help_text)
 
     return field

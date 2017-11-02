@@ -47,15 +47,25 @@ def data_upload_path(instance, filename):
     # File may have multiple extensions
     exts = ".".join(pieces[1:]) or "data"
     dataname = f"data-{instance.uid}.{exts}"
-    return join(instance.project.get_path(), f"{instance.data_dir}", dataname)
+    return join(instance.project.get_project_dir(), f"{instance.data_dir}", dataname)
 
 
 def image_path(instance, filename):
     # Name the data by the filename.
     name, ext = os.path.splitext(filename)
-    # File may have multiple extensions
-    imgname = f"image-{instance.uid}{ext}"
-    return f"images/{imgname}"
+
+    uid = util.get_uuid(6)
+    dirpath = instance.get_project_dir()
+    imgname = f"image-{uid}{ext}"
+
+    print (dirpath)
+
+    # Uploads need to go relative to media directory.
+    path = os.path.relpath(dirpath, settings.MEDIA_ROOT)
+
+    imgpath = os.path.join(path, imgname)
+
+    return imgpath
 
 
 class Project(models.Model):
@@ -90,8 +100,8 @@ class Project(models.Model):
         self.group = self.owner.groups.first()
 
         self.uid = self.uid or util.get_uuid(8)
-        if not os.path.isdir(self.get_path()):
-            os.makedirs(self.get_path())
+        if not os.path.isdir(self.get_project_dir()):
+            os.makedirs(self.get_project_dir())
 
         super(Project, self).save(*args, **kwargs)
 
@@ -101,7 +111,7 @@ class Project(models.Model):
     def url(self):
         return reverse("project_view", kwargs=dict(id=self.id))
 
-    def get_path(self):
+    def get_project_dir(self):
         return join(settings.MEDIA_ROOT, "projects", f"proj-{self.uid}")
 
 
@@ -174,7 +184,10 @@ class Data(models.Model):
         return self.name
 
     def get_datadir(self):
-        return join(self.project.get_path(), f"store-{self.uid}")
+        return join(self.project.get_project_dir(), f"store-{self.uid}")
+
+    def get_project_dir(self):
+        return self.project.get_project_dir()
 
     def get_path(self):
         return self.file.path
@@ -233,6 +246,8 @@ class Analysis(models.Model):
         self.html = make_html(self.text)
         super(Analysis, self).save(*args, **kwargs)
 
+    def get_project_dir(self):
+        return self.project.get_project_dir()
 
 class Job(models.Model):
     AUTHORIZED, UNDER_REVIEW = 1, 2
@@ -288,6 +303,9 @@ class Job(models.Model):
     def get_url(self, path=''):
         "Return the url to the job directory"
         return f"jobs/job-{self.uid}/" + path
+
+    def get_project_dir(self):
+        return self.project.get_project_dir()
 
     @property
     def json_data(self):

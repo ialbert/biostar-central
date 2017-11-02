@@ -1,15 +1,11 @@
-import logging, uuid
-from .const import *
-import os
+import os, logging, uuid
 from django.conf import settings
-from django.core import management
-import hjson as json
 from django.core.files import File
-from . import util
+from django.contrib.staticfiles.storage import staticfiles_storage
+
 from biostar.tools import defaults
 
 logger = logging.getLogger('engine')
-
 
 def join(*args):
     return os.path.abspath(os.path.join(*args))
@@ -38,7 +34,9 @@ def init_proj(sender, **kwargs):
         uid = settings.DEMO_PROJECT_UID
         demo_project = models.Project.objects.filter(uid=uid).first()
         if not demo_project:
-            auth.create_project(user=admin_user, uid=uid,
+            fname = staticfiles_storage.path('images/demo-project.jpg')
+            stream = File(open(fname, 'rb'))
+            auth.create_project(user=admin_user, uid=uid, stream=stream,
                                 name=defaults.DEMO_PROJECT_NAME, summary=defaults.DEMO_PROJECT_SUMMARY,
                                 text=defaults.DEMO_PROJECT_TEXT)
 

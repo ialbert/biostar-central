@@ -27,28 +27,40 @@
         </div>
 
 
-        {% for project in projects %}
 
+        {% for project in projects %}
             <div class="ui vertical segment">
+
+                <img class="ui small top aligned left floated circular image" src="{% img project %}">
+
+
                 <div class="ui header">
                     <a href="{{ project.url }}">
-                        <i class="archive icon"></i>{{ project.name}}
+                        <i class="archive icon"></i>{{ project.name }}
                     </a>
-
                 </div>
-                <p>{{ project.summary|markdown|safe }}</p>
+
+                <p>
+
+                    {{ project.summary|markdown|safe }}
+
+                </p>
+
                 <p class="muted">
                     Created on {{ project.date.date }} by {{ project.owner.email }}
                 </p>
 
-            </div>
 
+            </div>
         {% endfor %}
 
-        <div class="ui center aligned vertical segment">
-            <a class="ui button" href="{% url 'project_create' %}">
-                <i class="write icon"></i>Create Project
-            </a>
-        </div>
     </div>
+
+
+    <div class="ui center aligned vertical segment">
+        <a class="ui button" href="{% url 'project_create' %}">
+            <i class="write icon"></i>Create Project
+        </a>
+    </div>
+
 {% endblock %}

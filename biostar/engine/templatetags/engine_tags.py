@@ -1,25 +1,34 @@
+from textwrap import dedent
+
 from django import forms
 from django import template
-from biostar.engine.models import Job, make_html
-from django.utils.safestring import mark_safe
-from textwrap import dedent
-from biostar.engine import const
 from django.contrib.staticfiles.templatetags.staticfiles import static
+from django.forms import widgets
+from django.utils.safestring import mark_safe
+
+from biostar.engine import const
+from biostar.engine.models import Job, make_html
 
 register = template.Library()
 
-JOB_SEGMENT_COLORS = {
+JOB_COLORS = {
     Job.ERROR: "red", Job.QUEUED: "blue", Job.RUNNING: "teal", Job.FINISHED: "green"
 }
 
 
 @register.simple_tag
 def job_color(job):
-    return JOB_SEGMENT_COLORS.get(job.state, "")
+    """
+    Returns a color based on job status.
+    """
+    return JOB_COLORS.get(job.state, "")
+
 
 @register.simple_tag
 def img(obj):
-
+    """
+    Returns the image associated with the object or a placeholder
+    """
     if obj.image:
         return obj.image.url
     else:
@@ -28,17 +37,28 @@ def img(obj):
 
 @register.simple_tag
 def type_label(data):
+    """
+    Returns readable names for data types.
+    """
     label = const.DATA_TYPES.get(data.data_type, "Generic")
     return label
 
+
 @register.inclusion_tag('widgets/form_nonfield_errors.html')
 def form_nonfield_errors(form):
+    """
+    Turns the error lists into a dictionary that can be iterated over.
+    """
     errorlist = list(form.non_field_errors())
     context = dict(errorlist=errorlist)
     return context
 
+
 @register.simple_tag
 def field_state(field):
+    """
+    Returns the error label for a field.
+    """
     if field.errors:
         return 'error'
     else:
@@ -59,6 +79,9 @@ def markdown(text):
 
 @register.inclusion_tag('widgets/breadcrumb.html')
 def breadcrumb(steps):
+    """
+    Generates the breadcrumb for a page.
+    """
     return dict(steps=steps)
 
 
@@ -78,6 +101,18 @@ def menubar(context, project=None, edit_project=False, create_project=False,
 
 
 @register.filter(name='is_checkbox')
-def is_checkbox(value):
-    return isinstance(value, forms.BooleanField)
+def is_checkbox(field):
+    """
+    Returns True if a field is a checkbox.
+    """
+    cond = isinstance(field, forms.BooleanField)
+    return cond
 
+
+@register.filter(name='is_selection')
+def is_selection(field):
+    """
+    Returns True if a field's widget is a Selection
+    """
+    cond = isinstance(field.widget, widgets.Select)
+    return cond

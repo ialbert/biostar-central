@@ -19,11 +19,16 @@
 
 
     <div class="ui raised segment">
-        <div class="ui center aligned header">
-            Project: {{ project.name }}
-        </div>
 
         <div class="ui vertical segment">
+
+            <div class="ui center aligned header">
+                Project: {{ project.name }}
+            </div>
+
+            <div class="ui clearing divider"></div>
+
+            <img class="ui tiny bottom aligned left floated circular image" src="{% img project %}">
 
             {{ project.summary|markdown|safe }}
 
