@@ -1,14 +1,14 @@
 {
 
 sequence : {
-    path: export/local/lamar/1-SarriPal_S9_L001_R1_001.fastq.gz
+    path: export/local/lamar/fish_metabarcode_reads.fastq.gz
     label: Data.
     data_type: FASTQ_TYPE
     display_type: DROPDOWN
   }
 
 genome : {
-    path: export/local/lamar/fish.fa
+    path: export/local/lamar/lamar_fishes.fa
     label: Reference genome.
     data_type: FASTA_TYPE
     display_type: DROPDOWN
