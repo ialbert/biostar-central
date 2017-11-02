@@ -5,6 +5,7 @@ from django.core.files import File
 from . import tasks
 from .const import *
 from .models import Data, Analysis, Job
+from django.core import management
 
 logger = logging.getLogger("engine")
 
@@ -28,22 +29,20 @@ def create_project(user, project_model):
     pass
 
 
-def get_analysis(job=None,id=None, name=None, type=Analysis.USER):
-
-    pass
 
 
-def create_analysis(project, json_text, template, user=None, summary='', name='', text='', type=None):
+
+def create_analysis(project, json_text, template, uid=None, user=None, summary='', name='', text='', type=None):
     owner = user or project.owner
     name = name or 'Analysis name'
     text = text or 'Analysis text'
     type = type or Analysis.USER
 
-    analysis = Analysis.objects.create(project=project, summary=summary, json_text=json_text,
+    analysis = Analysis.objects.create(project=project, uid=uid, summary=summary, json_text=json_text,
                                        owner=owner, name=name, text=text, type=type,
                                        template=template)
 
-    logger.info(f"Created analysis id={analysis.id} of type={analysis.get_type_display()}")
+    logger.info(f"Created analysis: uid={analysis.uid}, type={analysis.get_type_display()}")
 
     return analysis
 
@@ -70,15 +69,8 @@ def create_job(analysis, user=None, project=None, json_text='', json_data={}, na
                                    template=analysis.template)
 
     logger.info(f"Created job: '{job.name}'")
-    logger.info(f"uwsgi active: {tasks.HAS_UWSGI}")
-    if tasks.HAS_UWSGI:
-        # Execute admin jobs asap
-        if type == Job.ADMIN:
-            jobid = (job.id).to_bytes(5, byteorder='big')
-            tasks.execute_admin_job.spool(job_id=jobid)
 
     return job
-
 
 def copy_data():
     return
@@ -102,20 +94,15 @@ def create_data(project, user=None, stream=None, fname=None, name="data.bin", te
     data.file.save(name, stream, save=True)
 
     if data.can_unpack():
-        data.set_ready_flag(Data.PENDING)
-
-        # Gets 1st admin analysis with unpack in its name and creates a job for that
-        # can also take id.
-        analysis = get_analysis(name="unpack", type=Analysis.ADMIN)
-
-        create_job(analysis=analysis)
-
-    else:
-        data.set_ready_flag(Data.READY)
+        if tasks.HAS_UWSGI:
+            data_id = tasks.encode_int(data.id)
+            tasks.unpack(data_id=data_id).spool()
+        else:
+            tasks.unpack(data_id=data.id)
 
     # Updates its own size.
     data.set_size()
 
-    logger.info(f"Added data id={data.id} of type={data.get_type_display()}")
+    logger.info(f"Added data id={data.name} of type={data.get_type_display()}")
 
     return data

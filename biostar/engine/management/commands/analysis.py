@@ -26,7 +26,6 @@ class Command(BaseCommand):
         parser.add_argument('--create_job', action='store_true', default=False,
                             help="Also creates a queued job for the analysis")
 
-        # TODO: Impove the help for type
         parser.add_argument('--analysis_type',
                             help=f"Analysis type.",
                             default=Analysis.USER, choices=dict(Analysis.TYPE_CHOICES).values())
@@ -91,11 +90,12 @@ class Command(BaseCommand):
             try:
                 name = json_data.get("settings", {}).get("name", "No name")
                 text = json_data.get("settings", {}).get("help", "No help")
+                uid = json_data.get("settings", {}).get("uid", "")
                 image = json_data.get("settings", {}).get("image", "")
                 text = textwrap.dedent(text)
                 summary = json_data.get("settings", {}).get("summary", "No summary")
 
-                analysis = auth.create_analysis(project=project, json_text=json_text, summary=summary,
+                analysis = auth.create_analysis(project=project, uid=uid, json_text=json_text, summary=summary,
                                                    template=template, name=name, text=text, type=analysis_type)
 
                 if image:
@@ -103,11 +103,11 @@ class Command(BaseCommand):
                     if os.path.isfile(image_path):
                         stream = open(image_path, 'rb')
                         analysis.image.save(image, stream, save=True)
-                        logger.error(f"added image path: {image_path}")
+                        logger.info(f"Added image path: {image_path}")
                     else:
-                        logger.error(f"missing image path: {image_path}")
+                        logger.error(f"Missing image path: {image_path}")
 
-                logger.info(f"Added analysis '{analysis.name}' to project id={project.id}")
+                #logger.info(f"Added analysis '{analysis.name}' to project id={project.id}")
 
                 # Also create a queued job:
                 if create_job:

@@ -129,12 +129,12 @@ class Project(models.Model):
 class Data(models.Model):
     ADMIN, USER = 1, 2
     FILE, COLLECTION = 1, 2
-    PENDING, READY = 1, 2
+    PENDING, READY, ERROR = 1, 2, 3
 
     FILETYPE_CHOICES = [(FILE, "File"), (COLLECTION, "Collection")]
     TYPE_CHOICES = [(ADMIN, "Admin"), (USER, "User")]
 
-    STATE_CHOICES = [(PENDING, "Pending"), (READY, "Ready")]
+    STATE_CHOICES = [(PENDING, "Pending"), (READY, "Ready"), (ERROR, "Error")]
 
     type = models.IntegerField(default=USER, choices=TYPE_CHOICES)
     name = models.CharField(max_length=256, default="no name")
@@ -193,12 +193,6 @@ class Data(models.Model):
             size = 0
         Data.objects.filter(id=self.id).update(size=size)
 
-    def set_ready_flag(self, flag=None):
-
-        Data.objects.filter(id=self.id).update(state=Data.READY)
-        if flag in dict(self.STATE_CHOICES).values():
-            Data.objects.filter(id=self.id).update(state=flag)
-
     def __str__(self):
         return self.name
 
@@ -232,6 +226,7 @@ class Analysis(models.Model):
     AUTH_CHOICES = [(AUTHORIZED,"authorized"), (UNDER_REVIEW, "under review")]
 
     type = models.IntegerField(default=USER, choices=TYPE_CHOICES)
+    uid = models.CharField(max_length=32, unique=True)
 
     name = models.CharField(max_length=256, default="no name")
     summary = models.TextField(default='no summary')
@@ -244,16 +239,9 @@ class Analysis(models.Model):
 
     json_text = models.TextField(default="{}")
     template = models.TextField(default="makefile")
-    uid = models.CharField(max_length=32)
 
     date = models.DateTimeField(auto_now_add=True, blank=True)
     image = models.ImageField(default=None, blank=True, upload_to=image_path)
-    # Job start and end.
-    start_date = models.DateTimeField(null=True, blank=True)
-    end_date = models.DateTimeField(null=True, blank=True)
-
-    # Will be false if the object is deleted.
-    valid = models.BooleanField(default=True)
 
     def __str__(self):
         return self.name
@@ -277,8 +265,8 @@ class Job(models.Model):
     AUTHORIZED, UNDER_REVIEW = 1,2
 
     QUEUED, RUNNING, FINISHED, ERROR = 1, 2, 3, 4
-    TYPE_CHOICES = [(ADMIN, "admin"), (USER, "user")]
-    AUTH_CHOICES = [(AUTHORIZED, "authorized"), (UNDER_REVIEW, "under review")]
+    TYPE_CHOICES = [(ADMIN, "Admin"), (USER, "User")]
+    AUTH_CHOICES = [(AUTHORIZED, "Authorized"), (UNDER_REVIEW, "Under Review")]
 
     STATE_CHOICES = [(QUEUED, "Queued"), (RUNNING, "Running"),
                      (FINISHED, "Finished"), (ERROR, "Error")]
@@ -300,7 +288,8 @@ class Job(models.Model):
     uid = models.CharField(max_length=32)
     template = models.TextField(default="makefile")
 
-    auth = models.IntegerField(default=UNDER_REVIEW, choices=AUTH_CHOICES)
+    # Set the security level.
+    security = models.IntegerField(default=UNDER_REVIEW, choices=AUTH_CHOICES)
 
     # This will be set when the job attempts to run.
     script = models.TextField(default="")
@@ -341,7 +330,7 @@ class Job(models.Model):
 
         self.uid = self.uid or util.get_uuid(8)
         self.template = self.analysis.template
-        self.auth = self.analysis.auth
+        self.security = self.analysis.auth
 
         self.name = self.name or self.analysis.name
         # write an index.html to the file

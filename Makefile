@@ -30,7 +30,7 @@ delete:
 	rm -rf *.egg
 	rm -rf *.egg-info
 
-reset: delete init develop adminjobs jobs
+reset: delete init jobs
 
 next:
 	python manage.py job --next
@@ -41,18 +41,12 @@ hello:
 	python manage.py analysis --add --json biostar/tools/hello/hello2.hjson  --template biostar/tools/hello/hello2.sh --create_job
 	python manage.py analysis --add --json biostar/tools/hello/hello1.hjson  --template biostar/tools/hello/hello1.sh --create_job
 
-
-adminjobs:
-	python manage.py analysis --add --analysis_type admin --id 1  --json biostar/tools/admin/unpack.hjson --template  biostar/tools/admin/unpack.sh --create_job
-	python manage.py analysis --add --analysis_type admin --id 1 --json  biostar/tools/admin/copy.hjson --template  biostar/tools/admin/copy.sh --create_job
-
-
 jobs:
-	python manage.py analysis --add --id 2 --json biostar/tools/fastqc/fastqc.hjson  --template biostar/tools/fastqc/fastqc.sh --create_job
-	python manage.py analysis --add --id 2 --json biostar/tools/qc/qc.hjson  --template biostar/tools/qc/qc.sh --create_job
-	python manage.py analysis --add --id 2 --json biostar/tools/classify/classify.hjson  --template biostar/tools/classify/classify.sh --create_job
-	python manage.py analysis --add --id 2 --json biostar/tools/align/align.hjson  --template biostar/tools/align/align.sh --create_job
-	python manage.py analysis --add --id 2 --json biostar/tools/lamar_align/lamar_align.hjson  --template biostar/tools/lamar_align/lamar_align.sh --create_job
+	@python manage.py analysis --add --id 2 --json biostar/tools/fastqc/fastqc.hjson  --template biostar/tools/fastqc/fastqc.sh --create_job
+	@python manage.py analysis --add --id 2 --json biostar/tools/qc/qc.hjson  --template biostar/tools/qc/qc.sh --create_job
+	@python manage.py analysis --add --id 2 --json biostar/tools/classify/classify.hjson  --template biostar/tools/classify/classify.sh --create_job
+	@python manage.py analysis --add --id 2 --json biostar/tools/align/align.hjson  --template biostar/tools/align/align.sh --create_job
+	@python manage.py analysis --add --id 2 --json biostar/tools/lamar_align/lamar_align.hjson  --template biostar/tools/lamar_align/lamar_align.sh --create_job
 
 init:
 	python manage.py collectstatic --noinput -v 0
