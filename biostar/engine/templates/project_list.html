@@ -27,33 +27,30 @@
             Project Listing
         </div>
 
-        <div class="ui middle aligned relaxed selection list">
+        <div class="ui divided link items">
 
             {% for project in projects %}
 
-                <div class="item">
+                <div class="item" data-value="{{ project.url }}">
+
+                    <div class="circular image">
+                        <img class="ui left floated small circular image" src="{% img project %}"/>
+                    </div>
 
                     <div class="content">
 
-                        <img class="ui left floated small circular image" src="{% img project %}"/>
-                        <p class="shim">
-                            <a class="ui header" href="{{ project.url }}">
-                                <i class="archive icon"></i>{{ project.name }}
-                            </a>
-                        </p>
-                        <div class="description">
-                            <p>
-                                {{ project.summary|markdown|safe }}
-                            </p>
+                        <a class="header" href="{{ project.url }}">
+                            <i class="archive icon"></i>{{ project.name }}
+                        </a>
 
-                            <p class="muted">
-                                Created on {{ project.date.date }} by {{ project.owner.email }}
-                            </p>
+                        <div class="meta">
+                            {{ project.summary|markdown|safe }}
                         </div>
 
-
+                        <div class="extra">
+                            Created on {{ project.date.date }} by {{ project.owner.email }}
+                        </div>
                     </div>
-
 
                 </div>
 
