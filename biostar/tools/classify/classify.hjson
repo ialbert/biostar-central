@@ -9,7 +9,7 @@ sequence : {
 
 
 accessions : {
-    path: export/local/input/accession_list.txt
+    path: export/local/input/fish_accession_list.txt
     label: Accession list
     data_type: ACCESSION_LIST
     display_type: DROPDOWN

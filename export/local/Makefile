@@ -18,9 +18,14 @@ lamar: lamar/sequences.tar.gz
 
 lamar/sequences.tar.gz:
 	mkdir -p input fish_species
+	# Get virus dataset
+	curl http://iris.bx.psu.edu/projects/testdata/viral-data/col_bhv.fastq.gz > input/virus_sample1.fastq.gz
+	curl http://iris.bx.psu.edu/projects/testdata/viral-data/D5.fastq.gz > input/virus_sample2.fastq.gz
+	curl http://iris.bx.psu.edu/projects/testdata/viral-data/viral_genomes.fa >input/viral_genomes.fa
+	# Get fish dataset
 	curl http://iris.bx.psu.edu/projects/metabarcode-data/data.tar.gz  > input/fish_sequences.tar.gz
 	curl http://iris.bx.psu.edu/projects/metabarcode-data/sampleinfo.txt > input/lamar_sampleinfo.txt
-	curl http://iris.bx.psu.edu/projects/metabarcode-data/accession_list.txt > input/accession_list.txt
+	curl http://iris.bx.psu.edu/projects/metabarcode-data/accession_list.txt > input/fish_accession_list.txt
 	curl http://iris.bx.psu.edu/projects/metabarcode-data/1-SarriPal_S9_L001_R1_001.fastq.gz > input/test_reads.fastq.gz
 	curl http://iris.bx.psu.edu/projects/metabarcode-data/fish_genomes.fa > fish_species/fish_species.fa
 	cp input/test_reads.fastq.gz input/fish_metabarcode_sample1.fastq.gz
