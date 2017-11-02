@@ -1,9 +1,9 @@
 set -ueo pipefail
 
 # Get parameters.
-INPUT_DATA={{data.path}}
+INPUT_DATA={{sequence.path}}
 ACCESSION_LIST={{accessions.path}}
-FISH_DB={{runtime.local_root}}/blastdb/fish/lamar_fishes
+FISH_DB={{runtime.local_root}}/blastdb/fish_species/fish_species
 TAXONOMY_DIR={{runtime.local_root}}/taxonomy
 RESULT_VIEW={{settings.index}}
 

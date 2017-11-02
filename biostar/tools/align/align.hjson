@@ -1,15 +1,15 @@
 {
 
 data : {
-    path: export/local/lamar/fish_metabarcode_reads.fastq.gz
-    label: Data.
+    path: export/local/input/align_test_reads.fastq.gz
+    label: Data
     data_type: FASTQ_TYPE
     display_type: DROPDOWN
   }
 
 genome : {
-    path: export/local/lamar/lamar_fishes.fa
-    label: Reference genome.
+    path: export/local/fish_species/fish_species.fa
+    label: Reference genome
     data_type: FASTA_TYPE
     display_type: DROPDOWN
     }
@@ -20,7 +20,7 @@ threads : {
 
 /*
 organism: {
-    label: Select organism.
+    label: Select organism
     name: Giraffe
     display_type: DROPDOWN
     options : [

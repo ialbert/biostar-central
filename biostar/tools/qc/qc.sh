@@ -1,7 +1,7 @@
 set -ueo pipefail
 
 #Get parameters.
-INPUT_DATA={{data.path}}
+INPUT_DATA={{sequence.path}}
 INPUT_SAMPLE_INFO={{sampleinfo.path}}
 TRIM_QUALITY={{quality_threshold.value}}
 TRIM_PRIMER={{trim_primer.value}}

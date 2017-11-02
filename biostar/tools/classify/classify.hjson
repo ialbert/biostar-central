@@ -1,16 +1,16 @@
 {
 
-data : {
-    path: export/local/lamar/fish_metabarcode_reads.fastq.gz
-    label: Data.
+sequence : {
+    path: export/local/input/classify_test_fish_metabarcode.fastq.gz
+    label: Data
     data_type: FASTQ_TYPE
     display_type: DROPDOWN
   }
 
 
 accessions : {
-    path: export/local/lamar/accession_list.txt
-    label: Accession list.
+    path: export/local/input/accession_list.txt
+    label: Accession list
     data_type: ACCESSION_LIST
     display_type: DROPDOWN
     }
@@ -21,7 +21,7 @@ threads : {
 
 /*
 reference: {
-    label: Select reference.
+    label: Select reference
     value: ""
     display_type: DROPDOWN
     options : [

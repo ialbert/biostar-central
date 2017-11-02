@@ -1,7 +1,7 @@
 all: taxonomy lamar fishdb
 
 clean:
-	rm -rf blastdb lamar taxonomy
+	rm -rf blastdb lamar taxonomy input fish_species
 
 # Taxonomy dependencies.
 taxonomy: taxonomy/names.dmp taxonomy/nodes.dmp
@@ -17,19 +17,21 @@ taxonomy/nodes.dmp:
 lamar: lamar/sequences.tar.gz
 
 lamar/sequences.tar.gz:
-	mkdir -p lamar
-	curl http://iris.bx.psu.edu/projects/metabarcode-data/data.tar.gz  > lamar/sequences.tar.gz
-	curl http://iris.bx.psu.edu/projects/metabarcode-data/sampleinfo.txt > lamar/sampleinfo.txt
-	curl http://iris.bx.psu.edu/projects/metabarcode-data/accession_list.txt > lamar/accession_list.txt
-	curl http://iris.bx.psu.edu/projects/metabarcode-data/1-SarriPal_S9_L001_R1_001.fastq.gz > lamar/fish_metabarcode_reads.fastq.gz
-	curl http://iris.bx.psu.edu/projects/metabarcode-data/fish_genomes.fa > lamar/lamar_fishes.fa
-
+	mkdir -p input fish_species
+	curl http://iris.bx.psu.edu/projects/metabarcode-data/data.tar.gz  > input/lamar_sequences.tar.gz
+	curl http://iris.bx.psu.edu/projects/metabarcode-data/sampleinfo.txt > input/lamar_sampleinfo.txt
+	curl http://iris.bx.psu.edu/projects/metabarcode-data/accession_list.txt > input/accession_list.txt
+	curl http://iris.bx.psu.edu/projects/metabarcode-data/1-SarriPal_S9_L001_R1_001.fastq.gz > input/fastqc_test_reads.fastq.gz
+	curl http://iris.bx.psu.edu/projects/metabarcode-data/fish_genomes.fa > fish_species/fish_species.fa
+	cp input/fastqc_test_reads.fastq.gz input/align_test_reads.fastq.gz
+	cp input/fastqc_test_reads.fastq.gz input/classify_test_fish_metabarcode.fastq.gz
+	cp input/fastqc_test_reads.fastq.gz input/align_classify_test_metabarcode_reads.fastq.gz
 
 # Fish blast database.
-fishdb: blastdb/fish/lamar_fishes.nin
+fishdb: blastdb/fish_species/fish_species.nin
 
-blastdb/fish/lamar_fishes.nin: lamar
-	mkdir -p blastdb/fish
+blastdb/fish_species/fish_species.nin: lamar
+	mkdir -p blastdb/fish_species
 	#
 	# Get fish accession map
 	curl http://iris.bx.psu.edu/projects/metabarcode-data/fish_accession_map.txt > blastdb/taxid_map.txt
@@ -41,30 +43,30 @@ blastdb/fish/lamar_fishes.nin: lamar
 	#cat blastdb/acc2taxid.txt | cut -f 2,3 | grep -v "accession" > blastdb/taxid_map.txt
 	#
 	# Make blast database.
-	makeblastdb -in lamar/lamar_fishes.fa -dbtype nucl -out blastdb/fish/lamar_fishes -parse_seqids -taxid_map blastdb/taxid_map.txt
+	makeblastdb -in fish_species/fish_species.fa -dbtype nucl -out blastdb/fish_species/fish_species -parse_seqids -taxid_map blastdb/taxid_map.txt
 
 
-# Blast databases.
+# Blast  public databases.
 blastdbs: taxdb nt
 
-
 # NCBI nt database.
-blastdb/nt/*.gz:
+nt:nt/*.gz
+
+nt/*.gz:
 	# Install nt database to export/local/blastdb/nt
 	# Ignores make error.
-	mkdir -p blastdb/nt
-	(cd blastdb/nt && update_blastdb.pl --decompress nt) || :
-
-
-nt:blastdb/nt/*.gz
+	mkdir -p nt
+	(cd nt && update_blastdb.pl --decompress nt) || :
 
 
 # NCBI taxonomy database.
-blastdb/taxdb/taxdb.bti:
+taxdb:taxdb/taxdb.bti
+
+taxdb/taxdb.bti:
 	# Install taxonomy database to export/local/blastdb/taxdb
 	# Ignores make error.
-	mkdir -p blastdb/taxdb
-	(cd blastdb/taxdb && update_blastdb.pl --decompress taxdb) || :
+	mkdir -p taxdb
+	(cd taxdb && update_blastdb.pl --decompress taxdb) || :
 
-taxdb:blastdb/taxdb/taxdb.bti
+
 

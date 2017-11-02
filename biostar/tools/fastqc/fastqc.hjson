@@ -1,7 +1,7 @@
 {
 
-data : {
-    path: "export/local/lamar/fish_metabarcode_reads.fastq.gz"
+sequence : {
+    path: "export/local/input/fastqc_test_reads.fastq.gz"
     data_type: FASTQ_TYPE
     display_type: DROPDOWN
   }
