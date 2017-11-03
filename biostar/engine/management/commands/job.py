@@ -147,7 +147,10 @@ def run(job, options={}):
 
         # Switch the job state to RUNNING.
         job.state = job.RUNNING
+
+        # Summarize parameters
         job.summary = summarize_parameters(json_data)
+        
         job.save()
 
         # Run the command.
