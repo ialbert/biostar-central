@@ -29,10 +29,10 @@
 
             <div class="content">
                 <a class="header" href="{% url "project_view" project.id %}">
-                    <i class="bar chart icon"></i> Analysis Results for the {{ project.name }}
+                    <i class="bar chart icon"></i> Analysis Results:  {{ project.name }}
                 </a>
                 <div class="description">
-                    {{ project.summary }}
+                    {{ project.summary|markdown|safe  }}
                 </div>
             </div>
 

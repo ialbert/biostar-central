@@ -7,40 +7,56 @@ name: How To Create Analysis Recipes
 image: tutorial-project.png
 
 summary: '''
-This project contains analyses that demonstrate the process
+This project contains simple analyses that demonstrate the process
 of creating a **recipe**. Follow the **examples** and **instructions** along the way.
 '''
 
 text: '''
 
-    This project hosts a number of analyses (called recipes) and results
-    produced by applying the recipe on data.
+    This project hosts simple analyses (called recipes) and the results
+    produced by applying the recipe on files.
 
-    Each analysis may have one or more results associated with it.
+    # Basics
 
-    # The Basics
+    Each project has three distinct sections:
 
-    Each analysis recipe is composed of two ingredients:
+    1. The files
+    2. The recipes
+    3. The results
+
+    The results are built by applying an analysis recipe onto one or more files.
+
+    # Recipes
+
+    Each analysis recipe is built from two ingredients:
 
     1. The template
     2. The data
 
-    The **template** contains the commands that need to be executed
-    and has placeholders for the data that it will need to operate on.
-    The **data** contains the values that get substituted into the **template**.
+    The **template** contains the commands that need to be executed. The **template** has
+    placeholders for parameter values that the user will need to enter. The **data**
+    specifies the value of the parameters that get substituted into the **template**.
+
+    The software (`biostar-engine`) will generate an interface for each parameter
+    in the **data** and that is were users are able to select the values
+    that their recipe needs to operate.
 
     We'll walk through each example now.
 
     # Hello World 1
 
-    The simplest recipe is one that contains noting file for both **template** and **data**
+    The simplest recipe is one that contains nothing for both the **template** and the **data**.
 
-    Because it has nothing in it, default values get substituted. This is why we ended up with
-    **No name** and **No summary** above. Now investigate the **No name** analysis.
+    Even having no content the analysis is valid! It just does nothing other then demonstrate
+    what takes place when an analysis is run. This recipe will be listed as
+    **No name** and **No summary** in the [Analysis List](http://www.lvh.me:8000/analysis/list/1/).
 
-    Follow the **Show Recipe** action. It shows you how both the **template** and the **data** are empty.
-    Follow the **Show results** action. Note how even an empty recipe produces
-    outputs. The files named:
+    Now go ahead and investigate the [**No name**](/analysis/view/4) analysis then
+    the results of the **No name** analysis.
+
+    Follow the [**Show Recipe**](/analysis/recipe/4) action. It shows you how both the **template** and the **data** are empty.
+    Follow the [**Show results**](/job/list/1/?filter=4) action and click on a result.
+    Note how even an empty recipe produces outputs. The file named:
 
     - `run.sh` contains the command that were run.
     - `run.sh.json` contains the command that were run.
@@ -48,6 +64,10 @@ text: '''
     - `run.sh.stderr.log` contains the error messages that the recipe produced
 
     This same information is visible for the job on the previous page.
+
+    When a recipe is run a new folder is created that contains a substantial amount of information
+    on how the recipe worked and what the `biostar-engine` (the software that runs the recipe) deals
+    with processes.
 
     # Hello World 2
 
