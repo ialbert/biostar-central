@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block body %}
+
+ <form class="ui large form" method="post">
+        {% csrf_token %}
+
+        <div class="ui relaxed divided list">
+
+            {% for project in projects %}
+                <div class="item">
+
+                    <div class="inline field">
+
+                        <input type="checkbox" name="projects" value="{{project.id}}">
+
+                        <a href="{{ project.url }}">
+                            <i class="archive icon"></i>{{ project.name }}
+                        </a>
+
+                    </div>
+
+                </div>
+            {% endfor %}
+
+        </div>
+
+        <div class="field">
+            <div class="ui center aligned basic segment">
+                <button type="submit" class="ui green button">
+                    <i class="plus icon"></i>Copy to Project(s)
+                </button>
+                <a class="ui button" href="#">
+                    <i class="file text icon"></i>View Project Data
+                </a>
+            </div>
+        </div>
+
+    </form>
+
+{% endblock %}

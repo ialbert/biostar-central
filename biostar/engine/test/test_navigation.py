@@ -12,13 +12,14 @@ logger = logging.getLogger('engine')
 class SimpleAccountsNavigation(TestCase):
 
     def test_pages(self):
-        'Testing login,logout,signup, and profile with POST requests'
+        'Testing login,logout,signup, and profile navigation with POST requests'
 
         params = dict(id=1)
 
         urls = [
             (reverse('signup'), dict(info=dict(email="test1@lvh.me", password="test1@lvh.me"),code=200)),
             (reverse('login'),dict(info=dict(email="test1@lvh.me", password="test1@lvh.me"),code=200)),
+            #TODO:profile should probs be a get request.
             (reverse('profile', kwargs=params),dict(info={},code=200))
         ]
 
@@ -28,9 +29,6 @@ class SimpleAccountsNavigation(TestCase):
             resp = c.post(url, info["info"])
             self.assertEqual(resp.status_code, info["code"])
 
-
-class ResultsNavigation(TestCase):
-    pass
 
 
 

@@ -6,7 +6,8 @@ from . import tasks
 from .const import *
 import os
 from . import factory
-from . import models
+from . import models, auth
+
 
 # Share the logger with models.
 logger = models.logger
@@ -16,9 +17,11 @@ def join(*args):
 
 
 class ProjectForm(forms.ModelForm):
+    image = forms.ImageField()
+
     class Meta:
         model = Project
-        fields = ['name', 'summary', 'text']
+        fields = ['name', 'summary', 'text', 'image']
 
 
 class DataUploadForm(forms.ModelForm):
@@ -95,29 +98,44 @@ class DataCopyForm(forms.Form):
         return len(paths)
 
 
-class ExportAnalysis(forms.Form):
+class AnalysisCopyForm(forms.Form):
 
+    projects = forms.IntegerField()
 
     def __init__(self, analysis, *args, **kwargs):
 
         self.analysis = analysis
-        projects = [(proj.id, proj.name) for proj in Project.objects.all()]
         super().__init__(*args, **kwargs)
-        self.fields["project"] = forms.IntegerField(widget=forms.Select(choices=projects))
+
+    def process(self):
+
+        projects = self.data.getlist('projects')
+
+        for project_id in projects:
+            current_project = Project.objects.filter(id=project_id).first()
+
+            current_params = self.analysis_params(project=current_project)
+            new_analysis = auth.create_analysis(**current_params)
+
+            # Images needs to be set by it set
+            new_analysis.image.save(self.analysis.name, self.analysis.image, save=True)
+            new_analysis.save()
+
+        return len(projects)
 
 
-    def export(self):
-        exported_to = self.cleaned_data.get("project")
-        project = Project.objects.filter(id=exported_to).first()
+    def analysis_params(self, project=None):
 
+        project = project or self.analysis.project
         json_text, template = self.analysis.json_text, self.analysis.template
         owner, summary = self.analysis.owner, self.analysis.summary
         name, text = self.analysis.name, self.analysis.text
 
-        analysis = project.create_analysis(json_text, template, owner, summary, name=name, text=text)
-        analysis.save()
-        return project, analysis
 
+
+        params = dict(project=project, json_text=json_text, template=template,
+                      user=owner, summary=summary, name=name, text=text)
+        return params
 
 
 class RunAnalysis(forms.Form):

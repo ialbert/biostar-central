@@ -200,8 +200,6 @@ class Data(models.Model):
         """
         Mutates a dictionary to add more information.
         """
-
-        # This is where the path is filled.
         obj['path'] = self.get_path()
         obj['data_id'] = self.id
         obj['name'] = self.name
