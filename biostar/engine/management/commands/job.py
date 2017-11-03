@@ -15,8 +15,7 @@ CURR_DIR = os.path.dirname(os.path.realpath(__file__))
 
 def summarize_parameters(data):
 
-
-    return hjson.dumps(data)
+    return "job summary goes here"
 
 
 def run(job, options={}):
