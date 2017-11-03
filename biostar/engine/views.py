@@ -66,6 +66,8 @@ def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=Non
             reverse("analysis_view", kwargs={'id': analysis.id}), ANALYSIS_VIEW_ICON, "Analysis View", is_active)
         elif icon == ANALYSIS_RUN_ICON:
             step = (reverse("analysis_run", kwargs={'id': analysis.id}), ANALYSIS_RUN_ICON, "Analysis Run", is_active)
+        elif icon == ANALYSIS_RECIPE_ICON:
+            step = (reverse("analysis_recipe", kwargs={'id': analysis.id}), ANALYSIS_RECIPE_ICON, "Analysis Recipe", is_active)
 
         elif icon == RESULT_LIST_ICON:
             step = (reverse("job_list", kwargs={'id': project.id, }), RESULT_LIST_ICON, "Result List", is_active)
@@ -100,7 +102,7 @@ def site_admin(request):
     Administrative view. Lists the admin project and job.
     '''
     steps = breadcrumb_builder([HOME_ICON])
-    projects = Project.admins.all()
+    projects = Project.objects.all()
     context = dict(steps=steps, projects=projects)
     return render(request, 'admin_index.html', context=context)
 
@@ -292,6 +294,15 @@ def analysis_view(request, id):
 
     return render(request, "analysis_view.html", context)
 
+def analysis_recipe(request, id):
+    analysis = Analysis.objects.filter(id=id).first()
+
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON,
+                                ANALYSIS_VIEW_ICON, ANALYSIS_RECIPE_ICON],
+                               project=analysis.project, analysis=analysis)
+
+    context=dict(analysis=analysis, steps=steps)
+    return render(request, "analysis_recipe.html", context)
 
 @login_required
 def analysis_run(request, id):

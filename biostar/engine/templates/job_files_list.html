@@ -16,7 +16,7 @@
     </div>
 
     <form class="ui large form" method="post">
-
+        {% csrf_token %}
         <div class="ui relaxed divided list">
 
             <div class="item">
@@ -55,7 +55,7 @@
 
         </div>
 
-        {% csrf_token %}
+
         <div class="field">
             <div class="ui center aligned basic segment">
                 <button type="submit" class="ui green button">

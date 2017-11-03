@@ -161,8 +161,8 @@ def run(job, options={}):
     with open(os.path.join(work_dir, stderr_fname), 'wt') as fp:
         fp.write(job.stderr_log)
 
-    logger.info(f'job id={job.id} finished, status={job.get_state_display()}')
 
+    logger.info(f'job id={job.id} finished, status={job.get_state_display()}')
     # Use -v 2 to see the output of the command.
     if verbosity > 1:
         job = Job.objects.get(id=job.id)

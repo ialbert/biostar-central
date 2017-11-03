@@ -23,7 +23,7 @@ analyses: [
 
     {
         json: biostar/tools/fastqc/fastqc.hjson
-        template: biostar/tools/fastqc/fastqc.hjson
+        template: biostar/tools/fastqc/fastqc.sh
     }
 
 

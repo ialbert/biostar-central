@@ -16,7 +16,7 @@ DATA_ICON = "file"
 ANALYSIS_LIST_ICON = "settings"
 ANALYSIS_VIEW_ICON = "setting"
 ANALYSIS_RUN_ICON = "spinner"
-
+ANALYSIS_RECIPE_ICON = "list layout"
 RESULT_LIST_ICON = "bar chart"
 RESULT_ICON = "line chart"
 RESULT_VIEW_ICON = "line chart"

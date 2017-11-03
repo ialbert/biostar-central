@@ -17,11 +17,11 @@
             </div>
 
             <div class="content">
-                <a class="header" href="{%  url "project_view" project.id %}">
-                    Analysis Recipes
+                <a class="header" href="{% url "project_view" project.id %}">
+                    <i class="settings icon"></i> Analysis Recipes for the {{ project.name }}
                 </a>
                 <div class="description">
-                    A list of analyses enabled for project: <b>{{ project.name }}</b>
+                    {{ project.summary}}
                 </div>
             </div>
 

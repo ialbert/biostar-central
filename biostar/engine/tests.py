@@ -8,15 +8,11 @@ from django.urls import reverse
 
 logger = logging.getLogger('engine')
 
-class TestLogin(TestCase):
-    def setUp(self):
-        return
 
+class SimpleAccountsNavigation(TestCase):
 
-class UserNavigation(TestCase):
-
-    def test_account_pages(self):
-        'Tests general account pages for users'
+    def test_pages(self):
+        'Testing login,logout,signup, and profile with POST requests'
 
         params = dict(id=1)
 
@@ -31,6 +27,11 @@ class UserNavigation(TestCase):
         for url, info in urls:
             resp = c.post(url, info["info"])
             self.assertEqual(resp.status_code, info["code"])
+
+
+class ResultsNavigation(TestCase):
+    pass
+
 
 
 class SiteNavigation(TestCase):
