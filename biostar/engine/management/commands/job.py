@@ -28,15 +28,16 @@ def summarize_parameters(data):
                 if 'value' in details.keys():
                     summary[param] = data[param]['value']
         except KeyError:
-            print("keyError while parsing parameters for summary")
+            print("KeyError while parsing parameters for job summary")
 
-    # format as a string.
-    for key,value in summary.items():
+    # format summary as a string.
+    for key, value in summary.items():
         outline = "=".join([key, str(value)])
         parameters.append(outline)
 
     summary_string = "\n".join(parameters)
     return summary_string
+
 
 def run(job, options={}):
     ''''
