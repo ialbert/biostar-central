@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load engine_tags %}
+
+{% block headtitle %}
+    Result List
+{% endblock %}
+
+{% block body %}
+
+    <div class="ui raised segment">
+    <h3>Recipe: {{ analysis.name }}</h3>
+        <div>
+            <img class="ui centered small image" src="{%  img analysis %}">
+        </div>
+    <h3 class="ui header">Script Template</h3>
+<pre>
+{{ analysis.template }}
+</pre>
+
+<h3 class="ui header">Data Specification</h3>
+<pre>
+{{ analysis.json_text }}
+</pre>
+
+
+    </div>
+{% endblock %}
