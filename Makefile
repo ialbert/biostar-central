@@ -6,7 +6,7 @@ serve: init
 
 install:
 	conda install --file conf/conda_requirements.txt -y
-	pip install -r conf/python_requirements
+	pip install -r conf/python_requirements.txt
 
 develop:
 	python setup.py develop

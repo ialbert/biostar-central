@@ -24,8 +24,8 @@ def deploy_reset(path, env, name='test'):
     with cd(path), prefix(env):
         run("rm -f export/engine.db")
         run('git pull')
-        
-        #run(make install)
+
+        run(make install)
         #run('make clean testdata')
 
         run('make reset')
