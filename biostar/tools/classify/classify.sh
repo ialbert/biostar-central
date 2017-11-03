@@ -14,6 +14,11 @@ INDEX=reference
 TAXA_MAP=acc2taxa.txt
 RESULT_DIR=results
 
+# Check if $FISH_DB exist.
+if [ ! -f "$FISH_DB.nhr" ]; then
+echo " $FISH_DB does not exist. Create a blast database of all fish species"
+fi
+
 # Create reference sequence file.
 mkdir -p $REF_DIR
 blastdbcmd -entry 'all' -db ${FISH_DB} -outfmt '%f' >${REF_DIR}/$REF_SEQ

@@ -12,8 +12,12 @@ logger = logging.getLogger('engine')
 
 CURR_DIR = os.path.dirname(os.path.realpath(__file__))
 
+
 def summarize_parameters(data):
+
+
     return hjson.dumps(data)
+
 
 def run(job, options={}):
     ''''
