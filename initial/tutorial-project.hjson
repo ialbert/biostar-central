@@ -80,13 +80,13 @@ text: '''
     the way the recipe is displayed on the site. This is where the name,
     the summary and the description for the recipe comes from.
 
-    # Hello world 3
+    # Hello World 3
 
     This recipe demonstrates how parameters in the **data** get rendered as input widgets.
 
     The tools takes two parameters, organism and cutoff and passes these into the template.
 
-    # Hello world 4
+    # Hello World 4
 
     This recipe demonstrates how uploaded files are handled and rendered as input widgets
     on the website.
