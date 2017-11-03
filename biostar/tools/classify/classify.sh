@@ -16,7 +16,7 @@ RESULT_DIR=results
 
 # Check if $FISH_DB exist.
 if [ ! -f "$FISH_DB.nhr" ]; then
-echo "Create a blast database of all fish species. $FISH_DB does not exist."
+echo "Blast database of all fish species should be present. $FISH_DB does not exist."
 fi
 
 # Create reference sequence file.
