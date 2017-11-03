@@ -13,8 +13,30 @@ CURR_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
 def summarize_parameters(data):
+    '''
+    Summarises job parameters.
+    '''
+    summary = dict()
+    parameters = []
 
-    return "job summary goes here"
+    for param, details in data.items():
+        try:
+            if 'display_type' in details.keys():
+                if 'path' in details.keys():
+                    summary[param] = data[param]['name']
+
+                if 'value' in details.keys():
+                    summary[param] = data[param]['value']
+        except KeyError:
+            print("KeyError while parsing parameters for job summary")
+
+    # format summary as a string.
+    for key, value in summary.items():
+        outline = "=".join([key, str(value)])
+        parameters.append(outline)
+
+    summary_string = "\n".join(parameters)
+    return summary_string
 
 
 def run(job, options={}):
@@ -125,7 +147,10 @@ def run(job, options={}):
 
         # Switch the job state to RUNNING.
         job.state = job.RUNNING
+
+        # Summarize input parameters.
         job.summary = summarize_parameters(json_data)
+
         job.save()
 
         # Run the command.
@@ -165,7 +190,6 @@ def run(job, options={}):
     # Create a log script in the output directory as well.
     with open(os.path.join(work_dir, stderr_fname), 'wt') as fp:
         fp.write(job.stderr_log)
-
 
     logger.info(f'job id={job.id} finished, status={job.get_state_display()}')
     # Use -v 2 to see the output of the command.
