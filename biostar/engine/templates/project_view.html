@@ -30,8 +30,8 @@
                 </div>
 
                 <div class="content">
-                    <a class="header" href="#">
-                        Project: {{ project.name }}
+                    <a class="header" href="{%  url 'project_list' %}">
+                        Project View for the {{ project.name }}
                     </a>
                     <div class="description">
                         {{ project.summary|markdown|safe }}
