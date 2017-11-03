@@ -18,6 +18,7 @@ def summarize_parameters(data):
     Summarises job parameters.
     '''
     summary = dict()
+    parameters = []
 
     for param, details in data.items():
         try:
@@ -27,12 +28,16 @@ def summarize_parameters(data):
 
                 if 'value' in details.keys():
                     summary[param] = data[param]['value']
-
         except KeyError:
             print("keyError while parsing parameters for summary")
 
+    # format as a string.
+    for key,value in summary.items():
+        outline = "=".join([key, str(value)])
+        parameters.append(outline)
 
-    return summary
+    summary_string = "\n".join(parameters)
+    return summary_string
 
 
 def run(job, options={}):
@@ -183,7 +188,6 @@ def run(job, options={}):
     # Create a log script in the output directory as well.
     with open(os.path.join(work_dir, stderr_fname), 'wt') as fp:
         fp.write(job.stderr_log)
-
 
     logger.info(f'job id={job.id} finished, status={job.get_state_display()}')
     # Use -v 2 to see the output of the command.
