@@ -16,21 +16,6 @@ def join(*args):
     return os.path.abspath(os.path.join(*args))
 
 
-def get_datatype(fname):
-    CHUNK_SIZE, LINE_COUNT = 1024, 10
-    try:
-        mimetype, mimecode = mimetypes.guess_type(fname)
-        if mimetype == 'application/x-tar' and mimecode == 'gzip':
-            # A Tar gzip file
-            tar = tarfile.open(fname, mode='r')
-            lines = [f'{t.name}' for t in tar]
-            text = "\n".join(lines)
-    except Exception as exc:
-        text = f'Preview error: {exc}'
-
-    return text
-
-
 def smart_preview(fname):
     CHUNK_SIZE, LINE_COUNT = 1024, 10
     try:

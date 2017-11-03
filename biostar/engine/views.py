@@ -100,7 +100,7 @@ def site_admin(request):
     Administrative view. Lists the admin project and job.
     '''
     steps = breadcrumb_builder([HOME_ICON])
-    projects = Project.admins.all()
+    projects = Project.objects.all()
     context = dict(steps=steps, projects=projects)
     return render(request, 'admin_index.html', context=context)
 
