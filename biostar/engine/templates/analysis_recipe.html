@@ -7,18 +7,36 @@
 
 {% block body %}
 
-    <div class="ui raised segment">
-    <h3>Recipe: {{ analysis.name }}</h3>
+    <div class="ui raised  segment">
+        <h3 class="ui centered header">Recipe: {{ analysis.name }}</h3>
+
         <div>
-            <img class="ui centered small image" src="{%  img analysis %}">
+            <img class="ui centered small image" src="{% img analysis %}">
         </div>
-    <h3 class="ui header">Script Template</h3>
-<pre>
+
+        <div class="ui centered header">
+
+            <a class="ui button" href="{%  url 'analysis_view' analysis.id %}">
+                <i class="chevron left icon"></i>Back
+            </a>
+
+            <a class="ui button" href="#">
+                <i class="add icon"></i>Copy Recipe
+            </a>
+
+            <a class="ui button" href="{% url 'analysis_edit' analysis.id %}">
+                <i class="write icon"></i>Edit Recipe
+            </a>
+        </div>
+
+
+        <h3 class="ui header">Script Template</h3>
+        <pre>
 {{ analysis.template }}
 </pre>
 
-<h3 class="ui header">Data Specification</h3>
-<pre>
+        <h3 class="ui header">Data Specification</h3>
+        <pre>
 {{ analysis.json_text }}
 </pre>
 

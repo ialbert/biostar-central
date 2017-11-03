@@ -30,13 +30,15 @@
                 <i class="spinner icon"></i> Run Analysis
             </a>
 
-            <a class="ui button" href="{% url 'analysis_recipe' analysis.id %}">
-                <i class="list icon"></i> Show Recipe
-            </a>
-
             <a class="ui button" href="{% url 'job_list' project.id %}?filter={{ analysis.id }}">
                 <i class="bar chart icon"></i> Show Results
             </a>
+
+             <a class="ui button" href="{% url 'analysis_recipe' analysis.id %}">
+                <i class="list icon"></i> Show Recipe
+            </a>
+
+
 
         </div>
     </div>
@@ -49,9 +51,7 @@
         <div class="ui vertical segment">{{ analysis.html|safe }}</div>
 
         <div class="ui center aligned basic segment">
-            <a class="ui button" href="{% url 'analysis_edit' analysis.id %}">
-                <i class="write icon"></i>Edit Analysis
-            </a>
+
         </div>
 
     </div>
