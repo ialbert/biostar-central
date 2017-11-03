@@ -12,6 +12,8 @@ logger = logging.getLogger('engine')
 
 CURR_DIR = os.path.dirname(os.path.realpath(__file__))
 
+def summarize_parameters(data):
+    return hjson.dumps(data)
 
 def run(job, options={}):
     ''''
@@ -121,6 +123,7 @@ def run(job, options={}):
 
         # Switch the job state to RUNNING.
         job.state = job.RUNNING
+        job.summary = summarize_parameters(json_data)
         job.save()
 
         # Run the command.
