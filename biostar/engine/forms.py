@@ -1,13 +1,10 @@
 import hjson, logging
 
 from django import forms
-from django.utils.translation import gettext_lazy as helpers
-from django.contrib.auth.models import User, Group
-from django.core import management
 from .models import Project, Data
+from . import tasks
 from .const import *
 import os
-from . import util
 from . import factory
 from . import models
 
@@ -89,9 +86,9 @@ class DataCopyForm(forms.Form):
                 path = path[1:]
             path = join(basedir, path)
 
-            management.call_command("admintasks", copy=True, fname=path, pid=self.project.id)
+            tasks.copier(target_project=self.project.id, fname=path)
 
-            print(f"Copy data at: {path}")
+            logger.info(f"Copy data at: {path}")
 
         return len(paths)
 

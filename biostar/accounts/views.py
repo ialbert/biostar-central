@@ -86,6 +86,7 @@ def user_logout(request):
 
     return render(request, "accounts/logout.html", context=context)
 
+
 @ratelimit(key='ip', rate='10/m', block=True, method=ratelimit.UNSAFE)
 @csrf.csrf_protect
 @cache.never_cache

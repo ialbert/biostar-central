@@ -43,6 +43,10 @@ try:
         data_id = int_from_bytes(args, "data_id")
         unpacker(data_id=data_id)
 
+    @spool
+    def copy(args):
+        return
+
 except ModuleNotFoundError as exc:
 
     # No spooling same interface.
@@ -55,6 +59,7 @@ def execute(command, workdir="."):
                           stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     stdout, stderr = force_text(proc.stdout), force_text(proc.stderr)
     return stdout, stderr
+
 
 def unpacker(data_id):
     """
@@ -73,3 +78,29 @@ def unpacker(data_id):
         logger.error(f"Error: f{exc}")
         query.update(state=Data.ERROR)
 
+
+def copier(source=None, target_data=None, target_project=None, fname=None):
+
+    """
+    Copies source data to target_data id. or adds a fname to target_project id
+    """
+    from biostar.engine.models import Data, Project
+    from biostar.engine import auth
+
+    assert (source and target_data) or (target_project and fname)
+
+    source = Data.objects.filter(id=source).first()
+    target_data = Data.objects.filter(id=target_data).first()
+
+    project = Project.objects.filter(id=target_project).first()
+
+    if project:
+        assert fname
+        auth.create_data(project=project, fname=fname)
+        return
+    if source:
+        assert target_data
+
+    #TODO:Test this part
+    shutil.copy(source.file.path, target_data.file.path)
+    return
