@@ -14,8 +14,25 @@ CURR_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
 def summarize_parameters(data):
+    '''
+    Summarises job parameters.
+    '''
+    summary = dict()
 
-    return "job summary goes here"
+    for param, details in data.items():
+        try:
+            if 'display_type' in details.keys():
+                if 'path' in details.keys():
+                    summary[param] = data[param]['name']
+
+                if 'value' in details.keys():
+                    summary[param] = data[param]['value']
+
+        except KeyError:
+            print("keyError while parsing parameters for summary")
+
+
+    return summary
 
 
 def run(job, options={}):
