@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block title %}
-    Edit Project: {{ project.title }}
+    Edit Project: {{ project.name }}
 {% endblock %}
 
 
@@ -9,14 +9,20 @@
 
     <div class="ui raised segment">
 
-        <form method="post" class="ui form">
+        <form method="post" class="ui form" enctype="multipart/form-data">
 
             {% csrf_token %}
             {{ form.media }}
+
             <div class="field">
                 <label>Project Title</label>
                 {{ form.name }}
             </div>
+
+             <div class="field">
+                  <label>Project Image</label>
+                  <input id="id_image" type="file" class="" name="image">
+             </div>
 
             <div class="field">
                 <label>Summary</label>

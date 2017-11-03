@@ -56,9 +56,9 @@ def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=Non
         elif icon == PROJECT_ICON:
             step = (reverse("project_view", kwargs={'id': project.id}), PROJECT_ICON, "Project View", is_active)
         elif icon == DATA_LIST_ICON:
-            step = (reverse("data_list", kwargs={'id': project.id}), DATA_LIST_ICON, "Data List", is_active)
+            step = (reverse("data_list", kwargs={'id': project.id}), DATA_LIST_ICON, "File List", is_active)
         elif icon == DATA_ICON:
-            step = (reverse("data_view", kwargs={'id': data.id}), DATA_ICON, f"Data View", is_active)
+            step = (reverse("data_view", kwargs={'id': data.id}), DATA_ICON, f"File View", is_active)
         elif icon == ANALYSIS_LIST_ICON:
             step = (reverse("analysis_list", kwargs={'id': project.id}), ANALYSIS_LIST_ICON, "Analysis List", is_active)
         elif icon == ANALYSIS_VIEW_ICON:
@@ -141,7 +141,8 @@ def project_edit(request, id):
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON], project=project)
 
     if request.method == "POST":
-        form = ProjectForm(request.POST, instance=project)
+        form = ProjectForm(request.POST, request.FILES, instance=project)
+
         if form.is_valid():
             form.save()
             return redirect(project.url())
@@ -160,13 +161,20 @@ def project_create(request):
 
     if request.method == "POST":
         # create new projects here ( just populates metadata ).
-        form = ProjectForm(data=request.POST)
+        form = ProjectForm(request.POST, request.FILES)
         if form.is_valid():
+
             name = form.cleaned_data["name"]
             text = form.cleaned_data["text"]
-            owner = User.objects.all().first()
-            project = Project.objects.create(name=name, text=text, owner=owner)
+            summary = form.cleaned_data["summary"]
+            stream = form.cleaned_data["image"]
+            owner = request.user
+
+            project = auth.create_project(user=owner, name=name, summary=summary, text=text,
+                                          stream=stream)
             project.save()
+            #print(project.get_project_dir())
+
             return redirect(reverse("project_list"))
         else:
             form.add_error(None, "Invalid form processing.")
@@ -257,7 +265,6 @@ def data_upload(request, id):
     return render(request, 'data_upload.html', context)
 
 
-# @login_required
 def analysis_list(request, id):
     """
     Returns the list of analyses for a project id.
@@ -282,17 +289,11 @@ def analysis_view(request, id):
     project = analysis.project
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ANALYSIS_LIST_ICON, ANALYSIS_VIEW_ICON],
                                project=project, analysis=analysis)
-    if request.method == "POST":
-        form = ExportAnalysis(data=request.POST, analysis=analysis)
-        if form.is_valid():
-            project, analysis = form.export()
-            return redirect(reverse("analysis_list", kwargs={"id": project.id}))
-    else:
-        form = ExportAnalysis(analysis=analysis)
-    context = dict(project=project, analysis=analysis, steps=steps,
-                   form=form)
+
+    context = dict(project=project, analysis=analysis, steps=steps)
 
     return render(request, "analysis_view.html", context)
+
 
 def analysis_recipe(request, id):
     analysis = Analysis.objects.filter(id=id).first()
@@ -304,7 +305,30 @@ def analysis_recipe(request, id):
     context=dict(analysis=analysis, steps=steps)
     return render(request, "analysis_recipe.html", context)
 
-@login_required
+
+def analysis_copy(request, id):
+
+    #TODO: will use a factory.py function for generating projects field when adding new features
+    analysis = Analysis.objects.filter(id=id).first()
+    projects = Project.objects.all()
+
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON,
+                                ANALYSIS_VIEW_ICON, ANALYSIS_RECIPE_ICON],
+                               project=analysis.project, analysis=analysis)
+
+    if request.method == "POST":
+
+        form = AnalysisCopyForm(data=request.POST, analysis=analysis)
+        if form.is_valid():
+            count = form.process()
+            messages.success(request, f"Copied current analysis to {count} project(s).")
+    else:
+        form = AnalysisCopyForm(analysis=analysis)
+
+    context=dict(analysis=analysis, steps=steps, projects=projects, form=form)
+    return render(request, "analysis_copy.html", context)
+
+
 def analysis_run(request, id):
     analysis = Analysis.objects.filter(id=id).first()
 
@@ -316,6 +340,9 @@ def analysis_run(request, id):
 
     if request.method == "POST":
         form = RunAnalysis(data=request.POST, analysis=analysis)
+
+        if request.user.is_anonymous():
+            form.add_error(None, "You must be logged in to run an analysis")
 
         if form.is_valid():
             name = form.cleaned_data.get("name")

@@ -1,11 +1,5 @@
-# Help the user track progress.
-echo "Analysis started."
 
-# Note how the variable matches the JSON structure.
-FNAME={{foo.path}}
+echo "The selected cutoff was : {{cutoff.value}}"
 
-# Run a tool on the file.
-ls -l $FNAME > result.txt
+echo The selected organism was: {{organism.value}}
 
-# All done.
-echo "Analysis finished."

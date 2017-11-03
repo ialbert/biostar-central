@@ -23,6 +23,7 @@
         <div>
             <img class="ui centered small image" src="{%  img analysis %}">
         </div>
+
         {{ analysis.summary|markdown|safe }}
 
         <div class="ui center aligned basic segment">
@@ -37,8 +38,6 @@
              <a class="ui button" href="{% url 'analysis_recipe' analysis.id %}">
                 <i class="list icon"></i> Show Recipe
             </a>
-
-
 
         </div>
     </div>
@@ -56,22 +55,4 @@
 
     </div>
 
-    <form method="post" class="ui form" action="{% url 'analysis_view' analysis.id %}">
-
-        {% csrf_token %}
-        <div class="ui center aligned vertical segment">
-            <div class="ui buttons">
-
-                  <button type="submit" class="ui right floated blue button">
-                    <i class="upload icon"></i>Export to
-                  </button>
-
-                  <div class="ui floating dropdown icon button">
-                        <div class="feild">
-                            {{form.project}}
-                        </div>
-                 </div>
-            </div>
-        </div>
-    </form>
 {% endblock %}

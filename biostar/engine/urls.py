@@ -48,6 +48,7 @@ urlpatterns = [
     url(r'^analysis/run/(?P<id>\d+)/$', views.analysis_run, name='analysis_run'),
     url(r'^analysis/recipe/(?P<id>\d+)$', views.analysis_recipe, name='analysis_recipe'),
     url(r'^analysis/edit/(?P<id>\d+)$', views.analysis_edit, name='analysis_edit'),
+    url(r'^analysis/copy/(?P<id>\d+)$', views.analysis_copy, name='analysis_copy'),
 
     url(r'^job/list/(?P<id>\d+)/$', views.job_list, name='job_list'),
     url(r'^job/view/(?P<id>\d+)/$', views.job_view, name='job_view'),

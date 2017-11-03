@@ -1,34 +1,35 @@
 {
 
-uid: demo
+uid: cookbook
 
-name: Analysis Demonstration Project
+name: Analysis Cookbook
 
-image: demo-project.jpg
+image: cookbook-project.png
 
 summary: '''
-This project contains a copy of each data analysis and a corresponding result.
-Use the report and analysis descriptions to familiarize yourself what each analysis produces
-and what the input and output files are.
+This project contains commonly used data analysis recipes.
+
+Use the recipe descriptions and the results to familiarize yourself what each recipes produces
+and what the required input and output files are.
 '''
 
 text: '''
 
     # Purpose
 
-    This project contains analyses and their results.
+    This project contains commonly used data analysis recipes.
 
-    Each analysis has one result output associated with it.
+    Each analysis recipe has results associated with it.
 
     # Analyses
 
-    Users may import any of these analyses into their own projects.
+    You may copy any of these recipe into your own projects.
 
     # Data
 
-    Each analysis also comes with data that is also deposited for the project.
+    Each analysis also comes with data that is also deposited into this project.
 
-    Investigate the data to understand the requirements.
+    Investigate the data and the results to understand the requirements.
 
 '''
 
