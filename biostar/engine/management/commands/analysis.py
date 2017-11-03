@@ -112,7 +112,8 @@ class Command(BaseCommand):
                         if path:
                             data = auth.create_data(project=project, fname=path, data_type=data_type)
                             data.fill_dict(value)
-                    job = auth.create_job(analysis=analysis, json_data=json_data)
+                    name = f'Results for: {analysis.name}'
+                    job = auth.create_job(analysis=analysis, name=name, json_data=json_data)
 
             except KeyError as exc:
                 logger.error(f"processing the analysis: {exc}")

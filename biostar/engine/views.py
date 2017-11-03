@@ -257,7 +257,6 @@ def data_upload(request, id):
     return render(request, 'data_upload.html', context)
 
 
-# @login_required
 def analysis_list(request, id):
     """
     Returns the list of analyses for a project id.
@@ -304,7 +303,7 @@ def analysis_recipe(request, id):
     context=dict(analysis=analysis, steps=steps)
     return render(request, "analysis_recipe.html", context)
 
-@login_required
+
 def analysis_run(request, id):
     analysis = Analysis.objects.filter(id=id).first()
 
@@ -316,6 +315,9 @@ def analysis_run(request, id):
 
     if request.method == "POST":
         form = RunAnalysis(data=request.POST, analysis=analysis)
+
+        if request.user.is_anonymous():
+            form.add_error(None, "You must be logged in to run an analysis")
 
         if form.is_valid():
             name = form.cleaned_data.get("name")

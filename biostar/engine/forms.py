@@ -57,7 +57,9 @@ def make_form_field(data, project):
 
         field = factory.data_field_generator(data, project=project, data_type=data_type)
     else:
+
         func = factory.TYPE2FUNC.get(display_type)
+
         if not func:
             logger.error(f"Invalid display_type={display_type}")
             return
@@ -147,6 +149,7 @@ class RunAnalysis(forms.Form):
         # Gets all data for the project
 
         datamap = dict((data.id, data) for data in self.project.data_set.all() )
+
         json_data = self.json_data.copy()
 
         for field, obj in json_data.items():
