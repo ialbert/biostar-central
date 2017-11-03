@@ -1,6 +1,7 @@
 from fabric.api import *
 import sys
 
+
 if tuple(sys.version_info) > (2, 8):
     print("Error: Fabric requires Python 2.7")
     sys.exit(-1)
@@ -24,7 +25,7 @@ def deploy_reset(path, env, name='test'):
         run("rm -f export/engine.db")
         run('git pull')
         #run('pip install -r conf/python_requirements.txt')
-        #run('clean testdata')
+        #run('make clean testdata')
         run('make reset')
         run('python manage.py migrate')
         run('python manage.py collectstatic --noinput -v 0')
