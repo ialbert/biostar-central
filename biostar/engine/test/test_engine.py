@@ -12,7 +12,7 @@ logger = logging.getLogger('engine')
 class ProjectTest(TestCase):
 
     def setUp(self):
-
+        logger.setLevel(logging.WARNING)
         self.owner = models.User.objects.filter(is_superuser=True).first()
         self.project = auth.create_project(user=self.owner, name="test",
                                                 text="Text",summary="summary")
