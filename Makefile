@@ -20,7 +20,6 @@ clean:
 	(cd export/local && make clean)
 
 testdata:
-	mkdir -p export/local
 	(cd export/local && make  all)
 
 delete:
