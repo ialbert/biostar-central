@@ -152,7 +152,7 @@ def run(job, options={}):
             raise Exception(f"executing: {command}")
 
         # If we made it this far the job has finished.
-        job.state = job.FINISHED
+        job.state = job.COMPLETED
         job.save()
 
     except Exception as exc:

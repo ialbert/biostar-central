@@ -30,6 +30,7 @@ delete:
 	rm -rf export/logs/*.log
 	rm -rf export/spooler/*spool*
 	rm -f export/database/engine.db
+	rm -rf export/static/CACHE
 	rm -rf export/media/*
 	rm -rf *.egg
 	rm -rf *.egg-info

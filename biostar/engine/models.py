@@ -2,11 +2,9 @@ import hjson
 import logging
 import mistune
 
-from django.contrib.auth.models import Group
-from django.contrib.auth.models import User
 from django.db import models
-from django.db.models.signals import post_save
-from django.dispatch import receiver
+from biostar.accounts.models import User, Group
+
 from django.urls import reverse
 from django.utils import timezone
 
@@ -74,7 +72,11 @@ class Project(models.Model):
     PUBLIC, SHAREABLE, PRIVATE = 1, 2, 3
     PRIVACY_CHOICES = [(PRIVATE, "Private"), (SHAREABLE, "Shareable Link"), (PUBLIC, "Public")]
 
+    ACTIVE, DELETED = 1, 2
+    STATE_CHOICES  = [(ACTIVE, "Active"), (DELETED, "Deleted")]
+
     privacy = models.IntegerField(default=SHAREABLE, choices=PRIVACY_CHOICES)
+    state = models.IntegerField(default=ACTIVE, choices=STATE_CHOICES)
 
     image = models.ImageField(default=None, blank=True, upload_to=image_path)
     name = models.CharField(max_length=256, default="no name")
@@ -86,12 +88,9 @@ class Project(models.Model):
     html = models.TextField(default='html')
     date = models.DateTimeField(auto_now_add=True)
 
-    # Project restircted to one group
+    # Each project belongs to a group.
     group = models.ForeignKey(Group)
     uid = models.CharField(max_length=32, unique=True)
-
-    # Will be false if the objects is to be deleted.
-    valid = models.BooleanField(default=True)
 
     def save(self, *args, **kwargs):
         now = timezone.now()
@@ -120,11 +119,11 @@ class Project(models.Model):
 
 class Data(models.Model):
     FILE, COLLECTION = 1, 2
-    PENDING, READY, ERROR = 1, 2, 3
+    PENDING, READY, ERROR, DELETED = 1, 2, 3, 4
 
     FILETYPE_CHOICES = [(FILE, "File"), (COLLECTION, "Collection")]
 
-    STATE_CHOICES = [(PENDING, "Pending"), (READY, "Ready"), (ERROR, "Error")]
+    STATE_CHOICES = [(PENDING, "Pending"), (READY, "Ready"), (ERROR, "Error"), (DELETED, "Deleted") ]
 
     name = models.CharField(max_length=256, default="no name")
     summary = models.TextField(default='no summary')
@@ -213,6 +212,10 @@ class Analysis(models.Model):
 
     AUTH_CHOICES = [(AUTHORIZED, "Authorized"), (UNDER_REVIEW, "Under Review")]
 
+    ACTIVE, DELETED = 1, 2
+    STATE_CHOICES = [(ACTIVE, "Active"), (DELETED, "Deleted")]
+
+
     uid = models.CharField(max_length=32, unique=True)
 
     name = models.CharField(max_length=256, default="No name")
@@ -222,6 +225,8 @@ class Analysis(models.Model):
     owner = models.ForeignKey(User)
 
     auth = models.IntegerField(default=UNDER_REVIEW, choices=AUTH_CHOICES)
+    state = models.IntegerField(default=ACTIVE, choices=STATE_CHOICES)
+
     project = models.ForeignKey(Project)
 
     json_text = models.TextField(default="{}")
@@ -251,13 +256,12 @@ class Analysis(models.Model):
 
 class Job(models.Model):
     AUTHORIZED, UNDER_REVIEW = 1, 2
-
-    QUEUED, RUNNING, FINISHED, ERROR = 1, 2, 3, 4
-
     AUTH_CHOICES = [(AUTHORIZED, "Authorized"), (UNDER_REVIEW, "Under Review")]
 
+    QUEUED, RUNNING, COMPLETED, ERROR, DELETED = 1, 2, 3, 4, 5
     STATE_CHOICES = [(QUEUED, "Queued"), (RUNNING, "Running"),
-                     (FINISHED, "Finished"), (ERROR, "Error")]
+                     (COMPLETED, "Completed"), (ERROR, "Error"), (DELETED, "Deleted")]
+
 
     name = models.CharField(max_length=256, default="no name")
     summary = models.TextField(default='no summary')
@@ -334,19 +338,3 @@ class Job(models.Model):
     def url(self):
         return reverse("job_view", kwargs=dict(id=self.id))
 
-
-class Profile(models.Model):
-    user = models.ForeignKey(User)
-
-
-@receiver(post_save, sender=User)
-def create_profile(sender, instance, created, **kwargs):
-    if created:
-        # Create a profile for user
-        Profile.objects.create(user=instance)
-
-        # Add every user to "public group"
-        # instance.groups.add(Group.objects.get(name='Public'))
-
-
-post_save.connect(create_profile, sender=User)

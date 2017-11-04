@@ -458,7 +458,7 @@ def job_result_view(request, id):
     job = Job.objects.filter(id=id).first()
     index = job.json_data.get("settings", {}).get("index", "")
 
-    if job.state == Job.FINISHED:
+    if job.state == Job.COMPLETED:
         url = settings.MEDIA_URL + job.get_url(path=index)
         return redirect(url)
     else:
