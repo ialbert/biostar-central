@@ -1,6 +1,7 @@
-import logging, hjson
-
+import hjson
+import logging
 import mistune
+
 from django.contrib.auth.models import Group
 from django.contrib.auth.models import User
 from django.db import models
@@ -9,7 +10,8 @@ from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
 
-from . import util, settings
+from biostar import settings
+from . import util
 from .const import *
 
 logger = logging.getLogger("engine")

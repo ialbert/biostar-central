@@ -5,43 +5,34 @@ import subprocess, os, sys, json, hjson, logging
 from django.utils.text import force_text
 from django.conf import settings
 
-
-
 logger = logging.getLogger('engine')
 
 CURR_DIR = os.path.dirname(os.path.realpath(__file__))
 
-
-def summarize_parameters(data):
+def summarize(data):
     '''
-    Summarises job parameters.
+    Summarizes job parameters.
     '''
-    summary = dict()
-    parameters = []
 
-    for param, details in data.items():
-        try:
-            if 'display_type' in details.keys():
-                if 'path' in details.keys():
-                    summary[param] = data[param]['name']
+    # Keep only fields that can be displayed.
+    objs = [obj for obj in data.values() if 'display_type' in obj]
 
-                if 'value' in details.keys():
-                    summary[param] = data[param]['value']
-        except KeyError:
-            print("KeyError while parsing parameters for job summary")
+    def get_value(obj):
+        # Extract the parameter value from the object.
+        value = obj.get('name', '?') if 'path' in obj else obj.get('value', '?')
+        return value
 
-    # format summary as a string.
-    for key, value in summary.items():
-        outline = "=".join([key, str(value)])
-        parameters.append(outline)
+    pairs = [(obj.get('label', 'Label'), get_value(obj)) for obj in objs]
+    patts = [f'- {a} = `{b}`' for a, b in pairs]
 
-    summary_string = "\n".join(parameters)
-    return summary_string
+    summary = "\n".join(patts)
+
+    return summary
 
 
 def run(job, options={}):
-    ''''
-    Runs a json
+    '''
+    Runs a job
     '''
     # Options that cause early termination.
     show_json = options.get('show_json')
@@ -51,7 +42,6 @@ def run(job, options={}):
     use_template = options.get('use_template')
     use_json = options.get('use_json')
     verbosity = options.get('verbosity', 0)
-
 
     # Defined in case we bail on errors before setting it.
     script = command = proc = None
@@ -113,7 +103,6 @@ def run(job, options={}):
             print(full_command)
             return
 
-
         template = Template(template)
         context = Context(json_data)
         script = template.render(context)
@@ -127,7 +116,7 @@ def run(job, options={}):
             return
 
         # Logging should start after the early returns.
-        logger.info(f'job id={job.id} started.')
+        logger.info(f'job id={job.id}, name={job.name}')
 
         # Make the output directory
         logger.info(f'job id={job.id} work_dir: {work_dir}')
@@ -149,7 +138,11 @@ def run(job, options={}):
         job.state = job.RUNNING
 
         # Summarize input parameters.
+<<<<<<< HEAD
         job.summary = summarize_parameters(json_data)
+=======
+        job.summary = f'{job.summary}\n\n{summarize(json_data)}'
+>>>>>>> b28a5db0906cb6953999043c2f0da7aee75bfb47
 
         job.save()
 
@@ -195,8 +188,8 @@ def run(job, options={}):
     # Use -v 2 to see the output of the command.
     if verbosity > 1:
         job = Job.objects.get(id=job.id)
-        print ("-" * 40)
-        print (job.stdout_log)
+        print("-" * 40)
+        print(job.stdout_log)
         print("-" * 40)
         print(job.stderr_log)
 
@@ -207,9 +200,9 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
 
         parser.add_argument('--next',
-                        action='store_true',
-                        default=False,
-                        help="Runs the oldest queued job")
+                            action='store_true',
+                            default=False,
+                            help="Runs the oldest queued job")
 
         parser.add_argument('--id',
                             type=int,
@@ -241,8 +234,6 @@ class Command(BaseCommand):
         parser.add_argument('--queued',
                             action='store_true',
                             help="Show most recent 10 queued.")
-
-
 
     def handle(self, *args, **options):
 
