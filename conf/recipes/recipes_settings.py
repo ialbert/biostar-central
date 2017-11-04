@@ -7,6 +7,10 @@ DEBUG = False
 
 WSGI_APPLICATION = 'conf.recipes.recipes_wsgi.application'
 
-ALLOWED_HOSTS = ['bioinformatics.recipes', 'www.bioinformatics.recipes']
+SITE_ID = 1
+SITE_DOMAIN = "www.bioinformatics.recipes"
+SITE_NAME = "Bioinformatics Recipes"
 
-SITE_HEADER =  "Bioinformatics Recipes"
+ALLOWED_HOSTS = [ SITE_DOMAIN  ]
+
+SITE_HEADER =  '<i class="barcode icon"></i> Bioinformatics Recipes'
