@@ -21,8 +21,6 @@ def init_users(sender, **kwargs):
     """
     from biostar.engine.models import User, Group
 
-    # Get the admin group.
-    user_group, created = Group.objects.get_or_create(name=settings.USER_GROUP_NAME)
     admin_group, created = Group.objects.get_or_create(name=settings.ADMIN_GROUP_NAME)
 
     logger.info("Setting up users")

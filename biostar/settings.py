@@ -18,7 +18,6 @@ ADMINS = [
 ]
 
 ADMIN_GROUP_NAME = "Admins"
-USER_GROUP_NAME = "Users"
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(join(__file__))
