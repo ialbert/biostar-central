@@ -42,7 +42,9 @@ class SiteNavigation(TestCase):
                 # print (resp.content)
                 # We already know it is an error.
                 # Use this to prints the url and the code.
-                logger.error(f"\nError accessing: {url}\n code={resp.status_code}")
+                logger.error(f"Error")
+                logger.error(f"Error accessing: {url} code={resp.status_code}")
+                logger.error(f"{resp.content}")
                 self.assertEqual(url, code)
 
     def test_public_pages(self):
