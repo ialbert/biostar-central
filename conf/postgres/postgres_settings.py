@@ -7,9 +7,9 @@ WSGI_APPLICATION = 'conf.postgres.postgres_wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'biostar_engine',
-        'USER': 'ialbert',
-        'PASSWORD': 'ialbert',
+        'NAME': 'testbuddy_engine',
+        'USER': 'testbuddy',
+        'PASSWORD': 'testbuddy',
         'HOST': 'localhost',
         'PORT': '',
     }
