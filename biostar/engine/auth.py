@@ -76,16 +76,15 @@ def create_data(project, user=None, stream=None, fname=None, name="data.bin", te
     if fname:
         stream = File(open(fname, 'rb'))
         name = os.path.basename(fname)
-    else:
-        assert stream
+
+    if not stream:
+        raise Exception("Empty stream")
 
     owner = user or project.owner
     text = text or "No description"
     data_type = data_type or GENERIC_TYPE
 
-    # Create the data
-    data = Data.objects.create(name=name, owner=owner, state=Data.READY,
-                               text=text, project=project, data_type=data_type)
+    data = Data.objects.create(name=name, owner=owner, state=Data.READY, text=text, project=project, data_type=data_type)
 
     # This saves the into the
     data.file.save(name, stream, save=True)

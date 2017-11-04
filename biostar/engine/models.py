@@ -18,6 +18,7 @@ logger = logging.getLogger("engine")
 
 # The maximum length in characters for a typical name and text field.
 MAX_NAME_LEN = 256
+MAX_FIELD_LEN = 1024
 MAX_TEXT_LEN = 10000
 MAX_LOG_LEN = 20 * MAX_TEXT_LEN
 
@@ -79,7 +80,7 @@ class Project(models.Model):
     state = models.IntegerField(default=ACTIVE, choices=STATE_CHOICES)
 
     image = models.ImageField(default=None, blank=True, upload_to=image_path)
-    name = models.CharField(max_length=256, default="no name")
+    name = models.CharField(max_length=MAX_NAME_LEN, default="no name")
     summary = models.TextField(default='no summary')
 
     owner = models.ForeignKey(User)
@@ -96,7 +97,7 @@ class Project(models.Model):
         now = timezone.now()
         self.date = self.date or now
         self.html = make_html(self.text)
-
+        self.name = self.name[:MAX_NAME_LEN]
         self.uid = self.uid or util.get_uuid(8)
         if not os.path.isdir(self.get_project_dir()):
             os.makedirs(self.get_project_dir())
@@ -130,9 +131,9 @@ class Data(models.Model):
 
     STATE_CHOICES = [(PENDING, "Pending"), (READY, "Ready"), (ERROR, "Error"), (DELETED, "Deleted") ]
 
-    name = models.CharField(max_length=256, default="no name")
+    name = models.CharField(max_length=MAX_NAME_LEN, default="no name")
     summary = models.TextField(default='no summary')
-    image = models.ImageField(default=None, blank=True, upload_to=image_path)
+    image = models.ImageField(default=None, blank=True, upload_to=image_path, max_length=MAX_FIELD_LEN)
 
     owner = models.ForeignKey(User)
     text = models.TextField(default='no description', max_length=MAX_TEXT_LEN)
@@ -142,27 +143,28 @@ class Data(models.Model):
 
     data_type = models.IntegerField(default=GENERIC_TYPE)
     project = models.ForeignKey(Project)
-    size = models.CharField(null=True, max_length=256)
+    size = models.IntegerField(default=0)
 
     state = models.IntegerField(default=PENDING, choices=STATE_CHOICES)
-    file = models.FileField(null=True, upload_to=data_upload_path, max_length=500)
+    file = models.FileField(null=True, upload_to=data_upload_path, max_length=MAX_FIELD_LEN)
     uid = models.CharField(max_length=32)
 
     # Will be false if the objects is to be deleted.
     valid = models.BooleanField(default=True)
 
     # Data directory.
-    data_dir = models.FilePathField(default="")
+    data_dir = models.FilePathField(default="", max_length=MAX_FIELD_LEN)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
     def save(self, *args, **kwargs):
         now = timezone.now()
+        self.name = self.name[:MAX_NAME_LEN]
         self.uid = self.uid or util.get_uuid(8)
         self.date = self.date or now
         self.html = make_html(self.text)
-
+        self.owner = self.owner or self.project.owner
         # Build the data directory.
         data_dir = self.get_datadir()
         if not os.path.isdir(data_dir):
@@ -223,7 +225,7 @@ class Analysis(models.Model):
 
     uid = models.CharField(max_length=32, unique=True)
 
-    name = models.CharField(max_length=256, default="No name")
+    name = models.CharField(max_length=MAX_NAME_LEN, default="No name")
     summary = models.TextField(default='No summary.')
     text = models.TextField(default='No description.', max_length=MAX_TEXT_LEN)
     html = models.TextField(default='html')
@@ -238,7 +240,7 @@ class Analysis(models.Model):
     template = models.TextField(default="makefile")
 
     date = models.DateTimeField(auto_now_add=True, blank=True)
-    image = models.ImageField(default=None, blank=True, upload_to=image_path)
+    image = models.ImageField(default=None, blank=True, upload_to=image_path, max_length=MAX_FIELD_LEN)
 
     def __str__(self):
         return self.name
@@ -252,7 +254,7 @@ class Analysis(models.Model):
         now = timezone.now()
         self.uid = self.uid or util.get_uuid(8)
         self.date = self.date or now
-
+        self.name = self.name[:MAX_NAME_LEN]
         self.html = make_html(self.text)
         super(Analysis, self).save(*args, **kwargs)
 
@@ -268,9 +270,9 @@ class Job(models.Model):
                      (COMPLETED, "Completed"), (ERROR, "Error"), (DELETED, "Deleted")]
 
 
-    name = models.CharField(max_length=256, default="no name")
+    name = models.CharField(max_length=MAX_NAME_LEN, default="no name")
     summary = models.TextField(default='no summary')
-    image = models.ImageField(default=None, blank=True, upload_to=image_path)
+    image = models.ImageField(default=None, blank=True, upload_to=image_path, max_length=MAX_FIELD_LEN)
 
     owner = models.ForeignKey(User)
     text = models.TextField(default='no description', max_length=MAX_TEXT_LEN)
@@ -326,7 +328,7 @@ class Job(models.Model):
         self.name = self.name or self.analysis.name
         self.date = self.date or now
         self.html = make_html(self.text)
-
+        self.name = self.name[:MAX_NAME_LEN]
         self.uid = self.uid or util.get_uuid(8)
         self.template = self.analysis.template
         self.security = self.analysis.auth
