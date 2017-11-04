@@ -4,6 +4,8 @@ import mistune
 
 from django.db import models
 from biostar.accounts.models import User, Group
+from django.db.models.signals import post_save, pre_save
+from django.dispatch import receiver
 
 from django.urls import reverse
 from django.utils import timezone
@@ -58,8 +60,6 @@ def image_path(instance, filename):
     dirpath = instance.get_project_dir()
     imgname = f"image-{uid}{ext}"
 
-    print (dirpath)
-
     # Uploads need to go relative to media directory.
     path = os.path.relpath(dirpath, settings.MEDIA_ROOT)
 
@@ -88,17 +88,14 @@ class Project(models.Model):
     html = models.TextField(default='html')
     date = models.DateTimeField(auto_now_add=True)
 
-    # Each project belongs to a group.
-    group = models.ForeignKey(Group)
+    # Each project belongs to a single group.
+    group = models.OneToOneField(Group)
     uid = models.CharField(max_length=32, unique=True)
 
     def save(self, *args, **kwargs):
         now = timezone.now()
         self.date = self.date or now
         self.html = make_html(self.text)
-
-        # Takes first user group for now
-        self.group = self.owner.groups.first()
 
         self.uid = self.uid or util.get_uuid(8)
         if not os.path.isdir(self.get_project_dir()):
@@ -116,6 +113,14 @@ class Project(models.Model):
         return join(settings.MEDIA_ROOT, "projects", f"proj-{self.uid}")
 
 
+@receiver(pre_save, sender=Project)
+def create_project_group(sender, instance, **kwargs):
+    """
+    Creates a group for the project
+    """
+    instance.uid = instance.uid or util.get_uuid(8)
+    group, created = Group.objects.get_or_create(name=instance.uid)
+    instance.group = group
 
 class Data(models.Model):
     FILE, COLLECTION = 1, 2

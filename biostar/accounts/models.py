@@ -25,8 +25,3 @@ def create_profile(sender, instance, created, **kwargs):
         # Create a profile for user
         profile = Profile.objects.create(user=instance)
 
-        # Every user belongs to their own USER group.
-        user_group, created = Group.objects.get_or_create(name=profile.uid)
-        user_group.user_set.add(instance)
-
-post_save.connect(create_profile, sender=User)

@@ -64,7 +64,7 @@ init:
 
 test:
 	python manage.py collectstatic --noinput -v 0
-	python manage.py test
+	python manage.py test --failfast
 
 push:
 	git commit -am "Update by `whoami` on `date` from `hostname`"

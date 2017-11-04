@@ -38,6 +38,7 @@ class ProjectTest(TestCase):
 
         url = reverse("project_edit", kwargs=dict(id=self.project.id))
         info = dict(user=self.owner, text="new text", summary="new summary", name="new name")
+
         resp = self.client.post(url, info, follow=True)
 
         self.assertEqual(resp.status_code, 200)
