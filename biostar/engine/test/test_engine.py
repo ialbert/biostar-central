@@ -48,11 +48,7 @@ class ProjectTest(TestCase):
         "Test data upload form to a sample project"
 
         url = reverse("data_upload", kwargs=dict(id=self.project.id))
-        test_file= open("test", "w")
-        test_file.close()
-        os.remove("test")
-
-        info = dict(user=self.owner, summary="test upload", text="test", file="test")
+        info = dict(user=self.owner, summary="test upload", text="test", file=__file__)
         resp = self.client.post(url, info, follow=True)
 
         self.assertEqual(resp.status_code, 200)
@@ -61,13 +57,7 @@ class ProjectTest(TestCase):
     def test_data_edit(self):
         "Test data edit form "
 
-        test_file= open("test", "w")
-        test_file.close()
-        try:
-            data = auth.create_data(self.project, fname="test")
-        except Exception as e:
-            os.remove("test")
-            raise e
+        data = auth.create_data(self.project, fname=__file__)
 
         url = reverse("data_edit", kwargs=dict(id=data.id))
         info = dict(summary="new summary", text="new text", name="new name")
