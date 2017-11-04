@@ -3,9 +3,8 @@ set -ueo pipefail
 #Get parameters.
 INPUT_DATA={{sequence.path}}
 INPUT_SAMPLE_INFO={{sampleinfo.path}}
-TRIM_QUALITY={{quality_threshold.value}}
-TRIM_PRIMER={{trim_primer.value}}
 THREADS={{threads.value}}
+TRIM_QUALITY={{quality_threshold.value}}
 KMER_LENGTH={{kmer_length.value}}
 MIN_LENGTH={{read_length.value}}
 
@@ -45,74 +44,60 @@ echo -e "\n Creating multiqc report.\n"
 multiqc -f -n initial_multiqc -o ${WORK_DIR} --no-data-dir $FASTQC_DIR 2>/dev/null
 cp ${WORK_DIR}/initial_multiqc.html ${RESULT_DIR}/initial_multiqc.html
 
-# Copy files to input.
-cat $SAMPLE_INFO | parallel --header : --colsep '\t' cp {file1} {result1}
-cat $SAMPLE_INFO | parallel --header : --colsep '\t' cp {file2} {result2}
 
-# Branching starts here.
+# Trim primer.
 
-{% if trim_primer.value %}
+cat $SAMPLE_INFO | parallel  --header : --colsep '\t' bbduk.sh \
+in1={file1} in2={file2}  out1={result1} out2={result2} \
+literal={fwd_primer},{rev_primer} ktrim=l k=$KMER_LENGTH hdist=1 tpe tbo \
+overwrite=t stats=${WORK_DIR}/{sample_name}_primer_stats.txt
 
-    # Trim primer.
+# Move statistic to results.
+cat ${WORK_DIR}/*primer_stats.txt > ${RESULT_DIR}/primer_trim_stats.txt
 
-    cat $SAMPLE_INFO | parallel  --header : --colsep '\t' bbduk.sh \
-    in1={result1} in2={result2}  out1={temp1} out2={temp2} \
-    literal={fwd_primer},{rev_primer} ktrim=l k=$KMER_LENGTH hdist=1 tpe tbo \
-    overwrite=t stats=${WORK_DIR}/{sample_name}_primer_stats.txt
+# Remove previous files from $FASTQC_DIR.
+rm -f ${FASTQC_DIR}/*.zip ${FASTQC_DIR}/*.html
 
-    # copy output to input
-    cat $SAMPLE_INFO | parallel --header : --colsep '\t' cp {temp1} {result1}
-    cat $SAMPLE_INFO | parallel --header : --colsep '\t' cp {temp2} {result2}
+# Run fastqc on all trimmed samples.
+cat $SAMPLE_INFO | parallel --header : --colsep '\t' fastqc --nogroup -o $FASTQC_DIR {result1} {result2}  2>/dev/null
 
-    # Move statistic to results.
-    cat ${WORK_DIR}/*primer_stats.txt > ${RESULT_DIR}/primer_trim_stats.txt
+# Create multiqc report of trimmed samples.
+echo -e "\n Creating multiqc report.\n"
+multiqc -n primer_trimmed -o ${WORK_DIR} --no-data-dir --force $FASTQC_DIR 2>/dev/null
+cp ${WORK_DIR}/primer_trimmed.html ${RESULT_DIR}/primer_trimmed.html
 
-    # Remove previous files from $FASTQC_DIR.
-    rm -f ${FASTQC_DIR}/*.zip ${FASTQC_DIR}/*.html
 
-    # Run fastqc on all trimmed samples.
-    cat $SAMPLE_INFO | parallel --header : --colsep '\t' fastqc --nogroup -o $FASTQC_DIR {temp1} {temp2}  2>/dev/null
+# Trim quality.
 
-    # Create multiqc report of trimmed samples.
-    echo -e "\n Creating multiqc report.\n"
-    multiqc -n primer_trimmed -o ${WORK_DIR} --no-data-dir --force $FASTQC_DIR 2>/dev/null
-    cp ${WORK_DIR}/primer_trimmed.html ${RESULT_DIR}/primer_trimmed.html
+cat  $SAMPLE_INFO |parallel --header : --colsep '\t' bbduk.sh \
+in1={result1} in2={result2}  out1={temp1} out2={temp2} \
+qtrim=rl trimq=$TRIM_QUALITY  minlength=$MIN_LENGTH overwrite=true \
+stats=${WORK_DIR}/{sample_name}_qual_stats.txt
 
-{% endif %}
+# Copy output to input.
+cat $SAMPLE_INFO | parallel --header : --colsep '\t' cp {temp1} {result1}
+cat $SAMPLE_INFO | parallel --header : --colsep '\t' cp {temp2} {result2}
 
-{% if trim_quality.value %}
+# Move statistic to results.
+cat ${WORK_DIR}/*qual_stats.txt > ${RESULT_DIR}/quality_trim_stats.txt
 
-    # Trim quality.
+# Remove previous files from $FASTQC_DIR
+rm -f ${FASTQC_DIR}/*.zip ${FASTQC_DIR}/*.html
 
-    cat  $SAMPLE_INFO |parallel --header : --colsep '\t' bbduk.sh \
-    in1={result1} in2={result2}  out1={temp1} out2={temp2} \
-    qtrim=rl trimq=$TRIM_QUALITY  minlength=$MIN_LENGTH overwrite=true \
-    stats=${WORK_DIR}/{sample_name}_qual_stats.txt
+# Run fastqc on all trimmed samples.
+cat $SAMPLE_INFO | parallel --header : --colsep '\t' fastqc --nogroup -o $FASTQC_DIR {temp1} {temp2} 2>/dev/null
 
-    # Copy output to input.
-    cat $SAMPLE_INFO | parallel --header : --colsep '\t' cp {temp1} {result1}
-    cat $SAMPLE_INFO | parallel --header : --colsep '\t' cp {temp2} {result2}
+# Create multiqc report of trimmed samples.
+echo -e "\n Creating multiqc report.\n"
+multiqc -n quality_trimmed -o work --no-data-dir --force $FASTQC_DIR  2>/dev/null
+cp ${WORK_DIR}/quality_trimmed.html ${RESULT_DIR}/quality_trimmed.html
 
-    # Move statistic to results.
-    cat ${WORK_DIR}/*qual_stats.txt > ${RESULT_DIR}/quality_trim_stats.txt
 
-    # Remove previous files from $FASTQC_DIR
-    rm -f ${FASTQC_DIR}/*.zip ${FASTQC_DIR}/*.html
-
-    # Run fastqc on all trimmed samples.
-    cat $SAMPLE_INFO | parallel --header : --colsep '\t' fastqc --nogroup -o $FASTQC_DIR {temp1} {temp2} 2>/dev/null
-
-    # Create multiqc report of trimmed samples.
-    echo -e "\n Creating multiqc report.\n"
-    multiqc -n quality_trimmed -o work --no-data-dir --force $FASTQC_DIR  2>/dev/null
-    cp ${WORK_DIR}/quality_trimmed.html ${RESULT_DIR}/quality_trimmed.html
-
-{% endif %}
+# Collecting results.
 
 # Copy trimmed data to results.
 cat $SAMPLE_INFO | parallel --header : --colsep '\t' cp {result1} ${RESULT_DIR}/{sample_name}_trim_R1.fq.gz
 cat $SAMPLE_INFO | parallel --header : --colsep '\t' cp {result2} ${RESULT_DIR}/{sample_name}_trim_R2.fq.gz
-
 
 # Get read counts before trimming.
 cat $SAMPLE_INFO | parallel --header : --colsep '\t' python -m biostar.tools.qc.qc_stats \
@@ -131,6 +116,7 @@ join ${WORK_DIR}/raw_counts.s.txt  ${WORK_DIR}/trimmed_counts.s.txt >>${RESULT_D
 
 # clean
 rm -f ${WORK_DIR}/raw_counts*.txt  ${WORK_DIR}/trimmed_counts*.txt
+rm -f ${WORK_DIR}/*.gz
 
 # Copy main results to $RESULT_VIEW.
 cp ${RESULT_DIR}/quality_trimmed.html $RESULT_VIEW

@@ -2,6 +2,7 @@
 
 sequence : {
     path: export/local/input/fish_sequences.tar.gz
+    label: Data
     data_type: TAR_FASTQ_GZ
     display_type: DROPDOWN
     }
@@ -13,29 +14,16 @@ sampleinfo : {
     display_type: DROPDOWN
     }
 
-trim_primer: {
-    label : Trim primer sequences
-    value : true
-    help : Primer sequences should be in the sample sheet
-    display_type: CHECKBOX
-    }
-
 kmer_length: {
-    label : Specify kmer length for primer trimming
+    label : Kmer length for primer trimming
     value : 15
     help : Kmer length range should be between 5 and 30
     range : [5,30]
     display_type: INTEGER
     }
 
-trim_quality: {
-    label : Quality trimming
-    value :  true
-    display_type : CHECKBOX
-    }
-
 quality_threshold: {
-    label : Specify average quality value for trimming
+    label : Average quality value for trimming
     help : Quality value should be between 1 and 40
     value :  30
     range  : [1,40]
