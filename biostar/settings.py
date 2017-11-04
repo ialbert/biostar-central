@@ -17,7 +17,8 @@ from biostar.engine.log import LOGGING
 SITE_ID = 1
 SITE_DOMAIN = "localhost"
 SITE_NAME = "Biostar Engine"
-SITE_HEADER = '<i class="barcode icon"></i> Metagenomics Barcode Data Repository'
+SITE_HEADER = '<i class="barcode icon"></i> Bioinformatics Recipes'
+
 
 def join(*args):
     return os.path.abspath(os.path.join(*args))
@@ -28,9 +29,6 @@ ADMINS = [
 ]
 
 ADMIN_GROUP_NAME = "Admins"
-
-# The id of the demo project.
-DEMO_PROJECT_UID = "demo"
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(join(__file__))
@@ -75,7 +73,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'biostar.engine.urls'
+ROOT_URLCONF = 'biostar.urls'
 
 TEMPLATES = [
     {
@@ -96,17 +94,12 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'biostar.engine.wsgi.application'
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
-
-#LOGIN_URL = 'accounts/login/'
-#LOGOUT_URL = 'accounts/logout/'
+WSGI_APPLICATION = 'biostar.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
-DATABASE_NAME = join(BASE_DIR, '..', '..', 'export', 'database', 'engine.db')
+DATABASE_NAME = join(BASE_DIR, '..', 'export', 'database', 'engine.db')
 
 DATABASES = {
     'default': {
@@ -143,16 +136,16 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
-MEDIA_ROOT = join(BASE_DIR, '..', '..', 'export', 'media')
+MEDIA_ROOT = join(BASE_DIR, '..', 'export', 'media')
 
 # The location of resusable data.
-LOCAL_ROOT = join(BASE_DIR, '..', '..', 'export', 'local')
+LOCAL_ROOT = join(BASE_DIR, '..', 'export', 'local')
 
 MEDIA_URL = '/media/'
 STATIC_URL = '/static/'
-STATIC_ROOT = join(BASE_DIR, '..', '..', 'export', 'static')
+STATIC_ROOT = join(BASE_DIR, '..', 'export', 'static')
 STATICFILES_DIRS = [
-    join(BASE_DIR, "static"),
+    join(BASE_DIR, "engine", "static"),
 ]
 
 STATICFILES_FINDERS = (

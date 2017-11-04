@@ -3,7 +3,6 @@ body {
     padding-top: 1rem;
 }
 
-
 .row:hover {
     text-decoration: underline;
 }
@@ -13,6 +12,14 @@ h1 {
     font-size: 1.4rem;
 }
 
+code {
+    color: #c7254e;
+    background: #f5f2f0;
+    margin: 2px;
+    padding: 2px;
+    border-radius: 3px;
+   line-height: 1.7;
+}
 
 .muted {
     color: #999999;

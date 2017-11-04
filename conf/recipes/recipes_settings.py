@@ -1,4 +1,4 @@
-from biostar.engine.settings import *
+from biostar.settings import *
 
 DEBUG = True
 
@@ -8,11 +8,11 @@ SITE_ID = 1
 SITE_DOMAIN = "www.bioinformatics.recipes"
 SITE_NAME = "Bioinformatics Recipes"
 
-ALLOWED_HOSTS = [ SITE_DOMAIN  ]
+ALLOWED_HOSTS = [SITE_DOMAIN]
 
-SITE_HEADER =  '<i class="barcode icon"></i> Bioinformatics Recipes'
+SITE_HEADER = '<i class="barcode icon"></i> Bioinformatics Recipes'
 
 try:
     from .recipes_secrets import *
 except ImportError as exc:
-    print("No recipes.recipes_secrets module could be found")
+    print("No recipes_secrets module could be imported")
