@@ -173,17 +173,17 @@ def project_create(request):
             project = auth.create_project(user=owner, name=name, summary=summary, text=text,
                                           stream=stream)
             project.save()
-            #print(project.get_project_dir())
 
             return redirect(reverse("project_list"))
         else:
             form.add_error(None, "Invalid form processing.")
-    else:
-        initial = dict(name="Project Name", text="project description", summary="project summary")
-        form = ProjectForm(initial=initial)
-        context = dict(steps=steps, form=form)
-        return render(request, 'project_create.html',
-                      context)
+            messages.error(request, "Invalid form processing.")
+
+    initial = dict(name="Project Name", text="project description", summary="project summary")
+    form = ProjectForm(initial=initial)
+    context = dict(steps=steps, form=form)
+    return render(request, 'project_create.html',
+                  context)
 
 
 # @login_required
@@ -195,6 +195,7 @@ def data_list(request, id):
         messages.error(request, "Data not found.")
         logger.error(f"data.id={id} looked for but not found.")
         return redirect(reverse("project_list"))
+
     data_list = Data.objects.filter(project=project).order_by("-date")
     context = dict(project=project, steps=steps, data_list=data_list)
     return render(request, "data_list.html", context)
@@ -257,6 +258,9 @@ def data_upload(request, id):
                              user=owner, project=project)
             messages.info(request, "Data upload complete")
             return redirect(reverse("data_list", kwargs={'id': project.id}))
+        else:
+            form.add_error(None, "Invalid form processing.")
+            messages.error(request, "Invalid form processing.")
 
     else:
         form = DataUploadForm()

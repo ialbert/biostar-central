@@ -76,6 +76,8 @@ def create_data(project, user=None, stream=None, fname=None, name="data.bin", te
     if fname:
         stream = File(open(fname, 'rb'))
         name = os.path.basename(fname)
+    else:
+        assert stream
 
     owner = user or project.owner
     text = text or "No description"
