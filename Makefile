@@ -30,9 +30,17 @@ delete:
 	rm -rf export/logs/*.log
 	rm -rf export/spooler/*spool*
 	rm -f export/database/engine.db
+	rm -rf export/static/CACHE
 	rm -rf export/media/*
 	rm -rf *.egg
 	rm -rf *.egg-info
+
+
+postgres:
+	#dropdb --if-exists testbuddy_engine
+	#createdb testbuddy_engine
+	#python manage.py migrate
+	python manage.py test --settings conf.postgres.postgres_settings --failfast
 
 
 reset: delete init
@@ -63,7 +71,7 @@ init:
 
 test:
 	python manage.py collectstatic --noinput -v 0
-	python manage.py test -v 2 --failfast
+	python manage.py test -v 2
 
 push:
 	git commit -am "Update by `whoami` on `date` from `hostname`"

@@ -3,7 +3,9 @@ from django.core.files import File
 from . import tasks
 from .const import *
 from .models import Data, Analysis, Job, Project
-
+import tempfile
+CHUNK = 100
+CHUNK = 100
 
 logger = logging.getLogger("engine")
 
@@ -71,19 +73,30 @@ def create_job(analysis, user=None, project=None, json_text='', json_data={}, na
 
     return job
 
-def create_data(project, user=None, stream=None, fname=None, name="data.bin", text='', data_type=None):
+def create_data(project, user=None, stream=None, fname=None, name="data.bin", text='', data_type=None, link=False):
 
     if fname:
         stream = File(open(fname, 'rb'))
         name = os.path.basename(fname)
 
+    if not stream:
+        raise Exception("Empty stream")
+
     owner = user or project.owner
     text = text or "No description"
     data_type = data_type or GENERIC_TYPE
 
-    # Create the data
-    data = Data.objects.create(name=name, owner=owner, state=Data.READY,
-                               text=text, project=project, data_type=data_type)
+    data = Data.objects.create(name=name, owner=owner, state=Data.READY, text=text, project=project, data_type=data_type)
+
+    # Linking only copies a small section of the file. Keeps the rest.
+    if link:
+        data.link = os.path.abspath(fname)
+        data.save()
+        fp = tempfile.TemporaryFile()
+        fp.write(stream.read(CHUNK))
+        fp.seek(0)
+        stream = File(fp)
+        logger.info(f"Linking to: {data.link}")
 
     # This saves the into the
     data.file.save(name, stream, save=True)

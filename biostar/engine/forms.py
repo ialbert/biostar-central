@@ -17,7 +17,7 @@ def join(*args):
 
 
 class ProjectForm(forms.ModelForm):
-    image = forms.ImageField()
+    image = forms.ImageField(required=False)
 
     class Meta:
         model = Project

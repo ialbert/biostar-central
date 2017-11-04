@@ -2,11 +2,11 @@ import hjson
 import logging
 import mistune
 
-from django.contrib.auth.models import Group
-from django.contrib.auth.models import User
 from django.db import models
-from django.db.models.signals import post_save
+from biostar.accounts.models import User, Group
+from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
+
 from django.urls import reverse
 from django.utils import timezone
 
@@ -18,6 +18,7 @@ logger = logging.getLogger("engine")
 
 # The maximum length in characters for a typical name and text field.
 MAX_NAME_LEN = 256
+MAX_FIELD_LEN = 1024
 MAX_TEXT_LEN = 10000
 MAX_LOG_LEN = 20 * MAX_TEXT_LEN
 
@@ -60,8 +61,6 @@ def image_path(instance, filename):
     dirpath = instance.get_project_dir()
     imgname = f"image-{uid}{ext}"
 
-    print (dirpath)
-
     # Uploads need to go relative to media directory.
     path = os.path.relpath(dirpath, settings.MEDIA_ROOT)
 
@@ -74,10 +73,14 @@ class Project(models.Model):
     PUBLIC, SHAREABLE, PRIVATE = 1, 2, 3
     PRIVACY_CHOICES = [(PRIVATE, "Private"), (SHAREABLE, "Shareable Link"), (PUBLIC, "Public")]
 
+    ACTIVE, DELETED = 1, 2
+    STATE_CHOICES  = [(ACTIVE, "Active"), (DELETED, "Deleted")]
+
     privacy = models.IntegerField(default=SHAREABLE, choices=PRIVACY_CHOICES)
+    state = models.IntegerField(default=ACTIVE, choices=STATE_CHOICES)
 
     image = models.ImageField(default=None, blank=True, upload_to=image_path)
-    name = models.CharField(max_length=256, default="no name")
+    name = models.CharField(max_length=MAX_NAME_LEN, default="no name")
     summary = models.TextField(default='no summary')
 
     owner = models.ForeignKey(User)
@@ -86,21 +89,15 @@ class Project(models.Model):
     html = models.TextField(default='html')
     date = models.DateTimeField(auto_now_add=True)
 
-    # Project restircted to one group
-    group = models.ForeignKey(Group)
+    # Each project belongs to a single group.
+    group = models.OneToOneField(Group)
     uid = models.CharField(max_length=32, unique=True)
-
-    # Will be false if the objects is to be deleted.
-    valid = models.BooleanField(default=True)
 
     def save(self, *args, **kwargs):
         now = timezone.now()
         self.date = self.date or now
         self.html = make_html(self.text)
-
-        # Takes first user group for now
-        self.group = self.owner.groups.first()
-
+        self.name = self.name[:MAX_NAME_LEN]
         self.uid = self.uid or util.get_uuid(8)
         if not os.path.isdir(self.get_project_dir()):
             os.makedirs(self.get_project_dir())
@@ -117,18 +114,26 @@ class Project(models.Model):
         return join(settings.MEDIA_ROOT, "projects", f"proj-{self.uid}")
 
 
+@receiver(pre_save, sender=Project)
+def create_project_group(sender, instance, **kwargs):
+    """
+    Creates a group for the project
+    """
+    instance.uid = instance.uid or util.get_uuid(8)
+    group, created = Group.objects.get_or_create(name=instance.uid)
+    instance.group = group
 
 class Data(models.Model):
     FILE, COLLECTION = 1, 2
-    PENDING, READY, ERROR = 1, 2, 3
+    PENDING, READY, ERROR, DELETED = 1, 2, 3, 4
 
     FILETYPE_CHOICES = [(FILE, "File"), (COLLECTION, "Collection")]
 
-    STATE_CHOICES = [(PENDING, "Pending"), (READY, "Ready"), (ERROR, "Error")]
+    STATE_CHOICES = [(PENDING, "Pending"), (READY, "Ready"), (ERROR, "Error"), (DELETED, "Deleted") ]
 
-    name = models.CharField(max_length=256, default="no name")
+    name = models.CharField(max_length=MAX_NAME_LEN, default="no name")
     summary = models.TextField(default='no summary')
-    image = models.ImageField(default=None, blank=True, upload_to=image_path)
+    image = models.ImageField(default=None, blank=True, upload_to=image_path, max_length=MAX_FIELD_LEN)
 
     owner = models.ForeignKey(User)
     text = models.TextField(default='no description', max_length=MAX_TEXT_LEN)
@@ -138,27 +143,33 @@ class Data(models.Model):
 
     data_type = models.IntegerField(default=GENERIC_TYPE)
     project = models.ForeignKey(Project)
-    size = models.CharField(null=True, max_length=256)
+    size = models.IntegerField(default=0)
 
     state = models.IntegerField(default=PENDING, choices=STATE_CHOICES)
-    file = models.FileField(null=True, upload_to=data_upload_path, max_length=500)
+
+    # A file is either in media or is linked to.
+    file = models.FileField(null=True, upload_to=data_upload_path, max_length=MAX_FIELD_LEN)
+
+    link = models.FilePathField(null=True,  max_length=MAX_FIELD_LEN)
+
     uid = models.CharField(max_length=32)
 
     # Will be false if the objects is to be deleted.
     valid = models.BooleanField(default=True)
 
     # Data directory.
-    data_dir = models.FilePathField(default="")
+    data_dir = models.FilePathField(default="", max_length=MAX_FIELD_LEN)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
     def save(self, *args, **kwargs):
         now = timezone.now()
+        self.name = self.name[:MAX_NAME_LEN]
         self.uid = self.uid or util.get_uuid(8)
         self.date = self.date or now
         self.html = make_html(self.text)
-
+        self.owner = self.owner or self.project.owner
         # Build the data directory.
         data_dir = self.get_datadir()
         if not os.path.isdir(data_dir):
@@ -170,14 +181,14 @@ class Data(models.Model):
         """
         Returns a preview of the data
         """
-        return util.smart_preview(self.get_path())
+        return util.smart_preview(self.get_link())
 
     def set_size(self):
         """
         Sets the size of the data.
         """
         try:
-            size = os.path.getsize(self.get_path())
+            size = os.path.getsize(self.get_link())
         except:
             size = 0
         Data.objects.filter(id=self.id).update(size=size)
@@ -186,10 +197,14 @@ class Data(models.Model):
         return self.name
 
     def get_datadir(self):
+        "The data directory"
         return join(self.project.get_project_dir(), f"store-{self.uid}")
 
     def get_project_dir(self):
         return self.project.get_project_dir()
+
+    def get_link(self):
+        return self.link if self.link else self.get_path()
 
     def get_path(self):
         return self.file.path
@@ -213,22 +228,28 @@ class Analysis(models.Model):
 
     AUTH_CHOICES = [(AUTHORIZED, "Authorized"), (UNDER_REVIEW, "Under Review")]
 
+    ACTIVE, DELETED = 1, 2
+    STATE_CHOICES = [(ACTIVE, "Active"), (DELETED, "Deleted")]
+
+
     uid = models.CharField(max_length=32, unique=True)
 
-    name = models.CharField(max_length=256, default="No name")
+    name = models.CharField(max_length=MAX_NAME_LEN, default="No name")
     summary = models.TextField(default='No summary.')
     text = models.TextField(default='No description.', max_length=MAX_TEXT_LEN)
     html = models.TextField(default='html')
     owner = models.ForeignKey(User)
 
     auth = models.IntegerField(default=UNDER_REVIEW, choices=AUTH_CHOICES)
+    state = models.IntegerField(default=ACTIVE, choices=STATE_CHOICES)
+
     project = models.ForeignKey(Project)
 
     json_text = models.TextField(default="{}")
     template = models.TextField(default="makefile")
 
     date = models.DateTimeField(auto_now_add=True, blank=True)
-    image = models.ImageField(default=None, blank=True, upload_to=image_path)
+    image = models.ImageField(default=None, blank=True, upload_to=image_path, max_length=MAX_FIELD_LEN)
 
     def __str__(self):
         return self.name
@@ -242,7 +263,7 @@ class Analysis(models.Model):
         now = timezone.now()
         self.uid = self.uid or util.get_uuid(8)
         self.date = self.date or now
-
+        self.name = self.name[:MAX_NAME_LEN]
         self.html = make_html(self.text)
         super(Analysis, self).save(*args, **kwargs)
 
@@ -251,17 +272,16 @@ class Analysis(models.Model):
 
 class Job(models.Model):
     AUTHORIZED, UNDER_REVIEW = 1, 2
-
-    QUEUED, RUNNING, FINISHED, ERROR = 1, 2, 3, 4
-
     AUTH_CHOICES = [(AUTHORIZED, "Authorized"), (UNDER_REVIEW, "Under Review")]
 
+    QUEUED, RUNNING, COMPLETED, ERROR, DELETED = 1, 2, 3, 4, 5
     STATE_CHOICES = [(QUEUED, "Queued"), (RUNNING, "Running"),
-                     (FINISHED, "Finished"), (ERROR, "Error")]
+                     (COMPLETED, "Completed"), (ERROR, "Error"), (DELETED, "Deleted")]
 
-    name = models.CharField(max_length=256, default="no name")
+
+    name = models.CharField(max_length=MAX_NAME_LEN, default="no name")
     summary = models.TextField(default='no summary')
-    image = models.ImageField(default=None, blank=True, upload_to=image_path)
+    image = models.ImageField(default=None, blank=True, upload_to=image_path, max_length=MAX_FIELD_LEN)
 
     owner = models.ForeignKey(User)
     text = models.TextField(default='no description', max_length=MAX_TEXT_LEN)
@@ -317,7 +337,7 @@ class Job(models.Model):
         self.name = self.name or self.analysis.name
         self.date = self.date or now
         self.html = make_html(self.text)
-
+        self.name = self.name[:MAX_NAME_LEN]
         self.uid = self.uid or util.get_uuid(8)
         self.template = self.analysis.template
         self.security = self.analysis.auth
@@ -334,19 +354,3 @@ class Job(models.Model):
     def url(self):
         return reverse("job_view", kwargs=dict(id=self.id))
 
-
-class Profile(models.Model):
-    user = models.ForeignKey(User)
-
-
-@receiver(post_save, sender=User)
-def create_profile(sender, instance, created, **kwargs):
-    if created:
-        # Create a profile for user
-        Profile.objects.create(user=instance)
-
-        # Add every user to "public group"
-        # instance.groups.add(Group.objects.get(name='Public'))
-
-
-post_save.connect(create_profile, sender=User)
