@@ -138,12 +138,7 @@ def run(job, options={}):
         job.state = job.RUNNING
 
         # Summarize input parameters.
-<<<<<<< HEAD
-        job.summary = summarize_parameters(json_data)
-=======
         job.summary = f'{job.summary}\n\n{summarize(json_data)}'
->>>>>>> b28a5db0906cb6953999043c2f0da7aee75bfb47
-
         job.save()
 
         # Run the command.
