@@ -42,45 +42,39 @@ class SiteNavigation(TestCase):
                 # print (resp.content)
                 # We already know it is an error.
                 # Use this to prints the url and the code.
+                logger.error(f"")
+                logger.error(f"Error accessing: {url}, code={resp.status_code}")
                 self.assertEqual(url, code)
 
     def test_public_pages(self):
         "Checking public pages"
 
-        params = dict(id=1)
-        test_file = open("test", "w")
-        test_file.close()
-        try:
-            data = auth.create_data(project=self.project, fname="test")
-            # Need to create analysis in database to completely test views
-            analysis = auth.create_analysis(project=self.project, json_text='{}',
-                                            template="")
-            auth.create_job(analysis=analysis)
-        except Exception as e:
-            os.remove("test")
-            raise e
+        data = auth.create_data(project=self.project, fname=__file__)
+        analysis = auth.create_analysis(project=self.project, json_text='{}', template="")
+        job = auth.create_job(analysis=analysis)
 
-        os.remove("test")
-        data.save()
-        # All Public urls
+        proj_params = dict(id=self.project.id)
+        analysis_params = dict(id=analysis.id)
+        data_params = dict(id=data.id)
+        job_params = dict(id=job.id)
+
         #TODO:  'job_files_list' not tested yet
         urls = [
             reverse('index'), reverse('info'), reverse('logout'),
             reverse('login'), reverse('signup'),
             reverse('project_list'),
-            reverse('project_view', kwargs=params),
-            reverse('data_list', kwargs=params),
-            reverse('data_view', kwargs=params),
-            reverse('analysis_list', kwargs=params),
-            reverse('analysis_view', kwargs=params),
-            reverse('analysis_run', kwargs=params),
-            reverse('analysis_recipe', kwargs=params),
-            reverse('analysis_copy', kwargs=params),
-            reverse('job_list', kwargs=params),
-            reverse('job_view', kwargs=params),
-            reverse('job_files_entry', kwargs=params),
-            reverse('job_result_view', kwargs=params),
-
+            reverse('project_view', kwargs=proj_params),
+            reverse('data_list', kwargs=proj_params),
+            reverse('data_view', kwargs=data_params),
+            reverse('analysis_list', kwargs=proj_params),
+            reverse('analysis_view', kwargs=analysis_params),
+            reverse('analysis_run', kwargs=analysis_params),
+            reverse('analysis_recipe', kwargs=analysis_params),
+            reverse('analysis_copy', kwargs=analysis_params),
+            reverse('job_list', kwargs=proj_params),
+            reverse('job_view', kwargs=job_params),
+            reverse('job_files_entry', kwargs=job_params),
+            reverse('job_result_view', kwargs=job_params),
         ]
 
         self.visit_urls(urls, 200)

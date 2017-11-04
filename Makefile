@@ -36,6 +36,13 @@ delete:
 	rm -rf *.egg-info
 
 
+postgres:
+	#dropdb --if-exists testbuddy_engine
+	#createdb testbuddy_engine
+	#python manage.py migrate
+	python manage.py test --settings conf.postgres.postgres_settings --failfast
+
+
 reset: delete init
 
 next:
