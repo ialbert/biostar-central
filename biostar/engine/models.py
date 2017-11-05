@@ -209,12 +209,6 @@ class Data(models.Model):
     def get_path(self):
         return self.file.path
 
-    def get_url(self):
-
-        relpath = join(*self.get_path().split("media")[1:])
-
-        return relpath[1:] if relpath.startswith("/") else relpath
-
     def can_unpack(self):
         cond = str(self.file.path).endswith("tar.gz")
         return cond
