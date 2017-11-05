@@ -84,7 +84,7 @@ cat ${WORK_DIR}/*qual_stats.txt > ${RESULT_DIR}/quality_trim_stats.txt
 rm -f ${FASTQC_DIR}/*.zip ${FASTQC_DIR}/*.html
 
 # Run fastqc on all trimmed samples.
-cat $SAMPLE_INFO | parallel --header : --colsep '\t' fastqc --nogroup -o $FASTQC_DIR {temp1} {temp2} 2>/dev/null
+cat $SAMPLE_INFO | parallel --header : --colsep '\t' fastqc --nogroup -o $FASTQC_DIR {result1} {result2} 2>/dev/null
 
 # Create multiqc report of trimmed samples.
 echo -e "\n Creating multiqc report.\n"
