@@ -11,6 +11,7 @@ logger = logging.getLogger('engine')
 
 class ProjectTest(TestCase):
 
+
     def setUp(self):
 
         self.owner = models.User.objects.filter(is_superuser=True).first()
@@ -54,6 +55,11 @@ class ProjectTest(TestCase):
         self.assertEqual(resp.status_code, 200)
 
 
+    def test_data_download(self):
+        "Test data download"
+        pass
+
+
     def test_data_edit(self):
         "Test data edit"
 
@@ -68,6 +74,7 @@ class ProjectTest(TestCase):
 
 
 class DataTest(TestCase):
+
 
     def setUp(self):
         pass
@@ -131,8 +138,11 @@ class AnalysisTest(TestCase):
     def test_analysis_run(self):
         "Testing analysis run"
 
-        pass
+        url = reverse("analysis_run", kwargs=dict(id=self.analysis.id))
+        info=dict(user=self.owner)
+        resp = self.client.post(url, info)
 
+        self.assertEqual(resp.status_code, 200)
 
 
 class JobTest(TestCase):
@@ -140,10 +150,6 @@ class JobTest(TestCase):
     def setUp(self):
         pass
 
-    def test_creation(self):
+    def test_job_creation(self):
         "Test Job creation"
-        return
-
-    def test_results(self):
-        "Test results page"
         return

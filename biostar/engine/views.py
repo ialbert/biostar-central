@@ -479,6 +479,11 @@ def job_file_view(request, id):
 
     return redirect(url)
 
+def media_redirect(request):
+
+    messages.warning(request,"Action not allowed, redirecting to home.")
+
+    return redirect(reverse("index"))
 
 def job_files_list(request, id, path=''):
     job = Job.objects.filter(id=id).first()
