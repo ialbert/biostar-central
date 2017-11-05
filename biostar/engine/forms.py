@@ -205,6 +205,7 @@ class EditAnalysisForm(forms.Form):
     def preview(self):
 
         cleaned_data = super(EditAnalysisForm, self).clean()
+        #TODO: strip \n at the end of "text"
         json_data = hjson.loads(cleaned_data["text"])
 
         self.generate_form(json_data)
@@ -217,9 +218,8 @@ class EditAnalysisForm(forms.Form):
         self.generate_form(json_data)
 
         spec = hjson.loads(self.cleaned_data["text"])
-        filler = dict(display_type='')
 
-        if spec.get("settings", filler).get("display_type") == "MODEL":
+        if spec.get("settings"):
             self.analysis.name = spec["settings"].get("name", self.analysis.name)
             self.analysis.text = spec["settings"].get("text", self.analysis.text)
 

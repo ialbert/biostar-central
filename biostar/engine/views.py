@@ -369,6 +369,7 @@ def analysis_run(request, id):
 
 
 def preview_specs(spec, analysis):
+
     if spec.get("settings"):
         name = spec["settings"].get("name", analysis.name)
         help = spec["settings"].get("help", analysis.text)
@@ -377,7 +378,7 @@ def preview_specs(spec, analysis):
 
         return dict(name=name, html=html)
     else:
-        return dict()
+        return dict(name=analysis.name, html=analysis.html)
 
 
 def process_analysis_edit(method, analysis, form):
@@ -393,8 +394,8 @@ def process_analysis_edit(method, analysis, form):
 
 @login_required
 def analysis_edit(request, id):
+
     analysis = Analysis.objects.filter(id=id).first()
-    # filter according to user
     project = analysis.project
     steps = breadcrumb_builder([PROJECT_ICON, ANALYSIS_LIST_ICON, ANALYSIS_VIEW_ICON],
                                project=project, analysis=analysis)
