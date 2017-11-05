@@ -146,7 +146,12 @@ class Data(models.Model):
     size = models.IntegerField(default=0)
 
     state = models.IntegerField(default=PENDING, choices=STATE_CHOICES)
+
+    # A file is either in media or is linked to.
     file = models.FileField(null=True, upload_to=data_upload_path, max_length=MAX_FIELD_LEN)
+
+    link = models.FilePathField(null=True,  max_length=MAX_FIELD_LEN)
+
     uid = models.CharField(max_length=32)
 
     # Will be false if the objects is to be deleted.
@@ -176,14 +181,14 @@ class Data(models.Model):
         """
         Returns a preview of the data
         """
-        return util.smart_preview(self.get_path())
+        return util.smart_preview(self.get_link())
 
     def set_size(self):
         """
         Sets the size of the data.
         """
         try:
-            size = os.path.getsize(self.get_path())
+            size = os.path.getsize(self.get_link())
         except:
             size = 0
         Data.objects.filter(id=self.id).update(size=size)
@@ -192,10 +197,14 @@ class Data(models.Model):
         return self.name
 
     def get_datadir(self):
+        "The data directory"
         return join(self.project.get_project_dir(), f"store-{self.uid}")
 
     def get_project_dir(self):
         return self.project.get_project_dir()
+
+    def get_link(self):
+        return self.link if self.link else self.get_path()
 
     def get_path(self):
         return self.file.path
