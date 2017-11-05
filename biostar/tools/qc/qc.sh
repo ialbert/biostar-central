@@ -17,7 +17,6 @@ DATA_DIR={{runtime.work_dir}}/data
 RESULT_DIR={{runtime.work_dir}}/results
 FASTQC_DIR=${WORK_DIR}/fastqc
 
-
 # Stores the updated sample information.
 SAMPLE_INFO=updated_sampleinfo.txt
 
@@ -114,9 +113,11 @@ cat ${WORK_DIR}/trimmed_counts.txt | sort -k 1,1 >${WORK_DIR}/trimmed_counts.s.t
 echo -e "sample\traw\ttrimmed\n" >${RESULT_DIR}/count_stats.txt
 join ${WORK_DIR}/raw_counts.s.txt  ${WORK_DIR}/trimmed_counts.s.txt >>${RESULT_DIR}/count_stats.txt
 
-# clean
+# Clean up.
+
 rm -f ${WORK_DIR}/raw_counts*.txt  ${WORK_DIR}/trimmed_counts*.txt
 rm -f ${WORK_DIR}/*.gz
 
 # Copy main results to $RESULT_VIEW.
+
 cp ${RESULT_DIR}/quality_trimmed.html $RESULT_VIEW
