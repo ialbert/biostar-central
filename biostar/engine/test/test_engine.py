@@ -13,7 +13,7 @@ class ProjectTest(TestCase):
 
 
     def setUp(self):
-
+        logger.setLevel(logging.WARNING)
         self.owner = models.User.objects.filter(is_superuser=True).first()
         self.project = auth.create_project(user=self.owner, name="test",
                                                 text="Text",summary="summary")
@@ -55,11 +55,6 @@ class ProjectTest(TestCase):
         self.assertEqual(resp.status_code, 200)
 
 
-    def test_data_download(self):
-        "Test data download"
-        pass
-
-
     def test_data_edit(self):
         "Test data edit"
 
@@ -70,7 +65,6 @@ class ProjectTest(TestCase):
         resp = self.client.post(url, info, follow=True)
 
         self.assertEqual(resp.status_code, 200)
-
 
 
 class DataTest(TestCase):
@@ -87,12 +81,17 @@ class DataTest(TestCase):
         "Testing data copy using tasks"
         return
 
+    def test_data_download(self):
+        "Test data download"
+        pass
+
 
 
 class AnalysisTest(TestCase):
 
 
     def setUp(self):
+        logger.setLevel(logging.WARNING)
         self.owner = models.User.objects.filter(is_superuser=True).first()
         self.project = auth.create_project(user=self.owner, name="test",
                                            text="Text", summary="summary")
@@ -148,6 +147,7 @@ class AnalysisTest(TestCase):
 class JobTest(TestCase):
 
     def setUp(self):
+        logger.setLevel(logging.WARNING)
         pass
 
     def test_job_creation(self):
