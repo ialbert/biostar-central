@@ -4,6 +4,7 @@ from django.test import TestCase
 from biostar.engine import auth
 from biostar.engine import models
 from django.urls import reverse
+from django.core import management
 
 
 logger = logging.getLogger('engine')
@@ -28,10 +29,9 @@ class ProjectTest(TestCase):
 
         # Create with no image
         info = dict(user=self.owner, name="testing name", summary="test",text="testing")
-        resp = self.client.post(reverse("project_create"), info)
+        resp = self.client.post(reverse("project_create"), info, follow=True)
 
-        # Redirects to projects_list
-        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(resp.status_code, 200)
 
 
     def test_project_edit(self):
@@ -95,7 +95,6 @@ class AnalysisTest(TestCase):
         self.owner = models.User.objects.filter(is_superuser=True).first()
         self.project = auth.create_project(user=self.owner, name="test",
                                            text="Text", summary="summary")
-        self.project.save()
         self.analysis = auth.create_analysis(project=self.project, json_text='{}', template="")
         self.analysis.save()
 
@@ -117,7 +116,6 @@ class AnalysisTest(TestCase):
 
         self.assertEqual(resp.status_code, 200)
 
-
     def test_analysis_edit(self):
         "Testing analysis edit"
 
@@ -133,7 +131,6 @@ class AnalysisTest(TestCase):
 
             self.assertEqual(resp.status_code, 200)
 
-
     def test_analysis_run(self):
         "Testing analysis run"
 
@@ -147,9 +144,21 @@ class AnalysisTest(TestCase):
 class JobTest(TestCase):
 
     def setUp(self):
-        logger.setLevel(logging.WARNING)
-        pass
 
-    def test_job_creation(self):
-        "Test Job creation"
+        logger.setLevel(logging.WARNING)
+        self.owner = models.User.objects.filter(is_superuser=True).first()
+        self.project = auth.create_project(user=self.owner, name="test",
+                                           text="Text", summary="summary")
+        self.analysis = auth.create_analysis(project=self.project, json_text='{test:{value:"test"}}',
+                                             template="echo {{test.value}}")
+        self.job = auth.create_job(analysis=self.analysis)
+
+        # using a simple logged in client when needed
+        self.client.login(username="1@lvh.me", password="1@lvh.me")
+
+    def test_job_runner(self):
+        "Testing Job runner"
+
+        management.call_command('job', id=self.job.id)
+
         return
