@@ -103,10 +103,13 @@ class AnalysisTest(TestCase):
 
     def test_analysis_copy(self):
         "Testing analysis copy"
+
         url = reverse("analysis_copy", kwargs=dict(id=self.analysis.id))
         projects = [self.project]
+        info = dict(projects=projects)
+        resp = self.client.post(url, info)
 
-        pass
+        self.assertEqual(resp.status_code, 200)
 
 
     def test_analysis_edit(self):
@@ -126,7 +129,7 @@ class AnalysisTest(TestCase):
 
 
     def test_analysis_run(self):
-        "Testing analysis run form"
+        "Testing analysis run"
 
         pass
 
