@@ -175,20 +175,21 @@ class Data(models.Model):
         if not os.path.isdir(data_dir):
             os.makedirs(data_dir)
         self.data_dir = data_dir
+
         super(Data, self).save(*args, **kwargs)
 
     def peek(self):
         """
         Returns a preview of the data
         """
-        return util.smart_preview(self.get_link())
+        return util.smart_preview(self.get_path())
 
     def set_size(self):
         """
         Sets the size of the data.
         """
         try:
-            size = os.path.getsize(self.get_link())
+            size = os.path.getsize(self.get_path())
         except:
             size = 0
         Data.objects.filter(id=self.id).update(size=size)
@@ -203,14 +204,11 @@ class Data(models.Model):
     def get_project_dir(self):
         return self.project.get_project_dir()
 
-    def get_link(self):
-        return self.link if self.link else self.get_path()
-
     def get_path(self):
-        return self.file.path
+        return self.link if self.link else self.file.path
 
     def can_unpack(self):
-        cond = str(self.file.path).endswith("tar.gz")
+        cond = str(self.get_path()).endswith("tar.gz") and not self.link
         return cond
 
     def fill_dict(self, obj):

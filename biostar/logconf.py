@@ -30,5 +30,9 @@ LOGGING = {
             'handlers': ['console'],
             'level': 'DEBUG',
         },
+        'biostar': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+        },
     },
 }
