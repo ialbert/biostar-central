@@ -79,14 +79,14 @@ class Project(models.Model):
     privacy = models.IntegerField(default=SHAREABLE, choices=PRIVACY_CHOICES)
     state = models.IntegerField(default=ACTIVE, choices=STATE_CHOICES)
 
-    image = models.ImageField(default=None, blank=True, upload_to=image_path)
-    name = models.CharField(max_length=MAX_NAME_LEN, default="no name")
-    summary = models.TextField(default='no summary')
+    image = models.ImageField(default=None, blank=True, upload_to=image_path, max_length=MAX_FIELD_LEN)
+    name = models.CharField(default="no name", max_length=MAX_NAME_LEN)
+    summary = models.TextField(default='no summary', max_length=MAX_TEXT_LEN)
 
     owner = models.ForeignKey(User)
     text = models.TextField(default='no description', max_length=MAX_TEXT_LEN)
 
-    html = models.TextField(default='html')
+    html = models.TextField(default='html', max_length=MAX_LOG_LEN)
     date = models.DateTimeField(auto_now_add=True)
 
     # Each project belongs to a single group.
@@ -243,7 +243,7 @@ class Analysis(models.Model):
 
     project = models.ForeignKey(Project)
 
-    json_text = models.TextField(default="{}")
+    json_text = models.TextField(default="{}", max_length=MAX_TEXT_LEN)
     template = models.TextField(default="makefile")
 
     date = models.DateTimeField(auto_now_add=True, blank=True)
