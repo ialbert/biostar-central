@@ -33,7 +33,7 @@ class ProjectTest(TestCase):
 
 
     def test_create_interface(self):
-        "Testing project create"
+        "Test for project creation interface"
 
         info = dict(user=self.owner, name="testing name", summary="test",text="testing")
         resp = self.client.post(reverse("project_create"), info, follow=True)
@@ -43,7 +43,7 @@ class ProjectTest(TestCase):
 
 
     def test_edit_interface(self):
-        "Testing project editing"
+        "Test for project editing interface"
 
         url = reverse("project_edit", kwargs=dict(id=self.project.id))
         info = dict(user=self.owner, text="new text", summary="new summary", name="new name")
@@ -53,9 +53,9 @@ class ProjectTest(TestCase):
         self.assertEqual(resp.status_code, 200)
 
 
-    def test_data_upload(self):
-        "Test data upload form to a sample project"
- 
+    def test_data_upload_interface(self):
+        "Test for data upload interface"
+
         url = reverse("data_upload", kwargs=dict(id=self.project.id))
         info = dict(user=self.owner, summary="test upload", text="test", file=__file__)
         resp = self.client.post(url, info, follow=True)
@@ -63,10 +63,14 @@ class ProjectTest(TestCase):
         self.assertEqual(resp.status_code, 200)
 
 
-    def test_data_edit(self):
-        "Test data edit"
+    def test_data_edit_interface(self):
+        "Test data edi interface"
 
+        pre = len(models.Data.objects.all())
         data = auth.create_data(self.project, fname=__file__)
+        post = len(models.Data.objects.all())
+
+        self.assertTrue(post == (pre + 1), "Error creating data in database")
 
         url = reverse("data_edit", kwargs=dict(id=data.id))
         info = dict(summary="new summary", text="new text", name="new name")
@@ -101,21 +105,25 @@ class AnalysisTest(TestCase):
     def setUp(self):
         logger.setLevel(logging.WARNING)
         self.owner = models.User.objects.filter(is_superuser=True).first()
+
+        dbcounter = {
+               "project":{"pre":len(models.Project.objects.all()),"post":models.Project},
+               "analysis":{"pre":len(models.Analysis.objects.all()),"post":models.Analysis},
+               }
         self.project = auth.create_project(user=self.owner, name="test",
                                            text="Text", summary="summary")
         self.analysis = auth.create_analysis(project=self.project, json_text='{}', template="")
-        self.analysis.save()
+
+        for model_type, states in dbcounter.items():
+            post = len(states["post"].objects.all())
+            self.assertTrue(post == (states["pre"] + 1), f"Error adding {model_type} to database.")
 
         # using a simple logged in client when needed
         self.client.login(username="1@lvh.me", password="1@lvh.me")
 
-    #def test_analysis_create(self):
-    #    "Testing analysis creation form ( not implemented yet)  "
-    #    pass
-
 
     def test_analysis_copy(self):
-        "Testing analysis copy"
+        "Testing analysis copy interface "
 
         url = reverse("analysis_copy", kwargs=dict(id=self.analysis.id))
         projects = [self.project]
@@ -154,12 +162,25 @@ class JobTest(TestCase):
     def setUp(self):
 
         logger.setLevel(logging.WARNING)
+
         self.owner = models.User.objects.filter(is_superuser=True).first()
+
+        dbcounter = {
+               "project":{"pre":len(models.Project.objects.all()),"post":models.Project},
+               "analysis":{"pre":len(models.Analysis.objects.all()),"post":models.Analysis},
+               "job":{"pre":len(models.Job.objects.all()),"post":models.Job}
+               }
+
         self.project = auth.create_project(user=self.owner, name="test",
                                            text="Text", summary="summary")
         self.analysis = auth.create_analysis(project=self.project, json_text='{test:{value:"test"}}',
                                              template="echo {{test.value}}")
         self.job = auth.create_job(analysis=self.analysis)
+
+        for model_type, states in dbcounter.items():
+            post = len(states["post"].objects.all())
+
+            self.assertTrue( post == (states["pre"]+1), f"Error adding {model_type} to database." )
 
         # using a simple logged in client when needed
         self.client.login(username="1@lvh.me", password="1@lvh.me")
