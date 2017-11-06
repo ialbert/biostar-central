@@ -1,7 +1,8 @@
+# Help the user track progress.
+echo "Analysis started."
 
-echo The job id: {{runtime.job_id}}
-echo "The project name is: {{runtime.project_name}}"
-echo "This job was started by: {{runtime.user_email}}"
+# Run a simple unix tool on the file.
+ls -l {{data.path}} > results.txt
 
-echo "The media root is at: {{runtime.media_root}}"
-echo "The job will run in: {{runtime.work_dir}}"
+# All done.
+echo "Analysis finished."

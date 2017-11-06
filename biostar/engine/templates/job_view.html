@@ -34,12 +34,17 @@
         </div>
 
         <div class="ui vertical segment">
-            <div class="ui center aligned header">Job Standard Out Log</div>
+            <div class="ui center aligned header">Input Parameters</div>
+            {{ job.summary|markdown|safe }}
+        </div>
+
+        <div class="ui vertical segment">
+            <div class="ui center aligned header">Standard Out Log</div>
             <pre>{{ job.stdout_log }}</pre>
         </div>
 
          <div class="ui vertical segment">
-            <div class="ui center aligned header">Job Standard Error Log</div>
+            <div class="ui center aligned header">Standard Error Log</div>
             <pre>{{ job.stderr_log }}</pre>
         </div>
 

@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}
+{% block headtitle %}
     Create Project
 {% endblock %}
 
@@ -9,13 +9,17 @@
 
 <div class="ui raised segment">
 
-    <form method="post" class="ui form" action="{% url 'project_create' %}">
-
+    <form method="post" class="ui form" action="{% url 'project_create' %}" enctype="multipart/form-data">
             {% csrf_token %}
 
              <div class="field">
                   <label>Project Title</label>
                   {{ form.name }}
+             </div>
+
+             <div class="field">
+                  <label>Project Image</label>
+                  <input id="id_image" type="file" class="" name="image">
              </div>
 
             <div class="field">
@@ -31,7 +35,7 @@
             {{ form.errors }}
 
             <button type="submit" class="ui submit button">
-                <i class="save icon"></i>Save
+                <i class="save icon"></i>Create
             </button>
             <a class="ui right floated button" href="{% url 'project_list' %}">
                 Back

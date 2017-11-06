@@ -1,23 +1,32 @@
 #
-# Requires a data parameter.
-#
-foo : {
-    path: export/local/data.tar.gz
-    display_type: DROPDOWN
-  }
-
-#
 # Analysis settings.
 #
+
+cutoff: {
+    label : Specify the cutoff
+    value : 15
+    help : Should be between 5 and 30
+    range : [5,30]
+    display_type: INTEGER
+    }
+
+organism: {
+    label: Select organism
+    display_type: DROPDOWN
+    choices : [
+        [ "hg38" , "Human hg38"],
+        [ "mm10" , "Mouse mm10"],
+    ]
+}
+
+
 settings : {
     name: Hello World Analysis 3
-    summary: A script that takes a file and prints its name and size
-    index: results.txt
+    summary: Getting input from the user.
     help: '''
         # Help
 
-        This analysis takes a file as input and prints its size.
-
-        It also saves this information into a file that will be the main analysis result.
+        Investigate the data for the recipe and how this data is visualized as input widgets when
+        you run the analysis.
     '''
     }

@@ -6,7 +6,8 @@ from . import tasks
 from .const import *
 import os
 from . import factory
-from . import models
+from . import models, auth
+
 
 # Share the logger with models.
 logger = models.logger
@@ -16,9 +17,11 @@ def join(*args):
 
 
 class ProjectForm(forms.ModelForm):
+    image = forms.ImageField(required=False)
+
     class Meta:
         model = Project
-        fields = ['name', 'summary', 'text']
+        fields = ['name', 'summary', 'text', 'image']
 
 
 class DataUploadForm(forms.ModelForm):
@@ -57,7 +60,9 @@ def make_form_field(data, project):
 
         field = factory.data_field_generator(data, project=project, data_type=data_type)
     else:
+
         func = factory.TYPE2FUNC.get(display_type)
+
         if not func:
             logger.error(f"Invalid display_type={display_type}")
             return
@@ -93,29 +98,44 @@ class DataCopyForm(forms.Form):
         return len(paths)
 
 
-class ExportAnalysis(forms.Form):
+class AnalysisCopyForm(forms.Form):
 
+    projects = forms.IntegerField()
 
     def __init__(self, analysis, *args, **kwargs):
 
         self.analysis = analysis
-        projects = [(proj.id, proj.name) for proj in Project.objects.all()]
         super().__init__(*args, **kwargs)
-        self.fields["project"] = forms.IntegerField(widget=forms.Select(choices=projects))
+
+    def process(self):
+
+        projects = self.data.getlist('projects')
+
+        for project_id in projects:
+            current_project = Project.objects.filter(id=project_id).first()
+
+            current_params = self.analysis_params(project=current_project)
+            new_analysis = auth.create_analysis(**current_params)
+
+            # Images needs to be set by it set
+            new_analysis.image.save(self.analysis.name, self.analysis.image, save=True)
+            new_analysis.save()
+
+        return len(projects)
 
 
-    def export(self):
-        exported_to = self.cleaned_data.get("project")
-        project = Project.objects.filter(id=exported_to).first()
+    def analysis_params(self, project=None):
 
+        project = project or self.analysis.project
         json_text, template = self.analysis.json_text, self.analysis.template
         owner, summary = self.analysis.owner, self.analysis.summary
         name, text = self.analysis.name, self.analysis.text
 
-        analysis = project.create_analysis(json_text, template, owner, summary, name=name, text=text)
-        analysis.save()
-        return project, analysis
 
+
+        params = dict(project=project, json_text=json_text, template=template,
+                      user=owner, summary=summary, name=name, text=text)
+        return params
 
 
 class RunAnalysis(forms.Form):
@@ -147,6 +167,7 @@ class RunAnalysis(forms.Form):
         # Gets all data for the project
 
         datamap = dict((data.id, data) for data in self.project.data_set.all() )
+
         json_data = self.json_data.copy()
 
         for field, obj in json_data.items():
@@ -184,6 +205,7 @@ class EditAnalysisForm(forms.Form):
     def preview(self):
 
         cleaned_data = super(EditAnalysisForm, self).clean()
+        #TODO: strip \n at the end of "text"
         json_data = hjson.loads(cleaned_data["text"])
 
         self.generate_form(json_data)
@@ -196,9 +218,8 @@ class EditAnalysisForm(forms.Form):
         self.generate_form(json_data)
 
         spec = hjson.loads(self.cleaned_data["text"])
-        filler = dict(display_type='')
 
-        if spec.get("settings", filler).get("display_type") == "MODEL":
+        if spec.get("settings"):
             self.analysis.name = spec["settings"].get("name", self.analysis.name)
             self.analysis.text = spec["settings"].get("text", self.analysis.text)
 

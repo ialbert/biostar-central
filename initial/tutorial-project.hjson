@@ -1,0 +1,123 @@
+{
+
+uid: hello
+
+name: How To Create Analysis Recipes
+
+image: tutorial-project.png
+
+summary: '''
+This project contains simple analyses that demonstrate the process
+of creating a **recipe**. Follow the **examples** and **instructions** along the way.
+'''
+
+text: '''
+
+    This project hosts simple analyses (called recipes) and the results
+    produced by applying the recipe on files.
+
+    # Basics
+
+    Each project has three distinct sections:
+
+    1. The files
+    2. The recipes
+    3. The results
+
+    The results are built by applying an analysis recipe onto one or more files.
+
+    # Recipes
+
+    Each analysis recipe is built from two ingredients:
+
+    1. The template
+    2. The data
+
+    The **template** contains the commands that need to be executed. The **template** has
+    placeholders for parameter values that the user will need to enter. The **data**
+    specifies the value of the parameters that get substituted into the **template**.
+
+    The software (`biostar-engine`) will generate an interface for each parameter
+    in the **data** and that is were users are able to select the values
+    that their recipe needs to operate.
+
+    We'll walk through each example now.
+
+    # Hello World 1
+
+    The simplest recipe is one that contains nothing for both the **template** and the **data**.
+
+    Even having no content the analysis is valid! It just does nothing other then demonstrate
+    what takes place when an analysis is run. This recipe will be listed as
+    **No name** and **No summary** in the [Analysis List](http://www.lvh.me:8000/analysis/list/1/).
+
+    Now go ahead and investigate the [**No name**](/analysis/view/4) analysis then
+    the results of the **No name** analysis.
+
+    Follow the [**Show Recipe**](/analysis/recipe/4) action. It shows you how both the **template** and the **data** are empty.
+    Follow the [**Show results**](/job/list/1/?filter=4) action and click on a result.
+    Note how even an empty recipe produces outputs. The file named:
+
+    - `run.sh` contains the command that were run.
+    - `run.sh.json` contains the command that were run.
+    - `run.sh.stdout.log` contains the output messages that the recipe produced
+    - `run.sh.stderr.log` contains the error messages that the recipe produced
+
+    This same information is visible for the job on the previous page.
+
+    When a recipe is run a new folder is created that contains a substantial amount of information
+    on how the recipe worked and what the `biostar-engine` (the software that runs the recipe) deals
+    with processes.
+
+    # Hello World 2
+
+    Let's make the recipe print **Hello world!**
+
+    Visit this recipe and look at the recipe source. Note the changes added to the **template** and the
+    **data**.
+
+    The special entry called **settings** allows you to control
+    the way the recipe is displayed on the site. This is where the name,
+    the summary and the description for the recipe comes from.
+
+    # Hello World 3
+
+    This recipe demonstrates how parameters in the **data** get rendered as input widgets.
+
+    The tools takes two parameters, organism and cutoff and passes these into the template.
+
+    # Hello World 4
+
+    This recipe demonstrates how uploaded files are handled and rendered as input widgets
+    on the website.
+
+    The tools takes an uploaded data then passes it into the template.
+
+'''
+
+analyses: [
+
+    {
+        json: biostar/tools/hello/hello4.hjson
+        template: biostar/tools/hello/hello4.sh
+    }
+
+    {
+        json: biostar/tools/hello/hello3.hjson
+        template: biostar/tools/hello/hello3.sh
+    }
+
+    {
+        json: biostar/tools/hello/hello2.hjson
+        template: biostar/tools/hello/hello2.sh
+    }
+
+    {
+        json: biostar/tools/hello/hello1.hjson
+        template: biostar/tools/hello/hello1.sh
+    }
+
+
+]
+
+}

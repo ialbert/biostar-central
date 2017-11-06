@@ -24,8 +24,8 @@
             </div>
 
             <div class="content">
-                <a class="header" href="{% url "project_view" project.id %}">
-                    <i class="file text icon"></i> Data List for the {{ project.name }}
+                <a class="header" href="{% url 'project_view' project.id %}">
+                    <i class="file text icon"></i> Files List: {{ project.name }}
                 </a>
                 <div class="description">
                     {{ project.summary}}
@@ -37,7 +37,7 @@
         <div class="item">
              <div class="right floated content">
             <a class="ui primary button" href="{% url 'data_upload' project.id %}">
-                <i class="upload icon"></i>Upload data
+                <i class="upload icon"></i>Upload file
             </a>
                 </div>
         </div>

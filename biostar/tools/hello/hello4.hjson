@@ -1,12 +1,26 @@
 #
+# Requires a data parameter.
+#
+data : {
+    path: export/local/input/test_reads.fastq.gz
+    display_type: DROPDOWN
+  }
+
+#
 # Analysis settings.
 #
 settings : {
     name: Hello World Analysis 4
-    summary: Demonstrates access to a broader context.
+    summary: Accessing uploaded files.
+    index: results.txt
     help: '''
         # Help
 
-        The data passed to this script has access to a broader context.
+        This analysis operated on an uploaded file and prints its size.
+
+        It also saves this information into a file that will be the main analysis result.
+
+        Note how the `index` above points to the main result file. This is used when the `Main result`
+        button is selected on the Result view.
     '''
     }

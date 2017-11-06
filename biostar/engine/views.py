@@ -56,9 +56,9 @@ def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=Non
         elif icon == PROJECT_ICON:
             step = (reverse("project_view", kwargs={'id': project.id}), PROJECT_ICON, "Project View", is_active)
         elif icon == DATA_LIST_ICON:
-            step = (reverse("data_list", kwargs={'id': project.id}), DATA_LIST_ICON, "Data List", is_active)
+            step = (reverse("data_list", kwargs={'id': project.id}), DATA_LIST_ICON, "File List", is_active)
         elif icon == DATA_ICON:
-            step = (reverse("data_view", kwargs={'id': data.id}), DATA_ICON, f"Data View", is_active)
+            step = (reverse("data_view", kwargs={'id': data.id}), DATA_ICON, f"File View", is_active)
         elif icon == ANALYSIS_LIST_ICON:
             step = (reverse("analysis_list", kwargs={'id': project.id}), ANALYSIS_LIST_ICON, "Analysis List", is_active)
         elif icon == ANALYSIS_VIEW_ICON:
@@ -141,7 +141,8 @@ def project_edit(request, id):
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON], project=project)
 
     if request.method == "POST":
-        form = ProjectForm(request.POST, instance=project)
+        form = ProjectForm(request.POST, request.FILES, instance=project)
+
         if form.is_valid():
             form.save()
             return redirect(project.url())
@@ -160,22 +161,29 @@ def project_create(request):
 
     if request.method == "POST":
         # create new projects here ( just populates metadata ).
-        form = ProjectForm(data=request.POST)
+        form = ProjectForm(request.POST, request.FILES)
         if form.is_valid():
+
             name = form.cleaned_data["name"]
             text = form.cleaned_data["text"]
-            owner = User.objects.all().first()
-            project = Project.objects.create(name=name, text=text, owner=owner)
+            summary = form.cleaned_data["summary"]
+            stream = form.cleaned_data["image"]
+            owner = request.user
+
+            project = auth.create_project(user=owner, name=name, summary=summary, text=text,
+                                          stream=stream)
             project.save()
+
             return redirect(reverse("project_list"))
         else:
             form.add_error(None, "Invalid form processing.")
-    else:
-        initial = dict(name="Project Name", text="project description", summary="project summary")
-        form = ProjectForm(initial=initial)
-        context = dict(steps=steps, form=form)
-        return render(request, 'project_create.html',
-                      context)
+            messages.error(request, "Invalid form processing.")
+
+    initial = dict(name="Project Name", text="project description", summary="project summary")
+    form = ProjectForm(initial=initial)
+    context = dict(steps=steps, form=form)
+    return render(request, 'project_create.html',
+                  context)
 
 
 # @login_required
@@ -187,6 +195,7 @@ def data_list(request, id):
         messages.error(request, "Data not found.")
         logger.error(f"data.id={id} looked for but not found.")
         return redirect(reverse("project_list"))
+
     data_list = Data.objects.filter(project=project).order_by("-date")
     context = dict(project=project, steps=steps, data_list=data_list)
     return render(request, "data_list.html", context)
@@ -249,6 +258,9 @@ def data_upload(request, id):
                              user=owner, project=project)
             messages.info(request, "Data upload complete")
             return redirect(reverse("data_list", kwargs={'id': project.id}))
+        else:
+            form.add_error(None, "Invalid form processing.")
+            messages.error(request, "Invalid form processing.")
 
     else:
         form = DataUploadForm()
@@ -257,7 +269,6 @@ def data_upload(request, id):
     return render(request, 'data_upload.html', context)
 
 
-# @login_required
 def analysis_list(request, id):
     """
     Returns the list of analyses for a project id.
@@ -282,17 +293,11 @@ def analysis_view(request, id):
     project = analysis.project
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ANALYSIS_LIST_ICON, ANALYSIS_VIEW_ICON],
                                project=project, analysis=analysis)
-    if request.method == "POST":
-        form = ExportAnalysis(data=request.POST, analysis=analysis)
-        if form.is_valid():
-            project, analysis = form.export()
-            return redirect(reverse("analysis_list", kwargs={"id": project.id}))
-    else:
-        form = ExportAnalysis(analysis=analysis)
-    context = dict(project=project, analysis=analysis, steps=steps,
-                   form=form)
+
+    context = dict(project=project, analysis=analysis, steps=steps)
 
     return render(request, "analysis_view.html", context)
+
 
 def analysis_recipe(request, id):
     analysis = Analysis.objects.filter(id=id).first()
@@ -304,7 +309,30 @@ def analysis_recipe(request, id):
     context=dict(analysis=analysis, steps=steps)
     return render(request, "analysis_recipe.html", context)
 
-@login_required
+
+def analysis_copy(request, id):
+
+    #TODO: will use a factory.py function for generating projects field when adding new features
+    analysis = Analysis.objects.filter(id=id).first()
+    projects = Project.objects.all()
+
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON,
+                                ANALYSIS_VIEW_ICON, ANALYSIS_RECIPE_ICON],
+                               project=analysis.project, analysis=analysis)
+
+    if request.method == "POST":
+
+        form = AnalysisCopyForm(data=request.POST, analysis=analysis)
+        if form.is_valid():
+            count = form.process()
+            messages.success(request, f"Copied current analysis to {count} project(s).")
+    else:
+        form = AnalysisCopyForm(analysis=analysis)
+
+    context=dict(analysis=analysis, steps=steps, projects=projects, form=form)
+    return render(request, "analysis_copy.html", context)
+
+
 def analysis_run(request, id):
     analysis = Analysis.objects.filter(id=id).first()
 
@@ -316,6 +344,9 @@ def analysis_run(request, id):
 
     if request.method == "POST":
         form = RunAnalysis(data=request.POST, analysis=analysis)
+
+        if request.user.is_anonymous():
+            form.add_error(None, "You must be logged in to run an analysis")
 
         if form.is_valid():
             name = form.cleaned_data.get("name")
@@ -338,6 +369,7 @@ def analysis_run(request, id):
 
 
 def preview_specs(spec, analysis):
+
     if spec.get("settings"):
         name = spec["settings"].get("name", analysis.name)
         help = spec["settings"].get("help", analysis.text)
@@ -346,7 +378,7 @@ def preview_specs(spec, analysis):
 
         return dict(name=name, html=html)
     else:
-        return dict()
+        return dict(name=analysis.name, html=analysis.html)
 
 
 def process_analysis_edit(method, analysis, form):
@@ -362,8 +394,8 @@ def process_analysis_edit(method, analysis, form):
 
 @login_required
 def analysis_edit(request, id):
+
     analysis = Analysis.objects.filter(id=id).first()
-    # filter according to user
     project = analysis.project
     steps = breadcrumb_builder([PROJECT_ICON, ANALYSIS_LIST_ICON, ANALYSIS_VIEW_ICON],
                                project=project, analysis=analysis)
@@ -431,7 +463,7 @@ def job_result_view(request, id):
     job = Job.objects.filter(id=id).first()
     index = job.json_data.get("settings", {}).get("index", "")
 
-    if job.state == Job.FINISHED:
+    if job.state == Job.COMPLETED:
         url = settings.MEDIA_URL + job.get_url(path=index)
         return redirect(url)
     else:

@@ -1,37 +1,13 @@
-"""website URL Configuration
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/1.11/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  url(r'^$', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  url(r'^$', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.conf.urls import url, include
-    2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
-"""
-from django.conf.urls import url, include
-from django.contrib import admin
-from django.conf.urls.static import static
-from django.conf import settings
-
-import biostar.accounts.urls as accounts_urls
+from django.conf.urls import url
 from . import views
 
 urlpatterns = [
     url(r'^$', views.index, name="index"),
+
     url(r'^info/$', views.info, name="info"),
 
     # Engine specific admin site.
     url(r'^site/admin/', views.site_admin, name='site_admin'),
-
-    # This is the django generated admin site.
-    url(r'^django/admin/', admin.site.urls, name='django_admin'),
-
-    url(r'^accounts/', include(accounts_urls)),
 
     url(r'^project/create/$', views.project_create, name='project_create'),
     url(r'^project/list/$', views.project_list, name='project_list'),
@@ -48,6 +24,7 @@ urlpatterns = [
     url(r'^analysis/run/(?P<id>\d+)/$', views.analysis_run, name='analysis_run'),
     url(r'^analysis/recipe/(?P<id>\d+)$', views.analysis_recipe, name='analysis_recipe'),
     url(r'^analysis/edit/(?P<id>\d+)$', views.analysis_edit, name='analysis_edit'),
+    url(r'^analysis/copy/(?P<id>\d+)$', views.analysis_copy, name='analysis_copy'),
 
     url(r'^job/list/(?P<id>\d+)/$', views.job_list, name='job_list'),
     url(r'^job/view/(?P<id>\d+)/$', views.job_view, name='job_view'),
@@ -57,6 +34,3 @@ urlpatterns = [
 
 ]
 
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT, show_indexes=True)
-    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT, show_indexes=True)
