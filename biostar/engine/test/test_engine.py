@@ -79,7 +79,6 @@ class ProjectTest(TestCase):
         self.assertEqual(resp.status_code, 200, f"Error : response.status_code={resp.status_code} and expected 200.")
 
 
-
 class DataTest(TestCase):
 
 
@@ -107,12 +106,12 @@ class DataTest(TestCase):
         data_ext= os.path.splitext(data.get_path())[-1]
         file_ext =  os.path.splitext(__file__)[-1]
 
-        self.assertEqual(data_ext, file_ext, f"Created data extention ({data_ext}) does not match the input ({file_ext})")
+        self.assertEqual(data_ext, file_ext, f"Created data extension ({data_ext}) does not match the input ({file_ext})")
 
 
     def test_data_linkage(self):
 
-        "Test data linkage"
+        "Test data linkage with auth"
 
         pre = len(models.Data.objects.all())
         data = auth.create_data(self.project, fname=__file__, link=True)
@@ -154,6 +153,7 @@ class AnalysisTest(TestCase):
         resp = self.client.post(url, info)
 
         self.assertEqual(resp.status_code, 200)
+
 
     def test_analysis_edit_interface(self):
         "Testing analysis edit interface"
@@ -207,33 +207,73 @@ class JobTest(TestCase):
         self.client.login(username="1@lvh.me", password="1@lvh.me")
 
     def test_job_runner(self):
-        "Testing Job runner"
+        "Testing Job runner using management command"
 
         management.call_command('job', id=self.job.id)
 
         return
 
 
+
+class TasksTests(TestCase):
+
+    def setUp(self):
+        return
+
+
+
 class CommandTests(TestCase):
 
 
     def setUp(self):
-        pass
+
+        self.owner = models.User.objects.filter(is_superuser=True).first()
+
+        pre = len(models.Project.objects.all())
+        self.project = auth.create_project(user=self.owner, name="test",
+                                                text="Text",summary="summary", uid="testing")
+        post = len(models.Project.objects.all())
+
+        self.assertTrue(post == (pre + 1), "Error creating project in database")
+
+
 
     def test_add_data(self):
+
         "Test adding data to a project using management commands "
+        pre = len(models.Data.objects.all())
+        management.call_command('data', path = __file__, uid="testing")
+        post = len(models.Data.objects.all())
+
+        self.assertTrue(post == (pre + 1), "Error creating adding in database with management command")
         pass
 
-    def test_job_runner(self):
-        "Test job runner using management commands "
-        pass
+    def test_link_data(self):
+        "Test linking data to a project using management commands "
+        pre = len(models.Data.objects.all())
+
+        management.call_command('data', path = __file__, uid="testing", link=True)
+
+        post = len(models.Data.objects.all())
+
+        self.assertTrue(post == (pre + 1), "Error creating adding in database with management command")
+
 
     def test_analysis_add(self):
         "Test adding analysis to project using management commands"
+
         pass
 
     def test_create_project(self):
-        "Test creating project using management command"
+        "Test creating project using a json management command"
+
+        # make a temp
+        #fp = tempfile.TemporaryFile()
+        #write a json file into tmp file and get it done.
+        #fp.write(stream.read(CHUNK))
+        #fp.seek(0)
+        #stream = File(fp)
+
         pass
 
 

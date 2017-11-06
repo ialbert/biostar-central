@@ -89,6 +89,7 @@ def copier(source=None, target_data=None, target_project=None, fname=None):
 
     assert (source and target_data) or (target_project and fname)
 
+    #TODO: should probs link em instead
     source = Data.objects.filter(id=source).first()
     target_data = Data.objects.filter(id=target_data).first()
 
