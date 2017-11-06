@@ -64,7 +64,7 @@ class ProjectTest(TestCase):
 
 
     def test_data_edit_interface(self):
-        "Test data edi interface"
+        "Test data edit interface"
 
         pre = len(models.Data.objects.all())
         data = auth.create_data(self.project, fname=__file__)
@@ -77,6 +77,7 @@ class ProjectTest(TestCase):
         resp = self.client.post(url, info, follow=True)
 
         self.assertEqual(resp.status_code, 200)
+
 
 
 class DataTest(TestCase):
@@ -93,10 +94,13 @@ class DataTest(TestCase):
         "Testing data copy using tasks"
         return
 
-    def test_data_download(self):
-        "Test data download"
+    def test_data_create(self):
+        "Test data create"
         pass
 
+    def test_data_linkage(self):
+        "Test data linkage"
+        pass
 
 
 class AnalysisTest(TestCase):
@@ -133,7 +137,7 @@ class AnalysisTest(TestCase):
         self.assertEqual(resp.status_code, 200)
 
     def test_analysis_edit(self):
-        "Testing analysis edit"
+        "Testing analysis edit interface"
 
         url = reverse("analysis_edit", kwargs=dict(id=self.analysis.id))
         json_data = {"settings":{"name":"Test"}}
@@ -148,7 +152,7 @@ class AnalysisTest(TestCase):
             self.assertEqual(resp.status_code, 200)
 
     def test_analysis_run(self):
-        "Testing analysis run"
+        "Testing analysis run interface"
 
         url = reverse("analysis_run", kwargs=dict(id=self.analysis.id))
         info=dict(user=self.owner)
@@ -171,15 +175,13 @@ class JobTest(TestCase):
                "job":{"pre":len(models.Job.objects.all()),"post":models.Job}
                }
 
-        self.project = auth.create_project(user=self.owner, name="test",
-                                           text="Text", summary="summary")
+        self.project = auth.create_project(user=self.owner, name="test",text="Text", summary="summary")
         self.analysis = auth.create_analysis(project=self.project, json_text='{test:{value:"test"}}',
                                              template="echo {{test.value}}")
         self.job = auth.create_job(analysis=self.analysis)
 
         for model_type, states in dbcounter.items():
             post = len(states["post"].objects.all())
-
             self.assertTrue( post == (states["pre"]+1), f"Error adding {model_type} to database." )
 
         # using a simple logged in client when needed
@@ -191,3 +193,28 @@ class JobTest(TestCase):
         management.call_command('job', id=self.job.id)
 
         return
+
+
+class CommandTests(TestCase):
+
+
+    def setUp(self):
+        pass
+
+    def test_add_data(self):
+        pass
+
+    def test_job_runner(self):
+        pass
+
+    def test_analysis_add(self):
+        pass
+
+    def test_create_project(self):
+        pass
+
+
+
+
+
+
