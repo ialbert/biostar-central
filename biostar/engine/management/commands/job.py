@@ -9,7 +9,6 @@ logger = logging.getLogger('engine')
 
 CURR_DIR = os.path.dirname(os.path.realpath(__file__))
 
-
 def summarize(data):
     '''
     Summarizes job parameters.
@@ -140,7 +139,6 @@ def run(job, options={}):
 
         # Summarize input parameters.
         job.summary = f'{job.summary}\n\n{summarize(json_data)}'
-
         job.save()
 
         # Run the command.
