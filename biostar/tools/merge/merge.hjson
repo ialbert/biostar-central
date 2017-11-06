@@ -1,0 +1,53 @@
+{
+
+read1 : {
+    path: export/local/input/test_reads_R1.fastq.gz
+    label: Read1
+    data_type: FASTQ_TYPE
+    display_type: DROPDOWN
+  }
+
+read2 : {
+    path: export/local/input/test_reads_R2.fastq.gz
+    label: Read2
+    data_type: FASTQ_TYPE
+    display_type: DROPDOWN
+    }
+
+maxlength : {
+   label : Maximum length of read after merging (Leave empty if not needed)
+   value : ""
+   range :[100,1000]
+   help : Enter -1 if you don't want to set maximum length
+   display_type: INTEGER
+}
+
+settings : {
+    name: Merge paired end reads
+    image : merge.png
+    index : index.html
+    summary: Performs merging of paired end data to produce long improved single reads.
+    help:'''
+
+# Help
+
+This analysis merges overlapping paired end data using bbmerge algorithm. The input data should be in fastq format.
+It produce two sets of output - a merged improved dataset as produced by bbmerge algorithm and another
+merged,N filtered dataset where reads that have Ns after merging are removed.
+FastQC report of the merged dataset is also produced.
+
+# Parameters
+
+1. Paired end data in fastq format.
+
+# Results
+
+1. Merged improved dataset.
+2. Merged, N-filtered dataset.
+3. FastQC report of the merged dataset.
+
+'''
+
+    }
+
+}

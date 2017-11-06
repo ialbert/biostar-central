@@ -60,6 +60,12 @@ analyses: [
         template: biostar/tools/lamar_align/lamar_align.sh
     }
 
+    {
+        json: biostar/tools/merge/merge.hjson
+        template: biostar/tools/merge/merge.sh
+    }
+
+
 ]
 
 }
