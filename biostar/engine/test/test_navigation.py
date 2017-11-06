@@ -8,25 +8,6 @@ from django.urls import reverse
 
 logger = logging.getLogger('engine')
 
-
-class UserAccountTests(TestCase):
-
-    def test_pages(self):
-        'Testing login,logout, and signup'
-        urls = [
-            (reverse('signup'), dict(info=dict(email="test1@lvh.me", password="test1@lvh.me"),code=200)),
-            (reverse('login'),dict(info=dict(email="test1@lvh.me", password="test1@lvh.me"),code=200)),
-            (reverse('logout'), dict(info=dict(), code=302)),
-        ]
-
-        c = Client()
-
-        for url, info in urls:
-            resp = c.post(url, info["info"])
-            self.assertEqual(resp.status_code, info["code"])
-
-
-
 class SiteNavigation(TestCase):
 
     def setUp(self):

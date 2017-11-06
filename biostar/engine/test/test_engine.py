@@ -14,27 +14,35 @@ class ProjectTest(TestCase):
 
 
     def setUp(self):
+
         logger.setLevel(logging.WARNING)
         self.owner = models.User.objects.filter(is_superuser=True).first()
+
+        pre = len(models.Project.objects.all())
+
         self.project = auth.create_project(user=self.owner, name="test",
                                                 text="Text",summary="summary")
         self.project.save()
+
+        post = len(models.Project.objects.all())
+
+        self.assertTrue(post==(pre+1), "Error creating project in database")
 
         # using a simple logged in client when needed
         self.client.login(username="1@lvh.me", password="1@lvh.me")
 
 
-    def test_project_create(self):
+    def test_create_interface(self):
         "Testing project create"
 
-        # Create with no image
         info = dict(user=self.owner, name="testing name", summary="test",text="testing")
         resp = self.client.post(reverse("project_create"), info, follow=True)
 
+        # Test if user interface works
         self.assertEqual(resp.status_code, 200)
 
 
-    def test_project_edit(self):
+    def test_edit_interface(self):
         "Testing project editing"
 
         url = reverse("project_edit", kwargs=dict(id=self.project.id))
@@ -47,7 +55,7 @@ class ProjectTest(TestCase):
 
     def test_data_upload(self):
         "Test data upload form to a sample project"
-
+ 
         url = reverse("data_upload", kwargs=dict(id=self.project.id))
         info = dict(user=self.owner, summary="test upload", text="test", file=__file__)
         resp = self.client.post(url, info, follow=True)

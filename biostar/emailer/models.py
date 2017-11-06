@@ -23,4 +23,4 @@ def add_to_emaillist(sender, instance, created, **kwargs):
 
     if created:
         # Create a profile for user
-        profile = Profile.objects.create(user=instance)
+        pass
