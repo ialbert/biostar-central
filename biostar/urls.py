@@ -17,6 +17,7 @@ urlpatterns = [
     # The django generated admin site.
     url(r'^django/admin/', admin.site.urls, name='django_admin'),
 
+
 ]
 
 if settings.DEBUG:
