@@ -39,7 +39,7 @@ class ProjectTest(TestCase):
         resp = self.client.post(reverse("project_create"), info, follow=True)
 
         # Test if user interface works
-        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.status_code, 200, f"Error : response.status_code={resp.status_code} and expected 200.")
 
 
     def test_edit_interface(self):
@@ -50,7 +50,7 @@ class ProjectTest(TestCase):
 
         resp = self.client.post(url, info, follow=True)
 
-        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.status_code, 200, f"Error : response.status_code={resp.status_code} and expected 200.")
 
 
     def test_data_upload_interface(self):
@@ -60,7 +60,7 @@ class ProjectTest(TestCase):
         info = dict(user=self.owner, summary="test upload", text="test", file=__file__)
         resp = self.client.post(url, info, follow=True)
 
-        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.status_code, 200, f"Error : response.status_code={resp.status_code} and expected 200.")
 
 
     def test_data_edit_interface(self):
@@ -76,7 +76,7 @@ class ProjectTest(TestCase):
         info = dict(summary="new summary", text="new text", name="new name")
         resp = self.client.post(url, info, follow=True)
 
-        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.status_code, 200, f"Error : response.status_code={resp.status_code} and expected 200.")
 
 
 
@@ -84,23 +84,42 @@ class DataTest(TestCase):
 
 
     def setUp(self):
+
+        self.owner = models.User.objects.filter(is_superuser=True).first()
+        pre = len(models.Project.objects.all())
+        self.project = auth.create_project(user=self.owner, name="test",
+                                                text="Text",summary="summary")
+        post = len(models.Project.objects.all())
+
+        self.assertTrue(post==(pre+1), "Error creating project in database")
+
         pass
-
-    def test_unpack(self):
-        "Testing data unpack using tasks"
-        return
-
-    def test_copy(self):
-        "Testing data copy using tasks"
-        return
 
     def test_data_create(self):
-        "Test data create"
-        pass
+
+        "Testing data create with auth"
+
+        pre = len(models.Data.objects.all())
+        data = auth.create_data(self.project, fname=__file__)
+        post = len(models.Data.objects.all())
+
+        self.assertTrue(post == (pre + 1), "Error creating data in database")
+        data_ext= os.path.splitext(data.get_path())[-1]
+        file_ext =  os.path.splitext(__file__)[-1]
+
+        self.assertEqual(data_ext, file_ext, f"Created data extention ({data_ext}) does not match the input ({file_ext})")
+
 
     def test_data_linkage(self):
+
         "Test data linkage"
-        pass
+
+        pre = len(models.Data.objects.all())
+        data = auth.create_data(self.project, fname=__file__, link=True)
+        post = len(models.Data.objects.all())
+
+        self.assertTrue(post == (pre + 1), "Error creating linked data in database")
+        self.assertEqual(data.get_path(), __file__, "Path in database does not math linked file path.")
 
 
 class AnalysisTest(TestCase):
@@ -126,7 +145,7 @@ class AnalysisTest(TestCase):
         self.client.login(username="1@lvh.me", password="1@lvh.me")
 
 
-    def test_analysis_copy(self):
+    def test_analysis_copy_interface(self):
         "Testing analysis copy interface "
 
         url = reverse("analysis_copy", kwargs=dict(id=self.analysis.id))
@@ -136,7 +155,7 @@ class AnalysisTest(TestCase):
 
         self.assertEqual(resp.status_code, 200)
 
-    def test_analysis_edit(self):
+    def test_analysis_edit_interface(self):
         "Testing analysis edit interface"
 
         url = reverse("analysis_edit", kwargs=dict(id=self.analysis.id))
@@ -151,7 +170,7 @@ class AnalysisTest(TestCase):
 
             self.assertEqual(resp.status_code, 200)
 
-    def test_analysis_run(self):
+    def test_analysis_run_interface(self):
         "Testing analysis run interface"
 
         url = reverse("analysis_run", kwargs=dict(id=self.analysis.id))
@@ -202,15 +221,19 @@ class CommandTests(TestCase):
         pass
 
     def test_add_data(self):
+        "Test adding data to a project using management commands "
         pass
 
     def test_job_runner(self):
+        "Test job runner using management commands "
         pass
 
     def test_analysis_add(self):
+        "Test adding analysis to project using management commands"
         pass
 
     def test_create_project(self):
+        "Test creating project using management command"
         pass
 
 
