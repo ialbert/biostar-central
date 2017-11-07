@@ -8,7 +8,6 @@ SITE_DOMAIN = "localhost"
 SITE_NAME = "Biostar Engine"
 SITE_HEADER = '<i class="barcode icon"></i> Bioinformatics Recipes'
 
-
 def join(*args):
     return os.path.abspath(os.path.join(*args))
 

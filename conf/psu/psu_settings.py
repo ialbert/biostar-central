@@ -10,7 +10,8 @@ SITE_NAME = "PSU Bioinformatics Recipes"
 
 ALLOWED_HOSTS = [SITE_DOMAIN]
 
-SITE_HEADER = '<i class="barcode icon"></i> PSU Bioinformatics Recipes'
+SITE_HEADER = '<img class="ui middle aligned small image" src="/static/images/shield.png"> <span>Penn State Bioinformatics Recipes</span>'
+
 
 try:
     from .psu_secrets import *
