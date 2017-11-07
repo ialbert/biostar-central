@@ -79,14 +79,14 @@ class Project(models.Model):
     privacy = models.IntegerField(default=SHAREABLE, choices=PRIVACY_CHOICES)
     state = models.IntegerField(default=ACTIVE, choices=STATE_CHOICES)
 
-    image = models.ImageField(default=None, blank=True, upload_to=image_path)
-    name = models.CharField(max_length=MAX_NAME_LEN, default="no name")
-    summary = models.TextField(default='no summary')
+    image = models.ImageField(default=None, blank=True, upload_to=image_path, max_length=MAX_FIELD_LEN)
+    name = models.CharField(default="no name", max_length=MAX_NAME_LEN)
+    summary = models.TextField(default='no summary', max_length=MAX_TEXT_LEN)
 
     owner = models.ForeignKey(User)
     text = models.TextField(default='no description', max_length=MAX_TEXT_LEN)
 
-    html = models.TextField(default='html')
+    html = models.TextField(default='html', max_length=MAX_LOG_LEN)
     date = models.DateTimeField(auto_now_add=True)
 
     # Each project belongs to a single group.
@@ -175,20 +175,21 @@ class Data(models.Model):
         if not os.path.isdir(data_dir):
             os.makedirs(data_dir)
         self.data_dir = data_dir
+
         super(Data, self).save(*args, **kwargs)
 
     def peek(self):
         """
         Returns a preview of the data
         """
-        return util.smart_preview(self.get_link())
+        return util.smart_preview(self.get_path())
 
     def set_size(self):
         """
         Sets the size of the data.
         """
         try:
-            size = os.path.getsize(self.get_link())
+            size = os.path.getsize(self.get_path())
         except:
             size = 0
         Data.objects.filter(id=self.id).update(size=size)
@@ -203,14 +204,11 @@ class Data(models.Model):
     def get_project_dir(self):
         return self.project.get_project_dir()
 
-    def get_link(self):
-        return self.link if self.link else self.get_path()
-
     def get_path(self):
-        return self.file.path
+        return self.link if self.link else self.file.path
 
     def can_unpack(self):
-        cond = str(self.file.path).endswith("tar.gz")
+        cond = str(self.get_path()).endswith("tar.gz") and not self.link
         return cond
 
     def fill_dict(self, obj):
@@ -245,7 +243,7 @@ class Analysis(models.Model):
 
     project = models.ForeignKey(Project)
 
-    json_text = models.TextField(default="{}")
+    json_text = models.TextField(default="{}", max_length=MAX_TEXT_LEN)
     template = models.TextField(default="makefile")
 
     date = models.DateTimeField(auto_now_add=True, blank=True)

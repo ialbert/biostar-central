@@ -92,15 +92,16 @@ def create_data(project, user=None, stream=None, fname=None, name="data.bin", te
     if link:
         data.link = os.path.abspath(fname)
         data.save()
-        fp = tempfile.TemporaryFile()
-        fp.write(stream.read(CHUNK))
-        fp.seek(0)
-        stream = File(fp)
-        logger.info(f"Linking to: {data.link}")
+        #fp = tempfile.TemporaryFile()
+        #fp.write(stream.read(CHUNK))
+        #fp.seek(0)
+        #stream = File(fp)
+        logger.info(f"Linked to: {data.link}")
+    else:
+        # This saves the into the
+        data.file.save(name, stream, save=True)
 
-    # This saves the into the
-    data.file.save(name, stream, save=True)
-
+    # Can not unpack if the file is linked.
     if data.can_unpack():
 
         logger.info(f"uwsgi active: {tasks.HAS_UWSGI}")
