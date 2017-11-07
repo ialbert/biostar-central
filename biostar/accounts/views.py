@@ -156,13 +156,14 @@ def password_reset_done(request):
     return auth_views.password_reset_done(request, extra_context=context,
                                           template_name="accounts/password_reset_done.html")
 
-def password_reset_confirm(request):
+def pass_reset_confirm(request, uidb64, token):
     steps = breadcrumb_builder([HOME_ICON, LOGIN_ICON])
     context = dict(steps=steps)
 
+    #TODO: need to change the set_password_form to own
     return auth_views.password_reset_confirm(request, extra_context=context,
                                              template_name="accounts/password_reset_confirm.html",
-                                             post_reset_redirect=reverse("login"))
+                                            uidb64=uidb64, token=token)
 
 def password_reset_complete(request):
     steps = breadcrumb_builder([HOME_ICON, LOGIN_ICON])
