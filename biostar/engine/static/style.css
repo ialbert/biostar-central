@@ -15,6 +15,11 @@ body {
     background: #fff8db !important;
 }
 
+.centerbox {
+    display:inline-block !important;
+    text-align: center !important;
+}
+
 h1 {
     min-height: 1rem;
     font-size: 1.4rem;

@@ -15,6 +15,13 @@ JOB_COLORS = {
     Job.ERROR: "red", Job.QUEUED: "blue", Job.RUNNING: "teal", Job.COMPLETED: "green"
 }
 
+@register.simple_tag
+def data_color(data):
+    """
+    Returns a color based on job status.
+    """
+    return "" if data.data_type == const.GENERIC_TYPE else "green"
+
 
 @register.simple_tag
 def job_color(job):

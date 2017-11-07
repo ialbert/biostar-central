@@ -33,8 +33,8 @@
 
             </div>
 
-            <div class="item">
-                <div class="right floated content">
+            <div class="item centerbox">
+                <div class="ui center aligned header">
                     <a class="ui primary button" href="{% url 'data_upload' project.id %}">
                         <i class="upload icon"></i>Upload file
                     </a>
@@ -50,8 +50,12 @@
                             <i class="file icon"></i>{{ data.name }}
                         </a>
                         <div class="description">
-                            <div class="ui label">{{ data.size|filesizeformat }} </div>
-                            <div class="ui label">{% type_label data %} </div>
+                            <div>{{ data.summary }}</div>
+
+                        </div>
+                        <div class="meta">
+                             <div class="ui label">{{ data.size|filesizeformat }} </div>
+                            <div class="ui {%  data_color data %} label">{% type_label data %} </div>
                         </div>
                     </div>
 
