@@ -141,10 +141,10 @@ def user_login(request):
 
 def password_reset(request):
     steps = breadcrumb_builder([HOME_ICON, LOGIN_ICON])
-    context = dict(steps)
+    context = dict(steps=steps)
 
     return auth_views.password_reset(request, extra_context=context,
-                                     template_name="accounts/password_reset.html",
+                                     template_name="accounts/password_reset_form.html",
                                      subject_template_name="accounts/password_reset_subject.txt",
                                      email_template_name="accounts/password_reset_email.html"
                                      )
@@ -160,10 +160,13 @@ def password_reset_confirm(request):
     steps = breadcrumb_builder([HOME_ICON, LOGIN_ICON])
     context = dict(steps=steps)
 
-    return auth_views.password_reset_confirm(request, extra_context=context)
+    return auth_views.password_reset_confirm(request, extra_context=context,
+                                             template_name="accounts/password_reset_confirm.html",
+                                             post_reset_redirect=reverse("login"))
 
 def password_reset_complete(request):
     steps = breadcrumb_builder([HOME_ICON, LOGIN_ICON])
     context = dict(steps=steps)
 
-    return auth_views.password_reset_complete(request, extra_context=context)
+    return auth_views.password_reset_complete(request, extra_context=context,
+                                              template_name="accounts/password_reset_complete.html")
