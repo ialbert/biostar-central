@@ -21,7 +21,7 @@ class ProjectForm(forms.ModelForm):
 
     class Meta:
         model = Project
-        fields = ['name', 'summary', 'text', 'image']
+        fields = ['name', 'summary', 'text', 'image', "privacy"]
 
 
 class DataUploadForm(forms.ModelForm):
