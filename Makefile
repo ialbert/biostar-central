@@ -5,11 +5,13 @@ serve: init
 	python manage.py runserver
 
 install:
-	conda install --file conf/conda_requirements.txt -y
 	pip install -r conf/python_requirements.txt
-
-develop:
 	python setup.py develop
+
+
+conda:
+	conda install --file conf/conda_requirements.txt -y
+
 
 uwsgi:init
 	uwsgi  --ini conf/devel/devel_uwsgi.ini
