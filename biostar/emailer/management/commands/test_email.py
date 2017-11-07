@@ -6,6 +6,7 @@ from django.contrib.auth import get_user_model
 from biostar.emailer import sender
 from mailer.engine import send_all
 
+#TODO: should it get the engine level logger.
 logger = logging.getLogger("biostar")
 
 
