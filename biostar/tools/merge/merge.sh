@@ -5,11 +5,6 @@ READ2={{read2.path}}
 MAX_LEN={{maxlength.value}}
 RESULT_VIEW={{runtime.work_dir}}/{{settings.index}}
 
-# Internal parameters.
-if [ -z "$MAX_LEN" ]
-then
-MAX_LEN=-1
-fi
 
 RESULT_DIR=results
 OUT=merged.fq.gz
