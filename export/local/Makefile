@@ -1,4 +1,4 @@
-all: taxonomy lamar fishdb
+all: taxonomy input fishdb
 
 clean:
 	rm -rf blastdb lamar taxonomy input fish_species
@@ -13,10 +13,10 @@ taxonomy/nodes.dmp:
 	centrifuge-download -o taxonomy taxonomy
 
 
-# Lamar test data.
-lamar: lamar/sequences.tar.gz
+# Test data.
+input: input/fish_sequences.tar.gz
 
-lamar/sequences.tar.gz:
+input/fish_sequences.tar.gz:
 	mkdir -p input fish_species
 	# Get virus dataset
 	curl http://iris.bx.psu.edu/projects/testdata/viral-data/col_bhv.fastq.gz > input/virus_sample1.fastq.gz
@@ -37,7 +37,7 @@ lamar/sequences.tar.gz:
 # Fish blast database.
 fishdb: blastdb/fish_species/fish_species.nin
 
-blastdb/fish_species/fish_species.nin: lamar
+blastdb/fish_species/fish_species.nin: input
 	mkdir -p blastdb/fish_species
 	#
 	# Get fish accession map
