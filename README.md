@@ -68,5 +68,10 @@ Make rules:
     make USER=nba restart_django
 
 
-    
+
+Badge:
+
+	 curl https://img.shields.io/badge/biostar-engine-red.svg?style=flat-square > biostar/engine/static/images/badge.svg
+
+
     

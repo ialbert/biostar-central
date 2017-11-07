@@ -5,11 +5,13 @@ serve: init
 	python manage.py runserver
 
 install:
-	conda install --file conf/conda_requirements.txt -y
 	pip install -r conf/python_requirements.txt
-
-develop:
 	python setup.py develop
+
+
+conda:
+	conda install --file conf/conda_requirements.txt -y
+
 
 uwsgi:init
 	uwsgi  --ini conf/devel/devel_uwsgi.ini
@@ -71,7 +73,7 @@ init:
 
 test:
 	python manage.py collectstatic --noinput -v 0
-	python manage.py test -v 2
+	python manage.py test -v 2 --failfast
 
 push:
 	git commit -am "Update by `whoami` on `date` from `hostname`"
@@ -88,11 +90,15 @@ deploy_test:
 deploy_main:
 	fab -f conf/fabfile.py -H ${USER}@${SERVER} deploy_main
 
+deploy_psu:
+	fab -f conf/fabfile.py -H www@psu.bioinformatics.recipes deploy_psu
+
 restart_nginx:
 	fab -f conf/fabfile.py -H ${USER}@${SERVER} restart_nginx
 
 restart_django:
 	fab -f conf/fabfile.py -H ${USER}@${SERVER} restart_uwsgi
+
 
 
 deploy_all: deploy_test deploy_main restart_django
