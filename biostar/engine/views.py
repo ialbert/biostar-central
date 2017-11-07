@@ -56,6 +56,8 @@ def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=Non
             step = (reverse("data_list", kwargs={'id': project.id}), DATA_LIST_ICON, "File List", is_active)
         elif icon == DATA_ICON:
             step = (reverse("data_view", kwargs={'id': data.id}), DATA_ICON, f"File View", is_active)
+        elif icon == DATA_UPLOAD:
+            step = (reverse("data_view", kwargs={'id': project.id}), DATA_UPLOAD, f"File Upload", is_active)
         elif icon == ANALYSIS_LIST_ICON:
             step = (reverse("analysis_list", kwargs={'id': project.id}), ANALYSIS_LIST_ICON, "Analysis List", is_active)
         elif icon == ANALYSIS_VIEW_ICON:
@@ -240,7 +242,7 @@ def data_upload(request, id):
     owner = request.user
 
     project = Project.objects.filter(id=id).first()
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON],
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON, DATA_UPLOAD ],
                                project=project)
 
     if request.method == "POST":

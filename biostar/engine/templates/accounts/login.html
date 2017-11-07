@@ -10,11 +10,12 @@
 
         </div>
 
-        <div class="ui centered card inputcolor">
+        <form class="ui form" method="post" action="{% url 'login' %}">
+            <div class="ui centered card inputcolor">
 
-            <div class="ui basic segment">
+                <div class="ui basic segment">
 
-                <form class="ui form" method="post" action="{% url 'login' %}">
+
                     {% csrf_token %}
 
                     <div class="field">
@@ -34,12 +35,12 @@
                     <a class="ui right floated button" href="/">
                         <i class="home icon"></i>Home</a>
 
-                </form>
 
+                </div>
 
             </div>
 
-        </div>
+        </form>
 
         <div class="ui center aligned basic segment">
             <a href="{% url 'password_reset' %}"><i class="question circle icon"></i> Forgot your password?</a>
