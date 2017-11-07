@@ -30,14 +30,15 @@
             </div>
             {{ form.errors }}
             <button class="ui primary button" type="submit">Log In</button>
-            <input type="hidden" name="next" value="{{next}}" />
+
+            <input type="hidden" name="next" value="{{next}}"/>
             <a class="ui right floated button" href="/">Cancel</a>
 
         </form>
 
         <div class="ui bottom attached warning  message">
             <p>
-                <a class="ui " href="{% url 'login' %}">Forgot your password?</a>
+                <a class="ui " href="{% url 'password_reset' %}">Forgot your password?</a>
             </p>
         </div>
 

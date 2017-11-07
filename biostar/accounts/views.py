@@ -8,6 +8,7 @@ from ratelimit.decorators import ratelimit
 from django.views.decorators import csrf, cache
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
+from django.contrib.auth import views as auth_views
 from django.urls import reverse
 
 
@@ -39,6 +40,7 @@ def user_profile(request, id):
 
 
 @ratelimit(key='ip', rate='10/m', block=True, method=ratelimit.UNSAFE)
+@csrf.csrf_protect
 def user_signup(request):
 
     steps = breadcrumb_builder([HOME_ICON, SIGNUP_ICON])
@@ -136,3 +138,36 @@ def user_login(request):
     context = dict(form=form, steps=steps, next=next)
     return render(request, "accounts/login.html", context=context)
 
+
+def password_reset(request):
+    steps = breadcrumb_builder([HOME_ICON, LOGIN_ICON])
+    context = dict(steps=steps)
+
+    return auth_views.password_reset(request, extra_context=context,
+                                     template_name="accounts/password_reset_form.html",
+                                     subject_template_name="accounts/password_reset_subject.txt",
+                                     email_template_name="accounts/password_reset_email.html"
+                                     )
+
+def password_reset_done(request):
+    steps = breadcrumb_builder([HOME_ICON, LOGIN_ICON])
+    context = dict(steps=steps)
+
+    return auth_views.password_reset_done(request, extra_context=context,
+                                          template_name="accounts/password_reset_done.html")
+
+def pass_reset_confirm(request, uidb64, token):
+    steps = breadcrumb_builder([HOME_ICON, LOGIN_ICON])
+    context = dict(steps=steps)
+
+    #TODO: need to change the set_password_form to own
+    return auth_views.password_reset_confirm(request, extra_context=context,
+                                             template_name="accounts/password_reset_confirm.html",
+                                            uidb64=uidb64, token=token)
+
+def password_reset_complete(request):
+    steps = breadcrumb_builder([HOME_ICON, LOGIN_ICON])
+    context = dict(steps=steps)
+
+    return auth_views.password_reset_complete(request, extra_context=context,
+                                              template_name="accounts/password_reset_complete.html")
