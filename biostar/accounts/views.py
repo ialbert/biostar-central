@@ -48,7 +48,7 @@ def user_signup(request):
     if request.method == 'POST':
 
         form = SignUpForm(request.POST)
-
+        form.add_error(None, "Sign up is disabled")
         if form.is_valid():
             email = form.cleaned_data.get('email')
             password = form.cleaned_data.get('password1')
