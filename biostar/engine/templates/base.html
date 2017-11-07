@@ -71,7 +71,10 @@
     {% endblock %}
 
     <div class="ui vertical center aligned segment">
-        <span class="muted smaller">Software version: {{ VERSION }}</span>
+        <p class="muted">Powered by the
+            <a href="#"><img class="ui spaced image" src="{% static 'images/badge.svg' %}"></a>
+        </p>
+        <p class="muted smaller">Release date: {{ VERSION }}</p>
     </div>
 
 </div>

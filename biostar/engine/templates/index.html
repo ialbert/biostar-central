@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load engine_tags %}
+{% load staticfiles %}
 
 {% block headtitle %}
     Bioinformatics Recipes
@@ -15,29 +16,62 @@
 
 {% block body %}
 
-<div class="ui raised segment">
+    <div class="ui raised segment">
 
-    <div class="ui vertical segment">
+        <div class="ui vertical segment">
 
-        <div class="ui header">
-            <a href="{% url 'project_list' %}">
-                <i class="database icon"></i>Project List
-            </a>
+            <div class="ui header">
+                <a href="{% url 'project_list' %}">
+                    <i class="database icon"></i>Project List
+                </a>
+            </div>
+            <p>
+                <img class="ui small right floated circular image" src="{% static "images/dna.jpg" %}">
+
+                View the list of projects. Each project is a collection of:
+            <ul>
+                <li>Data Files</li>
+                <li>Analysis Recipes</li>
+                <li>Analysis Results</li>
+            </ul>
+            </p>
+            <p>You will be able to access all public and shared projects. Private projects are visible
+                only to members.</p>
+
         </div>
-        <p>View the list of projects.</p>
 
-    </div>
+        <div class="ui vertical segment">
 
-    <div class="ui vertical segment">
+            <div class="ui header">
+                <a href="{% url 'info' %}">
+                    <i class="info circle icon"></i>Information
+                </a>
+            </div>
+            <p>
+                    <img class="ui small right floated circular image" src="{% static "images/biomedical.jpg" %}">
 
-        <div class="ui header">
-            <a href="{% url 'info' %}">
-                <i class="info circle icon"></i>Information
-            </a>
+                Life sciences are experiencing a data reproducibility crisis. It is unexpectedly difficult
+                to even understand how a given data analysis was performed let alone
+                repeat or apply the same process to a new and different dataset.
+            </p>
+            <p>
+
+                This site was built and designed to distribute and share data analysis scripts that
+                we call <b>recipes</b>.
+
+                Each recipe is fully functional. It comes with test data and
+                allows users understand what the input and the results of
+                the recipes are.
+            </p>
+
+            <p>
+                The site allows its users to easily re-rerun, share, modify and improve each-others recipes in
+                a transparent manner. By supporting these interactions we foster
+                a collaborative environment that facilitates productive interactions
+                and creativity.
+            </p>
+
         </div>
-        <p>About this site.</p>
-
-    </div>
 
     </div>
 
