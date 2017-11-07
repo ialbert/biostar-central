@@ -90,6 +90,9 @@ deploy_test:
 deploy_main:
 	fab -f conf/fabfile.py -H ${USER}@${SERVER} deploy_main
 
+deploy_psu:
+	fab -f conf/fabfile.py -H www@psu.bioinformatics.recipes deploy_psu
+
 restart_nginx:
 	fab -f conf/fabfile.py -H ${USER}@${SERVER} restart_nginx
 

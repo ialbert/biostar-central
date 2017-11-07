@@ -8,9 +8,12 @@ if tuple(sys.version_info) > (2, 8):
 
 main_path = '/export/sites/main_engine'
 test_path = '/export/sites/test_engine'
+psu_path = '/export/sites/psu_engine'
 
 test_env = ('source ~/miniconda3/envs/engine/bin/activate test_env')
 main_env = ('source ~/miniconda3/envs/engine/bin/activate main_env')
+psu_env = ('source ~/miniconda3/envs/psu_env/bin/activate psu_env')
+
 
 
 def deploy_latest(path, env, name='main'):
@@ -45,6 +48,10 @@ def deploy_test():
 
 def deploy_main():
     deploy_reset(main_path, main_env, name='main')
+
+def deploy_psu():
+    deploy_reset(psu_path, psu_env, name='main')
+
 
 def restart_nginx():
     sudo("service nginx restart")
