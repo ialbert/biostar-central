@@ -5,9 +5,19 @@ from .const import *
 from .models import Data, Analysis, Job, Project
 import tempfile
 CHUNK = 100
-CHUNK = 100
 
 logger = logging.getLogger("engine")
+
+
+def get_project(user):
+
+    # get all projects belonging to a user.
+    # returns a querey
+    projects = Project.object.all()
+
+    # iterate and only show the public projects.
+    return
+
 
 
 def get_data(user, project, query, data_type=None):

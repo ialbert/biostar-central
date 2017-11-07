@@ -44,6 +44,7 @@ def filter_by_type():
     return
 
 
+
 def data_upload_path(instance, filename):
     # Name the data by the filename.
     pieces = os.path.basename(filename).split(".")
@@ -67,6 +68,14 @@ def image_path(instance, filename):
     imgpath = os.path.join(path, imgname)
 
     return imgpath
+
+
+
+class ProjectManager(models.Manager):
+
+    def get_queryset(self):
+        return super(ProjectManager, self).get_queryset()#.filter(role='A')
+
 
 
 class Project(models.Model):
@@ -93,6 +102,8 @@ class Project(models.Model):
     group = models.OneToOneField(Group)
     uid = models.CharField(max_length=32, unique=True)
 
+    objects = ProjectManager()
+
     def save(self, *args, **kwargs):
         now = timezone.now()
         self.date = self.date or now
@@ -114,6 +125,7 @@ class Project(models.Model):
         return join(settings.MEDIA_ROOT, "projects", f"proj-{self.uid}")
 
 
+
 @receiver(pre_save, sender=Project)
 def create_project_group(sender, instance, **kwargs):
     """
@@ -122,6 +134,7 @@ def create_project_group(sender, instance, **kwargs):
     instance.uid = instance.uid or util.get_uuid(8)
     group, created = Group.objects.get_or_create(name=instance.uid)
     instance.group = group
+
 
 class Data(models.Model):
     FILE, COLLECTION = 1, 2

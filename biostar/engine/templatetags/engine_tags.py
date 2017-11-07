@@ -84,6 +84,15 @@ def breadcrumb(steps):
     """
     return dict(steps=steps)
 
+@register.filter
+def can_edit(user, instance):
+    return
+
+
+@register.filter
+def can_create(user, instance):
+    return
+
 
 @register.inclusion_tag('widgets/menubar.html', takes_context=True)
 def menubar(context, project=None, edit_project=False, create_project=False,
@@ -108,6 +117,7 @@ def is_checkbox(field):
     cond = isinstance(field, forms.BooleanField)
     return cond
 
+0
 
 @register.filter(name='is_selection')
 def is_selection(field):

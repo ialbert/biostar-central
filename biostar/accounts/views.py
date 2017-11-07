@@ -139,6 +139,8 @@ def user_login(request):
     return render(request, "accounts/login.html", context=context)
 
 
+# user_passes_test
+
 def password_reset(request):
     steps = breadcrumb_builder([HOME_ICON, LOGIN_ICON])
     context = dict(steps=steps)
@@ -160,7 +162,7 @@ def pass_reset_confirm(request, uidb64, token):
     steps = breadcrumb_builder([HOME_ICON, LOGIN_ICON])
     context = dict(steps=steps)
 
-    #TODO: need to change the set_password_form to own
+    #TODO: need to change the set_password_form to own (current one has annoying restrications).
     return auth_views.password_reset_confirm(request, extra_context=context,
                                              template_name="accounts/password_reset_confirm.html",
                                             uidb64=uidb64, token=token)

@@ -79,6 +79,12 @@ class ProjectTest(TestCase):
         self.assertEqual(resp.status_code, 200, f"Error : response.status_code={resp.status_code} and expected 200.")
 
 
+    def test_get_projects(self):
+        "Test getting query of projects belonging to a user ( uses auth.py)"
+        return
+
+
+
 class DataTest(TestCase):
 
 
