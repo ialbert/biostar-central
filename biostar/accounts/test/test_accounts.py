@@ -36,3 +36,21 @@ class UserAccountTests(TestCase):
         ]
 
         self.visit_urls(urls, 200)
+
+
+class PasswordResetTest(TestCase):
+
+
+    def setUp(self):
+        return
+
+
+    #def test_password_reset(self):
+    #    return
+
+
+
+
+
+
+
