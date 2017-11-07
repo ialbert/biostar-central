@@ -35,6 +35,15 @@ def img(obj):
         return static("images/placeholder.png")
 
 
+@register.filter(name='can_edit')
+def can_edit(user, instance):
+    """Returns true is instance is editable by user."""
+
+    if user.is_superuser or instance.owner == user:
+        return True
+
+    return False
+
 @register.simple_tag
 def type_label(data):
     """
@@ -84,14 +93,7 @@ def breadcrumb(steps):
     """
     return dict(steps=steps)
 
-@register.filter
-def can_edit(user, instance):
-    return
 
-
-@register.filter
-def can_create(user, instance):
-    return
 
 
 @register.inclusion_tag('widgets/menubar.html', takes_context=True)

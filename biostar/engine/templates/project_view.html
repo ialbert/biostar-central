@@ -17,9 +17,17 @@
 
 {% block body %}
 
-
-
     <div class="ui raised segment">
+
+        {% if user|can_edit:project%}
+
+        <div class="ui centered header">
+            <a class="ui button" href="{% url 'project_edit' project.id %}">
+                <i class="write icon"></i>Edit Project
+            </a>
+        </div>
+
+        {% endif %}
 
         <div class="ui divided link items">
 
@@ -100,11 +108,7 @@
         <div class="ui vertical segment">
             {{ project.html|safe }}
         </div>
-        <div class="ui center aligned basic segment">
-            <a class="ui button" href="{% url 'project_edit' project.id %}">
-                <i class="write icon"></i>Edit Project
-            </a>
-        </div>
+
     </div>
 
 {% endblock %}

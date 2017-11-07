@@ -21,8 +21,8 @@ organism: {
 
 
 settings : {
-    name: Hello World Analysis 3
-    summary: Getting input from the user.
+    name: Hello World 3
+    summary: This recipe shows how the data is rendered.
     help: '''
         # Help
 

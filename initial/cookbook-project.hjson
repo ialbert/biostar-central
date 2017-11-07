@@ -8,8 +8,7 @@ image: cookbook-project.png
 
 summary: '''
 This project contains commonly used data analysis recipes.
-
-Use the recipe descriptions and the results to familiarize yourself what each recipes produces
+Use the recipe descriptions and the results to familiarize yourself with each recipes
 and what the required input and output files are.
 '''
 
@@ -27,9 +26,9 @@ text: '''
 
     # Data
 
-    Each analysis also comes with data that is also deposited into this project.
+    Each analysis also comes with test data that is also deposited into this project.
 
-    Investigate the data and the results to understand the requirements.
+    Investigate the data and the results to understand the recipe requirements.
 
 '''
 

@@ -14,12 +14,16 @@
 
 
     <div class="ui raised segment">
-    <div class="ui centered header">
+
+    {% if user.is_superuser %}
+        <div class="ui centered header">
             <a class="ui button" href="{% url 'project_create' %}">
                 <i class="write icon"></i>Create Project
             </a>
+        </div>
+    {% endif %}
 
-    </div>
+
         <div class="ui divided link items">
 
             {% for project in projects %}

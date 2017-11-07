@@ -37,11 +37,11 @@
 
 <div class="ui text container">
 
-    <h2 class="ui center aligned header">
+    <div class="ui center aligned header">
         {%  block title %}
             {{ SITE_HEADER|safe }}
         {%  endblock %}
-    </h2>
+    </div>
 
     <div class="ui horizontal divider"></div>
     {% block menu %}
@@ -71,7 +71,9 @@
     {% endblock %}
 
     <div class="ui vertical center aligned segment">
-        <span class="muted smaller">Software version: {{ VERSION }}</span>
+        <p class="muted">Powered by the<a href="#"><img class="ui spaced image" src="{% static 'images/badge.svg' %}"></a>
+        </p>
+        <p class="muted smaller">Release date: {{ VERSION }}</p>
     </div>
 
 </div>

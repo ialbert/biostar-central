@@ -1,14 +1,14 @@
 {% extends "base.html" %}
 {% load engine_tags %}
+{% load staticfiles %}
 
 {% block headtitle %}
-    Metabarcode Home
+    Bioinformatics Recipes
 {% endblock %}
 
 {% block header %}
 
 {% endblock %}
-
 
 {% block menu %}
     {% menubar %}
@@ -16,29 +16,76 @@
 
 {% block body %}
 
-<div class="ui raised segment">
+    <div class="ui raised segment">
 
-    <div class="ui vertical segment">
+        <div class="ui vertical segment">
 
-        <div class="ui header">
-            <a href="{% url 'project_list' %}">
-                <i class="database icon"></i>Project List
-            </a>
+            <div class="ui header">
+                <a href="{% url 'project_list' %}">
+                    <i class="database icon"></i>Project List
+                </a>
+            </div>
+            <p>
+                <img class="ui small right floated circular image" src="{% static "images/dna.jpg" %}">
+
+                View the list of projects. Each project is a collection of:
+            <ul>
+                <li>Data Files.</li>
+                <li>Analysis Recipes.</li>
+                <li>Analysis Results.</li>
+            </ul>
+            </p>
+            <p>You will be able to access all public and shared projects.
+                Private projects are visible only to project members.</p>
+
         </div>
-        <p>View the list of projects.</p>
 
-    </div>
+        <div class="ui vertical segment">
 
-    <div class="ui vertical segment">
+            <div class="ui header">
+                <a href="{% url 'info' %}">
+                    <i class="info circle icon"></i>Site Info
+                </a>
+            </div>
+            <p>
 
-        <div class="ui header">
-            <a href="{% url 'info' %}">
-                <i class="info circle icon"></i>Information
-            </a>
+                <img class="ui small right floated circular image" src="{% static "images/biomedical.jpg" %}">
+
+                Life sciences are experiencing a <i>data reproducibility crisis</i>. It has become
+                unexpectedly challenging
+                to even understand how a given data analysis was performed let alone
+                repeating or applying the same process to a new and different data.
+                We have set out to address this problem.
+            </p>
+
+            <p>
+                This site was designed and built to share, document, distribute and rerun
+                data analysis scripts that we call <b>recipes</b>. Recipes have the
+                following requirements:
+
+                <ul>
+                    <li>
+                        Each recipe is fully operational.
+                    </li>
+                    <li>
+                        Each recipe can be modified, tuned and copied across different projects.
+                    </li>
+                    <li>
+                        Each recipe comes with test data and example output results.
+                    </li>
+                </ul>
+
+            </p>
+
+            <p> Users may adapt and remix
+                recipes to match their own needs, then share them as an alternative.
+                By supporting these interactions we foster
+                a collaborative environment that facilitates productive interactions
+                and creativity. Learn more about the way <a href="{% url 'info' %}"> this site works.</a>
+            </p>
+
+
         </div>
-        <p>About this site.</p>
-
-    </div>
 
     </div>
 

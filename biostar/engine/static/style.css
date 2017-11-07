@@ -7,6 +7,14 @@ body {
     text-decoration: underline;
 }
 
+.runcolor {
+    background: rgba(33, 186, 69, 0.13) !important;
+}
+
+.inputcolor {
+    background: #f7f6f9 !important;
+}
+
 h1 {
     min-height: 1rem;
     font-size: 1.4rem;
