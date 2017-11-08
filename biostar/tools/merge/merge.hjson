@@ -15,9 +15,9 @@ read2 : {
     }
 
 maxlength : {
-   label : Maximum length of read after merging (Leave empty if not needed)
-   value : ""
-   range :[100,1000]
+   label : Maximal read length
+   value : 1000
+   range :[-1,1000]
    help : Enter -1 if you don't want to set maximum length
    display_type: INTEGER
 }

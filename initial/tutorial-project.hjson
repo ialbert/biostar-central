@@ -2,19 +2,22 @@
 
 uid: hello
 
-name: How To Create Analysis Recipes
+name: How to create recipes?
 
 image: tutorial-project.png
 
 summary: '''
 This project contains simple analyses that demonstrate the process
-of creating a **recipe**. Follow the **examples** and **instructions** along the way.
+of creating a **recipe.** Follow the **instructions**, investigate the data and code
+and you will understand increasingly advanced recipe creation.
 '''
 
 text: '''
 
     This project hosts simple analyses (called recipes) and the results
-    produced by applying the recipe on files.
+    produced by applying the recipe on files. Note this same help is visible
+    from several different views, from the so called Project View as well as from
+    the Analysis Recipe panel.
 
     # Basics
 
@@ -26,26 +29,29 @@ text: '''
 
     The results are built by applying an analysis recipe onto one or more files.
 
-    # Recipes
+    # What is a recipe?
 
-    Each analysis recipe is built from two ingredients:
+    Each recipe is built from two ingredients:
 
     1. The template
     2. The data
 
-    The **template** contains the commands that need to be executed. The **template** has
+    The **template** contains the commands that need to be executed. This **template** has
     placeholders for parameter values that the user will need to enter. The **data**
-    specifies the value of the parameters that get substituted into the **template**.
+    will specify the value of the parameters that get substituted into the **template**.
 
     The software (`biostar-engine`) will generate an interface for each parameter
     in the **data** and that is were users are able to select the values
     that their recipe needs to operate.
 
-    We'll walk through each example now.
+    Go ahead and run the **recipe**. It will be queued and executed shortly.
+    Investiage the files that it has created.
 
-    # Hello World 1
+    Let's move onto the second example.
 
-    The simplest recipe is one that contains nothing for both the **template** and the **data**.
+    # Hello World 2
+
+    The simplest recipe is one that contains **NOTHING** for both the **template** and the **data**.
 
     Even having no content the analysis is valid! It just does nothing other then demonstrate
     what takes place when an analysis is run. This recipe will be listed as
@@ -69,7 +75,7 @@ text: '''
     on how the recipe worked and what the `biostar-engine` (the software that runs the recipe) deals
     with processes.
 
-    # Hello World 2
+    # Hello World 3
 
     Let's make the recipe print **Hello world!**
 
@@ -80,18 +86,11 @@ text: '''
     the way the recipe is displayed on the site. This is where the name,
     the summary and the description for the recipe comes from.
 
-    # Hello World 3
+    # Hello World 4
 
     This recipe demonstrates how parameters in the **data** get rendered as input widgets.
 
     The tools takes two parameters, organism and cutoff and passes these into the template.
-
-    # Hello World 4
-
-    This recipe demonstrates how uploaded files are handled and rendered as input widgets
-    on the website.
-
-    The tools takes an uploaded data then passes it into the template.
 
 '''
 

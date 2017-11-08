@@ -10,7 +10,7 @@ data : {
 # Analysis settings.
 #
 settings : {
-    name: Hello World Analysis 4
+    name: Hello World 4
     summary: Accessing uploaded files.
     index: results.txt
     help: '''

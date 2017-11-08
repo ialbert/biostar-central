@@ -48,7 +48,7 @@ def user_signup(request):
     if request.method == 'POST':
 
         form = SignUpForm(request.POST)
-
+        form.add_error(None, "Sign up is disabled")
         if form.is_valid():
             email = form.cleaned_data.get('email')
             password = form.cleaned_data.get('password1')
@@ -64,7 +64,6 @@ def user_signup(request):
             messages.info(request, "Signup successful!")
             return redirect(reverse('login'))
     else:
-
         form = SignUpForm()
     context = dict(form=form, steps=steps)
     return render(request, 'accounts/signup.html', context=context)

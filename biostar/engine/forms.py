@@ -26,12 +26,9 @@ class ProjectForm(forms.ModelForm):
 
 class DataUploadForm(forms.ModelForm):
 
-    choices = DATA_TYPES.items()
-    data_type = forms.IntegerField(widget=forms.Select(choices=choices))
-
     class Meta:
         model = Data
-        fields = ['file', 'summary', 'data_type', 'text']
+        fields = ['file', 'summary', 'text']
 
 
 class DataEditForm(forms.ModelForm):
@@ -140,7 +137,7 @@ class AnalysisCopyForm(forms.Form):
 
 class RunAnalysis(forms.Form):
 
-    name = forms.CharField(max_length=256, help_text="Results Title", required=True)
+    name = forms.CharField(max_length=256, help_text="", required=True)
 
     def __init__(self, analysis, *args, **kwargs):
 

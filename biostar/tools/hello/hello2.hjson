@@ -1,5 +1,5 @@
 settings : {
-    name: Hello World Analysis 2
+    name: Hello World 2
     summary: A script that prints: Hello World!
     help: '''
         # Help

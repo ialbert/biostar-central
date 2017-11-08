@@ -9,11 +9,8 @@ from django.contrib.auth.decorators import user_passes_test
 from django.shortcuts import render, redirect
 from django.urls import reverse
 
-from . import auth
-from . import tasks
-from .const import *
 from .forms import *
-from .models import (User, Project, Data,
+from .models import (Project, Data,
                      Analysis, Job)
 
 
@@ -42,6 +39,9 @@ def index(request):
 
 
 def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=None, user=None):
+    """
+    This function builds the breadcrumbs on each page.
+    """
     if not icons:
         return []
 
@@ -59,16 +59,16 @@ def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=Non
             step = (reverse("data_list", kwargs={'id': project.id}), DATA_LIST_ICON, "File List", is_active)
         elif icon == DATA_ICON:
             step = (reverse("data_view", kwargs={'id': data.id}), DATA_ICON, f"File View", is_active)
+        elif icon == DATA_UPLOAD:
+            step = (reverse("data_view", kwargs={'id': project.id}), DATA_UPLOAD, f"File Upload", is_active)
         elif icon == ANALYSIS_LIST_ICON:
             step = (reverse("analysis_list", kwargs={'id': project.id}), ANALYSIS_LIST_ICON, "Analysis List", is_active)
         elif icon == ANALYSIS_VIEW_ICON:
-            step = (
-            reverse("analysis_view", kwargs={'id': analysis.id}), ANALYSIS_VIEW_ICON, "Analysis View", is_active)
+            step = (reverse("analysis_view", kwargs={'id': analysis.id}), ANALYSIS_VIEW_ICON, "Analysis View", is_active)
         elif icon == ANALYSIS_RUN_ICON:
             step = (reverse("analysis_run", kwargs={'id': analysis.id}), ANALYSIS_RUN_ICON, "Analysis Run", is_active)
         elif icon == ANALYSIS_RECIPE_ICON:
             step = (reverse("analysis_recipe", kwargs={'id': analysis.id}), ANALYSIS_RECIPE_ICON, "Analysis Recipe", is_active)
-
         elif icon == RESULT_LIST_ICON:
             step = (reverse("job_list", kwargs={'id': project.id, }), RESULT_LIST_ICON, "Result List", is_active)
         elif icon == RESULT_ICON:
@@ -87,7 +87,6 @@ def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=Non
             step = (reverse("signup"), SIGNUP_ICON, "Sign up", is_active)
         elif icon == RESULT_INDEX_ICON:
             step = (reverse("job_view", kwargs={'id': job.id}), RESULT_INDEX_ICON, "Index View", is_active)
-
         else:
             continue
 
@@ -242,7 +241,7 @@ def data_upload(request, id):
     owner = request.user
 
     project = Project.objects.filter(id=id).first()
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON],
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON, DATA_UPLOAD ],
                                project=project)
 
     if request.method == "POST":
@@ -252,9 +251,8 @@ def data_upload(request, id):
             text = form.cleaned_data["text"]
             stream = form.cleaned_data["file"]
             name = stream.name
-            data_type = form.cleaned_data["data_type"]
 
-            auth.create_data(stream=stream, name=name, data_type=data_type, text=text,
+            auth.create_data(stream=stream, name=name, text=text,
                              user=owner, project=project)
             messages.info(request, "Data upload complete")
             return redirect(reverse("data_list", kwargs={'id': project.id}))
@@ -306,13 +304,12 @@ def analysis_recipe(request, id):
                                 ANALYSIS_VIEW_ICON, ANALYSIS_RECIPE_ICON],
                                project=analysis.project, analysis=analysis)
 
-    context=dict(analysis=analysis, steps=steps)
+    context = dict(analysis=analysis, steps=steps)
     return render(request, "analysis_recipe.html", context)
 
 
 def analysis_copy(request, id):
-
-    #TODO: will use a factory.py function for generating projects field when adding new features
+    # TODO: will use a factory.py function for generating projects field when adding new features
     analysis = Analysis.objects.filter(id=id).first()
     projects = Project.objects.all()
 
@@ -329,7 +326,7 @@ def analysis_copy(request, id):
     else:
         form = AnalysisCopyForm(analysis=analysis)
 
-    context=dict(analysis=analysis, steps=steps, projects=projects, form=form)
+    context = dict(analysis=analysis, steps=steps, projects=projects, form=form)
     return render(request, "analysis_copy.html", context)
 
 
@@ -338,9 +335,9 @@ def analysis_run(request, id):
 
     project = analysis.project
 
-    steps = breadcrumb_builder( [HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON,
-         ANALYSIS_VIEW_ICON, ANALYSIS_RUN_ICON],
-        project=project, analysis=analysis)
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON,
+                                ANALYSIS_VIEW_ICON, ANALYSIS_RUN_ICON],
+                               project=project, analysis=analysis)
 
     if request.method == "POST":
         form = RunAnalysis(data=request.POST, analysis=analysis)
@@ -369,7 +366,6 @@ def analysis_run(request, id):
 
 
 def preview_specs(spec, analysis):
-
     if spec.get("settings"):
         name = spec["settings"].get("name", analysis.name)
         help = spec["settings"].get("help", analysis.text)
@@ -394,7 +390,6 @@ def process_analysis_edit(method, analysis, form):
 
 @login_required
 def analysis_edit(request, id):
-
     analysis = Analysis.objects.filter(id=id).first()
     project = analysis.project
     steps = breadcrumb_builder([PROJECT_ICON, ANALYSIS_LIST_ICON, ANALYSIS_VIEW_ICON],
@@ -494,6 +489,9 @@ def job_files_list(request, id, path=''):
 
     # These are pathlike objects with attributes such as name, is_file
     file_list = list(os.scandir(target_path))
+
+    # Sort by properties
+    file_list = sorted(file_list, key=lambda p: (p.is_file(), p.name))
 
     steps = breadcrumb_builder(
         [PROJECT_LIST_ICON, PROJECT_ICON, RESULT_LIST_ICON, RESULT_VIEW_ICON, RESULT_INDEX_ICON],
