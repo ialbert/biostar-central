@@ -1,7 +1,7 @@
 import hjson, logging
 
 from django import forms
-from .models import Project, Data
+from .models import Project, Data, Analysis
 from . import tasks
 from .const import *
 import os
@@ -21,14 +21,14 @@ class ProjectForm(forms.ModelForm):
 
     class Meta:
         model = Project
-        fields = ['name', 'summary', 'text', 'image', "privacy"]
+        fields = ['name', 'summary', 'text', 'image', "privacy", "sticky"]
 
 
 class DataUploadForm(forms.ModelForm):
 
     class Meta:
         model = Data
-        fields = ['file', 'summary', 'text']
+        fields = ['file', 'summary', 'text', "sticky"]
 
 
 class DataEditForm(forms.ModelForm):
@@ -37,7 +37,14 @@ class DataEditForm(forms.ModelForm):
 
     class Meta:
         model = Data
-        fields = ['name', 'summary', 'data_type','text']
+        fields = ['name', 'summary', 'data_type','text', 'sticky']
+
+
+class AnalysisEditForm(forms.ModelForm):
+
+    class Meta:
+        model = Analysis
+        fields = ['name', 'text', 'sticky']
 
 
 def make_form_field(data, project):

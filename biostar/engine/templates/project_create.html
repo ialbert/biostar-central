@@ -16,6 +16,11 @@
                   <label>Project Title</label>
                   {{ form.name }}
              </div>
+            <div class="field">
+               <label class="checkbox" for="{{ field.id_for_label }}">
+                        {{ form.sticky }} <label>Sticky</label>
+               </label>
+            </div>
              <div class="field">
                   <label>Project Privacy</label>
                   {{form.privacy}}
