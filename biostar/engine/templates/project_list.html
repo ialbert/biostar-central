@@ -14,7 +14,7 @@
 
     <div class="ui raised segment">
 
-    {% if user.is_superuser %}
+    {% if user|can_create_instance %}
         <div class="ui centered header">
             <a class="ui button" href="{% url 'project_create' %}">
                 <i class="write icon"></i>Create Project

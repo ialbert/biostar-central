@@ -33,7 +33,7 @@
             </div>
 
         </div>
-
+    {% if user|can_create_instance %}
         <div class="item">
              <div class="right floated content">
             <a class="ui primary button" href="{% url 'data_upload' project.id %}">
@@ -41,7 +41,7 @@
             </a>
                 </div>
         </div>
-
+{% endif %}
 
         {% for data in data_list %}
             <div class="item">

@@ -44,6 +44,17 @@ def can_edit(user, instance):
 
     return False
 
+
+@register.filter(name='can_create_instance')
+def can_create_instance(user):
+    """Returns true if user can create a project."""
+
+    if user.is_superuser or (not user.is_anonymous):
+        return True
+
+    return False
+
+
 @register.simple_tag
 def type_label(data):
     """

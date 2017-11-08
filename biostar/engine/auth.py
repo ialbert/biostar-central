@@ -1,4 +1,5 @@
 import hjson, logging, shutil, tarfile
+from itertools import chain
 from django.core.files import File
 from . import tasks
 from .const import *
@@ -13,27 +14,28 @@ def get_project_list(user):
     """
     Return projects with privileges relative to a user.
     """
-
     query = Project.objects.all()
 
     # Superusers see everything
     if user.is_superuser:
         return query
-    #
+
     elif user.is_anonymous:
         return query.filter(privacy=Project.PUBLIC)
 
-    # Get private projects belonging to a user
-    query = query.filter(owner=user, privacy=Project.PRIVATE)
+    # See if user has any projects made
 
-    # Get sharable user projects as well
-    query = query.filter(owner=user).filter(privacy=Project.SHAREABLE)
+    private_query = query.filter(owner=user, privacy=Project.PRIVATE)
+    sharable_query = Project.objects.filter(privacy__in=(Project.PUBLIC, Project.SHAREABLE))
 
-    # Get public projects at the end
-    query = query.filter(privacy=Project.PUBLIC)
+    # Return sharable stuff if user has no private projects
+    if not private_query:
+        query= sharable_query
+    # Returns private and sharable stuff for user.
+    else:
+        query = private_query | sharable_query
 
     return query
-
 
 
 def get_data(user, project, query, data_type=None):
