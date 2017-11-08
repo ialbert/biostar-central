@@ -28,7 +28,7 @@ def get_project_list(user):
 
     # Return sharable stuff if user has no private projects
     if not private_query:
-        query= sharable_query
+        query = sharable_query
     # Returns private and sharable stuff for user
     else:
         query = private_query | sharable_query
