@@ -14,7 +14,7 @@
 
             <div class="ui basic segment">
 
-                <form class="ui form attached fluid segment" method="post" action="{% url 'logout' %}" >
+                <form method="post" action="{% url 'logout' %}" >
                     {% csrf_token %}
                     <button class="ui primary button" type="submit">Log out</button>
                     <a class="ui right floated  button" href="/">Go Back</a>
