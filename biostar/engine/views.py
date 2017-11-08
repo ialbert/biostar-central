@@ -119,7 +119,7 @@ def project_list(request):
 
 # @login_required
 def project_view(request, id):
-    project = Project.objects.filter(id=id).first()
+    project = auth.get_project_list(user=request.user).filter(id=id).first()
 
     # Project not found.
     if not project:
@@ -136,7 +136,7 @@ def project_view(request, id):
 
 @login_required
 def project_edit(request, id):
-    project = Project.objects.filter(id=id).first()
+    project = auth.get_project_list(user=request.user).filter(id=id).first()
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON], project=project)
 
@@ -188,7 +188,7 @@ def project_create(request):
 
 # @login_required
 def data_list(request, id):
-    project = Project.objects.get(id=id)
+    project = Project.objects.filter(id=id).first()
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON],
                                project=project)
     if not project:
@@ -241,7 +241,7 @@ def data_edit(request, id):
 def data_upload(request, id):
     owner = request.user
 
-    project = Project.objects.filter(id=id).first()
+    project = auth.get_project_list(user=request.user).filter(id=id).first()
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON],
                                project=project)
 

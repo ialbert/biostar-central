@@ -3,7 +3,7 @@ from django.core.files import File
 from . import tasks
 from .const import *
 from .models import Data, Analysis, Job, Project
-import tempfile
+
 CHUNK = 100
 
 logger = logging.getLogger("engine")
@@ -21,17 +21,16 @@ def get_project_list(user):
         return query
     #
     elif user.is_anonymous:
-        return query.filter(privacy=Project.SHAREABLE)
+        return query.filter(privacy=Project.PUBLIC)
 
-    # Get private user projects
+    # Get private projects belonging to a user
     query = query.filter(owner=user, privacy=Project.PRIVATE)
 
     # Get sharable user projects as well
-    query = query.filter(owner=user, privacy=Project.SHAREABLE)
+    query = query.filter(owner=user).filter(privacy=Project.SHAREABLE)
 
-    # Get public projects too
-    query = query.filter(privacy=Project.SHAREABLE)
-
+    # Get public projects at the end
+    query = query.filter(privacy=Project.PUBLIC)
 
     return query
 
