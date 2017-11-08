@@ -1,6 +1,6 @@
 import hjson, logging, shutil, tarfile
-from itertools import chain
 from django.core.files import File
+from django.db.models import Q
 from . import tasks
 from .const import *
 from .models import Data, Analysis, Job, Project
@@ -9,7 +9,7 @@ CHUNK = 100
 
 logger = logging.getLogger("engine")
 
-#TODO: sharable needs to be treated a bit more differently.
+
 def get_project_list(user):
     """
     Return projects with privileges relative to a user.
@@ -20,19 +20,17 @@ def get_project_list(user):
     if user.is_superuser:
         return query
 
-    elif user.is_anonymous:
+    # Non-account holders and users with no projects get to see public stuff
+    # for now.
+    elif user.is_anonymous or (not query.filter(owner=user).first()):
         return query.filter(privacy=Project.PUBLIC)
 
-    private_query = query.filter(owner=user, privacy=Project.PRIVATE)
-    sharable_query = Project.objects.filter(privacy__in=(Project.PUBLIC, Project.SHAREABLE))
-
-    # Return sharable stuff if user has no private projects
-    if not private_query:
-        query = sharable_query
-    # Returns private and sharable stuff for user
-    else:
-        query = private_query | sharable_query
-
+    # get the private and sharable projects belonging to the same user
+    # then merge that with public projects query_set
+    query = query.filter(
+                      Q(owner=user),
+                      Q(privacy=Project.PRIVATE)|
+                      Q(privacy=Project.SHAREABLE)) | query.filter(privacy=Project.PUBLIC)
     return query
 
 
@@ -62,8 +60,7 @@ def create_project(user, name, uid='', summary='', text='', stream='', privacy=P
 
 
 
-def create_analysis(project, json_text, template,
-                    uid=None, user=None, summary='', name='', text=''):
+def create_analysis(project, json_text, template, uid=None, user=None, summary='', name='', text=''):
     owner = user or project.owner
     name = name or 'Analysis name'
     text = text or 'Analysis text'
@@ -113,7 +110,7 @@ def create_data(project, user=None, stream=None, fname=None, name="data.bin", te
 
     data = Data.objects.create(name=name, owner=owner, state=Data.READY, text=text, project=project, data_type=data_type)
 
-    # Linking only copies a small section of the file. Keeps the rest.
+    # Linking only points to an existing path
     if link:
         data.link = os.path.abspath(fname)
         data.save()

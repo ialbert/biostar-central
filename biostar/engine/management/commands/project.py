@@ -54,7 +54,7 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('--json', required=True, help="The json file that described the project")
-        parser.add_argument('--privacy', default="share", help="Privacy of project, defaults to sharable")
+        parser.add_argument('--privacy', default="private", help="Privacy of project, defaults to sharable")
 
 
     def handle(self, *args, **options):
@@ -64,7 +64,7 @@ class Command(BaseCommand):
         privacy_map = dict(share=Project.SHAREABLE, private=Project.PRIVATE,
                            public=Project.PUBLIC)
 
-        parse_json(path, privacy=privacy_map.get(privacy, "share"))
+        parse_json(path, privacy=privacy_map.get(privacy, Project.PRIVATE))
 
 
 
