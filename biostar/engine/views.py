@@ -107,9 +107,9 @@ def site_admin(request):
 
 
 def project_list(request):
-    projects = auth.get_project_list(user=request.user)
+    projects = auth.get_project_list(user=request.user).order_by("-sticky", "-privacy")
 
-    #projects = Project.objects.order_by("-id")
+    projects = projects.order_by("-sticky", "-privacy","-id")
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON])
 
@@ -169,10 +169,12 @@ def project_create(request):
             text = form.cleaned_data["text"]
             summary = form.cleaned_data["summary"]
             stream = form.cleaned_data["image"]
+            sticky = form.cleaned_data["sticky"]
+            privacy = form.cleaned_data["privacy"]
             owner = request.user
 
             project = auth.create_project(user=owner, name=name, summary=summary, text=text,
-                                          stream=stream)
+                                          stream=stream, sticky=sticky, privacy=privacy)
             project.save()
 
             return redirect(reverse("project_list"))
@@ -185,7 +187,6 @@ def project_create(request):
     context = dict(steps=steps, form=form)
     return render(request, 'project_create.html',
                   context)
-
 
 # @login_required
 def data_list(request, id):

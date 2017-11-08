@@ -32,9 +32,8 @@ def get_project_list(user):
                   Q(privacy=Project.PRIVATE)|
                   Q(privacy=Project.SHAREABLE)) | query.filter(privacy=Project.PUBLIC)
 
-    # privacy, shared, then public (privacy sorting)
-    query = query.order_by("-sticky", "-privacy", "-id")
-
+    # this order_by can be overridden upstream too so be
+    query =  query.order_by("-sticky", "-privacy","-id")
     return query
 
 
@@ -50,10 +49,10 @@ def get_data(user, project, query, data_type=None):
     return datamap
 
 
-def create_project(user, name, uid='', summary='', text='', stream='', privacy=Project.PRIVATE):
+def create_project(user, name, uid='', summary='', text='', stream='', privacy=Project.PRIVATE, sticky=True):
 
     project = Project.objects.create(
-        name=name, uid=uid,  summary=summary, text=text, owner=user, privacy=privacy)
+        name=name, uid=uid,  summary=summary, text=text, owner=user, privacy=privacy, sticky=sticky)
 
     if stream:
         project.image.save(stream.name, stream, save=True)

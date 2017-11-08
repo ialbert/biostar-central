@@ -77,7 +77,7 @@ class Project(models.Model):
     STATE_CHOICES  = [(ACTIVE, "Active"), (DELETED, "Deleted")]
 
     sticky = models.BooleanField(default=True)
-    privacy = models.IntegerField(default=SHAREABLE, choices=PRIVACY_CHOICES)
+    privacy = models.IntegerField(default=PRIVATE, choices=PRIVACY_CHOICES)
     state = models.IntegerField(default=ACTIVE, choices=STATE_CHOICES)
 
     image = models.ImageField(default=None, blank=True, upload_to=image_path, max_length=MAX_FIELD_LEN)

@@ -37,6 +37,8 @@
                         <a class="header" href="{{ project.url }}">
                             <i class="archive icon"></i>{{ project.name }}
                         </a>
+                        <a class="ui top left label">{{project.get_privacy_display}}</a>
+
                         {% if project.sticky %}
                         <a class="ui green tag label">Sticky</a>
                         {% endif %}
@@ -48,8 +50,8 @@
                         <div class="extra">
                             Created on {{ project.date.date }} by {{ project.owner.email }}
                         </div>
-                    </div>
 
+                    </div>
                 </div>
 
 
