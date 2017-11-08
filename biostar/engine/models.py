@@ -289,7 +289,7 @@ class Job(models.Model):
     text = models.TextField(default='no description', max_length=MAX_TEXT_LEN)
     html = models.TextField(default='html')
     date = models.DateTimeField(auto_now_add=True)
-    sticky = ""
+    sticky = models.BooleanField(default=True)
     analysis = models.ForeignKey(Analysis)
     project = models.ForeignKey(Project)
     json_text = models.TextField(default="commands")

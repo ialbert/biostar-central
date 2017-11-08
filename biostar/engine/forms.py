@@ -1,7 +1,7 @@
 import hjson, logging
 
 from django import forms
-from .models import Project, Data, Analysis
+from .models import Project, Data, Analysis, Job
 from . import tasks
 from .const import *
 import os
@@ -44,7 +44,14 @@ class AnalysisEditForm(forms.ModelForm):
 
     class Meta:
         model = Analysis
-        fields = ['name', 'text', 'sticky']
+        fields = ['name', 'text', "summary", 'sticky']
+
+
+class JobEditForm(forms.ModelForm):
+
+    class Meta:
+        model = Job
+        fields = ['name', 'text', 'summary','sticky']
 
 
 def make_form_field(data, project):
