@@ -8,18 +8,32 @@ CHUNK = 100
 
 logger = logging.getLogger("engine")
 
-
+#TODO: sharable needs to be treated a bit more differently.
 def get_project_list(user):
+    """
+    Return projects with privileges relative to a user.
+    """
 
-    # get all projects belonging to a user.
-    # returns a querey
-    projects = Project.object.all()
+    query = Project.objects.all()
 
-    # iterate and only show the public projects.
-    # All pulic projects are shown
-    # filter according to privey
+    # Superusers see everything
+    if user.is_superuser:
+        return query
+    #
+    elif user.is_anonymous:
+        return query.filter(privacy=Project.SHAREABLE)
 
-    return
+    # Get private user projects
+    query = query.filter(owner=user, privacy=Project.PRIVATE)
+
+    # Get sharable user projects as well
+    query = query.filter(owner=user, privacy=Project.SHAREABLE)
+
+    # Get public projects too
+    query = query.filter(privacy=Project.SHAREABLE)
+
+
+    return query
 
 
 

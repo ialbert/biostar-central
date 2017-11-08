@@ -106,7 +106,9 @@ def site_admin(request):
 
 
 def project_list(request):
-    projects = Project.objects.order_by("-id")
+    projects = auth.get_project_list(user=request.user).order_by('-id')
+
+    #projects = Project.objects.order_by("-id")
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON])
 

@@ -44,7 +44,6 @@ def filter_by_type():
     return
 
 
-
 def data_upload_path(instance, filename):
     # Name the data by the filename.
     pieces = os.path.basename(filename).split(".")
@@ -70,28 +69,6 @@ def image_path(instance, filename):
     return imgpath
 
 
-class ProjectQuerySet(models.QuerySet):
-
-    def authors(self):
-        return self.filter(role='A')
-
-    def editors(self):
-        return self.filter(role='E')
-
-
-
-class ProjectManager(models.Manager):
-
-    def get_queryset(self, user=None):
-
-        # returns projects relative to a user's privacy privilages.
-        #return auth.get_project_list(user=user)
-        # filter for public, sharable, and owner__iexact=user if there is a user
-        # use the
-
-        return super(ProjectManager, self).get_queryset()#.filter(role='A')
-
-
 class Project(models.Model):
     PUBLIC, SHAREABLE, PRIVATE = 1, 2, 3
     PRIVACY_CHOICES = [(PRIVATE, "Private"), (SHAREABLE, "Shareable Link"), (PUBLIC, "Public")]
@@ -115,8 +92,6 @@ class Project(models.Model):
     # Each project belongs to a single group.
     group = models.OneToOneField(Group)
     uid = models.CharField(max_length=32, unique=True)
-
-    objects = ProjectManager()
 
     def save(self, *args, **kwargs):
         now = timezone.now()
