@@ -23,15 +23,13 @@ def get_project_list(user):
     elif user.is_anonymous:
         return query.filter(privacy=Project.PUBLIC)
 
-    # See if user has any projects made
-
     private_query = query.filter(owner=user, privacy=Project.PRIVATE)
     sharable_query = Project.objects.filter(privacy__in=(Project.PUBLIC, Project.SHAREABLE))
 
     # Return sharable stuff if user has no private projects
     if not private_query:
         query= sharable_query
-    # Returns private and sharable stuff for user.
+    # Returns private and sharable stuff for user
     else:
         query = private_query | sharable_query
 

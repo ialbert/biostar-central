@@ -119,7 +119,7 @@ def project_list(request):
 
 # @login_required
 def project_view(request, id):
-    project = auth.get_project_list(user=request.user).filter(id=id).first()
+    project = Project.objects.filter(id=id).first()
 
     # Project not found.
     if not project:
