@@ -7,7 +7,7 @@
 
 {% block body %}
 
-<div class="ui segment">
+<div class="ui segment inputcolor">
     <form method="post" class="ui form" enctype="multipart/form-data" action="{%  url 'data_upload' project.id %}">
 
         {% csrf_token %}
@@ -17,10 +17,6 @@
               <label>{{ form.file.label_tag }}</label>
               {{ form.file }}
          </div>
-        <div class="four field segment">
-                <label>Data Type</label>
-                {{ form.data_type }}
-        </div>
 
         <div class="field">
             <label>Summary</label>
@@ -34,7 +30,7 @@
 
         {{ form.errors }}
 
-        <button type="submit" class="ui button">
+        <button type="submit" class="ui primary button">
             <i class="write square icon"></i>Upload Data
         </button>
         <a class="ui right floated button" href="{% url 'data_list' project.id %}">

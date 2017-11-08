@@ -39,6 +39,9 @@ def index(request):
 
 
 def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=None, user=None):
+    """
+    This function builds the breadcrumbs on each page.
+    """
     if not icons:
         return []
 
@@ -56,17 +59,16 @@ def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=Non
             step = (reverse("data_list", kwargs={'id': project.id}), DATA_LIST_ICON, "File List", is_active)
         elif icon == DATA_ICON:
             step = (reverse("data_view", kwargs={'id': data.id}), DATA_ICON, f"File View", is_active)
+        elif icon == DATA_UPLOAD:
+            step = (reverse("data_view", kwargs={'id': project.id}), DATA_UPLOAD, f"File Upload", is_active)
         elif icon == ANALYSIS_LIST_ICON:
             step = (reverse("analysis_list", kwargs={'id': project.id}), ANALYSIS_LIST_ICON, "Analysis List", is_active)
         elif icon == ANALYSIS_VIEW_ICON:
-            step = (
-                reverse("analysis_view", kwargs={'id': analysis.id}), ANALYSIS_VIEW_ICON, "Analysis View", is_active)
+            step = (reverse("analysis_view", kwargs={'id': analysis.id}), ANALYSIS_VIEW_ICON, "Analysis View", is_active)
         elif icon == ANALYSIS_RUN_ICON:
             step = (reverse("analysis_run", kwargs={'id': analysis.id}), ANALYSIS_RUN_ICON, "Analysis Run", is_active)
         elif icon == ANALYSIS_RECIPE_ICON:
-            step = (
-            reverse("analysis_recipe", kwargs={'id': analysis.id}), ANALYSIS_RECIPE_ICON, "Analysis Recipe", is_active)
-
+            step = (reverse("analysis_recipe", kwargs={'id': analysis.id}), ANALYSIS_RECIPE_ICON, "Analysis Recipe", is_active)
         elif icon == RESULT_LIST_ICON:
             step = (reverse("job_list", kwargs={'id': project.id, }), RESULT_LIST_ICON, "Result List", is_active)
         elif icon == RESULT_ICON:
@@ -85,7 +87,6 @@ def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=Non
             step = (reverse("signup"), SIGNUP_ICON, "Sign up", is_active)
         elif icon == RESULT_INDEX_ICON:
             step = (reverse("job_view", kwargs={'id': job.id}), RESULT_INDEX_ICON, "Index View", is_active)
-
         else:
             continue
 
@@ -240,9 +241,8 @@ def data_edit(request, id):
 @login_required
 def data_upload(request, id):
     owner = request.user
-
-    project = auth.get_project_list(user=request.user).filter(id=id).first()
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON],
+    project = Project.objects.filter(id=id).first()
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON, DATA_UPLOAD ],
                                project=project)
 
     if request.method == "POST":
@@ -252,9 +252,8 @@ def data_upload(request, id):
             text = form.cleaned_data["text"]
             stream = form.cleaned_data["file"]
             name = stream.name
-            data_type = form.cleaned_data["data_type"]
 
-            auth.create_data(stream=stream, name=name, data_type=data_type, text=text,
+            auth.create_data(stream=stream, name=name, text=text,
                              user=owner, project=project)
             messages.info(request, "Data upload complete")
             return redirect(reverse("data_list", kwargs={'id': project.id}))

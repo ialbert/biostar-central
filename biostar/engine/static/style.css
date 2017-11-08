@@ -12,7 +12,12 @@ body {
 }
 
 .inputcolor {
-    background: #f7f6f9 !important;
+    background: #fff8db !important;
+}
+
+.centerbox {
+    display:inline-block !important;
+    text-align: center !important;
 }
 
 h1 {
