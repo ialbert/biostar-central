@@ -32,7 +32,7 @@ quality_threshold: {
 
 read_length: {
     label : Minimum read length after trimming
-    help : Minimun read length range should be between 10 and 50
+    help : Minimun read length should be between 10 and 50
     value :  35
     range : [10, 50]
     display_type : INTEGER
