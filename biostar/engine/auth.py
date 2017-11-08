@@ -1,13 +1,39 @@
 import hjson, logging, shutil, tarfile
+from itertools import chain
 from django.core.files import File
 from . import tasks
 from .const import *
 from .models import Data, Analysis, Job, Project
-import tempfile
-CHUNK = 100
+
 CHUNK = 100
 
 logger = logging.getLogger("engine")
+
+#TODO: sharable needs to be treated a bit more differently.
+def get_project_list(user):
+    """
+    Return projects with privileges relative to a user.
+    """
+    query = Project.objects.all()
+
+    # Superusers see everything
+    if user.is_superuser:
+        return query
+
+    elif user.is_anonymous:
+        return query.filter(privacy=Project.PUBLIC)
+
+    private_query = query.filter(owner=user, privacy=Project.PRIVATE)
+    sharable_query = Project.objects.filter(privacy__in=(Project.PUBLIC, Project.SHAREABLE))
+
+    # Return sharable stuff if user has no private projects
+    if not private_query:
+        query = sharable_query
+    # Returns private and sharable stuff for user
+    else:
+        query = private_query | sharable_query
+
+    return query
 
 
 def get_data(user, project, query, data_type=None):
@@ -22,11 +48,10 @@ def get_data(user, project, query, data_type=None):
     return datamap
 
 
-def create_project(user, name, uid='', summary='', text='', stream=''):
+def create_project(user, name, uid='', summary='', text='', stream='', privacy=Project.PRIVATE):
 
     project = Project.objects.create(
-        name=name, uid=uid,  summary=summary, text=text, owner=user,
-    )
+        name=name, uid=uid,  summary=summary, text=text, owner=user, privacy=privacy)
 
     if stream:
         project.image.save(stream.name, stream, save=True)

@@ -24,9 +24,13 @@
                 <i class="add icon"></i>Copy Recipe
             </a>
 
+            {% if user|can_edit:analysis%}
+
             <a class="ui button" href="{% url 'analysis_edit' analysis.id %}">
                 <i class="write icon"></i>Edit Recipe
             </a>
+
+            {% endif %}
         </div>
 
 

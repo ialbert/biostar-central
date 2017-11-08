@@ -10,7 +10,7 @@ logger = logging.getLogger('engine')
 def join(*args):
     return os.path.join(*args)
 
-def parse_json(path):
+def parse_json(path, privacy=Project.SHAREABLE):
     """
     Create a project from a JSON data
     """
@@ -37,7 +37,8 @@ def parse_json(path):
     user = User.objects.filter(email=email).first()
     user = user or User.objects.filter(is_superuser=True).first()
 
-    project = auth.create_project(user=user, uid=uid, summary=summary, name=name, text=text, stream=stream)
+    project = auth.create_project(user=user, uid=uid, summary=summary, name=name, text=text,
+                                  stream=stream, privacy=privacy)
 
     analyses = data.get("analyses", '')
 
@@ -53,9 +54,20 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('--json', required=True, help="The json file that described the project")
+        parser.add_argument('--privacy', default="share", help="Privacy of project, defaults to sharable")
 
 
     def handle(self, *args, **options):
         path = options['json']
+        privacy = options["privacy"]
 
-        parse_json(path)
+        privacy_map = dict(share=Project.SHAREABLE, private=Project.PRIVATE,
+                           public=Project.PUBLIC)
+
+        parse_json(path, privacy=privacy_map.get(privacy, "share"))
+
+
+
+
+
+

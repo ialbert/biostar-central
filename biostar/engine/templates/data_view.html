@@ -12,6 +12,14 @@
 {% block body %}
 
     <div class="ui  raised segment">
+        {% if user|can_edit:data%}
+        <div class="ui centered header">
+            <a class="ui button" href="{% url 'data_edit' data.id %}">
+                <i class="write icon"></i>Edit Data
+            </a>
+        </div>
+        {% endif %}
+
         <div class="ui center aligned header">
             {{ data.name }}
         </div>
@@ -37,10 +45,5 @@
             <pre>{{ data.peek }}</pre>
         </div>
 
-        <div class="ui center aligned vertical segment">
-            <a class="ui button" href="{% url 'data_edit' data.id %}">
-                <i class="write icon"></i>Edit Data
-            </a>
-        </div>
     </div>
 {% endblock %}

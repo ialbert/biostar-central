@@ -114,6 +114,7 @@ class Project(models.Model):
         return join(settings.MEDIA_ROOT, "projects", f"proj-{self.uid}")
 
 
+
 @receiver(pre_save, sender=Project)
 def create_project_group(sender, instance, **kwargs):
     """
@@ -122,6 +123,7 @@ def create_project_group(sender, instance, **kwargs):
     instance.uid = instance.uid or util.get_uuid(8)
     group, created = Group.objects.get_or_create(name=instance.uid)
     instance.group = group
+
 
 class Data(models.Model):
     FILE, COLLECTION = 1, 2
