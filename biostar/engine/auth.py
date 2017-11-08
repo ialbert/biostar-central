@@ -26,7 +26,7 @@ def get_project_list(user):
         return query.filter(privacy=Project.PUBLIC)
 
     # get the private and sharable projects belonging to the same user
-    # then merge that with public projects query_set
+    # then merge that with the public projects query
     query = query.filter(
                   Q(owner=user),
                   Q(privacy=Project.PRIVATE)|
