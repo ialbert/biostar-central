@@ -70,12 +70,26 @@ def image_path(instance, filename):
     return imgpath
 
 
+class ProjectQuerySet(models.QuerySet):
+
+    def authors(self):
+        return self.filter(role='A')
+
+    def editors(self):
+        return self.filter(role='E')
+
+
 
 class ProjectManager(models.Manager):
 
-    def get_queryset(self):
-        return super(ProjectManager, self).get_queryset()#.filter(role='A')
+    def get_queryset(self, user=None):
 
+        # returns projects relative to a user's privacy privilages.
+        #return auth.get_project_list(user=user)
+        # filter for public, sharable, and owner__iexact=user if there is a user
+        # use the
+
+        return super(ProjectManager, self).get_queryset()#.filter(role='A')
 
 
 class Project(models.Model):

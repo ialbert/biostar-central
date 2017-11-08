@@ -18,6 +18,7 @@ def get_project_list(user):
     # iterate and only show the public projects.
     # All pulic projects are shown
     # filter according to privey
+
     return
 
 
