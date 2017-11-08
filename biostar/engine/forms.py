@@ -64,6 +64,7 @@ def make_form_field(data, project):
     # Uploaded data is accessed via paths.
     path = data.get("path")
 
+    # TODO : or link
     if path:
         # Project specific data needs a special field.
         data_type = data.get("data_type")
@@ -173,9 +174,7 @@ class RunAnalysis(forms.Form):
         Replaces the value of data fields with the path to the data.
         Should be called after the form has been filled and is valid.
         '''
-
         # Gets all data for the project
-
         datamap = dict((data.id, data) for data in self.project.data_set.all() )
 
         json_data = self.json_data.copy()
@@ -190,9 +189,14 @@ class RunAnalysis(forms.Form):
                 data = datamap.get(data_id)
                 data.fill_dict(obj)
 
-
             elif obj.get("link"):
                 # get data_id and see if it is linked or not
+                data_id = self.cleaned_data.get(field, '')
+                data_id = int(data_id)
+                print(data_id, "SSSS")
+                1/0
+                data = datamap.get(data_id)
+                data.fill_dict(obj)
                 return
 
             if field in self.cleaned_data:

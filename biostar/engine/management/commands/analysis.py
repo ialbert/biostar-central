@@ -112,14 +112,15 @@ class Command(BaseCommand):
                         data_type = value.get("data_type")
                         data_type = const.DATA_TYPE_SYMBOLS.get(data_type)
 
-                        if path:
+                        # Links take priority over path if both given
+                        if link:
+                            data = auth.create_data(project=project, fname=link, data_type=data_type, link=True)
+                            data.fill_dict(value)
+
+                        elif path:
                             data = auth.create_data(project=project, fname=path, data_type=data_type)
                             data.fill_dict(value)
 
-                        elif link:
-                            data = auth.create_data(project=project, fname=link, data_type=data_type,
-                                                    link=True)
-                            data.fill_dict(value)
 
                     name = f'Results for: {analysis.name}'
                     job = auth.create_job(analysis=analysis, name=name, json_data=json_data)
