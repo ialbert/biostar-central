@@ -32,8 +32,9 @@ def get_project_list(user):
                   Q(privacy=Project.PRIVATE)|
                   Q(privacy=Project.SHAREABLE)) | query.filter(privacy=Project.PUBLIC)
 
-    # order by the stickiness.
-    # then order by somethings else. 
+    # privacy, shared, then public (privacy sorting)
+    query = query.order_by("-sticky", "-privacy", "-id")
+
     return query
 
 

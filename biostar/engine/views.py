@@ -107,7 +107,7 @@ def site_admin(request):
 
 
 def project_list(request):
-    projects = auth.get_project_list(user=request.user).order_by('-id')
+    projects = auth.get_project_list(user=request.user)
 
     #projects = Project.objects.order_by("-id")
 
