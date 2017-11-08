@@ -1,5 +1,4 @@
 import hjson, logging
-
 from django import forms
 from .models import Project, Data, Analysis, Job
 from . import tasks
@@ -182,7 +181,6 @@ class RunAnalysis(forms.Form):
         json_data = self.json_data.copy()
 
         for field, obj in json_data.items():
-            # No need to read fields that were not set.
 
             # If it has a path it is an uploaded file.
             if obj.get("path"):
@@ -191,6 +189,11 @@ class RunAnalysis(forms.Form):
                 data_id = int(data_id)
                 data = datamap.get(data_id)
                 data.fill_dict(obj)
+
+
+            elif obj.get("link"):
+                # get data_id and see if it is linked or not
+                return
 
             if field in self.cleaned_data:
                 obj["value"] = self.cleaned_data[field]

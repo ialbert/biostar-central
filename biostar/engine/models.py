@@ -209,7 +209,7 @@ class Data(models.Model):
         return self.project.get_project_dir()
 
     def get_path(self):
-        return self.link if self.link else self.file.path
+        return os.path.abspath(self.link) if self.link else self.file.path
 
     def can_unpack(self):
         cond = str(self.get_path()).endswith("tar.gz") and not self.link
@@ -271,6 +271,7 @@ class Analysis(models.Model):
 
     def get_project_dir(self):
         return self.project.get_project_dir()
+
 
 class Job(models.Model):
     AUTHORIZED, UNDER_REVIEW = 1, 2
