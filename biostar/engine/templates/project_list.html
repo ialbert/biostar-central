@@ -38,6 +38,9 @@
                         <a class="header" href="{{ project.url }}">
                             <i class="archive icon"></i>{{ project.name }}
                         </a>
+                        {% if project.sticky %}
+                        <a class="ui green tag label">Sticky</a>
+                        {% endif %}
 
                         <div class="meta">
                             {{ project.summary|markdown|safe }}
