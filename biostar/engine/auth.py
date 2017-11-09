@@ -36,13 +36,13 @@ def get_project_list(user):
     return query
 
 
-def make_toc(dir, uid):
+def make_toc(directory, uid):
     """
     Make a toc-(uuid).txt (table of contents) file for a given directory
     """
     files = []
-    for item in os.scandir(dir):
-        print(item)
+    for item in os.scandir(directory):
+        print(item, dir(item))
     1/0
     return files
 
