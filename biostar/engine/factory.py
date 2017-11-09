@@ -107,6 +107,7 @@ def data_field_generator(field, project, data_type=None):
     valid_type = const.DATA_TYPE_SYMBOLS.get(data_type, -1)
 
     query = Data.objects.filter(project=project, data_type=valid_type)
+
     datamap = dict((obj.id, obj) for obj in query)
 
     def choice_func():

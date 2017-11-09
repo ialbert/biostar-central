@@ -1,14 +1,14 @@
 {
 
 sequence : {
-    path: export/local/input/virus_sample1.fastq.gz
+    link: export/local/input/virus_sample1.fastq.gz
     label: Data
     data_type: FASTQ_TYPE
     display_type: DROPDOWN
   }
 
 genome : {
-    path: export/local/input/viral_genomes.fa
+    link: export/local/input/viral_genomes.fa
     label: Reference genome
     data_type: FASTA_TYPE
     display_type: DROPDOWN

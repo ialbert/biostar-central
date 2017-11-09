@@ -1,6 +1,6 @@
 import hjson, logging, shutil, tarfile
-from itertools import chain
 from django.core.files import File
+from django.db.models import Q
 from . import tasks
 from .const import *
 from .models import Data, Analysis, Job, Project
@@ -9,7 +9,7 @@ CHUNK = 100
 
 logger = logging.getLogger("engine")
 
-#TODO: sharable needs to be treated a bit more differently.
+
 def get_project_list(user):
     """
     Return projects with privileges relative to a user.
@@ -20,19 +20,20 @@ def get_project_list(user):
     if user.is_superuser:
         return query
 
-    elif user.is_anonymous:
+    # Non-account holders and users with no projects get to see public stuff
+    # for now.
+    elif user.is_anonymous or (not query.filter(owner=user).first()):
         return query.filter(privacy=Project.PUBLIC)
 
-    private_query = query.filter(owner=user, privacy=Project.PRIVATE)
-    sharable_query = Project.objects.filter(privacy__in=(Project.PUBLIC, Project.SHAREABLE))
+    # get the private and sharable projects belonging to the same user
+    # then merge that with the public projects query
+    query = query.filter(
+                  Q(owner=user),
+                  Q(privacy=Project.PRIVATE)|
+                  Q(privacy=Project.SHAREABLE)) | query.filter(privacy=Project.PUBLIC)
 
-    # Return sharable stuff if user has no private projects
-    if not private_query:
-        query = sharable_query
-    # Returns private and sharable stuff for user
-    else:
-        query = private_query | sharable_query
-
+    # this order_by can be overridden upstream too so be
+    query =  query.order_by("-sticky", "-privacy","-id")
     return query
 
 
@@ -48,10 +49,10 @@ def get_data(user, project, query, data_type=None):
     return datamap
 
 
-def create_project(user, name, uid='', summary='', text='', stream='', privacy=Project.PRIVATE):
+def create_project(user, name, uid='', summary='', text='', stream='', privacy=Project.PRIVATE, sticky=True):
 
     project = Project.objects.create(
-        name=name, uid=uid,  summary=summary, text=text, owner=user, privacy=privacy)
+        name=name, uid=uid,  summary=summary, text=text, owner=user, privacy=privacy, sticky=sticky)
 
     if stream:
         project.image.save(stream.name, stream, save=True)
@@ -62,8 +63,7 @@ def create_project(user, name, uid='', summary='', text='', stream='', privacy=P
 
 
 
-def create_analysis(project, json_text, template,
-                    uid=None, user=None, summary='', name='', text=''):
+def create_analysis(project, json_text, template, uid=None, user=None, summary='', name='', text=''):
     owner = user or project.owner
     name = name or 'Analysis name'
     text = text or 'Analysis text'
@@ -113,7 +113,7 @@ def create_data(project, user=None, stream=None, fname=None, name="data.bin", te
 
     data = Data.objects.create(name=name, owner=owner, state=Data.READY, text=text, project=project, data_type=data_type)
 
-    # Linking only copies a small section of the file. Keeps the rest.
+    # Linking only points to an existing path
     if link:
         data.link = os.path.abspath(fname)
         data.save()
