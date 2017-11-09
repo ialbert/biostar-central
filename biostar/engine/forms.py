@@ -24,10 +24,12 @@ class ProjectForm(forms.ModelForm):
 
 
 class DataUploadForm(forms.ModelForm):
+    choices = DATA_TYPES.items()
+    data_type = forms.IntegerField(widget=forms.Select(choices=choices))
 
     class Meta:
         model = Data
-        fields = ['file', 'summary', 'text', "sticky"]
+        fields = ['file', 'summary', 'text', "sticky", "data_type"]
 
 
 class DataEditForm(forms.ModelForm):
