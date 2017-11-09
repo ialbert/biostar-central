@@ -42,6 +42,26 @@ def img(obj):
         return static("images/placeholder.png")
 
 
+@register.filter(name='can_edit')
+def can_edit(user, instance):
+    """Returns true is instance is editable by user."""
+
+    if user.is_superuser or instance.owner == user:
+        return True
+
+    return False
+
+
+@register.filter(name='can_create_instance')
+def can_create_instance(user):
+    """Returns true if user can create a project."""
+
+    if user.is_superuser or (not user.is_anonymous):
+        return True
+
+    return False
+
+
 @register.simple_tag
 def type_label(data):
     """
@@ -92,6 +112,8 @@ def breadcrumb(steps):
     return dict(steps=steps)
 
 
+
+
 @register.inclusion_tag('widgets/menubar.html', takes_context=True)
 def menubar(context, project=None, edit_project=False, create_project=False,
             data=None, edit_data=False, upload_data=False,
@@ -115,6 +137,7 @@ def is_checkbox(field):
     cond = isinstance(field, forms.BooleanField)
     return cond
 
+0
 
 @register.filter(name='is_selection')
 def is_selection(field):

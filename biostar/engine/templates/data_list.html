@@ -31,15 +31,17 @@
                     </div>
                 </div>
 
-            </div>
 
-            <div class="item centerbox">
-                <div class="ui center aligned header">
-                    <a class="ui primary button" href="{% url 'data_upload' project.id %}">
-                        <i class="upload icon"></i>Upload file
-                    </a>
+        </div>
+    {% if user|can_create_instance %}
+        <div class="item">
+             <div class="right floated content">
+            <a class="ui primary button" href="{% url 'data_upload' project.id %}">
+                <i class="upload icon"></i>Upload file
+            </a>
                 </div>
-            </div>
+        </div>
+    {% endif %}
 
 
             {% for data in data_list %}

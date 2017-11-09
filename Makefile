@@ -66,7 +66,7 @@ jobs:
 init:
 	@python manage.py collectstatic --noinput -v 0
 	@python manage.py migrate
-	@python manage.py project --json initial/tutorial-project.hjson
+	@python manage.py project --json initial/tutorial-project.hjson --privacy public
 	@python manage.py project --json initial/cookbook-project.hjson
 	@python manage.py project --json initial/giraffe-project.hjson
 	@python manage.py project --json initial/fish-project.hjson
@@ -98,7 +98,5 @@ restart_nginx:
 
 restart_django:
 	fab -f conf/fabfile.py -H ${USER}@${SERVER} restart_uwsgi
-
-
 
 deploy_all: deploy_test deploy_main restart_django

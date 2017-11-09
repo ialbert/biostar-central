@@ -5,15 +5,6 @@
     Project List
 {% endblock %}
 
-{% block header %}
-
-    <i class="database icon"></i>Project List
-
-    <button class="ui mini button">
-        <i class="write square icon"></i>Create Project
-    </button>
-
-{% endblock %}
 
 {% block menu %}
     {% menubar create_project=True %}
@@ -22,6 +13,15 @@
 {% block body %}
 
     <div class="ui raised segment">
+
+    {% if user|can_create_instance %}
+        <div class="ui centered header">
+            <a class="ui button" href="{% url 'project_create' %}">
+                <i class="write icon"></i>Create Project
+            </a>
+        </div>
+    {% endif %}
+
 
         <div class="ui divided link items">
 
@@ -58,10 +58,6 @@
     </div>
 
 
-    <div class="ui center aligned vertical segment">
-        <a class="ui button" href="{% url 'project_create' %}">
-            <i class="write icon"></i>Create Project
-        </a>
-    </div>
+
 
 {% endblock %}

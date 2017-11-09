@@ -3,32 +3,24 @@
 {% block title %} Log out {% endblock %}
 
 {% block body %}
-
     <div class="ui raised segment">
 
         <div class="ui center aligned header">
 
-            <i class="user icon"></i> Do you want to log out?
+            <i class="sign out icon"></i>Do you want to log out?
 
         </div>
+        <div class="ui centered card inputcolor">
 
-        <form class="ui form " method="post" action="{% url 'logout' %}">
+            <div class="ui basic segment">
 
-            <div class="ui centered card inputcolor">
-
-                <div class="ui basic segment">
-
+                <form method="post" action="{% url 'logout' %}" >
                     {% csrf_token %}
-                    <div class="field">
-                        <button class="ui primary button" type="submit"> <i class="sign out icon"></i> Log out</button>
-                        <a class="ui right floated  button" href="/"><i class="home icon"></i>Home</a>
-                    </div>
-
-                </div>
+                    <button class="ui primary button" type="submit">Log out</button>
+                    <a class="ui right floated  button" href="/">Go Back</a>
+                </form>
             </div>
-
-        </form>
-
+        </div>
     </div>
 
 {% endblock %}
