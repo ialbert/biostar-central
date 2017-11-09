@@ -27,9 +27,8 @@ def deploy_reset(path, env, name='test'):
     with cd(path), prefix(env):
         run("rm -f export/engine.db")
         run('git pull')
-
         #run('make install')
-        run('make testdata')
+        run('make clean testdata')
         run('make reset')
         run('python manage.py migrate')
         run('python manage.py collectstatic --noinput -v 0')

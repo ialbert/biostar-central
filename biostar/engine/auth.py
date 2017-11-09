@@ -27,7 +27,7 @@ def get_project_list(user):
 
     # We need to rework this first to allow adding users to groups.
 
-    
+
     # get the private and sharable projects belonging to the same user
     # then merge that with the public projects query
     #query = query.filter(

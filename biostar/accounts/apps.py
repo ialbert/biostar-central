@@ -44,6 +44,8 @@ def init_users(sender, **kwargs):
     # Hardcoding a few users for now
     # TODO: move it to a command to add users
     users = [
+        ('Aaron Maloy', 'aaron_maloy@fws.gov'),
+        ('Meredith Bartron', 'meredith_bartron@fws.gov'),
         ('Doug Cavener', 'drc9@psu.edu'),
         ('Lan Wu Cavener', 'lxw34@psu.edu'),
         ]
