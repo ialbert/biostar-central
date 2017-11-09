@@ -14,14 +14,6 @@
 
     <div class="ui raised segment">
 
-    {% if user|can_create_instance %}
-        <div class="ui centered header">
-            <a class="ui button" href="{% url 'project_create' %}">
-                <i class="write icon"></i>Create Project
-            </a>
-        </div>
-    {% endif %}
-
         <div class="ui divided link items">
 
             {% for project in projects %}
@@ -37,18 +29,16 @@
                         <a class="header" href="{{ project.url }}">
                             <i class="archive icon"></i>{{ project.name }}
                         </a>
-                        <a class="ui top left label">{{project.get_privacy_display}}</a>
 
-                        {% if project.sticky %}
-                        <a class="ui green tag label">Sticky</a>
-                        {% endif %}
 
                         <div class="meta">
                             {{ project.summary|markdown|safe }}
                         </div>
 
                         <div class="extra">
+                            {% privacy_label project %}{% sticky_label project %}
                             Created on {{ project.date.date }} by {{ project.owner.email }}
+
                         </div>
 
                     </div>
@@ -56,6 +46,19 @@
 
 
             {% endfor %}
+
+            {% if user|can_create %}
+                <div class="item centerbox">
+                    <a class="ui button" href="{% url 'project_create' %}">
+                        <i class="plus icon"></i>Create Project
+                    </a>
+                </div>
+            {%  else %}
+                <div class="item centerbox">
+                Public projects are shown. Log in to access private projects.
+                </div>
+            {% endif %}
+
 
         </div>
 

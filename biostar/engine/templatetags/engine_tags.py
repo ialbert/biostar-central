@@ -7,7 +7,7 @@ from django.forms import widgets
 from django.utils.safestring import mark_safe
 
 from biostar.engine import const
-from biostar.engine.models import Job, make_html
+from biostar.engine.models import Project, Job, make_html
 
 register = template.Library()
 
@@ -22,6 +22,15 @@ def data_color(data):
     """
     return "" if data.data_type == const.GENERIC_TYPE else "green"
 
+@register.simple_tag
+def sticky_label(obj):
+    label = mark_safe('<span class ="ui label">Sticky</span>')
+    return label if obj.sticky else ''
+
+@register.simple_tag
+def privacy_label(project):
+    label = mark_safe(f'<span class ="ui label">{project.get_privacy_display()}</span>' )
+    return label
 
 @register.simple_tag
 def job_color(job):
@@ -42,7 +51,7 @@ def img(obj):
         return static("images/placeholder.png")
 
 
-@register.filter(name='can_edit')
+@register.filter
 def can_edit(user, instance):
     """Returns true is instance is editable by user."""
 
@@ -51,15 +60,11 @@ def can_edit(user, instance):
 
     return False
 
+@register.filter
+def can_create(user):
+    """Returns true if user may create a new object"""
 
-@register.filter(name='can_create_instance')
-def can_create_instance(user):
-    """Returns true if user can create a project."""
-
-    if user.is_superuser or (not user.is_anonymous):
-        return True
-
-    return False
+    return user.is_authenticated()
 
 
 @register.simple_tag

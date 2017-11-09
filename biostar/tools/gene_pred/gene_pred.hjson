@@ -1,0 +1,53 @@
+{
+
+assembly : {
+    path: export/local/input/scaffolds.fasta
+    label: Data
+    data_type: FASTA_TYPE
+    display_type: DROPDOWN
+  }
+
+species: {
+    label: Training set
+    value: giraffe
+    display_type: DROPDOWN
+    options : [[ "giraffe" , "Giraffe" ],
+                ["human" , "Human" ]
+              ]
+
+}
+
+processors : {
+    value : 15
+}
+
+settings : {
+    name: Augustus Gene Prediction
+    image : gene_pred.png
+    index : index.html
+    summary: Predict genes in an assembled genome using on a training set.
+    help:'''
+
+# Help
+
+This analysis predicts genes in an assembled genome using augustus. Species to be used as training set must be
+given.
+
+It outputs all predicted genes as a GFF file and predicted proteins as a fasta file.
+
+# Parameters
+
+1. Assembled mutifasta file.
+2. Species to be used as training set.
+
+# Results
+
+1. Predicted genes in GFF format.
+2. Predicted proteins in fasta format.
+
+'''
+
+    }
+
+
+}
