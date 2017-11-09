@@ -1,7 +1,7 @@
 {
 
 sequence : {
-    path: export/local/input/fish_metabarcode_sample2.fastq.gz
+    link: export/local/input/fish_metabarcode_sample2.fastq.gz
     label: Data
     data_type: FASTQ_TYPE
     display_type: DROPDOWN
@@ -9,7 +9,7 @@ sequence : {
 
 
 accessions : {
-    path: export/local/input/fish_accession_list.txt
+    link: export/local/input/fish_accession_list.txt
     label: Accession list
     data_type: ACCESSION_LIST
     display_type: DROPDOWN

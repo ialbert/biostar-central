@@ -181,20 +181,12 @@ class RunAnalysis(forms.Form):
         for field, obj in json_data.items():
 
             # If it has a path it is an uploaded file.
-            if obj.get("path"):
+            if obj.get("path") or obj.get("link"):
 
                 data_id = self.cleaned_data.get(field, '')
                 data_id = int(data_id)
                 data = datamap.get(data_id)
                 data.fill_dict(obj)
-
-            elif obj.get("link"):
-                # get data_id and see if it is linked or not
-                data_id = self.cleaned_data.get(field, '')
-                data_id = int(data_id)
-                data = datamap.get(data_id)
-                data.fill_dict(obj)
-                return
 
             if field in self.cleaned_data:
                 obj["value"] = self.cleaned_data[field]
