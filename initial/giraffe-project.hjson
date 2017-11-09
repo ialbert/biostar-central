@@ -25,6 +25,10 @@ analyses: [
         template: biostar/tools/fastqc/fastqc.sh
     }
 
+    {
+        json: biostar/tools/gene_pred/gene_pred.hjson
+        template: biostar/tools/gene_pred/gene_pred.sh
+    }
 
 ]
 

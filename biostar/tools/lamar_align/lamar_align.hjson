@@ -15,8 +15,8 @@ genome : {
     }
 
 align_length : {
-    label : Specify length threshold to filter alignments (in base pairs)
-    help : Alignment length should be within x base pair distance of read length
+    label : Alignment length offset
+    help : Alignment length = read length +/- alignment length offset
     value :  6
     range  : [0,15]
     display_type : INTEGER
@@ -50,8 +50,8 @@ settings : {
 # Help
 
 This analysis align input sequences to a reference genome. It produces an alignment based classification table after
-applying filters. The filters remove supplementary and secondary alignments and also those alignments where alignment
-length is not within the user-specified distance from read_length.
+applying filters. The filters remove supplementary and secondary alignments. Filter also removes those alignments where
+alignment length is not within the user-specified distance from read_length.
 
 The input data should be in fastq format.
 
@@ -62,6 +62,8 @@ Reference genome sequence needs to be provided unless the organism is human or m
 
 1. Input data in fastq format.
 2. Reference genome sequence.
+3. Alignment length offset(in base pairs). This is used to remove alignments if alignment length is outside the
+specified distance from read length.
 
 # Results
 

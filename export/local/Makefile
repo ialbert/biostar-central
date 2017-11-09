@@ -18,6 +18,8 @@ input: input/fish_sequences.tar.gz
 
 input/fish_sequences.tar.gz:
 	mkdir -p input fish_species
+	# scaffolds
+	curl http://iris.bx.psu.edu/projects/testdata/assembly-data/scaffolds.fa >input/scaffolds.fasta
 	# Get virus dataset
 	curl http://iris.bx.psu.edu/projects/testdata/viral-data/col_bhv.fastq.gz > input/virus_sample1.fastq.gz
 	curl http://iris.bx.psu.edu/projects/testdata/viral-data/D5.fastq.gz > input/virus_sample2.fastq.gz
