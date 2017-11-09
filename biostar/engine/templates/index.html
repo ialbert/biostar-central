@@ -36,7 +36,9 @@
             </ul>
             </p>
             <p>
-                Public projects are visible to all.
+                Public projects are visible to everyone.
+            </p>
+             <p>
                 Private projects are accessible only to project members.
             </p>
 
@@ -45,52 +47,83 @@
         <div class="ui vertical segment">
 
             <div class="ui header">
-                <a href="{% url 'info' %}">
-                    <i class="info circle icon"></i>About this project
-                </a>
+
+                <i class="info circle icon"></i>About this project
+
             </div>
             <p>
 
                 <img class="ui small right floated circular image" src="{% static "images/biomedical.jpg" %}">
 
-                Life sciences are experiencing a <i>data reproducibility crisis</i>. It has become
+                Life sciences are experiencing a <i>reproducibility crisis</i>. It has become
                 challenging understand how most analyses were performed and even more
-                difficult to repeat the same process on the same or on different data.
+                difficult to repeat the same process again.
             </p>
 
             <p>
-                This site was designed and built to help scientists share, document, distribute and rerun
-                data analysis scripts. We call these scripts <b>recipes</b> that follow these requirements:
+                This site was designed to help scientists share, document, distribute and rerun
+                data analysis scripts. We call these scripts <b>recipes</b> with the following requirements:
 
-                <ul>
-                    <li>
-                        Each recipe must be fully operational.
-                    </li>
-                    <li>
-                        Each recipe may be modified, changed and shared across different projects.
-                    </li>
-                    <li>
-                        Each recipe has test data associated with it demonstrating the starting information
-                        and the results of the recipe.
-                    </li>
-                </ul>
+            <ul>
+                <li>
+                    Each recipe must be fully operational.
+                </li>
+                <li>
+                    Each recipe may be modified, changed and shared across different projects.
+                </li>
+                <li>
+                    Each recipe has test data associated with it demonstrating the starting information
+                    and the results of the recipe.
+                </li>
+            </ul>
 
-            </p>
+            Learn more about the way <a href="{% url 'info' %}"> this site works.</a>
 
-            <p> Users may adapt and remix
-                recipes to match their own needs, then share them as an alternative.
-                By supporting these interactions we foster
-                a collaborative environment that facilitates productive interactions
-                and creativity. Learn more about the way <a href="{% url 'info' %}"> this site works.</a>
             </p>
 
 
         </div>
 
+        <div class="ui vertical segment">
+
+
+            <div class="ui header">
+
+                <i class="settings icon"></i>Collaborative Analysis
+
+            </div>
+
+            <p>
+
+                <img class="ui small right floated circular image" src="{% static "images/tools.jpg" %}">
+
+
+                The site supports running every type of command line oriented tool
+                and process.
+                Moreover it allows
+                users to create full data analysis pipelines rather than
+                single step analytics.
+            </p>
+
+            <p>
+                Users may adapt and remix
+                recipes to match their own needs, then share them as an alternative.
+                By supporting these interactions we foster
+                a collaborative environment that facilitates productive interactions
+                and creativity.
+            </p>
+
+            <p>
+
+                Learn more about the way <a href="{% url 'info' %}"> this site works.</a>
+
+            </p>
+
+
+        </div>
+
+
     </div>
-
-
-
 
 
 
