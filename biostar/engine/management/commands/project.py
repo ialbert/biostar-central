@@ -10,7 +10,7 @@ logger = logging.getLogger('engine')
 def join(*args):
     return os.path.join(*args)
 
-def parse_json(path, privacy=Project.SHAREABLE):
+def parse_json(path, privacy=Project.SHAREABLE, sticky=True):
     """
     Create a project from a JSON data
     """
@@ -38,7 +38,7 @@ def parse_json(path, privacy=Project.SHAREABLE):
     user = user or User.objects.filter(is_superuser=True).first()
 
     project = auth.create_project(user=user, uid=uid, summary=summary, name=name, text=text,
-                                  stream=stream, privacy=privacy)
+                                  stream=stream, privacy=privacy, sticky=sticky)
 
     analyses = data.get("analyses", '')
 
@@ -55,16 +55,19 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('--json', required=True, help="The json file that described the project")
         parser.add_argument('--privacy', default="private", help="Privacy of project, defaults to sharable")
+        parser.add_argument('--sticky', action='store_true', default=False,
+                            help="Stick a project to the front page.")
 
 
     def handle(self, *args, **options):
         path = options['json']
         privacy = options["privacy"]
+        sticky = options["sticky"]
 
         privacy_map = dict(share=Project.SHAREABLE, private=Project.PRIVATE,
                            public=Project.PUBLIC)
 
-        parse_json(path, privacy=privacy_map.get(privacy, Project.PRIVATE))
+        parse_json(path, privacy=privacy_map.get(privacy, Project.PRIVATE), sticky=sticky)
 
 
 

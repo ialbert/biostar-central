@@ -61,11 +61,10 @@ def make_form_field(data, project):
     if not display_type:
         return
 
-    # Uploaded data is accessed via paths.
-    path = data.get("path")
+    # Uploaded data is accessed via paths or links.
+    path_or_link = data.get("path") or data.get("link")
 
-    # TODO : or link
-    if path:
+    if path_or_link:
         # Project specific data needs a special field.
         data_type = data.get("data_type")
 
@@ -193,8 +192,6 @@ class RunAnalysis(forms.Form):
                 # get data_id and see if it is linked or not
                 data_id = self.cleaned_data.get(field, '')
                 data_id = int(data_id)
-                print(data_id, "SSSS")
-                1/0
                 data = datamap.get(data_id)
                 data.fill_dict(obj)
                 return
