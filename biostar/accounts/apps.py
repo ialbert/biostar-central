@@ -2,6 +2,7 @@ from django.db.models.signals import post_migrate
 from django.apps import AppConfig
 from django.conf import settings
 import logging
+from biostar.engine import util
 
 logger = logging.getLogger('engine')
 
@@ -39,6 +40,19 @@ def init_users(sender, **kwargs):
         user, flag = User.objects.get_or_create(email=testbuddy, username=testbuddy)
         user.set_password(testbuddy)
         user.save()
+
+    # Hardcoding a few users for now
+    # TODO: move it to a command to add users
+    users = [
+        ('Doug Cavener', 'drc9@psu.edu'),
+        ('Lan Wu Cavener', 'lxw34@psu.edu'),
+        ]
+
+    for name, email in users:
+        user, flag = User.objects.get_or_create(email=email, username=util.get_uuid(8))
+        if flag:
+            user.set_password("testbuddy11")
+            user.save()
 
 def init_site(sender, **kwargs):
     """

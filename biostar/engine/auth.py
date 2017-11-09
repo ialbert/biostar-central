@@ -25,16 +25,16 @@ def get_project_list(user):
         return query.filter(privacy=Project.PUBLIC)
 
 
-    #
+    # We need to rework this first to allow adding users to groups.
+
+    
     # get the private and sharable projects belonging to the same user
     # then merge that with the public projects query
-    query = query.filter(
-                  Q(owner=user),
-                  Q(privacy=Project.PRIVATE)|
-                  Q(privacy=Project.SHAREABLE)) | query.filter(privacy=Project.PUBLIC)
+    #query = query.filter(
+    #              Q(owner=user),
+    #              Q(privacy=Project.PRIVATE)|
+    #              Q(privacy=Project.SHAREABLE)) | query.filter(privacy=Project.PUBLIC)
 
-    # this order_by can be overridden upstream too so be
-    query =  query.order_by("-sticky", "-privacy","-id")
     return query
 
 
