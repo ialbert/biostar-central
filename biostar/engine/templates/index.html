@@ -35,8 +35,10 @@
                 <li>Analysis Results.</li>
             </ul>
             </p>
-            <p>You will be able to access all public and shared projects.
-                Private projects are visible only to project members.</p>
+            <p>
+                Public projects are visible to all.
+                Private projects are accessible only to project members.
+            </p>
 
         </div>
 
@@ -44,7 +46,7 @@
 
             <div class="ui header">
                 <a href="{% url 'info' %}">
-                    <i class="info circle icon"></i>Site Info
+                    <i class="info circle icon"></i>About this project
                 </a>
             </div>
             <p>
@@ -52,26 +54,24 @@
                 <img class="ui small right floated circular image" src="{% static "images/biomedical.jpg" %}">
 
                 Life sciences are experiencing a <i>data reproducibility crisis</i>. It has become
-                unexpectedly challenging
-                to even understand how a given data analysis was performed let alone
-                repeating or applying the same process to a new and different data.
-                We have set out to address this problem.
+                challenging understand how most analyses were performed and even more
+                difficult to repeat the same process on the same or on different data.
             </p>
 
             <p>
-                This site was designed and built to share, document, distribute and rerun
-                data analysis scripts that we call <b>recipes</b>. Recipes have the
-                following requirements:
+                This site was designed and built to help scientists share, document, distribute and rerun
+                data analysis scripts. We call these scripts <b>recipes</b> that follow these requirements:
 
                 <ul>
                     <li>
-                        Each recipe is fully operational.
+                        Each recipe must be fully operational.
                     </li>
                     <li>
-                        Each recipe can be modified, tuned and copied across different projects.
+                        Each recipe may be modified, changed and shared across different projects.
                     </li>
                     <li>
-                        Each recipe comes with test data and example output results.
+                        Each recipe has test data associated with it demonstrating the starting information
+                        and the results of the recipe.
                     </li>
                 </ul>
 

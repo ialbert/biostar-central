@@ -20,11 +20,12 @@ def get_project_list(user):
     if user.is_superuser:
         return query
 
-    # Non-account holders and users with no projects get to see public stuff
-    # for now.
-    elif user.is_anonymous or (not query.filter(owner=user).first()):
+    # Unauthenticated users see public projects.
+    if user.is_anonymous:
         return query.filter(privacy=Project.PUBLIC)
 
+
+    #
     # get the private and sharable projects belonging to the same user
     # then merge that with the public projects query
     query = query.filter(

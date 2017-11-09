@@ -19,15 +19,6 @@
 
     <div class="ui raised segment">
 
-        {% if user|can_edit:project%}
-
-        <div class="ui centered header">
-            <a class="ui button" href="{% url 'project_edit' project.id %}">
-                <i class="write icon"></i>Edit Project
-            </a>
-        </div>
-
-        {% endif %}
 
         <div class="ui divided link items">
 
@@ -38,8 +29,8 @@
                 </div>
 
                 <div class="content">
-                    <a class="header" href="{%  url 'project_list' %}">
-                        Project View for the {{ project.name }}
+                    <a class="header" href="{% url 'project_view' project.id %}">
+                        {{ project.name }}
                     </a>
                     <div class="description">
                         {{ project.summary|markdown|safe }}
@@ -100,11 +91,24 @@
 
             </div>
 
+             {% if user|can_create %}
+                <div class="item centerbox">
+                    <a class="ui button" href="{% url 'project_edit' project.id %}">
+                        <i class="write icon"></i>Edit Project
+                    </a>
+
+                    <a class="ui button" href="{% url 'project_edit' project.id %}">
+                        <i class="plus icon"></i>Add People
+                    </a>
+                </div>
+            {% endif %}
+
         </div>
+
     </div>
 
     <div class="ui raised segment">
-        <h2 class="ui center aligned header">Project Description</h2>
+        <div class="ui center aligned header">Project Description</div>
         <div class="ui vertical segment">
             {{ project.html|safe }}
         </div>

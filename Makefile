@@ -67,7 +67,7 @@ init:
 	@python manage.py collectstatic --noinput -v 0
 	@python manage.py migrate
 	@python manage.py project --json initial/tutorial-project.hjson --privacy public --sticky
-	@python manage.py project --json initial/cookbook-project.hjson --sticky
+	@python manage.py project --json initial/cookbook-project.hjson --privacy public --sticky
 	@python manage.py project --json initial/giraffe-project.hjson
 	@python manage.py project --json initial/fish-project.hjson
 
