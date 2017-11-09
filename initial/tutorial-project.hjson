@@ -14,18 +14,13 @@ and you will understand increasingly advanced recipe creation.
 
 text: '''
 
-    This project hosts simple analyses (called recipes) and the results
-    produced by applying the recipe on files. Note this same help is visible
-    from several different views, from the so called Project View as well as from
-    the Analysis Recipe panel.
-
     # Basics
 
     Each project has three distinct sections:
 
-    1. The files
-    2. The recipes
-    3. The results
+    1. The Files.
+    2. The Recipes.
+    3. The Results.
 
     The results are built by applying an analysis recipe onto one or more files.
 

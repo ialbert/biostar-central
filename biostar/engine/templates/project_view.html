@@ -110,7 +110,7 @@
     <div class="ui raised segment">
         <div class="ui center aligned header">Project Details</div>
         <div class="ui vertical segment">
-            {{ project.summary|safe }}
+            {{ project.summary|markdown|safe }}
         </div>
         <div class="ui vertical segment">
             {{ project.html|safe }}
