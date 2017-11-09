@@ -36,15 +36,15 @@ def get_project_list(user):
     return query
 
 
-
-def make_toc(fname):
+def make_toc(dir, uid):
     """
-    Make a toc.txt (table of contents) file for a given directory
+    Make a toc-(uuid).txt (table of contents) file for a given directory
     """
-
-    print(fname)
+    files = []
+    for item in os.scandir(dir):
+        print(item)
     1/0
-    return
+    return files
 
 
 def get_data(user, project, query, data_type=None):
@@ -70,7 +70,6 @@ def create_project(user, name, uid='', summary='', text='', stream='', privacy=P
     logger.info(f"Created project: {project.name} uid: {project.uid}")
 
     return project
-
 
 
 def create_analysis(project, json_text, template, uid=None, user=None, summary='', name='', text=''):
@@ -114,7 +113,7 @@ def create_data(project, user=None, stream=None, fname=None, name="data.bin", te
         stream = File(open(fname, 'rb'))
         name = os.path.basename(fname)
 
-    # directories are linked automatically instead of imported 
+    # directories are linked automatically instead of imported
     elif os.path.isdir(fname):
         stream, link = True,True
         name = os.path.basename(fname)
@@ -132,12 +131,14 @@ def create_data(project, user=None, stream=None, fname=None, name="data.bin", te
     # Linking only points to an existing path
     if link:
         path = os.path.abspath(fname)
+
         if os.path.isdir(path):
-            data.link = make_toc(path)
+            data.link = make_toc(path, uid=data.uid)
             logger.info(f"Linked to a table of contents in: {data.link}")
         else:
             data.link = path
             logger.info(f"Linked to: {data.link}")
+
         data.save()
 
     else:
