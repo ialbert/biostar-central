@@ -25,13 +25,15 @@ settings : {
     name: Gene prediction
     image : genes.png
     index : index.html
-    summary: Predict genes in an assembled genome using a specified training set.
+    summary: Predict genes in an assembled genome based on a user specified training set.
     help:'''
 
 # Help
 
-This analysis predicts genes in an assembled genome using augustus. Species to be used as a training set must also be
-given. It produces all predicted genes in a GFF ile.
+This analysis predicts genes in an assembled genome using augustus. Species to be used as training set must be
+given.
+
+It outputs all predicted genes as a GFF file and predicted proteins as a fasta file.
 
 # Parameters
 
