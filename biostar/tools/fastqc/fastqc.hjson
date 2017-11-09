@@ -7,6 +7,12 @@ sequence : {
     display_type: DROPDOWN
   }
 
+sequence2 : {
+    link: export/local/input/testing
+    label: Input2
+    data_type: FASTQ_TYPE
+    display_type: DROPDOWN
+  }
 settings : {
     name : FastQC report
     image : fastqc.png

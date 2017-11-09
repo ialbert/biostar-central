@@ -36,6 +36,17 @@ def get_project_list(user):
     return query
 
 
+
+def make_toc(fname):
+    """
+    Make a toc.txt (table of contents) file for a given directory
+    """
+
+    print(fname)
+    1/0
+    return
+
+
 def get_data(user, project, query, data_type=None):
     """
     Returns a dictionary keyed by data stored in the project.
@@ -99,9 +110,15 @@ def create_job(analysis, user=None, project=None, json_text='', json_data={}, na
 
 def create_data(project, user=None, stream=None, fname=None, name="data.bin", text='', data_type=None, link=False):
 
-    if fname:
+    if os.path.isfile(fname):
         stream = File(open(fname, 'rb'))
         name = os.path.basename(fname)
+
+    # directories are linked automatically instead of imported 
+    elif os.path.isdir(fname):
+        stream, link = True,True
+        name = os.path.basename(fname)
+        logger.info(f"Filename is a directory; setting link=True . ")
 
     if not stream:
         raise Exception("Empty stream")
@@ -114,13 +131,15 @@ def create_data(project, user=None, stream=None, fname=None, name="data.bin", te
 
     # Linking only points to an existing path
     if link:
-        data.link = os.path.abspath(fname)
+        path = os.path.abspath(fname)
+        if os.path.isdir(path):
+            data.link = make_toc(path)
+            logger.info(f"Linked to a table of contents in: {data.link}")
+        else:
+            data.link = path
+            logger.info(f"Linked to: {data.link}")
         data.save()
-        #fp = tempfile.TemporaryFile()
-        #fp.write(stream.read(CHUNK))
-        #fp.seek(0)
-        #stream = File(fp)
-        logger.info(f"Linked to: {data.link}")
+
     else:
         # This saves the into the
         data.file.save(name, stream, save=True)
