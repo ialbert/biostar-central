@@ -75,14 +75,6 @@ data: [
         text: UGA
     }
 
-    {
-        name: scaffolds.fasta
-        path: export/local/input/
-        data_type: FASTQ_TYPE
-        summary: Giraffe UGA
-        text: UGA
-    }
-
 ]
 
 }

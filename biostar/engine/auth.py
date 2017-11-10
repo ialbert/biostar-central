@@ -135,7 +135,7 @@ def make_toc(path):
 def create_data(project, user=None, stream=None, path=None, name=None, text='', summary='', data_type=None,
                 link=False):
     size = 0
-            
+
     # If the path is a directory, create the table of contents.
     if os.path.isdir(path):
         path = path.rstrip("/")

@@ -131,7 +131,13 @@ def project_view(request, id):
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON],
                                project=project)
 
-    context = dict(project=project, steps=steps)
+    data_count = Data.objects.filter(project=project).count()
+    recipe_count = Analysis.objects.filter(project=project).count()
+    result_count = Job.objects.filter(project=project).count()
+
+    context = dict(project=project,
+                   data_count=data_count, recipe_count=recipe_count, result_count=result_count,
+                   steps=steps)
 
     return render(request, "project_view.html", context)
 

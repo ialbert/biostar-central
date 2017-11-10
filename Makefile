@@ -45,7 +45,7 @@ postgres:
 	python manage.py test --settings conf.postgres.postgres_settings --failfast
 
 
-reset: delete init giraffe
+reset: delete init public giraffe fish
 
 next:
 	python manage.py job --next
@@ -67,15 +67,15 @@ init:
 	@python manage.py collectstatic --noinput -v 0
 	@python manage.py migrate
 
-projects:
-	@python manage.py project --json initial/tutorial-project.hjson --privacy public --sticky
-	@python manage.py project --json initial/cookbook-project.hjson --privacy public --sticky
+public:
+	@python manage.py project --json initial/tutorial-project.hjson --privacy public --sticky --job
+	@python manage.py project --json initial/cookbook-project.hjson --privacy public --sticky --job
 
 fish:
 	@python manage.py project --json initial/fish-project.hjson
 
 giraffe:
-	@python manage.py project --json initial/giraffe-project.hjson --sticky --privacy public
+	@python manage.py project --json initial/giraffe-project.hjson --sticky
 
 test:
 	python manage.py collectstatic --noinput -v 0
