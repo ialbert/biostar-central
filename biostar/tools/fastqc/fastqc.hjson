@@ -1,5 +1,4 @@
 {
-
 sequence : {
     link: export/local/input/test_reads.fastq.gz
     label: Input
@@ -7,11 +6,12 @@ sequence : {
     display_type: DROPDOWN
   }
 
+
 settings : {
     name : FastQC report
     image : fastqc.png
     index : results/index.html
-    summary: This analysis produces fastqc report for FASTQ file.
+    summary: Produces a fastqc report for FASTQ file.
     help :'''
 # Help
 

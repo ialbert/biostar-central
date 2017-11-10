@@ -62,7 +62,7 @@ def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=Non
         elif icon == DATA_UPLOAD:
             step = (reverse("data_view", kwargs={'id': project.id}), DATA_UPLOAD, f"File Upload", is_active)
         elif icon == ANALYSIS_LIST_ICON:
-            step = (reverse("analysis_list", kwargs={'id': project.id}), ANALYSIS_LIST_ICON, "Analysis List", is_active)
+            step = (reverse("analysis_list", kwargs={'id': project.id}), ANALYSIS_LIST_ICON, "Analysis Recipes", is_active)
         elif icon == ANALYSIS_VIEW_ICON:
             step = (reverse("analysis_view", kwargs={'id': analysis.id}), ANALYSIS_VIEW_ICON, "Analysis View", is_active)
         elif icon == ANALYSIS_RUN_ICON:
@@ -107,9 +107,10 @@ def site_admin(request):
 
 
 def project_list(request):
+
     projects = auth.get_project_list(user=request.user).order_by("-sticky", "-privacy")
 
-    projects = projects.order_by("-sticky", "-privacy","-id")
+    projects = projects.order_by("-privacy", "-sticky", "-date", "-id")
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON])
 

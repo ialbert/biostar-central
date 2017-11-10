@@ -24,22 +24,23 @@
 
                 <div class="content">
                     <a class="header" href="{% url 'project_view' project.id %}">
-                        <i class="file text icon"></i> Files List: {{ project.name }}
+                        <i class="file text icon"></i> File List
                     </a>
                     <div class="description">
-                        {{ project.summary }}
+                        The data available in: <b>{{ project.name }}</b>
                     </div>
                 </div>
 
 
         </div>
-    {% if user|can_create_instance %}
-        <div class="item">
-             <div class="right floated content">
-            <a class="ui primary button" href="{% url 'data_upload' project.id %}">
-                <i class="upload icon"></i>Upload file
+
+    {% if user|can_create %}
+        <div class="item centerbox">
+
+            <a class="ui  button" href="{% url 'data_upload' project.id %}">
+                <i class="upload icon"></i>Upload File
             </a>
-                </div>
+
         </div>
     {% endif %}
 

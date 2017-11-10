@@ -103,7 +103,7 @@ class DataCopyForm(forms.Form):
                 path = path[1:]
             path = join(basedir, path)
 
-            tasks.copier(target_project=self.project.id, fname=path)
+            tasks.copier(target_project=self.project.id, fname=path, link=True)
 
             logger.info(f"Copy data at: {path}")
 
