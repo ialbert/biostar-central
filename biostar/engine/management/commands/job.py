@@ -62,6 +62,7 @@ def run(job, options={}):
         # This is the work directory.
         work_dir = job.path
 
+        url_base = f'{settings.PROTOCOL}://{settings.SITE_DOMAIN}{settings.HTTP_PORT}'
         # Populate extra context
         def extra_context(job):
             extras = dict(
@@ -70,7 +71,7 @@ def run(job, options={}):
                 work_dir=work_dir, local_root=settings.LOCAL_ROOT,
                 user_id=job.owner.id, user_email=job.owner.email,
                 job_id=job.id, job_name=job.name,
-                job_url=f'{settings.MEDIA_URL}{job.get_url()}',
+                job_url=f'{url_base}{settings.MEDIA_URL}{job.get_url()}',
                 project_id=job.project.id, project_name=job.project.name, analyis_name=job.analysis.name,
                 analysis_id=job.analysis.id, analysis_name=job.analysis.name,
                 domain=settings.SITE_DOMAIN, protocol=settings.PROTOCOL,

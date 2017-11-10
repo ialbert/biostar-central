@@ -6,6 +6,9 @@ SITE_ID = 1
 SITE_DOMAIN = "www.metabarcode.com"
 SITE_NAME = "Metabarcode Site"
 
+HTTP_PORT = ''
+PROTOCOL = 'https'
+
 ALLOWED_HOSTS = [SITE_DOMAIN]
 
 WSGI_APPLICATION = 'conf.main.main_wsgi.application'
