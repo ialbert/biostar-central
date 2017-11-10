@@ -47,10 +47,10 @@
 
                 <div class="content">
                     <a class="header" href="{% url 'data_list' project.id %}">
-                        <i class="file text icon"></i>File List
+                        <i class="file text icon"></i> {{ data_count }} Data collections
                     </a>
                     <div class="description">
-                        View files associated with this project.
+                        View the files and data collections associated with this project.
                     </div>
                 </div>
 
@@ -65,7 +65,7 @@
 
                 <div class="content">
                     <a class="header" href="{% url 'analysis_list' project.id %}">
-                        <i class="settings icon"></i>Analysis Recipes
+                        <i class="settings icon"></i> {{ recipe_count }} Analysis Recipes
                     </a>
                     <div class="description">
                         View the analyses that can be run for this project.
@@ -82,7 +82,7 @@
 
                 <div class="content">
                     <a class="header" href="{% url 'job_list' project.id %}">
-                        <i class="bar chart icon"></i>Analysis Results
+                        <i class="bar chart icon"></i> {{ result_count }} Analysis Results
                     </a>
                     <div class="description">
                         View the results of analyses run previously.

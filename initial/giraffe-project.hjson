@@ -32,4 +32,49 @@ analyses: [
 
 ]
 
+# Data that may be deposited for the project.
+data: [
+
+    {
+        name: Giraffe scaffold (2016).fa
+        path: /export/data/giraffe/assembly/soap_assembly_k91_params.gapfilled.fa
+        data_type: FASTA_TYPE
+        summary: The published assembled Giraffe scaffold (2016)
+        text: The giraffe scaffold assembled by Rayan Chiki
+    }
+
+    {
+        name: MA1_MP.fa
+        path: /export/data/giraffe/data/GIRAFFE/MA1_MP
+        data_type: FASTQ_TYPE
+        summary: Giraffe MA1: mated pair reads
+        text: Mated pair reads
+    }
+
+    {
+        name: MA1_PE.fa
+        path: /export/data/giraffe/data/GIRAFFE/MA1_PE
+        data_type: FASTQ_TYPE
+        summary: Giraffe MA1: paired end reads
+        text: Paired end reads
+    }
+
+    {
+        name: NZOO
+        path: /export/data/giraffe/data/GIRAFFE/NZOO
+        data_type: FASTQ_TYPE
+        summary: Giraffe NZOO: paired end reads 250bp
+        text: NZOO
+    }
+
+    {
+        name: UGA
+        path: /export/data/giraffe/data/GIRAFFE/UGA
+        data_type: FASTQ_TYPE
+        summary: Giraffe UGA
+        text: UGA
+    }
+
+]
+
 }

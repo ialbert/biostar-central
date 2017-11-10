@@ -131,7 +131,13 @@ def project_view(request, id):
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON],
                                project=project)
 
-    context = dict(project=project, steps=steps)
+    data_count = Data.objects.filter(project=project).count()
+    recipe_count = Analysis.objects.filter(project=project).count()
+    result_count = Job.objects.filter(project=project).count()
+
+    context = dict(project=project,
+                   data_count=data_count, recipe_count=recipe_count, result_count=result_count,
+                   steps=steps)
 
     return render(request, "project_view.html", context)
 
@@ -199,8 +205,12 @@ def data_list(request, id):
         logger.error(f"data.id={id} looked for but not found.")
         return redirect(reverse("project_list"))
 
-    data_list = Data.objects.filter(project=project).order_by("-date")
-    context = dict(project=project, steps=steps, data_list=data_list)
+    query = Data.objects.filter(project=project).order_by("-date")
+
+    data_list = query.all()
+    data_count = query.count()
+
+    context = dict(project=project, steps=steps, data_list=data_list, data_count=data_count)
     return render(request, "data_list.html", context)
 
 
