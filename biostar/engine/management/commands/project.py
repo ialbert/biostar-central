@@ -1,16 +1,22 @@
-import logging, hjson, os
-from django.core.management.base import BaseCommand
-from biostar.engine.models import Project, User
-from biostar.engine import auth
-from django.core.files import File
+import hjson
+import logging
+import os
+
 from django.core import management
+from django.core.files import File
+from django.core.management.base import BaseCommand
+
+from biostar.engine import auth
+from biostar.engine.models import Project, User
 
 logger = logging.getLogger('engine')
+
 
 def join(*args):
     return os.path.join(*args)
 
-def parse_json(path, privacy=Project.SHAREABLE, sticky=False):
+
+def parse_json(path, privacy=Project.PRIVATE, sticky=False, jobs=False):
     """
     Create a project from a JSON data
     """
@@ -18,13 +24,14 @@ def parse_json(path, privacy=Project.SHAREABLE, sticky=False):
     dirname = os.path.dirname(path)
 
     email = data.get("email", 'email')
-    uid = data.get("uid",None)
+    uid = data.get("uid", None)
     name = data.get("name", '')
     text = data.get("text", '')
     summary = data.get("summary", '')
     imgpath = join(dirname, data.get("image", ""))
 
     project = Project.objects.filter(uid=uid).first()
+
     if project:
         logger.info(f"Project uid={project.uid} already exists")
         return
@@ -45,32 +52,43 @@ def parse_json(path, privacy=Project.SHAREABLE, sticky=False):
     for row in analyses:
         json = row['json']
         template = row['template']
-        management.call_command("analysis", id=project.id, add=True, json=json, template=template, create_job=True)
+        management.call_command("analysis", id=project.id, add=True, json=json, template=template, create_job=jobs)
+
+    data_list = data.get("data", '')
+
+    for row in data_list:
+        link = row.get('link', '')
+        path = row.get('path', '') or link
+        name = row.get('name', 'data.bin')
+        summary = row.get('summary', 'no summary')
+
+        management.call_command("data", id=project.id, path=path, link=bool(link), summary=summary)
 
 
 class Command(BaseCommand):
-
     help = 'Creates a project.'
 
     def add_arguments(self, parser):
         parser.add_argument('--json', required=True, help="The json file that described the project")
+        parser.add_argument('--jobs', action='store_true', default=False, help="Create jobs for the analyses")
         parser.add_argument('--privacy', default="private", help="Privacy of project, defaults to sharable")
         parser.add_argument('--sticky', action='store_true', default=False,
-                            help="Stick a project to the front page.")
-
+                            help="Make project sticky (high in the order).")
 
     def handle(self, *args, **options):
         path = options['json']
-        privacy = options["privacy"]
+        privacy = options["privacy"].lower()
         sticky = options["sticky"]
+        jobs = options["jobs"]
 
-        privacy_map = dict(share=Project.SHAREABLE, private=Project.PRIVATE,
-                           public=Project.PUBLIC)
+        privacy_map = dict(
+            (v.lower(), k) for k, v in Project.PRIVACY_CHOICES
+        )
 
-        parse_json(path, privacy=privacy_map.get(privacy, Project.PRIVATE), sticky=sticky)
+        privacy_value = privacy_map.get(privacy)
 
+        if privacy_value is None:
+            logger.error(f"Invalid privacy choice: {privacy}")
+            return
 
-
-
-
-
+        parse_json(path, jobs=jobs, privacy=privacy_value, sticky=sticky)

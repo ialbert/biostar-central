@@ -54,11 +54,10 @@
                         </a>
                         <div class="description">
                             <div>{{ data.summary }}</div>
-
                         </div>
                         <div class="meta">
-                             <div class="ui label">{{ data.size|filesizeformat }} </div>
-                            <div class="ui {%  data_color data %} label">{% type_label data %} </div>
+                             {%  size_label data %}
+                             {% type_label data %}
                         </div>
                     </div>
 

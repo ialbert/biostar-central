@@ -132,38 +132,42 @@ def make_toc(path):
     fp.seek(0)
     return fp, lines, size
 
-def create_data(project, user=None, stream=None, fname=None, name="data.bin", text='', summary='', data_type=None, link=False):
+def create_data(project, user=None, stream=None, path=None, name="data.bin", text='', summary='', data_type=None, link=False):
 
     size = 0
 
     # If the path is a directory, create the table of contents.
-    if os.path.isdir(fname):
-        fp, lines, size = make_toc(fname)
+    if os.path.isdir(path):
+        fp, lines, size = make_toc(path)
         stream = File(fp)
         logger.info(f"Processing a directory.")
-        last = os.path.split(fname.strip("/"))[-1]
+        last = os.path.split(path.strip("/"))[-1]
         name = f"Directory: {last}"
         summary = f'Contains {len(lines)} files.'
 
     # The path is a file.
-    if os.path.isfile(fname):
-        size = os.stat(fname).st_size
-        stream = File(open(fname, 'rb'))
-        name = os.path.basename(fname)
+    if os.path.isfile(path):
+        size = os.stat(path).st_size
+        stream = File(open(path, 'rb'))
+        name = os.path.basename(path)
         logger.info(f"Processing a file.")
-
-    # The data has to exist to be added.
-    if not stream:
-        raise Exception(f"Empty stream. fname={fname}")
 
     # Create the data.
     owner = user or project.owner
     data = Data.objects.create(name=name, owner=owner, state=Data.READY, text=text, project=project,
                                data_type=data_type, summary=summary)
 
+    # We will allow invalid data to be added
+    # while we build the site. TODO: be more strict here.
+    if not stream:
+        data.state = Data.PENDING
+        data.save()
+        logger.error("Invalid stream specified.")
+        #raise Exception(f"Empty stream. fname={path}")
+
     # Linking only points to an existing path
     if link:
-        data.link = fname
+        data.link = path
         data.save()
         logger.info(f"Linking to: {data.get_path()}")
     else:
