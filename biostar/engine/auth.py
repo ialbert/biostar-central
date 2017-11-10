@@ -46,14 +46,13 @@ def get_project_list(user):
 
 def make_toc(directory, uid=get_uuid(4)):
     """
-    Make a toc-(uuid).txt (table of contents) file for a given directory
+    Make a toc-(uid).txt (table of contents) file for a given directory
     """
     files = []
     outfile = join(directory, f"toc-{uid}.txt" )
 
     def crawl(path):
         for item in os.scandir(path):
-
             if item.is_dir():
                 crawl(item.path)
             else:
@@ -161,7 +160,6 @@ def create_data(project, user=None, stream=None, fname=None, name="data.bin", te
         data.save()
 
     else:
-        # This saves the into the
         data.file.save(name, stream, save=True)
 
     if data.can_unpack():
