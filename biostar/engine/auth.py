@@ -1,4 +1,5 @@
 import hjson, logging, uuid
+from tempfile import TemporaryFile
 from django.core.files import File
 from django.db.models import Q
 from . import tasks
@@ -44,26 +45,7 @@ def get_project_list(user):
     return query
 
 
-def make_toc(directory, uid=get_uuid(4)):
-    """
-    Make a toc-(uid).txt (table of contents) file for a given directory
-    """
-    files = []
-    outfile = join(directory, f"toc-{uid}.txt" )
 
-    def crawl(path):
-        for item in os.scandir(path):
-            if item.is_dir():
-                crawl(item.path)
-            else:
-                files.append(item.path)
-
-    crawl(directory)
-
-    with open(outfile, "w") as toc:
-        toc.write('\n'.join(files))
-
-    return outfile
 
 
 def get_data(user, project, query, data_type=None):
@@ -127,40 +109,69 @@ def create_job(analysis, user=None, project=None, json_text='', json_data={}, na
     return job
 
 
-def create_data(project, user=None, stream=None, fname=None, name="data.bin", text='', data_type=None, link=False):
+def make_toc(path):
+    """
+    Generate a table of contents into a temporary file.
+    """
 
+    size = 0
+    def crawl(location, collect):
+        nonlocal size
+        for item in os.scandir(location):
+            if item.is_dir():
+                crawl(item.path, collect=collect)
+            else:
+                size += item.stat().st_size
+                collect.append(os.path.abspath(item.path))
+
+    lines = []
+    crawl(path, collect=lines)
+    text = '\n'.join(lines)
+    fp = TemporaryFile()
+    fp.write(text.encode('utf8'))
+    fp.seek(0)
+    return fp, lines, size
+
+def create_data(project, user=None, stream=None, fname=None, name="data.bin", text='', summary='', data_type=None, link=False):
+
+    size = 0
+
+    # If the path is a directory, create the table of contents.
+    if os.path.isdir(fname):
+        fp, lines, size = make_toc(fname)
+        stream = File(fp)
+        logger.info(f"Processing a directory.")
+        last = os.path.split(fname.strip("/"))[-1]
+        name = f"Directory: {last}"
+        summary = f'Contains {len(lines)} files.'
+
+    # The path is a file.
     if os.path.isfile(fname):
+        size = os.stat(fname).st_size
         stream = File(open(fname, 'rb'))
         name = os.path.basename(fname)
+        logger.info(f"Processing a file.")
 
-    # directories are linked automatically instead of imported
-    elif os.path.isdir(fname):
-        stream, link = True,True
-        name = os.path.basename(fname)
-        logger.info(f"Filename is a directory; setting link=True . ")
-
+    # The data has to exist to be added.
     if not stream:
         raise Exception(f"Empty stream. fname={fname}")
 
+    # Create the data so that we know its
     owner = user or project.owner
     text = text or "No description"
     data_type = data_type or GENERIC_TYPE
 
-    data = Data.objects.create(name=name, owner=owner, state=Data.READY, text=text, project=project, data_type=data_type)
+    data = Data.objects.create(name=name, owner=owner, state=Data.READY, text=text, project=project,
+                               data_type=data_type, summary=summary)
 
     # Linking only points to an existing path
     if link:
-        path = os.path.abspath(fname)
-        if os.path.isdir(path):
-            data.link = make_toc(path, uid=data.uid)
-            logger.info(f"Linked to a table of contents in: {data.link}")
-        else:
-            data.link = path
-            logger.info(f"Linked to: {data.link}")
+        data.link = fname
         data.save()
-
+        logger.info(f"Linking to: {data.get_path()}")
     else:
         data.file.save(name, stream, save=True)
+        logger.info(f"Saving to: {data.get_path()}")
 
     if data.can_unpack():
         logger.info(f"uwsgi active: {tasks.HAS_UWSGI}")
@@ -170,9 +181,9 @@ def create_data(project, user=None, stream=None, fname=None, name="data.bin", te
         else:
             tasks.unpack(data_id=data.id)
 
-    # Updates its own size.
-    data.set_size()
+    # Updating data size.
+    Data.objects.filter(pk=data.pk).update(size=size)
 
-    logger.info(f"Added data id={data.name}, name={data.name}")
+    logger.info(f"Added data id={data.pk}, name={data.name}")
 
     return data
