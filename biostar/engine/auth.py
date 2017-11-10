@@ -135,14 +135,15 @@ def make_toc(path):
 def create_data(project, user=None, stream=None, path=None, name=None, text='', summary='', data_type=None,
                 link=False):
     size = 0
-
+            
     # If the path is a directory, create the table of contents.
     if os.path.isdir(path):
+        path = path.rstrip("/")
         fp, lines, size = make_toc(path)
         link = False
         stream = File(fp)
         logger.info(f"Processing a directory.")
-        name = f"Directory: {os.path.basename(fname)}"
+        name = f"Directory: {os.path.basename(path)}"
         summary = f'Contains {len(lines)} files.'
 
     # The path is a file.
