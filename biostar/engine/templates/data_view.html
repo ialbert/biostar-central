@@ -12,18 +12,12 @@
 {% block body %}
 
     <div class="ui  raised segment">
-        {% if user|can_edit:data%}
-        <div class="ui centered header">
-            <a class="ui button" href="{% url 'data_edit' data.id %}">
-                <i class="write icon"></i>Edit Data
-            </a>
-        </div>
-        {% endif %}
 
-        <div class="ui center aligned header">
-            {{ data.name }}
+        <div class="ui vertical segment">
+            <div class="ui center aligned header">
+                Data: {{ data.name }}
+            </div>
         </div>
-
         <div class="ui vertical segment">
             {{ data.summary|markdown|safe }}
         </div>
@@ -32,7 +26,7 @@
             <div>Name: {{ data.name }}</div>
             <div>Size: {{ data.size|filesizeformat }}</div>
             <div>Uploaded by: {{ data.owner.email }}</div>
-             <div>State: {{ data.get_state_display }}</div>
+            <div>State: {{ data.get_state_display }}</div>
         </div>
 
         <div class="ui vertical segment">
@@ -43,6 +37,16 @@
         <div class="ui vertical segment">
             <div class="ui center aligned header">Data Content</div>
             <pre>{{ data.peek }}</pre>
+        </div>
+
+        <div class="ui vertical segment">
+            {% if user|can_edit:data %}
+                <div class="ui centered header">
+                    <a class="ui button" href="{% url 'data_edit' data.id %}">
+                        <i class="write icon"></i>Edit Data
+                    </a>
+                </div>
+            {% endif %}
         </div>
 
     </div>

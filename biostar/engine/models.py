@@ -84,7 +84,7 @@ class Project(models.Model):
     name = models.CharField(default="no name", max_length=MAX_NAME_LEN)
     summary = models.TextField(default='no summary', max_length=MAX_TEXT_LEN)
 
-    owner = models.ForeignKey(User)
+    owner = models.ForeignKey(User, null=False)
     text = models.TextField(default='no description', max_length=MAX_TEXT_LEN)
 
     html = models.TextField(default='html', max_length=MAX_LOG_LEN)
@@ -174,6 +174,7 @@ class Data(models.Model):
         self.date = self.date or now
         self.html = make_html(self.text)
         self.owner = self.owner or self.project.owner
+        self.data_type = self.data_type or GENERIC_TYPE
         # Build the data directory.
         data_dir = self.get_datadir()
         if not os.path.isdir(data_dir):
