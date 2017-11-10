@@ -6,11 +6,8 @@ GENOME={{genome.path}}
 BAM={{bam.path}}
 
 # Internal parameters.
-GENOME_DIR=$(dirname ${GENOME})
-GENOME_INDEX=${GENOME_DIR}/{{genome.uid}}.fai
-
-BAM_DIR=$(dirname ${BAM})
-BAM_INDEX=${BAM_DIR}/{{bam.uid}}.bai
+GENOME_INDEX=${GENOME}.fai
+BAM_INDEX=${BAM}.bai
 
 # Result.
 RESULT_VIEW={{runtime.work_dir}}/{{settings.index}}
@@ -28,4 +25,6 @@ samtools index $BAM
 fi
 
 # create igv xml
+echo "Generating xml file IGV visualization."
+echo "--------------------------------------"
 python -m biostar.tools.igv.generate_xml $GENOME $BAM >$RESULT_VIEW
