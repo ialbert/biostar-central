@@ -9,6 +9,7 @@ SITE_DOMAIN = "psu.bioinformatics.recipes"
 SITE_NAME = "PSU Bioinformatics Recipes"
 
 HTTP_PORT = ''
+PROTOCOL = 'https'
 
 ALLOWED_HOSTS = [SITE_DOMAIN]
 
