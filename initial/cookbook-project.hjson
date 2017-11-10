@@ -64,6 +64,10 @@ analyses: [
         template: biostar/tools/merge/merge.sh
     }
 
+    {
+        json: biostar/tools/igv/igv.hjson
+        template: biostar/tools/igv/igv.sh
+    }
 
 ]
 
