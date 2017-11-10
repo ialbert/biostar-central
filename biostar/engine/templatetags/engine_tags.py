@@ -15,12 +15,6 @@ JOB_COLORS = {
     Job.ERROR: "red", Job.QUEUED: "blue", Job.RUNNING: "teal", Job.COMPLETED: "green"
 }
 
-@register.simple_tag
-def data_color(data):
-    """
-    Returns a color based on job status.
-    """
-    return "" if data.data_type == const.GENERIC_TYPE else "green"
 
 @register.simple_tag
 def sticky_label(obj):
@@ -67,13 +61,22 @@ def can_create(user):
     return user.is_authenticated()
 
 
-@register.simple_tag
+@register.inclusion_tag('widgets/size_label.html')
+def size_label(data):
+    """
+    Returns a label for data sizes.
+    """
+    return dict(data=data)
+
+
+@register.inclusion_tag('widgets/type_label.html')
 def type_label(data):
     """
-    Returns readable names for data types.
+    Returns a label for a data type.
     """
+    color = "" if data.data_type == const.GENERIC_TYPE else "green"
     label = const.DATA_TYPES.get(data.data_type, "Generic")
-    return label
+    return dict(label=label, color=color)
 
 
 @register.inclusion_tag('widgets/form_nonfield_errors.html')

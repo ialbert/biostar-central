@@ -95,7 +95,7 @@ def copier(source=None, target_data=None, target_project=None, fname=None, link=
 
     if project:
         assert fname
-        auth.create_data(project=project, fname=fname, link=link)
+        auth.create_data(project=project, path=fname, link=link)
         return
 
     if source:

@@ -199,8 +199,12 @@ def data_list(request, id):
         logger.error(f"data.id={id} looked for but not found.")
         return redirect(reverse("project_list"))
 
-    data_list = Data.objects.filter(project=project).order_by("-date")
-    context = dict(project=project, steps=steps, data_list=data_list)
+    query = Data.objects.filter(project=project).order_by("-date")
+
+    data_list = query.all()
+    data_count = query.count()
+
+    context = dict(project=project, steps=steps, data_list=data_list, data_count=data_count)
     return render(request, "data_list.html", context)
 
 

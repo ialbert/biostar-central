@@ -29,7 +29,7 @@ class AccountsNavigation(TestCase):
     def test_public_pages(self):
         "Checking public pages"
 
-        data = auth.create_data(project=self.project, fname=__file__)
+        data = auth.create_data(project=self.project, path=__file__)
         analysis = auth.create_analysis(project=self.project, json_text='{}', template="")
         job = auth.create_job(analysis=analysis)
 

@@ -1,7 +1,10 @@
-import hjson, logging, uuid
 from tempfile import TemporaryFile
+
+import hjson
+import logging
+import uuid
 from django.core.files import File
-from django.db.models import Q
+
 from . import tasks
 from .const import *
 from .models import Data, Analysis, Job, Project
@@ -37,7 +40,7 @@ def get_project_list(user):
 
     # get the private and sharable projects belonging to the same user
     # then merge that with the public projects query
-    #query = query.filter(
+    # query = query.filter(
     #              Q(owner=user),
     #              Q(privacy=Project.PRIVATE)|
     #              Q(privacy=Project.SHAREABLE)) | query.filter(privacy=Project.PUBLIC)
@@ -58,9 +61,8 @@ def get_data(user, project, query, data_type=None):
 
 
 def create_project(user, name, uid='', summary='', text='', stream='', privacy=Project.PRIVATE, sticky=True):
-
     project = Project.objects.create(
-        name=name, uid=uid,  summary=summary, text=text, owner=user, privacy=privacy, sticky=sticky)
+        name=name, uid=uid, summary=summary, text=text, owner=user, privacy=privacy, sticky=sticky)
 
     if stream:
         project.image.save(stream.name, stream, save=True)
@@ -85,7 +87,6 @@ def create_analysis(project, json_text, template, uid=None, user=None, summary='
 
 
 def create_job(analysis, user=None, project=None, json_text='', json_data={}, name=None, state=None, type=None):
-
     name = name or analysis.name
     state = state or Job.QUEUED
     owner = user or analysis.project.owner
@@ -130,38 +131,44 @@ def make_toc(path):
     fp.seek(0)
     return fp, lines, size
 
-def create_data(project, user=None, stream=None, fname=None, name="data.bin", text='', summary='', data_type=None, link=False):
 
+def create_data(project, user=None, stream=None, path=None, name=None, text='', summary='', data_type=None,
+                link=False):
     size = 0
 
     # If the path is a directory, create the table of contents.
-    if os.path.isdir(fname):
-        fp, lines, size = make_toc(fname)
+    if os.path.isdir(path):
+        fp, lines, size = make_toc(path)
         link = False
         stream = File(fp)
         logger.info(f"Processing a directory.")
-        name = f"Directory: {os.path.basename(fname)}"
+        name = f"Directory: {os.path.basename(path)}"
         summary = f'Contains {len(lines)} files.'
 
     # The path is a file.
-    if os.path.isfile(fname):
-        size = os.stat(fname).st_size
-        stream = File(open(fname, 'rb'))
-        name = os.path.basename(fname)
+    if os.path.isfile(path):
+        size = os.stat(path).st_size
+        stream = File(open(path, 'rb'))
+        name = os.path.basename(path)
         logger.info(f"Processing a file.")
-
-    # The data has to exist to be added.
-    if not stream:
-        raise Exception(f"Empty stream. fname={fname}")
 
     # Create the data.
     owner = user or project.owner
+    name = name or "data.bin"
     data = Data.objects.create(name=name, owner=owner, state=Data.READY, text=text, project=project,
                                data_type=data_type, summary=summary)
 
+    # We will allow invalid data to be added
+    # while we build the site. TODO: be more strict here.
+    if not stream:
+        data.state = Data.PENDING
+        data.save()
+        logger.error("Invalid stream specified.")
+        # raise Exception(f"Empty stream. fname={path}")
+
     # Linking only points to an existing path
     if link:
-        data.link = fname
+        data.link = path
         data.save()
         logger.info(f"Linking to: {data.get_path()}")
     else:

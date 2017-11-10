@@ -114,11 +114,11 @@ class Command(BaseCommand):
 
                         # Links take priority over path if both given
                         if link:
-                            data = auth.create_data(project=project, fname=link, data_type=data_type, link=True)
+                            data = auth.create_data(project=project, path=link, data_type=data_type, link=True)
                             data.fill_dict(value)
 
                         elif path:
-                            data = auth.create_data(project=project, fname=path, data_type=data_type)
+                            data = auth.create_data(project=project, path=path, data_type=data_type)
                             data.fill_dict(value)
 
 
