@@ -163,6 +163,7 @@ def create_data(project, user=None, stream=None, path=None, name=None, text='', 
     if not stream:
         data.state = Data.PENDING
         data.save()
+        link = True
         logger.error("Invalid stream specified.")
         # raise Exception(f"Empty stream. fname={path}")
 
@@ -186,6 +187,6 @@ def create_data(project, user=None, stream=None, path=None, name=None, text='', 
     # Updating data size.
     Data.objects.filter(pk=data.pk).update(size=size)
 
-    logger.info(f"Added data id={data.pk}, name={data.name}")
+    logger.info(f"Added data id={data.pk}, type={data.data_type} name={data.name}")
 
     return data
