@@ -8,6 +8,8 @@ SITE_ID = 1
 SITE_DOMAIN = "psu.bioinformatics.recipes"
 SITE_NAME = "PSU Bioinformatics Recipes"
 
+HTTP_PORT = ''
+
 ALLOWED_HOSTS = [SITE_DOMAIN]
 
 SITE_HEADER = '<img class="ui middle aligned small image" src="/static/images/shield.png"> <span>Penn State Bioinformatics Recipes</span>'
