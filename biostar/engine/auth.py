@@ -141,7 +141,7 @@ def create_data(project, user=None, stream=None, fname=None, name="data.bin", te
         logger.info(f"Filename is a directory; setting link=True . ")
 
     if not stream:
-        raise Exception("Empty stream")
+        raise Exception(f"Empty stream. fname={fname}")
 
     owner = user or project.owner
     text = text or "No description"
