@@ -115,7 +115,6 @@ class DataTest(TestCase):
         post = len(models.Data.objects.all())
 
         self.assertTrue(post == (pre + 1), "Error creating linked data in database")
-        self.assertEqual(data.get_path(), __file__, "Path in database does not math linked file path.")
 
 
 class AnalysisTest(TestCase):
