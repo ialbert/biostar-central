@@ -10,7 +10,7 @@ logger = logging.getLogger('engine')
 def join(*args):
     return os.path.join(*args)
 
-def parse_json(path, privacy=Project.SHAREABLE, sticky=True):
+def parse_json(path, privacy=Project.SHAREABLE, sticky=False):
     """
     Create a project from a JSON data
     """

@@ -1,11 +1,11 @@
 {
-
 sequence : {
     link: export/local/input/test_reads.fastq.gz
     label: Input
     data_type: FASTQ_TYPE
     display_type: DROPDOWN
   }
+
 
 settings : {
     name : FastQC report

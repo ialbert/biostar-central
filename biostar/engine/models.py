@@ -76,7 +76,7 @@ class Project(models.Model):
     ACTIVE, DELETED = 1, 2
     STATE_CHOICES  = [(ACTIVE, "Active"), (DELETED, "Deleted")]
 
-    sticky = models.BooleanField(default=True)
+    sticky = models.BooleanField(default=False)
     privacy = models.IntegerField(default=PRIVATE, choices=PRIVACY_CHOICES)
     state = models.IntegerField(default=ACTIVE, choices=STATE_CHOICES)
 
@@ -137,7 +137,7 @@ class Data(models.Model):
     name = models.CharField(max_length=MAX_NAME_LEN, default="no name")
     summary = models.TextField(default='no summary')
     image = models.ImageField(default=None, blank=True, upload_to=image_path, max_length=MAX_FIELD_LEN)
-    sticky = models.BooleanField(default=True)
+    sticky = models.BooleanField(default=False)
 
     owner = models.ForeignKey(User)
     text = models.TextField(default='no description', max_length=MAX_TEXT_LEN)
@@ -235,7 +235,7 @@ class Analysis(models.Model):
 
 
     uid = models.CharField(max_length=32, unique=True)
-    sticky = models.BooleanField(default=True)
+    sticky = models.BooleanField(default=False)
     name = models.CharField(max_length=MAX_NAME_LEN, default="No name")
     summary = models.TextField(default='No summary.')
     text = models.TextField(default='No description.', max_length=MAX_TEXT_LEN)
@@ -290,7 +290,7 @@ class Job(models.Model):
     text = models.TextField(default='no description', max_length=MAX_TEXT_LEN)
     html = models.TextField(default='html')
     date = models.DateTimeField(auto_now_add=True)
-    sticky = models.BooleanField(default=True)
+    sticky = models.BooleanField(default=False)
     analysis = models.ForeignKey(Analysis)
     project = models.ForeignKey(Project)
     json_text = models.TextField(default="commands")

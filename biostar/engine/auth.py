@@ -1,4 +1,4 @@
-import hjson, logging, shutil, tarfile
+import hjson, logging, uuid
 from django.core.files import File
 from django.db.models import Q
 from . import tasks
@@ -8,6 +8,14 @@ from .models import Data, Analysis, Job, Project
 CHUNK = 100
 
 logger = logging.getLogger("engine")
+
+
+def get_uuid(limit=32):
+    return str(uuid.uuid4())[:limit]
+
+
+def join(*args):
+    return os.path.abspath(os.path.join(*args))
 
 
 def get_project_list(user):
@@ -24,9 +32,7 @@ def get_project_list(user):
     if user.is_anonymous:
         return query.filter(privacy=Project.PUBLIC)
 
-
     # We need to rework this first to allow adding users to groups.
-
 
     # get the private and sharable projects belonging to the same user
     # then merge that with the public projects query
@@ -36,6 +42,28 @@ def get_project_list(user):
     #              Q(privacy=Project.SHAREABLE)) | query.filter(privacy=Project.PUBLIC)
 
     return query
+
+
+def make_toc(directory, uid=get_uuid(4)):
+    """
+    Make a toc-(uid).txt (table of contents) file for a given directory
+    """
+    files = []
+    outfile = join(directory, f"toc-{uid}.txt" )
+
+    def crawl(path):
+        for item in os.scandir(path):
+            if item.is_dir():
+                crawl(item.path)
+            else:
+                files.append(item.path)
+
+    crawl(directory)
+
+    with open(outfile, "w") as toc:
+        toc.write('\n'.join(files))
+
+    return outfile
 
 
 def get_data(user, project, query, data_type=None):
@@ -61,7 +89,6 @@ def create_project(user, name, uid='', summary='', text='', stream='', privacy=P
     logger.info(f"Created project: {project.name} uid: {project.uid}")
 
     return project
-
 
 
 def create_analysis(project, json_text, template, uid=None, user=None, summary='', name='', text=''):
@@ -99,14 +126,21 @@ def create_job(analysis, user=None, project=None, json_text='', json_data={}, na
 
     return job
 
+
 def create_data(project, user=None, stream=None, fname=None, name="data.bin", text='', data_type=None, link=False):
 
-    if fname:
+    if os.path.isfile(fname):
         stream = File(open(fname, 'rb'))
         name = os.path.basename(fname)
 
+    # directories are linked automatically instead of imported
+    elif os.path.isdir(fname):
+        stream, link = True,True
+        name = os.path.basename(fname)
+        logger.info(f"Filename is a directory; setting link=True . ")
+
     if not stream:
-        raise Exception("Empty stream")
+        raise Exception(f"Empty stream. fname={fname}")
 
     owner = user or project.owner
     text = text or "No description"
@@ -116,20 +150,19 @@ def create_data(project, user=None, stream=None, fname=None, name="data.bin", te
 
     # Linking only points to an existing path
     if link:
-        data.link = os.path.abspath(fname)
+        path = os.path.abspath(fname)
+        if os.path.isdir(path):
+            data.link = make_toc(path, uid=data.uid)
+            logger.info(f"Linked to a table of contents in: {data.link}")
+        else:
+            data.link = path
+            logger.info(f"Linked to: {data.link}")
         data.save()
-        #fp = tempfile.TemporaryFile()
-        #fp.write(stream.read(CHUNK))
-        #fp.seek(0)
-        #stream = File(fp)
-        logger.info(f"Linked to: {data.link}")
+
     else:
-        # This saves the into the
         data.file.save(name, stream, save=True)
 
-    # Can not unpack if the file is linked.
     if data.can_unpack():
-
         logger.info(f"uwsgi active: {tasks.HAS_UWSGI}")
         if tasks.HAS_UWSGI:
             data_id = tasks.int_to_bytes(data.id)
