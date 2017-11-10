@@ -49,7 +49,8 @@ def data_upload_path(instance, filename):
     pieces = os.path.basename(filename).split(".")
     # File may have multiple extensions
     exts = ".".join(pieces[1:]) or "data"
-    dataname = f"data-{instance.uid}.{exts}"
+    uid = util.get_uuid(8)
+    dataname = f"data-{uid}.{exts}"
     return join(instance.project.get_project_dir(), f"{instance.data_dir}", dataname)
 
 
@@ -224,7 +225,6 @@ class Data(models.Model):
         obj['data_id'] = self.id
         obj['name'] = self.name
         obj['uid'] = self.uid
-
 
 class Analysis(models.Model):
     AUTHORIZED, UNDER_REVIEW = 1, 2

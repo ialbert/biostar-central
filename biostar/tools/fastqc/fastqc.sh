@@ -1,11 +1,17 @@
-INPUT_DATA={{sequence.path}}
+set -ueo pipefail
 
-INPUT_FILE=$(basename "$INPUT_DATA")
-SAMPLE="${INPUT_FILE%%.*}"
+# The output directory
+OUTPUT=fastqc
+DATA_DIR=$(dirname {{sequence.path}})
 
-RESULT_DIR=results
+cd {{runtime.work_dir}}
 
-mkdir -p $RESULT_DIR
-fastqc -o $RESULT_DIR $INPUT_DATA
+# Create the output directory
+mkdir -p $OUTPUT
 
-mv $RESULT_DIR/${SAMPLE}_fastqc.html {{settings.index}}
+
+# Select all files in the data collection
+find $DATA_DIR -name '*.fastq*' | parallel -j 5 fastqc -o $OUTPUT {}
+
+# Select all files in the data collection
+find $DATA_DIR -name '*fastq.qz*' | parallel -j 5 fastqc -o $OUTPUT {}

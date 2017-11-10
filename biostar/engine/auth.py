@@ -8,6 +8,7 @@ from django.core.files import File
 from . import tasks
 from .const import *
 from .models import Data, Analysis, Job, Project
+from . import models
 
 CHUNK = 100
 
@@ -136,15 +137,25 @@ def create_data(project, user=None, stream=None, path=None, name=None, text='', 
                 link=False):
     size = 0
 
+    # Create the data.
+    owner = user or project.owner
+    name = name or "data.bin"
+    data = Data.objects.create(name=name, owner=owner, state=Data.READY, text=text, project=project,
+                               data_type=data_type, summary=summary)
+
     # If the path is a directory, create the table of contents.
     if os.path.isdir(path):
         path = path.rstrip("/")
         fp, lines, size = make_toc(path)
+        for path in lines:
+            link = models.data_upload_path(data, path)
+            os.symlink(path, link)
+
         link = False
         stream = File(fp)
         logger.info(f"Processing a directory.")
-        name = f"Directory: {os.path.basename(path)}"
-        summary = f'Contains {len(lines)} files.'
+        name = f"Data collection: {os.path.basename(path)}"
+        summary = summary + f'\n\nContains **{len(lines)}** files.'
 
     # The path is a file.
     if os.path.isfile(path):
@@ -152,12 +163,6 @@ def create_data(project, user=None, stream=None, path=None, name=None, text='', 
         stream = File(open(path, 'rb'))
         name = os.path.basename(path)
         logger.info(f"Processing a file.")
-
-    # Create the data.
-    owner = user or project.owner
-    name = name or "data.bin"
-    data = Data.objects.create(name=name, owner=owner, state=Data.READY, text=text, project=project,
-                               data_type=data_type, summary=summary)
 
     # We will allow invalid data to be added
     # while we build the site. TODO: be more strict here.
@@ -168,11 +173,14 @@ def create_data(project, user=None, stream=None, path=None, name=None, text='', 
         logger.error("Invalid stream specified.")
         # raise Exception(f"Empty stream. fname={path}")
 
-    # Linking only points to an existing path
+    # Symlink the file.
     if link:
-        data.link = path
+        path = os.path.abspath(path)
+        data.link = models.data_upload_path(data, path)
+        os.symlink(path, data.link)
         data.save()
         logger.info(f"Linking to: {data.get_path()}")
+
     else:
         data.file.save(name, stream, save=True)
         logger.info(f"Saving to: {data.get_path()}")

@@ -72,8 +72,9 @@ def run(job, options={}):
                 user_id=job.owner.id, user_email=job.owner.email,
                 job_id=job.id, job_name=job.name,
                 job_url=f'{url_base}{settings.MEDIA_URL}{job.get_url()}',
-                project_id=job.project.id, project_name=job.project.name, analyis_name=job.analysis.name,
-                analysis_id=job.analysis.id, analysis_name=job.analysis.name,
+                project_id=job.project.id, project_name=job.project.name,
+                analyis_name=job.analysis.name,
+                analysis_id=job.analysis.id,
                 domain=settings.SITE_DOMAIN, protocol=settings.PROTOCOL,
             )
             return extras
