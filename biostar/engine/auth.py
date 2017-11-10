@@ -156,11 +156,8 @@ def create_data(project, user=None, stream=None, fname=None, name="data.bin", te
     if not stream:
         raise Exception(f"Empty stream. fname={fname}")
 
-    # Create the data so that we know its
+    # Create the data.
     owner = user or project.owner
-    text = text or "No description"
-    data_type = data_type or GENERIC_TYPE
-
     data = Data.objects.create(name=name, owner=owner, state=Data.READY, text=text, project=project,
                                data_type=data_type, summary=summary)
 
