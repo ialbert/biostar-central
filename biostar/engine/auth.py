@@ -144,7 +144,7 @@ def create_data(project, user=None, stream=None, path=None, name=None, text='', 
         stream = File(fp)
         logger.info(f"Processing a directory.")
         name = f"Directory: {os.path.basename(path)}"
-        summary = f'Contains {len(lines)} files.'
+        summary = f'Contains {len(lines)} files.' + summary
 
     # The path is a file.
     if os.path.isfile(path):
