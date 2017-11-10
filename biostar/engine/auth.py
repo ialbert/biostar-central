@@ -1,4 +1,4 @@
-import hjson, logging, shutil, tarfile
+import hjson, logging, uuid
 from django.core.files import File
 from django.db.models import Q
 from . import tasks
@@ -8,6 +8,14 @@ from .models import Data, Analysis, Job, Project
 CHUNK = 100
 
 logger = logging.getLogger("engine")
+
+
+def get_uuid(limit=32):
+    return str(uuid.uuid4())[:limit]
+
+
+def join(*args):
+    return os.path.abspath(os.path.join(*args))
 
 
 def get_project_list(user):
@@ -36,15 +44,27 @@ def get_project_list(user):
     return query
 
 
-def make_toc(directory, uid):
+def make_toc(directory, uid=get_uuid(4)):
     """
     Make a toc-(uuid).txt (table of contents) file for a given directory
     """
     files = []
-    for item in os.scandir(directory):
-        print(item, dir(item))
-    1/0
-    return files
+    outfile = join(directory, f"toc-{uid}.txt" )
+
+    def crawl(path):
+        for item in os.scandir(path):
+
+            if item.is_dir():
+                crawl(item.path)
+            else:
+                files.append(item.path)
+
+    crawl(directory)
+
+    with open(outfile, "w") as toc:
+        toc.write('\n'.join(files))
+
+    return outfile
 
 
 def get_data(user, project, query, data_type=None):
@@ -107,6 +127,7 @@ def create_job(analysis, user=None, project=None, json_text='', json_data={}, na
 
     return job
 
+
 def create_data(project, user=None, stream=None, fname=None, name="data.bin", text='', data_type=None, link=False):
 
     if os.path.isfile(fname):
@@ -131,23 +152,19 @@ def create_data(project, user=None, stream=None, fname=None, name="data.bin", te
     # Linking only points to an existing path
     if link:
         path = os.path.abspath(fname)
-
         if os.path.isdir(path):
             data.link = make_toc(path, uid=data.uid)
             logger.info(f"Linked to a table of contents in: {data.link}")
         else:
             data.link = path
             logger.info(f"Linked to: {data.link}")
-
         data.save()
 
     else:
         # This saves the into the
         data.file.save(name, stream, save=True)
 
-    # Can not unpack if the file is linked.
     if data.can_unpack():
-
         logger.info(f"uwsgi active: {tasks.HAS_UWSGI}")
         if tasks.HAS_UWSGI:
             data_id = tasks.int_to_bytes(data.id)
