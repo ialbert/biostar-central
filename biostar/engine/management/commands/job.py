@@ -65,13 +65,15 @@ def run(job, options={}):
         # Populate extra context
         def extra_context(job):
             extras = dict(
-                media_root=settings.MEDIA_ROOT, work_dir=work_dir, local_root=settings.LOCAL_ROOT,
+                media_root=settings.MEDIA_ROOT,
+                media_url=settings.MEDIA_URL,
+                work_dir=work_dir, local_root=settings.LOCAL_ROOT,
                 user_id=job.owner.id, user_email=job.owner.email,
                 job_id=job.id, job_name=job.name,
+                job_url=f'{settings.MEDIA_URL}{job.get_url()}',
                 project_id=job.project.id, project_name=job.project.name, analyis_name=job.analysis.name,
                 analysis_id=job.analysis.id, analysis_name=job.analysis.name,
                 domain=settings.SITE_DOMAIN, protocol=settings.PROTOCOL,
-                media_url=settings.MEDIA_URL
             )
             return extras
 
