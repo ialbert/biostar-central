@@ -6,7 +6,6 @@ sequence : {
     display_type: DROPDOWN
   }
 
-
 settings : {
     name : FastQC report
     image : fastqc.png

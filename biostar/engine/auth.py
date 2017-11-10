@@ -45,9 +45,6 @@ def get_project_list(user):
     return query
 
 
-
-
-
 def get_data(user, project, query, data_type=None):
     """
     Returns a dictionary keyed by data stored in the project.
@@ -115,6 +112,7 @@ def make_toc(path):
     """
 
     size = 0
+
     def crawl(location, collect):
         nonlocal size
         for item in os.scandir(location):
@@ -139,10 +137,10 @@ def create_data(project, user=None, stream=None, fname=None, name="data.bin", te
     # If the path is a directory, create the table of contents.
     if os.path.isdir(fname):
         fp, lines, size = make_toc(fname)
+        link=False
         stream = File(fp)
         logger.info(f"Processing a directory.")
-        last = os.path.split(fname.strip("/"))[-1]
-        name = f"Directory: {last}"
+        name = f"Directory: {os.path.basename(fname)}"
         summary = f'Contains {len(lines)} files.'
 
     # The path is a file.
