@@ -15,6 +15,8 @@ class Command(BaseCommand):
         parser.add_argument('--uid', default="hello", help="Selects project by unique id")
         parser.add_argument('--path', help="The path to the data")
         parser.add_argument('--summary', help="Summary for the data", default='')
+        parser.add_argument('--name', help="Name for the data", default='')
+
         parser.add_argument('--link', action="store_true", default=False,
                             help="Link the file, not copy")
 
@@ -24,6 +26,7 @@ class Command(BaseCommand):
         uid = options['uid']
         path = options['path'].rstrip("/")
         link = options['link']
+        name = options['name']
         summary = options['summary']
 
         if id:
@@ -42,4 +45,4 @@ class Command(BaseCommand):
             logger.error(f"Must specify a value for --path")
             return
 
-        auth.create_data(project=project,  path=path, link=link, summary=summary)
+        auth.create_data(project=project,  path=path, name=name, link=link, summary=summary)

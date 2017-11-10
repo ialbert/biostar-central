@@ -60,9 +60,10 @@ def parse_json(path, privacy=Project.PRIVATE, sticky=False, jobs=False):
         link = row.get('link', '')
         path = row.get('path', '') or link
         name = row.get('name', 'data.bin')
+        data_type = row.get('data_type', '')
         summary = row.get('summary', 'no summary')
 
-        management.call_command("data", id=project.id, path=path, link=bool(link), summary=summary)
+        management.call_command("data", id=project.id, path=path, data_type=data_type, name=name, link=bool(link), summary=summary)
 
 
 class Command(BaseCommand):

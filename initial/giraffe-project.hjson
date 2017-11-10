@@ -36,10 +36,11 @@ analyses: [
 data: [
 
     {
-        name: Giraffe scaffold (2016)
+        name: Giraffe scaffold (2016).fa
         summary: The published assembled Giraffe scaffold (2016)
         text: The giraffe scaffold assembled by Rayan Chiki
         link: /export/data/giraffe/assembly/soap_assembly_k91_params.gapfilled.fa
+        data_type: FASTA
     }
 
 ]
