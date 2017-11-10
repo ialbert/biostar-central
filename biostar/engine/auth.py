@@ -137,7 +137,7 @@ def create_data(project, user=None, stream=None, fname=None, name="data.bin", te
     # If the path is a directory, create the table of contents.
     if os.path.isdir(fname):
         fp, lines, size = make_toc(fname)
-        link=False
+        link = False
         stream = File(fp)
         logger.info(f"Processing a directory.")
         name = f"Directory: {os.path.basename(fname)}"
