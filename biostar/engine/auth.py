@@ -107,7 +107,6 @@ def create_job(analysis, user=None, project=None, json_text='', json_data={}, na
 
 
 def make_toc(path):
-    #TODO: test if a temp file exists
     """
     Generate a table of contents into a temporary file.
     """
@@ -139,6 +138,7 @@ def create_data(project, user=None, stream=None, fname=None, name="data.bin", te
     if os.path.isdir(fname):
         fp, lines, size = make_toc(fname)
         link=False
+        stream = File(fp)
         logger.info(f"Processing a directory.")
         name = f"Directory: {os.path.basename(fname)}"
         summary = f'Contains {len(lines)} files.'
