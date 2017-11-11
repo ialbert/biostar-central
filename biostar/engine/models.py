@@ -210,7 +210,11 @@ class Data(models.Model):
         Mutates a dictionary to add more information.
         """
         fnames = self.get_files()
-        obj['path'] = fnames[0]
+        if fnames:
+            obj['path'] = fnames[0]
+        else:
+            obj['path'] = 'foo'
+
         obj['files'] = fnames
         obj['toc'] = self.get_path()
         obj['id'] = self.id
