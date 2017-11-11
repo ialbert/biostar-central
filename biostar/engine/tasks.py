@@ -25,7 +25,7 @@ try:
     HAS_UWSGI = True
 
 
-    @timer(5)
+    @timer(10)
     def execute_timer(args):
         from random import randint
         global COUNTER
