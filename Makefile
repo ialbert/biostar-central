@@ -45,7 +45,7 @@ postgres:
 	python manage.py test --settings conf.postgres.postgres_settings --failfast
 
 
-reset: delete init
+reset: delete init public
 
 next:
 	python manage.py job --next
@@ -58,18 +58,24 @@ hello:
 
 jobs:
 	@python manage.py analysis --add --json biostar/tools/fastqc/fastqc.hjson  --template biostar/tools/fastqc/fastqc.sh --create_job
-	@python manage.py analysis --add --json biostar/tools/qc/qc.hjson  --template biostar/tools/qc/qc.sh --create_job
-	@python manage.py analysis --add --json biostar/tools/classify/classify.hjson  --template biostar/tools/classify/classify.sh --create_job
-	@python manage.py analysis --add --json biostar/tools/align/align.hjson  --template biostar/tools/align/align.sh --create_job
-	@python manage.py analysis --add --json biostar/tools/lamar_align/lamar_align.hjson  --template biostar/tools/lamar_align/lamar_align.sh --create_job
+	#@python manage.py analysis --add --json biostar/tools/qc/qc.hjson  --template biostar/tools/qc/qc.sh --create_job
+	#@python manage.py analysis --add --json biostar/tools/classify/classify.hjson  --template biostar/tools/classify/classify.sh --create_job
+	#@python manage.py analysis --add --json biostar/tools/align/align.hjson  --template biostar/tools/align/align.sh --create_job
+	#@python manage.py analysis --add --json biostar/tools/lamar_align/lamar_align.hjson  --template biostar/tools/lamar_align/lamar_align.sh --create_job
 
 init:
 	@python manage.py collectstatic --noinput -v 0
 	@python manage.py migrate
-	@python manage.py project --json initial/tutorial-project.hjson --privacy public
-	@python manage.py project --json initial/cookbook-project.hjson
-	@python manage.py project --json initial/giraffe-project.hjson
+
+public:
+	@python manage.py project --json initial/tutorial-project.hjson --privacy public --sticky --job
+	python manage.py project --json initial/cookbook-project.hjson --privacy public --sticky --job
+
+fish:
 	@python manage.py project --json initial/fish-project.hjson
+
+giraffe:
+	@python manage.py project --json initial/giraffe-project.hjson --sticky
 
 test:
 	python manage.py collectstatic --noinput -v 0

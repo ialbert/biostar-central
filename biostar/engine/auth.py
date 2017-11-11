@@ -1,15 +1,28 @@
-import hjson, logging, shutil, tarfile
-from itertools import chain
+from tempfile import TemporaryFile
+
+import hjson
+import logging
+import uuid
 from django.core.files import File
+
 from . import tasks
 from .const import *
 from .models import Data, Analysis, Job, Project
+from . import models
 
 CHUNK = 100
 
 logger = logging.getLogger("engine")
 
-#TODO: sharable needs to be treated a bit more differently.
+
+def get_uuid(limit=32):
+    return str(uuid.uuid4())[:limit]
+
+
+def join(*args):
+    return os.path.abspath(os.path.join(*args))
+
+
 def get_project_list(user):
     """
     Return projects with privileges relative to a user.
@@ -20,18 +33,18 @@ def get_project_list(user):
     if user.is_superuser:
         return query
 
-    elif user.is_anonymous:
+    # Unauthenticated users see public projects.
+    if user.is_anonymous:
         return query.filter(privacy=Project.PUBLIC)
 
-    private_query = query.filter(owner=user, privacy=Project.PRIVATE)
-    sharable_query = Project.objects.filter(privacy__in=(Project.PUBLIC, Project.SHAREABLE))
+    # We need to rework this first to allow adding users to groups.
 
-    # Return sharable stuff if user has no private projects
-    if not private_query:
-        query = sharable_query
-    # Returns private and sharable stuff for user
-    else:
-        query = private_query | sharable_query
+    # get the private and sharable projects belonging to the same user
+    # then merge that with the public projects query
+    # query = query.filter(
+    #              Q(owner=user),
+    #              Q(privacy=Project.PRIVATE)|
+    #              Q(privacy=Project.SHAREABLE)) | query.filter(privacy=Project.PUBLIC)
 
     return query
 
@@ -48,10 +61,9 @@ def get_data(user, project, query, data_type=None):
     return datamap
 
 
-def create_project(user, name, uid='', summary='', text='', stream='', privacy=Project.PRIVATE):
-
+def create_project(user, name, uid='', summary='', text='', stream='', privacy=Project.PRIVATE, sticky=True):
     project = Project.objects.create(
-        name=name, uid=uid,  summary=summary, text=text, owner=user, privacy=privacy)
+        name=name, uid=uid, summary=summary, text=text, owner=user, privacy=privacy, sticky=sticky)
 
     if stream:
         project.image.save(stream.name, stream, save=True)
@@ -61,9 +73,7 @@ def create_project(user, name, uid='', summary='', text='', stream='', privacy=P
     return project
 
 
-
-def create_analysis(project, json_text, template,
-                    uid=None, user=None, summary='', name='', text=''):
+def create_analysis(project, json_text, template, uid=None, user=None, summary='', name='', text=''):
     owner = user or project.owner
     name = name or 'Analysis name'
     text = text or 'Analysis text'
@@ -78,7 +88,6 @@ def create_analysis(project, json_text, template,
 
 
 def create_job(analysis, user=None, project=None, json_text='', json_data={}, name=None, state=None, type=None):
-
     name = name or analysis.name
     state = state or Job.QUEUED
     owner = user or analysis.project.owner
@@ -98,37 +107,85 @@ def create_job(analysis, user=None, project=None, json_text='', json_data={}, na
 
     return job
 
-def create_data(project, user=None, stream=None, fname=None, name="data.bin", text='', data_type=None, link=False):
 
-    if fname:
-        stream = File(open(fname, 'rb'))
-        name = os.path.basename(fname)
+def make_toc(path):
+    """
+    Generate a table of contents into a temporary file.
+    """
 
-    if not stream:
-        raise Exception("Empty stream")
+    size = 0
 
+    def crawl(location, collect):
+        nonlocal size
+        for item in os.scandir(location):
+            if item.is_dir():
+                crawl(item.path, collect=collect)
+            else:
+                size += item.stat().st_size
+                collect.append(os.path.abspath(item.path))
+
+    lines = []
+    crawl(path, collect=lines)
+    text = '\n'.join(lines)
+    fp = TemporaryFile()
+    fp.write(text.encode('utf8'))
+    fp.seek(0)
+    return fp, lines, size
+
+
+def create_data(project, user=None, stream=None, path=None, name=None, text='', summary='', data_type=None,
+                link=False):
+    size = 0
+
+    # Create the data.
     owner = user or project.owner
-    text = text or "No description"
-    data_type = data_type or GENERIC_TYPE
+    name = name or "data.bin"
+    data = Data.objects.create(name=name, owner=owner, state=Data.READY, text=text, project=project,
+                               data_type=data_type, summary=summary)
 
-    data = Data.objects.create(name=name, owner=owner, state=Data.READY, text=text, project=project, data_type=data_type)
+    # If the path is a directory, create the table of contents.
+    if os.path.isdir(path):
+        path = path.rstrip("/")
+        fp, lines, size = make_toc(path)
+        for path in lines:
+            link = models.data_upload_path(data, path)
+            os.symlink(path, link)
 
-    # Linking only copies a small section of the file. Keeps the rest.
-    if link:
-        data.link = os.path.abspath(fname)
+        link = False
+        stream = File(fp)
+        logger.info(f"Processing a directory.")
+        name = f"Data collection: {os.path.basename(path)}"
+        summary = summary + f'\n\nContains **{len(lines)}** files.'
+
+    # The path is a file.
+    if os.path.isfile(path):
+        size = os.stat(path).st_size
+        stream = File(open(path, 'rb'))
+        name = os.path.basename(path)
+        logger.info(f"Processing a file.")
+
+    # We will allow invalid data to be added
+    # while we build the site. TODO: be more strict here.
+    if not stream:
+        data.state = Data.PENDING
         data.save()
-        #fp = tempfile.TemporaryFile()
-        #fp.write(stream.read(CHUNK))
-        #fp.seek(0)
-        #stream = File(fp)
-        logger.info(f"Linked to: {data.link}")
+        link = True
+        logger.error("Invalid stream specified.")
+        # raise Exception(f"Empty stream. fname={path}")
+
+    # Symlink the file.
+    if link:
+        path = os.path.abspath(path)
+        data.link = models.data_upload_path(data, path)
+        os.symlink(path, data.link)
+        data.save()
+        logger.info(f"Linking to: {data.get_path()}")
+
     else:
-        # This saves the into the
         data.file.save(name, stream, save=True)
+        logger.info(f"Saving to: {data.get_path()}")
 
-    # Can not unpack if the file is linked.
     if data.can_unpack():
-
         logger.info(f"uwsgi active: {tasks.HAS_UWSGI}")
         if tasks.HAS_UWSGI:
             data_id = tasks.int_to_bytes(data.id)
@@ -136,9 +193,9 @@ def create_data(project, user=None, stream=None, fname=None, name="data.bin", te
         else:
             tasks.unpack(data_id=data.id)
 
-    # Updates its own size.
-    data.set_size()
+    # Updating data size.
+    Data.objects.filter(pk=data.pk).update(size=size)
 
-    logger.info(f"Added data id={data.name}, name={data.name}")
+    logger.info(f"Added data id={data.pk}, type={data.data_type} name={data.name}")
 
     return data

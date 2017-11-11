@@ -1,7 +1,6 @@
 import hjson, logging
-
 from django import forms
-from .models import Project, Data
+from .models import Project, Data, Analysis, Job
 from . import tasks
 from .const import *
 import os
@@ -21,14 +20,16 @@ class ProjectForm(forms.ModelForm):
 
     class Meta:
         model = Project
-        fields = ['name', 'summary', 'text', 'image', "privacy"]
+        fields = ['name', 'summary', 'text', 'image', "privacy", "sticky"]
 
 
 class DataUploadForm(forms.ModelForm):
+    choices = DATA_TYPES.items()
+    data_type = forms.IntegerField(widget=forms.Select(choices=choices))
 
     class Meta:
         model = Data
-        fields = ['file', 'summary', 'text']
+        fields = ['file', 'summary', 'text', "sticky", "data_type"]
 
 
 class DataEditForm(forms.ModelForm):
@@ -37,7 +38,21 @@ class DataEditForm(forms.ModelForm):
 
     class Meta:
         model = Data
-        fields = ['name', 'summary', 'data_type','text']
+        fields = ['name', 'summary', 'data_type','text', 'sticky']
+
+
+class AnalysisEditForm(forms.ModelForm):
+
+    class Meta:
+        model = Analysis
+        fields = ['name', 'text', "summary", 'sticky']
+
+
+class JobEditForm(forms.ModelForm):
+
+    class Meta:
+        model = Job
+        fields = ['name', 'text', 'summary','sticky']
 
 
 def make_form_field(data, project):
@@ -48,10 +63,10 @@ def make_form_field(data, project):
     if not display_type:
         return
 
-    # Uploaded data is accessed via paths.
-    path = data.get("path")
+    # Uploaded data is accessed via paths or links.
+    path_or_link = data.get("path") or data.get("link")
 
-    if path:
+    if path_or_link:
         # Project specific data needs a special field.
         data_type = data.get("data_type")
 
@@ -88,7 +103,7 @@ class DataCopyForm(forms.Form):
                 path = path[1:]
             path = join(basedir, path)
 
-            tasks.copier(target_project=self.project.id, fname=path)
+            tasks.copier(target_project=self.project.id, fname=path, link=True)
 
             logger.info(f"Copy data at: {path}")
 
@@ -160,18 +175,15 @@ class RunAnalysis(forms.Form):
         Replaces the value of data fields with the path to the data.
         Should be called after the form has been filled and is valid.
         '''
-
         # Gets all data for the project
-
         datamap = dict((data.id, data) for data in self.project.data_set.all() )
 
         json_data = self.json_data.copy()
 
         for field, obj in json_data.items():
-            # No need to read fields that were not set.
 
             # If it has a path it is an uploaded file.
-            if obj.get("path"):
+            if obj.get("path") or obj.get("link"):
 
                 data_id = self.cleaned_data.get(field, '')
                 data_id = int(data_id)

@@ -18,10 +18,10 @@
 
                 <div class="content">
                     <a class="header" href="{% url "project_view" project.id %}">
-                        <i class="settings icon"></i> Analysis Recipes: {{ project.name }}
+                        <i class="settings icon"></i> Analysis Recipes
                     </a>
                     <div class="description">
-                        {{ project.summary|markdown|safe }}
+                        Analysis recipes in: <b>{{ project.name }}</b>
                     </div>
                 </div>
 
@@ -57,11 +57,5 @@
         </div>
     </div>
 
-    <div class="ui raised segment">
-        <h2 class="ui center aligned header">Project Description</h2>
-        <div class="ui vertical segment">
-            {{ project.html|safe }}
-        </div>
-    </div>
 
 {% endblock %}

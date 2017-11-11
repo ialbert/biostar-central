@@ -64,7 +64,22 @@ analyses: [
         template: biostar/tools/merge/merge.sh
     }
 
+    {
+        json: biostar/tools/igv/igv.hjson
+        template: biostar/tools/igv/igv.sh
+    }
 
+]
+
+data: [
+
+    {
+        name: All FASTQ
+        path: export/local/input
+        data_type: FASTQ_TYPE
+        summary: All text fastq files
+
+    }
 ]
 
 }

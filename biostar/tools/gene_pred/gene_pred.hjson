@@ -11,7 +11,7 @@ species: {
     label: Training set
     value: giraffe
     display_type: DROPDOWN
-    options : [[ "giraffe" , "Giraffe" ],
+    choices : [[ "giraffe" , "Giraffe" ],
                 ["human" , "Human" ]
               ]
 
@@ -22,10 +22,10 @@ processors : {
 }
 
 settings : {
-    name: Gene prediction
-    image : genes.png
+    name: Augustus Gene Prediction
+    image : gene_pred.png
     index : index.html
-    summary: Predict genes in an assembled genome based on a user specified training set.
+    summary: Predict genes in an assembled genome using on a training set.
     help:'''
 
 # Help

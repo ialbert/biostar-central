@@ -106,12 +106,22 @@ class Command(BaseCommand):
                     # Need to deposit the file as data into the project.
                     # Find all objects that have a path attribute
                     for key, value in json_data.items():
+
                         path = value.get("path")
+                        link = value.get("link")
                         data_type = value.get("data_type")
                         data_type = const.DATA_TYPE_SYMBOLS.get(data_type)
-                        if path:
-                            data = auth.create_data(project=project, fname=path, data_type=data_type)
+
+                        # Links take priority over path if both given
+                        if link:
+                            data = auth.create_data(project=project, path=link, data_type=data_type, link=True)
                             data.fill_dict(value)
+
+                        elif path:
+                            data = auth.create_data(project=project, path=path, data_type=data_type)
+                            data.fill_dict(value)
+
+
                     name = f'Results for: {analysis.name}'
                     job = auth.create_job(analysis=analysis, name=name, json_data=json_data)
 

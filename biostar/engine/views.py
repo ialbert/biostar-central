@@ -62,7 +62,7 @@ def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=Non
         elif icon == DATA_UPLOAD:
             step = (reverse("data_view", kwargs={'id': project.id}), DATA_UPLOAD, f"File Upload", is_active)
         elif icon == ANALYSIS_LIST_ICON:
-            step = (reverse("analysis_list", kwargs={'id': project.id}), ANALYSIS_LIST_ICON, "Analysis List", is_active)
+            step = (reverse("analysis_list", kwargs={'id': project.id}), ANALYSIS_LIST_ICON, "Analysis Recipes", is_active)
         elif icon == ANALYSIS_VIEW_ICON:
             step = (reverse("analysis_view", kwargs={'id': analysis.id}), ANALYSIS_VIEW_ICON, "Analysis View", is_active)
         elif icon == ANALYSIS_RUN_ICON:
@@ -107,9 +107,10 @@ def site_admin(request):
 
 
 def project_list(request):
-    projects = auth.get_project_list(user=request.user).order_by('-id')
 
-    #projects = Project.objects.order_by("-id")
+    projects = auth.get_project_list(user=request.user).order_by("-sticky", "-privacy")
+
+    projects = projects.order_by("-privacy", "-sticky", "-date", "-id")
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON])
 
@@ -130,7 +131,13 @@ def project_view(request, id):
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON],
                                project=project)
 
-    context = dict(project=project, steps=steps)
+    data_count = Data.objects.filter(project=project).count()
+    recipe_count = Analysis.objects.filter(project=project).count()
+    result_count = Job.objects.filter(project=project).count()
+
+    context = dict(project=project,
+                   data_count=data_count, recipe_count=recipe_count, result_count=result_count,
+                   steps=steps)
 
     return render(request, "project_view.html", context)
 
@@ -169,10 +176,12 @@ def project_create(request):
             text = form.cleaned_data["text"]
             summary = form.cleaned_data["summary"]
             stream = form.cleaned_data["image"]
+            sticky = form.cleaned_data["sticky"]
+            privacy = form.cleaned_data["privacy"]
             owner = request.user
 
             project = auth.create_project(user=owner, name=name, summary=summary, text=text,
-                                          stream=stream)
+                                          stream=stream, sticky=sticky, privacy=privacy)
             project.save()
 
             return redirect(reverse("project_list"))
@@ -186,7 +195,6 @@ def project_create(request):
     return render(request, 'project_create.html',
                   context)
 
-
 # @login_required
 def data_list(request, id):
     project = Project.objects.filter(id=id).first()
@@ -197,8 +205,12 @@ def data_list(request, id):
         logger.error(f"data.id={id} looked for but not found.")
         return redirect(reverse("project_list"))
 
-    data_list = Data.objects.filter(project=project).order_by("-date")
-    context = dict(project=project, steps=steps, data_list=data_list)
+    query = Data.objects.filter(project=project).order_by("-date")
+
+    data_list = query.all()
+    data_count = query.count()
+
+    context = dict(project=project, steps=steps, data_list=data_list, data_count=data_count)
     return render(request, "data_list.html", context)
 
 

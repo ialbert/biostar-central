@@ -21,6 +21,7 @@ REFERENCE_TYPE = 6
 LAMAR_SAMPLE_SHEET = 7
 ACCESSION_MAP = 8
 ACCESSION_LIST = 9
+BAM_TYPE = 10
 
 DATA_TUPLES = [
     # Numeric, Symbol, Readable English
@@ -34,6 +35,7 @@ DATA_TUPLES = [
     (LAMAR_SAMPLE_SHEET, 'LAMAR_SAMPLE_SHEET', "Lamar Sample Sheet"),
     (ACCESSION_MAP, 'ACCESSION_MAP', "Accession Map"),
     (ACCESSION_LIST, 'ACCESSION_LIST', "Accession List"),
+    (BAM_TYPE, 'BAM_TYPE', "Bam Type"),
 
 ]
 

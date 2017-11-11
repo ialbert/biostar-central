@@ -49,7 +49,8 @@ def data_upload_path(instance, filename):
     pieces = os.path.basename(filename).split(".")
     # File may have multiple extensions
     exts = ".".join(pieces[1:]) or "data"
-    dataname = f"data-{instance.uid}.{exts}"
+    uid = util.get_uuid(8)
+    dataname = f"data-{uid}.{exts}"
     return join(instance.project.get_project_dir(), f"{instance.data_dir}", dataname)
 
 
@@ -76,14 +77,15 @@ class Project(models.Model):
     ACTIVE, DELETED = 1, 2
     STATE_CHOICES  = [(ACTIVE, "Active"), (DELETED, "Deleted")]
 
-    privacy = models.IntegerField(default=SHAREABLE, choices=PRIVACY_CHOICES)
+    sticky = models.BooleanField(default=False)
+    privacy = models.IntegerField(default=PRIVATE, choices=PRIVACY_CHOICES)
     state = models.IntegerField(default=ACTIVE, choices=STATE_CHOICES)
 
     image = models.ImageField(default=None, blank=True, upload_to=image_path, max_length=MAX_FIELD_LEN)
     name = models.CharField(default="no name", max_length=MAX_NAME_LEN)
     summary = models.TextField(default='no summary', max_length=MAX_TEXT_LEN)
 
-    owner = models.ForeignKey(User)
+    owner = models.ForeignKey(User, null=False)
     text = models.TextField(default='no description', max_length=MAX_TEXT_LEN)
 
     html = models.TextField(default='html', max_length=MAX_LOG_LEN)
@@ -136,6 +138,7 @@ class Data(models.Model):
     name = models.CharField(max_length=MAX_NAME_LEN, default="no name")
     summary = models.TextField(default='no summary')
     image = models.ImageField(default=None, blank=True, upload_to=image_path, max_length=MAX_FIELD_LEN)
+    sticky = models.BooleanField(default=False)
 
     owner = models.ForeignKey(User)
     text = models.TextField(default='no description', max_length=MAX_TEXT_LEN)
@@ -172,6 +175,7 @@ class Data(models.Model):
         self.date = self.date or now
         self.html = make_html(self.text)
         self.owner = self.owner or self.project.owner
+        self.data_type = self.data_type or GENERIC_TYPE
         # Build the data directory.
         data_dir = self.get_datadir()
         if not os.path.isdir(data_dir):
@@ -207,7 +211,7 @@ class Data(models.Model):
         return self.project.get_project_dir()
 
     def get_path(self):
-        return self.link if self.link else self.file.path
+        return os.path.abspath(self.link) if self.link else self.file.path
 
     def can_unpack(self):
         cond = str(self.get_path()).endswith("tar.gz") and not self.link
@@ -222,7 +226,6 @@ class Data(models.Model):
         obj['name'] = self.name
         obj['uid'] = self.uid
 
-
 class Analysis(models.Model):
     AUTHORIZED, UNDER_REVIEW = 1, 2
 
@@ -233,7 +236,7 @@ class Analysis(models.Model):
 
 
     uid = models.CharField(max_length=32, unique=True)
-
+    sticky = models.BooleanField(default=False)
     name = models.CharField(max_length=MAX_NAME_LEN, default="No name")
     summary = models.TextField(default='No summary.')
     text = models.TextField(default='No description.', max_length=MAX_TEXT_LEN)
@@ -270,6 +273,7 @@ class Analysis(models.Model):
     def get_project_dir(self):
         return self.project.get_project_dir()
 
+
 class Job(models.Model):
     AUTHORIZED, UNDER_REVIEW = 1, 2
     AUTH_CHOICES = [(AUTHORIZED, "Authorized"), (UNDER_REVIEW, "Under Review")]
@@ -287,7 +291,7 @@ class Job(models.Model):
     text = models.TextField(default='no description', max_length=MAX_TEXT_LEN)
     html = models.TextField(default='html')
     date = models.DateTimeField(auto_now_add=True)
-
+    sticky = models.BooleanField(default=False)
     analysis = models.ForeignKey(Analysis)
     project = models.ForeignKey(Project)
     json_text = models.TextField(default="commands")

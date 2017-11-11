@@ -1,13 +1,19 @@
+import hjson
+import logging
+import os
+import subprocess
+
+from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.template import Template, Context
-from biostar.engine.models import Job, Project, Analysis
-import subprocess, os, sys, json, hjson, logging
 from django.utils.text import force_text
-from django.conf import settings
+
+from biostar.engine.models import Job
 
 logger = logging.getLogger('engine')
 
 CURR_DIR = os.path.dirname(os.path.realpath(__file__))
+
 
 def summarize(data):
     '''
@@ -56,14 +62,20 @@ def run(job, options={}):
         # This is the work directory.
         work_dir = job.path
 
+        url_base = f'{settings.PROTOCOL}://{settings.SITE_DOMAIN}{settings.HTTP_PORT}'
         # Populate extra context
         def extra_context(job):
             extras = dict(
-                media_root=settings.MEDIA_ROOT, work_dir=work_dir, local_root=settings.LOCAL_ROOT,
+                media_root=settings.MEDIA_ROOT,
+                media_url=settings.MEDIA_URL,
+                work_dir=work_dir, local_root=settings.LOCAL_ROOT,
                 user_id=job.owner.id, user_email=job.owner.email,
                 job_id=job.id, job_name=job.name,
-                project_id=job.project.id, project_name=job.project.name, analyis_name=job.analysis.name,
-                analysis_id=job.analysis.id, analysis_name=job.analysis.name,
+                job_url=f'{url_base}{settings.MEDIA_URL}{job.get_url()}',
+                project_id=job.project.id, project_name=job.project.name,
+                analyis_name=job.analysis.name,
+                analysis_id=job.analysis.id,
+                domain=settings.SITE_DOMAIN, protocol=settings.PROTOCOL,
             )
             return extras
 

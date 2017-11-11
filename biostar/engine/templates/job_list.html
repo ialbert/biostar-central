@@ -13,59 +13,60 @@
             <div class="ui warning message">Filtering for analysis:
                 <a href="{% url 'analysis_view' filter.id %}">{{ filter.name }}</a>
                 | <a href="{% url "job_list"  project.id %}">
-                    <div class="ui label"><i class="close icon"></i>Remove Filter
-                </a></div>
+                    <span class="ui label"><i class="close icon"></i>Remove Filter</span>
+                </a>
             </div>
         {% endif %}
 
 
-    <div class="ui divided link items">
+        <div class="ui divided link items">
 
-        <div class="item">
-
-            <div class="ui tiny image">
-                <img src="{% img project %}">
-            </div>
-
-            <div class="content">
-                <a class="header" href="{% url "project_view" project.id %}">
-                    <i class="bar chart icon"></i> Analysis Results:  {{ project.name }}
-                </a>
-                <div class="description">
-                    {{ project.summary|markdown|safe  }}
-                </div>
-            </div>
-
-        </div>
-
-        {% for job in jobs %}
-
-            <div class="item ">
+            <div class="item">
 
                 <div class="ui tiny image">
-                    <img src="{% img job.analysis %}">
+                    <img src="{% img project %}">
                 </div>
 
                 <div class="content">
-
-                    <a class="header" href="{% url 'job_view' job.id %}">
-                        <div class="ui {% job_color job %} horizontal  label">{{ job.get_state_display }}</div>
-                        <i class="area chart icon"></i>{{ job.name }}
+                    <a class="header" href="{% url "project_view" project.id %}">
+                        <i class="bar chart icon"></i> Analysis Results
                     </a>
-
                     <div class="description">
-                        {{ job.summary|markdown|safe }}
-                    </div>
-
-                    <div class="extra">
-                        Submitted on: {{ job.date.date }} &bull;
-                        <a href="{% url 'analysis_view' job.analysis.id %}"> See Analysis</a>
-
+                        Results produced by the recipes in: <b>{{ project.name }}</b>.
                     </div>
                 </div>
 
             </div>
 
-        {% endfor %}
+            {% for job in jobs %}
+
+                <div class="item ">
+
+                    <div class="ui tiny image">
+                        <img src="{% img job.analysis %}">
+                    </div>
+
+                    <div class="content">
+
+                        <a class="header" href="{% url 'job_view' job.id %}">
+                            <div class="ui {% job_color job %} horizontal  label">{{ job.get_state_display }}</div>
+                            <i class="area chart icon"></i>{{ job.name }}
+                        </a>
+
+                        <div class="description">
+                            {{ job.summary|markdown|safe }}
+                        </div>
+
+                        <div class="extra">
+                            Submitted on: {{ job.date.date }} &bull;
+                            <a href="{% url 'analysis_view' job.analysis.id %}"> See Analysis</a>
+
+                        </div>
+                    </div>
+
+                </div>
+
+            {% endfor %}
+        </div>
     </div>
 {% endblock %}

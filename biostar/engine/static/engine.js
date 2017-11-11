@@ -1,7 +1,7 @@
 
 $(document).ready(function () {
 
-    $('select.dropdown')
+     $('select')
         .dropdown()
     ;
 
