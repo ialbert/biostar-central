@@ -21,10 +21,10 @@ try:
 
     HAS_UWSGI = True
 
-    @timer(3)
+    @timer(60)
     def execute_timer(args):
         from biostar.engine.models import Job
-        # logger.info(f"executing timer with {args}")
+        logger.info(f"executing timer with {args}")
         # It is faster to check here
         first = Job.objects.filter(state=Job.QUEUED).first()
         if first:
@@ -40,12 +40,14 @@ try:
 
     @spool
     def unpack(args):
-        data_id = int_from_bytes(args, "data_id")
-        unpacker(data_id=data_id)
+        #data_id = int_from_bytes(args, "data_id")
+        #unpacker(data_id=data_id)
+        pass
 
     @spool
     def copy(args):
-        return
+        pass
+        #return
 
 except ModuleNotFoundError as exc:
 
