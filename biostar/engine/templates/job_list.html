@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load engine_tags %}
+{% load humanize %}
 
 {% block headtitle %}
     Result List
@@ -49,17 +50,20 @@
                     <div class="content">
 
                         <a class="header" href="{% url 'job_view' job.id %}">
-                            <div class="ui {% job_color job %} horizontal  label">{{ job.get_state_display }}</div>
+                            <div class="ui  {% job_color job %} horizontal  label">{{ job.get_state_display }}</div>
                             <i class="area chart icon"></i>{{ job.name }}
                         </a>
 
                         <div class="description">
-                            {{ job.summary|markdown|safe }}
+                            {{ job.summary|safe }}
                         </div>
 
                         <div class="extra">
-                            Submitted on: {{ job.date.date }} &bull;
-                            <a href="{% url 'analysis_view' job.analysis.id %}"> See Analysis</a>
+                            {% if job.minutes is not None %}
+                                Took {{ job.minutes }} minutes. &bull;
+                            {%  endif %}
+                            Submitted {{ job.start_date | naturaltime }} &bull;
+                            <a class="ui label" href="{% url 'analysis_view' job.analysis.id %}"> See Analysis</a>
 
                         </div>
                     </div>

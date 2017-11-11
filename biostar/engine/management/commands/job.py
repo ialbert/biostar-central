@@ -9,32 +9,11 @@ from django.template import Template, Context
 from django.utils.text import force_text
 
 from biostar.engine.models import Job
+from django.utils import timezone
 
 logger = logging.getLogger('engine')
 
 CURR_DIR = os.path.dirname(os.path.realpath(__file__))
-
-
-def summarize(data):
-    '''
-    Summarizes job parameters.
-    '''
-
-
-    # Keep only fields that can be displayed.
-    objs = [obj for obj in data.values() if 'display_type' in obj]
-
-    def get_value(obj):
-        # Extract the parameter value from the object.
-        value = obj.get('name', '?') if 'path' in obj else obj.get('value', '?')
-        return value
-
-    pairs = [(obj.get('label', 'Label'), get_value(obj)) for obj in objs]
-    patts = [f'- {a} = `{b}`' for a, b in pairs]
-
-    summary = "\n".join(patts)
-
-    return summary
 
 
 def run(job, options={}):
@@ -149,9 +128,6 @@ def run(job, options={}):
 
         # Switch the job state to RUNNING.
         job.state = job.RUNNING
-
-        # Summarize input parameters.
-        job.summary = f'{job.summary}\n\n{summarize(json_data)}'
         job.save()
 
         # Run the command.
@@ -182,6 +158,8 @@ def run(job, options={}):
     job.stdout_log = "\n".join(stdout_log)
     job.stderr_log = "\n".join(stderr_log)
 
+    # Set the end time
+    job.end_date = timezone.now()
     job.save()
 
     # Create a log script in the output directory as well.
@@ -191,6 +169,7 @@ def run(job, options={}):
     # Create a log script in the output directory as well.
     with open(os.path.join(work_dir, stderr_fname), 'wt') as fp:
         fp.write(job.stderr_log)
+
 
     logger.info(f'Job id={job.id} finished, status={job.get_state_display()}')
     # Use -v 2 to see the output of the command.

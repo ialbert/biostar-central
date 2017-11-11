@@ -2,8 +2,9 @@
 import hjson
 import logging
 import uuid, shutil
-from django.core.files import File
 from django.utils.text import slugify
+from django.template import Template, Context
+from django.template import loader
 
 from . import tasks
 from .const import *
@@ -86,6 +87,16 @@ def create_analysis(project, json_text, template, uid=None, user=None, summary='
     return analysis
 
 
+def make_summary(data, summary='', name="widgets/job_summary.html"):
+    '''
+    Summarizes job parameters.
+    '''
+
+    context = dict(data=data, summary=summary)
+    template = loader.get_template(name)
+    result = template.render(context)
+    return result
+
 def create_job(analysis, user=None, project=None, json_text='', json_data={}, name=None, state=None, type=None):
     name = name or analysis.name
     state = state or Job.QUEUED
@@ -98,7 +109,11 @@ def create_job(analysis, user=None, project=None, json_text='', json_data={}, na
     else:
         json_text = json_text or analysis.json_text
 
-    job = Job.objects.create(name=name, summary=analysis.summary, state=state, json_text=json_text,
+    # Needs the json_data to set the summary.
+    json_data = json_data or hjson.loads(json_text)
+
+    summary = make_summary(json_data, summary=analysis.summary)
+    job = Job.objects.create(name=name, summary=summary, state=state, json_text=json_text,
                              project=project, analysis=analysis, owner=owner,
                              template=analysis.template)
 

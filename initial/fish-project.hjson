@@ -26,6 +26,26 @@ analyses: [
         template: biostar/tools/fastqc/fastqc.sh
     }
 
+       {
+        json: biostar/tools/classify/classify.hjson
+        template: biostar/tools/classify/classify.sh
+    }
+
+    {
+        json: biostar/tools/align/align.hjson
+        template: biostar/tools/align/align.sh
+    }
+
+    {
+        json: biostar/tools/lamar_align/lamar_align.hjson
+        template: biostar/tools/lamar_align/lamar_align.sh
+    }
+
+    {
+        json: biostar/tools/merge/merge.hjson
+        template: biostar/tools/merge/merge.sh
+    }
+
 
 ]
 
