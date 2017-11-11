@@ -36,10 +36,6 @@ def make_html(text):
     return mistune.markdown(text)
 
 
-def get_datatype(file):
-    return Data.FILE
-
-
 def filter_by_type():
     return
 
@@ -137,6 +133,8 @@ class Data(models.Model):
     project = models.ForeignKey(Project)
     size = models.IntegerField(default=0)
 
+    # FilePathField
+    #TODO: this
     file = models.FilePathField(max_length=MAX_FIELD_LEN)
 
     uid = models.CharField(max_length=32)

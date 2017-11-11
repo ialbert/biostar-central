@@ -172,6 +172,8 @@ def create_data(project, user=None, stream=None, path=None, name=None, text='', 
         data.save()
         logger.info(f"Linking to: {data.get_path()}")
     else:
+        # TODO:this fails test on mine.
+        # The file field is a FilePathField so it can not upload stuff
         data.file.save(name, stream, save=True)
         logger.info(f"Saving to: {data.get_path()}")
 
