@@ -11,11 +11,9 @@
     <div class="ui raised segment">
 
         {% if filter %}
-            <div class="ui warning message">Filtering for analysis:
+            <div class="ui warning message">Showing results for recipe:
                 <a href="{% url 'analysis_view' filter.id %}">{{ filter.name }}</a>
-                | <a href="{% url "job_list"  project.id %}">
-                    <span class="ui label"><i class="close icon"></i>Remove Filter</span>
-                </a>
+                &bull; <a class="ui label" href="{% url "job_list"  project.id %}"><i class="undo icon"></i>Remove Filter</a>
             </div>
         {% endif %}
 
@@ -33,7 +31,7 @@
                         <i class="bar chart icon"></i> Analysis Results
                     </a>
                     <div class="description">
-                        Results produced by the recipes in: <b>{{ project.name }}</b>.
+                        Results produced by the recipes in <b>{{ project.name }}</b>.
                     </div>
                 </div>
 
@@ -59,12 +57,7 @@
                         </div>
 
                         <div class="extra">
-                            {% if job.minutes is not None %}
-                                Took {{ job.minutes }} minutes. &bull;
-                            {%  endif %}
-                            Submitted {{ job.start_date | naturaltime }} &bull;
-                            <a class="ui label" href="{% url 'analysis_view' job.analysis.id %}"> See Analysis</a>
-
+                            {%  job_minutes job %}
                         </div>
                     </div>
 

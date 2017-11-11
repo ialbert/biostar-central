@@ -128,6 +128,7 @@ def run(job, options={}):
 
         # Switch the job state to RUNNING.
         job.state = job.RUNNING
+        job.start_date = timezone.now()
         job.save()
 
         # Run the command.

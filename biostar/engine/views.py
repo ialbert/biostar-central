@@ -64,11 +64,11 @@ def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=Non
         elif icon == ANALYSIS_LIST_ICON:
             step = (reverse("analysis_list", kwargs={'id': project.id}), ANALYSIS_LIST_ICON, "Analysis Recipes", is_active)
         elif icon == ANALYSIS_VIEW_ICON:
-            step = (reverse("analysis_view", kwargs={'id': analysis.id}), ANALYSIS_VIEW_ICON, "Analysis View", is_active)
+            step = (reverse("analysis_view", kwargs={'id': analysis.id}), ANALYSIS_VIEW_ICON, "Recipe View", is_active)
         elif icon == ANALYSIS_RUN_ICON:
             step = (reverse("analysis_run", kwargs={'id': analysis.id}), ANALYSIS_RUN_ICON, "Analysis Run", is_active)
         elif icon == ANALYSIS_RECIPE_ICON:
-            step = (reverse("analysis_recipe", kwargs={'id': analysis.id}), ANALYSIS_RECIPE_ICON, "Analysis Recipe", is_active)
+            step = (reverse("analysis_recipe", kwargs={'id': analysis.id}), ANALYSIS_RECIPE_ICON, "Recipe Code", is_active)
         elif icon == RESULT_LIST_ICON:
             step = (reverse("job_list", kwargs={'id': project.id, }), RESULT_LIST_ICON, "Result List", is_active)
         elif icon == RESULT_ICON:
@@ -214,7 +214,7 @@ def data_list(request, id):
         logger.error(f"data.id={id} looked for but not found.")
         return redirect(reverse("project_list"))
 
-    query = Data.objects.filter(project=project).order_by("-date")
+    query = Data.objects.filter(project=project).order_by("sticky", "-date")
 
     data_list = query.all()
     data_count = query.count()

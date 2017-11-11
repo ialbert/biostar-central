@@ -109,6 +109,9 @@ def create_job(analysis, user=None, project=None, json_text='', json_data={}, na
     else:
         json_text = json_text or analysis.json_text
 
+    # Needs the json_data to set the summary.
+    json_data = json_data or hjson.loads(json_text)
+
     summary = make_summary(json_data, summary=analysis.summary)
     job = Job.objects.create(name=name, summary=summary, state=state, json_text=json_text,
                              project=project, analysis=analysis, owner=owner,

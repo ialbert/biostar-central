@@ -61,6 +61,12 @@ def can_create(user):
 
     return user.is_authenticated()
 
+@register.inclusion_tag('widgets/job_minutes.html')
+def job_minutes(job):
+    """
+    Returns a label for data sizes.
+    """
+    return dict(job=job)
 
 @register.inclusion_tag('widgets/size_label.html')
 def size_label(data):
