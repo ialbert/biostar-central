@@ -1,4 +1,4 @@
-all: taxonomy input fishdb bam
+all: taxonomy input fishdb
 
 clean:
 	rm -rf blastdb lamar taxonomy input fish_species bam
@@ -36,11 +36,6 @@ input/fish_sequences.tar.gz:
 	cp input/test_reads.fastq.gz input/fish_metabarcode_reads.fastq.gz
 	cp input/test_reads.fastq.gz input/test_reads_R1.fastq.gz
 
-bam: bam/*.bam
-
-bam/*.bam:
-	mkdir -p bam
-	curl http://iris.bx.psu.edu/projects/testdata/bam/virus_sample1.bam >bam/virus_sample1.bam
 
 # Fish blast database.
 fishdb: blastdb/fish_species/fish_species.nin
