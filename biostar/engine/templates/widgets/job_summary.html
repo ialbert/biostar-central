@@ -1,0 +1,21 @@
+{% load engine_tags %}
+
+<ul>
+    {% for key, obj in data.items %}
+        {% if obj.display_type %}
+            <li> {{ obj.label }}:
+                    {% if obj.name %}
+                        <a href="{{ obj.data_url }}">
+                        {{ obj.name }}
+                        </a>
+                    {% else %}
+                        <b>{{ obj.value }}</b>
+                    {% endif %}
+            </li>
+        {% endif %}
+    {% endfor %}
+</ul>
+
+<div>
+    {{ summary|markdown|safe }}
+</div>

@@ -446,7 +446,7 @@ def job_list(request, id):
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, RESULT_LIST_ICON],
                                project=project)
 
-    jobs = project.job_set.order_by("-id")
+    jobs = Job.objects.filter(project=project).order_by("-start_date")
 
     filter = request.GET.get('filter', '')
 

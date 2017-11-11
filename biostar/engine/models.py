@@ -209,6 +209,10 @@ class Data(models.Model):
 
         return fnames if len(fnames) else [""]
 
+    def get_url(self):
+        return (reverse('data_view', kwargs=dict(id=self.id)))
+
+
     def fill_dict(self, obj):
         """
         Mutates a dictionary to add more information.
@@ -222,6 +226,7 @@ class Data(models.Model):
         obj['uid'] = self.uid
         obj['data_dir'] = self.get_data_dir()
         obj['project_dir'] = self.get_project_dir()
+        obj['data_url'] = self.get_url()
 
 
 class Analysis(models.Model):
@@ -287,7 +292,10 @@ class Job(models.Model):
     owner = models.ForeignKey(User)
     text = models.TextField(default='no description', max_length=MAX_TEXT_LEN)
     html = models.TextField(default='html')
-    date = models.DateTimeField(auto_now_add=True)
+
+    start_date = models.DateTimeField(auto_now_add=True)
+    end_date = models.DateTimeField(null=True, blank=True)
+
     sticky = models.BooleanField(default=False)
     analysis = models.ForeignKey(Analysis)
     project = models.ForeignKey(Project)
@@ -333,10 +341,16 @@ class Job(models.Model):
         "Returns the json_text as parsed json_data"
         return hjson.loads(self.json_text)
 
+    def minutes(self):
+        if not self.end_date:
+            return None
+        else:
+            return int((self.end_date - self.start_date).seconds/60)
+
     def save(self, *args, **kwargs):
         now = timezone.now()
         self.name = self.name or self.analysis.name
-        self.date = self.date or now
+        self.start_date = self.start_date or now
         self.html = make_html(self.text)
         self.name = self.name[:MAX_NAME_LEN]
         self.uid = self.uid or util.get_uuid(8)

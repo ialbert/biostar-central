@@ -8,6 +8,7 @@ SITE_DOMAIN = "localhost"
 SITE_NAME = "Biostar Engine"
 SITE_HEADER = '<i class="barcode icon"></i> Bioinformatics Recipes'
 
+
 def join(*args):
     return os.path.abspath(os.path.join(*args))
 
@@ -43,6 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.humanize',
     'mailer',
     'compressor',
     'pagedown',
@@ -149,4 +151,3 @@ LOGGER_NAME = "engine"
 
 # The email delivery engine.
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
