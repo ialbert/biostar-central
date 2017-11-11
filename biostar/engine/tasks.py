@@ -5,6 +5,7 @@ This is active only when deployed via UWSGI
 import logging, time, shutil, subprocess
 from django.core import management
 from django.utils.text import force_text
+import time
 
 logger = logging.getLogger("engine")
 
@@ -16,19 +17,42 @@ def int_to_bytes(value):
 def int_from_bytes(args, name):
     return int.from_bytes(args[name].encode(), byteorder='big')
 
+COUNTER = 1
+
 try:
     from uwsgidecorators import *
 
     HAS_UWSGI = True
 
-    @timer(60)
+
+    @timer(5)
     def execute_timer(args):
+        from random import randint
+        global COUNTER
         from biostar.engine.models import Job
-        logger.info(f"executing timer with {args}")
         # It is faster to check here
-        first = Job.objects.filter(state=Job.QUEUED).first()
-        if first:
-            management.call_command('job', next=True)
+        #first = Job.objects.filter(state=Job.QUEUED).first()
+        #if first:
+        #    management.call_command('job', next=True)
+        #return
+
+        logger.info(f"SPOOL SUBMIT {COUNTER}, {COUNTER+1}, {COUNTER+2}")
+        demo.spool(value=COUNTER)
+        time.sleep(1)
+        demo.spool(value=COUNTER+1)
+        time.sleep(1)
+        demo.spool(value=COUNTER+2)
+        COUNTER += 3
+
+    @spool(pass_arguments=True)
+    def demo(value):
+        '''
+        Spools at normal priority.
+        '''
+        N = 5
+        logger.info(f"-> JOB START {value} ")
+        time.sleep(N)
+        logger.info(f"<- JOB END {value}")
 
     @spool
     def execute_job(args):
@@ -48,6 +72,7 @@ try:
     def copy(args):
         pass
         #return
+
 
 except ModuleNotFoundError as exc:
 
