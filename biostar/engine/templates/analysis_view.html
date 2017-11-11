@@ -20,39 +20,37 @@
         <div class="ui center aligned header">
             Analysis: {{ analysis.name }}
         </div>
-        <div>
-            <img class="ui centered small image" src="{%  img analysis %}">
+
+        <div class="ui basic segment">
+            <img class="ui centered small image" src="{% img analysis %}">
         </div>
 
-        {{ analysis.summary|markdown|safe }}
+        <div>
+            {{ analysis.summary|markdown|safe }}
+        </div>
 
-        <div class="ui center aligned basic segment">
+        <div class="ui center aligned vertical segment">
             <a class="ui green button" href="{% url 'analysis_run' analysis.id %}">
                 <i class="spinner icon"></i> Run Analysis
             </a>
 
             <a class="ui button" href="{% url 'job_list' project.id %}?filter={{ analysis.id }}">
-                <i class="bar chart icon"></i> Show Results
+                <i class="bar chart icon"></i> Recipe Results
             </a>
 
-             <a class="ui button" href="{% url 'analysis_recipe' analysis.id %}">
-                <i class="list icon"></i> Show Recipe
+            <a class="ui button" href="{% url 'analysis_recipe' analysis.id %}">
+                <i class="list icon"></i> Recipe Code
             </a>
+
+        </div>
+
+        <div class="ui vertical segment">
+            <div class="ui center aligned header">
+                Recipe Description
+            </div>
+
+            <div class="ui vertical segment">{{ analysis.html|safe }}</div>
 
         </div>
     </div>
-
-    <div class="ui raised segment">
-        <div class="ui center aligned header">
-            Analysis Description
-        </div>
-
-        <div class="ui vertical segment">{{ analysis.html|safe }}</div>
-
-        <div class="ui center aligned basic segment">
-
-        </div>
-
-    </div>
-
 {% endblock %}

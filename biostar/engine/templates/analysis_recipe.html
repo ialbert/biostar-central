@@ -8,16 +8,20 @@
 {% block body %}
 
     <div class="ui raised  segment">
-        <h3 class="ui centered header">Recipe: {{ analysis.name }}</h3>
+        <h3 class="ui centered header">Recipe Details: {{ analysis.name }}</h3>
 
-        <div>
+        <div class="ui basic segment">
             <img class="ui centered small image" src="{% img analysis %}">
         </div>
 
-        <div class="ui centered header">
+    <div>
+        {{ analysis.summary|markdown|safe }}
+        <div>
+
+        <div class="ui center aligned vertical segment">
 
             <a class="ui button" href="{%  url 'analysis_view' analysis.id %}">
-                <i class="chevron left icon"></i>Back
+                <i class="chevron left icon"></i>Recipe View
             </a>
 
             <a class="ui button" href="{%  url 'analysis_copy' analysis.id %}">
@@ -34,12 +38,12 @@
         </div>
 
 
-        <h3 class="ui header">Script Template</h3>
+        <div class="ui center aligned header">Script Template</div>
         <pre>
 {{ analysis.template }}
 </pre>
 
-        <h3 class="ui header">Data Specification</h3>
+        <div class="ui center aligned header">Data Specification</div>
         <pre>
 {{ analysis.json_text }}
 </pre>
