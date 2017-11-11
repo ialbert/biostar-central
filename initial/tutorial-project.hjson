@@ -91,14 +91,10 @@ text: '''
 
 analyses: [
 
-    {
-        json: biostar/tools/hello/hello4.hjson
-        template: biostar/tools/hello/hello4.sh
-    }
 
     {
-        json: biostar/tools/hello/hello3.hjson
-        template: biostar/tools/hello/hello3.sh
+        json: biostar/tools/hello/hello1.hjson
+        template: biostar/tools/hello/hello1.sh
     }
 
     {
@@ -107,10 +103,41 @@ analyses: [
     }
 
     {
-        json: biostar/tools/hello/hello1.hjson
-        template: biostar/tools/hello/hello1.sh
+        json: biostar/tools/hello/hello3.hjson
+        template: biostar/tools/hello/hello3.sh
     }
 
+    {
+        json: biostar/tools/hello/hello4.hjson
+        template: biostar/tools/hello/hello4.sh
+    }
+
+]
+
+data: [
+
+     {
+        name: Example 1.fa
+        path: export/local/tutorial/example1.fa
+        data_type: FASTA_TYPE
+        summary: Summary for the file: example1.fa
+        text: Description for the file: example1.fa
+    }
+
+    {
+        name: Example 2.txt
+        path: export/local/tutorial/example2.txt
+        link: true
+        summary: Summary for the file: example2.txt
+        text: Description for the file: example2.txt
+    }
+
+    {
+        name: Tutorials
+        path: export/local/tutorial/
+        summary: Summary for the files in the tutorial folder.
+        text: Description for the files in the tutorial folder.
+    }
 
 ]
 

@@ -74,9 +74,9 @@ class Command(BaseCommand):
                 Bunch(data_type=data_type, path=path, name=name, link=link, summary=summary, text='')
             ]
 
+        # Add each collected datatype.
         for bunch in reversed(data_list):
-
-            # Figure out the bunch datatype
+            # Get the right datatype.
             type_value = const.DATA_TYPE_SYMBOLS.get(bunch.data_type)
             if data_type and not type_value:
                 logger.warning(f"Invalid data type: {bunch.data_type}")

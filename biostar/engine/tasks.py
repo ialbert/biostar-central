@@ -71,7 +71,7 @@ def unpacker(data_id):
     query.update(state=Data.PENDING)
     command = f'tar xzvf {data.file.path}'
     try:
-        stdout, stderr = execute(command=command, workdir=data.get_datadir())
+        stdout, stderr = execute(command=command, workdir=data.get_data_dir())
         logger.info(f'Data id={data_id} has been unpacked')
         query.update(state=Data.READY)
     except Exception as exc:
@@ -95,7 +95,7 @@ def copier(source=None, target_data=None, target_project=None, fname=None, link=
 
     if project:
         assert fname
-        auth.create_data(project=project, path=fname, link=link)
+        auth.create_data(project=project, path=fname, dest=link)
         return
 
     if source:
