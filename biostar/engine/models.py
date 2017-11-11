@@ -61,7 +61,7 @@ class Project(models.Model):
     PRIVACY_CHOICES = [(PRIVATE, "Private"), (SHAREABLE, "Shareable Link"), (PUBLIC, "Public")]
 
     ACTIVE, DELETED = 1, 2
-    STATE_CHOICES  = [(ACTIVE, "Active"), (DELETED, "Deleted")]
+    STATE_CHOICES = [(ACTIVE, "Active"), (DELETED, "Deleted")]
 
     sticky = models.BooleanField(default=False)
     privacy = models.IntegerField(default=PRIVATE, choices=PRIVACY_CHOICES)
@@ -102,7 +102,6 @@ class Project(models.Model):
         return join(settings.MEDIA_ROOT, "projects", f"proj-{self.uid}")
 
 
-
 @receiver(pre_save, sender=Project)
 def create_project_group(sender, instance, **kwargs):
     """
@@ -114,9 +113,8 @@ def create_project_group(sender, instance, **kwargs):
 
 
 class Data(models.Model):
-
     PENDING, READY, ERROR, DELETED = 1, 2, 3, 4
-    STATE_CHOICES = [(PENDING, "Pending"), (READY, "Ready"), (ERROR, "Error"), (DELETED, "Deleted") ]
+    STATE_CHOICES = [(PENDING, "Pending"), (READY, "Ready"), (ERROR, "Error"), (DELETED, "Deleted")]
     state = models.IntegerField(default=PENDING, choices=STATE_CHOICES)
 
     name = models.CharField(max_length=MAX_NAME_LEN, default="no name")
@@ -177,7 +175,7 @@ class Data(models.Model):
             return util.smart_preview(target)
         else:
             data_dir = self.get_data_dir()
-            rels = [ os.path.relpath(path,data_dir) for path in lines]
+            rels = [os.path.relpath(path, data_dir) for path in lines]
             return "".join(rels)
 
     def __str__(self):
@@ -215,6 +213,7 @@ class Data(models.Model):
         obj['data_dir'] = self.get_data_dir()
         obj['project_dir'] = self.get_project_dir()
 
+
 class Analysis(models.Model):
     AUTHORIZED, UNDER_REVIEW = 1, 2
 
@@ -222,7 +221,6 @@ class Analysis(models.Model):
 
     ACTIVE, DELETED = 1, 2
     STATE_CHOICES = [(ACTIVE, "Active"), (DELETED, "Deleted")]
-
 
     uid = models.CharField(max_length=32, unique=True)
     sticky = models.BooleanField(default=False)
@@ -267,10 +265,10 @@ class Job(models.Model):
     AUTHORIZED, UNDER_REVIEW = 1, 2
     AUTH_CHOICES = [(AUTHORIZED, "Authorized"), (UNDER_REVIEW, "Under Review")]
 
-    QUEUED, RUNNING, COMPLETED, ERROR, DELETED = 1, 2, 3, 4, 5
-    STATE_CHOICES = [(QUEUED, "Queued"), (RUNNING, "Running"),
-                     (COMPLETED, "Completed"), (ERROR, "Error"), (DELETED, "Deleted")]
-
+    QUEUED, RUNNING, COMPLETED, ERROR, DELETED, SPOOLED, PAUSED, ZOMBIE = range(1, 9)
+    STATE_CHOICES = [(QUEUED, "Queued"), (RUNNING, "Running"), (PAUSED, "Paused"),
+                     (SPOOLED, "Spooled"), (COMPLETED, "Completed"),
+                     (ERROR, "Error"), (DELETED, "Deleted"), (ZOMBIE, "Zombie")]
 
     name = models.CharField(max_length=MAX_NAME_LEN, default="no name")
     summary = models.TextField(default='no summary')
@@ -346,4 +344,3 @@ class Job(models.Model):
 
     def url(self):
         return reverse("job_view", kwargs=dict(id=self.id))
-

@@ -129,10 +129,10 @@ def run(job, options={}):
             return
 
         # Logging should start after the early returns.
-        logger.info(f'job id={job.id}, name={job.name}')
+        logger.info(f'Job id={job.id} name={job.name}')
 
         # Make the output directory
-        logger.info(f'job id={job.id} work_dir: {work_dir}')
+        logger.info(f'Job id={job.id} work_dir: {work_dir}')
         if not os.path.isdir(work_dir):
             os.mkdir(work_dir)
 
@@ -145,7 +145,7 @@ def run(job, options={}):
             fp.write(hjson.dumps(json_data, indent=4))
 
         # Show the command that is executed.
-        logger.info(f'job id={job.id} executing: {full_command}')
+        logger.info(f'Job id={job.id} executing: {full_command}')
 
         # Switch the job state to RUNNING.
         job.state = job.RUNNING
@@ -192,7 +192,7 @@ def run(job, options={}):
     with open(os.path.join(work_dir, stderr_fname), 'wt') as fp:
         fp.write(job.stderr_log)
 
-    logger.info(f'job id={job.id} finished, status={job.get_state_display()}')
+    logger.info(f'Job id={job.id} finished, status={job.get_state_display()}')
     # Use -v 2 to see the output of the command.
     if verbosity > 1:
         job = Job.objects.get(id=job.id)

@@ -12,6 +12,7 @@ from biostar.engine.models import Project, Job, make_html
 register = template.Library()
 
 JOB_COLORS = {
+    Job.ZOMBIE: "orange", Job.SPOOLED: "pink",
     Job.ERROR: "red", Job.QUEUED: "blue", Job.RUNNING: "teal", Job.COMPLETED: "green"
 }
 
