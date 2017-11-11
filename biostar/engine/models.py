@@ -289,7 +289,11 @@ class Job(models.Model):
     text = models.TextField(default='no description', max_length=MAX_TEXT_LEN)
     html = models.TextField(default='html')
 
-    start_date = models.DateTimeField(auto_now_add=True)
+    # Job creation date
+    date = models.DateTimeField(auto_now_add=True)
+
+    # Job runtime date.
+    start_date = models.DateTimeField(null=True, blank=True)
     end_date = models.DateTimeField(null=True, blank=True)
 
     sticky = models.BooleanField(default=False)
@@ -338,15 +342,15 @@ class Job(models.Model):
         return hjson.loads(self.json_text)
 
     def minutes(self):
-        if not self.end_date:
+        if not (self.start_date and self.end_date):
             return None
         else:
-            return int((self.end_date - self.start_date).seconds/60)
+            return int(round((self.end_date - self.start_date).seconds/60))
 
     def save(self, *args, **kwargs):
         now = timezone.now()
         self.name = self.name or self.analysis.name
-        self.start_date = self.start_date or now
+        self.date = self.date or now
         self.html = make_html(self.text)
         self.name = self.name[:MAX_NAME_LEN]
         self.uid = self.uid or util.get_uuid(8)

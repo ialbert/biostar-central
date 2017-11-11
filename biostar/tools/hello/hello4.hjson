@@ -2,6 +2,7 @@
 # Requires a data parameter.
 #
 data : {
+    label: Input data
     path: export/local/input/test_reads.fastq.gz
     display_type: DROPDOWN
   }

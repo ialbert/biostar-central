@@ -205,7 +205,7 @@ def data_list(request, id):
         logger.error(f"data.id={id} looked for but not found.")
         return redirect(reverse("project_list"))
 
-    query = Data.objects.filter(project=project).order_by("-date")
+    query = Data.objects.filter(project=project).order_by("sticky", "-date")
 
     data_list = query.all()
     data_count = query.count()

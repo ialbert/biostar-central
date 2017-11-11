@@ -13,6 +13,7 @@ cutoff: {
 organism: {
     label: Select organism
     display_type: DROPDOWN
+    value: "hg38"
     choices : [
         [ "hg38" , "Human hg38"],
         [ "mm10" , "Mouse mm10"],

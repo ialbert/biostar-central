@@ -59,12 +59,7 @@
                         </div>
 
                         <div class="extra">
-                            {% if job.minutes is not None %}
-                                Took {{ job.minutes }} minutes. &bull;
-                            {%  endif %}
-                            Submitted {{ job.start_date | naturaltime }} &bull;
-                            <a class="ui label" href="{% url 'analysis_view' job.analysis.id %}"> See Analysis</a>
-
+                            {%  job_minutes job %}
                         </div>
                     </div>
 
