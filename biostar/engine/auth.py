@@ -1,18 +1,18 @@
-from tempfile import TemporaryFile
 
 import hjson
 import logging
-import uuid
+import uuid, shutil
 from django.core.files import File
+from django.utils.text import slugify
 
 from . import tasks
 from .const import *
 from .models import Data, Analysis, Job, Project
+from . import models
 
-CHUNK = 100
+CHUNK = 1024 * 1024
 
 logger = logging.getLogger("engine")
-
 
 def get_uuid(limit=32):
     return str(uuid.uuid4())[:limit]
@@ -81,7 +81,7 @@ def create_analysis(project, json_text, template, uid=None, user=None, summary='
                                        owner=owner, name=name, text=text,
                                        template=template)
 
-    logger.info(f"Created analysis: uid={analysis.uid}")
+    logger.info(f"Created analysis: uid={analysis.uid} name={analysis.name}")
 
     return analysis
 
@@ -107,98 +107,114 @@ def create_job(analysis, user=None, project=None, json_text='', json_data={}, na
     return job
 
 
-def make_toc(path):
+def findfiles(location, collect):
     """
-    Generate a table of contents into a temporary file.
+    Returns a list of all files in a directory.
     """
-
-    size = 0
-
-    def crawl(location, collect):
-        nonlocal size
-        for item in os.scandir(location):
-            if item.is_dir():
-                crawl(item.path, collect=collect)
-            else:
-                size += item.stat().st_size
-                collect.append(os.path.abspath(item.path))
-
-    lines = []
-    crawl(path, collect=lines)
-    text = '\n'.join(lines)
-    fp = TemporaryFile()
-    fp.write(text.encode('utf8'))
-    fp.seek(0)
-    return fp, lines, size
+    for item in os.scandir(location):
+        if item.is_dir():
+            findfiles(item.path, collect=collect)
+        else:
+            collect.append(os.path.abspath(item.path))
+    return collect
 
 
-def create_data(project, user=None, stream=None, path=None, name=None, text='', summary='', data_type=None,
-                link=False):
-    size = 0
+def create_data_path(data, fname):
 
-    # If the path is a directory, create the table of contents.
-    if os.path.isdir(path):
-        fp, lines, size = make_toc(path)
-        link = False
-        stream = File(fp)
-        logger.info(f"Processing a directory.")
-        name = f"Directory: {os.path.basename(path)}"
-        summary = f'Contains {len(lines)} files.'
+    # Limit the file name lenght.
+    fname = os.path.basename(fname)[-100:]
 
-    # The path is a file.
-    if os.path.isfile(path):
-        size = os.stat(path).st_size
-        stream = File(open(path, 'rb'))
-        name = os.path.basename(path)
-        logger.info(f"Processing a file.")
+    # Slugify each element of the path to make them "safe".
+    pieces = map(slugify, fname.split("."))
+
+    # Put it back together.
+    fname = ".".join(pieces)
+
+    # This will store the data.
+    data_dir = data.get_data_dir()
+
+    # Make the data directory if it does not exist.
+    os.makedirs(data_dir, exist_ok=True)
+
+    # Build file with original name.
+    data_path = os.path.join(data_dir, fname)
+
+    return data_path
+
+def create_data(project, user=None, stream=None, path='', name='',
+                text='', summary='', data_type=None, link=False):
+
+    # Absolute paths with no trailing slashes.
+    path = os.path.abspath(path).rstrip("/")
 
     # Create the data.
-    owner = user or project.owner
-    name = name or "data.bin"
-    data = Data.objects.create(name=name, owner=owner, state=Data.READY, text=text, project=project,
-                               data_type=data_type, summary=summary)
+    state = Data.PENDING
+    data = Data.objects.create(name=name, owner=user, state=state,  project=project,
+                               data_type=data_type, summary=summary, text=text)
 
-    # We will allow invalid data to be added
-    # while we build the site. TODO: be more strict here.
-    if not stream:
-        data.state = Data.PENDING
-        data.save()
-        logger.error("Invalid stream specified.")
-        # raise Exception(f"Empty stream. fname={path}")
+    # If the path is a directory, symlink all files.
+    if path and os.path.isdir(path):
+        logger.info(f"Symlinking path: {path}")
+        collect = findfiles(path, collect=[])
+        for src in collect:
+            dest = create_data_path(data, src)
+            os.symlink(src, dest)
+        summary = f'Contains {len(collect)} files. {summary}'
+        logger.info(f"Symlinked {len(collect)} files.")
 
-    # Linking only points to an existing path
-    if link:
-        data.link = path
-        data.save()
-        logger.info(f"Linking to: {data.get_path()}")
-    else:
-        # TODO:this fails test on mine.
-        # The file field is a FilePathField so it can not upload stuff
-        # Makes a files in data_dir
+    # The path is a file.
+    if path and os.path.isfile(path):
+        dest = create_data_path(data, path)
 
-        print(data.file)
-        print(stream, name)
-        1/0
-        with open(data.file, "wb") as outfile:
-            File(outfile).write(stream)
-
-            data.local_file.save(name, stream, save=True)
-            1/0
-            data.make_file(name, stream, save=True)
-
-        logger.info(f"Saving to: {data.get_path()}")
-
-    if data.can_unpack():
-        logger.info(f"uwsgi active: {tasks.HAS_UWSGI}")
-        if tasks.HAS_UWSGI:
-            data_id = tasks.int_to_bytes(data.id)
-            tasks.unpack(data_id=data_id).spool()
+        # Test if it should be linked or not.
+        if link:
+            os.symlink(path, dest)
+            logger.info(f"Symlinked file: {path}")
         else:
-            tasks.unpack(data_id=data.id)
+            logger.info(f"Copied file to: {dest}")
+            shutil.copy(path, dest)
 
-    # Updating data size.
-    Data.objects.filter(pk=data.pk).update(size=size)
+    # An incoming stream is written into the destination.
+    if stream:
+        dest = create_data_path(data, path)
+        with open(dest, 'wb') as fp:
+            chunk = stream.read(CHUNK)
+            while chunk:
+                fp.write(chunk)
+                chunk = stream.read(CHUNK)
 
-    logger.info(f"Added data id={data.pk}, name={data.name}")
+    # Invalid paths and empty streams still create the data.
+    missing = not (os.path.isdir(path) or os.path.isfile(path) or stream)
+    if path and missing:
+        state = Data.ERROR
+        logger.error(f"Path not found for: {path}")
+    else:
+        state = Data.READY
+
+    # Find all files in the data directory.
+    collect = findfiles(data.get_data_dir(), collect=[])
+
+    # Remove the table of contents from the collected files.
+    collect.remove(data.get_path())
+
+    # Write the table of contents.
+    with open(data.file, 'wt') as fp:
+        fp.write("\n".join(collect))
+
+    # Compute the cumulative data sizes.
+    size = 0
+    for elem in collect:
+        if os.path.isfile(elem):
+            size += os.stat(elem, follow_symlinks=True).st_size
+
+    # Finalize the data.
+    name = name or os.path.split(path)[1] or 'data.bin'
+    Data.objects.filter(pk=data.pk).update(size=size, state=state, name=name, summary=summary)
+
+    # Refresh the data information that is held by the reference.
+    data = Data.objects.get(pk=data.pk)
+
+    # Report the data creation.
+    logger.info(f"Added data id={data.pk}, type={data.data_type} name={data.name}")
 
     return data

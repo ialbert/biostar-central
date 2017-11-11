@@ -142,7 +142,6 @@ class Data(models.Model):
 
     # FilePathField points to an existing file
     file = models.FilePathField(max_length=MAX_FIELD_LEN)
-    local_file = models.FileField(max_length=MAX_FIELD_LEN, upload_to=data_upload_path)
 
     uid = models.CharField(max_length=32)
 
@@ -190,10 +189,6 @@ class Data(models.Model):
     def __str__(self):
         return self.name
 
-    def make_file(self, stream, name=None):
-
-        print(self.file)
-
 
     def get_data_dir(self):
         "The data directory"
@@ -211,7 +206,8 @@ class Data(models.Model):
 
     def get_files(self):
         fnames = [line.strip() for line in open(self.get_path(), 'rt')]
-        return fnames
+
+        return fnames if len(fnames) else [""]
 
     def fill_dict(self, obj):
         """
