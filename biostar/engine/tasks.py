@@ -24,41 +24,46 @@ try:
 
     HAS_UWSGI = True
 
-
-    @timer(10)
-    def execute_timer(args):
-        from random import randint
-        global COUNTER
+    @timer(5)
+    def timer(args):
         from biostar.engine.models import Job
-        # It is faster to check here
-        #first = Job.objects.filter(state=Job.QUEUED).first()
-        #if first:
-        #    management.call_command('job', next=True)
-        #return
+        # Check for queued jobs.
+        jobs = Job.objects.filter(state=Job.QUEUED)
+        if jobs:
+            # Put the jobs in SPOOLED state so that it does not get respooled.
+            Job.objects.filter(state=Job.QUEUED).update(state=Job.SPOOLED)
+            for job in jobs:
+                logger.info(f"Spooling job id={job.id}")
+                execute_job.spool(job_id=job.id)
 
-        logger.info(f"SPOOL SUBMIT {COUNTER}, {COUNTER+1}, {COUNTER+2}")
-        demo.spool(value=COUNTER)
-        demo.spool(value=COUNTER+1)
-        demo.spool(value=COUNTER+2)
+    #@timer(10)
+    def spool_demo(args):
+        """
+        Spooling demo scheduler. Comment out the decorator to launch.
+        """
+        global COUNTER
+        logger.info(f"SPOOL DEMO SUBMIT {COUNTER}, {COUNTER+1}, {COUNTER+2}")
+        spool_demo_task.spool(value=COUNTER)
+        spool_demo_task.spool(value=COUNTER + 1)
+        spool_demo_task.spool(value=COUNTER + 2)
         COUNTER += 3
 
-
     @spool(pass_arguments=True)
-    def demo(value):
+    def spool_demo_task(value):
         '''
-        Spools at normal priority.
+        Spool demonstration task.
         '''
         N = 5
         logger.info(f"-> JOB START {value} ")
         time.sleep(N)
         logger.info(f"<- JOB END {value}")
 
-    @spool
-    def execute_job(args):
-        '''
-        Spools at normal priority.
-        '''
-        job_id = int_from_bytes(args, "job_id")
+    @spool(pass_arguments=True)
+    def execute_job(job_id):
+        """
+        Execute job in spooler.
+        """
+        logger.info(f"Executing spooled job id={job_id}")
         management.call_command('job', id=job_id)
 
     @spool
