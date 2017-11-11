@@ -174,7 +174,18 @@ def create_data(project, user=None, stream=None, path=None, name=None, text='', 
     else:
         # TODO:this fails test on mine.
         # The file field is a FilePathField so it can not upload stuff
-        data.file.save(name, stream, save=True)
+        # Makes a files in data_dir
+
+        print(data.file)
+        print(stream, name)
+        1/0
+        with open(data.file, "wb") as outfile:
+            File(outfile).write(stream)
+
+            data.local_file.save(name, stream, save=True)
+            1/0
+            data.make_file(name, stream, save=True)
+
         logger.info(f"Saving to: {data.get_path()}")
 
     if data.can_unpack():

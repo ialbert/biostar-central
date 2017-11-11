@@ -106,6 +106,15 @@ def site_admin(request):
     return render(request, 'admin_index.html', context=context)
 
 
+def custom_test(user, id):
+    return user.is_superuser or Project.objects.filter(id=id).owner == user
+
+
+@user_passes_test(custom_test)
+def add_to_project_group(request, id):
+    print(request, "PASSSSEDreset")
+    return
+
 def project_list(request):
 
     projects = auth.get_project_list(user=request.user).order_by("-sticky", "-privacy")

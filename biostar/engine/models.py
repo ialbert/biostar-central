@@ -39,6 +39,15 @@ def make_html(text):
 def filter_by_type():
     return
 
+def data_upload_path(instance, filename):
+    # Name the data by the filename.
+    pieces = os.path.basename(filename).split(".")
+    # File may have multiple extensions
+    exts = ".".join(pieces[1:]) or "data"
+    dataname = f"data-{instance.uid}.{exts}"
+
+    return join(f"{instance.get_data_dir()}", dataname)
+
 
 def image_path(instance, filename):
     # Name the data by the filename.
@@ -131,9 +140,9 @@ class Data(models.Model):
     project = models.ForeignKey(Project)
     size = models.IntegerField(default=0)
 
-    # FilePathField
-    #TODO: this
+    # FilePathField points to an existing file
     file = models.FilePathField(max_length=MAX_FIELD_LEN)
+    local_file = models.FileField(max_length=MAX_FIELD_LEN, upload_to=data_upload_path)
 
     uid = models.CharField(max_length=32)
 
@@ -180,6 +189,11 @@ class Data(models.Model):
 
     def __str__(self):
         return self.name
+
+    def make_file(self, stream, name=None):
+
+        print(self.file)
+
 
     def get_data_dir(self):
         "The data directory"
