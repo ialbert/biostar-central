@@ -9,10 +9,10 @@ from biostar.engine.models import Project
 
 logger = logging.getLogger(settings.LOGGER_NAME)
 
-
 class Bunch():
     def __init__(self, **kwargs):
-        self.name = self.path = self.summary = ''
+        self.path = 'abc'
+        self.name = self.summary = ''
         self.text = self.data_type = self.link = ''
         self.__dict__.update(kwargs)
 
@@ -59,15 +59,15 @@ class Command(BaseCommand):
             return
 
         # Reads a file directly or a spec.
-        if not (path or json):
-            logger.error(f"Must specify a value for --path or --json")
+        if not (path or json or link):
+            logger.error(f"Must specify a value for --path --link or --json")
             return
 
         if json:
             # There 'data' field of the spec has the files.
             json_data = hjson.load(open(json))
             json_data = json_data.get('data', [])
-            data_list = [Bunch(**row) for row in json_data]
+            data_list = [ Bunch(**row) for row in json_data ]
         else:
             # There was one data loading request.
             data_list = [

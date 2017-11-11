@@ -68,8 +68,8 @@ init:
 	@python manage.py migrate
 
 public:
-	python manage.py project --json initial/tutorial-project.hjson --privacy public --sticky --job
-	#python manage.py project --json initial/cookbook-project.hjson --privacy public --sticky --job
+	#@python manage.py project --json initial/tutorial-project.hjson --privacy public --sticky --job
+	@python manage.py project --json initial/cookbook-project.hjson --privacy public --sticky --job
 
 fish:
 	@python manage.py project --json initial/fish-project.hjson

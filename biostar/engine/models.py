@@ -118,12 +118,10 @@ def create_project_group(sender, instance, **kwargs):
 
 
 class Data(models.Model):
-    FILE, COLLECTION = 1, 2
+
     PENDING, READY, ERROR, DELETED = 1, 2, 3, 4
-
-    FILETYPE_CHOICES = [(FILE, "File"), (COLLECTION, "Collection")]
-
     STATE_CHOICES = [(PENDING, "Pending"), (READY, "Ready"), (ERROR, "Error"), (DELETED, "Deleted") ]
+    state = models.IntegerField(default=PENDING, choices=STATE_CHOICES)
 
     name = models.CharField(max_length=MAX_NAME_LEN, default="no name")
     summary = models.TextField(default='no summary')
@@ -134,18 +132,14 @@ class Data(models.Model):
     text = models.TextField(default='no description', max_length=MAX_TEXT_LEN)
     html = models.TextField(default='html')
     date = models.DateTimeField(auto_now_add=True)
-    file_type = models.IntegerField(default=FILE, choices=FILETYPE_CHOICES)
 
     data_type = models.IntegerField(default=GENERIC_TYPE)
     project = models.ForeignKey(Project)
     size = models.IntegerField(default=0)
 
-    state = models.IntegerField(default=PENDING, choices=STATE_CHOICES)
-
     file = models.FilePathField(max_length=MAX_FIELD_LEN)
 
     uid = models.CharField(max_length=32)
-
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -178,17 +172,13 @@ class Data(models.Model):
         """
         Returns a preview of the data
         """
-        return util.smart_preview(self.get_path())
+        target = self.get_path()
+        lines = open(target, 'rt').readlines()
+        if len(lines) == 1:
+            target = f'{self.get_data_dir()}/{lines[0]}'
+        return util.smart_preview(target)
 
-    def set_size(self):
-        """
-        Sets the size of the data.
-        """
-        try:
-            size = os.path.getsize(self.get_path())
-        except:
-            size = 0
-        Data.objects.filter(id=self.id).update(size=size)
+
 
     def __str__(self):
         return self.name
@@ -211,8 +201,6 @@ class Data(models.Model):
         """
         Mutates a dictionary to add more information.
         """
-        print ("Path", self.get_path() )
-
         lines = open(self.get_path(), 'rt').readlines()
         obj['path'] = lines[0]
         obj['files'] = lines

@@ -2,6 +2,7 @@
 
 assembly : {
     path: export/local/input/scaffolds.fasta
+    link: true
     label: Data
     data_type: FASTA_TYPE
     display_type: DROPDOWN

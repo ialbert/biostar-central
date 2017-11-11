@@ -141,14 +141,16 @@ def create_data_path(data, fname):
 
     return data_path
 
-def create_data(project, user=None, stream=None, path=None, name='data.bin',
+def create_data(project, user=None, stream=None, path='', name='',
                 text='', summary='', data_type=None, link=False):
 
+    # Absolute paths with no trailing slashes.
+    path = os.path.abspath(path).rstrip("/")
+
     # Create the data.
-    data = Data.objects.create(name=name, owner=user, state=Data.PENDING,  project=project,
+    state = Data.PENDING
+    data = Data.objects.create(name=name, owner=user, state=state,  project=project,
                                data_type=data_type, summary=summary, text=text)
-
-
 
     # If the path is a directory, symlink all files.
     if path and os.path.isdir(path):
@@ -156,6 +158,7 @@ def create_data(project, user=None, stream=None, path=None, name='data.bin',
         for src in collect:
             dest = create_data_path(data, src)
             os.symlink(src, dest)
+        summary = f'Contains {len(collect)} files. {summary}'
         logger.info(f"Symlinked {len(collect)} files.")
 
     # The path is a file and should be linked.
@@ -163,14 +166,10 @@ def create_data(project, user=None, stream=None, path=None, name='data.bin',
         dest = create_data_path(data, path)
         if link:
             os.symlink(path, dest)
-            logger.info(f"Symlinked to: {path}")
+            logger.info(f"Symlinked file: {path}")
         else:
             logger.info(f"Copied file to: {dest}")
             shutil.copy(path, dest)
-
-    missing = not (os.path.isdir(path) or os.path.isfile(path))
-    if path and missing:
-        logger.error(f"File not found for: {path}")
 
     # An incoming stream written into the destination.
     if stream:
@@ -181,19 +180,39 @@ def create_data(project, user=None, stream=None, path=None, name='data.bin',
                 fp.write(chunk)
                 chunk = stream.read(CHUNK)
 
+    # Nothing got triggered.
+    missing = not (os.path.isdir(path) or os.path.isfile(path) or stream)
+    if path and missing:
+        state = Data.ERROR
+        logger.error(f"Path not found for: {path}")
+        raise Exception(path)
+    else:
+        state = Data.READY
+
     # Find all files in the data directory.
     collect = findfiles(data.get_data_dir(), collect=[])
 
     # Remove the table of contents from the collected files.
     collect.remove(data.get_path())
 
+    # Transform the paths to relative paths
+    data_dir = data.get_data_dir()
+    rels = [ os.path.relpath(path, data_dir) for path in collect ]
     # Write the table of contents.
     with open(data.file, 'wt') as fp:
-        fp.write("\n".join(collect))
+        fp.write("\n".join(rels))
+
+    # Compute the cumulative data sizes.
+    size = 0
+    for path in collect:
+        if os.path.isfile(path):
+            size += os.stat(path, follow_symlinks=True).st_size
 
     # Finalize the data.
-    Data.objects.filter(pk=data.pk).update(state=Data.READY, size=100)
+    name = name or os.path.split(path)[1] or 'data.bin'
+    Data.objects.filter(pk=data.pk).update(size=size, state=state, name=name, summary=summary)
 
+    # Report the data creation.
     logger.info(f"Added data id={data.pk}, type={data.data_type} name={data.name}")
 
     return data

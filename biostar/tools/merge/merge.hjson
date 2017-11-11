@@ -1,14 +1,16 @@
 {
 
 read1 : {
-    link: export/local/input/test_reads_R1.fastq.gz
+    path: export/local/input/test_reads_R1.fastq.gz
+    link: true
     label: Read1
     data_type: FASTQ_TYPE
     display_type: DROPDOWN
   }
 
 read2 : {
-    link: export/local/input/test_reads_R2.fastq.gz
+    path: export/local/input/test_reads_R2.fastq.gz
+    link: true
     label: Read2
     data_type: FASTQ_TYPE
     display_type: DROPDOWN

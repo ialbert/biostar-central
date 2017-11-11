@@ -1,14 +1,16 @@
 {
 
 sequence : {
-    link: export/local/input/fish_sequences.tar.gz
+    path: export/local/input/fish_sequences.tar.gz
+    link: true
     label: Data
     data_type: TAR_FASTQ_GZ
     display_type: DROPDOWN
     }
 
 sampleinfo : {
-    link : export/local/input/lamar_sampleinfo.txt
+    path: export/local/input/lamar_sampleinfo.txt
+    link: true
     label : Sample file
     data_type : LAMAR_SAMPLE_SHEET
     display_type: DROPDOWN
