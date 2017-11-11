@@ -38,6 +38,7 @@ data: [
     {
         name: Giraffe scaffold (2016).fa
         path: /export/data/giraffe/assembly/soap_assembly_k91_params.gapfilled.fa
+        link: true
         data_type: FASTA_TYPE
         summary: The published assembled Giraffe scaffold (2016)
         text: The giraffe scaffold assembled by Rayan Chiki

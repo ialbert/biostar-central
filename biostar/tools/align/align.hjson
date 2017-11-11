@@ -4,6 +4,7 @@ sequence : {
     path: export/local/input/virus_sample1.fastq.gz
     link: true
     label: Data
+    summary: DNA reads of viral origin.
     data_type: FASTQ_TYPE
     display_type: DROPDOWN
   }
@@ -12,6 +13,7 @@ genome : {
     path: export/local/input/viral_genomes.fa
     link: true
     label: Reference genome
+    summary: Viral genome.
     data_type: FASTA_TYPE
     display_type: DROPDOWN
     }

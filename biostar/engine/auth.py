@@ -81,7 +81,7 @@ def create_analysis(project, json_text, template, uid=None, user=None, summary='
                                        owner=owner, name=name, text=text,
                                        template=template)
 
-    logger.info(f"Created analysis: uid={analysis.uid}")
+    logger.info(f"Created analysis: uid={analysis.uid} name={analysis.name}")
 
     return analysis
 
@@ -154,6 +154,7 @@ def create_data(project, user=None, stream=None, path='', name='',
 
     # If the path is a directory, symlink all files.
     if path and os.path.isdir(path):
+        logger.info(f"Symlinking path: {path}")
         collect = findfiles(path, collect=[])
         for src in collect:
             dest = create_data_path(data, src)
@@ -185,7 +186,6 @@ def create_data(project, user=None, stream=None, path='', name='',
     if path and missing:
         state = Data.ERROR
         logger.error(f"Path not found for: {path}")
-        raise Exception(path)
     else:
         state = Data.READY
 
@@ -195,22 +195,22 @@ def create_data(project, user=None, stream=None, path='', name='',
     # Remove the table of contents from the collected files.
     collect.remove(data.get_path())
 
-    # Transform the paths to relative paths
-    data_dir = data.get_data_dir()
-    rels = [ os.path.relpath(path, data_dir) for path in collect ]
     # Write the table of contents.
     with open(data.file, 'wt') as fp:
-        fp.write("\n".join(rels))
+        fp.write("\n".join(collect))
 
     # Compute the cumulative data sizes.
     size = 0
-    for path in collect:
-        if os.path.isfile(path):
-            size += os.stat(path, follow_symlinks=True).st_size
+    for elem in collect:
+        if os.path.isfile(elem):
+            size += os.stat(elem, follow_symlinks=True).st_size
 
     # Finalize the data.
     name = name or os.path.split(path)[1] or 'data.bin'
     Data.objects.filter(pk=data.pk).update(size=size, state=state, name=name, summary=summary)
+
+    # Refresh the data that is held by the reference.
+    data = Data.objects.get(pk=data.pk)
 
     # Report the data creation.
     logger.info(f"Added data id={data.pk}, type={data.data_type} name={data.name}")

@@ -9,6 +9,7 @@ from biostar.engine.models import Project
 
 logger = logging.getLogger(settings.LOGGER_NAME)
 
+
 class Bunch():
     def __init__(self, **kwargs):
         self.path = 'abc'
@@ -67,7 +68,7 @@ class Command(BaseCommand):
             # There 'data' field of the spec has the files.
             json_data = hjson.load(open(json))
             json_data = json_data.get('data', [])
-            data_list = [ Bunch(**row) for row in json_data ]
+            data_list = [Bunch(**row) for row in json_data]
         else:
             # There was one data loading request.
             data_list = [

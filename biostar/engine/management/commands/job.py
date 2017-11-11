@@ -20,6 +20,7 @@ def summarize(data):
     Summarizes job parameters.
     '''
 
+
     # Keep only fields that can be displayed.
     objs = [obj for obj in data.values() if 'display_type' in obj]
 

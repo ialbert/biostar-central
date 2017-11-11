@@ -1,9 +1,11 @@
 {
 
 sequence : {
-    path: export/local/input/test_reads.fastq.gz
+    path: export/local/input/
     link: true
     label: Input
+    name: Testdata Directory
+    summary: Example test directory. All files will be loaded into the project.
     data_type: FASTQ_TYPE
     display_type: DROPDOWN
     }

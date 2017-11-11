@@ -146,7 +146,7 @@ class Data(models.Model):
 
     def save(self, *args, **kwargs):
         now = timezone.now()
-        self.name = self.name[:MAX_NAME_LEN]
+        self.name = self.name[-MAX_NAME_LEN:]
         self.uid = self.uid or util.get_uuid(8)
         self.date = self.date or now
         self.html = make_html(self.text)
@@ -175,10 +175,12 @@ class Data(models.Model):
         target = self.get_path()
         lines = open(target, 'rt').readlines()
         if len(lines) == 1:
-            target = f'{self.get_data_dir()}/{lines[0]}'
-        return util.smart_preview(target)
-
-
+            target = lines[0]
+            return util.smart_preview(target)
+        else:
+            data_dir = self.get_data_dir()
+            rels = [ os.path.relpath(path,data_dir) for path in lines]
+            return "".join(rels)
 
     def __str__(self):
         return self.name
@@ -197,13 +199,17 @@ class Data(models.Model):
         cond = str(self.get_path()).endswith("tar.gz")
         return cond
 
+    def get_files(self):
+        fnames = [line.strip() for line in open(self.get_path(), 'rt')]
+        return fnames
+
     def fill_dict(self, obj):
         """
         Mutates a dictionary to add more information.
         """
-        lines = open(self.get_path(), 'rt').readlines()
-        obj['path'] = lines[0]
-        obj['files'] = lines
+        fnames = self.get_files()
+        obj['path'] = fnames[0]
+        obj['files'] = fnames
         obj['toc'] = self.get_path()
         obj['id'] = self.id
         obj['name'] = self.name

@@ -16,13 +16,17 @@ class Command(BaseCommand):
 
         parser.add_argument('--add', action='store_true', default=False,
                             help="Adds an analysis to a project")
+
         parser.add_argument('--id', default=1,
                             help="Specifies the project id")
+
         parser.add_argument('--json',
                             help="The json specification file")
+
         parser.add_argument('--template',
                             help="The template for the analysis")
-        parser.add_argument('--create_job', action='store_true', default=False,
+
+        parser.add_argument('--jobs', action='store_true', default=False,
                             help="Also creates a queued job for the analysis")
 
 
@@ -32,23 +36,24 @@ class Command(BaseCommand):
         json = options['json']
         pid = options['id']
         template = options['template']
-        create_job = options['create_job']
+        jobs = options['jobs']
 
         admin = User.objects.filter(is_staff=True).first()
         if not admin:
-            logger.error("site has no admin users")
+            logger.error("Site has no admin users")
             return
 
         if not add:
-            logger.error("command requires at least one action: --add --delete")
+            logger.error("Command requires at least one action: --add --delete")
             return
 
         if add:
 
             if not (json and template):
-                logger.error("this command requires --json --template to be set")
+                logger.error("This command requires --json and a --template to be set")
                 return
 
+            # Get the target project.
             project = Project.objects.filter(id=pid).first()
 
             if not project:
@@ -69,14 +74,14 @@ class Command(BaseCommand):
                 json_path = os.path.dirname(json)
                 json_data = hjson.loads(json_text)
             except Exception as exc:
-                logger.error(f"error leading the template: {exc}")
+                logger.error(f"Error reading the json: {exc}")
                 return
 
             try:
                 # Read the specification
                 template = open(template).read()
             except Exception as exc:
-                logger.error(f"error reading out the spec: {exc}")
+                logger.error(f"Error reading template: {exc}")
                 return
 
             try:
@@ -87,9 +92,11 @@ class Command(BaseCommand):
                 text = textwrap.dedent(text)
                 summary = json_data.get("settings", {}).get("summary", "No summary")
 
+                # Create the analysis
                 analysis = auth.create_analysis(project=project, uid=uid, json_text=json_text, summary=summary,
                                                    template=template, name=name, text=text)
 
+                # Load the image if specified.
                 if image:
                     image_path = os.path.join(json_path, image)
                     if os.path.isfile(image_path):
@@ -99,23 +106,25 @@ class Command(BaseCommand):
                     else:
                         logger.error(f"Missing image path: {image_path}")
 
-                #logger.info(f"Added analysis '{analysis.name}' to project id={project.id}")
-
                 # Also create a queued job:
-                if create_job:
+                if jobs:
                     # Need to deposit the file as data into the project.
                     # Find all objects that have a path attribute
                     for key, value in json_data.items():
-                        path = value.get("path")
-                        link = value.get("link")
+                        path = value.get("path", '')
+                        summary = value.get("summary", '')
+                        text = value.get("text", '')
+                        link = value.get("link", '')
                         data_type = value.get("data_type")
+                        name = value.get("name", '') or os.path.basename(path)
                         data_type = const.DATA_TYPE_SYMBOLS.get(data_type)
                         if path:
-                            data = auth.create_data(project=project, path=path, data_type=data_type, link=link)
+                            data = auth.create_data(project=project, name=name, path=path, data_type=data_type, link=link,
+                                                    summary=summary, text=text)
                             data.fill_dict(value)
 
-                    name = f'Results for: {analysis.name}'
-                    job = auth.create_job(analysis=analysis, name=name, json_data=json_data)
+                    job_name = f'Results for: {analysis.name}'
+                    job = auth.create_job(analysis=analysis, name=job_name, json_data=json_data)
 
             except KeyError as exc:
                 logger.error(f"processing the analysis: {exc}")
