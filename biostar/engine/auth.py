@@ -162,9 +162,11 @@ def create_data(project, user=None, stream=None, path='', name='',
         summary = f'Contains {len(collect)} files. {summary}'
         logger.info(f"Symlinked {len(collect)} files.")
 
-    # The path is a file and should be linked.
+    # The path is a file.
     if path and os.path.isfile(path):
         dest = create_data_path(data, path)
+
+        # Test if it should be linked or not.
         if link:
             os.symlink(path, dest)
             logger.info(f"Symlinked file: {path}")
@@ -172,7 +174,7 @@ def create_data(project, user=None, stream=None, path='', name='',
             logger.info(f"Copied file to: {dest}")
             shutil.copy(path, dest)
 
-    # An incoming stream written into the destination.
+    # An incoming stream is written into the destination.
     if stream:
         dest = create_data_path(data, path)
         with open(dest, 'wb') as fp:
@@ -181,7 +183,7 @@ def create_data(project, user=None, stream=None, path='', name='',
                 fp.write(chunk)
                 chunk = stream.read(CHUNK)
 
-    # Nothing got triggered.
+    # Invalid paths and empty streams still create the data.
     missing = not (os.path.isdir(path) or os.path.isfile(path) or stream)
     if path and missing:
         state = Data.ERROR
@@ -209,7 +211,7 @@ def create_data(project, user=None, stream=None, path='', name='',
     name = name or os.path.split(path)[1] or 'data.bin'
     Data.objects.filter(pk=data.pk).update(size=size, state=state, name=name, summary=summary)
 
-    # Refresh the data that is held by the reference.
+    # Refresh the data information that is held by the reference.
     data = Data.objects.get(pk=data.pk)
 
     # Report the data creation.
