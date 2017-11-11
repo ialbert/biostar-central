@@ -3,16 +3,19 @@ set -ueo pipefail
 # Get parameters.
 INPUT={{sequence.path}}
 GENOME={{genome.path}}
+URL={{runtime.job_url}}
 
-#INDEX=${GENOME}
+# Internal parameters.
+
+# Bwa index.
 INDEX_DIR=$(dirname ${GENOME})/bwa
-
 mkdir -p ${INDEX_DIR}
 INDEX=${INDEX_DIR}/{{genome.uid}}
 
+# Fasta index.
 GENOME_FAIDX=${GENOME}.fai
 
-# Internal parameters.
+# Work directory.
 WORK={{runtime.work_dir}}/work
 mkdir -p ${WORK}
 
@@ -55,6 +58,10 @@ echo "Building genome index."
 samtools faidx ${GENOME}
 fi
 
+# Link genome to workdir.
+ln -s $GENOME $WORK
+ln -s $GENOME_FAIDX $WORK
+
 # Generate igv visualization.
-python -m biostar.tools.igv.visualization $GENOME
+python -m biostar.tools.igv.visualization $URL $WORK >${WORK}/igv.xml
 
