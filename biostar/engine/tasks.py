@@ -24,7 +24,7 @@ try:
 
     HAS_UWSGI = True
 
-    @timer(5)
+    @timer(20)
     def timer(args):
         from biostar.engine.models import Job
         # Check for queued jobs.
