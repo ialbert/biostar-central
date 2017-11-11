@@ -12,6 +12,7 @@ sequence : {
 
 settings : {
     name : FastQC report
+    index: fastqc_results/multiqc_report.html
     image : fastqc.png
     summary: Produces a fastqc report for all files of type fq.
     help :'''
