@@ -38,11 +38,14 @@ try:
 
         logger.info(f"SPOOL SUBMIT {COUNTER}, {COUNTER+1}, {COUNTER+2}")
         demo.spool(value=COUNTER)
-        time.sleep(1)
+        time.sleep(100)
+        return
+
         demo.spool(value=COUNTER+1)
         time.sleep(1)
         demo.spool(value=COUNTER+2)
         COUNTER += 3
+
 
     @spool(pass_arguments=True)
     def demo(value):
