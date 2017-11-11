@@ -12,7 +12,8 @@ logger = logging.getLogger(settings.LOGGER_NAME)
 
 class Bunch():
     def __init__(self, **kwargs):
-        self.name = self.path = self.summary = ''
+        self.path = 'abc'
+        self.name = self.summary = ''
         self.text = self.data_type = self.link = ''
         self.__dict__.update(kwargs)
 
@@ -59,8 +60,8 @@ class Command(BaseCommand):
             return
 
         # Reads a file directly or a spec.
-        if not (path or json):
-            logger.error(f"Must specify a value for --path or --json")
+        if not (path or json or link):
+            logger.error(f"Must specify a value for --path --link or --json")
             return
 
         if json:
@@ -74,9 +75,9 @@ class Command(BaseCommand):
                 Bunch(data_type=data_type, path=path, name=name, link=link, summary=summary, text='')
             ]
 
+        # Add each collected datatype.
         for bunch in reversed(data_list):
-
-            # Figure out the bunch datatype
+            # Get the right datatype.
             type_value = const.DATA_TYPE_SYMBOLS.get(bunch.data_type)
             if data_type and not type_value:
                 logger.warning(f"Invalid data type: {bunch.data_type}")

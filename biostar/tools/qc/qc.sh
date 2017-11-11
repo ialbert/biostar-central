@@ -17,6 +17,9 @@ DATA_DIR={{runtime.work_dir}}/data
 RESULT_DIR={{runtime.work_dir}}/results
 FASTQC_DIR=${WORK_DIR}/fastqc
 
+LC_ALL=C.UTF-8
+LANG=C.UTF-8
+
 # Stores the updated sample information.
 SAMPLE_INFO=updated_sampleinfo.txt
 

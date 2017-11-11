@@ -41,20 +41,26 @@ def parse_json(json, privacy=Project.PRIVATE, sticky=False, jobs=False):
     else:
         stream = None
 
+    # The user that will own the project.
     user = User.objects.filter(email=email).first()
     user = user or User.objects.filter(is_superuser=True).first()
 
+    if not user:
+        logger.error("No valid users found")
+        return
+
+    # Create the project.
     project = auth.create_project(user=user, uid=uid, summary=summary, name=name, text=text,
                                   stream=stream, privacy=privacy, sticky=sticky)
 
+    # Add the analyses specified in the project json.
     analyses = data.get("analyses", '')
-
-    for row in analyses:
-        ajson = row['json']
+    for row in reversed(analyses):
+        other_json = row['json']
         template = row['template']
-        management.call_command("analysis", id=project.id, add=True, json=ajson, template=template, create_job=jobs)
+        management.call_command("analysis", id=project.id, add=True, json=other_json, template=template, jobs=jobs)
 
-    print (json)
+    # Add extra data specified in the project json file.
     management.call_command("data", json=json, id=project.id)
 
 

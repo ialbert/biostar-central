@@ -1,14 +1,16 @@
 {
 
 sequence : {
-    link: export/local/input/fish_metabarcode_reads.fastq.gz
+    path: export/local/input/fish_metabarcode_reads.fastq.gz
+    link: true
     label: Data
     data_type: FASTQ_TYPE
     display_type: DROPDOWN
   }
 
 genome : {
-    link: export/local/fish_species/fish_species.fa
+    path: export/local/fish_species/fish_species.fa
+    link: true
     label: Reference genome
     data_type: FASTA_TYPE
     display_type: DROPDOWN

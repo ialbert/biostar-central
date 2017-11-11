@@ -101,11 +101,12 @@ class DataTest(TestCase):
         post = len(models.Data.objects.all())
 
         self.assertTrue(post == (pre + 1), "Error creating data in database")
+
         data_ext = os.path.splitext(data.get_path())[-1]
-        file_ext = os.path.splitext(__file__)[-1]
+        file_ext = os.path.splitext(data.get_path())[-1]
 
         self.assertEqual(data_ext, file_ext,
-                         f"Created data extension ({data_ext}) does not match the input ({file_ext})")
+                         f"Extension ({data_ext}) does not match the input ({file_ext})")
 
     def test_data_linkage(self):
         "Test data linkage with auth"
