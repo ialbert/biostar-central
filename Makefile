@@ -45,37 +45,37 @@ postgres:
 	python manage.py test --settings conf.postgres.postgres_settings --failfast
 
 
-reset: delete init giraffe
+reset: delete init public giraffe fish
 
 next:
 	python manage.py job --next
 
 hello:
-	python manage.py analysis --add --json biostar/tools/hello/hello4.hjson  --template biostar/tools/hello/hello4.sh --create_job
-	python manage.py analysis --add --json biostar/tools/hello/hello3.hjson  --template biostar/tools/hello/hello3.sh --create_job
-	python manage.py analysis --add --json biostar/tools/hello/hello2.hjson  --template biostar/tools/hello/hello2.sh --create_job
-	python manage.py analysis --add --json biostar/tools/hello/hello1.hjson  --template biostar/tools/hello/hello1.sh --create_job
+	python manage.py analysis --add --json biostar/tools/hello/hello4.hjson  --template biostar/tools/hello/hello4.sh --jobs
+	python manage.py analysis --add --json biostar/tools/hello/hello3.hjson  --template biostar/tools/hello/hello3.sh --jobs
+	python manage.py analysis --add --json biostar/tools/hello/hello2.hjson  --template biostar/tools/hello/hello2.sh --jobs
+	python manage.py analysis --add --json biostar/tools/hello/hello1.hjson  --template biostar/tools/hello/hello1.sh --jobs
 
 jobs:
-	@python manage.py analysis --add --json biostar/tools/fastqc/fastqc.hjson  --template biostar/tools/fastqc/fastqc.sh --create_job
-	@python manage.py analysis --add --json biostar/tools/qc/qc.hjson  --template biostar/tools/qc/qc.sh --create_job
-	@python manage.py analysis --add --json biostar/tools/classify/classify.hjson  --template biostar/tools/classify/classify.sh --create_job
-	@python manage.py analysis --add --json biostar/tools/align/align.hjson  --template biostar/tools/align/align.sh --create_job
-	@python manage.py analysis --add --json biostar/tools/lamar_align/lamar_align.hjson  --template biostar/tools/lamar_align/lamar_align.sh --create_job
+	@python manage.py analysis --add --json biostar/tools/fastqc/fastqc.hjson  --template biostar/tools/fastqc/fastqc.sh --jobs
+	#@python manage.py analysis --add --json biostar/tools/qc/qc.hjson  --template biostar/tools/qc/qc.sh --jobs
+	#@python manage.py analysis --add --json biostar/tools/classify/classify.hjson  --template biostar/tools/classify/classify.sh --jobs
+	#@python manage.py analysis --add --json biostar/tools/align/align.hjson  --template biostar/tools/align/align.sh --jobs
+	#@python manage.py analysis --add --json biostar/tools/lamar_align/lamar_align.hjson  --template biostar/tools/lamar_align/lamar_align.sh --jobs
 
 init:
 	@python manage.py collectstatic --noinput -v 0
 	@python manage.py migrate
 
-projects:
-	@python manage.py project --json initial/tutorial-project.hjson --privacy public --sticky
-	@python manage.py project --json initial/cookbook-project.hjson --privacy public --sticky
+public:
+	@python manage.py project --json initial/tutorial-project.hjson --privacy public --sticky --jobs
+	@python manage.py project --json initial/cookbook-project.hjson --privacy public --sticky --jobs
 
 fish:
 	@python manage.py project --json initial/fish-project.hjson
 
 giraffe:
-	@python manage.py project --json initial/giraffe-project.hjson --sticky --privacy public
+	@python manage.py project --json initial/giraffe-project.hjson --sticky
 
 test:
 	python manage.py collectstatic --noinput -v 0

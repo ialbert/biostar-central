@@ -21,10 +21,10 @@ try:
 
     HAS_UWSGI = True
 
-    @timer(3)
+    @timer(60)
     def execute_timer(args):
         from biostar.engine.models import Job
-        # logger.info(f"executing timer with {args}")
+        logger.info(f"executing timer with {args}")
         # It is faster to check here
         first = Job.objects.filter(state=Job.QUEUED).first()
         if first:
@@ -40,12 +40,14 @@ try:
 
     @spool
     def unpack(args):
-        data_id = int_from_bytes(args, "data_id")
-        unpacker(data_id=data_id)
+        #data_id = int_from_bytes(args, "data_id")
+        #unpacker(data_id=data_id)
+        pass
 
     @spool
     def copy(args):
-        return
+        pass
+        #return
 
 except ModuleNotFoundError as exc:
 
@@ -71,7 +73,7 @@ def unpacker(data_id):
     query.update(state=Data.PENDING)
     command = f'tar xzvf {data.file.path}'
     try:
-        stdout, stderr = execute(command=command, workdir=data.get_datadir())
+        stdout, stderr = execute(command=command, workdir=data.get_data_dir())
         logger.info(f'Data id={data_id} has been unpacked')
         query.update(state=Data.READY)
     except Exception as exc:
@@ -95,7 +97,7 @@ def copier(source=None, target_data=None, target_project=None, fname=None, link=
 
     if project:
         assert fname
-        auth.create_data(project=project, path=fname, link=link)
+        auth.create_data(project=project, path=fname, dest=link)
         return
 
     if source:

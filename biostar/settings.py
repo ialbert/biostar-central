@@ -33,6 +33,7 @@ COMPRESS_ENABLED = True
 
 # Application definition
 PROTOCOL = "http"
+HTTP_PORT = ':8000'
 
 INSTALLED_APPS = [
     'django.contrib.admin',

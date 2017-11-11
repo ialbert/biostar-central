@@ -1,7 +1,7 @@
 import hjson
 import logging
 import mistune
-
+from django.utils.text import slugify
 from django.db import models
 from biostar.accounts.models import User, Group
 from django.db.models.signals import post_save, pre_save
@@ -44,22 +44,13 @@ def filter_by_type():
     return
 
 
-def data_upload_path(instance, filename):
-    # Name the data by the filename.
-    pieces = os.path.basename(filename).split(".")
-    # File may have multiple extensions
-    exts = ".".join(pieces[1:]) or "data"
-    dataname = f"data-{instance.uid}.{exts}"
-    return join(instance.project.get_project_dir(), f"{instance.data_dir}", dataname)
-
-
 def image_path(instance, filename):
     # Name the data by the filename.
     name, ext = os.path.splitext(filename)
 
     uid = util.get_uuid(6)
     dirpath = instance.get_project_dir()
-    imgname = f"image-{uid}{ext}"
+    imgname = f"images/image-{uid}{ext}"
 
     # Uploads need to go relative to media directory.
     path = os.path.relpath(dirpath, settings.MEDIA_ROOT)
@@ -127,59 +118,53 @@ def create_project_group(sender, instance, **kwargs):
 
 
 class Data(models.Model):
-    FILE, COLLECTION = 1, 2
+
     PENDING, READY, ERROR, DELETED = 1, 2, 3, 4
-
-    FILETYPE_CHOICES = [(FILE, "File"), (COLLECTION, "Collection")]
-
     STATE_CHOICES = [(PENDING, "Pending"), (READY, "Ready"), (ERROR, "Error"), (DELETED, "Deleted") ]
+    state = models.IntegerField(default=PENDING, choices=STATE_CHOICES)
 
     name = models.CharField(max_length=MAX_NAME_LEN, default="no name")
     summary = models.TextField(default='no summary')
     image = models.ImageField(default=None, blank=True, upload_to=image_path, max_length=MAX_FIELD_LEN)
     sticky = models.BooleanField(default=False)
 
-    owner = models.ForeignKey(User)
+    owner = models.ForeignKey(User, null=True)
     text = models.TextField(default='no description', max_length=MAX_TEXT_LEN)
     html = models.TextField(default='html')
     date = models.DateTimeField(auto_now_add=True)
-    file_type = models.IntegerField(default=FILE, choices=FILETYPE_CHOICES)
 
     data_type = models.IntegerField(default=GENERIC_TYPE)
     project = models.ForeignKey(Project)
     size = models.IntegerField(default=0)
 
-    state = models.IntegerField(default=PENDING, choices=STATE_CHOICES)
-
-    # A file is either in media or is linked to.
-    file = models.FileField(null=True, upload_to=data_upload_path, max_length=MAX_FIELD_LEN)
-
-    link = models.FilePathField(null=True,  max_length=MAX_FIELD_LEN)
+    file = models.FilePathField(max_length=MAX_FIELD_LEN)
 
     uid = models.CharField(max_length=32)
-
-    # Will be false if the objects is to be deleted.
-    valid = models.BooleanField(default=True)
-
-    # Data directory.
-    data_dir = models.FilePathField(default="", max_length=MAX_FIELD_LEN)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
     def save(self, *args, **kwargs):
         now = timezone.now()
-        self.name = self.name[:MAX_NAME_LEN]
+        self.name = self.name[-MAX_NAME_LEN:]
         self.uid = self.uid or util.get_uuid(8)
         self.date = self.date or now
         self.html = make_html(self.text)
         self.owner = self.owner or self.project.owner
         self.data_type = self.data_type or GENERIC_TYPE
+
         # Build the data directory.
-        data_dir = self.get_datadir()
+        data_dir = self.get_data_dir()
         if not os.path.isdir(data_dir):
             os.makedirs(data_dir)
-        self.data_dir = data_dir
+
+        # Set the table of contents for the file.
+        self.file = self.get_path()
+
+        # Make this file if it does not exist
+        if not os.path.isfile(self.file):
+            with open(self.file, 'wt') as fp:
+                pass
 
         super(Data, self).save(*args, **kwargs)
 
@@ -187,44 +172,50 @@ class Data(models.Model):
         """
         Returns a preview of the data
         """
-        return util.smart_preview(self.get_path())
-
-    def set_size(self):
-        """
-        Sets the size of the data.
-        """
-        try:
-            size = os.path.getsize(self.get_path())
-        except:
-            size = 0
-        Data.objects.filter(id=self.id).update(size=size)
+        target = self.get_path()
+        lines = open(target, 'rt').readlines()
+        if len(lines) == 1:
+            target = lines[0]
+            return util.smart_preview(target)
+        else:
+            data_dir = self.get_data_dir()
+            rels = [ os.path.relpath(path,data_dir) for path in lines]
+            return "".join(rels)
 
     def __str__(self):
         return self.name
 
-    def get_datadir(self):
+    def get_data_dir(self):
         "The data directory"
-        return join(self.project.get_project_dir(), f"store-{self.uid}")
+        return join(self.get_project_dir(), f"store-{self.uid}")
 
     def get_project_dir(self):
         return self.project.get_project_dir()
 
     def get_path(self):
-        return os.path.abspath(self.link) if self.link else self.file.path
+        return join(self.get_data_dir(), f"toc-{self.uid}.txt")
 
     def can_unpack(self):
-        cond = str(self.get_path()).endswith("tar.gz") and not self.link
+        cond = str(self.get_path()).endswith("tar.gz")
         return cond
+
+    def get_files(self):
+        fnames = [line.strip() for line in open(self.get_path(), 'rt')]
+        return fnames
 
     def fill_dict(self, obj):
         """
         Mutates a dictionary to add more information.
         """
-        obj['path'] = self.get_path()
-        obj['data_id'] = self.id
+        fnames = self.get_files()
+        obj['path'] = fnames[0]
+        obj['files'] = fnames
+        obj['toc'] = self.get_path()
+        obj['id'] = self.id
         obj['name'] = self.name
         obj['uid'] = self.uid
-
+        obj['data_dir'] = self.get_data_dir()
+        obj['project_dir'] = self.get_project_dir()
 
 class Analysis(models.Model):
     AUTHORIZED, UNDER_REVIEW = 1, 2

@@ -1,11 +1,17 @@
-INPUT_DATA={{sequence.path}}
+set -ueo pipefail
 
-INPUT_FILE=$(basename "$INPUT_DATA")
-SAMPLE="${INPUT_FILE%%.*}"
+# Locates all files in this directory
+DATA_DIR=$(dirname {{sequence.path}})
 
-RESULT_DIR=results
+# The output directory
+OUTPUT=fastqc_results
 
-mkdir -p $RESULT_DIR
-fastqc -o $RESULT_DIR $INPUT_DATA
+# Create the output directory
+mkdir -p $OUTPUT
+mkdir -p $OUTPUT/zip
 
-mv $RESULT_DIR/${SAMPLE}_fastqc.html {{settings.index}}
+# Select all files in the directory that match fastq/fq
+cat {{sequence.toc}} | egrep ".fastq|.fastq.gz|.fq|.fq.gz" | parallel -j 5 fastqc -o $OUTPUT {}
+
+# Move the zip files out of sight
+mv $OUTPUT/*.zip $OUTPUT/zip

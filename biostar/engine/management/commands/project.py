@@ -16,12 +16,12 @@ def join(*args):
     return os.path.join(*args)
 
 
-def parse_json(path, privacy=Project.PRIVATE, sticky=False, jobs=False):
+def parse_json(json, privacy=Project.PRIVATE, sticky=False, jobs=False):
     """
     Create a project from a JSON data
     """
-    data = hjson.load(open(path, 'rb'))
-    dirname = os.path.dirname(path)
+    data = hjson.load(open(json, 'rb'))
+    dirname = os.path.dirname(json)
 
     email = data.get("email", 'email')
     uid = data.get("uid", None)
@@ -41,29 +41,27 @@ def parse_json(path, privacy=Project.PRIVATE, sticky=False, jobs=False):
     else:
         stream = None
 
+    # The user that will own the project.
     user = User.objects.filter(email=email).first()
     user = user or User.objects.filter(is_superuser=True).first()
 
+    if not user:
+        logger.error("No valid users found")
+        return
+
+    # Create the project.
     project = auth.create_project(user=user, uid=uid, summary=summary, name=name, text=text,
                                   stream=stream, privacy=privacy, sticky=sticky)
 
+    # Add the analyses specified in the project json.
     analyses = data.get("analyses", '')
-
-    for row in analyses:
-        json = row['json']
+    for row in reversed(analyses):
+        other_json = row['json']
         template = row['template']
-        management.call_command("analysis", id=project.id, add=True, json=json, template=template, create_job=jobs)
+        management.call_command("analysis", id=project.id, add=True, json=other_json, template=template, jobs=jobs)
 
-    data_list = data.get("data", '')
-
-    for row in data_list:
-        link = row.get('link', '')
-        path = row.get('path', '') or link
-        name = row.get('name', 'data.bin')
-        data_type = row.get('data_type', '')
-        summary = row.get('summary', 'no summary')
-
-        management.call_command("data", id=project.id, path=path, data_type=data_type, name=name, link=bool(link), summary=summary)
+    # Add extra data specified in the project json file.
+    management.call_command("data", json=json, id=project.id)
 
 
 class Command(BaseCommand):
@@ -77,7 +75,7 @@ class Command(BaseCommand):
                             help="Make project sticky (high in the order).")
 
     def handle(self, *args, **options):
-        path = options['json']
+        json = options['json']
         privacy = options["privacy"].lower()
         sticky = options["sticky"]
         jobs = options["jobs"]
@@ -92,4 +90,4 @@ class Command(BaseCommand):
             logger.error(f"Invalid privacy choice: {privacy}")
             return
 
-        parse_json(path, jobs=jobs, privacy=privacy_value, sticky=sticky)
+        parse_json(json, jobs=jobs, privacy=privacy_value, sticky=sticky)

@@ -25,6 +25,7 @@ def deploy_latest(path, env, name='main'):
 
 def deploy_reset(path, env, name='test'):
     with cd(path), prefix(env):
+        sudo('supervisorctl stop %s' % name)
         run("rm -f export/engine.db")
         run('git pull')
         #run('make install')
@@ -32,7 +33,7 @@ def deploy_reset(path, env, name='test'):
         run('make reset')
         run('python manage.py migrate')
         run('python manage.py collectstatic --noinput -v 0')
-        sudo('supervisorctl restart %s' % name)
+        sudo('supervisorctl start %s' % name)
 
 
 def deploy_reset_test():

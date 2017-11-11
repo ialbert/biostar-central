@@ -67,4 +67,15 @@ analyses: [
 
 ]
 
+data: [
+
+    {
+        name: All FASTQ
+        path: export/local/input
+        data_type: FASTQ_TYPE
+        summary: All text fastq files
+
+    }
+]
+
 }

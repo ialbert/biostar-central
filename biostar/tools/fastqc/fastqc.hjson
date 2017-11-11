@@ -1,28 +1,33 @@
 {
+
 sequence : {
-    link: export/local/input/test_reads.fastq.gz
+    path: export/local/input/
+    link: true
     label: Input
+    name: Testdata Directory
+    summary: Example test directory. All files will be loaded into the project.
     data_type: FASTQ_TYPE
     display_type: DROPDOWN
-  }
+    }
 
 settings : {
     name : FastQC report
     image : fastqc.png
-    index : results/index.html
-    summary: Produces a fastqc report for FASTQ file.
+    summary: Produces a fastqc report for all files of type fq.
     help :'''
-# Help
 
-This analysis requires a single data file in fastq or fastq.gz format.
+    # Help
 
-# Parameters
+    This analysis will process files with `.fq` `.fq.gz`, ``.fastq` or `.fastq.gz`
 
-FASTQ or a gzipped  FASTQ file.
+    # Parameters
 
-# Results
+    FASTQ or a gzipped  FASTQ files.
 
-This analysis produces fastqc report of the input data.
+    # Results
+
+    This analysis produces a fastqc report on each matching file.
+
 '''
 
     }
