@@ -45,7 +45,7 @@ data: [
     }
 
     {
-        name: MA1_MP.fa
+        name: MA1 mated-pair FASTQ Files
         path: /export/data/giraffe/data/GIRAFFE/MA1_MP
         data_type: FASTQ_TYPE
         summary: Giraffe MA1: mated pair reads
@@ -53,7 +53,7 @@ data: [
     }
 
     {
-        name: MA1_PE.fa
+        name: MA1 paired-end FASTQ Files
         path: /export/data/giraffe/data/GIRAFFE/MA1_PE
         data_type: FASTQ_TYPE
         summary: Giraffe MA1: paired end reads
@@ -61,7 +61,7 @@ data: [
     }
 
     {
-        name: NZOO
+        name: NZOO paired-end FASTQ Files
         path: /export/data/giraffe/data/GIRAFFE/NZOO
         data_type: FASTQ_TYPE
         summary: Giraffe NZOO: paired end reads 250bp
