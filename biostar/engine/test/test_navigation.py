@@ -62,7 +62,7 @@ class SiteNavigation(TestCase):
 
     def test_page_redirect(self):
         "Testing that a redirect occurs for some pages"
-        params = dict(id=1)
+        params = dict(id=self.project.id)
         urls = [
             reverse('project_create'),
             reverse('project_edit',  kwargs=params),
