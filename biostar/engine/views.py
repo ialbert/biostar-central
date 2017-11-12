@@ -5,6 +5,7 @@ from django.conf import settings
 # from django.template.loader import get_template
 from django.db.models import Q
 from django.contrib import messages
+from django.views.decorators import cache
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
 from django.shortcuts import render, redirect
@@ -12,7 +13,7 @@ from django.urls import reverse
 
 from .forms import *
 from .const import *
-from .decorators import *
+from .decorators import access_project
 from .models import (Project, Data,
                      Analysis, Job, User)
 
@@ -113,28 +114,31 @@ def site_admin(request):
 
 
 @access_project
+@cache.never_cache
 def add_users_to_project(request, id):
 
     project = Project.objects.filter(pk=id).first()
     current_users = project.group.user_set.all()
 
-    # Only staff users can be added to projects #TODO: is this right?
+    # Only staff users can be added to projects
 
     query = User.objects.filter(is_staff=True).exclude(pk__in=[u.id for u in current_users])
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ADD_USER],
                                project=project)
-
-    if request.method == "POST":
-        form = AddUsersToProject(request, project=project)
-        if form.is_valid():
-            1/0
-        pass
-    else:
-        form = AddUsersToProject(project=project)
+    form = AddUsersToProject(project=project)
 
     context = dict(steps=steps, current_users=current_users, form=form,
                    available_users=query, project=project)
+
+    if request.method == "POST":
+        form = AddUsersToProject(data=request.POST, project=project)
+        if form.is_valid():
+            nusers = form.process()
+            messages.success(request, f"Added {nusers} user(s) to current project.")
+            # The page refreshes correctly when doing this
+            return redirect(reverse("add_users_to_project", kwargs=dict(id=project.id)))
+
     return render(request, "add_users_to_project.html", context=context)
 
 

@@ -7,7 +7,7 @@
 
 <div class="ui horizontal segments">
     <div class="ui segment">
-        <p>Staff </p>
+        <div class="ui header"> Available people</div>
             <div class="ui relaxed divided list">
                 {% for new_user in available_users %}
                     <div class="item">
@@ -27,7 +27,7 @@
     </div>
 
     <div class="ui segment">
-        <p>People in project </p>
+        <div class="ui header"> Project contributors</div>
         <div class="ui relaxed divided list">
                     {% for avail_user in current_users %}
                          <div class="item">
@@ -40,7 +40,7 @@
                     {% endfor %}
         </div>
     </div>
-    </div>
+</div>
      <div class="field">
             <div class="ui center aligned basic segment">
                 <button type="submit" class="ui green button">

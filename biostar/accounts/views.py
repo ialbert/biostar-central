@@ -1,6 +1,5 @@
 
-import uuid
-import logging
+import uuid, logging
 
 from django.utils import http
 from django.contrib import messages
