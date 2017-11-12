@@ -37,7 +37,7 @@ def group_level_access(function):
         project = Project.objects.filter(pk=kwargs['id']).first()
 
         if (project.group in request.user.groups.all()) or \
-                (project.privacy == Project.PUBLIC):
+                (project.privacy == Project.PUBLIC) or (project.owner == request.user):
             return function(request, *args, **kwargs)
         else:
             messages.error(request, "User not allowed to access project")
