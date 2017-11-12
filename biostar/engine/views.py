@@ -117,9 +117,6 @@ def add_users_to_project(request, id):
     # Only staff users can be added to projects #TODO: is this right?
     available_users = User.objects.filter(is_staff=True)
 
-    print(available_users)
-    print(current_users)
-    1/0
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON],
                                project=project)
 
@@ -133,7 +130,7 @@ def add_users_to_project(request, id):
         form = AddUsersToProject(project=project)
 
     context = dict(steps=steps, current_users=current_users, form=form,
-                   available_user=available_users)
+                   available_users=available_users, project=project)
     return render(request, "add_users_to_project.html", context=context)
 
 

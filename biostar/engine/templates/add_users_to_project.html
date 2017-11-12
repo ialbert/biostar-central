@@ -6,7 +6,6 @@
         {% csrf_token %}
 
         <div class="ui relaxed divided list">
-            {{current_users}}
             {% for new_user in available_users %}
                 <div class="item">
 
@@ -14,12 +13,23 @@
 
                         <input type="checkbox" name="users" value="{{new_user.id}}">
                         <a>
-                            <i class="user icon"></i>{{ new_user }}
+                            <i class="user icon"></i>{{ new_user.first_name }}
                         </a>
                     </div>
 
                 </div>
             {% endfor %}
+
+        </div>
+     <div class="field">
+            <div class="ui center aligned basic segment">
+                <button type="submit" class="ui green button">
+                    <i class="plus icon"></i>Add user(s)
+                </button>
+                <a class="ui button" href="{% url 'project_view' project.id %}">
+                    <i class="file text icon"></i>Project view
+                </a>
+            </div>
         </div>
 
  </form>
