@@ -26,7 +26,7 @@ if [ ! -f "$IDX.bwt" ]; then
     echo "Building the bwa index for the $TOPN scaffolds."
 
     # Find the largest scaffolds.
-    cat $REF | bioawk -c fastx  '{ print length($seq), $name }' | sort -k1,1rn | cut -f 2 > largest.txt
+    cat $REF | bioawk -c fastx  '{ print length($seq), $name }' | sort -k1,1rn | head -$TOPN | cut -f 2 > largest.txt
 
     # Create a fasta index for the reference.
     samtools faidx $REF
