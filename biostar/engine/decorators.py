@@ -34,13 +34,25 @@ def group_level_access(function):
     """
     def wrap(request, *args, **kwargs):
 
-        project = Project.objects.filter(pk=kwargs['id']).first()
+        id=kwargs['id']
 
-        if (project.group in request.user.groups.all()) or \
-                (project.privacy == Project.PUBLIC) or (project.owner == request.user):
+        # Get the project access
+        project = Project.objects.filter(pk=id).first()
+
+        # Asking for a non-existing project.
+        if not project:
+            messages.error(request, f"Project with id={id} does not exist.")
+            return redirect(reverse("project_list"))
+
+        # Conditions for allowing access.
+        allow_access = project.privacy == Project.PUBLIC
+        allow_access = allow_access or project.owner == request.user
+        allow_access = allow_access or project.group in request.user.groups.all()
+
+        if allow_access:
             return function(request, *args, **kwargs)
         else:
-            messages.error(request, "User not allowed to access project")
+            messages.error(request, f"Access to project id={id} denied.")
             return redirect(reverse("project_list"))
 
     wrap.__doc__ = function.__doc__
