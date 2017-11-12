@@ -56,6 +56,7 @@ users:
 	@python manage.py user --name 'Meredith Bartron' --email 'meredith_bartron@fws.gov' --is_staff
 	@python manage.py user --name 'Doug Cavener' --email 'drc9@psu.edu' --is_staff
 	@python manage.py user --name 'Lan Wu Cavener' --email 'lxw34@psu.edu' --is_staff
+	@python manage.py user --email 'test@test.com' --is_staff --password test
 
 
 hello:
