@@ -174,8 +174,6 @@ class AnalysisCopyForm(forms.Form):
 
 class RunAnalysis(forms.Form):
 
-    name = forms.CharField(max_length=256, help_text="", required=True)
-
     def __init__(self, analysis, *args, **kwargs):
 
         self.analysis = analysis

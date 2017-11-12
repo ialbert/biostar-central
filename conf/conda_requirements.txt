@@ -7,5 +7,5 @@ bwa
 samtools
 bioawk
 pysam
-
+segtk
 

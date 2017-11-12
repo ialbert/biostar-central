@@ -353,11 +353,23 @@ class Job(models.Model):
         "Returns the json_text as parsed json_data"
         return hjson.loads(self.json_text)
 
-    def minutes(self):
+    def elapsed(self):
+        import random
         if not (self.start_date and self.end_date):
-            return None
+            value = ''
         else:
-            return int(round((self.end_date - self.start_date).seconds/60))
+            seconds = int((self.end_date - self.start_date).seconds)
+            if seconds < 60:
+                value =  f'{seconds} seconds'
+            elif seconds < 3600:
+                minutes = int(seconds/60)
+                value = f'{minutes} minutes'
+            else:
+                hours = round(seconds/3600,1)
+                value = f'{hours} hours'
+
+        return value
+
 
     def save(self, *args, **kwargs):
         now = timezone.now()
@@ -368,7 +380,8 @@ class Job(models.Model):
         self.uid = self.uid or util.get_uuid(8)
         self.template = self.analysis.template
         self.security = self.analysis.auth
-
+        self.stderr_log = self.stderr_log[:MAX_LOG_LEN]
+        self.stdout_log = self.stdout_log[:MAX_LOG_LEN]
         self.name = self.name or self.analysis.name
         # write an index.html to the file
         if not os.path.isdir(self.path):

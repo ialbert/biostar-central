@@ -1,7 +1,7 @@
 all: taxonomy input fishdb
 
 clean:
-	rm -rf blastdb lamar taxonomy input fish_species
+	rm -rf blastdb lamar taxonomy input fish_species bam
 
 # Taxonomy dependencies.
 taxonomy: taxonomy/names.dmp taxonomy/nodes.dmp
@@ -35,6 +35,7 @@ input/fish_sequences.tar.gz:
 	cp input/test_reads.fastq.gz input/fish_metabarcode_sample2.fastq.gz
 	cp input/test_reads.fastq.gz input/fish_metabarcode_reads.fastq.gz
 	cp input/test_reads.fastq.gz input/test_reads_R1.fastq.gz
+
 
 # Fish blast database.
 fishdb: blastdb/fish_species/fish_species.nin
