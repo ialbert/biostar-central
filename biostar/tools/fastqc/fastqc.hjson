@@ -1,36 +1,45 @@
 {
 
-sequence : {
-    path: export/local/input/
-    link: true
-    label: Input
-    name: Testdata Directory
-    summary: Example test directory. All files will be loaded into the project.
-    data_type: FASTQ_TYPE
-    display_type: DROPDOWN
+    sequence : {
+
+        path: export/local/input/
+        link: true
+        label: Input
+        name: Testdata Directory
+        summary: Example test directory. All files are added to the project.
+        data_type: FASTQ_TYPE
+        display_type: DROPDOWN
+
     }
 
-settings : {
-    name : FastQC report
-    index: fastqc_results/multiqc_report.html
-    image : fastqc.png
-    summary: Produces a fastqc report for all files of type fq.
-    help :'''
+    settings : {
 
-    # Help
+        name : FastQC report
+        index: fastqc_results/multiqc_report.html
+        image : fastqc.png
+        summary: Produces a fastqc report for all files in a collection.
+        help :'''
 
-    This analysis will process files with `.fq` `.fq.gz`, ``.fastq` or `.fastq.gz`
+        # Help
 
-    # Parameters
+        This analysis finds all files with extensions `.fq` `.fq.gz`, ``.fastq`, `.fastq.gz` or `bam`
+        within a collection and runs `fastqc` and `multiqc` on these files.
 
-    FASTQ or a gzipped  FASTQ files.
+        The recipe is generic in that it runs on single files as well as entire data directories. In both cases
+        only files that to match the described extensions will be analyzed.
 
-    # Results
+        # Input
 
-    This analysis produces a fastqc report on each matching file.
+        FASTQ, gzipped FASTQ and BAM files.
 
-'''
+        # Output
 
+        This analysis produces a `fastqc` report on each matching file. After the
+        fastqc reports are completed it generates a `multiqc` summary from all the `fastqc` reports.
+
+        The `multiqc` report serves as the primary output of the recipe.
+
+        '''
     }
 
 }

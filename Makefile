@@ -44,7 +44,6 @@ postgres:
 	#python manage.py migrate
 	python manage.py test --settings conf.postgres.postgres_settings --failfast
 
-
 reset: delete init public giraffe fish
 
 next:

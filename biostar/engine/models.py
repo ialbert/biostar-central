@@ -289,7 +289,11 @@ class Job(models.Model):
     text = models.TextField(default='no description', max_length=MAX_TEXT_LEN)
     html = models.TextField(default='html')
 
-    start_date = models.DateTimeField(auto_now_add=True)
+    # Job creation date
+    date = models.DateTimeField(auto_now_add=True)
+
+    # Job runtime date.
+    start_date = models.DateTimeField(null=True, blank=True)
     end_date = models.DateTimeField(null=True, blank=True)
 
     sticky = models.BooleanField(default=False)
@@ -337,22 +341,35 @@ class Job(models.Model):
         "Returns the json_text as parsed json_data"
         return hjson.loads(self.json_text)
 
-    def minutes(self):
-        if not self.end_date:
-            return None
+    def elapsed(self):
+        import random
+        if not (self.start_date and self.end_date):
+            value = ''
         else:
-            return int((self.end_date - self.start_date).seconds/60)
+            seconds = int((self.end_date - self.start_date).seconds)
+            if seconds < 60:
+                value =  f'{seconds} seconds'
+            elif seconds < 3600:
+                minutes = int(seconds/60)
+                value = f'{minutes} minutes'
+            else:
+                hours = round(seconds/3600,1)
+                value = f'{hours} hours'
+
+        return value
+
 
     def save(self, *args, **kwargs):
         now = timezone.now()
         self.name = self.name or self.analysis.name
-        self.start_date = self.start_date or now
+        self.date = self.date or now
         self.html = make_html(self.text)
         self.name = self.name[:MAX_NAME_LEN]
         self.uid = self.uid or util.get_uuid(8)
         self.template = self.analysis.template
         self.security = self.analysis.auth
-
+        self.stderr_log = self.stderr_log[:MAX_LOG_LEN]
+        self.stdout_log = self.stdout_log[:MAX_LOG_LEN]
         self.name = self.name or self.analysis.name
         # write an index.html to the file
         if not os.path.isdir(self.path):

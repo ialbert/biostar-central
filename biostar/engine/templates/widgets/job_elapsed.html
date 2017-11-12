@@ -1,0 +1,6 @@
+{% load humanize %}
+{% if job.elapsed %}
+    Finished in {{ job.elapsed }} &bull;
+{%  endif %}
+Submitted {{ job.date | naturaltime }} &bull;
+<a class="ui label" href="{% url 'analysis_view' job.analysis.id %}"> See Analysis</a>
