@@ -153,10 +153,6 @@ def project_list(request):
     return render(request, "project_list.html", context)
 
 
-@login_required
-def edit_profile(request):
-    return
-
 # @login_required
 @group_level_access
 def project_view(request, id):
