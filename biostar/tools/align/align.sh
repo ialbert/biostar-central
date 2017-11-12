@@ -3,14 +3,19 @@ set -ueo pipefail
 # Get parameters.
 INPUT={{sequence.path}}
 GENOME={{genome.path}}
+URL={{runtime.job_url}}
 
-INDEX=${GENOME}
+# Internal parameters.
+
+# Bwa index.
 INDEX_DIR=$(dirname ${GENOME})/bwa
-
 mkdir -p ${INDEX_DIR}
 INDEX=${INDEX_DIR}/{{genome.uid}}
 
-# Internal parameters.
+# Fasta index.
+GENOME_FAIDX=${GENOME}.fai
+
+# Work directory.
 WORK={{runtime.work_dir}}/work
 mkdir -p ${WORK}
 
@@ -47,5 +52,17 @@ echo "Generating plots."
 # Plot results.
 python -m biostar.tools.align.plotter ${WORK}/alignment_stats.txt ${WORK}/chrom_mapping.txt >${RESULT_VIEW}
 
+# Build genome index if not exist.
+if [ ! -f "$GENOME_FAIDX" ]; then
+echo "Building genome index."
+samtools faidx ${GENOME}
+fi
 
+# Link genome to workdir.
+ln -s $GENOME $WORK
+ln -s $GENOME_FAIDX $WORK
+
+# Generate igv visualization.
+echo "Generating IGV visualization file."
+python -m biostar.tools.igv.visualization $URL $WORK >igv.xml
 

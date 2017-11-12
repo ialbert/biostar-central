@@ -64,8 +64,7 @@ Reference genome sequence needs to be provided unless the organism is human or m
 
 1. Input data in fastq format.
 2. Reference genome sequence.
-3. Alignment length offset(in base pairs). This is used to remove alignments if alignment length is outside the
-specified distance from read length.
+3. Alignment length offset(in base pairs). This is used to remove alignments if alignment length is outside the specified distance from read length.
 
 # Results
 

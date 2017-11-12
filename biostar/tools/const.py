@@ -22,6 +22,7 @@ LAMAR_SAMPLE_SHEET = 7
 ACCESSION_MAP = 8
 ACCESSION_LIST = 9
 
+
 DATA_TUPLES = [
     # Numeric, Symbol, Readable English
     (GENERIC_TYPE, 'GENERIC_TYPE', "Generic Type"),
