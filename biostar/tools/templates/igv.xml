@@ -7,10 +7,8 @@
     </Resources>
     {% for sample in samples %}
     <Panel height="137" name="Panel_{{ sample }}" width="1133">
-        <Track altColor="0,0,178" autoScale="true" color="175,175,175" colorScale="ContinuousColorScale;0.0;10.0;255,
-        255,255;175,175,175" displayMode="COLLAPSED" featureVisibilityWindow="-1" fontSize="10" id="{{ path }}/
-{{ sample }}.bam_coverage" name="{{ sample }} Coverage" showReference="false" snpThreshold="0.2" sortable="true"
-               visible="true">
+        <Track altColor="0,0,178" autoScale="true" color="175,175,175" colorScale="ContinuousColorScale;0.0;10.0;255,255,255;175,175,175" displayMode="COLLAPSED" featureVisibilityWindow="-1"
+               fontSize="10" id="{{ path }}/{{ sample }}.bam_coverage" name="{{ sample }} Coverage" showReference="false" snpThreshold="0.2" sortable="true" visible="true">
             <DataRange baseline="0.0" drawBaseline="true" flipAxis="false" maximum="10.0" minimum="0.0" type="LINEAR"/>
         </Track>
         <Track altColor="0,0,178" autoScale="false" color="0,0,178" displayMode="EXPANDED"
