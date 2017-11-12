@@ -11,6 +11,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 
 from .forms import *
+from .const import *
 from .decorators import *
 from .models import (Project, Data,
                      Analysis, Job, User)
@@ -86,9 +87,12 @@ def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=Non
         elif icon == INFO_ICON:
             step = (reverse("info"), INFO_ICON, "Information", is_active)
         elif icon == SIGNUP_ICON:
+            1/0
             step = (reverse("signup"), SIGNUP_ICON, "Sign up", is_active)
         elif icon == RESULT_INDEX_ICON:
             step = (reverse("job_view", kwargs={'id': job.id}), RESULT_INDEX_ICON, "Index View", is_active)
+        elif icon == ADD_USER:
+            step = (reverse("project_view", kwargs={'id': project.id}), ADD_USER, "Add User", is_active)
         else:
             continue
 
@@ -115,9 +119,10 @@ def add_users_to_project(request, id):
     current_users = project.group.user_set.all()
 
     # Only staff users can be added to projects #TODO: is this right?
-    available_users = User.objects.filter(is_staff=True)
 
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON],
+    query = User.objects.filter(is_staff=True).exclude(pk__in=[u.id for u in current_users])
+
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ADD_USER],
                                project=project)
 
     if request.method == "POST":
@@ -126,11 +131,10 @@ def add_users_to_project(request, id):
             1/0
         pass
     else:
-
         form = AddUsersToProject(project=project)
 
     context = dict(steps=steps, current_users=current_users, form=form,
-                   available_users=available_users, project=project)
+                   available_users=query, project=project)
     return render(request, "add_users_to_project.html", context=context)
 
 
