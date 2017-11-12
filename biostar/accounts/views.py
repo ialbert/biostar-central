@@ -22,20 +22,23 @@ def get_uuid(limit=32):
     return str(uuid.uuid4())[:limit]
 
 
-def accounts(request):
+def edit_profile(request, id):
 
-    return redirect("/")
+    user = User.objects.filter(id=id).first()
+    steps = breadcrumb_builder([HOME_ICON, USER_ICON], user=user)
+    context = dict(user=user, steps=steps)
+
+    return render(request, 'accounts/edit_profile.html', context)
+
 
 
 def user_profile(request, id):
 
     user = User.objects.filter(id=id).first()
     steps = breadcrumb_builder([HOME_ICON, USER_ICON], user=user)
-
     context = dict(user=user, steps=steps)
 
     return render(request, 'accounts/profile.html', context)
-
 
 
 @ratelimit(key='ip', rate='10/m', block=True, method=ratelimit.UNSAFE)

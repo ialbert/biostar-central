@@ -2,7 +2,7 @@
 
 {% block body %}
 
- <form class="ui large form" method="post">
+ <form class="ui large form" method="post" action="{% url 'add_users_to_project' project.id %}">
         {% csrf_token %}
 
 <div class="ui horizontal segments">
