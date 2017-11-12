@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block body %}
+
+    <div class="ui raised center aligned vertical segment">
+
+    <a class="ui button" href="{% url 'password_reset' %}">
+        <i class="undo icon"></i>Reset password
+    </a>
+    </div>
+     <div class="ui raised segment inputcolor">
+
+            <form method="post" class="ui form" action="{% url 'edit_profile' user.id %}">
+                {% csrf_token %}
+
+                <div class="field">
+                    <label>Change email</label>
+                    {{ form.email }}
+                </div>
+                <div class="field">
+                    <label>Change name</label>
+                    {{ form.first_name }}
+                </div>
+
+
+             {{ form.errors }}
+
+            <button type="submit" class="ui submit primary button">
+                <i class="save icon"></i>Save
+            </button>
+
+            <a class="ui right floated button" href="{% url 'index' %}">
+                 <i class="home icon"></i>Home
+            </a>
+            </form>
+     </div>
+{% endblock %}

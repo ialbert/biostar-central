@@ -27,6 +27,6 @@ INFO_ICON = "info circle icon"
 SIGNUP_ICON = "add user icon"
 USER_ICON = "user icon"
 DATA_UPLOAD="upload icon"
-
+ADD_USER = "users icon"
 
 

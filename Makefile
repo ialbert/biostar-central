@@ -44,10 +44,20 @@ postgres:
 	#python manage.py migrate
 	python manage.py test --settings conf.postgres.postgres_settings --failfast
 
-reset: delete init public giraffe fish
+
+reset: delete init users public giraffe fish
 
 next:
 	python manage.py job --next
+
+
+users:
+	@python manage.py user --name 'Aaron Maloy' --email 'aaron_maloy@fws.gov' --is_staff
+	@python manage.py user --name 'Meredith Bartron' --email 'meredith_bartron@fws.gov' --is_staff
+	@python manage.py user --name 'Doug Cavener' --email 'drc9@psu.edu' --is_staff
+	@python manage.py user --name 'Lan Wu Cavener' --email 'lxw34@psu.edu' --is_staff
+	@python manage.py user --email 'test@test.com' --is_staff --password test
+
 
 hello:
 	python manage.py analysis --add --json biostar/tools/hello/hello4.hjson  --template biostar/tools/hello/hello4.sh --jobs

@@ -44,7 +44,6 @@ class SiteNavigation(TestCase):
             reverse('index'), reverse('info'), reverse('logout'),
             reverse('login'), reverse('signup'),
             reverse('project_list'),
-            reverse('project_view', kwargs=proj_params),
             reverse('data_list', kwargs=proj_params),
             reverse('data_view', kwargs=data_params),
             reverse('analysis_list', kwargs=proj_params),
@@ -70,6 +69,7 @@ class SiteNavigation(TestCase):
             reverse('data_upload', kwargs=params),
             reverse('data_edit', kwargs=params),
             reverse('analysis_edit', kwargs=params),
+            reverse('project_view', kwargs=params),
         ]
 
         self.visit_urls(urls, 302)

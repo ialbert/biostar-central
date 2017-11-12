@@ -53,6 +53,13 @@ class LogoutForm(forms.Form):
     pass
 
 
+class EditProfile(forms.ModelForm):
+
+    class Meta:
+        model = User
+        fields = ("email", "first_name")
+
+
 class LoginForm(forms.Form):
 
     email = forms.CharField(label='Email', max_length=100)
