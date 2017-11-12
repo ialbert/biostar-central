@@ -368,7 +368,8 @@ class Job(models.Model):
         self.uid = self.uid or util.get_uuid(8)
         self.template = self.analysis.template
         self.security = self.analysis.auth
-
+        self.stderr_log = self.stderr_log[:MAX_LOG_LEN]
+        self.stdout_log = self.stdout_log[:MAX_LOG_LEN]
         self.name = self.name or self.analysis.name
         # write an index.html to the file
         if not os.path.isdir(self.path):

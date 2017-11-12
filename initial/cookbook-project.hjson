@@ -55,6 +55,11 @@ analyses: [
     }
 
     {
+        json: biostar/tools/giraffe/scaffold_check.hjson
+        template: biostar/tools/giraffe/scaffold_check.sh
+    }
+
+    {
         json: biostar/tools/lamar_align/lamar_align.hjson
         template: biostar/tools/lamar_align/lamar_align.sh
     }
