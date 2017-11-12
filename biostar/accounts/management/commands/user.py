@@ -13,8 +13,8 @@ class Command(BaseCommand):
         parser.add_argument('--email', required=True,
                             help="Email of the user to be added")
 
-        parser.add_argument('--username', default=util.get_uuid(8),
-                            help="Email of the user to be added")
+        parser.add_argument('--username',
+                            help="Username of the user to be added. defaults to random")
 
         parser.add_argument('--password', default="testbuddy11",
                             help="password associated with the email")
@@ -25,16 +25,16 @@ class Command(BaseCommand):
         parser.add_argument('--is_superuser',action='store_true', default=False,
                             help="Created user is an admin")
 
-        parser.add_argument('--is_staff', action='store_true', default=True,
+        parser.add_argument('--is_staff', action='store_true', default=False,
                             help="Also creates a queued job for the analysis")
 
 
     def handle(self, *args, **options):
 
         email = options['email']
-        username = options['username']
+        username = options['username'] or util.get_uuid(8)
         password = options['password']
-        name = options["name"]
+        name = options["name"] or email.split("@")[0]
         is_superuser = options["is_superuser"]
         is_staff = options["is_staff"]
 

@@ -5,8 +5,8 @@
  <form class="ui large form" method="post">
         {% csrf_token %}
 
-
-    <div class="ui left floated segment">
+<div class="ui horizontal segments">
+    <div class="ui segment">
         <p>Staff </p>
             <div class="ui relaxed divided list">
                 {% for new_user in available_users %}
@@ -25,7 +25,9 @@
 
             </div>
     </div>
-     <div class="ui right floated segment">
+
+    <div class="ui segment">
+        <p>People in project </p>
         <div class="ui relaxed divided list">
                     {% for avail_user in current_users %}
                          <div class="item">
@@ -38,6 +40,7 @@
                     {% endfor %}
         </div>
     </div>
+    </div>
      <div class="field">
             <div class="ui center aligned basic segment">
                 <button type="submit" class="ui green button">
@@ -48,7 +51,6 @@
                 </a>
             </div>
         </div>
-
 
 
  </form>

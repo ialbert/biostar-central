@@ -37,7 +37,9 @@ def init_users(sender, **kwargs):
 
     if settings.DEBUG:
         testbuddy = 'testbuddy@lvh.me'
-        user, flag = User.objects.get_or_create(email=testbuddy, username=testbuddy)
+
+        user, flag = User.objects.get_or_create(email=testbuddy, username=testbuddy,
+                                                first_name='testbuddy')
         user.set_password(testbuddy)
         user.save()
 
