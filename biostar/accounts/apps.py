@@ -41,20 +41,6 @@ def init_users(sender, **kwargs):
         user.set_password(testbuddy)
         user.save()
 
-    # Hardcoding a few users for now
-    # TODO: move it to a command to add users
-    users = [
-        ('Aaron Maloy', 'aaron_maloy@fws.gov'),
-        ('Meredith Bartron', 'meredith_bartron@fws.gov'),
-        ('Doug Cavener', 'drc9@psu.edu'),
-        ('Lan Wu Cavener', 'lxw34@psu.edu'),
-        ]
-
-    for name, email in users:
-        user, flag = User.objects.get_or_create(email=email, username=util.get_uuid(8))
-        if flag:
-            user.set_password("testbuddy11")
-            user.save()
 
 def init_site(sender, **kwargs):
     """

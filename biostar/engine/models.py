@@ -118,6 +118,10 @@ def create_project_group(sender, instance, **kwargs):
     """
     instance.uid = instance.uid or util.get_uuid(8)
     group, created = Group.objects.get_or_create(name=instance.uid)
+
+    # Add owner to group
+    group.user_set.add(instance.owner)
+
     instance.group = group
 
 

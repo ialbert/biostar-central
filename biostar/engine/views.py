@@ -3,6 +3,7 @@
 import mistune
 from django.conf import settings
 # from django.template.loader import get_template
+from django.db.models import Q
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
@@ -12,7 +13,7 @@ from django.urls import reverse
 from .forms import *
 from .decorators import *
 from .models import (Project, Data,
-                     Analysis, Job)
+                     Analysis, Job, User)
 
 
 def join(*args):
@@ -111,9 +112,14 @@ def site_admin(request):
 def add_users_to_project(request, id):
 
     project = Project.objects.filter(pk=id).first()
-    current_users = project.group.user_set
+    current_users = project.group.user_set.all()
 
-    available_users = models.User.objects.exclude(pk__in=current_users)
+    # Only staff users can be added to projects #TODO: is this right?
+    available_users = User.objects.filter(is_staff=True)
+
+    print(available_users)
+    print(current_users)
+    1/0
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON],
                                project=project)
 

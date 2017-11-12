@@ -6,18 +6,16 @@
         {% csrf_token %}
 
         <div class="ui relaxed divided list">
-
+            {{current_users}}
             {% for new_user in available_users %}
                 <div class="item">
 
                     <div class="inline field">
 
-                        <input type="checkbox" name="projects" value="{{project.id}}">
-
-                        <a href="{{ project.url }}">
-                            <i class="user icon"></i>{{ user.name }}
+                        <input type="checkbox" name="users" value="{{new_user.id}}">
+                        <a>
+                            <i class="user icon"></i>{{ new_user }}
                         </a>
-
                     </div>
 
                 </div>
