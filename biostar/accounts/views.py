@@ -3,6 +3,7 @@ import uuid, logging
 
 from django.utils import http
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from ratelimit.decorators import ratelimit
 from django.views.decorators import csrf, cache
 from django.shortcuts import render, redirect
@@ -11,28 +12,37 @@ from django.contrib.auth import views as auth_views
 from django.urls import reverse
 
 
-from .forms import SignUpForm, LoginForm, LogoutForm
+from .forms import SignUpForm, LoginForm, LogoutForm, EditProfile
 from biostar.engine.const import *
 from biostar.engine.views import breadcrumb_builder
 from django.contrib import auth
 
 logger = logging.getLogger('engine')
 
+
 def get_uuid(limit=32):
     return str(uuid.uuid4())[:limit]
 
-
+@login_required
+@cache.never_cache
 def edit_profile(request, id):
 
     user = User.objects.filter(id=id).first()
     steps = breadcrumb_builder([HOME_ICON, USER_ICON], user=user)
-    context = dict(user=user, steps=steps)
 
+    if request.method == "POST":
+        form = EditProfile(request.POST, instance=user)
+        if form.is_valid():
+            form.save()
+            return redirect(reverse("profile", kwargs=dict(id=id)))
+
+    else:
+        form = EditProfile(instance=user)
+    context = dict(user=user, steps=steps, form=form)
     return render(request, 'accounts/edit_profile.html', context)
 
 
-
-def user_profile(request, id):
+def profile(request, id):
 
     user = User.objects.filter(id=id).first()
     steps = breadcrumb_builder([HOME_ICON, USER_ICON], user=user)

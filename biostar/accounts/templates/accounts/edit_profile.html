@@ -5,6 +5,13 @@
     <title>Title</title>
 </head>
 <body>
-
+<h2>Edit profile</h2>
+ <p>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_table }}
+        <input type="submit">Save</input>
+    </form>
+</p>
 </body>
 </html>
