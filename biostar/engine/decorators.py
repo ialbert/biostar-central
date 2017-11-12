@@ -2,8 +2,6 @@ from .models import Project
 from django.contrib import messages
 from django.urls import reverse
 from django.shortcuts import redirect
-from django.db.models import Q
-
 
 
 def owner_level_access(function):
@@ -24,8 +22,6 @@ def owner_level_access(function):
     wrap.__doc__ = function.__doc__
     wrap.__name__ = function.__name__
     return wrap
-
-    pass
 
 
 def group_level_access(function):
