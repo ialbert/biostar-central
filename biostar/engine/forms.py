@@ -83,6 +83,29 @@ def make_form_field(data, project):
     return field
 
 
+class AddUsersToProject(forms.Form):
+
+    users = forms.IntegerField()
+
+    def __init__(self, project, *args, **kwargs):
+        self.project = project
+        super().__init__(*args, **kwargs)
+
+    def process(self):
+        # More than one can be selected
+        users = self.data.getlist('users')
+        project_group = self.project.group
+
+        for user_id in users:
+
+            picked_user = models.User.objects.filter(id=user_id).first()
+            project_group.user_set.add(picked_user)
+            logger.info(f"Added user.id={picked_user.id} to project.group={project_group}")
+
+        return len(users)
+
+
+
 class DataCopyForm(forms.Form):
 
     paths = forms.CharField(max_length=256)
@@ -91,6 +114,7 @@ class DataCopyForm(forms.Form):
         self.project = project
         self.job = job
         super().__init__(*args, **kwargs)
+
 
     def process(self):
         # More than one can be selected
@@ -142,8 +166,6 @@ class AnalysisCopyForm(forms.Form):
         json_text, template = self.analysis.json_text, self.analysis.template
         owner, summary = self.analysis.owner, self.analysis.summary
         name, text = self.analysis.name, self.analysis.text
-
-
 
         params = dict(project=project, json_text=json_text, template=template,
                       user=owner, summary=summary, name=name, text=text)

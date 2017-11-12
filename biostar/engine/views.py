@@ -10,6 +10,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 
 from .forms import *
+from .decorators import *
 from .models import (Project, Data,
                      Analysis, Job)
 
@@ -95,7 +96,7 @@ def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=Non
     return path
 
 
-@user_passes_test(lambda u: u.is_superuser)
+@user_passes_test(lambda u, id: u.is_superuser)
 def site_admin(request):
     '''
     Administrative view. Lists the admin project and job.
@@ -106,14 +107,29 @@ def site_admin(request):
     return render(request, 'admin_index.html', context=context)
 
 
-def custom_test(user, id):
-    return user.is_superuser or Project.objects.filter(id=id).owner == user
+@access_project
+def add_users_to_project(request, id):
 
+    project = Project.objects.filter(pk=id).first()
+    current_users = project.group.user_set
 
-@user_passes_test(custom_test)
-def add_to_project_group(request, id):
-    print(request, "PASSSSEDreset")
-    return
+    available_users = models.User.objects.exclude(pk__in=current_users)
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON],
+                               project=project)
+
+    if request.method == "POST":
+        form = AddUsersToProject(request, project=project)
+        if form.is_valid():
+            1/0
+        pass
+    else:
+
+        form = AddUsersToProject(project=project)
+
+    context = dict(steps=steps, current_users=current_users, form=form,
+                   available_user=available_users)
+    return render(request, "add_users_to_project.html", context=context)
+
 
 def project_list(request):
 
@@ -152,6 +168,7 @@ def project_view(request, id):
 
 
 @login_required
+@access_project
 def project_edit(request, id):
     project = auth.get_project_list(user=request.user).filter(id=id).first()
 

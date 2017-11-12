@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block body %}
+
+ <form class="ui large form" method="post">
+        {% csrf_token %}
+
+        <div class="ui relaxed divided list">
+
+            {% for new_user in available_users %}
+                <div class="item">
+
+                    <div class="inline field">
+
+                        <input type="checkbox" name="projects" value="{{project.id}}">
+
+                        <a href="{{ project.url }}">
+                            <i class="user icon"></i>{{ user.name }}
+                        </a>
+
+                    </div>
+
+                </div>
+            {% endfor %}
+        </div>
+
+ </form>
+{% endblock %}
