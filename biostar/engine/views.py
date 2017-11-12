@@ -120,6 +120,7 @@ def add_users_to_project(request, id):
     current_users = project.group.user_set.all()
 
     # Only staff users can be added to projects
+
     query = User.objects.exclude(pk__in=[u.id for u in current_users])
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ADD_USER],
@@ -152,6 +153,10 @@ def project_list(request):
 
     return render(request, "project_list.html", context)
 
+
+@login_required
+def edit_profile(request):
+    return
 
 # @login_required
 @group_level_access

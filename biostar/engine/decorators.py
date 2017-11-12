@@ -2,12 +2,14 @@ from .models import Project
 from django.contrib import messages
 from django.urls import reverse
 from django.shortcuts import redirect
+from django.db.models import Q
+
 
 
 def owner_level_access(function):
     """
-       Decorator used to test if a user has rights to modify a project
-   """
+       Decorator used to test if a user has rights to access a project
+       """
 
     def wrap(request, *args, **kwargs):
 
@@ -22,6 +24,8 @@ def owner_level_access(function):
     wrap.__doc__ = function.__doc__
     wrap.__name__ = function.__name__
     return wrap
+
+    pass
 
 
 def group_level_access(function):
@@ -42,4 +46,3 @@ def group_level_access(function):
     wrap.__doc__ = function.__doc__
     wrap.__name__ = function.__name__
     return wrap
-
