@@ -101,7 +101,7 @@ def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=Non
     return path
 
 
-@user_passes_test(lambda u, id: u.is_superuser)
+@user_passes_test(lambda u: u.is_superuser)
 def site_admin(request):
     '''
     Administrative view. Lists the admin project and job.
