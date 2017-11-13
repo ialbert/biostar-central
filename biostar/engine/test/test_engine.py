@@ -1,7 +1,4 @@
-import hjson
-import logging
-import os
-
+import hjson, logging, os
 from django.core import management
 from django.test import TestCase
 from django.urls import reverse

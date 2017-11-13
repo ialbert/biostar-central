@@ -5,11 +5,16 @@
 
 {% block body %}
 
-
-        <div class="ui label">
-        Email: {{user.email}}
+<div class="ui raised segment">
+        <div class="ui center aligned header">
+            Name : {{user.first_name}}
         </div>
-
+     <div class="ui center aligned vertical segment">
+             <a class="ui button" href="{% url 'edit_profile' user.id %}">
+                <i class="write icon"></i>Edit profile
+            </a>
+     </div>
+        Email: {{user.email}}
         <div>Groups you belong to: <i class="circular users icon"></i></div>
 
         {% for group in user.groups.all %}
@@ -17,7 +22,5 @@
 
         {% endfor %}
 
-
-
-
+</div>
 {% endblock %}

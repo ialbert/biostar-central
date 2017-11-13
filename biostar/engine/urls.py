@@ -9,6 +9,7 @@ urlpatterns = [
     # Engine specific admin site.
     url(r'^site/admin/', views.site_admin, name='site_admin'),
 
+    url(r'^add/people/(?P<id>\d+)/$', views.add_users_to_project, name='add_users_to_project'),
     url(r'^project/create/$', views.project_create, name='project_create'),
     url(r'^project/list/$', views.project_list, name='project_list'),
     url(r'^project/view/(?P<id>\d+)/$', views.project_view, name='project_view'),

@@ -1,7 +1,7 @@
 
 import hjson
-import logging
-import uuid, shutil
+import logging, uuid, shutil
+from django.db.models import Q
 from django.utils.text import slugify
 from django.template import Template, Context
 from django.template import loader
@@ -9,7 +9,6 @@ from django.template import loader
 from . import tasks
 from .const import *
 from .models import Data, Analysis, Job, Project
-from . import models
 
 CHUNK = 1024 * 1024
 
@@ -37,14 +36,13 @@ def get_project_list(user):
     if user.is_anonymous:
         return query.filter(privacy=Project.PUBLIC)
 
-    # We need to rework this first to allow adding users to groups.
-
-    # get the private and sharable projects belonging to the same user
+    # get the private and sharable projects belonging to the user
     # then merge that with the public projects query
-    # query = query.filter(
-    #              Q(owner=user),
-    #              Q(privacy=Project.PRIVATE)|
-    #              Q(privacy=Project.SHAREABLE)) | query.filter(privacy=Project.PUBLIC)
+
+    query = query.filter(
+                 Q(owner=user)|Q(group__in=user.groups.all()),
+                  Q(privacy=Project.PRIVATE)|
+                  Q(privacy=Project.SHAREABLE)) | query.filter(privacy=Project.PUBLIC)
 
     return query
 

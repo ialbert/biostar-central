@@ -59,7 +59,7 @@
         {% if messages %}
             {% for message in messages %}
                 <div class="ui {{ message.tags }} message">
-                    <p>{{ message|safe }}</p>
+                    <p>{{ message }}</p>
                 </div>
             {% endfor %}
         {% endif %}

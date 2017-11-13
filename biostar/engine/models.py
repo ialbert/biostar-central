@@ -36,12 +36,17 @@ def make_html(text):
     return mistune.markdown(text)
 
 
-def get_datatype(file):
-    return Data.FILE
-
-
 def filter_by_type():
     return
+
+def data_upload_path(instance, filename):
+    # Name the data by the filename.
+    pieces = os.path.basename(filename).split(".")
+    # File may have multiple extensions
+    exts = ".".join(pieces[1:]) or "data"
+    dataname = f"data-{instance.uid}.{exts}"
+
+    return join(f"{instance.get_data_dir()}", dataname)
 
 
 def image_path(instance, filename):
@@ -113,6 +118,10 @@ def create_project_group(sender, instance, **kwargs):
     """
     instance.uid = instance.uid or util.get_uuid(8)
     group, created = Group.objects.get_or_create(name=instance.uid)
+
+    # Add owner to group
+    group.user_set.add(instance.owner)
+
     instance.group = group
 
 
@@ -135,6 +144,7 @@ class Data(models.Model):
     project = models.ForeignKey(Project)
     size = models.IntegerField(default=0)
 
+    # FilePathField points to an existing file
     file = models.FilePathField(max_length=MAX_FIELD_LEN)
 
     uid = models.CharField(max_length=32)
@@ -183,6 +193,7 @@ class Data(models.Model):
     def __str__(self):
         return self.name
 
+
     def get_data_dir(self):
         "The data directory"
         return join(self.get_project_dir(), f"store-{self.uid}")
@@ -199,7 +210,8 @@ class Data(models.Model):
 
     def get_files(self):
         fnames = [line.strip() for line in open(self.get_path(), 'rt')]
-        return fnames
+
+        return fnames if len(fnames) else [""]
 
     def get_url(self):
         return (reverse('data_view', kwargs=dict(id=self.id)))
