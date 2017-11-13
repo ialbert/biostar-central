@@ -25,8 +25,6 @@ def owner_level_access(function):
     wrap.__name__ = function.__name__
     return wrap
 
-    pass
-
 
 def group_level_access(function):
     """
