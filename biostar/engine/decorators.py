@@ -46,6 +46,7 @@ def group_level_access(function):
         allow_access = project.privacy == Project.PUBLIC
         allow_access = allow_access or project.owner == request.user
         allow_access = allow_access or project.group in request.user.groups.all()
+        allow_access = allow_access or request.user.is_superuser
 
         if allow_access:
             return function(request, *args, **kwargs)
