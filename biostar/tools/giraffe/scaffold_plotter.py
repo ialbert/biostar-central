@@ -5,7 +5,10 @@ import csv
 
 
 def get_factor():
-    return 1
+    # total_reads/selected_reads
+    # 78494994/100000
+    return 784.95
+    #return 1
 
 
 def parse_idxstats(fname):
@@ -25,8 +28,15 @@ def parse_idxstats(fname):
 
         elem = store[sample]
         name, size, mapped, unmapped = row
-        mapped_cov = mapped * get_factor()
-        elem.setdefault(name, []).append((int(size), int(mapped_cov)))
+
+        if name == "*" :
+            continue
+
+        # normalize by scaffold length
+        len_norm = float(mapped)/float(size)
+        mapped_cov = len_norm * get_factor()
+
+        elem.setdefault(name, []).append((int(size), float(mapped_cov)))
 
     return store
 
@@ -82,12 +92,17 @@ def plot(data1):
 
 if __name__ == '__main__':
 
-    fname1 = "mapping_stats.txt"
+    fname1 = "mapping_stats_result.txt"
+
     #fname1 = sys.argv[1]
     #fname2 = sys.argv[2]
     store = parse_idxstats(fname1)
     idx_stats = format_idxstats(store)
+    read_num = 100000
+    total_readnum = 78494994
+
 
     #print(store)
+    #1/0
 
     plot(idx_stats)
