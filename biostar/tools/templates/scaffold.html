@@ -1,0 +1,21 @@
+{%  extends 'charts/chart_base.html' %}
+
+{% load plotify %}
+
+{%  block head %}
+
+    {% chart_init %}
+
+    <script type="text/javascript">
+        {%  barchart_maker p1 %}
+    </script>
+
+{%  endblock %}
+
+{%  block body %}
+
+<h2>Alignment Results</h2>
+
+<div id="{{ p1.chart_id }}" style="width: 900px; height: 500px;"></div>
+
+{%  endblock %}

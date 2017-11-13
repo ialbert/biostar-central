@@ -18,6 +18,11 @@ def chart_maker(params):
     context = dict(params=params)
     return context
 
+@register.inclusion_tag('charts/barchart_maker.js')
+def barchart_maker(params):
+    context = dict(params=params)
+    return context
+
 @register.inclusion_tag('charts/table_maker.js')
 def table_maker(params):
     context = dict(params=params)
@@ -40,6 +45,17 @@ class ChartParams():
         self.options = ''
         self.count_id = next(counter)
         self.chart_id = f'chart_{self.count_id}'
+
+
+class BarchartParams():
+    def __init__(self):
+        self.data = []
+        self.type = 'BarChart'
+        self.header = 'label'
+        self.options = ''
+        self.count_id = next(counter)
+        self.chart_id = f'chart_{self.count_id}'
+
 
 
 class TableParams():
