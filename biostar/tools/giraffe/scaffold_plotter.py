@@ -4,6 +4,10 @@ import sys, csv , re
 import csv
 
 
+def get_factor():
+    return 1
+
+
 def parse_idxstats(fname):
     '''
     parse samtools idxstats results  and returns a list of (tag,value) pair.
@@ -21,7 +25,8 @@ def parse_idxstats(fname):
 
         elem = store[sample]
         name, size, mapped, unmapped = row
-        elem.setdefault(name, []).append((int(size), int(mapped)))
+        mapped_cov = mapped * get_factor()
+        elem.setdefault(name, []).append((int(size), int(mapped_cov)))
 
     return store
 
