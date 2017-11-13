@@ -7,7 +7,7 @@ TOC={{reads.toc}}
 REF={{reference.path}}
 
 # The index directory
-IDX_DIR={{reference.data_dir}}/bwa
+IDX_DIR={{runtime.workdir}}/bwa
 
 # How many scaffolds to keep.
 TOPN={{topn.value}}
@@ -21,28 +21,26 @@ IDX=$IDX_DIR/scaffolds_${TOPN}.fa
 # Make the index directory
 mkdir -p $IDX_DIR
 
-# The index needs to be built only once.
-if [ ! -f "$IDX.bwt" ]; then
-    echo "Building the bwa index for the $TOPN scaffolds."
+# Build index .
+echo "Building the bwa index for the $TOPN scaffolds."
 
-    # Find the largest scaffolds.
-    cat $REF | bioawk -c fastx  '{ print length($seq), $name }' | sort -k1,1rn | head -${TOPN} | cut -f 2 > largest.txt
+# Find the largest scaffolds.
+cat $REF | bioawk -c fastx  '{ print length($seq), $name }' | sort -k1,1rn | head -${TOPN} | cut -f 2 > largest.txt
 
-    # Create a fasta index for the reference.
-    echo "Indexing with samtools."
-    samtools faidx $REF
+# Create a fasta index for the reference.
+echo "Indexing with samtools."
+samtools faidx $REF
 
-    # Extract each sequence in turn.
-    echo "Extracting sequences"
-    readarray -t ITEMS < largest.txt
-    for ACC in ${ITEMS[@]} ; do
-        echo "Extracting accession $ACC"
-        samtools faidx $REF $ACC >> $IDX
-    done
+# Extract each sequence in turn.
+echo "Extracting sequences"
+readarray -t ITEMS < largest.txt
+for ACC in ${ITEMS[@]} ; do
+    echo "Extracting accession $ACC"
+    samtools faidx $REF $ACC >> $IDX
+done
 
-    # Build the index for the top N scaffolds.
-    bwa index ${IDX}
-fi
+# Build the index for the top N scaffolds.
+bwa index ${IDX}
 
 # The directory to hold the BAM files.
 BAM={{runtime.work_dir}}/bam
