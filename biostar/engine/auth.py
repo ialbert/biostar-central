@@ -47,6 +47,43 @@ def get_project_list(user):
     return query
 
 
+def check_obj_access(user, query, owner_only=False, group_only=False):
+
+    project = query.project
+
+    allow_access = query.owner == user or user == project.owner or user.is_superuser
+    if owner_only:
+        return query, allow_access
+
+    allow_access = allow_access or project.group in user.groups.all()
+
+    if group_only:
+        return query, allow_access
+
+    allow_access = allow_access or project.privacy == Project.PUBLIC
+    return query, allow_access
+
+
+
+def check_project_access(user, id, owner_only=False, group_only=False):
+    project = Project.objects.filter(pk=id).first()
+
+    # Conditions for allowing access.
+    allow_access = project.privacy == Project.PUBLIC
+    allow_access = allow_access or project.owner == user
+    allow_access = allow_access or project.group in user.groups.all()
+    allow_access = allow_access or user.is_superuser
+
+    if owner_only:
+        allow_access = project.owner == user or user.is_superuser
+
+    if group_only:
+        allow_access = project.owner == user
+        allow_access = allow_access or user.is_superuser or project.group in user.groups.all()
+
+    return project, allow_access
+
+
 def get_data(user, project, query, data_type=None):
     """
     Returns a dictionary keyed by data stored in the project.

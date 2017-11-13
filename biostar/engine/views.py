@@ -13,7 +13,7 @@ from django.urls import reverse
 
 from .forms import *
 from .const import *
-from .decorators import owner_level_access, group_level_access
+from .decorators import project_access, object_access
 from .models import (Project, Data,
                      Analysis, Job, User)
 
@@ -112,7 +112,7 @@ def site_admin(request):
     return render(request, 'admin_index.html', context=context)
 
 
-@owner_level_access
+@project_access(owner_only=True)
 @cache.never_cache
 def add_users_to_project(request, id):
 
@@ -125,13 +125,16 @@ def add_users_to_project(request, id):
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ADD_USER],
                                project=project)
+
     form = AddUsersToProject(project=project)
     context = dict(steps=steps, current_users=current_users, form=form,
-                   available_users=query, project=project)
+                   available_users=query, project=project, query="")
 
     if request.method == "POST":
         form = AddUsersToProject(data=request.POST, project=project)
         if form.is_valid():
+            # get the query here
+
             nusers = form.process()
             messages.success(request, f"Added {nusers} user(s) to current project.")
 
@@ -154,12 +157,8 @@ def project_list(request):
     return render(request, "project_list.html", context)
 
 
-@login_required
-def edit_profile(request):
-    return
-
 # @login_required
-@group_level_access
+@project_access(group_only=False)
 def project_view(request, id):
     project = Project.objects.filter(id=id).first()
 
@@ -183,7 +182,7 @@ def project_view(request, id):
 
 
 @login_required
-@owner_level_access
+@project_access(owner_only=True)
 def project_edit(request, id):
     project = auth.get_project_list(user=request.user).filter(id=id).first()
 
@@ -237,7 +236,9 @@ def project_create(request):
                   context)
 
 # @login_required
+@project_access(owner_only=False)
 def data_list(request, id):
+
     project = Project.objects.filter(id=id).first()
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON],
                                project=project)
@@ -256,6 +257,7 @@ def data_list(request, id):
 
 
 # @login_required
+@object_access(instance=Data)
 def data_view(request, id):
     data = Data.objects.filter(id=id).first()
     if not data:
@@ -271,6 +273,7 @@ def data_view(request, id):
 
 
 @login_required
+@object_access(instance=Data, owner_only=True)
 def data_edit(request, id):
     data = Data.objects.filter(id=id).first()
     project = data.project
@@ -292,6 +295,7 @@ def data_edit(request, id):
 
 
 @login_required
+@project_access(group_only=True)
 def data_upload(request, id):
     owner = request.user
     project = Project.objects.filter(id=id).first()
@@ -321,11 +325,11 @@ def data_upload(request, id):
     return render(request, 'data_upload.html', context)
 
 
+@project_access(group_only=True)
 def analysis_list(request, id):
     """
     Returns the list of analyses for a project id.
     """
-    # filter according to user.
 
     project = Project.objects.filter(id=id).first()
     analyses = Analysis.objects.filter(project=project).order_by("-id")
@@ -337,6 +341,7 @@ def analysis_list(request, id):
     return render(request, "analysis_list.html", context)
 
 
+@object_access(instance=Analysis)
 def analysis_view(request, id):
     """
     Returns an analysis view based on its id.

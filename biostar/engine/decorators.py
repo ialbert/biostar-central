@@ -2,58 +2,68 @@ from .models import Project
 from django.contrib import messages
 from django.urls import reverse
 from django.shortcuts import redirect
-from django.db.models import Q
+from . import auth
 
 
+class object_access:
 
-def owner_level_access(function):
-    """
-       Decorator used to test if a user has rights to access a project
-   """
+    def __init__(self, instance, owner_only=False):
 
-    def wrap(request, *args, **kwargs):
+        self.instance = instance
+        self.owner_only = owner_only
 
-        project = Project.objects.filter(pk=kwargs['id']).first()
+    def __call__(self, function, *args, **kwargs):
+        """
+           Decorator used to test if a user has rights to access a project
+       """
 
-        if (project.owner == request.user or request.user.is_superuser):
-            return function(request, *args, **kwargs)
-        else:
-            messages.error(request, "User not allowed to modify project")
-            return redirect(reverse("project_view", kwargs=dict(id=project.id)))
+        def wrap(request, *args, **kwargs):
+            id, user = kwargs['id'], request.user
 
-    wrap.__doc__ = function.__doc__
-    wrap.__name__ = function.__name__
-    return wrap
+            query = self.instance.objects.filter(pk=id).first()
+
+            instance, allow_access = auth.check_obj_access(user, query,
+                                                           owner_only=self.owner_only)
+            # allow_access
+            if allow_access:
+                return function(request, *args, **kwargs)
+            else:
+                messages.error(request, "User not allowed to modify project")
+                return redirect(reverse("project_list"))
+
+        wrap.__doc__ = function.__doc__
+        wrap.__name__ = function.__name__
+        return wrap
 
 
-def group_level_access(function):
-    """
-    Decorator used to test if a user has rights to access a project
-    """
-    def wrap(request, *args, **kwargs):
+class project_access:
 
-        id=kwargs['id']
+    def __init__(self, owner_only=False, group_only=False):
 
-        # Get the project access
-        project = Project.objects.filter(pk=id).first()
+        self.owner_only = owner_only
+        self.group_only = group_only
 
-        # Asking for a non-existing project.
-        if not project:
-            messages.error(request, f"Project with id={id} does not exist.")
-            return redirect(reverse("project_list"))
+    def __call__(self, function, *args, **kwargs):
+        """
+           Decorator used to test if a user has rights to access a project
+       """
 
-        # Conditions for allowing access.
-        allow_access = project.privacy == Project.PUBLIC
-        allow_access = allow_access or project.owner == request.user
-        allow_access = allow_access or project.group in request.user.groups.all()
-        allow_access = allow_access or request.user.is_superuser
+        def wrap(request, *args, **kwargs):
+            id, user = kwargs['id'], request.user
+            project, allow_access = auth.check_project_access(user, id=id,
+                                                              owner_only=self.owner_only,
+                                                              group_only=self.group_only)
 
-        if allow_access:
-            return function(request, *args, **kwargs)
-        else:
-            messages.error(request, f"Access to project id={id} denied.")
-            return redirect(reverse("project_list"))
+            if not project:
+                messages.error(request, f"Project with id={id} does not exist.")
+                return redirect(reverse("project_list"))
 
-    wrap.__doc__ = function.__doc__
-    wrap.__name__ = function.__name__
-    return wrap
+            if allow_access:
+                return function(request, *args, **kwargs)
+            else:
+                messages.error(request, "User not allowed to access/modify project")
+                return redirect(reverse("project_list"))
+
+        wrap.__doc__ = function.__doc__
+        wrap.__name__ = function.__name__
+        return wrap
