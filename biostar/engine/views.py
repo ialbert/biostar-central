@@ -80,7 +80,7 @@ def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=Non
         elif icon == RESULT_VIEW_ICON:
             step = (reverse("job_detail_view", kwargs={'id': job.id, }), RESULT_ICON, "Job Status", is_active)
         elif icon == USER_ICON:
-            step = (reverse("profile", kwargs={'id': user.id, }), USER_ICON, f"Profile", is_active)
+            step = (reverse("profile"), USER_ICON, f"Profile", is_active)
         elif icon == LOGIN_ICON:
             step = (reverse("login"), LOGIN_ICON, "Login", is_active)
         elif icon == LOGOUT_ICON:

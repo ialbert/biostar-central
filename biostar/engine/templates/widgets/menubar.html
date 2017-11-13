@@ -3,7 +3,7 @@
         <i class="home icon"></i> Home
     </a>
     {% if user.is_authenticated %}
-        <a class="item" href="{% url 'profile' user.id %}">
+        <a class="item" href="{% url 'profile' %}">
             <i class="user icon"></i> Account
         </a>
 

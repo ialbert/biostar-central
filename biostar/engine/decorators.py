@@ -9,7 +9,7 @@ from django.db.models import Q
 def owner_level_access(function):
     """
        Decorator used to test if a user has rights to access a project
-       """
+   """
 
     def wrap(request, *args, **kwargs):
 
