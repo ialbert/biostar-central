@@ -1,13 +1,10 @@
 set -ue
 
-# Get the table of contents.
+# The table of contents of all data.
 TOC={{reads.toc}}
 
 # The assembly scaffolds.
 REF={{reference.path}}
-
-# The index directory
-IDX_DIR={{reference.data_dir}}/bwa
 
 # How many scaffolds to keep.
 TOPN={{topn.value}}
@@ -15,34 +12,33 @@ TOPN={{topn.value}}
 # How many reads to check
 READ_NUM={{readnum.value}}
 
-# The name of the index.
+# The directory that holds the scaffolds.
+IDX_DIR={{runtime.work_dir}}/fasta
+
+# The name of the scaffold file.
 IDX=$IDX_DIR/scaffolds_${TOPN}.fa
 
-# Make the index directory
+# Index the reference so that we can extract the sequences.
 mkdir -p $IDX_DIR
 
-# The index needs to be built only once.
-if [ ! -f "$IDX.bwt" ]; then
-    echo "Building the bwa index for the $TOPN scaffolds."
+echo "Indexing with samtools."
+samtools faidx $REF
 
-    # Find the largest scaffolds.
-    cat $REF | bioawk -c fastx  '{ print length($seq), $name }' | sort -k1,1rn | head -${TOPN} | cut -f 2 > largest.txt
+echo "Finding largest $TOPN scaffolds."
+# Find the largest scaffolds.
+cat $REF | bioawk -c fastx  '{ print length($seq), $name }' | sort -k1,1rn | head -${TOPN} | cut -f 2 > largest.txt
 
-    # Create a fasta index for the reference.
-    echo "Indexing with samtools."
-    samtools faidx $REF
+echo "Extracting sequences"
+for ACC in  $(cat "largest.txt"); do
+    echo "Extracting accession $ACC"
+    samtools faidx $REF $ACC >> $IDX
+done
 
-    # Extract each sequence in turn.
-    echo "Extracting sequences"
-    readarray -t ITEMS < largest.txt
-    for ACC in ${ITEMS[@]} ; do
-        echo "Extracting accession $ACC"
-        samtools faidx $REF $ACC >> $IDX
-    done
+# Index the selected sequences with samtools.
+samtools faidx $REF
 
-    # Build the index for the top N scaffolds.
-    bwa index ${IDX}
-fi
+# Build the index for the top N scaffolds.
+bwa index ${IDX}
 
 # The directory to hold the BAM files.
 BAM={{runtime.work_dir}}/bam
@@ -64,3 +60,6 @@ ls -1 $BAM/*.bam | parallel -j 5 samtools index {}
 
 # Create mapping statistics.
 ls -1 $BAM/*.bam | parallel -j 5 "(echo {/} && samtools idxstats {})" >> {{runtime.work_dir}}/mapping-stats.txt
+
+# Create IGV session for the data.
+python -m biostar.tools.igv.bams --base $BAM --bams $BAM --genome $IDX > igv.xml
