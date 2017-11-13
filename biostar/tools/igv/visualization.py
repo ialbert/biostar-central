@@ -34,7 +34,8 @@ def make_igv(url, files_dir):
     # Collect all samples.
     samples = [ os.path.splitext(os.path.basename(f))[0] for f in bam_files]
 
-    path = os.path.join(url,os.path.basename(files_dir))
+    #path = os.path.join(url,os.path.basename(files_dir))
+    path = url + os.path.basename(files_dir)
 
     # Render template.
     igv_template = "igv.xml"
