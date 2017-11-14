@@ -60,7 +60,7 @@ FASTQ={{runtime.work_dir}}/fq
 mkdir -p $BAM $FASTQ
 
 echo "Subselecting $READ_NUM reads"
-cat $TOC | egrep ".fq|.fastq" | head -1 | parallel seqtk sample -2 {} $READ_NUM '>' $FASTQ/{/}.fq
+cat $TOC | egrep ".fq|.fastq" | parallel seqtk sample -2 {} $READ_NUM '>' $FASTQ/{/}.fq
 
 echo  "Mapping reads to the genome."
 ls -1 $FASTQ/*.fq | egrep ".fq|.fastq" | parallel -j 5 bwa mem ${IDX} {} '|' samtools sort '>' $BAM/{/}.bam
