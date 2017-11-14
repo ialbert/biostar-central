@@ -17,7 +17,11 @@
               <label>{{ form.file.label_tag }}</label>
               {{ form.file }}
          </div>
-
+               <div class="field">
+               <label class="checkbox" for="{{ field.id_for_label }}">
+                        {{ form.sticky }} <label>Sticky</label>
+               </label>
+            </div>
         <div class="field">
             <label>Summary</label>
             <textarea name="{{ form.summary.name }}" rows="2">{{ form.summary.value }}</textarea>
@@ -27,10 +31,6 @@
               <label>Data Description</label>
               {{ form.text }}
          </div>
-        <div class="four field segment">
-            <label>Data Type</label>
-            {{ form.data_type }}
-        </div>
 
         {{ form.errors }}
 

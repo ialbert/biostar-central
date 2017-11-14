@@ -143,8 +143,8 @@ class Data(models.Model):
     data_type = models.IntegerField(default=GENERIC_TYPE)
     project = models.ForeignKey(Project)
     size = models.IntegerField(default=0)
-    uploaded_file = models.FileField(default=None, blank=True,upload_to=data_upload_path,
-                                     max_length=MAX_FIELD_LEN)
+    #uploaded_file = models.FileField(default=None, blank=True,upload_to=data_upload_path,
+                                     #max_length=MAX_FIELD_LEN)
 
     # FilePathField points to an existing file
     file = models.FilePathField(max_length=MAX_FIELD_LEN)
