@@ -122,7 +122,6 @@ def add_users_to_project(request, id):
     # Only staff users can be added to projects
 
     query = User.objects.exclude(pk__in=[u.id for u in current_users])
-
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ADD_USER],
                                project=project)
 
@@ -147,11 +146,8 @@ def add_users_to_project(request, id):
 def project_list(request):
 
     projects = auth.get_project_list(user=request.user).order_by("-sticky", "-privacy")
-
     projects = projects.order_by("-privacy", "-sticky", "-date", "-id")
-
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON])
-
     context = dict(projects=projects, steps=steps)
 
     return render(request, "project_list.html", context)
