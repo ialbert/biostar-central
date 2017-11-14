@@ -34,7 +34,7 @@ def edit_profile(request):
         form = EditProfile(request.POST, instance=user)
         if form.is_valid():
             form.save()
-            return redirect(reverse("profile", kwargs=dict(id=id)))
+            return redirect(reverse("profile"))
 
     else:
         form = EditProfile(instance=user)

@@ -6,6 +6,8 @@
 {% block body %}
 
 <div class="ui raised segment">
+    <div class="item">
+
         <div class="ui center aligned header">
             Name : {{user.first_name}}
         </div>
@@ -14,17 +16,28 @@
                 <i class="write icon"></i>Edit profile
             </a>
      </div>
-    <div class="ui blue horizontal label">Email</div>
-        {{user.email}}
-    <div class="item">
-        <div class="ui blue horizontal label">
-            <i class="circular users icon"></i>Groups</div>
-    </div>
-        {% for group in user.groups.all %}
-        <div class="item">
-            <div  class="ui label">{{group}}</div>
-        </div>
-        {% endfor %}
+    <div class="ui blue large horizontal label">Email : {{user.email}}</div>
 
+        <div class="ui vertical segment">
+            <div class="ui list">
+
+                <div class="content">
+                  <i class="circular users icon"></i><div class="ui blue large horizontal label">Groups</div>
+                        <div class="ui list">
+                            <div class="item">
+                                {% for group in user.groups.all %}
+                                <div class="content">
+                                <ol>
+                                    <div class="">{{group}}</div>
+
+                                </ol>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}
