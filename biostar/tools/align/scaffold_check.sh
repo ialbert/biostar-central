@@ -1,5 +1,5 @@
 # Stop on any error.
-set -ue
+set -uxe
 
 # The table of contents of all data.
 TOC={{reads.toc}}
@@ -28,14 +28,13 @@ mkdir -p $IDX_DIR
 echo "Indexing with samtools."
 samtools faidx $REF
 
-echo "Finding largest $TOPN scaffolds."
 # Find the largest scaffolds.
 cat $REF | bioawk -c fastx  '{ print length($seq), $name }' | sort -k1,1rn | head -${TOPN} | cut -f 2 > largest.txt
 
 # Truncate the file if it exists.
 cat /dev/null >| $IDX
 
-echo "Extracting sequences for each scaffold."
+# Extract the scaffolds.
 for ACC in  $(cat "largest.txt"); do
     echo "Extracting accession $ACC"
     samtools faidx $REF $ACC >> $IDX
@@ -59,13 +58,13 @@ FASTQ={{runtime.work_dir}}/fq
 # Make the BAM directory.
 mkdir -p $BAM $FASTQ
 
-echo "Subselecting $READ_NUM reads"
-cat $TOC | egrep ".fq|.fastq" | parallel seqtk sample -2 {} $READ_NUM '>' $FASTQ/{/}.fq
+# Subselect only the paired end reads. Sample each with seqtk.
+cat $TOC | sort | egrep "fq|fastq" | egrep "r1|r2|R1|R2" | parallel seqtk sample -2 {} $READ_NUM '>' $FASTQ/{/}.fq
 
-echo  "Mapping reads to the genome."
-ls -1 $FASTQ/*.fq | egrep ".fq|.fastq" | parallel -j 5 bwa mem ${IDX} {} '|' samtools sort '>' $BAM/{/}.bam
+# Process the input files by two.
+ls -1 $FASTQ/*.fq | sort |  parallel -j 5 bwa mem ${IDX} {1} {2} '|' samtools sort '>' $BAM/{1/}.bam :::: - -
 
-echo "Indexing alignment files."
+# Indexing alignment files.
 ls -1 $BAM/*.bam | parallel -j 5 samtools index {}
 
 # File with mapping stats.
