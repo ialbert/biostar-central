@@ -80,7 +80,7 @@ python -m biostar.tools.igv.bams --base $URL --bams $BAM --genome $IGV_GENOME > 
 READ_COUNTS={{runtime.work_dir}}/read-counts.txt
 
 # Get total reads in each file.
-cat $TOC |egrep ".fq|.fastq" | parallel "echo {/} && bioawk -c fastx 'END{print NR}' {} " >>$READ_COUNTS
+cat $TOC | egrep "fq|fastq" | egrep "r1|r2|R1|R2" | parallel "echo {/} && bioawk -c fastx 'END{print NR}' {} " >>$READ_COUNTS
 
 # Create barcharts with normalized mapped reads.
 python -m biostar.tools.align.scaffold_plotter --mapped $MAPPED_STATS --total $READ_COUNTS --selected $READ_NUM >index.html
