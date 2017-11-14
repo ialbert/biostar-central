@@ -19,6 +19,7 @@ class object_access:
         def wrap(request, *args, **kwargs):
             id, user = kwargs['id'], request.user
             try:
+                # Catch failure if instance doesnt have url()
                 self.redirect_url = self.redirect_url or self.instance.url()
             except:
                 self.redirect_url = self.redirect_url or reverse("project_list")

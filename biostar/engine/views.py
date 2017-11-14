@@ -478,7 +478,6 @@ def job_list(request, id):
     """
     Returns the list of jobs for a project id.
     """
-    # filter according to type
     project = Project.objects.filter(id=id).first()
 
     if not project:
