@@ -50,7 +50,6 @@ reset: delete init users public giraffe fish
 next:
 	python manage.py job --next
 
-
 users:
 	@python manage.py user --name 'Aaron Maloy' --email 'aaron_maloy@fws.gov'
 	@python manage.py user --name 'Doug Cavener' --email 'drc9@psu.edu'
