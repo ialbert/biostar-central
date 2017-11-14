@@ -35,7 +35,6 @@ class object_access:
             if allow_access:
                 return function(request, *args, **kwargs)
             else:
-                #TODO: the redirection is generic and annoying
                 messages.error(request, f"Access/modification to {self.instance.__name__}={id} denied.")
                 return redirect(self.redirect_url)
 
