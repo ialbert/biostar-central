@@ -40,7 +40,7 @@
     settings : {
         name: Scaffold Check
         image : scaffold_check.png
-        index : mapping-stats.txt
+        index : index.html
         summary: Aligns a subset of reads against the largest scaffolds of an assembly.
         help:'''
         # Help

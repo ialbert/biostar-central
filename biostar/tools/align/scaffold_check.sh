@@ -67,8 +67,20 @@ ls -1 $FASTQ/*.fq | sort |  parallel -j 5 bwa mem ${IDX} {1} {2} '|' samtools so
 # Indexing alignment files.
 ls -1 $BAM/*.bam | parallel -j 5 samtools index {}
 
+# File with mapping stats.
+MAPPED_STATS={{runtime.work_dir}}/mapping-stats.txt
+
 # Create mapping statistics.
-ls -1 $BAM/*.bam | parallel -j 5 "(echo {/} && samtools idxstats {})" >> {{runtime.work_dir}}/mapping-stats.txt
+ls -1 $BAM/*.bam | parallel -j 5 "(echo {/} && samtools idxstats {})" >> $MAPPED_STATS
 
 # Create IGV session for the data.
 python -m biostar.tools.igv.bams --base $URL --bams $BAM --genome $IGV_GENOME > igv.xml
+
+# File with total read counts.
+READ_COUNTS={{runtime.work_dir}}/read-counts.txt
+
+# Get total reads in each file.
+cat $TOC |egrep ".fq|.fastq" | parallel "echo {/} && bioawk -c fastx 'END{print NR}' {} " >>$READ_COUNTS
+
+# Create barcharts with normalized mapped reads.
+python -m biostar.tools.align.scaffold_plotter --mapped $MAPPED_STATS --total $READ_COUNTS --selected $READ_NUM >index.html
