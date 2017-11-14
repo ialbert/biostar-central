@@ -73,7 +73,7 @@ ls -1 $BAM/*.bam | parallel -j 5 samtools index {}
 # Creating bedgraph files.
 ls -1 $BAM/*.bam | parallel -j 5 bedtools genomecov -ibam  {} -g $IDX.fai -split -bg '>' $COV/{/.}.tmp.bedgraph
 
-# Sort bedgraph files.
+# Sorting bedgraph files.
 ls -1 $COV/*.tmp.bedgraph | sed 's/.tmp.bedgraph//g' |parallel --progress --verbose 'LC_COLLATE=C;sort -k1,1 -k2,2n {}.tmp.bedgraph >' $COV/{/}.bedgraph
 
 # Remove unsorted bedgraph files.
