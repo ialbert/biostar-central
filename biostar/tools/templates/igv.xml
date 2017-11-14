@@ -1,31 +1,79 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<Session genome="{{ path }}/{{ genome }}" hasGeneTrack="false" hasSequenceTrack="true" version="8">
-    <Resources>
-        {% for sample in samples %}
-        <Resource path="{{ path }}/{{ sample}}.bam"/>
-        {%  endfor %}
-    </Resources>
-    {% for sample in samples %}
-    <Panel height="137" name="Panel_{{ sample }}" width="1133">
-        <Track altColor="0,0,178" autoScale="true" color="175,175,175" colorScale="ContinuousColorScale;0.0;10.0;255,255,255;175,175,175" displayMode="COLLAPSED" featureVisibilityWindow="-1"
-               fontSize="10" id="{{ path }}/{{ sample }}.bam_coverage" name="{{ sample }} Coverage" showReference="false" snpThreshold="0.2" sortable="true" visible="true">
-            <DataRange baseline="0.0" drawBaseline="true" flipAxis="false" maximum="10.0" minimum="0.0" type="LINEAR"/>
+{% extends "igv_base.xml" %}
+    {% block ref %}
+        <Session genome="{{ path }}/{{ genome }}" hasGeneTrack="false" hasSequenceTrack="true" version="8">
+    {% endblock %}
+
+    {% block list_files %}
+        {% if "vcf" in track_types %}
+        <Resource path="{{ path }}/{{sample}}.vcf"/>
+        {% endif %}
+        {% if "bigwig" in track_types %}
+        <Resource path="{{ path }}/{{sample}}.bw"/>
+        {% endif %}
+        {% if "bam" in track_types %}
+        <Resource path="{{ path }}/{{sample}}.bam"/>
+        {% endif %}
+
+    {% endblock %}
+
+    {%  block list_ann %}
+        <Resource path="{{ path }}/{{ gtf }}"/>
+    {%  endblock %}
+
+
+    {% block vcf_track %}
+        <Track SQUISHED_ROW_HEIGHT="4" altColor="0,0,178" autoScale="false" clazz="org.broad.igv.track.FeatureTrack"
+               color="0,0,178" colorMode="GENOTYPE" colorScale="ContinuousColorScale;0.0;73.0;255,255,255;0,0,178"
+               displayMode="EXPANDED" featureVisibilityWindow="-1" fontSize="10" grouped="false"
+               id="{{ path }}/{{sample}}.vcf" name="{{sample}}.vcf" renderer="BASIC_FEATURE" siteColorMode="ALLELE_FREQUENCY"
+               sortable="false" variantBandHeight="25" visible="true" windowFunction="count">
+            <DataRange baseline="0.0" drawBaseline="true" flipAxis="false" maximum="73.0" minimum="0.0" type="LINEAR"/>
         </Track>
-        <Track altColor="0,0,178" autoScale="false" color="0,0,178" displayMode="EXPANDED"
-               featureVisibilityWindow="-1" fontSize="10" id="{{ path }}/{{ sample }}.bam" name="{{ sample }}"
-               showSpliceJunctions="false" sortable="true" visible="true">
+    {% endblock %}
+
+    {% block bigwig_track %}
+        <Panel height="365" name="DataPanel" width="1953">
+        <Track altColor="0,0,178" autoScale="true" clazz="org.broad.igv.track.DataSourceTrack" color="0,0,178"
+               displayMode="COLLAPSED" featureVisibilityWindow="-1" fontSize="10" id="{{ path}} /{{sample}}.bw"
+               name="{{sample}}.bw" normalize="false" renderer="BAR_CHART" sortable="true" visible="true" windowFunction="mean">
+            <DataRange baseline="0.0" drawBaseline="true" flipAxis="false" maximum="256773.94" minimum="0.0" type="LINEAR"/>
+        </Track>
+        </Panel>
+    {% endblock %}
+
+    {% block bedgraph_track %}
+        <Panel height="365" name="DataPanel" width="1953">
+        <Track altColor="0,0,178" autoScale="true" clazz="org.broad.igv.track.DataSourceTrack" color="0,0,178"
+               displayMode="COLLAPSED" featureVisibilityWindow="-1" fontSize="10" id="{{ path}}/{{sample}}.bedgraph"
+               name="{{sample}}.bedgraph" normalize="false" renderer="BAR_CHART" sortable="true" visible="true" windowFunction="mean">
+            <DataRange baseline="0.0" drawBaseline="true" flipAxis="false" maximum="86.0" minimum="0.0" type="LINEAR"/>
+        </Track>
+        </Panel>
+    {% endblock %}
+
+    {% block bam_track %}
+    <Panel height="1293" name="Panel{{sample}}" width="1953">
+        <Track altColor="0,0,178" autoScale="true" color="175,175,175" colorScale="ContinuousColorScale;0.0;67.0;255,255,255;175,175,175"
+               displayMode="COLLAPSED" featureVisibilityWindow="-1" fontSize="10" id="{{ path }}/{{sample}}.bam_coverage"
+               name="{{sample}} Coverage" showReference="false" snpThreshold="0.2" sortable="true" visible="true">
+            <DataRange baseline="0.0" drawBaseline="true" flipAxis="false" maximum="86.0" minimum="0.0" type="LINEAR"/>
+        </Track>
+        <Track altColor="0,0,178" autoScale="false" clazz="org.broad.igv.track.FeatureTrack" color="0,0,178" displayMode="COLLAPSED"
+               featureVisibilityWindow="-1" fontSize="10" height="60" id="{{ path }}/{{sample}}.bam_junctions"
+               name="{{sample}}.bam Junctions" sortable="false" visible="false" windowFunction="count">
+            <DataRange baseline="0.0" drawBaseline="true" flipAxis="false" maximum="60.0" minimum="0.0" type="LINEAR"/>
+        </Track>
+        <Track altColor="0,0,178" autoScale="false" color="0,0,178" displayMode="EXPANDED" featureVisibilityWindow="-1"
+               fontSize="10" id="{{ path }}/{{sample}}.bam" name="{{sample}}" sortable="true" visible="true">
             <RenderOptions colorByTag="" colorOption="READ_STRAND" flagUnmappedPairs="false" groupByTag="" maxInsertSize="1000" minInsertSize="50" shadeBasesOption="QUALITY" shadeCenters="true" showAllBases="false" sortByTag=""/>
         </Track>
     </Panel>
-    {% endfor %}
+    {% endblock %}
 
-    <Panel height="145" name="FeaturePanel" width="1840">
-        <Track altColor="0,0,178" autoScale="false" color="0,0,178" displayMode="COLLAPSED" featureVisibilityWindow="-1" fontSize="10" id="Reference sequence" name="Reference sequence" sortable="false" visible="true"/>
-    </Panel>
-    <PanelLayout dividerFractions="0.007317073170731708,0.8170731707317073"/>
-    <HiddenAttributes>
-        <Attribute name="DATA FILE"/>
-        <Attribute name="DATA TYPE"/>
-        <Attribute name="NAME"/>
-    </HiddenAttributes>
-</Session>
+    {%  block gene_track %}
+        {%  if "gtf" in track_types or "gff3" in track_types %}
+            <Track altColor="0,0,178" autoScale="false" clazz="org.broad.igv.track.FeatureTrack" color="0,0,178"
+                   displayMode="COLLAPSED" featureVisibilityWindow="1000000" fontSize="10" id="{{ path }}/{{ gtf }}"
+                   name="ann" renderer="BASIC_FEATURE" sortable="false" visible="true" windowFunction="count"/>
+        {%  endif %}
+    {%  endblock %}

@@ -31,7 +31,7 @@
 
     readnum : {
         value : 100000
-        range : [100, 1000000]
+        range : [10, 20000000]
         label: Read number
         help: How many random reads per sample.
         display_type: INTEGER
@@ -40,7 +40,7 @@
     settings : {
         name: Scaffold Check
         image : scaffold_check.png
-        index : mapping-stats.txt
+        index : index.html
         summary: Aligns a subset of reads against the largest scaffolds of an assembly.
         help:'''
         # Help

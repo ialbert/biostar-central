@@ -26,8 +26,8 @@ analyses: [
     }
 
     {
-        json: biostar/tools/giraffe/scaffold_check.hjson
-        template: biostar/tools/giraffe/scaffold_check.sh
+        json: biostar/tools/align/scaffold_check.hjson
+        template: biostar/tools/align/scaffold_check.sh
     }
 
     {
