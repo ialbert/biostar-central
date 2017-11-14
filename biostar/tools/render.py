@@ -1,9 +1,11 @@
+import hjson
+import os
+
 import django
 from django.conf import settings
-from django.template import Template,Context
+from django.template import Template, Context
 from django.template import loader
 
-import os, hjson
 __DIR = os.path.dirname(__file__)
 __TEMPLATES = os.path.join(__DIR, "templates")
 
@@ -17,11 +19,12 @@ def setup():
     TEMPLATES = [
         {
             'BACKEND': 'django.template.backends.django.DjangoTemplates',
-            'DIRS': [ __TEMPLATES ],
+            'DIRS': [__TEMPLATES],
             'OPTIONS': {
                 'string_if_invalid': "** MISSING **",
                 'libraries': {
                     'plotify': 'biostar.tools.plotify',
+                    'igv': 'biostar.tools.igv.igv_tags',
                 },
             },
         }
@@ -70,14 +73,21 @@ def render_template(data, name):
 
 if __name__ == "__main__":
 
-    data = dict(name="World")
-    name = "hello.html"
+    path1 = '/Users/ialbert/edu/24/bwa1.bam'
+    name1 = os.path.basename(path1)
+
+    path2 = '/Users/ialbert/edu/24/bwa2.bam'
+    name2 = os.path.basename(path1)
+
+
+    bams = [ (path1, name1),
+             (path2, name2)
+    ]
+
+    data = dict(bams=bams)
+
+    name = "igv/igv.xml"
 
     html = render_template(data, name)
 
     print(html)
-
-
-
-
-
