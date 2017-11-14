@@ -49,17 +49,22 @@ def get_project_list(user):
 
 def check_obj_access(user, query, owner_only=False):
 
-    if not hasattr(query, "project"):
-        project = query
-    else:
+    if hasattr(query, "project"):
         project = query.project
+    else:
+        project = query
+
+    if not project:
+        return project, query, False
 
     allow_access = project.privacy == Project.PUBLIC or user.is_superuser
     allow_access = allow_access or project.group in user.groups.all()
     allow_access = allow_access or project.owner == user or query.owner == user
 
+    # Overrides the above conditions
     if owner_only:
-        allow_access = query.owner == user or user == project.owner or user.is_superuser
+        allow_access = query.owner == user
+        allow_access = allow_access or user == project.owner or user.is_superuser
 
     return project, query, allow_access
 
@@ -182,8 +187,10 @@ def create_data(project, user=None, stream=None, path='', name='',
     data = Data.objects.create(name=name, owner=user, state=state,  project=project,
                                data_type=data_type, summary=summary, text=text)
 
+
     # If the path is a directory, symlink all files.
-    if path and os.path.isdir(path):
+    if path!=os.path.abspath("") and os.path.isdir(path):
+
         logger.info(f"Symlinking path: {path}")
         collect = findfiles(path, collect=[])
         for src in collect:
@@ -193,7 +200,8 @@ def create_data(project, user=None, stream=None, path='', name='',
         logger.info(f"Symlinked {len(collect)} files.")
 
     # The path is a file.
-    if path and os.path.isfile(path):
+    if path!=os.path.abspath("") and os.path.isfile(path):
+
         dest = create_data_path(data, path)
 
         # Test if it should be linked or not.
@@ -206,7 +214,7 @@ def create_data(project, user=None, stream=None, path='', name='',
 
     # An incoming stream is written into the destination.
     if stream:
-        dest = create_data_path(data, path)
+        dest = create_data_path(data, stream.name)
         with open(dest, 'wb') as fp:
             chunk = stream.read(CHUNK)
             while chunk:
@@ -228,10 +236,9 @@ def create_data(project, user=None, stream=None, path='', name='',
     collect.remove(data.get_path())
 
     # Write the table of contents.
-    with open(data.file, 'wt') as fp:
+    with open(data.file, 'w') as fp:
         fp.write("\n".join(collect))
 
-    # Compute the cumulative data sizes.
     size = 0
     for elem in collect:
         if os.path.isfile(elem):

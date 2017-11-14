@@ -24,17 +24,17 @@ class SiteNavigation(TestCase):
         self.data_params = dict(id=data.id)
         self.job_params = dict(id=job.id)
 
-    def visit_urls(self, urls, code):
+    def visit_urls(self, urls, codes):
         c = Client()
         for url in urls:
             resp = c.get(url)
-            if resp.status_code != code:
+            if resp.status_code not in codes:
                 # print (resp.content)
                 # We already know it is an error.
                 # Use this to prints the url and the code.
                 logger.error(f"")
-                logger.error(f"Error accessing: {url}, code={resp.status_code}")
-                self.assertEqual(url, code)
+                logger.error(f"Error accessing: {url}, code={resp.status_code} not in expected values")
+                self.assertEqual(url, codes)
 
     def test_public_pages(self):
         "Checking public pages"
@@ -47,7 +47,7 @@ class SiteNavigation(TestCase):
             reverse('data_list', kwargs=self.proj_params),
             reverse('data_view', kwargs=self.data_params),
             reverse('project_view', kwargs=self.proj_params),
-            reverse('analysis_list', kwargs=self.proj_params),
+            reverse('analysis_list', kwargs= self.proj_params),
             reverse('analysis_view', kwargs=self.analysis_params),
             reverse('analysis_run', kwargs=self.analysis_params),
             reverse('analysis_recipe', kwargs=self.analysis_params),
@@ -58,7 +58,7 @@ class SiteNavigation(TestCase):
 
         ]
 
-        self.visit_urls(urls, 200)
+        self.visit_urls(urls, [200, 302])
 
     def test_page_redirect(self):
         "Testing that a redirect occurs for some pages"
@@ -72,7 +72,7 @@ class SiteNavigation(TestCase):
 
         ]
 
-        self.visit_urls(urls, 302)
+        self.visit_urls(urls, [302])
 
 
 
