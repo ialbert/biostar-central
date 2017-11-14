@@ -64,5 +64,6 @@ ls -1 $BAM/*.bam | parallel -j 5 samtools index {}
 ls -1 $BAM/*.bam | parallel -j 5 "(echo {/} && samtools idxstats {})" >> {{runtime.work_dir}}/mapping-stats.txt
 
 # Get total reads in each file.
-#cat $TOC |egrep ".fq|.fastq" | parallel "echo {} && gunzip -c {} | wc -l | awk '{d=\$1; print d/4;}'" >>read_counts.txt
+#cat $TOC |egrep ".fq|.fastq" | parallel "echo {/} && gunzip -c {} | wc -l | awk '{d=\$1; print d/4;}'" >>read_counts
+.txt
 
