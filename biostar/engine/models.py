@@ -36,19 +36,6 @@ def make_html(text):
     return mistune.markdown(text)
 
 
-def filter_by_type():
-    return
-
-def data_upload_path(instance, filename):
-    # Name the data by the filename.
-    pieces = os.path.basename(filename).split(".")
-    # File may have multiple extensions
-    exts = ".".join(pieces[1:]) or "data"
-    dataname = f"data-{instance.uid}.{exts}"
-
-    return join(f"{instance.get_data_dir()}", dataname)
-
-
 def image_path(instance, filename):
     # Name the data by the filename.
     name, ext = os.path.splitext(filename)
@@ -143,8 +130,7 @@ class Data(models.Model):
     data_type = models.IntegerField(default=GENERIC_TYPE)
     project = models.ForeignKey(Project)
     size = models.IntegerField(default=0)
-    #uploaded_file = models.FileField(default=None, blank=True,upload_to=data_upload_path,
-                                     #max_length=MAX_FIELD_LEN)
+
 
     # FilePathField points to an existing file
     file = models.FilePathField(max_length=MAX_FIELD_LEN)
