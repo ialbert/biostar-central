@@ -51,7 +51,7 @@ def run(job, options={}):
                 work_dir=work_dir, local_root=settings.LOCAL_ROOT,
                 user_id=job.owner.id, user_email=job.owner.email,
                 job_id=job.id, job_name=job.name,
-                job_url=f'{url_base}{settings.MEDIA_URL}{job.get_url()}',
+                job_url=f'{url_base}{settings.MEDIA_URL}{job.get_url()}'.rstrip("/"),
                 project_id=job.project.id, project_name=job.project.name,
                 analyis_name=job.analysis.name,
                 analysis_id=job.analysis.id,
