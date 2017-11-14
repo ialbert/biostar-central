@@ -6,6 +6,8 @@ from . import auth
 
 class object_access:
 
+    # Initialize with an 'instance'= Project, Job, Data, or Analysis
+    # redirects to self.instance.url() if no redirect_url is given
     def __init__(self, instance, owner_only=False, redirect_url=None):
         self.instance = instance
         self.owner_only = owner_only
@@ -19,7 +21,8 @@ class object_access:
         def wrap(request, *args, **kwargs):
             id, user = kwargs['id'], request.user
             try:
-                # Catch failure if instance doesnt have url()
+                # Catch failure if instance doesnt have url() method
+                # redirect to project_list when it fails
                 self.redirect_url = self.redirect_url or self.instance.url()
             except:
                 self.redirect_url = self.redirect_url or reverse("project_list")
@@ -36,9 +39,11 @@ class object_access:
             if allow_access:
                 return function(request, *args, **kwargs)
             else:
+                #TODO: the redirection still needs some work
                 messages.error(request, f"Access/modification to {self.instance.__name__}={id} denied.")
                 return redirect(self.redirect_url)
 
+        # wrap inherits attrs of the wrapped function
         wrap.__doc__ = function.__doc__
         wrap.__name__ = function.__name__
         return wrap

@@ -49,17 +49,22 @@ def get_project_list(user):
 
 def check_obj_access(user, query, owner_only=False):
 
-    if not hasattr(query, "project"):
-        project = query
-    else:
+    if hasattr(query, "project"):
         project = query.project
+    else:
+        project = query
+
+    if not project:
+        return project, query, False
 
     allow_access = project.privacy == Project.PUBLIC or user.is_superuser
     allow_access = allow_access or project.group in user.groups.all()
     allow_access = allow_access or project.owner == user or query.owner == user
 
+    # Overrides the above conditions
     if owner_only:
-        allow_access = query.owner == user or user == project.owner or user.is_superuser
+        allow_access = query.owner == user
+        allow_access = allow_access or user == project.owner or user.is_superuser
 
     return project, query, allow_access
 

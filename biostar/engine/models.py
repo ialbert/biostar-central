@@ -131,7 +131,6 @@ class Data(models.Model):
     project = models.ForeignKey(Project)
     size = models.IntegerField(default=0)
 
-
     # FilePathField points to an existing file
     file = models.FilePathField(max_length=MAX_FIELD_LEN)
 
