@@ -295,7 +295,7 @@ def data_edit(request, id):
 
 
 @login_required
-@object_access(instance=Project)
+@object_access(instance=Project, owner_only=True)
 def data_upload(request, id):
     owner = request.user
     project = Project.objects.filter(id=id).first()
@@ -525,6 +525,7 @@ def job_result_view(request, id):
     index = job.json_data.get("settings", {}).get("index", "")
 
     if job.state == Job.COMPLETED:
+
         #TODO:This part is still exposed.
         url = settings.MEDIA_URL + job.get_url(path=index)
         return redirect(url)
@@ -541,7 +542,6 @@ def job_file_view(request, id):
     url = settings.MEDIA_URL + job.get_url()
 
     return redirect(url)
-
 
 @object_access(instance=Job)
 def job_files_list(request, id, path=''):

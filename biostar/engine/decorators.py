@@ -7,9 +7,10 @@ from . import auth
 
 class object_access:
 
-    def __init__(self, instance, owner_only=False):
+    def __init__(self, instance, owner_only=False, redirect_url=None):
         self.instance = instance
         self.owner_only = owner_only
+        self.redirect_url = redirect_url
 
     def __call__(self, function, *args, **kwargs):
         """
@@ -32,6 +33,7 @@ class object_access:
             if allow_access:
                 return function(request, *args, **kwargs)
             else:
+                #TODO: the redirection is generic and annoying
                 messages.error(request, f"Access to {self.instance.__name__}={id} denied.")
                 return redirect(reverse("project_list"))
 
