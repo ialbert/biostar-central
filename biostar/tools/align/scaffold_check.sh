@@ -52,11 +52,14 @@ BAM={{runtime.work_dir}}/bam
 # The URL for the bam files.
 URL={{runtime.job_url}}/bam
 
+# The directory for coverage files.
+COV={{runtime.work_dir}}/coverage
+
 # The directory to hold the READ samples.
 FASTQ={{runtime.work_dir}}/fq
 
 # Make the BAM directory.
-mkdir -p $BAM $FASTQ
+mkdir -p $BAM $FASTQ $COV
 
 # Subselect only the paired end reads. Sample each with seqtk.
 cat $TOC | sort | egrep "fq|fastq" | egrep "r1|r2|R1|R2" | parallel seqtk sample -2 {} $READ_NUM '>' $FASTQ/{/}.fq
@@ -66,6 +69,18 @@ ls -1 $FASTQ/*.fq | sort |  parallel -j 5 bwa mem ${IDX} {1} {2} '|' samtools so
 
 # Indexing alignment files.
 ls -1 $BAM/*.bam | parallel -j 5 samtools index {}
+
+# Creating bedgraph files.
+ls -1 $BAM/*.bam | parallel -j 5 bedtools genomecov -ibam  {} -g $IDX.fai -split -bg '>' $COV/{/.}.tmp.bedgraph
+
+# Sorting bedgraph files.
+ls -1 $COV/*.tmp.bedgraph | sed 's/.tmp.bedgraph//g' |parallel --progress --verbose 'LC_COLLATE=C;sort -k1,1 -k2,2n {}.tmp.bedgraph >' $COV/{/}.bedgraph
+
+# Remove unsorted bedgraph files.
+rm -f $COV/*.tmp.bedgraph
+
+# Creating coverage files.
+ls -1 $COV/*.bedgraph | parallel -j 5 bedGraphToBigWig {}  $IDX.fai {.}.bw
 
 # File with mapping stats.
 MAPPED_STATS={{runtime.work_dir}}/mapping-stats.txt
