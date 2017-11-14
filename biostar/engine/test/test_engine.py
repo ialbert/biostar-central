@@ -141,7 +141,7 @@ class AnalysisTest(TestCase):
         url = reverse("analysis_copy", kwargs=dict(id=self.analysis.id))
         projects = [self.project]
         info = dict(projects=projects)
-        resp = self.client.post(url, info)
+        resp = self.client.post(url, info, follow=True)
 
         self.assertEqual(resp.status_code, 200)
 
@@ -164,7 +164,7 @@ class AnalysisTest(TestCase):
 
         url = reverse("analysis_run", kwargs=dict(id=self.analysis.id))
         info = dict(user=self.owner)
-        resp = self.client.post(url, info)
+        resp = self.client.post(url, info, follow=True)
 
         self.assertEqual(resp.status_code, 200)
 

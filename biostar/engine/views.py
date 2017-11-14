@@ -13,7 +13,7 @@ from django.urls import reverse
 
 from .forms import *
 from .const import *
-from .decorators import owner_level_access, group_level_access
+from .decorators import object_access
 from .models import (Project, Data,
                      Analysis, Job, User)
 
@@ -80,7 +80,7 @@ def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=Non
         elif icon == RESULT_VIEW_ICON:
             step = (reverse("job_detail_view", kwargs={'id': job.id, }), RESULT_ICON, "Job Status", is_active)
         elif icon == USER_ICON:
-            step = (reverse("profile", kwargs={'id': user.id, }), USER_ICON, f"Profile", is_active)
+            step = (reverse("profile"), USER_ICON, f"Profile", is_active)
         elif icon == LOGIN_ICON:
             step = (reverse("login"), LOGIN_ICON, "Login", is_active)
         elif icon == LOGOUT_ICON:
@@ -112,8 +112,8 @@ def site_admin(request):
     return render(request, 'admin_index.html', context=context)
 
 
-@owner_level_access
 @cache.never_cache
+@object_access(instance=Project, owner_only=True)
 def add_users_to_project(request, id):
 
     project = Project.objects.filter(pk=id).first()
@@ -125,13 +125,16 @@ def add_users_to_project(request, id):
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ADD_USER],
                                project=project)
+
     form = AddUsersToProject(project=project)
     context = dict(steps=steps, current_users=current_users, form=form,
-                   available_users=query, project=project)
+                   available_users=query, project=project, query="")
 
     if request.method == "POST":
         form = AddUsersToProject(data=request.POST, project=project)
         if form.is_valid():
+            # get the query here
+
             nusers = form.process()
             messages.success(request, f"Added {nusers} user(s) to current project.")
 
@@ -154,12 +157,8 @@ def project_list(request):
     return render(request, "project_list.html", context)
 
 
-@login_required
-def edit_profile(request):
-    return
-
 # @login_required
-@group_level_access
+@object_access(instance=Project)
 def project_view(request, id):
     project = Project.objects.filter(id=id).first()
 
@@ -183,7 +182,7 @@ def project_view(request, id):
 
 
 @login_required
-@owner_level_access
+@object_access(instance=Project, owner_only=True)
 def project_edit(request, id):
     project = auth.get_project_list(user=request.user).filter(id=id).first()
 
@@ -237,7 +236,9 @@ def project_create(request):
                   context)
 
 # @login_required
+@object_access(instance=Project)
 def data_list(request, id):
+
     project = Project.objects.filter(id=id).first()
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON],
                                project=project)
@@ -256,6 +257,7 @@ def data_list(request, id):
 
 
 # @login_required
+@object_access(instance=Data)
 def data_view(request, id):
     data = Data.objects.filter(id=id).first()
     if not data:
@@ -271,6 +273,7 @@ def data_view(request, id):
 
 
 @login_required
+@object_access(instance=Data, owner_only=True)
 def data_edit(request, id):
     data = Data.objects.filter(id=id).first()
     project = data.project
@@ -292,6 +295,7 @@ def data_edit(request, id):
 
 
 @login_required
+@object_access(instance=Project, owner_only=True)
 def data_upload(request, id):
     owner = request.user
     project = Project.objects.filter(id=id).first()
@@ -321,11 +325,11 @@ def data_upload(request, id):
     return render(request, 'data_upload.html', context)
 
 
+@object_access(instance=Analysis)
 def analysis_list(request, id):
     """
     Returns the list of analyses for a project id.
     """
-    # filter according to user.
 
     project = Project.objects.filter(id=id).first()
     analyses = Analysis.objects.filter(project=project).order_by("-id")
@@ -337,6 +341,7 @@ def analysis_list(request, id):
     return render(request, "analysis_list.html", context)
 
 
+@object_access(instance=Analysis)
 def analysis_view(request, id):
     """
     Returns an analysis view based on its id.
@@ -351,6 +356,7 @@ def analysis_view(request, id):
     return render(request, "analysis_view.html", context)
 
 
+@object_access(instance=Analysis)
 def analysis_recipe(request, id):
     analysis = Analysis.objects.filter(id=id).first()
 
@@ -362,10 +368,12 @@ def analysis_recipe(request, id):
     return render(request, "analysis_recipe.html", context)
 
 
+@object_access(instance=Analysis)
 def analysis_copy(request, id):
+
     # TODO: will use a factory.py function for generating projects field when adding new features
     analysis = Analysis.objects.filter(id=id).first()
-    projects = Project.objects.all()
+    projects = auth.get_project_list(user=request.user).all()
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON,
                                 ANALYSIS_VIEW_ICON, ANALYSIS_RECIPE_ICON],
@@ -384,6 +392,7 @@ def analysis_copy(request, id):
     return render(request, "analysis_copy.html", context)
 
 
+@object_access(instance=Analysis)
 def analysis_run(request, id):
     analysis = Analysis.objects.filter(id=id).first()
 
@@ -443,6 +452,7 @@ def process_analysis_edit(method, analysis, form):
 
 
 @login_required
+@object_access(instance=Analysis, owner_only=True)
 def analysis_edit(request, id):
     analysis = Analysis.objects.filter(id=id).first()
     project = analysis.project
@@ -463,6 +473,7 @@ def analysis_edit(request, id):
     return render(request, 'analysis_edit.html', context)
 
 
+@object_access(instance=Project)
 def job_list(request, id):
     """
     Returns the list of jobs for a project id.
@@ -490,7 +501,7 @@ def job_list(request, id):
 
     return render(request, "job_list.html", context)
 
-
+@object_access(instance=Job)
 def job_view(request, id):
     '''
     Views the state of a single job.
@@ -505,6 +516,7 @@ def job_view(request, id):
     return render(request, "job_view.html", context=context)
 
 
+@object_access(instance=Job)
 def job_result_view(request, id):
     """
     Returns the primary result of a job.
@@ -513,12 +525,15 @@ def job_result_view(request, id):
     index = job.json_data.get("settings", {}).get("index", "")
 
     if job.state == Job.COMPLETED:
+
+        #TODO:This part is still exposed.
         url = settings.MEDIA_URL + job.get_url(path=index)
         return redirect(url)
     else:
-        return job_view(request, job.id)
+        return redirect(reverse("job_view", kwargs=dict(id=id)))
 
 
+@object_access(instance=Job)
 def job_file_view(request, id):
     """
     Returns the directory view of the job.
@@ -528,7 +543,7 @@ def job_file_view(request, id):
 
     return redirect(url)
 
-
+@object_access(instance=Job)
 def job_files_list(request, id, path=''):
     job = Job.objects.filter(id=id).first()
 

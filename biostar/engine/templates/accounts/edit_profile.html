@@ -10,7 +10,7 @@
     </div>
      <div class="ui raised segment inputcolor">
 
-            <form method="post" class="ui form" action="{% url 'edit_profile' user.id %}">
+            <form method="post" class="ui form" action="{% url 'edit_profile' %}">
                 {% csrf_token %}
 
                 <div class="field">

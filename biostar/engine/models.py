@@ -283,6 +283,9 @@ class Analysis(models.Model):
     def get_project_dir(self):
         return self.project.get_project_dir()
 
+    def url(self):
+        return reverse("analysis_view", kwargs=dict(id=self.id))
+
 
 class Job(models.Model):
     AUTHORIZED, UNDER_REVIEW = 1, 2
@@ -344,6 +347,9 @@ class Job(models.Model):
     def get_url(self, path=''):
         "Return the url to the job directory"
         return f"jobs/job-{self.uid}/" + path
+
+    def url(self):
+        return reverse("job_view", kwargs=dict(id=self.id))
 
     def get_project_dir(self):
         return self.project.get_project_dir()

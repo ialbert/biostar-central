@@ -13,7 +13,16 @@ class SiteNavigation(TestCase):
     def setUp(self):
         logger.setLevel(logging.WARNING)
         user = models.User.objects.all().first()
-        self.project = auth.create_project(user=user, name="Test project")
+        self.project = auth.create_project(user=user, name="Test project",
+                                           privacy=models.Project.PUBLIC)
+        data = auth.create_data(project=self.project, path=__file__)
+        analysis = auth.create_analysis(project=self.project, json_text='{}', template="")
+        job = auth.create_job(analysis=analysis)
+
+        self.proj_params = dict(id=self.project.id)
+        self.analysis_params = dict(id=analysis.id)
+        self.data_params = dict(id=data.id)
+        self.job_params = dict(id=job.id)
 
     def visit_urls(self, urls, code):
         c = Client()
@@ -30,46 +39,37 @@ class SiteNavigation(TestCase):
     def test_public_pages(self):
         "Checking public pages"
 
-        data = auth.create_data(project=self.project, path=__file__)
-        analysis = auth.create_analysis(project=self.project, json_text='{}', template="")
-        job = auth.create_job(analysis=analysis)
-
-        proj_params = dict(id=self.project.id)
-        analysis_params = dict(id=analysis.id)
-        data_params = dict(id=data.id)
-        job_params = dict(id=job.id)
-
         #TODO:  'job_files_list' not tested yet
         urls = [
             reverse('index'), reverse('info'), reverse('logout'),
             reverse('login'), reverse('signup'),
             reverse('project_list'),
-            reverse('data_list', kwargs=proj_params),
-            reverse('data_view', kwargs=data_params),
-            reverse('analysis_list', kwargs=proj_params),
-            reverse('analysis_view', kwargs=analysis_params),
-            reverse('analysis_run', kwargs=analysis_params),
-            reverse('analysis_recipe', kwargs=analysis_params),
-            reverse('analysis_copy', kwargs=analysis_params),
-            reverse('job_list', kwargs=proj_params),
-            reverse('job_view', kwargs=job_params),
-            reverse('job_files_entry', kwargs=job_params),
-            reverse('job_result_view', kwargs=job_params),
+            reverse('data_list', kwargs=self.proj_params),
+            reverse('data_view', kwargs=self.data_params),
+            reverse('project_view', kwargs=self.proj_params),
+            reverse('analysis_list', kwargs=self.proj_params),
+            reverse('analysis_view', kwargs=self.analysis_params),
+            reverse('analysis_run', kwargs=self.analysis_params),
+            reverse('analysis_recipe', kwargs=self.analysis_params),
+            reverse('analysis_copy', kwargs=self.analysis_params),
+            reverse('job_list', kwargs=self.proj_params),
+            reverse('job_view', kwargs=self.job_params),
+            reverse('job_files_entry', kwargs=self.job_params),
+
         ]
 
         self.visit_urls(urls, 200)
 
-
     def test_page_redirect(self):
         "Testing that a redirect occurs for some pages"
-        params = dict(id=self.project.id)
         urls = [
             reverse('project_create'),
-            reverse('project_edit',  kwargs=params),
-            reverse('data_upload', kwargs=params),
-            reverse('data_edit', kwargs=params),
-            reverse('analysis_edit', kwargs=params),
-            reverse('project_view', kwargs=params),
+            reverse('project_edit',  kwargs=self.proj_params),
+            reverse('data_upload', kwargs=self.proj_params),
+            reverse('data_edit', kwargs=self.data_params),
+            reverse('analysis_edit', kwargs=self.analysis_params),
+            reverse('job_result_view', kwargs=self.job_params),
+
         ]
 
         self.visit_urls(urls, 302)

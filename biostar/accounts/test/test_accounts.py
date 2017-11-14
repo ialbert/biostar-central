@@ -18,7 +18,7 @@ class UserAccountTests(TestCase):
     def visit_urls(self, urls, code):
         c = Client()
         for url in urls:
-            resp = c.get(url)
+            resp = c.get(url, follow=True)
             if resp.status_code != code:
                 # print (resp.content)
                 # We already know it is an error.
@@ -32,7 +32,7 @@ class UserAccountTests(TestCase):
         urls = [
             reverse('index'), reverse('info'), reverse('logout'),
             reverse('login'), reverse('signup'),
-            reverse('profile', kwargs=dict(id=self.user.id))
+            reverse('profile')
         ]
 
         self.visit_urls(urls, 200)

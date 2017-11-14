@@ -47,6 +47,23 @@ def get_project_list(user):
     return query
 
 
+def check_obj_access(user, query, owner_only=False):
+
+    if not hasattr(query, "project"):
+        project = query
+    else:
+        project = query.project
+
+    allow_access = project.privacy == Project.PUBLIC or user.is_superuser
+    allow_access = allow_access or project.group in user.groups.all()
+    allow_access = allow_access or project.owner == user or query.owner == user
+
+    if owner_only:
+        allow_access = query.owner == user or user == project.owner or user.is_superuser
+
+    return project, query, allow_access
+
+
 def get_data(user, project, query, data_type=None):
     """
     Returns a dictionary keyed by data stored in the project.

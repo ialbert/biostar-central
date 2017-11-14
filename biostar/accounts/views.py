@@ -25,8 +25,8 @@ def get_uuid(limit=32):
 
 @login_required
 @cache.never_cache
-def edit_profile(request, id):
-
+def edit_profile(request):
+    id = request.user.id
     user = User.objects.filter(id=id).first()
     steps = breadcrumb_builder([HOME_ICON, USER_ICON], user=user)
 
@@ -34,16 +34,16 @@ def edit_profile(request, id):
         form = EditProfile(request.POST, instance=user)
         if form.is_valid():
             form.save()
-            return redirect(reverse("profile", kwargs=dict(id=id)))
+            return redirect(reverse("profile"))
 
     else:
         form = EditProfile(instance=user)
     context = dict(user=user, steps=steps, form=form)
     return render(request, 'accounts/edit_profile.html', context)
 
-
-def profile(request, id):
-
+@login_required
+def profile(request):
+    id = request.user.id
     user = User.objects.filter(id=id).first()
     steps = breadcrumb_builder([HOME_ICON, USER_ICON], user=user)
     context = dict(user=user, steps=steps)
