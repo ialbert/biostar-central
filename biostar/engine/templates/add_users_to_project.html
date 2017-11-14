@@ -2,13 +2,6 @@
 
 {% block body %}
 
-<form class="search" action="{% url 'add_users_to_project' project.id %}" method='post'>
-  {% csrf_token %}
-  <input type="search" placeholder="Search here..." name="usr_query"
-      value='{{ query }}' required>
-  <button type="submit">Search</button>
-</form>
-
  <form class="ui large form" method="post" action="{% url 'add_users_to_project' project.id %}">
         {% csrf_token %}
 

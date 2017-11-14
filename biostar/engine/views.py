@@ -532,7 +532,6 @@ def job_result_view(request, id):
         return redirect(reverse("job_view", kwargs=dict(id=id)))
 
 
-
 @object_access(instance=Job)
 def job_file_view(request, id):
     """
@@ -542,6 +541,7 @@ def job_file_view(request, id):
     url = settings.MEDIA_URL + job.get_url()
 
     return redirect(url)
+
 
 @object_access(instance=Job)
 def job_files_list(request, id, path=''):
