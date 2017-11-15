@@ -81,7 +81,8 @@ def get_data(user, project, query, data_type=None):
     return datamap
 
 
-def create_project(user, name, uid='', summary='', text='', stream='', privacy=Project.PRIVATE, sticky=True):
+def create_project(user, name, uid='', summary='', text='', stream='',
+                   privacy=Project.PRIVATE, sticky=True):
     project = Project.objects.create(
         name=name, uid=uid, summary=summary, text=text, owner=user, privacy=privacy, sticky=sticky)
 

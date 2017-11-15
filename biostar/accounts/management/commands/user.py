@@ -1,7 +1,8 @@
 
 import logging
 from django.core.management.base import BaseCommand
-from biostar.accounts.models import User
+from biostar.accounts.models import User, Group
+from django.db.models import Q
 from biostar.accounts import util
 
 logger = logging.getLogger("engine")
@@ -22,6 +23,12 @@ class Command(BaseCommand):
         parser.add_argument('--name',
                             help="User first name, defaults to email prefix.")
 
+        parser.add_argument('--group_name',
+                            help="User first name, defaults to email prefix.")
+
+        parser.add_argument('--group_id', default=0,
+                            help="User first name, defaults to email prefix.")
+
         parser.add_argument('--is_superuser',action='store_true', default=False,
                             help="Created user is an admin")
 
@@ -37,6 +44,9 @@ class Command(BaseCommand):
         name = options["name"] or email.split("@")[0]
         is_superuser = options["is_superuser"]
         is_staff = options["is_staff"]
+        group_name = options["group_name"]
+        group_id = options["group_id"]
+
 
         if User.objects.filter(email=email).exists():
             logger.info(f"User with email={email} already exists")
@@ -46,4 +56,13 @@ class Command(BaseCommand):
         user.set_password(password)
         user.save()
         logger.info(f"Created user.email={email}, user.id={user.id}.")
+
+        group = Group.objects.filter(Q(name=group_name)|Q(pk=group_id)).first()
+
+        if group:
+            group.user_set.add(user)
+            logger.info(f"name={user.first_name} added to group={group.name} group.id={group.id}")
+        else:
+            logger.info(f"email={user.email} not added to a group.")
+
 

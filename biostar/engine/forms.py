@@ -84,26 +84,33 @@ def make_form_field(data, project):
     return field
 
 
-class AddUsersToProject(forms.Form):
+class AddOrRemoveUsers(forms.Form):
 
     users = forms.IntegerField()
-
+    add_or_remove = forms.CharField(initial="")
     def __init__(self, project, *args, **kwargs):
         self.project = project
         super().__init__(*args, **kwargs)
 
-    def process(self):
+    def process(self, add=False,remove=False):
         # More than one can be selected
         users = self.data.getlist('users')
         project_group = self.project.group
+        mssg = ''
 
         for user_id in users:
-
             picked_user = models.User.objects.filter(id=user_id).first()
-            project_group.user_set.add(picked_user)
-            logger.info(f"Added user.id={picked_user.id} to project.group={project_group}")
+            if add:
+                project_group.user_set.add(picked_user)
+                logger.info(f"Added user.id={picked_user.id} to project.group={project_group}")
+                mssg = f"Added {len(users)} user(s) to current project."
 
-        return len(users)
+            if remove:
+                project_group.user_set.remove(picked_user)
+                logger.info(f"Removed user.id={picked_user.id} from project.group={project_group}")
+                mssg = f"Removed {len(users)} user(s) from current project."
+
+        return len(users), mssg
 
 
 
