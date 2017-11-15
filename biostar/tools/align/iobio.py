@@ -1,11 +1,8 @@
 from biostar.tools.render import render_template
-import glob
-import os
+from biostar.tools.igv.paths import collect_paths
 
 
 if __name__ == "__main__":
-
-    iobio = "http://bam.iobio.io/?bam="
 
     import argparse
 
@@ -18,19 +15,13 @@ if __name__ == "__main__":
 
     # Read the arguments
     base = args.base
-    patt = args.bams
+    bamdir = args.bams
+    patt = "*.bam"
 
-    patt = os.path.join(patt, '*.bam')
+    bams = collect_paths(base, bamdir, patt)
 
-    bams, links  = [], []
-
-    for fname in glob.glob(patt):
-        # print(fname)
-
-        name = os.path.basename(fname)
-        path = os.path.join(base, name)
-
-        bams.append((path, name))
+    links = []
+    iobio = "http://bam.iobio.io/?bam="
 
     # Create iobio link.
     for path, name in bams:
