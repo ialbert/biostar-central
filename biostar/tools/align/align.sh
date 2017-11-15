@@ -62,7 +62,6 @@ fi
 ln -s $GENOME $WORK
 ln -s $GENOME_FAIDX $WORK
 
-
 # Generate igv visualization.
 echo "Generating IGV visualization file."
 python -m biostar.tools.igv.visualization $URL $WORK >igv.xml
