@@ -134,9 +134,9 @@ class AnalysisTest(TestCase):
         url = reverse("analysis_copy", kwargs=dict(id=self.analysis.id))
         projects = [self.project]
         info = dict(projects=projects)
-        resp = self.client.post(url, info, follow=True)
+        resp = self.client.post(url, info)
 
-        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.status_code, 302)
 
     def test_analysis_edit_interface(self):
         "Testing analysis edit interface"
@@ -148,18 +148,18 @@ class AnalysisTest(TestCase):
         for option in ("preview", "save"):
             logger.info(f"Testing {option} for analysis_edit")
             info = dict(user=self.owner, text=json_text, save_or_preview=option)
-            resp = self.client.post(url, info, follow=True)
+            resp = self.client.post(url, info)
 
-            self.assertEqual(resp.status_code, 200)
+            self.assertEqual(resp.status_code, 302)
 
     def test_analysis_run_interface(self):
         "Testing analysis run interface"
 
         url = reverse("analysis_run", kwargs=dict(id=self.analysis.id))
         info = dict(user=self.owner)
-        resp = self.client.post(url, info, follow=True)
+        resp = self.client.post(url, info)
 
-        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.status_code, 302)
 
 
 class JobTest(TestCase):
