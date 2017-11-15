@@ -10,6 +10,14 @@ def bam(path, name):
     """
     return dict(path=path, name=name)
 
+@register.inclusion_tag('igv/coverage.xml')
+def coverage(path, name):
+    """
+    Generates tracks for bam files.
+    """
+    return dict(path=path, name=name)
+
+
 @register.inclusion_tag('igv/resources.xml')
 def resources(path):
     """
