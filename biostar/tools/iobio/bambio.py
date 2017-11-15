@@ -39,11 +39,11 @@ if __name__ == "__main__":
     bams = bam_links(base, bamdir)
 
     # Render template.
-    #data = dict(bams=bams)
-    #name = "iobio/iobio.html"
+    data = dict(bams=bams)
+    name = "align/scaffold_index.html"
 
-    #html = render_template(data, name)
-    #print(html)
+    html = render_template(data, name)
+    print(html)
 
 
 

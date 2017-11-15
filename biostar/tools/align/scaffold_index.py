@@ -1,5 +1,5 @@
 from biostar.tools.align.scripts import scaffold_plotter
-from biostar.tools.iobio import iobio
+from biostar.tools.iobio import bambio
 from biostar.tools.render import render_template
 
 if __name__ == '__main__':
@@ -26,7 +26,7 @@ if __name__ == '__main__':
     plot1 = scaffold_plotter.create_plot(mapped, total, selected)
 
     # Create iobio links.
-    bams = iobio.bam_links(bambase, bamdir)
+    bams = bambio.bam_links(bambase, bamdir)
 
     # This is the context
     data = dict(p1=plot1, bams=bams)

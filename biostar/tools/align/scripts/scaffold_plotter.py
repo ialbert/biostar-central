@@ -139,9 +139,9 @@ if __name__ == '__main__':
     plot1 = create_plot(mapped, total, selected)
 
     # This is the context.
-    data = dict(p1=p1)
+    data = dict(p1=plot1)
 
-    name = "scaffold/index.html"
+    name = "align/scaffold_index.html"
     html = render_template(data, name)
     print(html)
 

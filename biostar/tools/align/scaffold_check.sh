@@ -94,6 +94,8 @@ ls -1 $BAM/*.bam | parallel -j 5 "(echo {/} && samtools idxstats {})" >> $MAPPED
 # Create IGV session for the data.
 python -m biostar.tools.igv.bams --bamURL $BAM_URL --bams $BAM --bigwigURL $COV_URL --bigwigs $COV --genome $IGV_GENOME > igv.xml
 
+# Creating files to compile the main results.
+
 # File with total read counts.
 READ_COUNTS={{runtime.work_dir}}/read-counts.txt
 
@@ -103,5 +105,3 @@ cat $TOC | egrep "fq|fastq" | egrep "r1|r2|R1|R2" | parallel "echo {/} && bioawk
 # Create index file with main results.
 python -m biostar.tools.align.scaffold_index --base $BAM_URL --bams $BAM --mapped $MAPPED_STATS --total $READ_COUNTS --selected $READ_NUM >index.html
 
-# Create iobio link for bam files.
-#python -m biostar.tools.align.iobio --base $URL --bams $BAM >>index.html

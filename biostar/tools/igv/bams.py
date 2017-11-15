@@ -3,7 +3,7 @@ import os
 from biostar.tools import render
 
 
-def create_urls(base_url, patt):
+def create_url(base_url, patt):
     store = []
 
     for fname in glob.glob(patt):
@@ -34,24 +34,14 @@ if __name__ == "__main__":
     bam_url = args.bamURL
     bam_dir = args.bams
     bwig_url = args.bigwigURL
-    bwig_dir =args.bigwigs
+    bwig_dir = args.bigwigs
     genome = args.genome
 
     bam_patt = os.path.join(bam_dir, '*.bam')
-    bams = create_urls(bam_url, bam_patt)
+    bams = create_url(bam_url, bam_patt)
 
     bwig_patt = os.path.join(bwig_dir, '*.bw')
-    bigwigs = create_urls(bwig_url, bwig_patt)
-
-    """
-    for fname in glob.glob(patt):
-        #print(fname)
-
-        name = os.path.basename(fname)
-        path = os.path.join(bam_url, name)
-
-        bams.append((path, name))
-    """
+    bigwigs = create_url(bwig_url, bwig_patt)
 
     name = "igv/igv.xml"
 
