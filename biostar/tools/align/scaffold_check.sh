@@ -80,7 +80,7 @@ ls -1 $COV/*.tmp.bedgraph | sed 's/.tmp.bedgraph//g' |parallel --progress --verb
 rm -f $COV/*.tmp.bedgraph
 
 # Creating coverage files.
-ls -1 $COV/*.bedgraph | parallel -j 5 bedGraphToBigWig {}  $IDX.fai {.}.bw
+#ls -1 $COV/*.bedgraph | parallel -j 5 bedGraphToBigWig {}  $IDX.fai {.}.bw
 
 # File with mapping stats.
 MAPPED_STATS={{runtime.work_dir}}/mapping-stats.txt
@@ -97,8 +97,8 @@ READ_COUNTS={{runtime.work_dir}}/read-counts.txt
 # Get total reads in each file.
 cat $TOC | egrep "fq|fastq" | egrep "r1|r2|R1|R2" | parallel "echo {/} && bioawk -c fastx 'END{print NR}' {} " >>$READ_COUNTS
 
-# Create barcharts with normalized mapped reads.
-python -m biostar.tools.align.scaffold_plotter --mapped $MAPPED_STATS --total $READ_COUNTS --selected $READ_NUM >index.html
+# Create index file with main results.
+python -m biostar.tools.align.scaffold_index --base $URL --bams $BAM --mapped $MAPPED_STATS --total $READ_COUNTS --selected $READ_NUM >index.html
 
 # Create iobio link for bam files.
-python -m biostar.tools.align.iobio --base $URL --bams $BAM >>index.html
+#python -m biostar.tools.align.iobio --base $URL --bams $BAM >>index.html
