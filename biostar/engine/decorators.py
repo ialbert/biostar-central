@@ -26,16 +26,16 @@ class object_access:
         @wraps(function, assigned=available_attrs(function))
         def _wrapped_view(request, *args, **kwargs):
             id, user = kwargs['id'], request.user
-            try:
-                # Catch failure if instance doesnt have url() method
-                self.redirect_url = self.redirect_url or self.instance.url()
-            except:
-                self.redirect_url = self.redirect_url or reverse("project_list")
-
             query = self.instance.objects.filter(pk=id).first()
             # Every query has to have a valid project ( query.project exists)
             project, query, allow_access = auth.check_obj_access(user, query,
                                                            owner_only=self.owner_only)
+            try:
+                # Catch failure if instance doesnt have url() method
+                self.redirect_url = self.redirect_url or query.url()
+            except:
+                self.redirect_url = self.redirect_url or reverse("project_list")
+
             if not project:
                 messages.error(request, f"Project with id={id} does not exist.")
                 return redirect(self.redirect_url)
@@ -44,7 +44,7 @@ class object_access:
                 return function(request, *args, **kwargs)
             else:
                 #TODO: the redirection still needs a bit of work
-                messages.error(request, f"Access/modification to {self.instance.__name__}={id} denied.")
+                messages.error(request, f"Access/modification to {self.instance.__name__} denied.")
                 return redirect(self.redirect_url)
 
         return _wrapped_view

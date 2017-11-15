@@ -116,11 +116,12 @@ def quick_access_checker(request, project, owner_only):
 
     # We don't really care for the first 2 things in this case, only the allow_access
     _, _, allow_access = auth.check_obj_access(request.user, project, owner_only=owner_only)
-    errmsg = f"Only the owner ({project.owner.first_name}) of the project can add people"
+    errmsg = f"Only the owner ({project.owner.first_name}) of the project can add/remove people"
+
     if not allow_access:
         messages.error(request, errmsg)
-        return redirect(reverse("add_users_to_project", kwargs=dict(id=project.id)))
-    return
+        return allow_access
+    return allow_access
 
 
 @cache.never_cache
@@ -133,14 +134,18 @@ def add_to_project(request, id):
                                project=project)
 
     if request.method == "POST":
-        quick_access_checker(request=request, project=project, owner_only=True)
-        form = AddOrRemoveUsers(data=request.POST, project=project)
+        allow_access = quick_access_checker(request=request, project=project, owner_only=True)
 
-        #if form.is_valid():
-        method = request.POST.get("add_or_remove")
-        # Both add and remove are defaulted to False in process and this is used to trigger one.
-        nusers, msg = form.process(**{method:True})
-        messages.success(request, msg)
+        if allow_access:
+
+            form = AddOrRemoveUsers(data=request.POST, project=project)
+
+            #if form.is_valid():
+            method = request.POST.get("add_or_remove")
+            # Both add and remove are defaulted to False in process and this is used to trigger one.
+            nusers, msg = form.process(**{method:True})
+            messages.success(request, msg)
+
         # The page refreshes correctly when doing this
         return redirect(reverse("add_to_project", kwargs=dict(id=project.id)))
 
