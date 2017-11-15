@@ -51,9 +51,9 @@ next:
 	python manage.py job --next
 
 users:
-	@python manage.py user --name 'Aaron Maloy' --email 'aaron_maloy@fws.gov'
-	@python manage.py user --name 'Doug Cavener' --email 'drc9@psu.edu'
-	@python manage.py user --name 'Lan Wu Cavener' --email 'lxw34@psu.edu'
+	@python manage.py user --name 'Aaron Maloy' --email 'aaron_maloy@fws.gov' --group_name fish
+	@python manage.py user --name 'Doug Cavener' --email 'drc9@psu.edu' --group_name giraffe
+	@python manage.py user --name 'Lan Wu Cavener' --email 'lxw34@psu.edu' --group_name giraffe
 	@python manage.py user --email 'testbuddy@lvh.me' --password testbuddy@lvh.me --is_staff
 
 

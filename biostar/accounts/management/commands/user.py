@@ -1,7 +1,7 @@
 
 import logging
 from django.core.management.base import BaseCommand
-from biostar.accounts.models import User
+from biostar.accounts.models import User, Group
 from biostar.accounts import util
 
 logger = logging.getLogger("engine")
@@ -22,6 +22,12 @@ class Command(BaseCommand):
         parser.add_argument('--name',
                             help="User first name, defaults to email prefix.")
 
+        parser.add_argument('--group_name',
+                            help="User first name, defaults to email prefix.")
+
+        parser.add_argument('--group_id',
+                            help="User first name, defaults to email prefix.")
+
         parser.add_argument('--is_superuser',action='store_true', default=False,
                             help="Created user is an admin")
 
@@ -37,7 +43,10 @@ class Command(BaseCommand):
         name = options["name"] or email.split("@")[0]
         is_superuser = options["is_superuser"]
         is_staff = options["is_staff"]
+        group_name = options["group_name"]
+        group_id = options["group_id"]
 
+        group = Group.objects.filter()
         if User.objects.filter(email=email).exists():
             logger.info(f"User with email={email} already exists")
             return
