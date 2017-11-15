@@ -50,10 +50,13 @@ bwa index ${IDX}
 BAM={{runtime.work_dir}}/bam
 
 # The URL for the bam files.
-URL={{runtime.job_url}}/bam
+BAM_URL={{runtime.job_url}}/bam
 
 # The directory for coverage files.
 COV={{runtime.work_dir}}/coverage
+
+# The URL for the bam files.
+COV_URL={{runtime.job_url}}/coverage
 
 # The directory to hold the READ samples.
 FASTQ={{runtime.work_dir}}/fq
@@ -80,7 +83,7 @@ ls -1 $COV/*.tmp.bedgraph | sed 's/.tmp.bedgraph//g' |parallel --progress --verb
 rm -f $COV/*.tmp.bedgraph
 
 # Creating coverage files.
-#ls -1 $COV/*.bedgraph | parallel -j 5 bedGraphToBigWig {}  $IDX.fai {.}.bw
+ls -1 $COV/*.bedgraph | parallel -j 5 bedGraphToBigWig {}  $IDX.fai {.}.bw
 
 # File with mapping stats.
 MAPPED_STATS={{runtime.work_dir}}/mapping-stats.txt
@@ -89,7 +92,7 @@ MAPPED_STATS={{runtime.work_dir}}/mapping-stats.txt
 ls -1 $BAM/*.bam | parallel -j 5 "(echo {/} && samtools idxstats {})" >> $MAPPED_STATS
 
 # Create IGV session for the data.
-python -m biostar.tools.igv.bams --base $URL --bams $BAM --genome $IGV_GENOME > igv.xml
+python -m biostar.tools.igv.bams --bamURL $BAM_URL --bams $BAM --bigwigURL $COV_URL --bigwigs $COV --genome $IGV_GENOME > igv.xml
 
 # File with total read counts.
 READ_COUNTS={{runtime.work_dir}}/read-counts.txt
@@ -98,7 +101,7 @@ READ_COUNTS={{runtime.work_dir}}/read-counts.txt
 cat $TOC | egrep "fq|fastq" | egrep "r1|r2|R1|R2" | parallel "echo {/} && bioawk -c fastx 'END{print NR}' {} " >>$READ_COUNTS
 
 # Create index file with main results.
-python -m biostar.tools.align.scaffold_index --base $URL --bams $BAM --mapped $MAPPED_STATS --total $READ_COUNTS --selected $READ_NUM >index.html
+python -m biostar.tools.align.scaffold_index --base $BAM_URL --bams $BAM --mapped $MAPPED_STATS --total $READ_COUNTS --selected $READ_NUM >index.html
 
 # Create iobio link for bam files.
 #python -m biostar.tools.align.iobio --base $URL --bams $BAM >>index.html

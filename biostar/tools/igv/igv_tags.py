@@ -12,8 +12,8 @@ def bam(path, name):
     return dict(path=path, name=name)
 
 
-@register.inclusion_tag('igv/coverage.xml')
-def coverage(path, name):
+@register.inclusion_tag('igv/bigwig.xml')
+def bigwig(path, name):
     """
     Generates tracks for coverage files.
     """

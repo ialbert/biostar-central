@@ -5,7 +5,16 @@
         {% for path, name in bams %}
             {% resources path %}
         {%  endfor %}
+        {% for path, name in bigwigs %}
+            {% resources path %}
+        {%  endfor %}
     </Resources>
+
+    <Panel height="744" name="DataPanel" width="1737">
+        {% for path, name in bigwigs %}
+            {% bam path name %}
+        {% endfor %}
+    </Panel>
 
     <Panel height="744" name="DataPanel" width="1737">
 
