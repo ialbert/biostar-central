@@ -132,20 +132,16 @@ def add_to_project(request, id):
     current_users, searches = project.group.user_set.all(), []
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ADD_USER],
                                project=project)
-
     if request.method == "POST":
         allow_access = quick_access_checker(request=request, project=project, owner_only=True)
-
         if allow_access:
 
             form = AddOrRemoveUsers(data=request.POST, project=project)
-
             #if form.is_valid():
             method = request.POST.get("add_or_remove")
             # Both add and remove are defaulted to False in process and this is used to trigger one.
             nusers, msg = form.process(**{method:True})
             messages.success(request, msg)
-
         # The page refreshes correctly when doing this
         return redirect(reverse("add_to_project", kwargs=dict(id=project.id)))
 
