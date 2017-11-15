@@ -99,3 +99,6 @@ cat $TOC | egrep "fq|fastq" | egrep "r1|r2|R1|R2" | parallel "echo {/} && bioawk
 
 # Create barcharts with normalized mapped reads.
 python -m biostar.tools.align.scaffold_plotter --mapped $MAPPED_STATS --total $READ_COUNTS --selected $READ_NUM >index.html
+
+# Create iobio link for bam files.
+python -m biostar.tools.align.iobio --base $URL --bams $BAM >>index.html
