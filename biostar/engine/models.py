@@ -53,17 +53,6 @@ def image_path(instance, filename):
 
 # probalbly change to AccessProject becaues only
 
-class Access(models.Model):
-    READ_ONLY, WRITE = 1,2
-
-    user = models.ForeignKey(User)
-    project= models.ForeignKey(Project)
-    access_choices = [(READ_ONLY, "Read only"), (WRITE, "Write")]
-
-
-    access_types = models.IntegerField(default=READ_ONLY, choices=access_choices)
-
-
 
 
 class Project(models.Model):
@@ -112,6 +101,17 @@ class Project(models.Model):
 
     def get_project_dir(self):
         return join(settings.MEDIA_ROOT, "projects", f"proj-{self.uid}")
+
+class Access(models.Model):
+    READ_ONLY, WRITE = 1,2
+
+    user = models.ForeignKey(User)
+    project= models.ForeignKey(Project)
+    access_choices = [(READ_ONLY, "Read only"), (WRITE, "Write")]
+
+
+    access_types = models.IntegerField(default=READ_ONLY, choices=access_choices)
+
 
 
 @receiver(pre_save, sender=Project)

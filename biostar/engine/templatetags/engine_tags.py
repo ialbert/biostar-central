@@ -22,7 +22,11 @@ def generate_feilds(json_text, **kwargs):
     print(json_text)
     # make a fields array and iterate over that in the
     1/0
-    return
+
+    # Populate the fields array
+    fields = []
+
+    return dict(fields=fields)
 
 
 @register.simple_tag
