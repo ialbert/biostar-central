@@ -53,7 +53,9 @@ def check_obj_access(user, query, owner_only=False):
         project = query.project
     else:
         project = query
+        # basically only place I need to actully change stuf
 
+        #"access.filter(user=user,project=project); should give you the acess type for that project/user combo"
     if not project:
         return project, query, False
 

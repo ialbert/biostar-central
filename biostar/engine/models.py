@@ -51,6 +51,20 @@ def image_path(instance, filename):
 
     return imgpath
 
+# probalbly change to AccessProject becaues only
+
+class Access(models.Model):
+    READ_ONLY, WRITE = 1,2
+
+    user = models.ForeignKey(User)
+    project= models.ForeignKey(Project)
+    access_choices = [(READ_ONLY, "Read only"), (WRITE, "Write")]
+
+
+    access_types = models.IntegerField(default=READ_ONLY, choices=access_choices)
+
+
+
 
 class Project(models.Model):
     PUBLIC, SHAREABLE, PRIVATE = 1, 2, 3
@@ -67,6 +81,7 @@ class Project(models.Model):
     name = models.CharField(default="no name", max_length=MAX_NAME_LEN)
     summary = models.TextField(default='no summary', max_length=MAX_TEXT_LEN)
 
+    # We need to keep the owner.
     owner = models.ForeignKey(User, null=False)
     text = models.TextField(default='no description', max_length=MAX_TEXT_LEN)
 
@@ -74,6 +89,7 @@ class Project(models.Model):
     date = models.DateTimeField(auto_now_add=True)
 
     # Each project belongs to a single group.
+    # Take out group
     group = models.OneToOneField(Group)
     uid = models.CharField(max_length=32, unique=True)
 

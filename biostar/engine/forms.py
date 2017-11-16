@@ -103,11 +103,13 @@ class AddOrRemoveUsers(forms.Form):
         for user_id in users:
             picked_user = models.User.objects.filter(id=user_id).first()
             if add:
+                #Gives the user access_rights here
                 project_group.user_set.add(picked_user)
                 logger.info(f"Added user.id={picked_user.id} to project.group={project_group}")
                 mssg = f"Added {len(users)} user(s) to current project."
 
             if remove:
+                # Remove user access_right here.
                 project_group.user_set.remove(picked_user)
                 logger.info(f"Removed user.id={picked_user.id} from project.group={project_group}")
                 mssg = f"Removed {len(users)} user(s) from current project."
@@ -181,6 +183,7 @@ class AnalysisCopyForm(forms.Form):
                       user=owner, summary=summary, name=name, text=text)
         return params
 
+# Move the run and endit analysis forms intot he engine_tags?
 
 class RunAnalysis(forms.Form):
 
@@ -199,6 +202,33 @@ class RunAnalysis(forms.Form):
 
     def save(self, *args, **kwargs):
         super(RunAnalysis, self).save(*args, **kwargs)
+
+    def is_valid(self):
+
+        valid = super(RunAnalysis, self).is_valid()
+
+        if not valid:
+            return False
+
+        # Gets all data for the project
+        datamap = dict((data.id, data) for data in self.project.data_set.all())
+
+        self.filled_json_data = self.json_data.copy()
+
+        for field, obj in self.filled_json_data.items():
+
+            # If it has a path it is an uploaded file.
+            if obj.get("path") or obj.get("link"):
+                data_id = self.cleaned_data.get(field, '')
+                data_id = int(data_id)
+                data = datamap.get(data_id)
+                data.fill_dict(obj)
+
+            if field in self.cleaned_data:
+                obj["value"] = self.cleaned_data[field]
+
+        return True
+
 
     def process(self):
         '''
