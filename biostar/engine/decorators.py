@@ -38,14 +38,16 @@ class object_access:
 
             if not project:
                 messages.error(request, f"Project with id={id} does not exist.")
-                return redirect(self.redirect_url)
+                return redirect(reverse("project_list"))
 
             if allow_access:
                 return function(request, *args, **kwargs)
             else:
                 #TODO: the redirection still needs a bit of work
+                #TODO: redirecting to project_view makes casues a redirection loop
                 messages.error(request, f"Access/modification to {self.instance.__name__} denied.")
-                return redirect(self.redirect_url)
+
+                return redirect(reverse("project_list"))
 
         return _wrapped_view
 
