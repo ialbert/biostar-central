@@ -11,16 +11,19 @@ SPECIES={{species.value}}
 NPROC={{processors.value}}
 
 # Diamond NR database.
-DIAMOND_NR={{runtime.local_root}}/diamond-dbs/nr/nr
+DIAMOND_NR=/export/refs/diamond-dbs/nr/nr
 
 # Protein-accession2taxon map file.
-TAXON_MAP={{runtime.local_root}}/accession-maps/prot.accession2taxid.gz
+TAXON_MAP=/export/refs/diamond-dbs/nr/prot.accession2taxid.gz
 
 # Size-sorted assembly fasta file.
 ASSM_SORTED={{runtime.work_dir}}/assembly_sorted.fa
 
 # Sorting assembly based on size.
-cat $ASSEMBLY | bioawk -c fastx ' { print length($seq),$name,$seq } '  | sort -k1nr,1  | awk '{ print ">"$2"\n"$3"\n"}' > $ASSM_SORTED
+cat $ASSEMBLY | bioawk -c fastx ' { print length($seq),$name,$seq } ' | sort -k1nr,1  | awk '{ print ">"$2"\n"$3"\n"}' | seqtk seq -l 80 - >$ASSM_SORTED
+
+# Creating samtools index.
+samtools faidx $ASSM_SORTED
 
 # Augustus results directory.
 AUGUSTUS={{runtime.work_dir}}/augustus
@@ -32,9 +35,9 @@ mkdir -p $AUGUSTUS
 GENES=${AUGUSTUS}/genes.gff
 
 # Run augustus gene prediction.
-echo "Running augustus and predicting genes."
-echo "-------------------------------------"
+mkdir -p tmp
 cat $ASSM_SORTED | parallel --j $NPROC --blocksize 5M --recstart '>' --pipe "cat {} > tmp/{%} && augustus --species=$SPECIES  tmp/{%}" > $GENES
+rm -rf tmp
 
 # Bed file with predicted transcripts.
 TRANS_BED=${AUGUSTUS}/transcripts.bed
@@ -66,7 +69,7 @@ HEADER="qseqid sseqid stitle staxids pident qlen slen length qstart qend sstart 
 echo $HEADER  |tr [:blank:] \\t >$DIAMOND_RES
 
 # Running diamond blastx on predicted transcripts.
-diamond blastx -f 6 $HEADER -d $DIAMOND_NR --taxonmap $TAXON_MAP --max-target-seqs 15 -q $TRANS_FASTA -p 10 >>$DIAMOND_RES
+diamond blastx -f 6 $HEADER -d $DIAMOND_NR --taxonmap $TAXON_MAP --max-target-seqs 15 -q $TRANS_FASTA -p $NPROC >>$DIAMOND_RES
 
 # Parsing blastx results.
 
