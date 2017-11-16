@@ -1,13 +1,15 @@
 from textwrap import dedent
-
+import hjson
 from django import forms
 from django import template
 from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.forms import widgets
+
 from django.utils.safestring import mark_safe
 
 from biostar.engine import const
 from biostar.engine.models import Project, Job, make_html
+from biostar.engine import factory
 
 register = template.Library()
 
@@ -17,7 +19,7 @@ JOB_COLORS = {
 }
 
 
-def make_form_field(data, project):
+def make_form_field(data, project=None):
 
     display_type = data.get("display_type", '')
 
@@ -28,7 +30,7 @@ def make_form_field(data, project):
     # Uploaded data is accessed via paths or links.
     path_or_link = data.get("path") or data.get("link")
 
-    if path_or_link:
+    if path_or_link and project:
         # Project specific data needs a special field.
         data_type = data.get("data_type")
 
@@ -47,11 +49,22 @@ def make_form_field(data, project):
 @register.inclusion_tag('widgets/json_form.html')
 def generate_feilds(json_text, **kwargs):
     print(json_text)
-    # make a fields array and iterate over that in the
+
+    # Get project if user wants to generate project specific fields (data path, etc)
+
+    project = kwargs.get("project")
+    # Populate the fields array and iterate over that in template.
+    fields = {}
+
+    json_data = hjson.loads(json_text)
+    for name, data in json_data.items():
+        field = make_form_field(data, project)
+        if field:
+            fields[name] = field
+
+    # make a fields dict and iterate over that in the
     1/0
 
-    # Populate the fields array
-    fields = []
 
     return dict(fields=fields)
 

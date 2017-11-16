@@ -25,7 +25,7 @@
 
             {% form_nonfield_errors form %}
 
-            {% generate_feilds analysis.json_text %}
+            {% generate_feilds analysis.json_text project=analysis.project %}
 
             <button type="submit" class="ui green button">
                 <i class="check icon"></i>Run
