@@ -77,7 +77,7 @@ def plot(data1, data2):
     # This is the context.
     data = dict(p1=p1, p2=p2)
 
-    name = "bwa.html"
+    name = "align/align_index.html"
 
     html = render_template(data, name)
     print(html)

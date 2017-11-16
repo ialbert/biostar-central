@@ -1,5 +1,6 @@
 {%  extends 'charts/chart_base.html' %}
 
+{% load igv %}
 {% load plotify %}
 
 {%  block head %}
@@ -17,5 +18,14 @@
 <h2>Alignment Results</h2>
 
 <div id="{{ p1.chart_id }}" style="width: 900px; height: 500px;"></div>
+
+
+<h2> Bam details with iobio </h2>
+
+<ul>
+{%  for path, name in bams %}
+    {% iobio path name %}
+{% endfor %}
+</ul>
 
 {%  endblock %}
