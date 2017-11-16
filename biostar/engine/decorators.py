@@ -44,7 +44,7 @@ class object_access:
                 return function(request, *args, **kwargs)
             else:
                 #TODO: the redirection still needs a bit of work
-                #TODO: redirecting to project_view makes casues a redirection loop
+                #TODO: redirecting to project_view casues a redirection loop
                 messages.error(request, f"Access/modification to {self.instance.__name__} denied.")
 
                 return redirect(reverse("project_list"))

@@ -18,6 +18,11 @@ JOB_COLORS = {
 
 
 @register.simple_tag
+def generate_form(json_text, **kwargs):
+    return
+
+
+@register.simple_tag
 def sticky_label(obj):
     label = mark_safe('<span class ="ui label">Sticky</span>')
     return label if obj.sticky else ''
@@ -152,7 +157,6 @@ def is_checkbox(field):
     cond = isinstance(field, forms.BooleanField)
     return cond
 
-0
 
 @register.filter(name='is_selection')
 def is_selection(field):

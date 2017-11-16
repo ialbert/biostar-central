@@ -107,6 +107,7 @@ class Command(BaseCommand):
                         logger.error(f"Missing image path: {image_path}")
 
                 # Also create a queued job:
+
                 if jobs:
                     # Need to deposit the file as data into the project.
                     # Find all objects that have a path attribute

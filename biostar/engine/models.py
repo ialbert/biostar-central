@@ -279,6 +279,7 @@ class Job(models.Model):
     AUTH_CHOICES = [(AUTHORIZED, "Authorized"), (UNDER_REVIEW, "Under Review")]
 
     QUEUED, RUNNING, COMPLETED, ERROR, DELETED, SPOOLED, PAUSED, ZOMBIE = range(1, 9)
+
     STATE_CHOICES = [(QUEUED, "Queued"), (RUNNING, "Running"), (PAUSED, "Paused"),
                      (SPOOLED, "Spooled"), (COMPLETED, "Completed"),
                      (ERROR, "Error"), (DELETED, "Deleted"), (ZOMBIE, "Zombie")]
@@ -382,7 +383,5 @@ class Job(models.Model):
             os.makedirs(path)
             self.path = path
 
-        super(Job, self).save(*args, **kwargs)
 
-    def url(self):
-        return reverse("job_view", kwargs=dict(id=self.id))
+        super(Job, self).save(*args, **kwargs)

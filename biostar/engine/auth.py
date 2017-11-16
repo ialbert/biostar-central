@@ -118,6 +118,7 @@ def make_summary(data, summary='', name="widgets/job_summary.html"):
     result = template.render(context)
     return result
 
+
 def create_job(analysis, user=None, project=None, json_text='', json_data={}, name=None, state=None, type=None):
     name = name or analysis.name
     state = state or Job.QUEUED

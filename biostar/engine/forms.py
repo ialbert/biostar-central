@@ -92,6 +92,8 @@ class AddOrRemoveUsers(forms.Form):
         self.project = project
         super().__init__(*args, **kwargs)
 
+    #def is_valid(self):
+    #TODO:refractor this into the is_valid()
     def process(self, add=False,remove=False):
         # More than one can be selected
         users = self.data.getlist('users')

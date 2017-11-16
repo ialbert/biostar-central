@@ -116,7 +116,7 @@ def quick_access_checker(request, project, owner_only):
 
     # We don't really care for the first 2 things in this case, only the allow_access
     _, _, allow_access = auth.check_obj_access(request.user, project, owner_only=owner_only)
-    errmsg = f"Only the owner ({project.owner.first_name}) of the project can add/remove people"
+    errmsg = f"Only the owner ({project.owner.first_name}) of the project can perform action."
 
     if not allow_access:
         messages.error(request, errmsg)
@@ -133,22 +133,23 @@ def add_to_project(request, id):
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ADD_USER],
                                project=project)
     if request.method == "POST":
+        # Only the owner of the project can actually add people
         allow_access = quick_access_checker(request=request, project=project, owner_only=True)
         if allow_access:
 
             form = AddOrRemoveUsers(data=request.POST, project=project)
             #if form.is_valid():
             method = request.POST.get("add_or_remove")
-            # Both add and remove are defaulted to False in process and this is used to trigger one.
+            # Both add and remove are defaulted to False in process() and this is used to trigger one.
             nusers, msg = form.process(**{method:True})
             messages.success(request, msg)
         # The page refreshes correctly when doing this
         return redirect(reverse("add_to_project", kwargs=dict(id=project.id)))
 
     elif request.method == "GET" and request.GET.get("searches"):
+        # Can't search for users already in group
         query = User.objects.exclude(pk__in=[u.id for u in current_users])
         search = request.GET["searches"]
-
         searches = query.filter( Q(first_name__contains=search) | Q(email__contains=search))
         if not searches:
             messages.info(request, f"No users containing '{search}' exist.")
@@ -483,7 +484,7 @@ def analysis_edit(request, id):
         context = preview_specs(spec, analysis)
 
     context.update(dict(project=project, analysis=analysis, steps=steps, form=form))
-    return render(request, 'analysis_edit.html', context)
+    return render(request, 'analysis_edit_new.html', context)
 
 
 @object_access(instance=Project)
