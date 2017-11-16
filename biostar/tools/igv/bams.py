@@ -1,7 +1,20 @@
 import glob
 import os
-
 from biostar.tools import render
+
+
+def create_url(base_url, patt):
+    store = []
+
+    for fname in glob.glob(patt):
+
+        name = os.path.basename(fname)
+        path = os.path.join(base_url, name)
+
+        store.append((path, name))
+
+    return store
+
 
 if __name__ == "__main__":
 
@@ -9,32 +22,30 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description='Create IGV tracks from bam files.')
 
-    parser.add_argument('--base', help='The URL to file location base')
+    parser.add_argument('--bamURL', help='The URL to bam file location')
     parser.add_argument('--bams', help='The path to the directory that contain bam files')
+    parser.add_argument('--bigwigURL', help='The URL to bigwig file location')
+    parser.add_argument('--bigwigs', help='The path to the directory that contain bigwig files')
     parser.add_argument('--genome', help='The path to the genome')
 
     args = parser.parse_args()
 
     # Read the arguments
-    base = args.base
-    patt = args.bams
+    bam_url = args.bamURL
+    bam_dir = args.bams
+    bwig_url = args.bigwigURL
+    bwig_dir = args.bigwigs
     genome = args.genome
 
-    patt = os.path.join(patt, '*.bam')
+    bam_patt = os.path.join(bam_dir, '*.bam')
+    bams = create_url(bam_url, bam_patt)
 
-    bams = []
-
-    for fname in glob.glob(patt):
-        #print(fname)
-
-        name = os.path.basename(fname)
-        path = os.path.join(base, name)
-
-        bams.append((path, name))
+    bwig_patt = os.path.join(bwig_dir, '*.bw')
+    bigwigs = create_url(bwig_url, bwig_patt)
 
     name = "igv/igv.xml"
 
-    data = dict(bams=bams, genome=genome)
+    data = dict(bams=bams, bigwigs=bigwigs, genome=genome)
 
     html = render.render_template(data, name)
 

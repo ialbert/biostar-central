@@ -50,10 +50,13 @@ bwa index ${IDX}
 BAM={{runtime.work_dir}}/bam
 
 # The URL for the bam files.
-URL={{runtime.job_url}}/bam
+BAM_URL={{runtime.job_url}}/bam
 
 # The directory for coverage files.
 COV={{runtime.work_dir}}/coverage
+
+# The URL for the bam files.
+COV_URL={{runtime.job_url}}/coverage
 
 # The directory to hold the READ samples.
 FASTQ={{runtime.work_dir}}/fq
@@ -89,7 +92,9 @@ MAPPED_STATS={{runtime.work_dir}}/mapping-stats.txt
 ls -1 $BAM/*.bam | parallel -j 5 "(echo {/} && samtools idxstats {})" >> $MAPPED_STATS
 
 # Create IGV session for the data.
-python -m biostar.tools.igv.bams --base $URL --bams $BAM --genome $IGV_GENOME > igv.xml
+python -m biostar.tools.igv.bams --bamURL $BAM_URL --bams $BAM --bigwigURL $COV_URL --bigwigs $COV --genome $IGV_GENOME > igv.xml
+
+# Creating files to compile the main results.
 
 # File with total read counts.
 READ_COUNTS={{runtime.work_dir}}/read-counts.txt
@@ -97,5 +102,6 @@ READ_COUNTS={{runtime.work_dir}}/read-counts.txt
 # Get total reads in each file.
 cat $TOC | egrep "fq|fastq" | egrep "r1|r2|R1|R2" | parallel "echo {/} && bioawk -c fastx 'END{print NR}' {} " >>$READ_COUNTS
 
-# Create barcharts with normalized mapped reads.
-python -m biostar.tools.align.scaffold_plotter --mapped $MAPPED_STATS --total $READ_COUNTS --selected $READ_NUM >index.html
+# Create index file with main results.
+python -m biostar.tools.align.scaffold_index --base $BAM_URL --bams $BAM --mapped $MAPPED_STATS --total $READ_COUNTS --selected $READ_NUM >index.html
+

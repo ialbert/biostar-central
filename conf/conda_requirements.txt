@@ -7,6 +7,6 @@ bwa
 samtools
 bioawk
 pysam
-segtk
+seqtk
 bedtools
 ucsc-bedgraphtobigwig

@@ -87,7 +87,7 @@ def format_idxstats(store):
 
 def plot(data1):
 
-    # Plot 2
+    # Plot 1
     p1 = BarchartParams()
     p1.type = 'BarChart'
     p1.header = data1[0]
@@ -97,13 +97,27 @@ def plot(data1):
             chartArea: {  width: "50%" }
         '''
 
-    # This is the context.
-    data = dict(p1=p1)
+    return p1
 
-    name = "scaffold.html"
 
-    html = render_template(data, name)
-    print(html)
+def create_plot(mapped, total, selected):
+
+    # Normalization
+    #(mapped_counts/scaffold_length)*(total_read_count/selected_read_count)
+
+    # Calculate factors to normalize with
+    factors = create_factors(total, selected)
+
+    # Parse idxstats into a dictionary after normalizing mapped counts.
+    store = parse_idxstats(mapped, factors)
+
+    # Format the idxstats dictionary into a list of lists.
+    idx_stats = format_idxstats(store)
+
+    # Plot barchart.
+    plot1 = plot(idx_stats)
+
+    return plot1
 
 
 if __name__ == '__main__':
@@ -122,18 +136,15 @@ if __name__ == '__main__':
     total = args.total
     selected = args.selected
 
-    # Normalization
-    #(mapped_counts/scaffold_length)*(total_read_count/selected_read_count)
+    plot1 = create_plot(mapped, total, selected)
 
-    # Calculate factors to normalize with
-    factors = create_factors(total, selected)
+    # This is the context.
+    data = dict(p1=plot1)
 
-    # Parse idxstats into a dictionary after normalizing mapped counts.
-    store = parse_idxstats(mapped, factors)
+    name = "align/scaffold_index.html"
+    html = render_template(data, name)
+    print(html)
 
-    # Format the idxstats dictionary into a list of lists.
-    idx_stats = format_idxstats(store)
 
-    # Plot barchart.
-    plot(idx_stats)
+
 
