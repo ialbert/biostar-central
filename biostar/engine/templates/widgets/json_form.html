@@ -12,10 +12,10 @@
                         </label>
                     </div>
                 {% elif field|is_selection %}
-                    {{field.label|debug}}
+                    {{field|debug}}
 
                     <div class="field">
-                        <label> {{ field.label_tag }} </label>
+                        <label> {{ field.label }} </label>
                         {{ field }}
                         {{ field.help_text }}
                     </div>
