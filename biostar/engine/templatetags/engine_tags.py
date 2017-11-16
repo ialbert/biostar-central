@@ -17,10 +17,10 @@ JOB_COLORS = {
 }
 
 
-@register.simple_tag
+@register.inclusion_tag('widgets/json_form.html')
 def generate_form(json_text, **kwargs):
+    print(json_text)
     return
-
 
 @register.simple_tag
 def sticky_label(obj):

@@ -138,6 +138,7 @@ def add_to_project(request, id):
         if allow_access:
 
             form = AddOrRemoveUsers(data=request.POST, project=project)
+            #TODO:fix so that things run through is_valid()
             #if form.is_valid():
             method = request.POST.get("add_or_remove")
             # Both add and remove are defaulted to False in process() and this is used to trigger one.
@@ -477,13 +478,16 @@ def analysis_edit(request, id):
         form = EditAnalysisForm(analysis=analysis, data=request.POST)
         method = request.POST.get("save_or_preview")
         context = process_analysis_edit(method, analysis, form)
+        json_text = form.cleaned_data
 
     else:
         form = EditAnalysisForm(analysis=analysis)
         spec = hjson.loads(analysis.json_text)
         context = preview_specs(spec, analysis)
+        json_text = analysis.json_text
 
-    context.update(dict(project=project, analysis=analysis, steps=steps, form=form))
+    context.update(dict(project=project, analysis=analysis, steps=steps, form=form,
+                        json_text=json_text))
     return render(request, 'analysis_edit_new.html', context)
 
 

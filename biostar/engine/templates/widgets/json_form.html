@@ -1,0 +1,30 @@
+<div   class="ui two column grid">
+
+        <div class="column specs">
+
+        <div class="column specs">
+                {% for field in form %}
+                    {% if field != form.text and field != form.save_or_preview %}
+                        {% if field.field|is_checkbox %}
+                            {# Handle checkboxes diffrenly #}
+                            <div class="field segment">
+                            <label class="checkbox" for="{{ field.id_for_label }}">
+                                {{ field }} {{ field.label_tag }}
+                            </label>
+                            </div>
+                        {% else %}
+                            <div class="field segment">
+                            {{ field.label_tag }}
+                            {{ field }}
+                            </div>
+                        {% endif %}
+
+                    {% endif %}
+                {% endfor %}
+                {{ form.errors }}
+           <a class="ui green mini button">
+            <i class="check icon"></i>Run
+         </a>
+        </div>
+
+</div>
