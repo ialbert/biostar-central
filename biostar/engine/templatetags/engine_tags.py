@@ -54,17 +54,20 @@ def generate_feilds(json_text, **kwargs):
 
     project = kwargs.get("project")
     # Populate the fields array and iterate over that in template.
-    fields = {}
+    fields = []
 
     json_data = hjson.loads(json_text)
     for name, data in json_data.items():
         field = make_form_field(data, project)
         if field:
-            fields[name] = field
+            #fields[name] = field
+            field.widget.attrs["name"] = name
+            fields.append(field)
 
     # make a fields dict and iterate over that in the
-    1/0
 
+    print(fields)
+    #1/0
 
     return dict(fields=fields)
 
@@ -97,6 +100,13 @@ def img(obj):
     else:
         return static("images/placeholder.png")
 
+
+@register.filter
+def debug(obj):
+
+    print (dir(obj), "DEBUGGING")
+    print(obj.label)
+    return ''
 
 @register.filter
 def can_edit(user, instance):
@@ -153,6 +163,8 @@ def field_state(field):
     """
     Returns the error label for a field.
     """
+    print(dir(field), field.widget)
+    1/0
     if field.errors:
         return 'error'
     else:
@@ -210,5 +222,7 @@ def is_selection(field):
     """
     Returns True if a field's widget is a Selection
     """
+
     cond = isinstance(field.widget, widgets.Select)
+
     return cond

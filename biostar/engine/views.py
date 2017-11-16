@@ -441,7 +441,7 @@ def analysis_run(request, id):
         form = RunAnalysis(analysis=analysis, initial=initial)
 
     context = dict(project=project, analysis=analysis, steps=steps, form=form)
-    return render(request, 'analysis_run.html', context)
+    return render(request, 'analysis_run_new.html', context)
 
 
 def preview_specs(spec, analysis):
