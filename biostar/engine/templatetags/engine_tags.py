@@ -51,8 +51,8 @@ def generate_feilds(json_text, **kwargs):
     print(json_text)
 
     # Get project if user wants to generate project specific fields (data path, etc)
-
     project = kwargs.get("project")
+
     # Populate the fields array and iterate over that in template.
     fields = []
 
@@ -60,7 +60,6 @@ def generate_feilds(json_text, **kwargs):
     for name, data in json_data.items():
         field = make_form_field(data, project)
         if field:
-            #fields[name] = field
             field.widget.attrs["name"] = name
             fields.append(field)
 
@@ -105,7 +104,7 @@ def img(obj):
 def debug(obj):
 
     print (dir(obj), "DEBUGGING")
-    print(obj.label)
+    print(obj.widget.attrs)
     return ''
 
 @register.filter
