@@ -17,6 +17,33 @@ JOB_COLORS = {
 }
 
 
+def make_form_field(data, project):
+
+    display_type = data.get("display_type", '')
+
+    # Fields with no display type are not visible.
+    if not display_type:
+        return
+
+    # Uploaded data is accessed via paths or links.
+    path_or_link = data.get("path") or data.get("link")
+
+    if path_or_link:
+        # Project specific data needs a special field.
+        data_type = data.get("data_type")
+
+        field = factory.data_field_generator(data, project=project, data_type=data_type)
+    else:
+
+        func = factory.TYPE2FUNC.get(display_type)
+
+        if not func:
+            #logger.error(f"Invalid display_type={display_type}")
+            return
+        field = func(data)
+
+    return field
+
 @register.inclusion_tag('widgets/json_form.html')
 def generate_feilds(json_text, **kwargs):
     print(json_text)

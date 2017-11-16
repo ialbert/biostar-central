@@ -129,7 +129,6 @@ def quick_access_checker(request, project, owner_only):
 def add_to_project(request, id):
 
     project = Project.objects.filter(pk=id).first()
-    # TODO:Change current users= [a.user for a in project.access_set]
     current_users, searches = project.group.user_set.all(), []
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ADD_USER],
                                project=project)
@@ -140,6 +139,7 @@ def add_to_project(request, id):
 
             form = AddOrRemoveUsers(data=request.POST, project=project)
             #TODO:fix so that things run through is_valid()
+
             #if form.is_valid():
             method = request.POST.get("add_or_remove")
             # Both add and remove are defaulted to False in process() and this is used to trigger one.

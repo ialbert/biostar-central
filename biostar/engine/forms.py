@@ -195,6 +195,7 @@ class RunAnalysis(forms.Form):
 
         super().__init__(*args, **kwargs)
 
+        # This loop needs to be here to register the fields and trigger is_valid() later on.
         for name, data in self.json_data.items():
             field = make_form_field(data, self.project)
             if field:
@@ -202,32 +203,6 @@ class RunAnalysis(forms.Form):
 
     def save(self, *args, **kwargs):
         super(RunAnalysis, self).save(*args, **kwargs)
-
-    def is_valid(self):
-
-        valid = super(RunAnalysis, self).is_valid()
-
-        if not valid:
-            return False
-
-        # Gets all data for the project
-        datamap = dict((data.id, data) for data in self.project.data_set.all())
-
-        self.filled_json_data = self.json_data.copy()
-
-        for field, obj in self.filled_json_data.items():
-
-            # If it has a path it is an uploaded file.
-            if obj.get("path") or obj.get("link"):
-                data_id = self.cleaned_data.get(field, '')
-                data_id = int(data_id)
-                data = datamap.get(data_id)
-                data.fill_dict(obj)
-
-            if field in self.cleaned_data:
-                obj["value"] = self.cleaned_data[field]
-
-        return True
 
 
     def process(self):
