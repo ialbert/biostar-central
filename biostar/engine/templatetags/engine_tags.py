@@ -46,12 +46,13 @@ def make_form_field(data, project=None):
 
     return field
 
+
 @register.inclusion_tag('widgets/json_form.html')
-def generate_feilds(json_text, **kwargs):
-    print(json_text)
+def generate_fields(json_text, **kwargs):
 
     # Get project if user wants to generate project specific fields (data path, etc)
     project = kwargs.get("project")
+    form = kwargs.get("form")
 
     # Populate the fields array and iterate over that in template.
     fields = []
@@ -61,12 +62,16 @@ def generate_feilds(json_text, **kwargs):
         field = make_form_field(data, project)
         if field:
             field.widget.attrs["name"] = name
-            fields.append(field)
 
-    # make a fields dict and iterate over that in the
+            # Returns <django.forms.fields.CharField object> instead of html if the field isnt
+            # bound to a form.
+            if form:
+                boundfield = forms.forms.BoundField(form, field, name)
+            else:
+                # Not bound to a form here.
+                boundfield = field
 
-    print(fields)
-    #1/0
+            fields.append(boundfield)
 
     return dict(fields=fields)
 
@@ -101,10 +106,16 @@ def img(obj):
 
 
 @register.filter
-def debug(obj):
+def generate_fields(form, project):
+    return
+
+
+@register.filter
+def echo(obj):
+    # Makes debugging templates a bit easier
+    print()
 
     print (dir(obj), "DEBUGGING")
-    print(obj.widget.attrs)
     return ''
 
 @register.filter

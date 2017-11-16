@@ -129,6 +129,7 @@ def quick_access_checker(request, project, owner_only):
 def add_to_project(request, id):
 
     project = Project.objects.filter(pk=id).first()
+    # TODO:Change current users to acess.objects.fitler(user
     current_users, searches = project.group.user_set.all(), []
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ADD_USER],
                                project=project)
@@ -139,7 +140,6 @@ def add_to_project(request, id):
 
             form = AddOrRemoveUsers(data=request.POST, project=project)
             #TODO:fix so that things run through is_valid()
-
             #if form.is_valid():
             method = request.POST.get("add_or_remove")
             # Both add and remove are defaulted to False in process() and this is used to trigger one.
@@ -426,7 +426,7 @@ def analysis_run(request, id):
 
         if form.is_valid():
             name = form.cleaned_data.get("name")
-            filled_json = form.filled_json_data
+            filled_json = form.process()
             json_text = hjson.dumps(filled_json)
             job = auth.create_job(analysis=analysis, user=analysis.owner, json_text=json_text, name=name,
                                   )
@@ -441,7 +441,7 @@ def analysis_run(request, id):
         form = RunAnalysis(analysis=analysis, initial=initial)
 
     context = dict(project=project, analysis=analysis, steps=steps, form=form)
-    return render(request, 'analysis_run_new.html', context)
+    return render(request, 'analysis_run.html', context)
 
 
 def preview_specs(spec, analysis):
@@ -489,7 +489,7 @@ def analysis_edit(request, id):
 
     context.update(dict(project=project, analysis=analysis, steps=steps, form=form,
                         json_text=json_text))
-    return render(request, 'analysis_edit_new.html', context)
+    return render(request, 'analysis_edit.html', context)
 
 
 @object_access(instance=Project)
@@ -507,7 +507,10 @@ def job_list(request, id):
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, RESULT_LIST_ICON],
                                project=project)
 
-    jobs = Job.objects.filter(project=project).order_by("-start_date")
+    # This doen't order queued jobs correcly bc they aren't stared yet ( just submitted)
+    #jobs = Job.objects.filter(project=project).order_by("-start_date")
+
+    jobs =Job.objects.filter(project=project).order_by("-date", "-start_date")
 
     filter = request.GET.get('filter', '')
 
