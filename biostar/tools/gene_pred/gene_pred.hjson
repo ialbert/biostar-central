@@ -12,7 +12,7 @@ species: {
     label: Training set
     value: giraffe
     display_type: DROPDOWN
-    choices : [[ "giraffe" , "Gi
+    choices : [
                 ["human" , "Human" ]
               ]
 
