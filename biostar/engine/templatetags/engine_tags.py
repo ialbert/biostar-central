@@ -18,6 +18,10 @@ JOB_COLORS = {
     Job.ERROR: "red", Job.QUEUED: "blue", Job.RUNNING: "teal", Job.COMPLETED: "green"
 }
 
+class Bunch(object):
+
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
 
 def make_form_field(data, project=None):
 
@@ -33,7 +37,6 @@ def make_form_field(data, project=None):
     if path_or_link and project:
         # Project specific data needs a special field.
         data_type = data.get("data_type")
-
         field = factory.data_field_generator(data, project=project, data_type=data_type)
     else:
 
@@ -48,30 +51,23 @@ def make_form_field(data, project=None):
 
 
 @register.inclusion_tag('widgets/json_form.html')
-def generate_fields(json_text, **kwargs):
+def generate_fields(json_text, project=None, form=None):
 
-    # Get project if user wants to generate project specific fields (data path, etc)
-    project = kwargs.get("project")
-    form = kwargs.get("form")
-
-    # Populate the fields array and iterate over that in template.
     fields = []
-
     json_data = hjson.loads(json_text)
+
     for name, data in json_data.items():
         field = make_form_field(data, project)
         if field:
             field.widget.attrs["name"] = name
-
             # Returns <django.forms.fields.CharField object> instead of html if the field isnt
-            # bound to a form.
+            # bound to a form ( when there isn't
             if form:
-                boundfield = forms.forms.BoundField(form, field, name)
+                field = forms.forms.BoundField(form, field, name)
             else:
-                # Not bound to a form here.
-                boundfield = field
+                field = {"field":field}
 
-            fields.append(boundfield)
+            fields.append(field)
 
     return dict(fields=fields)
 

@@ -112,16 +112,7 @@ def site_admin(request):
     return render(request, 'admin_index.html', context=context)
 
 
-def quick_access_checker(request, project, owner_only):
 
-    # We don't really care for the first 2 things in this case, only the allow_access
-    _, _, allow_access = auth.check_obj_access(request.user, project, owner_only=owner_only)
-    errmsg = f"Only the owner ({project.owner.first_name}) of the project can perform action."
-
-    if not allow_access:
-        messages.error(request, errmsg)
-        return allow_access
-    return allow_access
 
 
 @cache.never_cache
@@ -129,22 +120,28 @@ def quick_access_checker(request, project, owner_only):
 def add_to_project(request, id):
 
     project = Project.objects.filter(pk=id).first()
-    # TODO:Change current users to acess.objects.fitler(user
+
     current_users, searches = project.group.user_set.all(), []
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ADD_USER],
                                project=project)
     if request.method == "POST":
         # Only the owner of the project can actually add people
-        allow_access = quick_access_checker(request=request, project=project, owner_only=True)
+        #allow_access = quick_access_checker(request=request, project=project, owner_only=True)
+        form = AddOrRemoveUsers(data=request.POST, project=project)
+
+        if form.is_valid():
+            return
+
         if allow_access:
 
-            form = AddOrRemoveUsers(data=request.POST, project=project)
-            #TODO:fix so that things run through is_valid()
-            #if form.is_valid():
+            #form = AddOrRemoveUsers(data=request.POST, project=project)
+
             method = request.POST.get("add_or_remove")
+
             # Both add and remove are defaulted to False in process() and this is used to trigger one.
             nusers, msg = form.process(**{method:True})
             messages.success(request, msg)
+
         # The page refreshes correctly when doing this
         return redirect(reverse("add_to_project", kwargs=dict(id=project.id)))
 

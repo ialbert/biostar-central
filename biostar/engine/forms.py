@@ -84,6 +84,10 @@ def make_form_field(data, project):
     return field
 
 
+
+
+
+
 class AddOrRemoveUsers(forms.Form):
 
     users = forms.IntegerField()
@@ -92,8 +96,9 @@ class AddOrRemoveUsers(forms.Form):
         self.project = project
         super().__init__(*args, **kwargs)
 
-    #def is_valid(self):
-    #TODO:refractor this into the is_valid()
+    def is_valid(self):
+        return True
+
     def process(self, add=False,remove=False):
         # More than one can be selected
         users = self.data.getlist('users')
@@ -116,6 +121,20 @@ class AddOrRemoveUsers(forms.Form):
 
         return len(users), mssg
 
+    def clean(self):
+        return
+
+    def quick_access_checker(self, owner_only=True):
+
+        user= ''
+        # We don't really care for the first 2 things in this case, only the allow_access
+        _, _, allow_access = auth.check_obj_access(user, self.project, owner_only=owner_only)
+        errmsg = f"Only the owner ({self.project.owner.first_name}) of the project can perform action."
+
+        if not allow_access:
+            self.add_error(None,errmsg)
+            return allow_access
+        return allow_access
 
 
 class DataCopyForm(forms.Form):
