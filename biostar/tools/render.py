@@ -25,6 +25,7 @@ def setup():
                 'libraries': {
                     'plotify': 'biostar.tools.plotify',
                     'igv': 'biostar.tools.igv.igv_tags',
+                    'iobio': 'biostar.tools.iobio.iobio_tags',
                 },
             },
         }

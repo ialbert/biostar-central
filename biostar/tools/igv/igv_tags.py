@@ -26,11 +26,3 @@ def resources(path):
     Generates a resource tag.
     """
     return dict(path=path)
-
-
-@register.inclusion_tag('iobio/iobio.html')
-def iobio(path, name):
-    """
-    Generates iobio bam.
-    """
-    return dict(path=path, name=name)
