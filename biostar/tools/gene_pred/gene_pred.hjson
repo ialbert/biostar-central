@@ -26,7 +26,7 @@ processors : {
 settings : {
     name: Augustus Gene Prediction
     image : gene_pred.png
-    index : index.html
+    index : result-preview.txt
     summary: Predict genes in an assembled genome using a training set.
     help:'''
 

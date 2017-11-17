@@ -71,7 +71,14 @@ echo $HEADER  |tr [:blank:] \\t >$DIAMOND_RES
 # Running diamond blastx on predicted transcripts.
 diamond blastx -f 6 $HEADER -d $DIAMOND_NR --taxonmap $TAXON_MAP --max-target-seqs 15 -q $TRANS_FASTA -p $NPROC >>$DIAMOND_RES
 
+# Parsed blastx results.
+PARSED=${DIAMOND}/diamond-blastx-parsed.txt
+
 # Parsing blastx results.
+python -m biostar.tools.gene_pred.blast_parse --blast $DIAMOND_RES >$PARSED
+
+# Main result view.
+cat $PARSED | head -100 >result-preview.txt
 
 
 
