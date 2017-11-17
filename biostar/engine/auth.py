@@ -53,7 +53,9 @@ def check_obj_access(user, query, owner_only=False):
         project = query.project
     else:
         project = query
+        # basically only place I need to actully change stuf
 
+        #"access.filter(user=user,project=project); should give you the acess type for that project/user combo"
     if not project:
         return project, query, False
 
@@ -117,6 +119,7 @@ def make_summary(data, summary='', name="widgets/job_summary.html"):
     template = loader.get_template(name)
     result = template.render(context)
     return result
+
 
 def create_job(analysis, user=None, project=None, json_text='', json_data={}, name=None, state=None, type=None):
     name = name or analysis.name

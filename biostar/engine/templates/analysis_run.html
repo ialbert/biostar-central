@@ -18,39 +18,16 @@
         </div>
         {{ analysis.summary|markdown|safe }}
 
-
         <form method="post" class="ui form" action="{% url 'analysis_run' analysis.id %}">
 
             {% csrf_token %}
 
             {% form_nonfield_errors form %}
 
-            {% for field in form %}
+            {# Need to bind fields to the form or it returns django.forms.fields object (instead of valid html) #}
+            {# Thats why we pass a form=form#}
 
-                {% if field.field|is_checkbox %}
-                    {# Handle checkboxes differently #}
-                    <div class="field">
-                        <label class="checkbox" for="{{ field.id_for_label }}">
-                            {{ field }} {{ field.label_tag }}
-                        </label>
-
-                    </div>
-                {% elif field.field|is_selection %}
-                    <div class="field">
-                        <label> {{ field.label_tag }} </label>
-                        {{ field }}
-                        {{ field.help_text }}
-                    </div>
-                {% else %}
-                    <div class="field {% field_state field %} segment">
-
-                        {{ field.label_tag }}
-                        {{ field }}
-                        {{ field.help_text }}
-                    </div>
-                {% endif %}
-
-            {% endfor %}
+            {% generate_fields analysis.json_text project=analysis.project form=form %}
 
             <button type="submit" class="ui green button">
                 <i class="check icon"></i>Run

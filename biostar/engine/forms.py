@@ -1,5 +1,6 @@
 import hjson, logging
 from django import forms
+from django.contrib import messages
 from .models import Project, Data, Analysis, Job
 from . import tasks
 from .const import *
@@ -88,9 +89,17 @@ class AddOrRemoveUsers(forms.Form):
 
     users = forms.IntegerField()
     add_or_remove = forms.CharField(initial="")
-    def __init__(self, project, *args, **kwargs):
+
+    def __init__(self, project, current_user, *args, **kwargs):
         self.project = project
+        self.user = current_user
         super().__init__(*args, **kwargs)
+
+    def is_valid(self, request=None):
+        valid = super(AddOrRemoveUsers, self).is_valid()
+
+        return valid and self.quick_access_checker(request=request, owner_only=True)
+
 
     def process(self, add=False,remove=False):
         # More than one can be selected
@@ -101,17 +110,29 @@ class AddOrRemoveUsers(forms.Form):
         for user_id in users:
             picked_user = models.User.objects.filter(id=user_id).first()
             if add:
+                #Gives the user access_rights here
                 project_group.user_set.add(picked_user)
                 logger.info(f"Added user.id={picked_user.id} to project.group={project_group}")
                 mssg = f"Added {len(users)} user(s) to current project."
 
             if remove:
+                # Remove user access_right here.
                 project_group.user_set.remove(picked_user)
                 logger.info(f"Removed user.id={picked_user.id} from project.group={project_group}")
                 mssg = f"Removed {len(users)} user(s) from current project."
 
         return len(users), mssg
 
+    def quick_access_checker(self, request=None, owner_only=False):
+
+        # We don't really care for the first 2 things in this case, only the allow_access
+        _, _, allow_access = auth.check_obj_access(self.user, self.project, owner_only=owner_only)
+        errmsg = f"Only the owner ({self.project.owner.first_name}) of the project can perform action."
+
+        if not allow_access and request:
+            messages.error(request,errmsg)
+
+        return allow_access
 
 
 class DataCopyForm(forms.Form):
@@ -179,6 +200,7 @@ class AnalysisCopyForm(forms.Form):
                       user=owner, summary=summary, name=name, text=text)
         return params
 
+# Move the run and endit analysis forms intot he engine_tags?
 
 class RunAnalysis(forms.Form):
 
@@ -190,6 +212,7 @@ class RunAnalysis(forms.Form):
 
         super().__init__(*args, **kwargs)
 
+        # This loop needs to be here to register the fields and trigger is_valid() later on.
         for name, data in self.json_data.items():
             field = make_form_field(data, self.project)
             if field:
@@ -197,6 +220,7 @@ class RunAnalysis(forms.Form):
 
     def save(self, *args, **kwargs):
         super(RunAnalysis, self).save(*args, **kwargs)
+
 
     def process(self):
         '''

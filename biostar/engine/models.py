@@ -51,6 +51,9 @@ def image_path(instance, filename):
 
     return imgpath
 
+# probalbly change to AccessProject becaues only
+
+
 
 class Project(models.Model):
     PUBLIC, SHAREABLE, PRIVATE = 1, 2, 3
@@ -67,6 +70,7 @@ class Project(models.Model):
     name = models.CharField(default="no name", max_length=MAX_NAME_LEN)
     summary = models.TextField(default='no summary', max_length=MAX_TEXT_LEN)
 
+    # We need to keep the owner.
     owner = models.ForeignKey(User, null=False)
     text = models.TextField(default='no description', max_length=MAX_TEXT_LEN)
 
@@ -74,6 +78,7 @@ class Project(models.Model):
     date = models.DateTimeField(auto_now_add=True)
 
     # Each project belongs to a single group.
+    # Take out group
     group = models.OneToOneField(Group)
     uid = models.CharField(max_length=32, unique=True)
 
@@ -98,6 +103,18 @@ class Project(models.Model):
         return join(settings.MEDIA_ROOT, "projects", f"proj-{self.uid}")
 
 
+class Access(models.Model):
+
+    READ_ONLY, WRITE = 1,2
+
+    user = models.ForeignKey(User)
+    project= models.ForeignKey(Project)
+
+    access_choices = [(READ_ONLY, "Read only"), (WRITE, "Write")]
+    access_types = models.IntegerField(default=READ_ONLY, choices=access_choices)
+
+
+
 @receiver(pre_save, sender=Project)
 def create_project_group(sender, instance, **kwargs):
     """
@@ -108,6 +125,8 @@ def create_project_group(sender, instance, **kwargs):
 
     # Add owner to group
     group.user_set.add(instance.owner)
+
+
 
     instance.group = group
 
@@ -279,6 +298,7 @@ class Job(models.Model):
     AUTH_CHOICES = [(AUTHORIZED, "Authorized"), (UNDER_REVIEW, "Under Review")]
 
     QUEUED, RUNNING, COMPLETED, ERROR, DELETED, SPOOLED, PAUSED, ZOMBIE = range(1, 9)
+
     STATE_CHOICES = [(QUEUED, "Queued"), (RUNNING, "Running"), (PAUSED, "Paused"),
                      (SPOOLED, "Spooled"), (COMPLETED, "Completed"),
                      (ERROR, "Error"), (DELETED, "Deleted"), (ZOMBIE, "Zombie")]
@@ -382,7 +402,5 @@ class Job(models.Model):
             os.makedirs(path)
             self.path = path
 
-        super(Job, self).save(*args, **kwargs)
 
-    def url(self):
-        return reverse("job_view", kwargs=dict(id=self.id))
+        super(Job, self).save(*args, **kwargs)

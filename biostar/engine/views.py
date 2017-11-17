@@ -112,48 +112,35 @@ def site_admin(request):
     return render(request, 'admin_index.html', context=context)
 
 
-def quick_access_checker(request, project, owner_only):
-
-    # We don't really care for the first 2 things in this case, only the allow_access
-    _, _, allow_access = auth.check_obj_access(request.user, project, owner_only=owner_only)
-    errmsg = f"Only the owner ({project.owner.first_name}) of the project can add/remove people"
-
-    if not allow_access:
-        messages.error(request, errmsg)
-        return allow_access
-    return allow_access
-
-
 @cache.never_cache
 @object_access(instance=Project)
 def add_to_project(request, id):
 
     project = Project.objects.filter(pk=id).first()
-    current_users, searches = project.group.user_set.all(), []
+    searches = []
+    current_users = project.group.user_set.all()
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ADD_USER],
                                project=project)
-    if request.method == "POST":
-        allow_access = quick_access_checker(request=request, project=project, owner_only=True)
-        if allow_access:
 
-            form = AddOrRemoveUsers(data=request.POST, project=project)
-            #if form.is_valid():
+    if request.method == "POST":
+        user= request.user
+        form = AddOrRemoveUsers(data=request.POST, project=project, current_user=user)
+        if form.is_valid(request=request):
             method = request.POST.get("add_or_remove")
-            # Both add and remove are defaulted to False in process and this is used to trigger one.
             nusers, msg = form.process(**{method:True})
             messages.success(request, msg)
-        # The page refreshes correctly when doing this
+
         return redirect(reverse("add_to_project", kwargs=dict(id=project.id)))
 
     elif request.method == "GET" and request.GET.get("searches"):
+        # Can't search for users already in group
         query = User.objects.exclude(pk__in=[u.id for u in current_users])
         search = request.GET["searches"]
-
         searches = query.filter( Q(first_name__contains=search) | Q(email__contains=search))
         if not searches:
             messages.info(request, f"No users containing '{search}' exist.")
 
-    form = AddOrRemoveUsers(project=project)
+    form = AddOrRemoveUsers(project=project, current_user=request.user)
     context = dict(steps=steps, current_users=current_users, form=form,
                    available_users=searches, project=project)
 
@@ -476,13 +463,16 @@ def analysis_edit(request, id):
         form = EditAnalysisForm(analysis=analysis, data=request.POST)
         method = request.POST.get("save_or_preview")
         context = process_analysis_edit(method, analysis, form)
+        json_text = form.cleaned_data
 
     else:
         form = EditAnalysisForm(analysis=analysis)
         spec = hjson.loads(analysis.json_text)
         context = preview_specs(spec, analysis)
+        json_text = analysis.json_text
 
-    context.update(dict(project=project, analysis=analysis, steps=steps, form=form))
+    context.update(dict(project=project, analysis=analysis, steps=steps, form=form,
+                        json_text=json_text))
     return render(request, 'analysis_edit.html', context)
 
 
@@ -501,7 +491,10 @@ def job_list(request, id):
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, RESULT_LIST_ICON],
                                project=project)
 
-    jobs = Job.objects.filter(project=project).order_by("-start_date")
+    # This doen't order queued jobs correcly bc they aren't stared yet ( just submitted)
+    #jobs = Job.objects.filter(project=project).order_by("-start_date")
+
+    jobs =Job.objects.filter(project=project).order_by("-date", "-start_date")
 
     filter = request.GET.get('filter', '')
 
