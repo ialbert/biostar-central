@@ -112,9 +112,6 @@ def site_admin(request):
     return render(request, 'admin_index.html', context=context)
 
 
-
-
-
 @cache.never_cache
 @object_access(instance=Project)
 def add_to_project(request, id):
