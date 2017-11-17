@@ -18,7 +18,6 @@
         </div>
         {{ analysis.summary|markdown|safe }}
 
-
         <form method="post" class="ui form" action="{% url 'analysis_run' analysis.id %}">
 
             {% csrf_token %}

@@ -30,6 +30,7 @@
 
         </div>
         <div class="column specs">
+            {# Not implemented here yet since a lot of analysis_edit will change soon #}
                 {% for field in form %}
                     {% if field != form.text and field != form.save_or_preview %}
                         {% if field.field|is_checkbox %}
