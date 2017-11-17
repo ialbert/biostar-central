@@ -32,8 +32,7 @@
         <div class="column specs">
             {#This is a temp file that will replace analysis_edit (didnt want to break tests) #}
 
-            {# Not implemented here yet since a lot of analysis_edit will change soon #}
-            {% generate_form form.text.value %}
+            {% generate_fields form.text.value project=analysis.project form=form %}
 
         </div>
 

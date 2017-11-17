@@ -126,7 +126,7 @@ def create_project_group(sender, instance, **kwargs):
     # Add owner to group
     group.user_set.add(instance.owner)
 
-    
+
 
     instance.group = group
 

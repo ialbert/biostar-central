@@ -473,7 +473,7 @@ def analysis_edit(request, id):
 
     context.update(dict(project=project, analysis=analysis, steps=steps, form=form,
                         json_text=json_text))
-    return render(request, 'analysis_edit.html', context)
+    return render(request, 'analysis_edit_new.html', context)
 
 
 @object_access(instance=Project)

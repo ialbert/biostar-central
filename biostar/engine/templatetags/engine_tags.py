@@ -57,7 +57,7 @@ def generate_fields(json_text, project=None, form=None):
         if field:
             field.widget.attrs["name"] = name
             # Returns <django.forms.fields.CharField object> instead of html if the field isnt
-            # bound to a form ( when there isn't
+            # bound to a form
             if form:
                 field = forms.forms.BoundField(form, field, name)
             else:
