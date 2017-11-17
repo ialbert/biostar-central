@@ -120,29 +120,19 @@ def site_admin(request):
 def add_to_project(request, id):
 
     project = Project.objects.filter(pk=id).first()
-
-    current_users, searches = project.group.user_set.all(), []
+    searches = []
+    current_users = project.group.user_set.all()
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ADD_USER],
                                project=project)
+
     if request.method == "POST":
-        # Only the owner of the project can actually add people
-        #allow_access = quick_access_checker(request=request, project=project, owner_only=True)
-        form = AddOrRemoveUsers(data=request.POST, project=project)
-
-        if form.is_valid():
-            return
-
-        if allow_access:
-
-            #form = AddOrRemoveUsers(data=request.POST, project=project)
-
+        user= request.user
+        form = AddOrRemoveUsers(data=request.POST, project=project, current_user=user)
+        if form.is_valid(request=request):
             method = request.POST.get("add_or_remove")
-
-            # Both add and remove are defaulted to False in process() and this is used to trigger one.
             nusers, msg = form.process(**{method:True})
             messages.success(request, msg)
 
-        # The page refreshes correctly when doing this
         return redirect(reverse("add_to_project", kwargs=dict(id=project.id)))
 
     elif request.method == "GET" and request.GET.get("searches"):
@@ -153,7 +143,7 @@ def add_to_project(request, id):
         if not searches:
             messages.info(request, f"No users containing '{search}' exist.")
 
-    form = AddOrRemoveUsers(project=project)
+    form = AddOrRemoveUsers(project=project, current_user=request.user)
     context = dict(steps=steps, current_users=current_users, form=form,
                    available_users=searches, project=project)
 

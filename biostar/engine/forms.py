@@ -1,5 +1,6 @@
 import hjson, logging
 from django import forms
+from django.contrib import messages
 from .models import Project, Data, Analysis, Job
 from . import tasks
 from .const import *
@@ -84,20 +85,21 @@ def make_form_field(data, project):
     return field
 
 
-
-
-
-
 class AddOrRemoveUsers(forms.Form):
 
     users = forms.IntegerField()
     add_or_remove = forms.CharField(initial="")
-    def __init__(self, project, *args, **kwargs):
+
+    def __init__(self, project, current_user, *args, **kwargs):
         self.project = project
+        self.user = current_user
         super().__init__(*args, **kwargs)
 
-    def is_valid(self):
-        return True
+    def is_valid(self, request=None):
+        valid = super(AddOrRemoveUsers, self).is_valid()
+
+        return valid and self.quick_access_checker(request=request, owner_only=True)
+
 
     def process(self, add=False,remove=False):
         # More than one can be selected
@@ -121,19 +123,15 @@ class AddOrRemoveUsers(forms.Form):
 
         return len(users), mssg
 
-    def clean(self):
-        return
+    def quick_access_checker(self, request=None, owner_only=False):
 
-    def quick_access_checker(self, owner_only=True):
-
-        user= ''
         # We don't really care for the first 2 things in this case, only the allow_access
-        _, _, allow_access = auth.check_obj_access(user, self.project, owner_only=owner_only)
+        _, _, allow_access = auth.check_obj_access(self.user, self.project, owner_only=owner_only)
         errmsg = f"Only the owner ({self.project.owner.first_name}) of the project can perform action."
 
-        if not allow_access:
-            self.add_error(None,errmsg)
-            return allow_access
+        if not allow_access and request:
+            messages.error(request,errmsg)
+
         return allow_access
 
 
