@@ -33,6 +33,18 @@
 
             {% generate_fields form.text.value project=analysis.project form=form %}
 
+         <a class="ui green mini button">
+            <i class="check icon"></i>Run
+         </a>
         </div>
+
+    </div>
+
+    <div class="ui divider"></div>
+    <div class="ui vertical aligned segment">
+        <h2> {{ name }}</h2>
+            <div class="textbody">{{ html|safe }}</div>
+    </div>
+
 
 {% endblock %}
