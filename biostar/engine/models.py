@@ -1,6 +1,4 @@
-import hjson
-import logging
-import mistune
+import hjson, logging, mistune
 from django.utils.text import slugify
 from django.db import models
 from biostar.accounts.models import User, Group

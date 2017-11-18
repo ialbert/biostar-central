@@ -1,5 +1,5 @@
 from textwrap import dedent
-import hjson
+import hjson, logging
 from django import forms
 from django import template
 from django.contrib.staticfiles.templatetags.staticfiles import static
@@ -11,12 +11,15 @@ from biostar.engine import const
 from biostar.engine.models import Project, Job, make_html
 from biostar.engine import factory
 
+logger = logging.getLogger("engine")
 register = template.Library()
 
 JOB_COLORS = {
     Job.ZOMBIE: "orange", Job.SPOOLED: "pink",
     Job.ERROR: "red", Job.QUEUED: "blue", Job.RUNNING: "teal", Job.COMPLETED: "green"
 }
+
+
 
 
 def make_form_field(data, project=None):
@@ -37,9 +40,8 @@ def make_form_field(data, project=None):
     else:
 
         func = factory.TYPE2FUNC.get(display_type)
-
         if not func:
-            #logger.error(f"Invalid display_type={display_type}")
+            logger.error(f"Invalid display_type={display_type}")
             return
         field = func(data)
 

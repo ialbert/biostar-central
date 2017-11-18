@@ -1,6 +1,10 @@
 {% extends "base.html" %}
 {% load engine_tags %}
 
+{% block headtitle %}
+    Editing: {{ analysis.name }}
+{% endblock %}
+
 {% block title %}
     {{analysis.name}}
 {% endblock %}
@@ -45,6 +49,6 @@
         <h2> {{ name }}</h2>
             <div class="textbody">{{ html|safe }}</div>
     </div>
-
+</form>
 
 {% endblock %}
