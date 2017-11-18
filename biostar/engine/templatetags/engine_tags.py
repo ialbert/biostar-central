@@ -20,11 +20,9 @@ JOB_COLORS = {
 }
 
 
-
-
 def make_form_field(data, project=None):
 
-    display_type = data.get("display_type", '')
+    display_type = data.get("display_type")
 
     # Fields with no display type are not visible.
     if not display_type:
@@ -60,11 +58,9 @@ def generate_fields(json_text, project=None, form=None):
             field.widget.attrs["name"] = name
             # Returns <django.forms.fields.CharField object> instead of html if the field isnt
             # bound to a form
+            field = {"field": field}
             if form:
-                field = forms.forms.BoundField(form, field, name)
-            else:
-                field = {"field":field}
-
+                field = forms.forms.BoundField(form=form, field=field, name=name)
             fields.append(field)
 
     return dict(fields=fields)
