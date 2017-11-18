@@ -3,6 +3,7 @@ import hjson, logging
 from django import forms
 from django import template
 from django.contrib.staticfiles.templatetags.staticfiles import static
+from django.template import Template, Context
 from django.forms import widgets
 
 from django.utils.safestring import mark_safe
@@ -58,12 +59,24 @@ def generate_fields(json_text, project=None, form=None):
             field.widget.attrs["name"] = name
             # Returns <django.forms.fields.CharField object> instead of html if the field isnt
             # bound to a form
-            field = {"field": field}
             if form:
                 field = forms.forms.BoundField(form=form, field=field, name=name)
+            else:
+                field = {"field": field}
             fields.append(field)
 
     return dict(fields=fields)
+
+
+@register.filter
+def generate_script(template, json_text):
+
+    json_data = hjson.loads(json_text)
+    template = Template(template)
+    context = Context(json_data)
+
+    return template.render(context)
+
 
 
 @register.simple_tag
@@ -95,10 +108,6 @@ def img(obj):
         return static("images/placeholder.png")
 
 
-@register.filter
-def generate_fields(form, project):
-    return
-
 
 @register.filter
 def echo(obj):
@@ -107,6 +116,7 @@ def echo(obj):
 
     print (dir(obj), "DEBUGGING")
     return ''
+
 
 @register.filter
 def can_edit(user, instance):

@@ -249,6 +249,8 @@ class RunAnalysis(forms.Form):
 
 
 class EditAnalysisForm(forms.Form):
+
+    save_or_preview = forms.CharField(initial="preview")
     def __init__(self, analysis, *args, **kwargs):
 
         self.analysis = analysis
@@ -258,33 +260,37 @@ class EditAnalysisForm(forms.Form):
         json_data = hjson.loads(self.analysis.json_text)
         initial = hjson.dumps(json_data, indent=4)
 
-        self.fields["text"] = forms.CharField(initial=initial)
-        self.fields["save_or_preview"] = forms.CharField(initial="preview")
-
+        self.fields["json_text"] = forms.CharField(initial=initial)
+        self.fields["template"] = forms.CharField(initial=self.analysis.template)
         self.generate_form(json_data)
 
     def preview(self):
 
         cleaned_data = super(EditAnalysisForm, self).clean()
-        #TODO: strip \n at the end of "text"
-        json_data = hjson.loads(cleaned_data["text"])
+        #TODO: strip \s at the end of "text"
+        json_data = hjson.loads(cleaned_data["json_text"])
 
         self.generate_form(json_data)
 
     def save(self):
 
-        cleaned_data = super(EditAnalysisForm, self).clean()
-        json_data = hjson.loads(cleaned_data["text"])
-
+        super(EditAnalysisForm, self).clean()
+        json_data = hjson.loads(self.cleaned_data["json_text"])
+        # Refreshes the form with current stuff
         self.generate_form(json_data)
 
-        spec = hjson.loads(self.cleaned_data["text"])
+        spec = hjson.loads(self.cleaned_data["json_text"])
 
         if spec.get("settings"):
             self.analysis.name = spec["settings"].get("name", self.analysis.name)
             self.analysis.text = spec["settings"].get("text", self.analysis.text)
 
-        self.analysis.json_text = self.cleaned_data["text"]
+        self.analysis.json_text = self.cleaned_data["json_text"]
+        if self.analysis.template != self.cleaned_data["template"]:
+            self.analysis.auth = Analysis.UNDER_REVIEW
+
+        self.analysis.template = self.cleaned_data["template"]
+
         self.analysis.save()
 
         return self.analysis
