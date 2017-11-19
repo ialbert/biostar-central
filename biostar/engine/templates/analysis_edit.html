@@ -40,7 +40,7 @@
 
         <div class="column specs">
 
-            {% generate_fields form.json_text.value project=analysis.project form=form %}
+            {% generate_fields json_text project=analysis.project form=form %}
 
              <a class="ui green mini button">
                 <i class="check icon"></i>Run
@@ -49,7 +49,7 @@
 
        <div class="column specs">
         <pre>
-            {{form.template.value|generate_script:form.json_text.value }}
+            {{template|generate_script:json_text }}
         </pre>
 
         </div>

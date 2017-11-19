@@ -286,6 +286,7 @@ class EditAnalysisForm(forms.Form):
             self.analysis.text = spec["settings"].get("text", self.analysis.text)
 
         self.analysis.json_text = self.cleaned_data["json_text"]
+
         if self.analysis.template != self.cleaned_data["template"]:
             self.analysis.auth = Analysis.UNDER_REVIEW
 

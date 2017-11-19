@@ -464,15 +464,19 @@ def analysis_edit(request, id):
         form = EditAnalysisForm(analysis=analysis, data=request.POST)
         method = request.POST.get("save_or_preview")
         context = process_analysis_edit(method, analysis, form)
-        #json_text = form.cleaned_data
+        json_text = form.cleaned_data["json_text"]
+        template = form.cleaned_data["template"]
 
     else:
         form = EditAnalysisForm(analysis=analysis)
         spec = hjson.loads(analysis.json_text)
         context = preview_specs(spec, analysis)
-        #json_text = analysis.json_text
+        json_text = analysis.json_text
+        template = analysis.template
 
-    context.update(dict(project=project, analysis=analysis, steps=steps, form=form))
+
+    context.update(dict(project=project, analysis=analysis, steps=steps, form=form,
+                        json_text=json_text, template=template))
     return render(request, 'analysis_edit.html', context)
 
 
