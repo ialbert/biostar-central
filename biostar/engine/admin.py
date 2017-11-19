@@ -42,14 +42,15 @@ class AnalysisAdmin(admin.ModelAdmin):
         TextField: {'widget': Textarea(attrs={'rows':20,'cols': 100})},
     }
 
-    search_fields = ('name', 'text', 'owner__first_name', 'owner__email' )
-    list_display = ("name", "date", "auth")
-    list_filter = ( "state", "auth", "project__name")
+    search_fields = ('name', 'text', 'owner__first_name', 'owner__email', "project__name",
+                     "project__owner__first_name" )
+    list_display = ("name", "date", "security")
+    list_filter = ("security", "project__name", "state")
 
 
     fieldsets = (("Analysis Metadata",
                     {'fields': ("name","owner",'project',("uid","sticky"),
-                                ("state", "auth")),
+                                ("state", "security"), "image"),
                      "classes": ('extrapretty')}
                   ),
 
@@ -63,3 +64,4 @@ class AnalysisAdmin(admin.ModelAdmin):
                      "classes": ("wide", 'extrapretty')},
                   ),
                  )
+

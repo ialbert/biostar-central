@@ -287,7 +287,7 @@ class EditAnalysisForm(forms.Form):
 
         self.analysis.json_text = self.cleaned_data["json_text"]
 
-        #TODO: test more
+        #TODO: test more ( probs need to sluggify both)
         if self.analysis.template != self.cleaned_data["template"]:
             self.analysis.auth = Analysis.UNDER_REVIEW
 
