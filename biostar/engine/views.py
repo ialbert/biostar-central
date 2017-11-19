@@ -440,24 +440,26 @@ def preview_specs(spec, analysis):
         return dict(name=analysis.name, html=analysis.html)
 
 
-def process_analysis_edit(method, analysis, form):
+def process_analysis_edit(analysis, form, method=None):
     form_method_map = {'preview': form.preview,
                        'save': form.save}
-    spec = dict()
+
+    spec = hjson.loads(analysis.json_text)
     json_text = analysis.json_text
     template = analysis.template
 
-    if form.is_valid():
+    if form.is_valid() and method:
 
+        # Call preview() or save() methods
         form_method_map[method]()
         spec = hjson.loads(form.cleaned_data["json_text"].rstrip())
         json_text = form.cleaned_data["json_text"]
         template = form.cleaned_data["template"]
 
-    analysis_spec = preview_specs(spec, analysis)
-    analysis_spec.update(dict(json_text=json_text,template=template))
+    context = preview_specs(spec, analysis)
+    context.update(dict(json_text=json_text,template=template))
 
-    return analysis_spec
+    return context
 
 
 @login_required
@@ -472,13 +474,12 @@ def analysis_edit(request, id):
     if request.method == "POST":
         form = EditAnalysisForm(analysis=analysis, data=request.POST)
         method = request.POST.get("save_or_preview")
-        #form.is_valid() called in this function
-        context = process_analysis_edit(method, analysis, form)
+        #Method form.is_valid() called in this function
+        context = process_analysis_edit(analysis=analysis, form=form, method=method)
 
     else:
         form = EditAnalysisForm(analysis=analysis)
-        spec = hjson.loads(analysis.json_text)
-        context = preview_specs(spec, analysis)
+        context = process_analysis_edit(analysis=analysis, form=form)
 
     context.update(dict(project=project, analysis=analysis, steps=steps, form=form))
     return render(request, 'analysis_edit.html', context)

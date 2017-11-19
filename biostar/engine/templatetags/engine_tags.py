@@ -51,6 +51,7 @@ def make_form_field(data, project=None):
 def generate_fields(json_text, project=None, form=None):
 
     fields = []
+
     json_data = hjson.loads(json_text)
 
     for name, data in json_data.items():
