@@ -8,26 +8,33 @@ from django.db.models import CharField, TextField
 @admin.register(Job)
 class JobAdmin(admin.ModelAdmin):
 
-    #formfield_overrides = {
+    formfield_overrides = {
         #CharField: {'widget': TextInput(attrs={'size': '20'})},
-        #TextField: {'widget': Textarea(attrs={'rows': 40, 'cols': 100})},
-    #}
+        TextField: {'widget': Textarea(attrs={'rows':20,'cols': 100})},
+    }
 
     search_fields = ('name', 'owner__first_name', 'owner__email', 'state')
     list_display = ("name", "state","start_date", "security","date")
     list_filter = ("state", "security", "project__name")
 
 
-    fieldsets = (("General Settings",
+    fieldsets = (("Analysis Metadata",
                     {'fields': ("name","owner",'project',("uid","sticky"),
-                                ("state", "security"), "text"),
-                     "classes": ("collapse", 'extrapretty')}),
+                                ("state", "security")),
+                     "classes": ('extrapretty')}
+                  ),
+
+                 ("Optional Text Inputs",
+                    {'fields':(("text", "html"),"summary"),
+                     "classes": ("collapse",'extrapretty')}
+                  ),
 
                  ("Run Time Settings",
                     {'fields':("json_text", "template"),
                      "classes": ("wide", 'extrapretty')},
                   ),
                  )
+
 
 @admin.register(Analysis)
 class AnalysisAdmin(admin.ModelAdmin):

@@ -174,8 +174,7 @@ def field_state(field):
     """
     Returns the error label for a field.
     """
-    print(dir(field), field.widget)
-    1/0
+
     if field.errors:
         return 'error'
     else:

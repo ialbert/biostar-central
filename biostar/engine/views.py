@@ -429,6 +429,7 @@ def analysis_run(request, id):
 
 
 def preview_specs(spec, analysis):
+    """Function  used to get return updated analysis settings from a given spec"""
     if spec.get("settings"):
         name = spec["settings"].get("name", analysis.name)
         help = spec["settings"].get("help", analysis.text)
@@ -450,9 +451,11 @@ def process_analysis_edit(analysis, form, method=None):
 
     if form.is_valid() and method:
 
-        # Call preview() or save() methods
+        # Call preview() or save()
         form_method_map[method]()
         spec = hjson.loads(form.cleaned_data["json_text"].rstrip())
+
+        # Override json_text and template with most recent
         json_text = form.cleaned_data["json_text"]
         template = form.cleaned_data["template"]
 
