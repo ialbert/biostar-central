@@ -11,13 +11,13 @@
 
 {% block body %}
 
-<form class="ui form" >
+<form class="ui form" action="{% url 'analysis_edit' analysis.id %}">
 {% csrf_token %}
 
     <div   class="ui two column grid">
 
         <div class="column specs">
-            <textarea rows="30" cols="55" name="text">{{form.json_text.value}}
+            <textarea rows="30" cols="55" name="json_text">{{form.json_text.value}}
             </textarea>
 
              <button type="submit" name="save_or_preview" formmethod="post" value="preview" class="ui green mini button">
@@ -34,10 +34,10 @@
         </div>
 
         <div class="column specs">
-            <textarea rows="30" cols="55" name="text">{{form.template.value}}
+            <textarea rows="30" cols="55" name="template">{{form.template.value}}
             </textarea>
         </div>
-
+    {{form.errors}}
         <div class="column specs">
 
             {% generate_fields json_text project=analysis.project form=form %}

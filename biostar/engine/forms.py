@@ -264,11 +264,10 @@ class EditAnalysisForm(forms.Form):
         self.fields["template"] = forms.CharField(initial=self.analysis.template)
         self.generate_form(json_data)
 
+
     def preview(self):
 
-        cleaned_data = super(EditAnalysisForm, self).clean()
-        #TODO: strip \s at the end of "text"
-        json_data = hjson.loads(cleaned_data["json_text"])
+        json_data = hjson.loads(self.cleaned_data["json_text"].rstrip())
 
         self.generate_form(json_data)
 
@@ -276,6 +275,7 @@ class EditAnalysisForm(forms.Form):
 
         super(EditAnalysisForm, self).clean()
         json_data = hjson.loads(self.cleaned_data["json_text"])
+
         # Refreshes the form with current stuff
         self.generate_form(json_data)
 
