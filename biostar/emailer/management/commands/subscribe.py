@@ -3,7 +3,7 @@ from django.core.management.base import BaseCommand
 from django.conf import settings
 
 
-logger = logging.getLogger("biostar")
+logger = logging.getLogger("engine")
 
 
 
@@ -24,3 +24,4 @@ class Command(BaseCommand):
         template_name = options['template']
         from_email = options['from']
         target_email = options['to']
+        return

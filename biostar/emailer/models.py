@@ -7,16 +7,16 @@ from biostar.engine.util import get_uuid
 
 MAX_NAME_LEN = 256
 MAX_FIELD_LEN = 1024
+MAX_TEXT_LEN = 10000
 
 
 
 class EmailGroup(models.Model):
 
-    name =""
-    uid = ""
-    text = ""
-    html = ""
-    pass
+    name = models.CharField(max_length=MAX_NAME_LEN)
+    uid =  models.CharField(max_length=16, blank=True, unique=True, default=get_uuid(16))
+    text = models.CharField(max_length=MAX_TEXT_LEN)
+    html = models.CharField(max_length=MAX_TEXT_LEN)
 
 
 class EmailAddress(models.Model):
