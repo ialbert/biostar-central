@@ -1,8 +1,9 @@
 from textwrap import dedent
-import hjson
+import hjson, logging
 from django import forms
 from django import template
 from django.contrib.staticfiles.templatetags.staticfiles import static
+from django.template import Template, Context
 from django.forms import widgets
 
 from django.utils.safestring import mark_safe
@@ -11,6 +12,7 @@ from biostar.engine import const
 from biostar.engine.models import Project, Job, make_html
 from biostar.engine import factory
 
+logger = logging.getLogger("engine")
 register = template.Library()
 
 JOB_COLORS = {
@@ -21,7 +23,7 @@ JOB_COLORS = {
 
 def make_form_field(data, project=None):
 
-    display_type = data.get("display_type", '')
+    display_type = data.get("display_type")
 
     # Fields with no display type are not visible.
     if not display_type:
@@ -37,9 +39,8 @@ def make_form_field(data, project=None):
     else:
 
         func = factory.TYPE2FUNC.get(display_type)
-
         if not func:
-            #logger.error(f"Invalid display_type={display_type}")
+            logger.error(f"Invalid display_type={display_type}")
             return
         field = func(data)
 
@@ -50,6 +51,7 @@ def make_form_field(data, project=None):
 def generate_fields(json_text, project=None, form=None):
 
     fields = []
+
     json_data = hjson.loads(json_text)
 
     for name, data in json_data.items():
@@ -59,13 +61,23 @@ def generate_fields(json_text, project=None, form=None):
             # Returns <django.forms.fields.CharField object> instead of html if the field isnt
             # bound to a form
             if form:
-                field = forms.forms.BoundField(form, field, name)
+                field = forms.forms.BoundField(form=form, field=field, name=name)
             else:
-                field = {"field":field}
-
+                field = {"field": field}
             fields.append(field)
 
     return dict(fields=fields)
+
+
+@register.filter
+def generate_script(template, json_text):
+
+    json_data = hjson.loads(json_text)
+    template = Template(template)
+    context = Context(json_data)
+
+    return template.render(context)
+
 
 
 @register.simple_tag
@@ -97,10 +109,6 @@ def img(obj):
         return static("images/placeholder.png")
 
 
-@register.filter
-def generate_fields(form, project):
-    return
-
 
 @register.filter
 def echo(obj):
@@ -109,6 +117,7 @@ def echo(obj):
 
     print (dir(obj), "DEBUGGING")
     return ''
+
 
 @register.filter
 def can_edit(user, instance):
@@ -165,8 +174,7 @@ def field_state(field):
     """
     Returns the error label for a field.
     """
-    print(dir(field), field.widget)
-    1/0
+
     if field.errors:
         return 'error'
     else:

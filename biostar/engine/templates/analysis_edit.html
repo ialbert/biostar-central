@@ -1,5 +1,9 @@
-{% extends "base.html" %}
+{% extends "analysis_edit_base.html" %}
 {% load engine_tags %}
+
+{% block headtitle %}
+    Editing: {{ analysis.name }}
+{% endblock %}
 
 {% block title %}
     {{analysis.name}}
@@ -7,44 +11,55 @@
 
 {% block body %}
 
-<form class="ui form" >
+<form class="ui form" action="{% url 'analysis_edit' analysis.id %}">
 {% csrf_token %}
 
     <div   class="ui two column grid">
 
         <div class="column specs">
-        <textarea rows="30" cols="55" name="text">{{form.text.value}}
-        </textarea>
+            <textarea rows="30" cols="55" name="json_text">{{form.json_text.value}}
+            </textarea>
 
-     <button type="submit" name="save_or_preview" formmethod="post" value="preview" class="ui green mini button">
-        <i class="edit icon"></i>Preview
-     </button>
+             <button type="submit" name="save_or_preview" formmethod="post" value="preview" class="ui green button">
+                <i class="edit icon"></i>Preview
+             </button>
 
-     <button type="submit" name="save_or_preview" formmethod="post" value="save" class="ui mini primary button">
-        <i class="save icon"></i>Save
-     </button>
+             <button type="submit" name="save_or_preview" formmethod="post" value="save" class="ui primary button">
+                <i class="save icon"></i>Save
+             </button>
 
-    <a class="ui right floated mini button" href="{% url 'analysis_view' analysis.id %}">
-        Back
-    </a>
+            <a class="ui right floated button" href="{% url 'analysis_view' analysis.id %}">
+                Back
+            </a>
         </div>
 
         <div class="column specs">
+            <textarea rows="30" cols="55" name="template">{{form.template.value}}
+            </textarea>
+        </div>
+                {{form.errors}}
+        <div class="column specs">
 
-            {% generate_fields form.text.value project=analysis.project form=form %}
+            {% generate_fields json_text project=analysis.project form=form %}
 
-         <a class="ui green mini button">
-            <i class="check icon"></i>Run
-         </a>
+             <a class="ui green mini button">
+                <i class="check icon"></i>Run
+             </a>
+        </div>
+
+       <div class="column specs">
+        <pre>
+            {{template|generate_script:json_text }}
+        </pre>
+
         </div>
 
     </div>
 
+</form>
     <div class="ui divider"></div>
     <div class="ui vertical aligned segment">
         <h2> {{ name }}</h2>
             <div class="textbody">{{ html|safe }}</div>
     </div>
-
-
 {% endblock %}

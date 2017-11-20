@@ -1,6 +1,4 @@
-import hjson
-import logging
-import mistune
+import hjson, logging, mistune
 from django.utils.text import slugify
 from django.db import models
 from biostar.accounts.models import User, Group
@@ -259,7 +257,7 @@ class Analysis(models.Model):
     html = models.TextField(default='html')
     owner = models.ForeignKey(User)
 
-    auth = models.IntegerField(default=UNDER_REVIEW, choices=AUTH_CHOICES)
+    security = models.IntegerField(default=UNDER_REVIEW, choices=AUTH_CHOICES)
     state = models.IntegerField(default=ACTIVE, choices=STATE_CHOICES)
 
     project = models.ForeignKey(Project)
@@ -284,7 +282,10 @@ class Analysis(models.Model):
         self.date = self.date or now
         self.name = self.name[:MAX_NAME_LEN]
         self.html = make_html(self.text)
+
+
         super(Analysis, self).save(*args, **kwargs)
+
 
     def get_project_dir(self):
         return self.project.get_project_dir()
@@ -392,7 +393,7 @@ class Job(models.Model):
         self.name = self.name[:MAX_NAME_LEN]
         self.uid = self.uid or util.get_uuid(8)
         self.template = self.analysis.template
-        self.security = self.analysis.auth
+        self.security = self.analysis.security
         self.stderr_log = self.stderr_log[:MAX_LOG_LEN]
         self.stdout_log = self.stdout_log[:MAX_LOG_LEN]
         self.name = self.name or self.analysis.name
