@@ -79,11 +79,12 @@ def generate_script(template, json_text):
     return template.render(context)
 
 
-
 @register.simple_tag
 def sticky_label(obj):
     label = mark_safe('<span class ="ui label">Sticky</span>')
     return label if obj.sticky else ''
+
+
 
 @register.simple_tag
 def privacy_label(project):

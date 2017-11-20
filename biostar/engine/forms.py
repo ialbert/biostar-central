@@ -289,7 +289,7 @@ class EditAnalysisForm(forms.Form):
 
         #TODO: test more ( probs need to sluggify both)
         if self.analysis.template != self.cleaned_data["template"]:
-            self.analysis.auth = Analysis.UNDER_REVIEW
+            self.analysis.security = Analysis.UNDER_REVIEW
 
         self.analysis.template = self.cleaned_data["template"]
 
