@@ -12,7 +12,8 @@ class JobAdmin(admin.ModelAdmin):
         TextField: {'widget': Textarea(attrs={'rows':20,'cols': 100})},
     }
 
-    search_fields = ('name', 'owner__first_name', 'owner__email', 'state', "project__name")
+    search_fields = ('name', 'owner__first_name', 'owner__email', 'state', "project__name",
+                     "project__owner__first_name", "project__owner__email")
     list_display = ("name", "state","start_date", "security","date")
     list_filter = ("state", "security", "project__name")
 
@@ -43,7 +44,7 @@ class AnalysisAdmin(admin.ModelAdmin):
     }
 
     search_fields = ('name', 'text', 'owner__first_name', 'owner__email', "project__name",
-                     "project__owner__first_name" )
+                     "project__owner__first_name", "project__owner__email")
     list_display = ("name", "date", "security")
     list_filter = ("security", "project__name", "state")
 
