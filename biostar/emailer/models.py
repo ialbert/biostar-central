@@ -16,25 +16,41 @@ MAX_TEMPLATE_LEN = 20 * MAX_TEXT_LEN
 class EmailGroup(models.Model):
 
     name = models.CharField(max_length=MAX_NAME_LEN)
-    uid =  models.CharField(max_length=16, blank=True, unique=True, default=get_uuid(16))
+    uid =  models.CharField(max_length=16, blank=True, unique=True)
     text = models.CharField(max_length=MAX_TEXT_LEN)
     html = models.CharField(max_length=MAX_TEXT_LEN)
 
     # Mailing template specific to every group
-    template = models.CharField(max_length=MAX_TEMPLATE_LEN)
+    #template = models.CharField(max_length=MAX_TEMPLATE_LEN)
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        self.uid = self.uid or get_uuid(16)
+
+        super(EmailGroup, self).save()
 
 
 class EmailAddress(models.Model):
 
-    ACTIVE, DELETED, INACTIVE, Unsubscirbed = 1,2,3,4
-    STATE_CHOICES = [(ACTIVE, "Active"), (DELETED, "Deleted"), (INACTIVE, "Inactive"), (Unsubscirbed, "Unsubscirbed")]
+    ACTIVE, DELETED, INACTIVE, UNSUBSCRIBE = 1,2,3,4
+    STATE_CHOICES = [(ACTIVE, "Active"), (DELETED, "Deleted"), (INACTIVE, "Inactive"), (UNSUBSCRIBE, "Unsubscirbed")]
 
     # required email
     email = models.CharField(max_length=MAX_NAME_LEN, unique=True, blank=False)
     name = models.CharField(max_length=MAX_NAME_LEN)
 
-    uid = models.CharField(max_length=16, blank=True, unique=True, default=get_uuid(16))
+    uid = models.CharField(max_length=16, blank=True, unique=True)
     state = models.IntegerField(default=ACTIVE, choices=STATE_CHOICES)
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        self.uid = self.uid or get_uuid(16)
+
+        super(EmailAddress, self).save()
 
 
 class Subscription(models.Model):
@@ -42,6 +58,13 @@ class Subscription(models.Model):
     ACTIVE, DELETED, INACTIVE, UNSUBSCRIBE = 1,2,3,4
     STATE_CHOICES = [(ACTIVE, "Active"), (DELETED, "Deleted"), (INACTIVE, "Inactive"), (UNSUBSCRIBE, "Unsubscirbed")]
 
+    uid = models.CharField(max_length=16, blank=True, unique=True)
     state = models.IntegerField(default=ACTIVE, choices=STATE_CHOICES)
     address = models.ForeignKey(EmailAddress)
     group = models.ForeignKey(EmailGroup)
+
+
+    def save(self, *args, **kwargs):
+        self.uid = self.uid or get_uuid(16)
+
+        super(Subscription, self).save()

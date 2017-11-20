@@ -48,7 +48,7 @@ INSTALLED_APPS = [
     'mailer',
     'compressor',
     'pagedown',
-    'biostar.emailer',
+    'biostar.emailer.apps.EmailerConfig',
     'biostar.engine.apps.EngineConfig',
     'biostar.accounts.apps.AccountsConfig',
 ]

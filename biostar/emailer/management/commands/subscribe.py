@@ -22,7 +22,7 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('--group', type=str, required=True,
-                            help="Subscription list to add emails to.")
+                            help="Subscription group to add emails to.")
 
         parser.add_argument('--file', type=str, required=True,
                             help="""
@@ -32,9 +32,12 @@ class Command(BaseCommand):
                                 """)
 
     def handle(self, *args, **options):
+
         group = options['group']
         file = options["file"]
 
         group = ""
+
+
         return
 
