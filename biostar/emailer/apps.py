@@ -28,11 +28,20 @@ def init_sub(sender, **kwargs):
 
     from biostar.emailer.models import EmailGroup, EmailAddress, Subscription
 
-    address = EmailAddress(email="testbuddy@lvh.me", name="testbud")
-    address.save()
+    address = EmailAddress.objects.filter(email="testbuddy@lvh.me").first()
 
+    if not address:
+        address = EmailAddress(email="testbuddy@lvh.me", name="testbud")
+        address.save()
 
-    1/0
+        # Subscribe email address to mailing list.
+        mailing_list = EmailGroup.objects.filter(name="staff").first()
 
+        sub = Subscription(address=address, group=mailing_list)
+
+        sub.save()
+
+        print(address.subscription_set, sub, address)
+        1/0
 
     return

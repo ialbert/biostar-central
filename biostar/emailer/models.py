@@ -16,7 +16,7 @@ MAX_TEMPLATE_LEN = 20 * MAX_TEXT_LEN
 class EmailGroup(models.Model):
 
     name = models.CharField(max_length=MAX_NAME_LEN)
-    uid =  models.CharField(max_length=16, blank=True, unique=True)
+    uid = models.CharField(max_length=32, unique=True)
     text = models.CharField(max_length=MAX_TEXT_LEN)
     html = models.CharField(max_length=MAX_TEXT_LEN)
 
@@ -41,7 +41,7 @@ class EmailAddress(models.Model):
     email = models.CharField(max_length=MAX_NAME_LEN, unique=True, blank=False)
     name = models.CharField(max_length=MAX_NAME_LEN)
 
-    uid = models.CharField(max_length=16, blank=True, unique=True)
+    uid = models.CharField(max_length=32, unique=True)
     state = models.IntegerField(default=ACTIVE, choices=STATE_CHOICES)
 
     def __str__(self):
@@ -58,13 +58,15 @@ class Subscription(models.Model):
     ACTIVE, DELETED, INACTIVE, UNSUBSCRIBE = 1,2,3,4
     STATE_CHOICES = [(ACTIVE, "Active"), (DELETED, "Deleted"), (INACTIVE, "Inactive"), (UNSUBSCRIBE, "Unsubscirbed")]
 
-    uid = models.CharField(max_length=16, blank=True, unique=True)
+    uid = models.CharField(max_length=32, unique=True)
+
     state = models.IntegerField(default=ACTIVE, choices=STATE_CHOICES)
     address = models.ForeignKey(EmailAddress)
     group = models.ForeignKey(EmailGroup)
 
+    def __str__(self):
+        return f"{self.address.name}|{self.group.name}"
 
     def save(self, *args, **kwargs):
         self.uid = self.uid or get_uuid(16)
-
         super(Subscription, self).save()
