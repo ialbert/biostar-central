@@ -36,7 +36,7 @@ class Command(BaseCommand):
         group = options['group']
         file = options["file"]
 
-        group = ""
+        print(group, file)
 
 
         return

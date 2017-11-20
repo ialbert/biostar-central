@@ -26,22 +26,15 @@ def init_group(sender, **kwargs):
 def init_sub(sender, **kwargs):
     "Make a subscription to staff mailing list as a test"
 
-    from biostar.emailer.models import EmailGroup, EmailAddress, Subscription
+    from biostar.emailer.models import EmailGroup, EmailAddress
 
     address = EmailAddress.objects.filter(email="testbuddy@lvh.me").first()
-
     if not address:
         address = EmailAddress(email="testbuddy@lvh.me", name="testbud")
         address.save()
 
-        # Subscribe email address to mailing list.
+        # Create a new subscription via the now created address object
         mailing_list = EmailGroup.objects.filter(name="staff").first()
-
-        sub = Subscription(address=address, group=mailing_list)
-
-        sub.save()
-
-        print(address.subscription_set, sub, address)
-        1/0
+        sub = address.subscription_set.create(group=mailing_list)
 
     return
