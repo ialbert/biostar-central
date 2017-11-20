@@ -1,5 +1,6 @@
 import logging
 from django.core.management.base import BaseCommand
+from biostar.emailer import  models
 from django.conf import settings
 
 
@@ -7,21 +8,33 @@ logger = logging.getLogger("engine")
 
 
 
+
+def subscribe(address, group, template=None):
+
+
+    pass
+
+
+
+
 class Command(BaseCommand):
-    help = 'tests email settings'
+    help = 'Add an email address to a mailing list'
 
     def add_arguments(self, parser):
-        parser.add_argument('--to', type=str, required=False,
-                            default="2@lvh.me", help="The target email")
+        parser.add_argument('--group', type=str, required=True,
+                            help="Subscription list to add emails to.")
 
-        parser.add_argument('--from', type=str, required=False,
-                            default="mailer@biostars.org", help="The sender email")
-
-        parser.add_argument('--template', type=str, required=False,
-                            default="test_email.html", help="The template to use.")
+        parser.add_argument('--file', type=str, required=True,
+                            help="""
+                                    Path to text file with email addresses and names. 
+                                    Tab-delimited with two columns in each line:
+                                    (email_address, name)
+                                """)
 
     def handle(self, *args, **options):
-        template_name = options['template']
-        from_email = options['from']
-        target_email = options['to']
+        group = options['group']
+        file = options["file"]
+
+        group = ""
         return
+
