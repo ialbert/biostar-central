@@ -1,19 +1,10 @@
-import logging
+import logging, os
 from django.core.management.base import BaseCommand
-from biostar.emailer import  models
+from biostar.emailer import  models, auth
 from django.conf import settings
 
 
 logger = logging.getLogger("engine")
-
-
-
-
-def subscribe(address, group, template=None):
-
-
-    pass
-
 
 
 
@@ -36,8 +27,19 @@ class Command(BaseCommand):
         group = options['group']
         file = options["file"]
 
-        print(group, file)
+        group = models.EmailGroup.objects.filter(name=group).first()
+        if not group:
+            logger.error(f"Group name {group} does not exist.")
+            return
 
+        assert os.path.isfile(file), "String entered is not a file"
+
+        with open(file, "r") as mailing_list:
+
+            for mail in mailing_list:
+                email, name = mail.rstrip().split("\t")
+                auth.add_sub(email=email, name=name,
+                              group=group)
 
         return
 

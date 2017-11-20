@@ -45,7 +45,7 @@ class EmailAddress(models.Model):
     state = models.IntegerField(default=ACTIVE, choices=STATE_CHOICES)
 
     def __str__(self):
-        return self.name
+        return self.email
 
     def save(self, *args, **kwargs):
         self.uid = self.uid or get_uuid(16)
@@ -65,7 +65,7 @@ class Subscription(models.Model):
     group = models.ForeignKey(EmailGroup)
 
     def __str__(self):
-        return f"{self.address.name}|{self.group.name}"
+        return f"{self.address.name} | {self.group.name}"
 
     def save(self, *args, **kwargs):
         self.uid = self.uid or get_uuid(16)

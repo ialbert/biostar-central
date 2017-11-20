@@ -37,8 +37,13 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         template_name = options['template']
-        group = options['from']
+        group = options['group']
         target_email = options['to']
+        sender_email = options["from"]
+
+
+
+
 
         return
 

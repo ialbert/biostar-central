@@ -61,7 +61,7 @@ subscribe:init
 	python manage.py subscribe --group staff --file tmp/staff_emails.txt
 
 send:init
-	python manage.py send --group staff --file tmp/staff_emails.txt
+	python manage.py send --group staff --message "Hello peeps"
 
 hello:
 	python manage.py analysis --add --json biostar/tools/hello/hello4.hjson  --template biostar/tools/hello/hello4.sh --jobs
