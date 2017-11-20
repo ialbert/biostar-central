@@ -518,6 +518,7 @@ def job_list(request, id):
 
     return render(request, "job_list.html", context)
 
+
 @object_access(instance=Job)
 def job_view(request, id):
     '''

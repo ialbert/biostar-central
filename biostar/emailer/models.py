@@ -5,22 +5,41 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from biostar.engine.util import get_uuid
 
+MAX_NAME_LEN = 256
+MAX_FIELD_LEN = 1024
 
 
-class EmailList(models.Model):
 
-    ACTIVE, DELETED, INACTIVE, OPTOUT = 1,2,3,4
+class EmailGroup(models.Model):
 
-    STATE_CHOICES = [(ACTIVE, "Active"), (DELETED, "Deleted"), (INACTIVE, "Inactive"), (OPTOUT, "Opted out")]
+    name =""
+    uid = ""
+    text = ""
+    html = ""
+    pass
+
+
+class EmailAddress(models.Model):
+
+    ACTIVE, DELETED, INACTIVE, Unsubscirbed = 1,2,3,4
+
+    STATE_CHOICES = [(ACTIVE, "Active"), (DELETED, "Deleted"), (INACTIVE, "Inactive"), (Unsubscirbed, "Unsubscirbed")]
+
+    # required email
+    email = models.CharField(max_length=MAX_NAME_LEN, unique=True, blank=False)
+
+    name = models.CharField(max_length=MAX_NAME_LEN)
 
     uid = models.CharField(max_length=16, blank=True, unique=True, default=get_uuid(16))
     state = models.IntegerField(default=ACTIVE, choices=STATE_CHOICES)
 
 
+class Subscription(models.Model):
 
-@receiver(post_save, sender=User)
-def add_to_emaillist(sender, instance, created, **kwargs):
+    ACTIVE, DELETED, INACTIVE, Unsubscirbed = 1,2,3,4
 
-    if created:
-        # Create a profile for user
-        pass
+    STATE_CHOICES = [(ACTIVE, "Active"), (DELETED, "Deleted"), (INACTIVE, "Inactive"), (Unsubscirbed, "Unsubscirbed")]
+
+    state = models.IntegerField(default=ACTIVE, choices=STATE_CHOICES)
+    address = models.ForeignKey(EmailAddress)
+    group = models.ForeignKey(EmailGroup)
