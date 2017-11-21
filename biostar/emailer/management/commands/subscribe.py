@@ -37,8 +37,11 @@ class Command(BaseCommand):
         with open(file, "r") as mailing_list:
 
             for mail in mailing_list:
-                email, name = mail.rstrip().split("\t")
-                auth.add_sub(email=email, name=name, group=group)
+                # Two columns expected ( tab separated) anything else ignored.
+                if len(mail.split("\t")) == 2 :
+
+                    email, name = mail.rstrip().split("\t")
+                    auth.add_sub(email=email, name=name, group=group)
 
         return
 

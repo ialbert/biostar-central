@@ -16,7 +16,7 @@ class Command(BaseCommand):
     help = 'Send an email to one person or a whole mailing list (--group_name)'
 
     def add_arguments(self, parser):
-        parser.add_argument('--group_name', type=str, required=False,
+        parser.add_argument('--group', type=str, required=False,
                             help="Subscription group name to send a batch email to.")
 
         parser.add_argument('--from', type=str, required=False,
@@ -38,7 +38,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
 
         template_name = options['template']
-        group = options['group_name']
+        group = options['group']
         target_email = options['to']
         sender_email = options["from"]
         subject = options["subject"]

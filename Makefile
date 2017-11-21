@@ -58,10 +58,10 @@ users:
 
 
 subscribe:init
-	python manage.py subscribe --group staff --file tmp/staff_emails.txt
+	python manage.py subscribe --group staff --file export/local/test_emails.txt
 
 send:subscribe
-	python manage.py send --group_name staff --subject "Hello peeps"
+	python manage.py send --group staff --subject "Hello peeps"
 
 hello:
 	python manage.py analysis --add --json biostar/tools/hello/hello4.hjson  --template biostar/tools/hello/hello4.sh --jobs
