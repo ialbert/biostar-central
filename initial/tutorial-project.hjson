@@ -18,11 +18,16 @@ text: '''
 
     Each project has three distinct sections:
 
-    1. The Files.
-    2. The Recipes.
-    3. The Results.
+    1. The Data Files.
+    2. The Analysis Recipes.
+    3. The Analysis Results.
 
-    The results are built by applying an analysis recipe onto one or more files.
+    The Analysis Results are built by applying one Analysis Recipe onto a Data File.
+
+    One important detail is that a Data File may be one single file or a collection of any number of files (hundreds, thousands).
+    Many recipes can be run in parallel on all files in one invokation.
+    For now you don't need to be overly concerned with this feature. We just wanted to mention it since it is such a cool
+    feature.
 
     # What is a recipe?
 
