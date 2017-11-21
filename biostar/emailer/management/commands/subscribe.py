@@ -38,8 +38,7 @@ class Command(BaseCommand):
 
             for mail in mailing_list:
                 email, name = mail.rstrip().split("\t")
-                auth.add_sub(email=email, name=name,
-                              group=group)
+                auth.add_sub(email=email, name=name, group=group)
 
         return
 
