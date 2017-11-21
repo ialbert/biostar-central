@@ -16,20 +16,25 @@
 
 {% block body %}
 
-    <div class="ui raised segment">
-        <div class="ui center aligned header">
-            Analysis: {{ analysis.name }}
+    <div class="ui raised segments">
+
+        <div class="ui segment">
+
+            <div class="ui center aligned header">
+                Recipe: {{ analysis.name }}
+            </div>
+
+            <div class="">
+                <img class="ui centered small image" src="{% img analysis %}">
+            </div>
+
+            <p>
+                {{ analysis.summary|markdown|safe }}
+            </p>
+
         </div>
 
-        <div class="ui basic segment">
-            <img class="ui centered small image" src="{% img analysis %}">
-        </div>
-
-        <div>
-            {{ analysis.summary|markdown|safe }}
-        </div>
-
-        <div class="ui center aligned vertical segment">
+        <div class="ui center aligned segment">
             <a class="ui green button" href="{% url 'analysis_run' analysis.id %}">
                 <i class="spinner icon"></i> Run Analysis
             </a>
@@ -44,13 +49,10 @@
 
         </div>
 
-        <div class="ui vertical segment">
-            <div class="ui center aligned header">
-                Recipe Description
-            </div>
-
+        <div class="ui secondary segment">
             <div class="ui vertical segment">{{ analysis.html|safe }}</div>
-
         </div>
+
     </div>
+
 {% endblock %}

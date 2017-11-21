@@ -12,62 +12,48 @@
 
 {% block body %}
 
-    <div class="ui raised  segment">
+    <div class="ui raised segments">
 
-        <div class="ui divided link items">
+        {% project_header project label='File List:' summary=False%}
 
-            <div class="item">
+        <div class="ui segment">
 
-                <div class="ui tiny image">
-                    <img src="{% img project %}">
-                </div>
+            <div class="ui divided link items">
 
-                <div class="content">
-                    <a class="header" href="{% url 'project_view' project.id %}">
-                        <i class="file text icon"></i> File List
-                    </a>
-                    <div class="description">
-                        The data available in: <b>{{ project.name }}</b>
-                    </div>
-                </div>
+                {% if user|can_create %}
+                    <div class="item centerbox">
 
-
-        </div>
-
-    {% if user|can_create %}
-        <div class="item centerbox">
-
-            <a class="ui  button" href="{% url 'data_upload' project.id %}">
-                <i class="upload icon"></i>Upload File
-            </a>
-
-        </div>
-    {% endif %}
-
-
-            {% for data in data_list %}
-                <div class="item">
-
-                    <div class="content">
-                        <a class="header" href="{% url 'data_view' data.id %}">
-                            <i class="file icon"></i>{{ data.name }}
+                        <a class="ui  button" href="{% url 'data_upload' project.id %}">
+                            <i class="upload icon"></i>Upload File
                         </a>
-                        <div class="description">
-                            <div>{{ data.summary }}</div>
-                        </div>
-                        <div class="meta">
-                             {%  size_label data %}
-                             {% type_label data %}
-                        </div>
+
                     </div>
+                {% endif %}
 
 
-                </div>
-            {% endfor %}
+                {% for data in data_list %}
+                    <div class="item">
 
+                        <div class="content">
+                            <a class="header" href="{% url 'data_view' data.id %}">
+                                <i class="file icon"></i>{{ data.name }}
+                            </a>
+                            <div class="description">
+                                <div>{{ data.summary }}</div>
+                            </div>
+                            <div class="meta">
+                                {% size_label data %}
+                                {% type_label data %}
+                            </div>
+                        </div>
+
+
+                    </div>
+                {% endfor %}
+
+
+            </div>
 
         </div>
-
     </div>
-
 {% endblock %}
