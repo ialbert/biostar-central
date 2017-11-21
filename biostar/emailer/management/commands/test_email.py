@@ -2,7 +2,6 @@ import logging
 from django.core.management.base import BaseCommand
 from django.conf import settings
 from django.contrib.sites.models import Site
-from django.contrib.auth import get_user_model
 from biostar.emailer import sender
 from mailer.engine import send_all
 
