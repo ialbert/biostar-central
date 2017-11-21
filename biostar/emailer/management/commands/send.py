@@ -64,6 +64,7 @@ class Command(BaseCommand):
         # Queues the emails into the database.
         email.send(context=context, from_email=sender_email, recipient_list=recipient_list)
 
+        #TODO: send_all doesnt really work; need to send_mass_mail maybe?
         # This sends the accumulated email.
         send_all()
 
