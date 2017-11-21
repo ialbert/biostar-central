@@ -25,7 +25,7 @@ text: '''
     The Analysis Results are built by applying one Analysis Recipe onto a Data File.
 
     One important detail is that a Data File may be one single file or a collection of any number of files (hundreds, thousands).
-    Many recipes can be run in parallel on all files in one invokation.
+    Many recipes can be run in parallel on all files in one invocation.
     For now you don't need to be overly concerned with this feature. We just wanted to mention it since it is such a cool
     feature.
 
