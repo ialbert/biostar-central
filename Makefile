@@ -94,6 +94,11 @@ test:
 	python manage.py collectstatic --noinput -v 0
 	python manage.py test -v 2 --failfast
 
+	
+coverage:
+	coverage run manage.py test
+	coverage html --skip-covered
+
 push:
 	git commit -am "Update by `whoami` on `date` from `hostname`"
 	git push
