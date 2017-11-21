@@ -4,6 +4,7 @@ from django.core import management
 from django.test import TestCase
 from django.urls import reverse
 
+from django_webtest import WebTest
 from biostar.engine import auth
 from biostar.engine import models
 
@@ -227,7 +228,6 @@ class FactoryTests(TestCase):
             del self.json_data["display_type"]
 
 
-
     def test_data_generator(self):
 
         from biostar.engine import const
@@ -245,8 +245,6 @@ class FactoryTests(TestCase):
         field = auth.make_form_field(self.json_data, project=self.project)
 
         self.assertTrue(isinstance(field, forms.Field))
-
-
 
 
 class CommandTests(TestCase):
@@ -296,3 +294,10 @@ class CommandTests(TestCase):
         # stream = File(fp)
 
         pass
+
+
+class FormTests(TestCase):
+
+    def setUp(self):
+        pass
+    pass

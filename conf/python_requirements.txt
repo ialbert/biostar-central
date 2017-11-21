@@ -10,6 +10,7 @@ bleach
 django-mailer
 mistune
 django-pagedown
+django-webtest
 pillow
 uwsgi
 pysam
