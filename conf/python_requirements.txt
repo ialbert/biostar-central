@@ -13,3 +13,4 @@ django-pagedown
 pillow
 uwsgi
 pysam
+coverage

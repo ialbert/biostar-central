@@ -135,6 +135,14 @@ def can_create(user):
 
     return user.is_authenticated()
 
+@register.inclusion_tag('widgets/project_header.html')
+def project_header(project, label='Label', summary=True):
+    """
+    Returns a label for data sizes.
+    """
+    return dict(project=project, label=label, summary=summary)
+
+
 @register.inclusion_tag('widgets/job_elapsed.html')
 def job_minutes(job):
     """
