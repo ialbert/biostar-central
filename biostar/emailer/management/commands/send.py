@@ -23,16 +23,17 @@ class Command(BaseCommand):
                             default="mailer@biostars.org", help="The sender email")
 
         parser.add_argument('--to', type=str, required=False,
-                            default="mailer@biostars.org", help="The target email ( for one person)")
+                            default="mailer@biostars.org", help="The target email")
 
         parser.add_argument('--name', type=str, required=False,
-                            default="mailer@biostars.org", help="The target name ( for one person)")
+                            default="mailer", help="The target name")
 
         parser.add_argument('--template', type=str, required=False,
                             default="test_email.html", help="Email template sent to mailing-list or target recipient. ")
 
 
     def handle(self, *args, **options):
+
         template_name = options['template']
         group = options['group']
         target_email = options['to']
@@ -40,9 +41,7 @@ class Command(BaseCommand):
 
         # Sender requires a list.
         if not group:
-
             recipient_list =  target_email.split(",")
-
 
         # The object that parsers the template.
         email = sender.EmailTemplate(template_name)
@@ -52,10 +51,11 @@ class Command(BaseCommand):
         context = dict(site=site, protocol=settings.PROTOCOL, target_email=target_email)
 
         # Generate a log message.
-        logger.info(f"generating email from:{from_email} to:{target_email} using template:{template_name}")
+        if sender_email and target_email:
+            logger.info(f"generating email from:{sender_email} to:{target_email} using template:{template_name}")
 
-        # Queues the email into the database.
-        email.send(context=context, from_email=sender_email, recipient_list=recipient_list)
+            # Queues the email into the database.
+            email.send(context=context, from_email=sender_email, recipient_list=recipient_list)
 
 
         return
