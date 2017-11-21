@@ -36,7 +36,6 @@
                         <div class="content">
 
                             <a class="header" href="{% url 'job_view' job.id %}">
-                                <div class="ui  {% job_color job %} horizontal  label">{{ job.get_state_display }}</div>
                                 <i class="area chart icon"></i>{{ job.name }}
                             </a>
 
@@ -45,7 +44,9 @@
                             </div>
 
                             <div class="extra">
-                                {% job_minutes job %}
+                                {% job_minutes job %} &bull;
+                                <a class="ui  {% job_color job %}  label" href="{% url 'analysis_view' job.analysis.id %}"><i class="setting icon"></i>Go to Recipe</a>
+
                             </div>
                         </div>
 
