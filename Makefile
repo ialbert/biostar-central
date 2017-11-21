@@ -57,6 +57,12 @@ users:
 	@python manage.py user --email 'testbuddy@lvh.me' --password testbuddy@lvh.me --is_staff
 
 
+subscribe:init
+	python manage.py subscribe --group staff --file export/local/test_emails.txt
+
+send:subscribe
+	python manage.py send --group staff --subject "Hello peeps"
+
 hello:
 	python manage.py analysis --add --json biostar/tools/hello/hello4.hjson  --template biostar/tools/hello/hello4.sh --jobs
 	python manage.py analysis --add --json biostar/tools/hello/hello3.hjson  --template biostar/tools/hello/hello3.sh --jobs

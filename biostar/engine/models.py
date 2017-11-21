@@ -49,8 +49,6 @@ def image_path(instance, filename):
 
     return imgpath
 
-# probalbly change to AccessProject becaues only
-
 
 
 class Project(models.Model):
@@ -123,8 +121,6 @@ def create_project_group(sender, instance, **kwargs):
 
     # Add owner to group
     group.user_set.add(instance.owner)
-
-
 
     instance.group = group
 

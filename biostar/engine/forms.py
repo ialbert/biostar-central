@@ -105,23 +105,22 @@ class AddOrRemoveUsers(forms.Form):
         # More than one can be selected
         users = self.data.getlist('users')
         project_group = self.project.group
-        mssg = ''
 
         for user_id in users:
             picked_user = models.User.objects.filter(id=user_id).first()
             if add:
                 #Gives the user access_rights here
                 project_group.user_set.add(picked_user)
-                logger.info(f"Added user.id={picked_user.id} to project.group={project_group}")
-                mssg = f"Added {len(users)} user(s) to current project."
+                action = "Added"
 
             if remove:
                 # Remove user access_right here.
                 project_group.user_set.remove(picked_user)
-                logger.info(f"Removed user.id={picked_user.id} from project.group={project_group}")
-                mssg = f"Removed {len(users)} user(s) from current project."
+                action = "Removed"
 
-        return len(users), mssg
+            logger.info(f"{action} user.id={picked_user.id} from project.group={project_group}")
+
+        return len(users), f"{action} {len(users)}"
 
     def quick_access_checker(self, request=None, owner_only=False):
 
@@ -200,7 +199,6 @@ class AnalysisCopyForm(forms.Form):
                       user=owner, summary=summary, name=name, text=text)
         return params
 
-# Move the run and endit analysis forms intot he engine_tags?
 
 class RunAnalysis(forms.Form):
 
@@ -269,14 +267,16 @@ class EditAnalysisForm(forms.Form):
 
         json_data = hjson.loads(self.cleaned_data["json_text"].rstrip())
 
+        # Refresh form with most recent json data
         self.generate_form(json_data)
+
 
     def save(self):
 
         super(EditAnalysisForm, self).clean()
         json_data = hjson.loads(self.cleaned_data["json_text"])
 
-        # Refreshes the form with current stuff
+        # Refresh form
         self.generate_form(json_data)
 
         spec = hjson.loads(self.cleaned_data["json_text"])
