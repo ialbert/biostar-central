@@ -1,12 +1,11 @@
 
-{# This will be the subject of the email #}
+
 {%  block subject %}
 
     [biostar-engine] {{subject}}
 
 {% endblock %}
 
-{# This will be the subject of the email #}
 
 {% block html %}
     <p>
@@ -14,13 +13,18 @@
     </p>
 
     <p>
-
         This is an HTML email sent via the management command:
     </p>
 
     <p>
-        <b>python manage.py test_email</b>
+        <b>python manage.py send</b>
     </p>
+
+    {% if group %}
+        <p>
+            You are included in the {{group}} mailing list.
+        </p>
+    {% endif %}
 
     <p>
         {{ site.name }} Team<br>
@@ -35,7 +39,11 @@
 
     This is a TEXT email sent via the management command:
 
-    python manage.py test_email
+    python manage.py send
+
+    {% if group %}
+    You are included in the {{group}} mailing list.
+    {% endif %}
 
     {{ site.name }} Team
     {{ protocol }}://{{ site.domain }}

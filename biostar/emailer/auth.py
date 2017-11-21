@@ -7,6 +7,8 @@ logger = logging.getLogger("engine")
 
 def add_sub(email, group, name=None):
 
+    assert isinstance(group, EmailGroup), f"group needs to be EmailGroup, not: {type(group)}"
+
     name = name or email
     address = EmailAddress.objects.filter(email=email).first()
     if not address:
