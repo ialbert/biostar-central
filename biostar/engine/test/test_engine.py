@@ -1,4 +1,5 @@
 import hjson, logging, os
+from django import forms
 from django.core import management
 from django.test import TestCase
 from django.urls import reverse
@@ -194,9 +195,58 @@ class JobTest(TestCase):
         return
 
 
-class TasksTests(TestCase):
+class FactoryTests(TestCase):
+
     def setUp(self):
+
+        owner = models.User.objects.filter(is_superuser=True).first()
+        pre = len(models.Project.objects.all())
+        self.project = auth.create_project(user=owner, name="test",
+                                           text="Text", summary="summary")
+        post = len(models.Project.objects.all())
+        self.assertTrue(post == (pre + 1), "Error creating project in database")
+
+        self.json_data = {
+                "label":"test",
+                "help":"Test json data",
+                "choices":["test1", "test2"]
+        }
+
         return
+
+    def test_factory_fields(self):
+
+        from biostar.engine.factory import TYPE2FUNC
+
+        for display_type in TYPE2FUNC:
+            self.json_data.update(dict(display_type=display_type))
+
+            field = auth.make_form_field(self.json_data)
+            self.assertTrue(isinstance(field, forms.Field))
+
+            del self.json_data["display_type"]
+
+
+
+    def test_data_generator(self):
+
+        from biostar.engine import const
+
+        pre = len(models.Data.objects.all())
+        data = auth.create_data(self.project, path=__file__)
+        post = len(models.Data.objects.all())
+
+        self.assertTrue(post == (pre + 1), "Error creating data in database")
+
+        display_type = const.DROPDOWN
+
+        self.json_data.update(dict(display_type=display_type, path=data.get_path()))
+
+        field = auth.make_form_field(self.json_data, project=self.project)
+
+        self.assertTrue(isinstance(field, forms.Field))
+
+
 
 
 class CommandTests(TestCase):

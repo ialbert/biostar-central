@@ -10,7 +10,7 @@ from django.utils.safestring import mark_safe
 
 from biostar.engine import const
 from biostar.engine.models import Project, Job, make_html
-from biostar.engine import factory
+from biostar.engine import factory, auth
 
 logger = logging.getLogger("engine")
 register = template.Library()
@@ -21,32 +21,6 @@ JOB_COLORS = {
 }
 
 
-def make_form_field(data, project=None):
-
-    display_type = data.get("display_type")
-
-    # Fields with no display type are not visible.
-    if not display_type:
-        return
-
-    # Uploaded data is accessed via paths or links.
-    path_or_link = data.get("path") or data.get("link")
-
-    if path_or_link and project:
-        # Project specific data needs a special field.
-        data_type = data.get("data_type")
-        field = factory.data_field_generator(data, project=project, data_type=data_type)
-    else:
-
-        func = factory.TYPE2FUNC.get(display_type)
-        if not func:
-            logger.error(f"Invalid display_type={display_type}")
-            return
-        field = func(data)
-
-    return field
-
-
 @register.inclusion_tag('widgets/json_form.html')
 def generate_fields(json_text, project=None, form=None):
 
@@ -55,7 +29,7 @@ def generate_fields(json_text, project=None, form=None):
     json_data = hjson.loads(json_text)
 
     for name, data in json_data.items():
-        field = make_form_field(data, project)
+        field = auth.make_form_field(data, project)
         if field:
             field.widget.attrs["name"] = name
             # Returns <django.forms.fields.CharField object> instead of html if the field isnt
