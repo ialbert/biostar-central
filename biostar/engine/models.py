@@ -380,6 +380,8 @@ class Job(models.Model):
 
         return value
 
+    def done(self):
+        return self.state == Job.COMPLETED
 
     def save(self, *args, **kwargs):
         now = timezone.now()

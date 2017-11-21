@@ -124,8 +124,7 @@ class Command(BaseCommand):
                                                     summary=summary, text=text)
                             data.fill_dict(value)
 
-                    job_name = f'Results for: {analysis.name}'
-                    job = auth.create_job(analysis=analysis, name=job_name, json_data=json_data)
+                    job = auth.create_job(analysis=analysis, json_data=json_data)
 
             except KeyError as exc:
                 logger.error(f"processing the analysis: {exc}")
