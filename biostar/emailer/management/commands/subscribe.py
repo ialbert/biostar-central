@@ -32,7 +32,7 @@ class Command(BaseCommand):
             logger.error(f"Group name {group} does not exist.")
             return
 
-        assert os.path.isfile(file), "String entered is not a file"
+        assert os.path.isfile(file), "String entered is not a valid file"
 
         with open(file, "r") as mailing_list:
 

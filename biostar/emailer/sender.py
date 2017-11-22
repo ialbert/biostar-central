@@ -93,4 +93,4 @@ def send_html_mail(subject, message, message_html, from_email, recipient_list):
     """
     msg = EmailMultiAlternatives(subject, message, from_email, recipient_list)
     msg.attach_alternative(message_html, "text/html")
-    msg.send()
+    msg.send(fail_silently=False)

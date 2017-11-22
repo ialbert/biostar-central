@@ -57,34 +57,6 @@ class JobEditForm(forms.ModelForm):
         fields = ['name', 'text', 'summary','sticky']
 
 
-def make_form_field(data, project):
-
-    display_type = data.get("display_type", '')
-
-    # Fields with no display type are not visible.
-    if not display_type:
-        return
-
-    # Uploaded data is accessed via paths or links.
-    path_or_link = data.get("path") or data.get("link")
-
-    if path_or_link:
-        # Project specific data needs a special field.
-        data_type = data.get("data_type")
-
-        field = factory.data_field_generator(data, project=project, data_type=data_type)
-    else:
-
-        func = factory.TYPE2FUNC.get(display_type)
-
-        if not func:
-            logger.error(f"Invalid display_type={display_type}")
-            return
-        field = func(data)
-
-    return field
-
-
 class AddOrRemoveUsers(forms.Form):
 
     users = forms.IntegerField()
@@ -212,7 +184,7 @@ class RunAnalysis(forms.Form):
 
         # This loop needs to be here to register the fields and trigger is_valid() later on.
         for name, data in self.json_data.items():
-            field = make_form_field(data, self.project)
+            field = auth.make_form_field(data, self.project)
             if field:
                 self.fields[name] = field
 
@@ -301,7 +273,7 @@ class EditAnalysisForm(forms.Form):
     def generate_form(self, json_obj):
 
         for name, obj in json_obj.items():
-            field = make_form_field(obj, self.analysis.project)
+            field = auth.make_form_field(obj, self.analysis.project)
 
             if field:
                 self.fields[name] = field
