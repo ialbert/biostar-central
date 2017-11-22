@@ -109,7 +109,8 @@ class Access(models.Model):
     """
     Allows access of users to Projects.
     """
-
+    # The numerical value for permissions matters!
+    # READ_ACCESS < WRITE_ACCESS < ADMIN_ACCESS
     READ_ACCESS, WRITE_ACCESS, ADMIN_ACCESS = 1, 2, 3
     ACCESS_CHOICES = [
         (READ_ACCESS, "Read access"), (WRITE_ACCESS, "Write access"), (ADMIN_ACCESS, "Admin access")

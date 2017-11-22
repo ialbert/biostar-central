@@ -86,7 +86,7 @@ def check_obj_access(user, instance, access=Access.ADMIN_ACCESS, request=None):
 
     # The object does not exist.
     if not instance:
-        messages.error(request, "The object does not exist")
+        messages.error(request, "Object not found!")
         return False
 
     # Works for projects or objects with an attribute of project.
@@ -95,22 +95,34 @@ def check_obj_access(user, instance, access=Access.ADMIN_ACCESS, request=None):
     else:
         project = instance
 
-    # Deal with each access request case accordingly.
-
-    # A public project, user is asking for read access.
-    if (project.privacy == Project.PUBLIC) and (access == Access.READ_ACCESS):
+    # A public or shareable project. User is asking for read access.
+    if (project.privacy in (Project.PUBLIC, Project.SHAREABLE)) and (access == Access.READ_ACCESS):
         return True
 
-    # Any other access type we need
-    #allow_access = Access.objects.filter(user=user, project=project, access=access).first()
+    # Anonymous users have no other access permissions.
+    if user.is_anonymous():
+        messages.error(request, "Anonymous access denied!")
+        return False
 
+    # Check user access.
+    entry = Access.objects.filter(user=user, project=project, access=access).first()
 
-    #allow_access = project.privacy == Project.PUBLIC or user.is_superuser
-    #allow_access = allow_access or project.group in user.groups.all()
-    #allow_access = allow_access or project.owner == user or instance.owner == user
+    # No access permissions for the user on the project.
+    if not entry:
+        messages.error(request, "Access denied. No access permissions found.")
+        return False
 
-    # The final word is DENY. This is to catch missing a cascading choice.
-    messages.error(request, "Access denied: No permission was found.")
+    # The stored access is less than the required access.
+    if entry.access < access:
+        messages.error(request, "Access denied. You don't have sufficient permissions.")
+        return False
+
+    # Permissions granted to the object.
+    if entry.access >= access:
+        return True
+
+    # This should never trigger and is here to catch bugs.
+    messages.error(request, "Access denied! Invalid fall-through!")
     return False
 
 
