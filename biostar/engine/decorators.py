@@ -14,7 +14,7 @@ class object_access:
     Redirects to the url on access error.
     """
 
-    def __init__(self, type, access=models.Access.ADMIN_ACCESS, url='project_list'):
+    def __init__(self, type, access=models.Access.ADMIN_ACCESS, url=''):
 
         # The object that will be checked for permission.
         self.type = type
@@ -54,6 +54,7 @@ class object_access:
                     target = reverse(self.url, kwargs=dict(id=id))
                 else:
                     target = reverse('project_list')
+
                 return redirect(target)
 
             # Return the wrapped function.
