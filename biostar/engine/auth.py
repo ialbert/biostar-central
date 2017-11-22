@@ -1,17 +1,22 @@
+import logging
+import shutil
+import uuid
+
 import hjson
-import logging, uuid, shutil
+from django.contrib import messages
 from django.db.models import Q
-from django.utils.text import slugify
-from django.template import Template, Context
 from django.template import loader
+from django.test.client import RequestFactory
+from django.utils.text import slugify
 
 from . import factory
 from .const import *
-from .models import Data, Analysis, Job, Project
+from .models import Data, Analysis, Job, Project, Access
 
 CHUNK = 1024 * 1024
 
 logger = logging.getLogger("engine")
+
 
 def get_uuid(limit=32):
     return str(uuid.uuid4())[:limit]
@@ -21,9 +26,7 @@ def join(*args):
     return os.path.abspath(os.path.join(*args))
 
 
-
 def make_form_field(data, project=None):
-
     display_type = data.get("display_type")
 
     # Fields with no display type are not visible.
@@ -47,6 +50,7 @@ def make_form_field(data, project=None):
 
     return field
 
+
 def get_project_list(user):
     """
     Return projects with privileges relative to a user.
@@ -65,35 +69,49 @@ def get_project_list(user):
     # then merge that with the public projects query
 
     query = query.filter(
-                 Q(owner=user)|Q(group__in=user.groups.all()),
-                  Q(privacy=Project.PRIVATE)|
-                  Q(privacy=Project.SHAREABLE)) | query.filter(privacy=Project.PUBLIC)
+        Q(owner=user) | Q(group__in=user.groups.all()),
+        Q(privacy=Project.PRIVATE) |
+        Q(privacy=Project.SHAREABLE)) | query.filter(privacy=Project.PUBLIC)
 
     return query
 
 
-def check_obj_access(user, query, owner_only=False):
+def check_obj_access(user, instance, access=Access.ADMIN_ACCESS, request=None):
+    """
+    """
+    # This is so that we can inform users in more granularity
+    # but also to allow this function to be called outside a web view
+    # where there are no requests.
+    request = request or RequestFactory()
 
-    if hasattr(query, "project"):
-        project = query.project
+    # The object does not exist.
+    if not instance:
+        messages.error(request, "The object does not exist")
+        return False
+
+    # Works for projects or objects with an attribute of project.
+    if hasattr(instance, "project"):
+        project = instance.project
     else:
-        project = query
-        # basically only place I need to actully change stuf
+        project = instance
 
-        #"access.filter(user=user,project=project); should give you the acess type for that project/user combo"
-    if not project:
-        return project, query, False
+    # Deal with each access request case accordingly.
 
-    allow_access = project.privacy == Project.PUBLIC or user.is_superuser
-    allow_access = allow_access or project.group in user.groups.all()
-    allow_access = allow_access or project.owner == user or query.owner == user
+    # A public project, user is asking for read access.
+    if (project.privacy == Project.PUBLIC) and (access == Access.READ_ACCESS):
+        return True
 
-    # Overrides the above conditions
-    if owner_only:
-        allow_access = query.owner == user
-        allow_access = allow_access or user == project.owner or user.is_superuser
+    # Any other access type we need
+    #allow_access = Access.objects.filter(user=user, project=project, access=access).first()
 
-    return project, query, allow_access
+
+    #allow_access = project.privacy == Project.PUBLIC or user.is_superuser
+    #allow_access = allow_access or project.group in user.groups.all()
+    #allow_access = allow_access or project.owner == user or instance.owner == user
+
+    # The final word is DENY. This is to catch missing a cascading choice.
+    messages.error(request, "Access denied: No permission was found.")
+    return False
 
 
 def get_data(user, project, query, data_type=None):
@@ -184,7 +202,6 @@ def findfiles(location, collect):
 
 
 def create_data_path(data, fname):
-
     # Limit the file name lenght.
     fname = os.path.basename(fname)[-100:]
 
@@ -205,20 +222,19 @@ def create_data_path(data, fname):
 
     return data_path
 
+
 def create_data(project, user=None, stream=None, path='', name='',
                 text='', summary='', data_type=None, link=False):
-
     # Absolute paths with no trailing slashes.
     path = os.path.abspath(path).rstrip("/")
 
     # Create the data.
     state = Data.PENDING
-    data = Data.objects.create(name=name, owner=user, state=state,  project=project,
+    data = Data.objects.create(name=name, owner=user, state=state, project=project,
                                data_type=data_type, summary=summary, text=text)
 
-
     # If the path is a directory, symlink all files.
-    if path!=os.path.abspath("") and os.path.isdir(path):
+    if path != os.path.abspath("") and os.path.isdir(path):
 
         logger.info(f"Symlinking path: {path}")
         collect = findfiles(path, collect=[])
@@ -229,7 +245,7 @@ def create_data(project, user=None, stream=None, path='', name='',
         logger.info(f"Symlinked {len(collect)} files.")
 
     # The path is a file.
-    if path!=os.path.abspath("") and os.path.isfile(path):
+    if path != os.path.abspath("") and os.path.isfile(path):
 
         dest = create_data_path(data, path)
 
