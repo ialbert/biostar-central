@@ -4,7 +4,7 @@ from django.core import management
 from django.test import TestCase
 from django.urls import reverse
 
-from django_webtest import WebTest
+#from django_webtest import WebTest
 from biostar.engine import auth
 from biostar.engine import models
 
