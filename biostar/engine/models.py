@@ -109,11 +109,11 @@ class Access(models.Model):
     """
     Allows access of users to Projects.
     """
-    # The numerical value for permissions matters!
-    # READ_ACCESS < WRITE_ACCESS < ADMIN_ACCESS
-    READ_ACCESS, WRITE_ACCESS, ADMIN_ACCESS = 1, 2, 3
+    # The numerical values for permissions matter!
+    # READ_ACCESS < WRITE_ACCESS < EXECUTE_ACCESS < ADMIN_ACCESS
+    READ_ACCESS, WRITE_ACCESS, EXECUTE_ACCESS, ADMIN_ACCESS = 1, 2, 3, 4
     ACCESS_CHOICES = [
-        (READ_ACCESS, "Read"), (WRITE_ACCESS, "Write"), (ADMIN_ACCESS, "Admin")
+        (READ_ACCESS, "Read"), (WRITE_ACCESS, "Write"), (EXECUTE_ACCESS, "Execute"), (ADMIN_ACCESS, "Admin")
     ]
 
     user = models.ForeignKey(User)

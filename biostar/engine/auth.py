@@ -72,6 +72,7 @@ def get_project_list(user):
 
 def check_obj_access(user, instance, access=Access.ADMIN_ACCESS, request=None):
     """
+    Validates object access.
     """
     # This is so that we can inform users in more granularity
     # but also to allow this function to be called outside a web view
@@ -108,7 +109,7 @@ def check_obj_access(user, instance, access=Access.ADMIN_ACCESS, request=None):
 
     # The stored access is less than the required access.
     if entry.access < access:
-        messages.error(request, "Access denied. You don't have sufficient permissions.")
+        messages.warning(request, "You have only {entry.get_access_display()} permission. ")
         return False
 
     # Permissions granted to the object.
