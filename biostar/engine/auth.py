@@ -8,6 +8,7 @@ from django.db.models import Q
 from django.template import loader
 from django.test.client import RequestFactory
 from django.utils.text import slugify
+from django.utils.safestring import mark_safe
 
 from . import factory
 from .const import *
@@ -69,7 +70,6 @@ def get_project_list(user):
 
     return query
 
-
 def check_obj_access(user, instance, access=Access.ADMIN_ACCESS, request=None):
     """
     Validates object access.
@@ -100,7 +100,7 @@ def check_obj_access(user, instance, access=Access.ADMIN_ACCESS, request=None):
         return False
 
     # Check user access.
-    entry = Access.objects.filter(user=user, project=project, access=access).first()
+    entry = Access.objects.filter(user=user, project=project).first()
 
     # No access permissions for the user on the project.
     if not entry:
@@ -109,7 +109,14 @@ def check_obj_access(user, instance, access=Access.ADMIN_ACCESS, request=None):
 
     # The stored access is less than the required access.
     if entry.access < access:
-        messages.warning(request, "You have only {entry.get_access_display()} permission. ")
+        access_text = Access.ACCESS_MAP.get(access, 'Invalid')
+        msg = f"""
+        This action requires <code>{access_text}</code> permission.
+        You only have <code>{entry.get_access_display()}</code> permission.
+        The project administrator can add more permissions to your account.
+        """
+        msg = mark_safe(msg)
+        messages.warning(request, msg )
         return False
 
     # Permissions granted to the object.

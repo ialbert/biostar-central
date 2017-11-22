@@ -292,7 +292,7 @@ def data_edit(request, id):
 
 
 @login_required
-@object_access(type=Project)
+@object_access(type=Project, access=Access.EDIT_ACCESS, url='data_list')
 def data_upload(request, id):
     owner = request.user
     project = Project.objects.filter(id=id).first()
