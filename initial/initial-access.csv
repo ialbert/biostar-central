@@ -1,0 +1,8 @@
+Email,Uid,Access
+aaron_maloy@fws.gov,fish,write
+meredith_bartron@fws.gov,fish,write
+drc9@psu.edu,giraffe,write
+lxw34@psu.edu,giraffe,read
+testbuddy@lvh.me,giraffe,admin
+readerbuddy@lvh.me,giraffe,read
+writerbuddy@lvh.me,giraffe,write

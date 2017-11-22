@@ -51,10 +51,11 @@ next:
 	python manage.py job --next
 
 users:
-	@python manage.py user --name 'Aaron Maloy' --email 'aaron_maloy@fws.gov' --group_name fish
-	@python manage.py user --name 'Doug Cavener' --email 'drc9@psu.edu' --group_name giraffe
-	@python manage.py user --name 'Lan Wu Cavener' --email 'lxw34@psu.edu' --group_name giraffe
-	@python manage.py user --email 'testbuddy@lvh.me' --password testbuddy@lvh.me --is_staff
+	@# Create the initial users.
+	@python manage.py add_user initial/initial-users.csv
+
+	@# Create initial access of users.
+	@python manage.py add_access initial/initial-access.csv
 
 
 subscribe:init

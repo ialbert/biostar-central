@@ -53,25 +53,19 @@ def make_form_field(data, project=None):
 
 def get_project_list(user):
     """
-    Return projects with privileges relative to a user.
+    Return projects visible to a user.
     """
-    query = Project.objects.all()
 
-    # Superusers see everything
-    if user.is_superuser:
-        return query
-
-    # Unauthenticated users see public projects.
     if user.is_anonymous:
-        return query.filter(privacy=Project.PUBLIC)
+        # Unauthenticated users see public projects.
+        cond = Q(privacy=Project.PUBLIC)
+    else:
+        # Authenticated users see public projects, projects they own and projects
+        # where they have been given access.
+        cond = Q(owner=user) | Q(privacy=Project.PUBLIC) | Q(access__user=user)
 
-    # get the private and sharable projects belonging to the user
-    # then merge that with the public projects query
-
-    query = query.filter(
-        Q(owner=user) | Q(group__in=user.groups.all()),
-        Q(privacy=Project.PRIVATE) |
-        Q(privacy=Project.SHAREABLE)) | query.filter(privacy=Project.PUBLIC)
+    # Generate the query.
+    query = Project.objects.filter(cond)
 
     return query
 

@@ -113,7 +113,7 @@ class Access(models.Model):
     # READ_ACCESS < WRITE_ACCESS < ADMIN_ACCESS
     READ_ACCESS, WRITE_ACCESS, ADMIN_ACCESS = 1, 2, 3
     ACCESS_CHOICES = [
-        (READ_ACCESS, "Read access"), (WRITE_ACCESS, "Write access"), (ADMIN_ACCESS, "Admin access")
+        (READ_ACCESS, "Read"), (WRITE_ACCESS, "Write"), (ADMIN_ACCESS, "Admin")
     ]
 
     user = models.ForeignKey(User)

@@ -24,25 +24,15 @@ def init_users(sender, **kwargs):
 
     admin_group, created = Group.objects.get_or_create(name=settings.ADMIN_GROUP_NAME)
 
-    logger.info("Setting up users")
+    logger.info("Setting up admin users")
 
     for name, email in settings.ADMINS:
         if not User.objects.filter(email=email):
-            user = User(first_name=name, email=email,
-                    is_superuser=True, is_staff=True)
+            user = User(first_name=name, email=email, is_superuser=True, is_staff=True)
             user.set_password(settings.SECRET_KEY)
             user.save()
             logger.info(f"Created admin user: {user.email}")
             admin_group.user_set.add(user)
-
-    if settings.DEBUG:
-        testbuddy = 'testbuddy@lvh.me'
-
-        user, flag = User.objects.get_or_create(email=testbuddy, username=testbuddy,
-                                                first_name='testbuddy')
-        user.set_password(testbuddy)
-        user.save()
-
 
 def init_site(sender, **kwargs):
     """

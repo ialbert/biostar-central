@@ -148,6 +148,7 @@ def project_list(request):
 
     projects = auth.get_project_list(user=request.user).order_by("-sticky", "-privacy")
     projects = projects.order_by("-privacy", "-sticky", "-date", "-id")
+
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON])
     context = dict(projects=projects, steps=steps)
 
