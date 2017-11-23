@@ -14,8 +14,7 @@ from django.urls import reverse
 from .forms import *
 from .const import *
 from .decorators import object_access
-from .models import (Project, Data,
-                     Analysis, Job, User)
+from .models import (Project, Data, Analysis, Job, User, Access)
 
 
 def join(*args):
@@ -110,9 +109,8 @@ def site_admin(request):
     return render(request, 'admin_index.html', context=context)
 
 
-@cache.never_cache
-@object_access(instance=Project)
-def add_to_project(request, id):
+@object_access(type=Project, access=Access.ADMIN_ACCESS, url='project_view')
+def project_users(request, id):
 
     project = Project.objects.filter(pk=id).first()
     searches = []
@@ -149,15 +147,16 @@ def project_list(request):
 
     projects = auth.get_project_list(user=request.user).order_by("-sticky", "-privacy")
     projects = projects.order_by("-privacy", "-sticky", "-date", "-id")
+
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON])
     context = dict(projects=projects, steps=steps)
 
     return render(request, "project_list.html", context)
 
 
-# @login_required
-@object_access(instance=Project)
+@object_access(type=Project, access=Access.READ_ACCESS)
 def project_view(request, id):
+    user = request.user
     project = Project.objects.filter(id=id).first()
 
     # Project not found.
@@ -172,15 +171,22 @@ def project_view(request, id):
     recipe_count = Analysis.objects.filter(project=project).count()
     result_count = Job.objects.filter(project=project).count()
 
-    context = dict(project=project,
+    if user.is_authenticated():
+        access = Access.objects.filter(user=user, project=project).first()
+    else:
+        access = None
+
+    # Use a placeholder
+    access = access or Access(access=Access.PUBLIC_ACCESS)
+
+    context = dict(project=project, access=access,
                    data_count=data_count, recipe_count=recipe_count, result_count=result_count,
                    steps=steps)
 
     return render(request, "project_view.html", context)
 
 
-@login_required
-@object_access(instance=Project, owner_only=True)
+@object_access(type=Project, access=Access.EDIT_ACCESS, url='project_view')
 def project_edit(request, id):
     project = auth.get_project_list(user=request.user).filter(id=id).first()
 
@@ -234,7 +240,7 @@ def project_create(request):
                   context)
 
 # @login_required
-@object_access(instance=Project)
+@object_access(type=Project, access=Access.READ_ACCESS)
 def data_list(request, id):
 
     project = Project.objects.filter(id=id).first()
@@ -255,7 +261,7 @@ def data_list(request, id):
 
 
 # @login_required
-@object_access(instance=Data)
+@object_access(type=Data, access=Access.READ_ACCESS)
 def data_view(request, id):
     data = Data.objects.filter(id=id).first()
     if not data:
@@ -270,8 +276,7 @@ def data_view(request, id):
     return render(request, "data_view.html", context)
 
 
-@login_required
-@object_access(instance=Data, owner_only=True)
+@object_access(type=Data, access=Access.EDIT_ACCESS, url='data_view')
 def data_edit(request, id):
     data = Data.objects.filter(id=id).first()
     project = data.project
@@ -291,9 +296,7 @@ def data_edit(request, id):
 
     return render(request, 'data_edit.html', context)
 
-
-@login_required
-@object_access(instance=Project, owner_only=True)
+@object_access(type=Project, access=Access.UPLOAD_ACCESS, url='data_list')
 def data_upload(request, id):
     owner = request.user
     project = Project.objects.filter(id=id).first()
@@ -323,7 +326,7 @@ def data_upload(request, id):
     return render(request, 'data_upload.html', context)
 
 
-@object_access(instance=Analysis)
+@object_access(type=Analysis, access=Access.READ_ACCESS)
 def analysis_list(request, id):
     """
     Returns the list of analyses for a project id.
@@ -339,7 +342,7 @@ def analysis_list(request, id):
     return render(request, "analysis_list.html", context)
 
 
-@object_access(instance=Analysis)
+@object_access(type=Analysis, access=Access.READ_ACCESS)
 def analysis_view(request, id):
     """
     Returns an analysis view based on its id.
@@ -354,7 +357,7 @@ def analysis_view(request, id):
     return render(request, "analysis_view.html", context)
 
 
-@object_access(instance=Analysis)
+@object_access(type=Analysis, access=Access.RECIPE_ACCESS, url='analysis_view')
 def analysis_recipe(request, id):
     analysis = Analysis.objects.filter(id=id).first()
 
@@ -366,7 +369,7 @@ def analysis_recipe(request, id):
     return render(request, "analysis_recipe.html", context)
 
 
-@object_access(instance=Analysis)
+@object_access(type=Analysis, access=Access.RECIPE_ACCESS, url='analysis_recipe')
 def analysis_copy(request, id):
 
     # TODO: will use a factory.py function for generating projects field when adding new features
@@ -390,7 +393,7 @@ def analysis_copy(request, id):
     return render(request, "analysis_copy.html", context)
 
 
-@object_access(instance=Analysis)
+@object_access(type=Analysis, access=Access.EXECUTE_ACCESS, url='analysis_view')
 def analysis_run(request, id):
     analysis = Analysis.objects.filter(id=id).first()
 
@@ -463,8 +466,7 @@ def process_analysis_edit(analysis, form, method=None):
     return context
 
 
-@login_required
-@object_access(instance=Analysis, owner_only=True)
+@object_access(type=Analysis, access=Access.EDIT_ACCESS, url='analysis_recipe')
 def analysis_edit(request, id):
     analysis = Analysis.objects.filter(id=id).first()
     project = analysis.project
@@ -486,7 +488,7 @@ def analysis_edit(request, id):
     return render(request, 'analysis_edit.html', context)
 
 
-@object_access(instance=Project)
+@object_access(type=Project, access=Access.READ_ACCESS)
 def job_list(request, id):
     """
     Returns the list of jobs for a project id.
@@ -517,7 +519,7 @@ def job_list(request, id):
     return render(request, "job_list.html", context)
 
 
-@object_access(instance=Job)
+@object_access(type=Job, access=Access.READ_ACCESS)
 def job_view(request, id):
     '''
     Views the state of a single job.
@@ -532,7 +534,7 @@ def job_view(request, id):
     return render(request, "job_view.html", context=context)
 
 
-@object_access(instance=Job)
+@object_access(type=Job, access=Access.READ_ACCESS)
 def job_result_view(request, id):
     """
     Returns the primary result of a job.
@@ -549,7 +551,7 @@ def job_result_view(request, id):
         return redirect(reverse("job_view", kwargs=dict(id=id)))
 
 
-@object_access(instance=Job)
+@object_access(type=Job, access=Access.READ_ACCESS)
 def job_file_view(request, id):
     """
     Returns the directory view of the job.
@@ -559,7 +561,7 @@ def job_file_view(request, id):
 
     return redirect(url)
 
-@object_access(instance=Job)
+@object_access(type=Job, access=Access.READ_ACCESS)
 def job_files_list(request, id, path=''):
     job = Job.objects.filter(id=id).first()
 

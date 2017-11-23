@@ -1,14 +1,16 @@
-import hjson, logging, mistune
-from django.utils.text import slugify
-from django.db import models
-from biostar.accounts.models import User, Group
-from django.db.models.signals import post_save, pre_save
-from django.dispatch import receiver
+import logging
 
+import hjson
+import mistune
+from django.db import models
+from django.db.models.signals import post_save
+from django.db.models.signals import pre_save
+from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
 
 from biostar import settings
+from biostar.accounts.models import User, Group
 from . import util
 from .const import *
 
@@ -50,7 +52,6 @@ def image_path(instance, filename):
     return imgpath
 
 
-
 class Project(models.Model):
     PUBLIC, SHAREABLE, PRIVATE = 1, 2, 3
     PRIVACY_CHOICES = [(PRIVATE, "Private"), (SHAREABLE, "Shareable Link"), (PUBLIC, "Public")]
@@ -58,8 +59,13 @@ class Project(models.Model):
     ACTIVE, DELETED = 1, 2
     STATE_CHOICES = [(ACTIVE, "Active"), (DELETED, "Deleted")]
 
+    # Affects the sort order.
     sticky = models.BooleanField(default=False)
+
+    # Limits who can access the project.
     privacy = models.IntegerField(default=PRIVATE, choices=PRIVACY_CHOICES)
+
+    # The state a project may be in.
     state = models.IntegerField(default=ACTIVE, choices=STATE_CHOICES)
 
     image = models.ImageField(default=None, blank=True, upload_to=image_path, max_length=MAX_FIELD_LEN)
@@ -100,16 +106,31 @@ class Project(models.Model):
 
 
 class Access(models.Model):
-
-    READ_ONLY, WRITE = 1,2
+    """
+    Allows access of users to Projects.
+    """
+    # The numerical values for permissions matter!
+    # A higher number implies all lesser permissions.
+    # READ_ACCESS < EXECUTE_ACCESS < ADMIN_ACCESS
+    PUBLIC_ACCESS, READ_ACCESS, RECIPE_ACCESS, EXECUTE_ACCESS, EDIT_ACCESS, ADMIN_ACCESS, UPLOAD_ACCESS = range(1, 8)
+    ACCESS_CHOICES = [
+        (PUBLIC_ACCESS, "Public"), (READ_ACCESS, "Read"),
+        (RECIPE_ACCESS, "Recipe"), (EXECUTE_ACCESS, "Execute"),
+        (UPLOAD_ACCESS, "Upload"), (EDIT_ACCESS, "Edit"),
+        (ADMIN_ACCESS, "Admin")
+    ]
+    ACCESS_MAP = dict(ACCESS_CHOICES)
 
     user = models.ForeignKey(User)
-    project= models.ForeignKey(Project)
+    project = models.ForeignKey(Project)
+    access = models.IntegerField(default=READ_ACCESS, choices=ACCESS_CHOICES)
+    date = models.DateTimeField(auto_now_add=True)
 
-    access_choices = [(READ_ONLY, "Read only"), (WRITE, "Write")]
-    access_types = models.IntegerField(default=READ_ONLY, choices=access_choices)
-
-
+@receiver(post_save, sender=Project)
+def create_access(sender, instance, created, **kwargs):
+    if created:
+        # Creates an admin access for the user.
+        Access.objects.create(user=instance.owner, project=instance, access=Access.ADMIN_ACCESS)
 
 @receiver(pre_save, sender=Project)
 def create_project_group(sender, instance, **kwargs):
@@ -193,7 +214,6 @@ class Data(models.Model):
     def __str__(self):
         return self.name
 
-
     def get_data_dir(self):
         "The data directory"
         return join(self.get_project_dir(), f"store-{self.uid}")
@@ -215,7 +235,6 @@ class Data(models.Model):
 
     def get_url(self):
         return (reverse('data_view', kwargs=dict(id=self.id)))
-
 
     def fill_dict(self, obj):
         """
@@ -279,9 +298,7 @@ class Analysis(models.Model):
         self.name = self.name[:MAX_NAME_LEN]
         self.html = make_html(self.text)
 
-
         super(Analysis, self).save(*args, **kwargs)
-
 
     def get_project_dir(self):
         return self.project.get_project_dir()
@@ -364,18 +381,17 @@ class Job(models.Model):
         return hjson.loads(self.json_text)
 
     def elapsed(self):
-        import random
         if not (self.start_date and self.end_date):
             value = ''
         else:
             seconds = int((self.end_date - self.start_date).seconds)
             if seconds < 60:
-                value =  f'{seconds} seconds'
+                value = f'{seconds} seconds'
             elif seconds < 3600:
-                minutes = int(seconds/60)
+                minutes = int(seconds / 60)
                 value = f'{minutes} minutes'
             else:
-                hours = round(seconds/3600,1)
+                hours = round(seconds / 3600, 1)
                 value = f'{hours} hours'
 
         return value
@@ -400,6 +416,5 @@ class Job(models.Model):
             path = join(settings.MEDIA_ROOT, "jobs", f"job-{self.uid}")
             os.makedirs(path)
             self.path = path
-
 
         super(Job, self).save(*args, **kwargs)

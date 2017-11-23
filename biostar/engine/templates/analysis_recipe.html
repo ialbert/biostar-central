@@ -20,21 +20,14 @@
 
                 <div class="ui center aligned vertical segment">
 
-                    <a class="ui button" href="{% url 'analysis_view' analysis.id %}">
-                        <i class="chevron left icon"></i>Recipe View
+                    <a class="ui button" href="{% url 'analysis_edit' analysis.id %}">
+                        <i class="write icon"></i>Edit Recipe
                     </a>
 
                     <a class="ui button" href="{% url 'analysis_copy' analysis.id %}">
                         <i class="add icon"></i>Copy Recipe
                     </a>
 
-                    {% if user|can_edit:analysis %}
-
-                        <a class="ui button" href="{% url 'analysis_edit' analysis.id %}">
-                            <i class="write icon"></i>Edit Recipe
-                        </a>
-
-                    {% endif %}
                 </div>
 
 

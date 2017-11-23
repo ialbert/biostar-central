@@ -46,19 +46,16 @@
 
             {% endfor %}
 
-        {% if user|can_create %}
+            <div class="item centerbox">
+                Public projects are shown. <a href="{% url 'login' %}">Log in</a> to access private projects.
+            </div>
+
             <div class="item centerbox">
                 <a class="ui button" href="{% url 'project_create' %}">
                     <i class="plus icon"></i>Create Project
                 </a>
             </div>
-        {%  else %}
 
-            <div class="item centerbox">
-                Public projects are shown. <a href="{% url 'login' %}">Log in</a> to access private projects.
-            </div>
-
-        {% endif %}
         </div>
 
 

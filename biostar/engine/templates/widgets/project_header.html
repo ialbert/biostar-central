@@ -1,20 +1,4 @@
 {% load engine_tags %}
 
 
-<div class="ui center aligned segment">
-
-    <div class="ui tiny image">
-        <img src="{% img project %}">
-    </div>
-
-    <div class="ui header">
-        {{ label }} {{ project.name }}
-    </div>
-
-</div>
-{%  if summary %}
-<div class="ui secondary segment">
-    <p> {{ project.summary|markdown|safe }}</p>
-</div>
-{%  endif %}
 

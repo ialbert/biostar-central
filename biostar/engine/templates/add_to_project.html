@@ -2,7 +2,7 @@
 
 {% block body %}
 
-<form method="get" action="{% url 'add_to_project' project.id %}">
+<form method="get" action="{% url 'project_users' project.id %}">
      {#% csrf_token %#}
     <input type="text" name="searches" placeholder="Search people...">
      <button type="submit" class="ui blue mini button">
@@ -10,7 +10,7 @@
     </button>
 </form>
 
- <form class="ui large form" method="post" action="{% url 'add_to_project' project.id %}">
+ <form class="ui large form" method="post" action="{% url 'project_users' project.id %}">
         {% csrf_token %}
 
 <div class="ui horizontal segments">

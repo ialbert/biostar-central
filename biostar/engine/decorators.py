@@ -5,49 +5,60 @@ from django.urls import reverse
 from django.shortcuts import redirect
 from . import auth
 from django.utils.decorators import available_attrs
+from . import models
 
 
 class object_access:
+    """
+    Wraps a view and checks user access permissions to an instance.
+    Redirects to the url on access error.
+    """
 
-    # Initialize with an 'instance'= Project, Job, Data, or Analysis
-    # redirects to self.instance.url() if no redirect_url is given
-    # and if self.instance doesnt have a url() method the default is project_list.
-    def __init__(self, instance, owner_only=False, redirect_url=None):
-        self.instance = instance
-        self.owner_only = owner_only
-        self.redirect_url = redirect_url
+    def __init__(self, type, access=models.Access.ADMIN_ACCESS, url=''):
+
+        # The object that will be checked for permission.
+        self.type = type
+
+        # The required access for the url.
+        self.access = access
+
+        # The url to redirect to if the access check fails.
+        self.url = url
 
     def __call__(self, function, *args, **kwargs):
         """
-           Decorator used to test if a user has rights to access an instance
+        Decorator used to test if a user has rights to access an instance
         """
 
         # Pass function attributes to the wrapper...using a wrapper
         @wraps(function, assigned=available_attrs(function))
         def _wrapped_view(request, *args, **kwargs):
-            id, user = kwargs['id'], request.user
-            query = self.instance.objects.filter(pk=id).first()
-            # Every query has to have a valid project ( query.project exists)
-            project, query, allow_access = auth.check_obj_access(user, query,
-                                                           owner_only=self.owner_only)
-            try:
-                # Catch failure if instance doesnt have url() method
-                self.redirect_url = self.redirect_url or query.url()
-            except:
-                self.redirect_url = self.redirect_url or reverse("project_list")
 
-            if not project:
-                messages.error(request, f"Project with id={id} does not exist.")
-                return redirect(reverse("project_list"))
+            # Each wrapped view must take a numerical id as parameter.
+            id = kwargs['id']
 
-            if allow_access:
-                return function(request, *args, **kwargs)
-            else:
-                #TODO: the redirection still needs a bit of work
-                #TODO: redirecting to project_view casues a redirection loop
-                messages.error(request, f"Access/modification to {self.instance.__name__} denied.")
+            # The user is set in the request.
+            user = request.user
 
-                return redirect(reverse("project_list"))
+            # Fetches the object that will be checked for permissions.
+            instance = self.type.objects.filter(pk=id).first()
+
+            # Check for access to the object.
+            allow_access = auth.check_obj_access(user=user, instance=instance, request=request, access=self.access)
+
+            # Access check did not pass, redirect.
+            if not allow_access:
+
+                # If there is a redirect url build with the id.
+                if self.url:
+                    target = reverse(self.url, kwargs=dict(id=id))
+                else:
+                    target = reverse('project_list')
+
+                return redirect(target)
+
+            # Return the wrapped function.
+            return function(request, *args, **kwargs)
 
         return _wrapped_view
 

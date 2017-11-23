@@ -65,6 +65,7 @@ def privacy_label(project):
     label = mark_safe(f'<span class ="ui label">{project.get_privacy_display()}</span>' )
     return label
 
+
 @register.simple_tag
 def job_color(job):
     """
