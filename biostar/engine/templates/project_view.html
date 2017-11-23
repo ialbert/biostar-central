@@ -19,10 +19,27 @@
 
     <div class="ui raised segments">
 
-        {% project_header project label='Project:' %}
+        <div class="ui center aligned segment">
+
+            <div class="ui tiny image">
+                <img src="{% img project %}">
+            </div>
+
+            <div class="ui header">
+                Project: {{ project.name }}
+            </div>
+
+        </div>
+
+        <div class="ui secondary segment">
+            <p> {{ project.summary|markdown|safe }}</p>
+            Your are accessing this project with
+            <span class="ui label">{{ access.get_access_display }} Permission</span>
+
+        </div>
+
 
         <div class="ui segment">
-
 
             <div class="ui divided link items">
 
@@ -78,21 +95,21 @@
 
                 </div>
 
-                {% if user|can_create %}
-                    <div class="item centerbox">
-                        <a class="ui button" href="{% url 'project_edit' project.id %}">
-                            <i class="write icon"></i>Edit Project
-                        </a>
 
-                        <a class="ui button" href="{% url 'add_to_project' project.id %}">
-                            <i class="plus icon"></i>Manage People
-                        </a>
-                    </div>
-                {% endif %}
+                <div class="item centerbox">
+                    <a class="ui button" href="{% url 'project_edit' project.id %}">
+                        <i class="write icon"></i>Edit Project
+                    </a>
+
+                    <a class="ui button" href="{% url 'project_users' project.id %}">
+                        <i class="plus icon"></i>Manage People
+                    </a>
+                </div>
 
             </div>
 
         </div>
+
 
         <div class="ui secondary segment">
             {{ project.html|safe }}

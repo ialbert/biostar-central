@@ -61,9 +61,8 @@ def get_project_list(user):
         # Unauthenticated users see public projects.
         cond = Q(privacy=Project.PUBLIC)
     else:
-        # Authenticated users see public projects, projects they own and projects
-        # where they have been given access.
-        cond = Q(owner=user) | Q(privacy=Project.PUBLIC) | Q(access__user=user)
+        # Authenticated users see public projects and private projects with access rights.
+        cond = Q(privacy=Project.PUBLIC) | Q(access__user=user, access__access__gt=Access.PUBLIC_ACCESS)
 
     # Generate the query.
     query = Project.objects.filter(cond)
@@ -84,6 +83,9 @@ def check_obj_access(user, instance, access=Access.ADMIN_ACCESS, request=None):
         messages.error(request, "Object not found!")
         return False
 
+    # A textual representation of the access
+    access_text = Access.ACCESS_MAP.get(access, 'Invalid')
+
     # Works for projects or objects with an attribute of project.
     if hasattr(instance, "project"):
         project = instance.project
@@ -91,32 +93,38 @@ def check_obj_access(user, instance, access=Access.ADMIN_ACCESS, request=None):
         project = instance
 
     # A public or shareable project. User is asking for read access.
-    if (project.privacy in (Project.PUBLIC, Project.SHAREABLE)) and (access == Access.READ_ACCESS):
+    if (project.privacy in (Project.PUBLIC, Project.SHAREABLE)) and \
+            (access in (Access.PUBLIC_ACCESS, Access.READ_ACCESS, Access.RECIPE_ACCESS)):
         return True
+
 
     # Anonymous users have no other access permissions.
     if user.is_anonymous():
-        messages.error(request, "Anonymous access denied!")
+        msg = f"""
+        You must be logged in and have the <span class="ui green label">{access_text} Permission</span>  
+        to perform that action.
+        """
+        msg = mark_safe(msg)
+        messages.error(request, msg)
         return False
+
+    deny = f"""
+        Your account does not have the <span class="ui green label">{access_text} Permission</span> needed
+        to perform that action.
+        """
+    deny = mark_safe(deny)
 
     # Check user access.
     entry = Access.objects.filter(user=user, project=project).first()
 
     # No access permissions for the user on the project.
     if not entry:
-        messages.error(request, "Access denied. No access permissions found.")
+        messages.error(request, deny)
         return False
 
     # The stored access is less than the required access.
     if entry.access < access:
-        access_text = Access.ACCESS_MAP.get(access, 'Invalid')
-        msg = f"""
-        This action requires <code>{access_text}</code> permission.
-        You only have <code>{entry.get_access_display()}</code> permission.
-        The project administrator can add more permissions to your account.
-        """
-        msg = mark_safe(msg)
-        messages.warning(request, msg )
+        messages.warning(request, deny)
         return False
 
     # Permissions granted to the object.
