@@ -216,6 +216,7 @@ class FactoryTests(TestCase):
         return
 
     def test_factory_fields(self):
+        "Testing factory module that generates fields"
 
         from biostar.engine.factory import TYPE2FUNC
 
@@ -229,6 +230,7 @@ class FactoryTests(TestCase):
 
 
     def test_data_generator(self):
+        "Test data generator"
 
         from biostar.engine import const
 
@@ -286,12 +288,6 @@ class CommandTests(TestCase):
     def test_create_project(self):
         "Test creating project using a json management command"
 
-        # make a temp
-        # fp = tempfile.TemporaryFile()
-        # write a json file into tmp file and get it done.
-        # fp.write(stream.read(CHUNK))
-        # fp.seek(0)
-        # stream = File(fp)
 
         pass
 
@@ -299,5 +295,42 @@ class CommandTests(TestCase):
 class FormTests(TestCase):
 
     def setUp(self):
+        owner = ""
+        project = ""
+
         pass
+
+
+    def test_analysis_edit(self):
+        "Testing analysis edit form"
+
+
+    def test_analysis_run(self):
+        "Testing analysis run form"
+
+    def test_analysis_copy(self):
+        "Testing analysis copy form"
+
+
+    def test_data_copy(self):
+        "Testing data copy form"
+
+    def test_add_or_remove(self):
+        "Testing add or remove users from project form."
+
+
+
+
+class ViewsTest(TestCase):
     pass
+
+
+
+
+
+
+
+
+
+
+
