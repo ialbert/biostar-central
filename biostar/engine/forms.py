@@ -1,7 +1,7 @@
 import hjson, logging
 from django import forms
-from django.contrib import messages
-from .models import Project, Data, Analysis, Job
+from django.utils.safestring import mark_safe
+from .models import Project, Data, Analysis, Job, Access
 from . import tasks
 from .const import *
 import os
@@ -57,54 +57,51 @@ class JobEditForm(forms.ModelForm):
         fields = ['name', 'text', 'summary','sticky']
 
 
-class AddOrRemoveUsers(forms.Form):
+class GrantAccess(forms.Form):
 
     users = forms.IntegerField()
     add_or_remove = forms.CharField(initial="")
 
-    def __init__(self, project, current_user, *args, **kwargs):
+    def __init__(self, project, current_user, access,*args, **kwargs):
         self.project = project
         self.user = current_user
+        self.access = access
+
         super().__init__(*args, **kwargs)
 
     def is_valid(self, request=None):
-        valid = super(AddOrRemoveUsers, self).is_valid()
+        valid = super(GrantAccess, self).is_valid()
 
-        return valid and self.quick_access_checker(request=request, owner_only=True)
+        # Only users with admin privilege or higher get to grant access to the project
+        admin_only  = auth.check_obj_access(user=self.user, instance=self.project,
+                                            request=request,access=Access.ADMIN_ACCESS)
+        print(valid and admin_only)
+        #1/0
+        return valid and admin_only
 
 
     def process(self, add=False,remove=False):
         # More than one can be selected
         users = self.data.getlist('users')
-        project_group = self.project.group
 
         for user_id in users:
-            picked_user = models.User.objects.filter(id=user_id).first()
-            if add:
-                #Gives the user access_rights here
-                project_group.user_set.add(picked_user)
-                action = "Added"
+            user = models.User.objects.filter(id=user_id).first()
+            has_access = user.access_set.fitler(project=self.project)
 
-            if remove:
-                # Remove user access_right here.
-                project_group.user_set.remove(picked_user)
-                action = "Removed"
+            # Can only add if the user does not have read access already
+            if add and (not has_access or has_access.access == Access.PUBLIC_ACCESS):
 
-            logger.info(f"{action} user.id={picked_user.id} from project.group={project_group}")
+                Access.objects.create(user=user, project=self.project, access=Access.ADMIN_ACCESS)
 
-        return len(users), f"{action} {len(users)}"
+            if remove and has_access:
+                # Changes access to Access.PUBLIC_ACCESS
+                has_access.access = Access.PUBLIC_ACCESS
+                has_access.save()
+            access_text = Access.ACCESS_MAP.get(self.access, 'Invalid')
 
-    def quick_access_checker(self, request=None, owner_only=False):
+            logger.info(f"{access_text} permission added to user.id={user.id} for project.id={self.project.id}")
 
-        # We don't really care for the first 2 things in this case, only the allow_access
-        _, _, allow_access = auth.check_obj_access(self.user, self.project, owner_only=owner_only)
-        errmsg = f"Only the owner ({self.project.owner.first_name}) of the project can perform action."
-
-        if not allow_access and request:
-            messages.error(request,errmsg)
-
-        return allow_access
-
+        return len(users)
 
 class DataCopyForm(forms.Form):
 

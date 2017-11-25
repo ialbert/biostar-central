@@ -79,9 +79,6 @@ class Project(models.Model):
     html = models.TextField(default='html', max_length=MAX_LOG_LEN)
     date = models.DateTimeField(auto_now_add=True)
 
-    # Each project belongs to a single group.
-    # Take out group
-    group = models.OneToOneField(Group)
     uid = models.CharField(max_length=32, unique=True)
 
     def save(self, *args, **kwargs):
@@ -126,24 +123,12 @@ class Access(models.Model):
     access = models.IntegerField(default=READ_ACCESS, choices=ACCESS_CHOICES)
     date = models.DateTimeField(auto_now_add=True)
 
+
 @receiver(post_save, sender=Project)
 def create_access(sender, instance, created, **kwargs):
     if created:
         # Creates an admin access for the user.
         Access.objects.create(user=instance.owner, project=instance, access=Access.ADMIN_ACCESS)
-
-@receiver(pre_save, sender=Project)
-def create_project_group(sender, instance, **kwargs):
-    """
-    Creates a group for the project
-    """
-    instance.uid = instance.uid or util.get_uuid(8)
-    group, created = Group.objects.get_or_create(name=instance.uid)
-
-    # Add owner to group
-    group.user_set.add(instance.owner)
-
-    instance.group = group
 
 
 class Data(models.Model):

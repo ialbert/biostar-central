@@ -111,20 +111,27 @@ def site_admin(request):
 
 @object_access(type=Project, access=Access.ADMIN_ACCESS, url='project_view')
 def project_users(request, id):
+    "Grants a list of users Read access to a project"
 
     project = Project.objects.filter(pk=id).first()
     searches = []
-    current_users = project.group.user_set.all()
+
+    # Users already with read access ( or greater) to the project
+    current_users = project.access_set.filter(access__gt=Access.PUBLIC_ACCESS)
+    current_users = [access.user for access in current_users]
+
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ADD_USER],
                                project=project)
 
     if request.method == "POST":
         user= request.user
-        form = AddOrRemoveUsers(data=request.POST, project=project, current_user=user)
+        form = GrantAccess(data=request.POST, project=project, current_user=user,
+                           access=Access.READ_ACCESS)
         if form.is_valid(request=request):
             method = request.POST.get("add_or_remove")
-            nusers, msg = form.process(**{method:True})
-            messages.success(request, msg)
+            nusers = form.process(**{method:True})
+            msg = f'{method} < span class ="ui green label" > Read Permission < / span > from {nusers} users'
+            messages.success(request,msg)
 
         return redirect(reverse("add_to_project", kwargs=dict(id=project.id)))
 
@@ -136,7 +143,7 @@ def project_users(request, id):
         if not searches:
             messages.info(request, f"No users containing '{search}' exist.")
 
-    form = AddOrRemoveUsers(project=project, current_user=request.user)
+    form = GrantAccess(project=project, current_user=request.user, access=Access.READ_ACCESS)
     context = dict(steps=steps, current_users=current_users, form=form,
                    available_users=searches, project=project)
 

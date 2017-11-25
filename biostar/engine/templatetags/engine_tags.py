@@ -25,14 +25,13 @@ JOB_COLORS = {
 def generate_fields(json_text, project=None, form=None):
 
     fields = []
-
     json_data = hjson.loads(json_text)
 
     for name, data in json_data.items():
         field = auth.make_form_field(data, project)
         if field:
             field.widget.attrs["name"] = name
-            # Returns <django.forms.fields.CharField object> instead of html if the field isnt
+            # Returns <django.forms.fields object> instead of html if the field isn't
             # bound to a form
             if form:
                 field = forms.forms.BoundField(form=form, field=field, name=name)
