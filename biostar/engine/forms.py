@@ -96,12 +96,12 @@ class GrantAccess(forms.Form):
             # Can only remove people with access
             remcond = (has_access and has_access.access > Access.PUBLIC_ACCESS)
 
-
             if add and addcond:
-                Access.objects.create(user=user, project=self.project, access=Access.ADMIN_ACCESS)
+                access = Access.objects.create(user=user, project=self.project, access=Access.READ_ACCESS)
+                access.save()
                 added += 1
             elif add and (not addcond):
-                errmsg = f"{user.first_name} already in project: "
+                errmsg = f"{user.first_name} already in project "
                 break
             elif remove and remcond:
                 # Changes access to Access.PUBLIC_ACCESS
