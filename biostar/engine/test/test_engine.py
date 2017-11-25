@@ -4,7 +4,6 @@ from django.core import management
 from django.test import TestCase
 from django.urls import reverse
 
-#from django_webtest import WebTest
 from biostar.engine import auth
 from biostar.engine import models
 
@@ -29,49 +28,6 @@ class ProjectTest(TestCase):
         # using a simple logged in client when needed
         self.client.login(username="1@lvh.me", password="1@lvh.me")
 
-    def test_create_interface(self):
-        "Test for project creation interface"
-
-        info = dict(user=self.owner, name="testing name", summary="test", text="testing")
-        resp = self.client.post(reverse("project_create"), info, follow=True)
-
-        # Test if user interface works
-        self.assertEqual(resp.status_code, 200, f"Error : response.status_code={resp.status_code} and expected 200.")
-
-    def test_edit_interface(self):
-        "Test for project editing interface"
-
-        url = reverse("project_edit", kwargs=dict(id=self.project.id))
-        info = dict(user=self.owner, text="new text", summary="new summary", name="new name")
-
-        resp = self.client.post(url, info, follow=True)
-
-        self.assertEqual(resp.status_code, 200, f"Error : response.status_code={resp.status_code} and expected 200.")
-
-    def test_data_upload_interface(self):
-        "Test for data upload interface"
-
-        url = reverse("data_upload", kwargs=dict(id=self.project.id))
-        info = dict(user=self.owner, summary="test upload", text="test", file=__file__)
-        resp = self.client.post(url, info, follow=True)
-
-        self.assertEqual(resp.status_code, 200, f"Error : response.status_code={resp.status_code} and expected 200.")
-
-    def test_data_edit_interface(self):
-        "Test data edit interface"
-
-        pre = len(models.Data.objects.all())
-        data = auth.create_data(self.project, path=__file__)
-        post = len(models.Data.objects.all())
-
-        self.assertTrue(post == (pre + 1), "Error creating data in database")
-
-        url = reverse("data_edit", kwargs=dict(id=data.id))
-        info = dict(summary="new summary", text="new text", name="new name")
-        resp = self.client.post(url, info, follow=True)
-
-        self.assertEqual(resp.status_code, 200, f"Error : response.status_code={resp.status_code} and expected 200.")
-
 
 class DataTest(TestCase):
     def setUp(self):
@@ -84,21 +40,6 @@ class DataTest(TestCase):
         self.assertTrue(post == (pre + 1), "Error creating project in database")
 
         pass
-
-    def test_data_create(self):
-        "Testing data create with auth"
-
-        pre = len(models.Data.objects.all())
-        data = auth.create_data(self.project, path=__file__)
-        post = len(models.Data.objects.all())
-
-        self.assertTrue(post == (pre + 1), "Error creating data in database")
-
-        data_ext = os.path.splitext(data.get_path())[-1]
-        file_ext = os.path.splitext(data.get_path())[-1]
-
-        self.assertEqual(data_ext, file_ext,
-                         f"Extension ({data_ext}) does not match the input ({file_ext})")
 
     def test_data_linkage(self):
         "Test data linkage with auth"
@@ -185,9 +126,6 @@ class JobTest(TestCase):
             post = len(states["post"].objects.all())
             self.assertTrue(post == (states["pre"] + 1), f"Error adding {model_type} to database.")
 
-        # using a simple logged in client when needed
-        self.client.login(username="1@lvh.me", password="1@lvh.me")
-
     def test_job_runner(self):
         "Testing Job runner using management command"
 
@@ -196,7 +134,7 @@ class JobTest(TestCase):
         return
 
 
-class FactoryTests(TestCase):
+class FactoryTest(TestCase):
 
     def setUp(self):
 
@@ -280,47 +218,85 @@ class CommandTests(TestCase):
 
         self.assertTrue(post == (pre + 1), "Error creating adding in database with management command")
 
-    def test_analysis_add(self):
-        "Test adding analysis to project using management commands"
-
-        pass
-
-    def test_create_project(self):
-        "Test creating project using a json management command"
-
-
-        pass
-
-
-class FormTests(TestCase):
-
-    def setUp(self):
-        owner = ""
-        project = ""
-
-        pass
-
-    def test_analysis_edit(self):
-        "Testing analysis edit form"
-
-
-    def test_analysis_run(self):
-        "Testing analysis run form"
-
-    def test_analysis_copy(self):
-        "Testing analysis copy form"
-
-
-    def test_data_copy(self):
-        "Testing data copy form"
-
-    def test_add_or_remove(self):
-        "Testing add or remove users from project form."
-
 
 
 
 class ViewsTest(TestCase):
-    pass
+
+    def setUp(self):
+        pass
+
+    def test_index(self):
+        "Test index view"
+        pass
 
 
+    def test_site_admin(self):
+        "Test site admin view"
+        pass
+
+
+    def test_project_users(self):
+        "Test project_users view"
+        pass
+
+    def test_project_list(self):
+        "Test project list"
+        pass
+
+
+    def test_project_view(self):
+        "Test project view"
+        pass
+
+    def test_project_edit(self):
+        "Test project edit"
+        url = reverse("project_edit", kwargs=dict(id=self.project.id))
+        info = dict(user=self.owner, text="new text", summary="new summary", name="new name")
+
+        resp = self.client.post(url, info, follow=True)
+
+        self.assertEqual(resp.status_code, 200, f"Error : response.status_code={resp.status_code} and expected 200.")
+        pass
+
+    def test_project_create(self):
+        "Test for project creation view"
+
+        info = dict(user=self.owner, name="testing name", summary="test", text="testing")
+        resp = self.client.post(reverse("project_create"), info, follow=True)
+
+        # Test if user interface works
+        self.assertEqual(resp.status_code, 200, f"Error : response.status_code={resp.status_code} and expected 200.")
+        pass
+
+    def test_data_list(self):
+        "Test data list view"
+        pass
+
+    def test_data_view(self):
+        pass
+
+    def test_data_edit(self):
+
+        pre = len(models.Data.objects.all())
+        data = auth.create_data(self.project, path=__file__)
+        post = len(models.Data.objects.all())
+
+        self.assertTrue(post == (pre + 1), "Error creating data in database")
+
+        url = reverse("data_edit", kwargs=dict(id=data.id))
+        info = dict(summary="new summary", text="new text", name="new name")
+        resp = self.client.post(url, info, follow=True)
+
+        self.assertEqual(resp.status_code, 200, f"Error : response.status_code={resp.status_code} and expected 200.")
+
+        pass
+
+    def test_data_upload_interface(self):
+        "Test for data upload interface"
+
+        url = reverse("data_upload", kwargs=dict(id=self.project.id))
+        info = dict(user=self.owner, summary="test upload", text="test", file=__file__)
+        resp = self.client.post(url, info, follow=True)
+
+        self.assertEqual(resp.status_code, 200, f"Error : response.status_code={resp.status_code} and expected 200.")
