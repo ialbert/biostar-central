@@ -4,7 +4,7 @@
 <div class="ui fluid search">
     <div class="ui icon mini input">
         <form method="get" action="{% url 'project_users' project.id %}">
-             {#% csrf_token %#}
+
             <input type="text" name="searches" placeholder="Search people...">
 
              <button type="submit" class="ui mini button">
@@ -13,6 +13,7 @@
         </form>
     </div>
 </div>
+
  <form class="ui large form" method="post" action="{% url 'project_users' project.id %}">
         {% csrf_token %}
 

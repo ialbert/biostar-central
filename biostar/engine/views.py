@@ -144,11 +144,8 @@ def project_users(request, id):
         return redirect(reverse("project_users", kwargs=dict(id=project.id)))
 
     elif request.method == "GET" and request.GET.get("searches"):
-
-        # Can't search for users that already have read access
-        query = User.objects.exclude(pk__in=[u.id for u in current_users])
         search = request.GET["searches"]
-        searches = query.filter( Q(first_name__contains=search) | Q(email__contains=search))
+        searches = User.objects.filter( Q(first_name__contains=search) | Q(email__contains=search))
         if not searches:
             messages.info(request, f"No users containing '{search}' exist.")
 

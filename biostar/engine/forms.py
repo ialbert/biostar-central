@@ -84,7 +84,7 @@ class GrantAccess(forms.Form):
 
         # More than one can be selected
         users = self.data.getlist('users')
-        added, removed, errmsg  = 0,0, ''
+        added, removed, errmsg  = 0,0, []
 
         for user_id in users:
             user = models.User.objects.filter(id=user_id).first()
@@ -97,22 +97,35 @@ class GrantAccess(forms.Form):
             remcond = (has_access and has_access.access > Access.PUBLIC_ACCESS)
 
             if add and addcond:
-                access = Access.objects.create(user=user, project=self.project, access=Access.READ_ACCESS)
-                access.save()
+
+                if not has_access:
+                    access = Access.objects.create(user=user, project=self.project, access=self.access)
+                    access.save()
+                else:
+                    # Cases with access == public_access
+                    has_access.access = self.access
+                    # Ensure foreign keys get updated
+                    has_access.save()
                 added += 1
+
             elif add and (not addcond):
-                errmsg = f"{user.first_name} already in project "
-                break
+                errmsg.append(f"{user.first_name}")
+
             elif remove and remcond:
                 # Changes access to Access.PUBLIC_ACCESS
                 has_access.access = Access.PUBLIC_ACCESS
                 has_access.save()
                 removed += 1
+
             elif remove and (not remcond):
-                errmsg = f"Can not remove user={user.first_name} from project"
-                break
+                errmsg.append(f"{user.first_name}")
+
+        if errmsg:
+            errmsg = f"{', '.join(errmsg)} already in project" if add else \
+                f"Can not remove: {', '.join(errmsg)}"
 
         return added, removed, errmsg
+
 
 class DataCopyForm(forms.Form):
 
