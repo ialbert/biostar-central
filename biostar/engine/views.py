@@ -3,6 +3,7 @@
 import mistune
 from django.conf import settings
 # from django.template.loader import get_template
+from django.utils.safestring import mark_safe
 from django.db.models import Q
 from django.contrib import messages
 from django.views.decorators import cache
@@ -112,31 +113,39 @@ def site_admin(request):
 @object_access(type=Project, access=Access.ADMIN_ACCESS, url='project_view')
 def project_users(request, id):
     "Grants a list of users Read access to a project"
-
     project = Project.objects.filter(pk=id).first()
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ADD_USER],
+                               project=project)
     searches = []
-
-    # Users already with read access ( or greater) to the project
+    # Users with read access to project
     current_users = project.access_set.filter(access__gt=Access.PUBLIC_ACCESS)
     current_users = [access.user for access in current_users]
 
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ADD_USER],
-                               project=project)
-
     if request.method == "POST":
         user= request.user
+        # Grand users Read access
         form = GrantAccess(data=request.POST, project=project, current_user=user,
                            access=Access.READ_ACCESS)
         if form.is_valid(request=request):
-            method = request.POST.get("add_or_remove")
-            nusers = form.process(**{method:True})
-            msg = f'{method} < span class ="ui green label" > Read Permission < / span > from {nusers} users'
-            messages.success(request,msg)
 
-        return redirect(reverse("add_to_project", kwargs=dict(id=project.id)))
+            method = request.POST.get("add_or_remove")
+            added, removed, errmsg = form.process(**{method:True})
+            nusers = {"add": added,  "remove":removed}
+
+            if nusers[method]:
+                # Get correct preposition for message
+                prepos = "to" if added else "from"
+                msg = f"""{method}  <span class="ui green label">Read Permission</span>  {prepos} 
+                            {nusers[method]} users"""
+                messages.success(request, mark_safe(msg))
+            if errmsg:
+                messages.error(request, errmsg)
+
+        return redirect(reverse("project_users", kwargs=dict(id=project.id)))
 
     elif request.method == "GET" and request.GET.get("searches"):
-        # Can't search for users already in group
+
+        # Can't search for users that already have read access
         query = User.objects.exclude(pk__in=[u.id for u in current_users])
         search = request.GET["searches"]
         searches = query.filter( Q(first_name__contains=search) | Q(email__contains=search))

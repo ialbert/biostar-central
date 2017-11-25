@@ -75,33 +75,44 @@ class GrantAccess(forms.Form):
         # Only users with admin privilege or higher get to grant access to the project
         admin_only  = auth.check_obj_access(user=self.user, instance=self.project,
                                             request=request,access=Access.ADMIN_ACCESS)
-        print(valid and admin_only)
-        #1/0
         return valid and admin_only
 
 
     def process(self, add=False,remove=False):
+
+        assert not (add and remove), "Can add or remove, not both"
+
         # More than one can be selected
         users = self.data.getlist('users')
+        added, removed, errmsg  = 0,0, ''
 
         for user_id in users:
             user = models.User.objects.filter(id=user_id).first()
-            has_access = user.access_set.fitler(project=self.project)
+            has_access = user.access_set.filter(project=self.project).first()
 
-            # Can only add if the user does not have read access already
-            if add and (not has_access or has_access.access == Access.PUBLIC_ACCESS):
+            # Can only add people without access
+            addcond = (not has_access or has_access.access == Access.PUBLIC_ACCESS)
 
+            # Can only remove people with access
+            remcond = (has_access and has_access.access > Access.PUBLIC_ACCESS)
+
+
+            if add and addcond:
                 Access.objects.create(user=user, project=self.project, access=Access.ADMIN_ACCESS)
-
-            if remove and has_access:
+                added += 1
+            elif add and (not addcond):
+                errmsg = f"{user.first_name} already in project: "
+                break
+            elif remove and remcond:
                 # Changes access to Access.PUBLIC_ACCESS
                 has_access.access = Access.PUBLIC_ACCESS
                 has_access.save()
-            access_text = Access.ACCESS_MAP.get(self.access, 'Invalid')
+                removed += 1
+            elif remove and (not remcond):
+                errmsg = f"Can not remove user={user.first_name} from project"
+                break
 
-            logger.info(f"{access_text} permission added to user.id={user.id} for project.id={self.project.id}")
-
-        return len(users)
+        return added, removed, errmsg
 
 class DataCopyForm(forms.Form):
 
@@ -149,7 +160,6 @@ class AnalysisCopyForm(forms.Form):
 
             current_params = self.analysis_params(project=current_project)
             new_analysis = auth.create_analysis(**current_params)
-
             # Images needs to be set by it set
             new_analysis.image.save(self.analysis.name, self.analysis.image, save=True)
             new_analysis.save()
@@ -162,7 +172,7 @@ class AnalysisCopyForm(forms.Form):
         project = project or self.analysis.project
         json_text, template = self.analysis.json_text, self.analysis.template
         owner, summary = self.analysis.owner, self.analysis.summary
-        name, text = self.analysis.name, self.analysis.text
+        name, text = f"Copy of:{self.analysis.name}", self.analysis.text
 
         params = dict(project=project, json_text=json_text, template=template,
                       user=owner, summary=summary, name=name, text=text)
