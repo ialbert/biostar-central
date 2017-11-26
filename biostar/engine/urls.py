@@ -30,6 +30,7 @@ urlpatterns = [
 
     url(r'^job/list/(?P<id>\d+)/$', views.job_list, name='job_list'),
     url(r'^job/view/(?P<id>\d+)/$', views.job_view, name='job_view'),
+    url(r'^job/edit/(?P<id>\d+)/$', views.job_edit, name='job_edit'),
     url(r'^job/view/result/(?P<id>\d+)/$', views.job_result_view, name='job_result_view'),
     url(r'^job/view/files/(?P<id>\d+)/$', views.job_files_list, name='job_files_entry'),
     url(r'^job/view/files/(?P<id>\d+)/(?P<path>.+)/$', views.job_files_list, name='job_files_list'),

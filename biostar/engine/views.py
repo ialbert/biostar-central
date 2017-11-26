@@ -349,7 +349,7 @@ def analysis_list(request, id):
     """
 
     project = Project.objects.filter(id=id).first()
-    analyses = Analysis.objects.filter(project=project).order_by("-id")
+    analyses = Analysis.objects.filter(project=project).order_by("-sticky","-id")
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ANALYSIS_LIST_ICON],
                                project=project)
@@ -526,7 +526,7 @@ def recipe_edit(request, id):
                                 ANALYSIS_RECIPE_ICON], project=project, analysis=analysis)
 
     if request.method == "POST":
-        form = AnalysisEditForm(data=request.POST, instance=analysis)
+        form = AnalysisEditForm(data=request.POST, files=request.FILES, instance=analysis,)
         if form.is_valid():
             form.save()
             return redirect(reverse("analysis_view", kwargs=dict(id=analysis.id)))
@@ -552,10 +552,6 @@ def job_list(request, id):
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, RESULT_LIST_ICON],
                                project=project)
-
-    # This doen't order queued jobs correcly bc they aren't stared yet ( just submitted)
-    #jobs = Job.objects.filter(project=project).order_by("-start_date")
-
     jobs =Job.objects.filter(project=project).order_by("-date", "-start_date")
 
     filter = request.GET.get('filter', '')
@@ -569,6 +565,27 @@ def job_list(request, id):
     return render(request, "job_list.html", context)
 
 
+
+@object_access(type=Job, access=Access.EDIT_ACCESS)
+def job_edit(request, id):
+    job = Job.objects.filter(id=id).first()
+    project = job.project
+
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, RESULT_LIST_ICON,
+                                RESULT_VIEW_ICON],job=job, project=project)
+
+    if request.method == "POST":
+        form =JobEditForm(data=request.POST, files=request.FILES, instance=job)
+        if form.is_valid():
+            form.save()
+            return redirect(reverse("job_view", kwargs=dict(id=job.id)))
+
+    form = JobEditForm(instance=job)
+    context = dict(steps=steps, job=job, project=project, form=form)
+
+    return render(request, 'job_edit.html', context)
+
+
 @object_access(type=Job, access=Access.READ_ACCESS)
 def job_view(request, id):
     '''
@@ -577,8 +594,8 @@ def job_view(request, id):
     job = Job.objects.filter(id=id).first()
     project = job.project
 
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, RESULT_LIST_ICON, RESULT_VIEW_ICON],
-                               job=job, project=project)
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, RESULT_LIST_ICON,
+                                RESULT_VIEW_ICON], job=job, project=project)
 
     context = dict(job=job, steps=steps)
     return render(request, "job_view.html", context=context)

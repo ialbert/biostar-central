@@ -5,7 +5,6 @@ from .models import Project, Data, Analysis, Job, Access
 from . import tasks
 from .const import *
 import os
-from . import factory
 from . import models, auth
 
 
@@ -55,7 +54,7 @@ class JobEditForm(forms.ModelForm):
 
     class Meta:
         model = Job
-        fields = ['name', "image",'text', 'summary','sticky']
+        fields = ['name', "image",'text','sticky']
 
 
 class GrantAccess(forms.Form):
