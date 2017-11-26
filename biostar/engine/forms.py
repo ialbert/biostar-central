@@ -27,6 +27,7 @@ class ProjectForm(forms.ModelForm):
 class DataUploadForm(forms.ModelForm):
     #choices = DATA_TYPES.items()
     #data_type = forms.IntegerField(widget=forms.Select(choices=choices))
+
     file = forms.FileField()
 
     class Meta:
@@ -47,14 +48,14 @@ class AnalysisEditForm(forms.ModelForm):
 
     class Meta:
         model = Analysis
-        fields = ['name', 'text', "summary", 'sticky']
+        fields = ['name', "image",'text', "summary", 'sticky']
 
 
 class JobEditForm(forms.ModelForm):
 
     class Meta:
         model = Job
-        fields = ['name', 'text', 'summary','sticky']
+        fields = ['name', "image",'text', 'summary','sticky']
 
 
 class GrantAccess(forms.Form):
@@ -98,18 +99,13 @@ class GrantAccess(forms.Form):
 
             if add and addcond:
 
+                added += 1
                 if not has_access:
                     access = Access.objects.create(user=user, project=self.project, access=self.access)
                     access.save()
-                else:
-                    # Cases with access == public_access
-                    has_access.access = self.access
-                    # Ensure foreign keys get updated
-                    has_access.save()
-                added += 1
-
-            elif add and (not addcond):
-                errmsg.append(f"{user.first_name}")
+                    continue
+                has_access.access = self.access
+                has_access.save()
 
             elif remove and remcond:
                 # Changes access to Access.PUBLIC_ACCESS
@@ -117,7 +113,8 @@ class GrantAccess(forms.Form):
                 has_access.save()
                 removed += 1
 
-            elif remove and (not remcond):
+            # Trying to add or remove user without meeting conds not allowed
+            elif (add and (not addcond)) or (remove and (not remcond)):
                 errmsg.append(f"{user.first_name}")
 
         if errmsg:

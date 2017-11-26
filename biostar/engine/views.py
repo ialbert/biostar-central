@@ -516,6 +516,27 @@ def analysis_edit(request, id):
     return render(request, 'analysis_edit.html', context)
 
 
+@object_access(type=Analysis, access=Access.EDIT_ACCESS, url='analysis_recipe')
+def recipe_edit(request, id):
+
+    analysis = Analysis.objects.filter(id=id).first()
+    project = analysis.project
+
+    steps = breadcrumb_builder([PROJECT_ICON, ANALYSIS_LIST_ICON, ANALYSIS_VIEW_ICON,
+                                ANALYSIS_RECIPE_ICON], project=project, analysis=analysis)
+
+    if request.method == "POST":
+        pass
+
+    else:
+        pass
+
+    context = dict(steps=steps, analysis=analysis, project=project,
+                   )
+
+    return render(request, 'recipe_edit.html', context)
+
+
 @object_access(type=Project, access=Access.READ_ACCESS)
 def job_list(request, id):
     """
