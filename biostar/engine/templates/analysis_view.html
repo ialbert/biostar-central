@@ -38,7 +38,7 @@
                 <i class="list icon"></i> Recipe Code
             </a>
             <a class="ui button" href="{% url 'analysis_edit' analysis.id %}">
-                <i class="write icon"></i>Edit Code
+                <i class="write icon"></i>Edit Script
             </a>
         </div>
         <div class="ui center aligned segment">
@@ -49,7 +49,7 @@
             <a class="ui button" href="{% url 'job_list' project.id %}?filter={{ analysis.id }}">
                 <i class="area chart icon"></i> Go to Results
             </a>
-            <a class="ui button" href="{% url 'analysis_edit' analysis.id %}">
+            <a class="ui button" href="{% url 'recipe_edit' analysis.id %}">
                 <i class="write icon"></i>Edit Recipe
             </a>
 

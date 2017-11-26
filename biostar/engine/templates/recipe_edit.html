@@ -1,24 +1,22 @@
 {% extends "base.html" %}
 
-{% block title %}
-    {{ data.name }}
+{% block headtitle %}
+    {{ analysis.name }}
 {% endblock %}
 
 {% block body %}
 
+    <div class="ui raised segment inputcolor">
 
-
-    <div class="ui raised segment">
-
-        <form method="post" class="ui form" action="{% url 'data_edit' data.id %}" enctype="multipart/form-data">
+        <form method="post" class="ui form" action="{% url 'recipe_edit' analysis.id %}" enctype="multipart/form-data">
 
             {% csrf_token %}
 
             <div class="field segment">
-                <label>Data Name</label>
+                <label>Recipe Name</label>
                 {{ form.name }}
             </div>
-                        <div class="field">
+            <div class="field">
                <label class="checkbox" for="{{ field.id_for_label }}">
                         {{ form.sticky }} <label>Sticky</label>
                </label>
@@ -30,17 +28,16 @@
             </div>
 
             <div class="field segment">
-                <label>Data description</label>
+                <label>Analysis description</label>
                 {{ form.text }}
             </div>
-
             {{ form.errors }}
 
             <button type="submit" class="ui submit button">
                 <i class="save icon"></i>Save
             </button>
-            <a class="ui right floated button" href="{% url 'data_view' data.id %}">
-                Back
+            <a class="ui right floated button" href="{% url 'analysis_view' analysis.id %}">
+                Analysis view
             </a>
 
         </form>

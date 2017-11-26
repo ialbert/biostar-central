@@ -526,13 +526,14 @@ def recipe_edit(request, id):
                                 ANALYSIS_RECIPE_ICON], project=project, analysis=analysis)
 
     if request.method == "POST":
-        pass
+        form = AnalysisEditForm(data=request.POST, instance=analysis)
+        if form.is_valid():
+            form.save()
+            return redirect(reverse("analysis_view", kwargs=dict(id=analysis.id)))
 
-    else:
-        pass
 
-    context = dict(steps=steps, analysis=analysis, project=project,
-                   )
+    form = AnalysisEditForm(instance=analysis)
+    context = dict(steps=steps, analysis=analysis, project=project, form=form)
 
     return render(request, 'recipe_edit.html', context)
 
