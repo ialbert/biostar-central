@@ -1,14 +1,14 @@
 {% extends "base.html" %}
 
-{% block title %}
-    {{ data.name }}
+{% block headtitle %}
+    Edit Data: {{ data.name }}
 {% endblock %}
 
 {% block body %}
 
 
 
-    <div class="ui raised segment">
+    <div class="ui raised segment inputcolor">
 
         <form method="post" class="ui form" action="{% url 'data_edit' data.id %}" enctype="multipart/form-data">
 

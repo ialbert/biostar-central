@@ -1,5 +1,10 @@
 {%  extends "base.html" %}
 {% load engine_tags %}
+
+{% block headtitle %}
+ {{ data.name }}
+{% endblock %}
+
 {% block menu %}
     {% menubar data=data edit_data=True %}
 {% endblock %}
