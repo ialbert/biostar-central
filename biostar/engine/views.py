@@ -136,8 +136,10 @@ def project_users(request, id):
             if nusers[method]:
                 # Get correct preposition for message
                 prepos = "to" if added else "from"
-                msg = f"""{method}  <span class="ui green label">Read Permission</span>  {prepos} 
-                            {nusers[method]} user(s)"""
+
+                msg = f"""{method}  <span class="ui green label">{Access.ACCESS_MAP[access]} Permission</span>  
+                {prepos} {nusers[method]} user(s)"""
+
                 messages.success(request, mark_safe(msg))
             if errmsg:
                 messages.error(request, errmsg)
@@ -387,14 +389,10 @@ def analysis_recipe(request, id):
 def analysis_copy(request, id):
 
     analysis = Analysis.objects.filter(id=id).first()
-    # You can only copy to projects you have
-    projects = auth.get_project_list(user=request.user).all()
     searches = []
-
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON,
                                 ANALYSIS_VIEW_ICON, ANALYSIS_RECIPE_ICON],
                                project=analysis.project, analysis=analysis)
-
     if request.method == "POST":
 
         form = AnalysisCopyForm(data=request.POST, analysis=analysis)
@@ -403,13 +401,22 @@ def analysis_copy(request, id):
             messages.success(request, f"Copied current analysis to {count} project(s).")
 
     elif request.method == "GET" and request.GET.get("searches"):
-        pass
 
-    else:
-        form = AnalysisCopyForm(analysis=analysis)
+        search = request.GET["searches"]
+        # Can not copy into current project
+        projects = auth.get_project_list(user=request.user).exclude(pk=analysis.project.id)
 
-    context = dict(analysis=analysis, steps=steps, projects=projects, form=form)
+        projconds = Q(name__contains=search) | Q(uid__contains=search)
+        ownerconds = Q(owner__first_name__contains=search) | Q(owner__email__contains=search)
+        searches = projects.filter( projconds| ownerconds)
+
+        if not searches:
+            messages.info(request, f"No project containing '{search}' found.")
+
+    form = AnalysisCopyForm(analysis=analysis)
+    context = dict(analysis=analysis, steps=steps, projects=searches, form=form)
     return render(request, "analysis_copy.html", context)
+
 
 
 @object_access(type=Analysis, access=Access.EXECUTE_ACCESS, url='analysis_view')

@@ -7,9 +7,9 @@
     <div class="ui segment">
         <div class="ui fluid search">
             <div class="ui icon input">
-                <form method="get" action="{% url 'project_users' project.id %}">
+                <form method="get" action="{% url 'analysis_copy' analysis.id %}">
 
-                    <input type="text" name="searches" placeholder="Search people...">
+                    <input type="text" name="searches" placeholder="Search projects...">
 
                      <button type="submit" class="ui button">
                         <i class="search large icon"></i>
@@ -20,9 +20,12 @@
     </div>
 
 <div class="ui segment">
+
  <form class="ui large form" method="post">
         {% csrf_token %}
-
+        <button type="submit" class="ui green button">
+            <i class="plus icon"></i>Copy to Project(s)
+        </button>
         <div class="ui relaxed divided list">
 
             {% for project in projects %}
@@ -42,18 +45,6 @@
             {% endfor %}
 
         </div>
-
-        <div class="field">
-            <div class="ui center aligned basic segment">
-                <button type="submit" class="ui green button">
-                    <i class="plus icon"></i>Copy to Project(s)
-                </button>
-                <a class="ui button" href="#">
-                    <i class="file text icon"></i>View Project Data
-                </a>
-            </div>
-        </div>
-
     </form>
 </div>
 </div>
