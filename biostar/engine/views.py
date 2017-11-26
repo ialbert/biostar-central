@@ -90,7 +90,7 @@ def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=Non
         elif icon == RESULT_INDEX_ICON:
             step = (reverse("job_view", kwargs={'id': job.id}), RESULT_INDEX_ICON, "Index View", is_active)
         elif icon == ADD_USER:
-            step = (reverse("project_view", kwargs={'id': project.id}), ADD_USER, "Add People", is_active)
+            step = (reverse("project_view", kwargs={'id': project.id}), ADD_USER, "Manage People", is_active)
         else:
             continue
 
@@ -117,15 +117,16 @@ def project_users(request, id):
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ADD_USER],
                                project=project)
     searches = []
+    access = Access.READ_ACCESS
     # Users with read access to project
     current_users = project.access_set.filter(access__gt=Access.PUBLIC_ACCESS)
     current_users = [access.user for access in current_users]
 
     if request.method == "POST":
         user= request.user
-        # Grand users Read access
+        # Grant users Read access
         form = GrantAccess(data=request.POST, project=project, current_user=user,
-                           access=Access.READ_ACCESS)
+                           access=access)
         if form.is_valid(request=request):
 
             method = request.POST.get("add_or_remove")
@@ -147,13 +148,13 @@ def project_users(request, id):
         search = request.GET["searches"]
         searches = User.objects.filter( Q(first_name__contains=search) | Q(email__contains=search))
         if not searches:
-            messages.info(request, f"No users containing '{search}' exist.")
+            messages.info(request, f"No users containing '{search}' found.")
 
-    form = GrantAccess(project=project, current_user=request.user, access=Access.READ_ACCESS)
+    form = GrantAccess(project=project, current_user=request.user, access=access)
     context = dict(steps=steps, current_users=current_users, form=form,
-                   available_users=searches, project=project)
+                   available_users=searches, project=project, access=Access(access=access))
 
-    return render(request, "add_to_project.html", context=context)
+    return render(request, "project_users.html", context=context)
 
 
 def project_list(request):
