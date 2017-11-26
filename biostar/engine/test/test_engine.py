@@ -248,7 +248,7 @@ class ViewsTest(TestCase):
         print(resp)
 
         print(self.project.access_set)
-        1/0
+        #1/0
         pass
 
 

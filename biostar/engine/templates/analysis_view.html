@@ -26,10 +26,6 @@
 
             <div class="">
                 <img class="ui centered small image" src="{% img analysis %}">
-
-               <a class="ui button" href="{% url 'analysis_recipe' analysis.id %}">
-                <i class="list icon"></i> Recipe Code
-            </a>
             </div>
 
             <p>
@@ -37,7 +33,14 @@
             </p>
 
         </div>
-
+        <div class="ui center aligned segment">
+            <a class="ui button" href="{% url 'analysis_recipe' analysis.id %}">
+                <i class="list icon"></i> Recipe Code
+            </a>
+            <a class="ui button" href="{% url 'analysis_edit' analysis.id %}">
+                <i class="write icon"></i>Edit Code
+            </a>
+        </div>
         <div class="ui center aligned segment">
             <a class="ui green button" href="{% url 'analysis_run' analysis.id %}">
                 <i class="spinner icon"></i> Run Analysis
@@ -46,10 +49,10 @@
             <a class="ui button" href="{% url 'job_list' project.id %}?filter={{ analysis.id }}">
                 <i class="area chart icon"></i> Go to Results
             </a>
-
             <a class="ui button" href="{% url 'analysis_edit' analysis.id %}">
                 <i class="write icon"></i>Edit Recipe
             </a>
+
             <a class="ui button" href="{% url 'analysis_copy' analysis.id %}">
                 <i class="add icon"></i>Copy Recipe
             </a>

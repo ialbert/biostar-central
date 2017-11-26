@@ -185,7 +185,7 @@ class AnalysisCopyForm(forms.Form):
         project = project or self.analysis.project
         json_text, template = self.analysis.json_text, self.analysis.template
         owner, summary = self.analysis.owner, self.analysis.summary
-        name, text = f"Copy of:{self.analysis.name}", self.analysis.text
+        name, text = f"Copy of: {self.analysis.name}", self.analysis.text
 
         params = dict(project=project, json_text=json_text, template=template,
                       user=owner, summary=summary, name=name, text=text)

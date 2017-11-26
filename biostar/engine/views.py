@@ -309,8 +309,8 @@ def data_edit(request, id):
         form = DataEditForm(instance=data)
 
     context = dict(data=data, steps=steps, form=form)
-
     return render(request, 'data_edit.html', context)
+
 
 @object_access(type=Project, access=Access.UPLOAD_ACCESS, url='data_list')
 def data_upload(request, id):
