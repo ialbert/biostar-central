@@ -2,6 +2,24 @@
 
 {% block body %}
 
+<div class="ui raised segments">
+
+    <div class="ui segment">
+        <div class="ui fluid search">
+            <div class="ui icon input">
+                <form method="get" action="{% url 'project_users' project.id %}">
+
+                    <input type="text" name="searches" placeholder="Search people...">
+
+                     <button type="submit" class="ui button">
+                        <i class="search large icon"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+<div class="ui segment">
  <form class="ui large form" method="post">
         {% csrf_token %}
 
@@ -37,5 +55,6 @@
         </div>
 
     </form>
-
+</div>
+</div>
 {% endblock %}

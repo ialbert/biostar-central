@@ -2,6 +2,10 @@
 {% load engine_tags %}
 {% load staticfiles %}
 
+{% block headtitle %}
+    Managing people: {{ project.name }}
+{% endblock %}
+
 {% block body %}
 
 <div class="ui raised segments">
@@ -46,7 +50,7 @@
                 {% csrf_token %}
          <div class="ui segment">
             <div class="content">
-            <div class="ui header"> Search results</div>
+            <div class="ui header"> Search</div>
              <button type="submit" class="ui green mini button" name="add_or_remove" formmethod="post" value="add">
                 <i class="add user icon"></i>Add people
             </button>
@@ -69,7 +73,7 @@
             </div>
         </div>
 
-         <div class="ui fluid segment">
+         <div class="ui segment">
 
 
                 <div class="ui header">Contributors</div>

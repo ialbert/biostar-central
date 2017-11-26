@@ -117,7 +117,7 @@ def project_users(request, id):
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ADD_USER],
                                project=project)
     searches = []
-    access = Access.READ_ACCESS
+    access = Access.RECIPE_ACCESS
     # Users with read access to project
     current_users = project.access_set.filter(access__gt=Access.PUBLIC_ACCESS)
     current_users = [access.user for access in current_users]
@@ -137,7 +137,7 @@ def project_users(request, id):
                 # Get correct preposition for message
                 prepos = "to" if added else "from"
                 msg = f"""{method}  <span class="ui green label">Read Permission</span>  {prepos} 
-                            {nusers[method]} users"""
+                            {nusers[method]} user(s)"""
                 messages.success(request, mark_safe(msg))
             if errmsg:
                 messages.error(request, errmsg)
@@ -386,9 +386,10 @@ def analysis_recipe(request, id):
 @object_access(type=Analysis, access=Access.RECIPE_ACCESS, url='analysis_recipe')
 def analysis_copy(request, id):
 
-    # TODO: will use a factory.py function for generating projects field when adding new features
     analysis = Analysis.objects.filter(id=id).first()
+    # You can only copy to projects you have
     projects = auth.get_project_list(user=request.user).all()
+    searches = []
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON,
                                 ANALYSIS_VIEW_ICON, ANALYSIS_RECIPE_ICON],
@@ -400,6 +401,10 @@ def analysis_copy(request, id):
         if form.is_valid():
             count = form.process()
             messages.success(request, f"Copied current analysis to {count} project(s).")
+
+    elif request.method == "GET" and request.GET.get("searches"):
+        pass
+
     else:
         form = AnalysisCopyForm(analysis=analysis)
 

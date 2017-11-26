@@ -72,7 +72,7 @@ class GrantAccess(forms.Form):
     def is_valid(self, request=None):
         valid = super(GrantAccess, self).is_valid()
 
-        # Only users with admin privilege or higher get to grant access to the project
+        # Only users with admin privilege or higher get to grant access to projects
         admin_only  = auth.check_obj_access(user=self.user, instance=self.project,
                                             request=request,access=Access.ADMIN_ACCESS)
         return valid and admin_only

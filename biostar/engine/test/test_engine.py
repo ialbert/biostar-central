@@ -229,7 +229,7 @@ class ViewsTest(TestCase):
         self.project = auth.create_project(user=self.owner, name="test",
                                            text="Text", summary="summary")
         self.project.save()
-        pass
+        print(self.owner.access_set)
 
 
     def test_project_users(self):
@@ -241,21 +241,16 @@ class ViewsTest(TestCase):
                                               username="test")
         new_user.set_password("test")
         new_user.save()
-        print(new_user)
 
-        info = dict(add_or_remove="add", users=new_user.id)
+        info = dict(user=self.owner, add_or_remove="add", users=new_user.id)
 
-        resp = self.client.post(url, data=info, follow=True)
+        resp = self.client.post(url, data=info)
         print(resp)
 
         print(self.project.access_set)
-        #1/0
+        1/0
         pass
 
-
-    def test_project_view(self):
-        "Test project view"
-        pass
 
     def test_project_edit(self):
         "Test project edit"
