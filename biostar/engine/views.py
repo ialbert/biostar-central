@@ -403,18 +403,20 @@ def analysis_copy(request, id):
     elif request.method == "GET" and request.GET.get("searches"):
 
         search = request.GET["searches"]
-        # Can not copy into current project
+        # Can not search for current project
         projects = auth.get_project_list(user=request.user).exclude(pk=analysis.project.id)
 
         projconds = Q(name__contains=search) | Q(uid__contains=search)
         ownerconds = Q(owner__first_name__contains=search) | Q(owner__email__contains=search)
+
         searches = projects.filter( projconds| ownerconds)
 
         if not searches:
-            messages.info(request, f"No project containing '{search}' found.")
+            messages.info(request, f"No project containing '{search}' found. You can create one.")
 
     form = AnalysisCopyForm(analysis=analysis)
-    context = dict(analysis=analysis, steps=steps, projects=searches, form=form)
+    context = dict(analysis=analysis, steps=steps, projects=searches, form=form,
+                   project=analysis.project)
     return render(request, "analysis_copy.html", context)
 
 

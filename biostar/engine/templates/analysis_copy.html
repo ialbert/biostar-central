@@ -1,8 +1,48 @@
 {% extends "base.html" %}
+{% load engine_tags %}
+{% load staticfiles %}
 
+{% block headtitle %}
+    Copy: {{ analysis.name }}
+{% endblock %}
 {% block body %}
 
 <div class="ui raised segments">
+
+    <div class="ui center aligned segment">
+
+        <div class="ui tiny image">
+            <img src="{% img project %}">
+        </div>
+         <div class="ui tiny image">
+            <img src="{% img analysis %}">
+         </div>
+
+        <div class="ui header">
+            Project: {{ project.name }}
+
+        </div>
+        Recipe: {{analysis.name}}
+    </div>
+
+    <div class="ui secondary segment">
+
+          <div class="ui tiny header">
+        Project
+          </div>
+        <p> {{ project.summary|markdown|safe }}</p>
+         <div class="ui tiny header">
+        Recipe
+          </div>
+        <p> {{ analysis.summary|markdown|safe }}</p>
+
+        <p>Copy this recipe to different projects and edit accordingly.</p>
+        <p>
+        The copied recipe will be named
+        <span class="ui label">Copy of: {{analysis.name}}</span>
+        </p>
+
+    </div>
 
     <div class="ui segment">
         <div class="ui fluid search">
@@ -24,7 +64,7 @@
  <form class="ui large form" method="post">
         {% csrf_token %}
         <button type="submit" class="ui green button">
-            <i class="plus icon"></i>Copy to Project(s)
+            <i class="plus icon"></i>Copy Recipe
         </button>
         <div class="ui relaxed divided list">
 
