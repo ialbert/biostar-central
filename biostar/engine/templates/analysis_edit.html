@@ -7,7 +7,7 @@
 
 
 {% block body %}
-
+<div class="ui raised segment inputcolor">
 <form class="ui form" action="{% url 'analysis_edit' analysis.id %}">
 {% csrf_token %}
     {{form.errors}}
@@ -21,17 +21,7 @@
                 <textarea rows="30" cols="55" name="json_text">{{form.json_text.value}}
                 </textarea>
 
-                 <button type="submit" name="save_or_preview" formmethod="post" value="preview" class="ui green button">
-                    <i class="edit icon"></i>Preview
-                 </button>
 
-                 <button type="submit" name="save_or_preview" formmethod="post" value="save" class="ui primary button">
-                    <i class="save icon"></i>Save
-                 </button>
-
-                <a class="ui right floated button" href="{% url 'analysis_view' analysis.id %}">
-                    Analysis view
-                </a>
             </div>
         </div>
 
@@ -45,6 +35,24 @@
             </div>
         </div>
 
+    <div class="row specs">
+        <div class="sixteen wide column specs">
+           <div class="ui basic center aligned segment">
+                   <button type="submit" name="save_or_preview" formmethod="post" value="preview" class="ui green button">
+                        <i class="edit icon"></i>Preview
+                     </button>
+
+                     <button type="submit" name="save_or_preview" formmethod="post" value="save" class="ui primary button">
+                        <i class="save icon"></i>Save
+                     </button>
+
+                    <a class="ui button" href="{% url 'analysis_view' analysis.id %}">
+                        Analysis view
+                    </a>
+           </div>
+        </div>
+
+    </div>
         <div class="column specs">
             <div class="ui basic segment">
             <div class="ui center aligned header">
@@ -72,9 +80,12 @@
     </div>
 
 </form>
+
+</div>
     <div class="ui divider"></div>
     <div class="ui vertical aligned segment">
         <h2> {{ name }}</h2>
             <div class="textbody">{{ html|safe }}</div>
     </div>
+
 {% endblock %}

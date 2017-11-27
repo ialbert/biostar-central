@@ -23,10 +23,10 @@
             {% csrf_token %}
 
             {% form_nonfield_errors form %}
-
-            {# Need to bind fields to the form or it returns django.forms.fields object (instead of valid html) #}
-            {# Thats why we pass a form=form#}
-
+          <div class="field segment">
+                <label>Job Name</label>
+                {{ form.name }}
+            </div>
             {% generate_fields analysis.json_text project=analysis.project form=form %}
 
             <button type="submit" class="ui green button">

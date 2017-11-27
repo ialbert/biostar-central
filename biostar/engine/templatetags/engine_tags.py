@@ -49,7 +49,7 @@ def generate_script(template, json_text):
     template = Template(template)
     context = Context(json_data)
 
-    return template.render(context)
+    return "\n" + template.render(context)
 
 
 @register.simple_tag
