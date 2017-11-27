@@ -24,11 +24,13 @@ urlpatterns = [
     url(r'^analysis/view/(?P<id>\d+)$', views.analysis_view, name='analysis_view'),
     url(r'^analysis/run/(?P<id>\d+)/$', views.analysis_run, name='analysis_run'),
     url(r'^analysis/recipe/(?P<id>\d+)$', views.analysis_recipe, name='analysis_recipe'),
+    url(r'^recipe/edit/(?P<id>\d+)$', views.recipe_edit, name='recipe_edit'),
     url(r'^analysis/edit/(?P<id>\d+)$', views.analysis_edit, name='analysis_edit'),
     url(r'^analysis/copy/(?P<id>\d+)$', views.analysis_copy, name='analysis_copy'),
 
     url(r'^job/list/(?P<id>\d+)/$', views.job_list, name='job_list'),
     url(r'^job/view/(?P<id>\d+)/$', views.job_view, name='job_view'),
+    url(r'^job/edit/(?P<id>\d+)/$', views.job_edit, name='job_edit'),
     url(r'^job/view/result/(?P<id>\d+)/$', views.job_result_view, name='job_result_view'),
     url(r'^job/view/files/(?P<id>\d+)/$', views.job_files_list, name='job_files_entry'),
     url(r'^job/view/files/(?P<id>\d+)/(?P<path>.+)/$', views.job_files_list, name='job_files_list'),

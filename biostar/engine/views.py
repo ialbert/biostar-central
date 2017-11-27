@@ -3,6 +3,7 @@
 import mistune
 from django.conf import settings
 # from django.template.loader import get_template
+from django.utils.safestring import mark_safe
 from django.db.models import Q
 from django.contrib import messages
 from django.views.decorators import cache
@@ -89,7 +90,7 @@ def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=Non
         elif icon == RESULT_INDEX_ICON:
             step = (reverse("job_view", kwargs={'id': job.id}), RESULT_INDEX_ICON, "Index View", is_active)
         elif icon == ADD_USER:
-            step = (reverse("project_view", kwargs={'id': project.id}), ADD_USER, "Add People", is_active)
+            step = (reverse("project_view", kwargs={'id': project.id}), ADD_USER, "Manage People", is_active)
         else:
             continue
 
@@ -111,36 +112,51 @@ def site_admin(request):
 
 @object_access(type=Project, access=Access.ADMIN_ACCESS, url='project_view')
 def project_users(request, id):
-
+    "Grants a list of users Read access to a project"
     project = Project.objects.filter(pk=id).first()
-    searches = []
-    current_users = project.group.user_set.all()
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ADD_USER],
                                project=project)
+    searches = []
+    access = Access.RECIPE_ACCESS
+    # Users with read access to project
+    current_users = project.access_set.filter(access__gt=Access.PUBLIC_ACCESS)
+    current_users = [access.user for access in current_users]
 
     if request.method == "POST":
         user= request.user
-        form = AddOrRemoveUsers(data=request.POST, project=project, current_user=user)
+        # Grant users Read access
+        form = GrantAccess(data=request.POST, project=project, current_user=user,
+                           access=access)
         if form.is_valid(request=request):
-            method = request.POST.get("add_or_remove")
-            nusers, msg = form.process(**{method:True})
-            messages.success(request, msg)
 
-        return redirect(reverse("add_to_project", kwargs=dict(id=project.id)))
+            method = request.POST.get("add_or_remove")
+            added, removed, errmsg = form.process(**{method:True})
+            nusers = {"add": added,  "remove":removed}
+
+            if nusers[method]:
+                # Get correct preposition for message
+                prepos = "to" if added else "from"
+
+                msg = f"""{method}  <span class="ui green label">{Access.ACCESS_MAP[access]} Permission</span>  
+                {prepos} {nusers[method]} user(s)"""
+
+                messages.success(request, mark_safe(msg))
+            if errmsg:
+                messages.error(request, errmsg)
+
+        return redirect(reverse("project_users", kwargs=dict(id=project.id)))
 
     elif request.method == "GET" and request.GET.get("searches"):
-        # Can't search for users already in group
-        query = User.objects.exclude(pk__in=[u.id for u in current_users])
         search = request.GET["searches"]
-        searches = query.filter( Q(first_name__contains=search) | Q(email__contains=search))
+        searches = User.objects.filter( Q(first_name__contains=search) | Q(email__contains=search))
         if not searches:
-            messages.info(request, f"No users containing '{search}' exist.")
+            messages.info(request, f"No users containing '{search}' found.")
 
-    form = AddOrRemoveUsers(project=project, current_user=request.user)
+    form = GrantAccess(project=project, current_user=request.user, access=access)
     context = dict(steps=steps, current_users=current_users, form=form,
-                   available_users=searches, project=project)
+                   available_users=searches, project=project, access=Access(access=access))
 
-    return render(request, "add_to_project.html", context=context)
+    return render(request, "project_users.html", context=context)
 
 
 def project_list(request):
@@ -293,8 +309,8 @@ def data_edit(request, id):
         form = DataEditForm(instance=data)
 
     context = dict(data=data, steps=steps, form=form)
-
     return render(request, 'data_edit.html', context)
+
 
 @object_access(type=Project, access=Access.UPLOAD_ACCESS, url='data_list')
 def data_upload(request, id):
@@ -333,7 +349,7 @@ def analysis_list(request, id):
     """
 
     project = Project.objects.filter(id=id).first()
-    analyses = Analysis.objects.filter(project=project).order_by("-id")
+    analyses = Analysis.objects.filter(project=project).order_by("-sticky","-id")
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ANALYSIS_LIST_ICON],
                                project=project)
@@ -372,25 +388,37 @@ def analysis_recipe(request, id):
 @object_access(type=Analysis, access=Access.RECIPE_ACCESS, url='analysis_recipe')
 def analysis_copy(request, id):
 
-    # TODO: will use a factory.py function for generating projects field when adding new features
     analysis = Analysis.objects.filter(id=id).first()
-    projects = auth.get_project_list(user=request.user).all()
-
+    searches = []
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON,
                                 ANALYSIS_VIEW_ICON, ANALYSIS_RECIPE_ICON],
                                project=analysis.project, analysis=analysis)
-
     if request.method == "POST":
 
         form = AnalysisCopyForm(data=request.POST, analysis=analysis)
         if form.is_valid():
             count = form.process()
             messages.success(request, f"Copied current analysis to {count} project(s).")
-    else:
-        form = AnalysisCopyForm(analysis=analysis)
 
-    context = dict(analysis=analysis, steps=steps, projects=projects, form=form)
+    elif request.method == "GET" and request.GET.get("searches"):
+
+        search = request.GET["searches"]
+        # Can not search for current project
+        projects = auth.get_project_list(user=request.user).exclude(pk=analysis.project.id)
+
+        projconds = Q(name__contains=search) | Q(uid__contains=search)
+        ownerconds = Q(owner__first_name__contains=search) | Q(owner__email__contains=search)
+
+        searches = projects.filter( projconds| ownerconds)
+
+        if not searches:
+            messages.info(request, f"No project containing '{search}' found. You can create one.")
+
+    form = AnalysisCopyForm(analysis=analysis)
+    context = dict(analysis=analysis, steps=steps, projects=searches, form=form,
+                   project=analysis.project)
     return render(request, "analysis_copy.html", context)
+
 
 
 @object_access(type=Analysis, access=Access.EXECUTE_ACCESS, url='analysis_view')
@@ -488,6 +516,28 @@ def analysis_edit(request, id):
     return render(request, 'analysis_edit.html', context)
 
 
+@object_access(type=Analysis, access=Access.EDIT_ACCESS, url='analysis_recipe')
+def recipe_edit(request, id):
+
+    analysis = Analysis.objects.filter(id=id).first()
+    project = analysis.project
+
+    steps = breadcrumb_builder([PROJECT_ICON, ANALYSIS_LIST_ICON, ANALYSIS_VIEW_ICON,
+                                ANALYSIS_RECIPE_ICON], project=project, analysis=analysis)
+
+    if request.method == "POST":
+        form = AnalysisEditForm(data=request.POST, files=request.FILES, instance=analysis,)
+        if form.is_valid():
+            form.save()
+            return redirect(reverse("analysis_view", kwargs=dict(id=analysis.id)))
+
+
+    form = AnalysisEditForm(instance=analysis)
+    context = dict(steps=steps, analysis=analysis, project=project, form=form)
+
+    return render(request, 'recipe_edit.html', context)
+
+
 @object_access(type=Project, access=Access.READ_ACCESS)
 def job_list(request, id):
     """
@@ -502,10 +552,6 @@ def job_list(request, id):
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, RESULT_LIST_ICON],
                                project=project)
-
-    # This doen't order queued jobs correcly bc they aren't stared yet ( just submitted)
-    #jobs = Job.objects.filter(project=project).order_by("-start_date")
-
     jobs =Job.objects.filter(project=project).order_by("-date", "-start_date")
 
     filter = request.GET.get('filter', '')
@@ -519,6 +565,27 @@ def job_list(request, id):
     return render(request, "job_list.html", context)
 
 
+
+@object_access(type=Job, access=Access.EDIT_ACCESS)
+def job_edit(request, id):
+    job = Job.objects.filter(id=id).first()
+    project = job.project
+
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, RESULT_LIST_ICON,
+                                RESULT_VIEW_ICON],job=job, project=project)
+
+    if request.method == "POST":
+        form =JobEditForm(data=request.POST, files=request.FILES, instance=job)
+        if form.is_valid():
+            form.save()
+            return redirect(reverse("job_view", kwargs=dict(id=job.id)))
+
+    form = JobEditForm(instance=job)
+    context = dict(steps=steps, job=job, project=project, form=form)
+
+    return render(request, 'job_edit.html', context)
+
+
 @object_access(type=Job, access=Access.READ_ACCESS)
 def job_view(request, id):
     '''
@@ -527,8 +594,8 @@ def job_view(request, id):
     job = Job.objects.filter(id=id).first()
     project = job.project
 
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, RESULT_LIST_ICON, RESULT_VIEW_ICON],
-                               job=job, project=project)
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, RESULT_LIST_ICON,
+                                RESULT_VIEW_ICON], job=job, project=project)
 
     context = dict(job=job, steps=steps)
     return render(request, "job_view.html", context=context)

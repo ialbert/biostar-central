@@ -1,46 +1,42 @@
 {% extends "base.html" %}
 
 {% block headtitle %}
-    Edit Data: {{ data.name }}
+   Editing {{ job.name }}
 {% endblock %}
 
 {% block body %}
 
-
-
     <div class="ui raised segment inputcolor">
 
-        <form method="post" class="ui form" action="{% url 'data_edit' data.id %}" enctype="multipart/form-data">
+        <form method="post" class="ui form" action="{% url 'job_edit' job.id %}" enctype="multipart/form-data">
 
             {% csrf_token %}
 
             <div class="field segment">
-                <label>Data Name</label>
+                <label>Job Name</label>
                 {{ form.name }}
             </div>
-                        <div class="field">
+            <div class="field">
                <label class="checkbox" for="{{ field.id_for_label }}">
-                        {{ form.sticky }} <label>Sticky</label>
+                    {{ form.sticky }} <label>Sticky</label>
                </label>
             </div>
-
-            <div class="field">
-                <label>Summary</label>
-                <textarea name="{{ form.summary.name }}" rows="2">{{ form.summary.value }}</textarea>
-            </div>
+             <div class="field">
+                  <label> Image</label>
+                  <input id="id_image" type="file" class="" name="image">
+             </div>
 
             <div class="field segment">
-                <label>Data description</label>
+                <label>Job description</label>
                 {{ form.text }}
             </div>
-
             {{ form.errors }}
 
             <button type="submit" class="ui submit button">
                 <i class="save icon"></i>Save
             </button>
-            <a class="ui right floated button" href="{% url 'data_view' data.id %}">
-                Back
+            <a class="ui right floated button" href="{% url 'job_view' job.id %}">
+                Job view
             </a>
 
         </form>

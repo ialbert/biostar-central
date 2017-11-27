@@ -40,7 +40,6 @@ class SiteNavigation(TestCase):
     def test_public_pages(self):
         "Checking public pages"
 
-        #TODO:  'job_files_list' not tested yet
         urls = [
             reverse('index'), reverse('info'), reverse('logout'),
             reverse('login'), reverse('signup'),

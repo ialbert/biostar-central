@@ -35,10 +35,13 @@
                             <a class="header" href="{% url 'analysis_view' analysis.id %}">
                                 {{ analysis.name }}
                             </a>
+
                             <div class="description">
                                 {{ analysis.summary|markdown|safe }}
                             </div>
+
                             <div class="meta">
+                                {% sticky_label analysis %}
                                 <a href="{% url 'job_list' project.id %}?filter={{ analysis.id }}">
                                     <i class="bar chart icon"></i> view results
                                 </a>

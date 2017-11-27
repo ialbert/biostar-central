@@ -69,6 +69,7 @@ def get_project_list(user):
 
     return query
 
+
 def check_obj_access(user, instance, access=Access.ADMIN_ACCESS, request=None):
     """
     Validates object access.

@@ -1,11 +1,10 @@
 import hjson, logging
 from django import forms
-from django.contrib import messages
-from .models import Project, Data, Analysis, Job
+from django.utils.safestring import mark_safe
+from .models import Project, Data, Analysis, Job, Access
 from . import tasks
 from .const import *
 import os
-from . import factory
 from . import models, auth
 
 
@@ -27,6 +26,7 @@ class ProjectForm(forms.ModelForm):
 class DataUploadForm(forms.ModelForm):
     #choices = DATA_TYPES.items()
     #data_type = forms.IntegerField(widget=forms.Select(choices=choices))
+
     file = forms.FileField()
 
     class Meta:
@@ -47,63 +47,80 @@ class AnalysisEditForm(forms.ModelForm):
 
     class Meta:
         model = Analysis
-        fields = ['name', 'text', "summary", 'sticky']
+        fields = ['name', "image",'text', "summary", 'sticky']
 
 
 class JobEditForm(forms.ModelForm):
 
     class Meta:
         model = Job
-        fields = ['name', 'text', 'summary','sticky']
+        fields = ['name', "image",'text','sticky']
 
 
-class AddOrRemoveUsers(forms.Form):
+class GrantAccess(forms.Form):
 
     users = forms.IntegerField()
     add_or_remove = forms.CharField(initial="")
 
-    def __init__(self, project, current_user, *args, **kwargs):
+    def __init__(self, project, current_user, access,*args, **kwargs):
         self.project = project
         self.user = current_user
+        self.access = access
+
         super().__init__(*args, **kwargs)
 
     def is_valid(self, request=None):
-        valid = super(AddOrRemoveUsers, self).is_valid()
+        valid = super(GrantAccess, self).is_valid()
 
-        return valid and self.quick_access_checker(request=request, owner_only=True)
+        # Only users with admin privilege or higher get to grant access to projects
+        admin_only  = auth.check_obj_access(user=self.user, instance=self.project,
+                                            request=request,access=Access.ADMIN_ACCESS)
+        return valid and admin_only
 
 
     def process(self, add=False,remove=False):
+
+        assert not (add and remove), "Can add or remove, not both"
+
         # More than one can be selected
         users = self.data.getlist('users')
-        project_group = self.project.group
+        added, removed, errmsg  = 0,0, []
 
         for user_id in users:
-            picked_user = models.User.objects.filter(id=user_id).first()
-            if add:
-                #Gives the user access_rights here
-                project_group.user_set.add(picked_user)
-                action = "Added"
+            user = models.User.objects.filter(id=user_id).first()
+            has_access = user.access_set.filter(project=self.project).first()
 
-            if remove:
-                # Remove user access_right here.
-                project_group.user_set.remove(picked_user)
-                action = "Removed"
+            # Can only add people without access
+            addcond = (not has_access or has_access.access == Access.PUBLIC_ACCESS)
 
-            logger.info(f"{action} user.id={picked_user.id} from project.group={project_group}")
+            # Can only remove people with access
+            remcond = (has_access and has_access.access > Access.PUBLIC_ACCESS)
 
-        return len(users), f"{action} {len(users)}"
+            if add and addcond:
 
-    def quick_access_checker(self, request=None, owner_only=False):
+                added += 1
+                if not has_access:
+                    access = Access.objects.create(user=user, project=self.project, access=self.access)
+                    access.save()
+                    continue
+                has_access.access = self.access
+                has_access.save()
 
-        # We don't really care for the first 2 things in this case, only the allow_access
-        _, _, allow_access = auth.check_obj_access(self.user, self.project, owner_only=owner_only)
-        errmsg = f"Only the owner ({self.project.owner.first_name}) of the project can perform action."
+            elif remove and remcond:
+                # Changes access to Access.PUBLIC_ACCESS
+                has_access.access = Access.PUBLIC_ACCESS
+                has_access.save()
+                removed += 1
 
-        if not allow_access and request:
-            messages.error(request,errmsg)
+            # Trying to add or remove user without meeting conds not allowed
+            elif (add and (not addcond)) or (remove and (not remcond)):
+                errmsg.append(f"{user.first_name}")
 
-        return allow_access
+        if errmsg:
+            errmsg = f"{', '.join(errmsg)} already in project" if add else \
+                f"Can not remove: {', '.join(errmsg)}"
+
+        return added, removed, errmsg
 
 
 class DataCopyForm(forms.Form):
@@ -152,7 +169,6 @@ class AnalysisCopyForm(forms.Form):
 
             current_params = self.analysis_params(project=current_project)
             new_analysis = auth.create_analysis(**current_params)
-
             # Images needs to be set by it set
             new_analysis.image.save(self.analysis.name, self.analysis.image, save=True)
             new_analysis.save()
@@ -165,7 +181,7 @@ class AnalysisCopyForm(forms.Form):
         project = project or self.analysis.project
         json_text, template = self.analysis.json_text, self.analysis.template
         owner, summary = self.analysis.owner, self.analysis.summary
-        name, text = self.analysis.name, self.analysis.text
+        name, text = f"Copy of: {self.analysis.name}", self.analysis.text
 
         params = dict(project=project, json_text=json_text, template=template,
                       user=owner, summary=summary, name=name, text=text)

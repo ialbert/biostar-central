@@ -1,10 +1,71 @@
 {% extends "base.html" %}
+{% load engine_tags %}
+{% load staticfiles %}
 
+{% block headtitle %}
+    Copy: {{ analysis.name }}
+{% endblock %}
 {% block body %}
+
+<div class="ui raised segments">
+
+    <div class="ui center aligned segment">
+
+        <div class="ui tiny image">
+            <img src="{% img project %}">
+        </div>
+         <div class="ui tiny image">
+            <img src="{% img analysis %}">
+         </div>
+
+        <div class="ui header">
+            Project: {{ project.name }}
+
+        </div>
+        Recipe: {{analysis.name}}
+    </div>
+
+    <div class="ui secondary segment">
+
+          <div class="ui tiny header">
+        Project
+          </div>
+        <p> {{ project.summary|markdown|safe }}</p>
+         <div class="ui tiny header">
+        Recipe
+          </div>
+        <p> {{ analysis.summary|markdown|safe }}</p>
+
+        <p>Copy this recipe to different projects and edit accordingly.</p>
+        <p>
+        The copied recipe will be named
+        <span class="ui label">Copy of: {{analysis.name}}</span>
+        </p>
+
+    </div>
+
+    <div class="ui segment">
+        <div class="ui fluid search">
+            <div class="ui icon input">
+                <form method="get" action="{% url 'analysis_copy' analysis.id %}">
+
+                    <input type="text" name="searches" placeholder="Search projects...">
+
+                     <button type="submit" class="ui button">
+                        <i class="search large icon"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+<div class="ui segment">
 
  <form class="ui large form" method="post">
         {% csrf_token %}
-
+        <button type="submit" class="ui green button">
+            <i class="plus icon"></i>Copy Recipe
+        </button>
         <div class="ui relaxed divided list">
 
             {% for project in projects %}
@@ -24,18 +85,7 @@
             {% endfor %}
 
         </div>
-
-        <div class="field">
-            <div class="ui center aligned basic segment">
-                <button type="submit" class="ui green button">
-                    <i class="plus icon"></i>Copy to Project(s)
-                </button>
-                <a class="ui button" href="#">
-                    <i class="file text icon"></i>View Project Data
-                </a>
-            </div>
-        </div>
-
     </form>
-
+</div>
+</div>
 {% endblock %}
