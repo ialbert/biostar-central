@@ -12,43 +12,61 @@
 {% csrf_token %}
     {{form.errors}}
     <div   class="ui two column grid">
-
         <div class="column specs">
-            <textarea rows="30" cols="55" name="json_text">{{form.json_text.value}}
-            </textarea>
+            <div class="ui basic segment">
+                <div class="ui center aligned header">
+                Data Specifications
+                </div>
 
-             <button type="submit" name="save_or_preview" formmethod="post" value="preview" class="ui green button">
-                <i class="edit icon"></i>Preview
-             </button>
+                <textarea rows="30" cols="55" name="json_text">{{form.json_text.value}}
+                </textarea>
 
-             <button type="submit" name="save_or_preview" formmethod="post" value="save" class="ui primary button">
-                <i class="save icon"></i>Save
-             </button>
+                 <button type="submit" name="save_or_preview" formmethod="post" value="preview" class="ui green button">
+                    <i class="edit icon"></i>Preview
+                 </button>
 
-            <a class="ui right floated button" href="{% url 'analysis_view' analysis.id %}">
-                Back
-            </a>
+                 <button type="submit" name="save_or_preview" formmethod="post" value="save" class="ui primary button">
+                    <i class="save icon"></i>Save
+                 </button>
+
+                <a class="ui right floated button" href="{% url 'analysis_view' analysis.id %}">
+                    Analysis view
+                </a>
+            </div>
         </div>
 
         <div class="column specs">
-            <textarea rows="30" cols="55" name="template">{{form.template.value}}
-            </textarea>
+            <div class="ui basic segment">
+                <div class="ui center aligned header">
+                Template
+                </div>
+                <textarea rows="30" cols="55" name="template">{{form.template.value}}
+                </textarea>
+            </div>
         </div>
 
         <div class="column specs">
-
+            <div class="ui basic segment">
+            <div class="ui center aligned header">
+            Generated Interface
+            </div>
             {% generate_fields json_text project=analysis.project form=form %}
 
              <a class="ui green mini button">
                 <i class="check icon"></i>Run
              </a>
+            </div>
         </div>
 
        <div class="column specs">
+           <div class="ui basic segment">
+               <div class="ui center aligned header">
+               Resulting Script
+               </div>
         <pre>
             {{template|generate_script:json_text }}
         </pre>
-
+           </div>
         </div>
 
     </div>

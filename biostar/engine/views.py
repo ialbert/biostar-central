@@ -194,7 +194,6 @@ def project_view(request, id):
 
     # Use a placeholder
     access = access or Access(access=Access.PUBLIC_ACCESS)
-
     context = dict(project=project, access=access,
                    data_count=data_count, recipe_count=recipe_count, result_count=result_count,
                    steps=steps)
@@ -214,7 +213,6 @@ def project_edit(request, id):
         if form.is_valid():
             form.save()
             return redirect(project.url())
-
     else:
         form = ProjectForm(instance=project)
 
@@ -223,9 +221,12 @@ def project_edit(request, id):
                   context)
 
 
-@login_required
 def project_create(request):
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON])
+
+    if request.user.is_anonymous:
+        messages.warning(request, "You must be logged in to create a project.")
+        return redirect(reverse("project_list"))
 
     if request.method == "POST":
         # create new projects here ( just populates metadata ).
@@ -252,10 +253,9 @@ def project_create(request):
     initial = dict(name="Project Name", text="project description", summary="project summary")
     form = ProjectForm(initial=initial)
     context = dict(steps=steps, form=form)
-    return render(request, 'project_create.html',
-                  context)
+    return render(request, 'project_create.html', context)
 
-# @login_required
+
 @object_access(type=Project, access=Access.READ_ACCESS)
 def data_list(request, id):
 
@@ -411,8 +411,13 @@ def analysis_copy(request, id):
 
         searches = projects.filter( projconds| ownerconds)
 
+
         if not searches:
-            messages.info(request, f"No project containing '{search}' found. You can create one.")
+            create_url = f"""<a class='ui mini blue button' href={reverse('project_create')}>
+            <i class="plus icon"></i>Create Project </a>"""
+
+            msg = mark_safe(f"Project containing '{search}' not found. {create_url} and copy this recipe to it.")
+            messages.warning(request, msg)
 
     form = AnalysisCopyForm(analysis=analysis)
     context = dict(analysis=analysis, steps=steps, projects=searches, form=form,
