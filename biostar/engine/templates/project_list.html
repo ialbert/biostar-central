@@ -45,10 +45,11 @@
                 </div>
 
             {% endfor %}
-
-            <div class="item centerbox">
-                Public projects are shown. <a href="{% url 'login' %}">Log in</a> to access private projects.
-            </div>
+            {% if user.is_anonymous %}
+                <div class="item centerbox">
+                    Public projects are shown. <a href="{% url 'login' %}">Log in</a> to access private projects.
+                </div>
+            {% endif %}
 
             <div class="item centerbox">
                 <a class="ui button" href="{% url 'project_create' %}">

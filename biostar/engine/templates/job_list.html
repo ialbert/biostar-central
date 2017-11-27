@@ -25,7 +25,7 @@
             {% if filter %}
                 <div class="ui warning message">Showing results for recipe:
                     <a href="{% url 'analysis_view' filter.id %}">{{ filter.name }}</a>
-                    &bull; <a class="ui label" href="{% url "job_list"  project.id %}"><i class="undo icon"></i>Remove
+                    &bull; <a class="ui label" href="{% url 'job_list' project.id %}"><i class="undo icon"></i>Remove
                         Filter</a>
                 </div>
             {% endif %}
@@ -52,7 +52,7 @@
                             </div>
 
                             <div class="extra">
-                                {% job_minutes job %} &bull;
+                               {% sticky_label job %}{% job_minutes job %} &bull;
                                 <a class="ui  {% job_color job %}  label"
                                    href="{% url 'analysis_view' job.analysis.id %}"><i class="setting icon"></i>Go to
                                     Recipe</a>

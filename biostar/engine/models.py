@@ -137,12 +137,12 @@ class Data(models.Model):
     state = models.IntegerField(default=PENDING, choices=STATE_CHOICES)
 
     name = models.CharField(max_length=MAX_NAME_LEN, default="no name")
-    summary = models.TextField(default='no summary')
+    summary = models.TextField(default='no summary', blank=True, max_length=MAX_TEXT_LEN)
     image = models.ImageField(default=None, blank=True, upload_to=image_path, max_length=MAX_FIELD_LEN)
     sticky = models.BooleanField(default=False)
 
     owner = models.ForeignKey(User, null=True)
-    text = models.TextField(default='no description', max_length=MAX_TEXT_LEN)
+    text = models.TextField(default='no description', max_length=MAX_TEXT_LEN, blank=True)
     html = models.TextField(default='html')
     date = models.DateTimeField(auto_now_add=True)
 
