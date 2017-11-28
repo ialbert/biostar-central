@@ -219,8 +219,6 @@ class CommandTests(TestCase):
         self.assertTrue(post == (pre + 1), "Error creating adding in database with management command")
 
 
-
-
 class ViewsTest(TestCase):
 
     def setUp(self):
