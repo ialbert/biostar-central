@@ -196,7 +196,7 @@ data: [
         name: WOAK_MP, Okapi, DNA, Mate Pair
         path: /export/data/giraffe/data/OKAPI/WOAK_MP
         data_type: FASTQ_TYPE
-        summary: WOAK_MP, 150bp, 2 x 67 million reads
+        summary: WOAK_MP, 150bp, 2 x 67 million reads, 7x coverage
         text: '''
         Specimen ID: `WOAK`
 
