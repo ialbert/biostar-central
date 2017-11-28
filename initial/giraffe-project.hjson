@@ -41,7 +41,7 @@ analyses: [
 data: [
 
     {
-        name: Giraffe scaffold (2016).fa
+        name: Published Giraffe Scaffold 2016.fa
         path: /export/data/giraffe/assembly/soap_assembly_k91_params.gapfilled.fa
         link: true
         data_type: FASTA_TYPE
@@ -50,35 +50,152 @@ data: [
     }
 
     {
-        name: MA1 mated-pair FASTQ Files
+        name: MA1_MP, Giraffe, DNA, Mate Pairs
         path: /export/data/giraffe/data/GIRAFFE/MA1_MP
         data_type: FASTQ_TYPE
-        summary: Giraffe MA1: mated pair reads
-        text: Mated pair reads
+        summary: Giraffe, MA1, 150bp, Mate Pair
+        text: '''
+        Specimen ID: `MA1`
+
+        Species: Masai Giraffe
+
+        Sample: Female, Masai Giraffe liver,  Kenya
+
+        Mate Paired Library
+
+        Date created: 2014-Jan-14
+
+        Date submitted: 2016-Mar-14
+
+        SRA ID: `SRR3217431`
+
+        Files:
+
+        - adultfemalegiraffeMA1_R1.fastq.gz
+        - adultfemalegiraffeMA1_R2.fastq.gz
+        '''
     }
 
     {
-        name: MA1 paired-end FASTQ Files
+        name: MA1_PE, Giraffe, DNA, Paired End
         path: /export/data/giraffe/data/GIRAFFE/MA1_PE
         data_type: FASTQ_TYPE
-        summary: Giraffe MA1: paired end reads
-        text: Paired end reads
+        summary: Giraffe, MA1, 150bp, Paired End
+        text: '''
+        Specimen ID: `MA1`
+
+        Species: Masai Giraffe
+
+        Sample: Female, Masai Giraffe liver,  Kenya
+
+        DNA-Sequencing, Paired End Library, average coverage 20x
+
+        Date created: 2013-Jul-26
+
+        Date submitted: 2016-Mar-14
+
+        SRA ID: `SRR3218456`
+
+        Files:
+
+        - MA1_R1.fastq.gz
+        - MA1_R2.fastq.gz
+
+        '''
     }
 
     {
-        name: NZOO paired-end FASTQ Files
+        name: NZOO, Giraffe, DNA, Paired End
         path: /export/data/giraffe/data/GIRAFFE/NZOO
         data_type: FASTQ_TYPE
-        summary: Giraffe NZOO: paired end reads 250bp
-        text: NZOO
+        summary: Giraffe NZOO: paired end reads 151bp
+        text: '''
+        Specimen ID: `NZOO`
+
+        Species: Masai Giraffe
+
+        Sample: Female, Masai Giraffe liver, Nashville Zoo
+
+        DNA-Sequencing, Paired End, 151bp length
+
+        Files:
+
+        - nzoo_L001_r1.fq.gz
+        - nzoo_L001_r2.fq.gz
+        - nzoo_L002_r1.fq.gz
+        - nzoo_L002_r2.fq.gz
+
+        '''
     }
 
     {
-        name: UGA
+        name: UGA, Giraffe, DNA, Paired End
         path: /export/data/giraffe/data/GIRAFFE/UGA
         data_type: FASTQ_TYPE
-        summary: Giraffe UGA
-        text: UGA
+        summary: Rothschild Giraffe NZOO, 250bp, 20x
+        text: '''
+        Specimen ID: `UGA`
+
+        Species: Rothschild Giraffe
+
+        Sample: Fibroblast Cell Cultures, San Diego Zoo Institute for Conservation Research
+
+        DNA-Sequencing, Paired End Library, 250bp long, 2 x 26 million reads
+
+        expected coverage 22x
+
+        Files:
+
+        - UGA_R1.fastq.gz
+        - UGA_R2.fastq.gz
+
+        '''
+    }
+
+    {
+        name: WOAK_PE, Okapi, DNA, Paired End
+        path: /export/data/giraffe/data/OKAPI/WOAK_PE
+        data_type: FASTQ_TYPE
+        summary: Okapi, WOAK_PE 150bp, 20x
+        text: '''
+        Specimen ID: `WOAK`
+
+        Species: Okapi
+
+        Sample: Fetal Male Okapi Liver, White Oak Holdings
+
+        DNA-Sequencing, Paired End Library, 150bp read lenghs
+
+        Files:
+
+        - lane1_R1.fastq.gz
+        - lane1_R2.fastq.gz
+        - lane2_R1.fastq.gz
+        - lane2_R2.fastq.gz
+
+        '''
+    }
+
+    {
+        name: WOAK_MP, Okapi, DNA, Mate Pair
+        path: /export/data/giraffe/data/OKAPI/WOAK_MP
+        data_type: FASTQ_TYPE
+        summary: Okapi, WOAK_MP, 150bp
+        text: '''
+        Specimen ID: `WOAK`
+
+        Species: Okapi
+
+        Sample: Fetal Male Okapi Liver, White Oak Holdings
+
+        DNA-Sequencing, Mate Pair Library, 150bp
+
+        Files:
+
+        - fetalokapi1_R1.fastq.gz
+        - fetalokapi1_R2.fastq.gz
+
+        '''
     }
 
 ]
