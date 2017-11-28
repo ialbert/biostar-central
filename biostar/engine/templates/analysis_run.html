@@ -21,7 +21,6 @@
         <form method="post" class="ui form" action="{% url 'analysis_run' analysis.id %}">
 
             {% csrf_token %}
-
             {% form_nonfield_errors form %}
             <div class="ui vertical segment ">
                 <div class="field segment">
