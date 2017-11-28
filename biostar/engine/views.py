@@ -408,9 +408,7 @@ def analysis_copy(request, id):
 
         projconds = Q(name__contains=search) | Q(uid__contains=search)
         ownerconds = Q(owner__first_name__contains=search) | Q(owner__email__contains=search)
-
         searches = projects.filter( projconds| ownerconds)
-
 
         if not searches:
             create_url = f"""<a class='ui mini blue button' href={reverse('project_create')}>
@@ -486,7 +484,8 @@ def process_analysis_edit(analysis, form, method=None):
     if form.is_valid() and method:
 
         # Call preview() or save()
-        form_method_map[method]()
+        func = form_method_map[method]
+        func()
         spec = hjson.loads(form.cleaned_data["json_text"].rstrip())
 
         # Override json_text and template with most recent
@@ -504,15 +503,13 @@ def analysis_edit(request, id):
     analysis = Analysis.objects.filter(id=id).first()
     project = analysis.project
     steps = breadcrumb_builder([PROJECT_ICON, ANALYSIS_LIST_ICON, ANALYSIS_VIEW_ICON,
-                                ANALYSIS_RECIPE_ICON],
-                               project=project, analysis=analysis)
+                                ANALYSIS_RECIPE_ICON],project=project, analysis=analysis)
 
     if request.method == "POST":
         form = EditAnalysisForm(analysis=analysis, data=request.POST)
         method = request.POST.get("save_or_preview")
         #Method form.is_valid() called in this function
         context = process_analysis_edit(analysis=analysis, form=form, method=method)
-
     else:
         form = EditAnalysisForm(analysis=analysis)
         context = process_analysis_edit(analysis=analysis, form=form)
