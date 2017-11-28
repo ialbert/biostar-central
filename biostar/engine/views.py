@@ -194,7 +194,6 @@ def project_view(request, id):
 
     # Use a placeholder
     access = access or Access(access=Access.PUBLIC_ACCESS)
-
     context = dict(project=project, access=access,
                    data_count=data_count, recipe_count=recipe_count, result_count=result_count,
                    steps=steps)
@@ -214,7 +213,6 @@ def project_edit(request, id):
         if form.is_valid():
             form.save()
             return redirect(project.url())
-
     else:
         form = ProjectForm(instance=project)
 
@@ -223,9 +221,12 @@ def project_edit(request, id):
                   context)
 
 
-@login_required
 def project_create(request):
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON])
+
+    if request.user.is_anonymous:
+        messages.warning(request, "You must be logged in to create a project.")
+        return redirect(reverse("project_list"))
 
     if request.method == "POST":
         # create new projects here ( just populates metadata ).
@@ -252,10 +253,9 @@ def project_create(request):
     initial = dict(name="Project Name", text="project description", summary="project summary")
     form = ProjectForm(initial=initial)
     context = dict(steps=steps, form=form)
-    return render(request, 'project_create.html',
-                  context)
+    return render(request, 'project_create.html', context)
 
-# @login_required
+
 @object_access(type=Project, access=Access.READ_ACCESS)
 def data_list(request, id):
 
@@ -408,11 +408,14 @@ def analysis_copy(request, id):
 
         projconds = Q(name__contains=search) | Q(uid__contains=search)
         ownerconds = Q(owner__first_name__contains=search) | Q(owner__email__contains=search)
-
         searches = projects.filter( projconds| ownerconds)
 
         if not searches:
-            messages.info(request, f"No project containing '{search}' found. You can create one.")
+            create_url = f"""<a class='ui mini blue button' href={reverse('project_create')}>
+            <i class="plus icon"></i>Create Project </a>"""
+
+            msg = mark_safe(f"Project containing '{search}' not found. {create_url} and copy this recipe to it.")
+            messages.warning(request, msg)
 
     form = AnalysisCopyForm(analysis=analysis)
     context = dict(analysis=analysis, steps=steps, projects=searches, form=form,
@@ -481,7 +484,8 @@ def process_analysis_edit(analysis, form, method=None):
     if form.is_valid() and method:
 
         # Call preview() or save()
-        form_method_map[method]()
+        func = form_method_map[method]
+        func()
         spec = hjson.loads(form.cleaned_data["json_text"].rstrip())
 
         # Override json_text and template with most recent
@@ -499,15 +503,13 @@ def analysis_edit(request, id):
     analysis = Analysis.objects.filter(id=id).first()
     project = analysis.project
     steps = breadcrumb_builder([PROJECT_ICON, ANALYSIS_LIST_ICON, ANALYSIS_VIEW_ICON,
-                                ANALYSIS_RECIPE_ICON],
-                               project=project, analysis=analysis)
+                                ANALYSIS_RECIPE_ICON],project=project, analysis=analysis)
 
     if request.method == "POST":
         form = EditAnalysisForm(analysis=analysis, data=request.POST)
         method = request.POST.get("save_or_preview")
         #Method form.is_valid() called in this function
         context = process_analysis_edit(analysis=analysis, form=form, method=method)
-
     else:
         form = EditAnalysisForm(analysis=analysis)
         context = process_analysis_edit(analysis=analysis, form=form)

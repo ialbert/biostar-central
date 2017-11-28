@@ -21,11 +21,10 @@
                 <div class="ui center aligned vertical segment">
 
                     <a class="ui button" href="{% url 'analysis_edit' analysis.id %}">
-                        <i class="write icon"></i>Edit Script
+                        <i class="write icon"></i>Edit Code
                     </a>
-
-                    <a class="ui button" href="{% url 'analysis_copy' analysis.id %}">
-                        <i class="add icon"></i>Copy Recipe
+                    <a class="ui button" href="{% url 'recipe_edit' analysis.id %}">
+                        <i class="write icon"></i>Edit Recipe
                     </a>
 
                 </div>
@@ -33,8 +32,8 @@
 
                 <div class="ui center aligned header">Script Template</div>
                 <pre>
-{{ analysis.template }}
-</pre>
+                {{ analysis.template }}
+                </pre>
 
                 <div class="ui center aligned header">Data Specification</div>
                 <pre>

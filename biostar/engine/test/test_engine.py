@@ -229,7 +229,6 @@ class ViewsTest(TestCase):
         self.project = auth.create_project(user=self.owner, name="test",
                                            text="Text", summary="summary")
         self.project.save()
-        print(self.owner.access_set)
 
 
     def test_project_users(self):
@@ -245,9 +244,7 @@ class ViewsTest(TestCase):
         info = dict(user=self.owner, add_or_remove="add", users=new_user.id)
 
         resp = self.client.post(url, data=info)
-        print(resp)
 
-        print(self.project.access_set)
         #1/0
         pass
 
@@ -270,13 +267,6 @@ class ViewsTest(TestCase):
 
         # Test if user interface works
         #self.assertEqual(resp.status_code, 200, f"Error : response.status_code={resp.status_code} and expected 200.")
-        pass
-
-    def test_data_list(self):
-        "Test data list view"
-        pass
-
-    def test_data_view(self):
         pass
 
     def test_data_edit(self):
@@ -304,41 +294,41 @@ class ViewsTest(TestCase):
 
        # self.assertEqual(resp.status_code, 200, f"Error : response.status_code={resp.status_code} and expected 200.")
 
-    def test_analysis_list(self):
+    def Xtest_analysis_list(self):
         pass
 
 
-    def test_analysis_view(self):
+    def Xtest_analysis_view(self):
         pass
 
 
-    def test_analysis_recipe(self):
+    def Xtest_analysis_recipe(self):
         pass
 
 
-    def test_analysis_copy(self):
+    def Xtest_analysis_copy(self):
         pass
 
-    def test_analysis_run(self):
+    def Xtest_analysis_run(self):
         pass
 
 
-    def test_analysis_edit(self):
+    def Xtest_analysis_edit(self):
         pass
 
-    def test_job_list(self):
+    def Xtest_job_list(self):
         pass
 
-    def test_job_view(self):
+    def Xtest_job_view(self):
         pass
 
-    def test_job_result_view(self):
+    def Xtest_job_result_view(self):
         pass
 
-    def test_job_file_view(self):
+    def Xtest_job_file_view(self):
         pass
 
-    def test_job_files_list(self):
+    def Xtest_job_files_list(self):
         pass
 
 

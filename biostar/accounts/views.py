@@ -183,4 +183,4 @@ def password_reset_complete(request):
     context = dict(steps=steps)
 
     return auth_views.password_reset_complete(request, extra_context=context,
-                                              template_name="accounts/password_reset_complete.html")
+                                              template_name="accounts/password_reset_complete.html",)

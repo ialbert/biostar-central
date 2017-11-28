@@ -4,9 +4,8 @@
     </a>
     {% if user.is_authenticated %}
         <a class="item" href="{% url 'profile' %}">
-            <i class="user icon"></i> {{ user.email }}
+            <i class="user icon"></i> {{ user.first_name }}
         </a>
-
 
         <div class="right menu">
             {% if user.is_superuser %}

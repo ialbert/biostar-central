@@ -190,6 +190,8 @@ class AnalysisCopyForm(forms.Form):
 
 class RunAnalysis(forms.Form):
 
+
+
     def __init__(self, analysis, *args, **kwargs):
 
         self.analysis = analysis
@@ -197,6 +199,7 @@ class RunAnalysis(forms.Form):
         self.project = self.analysis.project
 
         super().__init__(*args, **kwargs)
+        self.fields["name"] = forms.CharField(max_length=256, initial=self.analysis.name)
 
         # This loop needs to be here to register the fields and trigger is_valid() later on.
         for name, data in self.json_data.items():
