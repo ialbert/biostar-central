@@ -27,6 +27,21 @@ def join(*args):
     return os.path.abspath(os.path.join(*args))
 
 
+def get_analysis_attr(analysis, project=None):
+    "Get analysis attributes"
+
+    project = project or analysis.project
+    json_text = analysis.json_text
+    template = analysis.template
+    owner = analysis.owner
+    summary = analysis.summary
+    name = analysis.name
+    text = analysis.text
+
+    return dict(project=project, json_text=json_text, template=template,
+                  user=owner, summary=summary, name=name, text=text,)
+
+
 def make_form_field(data, project=None):
     display_type = data.get("display_type")
 

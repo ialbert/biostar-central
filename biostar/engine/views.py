@@ -389,7 +389,9 @@ def analysis_recipe(request, id):
 def analysis_copy(request, id):
 
     analysis = Analysis.objects.filter(id=id).first()
-    searches = []
+    # Only copy to project one has edit access to
+    required_access = Access(access=Access.EDIT_ACCESS)
+
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON,
                                 ANALYSIS_VIEW_ICON, ANALYSIS_RECIPE_ICON],
                                project=analysis.project, analysis=analysis)
@@ -397,31 +399,65 @@ def analysis_copy(request, id):
 
         form = AnalysisCopyForm(data=request.POST, analysis=analysis)
         if form.is_valid():
-            count = form.process()
-            messages.success(request, f"Copied current analysis to {count} project(s).")
-        # redirect here dawg
+            copied = form.process()
+            copied = Project.objects.filter(id=copied[0]).first()
+            messages.success(request, f"Copied recipe to {copied.name}.")
 
-    elif request.method == "GET" and request.GET.get("searches"):
+        return redirect(reverse("analysis_copy", kwargs=dict(id=analysis.id)))
 
-        search = request.GET["searches"]
-        # Can not search for current project
-        projects = auth.get_project_list(user=request.user).exclude(pk=analysis.project.id)
-
-        projconds = Q(name__contains=search) | Q(uid__contains=search)
-        ownerconds = Q(owner__first_name__contains=search) | Q(owner__email__contains=search)
-        searches = projects.filter( projconds| ownerconds)
-
-        if not searches:
-            create_url = f"""<a class='ui mini blue button' href={reverse('project_create')}>
-            <i class="plus icon"></i>Create Project </a>"""
-
-            msg = mark_safe(f"Project containing '{search}' not found. {create_url} and copy this recipe to it.")
-            messages.warning(request, msg)
+    projects = auth.get_project_list(user=request.user).exclude(pk=analysis.project.id)
+    # Filter the projects according to access
 
     form = AnalysisCopyForm(analysis=analysis)
-    context = dict(analysis=analysis, steps=steps, projects=searches, form=form,
-                   project=analysis.project)
+    context = dict(analysis=analysis, steps=steps, projects=projects, form=form,
+                   project=analysis.project, access=required_access)
+
     return render(request, "analysis_copy.html", context)
+
+
+@object_access(type=Analysis, access=Access.RECIPE_ACCESS, url='analysis_recipe')
+def create_copy(request, id):
+    "Create a project then copy analysis into it."
+
+    analysis = Analysis.objects.filter(id=id).first()
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON,
+                                ANALYSIS_VIEW_ICON, ANALYSIS_RECIPE_ICON],
+                               project=analysis.project, analysis=analysis)
+
+    if request.method == "POST":
+        form = ProjectForm(request.POST, request.FILES)
+
+        if form.is_valid():
+            name = form.cleaned_data["name"]
+            text = form.cleaned_data["text"]
+            summary = form.cleaned_data["summary"]
+            stream = form.cleaned_data["image"]
+            sticky = form.cleaned_data["sticky"]
+            privacy = form.cleaned_data["privacy"]
+            owner = request.user
+
+            project = auth.create_project(user=owner, name=name, summary=summary, text=text,
+                                          stream=stream, sticky=sticky, privacy=privacy)
+            project.save()
+
+            current_params = auth.get_analysis_attr(analysis=analysis, project=project)
+            new_analysis = auth.create_analysis(**current_params)
+            new_analysis.image.save(analysis.name, analysis.image, save=True)
+            new_analysis.name = f"Copy of: {analysis.name}"
+            new_analysis.state = analysis.state
+            new_analysis.security = analysis.security
+
+            new_analysis.save()
+            url = reverse("analysis_list", kwargs=dict(id=new_analysis.project.id))
+        else:
+            url = reverse("create_copy", kwargs=dict(id=analysis.id))
+        return redirect(url)
+
+    initial = dict(name="Project Name", text="project description", summary="project summary")
+    form = ProjectForm(initial=initial)
+
+    context = dict(form=form, steps=steps, analysis=analysis)
+    return render(request, "create_copy.html", context)
 
 
 
@@ -535,7 +571,6 @@ def recipe_edit(request, id):
         if form.is_valid():
             form.save()
             return redirect(reverse("analysis_view", kwargs=dict(id=analysis.id)))
-
 
     form = AnalysisEditForm(instance=analysis)
     context = dict(steps=steps, analysis=analysis, project=project, form=form)
