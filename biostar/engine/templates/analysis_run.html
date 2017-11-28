@@ -23,18 +23,22 @@
             {% csrf_token %}
 
             {% form_nonfield_errors form %}
-          <div class="field segment">
-                <label>Job Name</label>
-                {{ form.name }}
+            <div class="ui vertical segment ">
+                <div class="field segment">
+                    <label>Job Name</label>
+                    {{ form.name }}
+                </div>
             </div>
-            {% generate_fields analysis.json_text project=analysis.project form=form %}
+            <div class="ui vertical segment ">
+                {% generate_fields analysis.json_text project=analysis.project form=form %}
 
-            <button type="submit" class="ui green button">
-                <i class="check icon"></i>Run
-            </button>
-            <a class="ui right floated button" href="{% url 'analysis_view' analysis.id %}">
-                <i class="chevron left icon"></i>Back
-            </a>
+                <button type="submit" class="ui green button">
+                    <i class="check icon"></i>Run
+                </button>
+                <a class="ui right floated button" href="{% url 'analysis_view' analysis.id %}">
+                    <i class="chevron left icon"></i>Back
+                </a>
+            </div>
 
         </form>
     </div>

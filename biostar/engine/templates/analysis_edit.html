@@ -38,15 +38,15 @@
     <div class="row specs">
         <div class="sixteen wide column specs">
            <div class="ui basic center aligned segment">
-                   <button type="submit" name="save_or_preview" formmethod="post" value="preview" class="ui green button">
+                   <button type="submit" name="save_or_preview" formmethod="post" value="preview" class="ui green large button">
                         <i class="edit icon"></i>Preview
                      </button>
 
-                     <button type="submit" name="save_or_preview" formmethod="post" value="save" class="ui primary button">
+                     <button type="submit" name="save_or_preview" formmethod="post" value="save" class="ui primary large button">
                         <i class="save icon"></i>Save
                      </button>
 
-                    <a class="ui button" href="{% url 'analysis_view' analysis.id %}">
+                    <a class="ui large button" href="{% url 'analysis_view' analysis.id %}">
                         Analysis view
                     </a>
            </div>
@@ -60,8 +60,11 @@
             </div>
             {% generate_fields json_text project=analysis.project form=form %}
 
-             <a class="ui green mini button">
+             <a class="ui green disabled button">
                 <i class="check icon"></i>Run
+             </a>
+             <a class="ui right floated disabled button">
+                <i class="chevron left icon"></i>Back
              </a>
             </div>
         </div>
