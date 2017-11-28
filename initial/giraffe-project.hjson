@@ -53,7 +53,7 @@ data: [
         name: MA1_MP, Giraffe, DNA, Mate Pairs
         path: /export/data/giraffe/data/GIRAFFE/MA1_MP
         data_type: FASTQ_TYPE
-        summary: Giraffe, MA1, 150bp, Mate Pair
+        summary: MA1, 150bp, 2 x 78 million reads, 8x coverage
         text: '''
         Specimen ID: `MA1`
 
@@ -69,10 +69,14 @@ data: [
 
         SRA ID: `SRR3217431`
 
-        Files:
+        Stats:
 
-        - adultfemalegiraffeMA1_R1.fastq.gz
-        - adultfemalegiraffeMA1_R2.fastq.gz
+        ```
+        file                               format  type    num_seqs         sum_len  min_len  avg_len  max_len
+        adultfemalegiraffeMA1_R1.fastq.gz  FASTQ   DNA   78,494,994  11,774,249,100      150      150      150
+        adultfemalegiraffeMA1_R2.fastq.gz  FASTQ   DNA   78,494,994  11,774,249,100      150      150      150
+        ```
+
         '''
     }
 
@@ -80,7 +84,7 @@ data: [
         name: MA1_PE, Giraffe, DNA, Paired End
         path: /export/data/giraffe/data/GIRAFFE/MA1_PE
         data_type: FASTQ_TYPE
-        summary: Giraffe, MA1, 150bp, Paired End
+        summary: MA1, 150bp, 2 x 285 million reads, 28x coverage
         text: '''
         Specimen ID: `MA1`
 
@@ -88,7 +92,7 @@ data: [
 
         Sample: Female, Masai Giraffe liver,  Kenya
 
-        DNA-Sequencing, Paired End Library, average coverage 20x
+        DNA-Sequencing, Paired End Library, average coverage 28x
 
         Date created: 2013-Jul-26
 
@@ -96,10 +100,13 @@ data: [
 
         SRA ID: `SRR3218456`
 
-        Files:
+        Stats:
 
-        - MA1_R1.fastq.gz
-        - MA1_R2.fastq.gz
+        ```
+        file             format  type     num_seqs         sum_len  min_len  avg_len  max_len
+        MA1_R1.fastq.gz  FASTQ   DNA   285,111,308  42,766,696,200      150      150      150
+        MA1_R2.fastq.gz  FASTQ   DNA   285,111,308  42,766,696,200      150      150      150
+        ```
 
         '''
     }
@@ -108,7 +115,7 @@ data: [
         name: NZOO, Giraffe, DNA, Paired End
         path: /export/data/giraffe/data/GIRAFFE/NZOO
         data_type: FASTQ_TYPE
-        summary: Giraffe NZOO: paired end reads 151bp
+        summary: NZOO, 151bp, 4 x 22 million reads, 30x coverage
         text: '''
         Specimen ID: `NZOO`
 
@@ -118,12 +125,15 @@ data: [
 
         DNA-Sequencing, Paired End, 151bp length
 
-        Files:
+        Stats:
 
-        - nzoo_L001_r1.fq.gz
-        - nzoo_L001_r2.fq.gz
-        - nzoo_L002_r1.fq.gz
-        - nzoo_L002_r2.fq.gz
+        ```
+        file                format  type     num_seqs         sum_len  min_len  avg_len  max_len
+        nzoo_L001_r1.fq.gz  FASTQ   DNA   151,156,603  22,824,647,053      151      151      151
+        nzoo_L001_r2.fq.gz  FASTQ   DNA   151,156,603  22,824,647,053      151      151      151
+        nzoo_L002_r1.fq.gz  FASTQ   DNA   152,207,809  22,983,379,159      151      151      151
+        nzoo_L002_r2.fq.gz  FASTQ   DNA   152,207,809  22,983,379,159      151      151      151
+        ```
 
         '''
     }
@@ -132,7 +142,7 @@ data: [
         name: UGA, Giraffe, DNA, Paired End
         path: /export/data/giraffe/data/GIRAFFE/UGA
         data_type: FASTQ_TYPE
-        summary: Rothschild Giraffe NZOO, 250bp, 20x
+        summary: NZOO, 250bp, 2 x 333 million reads, 55x coverage
         text: '''
         Specimen ID: `UGA`
 
@@ -144,10 +154,13 @@ data: [
 
         expected coverage 22x
 
-        Files:
+        Stats:
 
-        - UGA_R1.fastq.gz
-        - UGA_R2.fastq.gz
+        ```
+        file             format  type     num_seqs         sum_len  min_len  avg_len  max_len
+        UGA_R1.fastq.gz  FASTQ   DNA   333,671,563  83,417,890,750      250      250      250
+        UGA_R2.fastq.gz  FASTQ   DNA   333,671,563  83,417,890,750      250      250      250
+        ```
 
         '''
     }
@@ -156,7 +169,7 @@ data: [
         name: WOAK_PE, Okapi, DNA, Paired End
         path: /export/data/giraffe/data/OKAPI/WOAK_PE
         data_type: FASTQ_TYPE
-        summary: Okapi, WOAK_PE 150bp, 20x
+        summary:  WOAK_PE, 150bp, 4 x 135 million reads, 27x coverage
         text: '''
         Specimen ID: `WOAK`
 
@@ -166,12 +179,15 @@ data: [
 
         DNA-Sequencing, Paired End Library, 150bp read lenghs
 
-        Files:
+        Stats:
 
-        - lane1_R1.fastq.gz
-        - lane1_R2.fastq.gz
-        - lane2_R1.fastq.gz
-        - lane2_R2.fastq.gz
+        ```
+        file               format  type     num_seqs         sum_len  min_len  avg_len  max_len
+        lane1_R1.fastq.gz  FASTQ   DNA   133,895,515  20,084,327,250      150      150      150
+        lane1_R2.fastq.gz  FASTQ   DNA   133,895,515  20,084,327,250      150      150      150
+        lane2_R1.fastq.gz  FASTQ   DNA   136,707,167  20,506,075,050      150      150      150
+        lane2_R2.fastq.gz  FASTQ   DNA   136,707,167  20,506,075,050      150      150      150
+        ```
 
         '''
     }
@@ -180,7 +196,7 @@ data: [
         name: WOAK_MP, Okapi, DNA, Mate Pair
         path: /export/data/giraffe/data/OKAPI/WOAK_MP
         data_type: FASTQ_TYPE
-        summary: Okapi, WOAK_MP, 150bp
+        summary: WOAK_MP, 150bp, 2 x 67 million reads, 7x coverage
         text: '''
         Specimen ID: `WOAK`
 
@@ -188,12 +204,15 @@ data: [
 
         Sample: Fetal Male Okapi Liver, White Oak Holdings
 
-        DNA-Sequencing, Mate Pair Library, 150bp
+        DNA-Sequencing, Mate Pair, 150bp, 2 x 67 million reads, 7x coverage
 
-        Files:
+        Stats:
 
-        - fetalokapi1_R1.fastq.gz
-        - fetalokapi1_R2.fastq.gz
+        ```
+        file                     format  type    num_seqs         sum_len  min_len  avg_len  max_len
+        fetalokapi1_R1.fastq.gz  FASTQ   DNA   67,300,363  10,095,054,450      150      150      150
+        fetalokapi1_R2.fastq.gz  FASTQ   DNA   67,300,363  10,095,054,450      150      150      150
+        ```
 
         '''
     }
