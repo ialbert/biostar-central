@@ -28,16 +28,13 @@
 
             <div class="ui divided link items">
 
-                {% if user|can_create %}
-                    <div class="item centerbox">
+                <div class="item centerbox">
 
-                        <a class="ui  button" href="{% url 'data_upload' project.id %}">
-                            <i class="upload icon"></i>Upload File
-                        </a>
+                    <a class="ui  button" href="{% url 'data_upload' project.id %}">
+                        <i class="upload icon"></i>Upload File
+                    </a>
 
-                    </div>
-                {% endif %}
-
+                </div>
 
                 {% for data in data_list %}
                     <div class="item">

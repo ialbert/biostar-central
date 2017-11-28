@@ -399,6 +399,7 @@ def analysis_copy(request, id):
         if form.is_valid():
             count = form.process()
             messages.success(request, f"Copied current analysis to {count} project(s).")
+        # redirect here dawg
 
     elif request.method == "GET" and request.GET.get("searches"):
 
@@ -510,6 +511,8 @@ def analysis_edit(request, id):
         method = request.POST.get("save_or_preview")
         #Method form.is_valid() called in this function
         context = process_analysis_edit(analysis=analysis, form=form, method=method)
+        # should redirect on a save and not a preview
+
     else:
         form = EditAnalysisForm(analysis=analysis)
         context = process_analysis_edit(analysis=analysis, form=form)

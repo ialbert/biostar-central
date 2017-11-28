@@ -69,12 +69,12 @@ class Project(models.Model):
     state = models.IntegerField(default=ACTIVE, choices=STATE_CHOICES)
 
     image = models.ImageField(default=None, blank=True, upload_to=image_path, max_length=MAX_FIELD_LEN)
-    name = models.CharField(default="no name", max_length=MAX_NAME_LEN)
-    summary = models.TextField(default='no summary', max_length=MAX_TEXT_LEN)
+    name = models.CharField(default="name", max_length=MAX_NAME_LEN)
+    summary = models.TextField(default='summary', max_length=MAX_TEXT_LEN)
 
     # We need to keep the owner.
     owner = models.ForeignKey(User, null=False)
-    text = models.TextField(default='no description', max_length=MAX_TEXT_LEN)
+    text = models.TextField(default='description', max_length=MAX_TEXT_LEN)
 
     html = models.TextField(default='html', max_length=MAX_LOG_LEN)
     date = models.DateTimeField(auto_now_add=True)
@@ -136,13 +136,13 @@ class Data(models.Model):
     STATE_CHOICES = [(PENDING, "Pending"), (READY, "Ready"), (ERROR, "Error"), (DELETED, "Deleted")]
     state = models.IntegerField(default=PENDING, choices=STATE_CHOICES)
 
-    name = models.CharField(max_length=MAX_NAME_LEN, default="no name")
-    summary = models.TextField(default='no summary', blank=True, max_length=MAX_TEXT_LEN)
+    name = models.CharField(max_length=MAX_NAME_LEN, default="name")
+    summary = models.TextField(default='summary', blank=True, max_length=MAX_TEXT_LEN)
     image = models.ImageField(default=None, blank=True, upload_to=image_path, max_length=MAX_FIELD_LEN)
     sticky = models.BooleanField(default=False)
 
     owner = models.ForeignKey(User, null=True)
-    text = models.TextField(default='no description', max_length=MAX_TEXT_LEN, blank=True)
+    text = models.TextField(default='description', max_length=MAX_TEXT_LEN, blank=True)
     html = models.TextField(default='html')
     date = models.DateTimeField(auto_now_add=True)
 
@@ -251,9 +251,9 @@ class Analysis(models.Model):
 
     uid = models.CharField(max_length=32, unique=True)
     sticky = models.BooleanField(default=False)
-    name = models.CharField(max_length=MAX_NAME_LEN, default="No name")
-    summary = models.TextField(default='No summary.')
-    text = models.TextField(default='No description.', max_length=MAX_TEXT_LEN)
+    name = models.CharField(max_length=MAX_NAME_LEN, default="name")
+    summary = models.TextField(default='summary.')
+    text = models.TextField(default='description.', max_length=MAX_TEXT_LEN)
     html = models.TextField(default='html')
     owner = models.ForeignKey(User)
 
@@ -302,12 +302,12 @@ class Job(models.Model):
                      (SPOOLED, "Spooled"), (COMPLETED, "Completed"),
                      (ERROR, "Error"), (DELETED, "Deleted"), (ZOMBIE, "Zombie")]
 
-    name = models.CharField(max_length=MAX_NAME_LEN, default="no name")
-    summary = models.TextField(default='no summary')
+    name = models.CharField(max_length=MAX_NAME_LEN, default="name")
+    summary = models.TextField(default='summary')
     image = models.ImageField(default=None, blank=True, upload_to=image_path, max_length=MAX_FIELD_LEN)
 
     owner = models.ForeignKey(User)
-    text = models.TextField(default='no description', max_length=MAX_TEXT_LEN)
+    text = models.TextField(default='description', max_length=MAX_TEXT_LEN)
     html = models.TextField(default='html')
 
     # Job creation date
