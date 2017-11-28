@@ -80,7 +80,7 @@ def get_project_list(user):
         cond = Q(privacy=Project.PUBLIC) | Q(access__user=user, access__access__gt=Access.PUBLIC_ACCESS)
 
     # Generate the query.
-    query = Project.objects.filter(cond)
+    query =  Project.objects.filter(cond)
 
     return query
 

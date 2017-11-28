@@ -406,7 +406,10 @@ def analysis_copy(request, id):
         return redirect(reverse("analysis_copy", kwargs=dict(id=analysis.id)))
 
     projects = auth.get_project_list(user=request.user).exclude(pk=analysis.project.id)
-    # Filter the projects according to access
+
+    # Filter projects by edit access
+    cond = Q(access__user=request.user, access__access__gt=Access.EXECUTE_ACCESS)
+    projects = projects.filter(cond)
 
     form = AnalysisCopyForm(analysis=analysis)
     context = dict(analysis=analysis, steps=steps, projects=projects, form=form,

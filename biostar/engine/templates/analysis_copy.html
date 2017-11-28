@@ -85,10 +85,10 @@
 
                     <p>You do not have
                         <span class="ui green label">{{ access.get_access_display }} Permission</span>
-                        to any project needed to copy recipes.
+                        needed to copy recipe to a project.
                     </p>
 
-            <a class='ui button' href="{% url 'project_create' %}">
+            <a class='ui button' href="{% url 'create_copy' analysis.id %}">
             <i class="plus icon"></i>Create and Copy </a>  to create a new project and copy this recipe into it.
 
                 </div>
