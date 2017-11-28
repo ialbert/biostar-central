@@ -14,6 +14,14 @@
 
     <div class="ui raised segment">
 
+        <div class="ui vertical center aligned segment">
+
+            <a class="ui button" href="{% url 'project_create' %}">
+                <i class="plus icon"></i>Create Project
+            </a>
+
+        </div>
+
         <div class="ui divided link items">
 
             {% for project in projects %}
@@ -51,11 +59,7 @@
                 </div>
             {% endif %}
 
-            <div class="item centerbox">
-                <a class="ui button" href="{% url 'project_create' %}">
-                    <i class="plus icon"></i>Create Project
-                </a>
-            </div>
+
 
         </div>
 
