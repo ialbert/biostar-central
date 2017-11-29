@@ -421,13 +421,23 @@ def analysis_recipe(request, id):
 def analysis_copy(request, id):
 
     analysis = Analysis.objects.filter(id=id).first()
-    # Only copy to project one has edit access to
+    # Only copy to projects with edit access to
     required_access = Access(access=Access.EDIT_ACCESS)
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON,
                                 ANALYSIS_VIEW_ICON, ANALYSIS_RECIPE_ICON],
                                project=analysis.project, analysis=analysis)
+
     if request.method == "POST":
+
+        if request.user.is_anonymous:
+            access_text = Access.ACCESS_MAP.get(Access.RECIPE_ACCESS)
+            msg = f"""
+            You must be logged in and have the <span class="ui green label">{access_text} Permission</span>  
+            to copy an analysis.
+            """
+            messages.warning(request, mark_safe(msg))
+            return redirect(reverse("analysis_copy", kwargs=dict(id=analysis.id)))
 
         form = AnalysisCopyForm(data=request.POST, analysis=analysis)
         if form.is_valid():
@@ -440,8 +450,9 @@ def analysis_copy(request, id):
     projects = auth.get_project_list(user=request.user).exclude(pk=analysis.project.id)
 
     # Filter projects by edit access
-    cond = Q(access__user=request.user, access__access__gt=Access.EXECUTE_ACCESS)
-    projects = projects.filter(cond)
+    if request.user.is_authenticated:
+        cond = Q(access__user=request.user, access__access__gt=Access.EXECUTE_ACCESS)
+        projects = projects.filter(cond)
 
     form = AnalysisCopyForm(analysis=analysis)
     context = dict(analysis=analysis, steps=steps, projects=projects, form=form,
@@ -449,7 +460,7 @@ def analysis_copy(request, id):
 
     return render(request, "analysis_copy.html", context)
 
-
+#TODO: refractor asap
 @object_access(type=Analysis, access=Access.RECIPE_ACCESS, url='analysis_recipe')
 def create_copy(request, id):
     "Create a project then copy analysis into it."
@@ -458,6 +469,15 @@ def create_copy(request, id):
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON,
                                 ANALYSIS_VIEW_ICON, ANALYSIS_RECIPE_ICON],
                                project=analysis.project, analysis=analysis)
+
+    if request.user.is_anonymous:
+        access_text = Access.ACCESS_MAP.get(Access.RECIPE_ACCESS)
+        msg = f"""
+        You must be logged in and have the <span class="ui green label">{access_text} Permission</span>  
+        to Create Project and Copy Recipe.
+        """
+        messages.warning(request, mark_safe(msg))
+        return redirect(reverse("analysis_copy", kwargs=dict(id=analysis.id)))
 
     if request.method == "POST":
         form = ProjectForm(request.POST, request.FILES)
@@ -481,7 +501,6 @@ def create_copy(request, id):
             new_analysis.name = f"Copy of: {analysis.name}"
             new_analysis.state = analysis.state
             new_analysis.security = analysis.security
-
             new_analysis.save()
             url = reverse("analysis_list", kwargs=dict(id=new_analysis.project.id))
         else:
