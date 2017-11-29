@@ -30,14 +30,7 @@
             </div>
 
         </div>
-            <div class="ui basic center aligned segment">
-                <a class="ui button" href="{% url 'project_edit' project.id %}">
-                    <i class="write icon"></i>Edit Project
-                </a>
-                <a class="ui button" href="{% url 'project_users' project.id %}">
-                    <i class="plus icon"></i>Manage People
-                </a>
-            </div>
+
         <div class="ui secondary segment">
 
             <p> {{ project.summary|markdown|safe }}</p>
@@ -106,7 +99,14 @@
             </div>
 
         </div>
-
+            <div class="ui vertical center aligned segment">
+                <a class="ui button" href="{% url 'project_edit' project.id %}">
+                    <i class="write icon"></i>Edit Project
+                </a>
+                <a class="ui button" href="{% url 'project_users' project.id %}">
+                    <i class="plus icon"></i>Manage People
+                </a>
+            </div>
 
         <div class="ui secondary segment">
             {{ project.html|safe }}

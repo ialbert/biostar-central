@@ -110,6 +110,46 @@ def site_admin(request):
     return render(request, 'admin_index.html', context=context)
 
 
+#TODO: refractor asap
+@object_access(type=Project, access=Access.ADMIN_ACCESS, url='project_view')
+def project_users_remove(request, id):
+    "Using "
+    project = Project.objects.filter(pk=id).first()
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ADD_USER],
+                               project=project)
+    searches = []
+    access = Access.RECIPE_ACCESS
+    # Users with read access to project
+    current_users = project.access_set.filter(access__gt=Access.PUBLIC_ACCESS)
+    current_users = [access.user for access in current_users]
+
+    if request.method == "POST":
+        user= request.user
+
+        # Grant users Read access
+        form = GrantAccess(data=request.POST, project=project, current_user=user,
+                           access=access)
+        if form.is_valid(request=request):
+
+            #method = request.POST.get("add_or_remove")
+            added, removed, errmsg = form.process(remove=True)
+            msg = f"""Removed  <span class="ui green label">{Access.ACCESS_MAP[access]} Permission</span>  
+            """
+            if errmsg:
+                messages.error(request, errmsg)
+            else:
+                messages.success(request, mark_safe(msg))
+
+        return redirect(reverse("project_users", kwargs=dict(id=project.id)))
+
+    form = GrantAccess(project=project, current_user=request.user, access=access)
+    context = dict(steps=steps, current_users=current_users, form=form,
+                   available_users=searches, project=project, access=Access(access=access))
+
+    return render(request, "project_users.html", context=context)
+
+
+#TODO: refractor asap
 @object_access(type=Project, access=Access.ADMIN_ACCESS, url='project_view')
 def project_users(request, id):
     "Grants a list of users Read access to a project"
@@ -129,20 +169,13 @@ def project_users(request, id):
                            access=access)
         if form.is_valid(request=request):
 
-            method = request.POST.get("add_or_remove")
-            added, removed, errmsg = form.process(**{method:True})
-            nusers = {"add": added,  "remove":removed}
-
-            if nusers[method]:
-                # Get correct preposition for message
-                prepos = "to" if added else "from"
-
-                msg = f"""{method}  <span class="ui green label">{Access.ACCESS_MAP[access]} Permission</span>  
-                {prepos} {nusers[method]} user(s)"""
-
-                messages.success(request, mark_safe(msg))
+            added, removed, errmsg = form.process(add=True)
+            msg = f"""Added  <span class="ui green label">{Access.ACCESS_MAP[access]} Permission</span>  
+            """
             if errmsg:
                 messages.error(request, errmsg)
+            else:
+                messages.success(request, mark_safe(msg))
 
         return redirect(reverse("project_users", kwargs=dict(id=project.id)))
 
@@ -334,7 +367,6 @@ def data_upload(request, id):
         else:
             form.add_error(None, "Invalid form processing.")
             messages.error(request, "Invalid form processing.")
-
     else:
         form = DataUploadForm()
 
@@ -389,38 +421,97 @@ def analysis_recipe(request, id):
 def analysis_copy(request, id):
 
     analysis = Analysis.objects.filter(id=id).first()
-    searches = []
+    # Only copy to projects with edit access to
+    required_access = Access(access=Access.EDIT_ACCESS)
+
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON,
                                 ANALYSIS_VIEW_ICON, ANALYSIS_RECIPE_ICON],
                                project=analysis.project, analysis=analysis)
+
     if request.method == "POST":
+
+        if request.user.is_anonymous:
+            access_text = Access.ACCESS_MAP.get(Access.RECIPE_ACCESS)
+            msg = f"""
+            You must be logged in and have the <span class="ui green label">{access_text} Permission</span>  
+            to copy an analysis.
+            """
+            messages.warning(request, mark_safe(msg))
+            return redirect(reverse("analysis_copy", kwargs=dict(id=analysis.id)))
 
         form = AnalysisCopyForm(data=request.POST, analysis=analysis)
         if form.is_valid():
-            count = form.process()
-            messages.success(request, f"Copied current analysis to {count} project(s).")
+            copied = form.process()
+            copied = Project.objects.filter(id=copied[0]).first()
+            messages.success(request, f"Copied recipe to {copied.name}.")
 
-    elif request.method == "GET" and request.GET.get("searches"):
+        return redirect(reverse("analysis_copy", kwargs=dict(id=analysis.id)))
 
-        search = request.GET["searches"]
-        # Can not search for current project
-        projects = auth.get_project_list(user=request.user).exclude(pk=analysis.project.id)
+    projects = auth.get_project_list(user=request.user).exclude(pk=analysis.project.id)
 
-        projconds = Q(name__contains=search) | Q(uid__contains=search)
-        ownerconds = Q(owner__first_name__contains=search) | Q(owner__email__contains=search)
-        searches = projects.filter( projconds| ownerconds)
-
-        if not searches:
-            create_url = f"""<a class='ui mini blue button' href={reverse('project_create')}>
-            <i class="plus icon"></i>Create Project </a>"""
-
-            msg = mark_safe(f"Project containing '{search}' not found. {create_url} and copy this recipe to it.")
-            messages.warning(request, msg)
+    # Filter projects by edit access
+    if request.user.is_authenticated:
+        cond = Q(access__user=request.user, access__access__gt=Access.EXECUTE_ACCESS)
+        projects = projects.filter(cond)
 
     form = AnalysisCopyForm(analysis=analysis)
-    context = dict(analysis=analysis, steps=steps, projects=searches, form=form,
-                   project=analysis.project)
+    context = dict(analysis=analysis, steps=steps, projects=projects, form=form,
+                   project=analysis.project, access=required_access)
+
     return render(request, "analysis_copy.html", context)
+
+#TODO: refractor asap
+@object_access(type=Analysis, access=Access.RECIPE_ACCESS, url='analysis_recipe')
+def create_copy(request, id):
+    "Create a project then copy analysis into it."
+
+    analysis = Analysis.objects.filter(id=id).first()
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON,
+                                ANALYSIS_VIEW_ICON, ANALYSIS_RECIPE_ICON],
+                               project=analysis.project, analysis=analysis)
+
+    if request.user.is_anonymous:
+        access_text = Access.ACCESS_MAP.get(Access.RECIPE_ACCESS)
+        msg = f"""
+        You must be logged in and have the <span class="ui green label">{access_text} Permission</span>  
+        to Create Project and Copy Recipe.
+        """
+        messages.warning(request, mark_safe(msg))
+        return redirect(reverse("analysis_copy", kwargs=dict(id=analysis.id)))
+
+    if request.method == "POST":
+        form = ProjectForm(request.POST, request.FILES)
+
+        if form.is_valid():
+            name = form.cleaned_data["name"]
+            text = form.cleaned_data["text"]
+            summary = form.cleaned_data["summary"]
+            stream = form.cleaned_data["image"]
+            sticky = form.cleaned_data["sticky"]
+            privacy = form.cleaned_data["privacy"]
+            owner = request.user
+
+            project = auth.create_project(user=owner, name=name, summary=summary, text=text,
+                                          stream=stream, sticky=sticky, privacy=privacy)
+            project.save()
+
+            current_params = auth.get_analysis_attr(analysis=analysis, project=project)
+            new_analysis = auth.create_analysis(**current_params)
+            new_analysis.image.save(analysis.name, analysis.image, save=True)
+            new_analysis.name = f"Copy of: {analysis.name}"
+            new_analysis.state = analysis.state
+            new_analysis.security = analysis.security
+            new_analysis.save()
+            url = reverse("analysis_list", kwargs=dict(id=new_analysis.project.id))
+        else:
+            url = reverse("create_copy", kwargs=dict(id=analysis.id))
+        return redirect(url)
+
+    initial = dict(name="Project Name", text="project description", summary="project summary")
+    form = ProjectForm(initial=initial)
+
+    context = dict(form=form, steps=steps, analysis=analysis)
+    return render(request, "create_copy.html", context)
 
 
 
@@ -510,6 +601,8 @@ def analysis_edit(request, id):
         method = request.POST.get("save_or_preview")
         #Method form.is_valid() called in this function
         context = process_analysis_edit(analysis=analysis, form=form, method=method)
+        # should redirect on a save and not a preview
+
     else:
         form = EditAnalysisForm(analysis=analysis)
         context = process_analysis_edit(analysis=analysis, form=form)
@@ -532,7 +625,6 @@ def recipe_edit(request, id):
         if form.is_valid():
             form.save()
             return redirect(reverse("analysis_view", kwargs=dict(id=analysis.id)))
-
 
     form = AnalysisEditForm(instance=analysis)
     context = dict(steps=steps, analysis=analysis, project=project, form=form)

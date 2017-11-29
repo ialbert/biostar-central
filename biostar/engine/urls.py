@@ -10,6 +10,8 @@ urlpatterns = [
     url(r'^site/admin/', views.site_admin, name='site_admin'),
 
     url(r'^project/users/(?P<id>\d+)/$', views.project_users, name='project_users'),
+    url(r'^project/users/(?P<id>\d+)/remove/$', views.project_users_remove, name='project_users_remove'),
+    url(r'^project/users/(?P<id>\d+)/add/$', views.project_users, name='project_users_add'),
     url(r'^project/create/$', views.project_create, name='project_create'),
     url(r'^project/list/$', views.project_list, name='project_list'),
     url(r'^project/view/(?P<id>\d+)/$', views.project_view, name='project_view'),
@@ -27,6 +29,7 @@ urlpatterns = [
     url(r'^recipe/edit/(?P<id>\d+)$', views.recipe_edit, name='recipe_edit'),
     url(r'^analysis/edit/(?P<id>\d+)$', views.analysis_edit, name='analysis_edit'),
     url(r'^analysis/copy/(?P<id>\d+)$', views.analysis_copy, name='analysis_copy'),
+    url(r'^analysis/create/copy/(?P<id>\d+)$', views.create_copy, name='create_copy'),
 
     url(r'^job/list/(?P<id>\d+)/$', views.job_list, name='job_list'),
     url(r'^job/view/(?P<id>\d+)/$', views.job_view, name='job_view'),

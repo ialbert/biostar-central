@@ -36,56 +36,69 @@
           </div>
         <p> {{ analysis.summary|markdown|safe }}</p>
 
-        <p>Copy this recipe to different projects and edit accordingly.</p>
         <p>
-        The copied recipe will be named
-        <span class="ui label">Copy of: {{analysis.name}}</span>
+        New recipe name will be " Copy of: {{analysis.name}} "
         </p>
 
     </div>
 
-    <div class="ui segment">
-        <div class="ui fluid search">
-            <div class="ui icon input">
-                <form method="get" action="{% url 'analysis_copy' analysis.id %}">
-
-                    <input type="text" name="searches" placeholder="Search projects...">
-
-                     <button type="submit" class="ui button">
-                        <i class="search large icon"></i>
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
 
 <div class="ui segment">
 
- <form class="ui large form" method="post">
-        {% csrf_token %}
-        <button type="submit" class="ui green button">
-            <i class="plus icon"></i>Copy Recipe
-        </button>
-        <div class="ui relaxed divided list">
+    <form class="ui large form" method="post" action="{% url 'analysis_copy' analysis.id %}">
+            {% csrf_token %}
+    <div class="ui basic segment">
 
-            {% for project in projects %}
-                <div class="item">
+                {% if projects %}
+                <div class="ui small header">
+                    Select Project
+                </div>
+                <div class="ui basic segment">
 
-                    <div class="inline field">
+                    <div class="ui relaxed divided list">
 
-                        <input type="checkbox" name="projects" value="{{project.id}}">
-
-                        <a href="{{ project.url }}">
-                            <i class="archive icon"></i>{{ project.name }}
-                        </a>
+                        {% for project in projects %}
+                            <div class="item">
+                                <div class="inline field">
+                                    <input type="radio" name="projects" value="{{project.id}}">
+                                    <a href="{{ project.url }}">
+                                        <i class="archive icon"></i>{{ project.name }}
+                                    </a>
+                                </div>
+                            </div>
+                        {% endfor %}
 
                     </div>
+                </div>
+
+                   <button type="submit" class="ui green right button">
+                        <i class="plus icon"></i>Copy Recipe
+                   </button>
+
+                <a class="ui right floated button" href="{% url 'create_copy' analysis.id %}">
+                        <i class="plus icon"></i>Create Project and Copy Recipe
+               </a>
+
+                {% else %}
+
+                <div class="ui red message">
+
+                    <p>You do not have
+                        <span class="ui green label">{{ access.get_access_display }} Permission</span>
+                        needed to copy recipe to a project.
+                    </p>
+
+            <a class='ui button' href="{% url 'create_copy' analysis.id %}">
+            <i class="plus icon"></i>Create and Copy </a>  to create a new project and copy this recipe into it.
 
                 </div>
-            {% endfor %}
 
-        </div>
-    </form>
+                {% endif %}
+
+
 </div>
+        </form>
+    </div>
 </div>
+
 {% endblock %}

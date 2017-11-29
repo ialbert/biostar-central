@@ -21,11 +21,7 @@
             <div class="ui center aligned header">
                 Data: {{ data.name }}
             </div>
-           <div class="ui basic center aligned segment">
-                <a class="ui button" href="{% url 'data_edit' data.id %}">
-                    <i class="write icon"></i>Edit Data
-                </a>
-            </div>
+
         </div>
 
         <div class="ui vertical segment">
@@ -47,6 +43,11 @@
         <div class="ui vertical segment">
             <div class="ui center aligned header">Data Content</div>
             <pre>{{ data.peek }}</pre>
+        </div>
+           <div class="ui basic center aligned segment">
+                <a class="ui button" href="{% url 'data_edit' data.id %}">
+                    <i class="write icon"></i>Edit Data
+                </a>
         </div>
 
     </div>

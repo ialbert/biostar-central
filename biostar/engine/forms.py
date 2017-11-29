@@ -60,7 +60,6 @@ class JobEditForm(forms.ModelForm):
 class GrantAccess(forms.Form):
 
     users = forms.IntegerField()
-    add_or_remove = forms.CharField(initial="")
 
     def __init__(self, project, current_user, access,*args, **kwargs):
         self.project = project
@@ -167,25 +166,13 @@ class AnalysisCopyForm(forms.Form):
         for project_id in projects:
             current_project = Project.objects.filter(id=project_id).first()
 
-            current_params = self.analysis_params(project=current_project)
+            current_params = auth.get_analysis_attr(analysis=self.analysis,project=current_project)
             new_analysis = auth.create_analysis(**current_params)
             # Images needs to be set by it set
             new_analysis.image.save(self.analysis.name, self.analysis.image, save=True)
             new_analysis.save()
 
-        return len(projects)
-
-
-    def analysis_params(self, project=None):
-
-        project = project or self.analysis.project
-        json_text, template = self.analysis.json_text, self.analysis.template
-        owner, summary = self.analysis.owner, self.analysis.summary
-        name, text = f"Copy of: {self.analysis.name}", self.analysis.text
-
-        params = dict(project=project, json_text=json_text, template=template,
-                      user=owner, summary=summary, name=name, text=text)
-        return params
+        return projects
 
 
 class RunAnalysis(forms.Form):
