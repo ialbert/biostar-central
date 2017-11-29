@@ -30,81 +30,96 @@
 
     </div>
 
-    <div class="ui segment">
-        <div class="ui fluid search">
+<div class="ui segment">
+
+         <form class="ui large form" method="post" action="{% url 'project_users_remove' project.id %}">
+                {% csrf_token %}
+            <div class="ui small header">Contributors</div>
+
+            <div class="ui cards">
+            {% for avail_user in current_users %}
+
+                        <div class=" card">
+                            <div class="content">
+                              <div class="ui small header">
+                                {{ avail_user.first_name }}
+                              </div>
+                              <div class="meta">
+                                {{ avail_user.email }}
+                              </div>
+                            </div>
+                            <div class="extra content">
+                              <div class="ui two buttons">
+
+                        {% if avail_user == project.owner %}
+                               <div class="ui label">
+                                      Creator
+                                </div>
+                        {% else %}
+                          <button type="submit" class="ui basic red mini button" name="users" formmethod="post" value="{{avail_user.id}}">
+                            Remove
+                            </button>
+                        {% endif %}
+
+                              </div>
+                            </div>
+                    </div>
+            {% endfor %}
+            </div>
+          {{form.errors}}
+        </form>
+
+
+ <div class="ui basic segment">
+     <div class="ui fluid search">
+
             <div class="ui icon input">
-                <form method="get" action="{% url 'project_users' project.id %}">
+                <form method="get" action="{% url 'project_users_add' project.id %}">
 
                     <input type="text" name="searches" placeholder="Search people...">
 
-                     <button type="submit" class="ui button">
+                     <button type="submit" class="ui button" formmethod="get">
                         <i class="search large icon"></i>
                     </button>
                 </form>
             </div>
         </div>
-    </div>
 
-<div class="ui segment">
-         <form class="ui large form" method="post" action="{% url 'project_users' project.id %}">
+        <form class="ui large form" method="post" action="{% url 'project_users_add' project.id %}">
                 {% csrf_token %}
-         <div class="ui segment">
-            <div class="content">
-            <div class="ui header"> Search</div>
-             <button type="submit" class="ui green mini button" name="add_or_remove" formmethod="post" value="add">
-                <i class="add user icon"></i>Add people
-            </button>
-                <div class="ui relaxed divided list">
+
+                <div class="ui cards">
                     {% for new_user in available_users %}
-                        <div class="item">
 
-                            <div class="inline field">
-
-                                <input type="checkbox" name="users" value="{{new_user.id}}">
-
-                                    <i class="user icon"></i>{{ new_user.first_name }}
-
+                    <div class=" card">
+                            <div class="content">
+                              <div class="ui small header">
+                                {{ new_user.first_name }}
+                              </div>
+                              <div class="meta">
+                                {{ new_user.email }}
+                              </div>
                             </div>
+                            <div class="extra content">
+                              <div class="ui two buttons">
 
-                        </div>
+                          <button type="submit" class="ui basic green mini button" name="users" formmethod="post" value="{{new_user.id}}">
+                            Add
+                            </button>
+
+                              </div>
+                            </div>
+                    </div>
+
                     {% endfor %}
-
                 </div>
-            </div>
+                 {{form.errors}}
+        </form>
+
         </div>
 
-         <div class="ui segment">
 
-
-                <div class="ui header">Contributors</div>
-
-                <button type="submit" class="ui red mini button" name="add_or_remove" formmethod="post" value="remove">
-                    <i class="remove user icon"></i>Remove people
-                </button>
-
-                <div class="ui relaxed divided list">
-                    {% for avail_user in current_users %}
-                         <div class="item">
-                            <div class="inline field">
-
-                                    {% if avail_user == project.owner %}
-                                        <i class="user icon"></i>{{ avail_user.first_name }}
-                                        <div class="ui left pointing tiny label">
-                                          Creator
-                                        </div>
-                                    {% else %}
-                                        <input type="checkbox" name="users" value="{{avail_user.id}}">
-                                            <i class="user icon"></i>{{ avail_user.first_name }}
-                                    {% endif %}
-
-                            </div>
-                         </div>
-                    {% endfor %}
-                </div>
-             </div>
-
-         {{form.errors}}
-     </form>
     </div>
+
 </div>
 {% endblock %}

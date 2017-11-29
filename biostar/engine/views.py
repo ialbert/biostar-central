@@ -110,6 +110,46 @@ def site_admin(request):
     return render(request, 'admin_index.html', context=context)
 
 
+#TODO: refractor asap
+@object_access(type=Project, access=Access.ADMIN_ACCESS, url='project_view')
+def project_users_remove(request, id):
+    "Using "
+    project = Project.objects.filter(pk=id).first()
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ADD_USER],
+                               project=project)
+    searches = []
+    access = Access.RECIPE_ACCESS
+    # Users with read access to project
+    current_users = project.access_set.filter(access__gt=Access.PUBLIC_ACCESS)
+    current_users = [access.user for access in current_users]
+
+    if request.method == "POST":
+        user= request.user
+
+        # Grant users Read access
+        form = GrantAccess(data=request.POST, project=project, current_user=user,
+                           access=access)
+        if form.is_valid(request=request):
+
+            #method = request.POST.get("add_or_remove")
+            added, removed, errmsg = form.process(remove=True)
+            msg = f"""Removed  <span class="ui green label">{Access.ACCESS_MAP[access]} Permission</span>  
+            """
+            if errmsg:
+                messages.error(request, errmsg)
+            else:
+                messages.success(request, mark_safe(msg))
+
+        return redirect(reverse("project_users", kwargs=dict(id=project.id)))
+
+    form = GrantAccess(project=project, current_user=request.user, access=access)
+    context = dict(steps=steps, current_users=current_users, form=form,
+                   available_users=searches, project=project, access=Access(access=access))
+
+    return render(request, "project_users.html", context=context)
+
+
+#TODO: refractor asap
 @object_access(type=Project, access=Access.ADMIN_ACCESS, url='project_view')
 def project_users(request, id):
     "Grants a list of users Read access to a project"
@@ -129,20 +169,13 @@ def project_users(request, id):
                            access=access)
         if form.is_valid(request=request):
 
-            method = request.POST.get("add_or_remove")
-            added, removed, errmsg = form.process(**{method:True})
-            nusers = {"add": added,  "remove":removed}
-
-            if nusers[method]:
-                # Get correct preposition for message
-                prepos = "to" if added else "from"
-
-                msg = f"""{method}  <span class="ui green label">{Access.ACCESS_MAP[access]} Permission</span>  
-                {prepos} {nusers[method]} user(s)"""
-
-                messages.success(request, mark_safe(msg))
+            added, removed, errmsg = form.process(add=True)
+            msg = f"""Added  <span class="ui green label">{Access.ACCESS_MAP[access]} Permission</span>  
+            """
             if errmsg:
                 messages.error(request, errmsg)
+            else:
+                messages.success(request, mark_safe(msg))
 
         return redirect(reverse("project_users", kwargs=dict(id=project.id)))
 
@@ -334,7 +367,6 @@ def data_upload(request, id):
         else:
             form.add_error(None, "Invalid form processing.")
             messages.error(request, "Invalid form processing.")
-
     else:
         form = DataUploadForm()
 

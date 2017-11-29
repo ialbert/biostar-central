@@ -60,7 +60,6 @@ class JobEditForm(forms.ModelForm):
 class GrantAccess(forms.Form):
 
     users = forms.IntegerField()
-    add_or_remove = forms.CharField(initial="")
 
     def __init__(self, project, current_user, access,*args, **kwargs):
         self.project = project
