@@ -42,6 +42,16 @@ def generate_fields(json_text, project=None, form=None):
     return dict(fields=fields)
 
 
+@register.inclusion_tag('widgets/usercard_form.html')
+def generate_usercards(users, project=None, form=None):
+
+
+    print(users)
+    #1/0
+    pass
+
+
+
 @register.filter
 def generate_script(template, json_text):
 

@@ -109,9 +109,9 @@ class Access(models.Model):
     # The numerical values for permissions matter!
     # A higher number implies all lesser permissions.
     # READ_ACCESS < EXECUTE_ACCESS < ADMIN_ACCESS
-    PUBLIC_ACCESS, READ_ACCESS, RECIPE_ACCESS, EXECUTE_ACCESS, EDIT_ACCESS, ADMIN_ACCESS, UPLOAD_ACCESS = range(1, 8)
+    NO_ACCESS, READ_ACCESS, RECIPE_ACCESS, EXECUTE_ACCESS, EDIT_ACCESS, ADMIN_ACCESS, UPLOAD_ACCESS = range(1, 8)
     ACCESS_CHOICES = [
-        (PUBLIC_ACCESS, "Public"), (READ_ACCESS, "Read"),
+        (NO_ACCESS, "Public"), (READ_ACCESS, "Read"),
         (RECIPE_ACCESS, "Recipe"), (EXECUTE_ACCESS, "Execute"),
         (UPLOAD_ACCESS, "Upload"), (EDIT_ACCESS, "Edit"),
         (ADMIN_ACCESS, "Admin")

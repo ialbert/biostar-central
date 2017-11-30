@@ -120,7 +120,7 @@ def project_users_remove(request, id):
     searches = []
     access = Access.RECIPE_ACCESS
     # Users with read access to project
-    current_users = project.access_set.filter(access__gt=Access.PUBLIC_ACCESS)
+    current_users = project.access_set.filter(access__gt=Access.NO_ACCESS)
     current_users = [access.user for access in current_users]
 
     if request.method == "POST":
@@ -159,7 +159,7 @@ def project_users(request, id):
     searches = []
     access = Access.RECIPE_ACCESS
     # Users with read access to project
-    current_users = project.access_set.filter(access__gt=Access.PUBLIC_ACCESS)
+    current_users = project.access_set.filter(access__gt=Access.NO_ACCESS)
     current_users = [access.user for access in current_users]
 
     if request.method == "POST":
@@ -226,7 +226,7 @@ def project_view(request, id):
         access = None
 
     # Use a placeholder
-    access = access or Access(access=Access.PUBLIC_ACCESS)
+    access = access or Access(access=Access.NO_ACCESS)
     context = dict(project=project, access=access,
                    data_count=data_count, recipe_count=recipe_count, result_count=result_count,
                    steps=steps)
@@ -329,7 +329,6 @@ def data_view(request, id):
 def data_edit(request, id):
     data = Data.objects.filter(id=id).first()
     project = data.project
-
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON, DATA_ICON],
                                project=project, data=data)
 
@@ -359,7 +358,6 @@ def data_upload(request, id):
             text = form.cleaned_data["text"]
             stream = form.cleaned_data["file"]
             name = stream.name
-
             auth.create_data(stream=stream, name=name, text=text,
                              user=owner, project=project)
             messages.info(request, "Data upload complete")
@@ -448,11 +446,16 @@ def analysis_copy(request, id):
         return redirect(reverse("analysis_copy", kwargs=dict(id=analysis.id)))
 
     projects = auth.get_project_list(user=request.user).exclude(pk=analysis.project.id)
+    # Can't touch public projects
+    projects = projects.exclude(Q(privacy=Project.PUBLIC))
 
     # Filter projects by edit access
     if request.user.is_authenticated:
-        cond = Q(access__user=request.user, access__access__gt=Access.EXECUTE_ACCESS)
-        projects = projects.filter(cond)
+        cond = Q(access__user=request.user, access__access__gt=Access.EDIT_ACCESS)
+    else:
+        cond = Q(access__access__gt=Access.EDIT_ACCESS)
+
+    projects = projects.filter(cond)
 
     form = AnalysisCopyForm(analysis=analysis)
     context = dict(analysis=analysis, steps=steps, projects=projects, form=form,
