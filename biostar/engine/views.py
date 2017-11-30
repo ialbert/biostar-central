@@ -674,7 +674,7 @@ def job_list(request, id):
 
 
 
-@object_access(type=Job, access=Access.EDIT_ACCESS)
+@object_access(type=Job, access=Access.EDIT_ACCESS, url="job_view")
 def job_edit(request, id):
     job = Job.objects.filter(id=id).first()
     project = job.project
