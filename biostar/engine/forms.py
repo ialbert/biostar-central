@@ -232,7 +232,7 @@ class RunAnalysis(forms.Form):
 
 
 
-class EditAnalysisForm(forms.Form):
+class EditRecipeCodeForm(forms.Form):
 
     save_or_preview = forms.CharField(initial="preview")
     def __init__(self, analysis, *args, **kwargs):
@@ -259,7 +259,7 @@ class EditAnalysisForm(forms.Form):
 
     def save(self):
 
-        super(EditAnalysisForm, self).clean()
+        super(EditRecipeCodeForm, self).clean()
         json_data = hjson.loads(self.cleaned_data["json_text"])
 
         # Refresh form

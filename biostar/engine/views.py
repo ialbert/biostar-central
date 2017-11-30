@@ -601,7 +601,7 @@ def recipe_code(request, id):
                                 ANALYSIS_RECIPE_ICON],project=project, analysis=analysis)
 
     if request.method == "POST":
-        form = EditAnalysisForm(analysis=analysis, data=request.POST)
+        form = EditRecipeCodeForm(analysis=analysis, data=request.POST)
 
         #method = request.POST.get("save_or_preview")
         #Method form.is_valid() called in this function
@@ -610,7 +610,7 @@ def recipe_code(request, id):
         # should redirect on a save and not a preview
         context = dict()
     else:
-        form = EditAnalysisForm(analysis=analysis)
+        form = EditRecipeCodeForm(analysis=analysis)
 
         context = process_analysis_edit(analysis=analysis, form=form)
 
