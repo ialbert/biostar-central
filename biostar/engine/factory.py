@@ -117,6 +117,8 @@ def data_field_generator(field, project, data_type=None):
     return select_field(field, choicefunc=choice_func)
 
 
+
+
 TYPE2FUNC = {
     const.RADIO: radioselect_field,
     const.DROPDOWN: select_field,

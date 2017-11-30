@@ -45,8 +45,6 @@ def generate_fields(json_text, project=None, form=None):
 @register.inclusion_tag('widgets/usercard_form.html')
 def generate_usercards(users, project=None, form=None):
 
-    # working on this after meeting tommrrow
-    return
     choices = Access.ACCESS_CHOICES
     fields = []
 

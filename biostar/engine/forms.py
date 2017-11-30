@@ -15,6 +15,16 @@ def join(*args):
     return os.path.abspath(os.path.join(*args))
 
 
+def form_generator():
+
+
+
+    # yeilds a form in a loop
+
+    return
+
+
+
 class ProjectForm(forms.ModelForm):
     image = forms.ImageField(required=False)
 
@@ -229,7 +239,6 @@ class RunAnalysis(forms.Form):
             if field in self.cleaned_data:
                 obj["value"] = self.cleaned_data[field]
         return json_data
-
 
 
 class EditRecipeCodeForm(forms.Form):
