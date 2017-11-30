@@ -646,7 +646,7 @@ def recipe_edit(request, id):
     return render(request, 'recipe_edit.html', context)
 
 
-@object_access(type=Project, access=Access.READ_ACCESS)
+@object_access(type=Project, access=Access.READ_ACCESS, url="project_view")
 def job_list(request, id):
     """
     Returns the list of jobs for a project id.
@@ -709,7 +709,7 @@ def job_view(request, id):
     return render(request, "job_view.html", context=context)
 
 
-@object_access(type=Job, access=Access.READ_ACCESS)
+@object_access(type=Job, access=Access.READ_ACCESS, url="job_view")
 def job_result_view(request, id):
     """
     Returns the primary result of a job.
@@ -726,7 +726,7 @@ def job_result_view(request, id):
         return redirect(reverse("job_view", kwargs=dict(id=id)))
 
 
-@object_access(type=Job, access=Access.READ_ACCESS)
+@object_access(type=Job, access=Access.READ_ACCESS,  url="job_view")
 def job_file_view(request, id):
     """
     Returns the directory view of the job.
@@ -736,7 +736,7 @@ def job_file_view(request, id):
 
     return redirect(url)
 
-@object_access(type=Job, access=Access.READ_ACCESS)
+@object_access(type=Job, access=Access.READ_ACCESS, url="job_view")
 def job_files_list(request, id, path=''):
     job = Job.objects.filter(id=id).first()
 
