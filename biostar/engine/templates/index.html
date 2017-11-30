@@ -55,26 +55,27 @@
 
                 <img class="ui small right floated circular image" src="{% static "images/biomedical.jpg" %}">
 
-                Life sciences are experiencing a <i>reproducibility crisis</i>. It has become
-                challenging understand how most analyses were performed and even more
+                Life sciences are experiencing a <strong>reproducibility crisis</strong>. It has become
+                unexpectedly challenging to even understand how analyses are performed and even more
                 difficult to repeat the same process again.
             </p>
 
             <p>
                 This site was designed to help scientists share, document, distribute and rerun
-                data analysis scripts. We call these scripts <b>recipes</b> with the following requirements:
+                data analysis scripts. We call these scripts <b>recipes</b> that must adhere to the following requirements:
 
             <ul>
                 <li>
                     Each recipe must be fully operational.
                 </li>
+             <li>
+                    Each recipe must have test data and results associated with it. Hence
+                    demonstrating the input requirements as well as the results of the process.
+                </li>
                 <li>
                     Each recipe may be modified, changed and shared across different projects.
                 </li>
-                <li>
-                    Each recipe has test data associated with it demonstrating the starting information
-                    and the results of the recipe.
-                </li>
+
             </ul>
 
             Learn more about the way <a href="{% url 'info' %}">the site works.</a>
@@ -96,16 +97,19 @@
             <p>
 
                 <img class="ui small right floated circular image" src="{% static "images/tools.jpg" %}">
-
-                The site supports running every type of command line oriented tool
-                and process.
-                Moreover it allows users to create full data analysis pipelines
+                The software that runs this site is called the <b>biostar-engine</b> and it does not favor any particular approach or methodology.
+                Yet it allows users to create <strong>full data analysis pipelines</strong>
                 that produce the desired results in just a single step.
+            </p>
+
+            <p> The software supports running command line oriented tools via a graphical user interfaces generated
+                from each recipe using a JSON specification syntax.
+
             </p>
 
             <p>
                 Users may adapt and remix
-                recipes to match their needs, then they may share them on the site.
+                recipes to match their needs, then they may share them back on the site.
                 By supporting these interactions we foster
                 a collaborative environment that facilitates productive interactions
                 and creativity.

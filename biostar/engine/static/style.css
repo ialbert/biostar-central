@@ -25,6 +25,14 @@ h1 {
     font-size: 1.4rem;
 }
 
+a {
+    padding: 2 2 2 2px;
+}
+
+a:hover{
+    background-color: #EEEEEE;
+    border-radius: 3px;
+}
 code {
     color: #c7254e;
     background: #f5f2f0;
