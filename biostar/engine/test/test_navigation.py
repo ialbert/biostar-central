@@ -49,12 +49,12 @@ class SiteNavigation(TestCase):
             reverse('project_view', kwargs=self.proj_params),
             reverse('analysis_list', kwargs= self.proj_params),
             reverse('analysis_view', kwargs=self.analysis_params),
-            #reverse('analysis_run', kwargs=self.analysis_params),
-            #reverse('analysis_recipe', kwargs=self.analysis_params),
-            #reverse('analysis_copy', kwargs=self.analysis_params),
-            #reverse('job_list', kwargs=self.proj_params),
-            #reverse('job_view', kwargs=self.job_params),
-            #reverse('job_files_entry', kwargs=self.job_params),
+            reverse('analysis_run', kwargs=self.analysis_params),
+            reverse('analysis_recipe', kwargs=self.analysis_params),
+            reverse('analysis_copy', kwargs=self.analysis_params),
+            reverse('job_list', kwargs=self.proj_params),
+            reverse('job_view', kwargs=self.job_params),
+            reverse('job_files_entry', kwargs=self.job_params),
 
         ]
 

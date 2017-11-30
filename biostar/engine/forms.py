@@ -90,10 +90,10 @@ class GrantAccess(forms.Form):
             has_access = user.access_set.filter(project=self.project).first()
 
             # Can only add people without access
-            addcond = (not has_access or has_access.access == Access.PUBLIC_ACCESS)
+            addcond = (not has_access or has_access.access == Access.NO_ACCESS)
 
             # Can only remove people with access
-            remcond = (has_access and has_access.access > Access.PUBLIC_ACCESS)
+            remcond = (has_access and has_access.access > Access.NO_ACCESS)
 
             if add and addcond:
 
@@ -107,7 +107,7 @@ class GrantAccess(forms.Form):
 
             elif remove and remcond:
                 # Changes access to Access.PUBLIC_ACCESS
-                has_access.access = Access.PUBLIC_ACCESS
+                has_access.access = Access.NO_ACCESS
                 has_access.save()
                 removed += 1
 
@@ -159,20 +159,28 @@ class AnalysisCopyForm(forms.Form):
         self.analysis = analysis
         super().__init__(*args, **kwargs)
 
+    #TODO: refractor asap; does not need to be a list only one is picked
     def process(self):
 
         projects = self.data.getlist('projects')
+        project_id = projects[0]
 
-        for project_id in projects:
-            current_project = Project.objects.filter(id=project_id).first()
+        if project_id == "0":
+           return projects, None
 
-            current_params = auth.get_analysis_attr(analysis=self.analysis,project=current_project)
-            new_analysis = auth.create_analysis(**current_params)
-            # Images needs to be set by it set
-            new_analysis.image.save(self.analysis.name, self.analysis.image, save=True)
-            new_analysis.save()
+        current_project = Project.objects.filter(id=project_id).first()
 
-        return projects
+        current_params = auth.get_analysis_attr(analysis=self.analysis,project=current_project)
+        new_analysis = auth.create_analysis(**current_params)
+
+        # Images needs to be set by it set
+        new_analysis.image.save(self.analysis.name, self.analysis.image, save=True)
+        new_analysis.name = f"Copy of: {self.analysis.name}"
+        new_analysis.state = self.analysis.state
+        new_analysis.security = self.analysis.security
+        new_analysis.save()
+
+        return projects, new_analysis
 
 
 class RunAnalysis(forms.Form):

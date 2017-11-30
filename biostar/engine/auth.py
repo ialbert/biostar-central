@@ -109,12 +109,9 @@ def check_obj_access(user, instance, access=Access.ADMIN_ACCESS, request=None):
         project = instance
 
     # A public or shareable project. User is asking for read access.
-    # can not edit public projects
     if (project.privacy in (Project.PUBLIC, Project.SHAREABLE)):
-        return True
-
-    if (access in (Access.NO_ACCESS, Access.READ_ACCESS, Access.RECIPE_ACCESS)):
-        return True
+        if (access in (Access.NO_ACCESS, Access.READ_ACCESS, Access.RECIPE_ACCESS)):
+            return True
 
 
     # Anonymous users have no other access permissions.

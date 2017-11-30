@@ -90,7 +90,7 @@ def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=Non
         elif icon == RESULT_INDEX_ICON:
             step = (reverse("job_view", kwargs={'id': job.id}), RESULT_INDEX_ICON, "Index View", is_active)
         elif icon == ADD_USER:
-            step = (reverse("project_view", kwargs={'id': project.id}), ADD_USER, "Manage People", is_active)
+            step = (reverse("project_view", kwargs={'id': project.id}), ADD_USER, "Manage Permissions", is_active)
         else:
             continue
 
@@ -245,7 +245,10 @@ def project_edit(request, id):
 
         if form.is_valid():
             form.save()
-            return redirect(project.url())
+        else:
+            messages.info(request, f"Invalid form processing")
+        return redirect(project.url())
+
     else:
         form = ProjectForm(instance=project)
 
@@ -420,7 +423,7 @@ def analysis_copy(request, id):
 
     analysis = Analysis.objects.filter(id=id).first()
     # Only copy to projects with edit access to
-    required_access = Access(access=Access.EDIT_ACCESS)
+    required_access = Access(access=Access.ADMIN_ACCESS)
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON,
                                 ANALYSIS_VIEW_ICON, ANALYSIS_RECIPE_ICON],
@@ -438,18 +441,25 @@ def analysis_copy(request, id):
             return redirect(reverse("analysis_copy", kwargs=dict(id=analysis.id)))
 
         form = AnalysisCopyForm(data=request.POST, analysis=analysis)
-        if form.is_valid():
-            copied = form.process()
-            copied = Project.objects.filter(id=copied[0]).first()
-            messages.success(request, f"Copied recipe to {copied.name}.")
+        url = reverse("analysis_copy", kwargs=dict(id=analysis.id))
 
-        return redirect(reverse("analysis_copy", kwargs=dict(id=analysis.id)))
+        if form.is_valid():
+
+            # TODO: refractor asap; does not need to be a list only one is picked
+            copied, new_analysis = form.process()
+            if copied[0] == "0":
+                url = reverse("create_copy", kwargs=dict(id=analysis.id))
+            else:
+                url = reverse("analysis_view", kwargs=dict(id=new_analysis.id))
+                messages.success(request, f"Currently in Copy of: {analysis.name}.")
+
+        return redirect(url)
 
     projects = auth.get_project_list(user=request.user).exclude(pk=analysis.project.id)
     # Can't touch public projects
-    projects = projects.exclude(Q(privacy=Project.PUBLIC))
+    projects = projects.exclude(privacy=Project.PUBLIC)
 
-    # Filter projects by edit access
+    # Filter projects by admin access
     if request.user.is_authenticated:
         cond = Q(access__user=request.user, access__access__gt=Access.EDIT_ACCESS)
     else:
@@ -505,7 +515,8 @@ def create_copy(request, id):
             new_analysis.state = analysis.state
             new_analysis.security = analysis.security
             new_analysis.save()
-            url = reverse("analysis_list", kwargs=dict(id=new_analysis.project.id))
+            url = reverse("analysis_view", kwargs=dict(id=new_analysis.id))
+            messages.success(request, f"Currently in Copy of: {analysis.name}.")
         else:
             url = reverse("create_copy", kwargs=dict(id=analysis.id))
         return redirect(url)
