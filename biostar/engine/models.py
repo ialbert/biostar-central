@@ -290,7 +290,7 @@ class Analysis(models.Model):
         return self.project.get_project_dir()
 
     def url(self):
-        return reverse("analysis_view", kwargs=dict(id=self.id))
+        return reverse("recipe_view", kwargs=dict(id=self.id))
 
 
 class Job(models.Model):

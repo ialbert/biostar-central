@@ -22,12 +22,18 @@ urlpatterns = [
     url(r'^data/edit/(?P<id>\d+)/$', views.data_edit, name='data_edit'),
     url(r'^data/create/(?P<id>\d+)/$', views.data_upload, name='data_upload'),
 
-    url(r'^analysis/list/(?P<id>\d+)/$', views.analysis_list, name='analysis_list'),
-    url(r'^analysis/view/(?P<id>\d+)$', views.analysis_view, name='analysis_view'),
-    url(r'^analysis/run/(?P<id>\d+)/$', views.analysis_run, name='analysis_run'),
-    url(r'^analysis/recipe/(?P<id>\d+)$', views.analysis_recipe, name='analysis_recipe'),
+    # Recipe URLS
+    url(r'^recipe/list/(?P<id>\d+)/$', views.analysis_list, name='analysis_list'),
+
+    url(r'^recipe/view/(?P<id>\d+)$', views.recipe_view, name='recipe_view'),
+
+    url(r'^recipe/run/(?P<id>\d+)/$', views.analysis_run, name='analysis_run'),
+
     url(r'^recipe/edit/(?P<id>\d+)$', views.recipe_edit, name='recipe_edit'),
-    url(r'^analysis/edit/(?P<id>\d+)$', views.analysis_edit, name='analysis_edit'),
+
+    url(r'^recipe/code/(?P<id>\d+)$', views.recipe_code, name='recipe_code'),
+
+
     url(r'^analysis/copy/(?P<id>\d+)$', views.analysis_copy, name='analysis_copy'),
     url(r'^analysis/create/copy/(?P<id>\d+)$', views.create_copy, name='create_copy'),
 

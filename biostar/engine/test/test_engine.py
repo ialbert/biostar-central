@@ -81,15 +81,15 @@ class AnalysisTest(TestCase):
 
         self.assertEqual(resp.status_code, 302)
 
-    def test_analysis_edit_interface(self):
+    def test_recipe_edit_interface(self):
         "Testing analysis edit interface"
 
-        url = reverse("analysis_edit", kwargs=dict(id=self.analysis.id))
+        url = reverse("recipe_edit", kwargs=dict(id=self.analysis.id))
         json_data = {"settings": {"name": "Test"}}
         json_text = hjson.dumps(json_data)
 
         for option in ("preview", "save"):
-            logger.info(f"Testing {option} for analysis_edit")
+            logger.info(f"Testing {option} for recipe_edit")
             info = dict(user=self.owner, text=json_text, save_or_preview=option)
             resp = self.client.post(url, info)
 
@@ -296,7 +296,7 @@ class ViewsTest(TestCase):
         pass
 
 
-    def Xtest_analysis_view(self):
+    def Xtest_recipe_view(self):
         pass
 
 
@@ -311,7 +311,7 @@ class ViewsTest(TestCase):
         pass
 
 
-    def Xtest_analysis_edit(self):
+    def Xtest_recipe_edit(self):
         pass
 
     def Xtest_job_list(self):

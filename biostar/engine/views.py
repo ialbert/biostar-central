@@ -66,13 +66,13 @@ def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=Non
         elif icon == DATA_UPLOAD:
             step = (reverse("data_view", kwargs={'id': project.id}), DATA_UPLOAD, f"File Upload", is_active)
         elif icon == ANALYSIS_LIST_ICON:
-            step = (reverse("analysis_list", kwargs={'id': project.id}), ANALYSIS_LIST_ICON, "Analysis Recipes", is_active)
+            step = (reverse("analysis_list", kwargs={'id': project.id}), ANALYSIS_LIST_ICON, "Recipe List", is_active)
         elif icon == ANALYSIS_VIEW_ICON:
-            step = (reverse("analysis_view", kwargs={'id': analysis.id}), ANALYSIS_VIEW_ICON, "Recipe View", is_active)
+            step = (reverse("recipe_view", kwargs={'id': analysis.id}), ANALYSIS_VIEW_ICON, "Recipe View", is_active)
         elif icon == ANALYSIS_RUN_ICON:
             step = (reverse("analysis_run", kwargs={'id': analysis.id}), ANALYSIS_RUN_ICON, "Analysis Run", is_active)
         elif icon == ANALYSIS_RECIPE_ICON:
-            step = (reverse("analysis_recipe", kwargs={'id': analysis.id}), ANALYSIS_RECIPE_ICON, "Recipe Code", is_active)
+            step = (reverse("recipe_view", kwargs={'id': analysis.id}), ANALYSIS_RECIPE_ICON, "Recipe Code", is_active)
         elif icon == RESULT_LIST_ICON:
             step = (reverse("job_list", kwargs={'id': project.id, }), RESULT_LIST_ICON, "Result List", is_active)
         elif icon == RESULT_VIEW_ICON:
@@ -392,7 +392,7 @@ def analysis_list(request, id):
 
 
 @object_access(type=Analysis, access=Access.READ_ACCESS)
-def analysis_view(request, id):
+def recipe_view(request, id):
     """
     Returns an analysis view based on its id.
     """
@@ -403,22 +403,10 @@ def analysis_view(request, id):
 
     context = dict(project=project, analysis=analysis, steps=steps)
 
-    return render(request, "analysis_view.html", context)
+    return render(request, "recipe_view.html", context)
 
 
-@object_access(type=Analysis, access=Access.RECIPE_ACCESS, url='analysis_view')
-def analysis_recipe(request, id):
-    analysis = Analysis.objects.filter(id=id).first()
-
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON,
-                                ANALYSIS_VIEW_ICON, ANALYSIS_RECIPE_ICON],
-                               project=analysis.project, analysis=analysis)
-
-    context = dict(analysis=analysis, steps=steps)
-    return render(request, "analysis_recipe.html", context)
-
-
-@object_access(type=Analysis, access=Access.RECIPE_ACCESS, url='analysis_recipe')
+@object_access(type=Analysis, access=Access.RECIPE_ACCESS, url='recipe_view')
 def analysis_copy(request, id):
 
     analysis = Analysis.objects.filter(id=id).first()
@@ -450,7 +438,7 @@ def analysis_copy(request, id):
             if copied[0] == "0":
                 url = reverse("create_copy", kwargs=dict(id=analysis.id))
             else:
-                url = reverse("analysis_view", kwargs=dict(id=new_analysis.id))
+                url = reverse("recipe_view", kwargs=dict(id=new_analysis.id))
                 messages.success(request, f"Currently in Copy of: {analysis.name}.")
 
         return redirect(url)
@@ -474,7 +462,7 @@ def analysis_copy(request, id):
     return render(request, "analysis_copy.html", context)
 
 #TODO: refractor asap
-@object_access(type=Analysis, access=Access.RECIPE_ACCESS, url='analysis_recipe')
+@object_access(type=Analysis, access=Access.RECIPE_ACCESS, url='recipe_view')
 def create_copy(request, id):
     "Create a project then copy analysis into it."
 
@@ -515,7 +503,7 @@ def create_copy(request, id):
             new_analysis.state = analysis.state
             new_analysis.security = analysis.security
             new_analysis.save()
-            url = reverse("analysis_view", kwargs=dict(id=new_analysis.id))
+            url = reverse("recipe_view", kwargs=dict(id=new_analysis.id))
             messages.success(request, f"Currently in Copy of: {analysis.name}.")
         else:
             url = reverse("create_copy", kwargs=dict(id=analysis.id))
@@ -529,7 +517,7 @@ def create_copy(request, id):
 
 
 
-@object_access(type=Analysis, access=Access.EXECUTE_ACCESS, url='analysis_view')
+@object_access(type=Analysis, access=Access.EXECUTE_ACCESS, url='recipe_view')
 def analysis_run(request, id):
     analysis = Analysis.objects.filter(id=id).first()
 
@@ -603,29 +591,34 @@ def process_analysis_edit(analysis, form, method=None):
     return context
 
 
-@object_access(type=Analysis, access=Access.EDIT_ACCESS, url='analysis_recipe')
-def analysis_edit(request, id):
+@object_access(type=Analysis, access=Access.RECIPE_ACCESS, url='recipe_view')
+def recipe_code(request, id):
+
     analysis = Analysis.objects.filter(id=id).first()
     project = analysis.project
+
     steps = breadcrumb_builder([PROJECT_ICON, ANALYSIS_LIST_ICON, ANALYSIS_VIEW_ICON,
                                 ANALYSIS_RECIPE_ICON],project=project, analysis=analysis)
 
     if request.method == "POST":
         form = EditAnalysisForm(analysis=analysis, data=request.POST)
-        method = request.POST.get("save_or_preview")
-        #Method form.is_valid() called in this function
-        context = process_analysis_edit(analysis=analysis, form=form, method=method)
-        # should redirect on a save and not a preview
 
+        #method = request.POST.get("save_or_preview")
+        #Method form.is_valid() called in this function
+        #context = process_analysis_edit(analysis=analysis, form=form, method=method)
+
+        # should redirect on a save and not a preview
+        context = dict()
     else:
         form = EditAnalysisForm(analysis=analysis)
+
         context = process_analysis_edit(analysis=analysis, form=form)
 
     context.update(dict(project=project, analysis=analysis, steps=steps, form=form))
-    return render(request, 'analysis_edit.html', context)
+    return render(request, 'recipe_code.html', context)
 
 
-@object_access(type=Analysis, access=Access.EDIT_ACCESS, url='analysis_recipe')
+@object_access(type=Analysis, access=Access.EDIT_ACCESS, url='recipe_view')
 def recipe_edit(request, id):
 
     analysis = Analysis.objects.filter(id=id).first()
@@ -638,7 +631,7 @@ def recipe_edit(request, id):
         form = AnalysisEditForm(data=request.POST, files=request.FILES, instance=analysis,)
         if form.is_valid():
             form.save()
-            return redirect(reverse("analysis_view", kwargs=dict(id=analysis.id)))
+            return redirect(reverse("recipe_view", kwargs=dict(id=analysis.id)))
 
     form = AnalysisEditForm(instance=analysis)
     context = dict(steps=steps, analysis=analysis, project=project, form=form)

@@ -10,12 +10,14 @@
 
     <div class="ui raised segments">
 
+        {% project_name_bar project %}
+
         <div class="ui center aligned segment">
             <h3 class="ui icon header">
                 <i class="bar chart icon"></i>
                 <p class="content">
                     Results List
-                    <p class="sub header">The results produced by running recipes.</p>
+                    <p class="sub header">The results produced from the recipes in the current project.</p>
                 </p>
             </h3>
         </div>
@@ -24,7 +26,7 @@
 
             {% if filter %}
                 <div class="ui warning message">Showing results for recipe:
-                    <a href="{% url 'analysis_view' filter.id %}">{{ filter.name }}</a>
+                    <a href="{% url 'recipe_view' filter.id %}">{{ filter.name }}</a>
                     &bull; <a class="ui label" href="{% url 'job_list' project.id %}"><i class="undo icon"></i>Remove
                         Filter</a>
                 </div>
@@ -54,7 +56,7 @@
                             <div class="extra">
                                {% sticky_label job %}{% job_minutes job %} &bull;
                                 <a class="ui  {% job_color job %}  label"
-                                   href="{% url 'analysis_view' job.analysis.id %}"><i class="setting icon"></i>Go to
+                                   href="{% url 'recipe_view' job.analysis.id %}"><i class="setting icon"></i>Go to
                                     Recipe</a>
 
                             </div>

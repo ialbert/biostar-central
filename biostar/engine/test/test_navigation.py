@@ -48,9 +48,9 @@ class SiteNavigation(TestCase):
             reverse('data_view', kwargs=self.data_params),
             reverse('project_view', kwargs=self.proj_params),
             reverse('analysis_list', kwargs= self.proj_params),
-            reverse('analysis_view', kwargs=self.analysis_params),
+            reverse('recipe_view', kwargs=self.analysis_params),
             reverse('analysis_run', kwargs=self.analysis_params),
-            reverse('analysis_recipe', kwargs=self.analysis_params),
+            reverse('recipe_view', kwargs=self.analysis_params),
             reverse('analysis_copy', kwargs=self.analysis_params),
             reverse('job_list', kwargs=self.proj_params),
             reverse('job_view', kwargs=self.job_params),
@@ -67,7 +67,7 @@ class SiteNavigation(TestCase):
             reverse('project_edit',  kwargs=self.proj_params),
             reverse('data_upload', kwargs=self.proj_params),
             reverse('data_edit', kwargs=self.data_params),
-            reverse('analysis_edit', kwargs=self.analysis_params),
+            reverse('recipe_edit', kwargs=self.analysis_params),
             reverse('job_result_view', kwargs=self.job_params),
 
         ]

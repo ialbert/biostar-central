@@ -8,12 +8,14 @@
 
     <div class="ui raised segments">
 
+        {% project_name_bar project %}
+
          <div class="ui center aligned segment">
             <h3 class="ui icon header">
                 <i class="settings icon"></i>
                 <p class="content">
-                    Analysis Recipes
-                    <p class="sub header">Recipes available in this project.</p>
+                    Recipe List
+                    <p class="sub header">All analysis recipes available in the current project.</p>
                 </p>
             </h3>
         </div>
@@ -32,7 +34,7 @@
                         </div>
 
                         <div class="content">
-                            <a class="header" href="{% url 'analysis_view' analysis.id %}">
+                            <a class="header" href="{% url 'recipe_view' analysis.id %}">
                                 {{ analysis.name }}
                             </a>
 

@@ -63,22 +63,29 @@
             <p>
                 This site was designed to help scientists share, document, distribute and rerun
                 data analysis scripts. We call these scripts <b>recipes</b> that must adhere to the following requirements:
+            </p>
 
             <ul>
                 <li>
-                    Each recipe must be fully operational.
+                    Every recipe must be documented and fully operational.
                 </li>
              <li>
-                    Each recipe must have test data and results associated with it. Hence
-                    demonstrating the input requirements as well as the results of the process.
+                    Every recipe must have test data and results associated with it to
+                    demonstrate the input requirements as well as the results.
                 </li>
                 <li>
-                    Each recipe may be modified, changed and shared across different projects.
+                    Every recipe may be modified, changed, reused and shared across different projects.
                 </li>
 
             </ul>
 
-            Learn more about the way <a href="{% url 'info' %}">the site works.</a>
+            <p>
+                Notably the software is able to generate a graphical user interface
+                from each recipe when these contain a JSON specification syntax.
+            </p>
+
+            <p>
+                Learn more about the way <a href="{% url 'info' %}">the site works.</a>
 
             </p>
 
@@ -87,25 +94,23 @@
 
         <div class="ui vertical segment">
 
-
             <div class="ui header">
-
-                <i class="settings icon"></i>Collaborative Analysis
-
+                <i class="settings icon"></i>The Biostar Engine
             </div>
 
             <p>
-
                 <img class="ui small right floated circular image" src="{% static "images/tools.jpg" %}">
-                The software that runs this site is called the <b>biostar-engine</b> and it does not favor any particular approach or methodology.
-                Yet it allows users to create <strong>full data analysis pipelines</strong>
-                that produce the desired results in just a single step.
+                The software that runs this site was named the <b>biostar-engine</b> and it is designed to
+                allow users to create, run, modify and share <strong>entire data analysis pipelines</strong>
+                </p>
+
+            <p> The <b>biostar-engine</b>
+                does not favor any particular approach or methodology and it integrates with a wide variety of tools
+                and technologies. Bioinformaticians should think of the software as
+                the means of deploying their existing utility to reach wider audiences.
             </p>
 
-            <p> The software supports running command line oriented tools via a graphical user interfaces generated
-                from each recipe using a JSON specification syntax.
 
-            </p>
 
             <p>
                 Users may adapt and remix

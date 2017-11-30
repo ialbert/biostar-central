@@ -18,6 +18,8 @@
 
     <div class="ui raised segments">
 
+        {% project_name_bar project %}
+
         <div class="ui segment">
 
             <div class="ui center aligned header">
@@ -27,11 +29,11 @@
             <div class="">
                 <img class="ui centered small image" src="{% img analysis %}">
             </div>
-                    <div class="ui center aligned basic segment">
-            <a class="ui green button" href="{% url 'analysis_run' analysis.id %}">
-                <i class="spinner icon"></i> Run Analysis
-            </a>
-                    </div>
+            <div class="ui center aligned basic segment">
+                <a class="ui green button" href="{% url 'analysis_run' analysis.id %}">
+                    <i class="spinner icon"></i> Run Analysis
+                </a>
+            </div>
             <p>
                 {{ analysis.summary|markdown|safe }}
             </p>
@@ -43,11 +45,17 @@
             <a class="ui button" href="{% url 'job_list' project.id %}?filter={{ analysis.id }}">
                 <i class="area chart icon"></i> Go to Results
             </a>
-            <a class="ui button" href="{% url 'analysis_recipe' analysis.id %}">
-                <i class="list icon"></i> Recipe Code
-            </a>
+
             <a class="ui button" href="{% url 'analysis_copy' analysis.id %}">
                 <i class="add icon"></i>Copy Recipe
+            </a>
+
+            <a class="ui button" href="{% url 'recipe_edit' analysis.id %}">
+                <i class="write icon"></i>Edit Recipe
+            </a>
+
+            <a class="ui button" href="{% url 'recipe_code' analysis.id %}">
+                <i class="list icon"></i> Recipe Code
             </a>
 
         </div>
