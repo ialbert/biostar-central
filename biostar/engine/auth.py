@@ -77,7 +77,7 @@ def get_project_list(user):
         cond = Q(privacy=Project.PUBLIC)
     else:
         # Authenticated users see public projects and private projects with access rights.
-        cond = Q(privacy=Project.PUBLIC) | Q(access__user=user, access__access__gt=Access.PUBLIC_ACCESS)
+        cond = Q(privacy=Project.PUBLIC) | Q(access__user=user, access__access__gt=Access.NO_ACCESS)
 
     # Generate the query.
     query =  Project.objects.filter(cond)
@@ -109,9 +109,9 @@ def check_obj_access(user, instance, access=Access.ADMIN_ACCESS, request=None):
         project = instance
 
     # A public or shareable project. User is asking for read access.
-    if (project.privacy in (Project.PUBLIC, Project.SHAREABLE)) and \
-            (access in (Access.PUBLIC_ACCESS, Access.READ_ACCESS, Access.RECIPE_ACCESS)):
-        return True
+    if (project.privacy in (Project.PUBLIC, Project.SHAREABLE)):
+        if (access in (Access.NO_ACCESS, Access.READ_ACCESS, Access.RECIPE_ACCESS)):
+            return True
 
 
     # Anonymous users have no other access permissions.

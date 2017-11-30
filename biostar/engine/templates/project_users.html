@@ -17,7 +17,7 @@
         </div>
 
         <div class="ui header">
-            Managing people: {{ project.name }}
+            Managing Permissions: {{ project.name }}
         </div>
 
     </div>
@@ -35,6 +35,8 @@
          <form class="ui large form" method="post" action="{% url 'project_users_remove' project.id %}">
                 {% csrf_token %}
             <div class="ui small header">Contributors</div>
+
+             {% generate_usercards users=current_users project=project form=form %}
 
             <div class="ui cards">
             {% for avail_user in current_users %}
@@ -87,6 +89,8 @@
 
         <form class="ui large form" method="post" action="{% url 'project_users_add' project.id %}">
                 {% csrf_token %}
+
+                {% generate_usercards users=available_users project=project form=form %}
 
                 <div class="ui cards">
                     {% for new_user in available_users %}

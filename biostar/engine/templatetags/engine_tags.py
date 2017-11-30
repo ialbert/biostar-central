@@ -9,7 +9,7 @@ from django.forms import widgets
 from django.utils.safestring import mark_safe
 
 from biostar.engine import const
-from biostar.engine.models import Project, Job, make_html
+from biostar.engine.models import Access, Job, make_html
 from biostar.engine import factory, auth
 
 logger = logging.getLogger("engine")
@@ -40,6 +40,35 @@ def generate_fields(json_text, project=None, form=None):
             fields.append(field)
 
     return dict(fields=fields)
+
+
+@register.inclusion_tag('widgets/usercard_form.html')
+def generate_usercards(users, project=None, form=None):
+
+    # working on this after meeting tommrrow
+    return
+    choices = Access.ACCESS_CHOICES
+    fields = []
+
+    # check user access then if no access inital is NO_ACCESS
+    # make a field from each user. so need to do the same in the form.
+    for user in users:
+
+        initial = ''
+        widget = forms.Select(choices=choices, attrs={"class":"ui dropdown"})
+        field = forms.CharField(widget=widget, initial=initial)
+
+        #field = auth.make_form_field(data={}, project={} )
+        if form:
+            # should name="users"
+            field = forms.forms.BoundField(form=form, field=field, name=name)
+        else:
+            field = {"field": field}
+
+        print(users)
+        #1/0
+        pass
+
 
 
 @register.filter

@@ -11,18 +11,14 @@
 
     <div class="ui center aligned segment">
 
-        <div class="ui tiny image">
-            <img src="{% img project %}">
-        </div>
+
          <div class="ui tiny image">
             <img src="{% img analysis %}">
          </div>
 
         <div class="ui header">
-            Project: {{ project.name }}
-
-        </div>
         Recipe: {{analysis.name}}
+        </div>
     </div>
 
     <div class="ui secondary segment">
@@ -48,15 +44,22 @@
     <form class="ui large form" method="post" action="{% url 'analysis_copy' analysis.id %}">
             {% csrf_token %}
     <div class="ui basic segment">
+                <div class="ui small header">
+                    Your Projects
+                </div>
 
                 {% if projects %}
-                <div class="ui small header">
-                    Select Project
-                </div>
+
                 <div class="ui basic segment">
 
                     <div class="ui relaxed divided list">
+                        <div class="item">
+                        <div class="inline field">
+                            <input type="radio" name="projects" value="0">
 
+                        <i class="archive icon"></i>Create new project and copy recipe
+                        </div>
+                    </div>
                         {% for project in projects %}
                             <div class="item">
                                 <div class="inline field">
@@ -71,29 +74,30 @@
                     </div>
                 </div>
 
-                   <button type="submit" class="ui green right button">
-                        <i class="plus icon"></i>Copy Recipe
-                   </button>
-
-                <a class="ui right floated button" href="{% url 'create_copy' analysis.id %}">
-                        <i class="plus icon"></i>Create Project and Copy Recipe
-               </a>
-
                 {% else %}
-
-                <div class="ui red message">
-
+                <div class="ui tiny red message">
                     <p>You do not have
-                        <span class="ui green label">{{ access.get_access_display }} Permission</span>
-                        needed to copy recipe to a project.
+                        <span class="ui tiny green label">{{ access.get_access_display }} Permission</span>
+                        to any other project needed to copy
                     </p>
+                </div>
 
-            <a class='ui button' href="{% url 'create_copy' analysis.id %}">
-            <i class="plus icon"></i>Create and Copy </a>  to create a new project and copy this recipe into it.
+                <div class="ui basic segment">
+                    <div class="ui relaxed divided list">
+                        <div class="item">
+                        <div class="inline field">
+                            <input type="radio" name="projects" value="0">
 
+                        <i class="archive icon"></i>Create new project and copy recipe
+                        </div>
+                    </div>
+                 </div>
                 </div>
 
                 {% endif %}
+                   <button type="submit" class="ui button">
+                        <i class="plus icon"></i>Copy Recipe
+                   </button>
 
 
 </div>
