@@ -1,11 +1,10 @@
 from django import forms
-from .models import Data
-from biostar.engine import const
 
+from biostar.engine import const
+from .models import Data
 
 
 def float_field(data):
-
     numrange = data.get("range", [1.0, 1000.0])
     min_value, max_value = numrange[0], numrange[1]
 
@@ -20,9 +19,11 @@ def float_field(data):
     return field
 
 
+class SelectInput(forms.Select):
+    template_name = 'interface/select.html'
+
 
 def select_field(data, choicefunc=None):
-
     if choicefunc:
         choices = choicefunc() or []
     else:
@@ -32,14 +33,13 @@ def select_field(data, choicefunc=None):
     label = data.get("label", "")
     help_text = data.get("help", "")
 
-    widget = forms.Select(choices=choices, attrs={"class":"ui dropdown"})
+    widget = SelectInput(choices=choices, attrs={"class": "ui dropdown"})
     field = forms.CharField(widget=widget, initial=initial, label=label, help_text=help_text)
 
     return field
 
 
 def char_field(data):
-
     initial = data.get("value", "")
     label = data.get("label", "")
     help_text = data.get("help", "")
@@ -50,7 +50,6 @@ def char_field(data):
 
 
 def radioselect_field(obj):
-
     choices = obj.get("choices", [])
     initial = obj.get("value", "")
     label = obj.get("label", "")
@@ -63,7 +62,6 @@ def radioselect_field(obj):
 
 
 def number_field(data):
-
     numrange = data.get("range", [0, 1])
     min_value, max_value = min(numrange), max(numrange)
     label = data.get("label", "")
@@ -103,7 +101,6 @@ def ignore(data):
 
 
 def data_field_generator(field, project, data_type=None):
-
     valid_type = const.DATA_TYPE_SYMBOLS.get(data_type, -1)
 
     query = Data.objects.filter(project=project, data_type=valid_type).order_by("sticky", "-date")
@@ -128,5 +125,3 @@ TYPE2FUNC = {
     const.UPLOAD: file_field,
     const.CHECKBOX: checkbox_field,
 }
-
-

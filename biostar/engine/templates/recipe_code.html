@@ -15,7 +15,7 @@
             <div class="column specs">
                 <div class="ui basic segment">
                     <div class="ui center aligned header">
-                    Parameter Spec
+                    Interface Specification
                     </div>
                     <textarea rows="30" cols="55" name="json_text">{{form.json_text.value}}
                     </textarea>
@@ -26,7 +26,7 @@
             <div class="column specs">
                 <div class="ui basic segment">
                     <div class="ui center aligned header">
-                    Template
+                    Script Template
                     </div>
                     <textarea rows="30" cols="55" name="template">{{form.template.value}}
                     </textarea>
@@ -56,7 +56,8 @@
                     <div class="ui center aligned header">
                     Generated Interface
                     </div>
-                    {% generate_fields json_text project=analysis.project form=form %}
+
+                    {{  form.run_form }}
 
                      <a class="ui green disabled button">
                         <i class="check icon"></i>Run

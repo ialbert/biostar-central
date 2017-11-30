@@ -1,15 +1,14 @@
-import hjson, logging
+import hjson
 from django import forms
-from django.utils.safestring import mark_safe
-from .models import Project, Data, Analysis, Job, Access
+
+from . import models, auth
 from . import tasks
 from .const import *
-import os
-from . import models, auth
-
+from .models import Project, Data, Analysis, Job, Access
 
 # Share the logger with models.
 logger = models.logger
+
 
 def join(*args):
     return os.path.abspath(os.path.join(*args))
@@ -34,8 +33,8 @@ class ProjectForm(forms.ModelForm):
 
 
 class DataUploadForm(forms.ModelForm):
-    #choices = DATA_TYPES.items()
-    #data_type = forms.IntegerField(widget=forms.Select(choices=choices))
+    # choices = DATA_TYPES.items()
+    # data_type = forms.IntegerField(widget=forms.Select(choices=choices))
 
     file = forms.FileField()
 
@@ -45,8 +44,8 @@ class DataUploadForm(forms.ModelForm):
 
 
 class DataEditForm(forms.ModelForm):
-    #choices = DATA_TYPES.items()
-    #data_type = forms.IntegerField(widget=forms.Select(choices=choices))
+    # choices = DATA_TYPES.items()
+    # data_type = forms.IntegerField(widget=forms.Select(choices=choices))
 
     class Meta:
         model = Data
@@ -54,24 +53,21 @@ class DataEditForm(forms.ModelForm):
 
 
 class AnalysisEditForm(forms.ModelForm):
-
     class Meta:
         model = Analysis
-        fields = ['name', "image",'text', "summary", 'sticky']
+        fields = ['name', "image", 'text', "summary", 'sticky']
 
 
 class JobEditForm(forms.ModelForm):
-
     class Meta:
         model = Job
-        fields = ['name', "image",'text','sticky']
+        fields = ['name', "image", 'text', 'sticky']
 
 
 class GrantAccess(forms.Form):
-
     users = forms.IntegerField()
 
-    def __init__(self, project, current_user, access,*args, **kwargs):
+    def __init__(self, project, current_user, access, *args, **kwargs):
         self.project = project
         self.user = current_user
         self.access = access
@@ -82,18 +78,17 @@ class GrantAccess(forms.Form):
         valid = super(GrantAccess, self).is_valid()
 
         # Only users with admin privilege or higher get to grant access to projects
-        admin_only  = auth.check_obj_access(user=self.user, instance=self.project,
-                                            request=request,access=Access.ADMIN_ACCESS)
+        admin_only = auth.check_obj_access(user=self.user, instance=self.project,
+                                           request=request, access=Access.ADMIN_ACCESS)
         return valid and admin_only
 
-
-    def process(self, add=False,remove=False):
+    def process(self, add=False, remove=False):
 
         assert not (add and remove), "Can add or remove, not both"
 
         # More than one can be selected
         users = self.data.getlist('users')
-        added, removed, errmsg  = 0,0, []
+        added, removed, errmsg = 0, 0, []
 
         for user_id in users:
             user = models.User.objects.filter(id=user_id).first()
@@ -133,14 +128,12 @@ class GrantAccess(forms.Form):
 
 
 class DataCopyForm(forms.Form):
-
     paths = forms.CharField(max_length=256)
 
     def __init__(self, project, job=None, *args, **kwargs):
         self.project = project
         self.job = job
         super().__init__(*args, **kwargs)
-
 
     def process(self):
         # More than one can be selected
@@ -161,26 +154,23 @@ class DataCopyForm(forms.Form):
 
 
 class AnalysisCopyForm(forms.Form):
-
     projects = forms.IntegerField()
 
     def __init__(self, analysis, *args, **kwargs):
-
         self.analysis = analysis
         super().__init__(*args, **kwargs)
 
-    #TODO: refractor asap; does not need to be a list only one is picked
+    # TODO: refractor asap; does not need to be a list only one is picked
     def process(self):
-
         projects = self.data.getlist('projects')
         project_id = projects[0]
 
         if project_id == "0":
-           return projects, None
+            return projects, None
 
         current_project = Project.objects.filter(id=project_id).first()
 
-        current_params = auth.get_analysis_attr(analysis=self.analysis,project=current_project)
+        current_params = auth.get_analysis_attr(analysis=self.analysis, project=current_project)
         new_analysis = auth.create_analysis(**current_params)
 
         # Images needs to be set by it set
@@ -193,9 +183,12 @@ class AnalysisCopyForm(forms.Form):
         return projects, new_analysis
 
 
-class RunAnalysis(forms.Form):
+class NameInput(forms.TextInput):
+    input_type = 'text'
+    template_name = 'interface/name.html'
 
 
+class RunRecipe(forms.Form):
 
     def __init__(self, analysis, *args, **kwargs):
 
@@ -204,7 +197,8 @@ class RunAnalysis(forms.Form):
         self.project = self.analysis.project
 
         super().__init__(*args, **kwargs)
-        self.fields["name"] = forms.CharField(max_length=256, initial=self.analysis.name)
+        self.fields["name"] = forms.CharField(max_length=256, initial=self.analysis.name,
+                                              widget=NameInput)
 
         # This loop needs to be here to register the fields and trigger is_valid() later on.
         for name, data in self.json_data.items():
@@ -213,8 +207,7 @@ class RunAnalysis(forms.Form):
                 self.fields[name] = field
 
     def save(self, *args, **kwargs):
-        super(RunAnalysis, self).save(*args, **kwargs)
-
+        super(RunRecipe, self).save(*args, **kwargs)
 
     def process(self):
         '''
@@ -222,7 +215,7 @@ class RunAnalysis(forms.Form):
         Should be called after the form has been filled and is valid.
         '''
         # Gets all data for the project
-        datamap = dict((data.id, data) for data in self.project.data_set.all() )
+        datamap = dict((data.id, data) for data in self.project.data_set.all())
 
         json_data = self.json_data.copy()
 
@@ -230,7 +223,6 @@ class RunAnalysis(forms.Form):
 
             # If it has a path it is an uploaded file.
             if obj.get("path") or obj.get("link"):
-
                 data_id = self.cleaned_data.get(field, '')
                 data_id = int(data_id)
                 data = datamap.get(data_id)
@@ -242,37 +234,38 @@ class RunAnalysis(forms.Form):
 
 
 class EditRecipeCodeForm(forms.Form):
+    PREVIEW, SAVE = "PREVIEW", "SAVE"
+    CHOICES = [PREVIEW, SAVE]
 
-    save_or_preview = forms.CharField(initial="preview")
+    # Determines what action to perform on the form.
+    action = forms.ChoiceField(choices=CHOICES)
+
     def __init__(self, analysis, *args, **kwargs):
-
-        self.analysis = analysis
-
         super().__init__(*args, **kwargs)
 
+        # Get the analysis
+        self.analysis = analysis
+
+        # Get the JSON data as more nicely indented text
         json_data = hjson.loads(self.analysis.json_text)
-        initial = hjson.dumps(json_data, indent=4)
+        json_text = hjson.dumps(json_data, indent=4)
 
-        self.fields["json_text"] = forms.CharField(initial=initial)
+        # Fill in the forms with initial data
+        self.fields["json_text"] = forms.CharField(initial=json_text)
         self.fields["template"] = forms.CharField(initial=self.analysis.template)
-        self.generate_form(json_data)
 
-
-    def preview(self):
-
-        json_data = hjson.loads(self.cleaned_data["json_text"].rstrip())
-
-        # Refresh form with most recent json data
-        self.generate_form(json_data)
-
+        # This is the form that would run the analysis.
+        self.run_form = RunRecipe(analysis=analysis)
 
     def save(self):
+
+        return
 
         super(EditRecipeCodeForm, self).clean()
         json_data = hjson.loads(self.cleaned_data["json_text"])
 
         # Refresh form
-        self.generate_form(json_data)
+        self.generate_fields(json_data)
 
         spec = hjson.loads(self.cleaned_data["json_text"])
 
@@ -282,7 +275,7 @@ class EditRecipeCodeForm(forms.Form):
 
         self.analysis.json_text = self.cleaned_data["json_text"]
 
-        #TODO: test more ( probs need to sluggify both)
+        # TODO: test more ( probs need to sluggify both)
         if self.analysis.template != self.cleaned_data["template"]:
             self.analysis.security = Analysis.UNDER_REVIEW
 
@@ -292,11 +285,3 @@ class EditRecipeCodeForm(forms.Form):
 
         return self.analysis
 
-
-    def generate_form(self, json_obj):
-
-        for name, obj in json_obj.items():
-            field = auth.make_form_field(obj, self.analysis.project)
-
-            if field:
-                self.fields[name] = field
