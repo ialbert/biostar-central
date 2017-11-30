@@ -1,5 +1,6 @@
 # import os
 
+import logging
 import mistune
 from django.conf import settings
 # from django.template.loader import get_template
@@ -518,7 +519,7 @@ def create_copy(request, id):
 
 
 @object_access(type=Analysis, access=Access.EXECUTE_ACCESS, url='recipe_view')
-def analysis_run(request, id):
+def recipe_run(request, id):
     analysis = Analysis.objects.filter(id=id).first()
 
     project = analysis.project
@@ -528,18 +529,17 @@ def analysis_run(request, id):
                                project=project, analysis=analysis)
 
     if request.method == "POST":
-        form = RunAnalysis(data=request.POST, analysis=analysis)
-
-        if request.user.is_anonymous():
-            form.add_error(None, "You must be logged in to run an analysis")
+        form = RunRecipe(data=request.POST, analysis=analysis)
 
         if form.is_valid():
             name = form.cleaned_data.get("name")
-            filled_json = form.process()
-            json_text = hjson.dumps(filled_json)
-            job = auth.create_job(analysis=analysis, user=analysis.owner, json_text=json_text, name=name,
-                                  )
-            logger.info(tasks.HAS_UWSGI)
+            json_data = form.process()
+            json_text = hjson.dumps(json_data)
+
+            # Create the job from the json.
+            job = auth.create_job(analysis=analysis, user=analysis.owner, json_text=json_text, name=name)
+
+            # Spool the job right if UWSGI exists.
             if tasks.HAS_UWSGI:
                 jobid = (job.id).to_bytes(5, byteorder='big')
                 tasks.execute_job.spool(job_id=jobid)
@@ -547,10 +547,11 @@ def analysis_run(request, id):
             return redirect(reverse("job_list", kwargs=dict(id=project.id)))
     else:
         initial = dict(name=analysis.name)
-        form = RunAnalysis(analysis=analysis, initial=initial)
+        form = RunRecipe(analysis=analysis, initial=initial)
 
     context = dict(project=project, analysis=analysis, steps=steps, form=form)
-    return render(request, 'analysis_run.html', context)
+
+    return render(request, 'recipe_run.html', context)
 
 
 def preview_specs(spec, analysis):
@@ -612,9 +613,7 @@ def recipe_code(request, id):
     else:
         form = EditRecipeCodeForm(analysis=analysis)
 
-        context = process_analysis_edit(analysis=analysis, form=form)
-
-    context.update(dict(project=project, analysis=analysis, steps=steps, form=form))
+    context = dict(project=project, analysis=analysis, steps=steps, form=form)
     return render(request, 'recipe_code.html', context)
 
 

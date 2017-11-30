@@ -20,28 +20,6 @@ JOB_COLORS = {
     Job.ERROR: "red", Job.QUEUED: "blue", Job.RUNNING: "teal", Job.COMPLETED: "green"
 }
 
-
-@register.inclusion_tag('widgets/json_form.html')
-def generate_fields(json_text, project=None, form=None):
-
-    fields = []
-    json_data = hjson.loads(json_text)
-
-    for name, data in json_data.items():
-        field = auth.make_form_field(data, project)
-        if field:
-            field.widget.attrs["name"] = name
-            # Returns <django.forms.fields object> instead of html if the field isn't
-            # bound to a form
-            if form:
-                field = forms.forms.BoundField(form=form, field=field, name=name)
-            else:
-                field = {"field": field}
-            fields.append(field)
-
-    return dict(fields=fields)
-
-
 @register.inclusion_tag('widgets/usercard_form.html')
 def generate_usercards(users, project=None, form=None):
 
@@ -235,7 +213,9 @@ def is_checkbox(field):
     """
     Returns True if a field is a checkbox.
     """
-    cond = isinstance(field, forms.BooleanField)
+    print (field)
+
+    cond = isinstance(field.widget, forms.BooleanField)
     return cond
 
 
