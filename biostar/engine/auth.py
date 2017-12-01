@@ -85,7 +85,7 @@ def get_project_list(user):
     return query
 
 
-def check_obj_access(user, instance, access=Access.ADMIN_ACCESS, request=None):
+def check_obj_access(user, instance, access=Access.ADMIN_ACCESS, request=None, login_required=False):
     """
     Validates object access.
     """
@@ -93,6 +93,7 @@ def check_obj_access(user, instance, access=Access.ADMIN_ACCESS, request=None):
     # but also to allow this function to be called outside a web view
     # where there are no requests.
     request = request or RequestFactory()
+
 
     # The object does not exist.
     if not instance:
@@ -108,23 +109,32 @@ def check_obj_access(user, instance, access=Access.ADMIN_ACCESS, request=None):
     else:
         project = instance
 
-    # A public or shareable project. User is asking for read access.
-    if (project.privacy in (Project.PUBLIC, Project.SHAREABLE)):
-        if (access in (Access.NO_ACCESS, Access.READ_ACCESS, Access.RECIPE_ACCESS)):
-            return True
 
+    # Check for logged in user and login requirement.
+    if user.is_anonymous() and login_required:
+        msg = f"""
+            You must be logged in to perform that action.
+        """
+        msg = mark_safe(msg)
+        messages.error(request, msg)
+        return False
+
+    # If the project is public or shareable project and a user is asking for read access.
+    if (project.privacy in (Project.PUBLIC, Project.SHAREABLE)):
+        if (access in (Access.READ_ACCESS, Access.RECIPE_ACCESS)):
+            return True
 
     # Anonymous users have no other access permissions.
     if user.is_anonymous():
         msg = f"""
-        You must be logged in and have the <span class="ui green label">{access_text}</span> to perform that action.
+        You must be logged in and have <span class="ui green label">{access_text}</span> to perform that action.
         """
         msg = mark_safe(msg)
         messages.error(request, msg)
         return False
 
     deny = f"""
-        Access Denied. This action requires the <span class="ui green label">{access_text}</span>.
+        Access Denied. This action requires <span class="ui green label">{access_text}</span>.
         """
     deny = mark_safe(deny)
 

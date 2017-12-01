@@ -32,13 +32,15 @@
         </div>
 
         <div class="ui secondary segment">
-
-            <p> {{ project.summary|markdown|safe }}</p>
-            Your are accessing this project with
-            <span class="ui green label">{{ access.get_access_display }} Permission</span>
-
+            {{ project.summary|markdown|safe }}
         </div>
 
+        {% if access %}
+            <div class="ui secondary segment">
+                Your access rights for the project:
+                <span class="ui green label">{{ access.get_access_display }}</span>
+            </div>
+        {% endif %}
 
         <div class="ui segment">
 
@@ -99,14 +101,14 @@
             </div>
 
         </div>
-            <div class="ui vertical center aligned segment">
-                <a class="ui button" href="{% url 'project_edit' project.id %}">
-                    <i class="write icon"></i>Edit Project
-                </a>
-                <a class="ui button" href="{% url 'project_users' project.id %}">
-                    <i class="plus icon"></i>Manage People
-                </a>
-            </div>
+        <div class="ui vertical center aligned segment">
+            <a class="ui button" href="{% url 'project_edit' project.id %}">
+                <i class="write icon"></i>Edit Project
+            </a>
+            <a class="ui button" href="{% url 'project_users' project.id %}">
+                <i class="plus icon"></i>Manage People
+            </a>
+        </div>
 
         <div class="ui secondary segment">
             {{ project.html|safe }}

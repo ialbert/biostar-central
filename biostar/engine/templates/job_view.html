@@ -7,13 +7,14 @@
 
 {% block body %}
 
-    <div class="ui raised {% job_color job %} segment">
+    <div class="ui raised {% job_color job %} segments">
 
+        {% project_name_bar project %}
 
-        <div class="ui vertical segment">
+        <div class="ui segment">
 
             <div class="ui center aligned header">
-                <i class="area chart icon"></i>Results for:  {{ job.name }}
+                <i class="area chart icon"></i>Results for: {{ job.name }}
             </div>
 
             <div class="ui center aligned basic segment">
@@ -28,34 +29,29 @@
             </div>
         </div>
 
-        <div class="ui center aligned vertical segment">
-            {%  job_minutes job %}
+        <div class="ui center aligned segment">
+            {% job_minutes job %}
         </div>
 
-        <div class="ui vertical segment">
+        <div class="ui segment">
             <div class="ui center aligned header">Summary</div>
             {{ job.summary|safe }}
         </div>
 
-        <div class="ui vertical segment">
+        <div class="ui segment">
             <div class="ui center aligned header">Stdout Log</div>
-            <div class="ui center aligned subheader">Messages printed to the standard output stream during the run.</div>
+            <div class="ui center aligned subheader">Messages printed to the standard output stream during the run:
+            </div>
             <pre>{{ job.stdout_log }}</pre>
         </div>
 
-        <div class="ui vertical segment">
+        <div class="ui segment">
             <div class="ui center aligned header">Stderr Log</div>
-            <div class="ui center aligned subheader">Messages printed to the standard error stream during the run.</div>
+            <div class="ui center aligned subheader">Messages printed to the standard error stream during the run:</div>
 
             <pre>{{ job.stderr_log }}</pre>
         </div>
 
-        <!-- <div class="ui vertical segment">
-            <div class="ui center aligned header">Job Script</div>
-            <pre>{{ job.script }}</pre>
-        </div> -->
-
     </div>
-
 
 {% endblock %}

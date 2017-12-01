@@ -226,8 +226,6 @@ def project_view(request, id):
     else:
         access = None
 
-    # Use a placeholder
-    access = access or Access(access=Access.NO_ACCESS)
     context = dict(project=project, access=access,
                    data_count=data_count, recipe_count=recipe_count, result_count=result_count,
                    steps=steps)
@@ -407,7 +405,7 @@ def recipe_view(request, id):
     return render(request, "recipe_view.html", context)
 
 
-@object_access(type=Analysis, access=Access.RECIPE_ACCESS, url='recipe_view')
+@object_access(type=Analysis, access=Access.RECIPE_ACCESS, url='recipe_view', login_required=True)
 def analysis_copy(request, id):
 
     analysis = Analysis.objects.filter(id=id).first()
@@ -697,7 +695,7 @@ def job_view(request, id):
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, RESULT_LIST_ICON,
                                 RESULT_VIEW_ICON], job=job, project=project)
 
-    context = dict(job=job, steps=steps)
+    context = dict(job=job, steps=steps, project=project)
     return render(request, "job_view.html", context=context)
 
 
