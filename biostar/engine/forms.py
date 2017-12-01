@@ -1,6 +1,6 @@
 import hjson
 from django import forms
-
+import hjson
 from . import models, auth
 from . import tasks
 from .const import *
@@ -235,6 +235,16 @@ class EditCode(forms.Form):
         self.user = user
         self.project = project
         super().__init__(*args, **kwargs)
+
+    def clean_json(self):
+        cleaned_data = super(EditCode, self).clean()
+        json_text = cleaned_data.get("json")
+        try:
+            hjson.loads(json_text)
+        except Exception as exc:
+            msg = f"Invalid json: {exc}"
+            raise forms.ValidationError(msg)
+        return json_text
 
     def clean(self):
         cleaned_data = super(EditCode, self).clean()

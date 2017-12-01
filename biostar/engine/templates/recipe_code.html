@@ -18,6 +18,7 @@
 
             {% form_nonfield_errors form %}
 
+
             <div class="ui grid inputcolor">
 
                 <div class="sixteen wide column">
@@ -31,8 +32,8 @@
                         <div class="ui center aligned header">
                             Interface Specification
                         </div>
-                        <textarea class="code" rows="30" cols="55" name="json">{{ form.json.value }}
-                        </textarea>
+                        {{  form.json.errors }}
+                        <textarea class="code" rows="30" cols="55" name="json">{{ form.json.value }}</textarea>
 
                     </div>
                 </div>
@@ -42,9 +43,7 @@
                         <div class="ui center aligned header">
                             Script Template
                         </div>
-                        <textarea class="code" rows="30" cols="55" name="template">{{ form.template.value }}
-                        </textarea>
-
+                        <textarea class="code" rows="30" cols="55" name="template">{{ form.template.value }}</textarea>
                     </div>
                 </div>
 
