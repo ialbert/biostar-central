@@ -15,7 +15,7 @@
     <div class="field">
         {{ field.label_tag }}
         {{ field }}
-        <div class="muted">{{ field.help_text }}</div>
+        <div class="muted">{{ field.help_text | safe }}</div>
     </div>
 {% endfor %}
 

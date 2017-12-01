@@ -14,6 +14,16 @@ def join(*args):
     return os.path.abspath(os.path.join(*args))
 
 
+
+
+def form_factory(form_template, data):
+
+
+    pass
+
+
+
+
 class ProjectForm(forms.ModelForm):
     image = forms.ImageField(required=False)
 

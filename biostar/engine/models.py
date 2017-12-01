@@ -52,6 +52,16 @@ def image_path(instance, filename):
     return imgpath
 
 
+#class DataType(models.Model):
+#    name = ""
+
+    # Symobol is what we enter in the json file
+#    symbol = ""
+#    help = ""
+#    pass
+
+
+
 class Project(models.Model):
     PUBLIC, SHAREABLE, PRIVATE = 1, 2, 3
     PRIVACY_CHOICES = [(PRIVATE, "Private"), (SHAREABLE, "Shareable Link"), (PUBLIC, "Public")]
