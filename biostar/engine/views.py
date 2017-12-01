@@ -607,8 +607,8 @@ def recipe_code(request, id):
 
             # The SAVE action commits the changes on the analysis.
             if action == 'SAVE':
-
                 analysis.save()
+                messages.info(request, "The recipe code has been updated.")
                 return redirect(reverse("recipe_view", kwargs=dict(id=analysis.id)))
 
     else:

@@ -241,6 +241,9 @@ class EditCode(forms.Form):
         action = cleaned_data.get("action")
 
         if action == self.SAVE:
+            msg = "You don't have sufficient access rights to overwrite this entry."
+            if self.user.is_anonymous():
+                raise forms.ValidationError(msg)
             entry = Access.objects.filter(user=self.user, project=self.project).first()
             if not entry or entry.access < Access.EDIT_ACCESS:
-                raise forms.ValidationError("You don't have sufficient access rights to overwrite this entry.")
+                raise forms.ValidationError(msg)
