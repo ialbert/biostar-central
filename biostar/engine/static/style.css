@@ -15,6 +15,10 @@ body {
     background: #fff8db !important;
 }
 
+.CodeMirror {
+    height: 30em !important;
+}
+
 .centerbox {
     display:inline-block !important;
     text-align: center !important;
