@@ -178,8 +178,7 @@ class NameInput(forms.TextInput):
 
 
 class RecipeInterface(forms.Form):
-
-    name = forms.CharField(max_length=256,  widget=NameInput)
+    name = forms.CharField(max_length=256, widget=NameInput)
 
     def __init__(self, project, json_data, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -221,7 +220,7 @@ class RecipeInterface(forms.Form):
 
 
 class EditCode(forms.Form):
-    PREVIEW, SAVE = "PREVIEW", "SAVE"
+    SAVE = "SAVE"
 
     # Determines what action to perform on the form.
     action = forms.CharField()
@@ -232,32 +231,16 @@ class EditCode(forms.Form):
     # The json specification.
     json = forms.CharField()
 
+    def __init__(self, user, project, *args, **kwargs):
+        self.user = user
+        self.project = project
+        super().__init__(*args, **kwargs)
 
-    def saveX(self):
+    def clean(self):
+        cleaned_data = super(EditCode, self).clean()
+        action = cleaned_data.get("action")
 
-        return
-
-        super(EditRecipeCodeForm, self).clean()
-        json_data = hjson.loads(self.cleaned_data["json_text"])
-
-        # Refresh form
-        self.generate_fields(json_data)
-
-        spec = hjson.loads(self.cleaned_data["json_text"])
-
-        if spec.get("settings"):
-            self.analysis.name = spec["settings"].get("name", self.analysis.name)
-            self.analysis.text = spec["settings"].get("text", self.analysis.text)
-
-        self.analysis.json_text = self.cleaned_data["json_text"]
-
-        # TODO: test more ( probs need to sluggify both)
-        if self.analysis.template != self.cleaned_data["template"]:
-            self.analysis.security = Analysis.UNDER_REVIEW
-
-        self.analysis.template = self.cleaned_data["template"]
-
-        self.analysis.save()
-
-        return self.analysis
-
+        if action == self.SAVE:
+            entry = Access.objects.filter(user=self.user, project=self.project).first()
+            if not entry or entry.access < Access.EDIT_ACCESS:
+                raise forms.ValidationError("You don't have sufficient access rights to overwrite this entry.")

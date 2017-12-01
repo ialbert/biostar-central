@@ -13,8 +13,8 @@
         {% csrf_token %}
         <div class="ui raised segment ">
 
+            {% form_nonfield_errors form %}
 
-            {{ form.errors }}
             <div class="ui grid inputcolor">
 
                 <div class="eight wide column">
@@ -67,7 +67,7 @@
 
                         <div class="ui segment">
 
-                            {{ recipe}}
+                            {{ recipe }}
 
                             <a class="ui green disabled button">
                                 <i class="check icon"></i>Run

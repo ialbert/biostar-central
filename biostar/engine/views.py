@@ -568,33 +568,12 @@ def preview_specs(spec, analysis):
         return dict(name=analysis.name, html=analysis.html)
 
 
-def process_analysis_edit(analysis, form, method=None):
-    form_method_map = {'preview': form.preview,
-                       'save': form.save}
-
-    spec = hjson.loads(analysis.json_text)
-    json_text = analysis.json_text
-    template = analysis.template
-
-    if form.is_valid() and method:
-
-        # Call preview() or save()
-        func = form_method_map[method]
-        func()
-        spec = hjson.loads(form.cleaned_data["json_text"].rstrip())
-
-        # Override json_text and template with most recent
-        json_text = form.cleaned_data["json_text"]
-        template = form.cleaned_data["template"]
-
-    context = preview_specs(spec, analysis)
-    context.update(dict(json_text=json_text,template=template))
-
-    return context
-
-
 @object_access(type=Analysis, access=Access.RECIPE_ACCESS, url='recipe_view')
 def recipe_code(request, id):
+    """
+    Displays and allows edit on a recipe code.
+    """
+    user = request.user
 
     analysis = Analysis.objects.filter(id=id).first()
     name = analysis.name
@@ -605,7 +584,7 @@ def recipe_code(request, id):
                                 ANALYSIS_RECIPE_ICON],project=project, analysis=analysis)
 
     if request.method == "POST":
-        form = EditCode(request.POST)
+        form = EditCode(user=user, project=project, data=request.POST)
 
         if form.is_valid():
 
@@ -614,7 +593,6 @@ def recipe_code(request, id):
 
             # The changes will commited on SAVE only.
             analysis.json_text = form.cleaned_data['json']
-
 
             # We have to check if the template changed.
             template = form.cleaned_data['template']
@@ -629,12 +607,13 @@ def recipe_code(request, id):
 
             # The SAVE action commits the changes on the analysis.
             if action == 'SAVE':
+
                 analysis.save()
                 return redirect(reverse("recipe_view", kwargs=dict(id=analysis.id)))
 
     else:
         initial = dict(template=analysis.template, json=analysis.json_text)
-        form = EditCode(initial=initial)
+        form = EditCode(user=user, project=project, initial=initial)
 
 
     # Generates an interface for the current json data
