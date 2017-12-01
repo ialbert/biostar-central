@@ -18,7 +18,6 @@
 
             {% form_nonfield_errors form %}
 
-
             <div class="ui grid inputcolor">
 
                 <div class="sixteen wide column">
@@ -32,7 +31,7 @@
                         <div class="ui center aligned header">
                             Interface Specification
                         </div>
-                        {{  form.json.errors }}
+                        {{ form.json.errors }}
                         <textarea class="code" rows="30" cols="55" name="json">{{ form.json.value }}</textarea>
 
                     </div>
@@ -73,17 +72,27 @@
                             Generated Interface
                         </div>
 
-                        <div class="ui segment">
+                        <div class="ui  segment ">
 
-                            {{ recipe }}
 
-                            <a class="ui green disabled button">
-                                <i class="check icon"></i>Run
-                            </a>
-                            <a class="ui right floated disabled button">
-                                <i class="undo icon"></i>Cancel
-                            </a>
+                                <div class="ui form">
 
+                                    {% csrf_token %}
+
+                                    {% recipe_form recipe %}
+
+                                    <div class="field">
+                                        <button type="submit" class="ui green disabled button">
+                                            <i class="check icon"></i>Run
+                                        </button>
+
+                                        <button class="ui right floated disabled button">
+                                            <i class="chevron left icon"></i>Back
+                                        </button>
+                                    </div>
+
+                                </div>
+                            </form>
                         </div>
 
 

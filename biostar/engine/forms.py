@@ -173,12 +173,8 @@ class AnalysisCopyForm(forms.Form):
         return projects, new_analysis
 
 
-class NameInput(forms.TextInput):
-    template_name = 'interface/name.html'
-
-
 class RecipeInterface(forms.Form):
-    name = forms.CharField(max_length=256, widget=NameInput)
+    name = forms.CharField(max_length=256, help_text="This is will be the name of the results.")
 
     def __init__(self, project, json_data, *args, **kwargs):
         super().__init__(*args, **kwargs)

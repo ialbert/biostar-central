@@ -18,26 +18,30 @@
         </div>
         {{ analysis.summary|markdown|safe }}
 
-        <form method="post" class="ui form" action="{% url 'analysis_run' analysis.id %}">
+        <div class="ui vertical segment ">
 
-            {% csrf_token %}
+            <form method="post" class="ui form" action="{% url 'analysis_run' analysis.id %}">
+                <div class="ui form">
 
-            {% form_nonfield_errors form %}
+                    {% csrf_token %}
 
-            <div class="ui vertical segment ">
+                    {% recipe_form form %}
 
-                {{ form }}
+                    <div class="field">
+                        <button type="submit" class="ui green button">
+                            <i class="check icon"></i>Run
+                        </button>
 
-                <button type="submit" class="ui green button">
-                    <i class="check icon"></i>Run
-                </button>
+                        <a class="ui right floated button" href="{% url 'recipe_view' analysis.id %}">
+                            <i class="chevron left icon"></i>Back
+                        </a>
+                    </div>
 
-                <a class="ui right floated button" href="{% url 'recipe_view' analysis.id %}">
-                    <i class="chevron left icon"></i>Back
-                </a>
-            </div>
+                </div>
+            </form>
+        </div>
 
-        </form>
+
     </div>
 
 {% endblock %}

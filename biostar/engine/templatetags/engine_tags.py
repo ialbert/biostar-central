@@ -50,6 +50,7 @@ def generate_usercards(users, project=None, form=None):
 
 
 
+
 @register.simple_tag
 def sticky_label(obj):
     label = mark_safe('<span class ="ui label">Sticky</span>')
@@ -113,6 +114,15 @@ def project_name_bar(project):
     Returns a label for data sizes.
     """
     return dict(project=project)
+
+
+@register.inclusion_tag('interface/recipe_form.html')
+def recipe_form(form):
+    """
+    Renders a recipe form.
+    """
+    return dict(form=form)
+
 
 
 @register.inclusion_tag('widgets/job_elapsed.html')
