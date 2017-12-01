@@ -8,6 +8,8 @@
 
     <div class="ui raised segment inputcolor">
 
+        {{ form.errors }}
+
         <form method="post" class="ui form" action="{% url 'recipe_edit' analysis.id %}" enctype="multipart/form-data">
 
             {% csrf_token %}
@@ -35,7 +37,7 @@
                 <label>Analysis description</label>
                 {{ form.text }}
             </div>
-            {{ form.errors }}
+
 
             <button type="submit" class="ui green button">
                 <i class="save icon"></i>Save

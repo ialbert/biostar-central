@@ -534,8 +534,8 @@ def recipe_run(request, id):
             # The desired name of for the results.
             name = form.cleaned_data.get("name")
 
-            # Generates the json data from the bound form field.
-            json_data = form.process()
+            # Generates the JSON data from the bound form field.
+            json_data = form.fill_json_data()
 
             # Create the job from the json.
             job = auth.create_job(analysis=analysis, user=request.user, json_data=json_data, name=name)
@@ -555,31 +555,23 @@ def recipe_run(request, id):
     return render(request, 'recipe_run.html', context)
 
 
-def preview_specs(spec, analysis):
-    """Function  used to get return updated analysis settings from a given spec"""
-    if spec.get("settings"):
-        name = spec["settings"].get("name", analysis.name)
-        help = spec["settings"].get("help", analysis.text)
-        # summary = spec["settings"].get("summary", analysis.text)
-        html = make_html(help)
-
-        return dict(name=name, html=html)
-    else:
-        return dict(name=analysis.name, html=analysis.html)
-
-
 @object_access(type=Analysis, access=Access.RECIPE_ACCESS, url='recipe_view')
 def recipe_code(request, id):
     """
     Displays and allows edit on a recipe code.
+
+    Because we allow a preview even for unauthenicated users the view
+    is a lot more complicated than a typical DJANO form handler.
     """
     user = request.user
 
+    # There has to be a recipe to work with.
     analysis = Analysis.objects.filter(id=id).first()
-    name = analysis.name
-
     project = analysis.project
 
+    name = analysis.name
+
+    # This is the navbat.
     steps = breadcrumb_builder([PROJECT_ICON, ANALYSIS_LIST_ICON, ANALYSIS_VIEW_ICON,
                                 ANALYSIS_RECIPE_ICON],project=project, analysis=analysis)
 
@@ -602,7 +594,7 @@ def recipe_code(request, id):
                 # Switch on the untrusted flag when the template changes.
                 analysis.state = Analysis.UNDER_REVIEW
 
-                # Set the new tempalate.
+                # Set the new template.
                 analysis.template = template
 
             # The SAVE action commits the changes on the analysis.
@@ -612,15 +604,15 @@ def recipe_code(request, id):
                 return redirect(reverse("recipe_view", kwargs=dict(id=analysis.id)))
 
     else:
+        # This gets triggered on a GET request.
         initial = dict(template=analysis.template, json=analysis.json_text)
         form = EditCode(user=user, project=project, initial=initial)
 
-
-    # Generates an interface for the current json data
+    # Bind the JSON to the form.
     recipe = RecipeInterface(project=project, json_data=analysis.json_data, initial=dict(name=name))
 
     # This generates a "fake" unsaved job.
-    job = auth.create_job(analysis=analysis, save=False)
+    job = auth.create_job(analysis=analysis, json_data=analysis.json_data, save=False)
 
     # Create the script for the "fake" job.
     data, script = auth.generate_script(job)

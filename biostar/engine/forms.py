@@ -1,7 +1,7 @@
-import hjson
+import copy
 from django import forms
-
-from . import models, auth
+import hjson
+from . import models, auth, factory
 from . import tasks
 from .const import *
 from .models import Project, Data, Analysis, Job, Access
@@ -174,12 +174,9 @@ class AnalysisCopyForm(forms.Form):
         return projects, new_analysis
 
 
-class NameInput(forms.TextInput):
-    template_name = 'interface/name.html'
-
-
 class RecipeInterface(forms.Form):
-    name = forms.CharField(max_length=256, widget=NameInput)
+
+    name = forms.CharField(max_length=256, help_text="This is will be the name of the results.")
 
     def __init__(self, project, json_data, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -190,33 +187,41 @@ class RecipeInterface(forms.Form):
         # The project is required to select data from.
         self.project = project
 
-        # Insert the dynamic fields into the form.
+        # Create the dynamic field from each key in the data.
         for name, data in self.json_data.items():
-            field = auth.make_form_field(data, self.project)
+            field = factory.dynamic_field(data, self.project)
+
+            # Insert only valid fields.
             if field:
                 self.fields[name] = field
 
-    def process(self):
-        '''
-        Replaces the value of data fields with the path to the data.
+    def fill_json_data(self):
+        """
+        Produces a filled in JSON data based on user input.
         Should be called after the form has been filled and is valid.
-        '''
-        # Gets all data for the project
-        datamap = dict((data.id, data) for data in self.project.data_set.all())
+        """
 
-        json_data = self.json_data.copy()
+        # Creates a data.id to data mapping.
+        store = dict((data.id, data) for data in self.project.data_set.all())
 
-        for field, obj in json_data.items():
+        # Make a copy of the original json data used to render the form.
+        json_data = copy.deepcopy(self.json_data)
 
-            # If it has a path it is an uploaded file.
-            if obj.get("path") or obj.get("link"):
-                data_id = self.cleaned_data.get(field, '')
-                data_id = int(data_id)
-                data = datamap.get(data_id)
-                data.fill_dict(obj)
+        # Alter the json data and fill in the extra information.
+        for field, item in json_data.items():
 
+            # If the field is a data field then fill in more information.
+            if item.get("path") or item.get("link"):
+                data_id = int(self.cleaned_data.get(field))
+                data = store.get(data_id)
+
+                # This mutates the `item` dictionary!
+                data.fill_dict(item)
+
+            # The JSON value will be overwritten with the selected field value.
             if field in self.cleaned_data:
-                obj["value"] = self.cleaned_data[field]
+                item["value"] = self.cleaned_data[field]
+
         return json_data
 
 
@@ -236,6 +241,16 @@ class EditCode(forms.Form):
         self.user = user
         self.project = project
         super().__init__(*args, **kwargs)
+
+    def clean_json(self):
+        cleaned_data = super(EditCode, self).clean()
+        json_text = cleaned_data.get("json")
+        try:
+            hjson.loads(json_text)
+        except Exception as exc:
+            msg = f"Invalid json: {exc}"
+            raise forms.ValidationError(msg)
+        return json_text
 
     def clean(self):
         cleaned_data = super(EditCode, self).clean()
