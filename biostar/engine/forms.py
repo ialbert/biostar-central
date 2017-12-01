@@ -15,15 +15,6 @@ def join(*args):
 
 
 
-
-def form_factory(form_template, data):
-
-
-    pass
-
-
-
-
 class ProjectForm(forms.ModelForm):
     image = forms.ImageField(required=False)
 
