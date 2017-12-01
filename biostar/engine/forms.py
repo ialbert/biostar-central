@@ -14,9 +14,12 @@ def join(*args):
     return os.path.abspath(os.path.join(*args))
 
 
-def form_generator():
+def form_generator(form_template, data):
 
-
+    #
+    # data could be request.POST
+    # TAKE ONE form tempate
+    # iterate over data and yeidl the data loaded to a form_template
 
     # yeilds a form in a loop
 
@@ -234,6 +237,7 @@ class RunRecipe(forms.Form):
 
 
 class EditRecipeCodeForm(forms.Form):
+
     PREVIEW, SAVE = "PREVIEW", "SAVE"
     CHOICES = [PREVIEW, SAVE]
 
