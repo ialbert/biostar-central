@@ -30,7 +30,8 @@
         <script src="{% static 'semantic.min.js' %}"></script>
         <script src="{% static 'engine.js' %}"></script>
         <script src="{% static 'lib/codemirror.js' %}"></script>
-        <script src="{% static 'mode/javascript/javascript.js' %}"></script>
+        <script src="{% static 'lib/mode/simple.js' %}"></script>
+        <script src="{% static 'lib/mode/engine.js' %}"></script>
     {% endcompress %}
 
 </head>
@@ -86,14 +87,14 @@
         var json_edit = CodeMirror.fromTextArea(
             document.getElementById("json"), {
                 lineNumbers: true,
-                mode: "javascript"
+                mode: "engine"
             }
         );
         var template_edit = CodeMirror.fromTextArea(
             document.getElementById("template"),
             {
                 lineNumbers: true,
-                mode: "jinja2"
+                mode: "engine"
             }
         );
 
@@ -101,8 +102,7 @@
             document.getElementById("script"),
             {
                 lineNumbers: true,
-                mode: "jinja2",
-                height: 500,
+                mode: "engine",
                 readOnly: true
             }
         );
