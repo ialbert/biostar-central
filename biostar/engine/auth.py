@@ -9,6 +9,8 @@ from django.template import loader
 from django.test.client import RequestFactory
 from django.utils.text import slugify
 from django.utils.safestring import mark_safe
+from django.template import Template, Context
+from django.conf import settings
 
 from . import factory
 from .const import *
@@ -39,7 +41,42 @@ def get_analysis_attr(analysis, project=None):
     text = analysis.text
 
     return dict(project=project, json_text=json_text, template=template,
-                  user=owner, summary=summary, name=name, text=text,)
+                user=owner, summary=summary, name=name, text=text, )
+
+
+def generate_script(job):
+    """
+    Generates a script from a job.
+    """
+    work_dir = job.path
+    json_data = hjson.loads(job.json_text)
+
+    # The base url to the site.
+    url_base = f'{settings.PROTOCOL}://{settings.SITE_DOMAIN}{settings.HTTP_PORT}'
+
+    # Extra context added to the script.
+    runtime = dict(
+        media_root=settings.MEDIA_ROOT,
+        media_url=settings.MEDIA_URL,
+        work_dir=work_dir, local_root=settings.LOCAL_ROOT,
+        user_id=job.owner.id, user_email=job.owner.email,
+        job_id=job.id, job_name=job.name,
+        job_url=f'{url_base}{settings.MEDIA_URL}{job.get_url()}'.rstrip("/"),
+        project_id=job.project.id, project_name=job.project.name,
+        analyis_name=job.analysis.name,
+        analysis_id=job.analysis.id,
+        domain=settings.SITE_DOMAIN, protocol=settings.PROTOCOL,
+    )
+
+    # Add the runtime context to the data.
+    json_data['runtime'] = runtime
+
+    # Generate the script.
+    template = Template(job.template)
+    context = Context(json_data)
+    script = template.render(context)
+
+    return json_data, script
 
 
 def make_form_field(data, project=None):
@@ -80,7 +117,7 @@ def get_project_list(user):
         cond = Q(privacy=Project.PUBLIC) | Q(access__user=user, access__access__gt=Access.NO_ACCESS)
 
     # Generate the query.
-    query =  Project.objects.filter(cond)
+    query = Project.objects.filter(cond)
 
     return query
 
@@ -93,7 +130,6 @@ def check_obj_access(user, instance, access=Access.ADMIN_ACCESS, request=None, l
     # but also to allow this function to be called outside a web view
     # where there are no requests.
     request = request or RequestFactory()
-
 
     # The object does not exist.
     if not instance:
@@ -108,7 +144,6 @@ def check_obj_access(user, instance, access=Access.ADMIN_ACCESS, request=None, l
         project = instance.project
     else:
         project = instance
-
 
     # Check for logged in user and login requirement.
     if user.is_anonymous() and login_required:
@@ -210,12 +245,12 @@ def make_summary(data, summary='', name="widgets/job_summary.html"):
     return result
 
 
-def create_job(analysis, user=None, project=None, json_text='', json_data={}, name=None, state=None, type=None):
+def create_job(analysis, user=None, json_text='', json_data={}, name=None, state=None, save=True):
     name = name or analysis.name
     state = state or Job.QUEUED
     owner = user or analysis.project.owner
 
-    project = project or analysis.project
+    project = analysis.project
 
     if json_data:
         json_text = hjson.dumps(json_data)
@@ -223,14 +258,18 @@ def create_job(analysis, user=None, project=None, json_text='', json_data={}, na
         json_text = json_text or analysis.json_text
 
     # Needs the json_data to set the summary.
-    json_data = json_data or hjson.loads(json_text)
+    json_data = hjson.loads(json_text)
 
+    # Generate the summary from the data.
     summary = make_summary(json_data, summary=analysis.summary)
-    job = Job.objects.create(name=name, summary=summary, state=state, json_text=json_text,
+
+    # Create the job instance.
+    job = Job(name=name, summary=summary, state=state, json_text=json_text,
                              project=project, analysis=analysis, owner=owner,
                              template=analysis.template)
-
-    logger.info(f"Created job: {job.name}")
+    if save:
+        logger.info(f"Created job: {job.name}")
+        job.save()
 
     return job
 
