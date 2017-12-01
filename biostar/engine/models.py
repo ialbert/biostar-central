@@ -112,10 +112,13 @@ class Access(models.Model):
     # READ_ACCESS < EXECUTE_ACCESS < ADMIN_ACCESS
     NO_ACCESS, READ_ACCESS, RECIPE_ACCESS, EXECUTE_ACCESS, EDIT_ACCESS, ADMIN_ACCESS, UPLOAD_ACCESS = range(1, 8)
     ACCESS_CHOICES = [
-        (NO_ACCESS, "None"), (READ_ACCESS, "Read"),
-        (RECIPE_ACCESS, "Recipe"), (EXECUTE_ACCESS, "Execute"),
-        (UPLOAD_ACCESS, "Upload"), (EDIT_ACCESS, "Edit"),
-        (ADMIN_ACCESS, "Admin")
+        (NO_ACCESS, "No Access"),
+        (READ_ACCESS, "Read Access"),
+        (RECIPE_ACCESS, "Recipe Access"),
+        (EXECUTE_ACCESS, "Execute Access"),
+        (EDIT_ACCESS, "Edit Access"),
+        (ADMIN_ACCESS, "Admin Access"),
+        (UPLOAD_ACCESS, "Upload Access"),
     ]
     ACCESS_MAP = dict(ACCESS_CHOICES)
 

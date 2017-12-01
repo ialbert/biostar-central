@@ -1,10 +1,12 @@
-{%  if errorlist %}
-<div class="ui red message">
-    <div class="header">We had some issues</div>
-    <ul class="list">
-        {% for message in errorlist %}
-            <li> {{ message }}</li>
-        {% endfor %}
-    </ul>
-</div>
-{%  endif %}
+{% if errorlist %}
+    <div class="ui basic segment">
+        <div class="ui red message">
+            <div class="header">There is a problem:</div>
+            <ul class="list">
+                {% for message in errorlist %}
+                    <li> {{ message }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+{% endif %}

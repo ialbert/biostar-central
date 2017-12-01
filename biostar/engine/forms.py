@@ -14,19 +14,6 @@ def join(*args):
     return os.path.abspath(os.path.join(*args))
 
 
-def form_generator(form_template, data):
-
-    #
-    # data could be request.POST
-    # TAKE ONE form tempate
-    # iterate over data and yeidl the data loaded to a form_template
-
-    # yeilds a form in a loop
-
-    return
-
-
-
 class ProjectForm(forms.ModelForm):
     image = forms.ImageField(required=False)
 
@@ -187,30 +174,26 @@ class AnalysisCopyForm(forms.Form):
 
 
 class NameInput(forms.TextInput):
-    input_type = 'text'
     template_name = 'interface/name.html'
 
 
-class RunRecipe(forms.Form):
+class RecipeInterface(forms.Form):
+    name = forms.CharField(max_length=256, widget=NameInput)
 
-    def __init__(self, analysis, *args, **kwargs):
-
-        self.analysis = analysis
-        self.json_data = self.analysis.json_data
-        self.project = self.analysis.project
-
+    def __init__(self, project, json_data, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["name"] = forms.CharField(max_length=256, initial=self.analysis.name,
-                                              widget=NameInput)
 
-        # This loop needs to be here to register the fields and trigger is_valid() later on.
+        # The json data determines what fields does the form have.
+        self.json_data = json_data
+
+        # The project is required to select data from.
+        self.project = project
+
+        # Insert the dynamic fields into the form.
         for name, data in self.json_data.items():
             field = auth.make_form_field(data, self.project)
             if field:
                 self.fields[name] = field
-
-    def save(self, *args, **kwargs):
-        super(RunRecipe, self).save(*args, **kwargs)
 
     def process(self):
         '''
@@ -236,56 +219,31 @@ class RunRecipe(forms.Form):
         return json_data
 
 
-class EditRecipeCodeForm(forms.Form):
-
-    PREVIEW, SAVE = "PREVIEW", "SAVE"
-    CHOICES = [PREVIEW, SAVE]
+class EditCode(forms.Form):
+    SAVE = "SAVE"
 
     # Determines what action to perform on the form.
-    action = forms.ChoiceField(choices=CHOICES)
+    action = forms.CharField()
 
-    def __init__(self, analysis, *args, **kwargs):
+    # The script template.
+    template = forms.CharField()
+
+    # The json specification.
+    json = forms.CharField()
+
+    def __init__(self, user, project, *args, **kwargs):
+        self.user = user
+        self.project = project
         super().__init__(*args, **kwargs)
 
-        # Get the analysis
-        self.analysis = analysis
+    def clean(self):
+        cleaned_data = super(EditCode, self).clean()
+        action = cleaned_data.get("action")
 
-        # Get the JSON data as more nicely indented text
-        json_data = hjson.loads(self.analysis.json_text)
-        json_text = hjson.dumps(json_data, indent=4)
-
-        # Fill in the forms with initial data
-        self.fields["json_text"] = forms.CharField(initial=json_text)
-        self.fields["template"] = forms.CharField(initial=self.analysis.template)
-
-        # This is the form that would run the analysis.
-        self.run_form = RunRecipe(analysis=analysis)
-
-    def save(self):
-
-        return
-
-        super(EditRecipeCodeForm, self).clean()
-        json_data = hjson.loads(self.cleaned_data["json_text"])
-
-        # Refresh form
-        self.generate_fields(json_data)
-
-        spec = hjson.loads(self.cleaned_data["json_text"])
-
-        if spec.get("settings"):
-            self.analysis.name = spec["settings"].get("name", self.analysis.name)
-            self.analysis.text = spec["settings"].get("text", self.analysis.text)
-
-        self.analysis.json_text = self.cleaned_data["json_text"]
-
-        # TODO: test more ( probs need to sluggify both)
-        if self.analysis.template != self.cleaned_data["template"]:
-            self.analysis.security = Analysis.UNDER_REVIEW
-
-        self.analysis.template = self.cleaned_data["template"]
-
-        self.analysis.save()
-
-        return self.analysis
-
+        if action == self.SAVE:
+            msg = "You don't have sufficient access rights to overwrite this entry."
+            if self.user.is_anonymous():
+                raise forms.ValidationError(msg)
+            entry = Access.objects.filter(user=self.user, project=self.project).first()
+            if not entry or entry.access < Access.EDIT_ACCESS:
+                raise forms.ValidationError(msg)

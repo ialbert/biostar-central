@@ -47,15 +47,6 @@ def generate_usercards(users, project=None, form=None):
 
 
 
-@register.filter
-def generate_script(template, json_text):
-
-    json_data = hjson.loads(json_text)
-    template = Template(template)
-    context = Context(json_data)
-
-    return "\n" + template.render(context)
-
 
 @register.simple_tag
 def sticky_label(obj):

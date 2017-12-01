@@ -37,11 +37,11 @@
             </div>
             {{ form.errors }}
 
-            <button type="submit" class="ui submit button">
+            <button type="submit" class="ui green button">
                 <i class="save icon"></i>Save
             </button>
             <a class="ui right floated button" href="{% url 'recipe_view' analysis.id %}">
-                Recipe View
+                 <i class="undo icon"></i> Cancel
             </a>
 
         </form>

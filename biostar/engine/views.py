@@ -226,8 +226,6 @@ def project_view(request, id):
     else:
         access = None
 
-    # Use a placeholder
-    access = access or Access(access=Access.NO_ACCESS)
     context = dict(project=project, access=access,
                    data_count=data_count, recipe_count=recipe_count, result_count=result_count,
                    steps=steps)
@@ -407,7 +405,7 @@ def recipe_view(request, id):
     return render(request, "recipe_view.html", context)
 
 
-@object_access(type=Analysis, access=Access.RECIPE_ACCESS, url='recipe_view')
+@object_access(type=Analysis, access=Access.RECIPE_ACCESS, url='recipe_view', login_required=True)
 def analysis_copy(request, id):
 
     analysis = Analysis.objects.filter(id=id).first()
@@ -529,15 +527,18 @@ def recipe_run(request, id):
                                project=project, analysis=analysis)
 
     if request.method == "POST":
-        form = RunRecipe(data=request.POST, analysis=analysis)
+        form = RecipeInterface(project=project, json_data=analysis.json_data, data=request.POST)
 
         if form.is_valid():
+
+            # The desired name of for the results.
             name = form.cleaned_data.get("name")
+
+            # Generates the json data from the bound form field.
             json_data = form.process()
-            json_text = hjson.dumps(json_data)
 
             # Create the job from the json.
-            job = auth.create_job(analysis=analysis, user=analysis.owner, json_text=json_text, name=name)
+            job = auth.create_job(analysis=analysis, user=request.user, json_data=json_data, name=name)
 
             # Spool the job right if UWSGI exists.
             if tasks.HAS_UWSGI:
@@ -547,7 +548,7 @@ def recipe_run(request, id):
             return redirect(reverse("job_list", kwargs=dict(id=project.id)))
     else:
         initial = dict(name=analysis.name)
-        form = RunRecipe(analysis=analysis, initial=initial)
+        form = RecipeInterface(project=project, json_data=analysis.json_data, initial=initial)
 
     context = dict(project=project, analysis=analysis, steps=steps, form=form)
 
@@ -567,53 +568,65 @@ def preview_specs(spec, analysis):
         return dict(name=analysis.name, html=analysis.html)
 
 
-def process_analysis_edit(analysis, form, method=None):
-    form_method_map = {'preview': form.preview,
-                       'save': form.save}
-
-    spec = hjson.loads(analysis.json_text)
-    json_text = analysis.json_text
-    template = analysis.template
-
-    if form.is_valid() and method:
-
-        # Call preview() or save()
-        func = form_method_map[method]
-        func()
-        spec = hjson.loads(form.cleaned_data["json_text"].rstrip())
-
-        # Override json_text and template with most recent
-        json_text = form.cleaned_data["json_text"]
-        template = form.cleaned_data["template"]
-
-    context = preview_specs(spec, analysis)
-    context.update(dict(json_text=json_text,template=template))
-
-    return context
-
-
 @object_access(type=Analysis, access=Access.RECIPE_ACCESS, url='recipe_view')
 def recipe_code(request, id):
+    """
+    Displays and allows edit on a recipe code.
+    """
+    user = request.user
 
     analysis = Analysis.objects.filter(id=id).first()
+    name = analysis.name
+
     project = analysis.project
 
     steps = breadcrumb_builder([PROJECT_ICON, ANALYSIS_LIST_ICON, ANALYSIS_VIEW_ICON,
                                 ANALYSIS_RECIPE_ICON],project=project, analysis=analysis)
 
     if request.method == "POST":
-        form = EditRecipeCodeForm(analysis=analysis, data=request.POST)
+        form = EditCode(user=user, project=project, data=request.POST)
 
-        #method = request.POST.get("save_or_preview")
-        #Method form.is_valid() called in this function
-        #context = process_analysis_edit(analysis=analysis, form=form, method=method)
+        if form.is_valid():
 
-        # should redirect on a save and not a preview
-        context = dict()
+            # Preview action will let the form cascade through.
+            action = form.cleaned_data['action']
+
+            # The changes will commited on SAVE only.
+            analysis.json_text = form.cleaned_data['json']
+
+            # We have to check if the template changed.
+            template = form.cleaned_data['template']
+
+            # Changes to template will require a review.
+            if template != analysis.template:
+                # Switch on the untrusted flag when the template changes.
+                analysis.state = Analysis.UNDER_REVIEW
+
+                # Set the new tempalate.
+                analysis.template = template
+
+            # The SAVE action commits the changes on the analysis.
+            if action == 'SAVE':
+                analysis.save()
+                messages.info(request, "The recipe code has been updated.")
+                return redirect(reverse("recipe_view", kwargs=dict(id=analysis.id)))
+
     else:
-        form = EditRecipeCodeForm(analysis=analysis)
+        initial = dict(template=analysis.template, json=analysis.json_text)
+        form = EditCode(user=user, project=project, initial=initial)
 
-    context = dict(project=project, analysis=analysis, steps=steps, form=form)
+
+    # Generates an interface for the current json data
+    recipe = RecipeInterface(project=project, json_data=analysis.json_data, initial=dict(name=name))
+
+    # This generates a "fake" unsaved job.
+    job = auth.create_job(analysis=analysis, save=False)
+
+    # Create the script for the "fake" job.
+    data, script = auth.generate_script(job)
+
+    # Populate the context.
+    context = dict(project=project, analysis=analysis, steps=steps, form=form, script=script, recipe=recipe)
     return render(request, 'recipe_code.html', context)
 
 
@@ -697,7 +710,7 @@ def job_view(request, id):
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, RESULT_LIST_ICON,
                                 RESULT_VIEW_ICON], job=job, project=project)
 
-    context = dict(job=job, steps=steps)
+    context = dict(job=job, steps=steps, project=project)
     return render(request, "job_view.html", context=context)
 
 

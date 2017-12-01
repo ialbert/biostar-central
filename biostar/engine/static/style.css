@@ -20,6 +20,13 @@ body {
     text-align: center !important;
 }
 
+.wide {
+
+}
+
+.code {
+    font-family: monospace;
+}
 h1 {
     min-height: 1rem;
     font-size: 1.4rem;
