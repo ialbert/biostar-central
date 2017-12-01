@@ -52,13 +52,13 @@ def image_path(instance, filename):
     return imgpath
 
 
-class DataType(models.Model):
-    name = ""
+#class DataType(models.Model):
+#    name = ""
 
     # Symobol is what we enter in the json file
-    symbol = ""
-    help = ""
-    pass
+#    symbol = ""
+#    help = ""
+#    pass
 
 
 
