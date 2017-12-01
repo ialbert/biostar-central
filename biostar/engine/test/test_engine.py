@@ -4,7 +4,7 @@ from django.core import management
 from django.test import TestCase
 from django.urls import reverse
 
-from biostar.engine import auth
+from biostar.engine import auth, factory
 from biostar.engine import models
 
 logger = logging.getLogger('engine')
@@ -156,12 +156,12 @@ class FactoryTest(TestCase):
     def test_factory_fields(self):
         "Testing factory module that generates fields"
 
-        from biostar.engine.factory import TYPE2FUNC
+        field_types = factory.get_field_types()
 
-        for display_type in TYPE2FUNC:
+        for display_type in field_types:
             self.json_data.update(dict(display_type=display_type))
 
-            field = auth.make_form_field(self.json_data)
+            field = factory.dynamic_field(self.json_data)
             self.assertTrue(isinstance(field, forms.Field))
 
             del self.json_data["display_type"]
@@ -182,7 +182,7 @@ class FactoryTest(TestCase):
 
         self.json_data.update(dict(display_type=display_type, path=data.get_path()))
 
-        field = auth.make_form_field(self.json_data, project=self.project)
+        field = factory.dynamic_field(self.json_data, project=self.project)
 
         self.assertTrue(isinstance(field, forms.Field))
 
