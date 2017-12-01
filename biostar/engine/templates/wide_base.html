@@ -23,13 +23,15 @@
     {% compress css %}
         <link href="{% static 'semantic.min.css' %}" rel="stylesheet">
         <link href="{% static 'style.css' %}" rel="stylesheet">
+        <link rel="stylesheet" href="{% static 'lib/codemirror.css' %}">
     {% endcompress %}
 
     {% compress js %}
-        <script src="{% static 'semantic.min.js' %}">
-        </script>
-        <script src="{% static 'engine.js' %}">
-        </script>
+        <script src="{% static 'semantic.min.js' %}"></script>
+        <script src="{% static 'engine.js' %}"></script>
+        <script src="{% static 'lib/codemirror.js' %}"></script>
+        <script src="{% static 'lib/mode/simple.js' %}"></script>
+        <script src="{% static 'lib/mode/engine.js' %}"></script>
     {% endcompress %}
 
 </head>
@@ -38,9 +40,9 @@
 <div class="ui container wide">
 
     <div class="ui center aligned header">
-        {%  block title %}
+        {% block title %}
             {{ SITE_HEADER|safe }}
-        {%  endblock %}
+        {% endblock %}
     </div>
 
     <div class="ui horizontal divider"></div>
@@ -71,12 +73,43 @@
     {% endblock %}
 
     <div class="ui vertical center aligned segment">
-        <p class="muted">Powered by the<a href="#"><img class="ui spaced image" src="{% static 'images/badge.svg' %}"></a>
+        <p class="muted">Powered by the<a href="#"><img class="ui spaced image"
+                                                        src="{% static 'images/badge.svg' %}"></a>
         </p>
         <p class="muted smaller">Release date: {{ VERSION }}</p>
     </div>
 
 </div>
 
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        var json_edit = CodeMirror.fromTextArea(
+            document.getElementById("json"), {
+                lineNumbers: true,
+                mode: "engine"
+            }
+        );
+        var template_edit = CodeMirror.fromTextArea(
+            document.getElementById("template"),
+            {
+                lineNumbers: true,
+                mode: "engine"
+            }
+        );
+
+        var script_view = CodeMirror.fromTextArea(
+            document.getElementById("script"),
+            {
+                lineNumbers: true,
+                mode: "engine",
+                readOnly: true
+            }
+        );
+
+
+    });
+
+</script>
 </body>
 </html>
