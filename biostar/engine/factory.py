@@ -100,6 +100,8 @@ def ignore(data):
     return ''
 
 
+
+
 def data_field_generator(field, project, data_type=None):
     valid_type = const.DATA_TYPE_SYMBOLS.get(data_type, -1)
 
