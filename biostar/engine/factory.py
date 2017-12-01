@@ -100,6 +100,8 @@ def ignore(data):
     return ''
 
 
+
+
 def data_field_generator(field, project, data_type=None):
     valid_type = const.DATA_TYPE_SYMBOLS.get(data_type, -1)
 
@@ -112,6 +114,8 @@ def data_field_generator(field, project, data_type=None):
         return choices
 
     return select_field(field, choicefunc=choice_func)
+
+
 
 
 TYPE2FUNC = {
