@@ -117,16 +117,14 @@ def check_obj_access(user, instance, access=Access.ADMIN_ACCESS, request=None):
     # Anonymous users have no other access permissions.
     if user.is_anonymous():
         msg = f"""
-        You must be logged in and have the <span class="ui green label">{access_text} Permission</span>  
-        to perform that action.
+        You must be logged in and have the <span class="ui green label">{access_text}</span> to perform that action.
         """
         msg = mark_safe(msg)
         messages.error(request, msg)
         return False
 
     deny = f"""
-        Your account does not have the <span class="ui green label">{access_text} Permission</span> needed
-        to perform that action.
+        Access Denied. This action requires the <span class="ui green label">{access_text}</span>.
         """
     deny = mark_safe(deny)
 
