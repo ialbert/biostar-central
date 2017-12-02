@@ -59,11 +59,10 @@ class JobEditForm(forms.ModelForm):
 
 class ChangeUserAccess(forms.Form):
 
-    def __init__(self, project, users, hidden_users=None, *args, **kwargs):
+    def __init__(self, project, users, *args, **kwargs):
 
         self.project= project
         self.users= users
-        self.hidden_users = hidden_users
         self.project_users = {}
 
         # Data dictionary of current users used to check validity later on
