@@ -99,22 +99,25 @@ def get_project_list(user):
     return query
 
 
-def access_fields(users, project):
+def access_fields(users, project, hide_inner=True):
 
+    #hide_inner =True to make users the project already has hidden fields
     access_fields = []
 
     for user in users:
         initial = Access.objects.filter(user=user, project=project).first()
 
-        if not initial:
-            initial = Access(access=Access.NO_ACCESS)
-
         # Unique field name using users uid
         unique_name = Profile.objects.filter(user=user).first().uid
         label = user.first_name
 
+        if not initial:
+            initial = Access(access=Access.NO_ACCESS)
+
+        forms.CharField(widget=forms.HiddenInput())
+
         access = forms.IntegerField(widget=forms.Select(choices=Access.ACCESS_CHOICES),
-                                    initial=initial.access, label=label)
+                                    initial=initial.access, label=label, required=False)
         access_fields.append((unique_name, access))
 
     return access_fields

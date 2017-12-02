@@ -59,10 +59,11 @@ class JobEditForm(forms.ModelForm):
 
 class ChangeUserAccess(forms.Form):
 
-    def __init__(self, project, users,  *args, **kwargs):
+    def __init__(self, project, users, hidden_users=None, *args, **kwargs):
 
         self.project= project
         self.users= users
+        self.hidden_users = hidden_users
         self.project_users = {}
 
         # Data dictionary of current users used to check validity later on
@@ -78,22 +79,33 @@ class ChangeUserAccess(forms.Form):
         for user_uid, field in access_fields:
             self.fields[user_uid] = field
 
+
     def save(self):
+
         cleaned_data = super(ChangeUserAccess, self).clean()
 
-        for user in cleaned_data:
+        for uid, access in cleaned_data.items():
+            print(uid, access)
+            # Update existing users access
+            if uid in self.project_users:
+                user = Profile.objects.filter(uid=uid).first().user
+                user.access_set.update(project=self.project, access=access)
 
-            if user in self.project_users:
-                pass
+            # Create new access ( or change NO_ACCESS)
             else:
-
+                1/0
                 pass
         return
+
 
     def clean(self):
 
         cleaned_data = super(ChangeUserAccess, self).clean()
+        print(self.data, self.cleaned_data)
+        1/0
         project = self.project_users.copy()
+
+        print(project, self.fields, self.data)
 
         for k in cleaned_data:
             project[k] = cleaned_data[k]
