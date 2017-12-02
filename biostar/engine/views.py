@@ -120,9 +120,7 @@ def project_users(request, id):
     q = not_found = request.GET.get("q")
 
     # Users already with access to current project
-    users = [access.user for access in project.access_set.all()
-             if access.access > Access.NO_ACCESS]
-
+    users = [access.user for access in project.access_set.all() if access.access > Access.NO_ACCESS]
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ADD_USER],
                                project=project)
 
@@ -132,21 +130,17 @@ def project_users(request, id):
             form.save()
             messages.success(request, "Changed access to this project")
         else:
-            1/0
-            print(form.errors)
-            #TODO: quick fix. not showing up corretly for now
+            #TODO: quick fix for now. not showing up corretly for now
             messages.error(request, mark_safe(form.non_field_errors()))
         return redirect(reverse("project_users", kwargs=dict(id=id)))
 
     if q:
-        query = User.objects.filter(Q(email__contains=q)|Q(first_name__contains=q)|
-                                    Q(pk__in=[u.id for u in users]))
+        query = User.objects.filter(Q(email__contains=q)|Q(first_name__contains=q))
         not_found = None if query else not_found
         users = query if query else users
 
-
     form = ChangeUserAccess(project=project, users=users)
-    context = dict(steps=steps, form=form, project=project, not_found=not_found, users=users)
+    context = dict(steps=steps, form=form, project=project, not_found=not_found)
     return render(request, "project_users.html", context=context)
 
 

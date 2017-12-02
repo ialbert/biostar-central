@@ -82,37 +82,45 @@ class ChangeUserAccess(forms.Form):
 
     def save(self):
 
-        cleaned_data = super(ChangeUserAccess, self).clean()
+        cleaned_data = self.clean()
 
         for uid, access in cleaned_data.items():
-            print(uid, access)
+            user = Profile.objects.filter(uid=uid).first().user
+
             # Update existing users access
             if uid in self.project_users:
-                user = Profile.objects.filter(uid=uid).first().user
                 user.access_set.update(project=self.project, access=access)
 
-            # Create new access ( or change NO_ACCESS)
+            # Create new access ( or changing NO_ACCESS to something)
             else:
-                1/0
-                pass
+                current_access = user.access_set.filter(project=self.project)
+
+                # Change existing NO_ACCESS
+                if current_access:
+                    current_access.update(project=self.project, access=access)
+                # Create new access instance for user
+                else:
+                    user.access_set.create(project=self.project, access=access)
         return
 
 
     def clean(self):
 
-        cleaned_data = super(ChangeUserAccess, self).clean()
-        print(self.data, self.cleaned_data)
-        1/0
-        project = self.project_users.copy()
-
-        print(project, self.fields, self.data)
-
-        for k in cleaned_data:
-            project[k] = cleaned_data[k]
+        #cleaned_data = super(ChangeUserAccess, self).clean()
+        #
+        cleaned_data = self.project_users.copy()
+        for k in self.data:
+            if "csrf" not in k:
+                try:
+                    cleaned_data[k] = int(self.data[k])
+                except:
+                    raise forms.ValidationError("Invalid Type")
 
         # Makes sure one admin user per project
-        if Access.ADMIN_ACCESS not in project.values():
+        if Access.ADMIN_ACCESS not in cleaned_data.values():
             raise forms.ValidationError("Atleast one admin user required per project")
+
+        return cleaned_data
 
 
 class DataCopyForm(forms.Form):

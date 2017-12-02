@@ -54,12 +54,13 @@
          <form class="ui large form" method="post" action="{% url 'project_users' project.id %}">
                 {% csrf_token %}
 
-            {# this inclusion tag is not working here #}
+            {# inclusion tag is not working here #}
             {% form_nonfield_errors form %}
 
             <div class="ui cards">
 
             {% for field in form.visible_fields %}
+
                 {{ field.errors }}
 
                 <div class="card">
