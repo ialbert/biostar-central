@@ -3,6 +3,7 @@ import shutil
 import uuid
 
 import hjson
+from django import forms
 from django.contrib import messages
 from django.db.models import Q
 from django.template import loader
@@ -12,6 +13,7 @@ from django.utils.safestring import mark_safe
 from django.template import Template, Context
 from django.conf import settings
 
+from biostar.accounts.models import Profile
 from . import factory
 from .const import *
 from .models import Data, Analysis, Job, Project, Access
@@ -95,6 +97,30 @@ def get_project_list(user):
     query = Project.objects.filter(cond)
 
     return query
+
+
+def access_fields(users, project, hide_inner=True):
+
+    #hide_inner =True to make users the project already has hidden fields
+    access_fields = []
+
+    for user in users:
+        initial = Access.objects.filter(user=user, project=project).first()
+
+        # Unique field name using users uid
+        unique_name = Profile.objects.filter(user=user).first().uid
+        label = user.first_name
+
+        if not initial:
+            initial = Access(access=Access.NO_ACCESS)
+
+        forms.CharField(widget=forms.HiddenInput())
+
+        access = forms.IntegerField(widget=forms.Select(choices=Access.ACCESS_CHOICES),
+                                    initial=initial.access, label=label, required=False)
+        access_fields.append((unique_name, access))
+
+    return access_fields
 
 
 def check_obj_access(user, instance, access=Access.ADMIN_ACCESS, request=None, login_required=False):
