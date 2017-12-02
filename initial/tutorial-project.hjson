@@ -8,21 +8,23 @@ image: tutorial-project.png
 
 summary: '''
 This project contains simple analyses that demonstrate the process
-of creating a **recipe**.  Follow the **instructions**, investigate the data and code
+of creating a **recipe**. More details in the [Recipe Tutorial](/docs/recipe-tutorial).
+
+Follow the **instructions**, investigate the data and code
 and you will understand increasingly advanced recipe creation.
 '''
 
 text: '''
 
-## Additional Information
+# Additional Information
 
-This project contains recipes of increasing complexity. Investigate each recipe, look at the code of each to gain an understanding of
-how the system works.
+This project contains recipes of increasing complexity.
 
-There is a more detailed guide at: [Recipe Tutorial][1]
+Investigate each recipe, look at the code of each to gain an understanding of how the system works.
 
-[1]: https://github.com/biostars/biostar-engine/blob/master/docs/engine/recipe-tutorial.md
+# Recipe Tutorial
 
+Read the step by step instructions in the [Recipe Tutorial](/docs/recipe-tutorial).
 
 '''
 

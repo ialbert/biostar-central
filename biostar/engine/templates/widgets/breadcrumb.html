@@ -1,3 +1,4 @@
+{% if steps %}
 <div class="ui  basic segment">
     <div class="ui large breadcrumb">
         {% for url, icon, name, active  in steps %}
@@ -17,3 +18,4 @@
         {% endfor %}
     </div>
 </div>
+{% endif %}

@@ -3,13 +3,21 @@ import logging, os, csv
 from django.core.management.base import BaseCommand
 
 from biostar.engine import models
+from biostar.engine.models import Access
 
 logger = logging.getLogger('engine')
 
 __CURR_DIR = os.path.dirname(os.path.realpath(__file__))
 
 # The valid access choices.
-CHOICE_MAP = dict((v.lower(), k) for (k, v) in models.Access.ACCESS_CHOICES)
+CHOICE_MAP = dict(
+    read=Access.READ_ACCESS,
+    recipe=Access.RECIPE_ACCESS,
+    execute=Access.EXECUTE_ACCESS,
+    edit=Access.EDIT_ACCESS,
+    admin=Access.ADMIN_ACCESS,
+    upload=Access.UPLOAD_ACCESS,
+)
 
 CHOICES = list(CHOICE_MAP.keys())
 

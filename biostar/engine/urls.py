@@ -4,7 +4,7 @@ from . import views
 urlpatterns = [
     url(r'^$', views.index, name="index"),
 
-    url(r'^info/$', views.info, name="info"),
+    url(r'^docs/(?P<name>[-\w]+)/$', views.docs, name='docs'),
 
     # Engine specific admin site.
     url(r'^site/admin/', views.site_admin, name='site_admin'),

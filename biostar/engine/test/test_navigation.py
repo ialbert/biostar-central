@@ -41,8 +41,11 @@ class SiteNavigation(TestCase):
         "Checking public pages"
 
         urls = [
-            reverse('index'), reverse('info'), reverse('logout'),
-            reverse('login'), reverse('signup'),
+            reverse('index'),
+            reverse('docs', kwargs=dict(name='info')),
+            reverse('logout'),
+            reverse('login'),
+            reverse('signup'),
             reverse('project_list'),
             reverse('data_list', kwargs=self.proj_params),
             reverse('data_view', kwargs=self.data_params),
