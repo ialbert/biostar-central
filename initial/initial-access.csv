@@ -1,9 +1,9 @@
 Email,Uid,Access
-aaron_maloy@fws.gov,fish,admin access
-meredith_bartron@fws.gov,fish,admin access
-drc9@psu.edu,giraffe,upload access
-lxw34@psu.edu,giraffe,admin access
-testbuddy@lvh.me,giraffe,read access
-readerbuddy@lvh.me,giraffe,read access
-writerbuddy@lvh.me,giraffe,edit access
-accessbuddy@lvh.me,fish,recipe access
+aaron_maloy@fws.gov,fish,admin
+meredith_bartron@fws.gov,fish,admin
+drc9@psu.edu,giraffe,upload
+lxw34@psu.edu,giraffe,admin
+testbuddy@lvh.me,giraffe,read
+readerbuddy@lvh.me,giraffe,read
+writerbuddy@lvh.me,giraffe,edit
+accessbuddy@lvh.me,fish,recipe
