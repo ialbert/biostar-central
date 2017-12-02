@@ -3,6 +3,7 @@ import shutil
 import uuid
 
 import hjson
+from django import forms
 from django.contrib import messages
 from django.db.models import Q
 from django.template import loader
@@ -95,6 +96,18 @@ def get_project_list(user):
     query = Project.objects.filter(cond)
 
     return query
+
+
+
+def user_access_fields(users, project):
+
+    inital_access = ""
+    access = forms.IntegerField(widget=forms.Select(choices=Access.ACCESS_CHOICES))
+
+    pass
+
+
+
 
 
 def check_obj_access(user, instance, access=Access.ADMIN_ACCESS, request=None, login_required=False):

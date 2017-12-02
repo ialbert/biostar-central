@@ -55,70 +55,25 @@ class JobEditForm(forms.ModelForm):
         fields = ['name', "image", 'text', 'sticky']
 
 
-class GrantAccess(forms.Form):
-    users = forms.IntegerField()
+class ChangeUserAccess(forms.Form):
 
-    def __init__(self, project, current_user, access, *args, **kwargs):
-        self.project = project
-        self.user = current_user
-        self.access = access
+    def __init__(self, project, users,  *args, **kwargs):
+
+        self.project= project
+        #self.users= [access.user for access in project.access_set]
+
+        access_fields = auth.user_access_fields(users=self.users, project=project)
+
+        for name, user_field in access_fields:
+
+            if user_field:
+                self.fields[name] = user_field
 
         super().__init__(*args, **kwargs)
 
-    def is_valid(self, request=None):
-        valid = super(GrantAccess, self).is_valid()
-
-        # Only users with admin privilege or higher get to grant access to projects
-        admin_only = auth.check_obj_access(user=self.user, instance=self.project,
-                                           request=request, access=Access.ADMIN_ACCESS)
-        return valid and admin_only
-
-    def process(self, add=False, remove=False):
-
-        assert not (add and remove), "Can add or remove, not both"
-
-        # More than one can be selected
-        users = self.data.getlist('users')
-        added, removed, errmsg = 0, 0, []
-
-        for user_id in users:
-            user = models.User.objects.filter(id=user_id).first()
-            has_access = user.access_set.filter(project=self.project).first()
-
-            # Can only add people without access
-            addcond = (not has_access or has_access.access == Access.NO_ACCESS)
-
-            # Can only remove people with access
-            remcond = (has_access and has_access.access > Access.NO_ACCESS)
-
-            if add and addcond:
-
-                added += 1
-                if not has_access:
-                    access = Access.objects.create(user=user, project=self.project, access=self.access)
-                    access.save()
-                    continue
-                has_access.access = self.access
-                has_access.save()
-
-            elif remove and remcond:
-                # Changes access to Access.PUBLIC_ACCESS
-                has_access.access = Access.NO_ACCESS
-                has_access.save()
-                removed += 1
-
-            # Trying to add or remove user without meeting conds not allowed
-            elif (add and (not addcond)) or (remove and (not remcond)):
-                errmsg.append(f"{user.first_name}")
-
-        if errmsg:
-            errmsg = f"{', '.join(errmsg)} already in project" if add else \
-                f"Can not remove: {', '.join(errmsg)}"
-
-        return added, removed, errmsg
-
 
 class DataCopyForm(forms.Form):
+
     paths = forms.CharField(max_length=256)
 
     def __init__(self, project, job=None, *args, **kwargs):

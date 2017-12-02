@@ -31,15 +31,26 @@
     </div>
 
 <div class="ui segment">
+ <div class="ui fluid search">
+
+            <div class="ui icon input">
+                <form method="get" action="{% url 'project_users_add' project.id %}">
+
+                    <input type="text" name="q" placeholder="Search...">
+
+                     <button type="submit" class="ui button" formmethod="get">
+                        <i class="search large icon"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
 
          <form class="ui large form" method="post" action="{% url 'project_users_remove' project.id %}">
                 {% csrf_token %}
-            <div class="ui small header">Contributors</div>
-
-             {% generate_usercards users=current_users project=project form=form %}
+            <div class="ui small header">Permissons</div>
 
             <div class="ui cards">
-            {% for avail_user in current_users %}
+            {% for avail_user in users %}
 
                         <div class=" card">
                             <div class="content">
@@ -70,57 +81,6 @@
             </div>
           {{form.errors}}
         </form>
-
-
- <div class="ui basic segment">
-     <div class="ui fluid search">
-
-            <div class="ui icon input">
-                <form method="get" action="{% url 'project_users_add' project.id %}">
-
-                    <input type="text" name="searches" placeholder="Search people...">
-
-                     <button type="submit" class="ui button" formmethod="get">
-                        <i class="search large icon"></i>
-                    </button>
-                </form>
-            </div>
-        </div>
-
-        <form class="ui large form" method="post" action="{% url 'project_users_add' project.id %}">
-                {% csrf_token %}
-
-                {% generate_usercards users=available_users project=project form=form %}
-
-                <div class="ui cards">
-                    {% for new_user in available_users %}
-
-                    <div class=" card">
-                            <div class="content">
-                              <div class="ui small header">
-                                {{ new_user.first_name }}
-                              </div>
-                              <div class="meta">
-                                {{ new_user.email }}
-                              </div>
-                            </div>
-                            <div class="extra content">
-                              <div class="ui two buttons">
-
-                          <button type="submit" class="ui basic green mini button" name="users" formmethod="post" value="{{new_user.id}}">
-                            Add
-                            </button>
-
-                              </div>
-                            </div>
-                    </div>
-
-                    {% endfor %}
-                </div>
-                 {{form.errors}}
-        </form>
-
-        </div>
 
 
     </div>

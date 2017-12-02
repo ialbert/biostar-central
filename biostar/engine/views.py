@@ -110,86 +110,41 @@ def site_admin(request):
     context = dict(steps=steps, projects=projects)
     return render(request, 'admin_index.html', context=context)
 
+# make the action a user.
 
-#TODO: refractor asap
-@object_access(type=Project, access=Access.ADMIN_ACCESS, url='project_view')
-def project_users_remove(request, id):
-    "Using "
-    project = Project.objects.filter(pk=id).first()
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ADD_USER],
-                               project=project)
-    searches = []
-    access = Access.RECIPE_ACCESS
-    # Users with read access to project
-    current_users = project.access_set.filter(access__gt=Access.NO_ACCESS)
-    current_users = [access.user for access in current_users]
-
-    if request.method == "POST":
-        user= request.user
-
-        # Grant users Read access
-        form = GrantAccess(data=request.POST, project=project, current_user=user,
-                           access=access)
-        if form.is_valid(request=request):
-
-            #method = request.POST.get("add_or_remove")
-            added, removed, errmsg = form.process(remove=True)
-            msg = f"""Removed  <span class="ui green label">{Access.ACCESS_MAP[access]} Permission</span>  
-            """
-            if errmsg:
-                messages.error(request, errmsg)
-            else:
-                messages.success(request, mark_safe(msg))
-
-        return redirect(reverse("project_users", kwargs=dict(id=project.id)))
-
-    form = GrantAccess(project=project, current_user=request.user, access=access)
-    context = dict(steps=steps, current_users=current_users, form=form,
-                   available_users=searches, project=project, access=Access(access=access))
-
-    return render(request, "project_users.html", context=context)
-
-
-#TODO: refractor asap
 @object_access(type=Project, access=Access.ADMIN_ACCESS, url='project_view')
 def project_users(request, id):
-    "Grants a list of users Read access to a project"
+
     project = Project.objects.filter(pk=id).first()
+
+    # Users with access to current project
+    users = [access.user for access in project.access_set if access]
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ADD_USER],
                                project=project)
-    searches = []
-    access = Access.RECIPE_ACCESS
-    # Users with read access to project
-    current_users = project.access_set.filter(access__gt=Access.NO_ACCESS)
-    current_users = [access.user for access in current_users]
 
+    # make a field for each user
     if request.method == "POST":
-        user= request.user
-        # Grant users Read access
-        form = GrantAccess(data=request.POST, project=project, current_user=user,
-                           access=access)
-        if form.is_valid(request=request):
+        1/0
+        form = ChangeUserAccess(data=request.POST, project=project, users=users)
 
-            added, removed, errmsg = form.process(add=True)
-            msg = f"""Added  <span class="ui green label">{Access.ACCESS_MAP[access]} Permission</span>  
-            """
-            if errmsg:
-                messages.error(request, errmsg)
-            else:
-                messages.success(request, mark_safe(msg))
+        if form.is_valid():
+            pass
+        pass
 
-        return redirect(reverse("project_users", kwargs=dict(id=project.id)))
+    else:
+        query = request.GET.get("q")
+        print(query)
+        1/0
+        query= User.objects.filter()
+        1/0
+        if query:
+            users = query
 
-    elif request.method == "GET" and request.GET.get("searches"):
-        search = request.GET["searches"]
-        searches = User.objects.filter( Q(first_name__contains=search) | Q(email__contains=search))
-        if not searches:
-            messages.info(request, f"No users containing '{search}' found.")
+        form = ChangeUserAccess(project=project, users=users)
+        pass
 
-    form = GrantAccess(project=project, current_user=request.user, access=access)
-    context = dict(steps=steps, current_users=current_users, form=form,
-                   available_users=searches, project=project, access=Access(access=access))
 
+    context = dict(steps=steps, form=form)
     return render(request, "project_users.html", context=context)
 
 
