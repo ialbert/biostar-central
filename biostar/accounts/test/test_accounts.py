@@ -30,7 +30,8 @@ class UserAccountTests(TestCase):
     def test_page_responses(self):
 
         urls = [
-            reverse('index'), reverse('info'), reverse('logout'),
+            reverse('index'),
+            reverse('logout'),
             reverse('login'), reverse('signup'),
             reverse('profile')
         ]

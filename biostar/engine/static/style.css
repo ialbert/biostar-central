@@ -19,6 +19,16 @@ body {
     height: 30em !important;
 }
 
+.page > h1 {
+    font-size: 1.28em !important;
+    border-bottom: 1px solid #EEEEEE;
+}
+
+.page > h2 {
+    font-size: 1.18em !important;
+    border-bottom: 1px solid #EEEEEE;
+}
+
 .centerbox {
     display:inline-block !important;
     text-align: center !important;

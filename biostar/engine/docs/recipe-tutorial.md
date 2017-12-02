@@ -1,59 +1,44 @@
-# Recipe Tutorial
-
-## Basic Concepts
+# Basic Concepts
 
 Each project has three distinct sections:
 
-1. The Data Entries.
+1. The Data.
 2. The Recipes.
 3. The Results.
 
-The Results are built by applying a Recipe onto Data Entries.
-
-An interesting functionality of the site is that one Data Entry may be a single 
-file or a collection (archive or directory) of any number of files (hundreds, thousands). 
-Recipes then can be written to run in parallel on all files in one collection. Hence
-a single recipe, in a single invocation can analyze all files in a collection.
-
-
-For now you don't need to be overly concerned with this feature. 
-We just wanted to mention it since it is an interesting and empowering feature.
+The **Results** are created by applying a **Recipe** on **Data**.
 
 ## What is a Recipe?
 
 Each recipe is built from two ingredients:
 
-1. The interface specification file
-2. The template specification file
+1. The interface specification file.
+2. The template specification file.
 
-The **interface**
-will specify the value of the parameters that get substituted into the **template**.
+The **interface** will specify the value of the parameters that get substituted into the **template**.
 
-The software (`biostar-engine`) generates an interface for each parameter
-where the users are able to select the values that their recipe needs to operate.
+From the JSON interface file the **Biostar Engine** will generate an web interface for each parameter.
+It is this interface where users are able to select the values that their recipe needs to operate.
 
-The **template** contains the commands that need to be executed. The **template** has
-placeholders for parameter values that the user will need to enter. 
+The **template** contains the commands that need to be executed. The **template** will have
+placeholders for the parameter values that the user will need to enter in the interface.
 
-Go ahead and run the **recipe**. It will be queued and executed shortly.
-Investigate the files that it has created.
-
-Let's move onto the second example.
+The interface + template will generate a script that the site executes.
 
 ## Recipe: Hello World 1
 
 The simplest recipe is empty for both the **template** and the **data**.
 
-Create it!
+Even though it is empty it is a valid and working recipe! It just does nothing other then demonstrate
+what takes place when a recipe is run. 
 
-The recipe is valid! It just does nothing other then demonstrate
-what takes place when an analysis is run. This recipe will be listed as
-**No name** and **No summary** since default values will be inserted into
-all categories.
+To run a recipe you need to have the EXECUTE permission. If you don't have this permission you 
+can still see the results that this recipe produces by clicking the `Go to Results` link
+that will filter the results to show you only those that were created by this recipe.
 
-Now go ahead and run this analysis.
+Let's investigate one result.
 
-Note how even an empty recipe produces a number of outputs. There are files named as follows:
+Note how even an empty recipe produces a number of outputs. These are files named as follows:
 
 - `run.sh` is the script that executed after being genereated from the template. 
 - `run.sh.json` contains the data that was used in the template.

@@ -1,6 +1,4 @@
-# import os
-
-import logging
+import os, logging, glob
 import mistune
 from django.conf import settings
 # from django.template.loader import get_template
@@ -19,23 +17,44 @@ from .const import *
 from .decorators import object_access
 from .models import (Project, Data, Analysis, Job, User, Access)
 
-
 def join(*args):
     return os.path.abspath(os.path.join(*args))
 
+# The current directory
+__CURRENT_DIR = os.path.dirname(__file__)
+__DOCS_DIR = join(__CURRENT_DIR, "docs")
+
+
+def valid_path(path):
+    path =  os.path.abspath(path)
+    return path.startswith(__DOCS_DIR)
 
 logger = logging.getLogger('engine')
-
 
 def make_html(text):
     return mistune.markdown(text)
 
+def docs(request, name):
 
-def info(request):
-    tmp = "Store and analyze metagenomic data"
-    steps = breadcrumb_builder([HOME_ICON, INFO_ICON])
-    context = dict(steps=steps, info=make_html(tmp))
-    return render(request, 'docs/info.html', context=context)
+    patt = join(__DOCS_DIR, name) + ".*"
+    files = glob.glob(patt)
+    if not files:
+        msg = f"Cannot be find the requested page: {name} "
+        messages.error(request, msg)
+        return redirect("index")
+    if len(files) > 1:
+        msg = f"Multiple files match: {{name}}"
+        messages.warning(request, msg)
+    target = files[0]
+    content = open(target).read()
+
+    # Render markdown into HTML.
+    if target.endswith(".md"):
+        content = make_html(content)
+
+    title = name.replace("-", " ").replace("_", " ").title()
+    context = dict(content=content, title=title, steps=[])
+    return render(request, 'info/doc_base.html', context=context)
 
 
 def index(request):
