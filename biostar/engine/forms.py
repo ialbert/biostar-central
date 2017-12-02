@@ -195,6 +195,7 @@ class RecipeInterface(forms.Form):
             if field:
                 self.fields[name] = field
 
+
     def fill_json_data(self):
         """
         Produces a filled in JSON data based on user input.
