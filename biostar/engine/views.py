@@ -516,7 +516,7 @@ def create_copy(request, id):
 
 
 
-@object_access(type=Analysis, access=Access.EXECUTE_ACCESS, url='recipe_view')
+@object_access(type=Analysis, access=Access.RECIPE_ACCESS, url='recipe_view')
 def recipe_run(request, id):
     analysis = Analysis.objects.filter(id=id).first()
 
@@ -527,7 +527,7 @@ def recipe_run(request, id):
                                project=project, analysis=analysis)
 
     if request.method == "POST":
-        form = RecipeInterface(project=project, json_data=analysis.json_data, data=request.POST)
+        form = RecipeInterface(request=request, project=project, json_data=analysis.json_data, data=request.POST)
 
         if form.is_valid():
 
@@ -548,24 +548,12 @@ def recipe_run(request, id):
             return redirect(reverse("job_list", kwargs=dict(id=project.id)))
     else:
         initial = dict(name=analysis.name)
-        form = RecipeInterface(project=project, json_data=analysis.json_data, initial=initial)
+        form = RecipeInterface(request=request, project=project, json_data=analysis.json_data, initial=initial)
 
     context = dict(project=project, analysis=analysis, steps=steps, form=form)
 
     return render(request, 'recipe_run.html', context)
 
-
-def preview_specs(spec, analysis):
-    """Function  used to get return updated analysis settings from a given spec"""
-    if spec.get("settings"):
-        name = spec["settings"].get("name", analysis.name)
-        help = spec["settings"].get("help", analysis.text)
-        # summary = spec["settings"].get("summary", analysis.text)
-        html = make_html(help)
-
-        return dict(name=name, html=html)
-    else:
-        return dict(name=analysis.name, html=analysis.html)
 
 
 @object_access(type=Analysis, access=Access.RECIPE_ACCESS, url='recipe_view')
@@ -622,7 +610,7 @@ def recipe_code(request, id):
         form = EditCode(user=user, project=project, initial=initial)
 
     # Bind the JSON to the form.
-    recipe = RecipeInterface(project=project, json_data=analysis.json_data, initial=dict(name=name))
+    recipe = RecipeInterface(request=request, project=project, json_data=analysis.json_data, initial=dict(name=name))
 
     # This generates a "fake" unsaved job.
     job = auth.create_job(analysis=analysis, json_data=analysis.json_data, save=False)

@@ -178,7 +178,7 @@ class RecipeInterface(forms.Form):
 
     name = forms.CharField(max_length=256, help_text="This is will be the name of the results.")
 
-    def __init__(self, project, json_data, *args, **kwargs):
+    def __init__(self, request, project, json_data, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         # The json data determines what fields does the form have.
@@ -186,6 +186,10 @@ class RecipeInterface(forms.Form):
 
         # The project is required to select data from.
         self.project = project
+
+        # Get request specific information
+        self.request = request
+        self.user = self.request.user
 
         # Create the dynamic field from each key in the data.
         for name, data in self.json_data.items():
@@ -195,6 +199,14 @@ class RecipeInterface(forms.Form):
             if field:
                 self.fields[name] = field
 
+    def clean(self):
+        cleaned_data = super(RecipeInterface, self).clean()
+        msg = "You don't have sufficient access rights to execute this analysis."
+        if self.user.is_anonymous():
+            raise forms.ValidationError(msg)
+        entry = Access.objects.filter(user=self.user, project=self.project).first()
+        if not entry or entry.access < Access.EXECUTE_ACCESS:
+            raise forms.ValidationError(msg)
 
     def fill_json_data(self):
         """
@@ -233,10 +245,10 @@ class EditCode(forms.Form):
     action = forms.CharField()
 
     # The script template.
-    template = forms.CharField()
+    template = forms.CharField(required=False)
 
     # The json specification.
-    json = forms.CharField()
+    json = forms.CharField(required=False)
 
     def __init__(self, user, project, *args, **kwargs):
         self.user = user
