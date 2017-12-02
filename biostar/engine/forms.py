@@ -65,7 +65,7 @@ class ChangeUserAccess(forms.Form):
         self.users= users
         self.project_users = {}
 
-        # Create data dictionary to later assure a project has atleast one admin
+        # Data dictionary of current users used to check validity later on
         for access in self.project.access_set.filter(access__gt=Access.NO_ACCESS).all():
             user = access.user
             uid = Profile.objects.filter(user=user).first().uid
@@ -84,10 +84,9 @@ class ChangeUserAccess(forms.Form):
         for user in cleaned_data:
 
             if user in self.project_users:
-                # change access
                 pass
             else:
-                #add access to new user
+
                 pass
         return
 
@@ -96,10 +95,10 @@ class ChangeUserAccess(forms.Form):
         cleaned_data = super(ChangeUserAccess, self).clean()
         project = self.project_users.copy()
 
-        # Makes sure one admin user per project
         for k in cleaned_data:
             project[k] = cleaned_data[k]
 
+        # Makes sure one admin user per project
         if Access.ADMIN_ACCESS not in project.values():
             raise forms.ValidationError("Atleast one admin user required per project")
 

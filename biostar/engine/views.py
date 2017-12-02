@@ -116,7 +116,6 @@ def site_admin(request):
 def project_users(request, id):
 
     project = Project.objects.filter(pk=id).first()
-
     # Search query, and not_found flag set
     q = not_found = request.GET.get("q")
 
@@ -131,9 +130,11 @@ def project_users(request, id):
         form = ChangeUserAccess(data=request.POST, project=project, users=users)
         if form.is_valid():
             form.save()
+            messages.success(request, "Changed access to this project")
         else:
-            #TODO: Can not get this to show up in the template correctly for some reason right now
+            #TODO: quick fix. not showing up corretly for now
             messages.error(request, mark_safe(form.non_field_errors()))
+
         return redirect(reverse("project_users", kwargs=dict(id=id)))
     if q:
         query = User.objects.filter(Q(email__contains=q)|Q(first_name__contains=q))
