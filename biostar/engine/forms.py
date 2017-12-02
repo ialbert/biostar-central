@@ -1,10 +1,12 @@
 import copy
 from django import forms
+from django.db.models import Q
 import hjson
 from . import models, auth, factory
 from . import tasks
 from .const import *
 from .models import Project, Data, Analysis, Job, Access
+from biostar.accounts.models import Profile, User
 
 # Share the logger with models.
 logger = models.logger
@@ -60,16 +62,46 @@ class ChangeUserAccess(forms.Form):
     def __init__(self, project, users,  *args, **kwargs):
 
         self.project= project
-        #self.users= [access.user for access in project.access_set]
+        self.users= users
+        self.project_users = {}
 
-        access_fields = auth.user_access_fields(users=self.users, project=project)
-
-        for name, user_field in access_fields:
-
-            if user_field:
-                self.fields[name] = user_field
+        # Create data dictionary to later assure a project has atleast one admin
+        for access in self.project.access_set.filter(access__gt=Access.NO_ACCESS).all():
+            user = access.user
+            uid = Profile.objects.filter(user=user).first().uid
+            self.project_users[uid] = access.access
 
         super().__init__(*args, **kwargs)
+
+        # Create the dynamic field from each user in the users list.
+        access_fields = auth.access_fields(users=self.users, project=project)
+        for user_uid, field in access_fields:
+            self.fields[user_uid] = field
+
+    def save(self):
+        cleaned_data = super(ChangeUserAccess, self).clean()
+
+        for user in cleaned_data:
+
+            if user in self.project_users:
+                # change access
+                pass
+            else:
+                #add access to new user
+                pass
+        return
+
+    def clean(self):
+
+        cleaned_data = super(ChangeUserAccess, self).clean()
+        project = self.project_users.copy()
+
+        # Makes sure one admin user per project
+        for k in cleaned_data:
+            project[k] = cleaned_data[k]
+
+        if Access.ADMIN_ACCESS not in project.values():
+            raise forms.ValidationError("Atleast one admin user required per project")
 
 
 class DataCopyForm(forms.Form):
@@ -133,7 +165,7 @@ class RecipeInterface(forms.Form):
 
     name = forms.CharField(max_length=256, help_text="This is will be the name of the results.")
 
-    def __init__(self, project, json_data, *args, **kwargs):
+    def __init__(self, request, project, json_data, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         # The json data determines what fields does the form have.
@@ -142,6 +174,10 @@ class RecipeInterface(forms.Form):
         # The project is required to select data from.
         self.project = project
 
+        # Get request specific information
+        self.request = request
+        self.user = self.request.user
+
         # Create the dynamic field from each key in the data.
         for name, data in self.json_data.items():
             field = factory.dynamic_field(data, self.project)
@@ -149,6 +185,15 @@ class RecipeInterface(forms.Form):
             # Insert only valid fields.
             if field:
                 self.fields[name] = field
+
+    def clean(self):
+        cleaned_data = super(RecipeInterface, self).clean()
+        msg = "You don't have sufficient access rights to execute this analysis."
+        if self.user.is_anonymous():
+            raise forms.ValidationError(msg)
+        entry = Access.objects.filter(user=self.user, project=self.project).first()
+        if not entry or entry.access < Access.EXECUTE_ACCESS:
+            raise forms.ValidationError(msg)
 
     def fill_json_data(self):
         """
@@ -187,10 +232,10 @@ class EditCode(forms.Form):
     action = forms.CharField()
 
     # The script template.
-    template = forms.CharField()
+    template = forms.CharField(required=False)
 
     # The json specification.
-    json = forms.CharField()
+    json = forms.CharField(required=False)
 
     def __init__(self, user, project, *args, **kwargs):
         self.user = user

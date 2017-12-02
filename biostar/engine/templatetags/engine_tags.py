@@ -20,37 +20,6 @@ JOB_COLORS = {
     Job.ERROR: "red", Job.QUEUED: "blue", Job.RUNNING: "teal", Job.COMPLETED: "green"
 }
 
-@register.inclusion_tag('widgets/usercard_form.html')
-def generate_usercards(users, project=None, form=None):
-
-    return
-
-    choices = Access.ACCESS_CHOICES
-    fields = []
-
-    # check user access then if no access inital is NO_ACCESS
-    # make a field from each user. so need to do the same in the form.
-    for user in users:
-
-        initial = ''
-        widget = forms.Select(choices=choices, attrs={"class":"ui dropdown"})
-        field = forms.CharField(widget=widget, initial=initial)
-
-        #field = auth.make_form_field(data={}, project={} )
-        if form:
-            # should name="users"
-            field = forms.forms.BoundField(form=form, field=field, name=name)
-        else:
-            field = {"field": field}
-
-        print(users)
-        #1/0
-        pass
-
-
-
-
-
 @register.simple_tag
 def sticky_label(obj):
     label = mark_safe('<span class ="ui label">Sticky</span>')
@@ -155,8 +124,12 @@ def form_nonfield_errors(form):
     """
     Turns the error lists into a dictionary that can be iterated over.
     """
+    is_valid = form.is_valid()
+
     errorlist = list(form.non_field_errors())
+
     context = dict(errorlist=errorlist)
+
     return context
 
 

@@ -12,6 +12,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
 from django.shortcuts import render, redirect
 from django.urls import reverse
+from django import forms
 
 from .forms import *
 from .const import *
@@ -91,7 +92,7 @@ def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=Non
         elif icon == RESULT_INDEX_ICON:
             step = (reverse("job_view", kwargs={'id': job.id}), RESULT_INDEX_ICON, "Index View", is_active)
         elif icon == ADD_USER:
-            step = (reverse("project_view", kwargs={'id': project.id}), ADD_USER, "Manage Permissions", is_active)
+            step = (reverse("project_view", kwargs={'id': project.id}), ADD_USER, "Manage Access", is_active)
         else:
             continue
 
@@ -110,41 +111,37 @@ def site_admin(request):
     context = dict(steps=steps, projects=projects)
     return render(request, 'admin_index.html', context=context)
 
-# make the action a user.
 
 @object_access(type=Project, access=Access.ADMIN_ACCESS, url='project_view')
 def project_users(request, id):
 
     project = Project.objects.filter(pk=id).first()
 
-    # Users with access to current project
-    users = [access.user for access in project.access_set if access]
+    # Search query, and not_found flag set
+    q = not_found = request.GET.get("q")
+
+    # Users already with access to current project
+    users = [access.user for access in project.access_set.all()
+             if access.access > Access.NO_ACCESS]
+
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ADD_USER],
                                project=project)
 
-    # make a field for each user
     if request.method == "POST":
-        1/0
         form = ChangeUserAccess(data=request.POST, project=project, users=users)
-
         if form.is_valid():
-            pass
-        pass
+            form.save()
+        else:
+            #TODO: Can not get this to show up in the template correctly for some reason right now
+            messages.error(request, mark_safe(form.non_field_errors()))
+        return redirect(reverse("project_users", kwargs=dict(id=id)))
+    if q:
+        query = User.objects.filter(Q(email__contains=q)|Q(first_name__contains=q))
+        not_found = None if query else not_found
+        users = query if query else users
 
-    else:
-        query = request.GET.get("q")
-        print(query)
-        1/0
-        query= User.objects.filter()
-        1/0
-        if query:
-            users = query
-
-        form = ChangeUserAccess(project=project, users=users)
-        pass
-
-
-    context = dict(steps=steps, form=form)
+    form = ChangeUserAccess(project=project, users=users)
+    context = dict(steps=steps, form=form, project=project, not_found=not_found)
     return render(request, "project_users.html", context=context)
 
 
@@ -471,7 +468,7 @@ def create_copy(request, id):
 
 
 
-@object_access(type=Analysis, access=Access.EXECUTE_ACCESS, url='recipe_view')
+@object_access(type=Analysis, access=Access.RECIPE_ACCESS, url='recipe_view')
 def recipe_run(request, id):
     analysis = Analysis.objects.filter(id=id).first()
 
@@ -482,7 +479,7 @@ def recipe_run(request, id):
                                project=project, analysis=analysis)
 
     if request.method == "POST":
-        form = RecipeInterface(project=project, json_data=analysis.json_data, data=request.POST)
+        form = RecipeInterface(request=request, project=project, json_data=analysis.json_data, data=request.POST)
 
         if form.is_valid():
 
@@ -503,11 +500,12 @@ def recipe_run(request, id):
             return redirect(reverse("job_list", kwargs=dict(id=project.id)))
     else:
         initial = dict(name=analysis.name)
-        form = RecipeInterface(project=project, json_data=analysis.json_data, initial=initial)
+        form = RecipeInterface(request=request, project=project, json_data=analysis.json_data, initial=initial)
 
     context = dict(project=project, analysis=analysis, steps=steps, form=form)
 
     return render(request, 'recipe_run.html', context)
+
 
 
 @object_access(type=Analysis, access=Access.RECIPE_ACCESS, url='recipe_view')
@@ -564,7 +562,7 @@ def recipe_code(request, id):
         form = EditCode(user=user, project=project, initial=initial)
 
     # Bind the JSON to the form.
-    recipe = RecipeInterface(project=project, json_data=analysis.json_data, initial=dict(name=name))
+    recipe = RecipeInterface(request=request, project=project, json_data=analysis.json_data, initial=dict(name=name))
 
     # This generates a "fake" unsaved job.
     job = auth.create_job(analysis=analysis, json_data=analysis.json_data, save=False)

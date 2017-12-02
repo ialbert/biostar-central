@@ -13,6 +13,7 @@ from django.utils.safestring import mark_safe
 from django.template import Template, Context
 from django.conf import settings
 
+from biostar.accounts.models import Profile
 from . import factory
 from .const import *
 from .models import Data, Analysis, Job, Project, Access
@@ -98,16 +99,25 @@ def get_project_list(user):
     return query
 
 
+def access_fields(users, project):
 
-def user_access_fields(users, project):
+    access_fields = []
 
-    inital_access = ""
-    access = forms.IntegerField(widget=forms.Select(choices=Access.ACCESS_CHOICES))
+    for user in users:
+        initial = Access.objects.filter(user=user, project=project).first()
 
-    pass
+        if not initial:
+            initial = Access(access=Access.NO_ACCESS)
 
+        # Unique field name using users uid
+        unique_name = Profile.objects.filter(user=user).first().uid
+        label = user.first_name
 
+        access = forms.IntegerField(widget=forms.Select(choices=Access.ACCESS_CHOICES),
+                                    initial=initial.access, label=label)
+        access_fields.append((unique_name, access))
 
+    return access_fields
 
 
 def check_obj_access(user, instance, access=Access.ADMIN_ACCESS, request=None, login_required=False):

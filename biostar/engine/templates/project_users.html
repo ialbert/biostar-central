@@ -17,71 +17,74 @@
         </div>
 
         <div class="ui header">
-            Managing Permissions: {{ project.name }}
+            Managing Access: {{ project.name }}
         </div>
 
     </div>
 
     <div class="ui secondary segment">
         <p> {{ project.summary|markdown|safe }}</p>
-        Adding grants users
-        <span class="ui green label">{{ access.get_access_display }} Permission</span>
-        to this project
 
     </div>
 
-<div class="ui segment">
- <div class="ui fluid search">
+    <div class="ui segment">
 
-            <div class="ui icon input">
-                <form method="get" action="{% url 'project_users_add' project.id %}">
+        <div class="ui tiny header">Search for user and manage their access to this project</div>
 
-                    <input type="text" name="q" placeholder="Search...">
+         <form method="get" action="{% url 'project_users' project.id %}">
+            <div class="ui fluid left icon input">
 
-                     <button type="submit" class="ui button" formmethod="get">
-                        <i class="search large icon"></i>
-                    </button>
-                </form>
+                <input type="text" name="q" placeholder="">
+                <i class="search large icon"></i>
+                <button class="ui button" type="submit" formmethod="get">Search</button>
+
             </div>
-        </div>
-
-         <form class="ui large form" method="post" action="{% url 'project_users_remove' project.id %}">
-                {% csrf_token %}
-            <div class="ui small header">Permissons</div>
-
-            <div class="ui cards">
-            {% for avail_user in users %}
-
-                        <div class=" card">
-                            <div class="content">
-                              <div class="ui small header">
-                                {{ avail_user.first_name }}
-                              </div>
-                              <div class="meta">
-                                {{ avail_user.email }}
-                              </div>
-                            </div>
-                            <div class="extra content">
-                              <div class="ui two buttons">
-
-                        {% if avail_user == project.owner %}
-                               <div class="ui label">
-                                      Creator
-                                </div>
-                        {% else %}
-                          <button type="submit" class="ui basic red mini button" name="users" formmethod="post" value="{{avail_user.id}}">
-                            Remove
-                            </button>
-                        {% endif %}
-
-                              </div>
-                            </div>
-                    </div>
-            {% endfor %}
-            </div>
-          {{form.errors}}
         </form>
 
+        {% if not_found %}
+            <div class="ui red message">
+                <div class="header">Not Found: '{{not_found}}' </div>
+            </div>
+        {% endif %}
+
+    </div>
+
+    <div class="ui segment">
+
+         <form class="ui large form" method="post" action="{% url 'project_users' project.id %}">
+                {% csrf_token %}
+
+            {# this inclusion tag is not working here #}
+            {% form_nonfield_errors form %}
+
+            <div class="ui cards">
+
+            {% for field in form.visible_fields %}
+                {{ field.errors }}
+
+                <div class="card">
+
+                    <div class="content">
+                        <div class="ui tiny header">
+                            {{ field.label_tag }}
+                        </div>
+                    </div>
+                    {{ field }}
+
+                </div>
+
+            {% endfor %}
+
+            </div>
+
+            <div class="ui basic segment">
+                <button type="submit" class="ui basic green button">
+                Change Access
+                </button>
+
+            </div>
+
+        </form>
 
     </div>
 
