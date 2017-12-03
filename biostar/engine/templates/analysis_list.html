@@ -10,12 +10,12 @@
 
         {% project_name_bar project %}
 
-         <div class="ui center aligned segment">
+        <div class="ui center aligned segment">
             <h3 class="ui icon header">
                 <i class="settings icon"></i>
                 <p class="content">
                     Recipe List
-                    <p class="sub header">All analysis recipes available in the current project.</p>
+                <p class="sub header">All analysis recipes available in the current project.</p>
                 </p>
             </h3>
         </div>
@@ -54,6 +54,13 @@
 
 
                 {% endfor %}
+
+                <div class="item centerbox">
+                    <a class="ui  button" href="{% url 'recipe_create' project.id %}">
+                        <i class="plus icon"></i>Create New Recipe
+                    </a>
+
+                </div>
 
             </div>
         </div>

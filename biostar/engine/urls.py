@@ -22,13 +22,10 @@ urlpatterns = [
 
     # Recipe URLS
     url(r'^recipe/list/(?P<id>\d+)/$', views.analysis_list, name='analysis_list'),
-
     url(r'^recipe/view/(?P<id>\d+)$', views.recipe_view, name='recipe_view'),
-
+    url(r'^recipe/create/(?P<id>\d+)$', views.recipe_create, name='recipe_create'),
     url(r'^recipe/run/(?P<id>\d+)/$', views.recipe_run, name='analysis_run'),
-
     url(r'^recipe/edit/(?P<id>\d+)$', views.recipe_edit, name='recipe_edit'),
-
     url(r'^recipe/code/(?P<id>\d+)$', views.recipe_code, name='recipe_code'),
 
 
