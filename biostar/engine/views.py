@@ -149,7 +149,7 @@ def project_users(request, id):
             form.save()
             messages.success(request, "Changed access to this project")
         else:
-            #TODO: quick fix for now. not showing up corretly for now
+            #TODO: quick fix for now. not showing up corretly
             messages.error(request, mark_safe(form.non_field_errors()))
         return redirect(reverse("project_users", kwargs=dict(id=id)))
 
