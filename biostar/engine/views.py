@@ -631,7 +631,7 @@ def recipe_edit(request, id):
     if request.method == "POST":
         form = RecipeForm(data=request.POST, files=request.FILES, instance=analysis, )
         if form.is_valid():
-            form.save()
+            recipe = form.save()
             return redirect(reverse("recipe_view", kwargs=dict(id=analysis.id)))
 
     form = RecipeForm(instance=analysis)

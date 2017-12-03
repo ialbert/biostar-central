@@ -49,14 +49,14 @@ class RecipeForm(forms.ModelForm):
     MAXSIZE = 2 * 1024 * 1024
     class Meta:
         model = Analysis
-        fields = ['name', "image", 'text', "summary", 'sticky']
+        fields = ["name", "sticky", "image", "summary", "text" ]
 
-    def cleans_image(self):
-        image = self.cleaned_data.get('image', False)
-        print ("HERE")
+    def clean(self):
+        cleaned_data = super(RecipeForm, self).clean()
+        image = cleaned_data.get('image', False)
         if image and image._size > self.MAXSIZE:
-                raise forms.ValidationError("Image file too large ( > 4mb )")
-        return image
+            raise forms.ValidationError("Image file too large ( > 4mb )")
+
 
 
 class JobEditForm(forms.ModelForm):

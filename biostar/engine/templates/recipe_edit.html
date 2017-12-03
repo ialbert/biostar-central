@@ -1,14 +1,14 @@
 {% extends "base.html" %}
-
+{%  load engine_tags %}
 {% block body %}
 
     <div class="ui raised segment inputcolor">
 
-        {{ form.errors }}
-
-        <form method="post" class="ui form" action="{{ action_url }}">
+        <form method="post" class="ui form" action="{{ action_url }}" enctype='multipart/form-data'>
 
             {% csrf_token %}
+
+            {% form_nonfield_errors form %}
 
             <div class="field segment">
                 <label>Recipe Name</label>
@@ -22,7 +22,7 @@
                 <p class="muted">Makes the recipe stick to top of the list.</p>
             </div>
              <div class="field">
-                  <label> Image</label>
+                  <label> Image {{ form.image.errors }}</label>
                   {{ form.image }}
                   <p class="muted">Optional image to recognize the recipe by (square image, no more than 500px)</p>
              </div>
