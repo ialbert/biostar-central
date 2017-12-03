@@ -93,21 +93,23 @@ class ChangeUserAccess(forms.Form):
 
         for uid, access in cleaned_data.items():
             user = Profile.objects.filter(uid=uid).first().user
+            current_access = user.access_set.filter(project=self.project, user=user)
 
             # Update existing users access
             if uid in self.project_users:
-                user.access_set.update(project=self.project, access=access)
+                current_access.update(access=access)
 
             # Create new access ( or changing NO_ACCESS to something)
             else:
-                current_access = user.access_set.filter(project=self.project)
-
                 # Change existing NO_ACCESS
                 if current_access:
-                    current_access.update(project=self.project, access=access)
+                    current_access.update(access=access)
+
                 # Create new access instance for user
                 else:
-                    user.access_set.create(project=self.project, access=access)
+                    access = Access(user=user, project=self.project, access=access)
+                    access.save()
+                    self.project.access_set.add(access)
         return
 
 
