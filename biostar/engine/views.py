@@ -10,6 +10,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
 from django.shortcuts import render, redirect
 from django.urls import reverse
+from django import forms
 
 from .forms import *
 from .const import *
@@ -110,7 +111,7 @@ def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=Non
         elif icon == RESULT_INDEX_ICON:
             step = (reverse("job_view", kwargs={'id': job.id}), RESULT_INDEX_ICON, "Index View", is_active)
         elif icon == ADD_USER:
-            step = (reverse("project_view", kwargs={'id': project.id}), ADD_USER, "Manage Permissions", is_active)
+            step = (reverse("project_view", kwargs={'id': project.id}), ADD_USER, "Manage Access", is_active)
         else:
             continue
 
@@ -130,85 +131,35 @@ def site_admin(request):
     return render(request, 'admin_index.html', context=context)
 
 
-#TODO: refractor asap
-@object_access(type=Project, access=Access.ADMIN_ACCESS, url='project_view')
-def project_users_remove(request, id):
-    "Using "
-    project = Project.objects.filter(pk=id).first()
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ADD_USER],
-                               project=project)
-    searches = []
-    access = Access.RECIPE_ACCESS
-    # Users with read access to project
-    current_users = project.access_set.filter(access__gt=Access.NO_ACCESS)
-    current_users = [access.user for access in current_users]
-
-    if request.method == "POST":
-        user= request.user
-
-        # Grant users Read access
-        form = GrantAccess(data=request.POST, project=project, current_user=user,
-                           access=access)
-        if form.is_valid(request=request):
-
-            #method = request.POST.get("add_or_remove")
-            added, removed, errmsg = form.process(remove=True)
-            msg = f"""Removed  <span class="ui green label">{Access.ACCESS_MAP[access]} Permission</span>  
-            """
-            if errmsg:
-                messages.error(request, errmsg)
-            else:
-                messages.success(request, mark_safe(msg))
-
-        return redirect(reverse("project_users", kwargs=dict(id=project.id)))
-
-    form = GrantAccess(project=project, current_user=request.user, access=access)
-    context = dict(steps=steps, current_users=current_users, form=form,
-                   available_users=searches, project=project, access=Access(access=access))
-
-    return render(request, "project_users.html", context=context)
-
-
-#TODO: refractor asap
 @object_access(type=Project, access=Access.ADMIN_ACCESS, url='project_view')
 def project_users(request, id):
-    "Grants a list of users Read access to a project"
+
     project = Project.objects.filter(pk=id).first()
+    # Search query, and not_found flag set
+    q = not_found = request.GET.get("q")
+
+    # Users already with access to current project
+    users = [access.user for access in project.access_set.all() if access.access > Access.NO_ACCESS]
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ADD_USER],
                                project=project)
-    searches = []
-    access = Access.RECIPE_ACCESS
-    # Users with read access to project
-    current_users = project.access_set.filter(access__gt=Access.NO_ACCESS)
-    current_users = [access.user for access in current_users]
 
     if request.method == "POST":
-        user= request.user
-        # Grant users Read access
-        form = GrantAccess(data=request.POST, project=project, current_user=user,
-                           access=access)
-        if form.is_valid(request=request):
+        form = ChangeUserAccess(data=request.POST, project=project, users=users)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Changed access to this project")
+        else:
+            #TODO: quick fix for now. not showing up corretly for now
+            messages.error(request, mark_safe(form.non_field_errors()))
+        return redirect(reverse("project_users", kwargs=dict(id=id)))
 
-            added, removed, errmsg = form.process(add=True)
-            msg = f"""Added  <span class="ui green label">{Access.ACCESS_MAP[access]} Permission</span>  
-            """
-            if errmsg:
-                messages.error(request, errmsg)
-            else:
-                messages.success(request, mark_safe(msg))
+    if q:
+        query = User.objects.filter(Q(email__contains=q)|Q(first_name__contains=q))
+        not_found = None if query else not_found
+        users = query if query else users
 
-        return redirect(reverse("project_users", kwargs=dict(id=project.id)))
-
-    elif request.method == "GET" and request.GET.get("searches"):
-        search = request.GET["searches"]
-        searches = User.objects.filter( Q(first_name__contains=search) | Q(email__contains=search))
-        if not searches:
-            messages.info(request, f"No users containing '{search}' found.")
-
-    form = GrantAccess(project=project, current_user=request.user, access=access)
-    context = dict(steps=steps, current_users=current_users, form=form,
-                   available_users=searches, project=project, access=Access(access=access))
-
+    form = ChangeUserAccess(project=project, users=users)
+    context = dict(steps=steps, form=form, project=project, not_found=not_found)
     return render(request, "project_users.html", context=context)
 
 

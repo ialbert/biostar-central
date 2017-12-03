@@ -1,10 +1,12 @@
 import copy
 from django import forms
+from django.db.models import Q
 import hjson
 from . import models, auth, factory
 from . import tasks
 from .const import *
 from .models import Project, Data, Analysis, Job, Access
+from biostar.accounts.models import Profile, User
 
 # Share the logger with models.
 logger = models.logger
@@ -63,70 +65,73 @@ class JobEditForm(forms.ModelForm):
         fields = ['name', "image", 'text', 'sticky']
 
 
-class GrantAccess(forms.Form):
-    users = forms.IntegerField()
+class ChangeUserAccess(forms.Form):
 
-    def __init__(self, project, current_user, access, *args, **kwargs):
-        self.project = project
-        self.user = current_user
-        self.access = access
+    def __init__(self, project, users, *args, **kwargs):
+
+        self.project= project
+        self.users= users
+        self.project_users = {}
+
+        # Data dictionary of current users used to check validity later on
+        for access in self.project.access_set.filter(access__gt=Access.NO_ACCESS).all():
+            user = access.user
+            uid = Profile.objects.filter(user=user).first().uid
+            self.project_users[uid] = access.access
 
         super().__init__(*args, **kwargs)
 
-    def is_valid(self, request=None):
-        valid = super(GrantAccess, self).is_valid()
+        # Create the dynamic field from each user in the users list.
+        access_fields = auth.access_fields(users=self.users, project=project)
+        for user_uid, field in access_fields:
+            self.fields[user_uid] = field
 
-        # Only users with admin privilege or higher get to grant access to projects
-        admin_only = auth.check_obj_access(user=self.user, instance=self.project,
-                                           request=request, access=Access.ADMIN_ACCESS)
-        return valid and admin_only
 
-    def process(self, add=False, remove=False):
+    def save(self):
 
-        assert not (add and remove), "Can add or remove, not both"
+        cleaned_data = self.clean()
 
-        # More than one can be selected
-        users = self.data.getlist('users')
-        added, removed, errmsg = 0, 0, []
+        for uid, access in cleaned_data.items():
+            user = Profile.objects.filter(uid=uid).first().user
 
-        for user_id in users:
-            user = models.User.objects.filter(id=user_id).first()
-            has_access = user.access_set.filter(project=self.project).first()
+            # Update existing users access
+            if uid in self.project_users:
+                user.access_set.update(project=self.project, access=access)
 
-            # Can only add people without access
-            addcond = (not has_access or has_access.access == Access.NO_ACCESS)
+            # Create new access ( or changing NO_ACCESS to something)
+            else:
+                current_access = user.access_set.filter(project=self.project)
 
-            # Can only remove people with access
-            remcond = (has_access and has_access.access > Access.NO_ACCESS)
+                # Change existing NO_ACCESS
+                if current_access:
+                    current_access.update(project=self.project, access=access)
+                # Create new access instance for user
+                else:
+                    user.access_set.create(project=self.project, access=access)
+        return
 
-            if add and addcond:
 
-                added += 1
-                if not has_access:
-                    access = Access.objects.create(user=user, project=self.project, access=self.access)
-                    access.save()
-                    continue
-                has_access.access = self.access
-                has_access.save()
+    def clean(self):
 
-            elif remove and remcond:
-                # Changes access to Access.PUBLIC_ACCESS
-                has_access.access = Access.NO_ACCESS
-                has_access.save()
-                removed += 1
+        #cleaned_data = super(ChangeUserAccess, self).clean()
+        #
+        cleaned_data = self.project_users.copy()
+        for k in self.data:
+            if "csrf" not in k:
+                try:
+                    cleaned_data[k] = int(self.data[k])
+                except:
+                    raise forms.ValidationError("Invalid Type")
 
-            # Trying to add or remove user without meeting conds not allowed
-            elif (add and (not addcond)) or (remove and (not remcond)):
-                errmsg.append(f"{user.first_name}")
+        # Makes sure one admin user per project
+        if Access.ADMIN_ACCESS not in cleaned_data.values():
+            raise forms.ValidationError("Atleast one admin user required per project")
 
-        if errmsg:
-            errmsg = f"{', '.join(errmsg)} already in project" if add else \
-                f"Can not remove: {', '.join(errmsg)}"
-
-        return added, removed, errmsg
+        return cleaned_data
 
 
 class DataCopyForm(forms.Form):
+
     paths = forms.CharField(max_length=256)
 
     def __init__(self, project, job=None, *args, **kwargs):

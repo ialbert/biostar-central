@@ -17,111 +17,75 @@
         </div>
 
         <div class="ui header">
-            Managing Permissions: {{ project.name }}
+            Managing Access: {{ project.name }}
         </div>
 
     </div>
 
     <div class="ui secondary segment">
         <p> {{ project.summary|markdown|safe }}</p>
-        Adding grants users
-        <span class="ui green label">{{ access.get_access_display }} Permission</span>
-        to this project
 
     </div>
 
-<div class="ui segment">
+    <div class="ui segment">
 
-         <form class="ui large form" method="post" action="{% url 'project_users_remove' project.id %}">
+        <div class="ui tiny header">Search for user and manage their access to this project</div>
+
+         <form method="get" action="{% url 'project_users' project.id %}">
+            <div class="ui fluid left icon input">
+
+                <input type="text" name="q" placeholder="">
+                <i class="search large icon"></i>
+                <button class="ui button" type="submit" formmethod="get">Search</button>
+
+            </div>
+        </form>
+
+        {% if not_found %}
+            <div class="ui red message">
+                <div class="header">Not Found: '{{not_found}}' </div>
+            </div>
+        {% endif %}
+
+    </div>
+
+    <div class="ui segment">
+
+         <form class="ui large form" method="post" action="{% url 'project_users' project.id %}">
                 {% csrf_token %}
-            <div class="ui small header">Contributors</div>
 
-             {% generate_usercards users=current_users project=project form=form %}
+            {# inclusion tag is not working here #}
+            {% form_nonfield_errors form %}
 
             <div class="ui cards">
-            {% for avail_user in current_users %}
 
-                        <div class=" card">
-                            <div class="content">
-                              <div class="ui small header">
-                                {{ avail_user.first_name }}
-                              </div>
-                              <div class="meta">
-                                {{ avail_user.email }}
-                              </div>
-                            </div>
-                            <div class="extra content">
-                              <div class="ui two buttons">
+            {% for field in form.visible_fields %}
 
-                        {% if avail_user == project.owner %}
-                               <div class="ui label">
-                                      Creator
-                                </div>
-                        {% else %}
-                          <button type="submit" class="ui basic red mini button" name="users" formmethod="post" value="{{avail_user.id}}">
-                            Remove
-                            </button>
-                        {% endif %}
+                {{ field.errors }}
 
-                              </div>
-                            </div>
+                <div class="card">
+
+                    <div class="content">
+                        <div class="ui tiny header">
+                            {{ field.label_tag }}
+                        </div>
                     </div>
-            {% endfor %}
-            </div>
-          {{form.errors}}
-        </form>
+                    {{ field }}
 
-
- <div class="ui basic segment">
-     <div class="ui fluid search">
-
-            <div class="ui icon input">
-                <form method="get" action="{% url 'project_users_add' project.id %}">
-
-                    <input type="text" name="searches" placeholder="Search people...">
-
-                     <button type="submit" class="ui button" formmethod="get">
-                        <i class="search large icon"></i>
-                    </button>
-                </form>
-            </div>
-        </div>
-
-        <form class="ui large form" method="post" action="{% url 'project_users_add' project.id %}">
-                {% csrf_token %}
-
-                {% generate_usercards users=available_users project=project form=form %}
-
-                <div class="ui cards">
-                    {% for new_user in available_users %}
-
-                    <div class=" card">
-                            <div class="content">
-                              <div class="ui small header">
-                                {{ new_user.first_name }}
-                              </div>
-                              <div class="meta">
-                                {{ new_user.email }}
-                              </div>
-                            </div>
-                            <div class="extra content">
-                              <div class="ui two buttons">
-
-                          <button type="submit" class="ui basic green mini button" name="users" formmethod="post" value="{{new_user.id}}">
-                            Add
-                            </button>
-
-                              </div>
-                            </div>
-                    </div>
-
-                    {% endfor %}
                 </div>
-                 {{form.errors}}
+
+            {% endfor %}
+
+            </div>
+
+            <div class="ui basic segment">
+                <button type="submit" class="ui basic green button" formmethod="post">
+                Change Access
+                </button>
+
+            </div>
+
         </form>
-
-        </div>
-
 
     </div>
 

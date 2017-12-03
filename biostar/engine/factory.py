@@ -6,6 +6,7 @@ from . import models
 # Share the logger with models.
 logger = models.logger
 
+
 def float_field(data):
     numrange = data.get("range", [1.0, 1000.0])
     min_value, max_value = numrange[0], numrange[1]
