@@ -265,9 +265,9 @@ class Analysis(models.Model):
 
     uid = models.CharField(max_length=32, unique=True)
     sticky = models.BooleanField(default=False)
-    name = models.CharField(max_length=MAX_NAME_LEN, default="name")
-    summary = models.TextField(default='summary.')
-    text = models.TextField(default='description.', max_length=MAX_TEXT_LEN)
+    name = models.CharField(max_length=MAX_NAME_LEN, default="No name")
+    summary = models.TextField(default='No summary.')
+    text = models.TextField(default='No description.', max_length=MAX_TEXT_LEN)
     html = models.TextField(default='html')
     owner = models.ForeignKey(User)
 
@@ -277,10 +277,10 @@ class Analysis(models.Model):
     project = models.ForeignKey(Project)
 
     json_text = models.TextField(default="{}", max_length=MAX_TEXT_LEN)
-    template = models.TextField(default="makefile")
+    template = models.TextField(default="")
 
     date = models.DateTimeField(auto_now_add=True, blank=True)
-    image = models.ImageField(default=None, blank=True, upload_to=image_path, max_length=MAX_FIELD_LEN)
+    image = models.ImageField(default=None, blank=True, upload_to=image_path, max_length=MAX_FIELD_LEN, help_text="Optional image")
 
     def __str__(self):
         return self.name

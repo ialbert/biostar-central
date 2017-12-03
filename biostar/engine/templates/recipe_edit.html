@@ -1,48 +1,49 @@
 {% extends "base.html" %}
 
-{% block headtitle %}
-    {{ analysis.name }}
-{% endblock %}
-
 {% block body %}
 
     <div class="ui raised segment inputcolor">
 
         {{ form.errors }}
 
-        <form method="post" class="ui form" action="{% url 'recipe_edit' analysis.id %}" enctype="multipart/form-data">
+        <form method="post" class="ui form" action="{{ action_url }}">
 
             {% csrf_token %}
 
             <div class="field segment">
                 <label>Recipe Name</label>
                 {{ form.name }}
+                <p class="muted">What do you want to call the recipe</p>
             </div>
             <div class="field">
                <label class="checkbox" for="{{ field.id_for_label }}">
                         {{ form.sticky }} <label>Sticky</label>
                </label>
+                <p class="muted">Makes the recipe stick to top of the list.</p>
             </div>
              <div class="field">
                   <label> Image</label>
-                  <input id="id_image" type="file" class="" name="image">
+                  {{ form.image }}
+                  <p class="muted">Optional image to recognize the recipe by (square image, no more than 500px)</p>
              </div>
 
             <div class="field">
-                <label>Summary</label>
-                <textarea name="{{ form.summary.name }}" rows="2">{{ form.summary.value }}</textarea>
+                <label>Recipe summary</label>
+                {{ form.summary }}
+                <p class="muted">A brief summary shown inline with the recipe (markdown OK).</p>
             </div>
 
             <div class="field segment">
-                <label>Analysis description</label>
+                <label>Recipe description</label>
                 {{ form.text }}
+                <p class="muted">A detailed explanation of what the recipe does (markdown OK).</p>
             </div>
 
 
             <button type="submit" class="ui green button">
                 <i class="save icon"></i>Save
             </button>
-            <a class="ui right floated button" href="{% url 'recipe_view' analysis.id %}">
+            <a class="ui right floated button" href="{{ back_url }}">
                  <i class="undo icon"></i> Cancel
             </a>
 

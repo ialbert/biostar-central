@@ -642,6 +642,32 @@ def recipe_code(request, id):
     return render(request, 'recipe_code.html', context)
 
 
+@object_access(type=Analysis, access=Access.EDIT_ACCESS, url='analysis_list')
+def recipe_create(request, id):
+    """
+    Here the id is of the project!
+    """
+    project = Project.objects.filter(id=id).first()
+
+    steps = breadcrumb_builder([PROJECT_ICON, ANALYSIS_LIST_ICON], project=project)
+
+    if request.method == "POST":
+        form = RecipeForm(data=request.POST, files=request.FILES)
+        if form.is_valid():
+            recipe = form.save(commit=False)
+            recipe.owner = request.user
+            recipe.project = project
+            recipe.save()
+            return redirect(reverse("recipe_view", kwargs=dict(id=recipe.id)))
+
+    form = RecipeForm()
+    action_url =reverse('recipe_create', kwargs=dict(id=project.id))
+    back_url = reverse('analysis_list', kwargs=dict(id=project.id))
+    context = dict(steps=steps, project=project, form=form, action_url=action_url, back_url=back_url)
+
+    return render(request, 'recipe_edit.html', context)
+
+
 @object_access(type=Analysis, access=Access.EDIT_ACCESS, url='recipe_view')
 def recipe_edit(request, id):
 
@@ -652,13 +678,17 @@ def recipe_edit(request, id):
                                 ANALYSIS_RECIPE_ICON], project=project, analysis=analysis)
 
     if request.method == "POST":
-        form = AnalysisEditForm(data=request.POST, files=request.FILES, instance=analysis,)
+        form = RecipeForm(data=request.POST, files=request.FILES, instance=analysis, )
         if form.is_valid():
             form.save()
             return redirect(reverse("recipe_view", kwargs=dict(id=analysis.id)))
 
-    form = AnalysisEditForm(instance=analysis)
-    context = dict(steps=steps, analysis=analysis, project=project, form=form)
+    form = RecipeForm(instance=analysis)
+
+    action_url = reverse('recipe_edit', kwargs=dict(id=analysis.id))
+    back_url = reverse('recipe_view', kwargs=dict(id=analysis.id))
+
+    context = dict(steps=steps, analysis=analysis, project=project, form=form, action_url=action_url, back_url=back_url)
 
     return render(request, 'recipe_edit.html', context)
 
