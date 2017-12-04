@@ -57,32 +57,8 @@ def img(obj):
         return obj.image.url
     else:
         return static("images/placeholder.png")
+''
 
-
-
-@register.filter
-def echo(obj):
-    # Makes debugging templates a bit easier
-    print()
-
-    print (dir(obj), "DEBUGGING")
-    return ''
-
-
-@register.filter
-def can_edit(user, instance):
-    """Returns true is instance is editable by user."""
-
-    if user.is_superuser or instance.owner == user:
-        return True
-
-    return False
-
-@register.filter
-def can_create(user):
-    """Returns true if user may create a new object"""
-
-    return user.is_authenticated()
 
 @register.inclusion_tag('widgets/project_name_bar.html')
 def project_name_bar(project):
