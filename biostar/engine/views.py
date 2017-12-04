@@ -392,7 +392,7 @@ def recipe_copy(request, id):
                                 ANALYSIS_RECIPE_ICON],project=analysis.project, analysis=analysis)
 
     if request.method == "POST":
-        form = RecipeCopyForm(data=request.POST, analysis=analysis)
+        form = RecipeCopyForm(data=request.POST, analysis=analysis, user=request.user)
         url = reverse("recipe_copy", kwargs=dict(id=analysis.id))
 
         if form.is_valid():
@@ -402,7 +402,7 @@ def recipe_copy(request, id):
 
         return redirect(url)
 
-    form = RecipeCopyForm(analysis=analysis)
+    form = RecipeCopyForm(analysis=analysis, user=request.user)
     context = dict(analysis=analysis, steps=steps, projects=projects, form=form,
                    project=analysis.project, access=Access(access=Access.ADMIN_ACCESS))
 

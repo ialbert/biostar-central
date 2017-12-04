@@ -153,19 +153,18 @@ class DataCopyForm(forms.Form):
 class RecipeCopyForm(forms.Form):
     project = forms.IntegerField()
 
-    def __init__(self, analysis, *args, **kwargs):
+    def __init__(self, analysis, user, *args, **kwargs):
         self.analysis = analysis
+
+        # Needed when a new project is created
+        self.user = user
         super().__init__(*args, **kwargs)
 
 
     def save(self):
 
-        project_id = self.cleaned_data
+        project_id = self.cleaned_data.get("project")
         current_project = Project.objects.filter(id=project_id).first()
-
-        if project_id == "0":
-            current_project = ""
-            1/0
 
         current_params = auth.get_analysis_attr(analysis=self.analysis, project=current_project)
         new_analysis = auth.create_analysis(**current_params)
@@ -178,15 +177,14 @@ class RecipeCopyForm(forms.Form):
 
         return new_analysis
 
-
     def clean(self):
 
         cleaned_data = super(RecipeCopyForm, self).clean()
 
         # 0 is selected to create a new project.
         if cleaned_data.get("project") == 0:
-            # create a new project and swap it for the 
-            pass
+            new_project = auth.create_project(user=self.user, name="New project")
+            cleaned_data["project"] = new_project.id
 
         return cleaned_data
 
