@@ -11,19 +11,18 @@
 <div class="ui raised segments">
     {% project_name_bar project %}
 
-    <div class="ui segment">
 
-        <div class="ui center aligned header">
-            Managing Access: {{ project.name }}
-        </div>
-       <div class="">
-                <img class="ui centered small image" src="{% img project %}">
-        </div>
-
-        <p> {{ project.summary|markdown|safe }}</p>
+    <div class="ui center aligned segment">
+        <h3 class="ui icon header">
+            <i class="users icon"></i>
+            <p class="content">
+                Manage Access
+            <p class="sub header">Manage user access to this project</p>
+            </p>
+        </h3>
     </div>
 
-
+    
     <div class="ui segment">
 
         <div class="ui tiny header">Search for user and manage their access to this project</div>
