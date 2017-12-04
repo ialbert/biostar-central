@@ -109,6 +109,8 @@ class ChangeUserAccess(forms.Form):
 
         #cleaned_data = super(ChangeUserAccess, self).clean()
         cleaned_data = self.project_users.copy()
+
+        # TODO: refractor asap
         for k in self.data:
             if "csrf" not in k:
                 try:
@@ -132,22 +134,29 @@ class DataCopyForm(forms.Form):
         self.job = job
         super().__init__(*args, **kwargs)
 
-    def process(self):
-        # More than one can be selected
-        paths = self.data.getlist('paths')
-        basedir = '' if not self.job else self.job.path
-
+    def save(self):
+        paths = self.cleaned_data["paths"]
         for path in paths:
-            # Figure out the full path based on existing data
-            if path.startswith("/"):
-                path = path[1:]
-            path = join(basedir, path)
-
             tasks.copier(target_project=self.project.id, fname=path, link=True)
-
             logger.info(f"Copy data at: {path}")
 
-        return len(paths)
+        return paths
+
+    def clean(self):
+        cleaned_data = dict(paths=self.data.getlist('paths', []))
+        basedir = '' if not self.job else self.job.path
+
+        for idx,path in enumerate(cleaned_data["paths"]):
+            # Figure out the full path based on existing data
+            path = path[1:] if path.startswith("/") else path
+            path = join(basedir, path)
+            if os.path.isfile(path):
+                # Mutates paths list
+                cleaned_data["paths"][idx] = path
+            else:
+                raise forms.ValidationError(f"{path} not a file.")
+
+        return cleaned_data
 
 
 class RecipeCopyForm(forms.Form):

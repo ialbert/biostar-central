@@ -657,10 +657,10 @@ def job_file_view(request, id):
 
     return redirect(url)
 
+
 @object_access(type=Job, access=Access.READ_ACCESS, url="job_view")
 def job_files_list(request, id, path=''):
     job = Job.objects.filter(id=id).first()
-
     project = job.project
 
     # This is the root of where we can navigate in
@@ -681,16 +681,14 @@ def job_files_list(request, id, path=''):
         job=job, project=project)
 
     if request.method == "POST":
-
         form = DataCopyForm(data=request.POST, project=project, job=job)
         if form.is_valid():
-            count = form.process()
-            messages.success(request, f"Copied {count} file to {project.name}.")
+            count = form.save()
+            messages.success(request, f"Copied {len(count)} file to {project.name}.")
         else:
             messages.warning(request, "Unable to copy files")
+        return redirect(reverse("job_view", kwargs=dict(id=id)))
 
-    else:
-        form = DataCopyForm(project=project)
-
+    form = DataCopyForm(project=project)
     context = dict(file_list=file_list, job=job, form=form, steps=steps, project=project, path=path)
     return render(request, "job_files_list.html", context)

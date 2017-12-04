@@ -9,23 +9,20 @@
 {% block body %}
 
 <div class="ui raised segments">
+    {% project_name_bar project %}
 
-    <div class="ui center aligned segment">
+    <div class="ui segment">
 
-        <div class="ui tiny image">
-            <img src="{% img project %}">
-        </div>
-
-        <div class="ui header">
+        <div class="ui center aligned header">
             Managing Access: {{ project.name }}
         </div>
+       <div class="">
+                <img class="ui centered small image" src="{% img project %}">
+        </div>
 
-    </div>
-
-    <div class="ui secondary segment">
         <p> {{ project.summary|markdown|safe }}</p>
-
     </div>
+
 
     <div class="ui segment">
 

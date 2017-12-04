@@ -9,30 +9,22 @@
 
 <div class="ui raised segments">
 
-    <div class="ui center aligned segment">
+   {% project_name_bar project %}
 
+        <div class="ui segment">
 
-         <div class="ui tiny image">
-            <img src="{% img analysis %}">
-         </div>
+            <div class="ui center aligned header">
+                Recipe: {{ analysis.name }}
+            </div>
 
-        <div class="ui header">
-        Recipe: {{analysis.name}}
+            <div class="">
+                <img class="ui centered small image" src="{% img analysis %}">
+            </div>
+            <p>
+                {{ analysis.summary|markdown|safe }}
+            </p>
+
         </div>
-    </div>
-
-    <div class="ui secondary segment">
-
-          <div class="ui tiny header">
-        Project
-          </div>
-        <p> {{ project.summary|markdown|safe }}</p>
-         <div class="ui tiny header">
-        Recipe
-          </div>
-        <p> {{ analysis.summary|markdown|safe }}</p>
-
-    </div>
 
 
 <div class="ui segment">
@@ -43,7 +35,7 @@
 
     <div class="ui basic segment">
                 <div class="ui small header">
-                    Your Projects
+                    Projects you are allowed to copy into
                 </div>
 
                 {% if projects %}
