@@ -8,76 +8,79 @@
 
 {% block body %}
 
-<div class="ui raised segments">
-    {% project_name_bar project %}
+    <div class="ui raised segments">
+        {% project_name_bar project %}
 
 
-    <div class="ui center aligned segment">
-        <h3 class="ui icon header">
-            <i class="users icon"></i>
-            <p class="content">
-                Manage Access
-            <p class="sub header">Manage user access to this project</p>
-            </p>
-        </h3>
-    </div>
+        <div class="ui center aligned segment">
+            <h3 class="ui icon header">
+                <i class="users icon"></i>
+                <p class="content">
+                    Manage Access
+                <p class="sub header">Manage user access to this project</p>
+                </p>
+            </h3>
+        </div>
 
 
-    <div class="ui segment inputcolor">
+        <div class="ui segment inputcolor">
 
-        <div class="ui tiny header">Search for user and manage their access to this project</div>
+            <div class="ui tiny header">Search for user and manage their access to this project</div>
 
-         <form method="get" action="{% url 'project_users' project.id %}">
-            <div class="ui fluid left icon input">
+            <form method="get" action="{% url 'project_users' project.id %}">
+                <div class="ui fluid left icon input">
 
-                <input type="text" name="q" placeholder="">
-                <i class="search large icon"></i>
-                <button class="ui blue button" type="submit" formmethod="get">Search</button>
+                    <input type="text" name="q" placeholder="">
+                    <i class="search large icon"></i>
+                    <button class="ui blue button" type="submit" formmethod="get">Search</button>
 
-            </div>
-        </form>
+                </div>
+            </form>
 
-        {% if not_found %}
-            <div class="ui red message">
-                <div class="header">Not Found: '{{not_found}}' </div>
-            </div>
-        {% endif %}
+            {% if not_found %}
+                <div class="ui red message">
+                    <div class="header">Not Found: '{{ not_found }}'</div>
+                </div>
+            {% endif %}
 
-        <a href="{% url 'project_users' project.id %}">People with Access</a>
-    </div>
+            <a href="{% url 'project_users' project.id %}">People with Access</a>
+        </div>
 
-    <div class="ui segment">
+        <div class="ui basic segment">
             <div class="ui cards">
 
-            {% for user,form in forms%}
+                {% for user, form in forms %}
 
-
-                <div class="card">
                     <form method="post" action="{% url 'project_users' project.id %}">
-                    <input type="hidden" name="user_id" value="{{user.id}}">
-                    <input type="hidden" name="project_id" value="{{project.id}}">
-                    {% csrf_token %}
-                    {{form.errors}}
-                       <div class="ui content">
-                            <div class="ui tiny header">
-                               {{user.first_name}} : {{user.email }}
-                            </div>
-                            <div class="description">
 
+                        <input type="hidden" name="user_id" value="{{ user.id }}">
+                        <input type="hidden" name="project_id" value="{{ project.id }}">
+
+                        {% csrf_token %}
+
+                        <div class="ui card">
+
+                            <div class="content">
+                                <a class="header"> {{ user.first_name }}</a>
+                                <div class="meta">
+                                    <span class="date">{{ user.email }}</span>
+                                </div>
+
+                            </div>
+                            <div class="content">
                                 {{ form.access }}
-                                <button type="submit" class="ui basic green center aligned button" formmethod="post">
-                                Submit
+                                <button type="submit" class="ui basic green center aligned button">
+                                    Submit
                                 </button>
-
                             </div>
-                       </div>
+                        </div>
 
                     </form>
-                </div>
-            {% endfor %}
+
+                {% endfor %}
 
             </div>
-    </div>
+        </div>
 
-</div>
+    </div>
 {% endblock %}
