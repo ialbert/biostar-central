@@ -17,24 +17,26 @@
             <div class="field segment">
                 <label>Data Name</label>
                 {{ form.name }}
+                <p class="muted">What do you want to call the data collection</p>
             </div>
-                        <div class="field">
+            <div class="field">
                <label class="checkbox" for="{{ field.id_for_label }}">
                         {{ form.sticky }} <label>Sticky</label>
                </label>
+                <p class="muted">Makes the data stick to top of the list.</p>
             </div>
 
             <div class="field">
                 <label>Summary</label>
-                <textarea name="{{ form.summary.name }}" rows="2">{{ form.summary.value }}</textarea>
+               {{ form.summary }}
+                <p class="muted">A brief summary shown inline with the data (markdown OK).</p>
             </div>
 
             <div class="field segment">
                 <label>Data description</label>
                 {{ form.text }}
+                <p class="muted">A detailed explanation of what is in the data collection (markdown OK).</p>
             </div>
-
-            {{ form.errors }}
 
             <button type="submit" class="ui submit green button">
                 <i class="save icon"></i>Save

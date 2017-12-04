@@ -16,26 +16,28 @@
         <div class="field segment">
               <label>{{ form.file.label_tag }}</label>
               {{ form.file }}
+             <p class="muted">What file or collection of files do you want to upload and analyze</p>
          </div>
                <div class="field">
                <label class="checkbox" for="{{ field.id_for_label }}">
                         {{ form.sticky }} <label>Sticky</label>
                </label>
+                   <p class="muted">Makes the data stick to top of the list.</p>
             </div>
         <div class="field">
             <label>Summary</label>
-            <textarea name="{{ form.summary.name }}" rows="2">{{ form.summary.value }}</textarea>
+            {{ form.summary }}
+            <p class="muted">A brief summary shown inline with the data (markdown OK).</p>
         </div>
 
         <div class="field segment">
               <label>Data Description</label>
-              {{ form.text }}
+             {{ form.text }}
+                <p class="muted">A detailed explanation of what is in the data collection (markdown OK).</p>
          </div>
 
-        {{ form.errors }}
-
-        <button type="submit" class="ui primary button">
-            <i class="write square icon"></i>Upload Data
+        <button type="submit" class="ui submit green button">
+            <i class="write icon"></i>Upload
         </button>
         <a class="ui right floated button" href="{% url 'data_list' project.id %}">
             Back
