@@ -71,7 +71,7 @@ class ChangeUserAccess(forms.Form):
 
         self.project= project
         self.users= users
-        self.project_users = {}
+        self.project_users = dict()
 
         # Data dictionary of current users used to check validity later on
         for access in self.project.access_set.filter(access__gt=Access.NO_ACCESS).all():
@@ -89,41 +89,34 @@ class ChangeUserAccess(forms.Form):
 
     def save(self):
 
-        cleaned_data = self.clean()
-
-        for uid, access in cleaned_data.items():
+        for uid, access in self.cleaned_data.items():
             user = Profile.objects.filter(uid=uid).first().user
             current_access = user.access_set.filter(project=self.project, user=user)
 
             # Update existing users access
             if uid in self.project_users:
                 current_access.update(access=access)
-
-            # Create new access ( or changing NO_ACCESS to something)
             else:
-                # Change existing NO_ACCESS
+                # Change NO_ACCESS
                 if current_access:
                     current_access.update(access=access)
-
                 # Create new access instance for user
                 else:
                     access = Access(user=user, project=self.project, access=access)
                     access.save()
-                    self.project.access_set.add(access)
-        return
-
 
     def clean(self):
 
         #cleaned_data = super(ChangeUserAccess, self).clean()
-        #
         cleaned_data = self.project_users.copy()
+
+        # TODO: refractor asap
         for k in self.data:
             if "csrf" not in k:
                 try:
                     cleaned_data[k] = int(self.data[k])
-                except:
-                    raise forms.ValidationError("Invalid Type")
+                except Exception as exc:
+                    raise forms.ValidationError(f"Validation Error: {exc}")
 
         # Makes sure one admin user per project
         if Access.ADMIN_ACCESS not in cleaned_data.values():
@@ -141,44 +134,49 @@ class DataCopyForm(forms.Form):
         self.job = job
         super().__init__(*args, **kwargs)
 
-    def process(self):
-        # More than one can be selected
-        paths = self.data.getlist('paths')
-        basedir = '' if not self.job else self.job.path
-
+    def save(self):
+        paths = self.cleaned_data["paths"]
         for path in paths:
-            # Figure out the full path based on existing data
-            if path.startswith("/"):
-                path = path[1:]
-            path = join(basedir, path)
-
             tasks.copier(target_project=self.project.id, fname=path, link=True)
-
             logger.info(f"Copy data at: {path}")
 
-        return len(paths)
+        return paths
+
+    def clean(self):
+        cleaned_data = dict(paths=self.data.getlist('paths', []))
+        basedir = '' if not self.job else self.job.path
+
+        for idx,path in enumerate(cleaned_data["paths"]):
+            # Figure out the full path based on existing data
+            path = path[1:] if path.startswith("/") else path
+            path = join(basedir, path)
+            if os.path.isfile(path):
+                # Mutates paths list
+                cleaned_data["paths"][idx] = path
+            else:
+                raise forms.ValidationError(f"{path} not a file.")
+
+        return cleaned_data
 
 
-class AnalysisCopyForm(forms.Form):
-    projects = forms.IntegerField()
+class RecipeCopyForm(forms.Form):
+    project = forms.IntegerField()
 
-    def __init__(self, analysis, *args, **kwargs):
+    def __init__(self, analysis, user, *args, **kwargs):
         self.analysis = analysis
+
+        # Needed when a new project is created
+        self.user = user
         super().__init__(*args, **kwargs)
 
-    # TODO: refractor asap; does not need to be a list only one is picked
-    def process(self):
-        projects = self.data.getlist('projects')
-        project_id = projects[0]
 
-        if project_id == "0":
-            return projects, None
+    def save(self):
 
+        project_id = self.cleaned_data.get("project")
         current_project = Project.objects.filter(id=project_id).first()
 
         current_params = auth.get_analysis_attr(analysis=self.analysis, project=current_project)
         new_analysis = auth.create_analysis(**current_params)
-
         # Images needs to be set by it set
         new_analysis.image.save(self.analysis.name, self.analysis.image, save=True)
         new_analysis.name = f"Copy of: {self.analysis.name}"
@@ -186,7 +184,17 @@ class AnalysisCopyForm(forms.Form):
         new_analysis.security = self.analysis.security
         new_analysis.save()
 
-        return projects, new_analysis
+        return new_analysis
+
+    def clean(self):
+
+        cleaned_data = super(RecipeCopyForm, self).clean()
+        # 0 is selected to create a new project.
+        if cleaned_data.get("project") == 0:
+            new_project = auth.create_project(user=self.user, name="New project")
+            cleaned_data["project"] = new_project.id
+
+        return cleaned_data
 
 
 class RecipeInterface(forms.Form):

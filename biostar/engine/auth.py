@@ -99,9 +99,8 @@ def get_project_list(user):
     return query
 
 
-def access_fields(users, project, hide_inner=True):
+def access_fields(users, project):
 
-    #hide_inner =True to make users the project already has hidden fields
     access_fields = []
 
     for user in users:
@@ -114,10 +113,9 @@ def access_fields(users, project, hide_inner=True):
         if not initial:
             initial = Access(access=Access.NO_ACCESS)
 
-        forms.CharField(widget=forms.HiddenInput())
-
         access = forms.IntegerField(widget=forms.Select(choices=Access.ACCESS_CHOICES),
                                     initial=initial.access, label=label, required=False)
+
         access_fields.append((unique_name, access))
 
     return access_fields

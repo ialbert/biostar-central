@@ -27,10 +27,7 @@ urlpatterns = [
     url(r'^recipe/run/(?P<id>\d+)/$', views.recipe_run, name='analysis_run'),
     url(r'^recipe/edit/(?P<id>\d+)$', views.recipe_edit, name='recipe_edit'),
     url(r'^recipe/code/(?P<id>\d+)$', views.recipe_code, name='recipe_code'),
-
-
-    url(r'^analysis/copy/(?P<id>\d+)$', views.analysis_copy, name='analysis_copy'),
-    url(r'^analysis/create/copy/(?P<id>\d+)$', views.create_copy, name='create_copy'),
+    url(r'^recipe/copy/(?P<id>\d+)$', views.recipe_copy, name='recipe_copy'),
 
     url(r'^job/list/(?P<id>\d+)/$', views.job_list, name='job_list'),
     url(r'^job/view/(?P<id>\d+)/$', views.job_view, name='job_view'),

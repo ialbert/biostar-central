@@ -149,12 +149,13 @@ def project_users(request, id):
             form.save()
             messages.success(request, "Changed access to this project")
         else:
-            #TODO: quick fix for now. not showing up corretly for now
+            # TODO: quick fix for now. not showing up corretly
             messages.error(request, mark_safe(form.non_field_errors()))
         return redirect(reverse("project_users", kwargs=dict(id=id)))
 
     if q:
         query = User.objects.filter(Q(email__contains=q)|Q(first_name__contains=q))
+        # Turn not_found flag off if the query is valid
         not_found = None if query else not_found
         users = query if query else users
 
@@ -337,6 +338,7 @@ def data_upload(request, id):
         else:
             form.add_error(None, "Invalid form processing.")
             messages.error(request, "Invalid form processing.")
+        return redirect(reverse("data_upload", kwargs={'id': project.id}))
     else:
         form = DataUploadForm()
 
@@ -376,114 +378,35 @@ def recipe_view(request, id):
 
 
 @object_access(type=Analysis, access=Access.RECIPE_ACCESS, url='recipe_view', login_required=True)
-def analysis_copy(request, id):
+def recipe_copy(request, id):
 
     analysis = Analysis.objects.filter(id=id).first()
-    # Only copy to projects with edit access to
-    required_access = Access(access=Access.ADMIN_ACCESS)
+    projects = auth.get_project_list(user=request.user)
 
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON,
-                                ANALYSIS_VIEW_ICON, ANALYSIS_RECIPE_ICON],
-                               project=analysis.project, analysis=analysis)
-
-    if request.method == "POST":
-
-        if request.user.is_anonymous:
-            access_text = Access.ACCESS_MAP.get(Access.RECIPE_ACCESS)
-            msg = f"""
-            You must be logged in and have the <span class="ui green label">{access_text} Permission</span>  
-            to copy an analysis.
-            """
-            messages.warning(request, mark_safe(msg))
-            return redirect(reverse("analysis_copy", kwargs=dict(id=analysis.id)))
-
-        form = AnalysisCopyForm(data=request.POST, analysis=analysis)
-        url = reverse("analysis_copy", kwargs=dict(id=analysis.id))
-
-        if form.is_valid():
-
-            # TODO: refractor asap; does not need to be a list only one is picked
-            copied, new_analysis = form.process()
-            if copied[0] == "0":
-                url = reverse("create_copy", kwargs=dict(id=analysis.id))
-            else:
-                url = reverse("recipe_view", kwargs=dict(id=new_analysis.id))
-                messages.success(request, f"Currently in Copy of: {analysis.name}.")
-
-        return redirect(url)
-
-    projects = auth.get_project_list(user=request.user).exclude(pk=analysis.project.id)
-    # Can't touch public projects
-    projects = projects.exclude(privacy=Project.PUBLIC)
+    # Can't copy into current or public projects
+    projects = projects.exclude(pk=analysis.project.id).exclude(privacy=Project.PUBLIC)
 
     # Filter projects by admin access
-    if request.user.is_authenticated:
-        cond = Q(access__user=request.user, access__access__gt=Access.EDIT_ACCESS)
-    else:
-        cond = Q(access__access__gt=Access.EDIT_ACCESS)
-
-    projects = projects.filter(cond)
-
-    form = AnalysisCopyForm(analysis=analysis)
-    context = dict(analysis=analysis, steps=steps, projects=projects, form=form,
-                   project=analysis.project, access=required_access)
-
-    return render(request, "analysis_copy.html", context)
-
-#TODO: refractor asap
-@object_access(type=Analysis, access=Access.RECIPE_ACCESS, url='recipe_view')
-def create_copy(request, id):
-    "Create a project then copy analysis into it."
-
-    analysis = Analysis.objects.filter(id=id).first()
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON,
-                                ANALYSIS_VIEW_ICON, ANALYSIS_RECIPE_ICON],
-                               project=analysis.project, analysis=analysis)
-
-    if request.user.is_anonymous:
-        access_text = Access.ACCESS_MAP.get(Access.RECIPE_ACCESS)
-        msg = f"""
-        You must be logged in and have the <span class="ui green label">{access_text} Permission</span>  
-        to Create Project and Copy Recipe.
-        """
-        messages.warning(request, mark_safe(msg))
-        return redirect(reverse("analysis_copy", kwargs=dict(id=analysis.id)))
+    projects = projects.filter(Q(access__user=request.user, access__access__gt=Access.EDIT_ACCESS))
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ANALYSIS_VIEW_ICON,
+                                ANALYSIS_RECIPE_ICON],project=analysis.project, analysis=analysis)
 
     if request.method == "POST":
-        form = ProjectForm(request.POST, request.FILES)
+        form = RecipeCopyForm(data=request.POST, analysis=analysis, user=request.user)
+        url = reverse("recipe_copy", kwargs=dict(id=analysis.id))
 
         if form.is_valid():
-            name = form.cleaned_data["name"]
-            text = form.cleaned_data["text"]
-            summary = form.cleaned_data["summary"]
-            stream = form.cleaned_data["image"]
-            sticky = form.cleaned_data["sticky"]
-            privacy = form.cleaned_data["privacy"]
-            owner = request.user
-
-            project = auth.create_project(user=owner, name=name, summary=summary, text=text,
-                                          stream=stream, sticky=sticky, privacy=privacy)
-            project.save()
-
-            current_params = auth.get_analysis_attr(analysis=analysis, project=project)
-            new_analysis = auth.create_analysis(**current_params)
-            new_analysis.image.save(analysis.name, analysis.image, save=True)
-            new_analysis.name = f"Copy of: {analysis.name}"
-            new_analysis.state = analysis.state
-            new_analysis.security = analysis.security
-            new_analysis.save()
+            new_analysis = form.save()
             url = reverse("recipe_view", kwargs=dict(id=new_analysis.id))
             messages.success(request, f"Currently in Copy of: {analysis.name}.")
-        else:
-            url = reverse("create_copy", kwargs=dict(id=analysis.id))
+
         return redirect(url)
 
-    initial = dict(name="Project Name", text="project description", summary="project summary")
-    form = ProjectForm(initial=initial)
+    form = RecipeCopyForm(analysis=analysis, user=request.user)
+    context = dict(analysis=analysis, steps=steps, projects=projects, form=form,
+                   project=analysis.project, access=Access(access=Access.ADMIN_ACCESS))
 
-    context = dict(form=form, steps=steps, analysis=analysis)
-    return render(request, "create_copy.html", context)
-
+    return render(request, "recipe_copy.html", context)
 
 
 @object_access(type=Analysis, access=Access.RECIPE_ACCESS, url='recipe_view')
@@ -673,7 +596,6 @@ def job_list(request, id):
     return render(request, "job_list.html", context)
 
 
-
 @object_access(type=Job, access=Access.EDIT_ACCESS, url="job_view")
 def job_edit(request, id):
     job = Job.objects.filter(id=id).first()
@@ -736,10 +658,10 @@ def job_file_view(request, id):
 
     return redirect(url)
 
+
 @object_access(type=Job, access=Access.READ_ACCESS, url="job_view")
 def job_files_list(request, id, path=''):
     job = Job.objects.filter(id=id).first()
-
     project = job.project
 
     # This is the root of where we can navigate in
@@ -760,16 +682,15 @@ def job_files_list(request, id, path=''):
         job=job, project=project)
 
     if request.method == "POST":
-
         form = DataCopyForm(data=request.POST, project=project, job=job)
         if form.is_valid():
-            count = form.process()
-            messages.success(request, f"Copied {count} file to {project.name}.")
+            count = form.save()
+            messages.success(request, f"Copied {len(count)} file to {project.name}.")
         else:
             messages.warning(request, "Unable to copy files")
+        #TODO: redirection does not make sense really
+        return redirect(reverse("job_result_view", kwargs=dict(id=job.id)))
 
-    else:
-        form = DataCopyForm(project=project)
-
+    form = DataCopyForm(project=project)
     context = dict(file_list=file_list, job=job, form=form, steps=steps, project=project, path=path)
     return render(request, "job_files_list.html", context)

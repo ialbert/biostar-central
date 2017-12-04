@@ -9,43 +9,33 @@
 
 <div class="ui raised segments">
 
-    <div class="ui center aligned segment">
+   {% project_name_bar project %}
 
+        <div class="ui segment">
 
-         <div class="ui tiny image">
-            <img src="{% img analysis %}">
-         </div>
+            <div class="ui center aligned header">
+                Recipe: {{ analysis.name }}
+            </div>
 
-        <div class="ui header">
-        Recipe: {{analysis.name}}
+            <div class="">
+                <img class="ui centered small image" src="{% img analysis %}">
+            </div>
+            <p>
+                {{ analysis.summary|markdown|safe }}
+            </p>
+
         </div>
-    </div>
-
-    <div class="ui secondary segment">
-
-          <div class="ui tiny header">
-        Project
-          </div>
-        <p> {{ project.summary|markdown|safe }}</p>
-         <div class="ui tiny header">
-        Recipe
-          </div>
-        <p> {{ analysis.summary|markdown|safe }}</p>
-
-        <p>
-        New recipe name will be " Copy of: {{analysis.name}} "
-        </p>
-
-    </div>
 
 
 <div class="ui segment">
 
-    <form class="ui large form" method="post" action="{% url 'analysis_copy' analysis.id %}">
+    <form class="ui large form" method="post" action="{% url 'recipe_copy' analysis.id %}">
             {% csrf_token %}
+             {% form_nonfield_errors form %}
+
     <div class="ui basic segment">
                 <div class="ui small header">
-                    Your Projects
+                    Projects you are allowed to copy into
                 </div>
 
                 {% if projects %}
@@ -55,7 +45,7 @@
                     <div class="ui relaxed divided list">
                         <div class="item">
                         <div class="inline field">
-                            <input type="radio" name="projects" value="0">
+                            <input type="radio" name="project" value="0">
 
                         <i class="archive icon"></i>Create new project and copy recipe
                         </div>
@@ -63,7 +53,7 @@
                         {% for project in projects %}
                             <div class="item">
                                 <div class="inline field">
-                                    <input type="radio" name="projects" value="{{project.id}}">
+                                    <input type="radio" name="project" value="{{project.id}}">
                                     <a href="{{ project.url }}">
                                         <i class="archive icon"></i>{{ project.name }}
                                     </a>
@@ -100,7 +90,7 @@
                    </button>
 
 
-</div>
+    </div>
         </form>
     </div>
 </div>
