@@ -22,8 +22,8 @@
         </h3>
     </div>
 
-    
-    <div class="ui segment">
+
+    <div class="ui segment inputcolor">
 
         <div class="ui tiny header">Search for user and manage their access to this project</div>
 
@@ -32,7 +32,7 @@
 
                 <input type="text" name="q" placeholder="">
                 <i class="search large icon"></i>
-                <button class="ui button" type="submit" formmethod="get">Search</button>
+                <button class="ui blue button" type="submit" formmethod="get">Search</button>
 
             </div>
         </form>
@@ -47,43 +47,36 @@
     </div>
 
     <div class="ui segment">
-
-         <form class="ui large form" method="post" action="{% url 'project_users' project.id %}">
-                {% csrf_token %}
-
-            {# inclusion tag is not working here #}
-            {% form_nonfield_errors form %}
-
             <div class="ui cards">
 
-            {% for field in form.visible_fields %}
+            {% for user,form in forms%}
 
-                {{ field.errors }}
 
                 <div class="card">
+                    <form method="post" action="{% url 'project_users' project.id %}">
+                    <input type="hidden" name="user_id" value="{{user.id}}">
+                    <input type="hidden" name="project_id" value="{{project.id}}">
+                    {% csrf_token %}
+                    {{form.errors}}
+                       <div class="ui content">
+                            <div class="ui tiny header">
+                               {{user.first_name}} : {{user.email }}
+                            </div>
+                            <div class="description">
 
-                    <div class="content">
-                        <div class="ui tiny header">
-                            {{ field.label_tag }}
-                        </div>
-                    </div>
-                    {{ field }}
+                                {{ form.access }}
+                                <button type="submit" class="ui basic green center aligned button" formmethod="post">
+                                Submit
+                                </button>
 
+                            </div>
+                       </div>
+
+                    </form>
                 </div>
-
             {% endfor %}
 
             </div>
-
-            <div class="ui basic segment">
-                <button type="submit" class="ui basic green button" formmethod="post">
-                Change Access
-                </button>
-
-            </div>
-
-        </form>
-
     </div>
 
 </div>
