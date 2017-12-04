@@ -39,6 +39,8 @@
 
     <form class="ui large form" method="post" action="{% url 'recipe_copy' analysis.id %}">
             {% csrf_token %}
+             {% form_nonfield_errors form %}
+
     <div class="ui basic segment">
                 <div class="ui small header">
                     Your Projects
@@ -51,7 +53,7 @@
                     <div class="ui relaxed divided list">
                         <div class="item">
                         <div class="inline field">
-                            <input type="radio" name="projects" value="0">
+                            <input type="radio" name="project" value="0">
 
                         <i class="archive icon"></i>Create new project and copy recipe
                         </div>
@@ -59,7 +61,7 @@
                         {% for project in projects %}
                             <div class="item">
                                 <div class="inline field">
-                                    <input type="radio" name="projects" value="{{project.id}}">
+                                    <input type="radio" name="project" value="{{project.id}}">
                                     <a href="{{ project.url }}">
                                         <i class="archive icon"></i>{{ project.name }}
                                     </a>
@@ -96,7 +98,7 @@
                    </button>
 
 
-</div>
+    </div>
         </form>
     </div>
 </div>

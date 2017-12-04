@@ -180,7 +180,6 @@ class RecipeCopyForm(forms.Form):
     def clean(self):
 
         cleaned_data = super(RecipeCopyForm, self).clean()
-
         # 0 is selected to create a new project.
         if cleaned_data.get("project") == 0:
             new_project = auth.create_project(user=self.user, name="New project")
