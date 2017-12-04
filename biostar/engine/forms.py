@@ -17,6 +17,9 @@ def join(*args):
 
 
 
+
+
+
 class ProjectForm(forms.ModelForm):
     image = forms.ImageField(required=False)
 
@@ -65,64 +68,48 @@ class JobEditForm(forms.ModelForm):
         fields = ['name', "image", 'text', 'sticky']
 
 
-class ChangeUserAccess(forms.Form):
 
-    def __init__(self, project, users, *args, **kwargs):
+class ChangeUserAccess(forms.ModelForm):
 
-        self.project= project
-        self.users= users
-        self.project_users = dict()
+    user_id = forms.IntegerField(required=True, widget=forms.HiddenInput())
+    project_id = forms.IntegerField(required=True, widget=forms.HiddenInput())
 
-        # Data dictionary of current users used to check validity later on
-        for access in self.project.access_set.filter(access__gt=Access.NO_ACCESS).all():
-            user = access.user
-            uid = Profile.objects.filter(user=user).first().uid
-            self.project_users[uid] = access.access
+    class Meta:
+        model = Access
+        fields = ['access', 'user_id', "project_id"]
 
-        super().__init__(*args, **kwargs)
+    def change_access(self):
+        "Change users access to a project"
 
-        # Create the dynamic field from each user in the users list.
-        access_fields = auth.access_fields(users=self.users, project=project)
-        for user_uid, field in access_fields:
-            self.fields[user_uid] = field
+        user_id = self.cleaned_data["user_id"]
+        project_id = self.cleaned_data["project_id"]
+
+        user = User.objects.filter(pk=user_id).first()
+        project = Project.objects.filter(pk=project_id).first()
+
+        current = Access.objects.filter(user=user, project=project)
+        if current:
+            current.update(access=self.cleaned_data.get("access", current.first().access))
+            return
+        new_access = Access(user=user, project=project,
+                            access=self.cleaned_data.get("access", Access.NO_ACCESS))
+        new_access.save()
 
 
-    def save(self):
+def access_forms(users, project):
+        " Generate a list of forms for a given user list"
 
-        for uid, access in self.cleaned_data.items():
-            user = Profile.objects.filter(uid=uid).first().user
-            current_access = user.access_set.filter(project=self.project, user=user)
+        forms = []
+        for user in users:
+            access = Access.objects.filter(user=user, project=project).first()
+            initial = dict(access=Access.NO_ACCESS, user_id=user.id)
+            if access:
+                initial = dict(access=access.access, user_id=user.id)
 
-            # Update existing users access
-            if uid in self.project_users:
-                current_access.update(access=access)
-            else:
-                # Change NO_ACCESS
-                if current_access:
-                    current_access.update(access=access)
-                # Create new access instance for user
-                else:
-                    access = Access(user=user, project=self.project, access=access)
-                    access.save()
+            access_form = ChangeUserAccess(instance=access, initial=initial)
+            forms.append((user,access_form))
 
-    def clean(self):
-
-        #cleaned_data = super(ChangeUserAccess, self).clean()
-        cleaned_data = self.project_users.copy()
-
-        # TODO: refractor asap
-        for k in self.data:
-            if "csrf" not in k:
-                try:
-                    cleaned_data[k] = int(self.data[k])
-                except Exception as exc:
-                    raise forms.ValidationError(f"Validation Error: {exc}")
-
-        # Makes sure one admin user per project
-        if Access.ADMIN_ACCESS not in cleaned_data.values():
-            raise forms.ValidationError("Atleast one admin user required per project")
-
-        return cleaned_data
+        return forms
 
 
 class DataCopyForm(forms.Form):

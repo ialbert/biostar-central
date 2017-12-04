@@ -99,27 +99,6 @@ def get_project_list(user):
     return query
 
 
-def access_fields(users, project):
-
-    access_fields = []
-
-    for user in users:
-        initial = Access.objects.filter(user=user, project=project).first()
-
-        # Unique field name using users uid
-        unique_name = Profile.objects.filter(user=user).first().uid
-        label = user.first_name
-
-        if not initial:
-            initial = Access(access=Access.NO_ACCESS)
-
-        access = forms.IntegerField(widget=forms.Select(choices=Access.ACCESS_CHOICES),
-                                    initial=initial.access, label=label, required=False)
-
-        access_fields.append((unique_name, access))
-
-    return access_fields
-
 
 def check_obj_access(user, instance, access=Access.ADMIN_ACCESS, request=None, login_required=False):
     """

@@ -144,9 +144,10 @@ def project_users(request, id):
                                project=project)
 
     if request.method == "POST":
-        form = ChangeUserAccess(data=request.POST, project=project, users=users)
+        form = ChangeUserAccess(data=request.POST)
+
         if form.is_valid():
-            form.save()
+            form.change_access()
             messages.success(request, "Changed access to this project")
         else:
             # TODO: quick fix for now. not showing up corretly
@@ -159,8 +160,8 @@ def project_users(request, id):
         not_found = None if query else not_found
         users = query if query else users
 
-    form = ChangeUserAccess(project=project, users=users)
-    context = dict(steps=steps, form=form, project=project, not_found=not_found)
+    forms = access_forms(users=users, project=project)
+    context = dict(steps=steps, forms=forms, project=project, not_found=not_found)
     return render(request, "project_users.html", context=context)
 
 
