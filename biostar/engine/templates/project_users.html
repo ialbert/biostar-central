@@ -39,24 +39,9 @@
             <form method="get" action="{% url 'project_users' project.id %}">
                 <div class="ui fluid left icon input">
 
-<<<<<<< HEAD
-                <div class="card">
-                    <form method="post" action="{% url 'project_users' project.id %}">
-                    <input type="hidden" name="user_id" value="{{user.id}}">
-                    <input type="hidden" name="project_id" value="{{project.id}}">
-
-                    {% csrf_token %}
-                    {{form.errors}}
-                       <div class="ui content">
-                            <div class="ui tiny header">
-                               {{user.first_name}} : {{user.email }}
-                            </div>
-                            <div class="description">
-=======
                     <input type="text" name="q" placeholder="">
                     <i class="search large icon"></i>
                     <button class="ui blue button" type="submit" formmethod="get">Search</button>
->>>>>>> 49a3db8ed3e9d685432df62f3e388515ee36201c
 
                 </div>
             </form>

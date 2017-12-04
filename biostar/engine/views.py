@@ -2,6 +2,7 @@ import glob
 import logging
 
 import mistune
+from django.db.models import Q
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test

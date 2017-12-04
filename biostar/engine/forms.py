@@ -15,11 +15,6 @@ logger = models.logger
 def join(*args):
     return os.path.abspath(os.path.join(*args))
 
-
-
-
-
-
 class ProjectForm(forms.ModelForm):
     image = forms.ImageField(required=False)
 
@@ -77,6 +72,16 @@ class ChangeUserAccess(forms.ModelForm):
     class Meta:
         model = Access
         fields = ['access', 'user_id', "project_id"]
+
+
+    def clean(self):
+        cleaned_data = super(ChangeUserAccess, self).clean()
+        project = Project.objects.filter(pk=cleaned_data["project_id"]).first()
+        access = [a.access for a in project.access_set.all() if a.user.id!=cleaned_data["user_id"]]
+        access.append(cleaned_data["access"])
+
+        if Access.ADMIN_ACCESS not in access:
+            raise forms.ValidationError("Alteast one user with Admin Access needed per project")
 
     def change_access(self):
         "Change users access to a project"
