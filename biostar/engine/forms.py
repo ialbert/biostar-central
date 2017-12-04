@@ -1,6 +1,6 @@
 import copy
 from django import forms
-from django.db.models import Q
+from django.contrib import messages
 import hjson
 from . import models, auth, factory
 from . import tasks
@@ -149,13 +149,14 @@ class DataCopyForm(forms.Form):
 class RecipeCopyForm(forms.Form):
     project = forms.IntegerField()
 
-    def __init__(self, analysis, user, *args, **kwargs):
+    def __init__(self, analysis, request, *args, **kwargs):
         self.analysis = analysis
 
         # Needed when a new project is created
-        self.user = user
-        super().__init__(*args, **kwargs)
+        self.user = request.user
+        self.request = request
 
+        super().__init__(*args, **kwargs)
 
     def save(self):
 
@@ -180,6 +181,7 @@ class RecipeCopyForm(forms.Form):
         if cleaned_data.get("project") == 0:
             new_project = auth.create_project(user=self.user, name="New project")
             cleaned_data["project"] = new_project.id
+            messages.success(self.request, f"Created a new project")
 
         return cleaned_data
 

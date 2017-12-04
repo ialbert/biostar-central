@@ -393,7 +393,7 @@ def recipe_copy(request, id):
                                 ANALYSIS_RECIPE_ICON],project=analysis.project, analysis=analysis)
 
     if request.method == "POST":
-        form = RecipeCopyForm(data=request.POST, analysis=analysis, user=request.user)
+        form = RecipeCopyForm(data=request.POST, analysis=analysis, request=request)
         url = reverse("recipe_copy", kwargs=dict(id=analysis.id))
 
         if form.is_valid():
@@ -403,7 +403,7 @@ def recipe_copy(request, id):
 
         return redirect(url)
 
-    form = RecipeCopyForm(analysis=analysis, user=request.user)
+    form = RecipeCopyForm(analysis=analysis, request=request)
     context = dict(analysis=analysis, steps=steps, projects=projects, form=form,
                    project=analysis.project, access=Access(access=Access.ADMIN_ACCESS))
 
@@ -413,7 +413,6 @@ def recipe_copy(request, id):
 @object_access(type=Analysis, access=Access.RECIPE_ACCESS, url='recipe_view')
 def recipe_run(request, id):
     analysis = Analysis.objects.filter(id=id).first()
-
     project = analysis.project
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON,
