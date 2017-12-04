@@ -399,7 +399,7 @@ def recipe_copy(request, id):
         if form.is_valid():
             new_analysis = form.save()
             url = reverse("recipe_view", kwargs=dict(id=new_analysis.id))
-            messages.success(request, f"Currently in Copy of: {analysis.name}.")
+            messages.success(request, f"Copied {analysis.name} in to {new_analysis.project.name}")
 
         return redirect(url)
 
