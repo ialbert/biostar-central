@@ -497,7 +497,7 @@ def recipe_run(request, id):
                                project=project, analysis=analysis)
 
     if request.method == "POST":
-        form = RecipeInterface(request=request, project=project, json_data=analysis.json_data, data=request.POST)
+        form = RecipeInterface(request=request, analysis=analysis, json_data=analysis.json_data, data=request.POST)
 
         if form.is_valid():
 
@@ -518,7 +518,7 @@ def recipe_run(request, id):
             return redirect(reverse("job_list", kwargs=dict(id=project.id)))
     else:
         initial = dict(name=analysis.name)
-        form = RecipeInterface(request=request, project=project, json_data=analysis.json_data, initial=initial)
+        form = RecipeInterface(request=request, analysis=analysis, json_data=analysis.json_data, initial=initial)
 
     context = dict(project=project, analysis=analysis, steps=steps, form=form)
 
@@ -563,7 +563,7 @@ def recipe_code(request, id):
             # Changes to template will require a review.
             if template != analysis.template:
                 # Switch on the untrusted flag when the template changes.
-                analysis.state = Analysis.UNDER_REVIEW
+                analysis.security = Analysis.UNDER_REVIEW
 
                 # Set the new template.
                 analysis.template = template
@@ -580,7 +580,7 @@ def recipe_code(request, id):
         form = EditCode(user=user, project=project, initial=initial)
 
     # Bind the JSON to the form.
-    recipe = RecipeInterface(request=request, project=project, json_data=analysis.json_data, initial=dict(name=name))
+    recipe = RecipeInterface(request=request, analysis=analysis, json_data=analysis.json_data, initial=dict(name=name))
 
     # This generates a "fake" unsaved job.
     job = auth.create_job(analysis=analysis, json_data=analysis.json_data, save=False)
@@ -606,6 +606,8 @@ def recipe_create(request, id):
         form = RecipeForm(data=request.POST, files=request.FILES)
         if form.is_valid():
             recipe = form.save(commit=False)
+            # Empty templates may be authorized.
+            recipe.security = Analysis.UNDER_REVIEW if recipe.template else Analysis.AUTHORIZED
             recipe.owner = request.user
             recipe.project = project
             recipe.save()

@@ -258,7 +258,7 @@ class Data(models.Model):
 class Analysis(models.Model):
     AUTHORIZED, UNDER_REVIEW = 1, 2
 
-    AUTH_CHOICES = [(AUTHORIZED, "Authorized"), (UNDER_REVIEW, "Under Review")]
+    AUTH_CHOICES = [(AUTHORIZED, "Authorized"), (UNDER_REVIEW, "Authorization Required")]
 
     ACTIVE, DELETED = 1, 2
     STATE_CHOICES = [(ACTIVE, "Active"), (DELETED, "Deleted")]
@@ -305,10 +305,12 @@ class Analysis(models.Model):
     def url(self):
         return reverse("recipe_view", kwargs=dict(id=self.id))
 
+    def authorized(self):
+        return self.security == self.AUTHORIZED
 
 class Job(models.Model):
     AUTHORIZED, UNDER_REVIEW = 1, 2
-    AUTH_CHOICES = [(AUTHORIZED, "Authorized"), (UNDER_REVIEW, "Under Review")]
+    AUTH_CHOICES = [(AUTHORIZED, "Authorized"), (UNDER_REVIEW, "Authorization Required")]
 
     QUEUED, RUNNING, COMPLETED, ERROR, DELETED, SPOOLED, PAUSED, ZOMBIE = range(1, 9)
 
