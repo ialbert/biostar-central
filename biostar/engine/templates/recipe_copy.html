@@ -32,16 +32,12 @@
           </div>
         <p> {{ analysis.summary|markdown|safe }}</p>
 
-        <p>
-        New recipe name will be " Copy of: {{analysis.name}} "
-        </p>
-
     </div>
 
 
 <div class="ui segment">
 
-    <form class="ui large form" method="post" action="{% url 'analysis_copy' analysis.id %}">
+    <form class="ui large form" method="post" action="{% url 'recipe_copy' analysis.id %}">
             {% csrf_token %}
     <div class="ui basic segment">
                 <div class="ui small header">

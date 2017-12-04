@@ -33,7 +33,7 @@ class object_access:
         Decorator used to test if a user has rights to access an instance
         """
 
-        # Pass function attributes to the wrapper...using a wrapper
+        # Pass function attributes to the wrapper
         @wraps(function, assigned=available_attrs(function))
         def _wrapped_view(request, *args, **kwargs):
 
