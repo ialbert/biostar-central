@@ -81,7 +81,7 @@ class ChangeUserAccess(forms.ModelForm):
         access.append(cleaned_data["access"])
 
         if Access.ADMIN_ACCESS not in access:
-            raise forms.ValidationError("Alteast one user with Admin Access needed per project")
+            raise forms.ValidationError("Alteast one user with Admin Access required.")
 
     def change_access(self):
         "Change users access to a project"

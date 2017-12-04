@@ -72,12 +72,11 @@ def generate_script(job):
 
     # Add the runtime context to the data.
     json_data['runtime'] = runtime
-    #TODO: refractor asap
     try:
         # Generate the script.
         template = Template(job.template)
     except Exception as exc:
-        template = Template(f"Error loading script template : {exc}.")
+        template = Template(f"Error loading script template : \n{exc}.")
 
     context = Context(json_data)
     script = template.render(context)
