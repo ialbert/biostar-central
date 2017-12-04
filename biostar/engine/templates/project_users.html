@@ -8,50 +8,38 @@
 
 {% block body %}
 
-<div class="ui raised segments">
-    {% project_name_bar project %}
+    <div class="ui raised segments">
+        {% project_name_bar project %}
 
 
-    <div class="ui center aligned segment">
-        <h3 class="ui icon header">
-            <i class="users icon"></i>
-            <p class="content">
-                Manage Access
-            <p class="sub header">Manage user access to this project</p>
-            </p>
-        </h3>
-    </div>
+        <div class="ui center aligned segment">
+            <h3 class="ui icon header">
+                <i class="users icon"></i>
+                <p class="content">
+                    Manage Access
+                <p class="sub header">Manage user access to this project</p>
+                </p>
+            </h3>
+        </div>
 
 
-    <div class="ui segment inputcolor">
-
-        <div class="ui tiny header">Search for user and manage their access to this project</div>
-
-         <form method="get" action="{% url 'project_users' project.id %}">
-            <div class="ui fluid left icon input">
-
-                <input type="text" name="q" placeholder="">
-                <i class="search large icon"></i>
-                <button class="ui blue button" type="submit" formmethod="get">Search</button>
-
-            </div>
-        </form>
-
-        {% if not_found %}
-            <div class="ui red message">
-                <div class="header">Not Found: '{{not_found}}' </div>
-            </div>
-        {% endif %}
-
-        <a href="{% url 'project_users' project.id %}">People with Access</a>
-    </div>
-
-    <div class="ui segment">
+        <div class="ui basic segment">
             <div class="ui cards">
+                {% for user, form in current %}
+                    {% access_form project user form %}
+                {% endfor %}
+            </div>
 
-            {% for user,form in forms%}
+        </div>
 
+        <div class="ui segment inputcolor">
 
+            <div class="ui tiny header">Search for users to manage</div>
+
+            <form method="get" action="{% url 'project_users' project.id %}">
+                <div class="ui fluid left icon input">
+
+<<<<<<< HEAD
                 <div class="card">
                     <form method="post" action="{% url 'project_users' project.id %}">
                     <input type="hidden" name="user_id" value="{{user.id}}">
@@ -64,21 +52,30 @@
                                {{user.first_name}} : {{user.email }}
                             </div>
                             <div class="description">
+=======
+                    <input type="text" name="q" placeholder="">
+                    <i class="search large icon"></i>
+                    <button class="ui blue button" type="submit" formmethod="get">Search</button>
+>>>>>>> 49a3db8ed3e9d685432df62f3e388515ee36201c
 
-                                {{ form.access }}
-                                <button type="submit" class="ui basic green center aligned button" formmethod="post">
-                                Submit
-                                </button>
-
-                            </div>
-                       </div>
-
-                    </form>
                 </div>
-            {% endfor %}
+            </form>
+
+
+            <div class="ui basic segment">
+                <div class="ui cards">
+                    {% for user, form in results %}
+                        {% access_form project user form %}
+                    {% endfor %}
+                </div>
 
             </div>
+
+
+        </div>
+
+
     </div>
 
-</div>
+    </div>
 {% endblock %}
