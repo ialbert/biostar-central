@@ -594,7 +594,6 @@ def job_list(request, id):
     return render(request, "job_list.html", context)
 
 
-
 @object_access(type=Job, access=Access.EDIT_ACCESS, url="job_view")
 def job_edit(request, id):
     job = Job.objects.filter(id=id).first()
@@ -687,7 +686,8 @@ def job_files_list(request, id, path=''):
             messages.success(request, f"Copied {len(count)} file to {project.name}.")
         else:
             messages.warning(request, "Unable to copy files")
-        return redirect(reverse("job_view", kwargs=dict(id=id)))
+        #TODO: redirection does not make sense really
+        return redirect(reverse("job_result_view", kwargs=dict(id=job.id)))
 
     form = DataCopyForm(project=project)
     context = dict(file_list=file_list, job=job, form=form, steps=steps, project=project, path=path)
