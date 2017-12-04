@@ -219,13 +219,13 @@ def create_project(user, name, uid='', summary='', text='', stream='',
     return project
 
 
-def create_analysis(project, json_text, template, uid=None, user=None, summary='', name='', text=''):
+def create_analysis(project, json_text, template, uid=None, user=None, summary='', name='', text='', security=Analysis.UNDER_REVIEW):
     owner = user or project.owner
     name = name or 'Analysis name'
     text = text or 'Analysis text'
 
     analysis = Analysis.objects.create(project=project, uid=uid, summary=summary, json_text=json_text,
-                                       owner=owner, name=name, text=text,
+                                       owner=owner, name=name, text=text, security=security,
                                        template=template)
 
     logger.info(f"Created analysis: uid={analysis.uid} name={analysis.name}")
@@ -264,8 +264,9 @@ def create_job(analysis, user=None, json_text='', json_data={}, name=None, state
 
     # Create the job instance.
     job = Job(name=name, summary=summary, state=state, json_text=json_text,
-                             project=project, analysis=analysis, owner=owner,
-                             template=analysis.template)
+        security=analysis.security, project=project, analysis=analysis, owner=owner,
+        template=analysis.template)
+
     if save:
         logger.info(f"Created job: {job.name}")
         job.save()

@@ -126,6 +126,10 @@ def run(job, options={}):
         # Show the command that is executed.
         logger.info(f'Job id={job.id} executing: {full_command}')
 
+        # Job must be authorized to run.
+        if job.security != Job.AUTHORIZED:
+            raise Exception(f"Job security error: {job.get_security_display()}")
+
         # Switch the job state to RUNNING.
         job.state = job.RUNNING
         job.start_date = timezone.now()

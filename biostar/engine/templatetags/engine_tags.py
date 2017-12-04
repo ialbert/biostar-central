@@ -9,7 +9,7 @@ from django.forms import widgets
 from django.utils.safestring import mark_safe
 
 from biostar.engine import const
-from biostar.engine.models import Access, Job, make_html
+from biostar.engine.models import Access, Job, make_html, Analysis
 from biostar.engine import factory, auth
 
 logger = logging.getLogger("engine")
@@ -19,6 +19,7 @@ JOB_COLORS = {
     Job.ZOMBIE: "orange", Job.SPOOLED: "pink",
     Job.ERROR: "red", Job.QUEUED: "blue", Job.RUNNING: "teal", Job.COMPLETED: "green"
 }
+
 
 @register.simple_tag
 def sticky_label(obj):
@@ -31,6 +32,12 @@ def sticky_label(obj):
 def privacy_label(project):
     label = mark_safe(f'<span class ="ui label">{project.get_privacy_display()}</span>' )
     return label
+
+
+@register.inclusion_tag('widgets/authorization_required.html')
+def security_label(analysis):
+    context = dict(analysis=analysis)
+    return context
 
 
 @register.simple_tag

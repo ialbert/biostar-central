@@ -199,16 +199,18 @@ class RecipeCopyForm(forms.Form):
 
 class RecipeInterface(forms.Form):
 
+    # The name of results when running the recipe.
     name = forms.CharField(max_length=256, help_text="This is will be the name of the results.")
 
-    def __init__(self, request, project, json_data, *args, **kwargs):
+    def __init__(self, request, analysis, json_data, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         # The json data determines what fields does the form have.
         self.json_data = json_data
 
         # The project is required to select data from.
-        self.project = project
+        self.analysis = analysis
+        self.project = analysis.project
 
         # Get request specific information
         self.request = request
@@ -224,12 +226,21 @@ class RecipeInterface(forms.Form):
 
     def clean(self):
         cleaned_data = super(RecipeInterface, self).clean()
-        msg = "You don't have sufficient access rights to execute this analysis."
+
         if self.user.is_anonymous():
-            raise forms.ValidationError(msg)
+            msg1 = "A user must be logged in to run an analysis."
+            raise forms.ValidationError(msg1)
+
+        # Check the permissions for
         entry = Access.objects.filter(user=self.user, project=self.project).first()
+
         if not entry or entry.access < Access.EXECUTE_ACCESS:
-            raise forms.ValidationError(msg)
+            msg2 = "You don't have exectute rights in this project. Copy this analysis to another project."
+            raise forms.ValidationError(msg2)
+
+        if self.analysis.security != Analysis.AUTHORIZED:
+            msg3 = "The recipe has been modified. It must be reviewed by a staff member to authorize it."
+            raise forms.ValidationError(msg3)
 
     def fill_json_data(self):
         """

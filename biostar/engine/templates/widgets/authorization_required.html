@@ -1,0 +1,11 @@
+{% if not analysis.authorized %}
+    <div class="ui warning message">
+        <div class="header">
+            This recipe has been modified
+        </div>
+        <p>
+            When the template of a recipe is modified it must <a href="#">reviewed and authorized</a> by a
+            staff member.
+        </p>
+    </div>
+{% endif %}
