@@ -91,7 +91,6 @@ def project_name_bar(project):
     """
     return dict(project=project)
 
-
 @register.inclusion_tag('interface/recipe_form.html')
 def recipe_form(form):
     """
@@ -99,7 +98,12 @@ def recipe_form(form):
     """
     return dict(form=form)
 
-
+@register.inclusion_tag('widgets/access_form.html')
+def access_form(project, user, form):
+    """
+    Generates an access form.
+    """
+    return dict(project=project, user=user, form=form)
 
 @register.inclusion_tag('widgets/job_elapsed.html')
 def job_minutes(job):

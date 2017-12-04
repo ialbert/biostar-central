@@ -1,24 +1,24 @@
-import os, logging, glob
+import glob
+import logging
+
 import mistune
 from django.conf import settings
-# from django.template.loader import get_template
-from django.utils.safestring import mark_safe
-from django.db.models import Q
 from django.contrib import messages
-from django.views.decorators import cache
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
 from django.shortcuts import render, redirect
 from django.urls import reverse
-from django import forms
+# from django.template.loader import get_template
+from django.utils.safestring import mark_safe
 
-from .forms import *
 from .const import *
 from .decorators import object_access
+from .forms import *
 from .models import (Project, Data, Analysis, Job, User, Access)
+
 
 def join(*args):
     return os.path.abspath(os.path.join(*args))
+
 
 # The current directory
 __CURRENT_DIR = os.path.dirname(__file__)
@@ -26,16 +26,18 @@ __DOCS_DIR = join(__CURRENT_DIR, "docs")
 
 
 def valid_path(path):
-    path =  os.path.abspath(path)
+    path = os.path.abspath(path)
     return path.startswith(__DOCS_DIR)
 
+
 logger = logging.getLogger('engine')
+
 
 def make_html(text):
     return mistune.markdown(text)
 
-def docs(request, name):
 
+def docs(request, name):
     patt = join(__DOCS_DIR, name) + ".*"
     files = glob.glob(patt)
     if not files:
@@ -133,13 +135,21 @@ def site_admin(request):
 
 @object_access(type=Project, access=Access.ADMIN_ACCESS, url='project_view')
 def project_users(request, id):
+    """
+    Manage project users
+    """
 
     project = Project.objects.filter(pk=id).first()
+
     # Search query, and not_found flag set
-    q = not_found = request.GET.get("q")
+    q = request.GET.get("q")
 
     # Users already with access to current project
     users = [access.user for access in project.access_set.all() if access.access > Access.NO_ACCESS]
+
+    # Users that have been searched for.
+    targets = []
+
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ADD_USER],
                                project=project)
 
@@ -152,21 +162,21 @@ def project_users(request, id):
         else:
             # TODO: quick fix for now. not showing up corretly
             messages.error(request, mark_safe(form.non_field_errors()))
+
         return redirect(reverse("project_users", kwargs=dict(id=id)))
 
     if q:
-        query = User.objects.filter(Q(email__contains=q)|Q(first_name__contains=q))
-        # Turn not_found flag off if the query is valid
-        not_found = None if query else not_found
-        users = query if query else users
+        targets = User.objects.filter(Q(email__contains=q) | Q(first_name__contains=q))
 
-    forms = access_forms(users=users, project=project)
-    context = dict(steps=steps, forms=forms, project=project, not_found=not_found)
+    current = access_forms(users=users, project=project)
+    results = access_forms(users=targets, project=project)
+
+    context = dict(steps=steps, current=current, project=project, results=results)
+
     return render(request, "project_users.html", context=context)
 
 
 def project_list(request):
-
     projects = auth.get_project_list(user=request.user).order_by("-sticky", "-privacy")
     projects = projects.order_by("-privacy", "-sticky", "-date", "-id")
 
@@ -265,7 +275,6 @@ def project_create(request):
 
 @object_access(type=Project, access=Access.READ_ACCESS)
 def data_list(request, id):
-
     project = Project.objects.filter(id=id).first()
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON],
                                project=project)
@@ -322,7 +331,7 @@ def data_edit(request, id):
 def data_upload(request, id):
     owner = request.user
     project = Project.objects.filter(id=id).first()
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON, DATA_UPLOAD ],
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON, DATA_UPLOAD],
                                project=project)
 
     if request.method == "POST":
@@ -354,7 +363,7 @@ def analysis_list(request, id):
     """
 
     project = Project.objects.filter(id=id).first()
-    analyses = Analysis.objects.filter(project=project).order_by("-sticky","-id")
+    analyses = Analysis.objects.filter(project=project).order_by("-sticky", "-id")
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ANALYSIS_LIST_ICON],
                                project=project)
@@ -380,7 +389,6 @@ def recipe_view(request, id):
 
 @object_access(type=Analysis, access=Access.RECIPE_ACCESS, url='recipe_view', login_required=True)
 def recipe_copy(request, id):
-
     analysis = Analysis.objects.filter(id=id).first()
     projects = auth.get_project_list(user=request.user)
 
@@ -390,7 +398,7 @@ def recipe_copy(request, id):
     # Filter projects by admin access
     projects = projects.filter(Q(access__user=request.user, access__access__gt=Access.EDIT_ACCESS))
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ANALYSIS_VIEW_ICON,
-                                ANALYSIS_RECIPE_ICON],project=analysis.project, analysis=analysis)
+                                ANALYSIS_RECIPE_ICON], project=analysis.project, analysis=analysis)
 
     if request.method == "POST":
         form = RecipeCopyForm(data=request.POST, analysis=analysis, user=request.user)
@@ -449,7 +457,6 @@ def recipe_run(request, id):
     return render(request, 'recipe_run.html', context)
 
 
-
 @object_access(type=Analysis, access=Access.RECIPE_ACCESS, url='recipe_view')
 def recipe_code(request, id):
     """
@@ -468,7 +475,7 @@ def recipe_code(request, id):
 
     # This is the navbat.
     steps = breadcrumb_builder([PROJECT_ICON, ANALYSIS_LIST_ICON, ANALYSIS_VIEW_ICON,
-                                ANALYSIS_RECIPE_ICON],project=project, analysis=analysis)
+                                ANALYSIS_RECIPE_ICON], project=project, analysis=analysis)
 
     if request.method == "POST":
         form = EditCode(user=user, project=project, data=request.POST)
@@ -538,7 +545,7 @@ def recipe_create(request, id):
             return redirect(reverse("recipe_view", kwargs=dict(id=recipe.id)))
 
     form = RecipeForm()
-    action_url =reverse('recipe_create', kwargs=dict(id=project.id))
+    action_url = reverse('recipe_create', kwargs=dict(id=project.id))
     back_url = reverse('analysis_list', kwargs=dict(id=project.id))
     context = dict(steps=steps, project=project, form=form, action_url=action_url, back_url=back_url)
 
@@ -547,7 +554,6 @@ def recipe_create(request, id):
 
 @object_access(type=Analysis, access=Access.EDIT_ACCESS, url='recipe_view')
 def recipe_edit(request, id):
-
     analysis = Analysis.objects.filter(id=id).first()
     project = analysis.project
 
@@ -584,7 +590,7 @@ def job_list(request, id):
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, RESULT_LIST_ICON],
                                project=project)
-    jobs =Job.objects.filter(project=project).order_by("-date", "-start_date")
+    jobs = Job.objects.filter(project=project).order_by("-date", "-start_date")
 
     filter = request.GET.get('filter', '')
 
@@ -603,10 +609,10 @@ def job_edit(request, id):
     project = job.project
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, RESULT_LIST_ICON,
-                                RESULT_VIEW_ICON],job=job, project=project)
+                                RESULT_VIEW_ICON], job=job, project=project)
 
     if request.method == "POST":
-        form =JobEditForm(data=request.POST, files=request.FILES, instance=job)
+        form = JobEditForm(data=request.POST, files=request.FILES, instance=job)
         if form.is_valid():
             form.save()
             return redirect(reverse("job_view", kwargs=dict(id=job.id)))
@@ -642,14 +648,14 @@ def job_result_view(request, id):
 
     if job.state == Job.COMPLETED:
 
-        #TODO:This part is still exposed.
+        # TODO:This part is still exposed.
         url = settings.MEDIA_URL + job.get_url(path=index)
         return redirect(url)
     else:
         return redirect(reverse("job_view", kwargs=dict(id=id)))
 
 
-@object_access(type=Job, access=Access.READ_ACCESS,  url="job_view")
+@object_access(type=Job, access=Access.READ_ACCESS, url="job_view")
 def job_file_view(request, id):
     """
     Returns the directory view of the job.
@@ -689,7 +695,7 @@ def job_files_list(request, id, path=''):
             messages.success(request, f"Copied {len(count)} file to {project.name}.")
         else:
             messages.warning(request, "Unable to copy files")
-        #TODO: redirection does not make sense really
+        # TODO: redirection does not make sense really
         return redirect(reverse("job_result_view", kwargs=dict(id=job.id)))
 
     form = DataCopyForm(project=project)

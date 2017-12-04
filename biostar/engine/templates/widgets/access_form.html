@@ -1,0 +1,25 @@
+<form method="post" action="{% url 'project_users' project.id %}">
+
+    <input type="hidden" name="user_id" value="{{ user.id }}">
+    <input type="hidden" name="project_id" value="{{ project.id }}">
+
+    {% csrf_token %}
+
+    <div class="ui card">
+
+        <div class="content">
+            <a class="header"> {{ user.first_name }}</a>
+            <div class="meta">
+                <span class="date">{{ user.email }}</span>
+            </div>
+
+        </div>
+        <div class="content">
+            {{ form.access }}
+            <button type="submit" class="ui basic green center aligned button">
+                Submit
+            </button>
+        </div>
+    </div>
+
+</form>
