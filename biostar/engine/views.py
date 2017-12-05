@@ -142,7 +142,7 @@ def project_users(request, uid):
 
     project = Project.objects.filter(uid=uid).first()
 
-    # Search query, and not_found flag set
+    # Search query
     q = request.GET.get("q")
 
     # Users already with access to current project
@@ -163,7 +163,7 @@ def project_users(request, uid):
         else:
             messages.error(request, mark_safe(form.non_field_errors()))
 
-        return redirect(reverse("project_users", kwargs=dict(id=id)))
+        return redirect(reverse("project_users", kwargs=dict(uid=project.uid)))
 
     if q:
         targets = User.objects.filter(Q(email__contains=q) | Q(first_name__contains=q))
