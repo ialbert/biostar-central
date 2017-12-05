@@ -15,24 +15,28 @@
             <div class="field segment">
                 <label>Job Name</label>
                 {{ form.name }}
+                <p class="muted">What do you want to call the job</p>
             </div>
             <div class="field">
                <label class="checkbox" for="{{ field.id_for_label }}">
                     {{ form.sticky }} <label>Sticky</label>
                </label>
+                <p class="muted">Makes the job stick to top of the list.</p>
             </div>
              <div class="field">
-                  <label> Image</label>
-                  <input id="id_image" type="file" class="" name="image">
+                 <label> Image {{ form.image.errors }}</label>
+                  {{ form.image }}
+                  <p class="muted">Optional image to recognize the job by (square image, no more than 500px)</p>
              </div>
 
             <div class="field segment">
                 <label>Job description</label>
                 {{ form.text }}
+                <p class="muted">A detailed explanation of what the job does (markdown OK).</p>
             </div>
-            {{ form.errors }}
 
-            <button type="submit" class="ui submit button">
+
+            <button type="submit" class="ui submit green button">
                 <i class="save icon"></i>Save
             </button>
             <a class="ui right floated button" href="{% url 'job_view' job.id %}">

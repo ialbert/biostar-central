@@ -1,6 +1,6 @@
 import copy
 from django import forms
-from django.db.models import Q
+from django.contrib import messages
 import hjson
 from . import models, auth, factory
 from . import tasks
@@ -14,11 +14,6 @@ logger = models.logger
 
 def join(*args):
     return os.path.abspath(os.path.join(*args))
-
-
-
-
-
 
 class ProjectForm(forms.ModelForm):
     image = forms.ImageField(required=False)
@@ -77,6 +72,16 @@ class ChangeUserAccess(forms.ModelForm):
     class Meta:
         model = Access
         fields = ['access', 'user_id', "project_id"]
+
+
+    def clean(self):
+        cleaned_data = super(ChangeUserAccess, self).clean()
+        project = Project.objects.filter(pk=cleaned_data["project_id"]).first()
+        access = [a.access for a in project.access_set.all() if a.user.id!=cleaned_data["user_id"]]
+        access.append(cleaned_data["access"])
+
+        if Access.ADMIN_ACCESS not in access:
+            raise forms.ValidationError("Alteast one user with Admin Access required.")
 
     def change_access(self):
         "Change users access to a project"
@@ -149,13 +154,14 @@ class DataCopyForm(forms.Form):
 class RecipeCopyForm(forms.Form):
     project = forms.IntegerField()
 
-    def __init__(self, analysis, user, *args, **kwargs):
+    def __init__(self, analysis, request, *args, **kwargs):
         self.analysis = analysis
 
         # Needed when a new project is created
-        self.user = user
-        super().__init__(*args, **kwargs)
+        self.user = request.user
+        self.request = request
 
+        super().__init__(*args, **kwargs)
 
     def save(self):
 
@@ -180,6 +186,7 @@ class RecipeCopyForm(forms.Form):
         if cleaned_data.get("project") == 0:
             new_project = auth.create_project(user=self.user, name="New project")
             cleaned_data["project"] = new_project.id
+            messages.success(self.request, f"Created a new project")
 
         return cleaned_data
 
