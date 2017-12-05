@@ -1,36 +1,43 @@
 {% extends "base.html" %}
 {% block headtitle %}Welcome{% endblock %}
-{% block title %} Signup {% endblock %}
-
 
 
 {% block body %}
 
-    <div class="ui raised centered card">
+    <div class="ui raised segment">
+        <div class="ui center aligned header">
 
-        <form method="post" class="ui form attached fluid segment" >
+            <i class="add user icon"></i>Sign up
 
-            {% csrf_token %}
-             <div class="field">
-                  <label>Email</label>
-                  {{ form.email }}
-             </div>
+        </div>
+        <form method="post" class="ui form attached fluid" action="{% url 'signup' %}">
+            <div class="ui centered card inputcolor">
 
-             <div class="field">
-                  <label>Password</label>
-                  {{ form.password1 }}
-             </div>
+                <div class="ui basic segment">
 
-             <div class="field">
-                  <label>Password Confirmation</label>
-                  {{ form.password2 }}
-             </div>
+                    {% csrf_token %}
+                     <div class="field">
+                          <label>Email</label>
+                          {{ form.email }}
+                     </div>
 
-            {{ form.errors }}
+                     <div class="field">
+                          <label>Password</label>
+                          {{ form.password1 }}
+                     </div>
 
-            <button type="submit" class="ui primary button">Sign up</button>
-            <a class="ui right floated button" href="/">Cancel</a>
+                     <div class="field">
+                          <label>Password Confirmation</label>
+                          {{ form.password2 }}
+                     </div>
 
+                    {{ form.errors }}
+
+                    <button type="submit" class="ui primary button">Sign up</button>
+                    <a class="ui right floated button" href="/">Cancel</a>
+
+                </div>
+            </div>
         </form>
 
     </div>

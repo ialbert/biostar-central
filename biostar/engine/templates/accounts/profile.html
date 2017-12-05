@@ -12,13 +12,14 @@
             {{user.first_name}}
 
         </div>
-
      <div class="ui center aligned vertical segment">
              <a class="ui button" href="{% url 'edit_profile'%}">
                 <i class="write icon"></i>Edit profile
             </a>
      </div>
-Email : {{user.email}}
+
+    Email : {{user.email}}
+
         <div class="ui vertical segment">
 
             <div class="ui list">
@@ -26,13 +27,17 @@ Email : {{user.email}}
                 <div class="content">
                         <div class="ui list">
                             <div class="item">
-                                {% for access in user.access_set.all %}
-                                <div class="content">
                                 <ol>
-                                    &bull; <a href="{% url 'project_view' access.project.id %}">{{access.project}}</a>  | <span class="ui green tiny label">{{ access.get_access_display }}</span>
-
+                                &bull; <a href="{% url 'project_create' %}">Create a new project</a>
                                 </ol>
-                                </div>
+
+                                {% for access in user.access_set.all %}
+
+                                    <ol>
+                                        &bull; <a href="{% url 'project_view' access.project.id %}">{{access.project}}</a>
+                                        | <span class="ui green tiny label">{{ access.get_access_display }}</span>
+                                    </ol>
+
                                 {% endfor %}
                             </div>
                         </div>
