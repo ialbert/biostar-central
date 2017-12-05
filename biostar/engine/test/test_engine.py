@@ -71,15 +71,18 @@ class AnalysisTest(TestCase):
         # using a simple logged in client when needed
         self.client.login(username="1@lvh.me", password="1@lvh.me")
 
-    def Xtest_analysis_copy_interface(self):
+    def test_recipe_copy_interface(self):
         "Testing analysis copy interface "
+        new_project = auth.create_project(user=self.owner, name="test",
+                                      text="Text", summary="summary")
 
-        url = reverse("analysis_copy", kwargs=dict(id=self.analysis.id))
-        projects = [self.project]
-        info = dict(projects=projects)
+        url = reverse("recipe_copy", kwargs=dict(id=self.analysis.id))
+        info = dict(project=new_project.id)
         resp = self.client.post(url, info)
 
         self.assertEqual(resp.status_code, 302)
+
+        1/0
 
     def test_recipe_edit_interface(self):
         "Testing analysis edit interface"

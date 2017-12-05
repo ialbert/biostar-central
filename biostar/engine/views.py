@@ -547,7 +547,8 @@ def recipe_create(request, uid):
     form = RecipeForm()
     action_url = reverse('recipe_create', kwargs=dict(uid=project.uid))
     back_url = reverse('recipe_list', kwargs=dict(uid=project.uid))
-    context = dict(steps=steps, project=project, form=form, action_url=action_url, back_url=back_url)
+    context = dict(steps=steps, analysis={"name":"New Analysis"},
+                   project=project, form=form, action_url=action_url, back_url=back_url)
 
     return render(request, 'recipe_edit.html', context)
 
