@@ -9,7 +9,7 @@
 
     <div class="ui raised segment inputcolor">
 
-        <form method="post" class="ui form" enctype="multipart/form-data" action="{% url 'project_edit' project.id %}">
+        <form method="post" class="ui form" enctype="multipart/form-data" action="{% url 'project_edit' project.uid %}">
 
             {% csrf_token %}
             {{ form.media }}

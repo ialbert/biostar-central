@@ -90,7 +90,7 @@ def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=Non
         elif icon == DATA_UPLOAD:
             step = (reverse("data_view", kwargs={'id': project.id}), DATA_UPLOAD, f"File Upload", is_active)
         elif icon == ANALYSIS_LIST_ICON:
-            step = (reverse("analysis_list", kwargs={'id': project.id}), ANALYSIS_LIST_ICON, "Recipe List", is_active)
+            step = (reverse("recipe_list", kwargs={'uid': project.uid}), ANALYSIS_LIST_ICON, "Recipe List", is_active)
         elif icon == ANALYSIS_VIEW_ICON:
             step = (reverse("recipe_view", kwargs={'id': analysis.id}), ANALYSIS_VIEW_ICON, "Recipe View", is_active)
         elif icon == ANALYSIS_RUN_ICON:
@@ -98,7 +98,7 @@ def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=Non
         elif icon == ANALYSIS_RECIPE_ICON:
             step = (reverse("recipe_view", kwargs={'id': analysis.id}), ANALYSIS_RECIPE_ICON, "Recipe Code", is_active)
         elif icon == RESULT_LIST_ICON:
-            step = (reverse("job_list", kwargs={'id': project.id, }), RESULT_LIST_ICON, "Result List", is_active)
+            step = (reverse("job_list", kwargs={'uid': project.uid, }), RESULT_LIST_ICON, "Result List", is_active)
         elif icon == RESULT_VIEW_ICON:
             step = (reverse("job_view", kwargs={'id': job.id}), RESULT_VIEW_ICON, "Result View", is_active)
         elif icon == USER_ICON:
@@ -357,20 +357,20 @@ def data_upload(request, uid):
     return render(request, 'data_upload.html', context)
 
 
-@object_access(type=Analysis, access=Access.READ_ACCESS)
-def analysis_list(request, id):
+@object_access(type=Project, access=Access.READ_ACCESS)
+def recipe_list(request, uid):
     """
     Returns the list of analyses for a project id.
     """
 
-    project = Project.objects.filter(id=id).first()
+    project = Project.objects.filter(uid=uid).first()
     analyses = Analysis.objects.filter(project=project).order_by("-sticky", "-id")
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ANALYSIS_LIST_ICON],
                                project=project)
     context = dict(project=project, analyses=analyses, steps=steps)
 
-    return render(request, "analysis_list.html", context)
+    return render(request, "recipe_list.html", context)
 
 
 @object_access(type=Analysis, access=Access.READ_ACCESS)
@@ -524,12 +524,12 @@ def recipe_code(request, id):
     return render(request, 'recipe_code.html', context)
 
 
-@object_access(type=Analysis, access=Access.EDIT_ACCESS, url='analysis_list')
-def recipe_create(request, id):
+@object_access(type=Project, access=Access.EDIT_ACCESS, url='analysis_list')
+def recipe_create(request, uid):
     """
     Here the id is of the project!
     """
-    project = Project.objects.filter(id=id).first()
+    project = Project.objects.filter(uid=uid).first()
 
     steps = breadcrumb_builder([PROJECT_ICON, ANALYSIS_LIST_ICON], project=project)
 
@@ -545,8 +545,8 @@ def recipe_create(request, id):
             return redirect(reverse("recipe_view", kwargs=dict(id=recipe.id)))
 
     form = RecipeForm()
-    action_url = reverse('recipe_create', kwargs=dict(id=project.id))
-    back_url = reverse('analysis_list', kwargs=dict(id=project.id))
+    action_url = reverse('recipe_create', kwargs=dict(uid=project.uid))
+    back_url = reverse('recipe_list', kwargs=dict(uid=project.uid))
     context = dict(steps=steps, project=project, form=form, action_url=action_url, back_url=back_url)
 
     return render(request, 'recipe_edit.html', context)
@@ -577,11 +577,11 @@ def recipe_edit(request, id):
 
 
 @object_access(type=Project, access=Access.READ_ACCESS, url="project_view")
-def job_list(request, id):
+def job_list(request, uid):
     """
     Returns the list of jobs for a project id.
     """
-    project = Project.objects.filter(id=id).first()
+    project = Project.objects.filter(uid=uid).first()
 
     if not project:
         messages.error(request, "Jobs not found.")

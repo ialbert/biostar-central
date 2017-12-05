@@ -1,5 +1,5 @@
 {% load engine_tags %}
 <div class="ui center aligned segment">
     <img class="ui avatar image" src="{% img project %}">
-    <a href="{%  url "project_view" project.id %}">Project:  {{ project.name }}</a>
+    <a href="{{project.url}}">Project:  {{ project.name }}</a>
 </div>
