@@ -31,8 +31,6 @@ def sticky_label(obj):
 def copy_interface(form, projects):
     "Copy an instance from (from_id) to a list of allowed projects"
 
-
-    # render that form here
     return dict(projects=projects, form=form)
 
 

@@ -182,11 +182,27 @@ class RecipeCopyForm(forms.Form):
     def clean(self):
 
         cleaned_data = super(RecipeCopyForm, self).clean()
+
+        if self.request.user.is_anonymous:
+            msg = "You have to be logged in to copy a recipe."
+            messages.error(self.request, msg )
+            raise forms.ValidationError(msg)
+
+        access = Access.objects.filter(user=self.request.user, project=self.analysis.project).first()
+
         # 0 is selected to create a new project.
         if cleaned_data.get("project") == 0:
+
             new_project = auth.create_project(user=self.user, name="New project")
             cleaned_data["project"] = new_project.id
             messages.success(self.request, f"Created a new project")
+
+        # Can not duplicate into the project if you do not have admin access to it.
+        if cleaned_data.get("project") == self.analysis.project.id:
+            if (not access or access.access < Access.ADMIN_ACCESS):
+                msg= "Can not duplicate into a project without Admin Access"
+                messages.error(self.request, msg )
+                raise forms.ValidationError(msg)
 
         return cleaned_data
 

@@ -382,17 +382,21 @@ def recipe_view(request, id):
     """
     analysis = Analysis.objects.filter(id=id).first()
     project = analysis.project
-    projects = auth.get_project_list(user=request.user)
-
-    # Can't copy into current or public projects
-    projects = projects.exclude(pk=analysis.project.id).exclude(privacy=Project.PUBLIC)
-    # Filter projects by admin access
-    projects = projects.filter(Q(access__user=request.user, access__access__gt=Access.EDIT_ACCESS))
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ANALYSIS_LIST_ICON, ANALYSIS_VIEW_ICON],
                                project=project, analysis=analysis)
 
-    if request.method == "POST":
+    projects = auth.get_project_list(user=request.user)
+    # Can't copy into current or public projects
+    projects = projects.exclude(pk=analysis.project.id).exclude(privacy=Project.PUBLIC)
+    cond = Q(access__access__gt=Access.EDIT_ACCESS)
 
+    # Filter projects by admin access
+    if request.user.is_authenticated:
+        cond = Q(access__user=request.user, access__access__gt=Access.EDIT_ACCESS)
+
+    projects = projects.filter(cond)
+
+    if request.method == "POST":
         form = RecipeCopyForm(data=request.POST, analysis=analysis, request=request)
         name = analysis.name
         if form.is_valid():
