@@ -106,7 +106,7 @@ class Project(models.Model):
         return self.name
 
     def url(self):
-        return reverse("project_view", kwargs=dict(id=self.id))
+        return reverse("project_view", kwargs=dict(uid=self.uid))
 
     def get_project_dir(self):
         return join(settings.MEDIA_ROOT, "projects", f"proj-{self.uid}")

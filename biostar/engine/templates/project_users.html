@@ -36,7 +36,7 @@
 
             <div class="ui tiny header">Search for users to manage</div>
 
-            <form method="get" action="{% url 'project_users' project.id %}">
+            <form method="get" action="{% url 'project_users' project.uid %}">
                 <div class="ui fluid left icon input">
 
                     <input type="text" name="q" placeholder="">

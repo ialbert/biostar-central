@@ -82,9 +82,9 @@ def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=Non
         elif icon == PROJECT_LIST_ICON:
             step = (reverse("project_list"), PROJECT_LIST_ICON, "Project List", is_active)
         elif icon == PROJECT_ICON:
-            step = (reverse("project_view", kwargs={'id': project.id}), PROJECT_ICON, "Project View", is_active)
+            step = (project.url(), PROJECT_ICON, "Project View", is_active)
         elif icon == DATA_LIST_ICON:
-            step = (reverse("data_list", kwargs={'id': project.id}), DATA_LIST_ICON, "Data Files", is_active)
+            step = (reverse("data_list", kwargs={'uid': project.uid}), DATA_LIST_ICON, "Data Files", is_active)
         elif icon == DATA_ICON:
             step = (reverse("data_view", kwargs={'id': data.id}), DATA_ICON, f"File View", is_active)
         elif icon == DATA_UPLOAD:
@@ -114,7 +114,7 @@ def breadcrumb_builder(icons=[], project=None, analysis=None, data=None, job=Non
         elif icon == RESULT_INDEX_ICON:
             step = (reverse("job_view", kwargs={'id': job.id}), RESULT_INDEX_ICON, "Index View", is_active)
         elif icon == ADD_USER:
-            step = (reverse("project_view", kwargs={'id': project.id}), ADD_USER, "Manage Access", is_active)
+            step = (reverse("project_view", kwargs={'uid': project.uid}), ADD_USER, "Manage Access", is_active)
         else:
             continue
 
@@ -135,12 +135,12 @@ def site_admin(request):
 
 
 @object_access(type=Project, access=Access.ADMIN_ACCESS, url='project_view')
-def project_users(request, id):
+def project_users(request, uid):
     """
     Manage project users
     """
 
-    project = Project.objects.filter(pk=id).first()
+    project = Project.objects.filter(uid=uid).first()
 
     # Search query, and not_found flag set
     q = request.GET.get("q")
@@ -187,9 +187,10 @@ def project_list(request):
 
 
 @object_access(type=Project, access=Access.READ_ACCESS)
-def project_view(request, id):
+def project_view(request, uid):
     user = request.user
-    project = Project.objects.filter(id=id).first()
+
+    project = Project.objects.filter(uid=uid).first()
 
     # Project not found.
     if not project:
@@ -216,8 +217,8 @@ def project_view(request, id):
 
 
 @object_access(type=Project, access=Access.EDIT_ACCESS, url='project_view')
-def project_edit(request, id):
-    project = auth.get_project_list(user=request.user).filter(id=id).first()
+def project_edit(request, uid):
+    project = auth.get_project_list(user=request.user).filter(uid=uid).first()
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON], project=project)
 
@@ -274,8 +275,8 @@ def project_create(request):
 
 
 @object_access(type=Project, access=Access.READ_ACCESS)
-def data_list(request, id):
-    project = Project.objects.filter(id=id).first()
+def data_list(request, uid):
+    project = Project.objects.filter(uid=uid).first()
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON],
                                project=project)
     if not project:
@@ -328,9 +329,9 @@ def data_edit(request, id):
 
 
 @object_access(type=Project, access=Access.UPLOAD_ACCESS, url='data_list')
-def data_upload(request, id):
+def data_upload(request, uid):
     owner = request.user
-    project = Project.objects.filter(id=id).first()
+    project = Project.objects.filter(uid=uid).first()
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON, DATA_UPLOAD],
                                project=project)
 

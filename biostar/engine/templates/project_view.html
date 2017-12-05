@@ -53,7 +53,7 @@
                     </div>
 
                     <div class="content">
-                        <a class="header" href="{% url 'data_list' project.id %}">
+                        <a class="header" href="{% url 'data_list' project.uid %}">
                             <i class="file text icon"></i> {{ data_count }} Data Files
                         </a>
                         <div class="description">
@@ -102,10 +102,10 @@
 
         </div>
         <div class="ui vertical center aligned segment">
-            <a class="ui button" href="{% url 'project_edit' project.id %}">
+            <a class="ui button" href="{% url 'project_edit' project.uid %}">
                 <i class="write icon"></i>Edit Project
             </a>
-            <a class="ui button" href="{% url 'project_users' project.id %}">
+            <a class="ui button" href="{% url 'project_users' project.uid %}">
                 <i class="users icon"></i>Manage People
             </a>
         </div>
