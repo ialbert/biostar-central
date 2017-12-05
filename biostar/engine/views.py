@@ -524,7 +524,7 @@ def recipe_code(request, id):
     return render(request, 'recipe_code.html', context)
 
 
-@object_access(type=Project, access=Access.EDIT_ACCESS, url='analysis_list')
+@object_access(type=Project, access=Access.EDIT_ACCESS, url='recipe_list')
 def recipe_create(request, uid):
     """
     Here the id is of the project!
@@ -561,10 +561,10 @@ def recipe_edit(request, id):
                                 ANALYSIS_RECIPE_ICON], project=project, analysis=analysis)
 
     if request.method == "POST":
-        form = RecipeForm(data=request.POST, files=request.FILES, instance=analysis, )
+        form = RecipeForm(data=request.POST, files=request.FILES, instance=analysis)
         if form.is_valid():
             recipe = form.save()
-            return redirect(reverse("recipe_view", kwargs=dict(id=analysis.id)))
+            return redirect(reverse("recipe_view", kwargs=dict(id=recipe.id)))
 
     form = RecipeForm(instance=analysis)
 
