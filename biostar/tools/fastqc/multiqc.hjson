@@ -1,23 +1,21 @@
 {
 
     sequence : {
-
-        path: export/local/input/
-        link: true
+        value: export/local/input/
         label: Input
         name: Testdata Directory
-        summary: Example test directory. All files are added to the project.
-        data_type: FASTQ_TYPE
-        display_type: DROPDOWN
-
+        help: The input may be a collection of files
+        summary: This data entry is a directory.
+        source: PROJECT
+        type: FASTQ
+        display: DROPDOWN
     }
 
     settings : {
-
-        name : FastQC report
+        name : MultiQC report
         index: fastqc_results/multiqc_report.html
-        image : fastqc.png
-        summary: Produces a fastqc report for all files in a collection.
+        image : multiqc.png
+        summary: Produces Fastqc reports and one MultiQC summary for all files in a collection.
         help :'''
 
         # Help
@@ -38,7 +36,6 @@
         fastqc reports are completed it generates a `multiqc` summary from all the `fastqc` reports.
 
         The `multiqc` report serves as the primary output of the recipe.
-
         '''
     }
 

@@ -82,14 +82,14 @@ init:
 	@python manage.py migrate
 
 public:
-	@python manage.py project --json initial/tutorial-project.hjson --privacy public --sticky --jobs
+	#@python manage.py project --json initial/tutorial-project.hjson --privacy public --sticky --jobs
 	@python manage.py project --json initial/cookbook-project.hjson --privacy public --sticky --jobs
 
 fish:
-	@python manage.py project --json initial/fish-project.hjson --jobs
+	#@python manage.py project --json initial/fish-project.hjson --jobs
 
 giraffe:
-	@python manage.py project --json initial/giraffe-project.hjson --sticky
+	#@python manage.py project --json initial/giraffe-project.hjson --sticky
 
 test:
 	python manage.py collectstatic --noinput -v 0

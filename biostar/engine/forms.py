@@ -44,16 +44,26 @@ class DataEditForm(forms.ModelForm):
 
 
 class RecipeForm(forms.ModelForm):
-    MAXSIZE = 2 * 1024 * 1024
+    # MAXSIZE in KiloBytes
+    MAXSIZE = 100
+
     class Meta:
         model = Analysis
         fields = ["name", "sticky", "image", "summary", "text" ]
 
-    def clean(self):
+    def clean_image(self):
         cleaned_data = super(RecipeForm, self).clean()
-        image = cleaned_data.get('image', False)
-        if image and image._size > self.MAXSIZE:
-            raise forms.ValidationError("Image file too large ( > 4mb )")
+        image = cleaned_data.get('image')
+
+        try:
+            if image and image.size > self.MAXSIZE * 1024:
+                curr_size = round(image.size/1024)
+                raise forms.ValidationError(f"Image file too large: {curr_size}KB should be < {self.MAXSIZE}KB")
+        except Exception as exc:
+            raise forms.ValidationError(f"Image validation error: {exc}")
+
+        return image
+
 
 
 

@@ -223,15 +223,15 @@ class Command(BaseCommand):
         parser.add_argument('--use_template',
                             help="Override the TEMPLATE with this file.")
 
-        parser.add_argument('--queued',
+        parser.add_argument('--list',
                             action='store_true',
-                            help="Show most recent 10 queued.")
+                            help="Show a job list")
 
     def handle(self, *args, **options):
 
         jobid = options['id']
         next = options['next']
-        queued = options['queued']
+        queued = options['list']
 
         # This code is also run insider tasks.
         if next:
@@ -251,7 +251,7 @@ class Command(BaseCommand):
             return
 
         if queued:
-            jobs = Job.objects.filter(state=Job.QUEUED).order_by('-id')[:10]
+            jobs = Job.objects.filter(state=Job.QUEUED).order_by('-id')
             for job in jobs:
                 print(f'{job.id} {job.name}')
             return

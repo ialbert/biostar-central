@@ -32,19 +32,21 @@ def parse_json(json, privacy=Project.PRIVATE, sticky=False, jobs=False):
 
     project = Project.objects.filter(uid=uid).first()
 
+    # Stop if the project already exists.
     if project:
         logger.info(f"Project uid={project.uid} already exists")
         return
 
+    # Set the image file stream.
     if os.path.isfile(imgpath):
         stream = File(open(imgpath, 'rb'))
     else:
         stream = None
 
-    # The user that will own the project.
-    user = User.objects.filter(email=email).first()
-    user = user or User.objects.filter(is_superuser=True).first()
+    # Recipes added at the command line belong to the superuser.
+    user = User.objects.filter(is_superuser=True).first()
 
+    # Setup error. Site has no users.
     if not user:
         logger.error("No valid users found")
         return
