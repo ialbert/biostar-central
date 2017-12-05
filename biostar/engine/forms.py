@@ -17,10 +17,11 @@ def join(*args):
 
 class ProjectForm(forms.ModelForm):
     image = forms.ImageField(required=False)
+    uid = forms.CharField(max_length=32, required=False)
 
     class Meta:
         model = Project
-        fields = ['name', 'summary', 'text', 'image', "privacy", "sticky"]
+        fields = ['name', 'summary', 'text', 'uid','image', "privacy", "sticky"]
 
 
 class DataUploadForm(forms.ModelForm):
@@ -102,27 +103,71 @@ class ChangeUserAccess(forms.ModelForm):
 
 
 def access_forms(users, project):
-        " Generate a list of forms for a given user list"
+    " Generate a list of forms for a given user list"
 
-        forms = []
-        for user in users:
-            access = Access.objects.filter(user=user, project=project).first()
-            initial = dict(access=Access.NO_ACCESS, user_id=user.id)
-            if access:
-                initial = dict(access=access.access, user_id=user.id)
+    forms = []
+    for user in users:
+        access = Access.objects.filter(user=user, project=project).first()
+        initial = dict(access=Access.NO_ACCESS, user_id=user.id)
+        if access:
+            initial = dict(access=access.access, user_id=user.id)
 
-            access_form = ChangeUserAccess(instance=access, initial=initial)
-            forms.append((user,access_form))
+        access_form = ChangeUserAccess(instance=access, initial=initial)
+        forms.append((user,access_form))
 
-        return forms
+    return forms
 
 
 class DataCopyForm(forms.Form):
-    pass
+    project = forms.IntegerField()
+
+    def __init__(self, current, request, *args, **kwargs):
+
+        self.current = current
+        # Needed when a new project is created
+        self.user = request.user
+        self.request = request
+
+        super().__init__(*args, **kwargs)
 
 
+    def save(self):
 
+        project = Project.objects.filter(pk=self.cleaned_data["project"]).first()
+        name, text, = f"Copy of: {self.current.name}", self.current.text
+        summary, data_type = self.current.summary, self.current.data_type
+        path = self.current.get_path()
 
+        data = auth.create_data(project=project,user=self.user, name=name,
+                                summary=summary, data_type=data_type, path=path,
+                                link=True)
+        data.save()
+
+        return data
+
+    def clean(self):
+        cleaned_data = super(DataCopyForm, self).clean()
+
+        if self.request.user.is_anonymous:
+            msg = "You have to be logged in to copy data."
+            messages.error(self.request, msg )
+            raise forms.ValidationError(msg)
+
+        access = Access.objects.filter(user=self.request.user, project=self.current.project).first()
+
+        # 0 is selected to create a new project.
+        if cleaned_data.get("project") == 0:
+            new_project = auth.create_project(user=self.user, name="New project")
+            # Mutates dict with created id
+            cleaned_data["project"] = new_project.id
+            messages.success(self.request, f"Created a new project")
+
+        # Can not duplicate into the project if you do not have admin access to it.
+        if cleaned_data.get("project") == self.current.project.id:
+            if (not access or access.access < Access.ADMIN_ACCESS):
+                msg= "Can not duplicate into a project without Admin Access"
+                messages.error(self.request, msg )
+                raise forms.ValidationError(msg)
 
 
 
