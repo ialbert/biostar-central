@@ -12,7 +12,7 @@ logger = logging.getLogger(settings.LOGGER_NAME)
 
 class Bunch():
     def __init__(self, **kwargs):
-        self.path = 'abc'
+        self.value = ''
         self.name = self.summary = ''
         self.text = self.data_type = self.link = ''
         self.__dict__.update(kwargs)
@@ -22,14 +22,12 @@ class Command(BaseCommand):
     help = 'Adds data to a project'
 
     def add_arguments(self, parser):
-        parser.add_argument('--id', default=0, help="Selects project by primary id")
-        parser.add_argument('--uid', default="hello", help="Selects project by unique id")
+        parser.add_argument('--id', default=0, help="Select project by primary id")
+        parser.add_argument('--uid', default="hello", help="Select project by unique id")
         parser.add_argument('--path', help="The path to the data", default='')
-        parser.add_argument('--summary', help="Summary for the data", default='')
+        parser.add_argument('--summary', help="Summary for the data", default='No summary')
         parser.add_argument('--name', help="Name for the data", default='')
         parser.add_argument('--type', help="Data type", default='')
-        parser.add_argument('--link', action="store_true", default=False,
-                            help="Link the file, not copy")
 
         parser.add_argument('--json', help="Reads data specification from a json file", default='')
 
@@ -38,7 +36,6 @@ class Command(BaseCommand):
         id = options['id']
         uid = options['uid']
         path = options['path'].rstrip("/")
-        link = options['link']
         name = options['name']
         summary = options['summary']
         data_type = options['type']
@@ -60,7 +57,7 @@ class Command(BaseCommand):
             return
 
         # Reads a file directly or a spec.
-        if not (path or json or link):
+        if not (path or json):
             logger.error(f"Must specify a value for --path --link or --json")
             return
 
@@ -72,7 +69,7 @@ class Command(BaseCommand):
         else:
             # There was one data loading request.
             data_list = [
-                Bunch(data_type=data_type, path=path, name=name, link=link, summary=summary, text='')
+                Bunch(data_type=data_type, value=path, name=name, summary=summary, text='')
             ]
 
         # Add each collected datatype.
@@ -82,7 +79,7 @@ class Command(BaseCommand):
             if data_type and not type_value:
                 logger.warning(f"Invalid data type: {bunch.data_type}")
 
-            auth.create_data(project=project, path=bunch.path,
+            auth.create_data(project=project, path=bunch.value,
                              data_type=type_value,
-                             name=bunch.name, link=bunch.link,
+                             name=bunch.name, link=True,
                              summary=bunch.summary, text=bunch.text)

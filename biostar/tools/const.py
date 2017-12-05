@@ -1,13 +1,10 @@
-# Datatypes
+# Valid interface types
 RADIO = "RADIO"
 DROPDOWN = "DROPDOWN"
 INTEGER = "INTEGER"
-FLOAT = "FLOAT"
 UPLOAD = "UPLOAD"
-MODEL = "MODEL"
-SCRIPT = "SCRIPT"
+FLOAT = "FLOAT"
 CHECKBOX = "CHECKBOX"
-TEMPLATE = "TEMPLATE"
 TEXTBOX = "TEXTBOX"
 
 # Data types
@@ -25,13 +22,13 @@ ACCESSION_LIST = 9
 
 DATA_TUPLES = [
     # Numeric, Symbol, Readable English
-    (GENERIC_TYPE, 'GENERIC_TYPE', "Generic Type"),
+    (GENERIC_TYPE, 'GENERIC', "Generic Type"),
     (SAMPLE_TYPE, 'SAMPLE_TYPE', "Sample Sheet"),
-    (COLLECTION_TYPE, 'COLLECTION_TYPE', "Collection"),
+    (COLLECTION_TYPE, 'COLLECTION', "Collection"),
     (TAR_FASTQ_GZ, 'TAR_FASTQ_GZ', "TAR FASTQ GZ"),
-    (FASTQ_TYPE, 'FASTQ_TYPE', "FASTQ Type"),
-    (FASTA_TYPE, 'FASTA_TYPE', "FASTA Type"),
-    (REFERENCE_TYPE, 'REFERENCE_TYPE', "Reference"),
+    (FASTQ_TYPE, 'FASTQ', "FASTQ Type"),
+    (FASTA_TYPE, 'FASTA', "FASTA Type"),
+    (REFERENCE_TYPE, 'REFERENCE', "Reference"),
     (LAMAR_SAMPLE_SHEET, 'LAMAR_SAMPLE_SHEET', "Lamar Sample Sheet"),
     (ACCESSION_MAP, 'ACCESSION_MAP', "Accession Map"),
     (ACCESSION_LIST, 'ACCESSION_LIST', "Accession List"),

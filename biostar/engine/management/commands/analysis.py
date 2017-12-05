@@ -1,13 +1,18 @@
-import os, sys, logging, hjson, textwrap
+import hjson
+import logging
+import os
+import textwrap
+
 from django.core.management.base import BaseCommand
-from biostar.engine.models import Job, Project, Analysis, User, Data
-from biostar.tools import const
+
 from biostar.engine import auth
-from biostar.engine import tasks
+from biostar.engine.models import Project, Analysis
+from biostar.tools import const
 
 logger = logging.getLogger('engine')
 
 __CURR_DIR = os.path.dirname(os.path.realpath(__file__))
+
 
 class Command(BaseCommand):
     help = 'Manages analyses.'
@@ -29,7 +34,6 @@ class Command(BaseCommand):
         parser.add_argument('--jobs', action='store_true', default=False,
                             help="Also creates a queued job for the analysis")
 
-
     def handle(self, *args, **options):
 
         add = options['add']
@@ -38,17 +42,12 @@ class Command(BaseCommand):
         template = options['template']
         jobs = options['jobs']
 
-        admin = User.objects.filter(is_staff=True).first()
-        if not admin:
-            logger.error("Site has no admin users")
-            return
-
         if not add:
             logger.error("Command requires at least one action: --add --delete")
             return
 
         if add:
-
+            # Require JSON and templatates to exist.
             if not (json and template):
                 logger.error("This command requires --json and a --template to be set")
                 return
@@ -56,14 +55,17 @@ class Command(BaseCommand):
             # Get the target project.
             project = Project.objects.filter(id=pid).first()
 
+            # Invalid project specified.
             if not project:
                 logger.error(f'No project with id={pid}')
                 return
 
+            # JSON file does not exist.
             if not os.path.isfile(json):
                 logger.error(f'No file found for --json={json}')
                 return
 
+            # Template file does not exist.
             if not os.path.isfile(template):
                 logger.error(f'No file found for --template={template}')
                 return
@@ -94,7 +96,7 @@ class Command(BaseCommand):
 
                 # Create the analysis
                 analysis = auth.create_analysis(project=project, uid=uid, json_text=json_text, summary=summary,
-                                                   template=template, name=name, text=text, security=Analysis.AUTHORIZED)
+                                                template=template, name=name, text=text, security=Analysis.AUTHORIZED)
 
                 # Load the image if specified.
                 if image:
@@ -106,25 +108,29 @@ class Command(BaseCommand):
                     else:
                         logger.error(f"Missing image path: {image_path}")
 
-                # Also create a queued job:
-
+                # Create a queued jobs if instructed so.
                 if jobs:
-                    # Need to deposit the file as data into the project.
+                    # We need to deposit the default file as data into the project.
                     # Find all objects that have a path attribute
-                    for key, value in json_data.items():
-                        path = value.get("path", '')
-                        summary = value.get("summary", '')
-                        text = value.get("text", '')
-                        link = value.get("link", '')
-                        data_type = value.get("data_type")
-                        name = value.get("name", '') or os.path.basename(path)
-                        data_type = const.DATA_TYPE_SYMBOLS.get(data_type)
-                        if path:
-                            data = auth.create_data(project=project, name=name, path=path, data_type=data_type, link=link,
-                                                    summary=summary, text=text)
-                            data.fill_dict(value)
+                    for key, obj in json_data.items():
+                        is_data = (obj.get("source") == "PROJECT")
 
-                    job = auth.create_job(analysis=analysis, json_data=json_data)
+                        # Get next field if this is not data.
+                        if not is_data:
+                            continue
+
+                        value = obj.get("value", "")
+                        summary = obj.get("summary", "")
+                        text = obj.get("text", "")
+                        data_type = obj.get("type")
+                        data_type = const.DATA_TYPE_SYMBOLS.get(data_type)
+                        name = obj.get("name", "") or os.path.basename(value)
+
+                        data = auth.create_data(project=project, name=name, path=value, data_type=data_type,
+                                                summary=summary, text=text, link=True)
+                        data.fill_dict(obj)
+
+                        job = auth.create_job(analysis=analysis, json_data=json_data)
 
             except KeyError as exc:
                 logger.error(f"processing the analysis: {exc}")

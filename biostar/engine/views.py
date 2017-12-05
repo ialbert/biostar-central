@@ -578,8 +578,8 @@ def recipe_edit(request, id):
         if form.is_valid():
             recipe = form.save()
             return redirect(reverse("recipe_view", kwargs=dict(id=recipe.id)))
-
-    form = RecipeForm(instance=analysis)
+    else:
+        form = RecipeForm(instance=analysis)
 
     action_url = reverse('recipe_edit', kwargs=dict(id=analysis.id))
     back_url = reverse('recipe_view', kwargs=dict(id=analysis.id))

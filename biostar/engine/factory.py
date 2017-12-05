@@ -136,24 +136,24 @@ def dynamic_field(data, project=None):
         return None
 
     # Find out the display type.
-    display_type = data.get("display_type")
+    display_type = data.get("display")
 
     # Fields with no display type are not visible.
     if not display_type:
         return None
 
-    # Data is accessed via paths or links.
-    is_data = data.get("path") or data.get("link")
+    # Data should be selected from a project.
+    from_project = (data.get("source") == "PROJECT")
 
-    if is_data and project:
-        # Project specific data needs to be generated from known data.
-        data_type = data.get("data_type")
+    if from_project and project:
+        # Project specific data should have a type.
+        data_type = data.get("type")
         field = data_field_generator(data, project=project, data_type=data_type)
     else:
         # In all other cases we generate a field from the tupe.
         func = field_types.get(display_type)
         if not func:
-            logger.error(f"Invalid display_type={display_type}")
+            logger.error(f"Invalid display type={display_type}")
             return None
         field = func(data)
 

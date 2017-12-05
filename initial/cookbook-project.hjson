@@ -35,8 +35,8 @@ text: '''
 analyses: [
 
     {
-        json: biostar/tools/fastqc/fastqc.hjson
-        template: biostar/tools/fastqc/fastqc.sh
+        json: biostar/tools/fastqc/multiqc.hjson
+        template: biostar/tools/fastqc/multiqc.sh
     }
 
     {
@@ -75,10 +75,10 @@ analyses: [
 data: [
 
     {
-        name: All FASTQ
-        path: export/local/input
-        data_type: FASTQ_TYPE
-        summary: All text fastq files
+        name: Input Files
+        value: export/local/input
+        data_type: FASTQ
+        summary: This data entry is a directory with files.
 
     }
 ]

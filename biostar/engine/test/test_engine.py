@@ -159,15 +159,18 @@ class FactoryTest(TestCase):
     def test_factory_fields(self):
         "Testing factory module that generates fields"
 
+        # All valid field types.
         field_types = factory.get_field_types()
 
         for display_type in field_types:
-            self.json_data.update(dict(display_type=display_type))
 
-            field = factory.dynamic_field(self.json_data)
-            self.assertTrue(isinstance(field, forms.Field))
+            # Test that each field type can be rendered.
+            json_data = dict(display=display_type)
 
-            del self.json_data["display_type"]
+            field = factory.dynamic_field(json_data)
+            if not field:
+                message = f"field generator for display={display_type} failed"
+                self.assertFalse(message)
 
 
     def test_data_generator(self):
@@ -183,11 +186,14 @@ class FactoryTest(TestCase):
 
         display_type = const.DROPDOWN
 
-        self.json_data.update(dict(display_type=display_type, path=data.get_path()))
+        json_data = dict(display=display_type, path=data.get_path())
 
-        field = factory.dynamic_field(self.json_data, project=self.project)
+        field = factory.dynamic_field(json_data, project=self.project)
 
-        self.assertTrue(isinstance(field, forms.Field))
+        if not field:
+            message = f"field generator for display={display_type} failed"
+            self.assertFalse(message)
+
 
 
 class CommandTests(TestCase):

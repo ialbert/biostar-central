@@ -1,21 +1,24 @@
 {
 
 sequence : {
-    path: export/local/input/virus_sample1.fastq.gz
+    value: export/local/input/virus_sample1.fastq.gz
     link: true
     label: Data
+    help: The sequencing reads
     summary: DNA reads of viral origin.
-    data_type: FASTQ_TYPE
-    display_type: DROPDOWN
+    source: PROJECT
+    type: FASTQ
+    display: DROPDOWN
   }
 
 genome : {
-    path: export/local/input/viral_genomes.fa
-    link: true
+    value: export/local/input/viral_genomes.fa
     label: Reference genome
+    help: The reference genome
     summary: Viral genome.
-    data_type: FASTA_TYPE
-    display_type: DROPDOWN
+    source: PROJECT
+    type: FASTA
+    display: DROPDOWN
     }
 
 threads : {
