@@ -15,7 +15,7 @@
         name : MultiQC report
         index: fastqc_results/multiqc_report.html
         image : multiqc.png
-        summary: Produces Fastqc reports and one MultiQC summary for all files in a collection.
+        summary: Produces Fastqc reports and a single MultiQC summary for all files in a collection.
         help :'''
 
         # Help
