@@ -1,8 +1,6 @@
 {% load humanize %}
 {% load engine_tags %}
-{% if not job.done %}
- <span class="ui  {% job_color job %} label">{{ job.get_state_display }}</span> &bull;
-{% endif %}
+<span class="ui  {% job_color job %} label">{{ job.get_state_display }}</span> &bull;
 {% if job.elapsed %}
     Finished in {{ job.elapsed }} &bull;
 {%  endif %}

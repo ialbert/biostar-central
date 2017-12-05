@@ -84,8 +84,8 @@ def run(job, options={}):
         execute = json_data.get('execute', {})
         script_name = execute.get("filename", "run.sh")
         json_fname = f"{script_name}.json"
-        stdout_fname = f"{script_name}.stdout.log"
-        stderr_fname = f"{script_name}.stderr.log"
+        stdout_fname = f"{script_name}.stdout.txt"
+        stderr_fname = f"{script_name}.stderr.txt"
 
         command = execute.get("command", "bash run.sh")
 
