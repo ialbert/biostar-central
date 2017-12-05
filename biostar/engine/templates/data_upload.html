@@ -8,7 +8,7 @@
 {% block body %}
 
 <div class="ui segment inputcolor">
-    <form method="post" class="ui form" enctype="multipart/form-data" action="{%  url 'data_upload' project.id %}">
+    <form method="post" class="ui form" enctype="multipart/form-data" action="{%  url 'data_upload' project.uid %}">
 
         {% csrf_token %}
         {{ form.media }}
@@ -39,8 +39,8 @@
         <button type="submit" class="ui submit green button">
             <i class="write icon"></i>Upload
         </button>
-        <a class="ui right floated button" href="{% url 'data_list' project.id %}">
-            Back
+        <a class="ui right floated button" href="{% url 'data_list' project.uid %}">
+             <i class="undo icon"></i>Cancel
         </a>
 
     </form>

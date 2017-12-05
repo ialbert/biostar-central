@@ -9,7 +9,7 @@
 
     <div class="ui raised segment inputcolor">
 
-        <form method="post" class="ui form" enctype="multipart/form-data" action="{% url 'project_edit' project.id %}">
+        <form method="post" class="ui form" enctype="multipart/form-data" action="{% url 'project_edit' project.uid %}">
 
             {% csrf_token %}
             {{ form.media }}
@@ -54,7 +54,7 @@
             <button type="submit" class="ui submit green button">
                 <i class="save icon"></i>Save
             </button>
-            <a class="ui right floated button" href="{% url 'project_view' project.id %}">
+            <a class="ui right floated button" href="{{project.url}}">
                  <i class="undo icon"></i>Cancel
             </a>
 

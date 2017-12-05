@@ -1,4 +1,4 @@
-<form method="post" action="{% url 'project_users' project.id %}">
+<form method="post" action="{% url 'project_users' project.uid %}">
 
     <input type="hidden" name="user_id" value="{{ user.id }}">
     <input type="hidden" name="project_id" value="{{ project.id }}">

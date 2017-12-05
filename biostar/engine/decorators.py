@@ -38,13 +38,15 @@ class object_access:
         def _wrapped_view(request, *args, **kwargs):
 
             # Each wrapped view must take a numerical id as parameter.
-            id = kwargs['id']
+            id = kwargs.get('id') or kwargs.get("uid")
 
             # The user is set in the request.
             user = request.user
 
             # Fetches the object that will be checked for permissions.
-            instance = self.type.objects.filter(pk=id).first()
+            instance = self.type.objects.filter(uid=id).first()
+            if kwargs.get('id'):
+                instance = self.type.objects.filter(pk=id).first()
 
             # Check for access to the object.
             allow_access = auth.check_obj_access(user=user, instance=instance, request=request, access=self.access, login_required=self.login_required)
@@ -54,7 +56,7 @@ class object_access:
 
                 # If there is a redirect url build with the id.
                 if self.url:
-                    target = reverse(self.url, kwargs=dict(id=id))
+                    target = reverse(self.url, kwargs=dict(id=id) if kwargs.get('id') else dict(uid=id))
                 else:
                     target = reverse('project_list')
 

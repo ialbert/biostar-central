@@ -44,7 +44,7 @@
 
                             <div class="meta">
                                 {% sticky_label analysis %}
-                                <a href="{% url 'job_list' project.id %}?filter={{ analysis.id }}">
+                                <a href="{% url 'job_list' project.uid %}?filter={{ analysis.id }}">
                                     <i class="bar chart icon"></i> view results
                                 </a>
                             </div>
@@ -56,7 +56,7 @@
                 {% endfor %}
 
                 <div class="item centerbox">
-                    <a class="ui  button" href="{% url 'recipe_create' project.id %}">
+                    <a class="ui  button" href="{% url 'recipe_create' project.uid %}">
                         <i class="plus icon"></i>Create New Recipe
                     </a>
 

@@ -1,5 +1,11 @@
 {% extends "base.html" %}
 {%  load engine_tags %}
+
+
+{% block headtitle %}
+    Editing: {{ analysis.name }}
+{% endblock %}
+
 {% block body %}
 
     <div class="ui raised segment inputcolor">
@@ -38,8 +44,6 @@
                 {{ form.text }}
                 <p class="muted">A detailed explanation of what the recipe does (markdown OK).</p>
             </div>
-
-
             <button type="submit" class="ui green button">
                 <i class="save icon"></i>Save
             </button>

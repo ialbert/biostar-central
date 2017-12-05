@@ -9,29 +9,35 @@
     <div class="item">
 
         <div class="ui center aligned header">
-            Name : {{user.first_name}}
+            {{user.first_name}}
+
         </div>
      <div class="ui center aligned vertical segment">
              <a class="ui button" href="{% url 'edit_profile'%}">
                 <i class="write icon"></i>Edit profile
             </a>
      </div>
-    <div class="ui blue large horizontal label">Email : {{user.email}}</div>
+
+    Email : {{user.email}}
 
         <div class="ui vertical segment">
-            <div class="ui list">
 
+            <div class="ui list">
+                Projects you have access to:
                 <div class="content">
-                  <i class="circular users icon"></i><div class="ui blue large horizontal label">Groups</div>
                         <div class="ui list">
                             <div class="item">
-                                {% for group in user.groups.all %}
-                                <div class="content">
                                 <ol>
-                                     &bull; {{group}}
-
+                                &bull; <a href="{% url 'project_create' %}">Create a new project</a>
                                 </ol>
-                                </div>
+
+                                {% for access in user.access_set.all %}
+
+                                    <ol>
+                                        &bull; <a href="{{ access.project.url }}">{{access.project}}</a>
+                                        | <span class="ui green tiny label">{{ access.get_access_display }}</span>
+                                    </ol>
+
                                 {% endfor %}
                             </div>
                         </div>
