@@ -16,6 +16,8 @@ from .decorators import object_access
 from .forms import *
 from .models import (Project, Data, Analysis, Job, User, Access)
 
+import difflib
+
 
 def join(*args):
     return os.path.abspath(os.path.join(*args))
@@ -492,7 +494,8 @@ def recipe_code(request, id):
             template = form.cleaned_data['template']
 
             # Changes to template will require a review.
-            if template != analysis.template:
+            if auth.template_changed(analysis=analysis, template=template):
+
                 # Switch on the untrusted flag when the template changes.
                 analysis.security = Analysis.UNDER_REVIEW
 
