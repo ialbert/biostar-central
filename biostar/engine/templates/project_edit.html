@@ -17,39 +17,45 @@
             <div class="field">
                 <label>Project Title</label>
                 {{ form.name }}
+                   <p class="muted">What do you want to call the project</p>
             </div>
             <div class="field">
                <label class="checkbox" for="{{ field.id_for_label }}">
                         {{ form.sticky }} <label>Sticky</label>
                </label>
+                <p class="muted">Makes the project stick to top of the list.</p>
             </div>
              <div class="field">
                   <label>Project Privacy</label>
                   {{form.privacy}}
+                  <p class="muted">Choose who gets to see this project.</p>
              </div>
 
              <div class="field">
                   <label>Project Image</label>
-                  <input id="id_image" type="file" class="" name="image">
+                  {{ form.image }}
+                  <p class="muted">Optional image to recognize the project by (square image, no more than 500px)</p>
              </div>
 
             <div class="field">
                 <label>Summary</label>
-                <textarea name="{{ form.summary.name }}" rows="2">{{ form.summary.value }}</textarea>
+                {{ form.summary}}
+                <p class="muted">A brief summary shown inline with the project (markdown OK).</p>
             </div>
 
             <div class="field">
                 <label>Project Description</label>
-                {{ form.text }}
+                 {{ form.text }}
+                <p class="muted">A detailed explanation of the project (markdown OK).</p>
             </div>
 
             {{ form.errors }}
 
-            <button type="submit" class="ui submit button">
+            <button type="submit" class="ui submit green button">
                 <i class="save icon"></i>Save
             </button>
             <a class="ui right floated button" href="{% url 'project_view' project.id %}">
-                Back
+                 <i class="undo icon"></i>Cancel
             </a>
 
         </form>
