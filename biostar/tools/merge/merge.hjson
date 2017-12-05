@@ -2,18 +2,22 @@
 
 read1 : {
     path: export/local/input/test_reads_R1.fastq.gz
-    link: true
+    help: First in pair
+    summary: Test Data. First in pair.
     label: Read1
-    data_type: FASTQ_TYPE
-    display_type: DROPDOWN
+    type: FASTQ
+    display: DROPDOWN
+    source: PROJECT
   }
 
 read2 : {
-    path: export/local/input/test_reads_R2.fastq.gz
-    link: true
+    value: export/local/input/test_reads_R2.fastq.gz
+    help: Second in pair.
+    summary: Test Data. Second in pair.
     label: Read2
-    data_type: FASTQ_TYPE
-    display_type: DROPDOWN
+    data_type: FASTQ
+    display: DROPDOWN
+    source: PROJECT
     }
 
 maxlength : {

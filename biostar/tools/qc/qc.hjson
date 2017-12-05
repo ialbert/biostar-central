@@ -1,42 +1,42 @@
 {
 
 sequence : {
-    path: export/local/input/fish_sequences.tar.gz
-    link: true
+    value: export/local/input/fish_sequences.tar.gz
     label: Data
-    data_type: TAR_FASTQ_GZ
-    display_type: DROPDOWN
+    type: TAR_FASTQ_GZ
+    display: DROPDOWN
+    source: PROJECT
     }
 
 sampleinfo : {
-    path: export/local/input/lamar_sampleinfo.txt
-    link: true
-    label : Sample file
-    data_type : LAMAR_SAMPLE_SHEET
-    display_type: DROPDOWN
+    value: export/local/input/lamar_sampleinfo.txt
+    label: Sample file
+    type : LAMAR_SAMPLE_SHEET
+    display: DROPDOWN
+    source: PROJECT
     }
 
 kmer_length: {
-    label : Kmer length for primer trimming
-    value : 15
-    help : Kmer length range should be between 5 and 30
-    range : [5,30]
+    label: Kmer length for primer trimming
+    value: 15
+    help: Kmer length range should be between 5 and 30
+    range: [5,30]
     display_type: INTEGER
     }
 
 quality_threshold: {
-    label : Average quality value for trimming
-    help : Quality value should be between 1 and 40
-    value :  30
-    range  : [1,40]
-    display_type : INTEGER
+    label: Average quality value for trimming
+    help: Quality value should be between 1 and 40
+    value:  30
+    range : [1,40]
+    display_type: INTEGER
     }
 
 read_length: {
-    label : Minimum read length after trimming
-    help : Minimun read length should be between 10 and 50
-    value :  35
-    range : [10, 50]
+    label: Minimum read length after trimming
+    help: Minimun read length should be between 10 and 50
+    value:  35
+    range: [10, 50]
     display_type : INTEGER
     }
 

@@ -1,27 +1,31 @@
 {
 
 sequence : {
-    path: export/local/input/fish_metabarcode_reads.fastq.gz
-    link: true
+    value: export/local/input/fish_metabarcode_reads.fastq.gz
+    summary: Fish metabarcode test reads.
+    help: The sequences that are to be aligned.
     label: Data
-    data_type: FASTQ_TYPE
-    display_type: DROPDOWN
+    type: FASTQ
+    display: DROPDOWN
+    source: PROJECT
   }
 
 genome : {
-    path: export/local/fish_species/fish_species.fa
-    link: true
-    label: Reference genome
-    data_type: FASTA_TYPE
-    display_type: DROPDOWN
+    value: export/local/fish_species/fish_species.fa
+    summary: Fish species file.
+    help: The genome to align against.
+    label: Reference
+    data_type: FASTA
+    display: DROPDOWN
+    source: PROJECT
     }
 
 align_length : {
-    label : Alignment length offset
-    help : Alignment length = read length +/- alignment length offset
-    value :  6
-    range  : [0,15]
-    display_type : INTEGER
+    label: Alignment length offset
+    help: Alignment length = read length +/- alignment length offset
+    value:  6
+    range: [0,15]
+    display: INTEGER
 
 }
 

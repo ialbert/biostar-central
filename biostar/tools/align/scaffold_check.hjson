@@ -1,23 +1,24 @@
 {
 
     reads : {
-        path: export/local/input/
-        link: true
+        value: export/local/input/
         label: Reads
         help: Sequencing reads
-        data_type: FASTQ_TYPE
-        display_type: DROPDOWN
+        summary: An input directory that contains different files.
+        source: PROJECT
+        type: FASTQ_TYPE
+        display: DROPDOWN
 
     }
 
     reference : {
-
-        path: export/local/input/viral_genomes.fa
-        link: true
+        value: export/local/input/viral_genomes.fa
         label: Assembly
-        help: The genome assembly.
-        data_type: FASTA_TYPE
-        display_type: DROPDOWN
+        help: The assembly to check reads against.
+        summary: A viral genome.
+        source: PROJECT
+        type: FASTA
+        display: DROPDOWN
 
     }
 
@@ -26,7 +27,7 @@
         range : [1, 100]
         label: Scaffold num
         help: How many of the largest scaffolds to keep.
-        display_type: INTEGER
+        display: INTEGER
     }
 
     readnum : {
@@ -34,7 +35,7 @@
         range : [10, 20000000]
         label: Read number
         help: How many random reads per sample.
-        display_type: INTEGER
+        display: INTEGER
     }
 
     settings : {

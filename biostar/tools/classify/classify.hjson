@@ -1,36 +1,23 @@
 {
 
 sequence : {
-    path: export/local/input/fish_metabarcode_sample2.fastq.gz
-    link: true
+    value: export/local/input/fish_metabarcode_sample2.fastq.gz
     label: Data
-    data_type: FASTQ_TYPE
-    display_type: DROPDOWN
+    type: FASTQ
+    display: DROPDOWN
   }
 
 
 accessions : {
-    path: export/local/input/fish_accession_list.txt
-    link: true
+    value: export/local/input/fish_accession_list.txt
     label: Accession list
-    data_type: ACCESSION_LIST
-    display_type: DROPDOWN
+    type: ACCESSION_LIST
+    display: DROPDOWN
     }
 
 threads : {
         value: 4
     }
-
-/*
-reference: {
-    label: Select reference
-    value: ""
-    display_type: DROPDOWN
-    options : [
-        [ "fish" , "Prebuilt Fish Database"],
-    ]
-}
-*/
 
 settings : {
     id: classify
