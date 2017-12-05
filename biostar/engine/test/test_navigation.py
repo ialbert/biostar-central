@@ -20,7 +20,7 @@ class SiteNavigation(TestCase):
         analysis = auth.create_analysis(project=self.project, json_text='{}', template="")
         job = auth.create_job(analysis=analysis)
 
-        self.proj_params = dict(id=self.project.id)
+        self.proj_params = dict(uid=self.project.uid)
         self.analysis_params = dict(id=analysis.id)
         self.data_params = dict(id=data.id)
         self.job_params = dict(id=job.id)
@@ -50,7 +50,7 @@ class SiteNavigation(TestCase):
             reverse('data_list', kwargs=self.proj_params),
             reverse('data_view', kwargs=self.data_params),
             reverse('project_view', kwargs=self.proj_params),
-            reverse('analysis_list', kwargs= self.proj_params),
+            reverse('recipe_list', kwargs= self.proj_params),
             reverse('recipe_view', kwargs=self.analysis_params),
             reverse('analysis_run', kwargs=self.analysis_params),
             reverse('recipe_view', kwargs=self.analysis_params),

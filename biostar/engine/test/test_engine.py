@@ -232,7 +232,7 @@ class ViewsTest(TestCase):
     def test_project_users(self):
         "Test project_users view"
 
-        url = reverse("project_users", kwargs=dict(id=self.project.id))
+        url = reverse("project_users", kwargs=dict(uid=self.project.uid))
         new_user = models.User.objects.create(email="test@test.com",
                                               first_name="test",
                                               username="test")
@@ -249,7 +249,7 @@ class ViewsTest(TestCase):
 
     def test_project_edit(self):
         "Test project edit"
-        url = reverse("project_edit", kwargs=dict(id=self.project.id))
+        url = reverse("project_edit", kwargs=dict(uid=self.project.uid))
         info = dict(text="new text", summary="new summary", name="new name")
 
         resp = self.client.post(url, info, follow=True)
@@ -286,7 +286,7 @@ class ViewsTest(TestCase):
     def test_data_upload(self):
         "Test for data upload interface"
 
-        url = reverse("data_upload", kwargs=dict(id=self.project.id))
+        url = reverse("data_upload", kwargs=dict(uid=self.project.uid))
         info = dict(user=self.owner, summary="test upload", text="test", file=__file__)
         resp = self.client.post(url, info, follow=True)
 
