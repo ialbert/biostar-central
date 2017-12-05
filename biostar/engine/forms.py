@@ -17,6 +17,8 @@ def join(*args):
 
 class ProjectForm(forms.ModelForm):
     image = forms.ImageField(required=False)
+
+    # Should not edit uid because the data directories get messed up ( for now). 
     uid = forms.CharField(max_length=32, required=False)
 
     class Meta:

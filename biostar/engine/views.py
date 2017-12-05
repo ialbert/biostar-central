@@ -265,7 +265,7 @@ def project_create(request):
                                           uid=uid)
             project.save()
 
-            return redirect(reverse("project_list"))
+            return redirect(reverse("project_view", kwargs=dict(uid=project.uid)))
         else:
             messages.error(request, mark_safe(form.errors))
             return redirect(reverse("project_create"))
