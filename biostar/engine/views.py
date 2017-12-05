@@ -295,9 +295,10 @@ def data_list(request, uid):
     return render(request, "data_list.html", context)
 
 
-# @login_required
+
 @object_access(type=Data, access=Access.READ_ACCESS)
 def data_view(request, id):
+
     data = Data.objects.filter(id=id).first()
     if not data:
         messages.error(request, "Data not found.")
@@ -306,6 +307,12 @@ def data_view(request, id):
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON, DATA_ICON],
                                project=data.project, data=data)
+
+    if request.method == "POST":
+        return
+
+
+    
     context = dict(data=data, steps=steps)
 
     return render(request, "data_view.html", context)
@@ -684,7 +691,7 @@ def job_files_list(request, id, path=''):
         job=job, project=project)
 
     if request.method == "POST":
-        form = DataCopyForm(data=request.POST, project=project, job=job)
+        form = FilesCopyForm(data=request.POST, project=project, job=job)
         if form.is_valid():
             count = form.save()
             messages.success(request, f"Copied {len(count)} file to {project.name}.")
@@ -693,6 +700,6 @@ def job_files_list(request, id, path=''):
         # TODO: redirection does not make sense really
         return redirect(reverse("job_result_view", kwargs=dict(id=job.id)))
 
-    form = DataCopyForm(project=project)
+    form = FilesCopyForm(project=project)
     context = dict(file_list=file_list, job=job, form=form, steps=steps, project=project, path=path)
     return render(request, "job_files_list.html", context)

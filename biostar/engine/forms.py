@@ -118,6 +118,15 @@ def access_forms(users, project):
 
 
 class DataCopyForm(forms.Form):
+    pass
+
+
+
+
+
+
+
+class FilesCopyForm(forms.Form):
 
     paths = forms.CharField(max_length=256)
 
@@ -194,6 +203,7 @@ class RecipeCopyForm(forms.Form):
         if cleaned_data.get("project") == 0:
 
             new_project = auth.create_project(user=self.user, name="New project")
+            # Mutates dict with created id
             cleaned_data["project"] = new_project.id
             messages.success(self.request, f"Created a new project")
 

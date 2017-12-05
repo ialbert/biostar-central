@@ -50,5 +50,27 @@
                 </a>
         </div>
 
+       <form class="ui large form" method="post" action="{% url 'recipe_view' analysis.id %}">
+                {% csrf_token %}
+
+            <div class="ui basic segment">
+
+                {% copy_interface projects=projects form=form%}
+
+               <button type="submit" class="ui button">
+                    <i class="plus icon"></i>Copy Recipe
+               </button>
+
+                <button type="submit" class="ui right floated button" name="project" value="{{analysis.project.id}}">
+                    <i class="copy icon"></i>Duplicate Recipe
+                </button>
+
+
+             </div>
+
+
+        </form>
+
+
     </div>
 {% endblock %}
