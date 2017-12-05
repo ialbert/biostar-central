@@ -20,8 +20,9 @@ TAXON_MAP=/export/refs/diamond-dbs/nr/prot.accession2taxid.gz
 ASSM_SORTED={{runtime.work_dir}}/assembly_sorted.fa
 
 # Sorting assembly based on size.
+{% verbatim %}
 cat $ASSEMBLY | bioawk -c fastx ' { print length($seq),$name,$seq } ' | sort -k1nr,1  | awk '{ print ">"$2"\n"$3"\n"}' | seqtk seq -l 80 - >$ASSM_SORTED
-
+{% endverbatim %}
 # Creating samtools index.
 samtools faidx $ASSM_SORTED
 

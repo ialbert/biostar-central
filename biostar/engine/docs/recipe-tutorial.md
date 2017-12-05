@@ -17,13 +17,13 @@ Each recipe is built from two ingredients:
 
 The **interface** will specify the value of the parameters that get substituted into the **template**.
 
-From the JSON interface file the **Biostar Engine** will generate an web interface for each parameter.
-It is this interface where users are able to select the values that their recipe needs to operate.
-
 The **template** contains the commands that need to be executed. The **template** will have
 placeholders for the parameter values that the user will need to enter in the interface.
 
-The interface + template will generate a script that the site executes.
+The interface + template will generate a script that the site can execute.
+
+The **Biostar Engine** will generate an web interface for each parameter specified in the interface.
+It is this interface where users are able to select the values that their recipe needs to operate.
 
 ## Recipe: Hello World 1
 

@@ -17,6 +17,7 @@ from biostar.accounts.models import Profile
 from . import factory
 from .const import *
 from .models import Data, Analysis, Job, Project, Access
+import difflib
 
 CHUNK = 1024 * 1024
 
@@ -83,6 +84,17 @@ def generate_script(job):
 
     return json_data, script
 
+def template_changed(analysis, template):
+    """
+    Detects a change in the template.
+    """
+    text1 = template.splitlines(keepends=True)
+    text2 = analysis.template.splitlines(keepends=True)
+
+    change = list(difflib.unified_diff(text1, text2))
+
+    print(f"Change: {bool(change)}")
+    return change
 
 def get_project_list(user):
     """
