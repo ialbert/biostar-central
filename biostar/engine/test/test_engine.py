@@ -82,7 +82,7 @@ class AnalysisTest(TestCase):
 
         self.assertEqual(resp.status_code, 302)
 
-        1/0
+        #1/0
 
     def test_recipe_edit_interface(self):
         "Testing analysis edit interface"

@@ -27,12 +27,13 @@ def sticky_label(obj):
     return label if obj.sticky else ''
 
 
-@register.inclusion_tag('widgets/copy_to_project.html')
-def copy_to_project(instance_id, instance_type, to_id, from_id):
-    "Copy an instance from (from_id) to (to_id) project"
+@register.inclusion_tag('widgets/copy_interface.html')
+def copy_interface(form, projects):
+    "Copy an instance from (from_id) to a list of allowed projects"
+
 
     # render that form here
-    return
+    return dict(projects=projects, form=form)
 
 
 

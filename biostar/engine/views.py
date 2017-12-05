@@ -382,43 +382,30 @@ def recipe_view(request, id):
     """
     analysis = Analysis.objects.filter(id=id).first()
     project = analysis.project
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ANALYSIS_LIST_ICON, ANALYSIS_VIEW_ICON],
-                               project=project, analysis=analysis)
-
-    context = dict(project=project, analysis=analysis, steps=steps)
-
-    return render(request, "recipe_view.html", context)
-
-
-@object_access(type=Analysis, access=Access.RECIPE_ACCESS, url='recipe_view', login_required=True)
-def recipe_copy(request, id):
-    analysis = Analysis.objects.filter(id=id).first()
     projects = auth.get_project_list(user=request.user)
 
     # Can't copy into current or public projects
     projects = projects.exclude(pk=analysis.project.id).exclude(privacy=Project.PUBLIC)
-
     # Filter projects by admin access
     projects = projects.filter(Q(access__user=request.user, access__access__gt=Access.EDIT_ACCESS))
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ANALYSIS_VIEW_ICON,
-                                ANALYSIS_RECIPE_ICON], project=analysis.project, analysis=analysis)
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ANALYSIS_LIST_ICON, ANALYSIS_VIEW_ICON],
+                               project=project, analysis=analysis)
 
     if request.method == "POST":
+
         form = RecipeCopyForm(data=request.POST, analysis=analysis, request=request)
-        url = reverse("recipe_copy", kwargs=dict(id=analysis.id))
-
+        name = analysis.name
         if form.is_valid():
-            new_analysis = form.save()
-            url = reverse("recipe_view", kwargs=dict(id=new_analysis.id))
-            messages.success(request, f"Copied {analysis.name} in to {new_analysis.project.name}")
+            analysis = form.save()
+            messages.success(request, f"Copied {name} in to {analysis.project.name}")
 
-        return redirect(url)
+        return redirect(reverse("recipe_view", kwargs=dict(id=analysis.id)))
 
     form = RecipeCopyForm(analysis=analysis, request=request)
     context = dict(analysis=analysis, steps=steps, projects=projects, form=form,
                    project=analysis.project, access=Access(access=Access.ADMIN_ACCESS))
 
-    return render(request, "recipe_copy.html", context)
+    return render(request, "recipe_view.html", context)
 
 
 @object_access(type=Analysis, access=Access.RECIPE_ACCESS, url='recipe_view')
