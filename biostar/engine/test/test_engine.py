@@ -178,9 +178,9 @@ class FactoryTest(TestCase):
 
         from biostar.engine import const
 
-        pre = len(models.Data.objects.all())
+        pre = models.Data.objects.count()
         data = auth.create_data(self.project, path=__file__)
-        post = len(models.Data.objects.all())
+        post = models.Data.objects.count()
 
         self.assertTrue(post == (pre + 1), "Error creating data in database")
 
@@ -216,18 +216,6 @@ class CommandTests(TestCase):
 
         self.assertTrue(post == (pre + 1), "Error creating adding in database with management command")
 
-
-    def test_link_data(self):
-        "Test linking data to a project using management commands "
-        pre = len(models.Data.objects.all())
-
-        management.call_command('data', path=__file__, uid="testing")
-
-        post = len(models.Data.objects.all())
-
-        self.assertTrue(post == (pre + 1), "Error creating adding in database with management command")
-
-
 class ViewsTest(TestCase):
 
     def setUp(self):
@@ -252,7 +240,8 @@ class ViewsTest(TestCase):
 
         resp = self.client.post(url, data=info)
 
-        #1/0
+        print(resp)
+        1/0
         pass
 
 
