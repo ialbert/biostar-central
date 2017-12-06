@@ -1,7 +1,7 @@
 set -ueo pipefail
 
-READ1={{read1.path}}
-READ2={{read2.path}}
+READ1={{read1.value}}
+READ2={{read2.value}}
 MAX_LEN={{maxlength.value}}
 RESULT_VIEW={{runtime.work_dir}}/{{settings.index}}
 

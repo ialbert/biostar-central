@@ -235,7 +235,7 @@ class Command(BaseCommand):
 
         # This code is also run insider tasks.
         if next:
-            job = Job.objects.filter(state=Job.QUEUED).order_by('-id').first()
+            job = Job.objects.filter(state=Job.QUEUED).order_by('id').first()
             if not job:
                 logger.info(f'there are no queued jobs')
             else:
@@ -251,7 +251,7 @@ class Command(BaseCommand):
             return
 
         if queued:
-            jobs = Job.objects.filter(state=Job.QUEUED).order_by('-id')
+            jobs = Job.objects.all().order_by('id')[:10]
             for job in jobs:
-                print(f'{job.id} {job.name}')
+                print(f'{job.id}\t{job.get_state_display()}\t{job.name}')
             return

@@ -1,7 +1,7 @@
 {
 
 read1 : {
-    path: export/local/input/test_reads_R1.fastq.gz
+    value: export/local/input/test_reads_R1.fastq.gz
     help: First in pair
     summary: Test Data. First in pair.
     label: Read1
@@ -15,7 +15,7 @@ read2 : {
     help: Second in pair.
     summary: Test Data. Second in pair.
     label: Read2
-    data_type: FASTQ
+    type: FASTQ
     display: DROPDOWN
     source: PROJECT
     }
@@ -23,9 +23,9 @@ read2 : {
 maxlength : {
    label : Maximal read length
    value : 1000
-   range :[-1,1000]
+   range :[-1, 1000]
    help : Enter -1 if you don't want to set maximum length
-   display_type: INTEGER
+   display: INTEGER
 }
 
 settings : {

@@ -305,7 +305,7 @@ class RecipeInterface(forms.Form):
         cleaned_data = super(RecipeInterface, self).clean()
 
         if self.user.is_anonymous():
-            msg1 = "A user must be logged in to run an analysis."
+            msg1 = "Only logged in users may execute recipes."
             raise forms.ValidationError(msg1)
 
         # Check the permissions for

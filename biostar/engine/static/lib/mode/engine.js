@@ -15,7 +15,7 @@ CodeMirror.defineSimpleMode("engine", {
     // no ambiguity between this one and the one above
     {regex: /(?:settings|name|image|index|summary|help|path|value|link|label|choices|type|display|source|range|python|cat|mkdir)\b/,
      token: "keyword"},
-    {regex: /true|false|INTEGER|DROPDOWN|TEXT|=|\:/, token: "atom"},
+    {regex: /true|false|INTEGER|DROPDOWN|TEXT|PROJECT|FASTQ|FASTA|=|\:/, token: "atom"},
     {regex: /\$\{[\w\.]+\}|\{[\w\.]+\}|\$\w+/, token: "atom"},
     {regex: /0x[a-f\d]+|[-+]?(?:\.\d+|\d+\.?\d*)(?:e[-+]?\d+)?/i, token: "number"},
     {regex: /#.*/, token: "comment"},

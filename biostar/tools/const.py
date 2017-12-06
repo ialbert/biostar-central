@@ -22,12 +22,12 @@ ACCESSION_LIST = 9
 
 DATA_TUPLES = [
     # Numeric, Symbol, Readable English
-    (GENERIC_TYPE, 'GENERIC', "Generic Type"),
+    (GENERIC_TYPE, 'GENERIC', "Generic"),
     (SAMPLE_TYPE, 'SAMPLE_TYPE', "Sample Sheet"),
     (COLLECTION_TYPE, 'COLLECTION', "Collection"),
     (TAR_FASTQ_GZ, 'TAR_FASTQ_GZ', "TAR FASTQ GZ"),
-    (FASTQ_TYPE, 'FASTQ', "FASTQ Type"),
-    (FASTA_TYPE, 'FASTA', "FASTA Type"),
+    (FASTQ_TYPE, 'FASTQ', "FASTQ"),
+    (FASTA_TYPE, 'FASTA', "FASTA"),
     (REFERENCE_TYPE, 'REFERENCE', "Reference"),
     (LAMAR_SAMPLE_SHEET, 'LAMAR_SAMPLE_SHEET', "Lamar Sample Sheet"),
     (ACCESSION_MAP, 'ACCESSION_MAP', "Accession Map"),

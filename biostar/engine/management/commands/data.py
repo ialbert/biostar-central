@@ -81,5 +81,5 @@ class Command(BaseCommand):
 
             auth.create_data(project=project, path=bunch.value,
                              data_type=type_value,
-                             name=bunch.name, link=True,
+                             name=bunch.name,
                              summary=bunch.summary, text=bunch.text)

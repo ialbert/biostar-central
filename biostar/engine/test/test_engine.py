@@ -45,7 +45,7 @@ class DataTest(TestCase):
         "Test data linkage with auth"
 
         pre = len(models.Data.objects.all())
-        data = auth.create_data(self.project, path=__file__, link=True)
+        data = auth.create_data(self.project, path=__file__)
         post = len(models.Data.objects.all())
 
         self.assertTrue(post == (pre + 1), "Error creating linked data in database")
@@ -221,7 +221,7 @@ class CommandTests(TestCase):
         "Test linking data to a project using management commands "
         pre = len(models.Data.objects.all())
 
-        management.call_command('data', path=__file__, uid="testing", link=True)
+        management.call_command('data', path=__file__, uid="testing")
 
         post = len(models.Data.objects.all())
 

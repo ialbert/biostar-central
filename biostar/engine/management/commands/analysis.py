@@ -36,102 +36,100 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        add = options['add']
+
         json = options['json']
         pid = options['id']
         template = options['template']
         jobs = options['jobs']
 
-        if not add:
-            logger.error("Command requires at least one action: --add --delete")
+
+        # Require JSON and templatates to exist.
+        if not (json and template):
+            logger.error("This command requires --json and a --template to be set")
             return
 
-        if add:
-            # Require JSON and templatates to exist.
-            if not (json and template):
-                logger.error("This command requires --json and a --template to be set")
-                return
+        # Get the target project.
+        project = Project.objects.filter(id=pid).first()
 
-            # Get the target project.
-            project = Project.objects.filter(id=pid).first()
+        # Invalid project specified.
+        if not project:
+            logger.error(f'No project with id={pid}')
+            return
 
-            # Invalid project specified.
-            if not project:
-                logger.error(f'No project with id={pid}')
-                return
+        # JSON file does not exist.
+        if not os.path.isfile(json):
+            logger.error(f'No file found for --json={json}')
+            return
 
-            # JSON file does not exist.
-            if not os.path.isfile(json):
-                logger.error(f'No file found for --json={json}')
-                return
+        # Template file does not exist.
+        if not os.path.isfile(template):
+            logger.error(f'No file found for --template={template}')
+            return
 
-            # Template file does not exist.
-            if not os.path.isfile(template):
-                logger.error(f'No file found for --template={template}')
-                return
+        try:
+            # Parse the json_text into json_data
+            json_text = open(json).read()
+            json_path = os.path.dirname(json)
+            json_data = hjson.loads(json_text)
+        except Exception as exc:
+            logger.error(f"Error reading the json: {exc}")
+            return
 
-            try:
-                # Parse the json_text into json_data
-                json_text = open(json).read()
-                json_path = os.path.dirname(json)
-                json_data = hjson.loads(json_text)
-            except Exception as exc:
-                logger.error(f"Error reading the json: {exc}")
-                return
+        try:
+            # Read the specification
+            template = open(template).read()
+        except Exception as exc:
+            logger.error(f"Error reading template: {exc}")
+            return
 
-            try:
-                # Read the specification
-                template = open(template).read()
-            except Exception as exc:
-                logger.error(f"Error reading template: {exc}")
-                return
+        try:
+            name = json_data.get("settings", {}).get("name", "No name")
+            text = json_data.get("settings", {}).get("help", "No help")
+            uid = json_data.get("settings", {}).get("uid", "")
+            image = json_data.get("settings", {}).get("image", "")
+            text = textwrap.dedent(text)
+            summary = json_data.get("settings", {}).get("summary", "No summary")
 
-            try:
-                name = json_data.get("settings", {}).get("name", "No name")
-                text = json_data.get("settings", {}).get("help", "No help")
-                uid = json_data.get("settings", {}).get("uid", "")
-                image = json_data.get("settings", {}).get("image", "")
-                text = textwrap.dedent(text)
-                summary = json_data.get("settings", {}).get("summary", "No summary")
+            # Create the analysis
+            analysis = auth.create_analysis(project=project, uid=uid, json_text=json_text, summary=summary,
+                                            template=template, name=name, text=text, security=Analysis.AUTHORIZED)
 
-                # Create the analysis
-                analysis = auth.create_analysis(project=project, uid=uid, json_text=json_text, summary=summary,
-                                                template=template, name=name, text=text, security=Analysis.AUTHORIZED)
+            # Load the image if specified.
+            if image:
+                image_path = os.path.join(json_path, image)
+                if os.path.isfile(image_path):
+                    stream = open(image_path, 'rb')
+                    analysis.image.save(image, stream, save=True)
+                    logger.info(f"Image path: {image_path}")
+                else:
+                    logger.error(f"Missing image path: {image_path}")
 
-                # Load the image if specified.
-                if image:
-                    image_path = os.path.join(json_path, image)
-                    if os.path.isfile(image_path):
-                        stream = open(image_path, 'rb')
-                        analysis.image.save(image, stream, save=True)
-                        logger.info(f"Added image path: {image_path}")
-                    else:
-                        logger.error(f"Missing image path: {image_path}")
+            # Create a queued jobs if instructed so.
+            if jobs:
+                # We need to deposit the default file as data into the project.
+                # Find all objects that have a path attribute
+                for key, obj in json_data.items():
+                    is_data = (obj.get("source") == "PROJECT")
 
-                # Create a queued jobs if instructed so.
-                if jobs:
-                    # We need to deposit the default file as data into the project.
-                    # Find all objects that have a path attribute
-                    for key, obj in json_data.items():
-                        is_data = (obj.get("source") == "PROJECT")
+                    # Get next field if this is not data.
+                    if not is_data:
+                        continue
 
-                        # Get next field if this is not data.
-                        if not is_data:
-                            continue
+                    value = obj.get("value", "")
+                    summary = obj.get("summary", "")
+                    text = obj.get("text", "")
+                    data_type = obj.get("type")
+                    data_type = const.DATA_TYPE_SYMBOLS.get(data_type)
+                    name = obj.get("name", "") or os.path.basename(value)
 
-                        value = obj.get("value", "")
-                        summary = obj.get("summary", "")
-                        text = obj.get("text", "")
-                        data_type = obj.get("type")
-                        data_type = const.DATA_TYPE_SYMBOLS.get(data_type)
-                        name = obj.get("name", "") or os.path.basename(value)
+                    data = auth.create_data(project=project, name=name, path=value, data_type=data_type,
+                                            summary=summary, text=text)
 
-                        data = auth.create_data(project=project, name=name, path=value, data_type=data_type,
-                                                summary=summary, text=text, link=True)
-                        data.fill_dict(obj)
+                    # Mutate the object in the json_data
+                    data.fill_dict(obj)
 
-                        job = auth.create_job(analysis=analysis, json_data=json_data)
+                job = auth.create_job(analysis=analysis, json_data=json_data)
 
-            except KeyError as exc:
-                logger.error(f"processing the analysis: {exc}")
-                return
+        except KeyError as exc:
+            logger.error(f"processing the analysis: {exc}")
+            return

@@ -23,7 +23,6 @@ def parse_json(json, privacy=Project.PRIVATE, sticky=False, jobs=False):
     data = hjson.load(open(json, 'rb'))
     dirname = os.path.dirname(json)
 
-    email = data.get("email", 'email')
     uid = data.get("uid", None)
     name = data.get("name", '')
     text = data.get("text", '')
@@ -63,7 +62,7 @@ def parse_json(json, privacy=Project.PRIVATE, sticky=False, jobs=False):
         management.call_command("analysis", id=project.id, add=True, json=other_json, template=template, jobs=jobs)
 
     # Add extra data specified in the project json file.
-    management.call_command("data", json=json, id=project.id)
+    #management.call_command("data", json=json, id=project.id)
 
 
 class Command(BaseCommand):
