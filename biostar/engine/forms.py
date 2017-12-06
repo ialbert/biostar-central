@@ -152,7 +152,7 @@ class DataCopyForm(forms.Form):
 
         data = auth.create_data(project=project,user=self.user, name=name,
                                 summary=summary, data_type=data_type, path=path,
-                                link=True)
+                                )
         data.save()
 
         return data

@@ -6,17 +6,22 @@
 </div>
 
 <div class="ui basic segment">
-
+   <div class="ui relaxed divided list">
       <div class="item">
             <div class="inline field">
                 <input type="radio" name="project" value="0">
                 <i class="archive icon"></i>Create new project and copy
             </div>
         </div>
+          <div class="item">
+            <div class="inline field">
+                <input type="radio" name="project" value="{{ duplicate }}">
+                <i class="copy icon"></i>Duplicate in current project
+            </div>
+        </div>
 
     {% if projects %}
 
-        <div class="ui relaxed divided list">
 
             {% for project in projects %}
 
@@ -36,6 +41,7 @@
             {% endfor %}
 
         </div>
+
 
     {% endif %}
 </div>
