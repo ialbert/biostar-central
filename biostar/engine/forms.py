@@ -151,8 +151,7 @@ class DataCopyForm(forms.Form):
         path = self.current.get_path()
 
         data = auth.create_data(project=project,user=self.user, name=name,
-                                summary=summary, data_type=data_type, path=path,
-                                )
+                                summary=summary, data_type=data_type, path=path)
         data.save()
 
         return data
