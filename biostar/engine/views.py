@@ -220,22 +220,20 @@ def project_view(request, uid):
 
 @object_access(type=Project, access=Access.EDIT_ACCESS, url='project_view')
 def project_edit(request, uid):
-    project = auth.get_project_list(user=request.user).filter(uid=uid).first()
 
+    project = auth.get_project_list(user=request.user).filter(uid=uid).first()
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON], project=project)
 
     if request.method == "POST":
         form = ProjectForm(request.POST, request.FILES, instance=project)
-
         if form.is_valid():
             form.save()
-        else:
-            messages.info(request, f"Invalid form processing")
-        return redirect(project.url())
+            return redirect(reverse("project_view", kwargs=dict(uid=project.uid)))
 
-    else:
-        form = ProjectForm(instance=project)
+        messages.error(request, mark_safe(form.errors))
+        return redirect(reverse("project_edit", kwargs=dict(uid=uid)))
 
+    form = ProjectForm(instance=project)
     context = dict(project=project, steps=steps, form=form)
     return render(request, 'project_edit.html',
                   context)
@@ -259,16 +257,19 @@ def project_create(request):
             stream = form.cleaned_data["image"]
             sticky = form.cleaned_data["sticky"]
             privacy = form.cleaned_data["privacy"]
+            uid = form.cleaned_data["uid"]
             owner = request.user
 
             project = auth.create_project(user=owner, name=name, summary=summary, text=text,
-                                          stream=stream, sticky=sticky, privacy=privacy)
+                                          stream=stream, sticky=sticky, privacy=privacy,
+                                          uid=uid)
             project.save()
 
-            return redirect(reverse("project_list"))
+            return redirect(reverse("project_view", kwargs=dict(uid=project.uid)))
         else:
-            form.add_error(None, "Invalid form processing.")
-            messages.error(request, "Invalid form processing.")
+            messages.error(request, mark_safe(form.errors))
+            return redirect(reverse("project_create"))
+
 
     initial = dict(name="Project Name", text="project description", summary="project summary")
     form = ProjectForm(initial=initial)
@@ -295,10 +296,12 @@ def data_list(request, uid):
     return render(request, "data_list.html", context)
 
 
-# @login_required
+
 @object_access(type=Data, access=Access.READ_ACCESS)
 def data_view(request, id):
+
     data = Data.objects.filter(id=id).first()
+
     if not data:
         messages.error(request, "Data not found.")
         logger.error(f"data.id={id} looked for but not found.")
@@ -306,7 +309,26 @@ def data_view(request, id):
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON, DATA_ICON],
                                project=data.project, data=data)
-    context = dict(data=data, steps=steps)
+
+    projects = auth.get_project_list(user=request.user)
+    projects = projects.exclude(pk=data.project.id).exclude(privacy=Project.PUBLIC)
+
+    # Filter projects by admin access
+    cond = Q(access__access__gt=Access.EDIT_ACCESS)
+    if request.user.is_authenticated:
+        cond = Q(access__user=request.user, access__access__gt=Access.EDIT_ACCESS)
+    projects = projects.filter(cond)
+
+    if request.method == "POST":
+        form = DataCopyForm(data=request.POST, current=data, request=request)
+        name = data.name
+        if form.is_valid():
+            data = form.save()
+            messages.success(request, f"Copied {name} in to {data.project.name}")
+        return redirect(reverse("data_view", kwargs=dict(id=data.id)))
+
+    form = DataCopyForm(current=data, request=request)
+    context = dict(data=data, steps=steps, projects=projects, form=form)
 
     return render(request, "data_view.html", context)
 
@@ -322,10 +344,9 @@ def data_edit(request, id):
         form = DataEditForm(request.POST, instance=data)
         if form.is_valid():
             form.save()
-            return redirect(reverse("data_view", kwargs=dict(id=data.id)))
-    else:
-        form = DataEditForm(instance=data)
+        return redirect(reverse("data_view", kwargs=dict(id=data.id)))
 
+    form = DataEditForm(instance=data)
     context = dict(data=data, steps=steps, form=form)
     return render(request, 'data_edit.html', context)
 
@@ -381,44 +402,32 @@ def recipe_view(request, id):
     Returns an analysis view based on its id.
     """
     analysis = Analysis.objects.filter(id=id).first()
-    project = analysis.project
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ANALYSIS_LIST_ICON, ANALYSIS_VIEW_ICON],
-                               project=project, analysis=analysis)
+    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ANALYSIS_LIST_ICON,
+                                ANALYSIS_VIEW_ICON],project=analysis.project, analysis=analysis)
 
-    context = dict(project=project, analysis=analysis, steps=steps)
-
-    return render(request, "recipe_view.html", context)
-
-
-@object_access(type=Analysis, access=Access.RECIPE_ACCESS, url='recipe_view', login_required=True)
-def recipe_copy(request, id):
-    analysis = Analysis.objects.filter(id=id).first()
     projects = auth.get_project_list(user=request.user)
-
-    # Can't copy into current or public projects
     projects = projects.exclude(pk=analysis.project.id).exclude(privacy=Project.PUBLIC)
 
     # Filter projects by admin access
-    projects = projects.filter(Q(access__user=request.user, access__access__gt=Access.EDIT_ACCESS))
-    steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ANALYSIS_VIEW_ICON,
-                                ANALYSIS_RECIPE_ICON], project=analysis.project, analysis=analysis)
+    cond = Q(access__access__gt=Access.EDIT_ACCESS)
+    if request.user.is_authenticated:
+        cond = Q(access__user=request.user, access__access__gt=Access.EDIT_ACCESS)
+    projects = projects.filter(cond)
 
     if request.method == "POST":
         form = RecipeCopyForm(data=request.POST, analysis=analysis, request=request)
-        url = reverse("recipe_copy", kwargs=dict(id=analysis.id))
-
+        name = analysis.name
         if form.is_valid():
-            new_analysis = form.save()
-            url = reverse("recipe_view", kwargs=dict(id=new_analysis.id))
-            messages.success(request, f"Copied {analysis.name} in to {new_analysis.project.name}")
+            analysis = form.save()
+            messages.success(request, f"Copied {name} in to {analysis.project.name}")
 
-        return redirect(url)
+        return redirect(reverse("recipe_view", kwargs=dict(id=analysis.id)))
 
     form = RecipeCopyForm(analysis=analysis, request=request)
     context = dict(analysis=analysis, steps=steps, projects=projects, form=form,
-                   project=analysis.project, access=Access(access=Access.ADMIN_ACCESS))
+                   project=analysis.project)
 
-    return render(request, "recipe_copy.html", context)
+    return render(request, "recipe_view.html", context)
 
 
 @object_access(type=Analysis, access=Access.RECIPE_ACCESS, url='recipe_view')
@@ -550,7 +559,8 @@ def recipe_create(request, uid):
     form = RecipeForm()
     action_url = reverse('recipe_create', kwargs=dict(uid=project.uid))
     back_url = reverse('recipe_list', kwargs=dict(uid=project.uid))
-    context = dict(steps=steps, project=project, form=form, action_url=action_url, back_url=back_url)
+    context = dict(steps=steps, analysis={"name":"New Analysis"},
+                   project=project, form=form, action_url=action_url, back_url=back_url)
 
     return render(request, 'recipe_edit.html', context)
 
@@ -692,7 +702,7 @@ def job_files_list(request, id, path=''):
         job=job, project=project)
 
     if request.method == "POST":
-        form = DataCopyForm(data=request.POST, project=project, job=job)
+        form = FilesCopyForm(data=request.POST, project=project, job=job)
         if form.is_valid():
             count = form.save()
             messages.success(request, f"Copied {len(count)} file to {project.name}.")
@@ -701,6 +711,6 @@ def job_files_list(request, id, path=''):
         # TODO: redirection does not make sense really
         return redirect(reverse("job_result_view", kwargs=dict(id=job.id)))
 
-    form = DataCopyForm(project=project)
+    form = FilesCopyForm(project=project)
     context = dict(file_list=file_list, job=job, form=form, steps=steps, project=project, path=path)
     return render(request, "job_files_list.html", context)

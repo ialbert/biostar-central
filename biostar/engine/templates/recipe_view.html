@@ -48,10 +48,6 @@
                 <i class="area chart icon"></i> Go to Results
             </a>
 
-            <a class="ui button" href="{% url 'recipe_copy' analysis.id %}">
-                <i class="add icon"></i>Copy Recipe
-            </a>
-
             <a class="ui button" href="{% url 'recipe_edit' analysis.id %}">
                 <i class="write icon"></i>Edit Info
             </a>
@@ -66,6 +62,30 @@
             <div class="ui vertical segment">{{ analysis.html|safe }}</div>
         </div>
 
+
+        <form class="ui large form" method="post" action="{% url 'recipe_view' analysis.id %}">
+                {% csrf_token %}
+
+            <div class="ui basic segment">
+
+                {% copy_interface projects=projects form=form%}
+
+               <button type="submit" class="ui button">
+                    <i class="plus icon"></i>Copy Recipe
+               </button>
+
+                <button type="submit" class="ui right floated button" name="project" value="{{analysis.project.id}}">
+                    <i class="copy icon"></i>Duplicate Recipe
+                </button>
+
+
+             </div>
+
+
+        </form>
+
+
     </div>
+
 
 {% endblock %}

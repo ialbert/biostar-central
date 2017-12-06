@@ -27,6 +27,13 @@ def sticky_label(obj):
     return label if obj.sticky else ''
 
 
+@register.inclusion_tag('widgets/copy_interface.html')
+def copy_interface(form, projects):
+    "Copy an instance from (from_id) to a list of allowed projects"
+
+    return dict(projects=projects, form=form)
+
+
 
 @register.simple_tag
 def privacy_label(project):
