@@ -458,7 +458,7 @@ def recipe_run(request, id):
                 jobid = (job.id).to_bytes(5, byteorder='big')
                 tasks.execute_job.spool(job_id=jobid)
 
-            return redirect(reverse("job_list", kwargs=dict(id=project.id)))
+            return redirect(reverse("job_list", kwargs=dict(uid=project.uid)))
     else:
         initial = dict(name=analysis.name)
         form = RecipeInterface(request=request, analysis=analysis, json_data=analysis.json_data, initial=initial)

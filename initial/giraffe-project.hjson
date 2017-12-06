@@ -21,8 +21,8 @@ text: '''
 analyses: [
 
     {
-        json: biostar/tools/fastqc/fastqc.hjson
-        template: biostar/tools/fastqc/fastqc.sh
+        json: biostar/tools/fastqc/multiqc.hjson
+        template: biostar/tools/fastqc/multiqc.sh
     }
 
     {
@@ -42,17 +42,16 @@ data: [
 
     {
         name: Published Giraffe Scaffold 2016.fa
-        path: /export/data/giraffe/assembly/soap_assembly_k91_params.gapfilled.fa
-        link: true
-        data_type: FASTA_TYPE
+        value: /export/data/giraffe/assembly/soap_assembly_k91_params.gapfilled.f
+        type: FASTA
         summary: The published assembled Giraffe scaffold (2016)
         text: The giraffe scaffold assembled by Rayan Chiki
     }
 
     {
         name: MA1_MP, Giraffe, DNA, Mate Pairs
-        path: /export/data/giraffe/data/GIRAFFE/MA1_MP
-        data_type: FASTQ_TYPE
+        value: /export/data/giraffe/data/GIRAFFE/MA1_MP
+        type: FASTQ
         summary: MA1, 150bp, 2 x 78 million reads, 8x coverage
         text: '''
         Specimen ID: `MA1`
@@ -82,8 +81,8 @@ data: [
 
     {
         name: MA1_PE, Giraffe, DNA, Paired End
-        path: /export/data/giraffe/data/GIRAFFE/MA1_PE
-        data_type: FASTQ_TYPE
+        value: /export/data/giraffe/data/GIRAFFE/MA1_PE
+        type: FASTQ_TYPE
         summary: MA1, 150bp, 2 x 285 million reads, 28x coverage
         text: '''
         Specimen ID: `MA1`
@@ -113,8 +112,8 @@ data: [
 
     {
         name: NZOO, Giraffe, DNA, Paired End
-        path: /export/data/giraffe/data/GIRAFFE/NZOO
-        data_type: FASTQ_TYPE
+        value: /export/data/giraffe/data/GIRAFFE/NZOO
+        type: FASTQ
         summary: NZOO, 151bp, 4 x 22 million reads, 30x coverage
         text: '''
         Specimen ID: `NZOO`
@@ -140,8 +139,8 @@ data: [
 
     {
         name: UGA, Giraffe, DNA, Paired End
-        path: /export/data/giraffe/data/GIRAFFE/UGA
-        data_type: FASTQ_TYPE
+        value: /export/data/giraffe/data/GIRAFFE/UGA
+        type: FASTQ
         summary: NZOO, 250bp, 2 x 333 million reads, 55x coverage
         text: '''
         Specimen ID: `UGA`
@@ -167,8 +166,8 @@ data: [
 
     {
         name: WOAK_PE, Okapi, DNA, Paired End
-        path: /export/data/giraffe/data/OKAPI/WOAK_PE
-        data_type: FASTQ_TYPE
+        value: /export/data/giraffe/data/OKAPI/WOAK_PE
+        type: FASTQ
         summary:  WOAK_PE, 150bp, 4 x 135 million reads, 27x coverage
         text: '''
         Specimen ID: `WOAK`
@@ -194,8 +193,8 @@ data: [
 
     {
         name: WOAK_MP, Okapi, DNA, Mate Pair
-        path: /export/data/giraffe/data/OKAPI/WOAK_MP
-        data_type: FASTQ_TYPE
+        value: /export/data/giraffe/data/OKAPI/WOAK_MP
+        type: FASTQ_TYPE
         summary: WOAK_MP, 150bp, 2 x 67 million reads, 7x coverage
         text: '''
         Specimen ID: `WOAK`

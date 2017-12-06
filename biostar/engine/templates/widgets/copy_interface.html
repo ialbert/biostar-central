@@ -5,44 +5,43 @@
     Copy into other projects
 </div>
 
-<div class="ui basic segment">
-   <div class="ui relaxed divided list">
-      <div class="item">
-            <div class="inline field">
-                <input type="radio" name="project" value="0">
-                <i class="archive icon"></i>Create new project and copy
-            </div>
+<div class="ui relaxed divided list">
+    <div class="item">
+        <div class="inline field">
+            <input type="radio" name="project" value="0">
+            <i class="archive icon"></i>Create new project and copy
         </div>
-          <div class="item">
-            <div class="inline field">
-                <input type="radio" name="project" value="{{ duplicate }}">
-                <i class="copy icon"></i>Duplicate in current project
-            </div>
+    </div>
+    <div class="item">
+        <div class="inline field">
+            <input type="radio" name="project" value="{{ duplicate }}">
+            <i class="copy icon"></i>Duplicate in current project
         </div>
+    </div>
 
     {% if projects %}
 
 
-            {% for project in projects %}
+        {% for project in projects %}
 
-                <div class="item">
+            <div class="item">
 
-                    <div class="inline field">
+                <div class="inline field">
 
-                        <input type="radio" name="project" value="{{project.id}}">
-                        <a href="{{ project.url }}">
-                            <i class="archive icon"></i>{{ project.name }}
-                        </a>
-
-                    </div>
+                    <input type="radio" name="project" value="{{ project.id }}">
+                    <a href="{{ project.url }}">
+                        <i class="archive icon"></i>{{ project.name }}
+                    </a>
 
                 </div>
 
-            {% endfor %}
+            </div>
+
+        {% endfor %}
 
         </div>
 
 
     {% endif %}
-</div>
+
 

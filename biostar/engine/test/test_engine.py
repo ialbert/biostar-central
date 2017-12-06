@@ -9,70 +9,92 @@ from biostar.engine import models
 
 logger = logging.getLogger('engine')
 
+class ViewsTest(TestCase):
 
-class ProjectTest(TestCase):
-    def setUp(self):
-        logger.setLevel(logging.WARNING)
-        self.owner = models.User.objects.filter(is_superuser=True).first()
-
-        pre = len(models.Project.objects.all())
-
-        self.project = auth.create_project(user=self.owner, name="test",
-                                           text="Text", summary="summary")
-        self.project.save()
-
-        post = len(models.Project.objects.all())
-
-        self.assertTrue(post == (pre + 1), "Error creating project in database")
-
-        # using a simple logged in client when needed
-        self.client.login(username="1@lvh.me", password="1@lvh.me")
-
-
-class DataTest(TestCase):
-    def setUp(self):
-        self.owner = models.User.objects.filter(is_superuser=True).first()
-        pre = len(models.Project.objects.all())
-        self.project = auth.create_project(user=self.owner, name="test",
-                                           text="Text", summary="summary")
-        post = len(models.Project.objects.all())
-
-        self.assertTrue(post == (pre + 1), "Error creating project in database")
-
-        pass
-
-    def test_data_linkage(self):
-        "Test data linkage with auth"
-
-        pre = len(models.Data.objects.all())
-        data = auth.create_data(self.project, path=__file__)
-        post = len(models.Data.objects.all())
-
-        self.assertTrue(post == (pre + 1), "Error creating linked data in database")
-
-
-class AnalysisTest(TestCase):
     def setUp(self):
         logger.setLevel(logging.WARNING)
         self.owner = models.User.objects.filter(is_superuser=True).first()
 
         dbcounter = {
-            "project": {"pre": len(models.Project.objects.all()), "post": models.Project},
-            "analysis": {"pre": len(models.Analysis.objects.all()), "post": models.Analysis},
+            "project": {"pre": models.Project.objects.count(), "post": models.Project},
+            "analysis": {"pre": models.Analysis.objects.count(), "post": models.Analysis},
         }
         self.project = auth.create_project(user=self.owner, name="test",
                                            text="Text", summary="summary")
         self.analysis = auth.create_analysis(project=self.project, json_text='{}', template="")
 
         for model_type, states in dbcounter.items():
-            post = len(states["post"].objects.all())
+            post = states["post"].objects.count()
             self.assertTrue(post == (states["pre"] + 1), f"Error adding {model_type} to database.")
 
-        # using a simple logged in client when needed
-        self.client.login(username="1@lvh.me", password="1@lvh.me")
+        access = models.Access(user=self.owner,
+                      access=models.Access.ADMIN_ACCESS, project=self.project)
+        access.save()
+        self.project.access_set.add(access)
+        self.project.save()
 
-    def test_recipe_copy_interface(self):
-        "Testing analysis copy interface "
+
+    def test_project_users(self):
+        "Test project_users view"
+
+        url = reverse("project_users", kwargs=dict(uid=self.project.uid))
+        new_user = models.User.objects.create(email="test@test.com",
+                                              first_name="test",
+                                              username="test")
+        new_user.set_password("test")
+        new_user.save()
+
+        info = dict(user=self.owner, project_id=self.project.id,
+                    user_id=new_user.id, access=models.Access.ADMIN_ACCESS)
+
+        resp = self.client.post(url, data=info)
+        self.assertEqual(resp.status_code, 302)
+
+
+    def test_project_edit(self):
+        "Test project edit"
+
+        url = reverse("project_edit", kwargs=dict(uid=self.project.uid))
+        info = dict(text="new text", summary="new summary", name="new name")
+        resp = self.client.post(url, info)
+
+        self.assertEqual(resp.status_code, 302, f"Error : status_code={resp.status_code} expected 302")
+
+
+    def test_project_create(self):
+        "Test for project creation view"
+
+        info = dict(user=self.owner, name="testing name", summary="test", text="testing")
+        resp = self.client.post(reverse("project_create"), info)
+
+        self.assertEqual(resp.status_code, 302, f"Error : status_code={resp.status_code} and expected 302")
+
+
+    def test_data_edit(self):
+
+        pre = models.Data.objects.count()
+        data = auth.create_data(self.project, path=__file__)
+        post = models.Data.objects.count()
+
+        self.assertTrue(post == (pre + 1), "Error creating data in database")
+
+        url = reverse("data_edit", kwargs=dict(id=data.id))
+        info = dict(summary="new summary", text="new text", name="new name")
+        resp = self.client.post(url, info)
+
+        self.assertEqual(resp.status_code, 302)
+
+
+    def test_data_upload(self):
+        "Test for data upload interface"
+
+        url = reverse("data_upload", kwargs=dict(uid=self.project.uid))
+        info = dict(user=self.owner, summary="test upload", text="test", file=__file__)
+        resp = self.client.post(url, info)
+
+        self.assertEqual(resp.status_code,302)
+
+    def test_recipe_copy(self):
         new_project = auth.create_project(user=self.owner, name="test",
                                       text="Text", summary="summary")
 
@@ -82,11 +104,8 @@ class AnalysisTest(TestCase):
 
         self.assertEqual(resp.status_code, 302)
 
-        #1/0
 
-    def test_recipe_edit_interface(self):
-        "Testing analysis edit interface"
-
+    def test_recipe_edit(self):
         url = reverse("recipe_edit", kwargs=dict(id=self.analysis.id))
         json_data = {"settings": {"name": "Test"}}
         json_text = hjson.dumps(json_data)
@@ -98,43 +117,28 @@ class AnalysisTest(TestCase):
 
             self.assertEqual(resp.status_code, 302)
 
-    def Xtest_analysis_run_interface(self):
-        "Testing analysis run interface"
-
+    def test_recipe_run(self):
         url = reverse("analysis_run", kwargs=dict(id=self.analysis.id))
         info = dict(user=self.owner)
         resp = self.client.post(url, info)
 
         self.assertEqual(resp.status_code, 302)
+        pass
 
+    def Xtest_job_list(self):
+        pass
 
-class JobTest(TestCase):
-    def setUp(self):
-        logger.setLevel(logging.WARNING)
+    def Xtest_job_view(self):
+        pass
 
-        self.owner = models.User.objects.filter(is_superuser=True).first()
+    def Xtest_job_result_view(self):
+        pass
 
-        dbcounter = {
-            "project": {"pre": len(models.Project.objects.all()), "post": models.Project},
-            "analysis": {"pre": len(models.Analysis.objects.all()), "post": models.Analysis},
-            "job": {"pre": len(models.Job.objects.all()), "post": models.Job}
-        }
+    def Xtest_job_file_view(self):
+        pass
 
-        self.project = auth.create_project(user=self.owner, name="test", text="Text", summary="summary")
-        self.analysis = auth.create_analysis(project=self.project, json_text='{test:{value:"test"}}',
-                                             template="echo {{test.value}}")
-        self.job = auth.create_job(analysis=self.analysis)
-
-        for model_type, states in dbcounter.items():
-            post = len(states["post"].objects.all())
-            self.assertTrue(post == (states["pre"] + 1), f"Error adding {model_type} to database.")
-
-    def test_job_runner(self):
-        "Testing Job runner using management command"
-
-        management.call_command('job', id=self.job.id)
-
-        return
+    def Xtest_job_files_list(self):
+        pass
 
 
 class FactoryTest(TestCase):
@@ -195,8 +199,7 @@ class FactoryTest(TestCase):
             self.assertFalse(message)
 
 
-
-class CommandTests(TestCase):
+class ManagementCommandTest(TestCase):
     def setUp(self):
         self.owner = models.User.objects.filter(is_superuser=True).first()
 
@@ -206,6 +209,9 @@ class CommandTests(TestCase):
         post = len(models.Project.objects.all())
 
         self.assertTrue(post == (pre + 1), "Error creating project in database")
+        self.analysis = auth.create_analysis(project=self.project, json_text='{test:{value:"test"}}',
+                                             template="echo {{test.value}}")
+        self.job = auth.create_job(analysis=self.analysis)
 
     def test_add_data(self):
         "Test adding data to a project using management commands "
@@ -216,120 +222,13 @@ class CommandTests(TestCase):
 
         self.assertTrue(post == (pre + 1), "Error creating adding in database with management command")
 
-class ViewsTest(TestCase):
+    def test_job_runner(self):
+        "Testing Job runner using management command"
 
-    def setUp(self):
+        management.call_command('job', id=self.job.id)
 
-        self.owner = models.User.objects.filter(is_superuser=True).first()
-        self.project = auth.create_project(user=self.owner, name="test",
-                                           text="Text", summary="summary")
-        self.project.save()
+        return
 
-
-    def test_project_users(self):
-        "Test project_users view"
-
-        url = reverse("project_users", kwargs=dict(uid=self.project.uid))
-        new_user = models.User.objects.create(email="test@test.com",
-                                              first_name="test",
-                                              username="test")
-        new_user.set_password("test")
-        new_user.save()
-
-        info = dict(user=self.owner, add_or_remove="add", users=new_user.id)
-
-        resp = self.client.post(url, data=info)
-
-        print(resp)
-        1/0
+    def Xtest_create_analysis(self):
+        "Testing createing an analysis with managment commads"
         pass
-
-
-    def test_project_edit(self):
-        "Test project edit"
-        url = reverse("project_edit", kwargs=dict(uid=self.project.uid))
-        info = dict(text="new text", summary="new summary", name="new name")
-
-        resp = self.client.post(url, info, follow=True)
-
-        #self.assertEqual(resp.status_code, 200, f"Error : response.status_code={resp.status_code} and expected 200.")
-        pass
-
-    def test_project_create(self):
-        "Test for project creation view"
-
-        info = dict(user=self.owner, name="testing name", summary="test", text="testing")
-        resp = self.client.post(reverse("project_create"), info, follow=True)
-
-        # Test if user interface works
-        #self.assertEqual(resp.status_code, 200, f"Error : response.status_code={resp.status_code} and expected 200.")
-        pass
-
-    def test_data_edit(self):
-
-        pre = len(models.Data.objects.all())
-        data = auth.create_data(self.project, path=__file__)
-        post = len(models.Data.objects.all())
-
-        self.assertTrue(post == (pre + 1), "Error creating data in database")
-
-        url = reverse("data_edit", kwargs=dict(id=data.id))
-        info = dict(summary="new summary", text="new text", name="new name")
-        resp = self.client.post(url, info, follow=True)
-
-        #self.assertEqual(resp.status_code, 200, f"Error : response.status_code={resp.status_code} and expected 200.")
-
-        pass
-
-    def test_data_upload(self):
-        "Test for data upload interface"
-
-        url = reverse("data_upload", kwargs=dict(uid=self.project.uid))
-        info = dict(user=self.owner, summary="test upload", text="test", file=__file__)
-        resp = self.client.post(url, info, follow=True)
-
-       # self.assertEqual(resp.status_code, 200, f"Error : response.status_code={resp.status_code} and expected 200.")
-
-    def Xtest_analysis_list(self):
-        pass
-
-
-    def Xtest_recipe_view(self):
-        pass
-
-
-    def Xtest_analysis_recipe(self):
-        pass
-
-
-    def Xtest_analysis_copy(self):
-        pass
-
-    def Xtest_analysis_run(self):
-        pass
-
-
-    def Xtest_recipe_edit(self):
-        pass
-
-    def Xtest_job_list(self):
-        pass
-
-    def Xtest_job_view(self):
-        pass
-
-    def Xtest_job_result_view(self):
-        pass
-
-    def Xtest_job_file_view(self):
-        pass
-
-    def Xtest_job_files_list(self):
-        pass
-
-
-
-
-
-
-
