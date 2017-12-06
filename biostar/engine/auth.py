@@ -264,7 +264,6 @@ def create_job(analysis, user=None, json_text='', json_data={}, name=None, state
     if save:
         job.save()
         logger.info(f"Created job id={job.id} name={job.name}")
-
     return job
 
 
@@ -285,22 +284,16 @@ def create_path(fname, data):
     Returns a proposed path based on fname to the storage folder of the data.
     Attempts to preserve the extension but also removes all whitespace from the filenames.
     """
-    # Limit the file name length. Keep the last elements.
-    fname = os.path.basename(fname)[-100:]
+    # Select the file name.
+    fname = os.path.basename(fname)
 
-    # Slugify each element of the path to make them "safe".
-    pieces = map(slugify, fname.split("."))
-
-    # Put the slugs back together.
-    fname = ".".join(pieces)
-
-    # This will store the data.
+    # The data storage directory.
     data_dir = data.get_data_dir()
 
     # Make the data directory if it does not exist.
     os.makedirs(data_dir, exist_ok=True)
 
-    # Build file with original name.
+    # Build the file name under the new location.
     path = os.path.abspath(os.path.join(data_dir, fname))
 
     return path

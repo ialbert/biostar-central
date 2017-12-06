@@ -34,18 +34,6 @@ threads : {
         value: 4
     }
 
-/*
-organism: {
-    label: Select organism
-    name: Giraffe
-    display_type: DROPDOWN
-    options : [
-        [ "fish1" , "Fish1"],
-        [ "fish2" , "Fish2"],
-    ]
-}
-*/
-
 settings : {
     name: Alignment based classification
     image : lamar_align.png
@@ -53,30 +41,30 @@ settings : {
     summary: Performs classification of input sequences based on alignment to a reference genome using bwa-mem algorithm.
     help:'''
 
-# Help
+        # Help
 
-This analysis align input sequences to a reference genome. It produces an alignment based classification table after
-applying filters. The filters remove supplementary and secondary alignments. Filter also removes those alignments where
-alignment length is not within the user-specified distance from read_length.
+        This analysis align input sequences to a reference genome. It produces an alignment based classification table after
+        applying filters. The filters remove supplementary and secondary alignments. Filter also removes those alignments where
+        alignment length is not within the user-specified distance from read_length.
 
-The input data should be in fastq format.
+        The input data should be in fastq format.
 
-Reference genome sequence needs to be provided unless the organism is human or mouse.
+        Reference genome sequence needs to be provided unless the organism is human or mouse.
 
 
-# Parameters
+        # Parameters
 
-1. Input data in fastq format.
-2. Reference genome sequence.
-3. Alignment length offset(in base pairs). This is used to remove alignments if alignment length is outside the specified distance from read length.
+        1. Input data in fastq format.
+        2. Reference genome sequence.
+        3. Alignment length offset(in base pairs). This is used to remove alignments if alignment length is outside the specified distance from read length.
 
-# Results
+        # Results
 
-1. Alignment summary statistics.
-2. Alignment based classification table.
-2. Aligned bam files.
+        1. Alignment summary statistics.
+        2. Alignment based classification table.
+        2. Aligned bam files.
 
-'''
+    '''
 
     }
 

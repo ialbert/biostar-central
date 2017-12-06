@@ -1,8 +1,8 @@
 set -ueo pipefail
 
 #Get parameters.
-INPUT_DATA={{sequence.path}}
-INPUT_SAMPLE_INFO={{sampleinfo.path}}
+INPUT_DATA={{sequence.value}}
+INPUT_SAMPLE_INFO={{sampleinfo.value}}
 THREADS={{threads.value}}
 TRIM_QUALITY={{quality_threshold.value}}
 KMER_LENGTH={{kmer_length.value}}

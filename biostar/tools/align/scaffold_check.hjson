@@ -8,7 +8,6 @@
         source: PROJECT
         type: FASTQ_TYPE
         display: DROPDOWN
-
     }
 
     reference : {
@@ -19,7 +18,6 @@
         source: PROJECT
         type: FASTA
         display: DROPDOWN
-
     }
 
     topn : {

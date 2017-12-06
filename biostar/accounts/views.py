@@ -55,6 +55,9 @@ def profile(request):
 @csrf.csrf_protect
 def user_signup(request):
 
+    messages.info(request, "Signups are not yet enabled")
+    return redirect("/")
+
     steps = breadcrumb_builder([HOME_ICON, SIGNUP_ICON])
 
     if request.method == 'POST':
