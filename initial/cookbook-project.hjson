@@ -76,7 +76,7 @@ data: [
     {
         name: Input Files
         value: export/local/input
-        data_type: FASTQ
+        type: FASTQ
         summary: This data entry is a directory with files.
 
     }

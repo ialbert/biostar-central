@@ -5,7 +5,7 @@ set -uxe
 TOC={{reads.toc}}
 
 # The assembly scaffolds.
-REF={{reference.path}}
+REF={{reference.value}}
 
 # How many of the largest scaffolds to keep.
 TOPN={{topn.value}}

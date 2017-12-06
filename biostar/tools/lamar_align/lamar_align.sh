@@ -1,8 +1,8 @@
 set -ueo pipefail
 
 # Get parameters.
-INPUT={{sequence.path}}
-GENOME={{genome.path}}
+INPUT={{sequence.value}}
+GENOME={{genome.value}}
 LEN_FILTER={{align_length.value}}
 
 INDEX=${GENOME}

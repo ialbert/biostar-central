@@ -1,7 +1,14 @@
-all: taxonomy input fishdb
+all: taxonomy input fishdb rnaseq
 
 clean:
 	rm -rf blastdb lamar taxonomy input fish_species bam
+
+rnaseq: rnaseq/griffith/reads/HBR_1_R1.fq
+
+rnaseq/griffith/reads/HBR_1_R1.fq:
+	curl http://data.biostarhandbook.com/rnaseq/projects/griffith/griffith-data.tar.gz | tar xzv
+	mkdir -p rnaseq/griffith/
+	mv -f reads refs rnaseq/griffith/
 
 # Taxonomy dependencies.
 taxonomy: taxonomy/names.dmp taxonomy/nodes.dmp

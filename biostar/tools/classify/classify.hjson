@@ -5,6 +5,7 @@ sequence : {
     label: Data
     type: FASTQ
     display: DROPDOWN
+    source: PROJECT
   }
 
 
@@ -13,6 +14,7 @@ accessions : {
     label: Accession list
     type: ACCESSION_LIST
     display: DROPDOWN
+    source: PROJECT
     }
 
 threads : {

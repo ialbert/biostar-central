@@ -14,7 +14,7 @@ class Bunch():
     def __init__(self, **kwargs):
         self.value = ''
         self.name = self.summary = ''
-        self.text = self.data_type = self.link = ''
+        self.text = self.type = self.link = ''
         self.__dict__.update(kwargs)
 
 
@@ -69,13 +69,13 @@ class Command(BaseCommand):
         else:
             # There was one data loading request.
             data_list = [
-                Bunch(data_type=data_type, value=path, name=name, summary=summary, text='')
+                Bunch(type=data_type, value=path, name=name, summary=summary, text='')
             ]
 
         # Add each collected datatype.
         for bunch in reversed(data_list):
             # Get the right datatype.
-            type_value = const.DATA_TYPE_SYMBOLS.get(bunch.data_type)
+            type_value = const.DATA_TYPE_SYMBOLS.get(bunch.type)
             if data_type and not type_value:
                 logger.warning(f"Invalid data type: {bunch.data_type}")
 

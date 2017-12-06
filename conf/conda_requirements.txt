@@ -9,4 +9,4 @@ bioawk
 pysam
 seqtk
 bedtools
-ucsc-bedgraphtobigwig
+subread
