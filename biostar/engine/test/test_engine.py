@@ -76,7 +76,7 @@ class AnalysisTest(TestCase):
         new_project = auth.create_project(user=self.owner, name="test",
                                       text="Text", summary="summary")
 
-        url = reverse("recipe_copy", kwargs=dict(id=self.analysis.id))
+        url = reverse("recipe_view", kwargs=dict(id=self.analysis.id))
         info = dict(project=new_project.id)
         resp = self.client.post(url, info)
 
