@@ -45,9 +45,7 @@ postgres:
 	python manage.py test --settings conf.postgres.postgres_settings --failfast
 
 
-reset: delete init public
-
-#public giraffe fish users
+reset: delete init public giraffe fish users
 
 next:
 	python manage.py job --next
@@ -89,10 +87,10 @@ public:
 	@python manage.py project --json initial/biostar-handbook.hjson --privacy public --sticky --jobs
 
 fish:
-	#@python manage.py project --json initial/fish-project.hjson --jobs
+	@python manage.py project --json initial/fish-project.hjson --jobs
 
 giraffe:
-	#@python manage.py project --json initial/giraffe-project.hjson --sticky
+	@python manage.py project --json initial/giraffe-project.hjson --sticky
 
 test:
 	python manage.py collectstatic --noinput -v 0

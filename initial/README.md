@@ -17,7 +17,7 @@ sudo apt-get install -y postgresql nginx
 
 source("https://bioconductor.org/biocLite.R")
 biocLite()
-biocLite("DESeq")
-biocLite("DESeq2")
-biocLite("edgeR")
-install.packages("gplots")
+biocLite("DESeq", ask=FALSE)
+biocLite("DESeq2",ask=FALSE)
+biocLite("edgeR", ask=FALSE)
+install.packages("gplots", quiet=TRUE)
