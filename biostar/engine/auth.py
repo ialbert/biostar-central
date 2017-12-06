@@ -262,8 +262,8 @@ def create_job(analysis, user=None, json_text='', json_data={}, name=None, state
         template=analysis.template)
 
     if save:
-        logger.info(f"Created job: {job.name}")
         job.save()
+        logger.info(f"Created job id={job.id} name={job.name}")
 
     return job
 
@@ -280,14 +280,18 @@ def findfiles(location, collect):
     return collect
 
 
-def create_data_path(data, fname):
-    # Limit the file name lenght.
+def create_path(fname, data):
+    """
+    Returns a proposed path based on fname to the storage folder of the data.
+    Attempts to preserve the extension but also removes all whitespace from the filenames.
+    """
+    # Limit the file name length. Keep the last elements.
     fname = os.path.basename(fname)[-100:]
 
     # Slugify each element of the path to make them "safe".
     pieces = map(slugify, fname.split("."))
 
-    # Put it back together.
+    # Put the slugs back together.
     fname = ".".join(pieces)
 
     # This will store the data.
@@ -297,48 +301,40 @@ def create_data_path(data, fname):
     os.makedirs(data_dir, exist_ok=True)
 
     # Build file with original name.
-    data_path = os.path.join(data_dir, fname)
+    path = os.path.abspath(os.path.join(data_dir, fname))
 
-    return data_path
+    return path
 
 
 def create_data(project, user=None, stream=None, path='', name='',
-                text='', summary='', data_type=None, link=False):
+                text='', summary='', data_type=None):
+
     # Absolute paths with no trailing slashes.
     path = os.path.abspath(path).rstrip("/")
 
     # Create the data.
-    state = Data.PENDING
-    data = Data.objects.create(name=name, owner=user, state=state, project=project,
+    data = Data.objects.create(name=name, owner=user, state=Data.PENDING, project=project,
                                data_type=data_type, summary=summary, text=text)
 
     # If the path is a directory, symlink all files.
-    if path != os.path.abspath("") and os.path.isdir(path):
-
-        logger.info(f"Symlinking path: {path}")
+    if path and os.path.isdir(path):
+        logger.info(f"Linking path: {path}")
         collect = findfiles(path, collect=[])
         for src in collect:
-            dest = create_data_path(data, src)
+            dest = create_path(fname=src, data=data)
             os.symlink(src, dest)
         summary = f'Contains {len(collect)} files. {summary}'
-        logger.info(f"Symlinked {len(collect)} files.")
+        logger.info(f"Linked {len(collect)} files.")
 
     # The path is a file.
-    if path != os.path.abspath("") and os.path.isfile(path):
+    if path and os.path.isfile(path):
+        dest = create_path(path, data=data)
+        os.symlink(path, dest)
+        logger.info(f"Linked file: {path}")
 
-        dest = create_data_path(data, path)
-
-        # Test if it should be linked or not.
-        if link:
-            os.symlink(path, dest)
-            logger.info(f"Symlinked file: {path}")
-        else:
-            logger.info(f"Copied file to: {dest}")
-            shutil.copy(path, dest)
-
-    # An incoming stream is written into the destination.
+    # The source of the data is a stream is written into the destination.
     if stream:
-        dest = create_data_path(data, stream.name)
+        dest = create_path(data, stream.name)
         with open(dest, 'wb') as fp:
             chunk = stream.read(CHUNK)
             while chunk:

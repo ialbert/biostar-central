@@ -241,9 +241,9 @@ class Data(models.Model):
         """
         fnames = self.get_files()
         if fnames:
-            obj['path'] = fnames[0]
+            obj['value'] = fnames[0]
         else:
-            obj['path'] = 'foo'
+            obj['value'] = 'MISSING'
 
         obj['files'] = fnames
         obj['toc'] = self.get_path()

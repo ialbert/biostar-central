@@ -45,7 +45,9 @@ postgres:
 	python manage.py test --settings conf.postgres.postgres_settings --failfast
 
 
-reset: delete init public giraffe fish users
+reset: delete init
+
+#public giraffe fish users
 
 next:
 	python manage.py job --next

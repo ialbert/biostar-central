@@ -2,7 +2,6 @@
 
 sequence : {
     value: export/local/input/virus_sample1.fastq.gz
-    link: true
     label: Data
     help: The sequencing reads
     summary: DNA reads of viral origin.
@@ -22,21 +21,9 @@ genome : {
     }
 
 threads : {
-        value: 4
+    value: 4
     }
 
-/*
-organism: {
-    label: Select organism
-    name: Giraffe
-    display_type: DROPDOWN
-    options : [
-        [ "giraffe" , "Giraffe"],
-        [ "human" , "Human"],
-        [ "mouse" , "Mouse"],
-    ]
-}
-*/
 
 settings : {
     name: Align sequences to genome

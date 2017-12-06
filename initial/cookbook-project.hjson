@@ -69,7 +69,6 @@ analyses: [
         template: biostar/tools/merge/merge.sh
     }
 
-
 ]
 
 data: [

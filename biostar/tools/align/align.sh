@@ -1,8 +1,8 @@
 set -ueo pipefail
 
 # Get parameters.
-INPUT={{sequence.path}}
-GENOME={{genome.path}}
+INPUT={{sequence.value}}
+GENOME={{genome.value}}
 URL={{runtime.job_url}}
 
 # Internal parameters.
