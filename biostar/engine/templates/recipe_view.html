@@ -68,15 +68,13 @@
 
             <div class="ui basic segment">
 
-                {% copy_interface projects=projects form=form%}
+                {% copy_interface projects=projects form=form duplicate=analysis.project.id %}
 
                <button type="submit" class="ui button">
                     <i class="plus icon"></i>Copy Recipe
                </button>
 
-                <button type="submit" class="ui right floated button" name="project" value="{{analysis.project.id}}">
-                    <i class="copy icon"></i>Duplicate Recipe
-                </button>
+
 
 
              </div>
