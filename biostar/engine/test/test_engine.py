@@ -18,10 +18,13 @@ class ViewsTest(TestCase):
         dbcounter = {
             "project": {"pre": models.Project.objects.count(), "post": models.Project},
             "analysis": {"pre": models.Analysis.objects.count(), "post": models.Analysis},
+            "job":{'pre':models.Job.objects.count(), 'post': models.Job}
+
         }
         self.project = auth.create_project(user=self.owner, name="test",
                                            text="Text", summary="summary")
         self.analysis = auth.create_analysis(project=self.project, json_text='{}', template="")
+        self.job = auth.create_job(analysis=self.analysis)
 
         for model_type, states in dbcounter.items():
             post = states["post"].objects.count()
@@ -58,7 +61,7 @@ class ViewsTest(TestCase):
         info = dict(text="new text", summary="new summary", name="new name")
         resp = self.client.post(url, info)
 
-        self.assertEqual(resp.status_code, 302, f"Error : status_code={resp.status_code} expected 302")
+        self.assertEqual(resp.status_code, 302)
 
 
     def test_project_create(self):
@@ -67,7 +70,7 @@ class ViewsTest(TestCase):
         info = dict(user=self.owner, name="testing name", summary="test", text="testing")
         resp = self.client.post(reverse("project_create"), info)
 
-        self.assertEqual(resp.status_code, 302, f"Error : status_code={resp.status_code} and expected 302")
+        self.assertEqual(resp.status_code, 302)
 
 
     def test_data_edit(self):
@@ -104,8 +107,7 @@ class ViewsTest(TestCase):
 
         self.assertEqual(resp.status_code, 302)
 
-
-    def test_recipe_edit(self):
+    def Xtest_recipe_edit(self):
         url = reverse("recipe_edit", kwargs=dict(id=self.analysis.id))
         json_data = {"settings": {"name": "Test"}}
         json_text = hjson.dumps(json_data)
@@ -123,21 +125,22 @@ class ViewsTest(TestCase):
         resp = self.client.post(url, info)
 
         self.assertEqual(resp.status_code, 302)
-        pass
 
-    def Xtest_job_list(self):
-        pass
 
-    def Xtest_job_view(self):
-        pass
+    def test_job_file_view(self):
+        url = reverse('job_files_entry', kwargs=dict(id=self.job.id))
+        info = dict(user=self.owner)
+        resp = self.client.get(url, info)
 
-    def Xtest_job_result_view(self):
-        pass
-
-    def Xtest_job_file_view(self):
-        pass
+        self.assertEqual(resp.status_code, 302)
 
     def Xtest_job_files_list(self):
+        url = reverse('job_files_list', kwargs=dict(id=self.job.id, path=""))
+        info = dict(user=self.owner)
+        resp = self.client.post(url, info)
+
+        self.assertEqual(resp.status_code, 302)
+
         pass
 
 
