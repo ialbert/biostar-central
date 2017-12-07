@@ -1,0 +1,6 @@
+---
+- hosts: production
+  user: www
+
+  roles:
+    - setup

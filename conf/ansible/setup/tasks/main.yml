@@ -1,0 +1,6 @@
+
+
+- git:
+    user: www
+    repo: 'git@github.com:biostars/biostar-engine.git'
+    dest: /export/sites/recipe_web

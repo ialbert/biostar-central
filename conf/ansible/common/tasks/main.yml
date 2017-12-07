@@ -1,0 +1,31 @@
+
+- name: Update apt-cache
+  apt:
+    #upgrade=yes
+    #update_cache=yes
+    #cache_valid_time=86400 # One day
+
+- group:
+    name: bioinfo
+
+- user:
+    name: www
+    shell: /bin/bash
+    groups: www, bioinfo, sudo
+    append: yes
+
+- name: Create directory
+  file:
+    path: /export/sites/recipe_web
+    state: directory
+    owner: www
+    group: www
+    mode: 0755
+    recurse: yes
+
+
+- name: Install Packages
+  vars:
+     packages: [ 'nginx', 'postgresql', 'curl', 'git', 'byacc', 'zlib1g-dev', 'cmake', 'build-essential', 'ncurses-dev' ]
+  apt: name={{ item }} state=latest
+  with_items: "{{ packages }}"

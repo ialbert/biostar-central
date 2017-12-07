@@ -1,0 +1,5 @@
+[production]
+www.bioinformatics.recipes
+
+[test]
+test.bioinformatics.recipes
