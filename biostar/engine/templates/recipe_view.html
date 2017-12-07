@@ -62,7 +62,6 @@
             <div class="ui vertical segment">{{ analysis.html|safe }}</div>
         </div>
 
-
         <div class="ui segment inputcolor">
 
             <form class="ui form " method="post" action="{% url 'recipe_view' analysis.id %}">
@@ -72,16 +71,13 @@
 
                 <button type="submit" class="ui button">
                     <i class="plus icon"></i>Copy Recipe
-                </button>
+               </button>
+
 
             </form>
 
         </div>
 
     </div>
-
-
-
-
 
 {% endblock %}

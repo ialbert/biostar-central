@@ -29,7 +29,8 @@ def sticky_label(obj):
 
 @register.inclusion_tag('widgets/copy_interface.html')
 def copy_interface(form, projects, duplicate):
-    "Copy an instance from (from_id) to a list of allowed projects"
+    """Copy an instance from (from_id) to a list of allowed projects.
+    'duplicate' is the current project's id; incase someone duplicates"""
 
     return dict(projects=projects, form=form, duplicate=duplicate)
 

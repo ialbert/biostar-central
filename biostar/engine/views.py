@@ -660,8 +660,6 @@ def job_result_view(request, id):
     index = job.json_data.get("settings", {}).get("index", "")
 
     if job.state == Job.COMPLETED:
-
-        # TODO:This part is still exposed.
         url = settings.MEDIA_URL + job.get_url(path=index)
         return redirect(url)
     else:
