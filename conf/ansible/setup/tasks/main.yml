@@ -1,6 +1,14 @@
 
 
 - git:
-    user: www
     repo: 'git@github.com:biostars/biostar-engine.git'
     dest: /export/sites/recipe_web
+
+- name: Link NGINX config 
+  file:
+    path: /export/sites/recipe_web
+    state: directory
+    owner: www
+    group: www
+    mode: 0755
+    recurse: yes

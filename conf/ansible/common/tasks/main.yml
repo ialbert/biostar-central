@@ -1,9 +1,9 @@
 
 - name: Update apt-cache
   apt:
-    #upgrade=yes
-    #update_cache=yes
-    #cache_valid_time=86400 # One day
+    upgrade=yes
+    update_cache=yes
+    cache_valid_time=86400 # One day
 
 - group:
     name: bioinfo
@@ -14,7 +14,13 @@
     groups: www, bioinfo, sudo
     append: yes
 
-- name: Create directory
+- name: Install Packages
+  vars:
+     packages: [ 'nginx', 'postgresql', 'curl', 'git', 'byacc', 'zlib1g-dev', 'cmake', 'build-essential', 'ncurses-dev', 'supervisor' ]
+  apt: name={{ item }} state=latest
+  with_items: "{{ packages }}"
+
+- name: Create Recipe Directory
   file:
     path: /export/sites/recipe_web
     state: directory
@@ -23,9 +29,16 @@
     mode: 0755
     recurse: yes
 
+- name: Allow write access to Nginx directory
+  file:
+    path: /etc/nginx/sites-enabled
+    owner: www
+    group: www
+    mode: 0644
 
-- name: Install Packages
-  vars:
-     packages: [ 'nginx', 'postgresql', 'curl', 'git', 'byacc', 'zlib1g-dev', 'cmake', 'build-essential', 'ncurses-dev' ]
-  apt: name={{ item }} state=latest
-  with_items: "{{ packages }}"
+- name: Allow write access to Supervisor directory
+  file:
+    path: /etc/supervisor/conf.d
+    owner: www
+    group: www
+    mode: 0644
