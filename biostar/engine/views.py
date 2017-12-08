@@ -23,7 +23,7 @@ import difflib
 def join(*args):
     return os.path.abspath(os.path.join(*args))
 
-# objects per page when listing
+# Objects per page when looking at lists
 OBJ_PER_PAGE = 10
 
 # The current directory
