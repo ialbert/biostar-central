@@ -1,3 +1,5 @@
+from django.utils.encoding import python_2_unicode_compatible
+
 from django.db import models
 from django.conf import settings
 from django.core.urlresolvers import reverse
@@ -8,6 +10,7 @@ logger = logging.getLogger(__name__)
 
 # Create your models here.
 
+@python_2_unicode_compatible
 class Badge(models.Model):
     BRONZE, SILVER, GOLD = range(3)
     CHOICES = ((BRONZE, 'Bronze'), (SILVER, 'Silver'), (GOLD, 'Gold'))
@@ -34,7 +37,7 @@ class Badge(models.Model):
         url = reverse("badge-details", kwargs=dict(pk=self.id))
         return url
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 

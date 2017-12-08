@@ -1,4 +1,6 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
+from django.utils.encoding import python_2_unicode_compatible
+
 import logging, datetime, string
 from django.db import models
 from django.conf import settings
@@ -21,6 +23,7 @@ logger = logging.getLogger(__name__)
 def now():
     return datetime.datetime.utcnow().replace(tzinfo=utc)
 
+@python_2_unicode_compatible
 class Tag(models.Model):
     name = models.TextField(max_length=50, db_index=True)
     count = models.IntegerField(default=0)
@@ -42,7 +45,7 @@ class Tag(models.Model):
         if action == 'pre_clear':
             instance.tag_set.all().update(count=F('count') - 1)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 class TagAdmin(admin.ModelAdmin):
@@ -124,7 +127,7 @@ class PostManager(models.Manager):
 
         return query.select_related("root", "author", "lastedit_user").prefetch_related("tag_set").defer("content", "html")
 
-
+@python_2_unicode_compatible
 class Post(models.Model):
     "Represents a post in Biostar"
 
@@ -321,7 +324,7 @@ class Post(models.Model):
 
         super(Post, self).save(*args, **kwargs)
 
-    def __unicode__(self):
+    def __str__(self):
         return "%s: %s (id=%s)" % (self.get_type_display(), self.title, self.id)
 
     @property
@@ -467,7 +470,7 @@ class PostView(models.Model):
     post = models.ForeignKey(Post, related_name="post_views")
     date = models.DateTimeField(auto_now=True)
 
-
+@python_2_unicode_compatible
 class Vote(models.Model):
     # Post statuses.
     UP, DOWN, BOOKMARK, ACCEPT = range(4)
@@ -478,7 +481,7 @@ class Vote(models.Model):
     type = models.IntegerField(choices=TYPE_CHOICES, db_index=True)
     date = models.DateTimeField(db_index=True, auto_now=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return u"Vote: %s, %s, %s" % (self.post_id, self.author_id, self.get_type_display())
 
 class VoteAdmin(admin.ModelAdmin):
@@ -497,7 +500,7 @@ class SubscriptionManager(models.Manager):
 # This contains the notification types.
 from biostar.const import LOCAL_MESSAGE, MESSAGING_TYPE_CHOICES
 
-
+@python_2_unicode_compatible
 class Subscription(models.Model):
     "Connects a post to a user"
 
@@ -511,7 +514,7 @@ class Subscription(models.Model):
 
     objects = SubscriptionManager()
 
-    def __unicode__(self):
+    def __str__(self):
         return "%s to %s" % (self.user.name, self.post.title)
 
     def save(self, *args, **kwargs):

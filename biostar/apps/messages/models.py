@@ -3,6 +3,8 @@ Inspired by django-messages at https://github.com/arneb/django-messages
 '''
 
 from __future__ import print_function, unicode_literals, absolute_import, division
+from django.utils.encoding import python_2_unicode_compatible
+
 import logging, datetime
 from django.db import models
 from django.conf import settings
@@ -27,6 +29,7 @@ class MessageManager(models.Manager):
         return self.filter(sender=user)
 
 # A message body is information sent to users.
+@python_2_unicode_compatible
 class MessageBody(models.Model):
     """
     A private message from user to user
@@ -41,7 +44,7 @@ class MessageBody(models.Model):
 
     objects = MessageManager()
 
-    def __unicode__(self):
+    def __str__(self):
         return self.subject
 
     def save(self, **kwargs):
@@ -54,6 +57,7 @@ class MessageBody(models.Model):
 from biostar.const import LOCAL_MESSAGE, MESSAGING_TYPE_CHOICES
 
 # Connects user to message bodies
+@python_2_unicode_compatible
 class Message(models.Model):
     "Connects recipents to sent messages"
     user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='recipients', verbose_name=_("Recipient"))
@@ -66,7 +70,7 @@ class Message(models.Model):
         self.sent_at = self.body.sent_at
         super(Message, self).save(**kwargs)
 
-    def __unicode__(self):
+    def __str__(self):
         return u"Message %s, %s" % (self.user, self.body_id)
 
     @staticmethod
