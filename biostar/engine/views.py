@@ -24,7 +24,7 @@ def join(*args):
     return os.path.abspath(os.path.join(*args))
 
 # objects per page when listing
-OBJ_PER_PAGE = 5
+OBJ_PER_PAGE = 10
 
 # The current directory
 __CURRENT_DIR = os.path.dirname(__file__)
