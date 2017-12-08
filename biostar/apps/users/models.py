@@ -1,4 +1,6 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
+from django.utils.encoding import python_2_unicode_compatible
+
 import logging
 from django import forms
 from django.db import models
@@ -49,7 +51,7 @@ class LocalManager(UserManager):
 
         return query
 
-
+@python_2_unicode_compatible
 class User(AbstractBaseUser):
     # Class level constants.
     USER, MODERATOR, ADMIN, BLOG = range(4)
@@ -151,7 +153,7 @@ class User(AbstractBaseUser):
         "People like to see big scores."
         return self.score * 10
 
-    def __unicode__(self):
+    def __str__(self):
         return "%s: %s (%s)" % (self.name, self.email, self.id)
 
     def get_absolute_url(self):
@@ -181,7 +183,7 @@ MESSAGE_PREF_MAP = dict(
 )
 MESSAGE_PREFS = MESSAGE_PREF_MAP.get(settings.DEFAULT_MESSAGE_PREF, const.LOCAL_MESSAGE)
 
-
+@python_2_unicode_compatible
 class Profile(models.Model):
     """
     Maintains information that does not always need to be retreived whe a user is accessed.
@@ -276,7 +278,7 @@ class Profile(models.Model):
 
         super(Profile, self).save(*args, **kwargs)
 
-    def __unicode__(self):
+    def __str__(self):
         return "%s" % self.user.name
 
     @property

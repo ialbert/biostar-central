@@ -1,3 +1,5 @@
+from django.utils.encoding import python_2_unicode_compatible
+
 from django.db import models
 from django.conf import settings
 import os, urllib, logging, feedparser, datetime
@@ -16,6 +18,7 @@ def abspath(*args):
 
 # Create your models here.
 
+@python_2_unicode_compatible
 class Blog(models.Model):
     "Represents a blog"
     title = models.CharField(verbose_name='Blog Name', max_length=255, default="", blank=False)
@@ -47,7 +50,7 @@ class Blog(models.Model):
         except Exception, exc:
             logger.error("error %s downloading %s", (exc, self.feed))
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
 class BlogPost(models.Model):
@@ -95,7 +98,7 @@ class BlogPost(models.Model):
 
         super(BlogPost, self).save(*args, **kwargs)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
 admin.site.register(Blog)
