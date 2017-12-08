@@ -68,8 +68,6 @@ class RecipeForm(forms.ModelForm):
         return image
 
 
-
-
 class JobEditForm(forms.ModelForm):
     class Meta:
         model = Job
@@ -89,6 +87,7 @@ class ChangeUserAccess(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super(ChangeUserAccess, self).clean()
+
         project = Project.objects.filter(pk=cleaned_data["project_id"]).first()
         access = [a.access for a in project.access_set.all() if a.user.id!=cleaned_data["user_id"]]
         access.append(cleaned_data["access"])
@@ -181,7 +180,6 @@ class DataCopyForm(forms.Form):
                 raise forms.ValidationError(msg)
 
 
-
 class FilesCopyForm(forms.Form):
 
     paths = forms.CharField(max_length=256)
@@ -194,7 +192,7 @@ class FilesCopyForm(forms.Form):
     def save(self):
         paths = self.cleaned_data["paths"]
         for path in paths:
-            tasks.copier(target_project=self.project.id, fname=path, link=True)
+            auth.create_data(project=self.project, path=path)
             logger.info(f"Copy data at: {path}")
 
         return paths

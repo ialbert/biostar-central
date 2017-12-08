@@ -295,7 +295,6 @@ def project_create(request):
 
 
 @object_access(type=Project, access=Access.READ_ACCESS)
-
 def data_list(request, uid):
     project = Project.objects.filter(uid=uid).first()
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON],
@@ -313,7 +312,6 @@ def data_list(request, uid):
 
     context = dict(project=project, steps=steps, data_list=data_list, data_count=data_count)
     return render(request, "data_list.html", context)
-
 
 
 @object_access(type=Data, access=Access.READ_ACCESS)
