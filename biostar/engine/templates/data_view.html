@@ -21,6 +21,7 @@
             <div class="ui center aligned header">
                 Data: {{ data.name }}
             </div>
+
         </div>
 
         <div class="ui segment">
@@ -44,7 +45,7 @@
             <pre>{{ data.peek }}</pre>
         </div>
 
-        <div class="ui center aligned vertical segment">
+        <div class="ui vertical center aligned segment">
             <a class="ui button" href="{% url 'data_edit' data.id %}">
                 <i class="write icon"></i>Edit Data
             </a>

@@ -12,7 +12,19 @@
 
 {% block body %}
 
-    <div class="ui raised segment">
+    <div class="ui raised segments">
+
+        <div class="ui center aligned segment">
+            <h3 class="ui icon header">
+               <i class="list layout icon"></i>
+                <p class="content">
+                    Project List
+                <p class="sub header">All public and private projects you have access to.</p>
+                </p>
+            </h3>
+        </div>
+
+        <div class="ui segment">
 
         <div class="ui divided link items">
 
@@ -30,13 +42,12 @@
                             <i class="archive icon"></i>{{ project.name }}
                         </a>
 
-
                         <div class="meta">
                             {{ project.summary|markdown|safe }}
                         </div>
 
                         <div class="extra">
-                            {% privacy_label project %}{% sticky_label project %}
+                            {% privacy_label project %}{% sticky_label project %} {% access_label project=project user=user %}
                             Created on {{ project.date.date }} by {{ project.owner.email }}
 
                         </div>
@@ -50,19 +61,20 @@
                     Public projects are shown. <a href="{% url 'login' %}">Log in</a> to access private projects.
                 </div>
             {% endif %}
+
+            <div class="item centerbox">
+                <a class="ui button" href="{% url 'project_create' %}">
+                    <i class="plus icon"></i>Create Project
+                </a>
+            </div>
         </div>
 
-        <div class="ui vertical center aligned segment">
-
-            <a class="ui button" href="{% url 'project_create' %}">
-                <i class="plus icon"></i>Create Project
-            </a>
-
-        </div>
-        <div class="ui center aligned basic segment">
+    </div>
+                <div class="ui center aligned basic segment">
         {% pages instance=projects %}
         </div>
     </div>
+
 
 
 

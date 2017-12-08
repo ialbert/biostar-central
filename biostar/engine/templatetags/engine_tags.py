@@ -39,16 +39,27 @@ def pages(instance):
 
     return dict(instance=instance)
 
+
 @register.simple_tag
 def privacy_label(project):
     label = mark_safe(f'<span class ="ui label">{project.get_privacy_display()}</span>' )
     return label
 
-
 @register.inclusion_tag('widgets/authorization_required.html')
 def security_label(analysis):
     context = dict(analysis=analysis)
     return context
+
+
+@register.simple_tag
+def access_label(project, user):
+
+    if user.is_anonymous:
+        return ""
+
+    access = Access.objects.filter(project=project, user=user).first()
+    label = mark_safe(f'<span class ="ui green label">{access.get_access_display()}</span>')
+    return label
 
 
 @register.simple_tag
