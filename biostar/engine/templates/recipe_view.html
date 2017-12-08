@@ -64,7 +64,7 @@
 
         <div class="ui segment inputcolor">
 
-            <form class="ui form " method="post" action="{% url 'recipe_view' analysis.id %}">
+            <form class="ui form" method="post" action="{% url 'recipe_view' analysis.id %}">
                 {% csrf_token %}
 
                 {% copy_interface projects=projects form=form duplicate=analysis.project.id %}

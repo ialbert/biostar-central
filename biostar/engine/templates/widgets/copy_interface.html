@@ -12,12 +12,15 @@
             <i class="archive icon"></i>Create new project and copy
         </div>
     </div>
-    <div class="item">
-        <div class="inline field">
-            <input type="radio" name="project" value="{{ duplicate }}">
-            <i class="copy icon"></i>Duplicate in current project
+
+    {% if duplicate %}
+        <div class="item">
+            <div class="inline field">
+                <input type="radio" name="project" value="{{ duplicate }}">
+                <i class="copy icon"></i>Duplicate in current project
+            </div>
         </div>
-    </div>
+    {% endif %}
 
     {% if projects %}
 

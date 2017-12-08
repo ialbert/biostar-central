@@ -25,7 +25,7 @@
             <div class="ui divided link items">
 
 
-                {% for analysis in analyses %}
+                {% for analysis in analysis %}
 
                     <div class="item">
 
@@ -63,6 +63,9 @@
                 </div>
 
             </div>
+        </div>
+        <div class="ui center aligned basic segment">
+           {% pages instance=analysis %}
         </div>
 
     </div>

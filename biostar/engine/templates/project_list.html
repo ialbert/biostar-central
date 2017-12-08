@@ -50,6 +50,7 @@
                     Public projects are shown. <a href="{% url 'login' %}">Log in</a> to access private projects.
                 </div>
             {% endif %}
+        </div>
 
         <div class="ui vertical center aligned segment">
 
@@ -58,10 +59,9 @@
             </a>
 
         </div>
+        <div class="ui center aligned basic segment">
+        {% pages instance=projects %}
         </div>
-
-
-
     </div>
 
 

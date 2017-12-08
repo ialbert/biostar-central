@@ -15,31 +15,31 @@
 
 {% block body %}
 
-    <div class="ui  raised segment">
+    <div class="ui raised segments">
 
-        <div class="ui vertical segment">
+        <div class="ui segment">
             <div class="ui center aligned header">
                 Data: {{ data.name }}
             </div>
         </div>
 
-        <div class="ui vertical segment">
+        <div class="ui segment">
             {{ data.summary|markdown|safe }}
         </div>
 
-        <div class="ui vertical segment">
+        <div class="ui segment">
             <div>Name: {{ data.name }}</div>
             <div>Size: {{ data.size|filesizeformat }}</div>
             <div>Uploaded by: {{ data.owner.email }}</div>
             <div>State: {{ data.get_state_display }}</div>
         </div>
 
-        <div class="ui vertical segment">
+        <div class="ui segment">
             <div class="ui center aligned header">Data Description</div>
             <div>{{ data.html|safe }}</div>
         </div>
 
-        <div class="ui vertical segment">
+        <div class="ui segment">
             <div class="ui center aligned header">Data Content</div>
             <pre>{{ data.peek }}</pre>
         </div>
@@ -50,13 +50,13 @@
             </a>
         </div>
 
-        <div class="ui vertical segment inputcolor">
+        <div class="ui basic segment inputcolor">
 
             <form class="ui form" method="post" action="{% url 'data_view' data.id %}">
 
                 {% csrf_token %}
 
-                {% copy_interface projects=projects form=form duplicate=data.project.id %}
+                {% copy_interface projects=projects form=form %}
 
                 <button type="submit" class="ui button">
                     <i class="plus icon"></i>Copy Data
@@ -67,5 +67,4 @@
 
     </div>
 
-    </div>
 {% endblock %}

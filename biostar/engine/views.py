@@ -10,6 +10,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 # from django.template.loader import get_template
 from django.utils.safestring import mark_safe
+from django.core.paginator import Paginator
 
 from .const import *
 from .decorators import object_access
@@ -22,6 +23,8 @@ import difflib
 def join(*args):
     return os.path.abspath(os.path.join(*args))
 
+# objects per page when listing
+OBJ_PER_PAGE = 5
 
 # The current directory
 __CURRENT_DIR = os.path.dirname(__file__)
@@ -38,6 +41,14 @@ logger = logging.getLogger('engine')
 
 def make_html(text):
     return mistune.markdown(text)
+
+def pages(request, instance):
+
+    paginator = Paginator(instance, OBJ_PER_PAGE)
+    page = request.GET.get('page')
+    if not page:
+        page = 1
+    return paginator.page(page)
 
 
 def docs(request, name):
@@ -179,8 +190,10 @@ def project_users(request, uid):
 
 
 def project_list(request):
+
     projects = auth.get_project_list(user=request.user).order_by("-sticky", "-privacy")
     projects = projects.order_by("-privacy", "-sticky", "-date", "-id")
+    projects = pages(request, instance=projects)
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON])
     context = dict(projects=projects, steps=steps)
@@ -291,6 +304,7 @@ def data_list(request, uid):
 
     data_list = query.all()
     data_count = query.count()
+    data_list = pages(request, instance=data_list)
 
     context = dict(project=project, steps=steps, data_list=data_list, data_count=data_count)
     return render(request, "data_list.html", context)
@@ -387,11 +401,13 @@ def recipe_list(request, uid):
     """
 
     project = Project.objects.filter(uid=uid).first()
-    analyses = Analysis.objects.filter(project=project).order_by("-sticky", "-id")
+    analysis = Analysis.objects.filter(project=project).order_by("-sticky", "-id")
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ANALYSIS_LIST_ICON],
                                project=project)
-    context = dict(project=project, analyses=analyses, steps=steps)
+    analysis =  pages(request, instance=analysis)
+
+    context = dict(project=project, analysis=analysis, steps=steps)
 
     return render(request, "recipe_list.html", context)
 
@@ -610,6 +626,8 @@ def job_list(request, uid):
     if filter:
         filter = Analysis.objects.filter(id=filter).first()
         jobs = jobs.filter(analysis=filter)
+
+    jobs = pages(request, instance=jobs)
 
     context = dict(jobs=jobs, steps=steps, project=project, filter=filter)
 
