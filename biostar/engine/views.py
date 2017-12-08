@@ -11,7 +11,7 @@ from django.urls import reverse
 # from django.template.loader import get_template
 from django.utils.safestring import mark_safe
 from django.core.paginator import Paginator
-
+from django.views.decorators import csrf, cache
 from .const import *
 from .decorators import object_access
 from .forms import *
@@ -148,6 +148,8 @@ def site_admin(request):
 
 
 @object_access(type=Project, access=Access.ADMIN_ACCESS, url='project_view')
+@csrf.csrf_protect
+@cache.never_cache
 def project_users(request, uid):
     """
     Manage project users
@@ -202,6 +204,8 @@ def project_list(request):
 
 
 @object_access(type=Project, access=Access.READ_ACCESS)
+@csrf.csrf_protect
+@cache.never_cache
 def project_view(request, uid):
     user = request.user
 
@@ -232,6 +236,8 @@ def project_view(request, uid):
 
 
 @object_access(type=Project, access=Access.EDIT_ACCESS, url='project_view')
+@csrf.csrf_protect
+@cache.never_cache
 def project_edit(request, uid):
 
     project = auth.get_project_list(user=request.user).filter(uid=uid).first()
@@ -251,7 +257,8 @@ def project_edit(request, uid):
     return render(request, 'project_edit.html',
                   context)
 
-
+@csrf.csrf_protect
+@cache.never_cache
 def project_create(request):
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON])
 
@@ -272,17 +279,14 @@ def project_create(request):
             privacy = form.cleaned_data["privacy"]
             uid = form.cleaned_data["uid"]
             owner = request.user
-
             project = auth.create_project(user=owner, name=name, summary=summary, text=text,
                                           stream=stream, sticky=sticky, privacy=privacy,
                                           uid=uid)
             project.save()
-
             return redirect(reverse("project_view", kwargs=dict(uid=project.uid)))
-        else:
-            messages.error(request, mark_safe(form.errors))
-            return redirect(reverse("project_create"))
 
+        messages.error(request, mark_safe(form.errors))
+        return redirect(reverse("project_create"))
 
     initial = dict(name="Project Name", text="project description", summary="project summary")
     form = ProjectForm(initial=initial)
@@ -291,6 +295,7 @@ def project_create(request):
 
 
 @object_access(type=Project, access=Access.READ_ACCESS)
+
 def data_list(request, uid):
     project = Project.objects.filter(uid=uid).first()
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON],
@@ -312,6 +317,8 @@ def data_list(request, uid):
 
 
 @object_access(type=Data, access=Access.READ_ACCESS)
+@csrf.csrf_protect
+@cache.never_cache
 def data_view(request, id):
 
     data = Data.objects.filter(id=id).first()
@@ -348,6 +355,8 @@ def data_view(request, id):
 
 
 @object_access(type=Data, access=Access.EDIT_ACCESS, url='data_view')
+@csrf.csrf_protect
+@cache.never_cache
 def data_edit(request, id):
     data = Data.objects.filter(id=id).first()
     project = data.project
@@ -366,6 +375,8 @@ def data_edit(request, id):
 
 
 @object_access(type=Project, access=Access.UPLOAD_ACCESS, url='data_list')
+@csrf.csrf_protect
+@cache.never_cache
 def data_upload(request, uid):
     owner = request.user
     project = Project.objects.filter(uid=uid).first()
@@ -382,14 +393,12 @@ def data_upload(request, uid):
             auth.create_data(stream=stream, name=name, text=text,
                              user=owner, project=project)
             messages.info(request, "Data upload complete")
-            return redirect(reverse("data_list", kwargs={'id': project.id}))
-        else:
-            form.add_error(None, "Invalid form processing.")
-            messages.error(request, "Invalid form processing.")
-        return redirect(reverse("data_upload", kwargs={'id': project.id}))
-    else:
-        form = DataUploadForm()
+            return redirect(reverse("data_list", kwargs={'uid': project.uid}))
 
+        messages.error(request, "Invalid form processing.")
+        return redirect(reverse("data_upload", kwargs={'uid': project.uid}))
+
+    form = DataUploadForm()
     context = dict(project=project, steps=steps, form=form)
     return render(request, 'data_upload.html', context)
 
@@ -413,6 +422,8 @@ def recipe_list(request, uid):
 
 
 @object_access(type=Analysis, access=Access.READ_ACCESS)
+@csrf.csrf_protect
+@cache.never_cache
 def recipe_view(request, id):
     """
     Returns an analysis view based on its id.
@@ -475,10 +486,10 @@ def recipe_run(request, id):
                 tasks.execute_job.spool(job_id=jobid)
 
             return redirect(reverse("job_list", kwargs=dict(uid=project.uid)))
-    else:
-        initial = dict(name=analysis.name)
-        form = RecipeInterface(request=request, analysis=analysis, json_data=analysis.json_data, initial=initial)
+        return  redirect(reverse("recipe_run", kwargs=dict(uid=analysis.id)))
 
+    initial = dict(name=analysis.name)
+    form = RecipeInterface(request=request, analysis=analysis, json_data=analysis.json_data, initial=initial)
     context = dict(project=project, analysis=analysis, steps=steps, form=form)
 
     return render(request, 'recipe_run.html', context)
@@ -533,10 +544,11 @@ def recipe_code(request, id):
                 messages.info(request, "The recipe code has been updated.")
                 return redirect(reverse("recipe_view", kwargs=dict(id=analysis.id)))
 
-    else:
-        # This gets triggered on a GET request.
-        initial = dict(template=analysis.template, json=analysis.json_text)
-        form = EditCode(user=user, project=project, initial=initial)
+        return redirect(reverse("recipe_code", kwargs=dict(id=analysis.id)))
+
+    # This gets triggered on a GET request.
+    initial = dict(template=analysis.template, json=analysis.json_text)
+    form = EditCode(user=user, project=project, initial=initial)
 
     # Bind the JSON to the form.
     recipe = RecipeInterface(request=request, analysis=analysis, json_data=analysis.json_data, initial=dict(name=name))
@@ -560,6 +572,8 @@ def recipe_create(request, uid):
     project = Project.objects.filter(uid=uid).first()
 
     steps = breadcrumb_builder([PROJECT_ICON, ANALYSIS_LIST_ICON], project=project)
+    action_url = reverse('recipe_create', kwargs=dict(uid=project.uid))
+    back_url = reverse('recipe_list', kwargs=dict(uid=project.uid))
 
     if request.method == "POST":
         form = RecipeForm(data=request.POST, files=request.FILES)
@@ -571,10 +585,9 @@ def recipe_create(request, uid):
             recipe.project = project
             recipe.save()
             return redirect(reverse("recipe_view", kwargs=dict(id=recipe.id)))
+        return redirect(action_url)
 
     form = RecipeForm()
-    action_url = reverse('recipe_create', kwargs=dict(uid=project.uid))
-    back_url = reverse('recipe_list', kwargs=dict(uid=project.uid))
     context = dict(steps=steps, analysis={"name":"New Analysis"},
                    project=project, form=form, action_url=action_url, back_url=back_url)
 
@@ -589,17 +602,17 @@ def recipe_edit(request, id):
     steps = breadcrumb_builder([PROJECT_ICON, ANALYSIS_LIST_ICON, ANALYSIS_VIEW_ICON,
                                 ANALYSIS_RECIPE_ICON], project=project, analysis=analysis)
 
+    action_url = reverse('recipe_edit', kwargs=dict(id=analysis.id))
+    back_url = reverse('recipe_view', kwargs=dict(id=analysis.id))
+
     if request.method == "POST":
         form = RecipeForm(data=request.POST, files=request.FILES, instance=analysis)
         if form.is_valid():
             recipe = form.save()
             return redirect(reverse("recipe_view", kwargs=dict(id=recipe.id)))
-    else:
-        form = RecipeForm(instance=analysis)
+        return redirect(action_url)
 
-    action_url = reverse('recipe_edit', kwargs=dict(id=analysis.id))
-    back_url = reverse('recipe_view', kwargs=dict(id=analysis.id))
-
+    form = RecipeForm(instance=analysis)
     context = dict(steps=steps, analysis=analysis, project=project, form=form, action_url=action_url, back_url=back_url)
 
     return render(request, 'recipe_edit.html', context)
@@ -647,10 +660,10 @@ def job_edit(request, id):
         if form.is_valid():
             form.save()
             return redirect(reverse("job_view", kwargs=dict(id=job.id)))
+        return redirect(reverse("job_edit", kwargs=dict(id=job.id)))
 
     form = JobEditForm(instance=job)
     context = dict(steps=steps, job=job, project=project, form=form)
-
     return render(request, 'job_edit.html', context)
 
 
@@ -680,8 +693,8 @@ def job_result_view(request, id):
     if job.state == Job.COMPLETED:
         url = settings.MEDIA_URL + job.get_url(path=index)
         return redirect(url)
-    else:
-        return redirect(reverse("job_view", kwargs=dict(id=id)))
+
+    return redirect(reverse("job_view", kwargs=dict(id=id)))
 
 
 @object_access(type=Job, access=Access.READ_ACCESS, url="job_view")
@@ -724,8 +737,7 @@ def job_files_list(request, id, path=''):
             messages.success(request, f"Copied {len(count)} file to {project.name}.")
         else:
             messages.warning(request, "Unable to copy files")
-        # TODO: redirection does not make sense really
-        return redirect(reverse("job_result_view", kwargs=dict(id=job.id)))
+        return redirect(reverse("job_view", kwargs=dict(id=job.id)))
 
     form = FilesCopyForm(project=project)
     context = dict(file_list=file_list, job=job, form=form, steps=steps, project=project, path=path)

@@ -309,6 +309,18 @@ def create_data(project, user=None, stream=None, path='', name='',
     data = Data.objects.create(name=name, owner=user, state=Data.PENDING, project=project,
                                data_type=data_type, summary=summary, text=text)
 
+    # The source of the data is a stream is written into the destination.
+    if stream:
+        dest = create_path(data=data, fname=stream.name)
+        with open(dest, 'wb') as fp:
+            chunk = stream.read(CHUNK)
+            while chunk:
+                fp.write(chunk)
+                chunk = stream.read(CHUNK)
+        # Set path to empty str when there is a stream
+        # otherwise it will start linking stuff to /biostar-engine
+        path = ""
+
     # If the path is a directory, symlink all files.
     if path and os.path.isdir(path):
         logger.info(f"Linking path: {path}")
@@ -324,15 +336,6 @@ def create_data(project, user=None, stream=None, path='', name='',
         dest = create_path(path, data=data)
         os.symlink(path, dest)
         logger.info(f"Linked file: {path}")
-
-    # The source of the data is a stream is written into the destination.
-    if stream:
-        dest = create_path(data, stream.name)
-        with open(dest, 'wb') as fp:
-            chunk = stream.read(CHUNK)
-            while chunk:
-                fp.write(chunk)
-                chunk = stream.read(CHUNK)
 
     # Invalid paths and empty streams still create the data.
     missing = not (os.path.isdir(path) or os.path.isfile(path) or stream)

@@ -9,7 +9,7 @@ from django.forms import widgets
 from django.utils.safestring import mark_safe
 
 from biostar.engine import const
-from biostar.engine.models import Access, Job, make_html, Analysis
+from biostar.engine.models import Access, Job, make_html, Project
 from biostar.engine import factory, auth
 
 logger = logging.getLogger("engine")
@@ -58,6 +58,10 @@ def access_label(project, user):
         return ""
 
     access = Access.objects.filter(project=project, user=user).first()
+
+    if not access and project.privacy == Project.PUBLIC:
+        return ""
+
     label = mark_safe(f'<span class ="ui green label">{access.get_access_display()}</span>')
     return label
 
