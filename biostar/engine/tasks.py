@@ -72,11 +72,6 @@ try:
         #unpacker(data_id=data_id)
         pass
 
-    @spool
-    def copy(args):
-        pass
-        #return
-
 
 except ModuleNotFoundError as exc:
 
@@ -108,13 +103,4 @@ def unpacker(data_id):
     except Exception as exc:
         logger.error(f"Error: f{exc}")
         query.update(state=Data.ERROR)
-
-
-def copier(source=None, target_data=None, target_project=None, fname=None, link=False):
-
-    """
-    Copies source data to target_data id. or adds a fname to target_project id
-    """
-    1/0
-    pass
 

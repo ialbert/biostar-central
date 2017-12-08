@@ -74,7 +74,6 @@ class JobEditForm(forms.ModelForm):
         fields = ['name', "image", 'text', 'sticky']
 
 
-
 class ChangeUserAccess(forms.ModelForm):
 
     user_id = forms.IntegerField(required=True, widget=forms.HiddenInput())
