@@ -1,25 +1,18 @@
 {% load engine_tags %}
 
-    <span class="step-links">
-        {% if instance.has_previous %}
-            <a href="?page=1" class="">
-                <i class="fast backward icon"></i>first
-            </a>
-            <a href="?page={{instance.previous_page_number }}" class="">
-                <i class="backward icon"></i>previous
-            </a>
-        {% endif %}
 
-        <span class="page">
-            Page {{ instance.number }} of {{ instance.paginator.num_pages }}
-        </span>
+{% for i in instance.paginator.page_range %}
 
-        {% if instance.has_next %}
-            <a href="?page={{ instance.next_page_number }}" class="page">
-                next<i class="forward icon"></i>
+  <div class="ui pagination menu">
+      {% if instance.number == i %}
+            <a class="active item">
+                {{ i }}
             </a>
-            <a href="?page={{ instance.paginator.num_pages }}" class="page">
-                last<i class="fast forward icon"></i>
-            </a>
-        {% endif %}
-    </span>
+      {% else %}
+           <a class="item" href="?page={{ i }}">
+                {{ i }}
+           </a>
+      {% endif %}
+  </div>
+{% endfor %}
+

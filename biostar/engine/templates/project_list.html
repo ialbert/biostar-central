@@ -70,13 +70,12 @@
         </div>
 
     </div>
-                <div class="ui center aligned basic segment">
-        {% pages instance=projects %}
-        </div>
+        {% if projects.has_other_pages %}
+            <div class="ui center aligned basic segment">
+            {% pages instance=projects %}
+            </div>
+        {% endif %}
     </div>
-
-
-
 
 
 {% endblock %}

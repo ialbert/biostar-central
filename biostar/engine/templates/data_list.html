@@ -62,9 +62,11 @@
             </div>
 
         </div>
-        <div class="ui center aligned basic segment">
-           {% pages instance=data_list %}
-        </div>
+        {% if data_list.has_other_pages %}
+            <div class="ui center aligned basic segment">
+               {% pages instance=data_list %}
+            </div>
+        {% endif %}
 
     </div>
 {% endblock %}
