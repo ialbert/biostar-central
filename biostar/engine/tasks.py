@@ -72,11 +72,6 @@ try:
         #unpacker(data_id=data_id)
         pass
 
-    @spool
-    def copy(args):
-        pass
-        #return
-
 
 except ModuleNotFoundError as exc:
 
@@ -108,31 +103,4 @@ def unpacker(data_id):
     except Exception as exc:
         logger.error(f"Error: f{exc}")
         query.update(state=Data.ERROR)
-
-
-def copier(source=None, target_data=None, target_project=None, fname=None, link=False):
-
-    """
-    Copies source data to target_data id. or adds a fname to target_project id
-    """
-    from biostar.engine.models import Data, Project
-    from biostar.engine import auth
-
-    assert (source and target_data) or (target_project and fname)
-
-    source = Data.objects.filter(id=source).first()
-    target_data = Data.objects.filter(id=target_data).first()
-    project = Project.objects.filter(id=target_project).first()
-
-    if project:
-        assert fname
-        auth.create_data(project=project, path=fname, link=link)
-        return
-
-    if source:
-        assert target_data
-
-    # Copying just links source to target (for now)
-    target_data.link = source.get_path()
-    target_data.save()
 

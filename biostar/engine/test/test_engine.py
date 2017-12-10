@@ -36,7 +36,6 @@ class ViewsTest(TestCase):
         self.project.access_set.add(access)
         self.project.save()
 
-
     def test_project_users(self):
         "Test project_users view"
 
@@ -53,7 +52,6 @@ class ViewsTest(TestCase):
         resp = self.client.post(url, data=info)
         self.assertEqual(resp.status_code, 302)
 
-
     def test_project_edit(self):
         "Test project edit"
 
@@ -63,7 +61,6 @@ class ViewsTest(TestCase):
 
         self.assertEqual(resp.status_code, 302)
 
-
     def test_project_create(self):
         "Test for project creation view"
 
@@ -71,7 +68,6 @@ class ViewsTest(TestCase):
         resp = self.client.post(reverse("project_create"), info)
 
         self.assertEqual(resp.status_code, 302)
-
 
     def test_data_edit(self):
 
@@ -86,7 +82,6 @@ class ViewsTest(TestCase):
         resp = self.client.post(url, info)
 
         self.assertEqual(resp.status_code, 302)
-
 
     def test_data_upload(self):
         "Test for data upload interface"
@@ -126,7 +121,6 @@ class ViewsTest(TestCase):
 
         self.assertEqual(resp.status_code, 302)
 
-
     def test_job_file_view(self):
         url = reverse('job_files_entry', kwargs=dict(id=self.job.id))
         info = dict(user=self.owner)
@@ -140,8 +134,6 @@ class ViewsTest(TestCase):
         resp = self.client.post(url, info)
 
         self.assertEqual(resp.status_code, 302)
-
-        pass
 
 
 class FactoryTest(TestCase):
@@ -178,7 +170,6 @@ class FactoryTest(TestCase):
             if not field:
                 message = f"field generator for display={display_type} failed"
                 self.assertFalse(message)
-
 
     def test_data_generator(self):
         "Test data generator"

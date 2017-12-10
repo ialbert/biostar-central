@@ -1,0 +1,18 @@
+{% load engine_tags %}
+
+
+{% for i in instance.paginator.page_range %}
+
+  <div class="ui pagination menu">
+      {% if instance.number == i %}
+            <a class="active item">
+                {{ i }}
+            </a>
+      {% else %}
+           <a class="item" href="?page={{ i }}">
+                {{ i }}
+           </a>
+      {% endif %}
+  </div>
+{% endfor %}
+

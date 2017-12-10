@@ -24,34 +24,27 @@
 
             <div class="ui divided link items">
 
-
-                {% for analysis in analyses %}
+                {% for recipe in analysis %}
 
                     <div class="item">
-
                         <div class="ui tiny image">
-                            <img src="{% img analysis %}">
+                            <img src="{% img recipe %}">
                         </div>
-
                         <div class="content">
-                            <a class="header" href="{% url 'recipe_view' analysis.id %}">
-                                {{ analysis.name }}
+                            <a class="header" href="{% url 'recipe_view' recipe.id %}">
+                                {{ recipe.name }}
                             </a>
-
                             <div class="description">
-                                {{ analysis.summary|markdown|safe }}
+                                {{ recipe.summary|markdown|safe }}
                             </div>
-
                             <div class="meta">
-                                {% sticky_label analysis %}
-                                <a href="{% url 'job_list' project.uid %}?filter={{ analysis.id }}">
+                                {% sticky_label recipe %}
+                                <a href="{% url 'job_list' project.uid %}?filter={{ recipe.id }}">
                                     <i class="bar chart icon"></i> view results
                                 </a>
                             </div>
                         </div>
-
                     </div>
-
 
                 {% endfor %}
 
@@ -64,6 +57,11 @@
 
             </div>
         </div>
+        {% if analysis.has_other_pages %}
+            <div class="ui center aligned basic segment">
+               {% pages instance=analysis %}
+            </div>
+        {% endif %}
 
     </div>
 {% endblock %}

@@ -9,7 +9,7 @@ from django.forms import widgets
 from django.utils.safestring import mark_safe
 
 from biostar.engine import const
-from biostar.engine.models import Access, Job, make_html, Analysis
+from biostar.engine.models import Access, Job, make_html, Project
 from biostar.engine import factory, auth
 
 logger = logging.getLogger("engine")
@@ -21,6 +21,7 @@ JOB_COLORS = {
 }
 
 
+
 @register.simple_tag
 def sticky_label(obj):
     label = mark_safe('<span class ="ui label">Sticky</span>')
@@ -28,12 +29,15 @@ def sticky_label(obj):
 
 
 @register.inclusion_tag('widgets/copy_interface.html')
-def copy_interface(form, projects, duplicate):
-    """Copy an instance from (from_id) to a list of allowed projects.
-    'duplicate' is the current project's id; incase someone duplicates"""
+def copy_interface(form, projects, duplicate=False):
+    """Copy an instance from (from_id) to a list of allowed projects"""
 
     return dict(projects=projects, form=form, duplicate=duplicate)
 
+@register.inclusion_tag('widgets/pages.html')
+def pages(instance):
+
+    return dict(instance=instance)
 
 
 @register.simple_tag
@@ -41,11 +45,25 @@ def privacy_label(project):
     label = mark_safe(f'<span class ="ui label">{project.get_privacy_display()}</span>' )
     return label
 
-
 @register.inclusion_tag('widgets/authorization_required.html')
 def security_label(analysis):
     context = dict(analysis=analysis)
     return context
+
+
+@register.simple_tag
+def access_label(project, user):
+
+    if user.is_anonymous:
+        return ""
+
+    access = Access.objects.filter(project=project, user=user).first()
+
+    if not access and project.privacy == Project.PUBLIC:
+        return ""
+
+    label = mark_safe(f'<span class ="ui green label">{access.get_access_display()}</span>')
+    return label
 
 
 @register.simple_tag

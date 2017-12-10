@@ -35,5 +35,10 @@ urlpatterns = [
     url(r'^job/view/files/(?P<id>\d+)/$', views.job_files_list, name='job_files_entry'),
     url(r'^job/view/files/(?P<id>\d+)/(?P<path>.+)/$', views.job_files_list, name='job_files_list'),
 
+    # Block the media dir from being exposed
+    url(r'^media/$', views.block_media_url, name="block"),
+    url(r'^media/(?P<path1>[-\w]+)/$', views.block_media_url, name="block"),
+    url(r'^media/(?P<path1>[-\w]+)/(?P<path2>[-\w]+)/$', views.block_media_url, name="block")
+
 ]
 

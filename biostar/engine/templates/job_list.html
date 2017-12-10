@@ -67,6 +67,12 @@
                 {% endfor %}
             </div>
         </div>
+        {% if jobs.has_other_pages %}
+            <div class="ui center aligned basic segment">
+            {% pages instance=jobs %}
+            </div>
+        {% endif %}
+
     </div>
 
 {% endblock %}
