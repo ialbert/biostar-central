@@ -682,29 +682,34 @@ def job_result_view(request, id):
     """
     Returns the primary result of a job.
     """
+
     job = Job.objects.filter(id=id).first()
-    index = job.json_data.get("settings", {}).get("index", "")
+    index = job.json_data.get("settings", {}).get("index")
 
     if job.state == Job.COMPLETED:
-        url = settings.MEDIA_URL + job.get_url(path=index)
+        url = reverse("job_files_entry", kwargs=dict(id=id))
+
+        if index:
+            url = settings.MEDIA_URL + job.get_url(path=index)
+
         return redirect(url)
 
     return redirect(reverse("job_view", kwargs=dict(id=id)))
 
 
-@object_access(type=Job, access=Access.READ_ACCESS, url="job_view")
-def job_file_view(request, id):
-    """
-    Returns the directory view of the job.
-    """
-    job = Job.objects.filter(id=id).first()
-    url = settings.MEDIA_URL + job.get_url()
+def block_media_url(request, **kwargs):
+    "Block users from urls having to do with media"
 
-    return redirect(url)
+    messages.error(request, f"Not allowed")
+    return redirect(reverse("project_list"))
 
 
 @object_access(type=Job, access=Access.READ_ACCESS, url="job_view")
 def job_files_list(request, id, path=''):
+    """
+    Returns the directory view of the job.
+    """
+
     job = Job.objects.filter(id=id).first()
     project = job.project
 
