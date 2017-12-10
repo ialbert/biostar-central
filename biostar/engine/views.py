@@ -45,9 +45,8 @@ def make_html(text):
 def pages(request, instance):
 
     paginator = Paginator(instance, OBJ_PER_PAGE)
-    page = request.GET.get('page')
-    if not page:
-        page = 1
+    page = request.GET.get('page', 1)
+
     return paginator.page(page)
 
 
@@ -171,7 +170,6 @@ def project_users(request, uid):
 
     if request.method == "POST":
         form = ChangeUserAccess(data=request.POST)
-
         if form.is_valid():
             form.change_access()
             messages.success(request, "Changed access to this project")
@@ -185,7 +183,6 @@ def project_users(request, uid):
 
     current = access_forms(users=users, project=project)
     results = access_forms(users=targets, project=project)
-
     context = dict(steps=steps, current=current, project=project, results=results)
 
     return render(request, "project_users.html", context=context)

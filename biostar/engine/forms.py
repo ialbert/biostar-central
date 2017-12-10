@@ -16,6 +16,8 @@ def join(*args):
     return os.path.abspath(os.path.join(*args))
 
 class ProjectForm(forms.ModelForm):
+    MAXSIZE = 100
+
     image = forms.ImageField(required=False)
 
     # Should not edit uid because the data directories get messed up ( for now). 
@@ -24,6 +26,18 @@ class ProjectForm(forms.ModelForm):
     class Meta:
         model = Project
         fields = ['name', 'summary', 'text', 'uid','image', "privacy", "sticky"]
+
+    def clean_image(self):
+        cleaned_data = super(ProjectForm, self).clean()
+        image = cleaned_data.get('image')
+        try:
+            if image and image.size > self.MAXSIZE * 1024:
+                curr_size = round(image.size/1024)
+                raise forms.ValidationError(f"Image file too large: {curr_size}KB should be < {self.MAXSIZE}KB")
+        except Exception as exc:
+            raise forms.ValidationError(f"Image validation error: {exc}")
+
+        return image
 
 
 class DataUploadForm(forms.ModelForm):
