@@ -3,4 +3,4 @@
   user: www
 
   roles:
-    - setup
+    - engine

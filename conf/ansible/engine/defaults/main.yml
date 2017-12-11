@@ -1,0 +1,15 @@
+miniconda_url: >
+  http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh
+
+miniconda_home: '~/miniconda'
+
+miniconda_environments:
+  - { name: test, python_version: 3 }
+  - { name: py2, python_version: 2 }
+  - { name: recipe, python_version: 3}
+
+miniconda_modify_path: yes
+
+miniconda_rcfile: '~/.bashrc'
+
+miniconda_add_condarc: yes
