@@ -4,15 +4,17 @@ from django.core import management
 from django.test import TestCase, RequestFactory
 from unittest.mock import patch, MagicMock
 from django.urls import reverse
-from django.contrib import messages
+from django.contrib.messages.storage import fallback
+
 from biostar.engine import auth, factory
-from biostar.engine import models, forms, views
+from biostar.engine import models, views
 
 logger = logging.getLogger('engine')
 
 
 
-class ProjectTest(TestCase):
+class ProjectViewTest(TestCase):
+
 
     def setUp(self):
         logger.setLevel(logging.WARNING)
@@ -20,40 +22,119 @@ class ProjectTest(TestCase):
         # Set up generic owner
         self.owner = models.User.objects.create_user(username="test", email="test@l.com")
         self.owner.set_password("test")
-
         self.factory = RequestFactory()
+
+        # Set up project to edit
+        pre = models.Project.objects.count()
+        self.project = auth.create_project(user=self.owner, name="test", text="Text", summary="summary")
+
+        self.assertTrue(models.Project.objects.count() == (pre + 1), "Error creating project in database")
 
 
     @patch('biostar.engine.models.Project.save', MagicMock(name="save"))
     def test_create_view(self):
-        "Test project create view"
+        "Test project create view with POST request"
 
         # Create fake request
-        data = {'name': 'My project', 'uid': 'example'}
-        request = self.factory.post(reverse('project_create'), data)
-        request.user = self.owner
-        request._messages = messages
+        data = {'name': 'My project', 'uid': 'example', "summary":"summary",
+                'text': 'testing', "privacy": models.Project.PRIVATE}
 
-        # Count before creating one
-        pre = models.Project.objects.count()
+        request = self.factory.post(reverse('project_create'), data)
+        request.session = {}
+        messages = fallback.FallbackStorage(request=request)
+        request._messages = messages
+        request.user = self.owner
+
         response = views.project_create(request)
 
-        print(response, pre, models.Project.objects.count())
-        1/0
+        self.process_response(response=response, data=data, save=True)
 
+
+    @patch('biostar.engine.models.Project.save', MagicMock(name="save"))
+    def test_edit_view(self):
+        "Test project edit view with POST request"
+
+        # Create fake request
+        data = {'name': 'New Name', 'uid': 'new', "summary":"summary",
+                'text': 'testing', "privacy": models.Project.SHAREABLE}
+
+        request = self.factory.post(reverse('project_edit', kwargs=dict(uid=self.project.uid)),
+                                    data)
+        request.session = {}
+        messages = fallback.FallbackStorage(request=request)
+        request._messages = messages
+        request.user = self.owner
+
+        response = views.project_edit(request, uid=self.project.uid)
+
+        self.process_response(response=response, data=data, save=True)
+
+
+    def test_users_view(self):
+        "Test project_users with POST request"
+
+        new_user = models.User.objects.create_user(username="test2", email="test2@l.com")
+        new_user.set_password("test2")
+
+        data = {"access":models.Access.ADMIN_ACCESS,
+                "user_id":new_user.id, "project_id":self.project.id}
+        request = self.factory.post(reverse('project_users', kwargs=dict(uid=self.project.uid)),
+                                    data)
+        request.session = {}
+        messages = fallback.FallbackStorage(request=request)
+        request._messages = messages
+        request.user = self.owner
+        response = views.project_users(request, uid=self.project.uid)
+
+        data['uid'] = self.project.uid
+        self.process_response(response=response, data=data)
+
+
+    def process_response(self, response, data, save=False):
+        "Check the response on POST request is redirected"
+
+        self.assertEqual(response.status_code, 302,
+                         f"Could not redirect to project view after testing :\nresponse:{response}")
+
+        self.assertTrue(data['uid'] in response.url,
+                        "Was not redirected to the correct project.")
+        if save:
+            self.assertTrue( models.Project.save.called,
+                         "project.save() method not called when editing.")
+
+
+
+class DataViewTest(TestCase):
+
+
+    def setUp(self):
+        logger.setLevel(logging.WARNING)
+
+        # Set up generic owner
+        self.owner = models.User.objects.create_user(username="test", email="test@l.com")
+        self.owner.set_password("test")
+        self.factory = RequestFactory()
+
+        # Project being tested in another class
+        self.project = auth.create_project(user=self.owner, name="test", text="Text", summary="summary")
+
+        # Set up generic data for 
+        self.data = ""
+
+    def test_data_copy_view(self):
+        "Test Data copy option in views with POST request"
         pass
 
-    def Xtest_edit_view(self):
-        form = YourForm()
-        form.cleaned_data = {'name': 'Jan Nowak'}
-        form.save()
+
+    def test_data_edit(self):
+        "Test Data edit view with POST request"
         pass
 
-    def Xtest_users_view(self):
-        form = YourForm()
-        form.cleaned_data = {'name': 'Jan Nowak'}
-        form.save()
+
+    def test_data_upload(self):
+        "Test Data upload POST request"
         pass
+
 
 
 

@@ -147,8 +147,6 @@ def site_admin(request):
 
 
 @object_access(type=Project, access=Access.ADMIN_ACCESS, url='project_view')
-@csrf.csrf_protect
-@cache.never_cache
 def project_users(request, uid):
     """
     Manage project users
@@ -201,8 +199,6 @@ def project_list(request):
 
 
 @object_access(type=Project, access=Access.READ_ACCESS)
-@csrf.csrf_protect
-@cache.never_cache
 def project_view(request, uid):
     user = request.user
 
@@ -233,8 +229,6 @@ def project_view(request, uid):
 
 
 @object_access(type=Project, access=Access.EDIT_ACCESS, url='project_view')
-@csrf.csrf_protect
-@cache.never_cache
 def project_edit(request, uid):
 
     project = auth.get_project_list(user=request.user).filter(uid=uid).first()
@@ -251,10 +245,11 @@ def project_edit(request, uid):
 
     form = ProjectForm(instance=project)
     context = dict(project=project, steps=steps, form=form)
-    return render(request, 'project_edit.html',
-                  context)
+    return render(request, 'project_edit.html', context)
+
 
 def project_create(request):
+
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON])
 
     if request.user.is_anonymous:
