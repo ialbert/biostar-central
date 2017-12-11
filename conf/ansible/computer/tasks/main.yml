@@ -5,22 +5,24 @@
     update_cache=yes
     cache_valid_time=86400 # One day
 
-- group:
+- name: Create the bioinfo group
+  group:
     name: bioinfo
 
-- user:
+- name: Create the www user
+  user:
     name: www
     shell: /bin/bash
     groups: www, bioinfo, sudo
     append: yes
 
-- name: Install Packages
+- name: Install required packages
   vars:
      packages: [ 'nginx', 'postgresql', 'curl', 'git', 'byacc', 'zlib1g-dev', 'cmake', 'build-essential', 'ncurses-dev', 'supervisor' ]
   apt: name={{ item }} state=latest
   with_items: "{{ packages }}"
 
-- name: Create Recipe Directory
+- name: Create Recipe directory
   file:
     path: /export/sites/recipe_web
     state: directory
