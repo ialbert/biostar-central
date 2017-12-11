@@ -331,7 +331,6 @@ def data_view(request, id):
         name = data.name
         if form.is_valid():
             data = form.save()
-            1/0
             messages.success(request, f"Copied {name} in to {data.project.name}")
         return redirect(reverse("data_view", kwargs=dict(id=data.id)))
 
@@ -342,8 +341,6 @@ def data_view(request, id):
 
 
 @object_access(type=Data, access=Access.EDIT_ACCESS, url='data_view')
-@csrf.csrf_protect
-@cache.never_cache
 def data_edit(request, id):
     data = Data.objects.filter(id=id).first()
     project = data.project
@@ -362,14 +359,11 @@ def data_edit(request, id):
 
 
 @object_access(type=Project, access=Access.UPLOAD_ACCESS, url='data_list')
-@csrf.csrf_protect
-@cache.never_cache
 def data_upload(request, uid):
     owner = request.user
     project = Project.objects.filter(uid=uid).first()
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON, DATA_UPLOAD],
                                project=project)
-
     if request.method == "POST":
         form = DataUploadForm(request.POST, request.FILES)
 
@@ -377,8 +371,9 @@ def data_upload(request, uid):
             text = form.cleaned_data["text"]
             stream = form.cleaned_data["file"]
             name = stream.name
-            auth.create_data(stream=stream, name=name, text=text,
+            data = auth.create_data(stream=stream, name=name, text=text,
                              user=owner, project=project)
+            data.save()
             messages.info(request, "Data upload complete")
             return redirect(reverse("data_list", kwargs={'uid': project.uid}))
 

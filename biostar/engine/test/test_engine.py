@@ -103,7 +103,6 @@ class ProjectViewTest(TestCase):
                          "project.save() method not called when editing.")
 
 
-
 class DataViewTest(TestCase):
 
 
@@ -119,36 +118,86 @@ class DataViewTest(TestCase):
         self.project = auth.create_project(user=self.owner, name="test", text="Text", summary="summary")
 
         # Set up generic data for editing
-        self.data = auth.create_data(project=self.project)
+        self.data = auth.create_data(project=self.project, path=__file__)
 
 
     def test_data_copy_view(self):
         "Test Data copy (create a new project and copy) in views with POST request"
 
-        # Tests
+        # 0 is the option picked whe creating and copying
         data = {"project":0}
 
-        request = self.factory.post(reverse('data_view', kwargs=dict(uid=self.data.id)),
+        request = self.factory.post(reverse('data_view', kwargs=dict(id=self.data.id)),
+                                    data)
+        request.session = {}
+        messages = fallback.FallbackStorage(request=request)
+        request._messages = messages
+        request.user = self.owner
+        response = views.data_view(request=request, id=self.data.id)
+
+        self.assertEqual(response.status_code, 302,
+                         f"Could not redirect to data view after copying Data:\nresponse:{response}")
+
+
+    @patch('biostar.engine.models.Data.save', MagicMock(name="save"))
+    def test_data_edit(self):
+        "Test Data edit view with POST request"
+
+        data = {'name':"new_data", 'summary':"summary", 'text':"testing",
+                'sticky':True}
+
+        request = self.factory.post(reverse('data_edit', kwargs=dict(id=self.data.id)),
                                     data)
         request.session = {}
         messages = fallback.FallbackStorage(request=request)
         request._messages = messages
         request.user = self.owner
 
-        response = views.data_view(request=request, id=self.data.id)
+        response = views.data_edit(request=request, id=self.data.id)
 
-        print(response)
-        pass
+        self.assertEqual(response.status_code, 302,
+                         f"Could not redirect to data view after copying Data:\nresponse:{response}")
 
-
-    def test_data_edit(self):
-        "Test Data edit view with POST request"
-        pass
+        self.assertTrue( models.Data.save.called, "data.save() method not called when editing.")
 
 
+    @patch('biostar.engine.models.Data.save', MagicMock(name="save"))
     def test_data_upload(self):
         "Test Data upload POST request"
-        pass
+
+        data = {'file':__file__, 'summary':'summary', "text":"testing", "sticky":True}
+
+        access = models.Access.objects.create(access=models.Access.UPLOAD_ACCESS,
+                                              project=self.project,
+                                              user=self.owner)
+        access.save()
+        request = self.factory.post(reverse('data_upload', kwargs=dict(uid=self.project.uid)),
+                                    data)
+        request.session = {}
+        messages = fallback.FallbackStorage(request=request)
+        request._messages = messages
+        request.user = self.owner
+
+        #TODO: this is not showing up in coverage wtffff
+        response = views.data_upload(request=request, uid=self.project.uid)
+
+        self.assertEqual(response.status_code, 302,
+                         f"Could not redirect to after uploading:\nresponse:{response}")
+        self.assertTrue( "data/list/" in response.url,
+                         f"Could not redirect to data list after uploading:\nresponse:{response}")
+
+        self.assertTrue( models.Data.save.called, "data.save() method not called when uploading.")
+
+
+class AnalysisViewTest(TestCase):
+
+    def setUp(self):
+        logger.setLevel(logging.WARNING)
+
+        # Set up generic owner
+        self.owner = models.User.objects.create_user(username="test", email="test@l.com")
+        self.owner.set_password("test")
+        self.factory = RequestFactory()
 
 
 
