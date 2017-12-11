@@ -254,8 +254,6 @@ def project_edit(request, uid):
     return render(request, 'project_edit.html',
                   context)
 
-@csrf.csrf_protect
-@cache.never_cache
 def project_create(request):
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON])
 

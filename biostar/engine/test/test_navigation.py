@@ -37,7 +37,7 @@ class SiteNavigation(TestCase):
                 logger.error(f"Error accessing: {url}, code={resp.status_code} not in expected values")
                 self.assertEqual(url, codes)
 
-    def test_public_pages(self):
+    def Xtest_public_pages(self):
         "Checking public pages"
 
         urls = [
@@ -62,7 +62,7 @@ class SiteNavigation(TestCase):
 
         self.visit_urls(urls, [200, 302])
 
-    def test_page_redirect(self):
+    def Xtest_page_redirect(self):
         "Testing that a redirect occurs for some pages"
         urls = [
             reverse('project_create'),

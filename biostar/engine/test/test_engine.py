@@ -1,139 +1,60 @@
 import hjson, logging, os
 from django import forms
 from django.core import management
-from django.test import TestCase
+from django.test import TestCase, RequestFactory
+from unittest.mock import patch, MagicMock
 from django.urls import reverse
-
+from django.contrib import messages
 from biostar.engine import auth, factory
-from biostar.engine import models
+from biostar.engine import models, forms, views
 
 logger = logging.getLogger('engine')
 
-class ViewsTest(TestCase):
+
+
+class ProjectTest(TestCase):
 
     def setUp(self):
         logger.setLevel(logging.WARNING)
-        self.owner = models.User.objects.filter(is_superuser=True).first()
 
-        dbcounter = {
-            "project": {"pre": models.Project.objects.count(), "post": models.Project},
-            "analysis": {"pre": models.Analysis.objects.count(), "post": models.Analysis},
-            "job":{'pre':models.Job.objects.count(), 'post': models.Job}
+        # Set up generic owner
+        self.owner = models.User.objects.create_user(username="test", email="test@l.com")
+        self.owner.set_password("test")
 
-        }
-        self.project = auth.create_project(user=self.owner, name="test",
-                                           text="Text", summary="summary")
-        self.analysis = auth.create_analysis(project=self.project, json_text='{}', template="")
-        self.job = auth.create_job(analysis=self.analysis)
+        self.factory = RequestFactory()
 
-        for model_type, states in dbcounter.items():
-            post = states["post"].objects.count()
-            self.assertTrue(post == (states["pre"] + 1), f"Error adding {model_type} to database.")
 
-        access = models.Access(user=self.owner,
-                      access=models.Access.ADMIN_ACCESS, project=self.project)
-        access.save()
-        self.project.access_set.add(access)
-        self.project.save()
+    @patch('biostar.engine.models.Project.save', MagicMock(name="save"))
+    def test_create_view(self):
+        "Test project create view"
 
-    def test_project_users(self):
-        "Test project_users view"
+        # Create fake request
+        data = {'name': 'My project', 'uid': 'example'}
+        request = self.factory.post(reverse('project_create'), data)
+        request.user = self.owner
+        request._messages = messages
 
-        url = reverse("project_users", kwargs=dict(uid=self.project.uid))
-        new_user = models.User.objects.create(email="test@test.com",
-                                              first_name="test",
-                                              username="test")
-        new_user.set_password("test")
-        new_user.save()
+        # Count before creating one
+        pre = models.Project.objects.count()
+        response = views.project_create(request)
 
-        info = dict(user=self.owner, project_id=self.project.id,
-                    user_id=new_user.id, access=models.Access.ADMIN_ACCESS)
+        print(response, pre, models.Project.objects.count())
+        1/0
 
-        resp = self.client.post(url, data=info)
-        self.assertEqual(resp.status_code, 302)
+        pass
 
-    def test_project_edit(self):
-        "Test project edit"
+    def Xtest_edit_view(self):
+        form = YourForm()
+        form.cleaned_data = {'name': 'Jan Nowak'}
+        form.save()
+        pass
 
-        url = reverse("project_edit", kwargs=dict(uid=self.project.uid))
-        info = dict(text="new text", summary="new summary", name="new name")
-        resp = self.client.post(url, info)
+    def Xtest_users_view(self):
+        form = YourForm()
+        form.cleaned_data = {'name': 'Jan Nowak'}
+        form.save()
+        pass
 
-        self.assertEqual(resp.status_code, 302)
-
-    def test_project_create(self):
-        "Test for project creation view"
-
-        info = dict(user=self.owner, name="testing name", summary="test", text="testing")
-        resp = self.client.post(reverse("project_create"), info)
-
-        self.assertEqual(resp.status_code, 302)
-
-    def test_data_edit(self):
-
-        pre = models.Data.objects.count()
-        data = auth.create_data(self.project, path=__file__)
-        post = models.Data.objects.count()
-
-        self.assertTrue(post == (pre + 1), "Error creating data in database")
-
-        url = reverse("data_edit", kwargs=dict(id=data.id))
-        info = dict(summary="new summary", text="new text", name="new name")
-        resp = self.client.post(url, info)
-
-        self.assertEqual(resp.status_code, 302)
-
-    def test_data_upload(self):
-        "Test for data upload interface"
-
-        url = reverse("data_upload", kwargs=dict(uid=self.project.uid))
-        info = dict(user=self.owner, summary="test upload", text="test", file=__file__)
-        resp = self.client.post(url, info)
-
-        self.assertEqual(resp.status_code,302)
-
-    def test_recipe_copy(self):
-        new_project = auth.create_project(user=self.owner, name="test",
-                                      text="Text", summary="summary")
-
-        url = reverse("recipe_view", kwargs=dict(id=self.analysis.id))
-        info = dict(project=new_project.id)
-        resp = self.client.post(url, info)
-
-        self.assertEqual(resp.status_code, 302)
-
-    def Xtest_recipe_edit(self):
-        url = reverse("recipe_edit", kwargs=dict(id=self.analysis.id))
-        json_data = {"settings": {"name": "Test"}}
-        json_text = hjson.dumps(json_data)
-
-        for option in ("preview", "save"):
-            logger.info(f"Testing {option} for recipe_edit")
-            info = dict(user=self.owner, text=json_text, save_or_preview=option)
-            resp = self.client.post(url, info)
-
-            self.assertEqual(resp.status_code, 302)
-
-    def test_recipe_run(self):
-        url = reverse("analysis_run", kwargs=dict(id=self.analysis.id))
-        info = dict(user=self.owner)
-        resp = self.client.post(url, info)
-
-        self.assertEqual(resp.status_code, 302)
-
-    def test_job_file_view(self):
-        url = reverse('job_files_entry', kwargs=dict(id=self.job.id))
-        info = dict(user=self.owner)
-        resp = self.client.get(url, info)
-
-        self.assertEqual(resp.status_code, 302)
-
-    def Xtest_job_files_list(self):
-        url = reverse('job_files_list', kwargs=dict(id=self.job.id, path=""))
-        info = dict(user=self.owner)
-        resp = self.client.post(url, info)
-
-        self.assertEqual(resp.status_code, 302)
 
 
 class FactoryTest(TestCase):
