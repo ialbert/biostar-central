@@ -4,8 +4,9 @@ miniconda_url: >
 miniconda_home: '~/miniconda'
 
 miniconda_environments:
-  - name: recipe
-    python_version: 3
+  - { name: test, python_version: 3 }
+  - { name: py2, python_version: 2 }
+  - { name: recipe, python_version: 3}
 
 miniconda_modify_path: yes
 

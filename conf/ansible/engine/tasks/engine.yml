@@ -1,0 +1,14 @@
+
+- name: Clone the biostar-engine software
+  git:
+    repo: 'git@github.com:biostars/biostar-engine.git'
+    dest: /export/sites/recipe_web
+
+- name: Link NGINX config
+  file:
+    path: /export/sites/recipe_web
+    state: directory
+    owner: www
+    group: www
+    recurse: yes
+
