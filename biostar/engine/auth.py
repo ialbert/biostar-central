@@ -318,7 +318,6 @@ def create_data(project, user=None, stream=None, path='', name='',
                 fp.write(chunk)
                 chunk = stream.read(CHUNK)
         # Set path to empty str when there is a stream
-        # otherwise it will start linking stuff to /biostar-engine
         path = ""
 
     # If the path is a directory, symlink all files.

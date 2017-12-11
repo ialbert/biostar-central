@@ -154,7 +154,6 @@ class DataCopyForm(forms.Form):
 
         super().__init__(*args, **kwargs)
 
-
     def save(self):
 
         project = Project.objects.filter(pk=self.cleaned_data["project"]).first()

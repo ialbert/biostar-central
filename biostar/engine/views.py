@@ -305,8 +305,6 @@ def data_list(request, uid):
 
 
 @object_access(type=Data, access=Access.READ_ACCESS)
-@csrf.csrf_protect
-@cache.never_cache
 def data_view(request, id):
 
     data = Data.objects.filter(id=id).first()
@@ -333,6 +331,7 @@ def data_view(request, id):
         name = data.name
         if form.is_valid():
             data = form.save()
+            1/0
             messages.success(request, f"Copied {name} in to {data.project.name}")
         return redirect(reverse("data_view", kwargs=dict(id=data.id)))
 

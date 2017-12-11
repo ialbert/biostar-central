@@ -118,11 +118,26 @@ class DataViewTest(TestCase):
         # Project being tested in another class
         self.project = auth.create_project(user=self.owner, name="test", text="Text", summary="summary")
 
-        # Set up generic data for 
-        self.data = ""
+        # Set up generic data for editing
+        self.data = auth.create_data(project=self.project)
+
 
     def test_data_copy_view(self):
-        "Test Data copy option in views with POST request"
+        "Test Data copy (create a new project and copy) in views with POST request"
+
+        # Tests
+        data = {"project":0}
+
+        request = self.factory.post(reverse('data_view', kwargs=dict(uid=self.data.id)),
+                                    data)
+        request.session = {}
+        messages = fallback.FallbackStorage(request=request)
+        request._messages = messages
+        request.user = self.owner
+
+        response = views.data_view(request=request, id=self.data.id)
+
+        print(response)
         pass
 
 
