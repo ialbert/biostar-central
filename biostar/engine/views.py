@@ -360,6 +360,7 @@ def data_edit(request, id):
 
 @object_access(type=Project, access=Access.UPLOAD_ACCESS, url='data_list')
 def data_upload(request, uid):
+
     owner = request.user
     project = Project.objects.filter(uid=uid).first()
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON, DATA_UPLOAD],
@@ -404,8 +405,6 @@ def recipe_list(request, uid):
 
 
 @object_access(type=Analysis, access=Access.READ_ACCESS)
-@csrf.csrf_protect
-@cache.never_cache
 def recipe_view(request, id):
     """
     Returns an analysis view based on its id.
@@ -468,7 +467,8 @@ def recipe_run(request, id):
                 tasks.execute_job.spool(job_id=jobid)
 
             return redirect(reverse("job_list", kwargs=dict(uid=project.uid)))
-        return  redirect(reverse("recipe_run", kwargs=dict(uid=analysis.id)))
+
+        return  redirect(reverse("analysis_run", kwargs=dict(id=analysis.id)))
 
     initial = dict(name=analysis.name)
     form = RecipeInterface(request=request, analysis=analysis, json_data=analysis.json_data, initial=initial)
@@ -549,7 +549,7 @@ def recipe_code(request, id):
 @object_access(type=Project, access=Access.EDIT_ACCESS, url='recipe_list')
 def recipe_create(request, uid):
     """
-    Here the id is of the project!
+    Here the uid is of the project!
     """
     project = Project.objects.filter(uid=uid).first()
 

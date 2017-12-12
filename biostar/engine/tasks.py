@@ -66,41 +66,14 @@ try:
         logger.info(f"Executing spooled job id={job_id}")
         management.call_command('job', id=job_id)
 
-    @spool
-    def unpack(args):
-        #data_id = int_from_bytes(args, "data_id")
-        #unpacker(data_id=data_id)
-        pass
 
 
 except ModuleNotFoundError as exc:
-
-    # No spooling same interface.
-    def unpack(data_id):
-        unpacker(data_id=data_id)
-
+    pass
 
 def execute(command, workdir="."):
     proc = subprocess.run(command, cwd=workdir, shell=True,
                           stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     stdout, stderr = force_text(proc.stdout), force_text(proc.stderr)
     return stdout, stderr
-
-
-def unpacker(data_id):
-    """
-    Unpacks a data and sets the status to READY.
-    """
-    from biostar.engine.models import Data
-    query = Data.objects.filter(id=data_id)
-    data = query.first()
-    query.update(state=Data.PENDING)
-    command = f'tar xzvf {data.file.path}'
-    try:
-        stdout, stderr = execute(command=command, workdir=data.get_data_dir())
-        logger.info(f'Data id={data_id} has been unpacked')
-        query.update(state=Data.READY)
-    except Exception as exc:
-        logger.error(f"Error: f{exc}")
-        query.update(state=Data.ERROR)
 

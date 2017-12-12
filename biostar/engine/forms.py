@@ -246,7 +246,8 @@ class RecipeCopyForm(forms.Form):
         current_params = auth.get_analysis_attr(analysis=self.analysis, project=current_project)
         new_analysis = auth.create_analysis(**current_params)
         # Images needs to be set by it set
-        new_analysis.image.save(self.analysis.name, self.analysis.image, save=True)
+        if self.analysis.image:
+            new_analysis.image.save(self.analysis.name, self.analysis.image, save=True)
         new_analysis.name = f"Copy of: {self.analysis.name}"
         new_analysis.state = self.analysis.state
         new_analysis.security = self.analysis.security

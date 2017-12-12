@@ -114,14 +114,15 @@ class DataViewTest(TestCase):
         self.owner.set_password("test")
         self.factory = RequestFactory()
 
-        # Project being tested in another class
         self.project = auth.create_project(user=self.owner, name="test", text="Text", summary="summary")
 
         # Set up generic data for editing
+        pre = models.Data.objects.count()
         self.data = auth.create_data(project=self.project, path=__file__)
-
+        self.assertTrue(models.Data.objects.count() == (pre + 1), "Error creating Data in database")
 
     def test_data_copy_view(self):
+
         "Test Data copy (create a new project and copy) in views with POST request"
 
         # 0 is the option picked whe creating and copying
@@ -137,7 +138,6 @@ class DataViewTest(TestCase):
 
         self.assertEqual(response.status_code, 302,
                          f"Could not redirect to data view after copying Data:\nresponse:{response}")
-
 
     @patch('biostar.engine.models.Data.save', MagicMock(name="save"))
     def test_data_edit(self):
@@ -167,10 +167,6 @@ class DataViewTest(TestCase):
 
         data = {'file':__file__, 'summary':'summary', "text":"testing", "sticky":True}
 
-        access = models.Access.objects.create(access=models.Access.UPLOAD_ACCESS,
-                                              project=self.project,
-                                              user=self.owner)
-        access.save()
         request = self.factory.post(reverse('data_upload', kwargs=dict(uid=self.project.uid)),
                                     data)
         request.session = {}
@@ -186,10 +182,9 @@ class DataViewTest(TestCase):
         self.assertTrue( "data/list/" in response.url,
                          f"Could not redirect to data list after uploading:\nresponse:{response}")
 
-        self.assertTrue( models.Data.save.called, "data.save() method not called when uploading.")
 
 
-class AnalysisViewTest(TestCase):
+class RecipeViewTest(TestCase):
 
     def setUp(self):
         logger.setLevel(logging.WARNING)
@@ -199,6 +194,57 @@ class AnalysisViewTest(TestCase):
         self.owner.set_password("test")
         self.factory = RequestFactory()
 
+        self.project = auth.create_project(user=self.owner, name="test", text="Text", summary="summary")
+
+        pre = models.Analysis.objects.count()
+        self.recipe = auth.create_analysis(project=self.project, json_text="{}", template="")
+        self.assertTrue(models.Analysis.objects.count() == (pre + 1), "Error creating Analysis in database")
+
+
+    def test_recipe_view(self):
+        "Test the recipe copy view with POST request"
+
+        data = {"project":0}
+
+        request = self.factory.post(reverse('recipe_view', kwargs=dict(id=self.recipe.id)),
+                                    data)
+        request.session = {}
+        messages = fallback.FallbackStorage(request=request)
+        request._messages = messages
+        request.user = self.owner
+
+        response = views.recipe_view(request=request, id=self.recipe.id)
+
+        self.assertEqual(response.status_code, 302,
+                         f"Could not redirect to after copying:\nresponse:{response}")
+
+    def test_recipe_run(self):
+        "Test the recipe run view with POST request"
+
+        data = {"name": "name of the job"}
+
+        request = self.factory.post(reverse('analysis_run', kwargs=dict(id=self.recipe.id)),
+                                    data)
+        request.session = {}
+        messages = fallback.FallbackStorage(request=request)
+        request._messages = messages
+        request.user = self.owner
+
+        self.recipe.security = models.Analysis.AUTHORIZED
+        self.recipe.save()
+
+        response = views.recipe_run(request=request, id=self.recipe.id)
+
+        self.assertEqual(response.status_code, 302,
+                         f"Could not redirect to after running recipe:\nresponse:{response}")
+
+        self.assertTrue("job/list/" in response.url,
+                        f"Could not redirect to job list after running recipe:\nresponse:{response}")
+
+    def test_recipe_code(self):
+        "Test the recipe edit/save code view with POST request"
+
+        pass
 
 
 
