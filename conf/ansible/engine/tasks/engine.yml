@@ -13,3 +13,4 @@
   with_items:
     - { src: 'main_nginx.conf', dest: '/etc/nginx/sites-enabled/main_nginx.conf' }
     - { src: 'main_supervisor.conf', dest: '/etc/supervisor/conf.d/main_supervisor.conf' }
+
