@@ -36,6 +36,7 @@
         fastqc reports are completed it generates a `multiqc` summary from all the `fastqc` reports.
 
         The `multiqc` report serves as the primary output of the recipe.
+
         '''
     }
 

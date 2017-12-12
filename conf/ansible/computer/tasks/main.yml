@@ -14,22 +14,38 @@
     name: www
     shell: /bin/bash
     groups: www, bioinfo, sudo
-    append: yes
 
 - name: Install required packages
   vars:
-     packages: [ 'nginx', 'postgresql', 'curl', 'git', 'byacc', 'zlib1g-dev', 'cmake', 'build-essential', 'ncurses-dev', 'supervisor' ]
+     packages: [ 'nginx', 'postgresql', 'curl', 'git', 'ufw', 'fail2ban', 'byacc', 'zlib1g-dev', 'cmake', 'build-essential', 'ncurses-dev', 'supervisor' ]
   apt: name={{ item }} state=latest
   with_items: "{{ packages }}"
 
-- name: Create Recipe directory
+- name: Allow SSH through the firewall
+  ufw: rule=allow port={{item}}
+  with_items:
+   - ssh
+   - http
+   - https
+
+- name: Enable firewall
+  ufw: state=enabled policy=deny
+
+- name: Create recipe web directory
   file:
     path: /export/sites/recipe_web
     state: directory
     owner: www
     group: www
     mode: 0755
-    recurse: yes
+
+- name: Create recipe data directory
+  file:
+    path: /export/sites/recipe_data
+    state: directory
+    owner: www
+    group: www
+    mode: 0755
 
 - name: Allow write access to Nginx directory
   file:

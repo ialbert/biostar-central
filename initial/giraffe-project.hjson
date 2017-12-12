@@ -1,22 +1,22 @@
 {
 
-uid: giraffe
+    uid: giraffe
 
-name: Giraffe Genome Assembly and Annotation
+    name: Giraffe Genome Assembly and Annotation
 
-image: giraffe-project.jpg
+    image: giraffe-project.jpg
 
-summary: '''
-This project contains data and analysis recipes for studying the genome of giraffe and okapi.
-'''
+    summary: '''
+        This project contains data and analysis recipes for studying the genome of giraffe and okapi.
+        '''
 
-text: '''
+    text:'''
 
-   # Purpose
+       # Purpose
 
-   Todo
+       Todo
 
-'''
+    '''
 
 analyses: [
 
