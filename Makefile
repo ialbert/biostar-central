@@ -10,6 +10,9 @@ install:
 
 
 conda:
+	conda config --add channels r
+	conda config --add channels conda-forge
+	conda config --add channels bioconda
 	conda install --file conf/conda_requirements.txt -y
 
 
