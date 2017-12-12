@@ -18,6 +18,7 @@ mkdir -p $OUTPUT/zip
 mv $OUTPUT/*.zip $OUTPUT/zip
 
 # Generate a multiqc report.
-LC_ALL=C.UTF-8
-LANG=C.UTF-8
+# You may need to set the encoding in bash as
+# export LC_ALL=C.UTF-8
+# export LANG=C.UTF-8
 multiqc fastqc_results -o fastqc_results

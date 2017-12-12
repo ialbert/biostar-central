@@ -1,11 +1,11 @@
 {
 
     sequence : {
-        value: export/local/input/
+        value: export/local/multiqc/
         label: Input
-        name: Testdata Directory
-        help: The input may be a collection of files
-        summary: This data entry is a directory.
+        name: MultiQC Test Data
+        help: The input may be one file or a collection.
+        summary: A sub-selection of reads from SRA runs: SRR1553606 and SRR519926
         source: PROJECT
         type: FASTQ
         display: DROPDOWN

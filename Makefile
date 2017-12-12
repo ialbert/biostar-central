@@ -24,8 +24,14 @@ spool: delete init develop uwsgi
 clean:
 	(cd export/local && make clean)
 
-pack:
-	(cd export/local && make  pack)
+data_pack:
+	(cd export/local && make  data_pack)
+
+data_push:
+	(cd export/local && make  data_push)
+
+data_pull:
+	(cd export/local && make  data_pull)
 
 testdata:
 	(cd export/local && make  all)

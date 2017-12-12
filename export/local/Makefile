@@ -2,19 +2,23 @@ all: taxonomy input fishdb rnaseq
 
 HOST=data.bioinformatics.recipes
 USER=www
-PATH=/export/sites/recipe_data/initial
-DATA=biostar-engine-initial-data.tar.gz
+DIR=/export/sites/recipe_data/initial
+DATA=recipes-initial-data.tar.gz
 
+# Cleans initial data directories.
 clean:
-	rm -rf blastdb lamar taxonomy input fish_species bam
+	rm -rf multiqc
 
 # Packs up the current test data
-pack:
+data_pack:
 	tar -cvzf ${DATA} multiqc
 
-publish_data:
-	rsync -avzn ${DATA} ${USER}@${HOST}:{PATH}
+data_push:
+	rsync -avz ${DATA} ${USER}@${HOST}:${DIR}
 
+data_pull:
+	rsync -avz ${USER}@${HOST}:${DIR}/${DATA} .
+	tar zxvf ${DATA}
 
 rnaseq: rnaseq/griffith/reads/HBR_1_R1.fq
 

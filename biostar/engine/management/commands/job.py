@@ -253,7 +253,7 @@ class Command(BaseCommand):
             return
 
         if queued:
-            jobs = Job.objects.all().order_by('id')[:10]
+            jobs = Job.objects.all().order_by('id')[:100]
             for job in jobs:
                 print(f'{job.id}\t{job.get_state_display()}\t{job.name}')
             return
