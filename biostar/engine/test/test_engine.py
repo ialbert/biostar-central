@@ -218,6 +218,7 @@ class RecipeViewTest(TestCase):
         self.assertEqual(response.status_code, 302,
                          f"Could not redirect to after copying:\nresponse:{response}")
 
+
     def test_recipe_run(self):
         "Test the recipe run view with POST request"
 
@@ -241,9 +242,28 @@ class RecipeViewTest(TestCase):
         self.assertTrue("job/list/" in response.url,
                         f"Could not redirect to job list after running recipe:\nresponse:{response}")
 
-    def test_recipe_code(self):
-        "Test the recipe edit/save code view with POST request"
 
+    def test_recipe_code(self):
+        "Test the recipe preview/save code view with POST request"
+
+        data = {'action': "SAVE", 'template':'', 'json':'{}'}
+        request = self.factory.post(reverse('recipe_code', kwargs=dict(id=self.recipe.id)),
+                                    data)
+        request.session = {}
+        messages = fallback.FallbackStorage(request=request)
+        request._messages = messages
+        request.user = self.owner
+
+        response = views.recipe_code(request=request, id=self.recipe.id)
+
+        self.assertEqual(response.status_code, 302,
+                         f"Could not redirect to after running recipe:\nresponse:{response}")
+
+        self.assertTrue(self.recipe.url() == response.url,
+                        f"Could not redirect to correct page: {self.recipe.url()} != {response.url}")
+
+        print(response)
+        1/0
         pass
 
 
