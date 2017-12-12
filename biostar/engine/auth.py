@@ -299,6 +299,7 @@ def create_path(fname, data):
     return path
 
 
+# TODO: refractor asappp
 def create_data(project, user=None, stream=None, path='', name='',
                 text='', summary='', data_type=None):
 
@@ -348,10 +349,14 @@ def create_data(project, user=None, stream=None, path='', name='',
     collect = findfiles(data.get_data_dir(), collect=[])
 
     # Remove the table of contents from the collected files.
-    collect.remove(data.get_path())
+    try:
+        collect.remove(data.get_path())
+    except ValueError:
+        pass
+
 
     # Write the table of contents.
-    with open(data.file, 'w') as fp:
+    with open(data.get_path(), 'w') as fp:
         fp.write("\n".join(collect))
 
     size = 0
@@ -364,9 +369,11 @@ def create_data(project, user=None, stream=None, path='', name='',
     Data.objects.filter(pk=data.pk).update(size=size, state=state, name=name, summary=summary)
 
     # Refresh the data information that is held by the reference.
-    data = Data.objects.get(pk=data.pk)
+    # breaks during data-upload test.
+    #data = Data.objects.filter(pk=data.pk).first()
 
     # Report the data creation.
     logger.info(f"Added data id={data.pk}, type={data.data_type} name={data.name}")
 
     return data
+

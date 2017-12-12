@@ -168,12 +168,7 @@ class DataViewTest(TestCase):
     def test_data_upload(self):
         "Test Data upload POST request"
 
-        # Not currently working
-        fp = tempfile.TemporaryFile()
-        fp.write(b'foo')
-        fp.seek(0)
-
-        data = {'file':open(__file__, "r"), 'summary':'summary', "text":"testing", "sticky":True}
+        data = {'file':open(__file__, 'r'), 'summary':'summary', "text":"testing", "sticky":True}
         request = self.factory.post(reverse('data_upload', kwargs=dict(uid=self.project.uid)),
                                     data)
 
