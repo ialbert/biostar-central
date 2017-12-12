@@ -360,7 +360,6 @@ def data_edit(request, id):
 
 @object_access(type=Project, access=Access.UPLOAD_ACCESS, url='data_list')
 def data_upload(request, uid):
-
     owner = request.user
     project = Project.objects.filter(uid=uid).first()
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON, DATA_UPLOAD],
@@ -566,6 +565,10 @@ def recipe_create(request, uid):
             recipe.owner = request.user
             recipe.project = project
             recipe.save()
+
+            # recipe.id= None when testing; ensure that does not happen.
+            recipe.pk = recipe.pk or (Analysis.objects.order_by('-id').first().pk + 1)
+
             return redirect(reverse("recipe_view", kwargs=dict(id=recipe.id)))
         return redirect(action_url)
 

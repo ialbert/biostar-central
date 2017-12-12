@@ -169,6 +169,14 @@ class DataViewTest(TestCase):
 
         request = self.factory.post(reverse('data_upload', kwargs=dict(uid=self.project.uid)),
                                     data)
+        # TODO Still hashing this out.
+        access = models.Access.objects.create(access=models.Access.UPLOAD_ACCESS,
+                                              user=self.owner,
+                                              project=self.project)
+        access.save()
+        self.project.access_set.add(access)
+        self.project.save()
+
         request.session = {}
         messages = fallback.FallbackStorage(request=request)
         request._messages = messages
@@ -181,7 +189,6 @@ class DataViewTest(TestCase):
                          f"Could not redirect to after uploading:\nresponse:{response}")
         self.assertTrue( "data/list/" in response.url,
                          f"Could not redirect to data list after uploading:\nresponse:{response}")
-
 
 
 class RecipeViewTest(TestCase):
@@ -242,7 +249,7 @@ class RecipeViewTest(TestCase):
         self.assertTrue("job/list/" in response.url,
                         f"Could not redirect to job list after running recipe:\nresponse:{response}")
 
-
+    @patch('biostar.engine.models.Analysis.save', MagicMock(name="save"))
     def test_recipe_code(self):
         "Test the recipe preview/save code view with POST request"
 
@@ -257,15 +264,56 @@ class RecipeViewTest(TestCase):
         response = views.recipe_code(request=request, id=self.recipe.id)
 
         self.assertEqual(response.status_code, 302,
-                         f"Could not redirect to after running recipe:\nresponse:{response}")
+                         f"Could not redirect to after editing code:\nresponse:{response}")
 
         self.assertTrue(self.recipe.url() == response.url,
                         f"Could not redirect to correct page: {self.recipe.url()} != {response.url}")
 
-        print(response)
-        1/0
-        pass
+        self.assertTrue( models.Analysis.save.called, "analysis.save() method not called when saving in views.")
 
+
+    @patch('biostar.engine.models.Analysis.save', MagicMock(name="save"))
+    def test_recipe_create(self):
+        "Test recipe create with POST request"
+
+        data = { "name": "test", "sticky":True, "summary":"summary", "text":"text" }
+        request = self.factory.post(reverse('recipe_create', kwargs=dict(uid=self.project.uid)),
+                                    data)
+
+        request.session = {}
+        messages = fallback.FallbackStorage(request=request)
+        request._messages = messages
+        request.user = self.owner
+
+        response = views.recipe_create(request=request, uid=self.project.uid)
+
+        self.assertEqual(response.status_code, 302,
+                         f"Could not redirect after creating recipe:\nresponse:{response}")
+
+        self.assertTrue("recipe/view" in response.url,
+                        f"Could not redirect to correct page: 'recipe/view' != {response.url}")
+
+        self.assertTrue( models.Analysis.save.called, "analysis.save() method not called when creating.")
+
+
+    @patch('biostar.engine.models.Analysis.save', MagicMock(name="save"))
+    def test_recipe_edit(self):
+        "Test recipe edit with POST request"
+
+        data = { "name": "test", "sticky":True, "summary":"summary", "text":"text" }
+        request = self.factory.post(reverse('recipe_edit', kwargs=dict(id=self.recipe.id)),
+                                    data)
+        request.session = {}
+        messages = fallback.FallbackStorage(request=request)
+        request._messages = messages
+        request.user = self.owner
+
+        response = views.recipe_edit(request=request, id=self.recipe.id)
+
+        self.assertEqual(response.status_code, 302,
+                         f"Could not redirect after creating recipe:\nresponse:{response}")
+
+        self.assertTrue( models.Analysis.save.called, "analysis.save() method not called when creating.")
 
 
 class FactoryTest(TestCase):
@@ -326,6 +374,7 @@ class FactoryTest(TestCase):
 
 
 class ManagementCommandTest(TestCase):
+
     def setUp(self):
         self.owner = models.User.objects.filter(is_superuser=True).first()
 
@@ -339,22 +388,20 @@ class ManagementCommandTest(TestCase):
                                              template="echo {{test.value}}")
         self.job = auth.create_job(analysis=self.analysis)
 
+
     def test_add_data(self):
         "Test adding data to a project using management commands "
 
         pre = models.Data.objects.all().count()
         management.call_command('data', path=__file__, uid="testing")
         post = models.Data.objects.all().count()
-
         self.assertTrue(post == (pre + 1), "Error creating adding in database with management command")
 
     def test_job_runner(self):
         "Testing Job runner using management command"
-
-        management.call_command('job', id=self.job.id)
+        self.job.security = models.Job.AUTHORIZED
+        self.job.save()
+        management.call_command('job', id=self.job.id, verbosity=2)
 
         return
 
-    def Xtest_create_analysis(self):
-        "Testing createing an analysis with managment commads"
-        pass
