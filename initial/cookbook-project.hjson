@@ -1,42 +1,42 @@
 {
 
-uid: cookbook
+    uid: cookbook
 
-name: Analysis Cookbook
+    name: Analysis Cookbook
 
-image: cookbook-project.png
+    image: cookbook-project.png
 
-summary: '''
-This project contains commonly used data analysis recipes.
-Use the recipe descriptions and the results to familiarize yourself with each recipes
-and what the required input and output files are.
-'''
-
-text: '''
-
-    # Purpose
-
+    summary: '''
     This project contains commonly used data analysis recipes.
+    Use the recipe descriptions and the results to familiarize yourself with each recipes
+    and what the required input and output files are.
+    '''
 
-    Each analysis recipe has results associated with it.
+    text: '''
 
-    # Analyses
+        # Purpose
 
-    You may copy any of these recipe into your own projects.
+        This project contains commonly used data analysis recipes.
 
-    # Data
+        Each analysis recipe has results associated with it.
 
-    Each analysis also comes with test data that is also deposited into this project.
+        # Analyses
 
-    Investigate the data and the results to understand the recipe requirements.
+        You may copy any of these recipe into your own projects.
 
-'''
+        # Data
+
+        Each analysis also comes with test data that is also deposited into this project.
+
+        Investigate the data and the results to understand the recipe requirements.
+
+    '''
 
 analyses: [
 
     {
-        json: biostar/tools/fastqc/multiqc.hjson
-        template: biostar/tools/fastqc/multiqc.sh
+        json: biostar/recipes/qc/multiqc.hjson
+        template: biostar/recipes/qc/multiqc.sh
     }
 
     {

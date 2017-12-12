@@ -31,5 +31,3 @@
   when: miniconda_installed | success
   with_items: "{{miniconda_environments}}"
 
-
-

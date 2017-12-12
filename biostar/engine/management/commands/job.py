@@ -13,6 +13,9 @@ from django.utils import timezone
 
 logger = logging.getLogger('engine')
 
+# Override the logger.
+logger.setLevel(logging.DEBUG)
+
 CURR_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
@@ -131,7 +134,7 @@ def run(job, options={}):
             raise Exception(f"Job security error: {job.get_security_display()}")
 
         # Switch the job state to RUNNING.
-        job.state = job.RUNNING
+        job.state = Job.RUNNING
         job.start_date = timezone.now()
         job.save()
 
@@ -144,12 +147,12 @@ def run(job, options={}):
             raise Exception(f"executing: {command}")
 
         # If we made it this far the job has finished.
-        job.state = job.COMPLETED
+        job.state = Job.COMPLETED
         job.save()
 
     except Exception as exc:
         # Handle all errors here.
-        job.state = job.ERROR
+        job.state = Job.ERROR
         job.save()
         stderr_log.append(f'{exc}')
         logger.info(f'job id={job.id} error {exc}')
@@ -174,7 +177,6 @@ def run(job, options={}):
     # Create a log script in the output directory as well.
     with open(os.path.join(work_dir, stderr_fname), 'wt') as fp:
         fp.write(job.stderr_log)
-
 
     logger.info(f'Job id={job.id} finished, status={job.get_state_display()}')
     # Use -v 2 to see the output of the command.
@@ -251,7 +253,7 @@ class Command(BaseCommand):
             return
 
         if queued:
-            jobs = Job.objects.all().order_by('id')[:10]
+            jobs = Job.objects.all().order_by('id')[:100]
             for job in jobs:
                 print(f'{job.id}\t{job.get_state_display()}\t{job.name}')
             return

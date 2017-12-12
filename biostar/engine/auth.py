@@ -341,7 +341,7 @@ def create_data(project, user=None, stream=None, path='', name='',
     missing = not (os.path.isdir(path) or os.path.isfile(path) or stream)
     if path and missing:
         state = Data.ERROR
-        logger.error(f"Path not found for: {path}")
+        logger.error(f"Invalid data path: {path}")
     else:
         state = Data.READY
 

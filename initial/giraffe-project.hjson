@@ -1,28 +1,28 @@
 {
 
-uid: giraffe
+    uid: giraffe
 
-name: Giraffe Genome Assembly and Annotation
+    name: Giraffe Genome Assembly and Annotation
 
-image: giraffe-project.jpg
+    image: giraffe-project.jpg
 
-summary: '''
-This project contains data and analysis recipes for studying the genome of giraffe and okapi.
-'''
+    summary: '''
+        This project contains data and analysis recipes for studying the genome of giraffe and okapi.
+        '''
 
-text: '''
+    text:'''
 
-   # Purpose
+       # Purpose
 
-   Todo
+       Todo
 
-'''
+    '''
 
 analyses: [
 
     {
-        json: biostar/tools/fastqc/multiqc.hjson
-        template: biostar/tools/fastqc/multiqc.sh
+        json: biostar/recipes/qc/multiqc.hjson
+        template: biostar/recipes/qc/multiqc.sh
     }
 
     {
@@ -42,7 +42,7 @@ data: [
 
     {
         name: Published Giraffe Scaffold 2016.fa
-        value: /export/data/giraffe/assembly/soap_assembly_k91_params.gapfilled.f
+        value: /export/data/giraffe/assembly/soap_assembly_k91_params.gapfilled.fa
         type: FASTA
         summary: The published assembled Giraffe scaffold (2016)
         text: The giraffe scaffold assembled by Rayan Chiki

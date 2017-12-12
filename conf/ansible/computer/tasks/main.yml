@@ -5,6 +5,11 @@
     update_cache=yes
     cache_valid_time=86400 # One day
 
+- name: Add certbot repository
+  apt_repository:
+    repo: 'ppa:certbot/certbot'
+    state: present
+
 - name: Create the bioinfo group
   group:
     name: bioinfo
@@ -14,33 +19,44 @@
     name: www
     shell: /bin/bash
     groups: www, bioinfo, sudo
-    append: yes
 
 - name: Install required packages
   vars:
-     packages: [ 'nginx', 'postgresql', 'curl', 'git', 'byacc', 'zlib1g-dev', 'cmake', 'build-essential', 'ncurses-dev', 'supervisor' ]
+     packages: [ 'nginx', 'postgresql', 'software-properties-common', 'python-certbot-nginx',
+      'curl', 'git', 'ufw', 'fail2ban', 'byacc', 'zlib1g-dev', 'cmake', 'build-essential',
+      'ncurses-dev', 'supervisor' ]
   apt: name={{ item }} state=latest
   with_items: "{{ packages }}"
 
-- name: Create Recipe directory
+- name: Allow SSH through the firewall
+  ufw: rule=allow port={{item}}
+  with_items:
+   - ssh
+   - http
+   - https
+
+- name: Enable firewall
+  ufw: state=enabled policy=deny
+
+- name: Create file directories
   file:
-    path: /export/sites/recipe_web
+    path: "/export/sites/{{item}}"
     state: directory
     owner: www
     group: www
     mode: 0755
-    recurse: yes
+  with_items:
+    - recipe_web
+    - recipe_data
+    - recipe_data/initial
 
-- name: Allow write access to Nginx directory
+- name: Allow write access to configuration directories
   file:
-    path: /etc/nginx/sites-enabled
+    path: "{{ item }}"
     owner: www
     group: www
-    mode: 0644
+    mode: 0755
+  with_items:
+    - /etc/nginx/sites-enabled
+    - /etc/supervisor/conf.d
 
-- name: Allow write access to Supervisor directory
-  file:
-    path: /etc/supervisor/conf.d
-    owner: www
-    group: www
-    mode: 0644

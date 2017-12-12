@@ -10,6 +10,9 @@ install:
 
 
 conda:
+	conda config --add channels r
+	conda config --add channels conda-forge
+	conda config --add channels bioconda
 	conda install --file conf/conda_requirements.txt -y
 
 
@@ -20,6 +23,15 @@ spool: delete init develop uwsgi
 
 clean:
 	(cd export/local && make clean)
+
+data_pack:
+	(cd export/local && make  data_pack)
+
+data_push:
+	(cd export/local && make  data_push)
+
+data_pull:
+	(cd export/local && make  data_pull)
 
 testdata:
 	(cd export/local && make  all)

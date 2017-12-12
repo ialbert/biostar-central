@@ -72,14 +72,14 @@ class Command(BaseCommand):
             json_path = os.path.dirname(json)
             json_data = hjson.loads(json_text)
         except Exception as exc:
-            logger.error(f"Error reading the json: {exc}")
+            logger.exception(f"JSON exception in file: {json}\n{exc}")
             return
 
         try:
             # Read the specification
             template = open(template).read()
         except Exception as exc:
-            logger.error(f"Error reading template: {exc}")
+            logger.exception(f"Template exception: {exc}")
             return
 
         try:
@@ -102,7 +102,7 @@ class Command(BaseCommand):
                     analysis.image.save(image, stream, save=True)
                     logger.info(f"Image path: {image_path}")
                 else:
-                    logger.error(f"Missing image path: {image_path}")
+                    logger.error(f"Skipping invalid image path: {image_path}")
 
             # Create a queued jobs if instructed so.
             if jobs:
@@ -130,6 +130,6 @@ class Command(BaseCommand):
 
                 job = auth.create_job(analysis=analysis, json_data=json_data)
 
-        except KeyError as exc:
-            logger.error(f"processing the analysis: {exc}")
+        except Exception as exc:
+            logger.exception(f"Error: {exc}")
             return
