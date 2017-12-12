@@ -1,14 +1,15 @@
 
-- name: Clone the biostar-engine software
+- name: Get the biostar-engine software
   git:
     repo: 'git@github.com:biostars/biostar-engine.git'
     dest: /export/sites/recipe_web
+    update: yes
 
-- name: Link NGINX config
+- name: Link configuration files
   file:
-    path: /export/sites/recipe_web
-    state: directory
-    owner: www
-    group: www
-    recurse: yes
-
+    src: '/export/sites/recipe_web/conf/main/{{ item.src }}'
+    dest: '{{ item.dest }}'
+    state: link
+  with_items:
+    - { src: 'main_nginx.conf', dest: '/etc/nginx/sites-enabled/main_nginx.conf' }
+    - { src: 'main_supervisor.conf', dest: '/etc/supervisor/conf.d/main_supervisor.conf' }

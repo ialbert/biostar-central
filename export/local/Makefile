@@ -3,7 +3,7 @@ all: taxonomy input fishdb rnaseq
 HOST=data.bioinformatics.recipes
 USER=www
 PATH=/export/sites/data/
-DATA=recipe-initial-data.tar.gz
+DATA=biostar-engine-initial-data.tar.gz
 
 clean:
 	rm -rf blastdb lamar taxonomy input fish_species bam

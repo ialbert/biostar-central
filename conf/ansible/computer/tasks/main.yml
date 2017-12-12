@@ -52,11 +52,11 @@
     path: /etc/nginx/sites-enabled
     owner: www
     group: www
-    mode: 0644
+    mode: 0755
 
 - name: Allow write access to Supervisor directory
   file:
     path: /etc/supervisor/conf.d
     owner: www
     group: www
-    mode: 0644
+    mode: 0755
