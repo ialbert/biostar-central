@@ -2,7 +2,7 @@ all: taxonomy input fishdb rnaseq
 
 HOST=data.bioinformatics.recipes
 USER=www
-PATH=/export/sites/data/
+PATH=/export/sites/recipe_data/initial
 DATA=biostar-engine-initial-data.tar.gz
 
 clean:
@@ -12,7 +12,7 @@ clean:
 pack:
 	tar -cvzf ${DATA} multiqc
 
-publish:
+publish_data:
 	rsync -avzn ${DATA} ${USER}@${HOST}:{PATH}
 
 

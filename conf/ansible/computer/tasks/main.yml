@@ -38,32 +38,25 @@
 - name: Enable firewall
   ufw: state=enabled policy=deny
 
-- name: Create recipe web directory
+- name: Create file directories
   file:
-    path: /export/sites/recipe_web
+    path: "/export/sites/{{item}}"
     state: directory
     owner: www
     group: www
     mode: 0755
+  with_items:
+    - recipe_web
+    - recipe_data
+    - recipe_data/initial
 
-- name: Create recipe data directory
+- name: Allow write access to configuration directories
   file:
-    path: /export/sites/recipe_data
-    state: directory
+    path: "{{ item }}"
     owner: www
     group: www
     mode: 0755
+  with_items:
+    - /etc/nginx/sites-enabled
+    - /etc/supervisor/conf.d
 
-- name: Allow write access to Nginx directory
-  file:
-    path: /etc/nginx/sites-enabled
-    owner: www
-    group: www
-    mode: 0755
-
-- name: Allow write access to Supervisor directory
-  file:
-    path: /etc/supervisor/conf.d
-    owner: www
-    group: www
-    mode: 0755
