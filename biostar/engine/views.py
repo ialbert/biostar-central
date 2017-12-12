@@ -567,7 +567,7 @@ def recipe_create(request, uid):
             recipe.save()
 
             # recipe.id= None when testing; ensure that does not happen.
-            recipe.pk = recipe.pk or (Analysis.objects.order_by('-id').first().pk + 1)
+            recipe.pk = recipe.pk or (Analysis.objects.order_by('-pk').first().pk + 1)
 
             return redirect(reverse("recipe_view", kwargs=dict(id=recipe.id)))
         return redirect(action_url)

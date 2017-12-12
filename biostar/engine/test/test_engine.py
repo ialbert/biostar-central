@@ -78,6 +78,7 @@ class ProjectViewTest(TestCase):
 
         data = {"access":models.Access.ADMIN_ACCESS,
                 "user_id":new_user.id, "project_id":self.project.id}
+
         request = self.factory.post(reverse('project_users', kwargs=dict(uid=self.project.uid)),
                                     data)
         request.session = {}
@@ -115,7 +116,7 @@ class DataViewTest(TestCase):
         self.factory = RequestFactory()
 
         self.project = auth.create_project(user=self.owner, name="test", text="Text", summary="summary")
-
+        self.project.save()
         # Set up generic data for editing
         pre = models.Data.objects.count()
         self.data = auth.create_data(project=self.project, path=__file__)
@@ -166,7 +167,6 @@ class DataViewTest(TestCase):
         "Test Data upload POST request"
 
         data = {'file':__file__, 'summary':'summary', "text":"testing", "sticky":True}
-
         request = self.factory.post(reverse('data_upload', kwargs=dict(uid=self.project.uid)),
                                     data)
         # TODO Still hashing this out.
@@ -174,15 +174,16 @@ class DataViewTest(TestCase):
                                               user=self.owner,
                                               project=self.project)
         access.save()
-        self.project.access_set.add(access)
-        self.project.save()
+
+        print(self.project.access_set)
+
+        #1/0
 
         request.session = {}
         messages = fallback.FallbackStorage(request=request)
         request._messages = messages
         request.user = self.owner
 
-        #TODO: this is not showing up in coverage wtffff
         response = views.data_upload(request=request, uid=self.project.uid)
 
         self.assertEqual(response.status_code, 302,
@@ -248,6 +249,7 @@ class RecipeViewTest(TestCase):
 
         self.assertTrue("job/list/" in response.url,
                         f"Could not redirect to job list after running recipe:\nresponse:{response}")
+
 
     @patch('biostar.engine.models.Analysis.save', MagicMock(name="save"))
     def test_recipe_code(self):
@@ -333,8 +335,6 @@ class FactoryTest(TestCase):
                 "choices":["test1", "test2"]
         }
 
-        return
-
     def test_factory_fields(self):
         "Testing factory module that generates fields"
 
@@ -403,5 +403,4 @@ class ManagementCommandTest(TestCase):
         self.job.save()
         management.call_command('job', id=self.job.id, verbosity=2)
 
-        return
 
