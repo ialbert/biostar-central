@@ -178,8 +178,6 @@ def breadcrumb(steps):
     return dict(steps=steps)
 
 
-
-
 @register.inclusion_tag('widgets/menubar.html', takes_context=True)
 def menubar(context, project=None, edit_project=False, create_project=False,
             data=None, edit_data=False, upload_data=False,
