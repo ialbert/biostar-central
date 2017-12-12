@@ -5,6 +5,11 @@
     update_cache=yes
     cache_valid_time=86400 # One day
 
+- name: Add certbot repository
+  apt_repository:
+    repo: 'ppa:certbot/certbot'
+    state: present
+
 - name: Create the bioinfo group
   group:
     name: bioinfo
@@ -17,7 +22,9 @@
 
 - name: Install required packages
   vars:
-     packages: [ 'nginx', 'postgresql', 'curl', 'git', 'ufw', 'fail2ban', 'byacc', 'zlib1g-dev', 'cmake', 'build-essential', 'ncurses-dev', 'supervisor' ]
+     packages: [ 'nginx', 'postgresql', 'software-properties-common', 'python-certbot-nginx',
+      'curl', 'git', 'ufw', 'fail2ban', 'byacc', 'zlib1g-dev', 'cmake', 'build-essential',
+      'ncurses-dev', 'supervisor' ]
   apt: name={{ item }} state=latest
   with_items: "{{ packages }}"
 
