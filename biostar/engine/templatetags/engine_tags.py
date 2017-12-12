@@ -193,25 +193,3 @@ def menubar(context, project=None, edit_project=False, create_project=False,
         data=data, edit_data=edit_data, upload_data=upload_data,
         analysis=analysis, edit_analysis=edit_analysis,
     )
-
-
-@register.filter(name='is_checkbox')
-def is_checkbox(field):
-    """
-    Returns True if a field is a checkbox.
-    """
-    print (field)
-
-    cond = isinstance(field.widget, forms.BooleanField)
-    return cond
-
-
-@register.filter(name='is_selection')
-def is_selection(field):
-    """
-    Returns True if a field's widget is a Selection
-    """
-
-    cond = isinstance(field.widget, widgets.Select)
-
-    return cond

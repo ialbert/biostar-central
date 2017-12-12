@@ -147,8 +147,6 @@ def site_admin(request):
 
 
 @object_access(type=Project, access=Access.ADMIN_ACCESS, url='project_view')
-@csrf.csrf_protect
-@cache.never_cache
 def project_users(request, uid):
     """
     Manage project users
@@ -201,8 +199,6 @@ def project_list(request):
 
 
 @object_access(type=Project, access=Access.READ_ACCESS)
-@csrf.csrf_protect
-@cache.never_cache
 def project_view(request, uid):
     user = request.user
 
@@ -233,8 +229,6 @@ def project_view(request, uid):
 
 
 @object_access(type=Project, access=Access.EDIT_ACCESS, url='project_view')
-@csrf.csrf_protect
-@cache.never_cache
 def project_edit(request, uid):
 
     project = auth.get_project_list(user=request.user).filter(uid=uid).first()
@@ -251,12 +245,11 @@ def project_edit(request, uid):
 
     form = ProjectForm(instance=project)
     context = dict(project=project, steps=steps, form=form)
-    return render(request, 'project_edit.html',
-                  context)
+    return render(request, 'project_edit.html', context)
 
-@csrf.csrf_protect
-@cache.never_cache
+
 def project_create(request):
+
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON])
 
     if request.user.is_anonymous:
@@ -312,8 +305,6 @@ def data_list(request, uid):
 
 
 @object_access(type=Data, access=Access.READ_ACCESS)
-@csrf.csrf_protect
-@cache.never_cache
 def data_view(request, id):
 
     data = Data.objects.filter(id=id).first()
@@ -350,8 +341,6 @@ def data_view(request, id):
 
 
 @object_access(type=Data, access=Access.EDIT_ACCESS, url='data_view')
-@csrf.csrf_protect
-@cache.never_cache
 def data_edit(request, id):
     data = Data.objects.filter(id=id).first()
     project = data.project
@@ -370,14 +359,11 @@ def data_edit(request, id):
 
 
 @object_access(type=Project, access=Access.UPLOAD_ACCESS, url='data_list')
-@csrf.csrf_protect
-@cache.never_cache
 def data_upload(request, uid):
     owner = request.user
     project = Project.objects.filter(uid=uid).first()
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON, DATA_UPLOAD],
                                project=project)
-
     if request.method == "POST":
         form = DataUploadForm(request.POST, request.FILES)
 
@@ -385,8 +371,9 @@ def data_upload(request, uid):
             text = form.cleaned_data["text"]
             stream = form.cleaned_data["file"]
             name = stream.name
-            auth.create_data(stream=stream, name=name, text=text,
+            data = auth.create_data(stream=stream, name=name, text=text,
                              user=owner, project=project)
+            data.save()
             messages.info(request, "Data upload complete")
             return redirect(reverse("data_list", kwargs={'uid': project.uid}))
 
@@ -417,8 +404,6 @@ def recipe_list(request, uid):
 
 
 @object_access(type=Analysis, access=Access.READ_ACCESS)
-@csrf.csrf_protect
-@cache.never_cache
 def recipe_view(request, id):
     """
     Returns an analysis view based on its id.
@@ -481,7 +466,8 @@ def recipe_run(request, id):
                 tasks.execute_job.spool(job_id=jobid)
 
             return redirect(reverse("job_list", kwargs=dict(uid=project.uid)))
-        return  redirect(reverse("recipe_run", kwargs=dict(uid=analysis.id)))
+
+        return  redirect(reverse("analysis_run", kwargs=dict(id=analysis.id)))
 
     initial = dict(name=analysis.name)
     form = RecipeInterface(request=request, analysis=analysis, json_data=analysis.json_data, initial=initial)
@@ -562,7 +548,7 @@ def recipe_code(request, id):
 @object_access(type=Project, access=Access.EDIT_ACCESS, url='recipe_list')
 def recipe_create(request, uid):
     """
-    Here the id is of the project!
+    Here the uid is of the project!
     """
     project = Project.objects.filter(uid=uid).first()
 
@@ -579,6 +565,10 @@ def recipe_create(request, uid):
             recipe.owner = request.user
             recipe.project = project
             recipe.save()
+
+            # recipe.id= None when testing; ensure that does not happen.
+            recipe.pk = recipe.pk or (Analysis.objects.order_by('-pk').first().pk + 1)
+
             return redirect(reverse("recipe_view", kwargs=dict(id=recipe.id)))
         return redirect(action_url)
 
