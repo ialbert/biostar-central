@@ -22,7 +22,7 @@
         <div class="ui center aligned segment">
 
             <div class="ui image">
-                <img class="ui tiny circular image"  src="{% img project %}">
+                <img class="ui tiny circular image" src="{% img project %}">
             </div>
 
             <div class="ui header">
@@ -30,17 +30,6 @@
             </div>
 
         </div>
-
-        <div class="ui secondary segment">
-            {{ project.summary|markdown|safe }}
-        </div>
-
-        {% if access %}
-            <div class="ui secondary segment">
-                Your access rights for the project:
-                <span class="ui green label">{{ access.get_access_display }}</span>
-            </div>
-        {% endif %}
 
         <div class="ui segment">
 
@@ -54,7 +43,7 @@
 
                     <div class="content">
                         <a class="header" href="{% url 'data_list' project.uid %}">
-                            <i class="file text icon"></i> {{ data_count }} Data Files
+                            <i class="file text icon"></i>Data Files: {{ data_count }}
                         </a>
                         <div class="description">
                             View the files and data collections associated with this project.
@@ -72,7 +61,7 @@
 
                     <div class="content">
                         <a class="header" href="{% url 'recipe_list' project.uid %}">
-                            <i class="settings icon"></i> {{ recipe_count }} Analysis Recipes
+                            <i class="settings icon"></i> Analysis Recipes: {{ recipe_count }}
                         </a>
                         <div class="description">
                             View the analyses that can be run for this project.
@@ -89,7 +78,7 @@
 
                     <div class="content">
                         <a class="header" href="{% url 'job_list' project.uid %}">
-                            <i class="bar chart icon"></i> {{ result_count }} Analysis Results
+                            <i class="bar chart icon"></i>Analysis Results: {{ result_count }}
                         </a>
                         <div class="description">
                             View the results of analyses run previously.
@@ -111,7 +100,22 @@
         </div>
 
         <div class="ui secondary segment">
-            {{ project.html|safe }}
+            <div class="ui header">Summary</div>
+            {{ project.summary|markdown|safe }}
+        </div>
+
+        {% if access %}
+            <div class="ui secondary segment">
+                Your access rights for the project:
+                <span class="ui green label">{{ access.get_access_display }}</span>
+            </div>
+        {% endif %}
+
+        <div class="ui secondary segment">
+            <div class="ui header">Additional information</div>
+            <div class="project help">
+                {{ project.html|safe }}
+            </div>
         </div>
     </div>
 

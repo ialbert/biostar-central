@@ -1,23 +1,18 @@
+import difflib
 import logging
-import shutil
 import uuid
 
 import hjson
-from django import forms
+from django.conf import settings
 from django.contrib import messages
 from django.db.models import Q
+from django.template import Template, Context
 from django.template import loader
 from django.test.client import RequestFactory
-from django.utils.text import slugify
 from django.utils.safestring import mark_safe
-from django.template import Template, Context
-from django.conf import settings
 
-from biostar.accounts.models import Profile
-from . import factory
 from .const import *
 from .models import Data, Analysis, Job, Project, Access
-import difflib
 
 CHUNK = 1024 * 1024
 
@@ -84,6 +79,7 @@ def generate_script(job):
 
     return json_data, script
 
+
 def template_changed(analysis, template):
     """
     Detects a change in the template.
@@ -95,6 +91,7 @@ def template_changed(analysis, template):
 
     print(f"Change: {bool(change)}")
     return change
+
 
 def get_project_list(user):
     """
@@ -112,7 +109,6 @@ def get_project_list(user):
     query = Project.objects.filter(cond)
 
     return query
-
 
 
 def check_obj_access(user, instance, access=Access.ADMIN_ACCESS, request=None, login_required=False):
@@ -155,14 +151,18 @@ def check_obj_access(user, instance, access=Access.ADMIN_ACCESS, request=None, l
     # Anonymous users have no other access permissions.
     if user.is_anonymous():
         msg = f"""
+        <span class="ui red label">Denied</span>
         You must be logged in and have <span class="ui green label">{access_text}</span> to perform that action.
+        Read more about your options on the <a href="/docs/access/">Access Info</a> page.
         """
         msg = mark_safe(msg)
         messages.error(request, msg)
         return False
 
     deny = f"""
-        Access Denied. This action requires <span class="ui green label">{access_text}</span>.
+        <span class="ui red label">Denied</span>
+        This action requires <span class="ui green label">{access_text}</span> that you don't have. 
+        Read more about your options on the <a href="/docs/access/">Access Info</a> page.
         """
     deny = mark_safe(deny)
 
@@ -213,7 +213,8 @@ def create_project(user, name, uid='', summary='', text='', stream='',
     return project
 
 
-def create_analysis(project, json_text, template, uid=None, user=None, summary='', name='', text='', security=Analysis.UNDER_REVIEW):
+def create_analysis(project, json_text, template, uid=None, user=None, summary='', name='', text='',
+                    security=Analysis.UNDER_REVIEW):
     owner = user or project.owner
     name = name or 'Analysis name'
     text = text or 'Analysis text'
@@ -258,8 +259,8 @@ def create_job(analysis, user=None, json_text='', json_data={}, name=None, state
 
     # Create the job instance.
     job = Job(name=name, summary=summary, state=state, json_text=json_text,
-        security=analysis.security, project=project, analysis=analysis, owner=owner,
-        template=analysis.template)
+              security=analysis.security, project=project, analysis=analysis, owner=owner,
+              template=analysis.template)
 
     if save:
         job.save()
@@ -299,7 +300,10 @@ def create_path(fname, data):
     return path
 
 
-# TODO: refractor asappp
+from django.db import transaction
+
+
+@transaction.non_atomic_requests
 def create_data(project, user=None, stream=None, path='', name='',
                 text='', summary='', data_type=None):
 
@@ -318,11 +322,9 @@ def create_data(project, user=None, stream=None, path='', name='',
             while chunk:
                 fp.write(chunk)
                 chunk = stream.read(CHUNK)
-        # Set path to empty str when there is a stream
-        path = ""
 
-    # If the path is a directory, symlink all files.
-    if path and os.path.isdir(path):
+    # If the path is a directory, symlink all files in the directory.
+    if not stream and path and os.path.isdir(path):
         logger.info(f"Linking path: {path}")
         collect = findfiles(path, collect=[])
         for src in collect:
@@ -332,12 +334,12 @@ def create_data(project, user=None, stream=None, path='', name='',
         logger.info(f"Linked {len(collect)} files.")
 
     # The path is a file.
-    if path and os.path.isfile(path):
+    if not stream and path and os.path.isfile(path):
         dest = create_path(path, data=data)
         os.symlink(path, dest)
         logger.info(f"Linked file: {path}")
 
-    # Invalid paths and empty streams still create the data.
+    # Invalid paths and empty streams still create the data but set the data state to error.
     missing = not (os.path.isdir(path) or os.path.isfile(path) or stream)
     if path and missing:
         state = Data.ERROR
@@ -348,32 +350,35 @@ def create_data(project, user=None, stream=None, path='', name='',
     # Find all files in the data directory.
     collect = findfiles(data.get_data_dir(), collect=[])
 
-    # Remove the table of contents from the collected files.
-    try:
-        collect.remove(data.get_path())
-    except ValueError:
-        pass
-
+    # The name of the table of contents.
+    tocname = data.get_path()
+    if tocname in collect:
+        collect.remove(tocname)
 
     # Write the table of contents.
-    with open(data.get_path(), 'w') as fp:
+    with open(tocname, 'w') as fp:
         fp.write("\n".join(collect))
 
+    # Find the cumulative size of the files.
     size = 0
     for elem in collect:
         if os.path.isfile(elem):
             size += os.stat(elem, follow_symlinks=True).st_size
 
-    # Finalize the data.
-    name = name or os.path.split(path)[1] or 'data.bin'
-    Data.objects.filter(pk=data.pk).update(size=size, state=state, name=name, summary=summary)
+    # Finalize the data name
+    name = name or os.path.split(path)[1] or 'Data'
 
-    # Refresh the data information that is held by the reference.
-    # breaks during data-upload test.
-    #data = Data.objects.filter(pk=data.pk).first()
+    # Set updated attributes
+    data.size = size
+    data.state = state
+    data.name = name
+    data.summary = summary
+    data.file = tocname
 
-    # Report the data creation.
-    logger.info(f"Added data id={data.pk}, type={data.data_type} name={data.name}")
+    # Trigger another save.
+    data.save()
+
+    # Set log for data creation.
+    logger.info(f"Added data type={data.data_type} name={data.name}")
 
     return data
-

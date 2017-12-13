@@ -2,25 +2,23 @@ import glob
 import logging
 
 import mistune
-from django.db.models import Q
 from django.conf import settings
-from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test
+from django.core.paginator import Paginator
+from django.db.models import Q
 from django.shortcuts import render, redirect
 from django.urls import reverse
 # from django.template.loader import get_template
 from django.utils.safestring import mark_safe
-from django.core.paginator import Paginator
-from .const import *
+
 from .decorators import object_access
 from .forms import *
 from .models import (Project, Data, Analysis, Job, User, Access)
 
-import difflib
-
 
 def join(*args):
     return os.path.abspath(os.path.join(*args))
+
 
 # Objects per page when looking at lists
 OBJ_PER_PAGE = 10
@@ -41,8 +39,8 @@ logger = logging.getLogger('engine')
 def make_html(text):
     return mistune.markdown(text)
 
-def pages(request, instance):
 
+def pages(request, instance):
     paginator = Paginator(instance, OBJ_PER_PAGE)
     page = request.GET.get('page', 1)
 
@@ -186,7 +184,6 @@ def project_users(request, uid):
 
 
 def project_list(request):
-
     projects = auth.get_project_list(user=request.user).order_by("-sticky", "-privacy")
     projects = projects.order_by("-privacy", "-sticky", "-date", "-id")
     projects = pages(request, instance=projects)
@@ -229,7 +226,6 @@ def project_view(request, uid):
 
 @object_access(type=Project, access=Access.EDIT_ACCESS, url='project_view')
 def project_edit(request, uid):
-
     project = auth.get_project_list(user=request.user).filter(uid=uid).first()
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON], project=project)
 
@@ -248,7 +244,6 @@ def project_edit(request, uid):
 
 
 def project_create(request):
-
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON])
 
     if request.user.is_anonymous:
@@ -259,7 +254,6 @@ def project_create(request):
         # create new projects here ( just populates metadata ).
         form = ProjectForm(request.POST, request.FILES)
         if form.is_valid():
-
             name = form.cleaned_data["name"]
             text = form.cleaned_data["text"]
             summary = form.cleaned_data["summary"]
@@ -305,7 +299,6 @@ def data_list(request, uid):
 
 @object_access(type=Data, access=Access.READ_ACCESS)
 def data_view(request, id):
-
     data = Data.objects.filter(id=id).first()
 
     if not data:
@@ -363,7 +356,6 @@ def data_edit(request, id):
 
 @object_access(type=Project, access=Access.UPLOAD_ACCESS, url='data_list')
 def data_upload(request, uid):
-
     owner = request.user
     project = Project.objects.filter(uid=uid).first()
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, DATA_LIST_ICON, DATA_UPLOAD],
@@ -375,10 +367,9 @@ def data_upload(request, uid):
             text = form.cleaned_data["text"]
             stream = form.cleaned_data["file"]
             name = stream.name
-            data = auth.create_data(stream=stream, name=name, text=text,
-                             user=owner, project=project)
-            data.save()
-            messages.info(request, "Data upload complete")
+            data = auth.create_data(stream=stream, name=name,
+                                    text=text, user=owner, project=project)
+            messages.info(request, f"Uploaded: {data.name}. Edit the data to set its type.")
             return redirect(reverse("data_list", kwargs={'uid': project.uid}))
 
         print(form.errors)
@@ -401,7 +392,7 @@ def recipe_list(request, uid):
 
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ANALYSIS_LIST_ICON],
                                project=project)
-    analysis =  pages(request, instance=analysis)
+    analysis = pages(request, instance=analysis)
 
     context = dict(project=project, analysis=analysis, steps=steps)
 
@@ -415,7 +406,7 @@ def recipe_view(request, id):
     """
     analysis = Analysis.objects.filter(id=id).first()
     steps = breadcrumb_builder([HOME_ICON, PROJECT_LIST_ICON, PROJECT_ICON, ANALYSIS_LIST_ICON,
-                                ANALYSIS_VIEW_ICON],project=analysis.project, analysis=analysis)
+                                ANALYSIS_VIEW_ICON], project=analysis.project, analysis=analysis)
 
     projects = auth.get_project_list(user=request.user)
     projects = projects.exclude(pk=analysis.project.id).exclude(privacy=Project.PUBLIC)
@@ -472,7 +463,7 @@ def recipe_run(request, id):
 
             return redirect(reverse("job_list", kwargs=dict(uid=project.uid)))
 
-        return  redirect(reverse("analysis_run", kwargs=dict(id=analysis.id)))
+        return redirect(reverse("analysis_run", kwargs=dict(id=analysis.id)))
 
     initial = dict(name=analysis.name)
     form = RecipeInterface(request=request, analysis=analysis, json_data=analysis.json_data, initial=initial)
@@ -517,7 +508,6 @@ def recipe_code(request, id):
 
             # Changes to template will require a review.
             if auth.template_changed(analysis=analysis, template=template):
-
                 # Switch on the untrusted flag when the template changes.
                 analysis.security = Analysis.UNDER_REVIEW
 
@@ -578,7 +568,7 @@ def recipe_create(request, uid):
         return redirect(action_url)
 
     form = RecipeForm()
-    context = dict(steps=steps, analysis={"name":"New Analysis"},
+    context = dict(steps=steps, analysis={"name": "New Analysis"},
                    project=project, form=form, action_url=action_url, back_url=back_url)
 
     return render(request, 'recipe_edit.html', context)

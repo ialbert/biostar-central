@@ -3,6 +3,18 @@ body {
     padding-top: 1rem;
 }
 
+.project.help h1 {
+    font-size: 1.28em;
+}
+
+.project.help h2 {
+    font-size: 1.18em;
+}
+
+.project.help h3,h4,h5 {
+    font-size: 1.08em;
+}
+
 .row:hover {
     text-decoration: underline;
 }

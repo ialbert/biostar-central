@@ -7,32 +7,28 @@ from . import tasks
 from .const import *
 from .models import Project, Data, Analysis, Job, Access
 from biostar.accounts.models import Profile, User
+from django.utils.safestring import mark_safe
 
 # Share the logger with models.
 logger = models.logger
-
-
 
 
 def join(*args):
     return os.path.abspath(os.path.join(*args))
 
 
-
-def check_image_size(image):
-    # MAXSIZE in KiloBytes
-    MAXSIZE = 100
+def check_size(fobj, maxsize=0.1):
+    # maxsize in megabytes!
 
     try:
-        if image and image.size > MAXSIZE * 1024:
-            curr_size = round(image.size / 1024)
-            raise forms.ValidationError(f"Image file too large: {curr_size}KB should be < {MAXSIZE}KB")
-
+        if fobj and fobj.size > maxsize * 1024 * 1024.0:
+            curr_size = fobj.size / 1024 / 1024.0
+            msg = f"File too large: {curr_size:0.1f}MB should be < {maxsize:0.1f}MB"
+            raise forms.ValidationError(msg)
     except Exception as exc:
+        raise forms.ValidationError(f"File size validation error: {exc}")
 
-        raise forms.ValidationError(f"Image validation error: {exc}")
-
-    return image
+    return fobj
 
 
 class ProjectForm(forms.ModelForm):
@@ -50,7 +46,7 @@ class ProjectForm(forms.ModelForm):
         cleaned_data = super(ProjectForm, self).clean()
 
         image = cleaned_data.get('image')
-        check_image_size(image=image)
+        check_size(fobj=image)
 
         return image
 
@@ -65,6 +61,11 @@ class DataUploadForm(forms.ModelForm):
         model = Data
         fields = ['file', 'summary', 'text', "sticky"]
 
+    def clean_file(self):
+        cleaned_data = super(DataUploadForm, self).clean()
+        fobj = cleaned_data.get('file')
+        check_size(fobj=fobj, maxsize=25)
+        return fobj
 
 class DataEditForm(forms.ModelForm):
     # choices = DATA_TYPES.items()
@@ -85,7 +86,7 @@ class RecipeForm(forms.ModelForm):
     def clean_image(self):
         cleaned_data = super(RecipeForm, self).clean()
         image = cleaned_data.get('image')
-        check_image_size(image=image)
+        check_size(fobj=image)
 
         return image
 
